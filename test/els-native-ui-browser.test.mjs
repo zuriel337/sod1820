@@ -614,6 +614,49 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
   },{tier:'anon'});
  });
 
+test('Research structures is explicit, prioritizes existing geometry rules and stays out of Classic',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   await page.evaluate(()=>window.__fixtureLoadGolden=false);
+   await addSecondary(page,'התורה');
+   await page.waitForFunction(()=>window.__operation?.kind==='findings'&&window.__operation?.status==='done');
+   await addSecondary(page,'אמיתית');
+   await page.waitForFunction(()=>window.__operation?.kind==='findings'&&window.__operation?.status==='done');
+   assert.deepEqual(await page.evaluate(()=>window.__state.findings.map(finding=>finding.t)),['התורה','אמיתית']);
+   const before=await identity(page);
+   const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length);
+   await activate(page,'מבנים וקשרים');
+   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,'opening the structures panel performs no scan');
+   const panel=page.locator('[data-experience-capability="els-structural-priority"]');
+   await panel.waitFor({state:'visible'});
+   assert.match(await panel.innerText(),/מקבילות מקבלות קדימות ראשונה/);
+   assert.match(await panel.innerText(),/לא הוכחה ולא ציון אמת/);
+   await activate(page,'סרוק מבנים בעדיפות');
+   await page.waitForFunction(()=>window.__lens?.lens==='structure-priority'&&window.__lens?.ok===true);
+   const result=await page.evaluate(()=>window.__lens);
+   const knownFindings=await page.evaluate(()=>window.__state.findings.filter(finding=>['התורה','אמיתית'].includes(finding.t)));
+   assert.deepEqual(result.ranking,{contract:'els_structural_priority_scan_v1',order:'parallel_then_intersection_then_existing_notable_then_research_evidence_then_distance'});
+   assert.equal(result.coverage,'displayed-window');
+   assert.ok(result.items.length>0,'the displayed golden window exposes structural candidates');
+   assert.ok(result.items.every(item=>['parallel-exact','parallel-diagonal','intersection','ordered-skip'].includes(item.relation)));
+   for(const term of ['התורה','אמיתית']){
+    const parallel=result.items.find(item=>item.term===term);
+    assert.ok(parallel,`Torah Kedosha exposes ${term} in the structural panel; findings ${JSON.stringify(knownFindings)}; got ${result.items.map(item=>item.term).join(', ')}`);
+    assert.match(parallel.relation,/^parallel-/);
+   }
+   assert.ok(result.items.every(item=>!Object.keys(item).some(key=>['positions','start','rc'].includes(key))),'structural candidates do not expose matrix coordinates');
+   const priority={"parallel-exact":4,"parallel-diagonal":4,"intersection":2,"ordered-skip":1};
+   assert.deepEqual(result.items.map(item=>priority[item.relation]),result.items.map(item=>priority[item.relation]).toSorted((a,b)=>b-a),'parallel families precede crossings and existing notable skips');
+   assert.equal(await page.getByRole('region',{name:'תוצאות מבניות לפי סדר עדיפות',exact:true}).isVisible(),true);
+   assert.deepEqual((await identity(page)).axis,before.axis,'structural inspection preserves the exact axis');
+   assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'structural inspection does not save or edit the cipher');
+  },{tier:'anon'});
+
+  await withNative({width:390,height:844},async page=>{
+   assert.equal(await button(page,'מבנים וקשרים').count(),0,'Classic exposes no structural Research control');
+  },{researchProfile:false,mobile:true});
+ });
+
 test('native UI: selected targets are invalidated by radius, hiding, removal and a new main axis',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:1440,height:1000},async page=>{

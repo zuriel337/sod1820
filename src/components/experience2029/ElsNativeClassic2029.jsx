@@ -504,6 +504,69 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
   return null;
 }
 
+function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onScanAxis, onAddLineFinding, onOpenFinding }) {
+  const findings = Array.isArray(state?.findings) ? state.findings : [];
+  const verified = state?.status === "ok" && state?.verification?.state === "MATCH";
+  const result = lensResult?.lens === "structure-priority" ? lensResult : null;
+  const items = result?.ok && Array.isArray(result.items) ? result.items : [];
+  const axisTerm = result?.axis?.term || state?.termRaw || state?.term || "הציר הראשי";
+  const axisSkip = result?.axis?.skip || state?.axis?.skip;
+  const pending = lensPending || busy;
+  const eligibleHit = (finding) => [...(finding?.hits || []), ...(finding?.sourceHits || [])]
+    .find((hit) => (hit.verified || hit.kind === "source-sequence") && hit.shown && hit.withinRadius !== false);
+
+  return <div className="els29-native-workrail els29-native-structures" hidden={!visible}
+    aria-label="מבנים וקשרים במטריצה" aria-busy={lensPending} data-experience-capability="els-structural-priority">
+    <section className="els29-native-structure-intro">
+      <span>ציר המחקר הנוכחי</span>
+      <strong>{axisTerm}{axisSkip ? <> · דילוג <bdi>{axisSkip}</bdi></> : null}</strong>
+      {result?.axis?.notable ? <small className="els29-native-structure-badge">דילוג מסודר: {result.axis.notable.tag}</small> : null}
+      <p>מקבילות מקבלות קדימות ראשונה, אחריהן חציות ודילוגים מסודרים שכבר מוגדרים במנוע.</p>
+      <small>זו קדימות לבדיקה בתוך החלון המוצג — לא הוכחה ולא ציון אמת. כל הוספה עוברת אימות קנוני רגיל.</small>
+      <div className="els29-native-structure-actions" role="group" aria-label="פעולות מבנה על הציר הראשי">
+        <button type="button" className="is-primary" disabled={!verified || pending}
+          onClick={() => onRun({ hitId: state?.axis?.hitId })}>{lensPending ? "סורק מבנים…" : result ? "סרוק מבנים מחדש" : "סרוק מבנים בעדיפות"}</button>
+        <button type="button" disabled={!verified || pending}
+          onClick={() => onScanAxis({ hitId: state?.axis?.hitId })}>בדוק את המשך הציר</button>
+      </div>
+    </section>
+    {lensPending ? <p role="status" className="els29-native-muted">סורק את החלון המוצג ומסדר את הקשרים המבניים…</p> : null}
+    {result?.ok === false ? <p role="status" className="els29-native-muted">אי אפשר לסרוק מבנים לפני שהציר הראשי אומת.</p> : null}
+    {result?.ok ? <>
+      <div className="els29-native-structure-summary">
+        <strong>תוצאות לפי קדימות · {items.length}</strong>
+        <small>הסדר כאן נפרד מרשימת „הקרובים”: מבנה קודם, אחריו עדות מחקרית קיימת, ורק אז מרחק.</small>
+      </div>
+      <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="תוצאות מבניות לפי סדר עדיפות">
+        {items.map((item) => {
+          const finding = findings.find((entry) => entry.t === item.term);
+          const openHit = eligibleHit(finding);
+          const added = Boolean(finding);
+          const label = item.label || item.term;
+          return <div key={`${item.term}-${item.skip}-${item.direction}`} className="els29-native-structure-row">
+            <div className="els29-native-structure-copy">
+              <b>{label}</b>
+              <span>{item.relationLabel}</span>
+              <small>דילוג <bdi>{item.direction === "back" ? "−" : ""}{item.skip}</bdi> · מרחק {item.distance} תאים</small>
+              {(item.relationTags || []).slice(1).map((tag) => <small key={tag}>{tag}</small>)}
+            </div>
+            <button type="button" disabled={pending || (added ? !openHit : findings.length >= 12)}
+              onClick={() => openHit
+                ? onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })
+                : onAddLineFinding(item.term)}
+              aria-label={openHit ? `פתח את ${label} במטריצה` : `אמת והוסף את ${label} מהממצאים המבניים`}>
+              {openHit ? "פתח במטריצה" : added ? "מאמת…" : "אמת והוסף"}
+            </button>
+          </div>;
+        })}
+      </div>
+      {!items.length ? <p className="els29-native-muted">לא נמצא בחלון הזה קשר מבני מתוך המילון הזמין. אפשר להרחיב את חלון החיפוש ולסרוק שוב.</p> : null}
+      {result.truncated ? <small>מוצגות {items.length} מתוך {result.available} תוצאות מבניות; הרשימה מוגבלת ושומרת את סדר העדיפות.</small> : null}
+      {result.lexicon?.fallback ? <small>מקור הפסוקים לא נטען, ולכן הסריקה השתמשה במילון המחקר הזמין בלבד.</small> : null}
+    </> : null}
+  </div>;
+}
+
 function SearchProgress({ operation, onCancel }) {
   const [now, setNow] = useState(Date.now());
   const pending = ["searching", "verifying"].includes(operation?.status);
@@ -669,7 +732,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const removeFinding = (index) => onFindingsChange(projected().filter((_, itemIndex) => itemIndex !== index));
   const changeFindingColor = (index, color) => onFindingsChange(projected().map((finding, itemIndex) => itemIndex === index ? { ...finding, color } : finding));
 
-  return <div className="els29-native-unified-rail" hidden={activeTool === "results"}>
+  return <div className="els29-native-unified-rail" hidden={activeTool === "results" || activeTool === "structures"}>
     <div ref={railScrollRef} className="els29-native-rail-scroll" hidden={activeTool === "research"}>
       <section ref={workspaceRef} className="els29-native-finding-workspace" aria-label="סביבת הממצא הנבחר">
         <header>
@@ -1107,7 +1170,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const requestLens = (lens, target = {}) => {
     // A native reading/scan action always reveals its native result, even after compatibility tools.
     setClassicOpen(false);
-    openTool("findings");
+    openTool(lens === "structure-priority" ? "structures" : "findings");
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensPending(true);
@@ -1272,7 +1335,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   // On phones, one contextual research workspace belongs directly below a verified matrix.
   // Findings are its default view; Results and Save replace its content in the same page region.
   const mobileInlineWorkspace = compactMobile && matrixActive && !classicOpen;
-  const visibleTool = activeTool || (mobileInlineWorkspace ? "findings" : null);
+  const visibleTool = (!researchProfile && activeTool === "structures" ? "findings" : activeTool) || (mobileInlineWorkspace ? "findings" : null);
   const inlineFindings = mobileInlineWorkspace && visibleTool === "findings";
   const searchPending = ["searching", "verifying"].includes(operations.search?.status);
   useLayoutEffect(() => {
@@ -1491,11 +1554,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         </section> : null}
         </div>
         {!compactMobile ? <div className="els29-native-toolstrip" hidden={classicOpen || savedLoadPending} role="group" aria-label="כלי המטריצה">
-          {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
+          {[["findings", "סריקה וממצאים", "els"], ...(researchProfile ? [["structures", "מבנים וקשרים", "dna"]] : []), ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
-            aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
-            onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
-          ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
+            aria-expanded={visibleTool === tool} aria-controls="els29-context-panel"
+            onClick={(event) => visibleTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
+          ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : tool === "structures" ? "מבנים" : label}</small></button>)}
         </div> : null}
         <div ref={panelRef} className="els29-native-panel-wrap"
           data-mobile-inline-workspace={mobileInlineWorkspace ? "true" : undefined}
@@ -1503,11 +1566,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           hidden={classicOpen || savedLoadPending || !visibleTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{compactMobile && matrixActive ? "סביבת המחקר" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
+            <strong>{compactMobile && matrixActive ? "סביבת המחקר" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "structures" ? "מבנים בעדיפות" : visibleTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
             {!compactMobile ? <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את החלונית">×</button> : null}
           </header>
           {compactMobile ? <nav className="els29-native-context-nav" aria-label="תצוגות סביבת המחקר">
             <button type="button" aria-label="סריקה וממצאים" aria-pressed={visibleTool === "findings"} onClick={() => openTool("findings")}>ממצאים</button>
+            {researchProfile ? <button type="button" aria-label="מבנים וקשרים" aria-pressed={visibleTool === "structures"} onClick={() => openTool("structures")}>מבנים</button> : null}
             <button type="button" aria-label="תוצאות" aria-pressed={visibleTool === "results"} onClick={() => openTool("results")}>תוצאות</button>
             <button type="button" className="is-action" aria-label="שמירה" aria-pressed={visibleTool === "research"} onClick={() => openTool("research")}>שמור</button>
           </nav> : null}
@@ -1515,6 +1579,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           outcome={operations.search?.status} visible={visibleTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={visibleTool === "results" && !resultsAreCross}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
+        {researchProfile ? <StructuralPriorityRail visible={visibleTool === "structures"} state={engineState} lensResult={lensResult} lensPending={lensPending}
+          busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
+          onRun={(target) => requestLens("structure-priority", target)}
+          onScanAxis={(target) => requestLens("line-context", { ...target, scan: true })}
+          onAddLineFinding={addLineFinding}
+          onOpenFinding={(target) => {
+            selectFinding({ term: target.term, hitId: target.hitId, scope: engineStateRef.current?.scope, axisHitId: engineStateRef.current?.axis?.hitId });
+            requestLens("line-context", { ...target, scan: true });
+          }} /> : null}
         <ElsSavePanel2029 visible={visibleTool === "research"} state={engineState} matrix={matrix} user={user} isAdmin={isAdmin} replacement={activeSavedAxisReplacement}
           pending={savePending} busy={!!journeyPending || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}

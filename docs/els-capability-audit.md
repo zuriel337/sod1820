@@ -835,3 +835,39 @@ presets covered, plus 6/6 advanced/forms/deferred-payload checks. Both productio
 bundle budget passed. Against `ac39b5ba`, each generated ELS HTML gained 6,381 raw bytes; gzip deltas
 were +2,145 bytes for `tzofen.html` and +1,896 bytes for the standalone artifact. No Preview,
 Production, database, RLS or permission action was performed.
+
+## 17. RESEARCH STRUCTURAL PRIORITY PROJECTION — 2026-10-23
+
+`els_structural_priority_scan_v1` is an explicit, Research-only projection over the existing
+displayed-window candidate scan. It gives parallel families first inspection priority, then literal
+axis intersections, then skips already classified by the existing `notable()` rules; exact distance
+is considered after governed/visible verified research evidence inside the same structural class.
+Exact and diagonal parallels belong to the same top class, so existing verified research evidence
+can surface a known parallel before unrelated corpus noise without turning that evidence into proof.
+It does not replace the normal
+`els_research_candidate_ranking_v1` distance order, and the UI labels the result as inspection
+priority rather than strength, proof or Truth.
+
+Opening Research or the `מבנים` panel performs no scan. The dynamic lexicon and structural
+projection run only after `סרוק מבנים בעדיפות`, return candidates without cell coordinates, and
+route `אמת והוסף` through the existing canonical Finding verification. The same panel provides the
+existing exact axis-continuation action; it creates no engine, state, store, graph or persisted law.
+
+This absorbs the presentation/ranking use of existing E07 geometry and D03 notable-skip metadata.
+It deliberately does **not** implement B12/B13 or registered skip-family search, does not change the
+85-capability count, and does not add Raziel, schema, RLS, permission or Production behavior.
+
+Branch acceptance is green: 186 focused Node contract tests passed with three isolated PostgreSQL
+fixtures skipped because no local PostgreSQL service was available; browser acceptance passed 26/26
+canonical cutover, 42/42 native UI (including mobile, privacy and all three palettes), and 6/6
+Advanced/FORMS/deferred-payload checks. Both production build targets and the 5/5 2029 bundle budget
+passed. Deterministic level-9 comparison measurements against branch head `20b9258e` are:
+
+| Artifact | Before | Structural projection | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,597,255 / 951,754 B | 1,602,419 / 953,063 B | +5,164 / +1,309 B |
+| Legacy standalone, raw / gzip | 2,503,574 / 1,639,016 B | 2,508,738 / 1,640,371 B | +5,164 / +1,355 B |
+| ELS 2029 route JS, raw / gzip | 190,813 / 56,597 B | 196,040 / 57,744 B | +5,227 / +1,147 B |
+| ELS 2029 route CSS, raw / gzip | 67,611 / 10,190 B | 70,779 / 10,505 B | +3,168 / +315 B |
+
+No Preview, Production, database, RLS, permission, merge or PR action was performed.

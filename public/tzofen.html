@@ -1576,7 +1576,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // שפת-הקורפוס הקנוני + מונחים שכבר נראים במחקר/בצפנים הציבוריים. זהו cache נגזר,
   // לא מנוע, store או אמת נוספים; כל מופע עדיין עובר אימות ELS קנוני לפני שהוא Finding.
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
-  const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",_corpusLexiconCache={torah:null,tanakh:null};
+  const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",
+    STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",_corpusLexiconCache={torah:null,tanakh:null};
   function addCandidateLexiconTerm(map,raw,source,support=1){
     const label=String(raw||"").trim().replace(/\s+/g," "),term=norm(label);
     if(term.length<3||term.length>24)return;
@@ -1627,6 +1628,36 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       if(continuationCount>1)reasons.push(`${continuationCount} המשכים על הציר`);
       return {...item,ranking:{contract:CANDIDATE_RANKING_CONTRACT,researchEvidence,continuationCount,reasons}};
     }).sort((a,b)=>a.distance-b.distance||b.ranking.researchEvidence-a.ranking.researchEvidence||b.ranking.continuationCount-a.ranking.continuationCount||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
+  }
+  // Research-only structural projection over the SAME displayed-window candidates. This does not
+  // run registered skip-family research (B12/B13), change the normal distance ranking, or verify a
+  // Finding. It only explains already-active geometry and the existing notable() classification.
+  function classifyStructuralCandidate(candidate,axis){
+    const axisSkip=Math.abs(Number(axis?.skip)||0),skip=Math.abs(Number(candidate?.skip)||0);
+    if(axisSkip<1||skip<2)return null;
+    const multiple=Math.round(skip/axisSkip),delta=multiple>=1?skip-multiple*axisSkip:null,absDelta=delta===null?Infinity:Math.abs(delta);
+    const exactParallel=multiple>=1&&delta===0,diagonalParallel=multiple>=1&&absDelta>0&&absDelta<=2;
+    const axisCells=axis._structuralCells||new Set(axis.positions||[]),intersection=(candidate.positions||[]).some(position=>axisCells.has(position));
+    const ordered=notable(skip),relations=[];
+    if(exactParallel)relations.push({kind:"parallel-exact",label:`מקבילה מדויקת · ×${multiple}`,priority:500});
+    else if(diagonalParallel)relations.push({kind:"parallel-diagonal",label:`מקבילה אלכסונית · ×${multiple}${delta>0?"+":""}${delta}`,priority:500});
+    if(intersection)relations.push({kind:"intersection",label:"חוצה את הציר באות משותפת",priority:350});
+    if(ordered)relations.push({kind:"ordered-skip",label:`דילוג מסודר · ${ordered.tag}`,priority:250-ordered.rank});
+    if(!relations.length)return null;
+    relations.sort((a,b)=>b.priority-a.priority||a.kind.localeCompare(b.kind));
+    return {...candidate,structuralPriority:relations[0].priority,relation:relations[0].kind,relationLabel:relations[0].label,
+      relationTags:relations.map(item=>item.label),multiple:multiple>=1?multiple:null,delta,notable:ordered?{rank:ordered.rank,tag:ordered.tag}:null};
+  }
+  function rankStructuralCandidates(candidates,axis){
+    return candidates.map(candidate=>classifyStructuralCandidate(candidate,axis)).filter(Boolean)
+      .sort((a,b)=>b.structuralPriority-a.structuralPriority||candidateLexiconPriority(b)-candidateLexiconPriority(a)||a.distance-b.distance||
+        Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
+  }
+  function preferStructuralCandidate(candidate,best,axis){
+    const next=classifyStructuralCandidate(candidate,axis),previous=classifyStructuralCandidate(best,axis);
+    if(Boolean(next)!==Boolean(previous))return Boolean(next);
+    if(next&&previous&&next.structuralPriority!==previous.structuralPriority)return next.structuralPriority>previous.structuralPriority;
+    return candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip;
   }
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
@@ -2461,6 +2492,28 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",provenanceSource:lexicon.contract,coverage:"displayed-window",
           lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},ranking:{contract:CANDIDATE_RANKING_CONTRACT,order:"distance_then_governed_research_evidence_then_continuation"},
           items,total:items.length,scanned:Math.min(available.length,scanCap),available:available.length,truncated:available.length>scanCap});
+      });
+    }
+    if(d.type==="request-lens"&&d.lens==="structure-priority"){
+      const target=d.target||{},hit=hasGov(st.res)?occ():null;
+      if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"structure-priority",ok:false,target});return;}
+      // Explicit Research action only: classify the same displayed-window candidates by existing
+      // geometry/notable rules. No automatic entry scan, no B12/B13 family search and no Truth claim.
+      dynamicCandidateLexicon().then(lexicon=>{
+        const current=hasGov(st.res)?occ():null;
+        if(!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"structure-priority",ok:false,target});return;}
+        const structuralAxis={...current,_structuralCells:new Set(current.positions||[])};
+        const available=rankStructuralCandidates(scanCandidates(lexicon.entries,(candidate,best)=>preferStructuralCandidate(candidate,best,structuralAxis)),structuralAxis),scanCap=64;
+        const items=available.slice(0,scanCap).map(candidate=>({term:norm(candidate.term),label:candidate.term,skip:candidate.skip,
+          direction:candidate.dir===1?"fwd":"back",distance:candidate.distance,relation:candidate.relation,relationLabel:candidate.relationLabel,
+          relationTags:candidate.relationTags,multiple:candidate.multiple,delta:candidate.delta,notable:candidate.notable,
+          lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport}));
+        const axisNotable=notable(Math.abs(current.skip));
+        postHost({type:"lens",lens:"structure-priority",ok:true,target,status:"CANDIDATE",provenanceSource:lexicon.contract,coverage:"displayed-window",
+          lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},
+          ranking:{contract:STRUCTURAL_PRIORITY_CONTRACT,order:"parallel_then_intersection_then_existing_notable_then_research_evidence_then_distance"},
+          axis:{term:norm(st.raw),skip:Math.abs(current.skip),direction:current.dir===1?"fwd":"back",notable:axisNotable?{rank:axisNotable.rank,tag:axisNotable.tag}:null},
+          items,total:items.length,available:available.length,truncated:available.length>scanCap});
       });
     }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
@@ -3623,7 +3676,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     };
   }
   // 🧭 עדשת מסלול-גילוי — מסע מממצא לממצא בתוך החלון, עם **סיבה על כל חץ** (מראה/גימטריה/עוגן/קרבה).
-  function scanCandidates(lexicon=DICT){
+  function scanCandidates(lexicon=DICT,prefer=null){
     if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
@@ -3637,9 +3690,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       for(const s0 of starts)for(const end of ends){const delta=end-s0,span=L-1;if(!delta||delta%span)continue;const step=delta/span,sk=Math.abs(step);let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+step*k;if(p<0||p>=N||T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;
-        const distance=distanceToAnchors(pos,axisAnchors,S);
-        if(!best||distance<best.distance||distance===best.distance&&sk<best.skip)best={term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,dir:Math.sign(step),start:s0,positions:pos,gem:gem(raw),distance,
+        const distance=distanceToAnchors(pos,axisAnchors,S),candidate={term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,dir:Math.sign(step),start:s0,positions:pos,gem:gem(raw),distance,
           lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1};
+        if(!best||(typeof prefer==="function"?prefer(candidate,best):distance<best.distance||distance===best.distance&&sk<best.skip))best=candidate;
       }
       if(best)out.set(t,best);
     }

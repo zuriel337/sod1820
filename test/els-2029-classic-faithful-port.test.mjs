@@ -154,9 +154,10 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
 test("one unified scan action uses the exact selected, visible and verified occurrence", () => {
   assert.match(nativeClassic, /aria-label=\{researchProfile \? "סרוק לאורך הציר הנבחר" : "קרא את המשך הציר הנבחר"\}/);
   assert.equal((nativeClassic.match(/onClick=\{\(\) => onScan\(target\)\}/g) || []).length, 1);
-  // The matrix action menu and the findings rail are two entrances to the same
-  // canonical line-context lens; Research enables discovery while Classic only reads letters.
-  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 2);
+  // The matrix action menu and findings rail remain the two profile-aware entrances. Research's
+  // explicit Structures panel adds axis continuation and verified-result opening through that same
+  // canonical line-context lens; it does not add another scanner.
+  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 4);
   assert.equal((nativeClassic.match(/requestLens\("line-context", \{ \.\.\.target, scan: researchProfile \}\)/g) || []).length, 2);
   assert.doesNotMatch(nativeClassic, /רצף ומילים לאורך הציר|סרוק ציר ראשי/);
   assert.match(nativeClassic, /\(hit\.verified \|\| hit\.kind === "source-sequence"\) && hit\.shown && hit\.withinRadius !== false/);

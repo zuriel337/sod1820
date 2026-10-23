@@ -52,9 +52,43 @@ test("dynamic vocabulary remains candidate-only and is loaded only by explicit s
   assert.match(template, /const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1"/);
   assert.match(template, /if\(target\.scan===true\)dynamicCandidateLexicon\(\)\.then\(publish\);else publish\(null\)/);
   assert.match(template, /d\.lens==="matrix-candidates"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(lexicon=>/);
+  assert.match(template, /d\.lens==="structure-priority"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(lexicon=>/);
   assert.doesNotMatch(template.slice(0, template.indexOf('window.addEventListener("message"')), /dynamicCandidateLexicon\(\)\.then/);
   assert.match(template, /status:"CANDIDATE",provenanceSource:lexicon\.contract/);
   assert.match(template, /adding a term[\s\S]*canonical verification before it becomes a Finding/);
+});
+
+test("structural Research priority puts parallels before intersections and existing notable skips", () => {
+  const context = vm.createContext({
+    SIGNIFICANT: new Set([37]),
+    STRUCTURAL_PRIORITY_CONTRACT: "els_structural_priority_scan_v1",
+    norm: value => String(value),
+    axis: { skip: 100, positions: [1000, 1100, 1200] },
+    candidates: [
+      { term: "מקבילמדויק", skip: 200, positions: [2000, 2200], distance: 8, lexiconSources: ["corpus_native"], lexiconSupport: 1 },
+      { term: "מקבילאלכסוני", skip: 202, positions: [2001, 2203], distance: 1, lexiconSources: ["visible_saved_research"], lexiconSupport: 2 },
+      { term: "חוצה", skip: 37, positions: [963, 1000, 1037], distance: 0, lexiconSources: ["verified_research"], lexiconSupport: 3 },
+      { term: "מסודר", skip: 4545, positions: [3000, 7545], distance: 0, lexiconSources: ["corpus_native"], lexiconSupport: 9 },
+      { term: "רגיל", skip: 91, positions: [4000, 4091], distance: 0, lexiconSources: ["verified_research"], lexiconSupport: 20 },
+    ],
+  });
+  vm.runInContext([
+    source("notable"),
+    source("candidateLexiconPriority"),
+    source("classifyStructuralCandidate"),
+    source("rankStructuralCandidates"),
+    source("preferStructuralCandidate"),
+    "this.result=rankStructuralCandidates(candidates,axis);",
+    "this.preferred=preferStructuralCandidate(candidates[1],candidates[4],axis);",
+  ].join("\n"), context);
+
+  const rows = JSON.parse(JSON.stringify(context.result));
+  assert.deepEqual(new Set(rows.slice(0, 2).map(row => row.term)), new Set(["מקבילמדויק", "מקבילאלכסוני"]));
+  assert.ok(rows.slice(0, 2).every(row => row.relation.startsWith("parallel-")), "exact and diagonal parallels share the top structural class");
+  assert.ok(rows[2].relationTags.some(tag => tag.includes("חוצה")));
+  assert.ok(rows[3].relationTags.some(tag => tag.includes("תבנית חוזרת")), "4545 uses the existing notable-number rule");
+  assert.ok(rows.every(row => !["start", "rc"].some(key => key in row)), "the classifier does not invent coordinates");
+  assert.equal(context.preferred, true, "a parallel occurrence survives even when another occurrence of the term is closer");
 });
 
 test("Research candidate ranking keeps distance primary and explains deterministic tie-breaks", () => {
