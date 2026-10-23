@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
 import { applySeo } from "../../lib/seo.js";
+import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { use2029Palette } from "../../lib/palette.js";
 import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReplies, fetchCommunityReplyCounts, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, publishCommunityMessage } from "../../lib/community/communityArchive.js";
 import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
@@ -18,14 +19,14 @@ const dateFormat = new Intl.DateTimeFormat("he-IL", { dateStyle: "medium", timeS
 const sinceFormat = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric" });
 const sourceLabels = { openweb: "הצ׳אט הישן", community_2029: "הקהילה", number: "מספר", els: "צופן", forum: "דיון", community: "קהילה" };
 
-function LiveAuthor({ row, accountProfiles }) {
+function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true }) {
   const accountId = row.authorUserId || row.linkedUserId || VERIFIED_ARCHIVE_PROFILES[row.authorKey]?.accountUserId;
   const account = accountId ? accountProfiles[accountId] : null;
   const name = account?.display_name || account?.username || row.authorName;
   const badge = <UserBadge name={name} avatarUrl={account?.avatar_url || row.avatarUrl} avatarClassName="sod29-community-avatar">
-    <time dateTime={row.createdAt}>{dateFormat.format(new Date(row.createdAt))}</time>
+    <time dateTime={row.createdAt}>{formatDate ? formatDate(row.createdAt) : dateFormat.format(new Date(row.createdAt))}</time>
   </UserBadge>;
-  if (!row.authorKey) return <span className="sod29-community-author-link">{badge}</span>;
+  if (!row.authorKey || !linkAuthor) return <span className="sod29-community-author-link">{badge}</span>;
   const target = new URLSearchParams({ preview: "community", data: "live", memberCard: row.authorKey });
   return <Link className="sod29-community-author-link" to={`?${target}`} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
     {badge}
@@ -41,13 +42,13 @@ function LiveLike({ row }) {
   </div>;
 }
 
-function LiveMessage({ row, onReply, accountProfiles, showSource = false }) {
-  const canReply = row.origin === "openweb" || row.origin === "community_2029";
+function LiveMessage({ row, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true }) {
+  const canReply = typeof onReply === "function" && (row.origin === "openweb" || row.origin === "community_2029");
   const target = row.targetType === "number" && row.targetId ? `/number/${encodeURIComponent(row.targetId)}`
     : row.targetType === "els" && row.targetId ? `/codes/${encodeURIComponent(row.targetId)}`
     : row.targetType === "topic" && row.targetId ? `/topic/${encodeURIComponent(row.targetId)}` : null;
   return <article id={`message-${row.id}`} className="sod29-community-thread">
-    <div className="sod29-community-author"><LiveAuthor row={row} accountProfiles={accountProfiles} /></div>
+    <div className="sod29-community-author"><LiveAuthor row={row} accountProfiles={accountProfiles} formatDate={formatDate} linkAuthor={linkAuthor} /></div>
     {showSource ? <div className="sod29-community-activity-source">{sourceLabels[row.origin] || "תרומה"}{row.parentId ? " · תגובה" : ""}</div> : null}
     {showSource && row.title && row.title !== row.body ? <h4 className="sod29-community-activity-title" dir="auto">{row.title}</h4> : null}
     {row.body ? <CommunityMessageContent text={row.body} /> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
@@ -112,6 +113,27 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   </div>;
 }
 
+const NO_ACCOUNT_PROFILES = {};
+const formatActivityDate = (value) => bilingualDateLabel(value) || "תאריך לא זמין";
+const countLabel = (value) => Number(value).toLocaleString("he-IL");
+
+// Controlled, embeddable author activity. Same LiveMessage/ReactionBar rows as the community feed;
+// the parent owns reading and state. Totals render only when supplied.
+export function PublicCommunityActivity2029({ rows = [], count = null, loading = false, error = "", onRetry, hasMore = false, onLoadMore, loadingMore = false, fullHref = "", firstAt = null, likesTotal = null }) {
+  const firstLabel = firstAt ? bilingualDateLabel(firstAt) : "";
+  const facts = [count != null ? `${countLabel(count)} הודעות` : "", firstLabel ? `פעילות ציבורית מאז ${firstLabel}` : "", likesTotal != null ? `👍 ${countLabel(likesTotal)} לייקים בהודעות` : ""].filter(Boolean);
+  return <div className="sod29-community-profile" aria-busy={loading || loadingMore}>
+    {facts.length || fullHref ? <div className="sod29-community-profile-section">
+      {facts.length ? <div><p>{facts.join(" · ")}</p></div> : null}
+      {fullHref ? <Link className="sod29-community-secondary" to={fullHref}>לעמוד הכותב המלא בקהילה ←</Link> : null}
+    </div> : null}
+    {error ? <p role="alert">{error}{onRetry ? <> <button type="button" onClick={onRetry}>ניסיון נוסף</button></> : null}</p> : null}
+    {loading && !rows.length ? <p className="sod29-community-end" role="status">טוען הודעות…</p> : null}
+    <div className="sod29-community-feed">{rows.map((row) => <LiveMessage key={row.id} row={row} accountProfiles={NO_ACCOUNT_PROFILES} showSource formatDate={formatActivityDate} linkAuthor={false} />)}</div>
+    {!loading && !error && !rows.length ? <p className="sod29-community-end">אין הודעות ציבוריות משויכות.</p> : null}
+    {hasMore && onLoadMore ? <button className="sod29-community-load" type="button" disabled={loadingMore} onClick={onLoadMore}>{loadingMore ? "טוען…" : "עוד הודעות"}</button> : null}
+  </div>;
+}
 
 export default function CommunityLive2029({ leadingContent = null, canonicalPath = "/2029?preview=community&data=live" }) {
   const palette = use2029Palette();

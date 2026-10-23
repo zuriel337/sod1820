@@ -4,6 +4,7 @@ import { use2029Palette } from "../../lib/palette.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { approvedReturnHref } from "./publicContributor2029Model.js";
 import { CATALOG_FORMATS, selectSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
+import ContributorCommunityActivity2029 from "./ContributorCommunityActivity2029.jsx";
 import PublicContributorRank2029 from "./ContributorRankSeal2029.jsx";
 import ContributorActionsController2029 from "./ContributorActionsController2029.jsx";
 import { useContributorReading2029 } from "./ContributorReadingController2029.jsx";
@@ -51,14 +52,7 @@ export default function PublicSourceCatalog2029({ view, onRetry }) {
     <section aria-labelledby="writer-community-title" className={selection.section === "community" ? "" : "pc-community-peek"}>
       <h2 id="writer-community-title">כתיבה בקהילה</h2>
       {selection.section !== "community" ? <p className="pc-reason">הודעות ותגובות שיוחסו לכותב מופיעות במדור נפרד מחומרי המקור.</p>
-        : !view.community.available ? <p role="status" className="pc-notice">המידע על כתיבה בקהילה אינו זמין כרגע.</p>
-        : !view.community.items.length ? <p role="status" className="pc-notice">אין עדיין הודעות קהילה ציבוריות משויכות במידע שנטען.</p>
-        : <div className="pc-items">{view.community.items.slice(0, 20).map((item) => <article className="pc-item" key={item.id}>
-          <div className="pc-item-meta">הודעה בקהילה · {bilingualDateLabel(item.date) || "תאריך לא זמין"}</div>
-          <h3>{item.title}</h3>{item.summary ? <p className="pc-body">{item.summary}</p> : null}
-          <p className="pc-reason">ספירת לייקים ותגובות אינה זמינה בקורא הציבורי הזה.</p>
-          {item.href ? <a className="pc-open" href={item.href}>{item.linkLabel || "פתיחת המקור המקושר"} ↗</a> : null}
-        </article>)}</div>}
+        : <ContributorCommunityActivity2029 authorKey={view.communityAuthorKey} enabled />}
     </section>
     {selection.section !== "community" ? <section aria-labelledby="writer-source-title">
       <div className="pc-list-heading"><div>{selection.section === "recent" ? <p className="pc-eyebrow">כתבי מקור וחומרים שהועלו</p> : null}<h2 id="writer-source-title">{selection.section === "recent" ? "התעדכן לאחרונה" : "כתבי מקור וחומרים שהועלו"}</h2>
