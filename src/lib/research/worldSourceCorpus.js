@@ -1,5 +1,6 @@
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { stripHtml } from "../format.js";
+import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
 
 // ONE reusable corpus/source selector for World: a corpus is a bounded, paginated READ over the existing
 // public `posts` boundary, selected by exact category OR title phrase. It is not a Topic, taxonomy or store.
@@ -7,7 +8,6 @@ import { stripHtml } from "../format.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const CORPUS_PAGE_SIZE = 24;
-const DRAFT_TAGS = ["טיוטה", "פורום"];
 
 export const WORLD_SOURCE_CORPORA = Object.freeze([
   Object.freeze({ key: "sod-hashmal", label: "סוד החשמל", category: "סוד החשמל", titlePhrase: "סוד החשמל", authorLabel: "סוד החשמל" }),
@@ -29,12 +29,8 @@ export function corpusOrFilter(spec) {
 }
 
 // Server-side suppression of draft/forum rows: the browser never receives them. NULL tags are public.
-export function publicOnlyFilter() {
-  return `tags.is.null,tags.not.ov.{${DRAFT_TAGS.join(",")}}`;
-}
-
 function isDraft(row) {
-  return (Array.isArray(row?.tags) ? row.tags : []).some((tag) => DRAFT_TAGS.includes(clean(tag)));
+  return hasSuppressedPublicPostTag(row);
 }
 
 // Rows are never silently dropped: excluded rows are counted and keep their reason.
@@ -68,7 +64,7 @@ export async function fetchCorpusPage(spec, page = 0, { client = getPublicResear
     .from("posts")
     .select("id,slug,title,excerpt,date,home_hidden,tags", { count: "exact" })
     .or(filter)
-    .or(publicOnlyFilter())
+    .or(publicPostOnlyFilter())
     .order("date", { ascending: false, nullsFirst: false })
     .order("id", { ascending: true })
     .range(from, from + CORPUS_PAGE_SIZE - 1);
@@ -90,7 +86,7 @@ export async function fetchCorpusSource(spec, id, { client = getPublicResearchCl
   if (!filter || !id) throw new Error("source_unavailable");
   const { data, error } = await client.from("posts")
     .select("id,slug,title,content,tags").eq("id", id)
-    .or(filter).or(publicOnlyFilter()).maybeSingle();
+    .or(filter).or(publicPostOnlyFilter()).maybeSingle();
   if (error) throw error;
   if (!data || isDraft(data) || !clean(data.content)) throw new Error("source_unavailable");
   // React renders text only. No remote HTML, event handlers, embeds or attachment URLs execute.

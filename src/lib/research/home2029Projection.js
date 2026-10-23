@@ -3,6 +3,7 @@ import { getCurrentTemporalContext } from "../timeFlow.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
 import { fetchWorldLandingContributorProjection } from "./worldContributorLens.js";
 import { fetchWorldDiscoveryStream } from "./worldDiscoveryStream.js";
+import { fetchContentSeriesCatalog2029 } from "./contentSeries2029Projection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -350,13 +351,31 @@ async function fetchTemporalTreasures(catalog) {
 export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true } = {}) {
   const pulsePromise = fetchHomeSystemPulse2029().catch(() => null);
   const worldPreviewPromise = includeWorld ? fetchHomeWorldPreview2029().catch(() => null) : Promise.resolve(null);
-  if (!includeTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  const seriesCatalogPromise = includeWorld
+    ? fetchContentSeriesCatalog2029({ homeOnly: true, limitPerSeries: 4 }).catch(() => null)
+    : Promise.resolve(null);
+  if (!includeTemporal) return {
+    temporalNow: null,
+    systemPulse: await pulsePromise,
+    worldPreview: await worldPreviewPromise,
+    seriesCatalog: await seriesCatalogPromise,
+  };
   const temporalContext = getCurrentTemporalContext();
   const value = Number(temporalContext?.hebrew?.year_value);
-  if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (!Number.isSafeInteger(value)) return {
+    temporalNow: null,
+    systemPulse: await pulsePromise,
+    worldPreview: await worldPreviewPromise,
+    seriesCatalog: await seriesCatalogPromise,
+  };
 
   const yearVerification = await verifyCurrentYear(temporalContext);
-  if (!yearVerification.verified) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (!yearVerification.verified) return {
+    temporalNow: null,
+    systemPulse: await pulsePromise,
+    worldPreview: await worldPreviewPromise,
+    seriesCatalog: await seriesCatalogPromise,
+  };
 
   const curationCatalog = await fetchCurationCatalog2029().catch(() => null);
   const [contributions, postFindings, treasures] = await Promise.all([
@@ -381,11 +400,17 @@ export async function fetchHome2029Projection({ includeWorld = true, includeTemp
   const sourceCount = new Set(findings.map((row) => row.sourceKey)).size;
 
   // Materiality gate: Global Now should stay silent rather than manufacture a story.
-  if (sourceCount < 2 || findings.length < 2) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
+  if (sourceCount < 2 || findings.length < 2) return {
+    temporalNow: null,
+    systemPulse: await pulsePromise,
+    worldPreview: await worldPreviewPromise,
+    seriesCatalog: await seriesCatalogPromise,
+  };
 
   return {
     systemPulse: await pulsePromise,
     worldPreview: await worldPreviewPromise,
+    seriesCatalog: await seriesCatalogPromise,
     temporalNow: {
       kind: "temporal_now",
       publicLabel: "העת עכשיו",
