@@ -8,7 +8,7 @@ export const catalogFixtureIdentity = { id: "11111111-1111-4111-8111-11111111111
 export function catalogFixtureSources(total = 25) {
   return Array.from({length:total},(_,i)=>({id:`00000000-0000-4000-8000-${String(i+1).padStart(12,"0")}`,
     contributor_id:catalogFixtureIdentity.id, created_at:new Date(Date.UTC(2026,9,1+i,10)).toISOString(),
-    text:`מקור מספר ${i+1} — שומרים על הכותרת, ההקשר וההופעה המקורית`, channel:"fixture",status:"on",
+    text:`מקור מספר ${i+1} — שומרים על הכותרת, ההקשר וההופעה המקורית`, channel:"fixture",status:"live",
     ...(i===total-2?{text:"📷 עדכון",image_url:"/test/fixtures/public-contributor-catalog.svg"}:{}),
     ...(i===total-1?{created_at:new Date(Date.UTC(2026,9,i,10,0,5)).toISOString(),text:"תמונה והסבר בפרסום אחד [Image 1.jpg]",topics:["נושא שנרשם במקור"]}:{})}));
 }

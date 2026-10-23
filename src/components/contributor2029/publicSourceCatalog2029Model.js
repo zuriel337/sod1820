@@ -1,7 +1,7 @@
 import { safePublicUrl } from "./publicContributor2029Model.js";
 import { contributorSourceLibraryHref } from "../../lib/research/worldContributorSourceLocator.js";
 
-const PUBLISHED = new Set(["on", "approved", "published", "public"]);
+const PUBLISHED = new Set(["live", "on", "approved", "published", "public"]);
 export const CATALOG_FORMATS = Object.freeze([["all", "הכול"], ["text", "טקסטים"], ["image", "תמונות וגלריה"],
   ["video", "וידאו"], ["external_link", "קישורים"], ["explicit_topics", "נושאים מפורשים"], ["uncatalogued", "טרם קוטלג"]]);
 const SECTIONS = new Set(["recent", "all", "media", "topics", "community"]);
@@ -17,7 +17,7 @@ export function publicSourceCatalog2029(catalog, { profile, canonicalHref, commu
     // The catalog marks unresolved locators explicitly. Never turn its library fallback into an exact occurrence.
     const exactHref = item.exactLocator === true && href?.startsWith("/world?") ? href : null;
     return { id: item.id, sourceRef: item.sourceRef, linkedSourceRefs: item.linkedSourceRefs,
-      title: item.title || "פרסום ללא כותרת", createdAt: item.createdAt,
+      title: item.title || "פרסום ללא כותרת", createdAt: item.createdAt, publicationState: item.publicationState,
       formats: item.formats, sourceTopics, categoryBasis: sourceTopics.length ? "channel_updates.topics" : null,
       media: mediaUrl ? { url: mediaUrl, type: item.media.type, thumbUrl: safePublicUrl(item.media.thumbUrl) } : null,
       href: exactHref, paired: item.formats.includes("paired_media"),

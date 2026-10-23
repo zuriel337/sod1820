@@ -21,7 +21,8 @@ with sync_playwright() as p:
    page.route('**/*',route)
    page.goto(base+'?'+urlencode({'scenario':'catalog','theme':theme,'rank':'ready'}))
    page.locator('.pc-rank-label').filter(has_text='חוקר היכל').wait_for()
-   assert page.locator('.pc-rank-number').first.inner_text()=='5'
+   assert page.locator('.pc-rank-back .pc-rank-number').inner_text()=='5'
+   assert page.locator('.pc-rank-front .pc-rank-initial').inner_text()=='צ'
    assert page.locator('.pc-rank-level').inner_text()=='דרגה 5 מתוך 5'
    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'),f'overflow {width}/{theme}'
    assert page.locator('[data-catalog-source]').count()==20
@@ -29,7 +30,7 @@ with sync_playwright() as p:
    assert transform.startswith('matrix3d('),transform
    assert page.locator('.pc-rank-prism').evaluate('(n)=>getComputedStyle(n).transformStyle')=='preserve-3d'
    assert page.locator('.pc-rank-prism').evaluate('(n)=>getComputedStyle(n).transitionDuration')=='0s'
-   rotate=page.get_by_role('button',name='סובב את חותם הכותב',exact=True)
+   rotate=page.locator('.pc-rank-flip')
    rotate.focus();assert page.evaluate('getComputedStyle(document.activeElement).outlineStyle')!='none'
    assert rotate.bounding_box()['height']>=44
    page.keyboard.press('Enter')
@@ -46,7 +47,7 @@ with sync_playwright() as p:
    page.screenshot(path=str(out/f'{width}-{theme}.png'))
    if width==1440:page.locator('.pc-rank').screenshot(path=str(out/f'seal-{theme}.png'))
    snapshot=page.locator('.pc-rank').aria_snapshot()
-   assert 'סובב את חותם הכותב' in snapshot
+   assert 'על הכותב' in snapshot
    assert 'חוקר היכל' in snapshot
    assert 'XP' not in snapshot
    assert page.locator('canvas').count()==0
@@ -58,7 +59,7 @@ with sync_playwright() as p:
   page.goto(base+'?'+urlencode({'scenario':'catalog','rank':state,'theme':'dark'}))
   page.locator(f'.pc-rank[data-rank-state="{state}"]').wait_for()
   assert page.locator('.pc-rank-level').count()==0
-  assert page.locator('.pc-rank-number').first.inner_text()=='✦'
+  assert page.locator('.pc-rank-back .pc-rank-number').inner_text()=='✦'
   assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
   report['states'].append({'state':state,'no_default_rank':True,'overflow':False})
  context.close()

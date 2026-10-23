@@ -5,10 +5,11 @@ import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { approvedReturnHref } from "./publicContributor2029Model.js";
 import { CATALOG_FORMATS, selectSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
 import PublicContributorRank2029 from "./ContributorRankSeal2029.jsx";
+import ContributorActionsController2029 from "./ContributorActionsController2029.jsx";
 
 const FORMAT_LABEL = { text: "טקסט", image: "תמונה", video: "וידאו", external_link: "קישור" };
 
-export default function PublicSourceCatalog2029({ view }) {
+export default function PublicSourceCatalog2029({ view, onRetry }) {
   const P = use2029Palette();
   const location = useLocation();
   const [params, setParams] = useSearchParams();
@@ -30,14 +31,15 @@ export default function PublicSourceCatalog2029({ view }) {
       "--pc-border": P.border, "--pc-accent": P.accentText, "--pc-focus": P.focusRing || P.accent }}>
     {returnHref ? <Link className="pc-return" to={returnHref}>חזרה למקום שממנו הגעת ↗</Link> : null}
     <header className="pc-profile">
-      {view.profile.avatar ? <img className="pc-avatar" src={view.profile.avatar} alt="" width="72" height="72" onError={(event) => { event.currentTarget.hidden = true; }} /> : null}
       <div className="pc-profile-copy"><p className="pc-eyebrow">דף כתב · מקורות וחומרים</p><h1 id="public-contributor-title">{view.profile.name}</h1>
         {view.profile.role ? <p className="pc-role">{view.profile.role}</p> : null}
         {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
         <p className="pc-boundary">להכיר את הכתבים, לקרוא במקור ולהמשיך אל הממצאים והקשרים בעולם.</p>
       </div>
-      <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} previewRank={view.rankPreview} />
+      <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
+        links={[{ href: view.worldHref, label: "הממצאים בעולם" }, { href: `${view.canonicalHref}?section=all`, label: "כל הכתבים" }]} previewRank={view.rankPreview} />
     </header>
+    <ContributorActionsController2029 view={view} />
     <nav className="pc-filters" aria-label="כניסות לדף הכתב">
       {[["recent", "כתבים אחרונים"], ["all", "כל הכתבים"], ["media", "תמונות וגלריה"], ["topics", "נושאים מפורשים"], ["community", "כתיבה בקהילה"]].map(([key, label]) =>
         <button type="button" key={key} aria-pressed={selection.section === key} onClick={() => change("section", key)}>{label}</button>)}
@@ -62,12 +64,14 @@ export default function PublicSourceCatalog2029({ view }) {
       {selection.section !== "recent" ? <div className="pc-filters" role="group" aria-label="סוג חומר המקור">
         {CATALOG_FORMATS.map(([key, label]) => <button key={key} type="button" aria-pressed={selection.format === key} onClick={() => change("format", key)}>{label}</button>)}
       </div> : null}
-      {!view.catalog.sourcesAvailable ? <p className="pc-notice" role="status">קטלוג המקורות אינו זמין כרגע. אי אפשר לקבוע שאין פרסומים.</p> : null}
+      {!view.catalog.sourcesAvailable ? <div className="pc-notice" role="status"><p>קטלוג המקורות אינו זמין כרגע. אי אפשר לקבוע שאין פרסומים.</p>
+        {onRetry ? <button className="pc-more" type="button" onClick={onRetry}>ניסיון נוסף</button> : null}</div> : null}
       {view.catalog.truncated ? <p className="pc-notice" role="status">זהו חלק מקטלוג המקורות; חלק מהחומר עדיין לא נטען.</p> : null}
       {!selection.rows.length && view.catalog.sourcesAvailable ? <p className="pc-notice" role="status">אין כרגע פרסומי מקור ציבוריים במסנן הזה.</p> : null}
       <div className="pc-items">{selection.rows.map((item) => <article className="pc-item" key={item.id}
         tabIndex={-1} ref={item.id === selection.item ? focused : null} data-catalog-source="true">
         <div className="pc-item-meta"><span>{item.formats.filter((format) => FORMAT_LABEL[format]).map((format) => FORMAT_LABEL[format]).join(" · ") || "מקור"}</span>
+          {item.publicationState ? <span>פורסם לציבור</span> : null}
           {bilingualDateLabel(item.createdAt) ? <time dateTime={item.createdAt}>{bilingualDateLabel(item.createdAt)}</time> : <span>תאריך לא זמין</span>}</div>
         <h3>{item.href ? <Link to={item.href}>{item.title}</Link> : item.title}</h3>
         {item.media ? item.media.type === "video" ? <video className="pc-catalog-media" src={item.media.url} poster={item.media.thumbUrl || undefined} controls preload="none" aria-label={item.title} />
