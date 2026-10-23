@@ -45,6 +45,9 @@ test("1820 presentation starts from the exact Ahavat Torah source and keeps trut
   assert.equal(presentation.id, "sod1820");
   assert.equal(presentation.selectedSlide.id, "opening");
   assert.equal(presentation.slides.at(-1).id, "diamonds");
+  assert.equal(presentation.media.poster.sourceRef, "posts:1799");
+  assert.equal(presentation.media.torahNameCount.sourceRef, "posts:1799");
+  assert.ok(Object.values(presentation.media).every((item) => item.src.startsWith("https://") && item.alt));
 
   const countSlide = presentation.slides.find((slide) => slide.id === "five-books");
   assert.equal(countSlide.equation, "165 + 398 + 311 + 396 + 550 = 1820");
@@ -58,6 +61,16 @@ test("1820 presentation starts from the exact Ahavat Torah source and keeps trut
     assert.match(source.sourceHref, /^\/book\/ahavat-torah\?tab=dossier&selection=/);
     assert.match(source.sourceHref, /&page=6#selection$/);
   }
+});
+
+test("the original visual seals stay source-linked and unresolved arithmetic stays unresolved", () => {
+  const presentation = buildBeitMidrashSod1820Presentation(catalog, "birkat-kohanim");
+  const slide = presentation.selectedSlide;
+  assert.equal(slide.media.id, "post:1799:birkat-kohanim");
+  assert.equal(slide.media.sourceRef, "posts:1799");
+  assert.equal(slide.truth.source, "zuriel_approved_pending_exact_locator");
+  assert.equal(slide.truth.calculation, "pending_exact_reconstruction");
+  assert.match(slide.statement, /מראה המקום המדויק ושחזור הסכום עדיין בבנייה/);
 });
 
 test("missing exact locators use Zuriel approval without pretending to be exact or engine verified", () => {
