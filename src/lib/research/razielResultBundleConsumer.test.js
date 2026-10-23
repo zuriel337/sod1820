@@ -161,6 +161,82 @@ test("crossing evidence keeps bounded methods and partner while free-form payloa
   assert.doesNotMatch(JSON.stringify(out), /arbitrary_commentary|DROP/);
 });
 
+test("confirmed cross-method fact and SOD1820 interpretation survive as distinct projected layers", () => {
+  const relation = makeUniversalFinding({
+    id: "uf:relation:wisdom-understanding",
+    kind: "gematria-confirmed-relation",
+    stage: "evidence",
+    status: "confirmed",
+    subject: { type: "relation", key: "wisdom-understanding", label: "חכמה (מסתתר) ↔ בינה (רגיל)", lang: "he", value: 67 },
+    source: { engine: "relation_evidence", name: "ממצאי המחקר המאושרים של SOD1820", sourceRef: "public:relation_evidence:one", method: "מסתתר", lang: "he" },
+    identity: { sourceIdentity: "relation:one", relationRef: "relation:one" },
+    verification: {
+      claimed_expression: "חכמה (מסתתר) = בינה (רגיל)",
+      claimed_method: "מסתתר",
+      claimed_value: 67,
+      engine_method_tested: "מסתתר↔רגיל",
+      engine_result: {
+        relation_kind: "confirmed_cross_method_relation",
+        relation_type: "hidden",
+        expression: "חכמה",
+        partner: "בינה",
+        value: 67,
+        expression_method: "מסתתר",
+        partner_method: "רגיל",
+        engine_verified: true,
+      },
+      verification_state: "match",
+    },
+    evidence: { refs: ["public:relation_evidence:one"], facts: [{
+      type: "gematria-confirmed-cross-method-relation",
+      expression: "חכמה",
+      partner: "בינה",
+      value: 67,
+      expression_method: "מסתתר",
+      partner_method: "רגיל",
+      engine_verified: true,
+    }] },
+    access: { tier: "public" },
+    provenance: { createdBy: "SOURCE:relation_evidence" },
+  });
+  const semantic = makeUniversalFinding({
+    id: "uf:semantic:hidden",
+    kind: "gematria-method-semantic",
+    stage: "interpretation",
+    status: "approved",
+    subject: { type: "relation", key: "semantic:hidden", label: "מסתתר — נסתר", lang: "he" },
+    source: { engine: "method_semantics", name: "מודל המשמעות המאושר של SOD1820", sourceRef: "public:method_semantics:one", method: "מסתתר", lang: "he" },
+    identity: { sourceIdentity: "semantic:hidden", relationRef: "relation:one" },
+    verification: { verification_state: "not_tested" },
+    evidence: { refs: [relation.id], facts: [{
+      type: "gematria-method-semantic-interpretation",
+      method: "מסתתר",
+      relation_type: "hidden",
+      label_he: "נסתר",
+      calculation_description: "הפרשים בין אותיות סמוכות",
+      semantic_description: "הרובד הנסתר של הביטוי",
+      relation_note: "הבינה מסתתרת בתוך החכמה",
+      confidence_source: "sod1820_model",
+      review_version: "2026.07",
+      profile: "sod1820",
+      hidden_private_comment: "DROP",
+    }] },
+    access: { tier: "public" },
+    provenance: { createdBy: "SOURCE:method_semantics", parentFindingIds: [relation.id] },
+  });
+  const out = buildRazielResultBundleConsumer(publicBundle({ findings: [relation, semantic] }));
+  const projectedRelation = out.model_input.findings.find(item => item.id === relation.id);
+  const projectedSemantic = out.model_input.findings.find(item => item.id === semantic.id);
+
+  assert.equal(projectedRelation.verification.state, "match");
+  assert.equal(projectedRelation.verification.engine_result.expression_method, "מסתתר");
+  assert.equal(projectedRelation.verification.engine_result.partner_method, "רגיל");
+  assert.equal(projectedSemantic.stage, "interpretation");
+  assert.equal(projectedSemantic.evidence.facts[0].semantic_description, "הרובד הנסתר של הביטוי");
+  assert.equal(projectedSemantic.evidence.facts[0].relation_note, "הבינה מסתתרת בתוך החכמה");
+  assert.doesNotMatch(JSON.stringify(out), /hidden_private_comment|DROP/);
+});
+
 test("negative, failed and missing capabilities remain distinct and visible", () => {
   const bundle = publicBundle({
     capabilities: [

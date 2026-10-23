@@ -105,7 +105,40 @@ test("engine convergence is not promoted to verified or independent evidence", (
   assert.match(out.fallback, /ממצא מנוע: משיח ↔ שלום/);
   assert.match(out.fallback, /אתבש=112/);
   assert.match(out.fallback, /עצמאות בין משפחות החישוב לא נטענה/);
-  assert.match(out.guidance, /קשר סמנטי שהוא פרשנות בלבד/);
+  assert.match(out.guidance, /gematria-method-semantic הוא פרשנות מאושרת/);
+});
+
+test("confirmed SOD1820 relation is verified while its method meaning stays explicit interpretation", () => {
+  const relation = {
+    id: "uf:relation:wisdom-understanding",
+    kind: "gematria-confirmed-relation",
+    stage: "evidence",
+    subject: { label: "חכמה (מסתתר) ↔ בינה (רגיל)", value: 67 },
+    source: { source_name: "ממצאי המחקר המאושרים של SOD1820", source_ref: "public:relation_evidence:one", method: "מסתתר", lang: "he" },
+    verification: { state: "match", engine_method_tested: "מסתתר↔רגיל", engine_result: { value: 67, engine_verified: true } },
+    evidence: { facts: [{ type: "gematria-confirmed-cross-method-relation", expression: "חכמה", partner: "בינה" }] },
+  };
+  const interpretation = {
+    id: "uf:semantic:hidden",
+    kind: "gematria-method-semantic",
+    stage: "interpretation",
+    subject: { label: "מסתתר — נסתר" },
+    source: { source_name: "מודל המשמעות המאושר של SOD1820", source_ref: "public:method_semantics:one", method: "מסתתר", lang: "he" },
+    verification: { state: "not_tested", engine_result: null },
+    evidence: { facts: [{ type: "gematria-method-semantic-interpretation", semantic_description: "הרובד הנסתר של הביטוי" }] },
+  };
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "חכמה" },
+    projection: projection([relation, interpretation]),
+  }]);
+  const prompt = JSON.parse(out.prompt);
+
+  assert.equal(prompt.response_mode, "expression_crossing");
+  assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, [relation.id]);
+  assert.deepEqual(prompt.bundles[0].evidence_lanes.explicit_interpretations, [interpretation.id]);
+  assert.equal(prompt.presentation_contract.confirmed_relation_is_sod1820_research_evidence, true);
+  assert.equal(prompt.presentation_contract.method_semantic_is_explicit_sod1820_interpretation, true);
+  assert.match(out.guidance, /לא עובדה מתמטית ולא אמת מסורתית אוניברסלית/);
 });
 
 test("preserves source terminology without hard-coding a subject-specific correction", () => {

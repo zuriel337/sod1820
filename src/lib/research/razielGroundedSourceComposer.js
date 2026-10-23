@@ -137,7 +137,11 @@ function responseMode(entries) {
   if (entries.length === 2 && entries.every((entry) => entry.subject?.type === "number")) {
     return "number_comparison";
   }
-  if (entries.some((entry) => entry.findings.some((finding) => finding?.kind === "gematria-crossing"))) {
+  if (entries.some((entry) => entry.findings.some((finding) => [
+    "gematria-crossing",
+    "gematria-confirmed-relation",
+    "gematria-method-semantic",
+  ].includes(finding?.kind)))) {
     return "expression_crossing";
   }
   return "single_subject_research";
@@ -161,7 +165,7 @@ function responseGuidance(entries) {
       ? "בהשוואת שני מספרים: בדוק וסכם לפי הסדר התאמה באותה שיטה, התאמה חוצת־שיטות, תלות בין שיטות, ורק אחר כך קשרי נושא. אם לא סופקה התאמה ישירה — אמור זאת; אל תחליף אותה במטפורה."
       : null,
     mode === "expression_crossing"
-      ? "בהצלבות: הפרד בין שוויון מספרי שסופק, עצמאות או תלות בין השיטות, וקשר סמנטי שהוא פרשנות בלבד."
+      ? "בהצלבות: הפרד בין שוויון מספרי שסופק, עצמאות או תלות בין השיטות, וקשר סמנטי. ממצא מסוג gematria-confirmed-relation הוא יחס מחקרי מאושר ומאומת־מנוע של SOD1820; ממצא מסוג gematria-method-semantic הוא פרשנות מאושרת של מודל SOD1820, לא עובדה מתמטית ולא אמת מסורתית אוניברסלית."
       : null,
     expressionResearch
       ? "בניתוח ביטוי מן המחשבון: פתח במפת החישוב הקנונית המלאה שב-calculation_profile; קבץ שיטות שמחזירות אותו ערך, אל תספור שיטות תלויות כראיות נפרדות, ורק אחר כך הצג הצלבות. אל תצמצם את הניתוח לאריח הפעיל בלבד."
@@ -328,6 +332,8 @@ export function buildRazielGroundedSourceComposer(input = []) {
       subject_definition_requires_explicit_source_claim: true,
       surface_context_does_not_create_a_relation: true,
       calculation_profile_is_complete_bounded_method_map: true,
+      confirmed_relation_is_sod1820_research_evidence: true,
+      method_semantic_is_explicit_sod1820_interpretation: true,
       rarity_claim_requires_explicit_metric: true,
       comparison_must_state_missing_direct_evidence: true,
     },

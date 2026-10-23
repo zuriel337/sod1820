@@ -12,7 +12,7 @@ import {createGematriaCorpusCrossingW2Executor} from '../../src/lib/research/gem
 import {createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE} from '../../src/lib/research/gematriaRelationW2Executor.js';
 import {PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
 import {mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT} from '../../src/lib/research/numberPhrasePresentationOrder.js';
-export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,gematriaResult=null,crossingRows=[],leadRows=[],leadReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
+export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,gematriaResult=null,crossingRows=[],leadRows=[],leadReadFailure=false,confirmedRelationRows=[],methodSemanticRows=[],publicPhrases=[],confirmedRelationReadFailure=false,methodSemanticReadFailure=false,publicPhraseReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
   const roots=new Map(),spans=new Map(),calls=[],unexpected=[];
   const faults=[failure,...failures].filter(Boolean);
   const origin='http://127.0.0.1:1',anon='test-anon-key',service='test-service-key';
@@ -25,6 +25,38 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
     if(u.pathname==='/auth/v1/user')return authenticatedUser
       ? response({id:'22222222-2222-4222-8222-222222222222'})
       : response({message:'synthetic guest'},401);
+    if(u.pathname==='/rest/v1/relation_evidence'){
+      assert.equal(req.method,'GET');
+      assert.equal(req.headers.get('authorization'),`Bearer ${anon}`,'confirmed relations must retain caller credential');
+      assert.equal(u.searchParams.get('status'),'eq.confirmed');
+      assert.equal(u.searchParams.get('engine_verified'),'eq.true');
+      assert.match(u.searchParams.get('or')||'',/^\(a_phrase\.eq\.".+",b_phrase\.eq\.".+"\)$/u);
+      assert.equal(u.searchParams.get('limit'),'3');
+      return confirmedRelationReadFailure ? response({message:'synthetic relation outage'},503) : response(confirmedRelationRows);
+    }
+    if(u.pathname==='/rest/v1/method_semantics'){
+      assert.equal(req.method,'GET');
+      assert.equal(req.headers.get('authorization'),`Bearer ${anon}`,'method semantics must retain caller credential');
+      assert.equal(u.searchParams.get('profile'),'eq.sod1820');
+      assert.equal(u.searchParams.get('status'),'eq.approved');
+      assert.equal(u.searchParams.get('is_active'),'eq.true');
+      assert.equal(u.searchParams.get('limit'),'32');
+      return methodSemanticReadFailure ? response({message:'synthetic semantics outage'},503) : response(methodSemanticRows);
+    }
+    if(u.pathname==='/rest/v1/gematria_words' && u.searchParams.has('phrase')){
+      assert.equal(req.method,'GET');
+      assert.equal(req.headers.get('authorization'),`Bearer ${anon}`,'public phrase admission must retain caller credential');
+      assert.equal(u.searchParams.get('is_verified'),'eq.true');
+      assert.equal(u.searchParams.get('is_published'),'eq.true');
+      assert.equal(u.searchParams.get('or'),'(is_encrypted.eq.false,is_encrypted.is.null)');
+      assert.equal(u.searchParams.get('limit'),'3');
+      const phraseFilter=u.searchParams.get('phrase')||'';
+      assert.match(phraseFilter,/^in\.\(.+\)$/u);
+      const requested=[...phraseFilter.matchAll(/"((?:\\.|[^"\\])*)"/gu)]
+        .map(match=>match[1].replace(/\\"/g,'"').replace(/\\\\/g,'\\'));
+      const rows=requested.filter(phrase=>publicPhrases.includes(phrase)).map(phrase=>({phrase}));
+      return publicPhraseReadFailure ? response({message:'synthetic phrase outage'},503) : response(rows);
+    }
     if(u.pathname==='/rest/v1/gematria_words'){
       assert.equal(req.method,'GET');
       assert.equal(req.headers.get('authorization'),`Bearer ${anon}`,'lead order must retain caller credential');

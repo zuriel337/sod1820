@@ -14,8 +14,9 @@
 // Bounded contracts:
 //   - public-number-research-run-v1 keeps its exact deterministic numeric/numeric_operators path;
 //   - public-expression-crossing-run-v1 admits one bounded Hebrew expression for one canonical
-//     fn_method_profile calculation (the same canonical profile used by Calculator 2029) and one
-//     existing strongest_crossings public-corpus call;
+//     fn_method_profile calculation (the same canonical profile used by Calculator 2029), the
+//     existing strongest_crossings public-corpus call, and confirmed engine-verified cross-method
+//     relations whose other endpoint is independently admitted by the public corpus boundary;
 //   - personal-gematria-pair-run-v1 admits exactly two personal expressions for one canonical
 //     fn_relation_candidate call by an authenticated user.
 // Identity inference, private research_objects, graph/ELS dispatch, persistence and every
@@ -145,6 +146,131 @@ async function fetchNumberPhrasePresentationRows(apiKey: string, authorization: 
   } catch {
     return { rows: [], status: "unavailable", http_status: null };
   }
+}
+
+const CONFIRMED_RELATION_LIMIT = 3;
+const METHOD_SEMANTICS_LIMIT = 32;
+
+function postgrestQuoted(value: unknown): string {
+  const escaped = String(value ?? "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return `"${escaped}"`;
+}
+
+async function callerRestRows(
+  apiKey: string,
+  authorization: string,
+  table: string,
+  configure: (url: URL) => void,
+) {
+  const url = new URL(`${SUPABASE_URL}/rest/v1/${table}`);
+  configure(url);
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { apikey: apiKey, Authorization: authorization },
+    });
+    if (!response.ok) return { rows: [], status: "unavailable", http_status: response.status };
+    const data = await response.json().catch(() => null);
+    if (!Array.isArray(data)) return { rows: [], status: "unavailable", http_status: response.status };
+    return { rows: data, status: "available", http_status: response.status };
+  } catch {
+    return { rows: [], status: "unavailable", http_status: null };
+  }
+}
+
+// Bounded caller-scoped bridge from the frozen historical Atlas to the ONE canonical Result Bundle.
+// Admission is deliberately stricter than the table's historical public-read policy:
+//   1. only confirmed + engine_verified relation rows are considered;
+//   2. the OTHER endpoint must also exist in gematria_words as verified, published and unencrypted;
+//   3. only approved, active SOD1820 method semantics are attached, and core_note is never read.
+// Candidate/rejected rows, source identifiers, private corpus phrases and internal UUIDs never cross
+// this boundary. Service role is not used for any of these reads.
+async function fetchConfirmedSemanticRelationRows(
+  apiKey: string,
+  authorization: string,
+  { expression }: { expression: string },
+) {
+  let restCalls = 1;
+  const quotedExpression = postgrestQuoted(expression);
+  const relationRead = await callerRestRows(apiKey, authorization, "relation_evidence", (url) => {
+    url.searchParams.set(
+      "select",
+      "relation_type,method,a_phrase,b_phrase,value,note,engine_verified,status,updated_at",
+    );
+    url.searchParams.set("status", "eq.confirmed");
+    url.searchParams.set("engine_verified", "eq.true");
+    url.searchParams.set("or", `(a_phrase.eq.${quotedExpression},b_phrase.eq.${quotedExpression})`);
+    url.searchParams.set("order", "updated_at.desc.nullslast");
+    url.searchParams.set("limit", String(CONFIRMED_RELATION_LIMIT));
+  });
+  if (relationRead.status !== "available") {
+    return { rows: [], status: "unavailable", rest_calls: restCalls };
+  }
+
+  const candidates = relationRead.rows.slice(0, CONFIRMED_RELATION_LIMIT);
+  if (!candidates.length) {
+    return {
+      rows: [],
+      status: "available",
+      rest_calls: restCalls,
+      semantic_status: "not_needed",
+      public_endpoint_status: "not_needed",
+    };
+  }
+
+  const methodsReadPromise = callerRestRows(apiKey, authorization, "method_semantics", (url) => {
+    url.searchParams.set(
+      "select",
+      "profile,method,relation_type,label_he,calculation_description,semantic_description,confidence_source,review_version",
+    );
+    url.searchParams.set("profile", "eq.sod1820");
+    url.searchParams.set("status", "eq.approved");
+    url.searchParams.set("is_active", "eq.true");
+    url.searchParams.set("limit", String(METHOD_SEMANTICS_LIMIT));
+  });
+  const partnerByRow = candidates.map((row: any) => (
+    String(row?.a_phrase || "").trim() === expression
+      ? String(row?.b_phrase || "").trim()
+      : String(row?.a_phrase || "").trim()
+  ));
+  const uniquePartners = [...new Set(partnerByRow.filter(Boolean))];
+  const publicPartnersPromise = callerRestRows(apiKey, authorization, "gematria_words", (url) => {
+    url.searchParams.set("select", "phrase");
+    url.searchParams.set("phrase", `in.(${uniquePartners.map(postgrestQuoted).join(",")})`);
+    url.searchParams.set("is_verified", "eq.true");
+    url.searchParams.set("is_published", "eq.true");
+    url.searchParams.set("or", "(is_encrypted.eq.false,is_encrypted.is.null)");
+    url.searchParams.set("limit", String(CONFIRMED_RELATION_LIMIT));
+  });
+  restCalls += 2;
+  const [methodsRead, publicPartnersRead] = await Promise.all([
+    methodsReadPromise,
+    publicPartnersPromise,
+  ]);
+  const publicPartners = new Set(
+    (publicPartnersRead.status === "available" ? publicPartnersRead.rows : [])
+      .map((row: any) => String(row?.phrase || "").trim())
+      .filter(Boolean),
+  );
+  const publicEndpointComplete = publicPartnersRead.status === "available";
+  const semanticByMethod = new Map(
+    (methodsRead.status === "available" ? methodsRead.rows : [])
+      .map((row: any) => [String(row?.method || "").trim(), row]),
+  );
+  const rows = candidates.flatMap((row: any, index: number) => {
+    const partner = partnerByRow[index];
+    if (!partner || !publicPartners.has(partner)) return [];
+    const semantic = semanticByMethod.get(String(row?.method || "").trim()) || null;
+    return [{ ...row, semantic }];
+  });
+
+  return {
+    rows,
+    status: publicEndpointComplete && methodsRead.status === "available" ? "available" : "partial",
+    rest_calls: restCalls,
+    semantic_status: methodsRead.status,
+    public_endpoint_status: publicEndpointComplete ? "available" : "partial",
+  };
 }
 
 async function serviceRpc(name: string, args: Record<string, unknown>): Promise<any> {
@@ -392,6 +518,9 @@ Deno.serve(async (req: Request) => {
           [PUBLIC_EXPRESSION_CROSSING_CAPABILITY]: createGematriaCorpusCrossingW2Executor({
             supabase: callerRpc,
             limit: 8,
+            readConfirmedRelations: (args: { expression: string }) => (
+              fetchConfirmedSemanticRelationRows(ANON_KEY, authHeader, args)
+            ),
           }),
         })
       : publicExecutors;
