@@ -59,6 +59,119 @@ const BEGINNER_CONCEPTS = freezeItems([
   },
 ]);
 
+const sourceReadingStepHref = (stepId) => {
+  const step = encodeURIComponent(clean(stepId));
+  return `/beit-midrash?section=sources&step=${step}#source-step-${step}`;
+};
+
+const SOURCE_READING_STEPS = freezeItems([
+  {
+    id: "locator",
+    title: "מוצאים את המקום המדויק",
+    body: "מתחילים במראה המקום שמזהה היכן החומר נמצא. מזהה פנימי יכול לשמור מקום מדויק גם כאשר אינו כתובת אינטרנט.",
+    check: "האם אפשר לחזור לאותו מקום במקור בלי לחפש אותו מחדש?",
+    boundary: "אין להפוך מזהה פנימי לכתובת שלא נמסרה במקור.",
+    href: sourceReadingStepHref("locator"),
+  },
+  {
+    id: "context",
+    title: "קוראים את ההקשר",
+    body: "קוראים לפני הציטוט ואחריו, מזהים מי מדבר, על מה נכתב הקטע ובאיזה זמן או מצב הוא נאמר.",
+    check: "האם המשפט מקבל משמעות אחרת כאשר קוראים את הפסקה או היחידה שסביבו?",
+    boundary: "משפט בודד אינו מחליף את ההקשר שבו הופיע.",
+    href: sourceReadingStepHref("context"),
+  },
+  {
+    id: "quotation",
+    title: "מבדילים בין ציטוט לסיכום",
+    body: "ציטוט שומר את לשון המקור; סיכום מתאר אותה במילים שלנו. מציגים בבירור מה נאמר במקור ומה נוסח לצורך ההסבר.",
+    check: "אילו מילים הגיעו מן המקור ואילו מילים נוספו בהסבר?",
+    boundary: "אין להציג ניסוח מסכם כאילו היה ציטוט מדויק.",
+    href: sourceReadingStepHref("quotation"),
+  },
+  {
+    id: "calculation",
+    title: "בודקים את החישוב בנפרד",
+    body: "אם המקור מלווה בחישוב, חוזרים על הפעולה לפי השיטה שנמסרה. החישוב והציטוט נבדקים בנפרד לפני שמחברים ביניהם.",
+    check: "האם אותה שיטה ואותו ביטוי מובילים שוב לאותה תוצאה?",
+    boundary: "חישוב שחוזר בהצלחה אינו מוכיח לבדו את הפירוש שניתן לו.",
+    href: sourceReadingStepHref("calculation"),
+  },
+  {
+    id: "independence",
+    title: "בודקים עצמאות בין מקורות",
+    body: "כמה הופעות שחוזרות לאותו מקום הן כמה הופעות של מקור אחד. מקור עצמאי נוסף צריך להביא חומר ממקום נפרד, לא רק לחזור על אותו מראה מקום.",
+    check: "האם כל הופעה חוזרת למקום אחר, או שכולן מצביעות על אותו מקור?",
+    boundary: "מספר ההופעות אינו מספר המקורות העצמאיים.",
+    href: sourceReadingStepHref("independence"),
+  },
+  {
+    id: "interpretation",
+    title: "מפרידים בין המקור לפירוש",
+    body: "לאחר שהמקור והחישוב ברורים, אפשר להציע משמעות. מסמנים אותה כפירוש או כיוון למחשבה ולא מייחסים אותה אוטומטית למקור.",
+    check: "מה ידוע מן המקור, מה התקבל בחישוב ומה מוצע כאן כפירוש?",
+    boundary: "פירוש אינו משנה את לשון המקור ואינו הופך לעובדה רק מפני שהוא מתאים לרמז.",
+    href: sourceReadingStepHref("interpretation"),
+  },
+  {
+    id: "return",
+    title: "שומרים דרך חזרה",
+    body: "מסיימים בקישור או במזהה שמחזירים אל המקום הקנוני. כתובת אינטרנט מוצגת רק כאשר המקור מסר כתובת מאומתת.",
+    check: "האם הקורא יכול לפתוח את המקור המדויק ולחזור אחר כך לבית המדרש?",
+    boundary: "קישור נוח אינו מחליף מראה מקום מדויק, ומראה מקום פנימי אינו בהכרח קישור.",
+    href: sourceReadingStepHref("return"),
+  },
+]);
+
+const SOURCE_READING_STEP_VALUES = new Set(SOURCE_READING_STEPS.map((step) => step.id));
+
+const SOURCE_READING_EXERCISE_OPTIONS = freezeItems([
+  {
+    id: "three-independent-sources",
+    label: "שלושה מקורות עצמאיים, מפני שהציטוט מופיע שלוש פעמים",
+  },
+  {
+    id: "one-source-three-occurrences",
+    label: "מקור עצמאי אחד ושלוש הופעות שלו",
+  },
+  {
+    id: "no-source-until-web-link",
+    label: "אין מקור עד שמופיעה כתובת אינטרנט",
+  },
+]);
+
+const SOURCE_READING_LESSON = Object.freeze({
+  id: "source-reading",
+  title: "לומדים לקרוא מקור",
+  description: "מן המקום המדויק אל ההקשר, הציטוט, הבדיקה והפירוש — עם דרך חזרה שאפשר לעקוב אחריה.",
+  href: "/beit-midrash?section=sources#source-reading-lesson",
+  anchor: "source-reading-lesson",
+  objectives: Object.freeze([
+    "לזהות מראה מקום מדויק בלי להמציא כתובת.",
+    "להפריד בין ציטוט, חישוב ופירוש.",
+    "להבחין בין כמה הופעות לבין כמה מקורות עצמאיים.",
+    "לשמור דרך חזרה למקור ולבית המדרש.",
+  ]),
+  steps: SOURCE_READING_STEPS,
+  exercise: Object.freeze({
+    id: "source-independence",
+    title: "נסו בעצמכם",
+    prompt: "אותו ציטוט מופיע בכותרת, בתקציר ובגוף של אותו מאמר, וכל שלוש ההופעות חוזרות לאותו מקום. מה נכון לומר?",
+    options: SOURCE_READING_EXERCISE_OPTIONS,
+    correctOptionId: "one-source-three-occurrences",
+    explanation: "יש כאן שלוש הופעות של מקור אחד. חזרה על אותו מקום אינה מוסיפה מקור עצמאי.",
+    feedbackMode: "explanation-only",
+  }),
+  continuation: Object.freeze({
+    title: "לתרגול בנקודת מפגש",
+    href: "/beit-midrash?section=guided",
+  }),
+  progress: Object.freeze({
+    persistence: "url-only",
+    storesPersonalData: false,
+  }),
+});
+
 const NUMBER_GUIDE_CONCEPTS = freezeItems([
   {
     id: "number-page",
@@ -201,7 +314,7 @@ const LEARNING_PATHS = freezeItems([
     description: "חוזרים אל ההקשר, אל הציטוט המדויק ואל מקורות נוספים.",
     href: "/beit-midrash?section=paths&path=sources#path-sources",
     steps: Object.freeze([
-      { title: "מבדילים בין מקור לפירוש", href: "/beit-midrash?section=sources" },
+      { title: "לומדים לקרוא מקור צעד אחר צעד", href: SOURCE_READING_LESSON.href },
       { title: "פותחים ספר או מקור קנוני", href: "/books" },
       { title: "בודקים את מסלול החזרה בדוגמה", href: "/beit-midrash?section=guided" },
     ]),
@@ -357,6 +470,7 @@ export const BEIT_MIDRASH_LEARNING_MANIFEST = Object.freeze({
   ]),
   sections: SECTIONS,
   beginnerConcepts: BEGINNER_CONCEPTS,
+  sourceReadingLesson: SOURCE_READING_LESSON,
   numberGuideConcepts: NUMBER_GUIDE_CONCEPTS,
   learningPaths: LEARNING_PATHS,
   destinations: DESTINATIONS,
@@ -418,6 +532,7 @@ export function beitMidrashLearningHref(section, {
   findingId = null,
   pathId = null,
   conceptId = null,
+  sourceStepId = null,
   destinationId = null,
 } = {}) {
   const resolvedSection = safeSection(section) || BEIT_MIDRASH_LEARNING_SECTION.START;
@@ -436,6 +551,12 @@ export function beitMidrashLearningHref(section, {
   if (numberConcept) {
     params.set("concept", concept);
   }
+  const requestedSourceStep = clean(sourceStepId);
+  const sourceStep = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.SOURCES
+    && SOURCE_READING_STEP_VALUES.has(requestedSourceStep)
+    ? requestedSourceStep
+    : null;
+  if (sourceStep) params.set("step", sourceStep);
   if (clean(destinationId)) params.set("to", clean(destinationId));
   const query = params.toString();
   const finding = clean(findingId);
@@ -443,7 +564,9 @@ export function beitMidrashLearningHref(section, {
     ? `finding-${encodeURIComponent(finding)}`
     : numberConcept
       ? `number-concept-${encodeURIComponent(concept)}`
-      : clean(pathId) ? `path-${encodeURIComponent(clean(pathId))}` : "";
+      : sourceStep
+        ? `source-step-${encodeURIComponent(sourceStep)}`
+        : clean(pathId) ? `path-${encodeURIComponent(clean(pathId))}` : "";
   return `${methodRoute(methodKey)}${query ? `?${query}` : ""}${anchor ? `#${anchor}` : ""}`;
 }
 
@@ -475,6 +598,11 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     && NUMBER_GUIDE_CONCEPT_VALUES.has(requestedConcept)
     ? requestedConcept
     : null;
+  const requestedSourceStep = clean(params.get("step"));
+  const sourceStepId = section === BEIT_MIDRASH_LEARNING_SECTION.SOURCES
+    && SOURCE_READING_STEP_VALUES.has(requestedSourceStep)
+    ? requestedSourceStep
+    : null;
   const destinationId = clean(params.get("to")) || legacy?.destinationId || null;
   const toolCompatibility = clean(params.get("tool")).toLowerCase() === "midrash";
 
@@ -485,6 +613,7 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     findingId,
     pathId,
     conceptId,
+    sourceStepId,
     destinationId,
     adminOnly: legacy?.adminOnly === true,
     compatibilitySource: legacyAtlas
@@ -500,6 +629,7 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
       findingId,
       pathId,
       conceptId,
+      sourceStepId,
       destinationId,
     }),
     shouldRedirect: false,
