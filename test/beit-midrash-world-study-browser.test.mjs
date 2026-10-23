@@ -801,7 +801,13 @@ test("learning paths keep exact manifest links and imply no saved completion", {
   }
 });
 
-const PRESENTATION_SLIDES = ["opening", "five-books", "reading-boundary", "number-structures", "kedusha", "birkat-kohanim", "book-catalog", "historic-methods", "strong-1820", "bibi-examples", "diamonds"];
+const PRESENTATION_SLIDES = [
+  "opening", "great-wonder", "name-times-seventy", "five-books", "bereshit-milui",
+  "bereshit-chain", "bereshit-chain-total", "secret-and-strength", "twenty-six-to-sixty-five",
+  "twenty-six-milui", "first-name-distance", "verse-1820", "jacob-rachel-leah",
+  "brothers-words", "two-censuses", "tribes-question", "six-tribes", "leaders",
+  "thirteen-attributes", "torah-roots", "ana-bekoach", "strong-1820", "bibi-examples", "diamonds",
+];
 const PRESENTATION_ENTRY = "/beit-midrash?section=paths&path=sod1820";
 const PRESENTATION_OPEN = `${PRESENTATION_ENTRY}&lesson=sod1820`;
 const FIXTURE_IMAGE = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><rect x="40" y="10" width="80" height="70" rx="8" fill="#888" opacity=".25"/></svg>');
@@ -846,7 +852,7 @@ test("1820 presentation: opens only with its lesson, one shared diamonds read, e
     assert.equal(await page.locator(".bm-presentation").count(), 1);
     assert.deepEqual(await page.locator("[data-slide-link]").evaluateAll((links) => links.map((a) => a.dataset.slideLink)), PRESENTATION_SLIDES);
     assert.equal(await page.locator('[data-slide-link][aria-current="step"]').count(), 1);
-    assert.match(await page.locator(".bm-slide>header>span").innerText(), /פתיחה · תחנה 1 מתוך 11/);
+    assert.match(await page.locator(".bm-slide>header>span").innerText(), /פתיחה · תחנה 1 מתוך 24/);
     assert.equal(await page.locator("a:has-text('→')").count(), 0, "no previous link on the first station");
 
     // Walk every station through the Next link: one station at a time, URL-addressable.
@@ -865,15 +871,19 @@ test("1820 presentation: opens only with its lesson, one shared diamonds read, e
 
     // Content rules.
     assert.match(text["five-books"], /165/); for (const n of ["398", "311", "396", "550", "165 + 398 + 311 + 396 + 550 = 1820"]) assert.ok(text["five-books"].includes(n), n);
-    assert.match(text.birkatkohanim ?? text["birkat-kohanim"], /אושר על־ידי צוריאל · מראה מקום מדויק בבנייה/);
-    assert.ok(text["historic-methods"].includes("1820") && text["historic-methods"].includes("1829") && text["historic-methods"].includes("בראשית") && text["historic-methods"].includes("פער שיטה פתוח"));
+    assert.ok(text["bereshit-milui"].includes("412 + 510 + 111 + 360 + 20 + 407 = 1820"));
+    assert.ok(text["name-times-seventy"].includes("26 × 70 = 1820"));
+    assert.ok(text["ana-bekoach"].includes("211 + 128 + 410 + 32 + 9 + 1030 = 1820"));
     assert.ok(text["bibi-examples"].includes("מחוץ לציר חישובי 1820"));
     assert.ok(text["bibi-examples"].includes("683") && text["bibi-examples"].includes("386") && text["bibi-examples"].includes("631"));
     assert.ok(!text["bibi-examples"].includes("= 1820"), "Bibi stays off the 1820 axis");
     for (const [id, body] of Object.entries(text)) {
       for (const banned of ["מקור אומת", "ציון אמת", "מצב אימות", "איכות ראיות", "ביטחון", "ממצא מחקר", "מאגר ממצאים"]) assert.ok(!body.includes(banned), `${id} must not say ${banned}`);
     }
-    assert.ok(text["kedusha"].includes("אושר על־ידי צוריאל · מראה מקום מדויק בבנייה"));
+    const allPresentationText = Object.values(text).join(" ");
+    for (const removed of ["איך קוראים", "שלוש שכבות", "צוריאל", "1829", "טיוטה", "מראה מקום מדויק בבנייה"]) {
+      assert.ok(!allPresentationText.includes(removed), `presentation must not contain ${removed}`);
+    }
 
     // Diamonds: all of the shared catalogue, each exactly once, only one reader call for the whole walk.
     const ids = await page.locator("[data-diamond-id]").evaluateAll((items) => items.map((li) => li.dataset.diamondId));
@@ -892,7 +902,7 @@ test("1820 presentation: opens only with its lesson, one shared diamonds read, e
   }
 });
 
-test("1820 presentation: exact Ahavat Torah selections, honest source labels, media with alt text", { skip: !available, timeout: 90_000 }, async () => {
+test("1820 presentation: exact original deck and Ahavat Torah selections", { skip: !available, timeout: 90_000 }, async () => {
   const env = await openBrowserForPresentation();
   const { page, origin } = env;
   try {
@@ -900,8 +910,9 @@ test("1820 presentation: exact Ahavat Torah selections, honest source labels, me
     const slide = (id) => page.goto(`${origin}${PRESENTATION_OPEN}&slide=${id}#sod1820-slide-${id}`).then(() => page.waitForSelector(`.bm-slide[data-slide="${id}"]`));
     await slide("five-books");
     const links = await page.locator(".bm-slide-sources a").evaluateAll((anchors) => anchors.map((a) => [a.textContent.trim(), a.getAttribute("href"), a.target]));
-    assert.equal(links.length, 2);
-    for (const [, href] of links) {
+    const bookLinks = links.filter(([, href]) => href.startsWith("/book/ahavat-torah?"));
+    assert.equal(bookLinks.length, 2);
+    for (const [, href] of bookLinks) {
       assert.ok(href.startsWith("/book/ahavat-torah?"), href);
       assert.ok(href.endsWith("#selection"));
       const url = new URL(href, "https://x.invalid");
@@ -909,30 +920,18 @@ test("1820 presentation: exact Ahavat Torah selections, honest source labels, me
       assert.equal(url.searchParams.get("page"), "6");
       assert.match(url.searchParams.get("selection"), /^book-selection:book:ahavat-torah:book:hebrewbooks:5635#p6:[a-z_]+:v1$/);
     }
-    assert.match(links[0][1], /tetragrammaton_grand_total_restated/);
-    assert.match(links[1][1], /per_parasha_tetragrammaton_table/);
+    assert.match(bookLinks[0][1], /tetragrammaton_grand_total_restated/);
+    assert.match(bookLinks[1][1], /per_parasha_tetragrammaton_table/);
     assert.equal(await page.locator(".bm-slide-sources small").first().innerText(), "מראה מקום מדויק");
-    assert.equal(await page.locator(".bm-slide-media img").getAttribute("alt"), "המחשת מניין שמות הוי״ה בתורה");
-    assert.equal(await page.locator(".bm-slide-media img").getAttribute("loading"), "lazy");
-
-    await slide("book-catalog");
-    const catalog = await page.locator(".bm-slide-list a").evaluateAll((anchors) => anchors.map((a) => a.getAttribute("href")));
-    assert.equal(catalog.length, 6);
-    assert.ok(catalog.every((href) => href.startsWith("/book/ahavat-torah?") && href.includes("tab=dossier")));
-    assert.equal(new Set(catalog).size, 6);
-    assert.match(await page.locator(".bm-slide .bm-note").innerText(), /דף הספר עדיין בבנייה/);
-    assert.match(await page.locator(".bm-slide .bm-note").innerText(), /אינם עוקפים את נעילתו/);
-    assert.equal(await page.locator(".bm-slide-list small", { hasText: "החילוץ חלקי" }).count() > 0, true);
 
     await slide("opening");
     const opening = await page.locator(".bm-slide-sources li").evaluateAll((items) => items.map((li) => [li.querySelector("a")?.getAttribute("href"), li.querySelector("a")?.target, li.querySelector("small")?.textContent]));
     assert.equal(opening[0][0], "https://www.youtube.com/watch?v=DClJVGBMCs0");
     assert.equal(opening[0][1], "_blank");
     assert.equal(opening[1][0], "/post/סוד-1820");
-    assert.ok(opening[2][0].startsWith("/book/ahavat-torah?"));
-    assert.equal(opening[2][2], "מראה המקום אותר · החילוץ חלקי");
-    assert.match(await page.locator(".bm-facts").innerText(), /אושר על־ידי צוריאל · מראה מקום מדויק בבנייה/);
-    assert.equal(await page.locator(".bm-facts").innerText().then((t) => /מקור אומת|אומת/.test(t)), false, "approval is never verification");
+    assert.equal(opening[2][0], "https://www.slideserve.com/malana/5004169");
+    assert.equal(opening[2][1], "_blank");
+    assert.equal(await page.locator(".bm-facts").count(), 0);
 
     await slide("strong-1820");
     assert.equal(await page.locator(".bm-slide-list li").count(), 5);
@@ -958,11 +957,11 @@ test("1820 presentation: keyboard, deep links, error and retry", { skip: !availa
     await page.locator("#sod1820-presentation").focus();
     // Right-to-left: the left arrow advances, the right arrow goes back.
     await page.keyboard.press("ArrowLeft");
-    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "five-books");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "great-wonder");
     await page.keyboard.press("ArrowLeft");
-    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "reading-boundary");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "name-times-seventy");
     await page.keyboard.press("ArrowRight");
-    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "five-books");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "great-wonder");
     await page.keyboard.press("End");
     await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "diamonds");
     await page.keyboard.press("Home");
@@ -971,17 +970,17 @@ test("1820 presentation: keyboard, deep links, error and retry", { skip: !availa
     assert.match(page.url(), /slide=opening/);
 
     // Tab order: strip links, then previous/next; focus is visible on every stop.
-    const link = page.locator('[data-slide-link="five-books"]');
+    const link = page.locator('[data-slide-link="great-wonder"]');
     await link.focus();
     const ring = await link.evaluate((el) => ({ style: getComputedStyle(el).outlineStyle, width: parseFloat(getComputedStyle(el).outlineWidth) }));
     assert.equal(ring.style, "solid");
     assert.ok(ring.width >= 2);
     await page.keyboard.press("Tab");
-    assert.equal(await page.evaluate(() => document.activeElement.dataset.slideLink), "reading-boundary");
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.slideLink), "name-times-seventy");
     await page.keyboard.press("Enter");
-    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "reading-boundary");
+    await page.waitForFunction(() => document.querySelector(".bm-slide")?.dataset.slide === "name-times-seventy");
     const nextHref = await page.locator('.bm-presentation-nav a[rel="next"]').getAttribute("href");
-    assert.match(nextHref, /slide=number-structures/);
+    assert.match(nextHref, /slide=five-books/);
     const touch = await page.locator(".bm-presentation-nav a, [data-slide-link]").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
     assert.ok(touch.every((h) => h >= 44), "touch targets");
 
@@ -989,7 +988,7 @@ test("1820 presentation: keyboard, deep links, error and retry", { skip: !availa
     await page.evaluate(() => { const i = document.createElement("input"); i.id = "probe"; document.querySelector("#sod1820-presentation").append(i); });
     await page.locator("#probe").focus();
     await page.keyboard.press("ArrowLeft");
-    assert.equal(await current(), "reading-boundary");
+    assert.equal(await current(), "name-times-seventy");
 
     // Reader failure: no invented list; retry succeeds.
     await page.addInitScript(() => { window.__curationMode = { error: "once" }; });
@@ -1016,7 +1015,7 @@ test("1820 presentation: nine theme/width combinations, centred, flat and motion
     const shots = process.env.BM_SHOTS_DIR;
     for (const theme of ["day", "card", "night"]) {
       for (const width of [320, 390, 1280]) {
-        for (const slideId of ["five-books", "historic-methods", "diamonds"]) {
+        for (const slideId of ["five-books", "bereshit-milui", "diamonds"]) {
           await page.setViewportSize({ width, height: 900 });
           await page.goto(`${origin}${PRESENTATION_OPEN}&slide=${slideId}#sod1820-slide-${slideId}`);
           await page.waitForSelector(`.bm-slide[data-slide="${slideId}"]`);

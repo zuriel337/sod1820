@@ -15,124 +15,94 @@ import {
 import { buildCurationCatalog2029 } from "../src/lib/research/curationProjection2029.js";
 
 const catalog = buildCurationCatalog2029([
-  {
-    id: "diamond-b",
-    type: "entity",
-    label: "חתימת ב",
-    description: "שנייה",
-    metadata: { tier: "diamond", value: 1820, role: "signature" },
-    is_active: true,
-  },
-  {
-    id: "diamond-a",
-    type: "entity",
-    label: "חתימת א",
-    description: "ראשונה",
-    metadata: { tier: "diamond", value: 1820, role: "signature" },
-    is_active: true,
-  },
-  {
-    id: "crown-1820",
-    type: "number",
-    label: "1820",
-    metadata: { tier: "diamond", value: 1820, role: "crown_anchor" },
-    is_active: true,
-  },
+  { id: "diamond-b", type: "entity", label: "חתימת ב", description: "שנייה", metadata: { tier: "diamond", value: 1820, role: "signature" }, is_active: true },
+  { id: "diamond-a", type: "entity", label: "חתימת א", description: "ראשונה", metadata: { tier: "diamond", value: 1820, role: "signature" }, is_active: true },
+  { id: "crown-1820", type: "number", label: "1820", metadata: { tier: "diamond", value: 1820, role: "crown_anchor" }, is_active: true },
 ]);
 
-test("1820 presentation starts from the exact Ahavat Torah source and keeps truth axes separate", () => {
+test("the 1820 presentation follows the original Chotam Hakodesh deck before any site appendix", () => {
   const presentation = buildBeitMidrashSod1820Presentation(catalog);
-  assert.equal(presentation.id, "sod1820");
-  assert.equal(presentation.selectedSlide.id, "opening");
-  assert.equal(presentation.slides.at(-1).id, "diamonds");
-  assert.equal(presentation.media.poster.sourceRef, "posts:1799");
-  assert.equal(presentation.media.torahNameCount.sourceRef, "posts:1799");
-  assert.ok(Object.values(presentation.media).every((item) => item.src.startsWith("https://") && item.alt));
+  assert.equal(presentation.title, "חותם הקודש · סוד 1820");
+  assert.equal(presentation.originalDeck.originalContentSlideCount, 21);
+  assert.equal(presentation.originalDeck.omittedStaleContactSlide, 22);
+  assert.equal(presentation.originalDeck.source.sourceHref, "https://www.slideserve.com/malana/5004169");
+  assert.equal(presentation.video.sourceHref, "https://www.youtube.com/watch?v=DClJVGBMCs0");
 
-  const countSlide = presentation.slides.find((slide) => slide.id === "five-books");
-  assert.equal(countSlide.equation, "165 + 398 + 311 + 396 + 550 = 1820");
-  assert.deepEqual(countSlide.figures.map((item) => item.value), [165, 398, 311, 396, 550]);
-  assert.equal(countSlide.truth.source, BEIT_MIDRASH_SOD1820_SOURCE_STATUS.EXACT);
-  assert.equal(countSlide.truth.calculation, "reproducible_arithmetic");
-  assert.equal(countSlide.truth.interpretation, "separate");
+  const original = presentation.slides.slice(0, 21);
+  assert.deepEqual(original.map((slide) => slide.originalDeckPosition), Array.from({ length: 21 }, (_, index) => index + 1));
+  assert.deepEqual(original.slice(0, 5).map((slide) => slide.id), [
+    "opening", "great-wonder", "name-times-seventy", "five-books", "bereshit-milui",
+  ]);
+  assert.ok(presentation.slides.slice(21).every((slide) => slide.chapter === "נספח מן האתר"));
+});
 
-  for (const source of countSlide.sources) {
+test("the requested source-reading lesson, personal approval copy and draft comparison are absent", () => {
+  const presentation = buildBeitMidrashSod1820Presentation(catalog);
+  const publicCopy = JSON.stringify(presentation);
+  assert.equal(presentation.slides.some((slide) => slide.id === "reading-boundary"), false);
+  assert.equal(presentation.slides.some((slide) => slide.id === "historic-methods"), false);
+  assert.doesNotMatch(publicCopy, /איך קוראים|שלוש שכבות|צוריאל|1829|טיוטה|עדיין בבנייה|מראה מקום מדויק בבנייה/);
+});
+
+test("Bereshit uses the original milui calculation and totals 1820", () => {
+  const slide = buildBeitMidrashSod1820Presentation(catalog, "bereshit-milui").selectedSlide;
+  assert.equal(slide.title, "בראשית במילוי א״י");
+  assert.deepEqual(slide.parts.map((part) => part.value), [412, 510, 111, 360, 20, 407]);
+  assert.equal(slide.parts.reduce((sum, part) => sum + part.value, 0), 1820);
+  assert.equal(slide.equation, "412 + 510 + 111 + 360 + 20 + 407 = 1820");
+});
+
+test("the five-book count keeps its exact Ahavat Torah links", () => {
+  const slide = buildBeitMidrashSod1820Presentation(catalog, "five-books").selectedSlide;
+  assert.equal(slide.equation, "165 + 398 + 311 + 396 + 550 = 1820");
+  assert.deepEqual(slide.figures.map((item) => item.value), [165, 398, 311, 396, 550]);
+  assert.equal(slide.truth.source, BEIT_MIDRASH_SOD1820_SOURCE_STATUS.EXACT);
+  const bookSources = slide.sources.filter((source) => source.kind === "book");
+  assert.equal(bookSources.length, 2);
+  for (const source of bookSources) {
     assert.match(source.sourceRef, /^book:hebrewbooks:5635#p6:/);
     assert.match(source.sourceHref, /^\/book\/ahavat-torah\?tab=dossier&selection=/);
     assert.match(source.sourceHref, /&page=6#selection$/);
   }
 });
 
-test("the original visual seals stay source-linked and unresolved arithmetic stays unresolved", () => {
-  const presentation = buildBeitMidrashSod1820Presentation(catalog, "birkat-kohanim");
-  const slide = presentation.selectedSlide;
-  assert.equal(slide.media.id, "post:1799:birkat-kohanim");
-  assert.equal(slide.media.sourceRef, "posts:1799");
-  assert.equal(slide.truth.source, "zuriel_approved_pending_exact_locator");
-  assert.equal(slide.truth.calculation, "pending_exact_reconstruction");
-  assert.match(slide.statement, /מראה המקום המדויק ושחזור הסכום עדיין בבנייה/);
-});
-
-test("missing exact locators use Zuriel approval without pretending to be exact or engine verified", () => {
-  assert.equal(BEIT_MIDRASH_SOD1820_PRESENTATION.approvalPolicy.missingExactSource, "zuriel_approved_pending_exact_locator");
-  assert.equal(BEIT_MIDRASH_SOD1820_PRESENTATION.approvalPolicy.doesNotImplyEngineVerification, true);
-  assert.equal(BEIT_MIDRASH_SOD1820_PRESENTATION.approvalPolicy.doesNotImplyExactSourceLocated, true);
-
+test("the original arithmetic stations reproduce their stated totals", () => {
   const presentation = buildBeitMidrashSod1820Presentation(catalog);
-  const historic = presentation.slides.find((slide) => slide.id === "historic-methods");
-  assert.equal(historic.truth.source, "zuriel_approved_pending_exact_locator");
-  assert.equal(historic.truth.calculation, "historic_method_mapping_open");
-  assert.match(historic.statement, /אינה מסמנת אותו כאימות מנוע/);
+  const ids = ["name-times-seventy", "bereshit-chain-total", "secret-and-strength", "twenty-six-to-sixty-five", "twenty-six-milui", "jacob-rachel-leah", "brothers-words", "two-censuses", "six-tribes", "leaders", "ana-bekoach"];
+  for (const id of ids) {
+    const slide = presentation.slides.find((item) => item.id === id);
+    assert.match(`${slide.equation || ""}${JSON.stringify(slide.equations || [])}`, /1820/, id);
+  }
 });
 
-test("the final slide projects every canonical diamond once and excludes the crown anchor", () => {
+test("the site appendix remains visibly separate and diamonds are projected once", () => {
   const presentation = buildBeitMidrashSod1820Presentation(catalog, "diamonds");
-  const final = presentation.selectedSlide;
-  assert.equal(final.id, "diamonds");
-  assert.deepEqual(final.diamonds.map((item) => item.id), ["diamond-a", "diamond-b"]);
-  assert.equal(new Set(final.diamonds.map((item) => item.id)).size, final.diamonds.length);
-  assert.equal(final.diamonds.some((item) => item.id === "crown-1820"), false);
-  assert.ok(final.diamonds.every((item) => item.calculatorHref.startsWith("/2029/gematria?q=")));
-});
-
-test("strong 1820 examples and Bibi examples are explicitly separated", () => {
-  const presentation = buildBeitMidrashSod1820Presentation(catalog);
-  const strong = presentation.slides.find((slide) => slide.id === "strong-1820");
-  assert.ok(strong.examples.length >= 5);
-  assert.ok(strong.examples.every((item) => item.value === 1820));
-  assert.ok(strong.examples.every((item) => item.sourceRef.startsWith("gematria_words:")));
-  assert.ok(strong.examples.every((item) => item.calculatorHref.startsWith("/2029/gematria?q=")));
-
-  const bibi = presentation.slides.find((slide) => slide.id === "bibi-examples");
-  const values = bibi.examples.flatMap((example) => example.equations.map((item) => item.value));
-  assert.deepEqual(values, [683, 386, 631, 631]);
-  assert.match(bibi.statement, /ולא כחלק מחישובי 1820/);
+  assert.equal(presentation.slides[20].id, "ana-bekoach");
+  assert.equal(presentation.slides[21].id, "strong-1820");
+  assert.equal(presentation.slides[22].id, "bibi-examples");
+  assert.equal(presentation.slides[23].id, "diamonds");
+  assert.deepEqual(presentation.selectedSlide.diamonds.map((item) => item.id), ["diamond-a", "diamond-b"]);
+  assert.equal(new Set(presentation.selectedSlide.diamonds.map((item) => item.id)).size, 2);
+  assert.equal(presentation.selectedSlide.diamonds.some((item) => item.id === "crown-1820"), false);
 });
 
 test("presentation location is URL-only, validated and canonical", () => {
   const location = resolveBeitMidrashLearningLocation({
-    search: "?section=paths&path=sod1820&lesson=sod1820&slide=kedusha",
+    search: "?section=paths&path=sod1820&lesson=sod1820&slide=bereshit-milui",
   });
-  assert.equal(location.pathId, "sod1820");
-  assert.equal(location.lessonId, "sod1820");
-  assert.equal(location.presentationSlideId, "kedusha");
-  assert.equal(
-    location.canonicalHref,
-    "/beit-midrash?section=paths&path=sod1820&lesson=sod1820&slide=kedusha#sod1820-slide-kedusha",
-  );
+  assert.equal(location.presentationSlideId, "bereshit-milui");
+  assert.equal(location.canonicalHref, "/beit-midrash?section=paths&path=sod1820&lesson=sod1820&slide=bereshit-milui#sod1820-slide-bereshit-milui");
   assert.equal(
     beitMidrashLearningHref("paths", { pathId: "sod1820", lessonId: "sod1820", slideId: "diamonds" }),
     "/beit-midrash?section=paths&path=sod1820&lesson=sod1820&slide=diamonds#sod1820-slide-diamonds",
   );
 
-  const unknown = resolveBeitMidrashLearningLocation({
-    search: "?section=paths&path=sod1820&lesson=sod1820&slide=private-draft",
-  });
+  const unknown = resolveBeitMidrashLearningLocation({ search: "?section=paths&path=sod1820&lesson=sod1820&slide=private-draft" });
   assert.equal(unknown.presentationSlideId, null);
   assert.equal(unknown.canonicalHref, "/beit-midrash?section=paths&path=sod1820&lesson=sod1820#path-sod1820");
 });
 
-test("learning projection exposes the selected slide without adding a store or fetch", () => {
+test("learning projection exposes the deck without a new reader, store or fetch", () => {
   const projection = buildBeitMidrashLearningProjection({
     curationCatalog: catalog,
     search: "?section=paths&path=sod1820&lesson=sod1820&slide=diamonds",
@@ -152,11 +122,6 @@ test("the 1820 learning path opens the presentation before the existing route ch
   assert.equal(path.steps[0].id, "presentation");
   assert.equal(path.steps[0].href, BEIT_MIDRASH_SOD1820_PRESENTATION.href);
   assert.deepEqual(path.steps.slice(1).map((step) => step.id), [
-    "number-layers",
-    "math-profile",
-    "method",
-    "guided-example",
-    "world-map",
-    "heichal",
+    "number-layers", "math-profile", "method", "guided-example", "world-map", "heichal",
   ]);
 });
