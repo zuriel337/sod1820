@@ -62,6 +62,8 @@ const BentovFindingsProduct2029Page = bookPublicationReviewPreviewEnabled
   ? lazy(() => import("./pages/BentovFindingsProduct2029Page.jsx")) : null;
 const BooksLibraryJourney2029Page = bookPublicationReviewPreviewEnabled
   ? lazy(() => import("./pages/BooksLibraryJourney2029Page.jsx")) : null;
+const DaatTevunotTree2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/DaatTevunotTree2029Page.jsx")) : null;
 
 function Loading2029() {
   const palette = use2029Palette();
@@ -134,7 +136,11 @@ function ControlEntry2029() {
   const reviewRequested = params.get("surface") === "books-publication-review";
   const findingsProductRequested = params.get("surface") === "bentov-findings-product";
   const libraryJourneyRequested = params.get("surface") === "books-library-journey";
+  const daatTevunotTreeRequested = params.get("surface") === "daat-tevunot-tree";
   const slug = params.get("book") || "";
+  if (bookPublicationReviewPreviewEnabled && daatTevunotTreeRequested && DaatTevunotTree2029Page) {
+    return <DaatTevunotTree2029Page />;
+  }
   if (bookPublicationReviewPreviewEnabled && libraryJourneyRequested && BooksLibraryJourney2029Page) {
     return <BooksLibraryJourney2029Page />;
   }
