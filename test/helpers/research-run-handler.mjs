@@ -64,7 +64,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
       assert.equal(u.searchParams.get('is_verified'),'eq.true');
       assert.equal(u.searchParams.get('is_published'),'eq.true');
       assert.equal(u.searchParams.get('or'),'(is_encrypted.eq.false,is_encrypted.is.null)');
-      assert.equal(u.searchParams.get('lead_rank'),'not.is.null');
+      assert.equal(u.searchParams.has('lead_rank'),false,'Regular fallback rows must remain visible after explicit lead_rank rows');
       assert.equal(u.searchParams.get('limit'),String(NUMBER_PHRASE_PRESENTATION_LIMIT));
       return leadReadFailure ? response({message:'synthetic presentation outage'},503) : response(leadRows);
     }

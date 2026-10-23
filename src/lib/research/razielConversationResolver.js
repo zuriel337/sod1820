@@ -6,6 +6,7 @@ import {
 import { buildResearchPlanV2 } from "./researchPlanV2.js";
 import {
   resolveExplicitHebrewExpressionResearchSubject,
+  resolveExplicitHebrewExpressionPairResearchSubject,
   resolveExplicitNumericPairResearchSubject,
   resolveExplicitNumericResearchSubject,
   isRazielCurrentSurfaceQuestion,
@@ -101,6 +102,9 @@ function phraseCandidate(label) {
 
 function explicitPhraseCandidates(question) {
   const q = grammarText(question);
+  const structuralPair = resolveExplicitHebrewExpressionPairResearchSubject(q);
+  if (structuralPair) return structuralPair.expressions.map(phraseCandidate).filter(Boolean);
+
   let match = q.match(/^(?:השווה|השווי|תשווה)(?:\s+בין)?\s+(.+?)\s+(?:לבין|מול)\s+(.+)$/u);
   if (!match) match = q.match(/^(?:השווה|השווי|תשווה)(?:\s+בין)?\s+(.+?)\s+ו([^\s].+)$/u);
   if (!match) match = q.match(/^מה\s+(?:הקשר|ההבדל)\s+בין\s+(.+?)\s+(?:לבין|מול|ל)\s+(.+)$/u);
@@ -241,7 +245,14 @@ export function resolveRazielConversationTurn({
 } = {}) {
   const currentQuestion = clean(question, 500);
   const structuralNumericSubject = resolveExplicitNumericResearchSubject(currentQuestion);
-  const explicitNumbers = explicitNumberCandidates(currentQuestion);
+  const structuralExpressionSubject = resolveExplicitHebrewExpressionResearchSubject(currentQuestion);
+  const structuralExpressionPair = resolveExplicitHebrewExpressionPairResearchSubject(currentQuestion);
+  // A numeral beside a named expression method is the observed result, not the research subject.
+  // Preserve the expression identity and let the canonical method profile verify both the
+  // method and the observed value. Ordinary number questions keep the existing numeric owner.
+  const explicitNumbers = structuralExpressionSubject?.requested_method
+    ? []
+    : explicitNumberCandidates(currentQuestion);
   // Numeric grammar owns a turn once it has matched. This prevents its grammatical scaffolding
   // (for example "המספרים 337" or "את זה") from becoming a second phrase identity.
   const explicitPhrases = explicitNumbers.length ? [] : explicitPhraseCandidates(currentQuestion);
@@ -285,12 +296,17 @@ export function resolveRazielConversationTurn({
   // continuity, then delegates action/capability planning to Research Plan V2. It does not keep a
   // parallel Raziel-only planner. This object remains temporary and execution-neutral; the bounded
   // transport projection below deliberately does not forward it as authority.
+  const requestedPlanIntent = semantic?.action
+    || structuralExpressionPair?.requested_action
+    || structuralExpressionSubject?.requested_action
+    || structuralNumericSubject?.requested_action
+    || intent;
   const semanticPlanIntent = {
     understand: "understand",
     research: "deep_research",
     connect: "relation",
     continue: "continue",
-  }[semantic?.action] || structuralNumericSubject?.requested_action || intent;
+  }[requestedPlanIntent] || requestedPlanIntent;
   const researchPlan = buildResearchPlanV2({
     question: currentQuestion,
     intent: semanticPlanIntent,
@@ -334,8 +350,9 @@ export function resolveRazielConversationTurn({
 
 // Bounded public research projection across the client/server trust boundary. Rich in-memory
 // identities may carry owner access/provenance; those fields deliberately never leave the temporary
-// session. The only text form admitted is one exact current-turn phrase for the contract-only
-// corpus-crossing adapter. Phrase pairs and carried/private text remain inside the temporary session.
+// session. Text crosses only when the same shared structural grammar can re-authorize one exact
+// expression or an exact two-expression relation in the current turn. Carried/private text remains
+// inside the temporary session.
 export function projectRazielConversationResolution(resolved) {
   if (!resolved || resolved.version !== RAZIEL_CONVERSATION_RESOLVER_VERSION) return null;
   const orderedCandidates = Array.isArray(resolved.pair) && resolved.pair.length === 2
@@ -348,15 +365,31 @@ export function projectRazielConversationResolution(resolved) {
     .filter((value, index, values) => values.indexOf(value) === index);
   const textIdentities = (resolved.identity_resolution?.identities || [])
     .filter((identity) => identity?.type === "phrase" || identity?.type === "word");
+  const structuralExpression = resolveExplicitHebrewExpressionResearchSubject(resolved.question);
+  const structuralExpressionPair = resolveExplicitHebrewExpressionPairResearchSubject(resolved.question);
+  const exactTextLabels = textIdentities.map((identity) => clean(identity?.label ?? identity?.value, 120));
+  const exactTextKeys = textIdentities.every((identity, index) => {
+    const expectedKey = `phrase:${exactTextLabels[index]}`;
+    return exactTextLabels[index]
+      && /[\u0590-\u05ff]/u.test(exactTextLabels[index])
+      && !/[\u0000-\u001f\u007f-\u009f]/u.test(exactTextLabels[index])
+      && (identity.identity_key === expectedKey || identity.key === expectedKey);
+  });
+  const exactStructuralSingle = textIdentities.length === 1
+    && structuralExpression?.label === exactTextLabels[0]
+    && structuralExpression?.requested_action === resolved.requested_action;
+  const exactStructuralPair = textIdentities.length === 2
+    && structuralExpressionPair?.requested_action === resolved.requested_action
+    && structuralExpressionPair.expressions.every((label, index) => label === exactTextLabels[index]);
   if (!numbers.length && textIdentities.length === 1
     && (
-      (resolved.requested_action === "connect"
+      (exactStructuralSingle
         && resolved.referential_follow_up === false
         && resolved.referent_source === "explicit_current_turn")
       || (["understand", "research"].includes(resolved.requested_action)
         && resolved.referential_follow_up === true
         && resolved.referent_source === "surface_subject")
-    )) {
+    ) && exactTextKeys) {
     const identity = textIdentities[0];
     const label = clean(identity?.label ?? identity?.value, 120);
     const expectedKey = `phrase:${label}`;
@@ -372,6 +405,22 @@ export function projectRazielConversationResolution(resolved) {
         label,
         identity_key: expectedKey,
       })]),
+      pair: null,
+      guards: Object.freeze({ semantic_hint_only: true, server_must_reauthorize: true }),
+    });
+  }
+  if (!numbers.length && exactStructuralPair && exactTextKeys
+    && resolved.referential_follow_up === false && resolved.referent_source === "explicit_current_turn") {
+    return Object.freeze({
+      version: RAZIEL_CONVERSATION_RESOLVER_VERSION,
+      requested_action: "connect",
+      referential_follow_up: false,
+      referent_source: "explicit_current_turn",
+      identities: Object.freeze(textIdentities.map((identity, index) => Object.freeze({
+        type: "phrase",
+        label: exactTextLabels[index],
+        identity_key: `phrase:${exactTextLabels[index]}`,
+      }))),
       pair: null,
       guards: Object.freeze({ semantic_hint_only: true, server_must_reauthorize: true }),
     });

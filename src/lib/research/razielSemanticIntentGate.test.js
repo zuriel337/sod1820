@@ -5,6 +5,7 @@ import {
   RAZIEL_CONVERSATIONAL_ACT_VERSION,
   RAZIEL_DETERMINISTIC_GUIDANCE_VERSION,
   RAZIEL_SEMANTIC_INTENT_VERSION,
+  resolveExplicitHebrewExpressionPairResearchSubject,
   resolveExplicitHebrewExpressionResearchSubject,
   resolveExplicitNumericPairResearchSubject,
   resolveRazielConversationalAct,
@@ -75,6 +76,31 @@ test("explicit Hebrew expression grammar is structural rather than word-specific
   ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
 });
 
+test("method-focused expression grammar preserves expression, method and observed result", () => {
+  const hidden = resolveExplicitHebrewExpressionResearchSubject("מה יש לך על המסתתר של חכמה");
+  assert.equal(hidden?.label, "חכמה");
+  assert.equal(hidden?.requested_method, "מסתתר");
+  assert.equal(hidden?.requested_action, "research");
+
+  const triangle = resolveExplicitHebrewExpressionResearchSubject("מה אתה אומר על 271 המשולש של חכמה");
+  assert.equal(triangle?.label, "חכמה");
+  assert.equal(triangle?.requested_method, "משולש");
+  assert.equal(triangle?.observed_value, 271);
+  assert.equal(triangle?.requested_action, "research");
+});
+
+test("exact Hebrew expression pair grammar preserves both relation endpoints", () => {
+  assert.deepEqual(resolveExplicitHebrewExpressionPairResearchSubject("מה הקשר בין חכמה לבינה?"), {
+    expressions: ["חכמה", "בינה"],
+    requested_action: "connect",
+  });
+  for (const question of [
+    "מה הקשר בין חכמה",
+    "מה הקשר בין 73 לבינה",
+    "ספר לי על הקשר בין חכמה לבינה בתוך מאמר ארוך",
+  ]) assert.equal(resolveExplicitHebrewExpressionPairResearchSubject(question), null, question);
+});
+
 test("combined expression request reaches the canonical crossing projection", () => {
   const question = "מה זה צוריאל בגימטריה ומה ההצלבות שיש";
   const resolved = resolveRazielConversationTurn({ question });
@@ -85,6 +111,30 @@ test("combined expression request reaches the canonical crossing projection", ()
   assert.equal(resolved.requested_action, "connect");
   assert.equal(projected.identities[0].label, "צוריאל");
   assert.equal(projected.requested_action, "connect");
+});
+
+test("method result is an expression lens, not a numeric research root", () => {
+  const resolved = resolveRazielConversationTurn({
+    question: "מה אתה אומר על 271 המשולש של חכמה",
+  });
+  const projected = projectRazielConversationResolution(resolved);
+
+  assert.deepEqual(resolved.identity_resolution.identities.map((identity) => [identity.type, identity.label]), [
+    ["phrase", "חכמה"],
+  ]);
+  assert.equal(resolved.requested_action, "research");
+  assert.deepEqual(projected.identities, [{ type: "phrase", label: "חכמה", identity_key: "phrase:חכמה" }]);
+});
+
+test("exact expression relation preserves both phrases across the bounded projection", () => {
+  const resolved = resolveRazielConversationTurn({ question: "מה הקשר בין חכמה לבינה?" });
+  const projected = projectRazielConversationResolution(resolved);
+
+  assert.equal(resolved.requested_action, "connect");
+  assert.deepEqual(projected.identities, [
+    { type: "phrase", label: "חכמה", identity_key: "phrase:חכמה" },
+    { type: "phrase", label: "בינה", identity_key: "phrase:בינה" },
+  ]);
 });
 
 test("natural two-number crossing language resolves structurally without a classifier", () => {

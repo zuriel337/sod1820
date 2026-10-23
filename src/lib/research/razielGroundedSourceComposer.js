@@ -1,4 +1,4 @@
-// Raziel grounded-source composer V3.
+// Raziel grounded-source composer V4.
 //
 // A pure presentation projection over the existing authorized Result-Bundle consumer. It does
 // not search, calculate, rank, authorize, persist or call a model. Its only jobs are to preserve
@@ -6,7 +6,7 @@
 // honest deterministic fallback, and expose canonical number-page navigation without inventing a
 // source URL.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 3;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 4;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -47,7 +47,17 @@ function canonicalSubject(subject) {
   }
   if (subject.type === "expression") {
     const value = cleanText(subject.value, 120);
-    return value ? { type: "expression", value } : null;
+    if (!value) return null;
+    const requestedMethod = cleanText(subject.requestedMethod, 60);
+    const relatedExpression = cleanText(subject.relatedExpression, 120);
+    const observedValue = safeNumber(subject.observedValue);
+    return {
+      type: "expression",
+      value,
+      ...(requestedMethod ? { requestedMethod } : {}),
+      ...(relatedExpression ? { relatedExpression } : {}),
+      ...(observedValue != null ? { observedValue } : {}),
+    };
   }
   return null;
 }
@@ -301,6 +311,175 @@ function admittedEntry(entry) {
   return { subject, projection, findings };
 }
 
+function comparable(value) {
+  return (cleanText(value, 160) || "")
+    .normalize("NFKC")
+    .replace(/["'״׳`]/gu, "")
+    .replace(/[\s־–—-]+/gu, "")
+    .toLowerCase();
+}
+
+function comparableMethod(value) {
+  const normalized = comparable(value);
+  return normalized.startsWith("ה") && normalized.length > 2 ? normalized.slice(1) : normalized;
+}
+
+function exactMethodProfile(entry, requestedMethod) {
+  const wanted = comparableMethod(requestedMethod);
+  if (!wanted) return null;
+  return list(entry?.projection?.model_input?.calculation_profile).find((item) => (
+    [item?.method_label, item?.method_key].some((candidate) => comparableMethod(candidate) === wanted)
+  )) || null;
+}
+
+function confirmedRelation(entry, relatedExpression = null, requestedMethod = null) {
+  const subject = comparable(entry?.subject?.value);
+  const related = comparable(relatedExpression);
+  const method = comparableMethod(requestedMethod);
+  return entry.findings.find((finding) => {
+    if (finding?.kind !== "gematria-confirmed-relation" || finding?.verification?.state !== "match") return false;
+    const result = finding?.verification?.engine_result;
+    if (!result || result.engine_verified !== true || !Number.isSafeInteger(Number(result.value))) return false;
+    if (comparable(result.expression) !== subject) return false;
+    if (related && comparable(result.partner) !== related) return false;
+    if (method && comparableMethod(result.expression_method) !== method) return false;
+    return true;
+  }) || null;
+}
+
+function semanticInterpretation(entry, method) {
+  const wanted = comparableMethod(method);
+  if (!wanted) return null;
+  return entry.findings.find((finding) => {
+    if (finding?.kind !== "gematria-method-semantic" || finding?.stage !== "interpretation") return false;
+    const fact = list(finding?.evidence?.facts)[0] || {};
+    return [finding?.source?.method, fact?.method].some((candidate) => comparableMethod(candidate) === wanted);
+  }) || null;
+}
+
+function semanticSentence(finding, method) {
+  if (!finding) return null;
+  const fact = list(finding?.evidence?.facts)[0] || {};
+  const description = cleanText(fact.semantic_description, 240) || cleanText(fact.label_he, 120);
+  if (!description) return null;
+  return `במודל המשמעות המאושר של SOD1820, שיטת ${method} מתוארת כך: „${description}”. זו פרשנות של SOD1820, לא עובדה מתמטית ולא אמת מסורתית אוניברסלית.`;
+}
+
+function relationSentence(relation) {
+  const result = relation?.verification?.engine_result;
+  if (!result) return null;
+  const expression = cleanText(result.expression, 120);
+  const partner = cleanText(result.partner, 120);
+  const expressionMethod = cleanText(result.expression_method, 60);
+  const partnerMethod = cleanText(result.partner_method, 60);
+  const value = safeNumber(result.value);
+  if (!expression || !partner || !expressionMethod || !partnerMethod || value == null) return null;
+  return `נמצא יחס מחקרי מאושר ומאומת־מנוע של SOD1820: ${expression} בשיטת ${expressionMethod} = ${value}, ו${partner} בשיטת ${partnerMethod} = ${value}. זהו שוויון מספרי מאומת; עצמאות בין שיטות החישוב לא נטענה.`;
+}
+
+function regularMethod(method) {
+  return ["רגיל", "ragil", "regular"].includes(comparableMethod(method));
+}
+
+function exactRegularCorpusCrossings(entries, expression, value) {
+  const numberEntry = entries.find((entry) => (
+    entry?.subject?.type === "number" && safeNumber(entry.subject.value) === value
+  ));
+  if (!numberEntry) return [];
+  const seen = new Set();
+  return numberEntry.findings.flatMap((finding) => {
+    if (finding?.kind !== "gematria") return [];
+    const label = cleanText(finding?.subject?.label, 120);
+    const findingValue = safeNumber(finding?.subject?.value);
+    const method = cleanText(
+      finding?.verification?.engine_method_tested || finding?.source?.method,
+      60,
+    );
+    const engineValue = safeNumber(finding?.verification?.engine_result);
+    const publishedFact = list(finding?.evidence?.facts).find((fact) => (
+      fact?.type === "published-gematria-phrase"
+      && fact?.status === "verified_published"
+      && safeNumber(fact?.value) === value
+      && regularMethod(fact?.method)
+    ));
+    if (!label || comparable(label) === comparable(expression) || findingValue !== value
+      || !regularMethod(method) || (engineValue !== value && !publishedFact)
+      || seen.has(comparable(label))) return [];
+    seen.add(comparable(label));
+    return [{ label, method: method || "רגיל", value, basis: engineValue === value ? "engine" : "verified_public_corpus" }];
+  }).slice(0, 6);
+}
+
+function exactCorpusCrossingSentence(crossings, expression, method, value) {
+  if (!crossings.length) return null;
+  const rendered = crossings.map((item) => `${item.label} בשיטת ${item.method} = ${item.value}`).join("; ");
+  const allEngine = crossings.every((item) => item.basis === "engine");
+  const lane = allEngine ? "ממצאי מנוע ציבוריים" : "ממצאים מן המאגר הציבורי המאומת";
+  return `באותה חבילת מחקר נמצאו ${lane} לאותו ערך: ${rendered}. לכן ${expression} בשיטת ${method} מתכנסת איתם מספרית בערך ${value}; משמעות הקשר, אם ישנה, דורשת פרשנות נפרדת.`;
+}
+
+// High-confidence focused questions do not need a model to restate already projected facts. This
+// is a presentation of the authorized canonical Bundle, not a calculator, relation engine or new
+// source. Broad questions still receive the full prompt for synthesis.
+function directCanonicalAnswer(entries) {
+  const expressionEntries = entries.filter((entry) => entry.subject?.type === "expression");
+  if (expressionEntries.length !== 1) return null;
+  const entry = expressionEntries[0];
+  const { value: expression, requestedMethod, relatedExpression, observedValue } = entry.subject;
+
+  if (relatedExpression) {
+    const relation = confirmedRelation(entry, relatedExpression);
+    if (!relation) return {
+      kind: "exact_expression_relation_negative",
+      answer: `בחבילת המחקר הקנונית לא נמצא יחס ישיר, מאושר ומאומת־מנוע בין ${expression} לבין ${relatedExpression}. אין בכך הוכחה שאין קשר במקורות אחרים; רק שהיחס המבוקש לא אומת בחיפוש התחום הזה.`,
+      facts: [],
+    };
+    const result = relation.verification.engine_result;
+    const semantic = semanticSentence(
+      semanticInterpretation(entry, result.expression_method),
+      cleanText(result.expression_method, 60),
+    );
+    return {
+      kind: "exact_expression_relation",
+      answer: [relationSentence(relation), semantic].filter(Boolean).join(" "),
+      anchor_value: safeNumber(result.value),
+      facts: [
+        { label: `${result.expression} · ${result.expression_method}`, value: String(result.value) },
+        { label: `${result.partner} · ${result.partner_method}`, value: String(result.value) },
+      ],
+    };
+  }
+
+  if (requestedMethod) {
+    const profile = exactMethodProfile(entry, requestedMethod);
+    if (!profile || !Number.isSafeInteger(Number(profile.value))) return null;
+    const method = cleanText(profile.method_label || profile.method_key, 60);
+    const value = Number(profile.value);
+    const relation = confirmedRelation(entry, null, method);
+    const semantic = semanticSentence(semanticInterpretation(entry, method), method);
+    const crossings = exactRegularCorpusCrossings(entries, expression, value);
+    const observedCorrection = observedValue != null && observedValue !== value
+      ? `הערך ${observedValue} שנכתב בשאלה אינו תוצאת ${method} של ${expression}; התוצאה הקנונית היא ${value}.`
+      : null;
+    return {
+      kind: "exact_expression_method",
+      answer: [
+        observedCorrection,
+        `${expression} בשיטת ${method} = ${value}. זהו חישוב מתוך מפת החישוב הקנונית של המנוע.`,
+        relationSentence(relation),
+        exactCorpusCrossingSentence(crossings, expression, method, value),
+        semantic,
+      ].filter(Boolean).join(" "),
+      anchor_value: value,
+      facts: [
+        { label: `${expression} · ${method}`, value: String(value) },
+        ...crossings.map((item) => ({ label: `${item.label} · ${item.method}`, value: String(item.value) })),
+      ],
+    };
+  }
+  return null;
+}
+
 export function buildRazielGroundedSourceComposer(input = []) {
   const entries = list(input).slice(0, MAX_READS).map(admittedEntry).filter(Boolean);
   const bundles = entries.map((entry) => ({
@@ -346,6 +525,7 @@ export function buildRazielGroundedSourceComposer(input = []) {
     fallback,
     sources: sourceList(entries),
     navigation: navigationList(entries),
+    direct_answer: directCanonicalAnswer(entries),
     guards: {
       projection_only: true,
       preserves_result_bundle_order: true,
@@ -360,6 +540,7 @@ export function buildRazielGroundedSourceComposer(input = []) {
       surface_context_never_creates_relation: true,
       no_unmeasured_rarity_claim: true,
       no_extra_model_call: true,
+      direct_answer_uses_canonical_projection_only: true,
     },
   };
   return deepFreeze(result);

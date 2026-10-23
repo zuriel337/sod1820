@@ -118,10 +118,11 @@ function rpcTransport(apiKey: string, authorization: string) {
   };
 }
 
-// One bounded caller-scoped presentation read over the SAME public gematria_words authority already
-// used by Legacy and Number 2029. RLS and grants are evaluated with the original caller credential;
-// service role never reaches this query. Failure is presentation-only and falls back to the canonical
-// numeric order, while the surrounding numeric capability trace still witnesses the attempt.
+// One bounded caller-scoped Regular-phrase read over the SAME public gematria_words authority
+// already used by Legacy and Number 2029. Explicit lead_rank rows stay first; verified/published
+// unranked Regular rows follow in source order, so a Number-page hierarchy remains authoritative
+// without hiding ordinary Regular crossings. RLS and grants are evaluated with the original caller
+// credential; service role never reaches this query.
 async function fetchNumberPhrasePresentationRows(apiKey: string, authorization: string, number: number) {
   const url = new URL(`${SUPABASE_URL}/rest/v1/gematria_words`);
   url.searchParams.set("select", "id,phrase,ragil,lead_rank,is_verified,is_published,is_encrypted,node_id,created_at");
@@ -131,7 +132,6 @@ async function fetchNumberPhrasePresentationRows(apiKey: string, authorization: 
   // Match the existing public RLS boundary exactly: historical null and explicit false are public;
   // true is excluded even for an admin caller so public answer quality stays role-independent.
   url.searchParams.set("or", "(is_encrypted.eq.false,is_encrypted.is.null)");
-  url.searchParams.set("lead_rank", "not.is.null");
   url.searchParams.set("order", "lead_rank.asc.nullslast,created_at.desc.nullslast");
   url.searchParams.set("limit", String(NUMBER_PHRASE_PRESENTATION_LIMIT));
   try {

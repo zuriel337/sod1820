@@ -117,6 +117,32 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
 
   let match = /^(?:מצא|מצאי|חפש|חפשי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+(?:הצלבות|קשרים)\s+(?:(?:למילה|לביטוי|לשם|עבור)\s+)(.+)$/u.exec(q);
   let requestedAction = "connect";
+  let requestedMethod = null;
+  let observedValue = null;
+
+  if (!match) {
+    const focusedValue = /^(?:מה\s+(?:אתה\s+אומר|את\s+אומרת|דעתך)\s+על|(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?(?:\s+את)?)\s+(\d{1,12})\s+ה?(.{2,60}?)\s+של\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+)$/u.exec(q);
+    if (focusedValue) {
+      match = [focusedValue[0], focusedValue[3]];
+      requestedMethod = clean(focusedValue[2], 60);
+      const numeric = Number(focusedValue[1]);
+      observedValue = Number.isSafeInteger(numeric) && numeric >= 1 ? numeric : null;
+      requestedAction = "research";
+    }
+  }
+
+  // A method-focused request still researches the expression, not the method word. The method
+  // token is only a requested lens; the canonical calculation profile later validates whether it
+  // is an actual active method. This keeps the grammar structural without maintaining a vocabulary
+  // list of every present or future Gematria method.
+  if (!match) {
+    const focused = /^(?:מה\s+(?:יש\s+לך|ידוע(?:\s+לך)?)\s+על|ספר(?:י)?(?:\s+לי)?\s+על|(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?\s+את)\s+ה?(.{2,60}?)\s+של\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+)$/u.exec(q);
+    if (focused) {
+      match = [focused[0], focused[2]];
+      requestedMethod = clean(focused[1], 60);
+      requestedAction = "research";
+    }
+  }
 
   if (!match) {
     match = /^מה\s+זה\s+(.+?)\s+בגימטרי[הא](?:\s+ו(?:מה|אילו)\s+(?:ההצלבות|הקשרים)(?:\s+(?:שיש|שלו|שלה|קיימים|קיימות))?)?$/u.exec(q);
@@ -149,8 +175,23 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
     source: RESEARCH_IDENTITY_SOURCE.TEXT_MATCH,
     confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
     requested_action: requestedAction,
+    ...(requestedMethod ? { requested_method: requestedMethod } : {}),
+    ...(observedValue != null ? { observed_value: observedValue } : {}),
     explicit_text_computation: true,
   });
+}
+
+// Exact two-expression relation grammar. Both subjects must occupy the complete grammatical
+// slots; this never scans arbitrary prose and never decides that a relationship exists. It only
+// gives the existing canonical crossing path two bounded endpoints to verify.
+export function resolveExplicitHebrewExpressionPairResearchSubject(question) {
+  const q = grammarText(question);
+  if (!q) return null;
+  const match = /^(?:מה\s+(?:הקשר|היחס|ההבדל)\s+בין|(?:מצא|מצאי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+(?:את\s+)?(?:הקשר|היחס)\s+בין)\s+(.+?)\s+(?:לבין\s+|מול\s+|עם\s+|ל(?=[\u0590-\u05ff])|ו(?=[\u0590-\u05ff]))(.+)$/u.exec(q);
+  if (!match) return null;
+  const expressions = [validExplicitHebrewExpression(match[1]), validExplicitHebrewExpression(match[2])];
+  if (!expressions.every(Boolean) || expressions[0] === expressions[1]) return null;
+  return Object.freeze({ expressions: Object.freeze(expressions), requested_action: "connect" });
 }
 
 // High-confidence two-number subject grammar shared by the browser resolver and the server

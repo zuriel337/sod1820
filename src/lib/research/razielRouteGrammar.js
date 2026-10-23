@@ -1,6 +1,6 @@
 // SOD1820 Raziel Route Grammar v1.
 
-import { resolveExplicitNumericResearchSubject } from "./razielSemanticIntentGate.js";
+import { resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericResearchSubject } from "./razielSemanticIntentGate.js";
 //
 // Pure Research Strategy / Experience composition only.
 // It translates a user's human goal + current surface into one of four stable semantic actions.
@@ -92,6 +92,7 @@ function explicitRequestedAction({ question = "", intent = "" } = {}) {
   const q = lower(question);
   const i = lower(intent);
   const numericSubject = resolveExplicitNumericResearchSubject(question);
+  const expressionSubject = resolveExplicitHebrewExpressionResearchSubject(question);
 
   // User language is primary. A generic planner intent such as "research" must never steal a
   // conversational request like "מה זה 1820?". Specific intent values are only tie-break hints.
@@ -102,6 +103,7 @@ function explicitRequestedAction({ question = "", intent = "" } = {}) {
   ])) return RAZIEL_ROUTE_ACTION.CONNECT;
 
   if (numericSubject?.requested_action === RAZIEL_ROUTE_ACTION.CONNECT) return RAZIEL_ROUTE_ACTION.CONNECT;
+  if (expressionSubject?.requested_action === RAZIEL_ROUTE_ACTION.CONNECT) return RAZIEL_ROUTE_ACTION.CONNECT;
 
   if (includesAny(q, [
     "תמשיך", "המשך מהמקום", "המשך מהמסע", "להמשיך מכאן", "קח אותי למסע",
@@ -115,6 +117,7 @@ function explicitRequestedAction({ question = "", intent = "" } = {}) {
   ])) return RAZIEL_ROUTE_ACTION.RESEARCH;
 
   if (numericSubject?.requested_action === RAZIEL_ROUTE_ACTION.RESEARCH) return RAZIEL_ROUTE_ACTION.RESEARCH;
+  if (expressionSubject?.requested_action === RAZIEL_ROUTE_ACTION.RESEARCH) return RAZIEL_ROUTE_ACTION.RESEARCH;
 
   if (includesAny(q, [
     "מה זה", "מה אני רואה", "תסביר", "הסבר", "למה", "מה אומר", "מה המשמעות",
@@ -122,6 +125,7 @@ function explicitRequestedAction({ question = "", intent = "" } = {}) {
   ])) return RAZIEL_ROUTE_ACTION.UNDERSTAND;
 
   if (numericSubject?.requested_action === RAZIEL_ROUTE_ACTION.UNDERSTAND) return RAZIEL_ROUTE_ACTION.UNDERSTAND;
+  if (expressionSubject?.requested_action === RAZIEL_ROUTE_ACTION.UNDERSTAND) return RAZIEL_ROUTE_ACTION.UNDERSTAND;
 
   if (["compare", "cross", "relation", "relations"].includes(i)) return RAZIEL_ROUTE_ACTION.CONNECT;
   if (["continue", "journey", "resume", "next_step"].includes(i)) return RAZIEL_ROUTE_ACTION.CONTINUE;

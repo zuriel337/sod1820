@@ -63,8 +63,12 @@ test('guest and authenticated public runs receive the same lead-order evidence q
   const [guestOut,authenticatedOut]=await Promise.all([invoke(guest),invoke(authenticated)]);
   const guestView=buildRazielResultBundleConsumer(guestOut.data.bundle);
   const authenticatedView=buildRazielResultBundleConsumer(authenticatedOut.data.bundle);
+  const stableFindings=(findings)=>findings.map((finding)=>({
+    ...finding,
+    provenance:{...finding.provenance,created_at:null},
+  }));
 
-  assert.deepEqual(authenticatedView.model_input.findings,guestView.model_input.findings);
+  assert.deepEqual(stableFindings(authenticatedView.model_input.findings),stableFindings(guestView.model_input.findings));
   assert.deepEqual(authenticatedOut.data.bundle.ranking,guestOut.data.bundle.ranking);
   assert.equal(guest.calls.find(call=>call.name==='fn_capability_execution_gate_v1').body.p_identity,'v:vleadorder878');
   assert.equal(authenticated.calls.find(call=>call.name==='fn_capability_execution_gate_v1').body.p_identity,'u:22222222-2222-4222-8222-222222222222');

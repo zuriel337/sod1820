@@ -62,6 +62,20 @@ function numberBundle(number, sourceName = "ספר יצירה") {
     access: { tier: "public" },
     provenance: { createdBy: "ENGINE:numeric-research", inputRef: `number:${number}` },
   });
+  const findings = [finding];
+  if (number === 271) {
+    findings.push(makeUniversalFinding({
+      id: "uf:number:271:pregnancy",
+      kind: "gematria",
+      subject: { type: "phrase", key: "הריון", label: "הריון", value: 271, lang: "he" },
+      source: { engine: "gematria", adapter: "number-lookup-v1", name: "מנוע הגימטריה", sourceRef: "bidim:pregnancy", method: "רגיל", lang: "he" },
+      identity: { sourceIdentity: { bidId: "pregnancy" } },
+      verification: { engine_method_tested: "רגיל", engine_result: 271, verification_state: "not_tested" },
+      evidence: { refs: ["bidim:pregnancy"], facts: [{ type: "gematria-lookup-row", phrase: "הריון", method: "רגיל", value: 271 }] },
+      access: { tier: "public" },
+      provenance: { createdBy: "ENGINE:gematria", inputRef: "number:271" },
+    }));
+  }
   return composeResearchResultBundle({
     query: {
       question: `מה זה ${number}?`,
@@ -71,7 +85,7 @@ function numberBundle(number, sourceName = "ספר יצירה") {
     capabilities: [capabilityResult({
       key: "numeric",
       owner: "research_strategy_layer_law v17",
-      findings: [finding],
+      findings,
       sourceRefs: [`number:${number}`],
       versionRefs: ["numericResearch:v1"],
       accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
@@ -82,7 +96,7 @@ function numberBundle(number, sourceName = "ספר יצירה") {
 }
 
 function expressionCrossingBundle(expression, partner = "שלום") {
-  const regularValue = expression === "צוריאל" ? 337 : 358;
+  const regularValue = expression === "צוריאל" ? 337 : expression === "חכמה" ? 73 : 358;
   const calculation = makeUniversalFinding({
     id: `uf:gematria:${expression}:ragil`,
     kind: "gematria-method-value",
@@ -141,6 +155,60 @@ function expressionCrossingBundle(expression, partner = "שלום") {
     access: { tier: "public" },
     provenance: { createdBy: "ENGINE:strongest_crossings", inputRef: "expression:fixture" },
   });
+  const calculations = [calculation];
+  const crossingFindings = [finding];
+  if (expression === "חכמה") {
+    for (const [key, label, value, family] of [
+      ["מסתתר", "מסתתר", 67, "adjacent_difference"],
+      ["קדמי", "משולש", 271, "base_additive"],
+    ]) {
+      calculations.push(makeUniversalFinding({
+        id: `uf:gematria:${expression}:${key}`,
+        kind: "gematria-method-value",
+        subject: { type: "phrase", key: expression, label: expression, value, lang: "he" },
+        source: { engine: "gematria", adapter: "gematria-method-profile-w2-v1", sourceRef: null, method: key, lang: "he" },
+        identity: { sourceIdentity: { methodKey: key, normalizedSubject: expression, value } },
+        verification: { engine_method_tested: key, engine_result: value, verification_state: "not_tested" },
+        evidence: { refs: [], facts: [{
+          type: "gematria-method-profile-value", method: key, label, value,
+          category: "יסוד", mathematical_family: family, atomic_or_composite: "atomic", method_version: 1,
+        }] },
+        access: { tier: "public" },
+        provenance: { createdBy: "ENGINE:gematria", inputRef: "expression:fixture" },
+      }));
+    }
+    const relationId = "uf:relation:wisdom-understanding";
+    crossingFindings.unshift(makeUniversalFinding({
+      id: relationId,
+      kind: "gematria-confirmed-relation",
+      stage: "evidence",
+      status: "confirmed",
+      subject: { type: "relation", key: relationId, label: "חכמה (מסתתר) ↔ בינה (רגיל)", value: 67, lang: "he" },
+      source: { engine: "relation_evidence", adapter: "gematria-corpus-crossing-w2-v2", name: "ממצאי המחקר המאושרים של SOD1820", sourceRef: "public:relation_evidence:wisdom", method: "מסתתר", lang: "he" },
+      identity: { sourceIdentity: relationId, relationRef: relationId },
+      verification: {
+        engine_method_tested: "מסתתר↔רגיל",
+        engine_result: { relation_kind: "confirmed_cross_method_relation", expression: "חכמה", partner: "בינה", value: 67, expression_method: "מסתתר", partner_method: "רגיל", engine_verified: true },
+        verification_state: "match",
+      },
+      evidence: { refs: ["public:relation_evidence:wisdom"], facts: [{ type: "gematria-confirmed-cross-method-relation", expression: "חכמה", partner: "בינה", value: 67 }] },
+      access: { tier: "public" },
+      provenance: { createdBy: "SOURCE:relation_evidence", inputRef: "expression:fixture" },
+    }));
+    crossingFindings.splice(1, 0, makeUniversalFinding({
+      id: "uf:semantic:wisdom-hidden",
+      kind: "gematria-method-semantic",
+      stage: "interpretation",
+      status: "approved",
+      subject: { type: "relation", key: "semantic:hidden", label: "מסתתר — נסתר", lang: "he" },
+      source: { engine: "method_semantics", adapter: "gematria-corpus-crossing-w2-v2", name: "מודל המשמעות המאושר של SOD1820", sourceRef: "public:method_semantics:hidden", method: "מסתתר", lang: "he" },
+      identity: { sourceIdentity: "semantic:hidden", relationRef: relationId },
+      verification: { verification_state: "not_tested" },
+      evidence: { refs: ["public:method_semantics:hidden"], facts: [{ type: "gematria-method-semantic-interpretation", method: "מסתתר", semantic_description: "הרובד הנסתר של הביטוי" }] },
+      access: { tier: "public" },
+      provenance: { createdBy: "SOURCE:method_semantics", inputRef: "expression:fixture", parentFindingIds: [relationId] },
+    }));
+  }
   return composeResearchResultBundle({
     query: {
       question: "חיפוש הצלבות קנוני במאגר הציבורי",
@@ -151,7 +219,7 @@ function expressionCrossingBundle(expression, partner = "שלום") {
       capabilityResult({
         key: "gematria",
         owner: "research_strategy_layer_law v17",
-        findings: [calculation],
+        findings: calculations,
         sourceRefs: [],
         versionRefs: ["gematria-api-v1"],
         accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
@@ -161,7 +229,7 @@ function expressionCrossingBundle(expression, partner = "שלום") {
       capabilityResult({
         key: "crossings",
         owner: "research_strategy_layer_law v17",
-        findings: [finding],
+        findings: crossingFindings,
         sourceRefs: ["rpc:strongest_crossings"],
         versionRefs: ["gematria-corpus-crossing-w2-v1"],
         accessClass: ACCESS_CLASS.PUBLIC_SOURCE,
@@ -218,6 +286,26 @@ function expressionConversation(expression) {
     referential_follow_up: false,
     referent_source: "explicit_current_turn",
     identities: [{ type: "phrase", label: expression, identity_key: `phrase:${expression}` }],
+  };
+}
+
+function focusedExpressionConversation(expression, requestedAction = "research") {
+  return {
+    version: "raziel-conversation-resolver-v1",
+    requested_action: requestedAction,
+    referential_follow_up: false,
+    referent_source: "explicit_current_turn",
+    identities: [{ type: "phrase", label: expression, identity_key: `phrase:${expression}` }],
+  };
+}
+
+function expressionPairConversation(left, right) {
+  return {
+    version: "raziel-conversation-resolver-v1",
+    requested_action: "connect",
+    referential_follow_up: false,
+    referent_source: "explicit_current_turn",
+    identities: [left, right].map((label) => ({ type: "phrase", label, identity_key: `phrase:${label}` })),
   };
 }
 
@@ -348,6 +436,84 @@ test("calculator surface expression is re-authorized against the visible method 
   assert.equal(run.result.engine, "conversation_resolution_guard");
 });
 
+test("focused hidden method returns canonical 67↔67 relation with zero model calls even at AI quota", async () => {
+  const expression = "חכמה";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: false,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "מה יש לך על המסתתר של חכמה",
+      visitor_id: "vhiddenwisdom123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: focusedExpressionConversation(expression),
+    },
+    researchBundleByExpression: { [expression]: expressionCrossingBundle(expression) },
+    researchBundleByNumber: { 67: numberBundle(67) },
+  });
+
+  assert.equal(run.models.length, 0);
+  assert.equal(run.result.engine, "deterministic");
+  assert.equal(run.result.model, "none");
+  assert.match(run.result.raziel.answer, /חכמה בשיטת מסתתר = 67/);
+  assert.match(run.result.raziel.answer, /בינה בשיטת רגיל = 67/);
+  assert.doesNotMatch(run.result.raziel.answer, /מסתתר = 73/);
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 2);
+});
+
+test("exact expression pair returns the confirmed relation without model synthesis", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: false,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "מה הקשר בין חכמה לבינה?",
+      visitor_id: "vwisdombinapair123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: expressionPairConversation("חכמה", "בינה"),
+    },
+    researchBundleByExpression: { חכמה: expressionCrossingBundle("חכמה") },
+  });
+
+  assert.equal(run.models.length, 0);
+  assert.equal(run.result.engine, "deterministic");
+  assert.match(run.result.raziel.answer, /חכמה בשיטת מסתתר = 67/);
+  assert.match(run.result.raziel.answer, /בינה בשיטת רגיל = 67/);
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 1);
+});
+
+test("271 triangle question keeps חכמה as subject and opens 271 only for canonical crossings", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: false,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "מה אתה אומר על 271 המשולש של חכמה",
+      visitor_id: "vwisdomtriangle271",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: focusedExpressionConversation("חכמה"),
+    },
+    researchBundleByExpression: { חכמה: expressionCrossingBundle("חכמה") },
+    researchBundleByNumber: { 271: numberBundle(271) },
+  });
+
+  const researchCalls = run.calls.filter((call) => call.name === "research-run");
+  assert.equal(run.models.length, 0);
+  assert.equal(run.result.engine, "deterministic");
+  assert.equal(researchCalls.length, 2);
+  assert.equal(researchCalls[0].payload.expression, "חכמה");
+  assert.equal(researchCalls[1].payload.number, 271);
+  assert.match(run.result.raziel.answer, /חכמה בשיטת משולש = 271/);
+  assert.match(run.result.raziel.answer, /הריון בשיטת רגיל = 271/);
+  assert.deepEqual(run.result.raziel.facts, [
+    { label: "חכמה · משולש", value: "271" },
+    { label: "הריון · רגיל", value: "271" },
+  ]);
+});
+
 test("missing name and open capability question are deterministic and spend no AI calls", async () => {
   for (const [subject, answerPattern, kind] of [
     ["תחשב לי את השם שלי", /מה השם המדויק/, "missing_name_expression"],
@@ -460,7 +626,7 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1, "the deterministic Bundle seam adds no model call");
   assert.match(run.models[0].user, /raziel-canonical-result-bundle-input-v1/);
-  assert.match(run.models[0].user, /raziel-grounded-source-composer-v3/);
+  assert.match(run.models[0].user, /raziel-grounded-source-composer-v4/);
   assert.match(run.models[0].user, /אל תמציא לו שם חלופי/);
   assert.match(run.models[0].user, /לא סופק מדד נדירות מפורש/);
   assert.match(run.models[0].user, /verified_calculations/);

@@ -29,20 +29,24 @@ function safeRank(value) {
   return Number.isSafeInteger(rank) && rank > 0 ? rank : null;
 }
 
-function orderedLeadRows(rows, number) {
+function orderedRegularRows(rows, number) {
   const seen = new Set();
   return (Array.isArray(rows) ? rows : [])
     .map((row, sourceIndex) => ({ row, sourceIndex, rank: safeRank(row?.lead_rank) }))
-    .filter(({ row, rank }) => (
+    .filter(({ row }) => (
       clean(row?.id)
       && clean(row?.phrase)
       && safeNumber(row?.ragil) === number
-      && rank != null
       && row?.is_verified === true
       && row?.is_published === true
       && row?.is_encrypted !== true
     ))
-    .sort((a, b) => a.rank - b.rank || a.sourceIndex - b.sourceIndex)
+    .sort((a, b) => {
+      if (a.rank != null && b.rank != null) return a.rank - b.rank || a.sourceIndex - b.sourceIndex;
+      if (a.rank != null) return -1;
+      if (b.rank != null) return 1;
+      return a.sourceIndex - b.sourceIndex;
+    })
     .filter(({ row }) => {
       const phrase = clean(row.phrase);
       if (seen.has(phrase)) return false;
@@ -68,7 +72,7 @@ export function numberLeadOrderRowToUniversalFinding(row, { number } = {}) {
   const phrase = clean(row?.phrase);
   const id = clean(row?.id);
   const leadRank = safeRank(row?.lead_rank);
-  if (value == null || !phrase || !id || leadRank == null) return null;
+  if (value == null || !phrase || !id) return null;
   if (row?.is_verified !== true || row?.is_published !== true || row?.is_encrypted === true) return null;
 
   const sourceRef = `gematria_words:${id}`;
@@ -80,7 +84,7 @@ export function numberLeadOrderRowToUniversalFinding(row, { number } = {}) {
     subject: { type: "phrase", key: phrase, label: phrase, value, lang: "he" },
     source: {
       engine: "gematria-corpus",
-      adapter: "number-lead-order-v1",
+      adapter: leadRank == null ? "number-regular-corpus-v1" : "number-lead-order-v1",
       name: "מאגר הגימטריה המאומת",
       sourceRef,
       method: NUMBER_PHRASE_PRESENTATION_AUTHORITY.method,
@@ -111,8 +115,8 @@ export function numberLeadOrderRowToUniversalFinding(row, { number } = {}) {
         value,
         status: "verified_published",
         lead_rank: leadRank,
-        authority: NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
-        presentation_scope: NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
+        authority: leadRank == null ? "public.gematria_words" : NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
+        presentation_scope: leadRank == null ? "equal_regular_phrase_projection" : NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
       }],
     },
     access: {
@@ -128,8 +132,8 @@ export function numberLeadOrderRowToUniversalFinding(row, { number } = {}) {
       anchors: [{ space: "number", value }],
       dimensions: {
         presentation: {
-          authority: NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
-          scope: NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
+          authority: leadRank == null ? "public.gematria_words" : NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
+          scope: leadRank == null ? "equal_regular_phrase_projection" : NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
           leadRank,
         },
       },
@@ -139,43 +143,49 @@ export function numberLeadOrderRowToUniversalFinding(row, { number } = {}) {
 }
 
 /**
- * Add only lead-ranked Regular corpus rows that the bounded numeric lookup omitted, then produce
- * Result-Bundle ranking entries. Existing Findings remain byte-for-byte untouched and unranked
- * findings retain their original order after the explicit Human-Gate rows.
+ * Project the bounded verified/published Regular corpus rows in the same order used by the Number
+ * page: explicit Human-Gate lead_rank first, then the remaining Regular rows in source order. Only
+ * real lead_rank values become Result-Bundle ranking entries; fallback order is never presented as
+ * a Human-Gate decision. Existing Findings remain byte-for-byte untouched.
  */
 export function mergeNumberPhrasePresentationOrder({ findings = [], rows = [], number } = {}) {
   const value = safeNumber(number);
   const sourceFindings = Array.isArray(findings) ? findings : [];
   if (value == null) return Object.freeze({ findings: sourceFindings, ranking: [], added_count: 0, row_count: 0 });
 
-  const merged = [...sourceFindings];
+  const projectedRegular = [];
   const ranking = [];
   let added = 0;
-  const ordered = orderedLeadRows(rows, value);
+  const ordered = orderedRegularRows(rows, value);
 
   for (const { row, rank } of ordered) {
     const phrase = clean(row.phrase);
-    let finding = merged.find((candidate) => isSameRegularFinding(candidate, phrase, value));
+    let finding = sourceFindings.find((candidate) => isSameRegularFinding(candidate, phrase, value));
     if (!finding) {
       finding = numberLeadOrderRowToUniversalFinding(row, { number: value });
       if (!finding) continue;
-      merged.push(finding);
       added++;
     }
-    ranking.push({
-      finding_id: finding.id,
-      rank,
-      score: null,
-      axes: {
-        authority: NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
-        presentation_scope: NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
-        method: NUMBER_PHRASE_PRESENTATION_AUTHORITY.method,
-        number: value,
-        lead_rank: rank,
-      },
-      reasons: ["סדר ביטויים ידני קיים בדף המספר"],
-    });
+    projectedRegular.push(finding);
+    if (rank != null) {
+      ranking.push({
+        finding_id: finding.id,
+        rank,
+        score: null,
+        axes: {
+          authority: NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
+          presentation_scope: NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
+          method: NUMBER_PHRASE_PRESENTATION_AUTHORITY.method,
+          number: value,
+          lead_rank: rank,
+        },
+        reasons: ["סדר ביטויים ידני קיים בדף המספר"],
+      });
+    }
   }
+
+  const projectedIds = new Set(projectedRegular.map((finding) => finding.id));
+  const merged = [...projectedRegular, ...sourceFindings.filter((finding) => !projectedIds.has(finding?.id))];
 
   return Object.freeze({
     findings: Object.freeze(merged),

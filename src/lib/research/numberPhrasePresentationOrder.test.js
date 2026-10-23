@@ -33,7 +33,7 @@ function row(id, phrase, rank, overrides = {}) {
   };
 }
 
-test("existing Regular Finding is ranked without duplication and source findings stay untouched", () => {
+test("existing Regular Finding is ranked without duplication and precedes other methods", () => {
   const regular = existingFinding("bid-regular", "ביאת המשיח");
   const otherMethod = existingFinding("bid-other", "ביאת המשיח", "מסתתר");
   const original = [otherMethod, regular];
@@ -43,7 +43,7 @@ test("existing Regular Finding is ranked without duplication and source findings
     number: 776,
   });
 
-  assert.deepEqual(out.findings, original);
+  assert.deepEqual(out.findings, [regular, otherMethod]);
   assert.equal(out.added_count, 0);
   assert.deepEqual(out.ranking.map((entry) => [entry.finding_id, entry.rank]), [["bid-regular", 1]]);
   assert.equal(out.ranking[0].axes.authority, NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref);
@@ -61,7 +61,7 @@ test("missing lead rows become public corpus Findings in manual order without re
   });
 
   assert.equal(out.added_count, 2);
-  assert.deepEqual(out.findings.map((finding) => finding.subject.label), ["אותיות אחרי", "ביאת המשיח", "מחשבת יהוה"]);
+  assert.deepEqual(out.findings.map((finding) => finding.subject.label), ["ביאת המשיח", "מחשבת יהוה", "אותיות אחרי"]);
   assert.deepEqual(out.ranking.map((entry) => entry.rank), [1, 2]);
   const lead = out.findings.find((finding) => finding.subject.label === "ביאת המשיח");
   assert.equal(lead.source.sourceRef, "gematria_words:gw-1");
@@ -71,7 +71,7 @@ test("missing lead rows become public corpus Findings in manual order without re
   assert.equal(lead.evidence.facts[0].lead_rank, 1);
 });
 
-test("wrong number, unpublished, unverified, encrypted, null-rank and duplicate rows fail closed", () => {
+test("wrong number and non-public rows fail closed while unranked Regular rows remain visible", () => {
   const rows = [
     row("good", "ביאת המשיח", 1),
     row("dup", "ביאת המשיח", 2),
@@ -83,10 +83,13 @@ test("wrong number, unpublished, unverified, encrypted, null-rank and duplicate 
   ];
   const out = mergeNumberPhrasePresentationOrder({ findings: [], rows, number: 776 });
 
-  assert.equal(out.row_count, 1);
-  assert.equal(out.findings.length, 1);
+  assert.equal(out.row_count, 2);
+  assert.equal(out.findings.length, 2);
   assert.equal(out.findings[0].subject.label, "ביאת המשיח");
+  assert.equal(out.findings[1].subject.label, "ללא סדר");
   assert.equal(out.ranking.length, 1);
+  assert.equal(out.findings[1].evidence.facts[0].authority, "public.gematria_words");
+  assert.equal(out.findings[1].evidence.facts[0].lead_rank, null);
 });
 
 test("future hierarchy edits reuse the same authority and deterministically change only ranking", () => {

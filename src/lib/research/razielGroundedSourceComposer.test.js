@@ -48,7 +48,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v3");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v4");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -139,6 +139,105 @@ test("confirmed SOD1820 relation is verified while its method meaning stays expl
   assert.equal(prompt.presentation_contract.confirmed_relation_is_sod1820_research_evidence, true);
   assert.equal(prompt.presentation_contract.method_semantic_is_explicit_sod1820_interpretation, true);
   assert.match(out.guidance, /לא עובדה מתמטית ולא אמת מסורתית אוניברסלית/);
+});
+
+test("focused hidden-method question deterministically binds 67 to חכמה and בינה", () => {
+  const profile = [
+    { method_key: "רגיל", method_label: "רגיל", value: 73 },
+    { method_key: "מסתתר", method_label: "מסתתר", value: 67 },
+    { method_key: "קדמי", method_label: "משולש", value: 271 },
+  ];
+  const relation = {
+    id: "uf:relation:wisdom-understanding:direct",
+    kind: "gematria-confirmed-relation",
+    stage: "evidence",
+    source: { source_name: "ממצאי המחקר המאושרים של SOD1820", source_ref: "public:relation_evidence:wisdom", method: "מסתתר", lang: "he" },
+    verification: {
+      state: "match",
+      engine_result: {
+        expression: "חכמה",
+        partner: "בינה",
+        expression_method: "מסתתר",
+        partner_method: "רגיל",
+        value: 67,
+        engine_verified: true,
+      },
+    },
+    evidence: { facts: [] },
+  };
+  const interpretation = {
+    id: "uf:semantic:hidden:direct",
+    kind: "gematria-method-semantic",
+    stage: "interpretation",
+    source: { source_name: "מודל המשמעות המאושר של SOD1820", source_ref: "public:method_semantics:hidden", method: "מסתתר", lang: "he" },
+    verification: { state: "not_tested", engine_result: null },
+    evidence: { facts: [{ type: "gematria-method-semantic-interpretation", method: "מסתתר", semantic_description: "הרובד הנסתר של הביטוי" }] },
+  };
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "חכמה", requestedMethod: "מסתתר" },
+    projection: projection([relation, interpretation], null, { calculation_profile: profile }),
+  }]);
+
+  assert.equal(out.direct_answer.kind, "exact_expression_method");
+  assert.equal(out.direct_answer.anchor_value, 67);
+  assert.match(out.direct_answer.answer, /חכמה בשיטת מסתתר = 67/);
+  assert.match(out.direct_answer.answer, /בינה בשיטת רגיל = 67/);
+  assert.match(out.direct_answer.answer, /פרשנות של SOD1820/);
+  assert.doesNotMatch(out.direct_answer.answer, /מסתתר = 73/);
+});
+
+test("focused expression pair returns only the confirmed cross-method relation", () => {
+  const relation = {
+    id: "uf:relation:pair",
+    kind: "gematria-confirmed-relation",
+    stage: "evidence",
+    source: { source_name: "ממצאי המחקר המאושרים של SOD1820", source_ref: "public:relation_evidence:pair", method: "מסתתר", lang: "he" },
+    verification: {
+      state: "match",
+      engine_result: {
+        expression: "חכמה", partner: "בינה", expression_method: "מסתתר", partner_method: "רגיל",
+        value: 67, engine_verified: true,
+      },
+    },
+    evidence: { facts: [] },
+  };
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "חכמה", relatedExpression: "בינה" },
+    projection: projection([relation]),
+  }]);
+
+  assert.equal(out.direct_answer.kind, "exact_expression_relation");
+  assert.match(out.direct_answer.answer, /חכמה בשיטת מסתתר = 67/);
+  assert.match(out.direct_answer.answer, /בינה בשיטת רגיל = 67/);
+});
+
+test("method result keeps expression identity and connects 271 to regular corpus phrases", () => {
+  const profile = [{ method_key: "קדמי", method_label: "משולש", value: 271 }];
+  const pregnancy = {
+    id: "uf:271:pregnancy",
+    kind: "gematria",
+    subject: { label: "הריון", value: 271 },
+    source: { source_name: "מנוע הגימטריה", source_ref: "bidim:pregnancy", method: "רגיל", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "רגיל", engine_result: 271 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: "הריון", method: "רגיל", value: 271 }] },
+  };
+  const out = buildRazielGroundedSourceComposer([
+    {
+      subject: { type: "expression", value: "חכמה", requestedMethod: "משולש", observedValue: 271 },
+      projection: projection([], null, { calculation_profile: profile }),
+    },
+    { subject: { type: "number", value: 271 }, projection: projection([pregnancy]) },
+  ]);
+
+  assert.equal(out.direct_answer.kind, "exact_expression_method");
+  assert.equal(out.direct_answer.anchor_value, 271);
+  assert.match(out.direct_answer.answer, /חכמה בשיטת משולש = 271/);
+  assert.match(out.direct_answer.answer, /הריון בשיטת רגיל = 271/);
+  assert.match(out.direct_answer.answer, /משמעות הקשר.*פרשנות נפרדת/);
+  assert.deepEqual(out.direct_answer.facts, [
+    { label: "חכמה · משולש", value: "271" },
+    { label: "הריון · רגיל", value: "271" },
+  ]);
 });
 
 test("preserves source terminology without hard-coding a subject-specific correction", () => {
