@@ -60,6 +60,10 @@ test("source fidelity: sourceRef, occurrences and verified links only", () => {
   assert.match(guided, /findingId: example\.sourceId/);
   assert.match(guided, /sourceRef: example\.sourceRef/);
   assert.match(guided, /publicContributorHref\(example\.contributor\)/);
+  assert.match(guided, /to=\{contributorHref\}\s+onClick=\{rememberWorldContext\}/,
+    "the contributor link records context without replacing its own destination");
+  assert.doesNotMatch(guided, /to=\{contributorHref\}\s+onClick=\{rememberAndOpenWorld\}/,
+    "the contributor link must not be intercepted by World navigation");
   assert.match(guided, /to=\{example\.returnHref\}/);
   assert.match(guided, /mapCallout\.href/);
 });

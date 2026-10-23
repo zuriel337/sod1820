@@ -266,6 +266,18 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     assert.equal(await guidedCard.locator('a[href*="admin"]').count(), 0);
     const unmatched = page.locator('[data-guided-concept="crossing"][data-finding-id="f-unmatched"]');
     assert.equal(await unmatched.locator("[data-world-finding-link]").count(), 0, "no verified route, no invented finding link");
+
+    // Contributor identity records the same source context, but its Link owns navigation.
+    // It must never be intercepted and redirected through the separate World source action.
+    await page.evaluate(() => { delete window.__researchContext; delete window.__shellGo; });
+    await guidedCard.locator(".bm-contributor-link").click();
+    assert.equal(new URL(page.url()).pathname + new URL(page.url()).search + new URL(page.url()).hash, publicZviHref);
+    let contributorHandoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
+    assert.equal(contributorHandoff.navigation, undefined, "contributor Link must not call shell.go");
+    assert.equal(contributorHandoff.context.selection.findingId, "f-public");
+    await page.goto(`${origin}/beit-midrash?section=guided&kind=crossing&finding=f-public`);
+    await page.waitForSelector('[data-finding-id="f-public"]');
+
     await guidedCard.getByRole("link", { name: "לפתיחת הגילוי המלא בעולם" }).click();
     let handoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
     assert.equal(handoff.navigation.href, exactHref);
