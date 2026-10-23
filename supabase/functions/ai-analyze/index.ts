@@ -36,6 +36,7 @@ const MODEL = (Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5").trim();
 const FAST_MODEL = (Deno.env.get("CHAT_MODEL") || "claude-haiku-4-5").trim();
 // Deep Raziel (MODEL) needs room beyond the fast budget so a complete answer fits (#1142 deep P0).
 const RAZIEL_DEEP_MAX_TOKENS = 4000;
+const RAZIEL_VIEW_FAST_MAX_TOKENS = 2400;   // RAZIEL_VIEW_MODE_V1: non-general fast turns only
 // אם GEMINI_MODEL לא מוגדר/שגוי → ברירת-מחדל בטוחה (מונע דגם לא-תקין בסוד).
 const GEMINI_MODEL_RAW = (Deno.env.get("GEMINI_MODEL") || "").trim();
 const GEMINI_MODEL = GEMINI_MODEL_RAW.startsWith("gemini") ? GEMINI_MODEL_RAW : "gemini-2.5-flash";
@@ -207,6 +208,58 @@ function numericTruthFallback() {
   return "אין לי מספיק חומר מספרי שסופק כדי להוסיף חישוב בלי להמציא. אפשר להמשיך מתוך הנתונים שכבר נמסרו בלבד.";
 }
 // AI_NUMERIC_TRUTH_GUARD_END
+
+// RAZIEL_VIEW_MODE_V1 — experimental observation mode for persona="raziel", honoured ONLY under the 2029 canonical
+// Research Contract. view_mode is a SEPARATE axis from intelligence_level (fast|deep) and from the legacy `mode:"advanced"`;
+// it never selects a provider and never touches calculation, authorization or truth ranking. It appends one small
+// instruction layer to the system prompt: the user message (= the same canonical Result Bundle) and the numeric truth guard
+// are identical in all three modes. Missing/unknown value ⇒ "general" (today's behaviour, byte-for-byte).
+type RazielViewMode = "general" | "landscape" | "exploratory";
+function normalizeRazielViewMode(raw: unknown): RazielViewMode {
+  const v = typeof raw === "string" ? raw.trim().toLowerCase() : "";
+  return v === "landscape" || v === "exploratory" ? v : "general";
+}
+const RAZIEL_VIEW_MODE_COMMON =
+  "\n\n[מצב התבוננות ניסיוני — נוסף על הפרסונה; כל חוקי הברזל, האמת והפרטיות נשארים בתוקף]\n" +
+  "מקור החומר היחיד הוא חבילת התוצאה הקנונית שבהודעה (כבר עברה הרשאות, סינון ונרמול). אל תוסיף מספר, שיטה, ביטוי, מקור, ממצא או קשר שאינם בה; " +
+  "אל תחשב גימטריה ואל תבנה קשר מספרי חדש כדי לתמוך בפרשנות. התאמה בין שיטות שקולות מבנית (למשל גדול ורגיל כשאין סופיות) היא כפילות טבעית ולא הצלבה — אל תציג אותה כממצא. " +
+  "אל תחשוף טקסט חשיבה גולמי, JSON, שמות שדות, מזהים או trace. הכול בתוך השדה answer כטקסט פשוט, בלי Markdown; כל כותרת בשורה נפרדת.";
+const RAZIEL_LANDSCAPE_SECTIONS = [
+  "עובדות חישוביות מאומתות", "הצלבות בין שיטות", "יחסים למילים, מספרים ומקורות", "היררכיה וסדר", "שאלות ונתיבי מחקר פתוחים",
+];
+const RAZIEL_VIEW_MODE_LAYERS: Record<"landscape" | "exploratory", string> = {
+  landscape: RAZIEL_VIEW_MODE_COMMON +
+    "\nמצב «נוף»: המטרה היא להרחיב את המפה, לא סתם להאריך את התשובה. פתח ב‘עוגן:’ — העוגן או הממצא המרכזי של השאלה (עד שני משפטים). " +
+    "אחריו מפת קשרים לפי שכבות, בכותרות האלה ובסדר הזה: " + RAZIEL_LANDSCAPE_SECTIONS.map((s) => `‘${s}:’`).join(" · ") + ". " +
+    "דלג על שכבה שאין לה תוכן בחבילה — אל תמלא אותה בניחוש. ‘היררכיה וסדר’ רק כשהסדר או ההיררכיה מופיעים במקור הקנוני; אל תיצור היררכיה. כשקיימת היררכיה אל תציג רשימה שטוחה. " +
+    "בכל שורה הפרד בין שלושה סוגים באמצעות תחילית: ‘עובדה מתמטית:’ (ערך או התכנסות שבחבילה) · ‘לפי המקור:’ (טענה שמופיעה בפירוש במקור שבחבילה) · ‘פרשנות רזיאל:’ (קריאה שלך, מסומנת ככזו).",
+  exploratory: RAZIEL_VIEW_MODE_COMMON +
+    "\nמצב «מתפרע»: מותר להציע חיבורים והשערות חדשות, אך אסור להמציא עובדות. אותו חומר בדיוק כמו במצב הכללי. " +
+    "חלק את התשובה לשלוש דרגות מפורשות, כל אחת בכותרת משלה בסדר הזה (דלג על דרגה שאין לה בסיס): " +
+    "‘עובדה מאומתת:’ — רק מה שמופיע בחבילה, כפי שהוא. " +
+    "‘פרשנות אפשרית:’ — קריאה סבירה שנשענת על העובדות; ציין על אילו. " +
+    "‘השערה ניסיונית:’ — חיבור חדש וזהיר; ציין מה היה צריך להיבדק כדי לבסס אותו. השערה אינה ממצא, מקור או ידע קנוני. " +
+    "אל תכתוב ‘המנוע מצא’ על דבר שאינו בחבילה. אם אין בסיס מספיק להשערה — אמור זאת במקום להמציא. " +
+    "‘חושב בקול’ פירושו מסלול מסקנות תמציתי ובר־בדיקה (מאילו עובדות לאיזו פרשנות ולאיזו השערה), לא טקסט חשיבה גולמי.",
+};
+// Structural telemetry only (labels present in the model answer) — never used to alter the answer.
+function razielViewModeStructure(mode: RazielViewMode, answer: unknown): Record<string, unknown> | null {
+  const text = String(answer || "");
+  if (mode === "landscape") {
+    return { anchor: text.includes("עוגן:"), layers: RAZIEL_LANDSCAPE_SECTIONS.filter((s) => text.includes(`${s}:`)).length };
+  }
+  if (mode === "exploratory") {
+    return {
+      verified_fact: text.includes("עובדה מאומתת"),
+      possible_interpretation: text.includes("פרשנות אפשרית"),
+      experimental_hypothesis: text.includes("השערה ניסיונית"),
+    };
+  }
+  return null;
+}
+const RAZIEL_VIEW_MODE_NO_BUNDLE_ANSWER =
+  "מצבי ‘נוף’ ו‘מתפרע’ פועלים רק על חבילת מחקר מאומתת שכבר נאספה לשאלה. לשאלה הזו אין כרגע חבילה כזו, ולכן לא אנסח ניתוח בלי בסיס. " +
+  "אפשר לשאול על מספר או על ביטוי מסוים, או לעבור למצב ‘כללי’.";
 
 async function traceRpc(name: string, payload: Record<string, unknown>): Promise<any | null> {
   try {
@@ -2299,6 +2352,8 @@ Deno.serve(async (req: Request) => {
       // Requests without the contract (including Legacy and the existing WhatsApp adapter) stay unchanged.
       const rCanonicalResearchOptIn = !rTrusted && razielCanonicalBundleOptedIn(body);
       const rLegacyPersistentMemoryAllowed = !rCanonicalResearchOptIn;
+      // RAZIEL_VIEW_MODE_V1: only the 2029 canonical contract can select a non-general observation mode.
+      const rViewMode: RazielViewMode = rCanonicalResearchOptIn ? normalizeRazielViewMode(body?.view_mode) : "general";
       const { identity, tier } = rTrusted ? { identity: rTrusted.identity, tier: rTrusted.tier } : await resolveIdentity(req, body);
       // Website launch availability applies to every site Raziel path, including
       // deterministic answers and advanced mode. The verified WhatsApp adapter
@@ -2463,6 +2518,8 @@ Deno.serve(async (req: Request) => {
       const rFast = rSel.selected_level === RAZIEL_LEVELS.L2 && !rToolRes;
       const rLevel = rFast ? "fast" : "deep";
       const rModel = rFast ? FAST_MODEL : MODEL;
+      // View-mode answers are longer structured text: only a non-general FAST turn gets a larger ceiling (general and deep unchanged).
+      const rViewMaxTokens = rFast && rViewMode !== "general" ? RAZIEL_VIEW_FAST_MAX_TOKENS : null;
       const rSelMeta = { requested_level: rSel.requested_level, selected_level: rSel.selected_level, escalation_reason: rSel.escalation_reason,
         ...(rToolRes ? { selected_level: RAZIEL_LEVELS.L3, semantic_level: RAZIEL_TOOL_LEVEL, synthesis_intelligence: RAZIEL_LEVELS.L3, escalation_reason: "tool_research_synthesis" } : {}) };
       // מכסת-AI (ai_quota_law v3) — מהיר: אותו דפוס-מכסה מהיר הקיים (זהות :f · אנונימי 30 · מחובר 200 · אדמין ∞);
@@ -2519,7 +2576,8 @@ Deno.serve(async (req: Request) => {
       // by a model). The classifier is an intent candidate, not a planner: exact-evidence validation
       // admits only 1-2 public numeric subjects; Research Plan / research-run still own execution.
       // One FAST attempt, bounded output, separately traced and costed.
-      const rSemanticEligible = q.allowed && rCanonicalResearchOptIn
+      // RAZIEL_VIEW_MODE_V1: a non-general mode spends exactly ONE synthesis call, so it never adds the classifier attempt.
+      const rSemanticEligible = q.allowed && rCanonicalResearchOptIn && rViewMode === "general"
         && !rTrusted && body?.conversation_resolution == null && !rConversationHint && !rExpressionCrossingHint
         && !!rSubject && /\d{1,6}/u.test(rSubject) && !rTrusted?.media
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
@@ -2864,10 +2922,34 @@ Deno.serve(async (req: Request) => {
         }
       }
 
+      // RAZIEL_VIEW_MODE_V1 gate. A non-general mode runs ONE synthesis over the SAME canonical Result Bundle that
+      // general would have used. No valid Bundle ⇒ a grounded deterministic fallback (no model, no guess). When AI quota
+      // is exhausted the existing zero-cost direct answer is returned instead, so no mode ever hides evidence.
+      if (rViewMode !== "general") {
+        if (!rCanonicalBundlePack) {
+          rPlanMeta = { ...(rPlanMeta || {}), view_mode: { requested: rViewMode, applied: false, reason: "no_canonical_bundle" } };
+          await finishOperationalTrace(activeTrace, "success");
+          return rzJson({
+            raziel: {
+              v: 1, agent: "raziel", context: null, greeting: null,
+              answer: RAZIEL_VIEW_MODE_NO_BUNDLE_ANSWER,
+              facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true,
+              deterministic: true, source_of_truth: null, plan_meta: rPlanMeta,
+            },
+            engine: "deterministic", model: "none", intelligence_level: "deterministic",
+            plan_meta: rPlanMeta, trace_id: activeTrace?.traceId || null,
+          });
+        }
+        rPlanMeta = { ...(rPlanMeta || {}), view_mode: q.allowed
+          ? { requested: rViewMode, applied: true }
+          : { requested: rViewMode, applied: false, reason: "quota" } };
+      }
+      const rViewSynthesis = rViewMode !== "general" && q.allowed;
+
       // Exact method and exact relation questions are a pure projection of already-authorized
       // canonical Bundle facts. Return them before the AI quota gate: they make zero provider calls
       // and answer quality must not depend on registration, subscription or remaining AI tokens.
-      if (rCanonicalDirectAnswer?.answer) {
+      if (rCanonicalDirectAnswer?.answer && !rViewSynthesis) {
         await finishOperationalTrace(activeTrace, "success");
         return rzJson({
           raziel: {
@@ -2967,6 +3049,8 @@ Deno.serve(async (req: Request) => {
         const mtx = await fetchMetatronContext(rSubject, rSubject, "site-raziel");
         if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
       }
+      // RAZIEL_VIEW_MODE_V1: one small layer on the existing persona — never a second persona or prompt.
+      if (rViewSynthesis && rViewMode !== "general") rzSys += RAZIEL_VIEW_MODE_LAYERS[rViewMode];
 
       // 🧭 Research Plan v0 (advanced-only, deterministic, zero DB writes) — FAIL-OPEN: any throw
       // falls back to a plain Number-strategy plan rather than blocking the response.
@@ -3019,7 +3103,7 @@ Deno.serve(async (req: Request) => {
       // מעטפת-reliability הקנונית (retry/timeout/backoff) — רק לקריאת-המודל של persona=raziel. never_silent:
       //    ה-guardian מחזיר JSON חוקי לפי חוזה-התשובה של רזיאל (לעולם לא null/ריק).
       const rel = await callClaudeReliable({
-        apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user, maxTokens: rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS,
+        apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user, maxTokens: rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS, ...(rViewMaxTokens && rViewSynthesis ? { maxTokens: rViewMaxTokens } : {}),
         buildFallback: (reason) => JSON.stringify({
           v: 1, agent: "raziel", context: null, greeting: null,
           answer: reason === "timeout" || reason === "overload"
@@ -3057,6 +3141,7 @@ Deno.serve(async (req: Request) => {
           plan: rPlanMeta,
           tool_research: rToolRes ? { status: rToolRes.status, tools: rToolRes.tools.map((t) => ({ capability: t.capability, status: t.status })) } : null,
           semantic_surface: !!semText,
+          ...(rViewSynthesis ? { view_mode: rViewMode } : {}),
           output_use: rel.degraded ? "fallback_guardian" : firstRazielTruthRejected ? "rejected" : "used",
           stop_reason: rel.degraded ? rel.reason : firstRazielTruthRejected ? "numeric_truth_guard_untrusted_literal" : null,
           resources: {
@@ -3068,7 +3153,7 @@ Deno.serve(async (req: Request) => {
           cost: { certainty: "unknown" },
           replay: {
             ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2"],
-            parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"};numeric_truth_guard:v1`,
+            parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"};numeric_truth_guard:v1${rViewSynthesis ? `;view_mode:${rViewMode}${rViewMaxTokens ? `;view_max_tokens:${rViewMaxTokens}` : ""}` : ""}`,
             continuationRef: rAgain ? safeTraceUuid(body?.interaction_id) : null,
           },
           privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
@@ -3101,7 +3186,7 @@ Deno.serve(async (req: Request) => {
         const retrySpanId = crypto.randomUUID();
         const retryStartedAt = new Date().toISOString();
         const retryRel = await callClaudeReliable({
-          apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user: user + numericTruthRetryInstruction(), maxTokens: rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS,
+          apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user: user + numericTruthRetryInstruction(), maxTokens: rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS, ...(rViewMaxTokens && rViewSynthesis ? { maxTokens: rViewMaxTokens } : {}),
           policy: { retries: 1 },
           buildFallback: () => JSON.stringify({
             v: 1, agent: "raziel", context: null, greeting: null,
@@ -3142,7 +3227,7 @@ Deno.serve(async (req: Request) => {
             cost: { certainty: "unknown" },
             replay: {
               ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2", "truth_axes_foundation_law v3"],
-              parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"};numeric_truth_guard:v1;retry:1`,
+              parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"};numeric_truth_guard:v1${rViewSynthesis ? `;view_mode:${rViewMode}${rViewMaxTokens ? `;view_max_tokens:${rViewMaxTokens}` : ""}` : ""};retry:1`,
               continuationRef: rAgain ? safeTraceUuid(body?.interaction_id) : null,
             },
             privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
@@ -3184,6 +3269,12 @@ Deno.serve(async (req: Request) => {
         }
         if (rTrusted?.media) contract.source_stage = { executed: true, ok: !!rSource?.ok, reason: rSource?.reason ?? null, derivative: true, moderation: "pending" };   // additive; numeric routing skipped for attached sources
         contract.intelligence_selection = rSelMeta;      // Phase D — additive: requested/selected/escalation_reason
+        if (rViewSynthesis && rPlanMeta?.view_mode) {
+          // RAZIEL_VIEW_MODE_V1 telemetry: honest applied flag + which structural labels the answer carried (no content).
+          rPlanMeta = { ...rPlanMeta, view_mode: responseDegraded
+            ? { requested: rViewMode, applied: false, reason: "degraded" }
+            : { requested: rViewMode, applied: true, structure: razielViewModeStructure(rViewMode, contract.answer) } };
+        }
         if (rPlanMeta) contract.plan_meta = rPlanMeta;   // additive — lets Explain-Why say why L0 vs L2
         if (contract.continue_wa == null) contract.continue_wa = true;
         // Advanced-only additive fields — never present on the baseline persona="raziel" response,
