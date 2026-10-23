@@ -34,6 +34,7 @@ export function spatialDiagramTemplate(shapeIdentity) {
   if (shapeIdentity === "icosahedron") return "icosahedron";
   if (shapeIdentity === "sixty-face-star") return "star";
   if (String(shapeIdentity || "").includes("pentagon-octagon")) return "octagon-compound";
+  if (String(shapeIdentity || "").includes("cube-pentagon-triangles")) return "cube-pentagon-triangles";
   if (String(shapeIdentity || "").startsWith("compound:")) return "compound";
   return "cube";
 }
@@ -63,7 +64,7 @@ export default function SpatialDiagram2029({ shapeIdentity, value, form, title, 
       </g>
       {template === "icosahedron" ? <IcosahedronGlyph gradientId={gradientId} /> : null}
       {template === "star" ? <IcosahedronGlyph gradientId={gradientId} starred /> : null}
-      {template === "compound" ? <CompoundGlyph gradientId={gradientId} /> : null}
+      {template === "compound" || template === "cube-pentagon-triangles" ? <CompoundGlyph gradientId={gradientId} /> : null}
       {template === "octagon-compound" ? <CompoundGlyph gradientId={gradientId} octagon /> : null}
       {template === "cube" ? <CubeGlyph gradientId={gradientId} /> : null}
       <g className="sod29-spatial-diagram-value" textAnchor="middle">

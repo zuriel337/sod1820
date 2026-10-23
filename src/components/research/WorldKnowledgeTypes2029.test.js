@@ -21,6 +21,13 @@ test("visual evidence, decoded diagram and schematic 3D remain explicit layers",
   assert.match(source, /תמונת מקור/);
 });
 
+test("constants use a computed diagram first and mount source evidence only by explicit selection", () => {
+  assert.match(source, /<ConstantDiagram2029/);
+  assert.match(source, /function ConstantVisualDeck/);
+  assert.match(source, /layer === "source" && card\.image/);
+  assert.doesNotMatch(source, /\{card\.image \? <img/);
+});
+
 test("spatial UI keeps calculation, structure, interpretation and publication separate", () => {
   for (const label of ["טענת מקור", "חישוב", "פעולות", "מבנה", "צורה", "המחשה", "פרשנות רוחנית", "פרסום", "מקורות עצמאיים"]) {
     assert.ok(source.includes(label), label);

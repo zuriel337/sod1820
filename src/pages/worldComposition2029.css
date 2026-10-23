@@ -239,7 +239,27 @@
 .sod29-root.surface-world .sod29-world-spatial-admin-queue header p { margin: 3px 0 0; color: var(--s29-muted); font: 400 12px/1.5 var(--s29-font-ui); }
 .sod29-root.surface-world .sod29-world-spatial-admin-queue header span { color: var(--s29-muted); font: 500 12px var(--s29-font-ui); }
 .sod29-root.surface-world .sod29-world-constant-card { min-height: 0; }
-.sod29-root.surface-world .sod29-world-constant-card > img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 9px; }
+.sod29-root.surface-world .sod29-world-constant-visual {
+  --s29-constant-diagram-gold: var(--s29-brand-gold);
+  --s29-constant-diagram-violet: var(--s29-discovery);
+  position: relative;
+  min-height: 230px;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--s29-ink) 70%, var(--s29-discovery) 30%);
+  border: 1px solid var(--s29-line);
+  border-radius: 11px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--s29-panel-soft) 86%, var(--s29-brand-gold) 14%), var(--s29-panel-soft));
+}
+.sod29-root.surface-world .sod29-constant-diagram { position: relative; width: 100%; min-height: 230px; margin: 0; }
+.sod29-root.surface-world .sod29-constant-diagram svg { display: block; width: 100%; height: 230px; }
+.sod29-root.surface-world .sod29-constant-diagram-glyph > text { fill: var(--s29-ink); stroke: var(--s29-panel); stroke-width: 3px; paint-order: stroke; font: 700 42px var(--s29-font-numeric); }
+.sod29-root.surface-world .sod29-constant-diagram-glyph .sod29-constant-diagram-node { fill: var(--s29-panel); stroke: none; font-size: 16px; }
+.sod29-root.surface-world .sod29-constant-diagram-relation text:first-child { fill: var(--s29-brand-gold); font: 700 34px var(--s29-font-numeric); }
+.sod29-root.surface-world .sod29-constant-diagram-relation text:last-child { fill: var(--s29-muted); font: 500 12px var(--s29-font-numeric); }
+.sod29-root.surface-world .sod29-constant-diagram figcaption { position: absolute; z-index: 2; inset: auto 9px 8px auto; display: flex; gap: 6px; padding: 5px 8px; border-radius: 999px; color: var(--s29-ink); background: color-mix(in srgb, var(--s29-panel) 86%, transparent); backdrop-filter: blur(9px); font: 600 10px/1.3 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-constant-diagram figcaption small { color: var(--s29-muted); font: 500 9px/1.3 var(--s29-font-ui); }
+.sod29-root.surface-world .sod29-world-constant-visual .sod29-world-spatial-source-image,
+.sod29-root.surface-world .sod29-world-constant-visual .sod29-world-spatial-source-image img { min-height: 230px; height: 230px; }
 .sod29-root.surface-world .sod29-world-constant-expression { display: block !important; padding: 8px 10px; border-radius: 8px; background: var(--s29-panel-soft); color: var(--s29-ink) !important; font: 600 16px/1.4 var(--s29-font-numeric) !important; direction: ltr; text-align: left; }
 .sod29-root.surface-world .sod29-world-constant-card dl { display: grid; gap: 4px; margin: 0; }
 .sod29-root.surface-world .sod29-world-constant-card dl div { display: flex; justify-content: space-between; gap: 8px; font: 400 11px/1.4 var(--s29-font-ui); }

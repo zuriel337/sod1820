@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const source = readFileSync(fileURLToPath(new URL("./SpatialDiagram2029.jsx", import.meta.url)), "utf8");
 
 test("the visual kit provides deterministic templates for every spatial family", () => {
-  for (const template of ["cube", "icosahedron", "star", "compound", "octagon-compound"]) {
+  for (const template of ["cube", "icosahedron", "star", "compound", "cube-pentagon-triangles", "octagon-compound"]) {
     assert.ok(source.includes(`\"${template}\"`), template);
   }
 });
