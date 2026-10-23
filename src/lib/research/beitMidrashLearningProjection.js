@@ -2,6 +2,12 @@ import {
   BEIT_MIDRASH_WORLD_SECTION,
   buildBeitMidrashWorldSections,
 } from "./beitMidrashWorldSections.js";
+import {
+  BEIT_MIDRASH_SOD1820_PRESENTATION,
+  BEIT_MIDRASH_SOD1820_PRESENTATION_ID,
+  buildBeitMidrashSod1820Presentation,
+  isBeitMidrashSod1820Slide,
+} from "./beitMidrashSod1820Presentation.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const DEFAULT_EXAMPLE_LIMIT = 2;
@@ -449,6 +455,7 @@ const LEARNING_PATH_DEFINITIONS = freezeItems([
     description: "מסלול מדורג להכרת המספר 1820, המקורות והשיטות שסביבו.",
     href: "/beit-midrash?section=paths&path=sod1820#path-sod1820",
     steps: Object.freeze([
+      { title: "פותחים את מצגת מסע 1820", href: BEIT_MIDRASH_SOD1820_PRESENTATION.href },
       { title: "מכירים את שכבות דף המספר", href: "/beit-midrash?section=numbers" },
       { title: "לומדים לקרוא את הפרופיל המתמטי", href: "/beit-midrash?section=numbers&concept=math-profile#number-concept-math-profile" },
       { title: "לומדים דרך חישוב", href: "/beit-midrash?section=methods" },
@@ -466,7 +473,7 @@ const LEARNING_PATH_STEP_IDS = Object.freeze({
   "number-page": Object.freeze(["number-guide", "fibonacci", "calculator"]),
   sources: Object.freeze(["source-lesson", "canonical-source", "guided-return"]),
   meetings: Object.freeze(["crossing", "convergence", "world-map"]),
-  sod1820: Object.freeze(["number-layers", "math-profile", "method", "guided-example", "world-map", "heichal"]),
+  sod1820: Object.freeze(["presentation", "number-layers", "math-profile", "method", "guided-example", "world-map", "heichal"]),
 });
 
 const learningPathStepHref = (pathId, stepId) => {
@@ -688,6 +695,7 @@ export const BEIT_MIDRASH_LEARNING_MANIFEST = Object.freeze({
   sourceReadingLesson: SOURCE_READING_LESSON,
   numberGuideConcepts: NUMBER_GUIDE_CONCEPTS,
   learningPaths: LEARNING_PATHS,
+  sod1820Presentation: BEIT_MIDRASH_SOD1820_PRESENTATION,
   practiceActivities: PRACTICE_ACTIVITIES,
   practicePolicy: Object.freeze({
     persistence: "url-only",
@@ -757,6 +765,8 @@ export function beitMidrashLearningHref(section, {
   conceptId = null,
   sourceStepId = null,
   cipherStepId = null,
+  lessonId = null,
+  slideId = null,
   destinationId = null,
 } = {}) {
   const resolvedSection = safeSection(section) || BEIT_MIDRASH_LEARNING_SECTION.START;
@@ -778,6 +788,15 @@ export function beitMidrashLearningHref(section, {
   const requestedPathStep = clean(pathStepId);
   const pathStep = learningPath?.steps.find((step) => step.id === requestedPathStep) || null;
   if (pathStep) params.set("pathStep", pathStep.id);
+  const presentationLesson = safePathId === "sod1820"
+    && clean(lessonId) === BEIT_MIDRASH_SOD1820_PRESENTATION_ID
+    ? BEIT_MIDRASH_SOD1820_PRESENTATION_ID
+    : null;
+  if (presentationLesson) params.set("lesson", presentationLesson);
+  const presentationSlide = presentationLesson && isBeitMidrashSod1820Slide(slideId)
+    ? clean(slideId)
+    : null;
+  if (presentationSlide) params.set("slide", presentationSlide);
   const requestedActivity = clean(activityId);
   const practiceActivity = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.PRACTICE
     && PRACTICE_ACTIVITY_VALUES.has(requestedActivity)
@@ -807,7 +826,9 @@ export function beitMidrashLearningHref(section, {
   const finding = clean(findingId);
   const anchor = finding
     ? `finding-${encodeURIComponent(finding)}`
-    : numberConcept
+    : presentationSlide
+      ? `sod1820-slide-${encodeURIComponent(presentationSlide)}`
+      : numberConcept
       ? `number-concept-${encodeURIComponent(concept)}`
       : sourceStep
         ? `source-step-${encodeURIComponent(sourceStep)}`
@@ -853,6 +874,14 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
   const pathStepId = selectedPath?.steps.some((step) => step.id === requestedPathStep)
     ? requestedPathStep
     : null;
+  const lessonId = pathId === "sod1820"
+    && clean(params.get("lesson")) === BEIT_MIDRASH_SOD1820_PRESENTATION_ID
+    ? BEIT_MIDRASH_SOD1820_PRESENTATION_ID
+    : null;
+  const requestedSlide = clean(params.get("slide"));
+  const presentationSlideId = lessonId && isBeitMidrashSod1820Slide(requestedSlide)
+    ? requestedSlide
+    : null;
   const requestedActivity = clean(params.get("activity"));
   const activityId = section === BEIT_MIDRASH_LEARNING_SECTION.PRACTICE
     && PRACTICE_ACTIVITY_VALUES.has(requestedActivity)
@@ -883,6 +912,8 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     findingId,
     pathId,
     pathStepId,
+    lessonId,
+    presentationSlideId,
     activityId,
     conceptId,
     sourceStepId,
@@ -902,6 +933,8 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
       findingId,
       pathId,
       pathStepId,
+      lessonId,
+      slideId: presentationSlideId,
       activityId,
       conceptId,
       sourceStepId,
@@ -1027,6 +1060,7 @@ export function buildBeitMidrashGuidedExamples(worldProjection, {
 
 export function buildBeitMidrashLearningProjection({
   worldProjection = { rows: [] },
+  curationCatalog = null,
   methodKey = null,
   search = "",
   exampleLimit = DEFAULT_EXAMPLE_LIMIT,
@@ -1036,6 +1070,9 @@ export function buildBeitMidrashLearningProjection({
     manifest: BEIT_MIDRASH_LEARNING_MANIFEST,
     location,
     learningPath: buildBeitMidrashLearningPath(location.pathId, location.pathStepId),
+    sod1820Presentation: location.pathId === "sod1820"
+      ? buildBeitMidrashSod1820Presentation(curationCatalog, location.presentationSlideId)
+      : null,
     practiceActivity: practiceActivityOf(location.activityId),
     guidedExamples: buildBeitMidrashGuidedExamples(worldProjection, {
       limit: exampleLimit,
@@ -1044,6 +1081,8 @@ export function buildBeitMidrashLearningProjection({
     sources: Object.freeze({
       methods: "canonical-method-registry",
       guidedExamples: "worldAllResearchProjection",
+      diamonds: "curationProjection2029",
+      book: "book:ahavat-torah",
     }),
   });
 }

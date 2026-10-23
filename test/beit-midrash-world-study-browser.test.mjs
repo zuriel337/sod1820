@@ -323,7 +323,7 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     assert.equal(await page.locator('#numbers a[href^="/2029/number/"]').count(), 0);
     await page.goto(`${origin}/beit-midrash?section=paths&path=sod1820#path-sod1820`);
     await page.waitForSelector('#path-sod1820.is-focused');
-    assert.equal(await page.locator('#path-sod1820 .bm-path-steps>li').count(), 6);
+    assert.equal(await page.locator('#path-sod1820 .bm-path-steps>li').count(), 7);
     assert.equal(await page.locator('#path-sod1820 a[href*="concept=math-profile"]').count(), 1);
     assert.equal(await page.locator('#path-sod1820 a[href^="/2029/number/"]').count(), 0);
 
