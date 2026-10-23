@@ -141,6 +141,19 @@ test("source_metadata relation is distinct from reality_graph and carries the sa
   assert.equal(normalizeMediaPostSlug(encodeURIComponent("פוסט-92")), "פוסט-92");
 });
 
+test("public catalog media is visibility-only context, never a graph relation or finding", () => {
+  const id = pilot.rows[0].galleryImageId;
+  const item = buildMediaEnvelope({
+    row: row(id),
+    relationType: "gallery_listing",
+    relationKind: MEDIA_RELATION_KIND.PUBLIC_CATALOG,
+  });
+  assert.equal(item.contextRelation.relationKind, "public_catalog");
+  assert.equal(item.contextRelation.projectionReason, "public_catalog:gallery_listing");
+  assert.equal(item.contextRelation.basis, "gallery_images.public_visibility");
+  assert.doesNotMatch(item.contextRelation.projectionReason, /reality_graph|source_metadata/);
+});
+
 test("one canonical presentation: identical across surfaces; context differs", () => {
   const id = pilot.rows[0].galleryImageId;
   const a = buildMediaEnvelope({ row: row(id), node: { id: "n1" }, relationType: "contains" });

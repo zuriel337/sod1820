@@ -1,14 +1,14 @@
 // Left companion panel (desktop): a floating capsule that shows what entered the system everywhere on the site, plus the
 // context of the current selection as a second tab. Slim by default (icon + quiet count), opens on hover/focus or when a
 // selection exists, can be pinned open (the content moves aside). Raziel is NOT in this panel: each row asks Raziel through
-// the bottom orb. Read-only over the existing stream; relative time everywhere (relative_time_display_law).
+// the bottom orb. Read-only over the existing stream; Home opts into relative time and other surfaces use calendar dates.
 import React from "react";
 import { Link } from "react-router-dom";
-import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
+import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import OrGeulaStoryColumn from "../OrGeulaStoryColumn.jsx";
 import "./companionPanel2029.css";
 
-export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, hoverProps }) {
+export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, hoverProps, timeMode = "bilingual" }) {
   const open = mode !== "slim";
   const badge = feed.newCount > 9 ? "9+" : String(feed.newCount);
   return <aside className={`sod29-companion is-${mode}`} aria-label="עדכונים, הקשר ורצף האירועים" data-companion-mode={mode} {...hoverProps}>
@@ -49,7 +49,7 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
             <button type="button" className="sod29-companion-open" disabled={!row.href} onClick={() => { feed.see(row); if (row.href) onOpenHref(row.href); }}>
               <span className="sod29-companion-l1">
                 <span className={`sod29-companion-ty is-${row.kind}${row.strong ? " is-strong" : ""}`}>{row.typeLabel}{row.strong ? " · ◆ חזקה" : ""}</span>
-                <span className="sod29-companion-time">{relativeTimeLabel(row.at, "זמן לא צוין")}</span>
+                <span className="sod29-companion-time">{recordTimeLabel(row.at, timeMode, "זמן לא צוין")}</span>
                 {row.isNew ? <i className="sod29-companion-dot" aria-hidden="true" /> : null}
                 {row.isNew ? <span className="sod29-companion-sr">חדש</span> : null}
               </span>

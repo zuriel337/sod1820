@@ -1505,7 +1505,7 @@
 .sod29-world-all-research .sod29-section-head p{margin:7px 0 0;max-width:900px;line-height:1.7}
 .sod29-world-all-research-summary{
   display:grid;
-  grid-template-columns:repeat(6,minmax(0,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
   gap:8px;
   margin:14px 0;
 }
@@ -1530,6 +1530,7 @@
 }
 .sod29-world-all-research-filters label{display:grid;gap:6px;min-width:0}
 .sod29-world-all-research-filters label>span{color:var(--s29-muted);font-size:10px;font-weight:800}
+.sod29-world-all-research-reset{align-self:end;min-height:42px;justify-content:center}
 .sod29-world-all-research-filters input,
 .sod29-world-all-research-filters select{
   width:100%;
@@ -1575,6 +1576,53 @@
   line-height:1.7;
   overflow-wrap:anywhere;
 }
+.sod29-world-finding-measures{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:7px;
+}
+.sod29-world-finding-measures>div{
+  min-width:0;
+  padding:9px 10px;
+  border:1px solid var(--s29-line);
+  border-radius:12px;
+  background:color-mix(in srgb,var(--s29-panel) 76%,transparent);
+  display:grid;
+  gap:4px;
+}
+.sod29-world-finding-measures small,
+.sod29-world-triage-recommendation small,
+.sod29-world-source-locator small{color:var(--s29-muted);font-size:9px;line-height:1.45}
+.sod29-world-finding-measures strong{color:var(--s29-ink);font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+.sod29-world-triage-recommendation{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:9px 11px;
+  border:1px solid var(--s29-line);
+  border-radius:12px;
+  background:color-mix(in srgb,var(--s29-panel) 82%,transparent);
+}
+.sod29-world-triage-recommendation strong{font-size:12px}
+.sod29-world-triage-recommendation.is-ready{border-color:color-mix(in srgb,#4da876 58%,var(--s29-line))}
+.sod29-world-triage-recommendation.is-blocked{border-color:color-mix(in srgb,#b15b5b 58%,var(--s29-line))}
+.sod29-world-triage-recommendation.is-duplicate{border-color:color-mix(in srgb,#728fc4 58%,var(--s29-line))}
+.sod29-world-ranking-why>div{padding:0 12px 11px}
+.sod29-world-ranking-why p{margin:0 0 8px;line-height:1.65}
+.sod29-world-ranking-why ul{margin:0 0 8px;padding-inline-start:20px}
+.sod29-world-semantic-duplicate,
+.sod29-world-source-locator{
+  display:grid;
+  gap:7px;
+  padding:10px 12px;
+  border:1px solid color-mix(in srgb,var(--s29-accent) 24%,var(--s29-line));
+  border-radius:12px;
+  background:color-mix(in srgb,var(--s29-panel) 68%,transparent);
+}
+.sod29-world-semantic-duplicate p{margin:0;color:var(--s29-muted);font-size:10.5px;line-height:1.6}
+.sod29-world-source-locator code,
+.sod29-world-semantic-duplicate code{max-width:100%;overflow-wrap:anywhere;white-space:normal;color:var(--s29-muted);font-size:9px}
 .sod29-world-all-research-media{
   display:block;
   width:min(100%,420px);
@@ -1626,6 +1674,56 @@
   color:var(--s29-muted);
   font-size:10.5px;
 }
+.sod29-world-all-research-duplicates{
+  border:1px solid color-mix(in srgb,var(--s29-accent) 24%,var(--s29-line));
+  border-radius:12px;
+  background:color-mix(in srgb,var(--s29-panel) 62%,transparent);
+}
+.sod29-world-all-research-duplicates summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 11px;
+  color:var(--s29-ink);
+  cursor:pointer;
+  font-size:10.5px;
+  font-weight:800;
+}
+.sod29-world-all-research-duplicates summary small{
+  color:var(--s29-muted);
+  font-size:9.5px;
+  font-weight:600;
+}
+.sod29-world-all-research-duplicates ol{
+  display:grid;
+  gap:7px;
+  margin:0;
+  padding:0 31px 10px 10px;
+}
+.sod29-world-all-research-duplicates li{
+  padding:8px 9px;
+  border:1px solid var(--s29-line);
+  border-radius:10px;
+  background:color-mix(in srgb,var(--s29-panel-soft) 82%,transparent);
+}
+.sod29-world-all-research-occurrence-head,
+.sod29-world-all-research-occurrence-meta{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:9px;
+}
+.sod29-world-all-research-occurrence-head strong{color:var(--s29-ink);font-size:10.5px}
+.sod29-world-all-research-occurrence-head span,
+.sod29-world-all-research-occurrence-meta span{color:var(--s29-muted);font-size:9.5px}
+.sod29-world-all-research-duplicates li p{
+  margin:6px 0 0;
+  color:var(--s29-muted);
+  line-height:1.65;
+  font-size:10px;
+  white-space:pre-wrap;
+}
 .sod29-world-all-research-ref{
   display:block;
   max-width:100%;
@@ -1638,11 +1736,21 @@
   .sod29-world-all-research-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
   .sod29-world-all-research-filters{grid-template-columns:repeat(3,minmax(0,1fr))}
   .sod29-world-all-research-filters .is-wide{grid-column:1/-1}
+  .sod29-world-finding-measures{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:620px){
   .sod29-world-all-research-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sod29-world-all-research-filters{grid-template-columns:1fr}
+  .sod29-world-finding-measures{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sod29-world-all-research-row-head{display:grid}
+  .sod29-world-triage-recommendation{align-items:flex-start;flex-direction:column}
+  .sod29-world-all-research-duplicates summary,
+  .sod29-world-all-research-occurrence-head,
+  .sod29-world-all-research-occurrence-meta{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:350px){
+  .sod29-world-all-research-summary,
+  .sod29-world-finding-measures{grid-template-columns:1fr}
 }
 
 

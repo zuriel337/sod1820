@@ -508,7 +508,7 @@ function PostReadingBody() {
       lens: activeFocus.id === "ciphers" ? "els" : "world",
       returnTo: exactReturn,
     });
-    shell.go(activeFocus.id === "ciphers" ? "/els" : "/world", { preserve: false });
+    shell.go(activeFocus.id === "ciphers" ? "/els" : "/world?focus=context", { preserve: false });
   };
 
   const openNumber = () => {

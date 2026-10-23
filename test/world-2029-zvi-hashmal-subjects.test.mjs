@@ -21,7 +21,7 @@ test("only approved Topic identities are subjects; Hashmal post is a source work
   assert.equal(filterPublicSourceSubjects(cards, { query: "1234" }).length, 1);
 });
 
-test("the 78 approved Topic and 131 public source rows are paged completely", async () => {
+test("the 78 approved Topic and 132 public source rows are paged completely", async () => {
   const calls = [];
   const out = await fetchPublicSourceSubjectIndex({
     topicReader: async ({ offset, limit, creator }) => {
@@ -35,14 +35,14 @@ test("the 78 approved Topic and 131 public source rows are paged completely", as
     },
     corpusReader: async (spec, page) => {
       calls.push(["source", page, spec.key]);
-      const n = page < 5 ? 24 : 11;
+      const n = page < 5 ? 24 : 12;
       return { items: Array.from({ length: n }, (_, i) => ({
         id: `p-${page}-${i}`, slug: `p-${page}-${i}`, title: "פרסום מקור",
-      })), total: 131, hasMore: page < 5 };
+      })), total: 132, hasMore: page < 5 };
     },
   });
-  assert.equal(out.cards.length, 209);
-  assert.deepEqual(out.totals, { zvi: 78, hashmal: 131 });
+  assert.equal(out.cards.length, 210);
+  assert.deepEqual(out.totals, { zvi: 78, hashmal: 132 });
   assert.deepEqual(out.available, { zvi: true, hashmal: true });
   assert.equal(out.incomplete, false);
   assert.equal(calls.filter(([type]) => type === "topic").length, 2);
@@ -66,16 +66,23 @@ test("media-only source does not show empty technical title", () => {
   assert.equal(readableSourceTitle(null), "עדכון מהמקור");
 });
 
-test("both World layouts use one category-free subject reader and keep sources separate", () => {
+test("the single public World layout uses one category-free subject reader and keeps sources separate", () => {
   const world = readFileSync(new URL("../src/pages/World2029Page.jsx", import.meta.url), "utf8");
-  assert.equal((world.match(/<WorldPublicSourceSubjects2029 \/>/g) || []).length, 2);
+  assert.equal((world.match(/<WorldPublicSourceSubjects2029 \/>/g) || []).length, 1);
   assert.doesNotMatch(world, /<WorldSourceDepth|sourceDepthOpen/);
   const ui = readFileSync(new URL("../src/components/research/WorldPublicSourceSubjects2029.jsx", import.meta.url), "utf8");
   assert.doesNotMatch(ui, /קטגוריות סוד החשמל|publicSourceSubjectCategories|category ===/);
   assert.match(ui, /מקורות סוד החשמל/);
-  assert.match(ui, /נושאים מאושרים/);
+  assert.match(ui, /נושאי צבי מאושרים/);
+  assert.match(ui, /פרסומי סוד החשמל/);
+  assert.match(ui, /ממצאי המחקר של צבי נספרים וממוינים בנפרד/);
   const reader = readFileSync(new URL("../src/lib/research/worldPublicSourceSubjects2029.js", import.meta.url), "utf8");
   assert.doesNotMatch(reader, /posts\.categories|\.map\(.*categories|category\s*=/);
   const source = readFileSync(new URL("../src/components/research/ContributorFindingsLens.jsx", import.meta.url), "utf8");
   assert.doesNotMatch(source, /פרסום מקור אינו אימות מחקרי|מקור ללא טקסט שמור/);
+  assert.match(source, /contributor-structured-sort/);
+  assert.match(source, /בלי להסיק קטגוריה מהטקסט/);
+  assert.match(source, /contributor-admin-triage-links/);
+  assert.match(source, /החזקים שמומלצים לעץ/);
+  assert.match(world, /canReview=\{isAdmin\}/);
 });

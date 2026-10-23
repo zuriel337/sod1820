@@ -1,8 +1,7 @@
 import React, { lazy, Suspense, useEffect, useReducer, useRef, useState } from 'react';
 import Sod2029Shell, { use2029Shell } from '../components/experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../components/experience2029/NavigationIcon2029.jsx';
-import { useResearch } from '../lib/research/ResearchProvider.jsx';
-import { numberExpressionFocusHref } from '../lib/research/numberExpressionFocus.js';
+import { beitMidrashLearningHref, BEIT_MIDRASH_LEARNING_SECTION } from '../lib/research/beitMidrashLearningProjection.js';
 import {
   BUILDINGS, CHALLENGES, UPGRADES, PREVIEW_STORAGE_KEY, initialState, transition,
   restorePreview, serializePreview, isUnlocked, upgradeAvailable, answerMatches,
@@ -18,7 +17,6 @@ function readProgress() {
 }
 function KingdomGame() {
   const shell = use2029Shell();
-  const research = useResearch();
   const [state, dispatch] = useReducer(transition, undefined, readProgress);
   const [selected, setSelected] = useState(() => {
     const id = new URLSearchParams(window.location.search).get('building');
@@ -82,15 +80,9 @@ function KingdomGame() {
     dispatch({ type: 'upgrade', id: upgrade.id });
     setFeedback(`${upgrade.title} הושלם. ${upgrade.benefit}.`);
   }
-  function openResearch(item) {
-    const href = numberExpressionFocusHref(item.answer, { expression: item.expression, method: item.method });
-    // Navigation identity only: the Number owner fetches/validates its own results.
-    // Seed its subject so its normal entry effect preserves the exact return.
-    research.setResearchContext?.({
-      subject: { id: String(item.answer), type: 'number', label: String(item.answer), href },
-      selection: null, lens: 'number', dimensions: {},
-      returnTo: { href: `/2029/kingdom?building=${selected}`, label: 'ממלכת המספרים', subject: null,
-        selection: null, lens: 'journey', dimensions: {}, journey: null },
+  function openMethodLesson(item) {
+    const href = beitMidrashLearningHref(BEIT_MIDRASH_LEARNING_SECTION.METHODS, {
+      methodKey: item.method,
     });
     shell.go(href, { preserve: false });
   }
@@ -121,7 +113,7 @@ function KingdomGame() {
         <NavigationIcon2029 name={moment.type === 'upgrade' ? 'upgrade' : 'discovery'} />
         <strong>{moment.text}</strong><button type="button" aria-label="סגירת משוב הגילוי" onClick={() => setMoment(null)}>סגירה</button>
       </div>}
-      <p className="kingdom-feedback" role="status" aria-live="polite">{feedback || (finished ? 'כל עשר החידות פוענחו. אפשר להשלים שדרוגים ולהמשיך מהגילויים אל המחקר.' : 'התחילו בחידה, ואז השתמשו באור כדי לשדרג מבנה.')}</p>
+      <p className="kingdom-feedback" role="status" aria-live="polite">{feedback || (finished ? 'כל עשר החידות פוענחו. אפשר להשלים שדרוגים ולהמשיך מהגילויים אל הלימוד.' : 'התחילו בחידה, ואז השתמשו באור כדי לשדרג מבנה.')}</p>
       <div className="kingdom-sheet-nav"><button type="button" onClick={() => mapRef.current?.querySelector(`[data-building="${selected}"]`)?.focus()}><NavigationIcon2029 name="graph" size={20}/> חזרה למפה</button></div>
       <div className="kingdom-workbench" id="kingdom-workbench" ref={sheetRef} tabIndex={-1} role="region" aria-label={building.name}>
         <section className="kingdom-panel kingdom-challenge" aria-labelledby="kingdom-challenge-title">
@@ -139,7 +131,7 @@ function KingdomGame() {
                 {hint && <p id="kingdom-hint">{challenge.hint}</p>}
               </form> : <div className="kingdom-solved">
                 <p><NavigationIcon2029 name="discovery" /> פענחתם! הגילוי נוסף למחברת.</p>
-                <div className="kingdom-actions"><button className="kingdom-primary" onClick={nextChallenge}>המשך הגילוי</button><button onClick={() => openResearch(challenge)}>לחקור את {challenge.answer}</button></div>
+                <div className="kingdom-actions"><button className="kingdom-primary" onClick={nextChallenge}>המשך הגילוי</button><button onClick={() => openMethodLesson(challenge)}>ללמוד את שיטת {challenge.method}</button></div>
               </div>}
             </> : <div className="kingdom-empty"><h2 id="kingdom-challenge-title">כל הגילויים כאן הושלמו</h2><p>אפשר לשדרג את הממלכה או לבחור מבנה נוסף במפה.</p><button onClick={() => chooseBuilding(selected === 'garden' ? 'mine' : selected === 'mine' ? 'factory' : 'garden')}>אל המבנה הבא</button></div>}
           {unlocked && <div className="kingdom-inspect">
@@ -163,10 +155,10 @@ function KingdomGame() {
         <p>החישוב מתאר ערך מספרי. שוויון בין ערכים הוא הזמנה לבדיקה, ואינו מוכיח קשר או טענה על המציאות.</p>
         {!state.completed.length ? <p>הגילוי הראשון שלכם יופיע כאן.</p> : <ul>{state.completed.map((id) => {
           const item = CHALLENGES.find((c) => c.id === id);
-          return <li key={id}><span><strong>{item.expression}</strong> · {item.method} · <bdi>{item.answer}</bdi></span><button onClick={() => openResearch(item)}>פתיחה במחקר</button></li>;
+          return <li key={id}><span><strong>{item.expression}</strong> · {item.method} · <bdi>{item.answer}</bdi></span><button onClick={() => openMethodLesson(item)}>ללמוד את השיטה</button></li>;
         })}</ul>}
-        <p className="kingdom-small">חידות ההתנסות נבדקו במנוע הגימטריה ב־9.10.2026. במחקר אפשר לבדוק את החישוב העדכני ואת פרטיו. נקודות המשחק אינן דירוג מחקרי.</p>
-        <div className="kingdom-actions"><button onClick={() => shell.go('/books')}><NavigationIcon2029 name="books" /> ספריית המקורות</button><button onClick={() => shell.go('/els')}><NavigationIcon2029 name="els" /> אל מחקר הצפנים</button></div>
+        <p className="kingdom-small">חידות ההתנסות נבדקו במנוע הגימטריה ב־9.10.2026. בבית המדרש אפשר ללמוד את דרך החישוב ואת גבולותיה. נקודות המשחק אינן מדד לאמיתות הגילוי.</p>
+        <div className="kingdom-actions"><button onClick={() => shell.go('/books')}><NavigationIcon2029 name="books" /> ספריית המקורות</button><button onClick={() => shell.go('/els')}><NavigationIcon2029 name="els" /> אל הצפנים ודילוגי האותיות</button></div>
       </details>
     </>}
     <p className="kingdom-local-note">{saveFailed ? 'השמירה במכשיר אינה זמינה. אפשר להמשיך לשחק, אך ההתקדמות לא תישמר לאחר סגירה.' : 'ההתקדמות נשמרת בדפדפן הזה כהתנסות אישית. אור הוא משאב משחק בלבד.'}</p>
