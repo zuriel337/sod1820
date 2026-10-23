@@ -1,0 +1,2458 @@
+{
+ "version": "post-knowledge-staging-v2",
+ "note": "Candidates for human review only. None becomes a gematria_words row automatically.",
+ "total": 124,
+ "by_group": {
+  "clean_explicit_recomputed": 62,
+  "spelling_variant_of_existing": 17,
+  "suspected_spelling_error": 9,
+  "suspected_boundary_cut": 14,
+  "person_event_or_time_dependent": 22
+ },
+ "groups": {
+  "clean_explicit_recomputed": [
+   {
+    "phrase": "אור גדר",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 414
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36943,
+      "date": "2026-06-20"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "אור גדר ברגיל = 414 ."
+   },
+   {
+    "phrase": "אור הכתר",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 832
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 19882,
+      "date": "2020-03-16"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "אור הכתר = 832"
+   },
+   {
+    "phrase": "אחת אחת אחת אחת",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1636
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "(אחת אחת אחת אחת = 1636 מסתתר)"
+   },
+   {
+    "phrase": "אלף שבע מאות שמונים ותשע",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 2152
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31540,
+      "date": "2023-12-08"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "(1789) אלף שבע מאות שמונים ותשע = 2152"
+   },
+   {
+    "phrase": "אמא תצילי אותי",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 999
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 3951,
+      "date": "2015-03-22"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "\"אמא תצילי אותי\" = 999 ="
+   },
+   {
+    "phrase": "אפל",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 111
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 9346,
+      "date": "2016-05-16"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "אפל = 111"
+   },
+   {
+    "phrase": "אצמיח קרן לדוד",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 543
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 18325,
+      "date": "2019-09-18"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ערך הפסוק הראשון בתורה = 2701 = \"תהא שנת גאולה\"; 73 × 37 = 2701 (חכמה = 73); הריון = 271 = חכמה (משולש); הקורונה במספר משולש. גוג ומגוג = 70 (שבעים אומות). אַצְמִיחַ קֶרֶן לְדָוִד = 543 = אֶהְיֶה אֲשֶׁר אֶהְיֶה = כְּבוֹד"
+   },
+   {
+    "phrase": "אש בהרי ירושלים אליהו הנביא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1234
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25461,
+      "date": "2021-07-30"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "= התגלות; 52 = אליהו. אש בהרי ירושלים - אליהו הנביא = 1234; אש בהרי ירושלים אליהו הנביא בא = 1237. [huge_it_gallery id=\"73\"]"
+   },
+   {
+    "phrase": "בהר שפר",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 787
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 37040,
+      "date": "2026-09-11"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "„בהר שפר” = 787"
+   },
+   {
+    "phrase": "בחירות חמישיות",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1400
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     },
+     {
+      "wp_id": 23886,
+      "date": "2021-03-24"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "בחירות חמישיות = 1400"
+   },
+   {
+    "phrase": "ביום השישי",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 683
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 23886,
+      "date": "2021-03-24"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ביום השישי = 683"
+   },
+   {
+    "phrase": "ברחל בתך הקטנה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 831
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:בתך"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ברחל בתך הקטנה=831=אלף"
+   },
+   {
+    "phrase": "האיש אשר אבחר בו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1036
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36103,
+      "date": "2025-07-18"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "האיש אשר אבחר בו=1036"
+   },
+   {
+    "phrase": "הויה ימלוך לעולם ועד",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 388
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 17982,
+      "date": "2019-08-15"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "הויה ימלוך לעולם ועד = 388"
+   },
+   {
+    "phrase": "החדש הזה לכם",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 424
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 18325,
+      "date": "2019-09-18"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "גאולה לישראל . 240 = עמלק. בוריס גונסון = 453 = מלך המשיח. \"החדש הזה לכם\" = 424 = משיח בן דוד; לכם אותיות \"מלך\". פסוק 1820 בתורה: \"החודש הזה לכם ראש חדשים\"."
+   },
+   {
+    "phrase": "הילרי",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 255
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 9495,
+      "date": "2016-06-29"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "הילרי = 255"
+   },
+   {
+    "phrase": "המלך יוסף",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 251
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "לאדני לעבדים=251= המלך יוסף=מאיר…"
+   },
+   {
+    "phrase": "הניצחון המוחלט בנימין נתניהו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1000
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31911,
+      "date": "2024-01-31"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "התגלות - מספר אותיות 650 - רמזי \"היכל = 65\" החישוב הוא כזה הניצחון המוחלט בנימין נתניהו ניצחון המוחלט בנימין נתניהו יצחון המוחלט בנימין נתניהו צחון המוחלט בנימין נתניהו חון המוחלט בנימין נתניהו ון המוחלט בנימין נתניהו ן "
+   },
+   {
+    "phrase": "הסוד והרמז",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 333
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 28247,
+      "date": "2022-12-18"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "333 =גרעין=סוד הבריאה=הסוד והרמז=שלג…"
+   },
+   {
+    "phrase": "העץ",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 165
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "נהיה לאדני=165= הכסף=עצה=העץ=הסימן."
+   },
+   {
+    "phrase": "וגאלתי",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 450
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25461,
+      "date": "2021-07-30"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "\"וגאלתי\" = 450 רגיל; \"וגאלתי\" - התשפב = 1237 רגיל. שנייה לפני תפילת העמידה אומרים \"יה-וה גאל ישראל\" - התשפא = 1450 מסתתר. \"ברוך אתה יה-וה גאל ישראל\" - התשפא = 2021 רגיל. יגאל ישראל - התשפא = 1450 מסתתר."
+   },
+   {
+    "phrase": "והושעת",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 787
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 37040,
+      "date": "2026-09-11"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "„והושעת” = 787"
+   },
+   {
+    "phrase": "ויריצוהו מן",
+    "claims": [
+     {
+      "method": "מילוי",
+      "value": 921
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 34138,
+      "date": "2024-09-19"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ויריצוהו מן (במילוי)=921"
+   },
+   {
+    "phrase": "ולתתך עליון על כל הגוים",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1236
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:ולתתך"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "וּלְתִתְּךָ עֶלְיוֹן עַל כָּל הַגּוֹיִם = 1236 (משיח רגיל 358 + 878 מילוי)"
+   },
+   {
+    "phrase": "ומצאוך כל הדברים האלה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 515
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 19882,
+      "date": "2020-03-16"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:ומצאוך"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "וּמְצָאוּךָ כֹּל הַדְּבָרִים הָאֵלֶּה = 515"
+   },
+   {
+    "phrase": "יהוה איש מלחמה יהוה שמו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 832
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "יְהוָה אִישׁ מִלְחָמָה יְהוָה שְׁמוֹ = 832 = ארץ ישראל."
+   },
+   {
+    "phrase": "יום הדין הגדול והנורא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 441
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 5662,
+      "date": "2015-07-13"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "יום הדין הגדול והנורא = 441 = אמת"
+   },
+   {
+    "phrase": "יום העצמאות עו מדינת ישראל",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1789
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31540,
+      "date": "2023-12-08"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "יום העצמאות עו מדינת ישראל = 1789"
+   },
+   {
+    "phrase": "יצא ממקומו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 333
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 19012,
+      "date": "2019-12-11"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "הפסוק בתמונה הוא מיחזקאל יב - הפסוק אומר שלא תקום עוד ממשלה בישראל המילים המילים \"אבד כל חזון\", ממש משקף את המצב שלנו במדינה... וזה מזכיר את הפסוק מדניאל שמדבר על ימינו ״וּבָעִתִּים הָהֵם רַבִּים יַעַמְדוּ עַל מֶלֶךְ הַנ"
+   },
+   {
+    "phrase": "כבוד מלכות יה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 543
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 18325,
+      "date": "2019-09-18"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ערך הפסוק הראשון בתורה = 2701 = \"תהא שנת גאולה\"; 73 × 37 = 2701 (חכמה = 73); הריון = 271 = חכמה (משולש); הקורונה במספר משולש. גוג ומגוג = 70 (שבעים אומות). אַצְמִיחַ קֶרֶן לְדָוִד = 543 = אֶהְיֶה אֲשֶׁר אֶהְיֶה = כְּבוֹד"
+   },
+   {
+    "phrase": "כסף משנה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 555
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "כסף משנה=555=אליהו הנביא ומשיח בן דוד(מילים)."
+   },
+   {
+    "phrase": "לאדני לעבדים",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 251
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "לאדני לעבדים=251= המלך יוסף=מאיר…"
+   },
+   {
+    "phrase": "מבצע צבאי מיוחד",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 373
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25714,
+      "date": "2021-09-12"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "\"מבצע צבאי מיוחד\" = 373 רגיל; אוקראינה = 373 רגיל. סוד \"שלוש שבע שלוש\" = 1714 רגיל; מלחמת עולם שלישית = 1714 רגיל."
+   },
+   {
+    "phrase": "מגדל בורג חליפה אלפים עשרים",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1202
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "מגפת רעב בימינו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 913
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 20502,
+      "date": "2020-04-23"
+     }
+    ],
+    "flags": [
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "מונית",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 506
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 17503,
+      "date": "2019-06-26"
+     },
+     {
+      "wp_id": 28180,
+      "date": "2022-11-30"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "מונית=506=שור"
+   },
+   {
+    "phrase": "מייביס וונזיק ממסצוסטס",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 676
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 11877,
+      "date": "2017-08-25"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:ממסצוסטס"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "שימו לב להמשך הפלאי. מייביס וונזיק ממסצ׳וסטס = 676 רגיל (מספר הגאולה החזק). ו-7780 מילוי גדול !! ו-4500 א״ת-ב״ש ! (פי5)"
+   },
+   {
+    "phrase": "מצעדי הגאווה יסתיימו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 776
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 5004,
+      "date": "2015-06-10"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:יסתיימו"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "מצעדי הגאווה יסתיימו? = 776 - (מתי זה יסתיים? התשובה במספר.. 776)"
+   },
+   {
+    "phrase": "נהיה לאדני",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 165
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "נהיה לאדני=165= הכסף=עצה=העץ=הסימן."
+   },
+   {
+    "phrase": "סוד המורדים החותים",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 844
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31540,
+      "date": "2023-12-08"
+     }
+    ],
+    "flags": [
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "סוד המורדים החותים משיח",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1202
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31540,
+      "date": "2023-12-08"
+     }
+    ],
+    "flags": [
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "סוד סוף העולם",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 367
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25714,
+      "date": "2021-09-12"
+     }
+    ],
+    "flags": [
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "סוד שלוש שבע שלוש",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1714
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25714,
+      "date": "2021-09-12"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "\"מבצע צבאי מיוחד\" = 373 רגיל; אוקראינה = 373 רגיל. סוד \"שלוש שבע שלוש\" = 1714 רגיל; מלחמת עולם שלישית = 1714 רגיל."
+   },
+   {
+    "phrase": "סימטריה אלוהית",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 786
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 37024,
+      "date": "2026-08-27"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "סימטריה אלוהית = 786 · רגיל"
+   },
+   {
+    "phrase": "סימן גאולה לישראל",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 776
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 18325,
+      "date": "2019-09-18"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "). 776 = ביאת המשיח = צירוף מקרים = שלמות = חיי העולם הבא = סימן גאולה לישראל . 240 = עמלק. בוריס גונסון = 453 = מלך המשיח. \"החדש הזה לכם\" = 424 = משיח בן דוד; לכם אותיות \"מלך\". פסוק 1820 בתורה: \"החודש הזה לכם ראש חדשים\""
+   },
+   {
+    "phrase": "סרט צהוב של חטופים",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 855
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31540,
+      "date": "2023-12-08"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "סרט צהוב של חטופים=855"
+   },
+   {
+    "phrase": "עורו הישנים הגאולה בפתח",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1237
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25714,
+      "date": "2021-09-12"
+     }
+    ],
+    "flags": [
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "עטרת תפארתכם",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1820
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36951,
+      "date": "2026-07-03"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": ". וכעת מתגלה שלמספר הזה יש גם שֵׁם — התורה עצמה קוראת לו: « עטרת תפארתכם »."
+   },
+   {
+    "phrase": "פתאם שר משפיע",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1521
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "הבחירות בפעם הרביעית=1521=שר משפיע נתניהו= שרביט שר משפיע= פתאם שר משפיע."
+   },
+   {
+    "phrase": "קטאר דוחה כה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 358
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 28247,
+      "date": "2022-12-18"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "קטאר דוחה כה'=358=משיח."
+   },
+   {
+    "phrase": "ראש הממשלה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 921
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 34138,
+      "date": "2024-09-19"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ראש הממשלה= 921"
+   },
+   {
+    "phrase": "רוח הויה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 240
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 24137,
+      "date": "2021-04-23"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "עמלק = 240 = מר = ספק = דולר. לעומת זה בצד החיובי יש לנו. רוח הויה = 240 - ברוך הוא = 240"
+   },
+   {
+    "phrase": "רזא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 208
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36982,
+      "date": "2026-08-05"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "רזא = 208 · שבת = 702"
+   },
+   {
+    "phrase": "שבעים נפש",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 852
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "שבעים נפש=852= בעתה אחישנה= נתניהו טראמפ."
+   },
+   {
+    "phrase": "שמי אחד",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 363
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 29256,
+      "date": "2023-05-14"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "חד קרן=362. קרן=350=שמי. אחד=13. וככה רואים ש-\"המשיח\"=363=שמי אחד. מספרים השייכים למשיח וגאולה מופיעים בהרבה מאד דברים בעולם. זה משתקף בחדשות ובכותרות. אתה מוזמן לראות באתר \"כי לה' המלוכה\", ובקבוצות הווטסאפ השייכות לאתר."
+   },
+   {
+    "phrase": "שנת יהוה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 776
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 5292,
+      "date": "2015-07-09"
+     }
+    ],
+    "flags": [
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "שעה אחת",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 784
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 17982,
+      "date": "2019-08-15"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "שעה אחת= 784= ה׳תשע״ט"
+   },
+   {
+    "phrase": "שר משפיע נתניהו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1521
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "שכל שכלתי= 1521= שר משפיע נתניהו= הבחירות בפעם הרביעית."
+   },
+   {
+    "phrase": "שרביט שר משפיע",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1521
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "הבחירות בפעם הרביעית=1521=שר משפיע נתניהו= שרביט שר משפיע= פתאם שר משפיע."
+   },
+   {
+    "phrase": "שתים שבע שלוש שש",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 2358
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25714,
+      "date": "2021-09-12"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "שנת תשפב = 2736 מילוי; התגלות משיח בשנת תשפב = 2736 רגיל. \"שתים שבע שלוש שש\" = 2358 רגיל. מילוי \"שביעית\" (שין בית יוד עין יוד תיו) = 1358 = משיח. שנה שביעית = 1111 מסתתר."
+   },
+   {
+    "phrase": "תופיע ותמלוך עלינו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1234
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "תּוֹפִיעַ וְתִמְלוֹךְ עָלֵינוּ = 1234"
+   },
+   {
+    "phrase": "תיקון המשפט",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1000
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36947,
+      "date": "2026-06-28"
+     }
+    ],
+    "flags": [],
+    "appears_verbatim_in_post": true,
+    "claim_text": "1000 = תיקון המשפט = משיח בן יוסף משיח בן דויד"
+   }
+  ],
+  "spelling_variant_of_existing": [
+   {
+    "phrase": "אירן",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 261
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     },
+     {
+      "wp_id": 36973,
+      "date": "2026-07-28"
+     }
+    ],
+    "flags": [
+     "variant_of:אוירון|אור נ|ארון"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "בן אחר=261= אירן=ביד רמה."
+   },
+   {
+    "phrase": "ארס",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 261
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36973,
+      "date": "2026-07-28"
+     }
+    ],
+    "flags": [
+     "variant_of:אריס",
+     "unseen_token_possible_proper_name:ארס"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "261 = אירן = ארס"
+   },
+   {
+    "phrase": "גאולתי",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 450
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25714,
+      "date": "2021-09-12"
+     }
+    ],
+    "flags": [
+     "variant_of:גאולת"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ה גלותי יה-וה = 1237 מסתתר; תמה גלותי - התשפג = 2022 מסתתר. גאולתי = 450 רגיל; גאולתי - התשפב = 1237 רגיל. התגלות = 1237 מסתתר. נפתלי בנט הימין החדש = 1237 מסתתר. אביגדור ליברמן - שר האוצר - סימן לגאולה בימינו = 1237 מסת"
+   },
+   {
+    "phrase": "דונלד טראמף",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 424
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 9495,
+      "date": "2016-06-29"
+     }
+    ],
+    "flags": [
+     "variant_of:דונלד טראמפ",
+     "unseen_token_possible_proper_name:טראמף"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "דונלד טראמף = 424 = משיח בן דוד"
+   },
+   {
+    "phrase": "הכסף",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 165
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "variant_of:כסף"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "נהיה לאדני=165= הכסף=עצה=העץ=הסימן."
+   },
+   {
+    "phrase": "המשכן",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 415
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "variant_of:משכון|משכן"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "חשמונאי=415=תודה=ממשלה=המשכן=אור אין סוף."
+   },
+   {
+    "phrase": "הסימן",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 165
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "variant_of:סימן"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "נהיה לאדני=165= הכסף=עצה=העץ=הסימן."
+   },
+   {
+    "phrase": "העמלקי",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 255
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 9495,
+      "date": "2016-06-29"
+     }
+    ],
+    "flags": [
+     "variant_of:עמלק"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "העמלקי =255"
+   },
+   {
+    "phrase": "התשעה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 780
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 5292,
+      "date": "2015-07-09"
+     }
+    ],
+    "flags": [
+     "variant_of:תשועה|תשעה",
+     "hebrew_year_form"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "נבדוק גימטריה של: תשעה באב = 780 בדיוק כמו התשע\"ה = 780"
+   },
+   {
+    "phrase": "התשעו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 781
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 7340,
+      "date": "2015-11-12"
+     },
+     {
+      "wp_id": 7477,
+      "date": "2015-11-18"
+     }
+    ],
+    "flags": [
+     "variant_of:תשיעי|תשע",
+     "hebrew_year_form"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "עדכון 12.11 אחד הממצאים הכי חזקים שנמצאו - פסוק שלם מישעיה ס\"ב פסוק שמדבר על שמירת ה' בירושלם.. מילוי דמילוי גדול 57760 - אותיות לפני 5776 - סופי תיבות= 781 = התשע\"ו"
+   },
+   {
+    "phrase": "התשפ",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 785
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "variant_of:תשפו",
+     "hebrew_year_form"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "התשפ = 785"
+   },
+   {
+    "phrase": "ודבר כלחזון",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 333
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 19012,
+      "date": "2019-12-11"
+     }
+    ],
+    "flags": [
+     "variant_of:ודבר כל חזון",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "משיח בן יוסף משיח בן דויד",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1000
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 6023,
+      "date": "2015-08-04"
+     },
+     {
+      "wp_id": 36947,
+      "date": "2026-06-28"
+     }
+    ],
+    "flags": [
+     "variant_of:משיח בן יוסף משיח בן דוד",
+     "matches_known_entity_or_event_label",
+     "overlong_capture"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "רת \"אותיות העברית\" = 5776 משולש !!! מילוי ללא מילה = 1000 = משיח בן יוסף משיח בן דויד"
+   },
+   {
+    "phrase": "ראשהשנה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 861
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 34138,
+      "date": "2024-09-19"
+     }
+    ],
+    "flags": [
+     "variant_of:ראש השנה",
+     "unseen_token_possible_proper_name:ראשהשנה"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ראשהשנה=861"
+   },
+   {
+    "phrase": "שיער",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 580
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36970,
+      "date": "2026-07-23"
+     }
+    ],
+    "flags": [
+     "variant_of:שוער|שעור|שעיר"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "580 = עשיר = שיער"
+   },
+   {
+    "phrase": "תשעו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 776
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 6023,
+      "date": "2015-08-04"
+     }
+    ],
+    "flags": [
+     "variant_of:תשיעי|תשע",
+     "hebrew_year_form"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "כולם מוזמנים לראות מקורות, מאמרים ,סרטונים וגימטריות באתר sod1820 נסו ותהנו..,ה\"שלמות\" תגיע כאשר יבוא אליהו (אליהו הוא פינחס)- שניהם עשו/יעשו שלום, בתוכנו ובינינו לבין אבינו שבשמים. ומתי יקרה החיבור בין אליהו(זכור לטוב) "
+   },
+   {
+    "phrase": "תשפ",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 780
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "variant_of:תשפו",
+     "hebrew_year_form"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "עשרים כסף =780/תשפ"
+   }
+  ],
+  "suspected_spelling_error": [
+   {
+    "phrase": "ביבס",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 74
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31911,
+      "date": "2024-01-31"
+     }
+    ],
+    "flags": [
+     "edit_distance_1_from:ביבי",
+     "unseen_token_possible_proper_name:ביבס"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ביבס =74"
+   },
+   {
+    "phrase": "ברק חוסיין אובאמה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 501
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 2261,
+      "date": "2014-10-02"
+     }
+    ],
+    "flags": [
+     "edit_distance_1_from:בראק חוסיין אובאמה"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ברק חוסיין אובאמה = 501 = דצך עדש באחב (ראשי תיבות של 10 המכות) =ארור המן…"
+   },
+   {
+    "phrase": "בשבעים",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 424
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "edit_distance_1_from:שבעים"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "אבל אשמים=424= משיח בן דוד= בשבעים."
+   },
+   {
+    "phrase": "בשורת הניצחון",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1127
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36007,
+      "date": "2025-06-24"
+     }
+    ],
+    "flags": [
+     "edit_distance_1_from:בשורת ניצחון"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "בשורת הניצחון = 1127 !"
+   },
+   {
+    "phrase": "ההתבודדות",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 832
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 19882,
+      "date": "2020-03-16"
+     }
+    ],
+    "flags": [
+     "edit_distance_1_from:התבודדות"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ההתבודדות = 832"
+   },
+   {
+    "phrase": "ותשועה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 787
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 37040,
+      "date": "2026-09-11"
+     }
+    ],
+    "flags": [
+     "edit_distance_1_from:תשועה"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "„ותשועה” = 787"
+   },
+   {
+    "phrase": "נגיף הקורונה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 515
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 19882,
+      "date": "2020-03-16"
+     }
+    ],
+    "flags": [
+     "edit_distance_1_from:נגיף קורונה"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "נגיף הקורונה = 515"
+   },
+   {
+    "phrase": "ניצחון מוחלט בעמלק בתשפד",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1335
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31911,
+      "date": "2024-01-31"
+     }
+    ],
+    "flags": [
+     "edit_distance_1_from:ניצחון מוחלט בעמלק תשפד"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ניצחון מוחלט בעמלק בתשפד = 1335"
+   },
+   {
+    "phrase": "שריפות",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 996
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36947,
+      "date": "2026-06-28"
+     }
+    ],
+    "flags": [
+     "edit_distance_1_from:שרירות"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "996 = אורו של מלך המשיח = אברהם יצחק יעקב משיח = שריפות"
+   }
+  ],
+  "suspected_boundary_cut": [
+   {
+    "phrase": "א תשרי התשעו",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1692
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 5662,
+      "date": "2015-07-13"
+     }
+    ],
+    "flags": [
+     "detached_single_letter_token",
+     "hebrew_year_form",
+     "hebrew_month"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "א תשרי התשעו = 1692 = חמש שבע שבע שש"
+   },
+   {
+    "phrase": "אין מספר",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 441
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 3859,
+      "date": "2015-03-11"
+     }
+    ],
+    "flags": [
+     "function_word_at_edge"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ה ה1 שהיא לוקחת את המת שבגשמי החולף והופכת אותו לאמת…. לכן 'אין מספר' שווה 441 שזה אמת… \"ולגדולתו אין מספר כך נאמר\"… מי שמחובר לאמת הוא חיי…"
+   },
+   {
+    "phrase": "בנימין ביבי נתניהו ימחה זכר עמלק",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1237
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31911,
+      "date": "2024-01-31"
+     }
+    ],
+    "flags": [
+     "overlong_capture"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "בנימין ביבי נתניהו ימחה זכר עמלק = 1237"
+   },
+   {
+    "phrase": "ברוך אתה יהוה גאל ישראל התשפא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 2021
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25461,
+      "date": "2021-07-30"
+     }
+    ],
+    "flags": [
+     "overlong_capture",
+     "hebrew_year_form",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "והיה האיש אשר",
+    "claims": [
+     {
+      "method": "אתבש",
+      "value": 1237
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36103,
+      "date": "2025-07-18"
+     }
+    ],
+    "flags": [
+     "function_word_at_edge"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "והיה האיש אשר אתבש=1237"
+   },
+   {
+    "phrase": "והיה יהוה למלך על כל הארץ",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 618
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31911,
+      "date": "2024-01-31"
+     }
+    ],
+    "flags": [
+     "overlong_capture",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "זו שנת שתים אפס אחד חמש",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 2015
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 5292,
+      "date": "2015-07-09"
+     }
+    ],
+    "flags": [
+     "function_word_at_edge",
+     "overlong_capture"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "זו שנת שתים אפס אחד חמש = 2015"
+   },
+   {
+    "phrase": "חמשת אלפים שבע מאות שבעים ושש",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 2756
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 5292,
+      "date": "2015-07-09"
+     }
+    ],
+    "flags": [
+     "overlong_capture"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "את אומרת שם ה' יתברך מרמז לנו על התכלית שהוא יהיה שלם בשנת: חמשת אלפים שבע מאות שבעים ושש = 2756 - וכזכור שנת י-ה-ו-ה = 776 - הכל חוזר להתחלה…. זה עוצמת ה\"צירוף מקרים\" = 776 האלוקי"
+   },
+   {
+    "phrase": "יהוה מלך יהוה מלך יהוה ימלך",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 358
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 31911,
+      "date": "2024-01-31"
+     }
+    ],
+    "flags": [
+     "overlong_capture"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "יְהוָה מֶלֶךְ יְהוָה מָלָךְ יְהוָה יִמְלֹךְ = 358"
+   },
+   {
+    "phrase": "משיח בן דויד משיח בן יוסף",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1000
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 3951,
+      "date": "2015-03-22"
+     },
+     {
+      "wp_id": 31911,
+      "date": "2024-01-31"
+     }
+    ],
+    "flags": [
+     "matches_known_entity_or_event_label",
+     "overlong_capture"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "משיח בן דויד משיח בן יוסף = 1000"
+   },
+   {
+    "phrase": "משלי ל כז",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 437
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 22588,
+      "date": "2020-11-08"
+     }
+    ],
+    "flags": [
+     "detached_single_letter_token"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "משלי ל׳ כ״ז=437= ׳משיח בן דויד ׳ עם המילים."
+   },
+   {
+    "phrase": "ראשית גוים עמלק ואחריתו עדי אבד",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1932
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 34138,
+      "date": "2024-09-19"
+     }
+    ],
+    "flags": [
+     "overlong_capture"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "\"ראשית גוים עמלק ואחריתו עדי אבד\"=1932 !!!"
+   },
+   {
+    "phrase": "רז ע",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 277
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 27450,
+      "date": "2022-08-24"
+     }
+    ],
+    "flags": [
+     "detached_single_letter_token"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "277 = גימטריה 277 = רז ע'"
+   },
+   {
+    "phrase": "שנת י ה ו ה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 776
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 3951,
+      "date": "2015-03-22"
+     }
+    ],
+    "flags": [
+     "detached_single_letter_token"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "שנת י ה ו ה = 776 לדף הגימטריות המלא לחץ"
+   }
+  ],
+  "person_event_or_time_dependent": [
+   {
+    "phrase": "איילת שקד תשפא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1636
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25461,
+      "date": "2021-07-30"
+     }
+    ],
+    "flags": [
+     "hebrew_year_form",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "ארבעה יודין",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 358
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 14414,
+      "date": "2018-08-13"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:יודין"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "\"אֲנִי לְדוֹדִי וְדוֹדִי לִי\" ר\"ת חודש אלול . \"אני לדודי\" = אתערותא דלתתא (עבודת האדם); \"דודי לי\" = התגלות הקב\"ה בראש השנה ויום כיפור (אתערותא דלעילא). סופי התיבות = ארבעה יודי\"ן. ארבעה יודי\"ן = 358 = משיח; המסתתר = 1237"
+   },
+   {
+    "phrase": "בוריס גונסון",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 453
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 18325,
+      "date": "2019-09-18"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:בוריס|גונסון"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ם = שלמות = חיי העולם הבא = סימן גאולה לישראל . 240 = עמלק. בוריס גונסון = 453 = מלך המשיח. \"החדש הזה לכם\" = 424 = משיח בן דוד; לכם אותיות \"מלך\". פסוק 1820 בתורה: \"החודש הזה לכם ראש חדשים\"."
+   },
+   {
+    "phrase": "דונאלד טרמפ",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 424
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 9495,
+      "date": "2016-06-29"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:דונאלד|טרמפ"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "דונאלד טרמפ = 424 כמנין - משיח בן דוד = 424"
+   },
+   {
+    "phrase": "הנשיא גו ביידן התשפא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1237
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 22588,
+      "date": "2020-11-08"
+     }
+    ],
+    "flags": [
+     "hebrew_year_form",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "התשעט",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 784
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 17982,
+      "date": "2019-08-15"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:התשעט",
+     "hebrew_year_form"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "784 = התשע\"ט"
+   },
+   {
+    "phrase": "ויזד יעקב",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 209
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36985,
+      "date": "2026-08-09"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:ויזד"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "לה 209: « מטעמים » שווה « בורא », « באור », « הצדיק » וגם « ויזד יעקב » — כולם 209 . הבורא מבקש שנבאר את התורה (באור), והצדיק הוא המבאר; ויעקב «הזיד» מטעמים כדי לקנות את הבכורה."
+   },
+   {
+    "phrase": "חד קרן דונלד טראמפ",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 786
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 37024,
+      "date": "2026-08-27"
+     }
+    ],
+    "flags": [
+     "matches_known_entity_or_event_label"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "הביטוי «חד קרן דונלד טראמפ» עולה במנוע 786 בגימטריה רגילה — וזה בדיוק ערך השנה שאנחנו בתוכה, תשפ״ו ."
+   },
+   {
+    "phrase": "חיזבאללה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 93
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 34138,
+      "date": "2024-09-19"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:חיזבאללה"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "חיזבאללה = 93"
+   },
+   {
+    "phrase": "טרנסניסטריה תשפב",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1445
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25714,
+      "date": "2021-09-12"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:טרנסניסטריה|תשפב",
+     "hebrew_year_form",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "מגדל בורג חליפה תשפא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1202
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 16571,
+      "date": "2019-04-02"
+     }
+    ],
+    "flags": [
+     "hebrew_year_form",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "מגפת דבר תשפא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1510
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25461,
+      "date": "2021-07-30"
+     }
+    ],
+    "flags": [
+     "hebrew_year_form",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "מיואש",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 357
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 35669,
+      "date": "2025-04-30"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:מיואש"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "מיואש = 357"
+   },
+   {
+    "phrase": "סוד גאולת מצרים משה התשפג",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 2023
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 28247,
+      "date": "2022-12-18"
+     }
+    ],
+    "flags": [
+     "hebrew_year_form",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "סרבני חיסון תשפא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1237
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 25461,
+      "date": "2021-07-30"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:סרבני",
+     "hebrew_year_form",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   },
+   {
+    "phrase": "פדר",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 284
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36959,
+      "date": "2026-07-09"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:פדר"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "פדר = 284 · סן = 110 · יחד = 394"
+   },
+   {
+    "phrase": "פרים תשפא",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1111
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 22588,
+      "date": "2020-11-08"
+     }
+    ],
+    "flags": [
+     "hebrew_year_form"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "פֻּרִים תשפא = 1111"
+   },
+   {
+    "phrase": "קלינטון",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 255
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 9495,
+      "date": "2016-06-29"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:קלינטון"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "קלינטון = 255"
+   },
+   {
+    "phrase": "קץ הסתר הפנים התשעה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1820
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 5292,
+      "date": "2015-07-09"
+     }
+    ],
+    "flags": [
+     "hebrew_year_form"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "קץ הסתר הפנים התשע\"ה = 1820"
+   },
+   {
+    "phrase": "רודהם",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 255
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 9495,
+      "date": "2016-06-29"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:רודהם"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "רודהם = 255"
+   },
+   {
+    "phrase": "רסן פה",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 395
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 36970,
+      "date": "2026-07-23"
+     }
+    ],
+    "flags": [
+     "unseen_token_possible_proper_name:רסן"
+    ],
+    "appears_verbatim_in_post": true,
+    "claim_text": "ורש״י: «יִתְּזַן»; השפעת הפרנסה כנשיקת הפה. ו פרנסה אותיות רסן פה (395) — מי ששם רסן לפיו, זוכה לקבל פרנסה מן המלכות שהיא בחינת פה."
+   },
+   {
+    "phrase": "שם יהוה אלהים יתגלה תשפג",
+    "claims": [
+     {
+      "method": "רגיל",
+      "value": 1683
+     }
+    ],
+    "posts": [
+     {
+      "wp_id": 28180,
+      "date": "2022-11-30"
+     }
+    ],
+    "flags": [
+     "hebrew_year_form",
+     "not_verbatim_in_post_text"
+    ],
+    "appears_verbatim_in_post": false,
+    "claim_text": null
+   }
+  ]
+ }
+}
