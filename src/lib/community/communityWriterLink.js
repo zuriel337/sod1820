@@ -1,4 +1,5 @@
-import { supabase, contributorHref } from "../supabase.js";
+import { contributorHref } from "../supabase.js";
+import { getPublicResearchClient } from "../research/researchViewMode.js";
 import { approvedReturnHref } from "../../components/contributor2029/publicContributor2029Model.js";
 import { publicWriterVisible } from "../userCenter/writerPersonal2029.js";
 
@@ -12,19 +13,24 @@ export function communityWriterLookup(authorKey) {
   return UUID.test(id) ? { column: isUser ? "user_id" : "id", id } : null;
 }
 
-// Resolves the existing public writer page for a community author. Exactly one anonymous-visible
-// contributor may match: no name matching, and an ambiguous binding resolves to nothing.
-export async function resolveCommunityWriter(authorKey, { client = supabase } = {}) {
+// Writer capability follows the Person public resolver rule: contributor.kind is writer or author.
+// A public dossier alone is a profile page, not a writer capability, and free-text role is never read.
+export const WRITER_KINDS = Object.freeze(["writer", "author"]);
+
+// Resolves the existing public contributor page for a community author through the anonymous public
+// reader. Exactly one visible contributor may match: no name matching, and an ambiguous binding
+// resolves to nothing. `isWriter` says whether the page may be labeled as a writer page.
+export async function resolveCommunityWriter(authorKey, { client = getPublicResearchClient() } = {}) {
   const lookup = communityWriterLookup(authorKey);
   if (!lookup || !client) return null;
   const { data, error } = await client.from("contributors")
-    .select("slug,code,display_name,active,locked,building,visibility:dossier_settings->>visibility")
+    .select("slug,code,display_name,kind,active,locked,building,visibility:dossier_settings->>visibility")
     .eq(lookup.column, lookup.id).limit(2);
   if (error || !Array.isArray(data) || data.length !== 1) return null;
   const row = data[0];
   if (!publicWriterVisible(row) || row.visibility !== "public") return null;
   const href = contributorHref(row);
-  return href ? { name: row.display_name || null, href } : null;
+  return href ? { name: row.display_name || null, href, isWriter: WRITER_KINDS.includes(row.kind) } : null;
 }
 
 // Writer-page link carrying an approved return target, so the writer page can offer a way back.

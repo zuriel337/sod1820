@@ -13,6 +13,7 @@ import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim from "./LegacyAccountClaim.jsx";
 import { isLegacyContributorId } from "../../lib/community/legacyClaim.js";
 import { communityWriterHref, resolveCommunityWriter } from "../../lib/community/communityWriterLink.js";
+import "../../pages/community2029.css";
 import ReactionBar from "../ReactionBar.jsx";
 import UserBadge from "../UserBadge.jsx";
 
@@ -356,7 +357,7 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
       {claimId ? null : memberId ? <section className="sod29-community-profile" aria-label={`הפרופיל של ${memberName}`}>
         <button type="button" className="sod29-community-text-action" onClick={closeProfile}>→ חזרה לשיחות</button>
         <header className="sod29-community-profile-hero"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" /><h2>{memberName}</h2>{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{baseline?.name && baseline.name !== memberName ? <p>הודעות עבר בשם {baseline.name}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
-        {writer ? <Link className="sod29-community-secondary" to={writerHref()}>לדף הכותב ←</Link> : null}
+        {writer ? <Link className="sod29-community-secondary" to={writerHref()}>{writer.isWriter ? "לדף הכותב ←" : "לדף הפרופיל ←"}</Link> : null}
         {isOwner ? <Link className="sod29-community-secondary sod29-community-edit-profile" to="/profile">עריכת הפרופיל שלי</Link> : null}
         {!isOwner && isLegacyContributorId(memberId) ? <Link className="sod29-community-secondary sod29-community-edit-profile" to={`?preview=community&data=live&claim=${memberId}`}>זה החשבון הישן שלי</Link> : null}
         {baseline?.isPrivate ? <p className="sod29-community-profile-note">פרטי הפרופיל פרטיים. הודעות שפורסמו בעבר נשארות ציבוריות.</p> : null}
@@ -385,14 +386,14 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
           <button ref={cardCloseRef} type="button" className="sod29-community-card-close" onClick={closeCard} aria-label="סגירת כרטיס הכותב">×</button>
-          <header className="sod29-community-card-header"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" /><h2>{memberName}</h2>{writer ? <span className="sod29-community-writer-chip">כותב</span> : null}{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
+          <header className="sod29-community-card-header"><UserBadge avatarOnly name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} avatarClassName="sod29-community-avatar" /><h2>{memberName}</h2>{writer?.isWriter ? <span className="sod29-community-writer-chip">כותב</span> : null}{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
           {baseline?.isPrivate ? <p className="sod29-community-card-note">פרטי הפרופיל פרטיים; ההודעות שכבר פורסמו ציבוריות.</p> : null}
           <div className="sod29-community-card-section"><h3>ההודעות של {memberName}</h3>{!profileLoading && !profileError ? <span>{profileCount.toLocaleString("he-IL")} הודעות</span> : null}</div>
           {profileLoading ? <p className="sod29-community-card-note" role="status">טוען הודעות…</p> : null}
           {profileError ? <p className="sod29-community-card-note" role="alert">{profileError}</p> : null}
           <div className="sod29-community-card-messages">{profileRows.slice(0, 4).map((row) => <article key={row.id}><div className="sod29-community-card-meta"><span>{row.origin === "openweb" ? `הצ׳אט הוותיק · ${row.authorName}` : "הקהילה"}</span><time dateTime={row.createdAt}>{dateFormat.format(new Date(row.createdAt))}</time></div><p dir="auto">{row.body}</p><div>{legacyLikeCount(row.reactions) > 0 ? <span>👍 {legacyLikeCount(row.reactions)}</span> : null}{row.parentId ? <span>תגובה בצ׳אט</span> : null}</div></article>)}</div>
           {!profileLoading && !profileRows.length && !profileError ? <p className="sod29-community-card-note">אין הודעות ציבוריות לכותב זה.</p> : null}
-          {writer ? <Link className="sod29-community-card-full sod29-community-card-writer" to={writerHref()}>לדף הכותב ←</Link> : null}
+          {writer ? <Link className="sod29-community-card-full sod29-community-card-writer" to={writerHref()}>{writer.isWriter ? "לדף הכותב ←" : "לדף הפרופיל ←"}</Link> : null}
           <button type="button" className={writer ? "sod29-community-card-full sod29-community-card-secondary" : "sod29-community-card-full"} onClick={openFullProfile}>{writer ? "כל ההודעות בקהילה ←" : "לעמוד הכותב המלא ←"}</button>
         </section>
       </div> : null}
