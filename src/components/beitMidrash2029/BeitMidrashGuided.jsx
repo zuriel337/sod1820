@@ -16,7 +16,7 @@ function GuidedCard({ example }) {
   const contributorHref = publicContributorHref(example.contributor);
   const worldHref = publicWorldSourceHref(example.contributor);
   const findingHref = example.canonicalFindingHref;
-  const rememberAndOpenWorld = (event, href = worldHref) => {
+  const rememberWorldContext = () => {
     const selection = {
       entityId: example.sourceId,
       entityType: "finding",
@@ -36,6 +36,9 @@ function GuidedCard({ example }) {
         lens: "beit-midrash",
       },
     });
+  };
+  const rememberAndOpenWorld = (event, href = worldHref) => {
+    rememberWorldContext();
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     shell.go(href, { preserve: false });
@@ -67,7 +70,7 @@ function GuidedCard({ example }) {
         <dd>{example.sourceLabel ? <span>{example.sourceLabel} · </span> : null}<code dir="ltr">{example.sourceRef || "אין מזהה מקור"}</code></dd>
       </div>
       {example.contributor ? <div><dt>הובא על ידי</dt><dd>{contributorHref
-        ? <Link className="bm-contributor-link" to={contributorHref} onClick={rememberAndOpenWorld}>{example.contributor}</Link>
+        ? <Link className="bm-contributor-link" to={contributorHref} onClick={rememberWorldContext}>{example.contributor}</Link>
         : example.contributor}</dd></div> : null}
     </dl>
 
