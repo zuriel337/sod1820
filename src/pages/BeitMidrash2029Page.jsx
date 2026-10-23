@@ -175,6 +175,7 @@ export default function BeitMidrash2029Page() {
         focusedSection={place.section}
         focusedPath={place.pathId}
         focusedConcept={place.conceptId}
+        focusedSourceStep={place.sourceStepId}
       >
         <BeitMidrashMethods
           section={sectionOf("methods")}
