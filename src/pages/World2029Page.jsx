@@ -61,6 +61,10 @@ import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProject
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 import { CONTRIBUTOR_LOAD_PROFILE, fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
+import {
+  fetchWorldAllResearchProjection,
+  findWorldPublicResearchFinding,
+} from "../lib/research/worldAllResearchProjection.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { applySeo } from "../lib/seo.js";
@@ -72,6 +76,7 @@ import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import {
   WORLD_KNOWLEDGE_KIND,
   WORLD_LANDING_VIEW,
+  resolveWorldFindingId,
   resolveWorldLandingView,
   resolveWorldKnowledgeKind,
   worldLandingViewLocation,
@@ -574,6 +579,86 @@ function WorldSourceStory({ research, shell, compact = false }) {
   </section>;
 }
 
+function PublicWorldFindingFocus({ finding, context, shell }) {
+  const sourceRefs = [...new Set([
+    finding?.sourceRef,
+    ...(Array.isArray(finding?.sourceRefs) ? finding.sourceRefs : []),
+    ...(Array.isArray(finding?.occurrences)
+      ? finding.occurrences.flatMap((occurrence) => [
+        occurrence?.sourceRef,
+        ...(Array.isArray(occurrence?.sourceRefs) ? occurrence.sourceRefs : []),
+      ])
+      : []),
+  ].filter(Boolean).map(String))];
+  const occurrenceCount = Math.max(1, Number(finding?.occurrenceCount) || finding?.occurrences?.length || 1);
+  const contributor = (Array.isArray(finding?.contributors) && finding.contributors.length
+    ? finding.contributors
+    : [finding?.contributor]).filter(Boolean).join(" · ") || "ייחוס לא צוין";
+  const linkedTopic = finding?.linkedTopicRating || null;
+  const returnHref = String(context?.returnTo?.href || "");
+  const canReturnToBeitMidrash = /^\/beit-midrash(?:[/?#]|$)/.test(returnHref);
+  const findingAnchor = `finding-${encodeURIComponent(String(finding.sourceId))}`;
+  const independentSources = finding?.independentSourceCount == null
+    ? "אין נתון"
+    : String(finding.independentSourceCount);
+
+  return <section className="sod29-section sod29-world-all-research sod29-world-public-finding" aria-label="ממצא ציבורי בעולם">
+    <div className="sod29-section-head"><div><div className="sod29-kicker">ממצא ציבורי · מקור מדויק</div>
+      <h2>הממצא שביקשת לפתוח</h2>
+      <p>הממצא נקרא מן ההקרנה הציבורית בלבד. חוזק, איכות ראיות, אימות ופרסום נשארים מדדים נפרדים ואינם ציון אמת.</p></div></div>
+    <article className="sod29-world-all-research-row" id={findingAnchor} tabIndex={-1}
+      data-world-public-finding={finding.sourceId}>
+      <div className="sod29-world-all-research-row-head">
+        <div className="sod29-world-all-research-tags">
+          <span>{finding.typeLabel || RESEARCH_KIND_LABELS_HE[finding.kind] || "ממצא מחקר"}</span>
+          <span>{axisLabel(RESEARCH_ACCESS_LABELS_HE, finding.access, "גישה לא צוינה")}</span>
+        </div>
+      </div>
+
+      <div className="sod29-world-finding-measures" aria-label="מדדי ממצא נפרדים">
+        <div><small>חוזק החיבור</small><strong>אין נתון ציבורי</strong></div>
+        <div><small>איכות הראיות</small><strong>{finding.evidenceQuality?.label || "אין נתון"}</strong></div>
+        <div><small>מקורות עצמאיים</small><strong>{independentSources}</strong></div>
+        <div><small>מצב בדיקה</small><strong>{axisLabel(RESEARCH_VERIFICATION_LABELS_HE, finding.verification, "מצב לא צוין")}</strong></div>
+        <div><small>מצב פרסום / ממשל</small><strong>{axisLabel(RESEARCH_GOVERNANCE_LABELS_HE, finding.status, "לא צוין")}</strong></div>
+      </div>
+
+      <strong>{finding.statement || "ממצא מחקר"}</strong>
+      {finding.secondary && finding.secondary !== finding.statement
+        ? <p className="sod29-world-all-research-secondary">{finding.secondary}</p>
+        : null}
+      {finding.contextLine ? <p className="sod29-world-all-research-secondary">{finding.contextLine}</p> : null}
+
+      <div className="sod29-world-all-research-meta">
+        <span>ייחוס · {contributor}</span>
+        <span>מקור · {finding.sourceLabel || "מקור מחקר"}</span>
+        {finding.createdAt ? <span>נוסף למחקר · {bilingualDateLabel(finding.createdAt)}</span> : null}
+      </div>
+
+      {linkedTopic ? <div className="sod29-world-all-research-cluster">
+        <strong>יעד מדויק בעץ · {linkedTopic.title}</strong>
+        <p>זהו המד של יעד העץ, לא מד של הממצא ולא ציון אמת.</p>
+        {linkedTopic.href ? <Link className="sod29-action" to={linkedTopic.href}>פתח את יעד העץ ←</Link> : null}
+      </div> : null}
+
+      <div className="sod29-world-source-locator">
+        <strong>מקור וכתובת מדויקת</strong>
+        {sourceRefs.length ? sourceRefs.map((sourceRef) => <code dir="ltr" key={sourceRef}>{sourceRef}</code>)
+          : <code dir="ltr">אין source locator</code>}
+        {occurrenceCount > 1 ? <small>{occurrenceCount} הופעות מקור נשמרו באשכול אחד; הן אינן נספרות כמקורות עצמאיים.</small> : null}
+        <div className="sod29-actions">
+          {finding.sourceHref ? <a className="sod29-action primary" href={finding.sourceHref} target="_blank" rel="noreferrer">פתח מקור ↗</a> : null}
+          {finding.href?.startsWith("/") ? <Link className="sod29-action" to={finding.href}>פתח יעד קשור ←</Link> : null}
+          {canReturnToBeitMidrash ? <button className="sod29-action" type="button" onClick={() => shell.returnExact()}>
+            חזרה מדויקת אל {context.returnTo.label || "בית המדרש"}
+          </button> : null}
+        </div>
+        {!finding.sourceHref ? <small>למקור הזה אין כתובת Web מאומתת; מזהה המקור נשמר בלי להמציא קישור.</small> : null}
+      </div>
+    </article>
+  </section>;
+}
+
 function LiveWorldLanding({ research, shell, context }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -581,6 +666,13 @@ function LiveWorldLanding({ research, shell, context }) {
   const { isAdmin, loading: authLoading } = useAuth();
   const [activeView, setActiveView] = useState(() => resolveWorldLandingView(location));
   const [knowledgeKind, setKnowledgeKind] = useState(() => resolveWorldKnowledgeKind(location.search));
+  const focusedPublicFindingId = useMemo(
+    () => resolveWorldFindingId(location),
+    [location.hash, location.search],
+  );
+  const [publicFinding, setPublicFinding] = useState({
+    id: null, loading: false, finding: null, error: null,
+  });
   const [landing, setLanding] = useState({
     contributorLoading: false,
     discoveryLoading: false,
@@ -592,7 +684,7 @@ function LiveWorldLanding({ research, shell, context }) {
     discoveryError: null,
     journeyError: null,
   });
-  const landingRequests = useRef({ contributors: null, discovery: null, journey: null });
+  const landingRequests = useRef({ contributors: null, discovery: null, journey: null, publicFindings: null });
   const [writerFilter, setWriterFilter] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
   const openAnchoredContext = (nextContext) => {
@@ -628,6 +720,45 @@ function LiveWorldLanding({ research, shell, context }) {
     setActiveView(resolveWorldLandingView(location));
     setKnowledgeKind(resolveWorldKnowledgeKind(location.search));
   }, [location.hash, location.search]);
+
+  useEffect(() => {
+    let alive = true;
+    if (activeView !== WORLD_LANDING_VIEW.FINDING) {
+      setPublicFinding({ id: null, loading: false, finding: null, error: null });
+      return () => { alive = false; };
+    }
+    if (!focusedPublicFindingId) {
+      setPublicFinding({ id: null, loading: false, finding: null, error: null });
+      return () => { alive = false; };
+    }
+
+    setPublicFinding({ id: focusedPublicFindingId, loading: true, finding: null, error: null });
+    if (!landingRequests.current.publicFindings) {
+      landingRequests.current.publicFindings = fetchWorldAllResearchProjection();
+    }
+    landingRequests.current.publicFindings
+      .then((projection) => {
+        if (!alive) return;
+        setPublicFinding({
+          id: focusedPublicFindingId,
+          loading: false,
+          finding: findWorldPublicResearchFinding(projection, focusedPublicFindingId),
+          error: null,
+        });
+      })
+      .catch((error) => {
+        landingRequests.current.publicFindings = null;
+        if (alive) setPublicFinding({ id: focusedPublicFindingId, loading: false, finding: null, error });
+      });
+    return () => { alive = false; };
+  }, [activeView, focusedPublicFindingId]);
+
+  useEffect(() => {
+    if (!publicFinding.finding || activeView !== WORLD_LANDING_VIEW.FINDING) return undefined;
+    const anchor = `finding-${encodeURIComponent(String(publicFinding.finding.sourceId))}`;
+    const frame = window.requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: "start" }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeView, publicFinding.finding]);
 
   // Deep links from the shared Companion use existing World source readers.
   // Query params only choose a PUBLIC display focus; they never grant read access.
@@ -1068,6 +1199,21 @@ function LiveWorldLanding({ research, shell, context }) {
         </button> : null}
       </nav>
     </section>
+
+    {activeView === WORLD_LANDING_VIEW.FINDING ? <>
+      {publicFinding.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את הממצא">
+        טוען את הממצא מן הקורא הציבורי.
+      </FrameState></NativeStateSection> : null}
+      {publicFinding.error ? <NativeStateSection><FrameState kind="unavailable" title="הממצא אינו זמין כרגע">
+        לא יוצג ממצא חלופי במקום המזהה שביקשת לפתוח.
+      </FrameState></NativeStateSection> : null}
+      {!publicFinding.loading && !publicFinding.error && !publicFinding.finding
+        ? <NativeStateSection><FrameState kind="unavailable" title="הממצא המבוקש אינו זמין לציבור">
+          ייתכן שהמזהה אינו קיים, אינו מפורסם או שאינו נגיש. לא הוחלף בממצא אחר.
+        </FrameState></NativeStateSection>
+        : null}
+      {publicFinding.finding ? <PublicWorldFindingFocus finding={publicFinding.finding} context={context} shell={shell} /> : null}
+    </> : null}
 
     {activeView === WORLD_LANDING_VIEW.START ? <>
       <section className="sod29-world-start-guide" aria-label="מה אפשר למצוא בעולם">

@@ -5,6 +5,7 @@ export const WORLD_LANDING_VIEW = Object.freeze({
   SOURCES: "sources",
   EXPLORE: "explore",
   JOURNEY: "journey",
+  FINDING: "finding",
   ADMIN: "admin",
 });
 
@@ -25,17 +26,39 @@ function clean(value) {
   return String(value || "").trim();
 }
 
+function decodeFragmentValue(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return "";
+  }
+}
+
+export function resolveWorldFindingId({ search = "", hash = "" } = {}) {
+  const queryId = clean(new URLSearchParams(search).get("finding"));
+  if (queryId) return queryId;
+  const anchor = clean(hash).replace(/^#/, "");
+  return anchor.startsWith("finding-")
+    ? clean(decodeFragmentValue(anchor.slice("finding-".length)))
+    : "";
+}
+
 export function resolveWorldLandingView({ search = "", hash = "" } = {}) {
   const params = new URLSearchParams(search);
+  const findingId = resolveWorldFindingId({ search, hash });
+  if (findingId) {
+    return params.get("admin") === "1"
+      ? WORLD_LANDING_VIEW.ADMIN
+      : WORLD_LANDING_VIEW.FINDING;
+  }
   const requested = clean(params.get("view"));
   if (VALID_VIEWS.has(requested)) return requested;
 
-  if (params.get("finding")) return WORLD_LANDING_VIEW.ADMIN;
   if (params.get("source") || params.get("subjectSource")) return WORLD_LANDING_VIEW.SOURCES;
 
   const anchor = clean(hash).replace(/^#/, "");
   if (!anchor) return WORLD_LANDING_VIEW.START;
-  if (anchor === "world-all-research" || anchor.startsWith("finding-")) return WORLD_LANDING_VIEW.ADMIN;
+  if (anchor === "world-all-research") return WORLD_LANDING_VIEW.ADMIN;
   if (anchor === "world-journey-entry" || anchor.startsWith("world-journey")) return WORLD_LANDING_VIEW.JOURNEY;
   if (anchor === "world-source-homes" || anchor === "world-contributor-material" || anchor.startsWith("world-corpus-")) {
     return WORLD_LANDING_VIEW.SOURCES;
@@ -60,13 +83,15 @@ export function worldLandingViewLocation(view, currentSearch = "", { kind = null
     params.delete("subjectSource");
     params.delete("sourceRef");
   }
-  if (safeView !== WORLD_LANDING_VIEW.ADMIN) params.delete("finding");
+  if (![WORLD_LANDING_VIEW.ADMIN, WORLD_LANDING_VIEW.FINDING].includes(safeView)) params.delete("finding");
+  if (safeView === WORLD_LANDING_VIEW.FINDING) params.delete("admin");
+  if (safeView === WORLD_LANDING_VIEW.ADMIN && params.get("finding")) params.set("admin", "1");
   if (safeView === WORLD_LANDING_VIEW.EXPLORE) {
     const safeKind = VALID_KINDS.has(kind) ? kind : resolveWorldKnowledgeKind(currentSearch);
     if (safeKind === WORLD_KNOWLEDGE_KIND.NUMBERS) params.delete("kind");
     else params.set("kind", safeKind);
   } else params.delete("kind");
-  if (safeView === WORLD_LANDING_VIEW.START) params.delete("view");
+  if ([WORLD_LANDING_VIEW.START, WORLD_LANDING_VIEW.FINDING].includes(safeView)) params.delete("view");
   else params.set("view", safeView);
   const query = params.toString();
   return `/world${query ? `?${query}` : ""}`;
