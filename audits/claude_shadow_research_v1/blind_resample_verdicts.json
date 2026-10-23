@@ -1,0 +1,326 @@
+{
+ "version": "claude-shadow-research-v1",
+ "stage": "blind_resample_verdicts_v2",
+ "truthPromotion": false,
+ "authored_by": "claude (manual reading of lexically located lines, written BEFORE the rule outcomes were opened)",
+ "prompt_version": "claude-shadow-research-v1/prompt-1",
+ "question": "does the post itself assert expression = value, with this span, in the shown lines? (numeric correctness is the engine's, not asked)",
+ "frame": "blind_sample_frame_v2.json",
+ "sealed_outcomes": "blind_sample_sealed_v2.json (opened only after this file was written)",
+ "size": 60,
+ "verdict_counts": {
+  "attested": 56,
+  "unclear": 3,
+  "not_attested": 1
+ },
+ "items": [
+  {
+   "n": 1,
+   "relation_id": "R499cef1a33",
+   "verdict": "attested"
+  },
+  {
+   "n": 2,
+   "relation_id": "R5932b19867",
+   "verdict": "attested"
+  },
+  {
+   "n": 3,
+   "relation_id": "Rd749814ec7",
+   "verdict": "attested"
+  },
+  {
+   "n": 4,
+   "relation_id": "Rbfd7886b6d",
+   "verdict": "attested",
+   "note": "הערך מוצהר במבנה «״מסך״ גימטריה 120» — לא באופרטור ="
+  },
+  {
+   "n": 5,
+   "relation_id": "R2e18e3f732",
+   "verdict": "unclear",
+   "note": "בשורות שאותרו אין הערך 776; לא ניתן להכריע"
+  },
+  {
+   "n": 6,
+   "relation_id": "R79568e90c4",
+   "verdict": "attested"
+  },
+  {
+   "n": 7,
+   "relation_id": "R7e4dcac151",
+   "verdict": "attested"
+  },
+  {
+   "n": 8,
+   "relation_id": "Rb93c04e234",
+   "verdict": "unclear",
+   "note": "בחלון שאותר מופיעה גזירה חוזרת של הביטוי; הערך 1000 אינו נראה"
+  },
+  {
+   "n": 9,
+   "relation_id": "R2f7fd48551",
+   "verdict": "attested"
+  },
+  {
+   "n": 10,
+   "relation_id": "Rc000083925",
+   "verdict": "attested"
+  },
+  {
+   "n": 11,
+   "relation_id": "R22c34dbae7",
+   "verdict": "attested"
+  },
+  {
+   "n": 12,
+   "relation_id": "R125eecb165",
+   "verdict": "attested"
+  },
+  {
+   "n": 13,
+   "relation_id": "Rd7f69f0f16",
+   "verdict": "attested"
+  },
+  {
+   "n": 14,
+   "relation_id": "R223b1529de",
+   "verdict": "attested"
+  },
+  {
+   "n": 15,
+   "relation_id": "R5ee193af70",
+   "verdict": "attested"
+  },
+  {
+   "n": 16,
+   "relation_id": "Rf64c7b6ffc",
+   "verdict": "attested",
+   "note": "‏«׳אין מספר׳ שווה 441» — אופרטור «שווה»"
+  },
+  {
+   "n": 17,
+   "relation_id": "R03bf8baddf",
+   "verdict": "attested"
+  },
+  {
+   "n": 18,
+   "relation_id": "R06229c4e2e",
+   "verdict": "attested"
+  },
+  {
+   "n": 19,
+   "relation_id": "R69c64cfa99",
+   "verdict": "attested"
+  },
+  {
+   "n": 20,
+   "relation_id": "R81ea37c910",
+   "verdict": "attested"
+  },
+  {
+   "n": 21,
+   "relation_id": "Reb032d0033",
+   "verdict": "attested"
+  },
+  {
+   "n": 22,
+   "relation_id": "R45c750d790",
+   "verdict": "attested"
+  },
+  {
+   "n": 23,
+   "relation_id": "Rebb54dc1af",
+   "verdict": "attested"
+  },
+  {
+   "n": 24,
+   "relation_id": "Rfcb657bc58",
+   "verdict": "attested"
+  },
+  {
+   "n": 25,
+   "relation_id": "R17d9a3ae0a",
+   "verdict": "not_attested",
+   "note": "‏«מסתתר=1100» הוא שם שיטה ואחריו ערך (המסתתר של ביטוי שקדם), לא טענה שהמילה «מסתתר» שווה 1100"
+  },
+  {
+   "n": 26,
+   "relation_id": "R180c9842a7",
+   "verdict": "attested"
+  },
+  {
+   "n": 27,
+   "relation_id": "R3216378fa8",
+   "verdict": "attested"
+  },
+  {
+   "n": 28,
+   "relation_id": "R997b31e035",
+   "verdict": "attested"
+  },
+  {
+   "n": 29,
+   "relation_id": "R69a7f9bd9c",
+   "verdict": "attested",
+   "note": "‏«ודבר כלחזון.= 333» — נקודה צמודה לפני ה-="
+  },
+  {
+   "n": 30,
+   "relation_id": "R255cc31fed",
+   "verdict": "unclear",
+   "note": "השורות שאותרו הן של «ערמונית»; הערך 506 אינו נראה, ויתכן שהטווח «מונית» נחתך מתוך מילה"
+  },
+  {
+   "n": 31,
+   "relation_id": "Ref6bd5b4d9",
+   "verdict": "attested"
+  },
+  {
+   "n": 32,
+   "relation_id": "R6c43bf6988",
+   "verdict": "attested"
+  },
+  {
+   "n": 33,
+   "relation_id": "Rbefd244797",
+   "verdict": "attested"
+  },
+  {
+   "n": 34,
+   "relation_id": "R2bf0d45f13",
+   "verdict": "attested"
+  },
+  {
+   "n": 35,
+   "relation_id": "Rdde34b509f",
+   "verdict": "attested"
+  },
+  {
+   "n": 36,
+   "relation_id": "Rcd2ad334b6",
+   "verdict": "attested"
+  },
+  {
+   "n": 37,
+   "relation_id": "R2e48a63828",
+   "verdict": "attested",
+   "note": "‏«יום משיח (414)» — ערך בסוגריים צמודים; מוסכמה מקובלת לציון ערך"
+  },
+  {
+   "n": 38,
+   "relation_id": "R91ba15765f",
+   "verdict": "attested"
+  },
+  {
+   "n": 39,
+   "relation_id": "R2c9dff937a",
+   "verdict": "attested"
+  },
+  {
+   "n": 40,
+   "relation_id": "Reb5e5ecb2c",
+   "verdict": "attested"
+  },
+  {
+   "n": 41,
+   "relation_id": "R5415bfb06f",
+   "verdict": "attested"
+  },
+  {
+   "n": 42,
+   "relation_id": "R1a05b9de15",
+   "verdict": "attested"
+  },
+  {
+   "n": 43,
+   "relation_id": "Rdd12e2c586",
+   "verdict": "attested"
+  },
+  {
+   "n": 44,
+   "relation_id": "Rfc93fbb4f4",
+   "verdict": "attested"
+  },
+  {
+   "n": 45,
+   "relation_id": "R25f108aad2",
+   "verdict": "attested"
+  },
+  {
+   "n": 46,
+   "relation_id": "R07cb0f8fe7",
+   "verdict": "attested"
+  },
+  {
+   "n": 47,
+   "relation_id": "Rab5a6f1988",
+   "verdict": "attested"
+  },
+  {
+   "n": 48,
+   "relation_id": "Rae941cc5eb",
+   "verdict": "attested"
+  },
+  {
+   "n": 49,
+   "relation_id": "R39976216e8",
+   "verdict": "attested"
+  },
+  {
+   "n": 50,
+   "relation_id": "R84b10b24fc",
+   "verdict": "attested"
+  },
+  {
+   "n": 51,
+   "relation_id": "R38be398fee",
+   "verdict": "attested"
+  },
+  {
+   "n": 52,
+   "relation_id": "R92e1ccbad6",
+   "verdict": "attested"
+  },
+  {
+   "n": 53,
+   "relation_id": "R19dffdd499",
+   "verdict": "attested"
+  },
+  {
+   "n": 54,
+   "relation_id": "Rcd2fde477c",
+   "verdict": "attested"
+  },
+  {
+   "n": 55,
+   "relation_id": "R618dfbff7d",
+   "verdict": "attested"
+  },
+  {
+   "n": 56,
+   "relation_id": "R9f10a73967",
+   "verdict": "attested"
+  },
+  {
+   "n": 57,
+   "relation_id": "Rc29b41ce85",
+   "verdict": "attested"
+  },
+  {
+   "n": 58,
+   "relation_id": "Rdf0dadb44f",
+   "verdict": "attested"
+  },
+  {
+   "n": 59,
+   "relation_id": "R0b2fc13927",
+   "verdict": "attested"
+  },
+  {
+   "n": 60,
+   "relation_id": "R07c0b62e2f",
+   "verdict": "attested"
+  }
+ ]
+}

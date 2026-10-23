@@ -1,0 +1,145 @@
+{
+ "version": "claude-shadow-research-v1",
+ "stage": "audit_closure",
+ "truthPromotion": false,
+ "authored_by": "claude",
+ "prompt_version": "claude-shadow-research-v1/prompt-1",
+ "note": "Diagnosis text is Claude-authored; every number is copied by code from results.json / blind_resample_verdicts.json / blind_sample_sealed_v2.json.",
+ "axes": {
+  "engine_recomputed": "the canonical engine returns the value for the chosen span (a calculation)",
+  "source_attested": "the post itself writes span = value in the line it came from, with a whole span (a claim)"
+ },
+ "correction_of_round_1": "Round 1 called the three context cases 'unlocated / adjacent only'. The diagnosis shows all three are locator defects (hyphenated spelling twice; first-line bias once), not ambiguity in the posts. Round 1 also called two cases 'false positives' meaning the boundary FLAG was wrong while the span was right; ZURIEL's decision keeps them out of source_attested regardless.",
+ "cases": [
+  {
+   "relation_id": "R284a939e29",
+   "row_id": "35669:1156",
+   "phrase": "אין שום יאוש",
+   "value": 724,
+   "audit_label_round_1": "flag false positive",
+   "cause": "רשימת מילות-הפונקציה הסגורה מתייגת את «אין» בקצה השמאלי כחשד גבול, אף שהטווח הוא חבר-שוויון שלם («אין שום יאוש = 724 = …»). הדגל הוא false positive של כלל הקצה; הטווח עצמו נכון.",
+   "general_rule": "R4 — דגל function_word_at_edge מוסר רק כשהטווח הוא חבר-שוויון שלם",
+   "row_rule_only": "source_attested_by_rules",
+   "row_status_in_lane": "held_by_human_gate",
+   "relation_status_in_lane": "held_by_human_gate",
+   "relation_attested_in_posts": [],
+   "note": "בהחלטת ZURIEL נשאר מחוץ ל-source_attested; הכללים לבדם היו מאשרים אותו."
+  },
+  {
+   "relation_id": "R105e2e2943",
+   "row_id": "36103:1248",
+   "phrase": "והיה האיש אשר",
+   "value": 1237,
+   "audit_label_round_1": "flag false positive",
+   "cause": "אותו כלל קצה על «אשר» בקצה הימני; שבר פסוק עם תווית שיטה מפורשת («אתבש») לפני ה-=. אחרי הסרת תווית השיטה הטווח הוא החבר השלם.",
+   "general_rule": "R4 + הסרת תווית שיטה בזנב החבר",
+   "row_rule_only": "source_attested_by_rules",
+   "row_status_in_lane": "held_by_human_gate",
+   "relation_status_in_lane": "held_by_human_gate",
+   "relation_attested_in_posts": [],
+   "note": "בהחלטת ZURIEL נשאר מחוץ ל-source_attested; הכללים לבדם היו מאשרים אותו."
+  },
+  {
+   "relation_id": "Ra4b4b26094",
+   "row_id": "24812:634",
+   "phrase": "אלהים",
+   "value": 86,
+   "audit_label_round_1": "needs context — claim line not located",
+   "cause": "הפוסט כותב «א-להים» (מקף בתוך המילה). החילוץ מנרמל ל«אלהים» אך מאתר השורה (locateClaim) משווה מול הטקסט עם המקף ⇒ not_found ⇒ claim_text ריק. זה פגם איתור, לא עמימות של הטענה: השורה «זה סוד ה-86 = הטבע = 86 = א-להים» קיימת.",
+   "general_rule": "R1 — איתור עמיד לפיסוק-איות (מקף/גרש/גרשיים בתוך מילה)",
+   "row_rule_only": "source_attested_by_rules",
+   "row_status_in_lane": "held_by_human_gate",
+   "relation_status_in_lane": "held_by_human_gate",
+   "relation_attested_in_posts": [],
+   "note": "בהחלטת ZURIEL נשאר review_required; הכללים לבדם היו מאשרים אותו."
+  },
+  {
+   "relation_id": "R4468300634",
+   "row_id": "9346:149",
+   "phrase": "בראשית ברא אלהים",
+   "value": 1202,
+   "audit_label_round_1": "needs context — claim line not located",
+   "cause": "אותה סיבה («א-להים» בפוסט 9346). בנוסף, הביקורת הציגה את שורת-הטענה הראשונה של היחס ולא את הטובה ביותר: ליחס יש שתי שורות מדויקות נוספות (פוסטים 28180 ו-36103: «בראשית ברא אלהים = 1202»).",
+   "general_rule": "R1 + קביעת attestation ברמת היחס = לפחות שורה אחת תקפה",
+   "row_rule_only": "source_attested_by_rules",
+   "row_status_in_lane": "held_by_human_gate",
+   "relation_status_in_lane": "source_attested",
+   "relation_attested_in_posts": [
+    28180,
+    36103
+   ],
+   "note": "השורה 9346:149 נשארת review_required בהחלטת ZURIEL; היחס עצמו source_attested על-ידי שני פוסטים אחרים."
+  },
+  {
+   "relation_id": "R8e22231be6",
+   "row_id": "36007:1180",
+   "phrase": "חמינאי",
+   "value": 119,
+   "audit_label_round_1": "needs context — value only adjacent",
+   "cause": "המאתר בחר את השורה הראשונה שמכילה גם את הביטוי וגם את המספר: משפט שבו 119 הוא מספר אנשים («…הוא חמינאי. … ב-119 אנשים»). השוויון המפורש «חמינאי=119» נמצא בשורה הבאה. התיאור בביקורת הראשונה («סמיכות בלבד») נבע מהמאתר, לא מהפוסט.",
+   "general_rule": "R3 — כל שורות הפוסט נסרקות; גובר המופע שבו הביטוי והערך חברי אותה שרשרת שוויון",
+   "row_rule_only": "source_attested_by_rules",
+   "row_status_in_lane": "held_by_human_gate",
+   "relation_status_in_lane": "held_by_human_gate",
+   "relation_attested_in_posts": [],
+   "note": "בהחלטת ZURIEL נשאר review_required; הכללים לבדם היו מאשרים אותו."
+  }
+ ],
+ "rules": {
+  "version": "claude-shadow-attestation-v1",
+  "R1": "locate after removing spelling punctuation that is not part of the letters (hyphen/maqaf/quote inside a word; spaced dash between words)",
+  "R2": "span and value are members of one equation chain on the line (cut at '=' or 'שווה'), no sentence terminator between or glued after the span",
+  "R3": "scan every line of the post; the first line satisfying R2 wins, not the first line that merely contains both",
+  "R4": "waive function_word_at_edge only when the span is a whole equation member (after dropping a trailing method label); all other boundary flags still block",
+  "no_phrase_lists": true,
+  "no_per_row_exceptions_in_rules": true,
+  "holds_are_recorded_decisions_not_rules": true
+ },
+ "blind_resample": {
+  "seed": 20261024,
+  "size": 60,
+  "excluded_round_1_relations": 60,
+  "design": "balanced round-robin over period × post type; rule-rejected relations listed first inside each cell so they are over-represented (otherwise recall cannot be measured); frame shows lexically located lines only — no status, no rank, no statistic; verdicts written before the sealed outcomes were opened",
+  "verdict_counts": {
+   "attested": 56,
+   "unclear": 3,
+   "not_attested": 1
+  },
+  "confusion": {
+   "rule_source_attested": {
+    "attested": 33,
+    "unclear": 2,
+    "not_attested": 0
+   },
+   "rule_review_required": {
+    "attested": 23,
+    "unclear": 1,
+    "not_attested": 1
+   }
+  },
+  "precision_of_rule_attested_in_sample": 0.943,
+  "share_judged_attested_inside_rule_rejected": 0.92,
+  "eligible_population": {
+   "rule_source_attested": 392,
+   "rule_not_attested": 25
+  },
+  "rough_population_estimate": {
+   "source_attested_if_read_by_claude": 392.6,
+   "rule_recall_estimate": 0.941,
+   "caveat": "small n, one reader (Claude), unclear counted as not attested"
+  },
+  "unclear_resolved_after_opening": "the two rule-attested items judged 'unclear' (ערמונית=776, מונית=506) were frame truncation: the explicit equations are on lines 23 and 20 of post 17503, beyond the first three lexical hits the frame showed. The blind verdicts were NOT edited.",
+  "reading": "The rules are high-precision and low-recall: they almost never attest a wrong claim, but they hold back many true ones for human review — the safe direction for a lane whose output is a review queue."
+ },
+ "proposed_not_applied": [
+  "P1 waive overlong_capture when the span is a whole equation member (length alone is not boundary evidence)",
+  "P2 strip every quote/geresh/gershayim mark in R1, including marks adjacent to spaces and trailing geresh (בורג', \"סוד\" X)",
+  "P3 tolerate punctuation glued directly before the operator ('?=' , '.=')",
+  "P4 accept a definite-article prefix on a trailing method label (המילוי=1135)",
+  "P5 accept the two other value notations: 'גימטריה N' and a parenthetical '(N)' directly after the span",
+  "P6 treat a quote-delimited span as a whole member for the edge waiver",
+  "P7 frame builder: show equation-bearing lines first"
+ ],
+ "proposal_status": "P1–P7 come from the same blind sample that measured the rules, so they are NOT applied here: any rule version built on this sample needs a fresh blind sample (new seed) before it can be claimed to work.",
+ "statistical_result_unchanged": "see manifest.original_statistical_result (pairs core hash identical to the first committed run)"
+}

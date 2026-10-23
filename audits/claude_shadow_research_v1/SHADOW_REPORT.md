@@ -8,15 +8,18 @@
 - קורפוס ציבורי גלוי (`gematria_words`, anon): **12584** שורות; מאומתות ו≥3 אותיות, מפורקות לביטויים ייחודיים → בריכת בקרה (sha256 `688aa5443b91…`). חריגות בין עמודת `ragil` השמורה למנוע: **0**.
 - רג'יסטרי שיטות: **41** (sha256 `987f962ff180…`); מנוע: 23 שיטות ערך.
 
-## 2. סטטוסים — 477 היחסים המעוגנים + השאר
-| סטטוס | מספר | משמעות |
+## 2. שני צירים נפרדים — חישוב ≠ טענת מקור
+| ציר | משמעות | מספר מתוך 477 |
 |---|---|---|
-| verified | 408 | המנוע שחזר את הערך; חילוץ בטוח |
-| review_required | 69 | המנוע שחזר, אך גבול ביטוי חשוד / תלוי-זמן / ביטחון בינוני |
-| contradicted | 0 | המנוע לא שחזר טענה שנקלטה כמעוגנת (0 צפוי) |
-| extraction_unresolved | 696 | לא שוחזר — רעש גבולות חילוץ; לא שגיאת מחבר, לא verified |
-| not_applicable | 25 | לא טענת ערך |
-| verified_but_not_attestable | 55 | <3 אותיות / לא עברית |
+| **א. engine_recomputed** | המנוע הקנוני מחזיר את הערך עבור הביטוי שנבחר (חישוב) | 477 |
+| **ב. source_attested** | הפוסט עצמו כותב "ביטוי = ערך" בשורה שממנה נלקח, והטווח שלם (טענה) | 445 |
+| held_by_human_gate | הוחזק בהחלטת ZURIEL (ראו `human_gate_decisions.json`) | 4 |
+| review_required | הכללים לא הצליחו לאשר טענת מקור | 28 |
+
+חוקי הצירוף ל-source_attested (`claude-shadow-attestation-v1`, מבניים, בלי רשימות): R1 איתור עמיד לפיסוק-איות; R2 הטווח והערך חברים באותה שרשרת שוויון בשורה, בלי מפסק משפט ביניהם; R3 כל שורות הפוסט נסרקות, לא השורה הראשונה שמכילה את שניהם; R4 דגל function_word_at_edge מוסר רק כשהטווח הוא חבר-שוויון שלם. ללא החזקות היו 449 יחסים source_attested.
+סיבות review_required: human_gate_hold:stays_review_required:2 · boundary:function_word_at_edge:2 · no_equation_link_between_span_and_value:6 · boundary:detached_single_letter_token:4 · boundary:overlong_capture:9 · span_not_located_in_post:7 · human_gate_hold:excluded_from_source_attested:2 · span_and_value_never_on_one_line:1 · boundary:method_label_captured_as_phrase:1.
+
+הסטטוס ההיסטורי (לפני הפרדת הצירים, נשמר לצורך provenance): verified 408 · review_required 69 · contradicted 0. מחוץ ל-477: extraction_unresolved 696 (לא שוחזר — רעש גבולות; לא שגיאת מחבר), not_applicable 25, verified_but_not_attestable 55.
 
 מורכבות (composite): verified 42 · mismatch 20 · unresolved 2 — ה-mismatch **אינו** מוכרז כשגיאת מחבר; לבדיקה אנושית.
 התאמה לקורפוס: exact 353 · רק וריאנט כתיב 17 · לא בקורפוס 107.
@@ -68,7 +71,7 @@
 | אלף | פלא | 111 | 14→3 | 12→10 | letter_multiset_permutation |
 
 ## 6. עלות וזמן
-REST: 21 בקשות, 12760 שורות, 5.8MB · זמן ריצה כולל 18.46s (קריאה 9.22s · חילוץ 1.22s · ניתוח 7.21s) · זוגות בקרה שחושבו 1049901 · LLM בצינור: 0 קריאות, $0.
+REST: 21 בקשות, 12760 שורות, 5.8MB · זמן ריצה כולל 20.7s (קריאה 9.88s · חילוץ 1.31s · ניתוח 8.33s) · זוגות בקרה שחושבו 1049901 · LLM בצינור: 0 קריאות, $0.
 
 ## 7. בדיקה ידנית מאוזנת (מדגם 60 יחסים)
 מדגם סדור (period × post type, round-robin בזרע קבוע), 14 תאים מתוך 25 אפשריים מכוסים (תאים ריקים — אין יחסים באותו פוסט-טיפוס/תקופה). המנוע שחזר **60/60**. פסקי דין: correct_span 46 · correct_span_review_justified 9 · correct_span_flag_false_positive 2 · needs_human_context 3. פירוט ב-`manual_sample_audit.json` (נכתב על-ידי Claude בקריאה ידנית; בודק נאמנות חילוץ בלבד, לא אמת מספרית).
@@ -82,5 +85,10 @@ REST: 21 בקשות, 12760 שורות, 5.8MB · זמן ריצה כולל 18.46s 
 - **H6** — אין מספיק טענות בשיטות שאינן רגיל כדי לאפיין גיוון שיטות
 כל המספרים בקובץ ההשערות הועתקו בקוד מ-`results.json`; הטקסט נכתב על-ידי Claude (prompt_version `claude-shadow-research-v1/prompt-1`).
 
-## 9. מה לא נעשה
+## 9. Audit Closure (שני צירים, חמשת המקרים, מדגם עיוור חוזר)
+חמשת מקרי הביקורת של הסבב הראשון: אין שום יאוש (flag false positive) · והיה האיש אשר (flag false positive) · אלהים (needs context — claim line not located) · בראשית ברא אלהים (needs context — claim line not located) · חמינאי (needs context — value only adjacent). האבחון לכל אחד, הכללים הכלליים R1–R4 וההצעות P1–P7 (לא הופעלו) ב-`audit_closure.json`.
+מדגם עיוור חוזר (seed 20261024, 60 יחסים, ללא יחסי הסבב הראשון): בין היחסים שהכללים אישרו — 33 מתוך 35 נקראו כ-attested; בין אלה שהוחזקו לבדיקה — 23 מתוך 25 נקראו כ-attested. הכללים בעלי דיוק גבוה ושליפה נמוכה — הכיוון הבטוח לתור ביקורת.
+התוצאה הסטטיסטית המקורית (זוגות, בקרות, BH/Holm) **ללא שינוי**: hash הליבה זהה ל-commit הראשון (identical).
+
+## 10. מה לא נעשה
 אין כתיבה ל-DB / RPC / Supabase branch · אין שינוי ב-post_qa, gematria_words, research_objects · אין חיבור ל-metatron_context או Raziel · אין Result Bundle נוסף · אין API/Edge Function · אין זיכרון נפרד · אין deploy/merge.

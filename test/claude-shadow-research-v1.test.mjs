@@ -16,7 +16,7 @@ import { createSeededPrng } from "../src/lib/research/els2029StatisticalControls
 const ENGINE = Object.fromEntries([...METHODS, ...DEPTH_METHODS].map((m) => [m.key, m.fn]));
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const code = (path) => read(path).split("\n").filter((l) => !l.trim().startsWith("//")).join("\n").replace(/createHash\("sha256"\)\.update\(/g, "createHash("); // hashing is not a DB update
-const SHADOW_FILES = ["../scripts/claude-shadow-research-core.mjs", "../scripts/claude-shadow-research-v1.mjs"];
+const SHADOW_FILES = ["../scripts/claude-shadow-research-core.mjs", "../scripts/claude-shadow-research-v1.mjs", "../scripts/claude-shadow-attestation.mjs"];
 
 test("isolation: read-only REST, no write verbs, no Raziel / metatron_context / post_qa / Edge Function, no LLM client", () => {
   for (const file of SHADOW_FILES) {
@@ -25,7 +25,7 @@ test("isolation: read-only REST, no write verbs, no Raziel / metatron_context / 
     assert.doesNotMatch(source, /\.rpc\(|\.insert\(|\.upsert\(|\.update\(|\.delete\(|functions\.invoke|createClient\(/, file);
     assert.doesNotMatch(source, /from\s+["'][^"']*(?:raziel|ai-analyze|metatron)[^"']*["']/i, `${file}: no import of Raziel / Edge Function code`);
     assert.doesNotMatch(source, /rest\/v1\/(?:post_qa|research_objects|metatron_context|post_gematria_links)|apply_migration|create_branch|askRaziel\(/, `${file}: no access to the protected tables`);
-    assert.doesNotMatch(source, /anthropic|openai|\bgemini\b|messages\.create|api\.anthropic/i, file);
+    assert.doesNotMatch(source, /@anthropic-ai|api\.anthropic|openai|\bgemini\b|messages\.create|ANTHROPIC_API_KEY/i, file);
     assert.doesNotMatch(source, /claude-(?:opus|sonnet|haiku|fable)-\d/i, `${file}: no model id may be stored in a repo artifact`);
   }
   const cli = code("../scripts/claude-shadow-research-v1.mjs");

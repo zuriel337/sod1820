@@ -1,0 +1,478 @@
+{
+ "version": "claude-shadow-research-v1",
+ "note": "SEALED rule outcomes of the blind sample. Do not read before the verdicts are written.",
+ "rows": [
+  {
+   "relation_id": "R499cef1a33",
+   "cell": "2013-2016|advanced",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:overlong_capture"
+   ]
+  },
+  {
+   "relation_id": "R5932b19867",
+   "cell": "2013-2016|event_hint",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rd749814ec7",
+   "cell": "2013-2016|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "no_equation_link_between_span_and_value"
+   ]
+  },
+  {
+   "relation_id": "Rbfd7886b6d",
+   "cell": "2017-2019|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "no_equation_link_between_span_and_value"
+   ]
+  },
+  {
+   "relation_id": "R2e18e3f732",
+   "cell": "2017-2019|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R79568e90c4",
+   "cell": "2020-2022|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "span_not_located_in_post",
+    "boundary:detached_single_letter_token"
+   ]
+  },
+  {
+   "relation_id": "R7e4dcac151",
+   "cell": "2020-2022|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "span_not_located_in_post"
+   ]
+  },
+  {
+   "relation_id": "Rb93c04e234",
+   "cell": "2023-2024|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "span_and_value_never_on_one_line"
+   ]
+  },
+  {
+   "relation_id": "R2f7fd48551",
+   "cell": "2023-2024|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rc000083925",
+   "cell": "2025-2026|cipher",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R22c34dbae7",
+   "cell": "2025-2026|cube",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R125eecb165",
+   "cell": "2025-2026|event_hint",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rd7f69f0f16",
+   "cell": "2025-2026|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "no_equation_link_between_span_and_value"
+   ]
+  },
+  {
+   "relation_id": "R223b1529de",
+   "cell": "2013-2016|advanced",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:overlong_capture"
+   ]
+  },
+  {
+   "relation_id": "R5ee193af70",
+   "cell": "2013-2016|event_hint",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rf64c7b6ffc",
+   "cell": "2013-2016|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:function_word_at_edge"
+   ]
+  },
+  {
+   "relation_id": "R03bf8baddf",
+   "cell": "2017-2019|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "span_not_located_in_post"
+   ]
+  },
+  {
+   "relation_id": "R06229c4e2e",
+   "cell": "2017-2019|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R69c64cfa99",
+   "cell": "2020-2022|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "span_not_located_in_post"
+   ]
+  },
+  {
+   "relation_id": "R81ea37c910",
+   "cell": "2020-2022|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "span_not_located_in_post"
+   ]
+  },
+  {
+   "relation_id": "Reb032d0033",
+   "cell": "2023-2024|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:overlong_capture"
+   ]
+  },
+  {
+   "relation_id": "R45c750d790",
+   "cell": "2023-2024|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rebb54dc1af",
+   "cell": "2025-2026|cipher",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rfcb657bc58",
+   "cell": "2025-2026|cube",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R17d9a3ae0a",
+   "cell": "2025-2026|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:method_label_captured_as_phrase"
+   ]
+  },
+  {
+   "relation_id": "R180c9842a7",
+   "cell": "2013-2016|advanced",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R3216378fa8",
+   "cell": "2013-2016|event_hint",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R997b31e035",
+   "cell": "2013-2016|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:detached_single_letter_token"
+   ]
+  },
+  {
+   "relation_id": "R69a7f9bd9c",
+   "cell": "2017-2019|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "no_equation_link_between_span_and_value"
+   ]
+  },
+  {
+   "relation_id": "R255cc31fed",
+   "cell": "2017-2019|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Ref6bd5b4d9",
+   "cell": "2020-2022|event_hint",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R6c43bf6988",
+   "cell": "2020-2022|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "span_not_located_in_post",
+    "boundary:overlong_capture"
+   ]
+  },
+  {
+   "relation_id": "Rbefd244797",
+   "cell": "2023-2024|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:overlong_capture"
+   ]
+  },
+  {
+   "relation_id": "R2bf0d45f13",
+   "cell": "2023-2024|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rdde34b509f",
+   "cell": "2025-2026|cipher",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rcd2ad334b6",
+   "cell": "2025-2026|cube",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R2e48a63828",
+   "cell": "2025-2026|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "no_equation_link_between_span_and_value"
+   ]
+  },
+  {
+   "relation_id": "R91ba15765f",
+   "cell": "2013-2016|advanced",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R2c9dff937a",
+   "cell": "2013-2016|event_hint",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Reb5e5ecb2c",
+   "cell": "2013-2016|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:overlong_capture"
+   ]
+  },
+  {
+   "relation_id": "R5415bfb06f",
+   "cell": "2017-2019|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "span_not_located_in_post"
+   ]
+  },
+  {
+   "relation_id": "R1a05b9de15",
+   "cell": "2017-2019|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rdd12e2c586",
+   "cell": "2020-2022|event_hint",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rfc93fbb4f4",
+   "cell": "2020-2022|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R25f108aad2",
+   "cell": "2023-2024|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:overlong_capture"
+   ]
+  },
+  {
+   "relation_id": "R07cb0f8fe7",
+   "cell": "2023-2024|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rab5a6f1988",
+   "cell": "2025-2026|cipher",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rae941cc5eb",
+   "cell": "2025-2026|cube",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R39976216e8",
+   "cell": "2025-2026|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R84b10b24fc",
+   "cell": "2013-2016|advanced",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R38be398fee",
+   "cell": "2013-2016|event_hint",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R92e1ccbad6",
+   "cell": "2013-2016|general",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "no_equation_link_between_span_and_value"
+   ]
+  },
+  {
+   "relation_id": "R19dffdd499",
+   "cell": "2017-2019|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:function_word_at_edge"
+   ]
+  },
+  {
+   "relation_id": "Rcd2fde477c",
+   "cell": "2017-2019|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R618dfbff7d",
+   "cell": "2020-2022|event_hint",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R9f10a73967",
+   "cell": "2020-2022|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "Rc29b41ce85",
+   "cell": "2023-2024|event_hint",
+   "rule_source_attested": false,
+   "attestation_status": "review_required",
+   "reasons": [
+    "boundary:overlong_capture"
+   ]
+  },
+  {
+   "relation_id": "Rdf0dadb44f",
+   "cell": "2023-2024|general",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R0b2fc13927",
+   "cell": "2025-2026|cipher",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  },
+  {
+   "relation_id": "R07c0b62e2f",
+   "cell": "2025-2026|cube",
+   "rule_source_attested": true,
+   "attestation_status": "source_attested",
+   "reasons": []
+  }
+ ]
+}

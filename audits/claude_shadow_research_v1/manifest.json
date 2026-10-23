@@ -20,12 +20,13 @@
   "registry_methods": 41
  },
  "code": {
-  "git_head": "6b8be9e800615e72e4de7c2d3513136ff9e30c4a",
+  "git_head": "5a51de477d9323c0fcebfcd88c4c5994cc470c64",
   "git_branch": "claude/shadow-research-v1-20261023",
   "worktree_dirty": true,
   "blobs": {
    "scripts/claude-shadow-research-core.mjs": "93e6cd14264f4479f6469814503293824e4b1ad4",
-   "scripts/claude-shadow-research-v1.mjs": "151787a7030e7aa24ec843bab4062bf81947d18e",
+   "scripts/claude-shadow-research-v1.mjs": "1aec7710d3cbacec821f4ee5bec1a3eaf957215b",
+   "scripts/claude-shadow-attestation.mjs": "863006a8ce4e1871f8ae21529291a06ab2ba333a",
    "src/lib/research/pairConditionedMethodDependency.js": "c7fb2c38f1e1d94d8eda8e17f86832f79ad8fc06",
    "src/lib/research/els2029StatisticalControls.js": "fd3d08dde28c3cb4608d33704ce6bd42468d81d7",
    "src/lib/gematria.js": "38a4bb727d09bed873866eff39f65d6c757ba869",
@@ -64,6 +65,25 @@
    "contradicted": 0,
    "extraction_unresolved": 696
   },
+  "attestation": {
+   "axis_a_engine_recomputed": 477,
+   "axis_b_source_attested": 445,
+   "held_by_human_gate": 4,
+   "review_required": 28,
+   "rule_only_source_attested_before_holds": 449,
+   "review_reasons": {
+    "human_gate_hold:stays_review_required": 2,
+    "boundary:function_word_at_edge": 2,
+    "no_equation_link_between_span_and_value": 6,
+    "boundary:detached_single_letter_token": 4,
+    "boundary:overlong_capture": 9,
+    "span_not_located_in_post": 7,
+    "human_gate_hold:excluded_from_source_attested": 2,
+    "span_and_value_never_on_one_line": 1,
+    "boundary:method_label_captured_as_phrase": 1
+   },
+   "rules": "claude-shadow-attestation-v1"
+  },
   "not_applicable_claims": 25,
   "verified_but_not_attestable_rows": 55,
   "composite_claims": {
@@ -99,12 +119,39 @@
   "pairs_checked": 709,
   "mismatches": 0
  },
- "results_sha256": "da4d0013ad16d89d924f11ce97e43915d0a6efe485dd76fddd38ca03fc8de59a",
+ "results_sha256": "47dcdb2df0d1441ca022f6155d9da056ceaa03a08781c4e0d3aeffff93bf919b",
  "claude_role": {
-  "llm_calls_in_pipeline": 0,
-  "prompt_version_for_claude_authored_files": "claude-shadow-research-v1/prompt-1",
-  "model_id_recorded_in_repo": false,
-  "note": "model id is reported in the chat only; hypotheses and audit notes are Claude-authored and hypothesis-only"
+  "provider": "anthropic",
+  "model": null,
+  "model_note": "the model identifier is deliberately not stored in the repository (project policy); the commit's Claude-Session trailer is the pointer",
+  "prompt_version": "claude-shadow-research-v1/prompt-1",
+  "role": "narrative_hypothesis_authoring",
+  "runtime_llm_calls": 0,
+  "numeric_computation_by_model": false,
+  "content_of_conversation_stored": false
+ },
+ "attestation": {
+  "rules": "claude-shadow-attestation-v1",
+  "human_gate_decisions_sha256": "d8978aa7f48b5275d47222f696f5833742222a95d7b2b6b8ebb8b5e7722f6e65",
+  "holds": 5
+ },
+ "original_statistical_result": {
+  "commit": "5a51de477d9323c0fcebfcd88c4c5994cc470c64",
+  "pairs_core_sha256_then": "2f6e2b8f297a5a7ecb8d49bbc305824199477318afe925da1e36237a050eadbf",
+  "pairs_core_sha256_now": "2f6e2b8f297a5a7ecb8d49bbc305824199477318afe925da1e36237a050eadbf",
+  "identical": true,
+  "counts_pairs_then": {
+   "total": 709,
+   "asserted_in_same_post": 368,
+   "derived_cross_post": 341,
+   "excluded_same_spelling_family": 3,
+   "expression_dependent": 17,
+   "tested": 675,
+   "untested": 34,
+   "fdr_survivors": 0,
+   "holm_survivors": 0
+  },
+  "covers": "pair_id, members, raw and independent counts, controls (p, effect, matching), BH/Holm labels — no threshold, matching rule or null model changed"
  },
  "writes": {
   "db_writes": 0,
@@ -118,11 +165,11 @@
   "rows_read": 12760,
   "bytes_read": 5824100,
   "seconds": {
-   "read_sources": 9.22,
-   "extraction": 1.22,
-   "analysis": 7.21,
+   "read_sources": 9.88,
+   "extraction": 1.31,
+   "analysis": 8.33,
    "parity_check": 0.22,
-   "total": 18.46
+   "total": 20.7
   },
   "llm_calls": 0,
   "llm_cost_usd": 0,
@@ -132,24 +179,60 @@
   "manual_sample_audit.json": {
    "bytes": 27641,
    "sha256": "3cc4d0adb2b0db5c2ff3dda57d0e51a451aa67f8d83d7ae52c9f0df747d14733",
-   "authored_by": "claude",
-   "prompt_version": "claude-shadow-research-v1/prompt-1"
+   "provider": "anthropic",
+   "model": null,
+   "prompt_version": "claude-shadow-research-v1/prompt-1",
+   "role": "manual_extraction_audit_reading",
+   "runtime_llm_calls": 0,
+   "numeric_computation_by_model": false
   },
   "hypotheses_to_check.json": {
    "bytes": 19513,
    "sha256": "4f18d27a3643b3b97de4e322b93264e4061b81ee4862bbed25e98994ebe4236e",
-   "authored_by": "claude",
-   "prompt_version": "claude-shadow-research-v1/prompt-1"
+   "provider": "anthropic",
+   "model": null,
+   "prompt_version": "claude-shadow-research-v1/prompt-1",
+   "role": "narrative_hypothesis_authoring",
+   "runtime_llm_calls": 0,
+   "numeric_computation_by_model": false
+  },
+  "audit_closure.json": {
+   "bytes": 9144,
+   "sha256": "897cac20ee2083181689dd41eee56dd48125be7197afe8edc44e66382d6424c8",
+   "provider": "anthropic",
+   "model": null,
+   "prompt_version": "claude-shadow-research-v1/prompt-1",
+   "role": "narrative_hypothesis_authoring",
+   "runtime_llm_calls": 0,
+   "numeric_computation_by_model": false
+  },
+  "blind_resample_verdicts.json": {
+   "bytes": 6367,
+   "sha256": "139d8258c7b68fc00cb1fd3fc952c67885113d3484096045ab05883712dabb0b",
+   "provider": "anthropic",
+   "model": null,
+   "prompt_version": "claude-shadow-research-v1/prompt-1",
+   "role": "manual_extraction_audit_reading",
+   "runtime_llm_calls": 0,
+   "numeric_computation_by_model": false
   }
  },
  "artifacts": {
+  "blind_sample_frame_v2.json": {
+   "bytes": 38114,
+   "sha256": "9f5737e1dbdff70abf57b768679d8c8252551940783e6c51c85c23b3223f1843"
+  },
+  "blind_sample_sealed_v2.json": {
+   "bytes": 11408,
+   "sha256": "56b0581a0cdcf9466c2e834585a8dc133e575059770f6749e2e8466fd86a34db"
+  },
   "SHADOW_REPORT.md": {
-   "bytes": 10656,
-   "sha256": "0f67388d579b934f950fe108763bc0fc71b1c779416ddac910e57a6d64d8c765"
+   "bytes": 12955,
+   "sha256": "2f4528608c4e0a64a4fb3d0990ede3b04cdffbb1cc16ed9c1a1885cf7d3e534f"
   },
   "results.json": {
-   "bytes": 2698416,
-   "sha256": "da4d0013ad16d89d924f11ce97e43915d0a6efe485dd76fddd38ca03fc8de59a"
+   "bytes": 3046616,
+   "sha256": "47dcdb2df0d1441ca022f6155d9da056ceaa03a08781c4e0d3aeffff93bf919b"
   },
   "strongest_after_collapse.json": {
    "bytes": 18571,
@@ -164,5 +247,5 @@
    "sha256": "e617673ef8de298a83a76f629e601ad99f1fe95d8cb9818baacba2017a9b92a2"
   }
  },
- "generated_at": "2026-10-23T04:25:15.585Z"
+ "generated_at": "2026-10-23T05:05:39.809Z"
 }

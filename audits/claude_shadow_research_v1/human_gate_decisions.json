@@ -1,0 +1,19 @@
+{
+  "version": "claude-shadow-research-v1/human-gate-decisions-1",
+  "decided_by": "ZURIEL",
+  "decided_on": "2026-10-23",
+  "note": "Recorded decisions, not extraction rules. A hold removes ONE source row from source_attested until ZURIEL releases it; it does not alter the engine result, any statistic, or the 477 relations. Each hold is verified against phrase, value and post before it is applied (a mismatch aborts the run).",
+  "decisions": [
+    { "id": "D1", "subject": "pairConditionedMethodDependency.js", "decision": "stays a candidate inside the shadow lane; not an active product owner", "before_activation": ["short mathematical specification", "side-swap symmetry tests", "tests for all five final letters", "equal final-letter COUNT but different TYPE", "separate tests for regular/gadol and ribua/ribua_gadol", "proof per method that the collapse is valid (no word cancellation on a non-additive method)", "raw data preserved; only the independent-evidence count changes"] },
+    { "id": "D2", "subject": "shared words as a dependency reason", "decision": "not an official rule; H5 stays a hypothesis; algebraic cancellation of identical tokens may be studied later only for methods with a mathematical proof" },
+    { "id": "D3", "subject": "human labelling of strong pairs", "decision": "approved as a BLIND package (no p-value, no system rank, no 'strong' label; post pairs mixed with control pairs; four separate axes: computational strength, semantic link, source support, research interest; 'don't know' allowed); compare to H1 only after labelling. NOT built in this closure." },
+    { "id": "D4", "subject": "branch hygiene", "decision": "claude/busy-ride-9ujrlu is a mixed branch not intended for merge; clean Raziel-modes ref points exactly at 47d2b0983a7ae26a0cf3899ec61f788ab9a795ac; staging work only on claude/posts-staging-research-20261023; lab work only on claude/shadow-research-v1-20261023" }
+  ],
+  "row_holds": [
+    { "row_id": "35669:1156", "post_id": 35669, "phrase": "אין שום יאוש", "value": 724, "decision": "excluded_from_source_attested", "audit_label": "flag false positive (function_word_at_edge)", "reason": "ZURIEL: the two audited false positives may not be counted as source_attested" },
+    { "row_id": "36103:1248", "post_id": 36103, "phrase": "והיה האיש אשר", "value": 1237, "decision": "excluded_from_source_attested", "audit_label": "flag false positive (function_word_at_edge)", "reason": "same decision" },
+    { "row_id": "24812:634", "post_id": 24812, "phrase": "אלהים", "value": 86, "decision": "stays_review_required", "audit_label": "needs context (claim line not located)", "reason": "ZURIEL: the three context cases stay review_required" },
+    { "row_id": "9346:149", "post_id": 9346, "phrase": "בראשית ברא אלהים", "value": 1202, "decision": "stays_review_required", "audit_label": "needs context (claim line not located)", "reason": "same decision (this ROW only; the relation is also attested by two other posts)" },
+    { "row_id": "36007:1180", "post_id": 36007, "phrase": "חמינאי", "value": 119, "decision": "stays_review_required", "audit_label": "needs context (value only adjacent)", "reason": "same decision" }
+  ]
+}
