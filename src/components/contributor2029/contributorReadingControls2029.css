@@ -1,0 +1,20 @@
+.rc-actions,.rc-summary,.rc-featured,.rc-editor{box-sizing:border-box;min-width:0;max-width:100%;color:var(--rc-ink);font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif);font-size:var(--s29-type-ui,16px);line-height:1.6}
+.rc-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.rc-summary,.rc-featured,.rc-editor{display:grid;gap:8px;padding:12px;border:1px solid var(--rc-border);border-radius:12px;background:var(--rc-card)}
+.rc-summary{grid-auto-flow:row;align-items:start}
+.rc-kicker,.rc-muted{color:var(--rc-muted);font-size:var(--s29-type-small,16px)}
+.rc-heading{margin:0;font-size:var(--s29-type-ui,16px);font-weight:600}
+.rc-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.rc-link{display:inline-flex;align-items:center;min-height:44px;color:var(--rc-accent);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.rc-btn{min-height:44px;min-width:44px;padding:0 16px;border:1px solid var(--rc-border);border-radius:10px;background:var(--rc-soft);color:var(--rc-ink);font:inherit;cursor:pointer}
+.rc-btn[aria-pressed=true]{border-color:var(--rc-gold)}
+.rc-btn:disabled{opacity:.6;cursor:not-allowed}
+.rc-primary{background:var(--rc-accent);border-color:var(--rc-accent);color:var(--rc-card)}
+.rc-input{width:100%;box-sizing:border-box;min-height:120px;resize:vertical;padding:10px 12px;border:1px solid var(--rc-border);border-radius:10px;background:var(--rc-soft);color:var(--rc-ink);font:inherit;font-size:max(16px,1em)}
+.rc-input[aria-invalid=true]{border-color:var(--rc-accent)}
+.rc-status{color:var(--rc-muted);font-size:var(--s29-type-small,16px)}
+.rc-status[data-state=error],.rc-status[data-state=login_required],[data-over=true]{color:var(--rc-accent);font-weight:600}
+.rc-row{display:flex;flex-wrap:wrap;gap:8px}
+:is(.rc-actions,.rc-summary,.rc-featured,.rc-editor) :is(a,button,textarea):focus-visible{outline:2px solid var(--rc-focus);outline-offset:3px}
+@media(max-width:390px){.rc-actions .rc-btn,.rc-row .rc-btn{flex:1 1 100%}.rc-summary,.rc-featured,.rc-editor{padding:10px}}
+@media(prefers-reduced-motion:reduce){.rc-actions *,.rc-summary *,.rc-featured *,.rc-editor *{transition:none!important;animation:none!important}}
