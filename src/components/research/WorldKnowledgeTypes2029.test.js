@@ -8,9 +8,17 @@ const css = readFileSync(fileURLToPath(new URL("../../pages/worldComposition2029
 
 test("3D renderer is code-split and mounted only after an explicit action", () => {
   assert.match(source, /React\.lazy\(\(\) => import\("\.\/SpatialStructure3D\.jsx"\)\)/);
-  assert.match(source, /show3d \? <React\.Suspense/);
-  assert.match(source, /onClick=\{\(\) => setShow3d/);
+  assert.match(source, /layer === "3d" && has3d \? <React\.Suspense/);
+  assert.match(source, /onClick=\{\(\) => setLayer\("3d"\)\}/);
   assert.doesNotMatch(source, /import SpatialStructure3D from/);
+});
+
+test("visual evidence, decoded diagram and schematic 3D remain explicit layers", () => {
+  assert.match(source, /<SpatialDiagram2029/);
+  assert.match(source, />שרטוט<\/button>/);
+  assert.match(source, />מקור<\/button>/);
+  assert.match(source, />תלת־ממד<\/button>/);
+  assert.match(source, /תמונת מקור/);
 });
 
 test("spatial UI keeps calculation, structure, interpretation and publication separate", () => {
@@ -34,4 +42,11 @@ test("deep links target an exact spatial case or constants case after live data 
   assert.match(source, /params\.get\("spatial"\)/);
   assert.match(source, /params\.get\("constant"\)/);
   assert.match(source, /document\.getElementById\(targetId\)/);
+});
+
+test("spatial cards reveal in bounded pages while deep links expand to their target", () => {
+  assert.match(source, /const SPATIAL_PAGE_SIZE = 6/);
+  assert.match(source, /allCards\.slice\(0, visibleCount\)/);
+  assert.match(source, /Math\.ceil\(\(selectedDeepLinkIndex \+ 1\) \/ SPATIAL_PAGE_SIZE\)/);
+  assert.match(source, /להציג עוד/);
 });

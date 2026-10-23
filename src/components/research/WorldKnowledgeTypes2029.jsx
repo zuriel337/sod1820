@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
+import SpatialDiagram2029 from "./SpatialDiagram2029.jsx";
 import { getMatrixLibraryPage } from "../../lib/elsMatrices.js";
 import { fetchCurationCatalog2029 } from "../../lib/research/curationProjection2029.js";
 import { fetchPublicWorldMediaPage } from "../../lib/research/entityHubProjection.js";
@@ -40,6 +41,7 @@ const FACETS = Object.freeze({
 });
 const KIND_REQUEST_CACHE = new Map();
 const SpatialStructure3D = React.lazy(() => import("./SpatialStructure3D.jsx"));
+const SPATIAL_PAGE_SIZE = 6;
 
 function publicationStateLabel(value) {
   if (value === "approved") return "מאושר";
@@ -176,17 +178,32 @@ function ZviConstantsShelf({ projection }) {
   </section>;
 }
 
-function SpatialCard({ card, projection, isAdmin }) {
-  const [show3d, setShow3d] = useState(false);
+function SpatialVisualDeck({ card, priority = false }) {
   const has3d = card.dimension === "3d" || card.dimension === "mixed";
+  const [layer, setLayer] = useState("diagram");
+  return <div className="sod29-world-spatial-visual" data-layer={layer}>
+    <nav className="sod29-world-spatial-visual-tabs" aria-label={`שכבות חזותיות: ${card.title}`}>
+      <button type="button" aria-pressed={layer === "diagram"} onClick={() => setLayer("diagram")}>שרטוט</button>
+      {card.image ? <button type="button" aria-pressed={layer === "source"} onClick={() => setLayer("source")}>מקור</button> : null}
+      {has3d ? <button type="button" aria-pressed={layer === "3d"} onClick={() => setLayer("3d")}>תלת־ממד</button> : null}
+    </nav>
+    {layer === "diagram" ? <SpatialDiagram2029
+      shapeIdentity={card.shapeIdentity} value={card.value} form={card.form} title={card.title}
+      operation={card.verification.operations[0]?.expression}
+    /> : null}
+    {layer === "source" && card.image ? <figure className="sod29-world-spatial-source-image">
+      <img src={card.image} width="640" height="360" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" alt={`תמונת המקור: ${card.title}`} />
+      <figcaption><span>תמונת מקור</span><small>ראיה חזותית מן הקורפוס</small></figcaption>
+    </figure> : null}
+    {layer === "3d" && has3d ? <React.Suspense fallback={<p role="status" className="sod29-world-spatial-3d-state">טוען המחשה תלת־ממדית…</p>}>
+      <SpatialStructure3D shapeIdentity={card.shapeIdentity} title={card.title} />
+    </React.Suspense> : null}
+  </div>;
+}
+
+function SpatialCard({ card, projection, isAdmin, priority = false }) {
   return <article id={`spatial-${card.slug}`} className="sod29-world-spatial-card">
-    <div className="sod29-world-spatial-visual">
-      {card.image ? <img src={card.image} width="640" height="360" loading="lazy" alt={`תרשים המקור: ${card.title}`} />
-        : <div className="sod29-world-spatial-placeholder" role="img" aria-label={`חלופה דו־ממדית: ${card.form}, ערך ${card.value}`}><span>{card.value}</span><small>{card.form}</small></div>}
-      {show3d ? <React.Suspense fallback={<p role="status" className="sod29-world-spatial-3d-state">טוען המחשה תלת־ממדית…</p>}>
-        <SpatialStructure3D shapeIdentity={card.shapeIdentity} title={card.title} />
-      </React.Suspense> : null}
-    </div>
+    <SpatialVisualDeck card={card} priority={priority} />
     <div className="sod29-world-spatial-body">
       <header><small>{card.form} · {card.verification.operations.length} {card.verification.operations.length === 1 ? "פעולה" : "פעולות"}</small><h4>{card.title}</h4>{card.subtitle ? <p>{card.subtitle}</p> : null}</header>
       <div className="sod29-world-spatial-status" aria-label="מצב המודל">
@@ -215,7 +232,6 @@ function SpatialCard({ card, projection, isAdmin }) {
       <div className="sod29-actions">
         <Link className="sod29-action primary" to={`/2029/number/${card.value}`}>לערך {card.value}</Link>
         <Link className="sod29-action" to={card.source.locators.find((item) => item.ref === card.source.representativeRef)?.href || card.source.locators[0]?.href || card.source.href}>להופעת המקור המדויקת</Link>
-        {has3d ? <button type="button" className="sod29-action" aria-expanded={show3d} onClick={() => setShow3d((value) => !value)}>{show3d ? "סגור תלת־ממד" : "פתח תלת־ממד"}</button> : null}
       </div>
     </div>
   </article>;
@@ -235,13 +251,39 @@ function SpatialAdminQueue({ rows }) {
 
 function SpatialShelf({ projection, isAdmin = false }) {
   const [section, setSection] = useState("selected");
-  const cards = projection.cards.filter((card) => section === "selected" || (section === "series" ? card.series.length > 0 : card.section === section));
+  const deepLinkSlug = new URLSearchParams(window.location.search).get("spatial");
+  const allCards = projection.cards.filter((card) => section === "selected" || (section === "series" ? card.series.length > 0 : card.section === section));
+  const selectedDeepLinkIndex = deepLinkSlug ? projection.cards.findIndex((card) => card.slug === deepLinkSlug) : -1;
+  const deepLinkIndex = section === "selected" ? selectedDeepLinkIndex : -1;
+  const selectedInitialVisibleCount = selectedDeepLinkIndex >= 0
+    ? Math.max(SPATIAL_PAGE_SIZE, Math.ceil((selectedDeepLinkIndex + 1) / SPATIAL_PAGE_SIZE) * SPATIAL_PAGE_SIZE)
+    : SPATIAL_PAGE_SIZE;
+  const [visibleCount, setVisibleCount] = useState(() => selectedInitialVisibleCount);
+  const openSection = (nextSection) => {
+    setSection(nextSection);
+    setVisibleCount(nextSection === "selected" ? selectedInitialVisibleCount : SPATIAL_PAGE_SIZE);
+  };
+  useEffect(() => {
+    if (!deepLinkSlug || visibleCount <= deepLinkIndex) return undefined;
+    const scrollToTarget = () => document.getElementById(`spatial-${deepLinkSlug}`)?.scrollIntoView({ block: "start" });
+    const frame = window.requestAnimationFrame(scrollToTarget);
+    const settleTimers = [180, 520, 920].map((delay) => window.setTimeout(scrollToTarget, delay));
+    return () => {
+      window.cancelAnimationFrame(frame);
+      settleTimers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [deepLinkIndex, deepLinkSlug, visibleCount]);
+  const cards = allCards.slice(0, visibleCount);
+  const remaining = Math.max(0, allCards.length - cards.length);
   if (projection?.access?.available === false) return <section className="sod29-world-kind-section"><p role="status">הקורא הציבורי של מרחבים ומבנים אינו זמין כרגע. לא מוצגים כרטיסי דמו.</p></section>;
   return <section className="sod29-world-kind-section sod29-world-spatial-shelf" aria-label="מרחבים ומבנים של צבי">
     <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div><span>{projection.counts.approvedModels} מבנים · {projection.counts.sourceOccurrences} הופעות · {projection.counts.duplicateOccurrences} חזרות</span></header>
     <p className="sod29-world-spatial-rule">כל קישור פותח הופעה מדויקת בספריית צבי הציבורית. הופעות של אותו קורפוס נשמרות בפרובננס ואינן נספרות כמקורות עצמאיים. חוזק, איכות, אימות ופרסום אינם ציון אמת אחד.</p>
-    <nav className="sod29-world-spatial-sections" aria-label="מדורי מרחבים ומבנים">{projection.sections.map((item) => <button type="button" key={item.key} aria-pressed={section === item.key} className={section === item.key ? "is-active" : ""} onClick={() => setSection(item.key)}>{item.label}</button>)}</nav>
-    <div className="sod29-world-spatial-grid">{cards.map((card) => <SpatialCard key={card.id} card={card} projection={projection} isAdmin={isAdmin} />)}</div>
+    <nav className="sod29-world-spatial-sections" aria-label="מדורי מרחבים ומבנים">{projection.sections.map((item) => <button type="button" key={item.key} aria-pressed={section === item.key} className={section === item.key ? "is-active" : ""} onClick={() => openSection(item.key)}>{item.label}</button>)}</nav>
+    <div className="sod29-world-spatial-result-count" aria-live="polite">מציג {cards.length} מתוך {allCards.length} מבנים במדור הזה</div>
+    <div className="sod29-world-spatial-grid">{cards.map((card, index) => <SpatialCard key={card.id} card={card} projection={projection} isAdmin={isAdmin} priority={index === 0} />)}</div>
+    {remaining ? <div className="sod29-world-spatial-more"><button type="button" className="sod29-action primary" onClick={() => setVisibleCount((count) => Math.min(allCards.length, count + SPATIAL_PAGE_SIZE))}>להציג עוד {Math.min(SPATIAL_PAGE_SIZE, remaining)}</button><small>המשך הרשימה נטען לתצוגה רק לפי בקשה.</small></div> : null}
+    {!remaining && allCards.length > SPATIAL_PAGE_SIZE ? <div className="sod29-world-spatial-more"><button type="button" className="sod29-action" onClick={() => setVisibleCount(SPATIAL_PAGE_SIZE)}>לצמצם לששת הראשונים</button></div> : null}
     {isAdmin ? <SpatialAdminQueue rows={projection.adminQueue || []} /> : null}
     <p className="sod29-muted">החלופה הדו־ממדית נטענת תחילה. רכיב התלת־ממד נמצא בחבילה עצלה נפרדת ונטען רק לאחר לחיצה.</p>
   </section>;

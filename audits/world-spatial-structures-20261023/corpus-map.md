@@ -44,5 +44,7 @@ Strength, evidence quality, calculation state, publication state and source inde
 
 - Public cards require approved/public live research plus a readable source row and fail closed if the reader is unavailable.
 - Manager-only queue data is requested only after the existing admin gate succeeds.
-- The list uses a 2D fallback first. The Three.js renderer is loaded only after an explicit click.
+- The spatial visual kit has three explicit layers: deterministic decoded diagram, source evidence and optional schematic 3D. Generated or schematic imagery is never labelled as source evidence.
+- Six cards are mounted initially; subsequent groups of six are revealed on request. A deep link expands the group that contains its exact target.
+- The list uses the deterministic 2D diagram first. Source images and the Three.js renderer are loaded only after an explicit layer selection.
 - Migration `20261023030314_world_spatial_structures_metadata_v1.sql` adds research metadata only. It does not change RLS, privacy, status, publication, source rows or tree membership.
