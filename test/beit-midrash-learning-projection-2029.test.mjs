@@ -59,7 +59,7 @@ test("learning manifest establishes one home with learn, discover and participat
   assert.equal(BEIT_MIDRASH_LEARNING_MANIFEST.beginnerConcepts.length, 4);
   assert.ok(BEIT_MIDRASH_LEARNING_MANIFEST.numberGuideConcepts.some((concept) => concept.id === "fibonacci"));
   assert.ok(BEIT_MIDRASH_LEARNING_MANIFEST.numberGuideConcepts.every((concept) => concept.check && concept.boundary));
-  assert.equal(BEIT_MIDRASH_LEARNING_MANIFEST.cipherReadingLesson.continuation.href, "/code?library=public");
+  assert.equal(BEIT_MIDRASH_LEARNING_MANIFEST.cipherReadingLesson.continuation.href, "/els?library=public");
   assert.ok(BEIT_MIDRASH_LEARNING_MANIFEST.learningPaths.some((path) => path.id === "sod1820"));
   assert.ok(BEIT_MIDRASH_LEARNING_MANIFEST.learningPaths.some((path) => path.id === "ciphers"));
   assert.ok(BEIT_MIDRASH_LEARNING_MANIFEST.learningPaths.every((path) => path.href && path.steps.length >= 3));

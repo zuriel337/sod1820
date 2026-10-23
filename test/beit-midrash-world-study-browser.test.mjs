@@ -632,7 +632,7 @@ const READING_LESSONS = [
     kind: "cipher", section: "ciphers", pick: "comparison", pickNo: 5, next: "source",
     stepIds: ["text", "parameters", "letters", "repeat", "comparison", "source", "interpretation"],
     texts: [/האם מוצגים גם ניסיונות ההשוואה ולא רק ההתאמה שנבחרה/, /ריבוי ניסיונות מגדיל את הסיכוי להתאמה מקרית/],
-    option: /רק פירוש מרגש יותר/, explanation: /התאמה נקראת יחד עם התנאים ומרחב החיפוש/, continuation: ["לצפנים עם תמונות ולבדיקה במנוע", "/code?library=public"],
+    option: /רק פירוש מרגש יותר/, explanation: /התאמה נקראת יחד עם התנאים ומרחב החיפוש/, continuation: ["לצפנים עם תמונות ולבדיקה במנוע", "/els?library=public"],
     strip: "שבעת שלבי קריאת הדילוג", illustration: true,
   },
 ];
@@ -785,7 +785,7 @@ test("learning paths keep exact manifest links and imply no saved completion", {
       const steps = await page.locator("#path-ciphers .bm-path-steps a").evaluateAll((links) => links.map((a) => [a.textContent.trim(), a.getAttribute("href")]));
       assert.deepEqual(steps, [
         ["לומדים לקרוא דילוג צעד אחר צעד", "/beit-midrash?section=ciphers#cipher-reading-lesson"],
-        ["פותחים צופן מצולם וחוזרים עליו במנוע", "/code?library=public"],
+        ["פותחים צופן מצולם וחוזרים עליו במנוע", "/els?library=public"],
         ["לומדים לבדוק מקור והקשר", "/beit-midrash?section=sources#source-reading-lesson"],
       ]);
       const text = await page.locator("#path-ciphers").innerText();

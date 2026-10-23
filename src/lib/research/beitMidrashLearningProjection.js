@@ -272,13 +272,13 @@ const CIPHER_READING_LESSON = Object.freeze({
   }),
   continuation: Object.freeze({
     title: "לצפנים עם תמונות ולבדיקה במנוע",
-    href: "/code?library=public",
+    href: "/els?library=public",
   }),
   enginePractice: Object.freeze({
     title: "מתמונה אל אותה תוצאה במנוע",
     description: "הדוגמאות החזותיות מגיעות מספריית הצפנים הקנונית. פתיחת תמונה טוענת את הרשומה הציבורית; מיקום מדויק משוחזר במנוע, וצופן ותיק ללא מיקום מלא מסומן ונבדק מחדש.",
-    searchHref: "/code",
-    examplesHref: "/code?library=public",
+    searchHref: "/els",
+    examplesHref: "/els?library=public",
     publicReader: "getMatrixLibraryPage",
     exactReplayHref: "savedMatrixWorkspaceHref",
     imageField: "image_url",

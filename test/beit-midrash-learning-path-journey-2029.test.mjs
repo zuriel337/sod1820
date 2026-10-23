@@ -82,7 +82,7 @@ test("combined projection exposes the selected journey without another store or 
   });
   assert.equal(projection.learningPath.path.id, "ciphers");
   assert.equal(projection.learningPath.selectedStep.id, "cipher-tool");
-  assert.equal(projection.learningPath.selectedStep.href, "/code");
+  assert.equal(projection.learningPath.selectedStep.href, "/els?library=public");
   assert.equal(projection.learningPath.previousStep.id, "cipher-lesson");
   assert.equal(projection.learningPath.nextStep.id, "source-reading");
 });
