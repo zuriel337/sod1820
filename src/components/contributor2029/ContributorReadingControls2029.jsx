@@ -54,7 +54,7 @@ export function WriterFeatured2029({ items, writerName }) {
 const STATE_MESSAGE = {
   saving: "שומר…",
   saved: "ההקדמה נשמרה ומוצגת בפומבי.",
-  error: "השמירה נכשלה. הטקסט נשמר בשדה — אפשר לנסות שוב.",
+  error: "לא התקבל אישור עדכון. הטקסט נשאר בשדה; רעננו את הדף לפני ניסיון נוסף.",
   login_required: "כדי לשמור יש להתחבר. הטקסט נשמר בשדה.",
 };
 
@@ -64,18 +64,19 @@ export function WriterIntroductionEditor2029({ bio, onSave, state = "idle", onCl
   const id = useId();
   const length = Array.from(draft).length;
   const over = length > BIO_MAX;
+  const empty = !draft.trim();
   const saving = state === "saving";
   const message = STATE_MESSAGE[state] || "";
-  return <form className="rc-editor" dir="rtl" style={scope} onSubmit={(event) => { event.preventDefault(); if (!saving && !over && typeof onSave === "function") onSave(draft.trim()); }}>
+  return <form className="rc-editor" dir="rtl" style={scope} onSubmit={(event) => { event.preventDefault(); if (!saving && !over && !empty && typeof onSave === "function") onSave(draft.trim()); }}>
     <label className="rc-heading" htmlFor={`${id}-bio`}>הקדמה ציבורית</label>
     <p id={`${id}-hint`} className="rc-muted">ההקדמה תוצג לכל מי שנכנס לעמוד הכותב. אין שמירה אוטומטית — היא נשמרת רק בלחיצה על הכפתור.</p>
-    <textarea id={`${id}-bio`} className="rc-input" value={draft} rows={5} maxLength={BIO_MAX * 2} aria-describedby={`${id}-hint ${id}-count`} aria-invalid={over || state === "error" || undefined}
+    <textarea id={`${id}-bio`} className="rc-input" value={draft} rows={5} disabled={saving} maxLength={BIO_MAX * 2} aria-describedby={`${id}-hint ${id}-count`} aria-invalid={over || state === "error" || undefined}
       onChange={(event) => setDraft(event.target.value)} />
     <span id={`${id}-count`} className="rc-muted" data-over={over}><bdi>{length}</bdi> / <bdi>{BIO_MAX}</bdi>{over ? " — יש לקצר את הטקסט" : ""}</span>
     {message ? <span className="rc-status" role={state === "error" || state === "login_required" ? "alert" : "status"} data-state={state}>{message}</span> : null}
     <div className="rc-row">
-      <button type="submit" className="rc-btn rc-primary" disabled={saving || over}>שמירת הקדמה ציבורית</button>
-      {typeof onClose === "function" ? <button type="button" className="rc-btn" onClick={() => onClose()}>סגירה</button> : null}
+      <button type="submit" className="rc-btn rc-primary" disabled={saving || over || empty}>שמירת הקדמה ציבורית</button>
+      {typeof onClose === "function" ? <button type="button" className="rc-btn" disabled={saving} onClick={() => onClose()}>סגירה</button> : null}
     </div>
   </form>;
 }
