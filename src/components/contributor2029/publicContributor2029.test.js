@@ -140,6 +140,9 @@ test("return links reject external origins, protocol-relative, backslashes, unsa
     assert.equal(approvedReturnHref(href,origin),null,href);
   }
   assert.equal(approvedReturnHref(`${origin}/world?x=1#anchor`,origin),"/world?x=1#anchor");
+  assert.equal(approvedReturnHref("/2029?preview=community&data=live",origin),"/2029?preview=community&data=live","exact Preview community URL");
+  for (const bad of ["/2029","/2029?preview=world","/2029?data=live","/2029/x?preview=community","//2029?preview=community",`https://evil.example/2029?preview=community`])
+    assert.equal(approvedReturnHref(bad,origin),null,bad);
   assert.equal(safePublicUrl("javascript:alert(1)"),null);
 });
 

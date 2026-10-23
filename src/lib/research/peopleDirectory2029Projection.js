@@ -9,9 +9,21 @@ function nonNegative(value) {
   return Math.max(0, finite(value));
 }
 
+// Unknown is not zero: a missing or non-numeric value stays null; a known number is clamped at zero.
+function metric(value) {
+  if (value == null || (typeof value === "string" && value.trim() === "")) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.max(0, n) : null;
+}
+
 function timestamp(value) {
   const t = value ? Date.parse(value) : NaN;
   return Number.isFinite(t) ? t : 0;
+}
+
+function timestampOrNull(value) {
+  const t = value ? Date.parse(value) : NaN;
+  return Number.isFinite(t) ? t : null;
 }
 
 export const PEOPLE_DIRECTORY_ACTIVITY_STATES = Object.freeze({
@@ -74,30 +86,29 @@ function normalizeCapabilities(input = {}) {
 
 function normalizeMetrics(input = {}) {
   return Object.freeze({
-    messages: nonNegative(input?.messages),
-    activeDays: nonNegative(input?.activeDays ?? input?.active_days),
-    momentum: nonNegative(input?.momentum),
-    tenureDays: nonNegative(input?.tenureDays ?? input?.tenure_days),
-    reactionsReceived: nonNegative(input?.reactionsReceived ?? input?.reactions_received),
-    likesReceived: nonNegative(input?.likesReceived ?? input?.likes_received),
-    hints: nonNegative(input?.hints),
-    findings: nonNegative(input?.findings),
-    publications: nonNegative(input?.publications),
+    messages: metric(input?.messages),
+    activeDays: metric(input?.activeDays ?? input?.active_days),
+    momentum: metric(input?.momentum),
+    tenureDays: metric(input?.tenureDays ?? input?.tenure_days),
+    reactionsReceived: metric(input?.reactionsReceived ?? input?.reactions_received),
+    likesReceived: metric(input?.likesReceived ?? input?.likes_received),
+    hints: metric(input?.hints),
+    findings: metric(input?.findings),
+    publications: metric(input?.publications),
   });
 }
 
 function normalizeCommunityImpact(input = {}, metrics) {
-  const score = input?.score == null ? null : nonNegative(input.score);
   return Object.freeze({
-    score,
-    reactionsReceived: nonNegative(input?.reactionsReceived ?? input?.reactions_received ?? metrics.reactionsReceived),
-    uniqueResponders: nonNegative(input?.uniqueResponders ?? input?.unique_responders),
+    score: metric(input?.score),
+    reactionsReceived: metric(input?.reactionsReceived ?? input?.reactions_received ?? metrics.reactionsReceived),
+    uniqueResponders: metric(input?.uniqueResponders ?? input?.unique_responders),
   });
 }
 
 function parseResearchLevel(level) {
   const match = clean(level).toUpperCase().match(/^R(\d+)$/);
-  return match ? nonNegative(match[1]) : 0;
+  return match ? nonNegative(match[1]) : null;
 }
 
 function normalizeResearchStanding(input, capabilities) {
@@ -108,7 +119,7 @@ function normalizeResearchStanding(input, capabilities) {
     label: clean(input?.label) || level || null,
     orderValue: input?.orderValue == null
       ? parseResearchLevel(level)
-      : nonNegative(input.orderValue),
+      : metric(input.orderValue),
   });
 }
 
@@ -185,7 +196,7 @@ function filterMatch(row, filter) {
     case "active": return row.activityState === "ONLINE" || row.activityState === "ACTIVE";
     case "new": return row.isNew;
     case "returning": return row.isReturning;
-    case "hints": return row.metrics.hints > 0;
+    case "hints": return row.metrics.hints != null && row.metrics.hints > 0;
     case "researchers": return row.capabilities.researcher;
     case "writers": return row.capabilities.writer || row.capabilities.author;
     case "dormant": return row.activityState === "DORMANT";
@@ -208,24 +219,30 @@ function queryMatch(row, query) {
   ].filter(Boolean).join(" ").toLocaleLowerCase("he").includes(q);
 }
 
+// A sort value of null means "not measured". Known values always rank above unknown ones,
+// including a known zero; unknown values keep the explicit recent/name tie-breakers.
 function sortValue(row, sort) {
   switch (sort) {
     case "momentum": return row.metrics.momentum;
     case "tenure": return row.metrics.tenureDays;
     case "messages": return row.metrics.messages;
-    case "communityImpact": return row.communityImpact.score ?? row.communityImpact.reactionsReceived;
+    case "communityImpact": return row.communityImpact.score ?? row.communityImpact.reactionsReceived ?? null;
     case "hints": return row.metrics.hints;
     case "findings": return row.metrics.findings;
     case "publications": return row.metrics.publications;
-    case "researchStanding": return row.researchStanding?.orderValue ?? -1;
+    case "researchStanding": return row.researchStanding?.orderValue ?? null;
     case "recent":
     default:
-      return timestamp(row.lastSeen);
+      return timestampOrNull(row.lastSeen);
   }
 }
 
 function compareDirectoryRows(a, b, sort) {
-  const diff = sortValue(b, sort) - sortValue(a, sort);
+  const av = sortValue(a, sort);
+  const bv = sortValue(b, sort);
+  if (av == null && bv != null) return 1;
+  if (av != null && bv == null) return -1;
+  const diff = av == null ? 0 : bv - av;
   if (diff !== 0) return diff;
   const recentDiff = timestamp(b.lastSeen) - timestamp(a.lastSeen);
   if (recentDiff !== 0) return recentDiff;
@@ -262,6 +279,7 @@ function toCard(row, sort) {
     communityImpact: row.communityImpact,
     researchStanding: row.researchStanding,
     metricKeys: Object.freeze(cardMetricKeys(sort)),
+    unknownMetrics: Object.freeze(Object.keys(row.metrics).filter((key) => row.metrics[key] === null)),
     whyNow: row.whyNow,
   });
 }
@@ -281,6 +299,8 @@ export function projectPeopleDirectory2029(inputRows = [], {
     .filter((row) => filterMatch(row, safeFilter) && queryMatch(row, query))
     .sort((a, b) => compareDirectoryRows(a, b, safeSort));
 
+  const known = visible.filter((row) => sortValue(row, safeSort) != null).length;
+
   return Object.freeze({
     version: "people-directory-2029-v1",
     filter: safeFilter,
@@ -288,6 +308,9 @@ export function projectPeopleDirectory2029(inputRows = [], {
     query: clean(query),
     totalPeople: deduped.rows.length,
     visiblePeople: visible.length,
+    // Why the list is empty, or how many visible people have no value for the chosen sort.
+    emptyReason: visible.length ? null : deduped.rows.length ? "no_match" : "no_people",
+    sortCoverage: Object.freeze({ sort: safeSort, known, unknown: visible.length - known }),
     rows: Object.freeze(visible.map((row) => toCard(row, safeSort))),
     diagnostics: deduped.diagnostics,
   });

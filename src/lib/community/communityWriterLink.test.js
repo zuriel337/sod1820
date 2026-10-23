@@ -10,7 +10,7 @@ function fakeClient(rows, { error = null } = {}) {
     limit: async () => ({ data: error ? null : rows, error }) };
   return { calls, from: (table) => { calls.push(["from", table]); return query; } };
 }
-const writerRow = { slug: "yaniv-levi", code: null, display_name: "יניב לוי", active: true, locked: false, building: false, visibility: "public" };
+const writerRow = { slug: "yaniv-levi", code: null, display_name: "יניב לוי", kind: "author", active: true, locked: false, building: false, visibility: "public" };
 
 test("lookup accepts only user: and contributor uuids", () => {
   assert.deepEqual(communityWriterLookup(ID), { column: "id", id: ID });
@@ -22,7 +22,7 @@ test("lookup accepts only user: and contributor uuids", () => {
 
 test("one public active writer resolves to the existing writer page", async () => {
   const client = fakeClient([writerRow]);
-  assert.deepEqual(await resolveCommunityWriter(ID, { client }), { name: "יניב לוי", href: "/community/researcher/yaniv-levi" });
+  assert.deepEqual(await resolveCommunityWriter(ID, { client }), { name: "יניב לוי", href: "/community/researcher/yaniv-levi", isWriter: true });
   assert.deepEqual(client.calls, [["from", "contributors"], ["id", ID]]);
   await resolveCommunityWriter(`user:${ID}`, { client });
   assert.deepEqual(client.calls.at(-1), ["user_id", ID]);
@@ -31,6 +31,15 @@ test("one public active writer resolves to the existing writer page", async () =
 test("numeric writer code takes precedence in the writer URL", async () => {
   const writer = await resolveCommunityWriter(ID, { client: fakeClient([{ ...writerRow, code: "123" }]) });
   assert.equal(writer.href, "/community/researcher/123");
+});
+
+test("a public dossier is a writer only by contributor.kind, never by free-text role", async () => {
+  for (const kind of ["writer", "author"]) assert.equal((await resolveCommunityWriter(ID, { client: fakeClient([{ ...writerRow, kind }]) })).isWriter, true, kind);
+  for (const kind of ["community", "contributor", "researcher", "vip", "external", null, undefined]) {
+    const found = await resolveCommunityWriter(ID, { client: fakeClient([{ ...writerRow, kind, role: "writer" }]) });
+    assert.equal(found.isWriter, false, String(kind));
+    assert.equal(found.href, "/community/researcher/yaniv-levi", "the public page link stays available under a neutral label");
+  }
 });
 
 test("private, locked, inactive, building, missing and ambiguous writers resolve to nothing", async () => {
@@ -49,7 +58,10 @@ test("writer href carries only an approved return target", () => {
   const origin = "https://sod1820.example";
   assert.equal(communityWriterHref(writer, "/community/chat?x=1#message-9", origin),
     `/community/researcher/yaniv-levi?returnTo=${encodeURIComponent("/community/chat?x=1#message-9")}`);
-  assert.equal(communityWriterHref(writer, "/2029?preview=community&data=live", origin), "/community/researcher/yaniv-levi", "preview path is not an approved return");
+  assert.equal(communityWriterHref(writer, "/2029?preview=community&data=live", origin),
+    `/community/researcher/yaniv-levi?returnTo=${encodeURIComponent("/2029?preview=community&data=live")}`, "the exact Preview community URL is an approved return");
+  for (const other of ["/2029", "/2029?preview=world", "/2029/me", "/2029?preview=community2", "/2029x?preview=community"])
+    assert.equal(communityWriterHref(writer, other, origin), "/community/researcher/yaniv-levi", other);
   assert.equal(communityWriterHref(writer, "https://evil.example/community/chat", origin), "/community/researcher/yaniv-levi");
   assert.equal(communityWriterHref(writer, "//evil.example/community", origin), "/community/researcher/yaniv-levi");
   assert.equal(communityWriterHref(null, "/community/chat", origin), null);
