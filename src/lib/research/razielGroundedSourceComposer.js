@@ -178,7 +178,7 @@ function responseGuidance(entries) {
       ? "בהצלבות: הפרד בין שוויון מספרי שסופק, עצמאות או תלות בין השיטות, וקשר סמנטי. ממצא מסוג gematria-confirmed-relation הוא יחס מחקרי מאושר ומאומת־מנוע של SOD1820; ממצא מסוג gematria-method-semantic הוא פרשנות מאושרת של מודל SOD1820, לא עובדה מתמטית ולא אמת מסורתית אוניברסלית."
       : null,
     expressionResearch
-      ? "בניתוח ביטוי מן המחשבון: פתח במפת החישוב הקנונית המלאה שב-calculation_profile; קבץ שיטות שמחזירות אותו ערך, אל תספור שיטות תלויות כראיות נפרדות, ורק אחר כך הצג הצלבות. אל תצמצם את הניתוח לאריח הפעיל בלבד."
+      ? "בניתוח ביטוי מן המחשבון: פתח במפת החישוב הקנונית המלאה שב-calculation_profile והשתמש ב-method_value_groups כדי להציג שיטות שמחזירות אותו ערך כקבוצה אחת. שמור את שמות השיטות, אך אל תהפוך method_count למספר ראיות עצמאיות ואל תטען לעצמאות כש-independent_support_count הוא null. רק אחר כך הצג הצלבות. אל תצמצם את הניתוח לאריח הפעיל בלבד."
       : null,
     singleNumber
       ? "בניתוח מספר יחיד: שמור על סדר ההצגה הקנוני. הצג תחילה ביטויים וטענות מקור לפי הסדר שסופק, אחר כך מבנה ופעולות מספריות, אחר כך קשרים שנמצאו, ולבסוף פרשנות אפשרית מסומנת. אל תשלים שכבה שלא חזרה בחבילה."
@@ -237,12 +237,20 @@ function fallbackSection(entry) {
   const label = subjectLabel(entry.subject);
   const findings = list(entry.projection?.model_input?.findings).slice(0, MAX_FALLBACK_FINDINGS);
   const methodProfile = list(entry.projection?.model_input?.calculation_profile);
+  const methodValueGroups = list(entry.projection?.model_input?.method_value_groups);
   const methodLine = methodProfile.length
     ? `מפת החישוב הקנונית: ${methodProfile.map((item) => `${cleanText(item?.method_label || item?.method_key, 60)}=${cleanText(item?.value, 40)}`).filter(Boolean).join(" · ")}`
+    : null;
+  const normalizedGroupsLine = methodValueGroups.some((group) => Number(group?.method_count) > 1)
+    ? `קבוצות ערך מנורמלות (ללא טענת עצמאות): ${methodValueGroups
+      .filter((group) => Number(group?.method_count) > 1)
+      .map((group) => `${cleanText(group?.value, 40)} ← ${list(group?.methods).map((method) => cleanText(method?.method_label || method?.method_key, 60)).filter(Boolean).join(", ")}`)
+      .filter(Boolean).join(" · ")}`
     : null;
   if (!findings.length) {
     return [
       methodLine,
+      normalizedGroupsLine,
       `ל־${label} לא חזר ממצא חיובי בחיפוש הקנוני התחום. אין זו הוכחה שאין קשרים במקורות אחרים.`,
     ].filter(Boolean).join("\n");
   }
@@ -255,6 +263,7 @@ function fallbackSection(entry) {
   return [
     `ממצאים קנוניים עבור ${label}, לפי הסדר שנקבע במקור:`,
     methodLine,
+    normalizedGroupsLine,
     ...lines,
     independenceNotClaimed ? "ההתאמות הן התכנסות בין שיטות; עצמאות בין משפחות החישוב לא נטענה." : null,
     truncated ? "מוצג כאן מדגם תחום; קיימים ממצאים נוספים שלא הוכנסו לתשובה זו." : null,
@@ -511,6 +520,8 @@ export function buildRazielGroundedSourceComposer(input = []) {
       subject_definition_requires_explicit_source_claim: true,
       surface_context_does_not_create_a_relation: true,
       calculation_profile_is_complete_bounded_method_map: true,
+      method_value_groups_are_normalized_presentation_not_new_calculation: true,
+      method_count_is_not_independent_support_count: true,
       confirmed_relation_is_sod1820_research_evidence: true,
       method_semantic_is_explicit_sod1820_interpretation: true,
       rarity_claim_requires_explicit_metric: true,

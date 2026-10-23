@@ -370,6 +370,41 @@ function compactCalculationProfile(findings) {
   return entries;
 }
 
+// Normalize the canonical method map by its already-computed numeric basis. This is deliberately
+// a presentation projection, not a second calculator and not an independence engine: equal values
+// are grouped so a model cannot mistake repeated method outputs for repeated proof. Method
+// identities remain intact, and no group is promoted to independent evidence without an explicit
+// governed outcome in the source Result Bundle.
+function compactMethodValueGroups(calculationProfile) {
+  const groups = new Map();
+  for (const method of list(calculationProfile)) {
+    const value = finiteNumber(method?.value);
+    if (value == null) continue;
+    const group = groups.get(value) || { value, methods: [], families: [] };
+    group.methods.push({
+      finding_id: cleanText(method?.finding_id, 200),
+      method_key: cleanText(method?.method_key, 80),
+      method_label: cleanText(method?.method_label, 100),
+      mathematical_family: cleanText(method?.mathematical_family, 80),
+      atomic_or_composite: cleanText(method?.atomic_or_composite, 60),
+    });
+    const family = cleanText(method?.mathematical_family, 80);
+    if (family && !group.families.includes(family)) group.families.push(family);
+    groups.set(value, group);
+  }
+  return [...groups.values()].map((group) => ({
+    value: group.value,
+    methods: group.methods,
+    method_count: group.methods.length,
+    mathematical_families: group.families,
+    mathematical_family_count: group.families.length,
+    same_value_collision: group.methods.length > 1,
+    independent_support_count: null,
+    independence: "not_claimed_without_explicit_bundle_evidence",
+    counts_as_independent_evidence: false,
+  }));
+}
+
 export function buildRazielResultBundleConsumer(bundle) {
   if (!bundle || typeof bundle !== "object" || Array.isArray(bundle)) {
     throw new TypeError("razielResultBundleConsumer: canonical Result Bundle object is required");
@@ -381,6 +416,7 @@ export function buildRazielResultBundleConsumer(bundle) {
   const rankById = new Map(list(bundle.ranking).map((entry) => [cleanText(entry?.finding_id, 200), entry]));
   const orderedFindings = findingsInPresentationOrder(bundle.findings, rankById);
   const calculationProfile = compactCalculationProfile(orderedFindings);
+  const methodValueGroups = compactMethodValueGroups(calculationProfile);
   // The compact profile carries every bounded method value. Reserve the ordinary Finding window
   // for crossings/source evidence first, then retain a few individual method Findings for replay.
   const presentationFindings = calculationProfile.length
@@ -450,6 +486,7 @@ export function buildRazielResultBundleConsumer(bundle) {
   const modelInput = {
     query,
     calculation_profile: calculationProfile,
+    method_value_groups: methodValueGroups,
     findings,
     finding_outcomes: projectedOutcomes,
     capabilities,
@@ -467,6 +504,8 @@ export function buildRazielResultBundleConsumer(bundle) {
       claims_must_reference_finding_ids: true,
       facts_must_come_from_projected_findings: true,
       calculation_values_must_come_from_calculation_profile: true,
+      equal_method_values_must_use_method_value_groups: true,
+      method_count_is_not_independent_support_count: true,
       derivation_is_not_independent_evidence: true,
       convergence_is_not_automatically_independent: true,
       access_filtered_is_not_negative_evidence: true,
@@ -479,6 +518,7 @@ export function buildRazielResultBundleConsumer(bundle) {
   const humanView = {
     subjects: identities,
     calculation_profile: calculationProfile,
+    method_value_groups: methodValueGroups,
     cards: findings.map((finding) => ({
       finding_id: finding.id,
       label: finding.subject.label,

@@ -297,9 +297,28 @@ test("calculator analysis starts from the full method profile and exposes bounde
     { finding_id: "uf:m:gadol", method_key: "gadol", method_label: "גדול", value: 73, mathematical_family: "regular" },
     { finding_id: "uf:m:triangle", method_key: "triangle", method_label: "משולש מילה + משולש הפוך", value: 365, mathematical_family: "triangular" },
   ];
+  const methodValueGroups = [
+    {
+      value: 73,
+      methods: [
+        { method_key: "ragil", method_label: "רגיל", mathematical_family: "regular" },
+        { method_key: "gadol", method_label: "גדול", mathematical_family: "regular" },
+      ],
+      method_count: 2,
+      independent_support_count: null,
+      counts_as_independent_evidence: false,
+    },
+    {
+      value: 365,
+      methods: [{ method_key: "triangle", method_label: "משולש מילה + משולש הפוך", mathematical_family: "triangular" }],
+      method_count: 1,
+      independent_support_count: null,
+      counts_as_independent_evidence: false,
+    },
+  ];
   const out = buildRazielGroundedSourceComposer([{
     subject: { type: "expression", value: "חכמה" },
-    projection: projection([verified], null, { calculation_profile: calculationProfile }),
+    projection: projection([verified], null, { calculation_profile: calculationProfile, method_value_groups: methodValueGroups }),
   }]);
   const prompt = JSON.parse(out.prompt);
 
@@ -308,11 +327,14 @@ test("calculator analysis starts from the full method profile and exposes bounde
   assert.match(out.guidance, /אל תצמצם את הניתוח לאריח הפעיל בלבד/);
   assert.match(out.fallback, /רגיל=73/);
   assert.match(out.fallback, /משולש מילה \+ משולש הפוך=365/);
+  assert.match(out.fallback, /קבוצות ערך מנורמלות.*73 ← רגיל, גדול/);
   assert.deepEqual(out.navigation, [
     { kind: "number", label: "פתח את דף המספר 73", href: "/number/73" },
     { kind: "number", label: "פתח את דף המספר 365", href: "/number/365" },
   ]);
   assert.equal(prompt.presentation_contract.calculation_profile_is_complete_bounded_method_map, true);
+  assert.equal(prompt.presentation_contract.method_value_groups_are_normalized_presentation_not_new_calculation, true);
+  assert.equal(prompt.presentation_contract.method_count_is_not_independent_support_count, true);
   assert.equal(prompt.presentation_contract.subject_definition_requires_explicit_source_claim, true);
 });
 

@@ -64,10 +64,11 @@ function publicBundle({ findings = [], capabilities = null, outcomes = [], query
   });
 }
 
-function methodProfileFinding(index) {
+function methodProfileFinding(index, overrides = {}) {
   const method = index === 0 ? "ragil" : `method_${index + 1}`;
   const label = index === 0 ? "רגיל" : `שיטה ${index + 1}`;
-  const value = index === 0 ? 73 : 100 + index;
+  const value = overrides.value ?? (index === 0 ? 73 : 100 + index);
+  const family = overrides.mathematical_family ?? (index === 0 ? "regular" : `family_${index + 1}`);
   return makeUniversalFinding({
     id: `uf:method-profile:${method}`,
     kind: "gematria-method-value",
@@ -81,7 +82,7 @@ function methodProfileFinding(index) {
       label,
       value,
       category: index < 5 ? "יסוד" : "מורחב",
-      mathematical_family: index === 0 ? "regular" : `family_${index + 1}`,
+      mathematical_family: family,
       atomic_or_composite: index % 2 ? "composite" : "atomic",
       method_version: 6,
     }] },
@@ -412,5 +413,24 @@ test("calculator expression keeps every method value in a compact profile withou
   assert.equal(out.model_input.findings.length, 12);
   assert.equal(out.model_input.output_bounds.consumer_truncated, true);
   assert.equal(out.model_input.constraints.calculation_values_must_come_from_calculation_profile, true);
+  assert.equal(out.model_input.constraints.method_count_is_not_independent_support_count, true);
   assert.deepEqual(out.human_view.calculation_profile, out.model_input.calculation_profile);
+  assert.deepEqual(out.human_view.method_value_groups, out.model_input.method_value_groups);
+});
+
+test("normalizes equal method outputs into one numeric basis without erasing methods or claiming independence", () => {
+  const regular = methodProfileFinding(0, { value: 73, mathematical_family: "base_additive" });
+  const large = methodProfileFinding(5, { value: 73, mathematical_family: "base_additive" });
+  const hidden = methodProfileFinding(2, { value: 67, mathematical_family: "adjacent_difference" });
+  const out = buildRazielResultBundleConsumer(publicBundle({ findings: [regular, large, hidden] }));
+
+  assert.equal(out.model_input.method_value_groups.length, 2);
+  const group73 = out.model_input.method_value_groups.find((group) => group.value === 73);
+  assert.deepEqual(group73.methods.map((method) => method.method_label), ["רגיל", "שיטה 6"]);
+  assert.equal(group73.method_count, 2);
+  assert.equal(group73.mathematical_family_count, 1);
+  assert.equal(group73.same_value_collision, true);
+  assert.equal(group73.independent_support_count, null);
+  assert.equal(group73.counts_as_independent_evidence, false);
+  assert.equal(out.model_input.calculation_profile.length, 3, "normalization must preserve the full method map");
 });
