@@ -6,6 +6,10 @@ import {
   DAAT_TEVUNOT_SECTIONS,
   DAAT_TEVUNOT_SOURCE,
 } from "../data/daatTevunotSections2029.js";
+import {
+  DAAT_TEVUNOT_RELATION_STATES,
+  connectionBundleForSection,
+} from "../data/daatTevunotConnections2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./daatTevunotTree2029.css";
 
@@ -14,6 +18,13 @@ const sectionsByBranch = new Map(DAAT_TEVUNOT_BRANCHES.map(branch => [
   branch.key,
   DAAT_TEVUNOT_SECTIONS.filter(section => section.branch === branch.key),
 ]));
+const CONNECTION_LAYERS = Object.freeze([
+  Object.freeze({ key: "all", label: "כל החיבורים" }),
+  Object.freeze({ key: "concepts", label: "מושגים" }),
+  Object.freeze({ key: "governance", label: "הנהגות" }),
+  Object.freeze({ key: "worlds", label: "עולמות" }),
+  Object.freeze({ key: "gematria", label: "גימטריה" }),
+]);
 
 function requestedSection() {
   if (typeof window === "undefined") return 1;
@@ -108,6 +119,101 @@ function ReadingPanel({ section, onSelect }) {
       <button type="button" onClick={() => onSelect(section.id === DAAT_TEVUNOT_SECTIONS.length ? 1 : section.id + 1)}>הסעיף הבא ←</button>
     </nav>
   </article>;
+}
+
+function ConnectionTree({ section }) {
+  const [activeLayer, setActiveLayer] = useState("all");
+  const branch = branchByKey.get(section.branch);
+  const bundle = useMemo(() => connectionBundleForSection(section), [section]);
+  const isLayerVisible = key => activeLayer === "all" || activeLayer === key;
+
+  return <section className="daat29-connections" aria-labelledby="daat29-connections-title" data-active-layer={activeLayer}>
+    <header>
+      <div>
+        <span className="daat29-overline">עץ הקשרים · סעיף {section.marker}</span>
+        <h2 id="daat29-connections-title">מן המקור אל ההנהגה, העולמות והמספר</h2>
+        <p>אותו סעיף נשאר במרכז. כל קו מסומן לפי מעמדו, כדי שקשר מפורש, מיפוי מבני והצעת מחקר לא יהפכו לדבר אחד.</p>
+      </div>
+      <div className="daat29-layer-tabs" role="tablist" aria-label="שכבות עץ הקשרים">
+        {CONNECTION_LAYERS.map(layer => <button
+          type="button"
+          role="tab"
+          key={layer.key}
+          aria-selected={activeLayer === layer.key}
+          className={activeLayer === layer.key ? "is-active" : ""}
+          onClick={() => setActiveLayer(layer.key)}
+        >{layer.label}</button>)}
+      </div>
+    </header>
+
+    <div className="daat29-connection-map" aria-label={`מפת הקשרים של סעיף ${section.marker}`}>
+      <div className="daat29-connection-core">
+        <span>מקור</span>
+        <strong>{section.marker}</strong>
+        <small>{branch.shortTitle}</small>
+      </div>
+      <div className={`daat29-connection-orbit is-concepts${isLayerVisible("concepts") ? " is-visible" : ""}`}>
+        <span>מושגים</span><strong>{bundle.concepts.length || "—"}</strong><small>מפורשים בסעיף</small>
+      </div>
+      <div className={`daat29-connection-orbit is-governance${isLayerVisible("governance") ? " is-visible" : ""}`}>
+        <span>הנהגה</span><strong>{bundle.governance.length}</strong><small>צירי ניווט</small>
+      </div>
+      <div className={`daat29-connection-orbit is-worlds${isLayerVisible("worlds") ? " is-visible" : ""}`}>
+        <span>עולמות</span><strong>{bundle.worlds.filter(world => world.active).length}</strong><small>עדשות השוואה</small>
+      </div>
+      <div className={`daat29-connection-orbit is-gematria${isLayerVisible("gematria") ? " is-visible" : ""}`}>
+        <span>גימטריה</span><strong>{bundle.gematria.length}</strong><small>מוכן למנוע</small>
+      </div>
+      <i className="daat29-map-ring is-inner" aria-hidden="true" />
+      <i className="daat29-map-ring is-outer" aria-hidden="true" />
+    </div>
+
+    <div className="daat29-connection-panels">
+      <article className={isLayerVisible("concepts") ? "is-visible" : ""} data-layer="concepts">
+        <header><span>01</span><div><strong>מושגים מתוך הסעיף</strong><small>{DAAT_TEVUNOT_RELATION_STATES.source_explicit.label}</small></div></header>
+        {bundle.concepts.length
+          ? <div className="daat29-concept-chips">{bundle.concepts.map(item => <span key={item.label}>{item.label}</span>)}</div>
+          : <p>בסעיף הקצר הזה לא נמצא מונח מן המילון המבני. החיבור לענף נשאר, בלי להמציא מונח מקור.</p>}
+      </article>
+
+      <article className={isLayerVisible("governance") ? "is-visible" : ""} data-layer="governance">
+        <header><span>02</span><div><strong>צירי הנהגה</strong><small>{DAAT_TEVUNOT_RELATION_STATES.structural_map.label}</small></div></header>
+        <ol>{bundle.governance.map(item => <li key={item.label}>{item.label}</li>)}</ol>
+      </article>
+
+      <article className={isLayerVisible("worlds") ? "is-visible" : ""} data-layer="worlds">
+        <header><span>03</span><div><strong>עדשת ארבעת העולמות</strong><small>{DAAT_TEVUNOT_RELATION_STATES.interpretive_candidate.label}</small></div></header>
+        <div className="daat29-worlds">
+          {bundle.worlds.map(world => <div key={world.key} className={world.active ? "is-active" : ""}>
+            <b>{world.short}</b><span>{world.title}</span><small>{world.role}</small>
+          </div>)}
+        </div>
+        <p>העולמות הפעילים הם הצעת מיקום במפה בלבד. הם אינם מיוחסים לטקסט בלי מקור משווה נוסף.</p>
+      </article>
+
+      <article className={isLayerVisible("gematria") ? "is-visible" : ""} data-layer="gematria">
+        <header><span>04</span><div><strong>שער גימטריה</strong><small>{DAAT_TEVUNOT_RELATION_STATES.engine_pending.label}</small></div></header>
+        <div className="daat29-gematria-terms">
+          {bundle.gematria.map(item => <a
+            key={item.term}
+            href={`/2029/gematria?q=${encodeURIComponent(item.term)}`}
+            target="_blank"
+            rel="noreferrer"
+            data-source-status={item.sourceStatus}
+          >
+            <span>{item.term}</span>
+            <small>{item.sourceStatus === "source_explicit" ? "מופיע בסעיף" : "מונח הענף"}</small>
+            <b>פתח במנוע ↗</b>
+          </a>)}
+        </div>
+        <p>המסך אינו מציג ערך מספרי משוער. החישוב והמתודה נקבעים רק בתוך מנוע הגימטריה הקנוני.</p>
+      </article>
+    </div>
+
+    <footer className="daat29-relation-legend" aria-label="מקרא מעמד הקשרים">
+      {Object.entries(DAAT_TEVUNOT_RELATION_STATES).map(([key, state]) => <span key={key} className={`is-${key}`} title={state.description}>{state.label}</span>)}
+    </footer>
+  </section>;
 }
 
 export default function DaatTevunotTree2029Page() {
@@ -246,7 +352,10 @@ export default function DaatTevunotTree2029Page() {
             </div>
           </section>
 
-          <div id="daat29-reader"><ReadingPanel section={selected} onSelect={selectSection} /></div>
+          <div id="daat29-reader">
+            <ConnectionTree section={selected} />
+            <ReadingPanel section={selected} onSelect={selectSection} />
+          </div>
         </div>
 
         <SourcePanel section={selected} />
