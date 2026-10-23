@@ -8,6 +8,7 @@ import {
   BEIT_MIDRASH_LEARNING_SECTION,
   beitMidrashLearningHref,
   buildBeitMidrashGuidedExamples,
+  buildBeitMidrashLearningPath,
   buildBeitMidrashLearningProjection,
   resolveBeitMidrashLearningLocation,
 } from "../src/lib/research/beitMidrashLearningProjection.js";
@@ -151,6 +152,12 @@ test("number lessons and learning paths keep exact resumable links", () => {
     beitMidrashLearningHref("paths", { pathId: "sod1820" }),
     "/beit-midrash?section=paths&path=sod1820#path-sod1820",
   );
+  const pathStep = resolveBeitMidrashLearningLocation({
+    search: "?section=paths&path=sod1820&pathStep=world-map",
+  });
+  assert.equal(pathStep.pathId, "sod1820");
+  assert.equal(pathStep.pathStepId, "world-map");
+  assert.equal(buildBeitMidrashLearningPath(pathStep.pathId, pathStep.pathStepId).selectedStep.href, "/world#world-connections");
   assert.equal(
     resolveBeitMidrashLearningLocation({ search: "?section=numbers&concept=not-a-lesson" }).conceptId,
     null,
