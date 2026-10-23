@@ -91,6 +91,42 @@ test("structural Research priority puts parallels before intersections and exist
   assert.equal(context.preferred, true, "a parallel occurrence survives even when another occurrence of the term is closer");
 });
 
+test("bounded structure plans group parallels, corridors, intersections and clusters without exposing coordinates", () => {
+  const context = vm.createContext({
+    SIGNIFICANT: new Set(),
+    STRUCTURE_PLAN_CONTRACT: "els_structure_scan_plan_v1",
+    STRUCTURE_TYPES: ["parallel", "corridor", "intersection", "cluster"],
+    st: { raw: "ציר" },
+    norm: value => String(value),
+    axis: { skip: 10, positions: [100, 110, 120, 130], _structuralCells: new Set([100, 110, 120, 130]) },
+    candidates: [
+      { term: "מקבילא", skip: 10, dir: 1, positions: [102, 112, 122, 132], distance: 2, lexiconSources: ["visible_saved_research"], lexiconSupport: 2 },
+      { term: "מקבילב", skip: 11, dir: 1, positions: [103, 114, 125, 136], distance: 3, lexiconSources: ["verified_research"], lexiconSupport: 3 },
+      { term: "באמצע", skip: 10, dir: 1, positions: [101, 111, 121, 131], distance: 1, lexiconSources: ["corpus_native"], lexiconSupport: 1 },
+      { term: "חוצהא", skip: 3, dir: 1, positions: [100, 103, 106, 109], distance: 0, lexiconSources: ["corpus_native"], lexiconSupport: 1 },
+      { term: "חוצהב", skip: 4, dir: 1, positions: [110, 114, 118, 122], distance: 0, lexiconSources: ["corpus_native"], lexiconSupport: 1 },
+    ],
+  });
+  vm.runInContext([
+    source("notable"), source("candidateLexiconPriority"), source("classifyStructuralCandidate"),
+    source("normalizeStructurePlan"), source("structuralCandidateCenter"), source("structuralMember"), source("buildStructuralGroups"),
+    "this.result=buildStructuralGroups(candidates,axis,{types:['parallel','corridor','intersection','cluster'],minLength:4,maxLength:10,maxDistance:40,minMembers:2});",
+    "this.clamped=normalizeStructurePlan({types:['unknown'],minLength:1,maxLength:99,maxDistance:999,minMembers:9});",
+  ].join("\n"), context);
+
+  const result = JSON.parse(JSON.stringify(context.result));
+  assert.equal(result.plan.contract, "els_structure_scan_plan_v1");
+  assert.ok(result.groups.some(group => group.kind === "parallel" && group.members.length >= 2));
+  assert.ok(result.groups.some(group => group.kind === "corridor" && group.members.some(member => member.role === "inside")));
+  assert.ok(result.groups.some(group => group.kind === "intersection"));
+  assert.ok(result.groups.some(group => group.kind === "cluster"));
+  assert.ok(result.groups.flatMap(group => group.members).every(member => !["positions", "start", "rc", "_center"].some(key => key in member)));
+  assert.deepEqual(JSON.parse(JSON.stringify(context.clamped)), {
+    contract: "els_structure_scan_plan_v1", types: ["parallel", "corridor", "intersection", "cluster"],
+    minLength: 3, maxLength: 16, maxDistance: 120, minMembers: 6, maxGroups: 12, maxMembers: 10,
+  });
+});
+
 test("Research candidate ranking keeps distance primary and explains deterministic tie-breaks", () => {
   const context = vm.createContext({
     CANDIDATE_RANKING_CONTRACT: "els_research_candidate_ranking_v1",

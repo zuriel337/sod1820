@@ -629,13 +629,18 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
    assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,'opening the structures panel performs no scan');
    const panel=page.locator('[data-experience-capability="els-structural-priority"]');
    await panel.waitFor({state:'visible'});
-   assert.match(await panel.innerText(),/מקבילות מקבלות קדימות ראשונה/);
+   assert.match(await panel.innerText(),/משפחות של מקבילות, מסדרונות, חציות ואשכולות/);
    assert.match(await panel.innerText(),/לא הוכחה ולא ציון אמת/);
+   await panel.getByRole('button',{name:'רחב',exact:true}).click();
+   await panel.getByText('הגדרות הסריקה',{exact:true}).click();
+   await panel.getByLabel('מקסימום אותיות',{exact:true}).selectOption('10');
+   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,'editing the declared plan performs no scan');
    await activate(page,'סרוק מבנים בעדיפות');
    await page.waitForFunction(()=>window.__lens?.lens==='structure-priority'&&window.__lens?.ok===true);
    const result=await page.evaluate(()=>window.__lens);
    const knownFindings=await page.evaluate(()=>window.__state.findings.filter(finding=>['התורה','אמיתית'].includes(finding.t)));
    assert.deepEqual(result.ranking,{contract:'els_structural_priority_scan_v1',order:'parallel_then_intersection_then_existing_notable_then_research_evidence_then_distance'});
+   assert.deepEqual(result.structurePlan,{contract:'els_structure_scan_plan_v1',types:['parallel','corridor','intersection','cluster'],minLength:4,maxLength:10,maxDistance:40,minMembers:2,maxGroups:12,maxMembers:10});
    assert.equal(result.coverage,'displayed-window');
    assert.ok(result.items.length>0,'the displayed golden window exposes structural candidates');
    assert.ok(result.items.every(item=>['parallel-exact','parallel-diagonal','intersection','ordered-skip'].includes(item.relation)));
@@ -645,9 +650,13 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
     assert.match(parallel.relation,/^parallel-/);
    }
    assert.ok(result.items.every(item=>!Object.keys(item).some(key=>['positions','start','rc'].includes(key))),'structural candidates do not expose matrix coordinates');
+   assert.ok(result.groups.some(group=>group.kind==='parallel'&&group.members.some(member=>member.term==='התורה')&&group.members.some(member=>member.term==='אמיתית')),'known parallels arrive as one actionable group');
+   assert.ok(result.groups.every(group=>['parallel','corridor','intersection','cluster'].includes(group.kind)));
+   assert.ok(result.groups.flatMap(group=>group.members).every(item=>!Object.keys(item).some(key=>['positions','start','rc','_center'].includes(key))),'grouped candidates keep geometry inside the canonical engine');
    const priority={"parallel-exact":4,"parallel-diagonal":4,"intersection":2,"ordered-skip":1};
    assert.deepEqual(result.items.map(item=>priority[item.relation]),result.items.map(item=>priority[item.relation]).toSorted((a,b)=>b-a),'parallel families precede crossings and existing notable skips');
-   assert.equal(await page.getByRole('region',{name:'תוצאות מבניות לפי סדר עדיפות',exact:true}).isVisible(),true);
+   assert.equal(await page.getByRole('region',{name:'קבוצות מבניות לפי סדר עדיפות',exact:true}).isVisible(),true);
+   assert.match(await panel.innerText(),/אמת והצג קבוצה|הקבוצה כבר במטריצה/);
    assert.deepEqual((await identity(page)).axis,before.axis,'structural inspection preserves the exact axis');
    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'structural inspection does not save or edit the cipher');
   },{tier:'anon'});

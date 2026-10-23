@@ -504,16 +504,38 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
   return null;
 }
 
-function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onScanAxis, onAddLineFinding, onOpenFinding }) {
+const STRUCTURE_PRESETS = Object.freeze({
+  quick: { minLength: 4, maxLength: 8, maxDistance: 12, minMembers: 2, types: ["parallel", "corridor", "intersection", "cluster"] },
+  broad: { minLength: 4, maxLength: 10, maxDistance: 40, minMembers: 2, types: ["parallel", "corridor", "intersection", "cluster"] },
+  deep: { minLength: 5, maxLength: 12, maxDistance: 80, minMembers: 3, types: ["parallel", "corridor", "intersection", "cluster"] },
+});
+const STRUCTURE_TYPE_OPTIONS = Object.freeze([
+  ["parallel", "מקבילות"], ["corridor", "מסדרון ומה שבאמצע"], ["intersection", "חציות"], ["cluster", "אשכולות"],
+]);
+const STRUCTURE_ROLE_LABEL = Object.freeze({ parallel: "מקבילה", boundary: "גבול המסדרון", inside: "באמצע", intersection: "חוצה", cluster: "באשכול" });
+
+function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onScanAxis, onAddGroup }) {
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.status === "ok" && state?.verification?.state === "MATCH";
   const result = lensResult?.lens === "structure-priority" ? lensResult : null;
   const items = result?.ok && Array.isArray(result.items) ? result.items : [];
+  const groups = result?.ok && Array.isArray(result.groups) ? result.groups : [];
   const axisTerm = result?.axis?.term || state?.termRaw || state?.term || "הציר הראשי";
   const axisSkip = result?.axis?.skip || state?.axis?.skip;
   const pending = lensPending || busy;
-  const eligibleHit = (finding) => [...(finding?.hits || []), ...(finding?.sourceHits || [])]
-    .find((hit) => (hit.verified || hit.kind === "source-sequence") && hit.shown && hit.withinRadius !== false);
+  const [plan, setPlan] = useState(STRUCTURE_PRESETS.quick);
+  const choosePreset = (name) => setPlan({ ...STRUCTURE_PRESETS[name] });
+  const updateNumber = (key, value) => setPlan((current) => {
+    const next = { ...current, [key]: Number(value) };
+    if (key === "minLength" && next.maxLength < next.minLength) next.maxLength = next.minLength;
+    if (key === "maxLength" && next.minLength > next.maxLength) next.minLength = next.maxLength;
+    return next;
+  });
+  const toggleType = (type) => setPlan((current) => {
+    const selected = current.types.includes(type) ? current.types.filter((item) => item !== type) : [...current.types, type];
+    return { ...current, types: selected.length ? selected : current.types };
+  });
+  const existing = new Set(findings.map((finding) => finding.t));
 
   return <div className="els29-native-workrail els29-native-structures" hidden={!visible}
     aria-label="מבנים וקשרים במטריצה" aria-busy={lensPending} data-experience-capability="els-structural-priority">
@@ -521,11 +543,37 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
       <span>ציר המחקר הנוכחי</span>
       <strong>{axisTerm}{axisSkip ? <> · דילוג <bdi>{axisSkip}</bdi></> : null}</strong>
       {result?.axis?.notable ? <small className="els29-native-structure-badge">דילוג מסודר: {result.axis.notable.tag}</small> : null}
-      <p>מקבילות מקבלות קדימות ראשונה, אחריהן חציות ודילוגים מסודרים שכבר מוגדרים במנוע.</p>
-      <small>זו קדימות לבדיקה בתוך החלון המוצג — לא הוכחה ולא ציון אמת. כל הוספה עוברת אימות קנוני רגיל.</small>
+      <p>בחרו פעם אחת מה לחפש. הסריקה מחזירה משפחות של מקבילות, מסדרונות, חציות ואשכולות — לא רשימת מילים שצריך לפתוח אחת־אחת.</p>
+      <small>זו תוכנית בדיקה בתוך החלון המוצג — לא הוכחה ולא ציון אמת. כל קבוצה עוברת אימות קנוני אחד לפני הצגה במטריצה.</small>
+      <div className="els29-native-structure-presets" role="group" aria-label="תבניות סריקת מבנים">
+        <button type="button" aria-pressed={plan.maxDistance === 12 && plan.minLength === 4} onClick={() => choosePreset("quick")}>מהיר</button>
+        <button type="button" aria-pressed={plan.maxDistance === 40 && plan.minLength === 4} onClick={() => choosePreset("broad")}>רחב</button>
+        <button type="button" aria-pressed={plan.maxDistance === 80 && plan.minLength === 5} onClick={() => choosePreset("deep")}>עמוק</button>
+      </div>
+      <details className="els29-native-structure-settings">
+        <summary>הגדרות הסריקה</summary>
+        <div className="els29-native-structure-fields">
+          <label>מינימום אותיות<select aria-label="מינימום אותיות" value={plan.minLength} onChange={(event) => updateNumber("minLength", event.target.value)}>
+            {[3, 4, 5, 6, 7, 8].map((value) => <option key={value} value={value}>{value}</option>)}
+          </select></label>
+          <label>מקסימום אותיות<select aria-label="מקסימום אותיות" value={plan.maxLength} onChange={(event) => updateNumber("maxLength", event.target.value)}>
+            {[4, 5, 6, 7, 8, 10, 12, 16].map((value) => <option key={value} value={value}>{value}</option>)}
+          </select></label>
+          <label>מרחק מרבי מהציר<select aria-label="מרחק מרבי מהציר" value={plan.maxDistance} onChange={(event) => updateNumber("maxDistance", event.target.value)}>
+            <option value={12}>קרוב · 12 תאים</option><option value={30}>בינוני · 30 תאים</option><option value={40}>רחב · 40 תאים</option><option value={80}>עמוק · 80 תאים</option><option value={120}>מרבי · 120 תאים</option>
+          </select></label>
+          <label>מינימום ממצאים בקבוצה<select aria-label="מינימום ממצאים בקבוצה" value={plan.minMembers} onChange={(event) => updateNumber("minMembers", event.target.value)}>
+            {[2, 3, 4, 5, 6].map((value) => <option key={value} value={value}>{value}</option>)}
+          </select></label>
+        </div>
+        <fieldset className="els29-native-structure-types"><legend>סוגי המבנים</legend>
+          {STRUCTURE_TYPE_OPTIONS.map(([type, label]) => <label key={type}><input type="checkbox" checked={plan.types.includes(type)} onChange={() => toggleType(type)} />{label}</label>)}
+        </fieldset>
+        <small>הטווח נשאר מוגבל למטריצה הפעילה. „עמוק” אינו מפעיל סדרות דילוג או חוקי מספרים חדשים.</small>
+      </details>
       <div className="els29-native-structure-actions" role="group" aria-label="פעולות מבנה על הציר הראשי">
         <button type="button" className="is-primary" disabled={!verified || pending}
-          onClick={() => onRun({ hitId: state?.axis?.hitId })}>{lensPending ? "סורק מבנים…" : result ? "סרוק מבנים מחדש" : "סרוק מבנים בעדיפות"}</button>
+          onClick={() => onRun({ hitId: state?.axis?.hitId, structurePlan: plan })}>{lensPending ? "סורק את התוכנית…" : result ? "סרוק את התוכנית מחדש" : "סרוק מבנים בעדיפות"}</button>
         <button type="button" disabled={!verified || pending}
           onClick={() => onScanAxis({ hitId: state?.axis?.hitId })}>בדוק את המשך הציר</button>
       </div>
@@ -534,34 +582,32 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
     {result?.ok === false ? <p role="status" className="els29-native-muted">אי אפשר לסרוק מבנים לפני שהציר הראשי אומת.</p> : null}
     {result?.ok ? <>
       <div className="els29-native-structure-summary">
-        <strong>תוצאות לפי קדימות · {items.length}</strong>
-        <small>הסדר כאן נפרד מרשימת „הקרובים”: מבנה קודם, אחריו עדות מחקרית קיימת, ורק אז מרחק.</small>
+        <strong>קבוצות שנמצאו · {groups.length}</strong>
+        <small>{result.structurePlan?.minLength}–{result.structurePlan?.maxLength} אותיות · עד {result.structurePlan?.maxDistance} תאים · לפחות {result.structurePlan?.minMembers} ממצאים בקבוצה.</small>
+        <small>הסדר כאן נפרד מרשימת „הקרובים”: משפחת המבנה קודמת, אחריה עדות מחקרית קיימת, ורק אז מרחק.</small>
       </div>
-      <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="תוצאות מבניות לפי סדר עדיפות">
-        {items.map((item) => {
-          const finding = findings.find((entry) => entry.t === item.term);
-          const openHit = eligibleHit(finding);
-          const added = Boolean(finding);
-          const label = item.label || item.term;
-          return <div key={`${item.term}-${item.skip}-${item.direction}`} className="els29-native-structure-row">
-            <div className="els29-native-structure-copy">
-              <b>{label}</b>
-              <span>{item.relationLabel}</span>
-              <small>דילוג <bdi>{item.direction === "back" ? "−" : ""}{item.skip}</bdi> · מרחק {item.distance} תאים</small>
-              {(item.relationTags || []).slice(1).map((tag) => <small key={tag}>{tag}</small>)}
+      <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="קבוצות מבניות לפי סדר עדיפות">
+        {groups.map((group, index) => {
+          const members = Array.isArray(group.members) ? group.members : [];
+          const room = Math.max(0, 12 - findings.length);
+          const addable = members.filter((member) => !existing.has(member.term)).slice(0, room);
+          const allAdded = members.length > 0 && members.every((member) => existing.has(member.term));
+          return <article key={`${group.kind}-${group.label}-${index}`} className="els29-native-structure-group" data-structure-kind={group.kind}>
+            <header><div><strong>{group.label}</strong><small>{group.description}</small></div><bdi>{members.length}</bdi></header>
+            <div className="els29-native-structure-members" aria-label={`ממצאי ${group.label}`}>
+              {members.map((member) => <span key={`${member.term}-${member.role}`} className={existing.has(member.term) ? "is-added" : ""}>
+                <b>{member.label || member.term}</b><small>{STRUCTURE_ROLE_LABEL[member.role] || "במבנה"} · מרחק {member.distance}</small>
+              </span>)}
             </div>
-            <button type="button" disabled={pending || (added ? !openHit : findings.length >= 12)}
-              onClick={() => openHit
-                ? onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })
-                : onAddLineFinding(item.term)}
-              aria-label={openHit ? `פתח את ${label} במטריצה` : `אמת והוסף את ${label} מהממצאים המבניים`}>
-              {openHit ? "פתח במטריצה" : added ? "מאמת…" : "אמת והוסף"}
+            <button type="button" disabled={pending || !addable.length} onClick={() => onAddGroup(addable.map((member) => member.term))}
+              aria-label={`אמת והצג את קבוצת ${group.label}`}>
+              {pending ? "מאמת קבוצה…" : allAdded ? "הקבוצה כבר במטריצה" : !room ? "הסירו ממצא כדי להוסיף קבוצה" : `אמת והצג קבוצה · ${addable.length}`}
             </button>
-          </div>;
+          </article>;
         })}
       </div>
-      {!items.length ? <p className="els29-native-muted">לא נמצא בחלון הזה קשר מבני מתוך המילון הזמין. אפשר להרחיב את חלון החיפוש ולסרוק שוב.</p> : null}
-      {result.truncated ? <small>מוצגות {items.length} מתוך {result.available} תוצאות מבניות; הרשימה מוגבלת ושומרת את סדר העדיפות.</small> : null}
+      {!groups.length ? <p className="els29-native-muted">נמצאו {items.length} מועמדים יחידים, אך אף קבוצה לא עמדה בתוכנית. נסו מרחק רחב יותר או מינימום קטן יותר לקבוצה.</p> : null}
+      {result.truncated ? <small>הרשימה הגיעה לתקרת הבטיחות. מוצגות הקבוצות הראשונות לפי סדר העדיפות שנקבע מראש.</small> : null}
       {result.lexicon?.fallback ? <small>מקור הפסוקים לא נטען, ולכן הסריקה השתמשה במילון המחקר הזמין בלבד.</small> : null}
     </> : null}
   </div>;
@@ -1303,6 +1349,19 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestFindingsChange([...findings.map((finding) => ({ t: finding.t, color: finding.color })), { t: term, color: nextFindingColor(findings, palette) }], { preserveRead: true });
   };
 
+  const addStructureGroup = (terms) => {
+    const findings = engineStateRef.current?.findings || [];
+    if (!Array.isArray(terms) || ["searching", "verifying"].includes(operations.findings?.status) || ["searching", "verifying"].includes(operations.search?.status) || findings.length >= 12) return;
+    const existing = new Set(findings.map((finding) => finding.t));
+    const additions = [...new Set(terms.map(clean).filter((term) => term && !existing.has(term)))].slice(0, 12 - findings.length);
+    if (!additions.length) return;
+    const next = findings.map((finding) => ({ t: finding.t, color: finding.color }));
+    for (const term of additions) next.push({ t: term, color: nextFindingColor(next, palette) });
+    // One canonical findings update verifies the whole selected structure; there is no parallel
+    // group store and no term is promoted merely because it belonged to the proposed structure.
+    requestFindingsChange(next, { preserveRead: true });
+  };
+
   const revealFindingDetails = (term) => {
     setClassicOpen(false);
     setActiveTool("findings");
@@ -1583,11 +1642,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           onRun={(target) => requestLens("structure-priority", target)}
           onScanAxis={(target) => requestLens("line-context", { ...target, scan: true })}
-          onAddLineFinding={addLineFinding}
-          onOpenFinding={(target) => {
-            selectFinding({ term: target.term, hitId: target.hitId, scope: engineStateRef.current?.scope, axisHitId: engineStateRef.current?.axis?.hitId });
-            requestLens("line-context", { ...target, scan: true });
-          }} /> : null}
+          onAddGroup={addStructureGroup} /> : null}
         <ElsSavePanel2029 visible={visibleTool === "research"} state={engineState} matrix={matrix} user={user} isAdmin={isAdmin} replacement={activeSavedAxisReplacement}
           pending={savePending} busy={!!journeyPending || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}

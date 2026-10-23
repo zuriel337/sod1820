@@ -1659,6 +1659,59 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(next&&previous&&next.structuralPriority!==previous.structuralPriority)return next.structuralPriority>previous.structuralPriority;
     return candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip;
   }
+  const STRUCTURE_PLAN_CONTRACT="els_structure_scan_plan_v1",STRUCTURE_TYPES=["parallel","corridor","intersection","cluster"];
+  function normalizeStructurePlan(raw){
+    raw=raw||{};
+    const n=(value,fallback,min,max)=>Math.max(min,Math.min(max,Number.isFinite(Number(value))?Math.round(Number(value)):fallback));
+    const minLength=n(raw.minLength,4,3,12),maxLength=n(raw.maxLength,8,minLength,16);
+    const requested=Array.isArray(raw.types)?raw.types.filter(type=>STRUCTURE_TYPES.includes(type)):STRUCTURE_TYPES;
+    return {contract:STRUCTURE_PLAN_CONTRACT,types:[...new Set(requested.length?requested:STRUCTURE_TYPES)],minLength,maxLength,
+      maxDistance:n(raw.maxDistance,30,4,120),minMembers:n(raw.minMembers,2,2,6),maxGroups:n(raw.maxGroups,12,4,20),maxMembers:n(raw.maxMembers,10,3,12)};
+  }
+  function structuralCandidateCenter(candidate,axis){
+    const S=Math.max(1,Math.abs(Number(axis?.skip)||1)),axisPositions=axis?.positions||[],axisCol=axisPositions.length?((axisPositions[Math.floor(axisPositions.length/2)]%S)+S)%S:0;
+    const points=(candidate?.positions||[]).map(position=>{const col=((position%S)+S)%S;let offset=col-axisCol;if(offset>S/2)offset-=S;if(offset<-S/2)offset+=S;return {row:Math.floor(position/S),offset};});
+    if(!points.length)return {row:0,offset:0};
+    return {row:points.reduce((sum,point)=>sum+point.row,0)/points.length,offset:points.reduce((sum,point)=>sum+point.offset,0)/points.length};
+  }
+  function structuralMember(candidate,role){
+    const classified=candidate._structural||null;
+    return {term:norm(candidate.term),label:candidate.term,skip:candidate.skip,direction:candidate.dir===1?"fwd":"back",distance:candidate.distance,
+      role:role||"member",relation:classified?.relation||null,relationLabel:classified?.relationLabel||null,
+      lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport};
+  }
+  // Groups are a bounded projection of candidates already found by scanCandidates. They introduce
+  // no skip-family search: parallel/corridor/intersection/cluster are S1 geometry over the active
+  // window, while word length and distance are declared S2 candidate caps.
+  function buildStructuralGroups(candidates,axis,rawPlan){
+    const plan=normalizeStructurePlan(rawPlan),axisCells=axis._structuralCells||new Set(axis.positions||[]),S=Math.max(1,Math.abs(Number(axis.skip)||1));
+    const axisRows=(axis.positions||[]).map(position=>Math.floor(position/S)),axisMin=axisRows.length?Math.min(...axisRows):-Infinity,axisMax=axisRows.length?Math.max(...axisRows):Infinity;
+    const prepared=candidates.filter(candidate=>{const length=norm(candidate.term).length;return length>=plan.minLength&&length<=plan.maxLength&&candidate.distance<=plan.maxDistance;})
+      .map(candidate=>({...candidate,_structural:classifyStructuralCandidate(candidate,axis),_center:structuralCandidateCenter(candidate,axis),
+        _intersection:(candidate.positions||[]).some(position=>axisCells.has(position))}))
+      .sort((a,b)=>candidateLexiconPriority(b)-candidateLexiconPriority(a)||a.distance-b.distance||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
+    const groups=[],add=(kind,label,description,members,priority)=>{const unique=[...new Map(members.map(row=>[norm(row.candidate.term),row])).values()].slice(0,plan.maxMembers);if(unique.length<plan.minMembers)return;
+      groups.push({kind,label,description,priority,memberCount:unique.length,members:unique.map(row=>structuralMember(row.candidate,row.role))});};
+    const parallels=prepared.filter(candidate=>candidate._structural?.relation?.startsWith("parallel-"));
+    if(plan.types.includes("parallel"))add("parallel","משפחת מקבילות",`ממצאים הנעים במקביל לציר ${norm(st.raw)}.`,parallels.map(candidate=>({candidate,role:"parallel"})),400);
+    if(plan.types.includes("corridor"))for(const boundary of parallels){
+      const edge=boundary._center.offset;if(Math.abs(edge)<1.5)continue;const lo=Math.min(0,edge),hi=Math.max(0,edge);
+      const inside=prepared.filter(candidate=>candidate!==boundary&&candidate._center.offset>lo&&candidate._center.offset<hi&&candidate._center.row>=axisMin-2&&candidate._center.row<=axisMax+2);
+      if(inside.length)add("corridor",`מסדרון אל ${norm(boundary.term)}`,`המקבילה ${norm(boundary.term)} ומה שנמצא בינה לבין הציר הראשי.`,
+        [{candidate:boundary,role:"boundary"},...inside.map(candidate=>({candidate,role:"inside"}))],350);
+    }
+    if(plan.types.includes("intersection")){const intersections=prepared.filter(candidate=>candidate._intersection);
+      add("intersection","חציות על הציר",`ממצאים החולקים לפחות אות אחת עם ${norm(st.raw)}.`,intersections.map(candidate=>({candidate,role:"intersection"})),300);}
+    if(plan.types.includes("cluster")){
+      const radius=Math.max(4,Math.min(12,Math.round(plan.maxDistance/4))),remaining=new Set(prepared);
+      for(const seed of prepared){if(!remaining.has(seed))continue;const members=prepared.filter(candidate=>remaining.has(candidate)&&Math.abs(candidate._center.row-seed._center.row)+Math.abs(candidate._center.offset-seed._center.offset)<=radius);
+        if(members.length>=plan.minMembers){members.forEach(candidate=>remaining.delete(candidate));add("cluster",`אשכול סביב ${norm(seed.term)}`,`ממצאים המרוכזים באותו אזור בתוך רדיוס מבני ${radius}.`,members.map(candidate=>({candidate,role:"cluster"})),200);}
+        else remaining.delete(seed);
+      }
+    }
+    groups.sort((a,b)=>b.priority-a.priority||b.memberCount-a.memberCount||a.label.localeCompare(b.label,"he"));
+    return {plan,groups:groups.slice(0,plan.maxGroups),availableGroups:groups.length,considered:prepared.length,truncated:groups.length>plan.maxGroups};
+  }
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
   st.verseRead=false;st.verseHL=-1;
@@ -2502,8 +2555,10 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       dynamicCandidateLexicon().then(lexicon=>{
         const current=hasGov(st.res)?occ():null;
         if(!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"structure-priority",ok:false,target});return;}
-        const structuralAxis={...current,_structuralCells:new Set(current.positions||[])};
-        const available=rankStructuralCandidates(scanCandidates(lexicon.entries,(candidate,best)=>preferStructuralCandidate(candidate,best,structuralAxis)),structuralAxis),scanCap=64;
+        const plan=normalizeStructurePlan(target.structurePlan),structuralAxis={...current,_structuralCells:new Set(current.positions||[])};
+        const eligibleLexicon=lexicon.entries.filter(entry=>{const length=norm(entry.term||entry.label||entry).length;return length>=plan.minLength&&length<=plan.maxLength;});
+        const candidates=scanCandidates(eligibleLexicon,(candidate,best)=>preferStructuralCandidate(candidate,best,structuralAxis)).filter(candidate=>candidate.distance<=plan.maxDistance);
+        const grouped=buildStructuralGroups(candidates,structuralAxis,plan),available=rankStructuralCandidates(candidates,structuralAxis),scanCap=64;
         const items=available.slice(0,scanCap).map(candidate=>({term:norm(candidate.term),label:candidate.term,skip:candidate.skip,
           direction:candidate.dir===1?"fwd":"back",distance:candidate.distance,relation:candidate.relation,relationLabel:candidate.relationLabel,
           relationTags:candidate.relationTags,multiple:candidate.multiple,delta:candidate.delta,notable:candidate.notable,
@@ -2512,8 +2567,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         postHost({type:"lens",lens:"structure-priority",ok:true,target,status:"CANDIDATE",provenanceSource:lexicon.contract,coverage:"displayed-window",
           lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},
           ranking:{contract:STRUCTURAL_PRIORITY_CONTRACT,order:"parallel_then_intersection_then_existing_notable_then_research_evidence_then_distance"},
+          structurePlan:grouped.plan,groups:grouped.groups,groupTotal:grouped.groups.length,availableGroups:grouped.availableGroups,considered:grouped.considered,
           axis:{term:norm(st.raw),skip:Math.abs(current.skip),direction:current.dir===1?"fwd":"back",notable:axisNotable?{rank:axisNotable.rank,tag:axisNotable.tag}:null},
-          items,total:items.length,available:available.length,truncated:available.length>scanCap});
+          items,total:items.length,available:available.length,truncated:available.length>scanCap||grouped.truncated});
       });
     }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד

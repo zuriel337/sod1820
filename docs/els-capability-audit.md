@@ -871,3 +871,46 @@ passed. Deterministic level-9 comparison measurements against branch head `20b92
 | ELS 2029 route CSS, raw / gzip | 67,611 / 10,190 B | 70,779 / 10,505 B | +3,168 / +315 B |
 
 No Preview, Production, database, RLS, permission, merge or PR action was performed.
+
+## 18. BOUNDED STRUCTURE SCAN PLANS — 2026-10-23
+
+`els_structure_scan_plan_v1` turns the existing Research structural projection into one bounded,
+declarative scan instead of a sequence of term-by-term actions. The user can select a quick, broad
+or deep preset, then optionally declare minimum/maximum word length, maximum distance from the
+primary axis, minimum group size and any combination of four result families:
+
+- parallel axes;
+- a corridor bounded by the primary axis and a parallel axis, including candidates between them;
+- literal intersections with the primary axis;
+- local candidate clusters.
+
+The normalized engine boundary clamps length to **3–16 letters**, distance to **4–120 displayed
+cells**, minimum group size to **2–6**, output to **12 groups** and each group to **10 members**.
+Opening the panel, changing a preset or editing a setting performs no work; only the explicit scan
+button invokes the already-mounted canonical engine. The scan uses the existing bounded displayed
+window and dynamic candidate lexicon. It neither opens a new skip-family search nor implements
+B12/B13.
+
+Results are ordered and presented as structure groups, without exposing engine coordinates. One
+`אמת והצג קבוצה` action sends the group's new terms through the existing canonical Findings batch
+update. Every term must still pass canonical verification before display; membership in a proposed
+group never creates a Finding, proof, score or Truth. No group store, graph, second engine or new
+Research state was added. Classic remains unchanged and available over the same mounted engine.
+
+Branch acceptance is green: the focused contract suite completed **187 pass / 0 fail / 3 skip**
+(the three unchanged skips require local PostgreSQL), canonical browser cutover passed **26/26**,
+the complete native browser suite passed **42/42**, and Advanced/FORMS/deferred-payload checks
+passed **6/6**. Both production build targets passed, as did the **5/5** 2029 bundle budget. Mobile,
+privacy, exact axis identity and all three palettes are included in those browser suites.
+
+Deterministic level-9 comparison measurements against `fff25f03` are:
+
+| Artifact | Before | Structure plans | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,602,419 / 953,063 B | 1,608,908 / 954,935 B | +6,489 / +1,872 B |
+| Legacy standalone, raw / gzip | 2,508,738 / 1,640,371 B | 2,515,227 / 1,642,313 B | +6,489 / +1,942 B |
+| ELS 2029 route JS, raw / gzip | 196,040 / 57,744 B | 200,458 / 59,005 B | +4,418 / +1,261 B |
+| ELS 2029 route CSS, raw / gzip | 70,779 / 10,505 B | 74,648 / 10,903 B | +3,869 / +398 B |
+
+The 85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL + 4 PARKED + 1 NEVER**.
+No Preview, Production, database, RLS, permission, merge or PR action was performed.

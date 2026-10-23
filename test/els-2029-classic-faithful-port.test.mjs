@@ -155,10 +155,12 @@ test("one unified scan action uses the exact selected, visible and verified occu
   assert.match(nativeClassic, /aria-label=\{researchProfile \? "סרוק לאורך הציר הנבחר" : "קרא את המשך הציר הנבחר"\}/);
   assert.equal((nativeClassic.match(/onClick=\{\(\) => onScan\(target\)\}/g) || []).length, 1);
   // The matrix action menu and findings rail remain the two profile-aware entrances. Research's
-  // explicit Structures panel adds axis continuation and verified-result opening through that same
-  // canonical line-context lens; it does not add another scanner.
-  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 4);
+  // explicit Structures panel adds only axis continuation through that same canonical line-context
+  // lens; grouped findings are sent through the existing canonical findings verification instead.
+  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 3);
   assert.equal((nativeClassic.match(/requestLens\("line-context", \{ \.\.\.target, scan: researchProfile \}\)/g) || []).length, 2);
+  assert.match(nativeClassic, /onAddGroup=\{addStructureGroup\}/);
+  assert.match(nativeClassic, /requestFindingsChange\(next, \{ preserveRead: true \}\)/);
   assert.doesNotMatch(nativeClassic, /רצף ומילים לאורך הציר|סרוק ציר ראשי/);
   assert.match(nativeClassic, /\(hit\.verified \|\| hit\.kind === "source-sequence"\) && hit\.shown && hit\.withinRadius !== false/);
   assert.match(nativeClassic, /eligible\(selectedFinding\)\.find\(\(hit\) => hit\.hitId === selected\?\.hitId\)/);
