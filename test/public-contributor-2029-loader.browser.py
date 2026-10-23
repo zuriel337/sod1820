@@ -8,7 +8,8 @@ fixtures=json.loads(subprocess.check_output(['node','--input-type=module','-e', 
 results=[]
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
- for admin in [False,True]:
+ for admin,automatic in [(False,False),(True,False),(False,True),(True,True)]:
+  identity={**fixtures['identity'],**({'slug':'r-0123456789abcdef0123456789abcdef'} if automatic else {})}
   context=browser.new_context()
   if admin:
    def part(v):return base64.urlsafe_b64encode(json.dumps(v).encode()).decode().rstrip('=')
@@ -28,7 +29,7 @@ with sync_playwright() as p:
    claims=json.loads(base64.urlsafe_b64decode(auth.split('.')[1]+'=='))
    assert claims['role']=='anon','session credentials were used for public data'
    calls.append(table)
-   data={'contributors':[fixtures['identity']],'world_contributor_research_v1':[fixtures['research'],{**fixtures['research'],'id':'private-test-marker','privacy_scope':'private','statement':'PRIVATE_TEST_MARKER'}],
+   data={'contributors':[identity],'world_contributor_research_v1':[fixtures['research'],{**fixtures['research'],'id':'private-test-marker','privacy_scope':'private','statement':'PRIVATE_TEST_MARKER'}],
     'channel_updates':[fixtures['source']],'research_contributions':[],'gematria_words':[],'world_gematria_lexical_lookup_v1':[]}[table]
    r.fulfill(status=200,content_type='application/json',headers={'access-control-allow-origin':'*','content-range':f'0-{max(0,len(data)-1)}/{len(data)}'},body=json.dumps(data))
   page.route('**/*',route)
@@ -39,7 +40,8 @@ with sync_playwright() as p:
   assert not errors,errors
   assert 'topic_cards_public' not in calls
   assert len([t for t in calls if t=='contributors'])==2
-  results.append({'viewer':'signed-in-admin' if admin else 'anonymous','all_data_requests_anonymous':True,'private_marker_visible':False,'request_count':len(calls),'tables':calls,'canonical':page.locator('link[rel=canonical]').get_attribute('href')})
+  page.wait_for_function("automatic => document.querySelector('meta[name=robots]')?.content.includes('noindex') === automatic",arg=automatic)
+  results.append({'viewer':'signed-in-admin' if admin else 'anonymous','automatic_profile':automatic,'all_data_requests_anonymous':True,'private_marker_visible':False,'request_count':len(calls),'tables':calls,'canonical':page.locator('link[rel=canonical]').get_attribute('href'),'robots':page.locator('meta[name=robots]').get_attribute('content')})
   context.close()
  browser.close()
 Path('work/evidence/loader-browser-results.json').write_text(json.dumps(results,ensure_ascii=False,indent=2))

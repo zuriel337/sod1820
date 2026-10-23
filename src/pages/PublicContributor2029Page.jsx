@@ -126,7 +126,7 @@ export default function PublicContributor2029Page() {
   const active = state.key === slug ? state : { loading: true, view: null, error: false };
   useEffect(() => {
     applySeo({ title: active.view?.profile.name || "דף כותב", path: active.view?.canonicalHref || `/community/researcher/${encodeURIComponent(slug || "")}`,
-      description: active.view?.profile.bio || "הכתבים, המקורות והממצאים הציבוריים של הכותב.", noindex: !active.view });
+      description: active.view?.profile.bio || "הכתבים, המקורות והממצאים הציבוריים של הכותב.", noindex: !active.view || active.view.noindex === true });
   }, [slug, active.view]);
   return <PublicContributor2029View {...active} onRetry={() => setAttempt((value) => value + 1)} />;
 }

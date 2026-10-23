@@ -65,6 +65,18 @@ test("unknown, inactive and me do not become a public profile; invalid input nev
   assert.equal(await loadPublicContributor2029(identity.slug,{publicClient:()=>privateClient,projectionReader:()=>{throw new Error("private_profile_read");}}),null);
 });
 
+test("automatic contributor remains noindex behind a numeric canonical URL; curated identity keeps its existing policy", async () => {
+  const generated = { ...identity, slug: "r-0123456789abcdef0123456789abcdef" };
+  const client = fakeClient({ contributors: [generated], research_objects: [fixtureFinding],
+    channel_updates: [], research_contributions: [], gematria_words: [] }, []);
+  const view = await loadPublicContributor2029(identity.code, { publicClient: () => client });
+  assert.equal(view.canonicalHref, "/community/researcher/2042");
+  assert.equal(view.noindex, true);
+  assert.equal(buildPublicContributorView(fixtureProjection(), identity).noindex, false);
+  assert.equal(buildPublicContributorView(fixtureProjection(), { ...identity, slug: "r-CDEF0123456789ABCDEF" }).noindex, true);
+  assert.equal(buildPublicContributorView(fixtureProjection(), { ...identity, slug: "r-short" }).noindex, false);
+});
+
 test("private/public_candidate/person_only/draft/triage and unresolved display names never enter public view", () => {
   const projection = fixtureProjection();
   const rows = ["private","public_candidate"].map((privacy_scope) => ({...fixtureFinding,id:privacy_scope,privacy_scope}));
