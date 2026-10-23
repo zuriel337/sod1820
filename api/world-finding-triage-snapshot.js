@@ -2,6 +2,28 @@
 // Server-only preview annotation: identifiers and decisions only; live finding text,
 // access, status, sources and tree targets still come from the canonical World reader.
 
+const REPLAY_APPROVED = Object.freeze({
+  "0223438e-1b7a-4e0b-baa8-94c9a4440586": "20addd29-41db-4cc2-9a70-5c41d65bfb65 (786)",
+  "0287469c-0915-4570-9606-a245e7286cad": "8b1656d1-81b0-4dbd-b97c-1b27c5acb4b1 (336)",
+  "02db8f70-bb49-42b4-898e-348a32dac668": "dba512f5-8ba4-4086-bd5a-e42517c1b700 (393)",
+  "05c97950-f765-4a58-bfaa-a158b649bf80": "20addd29-41db-4cc2-9a70-5c41d65bfb65 (786)",
+  "06d9c732-6e48-4f5c-8d57-a0447e841741": "8935de02-56d5-4f56-a0d7-bc6694b22582 (238)",
+  "07f6272c-160b-4423-bc7b-3e659fc723ea": "4740e8d5-f612-4b6c-ab6a-7db1d7b4aa4a (910)",
+  "08d39d7f-7c24-4a79-b0f2-eaaa475a88cc": "4239eacd-c479-4411-8380-b42d2dc0f1a6 (656)",
+  "0916cfbd-3b9d-4989-9ce3-ac35b1f0b9c7": "0c1ec9c3-571c-467e-967d-d92f5a70747b (760)",
+  "0c8786ca-e9ea-4e5f-8024-b34b629a786a": "20addd29-41db-4cc2-9a70-5c41d65bfb65 (786)",
+  "0c9b29f3-8454-4a88-80cf-921d8faa6915": "73ec943e-3c59-437f-9b97-2bafb39572f1 (31)",
+  "0cd604ae-0499-444d-9f9a-9b8dacffca64": "acf58e09-87a5-47f7-896e-f24e66f0c9c7 (620)",
+  "100237f5-a108-45f1-a8ef-e3496d675395": "0dbfa864-2801-4ccf-8382-4c39a37cc398 (590)",
+  "10e47f5a-8168-49d5-b0ee-e721d78beb43": "17f8b9bd-873d-4188-9c72-02bd3f523b1b (651)",
+  "10fd0341-a233-4a36-8969-91a9078b33d7": "622c238b-9a18-4464-b3ba-f02d8392cf91 (618)",
+  "1118f3ab-e4eb-43c2-9da1-23be09599d7b": "20addd29-41db-4cc2-9a70-5c41d65bfb65 (786)",
+  "111d8117-7e30-44f8-bc43-1bdd3248fcef": "281254ec-5e73-4949-928c-fd18e42f3a44 (72)",
+  "12e4cc15-42f2-42df-8ae5-7037ae667dcc": "9cd22c3e-be5c-4283-ba6d-f974530d4dbc (1820)",
+  "13452e40-bceb-4f85-a2f5-3a631d146179": "cd7bc426-f541-4098-99e9-ea4a1e5d5c10 (802)",
+  "135ca479-767a-4e5d-97be-ce0ca578592c": "26cada57-26fe-4a6e-abed-d4f3f85ac5cb (861)",
+});
+
 const STRENGTH_LABELS = Object.freeze(["חזק","בינוני","חלש"]);
 const RECOMMENDATION_LABELS = Object.freeze(["מתאים לעץ","דורש בדיקה","כפילות","דורש מקור","שיוך זהות לא פתור","דורש OCR או תמלול","לא מתאים"]);
 const EVIDENCE_REASONS = Object.freeze(["אימות מנוע מפורש תואם ויעד מדויק קיים.","האימות המפורש עובר, אך לא נמצא יעד עץ מדויק קיים.","אימות מנוע מפורש תואם ויעד מדויק קיים. 2 הופעות מדויקות אוגדו ואינן מקורות עצמאיים.","אותה ליבה כבר כלולה ב-bd2b112f-f8ad-41dc-ab30-959795200d6d; חזרות מקור אינן ראיה עצמאית.","יש התאמה מכנית, אך work_log הוא provenance ולא מקור תוכן עצמאי.","אותה ליבה כבר כלולה ב-8593fe3e-9606-4b2b-bd52-0c4a0285c4e3; חזרות מקור אינן ראיה עצמאית.","אין שיוך אדם/תורם מבוסס מספיק; אין לייחס לפי ניחוש.","אותה ליבה כבר כלולה ב-050ca908-d01f-413a-b32d-3db37e72c7e2; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-ef7d9c29-675d-47f5-afdb-b0606497c9c3; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-3f50af95-8e82-412c-bbac-b87b60de66e9; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-103cdb3e-048f-46dd-b19a-ac45526c0008; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-d643fec4-c276-4c32-9560-6f06a60172f3; חזרות מקור אינן ראיה עצמאית.","החישוב עובר, אך זהות המדיה המצוטטת אינה קשורה ישירות לממצא.","אותה ליבה כבר כלולה ב-2912366c-b1f6-4c60-8823-35cf5ccfa9d1; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-6b25e21e-52a5-4be8-b2d2-573e553c6e80; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-d41cc580-6773-4401-b587-4dd0bbf9bd87; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-80e1a0dd-dbc1-4da5-9a92-86952ee98962; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-06c22b3f-9988-460b-9888-516015e20e68; חזרות מקור אינן ראיה עצמאית.","חפיפה חלקית עם ממצא אחר, אך קיימת גם שורה ייחודית; יש לפצל בלי לאבד תוכן.","אותה ליבה כבר כלולה ב-cb1e33ad-ed76-4370-9272-f8518c24ee10; חזרות מקור אינן ראיה עצמאית.","מצב האימות הוא not_tested; חיבור לעץ או מד אינם הופכים אותו לאמת.","הכרטיס תלוי במדיה ולא קיים אימות מפורש של החילוץ.","אין מקור תוכן עצמאי מספיק ואין verification_state=match.","זהו engine_verified ישן ללא verification_state מפורש; נדרש replay עדכני.","השיטה אינה ממופה וגם אין מקור תוכן עצמאי מספיק.","הטענה תלויה במדיה והשיטה אינה מזוהה.","טענת מקור לא־חישובית עם עדות עמוד מדויקת; יש לשמור אותה כטענת המקור, לא כאמת חיצונית.","זו השערה/התכנסות ולא חיבור מאומת.","האימות החישובי אינו חל; נדרשת הכרעת מקור/ניסוח לפני הכנסה.","עדות המקור אומתה או שוחזרה עם רכיבים בדוקים ויעד ספר מדויק קיים.","הממצא מעורב או סותר בחלקו; יש לפצל את החלקים העוברים מן החלקים שנכשלו.","רק הליבה המספרית מאומתת; הפרשנות, האירוע או התחזית מוחרגים.","מצב האימות החריג אינו אישור מלא; נדרשת הכרעת אדם.","תוצאת המנוע סותרת את הערך הנטען; אין להכניס את הטענה.","עדות/תבנית קיימת, אך האופרטור או הסמנטיקה אינם ממופים קנונית.","השחזור או רכיבי המנוע קיימים, אך עדות ה־PDF טרם הוכרעה."]);
@@ -15,14 +37,18 @@ const recommendationCounts = {};
 for (const [index, line] of SNAPSHOT_ROWS.trim().split("\n").entries()) {
   const [id, strengthCode, recommendationCode, reasonCode] = line.split(",");
   if (!id || SNAPSHOT_INDEX.has(id)) throw new Error("invalid World triage snapshot row: " + (id || index));
-  const strength = STRENGTH_LABELS[Number(strengthCode)];
-  const recommendation = RECOMMENDATION_LABELS[Number(recommendationCode)];
+  const replayTarget = REPLAY_APPROVED[id];
+  const strength = replayTarget ? "חזק" : STRENGTH_LABELS[Number(strengthCode)];
+  const recommendation = replayTarget ? "מתאים לעץ" : RECOMMENDATION_LABELS[Number(recommendationCode)];
   SNAPSHOT_INDEX.set(id, Object.freeze({
     rank: index + 1,
     strength,
     recommendation,
-    evidenceReason: EVIDENCE_REASONS[Number(reasonCode)],
+    evidenceReason: replayTarget
+      ? "אימות חוזר במנוע עבר, הכרטיס אינו כפילות ויעד מספר מדויק קיים."
+      : EVIDENCE_REASONS[Number(reasonCode)],
     ...(EXTRAS[id] || {}),
+    ...(replayTarget ? { proposedTreeTarget: `number:${replayTarget}`, replayBatch: "zvi_verified_replay_tree_promotion_v2" } : {}),
   }));
   strengthCounts[strength] = (strengthCounts[strength] || 0) + 1;
   recommendationCounts[recommendation] = (recommendationCounts[recommendation] || 0) + 1;
@@ -32,6 +58,7 @@ if (SNAPSHOT_INDEX.size !== 10709) throw new Error("World triage snapshot expect
 
 export const WORLD_FINDING_TRIAGE_META = Object.freeze({
   snapshotDate: "2026-10-22",
+  reviewedThrough: "2026-10-23",
   cutoff: "2026-10-22T13:49:42.578263Z",
   baseCommit: "640a385340733d84d4853e04e96cd38b3466e6ba",
   totalCards: SNAPSHOT_INDEX.size,
