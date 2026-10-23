@@ -27,10 +27,11 @@ export function ContributorOverview2029({ overview }) {
   const loading = overview?.state === "loading";
   const lastSeenReady = ready && overview.lastSeenState === "ready";
   const lastSeen = lastSeenReady ? bilingualDateLabel(overview.lastSeenAt) : "";
-  const lastSeenText = lastSeen || (!ready ? "" : overview.lastSeenState === "loading" ? "נטען…" : "חיבור אחרון אינו מוצג");
+  // An unknown last-seen is omitted: a missing fact must not take a row of its own.
+  const lastSeenText = lastSeen || (ready && overview.lastSeenState === "loading" ? "נטען…" : "");
   const about = ready ? text(overview.about) : "";
   const focus = ready ? text(overview.currentFocus) : "";
-  const rows = [["חבר מאז", joined, joined ? tenure : ""], ["הדף פעיל מאז", since, ""], ["חיבור אחרון", lastSeenText, ""]].filter(([, value]) => value);
+  const rows = [["חבר מאז", joined, joined ? tenure : ""], ["הדף פעיל מאז", since && since !== joined ? since : "", ""], ["חיבור אחרון", lastSeenText, ""]].filter(([, value]) => value);
   return <section className="cx-overview" style={tokens(P)} aria-labelledby="cx-overview-title" data-state={ready ? "ready" : loading ? "loading" : "unavailable"}>
     <h2 id="cx-overview-title" className="cx-title cx-sr">סקירה</h2>
     {!ready ? <p className="cx-muted" role="status">{loading ? "טוען את פרטי הסקירה…" : "פרטי הסקירה אינם זמינים כרגע."}</p> : <>
@@ -71,7 +72,9 @@ export function ContributorStudio2029({ items, available }) {
 
 export function ContributorActionRow2029({ children }) {
   const P = use2029Palette();
-  const items = React.Children.toArray(children);
+  // The global header owns the personal-workspace entry; the page-local duplicate is not rendered.
+  const WORKSPACE = ["האזור האישי שלי", "התחברות לאזור האישי"];
+  const items = React.Children.toArray(children).filter((child) => !(React.isValidElement(child) && child.type === "button" && WORKSPACE.includes(child.props.children)));
   if (!items.length) return null;
   return <div className="cx-actions" style={tokens(P)} role="group" aria-label="פעולות על הכותב">{items}</div>;
 }

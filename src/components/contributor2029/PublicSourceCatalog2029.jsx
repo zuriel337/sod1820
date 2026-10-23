@@ -39,7 +39,7 @@ export default function PublicSourceCatalog2029({ view, onRetry }) {
         {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
         <p className="pc-boundary">להכיר את הכתבים, לקרוא במקור ולהמשיך אל הממצאים והקשרים בעולם.</p>
       </div>
-      <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar}
+      <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
         links={[{ href: view.worldHref, label: "הממצאים בעולם" }, { href: `${view.canonicalHref}?section=all`, label: "כל הכתבים" }]} previewRank={view.rankPreview} />
     </header>
     <ContributorActionsController2029 view={view} onPublicData={reading.receivePublicData} excludedStudioIds={reading.featuredIds} />
@@ -49,11 +49,10 @@ export default function PublicSourceCatalog2029({ view, onRetry }) {
         <button type="button" key={key} aria-pressed={selection.section === key} onClick={() => change("section", key)}>{label}</button>)}
       <Link className="pc-open pc-world" to={view.worldHref}>הממצאים של {view.profile.name} בעולם ↗</Link>
     </nav>
-    <section aria-labelledby="writer-community-title" className={selection.section === "community" ? "" : "pc-community-peek"}>
+    {selection.section === "community" ? <section aria-labelledby="writer-community-title">
       <h2 id="writer-community-title">כתיבה בקהילה</h2>
-      {selection.section !== "community" ? <p className="pc-reason">הודעות ותגובות בקהילה נפרדות מחומרי המקור. <button type="button" className="pc-inline" onClick={() => change("section", "community")}>לפעילות בקהילה ←</button></p>
-        : <ContributorCommunityActivity2029 authorKey={view.communityAuthorKey} enabled />}
-    </section>
+      <ContributorCommunityActivity2029 authorKey={view.communityAuthorKey} enabled />
+    </section> : null}
     {selection.section !== "community" ? <section aria-labelledby="writer-source-title">
       <div className="pc-list-heading"><div>{selection.section === "recent" ? <p className="pc-eyebrow">כתבי מקור וחומרים שהועלו</p> : null}<h2 id="writer-source-title">{selection.section === "recent" ? "התעדכן לאחרונה" : "כתבי מקור וחומרים שהועלו"}</h2>
         <p className="pc-reason">{selection.section === "recent" ? "עד 20 פרסומים אחרונים, חדשים תחילה." : "פרסומי המקור שהועלו, חדשים תחילה."}</p>
