@@ -204,4 +204,25 @@ assert.equal(clamped.metrics.messages, 0);
 assert.equal(clamped.metrics.findings, 0);
 assert.deepEqual(clamped.tabs.map((tab) => tab.key), ["overview"]);
 
+// Unknown is not zero: missing or non-numeric inputs stay null and are listed; known zero stays 0.
+const unknown = projectPersonProfile2029({
+  person: { displayName: "לא ידוע", joinedAt: "2026-09-25T00:00:00Z" },
+  metrics: { messages: null, activeDays: undefined, hints: "", findings: "bad", publications: 0 },
+  economy: { credits: null, xp: 0 },
+  communityImpact: { reactionsReceived: null },
+}, { viewer: "self", entryContext: "chat" });
+assert.equal(unknown.metrics.messages, null);
+assert.equal(unknown.metrics.activeDays, null);
+assert.equal(unknown.metrics.hints, null);
+assert.equal(unknown.metrics.findings, null);
+assert.equal(unknown.metrics.publications, 0, "a measured zero stays zero");
+assert.equal(unknown.economy.credits, null, "unread credits are not zero credits");
+assert.equal(unknown.economy.xp, 0);
+assert.equal(unknown.communityImpact.reactionsReceived, null);
+assert.ok(unknown.unknownMetrics.includes("messages") && unknown.unknownMetrics.includes("activeDays"));
+assert.equal(unknown.unknownMetrics.includes("publications"), false);
+assert.deepEqual(unknown.tabs.map((tab) => tab.key), ["overview", "activity"], "unknown metrics never create or hide tabs by pretending to be zero");
+assert.equal(unknown.tabs.find((tab) => tab.key === "activity").count, null);
+assert.equal(unknown.lens, "overview", "chat entry asks for Messages; unknown messages do not open it, so Overview opens");
+
 console.log("person profile 2029 projection: PASS");
