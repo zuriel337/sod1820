@@ -1315,7 +1315,7 @@ function LiveWorldLanding({ research, shell, context }) {
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.EXPLORE ? <React.Suspense fallback={<NativeStateSection><FrameState kind="loading" title="פותח את סוגי הידע">טוען רק את הסוג שבחרת.</FrameState></NativeStateSection>}>
-      <WorldKnowledgeTypes2029 kind={knowledgeKind} onKindChange={openKnowledgeKind} />
+      <WorldKnowledgeTypes2029 kind={knowledgeKind} onKindChange={openKnowledgeKind} isAdmin={!authLoading && isAdmin} />
     </React.Suspense> : null}
 
     {activeView === WORLD_LANDING_VIEW.JOURNEY ? <>
