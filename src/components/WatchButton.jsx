@@ -17,87 +17,98 @@ import EmailVerify from "./EmailVerify.jsx";
 //   props: topic (חובה) · source (מאיפה) · explainer (משפט «מה מקבלים») · label · heading (כותרת-אזור) · gate (אזור-מעקב מובחן) · compact
 //   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
 //   icon: אייקון מוביל (ברירת-מחדל 🔔; בתחתית-פוסט 📁/✍️ כדי להבחין קטגוריה מכתב) · ghost: מצב-מתאר (מילוי שקוף) להבחנה ויזואלית בין שתי פעולות סמוכות.
+const blankView = (key) => ({ key, following: false, busy: false, justFollowed: false, showReg: false, pushOn: false, pushMsg: "", loadFailed: false, toggleError: "", known: false });
+
 export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null }) {
   const auto = usePalette();
   const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();
-  const [following, setFollowing] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [justFollowed, setJustFollowed] = useState(false);
-  const [showReg, setShowReg] = useState(false);
-  const [pushOn, setPushOn] = useState(false);
-  const [pushMsg, setPushMsg] = useState("");
-  const [loadFailed, setLoadFailed] = useState(false);
-  const [toggleError, setToggleError] = useState("");
+  const [view, setView] = useState(() => blankView(""));
   const pushReady = PUSH_CONFIGURED && pushSupported();
   const idObj = user?.id ? { userId: user.id } : { visitorId: getVisitorId() };
   // Principal+topic scope: results that resolve after the account or topic changed must not touch the new scope.
   const scopeKey = `${user?.id || "guest"}|${topic || ""}`;
   const scopeRef = useRef(scopeKey);
   const busyRef = useRef(false);
+  const loadSeqRef = useRef(0);
+  const mutationRef = useRef(0);
   scopeRef.current = scopeKey;
 
-  // Scope-aware reset: a different account/topic starts from unknown, never inherits the previous state.
-  useEffect(() => {
-    busyRef.current = false;
-    setFollowing(false); setBusy(false); setJustFollowed(false); setShowReg(false);
-    setPushOn(false); setPushMsg(""); setLoadFailed(false); setToggleError("");
-  }, [scopeKey]);
+  // State belongs to the scope that produced it; a different account/topic renders as unknown on the very first
+  // render (no flash of the previous account's follow state) instead of waiting for an effect to clear it.
+  const v = view.key === scopeKey ? view : blankView(scopeKey);
+  const { following, busy, justFollowed, showReg, pushOn, pushMsg, loadFailed, toggleError, known } = v;
+  const patch = useCallback((key, p) => setView(prev => ({ ...(prev.key === key ? prev : blankView(key)), ...p })), []);
+
+  useEffect(() => { busyRef.current = false; mutationRef.current += 1; }, [scopeKey]);
 
   const load = useCallback(() => {
     if (!topic) return;
     const key = scopeKey;
-    setLoadFailed(false);
+    const seq = ++loadSeqRef.current;
+    const mutation = mutationRef.current;
+    patch(key, { loadFailed: false });
+    // The initial/verify read must not overwrite a toggle that started or completed after it was requested.
+    const current = () => scopeRef.current === key && loadSeqRef.current === seq && mutationRef.current === mutation;
     getNotificationPrefs(idObj)
       .then(p => {
-        if (scopeRef.current !== key) return;
-        setFollowing(includesFollowSubject(p?.topics, topic));
-        setPushOn(!!p?.channels?.includes("push"));
+        if (!current()) return;
+        patch(key, { following: includesFollowSubject(p?.topics, topic), pushOn: !!p?.channels?.includes("push"), known: true, loadFailed: false });
       })
-      .catch(() => { if (scopeRef.current === key) setLoadFailed(true); });
+      .catch(() => { if (current()) patch(key, { loadFailed: true }); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topic, user?.id]);
   useEffect(() => { load(); }, [load]);
 
   async function toggle() {
-    if (!topic || busyRef.current) return;
+    // Toggling is gated until the saved state is known, so a click can never invert a guess.
+    if (!topic || busyRef.current || !known) return;
     const key = scopeKey;
     busyRef.current = true;
-    setBusy(true);
-    setToggleError("");
+    mutationRef.current += 1;
     const next = !following;
-    setFollowing(next);
+    patch(key, { busy: true, toggleError: "", following: next });
     let ack = null;
     try { ack = await watchToggle(topic, source, next, user?.id ? null : getVisitorId()); } catch { ack = null; }
-    if (scopeRef.current !== key) return; // scope changed mid-flight; the reset effect already cleared busy
+    if (scopeRef.current !== key) return; // scope changed mid-flight; the scope effect already cleared busy
     busyRef.current = false;
-    setBusy(false);
+    mutationRef.current += 1;
     if (!ack) {
-      // No acknowledgment from the canonical RPC: roll back and say so, never a false success.
-      setFollowing(!next);
-      setToggleError(next ? "לא הצלחנו לשמור את המעקב. נסו שוב." : "לא הצלחנו לבטל את המעקב. נסו שוב.");
+      // No acknowledgment: the outcome is unknown, so show the prior state, say we did not get confirmation, and re-read.
+      patch(key, { busy: false, following: !next, known: false, toggleError: "לא קיבלנו אישור שהמעקב עודכן. בדקו את המצב ונסו שוב." });
+      load();
       return;
     }
-    if (next) { setJustFollowed(true); try { trackConversion("follow", { source, topic }); } catch { /* noop */ } }
-    else setJustFollowed(false);
+    patch(key, next ? { busy: false, justFollowed: true } : { busy: false, justFollowed: false });
+    if (next) { try { trackConversion("follow", { source, topic }); } catch { /* noop */ } }
   }
 
   async function turnOnPush() {
     // Follow v19: guest Follow never turns into channel consent. Identity first.
     if (!pushReady || !user?.id) return;
-    setPushMsg("");
+    const key = scopeKey;
+    patch(key, { pushMsg: "" });
     const r = await enablePush({ userId: user.id, topics: [] });
-    if (r?.ok) { setPushOn(true); setPushMsg("✓ ההתראות המיידיות הופעלו"); try { trackConversion("push_enabled", { source }); } catch { /* noop */ } }
-    else setPushMsg(r?.reason === "denied" ? "הדפדפן חסם התראות" : "לא ניתן להפעיל כרגע");
+    if (scopeRef.current !== key) return;
+    if (r?.ok) { patch(key, { pushOn: true, pushMsg: "✓ ההתראות המיידיות הופעלו" }); try { trackConversion("push_enabled", { source }); } catch { /* noop */ } }
+    else patch(key, { pushMsg: r?.reason === "denied" ? "הדפדפן חסם התראות" : "לא ניתן להפעיל כרגע" });
   }
 
   if (!topic) return null;
+
+  // One visible, announced error + retry for every variant. Unknown state is never presented as a saved/unsaved fact.
+  const unknownMsg = toggleError || (loadFailed ? "לא ניתן לאמת את מצב המעקב כרגע." : "");
+  const retry = (color, size) => (loadFailed || toggleError) && !busy
+    ? <button type="button" onClick={load} style={{ marginInlineStart: 8, minHeight: 44, minWidth: 44, cursor: "pointer", background: "transparent", border: "none", color, fontFamily: F.heading, fontSize: size, fontWeight: 800, textDecoration: "underline" }}>נסו שוב</button>
+    : null;
+  const locked = busy || !known;
 
   // ✓ וריאנט mini — «וי קטן» עדין למשטחי-מדיה כהים (למשל בתוך נגן-הShorts). כמעט-שקוף כשלא-עוקב,
   //   מתמלא בסגול כשעוקב. אותו מנוע-מעקב קנוני (watchToggle/getNotificationPrefs), רק תצוגה זעירה.
   if (variant === "mini") {
     return (
-      <button onClick={toggle} disabled={busy} aria-pressed={following}
+      <>
+      <button onClick={toggle} disabled={locked} aria-pressed={following} aria-busy={(!known && !loadFailed) || busy || undefined}
         title={toggleError || (following ? "עוקב — לחצו לביטול" : (explainer || "עקבו אחרי מימד חמש"))}
         style={{
           display: "inline-flex", alignItems: "center", gap: 5, cursor: busy ? "wait" : "pointer",
@@ -110,6 +121,8 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
         <span aria-hidden style={{ fontSize: 11 }}>✓</span>
         <span>{following ? (followLabel || "עוקב") : (label || "מעקב")}</span>
       </button>
+      {unknownMsg && <span role="alert" style={{ display: "inline-flex", alignItems: "center", marginInlineStart: 6, color: "#fff", fontFamily: F.heading, fontSize: 11.5 }}>{unknownMsg}{retry("#fff", 11.5)}</span>}
+      </>
     );
   }
 
@@ -117,8 +130,8 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
 
   const outline = following || ghost;
   const btn = {
-    cursor: busy ? "wait" : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
-    minHeight: 40, padding: compact ? "7px 15px" : "9px 20px", borderRadius: 999,
+    cursor: locked ? (loadFailed ? "not-allowed" : "wait") : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
+    minHeight: 44, padding: compact ? "7px 15px" : "9px 20px", borderRadius: 999,
     fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap",
     border: `1px solid ${outline ? P.accent : "transparent"}`,
     background: following ? soft : (ghost ? "transparent" : P.accentBtn),
@@ -130,9 +143,9 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   if (checkbox) {
     return (
       <>
-      <button onClick={toggle} disabled={busy} role="checkbox" aria-checked={following}
+      <button onClick={toggle} disabled={locked} role="checkbox" aria-checked={following} aria-busy={(!known && !loadFailed) || busy || undefined}
         title={toggleError || (following ? "בטל מעקב" : explainer || label)}
-        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", cursor: busy ? "wait" : "pointer",
+        style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", cursor: locked ? (loadFailed ? "not-allowed" : "wait") : "pointer",
           background: following ? soft : "transparent", border: `1px solid ${following ? P.accent : P.border}`,
           borderRadius: 10, padding: "9px 13px", textAlign: "start", direction: "rtl", minHeight: 44 }}>
         <span aria-hidden style={{ flex: "0 0 auto", width: 21, height: 21, borderRadius: 6,
@@ -144,7 +157,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
         </span>
         {following && <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>עוקב</span>}
       </button>
-      {(toggleError || loadFailed) && <div role="alert" style={{ marginTop: 4, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5 }}>{toggleError || "לא ניתן לאמת את מצב המעקב כרגע."}</div>}
+      {unknownMsg && <div role="alert" style={{ marginTop: 4, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5 }}>{unknownMsg}{retry(gold, 12)}</div>}
       </>
     );
   }
@@ -156,10 +169,9 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
       <button onClick={turnOnPush} style={{ cursor: "pointer", background: "transparent", border: `1px solid ${P.accent}`, color: gold, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>הפעל התראות</button>
     </div>
   );
-  const statusNote = (toggleError || loadFailed) && (
+  const statusNote = unknownMsg && (
     <div role="alert" style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12, textAlign: gate ? "center" : "start" }}>
-      {toggleError || "לא ניתן לאמת את מצב המעקב כרגע."}
-      {loadFailed && !toggleError && <button onClick={load} style={{ marginInlineStart: 8, cursor: "pointer", background: "transparent", border: "none", color: gold, fontFamily: F.heading, fontSize: 12, fontWeight: 800, textDecoration: "underline" }}>נסו שוב</button>}
+      {unknownMsg}{retry(gold, 12)}
     </div>
   );
   const pushDone = pushMsg && <div style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>{pushMsg}</div>;
@@ -172,10 +184,10 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
         <>
           <div style={{ color: gold, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔑 שמור את המעקב שלך</div>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, margin: "3px 0 9px" }}>אמת את החשבון כדי לקשור את המעקב לזהות שלך. ערוצי מייל/Push נבחרים בנפרד ורק בהסכמה.</div>
-          <button onClick={() => setShowReg(true)} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ אימות חשבון</button>
+          <button onClick={() => patch(scopeKey, { showReg: true })} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ אימות חשבון</button>
         </>
       ) : (
-        <EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => { setShowReg(false); setJustFollowed(false); }} />
+        <EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => patch(scopeKey, { showReg: false, justFollowed: false })} />
       )}
     </div>
   );
@@ -189,7 +201,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
             <>
               <div style={{ color: gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
               {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
-              <button onClick={toggle} disabled={busy} style={btn}>{icon} {label}</button>
+              <button onClick={toggle} disabled={locked} aria-busy={(!known && !loadFailed) || busy || undefined} style={btn}>{icon} {label}</button>
               {statusNote}
             </>
           ) : (
@@ -197,7 +209,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
               <div style={{ color: gold, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>✓ אתה במעקב</div>
               <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 3 }}>{explainer || "נעדכן אותך כשמתפרסם משהו חדש."}</div>
               <div style={{ marginTop: 8 }}>
-                <button onClick={toggle} disabled={busy} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: 12 }}>ביטול מעקב</button>
+                <button onClick={toggle} disabled={locked} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: 12 }}>ביטול מעקב</button>
               </div>
               {statusNote}{regCta}{pushOffer}{pushDone}
             </>
@@ -210,7 +222,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   // ── מצב כפתור אינליין ──
   return (
     <div style={{ direction: "rtl" }}>
-      <button onClick={toggle} disabled={busy} aria-pressed={following}
+      <button onClick={toggle} disabled={locked} aria-pressed={following} aria-busy={(!known && !loadFailed) || busy || undefined}
         title={following ? "לחצו לביטול" : explainer || label} style={btn}>
         {icon} {following ? (followLabel || "עוקבים ✓") : label}
       </button>

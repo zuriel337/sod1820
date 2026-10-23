@@ -28,9 +28,14 @@
 .wp-stat{padding:10px;border:1px solid var(--wp-border);border-radius:10px;background:var(--wp-soft)}
 .wp-stat dt{color:var(--wp-muted)}
 .wp-stat dd{margin:0;font-weight:600}
-/* Reused legacy inline modules inside the wrapper: enforce 16px text and 44px targets. */
-.wp-body :is(button,input,select,textarea,a[role=button]){font-size:max(16px,1em)!important;min-height:44px}
-.wp-body :is(p,li,label,span,small,div){font-size:max(16px,1em)}
+/* Reused legacy inline modules inside the wrapper: enforce 16px text and 44px targets. Inline styles need !important;
+   decorative (aria-hidden) glyphs and the rank medallion keep their own sizing. */
+.wp-body :is(p,li,label,small,button,a,input,select,textarea,span:not([aria-hidden]),div):not(.wp-medallion,.wp-medallion *){font-size:max(16px,1em)!important}
+.wp-body :is(button,select,textarea,a[role=button],input:not([type=checkbox],[type=radio])):not(.wp-medallion *){min-height:44px!important;min-width:44px}
+.wp-body [role=checkbox]{min-height:44px!important}
+.wp-body input:is([type=checkbox],[type=radio]){width:24px;height:24px}
+.wp-body :is(button,[role=checkbox]){white-space:normal!important}
+.wp-layout .sod29-frame-state button{min-height:44px;min-width:44px}
 :is(.wp-layout,.wp-home,.wp-portrait,.wp-progress) :is(a,button,input,textarea):focus-visible{outline:2px solid var(--wp-focus);outline-offset:3px}
 @media(max-width:390px){.wp-btn{flex:1 1 100%}.wp-card{padding:12px}}
 @media(prefers-reduced-motion:reduce){:is(.wp-layout,.wp-home,.wp-portrait,.wp-progress) *{transition:none!important;animation:none!important}}
