@@ -673,12 +673,14 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           <span>{selectionValid ? "ממצא נבחר" : "ציר המחקר הנוכחי"}</span>
           <strong>{targetLabel}</strong>
           <small>{selectionValid
-            ? "אפשר לסרוק את הרצף המדויק, לפתוח את המקור או לחקור ממנו כציר ראשי."
+            ? researchProfile
+              ? "אפשר לסרוק את הרצף המדויק, לפתוח את המקור או לחקור ממנו כציר ראשי."
+              : "אפשר לקרוא את המשך הציר המדויק, לפתוח את המקור או לערוך את הממצא."
             : "החיפוש והסריקה נשענים על הציר הראשי המאומת."}</small>
         </header>
         <div className="els29-native-target-actions" role="group" aria-label={`פעולות מחקר על ${targetLabel}`}>
-          <button type="button" aria-label="סרוק לאורך הציר הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onScan(target)}>
-            {lensPending ? "טוען…" : selectionValid ? "סרוק בתוך הממצא" : "סרוק לאורך הציר"}
+          <button type="button" aria-label={researchProfile ? "סרוק לאורך הציר הנבחר" : "קרא את המשך הציר הנבחר"} disabled={!targetReady || lensPending || pending} onClick={() => onScan(target)}>
+            {lensPending ? "טוען…" : researchProfile ? selectionValid ? "סרוק בתוך הממצא" : "סרוק לאורך הציר" : "המשך הציר"}
           </button>
           <button type="button" aria-label="מקור הממצא הנבחר" disabled={!targetReady || lensPending || pending} onClick={() => onSource(target)}>מקור ופסוק</button>
           {researchProfile && selectionValid ? <button type="button" className="is-promote" aria-label="הפוך לציר ראשי"
@@ -699,11 +701,13 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           <div className="els29-native-secondary-status" role="status" aria-live="polite" aria-busy={pending}>
             {searchPending ? "ממתין לסיום החיפוש הראשי…" : operation?.status === "searching" ? "מחפש את המילה במטריצה…" : operation?.status === "verifying" ? "בודק את המופעים שנמצאו…" : operation?.status === "error" ? operation.message || "החיפוש לא הושלם. נסו שוב." : operation?.status === "done" ? "החיפוש הושלם. הממצאים מופיעים ברשימה." : "החיפוש מתבצע במטריצה הנוכחית."}
           </div>
-          <button type="button" className="els29-native-discover-all" aria-label="מצא ממצאים קרובים עם המשך"
-            disabled={!verified || pending || lensPending} onClick={() => onDiscover({ hitId: state.axis.hitId })}>
-            {lensPending ? "בודק המשכי צירים…" : "מצא קרובים עם המשך"}
-          </button>
-          <small className="els29-native-discover-note">זמין לכל צופה. מתחיל רק בלחיצה, מציג רק ממצאים עם המשך ואינו משנה את הצופן השמור.</small>
+          {researchProfile ? <>
+            <button type="button" className="els29-native-discover-all" aria-label="מצא ממצאים קרובים עם המשך"
+              disabled={!verified || pending || lensPending} onClick={() => onDiscover({ hitId: state.axis.hitId })}>
+              {lensPending ? "בודק המשכי צירים…" : "מצא קרובים עם המשך"}
+            </button>
+            <small className="els29-native-discover-note">זמין לכל צופה במצב מחקר. מתחיל רק בלחיצה, מציג רק ממצאים עם המשך ואינו משנה את הצופן השמור.</small>
+          </> : null}
           <label className="els29-native-radius">
             <span>מרחק מרבי מהציר הראשי</span>
             <select aria-label="מרחק מרבי מהציר הראשי" value={radius === null ? "all" : radius} disabled={!verified || pending}
@@ -714,7 +718,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           </label>
         </div>
         {lensPending || lensResult ? <details key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
-          <summary>{lensResult?.lens === "matrix-candidates" ? "ממצאים קרובים עם המשך" : lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
+          <summary>{lensResult?.lens === "matrix-candidates" ? "ממצאים קרובים עם המשך" : lensResult?.lens === "line-context" ? (lensResult.scan ? "תוצאות סריקת הציר" : "המשך הציר") : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
           {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding}
             onOpenFinding={(findingTarget) => { selectTarget(findingTarget.term, findingTarget.hitId);onScan(findingTarget); }} addingFinding={pending} />}
         </details> : null}
@@ -1523,7 +1527,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           operation={operations.findings}
           searchPending={searchPending}
           onSelectTarget={selectFinding}
-          onScan={(target) => requestLens("line-context", { ...target, scan: true })}
+          onScan={(target) => requestLens("line-context", { ...target, scan: researchProfile })}
           onSource={(target) => requestLens("verse-context", target)}
           onDiscover={(target) => requestLens("matrix-candidates", target)}
           onAxisControl={requestControl}
@@ -1546,7 +1550,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status) || lensPending}
         journeyBusy={!!journeyPending}
         onClose={() => setFindingMenu(null)}
-        onScan={(target) => requestLens("line-context", { ...target, scan: true })}
+        onScan={(target) => requestLens("line-context", { ...target, scan: researchProfile })}
         onSource={(target) => requestLens("verse-context", target)}
         onPromote={promoteFinding}
         onDetails={revealFindingDetails}

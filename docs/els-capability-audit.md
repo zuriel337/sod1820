@@ -804,6 +804,11 @@ a Finding. Private records are not made public: the engine can consume only reco
 to that viewer by the existing host/RLS read path. Failure to load verse text falls back visibly to
 the governed/research terms and marks coverage partial.
 
+The dynamic discovery projection is **Research-only**. Classic keeps manual matrix search and may
+read the exact letters/source of a selected axis, but it sends no scan flag, does not load the corpus
+lexicon and does not expose the bulk “nearby findings with continuation” action. This is a profile
+boundary over the same mounted canonical engine, not a fork of engine or state.
+
 Measured vocabulary before candidate filtering: **85** historical seeds → **11,400** distinct
 Torah-native terms of four letters or more, or **37,253** for full Tanakh, plus visible verified
 research terms. Thus `אליהו` remains covered by the governed seed and corpus, `יבואו` is learned

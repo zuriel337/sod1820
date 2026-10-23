@@ -562,8 +562,13 @@ test('clicking a matrix Finding opens an instant profile-aware action menu',
    assert.equal(await menu.getAttribute('data-els-finding-menu-profile'),'classic');
    assert.equal(await menu.getByRole('button',{name:'הפוך לציר ראשי',exact:true}).count(),0,'Classic keeps the action set compact');
    for(const label of ['המשך הציר','מקור ופסוק','פרטים ועריכה'])assert.equal(await menu.getByRole('button',{name:label,exact:true}).count(),1);
+   assert.equal(await button(page,'מצא ממצאים קרובים עם המשך').count(),0,'Classic does not expose bulk dynamic discovery');
    const box=await menu.boundingBox(),viewport=page.viewportSize();
    assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,'mobile sheet stays inside the viewport');
+   await menu.getByRole('button',{name:'המשך הציר',exact:true}).click();
+   await page.waitForFunction(()=>window.__lens?.lens==='line-context'&&window.__lens?.ok===true);
+   assert.equal(await page.evaluate(()=>window.__lens.scan??null),null,'Classic reads exact axis letters without starting dynamic vocabulary discovery');
+   assert.equal(await page.evaluate(()=>window.__lens.lexicon??null),null,'Classic does not load the corpus lexicon');
   },{researchProfile:false,mobile:true});
  });
 

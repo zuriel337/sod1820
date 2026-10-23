@@ -152,12 +152,12 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
 });
 
 test("one unified scan action uses the exact selected, visible and verified occurrence", () => {
-  assert.equal((nativeClassic.match(/aria-label="סרוק לאורך הציר הנבחר"/g) || []).length, 1);
+  assert.match(nativeClassic, /aria-label=\{researchProfile \? "סרוק לאורך הציר הנבחר" : "קרא את המשך הציר הנבחר"\}/);
   assert.equal((nativeClassic.match(/onClick=\{\(\) => onScan\(target\)\}/g) || []).length, 1);
   // The matrix action menu and the findings rail are two entrances to the same
-  // canonical line-context lens; neither owns a second scanner.
+  // canonical line-context lens; Research enables discovery while Classic only reads letters.
   assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 2);
-  assert.equal((nativeClassic.match(/requestLens\("line-context", \{ \.\.\.target, scan: true \}\)/g) || []).length, 2);
+  assert.equal((nativeClassic.match(/requestLens\("line-context", \{ \.\.\.target, scan: researchProfile \}\)/g) || []).length, 2);
   assert.doesNotMatch(nativeClassic, /רצף ומילים לאורך הציר|סרוק ציר ראשי/);
   assert.match(nativeClassic, /\(hit\.verified \|\| hit\.kind === "source-sequence"\) && hit\.shown && hit\.withinRadius !== false/);
   assert.match(nativeClassic, /eligible\(selectedFinding\)\.find\(\(hit\) => hit\.hitId === selected\?\.hitId\)/);
@@ -165,11 +165,11 @@ test("one unified scan action uses the exact selected, visible and verified occu
   assert.match(nativeClassic, /const target = selectionValid \? \{ term: selected\.term, hitId: selected\.hitId, \.\.\.\(selectedHit\?\.kind === "source-sequence" \? \{ kind: "source-sequence" \} : \{\}\) \} : \{ hitId: state\?\.axis\?\.hitId \}/);
   // Reverification preserves selection identity, while both the main and secondary operations block scanning.
   assert.match(nativeClassic, /const pending = searchPending \|\| findingPending/);
-  assert.match(nativeClassic, /aria-label="סרוק לאורך הציר הנבחר" disabled=\{!targetReady \|\| lensPending \|\| pending\}/);
+  assert.match(nativeClassic, /aria-label=\{researchProfile \? "סרוק לאורך הציר הנבחר" : "קרא את המשך הציר הנבחר"\} disabled=\{!targetReady \|\| lensPending \|\| pending\}/);
   assert.match(nativeClassic, /chosen && selectedHit && hits\.length > 1/);
   assert.match(nativeClassic, /const targetReady = verified && !!target\.hitId/);
-  assert.match(nativeClassic, /onScan=\{\(target\) => requestLens\("line-context", \{ \.\.\.target, scan: true \}\)\}/);
-  assert.match(nativeClassic, /lensResult\?\.lens === "line-context" \? "תוצאות סריקת הציר"/);
+  assert.match(nativeClassic, /onScan=\{\(target\) => requestLens\("line-context", \{ \.\.\.target, scan: researchProfile \}\)\}/);
+  assert.match(nativeClassic, /lensResult\?\.lens === "line-context" \? \(lensResult\.scan \? "תוצאות סריקת הציר" : "המשך הציר"\)/);
   assert.match(nativeClassic, /result\?\.target\?\.nativeSeq !== lensSeqRef\.current/);
 });
 
