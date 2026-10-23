@@ -1,0 +1,17 @@
+--- a/vercel.json
++++ b/vercel.json
+@@ -924,6 +924,14 @@
+     },
+     {
+       "source": "/early-access",
++      "destination": "/2029.html"
++    },
++    {
++      "source": "/community/researcher/me",
++      "destination": "/index.html"
++    },
++    {
++      "source": "/community/researcher/:slug",
+       "destination": "/2029.html"
+     },
+     {

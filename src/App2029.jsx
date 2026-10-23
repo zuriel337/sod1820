@@ -23,6 +23,8 @@ const BeitMidrash2029Page = lazy(
 const Books2029Page = lazy(() => import("./pages/Books2029Page.jsx"));
 const Els2029Page = lazy(() => import("./pages/Els2029Page.jsx"));
 const Heichal2029Page = lazy(() => import("./pages/Heichal2029Page.jsx"));
+const PublicContributor2029Page = lazy(() => import("./pages/PublicContributor2029Page.jsx"));
+const PublicContributorFrame2029 = lazy(() => import("./components/experience2029/Sod2029Shell.jsx"));
 const Researcher2029Page = lazy(() => import("./pages/Researcher2029Page.jsx"));
 const Number2029Page = lazy(() => import("./pages/Number2029Page.jsx"));
 const Topic2029Page = lazy(() => import("./pages/Topic2029Page.jsx"));
@@ -160,6 +162,8 @@ export default function App2029() {
               <Route path="/els" element={<ElsAddressAlias2029 />} />
               <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
               <Route path="/היכל" element={<Locked flag="lock_heichal" requireFlag homeHref="/2029"><Heichal2029Page /></Locked>} />
+              <Route path="/community/researcher/me" element={<LegacyDocumentHandoff />} />
+              <Route path="/community/researcher/:slug" element={<PublicContributorFrame2029 surface="community" title="דף כותב" introVariant="none"><PublicContributor2029Page /></PublicContributorFrame2029>} />
               <Route path="/researcher/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Researcher2029Page /></Locked>} />
               <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><Number2029Page /></Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
