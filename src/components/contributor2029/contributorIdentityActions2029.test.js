@@ -129,13 +129,13 @@ test("RPC failure is honest and never triggers silent team fallback or retry", a
   assert.equal(calls.filter((call) => call.name).length, 1);
 });
 
-test("browser sends current verified session only, no recipient ID/cookies; expired/switched session cannot send", async () => {
+test("browser sends current verified session only, preserving deployment access, no recipient ID; expired/switched session cannot send", async () => {
   const calls = [];
   const auth = { getSession: async () => ({ data: { session: { user: { id: sender }, access_token: token } } }) };
   const result = await contributorInteraction("writer", { userId: sender, body: "שלום", auth, fetcher: async (url, options) => {
     calls.push({ url, options }); return { ok: true, json: async () => ({ state: "sent", user_id: writer }) };
   } });
-  assert.deepEqual(result, { state: "sent" }); assert.equal(calls[0].options.credentials, "omit");
+  assert.deepEqual(result, { state: "sent" }); assert.equal(calls[0].options.credentials, "same-origin");
   assert.equal(calls[0].options.headers.Authorization, `Bearer ${token}`);
   assert.deepEqual(JSON.parse(calls[0].options.body), { slug: "writer", action: "message", body: "שלום" });
   assert.deepEqual(await contributorInteraction("writer", { userId: writer, body: "שלום", auth, fetcher: () => assert.fail("must not send") }), { state: "login_required" });

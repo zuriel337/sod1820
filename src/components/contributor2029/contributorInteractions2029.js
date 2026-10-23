@@ -10,7 +10,7 @@ export async function contributorInteraction(key, { body, signal, fetcher = fetc
     }
     if (body !== undefined) headers["Content-Type"] = "application/json";
     const response = await fetcher(`/api/contributor-interactions${body === undefined ? `?slug=${encodeURIComponent(key)}` : ""}`, {
-      method: body === undefined ? "GET" : "POST", credentials: "omit", signal, headers,
+      method: body === undefined ? "GET" : "POST", credentials: "same-origin", signal, headers,
       ...(body === undefined ? {} : { body: JSON.stringify({ slug: key, action: "message", body }) }),
     });
     const value = await response.json();

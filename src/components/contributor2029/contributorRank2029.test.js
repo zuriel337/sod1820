@@ -75,13 +75,13 @@ test("bad keys/reader errors produce bounded public statuses without raw errors"
   assert.equal(failed.code, 503); assert.deepEqual(failed.body, { state: "unavailable" });
 });
 
-test("browser requests only a same-origin public rank, with no cookies or session authorization", async () => {
+test("browser requests only a same-origin public rank, preserving deployment access without session authorization", async () => {
   let request;
   const rank = await fetchPublicContributorRank("tzvi-opoc", { fetcher: async (url, options) => {
     request = { url, options }; return { ok: true, json: async () => ({ state: "ready", level: 5, label: "חוקר היכל", xp: 10000, user_id: account }) };
   } });
   assert.equal(request.url, "/api/public-contributor-rank?slug=tzvi-opoc");
-  assert.equal(request.options.credentials, "omit");
+  assert.equal(request.options.credentials, "same-origin");
   assert.equal(request.options.headers.Authorization, undefined);
   assert.deepEqual(rank, { state: "ready", level: 5, label: "חוקר היכל" });
   assert.deepEqual(await fetchPublicContributorRank("writer", { fetcher: async () => { throw new Error("network"); } }), { state: "unavailable" });

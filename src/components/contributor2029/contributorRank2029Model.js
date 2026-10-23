@@ -15,7 +15,7 @@ export async function fetchPublicContributorRank(key, { fetcher = globalThis.fet
   if (!validContributorKey(key)) return { state: "not_found" };
   try {
     const response = await fetcher(`/api/public-contributor-rank?${new URLSearchParams({ slug: key })}`, {
-      method: "GET", credentials: "omit", headers: { Accept: "application/json" }, signal,
+      method: "GET", credentials: "same-origin", headers: { Accept: "application/json" }, signal,
     });
     if (!response.ok) return { state: response.status === 404 ? "not_found" : "unavailable" };
     return publicContributorRank(await response.json());

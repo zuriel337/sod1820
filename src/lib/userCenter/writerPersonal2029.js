@@ -43,8 +43,9 @@ export async function writerSelfRequest({ action, payload, signal, userId, fetch
     const { data, error } = await auth.getSession();
     if (error || !userId || data?.session?.user?.id !== userId || !data.session.access_token) return { state: "login_required" };
     const params = new URLSearchParams(query);
+    // Preserve same-origin Preview access cookies; account identity still requires the verified Bearer token.
     const response = await fetcher(`/api/contributor-self${params.size ? `?${params}` : ""}`, {
-      method: action ? "POST" : "GET", credentials: "omit", signal: signal || AbortSignal.timeout(12000),
+      method: action ? "POST" : "GET", credentials: "same-origin", signal: signal || AbortSignal.timeout(12000),
       headers: { Authorization: `Bearer ${data.session.access_token}`, ...(action ? { "Content-Type": "application/json" } : {}) },
       ...(action ? { body: JSON.stringify({ action, ...payload }) } : {}),
     });
