@@ -914,3 +914,49 @@ Deterministic level-9 comparison measurements against `fff25f03` are:
 
 The 85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL + 4 PARKED + 1 NEVER**.
 No Preview, Production, database, RLS, permission, merge or PR action was performed.
+
+## 19. REPEATED MOTIFS AND RESPONSIVE RESEARCH GUIDANCE — 2026-10-23
+
+The bounded Research structure plan now includes `motif` as an additive result family. The
+`els_repeated_motif_projection_v1` projection identifies the same literal normalized term on two or
+more distinct axes inside the already-displayed matrix window. Distinct occurrences remain separate
+for inspection, while one `אמת והצג קבוצה` action sends the term only once through the existing
+canonical Finding verifier. After verification, `פתח את הממצא החוזר` opens that same Finding so the
+researcher can move between its verified occurrences and inspect each axis continuation. The
+projection exposes occurrence order, direction, skip and distance required by the existing Research
+UI, but does not expose cell arrays, starts or coordinates across the host boundary.
+
+Every structure family now includes deterministic `למה לבדוק` and `הצעד הבא` guidance. These are
+bounded inspection instructions, not an AI judgment, statistical strength, proof or Truth score.
+Repeated motifs are therefore presented as a reason to compare occurrences and their source/axis
+continuations, not as evidence that a narrative interpretation is correct. Existing parallel,
+corridor, intersection and cluster behavior remains available in the same scan.
+
+The explicit structure scan uses the same canonical `scanCandidates` implementation in yielded
+batches. It reports completed/total lexical work to the existing host UI, keeps touch and cancel
+controls responsive, and suppresses a late result after cancellation or axis replacement. Progress
+messages correlate only the local `nativeSeq`; they repeat neither `hitId` nor coordinates. Opening
+Research, opening the structures panel, choosing a preset and changing settings still perform no
+scan. Classic remains unchanged and always available over the same mounted engine and state.
+
+Acceptance on the branch is green after the final privacy classification: **265 pass / 0 fail / 3
+skip** across the ELS test files (the three unchanged skips require local PostgreSQL), **26/26**
+canonical browser cutover, and **42/42** native UI including mobile, all three palettes, private-save
+isolation, exact axis preservation and the full Research v1 journey. The repeated-motif browser
+scenario additionally proves live progress, canonical verification, opening the existing Finding
+and mid-scan cancellation without a stale result. Both production build targets passed, and the
+2029 bundle budget passed **5/5** with entry **9 chunks / 174.1 KB gzip**.
+
+Deterministic level-9 measurements against `088ba31f` are:
+
+| Artifact | Before | Repeated motifs + guidance | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,609,470 / 955,074 B | 1,613,166 / 956,134 B | +3,696 / +1,060 B |
+| Legacy standalone, raw / gzip | 2,515,789 / 1,642,387 B | 2,519,485 / 1,643,505 B | +3,696 / +1,118 B |
+
+This extends the existing Research projection and does not add or renumber a capability. The
+85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL + 4 PARKED + 1 NEVER**; C05 remains
+partial and no significance/FDR claim is introduced. B12/B13, full 3D, `research_objects`, Raziel
+implementation, schema/data changes, RLS/permissions, Production migrations and `decision_ledger`
+remain outside this delta. No Preview, Production, database, RLS, permission, merge or PR action was
+performed.

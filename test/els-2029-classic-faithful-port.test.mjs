@@ -141,6 +141,10 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
   assert.match(nativeClassic, /onSource=\{\(target\) => requestLens\("verse-context", target\)\}/);
   assert.match(nativeClassic, /lensRequest=\{lensRequest\}/);
   assert.match(nativeClassic, /onLens=\{handleLens\}/);
+  assert.match(nativeClassic, /result\?\.type === "lens-progress"/);
+  assert.match(embed, /d\.type === "lens" \|\| d\.type === "lens-progress"/);
+  assert.match(template, /function scanCandidatesBatched/);
+  assert.match(template, /type:"lens-progress",lens:"structure-priority"/);
 
   assert.match(template, /async function letterContextLens\(target\)/);
   assert.match(template, /const b=blockOf\(\),r=Math\.floor\(i\/b\.S\)/);

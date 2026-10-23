@@ -569,16 +569,23 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
 }
 
 const STRUCTURE_PRESETS = Object.freeze({
-  quick: { minLength: 4, maxLength: 8, maxDistance: 12, minMembers: 2, types: ["parallel", "corridor", "intersection", "cluster"] },
-  broad: { minLength: 4, maxLength: 10, maxDistance: 40, minMembers: 2, types: ["parallel", "corridor", "intersection", "cluster"] },
-  deep: { minLength: 5, maxLength: 12, maxDistance: 80, minMembers: 3, types: ["parallel", "corridor", "intersection", "cluster"] },
+  quick: { minLength: 4, maxLength: 8, maxDistance: 12, minMembers: 2, types: ["parallel", "motif", "corridor", "intersection", "cluster"] },
+  broad: { minLength: 4, maxLength: 10, maxDistance: 40, minMembers: 2, types: ["parallel", "motif", "corridor", "intersection", "cluster"] },
+  deep: { minLength: 5, maxLength: 12, maxDistance: 80, minMembers: 3, types: ["parallel", "motif", "corridor", "intersection", "cluster"] },
 });
 const STRUCTURE_TYPE_OPTIONS = Object.freeze([
-  ["parallel", "מקבילות"], ["corridor", "מסדרון ומה שבאמצע"], ["intersection", "חציות"], ["cluster", "אשכולות"],
+  ["parallel", "מקבילות"], ["motif", "מוטיב חוזר"], ["corridor", "מסדרון ומה שבאמצע"], ["intersection", "חציות"], ["cluster", "אשכולות"],
 ]);
-const STRUCTURE_ROLE_LABEL = Object.freeze({ parallel: "מקבילה", boundary: "גבול המסדרון", inside: "באמצע", intersection: "חוצה", cluster: "באשכול" });
+const STRUCTURE_ROLE_LABEL = Object.freeze({ parallel: "מקבילה", motif: "מופע חוזר", boundary: "גבול המסדרון", inside: "באמצע", intersection: "חוצה", cluster: "באשכול" });
+const STRUCTURE_GUIDANCE = Object.freeze({
+  parallel: { why: "כמה ממצאים נעים באותו חוק גיאומטרי ביחס לציר הראשי.", next: "אמתו את הקבוצה, ואז פתחו מקור והמשך ציר לכל ממצא כדי לבדוק אם גם ההקשר מתחבר." },
+  motif: { why: "אותו רצף אותיות חזר בכמה צירים נפרדים באותו חלון. החזרה ראויה לבדיקה, אך אינה מוכיחה קשר לסיפור.", next: "אמתו והציגו את המילה, עברו בין המופעים וקראו את המשך הציר של כל אחד." },
+  corridor: { why: "ממצא מקביל יוצר גבול שני, והמילים שביניהם יוצרות אזור מחקר משותף.", next: "אמתו את הקבוצה ובדקו תחילה את שני הגבולות, אחר כך את המילים שבאמצע." },
+  intersection: { why: "הממצאים חולקים תא ממשי עם הציר הראשי ולא רק נמצאים לידו.", next: "אמתו את הקבוצה ופתחו את המקור כדי לבדוק אם החיתוך נשאר משמעותי גם בקריאת הפסוקים." },
+  cluster: { why: "כמה מועמדים מרוכזים באותו אזור במטריצה.", next: "אמתו רק את המילים הרלוונטיות, ואז השוו לסריקה רחבה יותר; צפיפות לבדה אינה חוזק סטטיסטי." },
+});
 
-function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onScanAxis, onAddGroup }) {
+function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onScanAxis, onAddGroup, onOpenFinding }) {
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.status === "ok" && state?.verification?.state === "MATCH";
   const result = lensResult?.lens === "structure-priority" ? lensResult : null;
@@ -607,7 +614,7 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
       <span>ציר המחקר הנוכחי</span>
       <strong>{axisTerm}{axisSkip ? <> · דילוג <bdi>{axisSkip}</bdi></> : null}</strong>
       {result?.axis?.notable ? <small className="els29-native-structure-badge">דילוג מסודר: {result.axis.notable.tag}</small> : null}
-      <p>בחרו פעם אחת מה לחפש. הסריקה מחזירה משפחות של מקבילות, מסדרונות, חציות ואשכולות — לא רשימת מילים שצריך לפתוח אחת־אחת.</p>
+      <p>בחרו פעם אחת מה לחפש. הסריקה מחזירה משפחות של מקבילות, מוטיבים חוזרים, מסדרונות, חציות ואשכולות — לא רשימת מילים שצריך לפתוח אחת־אחת.</p>
       <small>זו תוכנית בדיקה בתוך החלון המוצג — לא הוכחה ולא ציון אמת. כל קבוצה עוברת אימות קנוני אחד לפני הצגה במטריצה.</small>
       <div className="els29-native-structure-presets" role="group" aria-label="תבניות סריקת מבנים">
         <button type="button" aria-pressed={plan.maxDistance === 12 && plan.minLength === 4} onClick={() => choosePreset("quick")}>מהיר</button>
@@ -654,18 +661,22 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
         {groups.map((group, index) => {
           const members = Array.isArray(group.members) ? group.members : [];
           const room = Math.max(0, 12 - findings.length);
-          const addable = members.filter((member) => !existing.has(member.term)).slice(0, room);
-          const allAdded = members.length > 0 && members.every((member) => existing.has(member.term));
+          const groupTerms = [...new Set(members.map((member) => member.term))];
+          const addable = groupTerms.filter((term) => !existing.has(term)).slice(0, room);
+          const allAdded = groupTerms.length > 0 && groupTerms.every((term) => existing.has(term));
+          const guidance = STRUCTURE_GUIDANCE[group.kind] || STRUCTURE_GUIDANCE.cluster;
           return <article key={`${group.kind}-${group.label}-${index}`} className="els29-native-structure-group" data-structure-kind={group.kind}>
             <header><div><strong>{group.label}</strong><small>{group.description}</small></div><bdi>{members.length}</bdi></header>
             <div className="els29-native-structure-members" aria-label={`ממצאי ${group.label}`}>
-              {members.map((member) => <span key={`${member.term}-${member.role}`} className={existing.has(member.term) ? "is-added" : ""}>
-                <b>{member.label || member.term}</b><small>{STRUCTURE_ROLE_LABEL[member.role] || "במבנה"} · מרחק {member.distance}</small>
+              {members.map((member, memberIndex) => <span key={`${member.term}-${member.role}-${member.occurrenceOrdinal || memberIndex}`} className={existing.has(member.term) ? "is-added" : ""}>
+                <b>{member.label || member.term}</b><small>{STRUCTURE_ROLE_LABEL[member.role] || "במבנה"}{member.occurrenceOrdinal ? ` ${member.occurrenceOrdinal}` : ""} · מרחק {member.distance}</small>
               </span>)}
             </div>
-            <button type="button" disabled={pending || !addable.length} onClick={() => onAddGroup(addable.map((member) => member.term))}
-              aria-label={`אמת והצג את קבוצת ${group.label}`}>
-              {pending ? "מאמת קבוצה…" : allAdded ? "הקבוצה כבר במטריצה" : !room ? "הסירו ממצא כדי להוסיף קבוצה" : `אמת והצג קבוצה · ${addable.length}`}
+            <div className="els29-native-structure-guidance"><p><strong>למה לבדוק:</strong> {guidance.why}</p><p><strong>הצעד הבא:</strong> {guidance.next}</p></div>
+            <button type="button" disabled={pending || (!addable.length && !(group.kind === "motif" && allAdded))}
+              onClick={() => group.kind === "motif" && allAdded ? onOpenFinding(groupTerms[0]) : onAddGroup(addable)}
+              aria-label={group.kind === "motif" && allAdded ? `פתח את הממצא החוזר ${groupTerms[0]}` : `אמת והצג את קבוצת ${group.label}`}>
+              {pending ? "מאמת קבוצה…" : group.kind === "motif" && allAdded ? "פתח את הממצא החוזר" : allAdded ? "הקבוצה כבר במטריצה" : !room ? "הסירו ממצא כדי להוסיף קבוצה" : `אמת והצג קבוצה · ${addable.length}`}
             </button>
           </article>;
         })}
@@ -715,7 +726,7 @@ function SearchProgress({ operation, onCancel, reduction = null, onReduce }) {
   </div>;
 }
 
-function LensProgress({ request, onCancel, reduction = null, onReduce }) {
+function LensProgress({ request, progress, onCancel, reduction = null, onReduce }) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     if (!request) return undefined;
@@ -726,7 +737,7 @@ function LensProgress({ request, onCancel, reduction = null, onReduce }) {
   if (!request) return null;
   const elapsed = Math.max(0, now - (request.startedAt || now)) / 1000;
   const label = request.lens === "structure-priority"
-    ? "טוען את מילון התורה וממיין מבנים…"
+    ? progress?.phase === "groups" ? "בונה את קבוצות המבנים וההמלצות…" : progress?.phase === "candidates" ? "סורק את מונחי התורה בחלון המוצג…" : "טוען את מילון התורה ומכין סריקת מבנים…"
     : request.lens === "matrix-candidates"
       ? "בודק ממצאים קרובים ואת המשך הצירים…"
       : request.lens === "line-context" && request.target?.scan
@@ -737,7 +748,7 @@ function LensProgress({ request, onCancel, reduction = null, onReduce }) {
   return <div className="els29-native-progress" aria-label="התקדמות בדיקת הממצא">
     <div><strong role="status" aria-live="polite">{label}</strong>
       <small aria-hidden="true">עברו {elapsed.toFixed(1)} שניות · הבדיקה עדיין פעילה</small>
-      <progress aria-label={label} />
+      {progress?.total > 0 ? <><progress max={progress.total} value={progress.completed} aria-label={label} /><small>{progress.completed} מתוך {progress.total} מונחים נבדקו</small></> : <progress aria-label={label} />}
       {elapsed >= 8 ? <small>אפשר להמשיך להמתין או לעצור. עצירה אינה משנה את הציר, הממצאים או המטריצה.</small> : null}
     </div>
     <span className="els29-native-progress-actions">
@@ -1153,6 +1164,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const lensSeqRef = useRef(0);
   const [lensResult, setLensResult] = useState(null);
   const [lensPending, setLensPending] = useState(false);
+  const [lensProgress, setLensProgress] = useState(null);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
   const [selectedFinding, setSelectedFinding] = useState(null);
   const [findingMenu, setFindingMenu] = useState(null);
@@ -1176,9 +1188,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
   const resetReadContext = () => {
-    ++lensSeqRef.current;
-    setLensRequest(null);
+    const seq = ++lensSeqRef.current;
+    setLensRequest(lensPending ? { lens: "cancel", target: { nativeSeq: seq }, cancelled: true } : null);
     setLensResult(null);
+    setLensProgress(null);
     setLensPending(false);
     setSelectedLetterIndex(null);
     setVerseHighlight(null);setPresentation(null);
@@ -1332,13 +1345,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     openTool(lens === "structure-priority" ? "structures" : "findings");
     const seq = ++lensSeqRef.current;
     setLensResult(null);
+    setLensProgress(null);
     setLensPending(true);
     setLensRequest({ lens, target: { ...target, nativeSeq: seq }, startedAt: Date.now() });
   };
 
   const cancelLens = () => {
-    ++lensSeqRef.current;
-    setLensRequest(null);
+    const seq = ++lensSeqRef.current;
+    setLensRequest({ lens: "cancel", target: { nativeSeq: seq }, cancelled: true });
+    setLensProgress(null);
     setLensPending(false);
     setNotice("הבדיקה נעצרה. המטריצה והממצאים נשמרו כפי שהיו.");
   };
@@ -1355,7 +1370,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const handleLens = (result) => {
     if (result?.target?.nativeSeq !== lensSeqRef.current) return;
+    if (result?.type === "lens-progress") { setLensProgress(result.progress || null); return; }
     setLensResult(result);
+    setLensProgress(null);
     setLensPending(false);
     if (result?.ok && result.lens === "letter-context" && verseReadRef.current) highlightVerse(result.verse);
   };
@@ -1665,7 +1682,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     </form>
 
     {!savedLoadPending ? <SearchProgress operation={operations.search} reduction={searchReduction} onReduce={reduceSearch} onCancel={() => cancelOperation("search")} /> : null}
-    {!savedLoadPending && lensPending ? <LensProgress request={lensRequest} reduction={lensReduction} onReduce={reduceLens} onCancel={cancelLens} /> : null}
+    {!savedLoadPending && lensPending ? <LensProgress request={lensRequest} progress={lensProgress} reduction={lensReduction} onReduce={reduceLens} onCancel={cancelLens} /> : null}
     {!savedLoadPending && notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
     {!savedLoadPending && researchProfile && (journeyTrail.length || journeyPending) ? <div className="els29-native-notice" data-els-c02-journey="v1">
       <span>מסלול צירים · {journeyTrail.length} צעדי חזרה שמורים</span>
@@ -1791,7 +1808,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           onRun={(target) => requestLens("structure-priority", target)}
           onScanAxis={(target) => requestLens("line-context", { ...target, scan: true })}
-          onAddGroup={addStructureGroup} /> : null}
+          onAddGroup={addStructureGroup} onOpenFinding={revealFindingDetails} /> : null}
         <ElsSavePanel2029 visible={visibleTool === "research"} state={engineState} matrix={matrix} user={user} isAdmin={isAdmin} replacement={activeSavedAxisReplacement}
           pending={savePending} busy={!!journeyPending || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
           onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}

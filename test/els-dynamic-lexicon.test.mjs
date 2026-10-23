@@ -52,7 +52,8 @@ test("dynamic vocabulary remains candidate-only and is loaded only by explicit s
   assert.match(template, /const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1"/);
   assert.match(template, /if\(target\.scan===true\)dynamicCandidateLexicon\(\)\.then\(publish\);else publish\(null\)/);
   assert.match(template, /d\.lens==="matrix-candidates"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(lexicon=>/);
-  assert.match(template, /d\.lens==="structure-priority"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(lexicon=>/);
+  assert.match(template, /d\.lens==="structure-priority"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(async lexicon=>/);
+  assert.match(template, /scanCandidatesBatched\([\s\S]*?type:"lens-progress",lens:"structure-priority"/);
   assert.doesNotMatch(template.slice(0, template.indexOf('window.addEventListener("message"')), /dynamicCandidateLexicon\(\)\.then/);
   assert.match(template, /status:"CANDIDATE",provenanceSource:lexicon\.contract/);
   assert.match(template, /adding a term[\s\S]*canonical verification before it becomes a Finding/);
@@ -91,11 +92,12 @@ test("structural Research priority puts parallels before intersections and exist
   assert.equal(context.preferred, true, "a parallel occurrence survives even when another occurrence of the term is closer");
 });
 
-test("bounded structure plans group parallels, corridors, intersections and clusters without exposing coordinates", () => {
+test("bounded structure plans group repeated motifs, parallels, corridors, intersections and clusters without exposing coordinates", () => {
   const context = vm.createContext({
     SIGNIFICANT: new Set(),
     STRUCTURE_PLAN_CONTRACT: "els_structure_scan_plan_v1",
-    STRUCTURE_TYPES: ["parallel", "corridor", "intersection", "cluster"],
+    REPEATED_MOTIF_CONTRACT: "els_repeated_motif_projection_v1",
+    STRUCTURE_TYPES: ["parallel", "motif", "corridor", "intersection", "cluster"],
     st: { raw: "ציר" },
     norm: value => String(value),
     axis: { skip: 10, positions: [100, 110, 120, 130], _structuralCells: new Set([100, 110, 120, 130]) },
@@ -105,24 +107,33 @@ test("bounded structure plans group parallels, corridors, intersections and clus
       { term: "באמצע", skip: 10, dir: 1, positions: [101, 111, 121, 131], distance: 1, lexiconSources: ["corpus_native"], lexiconSupport: 1 },
       { term: "חוצהא", skip: 3, dir: 1, positions: [100, 103, 106, 109], distance: 0, lexiconSources: ["corpus_native"], lexiconSupport: 1 },
       { term: "חוצהב", skip: 4, dir: 1, positions: [110, 114, 118, 122], distance: 0, lexiconSources: ["corpus_native"], lexiconSupport: 1 },
+      { term: "ומיום", skip: 7, dir: 1, positions: [140, 147, 154, 161, 168], distance: 4, lexiconSources: ["corpus_native"], lexiconSupport: 2,
+        occurrences: [
+          { skip: 7, dir: 1, start: 140, positions: [140, 147, 154, 161, 168], distance: 4 },
+          { skip: 9, dir: -1, start: 190, positions: [190, 181, 172, 163, 154], distance: 6 },
+        ] },
     ],
   });
   vm.runInContext([
     source("notable"), source("candidateLexiconPriority"), source("classifyStructuralCandidate"),
     source("normalizeStructurePlan"), source("structuralCandidateCenter"), source("structuralMember"), source("buildStructuralGroups"),
-    "this.result=buildStructuralGroups(candidates,axis,{types:['parallel','corridor','intersection','cluster'],minLength:4,maxLength:10,maxDistance:40,minMembers:2});",
+    "this.result=buildStructuralGroups(candidates,axis,{types:['parallel','motif','corridor','intersection','cluster'],minLength:4,maxLength:10,maxDistance:40,minMembers:2});",
     "this.clamped=normalizeStructurePlan({types:['unknown'],minLength:1,maxLength:99,maxDistance:999,minMembers:9});",
   ].join("\n"), context);
 
   const result = JSON.parse(JSON.stringify(context.result));
   assert.equal(result.plan.contract, "els_structure_scan_plan_v1");
+  const motif = result.groups.find(group => group.kind === "motif");
+  assert.equal(motif.contract, "els_repeated_motif_projection_v1");
+  assert.deepEqual(motif.members.map(member => member.occurrenceOrdinal), [1, 2]);
+  assert.ok(motif.members.every(member => member.term === "ומיום" && member.role === "motif"));
   assert.ok(result.groups.some(group => group.kind === "parallel" && group.members.length >= 2));
   assert.ok(result.groups.some(group => group.kind === "corridor" && group.members.some(member => member.role === "inside")));
   assert.ok(result.groups.some(group => group.kind === "intersection"));
   assert.ok(result.groups.some(group => group.kind === "cluster"));
   assert.ok(result.groups.flatMap(group => group.members).every(member => !["positions", "start", "rc", "_center"].some(key => key in member)));
   assert.deepEqual(JSON.parse(JSON.stringify(context.clamped)), {
-    contract: "els_structure_scan_plan_v1", types: ["parallel", "corridor", "intersection", "cluster"],
+    contract: "els_structure_scan_plan_v1", types: ["parallel", "motif", "corridor", "intersection", "cluster"],
     minLength: 3, maxLength: 16, maxDistance: 120, minMembers: 6, maxGroups: 12, maxMembers: 10,
   });
 });

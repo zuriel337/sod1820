@@ -48,7 +48,8 @@ export default function Host(props){
     send({type:'engine-result',requestId:message.requestId,...result});
    }
    if(message.type==='state'){window.__state=message;latest.current.onState?.(message);}
-   if(message.type==='lens'){window.__lens=message;latest.current.onLens?.(message);}
+   if(message.type==='lens')window.__lens=message;
+   if(message.type==='lens'||message.type==='lens-progress')latest.current.onLens?.(message);
    if(message.type==='gate')latest.current.onGate?.(message);
    if(message.type==='onboarding-required')latest.current.onOnboardingRequired?.(message);
    if(message.type==='operation'){window.__operation=message;latest.current.onOperation?.(message);}
@@ -629,7 +630,7 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
    assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,'opening the structures panel performs no scan');
    const panel=page.locator('[data-experience-capability="els-structural-priority"]');
    await panel.waitFor({state:'visible'});
-   assert.match(await panel.innerText(),/משפחות של מקבילות, מסדרונות, חציות ואשכולות/);
+   assert.match(await panel.innerText(),/משפחות של מקבילות, מוטיבים חוזרים, מסדרונות, חציות ואשכולות/);
    assert.match(await panel.innerText(),/לא הוכחה ולא ציון אמת/);
    await panel.getByRole('button',{name:'רחב',exact:true}).click();
    await panel.getByText('הגדרות הסריקה',{exact:true}).click();
@@ -638,9 +639,13 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
    await activate(page,'סרוק מבנים בעדיפות');
    await page.waitForFunction(()=>window.__lens?.lens==='structure-priority'&&window.__lens?.ok===true);
    const result=await page.evaluate(()=>window.__lens);
+   const liveProgress=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='structure-priority').map(message=>message.progress));
+   assert.ok(liveProgress.length>=2,'the long structure pass yields live progress instead of freezing the page');
+   assert.ok(liveProgress.some(progress=>progress.phase==='candidates'&&progress.total>0&&progress.completed>0),'candidate progress reports bounded completed/total work');
+   assert.equal(liveProgress.at(-1).phase,'groups');
    const knownFindings=await page.evaluate(()=>window.__state.findings.filter(finding=>['התורה','אמיתית'].includes(finding.t)));
    assert.deepEqual(result.ranking,{contract:'els_structural_priority_scan_v1',order:'parallel_then_intersection_then_existing_notable_then_research_evidence_then_distance'});
-   assert.deepEqual(result.structurePlan,{contract:'els_structure_scan_plan_v1',types:['parallel','corridor','intersection','cluster'],minLength:4,maxLength:10,maxDistance:40,minMembers:2,maxGroups:12,maxMembers:10});
+   assert.deepEqual(result.structurePlan,{contract:'els_structure_scan_plan_v1',types:['parallel','motif','corridor','intersection','cluster'],minLength:4,maxLength:10,maxDistance:40,minMembers:2,maxGroups:12,maxMembers:10});
    assert.equal(result.coverage,'displayed-window');
    assert.ok(result.items.length>0,'the displayed golden window exposes structural candidates');
    assert.ok(result.items.every(item=>['parallel-exact','parallel-diagonal','intersection','ordered-skip'].includes(item.relation)));
@@ -651,14 +656,46 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
    }
    assert.ok(result.items.every(item=>!Object.keys(item).some(key=>['positions','start','rc'].includes(key))),'structural candidates do not expose matrix coordinates');
    assert.ok(result.groups.some(group=>group.kind==='parallel'&&group.members.some(member=>member.term==='התורה')&&group.members.some(member=>member.term==='אמיתית')),'known parallels arrive as one actionable group');
-   assert.ok(result.groups.every(group=>['parallel','corridor','intersection','cluster'].includes(group.kind)));
+   const motif=result.groups.find(group=>group.kind==='motif');
+   assert.ok(motif,`the canonical golden window exposes at least one repeated motif: ${JSON.stringify(result.groups.map(group=>[group.kind,group.label,group.memberCount]))}`);
+   assert.equal(motif.contract,'els_repeated_motif_projection_v1');
+   assert.ok(new Set(motif.members.map(member=>member.term)).size===1&&motif.members.length>=2,'one repeated term retains separate occurrences');
+   assert.deepEqual(motif.members.map(member=>member.occurrenceOrdinal),motif.members.map((_,index)=>index+1));
+   assert.ok(result.groups.every(group=>['parallel','motif','corridor','intersection','cluster'].includes(group.kind)));
    assert.ok(result.groups.flatMap(group=>group.members).every(item=>!Object.keys(item).some(key=>['positions','start','rc','_center'].includes(key))),'grouped candidates keep geometry inside the canonical engine');
    const priority={"parallel-exact":4,"parallel-diagonal":4,"intersection":2,"ordered-skip":1};
    assert.deepEqual(result.items.map(item=>priority[item.relation]),result.items.map(item=>priority[item.relation]).toSorted((a,b)=>b-a),'parallel families precede crossings and existing notable skips');
    assert.equal(await page.getByRole('region',{name:'קבוצות מבניות לפי סדר עדיפות',exact:true}).isVisible(),true);
+   assert.match(await panel.innerText(),/למה לבדוק:/);
+   assert.match(await panel.innerText(),/הצעד הבא:/);
    assert.match(await panel.innerText(),/אמת והצג קבוצה|הקבוצה כבר במטריצה/);
+   const motifTerm=motif.members[0].term;
+   const motifCard=panel.locator(`[data-structure-kind="motif"]`).filter({hasText:motif.label}).first();
+   if(!knownFindings.some(finding=>finding.t===motifTerm)){
+    await motifCard.getByRole('button',{name:`אמת והצג את קבוצת ${motif.label}`,exact:true}).click();
+    await page.waitForFunction(term=>window.__state?.findings?.some(finding=>finding.t===term&&finding.hits?.some(hit=>hit.verified)),motifTerm);
+   }
+   await motifCard.getByRole('button',{name:`פתח את הממצא החוזר ${motifTerm}`,exact:true}).click();
+   const motifIndex=await page.evaluate(term=>window.__state.findings.findIndex(finding=>finding.t===term),motifTerm);
+   await page.locator(`#els29-finding-extra-${motifIndex}`).waitFor({state:'visible'});
    assert.deepEqual((await identity(page)).axis,before.axis,'structural inspection preserves the exact axis');
    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'structural inspection does not save or edit the cipher');
+
+   await activate(page,'מבנים וקשרים');
+   const cancellationStart=await page.evaluate(()=>({
+    log:window.__log.length,
+    progress:window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='structure-priority').length,
+   }));
+   await button(page,'סרוק את התוכנית מחדש').dispatchEvent('click');
+   await page.waitForFunction(start=>window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='structure-priority').length>start,cancellationStart.progress);
+   const cancelledSeq=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='structure-priority').at(-1).target.nativeSeq);
+   await button(page,'עצור בדיקה').dispatchEvent('click');
+   await page.waitForFunction(seq=>window.__hostLog.some(message=>message.type==='request-lens'&&message.lens==='cancel'&&message.target.nativeSeq>seq),cancelledSeq);
+   await page.waitForTimeout(250);
+   const staleResult=await page.evaluate(({start,seq})=>window.__log.slice(start).some(message=>message.type==='lens'&&message.lens==='structure-priority'&&message.target?.nativeSeq===seq),{start:cancellationStart.log,seq:cancelledSeq});
+   assert.equal(staleResult,false,'cancelling a yielded structure scan suppresses its stale final result');
+   assert.match(await page.locator('.els29-native-notice').innerText(),/הבדיקה נעצרה.*המטריצה והממצאים נשמרו/);
+   assert.deepEqual((await identity(page)).axis,before.axis,'cancelling the scan preserves the exact axis');
   },{tier:'anon'});
 
   await withNative({width:390,height:844},async page=>{

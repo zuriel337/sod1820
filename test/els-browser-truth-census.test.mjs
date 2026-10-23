@@ -91,7 +91,7 @@ test('every host message type is classified (coordinate-bearing ones are gated a
   const carrying = new Set(['save', 'lens', 'search', 'exact-skip-probe-result']);
   const nonCoord = new Set(['delete', 'navigate', 'gate', 'ready', 'load-error', 'contribute', 'quality', 'engine-request', 'engine-cancel']);
   const termOnly = new Set(['forms-preview-result']); // deterministic FORMS labels only; no occurrence coordinates or search claim
-  const uiAccessOnly = new Set(['onboarding-required', 'operation', 'native-save-result']);
+  const uiAccessOnly = new Set(['onboarding-required', 'operation', 'lens-progress', 'native-save-result']);
   for (const t of types) assert.ok(carrying.has(t) || nonCoord.has(t) || termOnly.has(t) || uiAccessOnly.has(t), `unclassified host message type: ${t}`);
   const formsPreview = code.slice(code.indexOf('if(d.type==="preview-forms-batch")'), code.indexOf('if(d.type==="probe-exact-skip")'));
   assert.match(formsPreview, /formsOf\("splitjoin",source\)/);
@@ -105,6 +105,13 @@ test('every host message type is classified (coordinate-bearing ones are gated a
   assert.match(operation, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status,\.\.\.\(message\?\{message\}:\{\} \),\s*elapsedMs:Math.max\(0,Date.now\(\)-operation.startedAt\),progress:progress\|\|null\}\)/,
     'operation acknowledges a request and its status without transmitting candidate coordinates');
   assert.doesNotMatch(operation, /positions|hitId|start_index|start:|skip:/);
+  const lensProgress = [...code.matchAll(/postHost\(\{type:"lens-progress"[^\n]+/g)].map((match) => match[0]);
+  assert.equal(lensProgress.length, 2, 'both bounded structure phases report UI-only progress');
+  for (const message of lensProgress) {
+    assert.match(message, /target:\{nativeSeq:target\.nativeSeq\}/,
+      'lens progress correlates only the active UI request and does not repeat the selected occurrence identity');
+    assert.doesNotMatch(message, /positions|hitId|start_index|start:|skip:/);
+  }
   assert.ok(code.includes('function emitState()') && /postHost\(s\)/.test(code));
 });
 

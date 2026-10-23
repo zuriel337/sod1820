@@ -66,7 +66,8 @@ function rowToItem(m) {
 // onOperation receives request-scoped progress from that same engine (never inferred from a generic state tick).
 // 📜 lensRequest/onLens — חוזה on-demand ל-Verse/Context Lens (וכל עדשה עתידית דומה): לא חלק מ-state.
 //    lensRequest={lens,target} משודר לכלי כ-{type:"request-lens",...}; התשובה חוזרת דרך onLens (הודעת
-//    {type:"lens",...} מהכלי) — קריאה בלבד, לא נוגעת ב-Finding/search/ranking. ⛔ אין Lens בכל state-tick.
+//    {type:"lens",...} או {type:"lens-progress",...}) — קריאה בלבד, לא נוגעת ב-Finding/search/ranking.
+//    ⛔ אין Lens בכל state-tick.
 // 🧭 journeyLoad/onLoadError — שחזור-מדויק (Pass 2, elsJourney.js): journeyLoad הוא ה-loadItem שמייצר
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
@@ -475,8 +476,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         setHasAxisFinding(d?.status === "ok" && d?.verification?.state === "MATCH" && !!d?.axis?.hitId);
         return;
       }
-      if (d.type === "lens") {
-        // 📜 תשובת-Lens on-demand (למשל verse-context) — קריאה בלבד, לא נוגעת ב-state/Finding.
+      if (d.type === "lens" || d.type === "lens-progress") {
+        // 📜 תשובת/התקדמות Lens on-demand — קריאה בלבד, לא נוגעת ב-state/Finding.
         onLens?.(d);
         return;
       }
