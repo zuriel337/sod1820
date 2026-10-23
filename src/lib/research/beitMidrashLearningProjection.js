@@ -687,8 +687,10 @@ function guidedExample(row, concept) {
     sourceRef: row.sourceRef,
     sourceRefs: Object.freeze([...(row.sourceRefs || [])]),
     sourceHref: row.sourceHref,
+    canonicalFindingHref: row.canonicalFindingHref,
     contributor: row.contributor,
     createdAt: row.createdAt,
+    occurrenceCount: row.occurrenceCount,
     occurrences: Object.freeze((row.occurrences || []).map(freezeOccurrence)),
     returnHref: beitMidrashLearningHref(BEIT_MIDRASH_LEARNING_SECTION.GUIDED, {
       guidedKind: concept,
