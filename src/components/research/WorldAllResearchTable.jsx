@@ -117,9 +117,23 @@ function occurrenceSourceKey(occurrence) {
   return ref ? ref.replace(/#.*$/u, "") : clean(occurrence?.id);
 }
 
-function initialFindingId() {
-  if (typeof window === "undefined") return "";
-  return clean(new URLSearchParams(window.location.search).get("finding"));
+function initialReviewFilters() {
+  if (typeof window === "undefined") return {
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all",
+  };
+  const params = new URLSearchParams(window.location.search);
+  const sort = clean(params.get("sort"));
+  const strength = clean(params.get("strength"));
+  const recommendation = clean(params.get("recommendation"));
+  return {
+    finding: clean(params.get("finding")),
+    contributorId: clean(params.get("contributorId")),
+    contributorLabel: clean(params.get("contributorLabel")),
+    sort: Object.hasOwn(SORT_LABELS, sort) ? sort : "strength",
+    strength: ["חזק", "בינוני", "חלש"].includes(strength) ? strength : "all",
+    recommendation: ["מתאים לעץ", "דורש בדיקה", "כפילות", "דורש מקור", "שיוך זהות לא פתור", "דורש OCR או תמלול", "לא מתאים"].includes(recommendation)
+      ? recommendation : "all",
+  };
 }
 
 function triageClass(value) {
@@ -168,19 +182,20 @@ function DuplicateOccurrences({ row }) {
 }
 
 export default function WorldAllResearchTable({ state }) {
-  const directFinding = useMemo(initialFindingId, []);
-  const [query, setQuery] = useState(directFinding);
-  const [finding, setFinding] = useState(directFinding);
+  const initial = useMemo(initialReviewFilters, []);
+  const [query, setQuery] = useState(initial.finding);
+  const [finding, setFinding] = useState(initial.finding);
   const [kind, setKind] = useState("all");
   const [access, setAccess] = useState("all");
   const [status, setStatus] = useState("all");
   const [verification, setVerification] = useState("all");
   const [contributor, setContributor] = useState("all");
+  const [contributorId] = useState(initial.contributorId);
   const [tree, setTree] = useState("all");
   const [meter, setMeter] = useState("all");
-  const [sort, setSort] = useState("strength");
-  const [strength, setStrength] = useState("all");
-  const [recommendation, setRecommendation] = useState("all");
+  const [sort, setSort] = useState(initial.sort);
+  const [strength, setStrength] = useState(initial.strength);
+  const [recommendation, setRecommendation] = useState(initial.recommendation);
   const [quality, setQuality] = useState("all");
   const [topic, setTopic] = useState("all");
   const [source, setSource] = useState("all");
@@ -189,9 +204,9 @@ export default function WorldAllResearchTable({ state }) {
   const requestRef = useRef(0);
 
   const filters = useMemo(() => ({
-    query, finding, kind, access, status, verification, contributor, tree, meter,
+    query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
     sort, strength, recommendation, quality, topic, source,
-  }), [query, finding, kind, access, status, verification, contributor, tree, meter, sort, strength, recommendation, quality, topic, source]);
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, quality, topic, source]);
 
   const resetFilters = () => {
     setQuery("");
@@ -272,7 +287,7 @@ export default function WorldAllResearchTable({ state }) {
     <div className="sod29-section-head">
       <div>
         <div className="sod29-kicker">שער אנושי · ממצאים לבדיקה</div>
-        <h2>הממצאים המובילים</h2>
+        <h2>{contributorId ? `הממצאים המובילים של ${initial.contributorLabel || "התורם הנבחר"}` : "הממצאים המובילים"}</h2>
         <p className="sod29-muted">ברירת המחדל היא סדר דוח המיון: החזקים תחילה. חוזק החיבור, איכות הראיות, עצמאות המקורות, האימות והפרסום מוצגים בנפרד ואינם ציון אמת.</p>
       </div>
       {projection && review.page ? <span className="sod29-chip">{rows.length} מתוך {review.page.totalFiltered}</span> : null}

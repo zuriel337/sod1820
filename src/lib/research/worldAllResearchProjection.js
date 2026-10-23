@@ -12,6 +12,7 @@ import { scopeWorldPreviewMaterial } from "./worldPreviewMaterialScope.js";
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
 const MAX_ROWS_PER_SOURCE = 20000;
+const PUBLIC_RESEARCH_STATUSES = Object.freeze(["approved", "canonical"]);
 
 const finite = normalizeWorldNumber;
 
@@ -21,6 +22,22 @@ function hasHebrew(value) {
 
 function isUrl(value) {
   return /^https?:\/\//i.test(clean(value));
+}
+
+function verifiedWebUrl(value) {
+  const text = clean(value);
+  if (!isUrl(text)) return null;
+  try {
+    const url = new URL(text);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+function publicFindingHref(sourceId) {
+  const id = encodeURIComponent(clean(sourceId));
+  return id ? `/world?finding=${id}#finding-${id}` : "/world";
 }
 
 function humanContributor(value) {
@@ -279,24 +296,6 @@ export function orderWorldAllResearchRows(rows = []) {
   });
 }
 
-async function fetchConvergenceCandidates() {
-  try {
-    const { data, error } = await supabase.rpc("admin_convergence_candidates", { p_limit: 50 });
-    if (error) return { rows: [], error: clean(error.message) || "candidate_rpc_failed", meta: {} };
-    const rows = Array.isArray(data?.candidates) ? data.candidates : [];
-    return {
-      rows,
-      error: null,
-      meta: {
-        activePreferences: Array.isArray(data?.active_preferences) ? data.active_preferences : [],
-        openContradictions: finite(data?.open_contradictions) ?? 0,
-      },
-    };
-  } catch (error) {
-    return { rows: [], error: clean(error?.message) || "candidate_rpc_failed", meta: {} };
-  }
-}
-
 async function fetchAllRows(table, fields, refine = (query) => query) {
   const rows = [];
   let total = null;
@@ -357,7 +356,8 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       mediaUrl: clean(row.image_url) || null,
       mediaClass: row.image_url ? "image" : null,
       spatialCluster: null,
-      href: clean(row.link_url) || (isUrl(rawText) ? rawText : null),
+      sourceHref: verifiedWebUrl(row.link_url) || verifiedWebUrl(rawText),
+      href: verifiedWebUrl(row.link_url) || verifiedWebUrl(rawText),
       presentation: {
         typeLabel: "הודעת מקור",
         sourceLabel: "הודעות מקור",
@@ -471,6 +471,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     sourceRef,
     sourceRefs: [...new Set([sourceRef, ...metaSourceRefs].filter(Boolean))],
     contributor: clean(row.contributor) || null,
+    sourceContributorId: clean(row.source_contributor_id) || null,
     confidence: Number.isFinite(Number(row.confidence)) ? Number(row.confidence) : null,
     status: clean(row.status) || "לא צוין",
     access: clean(row.privacy_scope) || "לא צוין",
@@ -489,6 +490,8 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     spatialCluster: clean(row?.meta?.ext?.spatial_research?.cluster) || null,
     treeMatches,
     treeMatchState: clean(row?.meta?.ext?.wa_channel_intake?.tree_match_state) || null,
+    sourceHref: [sourceRef, ...metaSourceRefs, row.source].map(verifiedWebUrl).find(Boolean) || null,
+    canonicalFindingHref: publicFindingHref(row.id),
     href: value != null ? "/2029/number/" + value : null,
   };
 }
@@ -556,7 +559,7 @@ export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
     meteredResearchOccurrences: ratedResearchOccurrences.filter((row) => row.linkedTopicRating?.meterScore != null).length,
     excludedMaterial: scoped.excluded,
     excludedPersonOnlyResearch,
-    truthBoundary: "הפריוויו מציג את חומר האתר בלי ארכיון הצ׳אט הישן ובלי מאגר אור הגאולה. תווית privacy_scope היא מצב עבודה היסטורי ואינה מסנן של הקורא הזה. ההצגה אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. כפילויות ודאיות מאוגדות בתצוגה בלבד; כל רשומת מקור נשמרת וניתנת למעקב. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
+    truthBoundary: "ההקרנה אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. הקורא הציבורי מעביר רק חומר ציבורי במצב מאושר או קנוני; קורא הביקורת המנהלי נשאר מאחורי אימות והרשאות קיימים. כפילויות ודאיות מאוגדות בתצוגה בלבד; כל רשומת מקור נשמרת וניתנת למעקב. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
   };
 }
 
@@ -568,6 +571,9 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
   const status = clean(filters.status) || "all";
   const verification = clean(filters.verification) || "all";
   const contributor = clean(filters.contributor) || "all";
+  const contributorId = clean(filters.contributorId) || "all";
+  const contributorAliases = new Set((Array.isArray(filters.contributorAliases) ? filters.contributorAliases : [])
+    .map(clean).filter(Boolean));
   const tree = clean(filters.tree) || "all";
   const meter = clean(filters.meter) || "all";
 
@@ -585,6 +591,14 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
       ? row.contributors
       : [row.contributor || "לא צוין"];
     if (contributor !== "all" && !contributors.includes(contributor)) return false;
+    if (contributorId !== "all") {
+      const contributorIds = Array.isArray(row.sourceContributorIds) && row.sourceContributorIds.length
+        ? row.sourceContributorIds
+        : [row.sourceContributorId].filter(Boolean);
+      const exactIdentity = contributorIds.includes(contributorId);
+      const registeredAlias = contributors.some((value) => contributorAliases.has(clean(value)));
+      if (!exactIdentity && !registeredAlias) return false;
+    }
     if (!query) return true;
     const haystack = [
       row.family,
@@ -619,47 +633,167 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
   });
 }
 
+function publicOccurrenceDto(occurrence = {}) {
+  const {
+    sourceContributorId: _sourceContributorId,
+    ...publicOccurrence
+  } = occurrence;
+  return publicOccurrence;
+}
+
+function isWorldPublicProjectionRow(row) {
+  const status = clean(row?.status).toLowerCase();
+  if (row?.family === "research_object") {
+    return clean(row?.access).toLowerCase() === "public"
+      && PUBLIC_RESEARCH_STATUSES.includes(status);
+  }
+  if (row?.family === "contribution" || row?.family === "topic") return status === "approved";
+  if (row?.family === "source_message") return status === "live";
+  return false;
+}
+
+/**
+ * Public DTO boundary for the existing World projection. The database query is
+ * already narrowed before transport; this final serializer prevents internal
+ * ranking, review and search carriers from becoming part of the public contract.
+ */
+export function worldPublicResearchDto(projection = {}) {
+  const {
+    convergenceCandidates: _convergenceCandidates,
+    convergenceCandidateError: _convergenceCandidateError,
+    convergenceCandidateMeta: _convergenceCandidateMeta,
+    excludedMaterial: _excludedMaterial,
+    excludedPersonOnlyResearch: _excludedPersonOnlyResearch,
+    ...publicProjection
+  } = projection || {};
+
+  const rows = (Array.isArray(projection?.rows) ? projection.rows : [])
+    .filter(isWorldPublicProjectionRow)
+    .map((row) => {
+      const {
+        terms: _terms,
+        triage: _triage,
+        rank: _rank,
+        strength: _strength,
+        recommendation: _recommendation,
+        evidenceReason: _evidenceReason,
+        proposedTreeTarget: _proposedTreeTarget,
+        recommendedKeepId: _recommendedKeepId,
+        duplicateIds: _duplicateIds,
+        researchStrength: _researchStrength,
+        engineVerificationStateRaw: _engineVerificationStateRaw,
+        scopeVerificationStates: _scopeVerificationStates,
+        sourceContributorId: _sourceContributorId,
+        sourceContributorIds: _sourceContributorIds,
+        promotedNodeId: _promotedNodeId,
+        parentId: _parentId,
+        treeMatchState: _treeMatchState,
+        batchKey: _batchKey,
+        operationalState: _operationalState,
+        duplicateClusterKey: _duplicateClusterKey,
+        ...publicRow
+      } = row || {};
+      return {
+        ...publicRow,
+        sourceHref: verifiedWebUrl(publicRow.sourceHref),
+        ...(publicRow.family === "research_object"
+          ? { canonicalFindingHref: publicFindingHref(publicRow.sourceId) }
+          : {}),
+        ...(Array.isArray(publicRow.occurrences)
+          ? { occurrences: publicRow.occurrences.map(publicOccurrenceDto) }
+          : {}),
+      };
+    });
+  const sourceTotals = {
+    research_object: rows.filter((row) => row.family === "research_object")
+      .reduce((sum, row) => sum + Math.max(1, finite(row.occurrenceCount) || 1), 0),
+    contribution: rows.filter((row) => row.family === "contribution").length,
+    source_message: rows.filter((row) => row.family === "source_message").length,
+    topic: rows.filter((row) => row.family === "topic").length,
+  };
+  const researchRows = rows.filter((row) => row.family === "research_object");
+  const duplicateGroups = researchRows.filter((row) => (finite(row.occurrenceCount) || 1) > 1).length;
+  const duplicateOccurrences = researchRows.reduce(
+    (sum, row) => sum + Math.max(0, (finite(row.occurrenceCount) || 1) - 1),
+    0,
+  );
+
+  return {
+    ...publicProjection,
+    rows,
+    total: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
+    loaded: rows.length,
+    rawLoaded: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
+    sourceTotals,
+    duplicateProjection: {
+      mode: "exact-safe-projection",
+      nonDestructive: true,
+      groups: duplicateGroups,
+      occurrencesCombined: duplicateOccurrences,
+      rawResearchRows: sourceTotals.research_object,
+      clusteredResearchRows: researchRows.length,
+      canonicalSelection: "longest_original_statement",
+    },
+    byFamily: countBy(rows, "family"),
+    byKind: countBy(rows, "kind"),
+    byAccess: countBy(researchRows, "access"),
+    byStatus: countBy(rows, "status"),
+    byVerification: countBy(rows, "verification"),
+    byContributor: countByMany(rows, "contributors", "contributor"),
+    treeMatchedResearch: researchRows.filter((row) => row.treeMatches?.length).length,
+    meteredResearch: researchRows.filter((row) => row.linkedTopicRating?.meterScore != null).length,
+    treeMatchedResearchOccurrences: researchRows.reduce(
+      (sum, row) => sum + (row.treeMatches?.length ? Math.max(1, finite(row.occurrenceCount) || 1) : 0),
+      0,
+    ),
+    meteredResearchOccurrences: researchRows.reduce(
+      (sum, row) => sum + (row.linkedTopicRating?.meterScore != null ? Math.max(1, finite(row.occurrenceCount) || 1) : 0),
+      0,
+    ),
+  };
+}
+
 export async function fetchWorldAllResearchProjection() {
   const excludedChannelRows = await fetchAllRows(
     "channel_updates",
     "id,created_at",
-    (query) => query.eq("channel", "or-geula"),
+    (query) => query.eq("channel", "or-geula").eq("status", "live"),
   );
   const excludedChannelSourceRefs = excludedChannelRows.rows.map((row) => `channel_updates:${row.id}`);
 
-  const [research, contributions, sources, topics, candidates] = await Promise.all([
+  const [research, contributions, sources, topics] = await Promise.all([
     fetchAllRows(
       "research_objects",
-      "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,parent_id,meta"
+      "id,created_at,kind,statement,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,meta",
+      (query) => query.eq("privacy_scope", "public").in("status", PUBLIC_RESEARCH_STATUSES),
     ),
     fetchAllRows(
       "research_contributions",
       "id,created_at,author_name,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,image_url,media,convergence_slug",
-      (query) => query.or("origin.is.null,origin.neq.openweb"),
+      (query) => query.eq("status", "approved").or("origin.is.null,origin.neq.openweb"),
     ),
     fetchAllRows(
       "channel_updates",
       "id,created_at,text,image_url,source,status,credit,channel,link_url,speaker",
-      (query) => query.or("channel.is.null,channel.neq.or-geula"),
+      (query) => query.eq("status", "live").or("channel.is.null,channel.neq.or-geula"),
     ),
     fetchAllRows(
       "topic_cards",
-      "id,created_at,approved_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by,node_id"
+      "id,created_at,approved_at,slug,title,subtitle,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by,node_id",
+      (query) => query.eq("status", "approved"),
     ),
-    fetchConvergenceCandidates(),
   ]);
   const scopedResearch = scopeWorldPreviewMaterial({
     researchObjects: research.rows,
     excludedChannelSourceRefs,
   });
 
-  return buildWorldAllResearchProjection(
+  return worldPublicResearchDto(buildWorldAllResearchProjection(
     {
       researchObjects: research.rows,
       contributions: contributions.rows,
       sourceMessages: sources.rows,
       topics: topics.rows,
-      convergenceCandidates: candidates.rows,
       excludedChannelSourceRefs,
     },
     {
@@ -670,11 +804,9 @@ export async function fetchWorldAllResearchProjection() {
       contributions: contributions.total,
       sourceMessages: sources.total,
       topics: topics.total,
-      convergenceCandidateError: candidates.error,
-      convergenceCandidateMeta: candidates.meta,
       truncated: research.truncated || contributions.truncated || sources.truncated || topics.truncated,
     }
-  );
+  ));
 }
 
 /**

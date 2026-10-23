@@ -166,11 +166,15 @@ test("new public World uses the composed story and sources without a feature tog
   const world = readFileSync(new URL("../../pages/World2029Page.jsx", import.meta.url), "utf8");
   const reader = readFileSync(new URL("./worldDiscoveryStream.js", import.meta.url), "utf8");
   const flight = readFileSync(new URL("../../components/research/WorldFlightStory2029.jsx", import.meta.url), "utf8");
-  assert.match(world, /if \(!controlMode\) return <>/);
+  assert.match(world, /activeView === WORLD_LANDING_VIEW\.START/);
+  assert.match(world, /activeView === WORLD_LANDING_VIEW\.CONNECTIONS/);
+  assert.doesNotMatch(world, /if \(!controlMode\)/);
   assert.doesNotMatch(world, /VITE_WORLD_2029_ENABLED/);
   assert.doesNotMatch(world, /import\.meta\.env\.VITE_INTEGRATED_PREVIEW\s*===\s*["']true["']\)\s*&&\s*!controlMode/);
   assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\}/);
-  assert.match(world, /<SourceArrivalList2029 loading=\{landing\.loading\}/);
+  assert.match(world, /<SourceArrivalList2029 loading=\{landing\.discoveryLoading\}/);
+  assert.match(world, /!\[WORLD_LANDING_VIEW\.START, WORLD_LANDING_VIEW\.LIVE\]\.includes\(activeView\)/,
+    "the discovery stream must load only in the two views that render it");
   assert.match(reader, /\.order\("modified", \{ ascending: false, nullsFirst: false \}\)/);
   assert.match(flight, /data-source-interpretation="zuriel-787"/);
 });

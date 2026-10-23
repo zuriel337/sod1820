@@ -23,7 +23,9 @@ test("Or Geula shortcut reuses the canonical source reader and viewer", () => {
 
 test("World source selector changes view only, never source authorizations", () => {
   const world = read("src/pages/World2029Page.jsx");
-  assert.match(world, /new URLSearchParams\(location\.search\)\.get\("source"\)/);
+  assert.match(world, /const params = new URLSearchParams\(location\.search\)/);
+  assert.match(world, /const source = params\.get\("source"\)/);
+  assert.match(world, /const subjectSource = params\.get\("subjectSource"\)/);
   assert.match(world, /source === "tzvi-opoc"/);
   assert.match(world, /source === "sod-hashmal"/);
   assert.match(world, /setCorpusKey\("sod-hashmal"\)/);

@@ -6,6 +6,7 @@
 const clean = (v) => v == null ? "" : String(v).trim();
 export const APPROVED_GROUP_WRITERS = Object.freeze(['tzvi-opoc', 'yaniv-levi', 'shachar-kandro', 'shimon-haimov']);
 export const GROUP_SOURCE_LABEL = "הודעת מקור · טרם נבדקה";
+export const WORLD_GROUP_SOURCE_READER = "world_group_source_arrivals_v2";
 
 export function redactGroupText(text) {
   return clean(text)
@@ -62,29 +63,11 @@ export function groupRowToWorldUpdate(row) {
   };
 }
 
-// The latest reader supports grouped occurrences; the canonical live database may
-// temporarily expose only the earlier vetted v2 provenance reader. This is a
-// READ-only compatibility fallback, never a fallback to raw channel_updates,
-// Legacy WhatsApp feeds, personal DMs or an admin research query.
-let availableReader = "world_group_source_arrivals_v3";
-function missingGroupRpc(error) {
-  const code = clean(error?.code);
-  const message = clean(error?.message || error);
-  return code === "PGRST202" || code === "42883"
-    || /(?:world_group_source_arrivals_v3)[^\n]*(?:not found|does not exist|could not find)/i.test(message)
-    || /(?:could not find|does not exist)[^\n]*(?:world_group_source_arrivals_v3)/i.test(message);
-}
-
 export async function fetchGroupSourceArrivals({ limit = 12, before = null, rpc } = {}) {
   const client = rpc ? null : (await import("../supabase.js")).supabase;
   const call = rpc || client.rpc.bind(client);
   const args = { p_limit: Math.min(40, Math.max(1, Number(limit) || 12)), p_before: before };
-  let { data, error } = await call(availableReader, args);
-  if (error && availableReader === "world_group_source_arrivals_v3" && missingGroupRpc(error)) {
-    const fallback = await call("world_group_source_arrivals_v2", args);
-    if (!fallback.error) availableReader = "world_group_source_arrivals_v2";
-    ({ data, error } = fallback);
-  }
+  const { data, error } = await call(WORLD_GROUP_SOURCE_READER, args);
   if (error) throw error;
   return (Array.isArray(data) ? data : []).map(groupRowToWorldUpdate).filter(Boolean);
 }

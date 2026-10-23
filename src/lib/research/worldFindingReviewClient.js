@@ -14,6 +14,7 @@ export async function fetchWorldFindingReviewPage({ filters = {}, offset = 0, si
     status: clean(filters.status) || "all",
     verification: clean(filters.verification) || "all",
     contributor: clean(filters.contributor) || "all",
+    contributor_id: clean(filters.contributorId),
     tree: clean(filters.tree) || "all",
     meter: clean(filters.meter) || "all",
     sort: clean(filters.sort) || "strength",

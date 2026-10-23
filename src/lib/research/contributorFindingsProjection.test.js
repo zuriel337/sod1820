@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fetchContributorFindingsProjection, buildContributorFindingsProjection } from "./contributorFindingsProjection.js";
+import { CONTRIBUTOR_LOAD_PROFILE, fetchContributorFindingsProjection, buildContributorFindingsProjection, deduplicateContributorSourceGroups, MAX_CONTRIBUTOR_RESEARCH } from "./contributorFindingsProjection.js";
 import { PROJECTOR_MODE } from "./researchViewMode.js";
 
 const CONTRIBUTOR = { id: "c1", slug: "yaniv", display_name: "יניב", wa_names: [], role: "researcher" };
@@ -10,11 +10,24 @@ const RESEARCH_ROW = { id: "r1", created_at: "2026-10-02T10:00:00Z", kind: "equa
 // Minimal chainable fake: per-table result, records the client label so mode isolation can be asserted.
 function fakeClient(label, tables, calls) {
   return {
+    rpc(name, args) {
+      calls.push({ label, table: `rpc:${name}`, filters: [["args", args]] });
+      return Promise.resolve(tables[name] ?? tables.gematria_words ?? { data: [] });
+    },
     from(table) {
-      calls.push({ label, table });
-      const result = tables[table] ?? { data: [] };
+      const call = { label, table, filters: [] };
+      calls.push(call);
+      const result = tables[table]
+        ?? (table === "world_contributor_research_v1" ? tables.research_objects : null)
+        ?? { data: [] };
       const b = {
-        select: () => b, in: () => b, eq: () => b, order: () => b, contains: () => b,
+        select: () => b,
+        in: (column, value) => { call.filters.push(["in", column, value]); return b; },
+        or: (value) => { call.filters.push(["or", value]); return b; },
+        eq: (column, value) => { call.filters.push(["eq", column, value]); return b; },
+        like: (column, value) => { call.filters.push(["like", column, value]); return b; },
+        is: (column, value) => { call.filters.push(["is", column, value]); return b; },
+        order: () => b, contains: () => b,
         range: () => Promise.resolve(result),
         maybeSingle: () => Promise.resolve(result),
         then: (res, rej) => Promise.resolve(result).then(res, rej),
@@ -26,16 +39,142 @@ function fakeClient(label, tables, calls) {
 const noTopics = async () => [];
 
 test("source with zero Findings renders as a source group (no dummy Finding)", () => {
-  const p = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [SOURCE] });
+  const p = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [{ ...SOURCE, topics: ["שפה"] }] });
   assert.equal(p.sourceGroups.length, 1);
   const g = p.sourceGroups[0];
   assert.equal(g.findingCount, 0);
   assert.deepEqual(g.universalFindings, []);
   assert.equal(g.source.text, SOURCE.text); // Hebrew source witness preserved verbatim
+  assert.deepEqual(g.source.topics, ["שפה"]);
   assert.equal(g.title, "שלום עולם — דברי המקור בעברית");
   assert.equal(p.counts.sourceOnlyGroups, 1);
   assert.equal(p.counts.sourceGroupsWithFindings, 0);
   assert.equal(p.topics.length, 0); // no Topic minted
+});
+
+test("an explicit image reference links the adjacent image and full message without deleting either source", () => {
+  const image = {
+    id: "image-1", created_at: "2026-10-01T10:00:00Z", text: "📷 עדכון",
+    image_url: "https://example.com/source.jpg", credit: "יניב", channel: "wa", status: "approved",
+  };
+  const message = {
+    id: "text-1", created_at: "2026-10-01T10:02:00Z", text: "הסבר מלא [Image 17.jpg]",
+    credit: "יניב", channel: "wa", status: "approved",
+  };
+  const p = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [message, image] });
+  assert.equal(p.counts.sourceRecords, 2);
+  assert.equal(p.counts.sourceGroups, 1);
+  assert.equal(p.counts.linkedImageMessages, 1);
+  assert.equal(p.sourceGroups[0].source.id, "text-1");
+  assert.equal(p.sourceGroups[0].mediaSource.id, "image-1");
+  assert.deepEqual(p.sourceGroups[0].linkedSourceRefs, ["channel_updates:image-1", "channel_updates:text-1"]);
+  assert.equal(p.sourceGroups[0].mediaPair.basis, "explicit_image_reference");
+});
+
+test("anchored research locators stay exact on the row but group under their source message", () => {
+  const p = buildContributorFindingsProjection({
+    contributor: CONTRIBUTOR,
+    sourceMessages: [SOURCE],
+    researchObjects: [{ ...RESEARCH_ROW, source_ref: "channel_updates:11#batch001:finding" }],
+  });
+  assert.equal(p.sourceGroups.length, 1);
+  assert.equal(p.sourceGroups[0].sourceRef, "channel_updates:11");
+  assert.equal(p.sourceGroups[0].findingCount, 1);
+  assert.equal(p.sourceGroups[0].rows[0].source_ref, "channel_updates:11#batch001:finding");
+});
+
+test("bounded structured overlap links a media message, while time proximity alone does not", () => {
+  const image = { id: "image-2", created_at: "2026-10-01T10:00:00Z", text: "📷 עדכון", image_url: "https://example.com/2.jpg", credit: "יניב", channel: "wa", status: "approved" };
+  const related = { id: "text-2", created_at: "2026-10-01T10:02:00Z", text: "הסבר ללא שם קובץ", credit: "יניב", channel: "wa", status: "approved" };
+  const researchObjects = [
+    { ...RESEARCH_ROW, id: "image-finding", source_ref: "channel_updates:image-2", terms: ["אור", "חיים"], value: 207 },
+    { ...RESEARCH_ROW, id: "text-finding", source_ref: "channel_updates:text-2", terms: ["אור", "חיים", "ברכה"], value: 207 },
+  ];
+  const linked = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [image, related], researchObjects });
+  assert.equal(linked.counts.linkedImageMessages, 1);
+  assert.equal(linked.sourceGroups[0].mediaPair.basis, "structured_source_overlap");
+  assert.equal(linked.sourceGroups[0].findingCount, 1);
+  assert.equal(linked.counts.duplicateFindingsHidden, 1);
+  assert.equal(linked.sourceGroups[0].mediaSource.id, "image-2");
+
+  const unrelated = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [
+    image,
+    { ...related, id: "text-3", text: "הודעה אחרת" },
+  ] });
+  assert.equal(unrelated.counts.linkedImageMessages, 0);
+  assert.equal(unrelated.counts.sourceGroups, 2);
+
+  const mixedAccess = buildContributorFindingsProjection({ contributor: CONTRIBUTOR, sourceMessages: [
+    image,
+    { ...related, id: "text-4", text: "הסבר [Image 4.jpg]", status: "private" },
+  ] });
+  assert.equal(mixedAccess.counts.linkedImageMessages, 0);
+  assert.equal(mixedAccess.counts.sourceGroups, 2);
+});
+
+test("exact duplicate findings become one visible publication and retain every source occurrence", () => {
+  const sourceOne = { ...SOURCE, id: "source-short", text: "גרסה קצרה", created_at: "2026-10-01T10:00:00Z" };
+  const sourceTwo = { ...SOURCE, id: "source-long", text: "הודעת המקור המלאה", created_at: "2026-10-02T10:00:00Z" };
+  const short = {
+    ...RESEARCH_ROW,
+    id: "short",
+    statement: "אור=207",
+    source_ref: "channel_updates:source-short#batch001:finding",
+  };
+  const long = {
+    ...RESEARCH_ROW,
+    id: "long",
+    statement: "אור = 207",
+    source_ref: "channel_updates:source-long#batch002:finding",
+  };
+
+  const projection = buildContributorFindingsProjection({
+    contributor: CONTRIBUTOR,
+    sourceMessages: [sourceOne, sourceTwo],
+    researchObjects: [short, long],
+  });
+
+  assert.equal(projection.counts.researchObjects, 2);
+  assert.equal(projection.counts.visibleResearchObjects, 1);
+  assert.equal(projection.counts.exactDuplicateGroups, 1);
+  assert.equal(projection.counts.duplicateFindingsHidden, 1);
+  assert.equal(projection.counts.duplicateSourceGroupsHidden, 1);
+  assert.equal(projection.sourceGroups.length, 1);
+  assert.equal(projection.sourceGroups[0].rows[0].id, "long");
+  assert.equal(projection.sourceGroups[0].duplicateFindingClusters[0].canonicalSelection, "longest_original_statement");
+  assert.deepEqual(
+    projection.sourceGroups[0].duplicateFindingClusters[0].occurrences.map((item) => item.findingId).sort(),
+    ["long", "short"],
+  );
+  assert.deepEqual(
+    projection.sourceGroups[0].sourceOccurrences.map((item) => item.sourceRef).sort(),
+    ["channel_updates:source-long", "channel_updates:source-short"],
+  );
+  assert.equal(projection.duplicateProjection.nonDestructive, true);
+});
+
+test("access or governance disagreement is never hidden as a duplicate", () => {
+  const groups = [
+    {
+      id: "channel_updates:a",
+      sourceRef: "channel_updates:a",
+      source: { id: "a", sourceRef: "channel_updates:a", text: "א" },
+      rows: [{ ...RESEARCH_ROW, id: "a", statement: "אור=207", source_ref: "channel_updates:a", status: "candidate" }],
+      topicLinks: [],
+    },
+    {
+      id: "channel_updates:b",
+      sourceRef: "channel_updates:b",
+      source: { id: "b", sourceRef: "channel_updates:b", text: "ב" },
+      rows: [{ ...RESEARCH_ROW, id: "b", statement: "אור=207", source_ref: "channel_updates:b", status: "approved" }],
+      topicLinks: [],
+    },
+  ];
+
+  const result = deduplicateContributorSourceGroups(groups);
+  assert.equal(result.groups.length, 2);
+  assert.equal(result.duplicateOccurrences, 0);
+  assert.equal(result.hiddenSourceGroups, 0);
 });
 
 test("a research permission failure does not erase readable sources; availability is separate from zero", async () => {
@@ -76,10 +215,114 @@ test("PUBLIC mode never touches the session client; ADMIN mode uses it", async (
   const session = fakeClient("session", tables, calls);
   await fetchContributorFindingsProjection("yaniv", { publicClient: () => anon, sessionClient: session, topicsReader: noTopics });
   assert.ok(calls.length && calls.every((c) => c.label === "anon"));
+  assert.ok(calls.some((c) => c.table === "rpc:world_gematria_lexical_lookup_v1"));
+  assert.equal(calls.some((c) => c.table === "gematria_words"), false);
   calls.length = 0;
   const admin = await fetchContributorFindingsProjection("yaniv", { mode: PROJECTOR_MODE.ADMIN_ALL, publicClient: () => anon, sessionClient: session, topicsReader: noTopics });
   assert.ok(calls.length && calls.every((c) => c.label === "session"));
   assert.equal(admin.counts.researchObjects, 1);
+});
+
+test("an exact public source link reads only that Zvi occurrence and its research rows", async () => {
+  const calls = [];
+  const occurrenceId = "a6805e30-21e0-4315-8f35-70b1bfdb0d14";
+  const contributor = { ...CONTRIBUTOR, id: "zvi", slug: "tzvi-opoc", display_name: "צבי (OPOC)", wa_names: ["צבי"] };
+  const source = { ...SOURCE, id: occurrenceId, contributor_id: "zvi", credit: "צבי (OPOC)" };
+  const research = { ...RESEARCH_ROW, source_ref: `channel_updates:${occurrenceId}#finding` };
+  const anon = fakeClient("anon", {
+    contributors: { data: contributor },
+    research_objects: { data: [research], count: 1 },
+    channel_updates: { data: [source], count: 1 },
+    gematria_words: { data: [] },
+  }, calls);
+
+  const projection = await fetchContributorFindingsProjection("tzvi-opoc", {
+    publicClient: () => anon,
+    topicsReader: async () => { throw new Error("focused source must not load topics"); },
+    sourceRef: `channel_updates:${occurrenceId}`,
+  });
+
+  assert.deepEqual(projection.focus, { sourceRef: `channel_updates:${occurrenceId}`, exactOccurrence: true });
+  assert.equal(projection.sourceGroups.length, 1);
+  assert.equal(projection.sourceGroups[0].sourceRef, `channel_updates:${occurrenceId}`);
+  assert.equal(calls.filter((call) => call.table === "channel_updates").length, 1);
+  assert.ok(calls.find((call) => call.table === "channel_updates")?.filters.some((item) => item[0] === "eq" && item[1] === "id" && item[2] === occurrenceId));
+  assert.ok(calls.find((call) => call.table === "world_contributor_research_v1")?.filters.some((item) => item[0] === "like" && item[2] === `channel_updates:${occurrenceId}%`));
+  assert.equal(calls.some((call) => call.table === "research_contributions"), false);
+});
+
+test("the public source library opens every readable source without loading the full research corpus", async () => {
+  const calls = [];
+  const anon = fakeClient("anon", {
+    contributors: { data: CONTRIBUTOR },
+    research_objects: { data: [RESEARCH_ROW], count: 1 },
+    channel_updates: { data: [SOURCE, { ...SOURCE, id: 12, text: "כתב ציבורי נוסף" }], count: 2 },
+    research_contributions: { data: [], count: 0 },
+  }, calls);
+
+  const projection = await fetchContributorFindingsProjection("yaniv", {
+    publicClient: () => anon,
+    topicsReader: noTopics,
+    loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
+  });
+
+  assert.equal(projection.sourceGroups.length, 2);
+  assert.equal(projection.counts.sourceRecords, 2);
+  assert.equal(projection.counts.researchObjects, 0);
+  assert.equal(projection.availability.research, "deferred");
+  assert.equal(projection.loadState.researchObjectsTotal, null);
+  assert.equal(projection.loadState.researchObjectsDeferred, true);
+  assert.equal(calls.some((call) => call.table === "world_contributor_research_v1"), false);
+  assert.equal(calls.some((call) => call.table === "rpc:world_gematria_lexical_lookup_v1"), false);
+});
+
+test("an exact occurrence overrides source-first deferral and loads only its research slice", async () => {
+  const calls = [];
+  const occurrenceId = "a6805e30-21e0-4315-8f35-70b1bfdb0d14";
+  const contributor = { ...CONTRIBUTOR, id: "zvi", slug: "tzvi-opoc", display_name: "צבי (OPOC)", wa_names: ["צבי"] };
+  const anon = fakeClient("anon", {
+    contributors: { data: contributor },
+    research_objects: { data: [{ ...RESEARCH_ROW, source_ref: `channel_updates:${occurrenceId}#finding` }], count: 1 },
+    channel_updates: { data: [{ ...SOURCE, id: occurrenceId, contributor_id: "zvi" }], count: 1 },
+    gematria_words: { data: [] },
+  }, calls);
+
+  const projection = await fetchContributorFindingsProjection("tzvi-opoc", {
+    publicClient: () => anon,
+    topicsReader: noTopics,
+    sourceRef: `channel_updates:${occurrenceId}`,
+    loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
+  });
+
+  assert.equal(projection.loadState.researchObjectsDeferred, false);
+  assert.equal(projection.counts.researchObjects, 1);
+  assert.ok(calls.some((call) => call.table === "world_contributor_research_v1"));
+});
+
+test("source attribution uses stable contributor identity and only unbound registered aliases", async () => {
+  const calls = [];
+  const contributor = { ...CONTRIBUTOR, wa_names: ["יניב הרשום"] };
+  const anon = fakeClient("anon", {
+    contributors: { data: contributor },
+    research_objects: { data: [], count: 0 },
+    channel_updates: { data: [], count: 0 },
+    research_contributions: { data: [], count: 0 },
+  }, calls);
+  await fetchContributorFindingsProjection("yaniv", { publicClient: () => anon, topicsReader: noTopics });
+  const researchCalls = calls.filter((call) => call.table === "world_contributor_research_v1");
+  assert.equal(researchCalls.length, 1);
+  assert.ok(researchCalls[0].filters.some(([op, value]) => op === "or" && value.includes("source_contributor_id.eq.c1")));
+  const sourceCalls = calls.filter((call) => call.table === "channel_updates");
+  assert.equal(sourceCalls.length, 3);
+  assert.deepEqual(sourceCalls[0].filters, [["eq", "contributor_id", "c1"]]);
+  for (const call of sourceCalls.slice(1)) {
+    assert.ok(call.filters.some(([op, column]) => op === "in" && ["credit", "speaker"].includes(column)));
+    assert.ok(call.filters.some(([op, column, value]) => op === "is" && column === "contributor_id" && value === null));
+  }
+});
+
+test("contributor research read is bounded above the current full corpus", () => {
+  assert.ok(MAX_CONTRIBUTOR_RESEARCH >= 7353);
 });
 
 test("personal/person_only research is never requested by owner_slug", async () => {
