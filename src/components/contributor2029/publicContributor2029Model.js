@@ -1,4 +1,6 @@
-// Page-local presentation over the canonical reader. No persistence or attribution inference.
+// Page-local presentation over the canonical readers. No persistence or attribution inference.
+import { normalizeWorldAllResearchRow } from "../../lib/research/worldAllResearchProjection.js";
+import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 export const SECTIONS = Object.freeze([
   ["all", "הכול"], ["writings", "כתבים ומאמרים"], ["sources", "מקורות ועדכונים"],
   ["findings", "ממצאים"], ["topics", "התכנסויות ונושאים"], ["media", "מדיה וגלריות"], ["community", "הודעות, לייקים ותגובות"],
@@ -6,7 +8,7 @@ export const SECTIONS = Object.freeze([
 const text = (v) => typeof v === "string" ? v.trim() : "";
 const finite = (v) => v !== null && v !== "" && v !== undefined && Number.isFinite(Number(v)) ? Number(v) : null;
 const blocked = new Set(["private", "person_only", "public_candidate", "draft", "triage", "rejected", "pending"]);
-const published = new Set(["approved", "published", "public"]);
+const published = new Set(["approved", "published", "public", "live"]);
 const list = (v) => Array.isArray(v) ? v : [];
 // Preserve Legacy's automatic-contributor discovery policy even when its public
 // canonical URL uses a numeric code rather than the generated slug.
@@ -57,7 +59,7 @@ export function readContributorLocation(search, origin) {
 }
 
 export function isExactlyAttributed(row, identity) {
-  const explicitId = text(row?.contributor_id || row?.meta?.contributor_id);
+  const explicitId = text(row?.contributor_id || row?.meta?.contributor_id || row?.resolved_contributor_id);
   if (explicitId) return explicitId === identity.id;
   const slug = text(row?.contributor_slug || row?.meta?.contributor_slug);
   if (slug) return slug === identity.slug;
@@ -109,8 +111,9 @@ export function buildPublicContributorView(projection, identity) {
         findingCount: 0, verifiedCount: 0, facets: ["source"], values: [], terms: [],
         lexicalTags: [], lexicalWorlds: [] };
       sourceGroups.push(safeGroup);
+      const locator = new URLSearchParams({ view: "sources", source: identity.slug, sourceRef: key });
       items.push({ id: key, type: "sources", title: safeGroup.title, date: group.createdAt,
-        summary: safeSource.text, href: safeSource.linkUrl, media: Boolean(safeSource.imageUrl || safeSource.thumbUrl),
+        summary: safeSource.text, href: `/world?${locator}#source-occurrence-${source.id}`, media: Boolean(safeSource.imageUrl || safeSource.thumbUrl),
         reason: "מקור שנמסר בשם משויך ומאושר של הכותב.", group: safeGroup,
         sourceOnly: availability.research === "ok" && !rows.length,
         findingsUnavailable: availability.research !== "ok" });
@@ -173,4 +176,71 @@ export function selectContributorItems(view, section, requestedSort) {
     return (sort === "oldest" ? av - bv : bv - av) || a.id.localeCompare(b.id);
   });
   return { rows, sort, canDiscuss, canStrength };
+}
+
+// Preserve each source-native identity. A projected Insight is a reference on its
+// original contribution, not an additional independent Finding.
+export function appendContributorPublicationCatalog(view, catalogue, identity) {
+  const items = new Map(view.items.map((item) => [item.id, item]));
+  const projected = new Set();
+  const canonicalHref = view.canonicalHref;
+  const put = (item) => items.set(item.id, item);
+  for (const row of catalogue.contributions?.rows || []) {
+    if (!["approved", "published"].includes(row.status)) continue;
+    if (row.projected_insight_id) projected.add(row.projected_insight_id);
+    if (["openweb", "community_2029"].includes(row.origin)) continue;
+    const normalized = normalizeWorldAllResearchRow(row, "contribution");
+    const id = normalized.id;
+    const href = safePublicUrl(normalized.href) || `${canonicalHref}?${new URLSearchParams({ section: "sources", item: id })}`;
+    put({ id, sourceRef: `research_contributions:${row.id}`, type: "sources", label: "תרומה",
+      title: normalized.statement || "תרומה ללא כותרת", summary: row.body || "", date: row.created_at,
+      href, media: Boolean(safePublicUrl(normalized.mediaUrl)), mediaUrl: safePublicUrl(normalized.mediaUrl),
+      linkedSourceRefs: [row.projected_insight_id && `insights:${row.projected_insight_id}`].filter(Boolean),
+      reason: "תרומה מהאתר הקיים; פרסומה אינו אימות של תוכנה." });
+  }
+  for (const row of catalogue.posts?.rows || []) {
+    if (!row.slug) continue;
+    const mediaUrl = safePublicUrl(row.thumb_url || row.image_url);
+    put({ id: `post:${row.id}`, sourceRef: `posts:${row.id}`, type: "writings", title: humanContentTitle(row.title, { max: 0 }),
+      date: row.date, href: safePublicUrl(`/${row.slug}`), media: Boolean(mediaUrl), mediaUrl,
+      reason: row.author === identity.display_name ? "מאמר שהמערכת מייחסת לכותב." : "מאמר בהשתתפות הכותב." });
+  }
+  for (const row of catalogue.ciphers?.rows || []) {
+    if (row.status !== "published" || row.visibility !== "public" || !row.slug) continue;
+    const mediaUrl = safePublicUrl(row.image_url);
+    put({ id: `els:${row.id}`, sourceRef: `els_records:${row.id}`, type: "findings", label: "צופן שמור",
+      title: text(row.title || row.search_term), date: row.created_at, href: `/codes/${encodeURIComponent(row.slug)}`,
+      media: Boolean(mediaUrl), mediaUrl, strength: null, quality: null, value: null, verification: null,
+      reason: "צופן ציבורי שנשמר בחשבון הכותב; מצב הפרסום אינו חותמת אימות." });
+  }
+  for (const row of catalogue.insights?.rows || []) {
+    if (!row.is_active || row.space === "private" || projected.has(row.id)) continue;
+    put({ id: `insight:${row.id}`, sourceRef: `insights:${row.id}`, type: "findings", label: "חידוש מהאתר הקיים",
+      title: text(row.title), date: row.created_at,
+      href: `/research?${new URLSearchParams({ tool: "midrash", tab: "community", insight: row.id })}`,
+      strength: null, quality: null, value: null, verification: null,
+      reason: "חידוש המיוחס לכותב במקור הקיים; לא בוצע כאן אימות חדש." });
+  }
+  for (const row of catalogue.events?.rows || []) {
+    put({ id: `event:${row.id}`, sourceRef: `nodes:${row.id}`, type: "sources", label: "אירוע בציר",
+      title: text(row.label), date: row.created_at, href: `/timeline#ev-${row.id}`,
+      reason: "אירוע עם שיוך מפורש לכותב בציר הקיים." });
+  }
+  for (const row of catalogue.topics?.rows || []) {
+    if (row.status !== "approved" || !row.slug) continue;
+    put({ id: `topic:${row.slug}`, sourceRef: `topic_cards:${row.slug}`, type: "topics",
+      title: text(row.title), summary: text(row.subtitle), date: row.approved_at,
+      href: `/topic/${encodeURIComponent(row.slug)}`,
+      reason: "הקרנת נושא קיימת עם קרדיט יצירה מפורש; אין כאן נושא חדש." });
+  }
+  for (const row of Array.isArray(identity.media) ? identity.media : []) {
+    const url = safePublicUrl(typeof row === "string" ? row : row?.url || row?.src || row?.image_url);
+    if (!url || [...items.values()].some((item) => item.mediaUrl === url)) continue;
+    put({ id: `media:${url}`, sourceRef: url, type: "media", label: "מדיה וגלריה",
+      title: text(row?.title || row?.caption) || "מדיה מדף הכותב", date: row?.created_at || null,
+      href: url, media: true, mediaUrl: url, reason: "מדיה שנשמרה בדף הכותב הקיים." });
+  }
+  return { ...view, items: [...items.values()], publicationCoverage: Object.fromEntries(Object.entries(catalogue)
+    .map(([key, value]) => [key, { count: value.complete ? value.rows.length : null, complete: value.complete, availability: value.availability }])),
+    partial: view.partial || Object.values(catalogue).some((value) => !value.complete) };
 }

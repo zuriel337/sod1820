@@ -104,6 +104,8 @@ function sourceMeta(row) {
   if (!row) return null;
   return {
     id: String(row.id),
+    contributor_id: row.contributor_id || null,
+    resolved_contributor_id: row.resolved_contributor_id || null,
     sourceRef: `channel_updates:${row.id}`,
     createdAt: row.created_at || null,
     status: clean(row.status) || null,
@@ -712,7 +714,9 @@ async function fetchSourceMessages(client, contributor, aliases, sourceRef = nul
     truncated = truncated || result.truncated;
     for (const row of result.rows) byId.set(String(row.id), row);
   }
-  const rows = [...byId.values()].sort((a, b) => clean(b.created_at).localeCompare(clean(a.created_at)));
+  // Separate reader proof from the original source's nullable contributor_id.
+  const rows = [...byId.values()].map((row) => ({ ...row, resolved_contributor_id: contributor.id }))
+    .sort((a, b) => clean(b.created_at).localeCompare(clean(a.created_at)));
   return { rows, total: rows.length, truncated };
 }
 

@@ -43,7 +43,7 @@ test("a public dossier is a writer only by contributor.kind, never by free-text 
 });
 
 test("private, locked, inactive, building, missing and ambiguous writers resolve to nothing", async () => {
-  for (const row of [{ ...writerRow, visibility: "private" }, { ...writerRow, visibility: null }, { ...writerRow, locked: true },
+  for (const row of [{ ...writerRow, visibility: "private" }, { ...writerRow, visibility: "candidate" }, { ...writerRow, locked: true },
     { ...writerRow, active: false }, { ...writerRow, building: true }]) {
     assert.equal(await resolveCommunityWriter(ID, { client: fakeClient([row]) }), null);
   }
@@ -51,6 +51,10 @@ test("private, locked, inactive, building, missing and ambiguous writers resolve
   assert.equal(await resolveCommunityWriter(ID, { client: fakeClient([writerRow, { ...writerRow, slug: "other" }]) }), null, "ambiguous binding is never guessed");
   assert.equal(await resolveCommunityWriter(ID, { client: fakeClient(null, { error: new Error("rls") }) }), null);
   assert.equal(await resolveCommunityWriter("not-an-id", { client: fakeClient([writerRow]) }), null);
+});
+
+test("legacy missing visibility follows the same public default as the writer page", async () => {
+  assert.equal((await resolveCommunityWriter(ID, { client: fakeClient([{ ...writerRow, visibility: null }]) })).isWriter, true);
 });
 
 test("writer href carries only an approved return target", () => {
