@@ -204,6 +204,24 @@ const PUBLICATION_DECISION_META = Object.freeze({
   exclude: Object.freeze({ label: "לא לפרסום", description: "הממצא יישאר בחומר המחקר ולא יוצג בספרייה הציבורית." }),
 });
 
+const FINAL_FINDING_LENSES = Object.freeze({
+  body: Object.freeze({
+    label: "הגוף",
+    title: "מערכת קצבים חיה",
+    text: "הנשימה, פעימות הלב והתנועה הזעירה של הגוף אינן שכבות נפרדות. הן מצטרפות למערכת אחת של מחזורים המשפיעים זה על זה.",
+  }),
+  time: Object.freeze({
+    label: "הזמן",
+    title: "חוויה שנוצרת מתוך קצב",
+    text: "כאשר הקצבים הגופניים משתנים, גם תחושת הרצף עשויה להשתנות. הממצא מזמין לראות בזמן לא רק מדידה חיצונית אלא גם חוויה פנימית.",
+  }),
+  consciousness: Object.freeze({
+    label: "התודעה",
+    title: "קשב למערכת כולה",
+    text: "המעבר ממדידת איבר יחיד להתבוננות במערכת הקצבים פותח שאלה: האם תודעה יכולה להיתפס כתיאום בין מחזורים שונים?",
+  }),
+});
+
 const EVIDENCE_REQUIREMENTS = Object.freeze({
   shared: Object.freeze([
     Object.freeze({ key: "witness_window", label: "חלון עד המקור", description: "העמודים שנבדקו כוללים את הקטע הרלוונטי במלואו." }),
@@ -651,6 +669,115 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
   </section>;
 }
 
+function FinalFindingExperience() {
+  const [activeLens, setActiveLens] = useState("body");
+  const lens = FINAL_FINDING_LENSES[activeLens];
+
+  return <main className="bentov29 bentov29-final" data-final-finding-mode="preview-exemplar" data-publication-effect="none">
+    <nav className="bentov29-final-crumb" aria-label="מיקום בספרייה">
+      <span>ספרים</span><i>←</i><span>יצחק בנטוב</span><i>←</i><strong>ממצא 01</strong>
+    </nav>
+
+    <section className="bentov29-final-hero" aria-labelledby="bentov29-final-title">
+      <div className="bentov29-final-hero-copy">
+        <div className="bentov29-final-index"><span>01</span><small>ממצא</small></div>
+        <div className="bentov29-final-kicker">מסע קצר אל התודעה הגבוהה · יצחק בנטוב</div>
+        <h1 id="bentov29-final-title">הגוף אינו שקט</h1>
+        <p>הגוף מוצג כמערכת של קצבים מקוננים — נשימה, פעימות ותנועה זעירה — שיחד יוצרים מצע חי לחוויית הזמן והתודעה.</p>
+        <div className="bentov29-final-trust" aria-label="מצב אמון">
+          <span>מקור נבדק</span><span>נאמנות מדויקת</span><span>עברית מלאה</span>
+        </div>
+        <small className="bentov29-final-disclaimer">ניסוח מוצר לדוגמה בפריוויו — אינו ציטוט ואינו חושף את נוסח הממצא הקנוני.</small>
+      </div>
+      <div className="bentov29-final-visual" aria-label="המחשה מרחבית של קצבים גופניים">
+        <img src="/2029/books/bentov/bentov-consciousness-map.webp" alt="דמות אנושית מוקפת גלים ומעגלי קצב" />
+        <span className="pulse pulse-a">נשימה</span>
+        <span className="pulse pulse-b">פעימה</span>
+        <span className="pulse pulse-c">תנועה</span>
+        <span className="pulse pulse-d">קשב</span>
+      </div>
+    </section>
+
+    <section className="bentov29-final-core" aria-labelledby="bentov29-final-core-title">
+      <div className="bentov29-final-reading">
+        <div className="bentov29-section-label">הרעיון המרכזי</div>
+        <h2 id="bentov29-final-core-title">לא איבר בודד — מערכת מתואמת</h2>
+        <p>הממצא מזמין להחליף תמונה סטטית של הגוף בתמונה מחזורית. כל קצב פועל בקנה מידה אחר, אך החוויה נוצרת מן החיבור ביניהם. כך אפשר לעבור מן השאלה “מה הגוף עושה?” לשאלה “איך המערכת כולה מסתנכרנת?”.</p>
+        <blockquote>
+          <span>תמצית לקריאה</span>
+          <strong>מה שנראה יציב מבחוץ עשוי להיות תנועה מתואמת מבפנים.</strong>
+        </blockquote>
+      </div>
+
+      <div className="bentov29-final-model" aria-label="מודל הקצבים">
+        <div className="ring ring-a"><span>נשימה</span></div>
+        <div className="ring ring-b"><span>לב</span></div>
+        <div className="ring ring-c"><span>תנועה זעירה</span></div>
+        <div className="ring-core"><strong>קצב</strong><small>מערכת חיה</small></div>
+      </div>
+    </section>
+
+    <section className="bentov29-final-lenses" aria-labelledby="bentov29-final-lenses-title">
+      <header>
+        <div>
+          <div className="bentov29-section-label">שלוש דרכי כניסה</div>
+          <h2 id="bentov29-final-lenses-title">פתח את הממצא מזווית אחרת</h2>
+        </div>
+        <div role="group" aria-label="בחירת זווית קריאה">
+          {Object.entries(FINAL_FINDING_LENSES).map(([key, item]) => <button
+            type="button"
+            key={key}
+            className={activeLens === key ? "is-active" : ""}
+            onClick={() => setActiveLens(key)}
+            aria-pressed={activeLens === key}
+          >{item.label}</button>)}
+        </div>
+      </header>
+      <article aria-live="polite">
+        <span>{lens.label}</span>
+        <h3>{lens.title}</h3>
+        <p>{lens.text}</p>
+      </article>
+    </section>
+
+    <section className="bentov29-final-grid" aria-label="משמעות, מקור והמשך חקירה">
+      <article>
+        <span>למה זה חשוב</span>
+        <h2>הגוף הופך למפה</h2>
+        <p>במקום לקרוא רעיון מופשט, הקורא מקבל מערכת חזותית שאפשר לחקור: מה נע, מה מסתנכרן ואיפה נוצרת חוויית הרצף.</p>
+      </article>
+      <article className="is-source">
+        <span>עוגן מקור</span>
+        <h2>PDF · עמוד 8</h2>
+        <p>חלון המקור נבדק ונשמר בקנוני. בפריוויו מוצג רק מראה המקום — לא ציטוט, לא צילום עמוד ולא חומר פרטי.</p>
+        <div><strong>רמת אמון</strong><b>גבוהה</b></div>
+      </article>
+      <article>
+        <span>השאלה שנפתחת</span>
+        <h2>מתי קצב הופך לחוויה?</h2>
+        <p>זהו החיבור הבא במסע: מן המחזורים הגופניים אל תפיסת הזמן, הקשב והאפשרות לקוהרנטיות בין מערכות.</p>
+      </article>
+    </section>
+
+    <section className="bentov29-final-related" aria-labelledby="bentov29-final-related-title">
+      <div>
+        <div className="bentov29-section-label">המשך טבעי</div>
+        <h2 id="bentov29-final-related-title">עוד שלושה ממצאים במסלול</h2>
+      </div>
+      <div className="bentov29-final-related-list">
+        <article><span>02</span><strong>גלים, תדר ותפיסה</strong><small>כיצד קצב הופך למידע</small></article>
+        <article><span>03</span><strong>זמן כחוויה משתנה</strong><small>מן השעון החיצוני אל הרצף הפנימי</small></article>
+        <article><span>04</span><strong>קוהרנטיות בין מערכות</strong><small>מתי מחזורים שונים פועלים יחד</small></article>
+      </div>
+    </section>
+
+    <footer className="bentov29-final-footer">
+      <strong>כך נראה ממצא כמוצר.</strong>
+      <span>מסך קריאה אחד, רעיון אחד ומסלול המשך ברור. Preview בלבד · 0 חומר ציבורי · אין כתיבה או שינוי הרשאות.</span>
+    </footer>
+  </main>;
+}
+
 function PublicationDecisionGate({ findings, selectedId, onSelect, decisions, checks, onDecision, onToggleCheck, onModelComplete, onReset }) {
   const selected = findings.find(item => item.id === selectedId) || findings[0];
   const selectedChecks = checks[selected.id] || new Set();
@@ -841,11 +968,15 @@ export default function BentovFindingsProduct2029Page() {
   const [publicationChecks, setPublicationChecks] = useState(() => Object.fromEntries(
     FINDINGS.map(finding => [finding.id, new Set(PUBLICATION_CHECKS.map(check => check.key))]),
   ));
+  const finalFindingMode = typeof window !== "undefined"
+    && new URLSearchParams(window.location.search).get("view") === "final-finding";
 
   useEffect(() => {
     applySeo({
-      title: "מפת הממצאים · בנטוב · הדמיית מוצר",
-      description: "הדמיית מוצר אינטראקטיבית לקריאה, חקירה וביקורת של ממצאי ספר.",
+      title: finalFindingMode ? "הגוף אינו שקט · ממצא בנטוב" : "מפת הממצאים · בנטוב · הדמיית מוצר",
+      description: finalFindingMode
+        ? "תצוגת מוצר ממוקדת לממצא אחד מתוך ספרו של יצחק בנטוב."
+        : "הדמיית מוצר אינטראקטיבית לקריאה, חקירה וביקורת של ממצאי ספר.",
       path: "/2029/control",
       noindex: true,
     });
@@ -865,6 +996,19 @@ export default function BentovFindingsProduct2029Page() {
   );
   const selected = FINDINGS.find(item => item.id === selectedId) || FINDINGS[0];
   const marked = markedIds.has(selected.id);
+
+  if (finalFindingMode) return <Sod2029Shell
+    title="ממצא 01"
+    eyebrow="ספרים 2029 · תצוגת מוצר"
+    description="ממצא אחד, רעיון אחד ומסלול חקירה ברור."
+    status="Preview · דגם קריאה"
+    surface="books"
+    symbol={<NavigationIcon2029 name="books" />}
+    introVariant="none"
+    wide
+  >
+    <FinalFindingExperience />
+  </Sod2029Shell>;
 
   const selectSource = sourceId => {
     setSelectedSource(sourceId);

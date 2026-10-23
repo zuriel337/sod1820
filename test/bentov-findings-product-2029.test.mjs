@@ -17,6 +17,22 @@ test("Bentov product is an unlinked Preview surface on the existing control docu
   assert.match(page, /status="Preview · קריאה בלבד"/);
 });
 
+test("focused final-finding mode renders one reader product instead of the review desk", () => {
+  assert.match(page, /function FinalFindingExperience/);
+  assert.match(page, /new URLSearchParams\(window\.location\.search\)\.get\("view"\) === "final-finding"/);
+  assert.match(page, /if \(finalFindingMode\) return <Sod2029Shell/);
+  assert.match(page, /<FinalFindingExperience \/>/);
+  assert.match(page, /data-final-finding-mode="preview-exemplar"/);
+  assert.match(page, /הגוף אינו שקט/);
+  assert.match(page, /לא איבר בודד — מערכת מתואמת/);
+  assert.match(page, /פתח את הממצא מזווית אחרת/);
+  assert.match(page, /ניסוח מוצר לדוגמה בפריוויו — אינו ציטוט ואינו חושף את נוסח הממצא הקנוני/);
+  assert.match(page, /PDF · עמוד 8/);
+  assert.match(page, /Preview בלבד · 0 חומר ציבורי · אין כתיבה או שינוי הרשאות/);
+  assert.match(page, /const FINAL_FINDING_LENSES/);
+  assert.match(page, /useState\("body"\)/);
+});
+
 test("product data is visibly a synthetic display model and cannot publish", () => {
   assert.match(page, /data-preview-data="synthetic"/);
   assert.match(page, /data-publication-effect="none"/);
@@ -206,6 +222,9 @@ test("interactive controls are accessible and local-only", () => {
 test("visual layer uses the project semantic tokens and a local illustration", () => {
   assert.match(page, /\/2029\/books\/bentov\/bentov-consciousness-map\.webp/);
   assert.match(css, /var\(--s29-/);
+  assert.match(css, /\.bentov29-final-hero/);
+  assert.match(css, /\.bentov29-final-model \.ring/);
+  assert.match(css, /@media\(max-width:430px\)/);
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
 });
 
