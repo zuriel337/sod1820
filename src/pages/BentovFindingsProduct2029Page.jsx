@@ -239,8 +239,8 @@ const FINAL_FINDING_SOURCE = Object.freeze({
   author: "יצחק בנטוב",
   page: 8,
   fidelity: "נאמנות מדויקת",
-  pdfUrl: null,
-  access: "protected-preview",
+  pdfUrl: "https://avalonlibrary.net/ebooks/Itzhak%20Bentov%20-%20Brief%20Tour%20of%20Higher%20Consciousness.pdf",
+  access: "approved-display",
 });
 
 const EVIDENCE_REQUIREMENTS = Object.freeze({

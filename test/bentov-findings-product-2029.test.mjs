@@ -46,6 +46,8 @@ test("book source law keeps a large authorized PDF surface beside every finding"
   assert.match(page, /data-source-visibility=\{BOOK_SOURCE_VISIBILITY_CONTRACT\.mode\}/);
   assert.match(page, /data-source-access=\{source\.access\}/);
   assert.match(page, /source\.access === "approved-display" \? source\.pdfUrl : null/);
+  assert.match(page, /pdfUrl: "https:\/\/avalonlibrary\.net\/ebooks\/Itzhak%20Bentov%20-%20Brief%20Tour%20of%20Higher%20Consciousness\.pdf"/);
+  assert.match(page, /access: "approved-display"/);
   assert.match(page, /קובץ המקור עצמו מוגן בפריוויו/);
   assert.match(page, /לא נמצא בענף נכס PDF שאושר לתצוגה/);
   assert.match(page, /המקור נשאר ליד הממצא לאורך הקריאה/);
