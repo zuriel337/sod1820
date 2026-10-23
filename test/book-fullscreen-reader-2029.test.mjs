@@ -9,6 +9,7 @@ const readers = [
   read("src/pages/AhavatTorahSystem2029Page.jsx"),
   read("src/pages/DaatTevunotTree2029Page.jsx"),
   read("src/pages/BentovFindingsProduct2029Page.jsx"),
+  read("src/pages/SeferYetzirahWorld2029Page.jsx"),
 ];
 
 test("book readers share one accessible fullscreen control with a PDF fallback", () => {

@@ -66,6 +66,8 @@ const DaatTevunotTree2029Page = bookPublicationReviewPreviewEnabled
   ? lazy(() => import("./pages/DaatTevunotTree2029Page.jsx")) : null;
 const AhavatTorahSystem2029Page = bookPublicationReviewPreviewEnabled
   ? lazy(() => import("./pages/AhavatTorahSystem2029Page.jsx")) : null;
+const SeferYetzirahWorld2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/SeferYetzirahWorld2029Page.jsx")) : null;
 
 function Loading2029() {
   const palette = use2029Palette();
@@ -140,7 +142,11 @@ function ControlEntry2029() {
   const libraryJourneyRequested = params.get("surface") === "books-library-journey";
   const daatTevunotTreeRequested = params.get("surface") === "daat-tevunot-tree";
   const ahavatTorahSystemRequested = params.get("surface") === "ahavat-torah-system";
+  const seferYetzirahWorldRequested = params.get("surface") === "sefer-yetzirah-world";
   const slug = params.get("book") || "";
+  if (bookPublicationReviewPreviewEnabled && seferYetzirahWorldRequested && SeferYetzirahWorld2029Page) {
+    return <SeferYetzirahWorld2029Page />;
+  }
   if (bookPublicationReviewPreviewEnabled && ahavatTorahSystemRequested && AhavatTorahSystem2029Page) {
     return <AhavatTorahSystem2029Page />;
   }
