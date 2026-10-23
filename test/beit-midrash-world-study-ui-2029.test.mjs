@@ -49,9 +49,12 @@ test("source fidelity: sourceRef, occurrences and verified links only", () => {
   assert.match(guided, /example\.occurrences\.length > 1/);
   assert.match(guided, /example\.occurrences\.map/);
   assert.match(guided, /example\.sourceHref \?/);
-  assert.doesNotMatch(guided, /example\.canonicalFindingHref|admin=1/);
+  assert.match(guided, /example\.canonicalFindingHref/);
+  assert.doesNotMatch(guided, /admin=1|\/world\?finding=/, "the finding route is only ever the verified one the contract returns");
   assert.match(guided, /publicWorldSourceHref\(example\.contributor\)/);
-  assert.match(guided, /לפתיחת הגילוי והמקור בעולם/);
+  assert.match(guided, /findingHref \? </, "no verified route, no finding link");
+  assert.match(guided, /לפתיחת הגילוי המלא בעולם/);
+  assert.match(guided, /לעמוד המקור בעולם/);
   assert.match(guided, /updateResearchContext/);
   assert.match(guided, /returnTo/);
   assert.match(guided, /findingId: example\.sourceId/);
@@ -154,10 +157,11 @@ test("lesson visual pass: centred rail, flat structure and calm motion", () => {
 
 test("illustrations are presentational: no data, reader or calculation, decorative ones hidden", () => {
   const illustrations = parts["BeitMidrashIllustrations.jsx"].replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
-  assert.doesNotMatch(illustrations, /fetch|useEffect|useState|import .*lib\/|Number\(|parseInt|gematria/i);
+  // The strip may keep the chosen step in view (useEffect/useRef); nothing here may hold state, fetch or calculate.
+  assert.doesNotMatch(illustrations, /fetch|useState|localStorage|import .*lib\/|Number\(|parseInt|gematria/i);
   assert.match(illustrations, /data-illustration="fibonacci-spiral"/);
   assert.match(illustrations, /aria-hidden="true"/);
-  assert.match(illustrations, /<ol className="bm-source-trail"/);
+  assert.match(illustrations, /<ol ref=\{list\} className="bm-source-trail"/);
   assert.match(illustrations, /המחשה בלבד/);
   assert.match(parts["BeitMidrashLearn.jsx"], /selectedNumberConcept\.id === "fibonacci"/);
   assert.match(parts["BeitMidrashLearn.jsx"], /<PathTrail steps=\{path\.steps\?\.length\}/);
@@ -168,4 +172,22 @@ test("loading uses a skeleton with the lesson's own minimum heights", () => {
   assert.match(parts["BeitMidrashMethods.jsx"], /role="status" aria-busy="true"/);
   assert.doesNotMatch(css, /data-pending|min-height:1\d{3}px/, "no giant reserved blank");
   assert.match(css, /\.bm-lesson>header\{min-height:294px/);
+});
+
+test("source-reading lesson renders the manifest lesson without score, storage or copying", () => {
+  const learn = parts["BeitMidrashLearn.jsx"];
+  assert.match(learn, /manifest\.sourceReadingLesson/);
+  assert.match(learn, /focusedSourceStep/);
+  assert.match(page, /focusedSourceStep=\{place\.sourceStepId\}/);
+  for (const field of ["sourceStep.check", "sourceStep.boundary", "sourceStep.body", "sourceLesson.exercise.prompt", "sourceLesson.exercise.explanation", "sourceLesson.continuation"]) {
+    assert.ok(learn.includes(field), field);
+  }
+  assert.match(learn, /איך בודקים\?/);
+  assert.match(learn, /הגבול שחשוב לזכור/);
+  assert.match(learn, /type="radio"/);
+  assert.match(learn, /<details>[\s\S]*להסבר/);
+  assert.doesNotMatch(learn, /useState|useEffect|localStorage|sessionStorage|fetch|correctOptionId|ניקוד|נכון!|שגוי/);
+  assert.match(parts["BeitMidrashIllustrations.jsx"], /aria-current=\{step\.id === focusedId \? "step"/);
+  assert.match(css, /\.bm-source-step\{/);
+  assert.match(css, /\.bm-source-trail\{[^}]*overflow-x:auto/);
 });

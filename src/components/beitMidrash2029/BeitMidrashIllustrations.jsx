@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 /*
  * Presentational teaching illustrations. They draw shapes and lay out words the lesson already has;
@@ -20,16 +21,23 @@ export function FibonacciSpiral() {
   </svg>;
 }
 
-const SOURCE_STEPS = Object.freeze(["מקור", "הקשר", "ציטוט", "בדיקה"]);
-
-// Source → context → quotation → check, as a real list so it reads in order for assistive tech.
-export function SourceTrail() {
-  return <ol className="bm-source-trail" aria-label="סדר הקריאה במקור" data-illustration="source-trail">
-    {SOURCE_STEPS.map((step, index) => <li key={step} style={{ "--bm-i": index }}>
-      <span className="bm-trail-node" aria-hidden="true">{index + 1}</span>
-      <strong>{step}</strong>
-    </li>)}
-  </ol>;
+// Horizontal strip of the source-reading steps. The steps come from the learning manifest; the
+// chosen step is only marked here, never remembered.
+export function SourceReadingStrip({ steps, focusedId }) {
+  const list = useRef(null);
+  useEffect(() => {
+    list.current?.querySelector('[aria-current="step"]')?.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "auto" });
+  }, [focusedId]);
+  return <nav className="bm-source-strip" aria-label="שבעת שלבי קריאת המקור">
+    <ol ref={list} className="bm-source-trail">
+      {steps.map((step, index) => <li key={step.id} style={{ "--bm-i": index }}>
+        <Link to={step.href} aria-current={step.id === focusedId ? "step" : undefined} data-source-step-link={step.id}>
+          <span className="bm-trail-node" aria-hidden="true">{index + 1}</span>
+          <strong>{step.title}</strong>
+        </Link>
+      </li>)}
+    </ol>
+  </nav>;
 }
 
 // One dot per step of a learning path; the written steps stay the accessible content.

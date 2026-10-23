@@ -24,6 +24,7 @@ const projection = {
     {
       id: "research:f-public",
       sourceId: "f-public",
+      canonicalFindingHref: "/world?finding=f-public#finding-f-public",
       family: "research_object",
       statement: "שתי דרכי חישוב נפגשות באותו ערך",
       secondary: "הממצא נשמר עם המקור והיעד המדויק.",
@@ -246,8 +247,19 @@ test("Beit Midrash hall fits 320/390/desktop in day, card and night", { skip: !a
     const guidedCard = page.locator('[data-guided-concept="crossing"][data-finding-id="f-public"]');
     assert.equal(await guidedCard.locator(`a[href="${publicZviHref}"]`).count(), 2, "author and discovery open the same public source home");
     assert.equal(await guidedCard.locator('a[href*="admin=1"]').count(), 0);
-    await guidedCard.getByRole("link", { name: "לפתיחת הגילוי והמקור בעולם" }).click();
-    const handoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
+    // The discovery opens its exact World finding; the source home stays a separate, working route.
+    const exactHref = "/world?finding=f-public#finding-f-public";
+    assert.equal(await guidedCard.locator("[data-world-finding-link]").getAttribute("href"), exactHref);
+    assert.equal(await guidedCard.locator("[data-world-source-link]").getAttribute("href"), publicZviHref);
+    assert.equal(await guidedCard.locator('a[href*="admin"]').count(), 0);
+    const unmatched = page.locator('[data-guided-concept="crossing"][data-finding-id="f-unmatched"]');
+    assert.equal(await unmatched.locator("[data-world-finding-link]").count(), 0, "no verified route, no invented finding link");
+    await guidedCard.getByRole("link", { name: "לפתיחת הגילוי המלא בעולם" }).click();
+    let handoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
+    assert.equal(handoff.navigation.href, exactHref);
+    assert.equal(handoff.context.selection.findingId, "f-public");
+    await guidedCard.getByRole("link", { name: "לעמוד המקור בעולם" }).click();
+    handoff = await page.evaluate(() => ({ context: window.__researchContext, navigation: window.__shellGo }));
     assert.equal(handoff.navigation.href, publicZviHref);
     assert.equal(handoff.context.selection.findingId, "f-public");
     assert.equal(handoff.context.selection.sourceRef, "channel_updates:source-1#a2");
@@ -533,14 +545,14 @@ test("teaching illustrations are presentational, bounded, quiet and motion-safe"
           const borders = (el) => parseFloat(getComputedStyle(el).borderTopWidth) + parseFloat(getComputedStyle(el).borderLeftWidth);
           const spiral = document.querySelector('[data-illustration="fibonacci-spiral"]');
           const lesson = document.querySelector(".bm-number-lesson");
-          const trail = document.querySelector('[data-illustration="source-trail"]');
+          const trail = document.querySelector(".bm-source-trail");
           const sources = document.querySelector("#sources");
           const trails = [...document.querySelectorAll('[data-illustration="path-trail"]')];
           const meetings = [...document.querySelectorAll('[data-illustration^="meeting-"]')];
           return {
             scrollWidth: document.documentElement.scrollWidth, viewport: innerWidth,
             spiral: { hidden: spiral.getAttribute("aria-hidden"), inside: within(spiral, lesson), h: rect(spiral).h, border: borders(spiral), centred: Math.abs((rect(spiral).l + rect(spiral).r) / 2 - (rect(lesson).l + rect(lesson).r) / 2) },
-            trail: { items: [...trail.querySelectorAll("li strong")].map((el) => el.textContent), inside: within(trail, sources), label: trail.getAttribute("aria-label"), border: borders(trail), ordered: trail.tagName },
+            trail: { items: trail.querySelectorAll("li").length, inside: within(trail, sources), border: borders(trail), ordered: trail.tagName },
             paths: trails.map((el) => ({ hidden: el.getAttribute("aria-hidden"), dots: el.children.length, steps: Number(el.dataset.steps), inside: within(el, el.closest("li")), border: borders(el) })),
             meetings: meetings.map((el) => ({ kind: el.dataset.illustration, svgHidden: el.querySelector("svg").getAttribute("aria-hidden"), caption: el.querySelector("small").textContent, inCard: Boolean(el.closest(".bm-example-card")), inside: within(el, el.closest(".bm-guided-group")), border: borders(el) })),
             flowBorder: null,
@@ -550,7 +562,7 @@ test("teaching illustrations are presentational, bounded, quiet and motion-safe"
         assert.equal(r.spiral.hidden, "true");
         assert.ok(r.spiral.inside && r.spiral.centred <= 2 && r.spiral.h > 60, `${tag} spiral bounded and centred`);
         assert.equal(r.spiral.border, 0, `${tag} spiral is not boxed`);
-        assert.deepEqual(r.trail.items, ["מקור", "הקשר", "ציטוט", "בדיקה"], `${tag} source order`);
+        assert.equal(r.trail.items, 7, `${tag} seven source steps`);
         assert.equal(r.trail.ordered, "OL");
         assert.ok(r.trail.inside && r.trail.border === 0, `${tag} source trail bounded, unboxed`);
         assert.ok(r.paths.length >= 5, `${tag} path trails`);
@@ -577,6 +589,127 @@ test("teaching illustrations are presentational, bounded, quiet and motion-safe"
     assert.equal(await page.locator(".bm-spiral-path").evaluate((el) => getComputedStyle(el).strokeDashoffset), "0px");
     assert.equal(await page.locator(".bm-source-trail li").first().evaluate((el) => getComputedStyle(el).opacity), "1");
     assert.equal(requests, 0, "illustrations add no reader or fetch");
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
+test("source-reading lesson: seven-step strip, centred lesson, explained exercise, no stored progress", { skip: !available, timeout: 120_000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [fixturePlugin(), reactPlugin()], server: { host: "127.0.0.1", port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+    browser = await playwright.chromium.launch({ headless: true, executablePath });
+    const context = await browser.newContext({ reducedMotion: "no-preference" });
+    const page = await context.newPage();
+    const errors = [];
+    let requests = 0;
+    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => { if (message.type() === "error" && !/Failed to load resource/.test(message.text())) errors.push(message.text()); });
+    page.on("request", (request) => { if (/supabase|\/rest\/v1|\/rpc\//.test(request.url())) requests += 1; });
+    const shots = process.env.BM_SHOTS_DIR;
+    const stepIds = ["locator", "context", "quotation", "calculation", "independence", "interpretation", "return"];
+
+    for (const theme of ["day", "card", "night"]) {
+      for (const width of [320, 390, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`${origin}/beit-midrash?section=sources&step=independence#source-step-independence`);
+        await page.waitForSelector('#source-step-independence[data-source-step="independence"]');
+        await page.evaluate((next) => window.__setTheme(next), theme);
+        await page.waitForTimeout(700);
+        const tag = `${theme} ${width}px`;
+        const m = await page.evaluate(() => {
+          const rect = (el) => { const b = el.getBoundingClientRect(); return { l: b.left, r: b.right, w: b.width, h: b.height }; };
+          const lesson = document.querySelector(".bm-source-step");
+          const section = document.querySelector("#sources");
+          const strip = document.querySelector(".bm-source-trail");
+          const links = [...strip.querySelectorAll("a")];
+          return {
+            scrollWidth: document.documentElement.scrollWidth, viewport: innerWidth,
+            stepLinks: links.map((a) => a.dataset.sourceStepLink),
+            current: links.filter((a) => a.getAttribute("aria-current") === "step").map((a) => a.dataset.sourceStepLink),
+            heights: links.map((a) => a.getBoundingClientRect().height),
+            stripInside: rect(strip).l >= rect(section).l - 1 && rect(strip).r <= rect(section).r + 1,
+            lessonInside: rect(lesson).l >= rect(section).l - 1 && rect(lesson).r <= rect(section).r + 1,
+            centred: Math.abs((rect(lesson).l + rect(lesson).r) / 2 - (rect(section).l + rect(section).r) / 2),
+            stripScrolls: strip.scrollWidth > strip.clientWidth,
+            overflowX: getComputedStyle(strip).overflowX,
+            headings: [...lesson.querySelectorAll("h5, aside>strong")].map((el) => el.textContent),
+            eyebrow: lesson.querySelector("header>span").textContent,
+            text: lesson.innerText,
+            radios: document.querySelectorAll('.bm-source-exercise input[type="radio"]').length,
+            radioHeights: [...document.querySelectorAll(".bm-source-exercise label")].map((el) => el.getBoundingClientRect().height),
+            fonts: { title: getComputedStyle(lesson.querySelector("h4")).fontFamily, body: getComputedStyle(lesson.querySelector("p")).fontFamily, link: getComputedStyle(links[0]).fontFamily },
+          };
+        });
+        assert.ok(m.scrollWidth <= m.viewport + 1, `${tag} overflow`);
+        assert.deepEqual(m.stepLinks, stepIds, `${tag} seven steps in manifest order`);
+        assert.deepEqual(m.current, ["independence"], `${tag} one current step`);
+        assert.ok(m.heights.every((h) => h >= 44), `${tag} strip touch targets`);
+        assert.ok(m.stripInside && m.lessonInside, `${tag} strip and lesson stay inside the section`);
+        assert.ok(m.centred <= 2, `${tag} lesson centred (${m.centred})`);
+        assert.equal(m.overflowX, "auto");
+        if (width >= 1280) assert.equal(m.stripScrolls, false, `${tag} all seven steps visible on desktop`);
+        assert.deepEqual(m.headings, ["מה עושים?", "איך בודקים?", "הגבול שחשוב לזכור"]);
+        assert.equal(m.eyebrow, "שלב 5 מתוך 7");
+        assert.match(m.text, /כמה הופעות שחוזרות לאותו מקום/);
+        assert.match(m.text, /האם כל הופעה חוזרת למקום אחר/);
+        assert.match(m.text, /מספר ההופעות אינו מספר המקורות העצמאיים/);
+        assert.equal(m.radios, 3);
+        assert.ok(m.radioHeights.every((h) => h >= 44), `${tag} option touch targets`);
+        assert.match(m.fonts.title, /^"?Rubik/);
+        assert.match(m.fonts.body, /^"?Noto Sans Hebrew/);
+        assert.match(m.fonts.link, /^"?Rubik/);
+        if (shots && theme !== "card") await page.locator("#sources").screenshot({ path: `${shots}/source-lesson-${theme}-${width}.png` });
+      }
+    }
+
+    // Default step, step links, keyboard and URL-only progress.
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.goto(`${origin}/beit-midrash?section=sources`);
+    await page.waitForSelector(".bm-source-step");
+    assert.equal(await page.locator(".bm-source-step").getAttribute("data-source-step"), "locator");
+    assert.match(await page.locator(".bm-source-step header>span").innerText(), /שלב 1 מתוך 7/);
+    await page.goto(`${origin}/beit-midrash?section=sources&step=not-a-step`);
+    assert.equal(await page.locator(".bm-source-step").getAttribute("data-source-step"), "locator", "unknown step falls back without inventing one");
+    await page.locator('[data-source-step-link="context"]').focus();
+    const ring = await page.locator('[data-source-step-link="context"]').evaluate((el) => ({ style: getComputedStyle(el).outlineStyle, width: parseFloat(getComputedStyle(el).outlineWidth) }));
+    assert.equal(ring.style, "solid");
+    assert.ok(ring.width >= 2);
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.sourceStepLink), "quotation", "arrow-free keyboard order follows the steps");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => document.querySelector(".bm-source-step")?.dataset.sourceStep === "quotation");
+    assert.match(page.url(), /step=quotation/);
+    await page.getByRole("link", { name: /לשלב הבא/ }).click();
+    await page.waitForFunction(() => document.querySelector(".bm-source-step")?.dataset.sourceStep === "calculation");
+    assert.equal(await page.locator('a:has-text("לשלב הבא")').count(), 1);
+    await page.goto(`${origin}/beit-midrash?section=sources&step=return`);
+    await page.waitForSelector('[data-source-step="return"]');
+    assert.equal(await page.locator('a:has-text("לשלב הבא")').count(), 0, "last step has no next link");
+
+    // Exercise: explanation only, no score, no verdict wording, nothing stored or sent.
+    const form = page.locator(".bm-source-exercise");
+    assert.equal(await form.locator("details").evaluate((el) => el.open), false);
+    await form.getByLabel(/שלושה מקורות עצמאיים/).check();
+    await form.locator("summary").click();
+    const exercise = await form.innerText();
+    assert.match(exercise, /יש כאן שלוש הופעות של מקור אחד/);
+    for (const verdict of ["נכון!", "שגוי", "ניקוד", "ציון", "הצלחת", "טעית"]) assert.ok(!exercise.includes(verdict), `no verdict word ${verdict}`);
+    assert.equal(await page.evaluate(() => localStorage.length + sessionStorage.length), 0, "no stored progress");
+    assert.equal(await page.evaluate(() => document.cookie), "");
+    assert.equal(requests, 0, "the lesson adds no reader or fetch");
+    assert.equal(await page.getByRole("link", { name: "לתרגול בנקודת מפגש" }).getAttribute("href"), "/beit-midrash?section=guided");
+
+    // Reduced motion silences the strip while keeping every step visible.
+    const anim = () => page.evaluate(() => getComputedStyle(document.querySelector(".bm-source-trail li")).animationName);
+    assert.notEqual(await anim(), "none");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    assert.equal(await anim(), "none");
+    assert.equal(await page.locator(".bm-source-trail li").last().evaluate((el) => getComputedStyle(el).opacity), "1");
     assert.deepEqual(errors, []);
   } finally {
     await browser?.close();
