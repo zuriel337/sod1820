@@ -1576,7 +1576,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // שפת-הקורפוס הקנוני + מונחים שכבר נראים במחקר/בצפנים הציבוריים. זהו cache נגזר,
   // לא מנוע, store או אמת נוספים; כל מופע עדיין עובר אימות ELS קנוני לפני שהוא Finding.
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
-  const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",_corpusLexiconCache={torah:null,tanakh:null};
+  const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",_corpusLexiconCache={torah:null,tanakh:null};
   function addCandidateLexiconTerm(map,raw,source,support=1){
     const label=String(raw||"").trim().replace(/\s+/g," "),term=norm(label);
     if(term.length<3||term.length>24)return;
@@ -1612,6 +1612,21 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const entries=researchCandidateLexicon();
     return {contract:DYNAMIC_LEXICON_CONTRACT,entries,fallback,counts:{total:entries.length,corpus:entries.filter(row=>row.sources.includes("corpus_native")).length,
       research:entries.filter(row=>row.sources.includes("verified_research")||row.sources.includes("visible_saved_research")).length}};
+  }
+  function candidateLexiconPriority(item){
+    const sources=new Set(item.lexiconSources||[]);
+    return (sources.has("verified_research")?3:0)+(sources.has("visible_saved_research")?2:0)+(sources.has("governed_core")?1:0);
+  }
+  function rankResearchCandidateItems(items){
+    return items.map(item=>{
+      const sources=new Set(item.lexiconSources||[]),continuationCount=(item.continuations||[]).length;
+      const researchEvidence=candidateLexiconPriority(item),reasons=[];
+      if(sources.has("verified_research"))reasons.push("נתמך בממצא מאומת");
+      else if(sources.has("visible_saved_research"))reasons.push("מופיע במחקר גלוי");
+      else if(sources.has("governed_core"))reasons.push("מונח יסוד מבוקר");
+      if(continuationCount>1)reasons.push(`${continuationCount} המשכים על הציר`);
+      return {...item,ranking:{contract:CANDIDATE_RANKING_CONTRACT,researchEvidence,continuationCount,reasons}};
+    }).sort((a,b)=>a.distance-b.distance||b.ranking.researchEvidence-a.ranking.researchEvidence||b.ranking.continuationCount-a.ranking.continuationCount||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
   }
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
@@ -2436,15 +2451,16 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       dynamicCandidateLexicon().then(lexicon=>{
         const current=hasGov(st.res)?occ():null;
         if(!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
-        const available=scanCandidates(lexicon.entries).sort((a,b)=>a.distance-b.distance||a.lexiconSupport-b.lexiconSupport||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")),scanCap=48;
-        const items=available.slice(0,scanCap).map(candidate=>{
+        const available=scanCandidates(lexicon.entries).sort((a,b)=>candidateLexiconPriority(b)-candidateLexiconPriority(a)||a.distance-b.distance||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")),scanCap=48;
+        const items=rankResearchCandidateItems(available.slice(0,scanCap).map(candidate=>{
           const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,lexicon.entries);
           if(!continuation.words.length)return null;
           return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,
             continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
-        }).filter(Boolean);
+        }).filter(Boolean));
         postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",provenanceSource:lexicon.contract,coverage:"displayed-window",
-          lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},items,total:items.length,scanned:Math.min(available.length,scanCap),available:available.length,truncated:available.length>scanCap});
+          lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},ranking:{contract:CANDIDATE_RANKING_CONTRACT,order:"distance_then_governed_research_evidence_then_continuation"},
+          items,total:items.length,scanned:Math.min(available.length,scanCap),available:available.length,truncated:available.length>scanCap});
       });
     }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד

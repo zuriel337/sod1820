@@ -56,3 +56,20 @@ test("dynamic vocabulary remains candidate-only and is loaded only by explicit s
   assert.match(template, /status:"CANDIDATE",provenanceSource:lexicon\.contract/);
   assert.match(template, /adding a term[\s\S]*canonical verification before it becomes a Finding/);
 });
+
+test("Research candidate ranking keeps distance primary and explains deterministic tie-breaks", () => {
+  const context = vm.createContext({
+    CANDIDATE_RANKING_CONTRACT: "els_research_candidate_ranking_v1",
+    norm: value => String(value),
+    items: [
+      { term: "רחוק", distance: 2, lexiconSources: ["verified_research"], lexiconSupport: 1, continuations: [{}, {}, {}] },
+      { term: "קרוברגיל", distance: 1, lexiconSources: ["corpus_native"], lexiconSupport: 9, continuations: [{}] },
+      { term: "קרובמחקר", distance: 1, lexiconSources: ["visible_saved_research", "corpus_native"], lexiconSupport: 2, continuations: [{}, {}] },
+    ],
+  });
+  vm.runInContext(`${source("candidateLexiconPriority")}\n${source("rankResearchCandidateItems")}\nthis.result=rankResearchCandidateItems(items);`, context);
+  const rows = JSON.parse(JSON.stringify(context.result));
+  assert.deepEqual(rows.map(row => row.term), ["קרובמחקר", "קרוברגיל", "רחוק"], "no strength signal may outrank a closer candidate");
+  assert.equal(rows[0].ranking.contract, "els_research_candidate_ranking_v1");
+  assert.deepEqual(rows[0].ranking.reasons, ["מופיע במחקר גלוי", "2 המשכים על הציר"]);
+});

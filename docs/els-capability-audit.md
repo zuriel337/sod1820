@@ -809,6 +809,13 @@ read the exact letters/source of a selected axis, but it sends no scan flag, doe
 lexicon and does not expose the bulk “nearby findings with continuation” action. This is a profile
 boundary over the same mounted canonical engine, not a fork of engine or state.
 
+Research discovery also applies `els_research_candidate_ranking_v1`. This is an explainable
+**inspection-priority** contract, not a “strong finding” or Truth score. The bounded scan first
+preserves verified Findings, visible research terms and the governed core instead of letting rare
+corpus forms fill the cap. The displayed list remains ordered by exact distance to the primary axis;
+only equal-distance ties use governed/research evidence, continuation count and corpus support.
+Every reason is shown to the user, and canonical verification is still required before addition.
+
 Measured vocabulary before candidate filtering: **85** historical seeds → **11,400** distinct
 Torah-native terms of four letters or more, or **37,253** for full Tanakh, plus visible verified
 research terms. Thus `אליהו` remains covered by the governed seed and corpus, `יבואו` is learned
@@ -821,10 +828,10 @@ This extends the existing F03/F-family candidate generators and active
 B12/B13, approximate search, automatic truth promotion, `research_objects`, DB/RLS/permissions,
 full 3D and Raziel implementation remain out of this delta.
 
-Acceptance on the branch is green: 144 relevant Node tests passed with one isolated PostgreSQL
-fixture skipped because no local PostgreSQL service was available; the complete browser passes were
+Acceptance on the branch is green: 201 relevant Node tests passed with three isolated PostgreSQL
+fixtures skipped because no local PostgreSQL service was available; the complete browser passes were
 26/26 cutover and 41/41 native UI, with mobile flow, privacy fail-closed behavior and all three color
 presets covered, plus 6/6 advanced/forms/deferred-payload checks. Both production builds and the 2029
-bundle budget passed. Against `ac39b5ba`, each generated ELS HTML gained 4,829 raw bytes; gzip deltas
-were +1,683 bytes for `tzofen.html` and +1,409 bytes for the standalone artifact. No Preview,
+bundle budget passed. Against `ac39b5ba`, each generated ELS HTML gained 6,381 raw bytes; gzip deltas
+were +2,145 bytes for `tzofen.html` and +1,896 bytes for the standalone artifact. No Preview,
 Production, database, RLS or permission action was performed.

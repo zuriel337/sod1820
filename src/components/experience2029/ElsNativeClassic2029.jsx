@@ -437,11 +437,13 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
   if (lensResult.ok === false) return <p className="els29-native-muted">{lensResult.lens === "matrix-candidates" ? "אי אפשר לסרוק את המטריצה לפני שהציר הראשי אומת." : "המקור לא זמין לתא הזה במצב הנוכחי."}</p>;
 
   if (lensResult.lens === "matrix-candidates") {
-    const items = Array.isArray(lensResult.items) ? [...lensResult.items].sort((a, b) => Number(a.distance) - Number(b.distance) || String(a.term).localeCompare(String(b.term), "he")) : [];
+    const items = Array.isArray(lensResult.items) ? [...lensResult.items] : [];
+    if (lensResult.ranking?.contract !== "els_research_candidate_ranking_v1") items.sort((a, b) => Number(a.distance) - Number(b.distance) || String(a.term).localeCompare(String(b.term), "he"));
     const lexiconCounts = lensResult.lexicon?.counts;
     return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings">
       <strong>ממצאים קרובים עם המשך · {items.length}</strong>
-      <small>ממוינים מהקרוב לרחוק ביחס לציר הראשי. המילון נבנה בעת הלחיצה משפת התנ״ך, מהמחקר הגלוי ומהממצאים שכבר אומתו; „אמת והוסף” עדיין מפעיל אימות קנוני.</small>
+      <small>הקרובים תמיד ראשונים. באותו מרחק ניתנת קדימות לממצא מאומת, למחקר גלוי, למונח יסוד מבוקר וליותר המשכים; „אמת והוסף” עדיין מפעיל אימות קנוני.</small>
+      <small>המילון נבנה בעת הלחיצה משפת התנ״ך, מהמחקר הגלוי ומהממצאים שכבר אומתו.</small>
       {lexiconCounts ? <small>{lexiconCounts.total} מונחים זמינים · {lexiconCounts.corpus} מהקורפוס · {lexiconCounts.research} מהמחקר{lensResult.lexicon?.fallback ? " · מקור הפסוקים לא נטען ולכן הרשימה חלקית" : ""}</small> : null}
       <div className="els29-native-line-words els29-native-candidate-list" role="region" tabIndex={0} aria-label="ממצאים קרובים עם המשך, מהקרוב לרחוק">
         {items.map((item) => {
@@ -450,12 +452,13 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
             .find((hit) => (hit.verified || hit.kind === "source-sequence") && hit.shown && hit.withinRadius !== false);
           const added = Boolean(addedFinding);
           const label = item.label || item.term;
+          const rankNote = Array.isArray(item.ranking?.reasons) ? item.ranking.reasons.slice(0, 2).join(" · ") : "";
           return <div key={item.term} className="els29-native-line-word">
             {openHit ? <button type="button" className="els29-native-discovered-term"
               onClick={() => onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })}
               aria-label={`פתח את המשך הציר של ${label}`}>
-              <b>{label}</b><small>מרחק {item.distance} תאים · לחצו להמשך הציר</small>
-            </button> : <div className="els29-native-discovered-term"><b>{label}</b><small>מרחק {item.distance} תאים · {added ? "האימות עדיין נמשך" : `המשך: ${(item.continuations || []).slice(0, 3).map((word) => word.label || word.term).join(" · ")}`}</small></div>}
+              <b>{label}</b><small>מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · לחצו להמשך הציר</small>
+            </button> : <div className="els29-native-discovered-term"><b>{label}</b><small>מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · {added ? "האימות עדיין נמשך" : `המשך: ${(item.continuations || []).slice(0, 3).map((word) => word.label || word.term).join(" · ")}`}</small></div>}
             <button type="button" disabled={addingFinding || (added ? !openHit : findings.length >= 12)}
               onClick={() => openHit
                 ? onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })
@@ -467,7 +470,7 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
         })}
       </div>
       {!items.length ? <p className="els29-native-muted">לא נמצאו בחלון הזה ממצאים קרובים שיש להם המשך ציר מוכר.</p> : null}
-      {lensResult.truncated ? <small>נבדקו {lensResult.scanned} הממצאים הקרובים ביותר מתוך {lensResult.available}. הגדילו את החלון רק אם צריך.</small> : null}
+      {lensResult.truncated ? <small>נבדקו {lensResult.scanned} מועמדים בעלי קדימות מחקרית מתוך {lensResult.available}. הרשימה המוצגת עדיין מסודרת מהקרוב לרחוק.</small> : null}
       {findings.length >= 12 && items.some((item) => !findings.some((finding) => finding.t === item.term))
         ? <small>אפשר לראות את כל הרשימה, אך במטריצה פעילה נשמרים עד 12 ממצאים משניים. הסירו ממצא כדי לאמת ולהוסיף אחר.</small> : null}
     </div>;
