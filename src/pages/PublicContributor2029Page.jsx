@@ -56,13 +56,13 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
       {!loading && !error ? <p>אין דף ציבורי זמין בכתובת הזאת.</p> : null}
     </div> : <>
       <header className="pc-profile">
-        <div className="pc-profile-copy"><p className="pc-eyebrow">כתבים · מקורות · מחקר</p>
+        <div className="pc-profile-copy"><p className="pc-eyebrow">כותב · כתבים ומחקר</p>
           <h1 id="public-contributor-title">{view.profile.name}</h1>
           {view.profile.role ? <p className="pc-role">{view.profile.role}</p> : null}
           {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
           <p className="pc-boundary">החומרים של הכותב וההקשרים שנפתחו מהם. שיוך לכותב אינו אימות של תוכן.</p>
         </div>
-        <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
+        <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar}
           links={[{ href: `${view.canonicalHref}?section=findings`, label: "ממצאים וכתבים" }]} previewRank={view.rankPreview} />
       </header>
       <ContributorActionsController2029 view={view} onPublicData={reading.receivePublicData} excludedStudioIds={reading.featuredIds} />
@@ -70,7 +70,11 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
       {view.partial ? <p className="pc-notice" role="status">חלק מהמידע אינו זמין כרגע. מוצגים רק החומרים שנקראו ושויכו בוודאות.</p> : null}
       {view.unattributed ? <p className="pc-notice" role="status">יש תוכן שלא שויך במדויק לכותב, ולכן אינו מופיע כאן.</p> : null}
       <nav className="pc-filters" aria-label="סוג התוכן של הכותב">
-        {SECTIONS.map(([key, label]) => <button type="button" key={key} aria-pressed={key === context.section} onClick={() => change("section", key)}>{label}</button>)}
+        {SECTIONS.map(([key, label]) => {
+          // A count is shown only when it is fully known: complete data and a section whose rows are all in the loaded view.
+          const known = !view.partial && key !== "community" ? selectContributorItems(view, key, "newest").rows.length : null;
+          return <button type="button" key={key} aria-pressed={key === context.section} onClick={() => change("section", key)}>{label}{known ? <bdi className="pc-count">{known}</bdi> : null}</button>;
+        })}
       </nav>
       <div className="pc-list-heading"><h2>{SECTIONS.find(([key]) => key === context.section)?.[1]}</h2>
         {context.section !== "community" ? <label>מיון <select value={selection.sort} onChange={(event) => change("sort", event.target.value)}>
@@ -87,10 +91,9 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
           const expanded = item.id === context.item;
           const date = bilingualDateLabel(item.date);
           return <article className="pc-item" key={item.id} ref={expanded ? selectedRef : null} tabIndex={-1}>
-            <div className="pc-item-meta"><span>{item.label || TYPE_LABELS[item.type]}</span>{date ? <time dateTime={item.date}>נוסף · {date}</time> : <span>תאריך לא זמין</span>}</div>
+            <div className="pc-item-meta"><span>{item.label || TYPE_LABELS[item.type]}</span>{date ? <time dateTime={item.date}>{date}</time> : <span>תאריך לא זמין</span>}</div>
             <h3>{item.href ? <a href={item.href} onClick={() => reading.recordOpen(item)}>{item.title}</a> : item.title}</h3>
             <p className="pc-reason">{item.reason}</p>
-            {reading.actions(item)}
             {item.sourceOnly ? <p className="pc-source-state">מקור ללא ממצאים משויכים.</p> : null}
             {item.findingsUnavailable ? <p className="pc-source-state">המקור זמין לקריאה; המידע על ממצאים אינו זמין כרגע.</p> : null}
             {item.type === "findings" ? <div className="pc-metrics">
@@ -99,6 +102,7 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
               {item.value !== null ? <Link to={`/2029/number/${item.value}`}>מספר <bdi className="pc-number">{item.value}</bdi></Link> : null}
             </div> : null}
             <button className="pc-disclose" type="button" aria-expanded={expanded} aria-controls={`pc-detail-${encodeURIComponent(item.id)}`} onClick={() => change("item", expanded ? null : item.id)}>{expanded ? "סגירת הפרטים" : "לקריאה והקשר"} <span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
+            <div className="pc-item-actions">{reading.actions(item)}</div>
             {expanded ? <div className="pc-detail" id={`pc-detail-${encodeURIComponent(item.id)}`}>
               {item.group ? <ContributorFindingsLens timeMode="bilingual" projection={{ mode: "public_view", contributor: { displayName: view.profile.name },
                 sourceGroups: [item.group], topics: [], worldCounts: {}, counts: { sourceGroups: 1, engineVerified: 0,
