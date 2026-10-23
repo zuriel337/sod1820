@@ -103,6 +103,14 @@ Browser acceptance must inspect computed styles, not only source declarations:
 - representative mixed Hebrew/numeric values prove that Hebrew resolves to the UI/body family and only the numeric run resolves to the numeric family;
 - density changes introduce no horizontal page overflow and do not alter truth, publication, privacy, navigation or Legacy behavior.
 
+### 5.4 Hebrew display weight and optical density · Preview proposal 23.10.2026
+
+Large type is not permission to make Hebrew visually heavy. For multi-line Hebrew display and section headings, the default working range is **650–760** in Rubik; **780 is the ordinary ceiling**. Weights of 800–900 are reserved for short numeric values, very short one-line marks or an explicitly reviewed identity moment — not for a multi-line book title or explanatory heading.
+
+Multi-line Hebrew display keeps a line-height of at least **1.04** and letter spacing no tighter than **-0.035em**. At 390px and below, prefer reducing weight and tightening the size range before reducing breathing room or forcing a word into an optically dense block. Body and long-form Hebrew remain in Noto Sans Hebrew at ordinary reading weight; emphasis is created through hierarchy, spacing and semantic color, not blanket boldness.
+
+Acceptance inspects the computed family and weight in the browser. A heading that technically uses the approved Rubik family but resolves to an unreviewed 800–900 weight fails this rule when it dominates reading or closes the counters of Hebrew letters. This proposal is branch/Preview-only until the normal contract review and merge gate accept it; it does not restyle Legacy.
+
 ## 6. Environment is not theme
 Research Lab, Journey, Heichal and future spatial contexts are environment projections over the selected preset.
 

@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import {
+  AHAVAT_TORAH_DATASETS,
+  AHAVAT_TORAH_DEEP_PAGES,
+  AHAVAT_TORAH_AI_EXPLANATIONS_HE,
   AHAVAT_TORAH_FINDINGS,
   AHAVAT_TORAH_PIPELINE,
   AHAVAT_TORAH_SECTIONS,
@@ -16,6 +19,7 @@ const page = read("src/pages/AhavatTorahSystem2029Page.jsx");
 const css = read("src/pages/ahavatTorahSystem2029.css");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const bundle = JSON.parse(read("public/book-data/ahavat-torah.tables.json"));
+const contract = read("SOD1820_DESIGN_CONTRACT_V2.md");
 
 test("Ahavat Torah system is an unlinked noindex read-only Preview surface", () => {
   assert.match(app, /surface"\) === "ahavat-torah-system"/);
@@ -26,7 +30,8 @@ test("Ahavat Torah system is an unlinked noindex read-only Preview surface", () 
   assert.match(page, /status="Preview מוגן · קריאה בלבד"/);
   assert.match(page, /data-preview-only="true"/);
   assert.match(page, /data-publication-effect="none"/);
-  assert.doesNotMatch(page, /supabase|\.rpc\(|\.from\(["']|fetch\(|axios|insert|update\(/i);
+  assert.doesNotMatch(page, /\.rpc\(|\.from\(["']|axios|insert|update\(/i);
+  assert.match(page, /fetch\(AHAVAT_TORAH_SOURCE\.researchBundleUrl, \{ credentials: "same-origin" \}\)/);
 });
 
 test("the bounded system keeps the canonical source identity and all 99 source pages", () => {
@@ -66,6 +71,27 @@ test("first findings remain typed and agree with the bounded source bundle", () 
   assert.equal(AHAVAT_TORAH_FINDINGS.find(finding => finding.dataset === "DS-09").status, "source_located");
 });
 
+test("all bounded datasets and deep-read pages are represented without upgrading truth", () => {
+  assert.equal(AHAVAT_TORAH_DATASETS.length, 13);
+  assert.equal(AHAVAT_TORAH_DEEP_PAGES.length, 15);
+  assert.deepEqual(AHAVAT_TORAH_DATASETS.map(item => item.id), bundle.datasets.map(item => item.dataset_id));
+  assert.deepEqual(AHAVAT_TORAH_DEEP_PAGES.map(item => item.page), bundle.page_register.map(item => item.pdf_page));
+  for (const dataset of AHAVAT_TORAH_DATASETS) {
+    assert.ok(AHAVAT_TORAH_TRUTH_STATES[dataset.truthState]);
+    assert.ok(dataset.summary.length > 35);
+    assert.ok(dataset.nextStep.length > 25);
+    assert.ok(dataset.pages.every(value => value >= 1 && value <= 99));
+  }
+  assert.match(page, /כל 13 מאגרי הבדיקה/);
+  assert.match(page, /15 דפי עומק · לצד כל 99 עמודי המקור/);
+  assert.match(page, /קריאת עומק טרם הוכנה/);
+  for (const block of bundle.content_blocks.filter(item => !item.text_he)) {
+    assert.ok(AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id], `missing Hebrew AI explanation for ${block.block_id}`);
+  }
+  assert.match(page, /הסבר AI בעברית:/);
+  assert.doesNotMatch(page, /block\.text_note/);
+});
+
 test("the reader keeps source, explanation, finding and publication axes separate", () => {
   assert.match(page, /function SourcePanel/);
   assert.match(page, /function OrbitMap/);
@@ -82,12 +108,24 @@ test("the reader keeps source, explanation, finding and publication axes separat
 test("the spatial reader is responsive, readable and preserves the canonical frame", () => {
   assert.match(css, /\.sod29-root:has\(\.ahavat29\)\{[^}]*overflow-y:visible/);
   assert.match(css, /\.ahavat29-source\{[^}]*position:sticky[^}]*top:76px/);
-  assert.match(css, /var\(--s29-type-body,18px\)/);
-  assert.match(css, /var\(--s29-type-ui,16px\)/);
+  assert.match(css, /var\(--s29-type-body\)/);
+  assert.match(css, /var\(--s29-type-ui\)/);
   assert.match(css, /@media\(max-width:900px\)[\s\S]*grid-template-areas:"source" "story"/);
   assert.match(css, /@media\(max-width:390px\)/);
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
   assert.match(page, /<Sod2029Shell/);
   assert.doesNotMatch(page, /position:\s*fixed|BottomDock|SystemFrame2029/);
+});
+
+test("Hebrew display weight and page colors follow the proposed canonical contract", () => {
+  assert.match(contract, /Hebrew display weight and optical density/);
+  assert.match(contract, /650–760/);
+  assert.match(contract, /800–900/);
+  assert.match(css, /\.ahavat29-intro h1\{[^}]*font:660/);
+  assert.doesNotMatch(css, /font:(?:8[8-9]0|900)[^;]*var\(--s29-font-display\)/);
+  assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
+  assert.doesNotMatch(css, /rgba?\(/i);
+  assert.match(css, /--a29-gold:var\(--s29-brand-gold\)/);
+  assert.match(css, /--a29-discovery:var\(--s29-discovery\)/);
 });
 

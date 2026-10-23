@@ -2,11 +2,15 @@ import React, { useEffect, useMemo, useState } from "react";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
+  AHAVAT_TORAH_DATASETS,
+  AHAVAT_TORAH_DEEP_PAGES,
+  AHAVAT_TORAH_AI_EXPLANATIONS_HE,
   AHAVAT_TORAH_FINDINGS,
   AHAVAT_TORAH_PIPELINE,
   AHAVAT_TORAH_SECTIONS,
   AHAVAT_TORAH_SOURCE,
   AHAVAT_TORAH_TRUTH_STATES,
+  hebrewBlockKind,
   sectionForPage,
 } from "../data/ahavatTorahSystem2029.js";
 import { applySeo } from "../lib/seo.js";
@@ -18,11 +22,13 @@ function requestedPage() {
   return Number.isInteger(value) && value >= 1 && value <= AHAVAT_TORAH_SOURCE.pdfPages ? value : 6;
 }
 
-function replaceSelectionInUrl(page, findingId) {
+function replaceSelectionInUrl(page, findingId, datasetId = "") {
   const next = new URL(window.location.href);
   next.searchParams.set("page", String(page));
   if (findingId) next.searchParams.set("finding", findingId);
   else next.searchParams.delete("finding");
+  if (datasetId) next.searchParams.set("dataset", datasetId);
+  else next.searchParams.delete("dataset");
   window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`);
 }
 
@@ -31,8 +37,18 @@ function StatusPill({ status }) {
   return <span className={`ahavat29-status-pill is-${state.tone}`} title={state.description}>{state.label}</span>;
 }
 
-function SourcePanel({ page, contextLabel }) {
+function SourcePanel({ page, contextLabel, onPage }) {
   const pdfUrl = `${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
+  const [pageDraft, setPageDraft] = useState(String(page));
+
+  useEffect(() => setPageDraft(String(page)), [page]);
+
+  const submitPage = event => {
+    event.preventDefault();
+    const nextPage = Math.min(AHAVAT_TORAH_SOURCE.pdfPages, Math.max(1, Number(pageDraft) || 1));
+    onPage(nextPage);
+  };
+
   return <aside id="ahavat29-source" className="ahavat29-source" aria-labelledby="ahavat29-source-title">
     <header>
       <div><span>המקור נשאר פתוח</span><h2 id="ahavat29-source-title">עמוד PDF {page}</h2></div>
@@ -41,6 +57,13 @@ function SourcePanel({ page, contextLabel }) {
     <div className="ahavat29-pdf-frame">
       <iframe key={page} src={pdfUrl} title={`${AHAVAT_TORAH_SOURCE.title}, עמוד PDF ${page}`} loading="eager" />
     </div>
+    <form className="ahavat29-page-nav" onSubmit={submitPage} aria-label="ניווט בכל 99 עמודי המקור">
+      <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="לעמוד הקודם">הקודם</button>
+      <label><span>עמוד PDF</span><input inputMode="numeric" min="1" max={AHAVAT_TORAH_SOURCE.pdfPages} value={pageDraft} onChange={event => setPageDraft(event.target.value)} /></label>
+      <span>מתוך {AHAVAT_TORAH_SOURCE.pdfPages}</span>
+      <button type="submit">עבור</button>
+      <button type="button" disabled={page >= AHAVAT_TORAH_SOURCE.pdfPages} onClick={() => onPage(page + 1)} aria-label="לעמוד הבא">הבא</button>
+    </form>
     <dl>
       <div><dt>זהות מקור</dt><dd>{AHAVAT_TORAH_SOURCE.identity}</dd></div>
       <div><dt>מחבר</dt><dd>{AHAVAT_TORAH_SOURCE.author}</dd></div>
@@ -109,12 +132,113 @@ function FindingCard({ finding, active, onSelect }) {
   </button>;
 }
 
+const DATASET_FILTERS = Object.freeze([
+  { id: "all", label: "הכול" },
+  { id: "closed", label: "סגור במקור" },
+  { id: "partial", label: "חלקי" },
+  { id: "open", label: "פתוח" },
+  { id: "unknown", label: "לא מוכרע" },
+]);
+
+function DatasetCatalog({ selectedId, onSelect }) {
+  const [filter, setFilter] = useState("all");
+  const visible = filter === "all"
+    ? AHAVAT_TORAH_DATASETS
+    : AHAVAT_TORAH_DATASETS.filter(dataset => dataset.state === filter);
+  const selected = AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === selectedId) || null;
+
+  return <section className="ahavat29-datasets" aria-labelledby="ahavat29-datasets-title">
+    <header>
+      <div><span>מפת המחקר המלאה בשכבה הקיימת</span><h2 id="ahavat29-datasets-title">כל 13 מאגרי הבדיקה</h2></div>
+      <p>סגור פירושו שהעוגן או המבנה נסגרו בתוך הספר — לא שהנתון פורסם ולא שהוא אומת מול כל קורפוס אפשרי.</p>
+    </header>
+    <nav className="ahavat29-dataset-filters" aria-label="סינון מאגרי בדיקה">
+      {DATASET_FILTERS.map(item => <button type="button" key={item.id} className={filter === item.id ? "is-active" : ""} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{item.label}<b>{item.id === "all" ? AHAVAT_TORAH_DATASETS.length : AHAVAT_TORAH_DATASETS.filter(dataset => dataset.state === item.id).length}</b></button>)}
+    </nav>
+    <div className="ahavat29-dataset-grid">
+      {visible.map(dataset => <button type="button" key={dataset.id} className={selectedId === dataset.id ? "is-active" : ""} aria-pressed={selectedId === dataset.id} onClick={() => onSelect(dataset)}>
+        <header><span>{dataset.id}</span><StatusPill status={dataset.truthState} /></header>
+        <strong>{dataset.title}</strong>
+        <b>{dataset.total}</b>
+        <p>{dataset.summary}</p>
+        <footer><span>PDF {dataset.pages.join(" · ")}</span><em>פתח מקור ופרטים ←</em></footer>
+      </button>)}
+    </div>
+    {selected ? <article className="ahavat29-dataset-detail" aria-live="polite">
+      <div><span>{selected.id} · {selected.pages.length} עמודי מקור</span><h3>{selected.title}</h3><p>{selected.summary}</p></div>
+      <section><span>השלב הבא למאגר הזה</span><p>{selected.nextStep}</p></section>
+      <button type="button" onClick={() => onSelect(selected)}>פתח PDF בעמוד {selected.pages[0]}</button>
+    </article> : null}
+  </section>;
+}
+
+function DeepReadingExplorer({ page, bundle, bundleState, onPage }) {
+  const record = AHAVAT_TORAH_DEEP_PAGES.find(item => item.page === page) || null;
+  const pageBlocks = useMemo(() => (bundle?.content_blocks || []).filter(block => Number(block.pdf_page) === page), [bundle, page]);
+
+  return <section className="ahavat29-depth" aria-labelledby="ahavat29-depth-title">
+    <header>
+      <div><span>שכבת הקריאה שכבר קיימת</span><h2 id="ahavat29-depth-title">15 דפי עומק · לצד כל 99 עמודי המקור</h2></div>
+      <p>בדפי העומק מוצגים תעתיק, פרפרזה או נתונים לפי המעמד שנשמר בקובץ המחקר. בשאר העמודים ה־PDF פתוח, בלי להמציא טקסט שלא נקרא.</p>
+    </header>
+    <div className="ahavat29-depth-pages" aria-label="דפי עומק זמינים">
+      {AHAVAT_TORAH_DEEP_PAGES.map(item => <button type="button" key={item.page} className={item.page === page ? "is-active" : ""} aria-pressed={item.page === page} onClick={() => onPage(item.page)}>
+        <b>{item.page}</b><span>{item.section}</span><small>{item.blocks} יחידות · {item.tables} טבלאות</small>
+      </button>)}
+    </div>
+    <article className="ahavat29-depth-reader">
+      {record ? <>
+        <header><div><span>PDF {record.page}{record.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{record.section}</h3></div><b>{record.depth}</b></header>
+        <dl>
+          <div><dt>יחידות תוכן</dt><dd>{record.blocks}</dd></div>
+          <div><dt>טבלאות</dt><dd>{record.tables}</dd></div>
+          <div><dt>קריאות פתוחות</dt><dd>{record.unresolved}</dd></div>
+        </dl>
+        {bundleState === "loading" ? <p role="status">טוען את יחידות התוכן…</p> : null}
+        {bundleState === "error" ? <p role="alert">קובץ המחקר לא נטען. המקור עצמו נשאר זמין בחלון ה־PDF.</p> : null}
+        {bundleState === "ready" ? <div className="ahavat29-depth-blocks">
+          {pageBlocks.map((block, index) => <section key={block.block_id || `${page}-${index}`}>
+            <span>{String(index + 1).padStart(2, "0")} · {hebrewBlockKind(block.block_id)}</span>
+            {block.text_he ? <p>{block.text_he}</p> : null}
+            {AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id] ? <small><b>הסבר AI בעברית:</b> {AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id]}</small> : null}
+            <a href={`${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`} target="_blank" rel="noreferrer">ראה מקור בעמוד {page} ↗</a>
+          </section>)}
+          {!pageBlocks.length ? <p>אין יחידות טקסט להצגה בעמוד זה בשכבה הנוכחית.</p> : null}
+        </div> : null}
+      </> : <div className="ahavat29-depth-empty"><span>PDF {page}</span><h3>עמוד מקור זמין · קריאת עומק טרם הוכנה</h3><p>המערכת אינה ממלאת את החסר בטקסט אוטומטי. אפשר לקרוא את העמוד במקור, ולצרף אותו בעתיד למסלול התעתוק וההסבר.</p></div>}
+    </article>
+  </section>;
+}
+
 export default function AhavatTorahSystem2029Page() {
   const [page, setPage] = useState(requestedPage);
   const initialFinding = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("finding") || "";
+  const initialDataset = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("dataset") || "";
   const [findingId, setFindingId] = useState(initialFinding);
+  const [datasetId, setDatasetId] = useState(initialDataset);
+  const [bundle, setBundle] = useState(null);
+  const [bundleState, setBundleState] = useState("loading");
   const selectedSection = useMemo(() => sectionForPage(page), [page]);
   const selectedFinding = AHAVAT_TORAH_FINDINGS.find(finding => finding.id === findingId) || null;
+
+  useEffect(() => {
+    let active = true;
+    fetch(AHAVAT_TORAH_SOURCE.researchBundleUrl, { credentials: "same-origin" })
+      .then(response => {
+        if (!response.ok) throw new Error(`research bundle ${response.status}`);
+        return response.json();
+      })
+      .then(nextBundle => {
+        if (!active) return;
+        setBundle(nextBundle);
+        setBundleState("ready");
+      })
+      .catch(() => {
+        if (!active) return;
+        setBundleState("error");
+      });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     applySeo({
@@ -128,7 +252,8 @@ export default function AhavatTorahSystem2029Page() {
   const selectSection = section => {
     setPage(section.page);
     setFindingId("");
-    replaceSelectionInUrl(section.page, "");
+    setDatasetId("");
+    replaceSelectionInUrl(section.page, "", "");
     if (window.matchMedia("(max-width: 900px)").matches) {
       window.requestAnimationFrame(() => document.getElementById("ahavat29-reader")?.scrollIntoView({ behavior: "smooth", block: "start" }));
     }
@@ -137,15 +262,26 @@ export default function AhavatTorahSystem2029Page() {
   const selectFinding = finding => {
     setPage(finding.page);
     setFindingId(finding.id);
-    replaceSelectionInUrl(finding.page, finding.id);
+    setDatasetId("");
+    replaceSelectionInUrl(finding.page, finding.id, "");
     if (window.matchMedia("(max-width: 900px)").matches) {
       window.requestAnimationFrame(() => document.getElementById("ahavat29-finding-detail")?.scrollIntoView({ behavior: "smooth", block: "start" }));
     }
   };
 
+  const selectDataset = dataset => {
+    setPage(dataset.pages[0]);
+    setFindingId("");
+    setDatasetId(dataset.id);
+    replaceSelectionInUrl(dataset.pages[0], "", dataset.id);
+    window.requestAnimationFrame(() => document.getElementById("ahavat29-source")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
+
   const openPage = nextPage => {
     setPage(nextPage);
-    replaceSelectionInUrl(nextPage, findingId);
+    setFindingId("");
+    setDatasetId("");
+    replaceSelectionInUrl(nextPage, "", "");
     document.getElementById("ahavat29-source")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -193,6 +329,10 @@ export default function AhavatTorahSystem2029Page() {
             <footer><span>מעמד חישוב: {selectedFinding.calculation}</span><button type="button" onClick={() => openPage(selectedFinding.page)}>חזרה לעמוד המקור</button></footer>
           </article> : null}
 
+          <DatasetCatalog selectedId={datasetId} onSelect={selectDataset} />
+
+          <DeepReadingExplorer page={page} bundle={bundle} bundleState={bundleState} onPage={openPage} />
+
           <section className="ahavat29-pipeline" aria-labelledby="ahavat29-pipeline-title">
             <header><span>המערכת שאנחנו בונים</span><h2 id="ahavat29-pipeline-title">מהמקור ועד מוצר שאפשר לסמוך עליו</h2></header>
             <ol>{AHAVAT_TORAH_PIPELINE.map(step => <li key={step.index} className={`is-${step.state}`}><span>{step.index}</span><strong>{step.title}</strong><b>{step.value}</b><small>{step.label}</small></li>)}</ol>
@@ -204,7 +344,7 @@ export default function AhavatTorahSystem2029Page() {
           </footer>
         </div>
 
-        <SourcePanel page={page} contextLabel={selectedFinding?.dataset || selectedSection.shortTitle} />
+        <SourcePanel page={page} contextLabel={selectedFinding?.dataset || datasetId || selectedSection.shortTitle} onPage={openPage} />
       </div>
     </main>
   </Sod2029Shell>;
