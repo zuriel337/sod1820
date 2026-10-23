@@ -32,6 +32,7 @@ const SHAPES = {
   world: <><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 7h14M5 17h14"/></>,
   heichal: <><path d="M3 4h18v3H3ZM5 7v13m4-13v13m6-13v13m4-13v13M3 21h8m2 0h8"/></>,
   posts: <><path d="M5 3h10l4 4v14H5ZM14 3v5h5M8 12h8M8 16h8"/></>,
+  calculator: <><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><rect x="7" y="5.5" width="10" height="4" rx="1"/><path d="M7.5 13h3m-1.5-1.5v3M14 13h3M7.5 18h3M14.5 16.5l2 3m0-3-2 3"/></>,
   number: <text x="12" y="16" textAnchor="middle" stroke="none" fill="currentColor" fontSize="12" fontWeight="750" fontFamily="Arial, sans-serif">123</text>,
   books: <><path d="M12 5v16M3 4c4-1 6 0 9 1 3-1 5-2 9-1v16c-4-1-6 0-9 1-3-1-5-2-9-1Z"/></>,
   journey: <><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h7a4 4 0 0 1 0 8h-4a3 3 0 0 0 0 6h7"/></>,
@@ -72,6 +73,7 @@ export const ICON_CATALOG = Object.freeze([
   ["world","העולם","ניווט","גילויים במרחב הציבורי"],
   ["heichal","היכל","ניווט","כניסה למחקר"],
   ["posts","פוסטים","ניווט","תוכן ופרסומים"],
+  ["calculator","מחשבון גימטריה","ניווט","הזנת ביטוי וחישוב בשיטות הגימטריה"],
   ["number","דף המספר","ניווט","ערכים ושיטות חישוב"],
   ["books","ספרים","ניווט","ספרים ומקורות"],
   ["journey","מסע","ניווט","דרך והמשכיות בין תחנות"],
@@ -140,7 +142,7 @@ export default function NavigationIcon2029({ name, glyph, label, size = 24, clas
       control.removeEventListener("keydown", key);
     };
   }, []);
-  const resolved = name || (label === "היכל" ? "heichal" : GLYPH_NAMES[glyph]) || "tools";
+  const resolved = name || (label === "היכל" ? "heichal" : GLYPH_NAMES[glyph]) || (NAVIGATION_ICON_NAMES.includes(glyph) ? glyph : "tools");
   const canonical = ALIASES[resolved] || (NAVIGATION_ICON_NAMES.includes(resolved) ? resolved : "tools");
   return <svg ref={iconRef} className={`sod29-ui-icon sod29-ui-icon--${canonical} ${className}`} data-icon-shape={canonical} data-icon-name={canonical} data-icon-fallback={canonical === "tools" && resolved !== "tools" ? "true" : undefined} style={{ width: size, height: size }} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
     {canonical === "els" ? Array.from({length:9},(_,i)=><rect key={i} className={i%4===0?`sod29-icon-diagonal is-${i/4}`:undefined} x={3+(i%3)*7} y={3+Math.floor(i/3)*7} width="4" height="4" rx=".8" fill={i%4===0?"currentColor":"none"}/>) : SHAPES[canonical]}

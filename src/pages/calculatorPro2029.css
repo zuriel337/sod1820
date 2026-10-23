@@ -94,6 +94,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 7px;
 }
 
 .sod29-calcpro-modes > button[aria-pressed="true"] {
@@ -469,6 +470,10 @@
 .sod29-calcpro-ai > header small { color: var(--s29-muted); font-size: 14px; }
 
 .sod29-calcpro-ai button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   min-height: 44px;
   padding: 10px 16px;
   border: 1px solid var(--s29-accent);

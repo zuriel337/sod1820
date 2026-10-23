@@ -163,7 +163,7 @@ function GenericActions({ methodKey, expression, trace, onRazielAction, onOpenHe
       methodKey,
       expression,
       resultValue: Number(trace.result),
-    })}><NavigationIcon2029 name="spark" /> רזיאל</button> : null}
+    })}><NavigationIcon2029 name="raziel" /> רזיאל</button> : null}
     {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
       kind: "method_projection",
       methodKey,
@@ -267,7 +267,7 @@ function MiluiStage({
           step: focus.step,
           spelling: focus.spelling,
           resultValue: result,
-        })}><NavigationIcon2029 name="spark" /> רזיאל</button> : null}
+        })}><NavigationIcon2029 name="raziel" /> רזיאל</button> : null}
         {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
           kind: "miluy_step",
           methodKey,

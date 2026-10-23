@@ -398,18 +398,18 @@ export function buildNumberCoreProjection({
   const numberCount = (value) => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
   const surfaceCount = (key, fallbackKey) => numberCount(surface?.[key] ?? surface?.[fallbackKey]?.length ?? 0);
   const layerCounts = [
-    { key: "methods", label: "שיטות חישוב", icon: "▦", count: methodProfile.length },
-    { key: "crossings", label: "הצלבות בלתי תלויות", icon: "∞", count: crossing ? 1 : 0 },
-    { key: "meetings", label: `${canonicalResearchPublicLabel("convergence", { plural: true })} מחקריות`, icon: "⌘", count: topics.length },
-    { key: "relations", label: "מספרים קשורים", icon: "↔", count: relations.length },
-    { key: "worlds", label: "עולמות מחקר", icon: "◉", count: worlds.length },
-    { key: "sources", label: "מקורות / ספרים", icon: "▤", count: sources.length },
-    { key: "findings", label: "ממצאים", icon: "✦", count: findings.length },
-    { key: "els", label: "ELS / צופן", icon: "⌁", count: surfaceCount("elsCount", "els") },
-    { key: "time", label: "זמן / מציאות", icon: "◷", count: timeline.length + surfaceCount("eventsCount", "events") },
-    { key: "media", label: "מדיה / פוסטים", icon: "▣", count: media.length + surfaceCount("postsCount", "posts") + surfaceCount("galleriesCount", "galleries") },
-    { key: "community", label: "קהילה / תורמים", icon: "◎", count: surfaceCount("commentsCount", "comments") },
-    { key: "journey", label: "מסע", icon: "◇", count: journeyAvailable ? 1 : 0 },
+    { key: "methods", label: "שיטות חישוב", icon: "calculator", count: methodProfile.length },
+    { key: "crossings", label: "הצלבות בלתי תלויות", icon: "combinations", count: crossing ? 1 : 0 },
+    { key: "meetings", label: `${canonicalResearchPublicLabel("convergence", { plural: true })} מחקריות`, icon: "graph", count: topics.length },
+    { key: "relations", label: "מספרים קשורים", icon: "dna", count: relations.length },
+    { key: "worlds", label: "עולמות מחקר", icon: "world", count: worlds.length },
+    { key: "sources", label: "מקורות / ספרים", icon: "books", count: sources.length },
+    { key: "findings", label: "ממצאים", icon: "research", count: findings.length },
+    { key: "els", label: "ELS / צופן", icon: "els", count: surfaceCount("elsCount", "els") },
+    { key: "time", label: "זמן / מציאות", icon: "now", count: timeline.length + surfaceCount("eventsCount", "events") },
+    { key: "media", label: "מדיה / פוסטים", icon: "gallery", count: media.length + surfaceCount("postsCount", "posts") + surfaceCount("galleriesCount", "galleries") },
+    { key: "community", label: "קהילה / תורמים", icon: "community", count: surfaceCount("commentsCount", "comments") },
+    { key: "journey", label: "מסע", icon: "journey", count: journeyAvailable ? 1 : 0 },
   ].map((item) => Object.freeze(item));
   const presentLayers = layerCounts.filter((item) => item.count > 0).length;
   const coverage = Object.freeze({

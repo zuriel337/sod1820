@@ -516,7 +516,7 @@ function CalculatorExperience() {
           <strong>{selection.expression} = {selection.resultValue}</strong>
           <small>{selection.methodLabel}</small>
           {shareDiscovery ? <p>{shareDiscovery.phrase} = {shareDiscovery.value} · קשר מספרי מאומת, לא הוכחה למשמעות.</p> : null}
-          <button type="button" onClick={startOwnCompute}>מה מסתתר בשם שלך?</button>
+          <button type="button" onClick={startOwnCompute}><NavigationIcon2029 name="calculator" size={18} /> מה מסתתר בשם שלך?</button>
         </section>
       ) : null}
 
@@ -544,32 +544,33 @@ function CalculatorExperience() {
 
           <div className="sod29-calc2029-actions">
             <button type="button" onClick={loadTrace} disabled={selection.resultValue == null}>
+              <NavigationIcon2029 name="layers" size={18} />
               {trace.finding ? "סגור חישוב" : trace.loading ? "טוען…" : "איך מחשבים?"}
             </button>
-            <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח דף מספר</button>
+            <button type="button" onClick={openNumber} disabled={selection.resultValue == null}><NavigationIcon2029 name="number" size={18} /> פתח דף מספר</button>
             <button type="button" className="is-raziel" onClick={openRaziel} disabled={selection.resultValue == null}>
-              ✦ רזיאל · תסביר לי
+              <NavigationIcon2029 name="raziel" size={18} /> רזיאל · תסביר לי
             </button>
             <Link
               className="is-pro"
               to={"/2029/calculator?q=" + encodeURIComponent(selection.expression) + "&m=" + encodeURIComponent(selection.methodKey)}
             >
-              המשך במחשבון המקצועי ←
+              <NavigationIcon2029 name="calculator" size={18} /> המשך במחשבון המקצועי ←
             </Link>
             <button type="button" onClick={() => setShowMore((value) => !value)} aria-expanded={showMore}>
-              {showMore ? "פחות כלים" : "עוד כלים"}
+              <NavigationIcon2029 name="tools" size={18} /> {showMore ? "פחות כלים" : "עוד כלים"}
             </button>
           </div>
 
           {showMore ? (
             <div className="sod29-calc2029-actions is-more">
-              <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
-              <button type="button" onClick={openHeichal}>חקור בהיכל</button>
+              <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}><NavigationIcon2029 name="study" size={18} /> למד את השיטה</Link>
+              <button type="button" onClick={openHeichal}><NavigationIcon2029 name="heichal" size={18} /> חקור בהיכל</button>
               <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
-                {showCompare ? "סגור השוואה" : "השווה"}
+                <NavigationIcon2029 name="combinations" size={18} /> {showCompare ? "סגור השוואה" : "השווה"}
               </button>
               <button type="button" onClick={() => setShowOpening((value) => !value)} aria-expanded={showOpening}>
-                {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
+                <NavigationIcon2029 name="discovery" size={18} /> {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
               </button>
             </div>
           ) : null}
@@ -642,7 +643,8 @@ function CalculatorBody() {
     <Sod2029Shell
       wide
       surface="number"
-      symbol={<NavigationIcon2029 name="number" />}
+      introVariant="compact"
+      symbol={<NavigationIcon2029 name="calculator" />}
       eyebrow="גימטריה · חישוב מיידי"
       title="מה מסתתר בשם שלך?"
       description="הקלידו שם בעברית וגלו מה מסתתר בו. אפשר לשתף בקישור, ולהמשיך לעומק במחשבון המקצועי."

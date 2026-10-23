@@ -83,6 +83,10 @@
 .sod29-number-core2029-trace button,
 .sod29-number-core2029-foot button,
 .sod29-number-core2029-raziel-actions button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
   border:1px solid var(--s29-line);
   border-radius:999px;
   background:transparent;
@@ -345,6 +349,9 @@
   font-weight:900;
 }
 .sod29-number-method-raziel-mini strong{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
   color:var(--s29-ink);
   font-size:10px;
 }
@@ -1111,7 +1118,11 @@
   gap:8px;
 }
 .sod29-number-dashboard-actions button{
-  min-height:42px;
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
   justify-content:center;
   background:color-mix(in srgb,var(--s29-panel) 90%,transparent);
 }
@@ -1205,7 +1216,7 @@
   .sod29-number-dashboard-spectrum-legend{gap:9px}
   .sod29-number-dashboard-spectrum-legend span{font-size:7px}
   .sod29-number-dashboard-actions{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
-  .sod29-number-dashboard-actions button{min-height:38px;font-size:7.5px;padding:5px 4px}
+  .sod29-number-dashboard-actions button{min-height:44px;font-size:7.5px;padding:5px 4px}
 }
 @media(max-width:350px){
   .sod29-number-dashboard-top{grid-template-columns:1fr}
@@ -1797,7 +1808,11 @@
   border-color:color-mix(in srgb,var(--s29-accent) 58%,var(--s29-line));
 }
 .sod29-number-v10-search button{
-  min-height:42px;
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
   border:1px solid color-mix(in srgb,var(--s29-accent) 52%,var(--s29-line));
   border-radius:999px;
   background:var(--s29-accent-btn);
@@ -2346,6 +2361,11 @@
 }
 .sod29-number-v10-inline-actions{display:flex;gap:5px;flex-wrap:wrap}
 .sod29-number-v10-inline-actions button{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
   border:1px solid var(--s29-line);
   border-radius:999px;
   background:transparent;
@@ -2437,7 +2457,11 @@
   gap:6px;
 }
 .sod29-number-v10-stage-actions button{
-  min-height:38px;
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
   border:1px solid var(--s29-line);
   border-radius:12px;
   background:var(--s29-panel);
@@ -2478,7 +2502,7 @@
   .sod29-number-v10-life-seal{width:58px;height:58px}
   .sod29-number-v10-life-ring{width:25px;height:25px}
   .sod29-number-v10-search input{font-size:11px;min-height:40px}
-  .sod29-number-v10-search button{min-height:40px;padding:0 12px}
+  .sod29-number-v10-search button{min-height:44px;padding:0 12px}
   .sod29-number-v10-method-switcher{padding:8px;border-radius:16px}
   .sod29-number-v10-method-head strong{font-size:10px}
   .sod29-number-v10-method-head>small{font-size:6.5px}
@@ -2506,7 +2530,7 @@
   .sod29-number-v10-system-grid{grid-template-columns:1fr}
   .sod29-number-v10-calculation-card{padding:8px;border-radius:13px}
   .sod29-number-v10-stage-actions{gap:4px}
-  .sod29-number-v10-stage-actions button{font-size:7px;min-height:34px;padding:4px}
+  .sod29-number-v10-stage-actions button{font-size:7px;min-height:44px;padding:4px}
   .sod29-number-v10-premium-ready{align-items:flex-start}
 }
 @media(max-width:350px){

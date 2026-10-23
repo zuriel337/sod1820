@@ -7,6 +7,7 @@ import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2
 import CalculatorDuo2029 from "../components/gematria2029/CalculatorDuo2029.jsx";
 import CalculatorLedgerCard2029 from "../components/gematria2029/CalculatorLedgerCard2029.jsx";
 import CalculatorAiAnalysis2029 from "../components/gematria2029/CalculatorAiAnalysis2029.jsx";
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { emit } from "../lib/events.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { useCalculatorRow, useMethodLedger } from "../lib/research/useCalculatorRow.js";
@@ -532,13 +533,13 @@ function ProExperience() {
             <section className="sod29-calcpro-inspector" data-calculation-selection={canonicalSelection.methodKey}>
               <h4>הבחירה שלך · {canonicalSelection.expression} · {canonicalSelection.methodLabel}</h4>
               <div className="sod29-calcpro-actions">
-                <button type="button" className="is-primary" onClick={openNumber}>גלה הכל על {fmt(canonicalSelection.resultValue)} ←</button>
+                <button type="button" className="is-primary" onClick={openNumber}><NavigationIcon2029 name="number" size={18} /> גלה הכל על {fmt(canonicalSelection.resultValue)} ←</button>
                 <button type="button" onClick={() => setShowOpening((value) => !value)} aria-expanded={showOpening}>
-                  {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
+                  <NavigationIcon2029 name="discovery" size={18} /> {showOpening ? "סגור פתיחה" : "ראה פתיחה"}
                 </button>
-                <Link to={"/beit-midrash/" + encodeURIComponent(canonicalSelection.methodKey)}>למד את השיטה</Link>
-                <button type="button" onClick={openHeichal}>חקור בהיכל</button>
-                <button type="button" className="is-raziel" onClick={openRaziel}>✦ שאל את רזיאל</button>
+                <Link to={"/beit-midrash/" + encodeURIComponent(canonicalSelection.methodKey)}><NavigationIcon2029 name="study" size={18} /> למד את השיטה</Link>
+                <button type="button" onClick={openHeichal}><NavigationIcon2029 name="heichal" size={18} /> חקור בהיכל</button>
+                <button type="button" className="is-raziel" onClick={openRaziel}><NavigationIcon2029 name="raziel" size={18} /> שאל את רזיאל</button>
               </div>
               <CalculatorOpening2029 selection={canonicalSelection} open={showOpening} onClose={() => setShowOpening(false)} />
             </section>
@@ -606,7 +607,7 @@ export default function CalculatorPro2029Page() {
       wide
       surface="number"
       introVariant="none"
-      symbol="∑"
+      symbol={<NavigationIcon2029 name="calculator" />}
       eyebrow="מחשבון מקצועי"
       title="מחשבון גימטריה"
       description="כל השיטות במבט אחד, פירוק אותיות מהמנוע ומצב מתקדם להשוואה."

@@ -265,6 +265,10 @@
 
 .sod29-calc2029-actions button,
 .sod29-calc2029-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 44px;
   border: 1px solid var(--s29-line);
   border-radius: 999px;

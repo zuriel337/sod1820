@@ -117,7 +117,7 @@ const HOME_NAV = [
 ];
 
 const DIRECT_NAV = [
-  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
+  { to: "/2029/number/1820", label: "דף המספר", icon: "number" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
 ];
@@ -133,8 +133,8 @@ const CORE_HOME_NAV = [
 
 const CORE_DIRECT_NAV = [
   { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
-  { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "123" },
-  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
+  { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "calculator" },
+  { to: "/2029/number/1820", label: "דף המספר", icon: "number" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
 ];
 
@@ -2072,7 +2072,7 @@ export default function SystemFrame2029({
   };
 
   const resolvedIntroVariant = introVariant === "none" ? "none" : ["world", "heichal", "topic", "books", "els", "calculator"].includes(surface) ? "compact" : introVariant;
-  const introIcon = { world: "world", heichal: "heichal", topic: "world", books: "books", els: "els", calculator: "number" }[surface];
+  const introIcon = { world: "world", heichal: "heichal", topic: "world", books: "books", els: "els", calculator: "calculator" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>

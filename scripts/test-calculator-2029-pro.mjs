@@ -112,7 +112,7 @@ assert.equal(ledgerFromFinding({ projection: { dimensions: { trace: { steps: ["×
 const pro = fs.readFileSync("src/pages/CalculatorPro2029Page.jsx", "utf8");
 assert.match(pro, /data-experience-surface="calculator-pro-2029"/);
 assert.match(pro, /<Sod2029Shell[\s\S]*?surface="number"/);
-assert.match(pro, /path:\s*"\/2029\/calculator"/);
+assert.match(pro, /path:\s*window\.location\.pathname/);
 assert.match(pro, /noindex:\s*true/);
 assert.match(pro, /useCalculatorRow/);
 assert.match(pro, /useMethodLedger/);

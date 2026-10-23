@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { askRaziel } from "../../lib/supabase.js";
 import { emit } from "../../lib/events.js";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const cap = (value, length) => clean(value).replace(/\s+/g, " ").slice(0, length);
@@ -72,7 +73,7 @@ export default function CalculatorAiAnalysis2029({ selection, ledger = null, sam
       </header>
       {!done ? (
         <button type="button" onClick={() => run(false)} disabled={state.busy} aria-busy={state.busy}>
-          {state.busy ? "רזיאל מנתח את התוצאה מהמנוע…" : `✦ נתח את ${selection.methodLabel} על ${selection.expression}`}
+          <NavigationIcon2029 name="scan" size={18} /> {state.busy ? "רזיאל מנתח את התוצאה מהמנוע…" : `נתח את ${selection.methodLabel} על ${selection.expression}`}
         </button>
       ) : (
         <>

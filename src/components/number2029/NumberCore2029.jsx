@@ -1,5 +1,6 @@
 import MethodTraceExplanation2029 from "../gematria2029/MethodTraceExplanation2029.jsx";
 import SignatureResearchIcon from "../SignatureResearchIcon.jsx";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import React, { useEffect, useId, useMemo, useState } from "react";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { worldColor } from "../../lib/worlds.js";
@@ -139,7 +140,7 @@ function MethodInspector({
         <div className="orb" aria-hidden="true"><i /></div>
         <div>
           <span>RAZIEL MICRO · אותו רזיאל</span>
-          <strong>✦ {projection.expression} · {publicMethodLabel(method)} → {method.computedValue ?? "—"}</strong>
+          <strong><NavigationIcon2029 name="raziel" size={18} /> {projection.expression} · {publicMethodLabel(method)} → {method.computedValue ?? "—"}</strong>
           <p>{raziel?.text || "אפשר להסביר את השיטה, להשוות אותה לשיטות אחיות או לבחור את הצעד המחקרי הבא."}</p>
         </div>
       </div>
@@ -375,7 +376,7 @@ export default function NumberCore2029({
         placeholder="חפש מילה · ביטוי · מספר"
         aria-label="חפש מילה ביטוי או מספר"
       />
-      <button type="submit">חפש ✦</button>
+      <button type="submit"><NavigationIcon2029 name="search" size={18} /> חפש</button>
     </form> : null}
 
     {regularExpressions.length ? <section className={`sod29-number-v11-regular-rail${regularExpressions.length > 1 ? " has-overflow-hint" : ""}`} aria-label={`ביטויים רגילים על ${root}`}>
@@ -522,7 +523,7 @@ export default function NumberCore2029({
       </div> : null}
 
       <div className={`sod29-number-v10-loading is-inline${stageLoading ? " is-loading" : " is-ready"}`} role="status">
-        {stageLoading ? <><i /> מעדכן את החיבורים של {stageRoot} ברקע…</> : <><span aria-hidden="true">✓</span> החיבורים של {stageRoot} מעודכנים</>}
+        {stageLoading ? <><i /> מעדכן את החיבורים של {stageRoot} ברקע…</> : <><NavigationIcon2029 name="check" size={16} /> החיבורים של {stageRoot} מעודכנים</>}
       </div>
         <div className="sod29-number-v10-research-grid">
           <section className="sod29-number-v10-convergence">
@@ -587,7 +588,7 @@ export default function NumberCore2029({
                 <div className="sod29-number-v10-inline-actions">
                   {secondaryCrossings.length > 4 ? <button type="button" onClick={() => setShowAllCrossings((value) => !value)}>{showAllCrossings ? "צמצם הצלבות" : `עוד ${secondaryCrossings.length - 4} הצלבות`}</button> : null}
                   {crossingFocusActive ? <button type="button" onClick={() => setFocusedCrossingPartner(null)}>חזור למספר</button> : null}
-                  <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: stageCrossing.partner, methods: stageCrossing.methods, resultValue: stageRoot })}>✦ רזיאל</button>
+                  <button type="button" onClick={() => onRazielAction?.("explain_crossing", { kind: "crossing", partner: stageCrossing.partner, methods: stageCrossing.methods, resultValue: stageRoot })}><NavigationIcon2029 name="raziel" size={17} /> רזיאל</button>
                 </div>
               </> : <p>{hiddenCrossingsLoading || stageLoading ? "סורק עכשיו את הביטוי מול המאגר המאומת…" : "לא נמצאה כרגע הצלבה נסתרת אמיתית לביטוי הזה."}</p>}
             </section> : null}
@@ -634,7 +635,7 @@ export default function NumberCore2029({
           {compact && stageZero ? <section className="sod29-number-v10-zero">
             <div className="sod29-number-v10-panel-head">
               <div><span>סולם האפס</span><strong>{stageRoot}{stageZero.next != null ? ` → ${stageZero.next}` : ""}</strong></div>
-              <span>◉</span>
+              <NavigationIcon2029 name="layers" size={20} />
             </div>
             <p>אותו שורש ספרתי · סדר גודל אחר · נגזרת, לא שוויון.</p>
             {stageZero.next != null ? <button type="button" onClick={() => onOpenZero?.(stageZero.next)}>פתח {stageZero.next}</button> : null}
@@ -701,8 +702,8 @@ export default function NumberCore2029({
             resultValue: stageRoot,
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
-          })}>✦ שאל את רזיאל</button>
-          <button type="button" aria-expanded={showAiAnalysis} title="ניתוח AI: פרשנות חד־פעמית של העובדות המאומתות שמוצגות עכשיו. רזיאל: מלווה מחקרי להמשך." onClick={() => setShowAiAnalysis((v) => !v)}>◈ ניתוח AI</button>
+          })}><NavigationIcon2029 name="raziel" size={18} /> שאל את רזיאל</button>
+          <button type="button" aria-expanded={showAiAnalysis} title="ניתוח AI: פרשנות חד־פעמית של העובדות המאומתות שמוצגות עכשיו. רזיאל: מלווה מחקרי להמשך." onClick={() => setShowAiAnalysis((v) => !v)}><NavigationIcon2029 name="scan" size={18} /> ניתוח AI</button>
           {onOpenHeichal ? <button type="button" className="primary" onClick={() => onOpenHeichal({
             kind: crossingFocusActive ? "crossing_focus_deep" : "method_result_deep",
             root,
@@ -711,17 +712,17 @@ export default function NumberCore2029({
             resultValue: stageRoot,
             crossingPartner: crossingFocusActive ? stageCrossing?.partner || null : null,
             crossingMethods: crossingFocusActive ? stageCrossing?.methods || [] : [],
-          })}>◇ חקור בהיכל</button> : null}
+          })}><NavigationIcon2029 name="heichal" size={18} /> חקור בהיכל</button> : null}
         </footer>
 
 
     </section>
 
     {compact ? <footer className="sod29-number-core2029-foot sod29-number-dashboard-actions">
-      {onOpenJourney ? <button type="button" onClick={onOpenJourney}>🗺 {journeyLabel || "צא למסע"}</button>
-        : onOpenWorld ? <button type="button" onClick={onOpenWorld}>🗺 עולם</button> : null}
-      <button type="button" onClick={() => onRazielAction?.("compare_methods")}>⚖ השווה</button>
-      <button type="button" onClick={() => onExpandRaziel?.()}>✨ רזיאל</button>
+      {onOpenJourney ? <button type="button" onClick={onOpenJourney}><NavigationIcon2029 name="journey" size={18} /> {journeyLabel || "צא למסע"}</button>
+        : onOpenWorld ? <button type="button" onClick={onOpenWorld}><NavigationIcon2029 name="world" size={18} /> עולם</button> : null}
+      <button type="button" onClick={() => onRazielAction?.("compare_methods")}><NavigationIcon2029 name="combinations" size={18} /> השווה</button>
+      <button type="button" onClick={() => onExpandRaziel?.()}><NavigationIcon2029 name="raziel" size={18} /> רזיאל</button>
       {compact && onOpenPage ? <button type="button" className="primary" onClick={onOpenPage}>פתח דף מלא ↗</button> : null}
     </footer> : null}
 

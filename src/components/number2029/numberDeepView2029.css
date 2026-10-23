@@ -20,6 +20,7 @@
 .sod29-deep-cluster ul,.sod29-number-deep-raw ul{margin:0;padding-inline-start:18px;color:var(--s29-muted);font-size:11px;line-height:1.6}
 .sod29-deep-cluster p{margin:0;color:var(--s29-muted);font-size:10.5px;line-height:1.55}
 .sod29-deep-cluster>button,.sod29-number-deep-actions button,.sod29-number-deep-disclosure>button{min-height:44px;border:1px solid var(--s29-line);border-radius:13px;background:color-mix(in srgb,var(--s29-panel) 88%,transparent);color:var(--s29-ink);font:inherit;cursor:pointer}
+.sod29-deep-cluster>button,.sod29-number-deep-actions button,.sod29-number-deep-head>button{display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .sod29-deep-cluster>button{margin-top:auto;padding:8px 11px;text-align:start}
 .sod29-number-deep-disclosure{display:grid;gap:10px}
 .sod29-number-deep-disclosure>button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 12px;text-align:start}

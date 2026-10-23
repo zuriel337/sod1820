@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { analyze } from "../../lib/aiAnalysis.js";
 import { buildNumberAiFactPack } from "../../lib/research/numberAiFactPack2029.js";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 
 // AI analysis capability on the Number stage (sibling of Raziel) — NOT a second persona.
 // Zero provider calls on render; every call is an explicit click through the one canonical entry point
@@ -32,11 +33,11 @@ export default function NumberAiAnalysis2029({ projection }) {
 
   return <div className="sod29-number-ai-analysis" aria-label="ניתוח AI של העובדות המאומתות">
     <span>ניתוח AI · פרשנות חד־פעמית</span>
-    <p>פרשנות חד־פעמית של העובדות המאומתות שמוצגות עכשיו — לא חישוב. להמשך מחקר והקשר: ✦ שאל את רזיאל. נשלח רק בלחיצה.</p>
+    <p>פרשנות חד־פעמית של העובדות המאומתות שמוצגות עכשיו — לא חישוב. להמשך מחקר והקשר השתמשו בפעולת רזיאל. נשלח רק בלחיצה.</p>
     <div className="sod29-number-core2029-raziel-actions">
-      <button type="button" disabled={busy !== null} onClick={() => run("claude")}>{busy === "claude" ? "מנתח…" : "ניתוח מהיר"}</button>
-      <button type="button" disabled={busy !== null} onClick={() => run("gemini")}>{busy === "gemini" ? "משווה…" : "השווה עם Gemini"}</button>
-      {results.claude ? <button type="button" disabled={busy !== null} onClick={() => run("claude", true)}>זווית אחרת</button> : null}
+      <button type="button" disabled={busy !== null} onClick={() => run("claude")}><NavigationIcon2029 name="scan" size={17} /> {busy === "claude" ? "מנתח…" : "ניתוח מהיר"}</button>
+      <button type="button" disabled={busy !== null} onClick={() => run("gemini")}><NavigationIcon2029 name="combinations" size={17} /> {busy === "gemini" ? "משווה…" : "השווה עם Gemini"}</button>
+      {results.claude ? <button type="button" disabled={busy !== null} onClick={() => run("claude", true)}><NavigationIcon2029 name="rotate" size={17} /> זווית אחרת</button> : null}
     </div>
     {["claude", "gemini"].map((engine) => results[engine] === false
       ? <p key={engine} className="sod29-number-ai-analysis-miss">{ENGINE_LABEL[engine]}: אין תשובה כרגע.</p>

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import "./numberDeepView2029.css";
 
 function truthLabel(cluster) {
@@ -32,7 +33,7 @@ function ClusterCard({ cluster, onOpenHeichal, root }) {
           facts: cluster.facts || [],
         })}
       >
-        ◇ בדוק בהיכל
+        <NavigationIcon2029 name="heichal" size={18} /> בדוק בהיכל
       </button> : null}
     </article>
   );
@@ -79,7 +80,7 @@ export default function NumberDeepView2029({ model, onOpenHeichal, onRazielActio
             sourceResearchObjectId: model.sourceResearchObjectId,
             primaryClusters: model.primary.map((cluster) => cluster.key).filter(Boolean),
           })}
-        >◇ פתח בהיכל</button> : null}
+        ><NavigationIcon2029 name="heichal" size={18} /> פתח בהיכל</button> : null}
       </header>
 
       <EvidenceStrip evidence={model.evidence} />
@@ -159,7 +160,7 @@ export default function NumberDeepView2029({ model, onOpenHeichal, onRazielActio
 
                 <div className="sod29-number-deep-actions">
                   {onOpenHeichal ? <button type="button" onClick={() => onOpenHeichal({ kind: "inspect_dependency", root: model.root, sourceResearchObjectId: model.sourceResearchObjectId })}>למה זה נספר פעם אחת?</button> : null}
-                  <button type="button" onClick={() => onRazielAction?.("explain_deep_view", { kind: "number_deep_view", root: model.root, evidence: model.evidence, dependentFamilies: model.dependentFamilies })}>✦ הסבר עם רזיאל</button>
+                  <button type="button" onClick={() => onRazielAction?.("explain_deep_view", { kind: "number_deep_view", root: model.root, evidence: model.evidence, dependentFamilies: model.dependentFamilies })}><NavigationIcon2029 name="raziel" size={18} /> הסבר עם רזיאל</button>
                 </div>
               </div>
             ) : null}
