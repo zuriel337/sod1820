@@ -1,17 +1,22 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BeitMidrashSection from "./BeitMidrashSection.jsx";
-import { FibonacciSpiral, PathTrail, SourceTrail } from "./BeitMidrashIllustrations.jsx";
+import { FibonacciSpiral, PathTrail, SourceReadingStrip } from "./BeitMidrashIllustrations.jsx";
 
 const sectionOf = (manifest, id) => manifest.sections.find((section) => section.id === id);
 
-export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath, focusedConcept, children }) {
+export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath, focusedConcept, focusedSourceStep, children }) {
   const start = sectionOf(manifest, "start");
   const ciphers = sectionOf(manifest, "ciphers");
   const sources = sectionOf(manifest, "sources");
   const numbers = sectionOf(manifest, "numbers");
   const paths = sectionOf(manifest, "paths");
   const isFocused = (id) => focusedSection === id;
+  const sourceLesson = manifest.sourceReadingLesson;
+  const sourceSteps = sourceLesson.steps;
+  const sourceIndex = Math.max(0, sourceSteps.findIndex((step) => step.id === focusedSourceStep));
+  const sourceStep = sourceSteps[sourceIndex];
+  const nextSourceStep = sourceSteps[sourceIndex + 1] || null;
   const selectedNumberConcept = manifest.numberGuideConcepts.find((concept) => concept.id === focusedConcept)
     || manifest.numberGuideConcepts[0];
 
@@ -35,8 +40,52 @@ export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath
     </BeitMidrashSection>
 
     <BeitMidrashSection id="sources" icon="posts" title={sources.title} description={sources.description} focused={isFocused("sources")}>
-      <SourceTrail />
-      <p className="bm-note">{manifest.beginnerConcepts.find((concept) => concept.id === "source").body}</p>
+      <div className="bm-source-lesson" id={sourceLesson.anchor} data-source-lesson={sourceLesson.id}>
+        <ul className="bm-source-goals" aria-label="מה לומדים בשיעור">
+          {sourceLesson.objectives.map((objective) => <li key={objective}>{objective}</li>)}
+        </ul>
+        <SourceReadingStrip steps={sourceSteps} focusedId={sourceStep.id} />
+        <article
+          className="bm-source-step"
+          id={`source-step-${sourceStep.id}`}
+          data-source-step={sourceStep.id}
+          aria-labelledby={`source-step-title-${sourceStep.id}`}
+        >
+          <header>
+            <span>שלב {sourceIndex + 1} מתוך {sourceSteps.length}</span>
+            <h4 id={`source-step-title-${sourceStep.id}`}>{sourceStep.title}</h4>
+          </header>
+          <section>
+            <h5>מה עושים?</h5>
+            <p>{sourceStep.body}</p>
+          </section>
+          <section>
+            <h5>איך בודקים?</h5>
+            <p>{sourceStep.check}</p>
+          </section>
+          <aside>
+            <strong>הגבול שחשוב לזכור</strong>
+            <p>{sourceStep.boundary}</p>
+          </aside>
+          {nextSourceStep ? <footer><Link className="bm-link" to={nextSourceStep.href}>לשלב הבא · {nextSourceStep.title}</Link></footer> : null}
+        </article>
+
+        <form className="bm-source-exercise" data-source-exercise={sourceLesson.exercise.id} onSubmit={(event) => event.preventDefault()}>
+          <fieldset>
+            <legend>{sourceLesson.exercise.title}</legend>
+            <p>{sourceLesson.exercise.prompt}</p>
+            {sourceLesson.exercise.options.map((option) => <label key={option.id}>
+              <input type="radio" name={`exercise-${sourceLesson.exercise.id}`} value={option.id} />
+              <span>{option.label}</span>
+            </label>)}
+          </fieldset>
+          <details>
+            <summary>להסבר</summary>
+            <p>{sourceLesson.exercise.explanation}</p>
+          </details>
+        </form>
+        <Link className="bm-link bm-source-next" to={sourceLesson.continuation.href}>{sourceLesson.continuation.title}</Link>
+      </div>
     </BeitMidrashSection>
 
     <BeitMidrashSection id="numbers" icon="number" title={numbers.title} description={numbers.description} focused={isFocused("numbers")}>
