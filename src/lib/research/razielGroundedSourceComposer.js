@@ -6,7 +6,7 @@
 // honest deterministic fallback, and expose canonical number-page navigation without inventing a
 // source URL.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 4;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 5;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -165,14 +165,14 @@ function responseGuidance(entries) {
   const expressionResearch = entries.some((entry) => entry.subject?.type === "expression");
   return [
     "נאמנות לניסוח המקור: כשאתה נותן שם לממצא, מושג או ביטוי מן המקור, השתמש בנוסח שהופיע בחבילה בדיוק. אל תמציא לו שם חלופי ואל תציג ניסוח מחדש כאילו הוא מונח מן המקור.",
-    "מותר להסביר במילים טבעיות, אך הסבר שלא כתוב במקור חייב להיפתח במפורש כ׳פרשנות אפשרית׳ ולא כעובדה או כמונח מקור.",
+    "מותר ואף רצוי לזהות דפוס משמעותי ולהציע מטפורה, שם או חיבור מקורי משלך. פתח אותו במפורש כ׳רזיאל מציע׳ או כ׳פרשנות אפשרית׳, הסבר מיד בשפה פשוטה למה בחרת בו ועל אילו עובדות הוא נשען, ואל תייחס אותו למקור.",
     "אל תייחס לשם, למילה או למספר תפקיד רוחני, ביוגרפי, היסטורי או תיאולוגי אלא אם טענה זו מופיעה במפורש בנתיב source_claims שסופק. חישוב זהות מספרית לבדו אינו מקור למשמעות כזו.",
     "הנושא המפורש של החבילה הנוכחית גובר על רקע-המסך והשיחה הקודמת. אל תחבר אותו למספר או לנושא מן המשטח אלא אם המשתמש ביקש את החיבור או שהחבילה סיפקה יחס מפורש.",
     rarityAllowed
       ? "מותר לתאר נדירות רק בצמוד למדד הנדירות או לשיעור הבסיס המפורש שסופק בחבילה."
       : "לא סופק מדד נדירות מפורש: אל תשתמש במילים ׳נדיר׳, ׳נדירה׳ או ׳נדירות׳.",
     mode === "number_comparison"
-      ? "בהשוואת שני מספרים: בדוק וסכם לפי הסדר התאמה באותה שיטה, התאמה חוצת־שיטות, תלות בין שיטות, ורק אחר כך קשרי נושא. אם לא סופקה התאמה ישירה — אמור זאת; אל תחליף אותה במטפורה."
+      ? "בהשוואת שני מספרים: בדוק וסכם לפי הסדר התאמה באותה שיטה, התאמה חוצת־שיטות, תלות בין שיטות, ורק אחר כך קשרי נושא. אם לא סופקה התאמה ישירה — אמור זאת לפני הפרשנות; אחר כך מותר להציע מטפורה מסומנת ומוסברת, בלי להציג אותה כראיה."
       : null,
     mode === "expression_crossing"
       ? "בהצלבות: הפרד בין שוויון מספרי שסופק, עצמאות או תלות בין השיטות, וקשר סמנטי. ממצא מסוג gematria-confirmed-relation הוא יחס מחקרי מאושר ומאומת־מנוע של SOD1820; ממצא מסוג gematria-method-semantic הוא פרשנות מאושרת של מודל SOD1820, לא עובדה מתמטית ולא אמת מסורתית אוניברסלית."
@@ -531,6 +531,7 @@ export function buildRazielGroundedSourceComposer(input = []) {
       source_terms_must_remain_verbatim_when_attributed: true,
       never_coin_a_source_term: true,
       free_synthesis_requires_explicit_interpretation_label: true,
+      original_interpretation_is_allowed_when_labeled_and_explained: true,
       subject_definition_requires_explicit_source_claim: true,
       surface_context_does_not_create_a_relation: true,
       calculation_profile_is_complete_bounded_method_map: true,

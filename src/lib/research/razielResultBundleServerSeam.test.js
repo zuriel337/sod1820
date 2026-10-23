@@ -724,7 +724,7 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1, "the deterministic Bundle seam adds no model call");
   assert.match(run.models[0].user, /raziel-canonical-result-bundle-input-v1/);
-  assert.match(run.models[0].user, /raziel-grounded-source-composer-v4/);
+  assert.match(run.models[0].user, /raziel-grounded-source-composer-v5/);
   assert.match(run.models[0].user, /אל תמציא לו שם חלופי/);
   assert.match(run.models[0].user, /לא סופק מדד נדירות מפורש/);
   assert.match(run.models[0].user, /verified_calculations/);
@@ -889,7 +889,7 @@ test("natural two-number crossing bypasses semantic classification and consumes 
   assert.deepEqual(run.result.raziel.plan_meta.canonical_result_bundle.numbers, [1820, 776]);
   assert.deepEqual(run.result.raziel.sources.map((source) => source.original_name).sort(), ["מקור 1820", "מקור 776"].sort());
   assert.match(run.models[0].user, /התאמה באותה שיטה/);
-  assert.match(run.models[0].user, /אל תחליף אותה במטפורה/);
+  assert.match(run.models[0].user, /מותר להציע מטפורה מסומנת ומוסברת/);
   assert.equal(run.models.length, 1, "wording integrity must not add a second model call");
 });
 

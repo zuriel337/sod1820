@@ -48,7 +48,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v4");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v5");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -259,6 +259,9 @@ test("preserves source terminology without hard-coding a subject-specific correc
   assert.deepEqual(prompt.bundles[0].source_wording, ["מחשבת יהוה", "נקודה אמצעית", "פריעת חוב"]);
   assert.equal(prompt.presentation_contract.source_terms_must_remain_verbatim_when_attributed, true);
   assert.equal(prompt.presentation_contract.never_coin_a_source_term, true);
+  assert.equal(prompt.presentation_contract.original_interpretation_is_allowed_when_labeled_and_explained, true);
+  assert.match(out.guidance, /מותר ואף רצוי לזהות דפוס משמעותי/);
+  assert.match(out.guidance, /רזיאל מציע/);
   assert.doesNotMatch(out.prompt + out.guidance, /הטליה המעגלית/);
 });
 
@@ -272,7 +275,7 @@ test("number comparison requires a structured evidence comparison before interpr
   assert.equal(prompt.response_mode, "number_comparison");
   assert.equal(prompt.presentation_contract.comparison_must_state_missing_direct_evidence, true);
   assert.match(out.guidance, /התאמה באותה שיטה/);
-  assert.match(out.guidance, /אל תחליף אותה במטפורה/);
+  assert.match(out.guidance, /מותר להציע מטפורה מסומנת ומוסברת/);
 });
 
 test("allows rarity language only when the bundle carries an explicit rarity basis", () => {

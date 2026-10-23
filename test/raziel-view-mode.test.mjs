@@ -238,6 +238,8 @@ test("5) exploratory layer demands three separate tiers and forbids invention; l
   const exploratory = e.models[0].system.slice(e.models[0].system.indexOf(MARKER));
   for (const tier of ["עובדה מאומתת:", "פרשנות אפשרית:", "השערה ניסיונית:"]) assert.ok(exploratory.includes(tier), tier);
   assert.match(exploratory, /אסור להמציא עובדות/);
+  assert.match(exploratory, /מטפורה או מונח משלך/);
+  assert.match(exploratory, /הצעה של רזיאל ולא לשון המקור/);
   assert.match(exploratory, /המנוע מצא/);
   assert.match(exploratory, /אל תחשב גימטריה/);
   assert.match(exploratory, /אין בסיס מספיק להשערה/);
