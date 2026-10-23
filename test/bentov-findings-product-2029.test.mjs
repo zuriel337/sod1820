@@ -139,6 +139,7 @@ test("review workbench models all 33 decisions without exposing canonical record
   assert.match(page, /setFidelityDecisions\(decisions => \(\{ \.\.\.decisions, \[findingId\]: "needs_evidence" \}\)\)/);
   assert.match(page, /\["#bentov29-review-title", "#bentov29-publication-gate-title"\]\.includes\(window\.location\.hash\)/);
   assert.match(page, /document\.getElementById\(window\.location\.hash\.slice\(1\)\)/);
+  assert.match(page, /window\.setTimeout\(scrollToHash, 450\)/);
   assert.match(page, /scrollIntoView\(\{ block: "start" \}\)/);
   assert.match(page, /אינה משנה את תיקוני האיתור שכבר נשמרו/);
   assert.match(page, /אינה משנה את `fidelity_status` הקנוני/);
