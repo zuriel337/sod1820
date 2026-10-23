@@ -108,7 +108,7 @@ test.beforeEach(async ({ context }) => {
     body: JSON.stringify(POSITIVE_ACCEPTANCE_FLAGS
       .map((key) => ({ key, enabled: false, mode: 'all', message: '' }))),
   }));
-  await context.route('**/rest/v1/rpc/world_group_source_arrivals_v3', async (route) => route.fulfill({
+  await context.route('**/rest/v1/rpc/world_group_source_arrivals_v2', async (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
     headers: { 'x-sod-acceptance-fixture': 'pre-cutover' },
@@ -120,7 +120,6 @@ test.beforeEach(async ({ context }) => {
       contributor_name: 'צבי',
       group_proof: true,
       proof_basis: 'verified_phone_unique',
-      occurrences: [{ id: '00000000-0000-4000-8000-000000000001', created_at: '2026-10-12T12:00:00Z' }],
     }]),
   }));
 });
@@ -927,7 +926,7 @@ for (const preset of ['light', 'parchment', 'dark']) {
     test(`source projector ${preset} ${width}: source-first writer and full Hashmal reading`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
-      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'), { timeout: 30_000 });
+      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });
       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
       const response = await groupResponse;
       expect(response.ok(), 'sanitized group reader is reachable').toBe(true);
@@ -937,14 +936,7 @@ for (const preset of ['light', 'parchment', 'dark']) {
       for (const row of groupRows) {
         expect(row.group_proof).toBe(true);
         expect(row.proof_basis).toBe('verified_phone_unique');
-        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'occurrences', 'proof_basis']);
-        expect(Array.isArray(row.occurrences)).toBe(true);
-        expect(row.occurrences.length).toBeGreaterThan(0);
-        expect(row.occurrences.some((event) => event.id === row.id)).toBe(true);
-        for (const event of row.occurrences) {
-          expect(Object.keys(event).sort()).toEqual(['created_at', 'id']);
-          expect(Number.isFinite(Date.parse(event.created_at))).toBe(true);
-        }
+        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'proof_basis']);
       }
       const writer = page.locator('#world-source-homes button').filter({ hasText: 'יניב לוי' }).first();
       await expect(writer).toBeVisible({ timeout: 30_000 });

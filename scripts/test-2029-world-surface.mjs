@@ -603,7 +603,8 @@ for (const table of ["research_objects", "channel_updates", "research_contributi
     "Human Gate all-material reader must consume " + table,
   );
 }
-assert.equal(/\.eq\(["']privacy_scope["']/.test(worldAllResearchSource), false, "Human Gate reader must not hide rows by privacy_scope");
+assert.match(worldAllResearchSource, /\.eq\("privacy_scope", "public"\)/, "public reader must narrow transport to public research rows");
+assert.match(worldAllResearchSource, /\.in\("status", PUBLIC_RESEARCH_STATUSES\)/, "public reader must narrow transport to approved or canonical research rows");
 assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldAllResearchSource), false, "Human Gate reader must rely on current-session admin RLS, not service role");
 assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(worldAllResearchSource), false, "all-material projection must remain read-only");
 assert.match(allResearchAdminPolicy, /create policy research_contributions_admin_read/i);
@@ -624,7 +625,7 @@ assert.equal(/\.from\(["']convergences["']/.test(worldConvergenceLensSource), fa
 assert.equal(/\.from\(["']cross_method_strength["']/.test(worldConvergenceLensSource), false, "global convergence lens must not trigger the expensive cross-method corpus view");
 assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(worldConvergenceLensSource + worldConvergenceLensComponent), false, "Convergence Lens must remain read-only");
 assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(worldConvergenceLensSource + worldConvergenceLensComponent), false);
-assert.match(worldAllResearchSource, /admin_convergence_candidates/);
+assert.equal(worldAllResearchSource.includes('supabase.rpc("admin_convergence_candidates"'), false, "public projection must never invoke an admin RPC");
 assert.equal(/\.from\(["']research_candidates["']/.test(worldAllResearchSource), false, "pending candidates must use the existing secured admin RPC, not a direct table grant");
 assert.equal(/#[0-9a-fA-F]{3,8}\b/.test(worldConvergenceLensCss), false, "scoped Convergence UI must use canonical theme tokens, not local hex colors");
 
