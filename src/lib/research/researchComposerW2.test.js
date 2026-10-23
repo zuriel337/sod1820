@@ -8,6 +8,7 @@ import {
 } from "./researchIdentityResolver.js";
 import { buildResearchPlanV2, RESEARCH_CAPABILITY } from "./researchPlanV2.js";
 import { buildRazielRouteGrammar, RAZIEL_ROUTE_ACTION } from "./razielRouteGrammar.js";
+import { projectHeichalEntryInput, projectHeichalFirstDecoding } from "./heichalFirstDecodingPlan.js";
 import {
   CAPABILITY_STATUS,
   capabilityResult,
@@ -247,4 +248,35 @@ test("Raziel Route Grammar does not match route verbs inside unrelated longer wo
   assert.equal(hebrew.requested_by, "surface_default");
   assert.equal(english.requested_action, RAZIEL_ROUTE_ACTION.UNDERSTAND);
   assert.equal(english.requested_by, "surface_default");
+});
+
+
+// This cross-surface contract is intentionally inside the already-scheduled W2 Research
+// CI test suite. The dedicated Heichal interaction tests remain a separate, non-CI Golden.
+test("Heichal input gate retains the human question before any Gematria routing", () => {
+  const input = projectHeichalEntryInput("איפה מופיע פה אל פה במקרא?");
+  assert.equal(input.ready, true);
+  assert.equal(input.inputKind, "unresolved_text");
+  assert.equal(input.canResolveExpression, false);
+  assert.equal(input.autoCalculate, false);
+  assert.equal(input.input, "איפה מופיע פה אל פה במקרא?");
+  assert.equal(projectHeichalEntryInput("פה אל פה", {
+    explicitlyChoseGematria: true,
+  }).canResolveExpression, false);
+  assert.equal(projectHeichalEntryInput("פה אל פה", {
+    explicitlyChoseGematria: true, exactExpressionSelected: true,
+  }).canResolveExpression, true);
+});
+
+test("Heichal proposes sources honestly and never dispatches relations into numeric-only executor", () => {
+  const phrase = projectHeichalFirstDecoding({
+    subject: { type: "phrase", id: "פה אל פה" }, direction: "sources",
+  });
+  assert.match(phrase.steps.find((x) => x.key === "sources").explanation, /רב־מילים/);
+  assert.match(phrase.steps.find((x) => x.key === "sources").explanation, /אינם זמינים/);
+  const relations = projectHeichalFirstDecoding({
+    subject: { type: "number", id: "363" }, direction: "relations",
+  });
+  assert.equal(relations.canRunBoundedNumber, false);
+  assert.ok(relations.steps.some((x) => x.key === "numeric_relations"));
 });
