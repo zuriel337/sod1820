@@ -359,9 +359,9 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
   if (lensResult.lens === "matrix-candidates") {
     const items = Array.isArray(lensResult.items) ? [...lensResult.items].sort((a, b) => Number(a.distance) - Number(b.distance) || String(a.term).localeCompare(String(b.term), "he")) : [];
     return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings">
-      <strong>כל מה שנמצא במטריצה · {items.length}</strong>
-      <small>ממוינים מהקרוב לרחוק ביחס לציר הראשי. מילה שלא נשמרה עדיין היא מועמדת; הוספה מפעילה אימות קנוני לפני שהיא מוצגת כממצא.</small>
-      <div className="els29-native-line-words els29-native-candidate-list" role="region" tabIndex={0} aria-label="כל המילים שנמצאו במטריצה, מהקרוב לרחוק">
+      <strong>ממצאים קרובים עם המשך · {items.length}</strong>
+      <small>ממוינים מהקרוב לרחוק ביחס לציר הראשי. מוצגות רק מילים שנמצאה להן מילה נוספת בהמשך הציר; „אמת והוסף” עדיין מפעיל אימות קנוני.</small>
+      <div className="els29-native-line-words els29-native-candidate-list" role="region" tabIndex={0} aria-label="ממצאים קרובים עם המשך, מהקרוב לרחוק">
         {items.map((item) => {
           const addedFinding = findings.find((finding) => finding.t === item.term);
           const openHit = [...(addedFinding?.hits || []), ...(addedFinding?.sourceHits || [])]
@@ -373,7 +373,7 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
               onClick={() => onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })}
               aria-label={`פתח את המשך הציר של ${label}`}>
               <b>{label}</b><small>מרחק {item.distance} תאים · לחצו להמשך הציר</small>
-            </button> : <div className="els29-native-discovered-term"><b>{label}</b><small>מרחק {item.distance} תאים · {added ? "האימות עדיין נמשך" : "מועמד נוסף"}</small></div>}
+            </button> : <div className="els29-native-discovered-term"><b>{label}</b><small>מרחק {item.distance} תאים · {added ? "האימות עדיין נמשך" : `המשך: ${(item.continuations || []).slice(0, 3).map((word) => word.label || word.term).join(" · ")}`}</small></div>}
             <button type="button" disabled={addingFinding || (added ? !openHit : findings.length >= 12)}
               onClick={() => openHit
                 ? onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })
@@ -384,7 +384,8 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
           </div>;
         })}
       </div>
-      {!items.length ? <p className="els29-native-muted">לא נמצאו בחלון הזה מילים נוספות מהמאגר הקיים. אפשר להגדיל את חלון החיפוש ולסרוק שוב.</p> : null}
+      {!items.length ? <p className="els29-native-muted">לא נמצאו בחלון הזה ממצאים קרובים שיש להם המשך ציר מוכר.</p> : null}
+      {lensResult.truncated ? <small>נבדקו {lensResult.scanned} הממצאים הקרובים ביותר מתוך {lensResult.available}. הגדילו את החלון רק אם צריך.</small> : null}
       {findings.length >= 12 && items.some((item) => !findings.some((finding) => finding.t === item.term))
         ? <small>אפשר לראות את כל הרשימה, אך במטריצה פעילה נשמרים עד 12 ממצאים משניים. הסירו ממצא כדי לאמת ולהוסיף אחר.</small> : null}
     </div>;
@@ -605,11 +606,11 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           <div className="els29-native-secondary-status" role="status" aria-live="polite" aria-busy={pending}>
             {searchPending ? "ממתין לסיום החיפוש הראשי…" : operation?.status === "searching" ? "מחפש את המילה במטריצה…" : operation?.status === "verifying" ? "בודק את המופעים שנמצאו…" : operation?.status === "error" ? operation.message || "החיפוש לא הושלם. נסו שוב." : operation?.status === "done" ? "החיפוש הושלם. הממצאים מופיעים ברשימה." : "החיפוש מתבצע במטריצה הנוכחית."}
           </div>
-          <button type="button" className="els29-native-discover-all" aria-label="הצג את כל מה שנמצא במטריצה"
+          <button type="button" className="els29-native-discover-all" aria-label="מצא ממצאים קרובים עם המשך"
             disabled={!verified || pending || lensPending} onClick={() => onDiscover({ hitId: state.axis.hitId })}>
-            {lensPending ? "סורק את המטריצה…" : "הצג את כל מה שנמצא במטריצה"}
+            {lensPending ? "בודק המשכי צירים…" : "מצא קרובים עם המשך"}
           </button>
-          <small className="els29-native-discover-note">זמין לכל צופה. הסריקה מתחילה רק בלחיצה ואינה משנה את הצופן השמור.</small>
+          <small className="els29-native-discover-note">זמין לכל צופה. מתחיל רק בלחיצה, מציג רק ממצאים עם המשך ואינו משנה את הצופן השמור.</small>
           <label className="els29-native-radius">
             <span>מרחק מרבי מהציר הראשי</span>
             <select aria-label="מרחק מרבי מהציר הראשי" value={radius === null ? "all" : radius} disabled={!verified || pending}
@@ -620,7 +621,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           </label>
         </div>
         {lensPending || lensResult ? <details key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
-          <summary>{lensResult?.lens === "matrix-candidates" ? "כל מה שנמצא במטריצה" : lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
+          <summary>{lensResult?.lens === "matrix-candidates" ? "ממצאים קרובים עם המשך" : lensResult?.lens === "line-context" ? "תוצאות סריקת הציר" : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
           {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding}
             onOpenFinding={(findingTarget) => { selectTarget(findingTarget.term, findingTarget.hitId);onScan(findingTarget); }} addingFinding={pending} />}
         </details> : null}

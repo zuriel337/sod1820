@@ -2386,12 +2386,19 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(d.type==="request-lens"&&d.lens==="matrix-candidates"){
       const target=d.target||{},hit=hasGov(st.res)?occ():null;
       if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
-      // F03 is an existing window-local candidate generator. Expose terms only: candidate
-      // coordinates never cross the bridge and adding a term still uses the normal canonical
-      // verification path before it can become a Finding.
-      const items=scanCandidates().sort((a,b)=>a.distance-b.distance||norm(a.term).localeCompare(norm(b.term),"he"))
-        .map(candidate=>({term:norm(candidate.term),label:candidate.term,distance:candidate.distance}));
-      postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",provenanceSource:"legacy_els_dict",coverage:"displayed-window",items,total:items.length});
+      // Compose the existing window candidate generator with the existing literal line reader,
+      // only after an explicit click. Candidates without another recognized word on their exact
+      // line stay out of the simple result. Coordinates never cross the bridge and adding a term
+      // still runs the normal canonical verification before it becomes a Finding.
+      const available=scanCandidates().sort((a,b)=>a.distance-b.distance||norm(a.term).localeCompare(norm(b.term),"he")),scanCap=48;
+      const items=available.slice(0,scanCap).map(candidate=>{
+        const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48);
+        if(!continuation.words.length)return null;
+        return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,
+          continuations:continuation.words.map(word=>({term:word.term,label:word.label})),continuationTruncated:continuation.truncated};
+      }).filter(Boolean);
+      postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",provenanceSource:"legacy_els_dict",coverage:"displayed-window",
+        items,total:items.length,scanned:Math.min(available.length,scanCap),available:available.length,truncated:available.length>scanCap});
     }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
     if(d.type==="native-control"&&typeof d.action==="string"){
@@ -3568,7 +3575,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         for(let k=1;k<L;k++){const p=s0+step*k;if(p<0||p>=N||T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;
         const distance=distanceToAnchors(pos,axisAnchors,S);
-        if(!best||distance<best.distance||distance===best.distance&&sk<best.skip)best={term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,gem:gem(raw),distance};
+        if(!best||distance<best.distance||distance===best.distance&&sk<best.skip)best={term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,dir:Math.sign(step),start:s0,positions:pos,gem:gem(raw),distance};
       }
       if(best)out.set(t,best);
     }
