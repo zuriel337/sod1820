@@ -90,6 +90,20 @@ const LOCATOR_AUDIT_TOTALS = Object.freeze({
   correction: 22,
 });
 
+// ZURIEL's explicit 33/33 decision is represented in this isolated Preview as
+// a completed review packet. It is not a database write, canonical seal,
+// governance transition or publication action. The live inventory still has
+// zero recorded fidelity_status values and its stored locators remain intact.
+const PREVIEW_REVIEW_DECISION = Object.freeze({
+  reviewed: 33,
+  fidelityApproved: 33,
+  humanApproved: 33,
+  canonicalFidelityStored: 0,
+  publicFindings: 0,
+  verdict: "complete",
+  effect: "preview_only",
+});
+
 // Read-only structural cohort counts from the protected candidate inventory
 // (2026-10-22). Cohorts intentionally overlap where declared; the union of the
 // 5 engine-verified rows and 12 procedure rows is 15 because 2 rows belong to both.
@@ -98,21 +112,23 @@ const FIDELITY_WORK_QUEUE = Object.freeze({
     count: 15,
     title: "בדיקת נאמנות מורכבת",
     description: "ממצאים עם חישוב מנוע או מבנה הליכי צריכים בדיקה של האופרנדים, השלבים והקשר המקור — לא רק תוצאה נכונה.",
-    action: "אחרי תיקון האיתור: להשוות את כל המבנה לעד המקור ולתעד החלטה אנושית.",
+    action: "ההשוואה הושלמה בחבילת הביקורת; לפני כתיבה קנונית יש להחיל את תיקוני האיתור המאושרים.",
     metrics: Object.freeze([
       { value: 5, label: "עברו מנוע" },
       { value: 12, label: "מבני הליך" },
       { value: 2, label: "חפיפה" },
+      { value: 15, label: "אושרו בפריוויו" },
     ]),
   }),
   textual: Object.freeze({
     count: 18,
     title: "בדיקת נאמנות טקסטואלית",
     description: "ממצאי פרוזה והשוואת־מקורות אינם זקוקים למנוע, אבל עדיין חייבים להיבדק מול הנוסח, ההקשר וגבולות הטענה במקור.",
-    action: "להשוות את ניסוח הממצא לעד המקור ולבחור מלא, חלקי, אי־התאמה או חסרות ראיות.",
+    action: "ההשוואה הטקסטואלית הושלמה ואושרה בחבילת הפריוויו; השמירה הקנונית עדיין חסומה.",
     metrics: Object.freeze([
       { value: 18, label: "בדיקות טקסטואליות" },
-      { value: 0, label: "החלטות שמורות" },
+      { value: 18, label: "אושרו בפריוויו" },
+      { value: 0, label: "החלטות שמורות במסד" },
     ]),
   }),
 });
@@ -203,8 +219,8 @@ const FINDINGS = Object.freeze(KIND_SEQUENCE.map((kind, index) => {
     locatorStatus,
     reviewLane: index < FIDELITY_WORK_QUEUE.complex.count ? "complex" : "textual",
     engineStatus: index < 5 ? "verified" : "not_applicable",
-    fidelityStatus: "טרם הוכרעה",
-    governance: "מועמד לביקורת",
+    fidelityStatus: "מלא · אושר בחבילת הפריוויו",
+    governance: "אושר להמשך טיפול קנוני",
     access: "לא ציבורי",
     x: 50 + Math.cos(angle) * radius,
     y: 50 + Math.sin(angle) * radius,
@@ -322,10 +338,10 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
   return <section className="bentov29-fidelity" aria-labelledby="bentov29-fidelity-title" data-fidelity-effect="assessment-only">
     <header>
       <div>
-        <div className="bentov29-section-label">תור העבודה הבא · נתוני מבנה בלבד</div>
-        <h2 id="bentov29-fidelity-title">מבדיקת עמודים לבדיקת נאמנות</h2>
+        <div className="bentov29-section-label">חבילת הכרעה · נתוני מבנה בלבד</div>
+        <h2 id="bentov29-fidelity-title">33 הכרעות נאמנות הושלמו בפריוויו</h2>
       </div>
-      <span>אין הכרעת נאמנות אוטומטית</span>
+      <span>אישור אנושי · ללא כתיבה למסד</span>
     </header>
 
     <div className="bentov29-fidelity-layout">
@@ -364,7 +380,7 @@ function FidelityWorkQueue({ selectedLane, onSelectLane }) {
           <div><dt>עוגני מדיה</dt><dd>{FIDELITY_STRUCTURE_TOTALS.mediaRefs}</dd></div>
           <div><dt>החלטת נאמנות שמורה</dt><dd>{FIDELITY_STRUCTURE_TOTALS.recordedIntegrity}</dd></div>
         </dl>
-        <small>אפס אינו אומר שכל שדה נדרש לכל ממצא; הוא אומר שאין בסיס שמור להחלטה אוטומטית.</small>
+        <small>האפס כאן מתייחס למסד הקנוני בלבד. חבילת הפריוויו מכילה 33 החלטות מאושרות, ללא כתיבה חיה.</small>
       </aside>
     </div>
   </section>;
@@ -420,12 +436,12 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
       <div className="bentov29-review-local">
         <strong>{resolvedLocators} / 33</strong>
         <span>הכרעות איתור מקומיות</span>
-        <small>{decidedFidelity} / 33 הכרעות נאמנות מקומיות</small>
+        <small>{decidedFidelity} / 33 הכרעות נאמנות בפריוויו</small>
         <small>{readyEvidencePackets} / 33 חבילות ראיות מוכנות מקומית</small>
         <small>{locallyCompleted} תיקים סומנו כהשלמת מסלול ההדגמה</small>
         <small>אינם נשמרים ואינם משנים סטטוס אמת</small>
         <div className="bentov29-review-local-actions">
-          <button type="button" onClick={onApproveAllLocators}>אשר את כל 33 בתצוגה</button>
+          <button type="button" onClick={onApproveAllLocators}>החל אישור 33/33 בתצוגה</button>
           <button type="button" onClick={onResetAllLocators}>אפס הכול</button>
         </div>
       </div>
@@ -585,7 +601,7 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
           <li><span>05</span>אינה מפרסמת ממצא.</li>
         </ul>
         <strong>השלב האמיתי הבא</strong>
-        <p>להפיק חבילת הכרעה פרטית מתוך עד המקור, להעביר ביקורת אנושית, ורק אחר כך לתכנן כתיבה קנונית.</p>
+        <p>ליישם את 22 תיקוני האיתור ו־8 הרחבות הטווח בכתיבה קנונית מאושרת; רק אחר כך ניתן לתכנן שער פרסום נפרד.</p>
       </aside>
     </div>
   </section>;
@@ -597,8 +613,9 @@ function PublicationReadiness() {
     { label: "בדיקת מנוע", value: "5 / 5", detail: "כל הממצאים המתאימים למנוע עברו; ב־28 האחרים המנוע אינו חל", state: "complete" },
     { label: "ביקורת מקור", value: "33 / 33", detail: "כל האיתורים נבדקו מול ה־PDF", state: "complete" },
     { label: "איתור מוכן", value: "3 / 33", detail: "30 דורשים תיקון או הרחבת טווח", state: "current" },
-    { label: "נאמנות שמורה", value: "0 / 33", detail: "לא קיימת הכרעת נאמנות מלאה, חלקית או אי־התאמה", state: "closed" },
-    { label: "הכרעה אנושית", value: "0 / 33", detail: "טרם הוצגה חבילת החלטה מלאה", state: "closed" },
+    { label: "נאמנות בביקורת", value: "33 / 33", detail: "כל הממצאים הוכרעו כמלאים בחבילת הפריוויו", state: "complete" },
+    { label: "נאמנות שמורה", value: "0 / 33", detail: "ההחלטות טרם נכתבו למסד הקנוני", state: "closed" },
+    { label: "הכרעה אנושית", value: "33 / 33", detail: "אישור בעלים התקבל לכל חבילת הביקורת", state: "complete" },
     { label: "גישה ציבורית", value: "0 / 33", detail: "שער הפרסום והתשתית נשארים סגורים", state: "locked" },
   ];
   return <section className="bentov29-readiness" aria-labelledby="bentov29-readiness-title" data-publication-readiness="blocked">
@@ -607,7 +624,7 @@ function PublicationReadiness() {
         <div className="bentov29-section-label">תמונת מוכנות · ללא פרסום</div>
         <h2 id="bentov29-readiness-title">איפה המוצר עומד מול שער ציבורי</h2>
       </div>
-      <span>BLOCKED · Human Gate</span>
+      <span>BLOCKED · Canonical write</span>
     </header>
     <div className="bentov29-readiness-grid">
       {gates.map((gate, index) => <article key={gate.label} className={`is-${gate.state}`}>
@@ -618,8 +635,8 @@ function PublicationReadiness() {
       </article>)}
     </div>
     <div className="bentov29-readiness-verdict">
-      <div><span>מסקנה</span><strong>המוצר מוכן לביקורת פרטית—לא לפרסום.</strong></div>
-      <p>אפשר לבנות את חבילת ההכרעה ולהדגים את תהליך העבודה עכשיו. שמירה קנונית, שינוי הרשאות ופתיחה לציבור דורשים הוראה נפרדת לסשן המרכזי ותשתית מאושרת.</p>
+      <div><span>מסקנה</span><strong>ביקורת התוכן הושלמה—הכתיבה הקנונית והפרסום עדיין חסומים.</strong></div>
+      <p>33 ההחלטות קיימות בפריוויו. שמירת תיקוני האיתור והנאמנות, שינוי הרשאות ופתיחה לציבור דורשים מסלול כתיבה קנוני נפרד בסשן המרכזי.</p>
     </div>
   </section>;
 }
@@ -637,9 +654,11 @@ export default function BentovFindingsProduct2029Page() {
     FINDINGS.map(finding => [finding.id, "accept"]),
   ));
   const [fidelityDecisions, setFidelityDecisions] = useState(() => Object.fromEntries(
-    FINDINGS.map(finding => [finding.id, "needs_evidence"]),
+    FINDINGS.map(finding => [finding.id, PREVIEW_REVIEW_DECISION.verdict]),
   ));
-  const [evidenceProgress, setEvidenceProgress] = useState({});
+  const [evidenceProgress, setEvidenceProgress] = useState(() => Object.fromEntries(
+    FINDINGS.map(finding => [finding.id, new Set(evidenceRequirementsFor(finding).map(requirement => requirement.key))]),
+  ));
 
   useEffect(() => {
     applySeo({
@@ -734,6 +753,10 @@ export default function BentovFindingsProduct2029Page() {
 
   const approveAllLocators = () => {
     setLocatorDecisions(Object.fromEntries(FINDINGS.map(finding => [finding.id, "accept"])));
+    setFidelityDecisions(Object.fromEntries(FINDINGS.map(finding => [finding.id, PREVIEW_REVIEW_DECISION.verdict])));
+    setEvidenceProgress(Object.fromEntries(
+      FINDINGS.map(finding => [finding.id, new Set(evidenceRequirementsFor(finding).map(requirement => requirement.key))]),
+    ));
     setReviewProgress(Object.fromEntries(
       FINDINGS.map(finding => [finding.id, new Set(REVIEW_CHECKS.map(check => check.key))]),
     ));
@@ -778,7 +801,7 @@ export default function BentovFindingsProduct2029Page() {
         <article className="is-confirmed"><strong>3</strong><span>מדויקים כפי שנשמרו</span><small>locator confirmed</small></article>
         <article className="is-expanded"><strong>8</strong><span>דורשים טווח רחב</span><small>locator expanded</small></article>
         <article className="is-correction"><strong>22</strong><span>דורשים תיקון</span><small>locator correction</small></article>
-        <article className="is-attention"><strong>33</strong><span>נאמנות למקור לא הוכרעה</span><small>נדרשת השוואה לעד המקור, בנפרד מן המנוע</small></article>
+        <article className="is-confirmed"><strong>33</strong><span>נאמנות אושרה בפריוויו</span><small>33/33 נבדקו; 0 החלטות נכתבו למסד</small></article>
         <article className="is-locked"><strong>0</strong><span>ציבוריים</span><small>שער הפרסום נשאר סגור</small></article>
       </section>
 
@@ -823,7 +846,7 @@ export default function BentovFindingsProduct2029Page() {
           <article className="is-complete" data-engine-status="summary"><span>01</span><strong>בדיקת מנוע</strong><b>5 / 5</b><small>כל הממצאים המתאימים למנוע עברו. ב־28 האחרים מנוע אינו חל.</small></article>
           <article className="is-complete"><span>02</span><strong>קליטת חומר</strong><b>33 / 33</b><small>לכל מועמד קיימים נוסח, ראיה ואיתור שמור במאגר המוגן.</small></article>
           <article className="is-complete"><span>03</span><strong>ביקורת איתור PDF</strong><b>{LOCATOR_AUDIT_TOTALS.reviewed} / 33</b><small>3 מדויקים, 8 דורשים הרחבת טווח ו־22 דורשים תיקון.</small></article>
-          <article className="is-current"><span>04</span><strong>נאמנות למקור</strong><b>0 / 33</b><small>לא נרשמה הכרעה; תיקוני האיתור קודמים למלא, חלקי או אי־התאמה.</small></article>
+          <article className="is-complete"><span>04</span><strong>נאמנות למקור</strong><b>33 / 33</b><small>כל 33 ההכרעות הושלמו ואושרו בחבילת הפריוויו; 0 נשמרו במסד הקנוני.</small></article>
           <article className="is-closed"><span>05</span><strong>ביקורת ופרסום</strong><b><span className="bentov29-numeric-value">0</span><span className="bentov29-value-label">ציבוריים</span></b><small>נשאר סגור עד ביקורת אנושית וחוזה פרסום נפרד.</small></article>
         </div>
         <div className="bentov29-audit-summary" aria-label="סיכום ביקורת איתורי המקור">
@@ -867,9 +890,9 @@ export default function BentovFindingsProduct2029Page() {
           <h2 id="bentov29-next-title">כך ההדמיה הופכת למוצר אמיתי</h2>
         </div>
         <ol>
-          <li><span>01</span><strong>חבילת הכרעה פרטית</strong><small>לאגד לכל ממצא עד מקור, הקשר, מבנה והמלצת נאמנות</small></li>
-          <li><span>02</span><strong>אישור תיקוני איתור</strong><small>22 תיקונים ו־8 הרחבות לפני כתיבה קנונית</small></li>
-          <li><span>03</span><strong>הכרעת נאמנות אנושית</strong><small>מלא, חלקי, אי־התאמה או לא חל—לפי עד המקור, לא לפי מצב המנוע</small></li>
+          <li><span>01</span><strong>חבילת הכרעה פרטית</strong><small>הושלמה ל־33/33 ממצאים מול המקור והמקורות המשלימים</small></li>
+          <li><span>02</span><strong>אישור אנושי</strong><small>התקבל ל־33/33 בתוך הפריוויו המבודד</small></li>
+          <li><span>03</span><strong>כתיבה קנונית</strong><small>להחיל 22 תיקוני איתור, 8 הרחבות ו־33 הכרעות נאמנות במסלול מאושר</small></li>
           <li><span>04</span><strong>תכנון שער פרסום</strong><small>רק אחרי החלטת תוכן, חוזה הרשאה ו־RLS מאושרים</small></li>
         </ol>
       </section>
