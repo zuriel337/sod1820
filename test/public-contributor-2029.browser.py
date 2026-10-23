@@ -4,7 +4,7 @@ from urllib.parse import urlencode, urlparse
 from playwright.sync_api import sync_playwright
 
 
-# Run from the repository root with the localhost Vite server on port 5179.
+# Run from the repository root with the localhost Vite server on port 5181.
 Path('work').mkdir(exist_ok=True)
 Path('work/contributor-review.html').write_text('<!doctype html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>בדיקה מקומית · דף כותב</title></head><body style="margin:0"><div id="root"></div><script type="module" src="/test/fixtures/public-contributor-2029-review.jsx"></script></body></html>')
 
@@ -12,7 +12,7 @@ out=Path(os.environ.get('CONTRIBUTOR_OUTPUT','work/evidence'))
 out.mkdir(parents=True,exist_ok=True)
 shots=out/'screenshots'
 shots.mkdir(exist_ok=True)
-base='http://127.0.0.1:5179/work/contributor-review.html'
+base='http://127.0.0.1:5181/work/contributor-review.html'
 report={'captures':[],'states':[],'errors':[],'external_requests':[]}
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])

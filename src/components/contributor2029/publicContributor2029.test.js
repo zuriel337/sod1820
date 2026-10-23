@@ -16,17 +16,19 @@ function fakeClient(tables, calls) {
       select: (fields) => { entry.fields = fields; return b; },
       eq: (key, value) => { entry.filters.push([key,value]); filters.push((row) => String(row[key]) === String(value)); return b; },
       in: (key, values) => { filters.push((row) => values.includes(row[key])); return b; },
+      or: () => b, like: () => b,
+      is: (key, value) => { filters.push((row) => value === null ? row[key] == null : row[key] === value); return b; },
       order: () => b,
       range: () => Promise.resolve(result()), maybeSingle: () => Promise.resolve(result(true)),
       then: (resolve, reject) => Promise.resolve(result()).then(resolve,reject),
     };
     function result(single = false) {
       if (tables[table]?.error) return tables[table];
-      const rows = (tables[table] || []).filter((row) => filters.every((filter) => filter(row)));
+      const rows = (tables[table] || (table === "world_contributor_research_v1" ? tables.research_objects : null) || []).filter((row) => filters.every((filter) => filter(row)));
       return { data: single ? rows[0] || null : rows, count: rows.length };
     }
     return b;
-  } };
+  }, rpc() { return Promise.resolve({data:[]}); } };
 }
 
 test("loader resolves exact code/slug, reuses canonical reader with PUBLIC_VIEW and only anonymous client", async () => {

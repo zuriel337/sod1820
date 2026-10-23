@@ -1,0 +1,128 @@
+{
+  "captures": [
+    {
+      "width": 320,
+      "theme": "light",
+      "initial_cards": 20,
+      "catalogue_reachable": 24,
+      "paired_cards": 1,
+      "overflow": false,
+      "reload_page_preserved": true,
+      "community_separate": true
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "initial_cards": 20,
+      "catalogue_reachable": 24,
+      "paired_cards": 1,
+      "overflow": false,
+      "reload_page_preserved": true,
+      "community_separate": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "initial_cards": 20,
+      "catalogue_reachable": 24,
+      "paired_cards": 1,
+      "overflow": false,
+      "reload_page_preserved": true,
+      "community_separate": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "initial_cards": 20,
+      "catalogue_reachable": 24,
+      "paired_cards": 1,
+      "overflow": false,
+      "reload_page_preserved": true,
+      "community_separate": true
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "initial_cards": 20,
+      "catalogue_reachable": 24,
+      "paired_cards": 1,
+      "overflow": false,
+      "reload_page_preserved": true,
+      "community_separate": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "initial_cards": 20,
+      "catalogue_reachable": 24,
+      "paired_cards": 1,
+      "overflow": false,
+      "reload_page_preserved": true,
+      "community_separate": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "initial_cards": 20,
+      "catalogue_reachable": 24,
+      "paired_cards": 1,
+      "overflow": false,
+      "reload_page_preserved": true,
+      "community_separate": true
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "initial_cards": 20,
+      "catalogue_reachable": 24,
+      "paired_cards": 1,
+      "overflow": false,
+      "reload_page_preserved": true,
+      "community_separate": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "initial_cards": 20,
+      "catalogue_reachable": 24,
+      "paired_cards": 1,
+      "overflow": false,
+      "reload_page_preserved": true,
+      "community_separate": true
+    }
+  ],
+  "loader": [
+    {
+      "viewer": "anonymous",
+      "request_count": 6,
+      "tables": [
+        "contributors",
+        "contributors",
+        "channel_updates",
+        "research_contributions",
+        "channel_updates",
+        "channel_updates"
+      ],
+      "research_requests": 0,
+      "anonymous_only": true,
+      "fixture_render_ms": 814
+    },
+    {
+      "viewer": "admin",
+      "request_count": 6,
+      "tables": [
+        "contributors",
+        "contributors",
+        "channel_updates",
+        "research_contributions",
+        "channel_updates",
+        "channel_updates"
+      ],
+      "research_requests": 0,
+      "anonymous_only": true,
+      "fixture_render_ms": 903
+    }
+  ],
+  "external_requests": [],
+  "errors": []
+}
