@@ -960,3 +960,49 @@ partial and no significance/FDR claim is introduced. B12/B13, full 3D, `research
 implementation, schema/data changes, RLS/permissions, Production migrations and `decision_ledger`
 remain outside this delta. No Preview, Production, database, RLS, permission, merge or PR action was
 performed.
+
+## 20. RESEARCH RESULT TRIAGE — 2026-10-23
+
+`els_result_triage_v1` removes the need to open a long regular-search or cross-search result set one
+item at a time. After an explicit search completes in Research, the already-mounted canonical engine
+performs a bounded, cancellable read-only pass over the current regular result page (up to the
+existing 80 items) or over each complete cross meeting. It returns a deterministic inspection order,
+up to three first-review recommendations and visible `למה לבדוק` reasons. Every original result
+remains available; this is rank-don't-hide presentation and never a proof, strength or Truth score.
+
+The pass reuses the dynamic Torah-language lexicon only after the user has searched. It looks for an
+exact longer lexical form that contains the selected term on the same path, direction and skip, with
+the added letters immediately adjacent to the selected cells. It can also report bounded nearby
+same-line terms and existing notable-skip metadata. Repeated exact continuations receive higher
+inspection priority. A cross result is ranked as one meeting (axis plus all meeting terms), not as
+unrelated individual hits. Opening Research, switching profiles or merely opening Results performs no
+heavy corpus work before a completed search.
+
+The engine/host boundary returns result identity, rank, explanations and lexical labels only; the
+triage payload exports no cell arrays, starts or corpus coordinates. Work is yielded in small batches,
+uses the existing progress/cancel surface and rejects a late completion after cancellation, a new
+search, page replacement or axis replacement. The host keeps only ephemeral presentation of the
+engine-owned page so the ranked list survives opening one result and returning. No second engine,
+state, store, graph, API, schema or database path was added. Classic remains manual and never starts
+automatic triage.
+
+Acceptance is green: the ELS core/contract suite completed **183 pass / 0 fail / 3 skip** (the three
+unchanged skips require local PostgreSQL); canonical browser cutover passed **26/26**; complete native
+browser acceptance passed **43/43**, including regular Torah/Tanakh pages, whole cross meetings,
+mobile bounded scrolling, privacy, cancellation, the full Research v1 journey and all three palettes;
+Advanced/FORMS browser checks passed **2/2**. Both production builds passed. The 2029 bundle budget
+passed **5/5** with entry **9 chunks / 174.1 KB gzip**; the built ELS route is **214.99 kB raw /
+63.86 kB gzip JS** and **76.61 kB raw / 11.16 kB gzip CSS**.
+
+Deterministic level-9 measurements captured immediately before and after this delta are:
+
+| Artifact | Before | Result triage | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,613,166 / 955,296 B | 1,621,288 / 957,701 B | +8,122 / +2,405 B |
+| Legacy standalone, raw / gzip | 2,519,485 / 1,643,267 B | 2,527,607 / 1,645,707 B | +8,122 / +2,440 B |
+
+This extends the existing Research presentation and does not add or renumber a capability. The
+85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL + 4 PARKED + 1 NEVER**. B12/B13,
+full 3D, `research_objects`, Raziel implementation, schema/data changes, RLS/permissions, Production
+migrations and `decision_ledger` remain outside this delta. No Preview, Production, database, RLS,
+permission, merge or PR action was performed.

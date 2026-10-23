@@ -1581,7 +1581,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // לא מנוע, store או אמת נוספים; כל מופע עדיין עובר אימות ELS קנוני לפני שהוא Finding.
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
   const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",
-    STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",_corpusLexiconCache={torah:null,tanakh:null};
+    RESULT_TRIAGE_CONTRACT="els_result_triage_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",_corpusLexiconCache={torah:null,tanakh:null};
   function addCandidateLexiconTerm(map,raw,source,support=1){
     const label=String(raw||"").trim().replace(/\s+/g," "),term=norm(label);
     if(term.length<3||term.length>24)return;
@@ -2544,6 +2544,48 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         }else postHost({type:"lens",lens:"line-context",ok:false,target});
       };
       if(target.scan===true)dynamicCandidateLexicon().then(publish);else publish(null);
+    }
+    if(d.type==="request-lens"&&d.lens==="result-triage"){
+      const target=d.target||{},kind=target.kind==="cross"?"cross":"regular";
+      const initial=kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
+      if(!initial||target.setId!==initial.id||kind==="regular"&&Number(target.page)!==Number(initial.page)){
+        postHost({type:"lens",lens:"result-triage",ok:false,target,reason:"results-changed"});return;
+      }
+      const initialItems=initial.items.filter(item=>item.available!==false);
+      postHost({type:"lens-progress",lens:"result-triage",target:{nativeSeq:target.nativeSeq},progress:{phase:"triage",completed:0,total:initialItems.length}});
+      dynamicCandidateLexicon().then(async lexicon=>{
+        const current=kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
+        if(lensEpoch!==_nativeLensSeq||!current||target.setId!==current.id||kind==="regular"&&Number(target.page)!==Number(current.page))return;
+        const sourceItems=current.items.filter(item=>item.available!==false),rows=[];
+        for(let offset=0;offset<sourceItems.length;offset++){
+          if(lensEpoch!==_nativeLensSeq)return;
+          const item=sourceItems[offset];
+          if(kind==="regular"){
+            const hit=st.res?.hits?.[item.index];
+            if(isGov(hit)&&hitKey(hit)===item.hitId)rows.push({key:item.hitId,order:item.ordinal,index:item.index,ordinal:item.ordinal,skip:item.skip,direction:item.direction,ref:item.ref,
+              signals:[triageHitSignals(hit,st.raw,lexicon.entries)]});
+          }else{
+            const zone=st.crossMeetings?.[item.index],result=zone?.axis&&st.crossResCache?st.crossResCache[zone.axis]:st.res,axisHit=result?.hits?.[zone?.occ],signals=[];
+            if(isGov(axisHit))signals.push(triageHitSignals(axisHit,zone.axis||st.raw,lexicon.entries));
+            for(const detail of zone?.detail||[]){
+              const term=norm(detail.t),skip=Math.abs(Number(detail.skip)),dir=Number(detail.dir),start=Number(detail.p0);
+              if(term.length<2||skip<1||![1,-1].includes(dir)||!Number.isInteger(start))continue;
+              const positions=Array.from(term,(_,index)=>start+dir*skip*index);
+              if(positions.some(position=>position<0||position>=scopeN()))continue;
+              signals.push(triageHitSignals({skip,dir,start,positions},detail.t,lexicon.entries));
+            }
+            rows.push({key:String(item.index),order:item.index,index:item.index,axis:item.axis,terms:item.terms,skip:item.skip,distance:item.distance,stars:item.stars,signals});
+          }
+          postHost({type:"lens-progress",lens:"result-triage",target:{nativeSeq:target.nativeSeq},progress:{phase:"triage",completed:offset+1,total:sourceItems.length}});
+          if((offset+1)%4===0)await paintOperation();
+        }
+        if(lensEpoch!==_nativeLensSeq)return;
+        const latest=kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
+        if(!latest||latest.id!==target.setId||kind==="regular"&&Number(latest.page)!==Number(target.page))return;
+        postHost({type:"lens",lens:"result-triage",ok:true,target,status:"CANDIDATE",contract:RESULT_TRIAGE_CONTRACT,kind,setId:latest.id,
+          ...(kind==="regular"?{page:latest.page}:{}),provenanceSource:lexicon.contract,coverage:"current-result-page",scanned:rows.length,available:sourceItems.length,
+          items:rankResultTriageItems(rows,kind),lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback}});
+      });
     }
     if(d.type==="request-lens"&&d.lens==="matrix-candidates"){
       const target=d.target||{},hit=hasGov(st.res)?occ():null;
@@ -4609,6 +4651,61 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(all.length>maxWords)truncated=true;
     const words=all.slice(0,maxWords).map(({firstAt,...row})=>row);
     return {status:"CANDIDATE",source:lexicon===DICT?"legacy_els_dict":DYNAMIC_LEXICON_CONTRACT,minLength:3,words,truncated};
+  }
+  // Exact seed expansion on one already-found path. A longer lexical candidate must contain the
+  // selected word at the selected cells and match the immediately adjacent cells on that SAME
+  // skip/direction. It is inspection evidence only; no extension is admitted as a Finding here.
+  function lineExtensionCandidates(hit,word,lexicon=DICT,limit=5){
+    if(!hit||!Array.isArray(hit.positions)||!hit.positions.length)return[];
+    const cells=lineContextCells(hit),line=cells.map(cell=>cell.letter).join(""),main=[];
+    cells.forEach((cell,index)=>{if(cell.main)main.push(index);});
+    const axis=norm(word);if(!axis||main.length!==axis.length)return[];
+    const first=main[0],found=new Map();
+    for(const entry of lexicon){
+      const label=typeof entry==="string"?entry:entry.label||entry.term,term=norm(label);
+      if(term.length<=axis.length||term.length>24)continue;
+      let offset=term.indexOf(axis);
+      while(offset>=0){
+        const at=first-offset;
+        if(at>=0&&at+term.length<=line.length&&line.slice(at,at+term.length)===term){
+          const direction=offset===0?"forward":offset+axis.length===term.length?"backward":"both";
+          const row={term,label,gain:term.length-axis.length,direction,
+            lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1};
+          const prior=found.get(term);if(!prior||row.lexiconSupport>prior.lexiconSupport)found.set(term,row);
+          break;
+        }
+        offset=term.indexOf(axis,offset+1);
+      }
+    }
+    return[...found.values()].sort((a,b)=>b.gain-a.gain||b.lexiconSupport-a.lexiconSupport||a.term.localeCompare(b.term,"he")).slice(0,Math.max(1,Math.min(8,Number(limit)||5)));
+  }
+  function triageHitSignals(hit,word,lexicon){
+    const extensions=lineExtensionCandidates(hit,word,lexicon,5),extensionTerms=new Set(extensions.map(row=>row.term));
+    const scan=scanLineWords(lineContextCells(hit),word,8,32,lexicon);
+    const nearby=scan.words.filter(row=>!extensionTerms.has(row.term)).slice(0,3).map(row=>({term:row.term,label:row.label,lexiconSources:row.lexiconSources}));
+    const ordered=notable(Math.abs(hit.skip));
+    return {term:norm(word),extensions,nearby,notable:ordered?ordered.tag:null,scanTruncated:scan.truncated};
+  }
+  function rankResultTriageItems(rows,kind){
+    const extensionFrequency=new Map();
+    rows.forEach(row=>(row.signals||[]).forEach(signal=>(signal.extensions||[]).forEach(extension=>extensionFrequency.set(extension.term,(extensionFrequency.get(extension.term)||0)+1))));
+    const ranked=rows.map(row=>{
+      const signals=row.signals||[],extensions=signals.flatMap(signal=>signal.extensions||[]),nearby=signals.flatMap(signal=>signal.nearby||[]);
+      const maxGain=extensions.reduce((value,item)=>Math.max(value,Number(item.gain)||0),0),repeat=Math.max(0,...extensions.map(item=>extensionFrequency.get(item.term)||0));
+      const notableSignals=signals.filter(signal=>signal.notable),reasons=[];
+      if(maxGain){const best=extensions.find(item=>Number(item.gain)===maxGain);reasons.push(`המשך מדויק: ${best.label||best.term} · +${maxGain} אותיות`);}
+      if(repeat>1)reasons.push(`אותו המשך מופיע ב־${repeat} תוצאות`);
+      if(kind==="cross"&&Number(row.distance)===0)reasons.push("חצייה מדויקת באות משותפת");
+      else if(kind==="cross"&&Number.isFinite(Number(row.distance)))reasons.push(`מפגש במרחק ${row.distance} תאים`);
+      if(notableSignals.length)reasons.push(`דילוג ${notableSignals[0].notable}`);
+      if(nearby.length)reasons.push(`${nearby.length} מילים נוספות על הציר`);
+      if(!reasons.length)reasons.push("לא זוהה המשך מילוני בחלון; התוצאה נשארת זמינה");
+      const inspectionPriority=maxGain*12+extensions.length*5+(repeat>1?repeat*4:0)+Math.min(nearby.length,3)*2+notableSignals.length*3+
+        (kind==="cross"?(Number(row.stars)||0)*2+(Number(row.distance)===0?8:0):0);
+      return {...row,inspectionPriority,reasons,extensionCount:extensions.length};
+    }).sort((a,b)=>b.inspectionPriority-a.inspectionPriority||b.extensionCount-a.extensionCount||
+      (kind==="cross"?(Number(b.stars)-Number(a.stars)||Number(a.distance)-Number(b.distance)):Number(a.skip)-Number(b.skip))||Number(a.order)-Number(b.order));
+    return ranked.map((row,index)=>({...row,rank:index+1,tier:index<3&&row.inspectionPriority>0?"recommended":row.inspectionPriority>0?"inspect":"available"}));
   }
   function buildLineStrip(hit,color,word){
     const S=Math.abs(hit.skip),step=S*hit.dir,EXT=80;

@@ -1563,7 +1563,7 @@ test('native reliability: cancel aborts verification, rolls back secondary edits
     await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation.status==='done');
     await injectToolMessage(page,{source:'tzofen',type:'operation',kind:'search',requestId:old.requestId,status:'verifying'});
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
-    assert.equal(await page.locator('.els29-native-progress').count(),0,'late progress cannot reopen loading UI');
+    assert.equal(await page.locator('.els29-native-progress[aria-label="התקדמות החיפוש"]').count(),0,'late search progress cannot reopen its loading UI while the new read-only result triage may run');
     const after=await identity(page), aborts=await page.evaluate(()=>window.__fixtureAborts);
     await page.evaluate(()=>{window.__fixtureHoldVerification=true;window.__fixtureReleaseVerification=null;});
     await openPanel(page);await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('התורה');await activate(page,'חפש במטריצה');
@@ -2055,6 +2055,16 @@ test('native results: regular and crossed searches expose selectable results in 
    assert.equal(await page.locator('.els29-native-panel-head>strong').innerText(),'סביבת המחקר');
    const list=page.locator('[aria-label="רשימת תוצאות החיפוש"]');
    assert.equal(await list.isVisible(),true);assert.equal(await list.locator('.els29-native-result').count(),80);
+   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.setId===id,results.id,{timeout:90000});
+   const triage=await page.evaluate(()=>window.__lens);
+   assert.equal(triage.contract,'els_result_triage_v1');assert.equal(triage.kind,'regular');assert.equal(triage.items.length,80);
+   assert.deepEqual(triage.items.map(item=>item.rank),Array.from({length:80},(_,index)=>index+1));
+   assert.ok(triage.items.every(item=>item.reasons.length&&['recommended','inspect','available'].includes(item.tier)));
+   assert.ok(triage.items.every(item=>!['positions','start','p0','p1'].some(key=>Object.hasOwn(item,key))
+     &&item.signals.every(signal=>!['positions','start','p0','p1'].some(key=>Object.hasOwn(signal,key)))),'triage returns ranking metadata without exporting corpus coordinates');
+   assert.equal(await list.locator('[data-triage-tier="recommended"]').count(),3);
+   const resultScroll=await list.locator('.els29-native-result-list').evaluate(node=>({clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
+   assert.ok(resultScroll.clientHeight<=390&&resultScroll.scrollHeight>resultScroll.clientHeight,'ranked results stay in a bounded internal scroller on mobile');
    const bounds=await page.locator('.els29-native-panel-wrap').boundingBox();assert.ok(bounds.y>=0&&bounds.y<844,'completed mobile results come into view');
    assert.equal(await page.getByRole('dialog').count(),0);
    assert.ok(results.items.every(item=>item.skip>=2&&item.ref&&['fwd','back'].includes(item.direction)));
@@ -2063,6 +2073,7 @@ test('native results: regular and crossed searches expose selectable results in 
    assert.equal(await page.evaluate(()=>window.__state.status),'ok','previous wraps across verified ELS only, never literal hits');
    await activate(page,'מופע הבא');await page.waitForFunction(()=>window.__state.search.occurrences.selectedOrdinal===1);
    await activate(page,'עמוד הבא');await page.waitForFunction(()=>window.__state.search.occurrences.page===1);
+   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.setId===id&&window.__lens?.page===1,results.id,{timeout:90000});
    const next=await page.evaluate(()=>window.__state.search.occurrences.items[0]);
    assert.equal(next.ordinal,81);
    await activate(page,'פתח מופע 81');await page.waitForFunction(id=>window.__state.axis.hitId===id,next.hitId);
@@ -2076,6 +2087,10 @@ test('native results: regular and crossed searches expose selectable results in 
    assert.equal(crossed.search.occurrences,null);
    assert.equal(await page.locator('.els29-native-panel-head>strong').innerText(),'סביבת המחקר');
    assert.ok(await page.locator('.els29-native-results:visible .els29-native-result').count()>0);
+   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.kind==='cross'&&window.__lens?.setId===id,crossed.search.results.id,{timeout:90000});
+   const crossTriage=await page.evaluate(()=>window.__lens);
+   assert.equal(crossTriage.items.length,crossed.search.results.items.filter(item=>item.available).length);
+   assert.ok(crossTriage.items.every(item=>item.signals.length>=2&&item.reasons.length),'a crossed result is triaged as the whole meeting');
    const meeting=crossed.search.results.items.find(item=>item.available&&item.index!==crossed.search.zoneIndex);
    if(meeting){await activate(page,`פתח מפגש ${meeting.index+1}`);await page.waitForFunction(id=>window.__state.axis.hitId===id,meeting.hitId);}
   }

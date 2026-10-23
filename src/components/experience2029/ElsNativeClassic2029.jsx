@@ -738,6 +738,8 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
   const elapsed = Math.max(0, now - (request.startedAt || now)) / 1000;
   const label = request.lens === "structure-priority"
     ? progress?.phase === "groups" ? "בונה את קבוצות המבנים וההמלצות…" : progress?.phase === "candidates" ? "סורק את מונחי התורה בחלון המוצג…" : "טוען את מילון התורה ומכין סריקת מבנים…"
+    : request.lens === "result-triage"
+      ? progress?.completed ? "ממיין את כל התוצאות ומחפש המשכים מדויקים…" : "טוען את שפת התורה ומכין מיון תוצאות…"
     : request.lens === "matrix-candidates"
       ? "בודק ממצאים קרובים ואת המשך הצירים…"
       : request.lens === "line-context" && request.target?.scan
@@ -758,10 +760,34 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
   </div>;
 }
 
-function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onContinue }) {
+function ResultTriageSummary({ result, pending }) {
+  if (pending) return <div className="els29-native-triage-summary" role="status"><strong>ממיין את התוצאות…</strong><small>בודק המשך מדויק, מילים נוספות על אותו ציר וסימני מבנה. אפשר לעצור בלי לשנות את המטריצה.</small></div>;
+  if (!result?.ok) return null;
+  const recommended = (result.items || []).filter((item) => item.tier === "recommended");
+  return <div className="els29-native-triage-summary" data-els-result-triage={result.contract}>
+    <strong>{recommended.length ? `${recommended.length} תוצאות שכדאי לפתוח קודם` : "המיון הושלם"}</strong>
+    <small>זהו סדר עדיפות לבדיקה, לא ציון אמת. כל התוצאות נשארות זמינות.</small>
+    {result.lexicon?.fallback ? <small>שפת המקור לא נטענה במלואה ולכן בדיקת ההמשך חלקית.</small> : null}
+  </div>;
+}
+
+function ResultTriageNote({ row }) {
+  if (!row) return null;
+  const extensions = (row.signals || []).flatMap((signal) => signal.extensions || []);
+  return <>
+    <small className={`els29-native-triage-rank is-${row.tier}`}>{row.tier === "recommended" ? `מומלץ לפתוח קודם · מקום ${row.rank}` : row.tier === "inspect" ? `מעניין לבדיקה · מקום ${row.rank}` : `זמין לבדיקה · מקום ${row.rank}`}</small>
+    <small>{(row.reasons || []).slice(0, 3).join(" · ")}</small>
+    {extensions.length ? <small>הרחבות: {[...new Set(extensions.map((item) => item.label || item.term))].slice(0, 3).join(" · ")}</small> : null}
+  </>;
+}
+
+function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onContinue, triageResult, triagePending }) {
   const results = state?.search?.occurrences;
   const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
   const items = blocked ? [] : results?.items || [];
+  const triage = triageResult?.kind === "regular" && triageResult?.setId === results?.id && Number(triageResult?.page) === Number(results?.page) ? triageResult : null;
+  const triageByKey = new Map((triage?.items || []).map((item) => [item.key, item]));
+  const orderedItems = triage ? [...items].sort((a, b) => (triageByKey.get(a.hitId)?.rank || Number.MAX_SAFE_INTEGER) - (triageByKey.get(b.hitId)?.rank || Number.MAX_SAFE_INTEGER)) : items;
   return <div className="els29-native-workrail els29-native-results" hidden={!visible} aria-label="רשימת תוצאות החיפוש" aria-busy={pending}>
     <strong>{pending ? "מחפש מופעים…" : items.length ? `${results.total} מופעים מאומתים` : "תוצאות החיפוש"}</strong>
     <p className="els29-native-muted">{items.length ? state?.termRaw || state?.term : operation?.payload?.term || state?.termRaw || state?.term} · {scopeLabel(items.length ? state?.scope : operation?.payload?.scope || state?.scope)}</p>
@@ -770,6 +796,7 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
       {results.capped ? <small>הסריקה מוגבלת; זאת רשימת המופעים שנמצאו בסריקה הזאת, ולא כל המופעים האפשריים.</small> : null}
       {results.ordered?.completeThrough >= 2 ? <small>הושלמה סריקה בשני הכיוונים בדילוגים 2–{results.ordered.completeThrough}. הדילוגים שמעבר לכך עדיין חלקיים.</small> : null}
       {results.ordered?.error ? <small role="status">סריקת הדילוגים הקטנים לא הושלמה. אפשר להמשיך אותה כאן.</small> : null}
+      <ResultTriageSummary result={triage} pending={triagePending} />
       {!results.ordered || results.ordered.error || results.ordered.hasMore || results.ordered.max < 500 ? <button type="button" disabled={pending} onClick={() => onContinue(results.id)}>
         {results.ordered?.hasMore ? `המשך מופעים בדילוגים ${results.ordered.min}–${results.ordered.max}` : results.ordered?.error ? "נסה שוב סריקת דילוגים" : `המשך סריקה מסודרת עד דילוג ${Math.min(500,(results.ordered?.max || 0)+50)}`}
       </button> : <small>הסריקה המסודרת הושלמה עד דילוג 500. מעבר לכך מוצגים ממצאי הסריקה המוגבלת.</small>}
@@ -778,35 +805,42 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
         <span>עמוד <bdi>{results.page + 1} / {Math.ceil(results.total / results.pageSize)}</bdi></span>
         <button type="button" disabled={(results.page + 1) * results.pageSize >= results.total} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page + 1 })}>עמוד הבא</button>
       </div>
-      {items.map((item) => <button type="button" key={item.hitId} className="els29-native-result" aria-label={`פתח מופע ${item.ordinal}`} aria-pressed={state.axis?.hitId === item.hitId}
-        onClick={() => onSelect("occurrence-select", { setId: results.id, index: item.index, hitId: item.hitId })}>
-        <b>{item.ordinal}. דילוג <bdi>{item.direction === "back" ? "−" : ""}{item.skip}</bdi></b>
-        <span>{item.ref || item.book}</span><small>{directionLabel(item.direction)}</small>
-      </button>)}
+      <div className="els29-native-result-list" role="region" aria-label="תוצאות מדורגות לפתיחה">
+        {orderedItems.map((item) => <button type="button" key={item.hitId} className="els29-native-result" data-triage-tier={triageByKey.get(item.hitId)?.tier || undefined} aria-label={`פתח מופע ${item.ordinal}`} aria-pressed={state.axis?.hitId === item.hitId}
+          onClick={() => onSelect("occurrence-select", { setId: results.id, index: item.index, hitId: item.hitId })}>
+          <b>{item.ordinal}. דילוג <bdi>{item.direction === "back" ? "−" : ""}{item.skip}</bdi></b>
+          <span>{item.ref || item.book}</span><small>{directionLabel(item.direction)}</small>
+          <ResultTriageNote row={triageByKey.get(item.hitId)} />
+        </button>)}
+      </div>
     </> : <p role="status">{pending ? "התוצאות יופיעו כאן בסיום החיפוש והאימות." : operation?.status === "error" ? operation.message || "החיפוש או האימות לא הושלמו. נסו שוב." : operation?.status === "cancelled" ? "החיפוש בוטל." : operation?.status === "empty" ? "לא נמצאו מופעים מאומתים בסריקה הזאת. אפשר לשנות מונח או היקף ולנסות שוב." : "חפשו מונח כדי לראות כאן את המופעים שלו."}</p>}
     {["error", "empty", "cancelled"].includes(operation?.status) ? <button type="button" onClick={onRetry}>נסה שוב</button> : null}
   </div>;
 }
 
-function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry }) {
+function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry, triageResult, triagePending }) {
   const [sort, setSort] = useState("rank");
   const [page, setPage] = useState(0);
   const [minSkip, setMinSkip] = useState("");
   const [maxSkip, setMaxSkip] = useState("");
   const results = state?.search?.results;
   const items = pending || ["empty", "error", "cancelled"].includes(outcome) ? [] : (results?.items || []).filter((item) => item.available);
+  const triage = triageResult?.kind === "cross" && triageResult?.setId === results?.id ? triageResult : null;
+  const triageByKey = new Map((triage?.items || []).map((item) => [String(item.key), item]));
   useEffect(() => { setMinSkip(""); setMaxSkip(""); }, [results?.id]);
   useEffect(() => { setPage(0); }, [results?.id, sort, minSkip, maxSkip]);
   const shown = items.filter((item) => (!minSkip || item.skip >= Number(minSkip)) && (!maxSkip || item.skip <= Number(maxSkip)));
-  shown.sort((a, b) => sort === "skip" ? a.skip - b.skip || a.index - b.index : sort === "distance" ? a.distance - b.distance || a.index - b.index : a.index - b.index);
+  shown.sort((a, b) => sort === "skip" ? a.skip - b.skip || a.index - b.index : sort === "distance" ? a.distance - b.distance || a.index - b.index
+    : triage ? (triageByKey.get(String(a.index))?.rank || Number.MAX_SAFE_INTEGER) - (triageByKey.get(String(b.index))?.rank || Number.MAX_SAFE_INTEGER) : a.index - b.index);
   return <div className="els29-native-workrail els29-native-results" hidden={!visible} aria-label="רשימת מפגשי ההצלבה" aria-busy={pending}>
     <strong>{pending ? "מחפש מפגשים…" : items.length ? `${items.length} מפגשי הצלבה` : "תוצאות הצלבה"}</strong>
     {items.length ? <>
       <p className="els29-native-muted">{state.search.crossA} × {state.search.crossB}</p>
       {state.search.coverage?.truncated ? <small>סריקה מוגבלת: נבדקו {state.search.coverage.scanned} מתוך {state.search.coverage.available} מיקומי הציר שנמצאו. רשימת הצירים עצמה עשויה להיות חלקית.</small> : null}
+      <ResultTriageSummary result={triage} pending={triagePending} />
       <details><summary>מיון וסינון</summary>
       <label>מיון <select aria-label="מיון מפגשי ההצלבה" value={sort} onChange={(event) => setSort(event.target.value)}>
-        <option value="rank">סדר המנוע</option><option value="skip">דילוג: מקטן לגדול</option><option value="distance">מרחק מהציר</option>
+        <option value="rank">{triage ? "עדיפות לבדיקה" : "סדר המנוע"}</option><option value="skip">דילוג: מקטן לגדול</option><option value="distance">מרחק מהציר</option>
       </select></label>
       <div className="els29-native-results-filter">
         <label>דילוג מ־<input aria-label="דילוג מינימלי בתוצאות" type="number" min="2" value={minSkip} onChange={(event) => setMinSkip(event.target.value)} /></label>
@@ -820,14 +854,17 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
         <span>עמוד {page+1} / {Math.ceil(shown.length/40)}</span>
         <button type="button" disabled={(page+1)*40>=shown.length} onClick={() => setPage(value=>value+1)}>מפגשים נוספים</button>
       </div> : null}
-      {shown.slice(page*40,(page+1)*40).map((item) => <button type="button" key={item.index} className="els29-native-result" disabled={pending}
-        aria-label={`פתח מפגש ${item.index + 1}`} aria-pressed={state.search.zoneIndex === item.index}
-        onClick={() => onSelect("meeting-select", { setId: results.id, index: item.index })}>
-        <b>{item.index + 1}. {item.axis} · דילוג {item.skip}</b>
-        <span>{item.terms.join(" · ")}</span><small>{item.book} · מרחק בחיפוש {item.distance} תאים</small>
-        <small>הערכת המנוע: {item.stars}/5</small>
-        {item.sourceSequence ? <small>כולל התאמה ברצף המקור, ללא דילוג</small> : null}
-      </button>)}
+      <div className="els29-native-result-list" role="region" aria-label="מפגשים מדורגים לפתיחה">
+        {shown.slice(page*40,(page+1)*40).map((item) => <button type="button" key={item.index} className="els29-native-result" data-triage-tier={triageByKey.get(String(item.index))?.tier || undefined} disabled={pending}
+          aria-label={`פתח מפגש ${item.index + 1}`} aria-pressed={state.search.zoneIndex === item.index}
+          onClick={() => onSelect("meeting-select", { setId: results.id, index: item.index })}>
+          <b>{item.index + 1}. {item.axis} · דילוג {item.skip}</b>
+          <span>{item.terms.join(" · ")}</span><small>{item.book} · מרחק בחיפוש {item.distance} תאים</small>
+          <small>הערכת המנוע: {item.stars}/5</small>
+          {item.sourceSequence ? <small>כולל התאמה ברצף המקור, ללא דילוג</small> : null}
+          <ResultTriageNote row={triageByKey.get(String(item.index))} />
+        </button>)}
+      </div>
       {!shown.length ? <p>אין מפגשים בטווח הדילוגים הזה.</p> : null}
       {items.length === 1 ? <p className="els29-native-muted">נמצא מפגש אחד בחלון הזה. אפשר להגדיל את חלון החיפוש ולחפש שוב.</p> : null}
     </> : <p className="els29-native-muted">{outcome === "empty" ? "לא נמצא מפגש בחיפוש האחרון. אפשר להגדיל את החלון או לשנות מרחק ולחפש שוב." : outcome === "error" ? "ההצלבה או האימות לא הושלמו. נסו שוב." : outcome === "cancelled" ? "החיפוש בוטל." : pending ? "מפגשים מאומתים יופיעו כאן בסיום החיפוש." : "פתחו „הצלבה בין צירים” וחפשו שני מונחים כדי לקבל רשימה ממוספרת."}</p>}
@@ -1165,6 +1202,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [lensResult, setLensResult] = useState(null);
   const [lensPending, setLensPending] = useState(false);
   const [lensProgress, setLensProgress] = useState(null);
+  // Ephemeral presentation of an engine-owned result page. It is neither ELS state nor a store;
+  // keeping it separate lets the ranked list survive opening one result and returning to the rail.
+  const [resultTriage, setResultTriage] = useState(null);
+  const resultTriageKeyRef = useRef(null);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
   const [selectedFinding, setSelectedFinding] = useState(null);
   const [findingMenu, setFindingMenu] = useState(null);
@@ -1175,6 +1216,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setQuery(matrix.search_term || "");setClassicOpen(false);setLoadError(null);
     setSearchRequest(null);setFindingsRequest(null);setOperations({ search: null, findings: null });
     setSaveResult(null);
+    setResultTriage(null);resultTriageKeyRef.current = null;
     setDeleteConfirm(false);setDeletePending(false);setDeleteError(false);
     const view = matrix.positions?.view || {};
     setClassicGlyphs(view.classicGlyphs === true);setHeightExpanded(view.heightExpanded === true);
@@ -1183,12 +1225,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   }, [matrix?.id]);
   useEffect(() => {
     if (!researchLoad) return;
+    setResultTriage(null);resultTriageKeyRef.current = null;
     setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);setSavedAxisReplacement(null);
   }, [researchLoad]);
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
   const resetReadContext = () => {
     const seq = ++lensSeqRef.current;
+    if (lensPending && lensRequest?.lens === "result-triage") resultTriageKeyRef.current = null;
     setLensRequest(lensPending ? { lens: "cancel", target: { nativeSeq: seq }, cancelled: true } : null);
     setLensResult(null);
     setLensProgress(null);
@@ -1209,6 +1253,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setNotice("");
     setAccountRequired(false);
     setSavedAxisReplacement(null);
+    setResultTriage(null);resultTriageKeyRef.current = null;
     setClassicOpen(false);
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
@@ -1342,7 +1387,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const requestLens = (lens, target = {}) => {
     // A native reading/scan action always reveals its native result, even after compatibility tools.
     setClassicOpen(false);
-    openTool(lens === "structure-priority" ? "structures" : "findings");
+    openTool(lens === "structure-priority" ? "structures" : lens === "result-triage" ? "results" : "findings");
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensProgress(null);
@@ -1351,6 +1396,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const cancelLens = () => {
+    if (lensRequest?.lens === "result-triage") resultTriageKeyRef.current = null;
     const seq = ++lensSeqRef.current;
     setLensRequest({ lens: "cancel", target: { nativeSeq: seq }, cancelled: true });
     setLensProgress(null);
@@ -1371,7 +1417,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const handleLens = (result) => {
     if (result?.target?.nativeSeq !== lensSeqRef.current) return;
     if (result?.type === "lens-progress") { setLensProgress(result.progress || null); return; }
-    setLensResult(result);
+    if (result?.lens === "result-triage") {
+      if (!result?.ok) resultTriageKeyRef.current = null;
+      setResultTriage(result?.ok ? result : null);
+      setLensResult(null);
+    } else setLensResult(result);
     setLensProgress(null);
     setLensPending(false);
     if (result?.ok && result.lens === "letter-context" && verseReadRef.current) highlightVerse(result.verse);
@@ -1562,6 +1612,17 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     && engineState.matrix.S <= 8 && engineState.matrix.c0 === 0 && engineState.matrix.cw === engineState.matrix.S;
   const readingView = shortSkip && shortSkipView === "reading";
   const resultsAreCross = operations.search ? ["cross", "cross-continue"].includes(operations.search.searchKind) : Boolean(engineState?.search?.zones);
+  const resultView = resultsAreCross ? engineState?.search?.results : engineState?.search?.occurrences;
+  const resultTriageKey = resultView?.id ? `${resultsAreCross ? "cross" : "regular"}:${resultView.id}:${resultsAreCross ? 0 : resultView.page || 0}` : null;
+  const resultTriagePending = lensPending && lensRequest?.lens === "result-triage";
+  useEffect(() => {
+    if (!researchProfile || visibleTool !== "results" || operations.search?.status !== "done" || !matrixActive || !resultTriageKey || lensPending) return;
+    const matches = resultTriage?.ok && resultTriage.kind === (resultsAreCross ? "cross" : "regular") && resultTriage.setId === resultView.id
+      && (resultsAreCross || Number(resultTriage.page) === Number(resultView.page));
+    if (matches || resultTriageKeyRef.current === resultTriageKey) return;
+    resultTriageKeyRef.current = resultTriageKey;
+    requestLens("result-triage", { kind: resultsAreCross ? "cross" : "regular", setId: resultView.id, ...(resultsAreCross ? {} : { page: resultView.page }) });
+  }, [researchProfile, visibleTool, operations.search?.status, matrixActive, resultTriageKey, lensPending, resultTriage?.setId, resultTriage?.page]);
   const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId
     && ["searching", "verifying", "empty", "error", "cancelled"].includes(operations.search?.status);
   const matrixStatus = engineState?.status === "ready" ? "בראשית · מוכן לחיפוש" : previousResult
@@ -1801,9 +1862,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <button type="button" className="is-action" aria-label="שמירה" aria-pressed={visibleTool === "research"} onClick={() => openTool("research")}>שמור</button>
           </nav> : null}
         <CrossResultsRail onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
-          outcome={operations.search?.status} visible={visibleTool === "results" && resultsAreCross} onSelect={requestControl} />
+          outcome={operations.search?.status} visible={visibleTool === "results" && resultsAreCross} onSelect={requestControl}
+          triageResult={researchProfile ? resultTriage : null} triagePending={researchProfile && resultTriagePending} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={visibleTool === "results" && !resultsAreCross}
-          onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
+          onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })}
+          triageResult={researchProfile ? resultTriage : null} triagePending={researchProfile && resultTriagePending} />
         {researchProfile ? <StructuralPriorityRail visible={visibleTool === "structures"} state={engineState} lensResult={lensResult} lensPending={lensPending}
           busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           onRun={(target) => requestLens("structure-priority", target)}

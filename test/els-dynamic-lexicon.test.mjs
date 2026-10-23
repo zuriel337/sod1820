@@ -57,6 +57,45 @@ test("dynamic vocabulary remains candidate-only and is loaded only by explicit s
   assert.doesNotMatch(template.slice(0, template.indexOf('window.addEventListener("message"')), /dynamicCandidateLexicon\(\)\.then/);
   assert.match(template, /status:"CANDIDATE",provenanceSource:lexicon\.contract/);
   assert.match(template, /adding a term[\s\S]*canonical verification before it becomes a Finding/);
+  assert.match(template, /d\.lens==="result-triage"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(async lexicon=>/);
+  assert.match(template, /RESULT_TRIAGE_CONTRACT="els_result_triage_v1"/);
+});
+
+test("result triage extends a short finding only through immediately adjacent cells on the same path", () => {
+  const letters = [..."אבביתישראלגד"];
+  const context = vm.createContext({
+    norm: value => String(value).replace(/\s+/g, ""),
+    lineContextCells: () => letters.map((letter, index) => ({ letter, main: index >= 2 && index <= 4 })),
+    hit: { positions: [2, 3, 4] },
+    lexicon: [
+      { term: "ביתישראל", label: "בית ישראל", sources: ["corpus_native"], support: 3 },
+      { term: "ביתדין", label: "בית דין", sources: ["corpus_native"], support: 9 },
+      { term: "בית", label: "בית", sources: ["governed_core"], support: 4 },
+    ],
+  });
+  vm.runInContext(`${source("lineExtensionCandidates")}\nthis.result=lineExtensionCandidates(hit,"בית",lexicon);`, context);
+  const rows = JSON.parse(JSON.stringify(context.result));
+  assert.deepEqual(rows.map((row) => row.label), ["בית ישראל"]);
+  assert.equal(rows[0].direction, "forward");
+  assert.equal(rows[0].gain, 5);
+});
+
+test("result triage ranks repeated exact continuation first but keeps every result available", () => {
+  const context = vm.createContext({ rows: [
+    { key: "a", order: 1, skip: 80, signals: [{ extensions: [{ term: "ביתישראל", label: "בית ישראל", gain: 5 }], nearby: [], notable: null }] },
+    { key: "b", order: 2, skip: 120, signals: [{ extensions: [{ term: "ביתישראל", label: "בית ישראל", gain: 5 }], nearby: [{}], notable: null }] },
+    { key: "c", order: 3, skip: 7, signals: [{ extensions: [], nearby: [], notable: "מספר מוכר" }] },
+    { key: "d", order: 4, skip: 91, signals: [{ extensions: [], nearby: [], notable: null }] },
+  ] });
+  vm.runInContext(`${source("rankResultTriageItems")}\nthis.result=rankResultTriageItems(rows,"regular");`, context);
+  const ranked = JSON.parse(JSON.stringify(context.result));
+  assert.deepEqual(new Set(ranked.slice(0, 2).map((row) => row.key)), new Set(["a", "b"]));
+  assert.ok(ranked.slice(0, 2).every((row) => row.reasons.some((reason) => reason.includes("2 תוצאות"))));
+  assert.equal(ranked.length, 4, "rank-don't-hide preserves a low-signal result");
+  assert.equal(ranked.at(-1).tier, "available");
+  context.rows = [{ key: "only", order: 1, skip: 91, signals: [{ extensions: [], nearby: [], notable: null }] }];
+  vm.runInContext("this.weak=rankResultTriageItems(rows,'regular');", context);
+  assert.equal(context.weak[0].tier, "available", "a top-three slot alone must not become a recommendation");
 });
 
 test("structural Research priority puts parallels before intersections and existing notable skips", () => {
