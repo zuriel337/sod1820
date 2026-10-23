@@ -55,6 +55,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          VITE_HOME_2029_ENABLED: "true"
       - name: Public capability metadata and Community reader acceptance
         run: node --test test/public-launch-seo-gates.test.mjs test/convergence-tree-closure.test.mjs test/post-comments-2029.test.mjs src/lib/community/communityArchive.test.js src/lib/community/communityRefresh.test.js src/lib/reactionMutation.test.js
       - run: node --test src/lib/research/worldGroupSource.test.js

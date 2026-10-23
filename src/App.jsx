@@ -49,7 +49,7 @@ import {
 import CommunityCalculatorPage from "./pages/CommunityCalculatorPage.jsx";
 import {
   PostBySlugRoute, GematriaRoute,
-  LoginRoute, ContactRoute,
+  LoginRoute, ContactRoute, SpotimChatRoute,
   TrafficRoute, NumbersReportRoute,
 } from "./pages/legacyRoutes.jsx";
 
@@ -70,6 +70,7 @@ const NumbersPage = React.lazy(() => import("./pages/NumbersPage.jsx"));
 const NameLabPage = React.lazy(() => import("./pages/NameLabPage.jsx"));
 const Gematria3DPage = React.lazy(() => import("./pages/Gematria3DPage.jsx"));
 const ThemePage = React.lazy(() => import("./pages/ThemePage.jsx"));
+const CodePage = React.lazy(() => import("./pages/CodePage.jsx"));
 const ForumPage = React.lazy(() => import("./pages/ForumPage.jsx"));
 const OrGeulaPage = React.lazy(() => import("./pages/OrGeulaPage.jsx"));
 const VideoAssetPage = React.lazy(() => import("./pages/VideoAssetPage.jsx"));
@@ -367,7 +368,7 @@ export default function App() {
           <Route path="/גימטריה-מרחבית" element={<Gematria3DPage />} />
           <Route path="/gematria-3d" element={<Gematria3DPage />} />
           <Route path="/גימטריה-תלת-ממדית" element={<Gematria3DPage />} />
-          <Route path="/code" element={<Product2029DocumentHandoff />} />
+          <Route path="/code" element={CORE_PUBLIC_LAUNCH_2029 ? <Product2029DocumentHandoff /> : <CodePage />} />
           {/* הפרדה: /code = הכלי · /codes = ספרייה · /codes/:slug = עמוד קנוני לצופן (SEO, בלי התנגשות, מקום לגדול) */}
           <Route path="/codes" element={<CiphersLibraryPage />} />
           {/* 🔬 תיקיית-המחקר (unlisted) — לפני :slug כדי לא להיתפס כ-slug. לא מקושרת בשום מקום. */}
@@ -379,7 +380,7 @@ export default function App() {
           <Route path="/beit-midrash/:method" element={<LegacyBeitMidrashTransitionRoute />} />
           <Route path="/languages" element={<LanguagesPage />} />
           <Route path="/קשרי-שפות" element={<LanguagesPage />} />
-          <Route path="/post" element={<Posts2029DocumentHandoff />} />
+          <Route path="/post" element={CORE_PUBLIC_LAUNCH_2029 ? <Posts2029DocumentHandoff /> : <PostsPage />} />
           {/* /archive = זרם המציאות: שער-רשומים ברמת הראוט (lock_reality mode=anon);
               טאבי הגלריות בפנים חסומים בנפרד גם לרשומים (lock_galleries, בתוך ArchivePage) */}
           <Route path="/archive" element={<Locked flag="lock_reality"><ArchivePage /></Locked>} />
@@ -387,7 +388,7 @@ export default function App() {
           <Route path="/gallery-updates" element={<Navigate to="/archive" replace />} />
           <Route path="/verified" element={<VerifiedPostsPage />} />
           <Route path="/community" element={<CommunityPage />} />
-          <Route path="/community/chat" element={<Product2029DocumentHandoff />} />
+          <Route path="/community/chat" element={CORE_PUBLIC_LAUNCH_2029 ? <Product2029DocumentHandoff /> : <SpotimChatRoute />} />
           <Route path="/community/calculator" element={<CommunityCalculatorPage />} />
           <Route path="/community/comments" element={<CommunityCommentsPage />} />
           <Route path="/community/researcher/:slug" element={<ContributorPage />} />

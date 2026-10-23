@@ -1,6 +1,6 @@
 # SOD1820 DESIGN CONTRACT V2
 
-**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026
+**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026
 **Owner:** experience_governance_foundation_v1_law v9 → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
@@ -74,6 +74,34 @@ Readability floor for redesigned 2029:
 - controls remain at least 44×44px
 
 User-meaningful text below 14px is forbidden in redesigned shared 2029 chrome. Exceptions require an explicit non-text/decorative role.
+
+### 5.1 Desktop readability is not desktop compression · Human Gate ZURIEL · 23.10.2026
+
+Desktop width is available to improve reading, hierarchy and scanning; it is not permission to reproduce the Legacy small-type density. At viewports of **1024px and wider**:
+
+- visible supporting copy, card descriptions, table/list metadata, audit notes and explanatory status text default to **15px minimum**;
+- the **14px** micro token is reserved for short tertiary labels such as an eyebrow, compact index or isolated timestamp — never a sentence, control label, finding summary or publication/status explanation;
+- interactive labels and ordinary interface text remain **16px minimum**, and reading/body copy remains **18px minimum**;
+- when content does not fit, components reflow, wrap, widen, paginate or disclose progressively. They do not solve density by shrinking meaningful text below its semantic token.
+
+The canonical 2029 type variables are `--s29-type-micro`, `--s29-type-ui`, `--s29-type-small`, `--s29-type-body`, `--s29-type-lead`, `--s29-type-title` and `--s29-type-display`. New and redesigned surfaces consume these variables directly or through aliases that preserve or increase their values. Page-local literal sizes must not create a smaller parallel scale.
+
+This rule governs 2029 infrastructure and its consumers only. It does not restyle, rewrite or inherit from Legacy.
+
+### 5.2 Mixed Hebrew and numeric typography
+
+The numeric face is scoped to the numeric/calculation/code-like run itself. A parent containing Hebrew text must not receive `--s29-font-numeric` merely because it also contains a number.
+
+Mixed values must expose separate semantic runs. For example, in `0 ציבוריים`, `0` may use IBM Plex Mono while `ציבוריים` uses Rubik as an interface label (or Noto Sans Hebrew when it is body prose). Hebrew letters, words and inflections never render in the numeric face. The same separation applies to counts, percentages, page locators, stages and verification states.
+
+### 5.3 Typography acceptance
+
+Browser acceptance must inspect computed styles, not only source declarations:
+
+- at desktop width (reference: **1440px**), meaningful supporting sentences are at least 15px, UI/control labels are at least 16px and body copy is at least 18px;
+- at **320px and 390px**, no meaningful text falls below the 14px global floor and controls retain at least 44×44px targets;
+- representative mixed Hebrew/numeric values prove that Hebrew resolves to the UI/body family and only the numeric run resolves to the numeric family;
+- density changes introduce no horizontal page overflow and do not alter truth, publication, privacy, navigation or Legacy behavior.
 
 ## 6. Environment is not theme
 Research Lab, Journey, Heichal and future spatial contexts are environment projections over the selected preset.

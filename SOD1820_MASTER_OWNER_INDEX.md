@@ -8,6 +8,8 @@ All agents report to ZURIEL in their active user conversation and write passive 
 **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
 Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
 
+**Emergency Production authority (ZURIEL, 22.10.2026):** canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` / commit `99249526e91f1d720fae1aa43e82bbbe51ee5c45`; all 2029 work is Preview-only. No automatic custom-domain assignment or 2029 promote/rollback/alias/deploy is authorized. A future cutover requires a new explicit ZURIEL approval naming “2029 Production cutover”, exact SHA and deployment ID. The repository `legacy-production-lock` gate is mandatory and cannot be bypassed by historical authorization.
+
 
 **Date:** 2026-10-01  
 **Status:** CANONICAL ROUTING INDEX · CURRENT-FIRST · **G2 ACTIVE TREE FROZEN · G3 CLOSED · G3→G4 TRANSITION**

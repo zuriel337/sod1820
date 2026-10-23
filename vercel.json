@@ -1,31 +1,6 @@
 {
   "redirects": [
     {
-      "source": "/",
-      "destination": "/2029",
-      "permanent": false
-    },
-    {
-      "source": "/post",
-      "destination": "/2029/posts",
-      "permanent": false
-    },
-    {
-      "source": "/forum",
-      "destination": "/community/chat",
-      "permanent": false
-    },
-    {
-      "source": "/numbers",
-      "destination": "/number",
-      "permanent": false
-    },
-    {
-      "source": "/heichal.html",
-      "destination": "/heichal",
-      "permanent": false
-    },
-    {
       "source": "/whatsapp/kod-hametsiut",
       "destination": "/early-access",
       "permanent": false
@@ -663,10 +638,6 @@
       "destination": "/2029.html"
     },
     {
-      "source": "/community/chat",
-      "destination": "/2029.html"
-    },
-    {
       "source": "/2029/home-preview",
       "destination": "/2029.html"
     },
@@ -892,10 +863,6 @@
     },
     {
       "source": "/book/(.*)",
-      "destination": "/2029.html"
-    },
-    {
-      "source": "/code",
       "destination": "/2029.html"
     },
     {
