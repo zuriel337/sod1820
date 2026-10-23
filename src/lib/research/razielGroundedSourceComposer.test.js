@@ -305,6 +305,11 @@ test("calculator analysis starts from the full method profile and exposes bounde
         { method_key: "gadol", method_label: "גדול", mathematical_family: "regular" },
       ],
       method_count: 2,
+      proven_equivalence_sets: [{
+        methods: ["רגיל", "גדול"],
+        basis: "canonical_registry_conditional_equivalence",
+      }],
+      effective_distinct_method_count: 1,
       independent_support_count: null,
       counts_as_independent_evidence: false,
     },
@@ -328,6 +333,7 @@ test("calculator analysis starts from the full method profile and exposes bounde
   assert.match(out.fallback, /רגיל=73/);
   assert.match(out.fallback, /משולש מילה \+ משולש הפוך=365/);
   assert.match(out.fallback, /קבוצות ערך מנורמלות.*73 ← רגיל, גדול/);
+  assert.match(out.fallback, /שקילות מותנית מן המרשם: רגיל \+ גדול; זהויות אפקטיביות: 1/);
   assert.deepEqual(out.navigation, [
     { kind: "number", label: "פתח את דף המספר 73", href: "/number/73" },
     { kind: "number", label: "פתח את דף המספר 365", href: "/number/365" },
@@ -335,6 +341,7 @@ test("calculator analysis starts from the full method profile and exposes bounde
   assert.equal(prompt.presentation_contract.calculation_profile_is_complete_bounded_method_map, true);
   assert.equal(prompt.presentation_contract.method_value_groups_are_normalized_presentation_not_new_calculation, true);
   assert.equal(prompt.presentation_contract.method_count_is_not_independent_support_count, true);
+  assert.equal(prompt.presentation_contract.proven_equivalence_requires_satisfied_canonical_registry_rule, true);
   assert.equal(prompt.presentation_contract.subject_definition_requires_explicit_source_claim, true);
 });
 

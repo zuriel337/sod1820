@@ -150,6 +150,7 @@ async function fetchNumberPhrasePresentationRows(apiKey: string, authorization: 
 
 const CONFIRMED_RELATION_LIMIT = 3;
 const METHOD_SEMANTICS_LIMIT = 32;
+const METHOD_REGISTRY_LIMIT = 64;
 
 function postgrestQuoted(value: unknown): string {
   const escaped = String(value ?? "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
@@ -176,6 +177,15 @@ async function callerRestRows(
   } catch {
     return { rows: [], status: "unavailable", http_status: null };
   }
+}
+
+async function fetchGematriaMethodDependencyRows(apiKey: string, authorization: string) {
+  return callerRestRows(apiKey, authorization, "gematria_methods", (url) => {
+    url.searchParams.set("select", "method_key,derived_from,dependency_rules,dependency_version");
+    url.searchParams.set("active", "eq.true");
+    url.searchParams.set("order", "sort_order.asc.nullslast,method_key.asc");
+    url.searchParams.set("limit", String(METHOD_REGISTRY_LIMIT));
+  });
 }
 
 // Bounded caller-scoped bridge from the frozen historical Atlas to the ONE canonical Result Bundle.
@@ -514,6 +524,7 @@ Deno.serve(async (req: Request) => {
       ? Object.freeze({
           gematria: createGematriaMethodProfileW2Executor({
             supabase: callerRpc,
+            readMethodRegistry: () => fetchGematriaMethodDependencyRows(ANON_KEY, authHeader),
           }),
           [PUBLIC_EXPRESSION_CROSSING_CAPABILITY]: createGematriaCorpusCrossingW2Executor({
             supabase: callerRpc,

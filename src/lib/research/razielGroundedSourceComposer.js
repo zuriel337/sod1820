@@ -244,7 +244,21 @@ function fallbackSection(entry) {
   const normalizedGroupsLine = methodValueGroups.some((group) => Number(group?.method_count) > 1)
     ? `קבוצות ערך מנורמלות (ללא טענת עצמאות): ${methodValueGroups
       .filter((group) => Number(group?.method_count) > 1)
-      .map((group) => `${cleanText(group?.value, 40)} ← ${list(group?.methods).map((method) => cleanText(method?.method_label || method?.method_key, 60)).filter(Boolean).join(", ")}`)
+      .map((group) => {
+        const methods = list(group?.methods)
+          .map((method) => cleanText(method?.method_label || method?.method_key, 60))
+          .filter(Boolean).join(", ");
+        const equivalences = list(group?.proven_equivalence_sets)
+          .map((set) => list(set?.methods).map((method) => cleanText(method, 60)).filter(Boolean).join(" + "))
+          .filter(Boolean);
+        const effectiveCount = Number.isSafeInteger(Number(group?.effective_distinct_method_count))
+          ? Number(group.effective_distinct_method_count)
+          : null;
+        const dependency = equivalences.length
+          ? `; שקילות מותנית מן המרשם: ${equivalences.join(", ")}${effectiveCount != null ? `; זהויות אפקטיביות: ${effectiveCount}` : ""}`
+          : "";
+        return `${cleanText(group?.value, 40)} ← ${methods}${dependency}`;
+      })
       .filter(Boolean).join(" · ")}`
     : null;
   if (!findings.length) {
@@ -522,6 +536,7 @@ export function buildRazielGroundedSourceComposer(input = []) {
       calculation_profile_is_complete_bounded_method_map: true,
       method_value_groups_are_normalized_presentation_not_new_calculation: true,
       method_count_is_not_independent_support_count: true,
+      proven_equivalence_requires_satisfied_canonical_registry_rule: true,
       confirmed_relation_is_sod1820_research_evidence: true,
       method_semantic_is_explicit_sod1820_interpretation: true,
       rarity_claim_requires_explicit_metric: true,

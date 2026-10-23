@@ -56,9 +56,48 @@ test("method-profile adapter reads the complete calculator map in one caller-sco
     mathematical_family: "regular",
     atomic_or_composite: "atomic",
     method_version: 6,
+    derived_from: [],
+    dependency_rules: [],
+    dependency_version: null,
   });
   assert.ok(result.findings.every((finding) => finding.kind === "gematria-method-value"));
   assert.ok(result.findings.every((finding) => finding.provenance.createdBy === "ENGINE:fn_method_profile"));
+});
+
+test("method-profile adapter attaches canonical dependency metadata without making it calculation truth", async () => {
+  const calls = [];
+  const supabase = {
+    async rpc(name, args) {
+      calls.push({ name, args });
+      return { data: rows(2), error: null };
+    },
+  };
+  const result = await createGematriaMethodProfileW2Executor({
+    supabase,
+    readMethodRegistry: async () => ({
+      status: "available",
+      rows: [{
+        method_key: "ragil",
+        derived_from: [],
+        dependency_rules: [{ to: "gadol", type: "conditional_equivalence", condition: "no_final_letters", note: "must not cross" }],
+        dependency_version: 2,
+      }],
+    }),
+  })({ identityResolution: identityResolution() });
+
+  assert.equal(calls.length, 1);
+  assert.equal(result.cost.rpc_calls, 1);
+  assert.equal(result.cost.rest_calls, 1);
+  assert.equal(result.trace.registry_status, "available");
+  assert.deepEqual(result.findings[0].evidence.facts[0].dependency_rules, [{
+    type: "conditional_equivalence",
+    to: "gadol",
+    condition: "no_final_letters",
+    operator: null,
+    components: [],
+  }]);
+  assert.equal(result.findings[0].evidence.facts[0].dependency_version, 2);
+  assert.doesNotMatch(JSON.stringify(result), /must not cross/);
 });
 
 test("method-profile adapter is explicitly bounded and reports truncation", async () => {

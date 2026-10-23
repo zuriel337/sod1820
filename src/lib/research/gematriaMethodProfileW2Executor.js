@@ -18,7 +18,20 @@ const finiteNumber = (value) => {
 
 // Edge-safe allowlist projection of the RPC row. Keep this adapter independent of browser data
 // clients; it mirrors fields only and never owns calculation, ordering or method definitions.
-function methodProfileRow(row) {
+function dependencyRule(rule) {
+  if (!rule || typeof rule !== "object" || Array.isArray(rule)) return null;
+  const type = clean(rule.type);
+  if (!type) return null;
+  return {
+    type,
+    to: clean(rule.to) || null,
+    condition: clean(rule.condition) || null,
+    operator: clean(rule.operator) || null,
+    components: Array.isArray(rule.components) ? rule.components.map(clean).filter(Boolean).slice(0, 8) : [],
+  };
+}
+
+function methodProfileRow(row, registryRow = null) {
   return {
     methodKey: clean(row?.method_key),
     displayLabel: clean(row?.display_label || row?.method_key) || "שיטה",
@@ -27,11 +40,18 @@ function methodProfileRow(row) {
     atomicOrComposite: clean(row?.atomic_or_composite) || null,
     computedValue: finiteNumber(row?.computed_value),
     definitionVersion: finiteNumber(row?.definition_version),
+    derivedFrom: Array.isArray(registryRow?.derived_from)
+      ? registryRow.derived_from.map(clean).filter(Boolean).slice(0, 8)
+      : [],
+    dependencyRules: Array.isArray(registryRow?.dependency_rules)
+      ? registryRow.dependency_rules.map(dependencyRule).filter(Boolean).slice(0, 12)
+      : [],
+    dependencyVersion: finiteNumber(registryRow?.dependency_version),
   };
 }
 
-function profileFinding(expression, row, createdAt) {
-  const method = methodProfileRow(row);
+function profileFinding(expression, row, registryRow, createdAt) {
+  const method = methodProfileRow(row, registryRow);
   if (!method.methodKey || !Number.isFinite(method.computedValue)) return null;
   const value = Number(method.computedValue);
   return makeUniversalFinding({
@@ -70,6 +90,9 @@ function profileFinding(expression, row, createdAt) {
         mathematical_family: method.mathematicalFamily,
         atomic_or_composite: method.atomicOrComposite,
         method_version: method.definitionVersion,
+        derived_from: method.derivedFrom,
+        dependency_rules: method.dependencyRules,
+        dependency_version: method.dependencyVersion,
       }],
       score: null,
       confidence: null,
@@ -91,6 +114,7 @@ function profileFinding(expression, row, createdAt) {
 
 export function createGematriaMethodProfileW2Executor({
   supabase,
+  readMethodRegistry = null,
   maxMethods = GEMATRIA_METHOD_PROFILE_MAX_METHODS,
 } = {}) {
   if (typeof supabase?.rpc !== "function") throw new Error("canonical Supabase RPC client required");
@@ -113,15 +137,28 @@ export function createGematriaMethodProfileW2Executor({
     }
 
     try {
-      const response = await supabase.rpc("fn_method_profile", {
-        p_phrase: representation.text,
-        p_depth: "value",
-      });
+      const registryPromise = typeof readMethodRegistry === "function"
+        ? Promise.resolve().then(() => readMethodRegistry()).catch(() => ({ rows: [], status: "unavailable" }))
+        : Promise.resolve({ rows: [], status: "not_requested" });
+      const [response, registryRead] = await Promise.all([
+        supabase.rpc("fn_method_profile", {
+          p_phrase: representation.text,
+          p_depth: "value",
+        }),
+        registryPromise,
+      ]);
       if (response?.error) throw response.error;
       const rawRows = Array.isArray(response?.data ?? response) ? (response?.data ?? response) : [];
+      const registryRows = Array.isArray(registryRead?.rows) ? registryRead.rows : [];
+      const registryByMethod = new Map(registryRows.map((row) => [clean(row?.method_key), row]));
       const createdAt = new Date().toISOString();
       const findings = rawRows.slice(0, limit)
-        .map((row) => profileFinding(clean(representation.text), row, createdAt))
+        .map((row) => profileFinding(
+          clean(representation.text),
+          row,
+          registryByMethod.get(clean(row?.method_key)) || null,
+          createdAt,
+        ))
         .filter(Boolean);
       const status = findings.length ? CAPABILITY_STATUS.EXECUTED : CAPABILITY_STATUS.NEGATIVE_RESULT;
       return {
@@ -133,7 +170,13 @@ export function createGematriaMethodProfileW2Executor({
         semanticClass: SEMANTIC_CLASS.EVIDENCE,
         sourceRefs: [],
         versionRefs: [GEMATRIA_METHOD_PROFILE_ADAPTER_VERSION, "fn_method_profile:canonical", "canonical_methods_registry_law:v6"],
-        cost: { certainty: "not_billable", ai_calls: 0, rpc_calls: 1, retry_count: 0 },
+        cost: {
+          certainty: "not_billable",
+          ai_calls: 0,
+          rpc_calls: 1,
+          rest_calls: typeof readMethodRegistry === "function" ? 1 : 0,
+          retry_count: 0,
+        },
         bounded: {
           total_count: rawRows.length,
           returned_count: findings.length,
@@ -146,6 +189,8 @@ export function createGematriaMethodProfileW2Executor({
           method_count: findings.length,
           profile_source: "fn_method_profile",
           registry_source: "public.gematria_methods",
+          registry_status: clean(registryRead?.status) || "unavailable",
+          registry_row_count: registryRows.length,
         },
       };
     } catch (error) {

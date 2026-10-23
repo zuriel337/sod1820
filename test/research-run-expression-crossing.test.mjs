@@ -28,10 +28,18 @@ async function invoke(runtime, overrides = {}) {
 }
 
 test('public expression research performs canonical calculation and crossing RPCs in one Result Bundle', async () => {
-  const runtime = isolatedResearchRun({ crossingRows: [
-    { partner: 'שלום', n_methods: 2, methods_detail: 'אתבש=112 · סידורי=52' },
-    { partner: 'שבוים', n_methods: 2, methods_detail: 'סידורי=52 · רגיל=358' },
-  ] });
+  const runtime = isolatedResearchRun({
+    methodRegistryRows: [{
+      method_key: 'ragil',
+      derived_from: [],
+      dependency_rules: [{ to: 'gadol', type: 'conditional_equivalence', condition: 'no_final_letters' }],
+      dependency_version: 1,
+    }],
+    crossingRows: [
+      { partner: 'שלום', n_methods: 2, methods_detail: 'אתבש=112 · סידורי=52' },
+      { partner: 'שבוים', n_methods: 2, methods_detail: 'סידורי=52 · רגיל=358' },
+    ],
+  });
   const out = await invoke(runtime);
 
   assert.equal(out.response.status, 200);
@@ -46,13 +54,24 @@ test('public expression research performs canonical calculation and crossing RPC
   assert.deepEqual(crossingCalls[0].body, { p_self: EXPRESSION, p_min: 2, p_limit: 8 });
   assert.equal(crossingCalls[0].authorization, `Bearer ${runtime.anon}`);
   assert.equal(runtime.calls.filter(call => call.name === 'gematria_words').length, 0);
+  assert.equal(runtime.calls.filter(call => call.name === 'gematria_methods').length, 1);
   assert.equal(out.data.bundle.findings.filter(finding => finding.kind === 'gematria-method-value').length, 3);
   assert.equal(out.data.bundle.findings.filter(finding => finding.kind === 'gematria-crossing').length, 2);
+  const regularFinding = out.data.bundle.findings.find(finding => (
+    finding.kind === 'gematria-method-value' && finding.source.method === 'ragil'
+  ));
+  assert.deepEqual(regularFinding.evidence.facts[0].dependency_rules, [{
+    type: 'conditional_equivalence',
+    to: 'gadol',
+    condition: 'no_final_letters',
+    operator: null,
+    components: [],
+  }]);
 
   const calculation = out.data.bundle.capability_trace.find(item => item.key === 'gematria');
   const capability = out.data.bundle.capability_trace.find(item => item.key === 'crossings');
   assert.equal(calculation.status, 'executed');
-  assert.deepEqual(calculation.cost, { certainty: 'not_billable', ai_calls: 0, rpc_calls: 1, retry_count: 0 });
+  assert.deepEqual(calculation.cost, { certainty: 'not_billable', ai_calls: 0, rpc_calls: 1, rest_calls: 1, retry_count: 0 });
   assert.equal(capability.status, 'executed');
   assert.deepEqual(capability.cost, { certainty: 'not_billable', ai_calls: 0, rpc_calls: 1, rest_calls: 1, retry_count: 0 });
   assert.equal(runtime.calls.filter(call => call.name === 'relation_evidence').length, 1);

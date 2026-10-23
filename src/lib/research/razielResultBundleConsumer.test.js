@@ -65,8 +65,8 @@ function publicBundle({ findings = [], capabilities = null, outcomes = [], query
 }
 
 function methodProfileFinding(index, overrides = {}) {
-  const method = index === 0 ? "ragil" : `method_${index + 1}`;
-  const label = index === 0 ? "רגיל" : `שיטה ${index + 1}`;
+  const method = overrides.method_key ?? (index === 0 ? "ragil" : `method_${index + 1}`);
+  const label = overrides.method_label ?? (index === 0 ? "רגיל" : `שיטה ${index + 1}`);
   const value = overrides.value ?? (index === 0 ? 73 : 100 + index);
   const family = overrides.mathematical_family ?? (index === 0 ? "regular" : `family_${index + 1}`);
   return makeUniversalFinding({
@@ -85,6 +85,9 @@ function methodProfileFinding(index, overrides = {}) {
       mathematical_family: family,
       atomic_or_composite: index % 2 ? "composite" : "atomic",
       method_version: 6,
+      derived_from: overrides.derived_from ?? [],
+      dependency_rules: overrides.dependency_rules ?? [],
+      dependency_version: overrides.dependency_version ?? null,
     }] },
     access: { tier: "public" },
     provenance: { createdBy: "ENGINE:fn_method_profile" },
@@ -408,6 +411,9 @@ test("calculator expression keeps every method value in a compact profile withou
     mathematical_family: "regular",
     atomic_or_composite: "atomic",
     method_version: 6,
+    derived_from: [],
+    dependency_rules: [],
+    dependency_version: null,
   });
   assert.equal(out.model_input.findings[0].id, crossing.id);
   assert.equal(out.model_input.findings.length, 12);
@@ -419,18 +425,61 @@ test("calculator expression keeps every method value in a compact profile withou
 });
 
 test("normalizes equal method outputs into one numeric basis without erasing methods or claiming independence", () => {
-  const regular = methodProfileFinding(0, { value: 73, mathematical_family: "base_additive" });
-  const large = methodProfileFinding(5, { value: 73, mathematical_family: "base_additive" });
+  const regular = methodProfileFinding(0, {
+    value: 73,
+    mathematical_family: "base_additive",
+    dependency_version: 1,
+    dependency_rules: [{ type: "conditional_equivalence", to: "גדול", condition: "no_final_letters" }],
+  });
+  const large = methodProfileFinding(5, {
+    method_key: "גדול",
+    method_label: "גדול",
+    value: 73,
+    mathematical_family: "base_additive",
+    dependency_version: 1,
+    dependency_rules: [{ type: "conditional_equivalence", to: "רגיל", condition: "no_final_letters" }],
+  });
   const hidden = methodProfileFinding(2, { value: 67, mathematical_family: "adjacent_difference" });
   const out = buildRazielResultBundleConsumer(publicBundle({ findings: [regular, large, hidden] }));
 
   assert.equal(out.model_input.method_value_groups.length, 2);
   const group73 = out.model_input.method_value_groups.find((group) => group.value === 73);
-  assert.deepEqual(group73.methods.map((method) => method.method_label), ["רגיל", "שיטה 6"]);
+  assert.deepEqual(group73.methods.map((method) => method.method_label), ["רגיל", "גדול"]);
   assert.equal(group73.method_count, 2);
   assert.equal(group73.mathematical_family_count, 1);
   assert.equal(group73.same_value_collision, true);
+  assert.deepEqual(group73.proven_equivalence_sets, [{
+    methods: ["רגיל", "גדול"],
+    basis: "canonical_registry_conditional_equivalence",
+  }]);
+  assert.equal(group73.effective_distinct_method_count, 1);
+  assert.equal(group73.dependency_resolution, "canonical_registry_rules_applied");
   assert.equal(group73.independent_support_count, null);
   assert.equal(group73.counts_as_independent_evidence, false);
   assert.equal(out.model_input.calculation_profile.length, 3, "normalization must preserve the full method map");
+});
+
+test("does not apply a no-final-letters equivalence when the researched expression has a final letter", () => {
+  const regular = methodProfileFinding(0, {
+    value: 596,
+    dependency_version: 1,
+    dependency_rules: [{ type: "conditional_equivalence", to: "גדול", condition: "no_final_letters" }],
+  });
+  const large = methodProfileFinding(5, {
+    method_key: "גדול",
+    method_label: "גדול",
+    value: 596,
+    dependency_version: 1,
+  });
+  const rewriteSubject = (finding) => ({
+    ...finding,
+    subject: { ...finding.subject, key: "ירושלים", label: "ירושלים" },
+  });
+  const out = buildRazielResultBundleConsumer(publicBundle({
+    findings: [rewriteSubject(regular), rewriteSubject(large)],
+  }));
+  const group = out.model_input.method_value_groups[0];
+  assert.deepEqual(group.proven_equivalence_sets, []);
+  assert.equal(group.effective_distinct_method_count, 2);
+  assert.equal(group.independent_support_count, null);
 });

@@ -29,6 +29,7 @@ const SAFE_DETAIL_KEYS = new Set([
   "relation_kind", "relation_type", "expression_method", "partner_method", "engine_verified",
   "label_he", "calculation_description", "semantic_description", "relation_note",
   "confidence_source", "review_version", "profile",
+  "derived_from", "dependency_rules", "dependency_version", "to", "condition", "operator", "components",
   "dependency_independence_claimed", "engine", "corpus", "source", "source_ref", "sourceRef", "ref", "refs",
   "locator", "relation", "relations", "left", "right", "number", "numbers", "count", "found",
   "status", "scope", "operation", "reason", "book", "chapter", "verse", "index", "start", "end",
@@ -363,6 +364,15 @@ function compactCalculationProfile(findings) {
       mathematical_family: cleanText(fact.mathematical_family, 80),
       atomic_or_composite: cleanText(fact.atomic_or_composite, 60),
       method_version: finiteNumber(fact.method_version),
+      derived_from: uniqueText(fact.derived_from, 8),
+      dependency_rules: list(fact.dependency_rules).slice(0, 12).map((rule) => ({
+        type: cleanText(rule?.type, 80),
+        to: cleanText(rule?.to, 80),
+        condition: cleanText(rule?.condition, 100),
+        operator: cleanText(rule?.operator, 60),
+        components: uniqueText(rule?.components, 8),
+      })).filter((rule) => rule.type),
+      dependency_version: finiteNumber(fact.dependency_version),
     });
     seen.add(methodKey);
     if (entries.length >= RAZIEL_RESULT_BUNDLE_LIMITS.methodProfile) break;
@@ -375,7 +385,83 @@ function compactCalculationProfile(findings) {
 // are grouped so a model cannot mistake repeated method outputs for repeated proof. Method
 // identities remain intact, and no group is promoted to independent evidence without an explicit
 // governed outcome in the source Result Bundle.
-function compactMethodValueGroups(calculationProfile) {
+function dependencyConditionSatisfied(condition, expression) {
+  const text = cleanText(expression, RAZIEL_RESULT_BUNDLE_LIMITS.longText) || "";
+  const words = text.match(/[\p{L}\p{N}]+/gu) || [];
+  const noFinalLetters = !/[ךםןףץ]/u.test(text);
+  switch (cleanText(condition, 100)) {
+    case "no_final_letters": return noFinalLetters;
+    case "single_word_input": return words.length === 1;
+    case "single_word_and_no_final_letters": return words.length === 1 && noFinalLetters;
+    default: return false;
+  }
+}
+
+function normalizedMethodIdentity(value) {
+  return (cleanText(value, 100) || "")
+    .normalize("NFKC")
+    .replace(/["'״׳`]/gu, "")
+    .replace(/[\s־–—-]+/gu, "")
+    .toLowerCase();
+}
+
+function provenEquivalenceSets(methods, expression) {
+  const parents = methods.map((_, index) => index);
+  const find = (index) => {
+    let current = index;
+    while (parents[current] !== current) current = parents[current];
+    while (parents[index] !== index) {
+      const next = parents[index];
+      parents[index] = current;
+      index = next;
+    }
+    return current;
+  };
+  const union = (left, right) => {
+    const a = find(left);
+    const b = find(right);
+    if (a !== b) parents[b] = a;
+  };
+  const methodIndex = new Map();
+  methods.forEach((method, index) => {
+    for (const key of [method?.method_key, method?.method_label]) {
+      const normalized = normalizedMethodIdentity(key);
+      if (normalized) methodIndex.set(normalized, index);
+    }
+  });
+  const appliedRules = [];
+  methods.forEach((method, index) => {
+    for (const rule of list(method?.dependency_rules)) {
+      if (rule?.type !== "conditional_equivalence"
+        || !dependencyConditionSatisfied(rule?.condition, expression)) continue;
+      const targetIndex = methodIndex.get(normalizedMethodIdentity(rule?.to));
+      if (targetIndex == null || targetIndex === index) continue;
+      union(index, targetIndex);
+      appliedRules.push({
+        from: cleanText(method?.method_label || method?.method_key, 100),
+        to: cleanText(methods[targetIndex]?.method_label || methods[targetIndex]?.method_key, 100),
+        condition: cleanText(rule?.condition, 100),
+      });
+    }
+  });
+  const membersByRoot = new Map();
+  methods.forEach((method, index) => {
+    const root = find(index);
+    const members = membersByRoot.get(root) || [];
+    members.push(cleanText(method?.method_label || method?.method_key, 100));
+    membersByRoot.set(root, members);
+  });
+  return {
+    sets: [...membersByRoot.values()].filter((members) => members.length > 1).map((members) => ({
+      methods: members,
+      basis: "canonical_registry_conditional_equivalence",
+    })),
+    applied_rules: appliedRules,
+    effective_distinct_method_count: new Set(methods.map((_, index) => find(index))).size,
+  };
+}
+
+function compactMethodValueGroups(calculationProfile, expression) {
   const groups = new Map();
   for (const method of list(calculationProfile)) {
     const value = finiteNumber(method?.value);
@@ -387,22 +473,33 @@ function compactMethodValueGroups(calculationProfile) {
       method_label: cleanText(method?.method_label, 100),
       mathematical_family: cleanText(method?.mathematical_family, 80),
       atomic_or_composite: cleanText(method?.atomic_or_composite, 60),
+      derived_from: uniqueText(method?.derived_from, 8),
+      dependency_rules: list(method?.dependency_rules).slice(0, 12).map((rule) => ({ ...rule })),
+      dependency_version: finiteNumber(method?.dependency_version),
     });
     const family = cleanText(method?.mathematical_family, 80);
     if (family && !group.families.includes(family)) group.families.push(family);
     groups.set(value, group);
   }
-  return [...groups.values()].map((group) => ({
-    value: group.value,
-    methods: group.methods,
-    method_count: group.methods.length,
-    mathematical_families: group.families,
-    mathematical_family_count: group.families.length,
-    same_value_collision: group.methods.length > 1,
-    independent_support_count: null,
-    independence: "not_claimed_without_explicit_bundle_evidence",
-    counts_as_independent_evidence: false,
-  }));
+  return [...groups.values()].map((group) => {
+    const equivalence = provenEquivalenceSets(group.methods, expression);
+    const metadataAvailable = group.methods.some((method) => method.dependency_version != null);
+    return {
+      value: group.value,
+      methods: group.methods,
+      method_count: group.methods.length,
+      mathematical_families: group.families,
+      mathematical_family_count: group.families.length,
+      same_value_collision: group.methods.length > 1,
+      proven_equivalence_sets: equivalence.sets,
+      applied_dependency_rules: equivalence.applied_rules,
+      effective_distinct_method_count: equivalence.effective_distinct_method_count,
+      dependency_resolution: metadataAvailable ? "canonical_registry_rules_applied" : "registry_metadata_unavailable",
+      independent_support_count: null,
+      independence: "not_claimed_without_explicit_bundle_evidence",
+      counts_as_independent_evidence: false,
+    };
+  });
 }
 
 export function buildRazielResultBundleConsumer(bundle) {
@@ -416,7 +513,8 @@ export function buildRazielResultBundleConsumer(bundle) {
   const rankById = new Map(list(bundle.ranking).map((entry) => [cleanText(entry?.finding_id, 200), entry]));
   const orderedFindings = findingsInPresentationOrder(bundle.findings, rankById);
   const calculationProfile = compactCalculationProfile(orderedFindings);
-  const methodValueGroups = compactMethodValueGroups(calculationProfile);
+  const calculationExpression = orderedFindings.find((finding) => finding?.kind === "gematria-method-value")?.subject?.label || null;
+  const methodValueGroups = compactMethodValueGroups(calculationProfile, calculationExpression);
   // The compact profile carries every bounded method value. Reserve the ordinary Finding window
   // for crossings/source evidence first, then retain a few individual method Findings for replay.
   const presentationFindings = calculationProfile.length

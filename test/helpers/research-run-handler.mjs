@@ -12,7 +12,7 @@ import {createGematriaCorpusCrossingW2Executor} from '../../src/lib/research/gem
 import {createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE} from '../../src/lib/research/gematriaRelationW2Executor.js';
 import {PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
 import {mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT} from '../../src/lib/research/numberPhrasePresentationOrder.js';
-export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,gematriaResult=null,crossingRows=[],leadRows=[],leadReadFailure=false,confirmedRelationRows=[],methodSemanticRows=[],publicPhrases=[],confirmedRelationReadFailure=false,methodSemanticReadFailure=false,publicPhraseReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
+export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,gematriaResult=null,crossingRows=[],leadRows=[],leadReadFailure=false,confirmedRelationRows=[],methodSemanticRows=[],methodRegistryRows=[],publicPhrases=[],confirmedRelationReadFailure=false,methodSemanticReadFailure=false,methodRegistryReadFailure=false,publicPhraseReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
   const roots=new Map(),spans=new Map(),calls=[],unexpected=[];
   const faults=[failure,...failures].filter(Boolean);
   const origin='http://127.0.0.1:1',anon='test-anon-key',service='test-service-key';
@@ -42,6 +42,15 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
       assert.equal(u.searchParams.get('is_active'),'eq.true');
       assert.equal(u.searchParams.get('limit'),'32');
       return methodSemanticReadFailure ? response({message:'synthetic semantics outage'},503) : response(methodSemanticRows);
+    }
+    if(u.pathname==='/rest/v1/gematria_methods'){
+      assert.equal(req.method,'GET');
+      assert.equal(req.headers.get('authorization'),`Bearer ${anon}`,'method dependency registry must retain caller credential');
+      assert.equal(u.searchParams.get('select'),'method_key,derived_from,dependency_rules,dependency_version');
+      assert.equal(u.searchParams.get('active'),'eq.true');
+      assert.equal(u.searchParams.get('order'),'sort_order.asc.nullslast,method_key.asc');
+      assert.equal(u.searchParams.get('limit'),'64');
+      return methodRegistryReadFailure ? response({message:'synthetic registry outage'},503) : response(methodRegistryRows);
     }
     if(u.pathname==='/rest/v1/gematria_words' && u.searchParams.has('phrase')){
       assert.equal(req.method,'GET');
