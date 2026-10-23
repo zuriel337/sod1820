@@ -737,6 +737,56 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.deepEqual(run.result.raziel.navigation, [{ kind: "number", label: "פתח את דף המספר 776", href: "/number/776" }]);
 });
 
+test("776 keeps verified symbolic phrases factual and preserves the Number-page order through model fallback", async () => {
+  const midpoint = numberPhraseFinding({ id: "uf:number:776:midpoint", phrase: "נקודה אמצעית", value: 776 });
+  const wholeness = numberPhraseFinding({ id: "uf:number:776:wholeness", phrase: "שלמות", value: 776 });
+  const debt = numberPhraseFinding({ id: "uf:number:776:debt", phrase: "פריעת חוב", value: 776 });
+  const ordered = [midpoint, wholeness, debt];
+  const run = await runAiAnalyze({
+    answer: numberContextAnswer(776),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    modelResult: {
+      text: "",
+      usage: { input_tokens: 7, output_tokens: 0 },
+      attempts: 1,
+      degraded: true,
+      reason: "synthetic_provider_error",
+    },
+    body: {
+      subject: "מה זה 776?",
+      visitor_id: "v776verifiedphrases123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: conversation([776]),
+    },
+    researchBundleByNumber: {
+      776: numberBundle(776, "מאגר הגימטריה המאומת", {
+        phraseFindings: [debt, midpoint, wholeness],
+        ranking: ordered.map((finding, index) => ({
+          finding_id: finding.id,
+          rank: [8, 9, 11][index],
+          axes: {
+            authority: "public.gematria_words.lead_rank",
+            lead_rank: [8, 9, 11][index],
+            presentation_scope: "equal_regular_phrase_prominence",
+          },
+          reasons: ["סדר ביטויים ידני קיים בדף המספר"],
+        })),
+      }),
+    },
+  });
+
+  assert.equal(run.result.degraded, true);
+  assert.match(run.models[0].user, /אל תוריד ביטוי מאומת לדרגת פרשנות/);
+  for (const phrase of ordered.map((finding) => finding.subject.label)) {
+    assert.match(run.models[0].user, new RegExp(`${phrase}[^]*776`));
+    assert.match(run.result.raziel.answer, new RegExp(`חישוב מאומת: ${phrase}[^]*776`));
+  }
+  const positions = ordered.map((finding) => run.result.raziel.answer.indexOf(finding.subject.label));
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions);
+});
+
 test("number-page current-surface question consumes the visible canonical Number Bundle", async () => {
   const run = await runAiAnalyze({
     answer: noMatchAnswer(),
