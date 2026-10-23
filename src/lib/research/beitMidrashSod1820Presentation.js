@@ -78,6 +78,33 @@ const ORIGINAL_POST_SOURCE = Object.freeze({
   status: SOURCE_STATUS.ZURIEL_APPROVED,
 });
 
+const MEDIA_ASSETS = Object.freeze({
+  poster: Object.freeze({
+    id: "post:1799:poster",
+    src: "https://sod1820.co.il/seals/1820-poster.jpg",
+    alt: "כרזת סוד 1820 מן הפוסט הראשי",
+    sourceRef: ORIGINAL_POST_SOURCE.sourceRef,
+  }),
+  torahNameCount: Object.freeze({
+    id: "post:1799:torah-name-count",
+    src: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2013/11/mspr-shmvt-hyhv.png",
+    alt: "המחשת מניין שמות הוי״ה בתורה",
+    sourceRef: ORIGINAL_POST_SOURCE.sourceRef,
+  }),
+  birkatKohanim: Object.freeze({
+    id: "post:1799:birkat-kohanim",
+    src: "https://sod1820.co.il/seals/1820-birkat-kohanim.jpg",
+    alt: "חותם 1820 של ברכת כהנים",
+    sourceRef: ORIGINAL_POST_SOURCE.sourceRef,
+  }),
+  fiveSeals: Object.freeze({
+    id: "post:1799:five-seals",
+    src: "https://sod1820.co.il/seals/1820-five-seals.jpg",
+    alt: "חמש חותמות 1820 מן הגלריה המקורית",
+    sourceRef: ORIGINAL_POST_SOURCE.sourceRef,
+  }),
+});
+
 const BOOK_GRAND_TOTAL = ahavatTorahSource(
   "book:hebrewbooks:5635#p6:tetragrammaton_grand_total_restated",
   "אהבת תורה · עמ׳ PDF 6 · הסיכום לחמשת החומשים",
@@ -200,6 +227,7 @@ const BASE_SLIDES = Object.freeze([
     chapter: "פתיחה",
     title: "1820 — מן הסרטון אל מסלול לימוד",
     statement: "המצגת משחזרת את הרעיונות המרכזיים מן הסרטון, אבל מלמדת בכל צעד מהו מקור, מהו חישוב ומהו פירוש.",
+    media: MEDIA_ASSETS.poster,
     sources: Object.freeze([VIDEO_SOURCE, ORIGINAL_POST_SOURCE, BOOK_CATALOG]),
     truth: Object.freeze({ source: SOURCE_STATUS.ZURIEL_APPROVED, calculation: CALCULATION_STATUS.NOT_APPLICABLE, interpretation: "teaching_frame" }),
   }),
@@ -216,6 +244,7 @@ const BASE_SLIDES = Object.freeze([
       { label: "דברים", value: 550 },
     ]),
     equation: "165 + 398 + 311 + 396 + 550 = 1820",
+    media: MEDIA_ASSETS.torahNameCount,
     sources: Object.freeze([BOOK_GRAND_TOTAL, BOOK_PER_PARASHA]),
     truth: Object.freeze({ source: SOURCE_STATUS.EXACT, calculation: CALCULATION_STATUS.REPRODUCIBLE, interpretation: "separate" }),
   }),
@@ -261,6 +290,15 @@ const BASE_SLIDES = Object.freeze([
     truth: Object.freeze({ source: SOURCE_STATUS.ZURIEL_APPROVED, calculation: CALCULATION_STATUS.ENGINE_COMPONENTS_VERIFIED, interpretation: "separate" }),
   }),
   Object.freeze({
+    id: "birkat-kohanim",
+    chapter: "חותם מן הסרטון",
+    title: "ברכת כהנים — המסגרת החיצונית",
+    statement: "בסרטון ובגלריה מוצג מבנה שבו המילים החיצוניות של ברכת כהנים מצטרפות ל־1820. החותם מאושר להצגה על־ידי צוריאל; מראה המקום המדויק ושחזור הסכום עדיין בבנייה.",
+    media: MEDIA_ASSETS.birkatKohanim,
+    sources: Object.freeze([VIDEO_SOURCE, ORIGINAL_POST_SOURCE]),
+    truth: Object.freeze({ source: SOURCE_STATUS.ZURIEL_APPROVED, calculation: "pending_exact_reconstruction", interpretation: "separate" }),
+  }),
+  Object.freeze({
     id: "book-catalog",
     chapter: "אהבת תורה",
     title: "לא ממצא יחיד — קטלוג של דרכים",
@@ -291,6 +329,7 @@ const BASE_SLIDES = Object.freeze([
     title: "גימטריות 1820 חזקות מן האתר",
     statement: "כל ביטוי מוצג עם השיטה שלו וקישור למחשבון. התאמה מספרית היא נקודת מפגש, לא הוכחה לפירוש.",
     examples: STRONG_1820_EXAMPLES,
+    media: MEDIA_ASSETS.fiveSeals,
     sources: Object.freeze([]),
     truth: Object.freeze({ source: "public_gematria_word_ids", calculation: CALCULATION_STATUS.ENGINE_VERIFIED, interpretation: "separate" }),
   }),
@@ -344,6 +383,7 @@ export const BEIT_MIDRASH_SOD1820_PRESENTATION = Object.freeze({
   description: "מצגת לימודית מן המקור אל החישוב, מן החישוב אל הרמז, ומן הרמז אל חתימות היהלום.",
   href: slideHref("opening"),
   video: VIDEO_SOURCE,
+  media: MEDIA_ASSETS,
   book: Object.freeze({
     identityKey: AHAVAT_TORAH_BOOK.identity_key,
     title: AHAVAT_TORAH_BOOK.label,
