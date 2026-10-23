@@ -376,7 +376,7 @@ const NUMBER_GUIDE_CONCEPTS = freezeItems([
 ]);
 const NUMBER_GUIDE_CONCEPT_VALUES = new Set(NUMBER_GUIDE_CONCEPTS.map((concept) => concept.id));
 
-const LEARNING_PATHS = freezeItems([
+const LEARNING_PATH_DEFINITIONS = freezeItems([
   {
     id: "first-steps",
     title: "צעדים ראשונים",
@@ -458,6 +458,46 @@ const LEARNING_PATHS = freezeItems([
     ]),
   },
 ]);
+
+const LEARNING_PATH_STEP_IDS = Object.freeze({
+  "first-steps": Object.freeze(["foundations", "method", "guided-example"]),
+  gematria: Object.freeze(["choose-method", "read-method", "calculator"]),
+  ciphers: Object.freeze(["cipher-lesson", "cipher-tool", "source-reading"]),
+  "number-page": Object.freeze(["number-guide", "fibonacci", "calculator"]),
+  sources: Object.freeze(["source-lesson", "canonical-source", "guided-return"]),
+  meetings: Object.freeze(["crossing", "convergence", "world-map"]),
+  sod1820: Object.freeze(["number-layers", "math-profile", "method", "guided-example", "world-map", "heichal"]),
+});
+
+const learningPathStepHref = (pathId, stepId) => {
+  const path = encodeURIComponent(clean(pathId));
+  const step = encodeURIComponent(clean(stepId));
+  return `/beit-midrash?section=paths&path=${path}&pathStep=${step}#path-${path}-step-${step}`;
+};
+
+const LEARNING_PATHS = Object.freeze(LEARNING_PATH_DEFINITIONS.map((path) => Object.freeze({
+  ...path,
+  steps: freezeItems(path.steps.map((step, index) => {
+    const id = LEARNING_PATH_STEP_IDS[path.id]?.[index] || `step-${index + 1}`;
+    return {
+      ...step,
+      id,
+      pathHref: learningPathStepHref(path.id, id),
+    };
+  })),
+  progress: Object.freeze({
+    persistence: "url-only",
+    storesPersonalData: false,
+    completionInferred: false,
+  }),
+})));
+
+const LEARNING_PATH_VALUES = new Set(LEARNING_PATHS.map((path) => path.id));
+
+function learningPathOf(pathId) {
+  const id = clean(pathId);
+  return LEARNING_PATHS.find((path) => path.id === id) || null;
+}
 
 const SECTIONS = freezeItems([
   {
@@ -645,6 +685,7 @@ export function beitMidrashLearningHref(section, {
   guidedKind = null,
   findingId = null,
   pathId = null,
+  pathStepId = null,
   conceptId = null,
   sourceStepId = null,
   cipherStepId = null,
@@ -659,7 +700,16 @@ export function beitMidrashLearningHref(section, {
   const kind = safeGuidedKind(guidedKind);
   if (resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.GUIDED && kind) params.set("kind", kind);
   if (clean(findingId)) params.set("finding", clean(findingId));
-  if (clean(pathId)) params.set("path", clean(pathId));
+  const requestedPath = clean(pathId);
+  const learningPath = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.PATHS
+    && LEARNING_PATH_VALUES.has(requestedPath)
+    ? learningPathOf(requestedPath)
+    : null;
+  const safePathId = learningPath?.id || null;
+  if (safePathId) params.set("path", safePathId);
+  const requestedPathStep = clean(pathStepId);
+  const pathStep = learningPath?.steps.find((step) => step.id === requestedPathStep) || null;
+  if (pathStep) params.set("pathStep", pathStep.id);
   const concept = clean(conceptId);
   const numberConcept = resolvedSection === BEIT_MIDRASH_LEARNING_SECTION.NUMBERS
     && NUMBER_GUIDE_CONCEPT_VALUES.has(concept);
@@ -689,7 +739,9 @@ export function beitMidrashLearningHref(section, {
         ? `source-step-${encodeURIComponent(sourceStep)}`
         : cipherStep
           ? `cipher-step-${encodeURIComponent(cipherStep)}`
-          : clean(pathId) ? `path-${encodeURIComponent(clean(pathId))}` : "";
+          : pathStep
+            ? `path-${encodeURIComponent(safePathId)}-step-${encodeURIComponent(pathStep.id)}`
+            : safePathId ? `path-${encodeURIComponent(safePathId)}` : "";
   return `${methodRoute(methodKey)}${query ? `?${query}` : ""}${anchor ? `#${anchor}` : ""}`;
 }
 
@@ -715,7 +767,16 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     ? (explicitKind || legacy?.guidedKind || null)
     : null;
   const findingId = clean(params.get("finding")) || null;
-  const pathId = clean(params.get("path")) || legacy?.pathId || null;
+  const requestedPath = clean(params.get("path")) || clean(legacy?.pathId);
+  const pathId = section === BEIT_MIDRASH_LEARNING_SECTION.PATHS
+    && LEARNING_PATH_VALUES.has(requestedPath)
+    ? requestedPath
+    : null;
+  const selectedPath = learningPathOf(pathId);
+  const requestedPathStep = clean(params.get("pathStep"));
+  const pathStepId = selectedPath?.steps.some((step) => step.id === requestedPathStep)
+    ? requestedPathStep
+    : null;
   const requestedConcept = clean(params.get("concept"));
   const conceptId = section === BEIT_MIDRASH_LEARNING_SECTION.NUMBERS
     && NUMBER_GUIDE_CONCEPT_VALUES.has(requestedConcept)
@@ -740,6 +801,7 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
     methodKey: requestedMethod,
     findingId,
     pathId,
+    pathStepId,
     conceptId,
     sourceStepId,
     cipherStepId,
@@ -757,12 +819,27 @@ export function resolveBeitMidrashLearningLocation({ methodKey = null, search = 
       guidedKind,
       findingId,
       pathId,
+      pathStepId,
       conceptId,
       sourceStepId,
       cipherStepId,
       destinationId,
     }),
     shouldRedirect: false,
+  });
+}
+
+export function buildBeitMidrashLearningPath(pathId, pathStepId = null) {
+  const path = learningPathOf(pathId);
+  if (!path) return null;
+  const requestedIndex = path.steps.findIndex((step) => step.id === clean(pathStepId));
+  const selectedIndex = requestedIndex >= 0 ? requestedIndex : 0;
+  return Object.freeze({
+    path,
+    selectedStep: path.steps[selectedIndex],
+    selectedIndex,
+    previousStep: selectedIndex > 0 ? path.steps[selectedIndex - 1] : null,
+    nextStep: selectedIndex < path.steps.length - 1 ? path.steps[selectedIndex + 1] : null,
   });
 }
 
@@ -875,6 +952,7 @@ export function buildBeitMidrashLearningProjection({
   return Object.freeze({
     manifest: BEIT_MIDRASH_LEARNING_MANIFEST,
     location,
+    learningPath: buildBeitMidrashLearningPath(location.pathId, location.pathStepId),
     guidedExamples: buildBeitMidrashGuidedExamples(worldProjection, {
       limit: exampleLimit,
       findingId: location.findingId,
