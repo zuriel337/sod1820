@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
+import ConstantDiagram2029 from "./ConstantDiagram2029.jsx";
 import SpatialDiagram2029 from "./SpatialDiagram2029.jsx";
 import { getMatrixLibraryPage } from "../../lib/elsMatrices.js";
 import { fetchCurationCatalog2029 } from "../../lib/research/curationProjection2029.js";
@@ -155,6 +156,29 @@ function formatConstant(value, digits = 12) {
   return Number.isFinite(value) ? Number(value).toPrecision(digits).replace(/0+$/, "").replace(/\.$/, "") : "אין נתון";
 }
 
+function ConstantVisualDeck({ card, priority = false }) {
+  const [layer, setLayer] = useState("diagram");
+  return <div className="sod29-world-constant-visual" data-layer={layer}>
+    <nav className="sod29-world-spatial-visual-tabs" aria-label={`שכבות חזותיות: ${card.title}`}>
+      <button type="button" aria-pressed={layer === "diagram"} onClick={() => setLayer("diagram")}>חישוב</button>
+      {card.image ? <button type="button" aria-pressed={layer === "source"} onClick={() => setLayer("source")}>מקור</button> : null}
+    </nav>
+    {layer === "diagram" ? <ConstantDiagram2029
+      diagramKind={card.diagramKind}
+      title={card.title}
+      expression={card.expression}
+      actual={card.verification.actual}
+      comparison={card.verification.comparison}
+      absoluteError={card.verification.absoluteError}
+      relation={card.verification.relation}
+    /> : null}
+    {layer === "source" && card.image ? <figure className="sod29-world-spatial-source-image">
+      <img src={card.image} width="640" height="360" loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" alt={`תמונת המקור: ${card.title}`} />
+      <figcaption><span>תמונת מקור</span><small>ראיה חזותית מן הקורפוס</small></figcaption>
+    </figure> : null}
+  </div>;
+}
+
 function ZviConstantsShelf({ projection }) {
   if (projection?.access?.available === false) return <section className="sod29-world-kind-section" aria-label="פאי וקבועים">
     <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div></header>
@@ -163,10 +187,10 @@ function ZviConstantsShelf({ projection }) {
   return <section className="sod29-world-kind-section sod29-world-constants-shelf" aria-label="פאי וקבועים">
     <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div><span>{projection.counts.cases} מקרים · {projection.counts.approximations} קירובים</span></header>
     <p className="sod29-world-spatial-rule">הסדרה שייכת למספרים ורצפים. קירוב אינו שוויון, וחזרה על אותו מקור אינה ראיה עצמאית. אין כאן קישור למרחבים משום שבמקרים האלה לא הוכח קשר גיאומטרי.</p>
-    <div className="sod29-world-kind-card-grid">{projection.cards.map((card) => <article key={card.id} id={`constant-${card.id.split(":").pop()}`} className="sod29-world-kind-card sod29-world-constant-card">
+    <div className="sod29-world-kind-card-grid">{projection.cards.map((card, index) => <article key={card.id} id={`constant-${card.id.split(":").pop()}`} className="sod29-world-kind-card sod29-world-constant-card">
       <small>{card.verification.label} · חוזק: {card.review.connectionStrength}</small>
       <strong dir="auto">{card.title}</strong>
-      {card.image ? <img src={card.image} alt={`תרשים המקור: ${card.title}`} width="640" height="360" loading="lazy" /> : null}
+      <ConstantVisualDeck card={card} priority={index === 0} />
       <p className="sod29-world-constant-expression" dir="ltr">{card.expression}</p>
       <dl><div><dt>תוצאה</dt><dd dir="ltr">{formatConstant(card.verification.actual)}</dd></div>
         <div><dt>ערך השוואה</dt><dd dir="ltr">{formatConstant(card.verification.comparison)}</dd></div>

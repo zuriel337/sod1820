@@ -28,6 +28,7 @@ test("public constants projection requires approved public live research and sou
   const projection = buildZviConstantsWorldProjection(research, sources);
   assert.equal(projection.cards.length, 1);
   assert.equal(projection.cards[0].geometryLink, null);
+  assert.equal(projection.cards[0].diagramKind, "constant-orbit");
   assert.equal(projection.cards[0].image, "https://example.com/pi.jpg");
   assert.equal(projection.rules.noGeometryLinkWithoutGeometry, true);
 });

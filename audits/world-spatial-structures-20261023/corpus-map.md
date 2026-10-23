@@ -47,4 +47,5 @@ Strength, evidence quality, calculation state, publication state and source inde
 - The spatial visual kit has three explicit layers: deterministic decoded diagram, source evidence and optional schematic 3D. Generated or schematic imagery is never labelled as source evidence.
 - Six cards are mounted initially; subsequent groups of six are revealed on request. A deep link expands the group that contains its exact target.
 - The list uses the deterministic 2D diagram first. Source images and the Three.js renderer are loaded only after an explicit layer selection.
+- The separate π/constants series uses deterministic comparison diagrams. The actual value, comparison value and absolute gap remain explicit; approximation is never drawn or labelled as equality. Its source image also mounts only after explicit selection.
 - Migration `20261023030314_world_spatial_structures_metadata_v1.sql` adds research metadata only. It does not change RLS, privacy, status, publication, source rows or tree membership.
