@@ -19,6 +19,9 @@
 .pc-list-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-block:18px}
 .pc-list-heading label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .pc-items{display:grid;gap:12px}
+.pc-community-peek{border-bottom:1px solid var(--pc-border);padding-block:8px 20px;margin-bottom:20px}
+.pc-pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-block:20px}
+.public-contributor-2029 .pc-catalog-media{display:block;max-height:280px;width:100%;object-fit:contain;border-radius:8px;background:var(--pc-soft)}
 .pc-item{border:1px solid var(--pc-border);border-radius:12px;background:var(--pc-card);padding:16px;display:grid;gap:10px;scroll-margin-block:90px}
 .pc-item-meta{display:flex;gap:8px 16px;flex-wrap:wrap;color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
 .pc-item-meta>span:first-child{color:var(--pc-accent)}

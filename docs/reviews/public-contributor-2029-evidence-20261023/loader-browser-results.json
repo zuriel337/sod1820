@@ -1,0 +1,36 @@
+[
+  {
+    "viewer": "anonymous",
+    "all_data_requests_anonymous": true,
+    "private_marker_visible": false,
+    "request_count": 8,
+    "tables": [
+      "contributors",
+      "contributors",
+      "world_contributor_research_v1",
+      "channel_updates",
+      "research_contributions",
+      "channel_updates",
+      "channel_updates",
+      "world_gematria_lexical_lookup_v1"
+    ],
+    "canonical": "https://sod1820.co.il/community/researcher/2042"
+  },
+  {
+    "viewer": "signed-in-admin",
+    "all_data_requests_anonymous": true,
+    "private_marker_visible": false,
+    "request_count": 8,
+    "tables": [
+      "contributors",
+      "contributors",
+      "world_contributor_research_v1",
+      "channel_updates",
+      "research_contributions",
+      "channel_updates",
+      "channel_updates",
+      "world_gematria_lexical_lookup_v1"
+    ],
+    "canonical": "https://sod1820.co.il/community/researcher/2042"
+  }
+]

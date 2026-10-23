@@ -7,11 +7,16 @@ import { use2029Palette } from "../lib/palette.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./publicContributor2029.css";
+import PublicSourceCatalog2029 from "../components/contributor2029/PublicSourceCatalog2029.jsx";
 
 const TYPE_LABELS = { sources: "מקור", findings: "ממצא", writings: "כתב", topics: "נושא" };
 const VERIFICATION = { match: "טענה אומתה מול המנוע", mismatch: "טענה נסתרה במנוע", not_tested: "לא נבדקה טענה מול המנוע", method_unknown: "השיטה לא זוהתה" };
 
-export function PublicContributor2029View({ view, loading = false, error = false, onRetry }) {
+export function PublicContributor2029View(props) {
+  return props.view?.kind === "source_catalog" ? <PublicSourceCatalog2029 view={props.view} /> : <GeneralContributor2029View {...props} />;
+}
+
+function GeneralContributor2029View({ view, loading = false, error = false, onRetry }) {
   const P = use2029Palette();
   const location = useLocation();
   const [params, setParams] = useSearchParams();

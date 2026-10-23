@@ -26,11 +26,11 @@ with sync_playwright() as p:
    claims=json.loads(base64.urlsafe_b64decode(auth.split('.')[1]+'=='))
    assert claims['role']=='anon','session credentials were used for public data'
    calls.append(table)
-   data={'contributors':[fixtures['identity']],'research_objects':[fixtures['research'],{**fixtures['research'],'id':'private-test-marker','privacy_scope':'private','statement':'PRIVATE_TEST_MARKER'}],
-    'channel_updates':[fixtures['source']],'research_contributions':[],'gematria_words':[]}[table]
+   data={'contributors':[fixtures['identity']],'world_contributor_research_v1':[fixtures['research'],{**fixtures['research'],'id':'private-test-marker','privacy_scope':'private','statement':'PRIVATE_TEST_MARKER'}],
+    'channel_updates':[fixtures['source']],'research_contributions':[],'gematria_words':[],'world_gematria_lexical_lookup_v1':[]}[table]
    r.fulfill(status=200,content_type='application/json',headers={'access-control-allow-origin':'*','content-range':f'0-{max(0,len(data)-1)}/{len(data)}'},body=json.dumps(data))
   page.route('**/*',route)
-  page.goto('http://127.0.0.1:5179/work/contributor-review.html?scenario=loader')
+  page.goto('http://127.0.0.1:5181/work/contributor-review.html?scenario=loader')
   page.get_by_role('heading',name=fixtures['identity']['display_name'],exact=True).wait_for()
   assert page.locator('.pc-item').count()==2
   assert 'PRIVATE_TEST_MARKER' not in page.locator('body').inner_text()
