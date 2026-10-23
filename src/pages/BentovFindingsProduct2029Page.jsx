@@ -850,9 +850,9 @@ export default function BentovFindingsProduct2029Page() {
       noindex: true,
     });
 
-    if (window.location.hash === "#bentov29-review-title") {
+    if (["#bentov29-review-title", "#bentov29-publication-gate-title"].includes(window.location.hash)) {
       window.requestAnimationFrame(() => {
-        document.getElementById("bentov29-review-title")?.scrollIntoView({ block: "start" });
+        document.getElementById(window.location.hash.slice(1))?.scrollIntoView({ block: "start" });
       });
     }
   }, []);

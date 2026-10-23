@@ -137,7 +137,8 @@ test("review workbench models all 33 decisions without exposing canonical record
   assert.match(page, /disabled=\{key !== "needs_evidence" && !evidenceComplete\}/);
   assert.match(page, /if \(decision !== "needs_evidence" && !evidenceComplete\) return/);
   assert.match(page, /setFidelityDecisions\(decisions => \(\{ \.\.\.decisions, \[findingId\]: "needs_evidence" \}\)\)/);
-  assert.match(page, /window\.location\.hash === "#bentov29-review-title"/);
+  assert.match(page, /\["#bentov29-review-title", "#bentov29-publication-gate-title"\]\.includes\(window\.location\.hash\)/);
+  assert.match(page, /document\.getElementById\(window\.location\.hash\.slice\(1\)\)/);
   assert.match(page, /scrollIntoView\(\{ block: "start" \}\)/);
   assert.match(page, /אינה משנה את תיקוני האיתור שכבר נשמרו/);
   assert.match(page, /אינה משנה את `fidelity_status` הקנוני/);
