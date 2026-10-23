@@ -222,6 +222,27 @@ const FINAL_FINDING_LENSES = Object.freeze({
   }),
 });
 
+// Product law for every book finding: evidence is part of the reading surface,
+// never a detached citation or a hidden modal. A real PDF may only be mounted
+// after its display asset is explicitly approved for the current access tier.
+const BOOK_SOURCE_VISIBILITY_CONTRACT = Object.freeze({
+  mode: "source_always_visible",
+  desktop: "large_sticky_pdf_beside_finding",
+  mobile: "source_immediately_after_finding",
+  detachedCitation: false,
+  hiddenModal: false,
+  respectsSourceAuthorization: true,
+});
+
+const FINAL_FINDING_SOURCE = Object.freeze({
+  title: "מסע קצר אל התודעה הגבוהה",
+  author: "יצחק בנטוב",
+  page: 8,
+  fidelity: "נאמנות מדויקת",
+  pdfUrl: null,
+  access: "protected-preview",
+});
+
 const EVIDENCE_REQUIREMENTS = Object.freeze({
   shared: Object.freeze([
     Object.freeze({ key: "witness_window", label: "חלון עד המקור", description: "העמודים שנבדקו כוללים את הקטע הרלוונטי במלואו." }),
@@ -669,15 +690,68 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
   </section>;
 }
 
+function FindingSourcePanel({ source }) {
+  const approvedPdfUrl = source.access === "approved-display" ? source.pdfUrl : null;
+
+  return <aside
+    id="bentov29-final-source"
+    className="bentov29-final-source"
+    aria-labelledby="bentov29-final-source-title"
+    data-source-visibility={BOOK_SOURCE_VISIBILITY_CONTRACT.mode}
+    data-source-access={source.access}
+  >
+    <header>
+      <div>
+        <span>המקור · PDF</span>
+        <h2 id="bentov29-final-source-title">עמוד {source.page}</h2>
+      </div>
+      <b>צמוד לממצא</b>
+    </header>
+
+    <div className="bentov29-final-pdf-stage">
+      {approvedPdfUrl ? <iframe
+        src={`${approvedPdfUrl}#page=${source.page}&view=FitH`}
+        title={`${source.title} · PDF · עמוד ${source.page}`}
+      /> : <div className="bentov29-final-pdf-protected" role="img" aria-label={`עמוד ${source.page} בקובץ המקור מוגן בפריוויו`}>
+        <div className="bentov29-final-paper" aria-hidden="true">
+          <span>{source.page}</span>
+          <i className="line is-title" />
+          <i className="line" /><i className="line" /><i className="line is-short" />
+          <i className="line" /><i className="line is-short" /><i className="line" />
+          <i className="source-lock">מקור מוגן</i>
+        </div>
+        <div className="bentov29-final-source-boundary">
+          <strong>קובץ המקור עצמו מוגן בפריוויו</strong>
+          <span>לא נמצא בענף נכס PDF שאושר לתצוגה. לאחר אישור הנכס, העמוד האמיתי ייטען כאן — באותו מקום ובאותו גודל.</span>
+        </div>
+      </div>}
+    </div>
+
+    <dl>
+      <div><dt>ספר</dt><dd>{source.title}</dd></div>
+      <div><dt>מחבר</dt><dd>{source.author}</dd></div>
+      <div><dt>עוגן</dt><dd>PDF · עמוד {source.page}</dd></div>
+      <div><dt>בדיקה</dt><dd>{source.fidelity}</dd></div>
+    </dl>
+    <p><strong>חוק ספרים:</strong> המקור נשאר ליד הממצא לאורך הקריאה. הוא לעולם אינו מוסתר מאחורי כפתור או חלון נפרד.</p>
+  </aside>;
+}
+
 function FinalFindingExperience() {
   const [activeLens, setActiveLens] = useState("body");
   const lens = FINAL_FINDING_LENSES[activeLens];
 
-  return <main className="bentov29 bentov29-final" data-final-finding-mode="preview-exemplar" data-publication-effect="none">
+  return <main
+    className="bentov29 bentov29-final"
+    data-final-finding-mode="preview-exemplar"
+    data-publication-effect="none"
+    data-source-visibility={BOOK_SOURCE_VISIBILITY_CONTRACT.mode}
+  >
     <nav className="bentov29-final-crumb" aria-label="מיקום בספרייה">
       <span>ספרים</span><i>←</i><span>יצחק בנטוב</span><i>←</i><strong>ממצא 01</strong>
     </nav>
 
+    <div className="bentov29-final-product-layout">
     <section className="bentov29-final-hero" aria-labelledby="bentov29-final-title">
       <div className="bentov29-final-hero-copy">
         <div className="bentov29-final-index"><span>01</span><small>ממצא</small></div>
@@ -687,6 +761,7 @@ function FinalFindingExperience() {
         <div className="bentov29-final-trust" aria-label="מצב אמון">
           <span>מקור נבדק</span><span>נאמנות מדויקת</span><span>עברית מלאה</span>
         </div>
+        <a className="bentov29-final-source-jump" href="#bentov29-final-source">למקור · PDF · עמוד 8 ↓</a>
         <small className="bentov29-final-disclaimer">ניסוח מוצר לדוגמה בפריוויו — אינו ציטוט ואינו חושף את נוסח הממצא הקנוני.</small>
       </div>
       <div className="bentov29-final-visual" aria-label="המחשה מרחבית של קצבים גופניים">
@@ -697,6 +772,10 @@ function FinalFindingExperience() {
         <span className="pulse pulse-d">קשב</span>
       </div>
     </section>
+
+    <FindingSourcePanel source={FINAL_FINDING_SOURCE} />
+
+    <div className="bentov29-final-story">
 
     <section className="bentov29-final-core" aria-labelledby="bentov29-final-core-title">
       <div className="bentov29-final-reading">
@@ -747,10 +826,10 @@ function FinalFindingExperience() {
         <p>במקום לקרוא רעיון מופשט, הקורא מקבל מערכת חזותית שאפשר לחקור: מה נע, מה מסתנכרן ואיפה נוצרת חוויית הרצף.</p>
       </article>
       <article className="is-source">
-        <span>עוגן מקור</span>
-        <h2>PDF · עמוד 8</h2>
-        <p>חלון המקור נבדק ונשמר בקנוני. בפריוויו מוצג רק מראה המקום — לא ציטוט, לא צילום עמוד ולא חומר פרטי.</p>
-        <div><strong>רמת אמון</strong><b>גבוהה</b></div>
+        <span>חוק המקור</span>
+        <h2>הממצא וה־PDF הם יחידה אחת</h2>
+        <p>בדסקטופ המקור הגדול נשאר צמוד בזמן הקריאה; במובייל הוא מופיע מיד אחרי הממצא. הרשאת המקור נשמרת בכל מצב.</p>
+        <div><strong>חובת תצוגה</strong><b>תמיד</b></div>
       </article>
       <article>
         <span>השאלה שנפתחת</span>
@@ -758,6 +837,8 @@ function FinalFindingExperience() {
         <p>זהו החיבור הבא במסע: מן המחזורים הגופניים אל תפיסת הזמן, הקשב והאפשרות לקוהרנטיות בין מערכות.</p>
       </article>
     </section>
+    </div>
+    </div>
 
     <section className="bentov29-final-related" aria-labelledby="bentov29-final-related-title">
       <div>

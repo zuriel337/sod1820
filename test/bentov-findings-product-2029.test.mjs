@@ -33,6 +33,30 @@ test("focused final-finding mode renders one reader product instead of the revie
   assert.match(page, /useState\("body"\)/);
 });
 
+test("book source law keeps a large authorized PDF surface beside every finding", () => {
+  assert.match(page, /const BOOK_SOURCE_VISIBILITY_CONTRACT/);
+  assert.match(page, /mode: "source_always_visible"/);
+  assert.match(page, /desktop: "large_sticky_pdf_beside_finding"/);
+  assert.match(page, /mobile: "source_immediately_after_finding"/);
+  assert.match(page, /detachedCitation: false/);
+  assert.match(page, /hiddenModal: false/);
+  assert.match(page, /respectsSourceAuthorization: true/);
+  assert.match(page, /function FindingSourcePanel/);
+  assert.match(page, /id="bentov29-final-source"/);
+  assert.match(page, /data-source-visibility=\{BOOK_SOURCE_VISIBILITY_CONTRACT\.mode\}/);
+  assert.match(page, /data-source-access=\{source\.access\}/);
+  assert.match(page, /source\.access === "approved-display" \? source\.pdfUrl : null/);
+  assert.match(page, /קובץ המקור עצמו מוגן בפריוויו/);
+  assert.match(page, /לא נמצא בענף נכס PDF שאושר לתצוגה/);
+  assert.match(page, /המקור נשאר ליד הממצא לאורך הקריאה/);
+  assert.match(page, /href="#bentov29-final-source"/);
+  assert.match(page, /הממצא וה־PDF הם יחידה אחת/);
+  assert.match(css, /\.bentov29-final-product-layout\{[^}]*grid-template-areas:"hero source" "story source"/);
+  assert.match(css, /\.sod29-root:has\(\.bentov29-final\)\{overflow-x:clip;overflow-y:visible\}/);
+  assert.match(css, /\.bentov29-final-source\{[^}]*position:sticky/);
+  assert.match(css, /@media\(max-width:1180px\)\{\.bentov29-final-product-layout\{[^}]*grid-template-areas:"hero" "source" "story"/);
+});
+
 test("product data is visibly a synthetic display model and cannot publish", () => {
   assert.match(page, /data-preview-data="synthetic"/);
   assert.match(page, /data-publication-effect="none"/);
