@@ -27,6 +27,10 @@ test("the 1820 presentation follows the original Chotam Hakodesh deck before any
   assert.equal(presentation.originalDeck.omittedStaleContactSlide, 22);
   assert.equal(presentation.originalDeck.source.sourceHref, "https://www.slideserve.com/malana/5004169");
   assert.equal(presentation.video.sourceHref, "https://www.youtube.com/watch?v=DClJVGBMCs0");
+  assert.deepEqual(presentation.primaryLinks, [
+    { id: "original-post", label: "לפוסט המקורי של סוד 1820", href: "/post/סוד-1820" },
+    { id: "number-1820", label: "לדף המספר 1820", href: "/2029/number/1820" },
+  ]);
 
   const original = presentation.slides.slice(0, 21);
   assert.deepEqual(original.map((slide) => slide.originalDeckPosition), Array.from({ length: 21 }, (_, index) => index + 1));
@@ -34,6 +38,9 @@ test("the 1820 presentation follows the original Chotam Hakodesh deck before any
     "opening", "great-wonder", "name-times-seventy", "five-books", "bereshit-milui",
   ]);
   assert.ok(presentation.slides.slice(21).every((slide) => slide.chapter === "נספח מן האתר"));
+  const openingSources = presentation.slides[0].sources;
+  assert.equal(openingSources.find((source) => source.kind === "post")?.sourceHref, "/post/סוד-1820");
+  assert.equal(openingSources.find((source) => source.kind === "number")?.sourceHref, "/2029/number/1820");
 });
 
 test("the requested source-reading lesson, personal approval copy and draft comparison are absent", () => {

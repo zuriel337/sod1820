@@ -929,8 +929,9 @@ test("1820 presentation: exact original deck and Ahavat Torah selections", { ski
     assert.equal(opening[0][0], "https://www.youtube.com/watch?v=DClJVGBMCs0");
     assert.equal(opening[0][1], "_blank");
     assert.equal(opening[1][0], "/post/סוד-1820");
-    assert.equal(opening[2][0], "https://www.slideserve.com/malana/5004169");
-    assert.equal(opening[2][1], "_blank");
+    assert.equal(opening[2][0], "/2029/number/1820");
+    assert.equal(opening[3][0], "https://www.slideserve.com/malana/5004169");
+    assert.equal(opening[3][1], "_blank");
     assert.equal(await page.locator(".bm-facts").count(), 0);
 
     await slide("strong-1820");

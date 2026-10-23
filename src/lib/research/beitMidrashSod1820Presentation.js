@@ -52,6 +52,15 @@ const ORIGINAL_DECK_SOURCE = Object.freeze({
   status: SOURCE_STATUS.EXACT,
 });
 
+const NUMBER_1820_SOURCE = Object.freeze({
+  id: "number:1820",
+  label: "דף המספר 1820",
+  sourceRef: "number:1820",
+  sourceHref: "/2029/number/1820",
+  kind: "number",
+  status: SOURCE_STATUS.EXACT,
+});
+
 const AHAVAT_TORAH_BOOK = Object.freeze({
   identity_key: "book:ahavat-torah",
   label: "אהבת תורה",
@@ -112,6 +121,7 @@ const ORIGINAL_DECK_SLIDES = Object.freeze([
   originalSlide({
     id: "opening", originalDeckPosition: 1, chapter: "פתיחה", title: "חותם הקודש",
     statement: "הסוד שנתגלה לאחר 3,300 שנה — 1820.",
+    sources: [VIDEO_SOURCE, ORIGINAL_POST_SOURCE, NUMBER_1820_SOURCE, ORIGINAL_DECK_SOURCE],
   }),
   originalSlide({
     id: "great-wonder", originalDeckPosition: 2, chapter: "הפלא", title: "המניין שנשמר בתורה",
@@ -327,6 +337,10 @@ export const BEIT_MIDRASH_SOD1820_PRESENTATION = Object.freeze({
   title: "חותם הקודש · סוד 1820",
   description: "המצגת המקורית לפי סדר הסרטון, ואחריה נספח נפרד של גילויים מן האתר.",
   href: slideHref("opening"), video: VIDEO_SOURCE,
+  primaryLinks: Object.freeze([
+    Object.freeze({ id: "original-post", label: "לפוסט המקורי של סוד 1820", href: ORIGINAL_POST_SOURCE.sourceHref }),
+    Object.freeze({ id: "number-1820", label: "לדף המספר 1820", href: NUMBER_1820_SOURCE.sourceHref }),
+  ]),
   originalDeck: Object.freeze({
     title: "חותם הקודש", source: ORIGINAL_DECK_SOURCE,
     originalContentSlideCount: ORIGINAL_CONTENT_SLIDES.length, omittedStaleContactSlide: 22,
