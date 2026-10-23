@@ -784,3 +784,42 @@ B12/B13, full 3D, `research_objects`, RLS/permissions, Production migrations and
 `decision_ledger` were not implemented or changed. The candidate is
 `IMPLEMENTED + TESTED + branch-only PR_READY`; no merge, PR, Preview, deployment, feature-flag,
 live DB or Production action is part of this closure.
+
+## 16. DYNAMIC TORAH-LANGUAGE CANDIDATE LEXICON — 2026-10-23
+
+**Branch-only extension:** the explicit “nearby findings with continuation” and same-axis
+continuation actions now consume `els_dynamic_candidate_lexicon_v1` inside the existing canonical
+engine. The historical 85-term `DICT` remains a stable governed seed, but is no longer the complete
+vocabulary presented as “all nearby findings”. On the first explicit scan only, the engine derives
+a non-authoritative lexical cache from:
+
+- canonical verse-display text for the active scope (Torah or Tanakh);
+- the active verified axis and Findings;
+- the already-visible public saved-matrix projection supplied through the existing library path.
+
+No corpus payload is loaded on Research entry, ordinary search or profile switching. The derived
+cache is not a store, graph, engine, learned truth or persistence tier. A lexical match remains
+`CANDIDATE`; adding it still uses the existing canonical verification operation before it can become
+a Finding. Private records are not made public: the engine can consume only records already exposed
+to that viewer by the existing host/RLS read path. Failure to load verse text falls back visibly to
+the governed/research terms and marks coverage partial.
+
+Measured vocabulary before candidate filtering: **85** historical seeds → **11,400** distinct
+Torah-native terms of four letters or more, or **37,253** for full Tanakh, plus visible verified
+research terms. Thus `אליהו` remains covered by the governed seed and corpus, `יבואו` is learned
+from the canonical Tanakh language, and a contextual form such as `תשעו` can enter from a verified
+active/public research Finding without hard-coding it globally.
+
+This extends the existing F03/F-family candidate generators and active
+`els_research_layer_law v9` `S2_DYNAMIC_LEXICON`; it does not add or renumber a capability. The
+85-capability disposition therefore remains **76 LIVE/ABSORBED + 4 PARTIAL + 4 PARKED + 1 NEVER**.
+B12/B13, approximate search, automatic truth promotion, `research_objects`, DB/RLS/permissions,
+full 3D and Raziel implementation remain out of this delta.
+
+Acceptance on the branch is green: 144 relevant Node tests passed with one isolated PostgreSQL
+fixture skipped because no local PostgreSQL service was available; the complete browser passes were
+26/26 cutover and 41/41 native UI, with mobile flow, privacy fail-closed behavior and all three color
+presets covered, plus 6/6 advanced/forms/deferred-payload checks. Both production builds and the 2029
+bundle budget passed. Against `ac39b5ba`, each generated ELS HTML gained 4,829 raw bytes; gzip deltas
+were +1,683 bytes for `tzofen.html` and +1,409 bytes for the standalone artifact. No Preview,
+Production, database, RLS or permission action was performed.

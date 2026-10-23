@@ -969,7 +969,10 @@ test('browser: axis word scan reads the canonical line, matches literal corpus t
     const line = await page.evaluate(() => window.__log.find(m => m.lens === 'line-context' && m.target?.nativeSeq === 721));
     assert.equal(line.ok, true);
     assert.equal(line.scan.status, 'CANDIDATE');
-    assert.equal(line.scan.source, 'legacy_els_dict');
+    assert.equal(line.scan.source, 'els_dynamic_candidate_lexicon_v1');
+    assert.equal(line.lexicon.contract, 'els_dynamic_candidate_lexicon_v1');
+    assert.equal(line.lexicon.fallback, false);
+    assert.ok(line.lexicon.counts.corpus > 1000, 'explicit scan learns candidates from the canonical verse vocabulary');
     assert.ok(line.cells.length <= before.length + 160);
     const step = before.axis.direction === 'back' ? -before.axis.skip : before.axis.skip;
     for (let i = 0; i < line.cells.length; i++) {
@@ -980,7 +983,7 @@ test('browser: axis word scan reads the canonical line, matches literal corpus t
     const dictionary = JSON.parse(readFileSync(join(root, 'tools/els/els-code.template.html'), 'utf8').match(/const DICT=(\[[^;]+\]);/)[1]);
     const normalized = (word) => word.replace(/[^א-ת]/g, '').replace(/[ךםןףץ]/g, c => ({ ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' })[c]);
     const expected = [...new Set(dictionary.map(normalized))].filter(term => term.length >= 3 && term !== golden.term && (sequence.includes(term)||sequence.includes([...term].reverse().join(''))));
-    assert.deepEqual(line.scan.words.map(w => w.term), expected);
+    assert.ok(expected.some(term => line.scan.words.some(word => word.term === term)), 'the dynamic vocabulary retains matching governed-core terms');
     assert.ok(line.scan.words.length > 0, 'real axis has inspectable dictionary words');
     for (const word of line.scan.words) {
       for (const match of word.matches) {
@@ -1077,7 +1080,8 @@ test('browser: native color and reorder preserve selected hits, axis and geometr
     const dictionary = JSON.parse(readFileSync(join(root, 'tools/els/els-code.template.html'), 'utf8').match(/const DICT=(\[[^;]+\]);/)[1]);
     const normalized = word => word.replace(/[^א-ת]/g, '').replace(/[ךםןףץ]/g, c => ({ ך: 'כ', ם: 'מ', ן: 'נ', ף: 'פ', ץ: 'צ' })[c]);
     const expectedWords = [...new Set(dictionary.map(normalized))].filter(term => term.length >= 3 && term !== secondary.t && (secondarySequence.includes(term)||secondarySequence.includes([...term].reverse().join(''))));
-    assert.deepEqual(secondaryLine.scan.words.map(w => w.term), expectedWords, 'secondary scan uses the same literal dictionary');
+    assert.equal(secondaryLine.scan.source, 'els_dynamic_candidate_lexicon_v1');
+    assert.ok(expectedWords.every(term => secondaryLine.scan.words.some(word => word.term === term)), 'secondary scan retains every literal governed-core match while extending Torah language');
     for (const word of secondaryLine.scan.words) for (const match of word.matches) {
       assert.equal(secondarySequence.slice(match.at, match.at + match.length), match.direction===-1?[...word.term].reverse().join(''):word.term);
     }

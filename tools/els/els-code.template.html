@@ -1566,8 +1566,48 @@ __STANDALONE_ENGINE_DISPATCH__
   const SYSTEM_MATRICES=[
     {name:"תורה קדשה", term:"תורה קדשה", skip:10065, words:["התורה","אמיתית"], sys:true},
   ];
-  // 🤖 מאגר-מונחים ל«הצע אשכול» (בכלי העצמאי — באתר יוזרם מ-ai-analyze דינמית)
+  // 🤖 ליבת-מונחים היסטורית. היא נשארת seed יציב ותואם-לאחור, אך פעולות-הגילוי
+  // המפורשות של Research משתמשות ב-dynamicCandidateLexicon() שמתחתיה: אותה ליבה +
+  // שפת-הקורפוס הקנוני + מונחים שכבר נראים במחקר/בצפנים הציבוריים. זהו cache נגזר,
+  // לא מנוע, store או אמת נוספים; כל מופע עדיין עובר אימות ELS קנוני לפני שהוא Finding.
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
+  const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",_corpusLexiconCache={torah:null,tanakh:null};
+  function addCandidateLexiconTerm(map,raw,source,support=1){
+    const label=String(raw||"").trim().replace(/\s+/g," "),term=norm(label);
+    if(term.length<3||term.length>24)return;
+    const prior=map.get(term);
+    if(prior){prior.support+=Math.max(1,support||1);prior.sources.add(source);return;}
+    map.set(term,{term,label,support:Math.max(1,support||1),sources:new Set([source])});
+  }
+  function buildCorpusCandidateLexicons(rows){
+    const torah=new Map(),tanakh=new Map(),torahVerseCount=VCHAP.slice(0,TORAH_BOOKS).reduce((n,book)=>n+book.reduce((a,b)=>a+b,0),0);
+    for(let vi=0;vi<rows.length;vi++){
+      const words=String(rows[vi]||"").split(/[\s־ֽ–\-]+/);
+      for(const word of words){if(norm(word).length<4)continue;addCandidateLexiconTerm(tanakh,word,"corpus_native");if(vi<torahVerseCount)addCandidateLexiconTerm(torah,word,"corpus_native");}
+    }
+    const freeze=map=>Object.freeze([...map.values()].map(row=>Object.freeze({...row,sources:Object.freeze([...row.sources])})));
+    _corpusLexiconCache.torah=freeze(torah);_corpusLexiconCache.tanakh=freeze(tanakh);
+  }
+  function researchCandidateLexicon(){
+    const map=new Map();
+    DICT.forEach(term=>addCandidateLexiconTerm(map,term,"governed_core",4));
+    for(const row of _corpusLexiconCache[st.scope]||[])for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support);
+    addCandidateLexiconTerm(map,st.raw,"active_axis",8);
+    st.words.forEach(word=>addCandidateLexiconTerm(map,word.t,"verified_research",8));
+    for(const item of CLOUD_MATRICES||[]){
+      addCandidateLexiconTerm(map,item.term,"visible_saved_research",3);
+      (item.words||[]).forEach(word=>addCandidateLexiconTerm(map,word.t,"visible_saved_research",2));
+    }
+    return [...map.values()].map(row=>({...row,sources:[...row.sources]}))
+      .sort((a,b)=>b.support-a.support||b.term.length-a.term.length||a.term.localeCompare(b.term,"he"));
+  }
+  async function dynamicCandidateLexicon(){
+    let fallback=false;
+    if(!_corpusLexiconCache[st.scope])try{buildCorpusCandidateLexicons(await ensureVerseText());}catch(_){fallback=true;}
+    const entries=researchCandidateLexicon();
+    return {contract:DYNAMIC_LEXICON_CONTRACT,entries,fallback,counts:{total:entries.length,corpus:entries.filter(row=>row.sources.includes("corpus_native")).length,
+      research:entries.filter(row=>row.sources.includes("verified_research")||row.sources.includes("visible_saved_research")).length}};
+  }
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
   st.verseRead=false;st.verseHL=-1;
@@ -2370,13 +2410,16 @@ __STANDALONE_ENGINE_DISPATCH__
     }
     if(d.type==="request-lens"&&d.lens==="verse-context"){verseContextLens(d.target||{});}   // 📜 on-demand בלבד — ראו verseContextLens()
     if(d.type==="request-lens"&&d.lens==="line-context"){
-      const target=d.target||{},hit=findLensHit(target);
-      if(hit&&isInspectableHit(hit,target)&&(!target.hitId||hitKey(hit)===target.hitId)){
-        const cells=lineContextCells(hit),word=target.term||st.raw;
-        const scan=target.scan===true?scanLineWords(cells,word,64,256):null;
-        postHost({type:"lens",lens:"line-context",ok:true,target,hitId:hitKey(hit),word,skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back",cells,scan});
-      }
-      else postHost({type:"lens",lens:"line-context",ok:false,target});
+      const target=d.target||{},publish=lexicon=>{
+        const hit=findLensHit(target);
+        if(hit&&isInspectableHit(hit,target)&&(!target.hitId||hitKey(hit)===target.hitId)){
+          const cells=lineContextCells(hit),word=target.term||st.raw;
+          const scan=target.scan===true?scanLineWords(cells,word,64,256,lexicon?.entries||DICT):null;
+          postHost({type:"lens",lens:"line-context",ok:true,target,hitId:hitKey(hit),word,skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back",cells,scan,
+            lexicon:lexicon?{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback}:null});
+        }else postHost({type:"lens",lens:"line-context",ok:false,target});
+      };
+      if(target.scan===true)dynamicCandidateLexicon().then(publish);else publish(null);
     }
     if(d.type==="request-lens"&&d.lens==="matrix-candidates"){
       const target=d.target||{},hit=hasGov(st.res)?occ():null;
@@ -2385,15 +2428,19 @@ __STANDALONE_ENGINE_DISPATCH__
       // only after an explicit click. Candidates without another recognized word on their exact
       // line stay out of the simple result. Coordinates never cross the bridge and adding a term
       // still runs the normal canonical verification before it becomes a Finding.
-      const available=scanCandidates().sort((a,b)=>a.distance-b.distance||norm(a.term).localeCompare(norm(b.term),"he")),scanCap=48;
-      const items=available.slice(0,scanCap).map(candidate=>{
-        const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48);
-        if(!continuation.words.length)return null;
-        return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,
-          continuations:continuation.words.map(word=>({term:word.term,label:word.label})),continuationTruncated:continuation.truncated};
-      }).filter(Boolean);
-      postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",provenanceSource:"legacy_els_dict",coverage:"displayed-window",
-        items,total:items.length,scanned:Math.min(available.length,scanCap),available:available.length,truncated:available.length>scanCap});
+      dynamicCandidateLexicon().then(lexicon=>{
+        const current=hasGov(st.res)?occ():null;
+        if(!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
+        const available=scanCandidates(lexicon.entries).sort((a,b)=>a.distance-b.distance||a.lexiconSupport-b.lexiconSupport||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")),scanCap=48;
+        const items=available.slice(0,scanCap).map(candidate=>{
+          const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,lexicon.entries);
+          if(!continuation.words.length)return null;
+          return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,
+            continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
+        }).filter(Boolean);
+        postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",provenanceSource:lexicon.contract,coverage:"displayed-window",
+          lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},items,total:items.length,scanned:Math.min(available.length,scanCap),available:available.length,truncated:available.length>scanCap});
+      });
     }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
     if(d.type==="native-control"&&typeof d.action==="string"){
@@ -3555,7 +3602,7 @@ __STANDALONE_ENGINE_DISPATCH__
     };
   }
   // 🧭 עדשת מסלול-גילוי — מסע מממצא לממצא בתוך החלון, עם **סיבה על כל חץ** (מראה/גימטריה/עוגן/קרבה).
-  function scanCandidates(){
+  function scanCandidates(lexicon=DICT){
     if(!hasGov(st.res))return [];
     const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
@@ -3565,12 +3612,13 @@ __STANDALONE_ENGINE_DISPATCH__
     // Enumerate only visible first/last-letter pairs. This is equivalent to trying every
     // legal skip/direction in the window, but avoids walking a huge numeric skip range when
     // the primary axis itself is wide (for example, skip 21,940).
-    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]),ends=byChar.get(t[L-1]);if(!starts||!ends)continue;let best=null;
+    for(const entry of lexicon){const raw=typeof entry==="string"?entry:entry.label||entry.term,t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]),ends=byChar.get(t[L-1]);if(!starts||!ends)continue;let best=null;
       for(const s0 of starts)for(const end of ends){const delta=end-s0,span=L-1;if(!delta||delta%span)continue;const step=delta/span,sk=Math.abs(step);let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+step*k;if(p<0||p>=N||T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;
         const distance=distanceToAnchors(pos,axisAnchors,S);
-        if(!best||distance<best.distance||distance===best.distance&&sk<best.skip)best={term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,dir:Math.sign(step),start:s0,positions:pos,gem:gem(raw),distance};
+        if(!best||distance<best.distance||distance===best.distance&&sk<best.skip)best={term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,dir:Math.sign(step),start:s0,positions:pos,gem:gem(raw),distance,
+          lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1};
       }
       if(best)out.set(t,best);
     }
@@ -4361,33 +4409,31 @@ __STANDALONE_ENGINE_DISPATCH__
     for(let k=1;k<=EXT;k++){const p=last+k*step;if(p>=0&&p<scopeN())positions.push(p);}
     return positions.map(i=>({i,letter:T[i],main:main.has(i)}));
   }
-  // The legacy strip and native inspector share the SAME literal, on-line dictionary scan.
-  // Offsets are display offsets only, not verified ELS occurrences or new Finding identities.
-  function scanLineWords(cells,word,maxWords=Infinity,maxMatches=Infinity){
-    const lineStr=cells.map(c=>c.letter).join(""),axisN=norm(word),seen=new Set(),words=[];
-    let count=0,truncated=false;
-    for(const raw of DICT){
-      const t=norm(raw);if(t.length<3||t===axisN||seen.has(t))continue;
-      const matches=[],spans=new Set();
-      for(const direction of [1,-1]){
-        const needle=direction===1?t:t.split("").reverse().join("");
-        let at=lineStr.indexOf(needle);
-        while(at>=0){
-          if(!spans.has(at)){
-            if(count>=maxMatches){truncated=true;break;}
-            spans.add(at);matches.push({at,length:t.length,direction});count++;
-          }
-          at=lineStr.indexOf(needle,at+1);
-        }
-        if(truncated)break;
-      }
-      if(matches.length){
-        if(words.length>=maxWords){truncated=true;break;}
-        seen.add(t);words.push({term:t,label:raw,matches});
-      }
-      if(truncated)break;
+  // The legacy strip and native inspector share the SAME literal on-line matcher. A caller may
+  // supply the lazy dynamic lexicon; offsets remain display evidence, never verified occurrences.
+  function scanLineWords(cells,word,maxWords=Infinity,maxMatches=Infinity,lexicon=DICT){
+    const lineStr=cells.map(c=>c.letter).join(""),axisN=norm(word),lookup=new Map();let maxLength=3;
+    for(const entry of lexicon){
+      const label=typeof entry==="string"?entry:entry.label||entry.term,term=norm(label);
+      if(term.length<3||term===axisN||lookup.has(term))continue;
+      maxLength=Math.max(maxLength,term.length);lookup.set(term,{term,label,matches:[],lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1});
     }
-    return {status:"CANDIDATE",source:"legacy_els_dict",minLength:3,words,truncated};
+    const found=new Map(),spans=new Set();let count=0,truncated=false;
+    scan:for(const direction of [1,-1]){
+      const sequence=direction===1?lineStr:lineStr.split("").reverse().join("");
+      for(let at=0;at<sequence.length;at++)for(let length=3;length<=maxLength&&at+length<=sequence.length;length++){
+        const row=lookup.get(sequence.slice(at,at+length));if(!row)continue;
+        const shownAt=direction===1?at:lineStr.length-at-length,span=row.term+":"+shownAt+":"+length;
+        if(spans.has(span))continue;
+        if(count>=maxMatches){truncated=true;break scan;}
+        spans.add(span);count++;const current=found.get(row.term)||{...row,matches:[],firstAt:shownAt};
+        current.matches.push({at:shownAt,length,direction});current.firstAt=Math.min(current.firstAt,shownAt);found.set(row.term,current);
+      }
+    }
+    const all=[...found.values()].sort((a,b)=>a.firstAt-b.firstAt||b.lexiconSupport-a.lexiconSupport||b.term.length-a.term.length);
+    if(all.length>maxWords)truncated=true;
+    const words=all.slice(0,maxWords).map(({firstAt,...row})=>row);
+    return {status:"CANDIDATE",source:lexicon===DICT?"legacy_els_dict":DYNAMIC_LEXICON_CONTRACT,minLength:3,words,truncated};
   }
   function buildLineStrip(hit,color,word){
     const S=Math.abs(hit.skip),step=S*hit.dir,EXT=80;

@@ -411,7 +411,7 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
       {selected ? <button type="button" onClick={() => setSelectedTerm(null)}>חזור למילת הציר</button> : null}
     </div>
     {result.scan ? <>
-      <small>מילים מהמאגר הקיים בשני כיווני הקריאה · מועמדות לבדיקה</small>
+      <small>מילים משפת התנ״ך ומהמחקר הזמין, בשני כיווני הקריאה · מועמדות לבדיקה בלבד</small>
       <div className="els29-native-line-words" aria-label="מילים מזוהות לאורך הציר">
         {words.map((word) => {
           const added = findings.some((finding) => finding.t === word.term);
@@ -438,9 +438,11 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
 
   if (lensResult.lens === "matrix-candidates") {
     const items = Array.isArray(lensResult.items) ? [...lensResult.items].sort((a, b) => Number(a.distance) - Number(b.distance) || String(a.term).localeCompare(String(b.term), "he")) : [];
+    const lexiconCounts = lensResult.lexicon?.counts;
     return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings">
       <strong>ממצאים קרובים עם המשך · {items.length}</strong>
-      <small>ממוינים מהקרוב לרחוק ביחס לציר הראשי. מוצגות רק מילים שנמצאה להן מילה נוספת בהמשך הציר; „אמת והוסף” עדיין מפעיל אימות קנוני.</small>
+      <small>ממוינים מהקרוב לרחוק ביחס לציר הראשי. המילון נבנה בעת הלחיצה משפת התנ״ך, מהמחקר הגלוי ומהממצאים שכבר אומתו; „אמת והוסף” עדיין מפעיל אימות קנוני.</small>
+      {lexiconCounts ? <small>{lexiconCounts.total} מונחים זמינים · {lexiconCounts.corpus} מהקורפוס · {lexiconCounts.research} מהמחקר{lensResult.lexicon?.fallback ? " · מקור הפסוקים לא נטען ולכן הרשימה חלקית" : ""}</small> : null}
       <div className="els29-native-line-words els29-native-candidate-list" role="region" tabIndex={0} aria-label="ממצאים קרובים עם המשך, מהקרוב לרחוק">
         {items.map((item) => {
           const addedFinding = findings.find((finding) => finding.t === item.term);
