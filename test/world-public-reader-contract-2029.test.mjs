@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
+  findWorldPublicResearchFinding,
   worldPublicResearchDto,
 } from "../src/lib/research/worldAllResearchProjection.js";
 
@@ -129,4 +130,46 @@ test("guest DTO never invents a source URL", () => {
   });
   assert.equal(dto.rows[0].sourceHref, null);
   assert.equal(dto.rows[0].sourceRef, "channel_updates:source-id");
+});
+
+test("public focused finding lookup is exact and fails closed", () => {
+  const projection = worldPublicResearchDto({
+    rows: [
+      {
+        id: "research:public-approved",
+        sourceId: "public-approved",
+        family: "research_object",
+        status: "approved",
+        access: "public",
+        statement: "ממצא ציבורי",
+        sourceRef: "channel_updates:one",
+        sourceRefs: ["channel_updates:one"],
+        triage: { recommendation: "אסור לחשוף" },
+      },
+      {
+        id: "research:public-candidate",
+        sourceId: "public-candidate",
+        family: "research_object",
+        status: "candidate",
+        access: "public",
+        statement: "אסור להציג",
+      },
+      {
+        id: "research:private-approved",
+        sourceId: "private-approved",
+        family: "research_object",
+        status: "approved",
+        access: "private",
+        statement: "אסור להציג",
+      },
+    ],
+  });
+
+  const publicFinding = findWorldPublicResearchFinding(projection, "public-approved");
+  assert.equal(publicFinding?.statement, "ממצא ציבורי");
+  assert.equal("triage" in publicFinding, false);
+  assert.equal(findWorldPublicResearchFinding(projection, "public"), null, "no fuzzy fallback");
+  assert.equal(findWorldPublicResearchFinding(projection, "public-candidate"), null);
+  assert.equal(findWorldPublicResearchFinding(projection, "private-approved"), null);
+  assert.equal(findWorldPublicResearchFinding(projection, "missing"), null);
 });

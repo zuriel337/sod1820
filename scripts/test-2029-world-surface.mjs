@@ -117,8 +117,10 @@ assert.match(world, /אנשים ומקורות בעולם/);
 assert.equal(world.includes("world-auth-identity-bridge"), false, "the public World must not be hidden behind an account/admin bridge");
 assert.equal(world.includes("התחברות / מנהל"), false, "the public World must not present the retired admin entrance");
 assert.equal(world.includes("world-admin-tools"), false, "the retired separate admin-tools wrapper must stay removed");
-assert.equal(world.includes("fetchWorldAllResearchProjection"), false, "World must not load the admin all-material payload");
+assert.match(world, /activeView !== WORLD_LANDING_VIEW\.FINDING[\s\S]*fetchWorldAllResearchProjection\(\)/,
+  "the public finding route may load only the public/RLS World DTO after an exact finding request");
 assert.equal(world.includes("fetchWorldFindingReviewProjection"), false, "World must not download the full private corpus in the browser");
+assert.equal(world.includes("fetchWorldFindingReviewPage"), false, "the public World page must not invoke the admin findings-review API");
 assert.match(world, /isAdmin \? <React\.Suspense/, "private findings review must render only after AuthContext proves admin identity");
 assert.match(world, /React\.lazy\(\(\) => import\("\.\.\/components\/research\/WorldAllResearchTable\.jsx"\)\)/,
   "the heavy review component must stay out of the ordinary public World bundle");
