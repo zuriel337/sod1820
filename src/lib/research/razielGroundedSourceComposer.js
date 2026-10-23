@@ -6,7 +6,7 @@
 // honest deterministic fallback, and expose canonical number-page navigation without inventing a
 // source URL.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 5;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 6;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -165,6 +165,7 @@ function responseGuidance(entries) {
   const expressionResearch = entries.some((entry) => entry.subject?.type === "expression");
   return [
     "נאמנות לניסוח המקור: כשאתה נותן שם לממצא, מושג או ביטוי מן המקור, השתמש בנוסח שהופיע בחבילה בדיוק. אל תמציא לו שם חלופי ואל תציג ניסוח מחדש כאילו הוא מונח מן המקור.",
+    "אל תוריד ביטוי מאומת לדרגת פרשנות רק מפני שניסוחו נשמע סמלי או מטפורי. אם החבילה אימתה ביטוי, שיטה וערך — הצג את השוויון כעובדה חישובית; רק המשמעות שאתה מסיק מן השוויון היא פרשנות.",
     "מותר ואף רצוי לזהות דפוס משמעותי ולהציע מטפורה, שם או חיבור מקורי משלך. פתח אותו במפורש כ׳רזיאל מציע׳ או כ׳פרשנות אפשרית׳, הסבר מיד בשפה פשוטה למה בחרת בו ועל אילו עובדות הוא נשען, ואל תייחס אותו למקור.",
     "אל תייחס לשם, למילה או למספר תפקיד רוחני, ביוגרפי, היסטורי או תיאולוגי אלא אם טענה זו מופיעה במפורש בנתיב source_claims שסופק. חישוב זהות מספרית לבדו אינו מקור למשמעות כזו.",
     "הנושא המפורש של החבילה הנוכחית גובר על רקע-המסך והשיחה הקודמת. אל תחבר אותו למספר או לנושא מן המשטח אלא אם המשתמש ביקש את החיבור או שהחבילה סיפקה יחס מפורש.",
@@ -522,6 +523,7 @@ export function buildRazielGroundedSourceComposer(input = []) {
     presentation_contract: {
       order_authority: "result_bundle_presentation_order",
       verified_calculation_requires: "verification.state=match with engine_result",
+      verified_expression_must_not_be_downgraded_by_semantic_tone: true,
       source_claim_requires_attribution: true,
       interpretation_requires_explicit_label: true,
       engine_finding_is_not_automatically_independent_evidence: true,

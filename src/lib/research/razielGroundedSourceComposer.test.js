@@ -48,7 +48,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v5");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v6");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -263,6 +263,29 @@ test("preserves source terminology without hard-coding a subject-specific correc
   assert.match(out.guidance, /מותר ואף רצוי לזהות דפוס משמעותי/);
   assert.match(out.guidance, /רזיאל מציע/);
   assert.doesNotMatch(out.prompt + out.guidance, /הטליה המעגלית/);
+});
+
+test("keeps metaphor-sounding 776 phrases as verified calculations and only their meaning interpretive", () => {
+  const phrases = ["נקודה אמצעית", "שלמות", "פריעת חוב"];
+  const findings = phrases.map((phrase, index) => ({
+    id: `uf:776:${index}`,
+    kind: "gematria",
+    stage: "evidence",
+    subject: { label: phrase, value: 776 },
+    source: { source_name: "מאגר הגימטריה המאומת", source_ref: `gematria_words:${index}`, method: "רגיל", lang: "he" },
+    verification: { state: "match", engine_method_tested: "רגיל", engine_result: 776 },
+    evidence: { facts: [{ type: "published-gematria-phrase", expression: phrase, method: "רגיל", value: 776 }] },
+  }));
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "number", value: 776 },
+    projection: projection(findings),
+  }]);
+  const prompt = JSON.parse(out.prompt);
+
+  assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, findings.map((finding) => finding.id));
+  assert.equal(prompt.presentation_contract.verified_expression_must_not_be_downgraded_by_semantic_tone, true);
+  assert.match(out.guidance, /אל תוריד ביטוי מאומת לדרגת פרשנות/);
+  for (const phrase of phrases) assert.match(out.fallback, new RegExp(`${phrase}.*776`));
 });
 
 test("number comparison requires a structured evidence comparison before interpretation", () => {
