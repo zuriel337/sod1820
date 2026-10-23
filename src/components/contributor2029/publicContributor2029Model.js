@@ -22,7 +22,14 @@ export function safePublicUrl(value) {
   } catch { return null; }
 }
 
-const RETURN_PATH = /^\/(?:2029\/)?(?:world|post|posts|p|topic|number|book|books|source|sources|community|search)(?:\/|$)/;
+export function publicContributorAvatar(identity) {
+  const choice = identity?.public_avatar;
+  if (choice && typeof choice === "object" && choice.enabled === false) return null;
+  if (choice && typeof choice === "object" && choice.enabled === true) return safePublicUrl(choice.url);
+  return safePublicUrl(identity?.avatar_url);
+}
+
+const RETURN_PATH = /^\/(?:(?:2029\/)?(?:world|post|posts|p|topic|number|book|books|source|sources|community|search)(?:\/|$)|2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress)(?:\/|$))/;
 export function approvedReturnHref(value, origin) {
   const raw = text(value);
   if (!raw || raw.length > 2500 || /[\\\u0000-\u0020]/.test(raw) || raw.startsWith("//")) return null;
@@ -141,7 +148,7 @@ export function buildPublicContributorView(projection, identity) {
   return {
     noindex: AUTO_PROFILE_RE.test(text(identity.slug)),
     profile: { name: text(identity.display_name) || "כותב", bio: text(identity.bio),
-      avatar: safePublicUrl(identity.avatar_url), role: ({ researcher: "חוקר", writer: "כותב", rabbi: "רב" })[identity.role]
+      avatar: publicContributorAvatar(identity), role: ({ researcher: "חוקר", writer: "כותב", rabbi: "רב" })[identity.role]
         || (/[א-ת]/.test(text(identity.role)) && !/בעל האתר|מנהל|triage|admin|@/i.test(identity.role) ? text(identity.role) : "") },
     items: unique, sourceGroups, availability,
     partial: Object.values(availability).some((v) => v !== "ok")

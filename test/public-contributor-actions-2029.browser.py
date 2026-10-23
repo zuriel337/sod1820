@@ -156,8 +156,8 @@ with sync_playwright() as p:
         else:
             edit = page.get_by_role("link", name="עריכת הדף הציבורי שלי")
             edit.wait_for()
-            assert edit.get_attribute("href").startswith("/profile?module=page-editor&returnTo=")
-            assert page.get_by_role("link", name="תיבת ההודעות שלי").get_attribute("href").startswith("/profile?module=messages")
+            assert edit.get_attribute("href").startswith("/2029/me/page-editor?returnTo=")
+            assert page.get_by_role("link", name="תיבת ההודעות שלי").get_attribute("href").startswith("/2029/me/messages")
             assert page.get_by_role("button", name="שליחת הודעה לכותב").count() == 0
             first = page.locator("[data-catalog-source]").first
             target_href = first.get_by_role("link", name="להופעה המדויקת בעולם ↗").get_attribute("href")

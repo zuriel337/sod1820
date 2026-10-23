@@ -5,13 +5,13 @@ import { supabase } from "./supabase.js";
 import { getVisitorId } from "./tracking.js";
 
 // 💬 הודעות פרטיות (DM) — עדשות-לקוח על direct_messages דרך RPCs (owner-gateway).
-export async function dmInbox() {
+export async function dmInbox({ strict = false } = {}) {
   if (!supabase) return [];
-  try { const { data } = await supabase.rpc("dm_inbox"); return Array.isArray(data) ? data : []; } catch { return []; }
+  try { const { data, error } = await supabase.rpc("dm_inbox"); if (error) throw error; return Array.isArray(data) ? data : []; } catch (error) { if (strict) throw error; return []; }
 }
-export async function dmThread(withUser, limit = 60) {
+export async function dmThread(withUser, limit = 60, { strict = false } = {}) {
   if (!supabase || !withUser) return [];
-  try { const { data } = await supabase.rpc("dm_thread", { p_with: withUser, p_limit: limit }); return Array.isArray(data) ? data : []; } catch { return []; }
+  try { const { data, error } = await supabase.rpc("dm_thread", { p_with: withUser, p_limit: limit }); if (error) throw error; return Array.isArray(data) ? data : []; } catch (error) { if (strict) throw error; return []; }
 }
 export async function dmSend(toUser, body) {
   if (!supabase) return { ok: false, error: "no_supabase" };
@@ -24,9 +24,9 @@ export async function dmUnreadCount() {
 // 🗣 תגובות אליי — תגובות על התרומות שלי (RPC · owner בלבד).
 // before (ISO string / Date, אופציונלי) = cursor ל-"טען עוד" (§4, COMMAND_CENTER_ATTENTION_CLOSURE
 // Pass 1) — בלי זה, ה-LIMIT הקבוע היה חוסם תגובות ותיקות מהתצוגה בלי דרך לראות אותן.
-export async function repliesToMe(limit = 40, before = null) {
+export async function repliesToMe(limit = 40, before = null, { strict = false } = {}) {
   if (!supabase) return [];
-  try { const { data } = await supabase.rpc("replies_to_me", { p_limit: limit, p_before: before || null }); return Array.isArray(data) ? data : []; } catch { return []; }
+  try { const { data, error } = await supabase.rpc("replies_to_me", { p_limit: limit, p_before: before || null }); if (error) throw error; return Array.isArray(data) ? data : []; } catch (error) { if (strict) throw error; return []; }
 }
 
 // 🗨️ הפעילות שלי — התרומות והתגובות שאני-עצמי כתבתי (RPC · owner בלבד, כולל הקשר-אב).

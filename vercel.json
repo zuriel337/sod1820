@@ -463,6 +463,14 @@
   ],
   "rewrites": [
     {
+      "source": "/2029/me/:module",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/community/researcher/me",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/forum/(.*)",
       "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|bingbot|Baiduspider).*" }],
       "destination": "/api/og?path=/forum/$1&crawler=search"
@@ -906,10 +914,6 @@
       "destination": "/2029.html"
     },
     {
-      "source": "/community/researcher/me",
-      "destination": "/index.html"
-    },
-    {
       "source": "/community/researcher/:slug",
       "destination": "/2029.html"
     },
@@ -919,6 +923,24 @@
     }
   ],
   "headers": [
+    {
+      "source": "/2029/me/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/community/researcher/me",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
     {
       "source": "/community/chat",
       "headers": [
