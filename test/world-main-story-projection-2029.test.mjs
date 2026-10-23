@@ -48,6 +48,29 @@ test("main story accepts only public approved/canonical findings with match plus
   assert.equal(projection.items[0].connectionStrength, "strong");
   assert.equal(projection.items[0].status, "approved");
   assert.equal(projection.items[0].access, "public");
+  assert.deepEqual(projection.readiness, {
+    explicitlyVerified: 2,
+    connectedToTree: 2,
+    readyForStrongStory: 1,
+    verifiedAwaitingTreeConnection: 1,
+    connectedAwaitingExplicitVerification: 1,
+  });
+});
+
+test("main story reports an honest empty state when verification and tree connection do not intersect", () => {
+  const projection = buildWorldMainStoryProjection({ rows: [
+    finding("verified-only", { target: null }),
+    finding("connected-only", { verification: "legacy_signal" }),
+  ] });
+
+  assert.equal(projection.items.length, 0);
+  assert.deepEqual(projection.readiness, {
+    explicitlyVerified: 1,
+    connectedToTree: 1,
+    readyForStrongStory: 0,
+    verifiedAwaitingTreeConnection: 1,
+    connectedAwaitingExplicitVerification: 1,
+  });
 });
 
 test("main story preserves separate axes and never invents missing independence or quality", () => {

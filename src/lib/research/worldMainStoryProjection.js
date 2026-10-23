@@ -88,8 +88,10 @@ function publicStoryItem(row) {
 export function buildWorldMainStoryProjection(projection = {}, { limit = 4 } = {}) {
   const publicProjection = worldPublicResearchDto(projection);
   const requested = Math.max(1, Math.min(Number(limit) || 4, 6));
-  const eligible = publicProjection.rows
-    .filter(strongPublicFinding)
+  const publicResearch = publicProjection.rows.filter((row) => row?.family === "research_object");
+  const explicitlyVerified = publicResearch.filter((row) => row?.verification === "match");
+  const connectedToTree = publicResearch.filter((row) => Array.isArray(row?.treeMatches) && row.treeMatches.length > 0);
+  const eligible = publicResearch.filter(strongPublicFinding)
     .sort(compareWorldResearchStrength);
 
   // The first pass prevents one target or one repeated source occurrence from
@@ -123,6 +125,13 @@ export function buildWorldMainStoryProjection(projection = {}, { limit = 4 } = {
     items: selected.map(publicStoryItem),
     eligibleCount: eligible.length,
     displayedCount: selected.length,
+    readiness: {
+      explicitlyVerified: explicitlyVerified.length,
+      connectedToTree: connectedToTree.length,
+      readyForStrongStory: eligible.length,
+      verifiedAwaitingTreeConnection: explicitlyVerified.filter((row) => !row.treeMatches?.length).length,
+      connectedAwaitingExplicitVerification: connectedToTree.filter((row) => row.verification !== "match").length,
+    },
     selectionMode: "existing_research_strength_then_source_and_target_diversity",
     publicOnly: true,
     disclaimer: "הבחירה מסדרת את פתיחת העולם; היא אינה ציון אמת ואינה משנה אימות, איכות ראיות, עצמאות מקורות או פרסום.",
