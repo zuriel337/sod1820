@@ -1,0 +1,168 @@
+{
+ "manifest_version": 1,
+ "tool": "claude-shadow-research-v1",
+ "category": "סוד האותיות והמספרים",
+ "repro_command": "node scripts/claude-shadow-research-v1.mjs --category \"סוד האותיות והמספרים\" --out <dir> --seed 20261023",
+ "boundary": {
+  "truthPromotion": false,
+  "canonical": false,
+  "published": false,
+  "stage": "hypothesis_expert_report"
+ },
+ "snapshot": {
+  "posts_sha256": "20c274c4b2ab303d01a3dd765afb79e46eacd1b9ec64a64452821d250671f4f9",
+  "corpus_sha256": "688aa5443b91a19a9d21676c35c2519ee0d4e9566f48336d945cdf2a66fcd2a9",
+  "registry_sha256": "987f962ff1804ae59ae5d99d11758c7b2f9f889747824aceec07c564817602b9",
+  "stored_ragil_vs_engine_mismatches": 0,
+  "corpus_rows_total": 12584,
+  "corpus_rows_verified_used_as_control_pool": 12411,
+  "posts": 135,
+  "registry_methods": 41
+ },
+ "code": {
+  "git_head": "6b8be9e800615e72e4de7c2d3513136ff9e30c4a",
+  "git_branch": "claude/shadow-research-v1-20261023",
+  "worktree_dirty": true,
+  "blobs": {
+   "scripts/claude-shadow-research-core.mjs": "93e6cd14264f4479f6469814503293824e4b1ad4",
+   "scripts/claude-shadow-research-v1.mjs": "151787a7030e7aa24ec843bab4062bf81947d18e",
+   "src/lib/research/pairConditionedMethodDependency.js": "c7fb2c38f1e1d94d8eda8e17f86832f79ad8fc06",
+   "src/lib/research/els2029StatisticalControls.js": "fd3d08dde28c3cb4608d33704ce6bd42468d81d7",
+   "src/lib/gematria.js": "38a4bb727d09bed873866eff39f65d6c757ba869",
+   "src/lib/triage.js": "4b0d6a5d4bb966db52256267df1d96a39cbd9740",
+   "src/lib/analysisFlow.js": "00c44ac449f6cfa712a32e99c09606be78abd548",
+   "scripts/post-knowledge-staging.mjs": "2ffd691c09b2c938d89d72b8ed486829f0da1e52"
+  }
+ },
+ "method_registry": {
+  "version_note": "per-key `version` column; hashed with its dependency/family flags",
+  "sha256": "987f962ff1804ae59ae5d99d11758c7b2f9f889747824aceec07c564817602b9",
+  "methods": 41,
+  "engine_value_methods": 23
+ },
+ "extractor": {
+  "staging": "post-knowledge-staging-v2",
+  "triage_js": "4b0d6a5d4bb966db52256267df1d96a39cbd9740",
+  "analysisFlow_js": "00c44ac449f6cfa712a32e99c09606be78abd548"
+ },
+ "invariance_sets_measured_on_engine": {
+  "permutation_invariant": 16,
+  "word_order_invariant": 21,
+  "final_insensitive": 17,
+  "word_additive": 21
+ },
+ "parameters": {
+  "seed": 20261023,
+  "min_control_pairs": 200,
+  "max_enumerated_pairs": 250000
+ },
+ "counts": {
+  "relations_total": 477,
+  "by_status": {
+   "verified": 408,
+   "review_required": 69,
+   "contradicted": 0,
+   "extraction_unresolved": 696
+  },
+  "not_applicable_claims": 25,
+  "verified_but_not_attestable_rows": 55,
+  "composite_claims": {
+   "verified": 42,
+   "mismatch": 20,
+   "unresolved": 2,
+   "note": "composite mismatches are listed for human review; the lane does not call them author errors"
+  },
+  "dependency": {
+   "independent_representatives": 459,
+   "dependent": 18,
+   "repeated_mentions": 101
+  },
+  "corpus_match": {
+   "exact": 353,
+   "spelling_variant_only": 17,
+   "none": 107
+  },
+  "pairs": {
+   "total": 709,
+   "asserted_in_same_post": 368,
+   "derived_cross_post": 341,
+   "excluded_same_spelling_family": 3,
+   "expression_dependent": 17,
+   "tested": 675,
+   "untested": 34,
+   "fdr_survivors": 0,
+   "holm_survivors": 0
+  }
+ },
+ "parity_check": {
+  "owner": "src/lib/research/pairConditionedMethodDependency.js",
+  "pairs_checked": 709,
+  "mismatches": 0
+ },
+ "results_sha256": "da4d0013ad16d89d924f11ce97e43915d0a6efe485dd76fddd38ca03fc8de59a",
+ "claude_role": {
+  "llm_calls_in_pipeline": 0,
+  "prompt_version_for_claude_authored_files": "claude-shadow-research-v1/prompt-1",
+  "model_id_recorded_in_repo": false,
+  "note": "model id is reported in the chat only; hypotheses and audit notes are Claude-authored and hypothesis-only"
+ },
+ "writes": {
+  "db_writes": 0,
+  "rpc_calls": 0,
+  "supabase_branches": 0,
+  "raziel_or_metatron_context": false,
+  "deploys": 0
+ },
+ "cost_runtime": {
+  "rest_requests": 21,
+  "rows_read": 12760,
+  "bytes_read": 5824100,
+  "seconds": {
+   "read_sources": 9.22,
+   "extraction": 1.22,
+   "analysis": 7.21,
+   "parity_check": 0.22,
+   "total": 18.46
+  },
+  "llm_calls": 0,
+  "llm_cost_usd": 0,
+  "control_pairs_evaluated": 1049901
+ },
+ "claude_authored_artifacts": {
+  "manual_sample_audit.json": {
+   "bytes": 27641,
+   "sha256": "3cc4d0adb2b0db5c2ff3dda57d0e51a451aa67f8d83d7ae52c9f0df747d14733",
+   "authored_by": "claude",
+   "prompt_version": "claude-shadow-research-v1/prompt-1"
+  },
+  "hypotheses_to_check.json": {
+   "bytes": 19513,
+   "sha256": "4f18d27a3643b3b97de4e322b93264e4061b81ee4862bbed25e98994ebe4236e",
+   "authored_by": "claude",
+   "prompt_version": "claude-shadow-research-v1/prompt-1"
+  }
+ },
+ "artifacts": {
+  "SHADOW_REPORT.md": {
+   "bytes": 10656,
+   "sha256": "0f67388d579b934f950fe108763bc0fc71b1c779416ddac910e57a6d64d8c765"
+  },
+  "results.json": {
+   "bytes": 2698416,
+   "sha256": "da4d0013ad16d89d924f11ce97e43915d0a6efe485dd76fddd38ca03fc8de59a"
+  },
+  "strongest_after_collapse.json": {
+   "bytes": 18571,
+   "sha256": "259714099f90fd0a0de2cf771d1e629eaa84bdb95ca14e0a1646b76487b2a54b"
+  },
+  "weakened_by_normalization.json": {
+   "bytes": 9812,
+   "sha256": "f1eb8c552f4350942bfe2959bb71dd7ccdc29b90f0e73775dbac0e743e662e6c"
+  },
+  "manual_sample_frame.json": {
+   "bytes": 35307,
+   "sha256": "e617673ef8de298a83a76f629e601ad99f1fe95d8cb9818baacba2017a9b92a2"
+  }
+ },
+ "generated_at": "2026-10-23T04:25:15.585Z"
+}

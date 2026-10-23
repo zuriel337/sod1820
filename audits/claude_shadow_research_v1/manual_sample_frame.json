@@ -1,0 +1,1359 @@
+{
+ "version": "claude-shadow-research-v1",
+ "size": 60,
+ "seed": 20261023,
+ "rows": [
+  {
+   "cell": "2013-2016|advanced",
+   "relation_id": "Rb2716610ba",
+   "phrase": "הסכם הגרעין האיראני יכשל",
+   "method": "רגיל",
+   "value": 1100,
+   "status": "verified",
+   "posts": [
+    5292
+   ],
+   "claim": {
+    "post_id": 5292,
+    "row_id": "5292:62",
+    "claim_text": "הסכם הגרעין האיראני יכשל = 1100",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1100,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1100
+  },
+  {
+   "cell": "2013-2016|cipher",
+   "relation_id": "R60e0745899",
+   "phrase": "ברק חוסיין אובאמה",
+   "method": "רגיל",
+   "value": 501,
+   "status": "verified",
+   "posts": [
+    2261
+   ],
+   "claim": {
+    "post_id": 2261,
+    "row_id": "2261:11",
+    "claim_text": "ברק חוסיין אובאמה = 501 = דצך עדש באחב (ראשי תיבות של 10 המכות) =ארור המן…",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 501,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 501
+  },
+  {
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R75df8bb0a1",
+   "phrase": "אפל",
+   "method": "רגיל",
+   "value": 111,
+   "status": "verified",
+   "posts": [
+    9346
+   ],
+   "claim": {
+    "post_id": 9346,
+    "row_id": "9346:137",
+    "claim_text": "אפל = 111",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 111,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 111
+  },
+  {
+   "cell": "2013-2016|general",
+   "relation_id": "R7aef449948",
+   "phrase": "אמא תצילי אותי",
+   "method": "רגיל",
+   "value": 999,
+   "status": "verified",
+   "posts": [
+    3951
+   ],
+   "claim": {
+    "post_id": 3951,
+    "row_id": "3951:33",
+    "claim_text": "\"אמא תצילי אותי\" = 999 =",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 999,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 999
+  },
+  {
+   "cell": "2017-2019|event_hint",
+   "relation_id": "R8a1d291183",
+   "phrase": "בניסן עתידין להיגאל",
+   "method": "רגיל",
+   "value": 795,
+   "status": "review_required",
+   "posts": [
+    16571
+   ],
+   "claim": {
+    "post_id": 16571,
+    "row_id": "16571:284",
+    "claim_text": "בניסן עתידין להיגאל = 795 רגיל",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 795,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 795
+  },
+  {
+   "cell": "2017-2019|general",
+   "relation_id": "R914d692df3",
+   "phrase": "יום הולדתו של ראש הממשלה",
+   "method": "רגיל",
+   "value": 1758,
+   "status": "verified",
+   "posts": [
+    17503,
+    28180
+   ],
+   "claim": {
+    "post_id": 17503,
+    "row_id": "17503:429",
+    "claim_text": "יום הולדתו של ראש הממשלה=1758=ישאר בשלטון עד ביאת המשיח המספר 1758",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1758,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1758
+  },
+  {
+   "cell": "2020-2022|event_hint",
+   "relation_id": "R27a429d7d3",
+   "phrase": "יד אדר התשפא",
+   "method": "רגיל",
+   "value": 1005,
+   "status": "review_required",
+   "posts": [
+    22588
+   ],
+   "claim": {
+    "post_id": 22588,
+    "row_id": "22588:573",
+    "claim_text": "יד אדר התשפא = 1005 . (חג פורים)",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1005,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1005
+  },
+  {
+   "cell": "2020-2022|general",
+   "relation_id": "R5edd34a962",
+   "phrase": "רז ע",
+   "method": "רגיל",
+   "value": 277,
+   "status": "review_required",
+   "posts": [
+    27450
+   ],
+   "claim": {
+    "post_id": 27450,
+    "row_id": "27450:786",
+    "claim_text": "277 = גימטריה 277 = רז ע'",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 277,
+    "confidence": "medium",
+    "boundary_flags": [
+     "detached_single_letter_token"
+    ]
+   },
+   "canonical_value": 277
+  },
+  {
+   "cell": "2023-2024|event_hint",
+   "relation_id": "R8c8893d458",
+   "phrase": "משיח כבר כאן",
+   "method": "רגיל",
+   "value": 651,
+   "status": "verified",
+   "posts": [
+    34138,
+    36103
+   ],
+   "claim": {
+    "post_id": 34138,
+    "row_id": "34138:1095",
+    "claim_text": "משיח כבר כאן=651",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 651,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 651
+  },
+  {
+   "cell": "2023-2024|general",
+   "relation_id": "R6268d34017",
+   "phrase": "סרט צהוב של חטופים",
+   "method": "רגיל",
+   "value": 855,
+   "status": "verified",
+   "posts": [
+    31540
+   ],
+   "claim": {
+    "post_id": 31540,
+    "row_id": "31540:971",
+    "claim_text": "סרט צהוב של חטופים=855",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 855,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 855
+  },
+  {
+   "cell": "2025-2026|cipher",
+   "relation_id": "R000c93d29e",
+   "phrase": "תירס",
+   "method": "רגיל",
+   "value": 670,
+   "status": "verified",
+   "posts": [
+    36007,
+    36088
+   ],
+   "claim": {
+    "post_id": 36007,
+    "row_id": "36007:1165",
+    "claim_text": "תירס = 670",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 670,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 670
+  },
+  {
+   "cell": "2025-2026|cube",
+   "relation_id": "R90d13be123",
+   "phrase": "בורא",
+   "method": "רגיל",
+   "value": 209,
+   "status": "verified",
+   "posts": [
+    36985
+   ],
+   "claim": {
+    "post_id": 36985,
+    "row_id": "36985:1389",
+    "claim_text": "פלא שלישי — פני המילה 209: « מטעמים » שווה « בורא », « באור », « הצדיק » וגם « ויזד יעקב » — כולם 209 . הבורא מבקש שנבאר את התורה (באור), והצדיק הוא המבאר; ויעקב «הזיד» מטעמים כדי לקנות את הבכורה.",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 209,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 209
+  },
+  {
+   "cell": "2025-2026|event_hint",
+   "relation_id": "R19403e7ef5",
+   "phrase": "מיואש",
+   "method": "רגיל",
+   "value": 357,
+   "status": "verified",
+   "posts": [
+    35669
+   ],
+   "claim": {
+    "post_id": 35669,
+    "row_id": "35669:1147",
+    "claim_text": "מיואש = 357",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 357,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 357
+  },
+  {
+   "cell": "2025-2026|general",
+   "relation_id": "Rd3d8c15d9b",
+   "phrase": "נתניהו טראמפ",
+   "method": "רגיל",
+   "value": 851,
+   "status": "verified",
+   "posts": [
+    36942
+   ],
+   "claim": {
+    "post_id": 36942,
+    "row_id": "36942:1292",
+    "claim_text": "נתניהו טראמפ = 851 = בעתה אחישנה",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 851,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 851
+  },
+  {
+   "cell": "2013-2016|advanced",
+   "relation_id": "R4c2a6b92c9",
+   "phrase": "יום הדין הגדול והנורא",
+   "method": "רגיל",
+   "value": 441,
+   "status": "verified",
+   "posts": [
+    5662
+   ],
+   "claim": {
+    "post_id": 5662,
+    "row_id": "5662:88",
+    "claim_text": "יום הדין הגדול והנורא = 441 = אמת",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 441,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 441
+  },
+  {
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R64b6c1f551",
+   "phrase": "קלינטון",
+   "method": "רגיל",
+   "value": 255,
+   "status": "verified",
+   "posts": [
+    9495
+   ],
+   "claim": {
+    "post_id": 9495,
+    "row_id": "9495:163",
+    "claim_text": "קלינטון = 255",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 255,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 255
+  },
+  {
+   "cell": "2013-2016|general",
+   "relation_id": "Rc0244a0210",
+   "phrase": "סוף אמריקה",
+   "method": "רגיל",
+   "value": 502,
+   "status": "verified",
+   "posts": [
+    5097
+   ],
+   "claim": {
+    "post_id": 5097,
+    "row_id": "5097:49",
+    "claim_text": "סוף אמריקה = 502",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 502,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 502
+  },
+  {
+   "cell": "2017-2019|event_hint",
+   "relation_id": "R417f07b474",
+   "phrase": "בנימין נתניהו",
+   "method": "רגיל",
+   "value": 683,
+   "status": "verified",
+   "posts": [
+    16571,
+    23886,
+    28180,
+    31911,
+    34138,
+    36103
+   ],
+   "claim": {
+    "post_id": 16571,
+    "row_id": "16571:254",
+    "claim_text": "(בנימין נתניהו = 683 רגיל)",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 683,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 683
+  },
+  {
+   "cell": "2017-2019|general",
+   "relation_id": "R12bb245119",
+   "phrase": "ארבעה יודין",
+   "method": "רגיל",
+   "value": 358,
+   "status": "verified",
+   "posts": [
+    14414
+   ],
+   "claim": {
+    "post_id": 14414,
+    "row_id": "14414:207",
+    "claim_text": "\"אֲנִי לְדוֹדִי וְדוֹדִי לִי\" ר\"ת חודש אלול . \"אני לדודי\" = אתערותא דלתתא (עבודת האדם); \"דודי לי\" = התגלות הקב\"ה בראש השנה ויום כיפור (אתערותא דלעילא). סופי התיבות = ארבעה יודי\"ן. ארבעה יודי\"ן = 358 = משיח; המסתתר = 1237 = התגלות.",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 358,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 358
+  },
+  {
+   "cell": "2020-2022|event_hint",
+   "relation_id": "R78407cf39f",
+   "phrase": "רשת האינטרנט",
+   "method": "רגיל",
+   "value": 1234,
+   "status": "verified",
+   "posts": [
+    26905
+   ],
+   "claim": {
+    "post_id": 26905,
+    "row_id": "26905:725",
+    "claim_text": "רשת האינטרנט = 1234",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1234,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1234
+  },
+  {
+   "cell": "2020-2022|general",
+   "relation_id": "Re7a3bae7f3",
+   "phrase": "אש בהרי ירושלים אליהו הנביא",
+   "method": "רגיל",
+   "value": 1234,
+   "status": "verified",
+   "posts": [
+    25461
+   ],
+   "claim": {
+    "post_id": 25461,
+    "row_id": "25461:644",
+    "claim_text": "= התגלות; 52 = אליהו. אש בהרי ירושלים - אליהו הנביא = 1234; אש בהרי ירושלים אליהו הנביא בא = 1237. [huge_it_gallery id=\"73\"]",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1234,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1234
+  },
+  {
+   "cell": "2023-2024|event_hint",
+   "relation_id": "R063b12526c",
+   "phrase": "תשפג",
+   "method": "רגיל",
+   "value": 783,
+   "status": "review_required",
+   "posts": [
+    29256
+   ],
+   "claim": {
+    "post_id": 29256,
+    "row_id": "29256:935",
+    "claim_text": "תשפ\"ג = 783 !!!",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 783,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 783
+  },
+  {
+   "cell": "2023-2024|general",
+   "relation_id": "Rb49d8f52fa",
+   "phrase": "התגלות",
+   "method": "רגיל",
+   "value": 844,
+   "status": "verified",
+   "posts": [
+    31540,
+    36103
+   ],
+   "claim": {
+    "post_id": 31540,
+    "row_id": "31540:1006",
+    "claim_text": "התגלות = 844 רגיל",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 844,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 844
+  },
+  {
+   "cell": "2025-2026|cipher",
+   "relation_id": "Rd5378fa85f",
+   "phrase": "יחידה",
+   "method": "רגיל",
+   "value": 37,
+   "status": "verified",
+   "posts": [
+    36007,
+    36088
+   ],
+   "claim": {
+    "post_id": 36007,
+    "row_id": "36007:1174",
+    "claim_text": "יחידה = 37",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 37,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 37
+  },
+  {
+   "cell": "2025-2026|cube",
+   "relation_id": "R3212ed8b9b",
+   "phrase": "טוב",
+   "method": "רגיל",
+   "value": 17,
+   "status": "verified",
+   "posts": [
+    36980
+   ],
+   "claim": {
+    "post_id": 36980,
+    "row_id": "36980:1365",
+    "claim_text": "« טוב » = 17",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 17,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 17
+  },
+  {
+   "cell": "2025-2026|event_hint",
+   "relation_id": "R284a939e29",
+   "phrase": "אין שום יאוש",
+   "method": "רגיל",
+   "value": 724,
+   "status": "review_required",
+   "posts": [
+    35669
+   ],
+   "claim": {
+    "post_id": 35669,
+    "row_id": "35669:1156",
+    "claim_text": "אין שום יאוש = 724 = אחרית הימים….",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 724,
+    "confidence": "medium",
+    "boundary_flags": [
+     "function_word_at_edge"
+    ]
+   },
+   "canonical_value": 724
+  },
+  {
+   "cell": "2025-2026|general",
+   "relation_id": "R68efd905f1",
+   "phrase": "שב לימיני עד אשית",
+   "method": "רגיל",
+   "value": 1237,
+   "status": "verified",
+   "posts": [
+    36103
+   ],
+   "claim": {
+    "post_id": 36103,
+    "row_id": "36103:1251",
+    "claim_text": "שב לימיני עד אשית=1237",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1237,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1237
+  },
+  {
+   "cell": "2013-2016|advanced",
+   "relation_id": "R8aa0e4558a",
+   "phrase": "א תשרי התשעו",
+   "method": "רגיל",
+   "value": 1692,
+   "status": "review_required",
+   "posts": [
+    5662
+   ],
+   "claim": {
+    "post_id": 5662,
+    "row_id": "5662:86",
+    "claim_text": "א תשרי התשעו = 1692 = חמש שבע שבע שש",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1692,
+    "confidence": "medium",
+    "boundary_flags": [
+     "detached_single_letter_token"
+    ]
+   },
+   "canonical_value": 1692
+  },
+  {
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R879c4bda4d",
+   "phrase": "קורונה",
+   "method": "רגיל",
+   "value": 367,
+   "status": "verified",
+   "posts": [
+    9346,
+    16571,
+    18325,
+    20502
+   ],
+   "claim": {
+    "post_id": 9346,
+    "row_id": "9346:132",
+    "claim_text": "קורונה = 367",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 367,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 367
+  },
+  {
+   "cell": "2013-2016|general",
+   "relation_id": "R9f8123b461",
+   "phrase": "אדום ישמעאל",
+   "method": "רגיל",
+   "value": 502,
+   "status": "verified",
+   "posts": [
+    5097
+   ],
+   "claim": {
+    "post_id": 5097,
+    "row_id": "5097:52",
+    "claim_text": "אדום ישמעאל = 502",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 502,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 502
+  },
+  {
+   "cell": "2017-2019|event_hint",
+   "relation_id": "R82cab68285",
+   "phrase": "אצמיח קרן לדוד",
+   "method": "רגיל",
+   "value": 543,
+   "status": "verified",
+   "posts": [
+    18325
+   ],
+   "claim": {
+    "post_id": 18325,
+    "row_id": "18325:500",
+    "claim_text": "ערך הפסוק הראשון בתורה = 2701 = \"תהא שנת גאולה\"; 73 × 37 = 2701 (חכמה = 73); הריון = 271 = חכמה (משולש); הקורונה במספר משולש. גוג ומגוג = 70 (שבעים אומות). אַצְמִיחַ קֶרֶן לְדָוִד = 543 = אֶהְיֶה אֲשֶׁר אֶהְיֶה = כְּבוֹד מַלְכוּת יָהּ.",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 543,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 543
+  },
+  {
+   "cell": "2017-2019|general",
+   "relation_id": "R660c070470",
+   "phrase": "מייביס וונזיק ממסצוסטס",
+   "method": "רגיל",
+   "value": 676,
+   "status": "verified",
+   "posts": [
+    11877
+   ],
+   "claim": {
+    "post_id": 11877,
+    "row_id": "11877:179",
+    "claim_text": "שימו לב להמשך הפלאי. מייביס וונזיק ממסצ׳וסטס = 676 רגיל (מספר הגאולה החזק). ו-7780 מילוי גדול !! ו-4500 א״ת-ב״ש ! (פי5)",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 676,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 676
+  },
+  {
+   "cell": "2020-2022|event_hint",
+   "relation_id": "Ra38d6647a7",
+   "phrase": "טילים גרעיניים",
+   "method": "רגיל",
+   "value": 492,
+   "status": "verified",
+   "posts": [
+    26905
+   ],
+   "claim": {
+    "post_id": 26905,
+    "row_id": "26905:738",
+    "claim_text": "\" טילים גרעיניים\" = 492 רגיל",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 492,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 492
+  },
+  {
+   "cell": "2020-2022|general",
+   "relation_id": "Ra4b4b26094",
+   "phrase": "אלהים",
+   "method": "רגיל",
+   "value": 86,
+   "status": "review_required",
+   "posts": [
+    24812
+   ],
+   "claim": {
+    "post_id": 24812,
+    "row_id": "24812:634",
+    "claim_text": "",
+    "claim_locator": "not_found",
+    "declared_method": null,
+    "declared_value": 86,
+    "confidence": "medium",
+    "boundary_flags": []
+   },
+   "canonical_value": 86
+  },
+  {
+   "cell": "2023-2024|event_hint",
+   "relation_id": "R716cb2596e",
+   "phrase": "היום הרת",
+   "method": "רגיל",
+   "value": 666,
+   "status": "verified",
+   "posts": [
+    34138
+   ],
+   "claim": {
+    "post_id": 34138,
+    "row_id": "34138:1106",
+    "claim_text": "היום הרת=666",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 666,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 666
+  },
+  {
+   "cell": "2023-2024|general",
+   "relation_id": "R0838c59c2b",
+   "phrase": "אלף שבע מאות שמונים ותשע",
+   "method": "רגיל",
+   "value": 2152,
+   "status": "verified",
+   "posts": [
+    31540
+   ],
+   "claim": {
+    "post_id": 31540,
+    "row_id": "31540:986",
+    "claim_text": "(1789) אלף שבע מאות שמונים ותשע = 2152",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 2152,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 2152
+  },
+  {
+   "cell": "2025-2026|cipher",
+   "relation_id": "R8e22231be6",
+   "phrase": "חמינאי",
+   "method": "רגיל",
+   "value": 119,
+   "status": "verified",
+   "posts": [
+    36007
+   ],
+   "claim": {
+    "post_id": 36007,
+    "row_id": "36007:1180",
+    "claim_text": "מנהיגה העליון של אירן הוא חמינאי. וזהו מה שאמר הרבי לביבי שיצטרך ב-119 אנשים…",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 119,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 119
+  },
+  {
+   "cell": "2025-2026|cube",
+   "relation_id": "R268519bcec",
+   "phrase": "מטעמים",
+   "method": "רגיל",
+   "value": 209,
+   "status": "verified",
+   "posts": [
+    36985
+   ],
+   "claim": {
+    "post_id": 36985,
+    "row_id": "36985:1388",
+    "claim_text": "פאות המקיפות את האדם מכל הכיוונים. על כל פאה חקוקה המילה « מטעמים » שערכה 209 . שש הפאות הן שש ההופעות של «מטעמים» בספר בראשית — ואין יותר בכל התנ״ך.",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 209,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 209
+  },
+  {
+   "cell": "2025-2026|event_hint",
+   "relation_id": "Rdab800431b",
+   "phrase": "יום העצמאות עז למדינת ישראל",
+   "method": "רגיל",
+   "value": 1820,
+   "status": "verified",
+   "posts": [
+    35669
+   ],
+   "claim": {
+    "post_id": 35669,
+    "row_id": "35669:1140",
+    "claim_text": "יום העצמאות עז למדינת ישראל = 1820",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1820,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1820
+  },
+  {
+   "cell": "2025-2026|general",
+   "relation_id": "R105e2e2943",
+   "phrase": "והיה האיש אשר",
+   "method": "אתבש",
+   "value": 1237,
+   "status": "review_required",
+   "posts": [
+    36103
+   ],
+   "claim": {
+    "post_id": 36103,
+    "row_id": "36103:1248",
+    "claim_text": "והיה האיש אשר אתבש=1237",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": "את\"בש",
+    "declared_value": 1237,
+    "confidence": "medium",
+    "boundary_flags": [
+     "function_word_at_edge"
+    ]
+   },
+   "canonical_value": 1237
+  },
+  {
+   "cell": "2013-2016|advanced",
+   "relation_id": "Rdc56c2dc33",
+   "phrase": "בימינו",
+   "method": "רגיל",
+   "value": 118,
+   "status": "verified",
+   "posts": [
+    6998,
+    37040
+   ],
+   "claim": {
+    "post_id": 6998,
+    "row_id": "6998:118",
+    "claim_text": "עד שיהיה.. בתמונה זו נוסף על הפלא במשולש ראשי תיבות = 118 = בימינו (רגיל)",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": "רגיל",
+    "declared_value": 118,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 118
+  },
+  {
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R4468300634",
+   "phrase": "בראשית ברא אלהים",
+   "method": "רגיל",
+   "value": 1202,
+   "status": "verified",
+   "posts": [
+    9346,
+    28180,
+    36103
+   ],
+   "claim": {
+    "post_id": 9346,
+    "row_id": "9346:149",
+    "claim_text": "",
+    "claim_locator": "not_found",
+    "declared_method": null,
+    "declared_value": 1202,
+    "confidence": "medium",
+    "boundary_flags": []
+   },
+   "canonical_value": 1202
+  },
+  {
+   "cell": "2013-2016|general",
+   "relation_id": "R2acaf44f30",
+   "phrase": "משיח בן יוסף משיח בן דויד",
+   "method": "רגיל",
+   "value": 1000,
+   "status": "review_required",
+   "posts": [
+    6023,
+    36947
+   ],
+   "claim": {
+    "post_id": 6023,
+    "row_id": "6023:98",
+    "claim_text": "רת \"אותיות העברית\" = 5776 משולש !!! מילוי ללא מילה = 1000 = משיח בן יוסף משיח בן דויד",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1000,
+    "confidence": "medium",
+    "boundary_flags": [
+     "overlong_capture"
+    ]
+   },
+   "canonical_value": 1000
+  },
+  {
+   "cell": "2017-2019|event_hint",
+   "relation_id": "Rbee6299d2e",
+   "phrase": "תשפ",
+   "method": "רגיל",
+   "value": 780,
+   "status": "review_required",
+   "posts": [
+    16571
+   ],
+   "claim": {
+    "post_id": 16571,
+    "row_id": "16571:405",
+    "claim_text": "עשרים כסף =780/תשפ",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 780,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 780
+  },
+  {
+   "cell": "2017-2019|general",
+   "relation_id": "R6cc921e6bb",
+   "phrase": "חלב",
+   "method": "רגיל",
+   "value": 40,
+   "status": "verified",
+   "posts": [
+    14796,
+    26905
+   ],
+   "claim": {
+    "post_id": 14796,
+    "row_id": "14796:212",
+    "claim_text": "מ'' = 40 = ולד (הולד נוצר ב-40 יום הראשונים) = חלב = 40 (התהליך הבא). משה עלה להר 40 יום והוריד תורה; בני ישראל 40 שנה במדבר (החלפת דור ממקום א'' ל-ב''); המבול 40 יום (מעולם טמא לטהור); בגיל 40 הגבר מקבל בינה (כוח להבין דבר מתוך דבר). גזל …",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 40,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 40
+  },
+  {
+   "cell": "2020-2022|event_hint",
+   "relation_id": "R8056ccff32",
+   "phrase": "רומן זדורוב",
+   "method": "רגיל",
+   "value": 521,
+   "status": "verified",
+   "posts": [
+    28180
+   ],
+   "claim": {
+    "post_id": 28180,
+    "row_id": "28180:820",
+    "claim_text": "רומן זדורוב= 521",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 521,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 521
+  },
+  {
+   "cell": "2020-2022|general",
+   "relation_id": "Rfd0c001536",
+   "phrase": "ליאור",
+   "method": "רגיל",
+   "value": 247,
+   "status": "verified",
+   "posts": [
+    27450
+   ],
+   "claim": {
+    "post_id": 27450,
+    "row_id": "27450:784",
+    "claim_text": "הסבר 60 = כלי … דוד מלמד אותנו הוא הכלי. את הרז של הבורא …. ליאור = 247 = רמז … אל חי … דרך הרמז אנו רואים ממש את הבורא בעיניים. רק על דוד נאמר חי וקיים… דוד מלך ישראל חי וקיים … כי דוד זה כוח שמביא אותנו לבורא דרכו רואים את היד של הבורא ב…",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 247,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 247
+  },
+  {
+   "cell": "2023-2024|event_hint",
+   "relation_id": "R6e75465437",
+   "phrase": "ראש השנה",
+   "method": "רגיל",
+   "value": 861,
+   "status": "verified",
+   "posts": [
+    34138
+   ],
+   "claim": {
+    "post_id": 34138,
+    "row_id": "34138:1079",
+    "claim_text": "ראש השנה=861",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 861,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 861
+  },
+  {
+   "cell": "2023-2024|general",
+   "relation_id": "R3ecda185b4",
+   "phrase": "לועזי",
+   "method": "רגיל",
+   "value": 123,
+   "status": "verified",
+   "posts": [
+    30997
+   ],
+   "claim": {
+    "post_id": 30997,
+    "row_id": "30997:960",
+    "claim_text": "ך והוא היה רחוק מהקדושה, אבל דרכו קמה המדינה הפיזית ב 1948 בלועזי, כמו שנת לידת אברהם אבינו בעברי שנת 1948 - 'לועזי = 123 = ענג' מספר מסודר הבורא מתענג שרואים את גדולתו, גם על ידי דברים שנראים כביכול הפוכים (תאריך לועזי כמשל) הבורא עושה וע…",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 123,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 123
+  },
+  {
+   "cell": "2025-2026|cipher",
+   "relation_id": "R0ba280b0a4",
+   "phrase": "תשפז",
+   "method": "רגיל",
+   "value": 787,
+   "status": "review_required",
+   "posts": [
+    37040
+   ],
+   "claim": {
+    "post_id": 37040,
+    "row_id": "37040:1427",
+    "claim_text": "לקראת השנה החדשה פתחנו במערכת המחקר החדשה של „כי לה׳ המלוכה” את המספר של שנת תשפ״ז — 787 .",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 787,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 787
+  },
+  {
+   "cell": "2025-2026|cube",
+   "relation_id": "Racaace5f20",
+   "phrase": "באור",
+   "method": "רגיל",
+   "value": 209,
+   "status": "verified",
+   "posts": [
+    36985
+   ],
+   "claim": {
+    "post_id": 36985,
+    "row_id": "36985:1390",
+    "claim_text": "פלא שלישי — פני המילה 209: « מטעמים » שווה « בורא », « באור », « הצדיק » וגם « ויזד יעקב » — כולם 209 . הבורא מבקש שנבאר את התורה (באור), והצדיק הוא המבאר; ויעקב «הזיד» מטעמים כדי לקנות את הבכורה.",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 209,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 209
+  },
+  {
+   "cell": "2025-2026|event_hint",
+   "relation_id": "Rba9594f8be",
+   "phrase": "שכינה",
+   "method": "רגיל",
+   "value": 385,
+   "status": "verified",
+   "posts": [
+    35669
+   ],
+   "claim": {
+    "post_id": 35669,
+    "row_id": "35669:1155",
+    "claim_text": "שפה = 385 = שכינה",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 385,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 385
+  },
+  {
+   "cell": "2025-2026|general",
+   "relation_id": "Rfa21f36f86",
+   "phrase": "עשיר",
+   "method": "רגיל",
+   "value": 580,
+   "status": "verified",
+   "posts": [
+    36970
+   ],
+   "claim": {
+    "post_id": 36970,
+    "row_id": "36970:1337",
+    "claim_text": "580 = עשיר = שיער",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 580,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 580
+  },
+  {
+   "cell": "2013-2016|advanced",
+   "relation_id": "R9005d0514f",
+   "phrase": "קץ הסתר הפנים התשעה",
+   "method": "רגיל",
+   "value": 1820,
+   "status": "review_required",
+   "posts": [
+    5292
+   ],
+   "claim": {
+    "post_id": 5292,
+    "row_id": "5292:64",
+    "claim_text": "קץ הסתר הפנים התשע\"ה = 1820",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1820,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1820
+  },
+  {
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R64fa022481",
+   "phrase": "הילרי",
+   "method": "רגיל",
+   "value": 255,
+   "status": "verified",
+   "posts": [
+    9495
+   ],
+   "claim": {
+    "post_id": 9495,
+    "row_id": "9495:161",
+    "claim_text": "הילרי = 255",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 255,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 255
+  },
+  {
+   "cell": "2013-2016|general",
+   "relation_id": "R0e1e3a3dda",
+   "phrase": "חמש שבע שבע שש",
+   "method": "רגיל",
+   "value": 1692,
+   "status": "verified",
+   "posts": [
+    5004,
+    5662,
+    6879
+   ],
+   "claim": {
+    "post_id": 5004,
+    "row_id": "5004:45",
+    "claim_text": "חמש שבע שבע שש = 1692",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1692,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1692
+  },
+  {
+   "cell": "2017-2019|event_hint",
+   "relation_id": "R66717f56d0",
+   "phrase": "חשמונאי",
+   "method": "רגיל",
+   "value": 415,
+   "status": "verified",
+   "posts": [
+    16571
+   ],
+   "claim": {
+    "post_id": 16571,
+    "row_id": "16571:384",
+    "claim_text": "חשמונאי=415=תודה=ממשלה=המשכן=אור אין סוף.",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 415,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 415
+  },
+  {
+   "cell": "2017-2019|general",
+   "relation_id": "Ra8d7a8a225",
+   "phrase": "מייביס וונזיק אחות בבית חולים",
+   "method": "רגיל",
+   "value": 1234,
+   "status": "verified",
+   "posts": [
+    11877
+   ],
+   "claim": {
+    "post_id": 11877,
+    "row_id": "11877:184",
+    "claim_text": "מייביס וונזיק אחות בבית חולים = 1234 = קבלת שבת (רגיל) התגלות הויה ומשיח =1234",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 1234,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 1234
+  },
+  {
+   "cell": "2020-2022|event_hint",
+   "relation_id": "R27f5017c13",
+   "phrase": "ביום השישי",
+   "method": "רגיל",
+   "value": 683,
+   "status": "verified",
+   "posts": [
+    23886
+   ],
+   "claim": {
+    "post_id": 23886,
+    "row_id": "23886:593",
+    "claim_text": "ביום השישי = 683",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 683,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 683
+  },
+  {
+   "cell": "2020-2022|general",
+   "relation_id": "Rbf9317471f",
+   "phrase": "קוד הבריאה",
+   "method": "רגיל",
+   "value": 333,
+   "status": "verified",
+   "posts": [
+    25461,
+    28180,
+    34138
+   ],
+   "claim": {
+    "post_id": 25461,
+    "row_id": "25461:662",
+    "claim_text": "שלושה ימים לפני הגאולה. בנימין נתניהו = 1333. 333 = גרעין = קוד הבריאה = שכחה.",
+    "claim_locator": "phrase_and_value_on_line",
+    "declared_method": null,
+    "declared_value": 333,
+    "confidence": "high",
+    "boundary_flags": []
+   },
+   "canonical_value": 333
+  }
+ ]
+}

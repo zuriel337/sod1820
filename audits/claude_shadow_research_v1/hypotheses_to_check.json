@@ -1,0 +1,599 @@
+{
+ "version": "claude-shadow-research-v1",
+ "truthPromotion": false,
+ "stage": "hypotheses_to_check",
+ "authored_by": "claude",
+ "prompt_version": "claude-shadow-research-v1/prompt-1",
+ "note": "ALL ITEMS ARE HYPOTHESES for human review, not findings. Statements are Claude-authored; every number below was copied by code from results.json (no number was computed by a model). Nothing is promoted.",
+ "items": [
+  {
+   "id": "H1",
+   "title": "בממוצע, זוגות הפוסטים אינם עשירים יותר בשיטות עצמאיות מזוגות מותאמים מהקורפוס",
+   "hypothesis": "הערך של הפוסטים הוא בבחירה הסמנטית של הזוגות, לא בעושר מספרי חריג.",
+   "evidence": {
+    "pairs_tested": 675,
+    "mean_excess_families_over_matched_control": -0.068,
+    "pairs_p_le_0_05": 7,
+    "pairs_p_equals_1": 596,
+    "survivors_bh": 0,
+    "survivors_holm": 0,
+    "asserted_mean_independent_families": 1.232,
+    "derived_mean_independent_families": 1.104
+   },
+   "how_to_falsify": "אם זוגות שהמחבר סימן במפורש כ«חזקים» (תיוג אנושי) יציגו עודף משפחות חיובי מובהק מול אותן בקרות — ההשערה נפסלת. נדרש תיוג מ-ZURIEL.",
+   "caveat": "הקורפוס נבחר-אנושית ועשוי להכיל את אותו סוג צירופים; בקרה כזו מחמירה כלפי מציאת אות."
+  },
+  {
+   "id": "H2",
+   "title": "שבעה זוגות חורגים מהבקרה לפני תיקון (אקספלורטורי בלבד)",
+   "hypothesis": "ייתכן שלזוגות אלה יש קשר מעבר לצירוף ragil; אין בהם שרידות לתיקון רב-השוואות.",
+   "evidence": {
+    "pairs": [
+     {
+      "pair_id": "P6241c0a9c4",
+      "phrase_a": "פרצופים",
+      "phrase_b": "שור",
+      "value": 506,
+      "origin": "derived_cross_post",
+      "families": [
+       "רגיל",
+       "מסתתר",
+       "אטבח"
+      ],
+      "independent_family_count": 3,
+      "p_uncorrected": 0.014103,
+      "control_mean": 1.086,
+      "distinct_control_pairs": 779,
+      "matching_level": 2
+     },
+     {
+      "pair_id": "P6bd1ef1b5d",
+      "phrase_a": "בני ברק",
+      "phrase_b": "רחוקים",
+      "value": 364,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל",
+       "אטבח",
+       "אותיות אחרי",
+       "אותיות לפני"
+      ],
+      "independent_family_count": 4,
+      "p_uncorrected": 0.021359,
+      "control_mean": 1.4241,
+      "distinct_control_pairs": 514,
+      "matching_level": 2
+     },
+     {
+      "pair_id": "P1c24b67f3a",
+      "phrase_a": "חמה מנרתיקה",
+      "phrase_b": "יהוה מלך גאות לבש",
+      "value": 858,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל",
+       "סידורי"
+      ],
+      "independent_family_count": 2,
+      "p_uncorrected": 0.024306,
+      "control_mean": 1.0209,
+      "distinct_control_pairs": 287,
+      "matching_level": 2
+     },
+     {
+      "pair_id": "P750302397b",
+      "phrase_a": "נקודה אמצעית",
+      "phrase_b": "שובו בנים שובבים",
+      "value": 776,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל",
+       "סידורי"
+      ],
+      "independent_family_count": 2,
+      "p_uncorrected": 0.027778,
+      "control_mean": 1.0248,
+      "distinct_control_pairs": 323,
+      "matching_level": 3
+     },
+     {
+      "pair_id": "P478022b09c",
+      "phrase_a": "ארבעה יודין",
+      "phrase_b": "קטאר דוחה כה",
+      "value": 358,
+      "origin": "derived_cross_post",
+      "families": [
+       "רגיל",
+       "סידורי",
+       "אותיות לפני"
+      ],
+      "independent_family_count": 3,
+      "p_uncorrected": 0.033493,
+      "control_mean": 1.2933,
+      "distinct_control_pairs": 208,
+      "matching_level": 2
+     },
+     {
+      "pair_id": "Pec681f1111",
+      "phrase_a": "הכל מתחבר כאן",
+      "phrase_b": "נקודה אמצעית",
+      "value": 776,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל",
+       "אטבח",
+       "אותיות אחרי"
+      ],
+      "independent_family_count": 3,
+      "p_uncorrected": 0.037453,
+      "control_mean": 1.3195,
+      "distinct_control_pairs": 266,
+      "matching_level": 2
+     },
+     {
+      "pair_id": "P0225e4a6ab",
+      "phrase_a": "סוד רפח",
+      "phrase_b": "קרובים",
+      "value": 358,
+      "origin": "derived_cross_post",
+      "families": [
+       "רגיל",
+       "סידורי",
+       "אותיות לפני"
+      ],
+      "independent_family_count": 3,
+      "p_uncorrected": 0.043825,
+      "control_mean": 1.4212,
+      "distinct_control_pairs": 501,
+      "matching_level": 2
+     }
+    ],
+    "count_expected_if_all_null_continuous": 33.8
+   },
+   "how_to_falsify": "הרצה מחדש מול קורפוס מורחב (ובכלל זה 124 המועמדים אחרי שער אנושי) ובדיקה שהזוגות נשארים חריגים; חזרה על המבחן על פוסטים חדשים כ-hold-out.",
+   "caveat": "7 מתוך 675 נמוך מ-5% ⇒ מספר ה-p≤0.05 תואם רעש; לא לפרש כאות."
+  },
+  {
+   "id": "H3",
+   "title": "זוגות שנראים עשירים בשיטות הם בעיקר מילים קצרות",
+   "hypothesis": "ספירת «כמה שיטות מסכימות» מתנפחת לתמורות ולמילים קצרות; דירוג לפי עודף מעל בקרה מותאמת הוא הוגן יותר מדירוג לפי raw.",
+   "evidence": {
+    "mean_independent_families_single_word_pairs": 1.508,
+    "mean_independent_families_multiword_pairs": 1.099,
+    "top_raw_pairs_all_permutations": [
+     {
+      "pair_id": "Pe5c19ecb0d",
+      "phrase_a": "בכר",
+      "phrase_b": "רכב",
+      "value": 222,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל+מילוי+קדמי+גדול+סידורי+אתבש+אלבם+אטבח+אותיות אחרי+אותיות לפני+מילוי בלבד+הכפלה+משולש גדול+מילוי דמילוי+מילוי דמילוי גדול+הכפלה גדולה",
+       "מסתתר+מסתתר גדול"
+      ],
+      "independent_family_count": 2,
+      "p_uncorrected": 0.408517,
+      "control_mean": 2.3128,
+      "distinct_control_pairs": 633,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "Pabac19c5db",
+      "phrase_a": "אפל",
+      "phrase_b": "פלא",
+      "value": 111,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל+מילוי+קדמי+גדול+סידורי+אתבש+אלבם+אטבח+אותיות אחרי+אותיות לפני+מילוי בלבד+הכפלה+משולש גדול+מילוי דמילוי+מילוי דמילוי גדול+הכפלה גדולה"
+      ],
+      "independent_family_count": 1,
+      "p_uncorrected": 1,
+      "control_mean": 2.3733,
+      "distinct_control_pairs": 1294,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "P5d357ccb8f",
+      "phrase_a": "באור",
+      "phrase_b": "בורא",
+      "value": 209,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל+מילוי+קדמי+גדול+סידורי+אתבש+אלבם+אטבח+אותיות אחרי+אותיות לפני+מילוי בלבד+הכפלה+משולש גדול+מילוי דמילוי+מילוי דמילוי גדול+הכפלה גדולה"
+      ],
+      "independent_family_count": 1,
+      "p_uncorrected": 1,
+      "control_mean": 2.2705,
+      "distinct_control_pairs": 1649,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "Pdc533609e5",
+      "phrase_a": "אריה",
+      "phrase_b": "יראה",
+      "value": 216,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל+מילוי+קדמי+גדול+סידורי+אתבש+אלבם+אטבח+אותיות אחרי+אותיות לפני+מילוי בלבד+הכפלה+משולש גדול+מילוי דמילוי+מילוי דמילוי גדול+הכפלה גדולה"
+      ],
+      "independent_family_count": 1,
+      "p_uncorrected": 1,
+      "control_mean": 2.2687,
+      "distinct_control_pairs": 1634,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "Pcfb9fdf40f",
+      "phrase_a": "חשכה",
+      "phrase_b": "שכחה",
+      "value": 333,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל+מילוי+קדמי+גדול+סידורי+אתבש+אלבם+אטבח+אותיות אחרי+אותיות לפני+מילוי בלבד+הכפלה+משולש גדול+מילוי דמילוי+מילוי דמילוי גדול+הכפלה גדולה"
+      ],
+      "independent_family_count": 1,
+      "p_uncorrected": 1,
+      "control_mean": 2.3761,
+      "distinct_control_pairs": 1295,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "P8ba2636fb3",
+      "phrase_a": "הויה ימלוך לעולם ועד",
+      "phrase_b": "יהוה ימלוך לעולם ועד",
+      "value": 388,
+      "origin": "derived_cross_post",
+      "families": [
+       "רגיל+מילוי+קדמי+גדול+סידורי+אתבש+אלבם+אטבח+אותיות אחרי+אותיות לפני+מילוי בלבד+הכפלה+משולש גדול+מילוי דמילוי+מילוי דמילוי גדול+הכפלה גדולה"
+      ],
+      "independent_family_count": 1,
+      "p_uncorrected": 1,
+      "control_mean": 2.2537,
+      "distinct_control_pairs": 1640,
+      "matching_level": 0
+     }
+    ],
+    "top_independent_short_pairs": [
+     {
+      "pair_id": "Pce040c23b4",
+      "phrase_a": "סין",
+      "phrase_b": "פיל",
+      "value": 120,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל",
+       "מסתתר",
+       "סידורי",
+       "אלבם",
+       "אטבח",
+       "אותיות אחרי",
+       "אותיות לפני"
+      ],
+      "independent_family_count": 7,
+      "p_uncorrected": 0.111554,
+      "control_mean": 3.068,
+      "distinct_control_pairs": 250,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "P3bdd137296",
+      "phrase_a": "גזל",
+      "phrase_b": "חלב",
+      "value": 40,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל+גדול",
+       "סידורי",
+       "אלבם",
+       "אטבח",
+       "אותיות אחרי",
+       "אותיות לפני"
+      ],
+      "independent_family_count": 6,
+      "p_uncorrected": 0.102524,
+      "control_mean": 2.2986,
+      "distinct_control_pairs": 633,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "P4b79baf569",
+      "phrase_a": "דוד",
+      "phrase_b": "זהב",
+      "value": 14,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל+גדול",
+       "סידורי",
+       "אלבם",
+       "אטבח",
+       "אותיות אחרי",
+       "אותיות לפני"
+      ],
+      "independent_family_count": 6,
+      "p_uncorrected": 0.099691,
+      "control_mean": 2.3705,
+      "distinct_control_pairs": 1293,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "P10ccbb0f55",
+      "phrase_a": "דוד",
+      "phrase_b": "האח",
+      "value": 14,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל+גדול",
+       "סידורי",
+       "אלבם",
+       "אטבח",
+       "אותיות אחרי"
+      ],
+      "independent_family_count": 5,
+      "p_uncorrected": 0.133279,
+      "control_mean": 2.4804,
+      "distinct_control_pairs": 1222,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "P3f8c3c0d11",
+      "phrase_a": "האח",
+      "phrase_b": "זהב",
+      "value": 14,
+      "origin": "derived_cross_post",
+      "families": [
+       "רגיל+גדול",
+       "סידורי",
+       "אלבם",
+       "אטבח",
+       "אותיות אחרי"
+      ],
+      "independent_family_count": 5,
+      "p_uncorrected": 0.132844,
+      "control_mean": 2.4788,
+      "distinct_control_pairs": 1226,
+      "matching_level": 0
+     },
+     {
+      "pair_id": "Peb0519b5dc",
+      "phrase_a": "המשכן",
+      "phrase_b": "ממשלה",
+      "value": 415,
+      "origin": "asserted_in_same_post",
+      "families": [
+       "רגיל",
+       "סידורי",
+       "אטבח",
+       "אותיות אחרי",
+       "אותיות לפני"
+      ],
+      "independent_family_count": 5,
+      "p_uncorrected": 0.1,
+      "control_mean": 2.0309,
+      "distinct_control_pairs": 259,
+      "matching_level": 1
+     }
+    ]
+   },
+   "how_to_falsify": "אם גם במילים קצרות ההפרש מול הבקרה המותאמת מובהק — ההשערה נחלשת.",
+   "caveat": "הזוגות עם raw הגבוה ביותר הם תמורות של אותן אותיות (קורסים ל-1–2 משפחות); הזוגות העצמאיים העשירים ביותר הם מילים קצרות ונשארים בטווח הבקרה (p לא-מתוקן בערך 0.1 ומעלה, ראו הערכים)."
+  },
+  {
+   "id": "H4",
+   "title": "ריכוזי ערכי עוגן משקפים נושאים חוזרים של המחבר, לא נדירות מספרית",
+   "hypothesis": "ערכים כמו 776/333/358/1234 צוברים הרבה ביטויים עצמאיים כי המחבר חוזר אליהם; יש להתייחס אליהם כ-thematic_cluster ולא כראיה עצמאית.",
+   "evidence": {
+    "anchors": [
+     {
+      "value": 776,
+      "independent_expressions": 16
+     },
+     {
+      "value": 333,
+      "independent_expressions": 9
+     },
+     {
+      "value": 358,
+      "independent_expressions": 9
+     },
+     {
+      "value": 1234,
+      "independent_expressions": 9
+     },
+     {
+      "value": 424,
+      "independent_expressions": 8
+     },
+     {
+      "value": 858,
+      "independent_expressions": 8
+     }
+    ]
+   },
+   "how_to_falsify": "השוואת צפיפות הביטויים בערך עוגן בפוסטים מול צפיפות הקורפוס באותו ערך, מותאם לשכיחות הערך בכלל; אם הריכוז בפוסטים אינו עולה על הציפייה — אין עניין.",
+   "caveat": "אין כאן בדיקת שכיחות — רק ספירת ביטויים; לשם ההשערה נדרשת הרצה נפרדת."
+  },
+  {
+   "id": "H5",
+   "title": "‏«מילים משותפות» ראוי להיות סיבת תלות רשמית אצל בעל התלות הקיים",
+   "hypothesis": "כשבשני ביטויים יש אותן מילים שלמות, שוויון בשיטה אדיטיבית-במילים מצטמצם לשוויון בשאריות; הספירה המלאה מנפחת.",
+   "evidence": {
+    "pairs_with_shared_words": 12,
+    "examples": [
+     {
+      "pair_id": "P8ba2636fb3",
+      "phrase_a": "הויה ימלוך לעולם ועד",
+      "phrase_b": "יהוה ימלוך לעולם ועד",
+      "effective_pair": {
+       "phrase_a": "הויה",
+       "phrase_b": "יהוה",
+       "removed_common_words": [
+        "ימלוך",
+        "לעולם",
+        "ועד"
+       ]
+      },
+      "value": 388
+     },
+     {
+      "pair_id": "P323da2f478",
+      "phrase_a": "אור אין סוף",
+      "phrase_b": "אור גדר",
+      "effective_pair": {
+       "phrase_a": "אין סוף",
+       "phrase_b": "גדר",
+       "removed_common_words": [
+        "אור"
+       ]
+      },
+      "value": 414
+     },
+     {
+      "pair_id": "Pb06a2dfcf1",
+      "phrase_a": "אקים סכת דוד",
+      "phrase_b": "דוד מלך ישראל",
+      "effective_pair": {
+       "phrase_a": "אקים סכת",
+       "phrase_b": "מלך ישראל",
+       "removed_common_words": [
+        "דוד"
+       ]
+      },
+      "value": 645
+     },
+     {
+      "pair_id": "P7d542a5e7d",
+      "phrase_a": "ביבי מלך ישראל",
+      "phrase_b": "דויד מלך ישראל",
+      "effective_pair": {
+       "phrase_a": "ביבי",
+       "phrase_b": "דויד",
+       "removed_common_words": [
+        "מלך",
+        "ישראל"
+       ]
+      },
+      "value": 655
+     },
+     {
+      "pair_id": "P31981036aa",
+      "phrase_a": "שובו אלי ואשובה אליכם",
+      "phrase_b": "שובו בנים שובבים",
+      "effective_pair": {
+       "phrase_a": "אלי ואשובה אליכם",
+       "phrase_b": "בנים שובבים",
+       "removed_common_words": [
+        "שובו"
+       ]
+      },
+      "value": 776
+     }
+    ]
+   },
+   "how_to_falsify": "אם נמצא שיטה אדיטיבית-במילים שבה השאריות אינן מסבירות את כל השוויון — הכלל יצומצם.",
+   "caveat": "הכלל מיושם כאן רק ברמת הדו\"ח; לא הוצע שינוי ב-Registry או ב-cross_method_strength."
+  },
+  {
+   "id": "H6",
+   "title": "אין מספיק טענות בשיטות שאינן רגיל כדי לאפיין גיוון שיטות",
+   "hypothesis": "כמעט כל היחסים המעוגנים הם ברגיל; כל ניתוח של פריסת שיטות בפוסטים בלתי-מעוצמה.",
+   "evidence": {
+    "relations_total": 477,
+    "non_ragil_relations": 15,
+    "non_ragil": [
+     {
+      "phrase": "משיח",
+      "method": "מסתתר",
+      "value": 552,
+      "status": "verified"
+     },
+     {
+      "phrase": "סגר",
+      "method": "מילוי",
+      "value": 713,
+      "status": "verified"
+     },
+     {
+      "phrase": "חמאס",
+      "method": "מילוי",
+      "value": 729,
+      "status": "verified"
+     },
+     {
+      "phrase": "אראך",
+      "method": "מילוי",
+      "value": 832,
+      "status": "verified"
+     },
+     {
+      "phrase": "משיח",
+      "method": "מילוי",
+      "value": 878,
+      "status": "verified"
+     },
+     {
+      "phrase": "ויריצוהו מן",
+      "method": "מילוי",
+      "value": 921,
+      "status": "verified"
+     },
+     {
+      "phrase": "התגלות",
+      "method": "מילוי",
+      "value": 1026,
+      "status": "verified"
+     },
+     {
+      "phrase": "ביום השמיני",
+      "method": "מילוי",
+      "value": 1135,
+      "status": "verified"
+     },
+     {
+      "phrase": "התגלות",
+      "method": "מסתתר",
+      "value": 1237,
+      "status": "verified"
+     },
+     {
+      "phrase": "והיה האיש אשר",
+      "method": "אתבש",
+      "value": 1237,
+      "status": "review_required"
+     },
+     {
+      "phrase": "בנימין נתניהו",
+      "method": "גדול",
+      "value": 1333,
+      "status": "verified"
+     },
+     {
+      "phrase": "מלך המשיח",
+      "method": "קדמי",
+      "value": 1671,
+      "status": "verified"
+     },
+     {
+      "phrase": "התגלות משיח",
+      "method": "מסתתר",
+      "value": 1789,
+      "status": "verified"
+     },
+     {
+      "phrase": "היום הרת עולם",
+      "method": "קדמי",
+      "value": 3137,
+      "status": "verified"
+     },
+     {
+      "phrase": "התגלות",
+      "method": "קדמי",
+      "value": 3137,
+      "status": "verified"
+     }
+    ]
+   },
+   "how_to_falsify": "הרחבת הפוסטים או שיפור החילוץ (696 unresolved) עשויים לשנות את התמונה.",
+   "caveat": "חלק מה-696 ה-unresolved הם ניסוחי שיטה שאינם רגיל; ייתכן הטיית חילוץ."
+  }
+ ]
+}

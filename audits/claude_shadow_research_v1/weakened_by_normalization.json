@@ -1,0 +1,387 @@
+{
+ "version": "claude-shadow-research-v1",
+ "truthPromotion": false,
+ "canonical": false,
+ "published": false,
+ "stage": "hypothesis_expert_report",
+ "note": "pairs whose raw method count looked strong and dropped after dependency collapse",
+ "rows": [
+  {
+   "pair_id": "P3ef36e12c0",
+   "phrase_a": "משיח בן דויד משיח בן יוסף",
+   "phrase_b": "משיח בן יוסף משיח בן דויד",
+   "method": "רגיל",
+   "value": 1000,
+   "raw_count": 21,
+   "independent_family_count": 1,
+   "lost": 20,
+   "rank_by_raw": 1,
+   "rank_by_independent": 80,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:מסתתר/מסתתר גדול",
+    "final_letter_delta:ריבוע/ריבוע גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "word_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "Pe5c19ecb0d",
+   "phrase_a": "בכר",
+   "phrase_b": "רכב",
+   "method": "רגיל",
+   "value": 222,
+   "raw_count": 18,
+   "independent_family_count": 2,
+   "lost": 16,
+   "rank_by_raw": 2,
+   "rank_by_independent": 20,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:מסתתר/מסתתר גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P5d357ccb8f",
+   "phrase_a": "באור",
+   "phrase_b": "בורא",
+   "method": "רגיל",
+   "value": 209,
+   "raw_count": 16,
+   "independent_family_count": 1,
+   "lost": 15,
+   "rank_by_raw": 3,
+   "rank_by_independent": 81,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P6e178c2c6b",
+   "phrase_a": "גאולתי",
+   "phrase_b": "וגאלתי",
+   "method": "רגיל",
+   "value": 450,
+   "raw_count": 16,
+   "independent_family_count": 1,
+   "lost": 15,
+   "rank_by_raw": 4,
+   "rank_by_independent": 82,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P80c6d456df",
+   "phrase_a": "והושעת",
+   "phrase_b": "ותשועה",
+   "method": "רגיל",
+   "value": 787,
+   "raw_count": 16,
+   "independent_family_count": 1,
+   "lost": 15,
+   "rank_by_raw": 5,
+   "rank_by_independent": 83,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P8ba2636fb3",
+   "phrase_a": "הויה ימלוך לעולם ועד",
+   "phrase_b": "יהוה ימלוך לעולם ועד",
+   "method": "רגיל",
+   "value": 388,
+   "raw_count": 16,
+   "independent_family_count": 1,
+   "lost": 15,
+   "rank_by_raw": 6,
+   "rank_by_independent": 84,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation",
+    "shared_words_removed:ימלוך לעולם ועד"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "Pabac19c5db",
+   "phrase_a": "אפל",
+   "phrase_b": "פלא",
+   "method": "רגיל",
+   "value": 111,
+   "raw_count": 16,
+   "independent_family_count": 1,
+   "lost": 15,
+   "rank_by_raw": 7,
+   "rank_by_independent": 85,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "Pcfb9fdf40f",
+   "phrase_a": "חשכה",
+   "phrase_b": "שכחה",
+   "method": "רגיל",
+   "value": 333,
+   "raw_count": 16,
+   "independent_family_count": 1,
+   "lost": 15,
+   "rank_by_raw": 8,
+   "rank_by_independent": 86,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "Pdc533609e5",
+   "phrase_a": "אריה",
+   "phrase_b": "יראה",
+   "method": "רגיל",
+   "value": 216,
+   "raw_count": 16,
+   "independent_family_count": 1,
+   "lost": 15,
+   "rank_by_raw": 9,
+   "rank_by_independent": 87,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "Pe42d98a405",
+   "phrase_a": "דונאלד טרמפ",
+   "phrase_b": "דונלד טראמפ",
+   "method": "רגיל",
+   "value": 424,
+   "raw_count": 16,
+   "independent_family_count": 1,
+   "lost": 15,
+   "rank_by_raw": 10,
+   "rank_by_independent": 88,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "Pfe9479af3d",
+   "phrase_a": "עשיר",
+   "phrase_b": "שיער",
+   "method": "רגיל",
+   "value": 580,
+   "raw_count": 16,
+   "independent_family_count": 1,
+   "lost": 15,
+   "rank_by_raw": 11,
+   "rank_by_independent": 89,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול",
+    "final_letter_delta:הכפלה/הכפלה גדולה",
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P6d1616010f",
+   "phrase_a": "אלף",
+   "phrase_b": "פלא",
+   "method": "רגיל",
+   "value": 111,
+   "raw_count": 14,
+   "independent_family_count": 3,
+   "lost": 11,
+   "rank_by_raw": 12,
+   "rank_by_independent": 10,
+   "why": [
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P334cd59f76",
+   "phrase_a": "אלף",
+   "phrase_b": "אפל",
+   "method": "רגיל",
+   "value": 111,
+   "raw_count": 13,
+   "independent_family_count": 2,
+   "lost": 11,
+   "rank_by_raw": 13,
+   "rank_by_independent": 21,
+   "why": [
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P65f1bb1498",
+   "phrase_a": "יהונתן",
+   "phrase_b": "נתניהו",
+   "method": "רגיל",
+   "value": 521,
+   "raw_count": 13,
+   "independent_family_count": 2,
+   "lost": 11,
+   "rank_by_raw": 14,
+   "rank_by_independent": 22,
+   "why": [
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P6db22db020",
+   "phrase_a": "פרנסה",
+   "phrase_b": "רסן פה",
+   "method": "רגיל",
+   "value": 395,
+   "raw_count": 13,
+   "independent_family_count": 2,
+   "lost": 11,
+   "rank_by_raw": 15,
+   "rank_by_independent": 23,
+   "why": [
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P8de4100315",
+   "phrase_a": "העץ",
+   "phrase_b": "עצה",
+   "method": "רגיל",
+   "value": 165,
+   "raw_count": 13,
+   "independent_family_count": 2,
+   "lost": 11,
+   "rank_by_raw": 16,
+   "rank_by_independent": 24,
+   "why": [
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "Pff4a3a1b68",
+   "phrase_a": "דונאלד טרמפ",
+   "phrase_b": "דונלד טראמף",
+   "method": "רגיל",
+   "value": 424,
+   "raw_count": 13,
+   "independent_family_count": 2,
+   "lost": 11,
+   "rank_by_raw": 17,
+   "rank_by_independent": 25,
+   "why": [
+    "letter_multiset_permutation"
+   ],
+   "expression_dependent": true
+  },
+  {
+   "pair_id": "P50c68f97a6",
+   "phrase_a": "קרובים",
+   "phrase_b": "שבוים",
+   "method": "רגיל",
+   "value": 358,
+   "raw_count": 4,
+   "independent_family_count": 2,
+   "lost": 2,
+   "rank_by_raw": 25,
+   "rank_by_independent": 26,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:מסתתר/מסתתר גדול"
+   ],
+   "expression_dependent": false
+  },
+  {
+   "pair_id": "P625c12603f",
+   "phrase_a": "הסוד והרמז",
+   "phrase_b": "קוד הבריאה",
+   "method": "רגיל",
+   "value": 333,
+   "raw_count": 4,
+   "independent_family_count": 2,
+   "lost": 2,
+   "rank_by_raw": 27,
+   "rank_by_independent": 27,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:מסתתר/מסתתר גדול"
+   ],
+   "expression_dependent": false
+  },
+  {
+   "pair_id": "P6fc5acd2b9",
+   "phrase_a": "מונית",
+   "phrase_b": "שור",
+   "method": "רגיל",
+   "value": 506,
+   "raw_count": 4,
+   "independent_family_count": 2,
+   "lost": 2,
+   "rank_by_raw": 29,
+   "rank_by_independent": 28,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:קדמי/משולש גדול"
+   ],
+   "expression_dependent": false
+  },
+  {
+   "pair_id": "Pcb70334548",
+   "phrase_a": "ממשלה",
+   "phrase_b": "מעשה",
+   "method": "רגיל",
+   "value": 415,
+   "raw_count": 4,
+   "independent_family_count": 2,
+   "lost": 2,
+   "rank_by_raw": 32,
+   "rank_by_independent": 29,
+   "why": [
+    "final_letter_delta:רגיל/גדול",
+    "final_letter_delta:מסתתר/מסתתר גדול"
+   ],
+   "expression_dependent": false
+  }
+ ]
+}

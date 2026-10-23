@@ -1,0 +1,1086 @@
+{
+ "version": "claude-shadow-research-v1",
+ "stage": "manual_sample_audit",
+ "truthPromotion": false,
+ "authored_by": "claude (manual reading of the located claim lines)",
+ "prompt_version": "claude-shadow-research-v1/prompt-1",
+ "note": "Audit of EXTRACTION FIDELITY only (is the captured span what the post equates to the value?). Numeric truth comes from the canonical engine, not from this reading. Hypothesis-grade; ZURIEL decides.",
+ "sample_frame": "manual_sample_frame.json (seeded round-robin over period × post type)",
+ "size": 60,
+ "engine_value_matches_claim": 60,
+ "verdict_counts": {
+  "correct_span": 46,
+  "correct_span_review_justified": 9,
+  "correct_span_flag_false_positive": 2,
+  "needs_human_context": 3
+ },
+ "cells_covered": 14,
+ "by_period": {
+  "2013-2016": 16,
+  "2017-2019": 10,
+  "2020-2022": 10,
+  "2023-2024": 8,
+  "2025-2026": 16
+ },
+ "by_post_type": {
+  "advanced": 5,
+  "cipher": 5,
+  "event_hint": 23,
+  "general": 23,
+  "cube": 4
+ },
+ "tool_status_counts": {
+  "verified": 48,
+  "review_required": 12
+ },
+ "findings": [
+  "קריאה ידנית של 60 יחסים: כל 60 שוחזרו במנוע; אין שגיאת טווח בלתי-מוסברת.",
+  "3 שורות דורשות הקשר אנושי: בשתיים לא אותרה שורת הטענה (claim_text ריק), ובאחת הערך מופיע בסמיכות בלבד.",
+  "כלל function_word_at_edge מייצר false positive על ביטויים שלמים המתחילים ב«אין/יש» ועל שברי פסוק.",
+  "סימוני time_dependent (חודש/שנה עברית) מדויקים — הם נועדו לשער הקורפוס, לא לטענת היחס."
+ ],
+ "rows": [
+  {
+   "n": 1,
+   "cell": "2013-2016|advanced",
+   "relation_id": "Rb2716610ba",
+   "phrase": "הסכם הגרעין האיראני יכשל",
+   "method": "רגיל",
+   "value": 1100,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    5292
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 2,
+   "cell": "2013-2016|cipher",
+   "relation_id": "R60e0745899",
+   "phrase": "ברק חוסיין אובאמה",
+   "method": "רגיל",
+   "value": 501,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    2261
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 3,
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R75df8bb0a1",
+   "phrase": "אפל",
+   "method": "רגיל",
+   "value": 111,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    9346
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 4,
+   "cell": "2013-2016|general",
+   "relation_id": "R7aef449948",
+   "phrase": "אמא תצילי אותי",
+   "method": "רגיל",
+   "value": 999,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    3951
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 5,
+   "cell": "2017-2019|event_hint",
+   "relation_id": "R8a1d291183",
+   "phrase": "בניסן עתידין להיגאל",
+   "method": "רגיל",
+   "value": 795,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    16571
+   ],
+   "audit": {
+    "verdict": "correct_span_review_justified",
+    "note": "ביטוי ברור; סומן רק בגלל שם חודש (תלוי-לוח שנה) — מתאים לשער האנושי, לא לטענת היחס"
+   }
+  },
+  {
+   "n": 6,
+   "cell": "2017-2019|general",
+   "relation_id": "R914d692df3",
+   "phrase": "יום הולדתו של ראש הממשלה",
+   "method": "רגיל",
+   "value": 1758,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    17503,
+    28180
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 7,
+   "cell": "2020-2022|event_hint",
+   "relation_id": "R27a429d7d3",
+   "phrase": "יד אדר התשפא",
+   "method": "רגיל",
+   "value": 1005,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    22588
+   ],
+   "audit": {
+    "verdict": "correct_span_review_justified",
+    "note": "תאריך עברי (שנה+יום); ערך המספר תקין, ההקשר תלוי-זמן"
+   }
+  },
+  {
+   "n": 8,
+   "cell": "2020-2022|general",
+   "relation_id": "R5edd34a962",
+   "phrase": "רז ע",
+   "method": "רגיל",
+   "value": 277,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    27450
+   ],
+   "audit": {
+    "verdict": "correct_span_review_justified",
+    "note": "‏«רז ע׳» — האות הבודדת היא קיצור (ע׳=70); הדגל מוצדק, הסכום תקין"
+   }
+  },
+  {
+   "n": 9,
+   "cell": "2023-2024|event_hint",
+   "relation_id": "R8c8893d458",
+   "phrase": "משיח כבר כאן",
+   "method": "רגיל",
+   "value": 651,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    34138,
+    36103
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 10,
+   "cell": "2023-2024|general",
+   "relation_id": "R6268d34017",
+   "phrase": "סרט צהוב של חטופים",
+   "method": "רגיל",
+   "value": 855,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    31540
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 11,
+   "cell": "2025-2026|cipher",
+   "relation_id": "R000c93d29e",
+   "phrase": "תירס",
+   "method": "רגיל",
+   "value": 670,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36007,
+    36088
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 12,
+   "cell": "2025-2026|cube",
+   "relation_id": "R90d13be123",
+   "phrase": "בורא",
+   "method": "רגיל",
+   "value": 209,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36985
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "חבר בשרשרת שקילות (מטעמים/בורא/באור/הצדיק/ויזד יעקב = 209) — כל חברי השרשרת מופיעים כיחסים נפרדים באותו ערך"
+   }
+  },
+  {
+   "n": 13,
+   "cell": "2025-2026|event_hint",
+   "relation_id": "R19403e7ef5",
+   "phrase": "מיואש",
+   "method": "רגיל",
+   "value": 357,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    35669
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 14,
+   "cell": "2025-2026|general",
+   "relation_id": "Rd3d8c15d9b",
+   "phrase": "נתניהו טראמפ",
+   "method": "רגיל",
+   "value": 851,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36942
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 15,
+   "cell": "2013-2016|advanced",
+   "relation_id": "R4c2a6b92c9",
+   "phrase": "יום הדין הגדול והנורא",
+   "method": "רגיל",
+   "value": 441,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    5662
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 16,
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R64b6c1f551",
+   "phrase": "קלינטון",
+   "method": "רגיל",
+   "value": 255,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    9495
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 17,
+   "cell": "2013-2016|general",
+   "relation_id": "Rc0244a0210",
+   "phrase": "סוף אמריקה",
+   "method": "רגיל",
+   "value": 502,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    5097
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 18,
+   "cell": "2017-2019|event_hint",
+   "relation_id": "R417f07b474",
+   "phrase": "בנימין נתניהו",
+   "method": "רגיל",
+   "value": 683,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    16571,
+    23886,
+    28180,
+    31911,
+    34138,
+    36103
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 19,
+   "cell": "2017-2019|general",
+   "relation_id": "R12bb245119",
+   "phrase": "ארבעה יודין",
+   "method": "רגיל",
+   "value": 358,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    14414
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 20,
+   "cell": "2020-2022|event_hint",
+   "relation_id": "R78407cf39f",
+   "phrase": "רשת האינטרנט",
+   "method": "רגיל",
+   "value": 1234,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    26905
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 21,
+   "cell": "2020-2022|general",
+   "relation_id": "Re7a3bae7f3",
+   "phrase": "אש בהרי ירושלים אליהו הנביא",
+   "method": "רגיל",
+   "value": 1234,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    25461
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "המקף חיבר שני רכיבים לביטוי אחד; הסכום המשותף 1234 מאומת"
+   }
+  },
+  {
+   "n": 22,
+   "cell": "2023-2024|event_hint",
+   "relation_id": "R063b12526c",
+   "phrase": "תשפג",
+   "method": "רגיל",
+   "value": 783,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    29256
+   ],
+   "audit": {
+    "verdict": "correct_span_review_justified",
+    "note": "שנה עברית (תשפ״ג); תלוי-זמן"
+   }
+  },
+  {
+   "n": 23,
+   "cell": "2023-2024|general",
+   "relation_id": "Rb49d8f52fa",
+   "phrase": "התגלות",
+   "method": "רגיל",
+   "value": 844,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    31540,
+    36103
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 24,
+   "cell": "2025-2026|cipher",
+   "relation_id": "Rd5378fa85f",
+   "phrase": "יחידה",
+   "method": "רגיל",
+   "value": 37,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36007,
+    36088
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 25,
+   "cell": "2025-2026|cube",
+   "relation_id": "R3212ed8b9b",
+   "phrase": "טוב",
+   "method": "רגיל",
+   "value": 17,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36980
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 26,
+   "cell": "2025-2026|event_hint",
+   "relation_id": "R284a939e29",
+   "phrase": "אין שום יאוש",
+   "method": "רגיל",
+   "value": 724,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    35669
+   ],
+   "audit": {
+    "verdict": "correct_span_flag_false_positive",
+    "note": "‏«אין שום יאוש» ביטוי שלם; הדגל function_word_at_edge נובע מ«אין» — false positive של הכלל הכללי"
+   }
+  },
+  {
+   "n": 27,
+   "cell": "2025-2026|general",
+   "relation_id": "R68efd905f1",
+   "phrase": "שב לימיני עד אשית",
+   "method": "רגיל",
+   "value": 1237,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36103
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 28,
+   "cell": "2013-2016|advanced",
+   "relation_id": "R8aa0e4558a",
+   "phrase": "א תשרי התשעו",
+   "method": "רגיל",
+   "value": 1692,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    5662
+   ],
+   "audit": {
+    "verdict": "correct_span_review_justified",
+    "note": "תאריך עברי עם אות-יום בודדת; תלוי-זמן"
+   }
+  },
+  {
+   "n": 29,
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R879c4bda4d",
+   "phrase": "קורונה",
+   "method": "רגיל",
+   "value": 367,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    9346,
+    16571,
+    18325,
+    20502
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 30,
+   "cell": "2013-2016|general",
+   "relation_id": "R9f8123b461",
+   "phrase": "אדום ישמעאל",
+   "method": "רגיל",
+   "value": 502,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    5097
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 31,
+   "cell": "2017-2019|event_hint",
+   "relation_id": "R82cab68285",
+   "phrase": "אצמיח קרן לדוד",
+   "method": "רגיל",
+   "value": 543,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    18325
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 32,
+   "cell": "2017-2019|general",
+   "relation_id": "R660c070470",
+   "phrase": "מייביס וונזיק ממסצוסטס",
+   "method": "רגיל",
+   "value": 676,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    11877
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 33,
+   "cell": "2020-2022|event_hint",
+   "relation_id": "Ra38d6647a7",
+   "phrase": "טילים גרעיניים",
+   "method": "רגיל",
+   "value": 492,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    26905
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 34,
+   "cell": "2020-2022|general",
+   "relation_id": "Ra4b4b26094",
+   "phrase": "אלהים",
+   "method": "רגיל",
+   "value": 86,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    24812
+   ],
+   "audit": {
+    "verdict": "needs_human_context",
+    "note": "שורת הטענה לא אותרה (claim_text ריק, medium); המנוע מאמת אלהים=86 אך לא ניתן לראות מה הפוסט טוען — דרוש מבט אנושי בפוסט"
+   }
+  },
+  {
+   "n": 35,
+   "cell": "2023-2024|event_hint",
+   "relation_id": "R716cb2596e",
+   "phrase": "היום הרת",
+   "method": "רגיל",
+   "value": 666,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    34138
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 36,
+   "cell": "2023-2024|general",
+   "relation_id": "R0838c59c2b",
+   "phrase": "אלף שבע מאות שמונים ותשע",
+   "method": "רגיל",
+   "value": 2152,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    31540
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 37,
+   "cell": "2025-2026|cipher",
+   "relation_id": "R8e22231be6",
+   "phrase": "חמינאי",
+   "method": "רגיל",
+   "value": 119,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36007
+   ],
+   "audit": {
+    "verdict": "needs_human_context",
+    "note": "הערך 119 מופיע בסמיכות («ב-119 אנשים») אך לא כשוויון מפורש לחמינאי; המנוע מחשב חמינאי=119, אבל הקישור הוא פרשנות המחבר — לא להסיק"
+   }
+  },
+  {
+   "n": 38,
+   "cell": "2025-2026|cube",
+   "relation_id": "R268519bcec",
+   "phrase": "מטעמים",
+   "method": "רגיל",
+   "value": 209,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36985
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "‏«שערכה 209» מפורש"
+   }
+  },
+  {
+   "n": 39,
+   "cell": "2025-2026|event_hint",
+   "relation_id": "Rdab800431b",
+   "phrase": "יום העצמאות עז למדינת ישראל",
+   "method": "רגיל",
+   "value": 1820,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    35669
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 40,
+   "cell": "2025-2026|general",
+   "relation_id": "R105e2e2943",
+   "phrase": "והיה האיש אשר",
+   "method": "אתבש",
+   "value": 1237,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36103
+   ],
+   "audit": {
+    "verdict": "correct_span_flag_false_positive",
+    "note": "שבר פסוק, שיטת אתבש מוצהרת במפורש; הדגל על «אשר» טבעי לשבר פסוק"
+   }
+  },
+  {
+   "n": 41,
+   "cell": "2013-2016|advanced",
+   "relation_id": "Rdc56c2dc33",
+   "phrase": "בימינו",
+   "method": "רגיל",
+   "value": 118,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    6998,
+    37040
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "חבר בשרשרת; השיטה (רגיל) מוצהרת בסוגריים"
+   }
+  },
+  {
+   "n": 42,
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R4468300634",
+   "phrase": "בראשית ברא אלהים",
+   "method": "רגיל",
+   "value": 1202,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    9346,
+    28180,
+    36103
+   ],
+   "audit": {
+    "verdict": "needs_human_context",
+    "note": "שורת הטענה לא אותרה (claim_text ריק, medium); בראשית ברא אלהים=1202 מאומת במנוע, ההקשר בפוסט לא נראה"
+   }
+  },
+  {
+   "n": 43,
+   "cell": "2013-2016|general",
+   "relation_id": "R2acaf44f30",
+   "phrase": "משיח בן יוסף משיח בן דויד",
+   "method": "רגיל",
+   "value": 1000,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    6023,
+    36947
+   ],
+   "audit": {
+    "verdict": "correct_span_review_justified",
+    "note": "הצד השמאלי «מילוי ללא מילה» הוא שיטה אחרת; הצד הנבחר (משיח בן יוסף משיח בן דויד) מאומת ברגיל=1000 — לבדוק שהשיטה הנטענת לצד זה היא רגיל"
+   }
+  },
+  {
+   "n": 44,
+   "cell": "2017-2019|event_hint",
+   "relation_id": "Rbee6299d2e",
+   "phrase": "תשפ",
+   "method": "רגיל",
+   "value": 780,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    16571
+   ],
+   "audit": {
+    "verdict": "correct_span_review_justified",
+    "note": "‏«תשפ» קיצור שנה (5780); ערך 780 תקין; תלוי-זמן"
+   }
+  },
+  {
+   "n": 45,
+   "cell": "2017-2019|general",
+   "relation_id": "R6cc921e6bb",
+   "phrase": "חלב",
+   "method": "רגיל",
+   "value": 40,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    14796,
+    26905
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 46,
+   "cell": "2020-2022|event_hint",
+   "relation_id": "R8056ccff32",
+   "phrase": "רומן זדורוב",
+   "method": "רגיל",
+   "value": 521,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    28180
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 47,
+   "cell": "2020-2022|general",
+   "relation_id": "Rfd0c001536",
+   "phrase": "ליאור",
+   "method": "רגיל",
+   "value": 247,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    27450
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 48,
+   "cell": "2023-2024|event_hint",
+   "relation_id": "R6e75465437",
+   "phrase": "ראש השנה",
+   "method": "רגיל",
+   "value": 861,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    34138
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 49,
+   "cell": "2023-2024|general",
+   "relation_id": "R3ecda185b4",
+   "phrase": "לועזי",
+   "method": "רגיל",
+   "value": 123,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    30997
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 50,
+   "cell": "2025-2026|cipher",
+   "relation_id": "R0ba280b0a4",
+   "phrase": "תשפז",
+   "method": "רגיל",
+   "value": 787,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    37040
+   ],
+   "audit": {
+    "verdict": "correct_span_review_justified",
+    "note": "שנה עברית (תשפ״ז); תלוי-זמן"
+   }
+  },
+  {
+   "n": 51,
+   "cell": "2025-2026|cube",
+   "relation_id": "Racaace5f20",
+   "phrase": "באור",
+   "method": "רגיל",
+   "value": 209,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36985
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 52,
+   "cell": "2025-2026|event_hint",
+   "relation_id": "Rba9594f8be",
+   "phrase": "שכינה",
+   "method": "רגיל",
+   "value": 385,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    35669
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 53,
+   "cell": "2025-2026|general",
+   "relation_id": "Rfa21f36f86",
+   "phrase": "עשיר",
+   "method": "רגיל",
+   "value": 580,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    36970
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 54,
+   "cell": "2013-2016|advanced",
+   "relation_id": "R9005d0514f",
+   "phrase": "קץ הסתר הפנים התשעה",
+   "method": "רגיל",
+   "value": 1820,
+   "tool_status": "review_required",
+   "engine_value_matches_claim": true,
+   "posts": [
+    5292
+   ],
+   "audit": {
+    "verdict": "correct_span_review_justified",
+    "note": "‏«התשע״ה» נורמל ל«התשעה»; הסכום תקין; תלוי-זמן"
+   }
+  },
+  {
+   "n": 55,
+   "cell": "2013-2016|event_hint",
+   "relation_id": "R64fa022481",
+   "phrase": "הילרי",
+   "method": "רגיל",
+   "value": 255,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    9495
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 56,
+   "cell": "2013-2016|general",
+   "relation_id": "R0e1e3a3dda",
+   "phrase": "חמש שבע שבע שש",
+   "method": "רגיל",
+   "value": 1692,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    5004,
+    5662,
+    6879
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 57,
+   "cell": "2017-2019|event_hint",
+   "relation_id": "R66717f56d0",
+   "phrase": "חשמונאי",
+   "method": "רגיל",
+   "value": 415,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    16571
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 58,
+   "cell": "2017-2019|general",
+   "relation_id": "Ra8d7a8a225",
+   "phrase": "מייביס וונזיק אחות בבית חולים",
+   "method": "רגיל",
+   "value": 1234,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    11877
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 59,
+   "cell": "2020-2022|event_hint",
+   "relation_id": "R27f5017c13",
+   "phrase": "ביום השישי",
+   "method": "רגיל",
+   "value": 683,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    23886
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "טווח ביטוי נקרא ותואם את מה שהפוסט משווה לערך"
+   }
+  },
+  {
+   "n": 60,
+   "cell": "2020-2022|general",
+   "relation_id": "Rbf9317471f",
+   "phrase": "קוד הבריאה",
+   "method": "רגיל",
+   "value": 333,
+   "tool_status": "verified",
+   "engine_value_matches_claim": true,
+   "posts": [
+    25461,
+    28180,
+    34138
+   ],
+   "audit": {
+    "verdict": "correct_span",
+    "note": "שרשרת שקילות; קוד הבריאה=333 מפורש"
+   }
+  }
+ ]
+}
