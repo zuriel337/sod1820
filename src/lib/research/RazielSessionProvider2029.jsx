@@ -66,6 +66,7 @@ export function RazielSessionProvider2029({
     facts = "",
     view = {},
     projection = null,
+    viewMode = null,
   } = {}) => {
     if (inFlightRef.current || stateRef.current.busy) return { ok: false, error: "turn_pending" };
     const startedAt = clock();
@@ -77,6 +78,8 @@ export function RazielSessionProvider2029({
       facts,
       intelligenceLevel,
       again,
+      // Session-owned choice, read at submit time so every projection/surface sends the same mode.
+      viewMode: viewMode ?? stateRef.current.viewMode,
     });
     if (!request) return { ok: false, error: "question_required" };
 
@@ -115,6 +118,10 @@ export function RazielSessionProvider2029({
       inFlightRef.current = false;
     }
   }, [clock, createTurnId, research.context, transport]);
+
+  const setViewMode = useCallback((viewMode) => {
+    dispatch({ type: "view_mode_set", viewMode });
+  }, []);
 
   const resetTemporarySession = useCallback(() => {
     if (inFlightRef.current || stateRef.current.busy) return false;
@@ -193,6 +200,7 @@ export function RazielSessionProvider2029({
     personalPairPreviewExpressions,
     personalPairFindingAdded,
     submit,
+    setViewMode,
     updatePersonalPairDraft,
     runPersonalPair,
     addPersonalPairFinding,
@@ -206,6 +214,7 @@ export function RazielSessionProvider2029({
     personalPairPreviewExpressions,
     personalPairFindingAdded,
     submit,
+    setViewMode,
     updatePersonalPairDraft,
     runPersonalPair,
     addPersonalPairFinding,

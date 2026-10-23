@@ -5,6 +5,11 @@ import {
   projectRazielConversationResolution,
   resolveRazielConversationTurn,
 } from "./razielConversationResolver.js";
+import {
+  RAZIEL_DEFAULT_VIEW_MODE,
+  normalizeRazielViewMode,
+  normalizeRazielViewModeReport,
+} from "./razielViewMode2029.js";
 
 export const RAZIEL_SESSION_VERSION = 1;
 // Explicit 2029-only opt-in. Legacy callers do not send this field, so their server path remains
@@ -219,6 +224,7 @@ export function buildRazielSessionRequest({
   facts = "",
   intelligenceLevel = "fast",
   again = false,
+  viewMode = RAZIEL_DEFAULT_VIEW_MODE,
 } = {}) {
   const subject = cleanInline(question, LIMITS.question);
   if (!subject) return null;
@@ -246,6 +252,9 @@ export function buildRazielSessionRequest({
     surfaceSemantic,
     conversationResolution,
     researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+    // Separate axis from intelligenceLevel. Sent only when a non-general mode was chosen, so a general
+    // request is identical to what it was before view modes existed.
+    ...(normalizeRazielViewMode(viewMode) !== RAZIEL_DEFAULT_VIEW_MODE ? { viewMode: normalizeRazielViewMode(viewMode) } : {}),
   };
 }
 
@@ -266,12 +275,14 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
   const intelligenceLevel = response.deterministic
     ? "deterministic"
     : cleanInline(response.intelligence_level, 30) || (requestedLevel === "deep" ? "deep" : "fast");
+  const viewModeReport = normalizeRazielViewModeReport(response);
   return {
     v: cleanInteger(response.v) || 1,
     answer,
     deterministic: response.deterministic === true,
     intelligenceLevel,
     sourceNames: extractRazielSourceNames(response),
+    ...(viewModeReport ? { viewMode: viewModeReport } : {}),
   };
 }
 
@@ -300,6 +311,7 @@ export function createRazielProvenance({ response, turn, completedAt }) {
     engine: cleanInline(response.engine, 80),
     model: cleanInline(response.model, 120),
     capabilityClass: cleanInline(plan.capability_class, 80),
+    viewMode: normalized.viewMode ? (normalized.viewMode.applied ? normalized.viewMode.requested : `${normalized.viewMode.requested}:not_applied`) : null,
     usage: normalizeUsage(response.usage),
     sourceNames: normalized.sourceNames,
   });
@@ -315,6 +327,8 @@ export function createInitialRazielSessionState() {
     provenance: null,
     status: "idle",
     announcement: "",
+    // Belongs to the one temporary Raziel session (not to any page), so it survives navigation between surfaces.
+    viewMode: RAZIEL_DEFAULT_VIEW_MODE,
     personalPair: {
       draft: { left: "", right: "" },
       status: "idle",
@@ -337,6 +351,10 @@ function appendMessage(thread, message) {
 
 export function razielSessionReducer(state, action) {
   switch (action?.type) {
+    case "view_mode_set": {
+      const viewMode = normalizeRazielViewMode(action.viewMode);
+      return state.viewMode === viewMode ? state : { ...state, viewMode };
+    }
     case "personal_pair_draft": {
       if (!new Set(["left", "right"]).has(action.field) || state.busy) return state;
       const value = String(action.value || "").slice(0, LIMITS.personalExpression);
@@ -437,6 +455,8 @@ export function razielSessionReducer(state, action) {
           level: response.intelligenceLevel,
           question: state.currentTurn?.question || null,
           turnId: state.currentTurn?.id || null,
+          // Only an answer the server really produced in that mode is labelled with it.
+          ...(response.viewMode ? { viewMode: response.viewMode.requested, viewModeApplied: response.viewMode.applied } : {}),
         }),
         busy: false,
         currentTurn: { ...state.currentTurn, status: "complete", completedAt: action.completedAt },

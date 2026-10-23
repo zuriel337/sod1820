@@ -50,8 +50,10 @@ const NumberDrawer2029 = lazy(() => import("../number2029/NumberDrawer2029.jsx")
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
+import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import { entityTypeNounHe, razielContextParts, razielSavedLabel, razielStatusLabel, razielSubjectLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot } from "../../lib/research/razielSession2029.js";
+import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
 import { autoPeekForSubject, stageReservesRail } from "./frameLayout2029.js";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
@@ -860,6 +862,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         <p>{contextParts.length ? contextParts.map((part, i) => <React.Fragment key={part.key}>{i ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "שאלה חופשית — או בחר מספר, ביטוי או קטע"}</p>
         {contextAction ? <button type="button" className="sod29-raziel-context-action" data-raziel-context-action="true" onClick={contextAction.run}>{contextAction.label}</button> : null}
       </div>
+      <RazielViewModeSelector2029 />
       <details className="sod29-raziel-pair" data-raziel-personal-pair="true">
         <summary>השווה שני ביטויים</summary>
         <div className="sod29-raziel-pair-body">
@@ -931,6 +934,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
             <span dir="auto">{m.text}</span>
             {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
               <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
+              {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `מצב ${razielViewModeLabel(m.viewMode)} · ניסוי` : `מצב ${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}
               {m === lastRaziel && sourceNames.length ? <small className="sod29-raziel-provenance">מקורות: <bdi>{sourceNames.join(" · ")}</bdi></small> : null}
               {m === lastRaziel && !sourceNames.length && m.level !== "deterministic" ? <small className="sod29-raziel-grounding" data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל</small> : null}
               {m === lastRaziel && lastRaziel.level === "fast" && !closedNote ? <button className="sod29-raziel-deepen" type="button" disabled={busy} aria-expanded={deepOpen} data-raziel-deepen-preview="true" onClick={() => setDeepOpen((open) => !open)}>בדוק לעומק…</button> : null}
