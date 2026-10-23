@@ -200,6 +200,9 @@ function targetFromSelectedText(raw) {
   };
 }
 
+// Modules that have a native 2029 personal view under /2029/me/:module; every other module keeps the legacy /profile route.
+const PERSONAL_2029_MODULES = new Set(["public-page", "page-editor", "profile", "messages", "notifications", "progress"]);
+
 export function FrameState({ kind = "empty", title, children, action = null, progress = null }) {
   if (kind === "loading") {
     return <CanonicalProgress
@@ -1258,6 +1261,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
   const openExistingModule = (module) => {
     if (!userId) { openAccount(); return; }
     const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (PERSONAL_2029_MODULES.has(module)) { go(`/2029/me/${encodeURIComponent(module)}?returnTo=${encodeURIComponent(returnTo)}`, { preserve: false }); return; }
     go(`/profile?module=${encodeURIComponent(module)}&returnTo=${encodeURIComponent(returnTo)}`, { preserve: false });
   };
 
@@ -1266,7 +1270,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
     { id: "profile", icon: "⚙", title: "הפרופיל וההגדרות", sub: "שם, תמונה ופרטים אישיים", state: "live", onClick: () => openExistingModule("profile") },
     { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "live", onClick: () => openExistingModule("public-page") },
     { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
-    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `דרגה ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null, stats.tier].filter(Boolean).join(" · ") || "אין עדיין פעילות" : "דרגה, XP ופעילות", state: stats ? "live" : "building", readOnly: true },
+    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `דרגה ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null, stats.tier].filter(Boolean).join(" · ") || "אין עדיין פעילות" : "דרגה, XP ופעילות", state: "live", onClick: () => openExistingModule("progress") },
   ];
 
   const personal = [

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -27,32 +27,59 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   const [showReg, setShowReg] = useState(false);
   const [pushOn, setPushOn] = useState(false);
   const [pushMsg, setPushMsg] = useState("");
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [toggleError, setToggleError] = useState("");
   const pushReady = PUSH_CONFIGURED && pushSupported();
   const idObj = user?.id ? { userId: user.id } : { visitorId: getVisitorId() };
+  // Principal+topic scope: results that resolve after the account or topic changed must not touch the new scope.
+  const scopeKey = `${user?.id || "guest"}|${topic || ""}`;
+  const scopeRef = useRef(scopeKey);
+  const busyRef = useRef(false);
+  scopeRef.current = scopeKey;
+
+  // Scope-aware reset: a different account/topic starts from unknown, never inherits the previous state.
+  useEffect(() => {
+    busyRef.current = false;
+    setFollowing(false); setBusy(false); setJustFollowed(false); setShowReg(false);
+    setPushOn(false); setPushMsg(""); setLoadFailed(false); setToggleError("");
+  }, [scopeKey]);
 
   const load = useCallback(() => {
     if (!topic) return;
+    const key = scopeKey;
+    setLoadFailed(false);
     getNotificationPrefs(idObj)
       .then(p => {
+        if (scopeRef.current !== key) return;
         setFollowing(includesFollowSubject(p?.topics, topic));
         setPushOn(!!p?.channels?.includes("push"));
       })
-      .catch(() => {});
+      .catch(() => { if (scopeRef.current === key) setLoadFailed(true); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topic, user?.id]);
   useEffect(() => { load(); }, [load]);
 
   async function toggle() {
-    if (!topic || busy) return;
+    if (!topic || busyRef.current) return;
+    const key = scopeKey;
+    busyRef.current = true;
     setBusy(true);
+    setToggleError("");
     const next = !following;
     setFollowing(next);
-    try {
-      await watchToggle(topic, source, next, user?.id ? null : getVisitorId());
-      if (next) { setJustFollowed(true); try { trackConversion("follow", { source, topic }); } catch { /* noop */ } }
-      else setJustFollowed(false);
-    } catch { setFollowing(!next); }
-    finally { setBusy(false); }
+    let ack = null;
+    try { ack = await watchToggle(topic, source, next, user?.id ? null : getVisitorId()); } catch { ack = null; }
+    if (scopeRef.current !== key) return; // scope changed mid-flight; the reset effect already cleared busy
+    busyRef.current = false;
+    setBusy(false);
+    if (!ack) {
+      // No acknowledgment from the canonical RPC: roll back and say so, never a false success.
+      setFollowing(!next);
+      setToggleError(next ? "לא הצלחנו לשמור את המעקב. נסו שוב." : "לא הצלחנו לבטל את המעקב. נסו שוב.");
+      return;
+    }
+    if (next) { setJustFollowed(true); try { trackConversion("follow", { source, topic }); } catch { /* noop */ } }
+    else setJustFollowed(false);
   }
 
   async function turnOnPush() {
@@ -71,7 +98,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   if (variant === "mini") {
     return (
       <button onClick={toggle} disabled={busy} aria-pressed={following}
-        title={following ? "עוקב — לחצו לביטול" : (explainer || "עקבו אחרי מימד חמש")}
+        title={toggleError || (following ? "עוקב — לחצו לביטול" : (explainer || "עקבו אחרי מימד חמש"))}
         style={{
           display: "inline-flex", alignItems: "center", gap: 5, cursor: busy ? "wait" : "pointer",
           background: following ? "rgba(132,88,255,.9)" : "rgba(255,255,255,.10)",
@@ -102,8 +129,9 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   // אותו מנוע-מעקב קנוני (getNotificationPrefs/watchToggle), רק תצוגה כצ'קבוקס.
   if (checkbox) {
     return (
+      <>
       <button onClick={toggle} disabled={busy} role="checkbox" aria-checked={following}
-        title={following ? "בטל מעקב" : explainer || label}
+        title={toggleError || (following ? "בטל מעקב" : explainer || label)}
         style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", cursor: busy ? "wait" : "pointer",
           background: following ? soft : "transparent", border: `1px solid ${following ? P.accent : P.border}`,
           borderRadius: 10, padding: "9px 13px", textAlign: "start", direction: "rtl", minHeight: 44 }}>
@@ -116,6 +144,8 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
         </span>
         {following && <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>עוקב</span>}
       </button>
+      {(toggleError || loadFailed) && <div role="alert" style={{ marginTop: 4, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5 }}>{toggleError || "לא ניתן לאמת את מצב המעקב כרגע."}</div>}
+      </>
     );
   }
 
@@ -124,6 +154,12 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     <div style={{ marginTop: 9, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: gate ? "center" : "flex-start" }}>
       <span style={{ color: P.ink, fontFamily: F.body, fontSize: 12.5 }}>📱 רוצה גם התראה מיידית?</span>
       <button onClick={turnOnPush} style={{ cursor: "pointer", background: "transparent", border: `1px solid ${P.accent}`, color: gold, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>הפעל התראות</button>
+    </div>
+  );
+  const statusNote = (toggleError || loadFailed) && (
+    <div role="alert" style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12, textAlign: gate ? "center" : "start" }}>
+      {toggleError || "לא ניתן לאמת את מצב המעקב כרגע."}
+      {loadFailed && !toggleError && <button onClick={load} style={{ marginInlineStart: 8, cursor: "pointer", background: "transparent", border: "none", color: gold, fontFamily: F.heading, fontSize: 12, fontWeight: 800, textDecoration: "underline" }}>נסו שוב</button>}
     </div>
   );
   const pushDone = pushMsg && <div style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>{pushMsg}</div>;
@@ -154,6 +190,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
               <div style={{ color: gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
               {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
               <button onClick={toggle} disabled={busy} style={btn}>{icon} {label}</button>
+              {statusNote}
             </>
           ) : (
             <>
@@ -162,7 +199,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
               <div style={{ marginTop: 8 }}>
                 <button onClick={toggle} disabled={busy} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: 12 }}>ביטול מעקב</button>
               </div>
-              {regCta}{pushOffer}{pushDone}
+              {statusNote}{regCta}{pushOffer}{pushDone}
             </>
           )}
         </div>
@@ -178,7 +215,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
         {icon} {following ? (followLabel || "עוקבים ✓") : label}
       </button>
       {!following && explainer && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 5 }}>{explainer}</div>}
-      {regCta}{pushOffer}{pushDone}
+      {statusNote}{regCta}{pushOffer}{pushDone}
     </div>
   );
 }
