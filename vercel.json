@@ -927,6 +927,14 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/community/researcher/me",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/community/researcher/:slug",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
