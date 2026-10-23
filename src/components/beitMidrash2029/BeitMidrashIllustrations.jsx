@@ -21,23 +21,38 @@ export function FibonacciSpiral() {
   </svg>;
 }
 
-// Horizontal strip of the source-reading steps. The steps come from the learning manifest; the
+// Horizontal strip of a reading lesson's steps. The steps come from the learning manifest; the
 // chosen step is only marked here, never remembered.
-export function SourceReadingStrip({ steps, focusedId }) {
+export function ReadingStrip({ steps, focusedId, kind, label }) {
   const list = useRef(null);
   useEffect(() => {
     list.current?.querySelector('[aria-current="step"]')?.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "auto" });
   }, [focusedId]);
-  return <nav className="bm-source-strip" aria-label="שבעת שלבי קריאת המקור">
-    <ol ref={list} className="bm-source-trail">
+  return <nav className="bm-reading-strip" aria-label={label}>
+    <ol ref={list} className="bm-reading-trail">
       {steps.map((step, index) => <li key={step.id} style={{ "--bm-i": index }}>
-        <Link to={step.href} aria-current={step.id === focusedId ? "step" : undefined} data-source-step-link={step.id}>
+        <Link to={step.href} aria-current={step.id === focusedId ? "step" : undefined} {...{ [`data-${kind}-step-link`]: step.id }}>
           <span className="bm-trail-node" aria-hidden="true">{index + 1}</span>
           <strong>{step.title}</strong>
         </Link>
       </li>)}
     </ol>
   </nav>;
+}
+
+// Text → a fixed skip → letters. Fixed geometry only: it never reads, searches or calculates anything.
+export function SkipIllustration() {
+  const hops = [0, 1, 2, 3];
+  return <figure className="bm-skip" data-illustration="skip-reading">
+    <svg viewBox="0 0 220 64" aria-hidden="true" focusable="false">
+      {[...new Array(13).keys()].map((index) => <circle key={index} className={index % 4 === 0 ? "bm-skip-pick" : "bm-skip-dot"} cx={14 + index * 16} cy="44" r={index % 4 === 0 ? 6 : 3.2} />)}
+      {hops.slice(0, 3).map((index) => <path key={index} className="bm-skip-hop" pathLength="1" d={`M${14 + index * 64} 38 Q${46 + index * 64} 4 ${78 + index * 64} 38`} />)}
+    </svg>
+    <figcaption>
+      <span>טקסט</span><span>דילוג קבוע</span><span>אותיות</span>
+      <small>המחשה בלבד</small>
+    </figcaption>
+  </figure>;
 }
 
 // One dot per step of a learning path; the written steps stay the accessible content.

@@ -1,22 +1,86 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BeitMidrashSection from "./BeitMidrashSection.jsx";
-import { FibonacciSpiral, PathTrail, SourceReadingStrip } from "./BeitMidrashIllustrations.jsx";
+import { FibonacciSpiral, PathTrail, ReadingStrip, SkipIllustration } from "./BeitMidrashIllustrations.jsx";
 
 const sectionOf = (manifest, id) => manifest.sections.find((section) => section.id === id);
 
-export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath, focusedConcept, focusedSourceStep, children }) {
+
+const STRIP_LABELS = Object.freeze({
+  source: "שבעת שלבי קריאת המקור",
+  cipher: "שבעת שלבי קריאת הדילוג",
+});
+
+/**
+ * One lesson shape for every manifest reading lesson: objectives, a horizontal step strip, one centred
+ * step with how-to-check and its boundary, next-step navigation and an explanation-only exercise.
+ * The chosen step lives in the URL only; nothing is scored, saved or requested here.
+ */
+function ReadingLesson({ lesson, kind, focusedId, illustration = null }) {
+  const steps = lesson.steps;
+  const index = Math.max(0, steps.findIndex((step) => step.id === focusedId));
+  const step = steps[index];
+  const next = steps[index + 1] || null;
+  const attr = (name, value) => ({ [`data-${kind}-${name}`]: value });
+  const internal = lesson.continuation.href.startsWith("/beit-midrash");
+  return <div className="bm-reading-lesson" id={lesson.anchor} {...attr("lesson", lesson.id)}>
+    <ul className="bm-reading-goals" aria-label="מה לומדים בשיעור">
+      {lesson.objectives.map((objective) => <li key={objective}>{objective}</li>)}
+    </ul>
+    {illustration}
+    <ReadingStrip steps={steps} focusedId={step.id} kind={kind} label={STRIP_LABELS[kind]} />
+    <article
+      className="bm-reading-step"
+      id={`${kind}-step-${step.id}`}
+      {...attr("step", step.id)}
+      aria-labelledby={`${kind}-step-title-${step.id}`}
+    >
+      <header>
+        <span>שלב {index + 1} מתוך {steps.length}</span>
+        <h4 id={`${kind}-step-title-${step.id}`}>{step.title}</h4>
+      </header>
+      <section>
+        <h5>מה עושים?</h5>
+        <p>{step.body}</p>
+      </section>
+      <section>
+        <h5>איך בודקים?</h5>
+        <p>{step.check}</p>
+      </section>
+      <aside>
+        <strong>הגבול שחשוב לזכור</strong>
+        <p>{step.boundary}</p>
+      </aside>
+      {next ? <footer><Link className="bm-link" to={next.href}>לשלב הבא · {next.title}</Link></footer> : null}
+    </article>
+
+    <form className="bm-reading-exercise" {...attr("exercise", lesson.exercise.id)} onSubmit={(event) => event.preventDefault()}>
+      <fieldset>
+        <legend>{lesson.exercise.title}</legend>
+        <p>{lesson.exercise.prompt}</p>
+        {lesson.exercise.options.map((option) => <label key={option.id}>
+          <input type="radio" name={`exercise-${lesson.exercise.id}`} value={option.id} />
+          <span>{option.label}</span>
+        </label>)}
+      </fieldset>
+      <details>
+        <summary>להסבר</summary>
+        <p>{lesson.exercise.explanation}</p>
+      </details>
+    </form>
+    {internal
+      ? <Link className="bm-link bm-reading-next" to={lesson.continuation.href}>{lesson.continuation.title}</Link>
+      : <a className="bm-link bm-reading-next" href={lesson.continuation.href}>{lesson.continuation.title}</a>}
+  </div>;
+}
+
+export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath, focusedConcept, focusedSourceStep, focusedCipherStep, children }) {
   const start = sectionOf(manifest, "start");
   const ciphers = sectionOf(manifest, "ciphers");
   const sources = sectionOf(manifest, "sources");
   const numbers = sectionOf(manifest, "numbers");
   const paths = sectionOf(manifest, "paths");
   const isFocused = (id) => focusedSection === id;
-  const sourceLesson = manifest.sourceReadingLesson;
-  const sourceSteps = sourceLesson.steps;
-  const sourceIndex = Math.max(0, sourceSteps.findIndex((step) => step.id === focusedSourceStep));
-  const sourceStep = sourceSteps[sourceIndex];
-  const nextSourceStep = sourceSteps[sourceIndex + 1] || null;
   const selectedNumberConcept = manifest.numberGuideConcepts.find((concept) => concept.id === focusedConcept)
     || manifest.numberGuideConcepts[0];
 
@@ -36,56 +100,11 @@ export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath
     {children}
 
     <BeitMidrashSection id="ciphers" icon="letters" title={ciphers.title} description={ciphers.description} focused={isFocused("ciphers")}>
-      <a className="bm-link" href={manifest.destinations.ciphers.href}>{manifest.destinations.ciphers.title}</a>
+      <ReadingLesson lesson={manifest.cipherReadingLesson} kind="cipher" focusedId={focusedCipherStep} illustration={<SkipIllustration />} />
     </BeitMidrashSection>
 
     <BeitMidrashSection id="sources" icon="posts" title={sources.title} description={sources.description} focused={isFocused("sources")}>
-      <div className="bm-source-lesson" id={sourceLesson.anchor} data-source-lesson={sourceLesson.id}>
-        <ul className="bm-source-goals" aria-label="מה לומדים בשיעור">
-          {sourceLesson.objectives.map((objective) => <li key={objective}>{objective}</li>)}
-        </ul>
-        <SourceReadingStrip steps={sourceSteps} focusedId={sourceStep.id} />
-        <article
-          className="bm-source-step"
-          id={`source-step-${sourceStep.id}`}
-          data-source-step={sourceStep.id}
-          aria-labelledby={`source-step-title-${sourceStep.id}`}
-        >
-          <header>
-            <span>שלב {sourceIndex + 1} מתוך {sourceSteps.length}</span>
-            <h4 id={`source-step-title-${sourceStep.id}`}>{sourceStep.title}</h4>
-          </header>
-          <section>
-            <h5>מה עושים?</h5>
-            <p>{sourceStep.body}</p>
-          </section>
-          <section>
-            <h5>איך בודקים?</h5>
-            <p>{sourceStep.check}</p>
-          </section>
-          <aside>
-            <strong>הגבול שחשוב לזכור</strong>
-            <p>{sourceStep.boundary}</p>
-          </aside>
-          {nextSourceStep ? <footer><Link className="bm-link" to={nextSourceStep.href}>לשלב הבא · {nextSourceStep.title}</Link></footer> : null}
-        </article>
-
-        <form className="bm-source-exercise" data-source-exercise={sourceLesson.exercise.id} onSubmit={(event) => event.preventDefault()}>
-          <fieldset>
-            <legend>{sourceLesson.exercise.title}</legend>
-            <p>{sourceLesson.exercise.prompt}</p>
-            {sourceLesson.exercise.options.map((option) => <label key={option.id}>
-              <input type="radio" name={`exercise-${sourceLesson.exercise.id}`} value={option.id} />
-              <span>{option.label}</span>
-            </label>)}
-          </fieldset>
-          <details>
-            <summary>להסבר</summary>
-            <p>{sourceLesson.exercise.explanation}</p>
-          </details>
-        </form>
-        <Link className="bm-link bm-source-next" to={sourceLesson.continuation.href}>{sourceLesson.continuation.title}</Link>
-      </div>
+      <ReadingLesson lesson={manifest.sourceReadingLesson} kind="source" focusedId={focusedSourceStep} />
     </BeitMidrashSection>
 
     <BeitMidrashSection id="numbers" icon="number" title={numbers.title} description={numbers.description} focused={isFocused("numbers")}>
