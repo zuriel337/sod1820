@@ -126,6 +126,23 @@ try:
                 report["captures"].append({"width": width, "theme": theme, "existing_frame": True,
                                            "recent_count": 20, "horizontal_overflow": False,
                                            "initial_research_requests": 0, "requests": len(calls)})
+                if width == 390 and theme == "dark":
+                    first_card = page.locator("[data-catalog-source]").first
+                    saved_title = first_card.locator("h3").inner_text()
+                    exact_href = first_card.get_by_role("link", name="להופעה המדויקת בעולם ↗").get_attribute("href")
+                    first_card.get_by_role("button", name="שמירה לקריאה", exact=True).click()
+                    first_card.get_by_role("button", name="נשמר", exact=True).wait_for()
+                    page.reload()
+                    page.locator("[data-catalog-source]").first.get_by_role("button", name="נשמר", exact=True).wait_for()
+                    page.locator(".sod29-header-workspace").click()
+                    saved = page.locator("[data-research-bucket='saved']")
+                    saved.get_by_role("button").filter(has_text=saved_title).click()
+                    page.wait_for_url(BASE + exact_href)
+                    page.locator("[id='" + urlparse(exact_href).fragment + "']").wait_for()
+                    page.go_back()
+                    page.get_by_role("heading", name=fixture["tzvi"]["display_name"], exact=True).wait_for()
+                    report["reading_workspace"] = {"local_guest_save": True, "reload_preserved": True, "native_workspace_library": True,
+                        "exact_world_occurrence": True, "new_store": False}
                 if width == 1440 and theme == "dark":
                     cards = page.locator("[data-catalog-source]")
                     image_card = cards.filter(has=page.locator("img")).first

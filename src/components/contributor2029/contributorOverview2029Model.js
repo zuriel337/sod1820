@@ -20,7 +20,8 @@ export function publicStudioItems(rows, contributorId) {
   return (Array.isArray(rows) ? rows : []).filter((row) => row?.contributor_id === contributorId
     && row.is_public === true && row.is_personal === false && typeof row.id === "string")
     .map((row) => ({ id: row.id, kind: clean(row.kind, 40), title: clean(row.title, 500), body: clean(row.body, 100000),
-      imageUrl: safePublicUrl(row.image_url), href: safePublicUrl(row.link_url),
+      imageUrl: safePublicUrl(row.image_url), href: safePublicUrl(row.link_url || (row.kind === "pin" ? row.ref : null)),
+      ref: row.kind === "pin" ? safePublicUrl(row.ref) : null, refType: row.kind === "pin" && row.ref_type === "source" ? "source" : null,
       media: (Array.isArray(row.media) ? row.media : []).map((item) => ({ url: safePublicUrl(item?.url), caption: clean(item?.caption, 500) })).filter((item) => item.url),
       value: Number.isSafeInteger(row.value) ? row.value : null, createdAt: publicDate(row.created_at) }));
 }
@@ -37,6 +38,7 @@ export function publicContributorOverview(value, now = new Date()) {
       items: (Array.isArray(value.studio?.items) ? value.studio.items : []).map((item) => ({
         id: clean(item?.id, 200), kind: clean(item?.kind, 40), title: clean(item?.title, 500), body: clean(item?.body, 100000),
         imageUrl: safePublicUrl(item?.imageUrl), href: safePublicUrl(item?.href),
+        ref: item?.kind === "pin" ? safePublicUrl(item?.ref) : null, refType: item?.kind === "pin" && item.refType === "source" ? "source" : null,
         media: (Array.isArray(item?.media) ? item.media : []).map((media) => ({ url: safePublicUrl(media?.url), caption: clean(media?.caption, 500) })).filter((media) => media.url),
         value: Number.isSafeInteger(item?.value) ? item.value : null, createdAt: publicDate(item?.createdAt, now),
       })).filter((item) => item.id) } };

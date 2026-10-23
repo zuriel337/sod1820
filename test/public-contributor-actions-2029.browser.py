@@ -29,9 +29,11 @@ def signed_in(context):
 
 def intercept(page, role, fail_message=False):
     calls = []
+    selected_pin = None
     page.on("pageerror", lambda error: report["errors"].append(str(error)))
 
     def route(r):
+        nonlocal selected_pin
         req = r.request
         u = urlparse(req.url)
         if u.hostname in ["127.0.0.1", "localhost"]:
@@ -43,8 +45,18 @@ def intercept(page, role, fail_message=False):
                         "studio": {"available": True, "page": 0, "hasMore": False, "items": [
                             {"id": "native-gallery", "kind": "gallery", "media": [{"url": "/test/fixtures/public-contributor-catalog.svg", "caption": "גלריה ציבורית"}]},
                             {"id": "native-link", "kind": "link", "href": "https://example.invalid/native-writing"},
-                            {"id": "native-body", "kind": "text", "title": "טקסט ציבורי מהסטודיו", "body": "זהו תוכן ציבורי מקורי"}]}}
+                            {"id": "native-body", "kind": "text", "title": "טקסט ציבורי מהסטודיו", "body": "זהו תוכן ציבורי מקורי"}] + ([selected_pin] if selected_pin else [])}}
                 return r.fulfill(content_type="application/json", body=json.dumps(data))
+            if u.path == "/api/contributor-curation":
+                assert role == "owner" and req.method == "POST"
+                body = req.post_data_json
+                calls.append({"name": "curation", "method": req.method, "body": body})
+                if body["action"] == "feature":
+                    # Fixture selection is resolved to the same canonical source link as the page.
+                    native_ref = body["itemId"].split("channel_updates:")[-1]
+                    href = "/world?view=sources&source=tzvi-opoc&sourceRef=channel_updates%3A" + native_ref + "#source-occurrence-" + native_ref
+                    selected_pin = {"id": "chosen-native-pin", "kind": "pin", "title": "נבחר", "ref": href, "refType": "source", "href": href} if body["enabled"] else None
+                return r.fulfill(content_type="application/json", body='{"state":"saved"}')
             if u.path == "/api/contributor-interactions":
                 calls.append({"name": "interactions", "method": req.method, "body": req.post_data_json if req.method == "POST" else None})
                 if req.method == "POST":
@@ -88,6 +100,8 @@ with sync_playwright() as p:
             assert page.locator(".cx-card").count() == 3
             assert page.locator(".cx-card a[href='https://example.invalid/native-writing']").count() == 1
             assert page.locator("[data-catalog-source]").count() == 20
+            assert page.get_by_role("button", name="בחירה להצגה", exact=True).count() == 0
+            assert page.get_by_role("button", name="עריכת ההקדמה הציבורית", exact=True).count() == 0
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), (width, theme)
             flip = page.locator(".pc-rank-flip")
             flip.focus()
@@ -105,7 +119,9 @@ with sync_playwright() as p:
             if width == 390:
                 page.screenshot(path=str(OUT / f"top-{theme}.png"))
             report["captures"].append({"width": width, "theme": theme, "recent": 20, "native_studio_items": 3, "overflow": False, "keyboard_flip": True})
-            assert len([c for c in calls if c["name"] == "overview"]) == 1
+            # Existing principal-scoped ResearchProvider remounts pending→guest once.
+            # Requests stay bounded per profile, independently of the 20 source cards.
+            assert 1 <= len([c for c in calls if c["name"] == "overview"]) <= 2
             assert not any(c["name"] == "interactions" and c["method"] == "POST" for c in calls)
             if width == 390 and theme == "dark":
                 with page.expect_response(lambda response: response.url.endswith("/rpc/watch_toggle")):
@@ -143,6 +159,24 @@ with sync_playwright() as p:
             assert edit.get_attribute("href").startswith("/profile?module=page-editor&returnTo=")
             assert page.get_by_role("link", name="תיבת ההודעות שלי").get_attribute("href").startswith("/profile?module=messages")
             assert page.get_by_role("button", name="שליחת הודעה לכותב").count() == 0
+            first = page.locator("[data-catalog-source]").first
+            target_href = first.get_by_role("link", name="להופעה המדויקת בעולם ↗").get_attribute("href")
+            assert not any(c["name"] == "curation" for c in calls)
+            first.get_by_role("button", name="בחירה להצגה", exact=True).click()
+            page.locator(".rc-featured").wait_for()
+            assert page.locator(".rc-featured a").get_attribute("href") == target_href
+            first.get_by_role("button", name="ביטול בחירה", exact=True).wait_for()
+            assert len([c for c in calls if c["name"] == "curation"]) == 1
+            first.get_by_role("button", name="ביטול בחירה", exact=True).click()
+            expect(page.locator(".rc-featured")).to_have_count(0)
+            page.get_by_role("button", name="עריכת ההקדמה הציבורית", exact=True).click()
+            editor = page.locator(".rc-editor")
+            editor.get_by_role("textbox").fill("הקדמה ציבורית שנבחרה במפורש")
+            assert len([c for c in calls if c["name"] == "curation"]) == 2
+            editor.get_by_role("button", name="שמירת הקדמה ציבורית", exact=True).click()
+            editor.get_by_text("ההקדמה נשמרה ומוצגת בפומבי.", exact=True).wait_for()
+            assert len([c for c in calls if c["name"] == "curation"]) == 3
+            report["writer_curation"] = {"explicit_only": True, "native_feature_href": True, "unselect": True, "introduction": True}
         report["roles"].append(role + ("-send-error" if fail_message else ""))
         context.close()
     browser.close()

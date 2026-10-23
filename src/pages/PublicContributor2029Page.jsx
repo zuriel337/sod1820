@@ -10,6 +10,7 @@ import "./publicContributor2029.css";
 import PublicSourceCatalog2029 from "../components/contributor2029/PublicSourceCatalog2029.jsx";
 import PublicContributorRank2029 from "../components/contributor2029/ContributorRankSeal2029.jsx";
 import ContributorActionsController2029 from "../components/contributor2029/ContributorActionsController2029.jsx";
+import { useContributorReading2029 } from "../components/contributor2029/ContributorReadingController2029.jsx";
 
 const TYPE_LABELS = { sources: "מקור", findings: "ממצא", writings: "כתב", topics: "נושא" };
 const VERIFICATION = { match: "טענה אומתה מול המנוע", mismatch: "טענה נסתרה במנוע", not_tested: "לא נבדקה טענה מול המנוע", method_unknown: "השיטה לא זוהתה" };
@@ -20,6 +21,7 @@ export function PublicContributor2029View(props) {
 
 function GeneralContributor2029View({ view, loading = false, error = false, onRetry }) {
   const P = use2029Palette();
+  const reading = useContributorReading2029(view, onRetry);
   const location = useLocation();
   const [params, setParams] = useSearchParams();
   const context = readContributorLocation(location.search, typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il");
@@ -62,7 +64,8 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
         <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
           links={[{ href: `${view.canonicalHref}?section=findings`, label: "ממצאים וכתבים" }]} previewRank={view.rankPreview} />
       </header>
-      <ContributorActionsController2029 view={view} />
+      <ContributorActionsController2029 view={view} onPublicData={reading.receivePublicData} excludedStudioIds={reading.featuredIds} />
+      {reading.header}
       {view.partial ? <p className="pc-notice" role="status">חלק מהמידע אינו זמין כרגע. מוצגים רק החומרים שנקראו ושויכו בוודאות.</p> : null}
       {view.unattributed ? <p className="pc-notice" role="status">יש תוכן שלא שויך במדויק לכותב, ולכן אינו מופיע כאן.</p> : null}
       <nav className="pc-filters" aria-label="סוג התוכן של הכותב">
@@ -83,8 +86,9 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
           const date = bilingualDateLabel(item.date);
           return <article className="pc-item" key={item.id} ref={expanded ? selectedRef : null} tabIndex={-1}>
             <div className="pc-item-meta"><span>{item.label || TYPE_LABELS[item.type]}</span>{date ? <time dateTime={item.date}>נוסף · {date}</time> : <span>תאריך לא זמין</span>}</div>
-            <h3>{item.href ? <a href={item.href}>{item.title}</a> : item.title}</h3>
+            <h3>{item.href ? <a href={item.href} onClick={() => reading.recordOpen(item)}>{item.title}</a> : item.title}</h3>
             <p className="pc-reason">{item.reason}</p>
+            {reading.actions(item)}
             {item.sourceOnly ? <p className="pc-source-state">מקור ללא ממצאים משויכים.</p> : null}
             {item.findingsUnavailable ? <p className="pc-source-state">המקור זמין לקריאה; המידע על ממצאים אינו זמין כרגע.</p> : null}
             {item.type === "findings" ? <div className="pc-metrics">
