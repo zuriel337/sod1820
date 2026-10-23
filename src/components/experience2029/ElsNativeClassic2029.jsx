@@ -70,6 +70,24 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
   const sourceMap = useMemo(() => new Map((matrix?.sourceMarks || []).map((mark) => [Number(mark.i), {
     ...mark, type: "source", color: projectFindingColor(mark.color, palette),
   }])), [matrix?.sourceMarks, palette]);
+  const findingTargetMap = useMemo(() => {
+    const targets = new Map();
+    for (const finding of state?.findings || []) {
+      const color = projectFindingColor(finding.color, palette);
+      for (const hit of [...(finding.hits || []), ...(finding.sourceHits || [])]) {
+        if (!hit?.shown || hit.withinRadius === false || (!hit.verified && hit.kind !== "source-sequence")) continue;
+        const anchor = parseElsHitKey(hit.hitId);
+        if (!anchor || !Number.isInteger(anchor.start) || !Number.isInteger(anchor.skip) || anchor.skip < 1) continue;
+        for (let offset = 0; offset < Array.from(finding.t).length; offset += 1) {
+          const index = anchor.start + anchor.dir * anchor.skip * offset;
+          const entries = targets.get(index) || [];
+          entries.push({ term: finding.t, hitId: hit.hitId, hit, finding, color });
+          targets.set(index, entries);
+        }
+      }
+    }
+    return targets;
+  }, [state?.findings, palette]);
 
   const activeFinding = useMemo(() => {
     if (!selectedFinding) return { indices: new Set((matrix?.marks || []).filter((mark) => mark.type === "main").map((mark) => Number(mark.i))), color: palette.matrix.axis };
@@ -227,9 +245,20 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
               data-verse-word={verseParity}
               data-present-concealed={concealed ? "true" : undefined}
               title={sourceMark ? `רצף מקור: ${sourceMark.term} · הצג פסוק` : "הצג מקור ופסוק"}
-              onClick={() => {
+              onClick={(event) => {
                 if (dragRef.current.moved) return;
-                onLetterClick?.({ index, letter, mark });
+                const targets = mark?.type === "finding" ? findingTargetMap.get(index) || [] : [];
+                const findingTarget = targets.find((target) => target.hitId === selectedFinding?.hitId)
+                  || targets.find((target) => target.color === mark?.color)
+                  || targets[0]
+                  || null;
+                onLetterClick?.({
+                  index,
+                  letter,
+                  mark,
+                  findingTarget,
+                  point: { x: event.clientX, y: event.clientY },
+                });
               }}
               style={{
                 ...(verseParity != null ? { "--els29-verse-color": palette.matrix.findings[verseParity === 0 ? 1 : 4].color } : {}),
@@ -242,6 +271,57 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
         </div>;
       })}
     </div>
+  </div>;
+}
+
+function FindingActionMenu({ action, researchProfile, pending, journeyBusy, onClose, onScan, onSource, onPromote, onDetails, onHide }) {
+  const dialogRef = useRef(null);
+  useEffect(() => {
+    if (!action) return;
+    const dialog = dialogRef.current;
+    const previousFocus = document.activeElement;
+    const first = dialog?.querySelector("button:not(:disabled)");
+    first?.focus({ preventScroll: true });
+    const onKeyDown = (event) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      onClose();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus?.({ preventScroll: true });
+    };
+  }, [action?.finding?.t, action?.hit?.hitId]);
+
+  if (!action) return null;
+  const { finding, hit, point } = action;
+  const target = { term: finding.t, hitId: hit.hitId, ...(hit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) };
+  const style = { "--els29-menu-x": `${point.x}px`, "--els29-menu-y": `${point.y}px`, "--els29-mark": action.color };
+  return <div className="els29-native-finding-menu-layer" onPointerDown={(event) => {
+    if (event.target === event.currentTarget) onClose();
+  }}>
+    <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={`פעולות על ${finding.t}`}
+      className="els29-native-finding-menu" style={style} data-els-finding-menu-profile={researchProfile ? "research" : "classic"}>
+      <header>
+        <i aria-hidden="true" />
+        <span><small>{researchProfile ? "ממצא במחקר" : "ממצא במטריצה"}</small><strong>{finding.t}</strong></span>
+        <button type="button" onClick={onClose} aria-label="סגור פעולות ממצא">×</button>
+      </header>
+      <p>{hit.kind === "source-sequence" ? "רצף מקור ללא דילוג" : `דילוג ${hit.skip}`} · מרחק {hit.axisDistance} תאים מהציר הראשי</p>
+      <div className="els29-native-finding-menu-main" role="group" aria-label={`פעולות מהירות על ${finding.t}`}>
+        <button type="button" className="is-primary" disabled={pending} onClick={() => { onClose();onScan(target); }}>המשך הציר</button>
+        <button type="button" disabled={pending} onClick={() => { onClose();onSource(target); }}>מקור ופסוק</button>
+        {researchProfile ? <button type="button" className="is-research" disabled={pending || journeyBusy || !hit.verified}
+          onClick={() => { onClose();onPromote(finding, hit.hitId); }}>הפוך לציר ראשי</button> : null}
+        <button type="button" onClick={() => { onClose();onDetails(finding.t); }}>פרטים ועריכה</button>
+      </div>
+      <details>
+        <summary>אפשרויות נוספות</summary>
+        <button type="button" disabled={pending} onClick={() => { onClose();onHide(finding.t, hit); }}>הסתר מופע זה מהמטריצה</button>
+        <small>מחיקה, שינוי צבע ובחירת מופעים נוספים זמינים ב״פרטים ועריכה״.</small>
+      </details>
+    </section>
   </div>;
 }
 
@@ -519,7 +599,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   </div>;
 }
 
-function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onDiscover, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, canReplacePrimary, journeyBusy, onPromote }) {
+function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onDiscover, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, canReplacePrimary, journeyBusy, onPromote, openDetails }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -559,6 +639,17 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
     if (!selectionValid || !workspaceRef.current) return;
     workspaceRef.current.scrollIntoView({ block: "nearest", behavior: "instant" });
   }, [selectionValid, selected?.term, selected?.hitId]);
+
+  useLayoutEffect(() => {
+    if (!openDetails?.term) return;
+    const index = findings.findIndex((finding) => finding.t === openDetails.term);
+    if (index < 0) return;
+    setExpandedFinding(openDetails.term);
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(`els29-finding-extra-${index}`)?.scrollIntoView({ block: "nearest", behavior: "instant" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [openDetails?.seq, openDetails?.term]);
 
   const selectTarget = (term, hitId) => {
     onSelectTarget(term ? { term, hitId, scope: state.scope, axisHitId: state.axis.hitId } : null);
@@ -835,6 +926,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [lensPending, setLensPending] = useState(false);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
   const [selectedFinding, setSelectedFinding] = useState(null);
+  const [findingMenu, setFindingMenu] = useState(null);
+  const [findingDetailsRequest, setFindingDetailsRequest] = useState(null);
+  useEffect(() => { setFindingMenu(null); }, [matrix?.id, researchLoad, engineState?.axis?.hitId, classicOpen]);
   useEffect(() => {
     if (!matrix) return;
     setQuery(matrix.search_term || "");setClassicOpen(false);setLoadError(null);
@@ -1137,8 +1231,21 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestFindingsChange([...findings.map((finding) => ({ t: finding.t, color: finding.color })), { t: term, color: nextFindingColor(findings, palette) }], { preserveRead: true });
   };
 
-  const handleLetterClick = ({ index }) => {
+  const revealFindingDetails = (term) => {
+    setClassicOpen(false);
+    setActiveTool("findings");
+    setFindingDetailsRequest({ term, seq: ++actionSeqRef.current });
+    requestAnimationFrame(() => panelRef.current?.scrollIntoView({ block: "nearest", behavior: "instant" }));
+  };
+
+  const handleLetterClick = ({ index, findingTarget, point }) => {
     setSelectedLetterIndex(index);
+    if (findingTarget) {
+      selectFinding({ term: findingTarget.term, hitId: findingTarget.hitId, scope: engineStateRef.current?.scope, axisHitId: engineStateRef.current?.axis?.hitId });
+      setFindingMenu({ ...findingTarget, point });
+      return;
+    }
+    setFindingMenu(null);
     requestLens("letter-context", { i: index });
   };
 
@@ -1425,10 +1532,24 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           canReplacePrimary={canReplaceSavedPrimary}
           journeyBusy={!!journeyPending}
           onPromote={promoteFinding}
+          openDetails={findingDetailsRequest}
         />
         </ContextualInspector2029>
         </div>
       </>
+
+      <FindingActionMenu
+        action={findingMenu}
+        researchProfile={researchProfile}
+        pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status) || lensPending}
+        journeyBusy={!!journeyPending}
+        onClose={() => setFindingMenu(null)}
+        onScan={(target) => requestLens("line-context", { ...target, scan: true })}
+        onSource={(target) => requestLens("verse-context", target)}
+        onPromote={promoteFinding}
+        onDetails={revealFindingDetails}
+        onHide={(term, hit) => requestFindingControl(term, "toggle-hit", hit.hitId, hit)}
+      />
 
       <div className={classicOpen ? "els29-classic-fallback is-open" : "els29-classic-fallback"}>
         <TzofenEmbed

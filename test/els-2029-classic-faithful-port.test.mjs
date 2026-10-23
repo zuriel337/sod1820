@@ -154,7 +154,10 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
 test("one unified scan action uses the exact selected, visible and verified occurrence", () => {
   assert.equal((nativeClassic.match(/aria-label="סרוק לאורך הציר הנבחר"/g) || []).length, 1);
   assert.equal((nativeClassic.match(/onClick=\{\(\) => onScan\(target\)\}/g) || []).length, 1);
-  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 1);
+  // The matrix action menu and the findings rail are two entrances to the same
+  // canonical line-context lens; neither owns a second scanner.
+  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 2);
+  assert.equal((nativeClassic.match(/requestLens\("line-context", \{ \.\.\.target, scan: true \}\)/g) || []).length, 2);
   assert.doesNotMatch(nativeClassic, /רצף ומילים לאורך הציר|סרוק ציר ראשי/);
   assert.match(nativeClassic, /\(hit\.verified \|\| hit\.kind === "source-sequence"\) && hit\.shown && hit\.withinRadius !== false/);
   assert.match(nativeClassic, /eligible\(selectedFinding\)\.find\(\(hit\) => hit\.hitId === selected\?\.hitId\)/);

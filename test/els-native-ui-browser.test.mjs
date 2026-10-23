@@ -93,7 +93,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:window.__fixtureResearchProfile!==false,
       onDeleteSaved:async row=>{(window.__deleteCalls||=[]).push(row.id);if(window.__deleteFails)throw new Error('fixture delete failure');setMatrix(null);},
       onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
@@ -229,7 +229,7 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, researchProfile = true } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
@@ -276,8 +276,9 @@ async function withNative(viewport, run, options = {}) {
     const errors = [];
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
-    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender }) => {
+    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, researchProfile }) => {
       window.__fixtureFullFrame=fullFrame;
+      window.__fixtureResearchProfile=researchProfile;
       if (onboarded) localStorage.setItem('tzofen_onboarded_v1', '1');
       window.__fixtureLoadGolden = loadGolden;
       window.__fixtureTier = tier;
@@ -304,7 +305,7 @@ async function withNative(viewport, run, options = {}) {
       if (window !== window.parent) addEventListener('message', (event) => {
         if (event.source === window.parent && event.data?.source === 'sod-host') (window.parent.__hostLog ||= []).push(event.data);
       });
-    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender });
+    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, researchProfile });
     if (realHost && loadGolden) await page.addInitScript((item) => { window.__fixtureGolden = item; }, golden);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     if (loadGolden) {
@@ -519,6 +520,51 @@ test('native UI: one unified rail scans exact primary and secondary targets with
    }
    await expectStable(page,secondaryPan,'page-flow inspector',{ignorePageScroll:true});
   });
+ });
+
+test('clicking a matrix Finding opens an instant profile-aware action menu',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   await addSecondary(page,'התורה');
+   const target=await page.evaluate(()=>{
+    const finding=window.__state.findings.find(item=>item.t==='התורה');
+    const hit=finding.hits.find(item=>item.shown&&item.verified);
+    const [skip,dir,start]=hit.hitId.split('_').map(Number);
+    return {hitId:hit.hitId,indices:Array.from(finding.t,(_,offset)=>start+dir*skip*offset)};
+   });
+   const cell=page.locator(target.indices.map(index=>`.els29-native-cell.is-finding[data-els-index="${index}"]`).join(',')).first();
+   assert.equal(await cell.count(),1,'the verified Finding has a clickable projected cell');
+   const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length);
+   await cell.dispatchEvent('click');
+   const menu=page.getByRole('dialog',{name:'פעולות על התורה',exact:true});
+   await menu.waitFor();
+   assert.equal(await menu.getAttribute('data-els-finding-menu-profile'),'research');
+   for(const label of ['המשך הציר','מקור ופסוק','הפוך לציר ראשי','פרטים ועריכה'])assert.equal(await menu.getByRole('button',{name:label,exact:true}).count(),1);
+   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,'opening the menu performs no scan or source request');
+   await menu.getByRole('button',{name:'המשך הציר',exact:true}).click();
+   await page.waitForFunction(hitId=>window.__lens?.lens==='line-context'&&window.__lens?.target?.hitId===hitId&&window.__lens?.scan,target.hitId);
+   assert.equal(await menu.count(),0,'choosing an action closes the transient menu');
+   await cell.dispatchEvent('click');
+   await page.getByRole('dialog',{name:'פעולות על התורה',exact:true}).getByRole('button',{name:'פרטים ועריכה',exact:true}).click();
+   await page.waitForFunction(()=>document.querySelector('[aria-label="מופעים וצבע של התורה"]')?.getAttribute('aria-expanded')==='true');
+  });
+
+  await withNative({width:390,height:844},async page=>{
+   await addSecondary(page,'התורה');
+   const index=await page.evaluate(()=>{
+    const finding=window.__state.findings.find(item=>item.t==='התורה');
+    const hit=finding.hits.find(item=>item.shown&&item.verified);
+    return Number(hit.hitId.split('_')[2]);
+   });
+   await page.locator(`.els29-native-cell.is-finding[data-els-index="${index}"]`).first().dispatchEvent('click');
+   const menu=page.getByRole('dialog',{name:'פעולות על התורה',exact:true});
+   await menu.waitFor();
+   assert.equal(await menu.getAttribute('data-els-finding-menu-profile'),'classic');
+   assert.equal(await menu.getByRole('button',{name:'הפוך לציר ראשי',exact:true}).count(),0,'Classic keeps the action set compact');
+   for(const label of ['המשך הציר','מקור ופסוק','פרטים ועריכה'])assert.equal(await menu.getByRole('button',{name:label,exact:true}).count(),1);
+   const box=await menu.boundingBox(),viewport=page.viewportSize();
+   assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,'mobile sheet stays inside the viewport');
+  },{researchProfile:false,mobile:true});
  });
 
 test('every viewer can inspect unsaved matrix candidates and verify one without changing the saved record',
