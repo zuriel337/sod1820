@@ -10,7 +10,7 @@ export async function updateWriterCuration(key, action, payload, { userId, auth 
   try {
     const { data, error } = await auth.getSession();
     if (error || !userId || data?.session?.user?.id !== userId || !data.session.access_token) return { state: "login_required" };
-    const response = await fetcher("/api/contributor-curation", { method: "POST", credentials: "omit", signal: AbortSignal.timeout(15000),
+    const response = await fetcher("/api/contributor-curation", { method: "POST", credentials: "same-origin", signal: AbortSignal.timeout(15000),
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session.access_token}` },
       body: JSON.stringify({ slug: key, action, ...payload }) });
     const result = await response.json();

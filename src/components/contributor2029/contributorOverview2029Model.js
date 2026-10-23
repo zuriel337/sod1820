@@ -47,7 +47,7 @@ export function publicContributorOverview(value, now = new Date()) {
 export async function fetchContributorOverview(key, { signal, page = 0, fetcher = fetch } = {}) {
   try {
     const response = await fetcher(`/api/contributor-public-overview?slug=${encodeURIComponent(key)}&page=${page}`,
-      { signal, credentials: "omit", headers: { Accept: "application/json" } });
+      { signal, credentials: "same-origin", headers: { Accept: "application/json" } });
     return response.ok ? publicContributorOverview(await response.json()) : { state: "unavailable" };
   } catch { return { state: "unavailable" }; }
 }
