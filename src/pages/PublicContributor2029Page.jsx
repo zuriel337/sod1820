@@ -9,12 +9,13 @@ import { applySeo } from "../lib/seo.js";
 import "./publicContributor2029.css";
 import PublicSourceCatalog2029 from "../components/contributor2029/PublicSourceCatalog2029.jsx";
 import PublicContributorRank2029 from "../components/contributor2029/ContributorRankSeal2029.jsx";
+import ContributorActionsController2029 from "../components/contributor2029/ContributorActionsController2029.jsx";
 
 const TYPE_LABELS = { sources: "מקור", findings: "ממצא", writings: "כתב", topics: "נושא" };
 const VERIFICATION = { match: "טענה אומתה מול המנוע", mismatch: "טענה נסתרה במנוע", not_tested: "לא נבדקה טענה מול המנוע", method_unknown: "השיטה לא זוהתה" };
 
 export function PublicContributor2029View(props) {
-  return props.view?.kind === "source_catalog" ? <PublicSourceCatalog2029 view={props.view} /> : <GeneralContributor2029View {...props} />;
+  return props.view?.kind === "source_catalog" ? <PublicSourceCatalog2029 view={props.view} onRetry={props.onRetry} /> : <GeneralContributor2029View {...props} />;
 }
 
 function GeneralContributor2029View({ view, loading = false, error = false, onRetry }) {
@@ -52,15 +53,16 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
       {!loading && !error ? <p>אין דף ציבורי זמין בכתובת הזאת.</p> : null}
     </div> : <>
       <header className="pc-profile">
-        {view.profile.avatar ? <img key={view.profile.avatar} className="pc-avatar" src={view.profile.avatar} alt="" width="72" height="72" onError={(event) => { event.currentTarget.hidden = true; }} /> : null}
         <div className="pc-profile-copy"><p className="pc-eyebrow">כתבים · מקורות · מחקר</p>
           <h1 id="public-contributor-title">{view.profile.name}</h1>
           {view.profile.role ? <p className="pc-role">{view.profile.role}</p> : null}
           {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
           <p className="pc-boundary">החומרים של הכותב וההקשרים שנפתחו מהם. שיוך לכותב אינו אימות של תוכן.</p>
         </div>
-        <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} previewRank={view.rankPreview} />
+        <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
+          links={[{ href: `${view.canonicalHref}?section=findings`, label: "ממצאים וכתבים" }]} previewRank={view.rankPreview} />
       </header>
+      <ContributorActionsController2029 view={view} />
       {view.partial ? <p className="pc-notice" role="status">חלק מהמידע אינו זמין כרגע. מוצגים רק החומרים שנקראו ושויכו בוודאות.</p> : null}
       {view.unattributed ? <p className="pc-notice" role="status">יש תוכן שלא שויך במדויק לכותב, ולכן אינו מופיע כאן.</p> : null}
       <nav className="pc-filters" aria-label="סוג התוכן של הכותב">

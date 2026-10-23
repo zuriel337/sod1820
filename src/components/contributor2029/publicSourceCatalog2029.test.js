@@ -50,6 +50,17 @@ test("off/private/candidate sources stay closed; unavailable source count stays 
   assert.equal(Object.hasOwn(view.catalog,"count"),false);
 });
 
+test("native live publication state survives the public adapter without broadening off/unknown states",()=>{
+  const c=sourceCatalogFixture();
+  assert.ok(c.items.length>20);
+  assert.ok(c.items.every(item=>item.publicationState==="live"));
+  const extra=["off","private","candidate","public_candidate","unexpected"].map((state,index)=>({...c.items[0],id:`blocked-${index}`,publicationState:state}));
+  const view=publicSourceCatalog2029({...c,items:[...c.items,...extra]});
+  assert.equal(view.catalog.items.length,c.items.length);
+  assert.equal(view.catalog.recentItems.length,20);
+  assert.ok(view.catalog.items.every(item=>item.publicationState==="live"));
+});
+
 test("Tzvi loader calls the canonical SOURCE_LIBRARY wrapper; never queries research on entry",async()=>{
   const calls=[];const identity={...catalogFixtureIdentity,public_visibility:"public"};
   const sources=catalogFixtureSources();

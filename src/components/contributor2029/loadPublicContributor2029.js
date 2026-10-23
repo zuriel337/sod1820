@@ -14,10 +14,10 @@ export async function loadPublicContributor2029(slug, {
   if (!key || key === "me" || !/^[\p{L}\p{N}_-]{1,160}$/u.test(key)) return null;
   const client = publicClient();
   const { data: identity, error } = await client.from("contributors")
-    .select("id,slug,code,display_name,avatar_url,bio,role,wa_names,public_visibility:dossier_settings->>visibility")
+    .select("id,slug,code,display_name,avatar_url,bio,role,wa_names,locked,building,public_visibility:dossier_settings->>visibility")
     .eq(/^\d+$/.test(key) ? "code" : "slug", key).eq("active", true).maybeSingle();
   if (error) throw error;
-  if (!identity?.slug || identity.public_visibility && identity.public_visibility !== "public") return null;
+  if (!identity?.slug || identity.locked || identity.building || identity.public_visibility && identity.public_visibility !== "public") return null;
   if (identity.slug === "tzvi-opoc") {
     let publicProjection = null;
     const catalog = await catalogReader("tzvi-opoc", {
