@@ -16,7 +16,7 @@ import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead, 
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
 import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe, myContributions, watchToggle } from "../../lib/commandCenter.js";
 import { useWaLink, WaDot } from "../../lib/userCenter/useWaLink.jsx";
-import { loadOwnWriterIdentity, publicWriterFollowLinks, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
+import { loadOwnWriterIdentity, publicWriterFollowLinks } from "../../lib/userCenter/writerPersonal2029.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 
 // 🟢 צ'יפ סטטוס-וואטסאפ בכותרת המגירה — גלוי מיד: מנותק = CTA לחיבור (+100 קרדיט),

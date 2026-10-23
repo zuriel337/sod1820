@@ -49,12 +49,12 @@ export default function ContributorActionsController2029({ view, onPublicData, e
     return () => { abort.signal.removeEventListener("abort", timeout); abort.abort(); clearTimeout(timer); };
   }, [key, scope, loading, actor, visitorPreview]);
   const data = overview.key === key ? overview.value : { state: "loading" };
-  const caps = capabilities.scope === scope ? capabilities : {};
+  const caps = capabilities.scope === scope ? { ...capabilities, ...(visitorPreview ? { owner: false, message: "login_required" } : {}) } : {};
   const modal = dialog.scope === scope ? dialog : { open: false, state: "idle" };
   useEffect(() => {
     onPublicData?.({ overview: overview.key === key ? overview.value : { state: "loading" },
-      owner: capabilities.scope === scope && capabilities.owner === true });
-  }, [onPublicData, overview, capabilities, key, scope]);
+      owner: !visitorPreview && capabilities.scope === scope && capabilities.owner === true });
+  }, [onPublicData, overview, capabilities, key, scope, visitorPreview]);
   const personalHref = (module) => writerPersonalHref(module, { returnTo: view.canonicalHref });
   async function send(body) {
     if (pendingSend.current || caps.message !== "ready" || !actor) return;

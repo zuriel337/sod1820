@@ -8,10 +8,10 @@ const person={id:"writer-id",user_id:UID,slug:"writer",code:"2042",display_name:
 const accountAvatar="https://example.invalid/account-avatar.jpg";
 const response=()=>({code:200,headers:{},setHeader(k,v){this.headers[k]=v;},status(c){this.code=c;return this;},json(v){this.body=v;return this;}});
 const request=(method="GET",body={},query={})=>({method,headers:{authorization:"Bearer synthetic_verified_session_123",host:"preview.invalid",origin:"https://preview.invalid"},body,query});
-function setup({rows=[person],user=UID,inbox=[{counterpart:OTHER}],pub=[{...person,user_id:OTHER}],photo=accountAvatar,readError=false}={}) {
+function setup({rows=[person],user=UID,inbox=[{counterpart:OTHER}],pub=[{...person,user_id:OTHER}],photo=accountAvatar,readError=false,nameCollision=false}={}) {
  const calls=[];
- function builder(table,anon=false){const b={select(fields){calls.push({table,anon,fields});return b;},eq(key,value){calls.push({key,value,table,anon});return b;},in(key,value){calls.push({key,value,table,anon});return b;},
-  then(resolve){return Promise.resolve({data:anon?pub:rows,error:readError}).then(resolve);},limit:async()=>({data:anon?pub:rows,error:readError}),maybeSingle:async()=>({data:table==="users"?{avatar_url:photo}:table==="profiles"?{xp:120,credits:4,streak:2,tier:"free"}:pub[0]||null,error:readError})};return b;}
+ function builder(table,anon=false){let nameCheck=false;const b={select(fields){calls.push({table,anon,fields});return b;},eq(key,value){calls.push({key,value,table,anon});return b;},in(key,value){calls.push({key,value,table,anon});return b;},ilike(key,value){nameCheck=true;calls.push({key,value,table,anon,operator:"ilike"});return b;},
+  then(resolve){return Promise.resolve({data:anon?pub:rows,error:readError}).then(resolve);},limit:async()=>({data:nameCheck?(nameCollision?[person]:[]):anon?pub:rows,error:readError}),maybeSingle:async()=>({data:table==="users"?{avatar_url:photo}:table==="profiles"?{xp:120,credits:4,streak:2,tier:"free"}:pub[0]||null,error:readError})};return b;}
  const client={auth:{getUser:async()=>user?{data:{user:{id:user,user_metadata:{role:"admin"}}}}:{error:true}},from:(table)=>builder(table),
   rpc:async(name,params)=>{calls.push({rpc:name,params});return {data:name==="research_level_of"?{level:5,label:"חוקר היכל",private_count:999}:name==="dm_inbox"?inbox:{ok:true}};}};
  const publicClient=()=>({from:(table)=>builder(table,true)});
@@ -42,6 +42,13 @@ test("creation requires explicit public consent and validated name/bio, existing
   const x=setup({rows:[]}),q=response();await x.handler(request("POST",{action:"create",displayName:"שם",bio:"",ack:true,...change}),q);assert.equal(q.code,400);assert.equal(x.calls.some(c=>c.rpc==="update_my_page_config"),false);
  }
  const bound=setup(),q=response();await bound.handler(request("POST",{action:"create",displayName:"שם",bio:"",ack:true}),q);assert.equal(q.code,409);
+});
+test("new pages cannot borrow an existing canonical author's name or use wildcard matching",async()=>{
+ const f=setup({rows:[],nameCollision:true}),r=response();
+ await f.handler(request("POST",{action:"create",displayName:"שם קנוני",bio:"",ack:true}),r);
+ assert.equal(r.code,409);assert.equal(r.body.state,"name_taken");assert.equal(f.calls.some(c=>c.rpc==="update_my_page_config"),false);
+ const x=setup({rows:[]}),q=response();await x.handler(request("POST",{action:"create",displayName:"שם_100%",bio:"",ack:true}),q);
+ assert.equal(x.calls.find(c=>c.operator==="ilike").value,"שם\\_100\\%");assert.equal(q.body.state,"saved");
 });
 test("public portrait uses only this verified account's photo and explicit consent, preserving other dossier fields",async()=>{
  const f=setup(),r=response();await f.handler(request("POST",{action:"portrait",enabled:true,ack:true,url:"https://evil.invalid/forged.jpg",user_id:OTHER}),r);

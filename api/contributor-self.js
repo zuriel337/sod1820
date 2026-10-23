@@ -66,6 +66,13 @@ export function contributorSelfHandler({ authenticatedClient = privateClient, pu
         const name = req.body.displayName, bio = req.body.bio;
         if (req.body.ack !== true || typeof name !== "string" || !name.trim() || Array.from(name.trim()).length > 60 || /[@\u0000-\u001f]/.test(name)
           || typeof bio !== "string" || Array.from(bio.trim()).length > 600) return reply(res, 400, "invalid");
+        // The legacy follow/rank gateways still use an author's display name.
+        // A new page must not borrow an existing author's name/attribution.
+        const pattern = name.trim().replace(/[\\%_]/g, "\\$&");
+        const { data: names, error: nameError } = await publicClient().from("contributors")
+          .select("display_name").ilike("display_name", pattern).limit(1);
+        if (nameError || !Array.isArray(names)) return reply(res, 503, "unavailable");
+        if (names.length) return reply(res, 409, "name_taken");
         const { data, error } = await client.rpc("update_my_page_config", { p_config: { version: 1, display_name: name.trim(), bio: bio.trim(), sections: [], highlights: [], links: [] } });
         return !error && data?.ok === true ? reply(res, 200, "saved") : reply(res, 503, "unavailable");
       }

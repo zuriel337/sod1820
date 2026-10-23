@@ -53,7 +53,7 @@ function WriterPersonalController2029({ module, user, authLoading }) {
   const { data, reload } = useSelf(authLoading ? null : user?.id);
   const [mutation, setMutation] = useState("idle"), [conversation, setConversation] = useState(null);
   const pending = useRef(false), mounted = useRef(true);
-  useEffect(() => () => { mounted.current = false; }, []);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const params = new URLSearchParams(location.search);
   const selected = WRITER_PERSONAL_MODULES.some(([id]) => id === module) ? module : "public-page";
   const returnHref = personalReturnHref(params.get("returnTo"));
@@ -86,7 +86,7 @@ function WriterPersonalController2029({ module, user, authLoading }) {
       setMutation(result.state === "saved" ? "saved" : "error");
       if (result.state === "saved") reload();
     }
-    return { ok: result.state === "saved", error: "לא התקבל אישור עדכון. רעננו את הדף לפני ניסיון נוסף." };
+    return { ok: result.state === "saved", error: result.state === "name_taken" ? "השם הציבורי כבר בשימוש. בחרו שם שיבדיל את הדף שלכם." : "לא התקבל אישור עדכון. רעננו את הדף לפני ניסיון נוסף." };
   }
   const nav = WRITER_PERSONAL_MODULES.map(([id, label]) => ({ id, label, href: writerPersonalHref(id, { returnTo: returnHref }), active: id === selected }));
   return <WriterPersonalLayout2029 title={WRITER_PERSONAL_MODULES.find(([id]) => id === selected)?.[1]} description="אותו חשבון, אותם תכנים ואותם כלים אישיים."
