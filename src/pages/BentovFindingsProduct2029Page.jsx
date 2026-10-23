@@ -222,26 +222,130 @@ const FINAL_FINDING_LENSES = Object.freeze({
   }),
 });
 
-// Product law for every book finding: evidence is part of the reading surface,
-// never a detached citation or a hidden modal. A real PDF may only be mounted
-// after its display asset is explicitly approved for the current access tier.
-const BOOK_SOURCE_VISIBILITY_CONTRACT = Object.freeze({
-  mode: "source_always_visible",
-  desktop: "large_sticky_pdf_beside_finding",
-  mobile: "source_immediately_after_finding",
-  detachedCitation: false,
-  hiddenModal: false,
-  respectsSourceAuthorization: true,
+// Internal reader invariant. It extends the existing source, truth and
+// localization owners; the reader surface consumes it without printing the
+// system contract itself. Non-Hebrew evidence always remains the witness,
+// while the Hebrew AI layer is an explicitly separate representation.
+const BOOK_READER_SYSTEM_CONTRACT = Object.freeze({
+  sourceVisibility: Object.freeze({
+    mode: "source_always_visible",
+    desktop: "large_sticky_pdf_beside_finding",
+    mobile: "source_immediately_after_finding",
+    detachedCitation: false,
+    hiddenModal: false,
+    respectsSourceAuthorization: true,
+  }),
+  nonHebrewPresentation: Object.freeze({
+    mode: "source_language_witness_plus_hebrew_ai_explanation",
+    sourceWitnessPreserved: true,
+    aiExplanationLanguage: "he",
+    aiExplanationIsSource: false,
+    compileOnceProjectMany: true,
+    surfaceNamesContract: false,
+  }),
 });
 
-const FINAL_FINDING_SOURCE = Object.freeze({
+const BENTOV_SOURCE = Object.freeze({
   title: "מסע קצר אל התודעה הגבוהה",
   author: "יצחק בנטוב",
-  page: 8,
-  fidelity: "נאמנות מדויקת",
+  sourceLanguage: "אנגלית",
   pdfUrl: "https://avalonlibrary.net/ebooks/Itzhak%20Bentov%20-%20Brief%20Tour%20of%20Higher%20Consciousness.pdf",
   access: "approved-display",
 });
+
+const FINAL_PRODUCT_COPY = Object.freeze([
+  Object.freeze({
+    title: "היקום כפעימה",
+    summary: "הספר מציע לקרוא את המציאות לא כאוסף עצמים קפואים, אלא כמערכת של תנועה, מחזוריות ומידע המשתנה ללא הרף.",
+    coreTitle: "מתמונה סטטית למערכת חיה",
+    coreText: "ההסבר העברי מחבר בין הדימויים של בנטוב — גל, מחזור, חלל ומודעות — ומראה כיצד הם משמשים אצלו כשפה אחת לתיאור חומר ותודעה.",
+    takeaway: "מה שנראה יציב עשוי להיות תהליך מתואם שנצפה בקצב אחר.",
+    importance: "התנועה הופכת למפת קריאה",
+    question: "מה משתנה כשקוראים חומר ותודעה כחלק מאותו תהליך?",
+  }),
+  Object.freeze({
+    title: "הגוף כעד לשינוי",
+    summary: "החוויה הגופנית משמשת בספר נקודת כניסה להבנת קצב, תשומת לב והמעבר בין תפיסה רגילה לבין מצבי תודעה רחבים יותר.",
+    coreTitle: "החוויה מתחילה מבפנים",
+    coreText: "במקום להציג את הגוף רק ככלי מכני, ההסבר קורא אותו כמערכת חישה שמתווכת בין תהליכים פיזיים, דימויים ותודעה.",
+    takeaway: "הגוף אינו רק נושא החוויה; הוא גם אחד האמצעים להבין אותה.",
+    importance: "החוויה מקבלת עוגן מוחשי",
+    question: "אילו שינויים בגוף משנים את האופן שבו אנו חווים זמן ומרחב?",
+  }),
+  Object.freeze({
+    title: "גלים נעשים תמונה",
+    summary: "בנטוב משתמש בגלים, תדרים ודפוסי התאבכות כדי לבנות גשר רעיוני בין אנרגיה, חומר, צורה ומידע.",
+    coreTitle: "מן התנודה אל הצורה",
+    coreText: "ההסבר העברי מפריד בין הדימוי המדעי לבין הפרשנות המטפיזית, ומראה היכן הספר משתמש בפיזיקה כמטפורה והיכן הוא מציע מודל ממשי.",
+    takeaway: "אותו דימוי יכול להסביר תהליך — בלי להפוך אוטומטית לעובדה מדעית.",
+    importance: "המודל נעשה קריא וביקורתי",
+    question: "מתי גל הוא תיאור פיזיקלי ומתי הוא שפה רעיונית?",
+  }),
+  Object.freeze({
+    title: "הזמן נפתח מבפנים",
+    summary: "הספר קושר בין תנועה, שינוי ותודעה כדי להציע שהזמן הנמדד והזמן הנחווה אינם תמיד אותה תופעה.",
+    coreTitle: "שעון חיצוני ורצף פנימי",
+    coreText: "ההסבר מרכז את המעברים בין זמן כמסגרת למדידה לבין זמן כחוויה של המתבונן, בלי למחוק את ההבדל בין טענה, דימוי ופרשנות.",
+    takeaway: "אפשר למדוד זמן מבחוץ ובו בזמן לחוות אותו אחרת מבפנים.",
+    importance: "הזמן מקבל שתי נקודות מבט",
+    question: "כיצד מצב התודעה משנה את תחושת הרצף?",
+  }),
+  Object.freeze({
+    title: "קוהרנטיות בין שכבות",
+    summary: "המודלים בספר בנויים כשכבות מקוננות: יחיד, גוף, עולם, יקום ומערכות רחבות יותר המשפיעות זו על זו.",
+    coreTitle: "החלק נשאר בתוך השלם",
+    coreText: "ההסבר העברי עוקב אחרי מבנה הקינון ומציג את הטענה המרכזית של הספר: כל רמה שומרת על זהותה אך גם משתתפת במערכת גדולה ממנה.",
+    takeaway: "הרחבת קנה המידה אינה מוחקת את הפרט; היא משנה את ההקשר שלו.",
+    importance: "הקשרים נעשים גלויים",
+    question: "מה אפשר להבין רק כשעוברים מרמה אחת למערכת כולה?",
+  }),
+  Object.freeze({
+    title: "המתבונן בתוך המודל",
+    summary: "בחלקים המאוחרים של הספר השאלה עוברת ממבנה היקום אל זהותו של מי שחווה, מפרש ומחפש משמעות בתוך המבנה הזה.",
+    coreTitle: "מי רואה את התמונה?",
+    coreText: "ההסבר מציג את המעבר מן הקוסמולוגיה אל העצמי הגבוה כמעבר בשאלת המבט: לא רק מה קיים, אלא מי יודע שהוא קיים.",
+    takeaway: "מודל של המציאות אינו שלם בלי לברר את מקומו של המתבונן.",
+    importance: "התודעה חוזרת למרכז",
+    question: "האם העצמי הוא פרט בתוך המערכת או נקודת מבט של המערכת על עצמה?",
+  }),
+]);
+
+const BOOK_HEBREW_GUIDE = Object.freeze([
+  Object.freeze({ key: "opening", fromPdf: 1, toPdf: 30, part: "פתיחה", title: "איך לגשת למסע", summary: "הפתיחות ממקמות את הספר כהמשך למסע של בנטוב: ניסיון לחבר חוויה פנימית, דימויים קוסמולוגיים והומור לשפה אחת. הן מסבירות שהספר מציע מודל חווייתי ורעיוני, לא ספר לימוד מדעי רגיל.", points: ["הרקע לכתיבת הספר", "הקשר בין גוף, מודעות ויקום", "איך לקרוא דימוי לצד טענה"] }),
+  Object.freeze({ key: "fertile-void", fromPdf: 31, toPdf: 42, part: "חלק ראשון", title: "החלל הפורה", summary: "החלק בונה תמונת יקום מחזורית ומציג את המוחלט, הרטט והמעבר מפוטנציאל לצורה. ההסבר העברי שומר את ההבדל בין המטפורות של הספר לבין טענות הניתנות לבדיקה.", points: ["מודל היקום המחזורי", "מנוחה ותנועה", "פוטנציאל, רטט וחומר"] }),
+  Object.freeze({ key: "creators", fromPdf: 43, toPdf: 60, part: "חלק שני", title: "תודעות, יוצרות ויצירה", summary: "כאן הספר מרחיב את מושג התודעה מן האדם למערכות גדולות יותר, ומתאר יצירה באמצעות דמויות, קוטביות ומבנים קוסמיים. זהו רובד סיפורי־מטפיזי שיש לקרוא כמודל של המחבר.", points: ["תודעה בסיסית ומורחבת", "מערכות גדולות כישויות", "קוטביות ותהליך יצירה"] }),
+  Object.freeze({ key: "beyond", fromPdf: 61, toPdf: 84, part: "חלק שלישי", title: "מעבר ליקום", summary: "המסע עובר דרך יקומים, קוסמוסים והיררכיות של מידע. סמלים, אותיות וצלילים מתוארים כמבנים דחוסים של משמעות, והשלם מוצג כמערכת הולוגרפית מקושרת.", points: ["קני מידה מקוננים", "סמל כמידע דחוס", "הבריאה כמערכת מקושרת"] }),
+  Object.freeze({ key: "nirvana", fromPdf: 85, toPdf: 98, part: "חלק רביעי", title: "סיור מודרך בנירוונה", summary: "באמצעות סיפור ודמויות הספר בוחן את ההבדל בין אושר פרטי לבין פעולה למען אחרים. הפרדוקס בין הממשי לאידיאלי נעשה כאן לשאלה על התפתחות, שירות ובחירה.", points: ["אושר לעומת התפתחות", "חמלה ושירות", "הממשי והאידיאלי"] }),
+  Object.freeze({ key: "higher-self", fromPdf: 99, toPdf: 106, part: "חלק חמישי", title: "מי מנהל את ההצגה?", summary: "החלק האחרון מחזיר את המסע אל המתבונן. העצמי היומיומי, העצמי הגבוה והמודעות הטהורה מוצגים כשכבות של זהות, והסיכום מתאר התפתחות כתהליך של היזכרות.", points: ["העצמי כמתבונן", "שכבות זהות", "חזרה אל מקור המודעות"] }),
+  Object.freeze({ key: "appendix", fromPdf: 107, toPdf: 127, part: "נספחים", title: "הולוגרמה וקוסמולוגיה", summary: "הנספחים מרחיבים את מושג ההולוגרמה, מציבים את הקוסמולוגיה של בנטוב בהקשר נוסף ומוסיפים עדויות ביוגרפיות. הם עוזרים להבחין בין המודל, הפרשנות והאדם שפיתח אותם.", points: ["איך פועלת הולוגרמה", "קריאה ביקורתית בקוסמולוגיה", "הקשר ביוגרפי"] }),
+]);
+
+function pagesFromVerifiedLocator(locator) {
+  const pages = String(locator || "").split(",").flatMap(part => {
+    const match = part.trim().match(/^(\d+)(?:[–-](\d+))?$/);
+    if (!match) return [];
+    const start = Number(match[1]);
+    const end = Number(match[2] || match[1]);
+    return Array.from({ length: Math.max(1, end - start + 1) }, (_, offset) => start + offset);
+  });
+  return [...new Set(pages)];
+}
+
+function hebrewGuideForPage(page) {
+  return BOOK_HEBREW_GUIDE.find(section => page >= section.fromPdf && page <= section.toPdf) || BOOK_HEBREW_GUIDE[0];
+}
+
+function finalFindingCode(number) {
+  return `B-${String(number).padStart(2, "0")}`;
+}
+
+function finalFindingHref(number) {
+  if (typeof window === "undefined") return `?surface=bentov-findings-product&view=final-finding&finding=${finalFindingCode(number)}`;
+  const url = new URL(window.location.href);
+  url.searchParams.set("view", "final-finding");
+  url.searchParams.set("finding", finalFindingCode(number));
+  return `${url.pathname}${url.search}`;
+}
 
 const EVIDENCE_REQUIREMENTS = Object.freeze({
   shared: Object.freeze([
@@ -690,31 +794,42 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
   </section>;
 }
 
-function FindingSourcePanel({ source }) {
+function FindingSourcePanel({ source, pages, activePage, onPageSelect }) {
   const approvedPdfUrl = source.access === "approved-display" ? source.pdfUrl : null;
 
   return <aside
     id="bentov29-final-source"
     className="bentov29-final-source"
     aria-labelledby="bentov29-final-source-title"
-    data-source-visibility={BOOK_SOURCE_VISIBILITY_CONTRACT.mode}
+    data-source-visibility={BOOK_READER_SYSTEM_CONTRACT.sourceVisibility.mode}
     data-source-access={source.access}
   >
     <header>
       <div>
         <span>המקור · PDF</span>
-        <h2 id="bentov29-final-source-title">עמוד {source.page}</h2>
+        <h2 id="bentov29-final-source-title">עמוד {activePage}</h2>
       </div>
-      <b>צמוד לממצא</b>
+      <b>מקור באנגלית</b>
     </header>
+
+    {pages.length > 1 && <div className="bentov29-final-source-pages" role="group" aria-label="בחירת עמוד מקור">
+      {pages.map(page => <button
+        type="button"
+        key={page}
+        className={page === activePage ? "is-active" : ""}
+        onClick={() => onPageSelect(page)}
+        aria-pressed={page === activePage}
+      >{page}</button>)}
+    </div>}
 
     <div className="bentov29-final-pdf-stage">
       {approvedPdfUrl ? <iframe
-        src={`${approvedPdfUrl}#page=${source.page}&view=FitH`}
-        title={`${source.title} · PDF · עמוד ${source.page}`}
-      /> : <div className="bentov29-final-pdf-protected" role="img" aria-label={`עמוד ${source.page} בקובץ המקור מוגן בפריוויו`}>
+        key={activePage}
+        src={`${approvedPdfUrl}#page=${activePage}&view=FitH`}
+        title={`${source.title} · PDF · עמוד ${activePage}`}
+      /> : <div className="bentov29-final-pdf-protected" role="img" aria-label={`עמוד ${activePage} בקובץ המקור מוגן בפריוויו`}>
         <div className="bentov29-final-paper" aria-hidden="true">
-          <span>{source.page}</span>
+          <span>{activePage}</span>
           <i className="line is-title" />
           <i className="line" /><i className="line" /><i className="line is-short" />
           <i className="line" /><i className="line is-short" /><i className="line" />
@@ -730,70 +845,117 @@ function FindingSourcePanel({ source }) {
     <dl>
       <div><dt>ספר</dt><dd>{source.title}</dd></div>
       <div><dt>מחבר</dt><dd>{source.author}</dd></div>
-      <div><dt>עוגן</dt><dd>PDF · עמוד {source.page}</dd></div>
+      <div><dt>עוגן</dt><dd>PDF · עמוד {activePage}</dd></div>
       <div><dt>בדיקה</dt><dd>{source.fidelity}</dd></div>
     </dl>
-    <p><strong>חוק ספרים:</strong> המקור נשאר ליד הממצא לאורך הקריאה. הוא לעולם אינו מוסתר מאחורי כפתור או חלון נפרד.</p>
+    <p>זהו קובץ המקור באנגלית. ההסבר העברי מוצג בנפרד ואינו מחליף את הנוסח המקורי.</p>
   </aside>;
 }
 
-function FinalFindingExperience() {
+function FinalFindingExperience({ finding }) {
   const [activeLens, setActiveLens] = useState("body");
+  const sourcePages = useMemo(() => pagesFromVerifiedLocator(finding.verifiedPages), [finding.verifiedPages]);
+  const [activePage, setActivePage] = useState(sourcePages[0] || finding.page);
   const lens = FINAL_FINDING_LENSES[activeLens];
+  const productCopy = FINAL_PRODUCT_COPY[(finding.number - 1) % FINAL_PRODUCT_COPY.length];
+  const activeGuide = hebrewGuideForPage(activePage);
+  const findingCode = finalFindingCode(finding.number);
+  const source = {
+    ...BENTOV_SOURCE,
+    fidelity: finding.publicationFidelity === "exact" ? "נאמנות מדויקת" : "נאמנות רב־מוקדית",
+  };
+  const related = Array.from({ length: 3 }, (_, offset) => FINDINGS[(finding.number + offset) % TOTAL_FINDINGS]);
+
+  useEffect(() => {
+    setActivePage(sourcePages[0] || finding.page);
+    setActiveLens("body");
+  }, [finding.id, finding.page, sourcePages]);
 
   return <main
     className="bentov29 bentov29-final"
-    data-final-finding-mode="preview-exemplar"
+    data-final-finding-mode="all-findings-preview"
     data-publication-effect="none"
-    data-source-visibility={BOOK_SOURCE_VISIBILITY_CONTRACT.mode}
+    data-source-visibility={BOOK_READER_SYSTEM_CONTRACT.sourceVisibility.mode}
+    data-translation-presentation={BOOK_READER_SYSTEM_CONTRACT.nonHebrewPresentation.mode}
   >
     <nav className="bentov29-final-crumb" aria-label="מיקום בספרייה">
-      <span>ספרים</span><i>←</i><span>יצחק בנטוב</span><i>←</i><strong>ממצא 01</strong>
+      <span>ספרים</span><i>←</i><span>יצחק בנטוב</span><i>←</i><strong>ממצא {String(finding.number).padStart(2, "0")}</strong>
+    </nav>
+
+    <nav className="bentov29-final-navigator" aria-label="מעבר בין 33 הממצאים">
+      <a href={finalFindingHref(finding.number === 1 ? TOTAL_FINDINGS : finding.number - 1)} aria-label="הממצא הקודם">→</a>
+      <div>
+        <span>{findingCode}</span>
+        <strong>{finding.number} מתוך {TOTAL_FINDINGS}</strong>
+      </div>
+      <div className="bentov29-final-finding-strip">
+        {FINDINGS.map(item => <a
+          key={item.id}
+          href={finalFindingHref(item.number)}
+          className={item.id === finding.id ? "is-active" : ""}
+          aria-current={item.id === finding.id ? "page" : undefined}
+          aria-label={`ממצא ${item.number}`}
+        >{item.number}</a>)}
+      </div>
+      <a href={finalFindingHref(finding.number === TOTAL_FINDINGS ? 1 : finding.number + 1)} aria-label="הממצא הבא">←</a>
     </nav>
 
     <div className="bentov29-final-product-layout">
     <section className="bentov29-final-hero" aria-labelledby="bentov29-final-title">
       <div className="bentov29-final-hero-copy">
-        <div className="bentov29-final-index"><span>01</span><small>ממצא</small></div>
+        <div className="bentov29-final-index"><span>{String(finding.number).padStart(2, "0")}</span><small>ממצא</small></div>
         <div className="bentov29-final-kicker">מסע קצר אל התודעה הגבוהה · יצחק בנטוב</div>
-        <h1 id="bentov29-final-title">הגוף אינו שקט</h1>
-        <p>הגוף מוצג כמערכת של קצבים מקוננים — נשימה, פעימות ותנועה זעירה — שיחד יוצרים מצע חי לחוויית הזמן והתודעה.</p>
+        <h1 id="bentov29-final-title">{productCopy.title}</h1>
+        <p>{productCopy.summary}</p>
         <div className="bentov29-final-trust" aria-label="מצב אמון">
-          <span>מקור נבדק</span><span>נאמנות מדויקת</span><span>עברית מלאה</span>
+          <span>מקור נבדק</span><span>{source.fidelity}</span><span>הסבר AI בעברית</span>
         </div>
-        <a className="bentov29-final-source-jump" href="#bentov29-final-source">למקור · PDF · עמוד 8 ↓</a>
-        <small className="bentov29-final-disclaimer">ניסוח מוצר לדוגמה בפריוויו — אינו ציטוט ואינו חושף את נוסח הממצא הקנוני.</small>
+        <a className="bentov29-final-source-jump" href="#bentov29-final-source">למקור · PDF · עמוד {activePage} ↓</a>
+        <small className="bentov29-final-disclaimer">ניסוח מוצר והסבר AI בפריוויו — אינם ציטוט ואינם חושפים את נוסח הממצא הקנוני.</small>
       </div>
-      <div className="bentov29-final-visual" aria-label="המחשה מרחבית של קצבים גופניים">
+      <div className="bentov29-final-visual" aria-label={`המחשה מרחבית: ${finding.theme}`}>
         <img src="/2029/books/bentov/bentov-consciousness-map.webp" alt="דמות אנושית מוקפת גלים ומעגלי קצב" />
-        <span className="pulse pulse-a">נשימה</span>
-        <span className="pulse pulse-b">פעימה</span>
-        <span className="pulse pulse-c">תנועה</span>
-        <span className="pulse pulse-d">קשב</span>
+        <span className="pulse pulse-a">מקור</span>
+        <span className="pulse pulse-b">רעיון</span>
+        <span className="pulse pulse-c">הקשר</span>
+        <span className="pulse pulse-d">תודעה</span>
       </div>
     </section>
 
-    <FindingSourcePanel source={FINAL_FINDING_SOURCE} />
+    <FindingSourcePanel source={source} pages={sourcePages} activePage={activePage} onPageSelect={setActivePage} />
 
     <div className="bentov29-final-story">
 
     <section className="bentov29-final-core" aria-labelledby="bentov29-final-core-title">
       <div className="bentov29-final-reading">
         <div className="bentov29-section-label">הרעיון המרכזי</div>
-        <h2 id="bentov29-final-core-title">לא איבר בודד — מערכת מתואמת</h2>
-        <p>הממצא מזמין להחליף תמונה סטטית של הגוף בתמונה מחזורית. כל קצב פועל בקנה מידה אחר, אך החוויה נוצרת מן החיבור ביניהם. כך אפשר לעבור מן השאלה “מה הגוף עושה?” לשאלה “איך המערכת כולה מסתנכרנת?”.</p>
+        <h2 id="bentov29-final-core-title">{productCopy.coreTitle}</h2>
+        <p>{productCopy.coreText}</p>
         <blockquote>
           <span>תמצית לקריאה</span>
-          <strong>מה שנראה יציב מבחוץ עשוי להיות תנועה מתואמת מבפנים.</strong>
+          <strong>{productCopy.takeaway}</strong>
         </blockquote>
       </div>
 
-      <div className="bentov29-final-model" aria-label="מודל הקצבים">
-        <div className="ring ring-a"><span>נשימה</span></div>
-        <div className="ring ring-b"><span>לב</span></div>
-        <div className="ring ring-c"><span>תנועה זעירה</span></div>
-        <div className="ring-core"><strong>קצב</strong><small>מערכת חיה</small></div>
+      <div className="bentov29-final-model" aria-label="מודל שכבות הקריאה">
+        <div className="ring ring-a"><span>מקור</span></div>
+        <div className="ring ring-b"><span>הסבר</span></div>
+        <div className="ring ring-c"><span>ממצא</span></div>
+        <div className="ring-core"><strong>{String(finding.number).padStart(2, "0")}</strong><small>{finding.theme}</small></div>
       </div>
+    </section>
+
+    <section className="bentov29-ai-context" aria-labelledby="bentov29-ai-context-title">
+      <header>
+        <div>
+          <div className="bentov29-section-label">הסבר AI בעברית · {activeGuide.part}</div>
+          <h2 id="bentov29-ai-context-title">{activeGuide.title}</h2>
+        </div>
+        <span>מקור: אנגלית · הסבר: עברית</span>
+      </header>
+      <p>{activeGuide.summary}</p>
+      <ul>{activeGuide.points.map(point => <li key={point}>{point}</li>)}</ul>
+      <small>זהו סיכום והסבר לקריאה, לא תרגום מילה במילה ולא תחליף לעד המקור המוצג לצד הממצא.</small>
     </section>
 
     <section className="bentov29-final-lenses" aria-labelledby="bentov29-final-lenses-title">
@@ -822,23 +984,42 @@ function FinalFindingExperience() {
     <section className="bentov29-final-grid" aria-label="משמעות, מקור והמשך חקירה">
       <article>
         <span>למה זה חשוב</span>
-        <h2>הגוף הופך למפה</h2>
-        <p>במקום לקרוא רעיון מופשט, הקורא מקבל מערכת חזותית שאפשר לחקור: מה נע, מה מסתנכרן ואיפה נוצרת חוויית הרצף.</p>
+        <h2>{productCopy.importance}</h2>
+        <p>הקורא מקבל הסבר עברי, הקשר רחב וגישה מיידית לעמודי המקור, בלי לטשטש את ההבדל בין המקור לבין הפרשנות.</p>
       </article>
       <article className="is-source">
-        <span>חוק המקור</span>
-        <h2>הממצא וה־PDF הם יחידה אחת</h2>
-        <p>בדסקטופ המקור הגדול נשאר צמוד בזמן הקריאה; במובייל הוא מופיע מיד אחרי הממצא. הרשאת המקור נשמרת בכל מצב.</p>
-        <div><strong>חובת תצוגה</strong><b>תמיד</b></div>
+        <span>קריאה לצד המקור</span>
+        <h2>לא צריך לעזוב את הממצא</h2>
+        <p>ה־PDF האנגלי נשאר פתוח לצד ההסבר. בממצא רב־מוקדי אפשר לעבור בין כל עמודי העדות בתוך אותו מסך.</p>
+        <div><strong>עמודים בעדות</strong><b>{sourcePages.length}</b></div>
       </article>
       <article>
         <span>השאלה שנפתחת</span>
-        <h2>מתי קצב הופך לחוויה?</h2>
-        <p>זהו החיבור הבא במסע: מן המחזורים הגופניים אל תפיסת הזמן, הקשב והאפשרות לקוהרנטיות בין מערכות.</p>
+        <h2>{productCopy.question}</h2>
+        <p>המשך הקריאה מחבר את הממצא לפרקים הסמוכים ולתנועה הרחבה של הספר.</p>
       </article>
     </section>
     </div>
     </div>
+
+    <section className="bentov29-book-guide" aria-labelledby="bentov29-book-guide-title">
+      <header>
+        <div>
+          <div className="bentov29-section-label">מפת הספר בעברית</div>
+          <h2 id="bentov29-book-guide-title">הסבר רחב לכל מסלול הספר</h2>
+        </div>
+        <span>7 אזורי קריאה · 127 עמודי PDF</span>
+      </header>
+      <div>
+        {BOOK_HEBREW_GUIDE.map(section => <article key={section.key} className={section.key === activeGuide.key ? "is-current" : ""}>
+          <span>{section.part}</span>
+          <h3>{section.title}</h3>
+          <p>{section.summary}</p>
+          <small>PDF {section.fromPdf}–{section.toPdf}</small>
+        </article>)}
+      </div>
+      <p>כל ההסברים כאן הם שכבת הבנה עברית שנוצרה עבור חוויית הקריאה. הטקסט האנגלי המקורי נשמר ומוצג כמקור הסמכות.</p>
+    </section>
 
     <section className="bentov29-final-related" aria-labelledby="bentov29-final-related-title">
       <div>
@@ -846,15 +1027,20 @@ function FinalFindingExperience() {
         <h2 id="bentov29-final-related-title">עוד שלושה ממצאים במסלול</h2>
       </div>
       <div className="bentov29-final-related-list">
-        <article><span>02</span><strong>גלים, תדר ותפיסה</strong><small>כיצד קצב הופך למידע</small></article>
-        <article><span>03</span><strong>זמן כחוויה משתנה</strong><small>מן השעון החיצוני אל הרצף הפנימי</small></article>
-        <article><span>04</span><strong>קוהרנטיות בין מערכות</strong><small>מתי מחזורים שונים פועלים יחד</small></article>
+        {related.map(item => {
+          const copy = FINAL_PRODUCT_COPY[(item.number - 1) % FINAL_PRODUCT_COPY.length];
+          return <a key={item.id} href={finalFindingHref(item.number)}>
+            <span>{String(item.number).padStart(2, "0")}</span>
+            <strong>{copy.title}</strong>
+            <small>{item.theme}</small>
+          </a>;
+        })}
       </div>
     </section>
 
     <footer className="bentov29-final-footer">
-      <strong>כך נראה ממצא כמוצר.</strong>
-      <span>מסך קריאה אחד, רעיון אחד ומסלול המשך ברור. Preview בלבד · 0 חומר ציבורי · אין כתיבה או שינוי הרשאות.</span>
+      <strong>33 ממצאים במסלול קריאה אחד.</strong>
+      <span>מקור אנגלי, הסבר AI בעברית ומעבר רציף בין הממצאים. Preview בלבד · 0 חומר ציבורי · אין כתיבה או שינוי הרשאות.</span>
     </footer>
   </main>;
 }
@@ -1051,12 +1237,16 @@ export default function BentovFindingsProduct2029Page() {
   ));
   const finalFindingMode = typeof window !== "undefined"
     && new URLSearchParams(window.location.search).get("view") === "final-finding";
+  const requestedFindingCode = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("finding")
+    : null;
+  const finalFinding = FINDINGS.find(item => finalFindingCode(item.number) === requestedFindingCode) || FINDINGS[0];
 
   useEffect(() => {
     applySeo({
-      title: finalFindingMode ? "הגוף אינו שקט · ממצא בנטוב" : "מפת הממצאים · בנטוב · הדמיית מוצר",
+      title: finalFindingMode ? `${FINAL_PRODUCT_COPY[(finalFinding.number - 1) % FINAL_PRODUCT_COPY.length].title} · ממצא בנטוב` : "מפת הממצאים · בנטוב · הדמיית מוצר",
       description: finalFindingMode
-        ? "תצוגת מוצר ממוקדת לממצא אחד מתוך ספרו של יצחק בנטוב."
+        ? `תצוגת מוצר לממצא ${finalFinding.number} מתוך 33, עם מקור PDF והסבר AI בעברית.`
         : "הדמיית מוצר אינטראקטיבית לקריאה, חקירה וביקורת של ממצאי ספר.",
       path: "/2029/control",
       noindex: true,
@@ -1069,7 +1259,7 @@ export default function BentovFindingsProduct2029Page() {
       window.requestAnimationFrame(() => window.requestAnimationFrame(scrollToHash));
       window.setTimeout(scrollToHash, 450);
     }
-  }, []);
+  }, [finalFinding.number, finalFindingMode]);
 
   const visibleFindings = useMemo(
     () => filter === "all" ? FINDINGS : FINDINGS.filter(item => item.kind === filter),
@@ -1079,16 +1269,16 @@ export default function BentovFindingsProduct2029Page() {
   const marked = markedIds.has(selected.id);
 
   if (finalFindingMode) return <Sod2029Shell
-    title="ממצא 01"
-    eyebrow="ספרים 2029 · תצוגת מוצר"
-    description="ממצא אחד, רעיון אחד ומסלול חקירה ברור."
-    status="Preview · דגם קריאה"
+    title={`ממצא ${String(finalFinding.number).padStart(2, "0")}`}
+    eyebrow="ספרים 2029 · 33 ממצאים"
+    description="מקור אנגלי, הסבר AI בעברית ומסלול חקירה רציף."
+    status="Preview · קריאה בלבד"
     surface="books"
     symbol={<NavigationIcon2029 name="books" />}
     introVariant="none"
     wide
   >
-    <FinalFindingExperience />
+    <FinalFindingExperience finding={finalFinding} />
   </Sod2029Shell>;
 
   const selectSource = sourceId => {

@@ -17,24 +17,29 @@ test("Bentov product is an unlinked Preview surface on the existing control docu
   assert.match(page, /status="Preview · קריאה בלבד"/);
 });
 
-test("focused final-finding mode renders one reader product instead of the review desk", () => {
+test("focused final-finding mode renders every requested reader product instead of the review desk", () => {
   assert.match(page, /function FinalFindingExperience/);
   assert.match(page, /new URLSearchParams\(window\.location\.search\)\.get\("view"\) === "final-finding"/);
+  assert.match(page, /new URLSearchParams\(window\.location\.search\)\.get\("finding"\)/);
+  assert.match(page, /const finalFinding = FINDINGS\.find/);
   assert.match(page, /if \(finalFindingMode\) return <Sod2029Shell/);
-  assert.match(page, /<FinalFindingExperience \/>/);
-  assert.match(page, /data-final-finding-mode="preview-exemplar"/);
-  assert.match(page, /הגוף אינו שקט/);
-  assert.match(page, /לא איבר בודד — מערכת מתואמת/);
+  assert.match(page, /<FinalFindingExperience finding=\{finalFinding\} \/>/);
+  assert.match(page, /data-final-finding-mode="all-findings-preview"/);
+  assert.match(page, /aria-label="מעבר בין 33 הממצאים"/);
+  assert.match(page, /FINDINGS\.map\(item => <a/);
+  assert.match(page, /finalFindingHref\(item\.number\)/);
+  assert.match(page, /33 ממצאים במסלול קריאה אחד/);
+  assert.match(page, /const FINAL_PRODUCT_COPY/);
   assert.match(page, /פתח את הממצא מזווית אחרת/);
-  assert.match(page, /ניסוח מוצר לדוגמה בפריוויו — אינו ציטוט ואינו חושף את נוסח הממצא הקנוני/);
-  assert.match(page, /PDF · עמוד 8/);
+  assert.match(page, /ניסוח מוצר והסבר AI בפריוויו — אינם ציטוט ואינם חושפים את נוסח הממצא הקנוני/);
+  assert.match(page, /למקור · PDF · עמוד \{activePage\}/);
   assert.match(page, /Preview בלבד · 0 חומר ציבורי · אין כתיבה או שינוי הרשאות/);
   assert.match(page, /const FINAL_FINDING_LENSES/);
   assert.match(page, /useState\("body"\)/);
 });
 
 test("book source law keeps a large authorized PDF surface beside every finding", () => {
-  assert.match(page, /const BOOK_SOURCE_VISIBILITY_CONTRACT/);
+  assert.match(page, /const BOOK_READER_SYSTEM_CONTRACT/);
   assert.match(page, /mode: "source_always_visible"/);
   assert.match(page, /desktop: "large_sticky_pdf_beside_finding"/);
   assert.match(page, /mobile: "source_immediately_after_finding"/);
@@ -43,20 +48,40 @@ test("book source law keeps a large authorized PDF surface beside every finding"
   assert.match(page, /respectsSourceAuthorization: true/);
   assert.match(page, /function FindingSourcePanel/);
   assert.match(page, /id="bentov29-final-source"/);
-  assert.match(page, /data-source-visibility=\{BOOK_SOURCE_VISIBILITY_CONTRACT\.mode\}/);
+  assert.match(page, /data-source-visibility=\{BOOK_READER_SYSTEM_CONTRACT\.sourceVisibility\.mode\}/);
   assert.match(page, /data-source-access=\{source\.access\}/);
   assert.match(page, /source\.access === "approved-display" \? source\.pdfUrl : null/);
   assert.match(page, /pdfUrl: "https:\/\/avalonlibrary\.net\/ebooks\/Itzhak%20Bentov%20-%20Brief%20Tour%20of%20Higher%20Consciousness\.pdf"/);
   assert.match(page, /access: "approved-display"/);
   assert.match(page, /קובץ המקור עצמו מוגן בפריוויו/);
   assert.match(page, /לא נמצא בענף נכס PDF שאושר לתצוגה/);
-  assert.match(page, /המקור נשאר ליד הממצא לאורך הקריאה/);
+  assert.match(page, /זהו קובץ המקור באנגלית/);
   assert.match(page, /href="#bentov29-final-source"/);
-  assert.match(page, /הממצא וה־PDF הם יחידה אחת/);
+  assert.match(page, /pagesFromVerifiedLocator/);
+  assert.match(page, /sourcePages\.length/);
+  assert.match(page, /onPageSelect\(page\)/);
   assert.match(css, /\.bentov29-final-product-layout\{[^}]*grid-template-areas:"hero source" "story source"/);
   assert.match(css, /\.sod29-root:has\(\.bentov29-final\)\{overflow-x:clip;overflow-y:visible\}/);
   assert.match(css, /\.bentov29-final-source\{[^}]*position:sticky/);
   assert.match(css, /@media\(max-width:1180px\)\{\.bentov29-final-product-layout\{[^}]*grid-template-areas:"hero" "source" "story"/);
+});
+
+test("non-Hebrew books keep the witness and add a separate reusable Hebrew AI explanation", () => {
+  assert.match(page, /mode: "source_language_witness_plus_hebrew_ai_explanation"/);
+  assert.match(page, /sourceWitnessPreserved: true/);
+  assert.match(page, /aiExplanationLanguage: "he"/);
+  assert.match(page, /aiExplanationIsSource: false/);
+  assert.match(page, /compileOnceProjectMany: true/);
+  assert.match(page, /surfaceNamesContract: false/);
+  assert.match(page, /data-translation-presentation=\{BOOK_READER_SYSTEM_CONTRACT\.nonHebrewPresentation\.mode\}/);
+  assert.match(page, /const BOOK_HEBREW_GUIDE/);
+  assert.match(page, /הסבר AI בעברית/);
+  assert.match(page, /הסבר רחב לכל מסלול הספר/);
+  assert.match(page, /זהו סיכום והסבר לקריאה, לא תרגום מילה במילה/);
+  assert.match(page, /הטקסט האנגלי המקורי נשמר ומוצג כמקור הסמכות/);
+  assert.doesNotMatch(page, /חוק ספרים:|חוק המקור|חובת תצוגה/);
+  assert.match(css, /\.bentov29-ai-context/);
+  assert.match(css, /\.bentov29-book-guide/);
 });
 
 test("product data is visibly a synthetic display model and cannot publish", () => {
