@@ -28,7 +28,7 @@ export async function resolveCommunityWriter(authorKey, { client = getPublicRese
     .eq(lookup.column, lookup.id).limit(2);
   if (error || !Array.isArray(data) || data.length !== 1) return null;
   const row = data[0];
-  if (!publicWriterVisible(row) || row.visibility !== "public") return null;
+  if (!publicWriterVisible(row) || row.visibility && row.visibility !== "public") return null;
   const href = contributorHref(row);
   return href ? { name: row.display_name || null, href, isWriter: WRITER_KINDS.includes(row.kind) } : null;
 }

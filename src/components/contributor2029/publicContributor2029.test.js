@@ -46,12 +46,14 @@ test("loader resolves exact code/slug, reuses canonical reader with PUBLIC_VIEW 
   for (const key of [identity.slug, identity.code]) {
     const view = await loadPublicContributor2029(key, { publicClient: () => client, projectionReader });
     assert.equal(view.canonicalHref,"/community/researcher/2042");
-    assert.equal(view.items.length,1);
+    assert.equal(view.items.length,0);
+    assert.equal(readerCalls.at(-1).options.loadProfile,"source_library");
     assert.equal(view.availability.topics,"unavailable");
     assert.equal(readerCalls.at(-1).slug,identity.slug);
   }
   assert.ok(calls.some((c) => c.filters.some(([key,value]) => key === "code" && value === identity.code)));
-  assert.ok(calls.every((c) => !/email|user_id/.test(c.fields)));
+  assert.ok(calls.every((c) => !/email|phone/.test(c.fields)));
+  assert.ok(!calls.some((c) => c.table === "world_contributor_research_v1"), "initial catalogue defers full research");
   assert.ok(calls.filter((c)=>c.table==="contributors").every((c)=>!c.fields.includes(",dossier_settings")));
 });
 
