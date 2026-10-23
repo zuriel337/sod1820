@@ -187,7 +187,7 @@ export default function BeitMidrash2029Page() {
   return <Sod2029Shell
     surface="beit-midrash"
     introVariant="none"
-    symbol={<NavigationIcon2029 name="books" />}
+    symbol={<NavigationIcon2029 name="study" />}
     eyebrow={manifest.identity.eyebrow}
     title={manifest.identity.title}
     description={manifest.identity.description}

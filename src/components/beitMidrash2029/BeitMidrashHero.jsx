@@ -12,7 +12,7 @@ export default function BeitMidrashHero({ identity, pillars }) {
   return <header className="bm-hero">
     <div className="bm-hero-frame">
       <div className="bm-seal" aria-hidden="true">
-        <span className="bm-seal-ring"><NavigationIcon2029 name="books" /></span>
+        <span className="bm-seal-ring"><NavigationIcon2029 name="study" /></span>
       </div>
       <p className="bm-logotype" aria-label="SOD1820">SOD1820</p>
       <span className="bm-eyebrow">{identity.eyebrow}</span>

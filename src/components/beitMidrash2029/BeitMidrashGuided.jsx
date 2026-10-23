@@ -103,7 +103,7 @@ function Group({ id, kind, copy, rows }) {
 
 export default function BeitMidrashGuided({ section, focused, world, guided, language, mapCallout }) {
   const empty = !world.loading && !world.error && !guided.crossings.length && !guided.convergences.length;
-  return <BeitMidrashSection id="guided" icon="world" title={section.title} description={section.description} focused={focused}>
+  return <BeitMidrashSection id="guided" icon="research" title={section.title} description={section.description} focused={focused}>
     {world.loading ? <FrameState kind="loading" title="פותח דוגמאות מן העולם">
       הדוגמאות נטענות פעם אחת מן העולם ומוצגות כאן ללימוד.
     </FrameState> : null}

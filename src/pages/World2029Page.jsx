@@ -5,6 +5,7 @@ import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.
 import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -95,12 +96,12 @@ const ALL_CONVERGENCES_PAGE_SIZE = 24;
 const WORLD_878_JOURNEY_LOCKED = GOLDEN_WORLD_JOURNEY_878.locked === true;
 
 const WORLD_LANDING_ENTRIES = Object.freeze([
-  { key: WORLD_LANDING_VIEW.START, label: "התחלה", description: "מעט מהעולם, במקום אחד" },
-  { key: WORLD_LANDING_VIEW.LIVE, label: "מה חדש", description: "העדכונים האחרונים לפי זמן" },
-  { key: WORLD_LANDING_VIEW.CONNECTIONS, label: "נושאים וחיבורים", description: "לראות מה נפגש סביב רעיון" },
-  { key: WORLD_LANDING_VIEW.SOURCES, label: "אנשים ומקורות", description: "לפתוח חומר לפי מי ומאיפה" },
-  { key: WORLD_LANDING_VIEW.EXPLORE, label: "לפי סוג", description: "שפות, צפנים, מדיה, זמן וספרים" },
-  { key: WORLD_LANDING_VIEW.JOURNEY, label: "מסעות", description: "להמשיך בדרך מחקר שמורה" },
+  { key: WORLD_LANDING_VIEW.START, icon: "portal", label: "התחלה", description: "מעט מהעולם, במקום אחד" },
+  { key: WORLD_LANDING_VIEW.LIVE, icon: "now", label: "מה חדש", description: "העדכונים האחרונים לפי זמן" },
+  { key: WORLD_LANDING_VIEW.CONNECTIONS, icon: "graph", label: "נושאים וחיבורים", description: "לראות מה נפגש סביב רעיון" },
+  { key: WORLD_LANDING_VIEW.SOURCES, icon: "community", label: "אנשים ומקורות", description: "לפתוח חומר לפי מי ומאיפה" },
+  { key: WORLD_LANDING_VIEW.EXPLORE, icon: "discovery", label: "לפי סוג", description: "שפות, צפנים, מדיה, זמן וספרים" },
+  { key: WORLD_LANDING_VIEW.JOURNEY, icon: "journey", label: "מסעות", description: "להמשיך בדרך מחקר שמורה" },
 ]);
 
 const FACET_LABELS = {
@@ -1183,6 +1184,10 @@ function LiveWorldLanding({ research, shell, context }) {
     <section className="sod29-world-overview sod29-world-entry" aria-label="כניסה לעולם">
       <div className="sod29-world-entry-copy">
         <div className="sod29-kicker">SOD1820 · עולם של חיבורים</div>
+        <div className="sod29-world-heart">
+          <span aria-hidden="true"><NavigationIcon2029 name="chronicle" size={30} /></span>
+          <span><strong>הסיפור המרכזי</strong><small>תיעוד אירועים · רמזים חזקים · מקורות מדויקים</small></span>
+        </div>
         <h2>מתחילים ממה שמסקרן אותך.</h2>
         <p>מספר, מילה, אדם, מקור או תמונה — העולם מחבר את הנקודה שבחרת למה שכבר נמצא סביבה.</p>
         <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>חיפוש מספר, מילה או נושא</button>
@@ -1191,11 +1196,13 @@ function LiveWorldLanding({ research, shell, context }) {
         {WORLD_LANDING_ENTRIES.map((entry) => <button type="button" key={entry.key}
           className={`sod29-world-entry-card${activeView === entry.key ? " is-active" : ""}`}
           aria-pressed={activeView === entry.key} onClick={() => openLandingView(entry.key)}>
-          <strong>{entry.label}</strong><small>{entry.description}</small>
+          <span className="sod29-world-entry-card-icon" aria-hidden="true"><NavigationIcon2029 name={entry.icon} /></span>
+          <span><strong>{entry.label}</strong><small>{entry.description}</small></span>
         </button>)}
         {isAdmin ? <button type="button" className={`sod29-world-entry-card is-admin${activeView === WORLD_LANDING_VIEW.ADMIN ? " is-active" : ""}`}
           aria-pressed={activeView === WORLD_LANDING_VIEW.ADMIN} onClick={() => openLandingView(WORLD_LANDING_VIEW.ADMIN)}>
-          <strong>בקרת ממצאים</strong><small>דירוג, כפילויות ושיוך · למנהל בלבד</small>
+          <span className="sod29-world-entry-card-icon" aria-hidden="true"><NavigationIcon2029 name="scan" /></span>
+          <span><strong>בקרת ממצאים</strong><small>דירוג, כפילויות ושיוך · למנהל בלבד</small></span>
         </button> : null}
       </nav>
     </section>
@@ -1220,13 +1227,13 @@ function LiveWorldLanding({ research, shell, context }) {
         <div><div className="sod29-kicker">נקודה אחת · הרבה דרכים</div><h2>לא צריך להכיר את המאגר כדי להתחיל.</h2></div>
         <p>אפשר לפתוח עדכון חדש, לעבור לנושא שבו כמה מסלולים נפגשים, או להיכנס דרך אדם ומקור. כל מסך מחזיר למקור המדויק.</p>
         <div className="sod29-world-start-facets" aria-label="סוגי ידע בעולם">
-          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.NUMBERS)}>מספרים ומילים</button>
-          <button type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.CONNECTIONS)}>נושאים וחיבורים</button>
-          <button type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.SOURCES)}>אנשים ומקורות</button>
-          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.MEDIA)}>תמונות ומדיה</button>
-          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.LANGUAGES)}>שפות וגשרים</button>
-          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.CIPHERS)}>צפנים</button>
-          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.TIME)}>אירועים וזמן</button>
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.NUMBERS)}><NavigationIcon2029 name="number" size={18} />מספרים ומילים</button>
+          <button type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.CONNECTIONS)}><NavigationIcon2029 name="graph" size={18} />נושאים וחיבורים</button>
+          <button type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.SOURCES)}><NavigationIcon2029 name="community" size={18} />אנשים ומקורות</button>
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.MEDIA)}><NavigationIcon2029 name="gallery" size={18} />תמונות ומדיה</button>
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.LANGUAGES)}><NavigationIcon2029 name="letters" size={18} />שפות וגשרים</button>
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.CIPHERS)}><NavigationIcon2029 name="cipher" size={18} />צפנים</button>
+          <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.TIME)}><NavigationIcon2029 name="now" size={18} />אירועים וזמן</button>
         </div>
       </section>
       <SourceArrivalList2029 loading={landing.discoveryLoading} items={landing.discovery?.arrivals || discoveryItems} limit={5}

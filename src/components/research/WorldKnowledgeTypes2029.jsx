@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import ConstantDiagram2029 from "./ConstantDiagram2029.jsx";
 import SpatialDiagram2029 from "./SpatialDiagram2029.jsx";
 import { getMatrixLibraryPage } from "../../lib/elsMatrices.js";
@@ -11,13 +12,13 @@ import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { WORLD_KNOWLEDGE_KIND } from "../../lib/research/worldLandingNavigation.js";
 
 export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
-  { key: WORLD_KNOWLEDGE_KIND.NUMBERS, label: "מספרים ומילים", description: "מספרים, מילים וביטויים" },
-  { key: WORLD_KNOWLEDGE_KIND.LANGUAGES, label: "שפות וגשרים", description: "עברית, מילים לועזיות וקשרים מאושרים" },
-  { key: WORLD_KNOWLEDGE_KIND.CIPHERS, label: "צפנים", description: "צפני ELS שפורסמו" },
-  { key: WORLD_KNOWLEDGE_KIND.MEDIA, label: "תמונות ומדיה", description: "חומר חזותי ציבורי ומקורו" },
-  { key: WORLD_KNOWLEDGE_KIND.TIME, label: "אירועים וזמן", description: "אירועים ושנים כצמתי ידע" },
-  { key: WORLD_KNOWLEDGE_KIND.BOOKS, label: "ספרים ומקורות", description: "זהויות ספר ומקורות פעילים" },
-  { key: WORLD_KNOWLEDGE_KIND.SPATIAL, label: "מבנים מרחביים", description: "גימטריה, מבנה וצורה — בשכבות נפרדות" },
+  { key: WORLD_KNOWLEDGE_KIND.NUMBERS, icon: "number", label: "מספרים ומילים", description: "מספרים, מילים וביטויים" },
+  { key: WORLD_KNOWLEDGE_KIND.LANGUAGES, icon: "letters", label: "שפות וגשרים", description: "עברית, מילים לועזיות וקשרים מאושרים" },
+  { key: WORLD_KNOWLEDGE_KIND.CIPHERS, icon: "cipher", label: "צפנים", description: "צפני ELS שפורסמו" },
+  { key: WORLD_KNOWLEDGE_KIND.MEDIA, icon: "gallery", label: "תמונות ומדיה", description: "חומר חזותי ציבורי ומקורו" },
+  { key: WORLD_KNOWLEDGE_KIND.TIME, icon: "now", label: "אירועים וזמן", description: "אירועים ושנים כצמתי ידע" },
+  { key: WORLD_KNOWLEDGE_KIND.BOOKS, icon: "books", label: "ספרים ומקורות", description: "זהויות ספר ומקורות פעילים" },
+  { key: WORLD_KNOWLEDGE_KIND.SPATIAL, icon: "spatial", label: "מבנים מרחביים", description: "גימטריה, מבנה וצורה — בשכבות נפרדות" },
 ]);
 
 const FACETS = Object.freeze({
@@ -438,8 +439,8 @@ export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NU
       <p className="sod29-muted">כאן לא נוצרים מאגרים חדשים: כל כרטיס מגיע מהקורא או מההקרנה הקנונית של המספר, השפה, הצופן, המדיה, הזמן, המקור או המבנה המרחבי.</p></div></div>
     <nav className="sod29-world-kind-tabs" aria-label="סוגי הידע בעולם">{WORLD_KNOWLEDGE_OPTIONS.map((item) => <button
       type="button" key={item.key} className={item.key === kind ? "is-active" : ""} aria-pressed={item.key === kind}
-      onClick={() => onKindChange?.(item.key)}><strong>{item.label}</strong><small>{item.description}</small></button>)}</nav>
-    <div className="sod29-world-kind-heading"><h3>{option.label}</h3><p>{option.description}</p></div>
+      onClick={() => onKindChange?.(item.key)}><span aria-hidden="true"><NavigationIcon2029 name={item.icon} /></span><span><strong>{item.label}</strong><small>{item.description}</small></span></button>)}</nav>
+    <div className="sod29-world-kind-heading"><span aria-hidden="true"><NavigationIcon2029 name={option.icon} /></span><div><h3>{option.label}</h3><p>{option.description}</p></div></div>
     {state.loading || state.kind !== kind ? <p role="status">פותח את {option.label}…</p> : null}
     {state.error ? <p role="status">הפריטים אינם זמינים כרגע. שום חומר חלופי לא הומצא.</p> : null}
     {openingSections.map((section) => <EntitySection key={section.key} section={section} />)}

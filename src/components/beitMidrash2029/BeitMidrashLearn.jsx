@@ -88,7 +88,7 @@ export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath
   return <div className="bm-pillar" id="bm-learn">
     <h2 className="bm-pillar-title"><span aria-hidden="true">א</span>{manifest.pillars[0].title}</h2>
 
-    <BeitMidrashSection id="start" icon="discovery" title={start.title} description={start.description} focused={isFocused("start")}>
+    <BeitMidrashSection id="start" icon="door" title={start.title} description={start.description} focused={isFocused("start")}>
       <ol className="bm-concepts">
         {manifest.beginnerConcepts.map((concept, index) => <li key={concept.id}>
           <span className="bm-concept-no" aria-hidden="true">{index + 1}</span>
@@ -100,11 +100,11 @@ export default function BeitMidrashLearn({ manifest, focusedSection, focusedPath
 
     {children}
 
-    <BeitMidrashSection id="ciphers" icon="letters" title={ciphers.title} description={ciphers.description} focused={isFocused("ciphers")}>
+    <BeitMidrashSection id="ciphers" icon="cipher" title={ciphers.title} description={ciphers.description} focused={isFocused("ciphers")}>
       <ReadingLesson lesson={manifest.cipherReadingLesson} kind="cipher" focusedId={focusedCipherStep} illustration={<SkipIllustration />} />
     </BeitMidrashSection>
 
-    <BeitMidrashSection id="sources" icon="posts" title={sources.title} description={sources.description} focused={isFocused("sources")}>
+    <BeitMidrashSection id="sources" icon="books" title={sources.title} description={sources.description} focused={isFocused("sources")}>
       <ReadingLesson lesson={manifest.sourceReadingLesson} kind="source" focusedId={focusedSourceStep} />
     </BeitMidrashSection>
 
