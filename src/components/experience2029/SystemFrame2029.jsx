@@ -42,7 +42,7 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
-import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
+import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import DiscoveryGateMark2029 from "./DiscoveryGateMark2029.jsx";
 import {
@@ -605,7 +605,7 @@ function ActionProjection({
   );
 }
 
-function AttentionProjection({ context, onWorkspace, onOpen, feed }) {
+function AttentionProjection({ context, onWorkspace, onOpen, feed, timeMode }) {
   // The mobile Now sheet and left Companion show the SAME authorized public rows.
   // SystemFrame owns one useSystemFeed2029 watcher; this sheet creates no polling,
   // independent ordering, research read or seen-state cache.
@@ -636,7 +636,7 @@ function AttentionProjection({ context, onWorkspace, onOpen, feed }) {
             onClick={() => { feed?.see?.(row); if (href) onOpen?.(href); }}
             style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%", textAlign: "start", minHeight: 44, gap: 4 }}
           >
-            <small>{row.typeLabel}{row.strong ? " · ◆ חזקה" : ""} · {item.creator || "מקור ציבורי"} · {relativeTimeLabel(row.at, "זמן לא צוין")}</small>
+            <small>{row.typeLabel}{row.strong ? " · ◆ חזקה" : ""} · {item.creator || "מקור ציבורי"} · {recordTimeLabel(row.at, timeMode, "זמן לא צוין")}</small>
             <strong>{row.title}</strong>
             {item.summary ? <small>{item.summary}</small> : null}
             {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
@@ -1458,6 +1458,7 @@ export default function SystemFrame2029({
   introVariant = "hero",
 }) {
   const location = useLocation();
+  const recordTimeMode = surface === "home" ? "relative" : "bilingual";
   const navigate = useNavigate();
   const research = useResearch();
   const { user, profile, isAdmin } = useAuth();
@@ -2040,7 +2041,7 @@ export default function SystemFrame2029({
     if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם">{corePublicViewer ? worldLocked
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
       : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
-      : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} />}</PanelShell>;
+      : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} timeMode={recordTimeMode} />}</PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
@@ -2237,10 +2238,11 @@ export default function SystemFrame2029({
             suppressLearn
           /> : null}
           onOpenHref={(href) => go(href)}
+          timeMode={recordTimeMode}
           razielNode={razielLocked || surface === "post" ? null : <RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
-        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
+        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {recordTimeLabel(feed.newest, recordTimeMode, recordTimeMode === "relative" ? "עכשיו" : "תאריך לא צוין")}</span></button> : null}
 
         <div className={`sod29-command-island is-unified-bar${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
           <div className="sod29-bar-zone is-context">

@@ -353,7 +353,7 @@ function HomeBody() {
         inputKind: entry.input_kind,
       },
     });
-    navigate("/world");
+    navigate("/world?focus=context");
   };
 
   const openTemporalNow = () => {
@@ -380,7 +380,7 @@ function HomeBody() {
         journey: null,
       },
     });
-    navigate("/world");
+    navigate("/world?focus=context");
   };
 
   const temporalNow = homeState.projection?.temporalNow || null;

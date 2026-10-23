@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
-import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
+import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import "./ZviGroupTimeline2029.css";
 
@@ -96,7 +96,7 @@ export default function ZviGroupTimeline2029({ recentItems = [] }) {
           return <li key={item.sourceRef}>
             <details onToggle={(event) => { if (event.currentTarget.open) acknowledge(item); }}>
               <summary>
-                <span>{relativeTimeLabel(item.arrivalAt || item.at, "זמן לא צוין")}</span>
+                <span>{bilingualDateLabel(item.arrivalAt || item.at, "זמן לא צוין")}</span>
                 <strong>{item.label}</strong>
                 <small>{isSeen ? "נקראה" : "טרם נקראה"} · הודעת מקור</small>
               </summary>

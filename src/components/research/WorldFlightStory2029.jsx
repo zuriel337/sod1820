@@ -7,7 +7,7 @@ import { fetchPost2029ReadingProjection } from '../../lib/research/post2029Readi
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
-import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
+import { recordTimeLabel } from '../../lib/relativeTime2029.js';
 
 const slug = 'flydubai-fz1073-363-14000-remzei-geula';
 const directions = [
@@ -26,6 +26,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   const [state, setState] = useState({ loading: true, projection: null });
   const [attempt, setAttempt] = useState(0);
   const home = surface === 'home';
+  const timeMode = home ? 'relative' : 'bilingual';
   const anchor = home ? 'home-plane' : 'world-plane-story';
   useEffect(() => {
     let live = true;
@@ -65,7 +66,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         subject: null, selection: null, lens: 'world', dimensions: {}, journey: research.context?.journey || null } });
     shell.go(identity.href, { preserve: false });
   };
-  const date = post.date ? relativeTimeLabel(post.date) : null;
+  const date = post.date ? recordTimeLabel(post.date, timeMode) : null;
   return <section id={anchor} className={`sod29-flight-story is-${surface}`} data-flight-story={surface} aria-label="סיפור המטוס וכיווני הגילוי">
     {!home ? <div className="sod29-flight-breadcrumb"><button onClick={() => shell.go('/2029#home-plane')}>הבית</button><span aria-hidden="true">/</span><span>סיפור המטוס בעולם</span></div> : null}
     <div className="sod29-flight-feature">
@@ -99,7 +100,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
       </div>
       <details className="sod29-flight-time"><summary>הסיפור לאורך הזמן</summary>
         <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} />
-        {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {relativeTimeLabel(post.modified)}. עדכון אינו אירוע חדש.</p> : null}
+        {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {recordTimeLabel(post.modified, timeMode)}. עדכון אינו אירוע חדש.</p> : null}
         <p>מועד גילוי החיבורים לא תועד במקור הזמין. תאריכי הפרסום, האירוע ושמירת המדיה נשמרים בנפרד.</p>
       </details>
     </> : null}

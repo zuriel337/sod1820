@@ -964,7 +964,7 @@ function NumberPageBody() {
           journeyVisitedValues: [878], journeyMeetingSlugs: [] },
         returnTo: { ...result.context, href: currentNumberHref, label: `דף ${root}` },
       });
-      navigate("/world");
+      navigate("/world?focus=context");
     }
   };
 
@@ -1000,7 +1000,7 @@ function NumberPageBody() {
         },
         returnTo,
       });
-    navigate("/world");
+    navigate("/world?focus=context");
   };
 
   const focusSurfaceContext = (focus) => {

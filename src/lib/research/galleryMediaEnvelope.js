@@ -157,15 +157,24 @@ export function buildLegacyPlacement({ row, node = null, gallery = null }) {
 
 // relationKind separates graph-proven adjacency from stored-metadata context. A
 // source_metadata relation is NOT reality_graph: no node/edge exists or is created for it.
-export const MEDIA_RELATION_KIND = Object.freeze({ GRAPH: "reality_graph", SOURCE_METADATA: "source_metadata" });
+export const MEDIA_RELATION_KIND = Object.freeze({
+  GRAPH: "reality_graph",
+  SOURCE_METADATA: "source_metadata",
+  PUBLIC_CATALOG: "public_catalog",
+});
 
 export function buildContextRelation({ relationType = "related", surface = null, relationKind = MEDIA_RELATION_KIND.GRAPH, postSlug = null } = {}) {
   const sourceMeta = relationKind === MEDIA_RELATION_KIND.SOURCE_METADATA;
+  const publicCatalog = relationKind === MEDIA_RELATION_KIND.PUBLIC_CATALOG;
   return {
     relationKind,
     relationType,
-    projectionReason: sourceMeta ? `source_metadata:${relationType}` : `reality_graph:${relationType}`,
-    basis: sourceMeta ? "gallery_images.ocr_meta.post_slug" : "nodes/edges",
+    projectionReason: sourceMeta
+      ? `source_metadata:${relationType}`
+      : publicCatalog ? `public_catalog:${relationType}` : `reality_graph:${relationType}`,
+    basis: sourceMeta
+      ? "gallery_images.ocr_meta.post_slug"
+      : publicCatalog ? "gallery_images.public_visibility" : "nodes/edges",
     postSlug: sourceMeta ? normalizeMediaPostSlug(postSlug) : null,
     surface,
   };
