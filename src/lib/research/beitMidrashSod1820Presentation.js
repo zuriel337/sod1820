@@ -66,7 +66,7 @@ const VIDEO_SOURCE = Object.freeze({
   sourceRef: "youtube:DClJVGBMCs0",
   sourceHref: "https://www.youtube.com/watch?v=DClJVGBMCs0",
   kind: "video",
-  status: SOURCE_STATUS.ZURIEL_APPROVED,
+  status: SOURCE_STATUS.EXACT,
 });
 
 const ORIGINAL_POST_SOURCE = Object.freeze({
@@ -75,7 +75,7 @@ const ORIGINAL_POST_SOURCE = Object.freeze({
   sourceRef: "posts:1799",
   sourceHref: "/post/סוד-1820",
   kind: "post",
-  status: SOURCE_STATUS.ZURIEL_APPROVED,
+  status: SOURCE_STATUS.EXACT,
 });
 
 const MEDIA_ASSETS = Object.freeze({
