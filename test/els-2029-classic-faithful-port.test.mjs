@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
 const nativeClassic = readFileSync(new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url), "utf8");
+const advanced = readFileSync(new URL("../src/components/experience2029/ElsAdvancedSearch2029.jsx", import.meta.url), "utf8");
 const embed = readFileSync(new URL("../src/components/TzofenEmbed.jsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/components/experience2029/elsNativeClassic2029.css", import.meta.url), "utf8");
 const provider = readFileSync(new URL("../src/lib/research/ResearchProvider.jsx", import.meta.url), "utf8");
@@ -188,6 +189,15 @@ test("native search progress follows request-correlated canonical operation ackn
   assert.match(template, /status==="done"\|\|status==="empty"\|\|status==="error"\|\|status==="cancelled"\)operation\.terminal=true/);
   assert.match(template, /function invalidateSearchOperation\(\)\{[\s\S]*?stopXfWorkers\(\);\s*operationStatus\(_nativeSearchOperation,"cancelled"\);_nativeSearchOperation=null;clearSearchLoad\(\);/);
   assert.match(template, /function invalidateFindingsOperation\(\)\{[\s\S]*?cancelEngineCalls\(_nativeFindingsOperation\);\s*operationStatus\(_nativeFindingsOperation,"cancelled"\);\+\+_nativeFindingsSeq;_nativeFindingsOperation=null;/);
+  assert.match(nativeClassic, /progress\?\.phase === "discover"/);
+  assert.match(nativeClassic, /<progress aria-label=\{phaseLabel\} \/>/);
+  assert.match(nativeClassic, /הסריקה עדיין פעילה והמונה ממשיך להתעדכן/);
+  assert.match(template, /phase:"discover",completed:0,total:0/);
+  assert.match(template, /phase:"verify",completed:i,total:uniq\.length/);
+  assert.match(advanced, /function AdvancedLiveProgress/);
+  assert.match(advanced, /צורות מחקר שהושלמו/);
+  assert.match(advanced, /signal: controller\.signal/);
+  assert.match(advanced, /עצור סריקה/);
 });
 
 test("Native matrix keeps governed rows/marks, RTL parity, pan and fit without ELS calculation", () => {
@@ -206,6 +216,10 @@ test("Native matrix keeps governed rows/marks, RTL parity, pan and fit without E
   assert.match(css, /\.els29-native-cell\.is-axis/);
   assert.match(css, /\.els29-native-cell\.is-finding/);
   assert.match(css, /\.els29-native-cell\.is-selected/);
+  assert.match(nativeClassic, /addEventListener\("touchstart", startPinch, \{ passive: false \}\)/);
+  assert.match(nativeClassic, /onZoomChange=\{\(value\) => requestControl\("zoom-set", value\)\}/);
+  assert.match(template, /d\.action==="zoom-set"&&Number\.isFinite\(d\.value\)/);
+  assert.match(template, /st\.fit=false;setZoom\(d\.value\)/);
 });
 
 test("Native empty and candidate states remain truth-safe", () => {

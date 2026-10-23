@@ -7,6 +7,10 @@
 [data-els-advanced-search] .els29-advanced-form button{min-height:44px}
 [data-els-advanced-search] .els29-spelling-preview{grid-column:1/-1;margin:0;padding:8px 12px;border-radius:10px;background:var(--s29-panel-soft);color:var(--s29-ink);overflow-wrap:anywhere}
 [data-els-advanced-search] .els29-advanced-note{line-height:1.65;margin-block:8px 16px}
+[data-els-advanced-search] .els29-advanced-progress{display:grid;gap:7px;margin-block:12px;padding:12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft);color:var(--s29-ink)}
+[data-els-advanced-search] .els29-advanced-progress small{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.5}
+[data-els-advanced-search] .els29-advanced-progress progress{width:100%;accent-color:var(--s29-accent)}
+[data-els-advanced-search] .els29-advanced-progress>span{display:flex;flex-wrap:wrap;gap:7px}
 .els29-rhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 10px;padding:8px 12px;border:1px solid var(--s29-line);border-radius:16px;background:color-mix(in srgb,var(--s29-panel) 82%,transparent)}
 .els29-rhead h2{margin:0;font-size:var(--s29-type-body,16px);color:var(--s29-ink)}
 .els29-rhead .sod29-kicker{margin:0}

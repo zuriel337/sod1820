@@ -25,12 +25,15 @@ const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const MOBILE_WORKSPACE_QUERY = "(max-width:980px), (pointer:coarse) and (hover:none)";
 const isMobileWorkspace = () => window.matchMedia(MOBILE_WORKSPACE_QUERY).matches;
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView }) {
+function MatrixSnapshot({ state, onLetterClick, onZoomChange, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
   const scrollRef = useRef(null);
   const dragRef = useRef({ active: false, pointerId: null, x: 0, y: 0, left: 0, top: 0, moved: false });
+  const pinchRef = useRef(null);
+  const zoomChangeRef = useRef(onZoomChange);
+  zoomChangeRef.current = onZoomChange;
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -61,6 +64,67 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
         : a.top - viewport.top - 24;
     // Presentation only: marking, inspection and panel changes preserve manual panning.
   }, [visible, readingView, state?.status, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!visible || !el) return undefined;
+    const distance = (touches) => Math.hypot(
+      touches[0].clientX - touches[1].clientX,
+      touches[0].clientY - touches[1].clientY
+    );
+    const startPinch = (event) => {
+      if (event.touches.length !== 2) return;
+      const startDistance = distance(event.touches);
+      if (!Number.isFinite(startDistance) || startDistance <= 0) return;
+      event.preventDefault();
+      const baseZoom = clamp(Number(state?.ui?.zoom) || 1, 0.5, 2.8);
+      pinchRef.current = { startDistance, baseZoom, liveZoom: baseZoom };
+      dragRef.current.moved = true;
+      el.classList.add("is-pinching");
+    };
+    const movePinch = (event) => {
+      const pinch = pinchRef.current;
+      if (!pinch || event.touches.length !== 2) return;
+      event.preventDefault();
+      const liveZoom = clamp(pinch.baseZoom * distance(event.touches) / pinch.startDistance, 0.5, 2.8);
+      pinch.liveZoom = liveZoom;
+      const grid = el.querySelector(".els29-native-matrix");
+      if (!grid) return;
+      const midpointX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+      const midpointY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+      const rect = grid.getBoundingClientRect();
+      grid.style.transformOrigin = `${midpointX - rect.left}px ${midpointY - rect.top}px`;
+      grid.style.transform = `scale(${liveZoom / pinch.baseZoom})`;
+    };
+    const finishPinch = (event) => {
+      const pinch = pinchRef.current;
+      if (!pinch || event.touches?.length >= 2) return;
+      const grid = el.querySelector(".els29-native-matrix");
+      if (grid) {
+        grid.style.transform = "";
+        grid.style.transformOrigin = "";
+      }
+      pinchRef.current = null;
+      el.classList.remove("is-pinching");
+      dragRef.current.suppressClickUntil = Date.now() + 400;
+      if (Math.abs(pinch.liveZoom - pinch.baseZoom) > 0.03) zoomChangeRef.current?.(pinch.liveZoom);
+      window.setTimeout(() => { dragRef.current.moved = false; }, 400);
+    };
+    el.addEventListener("touchstart", startPinch, { passive: false });
+    el.addEventListener("touchmove", movePinch, { passive: false });
+    el.addEventListener("touchend", finishPinch, { passive: false });
+    el.addEventListener("touchcancel", finishPinch, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", startPinch);
+      el.removeEventListener("touchmove", movePinch);
+      el.removeEventListener("touchend", finishPinch);
+      el.removeEventListener("touchcancel", finishPinch);
+      const grid = el.querySelector(".els29-native-matrix");
+      if (grid) { grid.style.transform = ""; grid.style.transformOrigin = ""; }
+      el.classList.remove("is-pinching");
+      pinchRef.current = null;
+    };
+  }, [visible, state?.axis?.hitId, state?.ui?.zoom]);
 
   const markMap = useMemo(() => {
     const map = new Map();
@@ -246,7 +310,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
               data-present-concealed={concealed ? "true" : undefined}
               title={sourceMark ? `רצף מקור: ${sourceMark.term} · הצג פסוק` : "הצג מקור ופסוק"}
               onClick={(event) => {
-                if (dragRef.current.moved) return;
+                if (dragRef.current.moved || Date.now() < (dragRef.current.suppressClickUntil || 0)) return;
                 const targets = mark?.type === "finding" ? findingTargetMap.get(index) || [] : [];
                 const findingTarget = targets.find((target) => target.hitId === selectedFinding?.hitId)
                   || targets.find((target) => target.color === mark?.color)
@@ -613,7 +677,7 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
   </div>;
 }
 
-function SearchProgress({ operation, onCancel }) {
+function SearchProgress({ operation, onCancel, reduction = null, onReduce }) {
   const [now, setNow] = useState(Date.now());
   const pending = ["searching", "verifying"].includes(operation?.status);
   useEffect(() => {
@@ -625,14 +689,61 @@ function SearchProgress({ operation, onCancel }) {
   if (!pending) return null;
   const elapsed = Math.max(operation.elapsedMs || 0, now - (operation.startedAt || now), 0) / 1000;
   const progress = operation.progress;
+  const phaseLabel = operation.status === "verifying" || progress?.phase === "verify"
+    ? "מאמת את המופעים מול המנוע הקנוני…"
+    : progress?.phase === "cross"
+      ? "סורק מפגשים סביב הצירים…"
+      : progress?.phase === "findings"
+        ? "מאתר את המילה בחלון המטריצה…"
+        : progress?.phase === "discover"
+          ? "סורק מועמדים בקורפוס…"
+          : "מכין את החיפוש…";
+  const progressLabel = progress?.phase === "cross" ? "מיקומי ציר שנבדקו" : "מועמדים שנבדקו ואומתו";
   const remaining = progress?.completed >= 8 && progress.completed < progress.total && progress.phaseElapsedMs >= 500
     ? Math.ceil(progress.phaseElapsedMs / progress.completed * (progress.total - progress.completed) / 1000) : null;
   return <div className="els29-native-progress" aria-label={operation.kind === "findings" ? "התקדמות חיפוש משני" : "התקדמות החיפוש"}>
-    <div role="status"><strong>{operation.status === "verifying" ? "בודק את המופעים שנמצאו…" : progress?.phase === "cross" ? "סורק מפגשים סביב הצירים…" : "מחפש…"}</strong>
-      <small>עברו {elapsed.toFixed(1)} שניות · {remaining === null ? "זמן הסיום עדיין לא ידוע" : `הערכה: עוד כ־${remaining} שניות לסריקת הצירים`}</small>
-      {progress?.total > 0 ? <><progress max={progress.total} value={progress.completed} aria-label="מיקומי ציר שנבדקו" /><small>נבדקו {progress.completed} מתוך {progress.total} מיקומי ציר בסריקה הזאת</small></> : null}
+    <div><strong role="status" aria-live="polite">{phaseLabel}</strong>
+      <small aria-hidden="true">עברו {elapsed.toFixed(1)} שניות · {remaining === null ? "זמן הסיום עדיין לא ידוע" : `הערכה: עוד כ־${remaining} שניות לסריקת הצירים`}</small>
+      {progress?.total > 0 ? <><progress max={progress.total} value={progress.completed} aria-label={progressLabel} /><small>נבדקו {progress.completed} מתוך {progress.total} בסריקה הזאת</small></>
+        : <progress aria-label={phaseLabel} />}
+      {elapsed >= 8 ? <small>הסריקה עדיין פעילה והמונה ממשיך להתעדכן. אפשר להמתין גם לחיפוש ארוך או לעצור בלי לאבד את המטריצה הקודמת.</small> : null}
     </div>
-    <button type="button" onClick={onCancel}>{operation.kind === "findings" ? "בטל חיפוש משני" : "בטל חיפוש"}</button>
+    <span className="els29-native-progress-actions">
+      {elapsed >= 8 && reduction && onReduce ? <button type="button" onClick={onReduce}>{reduction.label}</button> : null}
+      <button type="button" onClick={onCancel}>{operation.kind === "findings" ? "בטל חיפוש משני" : "בטל חיפוש"}</button>
+    </span>
+  </div>;
+}
+
+function LensProgress({ request, onCancel, reduction = null, onReduce }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    if (!request) return undefined;
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(timer);
+  }, [request?.target?.nativeSeq]);
+  if (!request) return null;
+  const elapsed = Math.max(0, now - (request.startedAt || now)) / 1000;
+  const label = request.lens === "structure-priority"
+    ? "טוען את מילון התורה וממיין מבנים…"
+    : request.lens === "matrix-candidates"
+      ? "בודק ממצאים קרובים ואת המשך הצירים…"
+      : request.lens === "line-context" && request.target?.scan
+        ? "קורא את המשך הציר ומזהה מילים…"
+        : ["verse-context", "letter-context"].includes(request.lens)
+          ? "טוען את המקור והפסוק…"
+          : "מכין את תוצאת המחקר…";
+  return <div className="els29-native-progress" aria-label="התקדמות בדיקת הממצא">
+    <div><strong role="status" aria-live="polite">{label}</strong>
+      <small aria-hidden="true">עברו {elapsed.toFixed(1)} שניות · הבדיקה עדיין פעילה</small>
+      <progress aria-label={label} />
+      {elapsed >= 8 ? <small>אפשר להמשיך להמתין או לעצור. עצירה אינה משנה את הציר, הממצאים או המטריצה.</small> : null}
+    </div>
+    <span className="els29-native-progress-actions">
+      {elapsed >= 8 && reduction && onReduce ? <button type="button" onClick={onReduce}>{reduction.label}</button> : null}
+      <button type="button" onClick={onCancel}>עצור בדיקה</button>
+    </span>
   </div>;
 }
 
@@ -1088,9 +1199,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setClassicOpen(false);
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
-    setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now(), previousAxis: engineStateRef.current?.axis?.hitId, payload }, findings: null });
+    const requestedWindowSize = payload.windowSize || windowSize;
+    const trackedPayload = { ...payload, windowSize: requestedWindowSize };
+    setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now(), previousAxis: engineStateRef.current?.axis?.hitId, payload: trackedPayload }, findings: null });
     setActiveTool("results");
-    setSearchRequest({ kind, windowSize, ...payload, seq });
+    setSearchRequest({ kind, ...trackedPayload, seq });
   };
 
   const requestFindingsChange = (findings, { preserveRead = false } = {}) => {
@@ -1220,7 +1333,24 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensPending(true);
-    setLensRequest({ lens, target: { ...target, nativeSeq: seq } });
+    setLensRequest({ lens, target: { ...target, nativeSeq: seq }, startedAt: Date.now() });
+  };
+
+  const cancelLens = () => {
+    ++lensSeqRef.current;
+    setLensRequest(null);
+    setLensPending(false);
+    setNotice("הבדיקה נעצרה. המטריצה והממצאים נשמרו כפי שהיו.");
+  };
+
+  const lensReduction = lensRequest?.lens === "structure-priority" && Number(lensRequest.target?.structurePlan?.maxDistance) > 12
+    ? { label: "המשך בטווח קרוב" }
+    : null;
+  const reduceLens = () => {
+    if (!lensReduction || !lensRequest) return;
+    const { lens, target } = lensRequest;
+    cancelLens();
+    requestLens(lens, { ...target, structurePlan: { ...target.structurePlan, maxDistance: 12 } });
   };
 
   const handleLens = (result) => {
@@ -1440,6 +1570,24 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (current.search?.mode === "cross-simple") requestSearch("cross", { axis: current.search.crossA, term: current.search.crossB, scope: current.scope, radius: current.search.crossRadius, windowSize: size });
     else requestSearch("regular", { term: current.termRaw || current.term, scope: current.scope, windowSize: size });
   };
+  const searchReduction = (() => {
+    const operation = operations.search;
+    if (!operation || !["regular", "cross"].includes(operation.searchKind)) return null;
+    if (operation.payload?.scope === "tanakh") return { type: "scope", label: "המשך בתורה" };
+    if (operation.searchKind === "cross" && Number(operation.payload?.radius) > 8) return { type: "radius", label: "צמצם מרחק ל־8" };
+    if (operation.searchKind === "cross" && operation.payload?.windowSize !== "small") return { type: "window", label: "עבור לחלון קטן" };
+    return null;
+  })();
+  const reduceSearch = () => {
+    const operation = operations.search;
+    if (!operation || !searchReduction) return;
+    const payload = { ...operation.payload };
+    if (searchReduction.type === "scope") payload.scope = "torah";
+    if (searchReduction.type === "radius") { payload.radius = 8; setCrossRadius(8); }
+    if (searchReduction.type === "window") { payload.windowSize = "small"; setWindowSize("small"); }
+    cancelOperation("search");
+    requestSearch(operation.searchKind, payload);
+  };
 
   return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4" aria-busy={savedLoadPending || searchPending}
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
@@ -1516,7 +1664,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       </div>
     </form>
 
-    {!savedLoadPending ? <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} /> : null}
+    {!savedLoadPending ? <SearchProgress operation={operations.search} reduction={searchReduction} onReduce={reduceSearch} onCancel={() => cancelOperation("search")} /> : null}
+    {!savedLoadPending && lensPending ? <LensProgress request={lensRequest} reduction={lensReduction} onReduce={reduceLens} onCancel={cancelLens} /> : null}
     {!savedLoadPending && notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
     {!savedLoadPending && researchProfile && (journeyTrail.length || journeyPending) ? <div className="els29-native-notice" data-els-c02-journey="v1">
       <span>מסלול צירים · {journeyTrail.length} צעדי חזרה שמורים</span>
@@ -1573,7 +1722,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          <MatrixSnapshot state={engineState} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView} />
+          <MatrixSnapshot state={engineState} onLetterClick={matrixActive ? handleLetterClick : null} onZoomChange={(value) => requestControl("zoom-set", value)} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>

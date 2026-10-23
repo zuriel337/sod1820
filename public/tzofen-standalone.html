@@ -1483,15 +1483,17 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const per=Math.max(1,Math.min(VB_MAX_CANDIDATES,Math.floor(VB_MAX_LETTER_CHECKS/Math.max(2,L))));
     const uniq=[],seen=new Set();
     for(const h of hits){const k=hitKey(h);if(seen.has(k))continue;seen.add(k);uniq.push(h);}
-    const verified=new Set(),traces=[];
+    const verified=new Set(),traces=[],phaseStartedAt=Date.now();
     for(let i=0;i<uniq.length;i+=per){
       if(operation?.status==="cancelled")return {ok:false,error:"cancelled"};
       const chunk=uniq.slice(i,i+per);
+      operationStatus(operation,"verifying",null,{phase:"verify",completed:i,total:uniq.length,phaseElapsedMs:Date.now()-phaseStartedAt});
       const r=await engineCall("verify_batch",{term:t,scope,corpus_id:cid,strategy:strategy||null,
         candidates:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))},undefined,operation);
       if(!r||!r.ok||!r.result||r.result.status!=="OK"||r.result.corpus_id!==cid)return {ok:false,error:(r&&r.error)||(r&&r.result&&r.result.status)||"verify_failed"};
       for(const o of r.result.verified||[])verified.add(o.skip+"_"+o.dir+"_"+o.start);
       if(r.trace_id)traces.push(r.trace_id);
+      operationStatus(operation,"verifying",null,{phase:"verify",completed:i+chunk.length,total:uniq.length,phaseElapsedMs:Date.now()-phaseStartedAt});
     }
     return {ok:true,verified,traces,corpus_id:cid};
   }
@@ -1561,6 +1563,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const cancelled=()=>({hits:[],capped:0,t:norm(raw),vstate:"CANCELLED"});
     let candidates;
     try{
+      operationStatus(operation,"searching",null,{phase:"discover",completed:0,total:0,phaseElapsedMs:0});
+      if(operation)await paintOperation();
       const pool=operation&&EXPR2029?await ensureXfInit():null;
       if(epoch!==_matrixRequestSeq||operation?.status==="cancelled")return cancelled();
       candidates=pool?(await xfCall(pool,{type:"routed-discover",reqId:++_xfReqId,raw,cap,scope})).result:await routedDiscover(raw,cap);
@@ -2619,6 +2623,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else if(d.action==="occurrence-select"||d.action==="occurrence-page")controlNativeOccurrence(d.action,d.value);
       else if(d.action==="zoom-out")adjustZoom(-0.2);
       else if(d.action==="zoom-in")adjustZoom(0.2);
+      else if(d.action==="zoom-set"&&Number.isFinite(d.value)){st.fit=false;setZoom(d.value);}
       else if(d.action==="fit-toggle")toggleFit();
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
       else if(d.action==="heat-toggle"){st.heat=!st.heat;recolorOnly();emitState();}

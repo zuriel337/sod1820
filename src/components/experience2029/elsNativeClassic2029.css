@@ -391,6 +391,7 @@
 .els29-native-progress small{font-size:var(--s29-type-micro);color:var(--s29-muted);line-height:1.5}
 .els29-native-progress progress{width:100%;accent-color:var(--s29-accent)}
 .els29-native-progress button{flex-shrink:0;min-height:44px;padding:6px 10px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
+.els29-native-progress-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;flex-shrink:0}
 .els29-native-results summary{display:flex;align-items:center;min-height:44px;cursor:pointer;font-size:var(--s29-type-micro)}
 .els29-native-results details>label{margin-block:6px 10px}
 .els29-native-results small{line-height:1.55;color:var(--s29-muted);overflow-wrap:anywhere}
@@ -583,6 +584,9 @@
   .els29-native-matrix.is-fit{min-width:calc(var(--els29-cols) * 18px - 2px)}
   .els29-native-matrix.is-fit .els29-native-matrix-row{grid-template-columns:repeat(var(--els29-cols),minmax(16px,1fr))}
   .els29-native-cell{font-size:17px}
+  .els29-native-progress{align-items:stretch;flex-direction:column}
+  .els29-native-progress-actions{width:100%}
+  .els29-native-progress-actions button{flex:1 1 140px}
 }
 @media(prefers-reduced-motion:reduce){
   .els29-native-classic *{scroll-behavior:auto!important}

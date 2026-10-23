@@ -1159,6 +1159,43 @@ test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while ca
   },{realHost:true,loadGolden:false,onboarded:false,tier:'anon'});
  });
 
+test('native UI: two-finger pinch changes the canonical matrix zoom without opening a letter action',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const matrix=page.locator('.els29-native-matrix-scroll');
+   const bounds=await matrix.boundingBox();
+   assert.ok(bounds?.width>160&&bounds?.height>120,'matrix has a touchable viewport');
+   const before=await page.evaluate(()=>({zoom:window.__state.ui.zoom,fit:window.__state.ui.fit,lenses:window.__hostLog.filter(message=>message.type==='request-lens').length}));
+   await matrix.evaluate(element=>{
+    const touch=(id,x,y)=>new Touch({identifier:id,target:element,clientX:x,clientY:y,pageX:x,pageY:y,screenX:x,screenY:y,radiusX:2,radiusY:2,force:1});
+    const rect=element.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+Math.min(rect.height/2,160);
+    const start=[touch(1,x-24,y),touch(2,x+24,y)];
+    const moved=[touch(1,x-70,y),touch(2,x+70,y)];
+    element.dispatchEvent(new TouchEvent('touchstart',{touches:start,targetTouches:start,changedTouches:start,bubbles:true,cancelable:true}));
+    element.dispatchEvent(new TouchEvent('touchmove',{touches:moved,targetTouches:moved,changedTouches:moved,bubbles:true,cancelable:true}));
+    element.dispatchEvent(new TouchEvent('touchend',{touches:[],targetTouches:[],changedTouches:moved,bubbles:true,cancelable:true}));
+   });
+   await page.waitForFunction(value=>window.__state?.ui?.zoom>value+0.1,before.zoom);
+   const after=await page.evaluate(()=>({zoom:window.__state.ui.zoom,fit:window.__state.ui.fit,lenses:window.__hostLog.filter(message=>message.type==='request-lens').length}));
+   assert.ok(after.zoom>before.zoom,'pinch-out enlarges the canonical zoom');
+   assert.equal(after.fit,false,'manual pinch leaves fit mode so the selected zoom is visible');
+   assert.equal(after.lenses,before.lenses,'pinch never becomes a letter click');
+   await matrix.evaluate(element=>{
+    const touch=(id,x,y)=>new Touch({identifier:id,target:element,clientX:x,clientY:y,pageX:x,pageY:y,screenX:x,screenY:y,radiusX:2,radiusY:2,force:1});
+    const rect=element.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+Math.min(rect.height/2,160);
+    const start=[touch(1,x-70,y),touch(2,x+70,y)];
+    const moved=[touch(1,x-30,y),touch(2,x+30,y)];
+    element.dispatchEvent(new TouchEvent('touchstart',{touches:start,targetTouches:start,changedTouches:start,bubbles:true,cancelable:true}));
+    element.dispatchEvent(new TouchEvent('touchmove',{touches:moved,targetTouches:moved,changedTouches:moved,bubbles:true,cancelable:true}));
+    element.dispatchEvent(new TouchEvent('touchend',{touches:[],targetTouches:[],changedTouches:moved,bubbles:true,cancelable:true}));
+   });
+   await page.waitForFunction(value=>window.__state?.ui?.zoom<value-0.1,after.zoom);
+   const reduced=await page.evaluate(()=>({zoom:window.__state.ui.zoom,lenses:window.__hostLog.filter(message=>message.type==='request-lens').length}));
+   assert.ok(reduced.zoom<after.zoom,'pinch-in reduces the canonical zoom');
+   assert.equal(reduced.lenses,before.lenses,'pinch-in also remains a presentation gesture only');
+  },{mobile:true});
+ });
+
 test('native UI: compact findings, vowels and classic letters retain exact base letters and source indices',
   { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
     await withNative({ width: 1440, height: 1000 }, async (page) => {
