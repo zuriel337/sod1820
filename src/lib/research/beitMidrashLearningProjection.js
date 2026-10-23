@@ -271,8 +271,21 @@ const CIPHER_READING_LESSON = Object.freeze({
     feedbackMode: "explanation-only",
   }),
   continuation: Object.freeze({
-    title: "לפתיחת כלי הצפנים",
-    href: "/code",
+    title: "לצפנים עם תמונות ולבדיקה במנוע",
+    href: "/code?library=public",
+  }),
+  enginePractice: Object.freeze({
+    title: "מתמונה אל אותה תוצאה במנוע",
+    description: "הדוגמאות החזותיות מגיעות מספריית הצפנים הקנונית. פתיחת תמונה טוענת את הרשומה הציבורית; מיקום מדויק משוחזר במנוע, וצופן ותיק ללא מיקום מלא מסומן ונבדק מחדש.",
+    searchHref: "/code",
+    examplesHref: "/code?library=public",
+    publicReader: "getMatrixLibraryPage",
+    exactReplayHref: "savedMatrixWorkspaceHref",
+    imageField: "image_url",
+    engineIdentityFields: Object.freeze(["corpus_id", "search_term", "skip_distance", "direction", "start_index"]),
+    visibility: Object.freeze({ status: "published", access: "public", enforcedBy: "RLS" }),
+    createsEngine: false,
+    createsImageStore: false,
   }),
   progress: Object.freeze({
     persistence: "url-only",
@@ -412,7 +425,7 @@ const LEARNING_PATH_DEFINITIONS = freezeItems([
     href: "/beit-midrash?section=paths&path=ciphers#path-ciphers",
     steps: Object.freeze([
       { title: "לומדים לקרוא דילוג צעד אחר צעד", href: CIPHER_READING_LESSON.href },
-      { title: "חוזרים על התנאים בכלי הצפנים", href: "/code" },
+      { title: "פותחים צופן מצולם וחוזרים עליו במנוע", href: CIPHER_READING_LESSON.continuation.href },
       { title: "לומדים לבדוק מקור והקשר", href: SOURCE_READING_LESSON.href },
     ]),
   },

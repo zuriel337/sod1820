@@ -21,7 +21,7 @@ test("cipher lesson teaches a repeatable reading sequence without becoming an EL
   assert.ok(lesson.steps.every((step) => step.href.startsWith("/beit-midrash?section=ciphers&step=")));
   assert.match(lesson.steps.find((step) => step.id === "comparison").boundary, /התאמה מקרית/);
   assert.match(lesson.steps.find((step) => step.id === "interpretation").boundary, /אינה לבדה הוכחה/);
-  assert.equal(lesson.continuation.href, "/code");
+  assert.equal(lesson.continuation.href, "/code?library=public");
 
   const source = fs.readFileSync(
     new URL("../src/lib/research/beitMidrashLearningProjection.js", import.meta.url),
@@ -52,6 +52,32 @@ test("cipher lesson progress is URL-only and stores no personal result", () => {
   assert.equal(Object.isFrozen(lesson.exercise.options), true);
 });
 
+test("cipher practice opens canonical public images and replays them in the existing engine", () => {
+  assert.deepEqual(lesson.enginePractice.visibility, {
+    status: "published",
+    access: "public",
+    enforcedBy: "RLS",
+  });
+  assert.equal(lesson.enginePractice.searchHref, "/code");
+  assert.equal(lesson.enginePractice.examplesHref, "/code?library=public");
+  assert.equal(lesson.enginePractice.publicReader, "getMatrixLibraryPage");
+  assert.equal(lesson.enginePractice.exactReplayHref, "savedMatrixWorkspaceHref");
+  assert.equal(lesson.enginePractice.imageField, "image_url");
+  assert.deepEqual(lesson.enginePractice.engineIdentityFields, [
+    "corpus_id", "search_term", "skip_distance", "direction", "start_index",
+  ]);
+  assert.equal(lesson.enginePractice.createsEngine, false);
+  assert.equal(lesson.enginePractice.createsImageStore, false);
+
+  const reader = fs.readFileSync(new URL("../src/lib/elsMatrices.js", import.meta.url), "utf8");
+  const replay = fs.readFileSync(new URL("../src/lib/elsSavedMatrix.js", import.meta.url), "utf8");
+  assert.match(reader, /getMatrixLibraryPage/);
+  assert.match(reader, /\.eq\("status", "published"\)\.eq\("visibility", "public"\)/);
+  assert.match(reader, /image_url/);
+  assert.match(replay, /savedMatrixWorkspaceHref/);
+  assert.match(replay, /\/code\?cipher=/);
+});
+
 test("cipher steps have exact resumable links and do not leak into source lessons", () => {
   const comparison = resolveBeitMidrashLearningLocation({
     search: "?section=ciphers&step=comparison",
@@ -80,6 +106,6 @@ test("cipher steps have exact resumable links and do not leak into source lesson
 test("cipher learning path connects the lesson, canonical tool and source reading", () => {
   const path = BEIT_MIDRASH_LEARNING_MANIFEST.learningPaths.find((item) => item.id === "ciphers");
   assert.equal(path.steps[0].href, lesson.href);
-  assert.equal(path.steps[1].href, "/code");
+  assert.equal(path.steps[1].href, "/code?library=public");
   assert.equal(path.steps[2].href, BEIT_MIDRASH_LEARNING_MANIFEST.sourceReadingLesson.href);
 });
