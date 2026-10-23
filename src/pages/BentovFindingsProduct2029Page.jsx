@@ -240,6 +240,8 @@ const BOOK_READER_SYSTEM_CONTRACT = Object.freeze({
     sourceWitnessPreserved: true,
     aiExplanationLanguage: "he",
     aiExplanationIsSource: false,
+    fullBookMode: "chapter_by_chapter_hebrew_companion",
+    verbatimFullTranslation: false,
     compileOnceProjectMany: true,
     surfaceNamesContract: false,
   }),
@@ -310,14 +312,35 @@ const FINAL_PRODUCT_COPY = Object.freeze([
   }),
 ]);
 
-const BOOK_HEBREW_GUIDE = Object.freeze([
-  Object.freeze({ key: "opening", fromPdf: 1, toPdf: 30, part: "פתיחה", title: "איך לגשת למסע", summary: "הפתיחות ממקמות את הספר כהמשך למסע של בנטוב: ניסיון לחבר חוויה פנימית, דימויים קוסמולוגיים והומור לשפה אחת. הן מסבירות שהספר מציע מודל חווייתי ורעיוני, לא ספר לימוד מדעי רגיל.", points: ["הרקע לכתיבת הספר", "הקשר בין גוף, מודעות ויקום", "איך לקרוא דימוי לצד טענה"] }),
-  Object.freeze({ key: "fertile-void", fromPdf: 31, toPdf: 42, part: "חלק ראשון", title: "החלל הפורה", summary: "החלק בונה תמונת יקום מחזורית ומציג את המוחלט, הרטט והמעבר מפוטנציאל לצורה. ההסבר העברי שומר את ההבדל בין המטפורות של הספר לבין טענות הניתנות לבדיקה.", points: ["מודל היקום המחזורי", "מנוחה ותנועה", "פוטנציאל, רטט וחומר"] }),
-  Object.freeze({ key: "creators", fromPdf: 43, toPdf: 60, part: "חלק שני", title: "תודעות, יוצרות ויצירה", summary: "כאן הספר מרחיב את מושג התודעה מן האדם למערכות גדולות יותר, ומתאר יצירה באמצעות דמויות, קוטביות ומבנים קוסמיים. זהו רובד סיפורי־מטפיזי שיש לקרוא כמודל של המחבר.", points: ["תודעה בסיסית ומורחבת", "מערכות גדולות כישויות", "קוטביות ותהליך יצירה"] }),
-  Object.freeze({ key: "beyond", fromPdf: 61, toPdf: 84, part: "חלק שלישי", title: "מעבר ליקום", summary: "המסע עובר דרך יקומים, קוסמוסים והיררכיות של מידע. סמלים, אותיות וצלילים מתוארים כמבנים דחוסים של משמעות, והשלם מוצג כמערכת הולוגרפית מקושרת.", points: ["קני מידה מקוננים", "סמל כמידע דחוס", "הבריאה כמערכת מקושרת"] }),
-  Object.freeze({ key: "nirvana", fromPdf: 85, toPdf: 98, part: "חלק רביעי", title: "סיור מודרך בנירוונה", summary: "באמצעות סיפור ודמויות הספר בוחן את ההבדל בין אושר פרטי לבין פעולה למען אחרים. הפרדוקס בין הממשי לאידיאלי נעשה כאן לשאלה על התפתחות, שירות ובחירה.", points: ["אושר לעומת התפתחות", "חמלה ושירות", "הממשי והאידיאלי"] }),
-  Object.freeze({ key: "higher-self", fromPdf: 99, toPdf: 106, part: "חלק חמישי", title: "מי מנהל את ההצגה?", summary: "החלק האחרון מחזיר את המסע אל המתבונן. העצמי היומיומי, העצמי הגבוה והמודעות הטהורה מוצגים כשכבות של זהות, והסיכום מתאר התפתחות כתהליך של היזכרות.", points: ["העצמי כמתבונן", "שכבות זהות", "חזרה אל מקור המודעות"] }),
-  Object.freeze({ key: "appendix", fromPdf: 107, toPdf: 127, part: "נספחים", title: "הולוגרמה וקוסמולוגיה", summary: "הנספחים מרחיבים את מושג ההולוגרמה, מציבים את הקוסמולוגיה של בנטוב בהקשר נוסף ומוסיפים עדויות ביוגרפיות. הם עוזרים להבחין בין המודל, הפרשנות והאדם שפיתח אותם.", points: ["איך פועלת הולוגרמה", "קריאה ביקורתית בקוסמולוגיה", "הקשר ביוגרפי"] }),
+// A complete Hebrew reading companion, not a replacement translation. Every
+// PDF page belongs to one contiguous chapter window so the English witness can
+// remain open while the reader receives original Hebrew explanation.
+const BOOK_CHAPTER_COMPANION = Object.freeze([
+  Object.freeze({ key: "front-matter", fromPdf: 1, toPdf: 8, part: "שער ותוכן", title: "הספר כמפת מסע", originalTitle: "Title Pages and Contents", summary: "עמודי הפתיחה מציגים את הספר כמסע רעיוני דרך שכבות של תודעה וקוסמולוגיה. תוכן העניינים כבר חושף את התנועה המרכזית: מן החלל והיקום אל שאלת העצמי והמתבונן.", points: ["מבנה הספר בחמישה חלקים", "מעבר מקוסמולוגיה לזהות", "הנספחים כרקע ביקורתי"] }),
+  Object.freeze({ key: "second-edition-foreword", fromPdf: 9, toPdf: 10, part: "פתיחה", title: "מבט מאוחר על המסע", originalTitle: "Foreword to the Second Edition", summary: "הקדמת המהדורה השנייה ממקמת את המסע של בנטוב כשרטוט אישי של חקירה פנימית. היא מזמינה לקרוא את הספר כתיעוד של דרך חשיבה וחוויה, ולא כתחליף להוכחה מדעית.", points: ["הספר כתיעוד מסע", "מעמד המודל האישי", "קריאה סקרנית וביקורתית"] }),
+  Object.freeze({ key: "foreword", fromPdf: 11, toPdf: 16, part: "פתיחה", title: "ממציא שפונה פנימה", originalTitle: "Foreword", summary: "ההקדמה מתארת את השילוב החריג בין סקרנות הנדסית, מדיטציה ודמיון אצל בנטוב. היא מספקת הקשר לאופן שבו הוא הופך חוויות ותובנות למודלים חזותיים.", points: ["רקע הנדסי ויצירתי", "חוויה כמקור לשאלות", "מודל חזותי ככלי חשיבה"] }),
+  Object.freeze({ key: "note-on-ben", fromPdf: 17, toPdf: 19, part: "פתיחה", title: "האדם שמאחורי המודל", originalTitle: "A Note on Ben", summary: "הטקסט הביוגרפי מדגיש את הסקרנות, ההומור ויכולת החיבור של בנטוב בין תחומים. הוא עוזר להבין מדוע הספר נע בין תיאור אישי, משל ורעיון קוסמולוגי.", points: ["אישיות וסגנון", "חיבור בין תחומי ידע", "הומור כחלק מהחקירה"] }),
+  Object.freeze({ key: "preface", fromPdf: 20, toPdf: 23, part: "פתיחה", title: "איך נולד הספר", originalTitle: "Preface", summary: "ההקדמה מציגה את הרקע לחיפוש של בנטוב ואת הדרך שבה התגבשו אצלו מודלים זמניים. הדגש החשוב לקורא הוא שהרעיונות מוצעים כתחנות בחקירה מתפתחת.", points: ["שורשי החיפוש", "מודלים כעבודה בתהליך", "גבולות הוודאות של המחבר"] }),
+  Object.freeze({ key: "introduction", fromPdf: 24, toPdf: 31, part: "מבוא", title: "שפת המסע", originalTitle: "Introduction", summary: "המבוא מסביר מדוע הספר משתמש בנשמות, ישויות ומבנים קוסמיים לצד שפה של מערכות והנדסה. הוא מכין את הקורא למודל שמערב חוויה, דמיון ופרשנות.", points: ["למה נדרשת שפה רחבה", "הבדל בין תיאור למודל", "המבט ההנדסי על תודעה"] }),
+  Object.freeze({ key: "universe-model", fromPdf: 32, toPdf: 36, part: "חלק ראשון · החלל הפורה", title: "מודל של יקום מחזורי", originalTitle: "The Model of the Universe", summary: "בנטוב מציע לדמיין את היקום כמערכת מחזורית שבה זרימה, יצירה וחזרה קשורות זו בזו. ההסבר עוזר לעקוב אחר הגאומטריה והרעיונות בלי לבלבל בין המחשה לבין ידע מדעי מוסכם.", points: ["מחזוריות וזרימה", "מרכז, גבול ותנועה", "המחשה לעומת הוכחה"] }),
+  Object.freeze({ key: "absolute", fromPdf: 37, toPdf: 38, part: "חלק ראשון · החלל הפורה", title: "טבעו של המוחלט", originalTitle: "The Nature of the Absolute", summary: "הפרק בוחן מצב בסיסי של שקט ופוטנציאל שממנו יכולה להופיע תנועה. המוחלט מתפקד במודל כרקע שאינו עוד עצם, אלא תנאי לאפשרות של הופעה ושינוי.", points: ["שקט ופוטנציאל", "מה קודם לצורה", "גבולות השפה על המוחלט"] }),
+  Object.freeze({ key: "manifest-potential", fromPdf: 39, toPdf: 42, part: "חלק ראשון · החלל הפורה", title: "מן האפשרי אל המופיע", originalTitle: "Things Manifest and Potential", summary: "באמצעות דימויי רטט הפרק מבדיל בין מצב אפשרי לבין תופעה שהתממשה. השכבה העברית מסמנת מתי מדובר באנלוגיה מועילה ומתי הספר מרחיב אותה לטענה מטפיזית.", points: ["פוטנציאל ומימוש", "רטט כדימוי מארגן", "אנלוגיה מול טענה"] }),
+  Object.freeze({ key: "higher-consciousness", fromPdf: 43, toPdf: 49, part: "חלק שני · ישויות ויוצרות", title: "תודעה בסיסית ותודעה רחבה", originalTitle: "Rudimentary and Higher Consciousness", summary: "הפרק מציע לראות מערכת חיה כבעלת רמות שונות של ארגון ומודעות. הוא עובר מן הגוף והאיברים אל מערכות גדולות יותר ושואל כיצד נקודת המבט משתנה עם קנה המידה.", points: ["רמות של ארגון", "הגוף כמערכת", "שינוי נקודת המבט"] }),
+  Object.freeze({ key: "devas", fromPdf: 50, toPdf: 55, part: "חלק שני · ישויות ויוצרות", title: "מערכות גדולות כישויות", originalTitle: "The Devas", summary: "בנטוב מרחיב את רעיון המערכת החיה אל טבע, כוכבים וגלקסיות ומתאר אותם באמצעות דמות ה־Deva. זו דרך סיפורית להמחיש שלם בעל תכונות שאינן נראות ברכיב הבודד.", points: ["שלם ותכונות מתהוות", "טבע כמערכת", "דמות מטפיזית ככלי הסבר"] }),
+  Object.freeze({ key: "creators", fromPdf: 56, toPdf: 60, part: "חלק שני · ישויות ויוצרות", title: "יצירת יקום דרך קוטביות", originalTitle: "Mr. and Mrs. Creator and the Making of a Universe", summary: "הפרק מתאר יצירה בעזרת דמויות וקוטביות משלימה. מאחורי העלילה עומד ניסיון להסביר כיצד הפרדה, מתח וחיבור יכולים ליצור תהליך חדש.", points: ["קוטביות משלימה", "מתח כמנוע יצירה", "סיפור כמפת תהליך"] }),
+  Object.freeze({ key: "cosmos", fromPdf: 61, toPdf: 72, part: "חלק שלישי · מעבר ליקום", title: "הקוסמוס כסולם של מידע", originalTitle: "The Cosmos", summary: "המסע מתרחב אל מבנים גדולים מן היקום הבודד ומשתמש בצורות, אותיות ודפוסי התאבכות כדי לתאר העברת מידע. זהו אחד הפרקים המרכזיים להבנת הקשר שבנטוב בונה בין צורה, תודעה ומשמעות.", points: ["קני מידה מקוננים", "צורה כנושאת מידע", "אות וסמל בתוך המודל"] }),
+  Object.freeze({ key: "super-cosmos", fromPdf: 73, toPdf: 74, part: "חלק שלישי · מעבר ליקום", title: "מעבר לגבול הקוסמוס", originalTitle: "The Super-Cosmos", summary: "הפרק ממשיך להגדיל את קנה המידה ומציג קוסמוסים רבים כחלק ממערכת רחבה יותר. ההרחבה מדגימה את עקרון הקינון: כל שלם עשוי להיות רכיב בתוך שלם נוסף.", points: ["מערכות בתוך מערכות", "קנה מידה ותודעה", "האינסוף כאתגר מחשבתי"] }),
+  Object.freeze({ key: "evolution", fromPdf: 75, toPdf: 76, part: "חלק שלישי · מעבר ליקום", title: "למה יש התפתחות?", originalTitle: "Why Evolution?", summary: "כאן המסע נע מן המבנה אל התכלית ושואל מדוע מערכות ותודעות משתנות. התשובה של הספר נמסרת בסיפור ובדימוי, ולכן כדאי לקרוא אותה כהצעת משמעות ולא כמנגנון ביולוגי.", points: ["שאלת התכלית", "התפתחות ככיוון", "משמעות לעומת מנגנון"] }),
+  Object.freeze({ key: "all-there-is", fromPdf: 77, toPdf: 84, part: "חלק שלישי · מעבר ליקום", title: "הבריאה המופיעה והשלם", originalTitle: "The Manifest Creation or All-There-Is", summary: "הפרק מאגד את שכבות המודל לתמונה של בריאה מקושרת. סמלים, רמות תודעה ומבנים הולוגרפיים מוצגים כחלקים של מערכת אחת שבה מידע יכול להופיע בצורות שונות.", points: ["שבע רמות מקוננות", "השלם והחלק", "מידע בצורות שונות"] }),
+  Object.freeze({ key: "naga", fromPdf: 85, toPdf: 87, part: "חלק רביעי · סיור בנירוונה", title: "המפגש עם נאגה", originalTitle: "Encounter With Naga", summary: "המסע מקבל אופי סיפורי ומעמיד את הגיבור מול שומר סף ושאלת האושר הפרטי. הפרק מתחיל לברר האם מצב של שלווה מוחלטת הוא יעד סופי או עצירה בדרך.", points: ["שומר סף", "אושר פרטי", "המשך התפתחות"] }),
+  Object.freeze({ key: "blue-collar", fromPdf: 88, toPdf: 89, part: "חלק רביעי · סיור בנירוונה", title: "עובדי המעשה", originalTitle: "The Blue-Collar Workers", summary: "הפרק מציג דמויות שבוחרות לפעול למען התפתחותם של אחרים במקום להישאר במנוחה פרטית. השירות והחמלה מוצגים כצורה פעילה של תודעה מורחבת.", points: ["חמלה כפעולה", "שירות לאחרים", "בחירה אחרי הארה"] }),
+  Object.freeze({ key: "zoo", fromPdf: 90, toPdf: 91, part: "חלק רביעי · סיור בנירוונה", title: "גן החיות הקוסמי", originalTitle: "The Zoo", summary: "באמצעות תחנה דמיונית נוספת הספר בוחן מגוון של צורות חיים ותודעה. החוויה מרחיבה את השאלה מי נחשב מתבונן ואילו נקודות מבט עשויות להתקיים מעבר לאדם.", points: ["ריבוי צורות חיים", "גבולות המבט האנושי", "דמיון כתרגיל מחשבתי"] }),
+  Object.freeze({ key: "paradox", fromPdf: 92, toPdf: 95, part: "חלק רביעי · סיור בנירוונה", title: "הפרדוקס המוחלט", originalTitle: "The Absolute Paradox", summary: "הפרק מעמת בין המציאות הקיימת לבין האידיאל שאנו יוצרים בתודעה. במקום לבחור צד אחד, המודל מתאר תנועה מתמדת שבה רעיון יכול להשפיע על מה שנעשה ממשי.", points: ["ממשי ואידיאלי", "רעיון שמכוון פעולה", "ניגודים בתוך מערכת אחת"] }),
+  Object.freeze({ key: "higher-self", fromPdf: 96, toPdf: 99, part: "חלק חמישי · מי מנהל", title: "המפגש עם העצמי הגבוה", originalTitle: "Meeting Your Higher Self", summary: "לאחר שהמבנים החיצוניים נעלמים, המסע חוזר לשאלת זהותו של המתבונן. העצמי היומיומי והעצמי הגבוה מוצגים כנקודות מבט שונות בתוך רצף רחב של זהות.", points: ["מי הוא המתבונן", "שכבות של זהות", "המפגש ללא מבנה"] }),
+  Object.freeze({ key: "summing-up", fromPdf: 100, toPdf: 103, part: "חלק חמישי · מי מנהל", title: "איסוף המסע", originalTitle: "Summing It Up", summary: "הסיכום מחבר את החלל, היצירה, ההתפתחות והעצמי לסיפור אחד של יציאה וחזרה. הוא מציג את ההתפתחות כתהליך שבו התודעה מגלה מחדש את הקשר שלה אל השלם.", points: ["יציאה מן האחדות", "משחק של גילוי", "חזרה אל השלם"] }),
+  Object.freeze({ key: "hologram", fromPdf: 104, toPdf: 108, part: "נספח", title: "מהי הולוגרמה?", originalTitle: "What is a Hologram?", summary: "הנספח מסביר בצורה נגישה את עקרון ההולוגרמה ואת האופן שבו מידע על השלם יכול להופיע בכל חלק. ההסבר מספק רקע לדימוי ההולוגרפי שבו הספר משתמש לאורך המסע.", points: ["התאבכות ושחזור תמונה", "החלק נושא מידע על השלם", "מן הטכנולוגיה אל המטפורה"] }),
+  Object.freeze({ key: "cosmology-essay", fromPdf: 109, toPdf: 124, part: "נספח", title: "הקוסמולוגיה של בנטוב בהקשר", originalTitle: "Essay on Cosmology", summary: "המסה מציבה את המודל של בנטוב לצד רעיונות ותצפיות מן הקוסמולוגיה של תקופתו. היא מועילה במיוחד לקריאה ביקורתית: אילו חלקים הם הקשר היסטורי, אילו השערה ואילו טענה של המחבר.", points: ["היסטוריה של מודלים קוסמולוגיים", "מעמד הראיות", "השוואה בין מדע לפרשנות"] }),
+  Object.freeze({ key: "author-and-back", fromPdf: 125, toPdf: 127, part: "אחרית", title: "חיי המחבר והמשך הקריאה", originalTitle: "About the Author and Back Matter", summary: "עמודי הסיום מחזירים את המודלים אל סיפור חייו של בנטוב ומצביעים אל כתביו הנוספים. הם סוגרים את הספר בהבחנה בין האדם, יצירתו והשאלות שהשאיר פתוחות.", points: ["תחנות בחיי בנטוב", "הקשר לעבודתו כממציא", "שער להמשך מחקר"] }),
 ]);
 
 function pagesFromVerifiedLocator(locator) {
@@ -331,8 +354,8 @@ function pagesFromVerifiedLocator(locator) {
   return [...new Set(pages)];
 }
 
-function hebrewGuideForPage(page) {
-  return BOOK_HEBREW_GUIDE.find(section => page >= section.fromPdf && page <= section.toPdf) || BOOK_HEBREW_GUIDE[0];
+function chapterCompanionForPage(page) {
+  return BOOK_CHAPTER_COMPANION.find(chapter => page >= chapter.fromPdf && page <= chapter.toPdf) || BOOK_CHAPTER_COMPANION[0];
 }
 
 function finalFindingCode(number) {
@@ -858,7 +881,7 @@ function FinalFindingExperience({ finding }) {
   const [activePage, setActivePage] = useState(sourcePages[0] || finding.page);
   const lens = FINAL_FINDING_LENSES[activeLens];
   const productCopy = FINAL_PRODUCT_COPY[(finding.number - 1) % FINAL_PRODUCT_COPY.length];
-  const activeGuide = hebrewGuideForPage(activePage);
+  const activeChapter = chapterCompanionForPage(activePage);
   const findingCode = finalFindingCode(finding.number);
   const source = {
     ...BENTOV_SOURCE,
@@ -948,13 +971,13 @@ function FinalFindingExperience({ finding }) {
     <section className="bentov29-ai-context" aria-labelledby="bentov29-ai-context-title">
       <header>
         <div>
-          <div className="bentov29-section-label">הסבר AI בעברית · {activeGuide.part}</div>
-          <h2 id="bentov29-ai-context-title">{activeGuide.title}</h2>
+          <div className="bentov29-section-label">הסבר AI בעברית · {activeChapter.part}</div>
+          <h2 id="bentov29-ai-context-title">{activeChapter.title}</h2>
         </div>
         <span>מקור: אנגלית · הסבר: עברית</span>
       </header>
-      <p>{activeGuide.summary}</p>
-      <ul>{activeGuide.points.map(point => <li key={point}>{point}</li>)}</ul>
+      <p>{activeChapter.summary}</p>
+      <ul>{activeChapter.points.map(point => <li key={point}>{point}</li>)}</ul>
       <small>זהו סיכום והסבר לקריאה, לא תרגום מילה במילה ולא תחליף לעד המקור המוצג לצד הממצא.</small>
     </section>
 
@@ -1005,20 +1028,40 @@ function FinalFindingExperience({ finding }) {
     <section className="bentov29-book-guide" aria-labelledby="bentov29-book-guide-title">
       <header>
         <div>
-          <div className="bentov29-section-label">מפת הספר בעברית</div>
-          <h2 id="bentov29-book-guide-title">הסבר רחב לכל מסלול הספר</h2>
+          <div className="bentov29-section-label">מלווה קריאה עברי מלא</div>
+          <h2 id="bentov29-book-guide-title">הספר, פרק אחר פרק</h2>
         </div>
-        <span>7 אזורי קריאה · 127 עמודי PDF</span>
+        <span>25 תחנות · כל 127 עמודי ה־PDF</span>
       </header>
-      <div>
-        {BOOK_HEBREW_GUIDE.map(section => <article key={section.key} className={section.key === activeGuide.key ? "is-current" : ""}>
-          <span>{section.part}</span>
-          <h3>{section.title}</h3>
-          <p>{section.summary}</p>
-          <small>PDF {section.fromPdf}–{section.toPdf}</small>
-        </article>)}
+      <div className="bentov29-book-guide-layout">
+        <nav className="bentov29-chapter-index" aria-label="בחירת פרק בספר">
+          {BOOK_CHAPTER_COMPANION.map((chapter, index) => <button
+            type="button"
+            key={chapter.key}
+            className={chapter.key === activeChapter.key ? "is-current" : ""}
+            onClick={() => setActivePage(chapter.fromPdf)}
+            aria-pressed={chapter.key === activeChapter.key}
+          >
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <span><strong>{chapter.title}</strong><small>{chapter.part} · PDF {chapter.fromPdf}–{chapter.toPdf}</small></span>
+          </button>)}
+        </nav>
+        <article className="bentov29-chapter-detail" aria-live="polite">
+          <div className="bentov29-chapter-detail-head">
+            <span>{activeChapter.part}</span>
+            <small>PDF {activeChapter.fromPdf}–{activeChapter.toPdf}</small>
+          </div>
+          <p className="bentov29-chapter-original" lang="en" dir="ltr">{activeChapter.originalTitle}</p>
+          <h3>{activeChapter.title}</h3>
+          <p>{activeChapter.summary}</p>
+          <ul>{activeChapter.points.map(point => <li key={point}>{point}</li>)}</ul>
+          <button type="button" onClick={() => setActivePage(activeChapter.fromPdf)}>
+            פתח את תחילת הפרק במקור · עמוד {activeChapter.fromPdf}
+          </button>
+          <small>הסבר AI בעברית · סיכום ופרשנות, לא תרגום מילולי</small>
+        </article>
       </div>
-      <p>כל ההסברים כאן הם שכבת הבנה עברית שנוצרה עבור חוויית הקריאה. הטקסט האנגלי המקורי נשמר ומוצג כמקור הסמכות.</p>
+      <p>כל עמוד בספר משויך לתחנת קריאה. ההסברים הם שכבת הבנה עברית מקורית; הטקסט האנגלי נשמר פתוח כמקור הסמכות ואינו מוחלף או מועתק.</p>
     </section>
 
     <section className="bentov29-final-related" aria-labelledby="bentov29-final-related-title">

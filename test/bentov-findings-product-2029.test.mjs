@@ -71,17 +71,47 @@ test("non-Hebrew books keep the witness and add a separate reusable Hebrew AI ex
   assert.match(page, /sourceWitnessPreserved: true/);
   assert.match(page, /aiExplanationLanguage: "he"/);
   assert.match(page, /aiExplanationIsSource: false/);
+  assert.match(page, /fullBookMode: "chapter_by_chapter_hebrew_companion"/);
+  assert.match(page, /verbatimFullTranslation: false/);
   assert.match(page, /compileOnceProjectMany: true/);
   assert.match(page, /surfaceNamesContract: false/);
   assert.match(page, /data-translation-presentation=\{BOOK_READER_SYSTEM_CONTRACT\.nonHebrewPresentation\.mode\}/);
-  assert.match(page, /const BOOK_HEBREW_GUIDE/);
+  assert.match(page, /const BOOK_CHAPTER_COMPANION/);
   assert.match(page, /הסבר AI בעברית/);
-  assert.match(page, /הסבר רחב לכל מסלול הספר/);
+  assert.match(page, /הספר, פרק אחר פרק/);
   assert.match(page, /זהו סיכום והסבר לקריאה, לא תרגום מילה במילה/);
-  assert.match(page, /הטקסט האנגלי המקורי נשמר ומוצג כמקור הסמכות/);
+  assert.match(page, /הטקסט האנגלי נשמר פתוח כמקור הסמכות ואינו מוחלף או מועתק/);
   assert.doesNotMatch(page, /חוק ספרים:|חוק המקור|חובת תצוגה/);
   assert.match(css, /\.bentov29-ai-context/);
   assert.match(css, /\.bentov29-book-guide/);
+});
+
+test("the Hebrew companion covers the whole book chapter by chapter and controls the source page", () => {
+  const companionStart = page.indexOf("const BOOK_CHAPTER_COMPANION");
+  const companionEnd = page.indexOf("function pagesFromVerifiedLocator", companionStart);
+  const companion = page.slice(companionStart, companionEnd);
+  const windows = [...companion.matchAll(/fromPdf: (\d+), toPdf: (\d+)/g)]
+    .map(match => ({ from: Number(match[1]), to: Number(match[2]) }));
+
+  assert.equal(windows.length, 25);
+  assert.equal(windows[0].from, 1);
+  assert.equal(windows.at(-1).to, 127);
+  windows.forEach((window, index) => {
+    assert.ok(window.from <= window.to);
+    if (index > 0) assert.equal(window.from, windows[index - 1].to + 1);
+  });
+
+  assert.match(page, /25 תחנות · כל 127 עמודי ה־PDF/);
+  assert.match(page, /originalTitle: "The Model of the Universe"/);
+  assert.match(page, /originalTitle: "Meeting Your Higher Self"/);
+  assert.match(page, /originalTitle: "Essay on Cosmology"/);
+  assert.match(page, /aria-label="בחירת פרק בספר"/);
+  assert.match(page, /BOOK_CHAPTER_COMPANION\.map\(\(chapter, index\)/);
+  assert.match(page, /onClick=\{\(\) => setActivePage\(chapter\.fromPdf\)\}/);
+  assert.match(page, /chapterCompanionForPage\(activePage\)/);
+  assert.match(page, /סיכום ופרשנות, לא תרגום מילולי/);
+  assert.match(css, /\.bentov29-chapter-index/);
+  assert.match(css, /\.bentov29-chapter-detail/);
 });
 
 test("product data is visibly a synthetic display model and cannot publish", () => {
