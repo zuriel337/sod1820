@@ -55,7 +55,7 @@ test("book source law keeps a large authorized PDF surface beside every finding"
   assert.match(page, /access: "approved-display"/);
   assert.match(page, /קובץ המקור עצמו מוגן בפריוויו/);
   assert.match(page, /לא נמצא בענף נכס PDF שאושר לתצוגה/);
-  assert.match(page, /זהו קובץ המקור באנגלית/);
+  assert.match(page, /המקור באנגלית נשאר פתוח לצד ההסבר העברי/);
   assert.match(page, /href="#bentov29-final-source"/);
   assert.match(page, /pagesFromVerifiedLocator/);
   assert.match(page, /sourcePages\.length/);

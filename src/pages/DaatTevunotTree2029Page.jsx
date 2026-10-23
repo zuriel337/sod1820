@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
@@ -53,15 +54,16 @@ function SectionNode({ section, active, matched, onSelect }) {
 
 function SourcePanel({ section }) {
   const pdfUrl = `${DAAT_TEVUNOT_SOURCE.pdfUrl}#page=${section.pdfPage}&view=FitH`;
-  return <aside id="daat29-source" className="daat29-source" aria-labelledby="daat29-source-title">
+  const fullscreenRef = useRef(null);
+  return <aside ref={fullscreenRef} id="daat29-source" className="daat29-source book-fullscreen29-target" aria-labelledby="daat29-source-title">
     <header>
       <div>
         <span>המקור המלא · PDF</span>
         <h2 id="daat29-source-title">עמוד {section.pdfPage}</h2>
       </div>
-      <b>סעיף {section.marker}</b>
+      <div className="daat29-source-actions"><b>סעיף {section.marker}</b><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="daat29-source" /></div>
     </header>
-    <div className="daat29-pdf-frame">
+    <div className="daat29-pdf-frame" data-book-pdf-frame>
       <iframe
         key={section.pdfPage}
         src={pdfUrl}
@@ -69,14 +71,14 @@ function SourcePanel({ section }) {
         loading="eager"
       />
     </div>
-    <dl>
+    <dl data-book-reader-secondary>
       <div><dt>ספר</dt><dd>{DAAT_TEVUNOT_SOURCE.title}</dd></div>
       <div><dt>מחבר</dt><dd>{DAAT_TEVUNOT_SOURCE.author}</dd></div>
       <div><dt>עד</dt><dd>מהדורת האתר</dd></div>
       <div><dt>רישיון</dt><dd>{DAAT_TEVUNOT_SOURCE.license}</dd></div>
     </dl>
-    <a href={DAAT_TEVUNOT_SOURCE.pdfUrl} target="_blank" rel="noreferrer">פתיחת ה־PDF בחלון נפרד ↗</a>
-    <p>מספרי העמודים שייכים למהדורת האתר. זהו עד מחקר יציב ונגיש, לא מהדורה דיפלומטית היסטורית.</p>
+    <a href={DAAT_TEVUNOT_SOURCE.pdfUrl} target="_blank" rel="noreferrer" data-book-reader-secondary>פתיחת ה־PDF בחלון נפרד ↗</a>
+    <p data-book-reader-secondary>המקור המלא נשאר פתוח לצד כל סעיף.</p>
   </aside>;
 }
 
@@ -110,7 +112,7 @@ function ReadingPanel({ section, onSelect }) {
         <strong>{section.focus}</strong>
       </blockquote>
       <ul>{branch.questions.map(question => <li key={question}>{question}</li>)}</ul>
-      <small>מפתח הקריאה הוא הסבר מסייע בפריוויו. הוא אינו ציטוט, אינו תרגום מילולי ואינו ממצא קנוני.</small>
+      <small>מפתח קריאה נלווה · נוסח המקור המלא מופיע מעליו.</small>
     </section>
 
     <nav className="daat29-reader-nav" aria-label="מעבר בין סעיפים">

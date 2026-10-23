@@ -76,10 +76,10 @@ test("every selected section keeps the full source, page and modern reading guid
   assert.match(page, /section\.sourceText/);
   assert.match(page, /branch\.plainGuide/);
   assert.match(page, /מוקד הסעיף · מתוך המקור/);
-  assert.match(page, /מפתח הקריאה הוא הסבר מסייע בפריוויו/);
+  assert.match(page, /מפתח קריאה נלווה · נוסח המקור המלא מופיע מעליו/);
   assert.match(page, /DAAT_TEVUNOT_SOURCE\.pdfUrl.*#page=\$\{section\.pdfPage\}/s);
   assert.match(page, /המקור המלא · PDF/);
-  assert.match(page, /מספרי העמודים שייכים למהדורת האתר/);
+  assert.match(page, /<dt>עד<\/dt><dd>מהדורת האתר<\/dd>/);
   assert.match(page, /שלוש שכבות שאינן מתערבבות/);
   assert.match(page, /הדוסייה הקנוני נשאר פרטי ומועמד/);
 });

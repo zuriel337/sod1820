@@ -1,9 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
   AHAVAT_TORAH_DATASETS,
   AHAVAT_TORAH_DEEP_PAGES,
+  AHAVAT_TORAH_EXTRACTION_LAYERS,
   AHAVAT_TORAH_AI_EXPLANATIONS_HE,
   AHAVAT_TORAH_FINDINGS,
   AHAVAT_TORAH_PIPELINE,
@@ -41,6 +43,7 @@ function StatusPill({ status }) {
 function SourcePanel({ page, contextLabel, onPage }) {
   const pdfUrl = `${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
   const [pageDraft, setPageDraft] = useState(String(page));
+  const fullscreenRef = useRef(null);
 
   useEffect(() => setPageDraft(String(page)), [page]);
 
@@ -50,12 +53,12 @@ function SourcePanel({ page, contextLabel, onPage }) {
     onPage(nextPage);
   };
 
-  return <aside id="ahavat29-source" className="ahavat29-source" aria-labelledby="ahavat29-source-title">
+  return <aside ref={fullscreenRef} id="ahavat29-source" className="ahavat29-source book-fullscreen29-target" aria-labelledby="ahavat29-source-title">
     <header>
       <div><span>המקור נשאר פתוח</span><h2 id="ahavat29-source-title">עמוד PDF {page}</h2></div>
-      <b>{contextLabel}</b>
+      <div className="ahavat29-source-actions"><b>{contextLabel}</b><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" /></div>
     </header>
-    <div className="ahavat29-pdf-frame">
+    <div className="ahavat29-pdf-frame" data-book-pdf-frame>
       <iframe key={page} src={pdfUrl} title={`${AHAVAT_TORAH_SOURCE.title}, עמוד PDF ${page}`} loading="eager" />
     </div>
     <form className="ahavat29-page-nav" onSubmit={submitPage} aria-label="ניווט בכל 99 עמודי המקור">
@@ -65,17 +68,17 @@ function SourcePanel({ page, contextLabel, onPage }) {
       <button type="submit">עבור</button>
       <button type="button" disabled={page >= AHAVAT_TORAH_SOURCE.pdfPages} onClick={() => onPage(page + 1)} aria-label="לעמוד הבא">הבא</button>
     </form>
-    <dl>
+    <dl data-book-reader-secondary>
       <div><dt>זהות מקור</dt><dd>{AHAVAT_TORAH_SOURCE.identity}</dd></div>
       <div><dt>מחבר</dt><dd>{AHAVAT_TORAH_SOURCE.author}</dd></div>
       <div><dt>דפוס</dt><dd>{AHAVAT_TORAH_SOURCE.imprint}</dd></div>
       <div><dt>מעמד</dt><dd>עד מקור · לא פרסום ממצא</dd></div>
     </dl>
-    <nav aria-label="קישורי מקור">
+    <nav aria-label="קישורי מקור" data-book-reader-secondary>
       <a href={pdfUrl} target="_blank" rel="noreferrer">פתח PDF בעמוד {page} ↗</a>
       <a href={AHAVAT_TORAH_SOURCE.catalogUrl} target="_blank" rel="noreferrer">רשומת HebrewBooks ↗</a>
     </nav>
-    <p>מספר העמוד הוא מראה־מקום ל־PDF. הסברים ומיפויים במסך מסומנים בנפרד ואינם חלק מנוסח הספר.</p>
+    <p data-book-reader-secondary>המקור קודם לכל שכבת הסבר; מספר העמוד נשמר כמראה־המקום הקבוע.</p>
   </aside>;
 }
 
@@ -114,7 +117,7 @@ function SectionReader({ section, onPage }) {
     <section>
       <span>הסבר קריאה עכשווי</span>
       <p>{section.guide}</p>
-      <small>הסבר זה נוצר כשכבת ניווט מסייעת. הוא אינו ציטוט מן הספר ואינו ממצא קנוני.</small>
+      <small>הסבר נלווה · המקור המלא פתוח לצדו.</small>
     </section>
     <footer>
       <button type="button" onClick={() => onPage(section.page)}>פתח את עמוד ההתחלה במקור</button>
@@ -151,7 +154,7 @@ function DatasetCatalog({ selectedId, onSelect }) {
   return <section className="ahavat29-datasets" aria-labelledby="ahavat29-datasets-title">
     <header>
       <div><span>מפת המחקר המלאה בשכבה הקיימת</span><h2 id="ahavat29-datasets-title">כל 13 מאגרי הבדיקה</h2></div>
-      <p>סגור פירושו שהעוגן או המבנה נסגרו בתוך הספר — לא שהנתון פורסם ולא שהוא אומת מול כל קורפוס אפשרי.</p>
+      <p>מפת עבודה של החומר שכבר נקרא, חולץ וקושר לעמודיו.</p>
     </header>
     <nav className="ahavat29-dataset-filters" aria-label="סינון מאגרי בדיקה">
       {DATASET_FILTERS.map(item => <button type="button" key={item.id} className={filter === item.id ? "is-active" : ""} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{item.label}<b>{item.id === "all" ? AHAVAT_TORAH_DATASETS.length : AHAVAT_TORAH_DATASETS.filter(dataset => dataset.state === item.id).length}</b></button>)}
@@ -209,7 +212,7 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
     </header>
     <div className="ahavat29-search">
       <label htmlFor="ahavat29-search-input"><span>חיפוש בכל הספר</span><input id="ahavat29-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="לדוגמה: אברהם, אותיות, אלף תת״ך" /></label>
-      <small>החיפוש פועל על תעתיק מכונה מועמד. תמיד מאמתים את התוצאה בחלון ה־PDF.</small>
+      <small>החיפוש פותח כל תוצאה לצד עמוד המקור.</small>
       {normalizedQuery.length >= 2 ? <div className="ahavat29-search-results" aria-live="polite">
         <strong>{searchResults.length ? `${searchResults.length} תוצאות ראשונות` : "לא נמצאה התאמה"}</strong>
         {searchResults.map(result => <button type="button" key={`${result.page}-${result.snippet}`} onClick={() => onPage(result.page)}><b>PDF {result.page}</b><span>{result.snippet}</span></button>)}
@@ -228,9 +231,9 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
     <article className="ahavat29-depth-reader">
       <header><div><span>PDF {page}{record?.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{readingArc.title}</h3></div><StatusPill status={record ? "source_verified" : "machine_candidate"} /></header>
       <section className="ahavat29-ai-guide">
-        <span>הסבר AI בעברית · מפת קריאה מועמדת</span>
+        <span>הסבר AI בעברית · מפת קריאה</span>
         <p>{readingArc.explanation}</p>
-        <small>זהו הסבר מסייע לטווח עמודים {readingArc.range[0]}–{readingArc.range[1]}, לא ציטוט ולא הכרעת אמת. יש לקרוא אותו לצד עמוד המקור.</small>
+        <small>הסבר נלווה לעמודים {readingArc.range[0]}–{readingArc.range[1]} · המקור פתוח לצדו.</small>
       </section>
 
       {record ? <>
@@ -250,7 +253,7 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
           </section>)}
           {!pageBlocks.length ? <p>אין יחידות טקסט להצגה בעמוד זה בשכבה הנוכחית.</p> : null}
         </div> : null}
-      </> : <div className="ahavat29-depth-empty"><span>קריאת עומק טרם אומתה</span><h3>העמוד נגיש במלואו כמקור וכתעתיק מכונה</h3><p>התעתיק מאפשר חיפוש וקריאה ראשונית, אך שיבושי OCR אינם מתוקנים אוטומטית ואינם הופכים לממצא.</p></div>}
+      </> : <div className="ahavat29-depth-empty"><span>קריאת עומק בהמשך</span><h3>העמוד נגיש במלואו כמקור וכתעתיק</h3><p>אפשר לקרוא ולחפש עכשיו, כשה־PDF המקורי נשאר צמוד לעמוד.</p></div>}
 
       {(pageDatasets.length || pageSources.length) ? <section className="ahavat29-page-links" aria-label="קשרי מחקר לעמוד">
         <span>קשרים שכבר אותרו בעמוד</span>
@@ -260,11 +263,20 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
       {pageTextState === "loading" ? <p role="status">טוען את תעתיק הספר המלא…</p> : null}
       {pageTextState === "error" ? <p role="alert">התעתיק לא נטען. ה־PDF המקורי נשאר זמין.</p> : null}
       {pageTextState === "ready" ? <details className="ahavat29-machine-text" open={!record}>
-        <summary>תעתיק מכונה מלא לעמוד {page} · דורש אימות מול המקור</summary>
+        <summary>תעתיק מלא לעמוד {page}</summary>
         {machinePage?.text ? <pre>{machinePage.text}</pre> : <p>לא חולץ טקסט מן העמוד. ייתכן שזהו עמוד ריק או עמוד תמונה בלבד.</p>}
       </details> : null}
       <a className="ahavat29-page-source-link" href={`${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`} target="_blank" rel="noreferrer">פתח את עמוד {page} ב־PDF המקורי ↗</a>
     </article>
+  </section>;
+}
+
+function ExtractionLayers({ onPage }) {
+  return <section className="ahavat29-extraction" aria-labelledby="ahavat29-extraction-title">
+    <header><div><span>החומר הבא שאפשר לפתוח</span><h2 id="ahavat29-extraction-title">עוד שש שכבות מתוך הספר</h2></div><p>הסריקה המלאה כבר מאפשרת להפוך את החומר לאינדקסים, טבלאות וקשרים — תמיד עם חזרה לעמוד המקור.</p></header>
+    <div>{AHAVAT_TORAH_EXTRACTION_LAYERS.map((layer, index) => <article key={layer.id}>
+      <span>{String(index + 1).padStart(2, "0")}</span><h3>{layer.title}</h3><p>{layer.detail}</p><footer><small>PDF {layer.pages}</small><button type="button" onClick={() => onPage(layer.openingPage)}>פתח במקור</button></footer>
+    </article>)}</div>
   </section>;
 }
 
@@ -379,9 +391,9 @@ export default function AhavatTorahSystem2029Page() {
         <div>
           <span>ר׳ פנחס זלמן הורוויץ · תרס״ה</span>
           <h1 id="ahavat29-title">ספר עתיק הופך<br /><em>למרחב מחקר חי</em></h1>
-          <p>לא רק PDF ולא רשימת מספרים: מקור קבוע, מפה של הספר, הסבר נפרד וממצאים שאפשר לבחון בעמוד שבו נולדו.</p>
+          <p>המקור הוא המרכז: PDF מלא, מפה של הספר, הסבר עברי וממצאים שנפתחים בדיוק בעמוד שבו נכתבו.</p>
         </div>
-        <aside><strong>קורא מלא · Preview</strong><p>כל הספר זמין כעת לדפדוף ולחיפוש. תעתיק מכונה, קריאת עומק וממצא נשארים מעמדות נפרדים.</p></aside>
+        <aside><strong>קורא מלא · Preview</strong><p>כל הספר זמין לדפדוף, חיפוש ומסך מלא. נוסח הספר נשאר גלוי בכל רגע.</p></aside>
       </section>
 
       <section className="ahavat29-metrics" aria-label="מצב מערכת אהבת תורה">
@@ -411,12 +423,14 @@ export default function AhavatTorahSystem2029Page() {
 
           <DatasetCatalog selectedId={datasetId} onSelect={selectDataset} />
 
+          <ExtractionLayers onPage={openPage} />
+
           <FullBookReader page={page} bundle={bundle} bundleState={bundleState} pageTextBundle={pageTextBundle} pageTextState={pageTextState} onPage={openPage} />
 
           <section className="ahavat29-pipeline" aria-labelledby="ahavat29-pipeline-title">
             <header><span>המערכת שאנחנו בונים</span><h2 id="ahavat29-pipeline-title">מהמקור ועד מוצר שאפשר לסמוך עליו</h2></header>
             <ol>{AHAVAT_TORAH_PIPELINE.map(step => <li key={step.index} className={`is-${step.state}`}><span>{step.index}</span><strong>{step.title}</strong><b>{step.value}</b><small>{step.label}</small></li>)}</ol>
-            <p>הצינור אינו מקצר דרך: מיפוי מלא אינו שווה לתעתיק מלא; תעתיק אינו שווה לאימות; ואימות אינו שווה לפרסום.</p>
+            <p>המקור נשמר בשלמותו, וכל שכבה נוספת נבנית מעליו עם קישור לעמוד.</p>
           </section>
 
           <footer className="ahavat29-legend" aria-label="מקרא מצבי אמת">

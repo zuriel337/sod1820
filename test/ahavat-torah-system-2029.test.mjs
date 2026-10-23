@@ -5,6 +5,7 @@ import {
   AHAVAT_TORAH_DATASETS,
   AHAVAT_TORAH_DEEP_PAGES,
   AHAVAT_TORAH_AI_EXPLANATIONS_HE,
+  AHAVAT_TORAH_EXTRACTION_LAYERS,
   AHAVAT_TORAH_FINDINGS,
   AHAVAT_TORAH_PIPELINE,
   AHAVAT_TORAH_READING_ARCS,
@@ -77,6 +78,8 @@ test("first findings remain typed and agree with the bounded source bundle", () 
 test("all bounded datasets and deep-read pages are represented without upgrading truth", () => {
   assert.equal(AHAVAT_TORAH_DATASETS.length, 13);
   assert.equal(AHAVAT_TORAH_DEEP_PAGES.length, 15);
+  assert.equal(AHAVAT_TORAH_EXTRACTION_LAYERS.length, 6);
+  assert.ok(AHAVAT_TORAH_EXTRACTION_LAYERS.every(item => item.openingPage >= 1 && item.openingPage <= 99));
   assert.deepEqual(AHAVAT_TORAH_DATASETS.map(item => item.id), bundle.datasets.map(item => item.dataset_id));
   assert.deepEqual(AHAVAT_TORAH_DEEP_PAGES.map(item => item.page), bundle.page_register.map(item => item.pdf_page));
   for (const dataset of AHAVAT_TORAH_DATASETS) {
@@ -87,7 +90,8 @@ test("all bounded datasets and deep-read pages are represented without upgrading
   }
   assert.match(page, /כל 13 מאגרי הבדיקה/);
   assert.match(page, /99 עמודים · קורא מלא וחיפוש/);
-  assert.match(page, /קריאת עומק טרם אומתה/);
+  assert.match(page, /קריאת עומק בהמשך/);
+  assert.match(page, /עוד שש שכבות מתוך הספר/);
   for (const block of bundle.content_blocks.filter(item => !item.text_he)) {
     assert.ok(AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id], `missing Hebrew AI explanation for ${block.block_id}`);
   }
@@ -108,18 +112,18 @@ test("the full-book machine layer covers all pages without pretending to be veri
   for (let pageNumber = 1; pageNumber <= 99; pageNumber += 1) assert.ok(readingArcForPage(pageNumber));
   assert.match(page, /AHAVAT_TORAH_SOURCE\.pageTextBundleUrl/);
   assert.match(page, /חיפוש בכל הספר/);
-  assert.match(page, /תעתיק מכונה מלא לעמוד/);
-  assert.match(page, /מפת קריאה מועמדת/);
+  assert.match(page, /תעתיק מלא לעמוד/);
+  assert.match(page, /הסבר AI בעברית · מפת קריאה/);
 });
 
 test("the reader keeps source, explanation, finding and publication axes separate", () => {
   assert.match(page, /function SourcePanel/);
   assert.match(page, /function OrbitMap/);
   assert.match(page, /function SectionReader/);
-  assert.match(page, /הסבר זה נוצר כשכבת ניווט מסייעת/);
+  assert.match(page, /הסבר נלווה · המקור המלא פתוח לצדו/);
   assert.match(page, /המקור נשאר פתוח/);
   assert.match(page, /מעמד חישוב:/);
-  assert.match(page, /מיפוי מלא אינו שווה לתעתיק מלא/);
+  assert.match(page, /המקור נשמר בשלמותו/);
   assert.equal(AHAVAT_TORAH_PIPELINE[1].value, "98");
   assert.equal(AHAVAT_TORAH_PIPELINE.at(-1).value, "0");
   assert.equal(AHAVAT_TORAH_PIPELINE.at(-1).state, "locked");

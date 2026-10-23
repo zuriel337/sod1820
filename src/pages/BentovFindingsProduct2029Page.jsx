@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import { applySeo } from "../lib/seo.js";
@@ -819,10 +820,13 @@ function ReviewWorkbench({ findings, selectedId, onSelect, progress, locatorDeci
 
 function FindingSourcePanel({ source, pages, activePage, onPageSelect }) {
   const approvedPdfUrl = source.access === "approved-display" ? source.pdfUrl : null;
+  const fullscreenRef = useRef(null);
+  const pagePdfUrl = approvedPdfUrl ? `${approvedPdfUrl}#page=${activePage}&view=FitH` : "";
 
   return <aside
+    ref={fullscreenRef}
     id="bentov29-final-source"
-    className="bentov29-final-source"
+    className="bentov29-final-source book-fullscreen29-target"
     aria-labelledby="bentov29-final-source-title"
     data-source-visibility={BOOK_READER_SYSTEM_CONTRACT.sourceVisibility.mode}
     data-source-access={source.access}
@@ -832,7 +836,7 @@ function FindingSourcePanel({ source, pages, activePage, onPageSelect }) {
         <span>המקור · PDF</span>
         <h2 id="bentov29-final-source-title">עמוד {activePage}</h2>
       </div>
-      <b>מקור באנגלית</b>
+      <div className="bentov29-final-source-actions"><b>מקור באנגלית</b>{approvedPdfUrl ? <BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pagePdfUrl} controls="bentov29-final-source" /> : null}</div>
     </header>
 
     {pages.length > 1 && <div className="bentov29-final-source-pages" role="group" aria-label="בחירת עמוד מקור">
@@ -845,10 +849,10 @@ function FindingSourcePanel({ source, pages, activePage, onPageSelect }) {
       >{page}</button>)}
     </div>}
 
-    <div className="bentov29-final-pdf-stage">
+    <div className="bentov29-final-pdf-stage" data-book-pdf-frame>
       {approvedPdfUrl ? <iframe
         key={activePage}
-        src={`${approvedPdfUrl}#page=${activePage}&view=FitH`}
+        src={pagePdfUrl}
         title={`${source.title} · PDF · עמוד ${activePage}`}
       /> : <div className="bentov29-final-pdf-protected" role="img" aria-label={`עמוד ${activePage} בקובץ המקור מוגן בפריוויו`}>
         <div className="bentov29-final-paper" aria-hidden="true">
@@ -865,13 +869,13 @@ function FindingSourcePanel({ source, pages, activePage, onPageSelect }) {
       </div>}
     </div>
 
-    <dl>
+    <dl data-book-reader-secondary>
       <div><dt>ספר</dt><dd>{source.title}</dd></div>
       <div><dt>מחבר</dt><dd>{source.author}</dd></div>
       <div><dt>עוגן</dt><dd>PDF · עמוד {activePage}</dd></div>
       <div><dt>בדיקה</dt><dd>{source.fidelity}</dd></div>
     </dl>
-    <p>זהו קובץ המקור באנגלית. ההסבר העברי מוצג בנפרד ואינו מחליף את הנוסח המקורי.</p>
+    <p data-book-reader-secondary>המקור באנגלית נשאר פתוח לצד ההסבר העברי.</p>
   </aside>;
 }
 
