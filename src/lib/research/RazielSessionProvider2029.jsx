@@ -11,6 +11,7 @@ import {
 const RazielSessionContext2029 = createContext(null);
 const systemClock = () => new Date().toISOString();
 const systemTurnId = () => globalThis.crypto?.randomUUID?.() || `raziel-${Date.now()}`;
+const systemSessionId = () => globalThis.crypto?.randomUUID?.() || `raziel-session-${Date.now()}`;
 
 // Non-throwing read for hosts that may need to install the provider themselves. This is a plain,
 // unconditional context read so it follows the Rules of Hooks and never relies on catch-as-control-flow.
@@ -31,10 +32,15 @@ export function RazielSessionProvider2029({
   transport = askRaziel,
   clock = systemClock,
   createTurnId = systemTurnId,
+  createSessionId = systemSessionId,
   loadRequestBuilder = loadRazielSessionRequestBuilder2029,
 }) {
   const research = useResearch();
-  const [state, dispatch] = useReducer(razielSessionReducer, undefined, createInitialRazielSessionState);
+  const [state, dispatch] = useReducer(
+    razielSessionReducer,
+    undefined,
+    () => createInitialRazielSessionState({ sessionId: createSessionId(), createdAt: clock() }),
+  );
   const stateRef = useRef(state);
   const inFlightRef = useRef(false);
   const mountedRef = useRef(true);
@@ -126,9 +132,9 @@ export function RazielSessionProvider2029({
 
   const resetTemporarySession = useCallback(() => {
     if (inFlightRef.current || stateRef.current.busy) return false;
-    dispatch({ type: "session_reset" });
+    dispatch({ type: "session_reset", sessionId: createSessionId(), createdAt: clock() });
     return true;
-  }, []);
+  }, [clock, createSessionId]);
 
   const value = useMemo(() => ({
     ...state,

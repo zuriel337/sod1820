@@ -1,5 +1,6 @@
-// Temporary, in-memory Raziel conversation state for the 2029 shell.
-// ResearchProvider remains the only owner of saved items, collections, paths and research Context.
+// Active, in-memory Raziel conversation state for the 2029 shell.
+// ResearchProvider remains the only owner of durable items, collections, paths and Research Context.
+// A session can be projected into a storage-neutral private representation, but is never persisted here.
 
 import {
   RAZIEL_DEFAULT_VIEW_MODE,
@@ -134,8 +135,12 @@ export async function createRazielProvenance(options) {
   return (await import("./razielSessionRequest2029.js")).createRazielProvenance(options);
 }
 
-export function createInitialRazielSessionState() {
+export function createInitialRazielSessionState({ sessionId = null, createdAt = null } = {}) {
   return {
+    sessionId: cleanInline(sessionId, 120),
+    title: null,
+    createdAt: cleanInline(createdAt, 40),
+    updatedAt: cleanInline(createdAt, 40),
     thread: [],
     busy: false,
     currentTurn: null,
@@ -163,6 +168,8 @@ export function razielSessionReducer(state, action) {
       const { turn, contextSnapshot } = action;
       return {
         ...state,
+        title: state.title || cleanInline(turn?.question, 120),
+        updatedAt: cleanInline(turn?.startedAt, 40) || state.updatedAt,
         busy: true,
         currentTurn: { ...turn, status: "preparing" },
         response: null,
@@ -180,10 +187,13 @@ export function razielSessionReducer(state, action) {
           role: "user",
           text: turn.question,
           turnId: turn.id,
+          startedAt: cleanInline(turn.startedAt, 40),
           ...(turn.identityResolution ? { identity_resolution: turn.identityResolution } : {}),
         });
       return {
         ...state,
+        title: state.title || cleanInline(turn?.question, 120),
+        updatedAt: cleanInline(turn?.startedAt, 40) || state.updatedAt,
         thread,
         busy: true,
         currentTurn: { ...turn, status: "running" },
@@ -195,10 +205,11 @@ export function razielSessionReducer(state, action) {
       };
     }
     case "turn_succeeded":
-      return { ...state, ...action.patch };
+      return { ...state, ...action.patch, updatedAt: cleanInline(action.patch?.currentTurn?.completedAt, 40) || state.updatedAt };
     case "turn_failed":
       return {
         ...state,
+        updatedAt: cleanInline(action.completedAt, 40) || state.updatedAt,
         busy: false,
         currentTurn: {
           ...state.currentTurn,
@@ -212,7 +223,7 @@ export function razielSessionReducer(state, action) {
         announcement: "רזיאל לא הצליח לענות כרגע. אפשר לנסות שוב.",
       };
     case "session_reset":
-      return createInitialRazielSessionState();
+      return createInitialRazielSessionState({ sessionId: action.sessionId, createdAt: action.createdAt });
     default:
       return state;
   }

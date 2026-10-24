@@ -23,6 +23,23 @@ const sessionSource = readFileSync(new URL("./razielSession2029.js", import.meta
 const requestSource = readFileSync(new URL("./razielSessionRequest2029.js", import.meta.url), "utf8");
 const loaderSource = readFileSync(new URL("./razielSessionRequestLoader2029.js", import.meta.url), "utf8");
 
+test("active session identity is explicit and reset starts a new unsaved session", () => {
+  const initial = createInitialRazielSessionState({ sessionId: "session-a", createdAt: "created-a" });
+  assert.equal(initial.sessionId, "session-a");
+  assert.equal(initial.createdAt, "created-a");
+  assert.equal(initial.updatedAt, "created-a");
+
+  const reset = razielSessionReducer({ ...initial, thread: [{ role: "user", text: "ישן" }] }, {
+    type: "session_reset",
+    sessionId: "session-b",
+    createdAt: "created-b",
+  });
+  assert.equal(reset.sessionId, "session-b");
+  assert.equal(reset.createdAt, "created-b");
+  assert.equal(reset.updatedAt, "created-b");
+  assert.deepEqual(reset.thread, []);
+});
+
 test("continuity: desktop and mobile turns share one temporary thread", () => {
   const snapshot = createRazielContextSnapshot({ subject: { type: "post", id: "5107", label: "בחירות 631" } });
   let state = createInitialRazielSessionState();
