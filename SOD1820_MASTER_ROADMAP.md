@@ -49,6 +49,17 @@ Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependen
 
 ## 2029 North Star — owner pointers only
 
+### Immediate recovery / pre-cutover sequence · 2026-10-14
+
+**ZURIEL authorized ordered implementation after the 13 October rollback.** Temporary production safety and 2029 readiness are separate acceptance lanes; no broad cutover is authorized by this work.
+
+1. Public crawler content + canonical Number/Phrase admission, including unpublished/locked/missing negative cases.
+2. Post canonical convergence + sitemap/robots consistency, preserving inbound identities and bounded POST-A decisions.
+3. Bounded response-blocking dependencies and failure-path verification under existing reliability/security owners.
+4. Actual-domain deployment/SHA evidence and content-aware canary for release **and rollback**, followed by live/GSC verification.
+
+Each step remains open until its own evidence passes; do not call the system healthy from a rollback SHA or HTTP 200 alone. Contract/acceptance details: `docs/2029-search-indexing-closure-map-v1.md` §Recovery acceptance. Implementation sequencing/status: `docs/2029-implementation-dependency-plan-v1.md` §SEO recovery. Existing shared-preview/Frame/performance lanes retain their writers. These are G4/pre-cutover repair gates, not a new program stage or SEO system.
+
 Detailed domain semantics live in owners, not here:
 
 - Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v7**;
@@ -200,3 +211,4 @@ Do not add detailed contracts, audits, examples or research findings to this Roa
 - coordination/release trace → work_log;
 - superseded detail → Archive;
 - Roadmap → navigation, sequence, gates, priority, explicit open decisions only.
+

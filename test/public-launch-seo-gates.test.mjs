@@ -237,12 +237,13 @@ test('explicitly open book and legacy number flags preserve their existing ident
   ]) {
     const result = await invoke(ogHandler, async url => {
       if (url.includes('/site_flags?')) return flagResponse([{ key, enabled: false, mode: 'all' }]);
+      if (url.endsWith('/rpc/is_number_indexable')) return flagResponse(true);
       assert.ok(url.includes(source));
       return flagResponse(rows);
     }, { path, crawler: 'search' });
     assert.equal(result.headers.get('x-robots-tag'), 'index, follow');
     assert.ok(result.body.includes(title));
-    assert.equal(result.calls.length, 2);
+    assert.equal(result.calls.length, path.startsWith('/number/') ? 3 : 2);
   }
 });
 
@@ -266,3 +267,4 @@ test('public Post metadata remains independent of launch gates and retains Artic
   assert.match(result.body, /"@type":"Article"/);
   assert.equal(result.calls.length, 1);
 });
+
