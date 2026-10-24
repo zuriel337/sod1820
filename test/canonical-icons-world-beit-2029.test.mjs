@@ -44,4 +44,3 @@ test("Beit Midrash has its own study identity while shared concepts retain share
   assert.match(beitLearn, /id="paths" icon="journey"/);
   assert.match(beitGuided, /id="guided" icon="research"/);
 });
-
