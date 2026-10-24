@@ -101,7 +101,7 @@ function lifeJourneyFixturePlugin() {
   };
 }
 
-test("Life Journey keeps Person context through Name and verified ELS across mobile/desktop themes", { skip: !available, timeout: 90_000 }, async () => {
+test("Life Journey keeps Person and explicit family selection through Name and Date across mobile/desktop themes", { skip: !available, timeout: 90_000 }, async () => {
   const server = await vite.createServer({
     root,
     configFile: false,
@@ -135,6 +135,13 @@ test("Life Journey keeps Person context through Name and verified ELS across mob
     await family.getByRole("button", { name: "הוסף למסע" }).click();
     await family.locator("article strong", { hasText: "ילד בדיקה" }).waitFor();
 
+    const familyScope = family.getByRole("group", { name: "מי משתתף במחקר המשפחתי?" });
+    const childSelection = familyScope.getByRole("checkbox", { name: /ילד בדיקה/ });
+    assert.equal(await childSelection.isChecked(), false);
+    await childSelection.check();
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneySelectedMemberRefs?.length), 2);
+    assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "family selection never starts ELS");
+
     const firstRef = await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyPersonRef);
     assert.match(firstRef, /^person:11111111-1111-4111-8111-111111111111:self$/);
     await page.reload();
@@ -143,6 +150,13 @@ test("Life Journey keeps Person context through Name and verified ELS across mob
     assert.equal(await page.getByLabel("שם משפחה").inputValue(), "משפחה");
     assert.equal(await page.getByLabel("תאריך לידה").first().inputValue(), "1990-02-15");
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyPersonRef), firstRef);
+    assert.equal(await childSelection.isChecked(), true, "family selection survives refresh through Research Context");
+    await familyScope.getByRole("button", { name: "נקה בחירה" }).click();
+    assert.deepEqual(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneySelectedMemberRefs), []);
+    await familyScope.getByRole("button", { name: "בחר את כולם" }).click();
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneySelectedMemberRefs?.length), 2);
+    assert.equal(await childSelection.isChecked(), true);
+    assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "select-all remains navigation context only");
 
     for (const theme of ["light", "parchment", "dark"]) {
       for (const width of [390, 1280]) {
@@ -172,40 +186,24 @@ test("Life Journey keeps Person context through Name and verified ELS across mob
     await page.getByText("י״א בתשרי").waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyView), "date");
     assert.equal(new URL(page.url()).search, "");
-    await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
+    await page.getByRole("button", { name: "סיים וחזור למרכז המשפחתי" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
+    assert.equal(await childSelection.isChecked(), true, "exact return preserves the family selection");
 
     const childCard = family.locator("article", { hasText: "ילד בדיקה" });
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.name === "ילד בדיקה")), false, "family is not searched automatically");
     const elsCallsBefore = await page.evaluate(() => window.__elsCalls.length);
-    await childCard.getByRole("button", { name: "שם ותאריך → ELS", exact: true }).click();
+    await childCard.getByRole("button", { name: "שם ותאריך", exact: true }).click();
     await page.getByRole("heading", { name: "שם ותאריך" }).waitFor();
     await page.getByText("י״א בתשרי").waitFor();
-    assert.equal(await page.evaluate(() => window.__elsCalls.length), elsCallsBefore, "date bridge does not scan ELS automatically");
-    await page.getByRole("button", { name: "המשך ל־ELS בשם הנבחר" }).click();
-    await page.getByRole("heading", { name: "תוכנית ELS אוטומטית" }).waitFor();
-    assert.equal(await page.evaluate(() => window.__elsCalls.length), elsCallsBefore, "opening the plan does not scan automatically");
-    await page.getByRole("button", { name: "הפעל בדיקה מפורשת" }).click();
-    const verifyButton = page.getByRole("button", { name: /אמת ופתח/ }).first();
-    await verifyButton.waitFor();
-    await verifyButton.click();
-    await page.getByText("המופע אומת במנוע הקנוני").waitFor();
-    const exact = await page.evaluate(() => window.__lifeJourneyContext?.selection);
-    assert.equal(exact.entityType, "els");
-    assert.deepEqual([exact.corpus, exact.skip, exact.dir, exact.start], ["torah", 7, 1, 120]);
+    assert.equal(await page.evaluate(() => window.__elsCalls.length), elsCallsBefore, "date research does not scan ELS");
+    assert.equal(await page.getByText("תוכנית ELS אוטומטית").count(), 0, "ELS is parked outside the active Life Journey path");
     assert.equal(new URL(page.url()).search, "");
-
-    const verifyCount = await page.evaluate(() => window.__elsCalls.filter(call => call.body.op === "verify").length);
-    assert.equal(verifyCount, 1, "explicit selection verifies once");
-    await page.reload();
-    await page.getByText("המופע אומת במנוע הקנוני").waitFor();
-    const replayCalls = await page.evaluate(() => window.__elsCalls.filter(call => call.body.op === "verify"));
-    assert.equal(replayCalls.length, 1, "refresh performs one exact replay");
-    assert.deepEqual([replayCalls[0].body.scope, replayCalls[0].body.skip, replayCalls[0].body.dir, replayCalls[0].body.start], ["torah", 7, 1, 120]);
-    await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
+    await page.getByRole("button", { name: "סיים וחזור למרכז המשפחתי" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
+    assert.equal(await page.evaluate(() => window.__elsCalls.length), 0);
 
     const privacy = await page.evaluate(() => ({
       telemetry: window.__telemetry,

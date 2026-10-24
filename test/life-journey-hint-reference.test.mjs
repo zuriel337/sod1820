@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildLifeJourneyCapabilityPatch,
+  buildLifeJourneyExactReturnPatch,
+  buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyHintReferencePatch,
   buildLifeJourneyPersonContext,
 } from "../src/lib/research/lifeJourneyPersonContext.js";
@@ -21,35 +23,42 @@ test("a numeric personal hint opens the canonical Number surface with exact Pers
   assert.equal(next.returnTo.dimensions.lifeJourneyView, "person");
 });
 
-test("Name advances through the private date bridge before ELS", () => {
+test("Name advances through the private date bridge and returns to the selected family context", () => {
   const personRef = "person:11111111-1111-4111-8111-111111111111:self";
+  const childRef = "person:11111111-1111-4111-8111-111111111111:p:child-1";
   const context = buildLifeJourneyPersonContext(personRef);
-  const name = buildLifeJourneyCapabilityPatch(context, {
+  const family = buildLifeJourneyFamilySelectionPatch(context, {
     personRef,
-    memberRef: personRef,
+    memberRefs: [personRef, childRef, childRef, "person:another-owner:p:no"],
+  });
+  const name = buildLifeJourneyCapabilityPatch(family, {
+    personRef,
+    memberRef: childRef,
     name: "שם בדיקה מלא",
     view: "name",
   });
   const date = buildLifeJourneyCapabilityPatch(name, {
     personRef,
-    memberRef: personRef,
+    memberRef: childRef,
     name: "שם בדיקה מלא",
     view: "date",
   });
-  const els = buildLifeJourneyCapabilityPatch(date, {
+  const parkedEls = buildLifeJourneyCapabilityPatch(date, {
     personRef,
-    memberRef: personRef,
+    memberRef: childRef,
     name: "שם",
     view: "els",
   });
+  const returned = buildLifeJourneyExactReturnPatch(date);
 
+  assert.deepEqual(family.dimensions.lifeJourneySelectedMemberRefs, [personRef, childRef]);
   assert.equal(date.dimensions.lifeJourneyView, "date");
   assert.equal(date.subject.type, "date");
   assert.equal(date.selection.focusKind, "identity_review");
   assert.equal(date.returnTo.href, "/2029/journey");
-  assert.equal(els.dimensions.lifeJourneyView, "els");
-  assert.equal(els.selection.expression, "שם");
-  assert.equal(els.returnTo.subject.id, personRef);
+  assert.deepEqual(date.returnTo.dimensions.lifeJourneySelectedMemberRefs, [personRef, childRef]);
+  assert.deepEqual(returned.dimensions.lifeJourneySelectedMemberRefs, [personRef, childRef]);
+  assert.equal(parkedEls, null);
 });
 
 test("hint references reject missing Person context and invalid numbers", () => {

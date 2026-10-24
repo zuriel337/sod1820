@@ -10,26 +10,10 @@ import CanonicalProgress from "../CanonicalProgress.jsx";
 
 const clean = value => String(value || "").trim();
 
-function nameChoices(profile) {
-  const full = clean(profile?.name);
-  const first = clean(profile?.firstName) || full.split(/\s+/).filter(Boolean)[0] || "";
-  const options = [
-    full && { id: "full", label: "השם המלא", value: full },
-    first && { id: "first", label: "השם הפרטי", value: first },
-  ].filter(Boolean);
-  return options.filter((item, index) => options.findIndex(option => option.value === item.value) === index);
-}
-
 export default function LifeJourneyDate2029({ user, profile, onContinue, onReturn }) {
-  const choices = useMemo(() => nameChoices(profile), [profile?.firstName, profile?.name]);
   const birthdate = clean(profile?.birthdate);
   const representation = useMemo(() => gregorianToHebrewDateRepresentation(birthdate), [birthdate]);
-  const [selectedName, setSelectedName] = useState(() => choices[0]?.value || "");
   const [state, setState] = useState({ phase: birthdate ? "loading" : "missing", crossValues: [], error: null });
-
-  useEffect(() => {
-    setSelectedName(choices[0]?.value || "");
-  }, [choices]);
 
   useEffect(() => {
     let alive = true;
@@ -86,7 +70,7 @@ export default function LifeJourneyDate2029({ user, profile, onContinue, onRetur
         <article><small>נקודות מפגש</small><strong>{state.phase === "ready" ? state.crossValues.length : "—"}</strong></article>
       </div>
 
-      {state.phase === "missing" ? <div className="person-journey-empty">לא נשמר תאריך לאדם הזה. אפשר להמשיך ל־ELS בשם בלבד; לא תוצג הצלבת תאריך.</div> : null}
+      {state.phase === "missing" ? <div className="person-journey-empty">לא נשמר תאריך לאדם הזה. אפשר לחזור למרכז המשפחתי ולהשלים אותו בהמשך.</div> : null}
       {state.error ? <div className="person-journey-error" role="alert">{state.error}</div> : null}
       {state.phase === "ready" ? <div className="person-journey-crosses">
         <small>נקודות מפגש מחושבות שם ↔ תאריך</small>
@@ -94,17 +78,9 @@ export default function LifeJourneyDate2029({ user, profile, onContinue, onRetur
         {state.crossValues.length ? <p>אלה נגזרות מנוע בלבד — לא פרשנות, גורל או החלטה.</p> : null}
       </div> : null}
 
-      <fieldset className="person-journey-name-choice">
-        <legend>איזה שם להעביר ל־ELS?</legend>
-        {choices.map(choice => <label key={choice.id}>
-          <input type="radio" name="life-journey-els-name" value={choice.value} checked={selectedName === choice.value} onChange={() => setSelectedName(choice.value)} />
-          <span><strong>{choice.label}</strong><small>{choice.value}</small></span>
-        </label>)}
-      </fieldset>
-
       <div className="person-journey-actions">
-        <button type="button" className="person-journey-primary" disabled={!selectedName || state.phase === "loading" || !onContinue} onClick={() => onContinue?.(selectedName)}>המשך ל־ELS בשם הנבחר</button>
-        <small>רק השם שנבחר ייבדק. בני משפחה אחרים לא ייסרקו אוטומטית.</small>
+        <button type="button" className="person-journey-primary" disabled={state.phase === "loading" || !onContinue} onClick={onContinue}>סיים וחזור למרכז המשפחתי</button>
+        <small>התחנה מסכמת את האדם שנבחר בלבד. היא אינה מפעילה ELS ואינה חוקרת בני משפחה אחרים.</small>
       </div>
     </section>
   </div>;

@@ -9,6 +9,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const page = read("src/pages/LifeJourney2029Page.jsx");
   const journey = read("src/components/PersonJourney.jsx");
   const personContext = read("src/lib/research/lifeJourneyPersonContext.js");
+  const capabilities = read("src/components/experience2029/LifeJourneyCapabilities2029.jsx");
   const nameAdapter = read("src/components/experience2029/LifeJourneyName2029.jsx");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
   const elsAdapter = read("src/lib/research/lifeJourneyElsAdapter.js");
@@ -45,6 +46,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
 
   assert.match(journey, /buildLifeJourneyCapabilityPatch/);
   assert.match(journey, /buildLifeJourneyExactReturnPatch/);
+  assert.match(journey, /buildLifeJourneyFamilySelectionPatch/);
+  assert.match(journey, /lifeJourneySelectedMemberRefs/);
   assert.match(journey, /continueResearchPath/);
   assert.match(personContext, /life_journey_person_context_v1/);
   assert.match(personContext, /buildExactReturnPatch/);
@@ -55,8 +58,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(nameAdapter, /המשך לשם ותאריך/);
   assert.match(dateAdapter, /runPersonalDateResearch/);
   assert.match(dateAdapter, /createSupabasePersonalDateCrossProvider/);
-  assert.match(dateAdapter, /המשך ל־ELS בשם הנבחר/);
+  assert.match(dateAdapter, /סיים וחזור למרכז המשפחתי/);
+  assert.match(dateAdapter, /אינה מפעילה ELS/);
   assert.doesNotMatch(dateAdapter, /localStorage|sessionStorage|addHint|removeHint|\.insert\(|\.update\(/);
+  assert.doesNotMatch(capabilities, /LifeJourneyEls2029|view === "els"/);
+  assert.doesNotMatch(journey, /continueSelectedCapability\("els"|view="els"|שם ותאריך → ELS/);
   assert.match(elsAdapter, /prepareElsAutomaticResearchPlan/);
   assert.match(elsAdapter, /runElsAutomaticResearchSlice/);
   assert.match(elsAdapter, /verifyEls2029Selection/);

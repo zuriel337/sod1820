@@ -3,8 +3,24 @@ import { buildExactReturnPatch, normalizeResearchContext } from "./researchConte
 export const LIFE_JOURNEY_2029_HREF = "/2029/journey";
 export const LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT = "life_journey_person_context_v1";
 
-const VIEWS = new Set(["person", "name", "date", "els"]);
+const VIEWS = new Set(["person", "name", "date"]);
 const clean = value => String(value || "").trim();
+
+function isLifeJourneyMemberRef(personRef, value) {
+  const ref = clean(value);
+  if (!ref || !personRef) return false;
+  if (ref === personRef) return true;
+  if (!personRef.endsWith(":self")) return false;
+  return ref.startsWith(`${personRef.slice(0, -5)}:p:`);
+}
+
+export function lifeJourneySelectedMemberRefs(context, personRef) {
+  const rootRef = clean(personRef);
+  if (!rootRef) return [];
+  const raw = context?.dimensions?.lifeJourneySelectedMemberRefs;
+  if (!Array.isArray(raw)) return [rootRef];
+  return [...new Set(raw.map(clean).filter(ref => isLifeJourneyMemberRef(rootRef, ref)))];
+}
 
 function personDimensions(context, personRef) {
   const dimensions = Object.fromEntries(
@@ -15,6 +31,7 @@ function personDimensions(context, personRef) {
     lifeJourneyContract: LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT,
     lifeJourneyView: "person",
     lifeJourneyPersonRef: personRef,
+    lifeJourneySelectedMemberRefs: lifeJourneySelectedMemberRefs(context, personRef),
   };
 }
 
@@ -61,16 +78,12 @@ export function buildLifeJourneyCapabilityPatch(context, { personRef, memberRef,
   const rootRef = clean(personRef);
   const selectedRef = clean(memberRef);
   const expression = clean(name);
-  if (!safe || !rootRef || !selectedRef || !expression || !["name", "date", "els"].includes(view)) return null;
+  if (!safe || !rootRef || !selectedRef || !expression || !["name", "date"].includes(view)) return null;
 
   const origin = buildLifeJourneyPersonContext(rootRef, safe);
   if (!origin) return null;
   const subjectType = view;
-  const label = view === "name"
-    ? "מסע שם פרטי"
-    : view === "date"
-      ? "תחנת שם ותאריך פרטית"
-      : "תוכנית ELS פרטית";
+  const label = view === "name" ? "מסע שם פרטי" : "תחנת שם ותאריך פרטית";
 
   return normalizeResearchContext({
     ...safe,
@@ -93,7 +106,6 @@ export function buildLifeJourneyCapabilityPatch(context, { personRef, memberRef,
       lifeJourneyView: view,
       lifeJourneyPersonRef: rootRef,
       lifeJourneyMemberRef: selectedRef,
-      lifeJourneyElsVerified: false,
     },
     access: { tier: "authenticated", scope: "private" },
     returnTo: {
@@ -104,6 +116,23 @@ export function buildLifeJourneyCapabilityPatch(context, { personRef, memberRef,
       lens: origin.lens,
       dimensions: origin.dimensions,
       journey: origin.journey,
+    },
+  });
+}
+
+export function buildLifeJourneyFamilySelectionPatch(context, { personRef, memberRefs } = {}) {
+  const safe = normalizeResearchContext(context);
+  const rootRef = clean(personRef);
+  if (!safe || !rootRef || !Array.isArray(memberRefs)
+    || lifeJourneyViewFromContext(safe, rootRef) !== "person") return null;
+  const selectedRefs = [...new Set(memberRefs
+    .map(clean)
+    .filter(ref => isLifeJourneyMemberRef(rootRef, ref)))];
+  return normalizeResearchContext({
+    ...safe,
+    dimensions: {
+      ...safe.dimensions,
+      lifeJourneySelectedMemberRefs: selectedRefs,
     },
   });
 }

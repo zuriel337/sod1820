@@ -77,7 +77,7 @@ export default function LifeJourneyName2029({ name, onContinue, onReturn }) {
         </div>
         <div className="person-journey-actions">
           <button type="button" className="person-journey-primary" onClick={onContinue}>המשך לשם ותאריך</button>
-          <small>לפני ELS עוברים בתחנת בדיקה פרטית ובוחרים במפורש את צורת השם.</small>
+          <small>השלב הבא מחבר את השם לתאריך של האדם שנבחר בלבד, בתוך ההקשר הפרטי.</small>
         </div>
       </> : null}
     </section>

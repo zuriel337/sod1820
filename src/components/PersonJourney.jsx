@@ -20,8 +20,9 @@ import { buildAccessDescriptor } from "../lib/research/researchPlanV2.js";
 import {
   buildLifeJourneyCapabilityPatch,
   buildLifeJourneyExactReturnPatch,
+  buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyPersonContext,
-  buildLifeJourneyVerifiedElsPatch,
+  lifeJourneySelectedMemberRefs,
   lifeJourneyViewFromContext,
 } from "../lib/research/lifeJourneyPersonContext.js";
 import CanonicalProgress from "./CanonicalProgress.jsx";
@@ -93,6 +94,12 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
     () => members.filter((member) => member.source_ref !== selfRef),
     [members, selfRef],
   );
+  const selectedFamilyRefs = useMemo(() => {
+    const availableRefs = new Set(members.map(member => clean(member.source_ref)));
+    return lifeJourneySelectedMemberRefs(research.context, selfRef)
+      .filter(ref => availableRefs.has(ref));
+  }, [members, research.context, selfRef]);
+  const selectedFamilyRefSet = useMemo(() => new Set(selectedFamilyRefs), [selectedFamilyRefs]);
   const currentResearchSubjectId = research.context?.subject?.id || null;
   const currentLifeJourneyView = research.context?.dimensions?.lifeJourneyView || null;
   const currentLifeJourneyPersonRef = research.context?.dimensions?.lifeJourneyPersonRef || null;
@@ -294,20 +301,20 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       mode: "organic",
       surface: "life_journey_2029",
       href: "/2029/journey",
-      label: view === "name" ? "מסע השם" : view === "date" ? "שם ותאריך" : "תוכנית ELS",
+      label: view === "name" ? "מסע השם" : "שם ותאריך",
       reason: "explicit_person_capability",
     });
     if (!result?.ok) setErr("לא ניתן לפתוח כרגע את מסלול המחקר.");
   }, [research, selfRef, variant]);
 
-  const continueSelectedCapability = useCallback((view, expressionOverride = null) => {
+  const continueSelectedCapability = useCallback((view) => {
     const memberRef = clean(research.context?.dimensions?.lifeJourneyMemberRef);
     const member = members.find(item => item.source_ref === memberRef);
     if (!member) {
       setErr("האדם שנבחר אינו זמין כרגע במסע החיים.");
       return;
     }
-    openCapability(expressionOverride ? { ...member, name: expressionOverride } : member, view);
+    openCapability(member, view);
   }, [members, openCapability, research.context?.dimensions?.lifeJourneyMemberRef]);
 
   const returnToPerson = useCallback(() => {
@@ -317,23 +324,25 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
     }
   }, [research]);
 
-  const openVerifiedElsOccurrence = useCallback((selection) => {
-    const patch = buildLifeJourneyVerifiedElsPatch(research.context, selection);
+  const commitFamilySelection = useCallback((memberRefs) => {
+    if (!selfRef) return;
+    const patch = buildLifeJourneyFamilySelectionPatch(research.context, {
+      personRef: selfRef,
+      memberRefs,
+    });
     if (!patch) {
-      setErr("המופע המאומת אינו כולל נקודת שחזור מלאה.");
+      setErr("לא ניתן לעדכן כרגע את בחירת המחקר המשפחתי.");
       return;
     }
-    const result = research.continueResearchPath?.({
-      context: patch,
-      kind: "els",
-      mode: "organic",
-      surface: "life_journey_2029",
-      href: "/2029/journey",
-      label: "מופע ELS מאומת",
-      reason: "verified_occurrence",
-    });
-    if (!result?.ok) setErr("המופע אומת, אך לא ניתן היה לצרף אותו למסלול הנוכחי.");
-  }, [research]);
+    if (!research.setResearchContext?.(patch)) setErr("לא ניתן לעדכן כרגע את בחירת המחקר המשפחתי.");
+  }, [research, selfRef]);
+
+  const updateFamilySelection = useCallback((memberRef, included) => {
+    const nextRefs = included
+      ? [...selectedFamilyRefs, memberRef]
+      : selectedFamilyRefs.filter(ref => ref !== memberRef);
+    commitFamilySelection(nextRefs);
+  }, [commitFamilySelection, selectedFamilyRefs]);
 
   if (authLoading || loading) {
     return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
@@ -371,17 +380,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       view="date"
       user={user}
       profile={selectedProfile}
-      onContinue={(expression) => continueSelectedCapability("els", expression)}
-      onReturn={returnToPerson}
-    />;
-  }
-
-  if (activeView === "els" && selectedName && CapabilitySurface) {
-    return <CapabilitySurface
-      view="els"
-      name={selectedName}
-      context={research.context}
-      onVerified={openVerifiedElsOccurrence}
+      onContinue={returnToPerson}
       onReturn={returnToPerson}
     />;
   }
@@ -431,7 +430,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
         </button>
         {variant === "2029" && persistedSelf ? <>
           <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "name")}>פתח מסע שם</button>
-          <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "date")}>שם ותאריך → ELS</button>
+          <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "date")}>פתח שם ותאריך</button>
         </> : null}
         <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
       </div>
@@ -488,6 +487,34 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
         <span>{familyMembers.length ? `${familyMembers.length} אנשים` : "אפשר להתחיל מאדם אחד"}</span>
       </div>
 
+      {members.length ? <fieldset className="person-journey-family-scope">
+        <legend>מי משתתף במחקר המשפחתי?</legend>
+        <p id="life-journey-family-scope-help">הבחירה נשמרת ב־Research Context בלבד. היא אינה מפעילה חיפוש או מנוע.</p>
+        <div aria-describedby="life-journey-family-scope-help">
+          {members.map(member => {
+            const memberRef = clean(member.source_ref);
+            return <label key={memberRef}>
+              <input
+                type="checkbox"
+                checked={selectedFamilyRefSet.has(memberRef)}
+                onChange={event => updateFamilySelection(memberRef, event.target.checked)}
+              />
+              <span>
+                <strong>{member.name}</strong>
+                <small>{memberRef === selfRef ? "אני" : "בן/בת משפחה"}</small>
+              </span>
+            </label>;
+          })}
+        </div>
+        <footer>
+          <span role="status"><strong>{selectedFamilyRefs.length}</strong> נבחרו למחקר משותף עתידי</span>
+          <div>
+            <button type="button" onClick={() => commitFamilySelection(members.map(member => member.source_ref))}>בחר את כולם</button>
+            <button type="button" disabled={!selectedFamilyRefs.length} onClick={() => commitFamilySelection([])}>נקה בחירה</button>
+          </div>
+        </footer>
+      </fieldset> : null}
+
       {familyMembers.length ? <div className="person-journey-family-list">
         {familyMembers.map((member) => {
           const memberMeta = metaObject(member.meta);
@@ -495,7 +522,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
             <div><strong>{member.name}</strong>{memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}</div>
             {variant === "2029" ? <div className="person-journey-member-actions">
               <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>מסע שם</button>
-              <button type="button" disabled={busy} onClick={() => openCapability(member, "date")}>שם ותאריך → ELS</button>
+              <button type="button" disabled={busy} onClick={() => openCapability(member, "date")}>שם ותאריך</button>
             </div> : <span>פרטי</span>}
           </article>;
         })}
