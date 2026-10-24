@@ -12,14 +12,20 @@ await build({ root, define: {
   "import.meta.env.VITE_KINGDOM_PREVIEW": '"true"',
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 
-const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2"];
+const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2", "fn_list_family"];
+// The Preview is restricted to existing accounts. This identity RPC is forwarded so an
+// already-linked account can recover its canonical Person ref; every Person/Family upsert
+// remains blocked below. The approved owner's Person exists before this disposable build.
+const existingPersonAccess = "fn_get_or_create_my_person";
 const worker = `const reads = new Set(${JSON.stringify(allow)});
+const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
 const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
- const safe=(!u.pathname.startsWith('/auth/v1/')&&['GET','HEAD','OPTIONS'].includes(req.method))||(u.hostname==='linswmnnkjxvweumprav.supabase.co'&&reads.has(rpc));
+ const safe=(!u.pathname.startsWith('/auth/v1/')&&['GET','HEAD','OPTIONS'].includes(req.method))
+  ||(u.origin===authOrigin&&req.method==='POST'&&(reads.has(rpc)||rpc===existingPersonAccess));
  if(safe)return;
  event.respondWith((async()=>{
   // Existing-account access only. No signup, account mutation or product writes.

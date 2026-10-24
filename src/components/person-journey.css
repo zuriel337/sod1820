@@ -345,7 +345,12 @@
 }
 .person-journey-hint-list article>div{display:grid;gap:3px}
 .person-journey-hint-list small,.person-journey-hint-list article>span{color:var(--pj-soft)}
-.person-journey-hint-list a{color:var(--pj-gold);font-weight:800}
+.person-journey-hint-list a,.person-journey-hint-list button{
+  color:var(--pj-gold);font-weight:800
+}
+.person-journey-hint-list button{
+  appearance:none;background:transparent;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline
+}
 .person-journey-empty,.person-journey-state,.person-journey-error{
   border:1px dashed var(--pj-line);
   border-radius:16px;

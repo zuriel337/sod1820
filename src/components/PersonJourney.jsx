@@ -38,6 +38,14 @@ const clean = (value) => String(value || "").trim();
 const metaObject = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
 const joinName = (first, last) => [clean(first), clean(last)].filter(Boolean).join(" ");
 
+export function personJourneyErrorMessage(error) {
+  const candidates = [error?.message, error?.error, error?.details, error?.hint, error];
+  const message = candidates.find((value) => typeof value === "string" && value.trim())?.trim() || "";
+  if (/preview_read_only/i.test(message)) return "התצוגה המקדימה פתוחה לקריאה בלבד. הנתונים הקיימים זמינים, אך שמירה חסומה.";
+  if (message && message !== "[object Object]") return message;
+  return "לא ניתן לטעון כרגע את מסע החיים. נסו לרענן את הדף.";
+}
+
 function researchSummary(nameResult, dateBundle, dateRepresentation) {
   const values = nameResult?.input?.components?.values || {};
   const parts = values?.parts && typeof values.parts === "object" ? values.parts : {};
@@ -128,7 +136,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
         setPersonId(pid);
         await refresh(pid);
       } catch (error) {
-        if (alive) setErr(error?.message || String(error));
+        if (alive) setErr(personJourneyErrorMessage(error));
       } finally {
         if (alive) setLoading(false);
       }
@@ -197,7 +205,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       track("journey_person", null, "initial_research");
       return data;
     } catch (error) {
-      const message = error?.message || String(error);
+      const message = personJourneyErrorMessage(error);
       setAnalysis({ state: "error", data: null, error: message });
       return null;
     }
@@ -225,7 +233,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       track("journey_person", null, "save_self");
       await runInitialResearch({ first, last, date });
     } catch (error) {
-      setErr(error?.message || String(error));
+      setErr(personJourneyErrorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -253,7 +261,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       await refresh(personId);
       track("journey_person", null, "add_member");
     } catch (error) {
-      setErr(error?.message || String(error));
+      setErr(personJourneyErrorMessage(error));
     } finally {
       setBusy(false);
     }

@@ -49,5 +49,10 @@ test('profile/product/storage/model writes remain blocked; governed readers stil
     ['/functions/v1/els-search-bridge', { body: { op: 'save' } }],
   ]) assert.equal((await request(path, options)).status, 403, path);
   assert.equal((await request('/rest/v1/rpc/fn_method_value')).status, 200);
+  assert.equal((await request('/rest/v1/rpc/fn_get_or_create_my_person')).status, 200);
+  assert.equal((await request('/rest/v1/rpc/fn_list_family', { body: { p_owner: 'fixture-person' } })).status, 200);
+  for (const rpc of ['fn_upsert_self_profile', 'fn_upsert_family_member', 'fn_upsert_family_relation']) {
+    assert.deepEqual(await request(`/rest/v1/rpc/${rpc}`, { body: {} }), { status: 403, forwarded: 0, blocked: 'true' }, rpc);
+  }
   assert.equal((await request('/functions/v1/els-search-bridge', { body: { op: 'page' } })).forwarded, 1);
 });

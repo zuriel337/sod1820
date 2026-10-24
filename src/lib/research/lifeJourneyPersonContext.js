@@ -130,6 +130,35 @@ export function buildLifeJourneyVerifiedElsPatch(context, selection) {
   });
 }
 
+export function buildLifeJourneyHintReferencePatch(context, number) {
+  const safe = normalizeResearchContext(context);
+  const rootRef = clean(safe?.dimensions?.lifeJourneyPersonRef);
+  if ((typeof number !== "number" && typeof number !== "string")
+    || (typeof number === "string" && !number.trim())) return null;
+  const value = Number(number);
+  if (!safe || !rootRef || !Number.isSafeInteger(value) || value < 0
+    || lifeJourneyViewFromContext(safe, rootRef) !== "person") return null;
+
+  const origin = buildLifeJourneyPersonContext(rootRef, safe);
+  if (!origin) return null;
+  const href = `/2029/number/${value}`;
+  return normalizeResearchContext({
+    ...safe,
+    subject: { id: String(value), type: "number", label: String(value), href },
+    selection: { entityId: String(value), entityType: "number", focusKind: "hint_reference" },
+    lens: "number",
+    returnTo: {
+      href: LIFE_JOURNEY_2029_HREF,
+      label: "חזרה למסע החיים",
+      subject: origin.subject,
+      selection: origin.selection,
+      lens: origin.lens,
+      dimensions: origin.dimensions,
+      journey: origin.journey,
+    },
+  });
+}
+
 export function buildLifeJourneyExactReturnPatch(context) {
   return buildExactReturnPatch(context);
 }

@@ -47,6 +47,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /continueResearchPath/);
   assert.match(personContext, /life_journey_person_context_v1/);
   assert.match(personContext, /buildExactReturnPatch/);
+  assert.match(personContext, /buildLifeJourneyHintReferencePatch/);
+  assert.match(personContext, /\/2029\/number\/\$\{value\}/);
   assert.match(nameAdapter, /getNameProtocol/);
   assert.match(nameAdapter, /buildJourney/);
   assert.match(elsAdapter, /prepareElsAutomaticResearchPlan/);
@@ -56,6 +58,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(elsSurface, /els-search-bridge/);
   assert.match(hints, /getMyHints/);
   assert.match(hints, /fallbackLocal:\s*false/);
+  assert.match(hints, /buildLifeJourneyHintReferencePatch/);
+  assert.match(hints, /פתח במספר/);
   assert.doesNotMatch(hints, /addHint|removeHint|\.insert\(|\.update\(/);
 
   const privateFlow = [journey, personContext, nameAdapter, elsAdapter, elsSurface, hints].join("\n");
