@@ -36,6 +36,8 @@ Non-blocking maintenance debt remains routed to existing owners rather than reop
 
 Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependency-plan-v1.md`.
 
+**Raziel full companion · ZURIEL decisions · 2026-10-13:** accepted research/navigation/account/personal-action scope, durable conversation history, bounded background ELS and flexible subscription-credit direction are recorded in the existing dependency plan §10A. Delivery order: R0 coverage/owner reconciliation → R1 conversational read/navigation → R2 continuity/personal actions → R3 autonomous bounded ELS → R4 measured economics/account actions → R5 staged acceptance/opening. This is PLANNED, not runtime completion or activation; prices and numeric budgets await measurement, and existing owners/release gates remain controlling.
+
 **Human-Gate implementation focus · 2026-09-22 — 2029 FIRST.**
 
 - product/UX engineering effort goes to the 2029 tree, not to improving the Legacy experience for temporary parity;
