@@ -1,0 +1,210 @@
+{
+  "cases": [
+    {
+      "slug": "yaniv-levi",
+      "width": 320,
+      "theme": "light",
+      "label": "כותב",
+      "view": "general",
+      "opened": true
+    },
+    {
+      "slug": "yaniv-levi",
+      "width": 320,
+      "theme": "parchment",
+      "label": "כותב",
+      "view": "general"
+    },
+    {
+      "slug": "yaniv-levi",
+      "width": 320,
+      "theme": "dark",
+      "label": "כותב",
+      "view": "general"
+    },
+    {
+      "slug": "yaniv-levi",
+      "width": 390,
+      "theme": "light",
+      "label": "כותב",
+      "view": "general"
+    },
+    {
+      "slug": "yaniv-levi",
+      "width": 390,
+      "theme": "parchment",
+      "label": "כותב",
+      "view": "general",
+      "opened": true
+    },
+    {
+      "slug": "yaniv-levi",
+      "width": 390,
+      "theme": "dark",
+      "label": "כותב",
+      "view": "general"
+    },
+    {
+      "slug": "yaniv-levi",
+      "width": 1440,
+      "theme": "light",
+      "label": "כותב",
+      "view": "general"
+    },
+    {
+      "slug": "yaniv-levi",
+      "width": 1440,
+      "theme": "parchment",
+      "label": "כותב",
+      "view": "general"
+    },
+    {
+      "slug": "yaniv-levi",
+      "width": 1440,
+      "theme": "dark",
+      "label": "כותב",
+      "view": "general",
+      "opened": true
+    },
+    {
+      "slug": "tzvi-opoc",
+      "width": 320,
+      "theme": "light",
+      "label": "חבר קהילה",
+      "view": "catalogue"
+    },
+    {
+      "slug": "tzvi-opoc",
+      "width": 320,
+      "theme": "parchment",
+      "label": "חבר קהילה",
+      "view": "catalogue",
+      "opened": true
+    },
+    {
+      "slug": "tzvi-opoc",
+      "width": 320,
+      "theme": "dark",
+      "label": "חבר קהילה",
+      "view": "catalogue"
+    },
+    {
+      "slug": "tzvi-opoc",
+      "width": 390,
+      "theme": "light",
+      "label": "חבר קהילה",
+      "view": "catalogue"
+    },
+    {
+      "slug": "tzvi-opoc",
+      "width": 390,
+      "theme": "parchment",
+      "label": "חבר קהילה",
+      "view": "catalogue"
+    },
+    {
+      "slug": "tzvi-opoc",
+      "width": 390,
+      "theme": "dark",
+      "label": "חבר קהילה",
+      "view": "catalogue",
+      "opened": true
+    },
+    {
+      "slug": "tzvi-opoc",
+      "width": 1440,
+      "theme": "light",
+      "label": "חבר קהילה",
+      "view": "catalogue",
+      "opened": true
+    },
+    {
+      "slug": "tzvi-opoc",
+      "width": 1440,
+      "theme": "parchment",
+      "label": "חבר קהילה",
+      "view": "catalogue"
+    },
+    {
+      "slug": "tzvi-opoc",
+      "width": 1440,
+      "theme": "dark",
+      "label": "חבר קהילה",
+      "view": "catalogue"
+    },
+    {
+      "slug": "ariel-ben-moshe",
+      "width": 320,
+      "theme": "light",
+      "label": "חבר קהילה",
+      "view": "general"
+    },
+    {
+      "slug": "ariel-ben-moshe",
+      "width": 320,
+      "theme": "parchment",
+      "label": "חבר קהילה",
+      "view": "general"
+    },
+    {
+      "slug": "ariel-ben-moshe",
+      "width": 320,
+      "theme": "dark",
+      "label": "חבר קהילה",
+      "view": "general",
+      "opened": true
+    },
+    {
+      "slug": "ariel-ben-moshe",
+      "width": 390,
+      "theme": "light",
+      "label": "חבר קהילה",
+      "view": "general",
+      "opened": true
+    },
+    {
+      "slug": "ariel-ben-moshe",
+      "width": 390,
+      "theme": "parchment",
+      "label": "חבר קהילה",
+      "view": "general"
+    },
+    {
+      "slug": "ariel-ben-moshe",
+      "width": 390,
+      "theme": "dark",
+      "label": "חבר קהילה",
+      "view": "general"
+    },
+    {
+      "slug": "ariel-ben-moshe",
+      "width": 1440,
+      "theme": "light",
+      "label": "חבר קהילה",
+      "view": "general"
+    },
+    {
+      "slug": "ariel-ben-moshe",
+      "width": 1440,
+      "theme": "parchment",
+      "label": "חבר קהילה",
+      "view": "general",
+      "opened": true
+    },
+    {
+      "slug": "ariel-ben-moshe",
+      "width": 1440,
+      "theme": "dark",
+      "label": "חבר קהילה",
+      "view": "general"
+    }
+  ],
+  "errors": [],
+  "forbidden_requests": [],
+  "blocked_telemetry": {
+    "link_identity": 50,
+    "track_visit": 72,
+    "ingest_event": 72
+  },
+  "mode": "real public data"
+}
