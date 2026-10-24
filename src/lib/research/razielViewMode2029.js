@@ -40,3 +40,13 @@ export function normalizeRazielViewModeReport(response) {
     reason: typeof raw.reason === "string" ? raw.reason.slice(0, 40) : null,
   });
 }
+
+// "✨ הפתע אותי" — a ONE-SHOT request, not a mode switch: the last question is sent again as a continuation (again:true,
+// intelligenceLevel "deep") with view_mode "exploratory" over the same session and canonical Result Bundle. The session's
+// own mode (default "general") is never touched, and no second engine, store or memory exists for it. It is offered
+// only while the last answer carries a valid Bundle. It differs from "בדוק לעומק" in intent: the exploratory layer asks for
+// an unexpected connection inside verified facts and a careful hypothesis, with fact / interpretation / hypothesis kept apart.
+export const RAZIEL_SURPRISE_LABEL = "✨ הפתע אותי";
+export const RAZIEL_SURPRISE_MODE = "exploratory";
+export const RAZIEL_SURPRISE_LEVEL = "deep";
+// The explanation / no-material copy lives in razielSurpriseCopy2029.js and ships only with the lazily loaded offer panel.

@@ -41,6 +41,7 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
+import RazielSurpriseAction2029 from "./RazielSurpriseAction2029.jsx";
 import { razielContextParts, razielStatusLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
@@ -725,6 +726,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
               {m === lastRaziel && sourceNames.length ? <small className="sod29-raziel-provenance">מקורות: <bdi>{sourceNames.join(" · ")}</bdi></small> : null}
               {m === lastRaziel && m.grounding === "interpretation" ? <small className="sod29-raziel-grounding" data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל</small> : null}
               {m === deepCandidate ? <button className="sod29-action" type="button" disabled={busy} aria-expanded={deepOpen} data-raziel-deepen-preview="true" onClick={() => setDeepOpen((open) => !open)}>בדוק לעומק…</button> : null}
+              {m === lastRaziel && status === "ready" ? <RazielSurpriseAction2029 session={session} onRun={() => session.submitSurprise({ projection })} /> : null}
             </div> : null}
           </div>
         ))}
