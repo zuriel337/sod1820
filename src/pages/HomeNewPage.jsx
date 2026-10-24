@@ -56,8 +56,8 @@ import { BUILD_TRACKS, stagePercent } from "../lib/knowledgeMap.js";
 // לילה = שער הקוסמוס (gate-bg); יום = קלף קרם נקי.
 
 const HERO_IMG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/heichal-1820-banner.webp";
-// 🖼️ רקע-השער החי (5.9.2026, בקשת צוריאל) — שער-הזהב 888. רק תיבת-חיפוש + שני שערי-הכניסה מעליו, בלי טקסט נוסף.
-const HOME_HERO_BG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/site/home-hero-fz1073-20261004.png";
+// 🖼️ רקע-השער החי — הכרזה הציבורית העדכנית של Legacy. רק תיבת-חיפוש + שני שערי-הכניסה מתחתיה, בלי טקסט נוסף.
+const HOME_HERO_BG = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/agent/2026/10/24/min-habriya-el-habechira-27-10-2026-95b164f9.jpg";
 // 🏗️ מפת-הבנייה הציבורית נגזרת ממקור-אמת אחד: lib/knowledgeMap.js — ללא אחוז-על שרירותי.
 const PUBLIC_BUILD_TRACKS = BUILD_TRACKS;
 // 🔠 «עדכונים אחרונים» מציג צפני-מערכת מ«יום משיח בא» (21.7.2026 12:56) ואילך — עוגן קבוע, לא חלון-זמן.
@@ -421,7 +421,8 @@ export default function HomeNewPage() {
         .hn-livegate { position:relative; overflow:hidden; text-align:center; color-scheme:dark;
           background:#09080f; border-bottom:0; }
         /* FIT_WHOLE_IMAGE: תמונת-הירו היא מדיה עצמאית ביחס המקורי שלה — ללא cover/crop. */
-        .hn-livegate-img { display:block; width:100%; height:auto; object-fit:contain; object-position:center; background:#09080f; }
+        .hn-livegate-img { display:block; width:auto; max-width:100%; height:auto; max-height:min(82vh,760px); margin:0 auto;
+          object-fit:contain; object-position:center; background:#09080f; }
         /* החיפוש ושערי-הכניסה חיים מתחת לתמונה, לא כשכבה שמכסה אותה. */
         .hn-hero-actions-wrap { display:flex; justify-content:center; padding:18px 18px 22px;
           background:linear-gradient(180deg,rgba(9,8,15,.98),rgba(12,8,24,.98));
