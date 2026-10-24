@@ -201,10 +201,11 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
   await expect(page).toHaveURL(`${BASE}/world`);
   await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
   expect((await groupedRead).ok()).toBe(true);
-  await page.getByRole('button', { name: /^מה חדש/ }).click();
+  const worldEntries = page.getByRole('navigation', { name: 'דרכים לגלות את העולם' });
+  await worldEntries.getByRole('button', { name: /^מה חדש/ }).click();
   await expect(page).toHaveURL(`${BASE}/world?view=live`);
   await expect(page.getByText('הודעת מקור לבדיקה').first()).toBeVisible({ timeout: 30_000 });
-  await page.getByRole('button', { name: /^נושאים וחיבורים/ }).click();
+  await worldEntries.getByRole('button', { name: /^נושאים וחיבורים/ }).click();
   await expect(page).toHaveURL(`${BASE}/world?view=connections`);
   await page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' }).fill('888');
   await page.locator('a[href="/topic/888-yeshua"]').first().click();
