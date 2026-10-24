@@ -1,4 +1,4 @@
-// SOD1820 — public-number W2 Research Run transport v1.
+// SOD1820 — bounded W2 Research Run transport v1.
 //
 // Thin server boundary over the canonical W2 Composer + canonical executor tree. No second Research
 // engine/store/router is created here. No model/provider call. No persistence/publication decision.
@@ -11,20 +11,31 @@
 //     RLS/permissions apply exactly as they would from the browser. Service role is never handed to
 //     a canonical executor.
 //
-// Bounded scope: this Golden accepts only an explicit canonical non-negative Number literal and only
-// the deterministic `numeric` / `numeric_operators` capabilities (researchRunRequest.js). Identity
-// inference, private research_objects, graph resolution, ELS, Gematria and any model/provider call
-// are intentionally out of scope of this transport.
+// Bounded contracts:
+//   - public-number-research-run-v1 keeps its exact deterministic numeric/numeric_operators path;
+//   - public-expression-crossing-run-v1 admits one bounded Hebrew expression for one canonical
+//     fn_method_profile calculation (the same canonical profile used by Calculator 2029), the
+//     existing strongest_crossings public-corpus call, and confirmed engine-verified cross-method
+//     relations whose other endpoint is independently admitted by the public corpus boundary;
+//   - personal-gematria-pair-run-v1 admits exactly two personal expressions for one canonical
+//     fn_relation_candidate call by an authenticated user.
+// Identity inference, private research_objects, graph/ELS dispatch, persistence and every
+// model/provider call remain out of scope.
 //
 // Fail-closed trace discipline: unlike the fail-OPEN trace pattern used elsewhere (a trace hiccup
 // must never block a Result the caller is otherwise entitled to), this transport treats the
 // Operational Trace as a REQUIRED witness of its own execution. If the trace cannot be started, or any
-// span in the gate/compose/capability chain cannot be recorded, the Result Bundle is suppressed and an
+// span in the gate/compose/capability chain cannot be recorded, or finalization cannot persist,
+// the Result Bundle is suppressed and an
 // error is returned instead — this function never returns a materially untraced Result.
 
 import { composeResearchW2 } from "../../../src/lib/research/researchComposerW2.js";
-import { createCanonicalW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";
-import { normalizePublicNumberResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
+import { createCanonicalW2Executors as createPublicNumberW2Executors } from "../../../src/lib/research/researchW2ExecutorsBase.js";
+import { createGematriaMethodProfileW2Executor } from "../../../src/lib/research/gematriaMethodProfileW2Executor.js";
+import { createGematriaCorpusCrossingW2Executor } from "../../../src/lib/research/gematriaCorpusCrossingW2Executor.js";
+import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";
+import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, PUBLIC_EXPRESSION_CROSSING_CAPABILITY, PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
+import { mergeNumberPhrasePresentationOrder, NUMBER_PHRASE_PRESENTATION_AUTHORITY, NUMBER_PHRASE_PRESENTATION_LIMIT } from "../../../src/lib/research/numberPhrasePresentationOrder.js";
 
 const SUPABASE_URL = (Deno.env.get("SUPABASE_URL") || "").trim();
 const ANON_KEY = (Deno.env.get("SUPABASE_ANON_KEY") || "").trim();
@@ -38,6 +49,10 @@ const CORS = {
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+// The site's long-lived anonymous identity predates UUID visitor ids (`v` + bounded base36 text).
+// It is an opaque rate/trace key, not authentication. Keep accepting UUIDs while admitting only the
+// existing bounded browser form; arbitrary free text, whitespace and contact data remain rejected.
+const VISITOR_ID_RE = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|v[a-z0-9_-]{7,79})$/i;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -49,6 +64,11 @@ function json(body: unknown, status = 200) {
 function safeUuid(value: unknown): string | null {
   const text = String(value || "").trim();
   return UUID_RE.test(text) ? text : null;
+}
+
+function safeVisitorId(value: unknown): string | null {
+  const text = String(value || "").trim();
+  return VISITOR_ID_RE.test(text) ? text : null;
 }
 
 function cleanAuthHeader(req: Request): string | null {
@@ -71,8 +91,7 @@ async function verifiedUserId(authHeader: string | null): Promise<string | null>
 }
 
 // Minimal { rpc(name, args) -> {data, error} } transport shared by the caller-scoped executor client
-// and the server's own service-role gate/trace calls. It is intentionally the ONLY HTTP surface this
-// function speaks — no second Postgres/PostgREST client is introduced.
+// and the server's own service-role gate/trace calls. No second database client is introduced.
 function rpcTransport(apiKey: string, authorization: string) {
   return {
     async rpc(name: string, args: Record<string, unknown> = {}) {
@@ -96,6 +115,171 @@ function rpcTransport(apiKey: string, authorization: string) {
         return { data: null, error: { message: error instanceof Error ? error.message : String(error) } };
       }
     },
+  };
+}
+
+// One bounded caller-scoped Regular-phrase read over the SAME public gematria_words authority
+// already used by Legacy and Number 2029. Explicit lead_rank rows stay first; verified/published
+// unranked Regular rows follow in source order, so a Number-page hierarchy remains authoritative
+// without hiding ordinary Regular crossings. RLS and grants are evaluated with the original caller
+// credential; service role never reaches this query.
+async function fetchNumberPhrasePresentationRows(apiKey: string, authorization: string, number: number) {
+  const url = new URL(`${SUPABASE_URL}/rest/v1/gematria_words`);
+  url.searchParams.set("select", "id,phrase,ragil,lead_rank,is_verified,is_published,is_encrypted,node_id,created_at");
+  url.searchParams.set("ragil", `eq.${number}`);
+  url.searchParams.set("is_verified", "eq.true");
+  url.searchParams.set("is_published", "eq.true");
+  // Match the existing public RLS boundary exactly: historical null and explicit false are public;
+  // true is excluded even for an admin caller so public answer quality stays role-independent.
+  url.searchParams.set("or", "(is_encrypted.eq.false,is_encrypted.is.null)");
+  url.searchParams.set("order", "lead_rank.asc.nullslast,created_at.desc.nullslast");
+  url.searchParams.set("limit", String(NUMBER_PHRASE_PRESENTATION_LIMIT));
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { apikey: apiKey, Authorization: authorization },
+    });
+    if (!response.ok) return { rows: [], status: "unavailable", http_status: response.status };
+    const data = await response.json().catch(() => null);
+    if (!Array.isArray(data)) return { rows: [], status: "unavailable", http_status: response.status };
+    return { rows: data, status: "available", http_status: response.status };
+  } catch {
+    return { rows: [], status: "unavailable", http_status: null };
+  }
+}
+
+const CONFIRMED_RELATION_LIMIT = 3;
+const METHOD_SEMANTICS_LIMIT = 32;
+const METHOD_REGISTRY_LIMIT = 64;
+
+function postgrestQuoted(value: unknown): string {
+  const escaped = String(value ?? "").replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return `"${escaped}"`;
+}
+
+async function callerRestRows(
+  apiKey: string,
+  authorization: string,
+  table: string,
+  configure: (url: URL) => void,
+) {
+  const url = new URL(`${SUPABASE_URL}/rest/v1/${table}`);
+  configure(url);
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { apikey: apiKey, Authorization: authorization },
+    });
+    if (!response.ok) return { rows: [], status: "unavailable", http_status: response.status };
+    const data = await response.json().catch(() => null);
+    if (!Array.isArray(data)) return { rows: [], status: "unavailable", http_status: response.status };
+    return { rows: data, status: "available", http_status: response.status };
+  } catch {
+    return { rows: [], status: "unavailable", http_status: null };
+  }
+}
+
+async function fetchGematriaMethodDependencyRows(apiKey: string, authorization: string) {
+  return callerRestRows(apiKey, authorization, "gematria_methods", (url) => {
+    url.searchParams.set("select", "method_key,derived_from,dependency_rules,dependency_version");
+    url.searchParams.set("active", "eq.true");
+    url.searchParams.set("order", "sort_order.asc.nullslast,method_key.asc");
+    url.searchParams.set("limit", String(METHOD_REGISTRY_LIMIT));
+  });
+}
+
+// Bounded caller-scoped bridge from the frozen historical Atlas to the ONE canonical Result Bundle.
+// Admission is deliberately stricter than the table's historical public-read policy:
+//   1. only confirmed + engine_verified relation rows are considered;
+//   2. the OTHER endpoint must also exist in gematria_words as verified, published and unencrypted;
+//   3. only approved, active SOD1820 method semantics are attached, and core_note is never read.
+// Candidate/rejected rows, source identifiers, private corpus phrases and internal UUIDs never cross
+// this boundary. Service role is not used for any of these reads.
+async function fetchConfirmedSemanticRelationRows(
+  apiKey: string,
+  authorization: string,
+  { expression }: { expression: string },
+) {
+  let restCalls = 1;
+  const quotedExpression = postgrestQuoted(expression);
+  const relationRead = await callerRestRows(apiKey, authorization, "relation_evidence", (url) => {
+    url.searchParams.set(
+      "select",
+      "relation_type,method,a_phrase,b_phrase,value,note,engine_verified,status,updated_at",
+    );
+    url.searchParams.set("status", "eq.confirmed");
+    url.searchParams.set("engine_verified", "eq.true");
+    url.searchParams.set("or", `(a_phrase.eq.${quotedExpression},b_phrase.eq.${quotedExpression})`);
+    url.searchParams.set("order", "updated_at.desc.nullslast");
+    url.searchParams.set("limit", String(CONFIRMED_RELATION_LIMIT));
+  });
+  if (relationRead.status !== "available") {
+    return { rows: [], status: "unavailable", rest_calls: restCalls };
+  }
+
+  const candidates = relationRead.rows.slice(0, CONFIRMED_RELATION_LIMIT);
+  if (!candidates.length) {
+    return {
+      rows: [],
+      status: "available",
+      rest_calls: restCalls,
+      semantic_status: "not_needed",
+      public_endpoint_status: "not_needed",
+    };
+  }
+
+  const methodsReadPromise = callerRestRows(apiKey, authorization, "method_semantics", (url) => {
+    url.searchParams.set(
+      "select",
+      "profile,method,relation_type,label_he,calculation_description,semantic_description,confidence_source,review_version",
+    );
+    url.searchParams.set("profile", "eq.sod1820");
+    url.searchParams.set("status", "eq.approved");
+    url.searchParams.set("is_active", "eq.true");
+    url.searchParams.set("limit", String(METHOD_SEMANTICS_LIMIT));
+  });
+  const partnerByRow = candidates.map((row: any) => (
+    String(row?.a_phrase || "").trim() === expression
+      ? String(row?.b_phrase || "").trim()
+      : String(row?.a_phrase || "").trim()
+  ));
+  const uniquePartners = [...new Set(partnerByRow.filter(Boolean))];
+  const publicPartnersPromise = callerRestRows(apiKey, authorization, "gematria_words", (url) => {
+    url.searchParams.set("select", "phrase");
+    url.searchParams.set("phrase", `in.(${uniquePartners.map(postgrestQuoted).join(",")})`);
+    url.searchParams.set("is_verified", "eq.true");
+    url.searchParams.set("is_published", "eq.true");
+    url.searchParams.set("or", "(is_encrypted.eq.false,is_encrypted.is.null)");
+    url.searchParams.set("limit", String(CONFIRMED_RELATION_LIMIT));
+  });
+  restCalls += 2;
+  const [methodsRead, publicPartnersRead] = await Promise.all([
+    methodsReadPromise,
+    publicPartnersPromise,
+  ]);
+  const publicPartners = new Set(
+    (publicPartnersRead.status === "available" ? publicPartnersRead.rows : [])
+      .map((row: any) => String(row?.phrase || "").trim())
+      .filter(Boolean),
+  );
+  const publicEndpointComplete = publicPartnersRead.status === "available";
+  const semanticByMethod = new Map(
+    (methodsRead.status === "available" ? methodsRead.rows : [])
+      .map((row: any) => [String(row?.method || "").trim(), row]),
+  );
+  const rows = candidates.flatMap((row: any, index: number) => {
+    const partner = partnerByRow[index];
+    if (!partner || !publicPartners.has(partner)) return [];
+    const semantic = semanticByMethod.get(String(row?.method || "").trim()) || null;
+    return [{ ...row, semantic }];
+  });
+
+  return {
+    rows,
+    status: publicEndpointComplete && methodsRead.status === "available" ? "available" : "partial",
+    rest_calls: restCalls,
+    semantic_status: methodsRead.status,
+    public_endpoint_status: publicEndpointComplete ? "available" : "partial",
   };
 }
 
@@ -135,7 +319,7 @@ Deno.serve(async (req: Request) => {
   catch { return json({ status: "error", error: "invalid_json_body" }, 400); }
 
   let run;
-  try { run = normalizePublicNumberResearchRunRequest(body); }
+  try { run = normalizeResearchRunRequest(body); }
   catch (error) {
     return json({ status: "error", error: "invalid_request", detail: error instanceof Error ? error.message : String(error) }, 400);
   }
@@ -144,13 +328,39 @@ Deno.serve(async (req: Request) => {
   if (!authHeader) return json({ status: "error", error: "authorization_required" }, 401);
 
   const userId = await verifiedUserId(authHeader);
-  const visitorId = userId ? null : safeUuid(run.visitor_id);
+  const personalPair = run.contract === PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT;
+  const expressionCrossing = run.contract === PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT;
+  const publicNumber = !personalPair && !expressionCrossing;
+  // Pair input is personal research. A visitor id is never an authentication substitute and the
+  // rejection happens before trace/gate/relation I/O.
+  if (personalPair && !userId) {
+    return json({ status: "error", error: "authenticated_user_required" }, 401);
+  }
+  const visitorId = userId ? null : safeVisitorId(run.visitor_id);
   if (!userId && !visitorId) {
     return json({ status: "error", error: "visitor_identity_required" }, 400);
   }
 
   const identity = userId ? `u:${userId}` : `v:${visitorId}`;
   const identityClass = userId ? "authenticated_user" : "public_user";
+  const executionCapability = personalPair
+    ? "research-w2:gematria-relations"
+    : expressionCrossing
+      ? "research-w2:public-expression-crossings"
+      : "research-w2:public-number";
+  // Expression text is never copied into operational trace/replay. It exists only in the ephemeral
+  // caller-scoped composition input and the response returned to that caller.
+  const subjectRef = personalPair
+    ? "expression-pair:ephemeral"
+    : expressionCrossing
+      ? "expression:ephemeral-public-query"
+      : `number:${run.number}`;
+  const routingReason = personalPair
+    ? "explicit_authenticated_personal_gematria_pair_v1"
+    : expressionCrossing
+      ? "explicit_public_expression_crossing_v1"
+      : "explicit_public_number_golden";
+  const replayInputRef = subjectRef;
 
   // ── Operational Trace: root ─────────────────────────────────────────────────────────────
   // Service role only. Fail CLOSED: if the root trace cannot begin, no gate/compose call runs.
@@ -163,12 +373,12 @@ Deno.serve(async (req: Request) => {
     p_root_span_id: rootSpanId,
     p_context: {
       interaction_id: safeUuid(run.interaction_id),
-      capability: "research-w2:public-number",
+      capability: executionCapability,
       surface: run.surface_context.surface,
       channel: "web",
       locale: "he",
       identity_class: identityClass,
-      subject_ref: `number:${run.number}`,
+      subject_ref: subjectRef,
       root_name: "research-run",
       owner_ref: "research_strategy_layer_law v17 + research_workspace_law v5",
     },
@@ -182,7 +392,7 @@ Deno.serve(async (req: Request) => {
   const gateSpanId = crypto.randomUUID();
   const gateStartedAt = new Date().toISOString();
   const gate = await serviceRpc("fn_capability_execution_gate_v1", {
-    p_capability: "research-w2:public-number",
+    p_capability: executionCapability,
     p_flag_key: null,
     p_required_entitlement: "public",
     p_user_ref: userId,
@@ -205,7 +415,7 @@ Deno.serve(async (req: Request) => {
     p_ended_at: gateEndedAt,
     p_outcome: gate ? (gateAllowed ? "success" : "access_filtered") : "failed_with_reason",
     p_detail: {
-      capability: "research-w2:public-number",
+      capability: executionCapability,
       owner_ref: "site_flags_lock_law v3 + platform_tiers_law v4 + ai_quota_law v3",
       output_use: "not_applicable",
       stop_reason: gate ? (gateAllowed ? null : "gate_denied") : "gate_unavailable",
@@ -237,10 +447,94 @@ Deno.serve(async (req: Request) => {
   // Service role is never passed to the canonical executors — caller RLS/permissions apply exactly
   // as they would from a direct browser call.
   const callerRpc = rpcTransport(ANON_KEY, authHeader);
-  const executors = createCanonicalW2Executors({
+  // The public Number Golden remains on the exact base executor tree. The pair transport adds only
+  // the canonical relation adapter it is allowed to execute, avoiding the wider browser/runtime
+  // executor graph and retaining a hard one-RPC budget.
+  const baseExecutors = createPublicNumberW2Executors({
     supabase: callerRpc,
     serverContext: false,
   });
+  let presentationRanking: any[] = [];
+  const numericExecutor = baseExecutors.numeric;
+  const publicExecutors = publicNumber && typeof numericExecutor === "function"
+    ? Object.freeze({
+        ...baseExecutors,
+        numeric: async (args: any) => {
+          const [numeric, presentationRead] = await Promise.all([
+            numericExecutor(args),
+            fetchNumberPhrasePresentationRows(ANON_KEY, authHeader, run.number),
+          ]);
+          if (numeric?.status !== "executed" || presentationRead.status !== "available") {
+            return {
+              ...numeric,
+              trace: {
+                ...(numeric?.trace || {}),
+                presentation_order: {
+                  authority: NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
+                  scope: NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
+                  status: presentationRead.status,
+                  row_count: 0,
+                  added_finding_count: 0,
+                  rpc_calls: 1,
+                  ai_calls: 0,
+                  retry_count: 0,
+                },
+              },
+            };
+          }
+          const projected = mergeNumberPhrasePresentationOrder({
+            findings: numeric.findings,
+            rows: presentationRead.rows,
+            number: run.number,
+          });
+          presentationRanking = [...projected.ranking];
+          return {
+            ...numeric,
+            findings: projected.findings,
+            sourceRefs: [...new Set([...(numeric.sourceRefs || []), NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref])],
+            versionRefs: [...new Set([...(numeric.versionRefs || []), `number-phrase-presentation-order:v${NUMBER_PHRASE_PRESENTATION_AUTHORITY.version}`])],
+            trace: {
+              ...(numeric.trace || {}),
+              presentation_order: {
+                authority: NUMBER_PHRASE_PRESENTATION_AUTHORITY.ref,
+                scope: NUMBER_PHRASE_PRESENTATION_AUTHORITY.scope,
+                status: "available",
+                row_count: projected.row_count,
+                added_finding_count: projected.added_count,
+                rpc_calls: 1,
+                ai_calls: 0,
+                retry_count: 0,
+              },
+            },
+          };
+        },
+      })
+    : baseExecutors;
+  const executors = personalPair
+    ? Object.freeze({
+        ...baseExecutors,
+        [PERSONAL_GEMATRIA_PAIR_CAPABILITY]: createGematriaRelationW2Executor({
+          supabase: callerRpc,
+          pairMode: GEMATRIA_RELATION_PAIR_MODE.INTAKE_DIRECT_PAIR,
+          maxRepresentations: 2,
+          maxPairs: 1,
+        }),
+      })
+    : expressionCrossing
+      ? Object.freeze({
+          gematria: createGematriaMethodProfileW2Executor({
+            supabase: callerRpc,
+            readMethodRegistry: () => fetchGematriaMethodDependencyRows(ANON_KEY, authHeader),
+          }),
+          [PUBLIC_EXPRESSION_CROSSING_CAPABILITY]: createGematriaCorpusCrossingW2Executor({
+            supabase: callerRpc,
+            limit: 8,
+            readConfirmedRelations: (args: { expression: string }) => (
+              fetchConfirmedSemanticRelationRows(ANON_KEY, authHeader, args)
+            ),
+          }),
+        })
+      : publicExecutors;
 
   const capabilityEvents: any[] = [];
   const composeSpanId = crypto.randomUUID();
@@ -261,8 +555,9 @@ Deno.serve(async (req: Request) => {
       question: run.question,
       intent: run.intent,
       identityCandidates: run.identity_candidates,
-      rawInput: String(run.number),
-      explicitTextComputation: false,
+      rawInput: personalPair ? null : expressionCrossing ? run.expression : String(run.number),
+      intake: personalPair ? run.intake : null,
+      explicitTextComputation: expressionCrossing,
       authorizationContext,
       contextType: identityClass,
       surfaceContext: run.surface_context,
@@ -270,8 +565,13 @@ Deno.serve(async (req: Request) => {
       // No identity/text inference ever widens this transport's execution plan beyond the exact
       // capabilities the validated request asked for — even if `question` free text mentions more.
       capabilityAllowlist: run.requested_capabilities,
-      requestedDepth: "golden_public_number_v1",
+      requestedDepth: personalPair
+        ? "personal_gematria_pair_v1"
+        : expressionCrossing
+          ? "public_expression_crossing_v1"
+          : "golden_public_number_v1",
       executors,
+      rankingResolver: publicNumber ? () => presentationRanking : null,
       // Timestamps/status/counts only — never raw Findings/content cross this boundary.
       executionObserver: (event: any) => capabilityEvents.push(event),
     });
@@ -287,7 +587,11 @@ Deno.serve(async (req: Request) => {
   }
 
   const composeEndedAt = new Date().toISOString();
-  const planRef = `research-plan-v2:number:${run.number}`;
+  const planRef = personalPair
+    ? "research-plan-v2:personal-gematria-pair"
+    : expressionCrossing
+      ? "research-plan-v2:public-expression-crossing"
+      : `research-plan-v2:number:${run.number}`;
   const composeTraced = await serviceRpc("op_trace_record_span_v1", {
     p_trace_id: traceId,
     p_span_id: composeSpanId,
@@ -298,17 +602,17 @@ Deno.serve(async (req: Request) => {
     p_ended_at: composeEndedAt,
     p_outcome: bundleOutcome(bundle),
     p_detail: {
-      capability: "research-w2:public-number",
+      capability: executionCapability,
       owner_ref: "research_strategy_layer_law v17",
       plan_ref: planRef,
-      routing_reason: "explicit_public_number_golden",
+      routing_reason: routingReason,
       output_use: "used",
       resources: { capability_count: capabilityEvents.length },
       cost: { certainty: "not_billable" },
       replay: {
-        inputRef: `number:${run.number}`,
+        inputRef: replayInputRef,
         ownerRuleRefs: ["research_strategy_layer_law v17", "research_workspace_law v5"],
-        parametersRef: "public-number-research-run-v1",
+        parametersRef: run.contract,
       },
       privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
     },
@@ -337,7 +641,7 @@ Deno.serve(async (req: Request) => {
           bounded: event.bounded || null,
         },
         cost: { certainty: "not_billable" },
-        replay: { inputRef: `number:${run.number}` },
+        replay: { inputRef: replayInputRef },
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
       },
     });
@@ -357,13 +661,17 @@ Deno.serve(async (req: Request) => {
   }
 
   const outcome = bundleOutcome(bundle);
-  await serviceRpc("op_trace_finish_v1", {
+  const finished = await serviceRpc("op_trace_finish_v1", {
     p_trace_id: traceId,
     p_root_span_id: rootSpanId,
     p_outcome: outcome,
     p_ended_at: new Date().toISOString(),
     p_stop_reason: null,
   });
+  if (!finished) {
+    // Computed Findings are not a completed Result until the root trace is finalized.
+    return json({ status: "error", error: "trace_incomplete", trace_id: traceId }, 200);
+  }
 
   return json({
     status: "ok",

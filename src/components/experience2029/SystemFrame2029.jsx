@@ -1,5 +1,4 @@
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
-import { buildRazielSurfaceContext } from "../../lib/research/razielSurfaceContext.js";
 import { createPortal } from "react-dom";
 import React, {
   createContext,
@@ -24,7 +23,7 @@ import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
 import { requestEmailOtp, verifyEmailOtp, signInWithPassword, signInWithGoogle } from "../../lib/auth.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
 import { makeEntity } from "../../lib/research/entity.js";
-import { askRaziel, getNotificationPrefs } from "../../lib/supabase.js";
+import { getNotificationPrefs } from "../../lib/supabase.js";
 import { getMyNotifications, getUnreadCount, markNotificationRead, topicLabel } from "../../lib/notifications.js";
 import { getMyProfile, watchToggle } from "../../lib/commandCenter.js";
 import { getVisitorId } from "../../lib/tracking.js";
@@ -40,6 +39,11 @@ import ContactGateway from "../ContactGateway.jsx";
 import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
+import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
+import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
+import { razielContextParts, razielStatusLabel } from "./razielSessionSeam2029.js";
+import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
+import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
@@ -366,7 +370,7 @@ function RazielOrb({ compact = false, active = false, onClick, title = "פתח �
   );
 }
 
-function PanelShell({ panelRef, icon, kicker, title, children, onClose }) {
+function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKind = null }) {
   return (
     <div className="sod29-frame-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <aside
@@ -378,6 +382,7 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose }) {
         data-experience-capability="contextual-sidecar"
         data-desktop-projection="left-context-sidecar"
         data-mobile-projection="bottom-context-sheet"
+        data-panel-kind={panelKind || undefined}
         tabIndex={-1}
       >
         <header className="sod29-frame-panel-head">
@@ -673,79 +678,72 @@ function ToolsProjection({ surface, target, go, onCapability }) {
 
 const RAZIEL_LEVEL_LABEL = { deterministic: "דטרמיניסטי", fast: "מהיר", deep: "עמוק" };
 
-// שיחה מקומית קומפקטית עם רזיאל — אותו transport קיים (askRaziel → ai-analyze persona=raziel).
-// אפס קריאה בפתיחה/רינדור; ברירת-מחדל = מהיר; "העמק" = פעולה מפורשת על אותה שאלה+הקשר (אין הסלמה אוטומטית).
-// מצב-השיחה = state מקומי של הקומפוננטה בלבד (אין store גלובלי).
-function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false }) {
+// One temporary Raziel conversation is shared by the desktop Companion and the mobile sheet.
+// Opening, navigating and changing view mode make no AI call; only an explicit submit crosses the transport.
+function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false, projection = "mobile" }) {
+  const session = useOptionalRazielSession2029();
   const [text, setText] = useState("");
-  const [thread, setThread] = useState([]);
-  const [busy, setBusy] = useState(false);
-  const [note, setNote] = useState("");
-  const subjectRef = context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "";
-  // תמלול מקומי חסום — משקף את חסם RazielChat הישן: 2 תורות אחרונים, ~200 תווים לתור, ≤500 סה"כ.
-  // רק state הקומפוננטה; בלי store חדש. כל ההקשר ≤600 — חוזה rCtxHint הקיים בשרת (לא מורחב).
-  const buildTranscript = (turns) => turns.slice(-2)
-    .map((m) => `${m.role === "user" ? "משתמש" : "רזיאל"}: ${String(m.text || "").replace(/\s+/g, " ").slice(0, 200)}`)
-    .join("\n").slice(0, 500);
-  const buildContext = (transcript) => {
-    const block = transcript ? `שיחה אחרונה:\n${transcript}` : "";
-    const head = [subjectRef && `הקשר פעיל: ${subjectRef}`, label && `מוקד: ${label}`].filter(Boolean).join(" | ");
-    const room = Math.max(0, 600 - block.length - (block && head ? 1 : 0));
-    return [head.slice(0, room), block].filter(Boolean).join("\n").slice(0, 600) || null;
-  };
+  const [deepOpen, setDeepOpen] = useState(false);
+  const threadLength = session?.thread?.length || 0;
+  const lastTurnRef = useCallback((node) => { node?.scrollIntoView?.({ block: "nearest" }); }, [threadLength]);
+  if (!session) return <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="unavailable"><b>רזיאל</b><small role="status">השיחה עם רזיאל אינה זמינה כאן כרגע.</small></section>;
+  const { thread, busy, status, announcement } = session;
+  const subjectLabel = context?.subject?.label || "";
   const buildFacts = () => [
     numberFocus?.root != null ? `שורש עמוד: ${numberFocus.root}` : "",
     numberFocus ? `מוקד מספר: ${numberFocus.expression || numberFocus.root}${numberFocus.method ? ` · ${numberFocus.method}` : ""}${numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}` : "",
     readingFocus ? `קוראים עכשיו: ${readingFocus.label || ""} ${readingFocus.primary || ""}`.trim() : "",
+    label && label !== subjectLabel ? `מוקד נבחר: ${label}` : "",
   ].filter(Boolean).join("\n").slice(0, 1200);
-  // מתאר-משטח סמנטי חסום מתוך הקשר סמנטי קיים בלבד: זהות+מוקד, בלי HTML ובלי טקסט-דף.
-  const buildSurfaceSemantic = () => {
-    const cap = (v, n) => (v == null ? "" : String(v).replace(/\s+/g, " ").trim().slice(0, n));
-    const out = { surface: cap(context?.surface || context?.subject?.type || "frame", 40) };
-    if (context?.subject) out.subject = { type: cap(context.subject.type, 30), id: cap(context.subject.id, 80), label: cap(context.subject.label, 80) };
-    if (numberFocus) out.number = { expression: cap(numberFocus.expression || numberFocus.root, 60), method: cap(numberFocus.method, 40), result: cap(numberFocus.resultValue, 30) };
-    if (readingFocus) out.reading = { label: cap(readingFocus.label, 80), primary: cap(readingFocus.primary, 80) };
-    if (elsFocus?.occurrence) out.els = { occurrence: cap(elsFocus.occurrence.occurrenceRef, 80), term: cap(elsFocus.occurrence.term || elsFocus.term, 60) };
-    const surfaceContext = buildRazielSurfaceContext(context);
-    if (surfaceContext) out.context = surfaceContext;
-    return out;
-  };
-  const send = async (question, level, again = false) => {
+  const send = async (question, level, again = false, continuationTurnId = null) => {
     const q = String(question || "").trim();
     if (!q || busy) return;
-    setBusy(true); setNote("");
-    // תמלול = התורות שלפני השאלה הנוכחית (שאלת העמקה: בלי התשובה המהירה של אותה שאלה עצמה).
-    const prior = again ? thread.slice(0, Math.max(0, thread.length - 1)) : thread;
-    if (!again) setThread((t) => [...t, { role: "user", text: q }]);
-    const transcript = buildTranscript(prior);
-    const res = await askRaziel({
-      subject: q.slice(0, 300), // השאלה עצמה בלבד — שורש/שיטה רק ב-facts/context (קידומת מזהמת חילוץ נושא דטרמיניסטי)
-      facts: buildFacts(),
-      context: buildContext(transcript),
-      again,
-      intelligenceLevel: level,
-      surfaceSemantic: buildSurfaceSemantic(),
-    });
-    setBusy(false);
-    if (!res) { setNote("רזיאל לא הצליח לענות כרגע (או שהמכסה להיום הסתיימה). אפשר לנסות שוב."); return; }
-    setThread((t) => [...t, { role: "raziel", text: res.answer || "", level: res.deterministic ? "deterministic" : (res.intelligence_level || level), question: q }]);
-    if (!again) setText("");
+    setDeepOpen(false);
+    const result = await session.submit({ question: q, intelligenceLevel: level, again, continuationTurnId, facts: buildFacts(), view: { numberFocus, readingFocus, elsFocus }, projection });
+    if (result?.ok && !again) setText("");
   };
+  const contextParts = razielContextParts(createRazielContextSnapshot(context, { numberFocus, readingFocus, elsFocus }));
   const lastRaziel = [...thread].reverse().find((m) => m.role === "raziel");
+  const deepCandidate = selectRazielDeepeningCandidate(session);
+  const sourceNames = Array.isArray(lastRaziel?.sourceNames) ? lastRaziel.sourceNames.slice(0, 3) : [];
+  const stateLabel = razielStatusLabel({ busy, status });
   return (
-    <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="true">
-      <b>✦ המשך עם רזיאל</b>
-      {thread.map((m, i) => (
-        <div key={i} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
-          <span>{m.text}</span>
-          {m.role === "raziel" ? <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small> : null}
-        </div>
-      ))}
-      {note ? <small role="status">{note}</small> : null}
-      <form onSubmit={(e) => { e.preventDefault(); send(text, "fast"); }}>
-        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="שאל את רזיאל על מה שמולך" maxLength={300} aria-label="שאלה לרזיאל" disabled={busy} />
+    <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="true" data-raziel-session="shared" data-raziel-projection={projection} aria-label="שיחה עם רזיאל">
+      <b>✦ המשך עם רזיאל</b><small data-raziel-state={busy ? "thinking" : status}>{stateLabel}</small>
+      <div className="sod29-raziel-context" data-raziel-context-strip="true" aria-label="מה רזיאל רואה עכשיו">
+        <p>{contextParts.length ? contextParts.map((part, index) => <React.Fragment key={part.key}>{index ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "שאלה חופשית — או בחר מספר, ביטוי או קטע"}</p>
+      </div>
+      <RazielViewModeSelector2029 />
+      <div className="sod29-raziel-thread" role="log" aria-label="השיחה עם רזיאל">
+        {thread.map((m, i) => (
+          <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
+            <small>{m.role === "user" ? "שאלת" : "רזיאל"}</small>
+            <span dir="auto">{m.text}</span>
+            {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
+              <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
+              {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `מצב ${razielViewModeLabel(m.viewMode)} · ניסוי` : `מצב ${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}
+              {m === lastRaziel && sourceNames.length ? <small className="sod29-raziel-provenance">מקורות: <bdi>{sourceNames.join(" · ")}</bdi></small> : null}
+              {m === lastRaziel && m.grounding === "interpretation" ? <small className="sod29-raziel-grounding" data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל</small> : null}
+              {m === deepCandidate ? <button className="sod29-action" type="button" disabled={busy} aria-expanded={deepOpen} data-raziel-deepen-preview="true" onClick={() => setDeepOpen((open) => !open)}>בדוק לעומק…</button> : null}
+            </div> : null}
+          </div>
+        ))}
+      </div>
+      {deepCandidate && deepOpen ? <div className="sod29-raziel-deep-offer" data-raziel-deep-offer="true">
+        <b>מה ההעמקה תעשה</b>
+        <ul>
+          <li>אותה שאלה ואותו הקשר, במודל העמוק של רזיאל.</li>
+          <li>{sourceNames.length ? <>תבחן שוב את המקורות שכבר צורפו: <bdi>{sourceNames.join(" · ")}</bdi>.</> : "בתשובה המהירה לא צורפו מקורות מאומתים, וההעמקה לא תמציא מקור."}</li>
+          <li>לא מורצים כלים חדשים ואין חיפוש ברשת.</li>
+          <li>אם אין ראיה לקשר, התשובה תאמר זאת.</li>
+        </ul>
+        <button className="sod29-action primary" type="button" disabled={busy} data-raziel-deepen="true" onClick={() => send(deepCandidate.question, "deep", true, deepCandidate.turnId)}>הפעל העמקה</button>
+        <button className="sod29-action" type="button" onClick={() => setDeepOpen(false)}>לא עכשיו</button>
+      </div> : null}
+      <small className="sod29-raziel-status" role="status">{busy || status === "error" ? announcement : ""}</small>
+      <form className="sod29-raziel-composer" onSubmit={(e) => { e.preventDefault(); send(text, "fast"); }}>
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="שאל את רזיאל על מה שמולך" maxLength={300} aria-label="שאלה לרזיאל" dir="auto" disabled={busy} />
         <button className={primary ? "sod29-action primary" : "sod29-action"} type="submit" disabled={busy || !text.trim()}>{busy ? "חושב…" : "שלח"}</button>
-        {lastRaziel && lastRaziel.level === "fast" ? <button className="sod29-action" type="button" disabled={busy} data-raziel-deepen="true" onClick={() => send(lastRaziel.question, "deep", true)}>העמק</button> : null}
       </form>
     </section>
   );
@@ -878,7 +876,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
           title="הפעולה מוכנה בהקשר הזה, אבל עדיין אינה פעילה"
         >◌ {razielRouteAction.label}{routeHomeLabel ? ` · ${routeHomeLabel}` : ""}</button> : null}
       </div>
-      <RazielNativeChat context={context} label={label} numberFocus={numberFocus} readingFocus={readingFocus} elsFocus={elsFocus} primary={!routeActionValid} />
+      <RazielNativeChat context={context} label={label} numberFocus={numberFocus} readingFocus={readingFocus} elsFocus={elsFocus} primary={!routeActionValid} projection="mobile" />
     </>
   );
 }
@@ -1450,7 +1448,15 @@ function IntroResearchContext2029({ context }) {
   </details>;
 }
 
-export default function SystemFrame2029({
+// App2029 owns the single session above Routes. A frame hosted by another entry point receives
+// the same bounded mount locally instead of falling back to a second chat implementation.
+export default function SystemFrame2029(props) {
+  return useOptionalRazielSession2029()
+    ? <SystemFrame2029Body {...props} />
+    : <RazielSessionMount2029><SystemFrame2029Body {...props} /></RazielSessionMount2029>;
+}
+
+function SystemFrame2029Body({
   title,
   eyebrow,
   description,
@@ -2048,7 +2054,7 @@ export default function SystemFrame2029({
       : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} timeMode={recordTimeMode} />}</PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} panelKind="raziel" icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
       pathname={location.pathname}
       surface={surface}
@@ -2243,7 +2249,7 @@ export default function SystemFrame2029({
           /> : null}
           onOpenHref={(href) => go(href)}
           timeMode={recordTimeMode}
-          razielNode={razielLocked || surface === "post" ? null : <RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
+          razielNode={razielLocked || surface === "post" || transientKind === TRANSIENT.RAZIEL ? null : <RazielNativeChat projection="desktop" context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {recordTimeLabel(feed.newest, recordTimeMode, recordTimeMode === "relative" ? "עכשיו" : "תאריך לא צוין")}</span></button> : null}

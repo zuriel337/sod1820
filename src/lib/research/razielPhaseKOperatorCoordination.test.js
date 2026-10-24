@@ -116,7 +116,8 @@ test("Phase K: one db_rpc span per owner call with caller JWT, no payload in spa
 test("Phase K: call-site answers L0 (no model); pack feeds synthesis; runs before the model call", () => {
   assert.match(callSite, /model: "none", intelligence_level: "deterministic"/);
   assert.match(callSite, /if \(op\.ok && op\.pack\) rOpPack = op\.pack/);
-  assert.ok(edge.indexOf("runRazielCoordination(") < edge.indexOf("callClaudeReliable("));
+  const requestPath = edge.slice(edge.indexOf('if (String(body?.persona || "").toLowerCase() === "raziel")'), edge.indexOf('const isCollection = kind === "research"'));
+  assert.ok(requestPath.indexOf("runRazielCoordination(rCoordDesc") < requestPath.indexOf("const rel = await callClaudeReliable("));
 });
 
 test("Phase K: migration extends only fn_raziel_plan; grammar admin-gated; routing OFF; no tables/policies/grants/provider names", () => {

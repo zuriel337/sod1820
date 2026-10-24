@@ -1,0 +1,375 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  projectRazielConversationResolution,
+  resolveRazielConversationTurn,
+} from "./razielConversationResolver.js";
+
+const ids = (out) => out.identity_resolution.identities.map((identity) => String(identity.value ?? identity.id ?? identity.label));
+
+test("resolves a number pair even when human language continues after the pair", () => {
+  const out = resolveRazielConversationTurn({ question: "מה ההבדל בין 337 ל 533 מצא לי קשרים" });
+  assert.deepEqual(out.pair, [337, 533]);
+  assert.equal(out.requested_action, "connect");
+  assert.equal(out.referent_source, "explicit_current_turn");
+});
+
+test("resolves explicit bounded number research without treating surrounding prose as evidence", () => {
+  for (const [question, action] of [
+    ["חקור את 776 מול 1820", "research"],
+    ["בדוק 776 עם 1820", "research"],
+    ["תבדקי 776 מול 1820", "research"],
+    ["מצא קשר בין 776 ל-1820", "connect"],
+    ["השווי בין המספרים 776 ל-1820", "connect"],
+    ["תעשה לי הצלבה בין 1820 ל-776", "connect"],
+    ["בצעי השוואה בין המספרים 776 מול 1820", "connect"],
+  ]) {
+    const out = resolveRazielConversationTurn({ question });
+    const expectedPair = question.includes("1820 ל-776") ? [1820, 776] : [776, 1820];
+    assert.deepEqual(out.pair, expectedPair, question);
+    assert.equal(out.requested_action, action, question);
+    assert.equal(out.referential_follow_up, false, question);
+    assert.equal(out.referent_source, "explicit_current_turn", question);
+    assert.deepEqual(projectRazielConversationResolution(out).identities.map((identity) => identity.value), expectedPair);
+  }
+});
+
+test("resolves natural single-number definition and research requests without scanning prose", () => {
+  for (const [question, number, action] of [
+    ["בדוק לי מה זה 776", 776, "research"],
+    ["תבדקי לי מה זה המספר 1820", 1820, "research"],
+    ["בדוק לי את המספר 358", 358, "research"],
+    ["חקור 787", 787, "research"],
+    ["מה ידוע על המספר 26", 26, "understand"],
+  ]) {
+    const out = resolveRazielConversationTurn({ question });
+    assert.deepEqual(ids(out), [String(number)], question);
+    assert.equal(out.requested_action, action, question);
+    assert.equal(out.referential_follow_up, false, question);
+    assert.equal(out.referent_source, "explicit_current_turn", question);
+    assert.deepEqual(projectRazielConversationResolution(out).identities, [
+      { type: "number", value: number, identity_key: `number:${number}` },
+    ], question);
+  }
+
+  for (const question of [
+    "בדוק לי מה זה 3 מקורות על 776",
+    "בדוק לי את עמוד 33",
+    "חקור את שנת 2024",
+    "בדוק לי 2 שאלות על 776",
+  ]) {
+    const out = resolveRazielConversationTurn({ question });
+    assert.deepEqual(ids(out), [], question);
+    assert.equal(projectRazielConversationResolution(out), null, question);
+  }
+});
+
+test("carries the last explicit pair into a bounded follow-up without model inference", () => {
+  const out = resolveRazielConversationTurn({
+    question: "אתה יכול לבדוק?",
+    thread: [{ role: "user", text: "מה ההבדל בין 337 ל 533 מצא לי קשרים" }],
+  });
+  assert.deepEqual(out.pair, [337, 533]);
+  assert.equal(out.requested_action, "research");
+  assert.equal(out.referential_follow_up, true);
+  assert.equal(out.referent_source, "prior_user_turn");
+  assert.equal(out.guards.no_model_inference, true);
+});
+
+test("method-only follow-up keeps the last numeric subject in the temporary thread", () => {
+  const out = resolveRazielConversationTurn({
+    question: "גימטריה",
+    thread: [{
+      role: "user",
+      text: "תן לי על המספר 776",
+      identity_resolution: {
+        identities: [{ type: "number", value: 776, identity_key: "number:776" }],
+      },
+    }],
+  });
+
+  assert.deepEqual(ids(out), ["776"]);
+  assert.equal(out.referential_follow_up, true);
+  assert.equal(out.referent_source, "prior_user_turn");
+  assert.equal(out.requested_action, "research");
+  assert.deepEqual(projectRazielConversationResolution(out).identities, [
+    { type: "number", value: 776, identity_key: "number:776" },
+  ]);
+});
+
+test("carries canonical phrase identities with access and provenance intact", () => {
+  const provenance = { owner: "project_codex.gematria_engine", ref: "phrase:messiah" };
+  const access = { tier: "public" };
+  const out = resolveRazielConversationTurn({
+    question: "איזה מהממצאים חזק יותר?",
+    thread: [{
+      role: "user",
+      text: "השווה ביניהם",
+      identity_resolution: {
+        explicit_text_computation: true,
+        identities: [
+          { type: "phrase", identity_key: "phrase:משיח", label: "משיח", provenance, access },
+          { type: "phrase", identity_key: "phrase:מלך-ישראל", label: "מלך ישראל" },
+        ],
+      },
+    }],
+  });
+  assert.deepEqual(ids(out), ["משיח", "מלך ישראל"]);
+  assert.deepEqual(out.identity_resolution.identities[0].provenance, provenance);
+  assert.deepEqual(out.identity_resolution.identities[0].access, access);
+  assert.equal(out.identity_resolution.explicit_text_computation, true);
+});
+
+test("an explicit new topic does not inherit a previous number", () => {
+  const out = resolveRazielConversationTurn({
+    question: "מה זה גימטריה?",
+    thread: [{ role: "user", text: "מה זה 776?" }],
+  });
+  assert.deepEqual(ids(out), []);
+  assert.equal(out.referential_follow_up, false);
+  assert.equal(out.referent_source, "none");
+});
+
+test("an explicit current number replaces prior referents when no anaphor is present", () => {
+  const out = resolveRazielConversationTurn({
+    question: "מה זה 1820?",
+    thread: [{ role: "user", text: "מה ההבדל בין 337 ל 533" }],
+  });
+  assert.deepEqual(ids(out), ["1820"]);
+  assert.equal(out.carried_identity_keys.length, 0);
+  assert.equal(out.pair, null);
+});
+
+test("combines a bounded anaphor with one new explicit number", () => {
+  const out = resolveRazielConversationTurn({
+    question: "תבדוק את זה מול 1820",
+    thread: [{ role: "user", text: "מה זה 776?" }],
+  });
+  assert.deepEqual(out.pair, [776, 1820]);
+  assert.equal(out.referent_source, "mixed_prior_and_explicit");
+});
+
+test("uses the exact surface subject only for an explicit referential follow-up", () => {
+  const out = resolveRazielConversationTurn({
+    question: "תעמיק",
+    surfaceSemantic: { surface: "number", subject: { type: "number", id: "787", label: "787" } },
+  });
+  assert.deepEqual(ids(out), ["787"]);
+  assert.equal(out.referent_source, "surface_subject");
+  assert.equal(out.requested_action, "research");
+});
+
+test("what am I seeing here binds the visible Number root and ignores an older conversation subject", () => {
+  const out = resolveRazielConversationTurn({
+    question: "מה אני רואה כאן?",
+    thread: [{ role: "user", text: "מה זה 1820?" }],
+    surfaceSemantic: { surface: "number", subject: { type: "number", id: "776", label: "776" } },
+  });
+  assert.deepEqual(ids(out), ["776"]);
+  assert.equal(out.referential_follow_up, true);
+  assert.equal(out.referent_source, "surface_subject");
+  assert.equal(out.requested_action, "understand");
+  assert.deepEqual(projectRazielConversationResolution(out).identities, [
+    { type: "number", value: 776, identity_key: "number:776" },
+  ]);
+});
+
+test("what am I seeing here on the calculator binds the whole expression, not one active result tile", () => {
+  const out = resolveRazielConversationTurn({
+    question: "מה אני רואה כאן?",
+    thread: [{ role: "user", text: "מה זה 776?" }],
+    surfaceSemantic: {
+      surface: "gematria",
+      subject: { type: "number", id: "365", label: "חכמה" },
+      number: { expression: "חכמה", method: "משולש מילה + משולש הפוך", result: 365 },
+    },
+  });
+  assert.deepEqual(ids(out), ["חכמה"]);
+  assert.equal(out.identity_resolution.explicit_text_computation, true);
+  assert.equal(out.referent_source, "surface_subject");
+  assert.equal(out.requested_action, "understand");
+  assert.deepEqual(projectRazielConversationResolution(out), {
+    version: "raziel-conversation-resolver-v1",
+    requested_action: "understand",
+    referential_follow_up: true,
+    referent_source: "surface_subject",
+    identities: [{ type: "phrase", label: "חכמה", identity_key: "phrase:חכמה" }],
+    pair: null,
+    guards: { semantic_hint_only: true, server_must_reauthorize: true },
+  });
+});
+
+test("calculator surface expression is not projected from an absent or string-coerced result", () => {
+  for (const result of [null, "365", 0, -1]) {
+    const out = resolveRazielConversationTurn({
+      question: "מה אני רואה כאן?",
+      surfaceSemantic: {
+        surface: "gematria",
+        subject: { type: "number", id: String(result), label: "חכמה" },
+        number: { expression: "חכמה", method: "רגיל", result },
+      },
+    });
+    assert.equal(out.referent_source, "none");
+    assert.equal(projectRazielConversationResolution(out), null);
+  }
+});
+
+test("does not carry a surface subject into an unrelated new conversation turn", () => {
+  const out = resolveRazielConversationTurn({
+    question: "שלום רזיאל",
+    surfaceSemantic: { surface: "number", subject: { type: "number", id: "787" } },
+  });
+  assert.deepEqual(ids(out), []);
+  assert.equal(out.referent_source, "none");
+});
+
+test("counts, years and source quantities never become numeric research anchors", () => {
+  for (const question of [
+    "יש לי 2 שאלות",
+    "תבדוק 3 מקורות על משיח",
+    "מצא לי 2 קשרים למשיח",
+    "מה הקשר בין שנת 2024 למשיח",
+    "מה הקשר בין שנת 2024 ל 1820",
+    "בדוק עמוד 33 במקור",
+    "חקור את שנת 2024 מול 1820",
+    "בדוק 776 מול 1820 דרך 3 מקורות",
+  ]) {
+    const out = resolveRazielConversationTurn({ question });
+    assert.deepEqual(ids(out), [], question);
+  }
+});
+
+test("numeric pair grammar does not also invent a phrase identity", () => {
+  const out = resolveRazielConversationTurn({ question: "מה ההבדל בין המספרים 337 ל 533" });
+  assert.deepEqual(ids(out), ["337", "533"]);
+  assert.deepEqual(out.identity_resolution.identities.map((identity) => identity.type), ["number", "number"]);
+});
+
+test("relation to one new number carries the prior subject", () => {
+  const out = resolveRazielConversationTurn({
+    question: "ומה הקשר ל־776?",
+    thread: [{ role: "user", text: "מה זה 1820?" }],
+  });
+  assert.deepEqual(out.pair, [1820, 776]);
+  assert.equal(out.referent_source, "mixed_prior_and_explicit");
+  assert.equal(out.requested_action, "connect");
+});
+
+test("anaphoric comparison never creates an 'את זה' phrase and preserves text opt-in", () => {
+  const out = resolveRazielConversationTurn({
+    question: "תשווה את זה מול 1820",
+    thread: [{
+      role: "user",
+      identity_resolution: {
+        explicit_text_computation: true,
+        identities: [{ type: "phrase", identity_key: "phrase:משיח", label: "משיח" }],
+      },
+    }],
+  });
+  assert.deepEqual(ids(out), ["1820", "משיח"]);
+  assert.equal(out.identity_resolution.identities.some((identity) => identity.label === "את זה"), false);
+  assert.equal(out.identity_resolution.explicit_text_computation, true);
+  assert.equal(out.identity_resolution.text_calculation_allowed, true);
+});
+
+test("אפשר לבדוק is a bounded referential follow-up", () => {
+  const out = resolveRazielConversationTurn({
+    question: "אפשר לבדוק?",
+    thread: [{ role: "user", text: "מה זה 776?" }],
+  });
+  assert.deepEqual(ids(out), ["776"]);
+  assert.equal(out.referential_follow_up, true);
+});
+
+test("extracts an explicit phrase pair and a corpus-crossing target", () => {
+  const pair = resolveRazielConversationTurn({ question: "תשווה משיח ומלך ישראל בכל השיטות" });
+  assert.deepEqual(ids(pair), ["משיח", "מלך ישראל"]);
+  assert.equal(pair.requested_action, "connect");
+
+  const corpus = resolveRazielConversationTurn({ question: "מצא לי קשרים למילה משיח" });
+  assert.deepEqual(ids(corpus), ["משיח"]);
+  assert.equal(corpus.requested_action, "connect");
+  assert.deepEqual(projectRazielConversationResolution(corpus), {
+    version: "raziel-conversation-resolver-v1",
+    requested_action: "connect",
+    referential_follow_up: false,
+    referent_source: "explicit_current_turn",
+    identities: [{ type: "phrase", label: "משיח", identity_key: "phrase:משיח" }],
+    pair: null,
+    guards: { semantic_hint_only: true, server_must_reauthorize: true },
+  });
+  assert.equal(projectRazielConversationResolution(pair), null, "phrase pairs stay on the separate authenticated pair contract");
+});
+
+test("supports every canonical identity kind from a prior resolved turn", () => {
+  const types = ["person", "book", "event", "place", "number", "name", "verse", "topic", "phrase", "word", "entity"];
+  for (const type of types) {
+    const candidate = type === "number"
+      ? { type, identity_key: "number:26", value: 26, label: "26" }
+      : { type, identity_key: `${type}:example`, label: `example-${type}` };
+    const out = resolveRazielConversationTurn({
+      question: "תבדוק את זה",
+      thread: [{ role: "user", identity_resolution: { identities: [candidate] } }],
+    });
+    assert.equal(out.identity_resolution.primary?.type, type, type);
+  }
+});
+
+test("only an actual user turn can supply prior referents", () => {
+  for (const role of ["raziel", "assistant", "system", "tool", "model", undefined]) {
+    const out = resolveRazielConversationTurn({
+      question: "תבדוק את זה",
+      thread: [{ role, text: "מה זה 776?" }],
+    });
+    assert.deepEqual(ids(out), [], String(role));
+  }
+});
+
+test("rejects unsafe or out-of-range surface subjects", () => {
+  for (const subject of [
+    { type: "number", id: "0" },
+    { type: "number", id: "1000000" },
+    { type: "admin_secret", id: "787" },
+  ]) {
+    const out = resolveRazielConversationTurn({ question: "תבדוק את זה", surfaceSemantic: { subject } });
+    assert.deepEqual(ids(out), []);
+  }
+});
+
+test("transport projection strips private owner fields from numeric subjects", () => {
+  const resolved = resolveRazielConversationTurn({
+    question: "תבדוק את זה מול 1820",
+    thread: [{
+      role: "user",
+      identity_resolution: {
+        identities: [{
+          type: "number",
+          identity_key: "number:776",
+          value: 776,
+          label: "PRIVATE-LABEL",
+          access: { tier: "admin", token: "SECRET" },
+          provenance: { owner: "PRIVATE-OWNER" },
+          metadata: { note: "PRIVATE-NOTE" },
+        }],
+      },
+    }],
+  });
+  const projected = projectRazielConversationResolution(resolved);
+  assert.deepEqual(projected.pair, [776, 1820]);
+  assert.deepEqual(projected.identities, [
+    { type: "number", value: 776, identity_key: "number:776" },
+    { type: "number", value: 1820, identity_key: "number:1820" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(projected), /SECRET|PRIVATE|access|provenance|metadata|label/);
+  assert.ok(JSON.stringify(projected).length < 1000);
+});
+
+test("three numeric subjects require clarification instead of silently dropping one", () => {
+  const resolved = resolveRazielConversationTurn({
+    question: "תבדוק את זה מול 358",
+    thread: [{ role: "user", text: "מה ההבדל בין 776 ל 1820" }],
+  });
+  assert.deepEqual(ids(resolved), ["776", "1820", "358"]);
+  assert.equal(resolved.pair, null);
+  assert.equal(projectRazielConversationResolution(resolved), null);
+});

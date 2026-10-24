@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { AuthProvider } from "./lib/AuthContext.jsx";
 import ResearchProvider from "./lib/research/ResearchProvider.jsx";
+import RazielSessionMount2029 from "./components/experience2029/RazielSessionMount2029.jsx";
 import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { trackVisit } from "./lib/visits.js";
@@ -131,8 +132,10 @@ export default function App2029() {
       <BrowserRouter>
         <ResearchProvider>
           <RouteEffects2029 />
-          <Suspense fallback={<Loading2029 />}>
-            <Routes>
+          {/* One temporary in-memory Raziel session is projected by both desktop and mobile chrome. */}
+          <RazielSessionMount2029>
+            <Suspense fallback={<Loading2029 />}>
+              <Routes>
               <Route path="/2029" element={<HomeEntry2029 />} />
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
               <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
@@ -172,8 +175,9 @@ export default function App2029() {
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlPlane2029Page />} />
               <Route path="*" element={<LegacyDocumentHandoff />} />
-            </Routes>
-          </Suspense>
+              </Routes>
+            </Suspense>
+          </RazielSessionMount2029>
         </ResearchProvider>
       </BrowserRouter>
     </AuthProvider>

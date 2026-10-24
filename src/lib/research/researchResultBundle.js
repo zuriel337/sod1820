@@ -362,10 +362,15 @@ export function summarizeCoverage(capabilities = []) {
 function normalizeRankingEntry(entry = {}, findingIds = new Set()) {
   const findingId = clean(entry.finding_id || entry.findingId);
   if (!findingId || !findingIds.has(findingId)) return null;
+  const numericOrNull = (value) => {
+    if (value == null || value === "") return null;
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+  };
   return {
     finding_id: findingId,
-    rank: Number.isFinite(Number(entry.rank)) ? Number(entry.rank) : null,
-    score: Number.isFinite(Number(entry.score)) ? Number(entry.score) : null,
+    rank: numericOrNull(entry.rank),
+    score: numericOrNull(entry.score),
     axes: entry.axes && typeof entry.axes === "object" ? entry.axes : {},
     reasons: Array.isArray(entry.reasons) ? entry.reasons.map(String) : [],
   };

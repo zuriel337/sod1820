@@ -1,4 +1,6 @@
 // SOD1820 Raziel Route Grammar v1.
+
+import { resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericResearchSubject } from "./razielSemanticIntentGate.js";
 //
 // Pure Research Strategy / Experience composition only.
 // It translates a user's human goal + current surface into one of four stable semantic actions.
@@ -89,14 +91,19 @@ function normalizedSurface(surfaceContext) {
 function explicitRequestedAction({ question = "", intent = "" } = {}) {
   const q = lower(question);
   const i = lower(intent);
+  const numericSubject = resolveExplicitNumericResearchSubject(question);
+  const expressionSubject = resolveExplicitHebrewExpressionResearchSubject(question);
 
   // User language is primary. A generic planner intent such as "research" must never steal a
   // conversational request like "מה זה 1820?". Specific intent values are only tie-break hints.
   // "מה הקשר" contains "מה" too; relation language therefore wins over generic explanation.
   if (includesAny(q, [
-    "מה הקשר", "מה מתחבר", "תחבר", "לחבר", "השווה", "השוואה", "compare", "cross",
-    "קשר בין", "קשרים בין", "יחס בין", "relation",
+    "מה הקשר", "ומה הקשר", "מה ההבדל", "ומה ההבדל", "מה מתחבר", "תחבר", "לחבר", "השווה", "השווי", "תשווה", "להשוות", "השוואה", "compare", "cross",
+    "קשר בין", "קשרים בין", "יחס בין", "הצלבה", "הצלבות", "ההצלבה", "ההצלבות", "הקשרים", "מצא קשרים", "מצא לי קשרים", "relation",
   ])) return RAZIEL_ROUTE_ACTION.CONNECT;
+
+  if (numericSubject?.requested_action === RAZIEL_ROUTE_ACTION.CONNECT) return RAZIEL_ROUTE_ACTION.CONNECT;
+  if (expressionSubject?.requested_action === RAZIEL_ROUTE_ACTION.CONNECT) return RAZIEL_ROUTE_ACTION.CONNECT;
 
   if (includesAny(q, [
     "תמשיך", "המשך מהמקום", "המשך מהמסע", "להמשיך מכאן", "קח אותי למסע",
@@ -105,14 +112,20 @@ function explicitRequestedAction({ question = "", intent = "" } = {}) {
   ])) return RAZIEL_ROUTE_ACTION.CONTINUE;
 
   if (includesAny(q, [
-    "תחקור", "חקור", "לחקור", "תבדוק", "בדוק", "לעומק", "בדיקה עמוקה",
+    "תחקור", "תחקירי", "חקור", "חקרי", "לחקור", "תבדוק", "תבדקי", "בדוק", "בדקי", "לבדוק", "תעמיק", "העמק", "להעמיק", "לעומק", "בדיקה עמוקה", "צלול", "לצלול", "גימטריה", "גימטריא",
     "חפש מקור", "מקורות", "els", "דילוג", "trace", "research", "deep research",
   ])) return RAZIEL_ROUTE_ACTION.RESEARCH;
+
+  if (numericSubject?.requested_action === RAZIEL_ROUTE_ACTION.RESEARCH) return RAZIEL_ROUTE_ACTION.RESEARCH;
+  if (expressionSubject?.requested_action === RAZIEL_ROUTE_ACTION.RESEARCH) return RAZIEL_ROUTE_ACTION.RESEARCH;
 
   if (includesAny(q, [
     "מה זה", "מה אני רואה", "תסביר", "הסבר", "למה", "מה אומר", "מה המשמעות",
     "explain", "understand", "what is",
   ])) return RAZIEL_ROUTE_ACTION.UNDERSTAND;
+
+  if (numericSubject?.requested_action === RAZIEL_ROUTE_ACTION.UNDERSTAND) return RAZIEL_ROUTE_ACTION.UNDERSTAND;
+  if (expressionSubject?.requested_action === RAZIEL_ROUTE_ACTION.UNDERSTAND) return RAZIEL_ROUTE_ACTION.UNDERSTAND;
 
   if (["compare", "cross", "relation", "relations"].includes(i)) return RAZIEL_ROUTE_ACTION.CONNECT;
   if (["continue", "journey", "resume", "next_step"].includes(i)) return RAZIEL_ROUTE_ACTION.CONTINUE;

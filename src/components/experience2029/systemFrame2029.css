@@ -1193,12 +1193,33 @@
   .sod29-glass-locator-step:not(:disabled):active{transform:none}
 }
 
-.sod29-raziel-chat { display: grid; gap: 8px; }
+.sod29-raziel-chat { display: grid; gap: 10px; min-inline-size: 0; }
+.sod29-raziel-context { padding: 8px 10px; border: 1px solid var(--s29-line); border-radius: 12px; background: var(--s29-panel-soft); }
+.sod29-raziel-context p { margin: 0; line-height: 1.55; color: var(--s29-muted); }
+.sod29-raziel-thread { display: grid; gap: 8px; min-inline-size: 0; }
+.sod29-raziel-chat-user,
+.sod29-raziel-chat-raziel { display: grid; gap: 4px; min-inline-size: 0; padding: 8px 10px; border-radius: 12px; }
+.sod29-raziel-chat-user { border: 1px solid var(--s29-line); }
+.sod29-raziel-chat-raziel { background: var(--s29-panel-soft); border: 1px solid var(--s29-line-strong); }
+.sod29-raziel-chat-user > span,
+.sod29-raziel-chat-raziel > span { overflow-wrap: anywhere; white-space: pre-wrap; line-height: 1.65; }
+.sod29-raziel-answer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.sod29-raziel-answer-meta small { color: var(--s29-muted); }
+.sod29-raziel-grounding { flex-basis: 100%; }
+.sod29-raziel-deep-offer { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--s29-line-strong); border-radius: 12px; background: var(--s29-panel-soft); }
+.sod29-raziel-deep-offer ul { margin: 0; padding-inline-start: 20px; line-height: 1.6; }
+.sod29-raziel-status { min-block-size: 1.4em; color: var(--s29-muted); }
 .sod29-raziel-chat form { display: flex; flex-wrap: wrap; gap: 6px; }
-.sod29-raziel-chat input { flex: 1 1 140px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid currentColor; background: transparent; color: inherit; font: inherit; }
-.sod29-raziel-chat-user { opacity: .8; }
-.sod29-raziel-chat-raziel { display: grid; gap: 2px; }
-.sod29-raziel-chat-raziel small { opacity: .65; }
+.sod29-raziel-chat input { flex: 1 1 140px; min-width: 0; min-height: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid currentColor; background: var(--s29-panel); color: inherit; font: inherit; }
+@media (max-width: 980px) {
+  .sod29-frame-panel[data-panel-kind="raziel"] .sod29-raziel-composer {
+    position: sticky;
+    inset-block-end: 0;
+    z-index: 1;
+    padding-block: 8px max(8px, env(safe-area-inset-bottom, 0px));
+    background: var(--s29-panel);
+  }
+}
 
 /* One-tree research facets inside Golden Projector admin mode. */
 .sod29-golden-facet-filters{
