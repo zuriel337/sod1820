@@ -7,6 +7,7 @@ const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const client = read("../supabase.js");
 const frame = read("../../components/experience2029/SystemFrame2029.jsx");
 const session = read("./razielSession2029.js");
+const submission = read("./razielSessionSubmission2029.js");
 const provider = read("./RazielSessionProvider2029.jsx");
 const razielBlock = edge.slice(edge.indexOf('persona || "").toLowerCase() === "raziel"'), edge.indexOf('const isCollection = kind === "research"'));
 const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
@@ -54,16 +55,16 @@ test("Phase B: askRaziel transport is additive — surface_semantic only when pr
 test("Phase B: SystemFrame builds the pack from existing context only; no provider call on open; no HTML", () => {
   assert.doesNotMatch(chat, /useEffect/);
   assert.match(chat, /session\.submit\(\{ question: q,[\s\S]*view: \{ numberFocus, readingFocus, elsFocus \}/);
-  assert.match(provider, /createRazielContextSnapshot\(research\.context, view, startedAt\)/);
-  assert.match(provider, /buildRazielSessionRequest\(\{/);
+  assert.match(provider, /submission\.prepareRazielSessionSubmission\(\{/);
+  assert.match(submission, /createRazielContextSnapshot\(researchContext, view, startedAt\)/);
   assert.match(provider, /const rawResponse = await transport\(request\)/);
   assert.equal((provider.match(/transport\(request\)/g) || []).length, 1);
-  assert.match(session, /function snapshotSurfaceSemantic\(snapshot\)/);
-  assert.match(session, /const surfaceSemantic = snapshotSurfaceSemantic\(contextSnapshot\)/);
-  const b = session.slice(session.indexOf("export function createRazielContextSnapshot"), session.indexOf("export function extractRazielSourceNames"));
+  assert.match(submission, /function snapshotSurfaceSemantic\(snapshot\)/);
+  assert.match(submission, /const surfaceSemantic = snapshotSurfaceSemantic\(contextSnapshot\)/);
+  const b = submission.slice(submission.indexOf("export function createRazielContextSnapshot"), submission.indexOf("function normalizeRazielSurfaceContext"));
   assert.doesNotMatch(b, /innerHTML|outerHTML|document\.|textContent|supabase|fetch\(/);
   assert.match(b, /label: cleanInline\(subjectValue\.label \?\? subjectValue\.title, 160\)/);
-  assert.match(b, /subject: snapshot\.subject/);
+  assert.match(submission, /subject: snapshot\.subject/);
   assert.match(frame, /elsFocus=\{elsFocus\}/);
 });
 

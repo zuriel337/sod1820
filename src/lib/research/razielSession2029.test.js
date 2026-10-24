@@ -4,19 +4,23 @@ import { readFileSync } from "node:fs";
 import { askRaziel, supabase } from "../supabase.js";
 import {
   buildRazielSessionRequest,
-  createRazielContinuationSnapshot,
   createInitialRazielSessionState,
-  createRazielContextSnapshot,
-  createRazielProvenance,
-  normalizeRazielResponse,
   razielSessionReducer,
   selectRazielDeepeningCandidate,
-  selectRazielContinuation,
   selectRazielResearchPreview,
 } from "./razielSession2029.js";
+import {
+  createRazielContinuationSnapshot,
+  createRazielContextSnapshot,
+  createRazielProvenance,
+  createRazielTurnSucceededAction,
+  normalizeRazielResponse,
+  selectRazielContinuation,
+} from "./razielSessionSubmission2029.js";
 
 const providerSource = readFileSync(new URL("./RazielSessionProvider2029.jsx", import.meta.url), "utf8");
 const sessionSource = readFileSync(new URL("./razielSession2029.js", import.meta.url), "utf8");
+const submissionSource = readFileSync(new URL("./razielSessionSubmission2029.js", import.meta.url), "utf8");
 
 test("continuity: desktop and mobile turns share one temporary thread", () => {
   const snapshot = createRazielContextSnapshot({ subject: { type: "post", id: "5107", label: "בחירות 631" } });
@@ -26,12 +30,12 @@ test("continuity: desktop and mobile turns share one temporary thread", () => {
     contextSnapshot: snapshot,
     turn: { id: "t1", question: "מה חשוב כאן?", intelligenceLevel: "fast", again: false, projection: "desktop", startedAt: "2026-10-21T12:00:00Z" },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "2026-10-21T12:00:01Z",
     response: { answer: "זהו ההסבר הראשון.", intelligenceLevel: "fast", deterministic: false, sourceNames: [] },
     provenance: { turnId: "t1" },
-  });
+  }));
   state = razielSessionReducer(state, {
     type: "turn_started",
     contextSnapshot: snapshot,
@@ -52,12 +56,12 @@ test("continuity request carries the canonical opt-in and bounded resolved ident
     contextSnapshot: snapshot,
     turn: { id: "a", question: "מה זה 776?", intelligenceLevel: "fast", again: false, projection: "desktop", startedAt: "t0" },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "t1",
     response: { answer: "תשובה", intelligenceLevel: "fast", deterministic: false, sourceNames: [] },
     provenance: { turnId: "a" },
-  });
+  }));
 
   const request = await buildRazielSessionRequest({ question: "ומה הקשר ל־1820?", state, contextSnapshot: snapshot });
   assert.equal(request.researchContract, "public-number-research-run-v1");
@@ -89,12 +93,12 @@ test("deep continuation keeps the original bounded context, facts and view mode 
       continuation,
     },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "2026-10-24T10:00:01Z",
     response: { answer: "תשובה ראשונה", intelligenceLevel: "fast", deterministic: false, sourceNames: ["ספר יצירה"] },
     provenance: { turnId: "original-turn" },
-  });
+  }));
   state = razielSessionReducer(state, { type: "view_mode_set", viewMode: "exploratory" });
 
   const restored = selectRazielContinuation(state.thread, { question: "מה חשוב כאן?" });
@@ -121,10 +125,11 @@ test("deep continuation keeps the original bounded context, facts and view mode 
   assert.equal(deepRequest.facts, restored.facts);
   assert.equal(deepRequest.viewMode, "landscape");
   assert.equal(deepRequest.intelligenceLevel, "deep");
-  assert.match(providerSource, /const continuation = again \? selectRazielContinuation/);
-  assert.match(providerSource, /const contextSnapshot = continuation\?\.contextSnapshot/);
-  assert.match(providerSource, /const selectedFacts = continuation \? continuation\.facts : facts/);
-  assert.match(providerSource, /const selectedViewMode = continuation\?\.viewMode/);
+  assert.match(providerSource, /submission\.prepareRazielSessionSubmission\(\{/);
+  assert.match(submissionSource, /const continuation = again \? selectRazielContinuation/);
+  assert.match(submissionSource, /const contextSnapshot = continuation\?\.contextSnapshot/);
+  assert.match(submissionSource, /const selectedFacts = continuation \? continuation\.facts : facts/);
+  assert.match(submissionSource, /const selectedViewMode = continuation\?\.viewMode/);
 });
 
 test("a sourced answer keeps per-message sources and grounding after the next turn fails", () => {
@@ -136,12 +141,12 @@ test("a sourced answer keeps per-message sources and grounding after the next tu
     contextSnapshot: snapshot,
     turn: { id: "sourced", question: "מה זה 776?", intelligenceLevel: "fast", again: false, continuation },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "t1",
     response: { answer: "תשובה מבוססת", intelligenceLevel: "fast", deterministic: false, sourceNames: ["ספר יצירה"] },
     provenance: { turnId: "sourced", sourceNames: ["ספר יצירה"] },
-  });
+  }));
   assert.equal(selectRazielDeepeningCandidate(state)?.turnId, "sourced");
   state = razielSessionReducer(state, {
     type: "turn_started",
@@ -182,13 +187,14 @@ test("a request-module failure preserves prior conversation and can be retried",
 test("lazy request boundary keeps session eager and loads the resolver only inside explicit submit", () => {
   const imports = sessionSource.slice(0, sessionSource.indexOf("export const RAZIEL_SESSION_VERSION"));
   assert.doesNotMatch(imports, /from ["']\.\/razielConversationResolver\.js["']/);
-  assert.match(sessionSource, /import\(["']\.\/razielConversationResolver\.js["']\)/);
-  assert.match(sessionSource, /conversationResolverModulePromise = null;[\s\S]*\.catch\(\(error\) => \{[\s\S]*conversationResolverModulePromise = null;/);
+  assert.match(sessionSource, /import\(["']\.\/razielSessionSubmission2029\.js["']\)/);
+  assert.match(sessionSource, /sessionSubmissionModulePromise = null;[\s\S]*\.catch\(\(error\) => \{[\s\S]*sessionSubmissionModulePromise = null;/);
+  assert.match(submissionSource, /from ["']\.\/razielConversationResolver\.js["']/);
 
   const submit = providerSource.slice(providerSource.indexOf("const submit"), providerSource.indexOf("const setViewMode"));
-  assert.ok(submit.indexOf("inFlightRef.current = true") < submit.indexOf("await buildRazielSessionRequest"));
-  assert.ok(submit.indexOf("await buildRazielSessionRequest") < submit.indexOf("await transport(request)"));
-  assert.equal((submit.match(/await buildRazielSessionRequest/g) || []).length, 1);
+  assert.ok(submit.indexOf("inFlightRef.current = true") < submit.indexOf("await loadRazielSessionSubmission"));
+  assert.ok(submit.indexOf("submission.prepareRazielSessionSubmission") < submit.indexOf("await transport(request)"));
+  assert.equal((submit.match(/submission\.prepareRazielSessionSubmission/g) || []).length, 1);
   assert.equal((submit.match(/await transport\(request\)/g) || []).length, 1);
 });
 

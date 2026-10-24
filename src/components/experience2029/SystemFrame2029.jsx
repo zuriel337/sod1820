@@ -41,8 +41,8 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
-import { razielContextParts, razielStatusLabel } from "./razielSessionSeam2029.js";
-import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
+import { razielContextPartsFromContext } from "./razielSessionSeam2029.js";
+import { selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
@@ -702,11 +702,11 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     const result = await session.submit({ question: q, intelligenceLevel: level, again, continuationTurnId, facts: buildFacts(), view: { numberFocus, readingFocus, elsFocus }, projection });
     if (result?.ok && !again) setText("");
   };
-  const contextParts = razielContextParts(createRazielContextSnapshot(context, { numberFocus, readingFocus, elsFocus }));
+  const contextParts = razielContextPartsFromContext(context, { numberFocus, readingFocus, elsFocus });
   const lastRaziel = [...thread].reverse().find((m) => m.role === "raziel");
   const deepCandidate = selectRazielDeepeningCandidate(session);
   const sourceNames = Array.isArray(lastRaziel?.sourceNames) ? lastRaziel.sourceNames.slice(0, 3) : [];
-  const stateLabel = razielStatusLabel({ busy, status });
+  const stateLabel = busy ? "חושב…" : status === "error" ? "לא זמין כרגע" : "איתך כאן";
   return (
     <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="true" data-raziel-session="shared" data-raziel-projection={projection} aria-label="שיחה עם רזיאל">
       <b>✦ המשך עם רזיאל</b><small data-raziel-state={busy ? "thinking" : status}>{stateLabel}</small>

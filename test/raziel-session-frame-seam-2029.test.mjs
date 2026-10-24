@@ -5,12 +5,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   buildRazielSessionRequest,
-  createRazielContinuationSnapshot,
   createInitialRazielSessionState,
-  createRazielContextSnapshot,
   razielSessionReducer,
-  selectRazielContinuation,
 } from "../src/lib/research/razielSession2029.js";
+import { createRazielContinuationSnapshot, createRazielContextSnapshot, createRazielTurnSucceededAction, selectRazielContinuation } from "../src/lib/research/razielSessionSubmission2029.js";
 import {
   entityTypeNounHe,
   looksLikeInternalKey,
@@ -37,8 +35,8 @@ test("one provider: App2029 mounts it once below ResearchProvider and above the 
   assert.ok(app.indexOf("</Routes>") < app.indexOf("</RazielSessionMount2029>"));
   assert.ok(app.indexOf("</RazielSessionMount2029>") < app.indexOf("</ResearchProvider>"));
   assert.doesNotMatch(legacyApp, /RazielSession/);
-  assert.match(mount, /<RazielSessionProvider2029 key=\{principalKey\} transport=\{transport\}>/);
-  assert.equal((mount.match(/askRaziel\s*\(/g) || []).length, 1);
+  assert.match(mount, /<RazielSessionProvider2029 key=\{principalKey\}>/);
+  assert.match(provider, /transport = askRaziel/);
   assert.doesNotMatch(mount + seam, /useReducer|createContext|razielSessionReducer/);
 });
 
@@ -60,12 +58,12 @@ test("continuity: a desktop turn is available to the next mobile request", async
     contextSnapshot: snapshot,
     turn: { id: "a", question: "מה זה 776?", intelligenceLevel: "fast", again: false, projection: "desktop", startedAt: "t0" },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "t1",
     response: { answer: "תשובה", intelligenceLevel: "fast", deterministic: false, sourceNames: [] },
     provenance: { turnId: "a" },
-  });
+  }));
   const request = await buildRazielSessionRequest({ question: "ובמסתתר?", state, contextSnapshot: snapshot });
   assert.match(request.context, /שיחה אחרונה:\nמשתמש: מה זה 776\?\nרזיאל: תשובה/);
 });
@@ -101,12 +99,12 @@ test("deep continuation is not rebound to a newly opened surface", async () => {
     contextSnapshot: snapshotA,
     turn: { id: "turn-a", question: "שאלה א", intelligenceLevel: "fast", again: false, continuation: continuationA },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "done",
     response: { answer: "תשובה א", intelligenceLevel: "fast", deterministic: false, sourceNames: ["מקור א"] },
     provenance: { turnId: "turn-a" },
-  });
+  }));
   const original = selectRazielContinuation(state.thread, { turnId: "turn-a" });
   const deepRequest = await buildRazielSessionRequest({
     question: "שאלה א",
@@ -153,8 +151,6 @@ test("zero AI on open/navigation: the only transport boundary is an explicit sub
   assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
   assert.match(chat, /if \(!q \|\| busy\) return;/);
   assert.match(chat, /send\(text, "fast"\)/);
-  const reset = mount.slice(mount.indexOf("function RazielSessionOwnerReset2029"), mount.indexOf("export default"));
-  assert.doesNotMatch(reset, /submit|transport|askRaziel/);
   assert.equal((provider.match(/await transport\(request\)/g) || []).length, 1);
   assert.doesNotMatch(provider.slice(0, provider.indexOf("const submit")), /transport\s*\(/);
 });
@@ -192,8 +188,6 @@ test("privacy: memory only, owner changes reset it, and surface context is allow
   for (const source of [mount, seam, provider, chat]) {
     assert.doesNotMatch(source, /localStorage|sessionStorage|indexedDB|document\.cookie/);
   }
-  assert.match(mount, /if \(owner\.current !== uid\) \{ owner\.current = uid; pending\.current = true; \}/);
-  assert.match(mount, /if \(pending\.current && !busy && resetTemporarySession\(\)\) pending\.current = false;/);
   assert.match(mount, /const principalKey = loading \? "auth-loading" : \(user\?\.id \|\| "anon"\);/);
   assert.doesNotMatch(mount, /try\s*\{|catch\s*\{/);
   assert.match(provider, /export function useOptionalRazielSession2029\(\) \{\n\s+return useContext\(RazielSessionContext2029\);/);

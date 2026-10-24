@@ -8,6 +8,7 @@ const client = read("../supabase.js");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const rel = read("../../../supabase/functions/_shared/raziel-reliability.ts");
 const session = read("./razielSession2029.js");
+const submission = read("./razielSessionSubmission2029.js");
 const provider = read("./RazielSessionProvider2029.jsx");
 const razielBlock = edge.slice(edge.indexOf('persona || "").toLowerCase() === "raziel"'), edge.indexOf('const isCollection = kind === "research"'));
 const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
@@ -64,22 +65,22 @@ test("same persona/metatron/memory path for both tiers; reliability wired, never
 
 test("native chat: user question is the subject; root/method only in facts/context", () => {
   assert.match(chat, /session\.submit\(\{ question: q,/);
-  assert.match(session, /const subject = cleanInline\(question, LIMITS\.question\)/);
-  assert.match(session, /return \{\s*subject,/);
+  assert.match(submission, /const subject = cleanInline\(question, LIMITS\.question\)/);
+  assert.match(submission, /return \{\s*subject,/);
   assert.doesNotMatch(chat, /\$\{numberFocus\.root\} · \$\{q\}/);
   assert.match(chat, /שורש עמוד: \$\{numberFocus\.root\}/);
 });
 
 test("native chat: bounded local transcript in context, no new store", () => {
-  assert.match(session, /prior\.slice\(-2\)/);
-  assert.match(session, /transcriptTurn: 200/);
-  assert.match(session, /transcript: 500/);
-  assert.match(session, /context: 600/);
-  assert.match(session, /cleanInline\(message\?\.text, LIMITS\.transcriptTurn\)/);
-  assert.match(session, /slice\(0, LIMITS\.transcript\)/);
-  assert.match(session, /slice\(0, LIMITS\.context\)/);
-  assert.doesNotMatch(session, /slice\(0, 1700\)|\.slice\(-6\)/);
-  assert.doesNotMatch(session + provider, /localStorage|sessionStorage/);
+  assert.match(submission, /messages\.slice\(-2\)/);
+  assert.match(submission, /transcriptTurn: 200/);
+  assert.match(submission, /transcript: 500/);
+  assert.match(submission, /context: 600/);
+  assert.match(submission, /cleanInline\(message\?\.text, LIMITS\.transcriptTurn\)/);
+  assert.match(submission, /slice\(0, LIMITS\.transcript\)/);
+  assert.match(submission, /slice\(0, LIMITS\.context\)/);
+  assert.doesNotMatch(submission, /slice\(0, 1700\)|\.slice\(-6\)/);
+  assert.doesNotMatch(session + submission + provider, /localStorage|sessionStorage/);
   assert.match(edge, /body\?\.context \|\| ""\)\.slice\(0, 600\)/);
   assert.doesNotMatch(edge, /body\?\.context \|\| ""\)\.slice\(0, 1800\)/);
 });

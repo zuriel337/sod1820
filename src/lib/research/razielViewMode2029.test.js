@@ -13,13 +13,13 @@ import {
 import {
   buildRazielSessionRequest,
   createInitialRazielSessionState,
-  createRazielProvenance,
-  normalizeRazielResponse,
   razielSessionReducer,
 } from "./razielSession2029.js";
+import { createRazielProvenance, createRazielTurnSucceededAction, normalizeRazielResponse } from "./razielSessionSubmission2029.js";
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const provider = read("./RazielSessionProvider2029.jsx");
+const submission = read("./razielSessionSubmission2029.js");
 const supabase = read("../supabase.js");
 const frame = read("../../components/experience2029/SystemFrame2029.jsx");
 const selector = read("../../components/experience2029/RazielViewModeSelector2029.jsx");
@@ -76,12 +76,12 @@ test("session reducer: the mode belongs to the one session — set, normalised, 
   // a full turn on a different surface / context snapshot does not reset the choice
   state = razielSessionReducer(state, { type: "turn_started", turn: turn(), contextSnapshot: { surface: "number" } });
   assert.equal(state.viewMode, "landscape");
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "2026-10-23T00:00:01Z",
     response: { answer: "עוגן: …", intelligenceLevel: "fast", sourceNames: [], viewMode: { requested: "landscape", applied: true, reason: null } },
     provenance: null,
-  });
+  }));
   assert.equal(state.viewMode, "landscape");
   const message = state.thread.at(-1);
   assert.equal(message.viewMode, "landscape");
@@ -89,8 +89,8 @@ test("session reducer: the mode belongs to the one session — set, normalised, 
   state = razielSessionReducer(state, { type: "turn_started", turn: turn({ id: "t2" }), contextSnapshot: { surface: "world" } });
   assert.equal(state.viewMode, "landscape");
 
-  // a different person / explicit reset starts a clean general session
-  assert.equal(razielSessionReducer(state, { type: "session_reset" }).viewMode, "general");
+  // A different principal remounts the one Provider from its canonical initial state.
+  assert.equal(createInitialRazielSessionState().viewMode, "general");
 });
 
 test("responses: general carries no mode report; a non-applied mode is never labelled as that mode's answer", () => {
@@ -107,7 +107,7 @@ test("responses: general carries no mode report; a non-applied mode is never lab
   assert.equal(normalizeRazielViewModeReport({ plan_meta: { view_mode: "landscape" } }), null);
 
   let state = razielSessionReducer(createInitialRazielSessionState(), { type: "turn_started", turn: turn(), contextSnapshot: null });
-  state = razielSessionReducer(state, { type: "turn_succeeded", completedAt: "x", response: notApplied, provenance: null });
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({ state, completedAt: "x", response: notApplied, provenance: null }));
   assert.equal(state.thread.at(-1).viewModeApplied, false);
 
   const provenance = createRazielProvenance({ response: { answer: "תשובה", plan_meta: { view_mode: { requested: "landscape", applied: true } } }, turn: turn(), completedAt: "x" });
@@ -118,8 +118,9 @@ test("responses: general carries no mode report; a non-applied mode is never lab
 
 test("provider: one AI boundary, the session-owned mode is read at submit, and nothing is persisted", () => {
   assert.equal((provider.match(/await transport\(request\)/g) || []).length, 1);
-  assert.match(provider, /const selectedViewMode = continuation\?\.viewMode/);
-  assert.match(provider, /viewMode: selectedViewMode/);
+  assert.match(provider, /submission\.prepareRazielSessionSubmission/);
+  assert.match(submission, /const selectedViewMode = continuation\?\.viewMode/);
+  assert.match(submission, /viewMode: selectedViewMode/);
   assert.match(provider, /const setViewMode = useCallback/);
   assert.match(provider, /dispatch\(\{ type: "view_mode_set", viewMode \}\)/);
   assert.doesNotMatch(provider, /localStorage|sessionStorage|indexedDB/);

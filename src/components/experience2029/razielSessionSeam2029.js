@@ -28,7 +28,9 @@ export function entityTypeNounHe(type) {
   return TYPE_NOUN_HE[String(type || "").trim().toLowerCase()] || "פריט";
 }
 
-const clean = (value, limit = 80) => (value == null ? "" : String(value).replace(/\s+/g, " ").trim().slice(0, limit));
+const clean = (value, limit = 80) => (value == null
+  ? ""
+  : String(value).replace(/<[^>]*>/g, " ").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, limit));
 // slug / key / camelCase identifiers (post-5107, surface_focus, sourceRef) — internal, never a visible label
 export const looksLikeInternalKey = (value) => {
   const text = clean(value, 200);
@@ -80,10 +82,36 @@ export function razielContextParts(snapshot) {
   return parts;
 }
 
-// One short Hebrew state for the compact Raziel header (sheet header and desktop Companion).
-export function razielStatusLabel({ closed = false, busy = false, status = "idle" } = {}) {
-  if (closed) return "נעול כרגע";
-  if (busy) return "חושב…";
-  if (status === "error") return "לא זמין כרגע";
-  return "איתך כאן";
+// Lightweight display-only projection for the context strip. The full bounded request snapshot
+// lives in the submit-time chunk and is built only after an explicit send.
+export function razielContextPartsFromContext(context, view = {}) {
+  const current = context && typeof context === "object" ? context : {};
+  const dimensions = current.dimensions && typeof current.dimensions === "object" ? current.dimensions : {};
+  const surfaceContext = buildRazielSurfaceContext(current) || {};
+  const subject = view.subject || current.subject || null;
+  const numberValue = view.numberFocus || dimensions.numberCoreFocus || dimensions.surfaceFocus || null;
+  const readingValue = view.readingFocus || surfaceContext.reading || dimensions.readingFocus || null;
+  const elsValue = view.elsFocus || null;
+  const occurrence = elsValue?.occurrence && typeof elsValue.occurrence === "object" ? elsValue.occurrence : elsValue;
+  const rawResult = numberValue?.resultValue ?? numberValue?.result;
+  const result = rawResult == null || rawResult === "" ? null : Number(rawResult);
+  const sourceNames = [
+    ...(Array.isArray(view.sources) ? view.sources : []),
+    readingValue?.sourceLabel,
+    dimensions.surfaceFocus?.sourceLabel,
+    ...(Array.isArray(dimensions.surfaceFindings) ? dimensions.surfaceFindings.map((item) => item?.sourceLabel) : []),
+  ].filter(Boolean);
+  return razielContextParts({
+    subject,
+    focus: {
+      number: numberValue ? {
+        expression: numberValue.expression ?? numberValue.root,
+        method: numberValue.method,
+        result: Number.isFinite(result) ? result : null,
+      } : null,
+      reading: readingValue,
+      els: occurrence ? { term: occurrence.term ?? elsValue?.term } : null,
+    },
+    sourceNames,
+  });
 }

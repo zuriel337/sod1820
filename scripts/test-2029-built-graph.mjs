@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import zlib from "node:zlib";
 
 const root = process.cwd();
 const manifestPath = path.join(root, "dist/.vite/manifest.json");
@@ -62,10 +63,10 @@ for (const item of reachable) {
 }
 
 const eagerRecords = [...eagerSeen].map((key) => ({ key, ...manifest[key] }));
-const lazyResolver = entries.find(([key, value]) =>
-  `${key} ${value?.src || ""}`.includes("src/lib/research/razielConversationResolver.js"));
-assert.ok(lazyResolver, "Raziel conversation resolver must be emitted as a lazy chunk");
-assert.equal(eagerSeen.has(lazyResolver[0]), false, "Raziel resolver/plan/gate must stay outside the eager 2029 graph");
+const lazySubmission = entries.find(([key, value]) =>
+  `${key} ${value?.src || ""}`.includes("src/lib/research/razielSessionSubmission2029.js"));
+assert.ok(lazySubmission, "Raziel submit adapter must be emitted as a lazy chunk");
+assert.equal(eagerSeen.has(lazySubmission[0]), false, "Raziel submit adapter/resolver/plan/gate must stay outside the eager 2029 graph");
 const lazyPlan = entries.find(([key, value]) =>
   `${key} ${value?.src || ""}`.includes("researchPlanV2"));
 assert.ok(lazyPlan, "Raziel Research Plan must be emitted outside the eager entry");
@@ -82,9 +83,19 @@ for (const marker of [
   assert.equal(eagerPayload.includes(marker), false, `${marker} leaked into the eager 2029 payload`);
 }
 
-const lazyResolverFile = path.join(root, "dist", lazyResolver[1].file);
-assert.ok(fs.existsSync(lazyResolverFile), "Raziel lazy resolver chunk missing");
-assert.match(fs.readFileSync(lazyResolverFile, "utf8"), /raziel-conversation-resolver-v1/);
+const lazySubmissionFile = path.join(root, "dist", lazySubmission[1].file);
+assert.ok(fs.existsSync(lazySubmissionFile), "Raziel lazy submit chunk missing");
+assert.match(fs.readFileSync(lazySubmissionFile, "utf8"), /raziel-conversation-resolver-v1/);
+
+const eagerGzipBytes = eagerRecords
+  .filter((item) => item.file?.endsWith(".js"))
+  .reduce((total, item) => total + zlib.gzipSync(fs.readFileSync(path.join(root, "dist", item.file))).length, 0);
+const baselineGzipBytes = 458742;
+const requiredRecoveryBytes = 12 * 1024;
+assert.ok(
+  baselineGzipBytes - eagerGzipBytes >= requiredRecoveryBytes,
+  `2029 eager graph recovered only ${baselineGzipBytes - eagerGzipBytes} gzip bytes; requires ${requiredRecoveryBytes}`,
+);
 
 // Detect bundled legacy presentation payload even if Rollup folds it into a shared chunk.
 const forbiddenPayloadMarkers = [
@@ -106,5 +117,6 @@ for (const item of reachable) {
 console.log("2029 built dependency graph: PASS");
 console.log(`reachable manifest records: ${reachable.length}`);
 console.log(`eager manifest records: ${eagerRecords.length}`);
-console.log(`Raziel request resolver: lazy (${lazyResolver[1].file})`);
+console.log(`eager JS gzip: ${eagerGzipBytes} bytes (${baselineGzipBytes - eagerGzipBytes} recovered)`);
+console.log(`Raziel submit adapter/resolver: lazy (${lazySubmission[1].file})`);
 console.log(`Raziel Research Plan: lazy (${lazyPlan[1].file})`);

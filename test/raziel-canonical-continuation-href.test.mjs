@@ -8,9 +8,8 @@ import { withRazielSurfaceContext } from "../src/components/experience2029/razie
 import {
   buildRazielSessionRequest,
   createInitialRazielSessionState,
-  createRazielContextSnapshot,
-  createRazielContinuationSnapshot,
 } from "../src/lib/research/razielSession2029.js";
+import { createRazielContinuationSnapshot, createRazielContextSnapshot } from "../src/lib/research/razielSessionSubmission2029.js";
 import { safeCanonicalHref, continuationHrefFromSurface, whatsappContinuationLink, renderWhatsappReply } from "../supabase/functions/_shared/waRazielRender.ts";
 
 for (const f of ["supabase/functions/ai-analyze/index.ts", "supabase/functions/wa-raziel/index.ts", "supabase/functions/_shared/waRazielRender.ts"]) {
@@ -116,11 +115,13 @@ const sysFrame = fs.readFileSync("src/components/experience2029/SystemFrame2029.
 const mount = fs.readFileSync("src/components/experience2029/RazielSessionMount2029.jsx", "utf8");
 const seam = fs.readFileSync("src/components/experience2029/razielSessionSeam2029.js", "utf8");
 const provider = fs.readFileSync("src/lib/research/RazielSessionProvider2029.jsx", "utf8");
+const submission = fs.readFileSync("src/lib/research/razielSessionSubmission2029.js", "utf8");
 const supabaseClient = fs.readFileSync("src/lib/supabase.js", "utf8");
 assert.match(sysFrame, /session\.submit\(\{/);   // frame submits; it does not mint or substitute hrefs
 assert.match(provider, /await transport\(request\)/);
-assert.match(mount, /contextRef\.current = research\.context/);
-assert.match(mount, /askRaziel\(withRazielSurfaceContext\(request, contextRef\.current\)\)/);
+assert.match(mount, /<RazielSessionProvider2029 key=\{principalKey\}>/);
+assert.match(provider, /submission\.prepareRazielSessionSubmission\(\{/);
+assert.match(submission, /const surfaceContext = buildRazielSurfaceContext\(current\)/);
 assert.match(seam, /const surfaceContext = buildRazielSurfaceContext\(context\)/);
 assert.match(seam, /context: surfaceContext/);
 assert.match(supabaseClient, /surface_semantic: surfaceSemantic/);
