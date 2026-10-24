@@ -72,6 +72,40 @@ test("continuity request carries the canonical opt-in and bounded resolved ident
   assert.equal(request.conversationResolution?.guards?.server_must_reauthorize, true);
 });
 
+test("expression continuation keeps the last canonical subject across action and view-mode wording", () => {
+  const baseThread = [{
+    role: "user",
+    text: "חשב את צוריאל ומצא הצלבות",
+    identity_resolution: {
+      identities: [{ type: "phrase", label: "צוריאל", identity_key: "phrase:צוריאל" }],
+      explicit_text_computation: false,
+    },
+  }, { role: "raziel", text: "צוריאל = 337" }];
+  const first = buildRazielSessionRequest({
+    question: "תחשב את זה בכל השיטות ומצא הצלבות",
+    state: { ...createInitialRazielSessionState(), thread: baseThread },
+    contextSnapshot: null,
+  });
+  assert.equal(first.conversationResolution?.referential_follow_up, true);
+  assert.equal(first.conversationResolution?.referent_source, "prior_user_turn");
+  assert.equal(first.conversationResolution?.requested_action, "connect");
+  assert.deepEqual(first.conversationResolution?.identities, [
+    { type: "phrase", label: "צוריאל", identity_key: "phrase:צוריאל" },
+  ]);
+
+  const second = buildRazielSessionRequest({
+    question: "תחשב במצב רגיל",
+    state: { ...createInitialRazielSessionState(), thread: baseThread },
+    contextSnapshot: null,
+  });
+  assert.equal(second.conversationResolution?.referential_follow_up, true);
+  assert.equal(second.conversationResolution?.referent_source, "prior_user_turn");
+  assert.deepEqual(second.conversationResolution?.identities, [
+    { type: "phrase", label: "צוריאל", identity_key: "phrase:צוריאל" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(second.conversationResolution), /phrase:במצב רגיל/);
+});
+
 test("deep continuation keeps the original bounded context, facts and view mode after navigation", () => {
   const originalContext = createRazielContextSnapshot({
     lens: "post",

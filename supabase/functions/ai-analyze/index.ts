@@ -4,7 +4,7 @@ import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_sha
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer } from "../../../src/lib/research/razielGroundedSourceComposer.js";
-import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveExplicitHebrewExpressionPairResearchSubject, resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
+import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveExplicitHebrewExpressionPairResearchSubject, resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, resolveRazielExpressionContinuationDirective, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -1312,10 +1312,10 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown, surfa
 }
 
 // The phrase envelope is a hint, never execution authority. It is admitted only when the current
-// question has one exact expression/method slot or two exact relation slots, and the projected
-// phrase(s) repeat those slots exactly. Carried text, arbitrary prose and non-Hebrew inputs fail
-// closed. Method/value metadata is reparsed from the current question; the envelope never supplies
-// it as authority.
+// question has one exact expression/method slot, two exact relation slots, or one complete
+// expression-continuation directive. The projected phrase(s) must remain bounded public text.
+// Arbitrary prose and non-Hebrew inputs fail closed. Method/value metadata is always reparsed from
+// the current question; the envelope never supplies it as authority.
 function razielConversationExpressionHint(raw: any, originalQuestion: unknown, surfaceSemantic: unknown = null): RazielConversationExpressionHint | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   if (raw.version !== "raziel-conversation-resolver-v1") return null;
@@ -1336,11 +1336,23 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown, s
   if (raw.referential_follow_up === true) {
     if (labels.length !== 1) return null;
     const surfaceExpression = razielSurfaceExpressionFocus(surfaceSemantic);
-    if (!isRazielCurrentSurfaceQuestion(originalQuestion)
-      || raw.referent_source !== "surface_subject"
-      || requestedAction !== "understand"
-      || surfaceExpression !== labels[0]) return null;
-    return { expression: labels[0], relatedExpression: null, requestedMethod: null, observedValue: null, requestedAction };
+    if (isRazielCurrentSurfaceQuestion(originalQuestion)) {
+      if (raw.referent_source !== "surface_subject"
+        || requestedAction !== "understand"
+        || surfaceExpression !== labels[0]) return null;
+      return { expression: labels[0], relatedExpression: null, requestedMethod: null, observedValue: null, requestedAction };
+    }
+    const continuation = resolveRazielExpressionContinuationDirective(originalQuestion);
+    if (!continuation
+      || raw.referent_source !== "prior_user_turn"
+      || continuation.requested_action !== requestedAction) return null;
+    return {
+      expression: labels[0],
+      relatedExpression: null,
+      requestedMethod: continuation.requested_method,
+      observedValue: null,
+      requestedAction,
+    };
   }
   if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn") return null;
 

@@ -10,6 +10,7 @@ import {
   resolveExplicitNumericPairResearchSubject,
   resolveRazielConversationalAct,
   resolveRazielDeterministicGuidance,
+  resolveRazielExpressionContinuationDirective,
   validateRazielSemanticIntent,
 } from "./razielSemanticIntentGate.js";
 import {
@@ -74,6 +75,32 @@ test("explicit Hebrew expression grammar is structural rather than word-specific
     "בדוק את שנת 2024",
     "ספר לי משהו מעניין",
   ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
+});
+
+test("expression continuation directives carry an earlier subject instead of calculating their scaffolding", () => {
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("תחשב את זה בכל השיטות ומצא הצלבות"), {
+    requested_action: "connect",
+    requested_method: null,
+    all_methods: true,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("תחשב במצב רגיל"), {
+    requested_action: "research",
+    requested_method: null,
+    all_methods: false,
+    view_mode_only: true,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("חשב אותו בשיטת מסתתר"), {
+    requested_action: "research",
+    requested_method: "מסתתר",
+    all_methods: false,
+    view_mode_only: false,
+  });
+  for (const question of ["תחשב את צוריאל", "תחשב את המילה חכמה", "ספר לי על זה"]) {
+    assert.equal(resolveRazielExpressionContinuationDirective(question), null, question);
+  }
+  assert.equal(resolveExplicitHebrewExpressionResearchSubject("תחשב את זה בכל השיטות ומצא הצלבות"), null);
+  assert.equal(resolveExplicitHebrewExpressionResearchSubject("תחשב במצב רגיל"), null);
 });
 
 test("method-focused expression grammar preserves expression, method and observed result", () => {

@@ -17,6 +17,7 @@ import {
   resolveExplicitNumericResearchSubject,
   resolveRazielConversationalAct,
   resolveRazielDeterministicGuidance,
+  resolveRazielExpressionContinuationDirective,
   validateRazielSemanticIntent,
 } from "../../src/lib/research/razielSemanticIntentGate.js";
 
@@ -157,6 +158,7 @@ export async function runAiAnalyze({
   assert.ok(imports[6].includes('resolveExplicitNumericResearchSubject'));
   assert.ok(imports[6].includes('resolveRazielConversationalAct'));
   assert.ok(imports[6].includes('resolveRazielDeterministicGuidance'));
+  assert.ok(imports[6].includes('resolveRazielExpressionContinuationDirective'));
   assert.ok(imports[6].includes('validateRazielSemanticIntent'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
@@ -175,6 +177,7 @@ export async function runAiAnalyze({
     resolveExplicitNumericResearchSubject,
     resolveRazielConversationalAct,
     resolveRazielDeterministicGuidance,
+    resolveRazielExpressionContinuationDirective,
     validateRazielSemanticIntent,
     callClaudeReliable: async (options) => {
       models.push(options);

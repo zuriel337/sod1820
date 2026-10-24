@@ -165,6 +165,8 @@ function responseGuidance(entries) {
   const expressionResearch = entries.some((entry) => entry.subject?.type === "expression");
   return [
     "נאמנות לניסוח המקור: כשאתה נותן שם לממצא, מושג או ביטוי מן המקור, השתמש בנוסח שהופיע בחבילה בדיוק. אל תמציא לו שם חלופי ואל תציג ניסוח מחדש כאילו הוא מונח מן המקור.",
+    "כשאתה מצטט ביטוי מאומת, העתק אותו בשלמותו ובדיוק מן החבילה; אל תחבר חלקי ביטויים, אל תשלים מילה ואל תתקן אותה בניחוש. אם אינך יכול לשמר את הנוסח — השמט את הביטוי במקום לייצר נוסח משובש.",
+    "אל תכריז כמה ביטויים או ממצאים יש אלא אם total_count מפורש סופק בחבילה. כשסופקה ספירה, כתוב אותה בספרות בדיוק כפי שסופקה ואל תחשב מחדש מתוך מדגם חלקי או מניסוח התשובה.",
     "אל תוריד ביטוי מאומת לדרגת פרשנות רק מפני שניסוחו נשמע סמלי או מטפורי. אם החבילה אימתה ביטוי, שיטה וערך — הצג את השוויון כעובדה חישובית; רק המשמעות שאתה מסיק מן השוויון היא פרשנות.",
     "מותר ואף רצוי לזהות דפוס משמעותי ולהציע מטפורה, שם או חיבור מקורי משלך. פתח אותו במפורש כ׳רזיאל מציע׳ או כ׳פרשנות אפשרית׳, הסבר מיד בשפה פשוטה למה בחרת בו ועל אילו עובדות הוא נשען, ואל תייחס אותו למקור.",
     "אל תייחס לשם, למילה או למספר תפקיד רוחני, ביוגרפי, היסטורי או תיאולוגי אלא אם טענה זו מופיעה במפורש בנתיב source_claims שסופק. חישוב זהות מספרית לבדו אינו מקור למשמעות כזו.",
@@ -551,6 +553,9 @@ export function buildRazielGroundedSourceComposer(input = []) {
       never_expose_internal_ids_or_json: true,
       never_invent_missing_capability_or_source_link: true,
       source_terms_must_remain_verbatim_when_attributed: true,
+      source_terms_must_not_be_merged_or_autocorrected: true,
+      total_count_claim_requires_explicit_total_count: true,
+      explicit_counts_must_be_copied_as_digits: true,
       never_coin_a_source_term: true,
       free_synthesis_requires_explicit_interpretation_label: true,
       original_interpretation_is_allowed_when_labeled_and_explained: true,

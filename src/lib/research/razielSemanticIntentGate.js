@@ -96,6 +96,36 @@ export function resolveRazielDeterministicGuidance(message) {
   return null;
 }
 
+// A complete calculation directive can modify the action/lens of the last explicit expression
+// without naming that expression again. This is a grammar category, not a phrase dictionary:
+// the carried subject still comes from the canonical temporary-session identity, and the server
+// must re-authorize this same whole-turn shape before executing public expression research.
+export function resolveRazielExpressionContinuationDirective(question) {
+  const q = grammarText(question);
+  if (!q || q.length > 140) return null;
+  const command = /^(?:תחשב|חשב|חשבי|תחשבי)(?:\s+לי)?\s+(.+)$/u.exec(q);
+  if (!command) return null;
+
+  let remainder = clean(command[1], 120);
+  const asksConnections = /(?:^|\s)(?:ומצא|מצא|וחפש|חפש|ובדוק|בדוק)(?:\s+לי)?\s+(?:הצלבות|קשרים)$/u.test(remainder);
+  remainder = remainder
+    .replace(/\s+(?:ומצא|מצא|וחפש|חפש|ובדוק|בדוק)(?:\s+לי)?\s+(?:הצלבות|קשרים)$/u, "")
+    .trim();
+
+  const anaphor = /^(?:את\s+)?(?:זה|זאת|אותו|אותה)(?:\s+(.*))?$/u.exec(remainder);
+  const directive = clean(anaphor ? anaphor[1] : remainder, 80);
+  if (!anaphor && !/^(?:בכל\s+השיטות|במצב\s+(?:רגיל|כללי)|בשיטת\s+.+)$/u.test(directive)) return null;
+  if (directive && !/^(?:בכל\s+השיטות|במצב\s+(?:רגיל|כללי)|בשיטת\s+.{1,60})$/u.test(directive)) return null;
+
+  const method = /^בשיטת\s+(.{1,60})$/u.exec(directive)?.[1] || null;
+  return Object.freeze({
+    requested_action: asksConnections ? "connect" : "research",
+    requested_method: method ? clean(method, 60) : null,
+    all_methods: directive === "בכל השיטות",
+    view_mode_only: /^במצב\s+(?:רגיל|כללי)$/u.test(directive),
+  });
+}
+
 function validExplicitHebrewExpression(value) {
   const expression = clean(value, 120)
     .replace(/^["'״׳]+|["'״׳]+$/gu, "")
@@ -114,6 +144,9 @@ function validExplicitHebrewExpression(value) {
 export function resolveExplicitHebrewExpressionResearchSubject(question) {
   const q = grammarText(question);
   if (!q) return null;
+  // A continuation directive has no new expression slot. In particular, never calculate the
+  // literal scaffolding "במצב רגיל" or "זה בכל השיטות" as though it were the user's phrase.
+  if (resolveRazielExpressionContinuationDirective(q)) return null;
 
   let match = /^(?:מצא|מצאי|חפש|חפשי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+(?:הצלבות|קשרים)\s+(?:(?:למילה|לביטוי|לשם|עבור)\s+)(.+)$/u.exec(q);
   let requestedAction = "connect";

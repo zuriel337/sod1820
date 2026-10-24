@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { runAiAnalyze, UID, USER_JWT } from "../../../test/helpers/ai-analyze-handler.mjs";
+import { buildRazielSessionRequest } from "./razielSessionRequest2029.js";
+import { createInitialRazielSessionState } from "./razielSession2029.js";
 import { makeUniversalFinding } from "./universalFinding.js";
 import {
   ACCESS_CLASS,
@@ -405,6 +407,46 @@ test("2029 exact expression crossing consumes the same canonical Bundle without 
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   assert.deepEqual(run.result.raziel.sources, [{ original_name: "מאגר הביטויים", source_ref: "rpc:strongest_crossings", lang: "he" }]);
   assert.equal(JSON.stringify(run.traces).includes(expression), false, "expression must not enter operational trace");
+});
+
+test("expression continuation reuses צוריאל through the real client and server gates", async () => {
+  const state = {
+    ...createInitialRazielSessionState(),
+    thread: [{
+      role: "user",
+      text: "חשב את צוריאל ומצא הצלבות",
+      identity_resolution: {
+        identities: [{ type: "phrase", label: "צוריאל", identity_key: "phrase:צוריאל" }],
+        explicit_text_computation: false,
+      },
+    }, { role: "raziel", text: "צוריאל = 337" }],
+  };
+
+  for (const question of ["תחשב את זה בכל השיטות ומצא הצלבות", "תחשב במצב רגיל"]) {
+    const request = buildRazielSessionRequest({ question, state, contextSnapshot: null, viewMode: "exploratory" });
+    assert.equal(request.conversationResolution?.referential_follow_up, true, question);
+    assert.equal(request.conversationResolution?.identities?.[0]?.label, "צוריאל", question);
+
+    const run = await runAiAnalyze({
+      answer: noMatchAnswer(),
+      allowed: true,
+      bearer: "synthetic-anon-key",
+      body: {
+        subject: request.subject,
+        visitor_id: "vexpressioncontinuation123",
+        intelligence_level: request.intelligenceLevel,
+        research_contract: request.researchContract,
+        conversation_resolution: request.conversationResolution,
+        view_mode: request.viewMode,
+      },
+      researchBundleByExpression: { צוריאל: expressionCrossingBundle("צוריאל") },
+    });
+    const researchCalls = run.calls.filter((call) => call.name === "research-run");
+    assert.equal(researchCalls.length, 1, `${question}: ${JSON.stringify({ result: run.result, calls: run.calls })}`);
+    assert.equal(researchCalls[0].payload.expression, "צוריאל", question);
+    assert.match(run.models[0].user, /צוריאל/, question);
+    assert.match(run.models[0].user, /337/, question);
+  }
 });
 
 test("combined Gematria and crossing wording resolves any explicit Hebrew expression", async () => {

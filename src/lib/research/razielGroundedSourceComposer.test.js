@@ -308,10 +308,15 @@ test("preserves source terminology without hard-coding a subject-specific correc
 
   assert.deepEqual(prompt.bundles[0].source_wording, ["מחשבת יהוה", "נקודה אמצעית", "פריעת חוב"]);
   assert.equal(prompt.presentation_contract.source_terms_must_remain_verbatim_when_attributed, true);
+  assert.equal(prompt.presentation_contract.source_terms_must_not_be_merged_or_autocorrected, true);
+  assert.equal(prompt.presentation_contract.total_count_claim_requires_explicit_total_count, true);
+  assert.equal(prompt.presentation_contract.explicit_counts_must_be_copied_as_digits, true);
   assert.equal(prompt.presentation_contract.never_coin_a_source_term, true);
   assert.equal(prompt.presentation_contract.original_interpretation_is_allowed_when_labeled_and_explained, true);
   assert.match(out.guidance, /מותר ואף רצוי לזהות דפוס משמעותי/);
   assert.match(out.guidance, /רזיאל מציע/);
+  assert.match(out.guidance, /השמט את הביטוי במקום לייצר נוסח משובש/);
+  assert.match(out.guidance, /אל תכריז כמה ביטויים או ממצאים יש אלא אם total_count/);
   assert.doesNotMatch(out.prompt + out.guidance, /הטליה המעגלית/);
 });
 
