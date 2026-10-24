@@ -2,12 +2,16 @@ import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
+  SEFER_YETZIRAH_COMMENTATORS,
   SEFER_YETZIRAH_DEPTHS,
   SEFER_YETZIRAH_LETTER_GROUPS,
+  SEFER_YETZIRAH_LETTERS,
+  SEFER_YETZIRAH_PAGE_ATLAS,
   SEFER_YETZIRAH_READING_GATES,
   SEFER_YETZIRAH_SCENE_MODES,
   SEFER_YETZIRAH_SOURCE,
   SEFER_YETZIRAH_VOLUME_LAYERS,
+  getSeferYetzirahGateNumber,
 } from "../data/seferYetzirahWorld2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./seferYetzirahWorld2029.css";
@@ -44,6 +48,13 @@ function replaceReadingUrl(page, gate) {
   next.searchParams.set("page", String(page));
   next.searchParams.set("gate", gate);
   window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`);
+}
+
+function defaultNodeForMode(mode, commentatorId = "chachmoni") {
+  if (mode === "sefirot") return "beginning";
+  if (mode === "osn") return "world";
+  if (mode === "commentaries") return commentatorId;
+  return "";
 }
 
 function SourcePanel({ page, onPage }) {
@@ -88,6 +99,9 @@ function SceneLegend({ mode, activeNode, onSelect }) {
   if (mode === "letters" || mode === "gates") return <div className="yetzirah29-scene-legend is-letters">
     {SEFER_YETZIRAH_LETTER_GROUPS.map(group => <article key={group.id} style={{ "--node-color": group.color }}><span>{group.count}</span><div><strong>{group.label}</strong><b>{group.letters}</b><small>{group.role}</small></div></article>)}
   </div>;
+  if (mode === "commentaries") return <div className="yetzirah29-scene-legend is-commentaries">
+    {SEFER_YETZIRAH_COMMENTATORS.map(commentator => <button type="button" key={commentator.id} className={activeNode === commentator.id ? "is-active" : ""} style={{ "--node-color": commentator.color }} onClick={() => onSelect(commentator.id)}><strong>{commentator.name}</strong><span>{commentator.author}</span><small>PDF {commentator.pages}</small></button>)}
+  </div>;
   return <div className="yetzirah29-scene-legend is-osn">
     {[{ id: "world", title: "עולם", text: "מרחב וחומר" }, { id: "year", title: "שנה", text: "זמן ומחזור" }, { id: "soul", title: "נפש", text: "אדם וחישה" }].map(item => <button type="button" key={item.id} className={activeNode === item.id ? "is-active" : ""} onClick={() => onSelect(item.id)}><strong>{item.title}</strong><small>{item.text}</small></button>)}
   </div>;
@@ -128,6 +142,53 @@ function ReadingMap({ activeId, onSelect }) {
   </section>;
 }
 
+function CommentaryAtlas({ page, activeCommentatorId, onCommentator, onPage }) {
+  const activePage = SEFER_YETZIRAH_PAGE_ATLAS[page - 1];
+  const activeCommentator = SEFER_YETZIRAH_COMMENTATORS.find(item => item.id === activeCommentatorId) || SEFER_YETZIRAH_COMMENTATORS[0];
+  return <section className="yetzirah29-atlas" aria-labelledby="yetzirah29-atlas-title">
+    <header><div><span>כל הכרך · כל הקולות</span><h2 id="yetzirah29-atlas-title">אטלס 220 העמודים</h2></div><p>בחרו מפרש כדי לראות את מקומו בכרך. כל ריבוע פותח מיד את עמוד המקור ומציג את תפקידו במהלך הספר.</p></header>
+    <div className="yetzirah29-commentator-tabs" aria-label="תשעת המפרשים">
+      {SEFER_YETZIRAH_COMMENTATORS.map(commentator => <button type="button" key={commentator.id} className={activeCommentator.id === commentator.id ? "is-active" : ""} aria-pressed={activeCommentator.id === commentator.id} style={{ "--node-color": commentator.color }} onClick={() => onCommentator(commentator)}><strong>{commentator.name}</strong><small>{commentator.pages}</small></button>)}
+    </div>
+    <article className="yetzirah29-commentator-card" style={{ "--node-color": activeCommentator.color }}>
+      <span>קול {activeCommentator.name}</span><h3>{activeCommentator.author}</h3><p>{activeCommentator.guide}</p><dl><div><dt>צורה בכרך</dt><dd>{activeCommentator.form}</dd></div><div><dt>טווח כניסה</dt><dd>PDF {activeCommentator.pages}</dd></div></dl>
+    </article>
+    <div className="yetzirah29-page-grid" aria-label="מפת 220 עמודי המקור">
+      {SEFER_YETZIRAH_PAGE_ATLAS.map(item => {
+        const inRange = item.page >= activeCommentator.start && item.page <= activeCommentator.end;
+        const className = [item.page === page ? "is-active" : "", item.isAnchor ? "is-anchor" : "", inRange ? "is-in-range" : ""].filter(Boolean).join(" ");
+        return <button type="button" key={item.page} className={className} style={{ "--page-color": item.color }} aria-label={`עמוד ${item.page}: ${item.title}`} title={`${item.page} · ${item.title}`} onClick={() => onPage(item.page)}>{item.page}</button>;
+      })}
+    </div>
+    <article className="yetzirah29-page-card" style={{ "--page-color": activePage.color }}><span>PDF {activePage.page}</span><h3>{activePage.title}</h3><p>{activePage.guide}</p><button type="button" onClick={() => onPage(activePage.page)}>פתח במקור</button></article>
+  </section>;
+}
+
+function LetterLaboratory({ onPage, onSpatial }) {
+  const [first, setFirst] = useState("א");
+  const [second, setSecond] = useState("ב");
+  const firstMeta = SEFER_YETZIRAH_LETTERS.find(item => item.letter === first);
+  const secondMeta = SEFER_YETZIRAH_LETTERS.find(item => item.letter === second);
+  const gateNumber = getSeferYetzirahGateNumber(first, second);
+  const chooseLetter = letter => {
+    if (!first || second) { setFirst(letter); setSecond(""); }
+    else if (letter !== first) setSecond(letter);
+    onSpatial(letter);
+  };
+  return <section className="yetzirah29-letter-lab" aria-labelledby="yetzirah29-letter-lab-title">
+    <header><div><span>אות · מספר · שער</span><h2 id="yetzirah29-letter-lab-title">מעבדת כ״ב האותיות</h2></div><p>הערך המספרי הוא גימטריה רגילה; מספר השער הוא מקום הזוג בתוך 231 הזוגות האפשריים. כך אפשר לראות את החשבון בלי להפוך אותו להוכחה של הטקסט.</p></header>
+    <div className="yetzirah29-letter-picker" aria-label="בחירת שתי אותיות">
+      {SEFER_YETZIRAH_LETTERS.map(item => <button type="button" key={item.letter} className={item.letter === first || item.letter === second ? "is-active" : ""} style={{ "--letter-color": item.color }} aria-pressed={item.letter === first || item.letter === second} onClick={() => chooseLetter(item.letter)}><strong>{item.letter}</strong><small>{item.value}</small></button>)}
+    </div>
+    <div className="yetzirah29-letter-result">
+      <article><span>הזוג שנבחר</span><strong>{first}{second || "·"}</strong><small>{firstMeta?.group}{secondMeta ? ` · ${secondMeta.group}` : " · בחרו אות שנייה"}</small></article>
+      <article><span>גימטריה רגילה</span><strong>{firstMeta?.value || 0}{secondMeta ? ` + ${secondMeta.value} = ${firstMeta.value + secondMeta.value}` : ""}</strong><small>ערכי האותיות המקובלים</small></article>
+      <article><span>שער בתוך הרשת</span><strong>{gateNumber ? `${gateNumber} / 231` : "—"}</strong><small>{gateNumber ? "זוג בלתי־חוזר אחד ברשת" : "נדרשות שתי אותיות שונות"}</small></article>
+    </div>
+    <footer><p>{firstMeta?.role}{secondMeta && secondMeta.groupId !== firstMeta?.groupId ? ` · החיבור פוגש גם את שכבת ${secondMeta.group}.` : ""}</p><button type="button" onClick={() => onPage(203)}>פתח את לוח רל״א השערים במקור</button></footer>
+  </section>;
+}
+
 function VolumeMap({ onPage }) {
   return <section className="yetzirah29-volume" aria-labelledby="yetzirah29-volume-title">
     <header><span>לא ספר שטוח — כרך מרובה קולות</span><h2 id="yetzirah29-volume-title">חמש שכבות בתוך 220 עמודים</h2></header>
@@ -140,7 +201,8 @@ export default function SeferYetzirahWorld2029Page() {
   const [activeGateId, setActiveGateId] = useState(requestedGate);
   const activeGate = SEFER_YETZIRAH_READING_GATES.find(gate => gate.id === activeGateId) || SEFER_YETZIRAH_READING_GATES[0];
   const [mode, setMode] = useState(activeGate.mode);
-  const [activeNode, setActiveNode] = useState(() => activeGate.mode === "sefirot" ? "beginning" : activeGate.mode === "osn" ? "world" : "");
+  const [activeCommentatorId, setActiveCommentatorId] = useState("chachmoni");
+  const [activeNode, setActiveNode] = useState(() => defaultNodeForMode(activeGate.mode));
 
   useEffect(() => {
     applySeo({ title: `ספר יצירה · ${activeGate.title}`, description: "ספר יצירה כמרחב תלת־ממדי: עשר ספירות, כ״ב אותיות, רל״א שערים, מקור מלא ופירוש עברי.", path: "/2029/control", noindex: true });
@@ -155,10 +217,22 @@ export default function SeferYetzirahWorld2029Page() {
     setActiveGateId(gate.id);
     setPage(gate.page);
     setMode(gate.mode);
-    setActiveNode(gate.mode === "sefirot" ? "beginning" : gate.mode === "osn" ? "world" : "");
+    setActiveNode(defaultNodeForMode(gate.mode, activeCommentatorId));
     replaceReadingUrl(gate.page, gate.id);
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     document.getElementById("yetzirah29-reading")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+  };
+
+  const chooseCommentator = commentator => {
+    setActiveCommentatorId(commentator.id);
+    setMode("commentaries");
+    setActiveNode(commentator.id);
+    openPage(commentator.start);
+  };
+
+  const chooseSceneNode = id => {
+    setActiveNode(id);
+    if (mode === "commentaries") setActiveCommentatorId(id);
   };
 
   return <Sod2029Shell wide surface="books" symbol="✦" eyebrow="ספר יצירה · עולם קריאה" title="ספר יצירה" description="המקור, הפירושים והמבנים המרחביים בתוך קורא אחד.">
@@ -172,12 +246,14 @@ export default function SeferYetzirahWorld2029Page() {
         {[['10','ספירות בלימה','עשרה עומקים'],['22','אותיות יסוד','3 · 7 · 12'],['231','שערים','זוגות אותיות'],['32','נתיבות','10 + 22'],['220','עמודי מקור','כרך מלא']].map(item => <article key={item[0]}><strong>{item[0]}</strong><span>{item[1]}</span><small>{item[2]}</small></article>)}
       </section>
 
-      <SpatialStage mode={mode} onMode={nextMode => { setMode(nextMode); setActiveNode(nextMode === "sefirot" ? "beginning" : nextMode === "osn" ? "world" : ""); }} activeNode={activeNode} onNode={setActiveNode} />
+      <SpatialStage mode={mode} onMode={nextMode => { setMode(nextMode); setActiveNode(defaultNodeForMode(nextMode, activeCommentatorId)); }} activeNode={activeNode} onNode={chooseSceneNode} />
 
       <div className="yetzirah29-layout">
         <div className="yetzirah29-story">
           <ReadingMap activeId={activeGateId} onSelect={chooseGate} />
           <GateReader gate={activeGate} onSource={openPage} />
+          <CommentaryAtlas page={page} activeCommentatorId={activeCommentatorId} onCommentator={chooseCommentator} onPage={openPage} />
+          <LetterLaboratory onPage={openPage} onSpatial={letter => { setMode("gates"); setActiveNode(letter); }} />
           <VolumeMap onPage={openPage} />
         </div>
         <SourcePanel page={page} onPage={openPage} />

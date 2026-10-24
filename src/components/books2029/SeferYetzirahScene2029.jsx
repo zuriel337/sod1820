@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { SEFER_YETZIRAH_DEPTHS, SEFER_YETZIRAH_LETTER_GROUPS } from "../../data/seferYetzirahWorld2029.js";
+import { SEFER_YETZIRAH_COMMENTATORS, SEFER_YETZIRAH_DEPTHS, SEFER_YETZIRAH_LETTER_GROUPS } from "../../data/seferYetzirahWorld2029.js";
 
 const LETTERS = "אבגדהוזחטיכלמנסעפצקרשת".split("");
 const REDUCED_MOTION = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -10,6 +10,11 @@ const DEPTH_POSITIONS = [
   [0, 0, 3.25], [0, 0, -3.25], [3.25, 0, 0], [-3.25, 0, 0],
   [-1.8, -1.25, 1.9], [1.8, 1.25, -1.9],
 ];
+const COMMENTARY_POSITIONS = SEFER_YETZIRAH_COMMENTATORS.map((_, index) => {
+  const angle = (index / SEFER_YETZIRAH_COMMENTATORS.length) * Math.PI * 2;
+  const radius = index % 2 === 0 ? 3.25 : 2.65;
+  return [Math.cos(angle) * radius, Math.sin(angle) * radius, Math.sin(angle * 2) * 1.1];
+});
 
 function Edges({ points, color = "#c89d46", opacity = .28, complete = false }) {
   const positions = useMemo(() => {
@@ -89,6 +94,23 @@ function OsnModel({ activeId, onSelect }) {
   </group>;
 }
 
+function CommentariesModel({ activeId, onSelect }) {
+  return <group>
+    <Edges points={COMMENTARY_POSITIONS} color="#d7aa52" opacity={.32} />
+    {COMMENTARY_POSITIONS.map((position, index) => <Edges key={`spoke-${SEFER_YETZIRAH_COMMENTATORS[index].id}`} points={[[0, 0, 0], position]} color={SEFER_YETZIRAH_COMMENTATORS[index].color} opacity={.22} />)}
+    {SEFER_YETZIRAH_COMMENTATORS.map((commentator, index) => <mesh
+      key={commentator.id}
+      position={COMMENTARY_POSITIONS[index]}
+      scale={activeId === commentator.id ? 1.42 : 1}
+      onClick={event => { event.stopPropagation(); onSelect?.(commentator.id); }}
+    >
+      <sphereGeometry args={[.3, 24, 24]} />
+      <meshStandardMaterial color={commentator.color} emissive={commentator.color} emissiveIntensity={activeId === commentator.id ? .76 : .2} roughness={.28} metalness={.18} />
+    </mesh>)}
+    <mesh><icosahedronGeometry args={[.78, 2]} /><meshPhysicalMaterial color="#f1d28b" emissive="#d8a94f" emissiveIntensity={.32} transparent opacity={.82} roughness={.23} /></mesh>
+  </group>;
+}
+
 function SpatialObject({ mode, activeId, onSelect }) {
   const group = useRef(null);
   useFrame((_, delta) => {
@@ -99,6 +121,7 @@ function SpatialObject({ mode, activeId, onSelect }) {
     {mode === "letters" ? <LettersModel activeId={activeId} onSelect={onSelect} /> : null}
     {mode === "gates" ? <LettersModel gates activeId={activeId} onSelect={onSelect} /> : null}
     {mode === "osn" ? <OsnModel activeId={activeId} onSelect={onSelect} /> : null}
+    {mode === "commentaries" ? <CommentariesModel activeId={activeId} onSelect={onSelect} /> : null}
   </group>;
 }
 
