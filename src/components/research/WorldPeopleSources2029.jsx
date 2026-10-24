@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import {
@@ -10,6 +10,7 @@ import {
 import { WORLD_PEOPLE_PAGE_SIZE } from "../../lib/research/worldPublicPeopleIndex.js";
 import { WORLD_SOURCE_CORPORA } from "../../lib/research/worldSourceCorpus.js";
 import WorldSourceCorpus from "./WorldSourceCorpus.jsx";
+import { worldFocusedMaterialWindow } from "../../lib/research/worldFocusedMaterial2029.js";
 
 function MaterialLink({ href, children }) {
   if (!href) return <span>{children}</span>;
@@ -33,6 +34,8 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   const [peopleLimit, setPeopleLimit] = useState(WORLD_PEOPLE_PAGE_SIZE);
   const [itemLimit, setItemLimit] = useState(WORLD_SOURCE_ITEMS_PAGE_SIZE);
   const [material, setMaterial] = useState({ slug: null, loading: false, data: null, error: null });
+  const focusedCard = useRef(null);
+  const appliedFocus = useRef(null);
 
   const chooseSource = (slug) => {
     const next = new URLSearchParams(location.search);
@@ -76,7 +79,22 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
   const nonTopics = filtered.items.filter((row) => row.type !== "topics");
   const topics = filtered.items.filter((row) => row.type === "topics");
   const orderedItems = [...nonTopics, ...topics];
-  const shownItems = orderedItems.slice(0, itemLimit);
+  const materialWindow = worldFocusedMaterialWindow(orderedItems, {
+    limit: itemLimit, sourceRef: focusedSourceRef, availableItems: selectedMaterial.data?.items || [],
+  });
+  const shownItems = materialWindow.rows;
+  const writerHref = selected ? `${selected.href}?${new URLSearchParams({
+    returnTo: `${location.pathname}${location.search}${location.hash}`,
+  })}` : null;
+
+  useEffect(() => {
+    const key = `${source}:${focusedSourceRef || ""}`;
+    if (!focusedSourceRef) { appliedFocus.current = null; return; }
+    if (!materialWindow.focusedItem || !focusedCard.current || appliedFocus.current === key) return;
+    focusedCard.current.focus({ preventScroll: true });
+    focusedCard.current.scrollIntoView({ block: "center", behavior: "auto" });
+    appliedFocus.current = key;
+  }, [source, focusedSourceRef, materialWindow.focusedItem]);
 
   return <div className="sod29-world-people-sources" id="world-source-selection">
     <section className="sod29-world-source-homes" aria-label="כל האנשים הציבוריים בעולם">
@@ -123,18 +141,28 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
 
     {corpus ? <WorldSourceCorpus spec={corpus} recentCount={recentCounts?.[corpus.authorLabel] ?? null} /> : null}
 
+    {source && focusedSourceRef && !selected && !corpus && !loading && !error
+      ? <p role="status">המקור שבקישור אינו זמין בתצוגה הציבורית.</p> : null}
+
     {selected ? <section className="sod29-section sod29-world-selected-source" aria-label={`החומר הציבורי של ${selected.displayName}`}>
       <header className="sod29-section-head"><div><div className="sod29-kicker">החומר הציבורי שנבחר</div>
         <h2>{selected.displayName}</h2><p>הקטלוג נטען רק לאחר הבחירה. ממצא מחקר נשאר מחובר ל־source_ref שלו ואינו נספר כמקור נוסף.</p></div>
-        <Link className="sod29-action" to={selected.href}>לדף הכתב המלא</Link></header>
+        <Link className="sod29-action" to={writerHref}>לדף הכתב המלא</Link></header>
       {selectedMaterial.loading ? <p role="status">פותח כתבים, מקורות, צפנים ונושאים…</p> : null}
       {selectedMaterial.error ? <div role="status"><strong>חלק מהחומר אינו זמין כרגע.</strong><p>לא מוצג 0 במקום נתון שלא התקבל.</p></div> : null}
       {selectedMaterial.data?.partial ? <p role="status">חלק מן הקוראים לא השלימו טעינה; נתון חסר מוצג כ״אין נתון״.</p> : null}
       {selectedMaterial.data ? <>
+        {materialWindow.focusState === "filtered_out" ? <p role="status">המקור שבקישור מוסתר במסנן הנוכחי.</p> : null}
+        {materialWindow.focusState === "unavailable" ? <p role="status">{selectedMaterial.data.partial
+          ? "לא ניתן לאמת את המקור שבקישור מתוך המידע שנטען."
+          : "המקור שבקישור אינו זמין בתצוגה הציבורית."}</p> : null}
         <p className="sod29-world-source-count">מוצגים {shownItems.length} מתוך {orderedItems.length} פריטים במסנן · {selectedMaterial.data.total} פריטים ציבוריים נגישים בסך הכול</p>
         {!orderedItems.length ? <p role="status">אין חומר ציבורי במסנן הזה.</p> : null}
         <div className="sod29-world-public-material-grid">
-          {shownItems.map((row) => <article key={row.sourceRef} id={focusedSourceRef === row.sourceRef ? `source-occurrence-${row.sourceRef.split(":").pop()}` : undefined}>
+          {shownItems.map((row) => <article key={row.sourceRef} data-source-ref={row.sourceRef}
+            ref={focusedSourceRef === row.sourceRef ? focusedCard : null}
+            tabIndex={focusedSourceRef === row.sourceRef ? -1 : undefined}
+            id={focusedSourceRef === row.sourceRef ? `source-occurrence-${row.sourceRef.split(":").pop()}` : undefined}>
             <div><span>{row.label || materialLabel(row.type)}</span>{row.date ? <time>{bilingualDateLabel(row.date)}</time> : <time>אין נתון</time>}</div>
             <h3>{row.title}</h3>
             {row.summary ? <p>{row.summary}</p> : null}
@@ -144,7 +172,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             <MaterialLink href={row.href}>{row.href ? "פתיחה מדויקת ←" : "אין קישור ציבורי מאומת"}</MaterialLink>
           </article>)}
         </div>
-        {shownItems.length < orderedItems.length ? <button className="sod29-action" type="button"
+        {materialWindow.hasMore ? <button className="sod29-action" type="button"
           onClick={() => setItemLimit((value) => value + WORLD_SOURCE_ITEMS_PAGE_SIZE)}>עוד</button> : null}
       </> : null}
     </section> : null}
