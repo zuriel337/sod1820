@@ -33,10 +33,10 @@ function request(overrides = {}) {
     body: { slug: "writer", action: "message", body: "  שלום  ", p_to: sender, user_id: sender, mode: "admin_all" }, ...overrides };
 }
 
-test("membership uses full Israel calendar anniversaries, never page creation or latest publication", () => {
-  assert.equal(membershipTenure("2020-10-24T10:00:00Z", new Date("2026-10-23T10:00:00Z")), "5 שנים בקהילה");
-  assert.equal(membershipTenure("2020-10-24T10:00:00Z", new Date("2026-10-24T10:00:00Z")), "6 שנים בקהילה");
-  assert.equal(membershipTenure("2025-10-24T10:00:00Z", new Date("2026-10-23T10:00:00Z")), "פחות משנה בקהילה");
+test("registration anniversaries use Israel dates and do not claim historical community tenure", () => {
+  assert.equal(membershipTenure("2020-10-24T10:00:00Z", new Date("2026-10-23T10:00:00Z")), "5 שנים מאז ההרשמה");
+  assert.equal(membershipTenure("2020-10-24T10:00:00Z", new Date("2026-10-24T10:00:00Z")), "6 שנים מאז ההרשמה");
+  assert.equal(membershipTenure("2025-10-24T10:00:00Z", new Date("2026-10-23T10:00:00Z")), "פחות משנה מאז ההרשמה");
   assert.equal(membershipTenure("2090-01-01T00:00:00Z"), null);
   const noMembership = publicContributorOverview({ state: "ready", pageSince: "2020-01-01T00:00:00Z", lastSeenAt: "2026-01-01T00:00:00Z", lastSeenState: "ready" });
   assert.equal(noMembership.joinedAt, null); assert.equal(noMembership.tenureLabel, null);
@@ -46,7 +46,9 @@ test("membership uses full Israel calendar anniversaries, never page creation or
 test("overview is anonymous, keeps account IDs server-side, reads only bounded native public studio", async () => {
   const calls = [];
   const value = await readPublicContributorOverview("writer", { client: clientFor({}, calls), now: new Date("2026-10-23T00:00:00Z") });
-  assert.equal(value.state, "ready"); assert.equal(value.tenureLabel, "5 שנים בקהילה");
+  assert.equal(value.state, "ready"); assert.equal(value.tenureLabel, "5 שנים מאז ההרשמה");
+  assert.equal(value.joinedAtBasis, "account_registration");
+  assert.equal(value.communitySince, null); assert.equal(value.communityTenureState, "not_measured");
   assert.equal(value.studio.items[0].id, studioRow.id);
   assert.deepEqual(calls.find((call) => call.name), { name: "studio_list", params: { p_slug: "writer", p_code: null } });
   assert.ok(calls.some((call) => call.from === 0 && call.to === 20));

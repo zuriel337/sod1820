@@ -13,7 +13,7 @@ export function membershipTenure(joinedAt, now = new Date()) {
   if (!publicDate(joinedAt, now)) return null;
   const start = israelParts(joinedAt), end = israelParts(now);
   const years = end.year - start.year - (end.month < start.month || end.month === start.month && end.day < start.day ? 1 : 0);
-  return years < 1 ? "פחות משנה בקהילה" : years === 1 ? "שנה בקהילה" : years === 2 ? "שנתיים בקהילה" : `${years} שנים בקהילה`;
+  return years < 1 ? "פחות משנה מאז ההרשמה" : years === 1 ? "שנה מאז ההרשמה" : years === 2 ? "שנתיים מאז ההרשמה" : `${years} שנים מאז ההרשמה`;
 }
 
 export function publicStudioItems(rows, contributorId) {
@@ -31,6 +31,8 @@ export function publicContributorOverview(value, now = new Date()) {
   if (value?.state !== "ready") return { state: value?.state === "not_found" ? "not_found" : "unavailable" };
   const joinedAt = publicDate(value.joinedAt, now);
   return { state: "ready", joinedAt, tenureLabel: membershipTenure(joinedAt, now),
+    joinedAtBasis: joinedAt ? "account_registration" : null,
+    communitySince: null, communityTenureState: "not_measured",
     pageSince: publicDate(value.pageSince, now), lastSeenAt: null, lastSeenState: "unavailable",
     about: clean(value.about), currentFocus: clean(value.currentFocus),
     studio: { available: value.studio?.available === true, page: Number.isSafeInteger(value.studio?.page) ? value.studio.page : 0,
