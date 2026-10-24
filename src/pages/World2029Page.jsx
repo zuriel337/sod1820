@@ -63,8 +63,8 @@ import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
 import { CONTRIBUTOR_LOAD_PROFILE, fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
 import {
   fetchWorldAllResearchProjection,
-  findWorldPublicResearchFinding,
 } from "../lib/research/worldAllResearchProjection.js";
+import { fetchWorldPublicFindingById } from "../lib/research/worldPublicFindingReader.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { applySeo } from "../lib/seo.js";
@@ -684,7 +684,8 @@ function LiveWorldLanding({ research, shell, context }) {
     discoveryError: null,
     journeyError: null,
   });
-  const landingRequests = useRef({ contributors: null, discovery: null, journey: null, publicFindings: null });
+  const landingRequests = useRef({ contributors: null, discovery: null, journey: null });
+  const publicFindingRequest = useRef(0);
   const [writerFilter, setWriterFilter] = useState("all");
   const [corpusKey, setCorpusKey] = useState(null);
   const openAnchoredContext = (nextContext) => {
@@ -723,6 +724,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
   useEffect(() => {
     let alive = true;
+    const requestId = ++publicFindingRequest.current;
     if (activeView !== WORLD_LANDING_VIEW.FINDING) {
       setPublicFinding({ id: null, loading: false, finding: null, error: null });
       return () => { alive = false; };
@@ -733,22 +735,20 @@ function LiveWorldLanding({ research, shell, context }) {
     }
 
     setPublicFinding({ id: focusedPublicFindingId, loading: true, finding: null, error: null });
-    if (!landingRequests.current.publicFindings) {
-      landingRequests.current.publicFindings = fetchWorldAllResearchProjection();
-    }
-    landingRequests.current.publicFindings
-      .then((projection) => {
-        if (!alive) return;
+    fetchWorldPublicFindingById(focusedPublicFindingId)
+      .then((finding) => {
+        if (!alive || requestId !== publicFindingRequest.current) return;
         setPublicFinding({
           id: focusedPublicFindingId,
           loading: false,
-          finding: findWorldPublicResearchFinding(projection, focusedPublicFindingId),
+          finding,
           error: null,
         });
       })
       .catch((error) => {
-        landingRequests.current.publicFindings = null;
-        if (alive) setPublicFinding({ id: focusedPublicFindingId, loading: false, finding: null, error });
+        if (alive && requestId === publicFindingRequest.current) {
+          setPublicFinding({ id: focusedPublicFindingId, loading: false, finding: null, error });
+        }
       });
     return () => { alive = false; };
   }, [activeView, focusedPublicFindingId]);
