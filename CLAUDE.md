@@ -13,6 +13,22 @@ Historical records are retained. No product semantics, visual ownership or relea
 Canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` at `99249526e91f1d720fae1aa43e82bbbe51ee5c45`. All 2029 work is Preview-only. Do not enable automatic custom-domain assignment or promote, rollback, alias, deploy or merge a 2029 cutover. A future cutover requires a new ZURIEL approval explicitly naming **2029 Production cutover**, the exact SHA and deployment ID. Generic release/rollback approval is insufficient. `node scripts/test-legacy-production-lock.mjs` is mandatory and may not be weakened in the same release change.
 
 
+
+## Work / ChatGPT multi-session — verified operating evidence (18.10.2026)
+
+**This section records observed workflow limits only; it does not create a new law, authority, dispatcher, or Work trigger. Active `inter_agent_coordination_law v17` always prevails.**
+
+1. **Existing Work chat ≠ always-on agent.** A Work conversation can be manually resumed. No authenticated capability has been verified for Claude, Codex, another Work chat, GitHub or Supabase to inject a message into, or automatically resume, a *specified existing* ChatGPT Work conversation. A Work trigger may start a separate task run; do not claim it delivered into the owner's chat without provider-verifiable proof.
+2. **What passed:** [GitHub Issue #1112](https://github.com/zuriel337/sod1820/issues/1112) was manually created by Work-A, opened by Work-B, acknowledged once in [its exact comment](https://github.com/zuriel337/sod1820/issues/1112#issuecomment-6239848144), then reread by Work-A. This proves a shared GitHub Issue transport **with user-initiated session activation**, not autonomous wake, exact Work-chat identity or general task delivery.
+3. **Trigger limit observed on 17.10.2026:** the account's GitHub Work trigger configuration offered Pull Request events/filters but did **not** offer Issue-created or Issue-comment events. A PR trigger has not been verified to route to an existing conversation. Provider capabilities and active connection must be rechecked at runtime; do not infer support from a generic integration label.
+4. **Identity and ACK boundary:** an Issue comment authored under the same GitHub account does not independently authenticate which Work session posted it. The one-off manual ACK in #1112 was a diagnostic under explicit user instruction, **not** a standing required agent ACK. Never add GPT-directed dispatch, RESULT_WAKE, ACK waits, retries, or a competing GPT wake in response to this test.
+5. **Actual operating model:** ZURIEL gives product requirements through an interactive Work chat. Use the existing GitHub Issues/PRs and canonical passive `work_log` as shared evidence; read issue/PR links directly rather than asking ZURIEL to copy whole agent reports. Codex or Claude builds within one active writer per file/scope on an isolated branch; use PR, tests and Vercel Preview for review. Report results to ZURIEL and require the existing Human Gate before merge/deploy/live product-DB changes.
+6. **When another Work chat is needed:** ZURIEL may explicitly open/resume that conversation and give it an Issue/PR link. Label this `MANUAL_ACTIVATION`, not `AUTO_ROUTED`. If provider-native routing to an already-open chat remains unverified, report `NOT_SUPPORTED_OR_UNVERIFIED`; do not fabricate a recipient conversation ID or claim that a separate Work task run is the original chat.
+7. **Evidence statuses:** distinguish `ISSUE_VISIBLE`, `COMMENT_WRITTEN`, `CLAUDE_HANDOFF_VERIFIED`, `WORK_TRIGGER_RAN`, `EXISTING_WORK_CHAT_RESUMED` and `AUTHOR_IDENTITY_VERIFIED`. A positive status requires direct evidence for that exact stage, never inference from an earlier stage.
+
+Keep this evidence note concise; live law, current owner, repository/main and appropriate runtime evidence are authoritative. No new table, provider adapter, GitHub automation, chat-wake service or parallel coordination infrastructure is authorized by this section.
+
+
 > **STATUS:** runtime adapter / pointer only. This file is **not** project truth, a domain contract, a context database, or a second owner map.
 > Canonical coordination owner: current active `inter_agent_coordination_law` in Supabase.
 > Canonical routing index: `SOD1820_MASTER_OWNER_INDEX.md` on current `origin/main`.
