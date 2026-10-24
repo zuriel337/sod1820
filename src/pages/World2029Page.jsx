@@ -10,11 +10,7 @@ import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
-import WorldSourceCorpus from "../components/research/WorldSourceCorpus.jsx";
-import { WORLD_SOURCE_CORPORA, corpusForCreator } from "../lib/research/worldSourceCorpus.js";
-
 import WorldPublicSourceSubjects2029 from "../components/research/WorldPublicSourceSubjects2029.jsx";
-import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
 import { usePalette } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -42,13 +38,12 @@ import {
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import {
   fetchWorldContributorLens,
-  fetchWorldLandingContributorProjection,
 } from "../lib/research/worldContributorLens.js";
 import {
   fetchGoldenWorldJourney878,
   GOLDEN_WORLD_JOURNEY_878,
 } from "../lib/research/worldJourneyProjection.js";
-import { fetchCanonicalTopicConvergenceFinding, fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
+import { fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
 import { fetchWorldDiscoveryStream, watchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
 import {
   WORLD_RESEARCH_ATTENTION,
@@ -59,11 +54,7 @@ import {
 import { RESEARCH_OPERATION_LABELS_HE, methodComponentStateLabelHe, sourceMethodStateLabelHe } from "../lib/research/researchFacetProjection.js";
 import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProjection.js";
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
-import { PROJECTOR_MODE } from "../lib/research/researchViewMode.js";
-import { CONTRIBUTOR_LOAD_PROFILE, fetchContributorFindingsProjection } from "../lib/research/contributorFindingsProjection.js";
-import {
-  fetchWorldAllResearchProjection,
-} from "../lib/research/worldAllResearchProjection.js";
+import { fetchWorldPublicPeopleIndex } from "../lib/research/worldPublicPeopleIndex.js";
 import { fetchWorldPublicFindingById } from "../lib/research/worldPublicFindingReader.js";
 import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
@@ -84,6 +75,7 @@ import {
 
 const WorldAllResearchTable = React.lazy(() => import("../components/research/WorldAllResearchTable.jsx"));
 const WorldKnowledgeTypes2029 = React.lazy(() => import("../components/research/WorldKnowledgeTypes2029.jsx"));
+const WorldPeopleSources2029 = React.lazy(() => import("../components/research/WorldPeopleSources2029.jsx"));
 
 const WORLD_EXPERIENCE = resolveExperienceContext({
   surface: EXPERIENCE_SURFACE.WORLD,
@@ -438,23 +430,6 @@ function WorldCard({ card, onOpen }) {
   );
 }
 
-function WorldMeetingCard({ meeting, onOpen }) {
-  return <button type="button" className="sod29-card sod29-card-button sod29-world-meeting-card" onClick={() => onOpen(meeting)}>
-    <div className="sod29-world-meeting-card-top">
-      <span className="sod29-kicker">{CONVERGENCE_LABEL}</span>
-      {meeting?.value != null ? <b>{meeting.value}</b> : null}
-    </div>
-    <h3>{meeting?.title || CONVERGENCE_LABEL}</h3>
-    {meeting?.summary ? <p>{meeting.summary}</p> : null}
-    <div className="sod29-world-meeting-meta">
-      <span>{meeting?.authorName || "חוקר"}</span>
-      {meeting?.method ? <span>{meeting.method}</span> : null}
-      {meeting?.groupSize ? <span>{meeting.groupSize} ביטויים</span> : null}
-    </div>
-    <div className="sod29-actions"><span className="sod29-chip">פתח {CONVERGENCE_LABEL} ←</span></div>
-  </button>;
-}
-
 function NativeStateSection({ children }) {
   return <section className="sod29-section sod29-world-state-section">{children}</section>;
 }
@@ -686,8 +661,6 @@ function LiveWorldLanding({ research, shell, context }) {
   });
   const landingRequests = useRef({ contributors: null, discovery: null, journey: null });
   const publicFindingRequest = useRef(0);
-  const [writerFilter, setWriterFilter] = useState("all");
-  const [corpusKey, setCorpusKey] = useState(null);
   const openAnchoredContext = (nextContext) => {
     research.setResearchContext?.(nextContext);
     navigate("/world?focus=context", { replace: true });
@@ -711,7 +684,6 @@ function LiveWorldLanding({ research, shell, context }) {
     loading: true, loadingMore: false, cards: [], hasMore: false, total: null, error: null,
   });
   const [topicDetail, setTopicDetail] = useState({ loading: false, card: null, finding: null, error: null });
-  const [contributorFindingsState, setContributorFindingsState] = useState({ slug: null, mode: null, loading: false, projection: null, error: null });
   const focusedContributorSourceRef = useMemo(
     () => new URLSearchParams(location.search).get("sourceRef"),
     [location.search],
@@ -760,33 +732,9 @@ function LiveWorldLanding({ research, shell, context }) {
     return () => window.cancelAnimationFrame(frame);
   }, [activeView, publicFinding.finding]);
 
-  // Deep links from the shared Companion use existing World source readers.
-  // Query params only choose a PUBLIC display focus; they never grant read access.
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const source = params.get("source");
-    const subjectSource = params.get("subjectSource");
-    if (source === "tzvi-opoc" || subjectSource === "zvi") { setWriterFilter("tzvi-opoc"); setCorpusKey(null); }
-    else if (source === "sod-hashmal" || subjectSource === "hashmal") { setCorpusKey("sod-hashmal"); setWriterFilter("all"); }
-  }, [location.search]);
-
-  useEffect(() => {
-    if (landing.contributorLoading || activeView !== WORLD_LANDING_VIEW.SOURCES) return;
-    const params = new URLSearchParams(location.search);
-    const source = params.get("source");
-    const subjectSource = params.get("subjectSource");
-    const target = (source === "tzvi-opoc" || subjectSource === "zvi") && writerFilter === "tzvi-opoc"
-      ? "world-contributor-material"
-      : (source === "sod-hashmal" || subjectSource === "hashmal") && corpusKey === "sod-hashmal"
-        ? "world-corpus-sod-hashmal" : null;
-    if (!target) return;
-    const frame = window.requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
-    return () => window.cancelAnimationFrame(frame);
-  }, [activeView, landing.contributorLoading, location.search, writerFilter, corpusKey]);
-
   const contributorPromise = () => {
     if (!landingRequests.current.contributors) {
-      landingRequests.current.contributors = fetchWorldLandingContributorProjection();
+      landingRequests.current.contributors = fetchWorldPublicPeopleIndex();
     }
     return landingRequests.current.contributors;
   };
@@ -849,34 +797,6 @@ function LiveWorldLanding({ research, shell, context }) {
       onError: (discoveryError) => setLanding((prev) => ({ ...prev, discovery: null, discoveryError })),
     });
   }, [activeView, landing.discoveryLoading, landing.discovery, landing.contributors]);
-
-
-
-  // The composed World is public. Always use the anonymous reader so an admin
-  // session can never turn this surface into a private-data projection.
-  const contributorReadMode = PROJECTOR_MODE.PUBLIC_VIEW;
-  useEffect(() => {
-    let alive = true;
-    const slug = writerFilter === "all" ? null : writerFilter;
-    if (activeView !== WORLD_LANDING_VIEW.SOURCES || !slug) {
-      setContributorFindingsState({ slug: null, mode: null, loading: false, projection: null, error: null });
-      return () => { alive = false; };
-    }
-
-    setContributorFindingsState({ slug, mode: contributorReadMode, loading: true, projection: null, error: null });
-    fetchContributorFindingsProjection(slug, {
-      mode: contributorReadMode,
-      sourceRef: focusedContributorSourceRef,
-      loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
-    })
-      .then((projection) => {
-        if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection, error: null });
-      })
-      .catch((error) => {
-        if (alive) setContributorFindingsState({ slug, mode: contributorReadMode, loading: false, projection: null, error });
-      });
-    return () => { alive = false; };
-  }, [activeView, contributorReadMode, focusedContributorSourceRef, writerFilter]);
 
   useEffect(() => {
     let alive = true;
@@ -971,29 +891,6 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
-  const openWriterMeeting = async (meeting) => {
-    if (!meeting) return;
-    if (meeting.kind === "topic" && meeting.slug) {
-      const card = { label: meeting.title, facet: "topic", refId: meeting.slug };
-      setTopicDetail({ loading: true, card, finding: null, error: null });
-      try {
-        const finding = await fetchCanonicalTopicConvergenceFinding(meeting.slug);
-        if (!finding) throw new Error("meeting unavailable");
-        setTopicDetail({ loading: false, card, finding, error: null });
-      } catch (error) {
-        setTopicDetail({ loading: false, card, finding: null, error });
-      }
-      return;
-    }
-    if (meeting.value == null) return;
-    openAnchoredContext({
-      subject: { id: String(meeting.value), type: "number", label: String(meeting.value), href: "/world" },
-      selection: { entityId: String(meeting.value), entityType: "number" },
-      lens: "world",
-      returnTo: { href: "/world", label: meeting.authorName || "העולם" },
-    });
-  };
-
   const startJourney = (journey) => {
     if (WORLD_878_JOURNEY_LOCKED) return;
     const root = Number(journey?.rootValue);
@@ -1064,8 +961,6 @@ function LiveWorldLanding({ research, shell, context }) {
     });
   };
 
-  const selectedWriter = writerFilter === "all" ? null : landing.contributors?.bySlug?.[writerFilter] || null;
-  const writerMeetings = selectedWriter ? selectedWriter.meetings || [] : landing.contributors?.meetings || [];
   const lastJourney = Array.isArray(research.journeys)
     ? research.journeys.find((journey) => Number(journey?.root) === GOLDEN_WORLD_JOURNEY_878.rootValue) || null
     : null;
@@ -1130,8 +1025,7 @@ function LiveWorldLanding({ research, shell, context }) {
       }
       const slug = item.creatorSlug || landing.contributors?.people?.find((person) => person.displayName === item.creator)?.slug || null;
       if (slug && landing.contributors?.bySlug?.[slug]) {
-        setWriterFilter(slug);
-        requestAnimationFrame(() => document.getElementById("world-researchers")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+        navigate(`/world?view=sources&source=${encodeURIComponent(slug)}#world-source-selection`);
         return;
       }
       shell.openInspect?.({ id: item.id, type: "finding", label: item.label, href: "/world" });
@@ -1249,38 +1143,12 @@ function LiveWorldLanding({ research, shell, context }) {
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.SOURCES ? <>
+      <React.Suspense fallback={<p role="status">פותח אנשים ומקורות…</p>}>
+        <WorldPeopleSources2029 index={landing.contributors} loading={landing.contributorLoading}
+          error={landing.contributorError} recentCounts={landing.discovery?.recentCounts || {}}
+          focusedSourceRef={focusedContributorSourceRef} />
+      </React.Suspense>
       <WorldPublicSourceSubjects2029 />
-      <section className="sod29-world-source-homes" id="world-source-homes" aria-label="אנשים ומקורות בעולם">
-        <header><div className="sod29-kicker">לפי מי ומאיפה</div><h2>אנשים ומקורות בעולם</h2>
-          <p>אדם, חוקר וספריית תוכן הם דרכי כניסה לחומר. הממצאים עצמם נשארים מחוברים לנושאים ולמקורות שלהם.</p></header>
-        <div className="sod29-world-source-home-grid">
-          {WORLD_SOURCE_CORPORA.map((spec) => <button type="button" key={spec.key} aria-expanded={corpusKey === spec.key}
-            aria-controls={`world-corpus-${spec.key}`} onClick={() => { setCorpusKey(corpusKey === spec.key ? null : spec.key); setWriterFilter("all"); }}>
-            <span>ספריית מקורות</span><strong>{spec.label}</strong><small>לקרוא את החומר הציבורי ←</small>
-          </button>)}
-          {(landing.contributors?.people || []).map((person) => <button type="button" key={person.slug}
-            aria-expanded={writerFilter === person.slug} aria-controls="world-contributor-material"
-            onClick={() => { setWriterFilter(writerFilter === person.slug ? "all" : person.slug); setCorpusKey(null); }}>
-            <span>{person.role || "חוקר וכותב"}</span><strong>{person.displayName}</strong><small>לגלות את החומר והחיבורים שלו ←</small>
-          </button>)}
-        </div>
-        {landing.contributorLoading ? <p role="status">פותח את הכותבים והמקורות…</p> : null}
-        {landing.contributorError ? <p role="status">הכותבים אינם זמינים להצגה כרגע.</p> : null}
-      </section>
-      {WORLD_SOURCE_CORPORA.filter((spec) => spec.key === corpusKey).map((spec) => <WorldSourceCorpus key={spec.key} spec={spec}
-        recentCount={landing.discovery?.recentCounts?.[spec.authorLabel] ?? null} />)}
-      {selectedWriter ? <section className="sod29-section sod29-world-contributor-findings-section" id="world-contributor-material"
-        aria-label={`כל החומר של ${selectedWriter.displayName}`} data-experience-capability="world-contributor-findings-projection">
-        <ContributorFindingsLens
-          projection={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.projection : null}
-          loading={contributorFindingsState.slug !== selectedWriter.slug || contributorFindingsState.mode !== contributorReadMode || contributorFindingsState.loading}
-          error={contributorFindingsState.slug === selectedWriter.slug && contributorFindingsState.mode === contributorReadMode ? contributorFindingsState.error : null}
-          canReview={isAdmin}
-          focusSourceRef={focusedContributorSourceRef}
-          timeMode="bilingual" />
-        {writerMeetings.length ? <div className="sod29-book-grid">{writerMeetings.map((meeting) =>
-          <WorldMeetingCard key={meeting.id} meeting={meeting} onOpen={openWriterMeeting} />)}</div> : null}
-      </section> : null}
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.CONNECTIONS ? <>

@@ -78,6 +78,8 @@ const worldConvergenceLensComponent = read("src/components/research/WorldConverg
 const worldConvergenceLensCss = read("src/components/research/world-convergence-lens.css");
 const contributorFindingsComponent = read("src/components/research/ContributorFindingsLens.jsx");
 const contributorFindingsSource = read("src/lib/research/contributorFindingsProjection.js");
+const worldPeopleSourcesComponent = read("src/components/research/WorldPeopleSources2029.jsx");
+const worldPeopleSourcesProjection = read("src/lib/research/worldPeopleSourcesProjection.js");
 const attributionAttentionMigration = read("supabase/migrations/20261007163000_ariel_personal_research_attribution_attention_v1.sql");
 const topicConvergenceContent = read("src/components/research/TopicConvergenceContent.jsx");
 const worldAnchorMapSource = read("src/components/research/WorldAnchorMap.jsx");
@@ -113,7 +115,8 @@ assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\}
 assert.match(world, /<SourceArrivalList2029/);
 assert.match(world, /<WorldSourceStory research=\{research\} shell=\{shell\} compact \/>/);
 assert.match(world, /<WorldDiscoveryDoors \/>/);
-assert.match(world, /אנשים ומקורות בעולם/);
+assert.match(world, /<WorldPeopleSources2029/);
+assert.match(worldPeopleSourcesComponent, /כל הכותבים והחוקרים שאפשר לפתוח/);
 assert.equal(world.includes("world-auth-identity-bridge"), false, "the public World must not be hidden behind an account/admin bridge");
 assert.equal(world.includes("התחברות / מנהל"), false, "the public World must not present the retired admin entrance");
 assert.equal(world.includes("world-admin-tools"), false, "the retired separate admin-tools wrapper must stay removed");
@@ -124,22 +127,20 @@ assert.equal(world.includes("fetchWorldFindingReviewPage"), false, "the public W
 assert.match(world, /isAdmin \? <React\.Suspense/, "private findings review must render only after AuthContext proves admin identity");
 assert.match(world, /React\.lazy\(\(\) => import\("\.\.\/components\/research\/WorldAllResearchTable\.jsx"\)\)/,
   "the heavy review component must stay out of the ordinary public World bundle");
-assert.match(world, /const \[writerFilter, setWriterFilter\] = useState\("all"\)/,
+assert.match(worldPeopleSourcesComponent, /if \(!selected\)/,
   "the lightweight World entrance must not open a contributor corpus before the visitor chooses one");
-assert.match(world, /activeView !== WORLD_LANDING_VIEW\.SOURCES/,
-  "contributor material must load only inside the people-and-sources view");
 assert.match(authPage, /safeOAuthReturnPath/, "canonical login must validate local return targets");
 assert.match(authPage, /navigate\(returnTo, \{ replace: true \}\)/, "canonical login must return to the requested local surface");
 assert.match(authPage, /requestEmailOtp\(email, \{ shouldCreateUser: !preview \}\)/, "preview login must not create a new account");
 assert.match(authPage, /OAUTH_PREVIEW_UNVERIFIED/, "preview Google login must fail with a visible explanation");
-assert.match(world, /ContributorFindingsLens/, "World must reuse the canonical contributor findings lens");
-assert.match(world, /fetchContributorFindingsProjection/, "World must load the same contributor projection as the researcher page");
-assert.match(world, /world-contributor-findings-projection/, "selected researcher material must be projected inside World");
+assert.match(worldPeopleSourcesProjection, /fetchContributorFindingsProjection/, "World must load the same contributor projection as the researcher page");
+assert.match(worldPeopleSourcesProjection, /fetchContributorSourceCatalogProjection/, "World must reuse the canonical source catalog projection");
+assert.match(worldPeopleSourcesProjection, /fetchContributorPublicationCatalog/, "World must reuse the canonical publication catalog");
 // Public site-writer sources are distinct from private personal research and admin tools.
-assert.match(world, /\{selectedWriter \? <section/, "selected writer sources are available to every viewer");
-assert.equal(world.includes("selectedWriter && isAdmin"), false, "public writer sources are not admin-only");
-assert.match(world, /const contributorReadMode = PROJECTOR_MODE\.PUBLIC_VIEW/, "World always uses the anonymous public contributor reader");
-assert.equal(world.includes("PROJECTOR_MODE.ADMIN_ALL"), false, "World never requests an admin/private contributor payload");
+assert.match(worldPeopleSourcesComponent, /\{selected \? <section/, "selected writer sources are available to every viewer");
+assert.equal(worldPeopleSourcesComponent.includes("selected && isAdmin"), false, "public writer sources are not admin-only");
+assert.match(worldPeopleSourcesProjection, /mode: PROJECTOR_MODE\.PUBLIC_VIEW/, "World always uses the anonymous public contributor reader");
+assert.equal(worldPeopleSourcesProjection.includes("PROJECTOR_MODE.ADMIN_ALL"), false, "World never requests an admin/private contributor payload");
 assert.doesNotMatch(contributorFindingsSource, /owner_slug|personal_scope/, "site contributor lens must not import personal research by owner");
 assert.match(contributorFindingsSource, /mode === PROJECTOR_MODE\.ADMIN_ALL \? sessionClient : publicClient\(\)/, "public reads use anonymous client even for signed-in admins");
 assert.match(attributionAttentionMigration, /attribution_gap/, "Admin Attention must surface person-owner attribution gaps");
@@ -147,12 +148,12 @@ assert.match(attributionAttentionMigration, /פער ייחוס למחקר איש
 assert.match(world, /מסע 878/);
 assert.match(world, /לראות מה נפגש סביב רעיון/);
 assert.equal(world.includes("מפגש"), false, "2029 World public convergence vocabulary must not fall back to meeting labels");
-assert.match(world, /אנשים ומקורות בעולם/);
-assert.match(world, /לגלות את החומר והחיבורים שלו/);
+assert.match(worldPeopleSourcesComponent, /אנשים ציבוריים/);
+assert.match(worldPeopleSourcesComponent, /החומר הציבורי שנבחר/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
 assert.match(world, /מתחילים ממה שמסקרן אותך/);
 assert.match(world, /sod29-world-overview/);
-assert.match(world, /sod29-world-source-homes/);
+assert.match(worldPeopleSourcesComponent, /sod29-world-source-homes/);
 assert.equal(world.includes("sod29-world-spatial-gateway"), false, "the retired legacy control landing is removed");
 assert.match(world, /sod29-world-all-convergences/);
 assert.match(world, /כל הנושאים והחיבורים/);
@@ -575,12 +576,12 @@ assert.match(systemFrame2029, /\{ to: "\/world", label: "העולם"/,
 assert.equal(world.includes("WORLD_CONTROL_MODE_ALWAYS_VISIBLE"), false, "build-phase always-visible admin mode must be removed");
 assert.equal(world.includes("setAdminMode(Boolean(controlMode))"), false, "anchored World admin mode must not auto-open");
 assert.match(world, /if \(!isAdmin\) setAdminMode\(false\)/);
-assert.match(world, /לגלות את החומר והחיבורים שלו/);
-assert.match(world, /contributorFindingsState\.mode === contributorReadMode/, "mode changes never render an old admin payload as public");
+assert.match(worldPeopleSourcesComponent, /החומר בעולם/);
+assert.match(worldPeopleSourcesComponent, /material\.slug === selected\?\.slug/, "slug changes never render an old contributor payload");
 assert.match(world, /כל הנושאים והחיבורים/, "public World catalog must keep the reader-facing connections heading");
 assert.equal(world.includes("CONVERGENCE INDEX · PUBLIC PROJECTION"), false, "public World must not expose internal projection vocabulary");
 assert.equal(world.includes("CANONICAL CONVERGENCE INDEX"), false, "legacy Topic catalog must not claim canonical Convergence identity");
-assert.match(world, /selectedWriter \? <section className="sod29-section sod29-world-contributor-findings-section"/);
+assert.match(worldPeopleSourcesComponent, /selected \? <section className="sod29-section sod29-world-selected-source"/);
 assert.equal(world.includes("CONVERGENCES_LABEL} בולטות"), false, "landing must not render a second generic prominent-convergences surface");
 assert.match(worldAnchorMapSource, /עוגנים נבחרים/);
 assert.match(worldAnchorMapSource, /אינה רשימת כל העוגנים בעולם/);
