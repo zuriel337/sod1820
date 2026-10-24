@@ -84,5 +84,6 @@ test("the single public World layout uses one category-free subject reader and k
   assert.match(source, /בלי להסיק קטגוריה מהטקסט/);
   assert.match(source, /contributor-admin-triage-links/);
   assert.match(source, /החזקים שמומלצים לעץ/);
-  assert.match(world, /canReview=\{isAdmin\}/);
+  assert.match(world, /<WorldPeopleSources2029/);
+  assert.doesNotMatch(world, /canReview=\{isAdmin\}/, "the public people/source lens is identical for guest and admin");
 });
