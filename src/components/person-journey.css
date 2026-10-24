@@ -233,12 +233,28 @@
 .person-journey-family-scope input[type="checkbox"]{width:20px;min-height:20px;margin:0;accent-color:var(--pj-gold)}
 .person-journey-family-scope label>span{display:grid;gap:2px}
 .person-journey-family-scope small{color:var(--pj-soft)}
+.person-journey .person-journey-member-source{color:var(--pj-gold);font-size:11px;font-weight:700}
 .person-journey-family-scope footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;color:var(--pj-soft);font-size:13px}
 .person-journey-family-scope footer strong{color:var(--pj-gold);font-size:18px}
 .person-journey-family-scope footer>div{display:flex;gap:7px;flex-wrap:wrap}
 .person-journey-family-scope footer button{min-height:36px;padding:7px 12px;font-size:12px}
 .person-journey-family-research-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 18px}
 .person-journey-family-research-actions small{color:var(--pj-soft);line-height:1.6}
+.person-journey-account-continuity{
+  display:grid;
+  gap:12px;
+  margin:0 0 18px;
+  padding:16px;
+  border:1px solid color-mix(in srgb,var(--pj-accent) 30%,var(--pj-line));
+  border-radius:18px;
+  background:linear-gradient(120deg,color-mix(in srgb,var(--pj-accent) 8%,transparent),color-mix(in srgb,var(--pj-panel-soft) 80%,transparent));
+}
+.person-journey-account-continuity>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.person-journey-account-continuity>header>div{display:grid;gap:3px}
+.person-journey-account-continuity h3{margin:0;font-size:20px}
+.person-journey-account-continuity small,.person-journey-account-continuity>header>span,.person-journey-account-continuity p,.person-journey-account-continuity li{color:var(--pj-soft);font-size:12px;line-height:1.7}
+.person-journey-account-continuity p{margin:0}
+.person-journey-account-continuity ul{display:grid;gap:4px;margin:0;padding-inline-start:20px}
 .person-journey-birth-timeline{
   display:grid;
   gap:14px;
@@ -496,6 +512,7 @@
   .person-journey-capability-nav,.person-journey-hint-list article{align-items:stretch;flex-direction:column}
   .person-journey-family-scope footer{align-items:stretch;flex-direction:column}
   .person-journey-family-research-head,.person-journey-family-research-actions{align-items:stretch;flex-direction:column}
+  .person-journey-account-continuity>header{align-items:stretch;flex-direction:column}
   .person-journey-birth-timeline>header{align-items:stretch;flex-direction:column}
   .person-journey-birth-timeline ol::before{inset-inline-start:80px}
   .person-journey-birth-timeline li{grid-template-columns:68px 12px minmax(0,1fr)}

@@ -663,7 +663,8 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
               />
               <span>
                 <strong>{member.name}</strong>
-                <small>{memberRef === selfRef ? "אני" : "בן/בת משפחה"}</small>
+                <small>{memberRef === selfRef ? "חשבון ראשי מחובר" : "זהות משפחתית · חשבון עתידי אפשרי"}</small>
+                <small className="person-journey-member-source">מקור: הוזן במסע הזה</small>
               </span>
             </label>;
           })}
@@ -676,6 +677,23 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
           </div>
         </footer>
       </fieldset> : null}
+
+      {familyMembers.length ? <section
+        className="person-journey-account-continuity"
+        data-experience-capability="life-journey-account-continuity"
+        aria-labelledby="life-journey-account-continuity-title"
+      >
+        <header>
+          <div><small>זהות וחשבון</small><h3 id="life-journey-account-continuity-title">אותו אדם, גם כשנפתח חשבון נפרד</h3></div>
+          <span>מנגנון Claim קנוני קיים</span>
+        </header>
+        <p>ה־person-ref המשפחתי נשאר העוגן. חשבון חדש מתחבר אליו בתהליך הזמנה ותביעת זהות מאומתת — בלי ליצור ילד נוסף ובלי לשנות את הזהות הראשית שלך.</p>
+        <ul>
+          <li>החשבון החדש מקבל Person ראשי משלו.</li>
+          <li>ה־Claim מתעד שזה אותו בן משפחה שכבר נמצא במסע.</li>
+          <li>החיבור אינו מעתיק מחקר פרטי ואינו מעניק גישה ל־Ledger שלך.</li>
+        </ul>
+      </section> : null}
 
       {selectedFamilyRefs.length ? <section
         className="person-journey-birth-timeline"
@@ -756,7 +774,11 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
         {familyMembers.map((member) => {
           const memberMeta = metaObject(member.meta);
           return <article key={member.source_ref}>
-            <div><strong>{member.name}</strong>{memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}</div>
+            <div>
+              <strong>{member.name}</strong>
+              {memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}
+              <small className="person-journey-member-source">מקור: הוזן במסע הזה · זהות ניתנת לחיבור לחשבון</small>
+            </div>
             {variant === "2029" ? <div className="person-journey-member-actions">
               <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>מסע שם</button>
               <button type="button" disabled={busy} onClick={() => openCapability(member, "date")}>שם ותאריך</button>

@@ -135,6 +135,10 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await family.getByLabel("הקשר אליי").selectOption("child_of_me");
     await family.getByRole("button", { name: "הוסף למסע" }).click();
     await family.locator("article strong", { hasText: "ילד בדיקה" }).waitFor();
+    await family.getByRole("heading", { name: "אותו אדם, גם כשנפתח חשבון נפרד" }).waitFor();
+    assert.ok(await family.getByText("זהות משפחתית · חשבון עתידי אפשרי").count() >= 1);
+    assert.ok(await family.getByText(/מקור: הוזן במסע הזה/).count() >= 2);
+    assert.equal(await family.getByRole("button", { name: /הזמנה|Claim|תביעת/ }).count(), 0, "identity continuity is explanatory until the explicit claim UI slice");
 
     const familyScope = family.getByRole("group", { name: "מי משתתף במחקר המשפחתי?" });
     const childSelection = familyScope.getByRole("checkbox", { name: /ילד בדיקה/ });

@@ -58,6 +58,10 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /data-experience-capability="life-journey-birth-timeline"/);
   assert.match(journey, /לא נוצר Event store חדש/);
   assert.doesNotMatch(journey, /upsertLifeEvent|insertLifeEvent|life_event_store/);
+  assert.match(journey, /data-experience-capability="life-journey-account-continuity"/);
+  assert.match(journey, /מנגנון Claim קנוני קיים/);
+  assert.match(journey, /אינו מעתיק מחקר פרטי ואינו מעניק גישה/);
+  assert.doesNotMatch(journey, /fn_create_family_invitation|fn_redeem_family_invitation/);
   assert.match(journey, /continueResearchPath/);
   assert.match(personContext, /life_journey_person_context_v1/);
   assert.match(personContext, /buildExactReturnPatch/);
