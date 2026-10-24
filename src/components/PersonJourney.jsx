@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import {
@@ -27,12 +27,6 @@ import {
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import "./person-journey.css";
-
-const LifeJourneyEls2029 = lazy(() => import("./experience2029/LifeJourneyEls2029.jsx"));
-const LifeJourneyHints2029 = lazy(() => import("./experience2029/LifeJourneyHints2029.jsx"));
-const LifeJourneyName2029 = lazy(() => import("./experience2029/LifeJourneyName2029.jsx"));
-
-const capabilityFallback = <div className="person-journey"><div className="person-journey-state" aria-busy="true">פותח יכולת קיימת…</div></div>;
 
 const RELATIONS = Object.freeze([
   { id: "none", label: "קשר יוגדר אחר כך" },
@@ -63,7 +57,7 @@ function researchSummary(nameResult, dateBundle, dateRepresentation) {
   });
 }
 
-export default function PersonJourney({ variant = "legacy" }) {
+export default function PersonJourney({ variant = "legacy", CapabilitySurface = null }) {
   const { user, loading: authLoading } = useAuth();
   const research = useResearch();
   const [personId, setPersonId] = useState(null);
@@ -341,21 +335,18 @@ export default function PersonJourney({ variant = "legacy" }) {
   const activeView = variant === "2029" ? lifeJourneyViewFromContext(research.context, selfRef) : "person";
   const selectedName = clean(research.context?.selection?.expression);
 
-  if (activeView === "name" && selectedName) {
-    return <Suspense fallback={capabilityFallback}>
-      <LifeJourneyName2029 name={selectedName} onReturn={returnToPerson} />
-    </Suspense>;
+  if (activeView === "name" && selectedName && CapabilitySurface) {
+    return <CapabilitySurface view="name" name={selectedName} onReturn={returnToPerson} />;
   }
 
-  if (activeView === "els" && selectedName) {
-    return <Suspense fallback={capabilityFallback}>
-      <LifeJourneyEls2029
-        name={selectedName}
-        context={research.context}
-        onVerified={openVerifiedElsOccurrence}
-        onReturn={returnToPerson}
-      />
-    </Suspense>;
+  if (activeView === "els" && selectedName && CapabilitySurface) {
+    return <CapabilitySurface
+      view="els"
+      name={selectedName}
+      context={research.context}
+      onVerified={openVerifiedElsOccurrence}
+      onReturn={returnToPerson}
+    />;
   }
 
   const analysisData = analysis.data;
@@ -500,9 +491,7 @@ export default function PersonJourney({ variant = "legacy" }) {
       </div> : null}
     </section>
 
-    {variant === "2029" ? <Suspense fallback={<div className="person-journey-state" aria-busy="true">טוען רמזים קיימים…</div>}>
-      <LifeJourneyHints2029 user={user} />
-    </Suspense> : null}
+    {variant === "2029" && CapabilitySurface ? <CapabilitySurface view="hints" user={user} /> : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">
       <div>

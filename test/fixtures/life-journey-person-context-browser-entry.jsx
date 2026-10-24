@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import PersonJourney from "../../src/components/PersonJourney.jsx";
+import LifeJourneyCapabilities2029 from "../../src/components/experience2029/LifeJourneyCapabilities2029.jsx";
 import ResearchProvider from "virtual:life-journey-research.jsx";
 
 const palettes = {
@@ -32,7 +33,7 @@ function Fixture() {
     "--s29-glow": palette.accent,
   };
   return <div className="sod29-root" data-fixture-theme={theme} data-frame-theme-preset={theme} style={style}>
-    <BrowserRouter><ResearchProvider><PersonJourney variant="2029" /></ResearchProvider></BrowserRouter>
+    <BrowserRouter><ResearchProvider><PersonJourney variant="2029" CapabilitySurface={LifeJourneyCapabilities2029} /></ResearchProvider></BrowserRouter>
   </div>;
 }
 

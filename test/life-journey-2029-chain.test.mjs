@@ -19,7 +19,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
 
   assert.match(app, /path="\/2029\/journey" element=\{<Locked flag="lock_life_journey" requireFlag homeHref="\/2029"><LifeJourney2029Page \/><\/Locked>\}/);
   assert.match(page, /data-experience-surface="life-journey-2029"/);
-  assert.match(page, /<PersonJourney variant="2029"/);
+  assert.match(page, /LifeJourneyCapabilities2029/);
+  assert.match(page, /<PersonJourney variant="2029" CapabilitySurface=\{LifeJourneyCapabilities2029\}/);
+  assert.doesNotMatch(journey, /lazy\(\(\) => import\("\.\/experience2029\/LifeJourney/);
 
   assert.match(home, /buildUnifiedResearchEntry/);
   assert.match(home, /navigate\("\/2029\/journey"\)/);
