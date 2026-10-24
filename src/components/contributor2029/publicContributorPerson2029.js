@@ -1,0 +1,78 @@
+import { projectPersonProfile2029 } from "../../lib/research/personProfile2029Projection.js";
+import { publicContributorOverview } from "./contributorOverview2029Model.js";
+import { safePublicUrl } from "./publicContributor2029Model.js";
+
+// Composition over the existing anonymous writer DTO, never a Person resolver,
+// standing engine or a substitute for a domain-owned public measurement reader.
+const count = (value) => Number.isSafeInteger(value) && value >= 0 ? value : null;
+const measurement = (value, complete, source, scope) => ({
+  value: complete ? count(value) : null,
+  state: complete && count(value) !== null ? "measured" : "not_measured",
+  source, scope,
+});
+const family = (view, key, scope) => {
+  const coverage = view.publicationCoverage?.[key];
+  return measurement(coverage?.count, coverage?.complete === true && coverage.availability === "ok",
+    "contributorPublicationCatalog", scope);
+};
+const unknown = (scope) => measurement(null, false, null, scope);
+const axis = (key, label, measures, reason = null) => ({ key, label,
+  state: Object.values(measures).some((item) => item.state === "measured") ? "partial" : "not_measured",
+  score: null, measures, reason,
+});
+
+export function publicContributorPerson2029(view, { kind = null, overview = null, entryContext = "direct", requestedLens = null } = {}) {
+  if (!view?.profile || !safePublicUrl(view.canonicalHref)?.startsWith("/community/researcher/")) {
+    throw new Error("public_writer_projection_required");
+  }
+  const catalogueComplete = view.kind === "source_catalog" && view.catalog?.sourcesAvailable === true
+    && view.catalog.truncated === false && Array.isArray(view.catalog.items)
+    && view.catalog.items.every((item) => typeof item?.id === "string" && item.id.length > 0);
+  const catalogue = [...new Map((view.catalog?.items || []).map((item) => [item.id, item])).values()];
+  const sourcePublications = measurement(catalogue.length, catalogueComplete,
+    "contributorSourceCatalogProjection+posts", "public catalogue publications; paired media count once; not independent findings");
+  const mediaPublications = measurement(catalogue.filter((item) => item.media).length, catalogueComplete,
+    "contributorSourceCatalogProjection+posts", "catalogue publications containing media; not individual files");
+  const publications = family(view, "posts", "source-native public posts, including coauthored posts");
+  const cipherRecords = family(view, "ciphers", "public cipher records attributed by credit or upload; not verified findings");
+  const contributionRows = family(view, "contributions", "public contribution rows; not a chat-message or independent-finding total");
+  const registered = publicContributorOverview(overview);
+  const joinedAt = registered.state === "ready" ? registered.joinedAt : null;
+  // Only the existing canonical kind may supply a capability. Role text, item
+  // volume, XP, likes and the legacy five-level result are deliberately ignored.
+  const profile = projectPersonProfile2029({
+    person: { displayName: view.profile.name, avatarUrl: view.profile.avatar, joinedAt },
+    capabilities: { writer: kind === "writer", author: kind === "author", researcher: kind === "researcher",
+      contributor: ["contributor", "community", "writer", "author", "researcher"].includes(kind) },
+    metrics: { sources: sourcePublications.value, media: mediaPublications.value,
+      publications: publications.value, els: cipherRecords.value },
+  }, { viewer: "public", entryContext, requestedLens });
+  return {
+    version: "writer-person-2029-v1",
+    // A Contributor is not silently minted into a Person. The unsafe live Person
+    // resolver is not called; canonical Person binding remains an explicit gap.
+    identityScope: "contributor", personBinding: "unresolved", canonicalHref: view.canonicalHref,
+    profile,
+    axes: [
+      axis("activity", "פעילות ותנופה", { activeDays: unknown("meaningful public active days") }, "public_activity_reader_not_connected"),
+      { ...axis("tenure", "ותק והמשכיות", { tenureDays: unknown("verified historical community tenure") }, "account_age_is_not_community_tenure"),
+        registeredAt: joinedAt, registeredAtBasis: joinedAt ? "account_registration" : null,
+        firstPublicActivityAt: null, lastSeenAt: null },
+      axis("communityImpact", "השפעה בקהילה", {
+        likesReceived: unknown("author-wide public likes, not a loaded page sum"),
+        reactionsReceived: unknown("author-wide public reactions"),
+        uniqueResponders: unknown("distinct verified public responders"),
+        repliesReceived: unknown("public replies received"),
+      }, "native_community_activity_remains_lazy_and_separate"),
+      axis("contribution", "תרומה", { sourcePublications, mediaPublications, cipherRecords, contributionRows }),
+      { ...axis("researchStanding", "מעמד מחקרי", {}, "approved_public_dossier_and_progression_gates_not_connected"),
+        applicable: profile.capabilities.researcher, level: null, progress: null },
+      axis("publication", "פרסומים", { publications }),
+      axis("humanCuration", "הכרה אנושית", {}, "governed_person_recognition_not_connected"),
+    ],
+  };
+}
+
+export function withPublicContributorPerson2029(view, options) {
+  return { ...view, personProjection: publicContributorPerson2029(view, options) };
+}

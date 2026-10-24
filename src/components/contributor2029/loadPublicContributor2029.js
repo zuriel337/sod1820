@@ -5,6 +5,7 @@ import { getPublicResearchClient, PROJECTOR_MODE } from "../../lib/research/rese
 import { appendContributorPublicationCatalog, buildPublicContributorView } from "./publicContributor2029Model.js";
 import { fetchContributorSourceCatalogProjection } from "../../lib/research/contributorSourceCatalogProjection.js";
 import { appendSourceCatalogWritings2029, publicSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
+import { withPublicContributorPerson2029 } from "./publicContributorPerson2029.js";
 
 // Identity lookup only. Content is always read once by the existing projection reader.
 export async function loadPublicContributor2029(slug, {
@@ -16,7 +17,7 @@ export async function loadPublicContributor2029(slug, {
   if (!key || key === "me" || !/^[\p{L}\p{N}_-]{1,160}$/u.test(key)) return null;
   const client = publicClient();
   const { data: identity, error } = await client.from("contributors")
-    .select("id,slug,code,user_id,display_name,avatar_url,bio,role,wa_names,media,locked,building,public_visibility:dossier_settings->>visibility,public_avatar:dossier_settings->public_avatar")
+    .select("id,slug,code,user_id,kind,display_name,avatar_url,bio,role,wa_names,media,locked,building,public_visibility:dossier_settings->>visibility,public_avatar:dossier_settings->public_avatar")
     .eq(/^\d+$/.test(key) ? "code" : "slug", key).eq("active", true).maybeSingle();
   if (error) throw error;
   if (!identity?.slug || identity.locked || identity.building || identity.public_visibility && identity.public_visibility !== "public") return null;
@@ -39,7 +40,8 @@ export async function loadPublicContributor2029(slug, {
       community: publicData.items.filter((item) => item.type === "community"),
       communityAvailable: publicProjection.availability?.contributions === "ok",
     });
-    return { ...appendSourceCatalogWritings2029(view, publications.posts, { slug: identity.slug }), communityAuthorKey: identity.id };
+    return withPublicContributorPerson2029({ ...appendSourceCatalogWritings2029(view, publications.posts, { slug: identity.slug }),
+      communityAuthorKey: identity.id }, { kind: identity.kind });
   }
   const [projection, publications] = await Promise.all([projectionReader(identity.slug, {
     mode: PROJECTOR_MODE.PUBLIC_VIEW,
@@ -50,6 +52,6 @@ export async function loadPublicContributor2029(slug, {
     topicsReader: async () => { throw new Error("anonymous_topic_reader_unavailable"); },
   }), publicationReader(identity, { client })]);
   if (!projection) return null;
-  return appendContributorPublicationCatalog({ ...buildPublicContributorView(projection, identity),
-    canonicalHref: contributorHref(identity), communityAuthorKey: identity.id }, publications, identity);
+  return withPublicContributorPerson2029(appendContributorPublicationCatalog({ ...buildPublicContributorView(projection, identity),
+    canonicalHref: contributorHref(identity), communityAuthorKey: identity.id }, publications, identity), { kind: identity.kind });
 }
