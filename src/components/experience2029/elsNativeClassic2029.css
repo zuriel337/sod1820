@@ -404,6 +404,12 @@
 .els29-native-triage-summary strong{font-size:var(--s29-type-small)}
 .els29-native-triage-rank{font-weight:900}
 .els29-native-triage-rank.is-recommended{color:var(--s29-accent-text)}
+.els29-native-saved-bundles{display:grid;gap:7px;padding:10px;border:1px solid color-mix(in srgb,var(--s29-warm-accent) 58%,var(--s29-line));border-radius:13px;background:color-mix(in srgb,var(--s29-warm-accent) 8%,var(--s29-panel-soft))}
+.els29-native-saved-bundles header{display:grid;gap:3px}
+.els29-native-saved-bundles a{display:grid;gap:4px;min-height:44px;padding:9px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);text-decoration:none}
+.els29-native-saved-bundles a:first-of-type{border-color:var(--s29-warm-accent);box-shadow:inset 3px 0 0 var(--s29-warm-accent)}
+.els29-native-saved-bundles a:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.els29-native-saved-bundles small{font-size:var(--s29-type-micro);line-height:1.5;color:var(--s29-muted)}
 .els29-native-result:focus-visible,.els29-native-window-size select:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 .els29-native-result:disabled{opacity:.5;cursor:wait}
 .els29-native-cell{cursor:pointer}
@@ -651,6 +657,12 @@
 .els29-native-context-panel .els29-native-unified-rail{padding:0;gap:0;overflow:visible}
 .els29-native-rail-scroll{display:flex;flex-direction:column;flex:none;gap:10px;min-width:0;min-height:0;padding:12px;overflow:visible;scrollbar-gutter:auto;overscroll-behavior:auto;overflow-anchor:auto}
 .els29-native-rail-scroll>*{min-width:0;flex-shrink:0}
+.els29-native-active-bundle{display:grid;gap:7px;min-width:0;padding:11px;border:1px solid color-mix(in srgb,var(--s29-warm-accent) 65%,var(--s29-line));border-radius:14px;background:color-mix(in srgb,var(--s29-warm-accent) 9%,var(--s29-panel-soft))}
+.els29-native-active-bundle header{display:grid;gap:3px;min-width:0}
+.els29-native-active-bundle header span,.els29-native-active-bundle small{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.55;overflow-wrap:anywhere}
+.els29-native-active-bundle header strong{font-size:var(--s29-type-lead);overflow-wrap:anywhere}
+.els29-native-active-bundle button{min-height:44px;padding:7px 10px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-weight:800;cursor:pointer}
+.els29-native-active-bundle button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 .els29-native-rail-scroll .els29-native-source-list{max-height:none;overflow:visible;scrollbar-gutter:auto}
 .els29-native-finding-workspace{position:static;display:grid;gap:10px;min-width:0;padding:12px;border:1px solid var(--s29-line-strong);border-radius:16px;background:color-mix(in srgb,var(--s29-accent) 5%,var(--s29-panel));scroll-margin-block-start:calc(var(--s29-header-height,68px) + 12px)}
 .els29-native-finding-workspace>header{display:grid;gap:3px;min-width:0}

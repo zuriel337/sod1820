@@ -51,7 +51,7 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
 test("dynamic vocabulary remains candidate-only and is loaded only by explicit scan lenses", () => {
   assert.match(template, /const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1"/);
   assert.match(template, /if\(target\.scan===true\)dynamicCandidateLexicon\(\)\.then\(publish\);else publish\(null\)/);
-  assert.match(template, /d\.lens==="matrix-candidates"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(lexicon=>/);
+  assert.match(template, /d\.lens==="matrix-candidates"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(async lexicon=>/);
   assert.match(template, /d\.lens==="structure-priority"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(async lexicon=>/);
   assert.match(template, /scanCandidatesBatched\([\s\S]*?type:"lens-progress",lens:"structure-priority"/);
   assert.doesNotMatch(template.slice(0, template.indexOf('window.addEventListener("message"')), /dynamicCandidateLexicon\(\)\.then/);
@@ -98,15 +98,19 @@ test("result triage ranks repeated exact continuation first but keeps every resu
   assert.equal(context.weak[0].tier, "available", "a top-three slot alone must not become a recommendation");
 });
 
-test("structural Research priority puts parallels before intersections and existing notable skips", () => {
+test("structural Research priority keeps gapless geometry ahead of spaced parallels", () => {
   const context = vm.createContext({
     SIGNIFICANT: new Set([37]),
     STRUCTURAL_PRIORITY_CONTRACT: "els_structural_priority_scan_v1",
+    COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1",
+    gridStep: (skip, width) => { const rows = Math.round(skip / width), columns = skip - rows * width; return Math.max(Math.abs(rows), Math.abs(columns)) || 1; },
     norm: value => String(value),
     axis: { skip: 100, positions: [1000, 1100, 1200] },
     candidates: [
-      { term: "מקבילמדויק", skip: 200, positions: [2000, 2200], distance: 8, lexiconSources: ["corpus_native"], lexiconSupport: 1 },
-      { term: "מקבילאלכסוני", skip: 202, positions: [2001, 2203], distance: 1, lexiconSources: ["visible_saved_research"], lexiconSupport: 2 },
+      { term: "מקבילצמוד", skip: 100, positions: [1002, 1102], distance: 8, lexiconSources: ["corpus_native"], lexiconSupport: 1 },
+      { term: "אלכסוןצמוד", skip: 101, positions: [1003, 1104], distance: 4, lexiconSources: ["visible_saved_research"], lexiconSupport: 2 },
+      { term: "מקבילעםפער", skip: 200, positions: [2000, 2200], distance: 1, lexiconSources: ["visible_saved_research"], lexiconSupport: 2 },
+      { term: "אלכסוןעםפער", skip: 202, positions: [2001, 2203], distance: 1, lexiconSources: ["visible_saved_research"], lexiconSupport: 2 },
       { term: "חוצה", skip: 37, positions: [963, 1000, 1037], distance: 0, lexiconSources: ["verified_research"], lexiconSupport: 3 },
       { term: "מסודר", skip: 4545, positions: [3000, 7545], distance: 0, lexiconSources: ["corpus_native"], lexiconSupport: 9 },
       { term: "רגיל", skip: 91, positions: [4000, 4091], distance: 0, lexiconSources: ["verified_research"], lexiconSupport: 20 },
@@ -115,18 +119,21 @@ test("structural Research priority puts parallels before intersections and exist
   vm.runInContext([
     source("notable"),
     source("candidateLexiconPriority"),
+    source("compactGeometryMeta"),
     source("classifyStructuralCandidate"),
     source("rankStructuralCandidates"),
     source("preferStructuralCandidate"),
     "this.result=rankStructuralCandidates(candidates,axis);",
-    "this.preferred=preferStructuralCandidate(candidates[1],candidates[4],axis);",
+    "this.preferred=preferStructuralCandidate(candidates[0],candidates[2],axis);",
   ].join("\n"), context);
 
   const rows = JSON.parse(JSON.stringify(context.result));
-  assert.deepEqual(new Set(rows.slice(0, 2).map(row => row.term)), new Set(["מקבילמדויק", "מקבילאלכסוני"]));
-  assert.ok(rows.slice(0, 2).every(row => row.relation.startsWith("parallel-")), "exact and diagonal parallels share the top structural class");
-  assert.ok(rows[2].relationTags.some(tag => tag.includes("חוצה")));
-  assert.ok(rows[3].relationTags.some(tag => tag.includes("תבנית חוזרת")), "4545 uses the existing notable-number rule");
+  assert.deepEqual(new Set(rows.slice(0, 2).map(row => row.term)), new Set(["מקבילצמוד", "אלכסוןצמוד"]));
+  assert.ok(rows.slice(0, 2).every(row => row.geometry.stage === "A" && row.relation.startsWith("parallel-")), "S and S+1 share the gapless top stage");
+  assert.ok(rows.find(row => row.term === "מקבילעםפער").geometry.stage === "B", "2S is explicitly demoted to the spaced stage");
+  assert.ok(rows.find(row => row.term === "אלכסוןעםפער").geometry.stage === "B", "2S+2 is not presented as a gapless diagonal");
+  assert.ok(rows.find(row => row.term === "חוצה").relationTags.some(tag => tag.includes("חצייה")));
+  assert.ok(rows.find(row => row.term === "מסודר").relationTags.some(tag => tag.includes("תבנית חוזרת")), "4545 uses the existing notable-number rule");
   assert.ok(rows.every(row => !["start", "rc"].some(key => key in row)), "the classifier does not invent coordinates");
   assert.equal(context.preferred, true, "a parallel occurrence survives even when another occurrence of the term is closer");
 });
@@ -134,6 +141,8 @@ test("structural Research priority puts parallels before intersections and exist
 test("bounded structure plans group repeated motifs, parallels, corridors, intersections and clusters without exposing coordinates", () => {
   const context = vm.createContext({
     SIGNIFICANT: new Set(),
+    COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1",
+    gridStep: (skip, width) => { const rows = Math.round(skip / width), columns = skip - rows * width; return Math.max(Math.abs(rows), Math.abs(columns)) || 1; },
     STRUCTURE_PLAN_CONTRACT: "els_structure_scan_plan_v1",
     REPEATED_MOTIF_CONTRACT: "els_repeated_motif_projection_v1",
     STRUCTURE_TYPES: ["parallel", "motif", "corridor", "intersection", "cluster"],
@@ -154,7 +163,7 @@ test("bounded structure plans group repeated motifs, parallels, corridors, inter
     ],
   });
   vm.runInContext([
-    source("notable"), source("candidateLexiconPriority"), source("classifyStructuralCandidate"),
+    source("notable"), source("candidateLexiconPriority"), source("compactGeometryMeta"), source("classifyStructuralCandidate"),
     source("normalizeStructurePlan"), source("structuralCandidateCenter"), source("structuralMember"), source("buildStructuralGroups"),
     "this.result=buildStructuralGroups(candidates,axis,{types:['parallel','motif','corridor','intersection','cluster'],minLength:4,maxLength:10,maxDistance:40,minMembers:2});",
     "this.clamped=normalizeStructurePlan({types:['unknown'],minLength:1,maxLength:99,maxDistance:999,minMembers:9});",
@@ -177,19 +186,43 @@ test("bounded structure plans group repeated motifs, parallels, corridors, inter
   });
 });
 
-test("Research candidate ranking keeps distance primary and explains deterministic tie-breaks", () => {
+test("Research candidate ranking keeps compact geometry first and distance first within a stage", () => {
   const context = vm.createContext({
     CANDIDATE_RANKING_CONTRACT: "els_research_candidate_ranking_v1",
     norm: value => String(value),
     items: [
-      { term: "רחוק", distance: 2, lexiconSources: ["verified_research"], lexiconSupport: 1, continuations: [{}, {}, {}] },
-      { term: "קרוברגיל", distance: 1, lexiconSources: ["corpus_native"], lexiconSupport: 9, continuations: [{}] },
-      { term: "קרובמחקר", distance: 1, lexiconSources: ["visible_saved_research", "corpus_native"], lexiconSupport: 2, continuations: [{}, {}] },
+      { term: "רחוקצמוד", distance: 2, geometry: { compact: true, stage: "A", relationLabel: "אלכסון ללא פער" }, lexiconSources: ["verified_research"], lexiconSupport: 1, continuations: [{}, {}, {}] },
+      { term: "קרובעםפער", distance: 1, geometry: { compact: false, stage: "B", relationLabel: "מבנה עם פערים" }, lexiconSources: ["corpus_native"], lexiconSupport: 9, continuations: [{}] },
+      { term: "קרובצמוד", distance: 1, geometry: { compact: true, stage: "A", relationLabel: "מקבילה אנכית ללא פער" }, lexiconSources: ["visible_saved_research", "corpus_native"], lexiconSupport: 2, continuations: [{}, {}] },
     ],
   });
   vm.runInContext(`${source("candidateLexiconPriority")}\n${source("rankResearchCandidateItems")}\nthis.result=rankResearchCandidateItems(items);`, context);
   const rows = JSON.parse(JSON.stringify(context.result));
-  assert.deepEqual(rows.map(row => row.term), ["קרובמחקר", "קרוברגיל", "רחוק"], "no strength signal may outrank a closer candidate");
+  assert.deepEqual(rows.map(row => row.term), ["קרובצמוד", "רחוקצמוד", "קרובעםפער"], "a spaced candidate cannot displace a compact finding even when it is closer");
   assert.equal(rows[0].ranking.contract, "els_research_candidate_ranking_v1");
-  assert.deepEqual(rows[0].ranking.reasons, ["מופיע במחקר גלוי", "2 המשכים על הציר"]);
+  assert.deepEqual(rows[0].ranking.reasons, ["שלב א׳ · מקבילה אנכית ללא פער", "מופיע במחקר גלוי", "2 המשכים על הציר"]);
+});
+
+test("יום משיח בא is a six-of-six compact public research bundle", () => {
+  const context = vm.createContext({
+    COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1",
+    RESEARCH_BUNDLE_CONTRACT: "els_research_bundle_v1",
+    st: { scope: "torah" },
+    CLOUD_MATRICES: [{ id: "public-fixture", slug: "יום-משיח-בא-583", name: "יום משיח בא", term: "יום משיח בא", scope: "torah", skip: 583, words: [
+      { t: "ישלח", sh: ["583_-1_233650"] }, { t: "מלכ", sh: ["1_1_232483"] },
+      { t: "מחכיתשפו", sh: ["583_1_233063"] }, { t: "לכפרעליכמ", sh: ["1_1_236559"] },
+      { t: "הארחשכ", sh: ["584_1_232474"] }, { t: "שופר", sh: ["583_-1_235391"] },
+    ] }],
+    norm: value => String(value || "").replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ך:"כ",ם:"מ",ן:"נ",ף:"פ",ץ:"צ"}[letter])),
+    gridStep: (skip, width) => { const rows = Math.round(skip / width), columns = skip - rows * width; return Math.max(Math.abs(rows), Math.abs(columns)) || 1; },
+  });
+  vm.runInContext([source("compactGeometryMeta"), source("parseSavedHitKey"), source("visibleSavedResearchBundles"), "this.result=visibleSavedResearchBundles('יום משיח');"].join("\n"), context);
+  const [bundle] = JSON.parse(JSON.stringify(context.result));
+  assert.equal(bundle.contract, "els_research_bundle_v1");
+  assert.equal(bundle.compactFindings, 6);
+  assert.equal(bundle.selectedFindings, 6);
+  assert.equal(bundle.spacedFindings, 0);
+  assert.deepEqual(bundle.relationCounts, { vertical: 3, horizontal: 2, diagonal: 1 });
+  assert.equal(bundle.researchReady, true);
+  assert.equal(bundle.href, "/code?cipher=%D7%99%D7%95%D7%9D-%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%90-583");
 });

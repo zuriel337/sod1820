@@ -94,3 +94,24 @@ No forced AI. No forced 3D. No forced deep scan.
 6. Profile choice changes neither truth nor evidence.
 7. No second ELS engine/store/runtime is created.
 8. Visual treatment is implemented later under the Design Contract after overlapping writers are clear.
+
+## Research Bundle v1 and Compact Geometry First — 24.10.2026
+
+Research result ordering, nearby-finding discovery and structural groups now share one additive presentation law: `els_compact_geometry_priority_v1`.
+
+- **Stage A — compact:** every consecutive letter occupies a neighbouring matrix cell. With primary width `S`, this includes horizontal `1`, vertical `S`, diagonal `S-1` / `S+1`, and literal intersections whose participating paths are themselves compact.
+- **Stage B — spaced:** `gridStep > 1`, including `2S`, `S±2` and wider gaps. These remain available for inspection but cannot displace Stage A in a bounded top list.
+- Corpus skip and visual gap are different facts. A large skip `S` can be visually gapless; a multiple such as `2S` is not.
+- This law ranks inspection order only. It does not verify a candidate, change historical quality scores, create a Finding or assert meaning/truth.
+
+`els_research_bundle_v1` composes existing projections without a new engine or store:
+
+1. A matching public saved cipher is shown before raw occurrences when its stored selected anchors produce a research-ready compact package. The public `els_records` gallery projection remains the only source; the bundle exports counts/reasons and a public route, never coordinates.
+2. Exact same-path continuation and compact geometry govern the top-three result triage. Every admitted result remains available.
+3. Choosing a result is one explicit action: the canonical engine opens that exact verified anchor, the matrix remains visible, the ranked context is retained beside it, and the existing displayed-window candidate lens builds the package.
+4. The candidate scan is chunked, reports progress and can be cancelled without changing the matrix.
+5. The same bundle feeds the existing nearby-finding list. Candidate terms still pass canonical verification before they can become Findings.
+
+Within each stage, distance and existing governed research evidence remain deterministic tie-breakers. Structural groups are Stage A only when every member is compact; mixed/spaced groups follow in Stage B. B12/B13, full 3D, Raziel wiring, `research_objects`, DB/RLS/permission changes and production migration remain outside this contract.
+
+Golden evidence: the public cipher `יום משיח בא` at `S=583` has six selected secondary findings — three at `S`, two at `1`, and one at `S+1`. Therefore its live projection is `6/6` Stage A (three vertical, two horizontal, one diagonal) and must rank ahead of a package with more but spaced findings.

@@ -583,19 +583,23 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
    const lexicon=await page.evaluate(()=>window.__lens.lexicon);
    const ranking=await page.evaluate(()=>window.__lens.ranking);
    assert.equal(lexicon.contract,'els_dynamic_candidate_lexicon_v1');
-   assert.deepEqual(ranking,{contract:'els_research_candidate_ranking_v1',order:'distance_then_governed_research_evidence_then_continuation'});
+   assert.deepEqual(ranking,{contract:'els_research_candidate_ranking_v1',geometryContract:'els_compact_geometry_priority_v1',order:'compact_stage_then_distance_then_governed_research_evidence_then_continuation'});
    assert.equal(lexicon.fallback,false,'the explicit scan loaded the canonical verse vocabulary');
    assert.ok(lexicon.counts.corpus>1000,'the scan is not limited to the historical 85-term seed');
    assert.ok(items.length>0,'the existing F03 window scan returns candidates');
    assert.ok(items.some(item=>item.lexiconSources?.includes('governed_core')),'priority sampling preserves governed vocabulary instead of filling the cap with arbitrary rare corpus forms');
-   assert.ok(items.every(item=>Array.isArray(item.continuations)&&item.continuations.length>0&&Number.isFinite(item.distance)&&item.distance>=0),'the simple result omits candidates without an on-line continuation');
+   assert.ok(items.every(item=>Array.isArray(item.continuations)&&item.continuations.length>0&&Number.isFinite(item.distance)&&item.distance>=0&&['A','B'].includes(item.geometry?.stage)),'the simple result omits candidates without an on-line continuation and declares its geometry stage');
    assert.ok(items.every(item=>!Object.keys(item).some(key=>['positions','start','skip','dir','rc'].includes(key))),'candidate coordinates never leave the canonical engine');
    assert.ok(items.every(item=>item.continuations.every(word=>Object.keys(word).sort().join(',')==='label,lexiconSources,term')),'continuations expose terms and bounded lexical provenance only');
    assert.ok(items.every(item=>item.ranking?.contract==='els_research_candidate_ranking_v1'&&Array.isArray(item.ranking.reasons)),'each candidate carries bounded explainable ranking evidence');
-   assert.deepEqual(items.map(item=>item.distance),items.map(item=>item.distance).toSorted((a,b)=>a-b),'all-matrix findings are ordered nearest first');
+   assert.deepEqual(items.map(item=>item.geometry.stage),items.map(item=>item.geometry.stage).toSorted(),'gapless stage A precedes spaced stage B');
+   for(const stage of ['A','B']){
+    const distances=items.filter(item=>item.geometry.stage===stage).map(item=>item.distance);
+    assert.deepEqual(distances,distances.toSorted((a,b)=>a-b),`distance remains primary inside stage ${stage}`);
+   }
    assert.equal(await page.locator('[data-experience-capability="els-all-matrix-findings"]').isVisible(),true);
    const candidateText=await page.locator('[data-experience-capability="els-all-matrix-findings"]').innerText();
-   assert.match(candidateText,/הקרובים תמיד ראשונים.*באותו מרחק/);
+   assert.match(candidateText,/שלב א׳.*ללא פער.*שלב ב׳/);
    assert.match(candidateText,/שפת התנ״ך.*המחקר הגלוי/);
    assert.match(candidateText,/אימות קנוני/);
    const candidateList=page.getByRole('region',{name:'ממצאים קרובים עם המשך, מהקרוב לרחוק'});
@@ -613,6 +617,32 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
    assert.equal((await identity(page)).axis.hitId,before.axis.hitId,'candidate verification keeps the saved primary axis');
    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'inspection and verification do not persist or edit the saved row');
   },{tier:'anon'});
+ });
+
+test('public saved research is offered before raw occurrences and uses the compact geometry contract',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const saved={id:'public-yom-mashiach',slug:'יום-משיח-בא-583',name:'יום משיח בא',term:'יום משיח בא',scope:'torah',skip:583,words:[
+    {t:'ישלח',sh:['583_-1_233650']},{t:'מלכ',sh:['1_1_232483']},{t:'מחכיתשפו',sh:['583_1_233063']},
+    {t:'לכפרעליכמ',sh:['1_1_236559']},{t:'הארחשכ',sh:['584_1_232474']},{t:'שופר',sh:['583_-1_235391']},
+   ]};
+   await page.locator('iframe').evaluate((frame,item)=>frame.contentWindow.postMessage({source:'sod-host',type:'saved-matrices',items:[item]},location.origin),saved);
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יום משיח');
+   await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='יוממשיח',{timeout:90000});
+   const setId=await page.evaluate(()=>window.__state.search.occurrences.id);
+   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok&&window.__lens?.setId===id,setId,{timeout:90000});
+   const triage=await page.evaluate(()=>window.__lens);
+   assert.equal(triage.bundleContract,'els_research_bundle_v1');
+   assert.equal(triage.geometryContract,'els_compact_geometry_priority_v1');
+   assert.equal(triage.savedBundles[0].compactFindings,6);
+   assert.equal(triage.savedBundles[0].spacedFindings,0);
+   assert.deepEqual(triage.savedBundles[0].relationCounts,{vertical:3,horizontal:2,diagonal:1});
+   const bundle=page.getByRole('link',{name:'פתח חבילת מחקר יום משיח בא'});
+   await bundle.waitFor({state:'visible'});
+   assert.match(await bundle.innerText(),/6\/6 ממצאים ללא פער/);
+   assert.equal(await bundle.getAttribute('href'),'/code?cipher=%D7%99%D7%95%D7%9D-%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%90-583');
+  },{loadGolden:false,tier:'anon'});
  });
 
 test('Research structures is explicit, prioritizes existing geometry rules and stays out of Classic',
@@ -644,18 +674,20 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
    assert.ok(liveProgress.some(progress=>progress.phase==='candidates'&&progress.total>0&&progress.completed>0),'candidate progress reports bounded completed/total work');
    assert.equal(liveProgress.at(-1).phase,'groups');
    const knownFindings=await page.evaluate(()=>window.__state.findings.filter(finding=>['התורה','אמיתית'].includes(finding.t)));
-   assert.deepEqual(result.ranking,{contract:'els_structural_priority_scan_v1',order:'parallel_then_intersection_then_existing_notable_then_research_evidence_then_distance'});
+   assert.deepEqual(result.ranking,{contract:'els_structural_priority_scan_v1',geometryContract:'els_compact_geometry_priority_v1',order:'compact_stage_then_relation_then_research_evidence_then_distance'});
    assert.deepEqual(result.structurePlan,{contract:'els_structure_scan_plan_v1',types:['parallel','motif','corridor','intersection','cluster'],minLength:4,maxLength:10,maxDistance:40,minMembers:2,maxGroups:12,maxMembers:10});
    assert.equal(result.coverage,'displayed-window');
    assert.ok(result.items.length>0,'the displayed golden window exposes structural candidates');
-   assert.ok(result.items.every(item=>['parallel-exact','parallel-diagonal','intersection','ordered-skip'].includes(item.relation)));
+   assert.ok(result.items.every(item=>['parallel-horizontal','parallel-exact','parallel-diagonal','parallel-spaced','intersection','ordered-skip'].includes(item.relation)));
    for(const term of ['התורה','אמיתית']){
     const parallel=result.items.find(item=>item.term===term);
     assert.ok(parallel,`Torah Kedosha exposes ${term} in the structural panel; findings ${JSON.stringify(knownFindings)}; got ${result.items.map(item=>item.term).join(', ')}`);
     assert.match(parallel.relation,/^parallel-/);
    }
+   assert.equal(result.items.find(item=>item.term==='אמיתית').geometry.stage,'A','S+1 is a gapless diagonal');
+   assert.equal(result.items.find(item=>item.term==='התורה').geometry.stage,'B','2S+2 remains available only after the compact stage');
    assert.ok(result.items.every(item=>!Object.keys(item).some(key=>['positions','start','rc'].includes(key))),'structural candidates do not expose matrix coordinates');
-   assert.ok(result.groups.some(group=>group.kind==='parallel'&&group.members.some(member=>member.term==='התורה')&&group.members.some(member=>member.term==='אמיתית')),'known parallels arrive as one actionable group');
+   assert.ok(result.groups.some(group=>group.kind==='parallel'&&group.members.some(member=>member.term==='אמיתית')&&!group.members.some(member=>member.term==='התורה')),'actionable parallel groups contain compact members and keep spaced findings in stage B');
    const motif=result.groups.find(group=>group.kind==='motif');
    assert.ok(motif,`the canonical golden window exposes at least one repeated motif: ${JSON.stringify(result.groups.map(group=>[group.kind,group.label,group.memberCount]))}`);
    assert.equal(motif.contract,'els_repeated_motif_projection_v1');
@@ -663,8 +695,7 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
    assert.deepEqual(motif.members.map(member=>member.occurrenceOrdinal),motif.members.map((_,index)=>index+1));
    assert.ok(result.groups.every(group=>['parallel','motif','corridor','intersection','cluster'].includes(group.kind)));
    assert.ok(result.groups.flatMap(group=>group.members).every(item=>!Object.keys(item).some(key=>['positions','start','rc','_center'].includes(key))),'grouped candidates keep geometry inside the canonical engine');
-   const priority={"parallel-exact":4,"parallel-diagonal":4,"intersection":2,"ordered-skip":1};
-   assert.deepEqual(result.items.map(item=>priority[item.relation]),result.items.map(item=>priority[item.relation]).toSorted((a,b)=>b-a),'parallel families precede crossings and existing notable skips');
+   assert.deepEqual(result.items.map(item=>item.geometry.stage),result.items.map(item=>item.geometry.stage).toSorted(),'all gapless structures precede every spaced structure');
    assert.equal(await page.getByRole('region',{name:'קבוצות מבניות לפי סדר עדיפות',exact:true}).isVisible(),true);
    assert.match(await panel.innerText(),/למה לבדוק:/);
    assert.match(await panel.innerText(),/הצעד הבא:/);
@@ -673,7 +704,7 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
    const motifCard=panel.locator(`[data-structure-kind="motif"]`).filter({hasText:motif.label}).first();
    if(!knownFindings.some(finding=>finding.t===motifTerm)){
     await motifCard.getByRole('button',{name:`אמת והצג את קבוצת ${motif.label}`,exact:true}).click();
-    await page.waitForFunction(term=>window.__state?.findings?.some(finding=>finding.t===term&&finding.hits?.some(hit=>hit.verified)),motifTerm);
+    await page.waitForFunction(term=>window.__state?.findings?.some(finding=>finding.t===term&&(finding.hits?.some(hit=>hit.verified)||finding.sourceHits?.some(hit=>hit.kind==='source-sequence'))),motifTerm);
    }
    await motifCard.getByRole('button',{name:`פתח את הממצא החוזר ${motifTerm}`,exact:true}).click();
    const motifIndex=await page.evaluate(term=>window.__state.findings.findIndex(finding=>finding.t===term),motifTerm);
@@ -2078,6 +2109,11 @@ test('native results: regular and crossed searches expose selectable results in 
    assert.equal(next.ordinal,81);
    await activate(page,'פתח מופע 81');await page.waitForFunction(id=>window.__state.axis.hitId===id,next.hitId);
    assert.ok((await page.locator('.els29-native-stage-column').boundingBox()).y<844,'choosing a mobile result reveals the matrix');
+   const activeBundle=page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible');
+   await activeBundle.waitFor({state:'visible'});
+   assert.match(await activeBundle.innerText(),/חבילת מחקר[\s\S]*מופע 81/,'one click keeps the ranked context beside the opened matrix');
+   await page.waitForFunction(id=>window.__hostLog.some(message=>message.type==='request-lens'&&message.lens==='matrix-candidates'&&message.target?.researchBundle===true&&message.target?.hitId===id),next.hitId);
+   assert.equal(await activeBundle.getByRole('button',{name:'חזור להמלצות ולכל התוצאות'}).count(),1);
    const selected=await identity(page);
    if(stale){await page.locator('iframe').evaluate((frame,value)=>frame.contentWindow.postMessage({source:'sod-host',type:'native-control',action:'occurrence-select',value},location.origin),stale);await page.waitForTimeout(100);assert.deepEqual(await identity(page),selected,'stale set cannot change the active corpus/result');}
    stale={setId:results.id,index:results.items[0].index,hitId:results.items[0].hitId};

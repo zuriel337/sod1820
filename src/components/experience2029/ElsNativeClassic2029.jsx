@@ -504,9 +504,11 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
     const items = Array.isArray(lensResult.items) ? [...lensResult.items] : [];
     if (lensResult.ranking?.contract !== "els_research_candidate_ranking_v1") items.sort((a, b) => Number(a.distance) - Number(b.distance) || String(a.term).localeCompare(String(b.term), "he"));
     const lexiconCounts = lensResult.lexicon?.counts;
+    const compactCount = items.filter((item) => item.geometry?.stage === "A").length;
     return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings">
       <strong>ממצאים קרובים עם המשך · {items.length}</strong>
-      <small>הקרובים תמיד ראשונים. באותו מרחק ניתנת קדימות לממצא מאומת, למחקר גלוי, למונח יסוד מבוקר וליותר המשכים; „אמת והוסף” עדיין מפעיל אימות קנוני.</small>
+      <small>שלב א׳ מציג קודם רצפים ללא פער בתצוגה — אופקי, אנכי, אלכסוני או חוצה. רק אחריו מופיע שלב ב׳ עם פערים; בתוך כל שלב הקרובים קודמים.</small>
+      <small>{compactCount} ממצאים בשלב א׳ · {Math.max(0, items.length - compactCount)} בשלב ב׳. זהו סדר בדיקה, לא ציון אמת; „אמת והוסף” עדיין מפעיל אימות קנוני.</small>
       <small>המילון נבנה בעת הלחיצה משפת התנ״ך, מהמחקר הגלוי ומהממצאים שכבר אומתו.</small>
       {lexiconCounts ? <small>{lexiconCounts.total} מונחים זמינים · {lexiconCounts.corpus} מהקורפוס · {lexiconCounts.research} מהמחקר{lensResult.lexicon?.fallback ? " · מקור הפסוקים לא נטען ולכן הרשימה חלקית" : ""}</small> : null}
       <div className="els29-native-line-words els29-native-candidate-list" role="region" tabIndex={0} aria-label="ממצאים קרובים עם המשך, מהקרוב לרחוק">
@@ -517,12 +519,13 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
           const added = Boolean(addedFinding);
           const label = item.label || item.term;
           const rankNote = Array.isArray(item.ranking?.reasons) ? item.ranking.reasons.slice(0, 2).join(" · ") : "";
-          return <div key={item.term} className="els29-native-line-word">
+          const geometryNote = item.geometry ? `${item.geometry.stage === "A" ? "שלב א׳" : "שלב ב׳"} · ${item.geometry.relationLabel}` : "";
+          return <div key={item.term} className="els29-native-line-word" data-geometry-stage={item.geometry?.stage || undefined}>
             {openHit ? <button type="button" className="els29-native-discovered-term"
               onClick={() => onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })}
               aria-label={`פתח את המשך הציר של ${label}`}>
-              <b>{label}</b><small>מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · לחצו להמשך הציר</small>
-            </button> : <div className="els29-native-discovered-term"><b>{label}</b><small>מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · {added ? "האימות עדיין נמשך" : `המשך: ${(item.continuations || []).slice(0, 3).map((word) => word.label || word.term).join(" · ")}`}</small></div>}
+              <b>{label}</b><small>{geometryNote ? `${geometryNote} · ` : ""}מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · לחצו להמשך הציר</small>
+            </button> : <div className="els29-native-discovered-term"><b>{label}</b><small>{geometryNote ? `${geometryNote} · ` : ""}מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · {added ? "האימות עדיין נמשך" : `המשך: ${(item.continuations || []).slice(0, 3).map((word) => word.label || word.term).join(" · ")}`}</small></div>}
             <button type="button" disabled={addingFinding || (added ? !openHit : findings.length >= 12)}
               onClick={() => openHit
                 ? onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })
@@ -615,6 +618,7 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
       <strong>{axisTerm}{axisSkip ? <> · דילוג <bdi>{axisSkip}</bdi></> : null}</strong>
       {result?.axis?.notable ? <small className="els29-native-structure-badge">דילוג מסודר: {result.axis.notable.tag}</small> : null}
       <p>בחרו פעם אחת מה לחפש. הסריקה מחזירה משפחות של מקבילות, מוטיבים חוזרים, מסדרונות, חציות ואשכולות — לא רשימת מילים שצריך לפתוח אחת־אחת.</p>
+      <small>שלב א׳ תמיד קודם: כל אות סמוכה לבאה בתצוגת המטריצה. מבנים עם פערים נשארים זמינים רק בשלב ב׳.</small>
       <small>זו תוכנית בדיקה בתוך החלון המוצג — לא הוכחה ולא ציון אמת. כל קבוצה עוברת אימות קנוני אחד לפני הצגה במטריצה.</small>
       <div className="els29-native-structure-presets" role="group" aria-label="תבניות סריקת מבנים">
         <button type="button" aria-pressed={plan.maxDistance === 12 && plan.minLength === 4} onClick={() => choosePreset("quick")}>מהיר</button>
@@ -655,7 +659,7 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
       <div className="els29-native-structure-summary">
         <strong>קבוצות שנמצאו · {groups.length}</strong>
         <small>{result.structurePlan?.minLength}–{result.structurePlan?.maxLength} אותיות · עד {result.structurePlan?.maxDistance} תאים · לפחות {result.structurePlan?.minMembers} ממצאים בקבוצה.</small>
-        <small>הסדר כאן נפרד מרשימת „הקרובים”: משפחת המבנה קודמת, אחריה עדות מחקרית קיימת, ורק אז מרחק.</small>
+        <small>הסדר משותף לכל סביבת המחקר: קודם קבוצות שלמות ללא פער, אחריהן קבוצות שלב ב׳; בתוך כל שלב משפחת המבנה, עדות קיימת ומרחק.</small>
       </div>
       <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="קבוצות מבניות לפי סדר עדיפות">
         {groups.map((group, index) => {
@@ -665,11 +669,11 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
           const addable = groupTerms.filter((term) => !existing.has(term)).slice(0, room);
           const allAdded = groupTerms.length > 0 && groupTerms.every((term) => existing.has(term));
           const guidance = STRUCTURE_GUIDANCE[group.kind] || STRUCTURE_GUIDANCE.cluster;
-          return <article key={`${group.kind}-${group.label}-${index}`} className="els29-native-structure-group" data-structure-kind={group.kind}>
-            <header><div><strong>{group.label}</strong><small>{group.description}</small></div><bdi>{members.length}</bdi></header>
+          return <article key={`${group.kind}-${group.label}-${index}`} className="els29-native-structure-group" data-structure-kind={group.kind} data-geometry-stage={group.stage || undefined}>
+            <header><div><strong>{group.label}</strong><small>{group.stage === "A" ? "שלב א׳ · כל חברי הקבוצה ללא פער בתצוגה" : `שלב ב׳ · ${group.compactMembers || 0}/${members.length} חברים ללא פער`}</small><small>{group.description}</small></div><bdi>{members.length}</bdi></header>
             <div className="els29-native-structure-members" aria-label={`ממצאי ${group.label}`}>
               {members.map((member, memberIndex) => <span key={`${member.term}-${member.role}-${member.occurrenceOrdinal || memberIndex}`} className={existing.has(member.term) ? "is-added" : ""}>
-                <b>{member.label || member.term}</b><small>{STRUCTURE_ROLE_LABEL[member.role] || "במבנה"}{member.occurrenceOrdinal ? ` ${member.occurrenceOrdinal}` : ""} · מרחק {member.distance}</small>
+                <b>{member.label || member.term}</b><small>{member.geometry?.stage === "A" ? "ללא פער" : "עם פער"} · {STRUCTURE_ROLE_LABEL[member.role] || "במבנה"}{member.occurrenceOrdinal ? ` ${member.occurrenceOrdinal}` : ""} · מרחק {member.distance}</small>
               </span>)}
             </div>
             <div className="els29-native-structure-guidance"><p><strong>למה לבדוק:</strong> {guidance.why}</p><p><strong>הצעד הבא:</strong> {guidance.next}</p></div>
@@ -764,11 +768,24 @@ function ResultTriageSummary({ result, pending }) {
   if (pending) return <div className="els29-native-triage-summary" role="status"><strong>ממיין את התוצאות…</strong><small>בודק המשך מדויק, מילים נוספות על אותו ציר וסימני מבנה. אפשר לעצור בלי לשנות את המטריצה.</small></div>;
   if (!result?.ok) return null;
   const recommended = (result.items || []).filter((item) => item.tier === "recommended");
-  return <div className="els29-native-triage-summary" data-els-result-triage={result.contract}>
+  return <div className="els29-native-triage-summary" data-els-result-triage={result.contract} data-els-geometry-contract={result.geometryContract || undefined}>
     <strong>{recommended.length ? `${recommended.length} תוצאות שכדאי לפתוח קודם` : "המיון הושלם"}</strong>
-    <small>זהו סדר עדיפות לבדיקה, לא ציון אמת. כל התוצאות נשארות זמינות.</small>
+    <small>רצף מדויק וגאומטריה ללא פער מקבלים קדימות. זהו סדר עדיפות לבדיקה, לא ציון אמת; כל התוצאות נשארות זמינות.</small>
     {result.lexicon?.fallback ? <small>שפת המקור לא נטענה במלואה ולכן בדיקת ההמשך חלקית.</small> : null}
   </div>;
+}
+
+function SavedResearchBundles({ result }) {
+  const bundles = Array.isArray(result?.savedBundles) ? result.savedBundles : [];
+  if (!bundles.length) return null;
+  return <section className="els29-native-saved-bundles" aria-label="צפני מחקר ציבוריים מוכנים" data-els-research-bundle={result.bundleContract}>
+    <header><strong>צפני מחקר ציבוריים שכבר מוכנים</strong><small>אותו מקור ציבורי, משוחזר מהעוגנים השמורים ומדורג לפי גאומטריה חיה.</small></header>
+    {bundles.map((bundle) => <a key={`${bundle.href || bundle.term}-${bundle.skip}`} href={bundle.href || undefined} aria-label={`פתח חבילת מחקר ${bundle.title}`}>
+      <b>{bundle.rank}. {bundle.title}</b>
+      <small>שלב א׳ · {bundle.compactFindings}/{bundle.selectedFindings} ממצאים ללא פער · דילוג ציר {bundle.skip}</small>
+      <small>{(bundle.reasons || []).join(" · ")}</small>
+    </a>)}
+  </section>;
 }
 
 function ResultTriageNote({ row }) {
@@ -779,6 +796,21 @@ function ResultTriageNote({ row }) {
     <small>{(row.reasons || []).slice(0, 3).join(" · ")}</small>
     {extensions.length ? <small>הרחבות: {[...new Set(extensions.map((item) => item.label || item.term))].slice(0, 3).join(" · ")}</small> : null}
   </>;
+}
+
+function ActiveResearchBundle({ bundle, lensResult, pending, onBack }) {
+  if (!bundle) return null;
+  const packageResult = lensResult?.lens === "matrix-candidates" && lensResult?.target?.researchBundle === true ? lensResult : null;
+  const items = packageResult?.items || [];
+  const compact = items.filter((item) => item.geometry?.stage === "A").length;
+  return <section className="els29-native-active-bundle" data-els-research-bundle="els_research_bundle_v1">
+    <header><span>חבילת מחקר · המלצה {bundle.rank || "—"}</span><strong>{bundle.label}</strong></header>
+    <small>{(bundle.reasons || []).slice(0, 3).join(" · ")}</small>
+    {pending ? <small role="status">המטריצה נפתחה; כעת נאספים הממצאים הקרובים והמשכי הצירים לאותה חבילה…</small>
+      : packageResult ? <small role="status">החבילה מוכנה: {compact} ממצאים בשלב א׳ ללא פער · {Math.max(0, items.length - compact)} בשלב ב׳.</small>
+        : <small>המטריצה פתוחה על העוגן המדויק. אפשר להמשיך בחיפוש ידני או לחזור לשלוש ההמלצות.</small>}
+    <button type="button" onClick={onBack}>חזור להמלצות ולכל התוצאות</button>
+  </section>;
 }
 
 function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onContinue, triageResult, triagePending }) {
@@ -797,6 +829,7 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
       {results.ordered?.completeThrough >= 2 ? <small>הושלמה סריקה בשני הכיוונים בדילוגים 2–{results.ordered.completeThrough}. הדילוגים שמעבר לכך עדיין חלקיים.</small> : null}
       {results.ordered?.error ? <small role="status">סריקת הדילוגים הקטנים לא הושלמה. אפשר להמשיך אותה כאן.</small> : null}
       <ResultTriageSummary result={triage} pending={triagePending} />
+      <SavedResearchBundles result={triage} />
       {!results.ordered || results.ordered.error || results.ordered.hasMore || results.ordered.max < 500 ? <button type="button" disabled={pending} onClick={() => onContinue(results.id)}>
         {results.ordered?.hasMore ? `המשך מופעים בדילוגים ${results.ordered.min}–${results.ordered.max}` : results.ordered?.error ? "נסה שוב סריקת דילוגים" : `המשך סריקה מסודרת עד דילוג ${Math.min(500,(results.ordered?.max || 0)+50)}`}
       </button> : <small>הסריקה המסודרת הושלמה עד דילוג 500. מעבר לכך מוצגים ממצאי הסריקה המוגבלת.</small>}
@@ -872,7 +905,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   </div>;
 }
 
-function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onDiscover, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, canReplacePrimary, journeyBusy, onPromote, openDetails }) {
+function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onDiscover, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, canReplacePrimary, journeyBusy, onPromote, openDetails, researchBundle, onBackToResults }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -939,6 +972,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
 
   return <div className="els29-native-unified-rail" hidden={activeTool === "results" || activeTool === "structures"}>
     <div ref={railScrollRef} className="els29-native-rail-scroll" hidden={activeTool === "research"}>
+      <ActiveResearchBundle bundle={researchBundle} lensResult={lensResult} pending={lensPending} onBack={onBackToResults} />
       <section ref={workspaceRef} className="els29-native-finding-workspace" aria-label="סביבת הממצא הנבחר">
         <header>
           <span>{selectionValid ? "ממצא נבחר" : "ציר המחקר הנוכחי"}</span>
@@ -1206,6 +1240,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   // keeping it separate lets the ranked list survive opening one result and returning to the rail.
   const [resultTriage, setResultTriage] = useState(null);
   const resultTriageKeyRef = useRef(null);
+  const [researchBundle, setResearchBundle] = useState(null);
+  const pendingResearchBundleRef = useRef(null);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
   const [selectedFinding, setSelectedFinding] = useState(null);
   const [findingMenu, setFindingMenu] = useState(null);
@@ -1217,6 +1253,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setSearchRequest(null);setFindingsRequest(null);setOperations({ search: null, findings: null });
     setSaveResult(null);
     setResultTriage(null);resultTriageKeyRef.current = null;
+    setResearchBundle(null);pendingResearchBundleRef.current = null;
     setDeleteConfirm(false);setDeletePending(false);setDeleteError(false);
     const view = matrix.positions?.view || {};
     setClassicGlyphs(view.classicGlyphs === true);setHeightExpanded(view.heightExpanded === true);
@@ -1226,6 +1263,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   useEffect(() => {
     if (!researchLoad) return;
     setResultTriage(null);resultTriageKeyRef.current = null;
+    setResearchBundle(null);pendingResearchBundleRef.current = null;
     setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);setSavedAxisReplacement(null);
   }, [researchLoad]);
 
@@ -1254,6 +1292,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setAccountRequired(false);
     setSavedAxisReplacement(null);
     setResultTriage(null);resultTriageKeyRef.current = null;
+    setResearchBundle(null);pendingResearchBundleRef.current = null;
     setClassicOpen(false);
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
@@ -1349,6 +1388,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     }
     engineStateRef.current = next;
     setEngineState(next);
+    const pendingBundle = pendingResearchBundleRef.current;
+    if (pendingBundle && next?.status === "ok" && next?.verification?.state === "MATCH"
+      && (!pendingBundle.expectedHitId || pendingBundle.expectedHitId === next?.axis?.hitId)) {
+      pendingResearchBundleRef.current = null;
+      setResearchBundle({ ...pendingBundle, axisHitId: next.axis.hitId, status: "ready" });
+      requestAnimationFrame(() => requestLens("matrix-candidates", { hitId: next.axis.hitId, researchBundle: true }));
+    }
     const pendingJourney = journeyPendingRef.current;
     const journeyComplete = pendingJourney?.kind === "return"
       ? journeySnapshotMatches(next, pendingJourney.snapshot)
@@ -1375,6 +1421,22 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       resetReadContext();
       ++findingsSeqRef.current;
       setOperations((current) => ({ ...current, findings: null }));
+      if (["occurrence-select", "meeting-select"].includes(action) && researchProfile && resultTriage?.ok) {
+        const key = action === "occurrence-select" ? value?.hitId : String(value?.index);
+        const row = resultTriage.items?.find((item) => String(item.key) === String(key));
+        const resultItem = action === "meeting-select"
+          ? engineStateRef.current?.search?.results?.items?.find((item) => item.index === value?.index)
+          : engineStateRef.current?.search?.occurrences?.items?.find((item) => item.hitId === value?.hitId);
+        if (row) {
+          const bundle = { contract: "els_research_bundle_v1", kind: resultTriage.kind, setId: resultTriage.setId, key: row.key,
+            rank: row.rank, label: action === "meeting-select" ? `${row.axis || resultItem?.axis || "מפגש"} · ${(row.terms || resultItem?.terms || []).join(" · ")}`
+              : `${engineStateRef.current?.termRaw || engineStateRef.current?.term || "ממצא"} · מופע ${row.ordinal || resultItem?.ordinal || ""}`,
+            reasons: row.reasons || [], expectedHitId: value?.hitId || resultItem?.hitId || null, status: "opening" };
+          pendingResearchBundleRef.current = bundle;setResearchBundle(bundle);
+        } else { pendingResearchBundleRef.current = null;setResearchBundle(null); }
+      } else if (["occurrence-prev", "occurrence-next"].includes(action)) {
+        pendingResearchBundleRef.current = null;setResearchBundle(null);
+      }
     }
     if (action === "finding-radius" || action === "finding-count") resetReadContext();
     setControlRequest({ action, ...(value === undefined ? {} : { value }), seq: ++controlSeqRef.current });
@@ -1899,6 +1961,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           journeyBusy={!!journeyPending}
           onPromote={promoteFinding}
           openDetails={findingDetailsRequest}
+          researchBundle={researchProfile ? researchBundle : null}
+          onBackToResults={() => { pendingResearchBundleRef.current = null;setResearchBundle(null);openTool("results"); }}
         />
         </ContextualInspector2029>
         </div>
