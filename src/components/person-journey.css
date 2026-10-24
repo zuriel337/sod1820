@@ -239,6 +239,30 @@
 .person-journey-family-scope footer button{min-height:36px;padding:7px 12px;font-size:12px}
 .person-journey-family-research-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 18px}
 .person-journey-family-research-actions small{color:var(--pj-soft);line-height:1.6}
+.person-journey-birth-timeline{
+  display:grid;
+  gap:14px;
+  margin:0 0 18px;
+  padding:16px;
+  border:1px solid var(--pj-line);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--pj-panel-soft) 72%,transparent);
+}
+.person-journey-birth-timeline>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.person-journey-birth-timeline>header>div{display:grid;gap:3px}
+.person-journey-birth-timeline h3{margin:0;font-size:20px}
+.person-journey-birth-timeline>header small,.person-journey-birth-timeline>header>span,.person-journey-birth-timeline>p,.person-journey-timeline-missing{color:var(--pj-soft);font-size:12px}
+.person-journey-birth-timeline>p{margin:0;line-height:1.7}
+.person-journey-birth-timeline ol{position:relative;display:grid;list-style:none;margin:0;padding:0}
+.person-journey-birth-timeline ol::before{content:"";position:absolute;inset-block:12px;inset-inline-start:94px;width:1px;background:var(--pj-line)}
+.person-journey-birth-timeline li{display:grid;grid-template-columns:82px 14px minmax(0,1fr);gap:8px;align-items:start;padding:10px 0}
+.person-journey-birth-timeline time{direction:ltr;unicode-bidi:isolate;color:var(--pj-gold);font-size:12px;font-weight:800;font-variant-numeric:tabular-nums}
+.person-journey-birth-timeline li>i{position:relative;z-index:1;width:10px;height:10px;margin-top:4px;border-radius:50%;background:var(--pj-accent-btn);box-shadow:0 0 0 4px color-mix(in srgb,var(--pj-accent) 12%,var(--pj-panel))}
+.person-journey-birth-timeline li>div{display:grid;grid-template-columns:auto 1fr;gap:2px 9px;align-items:baseline;min-width:0}
+.person-journey-birth-timeline li strong{overflow-wrap:anywhere}
+.person-journey-birth-timeline li span{color:var(--pj-soft);font-size:12px}
+.person-journey-birth-timeline li small{grid-column:1/-1;color:var(--pj-soft)}
+.person-journey-timeline-missing{line-height:1.6}
 .person-journey-family-research{
   display:grid;
   gap:14px;
@@ -472,6 +496,9 @@
   .person-journey-capability-nav,.person-journey-hint-list article{align-items:stretch;flex-direction:column}
   .person-journey-family-scope footer{align-items:stretch;flex-direction:column}
   .person-journey-family-research-head,.person-journey-family-research-actions{align-items:stretch;flex-direction:column}
+  .person-journey-birth-timeline>header{align-items:stretch;flex-direction:column}
+  .person-journey-birth-timeline ol::before{inset-inline-start:80px}
+  .person-journey-birth-timeline li{grid-template-columns:68px 12px minmax(0,1fr)}
   .person-journey-family-list article{align-items:flex-start;flex-direction:column}
   .person-journey-member-actions{justify-content:flex-start}
   .person-journey-section-head{align-items:flex-start}

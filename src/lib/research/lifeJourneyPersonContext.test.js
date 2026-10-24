@@ -7,7 +7,6 @@ import {
   buildLifeJourneyCapabilityPatch,
   buildLifeJourneyExactReturnPatch,
   buildLifeJourneyPersonContext,
-  buildLifeJourneyVerifiedElsPatch,
   lifeJourneyViewFromContext,
 } from "./lifeJourneyPersonContext.js";
 
@@ -50,7 +49,7 @@ test("an explicit Name Journey keeps private input in Context and exact-returns 
   assert.equal(restored.journey.kind, "research_path");
 });
 
-test("a verified ELS occurrence remains exact and returns to the same Person", () => {
+test("ELS stays parked outside the active Person journey", () => {
   const person = buildLifeJourneyPersonContext(PERSON_REF);
   const els = buildLifeJourneyCapabilityPatch(person, {
     personRef: PERSON_REF,
@@ -58,34 +57,7 @@ test("a verified ELS occurrence remains exact and returns to the same Person", (
     name: "שם בדיקה",
     view: "els",
   });
-  const started = continueResearchPathContext(els, {
-    kind: "els",
-    surface: "life_journey_2029",
-    href: LIFE_JOURNEY_2029_HREF,
-  }).context;
-  const exact = buildLifeJourneyVerifiedElsPatch(started, {
-    entityType: "els",
-    term: "שםבדיקה",
-    corpus: "torah",
-    corpusVersion: "v1",
-    occurrenceId: "els:torah:sample:7:1:120",
-    skip: 7,
-    dir: 1,
-    start: 120,
-  });
-  const occurrence = continueResearchPathContext(exact, {
-    kind: "els",
-    surface: "life_journey_2029",
-    href: LIFE_JOURNEY_2029_HREF,
-  }).context;
-
-  assert.equal(occurrence.selection.term, "שםבדיקה");
-  assert.equal(occurrence.selection.skip, 7);
-  assert.equal(occurrence.selection.dir, 1);
-  assert.equal(occurrence.selection.start, 120);
-  assert.equal(occurrence.dimensions.lifeJourneyElsVerified, true);
-
-  const restored = mergeResearchContext(occurrence, buildLifeJourneyExactReturnPatch(occurrence));
-  assert.equal(restored.subject.id, PERSON_REF);
-  assert.equal(lifeJourneyViewFromContext(restored, PERSON_REF), "person");
+  assert.equal(els, null);
+  assert.equal(person.subject.id, PERSON_REF);
+  assert.equal(lifeJourneyViewFromContext(person, PERSON_REF), "person");
 });

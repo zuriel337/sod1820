@@ -157,6 +157,11 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await familyScope.getByRole("button", { name: "בחר את כולם" }).click();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneySelectedMemberRefs?.length), 2);
     assert.equal(await childSelection.isChecked(), true);
+    const birthTimeline = family.locator('[data-experience-capability="life-journey-birth-timeline"]');
+    await birthTimeline.getByRole("heading", { name: "ציר אירועי היסוד" }).waitFor();
+    assert.deepEqual(await birthTimeline.locator("time").allTextContents(), ["15.02.1990", "04.03.2020"]);
+    assert.deepEqual(await birthTimeline.locator("li strong").allTextContents(), ["הורה בדיקה משפחה", "ילד בדיקה"]);
+    assert.equal(await birthTimeline.getByText("י״א בתשרי").count(), 2);
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "select-all remains navigation context only");
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "protocol" && call.name === "ילד בדיקה")), false, "family names are not researched by selection");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), false, "family dates are not researched by selection");

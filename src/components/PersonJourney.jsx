@@ -81,6 +81,41 @@ function memberResearchProfile(member) {
   });
 }
 
+function validIsoDate(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(clean(value));
+  if (!match) return null;
+  const [, year, month, day] = match;
+  const date = new Date(`${year}-${month}-${day}T12:00:00Z`);
+  if (Number.isNaN(date.getTime())
+    || date.getUTCFullYear() !== Number(year)
+    || date.getUTCMonth() + 1 !== Number(month)
+    || date.getUTCDate() !== Number(day)) return null;
+  return Object.freeze({ iso: `${year}-${month}-${day}`, display: `${day}.${month}.${year}` });
+}
+
+function familyBirthTimeline(members, selectedRefs) {
+  const selected = new Set(selectedRefs.map(clean).filter(Boolean));
+  return members.flatMap(member => {
+    const memberRef = clean(member?.source_ref);
+    if (!selected.has(memberRef)) return [];
+    const profile = memberResearchProfile(member);
+    const date = validIsoDate(profile.birthdate);
+    if (!date) return [];
+    let hebrewDate = null;
+    try {
+      hebrewDate = gregorianToHebrewDateRepresentation(date.iso)?.hebrew?.pretty || null;
+    } catch { /* An invalid historical value stays absent instead of inventing a date. */ }
+    return [Object.freeze({
+      id: `${memberRef}:birth`,
+      memberRef,
+      name: profile.fullName || "אדם ללא שם",
+      dateIso: date.iso,
+      dateDisplay: date.display,
+      hebrewDate,
+    })];
+  }).sort((a, b) => a.dateIso.localeCompare(b.dateIso) || a.name.localeCompare(b.name, "he"));
+}
+
 function familyResearchSummary(nameDocument, dateBundle, dateRepresentation) {
   const crossValues = [...new Set((Array.isArray(dateBundle?.findings) ? dateBundle.findings : [])
     .filter(finding => finding?.kind === "date_cross")
@@ -147,6 +182,16 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       .filter(ref => availableRefs.has(ref));
   }, [members, research.context, selfRef]);
   const selectedFamilyRefSet = useMemo(() => new Set(selectedFamilyRefs), [selectedFamilyRefs]);
+  const birthTimeline = useMemo(
+    () => familyBirthTimeline(members, selectedFamilyRefs),
+    [members, selectedFamilyRefs],
+  );
+  const selectedWithoutBirthdate = useMemo(() => {
+    const selected = new Set(selectedFamilyRefs);
+    return members
+      .filter(member => selected.has(clean(member.source_ref)) && !validIsoDate(memberResearchProfile(member).birthdate))
+      .map(member => clean(member.name) || "אדם ללא שם");
+  }, [members, selectedFamilyRefs]);
   const currentResearchSubjectId = research.context?.subject?.id || null;
   const currentLifeJourneyView = research.context?.dimensions?.lifeJourneyView || null;
   const currentLifeJourneyPersonRef = research.context?.dimensions?.lifeJourneyPersonRef || null;
@@ -631,6 +676,32 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
           </div>
         </footer>
       </fieldset> : null}
+
+      {selectedFamilyRefs.length ? <section
+        className="person-journey-birth-timeline"
+        data-experience-capability="life-journey-birth-timeline"
+        aria-labelledby="life-journey-birth-timeline-title"
+      >
+        <header>
+          <div><small>נגזר מה־Ledger הפרטי</small><h3 id="life-journey-birth-timeline-title">ציר אירועי היסוד</h3></div>
+          <span>{birthTimeline.length} אירועי לידה</span>
+        </header>
+        <p>סדר כרונולוגי של תאריכי הלידה שכבר שמרת עבור האנשים שנבחרו. זו תצוגה בלבד — לא נוצר Event store חדש.</p>
+        {birthTimeline.length ? <ol>
+          {birthTimeline.map(event => <li key={event.id}>
+            <time dateTime={event.dateIso} dir="ltr">{event.dateDisplay}</time>
+            <i aria-hidden="true" />
+            <div>
+              <strong>{event.name}</strong>
+              <span>לידה</span>
+              {event.hebrewDate ? <small>{event.hebrewDate}</small> : null}
+            </div>
+          </li>)}
+        </ol> : <div className="person-journey-empty">לאנשים שנבחרו עדיין אין תאריך לידה שמור.</div>}
+        {selectedWithoutBirthdate.length ? <small className="person-journey-timeline-missing">
+          ללא תאריך שמור: {selectedWithoutBirthdate.join(" · ")}
+        </small> : null}
+      </section> : null}
 
       {members.length ? <div className="person-journey-family-research-actions">
         <button
