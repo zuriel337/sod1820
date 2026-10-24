@@ -60,8 +60,9 @@ test("public focused finding uses only the public World reader and keeps exact r
     worldPageSource.indexOf("function AnchoredWorld"),
   );
   assert.match(landing, /activeView !== WORLD_LANDING_VIEW\.FINDING/);
-  assert.match(landing, /fetchWorldAllResearchProjection\(\)/);
-  assert.match(landing, /findWorldPublicResearchFinding\(projection, focusedPublicFindingId\)/);
+  assert.match(landing, /fetchWorldPublicFindingById\(focusedPublicFindingId\)/);
+  assert.doesNotMatch(landing, /fetchWorldAllResearchProjection\(\)/);
+  assert.match(landing, /requestId !== publicFindingRequest\.current/);
   assert.match(landing, /הממצא המבוקש אינו זמין לציבור/);
   assert.match(landing, /לא הוחלף בממצא אחר/);
   assert.match(worldPageSource, /canReturnToBeitMidrash[\s\S]*shell\.returnExact\(\)/);
