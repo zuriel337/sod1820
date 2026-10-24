@@ -5,8 +5,8 @@ import { spawnSync } from "node:child_process";
 import { buildRazielSurfaceContext } from "../src/lib/research/razielSurfaceContext.js";
 import { normalizeResearchContext } from "../src/lib/research/researchContext.js";
 import { withRazielSurfaceContext } from "../src/components/experience2029/razielSessionSeam2029.js";
+import { buildRazielSessionRequest } from "../src/lib/research/razielSessionRequest2029.js";
 import {
-  buildRazielSessionRequest,
   createInitialRazielSessionState,
   createRazielContextSnapshot,
   createRazielContinuationSnapshot,

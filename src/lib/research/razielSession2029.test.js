@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { askRaziel, supabase } from "../supabase.js";
+import { buildRazielSessionRequest } from "./razielSessionRequest2029.js";
 import {
-  buildRazielSessionRequest,
   createRazielContinuationSnapshot,
   createInitialRazielSessionState,
   createRazielContextSnapshot,
@@ -16,6 +16,9 @@ import {
 } from "./razielSession2029.js";
 
 const providerSource = readFileSync(new URL("./RazielSessionProvider2029.jsx", import.meta.url), "utf8");
+const sessionSource = readFileSync(new URL("./razielSession2029.js", import.meta.url), "utf8");
+const requestSource = readFileSync(new URL("./razielSessionRequest2029.js", import.meta.url), "utf8");
+const loaderSource = readFileSync(new URL("./razielSessionRequestLoader2029.js", import.meta.url), "utf8");
 
 test("continuity: desktop and mobile turns share one temporary thread", () => {
   const snapshot = createRazielContextSnapshot({ subject: { type: "post", id: "5107", label: "בחירות 631" } });
@@ -211,6 +214,57 @@ test("cost: request is bounded and the provider has one explicit transport bound
   const beforeSubmit = providerSource.slice(0, providerSource.indexOf("const submit"));
   assert.doesNotMatch(beforeSubmit, /transport\s*\(/);
   assert.match(providerSource, /if \(!mountedRef\.current\) return \{ ok: false, error: "session_unmounted" \}/);
+});
+
+test("performance: conversation resolution loads only after an explicit, synchronously captured submit", () => {
+  assert.doesNotMatch(sessionSource, /razielConversationResolver/);
+  assert.doesNotMatch(providerSource, /razielConversationResolver/);
+  assert.match(requestSource, /from "\.\/razielConversationResolver\.js"/);
+  assert.match(loaderSource, /\(\) => import\("\.\/razielSessionRequest2029\.js"\)/);
+
+  const submit = providerSource.slice(
+    providerSource.indexOf("const submit = useCallback"),
+    providerSource.indexOf("const setViewMode = useCallback"),
+  );
+  const captureState = submit.indexOf("const capturedState = stateRef.current");
+  const captureContext = submit.indexOf("const contextSnapshot = continuation?.contextSnapshot");
+  const claimFlight = submit.indexOf("inFlightRef.current = true");
+  const loadBuilder = submit.indexOf("await loadRequestBuilder()");
+  const startTurn = submit.indexOf('dispatch({ type: "turn_started"');
+  const callTransport = submit.indexOf("await transport(request)");
+
+  assert.ok(captureState >= 0 && captureState < captureContext);
+  assert.ok(captureContext < claimFlight && claimFlight < loadBuilder);
+  assert.ok(loadBuilder < startTurn && startTurn < callTransport);
+  assert.match(submit, /dispatch\(\{ type: "turn_preparing"/);
+  assert.match(submit, /error: "request_builder_unavailable"/);
+  assert.equal((submit.match(/await transport\(request\)/g) || []).length, 1);
+});
+
+test("preparing state locks the shared session without appending a partial user turn", () => {
+  const initial = {
+    ...createInitialRazielSessionState(),
+    thread: [{ role: "raziel", text: "תשובה קודמת" }],
+  };
+  const prepared = razielSessionReducer(initial, {
+    type: "turn_preparing",
+    contextSnapshot: { surface: "post" },
+    turn: { id: "pending", question: "שאלה", intelligenceLevel: "fast", again: false },
+  });
+
+  assert.equal(prepared.busy, true);
+  assert.equal(prepared.currentTurn.status, "preparing");
+  assert.strictEqual(prepared.thread, initial.thread);
+  assert.equal(prepared.announcement, "רזיאל מכין את המחקר…");
+
+  const failed = razielSessionReducer(prepared, {
+    type: "turn_failed",
+    completedAt: "later",
+    error: "request_builder_unavailable",
+  });
+  assert.strictEqual(failed.thread, initial.thread);
+  assert.equal(failed.currentTurn.error, "request_builder_unavailable");
+  assert.equal(failed.busy, false);
 });
 
 test("headless accessibility contract exposes Hebrew status announcements and human context", () => {

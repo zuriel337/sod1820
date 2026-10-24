@@ -3,8 +3,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { buildRazielSessionRequest } from "../src/lib/research/razielSessionRequest2029.js";
 import {
-  buildRazielSessionRequest,
   createRazielContinuationSnapshot,
   createInitialRazielSessionState,
   createRazielContextSnapshot,

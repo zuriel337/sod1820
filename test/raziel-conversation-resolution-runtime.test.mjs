@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { runAiAnalyze, toolAnswer } from "./helpers/ai-analyze-handler.mjs";
-import { buildRazielSessionRequest } from "../src/lib/research/razielSession2029.js";
+import { buildRazielSessionRequest } from "../src/lib/research/razielSessionRequest2029.js";
 
 const projection = (values, overrides = {}) => ({
   version: "raziel-conversation-resolver-v1",

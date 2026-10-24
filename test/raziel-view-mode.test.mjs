@@ -7,7 +7,8 @@ import { readFileSync } from "node:fs";
 
 import { runAiAnalyze, UID, USER_JWT } from "./helpers/ai-analyze-handler.mjs";
 import * as F from "./helpers/raziel-view-mode-fixtures.mjs";
-import { buildRazielSessionRequest, createInitialRazielSessionState } from "../src/lib/research/razielSession2029.js";
+import { createInitialRazielSessionState } from "../src/lib/research/razielSession2029.js";
+import { buildRazielSessionRequest } from "../src/lib/research/razielSessionRequest2029.js";
 import { RAZIEL_VIEW_MODES } from "../src/lib/research/razielViewMode2029.js";
 import { METHODS } from "../src/lib/gematria.js";
 

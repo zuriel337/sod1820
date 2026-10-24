@@ -11,12 +11,12 @@ import {
   razielViewModeLabel,
 } from "./razielViewMode2029.js";
 import {
-  buildRazielSessionRequest,
   createInitialRazielSessionState,
   createRazielProvenance,
   normalizeRazielResponse,
   razielSessionReducer,
 } from "./razielSession2029.js";
+import { buildRazielSessionRequest } from "./razielSessionRequest2029.js";
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const provider = read("./RazielSessionProvider2029.jsx");

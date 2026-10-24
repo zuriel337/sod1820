@@ -1,5 +1,6 @@
 // SOD1820 Raziel Route Grammar v1.
 
+import { RAZIEL_ROUTE_ACTION } from "./razielRouteAction.js";
 import { resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericResearchSubject } from "./razielSemanticIntentGate.js";
 //
 // Pure Research Strategy / Experience composition only.
@@ -14,12 +15,9 @@ import { resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericR
 
 export const RAZIEL_ROUTE_GRAMMAR_VERSION = "raziel-route-grammar-v1";
 
-export const RAZIEL_ROUTE_ACTION = Object.freeze({
-  UNDERSTAND: "understand",
-  RESEARCH: "research",
-  CONNECT: "connect",
-  CONTINUE: "continue",
-});
+// Compatibility export: callers that own the full grammar keep their existing import path, while
+// lightweight presentation validators can import the dependency-free identifier module directly.
+export { RAZIEL_ROUTE_ACTION };
 
 const ACTION_ORDER = Object.freeze([
   RAZIEL_ROUTE_ACTION.UNDERSTAND,

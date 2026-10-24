@@ -1,10 +1,6 @@
 // Temporary, in-memory Raziel conversation state for the 2029 shell.
 // ResearchProvider remains the only owner of saved items, collections, paths and research Context.
 
-import {
-  projectRazielConversationResolution,
-  resolveRazielConversationTurn,
-} from "./razielConversationResolver.js";
 import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
 import {
   RAZIEL_DEFAULT_VIEW_MODE,
@@ -39,6 +35,10 @@ function cleanInline(value, limit = 160) {
     .trim()
     .slice(0, limit);
   return cleaned || null;
+}
+
+export function normalizeRazielQuestion(value) {
+  return cleanInline(value, LIMITS.question);
 }
 
 function cleanAnswer(value) {
@@ -333,7 +333,7 @@ function snapshotSurfaceSemantic(snapshot) {
   return Object.keys(semantic).length ? semantic : null;
 }
 
-export function buildRazielSessionRequest({
+export function buildRazielSessionRequestBase({
   question,
   state,
   contextSnapshot,
@@ -345,12 +345,6 @@ export function buildRazielSessionRequest({
   const subject = cleanInline(question, LIMITS.question);
   if (!subject) return null;
   const surfaceSemantic = snapshotSurfaceSemantic(contextSnapshot);
-  const resolvedTurn = resolveRazielConversationTurn({
-    question: subject,
-    thread: state?.thread,
-    surfaceSemantic,
-  });
-  const conversationResolution = projectRazielConversationResolution(resolvedTurn);
   const transcript = buildRazielTranscript(state?.thread, again);
   const block = transcript ? `שיחה אחרונה:\n${transcript}` : "";
   const heading = cleanInline(contextSnapshot?.description, LIMITS.context) || "";
@@ -366,7 +360,6 @@ export function buildRazielSessionRequest({
     again: Boolean(again),
     intelligenceLevel: intelligenceLevel === "deep" ? "deep" : "fast",
     surfaceSemantic,
-    conversationResolution,
     researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
     // Separate axis from intelligenceLevel. Sent only when a non-general mode was chosen, so a general
     // request is identical to what it was before view modes existed.
@@ -457,6 +450,19 @@ export function razielSessionReducer(state, action) {
     case "view_mode_set": {
       const viewMode = normalizeRazielViewMode(action.viewMode);
       return state.viewMode === viewMode ? state : { ...state, viewMode };
+    }
+    case "turn_preparing": {
+      const { turn, contextSnapshot } = action;
+      return {
+        ...state,
+        busy: true,
+        currentTurn: { ...turn, status: "preparing" },
+        response: null,
+        contextSnapshot,
+        provenance: null,
+        status: "busy",
+        announcement: "רזיאל מכין את המחקר…",
+      };
     }
     case "turn_started": {
       const { turn, contextSnapshot } = action;
