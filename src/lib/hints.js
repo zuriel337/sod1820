@@ -43,7 +43,7 @@ export async function uploadHintImage(user, file) {
 }
 
 // ── קריאה: כל הרמזים של המשתמש (עדכני→ישן) ──
-export async function getMyHints(user) {
+export async function getMyHints(user, { fallbackLocal = true } = {}) {
   if (user && supabase) {
     const { data, error } = await supabase
       .from("research_items")
@@ -53,7 +53,12 @@ export async function getMyHints(user) {
       .order("created_at", { ascending: false })
       .limit(500);
     if (!error && data) return data.map(normalize);
+    if (!fallbackLocal) {
+      if (error) throw error;
+      return [];
+    }
   }
+  if (!fallbackLocal) return [];
   // אנונימי / כישלון רשת → מקומי
   return lsRead().map(normalize).sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
 }

@@ -1,0 +1,217 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { createRequire } from "node:module";
+import { existsSync } from "node:fs";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const root = fileURLToPath(new URL("..", import.meta.url));
+const req = createRequire(import.meta.url);
+let playwright;
+let vite;
+let reactPlugin;
+try {
+  playwright = req("playwright");
+  vite = await import(pathToFileURL(req.resolve("vite")).href);
+  reactPlugin = (await import(pathToFileURL(req.resolve("@vitejs/plugin-react")).href)).default;
+} catch { /* Optional outside browser-capable CI. */ }
+
+const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromium";
+const available = Boolean(playwright && vite && reactPlugin && existsSync(executablePath));
+
+function lifeJourneyFixturePlugin() {
+  const modules = new Map([
+    ["virtual:life-journey-auth.jsx", `const state={user:{id:"fixture-owner"},loading:false};export const useAuth=()=>state;`],
+    ["virtual:life-journey-tracking.js", `window.__telemetry=window.__telemetry||[];export const track=(...args)=>window.__telemetry.push(args);`],
+    ["virtual:life-journey-personal-date.js", `
+      export const gregorianToHebrewDateRepresentation=()=>({hebrew:{pretty:"י״א בתשרי"}});
+      export const createSupabasePersonalDateCrossProvider=()=>async()=>[];
+      export const runPersonalDateResearch=async()=>({findings:[]});
+    `],
+    ["virtual:life-journey-plan.js", `export const buildAccessDescriptor=()=>({scope:"private"});`],
+    ["virtual:life-journey-hints.js", `
+      window.__hintReads=window.__hintReads||[];
+      export async function getMyHints(user,options){window.__hintReads.push({user,options});return [{id:"hint-1",hint_type:"idea",number:73,title:"רמז קיים",source_url:"https://example.test/source"}];}
+    `],
+    ["virtual:life-journey-supabase.js", `
+      const PERSON_ID="11111111-1111-4111-8111-111111111111";
+      const LEDGER_KEY="life-journey-ledger-fixture";
+      const blank=()=>({members:[],relations:[]});
+      const read=()=>{try{return JSON.parse(localStorage.getItem(LEDGER_KEY)||"null")||blank();}catch{return blank();}};
+      const write=value=>localStorage.setItem(LEDGER_KEY,JSON.stringify(value));
+      window.__elsCalls=window.__elsCalls||[];window.__nameCalls=window.__nameCalls||[];
+      export const supabase={functions:{async invoke(name,{body}){
+        window.__elsCalls.push({name,body});
+        if(body.op==="page")return {data:{result:{contract:"els_search_page_v1",status:"OK",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},selection_protocol:"POST_HOC_EXPLORATORY",hits:[{occurrence_id:"els:fixture-torah:"+body.term+":7:1:120",skip:7,dir:1,start:120,end:150,positions:[120,127,134]}],completion:{executed:true,returned_hits:1,total_hits:1,has_more:false,truncated:false}}}};
+        if(body.op==="verify")return {data:{result:{contract:"els_occurrence_replay_v1",status:"OK",verification_state:"MATCH",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},occurrence:{occurrence_id:"els:fixture-torah:"+body.term+":"+body.skip+":"+body.dir+":"+body.start,skip:body.skip,dir:body.dir,start:body.start,positions:[body.start]}}}};
+        return {error:{message:"unsupported"}};
+      }}};
+      export async function getOrCreateMyPersonId(){return PERSON_ID;}
+      export async function listFamily(){return read();}
+      export async function upsertSelfProfile(personId,name,meta){const data=read(),source_ref="person:"+personId+":self";const row={source_ref,name,meta};const index=data.members.findIndex(item=>item.source_ref===source_ref);if(index<0)data.members.push(row);else data.members[index]=row;write(data);return row;}
+      export async function upsertFamilyMember(personId,sourceRef,name,meta){const data=read();const ref=sourceRef||"person:"+personId+":p:fixture-"+(data.members.filter(item=>item.source_ref.includes(":p:")).length+1);const row={source_ref:ref,name,meta};const index=data.members.findIndex(item=>item.source_ref===ref);if(index<0)data.members.push(row);else data.members[index]=row;write(data);return row;}
+      export async function upsertFamilyRelation(personId,parent_ref,child_ref,relation_type){const data=read();const row={source_ref:"relation:"+(data.relations.length+1),parent_ref,child_ref,relation_type};data.relations.push(row);write(data);return row;}
+      export async function getNameMulti(name,options){window.__nameCalls.push({kind:"multi",name,options});return {input:{components:{values:{full:73,parts:{שם:73}}}},combo:{tracks_with_results:1}};}
+      export async function getNameProtocol(name){window.__nameCalls.push({kind:"protocol",name});return {research_id:"fixture-name",input:{normalized:name,value:73},agents:[{output_key:"gematria",ran:true,ok:true,empty:false,ms:1,seq:1}],findings:{gematria:{regular:73}},provenance:{gematria:{fn:"fixture"}},scores:{depth:42},metatron:{headline:"סיכום בדיקה",follow_up:[]}};}
+    `],
+    ["virtual:life-journey-research.jsx", `
+      import React,{createContext,useContext,useMemo,useRef,useState} from "react";
+      import {mergeResearchContext,normalizeResearchContext} from "/src/lib/research/researchContext.js";
+      import {continueResearchPathContext} from "/src/lib/research/researchPathRuntime.js";
+      const KEY="life-journey-context-fixture";const Ctx=createContext(null);
+      const initial=()=>{try{return normalizeResearchContext(JSON.parse(sessionStorage.getItem(KEY)||"null"));}catch{return null;}};
+      export default function Provider({children}){const [context,setContextState]=useState(initial);const ref=useRef(context);
+        window.__lifeJourneyContext=context;
+        const commit=value=>{const next=normalizeResearchContext(value);ref.current=next;if(next)sessionStorage.setItem(KEY,JSON.stringify(next));else sessionStorage.removeItem(KEY);window.__lifeJourneyContext=next;setContextState(next);return true;};
+        const actions=useMemo(()=>({
+          setResearchContext:value=>commit(value),
+          updateResearchContext:patch=>commit(mergeResearchContext(ref.current,patch)),
+          continueResearchPath(options={}){const selected=options.context?mergeResearchContext(ref.current,options.context):ref.current;const result=continueResearchPathContext(selected,options);if(result.ok)commit(result.context);return result;},
+        }),[]);
+        return React.createElement(Ctx.Provider,{value:{...actions,context}},children);
+      }
+      export const useResearch=()=>useContext(Ctx)||{};
+    `],
+  ]);
+  const aliases = new Map([
+    ["AuthContext.jsx", "virtual:life-journey-auth.jsx"],
+    ["ResearchProvider.jsx", "virtual:life-journey-research.jsx"],
+    ["supabase.js", "virtual:life-journey-supabase.js"],
+    ["tracking.js", "virtual:life-journey-tracking.js"],
+    ["personalDateResearch.js", "virtual:life-journey-personal-date.js"],
+    ["researchPlanV2.js", "virtual:life-journey-plan.js"],
+    ["hints.js", "virtual:life-journey-hints.js"],
+  ]);
+  return {
+    name: "life-journey-person-context-browser-fixture",
+    enforce: "pre",
+    resolveId(source) {
+      if (modules.has(source)) return `\0${source}`;
+      for (const [suffix, id] of aliases) if (source.endsWith(suffix)) return `\0${id}`;
+      return null;
+    },
+    load(id) { return modules.get(id.replace(/^\0/, "")) ?? null; },
+    configureServer(server) {
+      server.middlewares.use(async (request, response, next) => {
+        if (!request.url?.startsWith("/2029/journey")) return next();
+        response.setHeader("Content-Type", "text/html; charset=utf-8");
+        const html = "<!doctype html><html lang=\"he\" dir=\"rtl\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>*{box-sizing:border-box}body{margin:0}</style><div id=\"root\"></div><script type=\"module\" src=\"/test/fixtures/life-journey-person-context-browser-entry.jsx\"></script></html>";
+        response.end(await server.transformIndexHtml(request.url, html));
+      });
+    },
+  };
+}
+
+test("Life Journey keeps Person context through Name and verified ELS across mobile/desktop themes", { skip: !available, timeout: 90_000 }, async () => {
+  const server = await vite.createServer({
+    root,
+    configFile: false,
+    plugins: [lifeJourneyFixturePlugin(), reactPlugin()],
+    server: { host: "127.0.0.1", port: 0 },
+  });
+  let browser;
+  try {
+    await server.listen();
+    const origin = `http://127.0.0.1:${server.httpServer.address().port}`;
+    browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox"] });
+    const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
+    const browserErrors = [];
+    const requestUrls = [];
+    page.on("pageerror", error => browserErrors.push(error.message));
+    page.on("console", message => { if (message.type() === "error" && !/Failed to load resource/.test(message.text())) browserErrors.push(message.text()); });
+    page.on("request", request => requestUrls.push(request.url()));
+
+    await page.goto(`${origin}/2029/journey`);
+    await page.getByRole("heading", { name: "מי אני" }).waitFor();
+    await page.getByLabel("שם פרטי").fill("הורה בדיקה");
+    await page.getByLabel("שם משפחה").fill("משפחה");
+    await page.getByLabel("תאריך לידה").first().fill("1990-02-15");
+    await page.getByRole("button", { name: "פתח את מסע החיים" }).click();
+    await page.getByRole("button", { name: "עדכן וחבר מחדש" }).waitFor();
+
+    const family = page.locator('[data-experience-capability="life-journey-family"]');
+    await family.getByLabel("שם בן/בת משפחה").fill("ילד בדיקה");
+    await family.getByLabel("תאריך לידה").fill("2020-03-04");
+    await family.getByLabel("הקשר אליי").selectOption("child_of_me");
+    await family.getByRole("button", { name: "הוסף למסע" }).click();
+    await family.locator("article strong", { hasText: "ילד בדיקה" }).waitFor();
+
+    const firstRef = await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyPersonRef);
+    assert.match(firstRef, /^person:11111111-1111-4111-8111-111111111111:self$/);
+    await page.reload();
+    await page.getByRole("button", { name: "עדכן וחבר מחדש" }).waitFor();
+    assert.equal(await page.getByLabel("שם פרטי").inputValue(), "הורה בדיקה");
+    assert.equal(await page.getByLabel("שם משפחה").inputValue(), "משפחה");
+    assert.equal(await page.getByLabel("תאריך לידה").first().inputValue(), "1990-02-15");
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyPersonRef), firstRef);
+
+    for (const theme of ["light", "parchment", "dark"]) {
+      for (const width of [390, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.evaluate(value => window.__setLifeJourneyTheme(value), theme);
+        await page.waitForFunction(value => document.querySelector("[data-fixture-theme]")?.dataset.fixtureTheme === value, theme);
+        const layout = await page.evaluate(() => ({
+          viewport: innerWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          panel: getComputedStyle(document.querySelector(".person-journey-panel")).backgroundColor,
+          ink: getComputedStyle(document.querySelector(".person-journey")).color,
+        }));
+        assert.ok(layout.scrollWidth <= layout.viewport + 1, `${theme} ${width}px must not overflow`);
+        assert.notEqual(layout.panel, "rgba(0, 0, 0, 0)");
+        assert.notEqual(layout.ink, "rgba(0, 0, 0, 0)");
+      }
+    }
+
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.getByRole("button", { name: "פתח מסע שם" }).click();
+    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    assert.equal(new URL(page.url()).search, "");
+    await page.reload();
+    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
+    await page.getByRole("heading", { name: "מי אני" }).waitFor();
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
+
+    const childCard = family.locator("article", { hasText: "ילד בדיקה" });
+    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.name === "ילד בדיקה")), false, "family is not searched automatically");
+    const elsCallsBefore = await page.evaluate(() => window.__elsCalls.length);
+    await childCard.getByRole("button", { name: "ELS", exact: true }).click();
+    await page.getByRole("heading", { name: "תוכנית ELS אוטומטית" }).waitFor();
+    assert.equal(await page.evaluate(() => window.__elsCalls.length), elsCallsBefore, "opening the plan does not scan automatically");
+    await page.getByRole("button", { name: "הפעל בדיקה מפורשת" }).click();
+    const verifyButton = page.getByRole("button", { name: /אמת ופתח/ }).first();
+    await verifyButton.waitFor();
+    await verifyButton.click();
+    await page.getByText("המופע אומת במנוע הקנוני").waitFor();
+    const exact = await page.evaluate(() => window.__lifeJourneyContext?.selection);
+    assert.equal(exact.entityType, "els");
+    assert.deepEqual([exact.corpus, exact.skip, exact.dir, exact.start], ["torah", 7, 1, 120]);
+    assert.equal(new URL(page.url()).search, "");
+
+    const verifyCount = await page.evaluate(() => window.__elsCalls.filter(call => call.body.op === "verify").length);
+    assert.equal(verifyCount, 1, "explicit selection verifies once");
+    await page.reload();
+    await page.getByText("המופע אומת במנוע הקנוני").waitFor();
+    const replayCalls = await page.evaluate(() => window.__elsCalls.filter(call => call.body.op === "verify"));
+    assert.equal(replayCalls.length, 1, "refresh performs one exact replay");
+    assert.deepEqual([replayCalls[0].body.scope, replayCalls[0].body.skip, replayCalls[0].body.dir, replayCalls[0].body.start], ["torah", 7, 1, 120]);
+    await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
+    await page.getByRole("heading", { name: "מי אני" }).waitFor();
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
+
+    const privacy = await page.evaluate(() => ({
+      telemetry: window.__telemetry,
+      ledger: JSON.parse(localStorage.getItem("life-journey-ledger-fixture")),
+      hintReads: window.__hintReads,
+    }));
+    assert.equal(JSON.stringify(privacy.telemetry).includes("הורה בדיקה"), false);
+    assert.equal(JSON.stringify(privacy.telemetry).includes("ילד בדיקה"), false);
+    assert.equal(privacy.ledger.members.length, 2);
+    assert.equal(privacy.ledger.relations.length, 1);
+    assert.ok(privacy.hintReads.every(call => call.options?.fallbackLocal === false));
+    assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("הורה בדיקה") || decodeURIComponent(url).includes("ילד בדיקה")), false);
+    assert.deepEqual(browserErrors, []);
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
