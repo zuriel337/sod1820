@@ -497,7 +497,7 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
   </div>;
 }
 
-function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, addingFinding, onHighlightVerse, verseHighlight }) {
+function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpenFinding, onExploreAxis, addingFinding, onHighlightVerse, verseHighlight }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
   if (lensResult.ok === false) return <p className="els29-native-muted">{lensResult.lens === "matrix-candidates" ? "אי אפשר לסרוק את המטריצה לפני שהציר הראשי אומת." : "המקור לא זמין לתא הזה במצב הנוכחי."}</p>;
 
@@ -506,39 +506,70 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onOpenFinding, add
     if (lensResult.ranking?.contract !== "els_research_candidate_ranking_v1") items.sort((a, b) => Number(a.distance) - Number(b.distance) || String(a.term).localeCompare(String(b.term), "he"));
     const lexiconCounts = lensResult.lexicon?.counts;
     const compactCount = items.filter((item) => item.geometry?.stage === "A").length;
+    const groups = Array.isArray(lensResult.groups) ? lensResult.groups : [];
+    const suggestion = lensResult.axisSuggestion;
+    const existing = new Set(findings.map((finding) => finding.t));
+    const sections = [
+      ["parallel", "מקבילות צמודות לציר"],
+      ["intersection", "חציות הנוגעות בציר"],
+      ["compact-nearby", "רצפים סמוכים ללא פער"],
+      ["spaced", "שלב ב׳ · מבנים עם פערים"],
+    ].map(([band, label]) => ({ band, label, items: items.filter((item) => item.neighborhood?.band === band) })).filter((section) => section.items.length);
+    const renderItem = (item) => {
+      const addedFinding = findings.find((finding) => finding.t === item.term);
+      const openHit = [...(addedFinding?.hits || []), ...(addedFinding?.sourceHits || [])]
+        .find((hit) => (hit.verified || hit.kind === "source-sequence") && hit.shown && hit.withinRadius !== false);
+      const added = Boolean(addedFinding);
+      const label = item.label || item.term;
+      const rankNote = Array.isArray(item.ranking?.reasons) ? item.ranking.reasons.slice(0, 3).join(" · ") : "";
+      const geometryNote = item.geometry ? `${item.geometry.stage === "A" ? "שלב א׳" : "שלב ב׳"} · ${item.geometry.relationLabel}` : "";
+      const continuations = (item.continuations || []).slice(0, 3).map((word) => word.label || word.term);
+      return <div key={`${item.neighborhood?.band || "candidate"}-${item.term}`} className="els29-native-line-word" data-geometry-stage={item.geometry?.stage || undefined}>
+        {openHit ? <button type="button" className="els29-native-discovered-term"
+          onClick={() => onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })}
+          aria-label={`פתח את המשך הציר של ${label}`}>
+          <b>{label}</b><small>{geometryNote ? `${geometryNote} · ` : ""}מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · לחצו להמשך הציר</small>
+        </button> : <div className="els29-native-discovered-term"><b>{label}</b><small>{geometryNote ? `${geometryNote} · ` : ""}מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · {added ? "האימות עדיין נמשך" : continuations.length ? `המשך אפשרי: ${continuations.join(" · ")}` : "ממצא מקומי; אינו תלוי בהמשך נוסף"}</small></div>}
+        <button type="button" disabled={addingFinding || (added ? !openHit : findings.length >= 12)}
+          onClick={() => openHit
+            ? onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })
+            : onAddLineFinding(item.term)}
+          aria-label={openHit ? `הצג את המשך הציר של ${label}` : `הוסף את ${label} מהמטריצה לממצאים`}>
+          {openHit ? "המשך הציר" : added ? "מאמת…" : "אמת והוסף"}
+        </button>
+      </div>;
+    };
     return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings">
-      <strong>ממצאים קרובים עם המשך · {items.length}</strong>
-      <small>שלב א׳ מציג קודם רצפים ללא פער בתצוגה — אופקי, אנכי, אלכסוני או חוצה. רק אחריו מופיע שלב ב׳ עם פערים; בתוך כל שלב הקרובים קודמים.</small>
+      <strong>חבילת סביבת הציר · {items.length}</strong>
+      <small>המערכת קוראת את המטריצה עצמה: קודם מקבילות, חציות ורצפים ללא פער; רק אחריהם מבנים עם פערים. ממצא מקומי אינו חייב מילה נוספת על הציר כדי להופיע.</small>
       <small>{compactCount} ממצאים בשלב א׳ · {Math.max(0, items.length - compactCount)} בשלב ב׳. זהו סדר בדיקה, לא ציון אמת; „אמת והוסף” עדיין מפעיל אימות קנוני.</small>
-      <small>המילון נבנה בעת הלחיצה משפת התנ״ך, מהמחקר הגלוי ומהממצאים שכבר אומתו.</small>
-      {lexiconCounts ? <small>{lexiconCounts.total} מונחים זמינים · {lexiconCounts.corpus} מהקורפוס · {lexiconCounts.research} מהמחקר{lensResult.lexicon?.fallback ? " · מקור הפסוקים לא נטען ולכן הרשימה חלקית" : ""}</small> : null}
-      <div className="els29-native-line-words els29-native-candidate-list" role="region" tabIndex={0} aria-label="ממצאים קרובים עם המשך, מהקרוב לרחוק">
-        {items.map((item) => {
-          const addedFinding = findings.find((finding) => finding.t === item.term);
-          const openHit = [...(addedFinding?.hits || []), ...(addedFinding?.sourceHits || [])]
-            .find((hit) => (hit.verified || hit.kind === "source-sequence") && hit.shown && hit.withinRadius !== false);
-          const added = Boolean(addedFinding);
-          const label = item.label || item.term;
-          const rankNote = Array.isArray(item.ranking?.reasons) ? item.ranking.reasons.slice(0, 2).join(" · ") : "";
-          const geometryNote = item.geometry ? `${item.geometry.stage === "A" ? "שלב א׳" : "שלב ב׳"} · ${item.geometry.relationLabel}` : "";
-          return <div key={item.term} className="els29-native-line-word" data-geometry-stage={item.geometry?.stage || undefined}>
-            {openHit ? <button type="button" className="els29-native-discovered-term"
-              onClick={() => onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })}
-              aria-label={`פתח את המשך הציר של ${label}`}>
-              <b>{label}</b><small>{geometryNote ? `${geometryNote} · ` : ""}מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · לחצו להמשך הציר</small>
-            </button> : <div className="els29-native-discovered-term"><b>{label}</b><small>{geometryNote ? `${geometryNote} · ` : ""}מרחק {item.distance} תאים{rankNote ? ` · ${rankNote}` : ""} · {added ? "האימות עדיין נמשך" : `המשך: ${(item.continuations || []).slice(0, 3).map((word) => word.label || word.term).join(" · ")}`}</small></div>}
-            <button type="button" disabled={addingFinding || (added ? !openHit : findings.length >= 12)}
-              onClick={() => openHit
-                ? onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })
-                : onAddLineFinding(item.term)}
-              aria-label={openHit ? `הצג את המשך הציר של ${label}` : `הוסף את ${label} מהמטריצה לממצאים`}>
-              {openHit ? "המשך הציר" : added ? "מאמת…" : "אמת והוסף"}
-            </button>
-          </div>;
+      <small>המילון נבנה בעת הלחיצה משפת התנ״ך, מביטויים בני שתיים–שלוש מילים, מתבניות שנים ומהמחקר שכבר אומת.</small>
+      {lexiconCounts ? <small>{lexiconCounts.total} מונחים זמינים · {lexiconCounts.corpus} מילים · {lexiconCounts.phrases || 0} ביטויים · {lexiconCounts.years || 0} שנות Basic · {lexiconCounts.research} מהמחקר{lensResult.lexicon?.fallback ? " · מקור הפסוקים לא נטען ולכן הרשימה חלקית" : ""}</small> : null}
+      {suggestion ? <section className="els29-native-axis-suggestion" aria-label="ציר מחקר סמוך מוצע">
+        <span>נמצא מרכז מחקר סמוך</span><strong>{suggestion.label || suggestion.term}</strong>
+        <small>{suggestion.reason} · מרחק {suggestion.distance} תאים. המעבר יתבצע רק בלחיצה ויישמר מסלול חזרה מדויק.</small>
+        <button type="button" disabled={addingFinding} onClick={() => onExploreAxis({ ...suggestion, axisHitId: lensResult.target?.hitId, band: suggestion.neighborhood?.band })}
+          aria-label={`חקור מתוך הציר המוצע ${suggestion.label || suggestion.term}`}>חקור מתוך הציר המוצע</button>
+      </section> : null}
+      {groups.length ? <section className="els29-native-neighborhood-groups" aria-label="חבילות מחקר מקומיות">
+        <strong>חבילות מקומיות שנמצאו</strong>
+        {groups.slice(0, 3).map((group, index) => {
+          const terms = [...new Set((group.members || []).map((member) => member.term))];
+          const addable = terms.filter((term) => !existing.has(term)).slice(0, Math.max(0, 12 - findings.length));
+          return <article key={`${group.kind}-${group.label}-${index}`}><div><b>{group.label}</b><small>{group.description} · {terms.length} ממצאים</small></div>
+            <button type="button" disabled={addingFinding || !addable.length} onClick={() => onAddGroup(addable)} aria-label={`אמת את חבילת ${group.label}`}>
+              {addable.length ? `אמת חבילה · ${addable.length}` : "כבר במטריצה"}
+            </button></article>;
         })}
+      </section> : null}
+      <div className="els29-native-line-words els29-native-candidate-list" role="region" tabIndex={0} aria-label="חבילת סביבת הציר לפי סדר עדיפות">
+        {sections.map((section) => <section key={section.band} className="els29-native-candidate-section" data-neighborhood-band={section.band}>
+          <header><strong>{section.label}</strong><small>{section.items.length}</small></header>
+          {section.items.map(renderItem)}
+        </section>)}
       </div>
-      {!items.length ? <p className="els29-native-muted">לא נמצאו בחלון הזה ממצאים קרובים שיש להם המשך ציר מוכר.</p> : null}
-      {lensResult.truncated ? <small>נבדקו {lensResult.scanned} מועמדים בעלי קדימות מחקרית מתוך {lensResult.available}. הרשימה המוצגת עדיין מסודרת מהקרוב לרחוק.</small> : null}
+      {!items.length ? <p className="els29-native-muted">לא נמצאו בחלון הזה מילים או מבנים מקומיים מוכרים. אפשר להגדיל את חלון המטריצה ולסרוק שוב.</p> : null}
+      {lensResult.truncated ? <small>נבדקו {lensResult.scanned} מועמדים מקומיים מתוך {lensResult.available}. מוצגת חבילה מוגבלת לפי מבנה וקרבה; היתר לא הוכרזו כחסרים.</small> : null}
       {findings.length >= 12 && items.some((item) => !findings.some((finding) => finding.t === item.term))
         ? <small>אפשר לראות את כל הרשימה, אך במטריצה פעילה נשמרים עד 12 ממצאים משניים. הסירו ממצא כדי לאמת ולהוסיף אחר.</small> : null}
     </div>;
@@ -747,10 +778,12 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
       ? progress?.phase === "verify" ? `מאמת יחד את יעדי המחקר${progress?.current ? ` · ${progress.current}` : ""}…` : "משחזר את ההמשכים המדויקים מתוך התוצאות…"
     : request.lens === "research-target"
       ? progress?.phase === "verify" ? "מאמת את הביטוי המורחב מול המנוע הקנוני…" : "משחזר את ההמשך המדויק מתוך התוצאה…"
+    : request.lens === "neighborhood-target"
+      ? progress?.phase === "verify" ? "מאמת את הציר הסמוך מול המנוע הקנוני…" : "משחזר את מרכז המחקר מתוך סביבת הציר…"
     : request.lens === "result-triage"
       ? progress?.completed ? "ממיין את כל התוצאות ומחפש המשכים מדויקים…" : "טוען את שפת התורה ומכין מיון תוצאות…"
     : request.lens === "matrix-candidates"
-      ? "בודק ממצאים קרובים ואת המשך הצירים…"
+      ? "בונה את חבילת סביבת הציר: מקבילות, חציות, ביטויים ושנים…"
       : request.lens === "line-context" && request.target?.scan
         ? "קורא את המשך הציר ומזהה מילים…"
         : ["verse-context", "letter-context"].includes(request.lens)
@@ -962,7 +995,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   </div>;
 }
 
-function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onDiscover, onSelectTarget, onAxisControl, onAddLineFinding, onFindingsChange, onFindingControl, researchProfile, canReplacePrimary, journeyBusy, onPromote, openDetails, researchBundle, onBackToResults }) {
+function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, selected, lensResult, lensPending, operation, searchPending, onCancel, onScan, onSource, onDiscover, onSelectTarget, onAxisControl, onAddLineFinding, onAddGroup, onExploreAxis, onFindingsChange, onFindingControl, researchProfile, canReplacePrimary, journeyBusy, onPromote, openDetails, researchBundle, onBackToResults }) {
   const palette = use2029Palette("research_lab");
   const colorChoices = findingColorChoices(palette);
   const findings = Array.isArray(state?.findings) ? state.findings : [];
@@ -1064,11 +1097,11 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
             {searchPending ? "ממתין לסיום החיפוש הראשי…" : operation?.status === "searching" ? "מחפש את המילה במטריצה…" : operation?.status === "verifying" ? "בודק את המופעים שנמצאו…" : operation?.status === "error" ? operation.message || "החיפוש לא הושלם. נסו שוב." : operation?.status === "done" ? "החיפוש הושלם. הממצאים מופיעים ברשימה." : "החיפוש מתבצע במטריצה הנוכחית."}
           </div>
           {researchProfile ? <>
-            <button type="button" className="els29-native-discover-all" aria-label="מצא ממצאים קרובים עם המשך"
+            <button type="button" className="els29-native-discover-all" aria-label="בנה חבילת סביבת הציר"
               disabled={!verified || pending || lensPending} onClick={() => onDiscover({ hitId: state.axis.hitId })}>
-              {lensPending ? "בודק המשכי צירים…" : "מצא קרובים עם המשך"}
+              {lensPending ? "בונה את סביבת הציר…" : "בנה חבילת סביבת הציר"}
             </button>
-            <small className="els29-native-discover-note">זמין לכל צופה במצב מחקר. מתחיל רק בלחיצה, מציג רק ממצאים עם המשך ואינו משנה את הצופן השמור.</small>
+            <small className="els29-native-discover-note">זמין לכל צופה במצב מחקר. מתחיל רק בלחיצה ומסדר מקבילות, חציות, רצפים, ביטויים ושנים סביב הציר — בלי לשנות את הצופן השמור.</small>
           </> : null}
           <label className="els29-native-radius">
             <span>מרחק מרבי מהציר הראשי</span>
@@ -1080,8 +1113,9 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           </label>
         </div>
         {lensPending || lensResult ? <details key={lensResult?.target?.nativeSeq || "pending"} className="els29-native-inline-inspection" open>
-          <summary>{lensResult?.lens === "matrix-candidates" ? "ממצאים קרובים עם המשך" : lensResult?.lens === "line-context" ? (lensResult.scan ? "תוצאות סריקת הציר" : "המשך הציר") : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
+          <summary>{lensResult?.lens === "matrix-candidates" ? "חבילת סביבת הציר" : lensResult?.lens === "line-context" ? (lensResult.scan ? "תוצאות סריקת הציר" : "המשך הציר") : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
           {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding}
+            onAddGroup={onAddGroup} onExploreAxis={onExploreAxis}
             onOpenFinding={(findingTarget) => { selectTarget(findingTarget.term, findingTarget.hitId);onScan(findingTarget); }} addingFinding={pending} />}
         </details> : null}
       </section>
@@ -1527,7 +1561,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const cancelLens = () => {
     if (lensRequest?.lens === "result-triage") resultTriageKeyRef.current = null;
-    if (lensRequest?.lens === "research-target") { pendingResearchBundleRef.current = null;setResearchBundle(null); }
+    if (["research-target", "neighborhood-target"].includes(lensRequest?.lens)) { pendingResearchBundleRef.current = null;setResearchBundle(null); }
     const seq = ++lensSeqRef.current;
     setLensRequest({ lens: "cancel", target: { nativeSeq: seq }, cancelled: true });
     setLensProgress(null);
@@ -1589,11 +1623,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       if (!result?.ok) resultTriageKeyRef.current = null;
       setResultTriage(result?.ok ? result : null);
       setLensResult(null);
-    } else if (result?.lens === "research-target") {
+    } else if (["research-target", "neighborhood-target"].includes(result?.lens)) {
       setLensResult(null);
       if (!result?.ok) {
         setResearchBundle(null);pendingResearchBundleRef.current = null;
-        setNotice(result?.reason === "target-changed" ? "התוצאות השתנו. הפעילו שוב את בדיקת ההמשך." : "המשך הציר לא עבר אימות קנוני ולכן לא נפתח.");
+        setNotice(result?.reason === "target-changed"
+          ? result?.lens === "neighborhood-target" ? "סביבת הציר השתנתה. בנו שוב את החבילה לפני מעבר לציר סמוך." : "התוצאות השתנו. הפעילו שוב את בדיקת ההמשך."
+          : result?.lens === "neighborhood-target" ? "הציר הסמוך לא עבר אימות קנוני ולכן לא נפתח." : "המשך הציר לא עבר אימות קנוני ולכן לא נפתח.");
       } else beginVerifiedResearchTarget(result);
     } else setLensResult(result);
     setLensProgress(null);
@@ -1609,6 +1645,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setResearchBundle({ contract: "els_research_bundle_v1", label: target.label || target.term, rank: target.rank, reasons: target.reasons || [], fromExtension: true, status: "verifying" });
     setNotice(`מאמת את הביטוי המורחב ${target.label || target.term} לפני פתיחת המטריצה…`);
     requestLens("research-target", target);
+  };
+  const openNeighborhoodAxis = (target) => {
+    if (!researchProfile || !target?.term || !target?.axisHitId || journeyPendingRef.current || lensPending) return;
+    const label = target.label || target.term;
+    setResearchBundle({ contract: "els_research_bundle_v1", label, rank: null,
+      reasons: [target.reason || "מרכז מחקר סמוך בחבילת סביבת הציר"], fromExtension: true, status: "verifying" });
+    setNotice(`מאמת את ${label} כציר מחקר סמוך לפני המעבר…`);
+    requestLens("neighborhood-target", target);
   };
   const compareResearchTargets = (targets) => {
     if (!researchProfile || !Array.isArray(targets) || targets.length < 2 || journeyPendingRef.current || lensPending) return;
@@ -2095,6 +2139,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onDiscover={(target) => requestLens("matrix-candidates", target)}
           onAxisControl={requestControl}
           onAddLineFinding={addLineFinding}
+          onAddGroup={addStructureGroup}
+          onExploreAxis={openNeighborhoodAxis}
           onFindingControl={requestFindingControl}
           onFindingsChange={requestFindingsChange}
           researchProfile={researchProfile}

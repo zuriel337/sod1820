@@ -136,3 +136,43 @@ Research result ordering, nearby-finding discovery and structural groups now sha
 Within each stage, distance and existing governed research evidence remain deterministic tie-breakers. Structural groups are Stage A only when every member is compact; mixed/spaced groups follow in Stage B. B12/B13, full 3D, Raziel wiring, `research_objects`, DB/RLS/permission changes and production migration remain outside this contract.
 
 Golden evidence: the public cipher `יום משיח בא` at `S=583` has six selected secondary findings — three at `S`, two at `1`, and one at `S+1`. Therefore its live projection is `6/6` Stage A (three vertical, two horizontal, one diagonal) and must rank ahead of a package with more but spaced findings.
+
+## Axis Neighborhood Research Bundle v1 — 24.10.2026
+
+`els_axis_neighborhood_bundle_v1` replaces the narrow “nearby findings with continuation” view with
+one matrix-local Research package. It is anchored to the currently verified primary occurrence and
+reads the displayed matrix itself; it does not depend on a matching saved cipher or require a local
+candidate to have another dictionary word continuing on its own path.
+
+The deterministic inspection order is:
+
+1. compact vertical/diagonal parallels to the primary axis;
+2. compact paths intersecting the primary axis;
+3. other compact horizontal or adjacent paths;
+4. spaced structures, retained as Stage B.
+
+Distance is the first tie-breaker inside each band. Existing verified/public research support may
+break later ties but cannot displace a closer structural band, so an old saved record is evidence,
+not a discovery prerequisite. Two- and three-word phrases are kept as a compact normalized index
+derived lazily from canonical verse text. A phrase candidate is materialized only when a word path
+already found inside the local matrix extends across its exact canonical word boundaries; the
+phrase index is not brute-force scanned as a second matrix search. Basic Hebrew-year forms are
+generated deterministically for the omitted-thousands range and labelled only as possible year
+patterns. Both remain candidates until the ordinary canonical verifier admits an exact occurrence.
+
+The same explicit action also projects bounded local structure groups. When at least three compact
+terms form a nearby cluster, the package may suggest one of them as a better local research axis.
+The suggestion is calculated automatically, but the matrix never moves automatically: one user
+action resolves the coordinate-free term again inside the canonical engine, verifies it, opens it
+through the existing C02/Journey seam, and preserves exact return. A stale or failed suggestion
+leaves the current matrix unchanged.
+
+Regular and cross-search results use this identical package after the user opens a result or
+meeting. There is no cross-specific candidate engine, ranking, state or store. The package remains
+Research-only, bounded, cancellable and visible-progress work; entering Research performs no scan.
+Classic stays available over the same engine and state. The boundary exports labels, declared
+bands, explanations and verified hit identity, never candidate cell arrays or start coordinates.
+
+This contract does not implement B12/B13, full 3D, `research_objects`, Raziel, schema/data changes,
+RLS/permissions, Production migrations or `decision_ledger`, and it does not make a significance,
+meaning or Truth claim.

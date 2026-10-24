@@ -563,7 +563,7 @@ test('clicking a matrix Finding opens an instant profile-aware action menu',
    assert.equal(await menu.getAttribute('data-els-finding-menu-profile'),'classic');
    assert.equal(await menu.getByRole('button',{name:'הפוך לציר ראשי',exact:true}).count(),0,'Classic keeps the action set compact');
    for(const label of ['המשך הציר','מקור ופסוק','פרטים ועריכה'])assert.equal(await menu.getByRole('button',{name:label,exact:true}).count(),1);
-   assert.equal(await button(page,'מצא ממצאים קרובים עם המשך').count(),0,'Classic does not expose bulk dynamic discovery');
+   assert.equal(await button(page,'בנה חבילת סביבת הציר').count(),0,'Classic does not expose bulk dynamic discovery');
    const box=await menu.boundingBox(),viewport=page.viewportSize();
    assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,'mobile sheet stays inside the viewport');
    await menu.getByRole('button',{name:'המשך הציר',exact:true}).click();
@@ -577,32 +577,37 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:390,height:844},async page=>{
    const before=await identity(page);
-   await activate(page,'מצא ממצאים קרובים עם המשך');
+   await activate(page,'בנה חבילת סביבת הציר');
    await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true);
    const items=await page.evaluate(()=>window.__lens.items);
    const lexicon=await page.evaluate(()=>window.__lens.lexicon);
    const ranking=await page.evaluate(()=>window.__lens.ranking);
    assert.equal(lexicon.contract,'els_dynamic_candidate_lexicon_v1');
-   assert.deepEqual(ranking,{contract:'els_research_candidate_ranking_v1',geometryContract:'els_compact_geometry_priority_v1',order:'compact_stage_then_distance_then_governed_research_evidence_then_continuation'});
+   assert.equal(await page.evaluate(()=>window.__lens.bundleContract),'els_axis_neighborhood_bundle_v1');
+   assert.deepEqual(ranking,{contract:'els_research_candidate_ranking_v1',geometryContract:'els_compact_geometry_priority_v1',order:'axis_neighborhood_band_then_distance_then_governed_research_evidence_then_continuation'});
    assert.equal(lexicon.fallback,false,'the explicit scan loaded the canonical verse vocabulary');
    assert.ok(lexicon.counts.corpus>1000,'the scan is not limited to the historical 85-term seed');
+   assert.ok(lexicon.counts.phrases>0,'canonical two- and three-word source phrases participate without a curated phrase store');
+   assert.ok(lexicon.counts.years>0,'Basic recognises generated Hebrew-year forms');
    assert.ok(items.length>0,'the existing F03 window scan returns candidates');
    assert.ok(items.some(item=>item.lexiconSources?.includes('governed_core')),'priority sampling preserves governed vocabulary instead of filling the cap with arbitrary rare corpus forms');
-   assert.ok(items.every(item=>Array.isArray(item.continuations)&&item.continuations.length>0&&Number.isFinite(item.distance)&&item.distance>=0&&['A','B'].includes(item.geometry?.stage)),'the simple result omits candidates without an on-line continuation and declares its geometry stage');
+   assert.ok(items.every(item=>Array.isArray(item.continuations)&&Number.isFinite(item.distance)&&item.distance>=0&&['A','B'].includes(item.geometry?.stage)
+     &&item.neighborhood?.contract==='els_axis_neighborhood_bundle_v1'),'a local candidate does not depend on another continuation and declares one shared neighborhood band');
    assert.ok(items.every(item=>!Object.keys(item).some(key=>['positions','start','skip','dir','rc'].includes(key))),'candidate coordinates never leave the canonical engine');
    assert.ok(items.every(item=>item.continuations.every(word=>Object.keys(word).sort().join(',')==='label,lexiconSources,term')),'continuations expose terms and bounded lexical provenance only');
    assert.ok(items.every(item=>item.ranking?.contract==='els_research_candidate_ranking_v1'&&Array.isArray(item.ranking.reasons)),'each candidate carries bounded explainable ranking evidence');
-   assert.deepEqual(items.map(item=>item.geometry.stage),items.map(item=>item.geometry.stage).toSorted(),'gapless stage A precedes spaced stage B');
-   for(const stage of ['A','B']){
-    const distances=items.filter(item=>item.geometry.stage===stage).map(item=>item.distance);
-    assert.deepEqual(distances,distances.toSorted((a,b)=>a-b),`distance remains primary inside stage ${stage}`);
+   const priorities=items.map(item=>item.neighborhood.priority);
+   assert.deepEqual(priorities,priorities.toSorted((a,b)=>b-a),'parallel, intersection, compact-nearby and spaced bands keep their declared order');
+   for(const band of ['parallel','intersection','compact-nearby','spaced']){
+    const distances=items.filter(item=>item.neighborhood.band===band).map(item=>item.distance);
+    assert.deepEqual(distances,distances.toSorted((a,b)=>a-b),`distance remains primary inside ${band}`);
    }
    assert.equal(await page.locator('[data-experience-capability="els-all-matrix-findings"]').isVisible(),true);
    const candidateText=await page.locator('[data-experience-capability="els-all-matrix-findings"]').innerText();
-   assert.match(candidateText,/שלב א׳.*ללא פער.*שלב ב׳/);
-   assert.match(candidateText,/שפת התנ״ך.*המחקר הגלוי/);
+   assert.match(candidateText,/שלב א׳[\s\S]*ללא פער[\s\S]*שלב ב׳/);
+   assert.match(candidateText,/משפת התנ״ך[\s\S]*מביטויים[\s\S]*שנות Basic/);
    assert.match(candidateText,/אימות קנוני/);
-   const candidateList=page.getByRole('region',{name:'ממצאים קרובים עם המשך, מהקרוב לרחוק'});
+   const candidateList=page.getByRole('region',{name:'חבילת סביבת הציר לפי סדר עדיפות'});
    const bounded=await candidateList.evaluate(node=>({clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
    assert.ok(bounded.clientHeight<=360&&bounded.scrollHeight>bounded.clientHeight,'the long scan list is bounded and internally scrollable on mobile');
    const existing=new Set(before.findings.map(finding=>finding.t));
@@ -1393,6 +1398,7 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await searchCross('משיח','גאולה',18);
    const multi=await page.evaluate(()=>window.__state);
    assert.ok(multi.search.zones>1,'fixture has multiple canonical meetings');
+   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.kind==='cross'&&window.__lens?.setId===id,multi.search.results.id,{timeout:90000});
    await activate(page,'מפגש הבא');await page.waitForFunction(()=>window.__state.search.zoneIndex===1);
    assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,multi.search.results.items[1].hitId);
    assert.ok((await page.evaluate(()=>window.__state)).findings.length>0,'meeting navigation retains the secondary terms');
@@ -1411,7 +1417,8 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    assert.ok(third);await activate(page,visibleLabel);await page.waitForFunction(index=>window.__state.search.zoneIndex===index,sortedIndex);
    assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,third.hitId,'sorting retains original exact meeting identity');
    await activate(page,'תוצאות');
-   const panBefore=await capture(page);await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('999999');
+   const minSkipFilter=page.getByLabel('דילוג מינימלי בתוצאות',{exact:true});await minSkipFilter.scrollIntoViewIfNeeded();
+   const panBefore=await capture(page);await minSkipFilter.fill('999999');
    assert.equal(await page.locator('.els29-native-result').count(),0);await expectStable(page,panBefore,'local results filter');
    await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('');
    // A saved compact matrix restores its search geometry, and cannot retain the previous cross list.
@@ -2071,8 +2078,8 @@ test('native presentation: verse words alternate from either entry and camera re
  });
 });
 
-test('native results: regular and crossed searches expose selectable results in Torah and Tanakh, with terminal recovery',
- {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+test('native results: regular and crossed searches expose selectable results in Torah and Tanakh',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:360000},async()=>{
  await withNative({width:390,height:844},async page=>{
   let stale;
   for(const [scope,label] of [['torah','תורה'],['tanakh','כל התנ״ך']]){
@@ -2131,14 +2138,21 @@ test('native results: regular and crossed searches expose selectable results in 
    const meeting=crossed.search.results.items.find(item=>item.available&&item.index!==crossed.search.zoneIndex);
    if(meeting){await activate(page,`פתח מפגש ${meeting.index+1}`);await page.waitForFunction(id=>window.__state.axis.hitId===id,meeting.hitId);}
   }
-  await activate(page,'הצלבה בין צירים');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('native search verification failure, retry and cancellation recover in one clean session',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יהוה');await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
   await page.evaluate(()=>window.__fixtureVerificationDenied=true);
   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורה');await activate(page,'חפש');
   await page.waitForFunction(()=>window.__operation?.status==='error');
   assert.equal(await page.locator('.els29-native-results:visible .els29-native-result').count(),0,'failure never displays the previous list as a new result');
   assert.ok((await page.locator('.els29-native-results:visible').innerText()).includes('האימות'));
   await page.evaluate(()=>window.__fixtureVerificationDenied=false);
-  await activate(page,'נסה שוב');await page.waitForFunction(()=>window.__operation?.status==='done');
+  await activate(page,'נסה שוב');await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
   assert.ok(await page.locator('.els29-native-results:visible .els29-native-result').count()>0);
   await page.evaluate(()=>window.__fixtureHoldVerification=true);
   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משה');await activate(page,'חפש');
@@ -2148,6 +2162,24 @@ test('native results: regular and crossed searches expose selectable results in 
   await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification();});
   await page.waitForTimeout(200);
   assert.equal(await page.locator('.els29-native-results:visible .els29-native-result').count(),0);
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('a crossed meeting opens the same axis-neighborhood research package and ranking as a regular result',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const crossed=await reliabilityCross(page,'צוריאל','פולייס');
+  await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.kind==='cross'&&window.__lens?.setId===id,crossed.search.results.id,{timeout:90000});
+  const meeting=crossed.search.results.items.find(item=>item.available&&item.index!==crossed.search.zoneIndex);
+  assert.ok(meeting,'the cross fixture exposes another available meeting');
+  await activate(page,`פתח מפגש ${meeting.index+1}`);
+  await page.waitForFunction(id=>window.__state.axis.hitId===id,meeting.hitId);
+  await page.waitForFunction(id=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.target?.researchBundle===true&&window.__lens?.target?.hitId===id,meeting.hitId,{timeout:90000});
+  const crossPackage=await page.evaluate(()=>window.__lens);
+  assert.equal(crossPackage.bundleContract,'els_axis_neighborhood_bundle_v1');
+  assert.equal(crossPackage.ranking.order,'axis_neighborhood_band_then_distance_then_governed_research_evidence_then_continuation');
+  assert.ok(crossPackage.items.length>0);
+  assert.ok(crossPackage.items.every(item=>item.neighborhood?.contract==='els_axis_neighborhood_bundle_v1'),'cross findings use the shared neighborhood bands, not a second ranking engine');
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
 });
 

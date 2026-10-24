@@ -106,7 +106,10 @@ test('every host message type is classified (coordinate-bearing ones are gated a
     'operation acknowledges a request and its status without transmitting candidate coordinates');
   assert.doesNotMatch(operation, /positions|hitId|start_index|start:|skip:/);
   const lensProgress = [...code.matchAll(/postHost\(\{type:"lens-progress"[^\n]+/g)].map((match) => match[0]);
-  assert.equal(lensProgress.length, 5, 'bounded candidate, structure and result-triage phases report UI-only progress');
+  const progressLenses = new Set(lensProgress.map((message) => message.match(/lens:"([^"]+)"/)?.[1]).filter(Boolean));
+  for (const lens of ['result-triage', 'research-target', 'research-target-compare', 'neighborhood-target', 'matrix-candidates', 'structure-priority']) {
+    assert.ok(progressLenses.has(lens), `${lens} reports bounded UI-only progress`);
+  }
   for (const message of lensProgress) {
     assert.match(message, /target:\{nativeSeq:target\.nativeSeq\}/,
       'lens progress correlates only the active UI request and does not repeat the selected occurrence identity');

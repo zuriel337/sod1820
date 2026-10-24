@@ -1139,3 +1139,53 @@ Deterministic level-9 measurements against branch base `58770e12` are:
 | Legacy standalone, raw / gzip | 2,546,028 / 1,651,274 B | 2,549,648 / 1,651,906 B | +3,620 / +632 B |
 | ELS 2029 route JS, raw / gzip | 224,473 / 65,574 B | 227,912 / 66,431 B | +3,439 / +857 B |
 | ELS 2029 route CSS, raw / gzip | 79,297 / 11,398 B | 80,551 / 11,577 B | +1,254 / +179 B |
+
+## 24. AXIS-NEIGHBORHOOD RESEARCH PACKAGE — 2026-10-24
+
+The existing F03/window candidate generator now feeds `els_axis_neighborhood_bundle_v1`, a bounded
+Research projection around the currently verified primary occurrence. This supersedes the UI's
+narrow “nearby findings with continuation” filter: an exact local word or phrase may enter the
+package on its own compact geometry and distance. A second same-path continuation is useful
+annotation, not an admission requirement.
+
+The package ranks compact parallels, compact intersections and other compact neighbours before
+spaced structures, with distance first inside each band. Existing verified/public research evidence
+is a later tie-breaker. The derived in-memory lexicon now also includes canonical two-/three-word
+verse phrases and generated Basic Hebrew-year forms; it does not add a vocabulary table, learning
+store or curated dependency on previously saved ciphers. Phrases are held in a compact normalized
+index and materialized only when an already-found local path extends across the exact canonical
+word boundaries; they are never brute-force rescanned as 100k+ candidate objects. Year labels are
+pattern recognition only, not date interpretation.
+
+The same scan composes the existing bounded structural groups and may return one coordinate-free
+suggestion when a compact cluster is centred a few rows from the current axis. Movement is never
+automatic. One explicit click causes the canonical engine to reconstruct and verify that exact
+candidate, then reuses C02/Journey for opening and exact return. Regular-result and cross-meeting
+selection enter this same package and ranking path; no cross-specific engine or state was added.
+
+Work remains explicit, chunked, cancellable and Research-only. Research entry and profile switching
+perform no scan, Classic remains unchanged, and candidate coordinates do not cross the engine/host
+boundary. The 85-capability disposition is unchanged: this extends F03 and the existing Research
+bundle rather than adding a capability. B12/B13, full 3D, `research_objects`, Raziel implementation,
+schema/data changes, RLS/permissions, Production migrations and `decision_ledger` remain outside the
+slice.
+
+Branch acceptance is green: the non-browser ELS suites completed **195 pass / 0 fail / 3 skip**
+(the unchanged executable SQL checks require local PostgreSQL); the complete native browser suite
+passed **48/48**, including the shared regular/cross package, exact continuation, comparison,
+desktop/mobile scrolling, privacy and all three palettes. Canonical cutover plus Advanced/FORMS
+browser acceptance passed **28/28**; the truth census passed **9/9** after requiring every lens
+progress message to carry only its temporary UI sequence, never term/hit/skip/coordinates. Both
+production build targets passed. The 2029 bundle budget passed **5/5** with entry **9 chunks /
+174.2 KB gzip**.
+
+Deterministic level-9 measurements against branch base `048f56b7` are:
+
+| Artifact | Before | Axis-neighborhood package | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,643,329 / 964,534 B | 1,655,917 / 967,923 B | +12,588 / +3,389 B |
+| Legacy standalone, raw / gzip | 2,549,648 / 1,651,883 B | 2,562,236 / 1,655,268 B | +12,588 / +3,385 B |
+| ELS 2029 route JS, raw / gzip | 227,912 / 66,431 B | 231,233 / 67,283 B | +3,321 / +852 B |
+| ELS 2029 route CSS, raw / gzip | 80,551 / 11,577 B | 83,036 / 11,798 B | +2,485 / +221 B |
+
+No Preview, Production, database, RLS, permission, merge or PR action was performed.

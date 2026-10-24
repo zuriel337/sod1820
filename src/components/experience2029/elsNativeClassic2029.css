@@ -653,6 +653,23 @@
 .els29-native-line-word button:disabled{opacity:.5;cursor:not-allowed}
 .els29-native-line-word small{font-size:var(--s29-type-micro);color:var(--s29-muted)}
 .els29-native-discovered-term{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;min-height:44px;min-width:0;padding:6px 9px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink)}
+.els29-native-axis-suggestion{display:grid;gap:5px;padding:10px;border:1px solid color-mix(in srgb,var(--s29-accent) 68%,var(--s29-line));border-radius:13px;background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel-soft))}
+.els29-native-axis-suggestion>span,.els29-native-axis-suggestion small{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.5}
+.els29-native-axis-suggestion>strong{font-size:var(--s29-type-lead);overflow-wrap:anywhere}
+.els29-native-axis-suggestion button{min-height:44px;padding:8px 10px;border:1px solid var(--s29-accent);border-radius:10px;background:var(--s29-accent-btn);color:var(--s29-on-accent);font:inherit;font-weight:800;cursor:pointer}
+.els29-native-axis-suggestion button:disabled{opacity:.5;cursor:wait}
+.els29-native-neighborhood-groups{display:grid;gap:6px;padding:9px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft)}
+.els29-native-neighborhood-groups>strong{font-size:var(--s29-type-small)}
+.els29-native-neighborhood-groups article{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:7px;padding:8px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel)}
+.els29-native-neighborhood-groups article>div{display:grid;gap:2px;min-width:0}
+.els29-native-neighborhood-groups article small{color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.45}
+.els29-native-neighborhood-groups article button{min-height:44px;padding:7px 9px;border:1px solid var(--s29-line-strong);border-radius:9px;background:var(--s29-panel-soft);color:var(--s29-ink);font:inherit;font-weight:800;cursor:pointer}
+.els29-native-neighborhood-groups article button:disabled{opacity:.5;cursor:not-allowed}
+.els29-native-candidate-section{display:grid;gap:6px;padding-block:4px 8px;border-block-end:1px solid var(--s29-line)}
+.els29-native-candidate-section:last-child{border-block-end:0}
+.els29-native-candidate-section>header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 2px}
+.els29-native-candidate-section>header strong{font-size:var(--s29-type-small)}
+.els29-native-candidate-section>header small{display:grid;place-items:center;min-width:26px;min-height:26px;border-radius:999px;background:var(--s29-panel-soft);color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:900}
 
 /* One Inspector: desktop column, inline mobile region, launched by the System Frame dock. */
 .els29-native-layout{grid-template-columns:minmax(0,1fr) 58px;align-items:start}
@@ -834,6 +851,8 @@
  .els29-native-structure-fields,.els29-native-structure-types{grid-template-columns:minmax(0,1fr)}
  .els29-native-structure-row{grid-template-columns:minmax(0,1fr)}
  .els29-native-structure-row>button{width:100%}
+ .els29-native-neighborhood-groups article{grid-template-columns:minmax(0,1fr)}
+ .els29-native-neighborhood-groups article button{width:100%}
  .els29-native-research-comparison article{grid-template-columns:auto minmax(0,1fr)}
  .els29-native-research-comparison article button{grid-column:1/-1;width:100%}
 }

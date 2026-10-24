@@ -24,8 +24,20 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
     DICT: ["אליהו", "אמת"],
     _corpusLexiconCache: { torah: null, tanakh: null },
     _corpusAxisWordCache: { torah: null, tanakh: null },
+    _corpusPhraseCache: { torah: null, tanakh: null },
     VCHAP: [[1], [1], [1], [1], [1], [1]],
     TORAH_BOOKS: 5,
+    HEBNUM: (number) => {
+      const units = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+      const tens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
+      const hundreds = ["", "ק", "ר", "ש", "ת"];
+      let value = number;
+      const century = Math.floor(value / 100);
+      value %= 100;
+      let result = century ? (century <= 4 ? hundreds[century] : hundreds[4].repeat(Math.floor(century / 4)) + (hundreds[century % 4] || "")) : "";
+      result += value === 15 ? "טו" : value === 16 ? "טז" : tens[Math.floor(value / 10)] + units[value % 10];
+      return result;
+    },
     st: { scope: "torah", raw: "משיח", words: [{ t: "יבואו" }] },
     CLOUD_MATRICES: [{ term: "תשעו", words: [{ t: "בית" }] }],
   });
@@ -33,6 +45,7 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
     normalization,
     source("addCandidateLexiconTerm"),
     source("buildCorpusCandidateLexicons"),
+    source("addBasicHebrewYears"),
     source("researchCandidateLexicon"),
     "buildCorpusCandidateLexicons(['בא יבואו יבואו אליהו','ארבעה','','','','מחוץ']);",
     "this.result=researchCandidateLexicon();",
@@ -44,6 +57,11 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
   assert.ok(byTerm.get("יבואו").sources.includes("verified_research"));
   assert.ok(byTerm.get("אליהו").sources.includes("governed_core"));
   assert.ok(byTerm.get("תשעו").sources.includes("visible_saved_research"));
+  assert.ok(byTerm.get("תשעו").sources.includes("basic_hebrew_year"));
+  assert.ok(byTerm.get("תשעו").classifications.some((item) => item.kind === "hebrew-year" && item.value === 5776));
+  const phraseCode = vm.runInContext("_corpusPhraseCache.torah.get('באיבואו')", context);
+  assert.equal((phraseCode >> 10) & 3, 2, "canonical phrases stay in the compact phrase index");
+  assert.equal(phraseCode & 31, 2, "the compact index preserves the first word boundary");
   assert.ok(byTerm.get("בית").sources.includes("visible_saved_research"));
   assert.equal(byTerm.has("מחוצ"), false, "Torah scope excludes words that occur only after the five Torah books");
   assert.equal(byTerm.has("אמת"), true, "the historical governed seed remains available");
@@ -57,12 +75,37 @@ test("dynamic vocabulary remains candidate-only and is loaded only by explicit s
   assert.match(template, /if\(target\.scan===true\)dynamicCandidateLexicon\(\)\.then\(publish\);else publish\(null\)/);
   assert.match(template, /d\.lens==="matrix-candidates"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(async lexicon=>/);
   assert.match(template, /d\.lens==="structure-priority"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(async lexicon=>/);
+  assert.match(template, /d\.lens==="structure-priority"[\s\S]*?eligibleLexicon=lexicon\.entries\.filter[\s\S]*?deriveLocalPhraseCandidates\(candidatesBaseRaw,structuralAxis,lexicon\.phraseIndex\)/,
+    "the structure tool shares local phrase extension instead of brute-force phrase scanning");
   assert.match(template, /scanCandidatesBatched\([\s\S]*?type:"lens-progress",lens:"structure-priority"/);
   assert.doesNotMatch(template.slice(0, template.indexOf('window.addEventListener("message"')), /dynamicCandidateLexicon\(\)\.then/);
   assert.match(template, /status:"CANDIDATE",provenanceSource:lexicon\.contract/);
   assert.match(template, /adding a term[\s\S]*canonical verification before it becomes a Finding/);
   assert.match(template, /d\.lens==="result-triage"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(async lexicon=>/);
   assert.match(template, /RESULT_TRIAGE_CONTRACT="els_result_triage_v1"/);
+});
+
+test("axis-neighborhood discovery is explicit, bounded and independent of a continuation word", () => {
+  assert.match(template, /AXIS_NEIGHBORHOOD_CONTRACT="els_axis_neighborhood_bundle_v1"/);
+  const start = template.indexOf('d.lens==="matrix-candidates"');
+  const end = template.indexOf('d.lens==="structure-priority"', start);
+  assert.ok(start >= 0 && end > start);
+  const block = template.slice(start, end);
+  assert.match(block, /compactPool=available\.filter[\s\S]*?slice\(0,96\)/);
+  assert.match(block, /spacedPool=available\.filter[\s\S]*?slice\(0,12\)/);
+  assert.match(block, /includeOccurrences:true,maxOccurrences:10/);
+  assert.match(block, /deriveLocalPhraseCandidates\(availableBaseRaw,structuralAxis,lexicon\.phraseIndex\)/);
+  assert.doesNotMatch(block, /scanCandidatesBatched\(lexicon\.phraseIndex/, "the compact phrase index is never brute-force scanned");
+  assert.doesNotMatch(block, /if\(!continuation\.words\.length\)return null/);
+  assert.match(block, /bundleContract:AXIS_NEIGHBORHOOD_CONTRACT/);
+  assert.match(block, /axisSuggestion=chooseAxisNeighborhoodSuggestion/);
+
+  const targetStart = template.indexOf('d.lens==="neighborhood-target"');
+  const targetEnd = template.indexOf('d.lens==="matrix-candidates"', targetStart);
+  const targetBlock = template.slice(targetStart, targetEnd);
+  assert.match(targetBlock, /resolveAxisNeighborhoodTarget\(target,lexicon\.entries\)/);
+  assert.match(targetBlock, /promoteVerified\([\s\S]*?policy:"AXIS_NEIGHBORHOOD_TARGET_V1"/);
+  assert.doesNotMatch(targetBlock, /(?:positions|\bstart\b|\bp0\b|\bp1\b)\s*:/, "the suggested-axis response remains coordinate-free");
 });
 
 test("result triage extends a short finding only through immediately adjacent cells on the same path", () => {
@@ -259,9 +302,9 @@ test("Research candidate ranking keeps compact geometry first and distance first
     CANDIDATE_RANKING_CONTRACT: "els_research_candidate_ranking_v1",
     norm: value => String(value),
     items: [
-      { term: "רחוקצמוד", distance: 2, geometry: { compact: true, stage: "A", relationLabel: "אלכסון ללא פער" }, lexiconSources: ["verified_research"], lexiconSupport: 1, continuations: [{}, {}, {}] },
-      { term: "קרובעםפער", distance: 1, geometry: { compact: false, stage: "B", relationLabel: "מבנה עם פערים" }, lexiconSources: ["corpus_native"], lexiconSupport: 9, continuations: [{}] },
-      { term: "קרובצמוד", distance: 1, geometry: { compact: true, stage: "A", relationLabel: "מקבילה אנכית ללא פער" }, lexiconSources: ["visible_saved_research", "corpus_native"], lexiconSupport: 2, continuations: [{}, {}] },
+      { term: "רחוקצמוד", distance: 2, geometry: { compact: true, stage: "A", relationLabel: "אלכסון ללא פער" }, neighborhood: { band: "parallel", priority: 500 }, lexiconSources: ["verified_research"], lexiconSupport: 1, continuations: [{}, {}, {}] },
+      { term: "קרובעםפער", distance: 1, geometry: { compact: false, stage: "B", relationLabel: "מבנה עם פערים" }, neighborhood: { band: "spaced", priority: 100 }, lexiconSources: ["corpus_native"], lexiconSupport: 9, continuations: [{}] },
+      { term: "קרובצמוד", distance: 1, geometry: { compact: true, stage: "A", relationLabel: "מקבילה אנכית ללא פער" }, neighborhood: { band: "parallel", priority: 500 }, lexiconSources: ["visible_saved_research", "corpus_native"], lexiconSupport: 2, continuations: [{}, {}] },
     ],
   });
   vm.runInContext(`${source("candidateLexiconPriority")}\n${source("rankResearchCandidateItems")}\nthis.result=rankResearchCandidateItems(items);`, context);
@@ -269,6 +312,33 @@ test("Research candidate ranking keeps compact geometry first and distance first
   assert.deepEqual(rows.map(row => row.term), ["קרובצמוד", "רחוקצמוד", "קרובעםפער"], "a spaced candidate cannot displace a compact finding even when it is closer");
   assert.equal(rows[0].ranking.contract, "els_research_candidate_ranking_v1");
   assert.deepEqual(rows[0].ranking.reasons, ["שלב א׳ · מקבילה אנכית ללא פער", "מופיע במחקר גלוי", "2 המשכים על הציר"]);
+});
+
+test("canonical source phrases extend words already found in the local matrix instead of brute-force rescanning every phrase", () => {
+  const letters = Array(40).fill("א");
+  [..."ישלחמלאכו"].forEach((letter, index) => { letters[10 + index] = letter; });
+  const axis = { skip: 10, positions: [1, 11, 21], _structuralCells: new Set([1, 11, 21]) };
+  const occurrence = { term: "ישלח", skip: 1, dir: 1, start: 10, positions: [10, 11, 12, 13], distance: 0 };
+  const context = vm.createContext({
+    T: letters,
+    norm: value => String(value || "").replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]),
+    scopeN: () => letters.length,
+    blockOf: () => ({ S: 10, c0: 0, cw: 10, r0: 0, r1: 3 }),
+    gridStep: (skip, width) => { const rows = Math.round(skip / width); return Math.max(Math.abs(rows), Math.abs(skip - rows * width)) || 1; },
+    COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1",
+    AXIS_NEIGHBORHOOD_CONTRACT: "els_axis_neighborhood_bundle_v1",
+    candidates: [{ ...occurrence, occurrences: [occurrence] }],
+    axis,
+  });
+  vm.runInContext([
+    source("distanceToAnchors"), source("compactGeometryMeta"), source("axisNeighborhoodMeta"), source("deriveLocalPhraseCandidates"),
+    "this.phraseIndex=new Map([['ישלחמלאכו',(2<<10)|(5<<5)|4]]);",
+    "this.result=deriveLocalPhraseCandidates(candidates,axis,phraseIndex);",
+  ].join("\n"), context);
+  const [phrase] = JSON.parse(JSON.stringify(context.result));
+  assert.equal(phrase.term, "ישלח מלאכו");
+  assert.equal(phrase.distance, 0);
+  assert.ok(phrase.lexiconSources.includes("corpus_native_phrase"));
 });
 
 test("יום משיח בא is a six-of-six compact public research bundle", () => {

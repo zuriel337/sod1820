@@ -1581,49 +1581,72 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // לא מנוע, store או אמת נוספים; כל מופע עדיין עובר אימות ELS קנוני לפני שהוא Finding.
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
   const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",
+    AXIS_NEIGHBORHOOD_CONTRACT="els_axis_neighborhood_bundle_v1",
     RESULT_TRIAGE_CONTRACT="els_result_triage_v1",RESEARCH_BUNDLE_CONTRACT="els_research_bundle_v1",
     RESEARCH_BUNDLE_COMPARISON_CONTRACT="els_research_bundle_comparison_v1",
     COMPACT_GEOMETRY_CONTRACT="els_compact_geometry_priority_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",
-    _corpusLexiconCache={torah:null,tanakh:null},_corpusAxisWordCache={torah:null,tanakh:null},_lineExtensionIndexCache=new WeakMap();
-  function addCandidateLexiconTerm(map,raw,source,support=1,minLength=3){
+    _corpusLexiconCache={torah:null,tanakh:null},_corpusAxisWordCache={torah:null,tanakh:null},_corpusPhraseCache={torah:null,tanakh:null},_lineExtensionIndexCache=new WeakMap();
+  function addCandidateLexiconTerm(map,raw,source,support=1,minLength=3,classification=null){
     const label=String(raw||"").trim().replace(/\s+/g," "),term=norm(label);
     if(term.length<minLength||term.length>24)return;
-    const prior=map.get(term);
-    if(prior){prior.support+=Math.max(1,support||1);prior.sources.add(source);return;}
-    map.set(term,{term,label,support:Math.max(1,support||1),sources:new Set([source])});
+    const classifications=(Array.isArray(classification)?classification:classification?[classification]:[]).filter(Boolean),prior=map.get(term);
+    if(prior){prior.support+=Math.max(1,support||1);prior.sources.add(source);
+      for(const item of classifications)if(!prior.classifications.some(current=>current.kind===item.kind&&current.value===item.value))prior.classifications.push(item);return;}
+    map.set(term,{term,label,support:Math.max(1,support||1),sources:new Set([source]),classifications:[...classifications]});
   }
   function buildCorpusCandidateLexicons(rows){
-    const torah=new Map(),tanakh=new Map(),torahAxisWords=new Map(),tanakhAxisWords=new Map(),torahVerseCount=VCHAP.slice(0,TORAH_BOOKS).reduce((n,book)=>n+book.reduce((a,b)=>a+b,0),0);
+    const torah=new Map(),tanakh=new Map(),torahAxisWords=new Map(),tanakhAxisWords=new Map(),torahPhrases=new Map(),tanakhPhrases=new Map(),torahVerseCount=VCHAP.slice(0,TORAH_BOOKS).reduce((n,book)=>n+book.reduce((a,b)=>a+b,0),0);
     for(let vi=0;vi<rows.length;vi++){
-      const words=String(rows[vi]||"").split(/[\s־ֽ–\-]+/);
+      const words=String(rows[vi]||"").split(/[\s־ֽ–\-]+/).map(word=>word.replace(/[^א-ת]/g,"")).filter(Boolean);
       for(const word of words){const length=norm(word).length;if(length<2)continue;
         if(length<4){addCandidateLexiconTerm(tanakhAxisWords,word,"corpus_native_adjacent",1,2);if(vi<torahVerseCount)addCandidateLexiconTerm(torahAxisWords,word,"corpus_native_adjacent",1,2);continue;}
         addCandidateLexiconTerm(tanakh,word,"corpus_native");if(vi<torahVerseCount)addCandidateLexiconTerm(torah,word,"corpus_native");}
+      // Keep canonical two-/three-word language as a compact normalized phrase index, not as
+      // 100k+ full candidate objects. A value encodes word count and the first two word lengths;
+      // the local matrix scan materializes a candidate only after its exact letters are present.
+      for(let at=0;at<words.length;at++)for(let size=2;size<=3&&at+size<=words.length;size++){
+        const parts=words.slice(at,at+size).map(norm),phrase=parts.join(""),length=phrase.length;if(length<4||length>24||parts.some(part=>part.length>31))continue;
+        const code=(size<<10)|(parts[1].length<<5)|parts[0].length;
+        if(!tanakhPhrases.has(phrase))tanakhPhrases.set(phrase,code);
+        if(vi<torahVerseCount&&!torahPhrases.has(phrase))torahPhrases.set(phrase,code);
+      }
     }
-    const freeze=map=>Object.freeze([...map.values()].map(row=>Object.freeze({...row,sources:Object.freeze([...row.sources])})));
+    const freeze=map=>Object.freeze([...map.values()].map(row=>Object.freeze({...row,sources:Object.freeze([...row.sources]),classifications:Object.freeze([...(row.classifications||[])])})));
     _corpusLexiconCache.torah=freeze(torah);_corpusLexiconCache.tanakh=freeze(tanakh);
     _corpusAxisWordCache.torah=freeze(torahAxisWords);_corpusAxisWordCache.tanakh=freeze(tanakhAxisWords);
+    _corpusPhraseCache.torah=torahPhrases;_corpusPhraseCache.tanakh=tanakhPhrases;
+  }
+  function addBasicHebrewYears(map,minLength){
+    // Hebrew year forms are generated, not curated. The omitted thousands are projected as
+    // 5001..5999 and labelled as a possible year pattern, never as an asserted date or meaning.
+    for(let year=5001;year<=5999;year++){
+      const label=HEBNUM(year-5000),term=norm(label);if(term.length<minLength)continue;
+      addCandidateLexiconTerm(map,label,"basic_hebrew_year",1,minLength,{kind:"hebrew-year",value:year,label:`תבנית שנה אפשרית · ה׳${label}`});
+    }
   }
   function researchCandidateLexicon(includeShortAxisWords=false){
     const map=new Map();
     const minLength=includeShortAxisWords?2:3;
     DICT.forEach(term=>addCandidateLexiconTerm(map,term,"governed_core",4,minLength));
-    for(const row of _corpusLexiconCache[st.scope]||[])for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support);
-    if(includeShortAxisWords)for(const row of _corpusAxisWordCache[st.scope]||[])for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support,2);
+    for(const row of _corpusLexiconCache[st.scope]||[])for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support,minLength,row.classifications);
+    if(includeShortAxisWords)for(const row of _corpusAxisWordCache[st.scope]||[])for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support,2,row.classifications);
     addCandidateLexiconTerm(map,st.raw,"active_axis",8,minLength);
     st.words.forEach(word=>addCandidateLexiconTerm(map,word.t,"verified_research",8,minLength));
     for(const item of CLOUD_MATRICES||[]){
       addCandidateLexiconTerm(map,item.term,"visible_saved_research",3,minLength);
       (item.words||[]).forEach(word=>addCandidateLexiconTerm(map,word.t,"visible_saved_research",2,minLength));
     }
-    return [...map.values()].map(row=>({...row,sources:[...row.sources]}))
+    addBasicHebrewYears(map,minLength);
+    return [...map.values()].map(row=>({...row,sources:[...row.sources],classifications:[...(row.classifications||[])]}))
       .sort((a,b)=>b.support-a.support||b.term.length-a.term.length||a.term.localeCompare(b.term,"he"));
   }
   async function dynamicCandidateLexicon(){
     let fallback=false;
     if(!_corpusLexiconCache[st.scope])try{buildCorpusCandidateLexicons(await ensureVerseText());}catch(_){fallback=true;}
     const entries=researchCandidateLexicon(),axisEntries=researchCandidateLexicon(true);
-    return {contract:DYNAMIC_LEXICON_CONTRACT,entries,fallback,counts:{total:entries.length,corpus:entries.filter(row=>row.sources.includes("corpus_native")).length,
+    const phraseIndex=_corpusPhraseCache[st.scope]||new Map();
+    return {contract:DYNAMIC_LEXICON_CONTRACT,entries,phraseIndex,fallback,counts:{total:entries.length+phraseIndex.size,corpus:entries.filter(row=>row.sources.includes("corpus_native")).length,
+      phrases:phraseIndex.size,years:entries.filter(row=>row.sources.includes("basic_hebrew_year")).length,
       research:entries.filter(row=>row.sources.includes("verified_research")||row.sources.includes("visible_saved_research")).length,
       axisWords:axisEntries.length},axisEntries};
   }
@@ -1648,18 +1671,29 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     else if(compact){relation="adjacent";relationLabel="אותיות צמודות במטריצה";}
     return {contract:COMPACT_GEOMETRY_CONTRACT,stage:compact?"A":"B",compact,gridStep:step,relation,relationLabel,intersects};
   }
+  function axisNeighborhoodMeta(candidate,axis){
+    const geometry=compactGeometryMeta(candidate,axis);
+    let band="spaced",label="שלב ב׳ · מבנים עם פערים",priority=100;
+    if(geometry?.compact&&["vertical","diagonal"].includes(geometry.relation)){band="parallel";label="מקבילות צמודות לציר";priority=500;}
+    else if(geometry?.compact&&geometry.intersects){band="intersection";label="חציות הנוגעות בציר";priority=400;}
+    else if(geometry?.compact){band="compact-nearby";label="רצפים סמוכים ללא פער";priority=300;}
+    return {contract:AXIS_NEIGHBORHOOD_CONTRACT,band,label,priority};
+  }
   function rankResearchCandidateItems(items){
     return items.map(item=>{
-      const sources=new Set(item.lexiconSources||[]),continuationCount=(item.continuations||[]).length;
+      const sources=new Set(item.lexiconSources||[]),continuationCount=(item.continuations||[]).length,classifications=item.classifications||[];
       const researchEvidence=candidateLexiconPriority(item),reasons=[];
       if(item.geometry?.compact)reasons.push(`שלב א׳ · ${item.geometry.relationLabel}`);
       else if(item.geometry)reasons.push(`שלב ב׳ · ${item.geometry.relationLabel}`);
+      const year=classifications.find(entry=>entry.kind==="hebrew-year"),phrase=classifications.find(entry=>entry.kind==="corpus-phrase");
+      if(year)reasons.push(year.label||`תבנית שנה אפשרית · ${year.value}`);
+      else if(phrase)reasons.push(phrase.label||"ביטוי מלשון המקור");
       if(sources.has("verified_research"))reasons.push("נתמך בממצא מאומת");
       else if(sources.has("visible_saved_research"))reasons.push("מופיע במחקר גלוי");
       else if(sources.has("governed_core"))reasons.push("מונח יסוד מבוקר");
       if(continuationCount>1)reasons.push(`${continuationCount} המשכים על הציר`);
       return {...item,ranking:{contract:CANDIDATE_RANKING_CONTRACT,researchEvidence,continuationCount,reasons}};
-    }).sort((a,b)=>Number(b.geometry?.compact)-Number(a.geometry?.compact)||a.distance-b.distance||b.ranking.researchEvidence-a.ranking.researchEvidence||b.ranking.continuationCount-a.ranking.continuationCount||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
+    }).sort((a,b)=>Number(b.neighborhood?.priority)-Number(a.neighborhood?.priority)||a.distance-b.distance||b.ranking.researchEvidence-a.ranking.researchEvidence||b.ranking.continuationCount-a.ranking.continuationCount||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
   }
   // Research-only structural projection over the SAME displayed-window candidates. This does not
   // run registered skip-family research (B12/B13), change the normal distance ranking, or verify a
@@ -1760,6 +1794,24 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     groups.sort((a,b)=>Number(b.stage==="A")-Number(a.stage==="A")||b.priority-a.priority||b.memberCount-a.memberCount||a.label.localeCompare(b.label,"he"));
     return {plan,groups:groups.slice(0,plan.maxGroups),availableGroups:groups.length,considered:prepared.length,truncated:groups.length>plan.maxGroups};
+  }
+  function chooseAxisNeighborhoodSuggestion(candidates,axis){
+    const prepared=candidates.filter(candidate=>Math.abs(Number(candidate.skip))>=2&&candidate.distance>0&&candidate.distance<=30&&compactGeometryMeta(candidate,axis)?.compact&&norm(candidate.term).length>=4)
+      .map(candidate=>({...candidate,_center:structuralCandidateCenter(candidate,axis),_neighborhood:axisNeighborhoodMeta(candidate,axis)}));
+    let best=null;
+    for(const seed of prepared){
+      const members=prepared.filter(candidate=>Math.abs(candidate._center.row-seed._center.row)+Math.abs(candidate._center.offset-seed._center.offset)<=6),
+        researchMembers=members.filter(candidate=>candidateLexiconPriority(candidate)>0||(candidate.classifications||[]).some(item=>item.kind==="corpus-phrase")),
+        unique=new Set(members.map(candidate=>norm(candidate.term))).size,researchSignals=new Set(researchMembers.map(candidate=>norm(candidate.term))).size,
+        seedSignal=candidateLexiconPriority(seed)>0||(seed.classifications||[]).some(item=>item.kind==="corpus-phrase");
+      if(unique<3||researchSignals<3||!seedSignal)continue;
+      const score=researchSignals*200+unique*20+seed._neighborhood.priority+Math.min(12,norm(seed.term).length)*3+candidateLexiconPriority(seed)*5-seed.distance;
+      if(!best||score>best.score)best={seed,score,memberCount:unique,researchSignals};
+    }
+    if(!best)return null;
+    const geometry=compactGeometryMeta(best.seed,axis),neighborhood=axisNeighborhoodMeta(best.seed,axis);
+    return {contract:AXIS_NEIGHBORHOOD_CONTRACT,term:norm(best.seed.term),label:best.seed.term,distance:best.seed.distance,memberCount:best.memberCount,
+      geometry,neighborhood,classifications:[...(best.seed.classifications||[])],reason:`מרכז סמוך של ${best.memberCount} ממצאים ללא פער, ובהם ${best.researchSignals} אותות מחקריים`};
   }
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
@@ -2669,17 +2721,17 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     if(d.type==="request-lens"&&d.lens==="research-target"){
       const target=d.target||{};
-      postHost({type:"lens-progress",lens:"research-target",target,progress:{phase:"resolve",completed:0,total:1}});
+      postHost({type:"lens-progress",lens:"research-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"resolve",completed:0,total:1}});
       dynamicCandidateLexicon().then(async lexicon=>{
         if(lensEpoch!==_nativeLensSeq)return;
         const resolved=resolveResultResearchTarget(target,lexicon.axisEntries||lexicon.entries);
         if(!resolved){postHost({type:"lens",lens:"research-target",ok:false,target,reason:"target-changed"});return;}
-        postHost({type:"lens-progress",lens:"research-target",target,progress:{phase:"verify",completed:0,total:1}});
+        postHost({type:"lens-progress",lens:"research-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:0,total:1}});
         const verified=await promoteVerified({t:resolved.term,hits:[resolved.hit],capped:false,strategy:{policy:"RESULT_EXTENSION_EXACT_V1"}},st.scope,null);
         if(lensEpoch!==_nativeLensSeq)return;
         const hit=verified.hits.find(isGov);
         if(!hit){postHost({type:"lens",lens:"research-target",ok:false,target,reason:verified.verr||"verification-failed"});return;}
-        postHost({type:"lens-progress",lens:"research-target",target,progress:{phase:"verify",completed:1,total:1}});
+        postHost({type:"lens-progress",lens:"research-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:1,total:1}});
         postHost({type:"lens",lens:"research-target",ok:true,target,status:"VERIFIED",contract:RESEARCH_BUNDLE_CONTRACT,
           term:resolved.term,label:resolved.label,scope:st.scope,hitId:hitKey(hit),corpusId:verified.corpus_id||CORPUS_ID[st.scope]});
       }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"research-target",ok:false,target,reason:"verification-failed"});});
@@ -2687,7 +2739,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(d.type==="request-lens"&&d.lens==="research-target-compare"){
       const target=d.target||{},requested=Array.isArray(target.targets)?target.targets.slice(0,4):[];
       if(requested.length<2){postHost({type:"lens",lens:"research-target-compare",ok:false,target,reason:"two-targets-required"});return;}
-      postHost({type:"lens-progress",lens:"research-target-compare",target,progress:{phase:"resolve",completed:0,total:requested.length}});
+      postHost({type:"lens-progress",lens:"research-target-compare",target:{nativeSeq:target.nativeSeq},progress:{phase:"resolve",completed:0,total:requested.length}});
       dynamicCandidateLexicon().then(async lexicon=>{
         const rows=[];
         for(let index=0;index<requested.length;index++){
@@ -2697,13 +2749,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           if(!resolved){rows.push({status:"FAILED",reason:"target-changed",term:norm(descriptor.term),label:descriptor.label||descriptor.term,kind:descriptor.kind,setId:descriptor.setId,
             ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
           }else{
-            postHost({type:"lens-progress",lens:"research-target-compare",target,progress:{phase:"verify",completed:index,total:requested.length,current:resolved.label}});
+            postHost({type:"lens-progress",lens:"research-target-compare",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:index,total:requested.length,current:resolved.label}});
             const verified=await promoteVerified({t:resolved.term,hits:[resolved.hit],capped:false,strategy:{policy:"RESULT_EXTENSION_COMPARISON_V1"}},st.scope,null),hit=verified.hits.find(isGov);
             rows.push({status:hit?"VERIFIED":"FAILED",reason:hit?null:verified.verr||"verification-failed",term:resolved.term,label:resolved.label,scope:st.scope,
               ...(hit?{hitId:hitKey(hit),corpusId:verified.corpus_id||CORPUS_ID[st.scope]}:{}),kind:descriptor.kind,setId:descriptor.setId,
               ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
           }
-          postHost({type:"lens-progress",lens:"research-target-compare",target,progress:{phase:"verify",completed:index+1,total:requested.length}});
+          postHost({type:"lens-progress",lens:"research-target-compare",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:index+1,total:requested.length}});
           await paintOperation();
         }
         if(lensEpoch!==_nativeLensSeq)return;
@@ -2717,39 +2769,59 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           failed:rows.filter(row=>row.status!=="VERIFIED").length,geometryContract:COMPACT_GEOMETRY_CONTRACT});
       }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"research-target-compare",ok:false,target,reason:"verification-failed"});});
     }
+    if(d.type==="request-lens"&&d.lens==="neighborhood-target"){
+      const target=d.target||{};
+      postHost({type:"lens-progress",lens:"neighborhood-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"resolve",completed:0,total:1}});
+      dynamicCandidateLexicon().then(async lexicon=>{
+        if(lensEpoch!==_nativeLensSeq)return;
+        const resolved=resolveAxisNeighborhoodTarget(target,lexicon.entries);
+        if(!resolved){postHost({type:"lens",lens:"neighborhood-target",ok:false,target,reason:"target-changed"});return;}
+        postHost({type:"lens-progress",lens:"neighborhood-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:0,total:1}});
+        const verified=await promoteVerified({t:resolved.term,hits:[resolved.hit],capped:false,strategy:{policy:"AXIS_NEIGHBORHOOD_TARGET_V1"}},st.scope,null),hit=verified.hits.find(isGov);
+        if(lensEpoch!==_nativeLensSeq)return;
+        if(!hit){postHost({type:"lens",lens:"neighborhood-target",ok:false,target,reason:verified.verr||"verification-failed"});return;}
+        postHost({type:"lens-progress",lens:"neighborhood-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:1,total:1}});
+        postHost({type:"lens",lens:"neighborhood-target",ok:true,target,status:"VERIFIED",contract:AXIS_NEIGHBORHOOD_CONTRACT,
+          term:resolved.term,label:resolved.label,scope:st.scope,hitId:hitKey(hit),corpusId:verified.corpus_id||CORPUS_ID[st.scope],neighborhood:resolved.neighborhood});
+      }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"neighborhood-target",ok:false,target,reason:"verification-failed"});});
+    }
     if(d.type==="request-lens"&&d.lens==="matrix-candidates"){
       const target=d.target||{},hit=hasGov(st.res)?occ():null;
       if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
       // Compose the existing window candidate generator with the existing literal line reader,
-      // only after an explicit click. Candidates without another recognized word on their exact
-      // line stay out of the simple result. Coordinates never cross the bridge and adding a term
-      // still runs the normal canonical verification before it becomes a Finding.
+      // only after an explicit click. A compact local finding no longer needs a second word on its
+      // own path merely to enter the neighborhood package. Coordinates never cross the bridge and
+      // adding a term still runs the normal canonical verification before it becomes a Finding.
       dynamicCandidateLexicon().then(async lexicon=>{
         const current=hasGov(st.res)?occ():null;
         if(lensEpoch!==_nativeLensSeq||!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
         const structuralAxis={...current,_structuralCells:new Set(current.positions||[])};
-        const includeBundleStructures=target.researchBundle===true;
-        const availableRaw=await scanCandidatesBatched(lexicon.entries,(candidate,best)=>{
+        const discoveryEntries=lexicon.entries;
+        const availableBaseRaw=await scanCandidatesBatched(discoveryEntries,(candidate,best)=>{
           const next=compactGeometryMeta(candidate,structuralAxis),previous=compactGeometryMeta(best,structuralAxis);
           if(Boolean(next?.compact)!==Boolean(previous?.compact))return Boolean(next?.compact);
           return candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip;
-        },includeBundleStructures?{includeOccurrences:true,maxOccurrences:10}:null,(completed,total)=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"candidates",completed,total}}),
+        },{includeOccurrences:true,maxOccurrences:10},(completed,total)=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"candidates",completed,total}}),
         ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId);
-        if(!availableRaw)return;
-        const available=availableRaw.sort((a,b)=>Number(compactGeometryMeta(b,structuralAxis)?.compact)-Number(compactGeometryMeta(a,structuralAxis)?.compact)||candidateLexiconPriority(b)-candidateLexiconPriority(a)||a.distance-b.distance||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")),
-          compactPool=available.filter(candidate=>compactGeometryMeta(candidate,structuralAxis)?.compact).slice(0,40),spacedPool=available.filter(candidate=>!compactGeometryMeta(candidate,structuralAxis)?.compact).slice(0,8),candidatePool=[...compactPool,...spacedPool];
+        if(!availableBaseRaw)return;
+        postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"phrases",completed:0,total:availableBaseRaw.length}});
+        const phraseRaw=deriveLocalPhraseCandidates(availableBaseRaw,structuralAxis,lexicon.phraseIndex),availableRaw=[...availableBaseRaw,...phraseRaw];
+        const available=availableRaw.map(candidate=>({...candidate,geometry:compactGeometryMeta(candidate,structuralAxis),neighborhood:axisNeighborhoodMeta(candidate,structuralAxis)}))
+          .sort((a,b)=>b.neighborhood.priority-a.neighborhood.priority||a.distance-b.distance||candidateLexiconPriority(b)-candidateLexiconPriority(a)||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")),
+          compactPool=available.filter(candidate=>candidate.geometry?.compact).slice(0,96),spacedPool=available.filter(candidate=>!candidate.geometry?.compact).slice(0,12),candidatePool=[...compactPool,...spacedPool];
         const items=rankResearchCandidateItems(candidatePool.map(candidate=>{
-          const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,lexicon.entries);
-          if(!continuation.words.length)return null;
+          const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,discoveryEntries);
           return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,
-            geometry:compactGeometryMeta(candidate,structuralAxis),continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
-        }).filter(Boolean));
+            geometry:candidate.geometry,neighborhood:candidate.neighborhood,classifications:[...(candidate.classifications||[])],
+            continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
+        }));
         if(lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
-        const structural=includeBundleStructures?buildStructuralGroups(available,structuralAxis,{maxDistance:30,minLength:4,maxLength:8,minMembers:2,maxGroups:8,maxMembers:8}):null;
-        postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",provenanceSource:lexicon.contract,coverage:"displayed-window",
-          lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"compact_stage_then_distance_then_governed_research_evidence_then_continuation"},
+        const structural=buildStructuralGroups(available,structuralAxis,{maxDistance:30,minLength:4,maxLength:16,minMembers:2,maxGroups:8,maxMembers:8}),axisSuggestion=chooseAxisNeighborhoodSuggestion(compactPool,structuralAxis);
+        postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",contract:AXIS_NEIGHBORHOOD_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,provenanceSource:lexicon.contract,coverage:"displayed-window",
+          lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"axis_neighborhood_band_then_distance_then_governed_research_evidence_then_continuation"},
           items,total:items.length,scanned:candidatePool.length,available:available.length,truncated:available.length>candidatePool.length,
-          ...(structural?{structurePlan:structural.plan,groups:structural.groups,groupTotal:structural.groups.length,availableGroups:structural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT}:{} )});
+          structurePlan:structural.plan,groups:structural.groups,groupTotal:structural.groups.length,availableGroups:structural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
+          axisSuggestion,geometryContract:COMPACT_GEOMETRY_CONTRACT});
       }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"matrix-candidates",ok:false,target,reason:"scan-failed"});});
     }
     if(d.type==="request-lens"&&d.lens==="structure-priority"){
@@ -2763,11 +2835,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         if(!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"structure-priority",ok:false,target});return;}
         const plan=normalizeStructurePlan(target.structurePlan),structuralAxis={...current,_structuralCells:new Set(current.positions||[])};
         const eligibleLexicon=lexicon.entries.filter(entry=>{const length=norm(entry.term||entry.label||entry).length;return length>=plan.minLength&&length<=plan.maxLength;});
-        const candidatesRaw=await scanCandidatesBatched(eligibleLexicon,(candidate,best)=>preferStructuralCandidate(candidate,best,structuralAxis),
+        const candidatesBaseRaw=await scanCandidatesBatched(eligibleLexicon,(candidate,best)=>preferStructuralCandidate(candidate,best,structuralAxis),
           {includeOccurrences:plan.types.includes("motif"),maxOccurrences:plan.maxMembers},
           (completed,total)=>postHost({type:"lens-progress",lens:"structure-priority",target:{nativeSeq:target.nativeSeq},progress:{phase:"candidates",completed,total}}),
           ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId);
-        if(!candidatesRaw)return;
+        if(!candidatesBaseRaw)return;
+        const phraseRaw=deriveLocalPhraseCandidates(candidatesBaseRaw,structuralAxis,lexicon.phraseIndex).filter(candidate=>{const length=norm(candidate.term).length;return length>=plan.minLength&&length<=plan.maxLength;}),
+          candidatesRaw=[...candidatesBaseRaw,...phraseRaw];
         postHost({type:"lens-progress",lens:"structure-priority",target:{nativeSeq:target.nativeSeq},progress:{phase:"groups",completed:eligibleLexicon.length,total:eligibleLexicon.length}});
         const candidates=candidatesRaw.filter(candidate=>candidate.distance<=plan.maxDistance||
             (candidate.occurrences||[]).filter(occurrence=>occurrence.distance<=plan.maxDistance).length>=plan.minMembers);
@@ -3964,7 +4038,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         for(let k=1;k<L;k++){const p=s0+step*k;if(p<0||p>=N||T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;
         const distance=distanceToAnchors(pos,axisAnchors,S),candidate={term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,dir:Math.sign(step),start:s0,positions:pos,gem:gem(raw),distance,
-          lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1};
+          lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1,
+          classifications:typeof entry==="string"?[]:entry.classifications||[]};
         if(includeOccurrences){const cellKey=[...pos].sort((a,b)=>a-b).join("_");if(!occurrenceCells.has(cellKey)){occurrenceCells.add(cellKey);occurrences.push(candidate);
           occurrences.sort((a,b)=>a.distance-b.distance||a.skip-b.skip||a.start-b.start||b.dir-a.dir);if(occurrences.length>maxOccurrences)occurrences.pop();}}
         if(!best||(typeof prefer==="function"?prefer(candidate,best):distance<best.distance||distance===best.distance&&sk<best.skip))best=candidate;
@@ -3984,6 +4059,39 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       await paintOperation();
     }
     return isCancelled?.()?null:rows;
+  }
+  // Canonical multi-word phrases are not brute-forced as a second global matrix scan. Instead,
+  // start from words already found in the displayed window and extend their exact path only when
+  // that word is a component of a canonical two-/three-word source phrase. This preserves phrase
+  // discovery while keeping mobile work proportional to the local package.
+  function deriveLocalPhraseCandidates(candidates,axis,phraseIndex,limit=64){
+    if(!(phraseIndex instanceof Map)||!phraseIndex.size)return[];
+    const b=blockOf(),S=b.S,c1=b.c0+b.cw,inWin=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return row>=b.r0&&row<=b.r1&&column>=b.c0&&column<c1;},
+      anchors=(axis.positions||[]).map(position=>[Math.floor(position/S),((position%S)+S)%S]),mainSet=axis._structuralCells||new Set(axis.positions||[]),found=new Map();
+    const consider=candidate=>{
+      const key=norm(candidate.term),prior=found.get(key),nextBand=axisNeighborhoodMeta(candidate,axis);
+      if(!prior||nextBand.priority>axisNeighborhoodMeta(prior,axis).priority||nextBand.priority===axisNeighborhoodMeta(prior,axis).priority&&(candidate.distance<prior.distance||candidate.distance===prior.distance&&candidate.skip<prior.skip))found.set(key,candidate);
+    };
+    for(const candidate of candidates||[]){
+      const base=norm(candidate.term);if(base.length<3||base.length>24)continue;
+      const occurrences=candidate.occurrences?.length?candidate.occurrences:[candidate];
+      for(const occurrence of occurrences){
+        const skip=Math.abs(Number(occurrence.skip)),dir=Number(occurrence.dir),step=skip*dir;if(skip<1||![1,-1].includes(dir)||!Number.isInteger(occurrence.positions?.[0]))continue;
+        for(let length=Math.max(4,base.length);length<=24;length++)for(let before=0;before<=length-base.length;before++){
+          const start=occurrence.positions[0]-before*step,positions=Array.from({length},(_,index)=>start+index*step);
+          if(!positions.every(position=>position>=0&&position<scopeN()&&inWin(position))||positions.every(position=>mainSet.has(position)))continue;
+          const requested=norm(positions.map(position=>T[position]).join("")),code=phraseIndex.get(requested);if(code===undefined)continue;
+          const size=(code>>10)&3,first=code&31,second=(code>>5)&31,lengths=size===2?[first,length-first]:[first,second,length-first-second];
+          if(lengths.length!==size||lengths.some(value=>value<1))continue;
+          const boundaries=[0];for(const value of lengths)boundaries.push(boundaries.at(-1)+value);
+          const partIndex=boundaries.indexOf(before);if(partIndex<0||boundaries[partIndex+1]!==before+base.length)continue;
+          const parts=lengths.map((value,index)=>requested.slice(boundaries[index],boundaries[index]+value)),label=parts.join(" ");
+          consider({term:label,skip,dir,start,positions,distance:distanceToAnchors(positions,anchors,S),lexiconSources:["corpus_native_phrase"],lexiconSupport:1,
+            classifications:[{kind:"corpus-phrase",value:size,label:`ביטוי בן ${size} מילים מלשון המקור`,parts}],occurrences:[]});
+        }
+      }
+    }
+    return [...found.values()].sort((a,b)=>axisNeighborhoodMeta(b,axis).priority-axisNeighborhoodMeta(a,axis).priority||a.distance-b.distance||b.lexiconSupport-a.lexiconSupport||norm(b.term).length-norm(a.term).length).slice(0,Math.max(1,Math.min(64,Number(limit)||64)));
   }
   function lensPath(box){
     if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — המסלול נבנה על התוצאה.</div>';return;}
@@ -4882,6 +4990,19 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       }
     }
     return null;
+  }
+  function resolveAxisNeighborhoodTarget(target,lexicon){
+    const current=hasGov(st.res)?occ():null,requested=norm(target?.term);
+    if(!current||!requested||target?.axisHitId!==hitKey(current))return null;
+    const entry=lexicon.find(item=>norm(typeof item==="string"?item:item.term||item.label)===requested);if(!entry)return null;
+    const axis={...current,_structuralCells:new Set(current.positions||[])},rows=scanCandidates([entry],(candidate,best)=>{
+      const next=axisNeighborhoodMeta(candidate,axis),previous=axisNeighborhoodMeta(best,axis);
+      return next.priority>previous.priority||next.priority===previous.priority&&(candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip);
+    },{includeOccurrences:true,maxOccurrences:10}),candidate=rows[0];
+    if(!candidate||Math.abs(Number(candidate.skip))<2)return null;
+    const neighborhood=axisNeighborhoodMeta(candidate,axis);
+    if(target?.band&&target.band!==neighborhood.band)return null;
+    return {term:requested,label:typeof entry==="string"?entry:entry.label||entry.term||requested,hit:candidate,neighborhood};
   }
   function triageHitSignals(hit,word,lexicon,axis=hit,includeNearby=true){
     const extensions=lineExtensionCandidates(hit,word,lexicon,5),extensionTerms=new Set(extensions.map(row=>row.term));
