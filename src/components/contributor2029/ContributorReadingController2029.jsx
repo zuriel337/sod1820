@@ -82,5 +82,5 @@ export function useContributorReading2029(view, onRefresh) {
         onSave={(bio) => mutate("introduction", { bio })} onClose={() => { if (state.state !== "saving") setEdit(false); }} /> : null}
     </> : null}
   </> : null;
-  return { actions, header, recordOpen, receivePublicData, featuredIds: new Set(featured.map((item) => item.studioId)) };
+  return { actions, header, recordOpen, receivePublicData, overview: current.overview, featuredIds: new Set(featured.map((item) => item.studioId)) };
 }

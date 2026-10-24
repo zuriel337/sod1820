@@ -31,7 +31,7 @@ export function ContributorOverview2029({ overview }) {
   const lastSeenText = lastSeen || (ready && overview.lastSeenState === "loading" ? "נטען…" : "");
   const about = ready ? text(overview.about) : "";
   const focus = ready ? text(overview.currentFocus) : "";
-  const rows = [["חבר מאז", joined, joined ? tenure : ""], ["הדף פעיל מאז", since && since !== joined ? since : "", ""], ["חיבור אחרון", lastSeenText, ""]].filter(([, value]) => value);
+  const rows = [["נרשם לאתר", joined, joined ? tenure : ""], ["הדף פעיל מאז", since && since !== joined ? since : "", ""], ["חיבור אחרון", lastSeenText, ""]].filter(([, value]) => value);
   return <section className="cx-overview" style={tokens(P)} aria-labelledby="cx-overview-title" data-state={ready ? "ready" : loading ? "loading" : "unavailable"}>
     <h2 id="cx-overview-title" className="cx-title cx-sr">סקירה</h2>
     {!ready ? <p className="cx-muted" role="status">{loading ? "טוען את פרטי הסקירה…" : "פרטי הסקירה אינם זמינים כרגע."}</p> : <>
