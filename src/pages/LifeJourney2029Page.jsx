@@ -2,6 +2,7 @@ import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.
 import React, { useEffect } from "react";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import PersonJourney from "../components/PersonJourney.jsx";
+import LifeJourneyCapabilities2029 from "../components/experience2029/LifeJourneyCapabilities2029.jsx";
 import { applySeo } from "../lib/seo.js";
 
 export default function LifeJourney2029Page() {
@@ -22,7 +23,7 @@ export default function LifeJourney2029Page() {
     description="מרחב אישי אחד שמתחיל ממך, שומר את ההקשר ומעמיק בלי לפתוח מערכת חדשה."
   >
     <main data-experience-surface="life-journey-2029" data-experience-capability="person-life-journey">
-      <PersonJourney variant="2029" />
+      <PersonJourney variant="2029" CapabilitySurface={LifeJourneyCapabilities2029} />
     </main>
   </Sod2029Shell>;
 }

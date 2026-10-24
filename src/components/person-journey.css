@@ -236,6 +236,116 @@
   font-size:13px;
 }
 .person-journey-relations b{color:var(--pj-gold)}
+.person-journey-member-actions{
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.person-journey-member-actions button{min-height:44px;padding:7px 11px;font-size:12px}
+.person-journey-capability{display:grid;gap:18px}
+.person-journey-capability-nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  border-block:1px solid var(--pj-line);
+  padding-block:14px;
+}
+.person-journey-capability-nav p,.person-journey-note,.person-journey-els-results>p{
+  margin:0;
+  color:var(--pj-soft);
+  line-height:1.7;
+  font-size:13px;
+}
+.person-journey-capability-summary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.person-journey-capability-summary article{
+  min-height:100px;
+  display:grid;
+  align-content:center;
+  justify-items:center;
+  gap:6px;
+  border:1px solid var(--pj-line);
+  border-radius:18px;
+  background:color-mix(in srgb,var(--pj-panel-soft) 88%,transparent);
+}
+.person-journey-capability-summary small{color:var(--pj-soft)}
+.person-journey-capability-summary strong{font-size:30px;color:var(--pj-gold);font-variant-numeric:tabular-nums}
+.person-journey-step-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.person-journey-step-list li{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid var(--pj-line);
+  border-radius:14px;
+  padding:11px 13px;
+}
+.person-journey-step-list small{color:var(--pj-soft)}
+.person-journey-step-list li[data-state="ok"] small{color:var(--pj-gold)}
+.person-journey-layer-list{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+.person-journey-layer-list article{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:4px 9px;
+  align-items:center;
+  border:1px solid var(--pj-line);
+  border-radius:15px;
+  padding:12px;
+  background:color-mix(in srgb,var(--pj-panel-soft) 88%,transparent);
+}
+.person-journey-layer-list small{grid-column:2;color:var(--pj-soft)}
+.person-journey-plan-summary{display:flex;align-items:baseline;gap:12px}
+.person-journey-plan-summary strong{font-size:42px;color:var(--pj-gold)}
+.person-journey-plan-summary span{color:var(--pj-soft)}
+.person-journey-els-results{display:grid;gap:10px}
+.person-journey-els-results>article{
+  border:1px solid var(--pj-line);
+  border-radius:16px;
+  padding:14px;
+  background:color-mix(in srgb,var(--pj-panel-soft) 88%,transparent);
+}
+.person-journey-els-results>article>div:first-child{display:flex;justify-content:space-between;gap:12px}
+.person-journey-els-results small{color:var(--pj-soft)}
+.person-journey-verified{
+  display:grid;
+  gap:6px;
+  border:1px solid color-mix(in srgb,var(--pj-accent) 45%,var(--pj-line));
+  border-radius:18px;
+  padding:16px;
+  background:color-mix(in srgb,var(--pj-accent) 8%,var(--pj-panel));
+}
+.person-journey-verified strong{color:var(--pj-gold)}
+.person-journey-verified small{color:var(--pj-soft);line-height:1.6}
+.person-journey-hint-list{display:grid;gap:8px}
+.person-journey-hint-list article{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  border:1px solid var(--pj-line);
+  border-radius:15px;
+  padding:12px 14px;
+  background:color-mix(in srgb,var(--pj-panel-soft) 88%,transparent);
+}
+.person-journey-hint-list article>div{display:grid;gap:3px}
+.person-journey-hint-list small,.person-journey-hint-list article>span{color:var(--pj-soft)}
+.person-journey-hint-list a{color:var(--pj-gold);font-weight:800}
 .person-journey-empty,.person-journey-state,.person-journey-error{
   border:1px dashed var(--pj-line);
   border-radius:16px;
@@ -282,11 +392,16 @@
   .person-journey-orbit{order:-1;width:min(240px,70vw)}
   .person-journey-fields,.person-journey-family-form{grid-template-columns:1fr}
   .person-journey-fact-grid,.person-journey-family-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .person-journey-layer-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:520px){
   .person-journey{gap:12px}
   .person-journey-hero,.person-journey-panel{border-radius:22px}
   .person-journey-fact-grid,.person-journey-family-list{grid-template-columns:1fr}
+  .person-journey-capability-summary,.person-journey-step-list,.person-journey-layer-list{grid-template-columns:1fr}
+  .person-journey-capability-nav,.person-journey-hint-list article{align-items:stretch;flex-direction:column}
+  .person-journey-family-list article{align-items:flex-start;flex-direction:column}
+  .person-journey-member-actions{justify-content:flex-start}
   .person-journey-section-head{align-items:flex-start}
   .person-journey-section-head>span{display:none}
   .person-journey-actions{align-items:stretch}

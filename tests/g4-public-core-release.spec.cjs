@@ -199,10 +199,15 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
   const groupedRead = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'));
   await page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first().click();
   await expect(page).toHaveURL(`${BASE}/world`);
-  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText('הודעת מקור לבדיקה').first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
   expect((await groupedRead).ok()).toBe(true);
-  await page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' }).fill('888');
+  const worldEntries = page.getByRole('navigation', { name: 'דרכים לגלות את העולם' });
+  await worldEntries.getByRole('button', { name: /^מה חדש/ }).click();
+  await expect(page).toHaveURL(`${BASE}/world?view=live`);
+  await expect(page.getByText('הודעת מקור לבדיקה').first()).toBeVisible({ timeout: 30_000 });
+  await worldEntries.getByRole('button', { name: /^נושאים וחיבורים/ }).click();
+  await expect(page).toHaveURL(`${BASE}/world?view=connections`);
+  await page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' }).fill('888');
   await page.locator('a[href="/topic/888-yeshua"]').first().click();
   await expect(page.locator('article[data-entity-type="convergence"]')).toBeVisible({ timeout: 30_000 });
   const numberReadFailures = [];
@@ -228,9 +233,9 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
   await expect(page).toHaveURL(`${BASE}/topic/888-yeshua`);
   await expect(page.locator('article[data-entity-type="convergence"]')).toBeVisible({ timeout: 30_000 });
   await page.goBack();
-  await expect(page).toHaveURL(`${BASE}/world`);
-  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' })).toBeVisible();
+  await expect(page).toHaveURL(`${BASE}/world?view=connections`);
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' })).toBeVisible();
   await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toHaveCount(0);
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
@@ -274,5 +279,5 @@ test('the existing public World stays open when no lock flag has been installed'
   }));
   await page.goto(`${BASE}/world`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.mlock')).toHaveCount(0);
-  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible();
 });
