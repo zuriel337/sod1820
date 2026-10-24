@@ -19,7 +19,6 @@ test("one canonical family owns study, series and the central chronicle symbol",
   }
   assert.match(icons, /תיעוד אירועים ורמזים חזקים לאורך הזמן; אינו ציון אמת/);
 });
-
 test("World entry and knowledge-type locations use the shared semantic symbols", () => {
   for (const name of ["portal", "now", "graph", "community", "discovery", "journey", "scan", "chronicle"]) {
     assert.ok(world.includes(`icon: "${name}"`) || world.includes(`name="${name}"`), `World is missing ${name}`);
