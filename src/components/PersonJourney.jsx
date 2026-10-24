@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import {
@@ -17,9 +17,22 @@ import {
   runPersonalDateResearch,
 } from "../lib/research/personalDateResearch.js";
 import { buildAccessDescriptor } from "../lib/research/researchPlanV2.js";
+import {
+  buildLifeJourneyCapabilityPatch,
+  buildLifeJourneyExactReturnPatch,
+  buildLifeJourneyPersonContext,
+  buildLifeJourneyVerifiedElsPatch,
+  lifeJourneyViewFromContext,
+} from "../lib/research/lifeJourneyPersonContext.js";
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import "./person-journey.css";
+
+const LifeJourneyEls2029 = lazy(() => import("./experience2029/LifeJourneyEls2029.jsx"));
+const LifeJourneyHints2029 = lazy(() => import("./experience2029/LifeJourneyHints2029.jsx"));
+const LifeJourneyName2029 = lazy(() => import("./experience2029/LifeJourneyName2029.jsx"));
+
+const capabilityFallback = <div className="person-journey"><div className="person-journey-state" aria-busy="true">פותח יכולת קיימת…</div></div>;
 
 const RELATIONS = Object.freeze([
   { id: "none", label: "קשר יוגדר אחר כך" },
@@ -78,6 +91,10 @@ export default function PersonJourney({ variant = "legacy" }) {
     () => members.filter((member) => member.source_ref !== selfRef),
     [members, selfRef],
   );
+  const currentResearchSubjectId = research.context?.subject?.id || null;
+  const currentLifeJourneyView = research.context?.dimensions?.lifeJourneyView || null;
+  const currentLifeJourneyPersonRef = research.context?.dimensions?.lifeJourneyPersonRef || null;
+  const currentReturnPersonRef = research.context?.returnTo?.subject?.id || null;
 
   const refresh = useCallback(async (pid) => {
     const data = await listFamily(pid);
@@ -125,16 +142,19 @@ export default function PersonJourney({ variant = "legacy" }) {
     return () => { alive = false; };
   }, [authLoading, refresh, user]);
 
-  const currentResearchSubjectId = research.context?.subject?.id || null;
-
   useEffect(() => {
     if (!selfRef || !user) return;
+    if (variant === "2029") {
+      if (lifeJourneyViewFromContext(research.context, selfRef)) return;
+      research.setResearchContext?.(buildLifeJourneyPersonContext(selfRef, research.context));
+      return;
+    }
     const persistedName = clean(persistedSelf?.name);
     const personSubject = {
       id: selfRef,
       type: "person",
       label: persistedName || "מסע החיים שלי",
-      href: variant === "2029" ? "/2029/journey" : "/research?tool=journey",
+      href: "/research?tool=journey",
     };
     const selection = { entityId: selfRef, entityType: "person" };
     if (!currentResearchSubjectId) {
@@ -146,7 +166,8 @@ export default function PersonJourney({ variant = "legacy" }) {
     }
     // Research Context is navigation state only; Person data remains in the private Ledger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentResearchSubjectId, persistedSelf?.name, selfRef, user?.id, variant]);
+  }, [currentLifeJourneyPersonRef, currentLifeJourneyView, currentResearchSubjectId,
+    currentReturnPersonRef, persistedSelf?.name, selfRef, user?.id, variant]);
 
   const runInitialResearch = useCallback(async ({ first, last, date }) => {
     if (!user || !clean(first)) return null;
@@ -250,6 +271,58 @@ export default function PersonJourney({ variant = "legacy" }) {
     return member?.name || ref;
   }, [members, selfRef]);
 
+  const openCapability = useCallback((member, view) => {
+    if (variant !== "2029" || !selfRef) return;
+    const memberRef = clean(member?.source_ref);
+    const name = clean(member?.name);
+    const current = research.context || buildLifeJourneyPersonContext(selfRef);
+    const patch = buildLifeJourneyCapabilityPatch(current, {
+      personRef: selfRef,
+      memberRef,
+      name,
+      view,
+    });
+    if (!patch) {
+      setErr("לא ניתן לפתוח את היכולת בלי שם שמור והקשר אדם תקין.");
+      return;
+    }
+    const result = research.continueResearchPath?.({
+      context: patch,
+      kind: view === "name" ? "name" : "els",
+      mode: "organic",
+      surface: "life_journey_2029",
+      href: "/2029/journey",
+      label: view === "name" ? "מסע השם" : "תוכנית ELS",
+      reason: "explicit_person_capability",
+    });
+    if (!result?.ok) setErr("לא ניתן לפתוח כרגע את מסלול המחקר.");
+  }, [research, selfRef, variant]);
+
+  const returnToPerson = useCallback(() => {
+    const patch = buildLifeJourneyExactReturnPatch(research.context);
+    if (!patch || !research.updateResearchContext?.(patch)) {
+      setErr("נקודת החזרה המדויקת אינה זמינה.");
+    }
+  }, [research]);
+
+  const openVerifiedElsOccurrence = useCallback((selection) => {
+    const patch = buildLifeJourneyVerifiedElsPatch(research.context, selection);
+    if (!patch) {
+      setErr("המופע המאומת אינו כולל נקודת שחזור מלאה.");
+      return;
+    }
+    const result = research.continueResearchPath?.({
+      context: patch,
+      kind: "els",
+      mode: "organic",
+      surface: "life_journey_2029",
+      href: "/2029/journey",
+      label: "מופע ELS מאומת",
+      reason: "verified_occurrence",
+    });
+    if (!result?.ok) setErr("המופע אומת, אך לא ניתן היה לצרף אותו למסלול הנוכחי.");
+  }, [research]);
+
   if (authLoading || loading) {
     return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
   }
@@ -263,6 +336,26 @@ export default function PersonJourney({ variant = "legacy" }) {
       <p>שם, תאריך ומשפחה נשמרים רק בהקשר האישי שלך. יש להתחבר כדי לפתוח מסע.</p>
       <a href="/login">התחברות</a>
     </section>;
+  }
+
+  const activeView = variant === "2029" ? lifeJourneyViewFromContext(research.context, selfRef) : "person";
+  const selectedName = clean(research.context?.selection?.expression);
+
+  if (activeView === "name" && selectedName) {
+    return <Suspense fallback={capabilityFallback}>
+      <LifeJourneyName2029 name={selectedName} onReturn={returnToPerson} />
+    </Suspense>;
+  }
+
+  if (activeView === "els" && selectedName) {
+    return <Suspense fallback={capabilityFallback}>
+      <LifeJourneyEls2029
+        name={selectedName}
+        context={research.context}
+        onVerified={openVerifiedElsOccurrence}
+        onReturn={returnToPerson}
+      />
+    </Suspense>;
   }
 
   const analysisData = analysis.data;
@@ -308,6 +401,10 @@ export default function PersonJourney({ variant = "legacy" }) {
         <button type="button" className="person-journey-primary" disabled={busy || !clean(firstName)} onClick={beginJourney}>
           {busy ? "פותח את המסע…" : persistedSelf ? "עדכן וחבר מחדש" : "פתח את מסע החיים"}
         </button>
+        {variant === "2029" && persistedSelf ? <>
+          <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "name")}>פתח מסע שם</button>
+          <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "els")}>פתח תוכנית ELS</button>
+        </> : null}
         <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
       </div>
     </section>
@@ -368,7 +465,10 @@ export default function PersonJourney({ variant = "legacy" }) {
           const memberMeta = metaObject(member.meta);
           return <article key={member.source_ref}>
             <div><strong>{member.name}</strong>{memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}</div>
-            <span>פרטי</span>
+            {variant === "2029" ? <div className="person-journey-member-actions">
+              <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>מסע שם</button>
+              <button type="button" disabled={busy} onClick={() => openCapability(member, "els")}>ELS</button>
+            </div> : <span>פרטי</span>}
           </article>;
         })}
       </div> : <div className="person-journey-empty">עוד לא הוספת בני משפחה. אפשר להוסיף שם ותאריך, ולקשור כהורה או ילד/ה כשזה ידוע.</div>}
@@ -399,6 +499,10 @@ export default function PersonJourney({ variant = "legacy" }) {
         </div>)}
       </div> : null}
     </section>
+
+    {variant === "2029" ? <Suspense fallback={<div className="person-journey-state" aria-busy="true">טוען רמזים קיימים…</div>}>
+      <LifeJourneyHints2029 user={user} />
+    </Suspense> : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">
       <div>

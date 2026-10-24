@@ -8,6 +8,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const app = read("src/App2029.jsx");
   const page = read("src/pages/LifeJourney2029Page.jsx");
   const journey = read("src/components/PersonJourney.jsx");
+  const personContext = read("src/lib/research/lifeJourneyPersonContext.js");
+  const nameAdapter = read("src/components/experience2029/LifeJourneyName2029.jsx");
+  const elsAdapter = read("src/lib/research/lifeJourneyElsAdapter.js");
+  const elsSurface = read("src/components/experience2029/LifeJourneyEls2029.jsx");
+  const hints = read("src/components/experience2029/LifeJourneyHints2029.jsx");
   const home = read("src/pages/Home2029Page.jsx");
   const css = read("src/components/person-journey.css");
   const vercel = JSON.parse(read("vercel.json"));
@@ -34,6 +39,29 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /verified_authority:\s*\{ source: "supabase_auth", subject_verified: true \}/);
   assert.doesNotMatch(journey, /fn_cross_name_date/);
   assert.doesNotMatch(journey, /\.from\(["'](?:nodes|edges)["']\)/);
+
+  assert.match(journey, /buildLifeJourneyCapabilityPatch/);
+  assert.match(journey, /buildLifeJourneyExactReturnPatch/);
+  assert.match(journey, /continueResearchPath/);
+  assert.match(personContext, /life_journey_person_context_v1/);
+  assert.match(personContext, /buildExactReturnPatch/);
+  assert.match(nameAdapter, /getNameProtocol/);
+  assert.match(nameAdapter, /buildJourney/);
+  assert.match(elsAdapter, /prepareElsAutomaticResearchPlan/);
+  assert.match(elsAdapter, /runElsAutomaticResearchSlice/);
+  assert.match(elsAdapter, /verifyEls2029Selection/);
+  assert.match(elsAdapter, /buildElsAdvancedLoadItem/);
+  assert.match(elsSurface, /els-search-bridge/);
+  assert.match(hints, /getMyHints/);
+  assert.match(hints, /fallbackLocal:\s*false/);
+  assert.doesNotMatch(hints, /addHint|removeHint|\.insert\(|\.update\(/);
+
+  const privateFlow = [journey, personContext, nameAdapter, elsAdapter, elsSurface, hints].join("\n");
+  assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);
+  assert.doesNotMatch(privateFlow, /channel_updates|community_hints|news/i);
+  assert.doesNotMatch(privateFlow, /Raziel|רזיאל/);
+  assert.doesNotMatch(privateFlow, /console\.(?:log|info|debug)/);
+  assert.doesNotMatch(elsSurface, /Els2029Page|ElsAdvancedSearch2029|TzofenEmbed|ResearchProvider/);
 
   assert.ok(vercel.rewrites.some((row) => row.source === "/2029/journey" && row.destination === "/2029.html"));
   const headers = vercel.headers.find((row) => row.source === "/2029/journey")?.headers || [];
