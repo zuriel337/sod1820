@@ -288,4 +288,3 @@ export function expressionPairConversation(left, right) {
     identities: [left, right].map((label) => ({ type: "phrase", label, identity_key: `phrase:${label}` })),
   };
 }
-
