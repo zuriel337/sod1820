@@ -1046,3 +1046,53 @@ Deterministic level-9 measurements against branch head `69dd8b42` are:
 | Legacy standalone, raw / gzip | 2,535,899 / 1,648,138 B | 2,538,751 / 1,648,887 B | +2,852 / +749 B |
 | ELS 2029 route JS, raw / gzip | 219,709 / 64,381 B | 219,778 / 64,399 B | +69 / +18 B |
 | ELS 2029 route CSS, raw / gzip | 78,358 / 11,309 B | 78,358 / 11,309 B | 0 / 0 B |
+
+## 22. ONE-CLICK CONTINUATION RESEARCH TARGET — 2026-10-24
+
+`els_research_bundle_v1` now turns an exact continuation discovered by
+`els_result_triage_v1` into an explicit one-click Research target. The host sends only the current
+result-set identity, source-result key and normalized terms. The canonical engine resolves that
+coordinate-free choice back to its internal occurrence, reconstructs the longer same-path
+candidate, and admits it only after the existing `verify_batch` path returns `MATCH`. A failed or
+stale choice leaves the current matrix unchanged.
+
+The verified expression opens through the existing C02 `load-matrix`/Journey seam. The prior axis,
+findings, selected anchors, geometry and view are captured by the existing local Journey snapshot;
+`חזור בדיוק לתוצאות` restores that snapshot and reopens the result rail. This adds no engine,
+store, graph, persistence or Finding identity. The Research target remains a temporary package
+until a user separately performs an existing save/add action.
+
+After the exact matrix opens, one explicit displayed-window scan builds the same package's nearby
+continuation candidates and bounded structural groups. It reuses `scanCandidatesBatched`, compact
+geometry ranking and `buildStructuralGroups`; progress/cancel remains visible, and no scan starts
+merely by entering Research. Candidate terms still require the ordinary canonical Finding
+verification before they can be added to the matrix.
+
+Regular-result triage now considers every occurrence already admitted by the completed canonical
+search (up to its existing 4,000-candidate cap), rather than only the visible 80-item page. To keep
+the bridge bounded, it projects only that current page plus at most eight coordinate-free Research
+targets. A cached lexical index makes exact before/after lookup proportional to the bounded line
+context instead of rescanning the complete lexicon for every occurrence. This improves ranking
+coverage but is not an exhaustive claim over occurrences omitted by the canonical search cap.
+
+The 85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL + 4 PARKED + 1 NEVER**.
+B12/B13, full 3D, `research_objects`, Raziel implementation, schema/data changes, RLS/permissions,
+Production migrations and `decision_ledger` remain outside this delta. No Preview, Production,
+database, RLS, permission, merge or PR action was performed.
+
+Branch acceptance: the non-browser ELS suite completed **189 pass / 0 fail / 3 skip** (the three
+unchanged skips require local PostgreSQL); canonical browser cutover passed **26/26**;
+Advanced/FORMS browser checks passed **2/2**; the new full continuation-target browser flow passed,
+including canonical verification, exact matrix, nearby candidates, structural groups and exact
+return. After the cross-filter layout ordering fix, the full native suite passed **45/45** (the
+previously failed scenario had also passed **1/1** in an isolated rerun). Both production build targets
+passed, and the 2029 bundle budget passed **5/5** with entry **9 chunks / 174.1 KB gzip**.
+
+Deterministic level-9 measurements against branch base `8aebc300` are:
+
+| Artifact | Before | One-click Research target | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,632,432 / 961,605 B | 1,639,709 / 963,911 B | +7,277 / +2,306 B |
+| Legacy standalone, raw / gzip | 2,538,751 / 1,648,887 B | 2,546,028 / 1,651,274 B | +7,277 / +2,387 B |
+| ELS 2029 route JS, raw / gzip | 219,778 / 64,399 B | 224,473 / 65,574 B | +4,695 / +1,175 B |
+| ELS 2029 route CSS, raw / gzip | 78,358 / 11,309 B | 79,297 / 11,398 B | +939 / +89 B |

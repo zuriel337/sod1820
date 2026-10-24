@@ -107,14 +107,24 @@ Research result ordering, nearby-finding discovery and structural groups now sha
 `els_research_bundle_v1` composes existing projections without a new engine or store:
 
 1. A matching public saved cipher is shown before raw occurrences when its stored selected anchors produce a research-ready compact package. The public `els_records` gallery projection remains the only source; the bundle exports counts/reasons and a public route, never coordinates.
-2. Exact same-path continuation and compact geometry govern the top-three result triage. Every admitted result remains available.
+2. Exact same-path continuation and compact geometry govern the top-three result triage. For a
+   regular search, continuation triage covers every occurrence already admitted by that completed
+   canonical search, not only the visible 80-item page; the bridge still projects only the current
+   page plus a bounded list of research targets. Every admitted result remains available.
    The continuation check includes a canonical Torah word touching the verified axis immediately
    before or after it, including bounded two- and three-letter words that are excluded from broad
    matrix discovery because they are too noisy there. A touching word may form a before, after or
    combined two-sided research target; it remains a candidate until the existing verifier admits it.
-3. Choosing a result is one explicit action: the canonical engine opens that exact verified anchor, the matrix remains visible, the ranked context is retained beside it, and the existing displayed-window candidate lens builds the package.
+3. Choosing an exact continuation as a research target is one explicit action. The engine resolves
+   the coordinate-free choice back to its internal occurrence, canonically verifies the complete
+   expression, and only then opens that exact anchor through the existing C02 `load-matrix` path.
+   The matrix remains visible and the ranked result context is retained for exact return.
 4. The candidate scan is chunked, reports progress and can be cancelled without changing the matrix.
-5. The same bundle feeds the existing nearby-finding list. Candidate terms still pass canonical verification before they can become Findings.
+5. The same explicit package scan feeds the existing nearby-finding list and the bounded structural
+   grouping projection. It does not run on Research entry. Candidate terms still pass canonical
+   verification before they can become Findings.
+6. `חזור בדיוק לתוצאות` restores the previous axis, findings, selection geometry and view through
+   the existing Journey snapshot, then reopens Results. No parallel navigation state is introduced.
 
 Within each stage, distance and existing governed research evidence remain deterministic tie-breakers. Structural groups are Stage A only when every member is compact; mixed/spaced groups follow in Stage B. B12/B13, full 3D, Raziel wiring, `research_objects`, DB/RLS/permission changes and production migration remain outside this contract.
 

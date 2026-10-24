@@ -68,16 +68,17 @@ test("dynamic vocabulary remains candidate-only and is loaded only by explicit s
 test("result triage extends a short finding only through immediately adjacent cells on the same path", () => {
   const letters = [..."אבביתישראלגד"];
   const context = vm.createContext({
-    norm: value => String(value).replace(/\s+/g, ""),
+    norm: value => String(value).replace(/\s+/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]),
     lineContextCells: () => letters.map((letter, index) => ({ letter, main: index >= 2 && index <= 4 })),
     hit: { positions: [2, 3, 4] },
+    _lineExtensionIndexCache: new WeakMap(),
     lexicon: [
       { term: "ביתישראל", label: "בית ישראל", sources: ["corpus_native"], support: 3 },
       { term: "ביתדין", label: "בית דין", sources: ["corpus_native"], support: 9 },
       { term: "בית", label: "בית", sources: ["governed_core"], support: 4 },
     ],
   });
-  vm.runInContext(`${source("lineExtensionCandidates")}\nthis.result=lineExtensionCandidates(hit,"בית",lexicon);`, context);
+  vm.runInContext(`${source("lineExtensionLexiconIndex")}\n${source("lineExtensionCandidates")}\nthis.result=lineExtensionCandidates(hit,"בית",lexicon);`, context);
   const rows = JSON.parse(JSON.stringify(context.result));
   assert.deepEqual(rows.map((row) => row.label), ["בית ישראל"]);
   assert.equal(rows[0].direction, "forward");
@@ -90,19 +91,47 @@ test("result triage derives exact short Torah words immediately before and after
     norm: value => String(value).replace(/\s+/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]),
     lineContextCells: () => letters.map((letter, index) => ({ letter, main: index >= 5 && index <= 11 })),
     hit: { positions: [5, 6, 7, 8, 9, 10, 11] },
+    _lineExtensionIndexCache: new WeakMap(),
     lexicon: [
       { term: "מתי", label: "מתי", sources: ["corpus_native_adjacent"], support: 12 },
       { term: "בא", label: "בא", sources: ["corpus_native_adjacent"], support: 40 },
       { term: "אב", label: "אב", sources: ["corpus_native_adjacent"], support: 80 },
     ],
   });
-  vm.runInContext(`${source("lineExtensionCandidates")}\nthis.result=lineExtensionCandidates(hit,"יום משיח",lexicon,8);`, context);
+  vm.runInContext(`${source("lineExtensionLexiconIndex")}\n${source("lineExtensionCandidates")}\nthis.result=lineExtensionCandidates(hit,"יום משיח",lexicon,8);`, context);
   const rows = JSON.parse(JSON.stringify(context.result));
   assert.ok(rows.some((row) => row.term === "יוממשיחבא" && row.label === "יום משיח בא" && row.direction === "forward"));
   assert.ok(rows.some((row) => row.term === "מתייוממשיח" && row.label === "מתי יום משיח" && row.direction === "backward"));
   assert.ok(rows.some((row) => row.term === "מתייוממשיחבא" && row.direction === "both"));
   assert.ok(rows.every((row) => row.extensionKind.startsWith("adjacent-")));
   assert.ok(rows.every((row) => !row.term.startsWith("אב")), "a known word is ignored when it is not adjacent to the verified axis");
+});
+
+test("a triage continuation resolves to one exact internal candidate before canonical verification", () => {
+  const targetText = "יוממשיחבא";
+  const corpus = Array(60).fill("א");
+  [...targetText].forEach((letter, index) => { corpus[10 + index * 2] = letter; });
+  const hit = { skip: 2, dir: 1, start: 10, positions: [10, 12, 14, 16, 18, 20, 22], v: "MATCH" };
+  const line = [...("אבמתי" + "יוממשיח" + "באגד")];
+  const context = vm.createContext({
+    norm: value => String(value).replace(/\s+/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]),
+    T: corpus,
+    scopeN: () => corpus.length,
+    st: { raw: "יום משיח", res: { hits: [hit] } },
+    isGov: value => value?.v === "MATCH",
+    hitKey: value => `${value.skip}_${value.dir}_${value.start}`,
+    nativeOccurrenceResults: () => ({ id: "occ-1", page: 0, items: [{ hitId: "2_1_10", index: 0 }] }),
+    nativeCrossResults: () => null,
+    _lineExtensionIndexCache: new WeakMap(),
+    lineContextCells: () => line.map((letter, index) => ({ letter, main: index >= 5 && index <= 11 })),
+    lexicon: [{ term: "בא", label: "בא", sources: ["corpus_native_adjacent"], support: 4 }],
+    target: { kind: "regular", setId: "occ-1", page: 0, key: "2_1_10", baseTerm: "יוממשיח", term: targetText },
+  });
+  vm.runInContext(`${source("lineExtensionLexiconIndex")}\n${source("lineExtensionCandidates")}\n${source("resolveResultResearchTarget")}\nthis.result=resolveResultResearchTarget(target,lexicon);`, context);
+  const resolved = JSON.parse(JSON.stringify(context.result));
+  assert.equal(resolved.term, targetText);
+  assert.deepEqual(resolved.hit, { skip: 2, dir: 1, start: 10, positions: [10, 12, 14, 16, 18, 20, 22, 24, 26] });
+  assert.doesNotMatch(template, /lens:"research-target"[^\n]+positions/, "candidate coordinates do not cross the lens response");
 });
 
 test("result triage ranks repeated exact continuation first but keeps every result available", () => {

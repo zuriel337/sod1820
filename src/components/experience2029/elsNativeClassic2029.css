@@ -410,6 +410,13 @@
 .els29-native-saved-bundles a:first-of-type{border-color:var(--s29-warm-accent);box-shadow:inset 3px 0 0 var(--s29-warm-accent)}
 .els29-native-saved-bundles a:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 .els29-native-saved-bundles small{font-size:var(--s29-type-micro);line-height:1.5;color:var(--s29-muted)}
+.els29-native-research-targets{display:grid;gap:7px;padding:10px;border:1px solid color-mix(in srgb,var(--s29-accent) 58%,var(--s29-line));border-radius:13px;background:color-mix(in srgb,var(--s29-accent) 8%,var(--s29-panel-soft))}
+.els29-native-research-targets header{display:grid;gap:3px}
+.els29-native-research-targets button{display:grid;gap:3px;min-height:44px;padding:9px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;text-align:start;cursor:pointer}
+.els29-native-research-targets button:first-of-type{border-color:var(--s29-accent);box-shadow:inset 3px 0 0 var(--s29-accent)}
+.els29-native-research-targets button:disabled{opacity:.55;cursor:wait}
+.els29-native-research-targets button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.els29-native-research-targets small{font-size:var(--s29-type-micro);line-height:1.5;color:var(--s29-muted)}
 .els29-native-result:focus-visible,.els29-native-window-size select:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 .els29-native-result:disabled{opacity:.5;cursor:wait}
 .els29-native-cell{cursor:pointer}

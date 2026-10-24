@@ -2151,6 +2151,36 @@ test('native results: regular and crossed searches expose selectable results in 
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
 });
 
+test('Research bundle opens a verified exact continuation and returns exactly to its result context',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יום משיח');
+  await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__lens?.lens==='result-triage'&&window.__lens?.ok===true,null,{timeout:90000});
+  const before=await page.evaluate(()=>structuredClone(window.__state));
+  const targetRows=await page.evaluate(()=>window.__lens?.researchTargets||[]);
+  assert.ok(targetRows.length>0,'the verified result set exposes at least one exact continuation target');
+  const chosen=targetRows[0],target=page.locator('.els29-native-research-targets button').filter({hasText:chosen.label}).first();
+  await target.waitFor({state:'visible'});
+  await target.dispatchEvent('click');
+  await page.waitForFunction(term=>window.__hostLog.some(message=>message.type==='request-lens'&&message.lens==='research-target'&&message.target?.term===term),chosen.term);
+  await page.waitForFunction(term=>window.__state?.status==='ok'&&window.__state?.term===term,chosen.term,{timeout:90000});
+  const bundle=page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible');
+  await bundle.waitFor({state:'visible'});
+  await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.target?.researchBundle===true,null,{timeout:90000});
+  const packageResult=await page.evaluate(()=>window.__lens);
+  assert.ok(Array.isArray(packageResult.items),'the same bundle receives nearby candidates');
+  assert.ok(Array.isArray(packageResult.groups),'the same explicit scan also receives structural groups');
+  assert.match(await bundle.innerText(),new RegExp(`חבילת מחקר[\\s\\S]*${chosen.label}[\\s\\S]*קבוצות מבנה`));
+  await bundle.getByRole('button',{name:'חזור בדיוק לתוצאות'}).click();
+  await page.waitForFunction(expected=>window.__state?.status==='ok'&&window.__state?.term===expected.term&&window.__state?.axis?.hitId===expected.hitId,
+    {term:before.term,hitId:before.axis.hitId},{timeout:90000});
+  await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').waitFor({state:'visible'});
+  assert.equal(await page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible').count(),0);
+  assert.match(await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').innerText(),/מופעים מאומתים/);
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
  test('native bridge: parent research updates during a state message cannot discard the completed result',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:45000},async()=>{
  await withNative({width:390,height:844},async page=>{

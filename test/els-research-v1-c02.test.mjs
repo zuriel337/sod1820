@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildJourneyPromotion,
+  buildJourneyResearchTarget,
   buildJourneyRestore,
   journeyAnchorMatches,
   journeySnapshotMatches,
@@ -117,6 +118,33 @@ test("C02 fails closed when the requested occurrence is not one of the Finding's
 
   const none = buildJourneyPromotion(engineState, { t: "דוד", shown: [] }, { hitId: "13_1_500" });
   assert.deepEqual(none, { ok: false, reason: "finding-has-no-shown-anchor" });
+});
+
+test("a verified continuation reuses the C02 exact load and return snapshot without becoming stored research state", () => {
+  const prepared = buildJourneyResearchTarget(engineState, {
+    term: "יום משיח בא",
+    label: "יום משיח בא",
+    scope: "torah",
+    hitId: "71_1_100",
+  }, { view: { mode: "research" } });
+
+  assert.equal(prepared.ok, true);
+  assert.equal(prepared.loadItem.journey, true);
+  assert.equal(prepared.loadItem.term, "יום משיח בא");
+  assert.equal(prepared.loadItem.hitId, "71_1_100");
+  assert.equal(prepared.loadItem.researchNonce, "יום משיח בא:71_1_100");
+  assert.deepEqual(prepared.loadItem.words[0], { t: "משיח", color: "#e8c84a", sh: ["71_1_100"] });
+  assert.equal(Object.hasOwn(prepared.loadItem, "research_object_id"), false);
+
+  const restored = buildJourneyRestore(prepared.snapshot);
+  assert.equal(restored.ok, true);
+  assert.equal(restored.loadItem.term, engineState.termRaw);
+  assert.equal(restored.loadItem.hitId, engineState.axis.hitId);
+});
+
+test("a continuation target fails closed across scopes or without an engine-owned hit key", () => {
+  assert.deepEqual(buildJourneyResearchTarget(engineState, { term: "יום משיח בא", scope: "tanakh", hitId: "71_1_100" }), { ok: false, reason: "scope-mismatch" });
+  assert.deepEqual(buildJourneyResearchTarget(engineState, { term: "יום משיח בא", scope: "torah", hitId: "bad" }), { ok: false, reason: "invalid-research-target" });
 });
 
 test("Research v1 journey snapshots are local serialization only and contain no truth/store promotion", () => {

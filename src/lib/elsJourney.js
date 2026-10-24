@@ -147,6 +147,52 @@ export function buildJourneyPromotion(engineState, finding, options = {}) {
   };
 }
 
+// Opens an engine-verified continuation as a temporary Research target. This is
+// the same exact load/return seam as C02; unlike Finding promotion, the target
+// was verified by the result-triage lens and is not written to a Finding store.
+export function buildJourneyResearchTarget(engineState, descriptor, options = {}) {
+  if (engineState?.status !== "ok") return { ok: false, reason: "no-active-axis" };
+  const term = String(descriptor?.term || "").trim();
+  const target = parseElsHitKey(descriptor?.hitId);
+  if (!term || !target) return { ok: false, reason: "invalid-research-target" };
+  const scope = descriptor?.scope === "tanakh" ? "tanakh" : "torah";
+  const currentScope = engineState.scope === "tanakh" ? "tanakh" : "torah";
+  if (scope !== currentScope) return { ok: false, reason: "scope-mismatch" };
+
+  const snapshot = makeJourneySnapshot(engineState, options.view || {});
+  if (!snapshot) return { ok: false, reason: "invalid-current-axis" };
+
+  const axisColor = options.axisColor || DEFAULT_AXIS_COLOR;
+  const maxFindings = Math.max(1, Number(options.maxFindings || 12));
+  const previousAxis = engineState.termRaw || engineState.term || "";
+  const words = [
+    previousAxis && previousAxis !== term ? { t: previousAxis, color: axisColor, sh: [engineState.axis.hitId] } : null,
+    ...(Array.isArray(engineState.findings) ? engineState.findings : [])
+      .filter((finding) => finding?.t && finding.t !== term)
+      .map((finding) => ({ t: finding.t, color: finding.color })),
+  ].filter(Boolean).slice(0, maxFindings);
+
+  return {
+    ok: true,
+    target,
+    snapshot,
+    loadItem: {
+      journey: true,
+      researchNonce: `${term}:${target.hitId}`,
+      term,
+      skip: target.skip,
+      start: target.start,
+      dir: target.dir,
+      hitId: target.hitId,
+      words,
+      scope,
+      searchWindow: snapshot.searchWindow,
+      view: { ...snapshot.view, hideMain: false },
+      hideMain: false,
+    },
+  };
+}
+
 // Breadcrumb restore is an exact engine load too. We reconstruct only from the
 // previously captured engine-owned snapshot; no search result or Finding is invented here.
 export function buildJourneyRestore(snapshot) {
