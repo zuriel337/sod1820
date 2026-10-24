@@ -3,15 +3,9 @@ import { askRaziel } from "../supabase.js";
 import { useResearch } from "./ResearchProvider.jsx";
 import { loadRazielSessionRequestBuilder2029 } from "./razielSessionRequestLoader2029.js";
 import {
-  createRazielContinuationSnapshot,
   createInitialRazielSessionState,
-  createRazielContextSnapshot,
-  createRazielProvenance,
   normalizeRazielQuestion,
-  normalizeRazielResponse,
   razielSessionReducer,
-  selectRazielContinuation,
-  selectRazielResearchPreview,
 } from "./razielSession2029.js";
 
 const RazielSessionContext2029 = createContext(null);
@@ -51,15 +45,6 @@ export function RazielSessionProvider2029({
     return () => { mountedRef.current = false; };
   }, []);
 
-  const currentContext = useMemo(
-    () => createRazielContextSnapshot(research.context),
-    [research.context],
-  );
-  const researchPreview = useMemo(
-    () => selectRazielResearchPreview(research),
-    [research.saved, research.cart, research.collections, research.syncStatus],
-  );
-
   const submit = useCallback(async ({
     question,
     intelligenceLevel = "fast",
@@ -75,92 +60,61 @@ export function RazielSessionProvider2029({
     if (!capturedQuestion) return { ok: false, error: "question_required" };
     const capturedState = stateRef.current;
     const startedAt = clock();
-    const continuation = again ? selectRazielContinuation(capturedState.thread, {
-      turnId: continuationTurnId,
-      question: capturedQuestion,
-    }) : null;
-    const contextSnapshot = continuation?.contextSnapshot
-      || createRazielContextSnapshot(research.context, view, startedAt);
-    const selectedFacts = continuation ? continuation.facts : facts;
-    const selectedViewMode = continuation?.viewMode
-      ?? viewMode
-      ?? capturedState.viewMode;
-    const selectedProjection = projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null;
     const draftTurn = {
       id: createTurnId(),
       question: capturedQuestion,
       intelligenceLevel: intelligenceLevel === "deep" ? "deep" : "fast",
-      again: Boolean(again),
-      projection: selectedProjection,
       startedAt,
-      continuation: createRazielContinuationSnapshot({
-        contextSnapshot,
-        facts: selectedFacts,
-        viewMode: selectedViewMode,
-      }),
-    };
-    const requestInput = {
-      question: capturedQuestion,
-      state: capturedState,
-      contextSnapshot,
-      facts: selectedFacts,
-      intelligenceLevel,
-      again,
-      // Session-owned choice, read at submit time so every projection/surface sends the same mode.
-      viewMode: selectedViewMode,
     };
     inFlightRef.current = true;
-    dispatch({ type: "turn_preparing", turn: draftTurn, contextSnapshot });
+    dispatch({ type: "turn_preparing", turn: draftTurn, contextSnapshot: null });
+    let failure = "request_builder_unavailable";
     try {
-      let request;
-      try {
-        const buildRazielSessionRequest = await loadRequestBuilder();
-        if (!mountedRef.current) return { ok: false, error: "session_unmounted" };
-        request = buildRazielSessionRequest({ ...requestInput });
-      } catch {
-        const completedAt = clock();
-        if (mountedRef.current) dispatch({ type: "turn_failed", completedAt, error: "request_builder_unavailable" });
-        return { ok: false, error: "request_builder_unavailable" };
-      }
-      if (!request) {
+      const buildRazielSessionRequest = await loadRequestBuilder();
+      if (!mountedRef.current) return { ok: false, error: "session_unmounted" };
+      const prepared = buildRazielSessionRequest.prepareSubmission({
+        question: capturedQuestion,
+        state: capturedState,
+        researchContext: research.context,
+        facts,
+        intelligenceLevel,
+        again,
+        view,
+        projection,
+        viewMode,
+        continuationTurnId,
+        startedAt,
+        createTurnId: () => draftTurn.id,
+      });
+      if (!prepared) {
         const completedAt = clock();
         if (mountedRef.current) dispatch({ type: "turn_failed", completedAt, error: "question_required" });
         return { ok: false, error: "question_required" };
       }
-      const turn = {
-        ...draftTurn,
-        question: request.subject,
-        identityResolution: request.conversationResolution ? {
-          identities: request.conversationResolution.identities,
-          explicit_text_computation: false,
-        } : null,
-        intelligenceLevel: request.intelligenceLevel,
-        again: request.again,
-        continuation: createRazielContinuationSnapshot({
-          contextSnapshot,
-          facts: request.facts,
-          viewMode: selectedViewMode,
-        }),
-      };
+      const { request, turn, contextSnapshot } = prepared;
       dispatch({ type: "turn_started", turn, contextSnapshot });
       // The only AI boundary in this module: an explicit submit action.
-      try {
-        const rawResponse = await transport(request);
-        if (!mountedRef.current) return { ok: false, error: "session_unmounted" };
-        const completedAt = clock();
-        const response = normalizeRazielResponse(rawResponse, request.intelligenceLevel);
-        if (!response) {
-          dispatch({ type: "turn_failed", completedAt, error: "unavailable" });
-          return { ok: false, error: "unavailable" };
-        }
-        const provenance = createRazielProvenance({ response: rawResponse, turn, completedAt });
-        dispatch({ type: "turn_succeeded", completedAt, response, provenance });
-        return { ok: true, response, provenance };
-      } catch {
-        const completedAt = clock();
-        if (mountedRef.current) dispatch({ type: "turn_failed", completedAt, error: "transport_failed" });
-        return { ok: false, error: "transport_failed" };
+      failure = "transport_failed";
+      const rawResponse = await transport(request);
+      if (!mountedRef.current) return { ok: false, error: "session_unmounted" };
+      const completedAt = clock();
+      const response = buildRazielSessionRequest.normalizeResponse(rawResponse, request.intelligenceLevel);
+      if (!response) {
+        dispatch({ type: "turn_failed", completedAt, error: "unavailable" });
+        return { ok: false, error: "unavailable" };
       }
+      const provenance = buildRazielSessionRequest.createProvenance({ response: rawResponse, turn, completedAt });
+      dispatch(buildRazielSessionRequest.createSucceededAction({
+        state: stateRef.current,
+        response,
+        provenance,
+        completedAt,
+      }));
+      return { ok: true, response, provenance };
+    } catch {
+      const completedAt = clock();
+      if (mountedRef.current) dispatch({ type: "turn_failed", completedAt, error: failure });
+      return { ok: false, error: failure };
     } finally {
       inFlightRef.current = false;
     }
@@ -178,12 +132,10 @@ export function RazielSessionProvider2029({
 
   const value = useMemo(() => ({
     ...state,
-    currentContext,
-    researchPreview,
     submit,
     setViewMode,
     resetTemporarySession,
-  }), [state, currentContext, researchPreview, submit, setViewMode, resetTemporarySession]);
+  }), [state, submit, setViewMode, resetTemporarySession]);
 
   return (
     <RazielSessionContext2029.Provider value={value}>

@@ -13,6 +13,7 @@ const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const sqlGolden = read("../../../tests/sql/raziel_phase_m_cross_surface_golden_v1.sql");
 const frame = read("../../components/experience2029/SystemFrame2029.jsx");
 const session = read("./razielSession2029.js");
+const request = read("./razielSessionRequest2029.js");
 const provider = read("./RazielSessionProvider2029.jsx");
 const region = edge.slice(edge.indexOf("const rzClean = "), edge.indexOf("Deno.serve(async"));
 const razielReq = edge.slice(edge.indexOf("Deno.serve(async"));
@@ -207,7 +208,7 @@ test("M: global routing stays OFF; model/provider calls only on explicit send, n
   assert.match(chat, /const send = async[\s\S]*session\.submit\(\{ question: q,/);
   assert.match(provider, /const submit = useCallback[\s\S]*const rawResponse = await transport\(request\)/);
   assert.equal((provider.match(/transport\(request\)/g) || []).length, 1);
-  assert.match(session, /const surfaceSemantic = snapshotSurfaceSemantic\(contextSnapshot\)/);
+  assert.match(request, /const surfaceSemantic = snapshotSurfaceSemantic\(contextSnapshot\)/);
   const mig = (f) => read("../../../supabase/migrations/" + f);
   const lineage = ["20261005050000_raziel_route_token_boundary_match_v1.sql", "20261005130000_raziel_intelligence_core_v1_phase_a_plan_first.sql", "20261005140000_raziel_intelligence_core_v1_phase_c_operator_read.sql",
     "20261005150000_raziel_intelligence_core_v1_phase_d2_plan_signals.sql", "20261005160000_raziel_intelligence_core_v1_phase_e_l4_tool_research.sql", "20261005170000_raziel_intelligence_core_v1_phase_f_sandalphon_source.sql",

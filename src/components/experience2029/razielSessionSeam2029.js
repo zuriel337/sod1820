@@ -1,18 +1,10 @@
 // Pure helpers for the Raziel session seam in the 2029 frame (#1142). No reads, no storage, no calls.
 // The session itself (thread, single in-flight turn, bounded request, provenance) is the Codex module
 // src/lib/research/razielSession2029.js, consumed unchanged.
-import { buildRazielSurfaceContext } from "../../lib/research/razielSurfaceContext.js";
-
-// Keeps the existing Phase I cross-surface descriptor in surface_semantic.context, exactly as the frame
-// sent it before the shared session (the session's own descriptor carries only lens/journey).
-export function withRazielSurfaceContext(request, context) {
-  if (!request || typeof request !== "object") return request;
-  // A deep continuation already carries the bounded descriptor reconstructed from its original
-  // snapshot. Never replace it with the surface that happens to be open when the person deepens it.
-  if (request.again === true) return request;
-  const surfaceContext = buildRazielSurfaceContext(context);
-  if (!surfaceContext) return request;
-  return { ...request, surfaceSemantic: { ...(request.surfaceSemantic || {}), context: surfaceContext } };
+// The submit-time adapter now projects the same bounded Phase-I descriptor into the canonical request.
+// Keep this seam as an identity adapter for existing callers without re-projecting or loading it eagerly.
+export function withRazielSurfaceContext(request) {
+  return request;
 }
 
 // Hebrew nouns for entity types. A raw type key is never shown to a person.

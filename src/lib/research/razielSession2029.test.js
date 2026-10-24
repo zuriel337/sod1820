@@ -2,16 +2,19 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { askRaziel, supabase } from "../supabase.js";
-import { buildRazielSessionRequest } from "./razielSessionRequest2029.js";
 import {
+  buildRazielSessionRequest,
   createRazielContinuationSnapshot,
-  createInitialRazielSessionState,
-  createRazielContextSnapshot,
   createRazielProvenance,
+  createRazielRequestContextSnapshot as createRazielContextSnapshot,
+  createRazielTurnSucceededAction,
   normalizeRazielResponse,
+  selectRazielContinuation,
+} from "./razielSessionRequest2029.js";
+import {
+  createInitialRazielSessionState,
   razielSessionReducer,
   selectRazielDeepeningCandidate,
-  selectRazielContinuation,
   selectRazielResearchPreview,
 } from "./razielSession2029.js";
 
@@ -28,12 +31,12 @@ test("continuity: desktop and mobile turns share one temporary thread", () => {
     contextSnapshot: snapshot,
     turn: { id: "t1", question: "מה חשוב כאן?", intelligenceLevel: "fast", again: false, projection: "desktop", startedAt: "2026-10-21T12:00:00Z" },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "2026-10-21T12:00:01Z",
     response: { answer: "זהו ההסבר הראשון.", intelligenceLevel: "fast", deterministic: false, sourceNames: [] },
     provenance: { turnId: "t1" },
-  });
+  }));
   state = razielSessionReducer(state, {
     type: "turn_started",
     contextSnapshot: snapshot,
@@ -54,12 +57,12 @@ test("continuity request carries the canonical opt-in and bounded resolved ident
     contextSnapshot: snapshot,
     turn: { id: "a", question: "מה זה 776?", intelligenceLevel: "fast", again: false, projection: "desktop", startedAt: "t0" },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "t1",
     response: { answer: "תשובה", intelligenceLevel: "fast", deterministic: false, sourceNames: [] },
     provenance: { turnId: "a" },
-  });
+  }));
 
   const request = buildRazielSessionRequest({ question: "ומה הקשר ל־1820?", state, contextSnapshot: snapshot });
   assert.equal(request.researchContract, "public-number-research-run-v1");
@@ -91,12 +94,12 @@ test("deep continuation keeps the original bounded context, facts and view mode 
       continuation,
     },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "2026-10-24T10:00:01Z",
     response: { answer: "תשובה ראשונה", intelligenceLevel: "fast", deterministic: false, sourceNames: ["ספר יצירה"] },
     provenance: { turnId: "original-turn" },
-  });
+  }));
   state = razielSessionReducer(state, { type: "view_mode_set", viewMode: "exploratory" });
 
   const restored = selectRazielContinuation(state.thread, { question: "מה חשוב כאן?" });
@@ -123,10 +126,10 @@ test("deep continuation keeps the original bounded context, facts and view mode 
   assert.equal(deepRequest.facts, restored.facts);
   assert.equal(deepRequest.viewMode, "landscape");
   assert.equal(deepRequest.intelligenceLevel, "deep");
-  assert.match(providerSource, /const continuation = again \? selectRazielContinuation/);
-  assert.match(providerSource, /const contextSnapshot = continuation\?\.contextSnapshot/);
-  assert.match(providerSource, /const selectedFacts = continuation \? continuation\.facts : facts/);
-  assert.match(providerSource, /const selectedViewMode = continuation\?\.viewMode/);
+  assert.match(requestSource, /const continuation = again \? selectRazielContinuation/);
+  assert.match(requestSource, /const contextSnapshot = continuation\?\.contextSnapshot/);
+  assert.match(requestSource, /const selectedFacts = continuation \? continuation\.facts : facts/);
+  assert.match(requestSource, /const selectedViewMode = continuation\?\.viewMode/);
 });
 
 test("a sourced answer keeps per-message sources and grounding after the next turn fails", () => {
@@ -138,12 +141,12 @@ test("a sourced answer keeps per-message sources and grounding after the next tu
     contextSnapshot: snapshot,
     turn: { id: "sourced", question: "מה זה 776?", intelligenceLevel: "fast", again: false, continuation },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "t1",
     response: { answer: "תשובה מבוססת", intelligenceLevel: "fast", deterministic: false, sourceNames: ["ספר יצירה"] },
     provenance: { turnId: "sourced", sourceNames: ["ספר יצירה"] },
-  });
+  }));
   assert.equal(selectRazielDeepeningCandidate(state)?.turnId, "sourced");
   state = razielSessionReducer(state, {
     type: "turn_started",
@@ -227,17 +230,19 @@ test("performance: conversation resolution loads only after an explicit, synchro
     providerSource.indexOf("const setViewMode = useCallback"),
   );
   const captureState = submit.indexOf("const capturedState = stateRef.current");
-  const captureContext = submit.indexOf("const contextSnapshot = continuation?.contextSnapshot");
   const claimFlight = submit.indexOf("inFlightRef.current = true");
   const loadBuilder = submit.indexOf("await loadRequestBuilder()");
+  const prepareSubmission = submit.indexOf("prepareSubmission({");
   const startTurn = submit.indexOf('dispatch({ type: "turn_started"');
   const callTransport = submit.indexOf("await transport(request)");
 
-  assert.ok(captureState >= 0 && captureState < captureContext);
-  assert.ok(captureContext < claimFlight && claimFlight < loadBuilder);
-  assert.ok(loadBuilder < startTurn && startTurn < callTransport);
+  assert.ok(captureState >= 0 && captureState < claimFlight);
+  assert.ok(claimFlight < loadBuilder && loadBuilder < prepareSubmission);
+  assert.ok(prepareSubmission < startTurn && startTurn < callTransport);
+  assert.ok(requestSource.indexOf("const continuation = again ? selectRazielContinuation")
+    < requestSource.indexOf("const contextSnapshot = continuation?.contextSnapshot"));
   assert.match(submit, /dispatch\(\{ type: "turn_preparing"/);
-  assert.match(submit, /error: "request_builder_unavailable"/);
+  assert.match(submit, /let failure = "request_builder_unavailable"/);
   assert.equal((submit.match(/await transport\(request\)/g) || []).length, 1);
 });
 

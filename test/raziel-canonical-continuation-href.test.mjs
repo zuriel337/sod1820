@@ -5,11 +5,13 @@ import { spawnSync } from "node:child_process";
 import { buildRazielSurfaceContext } from "../src/lib/research/razielSurfaceContext.js";
 import { normalizeResearchContext } from "../src/lib/research/researchContext.js";
 import { withRazielSurfaceContext } from "../src/components/experience2029/razielSessionSeam2029.js";
-import { buildRazielSessionRequest } from "../src/lib/research/razielSessionRequest2029.js";
+import {
+  buildRazielSessionRequest,
+  createRazielContinuationSnapshot,
+  createRazielRequestContextSnapshot as createRazielContextSnapshot,
+} from "../src/lib/research/razielSessionRequest2029.js";
 import {
   createInitialRazielSessionState,
-  createRazielContextSnapshot,
-  createRazielContinuationSnapshot,
 } from "../src/lib/research/razielSession2029.js";
 import { safeCanonicalHref, continuationHrefFromSurface, whatsappContinuationLink, renderWhatsappReply } from "../supabase/functions/_shared/waRazielRender.ts";
 
@@ -61,13 +63,13 @@ const e2e = (href) => continuationHrefFromSurface({ context: buildRazielSurfaceC
 assert.equal(e2e("/a/1"), "/a/1");
 assert.equal(e2e("/b/2"), "/b/2");
 
-// The shared session transport replaces any stale request context with the current Research Context
-// before askRaziel serializes it as surface_semantic. The canonical subject href therefore survives
-// the new provider seam without allowing returnTo (or an earlier surface) to become the continuation.
-const sessionRequest = withRazielSurfaceContext({
-  subject: "מה נמצא כאן?",
-  surfaceSemantic: { surface: "number", context: { subjectHref: "/x/stale" } },
-}, ctx);
+// The lazy submit adapter builds the canonical surface descriptor from the captured Research Context
+// before askRaziel serializes it. The transport seam is now intentionally an identity adapter.
+const sessionRequest = buildRazielSessionRequest({
+  question: "מה נמצא כאן?",
+  state: createInitialRazielSessionState(),
+  contextSnapshot: createRazielContextSnapshot(ctx),
+});
 assert.equal(sessionRequest.surfaceSemantic.context.subjectHref, "/x/subject-26");
 assert.equal(sessionRequest.surfaceSemantic.context.navigation.returnTo.href, "/x/return-here");
 assert.equal(continuationHrefFromSurface(sessionRequest.surfaceSemantic), "/x/subject-26");
@@ -83,7 +85,7 @@ assert.equal(continuationHrefFromSurface(deepSessionRequest.surfaceSemantic), "/
 assert.doesNotMatch(JSON.stringify(deepSessionRequest), /new-99/);
 
 // Real shared-session chain: the bounded continuation snapshot retains A's canonical href, while
-// the transport seam refuses to replace it with B after navigation.
+// the submit adapter refuses to replace it with B after navigation.
 const originalSnapshot = createRazielContextSnapshot(ctx);
 const continuation = createRazielContinuationSnapshot({ contextSnapshot: originalSnapshot });
 const rebuiltDeepRequest = buildRazielSessionRequest({
@@ -116,12 +118,14 @@ const sysFrame = fs.readFileSync("src/components/experience2029/SystemFrame2029.
 const mount = fs.readFileSync("src/components/experience2029/RazielSessionMount2029.jsx", "utf8");
 const seam = fs.readFileSync("src/components/experience2029/razielSessionSeam2029.js", "utf8");
 const provider = fs.readFileSync("src/lib/research/RazielSessionProvider2029.jsx", "utf8");
+const requestAdapter = fs.readFileSync("src/lib/research/razielSessionRequest2029.js", "utf8");
 const supabaseClient = fs.readFileSync("src/lib/supabase.js", "utf8");
 assert.match(sysFrame, /session\.submit\(\{/);   // frame submits; it does not mint or substitute hrefs
 assert.match(provider, /await transport\(request\)/);
 assert.match(mount, /contextRef\.current = research\.context/);
 assert.match(mount, /askRaziel\(withRazielSurfaceContext\(request, contextRef\.current\)\)/);
-assert.match(seam, /const surfaceContext = buildRazielSurfaceContext\(context\)/);
-assert.match(seam, /context: surfaceContext/);
+assert.match(seam, /export function withRazielSurfaceContext\(request\) \{\s*return request;/);
+assert.match(requestAdapter, /const surfaceContext = buildRazielSurfaceContext\(current\)/);
+assert.match(requestAdapter, /surfaceContext \? \{ surfaceContext \}/);
 assert.match(supabaseClient, /surface_semantic: surfaceSemantic/);
 console.log("raziel-canonical-continuation-href: OK");

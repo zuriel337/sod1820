@@ -3,13 +3,16 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { buildRazielSessionRequest } from "../src/lib/research/razielSessionRequest2029.js";
 import {
+  buildRazielSessionRequest,
   createRazielContinuationSnapshot,
-  createInitialRazielSessionState,
-  createRazielContextSnapshot,
-  razielSessionReducer,
+  createRazielRequestContextSnapshot as createRazielContextSnapshot,
+  createRazielTurnSucceededAction,
   selectRazielContinuation,
+} from "../src/lib/research/razielSessionRequest2029.js";
+import {
+  createInitialRazielSessionState,
+  razielSessionReducer,
 } from "../src/lib/research/razielSession2029.js";
 import {
   entityTypeNounHe,
@@ -60,12 +63,12 @@ test("continuity: a desktop turn is available to the next mobile request", () =>
     contextSnapshot: snapshot,
     turn: { id: "a", question: "מה זה 776?", intelligenceLevel: "fast", again: false, projection: "desktop", startedAt: "t0" },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "t1",
     response: { answer: "תשובה", intelligenceLevel: "fast", deterministic: false, sourceNames: [] },
     provenance: { turnId: "a" },
-  });
+  }));
   const request = buildRazielSessionRequest({ question: "ובמסתתר?", state, contextSnapshot: snapshot });
   assert.match(request.context, /שיחה אחרונה:\nמשתמש: מה זה 776\?\nרזיאל: תשובה/);
 });
@@ -101,12 +104,12 @@ test("deep continuation is not rebound to a newly opened surface", () => {
     contextSnapshot: snapshotA,
     turn: { id: "turn-a", question: "שאלה א", intelligenceLevel: "fast", again: false, continuation: continuationA },
   });
-  state = razielSessionReducer(state, {
-    type: "turn_succeeded",
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
     completedAt: "done",
     response: { answer: "תשובה א", intelligenceLevel: "fast", deterministic: false, sourceNames: ["מקור א"] },
     provenance: { turnId: "turn-a" },
-  });
+  }));
   const original = selectRazielContinuation(state.thread, { turnId: "turn-a" });
   const deepRequest = buildRazielSessionRequest({
     question: "שאלה א",
@@ -207,9 +210,9 @@ test("privacy: memory only, owner changes reset it, and surface context is allow
     access: { token: "T" },
   };
   const output = withRazielSurfaceContext(request, context);
-  assert.notEqual(output, request);
+  assert.equal(output, request, "surface context is already projected by the lazy submit adapter");
   assert.deepEqual(request.surfaceSemantic.context, { lens: "post" });
-  assert.equal(output.surfaceSemantic.context.subjectHref, "/post/x");
+  assert.equal(output.surfaceSemantic.context.subjectHref, undefined);
   assert.doesNotMatch(JSON.stringify(output), /PRIVATE|"T"|saved/);
 });
 

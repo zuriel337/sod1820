@@ -18,6 +18,18 @@ export function createRazielRequestBuilderLoader(importer) {
         if (typeof builder !== "function") {
           throw new TypeError("razielSessionRequestLoader2029: buildRazielSessionRequest export is required");
         }
+        if (
+          typeof module.prepareRazielSessionSubmission !== "function"
+          || typeof module.normalizeRazielResponse !== "function"
+          || typeof module.createRazielProvenance !== "function"
+          || typeof module.createRazielTurnSucceededAction !== "function"
+        ) {
+          throw new TypeError("razielSessionRequestLoader2029: submit adapter exports are required");
+        }
+        builder.prepareSubmission = module.prepareRazielSessionSubmission;
+        builder.normalizeResponse = module.normalizeRazielResponse;
+        builder.createProvenance = module.createRazielProvenance;
+        builder.createSucceededAction = module.createRazielTurnSucceededAction;
         return builder;
       })
       .catch((error) => {
