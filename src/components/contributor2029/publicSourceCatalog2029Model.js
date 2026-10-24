@@ -1,5 +1,6 @@
 import { safePublicUrl } from "./publicContributor2029Model.js";
 import { contributorSourceLibraryHref } from "../../lib/research/worldContributorSourceLocator.js";
+import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 
 const PUBLISHED = new Set(["live", "on", "approved", "published", "public"]);
 export const CATALOG_FORMATS = Object.freeze([["all", "הכול"], ["text", "טקסטים"], ["image", "תמונות וגלריה"],
@@ -34,6 +35,31 @@ export function publicSourceCatalog2029(catalog, { profile, canonicalHref, commu
     community: { items: community, available: communityAvailable },
     worldHref: contributorSourceLibraryHref(catalog.contributor.slug),
   };
+}
+
+// Posts keep their native references. The canonical source reader still owns
+// recentItems; adding older writings must never replace that exact recent 20.
+export function appendSourceCatalogWritings2029(view, posts, { slug } = {}) {
+  if (!slug) throw new Error("source_catalog_writer_slug_required");
+  const rows = [...new Map((posts?.rows || []).filter((row) => row.id != null && row.slug).map((row) => [String(row.id), row])).values()];
+  const existing = new Set(view.catalog.items.map((item) => item.sourceRef));
+  const writings = rows.filter((row) => !existing.has(`posts:${row.id}`)).map((row) => {
+    const sourceRef = `posts:${row.id}`;
+    const params = new URLSearchParams({ view: "sources", source: slug, sourceRef });
+    const mediaUrl = safePublicUrl(row.thumb_url || row.image_url);
+    return { id: `post:${row.id}`, sourceRef, linkedSourceRefs: [sourceRef],
+      title: humanContentTitle(row.title, { max: 0 }) || "מאמר ללא כותרת", createdAt: row.date,
+      publicationState: "published", formats: ["text", ...(mediaUrl ? ["image"] : [])], sourceTopics: [], categoryBasis: null,
+      media: mediaUrl ? { url: mediaUrl, type: "image", thumbUrl: mediaUrl } : null,
+      href: `/world?${params}#source-occurrence-${encodeURIComponent(String(row.id))}`,
+      paired: false, sourceRecordCount: 1 };
+  });
+  const items = [...view.catalog.items, ...writings].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || ""))
+    || a.sourceRef.localeCompare(b.sourceRef));
+  return { ...view, catalog: { ...view.catalog, items,
+    truncated: view.catalog.truncated || posts?.complete !== true },
+    publicationCoverage: { posts: { count: posts?.complete ? rows.length : null,
+      complete: posts?.complete === true, availability: posts?.availability || "unavailable" } } };
 }
 
 export function selectSourceCatalog2029(view, search) {

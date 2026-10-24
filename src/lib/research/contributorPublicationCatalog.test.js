@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { fetchContributorPublicationCatalog } from "./contributorPublicationCatalog.js";
 import { appendContributorPublicationCatalog, buildPublicContributorView } from "../../components/contributor2029/publicContributor2029Model.js";
 
-const identity = { id: "writer", user_id: "owner", slug: "writer", display_name: "Writer", wa_names: [] };
+const identity = { id: "writer", user_id: "owner", slug: "writer", display_name: "Writer", wa_names: [], active: true };
 const view = () => ({ items: [], canonicalHref: "/community/researcher/writer", partial: false });
 function clientFixture({ count = 123, broken = null } = {}) {
   const calls = [];
@@ -11,9 +11,9 @@ function clientFixture({ count = 123, broken = null } = {}) {
   return { calls, client: {
     from(table) {
       calls.push({ table });
-      const b = { select: () => b, or: () => b, order: () => b, in: () => b,
+      const b = { select: () => b, or: (filter) => { calls.push({ table, filter }); return b; }, order: () => b, in: () => b,
         eq: (key, value) => { calls.push({ table, key, value }); return b; },
-        range: async () => table === broken ? { error: new Error("offline") } : { data: table === "posts" ? [{ id: 1, slug: "post", title: "Article", author: "Writer" }] : [] } };
+        range: async () => table === broken ? { error: new Error("offline") } : { data: table === "contributors" ? [identity] : table === "posts" ? [{ id: 1, slug: "post", title: "Article", author: "Writer" }] : [] } };
       return b;
     },
     rpc: async (name, args) => { calls.push({ name, ...args }); return { data: contributions.slice(args.p_offset, args.p_offset + args.p_limit) }; },
@@ -78,4 +78,56 @@ test("live source survives the public model with reader proof and its exact Worl
       sourceRef: "channel_updates:source", source: { id: "source", status: "live", text: "Original", resolved_contributor_id: identity.id }, rows: [] }] }, identity);
   assert.equal(result.items.length, 1);
   assert.match(result.items[0].href, /sourceRef=channel_updates%3Asource/);
+});
+
+test("registered aliases reach posts and coauthored posts with escaped exact filters", async () => {
+  const { client, calls } = clientFixture({ count: 0 });
+  const result = await fetchContributorPublicationCatalog(identity, { client, families: ["posts"],
+    attributionReader: async () => ({ identity, names: ["Writer", 'Alias, (quoted) "name"'] }) });
+  const filter = calls.find((call) => call.table === "posts" && call.filter)?.filter;
+  assert.ok(filter.includes(`author.eq.${JSON.stringify('Alias, (quoted) "name"')}`));
+  assert.ok(filter.includes(`authors.cs.{${JSON.stringify('Alias, (quoted) "name"')}}`));
+  assert.deepEqual(Object.keys(result), ["posts"]);
+  assert.ok(calls.every((call) => !["els_records", "channel_updates", "research_objects"].includes(call.table)));
+});
+
+test("source authorship includes another account's upload; owned material retains its separate upload basis", async () => {
+  const rows = [
+    { id: "own", owner_user_id: "owner", author_name: "Writer" },
+    { id: "uploaded-by-system", owner_user_id: "system-account", author_name: "Writer" },
+    { id: "other-author", owner_user_id: "owner", author_name: "Someone else" },
+    { id: "no-credit-own", owner_user_id: "owner", author_name: null },
+    { id: "unrelated", owner_user_id: "other", author_name: null },
+  ];
+  let reads = 0;
+  const { client } = clientFixture({ count: 0 });
+  const original = client.from;
+  client.from = (table) => {
+    if (table !== "els_records") return original(table);
+    reads += 1;
+    const query = { select: () => query, eq: () => query, or: () => query, order: () => query,
+      range: async () => ({ data: rows }) };
+    return query;
+  };
+  const result = await fetchContributorPublicationCatalog({ id: identity.id, slug: identity.slug }, { client });
+  assert.equal(reads, 1);
+  assert.deepEqual(result.ciphers.rows.map((row) => row.id), ["own", "uploaded-by-system", "other-author", "no-credit-own"]);
+  assert.equal(result.ciphers.rows[1].owner_user_id, "system-account");
+  assert.equal(result.ciphers.rows[1].attributionBasis, "source_author_credit");
+  assert.equal(result.ciphers.rows[2].attributionBasis, "upload_account_with_unresolved_author_credit");
+  assert.equal(result.ciphers.rows[3].attributionBasis, "account_without_author_credit");
+  const projected=appendContributorPublicationCatalog(view(), { ciphers: { ...result.ciphers, rows: result.ciphers.rows.map(row=>({
+    ...row, slug:row.id, status:"published", visibility:"public" })) } }, identity);
+  assert.equal(projected.items.find(item=>item.id==="els:uploaded-by-system").type,"findings");
+  assert.equal(projected.items.find(item=>item.id==="els:other-author").type,"sources");
+});
+
+test("unavailable identity proof is unknown rather than guessed name attribution", async () => {
+  const { client, calls } = clientFixture({ count: 0, broken: "contributors" });
+  const result = await fetchContributorPublicationCatalog(identity, { client });
+  for (const family of ["posts", "ciphers", "insights", "topics"]) {
+    assert.equal(result[family].availability, "unavailable");
+    assert.equal(result[family].complete, false);
+  }
+  assert.equal(calls.some((call) => call.table === "posts"), false);
 });
