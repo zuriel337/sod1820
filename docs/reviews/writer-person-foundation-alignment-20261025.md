@@ -10,6 +10,13 @@ integrating. Remote central was independently checked at
 `09d3dbb1fe149aa41377ec87b81849b4bd271e37`; main at
 `e73687221aa2ab639930643e5cc8c99666adce88`.
 
+During final remote verification main advanced to
+`8642f7c93c9b653b7a42faaa2809362f3cd280e0` (PR #1151). Its only changed path
+relative to the initial check is `src/pages/HomeNewPage.jsx`, the Legacy home
+poster. None of this slice's six paths overlap. The candidate was not rebased or
+merged; tests describe this branch, not the later main or an integrated candidate.
+Implementation commit: `31e09d9628325bcd3aa8d5a4294772243759755e`.
+
 ## Authority and scope
 
 ZURIEL requested continued alignment before later integration. Live read-only
