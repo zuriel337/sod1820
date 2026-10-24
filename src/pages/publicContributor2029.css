@@ -85,21 +85,27 @@
 @media(max-width:480px){.public-contributor-2029{gap:16px}.pc-items{grid-template-columns:minmax(0,1fr)}.public-contributor-2029 .pc-filters .pc-world{margin-inline-start:0}.pc-filters{gap:2px 14px}}
 @media(prefers-reduced-motion:reduce){.public-contributor-2029 *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
-/* Mobile: a compact hero (name and role beside a smaller seal, rank caption and actions on one row), then a one-row swipeable navigation.
-   The full bio stays reachable from the rank "על הכותב" control; desktop keeps the editorial layout above. */
+/* Desktop: the text leads; the medallion, labels, available measurements and the path control form one identity column beside it. */
+@media(min-width:641px){
+  .pc-profile{display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-areas:"copy seal" "copy cap" "panel panel";column-gap:clamp(16px,4vw,40px);row-gap:6px;align-items:start}
+  .pc-profile-copy{grid-area:copy}
+  .pc-profile .pc-person-seal{grid-area:seal;justify-self:center}
+  .pc-profile .pc-person-copy{grid-area:cap;justify-items:center;text-align:center;justify-self:center}
+  .pc-profile .pc-person-summary{justify-content:center}
+  .pc-profile .pc-person-labels{justify-content:center}
+  .pc-profile .pc-person-panel{grid-area:panel}
+}
+
+/* Mobile: a compact hero (name and role beside the medallion, labels and the path control on one row), then a one-row swipeable navigation.
+   The full bio stays reachable from the path panel; desktop keeps the editorial layout above. */
 @media(max-width:640px){
-  .pc-profile{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"copy seal" "cap cap";align-items:center;gap:4px 12px;padding-block:0}
+  .pc-profile{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"copy seal" "cap cap" "panel panel";align-items:center;gap:4px 12px;padding-block:0}
   .pc-profile-copy{grid-area:copy;gap:4px}
   .pc-profile h1{font-size:clamp(26px,8vw,32px)}
   .pc-profile .pc-bio,.pc-profile .pc-boundary{display:none}
-  .pc-profile .pc-rank{display:contents}
-  .pc-profile .pc-rank-scene{grid-area:seal;zoom:.62;margin:0}
-  .pc-profile .pc-rank-copy{grid-area:cap;display:flex;flex-wrap:wrap;align-items:center;gap:0 12px}
-  .pc-profile .pc-rank-kicker{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  .pc-profile .pc-rank-label{font-size:var(--s29-type-ui,16px)}
-  .pc-profile .pc-rank-level{font-size:14px}
-  .pc-profile .pc-rank-actions{margin-inline-start:auto}
-  .pc-profile .pc-rank-detail,.pc-profile .pc-rank-about{flex:1 1 100%}
+  .pc-profile .pc-person-seal{grid-area:seal;margin:0}
+  .pc-profile .pc-person-copy{grid-area:cap}
+  .pc-profile .pc-person-panel{grid-area:panel}
   .pc-filters{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0 16px;margin-block:0}
   .pc-filters::-webkit-scrollbar{display:none}
   .public-contributor-2029 .pc-filters>*{flex:none;white-space:nowrap;scroll-snap-align:start;min-height:44px}

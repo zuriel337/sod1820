@@ -95,7 +95,8 @@ with sync_playwright() as p:
             page.goto(BASE + "?theme=" + theme)
             page.get_by_role("link", name="התחברות לשליחת הודעה").wait_for()
             page.get_by_text("מוקד כתיבה ציבורי", exact=True).wait_for()
-            assert "6 שנים בקהילה" in page.locator(".cx-overview").inner_text()
+            overview = page.locator(".cx-overview").inner_text()
+            assert "נרשם לאתר" in overview and "6 שנים מאז ההרשמה" in overview and "חבר מאז" not in overview
             assert page.locator(".cx-facts dt").filter(has_text="חיבור אחרון").count() == 0, "unavailable presence must not become a displayed date"
             assert page.locator(".cx-card").count() == 3
             assert page.locator(".cx-card a[href='https://example.invalid/native-writing']").count() == 1
@@ -103,13 +104,13 @@ with sync_playwright() as p:
             assert page.get_by_role("button", name="בחירה להצגה", exact=True).count() == 0
             assert page.get_by_role("button", name="עריכת ההקדמה הציבורית", exact=True).count() == 0
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), (width, theme)
-            flip = page.locator(".pc-rank-flip")
+            flip = page.locator(".pc-person-toggle")
             flip.focus()
             page.keyboard.press("Enter")
             expect(flip).to_have_attribute("aria-expanded", "true")
-            assert page.locator(".pc-rank-detail").is_visible()
-            assert page.locator(".pc-rank-prism").evaluate("n=>getComputedStyle(n).transform").startswith("matrix3d(")
-            assert page.locator(".pc-rank-prism").evaluate("n=>getComputedStyle(n).transitionDuration") == "0s"
+            assert page.locator(".pc-person-panel").is_visible()
+            assert page.locator(".pc-person-stack").evaluate("n=>getComputedStyle(n).transform").startswith("matrix3d(")
+            assert page.locator(".pc-person-stack").evaluate("n=>getComputedStyle(n).transitionDuration") == "0s"
             flip.click()
             for button in page.locator(".cx-actions button,.cx-actions a").all():
                 if button.is_visible():

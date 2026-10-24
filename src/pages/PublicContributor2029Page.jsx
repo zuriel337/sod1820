@@ -9,7 +9,8 @@ import { applySeo } from "../lib/seo.js";
 import "./publicContributor2029.css";
 import ContributorCommunityActivity2029 from "../components/contributor2029/ContributorCommunityActivity2029.jsx";
 import PublicSourceCatalog2029 from "../components/contributor2029/PublicSourceCatalog2029.jsx";
-import PublicContributorRank2029 from "../components/contributor2029/ContributorRankSeal2029.jsx";
+import ContributorPersonMedallion2029 from "../components/contributor2029/ContributorPersonMedallion2029.jsx";
+import { contributorPersonView2029 } from "../components/contributor2029/contributorPersonView2029.js";
 import ContributorActionsController2029 from "../components/contributor2029/ContributorActionsController2029.jsx";
 import { useContributorReading2029 } from "../components/contributor2029/ContributorReadingController2029.jsx";
 
@@ -23,6 +24,8 @@ export function PublicContributor2029View(props) {
 function GeneralContributor2029View({ view, loading = false, error = false, onRetry }) {
   const P = use2029Palette();
   const reading = useContributorReading2029(view, onRetry);
+  const person = useMemo(() => view ? contributorPersonView2029(view.personProjection, { overview: reading.overview, name: view.profile.name }) : null,
+    [view, reading.overview]);
   const location = useLocation();
   const [params, setParams] = useSearchParams();
   const context = readContributorLocation(location.search, typeof window !== "undefined" ? window.location.origin : "https://sod1820.co.il");
@@ -56,14 +59,14 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
       {!loading && !error ? <p>אין דף ציבורי זמין בכתובת הזאת.</p> : null}
     </div> : <>
       <header className="pc-profile">
-        <div className="pc-profile-copy"><p className="pc-eyebrow">כותב · כתבים ומחקר</p>
+        <div className="pc-profile-copy"><p className="pc-eyebrow">{person?.eyebrow || "חבר קהילה"} · כתבים ומחקר</p>
           <h1 id="public-contributor-title">{view.profile.name}</h1>
           {view.profile.role ? <p className="pc-role">{view.profile.role}</p> : null}
           {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
-          <p className="pc-boundary">החומרים של הכותב וההקשרים שנפתחו מהם. שיוך לכותב אינו אימות של תוכן.</p>
+          <p className="pc-boundary">{person?.boundary || "מה שהאדם כתב והעלה בקהילה ובמקורות. שיוך לאדם אינו אימות של תוכן."}</p>
         </div>
-        <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
-          links={[{ href: `${view.canonicalHref}?section=findings`, label: "ממצאים וכתבים" }]} previewRank={view.rankPreview} />
+        <ContributorPersonMedallion2029 person={person} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
+          links={[{ href: `${view.canonicalHref}?section=findings`, label: "ממצאים וכתבים" }]} />
       </header>
       <ContributorActionsController2029 view={view} onPublicData={reading.receivePublicData} excludedStudioIds={reading.featuredIds} />
       {reading.header}

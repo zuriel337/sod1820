@@ -217,14 +217,14 @@ try:
         publish.click()
         page.get_by_role("button", name="הסתרת התמונה מהדף הציבורי").wait_for()
         page.goto(BASE + PUBLIC + "?view=public")
-        page.locator(".pc-rank-front img").wait_for()
+        page.locator(".pc-person-portrait").wait_for()
         assert page.get_by_role("link", name="עריכת הדף הציבורי שלי").count() == 0
         page.goto(BASE + "/2029/me/profile")
         page.get_by_role("button", name="הסתרת התמונה מהדף הציבורי").click()
         page.get_by_role("button", name="פרסום התמונה בדף הציבורי").wait_for()
         page.goto(BASE + PUBLIC + "?view=public")
-        page.locator(".pc-rank[data-rank-state=ready]").wait_for()
-        assert page.locator(".pc-rank-front img").count() == 0
+        page.locator(".pc-person").wait_for()
+        assert page.locator(".pc-person-portrait").count() == 0 and page.locator(".pc-person-initial").count() == 1
         report["flows"].append("explicit photo consent -> actual public avatar -> revoke; visitor preview hides owner tools")
         page.goto(BASE + "/2029/me/messages?writer=tzvi-opoc&returnTo=" + PUBLIC)
         page.get_by_role("textbox", name="ההודעה שלך").wait_for()

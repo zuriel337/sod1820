@@ -1,11 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { use2029Palette } from "../../lib/palette.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { approvedReturnHref } from "./publicContributor2029Model.js";
 import { CATALOG_FORMATS, selectSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
 import ContributorCommunityActivity2029 from "./ContributorCommunityActivity2029.jsx";
-import PublicContributorRank2029 from "./ContributorRankSeal2029.jsx";
+import ContributorPersonMedallion2029 from "./ContributorPersonMedallion2029.jsx";
+import { contributorPersonView2029 } from "./contributorPersonView2029.js";
 import ContributorActionsController2029 from "./ContributorActionsController2029.jsx";
 import { useContributorReading2029 } from "./ContributorReadingController2029.jsx";
 
@@ -14,6 +15,8 @@ const FORMAT_LABEL = { text: "טקסט", image: "תמונה", video: "וידאו
 export default function PublicSourceCatalog2029({ view, onRetry }) {
   const P = use2029Palette();
   const reading = useContributorReading2029(view, onRetry);
+  const person = useMemo(() => contributorPersonView2029(view.personProjection, { overview: reading.overview, name: view.profile.name }),
+    [view, reading.overview]);
   const location = useLocation();
   const [params, setParams] = useSearchParams();
   const selection = selectSourceCatalog2029(view, location.search);
@@ -34,13 +37,13 @@ export default function PublicSourceCatalog2029({ view, onRetry }) {
       "--pc-border": P.border, "--pc-accent": P.accentText, "--pc-focus": P.focusRing || P.accent }}>
     {returnHref ? <Link className="pc-return" to={returnHref}>חזרה למקום שממנו הגעת ↗</Link> : null}
     <header className="pc-profile">
-      <div className="pc-profile-copy"><p className="pc-eyebrow">כותב · כתבים וחומרים</p><h1 id="public-contributor-title">{view.profile.name}</h1>
+      <div className="pc-profile-copy"><p className="pc-eyebrow">{person?.eyebrow || "חבר קהילה"} · כתבים וחומרים</p><h1 id="public-contributor-title">{view.profile.name}</h1>
         {view.profile.role ? <p className="pc-role">{view.profile.role}</p> : null}
         {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
         <p className="pc-boundary">להכיר את הכתבים, לקרוא במקור ולהמשיך אל הממצאים והקשרים בעולם.</p>
       </div>
-      <PublicContributorRank2029 canonicalHref={view.canonicalHref} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
-        links={[{ href: view.worldHref, label: "הממצאים בעולם" }, { href: `${view.canonicalHref}?section=all`, label: "כל הכתבים" }]} previewRank={view.rankPreview} />
+      <ContributorPersonMedallion2029 person={person} name={view.profile.name} avatar={view.profile.avatar} bio={view.profile.bio}
+        links={[{ href: view.worldHref, label: "הממצאים בעולם" }, { href: `${view.canonicalHref}?section=all`, label: "כל הכתבים" }]} />
     </header>
     <ContributorActionsController2029 view={view} onPublicData={reading.receivePublicData} excludedStudioIds={reading.featuredIds} />
     {reading.header}

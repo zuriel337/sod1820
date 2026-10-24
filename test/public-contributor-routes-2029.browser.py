@@ -115,7 +115,8 @@ try:
                 href = BASE + "/community/researcher/tzvi-opoc?" + urlencode({"returnTo": return_to})
                 page.goto(href)
                 page.get_by_role("heading", name=fixture["tzvi"]["display_name"], exact=True).wait_for()
-                page.locator(".pc-rank[data-rank-state='ready']").wait_for()
+                page.locator(".pc-person").wait_for()
+                assert page.locator(".pc-rank").count() == 0 and not any(c["table"] == "rank" for c in calls), "public pages no longer read or show the legacy 1-5 rank"
                 assert page.locator(".sod29-root.surface-community").count() == 1
                 assert page.locator("[data-catalog-source]").count() == 20
                 assert page.locator(".pc-return").get_attribute("href") == return_to
