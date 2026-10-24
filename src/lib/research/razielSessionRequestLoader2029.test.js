@@ -12,6 +12,14 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
+const requestModule = (builder) => ({
+  buildRazielSessionRequest: builder,
+  prepareRazielSessionSubmission: () => ({ request: {} }),
+  normalizeRazielResponse: () => ({ answer: "ok" }),
+  createRazielProvenance: () => ({ transport: "askRaziel" }),
+  createRazielTurnSucceededAction: () => ({ type: "turn_succeeded", patch: {} }),
+});
+
 test("factory is zero-cost and concurrent loads share one cached import", async () => {
   const chunk = deferred();
   const builder = () => ({ ok: true });
@@ -28,7 +36,7 @@ test("factory is zero-cost and concurrent loads share one cached import", async 
   await Promise.resolve();
   assert.equal(imports, 1);
 
-  chunk.resolve({ buildRazielSessionRequest: builder });
+  chunk.resolve(requestModule(builder));
   assert.strictEqual(await first, builder);
   assert.strictEqual(await second, builder);
   assert.strictEqual(await load(), builder, "a successful builder remains cached for later turns");
@@ -42,7 +50,7 @@ test("a rejected import clears the cache and a later turn can retry", async () =
     imports += 1;
     return imports === 1
       ? Promise.reject(new Error("chunk unavailable"))
-      : Promise.resolve({ buildRazielSessionRequest: builder });
+      : Promise.resolve(requestModule(builder));
   });
 
   await assert.rejects(load(), /chunk unavailable/);
@@ -56,7 +64,7 @@ test("a malformed module fails closed and does not poison a later valid import",
     imports += 1;
     return Promise.resolve(imports === 1
       ? { default: builder }
-      : { buildRazielSessionRequest: builder });
+      : requestModule(builder));
   });
 
   await assert.rejects(load(), /buildRazielSessionRequest export is required/);

@@ -9,6 +9,7 @@ const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const frame = read("../../components/experience2029/SystemFrame2029.jsx");
 const mod = read("./razielSurfaceContext.js");
 const session = read("./razielSession2029.js");
+const request = read("./razielSessionRequest2029.js");
 const provider = read("./RazielSessionProvider2029.jsx");
 const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
 const semFn = edge.slice(edge.indexOf("function razielSemanticSurfaceText"), edge.indexOf("function razielPlanMeta"));
@@ -57,15 +58,15 @@ test("I: never forwards body/html/raw discovery/private workspace keys", () => {
 test("I: SystemFrame wires it into existing surface_semantic only; no new read/provider call on open; Number/ELS/transcript intact", () => {
   assert.match(chat, /session\.submit\(\{ question: q,[\s\S]*view: \{ numberFocus, readingFocus, elsFocus \}/);
   assert.doesNotMatch(chat, /useEffect/);
-  assert.match(provider, /createRazielContextSnapshot\(research\.context, view, startedAt\)/);
-  assert.match(provider, /buildRazielSessionRequest\(\{/);
-  const semantic = session.slice(session.indexOf("function snapshotSurfaceSemantic"), session.indexOf("export function buildRazielSessionRequest"));
+  assert.match(provider, /prepareSubmission\(\{/);
+  assert.match(request, /createRazielRequestContextSnapshot\(researchContext, view, startedAt\)/);
+  const semantic = request.slice(request.indexOf("function snapshotSurfaceSemantic"), request.indexOf("export function buildRazielSessionRequest"));
   assert.match(semantic, /subject: snapshot\.subject/);
   assert.match(semantic, /number: snapshot\.focus\?\.number/);
   assert.match(semantic, /reading: snapshot\.focus\?\.reading/);
   assert.match(semantic, /els: snapshot\.focus\?\.els/);
-  assert.match(session, /prior\.slice\(-2\)/);
-  assert.match(session, /context: 600/);
+  assert.match(request, /messages\.slice\(-2\)/);
+  assert.match(request, /context: 600/);
   assert.doesNotMatch(semantic, /supabase|fetch\(|innerHTML|outerHTML/);
   const beforeSubmit = provider.slice(0, provider.indexOf("const submit = useCallback"));
   const submit = provider.slice(provider.indexOf("const submit = useCallback"), provider.indexOf("const setViewMode = useCallback"));
