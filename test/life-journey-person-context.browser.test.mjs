@@ -23,9 +23,10 @@ function lifeJourneyFixturePlugin() {
     ["virtual:life-journey-auth.jsx", `const state={user:{id:"fixture-owner"},loading:false};export const useAuth=()=>state;`],
     ["virtual:life-journey-tracking.js", `window.__telemetry=window.__telemetry||[];export const track=(...args)=>window.__telemetry.push(args);`],
     ["virtual:life-journey-personal-date.js", `
+      window.__dateCalls=window.__dateCalls||[];
       export const gregorianToHebrewDateRepresentation=()=>({hebrew:{pretty:"י״א בתשרי"}});
       export const createSupabasePersonalDateCrossProvider=()=>async()=>[];
-      export const runPersonalDateResearch=async()=>({findings:[]});
+      export const runPersonalDateResearch=async(input)=>{window.__dateCalls.push(input);return {findings:[{kind:"date_cross",subject:{value:73}}]};};
     `],
     ["virtual:life-journey-plan.js", `export const buildAccessDescriptor=()=>({scope:"private"});`],
     ["virtual:life-journey-hints.js", `
@@ -157,6 +158,14 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneySelectedMemberRefs?.length), 2);
     assert.equal(await childSelection.isChecked(), true);
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "select-all remains navigation context only");
+    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "protocol" && call.name === "ילד בדיקה")), false, "family names are not researched by selection");
+    assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), false, "family dates are not researched by selection");
+    await family.getByRole("button", { name: "חקור 2 אנשים יחד" }).click();
+    await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
+    await family.locator(".person-journey-family-shared", { hasText: "2 אנשים" }).waitFor();
+    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "protocol" && call.name === "ילד בדיקה")), true, "explicit family research includes the selected child");
+    assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
+    assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");
 
     for (const theme of ["light", "parchment", "dark"]) {
       for (const width of [390, 1280]) {
@@ -192,7 +201,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await childSelection.isChecked(), true, "exact return preserves the family selection");
 
     const childCard = family.locator("article", { hasText: "ילד בדיקה" });
-    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.name === "ילד בדיקה")), false, "family is not searched automatically");
+    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "protocol" && call.name === "ילד בדיקה")), false, "refresh preserves selection but never replays family research automatically");
     const elsCallsBefore = await page.evaluate(() => window.__elsCalls.length);
     await childCard.getByRole("button", { name: "שם ותאריך", exact: true }).click();
     await page.getByRole("heading", { name: "שם ותאריך" }).waitFor();

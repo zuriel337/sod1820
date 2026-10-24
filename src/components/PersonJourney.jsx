@@ -3,6 +3,7 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import {
   getNameMulti,
+  getNameProtocol,
   getOrCreateMyPersonId,
   listFamily,
   supabase,
@@ -38,6 +39,7 @@ const RELATIONS = Object.freeze([
 const clean = (value) => String(value || "").trim();
 const metaObject = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
 const joinName = (first, last) => [clean(first), clean(last)].filter(Boolean).join(" ");
+const MAX_FAMILY_RESEARCH_MEMBERS = 12;
 
 export function personJourneyErrorMessage(error) {
   const candidates = [error?.message, error?.error, error?.details, error?.hint, error];
@@ -66,6 +68,50 @@ function researchSummary(nameResult, dateBundle, dateRepresentation) {
   });
 }
 
+function memberResearchProfile(member) {
+  const meta = metaObject(member?.meta);
+  const pieces = clean(member?.name).split(/\s+/).filter(Boolean);
+  const first = clean(meta.first_name) || pieces.shift() || "";
+  const last = clean(meta.surname) || pieces.join(" ");
+  return Object.freeze({
+    first,
+    last,
+    fullName: clean(member?.name) || joinName(first, last),
+    birthdate: clean(meta.birthdate_iso),
+  });
+}
+
+function familyResearchSummary(nameDocument, dateBundle, dateRepresentation) {
+  const crossValues = [...new Set((Array.isArray(dateBundle?.findings) ? dateBundle.findings : [])
+    .filter(finding => finding?.kind === "date_cross")
+    .map(finding => Number(finding?.subject?.value))
+    .filter(Number.isSafeInteger))];
+  const rawFullValue = nameDocument?.input?.value;
+  const fullValue = rawFullValue == null || rawFullValue === "" ? null : Number(rawFullValue);
+  const agents = Array.isArray(nameDocument?.agents) ? nameDocument.agents : [];
+  return Object.freeze({
+    fullValue: Number.isSafeInteger(fullValue) ? fullValue : null,
+    hebrewDate: dateRepresentation?.hebrew?.pretty || null,
+    crossValues,
+    tracksWithResults: agents.filter(agent => agent?.ran && agent?.ok && !agent?.empty).length,
+    partial: !nameDocument,
+  });
+}
+
+function sharedFamilyValues(rows) {
+  const counts = new Map();
+  for (const row of rows) {
+    if (row.state !== "ready") continue;
+    const values = new Set([row.data?.fullValue, ...(row.data?.crossValues || [])]
+      .filter(Number.isSafeInteger));
+    for (const value of values) counts.set(value, (counts.get(value) || 0) + 1);
+  }
+  return [...counts.entries()]
+    .filter(([, count]) => count >= 2)
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => b.count - a.count || a.value - b.value);
+}
+
 export default function PersonJourney({ variant = "legacy", CapabilitySurface = null }) {
   const { user, loading: authLoading } = useAuth();
   const research = useResearch();
@@ -76,6 +122,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
   const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
+  const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], error: null });
 
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
@@ -237,6 +284,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
         profile_version: "life_journey_2029_v1",
       });
       await refresh(personId);
+      setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       track("journey_person", null, "save_self");
       await runInitialResearch({ first, last, date });
     } catch (error) {
@@ -266,6 +314,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       setNewMemberBirthdate("");
       setNewMemberRelation("none");
       await refresh(personId);
+      setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       track("journey_person", null, "add_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
@@ -334,7 +383,11 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       setErr("לא ניתן לעדכן כרגע את בחירת המחקר המשפחתי.");
       return;
     }
-    if (!research.setResearchContext?.(patch)) setErr("לא ניתן לעדכן כרגע את בחירת המחקר המשפחתי.");
+    if (!research.setResearchContext?.(patch)) {
+      setErr("לא ניתן לעדכן כרגע את בחירת המחקר המשפחתי.");
+      return;
+    }
+    setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
   }, [research, selfRef]);
 
   const updateFamilySelection = useCallback((memberRef, included) => {
@@ -343,6 +396,70 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       : selectedFamilyRefs.filter(ref => ref !== memberRef);
     commitFamilySelection(nextRefs);
   }, [commitFamilySelection, selectedFamilyRefs]);
+
+  const runSelectedFamilyResearch = useCallback(async () => {
+    if (!user) return;
+    const selectedSet = new Set(selectedFamilyRefs);
+    const selectedMembers = members.filter(member => selectedSet.has(clean(member.source_ref)));
+    if (!selectedMembers.length) {
+      setFamilyResearch({ state: "error", rows: [], sharedValues: [], error: "בחרו לפחות אדם אחד למחקר המשפחתי." });
+      return;
+    }
+    if (selectedMembers.length > MAX_FAMILY_RESEARCH_MEMBERS) {
+      setFamilyResearch({ state: "error", rows: [], sharedValues: [], error: `אפשר לבדוק עד ${MAX_FAMILY_RESEARCH_MEMBERS} אנשים בכל הפעלה.` });
+      return;
+    }
+
+    setFamilyResearch({ state: "loading", rows: [], sharedValues: [], error: null });
+    const accessDescriptor = buildAccessDescriptor({
+      user_ref: user.id,
+      authenticated: true,
+      verified_authority: { source: "supabase_auth", subject_verified: true },
+    }, "authenticated_user");
+    const crossProvider = createSupabasePersonalDateCrossProvider(supabase);
+
+    try {
+      const rows = await Promise.all(selectedMembers.map(async member => {
+        const profile = memberResearchProfile(member);
+        try {
+          const dateRepresentation = profile.birthdate
+            ? gregorianToHebrewDateRepresentation(profile.birthdate)
+            : null;
+          const [nameDocument, dateBundle] = await Promise.all([
+            getNameProtocol(profile.fullName),
+            profile.birthdate
+              ? runPersonalDateResearch({
+                  name: profile.first,
+                  surname: profile.last || null,
+                  birthdateIso: profile.birthdate,
+                  crossProvider,
+                  accessDescriptor,
+                })
+              : Promise.resolve(null),
+          ]);
+          return Object.freeze({
+            memberRef: clean(member.source_ref),
+            name: profile.fullName,
+            state: "ready",
+            data: familyResearchSummary(nameDocument, dateBundle, dateRepresentation),
+            error: null,
+          });
+        } catch {
+          return Object.freeze({
+            memberRef: clean(member.source_ref),
+            name: profile.fullName,
+            state: "error",
+            data: null,
+            error: "המחקר לא הושלם עבור האדם הזה.",
+          });
+        }
+      }));
+      setFamilyResearch({ state: "ready", rows, sharedValues: sharedFamilyValues(rows), error: null });
+      track("journey_person", null, "family_research_explicit");
+    } catch (error) {
+      setFamilyResearch({ state: "error", rows: [], sharedValues: [], error: personJourneyErrorMessage(error) });
+    }
+  }, [members, selectedFamilyRefs, user]);
 
   if (authLoading || loading) {
     return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
@@ -514,6 +631,55 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
           </div>
         </footer>
       </fieldset> : null}
+
+      {members.length ? <div className="person-journey-family-research-actions">
+        <button
+          type="button"
+          className="person-journey-primary"
+          disabled={!selectedFamilyRefs.length || selectedFamilyRefs.length > MAX_FAMILY_RESEARCH_MEMBERS || familyResearch.state === "loading"}
+          onClick={runSelectedFamilyResearch}
+        >
+          {familyResearch.state === "loading"
+            ? "מחבר את המחקר המשפחתי…"
+            : selectedFamilyRefs.length === 1
+              ? "חקור אדם אחד"
+              : `חקור ${selectedFamilyRefs.length} אנשים יחד`}
+        </button>
+        <small>הפעלה מפורשת של שכבות השם והתאריך בלבד. ELS אינו משתתף בשלב הזה.</small>
+      </div> : null}
+
+      {familyResearch.state === "loading" ? <CanonicalProgress
+        title="בונה מפת מחקר משפחתית"
+        detail="בודק במקביל רק את האנשים שבחרת, דרך מנועי השם והתאריך הקיימים."
+        phase="משפחה ↔ שם ↔ תאריך"
+        compact
+      /> : null}
+      {familyResearch.state === "error" ? <div className="person-journey-error" role="alert">{familyResearch.error}</div> : null}
+      {familyResearch.state === "ready" ? <section className="person-journey-family-research" aria-label="תוצאות המחקר המשפחתי">
+        <div className="person-journey-family-research-head">
+          <div><small>מחקר מפורש</small><h3>מפת המחקר המשפחתית</h3></div>
+          <span>{familyResearch.rows.filter(row => row.state === "ready").length} מתוך {familyResearch.rows.length} הושלמו</span>
+        </div>
+        {familyResearch.sharedValues.length ? <div className="person-journey-family-shared">
+          <small>ערכים שמופיעים אצל לפחות שני אנשים שנבחרו</small>
+          <div>{familyResearch.sharedValues.map(item => <span key={item.value}><strong>{item.value}</strong> · {item.count} אנשים</span>)}</div>
+          <p>זהו חיבור מחושב בלבד — לא פרשנות על המשפחה.</p>
+        </div> : <p className="person-journey-note">לא נמצא כרגע ערך משותף בין תוצאות השם ונקודות המפגש. זו אינה קביעה שאין קשר.</p>}
+        <div className="person-journey-family-research-grid">
+          {familyResearch.rows.map(row => <article key={row.memberRef}>
+            <header><strong>{row.name}</strong><small>{row.data?.hebrewDate || "תאריך עברי לא זמין"}</small></header>
+            {row.state === "ready" ? <>
+              <dl>
+                <div><dt>ערך השם</dt><dd>{row.data.fullValue ?? "—"}</dd></div>
+                <div><dt>שכבות עם תוצאה</dt><dd>{row.data.tracksWithResults}</dd></div>
+                <div><dt>נקודות מפגש</dt><dd>{row.data.crossValues.length}</dd></div>
+              </dl>
+              {row.data.crossValues.length ? <div className="person-journey-family-cross-values">{row.data.crossValues.map(value => <span key={value}>{value}</span>)}</div> : null}
+              {row.data.partial ? <small>שכבת השם לא הייתה זמינה; מוצג המידע שחושב מהתאריך בלבד.</small> : null}
+            </> : <p>{row.error}</p>}
+          </article>)}
+        </div>
+      </section> : null}
 
       {familyMembers.length ? <div className="person-journey-family-list">
         {familyMembers.map((member) => {

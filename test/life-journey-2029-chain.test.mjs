@@ -35,6 +35,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /upsertFamilyRelation/);
   assert.match(journey, /birthdate_iso/);
   assert.match(journey, /getNameMulti/);
+  assert.match(journey, /getNameProtocol/);
   assert.match(journey, /runPersonalDateResearch/);
   assert.match(journey, /CanonicalProgress/);
   assert.match(journey, /birthdate:\s*null/);
@@ -48,6 +49,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /buildLifeJourneyExactReturnPatch/);
   assert.match(journey, /buildLifeJourneyFamilySelectionPatch/);
   assert.match(journey, /lifeJourneySelectedMemberRefs/);
+  assert.match(journey, /family_research_explicit/);
+  assert.match(journey, /Promise\.all\(selectedMembers\.map/);
+  assert.match(journey, /חקור \$\{selectedFamilyRefs\.length\} אנשים יחד/);
+  assert.match(journey, /מפת המחקר המשפחתית/);
+  assert.match(journey, /ELS אינו משתתף בשלב הזה/);
   assert.match(journey, /continueResearchPath/);
   assert.match(personContext, /life_journey_person_context_v1/);
   assert.match(personContext, /buildExactReturnPatch/);
