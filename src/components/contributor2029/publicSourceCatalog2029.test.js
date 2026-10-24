@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { publicSourceCatalog2029,selectSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
+import { appendSourceCatalogWritings2029,publicSourceCatalog2029,selectSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
 import { sourceCatalogFixture,sourceCatalogFixtureView,catalogFixtureIdentity,catalogFixtureSources } from "./publicSourceCatalog2029Fixtures.js";
 import { loadPublicContributor2029 } from "./loadPublicContributor2029.js";
 
@@ -80,4 +80,45 @@ test("Tzvi loader calls the canonical SOURCE_LIBRARY wrapper; never queries rese
   assert.equal(view.catalog.recentItems.length,20);
   assert.equal(calls.some(table=>table==="research_objects"||table==="world_contributor_research_v1"),false);
   assert.equal(calls.filter(table=>table==="channel_updates").length,3);
+});
+
+test("five native articles join the full catalogue once, preserving the exact twenty recent sources",()=>{
+  const base=sourceCatalogFixtureView(1054);
+  const rows=Array.from({length:5},(_,i)=>({id:5000+i,slug:`article-${i}`,title:`Article ${i}`,date:"2026-08-01T12:00:00Z"}));
+  const view=appendSourceCatalogWritings2029(base,{rows:[...rows,rows[0]],complete:true,availability:"ok"},{slug:"tzvi-opoc"});
+  assert.equal(view.catalog.items.length,base.catalog.items.length+5);
+  assert.strictEqual(view.catalog.recentItems,base.catalog.recentItems);
+  assert.deepEqual(selectSourceCatalog2029(view,"").rows,base.catalog.recentItems);
+  for(const row of rows){
+    const selection=selectSourceCatalog2029(view,`section=all&item=post%3A${row.id}`);
+    const item=selection.rows.find(item=>item.id===`post:${row.id}`);
+    assert.equal(item.sourceRef,`posts:${row.id}`);
+    assert.equal(new URL(item.href,"https://example.test").searchParams.get("source"),"tzvi-opoc");
+    assert.equal(new URL(item.href,"https://example.test").searchParams.get("sourceRef"),`posts:${row.id}`);
+    assert.deepEqual(item.linkedSourceRefs,[`posts:${row.id}`]);
+  }
+  assert.equal(view.publicationCoverage.posts.count,5);
+  assert.equal(view.community,base.community);
+});
+
+test("article load failure keeps native sources and signals incomplete catalogue rather than zero",()=>{
+  const base=sourceCatalogFixtureView();
+  const view=appendSourceCatalogWritings2029(base,{rows:[],complete:false,availability:"unavailable"},{slug:"tzvi-opoc"});
+  assert.equal(view.publicationCoverage.posts.count,null);
+  assert.equal(view.catalog.truncated,true);
+  assert.deepEqual(view.catalog.items,base.catalog.items);
+});
+
+test("Tzvi loader composes only post metadata alongside the canonical source catalogue",async()=>{
+  const identity={...catalogFixtureIdentity,public_visibility:"public"};
+  const client={from(){const q={select:()=>q,eq:()=>q,maybeSingle:async()=>({data:identity})};return q;}};
+  const view=await loadPublicContributor2029("tzvi-opoc",{publicClient:()=>client,
+    projectionReader:async()=>({mode:"public_view",contributor:identity,availability:{},sourceGroups:[]}),
+    catalogReader:async(slug,options)=>{await options.findingsReader(slug,{mode:"public_view"});return sourceCatalogFixture();},
+    publicationReader:async(row,options)=>{
+      assert.equal(row.id,identity.id);assert.equal(options.client,client);assert.deepEqual(options.families,["posts"]);
+      return{posts:{rows:[{id:5000,slug:"article",title:"Article",date:"2026-01-01"}],complete:true,availability:"ok"}};
+    }});
+  assert.ok(view.catalog.items.some(item=>item.sourceRef==="posts:5000"));
+  assert.equal(view.catalog.recentItems.length,20);
 });

@@ -4,7 +4,7 @@ import { fetchContributorPublicationCatalog } from "../../lib/research/contribut
 import { getPublicResearchClient, PROJECTOR_MODE } from "../../lib/research/researchViewMode.js";
 import { appendContributorPublicationCatalog, buildPublicContributorView } from "./publicContributor2029Model.js";
 import { fetchContributorSourceCatalogProjection } from "../../lib/research/contributorSourceCatalogProjection.js";
-import { publicSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
+import { appendSourceCatalogWritings2029, publicSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";
 
 // Identity lookup only. Content is always read once by the existing projection reader.
 export async function loadPublicContributor2029(slug, {
@@ -22,7 +22,7 @@ export async function loadPublicContributor2029(slug, {
   if (!identity?.slug || identity.locked || identity.building || identity.public_visibility && identity.public_visibility !== "public") return null;
   if (identity.slug === "tzvi-opoc") {
     let publicProjection = null;
-    const catalog = await catalogReader("tzvi-opoc", {
+    const [catalog, publications] = await Promise.all([catalogReader("tzvi-opoc", {
       mode: PROJECTOR_MODE.PUBLIC_VIEW,
       publicClient: () => client,
       recentLimit: 20,
@@ -31,14 +31,15 @@ export async function loadPublicContributor2029(slug, {
         publicProjection = await projectionReader(slug, options);
         return publicProjection;
       },
-    });
+    }), publicationReader(identity, { client, families: ["posts"] })]);
     if (!catalog || !publicProjection) return null;
     const publicData = buildPublicContributorView({ ...publicProjection, sourceGroups: [] }, identity);
-    return { ...publicSourceCatalog2029(catalog, {
+    const view = publicSourceCatalog2029(catalog, {
       profile: publicData.profile, canonicalHref: contributorHref(identity),
       community: publicData.items.filter((item) => item.type === "community"),
       communityAvailable: publicProjection.availability?.contributions === "ok",
-    }), communityAuthorKey: identity.id };
+    });
+    return { ...appendSourceCatalogWritings2029(view, publications.posts, { slug: identity.slug }), communityAuthorKey: identity.id };
   }
   const [projection, publications] = await Promise.all([projectionReader(identity.slug, {
     mode: PROJECTOR_MODE.PUBLIC_VIEW,

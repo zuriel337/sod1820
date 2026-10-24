@@ -208,10 +208,14 @@ export function appendContributorPublicationCatalog(view, catalogue, identity) {
   for (const row of catalogue.ciphers?.rows || []) {
     if (row.status !== "published" || row.visibility !== "public" || !row.slug) continue;
     const mediaUrl = safePublicUrl(row.image_url);
-    put({ id: `els:${row.id}`, sourceRef: `els_records:${row.id}`, type: "findings", label: "צופן שמור",
+    put({ id: `els:${row.id}`, sourceRef: `els_records:${row.id}`,
+      type: row.attributionBasis === "source_author_credit" ? "findings" : "sources",
+      label: row.attributionBasis === "source_author_credit" ? "צופן שמור" : "צופן שהועלה",
       title: text(row.title || row.search_term), date: row.created_at, href: `/codes/${encodeURIComponent(row.slug)}`,
       media: Boolean(mediaUrl), mediaUrl, strength: null, quality: null, value: null, verification: null,
-      reason: "צופן ציבורי שנשמר בחשבון הכותב; מצב הפרסום אינו חותמת אימות." });
+      reason: row.attributionBasis === "source_author_credit"
+        ? "צופן עם קרדיט מחבר מפורש במקור; חשבון המעלה עשוי להיות שונה. פרסום אינו אימות."
+        : "צופן שהועלה מחשבון זה; חשבון המעלה אינו קובע מי המחבר. פרסום אינו אימות." });
   }
   for (const row of catalogue.insights?.rows || []) {
     if (!row.is_active || row.space === "private" || projected.has(row.id)) continue;
