@@ -51,9 +51,10 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
+import RazielSurpriseAction2029 from "./RazielSurpriseAction2029.jsx";
 import { entityTypeNounHe, razielContextParts, razielSavedLabel, razielStatusLabel, razielSubjectLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot } from "../../lib/research/razielSession2029.js";
-import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
+import { RAZIEL_SURPRISE_MODE, razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
 import { autoPeekForSubject, stageReservesRail } from "./frameLayout2029.js";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
@@ -851,6 +852,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
   const contextParts = razielContextParts(createRazielContextSnapshot(context, { numberFocus, readingFocus, elsFocus }));
   const savedCount = researchPreview?.savedCount || 0;
   const lastRaziel = [...thread].reverse().find((m) => m.role === "raziel");
+  const runSurprise = () => session.submitSurprise({ facts: buildFacts(), view: { numberFocus, readingFocus, elsFocus }, projection });
   const sourceNames = lastRaziel && provenance?.turnId === lastRaziel.turnId ? (provenance.sourceNames || []).slice(0, 3) : [];
   const stateLabel = razielStatusLabel({ closed: Boolean(closedNote), busy, status });
   return (
@@ -938,6 +940,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
               {m === lastRaziel && sourceNames.length ? <small className="sod29-raziel-provenance">מקורות: <bdi>{sourceNames.join(" · ")}</bdi></small> : null}
               {m === lastRaziel && !sourceNames.length && m.level !== "deterministic" ? <small className="sod29-raziel-grounding" data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל</small> : null}
               {m === lastRaziel && lastRaziel.level === "fast" && !closedNote ? <button className="sod29-raziel-deepen" type="button" disabled={busy} aria-expanded={deepOpen} data-raziel-deepen-preview="true" onClick={() => setDeepOpen((open) => !open)}>בדוק לעומק…</button> : null}
+              {m === lastRaziel && !closedNote ? <RazielSurpriseAction2029 lastAnswer={lastRaziel} provenance={provenance} busy={busy} onRun={runSurprise} /> : null}
             </div> : null}
             {m === lastRaziel && lastRaziel.level === "fast" && deepOpen && !closedNote ? <div className="sod29-raziel-deep-offer" data-raziel-deep-offer="true">
               <b>מה ההעמקה תעשה</b>
@@ -957,7 +960,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         ))}
       </div>
       {closedNote ? <p className="sod29-raziel-closed" role="status" data-raziel-server-closed="true">{closedNote}</p> : null}
-      <small className="sod29-raziel-status" role="status">{!closedNote && (busy || status === "error") ? (busy && session.currentTurn?.again ? "רזיאל מעמיק… זה עשוי לקחת עד דקה." : announcement) : ""}</small>
+      <small className="sod29-raziel-status" role="status">{!closedNote && (busy || status === "error") ? (busy && session.currentTurn?.again && session.currentTurn?.viewMode === RAZIEL_SURPRISE_MODE ? "רזיאל מחפש קשר לא צפוי…" : busy && session.currentTurn?.again ? "רזיאל מעמיק… זה עשוי לקחת עד דקה." : announcement) : ""}</small>
       <div className="sod29-raziel-saved" data-raziel-saved-preview="ResearchProvider">
         <button type="button" className="sod29-raziel-saved-toggle" aria-expanded={savedOpen} onClick={() => setSavedOpen((open) => !open)}>
           <span>המחקר שלי</span><small>{savedCount ? `${savedCount} שמורים` : "אין עדיין שמורים"}</small><i aria-hidden="true">{savedOpen ? "▴" : "▾"}</i>

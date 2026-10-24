@@ -311,6 +311,8 @@ export function createRazielProvenance({ response, turn, completedAt }) {
     engine: cleanInline(response.engine, 80),
     model: cleanInline(response.model, 120),
     capabilityClass: cleanInline(plan.capability_class, 80),
+    // 'ready' only when the server built a valid canonical Result Bundle for this answer (gates the one-shot surprise action).
+    bundleStatus: cleanInline(isObject(plan.canonical_result_bundle) ? plan.canonical_result_bundle.status : null, 20),
     viewMode: normalized.viewMode ? (normalized.viewMode.applied ? normalized.viewMode.requested : `${normalized.viewMode.requested}:not_applied`) : null,
     usage: normalizeUsage(response.usage),
     sourceNames: normalized.sourceNames,

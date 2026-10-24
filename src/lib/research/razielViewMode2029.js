@@ -40,3 +40,22 @@ export function normalizeRazielViewModeReport(response) {
     reason: typeof raw.reason === "string" ? raw.reason.slice(0, 40) : null,
   });
 }
+
+// "✨ הפתע אותי" — a ONE-SHOT request, not a mode switch: the last question is sent again as a continuation with
+// view_mode "exploratory" over the same Result Bundle. The session's own mode (default "general") is never touched,
+// and no second engine, store or memory exists for it. It is offered only while the last answer carries a valid Bundle.
+export const RAZIEL_SURPRISE_LABEL = "✨ הפתע אותי";
+export const RAZIEL_SURPRISE_MODE = "exploratory";
+export const RAZIEL_SURPRISE_EXPLANATION = "רזיאל יחפש קשר לא צפוי בתוך העובדות המאומתות, ויפריד בין עובדה, פרשנות והשערה.";
+export const RAZIEL_SURPRISE_NO_MATERIAL = "אין עדיין מספיק חומר להפתעה.";
+
+// lastAnswer: the newest Raziel message of the thread · provenance: the session provenance (must belong to that same turn).
+// A valid Bundle = the server reported plan_meta.canonical_result_bundle.status === "ready" for exactly that answer.
+export function razielSurpriseEligibility({ lastAnswer = null, provenance = null } = {}) {
+  const question = typeof lastAnswer?.question === "string" ? lastAnswer.question.trim() : "";
+  if (!lastAnswer || lastAnswer.role !== "raziel" || !question) return Object.freeze({ ok: false, reason: "no_answer" });
+  if (!lastAnswer.turnId || provenance?.turnId !== lastAnswer.turnId || provenance?.bundleStatus !== "ready") {
+    return Object.freeze({ ok: false, reason: "no_valid_bundle" });
+  }
+  return Object.freeze({ ok: true, question });
+}

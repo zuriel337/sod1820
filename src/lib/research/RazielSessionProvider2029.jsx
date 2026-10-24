@@ -10,6 +10,7 @@ import {
   razielSessionReducer,
   selectRazielResearchPreview,
 } from "./razielSession2029.js";
+import { RAZIEL_SURPRISE_MODE, razielSurpriseEligibility } from "./razielViewMode2029.js";
 import { runPersonalGematriaPair } from "./personalGematriaPairClient.js";
 import { researchEntitiesFromResultBundle } from "./researchResultWorkspaceAdapter.js";
 
@@ -92,6 +93,7 @@ export function RazielSessionProvider2029({
       } : null,
       intelligenceLevel: request.intelligenceLevel,
       again: request.again,
+      viewMode: request.viewMode || null,
       projection: projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null,
       startedAt,
     };
@@ -118,6 +120,18 @@ export function RazielSessionProvider2029({
       inFlightRef.current = false;
     }
   }, [clock, createTurnId, research.context, transport]);
+
+  // "✨ הפתע אותי": a one-shot continuation of the LAST question with view_mode exploratory over the same session/Bundle.
+  // It goes through submit() (the single AI boundary), never dispatches view_mode_set (the session's mode is untouched),
+  // stays at the fast level (no deepening quota) and is refused here — before any transport call — when the last answer
+  // has no valid Result Bundle.
+  const submitSurprise = useCallback(async ({ facts = "", view = {}, projection = null } = {}) => {
+    const current = stateRef.current;
+    const lastAnswer = [...current.thread].reverse().find((message) => message.role === "raziel");
+    const eligibility = razielSurpriseEligibility({ lastAnswer, provenance: current.provenance });
+    if (!eligibility.ok) return { ok: false, error: "no_material_for_surprise" };
+    return submit({ question: eligibility.question, intelligenceLevel: "fast", again: true, facts, view, projection, viewMode: RAZIEL_SURPRISE_MODE });
+  }, [submit]);
 
   const setViewMode = useCallback((viewMode) => {
     dispatch({ type: "view_mode_set", viewMode });
@@ -201,6 +215,7 @@ export function RazielSessionProvider2029({
     personalPairFindingAdded,
     submit,
     setViewMode,
+    submitSurprise,
     updatePersonalPairDraft,
     runPersonalPair,
     addPersonalPairFinding,
@@ -215,6 +230,7 @@ export function RazielSessionProvider2029({
     personalPairFindingAdded,
     submit,
     setViewMode,
+    submitSurprise,
     updatePersonalPairDraft,
     runPersonalPair,
     addPersonalPairFinding,
