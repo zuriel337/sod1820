@@ -1,12 +1,13 @@
-// Raziel grounded-source composer V7.
+// Raziel grounded-source composer V8.
 //
 // A pure presentation projection over the existing authorized Result-Bundle consumer. It does
-// not search, calculate, rank, authorize, persist or call a model. Its only jobs are to preserve
+// not search, calculate, truth-rank, authorize, persist or call a model. Its only jobs are to preserve
 // the Bundle's presentation order, label the epistemic lane of each admitted Finding, prepare an
-// honest deterministic fallback, and expose canonical number-page navigation without inventing a
-// source URL.
+// honest deterministic fallback, expose canonical number-page navigation without inventing a
+// source URL, and derive bounded presentation candidates for the exploratory view. Candidate
+// ordering never changes the canonical evidence order or promotes a candidate to research truth.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 7;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 8;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -14,6 +15,7 @@ const MAX_SOURCES = 12;
 const MAX_NAVIGATION = 10;
 const MAX_FALLBACK_FINDINGS = 6;
 const MAX_SOURCE_TERMS = 48;
+const MAX_SURPRISE_CANDIDATES = 3;
 
 const list = (value) => Array.isArray(value) ? value : [];
 
@@ -339,6 +341,201 @@ function admittedEntry(entry) {
   return { subject, projection, findings };
 }
 
+function numericFindingValue(finding) {
+  const result = finding?.verification?.engine_result;
+  const raw = result && typeof result === "object" ? result.value : result;
+  const value = Number(raw ?? finding?.subject?.value);
+  return Number.isSafeInteger(value) && value >= 1 && value <= 999999 ? value : null;
+}
+
+function hebrewLetterSignature(value) {
+  const normalized = (cleanText(value, 160) || "")
+    .normalize("NFKD")
+    .replace(/[\u0591-\u05C7]/gu, "")
+    .replace(/[ךםןףץ]/gu, (letter) => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter])
+    .replace(/[^א-ת]/gu, "");
+  return normalized ? [...normalized].sort().join("") : null;
+}
+
+function trivialLetterPermutation(left, right) {
+  const a = hebrewLetterSignature(left);
+  const b = hebrewLetterSignature(right);
+  return !!a && a === b && comparable(left) !== comparable(right);
+}
+
+function semanticDescription(entry, method) {
+  const finding = semanticInterpretation(entry, method);
+  const fact = list(finding?.evidence?.facts)[0] || {};
+  return cleanText(fact.semantic_description, 240) || cleanText(fact.label_he, 120);
+}
+
+function surpriseCandidateKey(candidate) {
+  return [candidate.kind, candidate.value, ...list(candidate.terms).map(comparable).sort()].join("|");
+}
+
+// This is a deterministic presentation shortlist over already-admitted evidence. It does not
+// calculate, query, infer statistical rarity or claim method independence. Scores are UI-writing
+// preferences only: confirmed relations first, then a cross-Bundle value bridge, then bounded
+// corpus convergence. Canonical presentation order is the stable tie-breaker.
+export function razielSurpriseCandidates(input = []) {
+  const entries = list(input).slice(0, MAX_READS).map(admittedEntry).filter(Boolean);
+  const candidates = [];
+  let sourceOrder = 0;
+  const push = (candidate) => {
+    const terms = list(candidate.terms).filter(Boolean);
+    if (terms.length >= 2 && trivialLetterPermutation(terms[0], terms[1])) return;
+    candidates.push({ ...candidate, terms, source_order: sourceOrder++ });
+  };
+
+  for (const entry of entries) {
+    for (const finding of entry.findings) {
+      if (finding?.kind === "gematria-confirmed-relation"
+        && finding?.verification?.state === "match"
+        && finding?.verification?.engine_result?.engine_verified === true) {
+        const result = finding.verification.engine_result;
+        const expression = cleanText(result.expression, 120);
+        const partner = cleanText(result.partner, 120);
+        const expressionMethod = cleanText(result.expression_method, 60);
+        const partnerMethod = cleanText(result.partner_method, 60);
+        const value = safeNumber(result.value);
+        if (!expression || !partner || !expressionMethod || !partnerMethod || value == null) continue;
+        const semantic = semanticDescription(entry, expressionMethod);
+        push({
+          kind: "confirmed_cross_method_relation",
+          strength: 100,
+          value,
+          terms: [expression, partner],
+          fact: `${expression} בשיטת ${expressionMethod} = ${value}; ${partner} בשיטת ${partnerMethod} = ${value}.`,
+          interpretation_basis: semantic
+            ? `החבילה מספקת גם את פרשנות השיטה: ${expressionMethod} — ${semantic}.`
+            : "לא סופקה בחבילה משמעות מאושרת לשיטה; אפשר לפרש רק בזהירות מן המילים עצמן.",
+          limit: "זהו שוויון מספרי מאומת; עצמאות בין השיטות וקשר סיבתי או מסורתי אינם מוכחים מעצם השוויון.",
+        });
+      }
+    }
+  }
+
+  const numberEntriesByValue = new Map(entries
+    .filter((entry) => entry.subject?.type === "number")
+    .map((entry) => [safeNumber(entry.subject.value), entry]));
+  for (const entry of entries.filter((item) => item.subject?.type === "expression")) {
+    const expression = cleanText(entry.subject.value, 120);
+    for (const method of list(entry.projection?.model_input?.calculation_profile)) {
+      const value = safeNumber(method?.value);
+      const methodLabel = cleanText(method?.method_label || method?.method_key, 60);
+      const numberEntry = numberEntriesByValue.get(value);
+      if (!expression || value == null || !methodLabel || !numberEntry) continue;
+      for (const finding of numberEntry.findings) {
+        const partner = cleanText(finding?.subject?.label, 120);
+        const partnerMethod = cleanText(
+          finding?.verification?.engine_method_tested || finding?.source?.method,
+          60,
+        );
+        if (!partner || finding?.subject?.type === "number" || /^\d+$/u.test(partner)
+          || comparable(partner) === comparable(expression)
+          || numericFindingValue(finding) !== value || !partnerMethod) continue;
+        const lane = razielFindingEvidenceLane(finding);
+        if (!["verified_calculation", "engine_finding"].includes(lane)) continue;
+        push({
+          kind: "cross_bundle_value_bridge",
+          strength: lane === "verified_calculation" ? 90 : 82,
+          value,
+          terms: [expression, partner],
+          fact: `${expression} בשיטת ${methodLabel} = ${value}; ${partner} בשיטת ${partnerMethod} = ${value}.`,
+          interpretation_basis: "שתי העובדות הופיעו באותה חבילת מחקר תחומה; מותר להציע חיבור רעיוני מסומן ביניהן.",
+          limit: "הערך המשותף הוא עובדת החיבור היחידה; המשמעות המשותפת אינה מוכחת ויש להציג אותה כפרשנות אפשרית בלבד.",
+        });
+      }
+    }
+  }
+
+  for (const entry of entries.filter((item) => item.subject?.type === "number")) {
+    const anchorValue = safeNumber(entry.subject.value);
+    const phrases = entry.findings.flatMap((finding) => {
+      const label = cleanText(finding?.subject?.label, 120);
+      const method = cleanText(
+        finding?.verification?.engine_method_tested || finding?.source?.method,
+        60,
+      );
+      const lane = razielFindingEvidenceLane(finding);
+      if (!label || finding?.subject?.type === "number" || /^\d+$/u.test(label)
+        || anchorValue == null || numericFindingValue(finding) !== anchorValue || !method
+        || !["verified_calculation", "engine_finding"].includes(lane)) return [];
+      return [{ label, method, lane }];
+    });
+    if (phrases.length < 2) continue;
+    const anchor = phrases[0];
+    for (const partner of phrases.slice(1, 5)) {
+      push({
+        kind: "shared_value_pair",
+        strength: anchor.lane === "verified_calculation" && partner.lane === "verified_calculation" ? 80 : 70,
+        value: anchorValue,
+        terms: [anchor.label, partner.label],
+        fact: `${anchor.label} בשיטת ${anchor.method} = ${anchorValue}; ${partner.label} בשיטת ${partner.method} = ${anchorValue}.`,
+        interpretation_basis: "שני הביטויים מופיעים באותו ערך ובסדר ההצגה הקנוני; אפשר לבחון בזהירות איזה מתח, רצף או תמונה נוצרים ביניהם.",
+        limit: "השוויון המספרי אינו מוכיח קשר רעיוני, סיבתי או מסורתי. אם אין גשר ברור שאפשר להסביר, אין לכפות פרשנות.",
+      });
+    }
+  }
+
+  for (const entry of entries) {
+    for (const finding of entry.findings) {
+      if (finding?.kind !== "gematria-crossing") continue;
+      const result = finding?.verification?.engine_result;
+      const fact = list(finding?.evidence?.facts).find((item) => item?.type === "gematria-multi-method-corpus-crossing") || {};
+      const expression = cleanText(fact.expression, 120);
+      const partner = cleanText(fact.partner, 120);
+      const methods = list(result?.methods).map((item) => {
+        const method = cleanText(item?.method, 60);
+        const value = safeNumber(item?.value);
+        return method && value != null ? `${method}=${value}` : null;
+      }).filter(Boolean);
+      if (!expression || !partner || !methods.length) continue;
+      push({
+        kind: "bounded_corpus_convergence",
+        strength: result?.dependency_independence_claimed === true ? 74 : 58,
+        value: null,
+        terms: [expression, partner],
+        fact: `${expression} ו${partner} מתכנסים בחבילת המאגר דרך ${methods.join(" וגם ")}.`,
+        interpretation_basis: "מותר לבחון אם המילים יוצרות ניגוד, רצף או תמונה משותפת, בלי להפוך פירוש מילוני לראיה.",
+        limit: result?.dependency_independence_claimed === true
+          ? "ההתכנסות סופקה בחבילה; הקשר הסמנטי עדיין אינו מוכח."
+          : "עצמאות בין שיטות החישוב לא נטענה, ולכן אין לספור את מספר השיטות כמספר ראיות נפרדות.",
+      });
+    }
+  }
+
+  const seen = new Set();
+  return deepFreeze(candidates
+    .sort((a, b) => b.strength - a.strength || a.source_order - b.source_order)
+    .filter((candidate) => {
+      const key = surpriseCandidateKey(candidate);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, MAX_SURPRISE_CANDIDATES)
+    .map(({ source_order, strength, ...candidate }) => candidate));
+}
+
+function surpriseGuidance(entries) {
+  const candidates = razielSurpriseCandidates(entries);
+  const intro = [
+    "[מסנן הפתעות דטרמיניסטי — תעדוף תצוגה בלבד, לא מנוע אמת נוסף]",
+    "בחר הפתעה אחת חזקה, או לכל היותר שלוש אם הן מוסיפות זוויות שונות. אל תציג רשימת אסוציאציות ואל תזכיר ציונים, מועמדים או את המסנן.",
+    "השתמש רק בעובדות המועמד שסופקו כאן ובחבילת התוצאה. ניסוח הפרשנות יכול להיות מקורי ונועז, אך חייב להסביר את הגשר מן העובדה אל הרעיון.",
+  ];
+  if (!candidates.length) return [...intro,
+    "לא נמצא בחומר קשר שעבר את סף ההפתעה. אמור שאין עדיין בסיס להפתעה טובה ואל תכפה סיפור.",
+  ].join("\n");
+  return [...intro, ...candidates.map((candidate, index) => [
+    `אפשרות ${index + 1} — ${candidate.kind}:`,
+    `עובדה שסופקה: ${candidate.fact}`,
+    `בסיס פרשני: ${candidate.interpretation_basis}`,
+    `גבול הראיה: ${candidate.limit}`,
+  ].join("\n"))].join("\n");
+}
+
 function comparable(value) {
   return (cleanText(value, 160) || "")
     .normalize("NFKC")
@@ -591,6 +788,7 @@ export function buildRazielGroundedSourceComposer(input = []) {
     contract_version: RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION,
     prompt: bundles.length ? JSON.stringify(promptObject) : "",
     guidance: bundles.length ? responseGuidance(entries) : "",
+    surprise_guidance: bundles.length ? surpriseGuidance(entries) : "",
     fallback,
     sources: sourceList(entries),
     navigation: navigationList(entries),
@@ -609,6 +807,8 @@ export function buildRazielGroundedSourceComposer(input = []) {
       surface_context_never_creates_relation: true,
       no_unmeasured_rarity_claim: true,
       no_extra_model_call: true,
+      surprise_candidates_are_presentation_only: true,
+      surprise_candidates_do_not_claim_independence_or_rarity: true,
       direct_answer_uses_canonical_projection_only: true,
       calculation_subject_fidelity: true,
     },

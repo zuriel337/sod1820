@@ -237,12 +237,14 @@ const RAZIEL_VIEW_MODE_LAYERS: Record<"landscape" | "exploratory", string> = {
     "בכל שורה הפרד בין שלושה סוגים באמצעות תחילית: ‘עובדה מתמטית:’ (ערך או התכנסות שבחבילה) · ‘לפי המקור:’ (טענה שמופיעה בפירוש במקור שבחבילה) · ‘פרשנות רזיאל:’ (קריאה שלך, מסומנת ככזו). " +
     "סיים ב‘סינתזה:’ — פסקה רציפה שמחברת בין שני ממצאים מסופקים לפחות ומסבירה את מהלך החיבור. אם אין לכך בסיס, אמור שאין עדיין בסיס לסינתזה; אל תכפה סיפור.",
   exploratory: RAZIEL_VIEW_MODE_COMMON +
-    "\nמצב «מתפרע»: מותר להציע חיבורים והשערות חדשות, אך אסור להמציא עובדות. אותו חומר בדיוק כמו במצב הכללי. " +
+    "\nמצב «מתפרע»: המטרה אינה לתת יותר טקסט אלא לחשוף קשר אחד מפתיע, יפה ובר־בדיקה מתוך החומר שסופק. מותר להציע חיבורים והשערות חדשות, אך אסור להמציא עובדות. אותו חומר בדיוק כמו במצב הכללי. " +
     "אם יצרת מטפורה או מונח משלך, הסבר אותם מיד בשפה פשוטה וציין במפורש שזו הצעה של רזיאל ולא לשון המקור. " +
-    "חלק את התשובה לשלוש דרגות מפורשות, כל אחת בכותרת משלה בסדר הזה (דלג על דרגה שאין לה בסיס): " +
-    "‘עובדה מאומתת:’ — רק מה שמופיע בחבילה, כפי שהוא. " +
-    "‘פרשנות אפשרית:’ — קריאה סבירה שנשענת על העובדות; ציין על אילו. " +
-    "‘השערה ניסיונית:’ — חיבור חדש וזהיר; ציין מה היה צריך להיבדק כדי לבסס אותו. השערה אינה ממצא, מקור או ידע קנוני. " +
+    "אל תתפתה לצירוף מקרי חלש: העדף יחס מאומת חוצה־שיטות או גשר בין שתי עובדות שסופקו; אל תשתמש בתמורת אותיות, כפילות שיטות טבעית, דמיון מילולי בלבד או ריבוי שיטות תלויות כאילו הם הפתעה חזקה. " +
+    "כתוב תשובה קצרה ומלוטשת בארבע כותרות, בסדר הזה (אם אין בסיס להפתעה טובה, אמור זאת בפשטות במקום למלא אותן): " +
+    "‘✨ ההפתעה:’ — משפט חד אחד שמנסח את הקשר שנבחר. " +
+    "‘העובדה שמאחוריה:’ — רק השוויון, השיטות והערכים שסופקו בחבילה, בלי חישוב חדש. " +
+    "‘פרשנות אפשרית:’ — הסבר מקורי וברור של הגשר הרעיוני ועל אילו עובדות הוא נשען. " +
+    "‘מה עדיין לא מוכח:’ — הגבול המדויק של הראיה ומה דרוש כדי לחזק את ההשערה. " +
     "אל תכתוב ‘המנוע מצא’ על דבר שאינו בחבילה. אם אין בסיס מספיק להשערה — אמור זאת במקום להמציא. " +
     "‘חושב בקול’ פירושו מסלול מסקנות תמציתי ובר־בדיקה (מאילו עובדות לאיזו פרשנות ולאיזו השערה), לא טקסט חשיבה גולמי.",
 };
@@ -254,9 +256,10 @@ function razielViewModeStructure(mode: RazielViewMode, answer: unknown): Record<
   }
   if (mode === "exploratory") {
     return {
-      verified_fact: text.includes("עובדה מאומתת"),
+      surprise: text.includes("ההפתעה"),
+      supporting_fact: text.includes("העובדה שמאחוריה"),
       possible_interpretation: text.includes("פרשנות אפשרית"),
-      experimental_hypothesis: text.includes("השערה ניסיונית"),
+      unproven_boundary: text.includes("מה עדיין לא מוכח"),
     };
   }
   return null;
@@ -2839,6 +2842,7 @@ Deno.serve(async (req: Request) => {
       let rNcFallback = "";
       let rCanonicalBundlePack = "";
       let rCanonicalBundleGuidance = "";
+      let rCanonicalSurpriseGuidance = "";
       let rCanonicalBundleReads: RazielCanonicalBundleRead[] = [];
       let rCanonicalBundleSources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
       let rCanonicalBundleNavigation: { kind: string; label: string; href: string }[] = [];
@@ -2900,6 +2904,7 @@ Deno.serve(async (req: Request) => {
           }
           rCanonicalBundlePack = composition.prompt;
           rCanonicalBundleGuidance = composition.guidance;
+          rCanonicalSurpriseGuidance = composition.surprise_guidance;
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
@@ -2940,6 +2945,7 @@ Deno.serve(async (req: Request) => {
           const composition = razielCanonicalBundleComposition(rCanonicalBundleReads);
           rCanonicalBundlePack = composition.prompt;
           rCanonicalBundleGuidance = composition.guidance;
+          rCanonicalSurpriseGuidance = composition.surprise_guidance;
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
@@ -3095,7 +3101,12 @@ Deno.serve(async (req: Request) => {
         if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
       }
       // RAZIEL_VIEW_MODE_V1: one small layer on the existing persona — never a second persona or prompt.
-      if (rViewSynthesis && rViewMode !== "general") rzSys += RAZIEL_VIEW_MODE_LAYERS[rViewMode];
+      if (rViewSynthesis && rViewMode !== "general") {
+        rzSys += RAZIEL_VIEW_MODE_LAYERS[rViewMode];
+        if (rViewMode === "exploratory" && rCanonicalSurpriseGuidance) {
+          rzSys += "\n\n" + rCanonicalSurpriseGuidance;
+        }
+      }
 
       // 🧭 Research Plan v0 (advanced-only, deterministic, zero DB writes) — FAIL-OPEN: any throw
       // falls back to a plain Number-strategy plan rather than blocking the response.

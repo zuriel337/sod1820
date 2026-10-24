@@ -221,23 +221,24 @@ for (const mode of MODES) {
 
 test("4b) a clean exploratory answer built only from provided numbers passes untouched", async () => {
   const answer = [
-    "עובדה מאומתת: הריון בשיטת רגיל = 271.",
+    "✨ ההפתעה: 271 מחבר בין חכמה להריון.",
+    "העובדה שמאחוריה: הריון בשיטת רגיל = 271.",
     "פרשנות אפשרית: ההתאמה מצביעה על קשר חישובי בלבד, ולא על קשר רעיוני.",
-    "השערה ניסיונית: אפשר לבדוק אם ביטויים נוספים סביב 271 חולקים הקשר מילוני — עוד לא נבדק.",
+    "מה עדיין לא מוכח: לא הוכח קשר רעיוני; אפשר לבדוק אם ביטויים נוספים סביב 271 חולקים הקשר מילוני.",
   ].join("\n");
   const run = await ask(Q_271, { mode: "exploratory", modelResult: modelText(answer) });
   assert.equal(run.models.length, 1);
   assert.equal(run.result.raziel.answer, answer);
   assert.deepEqual(run.result.raziel.plan_meta.view_mode.structure, {
-    verified_fact: true, possible_interpretation: true, experimental_hypothesis: true,
+    surprise: true, supporting_fact: true, possible_interpretation: true, unproven_boundary: true,
   });
 });
 
 // ── 5: three explicit tiers / landscape layers ────────────────────────────────────────────────────────────────
-test("5) exploratory layer demands three separate tiers and forbids invention; landscape layer demands anchor + ordered layers + provenance prefixes", async () => {
+test("5) exploratory layer demands the four-part surprise contract and forbids invention; landscape layer demands anchor + ordered layers + provenance prefixes", async () => {
   const [l, e] = [await ask(Q_271, { mode: "landscape" }), await ask(Q_271, { mode: "exploratory" })];
   const exploratory = e.models[0].system.slice(e.models[0].system.indexOf(MARKER));
-  for (const tier of ["עובדה מאומתת:", "פרשנות אפשרית:", "השערה ניסיונית:"]) assert.ok(exploratory.includes(tier), tier);
+  for (const tier of ["✨ ההפתעה:", "העובדה שמאחוריה:", "פרשנות אפשרית:", "מה עדיין לא מוכח:"]) assert.ok(exploratory.includes(tier), tier);
   assert.match(exploratory, /אסור להמציא עובדות/);
   assert.match(exploratory, /מטפורה או מונח משלך/);
   assert.match(exploratory, /הצעה של רזיאל ולא לשון המקור/);
@@ -247,7 +248,9 @@ test("5) exploratory layer demands three separate tiers and forbids invention; l
   assert.match(exploratory, /פירוש מילוני אפשרי/);
   assert.match(exploratory, /אין בסיס מספיק להשערה/);
   assert.match(exploratory, /טקסט חשיבה גולמי/);
-  assert.match(exploratory, /השערה אינה ממצא, מקור או ידע קנוני/);
+  assert.match(exploratory, /תמורת אותיות/);
+  assert.match(exploratory, /ריבוי שיטות תלויות/);
+  assert.match(exploratory, /מסנן הפתעות דטרמיניסטי/);
 
   const landscape = l.models[0].system.slice(l.models[0].system.indexOf(MARKER));
   assert.ok(landscape.includes("עוגן:"));
@@ -263,11 +266,23 @@ test("5) exploratory layer demands three separate tiers and forbids invention; l
   assert.match(landscape, /אל תכפה סיפור/);
 });
 
+test("5a) exploratory synthesis receives a deterministic presentation shortlist, not a second evidence bundle", async () => {
+  const run = await ask(Q_PAIR, { mode: "exploratory" });
+  const system = run.models[0].system;
+  assert.match(system, /מסנן הפתעות דטרמיניסטי/);
+  assert.match(system, /חכמה בשיטת מסתתר = 67; בינה בשיטת רגיל = 67/);
+  assert.match(system, /שוויון מספרי מאומת/);
+  assert.match(system, /עצמאות בין השיטות.*אינם מוכחים/);
+  assert.doesNotMatch(system, /uf:relation|public:relation_evidence|trace_id/);
+  assert.equal(run.models.length, 1);
+  assert.equal(run.calls.filter((call) => /gematria|number_lookup|calc/i.test(call.name)).length, 0);
+});
+
 test("5b) the server reports which structural labels the model answer actually carried (telemetry only; the answer is never rewritten)", async () => {
-  const partial = await ask(Q_271, { mode: "exploratory", modelResult: modelText("עובדה מאומתת: הריון בשיטת רגיל = 271.") });
-  assert.equal(partial.result.raziel.answer, "עובדה מאומתת: הריון בשיטת רגיל = 271.");
+  const partial = await ask(Q_271, { mode: "exploratory", modelResult: modelText("העובדה שמאחוריה: הריון בשיטת רגיל = 271.") });
+  assert.equal(partial.result.raziel.answer, "העובדה שמאחוריה: הריון בשיטת רגיל = 271.");
   assert.deepEqual(partial.result.raziel.plan_meta.view_mode.structure, {
-    verified_fact: true, possible_interpretation: false, experimental_hypothesis: false,
+    surprise: false, supporting_fact: true, possible_interpretation: false, unproven_boundary: false,
   });
   const land = await ask(Q_271, { mode: "landscape", modelResult: modelText("עוגן: 271.\nעובדות חישוביות מאומתות: עובדה מתמטית: הריון = 271.\nשאלות ונתיבי מחקר פתוחים: מה עוד?") });
   assert.deepEqual(land.result.raziel.plan_meta.view_mode.structure, { anchor: true, layers: 2 });
