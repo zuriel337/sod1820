@@ -108,6 +108,10 @@ Research result ordering, nearby-finding discovery and structural groups now sha
 
 1. A matching public saved cipher is shown before raw occurrences when its stored selected anchors produce a research-ready compact package. The public `els_records` gallery projection remains the only source; the bundle exports counts/reasons and a public route, never coordinates.
 2. Exact same-path continuation and compact geometry govern the top-three result triage. Every admitted result remains available.
+   The continuation check includes a canonical Torah word touching the verified axis immediately
+   before or after it, including bounded two- and three-letter words that are excluded from broad
+   matrix discovery because they are too noisy there. A touching word may form a before, after or
+   combined two-sided research target; it remains a candidate until the existing verifier admits it.
 3. Choosing a result is one explicit action: the canonical engine opens that exact verified anchor, the matrix remains visible, the ranked context is retained beside it, and the existing displayed-window candidate lens builds the package.
 4. The candidate scan is chunked, reports progress and can be cancelled without changing the matrix.
 5. The same bundle feeds the existing nearby-finding list. Candidate terms still pass canonical verification before they can become Findings.

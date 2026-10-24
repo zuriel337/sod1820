@@ -23,6 +23,7 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
   const context = vm.createContext({
     DICT: ["אליהו", "אמת"],
     _corpusLexiconCache: { torah: null, tanakh: null },
+    _corpusAxisWordCache: { torah: null, tanakh: null },
     VCHAP: [[1], [1], [1], [1], [1], [1]],
     TORAH_BOOKS: 5,
     st: { scope: "torah", raw: "משיח", words: [{ t: "יבואו" }] },
@@ -33,7 +34,7 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
     source("addCandidateLexiconTerm"),
     source("buildCorpusCandidateLexicons"),
     source("researchCandidateLexicon"),
-    "buildCorpusCandidateLexicons(['יבואו יבואו אליהו','ארבעה','','','','מחוץ']);",
+    "buildCorpusCandidateLexicons(['בא יבואו יבואו אליהו','ארבעה','','','','מחוץ']);",
     "this.result=researchCandidateLexicon();",
   ].join("\n"), context);
 
@@ -46,6 +47,9 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
   assert.ok(byTerm.get("בית").sources.includes("visible_saved_research"));
   assert.equal(byTerm.has("מחוצ"), false, "Torah scope excludes words that occur only after the five Torah books");
   assert.equal(byTerm.has("אמת"), true, "the historical governed seed remains available");
+  assert.equal(byTerm.has("בא"), false, "short words stay out of broad matrix discovery");
+  const axisRows = JSON.parse(JSON.stringify(vm.runInContext("researchCandidateLexicon(true)", context)));
+  assert.ok(axisRows.find((row) => row.term === "בא")?.sources.includes("corpus_native_adjacent"), "a short Torah word is available only to exact axis continuation");
 });
 
 test("dynamic vocabulary remains candidate-only and is loaded only by explicit scan lenses", () => {
@@ -78,6 +82,27 @@ test("result triage extends a short finding only through immediately adjacent ce
   assert.deepEqual(rows.map((row) => row.label), ["בית ישראל"]);
   assert.equal(rows[0].direction, "forward");
   assert.equal(rows[0].gain, 5);
+});
+
+test("result triage derives exact short Torah words immediately before and after a verified axis", () => {
+  const letters = [...("אבמתי" + "יוממשיח" + "באגד")];
+  const context = vm.createContext({
+    norm: value => String(value).replace(/\s+/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]),
+    lineContextCells: () => letters.map((letter, index) => ({ letter, main: index >= 5 && index <= 11 })),
+    hit: { positions: [5, 6, 7, 8, 9, 10, 11] },
+    lexicon: [
+      { term: "מתי", label: "מתי", sources: ["corpus_native_adjacent"], support: 12 },
+      { term: "בא", label: "בא", sources: ["corpus_native_adjacent"], support: 40 },
+      { term: "אב", label: "אב", sources: ["corpus_native_adjacent"], support: 80 },
+    ],
+  });
+  vm.runInContext(`${source("lineExtensionCandidates")}\nthis.result=lineExtensionCandidates(hit,"יום משיח",lexicon,8);`, context);
+  const rows = JSON.parse(JSON.stringify(context.result));
+  assert.ok(rows.some((row) => row.term === "יוממשיחבא" && row.label === "יום משיח בא" && row.direction === "forward"));
+  assert.ok(rows.some((row) => row.term === "מתייוממשיח" && row.label === "מתי יום משיח" && row.direction === "backward"));
+  assert.ok(rows.some((row) => row.term === "מתייוממשיחבא" && row.direction === "both"));
+  assert.ok(rows.every((row) => row.extensionKind.startsWith("adjacent-")));
+  assert.ok(rows.every((row) => !row.term.startsWith("אב")), "a known word is ignored when it is not adjacent to the verified axis");
 });
 
 test("result triage ranks repeated exact continuation first but keeps every result available", () => {

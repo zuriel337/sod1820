@@ -1006,3 +1006,43 @@ This extends the existing Research presentation and does not add or renumber a c
 full 3D, `research_objects`, Raziel implementation, schema/data changes, RLS/permissions, Production
 migrations and `decision_ledger` remain outside this delta. No Preview, Production, database, RLS,
 permission, merge or PR action was performed.
+
+## 21. EXACT BEFORE/AFTER AXIS EXTENSION — 2026-10-24
+
+The existing `els_result_triage_v1` now recognizes a canonical Torah word that touches an already
+verified search occurrence immediately before or after it on the same path, direction and skip. It
+can therefore derive a longer research target such as `יום משיח` → `יום משיח בא` without requiring
+that the complete longer phrase was previously hard-coded or saved as a public cipher. When both
+sides contain recognized words, the triage may also present the bounded combined target.
+
+Two- and three-letter corpus words are admitted only to this exact adjacency check. They remain out
+of broad matrix candidate discovery and structure scans, preventing common short forms from
+flooding those result sets. Existing four-letter-and-longer corpus discovery is unchanged. The
+result list remains rank-don't-hide: an exact extension receives inspection priority and an explicit
+reason, while every verified occurrence remains available.
+
+This is a deterministic extension of the same derived `els_dynamic_candidate_lexicon_v1` cache and
+the same result-triage pass. It creates no engine, state store, graph, persistence, Finding or truth
+claim, and performs no work before an explicit search has completed. The host boundary still
+receives labels, reasons and result identity only, without cell arrays, starts or corpus
+coordinates. Classic remains unchanged.
+
+The 85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL + 4 PARKED + 1 NEVER**. B12/B13,
+full 3D, `research_objects`, Raziel implementation, schema/data changes, RLS/permissions, Production
+migrations and `decision_ledger` remain outside this delta. No Preview, Production, database, RLS,
+permission, merge or PR action was performed.
+
+Branch acceptance is green: **185 pass / 0 fail / 3 skip** across the non-browser ELS suites (the
+three unchanged skips require local PostgreSQL), **26/26** canonical browser cutover, **44/44**
+native UI including mobile, privacy and all three palettes, and **2/2** Advanced/FORMS browser
+checks. Both production build targets passed, and the 2029 bundle budget passed **5/5** with entry
+**9 chunks / 174.1 KB gzip**.
+
+Deterministic level-9 measurements against branch head `69dd8b42` are:
+
+| Artifact | Before | Exact axis extension | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,629,580 / 960,883 B | 1,632,432 / 961,605 B | +2,852 / +722 B |
+| Legacy standalone, raw / gzip | 2,535,899 / 1,648,138 B | 2,538,751 / 1,648,887 B | +2,852 / +749 B |
+| ELS 2029 route JS, raw / gzip | 219,709 / 64,381 B | 219,778 / 64,399 B | +69 / +18 B |
+| ELS 2029 route CSS, raw / gzip | 78,358 / 11,309 B | 78,358 / 11,309 B | 0 / 0 B |

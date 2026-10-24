@@ -1493,6 +1493,7 @@ test('native transition: minus-two reading layout preserves exact cells and open
     const names=await page.evaluate(()=>window.__state);
     assert.equal(names.axis.hitId,'14870_-1_251278');assert.equal(names.search.zones,3);
     assert.equal(names.geometry.cw,40);assert.equal(names.ui.windowSize,'small');
+    await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.setId===id,names.search.results.id,{timeout:90000});
     assert.equal(await page.locator('.els29-native-stage h3').textContent(),'פולייס');
     assert.equal(await page.locator('.els29-native-matrix.is-reading').count(),0,'cross displays its canonical matrix geometry');
     assert.equal(await page.locator('.els29-native-matrix-status').textContent(),'מטריצה פעילה');

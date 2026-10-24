@@ -1577,32 +1577,38 @@ __STANDALONE_ENGINE_DISPATCH__
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
   const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",
     RESULT_TRIAGE_CONTRACT="els_result_triage_v1",RESEARCH_BUNDLE_CONTRACT="els_research_bundle_v1",
-    COMPACT_GEOMETRY_CONTRACT="els_compact_geometry_priority_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",_corpusLexiconCache={torah:null,tanakh:null};
-  function addCandidateLexiconTerm(map,raw,source,support=1){
+    COMPACT_GEOMETRY_CONTRACT="els_compact_geometry_priority_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",
+    _corpusLexiconCache={torah:null,tanakh:null},_corpusAxisWordCache={torah:null,tanakh:null};
+  function addCandidateLexiconTerm(map,raw,source,support=1,minLength=3){
     const label=String(raw||"").trim().replace(/\s+/g," "),term=norm(label);
-    if(term.length<3||term.length>24)return;
+    if(term.length<minLength||term.length>24)return;
     const prior=map.get(term);
     if(prior){prior.support+=Math.max(1,support||1);prior.sources.add(source);return;}
     map.set(term,{term,label,support:Math.max(1,support||1),sources:new Set([source])});
   }
   function buildCorpusCandidateLexicons(rows){
-    const torah=new Map(),tanakh=new Map(),torahVerseCount=VCHAP.slice(0,TORAH_BOOKS).reduce((n,book)=>n+book.reduce((a,b)=>a+b,0),0);
+    const torah=new Map(),tanakh=new Map(),torahAxisWords=new Map(),tanakhAxisWords=new Map(),torahVerseCount=VCHAP.slice(0,TORAH_BOOKS).reduce((n,book)=>n+book.reduce((a,b)=>a+b,0),0);
     for(let vi=0;vi<rows.length;vi++){
       const words=String(rows[vi]||"").split(/[\s־ֽ–\-]+/);
-      for(const word of words){if(norm(word).length<4)continue;addCandidateLexiconTerm(tanakh,word,"corpus_native");if(vi<torahVerseCount)addCandidateLexiconTerm(torah,word,"corpus_native");}
+      for(const word of words){const length=norm(word).length;if(length<2)continue;
+        if(length<4){addCandidateLexiconTerm(tanakhAxisWords,word,"corpus_native_adjacent",1,2);if(vi<torahVerseCount)addCandidateLexiconTerm(torahAxisWords,word,"corpus_native_adjacent",1,2);continue;}
+        addCandidateLexiconTerm(tanakh,word,"corpus_native");if(vi<torahVerseCount)addCandidateLexiconTerm(torah,word,"corpus_native");}
     }
     const freeze=map=>Object.freeze([...map.values()].map(row=>Object.freeze({...row,sources:Object.freeze([...row.sources])})));
     _corpusLexiconCache.torah=freeze(torah);_corpusLexiconCache.tanakh=freeze(tanakh);
+    _corpusAxisWordCache.torah=freeze(torahAxisWords);_corpusAxisWordCache.tanakh=freeze(tanakhAxisWords);
   }
-  function researchCandidateLexicon(){
+  function researchCandidateLexicon(includeShortAxisWords=false){
     const map=new Map();
-    DICT.forEach(term=>addCandidateLexiconTerm(map,term,"governed_core",4));
+    const minLength=includeShortAxisWords?2:3;
+    DICT.forEach(term=>addCandidateLexiconTerm(map,term,"governed_core",4,minLength));
     for(const row of _corpusLexiconCache[st.scope]||[])for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support);
-    addCandidateLexiconTerm(map,st.raw,"active_axis",8);
-    st.words.forEach(word=>addCandidateLexiconTerm(map,word.t,"verified_research",8));
+    if(includeShortAxisWords)for(const row of _corpusAxisWordCache[st.scope]||[])for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support,2);
+    addCandidateLexiconTerm(map,st.raw,"active_axis",8,minLength);
+    st.words.forEach(word=>addCandidateLexiconTerm(map,word.t,"verified_research",8,minLength));
     for(const item of CLOUD_MATRICES||[]){
-      addCandidateLexiconTerm(map,item.term,"visible_saved_research",3);
-      (item.words||[]).forEach(word=>addCandidateLexiconTerm(map,word.t,"visible_saved_research",2));
+      addCandidateLexiconTerm(map,item.term,"visible_saved_research",3,minLength);
+      (item.words||[]).forEach(word=>addCandidateLexiconTerm(map,word.t,"visible_saved_research",2,minLength));
     }
     return [...map.values()].map(row=>({...row,sources:[...row.sources]}))
       .sort((a,b)=>b.support-a.support||b.term.length-a.term.length||a.term.localeCompare(b.term,"he"));
@@ -1610,9 +1616,10 @@ __STANDALONE_ENGINE_DISPATCH__
   async function dynamicCandidateLexicon(){
     let fallback=false;
     if(!_corpusLexiconCache[st.scope])try{buildCorpusCandidateLexicons(await ensureVerseText());}catch(_){fallback=true;}
-    const entries=researchCandidateLexicon();
+    const entries=researchCandidateLexicon(),axisEntries=researchCandidateLexicon(true);
     return {contract:DYNAMIC_LEXICON_CONTRACT,entries,fallback,counts:{total:entries.length,corpus:entries.filter(row=>row.sources.includes("corpus_native")).length,
-      research:entries.filter(row=>row.sources.includes("verified_research")||row.sources.includes("visible_saved_research")).length}};
+      research:entries.filter(row=>row.sources.includes("verified_research")||row.sources.includes("visible_saved_research")).length,
+      axisWords:axisEntries.length},axisEntries};
   }
   function candidateLexiconPriority(item){
     const sources=new Set(item.lexiconSources||[]);
@@ -2622,16 +2629,16 @@ __STANDALONE_ENGINE_DISPATCH__
           if(kind==="regular"){
             const hit=st.res?.hits?.[item.index];
             if(isGov(hit)&&hitKey(hit)===item.hitId)rows.push({key:item.hitId,order:item.ordinal,index:item.index,ordinal:item.ordinal,skip:item.skip,direction:item.direction,ref:item.ref,
-              signals:[triageHitSignals(hit,st.raw,lexicon.entries,hit)]});
+              signals:[triageHitSignals(hit,st.raw,lexicon.axisEntries||lexicon.entries,hit)]});
           }else{
             const zone=st.crossMeetings?.[item.index],result=zone?.axis&&st.crossResCache?st.crossResCache[zone.axis]:st.res,axisHit=result?.hits?.[zone?.occ],signals=[];
-            if(isGov(axisHit))signals.push(triageHitSignals(axisHit,zone.axis||st.raw,lexicon.entries,axisHit));
+            if(isGov(axisHit))signals.push(triageHitSignals(axisHit,zone.axis||st.raw,lexicon.axisEntries||lexicon.entries,axisHit));
             for(const detail of zone?.detail||[]){
               const term=norm(detail.t),skip=Math.abs(Number(detail.skip)),dir=Number(detail.dir),start=Number(detail.p0);
               if(term.length<2||skip<1||![1,-1].includes(dir)||!Number.isInteger(start))continue;
               const positions=Array.from(term,(_,index)=>start+dir*skip*index);
               if(positions.some(position=>position<0||position>=scopeN()))continue;
-              signals.push(triageHitSignals({skip,dir,start,positions},detail.t,lexicon.entries,axisHit));
+              signals.push(triageHitSignals({skip,dir,start,positions},detail.t,lexicon.axisEntries||lexicon.entries,axisHit));
             }
             rows.push({key:String(item.index),order:item.index,index:item.index,axis:item.axis,terms:item.terms,skip:item.skip,distance:item.distance,stars:item.stars,signals});
           }
@@ -4731,22 +4738,34 @@ __STANDALONE_ENGINE_DISPATCH__
     const cells=lineContextCells(hit),line=cells.map(cell=>cell.letter).join(""),main=[];
     cells.forEach((cell,index)=>{if(cell.main)main.push(index);});
     const axis=norm(word);if(!axis||main.length!==axis.length)return[];
-    const first=main[0],found=new Map();
+    const first=main[0],last=main[main.length-1],axisLabel=String(word||axis).trim().replace(/\s+/g," ")||axis,found=new Map(),before=[],after=[];
+    const add=row=>{const prior=found.get(row.term);if(!prior||row.lexiconSupport>prior.lexiconSupport)found.set(row.term,row);};
     for(const entry of lexicon){
       const label=typeof entry==="string"?entry:entry.label||entry.term,term=norm(label);
-      if(term.length<=axis.length||term.length>24)continue;
-      let offset=term.indexOf(axis);
-      while(offset>=0){
-        const at=first-offset;
-        if(at>=0&&at+term.length<=line.length&&line.slice(at,at+term.length)===term){
-          const direction=offset===0?"forward":offset+axis.length===term.length?"backward":"both";
-          const row={term,label,gain:term.length-axis.length,direction,
-            lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1};
-          const prior=found.get(term);if(!prior||row.lexiconSupport>prior.lexiconSupport)found.set(term,row);
-          break;
+      const lexiconSources=typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport=typeof entry==="string"?1:entry.support||1;
+      if(term.length>axis.length&&term.length<=24){let offset=term.indexOf(axis);
+        while(offset>=0){
+          const at=first-offset;
+          if(at>=0&&at+term.length<=line.length&&line.slice(at,at+term.length)===term){
+            const direction=offset===0?"forward":offset+axis.length===term.length?"backward":"both";
+            add({term,label,gain:term.length-axis.length,direction,extensionKind:"registered-form",lexiconSources,lexiconSupport});break;
+          }
+          offset=term.indexOf(axis,offset+1);
         }
-        offset=term.indexOf(axis,offset+1);
       }
+      // A two- or three-letter Torah word is too noisy for global matrix discovery, but when it
+      // touches an already-verified axis with no skipped cell it is a bounded exact extension.
+      if(term.length<2||term.length>12||term===axis)continue;
+      if(first>=term.length&&line.slice(first-term.length,first)===term)before.push({term,label:String(label).trim(),lexiconSources,lexiconSupport});
+      if(last+term.length<line.length&&line.slice(last+1,last+1+term.length)===term)after.push({term,label:String(label).trim(),lexiconSources,lexiconSupport});
+    }
+    const bestSide=rows=>[...new Map(rows.sort((a,b)=>b.lexiconSupport-a.lexiconSupport||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")).map(row=>[row.term,row])).values()].slice(0,4);
+    const beforeBest=bestSide(before),afterBest=bestSide(after);
+    for(const side of beforeBest)add({term:side.term+axis,label:`${side.label} ${axisLabel}`,gain:side.term.length,direction:"backward",extensionKind:"adjacent-word",lexiconSources:side.lexiconSources,lexiconSupport:side.lexiconSupport});
+    for(const side of afterBest)add({term:axis+side.term,label:`${axisLabel} ${side.label}`,gain:side.term.length,direction:"forward",extensionKind:"adjacent-word",lexiconSources:side.lexiconSources,lexiconSupport:side.lexiconSupport});
+    for(const left of beforeBest.slice(0,2))for(const right of afterBest.slice(0,2)){
+      const sources=[...new Set([...(left.lexiconSources||[]),...(right.lexiconSources||[])])];
+      add({term:left.term+axis+right.term,label:`${left.label} ${axisLabel} ${right.label}`,gain:left.term.length+right.term.length,direction:"both",extensionKind:"adjacent-words",lexiconSources:sources,lexiconSupport:left.lexiconSupport+right.lexiconSupport});
     }
     return[...found.values()].sort((a,b)=>b.gain-a.gain||b.lexiconSupport-a.lexiconSupport||a.term.localeCompare(b.term,"he")).slice(0,Math.max(1,Math.min(8,Number(limit)||5)));
   }

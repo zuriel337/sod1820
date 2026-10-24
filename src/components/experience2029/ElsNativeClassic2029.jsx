@@ -765,12 +765,12 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
 }
 
 function ResultTriageSummary({ result, pending }) {
-  if (pending) return <div className="els29-native-triage-summary" role="status"><strong>ממיין את התוצאות…</strong><small>בודק המשך מדויק, מילים נוספות על אותו ציר וסימני מבנה. אפשר לעצור בלי לשנות את המטריצה.</small></div>;
+  if (pending) return <div className="els29-native-triage-summary" role="status"><strong>ממיין את התוצאות…</strong><small>בודק מילים צמודות לפני ואחרי הממצא, מילים נוספות על אותו ציר וסימני מבנה. אפשר לעצור בלי לשנות את המטריצה.</small></div>;
   if (!result?.ok) return null;
   const recommended = (result.items || []).filter((item) => item.tier === "recommended");
   return <div className="els29-native-triage-summary" data-els-result-triage={result.contract} data-els-geometry-contract={result.geometryContract || undefined}>
     <strong>{recommended.length ? `${recommended.length} תוצאות שכדאי לפתוח קודם` : "המיון הושלם"}</strong>
-    <small>רצף מדויק וגאומטריה ללא פער מקבלים קדימות. זהו סדר עדיפות לבדיקה, לא ציון אמת; כל התוצאות נשארות זמינות.</small>
+    <small>רצף מדויק לפני או אחרי הממצא וגאומטריה ללא פער מקבלים קדימות. זהו סדר עדיפות לבדיקה, לא ציון אמת; כל התוצאות נשארות זמינות.</small>
     {result.lexicon?.fallback ? <small>שפת המקור לא נטענה במלואה ולכן בדיקת ההמשך חלקית.</small> : null}
   </div>;
 }
