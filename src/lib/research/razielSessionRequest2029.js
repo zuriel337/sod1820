@@ -360,6 +360,7 @@ export function prepareRazielSessionSubmission({
   view = {},
   projection = null,
   viewMode = null,
+  viewModeOverride = null,
   continuationTurnId = null,
   startedAt,
   createTurnId,
@@ -373,7 +374,10 @@ export function prepareRazielSessionSubmission({
   const contextSnapshot = continuation?.contextSnapshot
     || createRazielRequestContextSnapshot(researchContext, view, startedAt);
   const selectedFacts = continuation ? continuation.facts : facts;
-  const selectedViewMode = continuation?.viewMode ?? viewMode ?? state?.viewMode;
+  // A plain continuation (deepen) keeps the mode of the answer it extends. A one-shot per-request mode (the surprise)
+  // replaces it for this request only; the stored answer and the session's own mode are not modified.
+  const oneShotViewMode = viewModeOverride == null ? null : normalizeRazielViewMode(viewModeOverride);
+  const selectedViewMode = continuation?.viewMode && !oneShotViewMode ? continuation.viewMode : oneShotViewMode ?? viewMode ?? state?.viewMode;
   const request = buildRazielSessionRequest({
     question: subject,
     state,
@@ -453,6 +457,8 @@ export function createRazielProvenance({ response, turn, completedAt }) {
     engine: cleanInline(response.engine, 80),
     model: cleanInline(response.model, 120),
     capabilityClass: cleanInline(plan.capability_class, 80),
+    // 'ready' only when the server built a valid canonical Result Bundle for this answer (gates the one-shot surprise action).
+    bundleStatus: cleanInline(isObject(plan.canonical_result_bundle) ? plan.canonical_result_bundle.status : null, 20),
     viewMode: normalized.viewMode
       ? (normalized.viewMode.applied ? normalized.viewMode.requested : `${normalized.viewMode.requested}:not_applied`)
       : null,
