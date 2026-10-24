@@ -16,6 +16,7 @@ import {
 } from "./razielSession2029.js";
 
 const providerSource = readFileSync(new URL("./RazielSessionProvider2029.jsx", import.meta.url), "utf8");
+const sessionSource = readFileSync(new URL("./razielSession2029.js", import.meta.url), "utf8");
 
 test("continuity: desktop and mobile turns share one temporary thread", () => {
   const snapshot = createRazielContextSnapshot({ subject: { type: "post", id: "5107", label: "בחירות 631" } });
@@ -43,7 +44,7 @@ test("continuity: desktop and mobile turns share one temporary thread", () => {
   assert.equal(state.busy, true);
 });
 
-test("continuity request carries the canonical opt-in and bounded resolved identities", () => {
+test("continuity request carries the canonical opt-in and bounded resolved identities", async () => {
   const snapshot = createRazielContextSnapshot({ subject: { type: "number", id: "776", label: "776" } });
   let state = createInitialRazielSessionState();
   state = razielSessionReducer(state, {
@@ -58,7 +59,7 @@ test("continuity request carries the canonical opt-in and bounded resolved ident
     provenance: { turnId: "a" },
   });
 
-  const request = buildRazielSessionRequest({ question: "ומה הקשר ל־1820?", state, contextSnapshot: snapshot });
+  const request = await buildRazielSessionRequest({ question: "ומה הקשר ל־1820?", state, contextSnapshot: snapshot });
   assert.equal(request.researchContract, "public-number-research-run-v1");
   assert.match(request.context, /משתמש: מה זה 776\?\nרזיאל: תשובה/);
   assert.equal(request.conversationResolution?.referential_follow_up, true);
@@ -66,7 +67,7 @@ test("continuity request carries the canonical opt-in and bounded resolved ident
   assert.equal(request.conversationResolution?.guards?.server_must_reauthorize, true);
 });
 
-test("deep continuation keeps the original bounded context, facts and view mode after navigation", () => {
+test("deep continuation keeps the original bounded context, facts and view mode after navigation", async () => {
   const originalContext = createRazielContextSnapshot({
     lens: "post",
     subject: { type: "post", id: "5107", label: "בחירות 631", href: "/2029/post/5107" },
@@ -98,7 +99,7 @@ test("deep continuation keeps the original bounded context, facts and view mode 
 
   const restored = selectRazielContinuation(state.thread, { question: "מה חשוב כאן?" });
   const navigatedContext = createRazielContextSnapshot({ subject: { type: "world", id: "new", label: "עולם אחר", href: "/world/new" } });
-  const deepRequest = buildRazielSessionRequest({
+  const deepRequest = await buildRazielSessionRequest({
     question: "מה חשוב כאן?",
     state,
     contextSnapshot: restored.contextSnapshot || navigatedContext,
@@ -158,6 +159,39 @@ test("a sourced answer keeps per-message sources and grounding after the next tu
   assert.equal(selectRazielDeepeningCandidate(state), null, "a failed newer turn suppresses deepening of the older answer");
 });
 
+test("a request-module failure preserves prior conversation and can be retried", () => {
+  const before = {
+    ...createInitialRazielSessionState(),
+    thread: [{ role: "user", text: "מה זה 776?", turnId: "old" }, { role: "raziel", text: "תשובה", turnId: "old" }],
+    currentTurn: { id: "old", status: "complete" },
+    response: { answer: "תשובה" },
+    provenance: { turnId: "old" },
+    status: "ready",
+  };
+  const after = razielSessionReducer(before, { type: "request_failed", completedAt: "later", error: "transport_failed" });
+
+  assert.strictEqual(after.thread, before.thread);
+  assert.strictEqual(after.response, before.response);
+  assert.strictEqual(after.provenance, before.provenance);
+  assert.equal(after.currentTurn, null);
+  assert.equal(after.busy, false);
+  assert.equal(after.status, "error");
+  assert.match(after.announcement, /לנסות שוב/);
+});
+
+test("lazy request boundary keeps session eager and loads the resolver only inside explicit submit", () => {
+  const imports = sessionSource.slice(0, sessionSource.indexOf("export const RAZIEL_SESSION_VERSION"));
+  assert.doesNotMatch(imports, /from ["']\.\/razielConversationResolver\.js["']/);
+  assert.match(sessionSource, /import\(["']\.\/razielConversationResolver\.js["']\)/);
+  assert.match(sessionSource, /conversationResolverModulePromise = null;[\s\S]*\.catch\(\(error\) => \{[\s\S]*conversationResolverModulePromise = null;/);
+
+  const submit = providerSource.slice(providerSource.indexOf("const submit"), providerSource.indexOf("const setViewMode"));
+  assert.ok(submit.indexOf("inFlightRef.current = true") < submit.indexOf("await buildRazielSessionRequest"));
+  assert.ok(submit.indexOf("await buildRazielSessionRequest") < submit.indexOf("await transport(request)"));
+  assert.equal((submit.match(/await buildRazielSessionRequest/g) || []).length, 1);
+  assert.equal((submit.match(/await transport\(request\)/g) || []).length, 1);
+});
+
 test("privacy: snapshot is bounded and excludes access, raw page data and private metadata", () => {
   const snapshot = createRazielContextSnapshot({
     subject: { type: "post", id: "5107", label: "<b>בחירות</b>" },
@@ -191,7 +225,7 @@ test("privacy: absent numeric values do not become invented zeroes", () => {
   assert.equal("usage" in provenance, false);
 });
 
-test("cost: request is bounded and the provider has one explicit transport boundary only", () => {
+test("cost: request is bounded and the provider has one explicit transport boundary only", async () => {
   const state = {
     ...createInitialRazielSessionState(),
     thread: [
@@ -201,7 +235,7 @@ test("cost: request is bounded and the provider has one explicit transport bound
     ],
   };
   const contextSnapshot = createRazielContextSnapshot({ subject: { type: "number", id: "631", label: "631" } });
-  const request = buildRazielSessionRequest({ question: "ד".repeat(500), state, contextSnapshot, facts: "ה".repeat(2000) });
+  const request = await buildRazielSessionRequest({ question: "ד".repeat(500), state, contextSnapshot, facts: "ה".repeat(2000) });
 
   assert.equal(request.subject.length, 300);
   assert.ok(request.context.length <= 600);

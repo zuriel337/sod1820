@@ -108,7 +108,7 @@ test("an explicit 2029 number-research pair re-reads both canonical projections"
 });
 
 test("the real 2029 session request and server admission agree on the explicit research pair", async () => {
-  const request = buildRazielSessionRequest({
+  const request = await buildRazielSessionRequest({
     question: "חקור את 776 מול 1820",
     state: { thread: [] },
     contextSnapshot: null,
@@ -133,7 +133,7 @@ test("the real 2029 session request and server admission agree on the explicit r
 });
 
 test("the real session and server agree on a natural single-number subject", async () => {
-  const request = buildRazielSessionRequest({
+  const request = await buildRazielSessionRequest({
     question: "תן לי על המספר 776",
     state: { thread: [] },
     contextSnapshot: null,
@@ -157,7 +157,7 @@ test("the real session and server agree on a natural single-number subject", asy
 });
 
 test("method-only follow-up reuses the temporary numeric subject through the server gate", async () => {
-  const request = buildRazielSessionRequest({
+  const request = await buildRazielSessionRequest({
     question: "גימטריה",
     state: {
       thread: [{

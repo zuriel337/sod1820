@@ -1,4 +1,4 @@
-import { RAZIEL_ROUTE_ACTION } from "./razielRouteGrammar.js";
+import { RAZIEL_ROUTE_ACTION } from "./razielRouteContract.js";
 // SOD1820 Raziel Action Contract v1.
 //
 // Projection over an already-built Research Plan / Result Bundle.

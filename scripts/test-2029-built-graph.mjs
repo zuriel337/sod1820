@@ -21,6 +21,16 @@ const visit = (key) => {
 };
 visit(entryPair[0]);
 
+const eagerSeen = new Set();
+const visitEager = (key) => {
+  if (!key || eagerSeen.has(key)) return;
+  const record = manifest[key];
+  assert.ok(record, `manifest eager dependency missing: ${key}`);
+  eagerSeen.add(key);
+  for (const dep of record.imports || []) visitEager(dep);
+};
+visitEager(entryPair[0]);
+
 const forbiddenSources = [
   "src/App.jsx",
   "src/main.jsx",
@@ -51,6 +61,31 @@ for (const item of reachable) {
   }
 }
 
+const eagerRecords = [...eagerSeen].map((key) => ({ key, ...manifest[key] }));
+const lazyResolver = entries.find(([key, value]) =>
+  `${key} ${value?.src || ""}`.includes("src/lib/research/razielConversationResolver.js"));
+assert.ok(lazyResolver, "Raziel conversation resolver must be emitted as a lazy chunk");
+assert.equal(eagerSeen.has(lazyResolver[0]), false, "Raziel resolver/plan/gate must stay outside the eager 2029 graph");
+const lazyPlan = entries.find(([key, value]) =>
+  `${key} ${value?.src || ""}`.includes("researchPlanV2"));
+assert.ok(lazyPlan, "Raziel Research Plan must be emitted outside the eager entry");
+assert.equal(eagerSeen.has(lazyPlan[0]), false, "Raziel Research Plan must stay outside the eager 2029 graph");
+
+const eagerPayload = eagerRecords
+  .filter((item) => item.file?.endsWith(".js"))
+  .map((item) => fs.readFileSync(path.join(root, "dist", item.file), "utf8"))
+  .join("\n");
+for (const marker of [
+  "raziel-conversation-resolver-v1",
+  "raziel-semantic-intent-v1",
+]) {
+  assert.equal(eagerPayload.includes(marker), false, `${marker} leaked into the eager 2029 payload`);
+}
+
+const lazyResolverFile = path.join(root, "dist", lazyResolver[1].file);
+assert.ok(fs.existsSync(lazyResolverFile), "Raziel lazy resolver chunk missing");
+assert.match(fs.readFileSync(lazyResolverFile, "utf8"), /raziel-conversation-resolver-v1/);
+
 // Detect bundled legacy presentation payload even if Rollup folds it into a shared chunk.
 const forbiddenPayloadMarkers = [
   "royal-bg.jpg",
@@ -70,3 +105,6 @@ for (const item of reachable) {
 
 console.log("2029 built dependency graph: PASS");
 console.log(`reachable manifest records: ${reachable.length}`);
+console.log(`eager manifest records: ${eagerRecords.length}`);
+console.log(`Raziel request resolver: lazy (${lazyResolver[1].file})`);
+console.log(`Raziel Research Plan: lazy (${lazyPlan[1].file})`);

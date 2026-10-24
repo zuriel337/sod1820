@@ -1,6 +1,8 @@
 // SOD1820 Raziel Route Grammar v1.
 
 import { resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericResearchSubject } from "./razielSemanticIntentGate.js";
+import { RAZIEL_ROUTE_ACTION, RAZIEL_ROUTE_GRAMMAR_VERSION } from "./razielRouteContract.js";
+export { RAZIEL_ROUTE_ACTION, RAZIEL_ROUTE_GRAMMAR_VERSION } from "./razielRouteContract.js";
 //
 // Pure Research Strategy / Experience composition only.
 // It translates a user's human goal + current surface into one of four stable semantic actions.
@@ -11,15 +13,6 @@ import { resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericR
 // - experience_governance_foundation_v1_law v7 — Surface Role Grammar
 // - research_workspace_law v4 — One Context / Surface Transition Contract
 // - raziel_companion_layer_law v3 — One Raziel, same context across modes
-
-export const RAZIEL_ROUTE_GRAMMAR_VERSION = "raziel-route-grammar-v1";
-
-export const RAZIEL_ROUTE_ACTION = Object.freeze({
-  UNDERSTAND: "understand",
-  RESEARCH: "research",
-  CONNECT: "connect",
-  CONTINUE: "continue",
-});
 
 const ACTION_ORDER = Object.freeze([
   RAZIEL_ROUTE_ACTION.UNDERSTAND,

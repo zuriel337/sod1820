@@ -46,19 +46,19 @@ test("unknown or malformed values normalise to general and never throw", () => {
   assert.equal(normalizeRazielViewMode("exploratory"), "exploratory");
 });
 
-test("request: general is byte-identical to the pre-view-mode request; non-general adds only viewMode; axes stay independent", () => {
+test("request: general is byte-identical to the pre-view-mode request; non-general adds only viewMode; axes stay independent", async () => {
   const state = createInitialRazielSessionState();
-  const base = buildRazielSessionRequest({ question: "מה זה 271?", state, contextSnapshot: null, intelligenceLevel: "fast" });
+  const base = await buildRazielSessionRequest({ question: "מה זה 271?", state, contextSnapshot: null, intelligenceLevel: "fast" });
   for (const viewMode of [undefined, null, "general", "loud", 7]) {
-    const same = buildRazielSessionRequest({ question: "מה זה 271?", state, contextSnapshot: null, intelligenceLevel: "fast", viewMode });
+    const same = await buildRazielSessionRequest({ question: "מה זה 271?", state, contextSnapshot: null, intelligenceLevel: "fast", viewMode });
     assert.deepEqual(same, base);
     assert.equal("viewMode" in same, false);
   }
-  const landscape = buildRazielSessionRequest({ question: "מה זה 271?", state, contextSnapshot: null, intelligenceLevel: "fast", viewMode: "landscape" });
+  const landscape = await buildRazielSessionRequest({ question: "מה זה 271?", state, contextSnapshot: null, intelligenceLevel: "fast", viewMode: "landscape" });
   assert.deepEqual({ ...landscape, viewMode: undefined }, { ...base, viewMode: undefined });
   assert.equal(landscape.viewMode, "landscape");
   assert.equal(landscape.intelligenceLevel, "fast");
-  const deepExploratory = buildRazielSessionRequest({ question: "מה זה 271?", state, contextSnapshot: null, intelligenceLevel: "deep", viewMode: "exploratory" });
+  const deepExploratory = await buildRazielSessionRequest({ question: "מה זה 271?", state, contextSnapshot: null, intelligenceLevel: "deep", viewMode: "exploratory" });
   assert.equal(deepExploratory.intelligenceLevel, "deep");
   assert.equal(deepExploratory.viewMode, "exploratory");
 });

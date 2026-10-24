@@ -1,10 +1,6 @@
 // Temporary, in-memory Raziel conversation state for the 2029 shell.
 // ResearchProvider remains the only owner of saved items, collections, paths and research Context.
 
-import {
-  projectRazielConversationResolution,
-  resolveRazielConversationTurn,
-} from "./razielConversationResolver.js";
 import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
 import {
   RAZIEL_DEFAULT_VIEW_MODE,
@@ -16,6 +12,22 @@ export const RAZIEL_SESSION_VERSION = 1;
 // Explicit 2029-only opt-in. Legacy callers do not send this field, so their server path remains
 // byte-for-byte on the existing adapters until they are deliberately migrated.
 export const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
+
+let conversationResolverModulePromise = null;
+
+// The temporary session remains eager so continuity is available on every 2029 surface. The
+// resolver, plan and semantic gate are requested only after an explicit submit. A failed chunk
+// load is not cached, allowing the next explicit submit to retry normally.
+function loadRazielConversationResolver() {
+  if (!conversationResolverModulePromise) {
+    conversationResolverModulePromise = import("./razielConversationResolver.js")
+      .catch((error) => {
+        conversationResolverModulePromise = null;
+        throw error;
+      });
+  }
+  return conversationResolverModulePromise;
+}
 
 const LIMITS = Object.freeze({
   question: 300,
@@ -333,7 +345,7 @@ function snapshotSurfaceSemantic(snapshot) {
   return Object.keys(semantic).length ? semantic : null;
 }
 
-export function buildRazielSessionRequest({
+export async function buildRazielSessionRequest({
   question,
   state,
   contextSnapshot,
@@ -345,6 +357,10 @@ export function buildRazielSessionRequest({
   const subject = cleanInline(question, LIMITS.question);
   if (!subject) return null;
   const surfaceSemantic = snapshotSurfaceSemantic(contextSnapshot);
+  const {
+    projectRazielConversationResolution,
+    resolveRazielConversationTurn,
+  } = await loadRazielConversationResolver();
   const resolvedTurn = resolveRazielConversationTurn({
     question: subject,
     thread: state?.thread,
@@ -520,6 +536,14 @@ export function razielSessionReducer(state, action) {
         },
         response: null,
         provenance: null,
+        status: "error",
+        announcement: "רזיאל לא הצליח לענות כרגע. אפשר לנסות שוב.",
+      };
+    case "request_failed":
+      return {
+        ...state,
+        busy: false,
+        currentTurn: null,
         status: "error",
         announcement: "רזיאל לא הצליח לענות כרגע. אפשר לנסות שוב.",
       };

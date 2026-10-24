@@ -52,7 +52,7 @@ test("one conversation: desktop Companion and mobile sheet consume the same sess
   assert.match(frame, /return useOptionalRazielSession2029\(\)[\s\S]*\? <SystemFrame2029Body \{\.\.\.props\} \/>[\s\S]*: <RazielSessionMount2029><SystemFrame2029Body/);
 });
 
-test("continuity: a desktop turn is available to the next mobile request", () => {
+test("continuity: a desktop turn is available to the next mobile request", async () => {
   const snapshot = createRazielContextSnapshot({ subject: { type: "number", id: "776", label: "776" } });
   let state = createInitialRazielSessionState();
   state = razielSessionReducer(state, {
@@ -66,11 +66,11 @@ test("continuity: a desktop turn is available to the next mobile request", () =>
     response: { answer: "תשובה", intelligenceLevel: "fast", deterministic: false, sourceNames: [] },
     provenance: { turnId: "a" },
   });
-  const request = buildRazielSessionRequest({ question: "ובמסתתר?", state, contextSnapshot: snapshot });
+  const request = await buildRazielSessionRequest({ question: "ובמסתתר?", state, contextSnapshot: snapshot });
   assert.match(request.context, /שיחה אחרונה:\nמשתמש: מה זה 776\?\nרזיאל: תשובה/);
 });
 
-test("deep continuation is not rebound to a newly opened surface", () => {
+test("deep continuation is not rebound to a newly opened surface", async () => {
   const contextA = {
     lens: "post",
     subject: { type: "post", id: "a", label: "פוסט א", href: "/post/a" },
@@ -108,7 +108,7 @@ test("deep continuation is not rebound to a newly opened surface", () => {
     provenance: { turnId: "turn-a" },
   });
   const original = selectRazielContinuation(state.thread, { turnId: "turn-a" });
-  const deepRequest = buildRazielSessionRequest({
+  const deepRequest = await buildRazielSessionRequest({
     question: "שאלה א",
     state,
     contextSnapshot: original.contextSnapshot,
@@ -118,7 +118,7 @@ test("deep continuation is not rebound to a newly opened surface", () => {
     viewMode: original.viewMode,
   });
   const initialTransport = withRazielSurfaceContext(
-    buildRazielSessionRequest({ question: "שאלה א", state: createInitialRazielSessionState(), contextSnapshot: snapshotA }),
+    await buildRazielSessionRequest({ question: "שאלה א", state: createInitialRazielSessionState(), contextSnapshot: snapshotA }),
     contextA,
   );
   assert.equal(initialTransport.surfaceSemantic.context.subjectHref, "/post/a");
@@ -213,7 +213,7 @@ test("privacy: memory only, owner changes reset it, and surface context is allow
   assert.doesNotMatch(JSON.stringify(output), /PRIVATE|"T"|saved/);
 });
 
-test("cost: every explicit request stays bounded and deep appears once", () => {
+test("cost: every explicit request stays bounded and deep appears once", async () => {
   const large = "א".repeat(5000);
   let state = createInitialRazielSessionState();
   for (let index = 0; index < 30; index += 1) {
@@ -224,7 +224,7 @@ test("cost: every explicit request stays bounded and deep appears once", () => {
     dimensions: { readingFocus: { primary: large } },
   });
   const request = withRazielSurfaceContext(
-    buildRazielSessionRequest({ question: large, state, contextSnapshot: snapshot, facts: large }),
+    await buildRazielSessionRequest({ question: large, state, contextSnapshot: snapshot, facts: large }),
     { lens: large, subject: { type: "post", id: "1", href: `/p/${large}` } },
   );
   assert.equal(request.subject.length, 300);

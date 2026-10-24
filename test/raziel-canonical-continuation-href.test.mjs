@@ -86,7 +86,7 @@ assert.doesNotMatch(JSON.stringify(deepSessionRequest), /new-99/);
 // the transport seam refuses to replace it with B after navigation.
 const originalSnapshot = createRazielContextSnapshot(ctx);
 const continuation = createRazielContinuationSnapshot({ contextSnapshot: originalSnapshot });
-const rebuiltDeepRequest = buildRazielSessionRequest({
+const rebuiltDeepRequest = await buildRazielSessionRequest({
   question: "אותה שאלה",
   state: createInitialRazielSessionState(),
   contextSnapshot: continuation.contextSnapshot,

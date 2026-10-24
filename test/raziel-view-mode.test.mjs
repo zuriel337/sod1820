@@ -36,8 +36,8 @@ const modelText = (answer) => ({
 });
 
 // Mirrors askRaziel's body: the request comes from the real client builder; view_mode is sent only when non-general.
-function bodyFor(question, { mode = null, level = "fast", rawViewMode, extra = {} } = {}) {
-  const req = buildRazielSessionRequest({
+async function bodyFor(question, { mode = null, level = "fast", rawViewMode, extra = {} } = {}) {
+  const req = await buildRazielSessionRequest({
     question, state: createInitialRazielSessionState(), contextSnapshot: null, intelligenceLevel: level, viewMode: mode ?? "general",
   });
   return {
@@ -55,7 +55,7 @@ function bodyFor(question, { mode = null, level = "fast", rawViewMode, extra = {
 async function ask(question, { mode = null, allowed = true, level = "fast", rawViewMode, modelResult, modelResults, extra, run: runExtra = {} } = {}) {
   return runAiAnalyze({
     answer: F.noMatchAnswer(), allowed, bearer: "synthetic-anon-key",
-    body: bodyFor(question, { mode, level, rawViewMode, extra }),
+    body: await bodyFor(question, { mode, level, rawViewMode, extra }),
     ...bundles(), ...(modelResult ? { modelResult } : {}), ...(modelResults ? { modelResults } : {}), ...runExtra,
   });
 }
@@ -156,7 +156,7 @@ for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_27
 }
 
 test("7b) natural method wording resolves to the same canonical Bundle in every mode", async () => {
-  const req = buildRazielSessionRequest({ question: Q_HIDDEN_NATURAL, state: createInitialRazielSessionState(), contextSnapshot: null });
+  const req = await buildRazielSessionRequest({ question: Q_HIDDEN_NATURAL, state: createInitialRazielSessionState(), contextSnapshot: null });
   assert.deepEqual(req.conversationResolution?.identities, [
     { type: "phrase", label: "חכמה", identity_key: "phrase:חכמה" },
   ]);
@@ -274,7 +274,7 @@ test("6) neither new mode writes memory, research or corpus state, and calls no 
   for (const mode of NON_GENERAL) {
     const run = await runAiAnalyze({
       answer: F.noMatchAnswer(), allowed: true, bearer: USER_JWT, verifiedUid: UID,
-      body: bodyFor(Q_271, { mode }), ...bundles(), legacyContext: { memories: [{ content: "LEGACY-MEMORY-SENTINEL" }] },
+      body: await bodyFor(Q_271, { mode }), ...bundles(), legacyContext: { memories: [{ content: "LEGACY-MEMORY-SENTINEL" }] },
     });
     const names = callNames(run);
     for (const forbidden of ["fn_raziel_remember", "fn_raziel_context", "research_state_snapshot_v1", "fn_research_path_resume_v1"]) {

@@ -80,38 +80,40 @@ export function RazielSessionProvider2029({
     const selectedViewMode = continuation?.viewMode
       ?? viewMode
       ?? stateRef.current.viewMode;
-    const request = buildRazielSessionRequest({
-      question,
-      state: stateRef.current,
-      contextSnapshot,
-      facts: selectedFacts,
-      intelligenceLevel,
-      again,
-      // Session-owned choice, read at submit time so every projection/surface sends the same mode.
-      viewMode: selectedViewMode,
-    });
-    if (!request) return { ok: false, error: "question_required" };
-
-    const turn = {
-      id: createTurnId(),
-      question: request.subject,
-      identityResolution: request.conversationResolution ? {
-        identities: request.conversationResolution.identities,
-        explicit_text_computation: false,
-      } : null,
-      intelligenceLevel: request.intelligenceLevel,
-      again: request.again,
-      projection: projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null,
-      startedAt,
-      continuation: createRazielContinuationSnapshot({
-        contextSnapshot,
-        facts: request.facts,
-        viewMode: selectedViewMode,
-      }),
-    };
     inFlightRef.current = true;
-    dispatch({ type: "turn_started", turn, contextSnapshot });
+    let turnStarted = false;
     try {
+      const request = await buildRazielSessionRequest({
+        question,
+        state: stateRef.current,
+        contextSnapshot,
+        facts: selectedFacts,
+        intelligenceLevel,
+        again,
+        // Session-owned choice, read at submit time so every projection/surface sends the same mode.
+        viewMode: selectedViewMode,
+      });
+      if (!request) return { ok: false, error: "question_required" };
+
+      const turn = {
+        id: createTurnId(),
+        question: request.subject,
+        identityResolution: request.conversationResolution ? {
+          identities: request.conversationResolution.identities,
+          explicit_text_computation: false,
+        } : null,
+        intelligenceLevel: request.intelligenceLevel,
+        again: request.again,
+        projection: projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null,
+        startedAt,
+        continuation: createRazielContinuationSnapshot({
+          contextSnapshot,
+          facts: request.facts,
+          viewMode: selectedViewMode,
+        }),
+      };
+      dispatch({ type: "turn_started", turn, contextSnapshot });
+      turnStarted = true;
       // The only AI boundary in this module: an explicit submit action.
       const rawResponse = await transport(request);
       if (!mountedRef.current) return { ok: false, error: "session_unmounted" };
@@ -126,7 +128,13 @@ export function RazielSessionProvider2029({
       return { ok: true, response, provenance };
     } catch {
       const completedAt = clock();
-      if (mountedRef.current) dispatch({ type: "turn_failed", completedAt, error: "transport_failed" });
+      if (mountedRef.current) {
+        dispatch({
+          type: turnStarted ? "turn_failed" : "request_failed",
+          completedAt,
+          error: "transport_failed",
+        });
+      }
       return { ok: false, error: "transport_failed" };
     } finally {
       inFlightRef.current = false;
