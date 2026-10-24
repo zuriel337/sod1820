@@ -1,4 +1,4 @@
-// Raziel grounded-source composer V4.
+// Raziel grounded-source composer V7.
 //
 // A pure presentation projection over the existing authorized Result-Bundle consumer. It does
 // not search, calculate, rank, authorize, persist or call a model. Its only jobs are to preserve
@@ -6,7 +6,7 @@
 // honest deterministic fallback, and expose canonical number-page navigation without inventing a
 // source URL.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 6;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 7;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -170,6 +170,8 @@ function responseGuidance(entries) {
     "אל תוריד ביטוי מאומת לדרגת פרשנות רק מפני שניסוחו נשמע סמלי או מטפורי. אם החבילה אימתה ביטוי, שיטה וערך — הצג את השוויון כעובדה חישובית; רק המשמעות שאתה מסיק מן השוויון היא פרשנות.",
     "מותר ואף רצוי לזהות דפוס משמעותי ולהציע מטפורה, שם או חיבור מקורי משלך. פתח אותו במפורש כ׳רזיאל מציע׳ או כ׳פרשנות אפשרית׳, הסבר מיד בשפה פשוטה למה בחרת בו ועל אילו עובדות הוא נשען, ואל תייחס אותו למקור.",
     "אל תייחס לשם, למילה או למספר תפקיד רוחני, ביוגרפי, היסטורי או תיאולוגי אלא אם טענה זו מופיעה במפורש בנתיב source_claims שסופק. חישוב זהות מספרית לבדו אינו מקור למשמעות כזו.",
+    "אל תהפוך פירוש מילוני אפשרי של ביטוי מצטלב להוכחה על נושא המחקר. אם למילה יש כמה מובנים, שמור את העמימות או הצע בחירה; קשר רעיוני נכתב רק כפרשנות מסומנת ועל בסיס העובדות שסופקו.",
+    "תשובה מעמיקה אינה רשימת ערכים ארוכה: לאחר הצגת הבסיס המאומת, חבר בפסקה רציפה בין שני ממצאים שסופקו לפחות והסבר את מהלך החיבור. אם אין שני ממצאים שתומכים במהלך, אמור שאין עדיין בסיס לסינתזה במקום לכפות סיפור.",
     "הנושא המפורש של החבילה הנוכחית גובר על רקע-המסך והשיחה הקודמת. אל תחבר אותו למספר או לנושא מן המשטח אלא אם המשתמש ביקש את החיבור או שהחבילה סיפקה יחס מפורש.",
     rarityAllowed
       ? "מותר לתאר נדירות רק בצמוד למדד הנדירות או לשיעור הבסיס המפורש שסופק בחבילה."
@@ -498,7 +500,16 @@ function directCanonicalAnswer(entries) {
 
   if (requestedMethod) {
     const profile = exactMethodProfile(entry, requestedMethod);
-    if (!profile || !Number.isSafeInteger(Number(profile.value))) return null;
+    if (!profile || !Number.isSafeInteger(Number(profile.value))) {
+      const completeProfile = list(entry?.projection?.model_input?.calculation_profile);
+      const outputBounds = entry?.projection?.model_input?.output_bounds;
+      if (!completeProfile.length || outputBounds?.source_truncated === true || outputBounds?.consumer_truncated === true) return null;
+      return {
+        kind: "exact_expression_method_unavailable",
+        answer: `השיטה ${requestedMethod} לא נמצאה במפת החישוב הקנונית והשלמה של ${expression}. לכן לא חישבתי את מילות הפקודה ולא המצאתי ערך חלופי.`,
+        facts: [],
+      };
+    }
     const method = cleanText(profile.method_label || profile.method_key, 60);
     const value = Number(profile.value);
     const relation = confirmedRelation(entry, null, method);
@@ -556,6 +567,10 @@ export function buildRazielGroundedSourceComposer(input = []) {
       source_terms_must_not_be_merged_or_autocorrected: true,
       total_count_claim_requires_explicit_total_count: true,
       explicit_counts_must_be_copied_as_digits: true,
+      calculation_subject_must_equal_bundle_subject: true,
+      request_scaffolding_must_not_be_calculated: true,
+      lexical_gloss_is_not_relation_evidence: true,
+      rich_synthesis_requires_supplied_evidence: true,
       never_coin_a_source_term: true,
       free_synthesis_requires_explicit_interpretation_label: true,
       original_interpretation_is_allowed_when_labeled_and_explained: true,
@@ -595,6 +610,7 @@ export function buildRazielGroundedSourceComposer(input = []) {
       no_unmeasured_rarity_claim: true,
       no_extra_model_call: true,
       direct_answer_uses_canonical_projection_only: true,
+      calculation_subject_fidelity: true,
     },
   };
   return deepFreeze(result);

@@ -77,6 +77,38 @@ test("explicit Hebrew expression grammar is structural rather than word-specific
   ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
 });
 
+test("method calculation commands keep command scaffolding out of the canonical expression", () => {
+  for (const [question, label, method, action] of [
+    ["חשב את שאול בשיטת מסתתר ומצא הצלבות", "שאול", "מסתתר", "connect"],
+    ["תחשב לי את חכמה בשיטת משולש", "חכמה", "משולש", "research"],
+    ["חשב את ראיתי דבר מתוך דבר בשיטת אותיות אחרי ומצא לי קשרים", "ראיתי דבר מתוך דבר", "אותיות אחרי", "connect"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, label, question);
+    assert.equal(out?.identity_key, `phrase:${label}`, question);
+    assert.equal(out?.requested_method, method, question);
+    assert.equal(out?.requested_action, action, question);
+    assert.equal(out?.explicit_text_computation, true, question);
+    assert.doesNotMatch(out?.label || "", /בשיטת|הצלבות|קשרים/u, question);
+  }
+});
+
+test("plain calculation commands also remove Gematria, all-method and view scaffolding", () => {
+  for (const [question, action] of [
+    ["חשב את שאול בגימטריה", "research"],
+    ["חשב את שאול בכל השיטות ומצא הצלבות", "connect"],
+    ["חשב את שאול במצב רגיל", "research"],
+    ["חשב את שאול ומצא הצלבות", "connect"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, "שאול", question);
+    assert.equal(out?.identity_key, "phrase:שאול", question);
+    assert.equal(out?.requested_action, action, question);
+    assert.equal(out?.requested_method, undefined, question);
+    assert.doesNotMatch(out?.label || "", /גימטר|שיטות|מצב|הצלבות/u, question);
+  }
+});
+
 test("expression continuation directives carry an earlier subject instead of calculating their scaffolding", () => {
   assert.deepEqual(resolveRazielExpressionContinuationDirective("תחשב את זה בכל השיטות ומצא הצלבות"), {
     requested_action: "connect",

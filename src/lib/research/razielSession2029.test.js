@@ -106,6 +106,33 @@ test("expression continuation keeps the last canonical subject across action and
   assert.doesNotMatch(JSON.stringify(second.conversationResolution), /phrase:במצב רגיל/);
 });
 
+test("method command projects only its expression while the server reauthorizes the method lens", () => {
+  const request = buildRazielSessionRequest({
+    question: "חשב את שאול בשיטת מסתתר ומצא הצלבות",
+    state: createInitialRazielSessionState(),
+    contextSnapshot: null,
+  });
+  assert.equal(request.conversationResolution?.requested_action, "connect");
+  assert.equal(request.conversationResolution?.referential_follow_up, false);
+  assert.equal(request.conversationResolution?.referent_source, "explicit_current_turn");
+  assert.deepEqual(request.conversationResolution?.identities, [
+    { type: "phrase", label: "שאול", identity_key: "phrase:שאול" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(request.conversationResolution), /phrase:שאול בשיטת/u);
+});
+
+test("plain Gematria wording never becomes part of the expression identity", () => {
+  const request = buildRazielSessionRequest({
+    question: "חשב את שאול בגימטריה",
+    state: createInitialRazielSessionState(),
+    contextSnapshot: null,
+  });
+  assert.deepEqual(request.conversationResolution?.identities, [
+    { type: "phrase", label: "שאול", identity_key: "phrase:שאול" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(request.conversationResolution), /שאול בגימטריה/u);
+});
+
 test("deep continuation keeps the original bounded context, facts and view mode after navigation", () => {
   const originalContext = createRazielContextSnapshot({
     lens: "post",

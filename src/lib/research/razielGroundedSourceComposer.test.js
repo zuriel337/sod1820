@@ -48,7 +48,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v6");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v7");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -186,6 +186,39 @@ test("focused hidden-method question deterministically binds 67 to חכמה and 
   assert.doesNotMatch(out.direct_answer.answer, /מסתתר = 73/);
 });
 
+test("focused Shaul method answer uses only the canonical expression and never command scaffolding", () => {
+  const profile = [
+    { method_key: "רגיל", method_label: "רגיל", value: 337 },
+    { method_key: "מסתתר", method_label: "מסתתר", value: 328 },
+    { method_key: "מסתתר גדול", method_label: "מסתתר גדול", value: 328 },
+  ];
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "שאול", requestedMethod: "מסתתר" },
+    projection: projection([], null, { calculation_profile: profile }),
+  }]);
+
+  assert.equal(out.direct_answer.kind, "exact_expression_method");
+  assert.equal(out.direct_answer.anchor_value, 328);
+  assert.match(out.direct_answer.answer, /שאול בשיטת מסתתר = 328/);
+  assert.doesNotMatch(out.direct_answer.answer, /1868|שאול בשיטת מסתתר בשיטת/u);
+  assert.equal(JSON.parse(out.prompt).presentation_contract.calculation_subject_must_equal_bundle_subject, true);
+  assert.equal(out.guards.calculation_subject_fidelity, true);
+});
+
+test("unknown requested method fails closed after a complete canonical profile", () => {
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "שאול", requestedMethod: "שיטה שאינה קיימת" },
+    projection: projection([], null, {
+      calculation_profile: [{ method_key: "רגיל", method_label: "רגיל", value: 337 }],
+    }),
+  }]);
+
+  assert.equal(out.direct_answer.kind, "exact_expression_method_unavailable");
+  assert.match(out.direct_answer.answer, /לא נמצאה במפת החישוב הקנונית/);
+  assert.match(out.direct_answer.answer, /לא חישבתי את מילות הפקודה/);
+  assert.doesNotMatch(out.direct_answer.answer, /=\s*\d/u);
+});
+
 test("focused expression pair returns only the confirmed cross-method relation", () => {
   const relation = {
     id: "uf:relation:pair",
@@ -312,9 +345,13 @@ test("preserves source terminology without hard-coding a subject-specific correc
   assert.equal(prompt.presentation_contract.total_count_claim_requires_explicit_total_count, true);
   assert.equal(prompt.presentation_contract.explicit_counts_must_be_copied_as_digits, true);
   assert.equal(prompt.presentation_contract.never_coin_a_source_term, true);
+  assert.equal(prompt.presentation_contract.lexical_gloss_is_not_relation_evidence, true);
+  assert.equal(prompt.presentation_contract.rich_synthesis_requires_supplied_evidence, true);
   assert.equal(prompt.presentation_contract.original_interpretation_is_allowed_when_labeled_and_explained, true);
   assert.match(out.guidance, /מותר ואף רצוי לזהות דפוס משמעותי/);
   assert.match(out.guidance, /רזיאל מציע/);
+  assert.match(out.guidance, /פירוש מילוני אפשרי/);
+  assert.match(out.guidance, /תשובה מעמיקה אינה רשימת ערכים ארוכה/);
   assert.match(out.guidance, /השמט את הביטוי במקום לייצר נוסח משובש/);
   assert.match(out.guidance, /אל תכריז כמה ביטויים או ממצאים יש אלא אם total_count/);
   assert.doesNotMatch(out.prompt + out.guidance, /הטליה המעגלית/);

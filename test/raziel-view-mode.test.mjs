@@ -243,6 +243,8 @@ test("5) exploratory layer demands three separate tiers and forbids invention; l
   assert.match(exploratory, /הצעה של רזיאל ולא לשון המקור/);
   assert.match(exploratory, /המנוע מצא/);
   assert.match(exploratory, /אל תחשב גימטריה/);
+  assert.match(exploratory, /אל תניח זהות ביוגרפית/);
+  assert.match(exploratory, /פירוש מילוני אפשרי/);
   assert.match(exploratory, /אין בסיס מספיק להשערה/);
   assert.match(exploratory, /טקסט חשיבה גולמי/);
   assert.match(exploratory, /השערה אינה ממצא, מקור או ידע קנוני/);
@@ -257,6 +259,8 @@ test("5) exploratory layer demands three separate tiers and forbids invention; l
   assert.match(landscape, /אל תיצור היררכיה/);
   assert.match(landscape, /כפילות טבעית/);
   assert.match(landscape, /אל תחשב גימטריה/);
+  assert.match(landscape, /סינתזה:/);
+  assert.match(landscape, /אל תכפה סיפור/);
 });
 
 test("5b) the server reports which structural labels the model answer actually carried (telemetry only; the answer is never rewritten)", async () => {

@@ -137,6 +137,44 @@ function validExplicitHebrewExpression(value) {
   return expression;
 }
 
+// Parse a complete expression-calculation command into independent semantic slots. The words that
+// describe HOW to calculate ("בשיטת …") and WHAT to do afterwards ("ומצא הצלבות") are command
+// scaffolding, never part of the expression sent to the canonical engine. Method identity remains
+// Registry-owned downstream: this parser only preserves the bounded textual method slot, so future
+// methods do not require another phrase-specific patch here.
+function explicitExpressionCalculationCommand(question) {
+  const q = grammarText(question);
+  const command = /^(?:תחשב|חשב|חשבי|תחשבי)(?:\s+לי)?(?:\s+את)?(?:\s+(?:המילה|הביטוי|השם))?\s+(.+)$/u.exec(q);
+  if (!command) return null;
+
+  let body = clean(command[1], 240);
+  const connectionSuffix = /\s+(?:ומצא|מצא|וחפש|חפש|ובדוק|בדוק)(?:\s+לי)?\s+(?:הצלבות|קשרים)$/u;
+  const asksConnections = connectionSuffix.test(body);
+  body = body.replace(connectionSuffix, "").trim();
+
+  const marker = body.lastIndexOf(" בשיטת ");
+  const requestedMethod = marker > 0
+    ? clean(body.slice(marker + " בשיטת ".length), 60)
+    : "";
+  const expressionText = marker > 0
+    ? body.slice(0, marker)
+    : body.replace(/\s+(?:בגימטרי[הא]|בכל\s+השיטות|במצב\s+(?:רגיל|כללי))$/u, "").trim();
+  const expression = validExplicitHebrewExpression(expressionText);
+  if (!expression || (marker > 0 && (!requestedMethod || !/[\u0590-\u05ff]/u.test(requestedMethod)))) return null;
+
+  return Object.freeze({
+    type: "phrase",
+    label: expression,
+    evidence_text: expression,
+    identity_key: `phrase:${expression}`,
+    source: RESEARCH_IDENTITY_SOURCE.TEXT_MATCH,
+    confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    requested_action: asksConnections ? "connect" : "research",
+    ...(requestedMethod ? { requested_method: requestedMethod } : {}),
+    explicit_text_computation: true,
+  });
+}
+
 // High-confidence, single-expression grammar shared by the browser resolver and the server
 // re-authorization gate. This is structural, not a vocabulary list: any bounded Hebrew name,
 // word or phrase can occupy the explicit expression slot. Incidental prose and personal pronouns
@@ -147,6 +185,9 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
   // A continuation directive has no new expression slot. In particular, never calculate the
   // literal scaffolding "במצב רגיל" or "זה בכל השיטות" as though it were the user's phrase.
   if (resolveRazielExpressionContinuationDirective(q)) return null;
+
+  const expressionCalculationCommand = explicitExpressionCalculationCommand(q);
+  if (expressionCalculationCommand) return expressionCalculationCommand;
 
   let match = /^(?:מצא|מצאי|חפש|חפשי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+(?:הצלבות|קשרים)\s+(?:(?:למילה|לביטוי|לשם|עבור)\s+)(.+)$/u.exec(q);
   let requestedAction = "connect";

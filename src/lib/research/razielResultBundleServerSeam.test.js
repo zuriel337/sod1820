@@ -145,7 +145,7 @@ function terminalNumberBundle(number, status) {
 }
 
 function expressionCrossingBundle(expression, partner = "שלום") {
-  const regularValue = expression === "צוריאל" ? 337 : expression === "חכמה" ? 73 : 358;
+  const regularValue = expression === "צוריאל" || expression === "שאול" ? 337 : expression === "חכמה" ? 73 : 358;
   const calculation = makeUniversalFinding({
     id: `uf:gematria:${expression}:ragil`,
     kind: "gematria-method-value",
@@ -206,6 +206,27 @@ function expressionCrossingBundle(expression, partner = "שלום") {
   });
   const calculations = [calculation];
   const crossingFindings = [finding];
+  if (expression === "שאול") {
+    for (const [key, label, value, family] of [
+      ["מסתתר", "מסתתר", 328, "adjacent_difference"],
+      ["מסתתר גדול", "מסתתר גדול", 328, "adjacent_difference"],
+    ]) {
+      calculations.push(makeUniversalFinding({
+        id: `uf:gematria:${expression}:${key}`,
+        kind: "gematria-method-value",
+        subject: { type: "phrase", key: expression, label: expression, value, lang: "he" },
+        source: { engine: "gematria", adapter: "gematria-method-profile-w2-v1", sourceRef: null, method: key, lang: "he" },
+        identity: { sourceIdentity: { methodKey: key, normalizedSubject: expression, value } },
+        verification: { engine_method_tested: key, engine_result: value, verification_state: "not_tested" },
+        evidence: { refs: [], facts: [{
+          type: "gematria-method-profile-value", method: key, label, value,
+          category: "יסוד", mathematical_family: family, atomic_or_composite: "atomic", method_version: 1,
+        }] },
+        access: { tier: "public" },
+        provenance: { createdBy: "ENGINE:gematria", inputRef: "expression:fixture" },
+      }));
+    }
+  }
   if (expression === "חכמה") {
     for (const [key, label, value, family] of [
       ["מסתתר", "מסתתר", 67, "adjacent_difference"],
@@ -407,6 +428,94 @@ test("2029 exact expression crossing consumes the same canonical Bundle without 
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   assert.deepEqual(run.result.raziel.sources, [{ original_name: "מאגר הביטויים", source_ref: "rpc:strongest_crossings", lang: "he" }]);
   assert.equal(JSON.stringify(run.traces).includes(expression), false, "expression must not enter operational trace");
+});
+
+test("Shaul method-and-crossing command never sends its command scaffolding to the engine", async () => {
+  const expression = "שאול";
+  const subject = "חשב את שאול בשיטת מסתתר ומצא הצלבות";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject,
+      visitor_id: "vshaulexpressionmethod123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: expressionConversation(expression),
+    },
+    researchBundleByExpression: { [expression]: expressionCrossingBundle(expression) },
+  });
+
+  const researchCalls = run.calls.filter((call) => call.name === "research-run");
+  const expressionCalls = researchCalls.filter((call) => call.payload.contract === EXPRESSION_CONTRACT);
+  const numberCalls = researchCalls.filter((call) => call.payload.contract === CONTRACT);
+  assert.equal(expressionCalls.length, 1);
+  assert.equal(expressionCalls[0].payload.expression, expression);
+  assert.equal(numberCalls.length, 1, "the verified method value opens the existing Number Bundle once");
+  assert.equal(numberCalls[0].payload.number, 328);
+  assert.doesNotMatch(JSON.stringify(researchCalls), /"expression":"שאול בשיטת מסתתר/u);
+  assert.equal(run.models.length, 0);
+  assert.equal(run.result.model, "none");
+  assert.match(run.result.raziel.answer, /שאול בשיטת מסתתר = 328/);
+  assert.doesNotMatch(run.result.raziel.answer, /1868/);
+});
+
+test("plain Shaul Gematria wording researches Shaul rather than the words of the command", async () => {
+  const expression = "שאול";
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "חשב את שאול בגימטריה",
+      visitor_id: "vshaulplaingematria123",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: focusedExpressionConversation(expression, "research"),
+    },
+    researchBundleByExpression: { [expression]: expressionCrossingBundle(expression) },
+  });
+
+  const expressionCalls = run.calls.filter((call) => (
+    call.name === "research-run" && call.payload.contract === EXPRESSION_CONTRACT
+  ));
+  assert.equal(expressionCalls.length, 1);
+  assert.equal(expressionCalls[0].payload.expression, expression);
+  assert.ok(run.models.length <= 1);
+  const supplied = run.models[0]?.user || run.result.raziel?.answer || "";
+  assert.match(supplied, /שאול/);
+  assert.match(supplied, /337/);
+});
+
+test("landscape and exploratory modes receive the verified Shaul Bundle instead of no-bundle fallback", async () => {
+  for (const viewMode of ["landscape", "exploratory"]) {
+    const run = await runAiAnalyze({
+      answer: noMatchAnswer(),
+      allowed: true,
+      bearer: "synthetic-anon-key",
+      body: {
+        subject: "חשב את שאול בגימטריה",
+        visitor_id: `vshaulviewmode${viewMode}123`,
+        intelligence_level: "fast",
+        research_contract: CONTRACT,
+        view_mode: viewMode,
+        conversation_resolution: focusedExpressionConversation("שאול", "research"),
+      },
+      researchBundleByExpression: { שאול: expressionCrossingBundle("שאול") },
+    });
+
+    const expressionCalls = run.calls.filter((call) => (
+      call.name === "research-run" && call.payload.contract === EXPRESSION_CONTRACT
+    ));
+    assert.equal(expressionCalls.length, 1, viewMode);
+    assert.equal(expressionCalls[0].payload.expression, "שאול", viewMode);
+    assert.equal(run.models.length, 1, viewMode);
+    assert.match(run.models[0].user, /שאול/, viewMode);
+    assert.match(run.models[0].user, /337/, viewMode);
+    assert.equal(run.result.raziel.plan_meta.view_mode.applied, true, viewMode);
+    assert.doesNotMatch(run.result.raziel.answer, /אין כרגע חבילה|לא הופעל/u, viewMode);
+  }
 });
 
 test("expression continuation reuses צוריאל through the real client and server gates", async () => {
@@ -786,7 +895,7 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1, "the deterministic Bundle seam adds no model call");
   assert.match(run.models[0].user, /raziel-canonical-result-bundle-input-v1/);
-  assert.match(run.models[0].user, /raziel-grounded-source-composer-v6/);
+  assert.match(run.models[0].user, /raziel-grounded-source-composer-v7/);
   assert.match(run.models[0].user, /אל תמציא לו שם חלופי/);
   assert.match(run.models[0].user, /לא סופק מדד נדירות מפורש/);
   assert.match(run.models[0].user, /verified_calculations/);
