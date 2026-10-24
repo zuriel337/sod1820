@@ -134,6 +134,20 @@ test("a triage continuation resolves to one exact internal candidate before cano
   assert.doesNotMatch(template, /lens:"research-target"[^\n]+positions/, "candidate coordinates do not cross the lens response");
 });
 
+test("bundle comparison verifies two to four existing continuation targets without exporting coordinates", () => {
+  assert.match(template, /RESEARCH_BUNDLE_COMPARISON_CONTRACT="els_research_bundle_comparison_v1"/);
+  const start = template.indexOf('d.lens==="research-target-compare"');
+  const end = template.indexOf('d.lens==="matrix-candidates"', start);
+  assert.ok(start >= 0 && end > start, "the comparison is an explicit lens before package scanning");
+  const block = template.slice(start, end);
+  assert.match(block, /target\.targets\.slice\(0,4\)/, "comparison is capped at four targets");
+  assert.match(block, /requested\.length<2/, "a comparison requires at least two targets");
+  assert.match(block, /resolveResultResearchTarget\(descriptor/);
+  assert.match(block, /promoteVerified\(/, "each row uses canonical occurrence verification");
+  assert.match(block, /selectionProvenance:"POST_HOC_EXPLORATORY"/, "comparison cannot present post-hoc selection as a significance claim");
+  assert.doesNotMatch(block, /(?:positions|\bstart\b|\bp0\b|\bp1\b)\s*:/, "comparison responses do not export corpus coordinates");
+});
+
 test("result triage ranks repeated exact continuation first but keeps every result available", () => {
   const context = vm.createContext({ rows: [
     { key: "a", order: 1, skip: 80, signals: [{ extensions: [{ term: "ביתישראל", label: "בית ישראל", gain: 5 }], nearby: [], notable: null }] },

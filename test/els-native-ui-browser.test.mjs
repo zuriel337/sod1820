@@ -2181,6 +2181,41 @@ test('Research bundle opens a verified exact continuation and returns exactly to
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
 });
 
+test('Research compares three verified continuation targets before opening one exact package',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יום משיח');
+  await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__lens?.lens==='result-triage'&&window.__lens?.ok===true,null,{timeout:90000});
+  const before=await page.evaluate(()=>structuredClone(window.__state));
+  const targets=await page.evaluate(()=>window.__lens?.researchTargets||[]);
+  assert.ok(targets.length>=3,'the example exposes enough exact continuations for a bounded comparison');
+  await activate(page,'השווה את 3 היעדים המובילים');
+  await page.waitForFunction(()=>window.__lens?.lens==='research-target-compare'&&window.__lens?.ok===true,null,{timeout:90000});
+  const comparison=await page.evaluate(()=>window.__lens);
+  assert.equal(comparison.contract,'els_research_bundle_comparison_v1');
+  assert.equal(comparison.rows.length,3);assert.ok(comparison.verified>=1);
+  assert.equal(comparison.selectionProvenance,'POST_HOC_EXPLORATORY');
+  assert.ok(comparison.rows.every(row=>!['positions','start','p0','p1'].some(key=>Object.hasOwn(row,key))));
+  const panel=page.locator('[data-els-research-comparison="els_research_bundle_comparison_v1"]');
+  await panel.waitFor({state:'visible'});
+  assert.match(await panel.innerText(),/יעדי מחקר אומתו יחד[\s\S]*לא ציון אמת/);
+  const chosen=comparison.rows.find(row=>row.status==='VERIFIED');
+  const priorSingleRequests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='research-target').length);
+  await panel.getByRole('button',{name:`פתח חבילת מחקר ${chosen.label}`,exact:true}).click();
+  await page.waitForFunction(term=>window.__state?.status==='ok'&&window.__state?.term===term,chosen.term,{timeout:90000});
+  assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='research-target').length),priorSingleRequests,
+    'opening a comparison row reuses its completed canonical verification');
+  await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.target?.researchBundle===true,null,{timeout:90000});
+  const bundle=page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible');
+  assert.match(await bundle.innerText(),new RegExp(`חבילת מחקר[\\s\\S]*${chosen.label}`));
+  await bundle.getByRole('button',{name:'חזור בדיוק לתוצאות'}).click();
+  await page.waitForFunction(expected=>window.__state?.status==='ok'&&window.__state?.term===expected.term&&window.__state?.axis?.hitId===expected.hitId,
+    {term:before.term,hitId:before.axis.hitId},{timeout:90000});
+  await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').waitFor({state:'visible'});
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
  test('native bridge: parent research updates during a state message cannot discard the completed result',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:45000},async()=>{
  await withNative({width:390,height:844},async page=>{

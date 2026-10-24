@@ -125,6 +125,13 @@ Research result ordering, nearby-finding discovery and structural groups now sha
    verification before they can become Findings.
 6. `חזור בדיוק לתוצאות` restores the previous axis, findings, selection geometry and view through
    the existing Journey snapshot, then reopens Results. No parallel navigation state is introduced.
+7. When at least two exact continuations are available, one explicit comparison action may resolve
+   and canonically verify two to four of those already-discovered targets. The default presentation
+   compares the first three. It reports every verified/failed row separately, preserves
+   `POST_HOC_EXPLORATORY` provenance and makes no significance or Truth claim. Opening a verified
+   row reuses that exact verification, enters the ordinary bundle/Journey path and returns to the
+   same result context. Comparison is transient projection state: it creates no matrix copy, store,
+   Finding, research object or second engine, and performs no work on Research entry.
 
 Within each stage, distance and existing governed research evidence remain deterministic tie-breakers. Structural groups are Stage A only when every member is compact; mixed/spaced groups follow in Stage B. B12/B13, full 3D, Raziel wiring, `research_objects`, DB/RLS/permission changes and production migration remain outside this contract.
 

@@ -743,6 +743,8 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
   const elapsed = Math.max(0, now - (request.startedAt || now)) / 1000;
   const label = request.lens === "structure-priority"
     ? progress?.phase === "groups" ? "בונה את קבוצות המבנים וההמלצות…" : progress?.phase === "candidates" ? "סורק את מונחי התורה בחלון המוצג…" : "טוען את מילון התורה ומכין סריקת מבנים…"
+    : request.lens === "research-target-compare"
+      ? progress?.phase === "verify" ? `מאמת יחד את יעדי המחקר${progress?.current ? ` · ${progress.current}` : ""}…` : "משחזר את ההמשכים המדויקים מתוך התוצאות…"
     : request.lens === "research-target"
       ? progress?.phase === "verify" ? "מאמת את הביטוי המורחב מול המנוע הקנוני…" : "משחזר את ההמשך המדויק מתוך התוצאה…"
     : request.lens === "result-triage"
@@ -791,7 +793,7 @@ function SavedResearchBundles({ result }) {
   </section>;
 }
 
-function ResultResearchTargets({ result, pending, onOpen }) {
+function collectResultResearchTargets(result) {
   const byTerm = new Map();
   for (const target of result?.researchTargets || []) {
     if (!target?.term || byTerm.has(target.term)) continue;
@@ -804,10 +806,34 @@ function ResultResearchTargets({ result, pending, onOpen }) {
         term: extension.term, label: extension.label || extension.term, gain: extension.gain, rank: row.rank, reasons: row.reasons || [] });
     }
   }
-  const targets = [...byTerm.values()].slice(0, 5);
+  return [...byTerm.values()].slice(0, 5);
+}
+
+function ResearchTargetComparison({ result, pending, onOpen }) {
+  if (pending || result?.lens !== "research-target-compare") return null;
+  if (!result.ok) return <p role="status">השוואת היעדים לא הושלמה. התוצאות והמטריצה לא השתנו.</p>;
+  const rows = Array.isArray(result.rows) ? result.rows : [];
+  return <section className="els29-native-research-comparison" aria-label="השוואת יעדי מחקר" data-els-research-comparison={result.contract}>
+    <header><strong>{result.verified} יעדי מחקר אומתו יחד</strong><small>הסדר מבוסס על רצף מדויק ועדיפות הבדיקה שכבר חושבה. זו השוואת מחקר, לא ציון אמת או טענה סטטיסטית.</small></header>
+    {rows.map((row, index) => <article key={`${row.key}-${row.term}`} data-comparison-status={row.status} data-comparison-term={row.term}>
+      <span>{index + 1}</span><div><b>{row.label}</b>
+        <small>{row.status === "VERIFIED" ? `אומת · המשך מדויק של ${row.gain || 0} אותיות · מקורו בהמלצה ${row.rank || "—"}` : "לא עבר אימות; אינו זמין לפתיחה"}</small>
+        {(row.reasons || []).length ? <small>{row.reasons.slice(0, 2).join(" · ")}</small> : null}</div>
+      {row.status === "VERIFIED" ? <button type="button" aria-label={`פתח חבילת מחקר ${row.label}`} onClick={() => onOpen(row)}>פתח חבילת מחקר</button> : null}
+    </article>)}
+    {result.failed ? <small>{result.failed} יעדים לא עברו אימות ונשארו מחוץ למטריצה.</small> : null}
+  </section>;
+}
+
+function ResultResearchTargets({ result, comparisonResult, pending, onOpen, onCompare }) {
+  const targets = collectResultResearchTargets(result);
   if (!targets.length) return null;
   return <section className="els29-native-research-targets" aria-label="יעדי מחקר מהמשך הציר" data-els-research-targets="els_research_bundle_v1">
     <header><strong>יעדי מחקר מהמשך הציר</strong><small>לחיצה אחת מאמתת את הביטוי המלא, פותחת את המטריצה המדויקת ואוספת אליה ממצאים ומבנים.</small></header>
+    {targets.length >= 2 ? <button type="button" className="is-compare" aria-label={`השווה את ${Math.min(3, targets.length)} היעדים המובילים`} disabled={pending} onClick={() => onCompare(targets.slice(0, 3))}>
+      <b>השווה את {Math.min(3, targets.length)} היעדים המובילים</b><small>המערכת תאמת אותם יחד ותראה מה כדאי לפתוח קודם.</small>
+    </button> : null}
+    <ResearchTargetComparison result={comparisonResult} pending={pending} onOpen={onOpen} />
     {targets.map((target) => <button type="button" key={target.term} disabled={pending} onClick={() => onOpen(target)}>
       <b>{target.label}</b>
       <small>המשך מדויק · +{target.gain} אותיות · מתוצאה {target.rank}</small>
@@ -842,7 +868,7 @@ function ActiveResearchBundle({ bundle, lensResult, pending, onBack }) {
   </section>;
 }
 
-function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onContinue, onOpenResearchTarget, triageResult, triagePending }) {
+function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onContinue, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending }) {
   const results = state?.search?.occurrences;
   const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
   const items = blocked ? [] : results?.items || [];
@@ -859,7 +885,7 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
       {results.ordered?.error ? <small role="status">סריקת הדילוגים הקטנים לא הושלמה. אפשר להמשיך אותה כאן.</small> : null}
       <ResultTriageSummary result={triage} pending={triagePending} />
       <SavedResearchBundles result={triage} />
-      <ResultResearchTargets result={triage} pending={pending || triagePending} onOpen={onOpenResearchTarget} />
+      <ResultResearchTargets result={triage} comparisonResult={comparisonResult} pending={pending || triagePending || researchTargetPending} onOpen={onOpenResearchTarget} onCompare={onCompareResearchTargets} />
       {!results.ordered || results.ordered.error || results.ordered.hasMore || results.ordered.max < 500 ? <button type="button" disabled={pending} onClick={() => onContinue(results.id)}>
         {results.ordered?.hasMore ? `המשך מופעים בדילוגים ${results.ordered.min}–${results.ordered.max}` : results.ordered?.error ? "נסה שוב סריקת דילוגים" : `המשך סריקה מסודרת עד דילוג ${Math.min(500,(results.ordered?.max || 0)+50)}`}
       </button> : <small>הסריקה המסודרת הושלמה עד דילוג 500. מעבר לכך מוצגים ממצאי הסריקה המוגבלת.</small>}
@@ -881,7 +907,7 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
   </div>;
 }
 
-function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry, onOpenResearchTarget, triageResult, triagePending }) {
+function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending }) {
   const [sort, setSort] = useState("rank");
   const [page, setPage] = useState(0);
   const [minSkip, setMinSkip] = useState("");
@@ -911,7 +937,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
       </div>
       <small>מציג {shown.length} מתוך {items.length} בחיפוש המוגבל הזה. בחירת מפגש פותחת את הציר ובודקת את הממצאים.</small>
       </details>
-      <ResultResearchTargets result={triage} pending={pending || triagePending} onOpen={onOpenResearchTarget} />
+      <ResultResearchTargets result={triage} comparisonResult={comparisonResult} pending={pending || triagePending || researchTargetPending} onOpen={onOpenResearchTarget} onCompare={onCompareResearchTargets} />
       {state.search.coverage?.canContinue ? <button type="button" disabled={pending} onClick={() => onContinue(results.id)}>המשך סריקת צירים</button> : null}
       {shown.length > 40 ? <div className="els29-native-results-pages" role="group" aria-label="עמודי מפגשים">
         <button type="button" disabled={page===0} onClick={() => setPage(value=>value-1)}>מפגשים קודמים</button>
@@ -1491,7 +1517,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const requestLens = (lens, target = {}) => {
     // A native reading/scan action always reveals its native result, even after compatibility tools.
     setClassicOpen(false);
-    openTool(lens === "structure-priority" ? "structures" : ["result-triage", "research-target"].includes(lens) ? "results" : "findings");
+    openTool(lens === "structure-priority" ? "structures" : ["result-triage", "research-target", "research-target-compare"].includes(lens) ? "results" : "findings");
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensProgress(null);
@@ -1519,6 +1545,43 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestLens(lens, { ...target, structurePlan: { ...target.structurePlan, maxDistance: 12 } });
   };
 
+  const beginVerifiedResearchTarget = (result) => {
+    const sourceTarget = result?.target?.term ? result.target : result;
+    const prepared = buildJourneyResearchTarget(engineStateRef.current, {
+      ...sourceTarget,
+      term: result?.label || result?.term,
+      hitId: result?.hitId,
+      scope: result?.scope,
+    }, { view: { mode: "research" } });
+    if (!prepared.ok) {
+      setResearchBundle(null);pendingResearchBundleRef.current = null;
+      setNotice("יעד המחקר אומת, אבל לא ניתן היה להכין מעבר מדויק מהמטריצה הנוכחית.");
+      return;
+    }
+    const bundle = {
+      contract: "els_research_bundle_v1",
+      kind: sourceTarget?.kind,
+      setId: sourceTarget?.setId,
+      key: sourceTarget?.key,
+      rank: sourceTarget?.rank,
+      label: result?.label || sourceTarget?.label || result?.term,
+      reasons: sourceTarget?.reasons || [],
+      expectedHitId: prepared.target.hitId,
+      status: "opening",
+      fromExtension: true,
+    };
+    const pending = {
+      kind: "target",
+      target: prepared.target,
+      targetTerm: prepared.loadItem.term,
+      targetLabel: bundle.label,
+      returnStep: { snapshot: prepared.snapshot, label: prepared.snapshot.term, hitId: prepared.snapshot.axis.hitId },
+    };
+    pendingResearchBundleRef.current = bundle;setResearchBundle(bundle);
+    journeyPendingRef.current = pending;setJourneyPending(pending);setJourneyLoad(prepared.loadItem);
+    setNotice(`הביטוי ${bundle.label} אומת. פותח את המטריצה המדויקת…`);
+  };
+
   const handleLens = (result) => {
     if (result?.target?.nativeSeq !== lensSeqRef.current) return;
     if (result?.type === "lens-progress") { setLensProgress(result.progress || null); return; }
@@ -1531,36 +1594,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       if (!result?.ok) {
         setResearchBundle(null);pendingResearchBundleRef.current = null;
         setNotice(result?.reason === "target-changed" ? "התוצאות השתנו. הפעילו שוב את בדיקת ההמשך." : "המשך הציר לא עבר אימות קנוני ולכן לא נפתח.");
-      } else {
-        const prepared = buildJourneyResearchTarget(engineStateRef.current, { ...result, term: result.label || result.term }, { view: { mode: "research" } });
-        if (!prepared.ok) {
-          setResearchBundle(null);pendingResearchBundleRef.current = null;
-          setNotice("יעד המחקר אומת, אבל לא ניתן היה להכין מעבר מדויק מהמטריצה הנוכחית.");
-        } else {
-          const bundle = {
-            contract: "els_research_bundle_v1",
-            kind: result.target?.kind,
-            setId: result.target?.setId,
-            key: result.target?.key,
-            rank: result.target?.rank,
-            label: result.label || result.target?.label || result.term,
-            reasons: result.target?.reasons || [],
-            expectedHitId: prepared.target.hitId,
-            status: "opening",
-            fromExtension: true,
-          };
-          const pending = {
-            kind: "target",
-            target: prepared.target,
-            targetTerm: prepared.loadItem.term,
-            targetLabel: bundle.label,
-            returnStep: { snapshot: prepared.snapshot, label: prepared.snapshot.term, hitId: prepared.snapshot.axis.hitId },
-          };
-          pendingResearchBundleRef.current = bundle;setResearchBundle(bundle);
-          journeyPendingRef.current = pending;setJourneyPending(pending);setJourneyLoad(prepared.loadItem);
-          setNotice(`הביטוי ${bundle.label} אומת. פותח את המטריצה המדויקת…`);
-        }
-      }
+      } else beginVerifiedResearchTarget(result);
     } else setLensResult(result);
     setLensProgress(null);
     setLensPending(false);
@@ -1568,9 +1602,24 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
   const openResearchTarget = (target) => {
     if (!researchProfile || !target?.term || journeyPendingRef.current || lensPending) return;
+    if (target.status === "VERIFIED" && target.hitId) {
+      beginVerifiedResearchTarget(target);
+      return;
+    }
     setResearchBundle({ contract: "els_research_bundle_v1", label: target.label || target.term, rank: target.rank, reasons: target.reasons || [], fromExtension: true, status: "verifying" });
     setNotice(`מאמת את הביטוי המורחב ${target.label || target.term} לפני פתיחת המטריצה…`);
     requestLens("research-target", target);
+  };
+  const compareResearchTargets = (targets) => {
+    if (!researchProfile || !Array.isArray(targets) || targets.length < 2 || journeyPendingRef.current || lensPending) return;
+    const selected = targets.slice(0, 4);
+    setNotice(`מאמת יחד את ${selected.length} יעדי המחקר המובילים…`);
+    requestLens("research-target-compare", {
+      kind: selected[0].kind,
+      setId: selected[0].setId,
+      ...(selected[0].kind === "regular" ? { page: selected[0].page } : {}),
+      targets: selected.map(({ key, baseTerm, term, label, gain, rank, reasons }) => ({ key, baseTerm, term, label, gain, rank, reasons })),
+    });
   };
   const requestFindingControl = (term, action, hitId, hit = {}) => {
     resetReadContext();
@@ -2012,10 +2061,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <CrossResultsRail onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={visibleTool === "results" && resultsAreCross} onSelect={requestControl}
           onOpenResearchTarget={openResearchTarget}
+          onCompareResearchTargets={compareResearchTargets} comparisonResult={lensResult?.lens === "research-target-compare" ? lensResult : null}
+          researchTargetPending={lensPending && ["research-target", "research-target-compare"].includes(lensRequest?.lens)}
           triageResult={researchProfile ? resultTriage : null} triagePending={researchProfile && resultTriagePending} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={visibleTool === "results" && !resultsAreCross}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })}
           onOpenResearchTarget={openResearchTarget}
+          onCompareResearchTargets={compareResearchTargets} comparisonResult={lensResult?.lens === "research-target-compare" ? lensResult : null}
+          researchTargetPending={lensPending && ["research-target", "research-target-compare"].includes(lensRequest?.lens)}
           triageResult={researchProfile ? resultTriage : null} triagePending={researchProfile && resultTriagePending} />
         {researchProfile ? <StructuralPriorityRail visible={visibleTool === "structures"} state={engineState} lensResult={lensResult} lensPending={lensPending}
           busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}

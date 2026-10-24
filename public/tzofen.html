@@ -1582,6 +1582,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
   const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",
     RESULT_TRIAGE_CONTRACT="els_result_triage_v1",RESEARCH_BUNDLE_CONTRACT="els_research_bundle_v1",
+    RESEARCH_BUNDLE_COMPARISON_CONTRACT="els_research_bundle_comparison_v1",
     COMPACT_GEOMETRY_CONTRACT="els_compact_geometry_priority_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",
     _corpusLexiconCache={torah:null,tanakh:null},_corpusAxisWordCache={torah:null,tanakh:null},_lineExtensionIndexCache=new WeakMap();
   function addCandidateLexiconTerm(map,raw,source,support=1,minLength=3){
@@ -2682,6 +2683,39 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         postHost({type:"lens",lens:"research-target",ok:true,target,status:"VERIFIED",contract:RESEARCH_BUNDLE_CONTRACT,
           term:resolved.term,label:resolved.label,scope:st.scope,hitId:hitKey(hit),corpusId:verified.corpus_id||CORPUS_ID[st.scope]});
       }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"research-target",ok:false,target,reason:"verification-failed"});});
+    }
+    if(d.type==="request-lens"&&d.lens==="research-target-compare"){
+      const target=d.target||{},requested=Array.isArray(target.targets)?target.targets.slice(0,4):[];
+      if(requested.length<2){postHost({type:"lens",lens:"research-target-compare",ok:false,target,reason:"two-targets-required"});return;}
+      postHost({type:"lens-progress",lens:"research-target-compare",target,progress:{phase:"resolve",completed:0,total:requested.length}});
+      dynamicCandidateLexicon().then(async lexicon=>{
+        const rows=[];
+        for(let index=0;index<requested.length;index++){
+          if(lensEpoch!==_nativeLensSeq)return;
+          const descriptor={...requested[index],kind:target.kind,setId:target.setId,...(target.kind==="regular"?{page:target.page}:{})};
+          const resolved=resolveResultResearchTarget(descriptor,lexicon.axisEntries||lexicon.entries);
+          if(!resolved){rows.push({status:"FAILED",reason:"target-changed",term:norm(descriptor.term),label:descriptor.label||descriptor.term,kind:descriptor.kind,setId:descriptor.setId,
+            ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
+          }else{
+            postHost({type:"lens-progress",lens:"research-target-compare",target,progress:{phase:"verify",completed:index,total:requested.length,current:resolved.label}});
+            const verified=await promoteVerified({t:resolved.term,hits:[resolved.hit],capped:false,strategy:{policy:"RESULT_EXTENSION_COMPARISON_V1"}},st.scope,null),hit=verified.hits.find(isGov);
+            rows.push({status:hit?"VERIFIED":"FAILED",reason:hit?null:verified.verr||"verification-failed",term:resolved.term,label:resolved.label,scope:st.scope,
+              ...(hit?{hitId:hitKey(hit),corpusId:verified.corpus_id||CORPUS_ID[st.scope]}:{}),kind:descriptor.kind,setId:descriptor.setId,
+              ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
+          }
+          postHost({type:"lens-progress",lens:"research-target-compare",target,progress:{phase:"verify",completed:index+1,total:requested.length}});
+          await paintOperation();
+        }
+        if(lensEpoch!==_nativeLensSeq)return;
+        const current=target.kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
+        if(!current||current.id!==target.setId||target.kind==="regular"&&Number(current.page)!==Number(target.page)){
+          postHost({type:"lens",lens:"research-target-compare",ok:false,target,reason:"results-changed"});return;
+        }
+        rows.sort((a,b)=>Number(b.status==="VERIFIED")-Number(a.status==="VERIFIED")||Number(a.rank)-Number(b.rank)||Number(b.gain)-Number(a.gain)||String(a.label).localeCompare(String(b.label),"he"));
+        postHost({type:"lens",lens:"research-target-compare",ok:true,target,status:"COMPARISON",contract:RESEARCH_BUNDLE_COMPARISON_CONTRACT,
+          bundleContract:RESEARCH_BUNDLE_CONTRACT,selectionProvenance:"POST_HOC_EXPLORATORY",scope:st.scope,rows,verified:rows.filter(row=>row.status==="VERIFIED").length,
+          failed:rows.filter(row=>row.status!=="VERIFIED").length,geometryContract:COMPACT_GEOMETRY_CONTRACT});
+      }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"research-target-compare",ok:false,target,reason:"verification-failed"});});
     }
     if(d.type==="request-lens"&&d.lens==="matrix-candidates"){
       const target=d.target||{},hit=hasGov(st.res)?occ():null;

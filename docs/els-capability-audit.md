@@ -1096,3 +1096,46 @@ Deterministic level-9 measurements against branch base `8aebc300` are:
 | Legacy standalone, raw / gzip | 2,538,751 / 1,648,887 B | 2,546,028 / 1,651,274 B | +7,277 / +2,387 B |
 | ELS 2029 route JS, raw / gzip | 219,778 / 64,399 B | 224,473 / 65,574 B | +4,695 / +1,175 B |
 | ELS 2029 route CSS, raw / gzip | 78,358 / 11,309 B | 79,297 / 11,398 B | +939 / +89 B |
+
+## 23. VERIFIED RESEARCH-BUNDLE COMPARISON — 2026-10-24
+
+`els_research_bundle_comparison_v1` adds one explicit action above the already-discovered
+continuation targets. When at least two are present, the default action compares the first three;
+the engine contract hard-caps every request at four. The host sends only the current result-set
+identity and the bounded target descriptors already projected by `els_result_triage_v1`.
+
+The canonical engine reconstructs each continuation internally through
+`resolveResultResearchTarget` and runs each exact occurrence through the existing
+`promoteVerified` / `verify_batch` path. The comparison returns separately labelled `VERIFIED` and
+`FAILED` rows, never positions/start coordinates, and retains `POST_HOC_EXPLORATORY` provenance.
+Its ordering is an inspection order over exact continuation and the existing triage reasons; the UI
+explicitly says that it is not a Truth score or statistical-significance claim.
+
+Opening a verified comparison row reuses its completed canonical verification and enters the same
+C02 load/Journey path as a directly opened continuation. It does not issue a duplicate
+`research-target` verification, and exact return restores the result context that preceded the
+comparison. A comparison is transient projection state: it creates no matrix copy, store, graph,
+Finding or `research_object`, performs no work on Research entry and does not mutate the active
+matrix merely by completing.
+
+This advances C04's public comparison surface but deliberately leaves C04 **PARTIAL**: the slice
+compares bounded verified target packages, not multiple rendered matrices or statistical controls.
+The 85-capability disposition therefore remains **76 LIVE/ABSORBED + 4 PARTIAL
+(B19/C04/C05/G02) + 4 PARKED (B12/B13/B14/B18) + 1 NEVER (B20) = 85**. B12/B13, full 3D,
+`research_objects`, Raziel implementation, schema/data changes, RLS/permissions, Production
+migrations and `decision_ledger` remain outside this delta.
+
+Branch acceptance is green: the non-browser ELS suite completed **193 pass / 0 fail / 3 skip**
+(the three unchanged skips require local PostgreSQL); canonical browser cutover passed **26/26**;
+Advanced/FORMS passed **2/2**; the full native suite passed **46/46**, including both direct
+continuation opening and compare-three → exact package → exact return. Both production build
+targets passed, and the 2029 bundle budget passed **5/5** with entry **9 chunks / 174.1 KB gzip**.
+
+Deterministic level-9 measurements against branch base `58770e12` are:
+
+| Artifact | Before | Verified bundle comparison | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,639,709 / 963,911 B | 1,643,329 / 964,546 B | +3,620 / +635 B |
+| Legacy standalone, raw / gzip | 2,546,028 / 1,651,274 B | 2,549,648 / 1,651,906 B | +3,620 / +632 B |
+| ELS 2029 route JS, raw / gzip | 224,473 / 65,574 B | 227,912 / 66,431 B | +3,439 / +857 B |
+| ELS 2029 route CSS, raw / gzip | 79,297 / 11,398 B | 80,551 / 11,577 B | +1,254 / +179 B |
