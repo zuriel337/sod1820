@@ -290,15 +290,25 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
     }
     const result = research.continueResearchPath?.({
       context: patch,
-      kind: view === "name" ? "name" : "els",
+      kind: view,
       mode: "organic",
       surface: "life_journey_2029",
       href: "/2029/journey",
-      label: view === "name" ? "מסע השם" : "תוכנית ELS",
+      label: view === "name" ? "מסע השם" : view === "date" ? "שם ותאריך" : "תוכנית ELS",
       reason: "explicit_person_capability",
     });
     if (!result?.ok) setErr("לא ניתן לפתוח כרגע את מסלול המחקר.");
   }, [research, selfRef, variant]);
+
+  const continueSelectedCapability = useCallback((view, expressionOverride = null) => {
+    const memberRef = clean(research.context?.dimensions?.lifeJourneyMemberRef);
+    const member = members.find(item => item.source_ref === memberRef);
+    if (!member) {
+      setErr("האדם שנבחר אינו זמין כרגע במסע החיים.");
+      return;
+    }
+    openCapability(expressionOverride ? { ...member, name: expressionOverride } : member, view);
+  }, [members, openCapability, research.context?.dimensions?.lifeJourneyMemberRef]);
 
   const returnToPerson = useCallback(() => {
     const patch = buildLifeJourneyExactReturnPatch(research.context);
@@ -342,9 +352,28 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
 
   const activeView = variant === "2029" ? lifeJourneyViewFromContext(research.context, selfRef) : "person";
   const selectedName = clean(research.context?.selection?.expression);
+  const selectedMemberRef = clean(research.context?.dimensions?.lifeJourneyMemberRef);
+  const selectedMember = members.find(member => member.source_ref === selectedMemberRef) || null;
+  const selectedMemberMeta = metaObject(selectedMember?.meta);
+  const selectedProfile = selectedMember ? {
+    name: selectedName || clean(selectedMember.name),
+    firstName: clean(selectedMemberMeta.first_name),
+    surname: clean(selectedMemberMeta.surname),
+    birthdate: clean(selectedMemberMeta.birthdate_iso),
+  } : null;
 
   if (activeView === "name" && selectedName && CapabilitySurface) {
-    return <CapabilitySurface view="name" name={selectedName} onReturn={returnToPerson} />;
+    return <CapabilitySurface view="name" name={selectedName} onContinue={() => continueSelectedCapability("date")} onReturn={returnToPerson} />;
+  }
+
+  if (activeView === "date" && selectedName && selectedProfile && CapabilitySurface) {
+    return <CapabilitySurface
+      view="date"
+      user={user}
+      profile={selectedProfile}
+      onContinue={(expression) => continueSelectedCapability("els", expression)}
+      onReturn={returnToPerson}
+    />;
   }
 
   if (activeView === "els" && selectedName && CapabilitySurface) {
@@ -402,7 +431,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
         </button>
         {variant === "2029" && persistedSelf ? <>
           <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "name")}>פתח מסע שם</button>
-          <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "els")}>פתח תוכנית ELS</button>
+          <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "date")}>שם ותאריך → ELS</button>
         </> : null}
         <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
       </div>
@@ -466,7 +495,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
             <div><strong>{member.name}</strong>{memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}</div>
             {variant === "2029" ? <div className="person-journey-member-actions">
               <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>מסע שם</button>
-              <button type="button" disabled={busy} onClick={() => openCapability(member, "els")}>ELS</button>
+              <button type="button" disabled={busy} onClick={() => openCapability(member, "date")}>שם ותאריך → ELS</button>
             </div> : <span>פרטי</span>}
           </article>;
         })}

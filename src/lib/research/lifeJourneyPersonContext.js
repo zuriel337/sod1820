@@ -3,7 +3,7 @@ import { buildExactReturnPatch, normalizeResearchContext } from "./researchConte
 export const LIFE_JOURNEY_2029_HREF = "/2029/journey";
 export const LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT = "life_journey_person_context_v1";
 
-const VIEWS = new Set(["person", "name", "els"]);
+const VIEWS = new Set(["person", "name", "date", "els"]);
 const clean = value => String(value || "").trim();
 
 function personDimensions(context, personRef) {
@@ -61,25 +61,30 @@ export function buildLifeJourneyCapabilityPatch(context, { personRef, memberRef,
   const rootRef = clean(personRef);
   const selectedRef = clean(memberRef);
   const expression = clean(name);
-  if (!safe || !rootRef || !selectedRef || !expression || !["name", "els"].includes(view)) return null;
+  if (!safe || !rootRef || !selectedRef || !expression || !["name", "date", "els"].includes(view)) return null;
 
   const origin = buildLifeJourneyPersonContext(rootRef, safe);
   if (!origin) return null;
-  const subjectType = view === "name" ? "name" : "els";
+  const subjectType = view;
+  const label = view === "name"
+    ? "מסע שם פרטי"
+    : view === "date"
+      ? "תחנת שם ותאריך פרטית"
+      : "תוכנית ELS פרטית";
 
   return normalizeResearchContext({
     ...safe,
     subject: {
       id: `${selectedRef}:${subjectType}`,
       type: subjectType,
-      label: view === "name" ? "מסע שם פרטי" : "תוכנית ELS פרטית",
+      label,
       href: LIFE_JOURNEY_2029_HREF,
     },
     selection: {
       entityId: selectedRef,
       entityType: "person",
       expression,
-      focusKind: "expression",
+      focusKind: view === "date" ? "identity_review" : "expression",
     },
     lens: subjectType,
     dimensions: {

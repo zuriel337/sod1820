@@ -11,7 +11,7 @@ const STATUS_LABELS = Object.freeze({
   pending: "ממתין",
 });
 
-export default function LifeJourneyName2029({ name, onReturn }) {
+export default function LifeJourneyName2029({ name, onContinue, onReturn }) {
   const [state, setState] = useState({ phase: "loading", document: null, error: null });
 
   useEffect(() => {
@@ -74,6 +74,10 @@ export default function LifeJourneyName2029({ name, onReturn }) {
             <strong>{layer.title}</strong>
             <small>{layer.kind === "fact" ? "שכבת ממצא עם מקור" : "שכבת סיכום"}</small>
           </article>)}
+        </div>
+        <div className="person-journey-actions">
+          <button type="button" className="person-journey-primary" onClick={onContinue}>המשך לשם ותאריך</button>
+          <small>לפני ELS עוברים בתחנת בדיקה פרטית ובוחרים במפורש את צורת השם.</small>
         </div>
       </> : null}
     </section>

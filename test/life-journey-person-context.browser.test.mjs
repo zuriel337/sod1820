@@ -167,6 +167,11 @@ test("Life Journey keeps Person context through Name and verified ELS across mob
     assert.equal(new URL(page.url()).search, "");
     await page.reload();
     await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByRole("button", { name: "המשך לשם ותאריך" }).click();
+    await page.getByRole("heading", { name: "שם ותאריך" }).waitFor();
+    await page.getByText("י״א בתשרי").waitFor();
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyView), "date");
+    assert.equal(new URL(page.url()).search, "");
     await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
@@ -174,7 +179,11 @@ test("Life Journey keeps Person context through Name and verified ELS across mob
     const childCard = family.locator("article", { hasText: "ילד בדיקה" });
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.name === "ילד בדיקה")), false, "family is not searched automatically");
     const elsCallsBefore = await page.evaluate(() => window.__elsCalls.length);
-    await childCard.getByRole("button", { name: "ELS", exact: true }).click();
+    await childCard.getByRole("button", { name: "שם ותאריך → ELS", exact: true }).click();
+    await page.getByRole("heading", { name: "שם ותאריך" }).waitFor();
+    await page.getByText("י״א בתשרי").waitFor();
+    assert.equal(await page.evaluate(() => window.__elsCalls.length), elsCallsBefore, "date bridge does not scan ELS automatically");
+    await page.getByRole("button", { name: "המשך ל־ELS בשם הנבחר" }).click();
     await page.getByRole("heading", { name: "תוכנית ELS אוטומטית" }).waitFor();
     assert.equal(await page.evaluate(() => window.__elsCalls.length), elsCallsBefore, "opening the plan does not scan automatically");
     await page.getByRole("button", { name: "הפעל בדיקה מפורשת" }).click();

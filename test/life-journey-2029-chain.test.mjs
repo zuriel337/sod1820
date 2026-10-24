@@ -10,6 +10,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const journey = read("src/components/PersonJourney.jsx");
   const personContext = read("src/lib/research/lifeJourneyPersonContext.js");
   const nameAdapter = read("src/components/experience2029/LifeJourneyName2029.jsx");
+  const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
   const elsAdapter = read("src/lib/research/lifeJourneyElsAdapter.js");
   const elsSurface = read("src/components/experience2029/LifeJourneyEls2029.jsx");
   const hints = read("src/components/experience2029/LifeJourneyHints2029.jsx");
@@ -51,6 +52,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(personContext, /\/2029\/number\/\$\{value\}/);
   assert.match(nameAdapter, /getNameProtocol/);
   assert.match(nameAdapter, /buildJourney/);
+  assert.match(nameAdapter, /המשך לשם ותאריך/);
+  assert.match(dateAdapter, /runPersonalDateResearch/);
+  assert.match(dateAdapter, /createSupabasePersonalDateCrossProvider/);
+  assert.match(dateAdapter, /המשך ל־ELS בשם הנבחר/);
+  assert.doesNotMatch(dateAdapter, /localStorage|sessionStorage|addHint|removeHint|\.insert\(|\.update\(/);
   assert.match(elsAdapter, /prepareElsAutomaticResearchPlan/);
   assert.match(elsAdapter, /runElsAutomaticResearchSlice/);
   assert.match(elsAdapter, /verifyEls2029Selection/);
@@ -62,7 +68,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(hints, /פתח במספר/);
   assert.doesNotMatch(hints, /addHint|removeHint|\.insert\(|\.update\(/);
 
-  const privateFlow = [journey, personContext, nameAdapter, elsAdapter, elsSurface, hints].join("\n");
+  const privateFlow = [journey, personContext, nameAdapter, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
   assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);
   assert.doesNotMatch(privateFlow, /channel_updates|community_hints|news/i);
   assert.doesNotMatch(privateFlow, /Raziel|רזיאל/);
