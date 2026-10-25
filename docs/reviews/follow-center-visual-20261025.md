@@ -18,7 +18,7 @@ or `WatchButton` was edited, so the three old stacked panels still render there 
 | Why received | One line from `source_topic` only; no source topic = no reason line. Never invented |
 | Canonical target and return | "לצפייה בתוכן" carries `returnTo`; only internal paths are linked |
 | Followed writers | Link only when the existing resolver supplies one; otherwise an explicit "no single verified public page" note, no guessed link |
-| Compact writer follow, distinct from share | Specimen row (follow vs share); real build reuses the existing `WatchButton`, no second implementation |
+| Compact writer follow, distinct from share | The preview renders the real `WatchButton` and `ShareActions` (`force`, because the floating-share placement law hides the inline block on 2029 pages); only their follow reads and `watch_toggle` are answered with fixtures while the flag-gated page is mounted, and the originals are restored on unmount |
 | Guest vs registered | Guest: "אימות זהות" is the only next step, no channel chosen. Registered: channels are separate choices |
 | Four separate states | Follow · Identity · Channel · Delivery strip; delivery is never claimed |
 | Follow / relevance / Raziel | Three labelled inputs; only explicit follow is active, the others read "עוד לא פעיל" |
@@ -26,8 +26,15 @@ or `WatchButton` was edited, so the three old stacked panels still render there 
 | Truthful states | loading ≠ empty; a failed read says "זה לא אומר שאין כלום" with retry; partial read keeps the other section; unfollow shows pending and an unconfirmed failure leaves the row; confirmed removes it |
 | Record time | Bilingual Hebrew + Gregorian date (relative time is Home-only per the record-time rule; the old panel used relative time) |
 | 2029 icons | Subject kinds and channels use the `NavigationIcon2029` catalogue (personal, number, layers, signal, discovery, posts, conversation, check); no emoji. There is no bell or mail icon in the catalogue, so email uses `posts` and device Push uses `signal`; a dedicated icon would be a catalogue extension for ZURIEL to approve |
-| Colour roles | Colour carries meaning through the Design V2 roles, not decoration: writer = Brand gold identity ornament, number = action/indigo, category = secondary violet, source/channel/discovery = cyan, section tops = action / violet / cyan, selected and followed = accent tint, identity tile = Crown gold + sapphire. Icons follow the contract (`currentColor`, theme text by default); colour is applied by the consumer. Icon colours are asserted at 3:1 or more and headings at 4.5:1 in all presets |
+| Colour (shared, contract of 25.10.2026) | Colour is resolved once in `src/lib/palette.js` (`resolveTreatment` / `treatmentVars`): semantic purpose (ordinary, action, discovery, secondary, identity) x state (active, unavailable, disabled, loading, unknown) -> foreground, surface, border and line roles of the preset; unavailable/disabled/loading/unknown always win over an active accent. The shared `IconTile2029` consumes it over `NavigationIcon2029` geometry. Follow Center passes purpose and state only: no glyph-name or subject-kind colour table remains (writer and category are not coloured by kind; every followed subject uses the one action treatment). Identity tile = bounded Crown ornament |
 | Design V2 | 18px reading, 16px UI, 14px metadata floor, 44px targets, three presets, accent text role, focus ring, reduced motion |
+
+## Shared implementation (adopted Design V2 section, 25.10.2026)
+
+Branch `claude/follow-center-shared-color-20261025` = contract commit `197cbab98` + released source `6144e4b9c` merged once. BEFORE `4bc0ee5a-3a90-4b38-b2b2-5618d8f9f682`.
+Tests: `test/icon-treatment-2029.test.mjs` asserts the owner-resolved role per preset, every purpose x state (same purpose active vs unavailable), that glyph or kind inputs do not change the result, and that no consumer stylesheet maps glyph names to colour. The browser test asserts followed subjects share one treatment whatever their kind, the three channels are `unavailable` and use the muted role, the same `signal` glyph is active as a followed stream and unavailable as Push, Push becomes active only when the device reports it, and the real `WatchButton` reaches its confirmed state and `ShareActions` renders its channels with no real write.
+
+**Findings, not changed (Legacy is not mass-restyled):** the canonical `WatchButton` still renders 11.5px and 13.5px text and an emoji bell, i.e. below the Design V2 floors and not a 2029 icon (measured in all presets, widths 320/390/1440; targets are 44px). A 2029 presentation pass for `WatchButton` is a separate decision. `ShareActions` hides itself on 2029 pages by the share placement law, so the preview forces it. No existing writer/community/personal consumer was migrated to `IconTile2029` yet; their existing browser tests were re-run unchanged and still pass.
 
 ## Preview and fixtures
 

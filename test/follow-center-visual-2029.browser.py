@@ -19,6 +19,7 @@ SUPABASE = 'linswmnnkjxvweumprav.supabase.co'
 PATH = '/2029/preview/follow-center'
 THEMES = ('light', 'parchment', 'dark')
 WIDTHS = (320, 390, 1440)
+TEXT = {'light': (36, 84, 184), 'parchment': (40, 78, 159), 'dark': (168, 199, 255)}  # accent TEXT role per preset
 STATES = ('registered', 'guest', 'loading', 'empty', 'partial', 'unavailable', 'push')
 FULL_MATRIX = ('registered', 'guest')
 READ_RPCS = {'writer_public_contributions_page_v1', 'world_group_source_arrivals_v2', 'convergence_meter', 'research_state_snapshot_v1', 'fn_research_path_resume_v1'}
@@ -90,18 +91,26 @@ BG = """n => { for (let e = n; e; e = e.parentElement) { const c = getComputedSt
   const m = c.match(/rgba?\\(([^)]+)\\)/); if (m) { const p = m[1].split(',').map(Number); if (p.length === 3 || p[3] > 0.9) return c; } } return 'rgb(255,255,255)'; }"""
 
 AUDIT = """() => {
-  const root = document.querySelector('.fcp'); const out = { small: [], targets: [], overflow: document.documentElement.scrollWidth > innerWidth };
+  const root = document.querySelector('.fcp'); const skip = (el) => el.closest('.fcp-specimen'); const out = { small: [], targets: [], overflow: document.documentElement.scrollWidth > innerWidth };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-    if (!n.textContent.trim() || !n.parentElement.offsetParent) continue;
+    if (!n.textContent.trim() || !n.parentElement.offsetParent || skip(n.parentElement)) continue;
     const size = parseFloat(getComputedStyle(n.parentElement).fontSize);
     if (size < 14 && !n.parentElement.closest('[aria-hidden=true]')) out.small.push([n.textContent.trim().slice(0, 30), size]);
   }
   for (const el of root.querySelectorAll('button, a[href]')) {
-    if (!el.offsetParent) continue; const b = el.getBoundingClientRect();
+    if (!el.offsetParent || skip(el)) continue; const b = el.getBoundingClientRect();
     if (b.height < 43.5 || b.width < 43.5) out.targets.push([(el.innerText || el.getAttribute('aria-label') || '').trim().slice(0, 30), Math.round(b.width), Math.round(b.height)]);
   }
   return out; }"""
+
+
+SPECIMEN = """() => { const out = { smallText: [], smallTargets: [], emoji: false }; const root = document.querySelector('.fcp-specimen');
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) { if (!n.textContent.trim() || !n.parentElement.offsetParent) continue; const size = parseFloat(getComputedStyle(n.parentElement).fontSize); if (size < 14) out.smallText.push(size); if (/[\\u{1F300}-\\u{1FAFF}]/u.test(n.textContent)) out.emoji = true; }
+  for (const el of root.querySelectorAll('button, a[href]')) { if (!el.offsetParent) continue; const b = el.getBoundingClientRect(); if (b.height < 43.5 || b.width < 43.5) out.smallTargets.push([Math.round(b.width), Math.round(b.height)]); }
+  return out; }"""
+report['specimen_findings'] = {}
 
 
 def audit(page, tag):
@@ -132,9 +141,12 @@ def check(browser, state, width, theme):
     context, page = open_state(browser, state, width, theme)
     audit(page, tag)
     text = page.locator('.fc').inner_text()
+    if state == 'push':
+        push_tile = page.locator('.fc-channel').nth(1).locator('.sod29-icon-tile')
+        assert push_tile.get_attribute('data-state') == 'active' and 'אפשר להפעיל' in page.locator('.fc-channel').nth(1).inner_text(), ('push becomes active only when the device reports it', tag)
     import re as _re
     assert not _re.search('[\U0001F300-\U0001FAFF\u2600-\u27BF]', text), ('2029 icons only, no emoji', tag)
-    if state == 'registered': assert page.locator('.fc-icon svg').count() >= 8, ('2029 SVG icons are rendered', tag)
+    if state == 'registered': assert page.locator('.sod29-icon-tile svg').count() >= 8, ('2029 SVG icons are rendered', tag)
     assert page.locator('.fcp-banner').inner_text().count('סינתטיים') == 1, tag
     assert page.locator('.fc-life li').count() == 4, tag
     assert page.locator('.fc-inputs li').count() == 3, tag
@@ -169,18 +181,34 @@ def check(browser, state, width, theme):
             node = page.locator(selector).first
             fg = rgb(node.evaluate('n => getComputedStyle(n).color')); bg = rgb(node.evaluate(BG))
             assert ratio(fg, bg) >= 4.5, ('contrast', selector, round(ratio(fg, bg), 2), fg, bg, tag)
-        # colour carries meaning: distinct semantic icon colours, each readable (non-text 3:1) on its surface
-        colors = {}
-        for icon in page.locator('.fc-icon[data-icon]').all():
-            name = icon.get_attribute('data-icon'); fg = rgb(icon.evaluate('n => getComputedStyle(n).color')); colors.setdefault(name, fg)
-            if name in ('personal', 'number', 'layers', 'signal', 'discovery'):
-                assert ratio(fg, rgb(icon.evaluate(BG))) >= 3, ('icon contrast', name, fg, theme, tag)
-        assert len({colors[k] for k in ('personal', 'number', 'layers', 'signal') if k in colors}) == 4, ('four semantic icon colours', colors, tag)
-        tones = {rgb(c.evaluate('n => getComputedStyle(n).borderTopColor')) for c in page.locator('.fc-card[data-tone]').all()}
-        assert len(tones) == 3, ('three section tones', tones, tag)
-        for selector in ('h2:visible',):
-            for heading in page.locator('.fc-card h2').all():
-                assert ratio(rgb(heading.evaluate('n => getComputedStyle(n).color')), rgb(heading.evaluate(BG))) >= 4.5, ('section heading contrast', tag)
+        # Owner-resolved purpose and state (shared treatment), not a count of hues.
+        muted = rgb(page.locator('.fc-lede').evaluate('n => getComputedStyle(n).color'))
+        tiles = page.locator('.sod29-icon-tile')
+        def tile_color(locator): return rgb(locator.evaluate('n => getComputedStyle(n).color'))
+        followed = page.locator('.fc-follow-row .sod29-icon-tile')
+        assert followed.count() == 5, tag
+        followed_colors = {tile_color(followed.nth(i)) for i in range(followed.count())}
+        assert followed_colors == {TEXT[theme]}, ('every followed subject uses the one action treatment; kind does not recolour', followed_colors, tag)
+        assert all(followed.nth(i).get_attribute('data-purpose') == 'action' and followed.nth(i).get_attribute('data-state') == 'active' for i in range(followed.count())), tag
+        channel_tiles = page.locator('.fc-channel .sod29-icon-tile')
+        assert [channel_tiles.nth(i).get_attribute('data-state') for i in range(3)] == ['unavailable'] * 3, ('email/push/whatsapp are unavailable', tag)
+        assert {tile_color(channel_tiles.nth(i)) for i in range(3)} == {muted}, ('unavailable wins over any glyph accent', tag)
+        # The same signal glyph: active as a followed stream, unavailable as the Push channel. Different state, different treatment.
+        stream = page.locator('.fc-follow-row').filter(has_text='זרם המציאות').locator('.sod29-icon-tile')
+        assert stream.get_attribute('data-state') == 'active' and tile_color(stream) == TEXT[theme] and tile_color(stream) != tile_color(channel_tiles.nth(1)), ('same glyph, state decides', tag)
+        # Identity tile is bounded ornament; section tops come from the shared resolver (discovery / action / ordinary).
+        assert page.locator('.fc-tile').get_attribute('data-purpose') == 'identity', tag
+        tops = [page.locator('.fc-card').nth(i).evaluate('n => getComputedStyle(n).borderTopColor') for i in range(3)]
+        assert tops[0] != tops[1], ('sections resolve different purposes', tag)
+        for heading in page.locator('.fc-card h2').all():
+            assert ratio(rgb(heading.evaluate('n => getComputedStyle(n).color')), rgb(heading.evaluate(BG))) >= 4.5, ('section heading contrast', tag)
+        # Canonical controls, not a static specimen.
+        watch = page.get_by_role('button', name='מעקב אחרי כתב לדוגמה')
+        assert watch.count() >= 1 and page.locator('.fcp-specimen').inner_text().count('WatchButton') == 1, tag
+        spec = page.evaluate(SPECIMEN)
+        report['specimen_findings'][f'{width}-{theme}'] = {'smallText': sorted(set(spec['smallText'])), 'smallTargets': len(spec['smallTargets']), 'emoji': spec['emoji']}
+        spec = page.evaluate(SPECIMEN)
+        report['specimen_findings'][f'{width}-{theme}'] = {'smallText': sorted(set(spec['smallText'])), 'smallTargets': len(spec['smallTargets']), 'emoji': spec['emoji']}
         # keyboard: every interactive control is reachable and shows a visible focus ring
         seen = set()
         for _ in range(40):
@@ -206,6 +234,13 @@ def interaction(browser):
     page.get_by_role('button', name='סמן הכול כנקרא (2)').click()
     assert page.locator('.fc-update[data-unread=true]').count() == 0
     audit(page, ('interaction',))
+    # Canonical controls with fixture mutations: Follow reaches a confirmed state, Share renders its real channels, nothing leaves the page.
+    spec = page.locator('.fcp-specimen')
+    spec.scroll_into_view_if_needed()
+    watch = spec.get_by_role('button', name='מעקב אחרי כתב לדוגמה')
+    watch.wait_for(timeout=15000); page.wait_for_timeout(800)
+    watch.click(); spec.get_by_role('button').filter(has_text='עוקב').first.wait_for(timeout=8000)
+    assert spec.locator('[aria-label="העתק קישור"]').count() == 1 and spec.locator('[aria-label="וואטסאפ"]').count() == 1, 'ShareActions renders its canonical channels'
     context.close()
     context, page = open_state(browser, 'registered', 1440, 'dark', reduced='reduce')
     assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")

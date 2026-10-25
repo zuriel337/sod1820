@@ -1,5 +1,7 @@
 import React from "react";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
+import IconTile2029 from "../experience2029/IconTile2029.jsx";
+import { use2029Palette, treatmentVars } from "../../lib/palette.js";
 import "./followCenter2029.css";
 
 // Presentational 2029 personal update center. Everything arrives through the view model and callbacks:
@@ -19,11 +21,13 @@ function ReadNotice({ state, what, onRetry }) {
 
 export default function FollowCenter2029({ model, returnHref = null, onMarkAllRead, onOpenUpdate, onUnfollow, onRetry, onSignIn, onVerifyIdentity }) {
   const { principal, updates, following, channels, lifecycle, inputs } = model;
+  const palette = use2029Palette();
+  const tv = (purpose, state = "active") => treatmentVars(palette, { purpose, state });
   const guest = principal === "guest";
   return <section className="fc" aria-labelledby="fc-title" data-principal={principal}>
     <header className="fc-head">
       <div className="fc-title-row">
-        <span className="fc-tile" aria-hidden="true"><NavigationIcon2029 name="now" size={28} /></span>
+        <IconTile2029 name="now" purpose="identity" size={28} tile={56} className="fc-tile" />
         <div>
           <p className="fc-eyebrow">האזור האישי</p>
           <h1 id="fc-title">העדכונים שלי</h1>
@@ -31,7 +35,7 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
         </div>
       </div>
       <ol className="fc-life" aria-label="ארבעת שלבי המעקב, כל אחד נפרד">
-        {lifecycle.map((step) => <li key={step.key} data-state={step.state}>
+        {lifecycle.map((step) => <li key={step.key} data-state={step.state} style={tv(step.state === "done" ? "action" : step.state === "needed" ? "discovery" : "ordinary", step.state === "done" || step.state === "needed" ? "active" : "unavailable")}>
           <b>{step.label}</b><span className="fc-life-state">{STATE_TEXT[step.state]}</span><small>{step.note}</small>
         </li>)}
       </ol>
@@ -48,7 +52,7 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
     </div> : null}
 
     <div className="fc-grid">
-      <section className="fc-card fc-updates" data-tone="action" aria-labelledby="fc-updates-title">
+      <section className="fc-card fc-updates" style={tv("discovery")} aria-labelledby="fc-updates-title">
         <div className="fc-card-head">
           <h2 id="fc-updates-title">מה חדש</h2>
           {updates.state === "ready" && updates.unread ? <button type="button" className="fc-link" onClick={onMarkAllRead}>סמן הכול כנקרא ({updates.unread})</button> : null}
@@ -58,14 +62,14 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
         {updates.state === "ready" && updates.items.length ? <ul className="fc-list">
           {updates.items.map((item) => {
             const href = withReturn(item.href, returnHref);
-            return <li key={item.id} className="fc-update" data-unread={item.unread}>
+            return <li key={item.id} className="fc-update" data-unread={item.unread} style={tv(item.unread ? "action" : "ordinary")}>
               <div className="fc-update-top">
                 {item.unread ? <span className="fc-dot" role="img" aria-label="לא נקרא" /> : null}
                 <h3>{item.title}</h3>
               </div>
               {item.body ? <p className="fc-body">{item.body}</p> : null}
               <p className="fc-meta"><time>{item.time}</time>
-                {item.why ? <span className="fc-why">כי אתם עוקבים אחרי <b className="fc-why-name"><span className="fc-icon-sm" data-icon={item.why.icon} aria-hidden="true"><NavigationIcon2029 name={item.why.icon} size={16} /></span> {item.why.label}</b>{item.why.kind ? ` · ${item.why.kind}` : ""}</span> : null}</p>
+                {item.why ? <span className="fc-why">כי אתם עוקבים אחרי <b className="fc-why-name"><span className="fc-icon-sm" aria-hidden="true"><NavigationIcon2029 name={item.why.icon} size={16} /></span> {item.why.label}</b>{item.why.kind ? ` · ${item.why.kind}` : ""}</span> : null}</p>
               {href ? <a className="fc-open" href={href} onClick={() => onOpenUpdate?.(item)}>לצפייה בתוכן <span aria-hidden="true">←</span></a> : null}
             </li>;
           })}
@@ -73,10 +77,10 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
       </section>
 
       <div className="fc-side">
-        <section className="fc-card" data-tone="follow" aria-labelledby="fc-follow-title">
+        <section className="fc-card" style={tv("action")} aria-labelledby="fc-follow-title">
           <h2 id="fc-follow-title">במעקב שלי</h2>
           <ul className="fc-inputs" aria-label="שלושה סוגי קלט נפרדים">
-            {inputs.map((input) => <li key={input.key} data-active={input.active}><b>{input.label}</b><span>{input.note}</span></li>)}
+            {inputs.map((input) => <li key={input.key} data-active={input.active} style={tv(input.active ? "action" : "secondary", input.active ? "active" : "unavailable")}><b>{input.label}</b><span>{input.note}</span></li>)}
           </ul>
           {following.state !== "ready" ? <ReadNotice state={following.state} what="רשימת המעקב" onRetry={() => onRetry?.("following")} /> : null}
           {following.state === "ready" && !following.groups.length ? <p className="fc-empty">עוד לא בחרתם לעקוב אחרי כותב, מספר או נושא. כפתור «עקוב» בדף כותב או בנושא יוסיף אותו לכאן.</p> : null}
@@ -85,8 +89,8 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
             <ul className="fc-list">
               {group.items.map((entry) => {
                 const href = withReturn(entry.href, returnHref);
-                return <li key={entry.topic} className="fc-follow-row" data-change={entry.change}>
-                  <span className="fc-icon" data-icon={entry.icon} aria-hidden="true"><NavigationIcon2029 name={entry.icon} size={22} /></span>
+                return <li key={entry.topic} className="fc-follow-row" data-change={entry.change} style={tv("action", entry.change === "pending" ? "loading" : "active")}>
+                  <IconTile2029 name={entry.icon} purpose="action" state={entry.change === "pending" ? "loading" : "active"} />
                   {href ? <a className="fc-name" href={href}>{entry.label}</a> : <span className="fc-name">{entry.label}</span>}
                   <button type="button" className="fc-btn" aria-label={`ביטול מעקב: ${entry.label}`} aria-busy={entry.change === "pending"} disabled={entry.change === "pending"} onClick={() => onUnfollow?.(entry.topic)}>
                     {entry.change === "pending" ? "מבטל…" : <>עוקב <NavigationIcon2029 name="check" size={16} /></>}</button>
@@ -98,12 +102,12 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
           </div>) : null}
         </section>
 
-        <section className="fc-card" data-tone="channel" aria-labelledby="fc-channel-title">
+        <section className="fc-card" style={tv("ordinary")} aria-labelledby="fc-channel-title">
           <h2 id="fc-channel-title">איך לעדכן אותי</h2>
           <p className="fc-note-plain">מעקב לא מפעיל שום ערוץ. כל ערוץ מופעל בנפרד, בהסכמה מפורשת, אחרי אימות זהות.</p>
           <ul className="fc-list">
-            {channels.map((channel) => <li key={channel.key} className="fc-channel" data-available={channel.available}>
-              <span className="fc-icon" data-icon={channel.icon} data-available={channel.available} aria-hidden="true"><NavigationIcon2029 name={channel.icon} size={22} /></span>
+            {channels.map((channel) => <li key={channel.key} className="fc-channel" data-available={channel.available} style={tv(channel.chosen ? "action" : "ordinary", channel.available ? "active" : "unavailable")}>
+              <IconTile2029 name={channel.icon} purpose={channel.chosen ? "action" : "ordinary"} state={channel.available ? "active" : "unavailable"} />
               <div><strong>{channel.label}</strong><small>{channel.note}</small></div>
               <span className="fc-chip" data-on={channel.chosen}>{channel.chosen ? "פעיל" : channel.available ? "אפשר להפעיל" : "לא זמין עדיין"}</span>
             </li>)}
