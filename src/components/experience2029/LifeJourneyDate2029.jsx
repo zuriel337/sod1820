@@ -3,137 +3,180 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import {
-  createSupabasePersonalDateCrossProvider,
-  gregorianToHebrewDateRepresentation,
-  runPersonalDateResearch,
-} from "../../lib/research/personalDateResearch.js";
-import { buildAccessDescriptor } from "../../lib/research/researchPlanV2.js";
+  compileLifeJourneyDateExpressionMatrix,
+  createSupabaseLifeJourneyDateMatrixProviders,
+  runLifeJourneyDateMatrixResearch,
+} from "../../lib/research/lifeJourneyDateMatrix.js";
 import { buildLifeJourneyFindingTraversalPatch } from "../../lib/research/lifeJourneyPersonContext.js";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 
 const clean = value => String(value || "").trim();
+const VISIBLE_RELATIONS = 6;
 
 export default function LifeJourneyDate2029({ user, profile, personRef, memberRef, onContinue, onReturn }) {
   const navigate = useNavigate();
   const research = useResearch();
   const birthdate = clean(profile?.birthdate);
-  const representation = useMemo(() => gregorianToHebrewDateRepresentation(birthdate), [birthdate]);
-  const [state, setState] = useState({ phase: birthdate ? "loading" : "missing", crossFindings: [], error: null });
+  const firstName = clean(profile?.firstName) || clean(profile?.name).split(/\s+/u)[0] || "";
+  const surname = clean(profile?.surname);
+  const previewMatrix = useMemo(() => compileLifeJourneyDateExpressionMatrix({
+    firstName,
+    surname,
+    birthdateIso: birthdate,
+  }), [birthdate, firstName, surname]);
+  const [showAllRelations, setShowAllRelations] = useState(false);
+  const [state, setState] = useState({ phase: previewMatrix ? "loading" : "missing", result: null, error: null });
 
   useEffect(() => {
     let alive = true;
-    if (!birthdate || !representation || !user?.id) {
-      setState({ phase: "missing", crossFindings: [], error: null });
+    setShowAllRelations(false);
+    if (!previewMatrix || !user?.id) {
+      setState({ phase: "missing", result: null, error: null });
       return () => { alive = false; };
     }
-    setState({ phase: "loading", crossFindings: [], error: null });
-    const accessDescriptor = buildAccessDescriptor({
-      user_ref: user.id,
-      authenticated: true,
-      verified_authority: { source: "supabase_auth", subject_verified: true },
-    }, "authenticated_user");
-    const crossProvider = createSupabasePersonalDateCrossProvider(supabase);
-    runPersonalDateResearch({
-      name: clean(profile?.firstName) || clean(profile?.name),
-      surname: clean(profile?.surname) || null,
-      birthdateIso: birthdate,
-      crossProvider,
-      accessDescriptor,
-    }).then((bundle) => {
-      if (!alive) return;
-      const seen = new Set();
-      const crossFindings = (Array.isArray(bundle?.findings) ? bundle.findings : [])
-        .filter(finding => finding?.kind === "date_cross")
-        .map(finding => ({
-          id: clean(finding?.id),
-          value: Number(finding?.subject?.value),
-          sourceRef: clean(finding?.source?.sourceRef),
-          versionRef: clean(finding?.source?.adapter),
-        }))
-        .filter(finding => finding.id && Number.isSafeInteger(finding.value))
-        .filter(finding => {
-          const key = `${finding.id}:${finding.value}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
+    setState({ phase: "loading", result: null, error: null });
+    const providers = createSupabaseLifeJourneyDateMatrixProviders(supabase);
+    runLifeJourneyDateMatrixResearch({ firstName, surname, birthdateIso: birthdate, providers })
+      .then(result => {
+        if (!alive) return;
+        if (!result) {
+          setState({ phase: "missing", result: null, error: null });
+          return;
+        }
+        setState({ phase: "ready", result, error: null });
+      })
+      .catch(() => {
+        if (alive) setState({
+          phase: "error",
+          result: null,
+          error: "מטריצת השם והתאריך אינה זמינה כרגע. לא חושבה תוצאה חלופית בדפדפן.",
         });
-      setState({ phase: "ready", crossFindings, error: null });
-    }).catch(() => {
-      if (alive) setState({ phase: "error", crossFindings: [], error: "הצלבת השם והתאריך אינה זמינה כרגע." });
-    });
+      });
     return () => { alive = false; };
-  }, [birthdate, profile?.firstName, profile?.name, profile?.surname, representation, user?.id]);
+  }, [birthdate, firstName, previewMatrix, surname, user?.id]);
 
-  const openFinding = (finding) => {
+  const openMethodValue = (row) => {
     const patch = buildLifeJourneyFindingTraversalPatch(research.context, {
       personRef,
       memberRef,
-      findingId: finding.id,
-      value: finding.value,
-      sourceRef: finding.sourceRef,
-      versionRef: finding.versionRef,
+      findingId: row.id,
+      value: row.value,
+      sourceRef: row.sourceRef,
+      versionRef: row.versionRef,
+      focusKind: "life_journey_gematria",
     });
     if (!patch) {
       setState(previous => ({ ...previous, error: "לא ניתן לפתוח את הממצא בלי הקשר אדם תקין." }));
       return;
     }
-    const result = research.continueResearchPath?.({
+    const continued = research.continueResearchPath?.({
       context: patch,
       kind: "person_life",
       mode: "organic",
       surface: "life_journey_2029",
       href: patch.subject.href,
-      label: "ממצא שם ותאריך",
-      reason: "explicit_person_finding_traversal",
+      label: "ערך ממטריצת שם ותאריך",
+      reason: "explicit_person_date_matrix_finding",
     });
-    if (!result?.ok) {
+    if (!continued?.ok) {
       setState(previous => ({ ...previous, error: "לא ניתן לפתוח כרגע את הממצא במסלול המחקר." }));
       return;
     }
     navigate(patch.subject.href);
   };
 
+  const result = state.result;
+  const visibleRelations = showAllRelations
+    ? result?.relationRows || []
+    : result?.relationRows?.slice(0, VISIBLE_RELATIONS) || [];
+
   return <div className="person-journey" data-experience-surface="life-journey-date-2029">
-    <section className="person-journey-panel person-journey-capability" data-experience-capability="life-journey-name-date-bridge">
+    <section className="person-journey-panel person-journey-capability person-journey-matrix" data-experience-capability="life-journey-name-date-matrix">
       <div className="person-journey-section-head">
-        <div><small>מסע החיים</small><h2>שם ותאריך</h2></div>
-        <span>תחנת מעבר פרטית</span>
+        <div><small>מסע החיים</small><h2>השם והתאריך שלי</h2></div>
+        <span>פרטי · ללא ELS</span>
       </div>
       <div className="person-journey-capability-nav">
         <button type="button" onClick={onReturn}>חזרה מדויקת למסע החיים</button>
-        <p>השם והתאריך נשארים ב־Research Context הפרטי ואינם נכנסים לכתובת.</p>
+        <p>השם והתאריך נשלחים בגוף הקריאה המורשה בלבד. הם אינם נכנסים לכתובת או לטלמטריה.</p>
       </div>
 
       {state.phase === "loading" ? <CanonicalProgress
-        title="מחבר שם ותאריך"
-        detail="ממיר את התאריך ומבקש מהמנוע הקנוני נקודות מפגש מחושבות."
-        phase="שם ↔ תאריך"
+        title="בונה את מטריצת השם והתאריך"
+        detail="מפרק לביטויים, מחשב בכל השיטות הזמינות ומצליב כל זוג דרך מנוע הקשרים הקנוני."
+        phase="ביטויים → גימטריה → הצלבות → מסר"
         compact
       /> : null}
 
-      <div className="person-journey-capability-summary" aria-label="סיכום שם ותאריך">
-        <article><small>התאריך העברי</small><strong className="is-text">{representation?.hebrew?.pretty || "לא נשמר"}</strong></article>
-        <article><small>נקודות מפגש</small><strong>{state.phase === "ready" ? state.crossFindings.length : "—"}</strong></article>
-      </div>
-
-      {state.phase === "missing" ? <div className="person-journey-empty">לא נשמר תאריך לאדם הזה. אפשר לחזור למרכז המשפחתי ולהשלים אותו בהמשך.</div> : null}
+      {state.phase === "missing" ? <div className="person-journey-empty">כדי לפתוח את המחקר יש לשמור שם פרטי ותאריך לידה.</div> : null}
       {state.error ? <div className="person-journey-error" role="alert">{state.error}</div> : null}
-      {state.phase === "ready" ? <div className="person-journey-crosses">
-        <small>נקודות מפגש מחושבות שם ↔ תאריך</small>
-        {state.crossFindings.length ? <div>{state.crossFindings.map(finding => <button
-          type="button"
-          className="person-journey-finding-link"
-          key={`${finding.id}:${finding.value}`}
-          onClick={() => openFinding(finding)}
-          aria-label={`פתח את ממצא ${finding.value}`}
-        >{finding.value}</button>)}</div> : <p>לא נמצאה נקודת מפגש בטווח שהמנוע בדק. זו אינה קביעה אישית.</p>}
-        {state.crossFindings.length ? <p>כל מספר פותח במפורש את דף המספר הקיים. אלה נגזרות מנוע בלבד — לא פרשנות, גורל או החלטה.</p> : null}
-      </div> : null}
 
-      <div className="person-journey-actions">
-        <button type="button" className="person-journey-primary" disabled={state.phase === "loading" || !onContinue} onClick={onContinue}>סיים וחזור למרכז המשפחתי</button>
-        <small>התחנה מסכמת את האדם שנבחר בלבד. היא אינה מפעילה ELS ואינה חוקרת בני משפחה אחרים.</small>
-      </div>
+      {state.phase === "ready" && result ? <>
+        <div className="person-journey-capability-summary" aria-label="כיסוי מטריצת השם והתאריך">
+          <article><small>התאריך העברי</small><strong className="is-text">{result.representation.hebrew.pretty}</strong></article>
+          <article><small>ביטויים</small><strong>{result.coverage.expressionCount}</strong></article>
+          <article><small>שיטות זמינות</small><strong>{result.coverage.methodCount}</strong></article>
+          <article><small>זוגות שנבדקו</small><strong>{result.coverage.searchedPairCount}</strong></article>
+        </div>
+
+        <article className="person-journey-research-message" aria-labelledby="life-journey-date-message-title">
+          <small>המסר המחקרי</small>
+          <h3 id="life-journey-date-message-title">מה המטריצה מראה עכשיו</h3>
+          <p>{result.message}</p>
+          <span>המסר נגזר מתוצאות המנוע לאחר נרמול תלות. הוא אינו נבואה ולא נשען על חישוב מקומי.</span>
+        </article>
+
+        <section className="person-journey-expression-matrix" aria-labelledby="life-journey-expression-matrix-title">
+          <header>
+            <div><small>מטריצת ביטויים</small><h3 id="life-journey-expression-matrix-title">מה בדיוק נבדק</h3></div>
+            <span>{result.coverage.methodValueCount} ערכי שיטה</span>
+          </header>
+          <div>{result.expressions.map(item => <article key={item.id}>
+            <small>{item.label}</small>
+            <strong>{item.text}</strong>
+            <span>{item.methods.length} שיטות</span>
+          </article>)}</div>
+        </section>
+
+        <section className="person-journey-relation-list" aria-labelledby="life-journey-relation-list-title">
+          <header>
+            <div><small>חתימת הצלבה</small><h3 id="life-journey-relation-list-title">החיבורים הבולטים</h3></div>
+            <span>{result.coverage.relationCount} מתוך {result.coverage.searchedPairCount} זוגות</span>
+          </header>
+          {visibleRelations.length ? <div>{visibleRelations.map(row => <article key={row.id}>
+            <strong>{row.left.label} ↔ {row.right.label}</strong>
+            <p><b>{row.left.text}</b> · <b>{row.right.text}</b></p>
+            <small>{Number.isSafeInteger(row.independentGroupCount)
+              ? `${row.independentGroupCount} קבוצות שיטה עצמאיות לאחר נרמול`
+              : "התכנסות קנונית לאחר נרמול תלות"}</small>
+          </article>)}</div> : <div className="person-journey-empty">המנוע השלים את כל הזוגות ולא מצא כרגע התכנסות מהותית. זו אינה קביעה שאין קשר.</div>}
+          {result.relationRows.length > VISIBLE_RELATIONS ? <button
+            type="button"
+            className="person-journey-secondary"
+            onClick={() => setShowAllRelations(value => !value)}
+          >{showAllRelations ? "הצג רק את החיבורים הבולטים" : `הצג את כל ${result.relationRows.length} החיבורים`}</button> : null}
+        </section>
+
+        <details className="person-journey-method-ledger">
+          <summary>רשימות הגימטריה המלאות</summary>
+          <p>כל ערך הגיע ממנוע הגימטריה הקנוני. לחיצה על מספר פותחת את דף המספר ומחזירה לכאן בדיוק.</p>
+          <div>{result.expressions.map(item => <section key={item.id}>
+            <header><strong>{item.label}</strong><span>{item.text}</span></header>
+            <div>{item.methods.map(row => <button
+              type="button"
+              className="person-journey-finding-link"
+              key={row.id}
+              onClick={() => openMethodValue(row)}
+              aria-label={`פתח ${row.methodLabel} ${row.value} עבור ${item.label}`}
+            ><span>{row.methodLabel}</span><strong>{row.value}</strong></button>)}</div>
+          </section>)}</div>
+        </details>
+
+        <div className="person-journey-actions">
+          <button type="button" className="person-journey-primary" onClick={onContinue}>סיים וחזור למסע החיים</button>
+          <small>המחקר מוגבל לאדם שנבחר. בני משפחה אינם נחקרים אוטומטית ו־ELS נשאר מחוץ לשלב הזה.</small>
+        </div>
+      </> : null}
     </section>
   </div>;
 }

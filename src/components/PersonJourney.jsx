@@ -177,7 +177,7 @@ function familyResearchSummary(nameResult, dateBundle, dateRepresentation) {
     hebrewDate: dateRepresentation?.hebrew?.pretty || null,
     crossFindings,
     crossValues,
-    tracksWithResults: Number(nameResult?.tracksWithResults
+    tracksWithResults: methodFindings.length || Number(nameResult?.tracksWithResults
       ?? legacyAgents.filter(agent => agent?.ran && agent?.ok && !agent?.empty).length
       ?? 0),
     partial: !nameResult || Boolean(nameResult.partial),
@@ -391,7 +391,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       const crossProvider = createSupabasePersonalDateCrossProvider(supabase);
       const [nameResult, dateBundle] = await Promise.all([
         variant === "2029"
-          ? runLifeJourneyNameResearch(joinName(first, last))
+          ? runLifeJourneyNameResearch(joinName(first, last), { fetchNameLab: false })
           : getNameMulti(clean(first), {
               surname: clean(last) || null,
               birthdate: null,
@@ -442,7 +442,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       track("journey_person", null, "save_self");
-      await runInitialResearch({ first, last, date });
+      if (variant === "2029") {
+        setAnalysis({ state: "idle", data: null, error: null });
+      } else {
+        await runInitialResearch({ first, last, date });
+      }
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
     } finally {
@@ -618,7 +622,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     }
     const result = research.continueResearchPath?.({
       context: patch,
-      kind: view,
+      kind: "person_life",
       mode: "organic",
       surface: "life_journey_2029",
       href: "/2029/journey",
@@ -730,7 +734,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             : null;
           const [nameResult, dateBundle] = await Promise.all([
             variant === "2029"
-              ? runLifeJourneyNameResearch(profile.fullName)
+              ? runLifeJourneyNameResearch(profile.fullName, { fetchNameLab: false })
               : getNameProtocol(profile.fullName),
             profile.birthdate
               ? runPersonalDateResearch({
@@ -863,10 +867,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         <button type="button" className="person-journey-primary" disabled={busy || !clean(firstName)} onClick={beginJourney}>
           {busy ? "פותח את המסע…" : persistedSelf ? "עדכן וחבר מחדש" : "פתח את מסע החיים"}
         </button>
-        {variant === "2029" && persistedSelf ? <>
-          <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "name")}>פתח מסע שם</button>
-          <button type="button" disabled={busy} onClick={() => openCapability(persistedSelf, "date")}>פתח שם ותאריך</button>
-        </> : null}
+        {variant === "2029" && persistedSelf ? <button
+          type="button"
+          disabled={busy || !clean(birthdate)}
+          onClick={() => openCapability(persistedSelf, "date")}
+        >פתח את המחקר שלי</button> : null}
         <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
       </div>
     </section>
@@ -874,18 +879,32 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     <section className="person-journey-panel" data-experience-capability="life-journey-first-findings">
       <div className="person-journey-section-head">
         <div><small>02</small><h2>החיבורים הראשונים</h2></div>
-        <span>{analysis.state === "ready" ? "מנועים חיים" : "ממתין לקלט"}</span>
+        <span>{variant === "2029" ? (persistedSelf && clean(birthdate) ? "מוכן למחקר" : "ממתין לשם ותאריך") : analysis.state === "ready" ? "מנועים חיים" : "ממתין לקלט"}</span>
       </div>
 
-      {analysis.state === "idle" ? <div className="person-journey-empty">אחרי שמירה נציג כאן רק עובדות מנוע ונגזרות: ערכי השם, התאריך העברי ונקודות מפגש שנמצאו.</div> : null}
-      {analysis.state === "loading" ? <CanonicalProgress
+      {variant === "2029" ? <article className="person-journey-research-entry">
+        <div>
+          <small>שם · תאריך · כל השיטות הזמינות · כל הזוגות</small>
+          <h3>מטריצת המחקר האישית</h3>
+          <p>התאריך מתפרק לביטויים עבריים, כל ביטוי עובר בשיטות הגימטריה הזמינות, והחיבורים מנורמלים לפני שנוצר מסר.</p>
+        </div>
+        <button
+          type="button"
+          className="person-journey-primary"
+          disabled={busy || !persistedSelf || !clean(birthdate)}
+          onClick={() => openCapability(persistedSelf, "date")}
+        >פתח את המחקר שלי</button>
+      </article> : null}
+
+      {variant !== "2029" && analysis.state === "idle" ? <div className="person-journey-empty">אחרי שמירה נציג כאן רק עובדות מנוע ונגזרות: ערכי השם, התאריך העברי ונקודות מפגש שנמצאו.</div> : null}
+      {variant !== "2029" && analysis.state === "loading" ? <CanonicalProgress
         title="מחבר את המסע הראשון"
         detail="בודק את השם, ממיר את התאריך ומחפש נקודות מפגש דרך המנועים הקנוניים."
         phase="מחקר אישי"
         compact
       /> : null}
-      {analysis.state === "error" ? <div className="person-journey-error" role="alert">{analysis.error}</div> : null}
-      {analysis.state === "ready" && analysisData ? <div className="person-journey-findings">
+      {variant !== "2029" && analysis.state === "error" ? <div className="person-journey-error" role="alert">{analysis.error}</div> : null}
+      {variant !== "2029" && analysis.state === "ready" && analysisData ? <div className="person-journey-findings">
         <div className="person-journey-focal">
           <small>השם המלא</small>
           <strong>{analysisData.fullValue ?? "—"}</strong>
@@ -966,7 +985,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         </footer>
       </fieldset> : null}
 
-      {variant === "2029" ? <section
+      {variant === "2029" ? <details className="person-journey-secondary-tools">
+        <summary>חיבור חשבונות והזמנות</summary>
+        <section
         className="person-journey-account-continuity"
         data-experience-capability="life-journey-account-continuity"
         aria-labelledby="life-journey-account-continuity-title"
@@ -1075,7 +1096,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           </div>
           {familyClaimNotice ? <div className="person-journey-claim-notice" data-state={familyClaimNotice.type} role={familyClaimNotice.type === "error" ? "alert" : "status"}>{familyClaimNotice.text}</div> : null}
         </> : null}
-      </section> : null}
+        </section>
+      </details> : null}
 
       {selectedFamilyRefs.length ? <section
         className="person-journey-birth-timeline"
@@ -1143,7 +1165,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             {row.state === "ready" ? <>
               <dl>
                 <div><dt>ערך השם</dt><dd>{row.data.fullValue ?? "—"}</dd></div>
-                <div><dt>שכבות עם תוצאה</dt><dd>{row.data.tracksWithResults}</dd></div>
+                <div><dt>{variant === "2029" ? "שיטות שחזרו" : "שכבות עם תוצאה"}</dt><dd>{row.data.tracksWithResults}</dd></div>
                 <div><dt>נקודות מפגש</dt><dd>{row.data.crossValues.length}</dd></div>
               </dl>
               {variant === "2029" && row.data.methodFindings.length ? <div className="person-journey-family-cross-values">{row.data.methodFindings.map(finding => <button
@@ -1177,8 +1199,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
               <small className="person-journey-member-source">מקור: הוזן במסע הזה · זהות ניתנת לחיבור לחשבון</small>
             </div>
             {variant === "2029" ? <div className="person-journey-member-actions">
-              <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>מסע שם</button>
-              <button type="button" disabled={busy} onClick={() => openCapability(member, "date")}>שם ותאריך</button>
+              <button type="button" disabled={busy || !clean(memberMeta.birthdate_iso)} onClick={() => openCapability(member, "date")}>פתח מחקר</button>
             </div> : <span>פרטי</span>}
           </article>;
         })}

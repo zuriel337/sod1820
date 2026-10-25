@@ -28,7 +28,7 @@ function lifeJourneyFixturePlugin() {
     ["virtual:life-journey-tracking.js", `window.__telemetry=window.__telemetry||[];export const track=(...args)=>window.__telemetry.push(args);`],
     ["virtual:life-journey-personal-date.js", `
       window.__dateCalls=window.__dateCalls||[];
-      export const gregorianToHebrewDateRepresentation=()=>({hebrew:{pretty:"י״א בתשרי"}});
+      export const gregorianToHebrewDateRepresentation=()=>({input_iso:"1990-02-15",hebrew:{pretty:"י״א בתשרי תשפ״ז"}});
       export const createSupabasePersonalDateCrossProvider=()=>async()=>[];
       export const runPersonalDateResearch=async(input)=>{window.__dateCalls.push(input);return {findings:[{id:"finding-date-cross-73",kind:"date_cross",subject:{value:73},source:{sourceRef:null,adapter:"personal-date-representation-v1"}}]};};
     `],
@@ -59,13 +59,21 @@ function lifeJourneyFixturePlugin() {
       const blank=()=>({members:[],relations:[]});
       const read=()=>{try{return JSON.parse(localStorage.getItem(ledgerKey())||"null")||blank();}catch{return blank();}};
       const write=value=>localStorage.setItem(ledgerKey(),JSON.stringify(value));
-      window.__elsCalls=window.__elsCalls||[];window.__nameCalls=window.__nameCalls||[];window.__reflectionCalls=window.__reflectionCalls||[];
+      window.__elsCalls=window.__elsCalls||[];window.__nameCalls=window.__nameCalls||[];window.__matrixCalls=window.__matrixCalls||[];window.__reflectionCalls=window.__reflectionCalls||[];
       export const supabase={functions:{async invoke(name,{body}){
         window.__elsCalls.push({name,body});
         if(body.op==="page")return {data:{result:{contract:"els_search_page_v1",status:"OK",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},selection_protocol:"POST_HOC_EXPLORATORY",hits:[{occurrence_id:"els:fixture-torah:"+body.term+":7:1:120",skip:7,dir:1,start:120,end:150,positions:[120,127,134]}],completion:{executed:true,returned_hits:1,total_hits:1,has_more:false,truncated:false}}}};
         if(body.op==="verify")return {data:{result:{contract:"els_occurrence_replay_v1",status:"OK",verification_state:"MATCH",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},occurrence:{occurrence_id:"els:fixture-torah:"+body.term+":"+body.skip+":"+body.dir+":"+body.start,skip:body.skip,dir:body.dir,start:body.start,positions:[body.start]}}}};
         return {error:{message:"unsupported"}};
       }},async rpc(name,args){
+        if(name==="fn_all_methods"){
+          window.__matrixCalls.push({kind:"methods",name,args:{has_input:Boolean(args?.p_word)}});
+          return {data:{"רגיל":73,"מילוי":101,"מסתתר":55,"מהמאגר":false},error:null};
+        }
+        if(name==="fn_relation_candidate"){
+          window.__matrixCalls.push({kind:"relation",name,args:{has_a:Boolean(args?.p_a),has_b:Boolean(args?.p_b)}});
+          return {data:{status:"candidate",relation_kind:"gematria_convergence",engine_signal:2,confidence:"candidate",research_priority:"review",noise_flags:[],engine_evidence:[{method:"רגיל",value:73}],composite_evidence:[],independent_evidence:{edges:[],topic_cards:[],research_objects:[]},engine_signal_components:{effective_independent_group_count:1,raw_independent_group_count:1,effective_structure_sensitive_group_count:0}},error:null};
+        }
         window.__reflectionCalls.push({kind:"tarot",name,args});
         if(name!=="fn_tarot_sos")return {error:{message:"unsupported"}};
         return {data:{framework:"שלושה קלפים להשראה",cards:[
@@ -194,6 +202,17 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByLabel("מקום לידה").first().fill("עיר בדיקה");
     await page.getByRole("button", { name: "פתח את מסע החיים" }).click();
     await page.getByRole("button", { name: "עדכן וחבר מחדש" }).waitFor();
+    assert.equal(await page.evaluate(() => window.__matrixCalls.length), 0, "saving a Person does not start research automatically");
+    await page.getByRole("button", { name: "פתח את המחקר שלי" }).first().click();
+    await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
+    await page.getByRole("heading", { name: "מה המטריצה מראה עכשיו" }).waitFor();
+    assert.equal(await page.locator(".person-journey-expression-matrix article").count(), 8);
+    assert.equal(await page.evaluate(() => window.__matrixCalls.filter(call => call.kind === "methods").length), 8);
+    assert.equal(await page.evaluate(() => window.__matrixCalls.filter(call => call.kind === "relation").length), 28);
+    assert.equal(await page.getByText("רשימות הגימטריה המלאות", { exact: true }).count(), 1);
+    assert.equal(await page.locator(".person-journey-reflection-cards").count(), 0, "no cards are mounted in Life Journey");
+    await page.getByRole("button", { name: "סיים וחזור למסע החיים" }).click();
+    await page.getByRole("button", { name: "עדכן וחבר מחדש" }).waitFor();
 
     const family = page.locator('[data-experience-capability="life-journey-family"]');
     await family.getByLabel("שם בן/בת משפחה").fill("ילד בדיקה");
@@ -202,6 +221,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await family.getByLabel("הקשר אליי").selectOption("child_of_me");
     await family.getByRole("button", { name: "הוסף למסע" }).click();
     await family.locator(".person-journey-family-list article strong", { hasText: "ילד בדיקה" }).waitFor();
+    await family.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     await family.getByRole("heading", { name: "אותו אדם, גם כשנפתח חשבון נפרד" }).waitFor();
     assert.ok(await family.getByText("זהות משפחתית · חשבון עתידי אפשרי").count() >= 1);
     assert.ok(await family.getByText(/מקור: הוזן במסע הזה/).count() >= 2);
@@ -249,6 +269,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.getByLabel("מקום לידה").first().inputValue(), "עיר בדיקה");
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyPersonRef), firstRef);
     assert.equal(await childSelection.isChecked(), true, "family selection survives refresh through Research Context");
+    await family.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     await accountContinuity.getByText("קיימת הזמנה ממתינה. הקוד הגולמי אינו נשמר; אם הוא אבד, בטלו וצרו קוד חדש.").waitFor();
     assert.equal(await childClaimCard.locator("code").count(), 0, "raw invitation token disappears after refresh");
     await familyScope.getByRole("button", { name: "נקה בחירה" }).click();
@@ -269,8 +290,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await family.getByRole("button", { name: "חקור 2 אנשים יחד" }).click();
     await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
     await family.locator(".person-journey-family-shared", { hasText: "2 אנשים" }).waitFor();
-    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), true, "explicit family research includes the selected child");
-    assert.equal(await page.evaluate(() => window.__nameCalls.filter(call => call.kind === "name_lab").every(call => call.options?.skip_els === "1")), true, "every Life Journey NameLab read explicitly skips ELS");
+    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "gematria" && call.name === "ילד בדיקה")), true, "explicit family research includes the selected child through canonical Gematria");
+    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab")), false, "Life Journey never calls NameLab");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");
     await family.getByRole("button", { name: "פתח את ממצא 73 של ילד בדיקה" }).click();
@@ -307,47 +328,38 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     }
 
     await page.setViewportSize({ width: 390, height: 900 });
-    await page.getByRole("button", { name: "פתח מסע שם" }).click();
-    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByRole("button", { name: "פתח את המחקר שלי" }).first().click();
+    await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
+    await page.getByRole("heading", { name: "מה המטריצה מראה עכשיו" }).waitFor();
     assert.equal(new URL(page.url()).search, "");
-    await page.getByRole("button", { name: "פתח מסר ושלושה קלפים" }).waitFor();
-    assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 0, "message and cards are explicit, never automatic");
-    const telemetryBeforeReflection = await page.evaluate(() => window.__telemetry.length);
-    await page.getByRole("button", { name: "פתח מסר ושלושה קלפים" }).click();
-    await page.getByText("מסר בדיקה מבוסס ממצאים.").waitFor();
-    const reflection = page.locator('[data-experience-capability="life-journey-normalized-message-reflection"]');
-    assert.deepEqual(await reflection.locator(".person-journey-reflection-cards article>div>small").allTextContents(), ["המצב", "האתגר", "העצה"]);
-    const reflectionCalls = await page.evaluate(() => window.__reflectionCalls);
-    assert.deepEqual(reflectionCalls.map(call => call.kind), ["ai", "tarot"]);
-    assert.equal(reflectionCalls[0].args.operation, "normalized_reflection");
-    assert.equal(reflectionCalls[0].args.persistAnalysis, false, "private name analysis is not copied to the style-learning log");
-    assert.equal(reflectionCalls[1].name, "fn_tarot_sos");
-    assert.deepEqual(reflectionCalls[1].args, { p_cards: 3 });
-    assert.equal(await page.evaluate(() => window.__telemetry.length), telemetryBeforeReflection, "private reflection emits no client telemetry");
-    assert.equal(decodeURIComponent(page.url()).includes("הורה בדיקה"), false, "private name never enters the reflection URL");
+    assert.equal(await page.locator('[data-experience-capability="life-journey-normalized-message-reflection"]').count(), 0);
+    assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 0, "Life Journey does not invoke AI reflection or Tarot");
+    const matrixCallsBeforeThemes = await page.evaluate(() => window.__matrixCalls.length);
     for (const theme of ["light", "parchment", "dark"]) {
       for (const width of [390, 1280]) {
         await page.setViewportSize({ width, height: 900 });
         await page.evaluate(value => window.__setLifeJourneyTheme(value), theme);
         await page.waitForFunction(value => document.querySelector("[data-fixture-theme]")?.dataset.fixtureTheme === value, theme);
-        const reflectionLayout = await page.evaluate(() => {
-          const surface = document.querySelector('[data-experience-capability="life-journey-normalized-message-reflection"]');
-          const card = surface?.querySelector(".person-journey-reflection-cards article");
+        const matrixLayout = await page.evaluate(() => {
+          const surface = document.querySelector('[data-experience-capability="life-journey-name-date-matrix"]');
+          const message = surface?.querySelector(".person-journey-research-message");
           return {
             viewport: innerWidth,
             scrollWidth: document.documentElement.scrollWidth,
             surfaceWidth: surface?.getBoundingClientRect().width || 0,
-            cardWidth: card?.getBoundingClientRect().width || 0,
-            message: surface?.querySelector(".person-journey-reflection-message")?.textContent || "",
+            messageWidth: message?.getBoundingClientRect().width || 0,
+            message: message?.textContent || "",
           };
         });
-        assert.ok(reflectionLayout.scrollWidth <= reflectionLayout.viewport + 1, `reflection ${theme} ${width}px must not overflow`);
-        assert.ok(reflectionLayout.surfaceWidth > 0 && reflectionLayout.cardWidth > 0, `reflection ${theme} ${width}px stays visible`);
-        assert.match(reflectionLayout.message, /מסר בדיקה מבוסס ממצאים/);
+        assert.ok(matrixLayout.scrollWidth <= matrixLayout.viewport + 1, `matrix ${theme} ${width}px must not overflow`);
+        assert.ok(matrixLayout.surfaceWidth > 0 && matrixLayout.messageWidth > 0, `matrix ${theme} ${width}px stays visible`);
+        assert.match(matrixLayout.message, /החיבור הבולט כרגע/);
       }
     }
+    assert.equal(await page.evaluate(() => window.__matrixCalls.length), matrixCallsBeforeThemes, "theme and viewport changes never rerun research");
     await page.setViewportSize({ width: 390, height: 900 });
-    await page.getByRole("button", { name: "פתח רגיל 73 בדף המספר" }).click();
+    await page.getByText("רשימות הגימטריה המלאות", { exact: true }).click();
+    await page.getByRole("button", { name: "פתח רגיל 73 עבור שם פרטי" }).click();
     await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");
     assert.equal(decodeURIComponent(page.url()).includes("הורה בדיקה"), false);
@@ -355,32 +367,31 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.match(await page.evaluate(() => window.__lifeJourneyContext?.selection?.findingId), /^life-journey-finding:[a-z0-9]+$/);
     await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
-    await page.getByRole("button", { name: "פתח מסע שם" }).click();
-    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByRole("button", { name: "פתח את המחקר שלי" }).first().click();
+    await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
     await page.reload();
-    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
-    await page.getByRole("button", { name: "פתח מסר ושלושה קלפים" }).waitFor();
-    assert.equal(await page.getByText("מסר בדיקה מבוסס ממצאים.").count(), 0, "refresh never redraws or regenerates the private reflection automatically");
-    await page.getByRole("button", { name: "המשך לשם ותאריך" }).click();
-    await page.getByRole("heading", { name: "שם ותאריך" }).waitFor();
-    await page.getByText("י״א בתשרי").waitFor();
+    await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
+    await page.getByRole("heading", { name: "מה המטריצה מראה עכשיו" }).waitFor();
+    await page.locator(".person-journey-capability-summary").getByText("י״א בתשרי תשפ״ז", { exact: true }).waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyView), "date");
     assert.equal(new URL(page.url()).search, "");
-    await page.getByRole("button", { name: "סיים וחזור למרכז המשפחתי" }).click();
+    await page.getByRole("button", { name: "סיים וחזור למסע החיים" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
     assert.equal(await childSelection.isChecked(), true, "exact return preserves the family selection");
 
-    const childCard = family.locator("article", { hasText: "ילד בדיקה" });
+    const childCard = family.locator(".person-journey-family-list article", { hasText: "ילד בדיקה" });
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), false, "refresh preserves selection but never replays family research automatically");
     const elsCallsBefore = await page.evaluate(() => window.__elsCalls.length);
-    await childCard.getByRole("button", { name: "שם ותאריך", exact: true }).click();
-    await page.getByRole("heading", { name: "שם ותאריך" }).waitFor();
-    await page.getByText("י״א בתשרי").waitFor();
+    await childCard.getByRole("button", { name: "פתח מחקר", exact: true }).click();
+    await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
+    await page.getByRole("heading", { name: "מה המטריצה מראה עכשיו" }).waitFor();
+    await page.locator(".person-journey-capability-summary").getByText("י״א בתשרי תשפ״ז", { exact: true }).waitFor();
     assert.equal(await page.evaluate(() => window.__elsCalls.length), elsCallsBefore, "date research does not scan ELS");
     assert.equal(await page.getByText("תוכנית ELS אוטומטית").count(), 0, "ELS is parked outside the active Life Journey path");
     assert.equal(new URL(page.url()).search, "");
-    await page.getByRole("button", { name: "פתח את ממצא 73" }).click();
+    await page.getByText("רשימות הגימטריה המלאות", { exact: true }).click();
+    await page.getByRole("button", { name: "פתח רגיל 73 עבור שם פרטי" }).click();
     await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");
     assert.match(await page.evaluate(() => window.__lifeJourneyContext?.selection?.findingId), /^life-journey-finding:[a-z0-9]+$/);
@@ -391,6 +402,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await childSelection.isChecked(), true, "child Finding exact return preserves the family selection");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0);
 
+    await family.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     const ownerClaimInput = accountContinuity.getByLabel("קוד הזמנה");
     await ownerClaimInput.fill(invitationToken);
     await accountContinuity.getByRole("button", { name: "אמת וחבר את הזהות" }).click();
@@ -400,6 +412,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.evaluate(() => localStorage.setItem("life-journey-account-fixture", "claimant"));
     await page.reload();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
+    await page.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     const claimantContinuity = page.locator('[data-experience-capability="life-journey-account-continuity"]');
     await claimantContinuity.getByLabel("קוד הזמנה").fill(invitationToken);
     await claimantContinuity.getByRole("button", { name: "אמת וחבר את הזהות" }).click();
@@ -410,6 +423,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.evaluate(() => localStorage.setItem("life-journey-account-fixture", "owner"));
     await page.reload();
     await page.getByRole("button", { name: "עדכן וחבר מחדש" }).waitFor();
+    await page.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     const ownerContinuity = page.locator('[data-experience-capability="life-journey-account-continuity"]');
     await ownerContinuity.locator("article", { hasText: "ילד בדיקה" }).getByText("זהות אומתה").waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef, "account-scoped Research Context returns only for the owner account");
