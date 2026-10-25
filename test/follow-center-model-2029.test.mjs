@@ -59,3 +59,9 @@ assert.equal(followLifecycle({ principal: "registered", followCount: 0, channels
 // Relevance and Raziel are labelled inputs that are not active.
 assert.deepEqual(off.inputs.map((input) => input.active), [true, false, false]);
 console.log("follow center model 2029: PASS");
+
+const unreadChannels = buildFollowCenterModel({ principal: "registered", follows: { state: "ready", topics: ["number:1820"] },
+  channelReadState: "unavailable", device: { push: "available", pushSubscribed: true } });
+assert.ok(unreadChannels.channels.every(channel => !channel.known && channel.chosen === null && !channel.available));
+assert.equal(unreadChannels.lifecycle[2].state, "unknown", "unread channel consent is never a measured opt-out");
+assert.equal(unreadChannels.lifecycle[3].state, "unknown", "unread delivery state is never a claim that no delivery exists");

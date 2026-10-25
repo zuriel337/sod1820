@@ -19,7 +19,7 @@ function ReadNotice({ state, what, onRetry }) {
   return <div className="fc-note fc-note-alert" role="alert"><span>לא ניתן לקרוא את {what} כרגע. זה לא אומר שאין כלום.</span>{onRetry ? <button type="button" className="fc-btn" onClick={onRetry}>ניסיון נוסף</button> : null}</div>;
 }
 
-export default function FollowCenter2029({ model, returnHref = null, onMarkAllRead, onOpenUpdate, onUnfollow, onRetry, onSignIn, onVerifyIdentity }) {
+export default function FollowCenter2029({ model, returnHref = null, readChange = "idle", loadedPage = false, onMarkAllRead, onOpenUpdate, onUnfollow, onRetry, onSignIn, onVerifyIdentity }) {
   const { principal, updates, following, channels, lifecycle, inputs } = model;
   const palette = use2029Palette();
   const tv = (purpose, state = "active") => treatmentVars(palette, { purpose, state });
@@ -55,8 +55,9 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
       <section className="fc-card fc-updates" style={tv("discovery")} aria-labelledby="fc-updates-title">
         <div className="fc-card-head">
           <h2 id="fc-updates-title">מה חדש</h2>
-          {updates.state === "ready" && updates.unread ? <button type="button" className="fc-link" onClick={onMarkAllRead}>סמן הכול כנקרא ({updates.unread})</button> : null}
+          {updates.state === "ready" && updates.unread ? <button type="button" className="fc-link" disabled={readChange === "pending"} aria-busy={readChange === "pending"} onClick={onMarkAllRead}>{readChange === "pending" ? "מסמן כנקרא…" : `סמן הכול כנקרא (${updates.unread}${loadedPage ? " מוצגים" : ""})`}</button> : null}
         </div>
+        {readChange === "failed" ? <div className="fc-note fc-note-alert" role="alert"><span>לא התקבל אישור סימון כנקרא. העדכונים שלא אושרו נשארים ללא שינוי.</span><button type="button" className="fc-btn" onClick={() => onRetry?.("updates")}>ניסיון נוסף</button></div> : null}
         {updates.state !== "ready" ? <ReadNotice state={updates.state} what="העדכונים" onRetry={() => onRetry?.("updates")} /> : null}
         {updates.state === "ready" && !updates.items.length ? <p className="fc-empty">אין עדכונים עדיין. כשמשהו חדש יופיע אצל מי שאתם עוקבים, הוא יגיע לכאן.</p> : null}
         {updates.state === "ready" && updates.items.length ? <ul className="fc-list">
@@ -70,7 +71,7 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
               {item.body ? <p className="fc-body">{item.body}</p> : null}
               <p className="fc-meta"><time>{item.time}</time>
                 {item.why ? <span className="fc-why">כי אתם עוקבים אחרי <b className="fc-why-name"><span className="fc-icon-sm" aria-hidden="true"><NavigationIcon2029 name={item.why.icon} size={16} /></span> {item.why.label}</b>{item.why.kind ? ` · ${item.why.kind}` : ""}</span> : null}</p>
-              {href ? <a className="fc-open" href={href} onClick={() => onOpenUpdate?.(item)}>לצפייה בתוכן <span aria-hidden="true">←</span></a> : null}
+              {href ? <a className="fc-open" href={href} onClick={event => onOpenUpdate?.(item, event, href)}>לצפייה בתוכן <span aria-hidden="true">←</span></a> : null}
             </li>;
           })}
         </ul> : null}
@@ -109,7 +110,7 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
             {channels.map((channel) => <li key={channel.key} className="fc-channel" data-available={channel.available} style={tv(channel.chosen ? "action" : "ordinary", channel.available ? "active" : "unavailable")}>
               <IconTile2029 name={channel.icon} purpose={channel.chosen ? "action" : "ordinary"} state={channel.available ? "active" : "unavailable"} />
               <div><strong>{channel.label}</strong><small>{channel.note}</small></div>
-              <span className="fc-chip" data-on={channel.chosen}>{channel.chosen ? "פעיל" : channel.available ? "אפשר להפעיל" : "לא זמין עדיין"}</span>
+              <span className="fc-chip" data-on={channel.chosen}>{channel.known === false ? "לא נבדק" : channel.chosen ? "פעיל" : channel.available ? "אפשר להפעיל" : "לא זמין עדיין"}</span>
             </li>)}
           </ul>
           <p className="fc-note-plain">מייל, תקציר ו־WhatsApp יופיעו כאן כשתהליך ההסכמה והמשלוח שלהם יהיה קיים בפועל.</p>

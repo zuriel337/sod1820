@@ -194,7 +194,7 @@ try:
                     elif module == "messages":
                         page.get_by_role("button").filter(has_text="הודעה קיימת").wait_for()
                     elif module == "notifications":
-                        page.get_by_role("button").filter(has_text="הודעה מהכותב").wait_for()
+                        page.locator(".fc-update").filter(has_text="הודעה מהכותב").wait_for()
                     elif module == "progress":
                         page.locator(".pc-rank[data-rank-state=ready]").wait_for()
                         assert "לא זמין" in page.locator(".wp-stats").inner_text()
@@ -309,16 +309,16 @@ try:
         page.get_by_text("תגובה לתרומה שלי", exact=True).wait_for()
         report["flows"].append("existing inbox exact conversation/writer return, failed send retains draft, confirmed retry, native replies")
         page.goto(BASE + "/2029/me/notifications")
-        follow = page.get_by_role("button", name="עוקב ✓", exact=True)
+        follow = page.locator(".fc-follow-row button")
         follow.wait_for()
         state["fail_follow"] = True
         follow.click()
-        page.get_by_role("alert").filter(has_text="לא התקבל אישור ביטול מעקב").wait_for()
+        page.get_by_role("alert").filter(has_text="לא התקבל אישור ביטול").wait_for()
         assert follow.count() == 1
         state["fail_follow"] = False
         follow.click()
         expect(follow).to_have_count(0)
-        page.get_by_role("button").filter(has_text="הודעה מהכותב").click()
+        page.locator(".fc-update").filter(has_text="הודעה מהכותב").get_by_role("link", name="לצפייה בתוכן", exact=False).click()
         page.get_by_role("textbox", name="ההודעה שלך").wait_for()
         report["flows"].append("failed unfollow does not remove row; confirmed unfollow; DM notification opens native conversation")
         page.goto(BASE + "/2029/me/profile")
