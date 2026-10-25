@@ -1820,3 +1820,63 @@ test("method layers: the interpretive modes read the Number Bundle of אתבש /
   assert.doesNotMatch(outage.models[0].user, /אתבש \(מראה\)/);
   assert.match(outage.models[0].user, /1\. הביטוי והערך המרכזי:\nשאול · רגיל=337/);
 });
+
+// ── Precedence: a server-reauthorized canonical expression beats the legacy fn_raziel_answer early return ───────────
+function legacyScaffoldingAnswer() {
+  // What the old deterministic path produced when it read the command scaffolding as the expression.
+  return {
+    enabled: true, mode: "deterministic", needs_synthesis: false, availability: "deterministic",
+    answer: "לי שאול = 377 (גימטריה רגילה — עובדה מאומתת במנוע).",
+    facts: [{ label: "לי שאול", value: "377" }],
+    source_of_truth: "legacy:fn_raziel_answer", trace: null,
+  };
+}
+const PRECEDENCE_PHRASINGS = [
+  ["בדוק לי גימטריה של שאול", "שאול"],
+  ["בדוק לי גימטריה של שאול 337", "שאול"],
+  ["המילה שאול", "שאול"],
+  ["תן לי את הגימטריות של השם שאול", "שאול"],
+];
+for (const [index, [question, expression]] of PRECEDENCE_PHRASINGS.entries()) {
+  test(`precedence: «${question}» bypasses a legacy fn_raziel_answer «לי שאול = 377» and answers from the שאול = 337 Bundle`, async () => {
+    const prepared = prepare({ question });
+    assert.deepEqual(prepared.request.conversationResolution?.identities?.map((identity) => identity.label), [expression]);
+    const run = await runAiAnalyze({
+      answer: legacyScaffoldingAnswer(), allowed: true, bearer: "synthetic-anon-key",
+      body: bodyOf(prepared, `vprecedence${index}abcdef12`),
+      modelResult: mockStory, ...shaulBundles(),
+    });
+    assert.ok(run.calls.some((call) => call.name === "fn_raziel_answer"), "the legacy function was consulted (and its early return ignored)");
+    const reads = run.calls.filter((call) => call.name === "research-run" && call.payload.contract === EXPRESSION_CONTRACT);
+    assert.deepEqual(reads.map((call) => call.payload.expression), [expression], "research-run receives שאול, never the scaffolding");
+    assert.equal(run.models.length, 1, "synthesis runs over the Bundle");
+    // Check the answer-bearing fields only: random ids/timestamps elsewhere in the envelope may contain any digits.
+    const shown = JSON.stringify({ answer: run.result.raziel.answer, facts: run.result.raziel.facts, source: run.result.raziel.source_of_truth });
+    assert.notEqual(run.result.engine, "deterministic", "the legacy deterministic answer is not returned");
+    assert.doesNotMatch(shown, /לי שאול|= 377|legacy:fn_raziel_answer/);
+    assert.match(run.models[0].user, /שאול/);
+    assert.match(run.models[0].user, /337/);
+    assert.doesNotMatch(run.models[0].user, /לי שאול|= 377|legacy:fn_raziel_answer/, "the legacy facts never reach the model");
+    assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
+  });
+}
+
+test("precedence: «מספר 337» is a canonical number subject (no expression), and a legacy deterministic answer still applies when no canonical expression was re-authorized", async () => {
+  const prepared = prepare({ question: "מספר 337" });
+  assert.equal(prepared.request.conversationResolution?.identities?.[0]?.type, "number");
+  assert.equal(prepared.request.conversationResolution?.identities?.[0]?.value ?? prepared.request.conversationResolution?.identities?.[0]?.label, prepared.request.conversationResolution?.identities?.[0]?.value ?? "337");
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(), allowed: true, bearer: "synthetic-anon-key",
+    body: bodyOf(prepared, "vprecnumber1234567"), modelResult: mockStory, ...shaulBundles(),
+  });
+  const numberReads = run.calls.filter((call) => call.name === "research-run").map((call) => call.payload.number);
+  assert.deepEqual(numberReads, [337]);
+  // control: no expression hint ⇒ the legacy deterministic answer keeps its early return (unchanged behaviour)
+  const control = await runAiAnalyze({
+    answer: legacyScaffoldingAnswer(), allowed: true, bearer: "synthetic-anon-key",
+    body: { subject: "בדוק לי גימטריה של שאול", visitor_id: "vprecontrol1234567", intelligence_level: "fast" },
+    ...shaulBundles(),
+  });
+  assert.equal(control.result.engine, "deterministic");
+  assert.match(control.result.raziel.answer, /377/);
+});

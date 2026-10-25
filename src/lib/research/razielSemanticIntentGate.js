@@ -152,6 +152,14 @@ function explicitExpressionProfileCommand(question) {
   return slot ? expressionSubjectFromSlot(slot, { requested_action: asksConnections ? "connect" : "research" }) : null;
 }
 
+// "המילה שאול" / "הביטוי X" — a lexical-role noun followed by the bounded expression slot is an explicit research request.
+function explicitRoleExpressionCommand(question) {
+  const match = /^(?:המילה|הביטוי|השם)\s+(.+)$/u.exec(grammarText(question));
+  const slot = match ? splitExpressionSlot(match[1]) : null;
+  if (!slot || /^(?:הז[הא]ת?|ההי?א|הבא(?:ה)?|האחרונה?|שלפני|שלעיל)$/u.test(slot.expression)) return null;
+  return expressionSubjectFromSlot(slot);
+}
+
 // "<expression> <value> בכל השיטות" — the all-methods lens over one explicit expression.
 function explicitExpressionAllMethodsCommand(question) {
   const q = grammarText(question);
@@ -191,6 +199,8 @@ function splitExpressionSlot(text) {
       }
     }
   }
+  // A number glued to a context noun (year, page, chapter, count…) is never an observed value of an expression.
+  if (observedValue != null && /^(?:שנת|שנה|עמוד|דף|פרק|פסוק|מקור(?:ות)?|כמות|מספר|ה?מספר)$/u.test(body)) return null;
   const expression = validExplicitHebrewExpression(body);
   return expression ? { expression, observedValue } : null;
 }
@@ -272,19 +282,13 @@ function explicitExpressionCalculationCommand(question) {
     .replace(new RegExp(`\\s+בגימטרי[הא](?:\\s+${trailingCalculation})?$`, "u"), "")
     .replace(/\s+(?:בכל\s+השיטות|במצב\s+(?:רגיל|כללי))$/u, "")
     .trim();
-  const expression = validExplicitHebrewExpression(expressionText);
-  if (!expression || (marker > 0 && (!requestedMethod || !/[\u0590-\u05ff]/u.test(requestedMethod)))) return null;
+  // One adjacent integer is the expression's observed value, never part of the expression.
+  const slot = splitExpressionSlot(expressionText);
+  if (!slot || (marker > 0 && (!requestedMethod || !/[\u0590-\u05ff]/u.test(requestedMethod)))) return null;
 
-  return Object.freeze({
-    type: "phrase",
-    label: expression,
-    evidence_text: expression,
-    identity_key: `phrase:${expression}`,
-    source: RESEARCH_IDENTITY_SOURCE.TEXT_MATCH,
-    confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+  return expressionSubjectFromSlot(slot, {
     requested_action: asksConnections ? "connect" : "research",
     ...(requestedMethod ? { requested_method: requestedMethod } : {}),
-    explicit_text_computation: true,
   });
 }
 
@@ -304,6 +308,9 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
 
   const expressionProfileCommand = explicitExpressionProfileCommand(q);
   if (expressionProfileCommand) return expressionProfileCommand;
+
+  const expressionRoleCommand = explicitRoleExpressionCommand(q);
+  if (expressionRoleCommand) return expressionRoleCommand;
 
   const expressionAllMethodsCommand = explicitExpressionAllMethodsCommand(q);
   if (expressionAllMethodsCommand) return expressionAllMethodsCommand;
@@ -438,7 +445,7 @@ export function resolveExplicitNumericResearchSubject(question) {
   if (contextualBefore.test(q) || contextualAfter.test(q) || explicitRoleQuestion) return null;
 
   const exactNumber = q === literal;
-  const explicitNumberNoun = new RegExp(`(?:^|\\s)המספר\\s+${escaped}(?:$|\\s)`, "u").test(q);
+  const explicitNumberNoun = new RegExp(`(?:^|\\s)ה?מספר\\s+${escaped}(?:$|\\s)`, "u").test(q);
   const cuePrefix = q.slice(0, q.indexOf(literal));
   const researchCue = /(?:^|\s)(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי|צלול|צללי|לצלול|העמק|העמיקי|תעמיק|תעמיקי|להעמיק)(?:\s|$)/u.test(cuePrefix);
   const connectionCue = /(?:^|\s)(?:קשר|קשרים|הצלבה|הצלבות|השווה|השווי|תשווה|לחבר)(?:\s|$)/u.test(cuePrefix);

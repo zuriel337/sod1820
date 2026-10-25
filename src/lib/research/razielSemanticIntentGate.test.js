@@ -8,6 +8,7 @@ import {
   resolveExplicitHebrewExpressionPairResearchSubject,
   resolveExplicitHebrewExpressionResearchSubject,
   resolveExplicitNumericPairResearchSubject,
+  resolveExplicitNumericResearchSubject,
   resolveRazielConversationalAct,
   resolveRazielDeterministicGuidance,
   resolveRazielExpressionContinuationDirective,
@@ -415,4 +416,23 @@ test("an adjacent value is an observed value of the explicit expression, never a
   assert.equal(gate.resolveExplicitNumericResearchSubject("מה זה 337").value, 337);
   assert.equal(gate.resolveExplicitHebrewExpressionResearchSubject("תן לי גימטריות של 337"), null);
   assert.equal(gate.resolveExplicitHebrewExpressionResearchSubject("תן לי גימטריות של 12 34 שאול"), null);
+});
+
+test("ported grammar: 'גימטריה של X', 'המילה X', 'הביטוי X', 'מספר N' and an adjacent observed value", () => {
+  for (const [question, label, observed] of [
+    ["בדוק לי גימטריה של שאול", "שאול", undefined],
+    ["בדוק לי גימטריה של שאול 337", "שאול", 337],
+    ["המילה שאול", "שאול", undefined],
+    ["הביטוי עולה ויורד", "עולה ויורד", undefined],
+    ["תן לי את הגימטריות של השם שאול", "שאול", undefined],
+  ]) {
+    const subject = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(subject?.label, label, question);
+    assert.equal(subject?.observed_value, observed, question);
+    assert.equal(resolveExplicitNumericResearchSubject(question), null, `${question}: no second numeric subject`);
+  }
+  assert.equal(resolveExplicitNumericResearchSubject("מספר 337")?.value, 337);
+  for (const question of ["המילה הזאת", "המילה האחרונה", "השם שלי", "שאול"]) {
+    assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
+  }
 });
