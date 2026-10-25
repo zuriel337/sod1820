@@ -87,3 +87,30 @@ a.fc-name{color:var(--s29-accent-text);text-decoration:underline;text-underline-
 .fcp-spec-row small{display:block;color:var(--s29-muted);font-size:14px;line-height:1.4}
 .fcp-spec-chip{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;padding:8px 16px;border-radius:999px;border:1px solid transparent;background:var(--s29-accent-btn,var(--s29-accent));color:var(--s29-on-accent,#fff);font-size:16px;font-weight:700}
 .fcp-spec-share{background:transparent;border-color:var(--s29-line-strong);color:var(--s29-ink);font-weight:400}
+
+/* Colour roles (Design V2): ordinary text stays theme ink; colour carries meaning through the semantic roles.
+   Person = Brand gold identity ornament, numeric = action/indigo, category and depth = secondary violet,
+   discovery/source/channel = cyan, selected/action = accent. Brand roles are ornament, never status. */
+.fc-title-row{display:flex;align-items:flex-start;gap:14px}
+.fc-tile{flex:0 0 auto;display:grid;place-items:center;width:56px;height:56px;border-radius:18px;color:var(--s29-accent-text);border:1px solid color-mix(in srgb,var(--s29-brand-gold) 55%,transparent);background:linear-gradient(135deg,color-mix(in srgb,var(--s29-brand-sapphire) 26%,var(--s29-panel-soft)),color-mix(in srgb,var(--s29-brand-gold) 20%,var(--s29-panel-soft)));box-shadow:0 0 22px color-mix(in srgb,var(--s29-brand-sapphire) 30%,transparent)}
+.fc-card{border-top:4px solid var(--fc-tone,var(--s29-line))}
+.fc-card[data-tone=action]{--fc-tone:var(--s29-accent)}
+.fc-card[data-tone=follow]{--fc-tone:var(--s29-accent-secondary)}
+.fc-card[data-tone=channel]{--fc-tone:var(--s29-discovery)}
+.fc-card[data-tone=action] h2{color:var(--s29-accent-text)}
+.fc-card[data-tone=follow] h2{color:var(--s29-accent-secondary)}
+.fc-card[data-tone=channel] h2{color:var(--s29-discovery)}
+.fc-update[data-unread=true]{background:color-mix(in srgb,var(--s29-accent) 11%,var(--s29-panel-soft))}
+.fc-life li{border-top:4px solid var(--s29-line-strong)}
+.fc-life li[data-state=done]{border-top-color:var(--s29-accent);background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel-soft))}
+.fc-life li[data-state=needed]{border-top-color:var(--s29-discovery);background:color-mix(in srgb,var(--s29-discovery) 9%,var(--s29-panel-soft))}
+.fc-inputs li[data-active=true]{background:color-mix(in srgb,var(--s29-accent) 11%,var(--s29-panel-soft))}
+.fc-icon[data-icon=personal],.fc-icon-sm[data-icon=personal]{color:var(--s29-brand-gold);border-color:color-mix(in srgb,var(--s29-brand-gold) 60%,transparent);background:color-mix(in srgb,var(--s29-brand-gold) 12%,transparent)}
+.fc-icon[data-icon=number],.fc-icon-sm[data-icon=number]{color:var(--s29-accent-text);border-color:color-mix(in srgb,var(--s29-accent) 65%,transparent);background:color-mix(in srgb,var(--s29-accent) 14%,transparent)}
+.fc-icon[data-icon=layers],.fc-icon-sm[data-icon=layers]{color:var(--s29-accent-secondary);border-color:color-mix(in srgb,var(--s29-accent-secondary) 60%,transparent);background:color-mix(in srgb,var(--s29-accent-secondary) 13%,transparent)}
+.fc-icon[data-icon=signal],.fc-icon[data-icon=discovery],.fc-icon-sm[data-icon=signal],.fc-icon-sm[data-icon=discovery]{color:var(--s29-discovery);border-color:color-mix(in srgb,var(--s29-discovery) 60%,transparent);background:color-mix(in srgb,var(--s29-discovery) 12%,transparent)}
+.fc-icon[data-icon=posts],.fc-icon[data-icon=conversation]{color:var(--s29-muted);background:transparent}
+.fc-icon[data-available=true]{color:var(--s29-discovery);border-color:var(--s29-discovery);background:color-mix(in srgb,var(--s29-discovery) 12%,transparent)}
+.fc-follow-row{background:color-mix(in srgb,var(--s29-accent-secondary) 5%,var(--s29-panel-soft))}
+.fc-follow-row .fc-btn{border-color:color-mix(in srgb,var(--s29-accent) 70%,transparent);color:var(--s29-accent-text);background:color-mix(in srgb,var(--s29-accent) 12%,transparent)}
+.fc-eyebrow{color:var(--s29-brand-gold)}

@@ -26,6 +26,7 @@ or `WatchButton` was edited, so the three old stacked panels still render there 
 | Truthful states | loading ≠ empty; a failed read says "זה לא אומר שאין כלום" with retry; partial read keeps the other section; unfollow shows pending and an unconfirmed failure leaves the row; confirmed removes it |
 | Record time | Bilingual Hebrew + Gregorian date (relative time is Home-only per the record-time rule; the old panel used relative time) |
 | 2029 icons | Subject kinds and channels use the `NavigationIcon2029` catalogue (personal, number, layers, signal, discovery, posts, conversation, check); no emoji. There is no bell or mail icon in the catalogue, so email uses `posts` and device Push uses `signal`; a dedicated icon would be a catalogue extension for ZURIEL to approve |
+| Colour roles | Colour carries meaning through the Design V2 roles, not decoration: writer = Brand gold identity ornament, number = action/indigo, category = secondary violet, source/channel/discovery = cyan, section tops = action / violet / cyan, selected and followed = accent tint, identity tile = Crown gold + sapphire. Icons follow the contract (`currentColor`, theme text by default); colour is applied by the consumer. Icon colours are asserted at 3:1 or more and headings at 4.5:1 in all presets |
 | Design V2 | 18px reading, 16px UI, 14px metadata floor, 44px targets, three presets, accent text role, focus ring, reduced motion |
 
 ## Preview and fixtures

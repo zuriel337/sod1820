@@ -169,6 +169,18 @@ def check(browser, state, width, theme):
             node = page.locator(selector).first
             fg = rgb(node.evaluate('n => getComputedStyle(n).color')); bg = rgb(node.evaluate(BG))
             assert ratio(fg, bg) >= 4.5, ('contrast', selector, round(ratio(fg, bg), 2), fg, bg, tag)
+        # colour carries meaning: distinct semantic icon colours, each readable (non-text 3:1) on its surface
+        colors = {}
+        for icon in page.locator('.fc-icon[data-icon]').all():
+            name = icon.get_attribute('data-icon'); fg = rgb(icon.evaluate('n => getComputedStyle(n).color')); colors.setdefault(name, fg)
+            if name in ('personal', 'number', 'layers', 'signal', 'discovery'):
+                assert ratio(fg, rgb(icon.evaluate(BG))) >= 3, ('icon contrast', name, fg, theme, tag)
+        assert len({colors[k] for k in ('personal', 'number', 'layers', 'signal') if k in colors}) == 4, ('four semantic icon colours', colors, tag)
+        tones = {rgb(c.evaluate('n => getComputedStyle(n).borderTopColor')) for c in page.locator('.fc-card[data-tone]').all()}
+        assert len(tones) == 3, ('three section tones', tones, tag)
+        for selector in ('h2:visible',):
+            for heading in page.locator('.fc-card h2').all():
+                assert ratio(rgb(heading.evaluate('n => getComputedStyle(n).color')), rgb(heading.evaluate(BG))) >= 4.5, ('section heading contrast', tag)
         # keyboard: every interactive control is reachable and shows a visible focus ring
         seen = set()
         for _ in range(40):
