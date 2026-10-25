@@ -39,7 +39,7 @@ The active Claude contrast scope and the biography patch remain separate.
 ## Verification
 
 - Legacy and 2029 builds passed; Production lock, cheap hardening, Legacy containment and diff check passed.
-- Nine focused Node test files passed across writer personal, contributor and research-sync checks.
+- Twelve focused Node test files passed across writer personal, contributor and research-sync checks.
 - Existing built-App personal-chain browser test passed all ten functional flows, including canonical
   self redirect, shared editor/highlights/links, explicit portrait consent/revoke, public visitor
   view, native inbox/replies, failed-send draft, follow failure/retry, notifications, account-switch
