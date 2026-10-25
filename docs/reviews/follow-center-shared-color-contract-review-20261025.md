@@ -17,6 +17,10 @@ Claude source: `claude/follow-center-visual-20261025` at
 `6144e4b9ce21884756b67a420b34ef477ede7529`, compared with `e272747b`.
 The source commit changes the candidate JSX/CSS, its visual test, review note and captures.
 It does not change Design V2, the shared palette or the shared icon catalogue.
+Claude's subsequent AFTER `fe25b685-853d-49c6-8fcc-f0a63ce8805b` was independently verified:
+it records this exact head, acknowledges the local mappings and unavailable-Push defect, agrees
+with the shared-role approach, and releases the source scope. This closes the missing-handoff
+finding; it does not constitute ZURIEL's adoption of the proposed contract or visual acceptance.
 
 The committed Day 1440 and Night 390 captures were visually inspected. The candidate is now
 visibly colored and uses existing preset tokens. This is not a complete shared semantic mapping:
@@ -53,9 +57,9 @@ Color must not imply a research rank, verified identity, delivery or consent tha
 
 ## Bounded implementation handoff after adoption
 
-1. Recheck current shared-palette, shared-component and source-file ownership. Open a fresh
-   BEFORE with the exact accepted base and paths. The source's latest visible AFTER is still
-   `d2ef2740` for the preceding amendment; the `6144e4b9` delivery needs an exact updated handoff.
+1. After adoption, recheck current shared-palette, shared-component and source-file ownership.
+   Open a fresh BEFORE with the exact accepted base and paths. Source AFTER `fe25b685` now
+   matches `6144e4b9` and releases that source scope; it does not claim future shared files.
 2. Claude implements the accepted shared presentation through existing palette/component/tone
    seams, with ownership of only the necessary shared files. No copied Follow-center palette,
    parallel SVG set, theme store or broad Legacy restyling.
