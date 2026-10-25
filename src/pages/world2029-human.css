@@ -336,7 +336,7 @@
 }
 .sod29-world-journey-path-preview>b{
   grid-area:arrow;
-  color:var(--s29-accent);
+  color:var(--s29-accent-text);
 }
 .sod29-world-journey-path-preview>strong{
   grid-area:to;
@@ -459,7 +459,7 @@
   font-variant-numeric:tabular-nums;
 }
 .sod29-world-journey-path-values span{
-  color:var(--s29-accent);
+  color:var(--s29-accent-text);
 }
 .sod29-world-journey-path-values strong{
   color:var(--s29-hero);
@@ -1823,9 +1823,9 @@
 .sod29-world-subject-panel h3 small{font-size:14px;color:var(--s29-muted);font-weight:400}
 .sod29-world-subject-works ul,.sod29-world-sourcedepth-dir ul,.sod29-world-subject-topics ul{list-style:none;margin:8px 0;padding:0;display:grid;gap:4px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 .sod29-world-subject-works li,.sod29-world-sourcedepth-dir li,.sod29-world-subject-topics li{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:4px 12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft)}
-.sod29-world-subject-works a,.sod29-world-sourcedepth-dir a,.sod29-world-subject-topics a{color:var(--s29-accent);overflow-wrap:anywhere}
+.sod29-world-subject-works a,.sod29-world-sourcedepth-dir a,.sod29-world-subject-topics a{color:var(--s29-accent-text);overflow-wrap:anywhere}
 .sod29-world-subject-works small{font-size:14px;color:var(--s29-muted)}
-.sod29-world-subject-more{min-height:44px;padding:8px 18px;font-size:16px;border-radius:999px;border:1px solid var(--s29-accent);background:transparent;color:var(--s29-accent);cursor:pointer}
+.sod29-world-subject-more{min-height:44px;padding:8px 18px;font-size:16px;border-radius:999px;border:1px solid var(--s29-accent);background:transparent;color:var(--s29-accent-text);cursor:pointer}
 .sod29-world-sourcedepth-dir{font-size:16px;margin:12px 0}
 .sod29-world-sourcedepth-dir summary{min-height:44px;display:flex;align-items:center;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.sod29-world-subject-card{transition:none}.sod29-world-subject-rail{scroll-behavior:auto}}

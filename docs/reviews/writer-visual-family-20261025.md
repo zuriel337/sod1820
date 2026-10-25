@@ -64,3 +64,19 @@ that carry the former Night hex values keep their slots (compatibility constant,
 3. The shared ReactionBar keeps its legacy palette colours; only its size is lifted inside this family.
 4. The main community feed (outside the Person family) was not changed; its body text is already 18px and its action labels remain 14px.
 5. Person binding, research standing, historical tenure, active days and last-seen are unchanged and still unmeasured or unresolved.
+
+## Contrast fix after review 36d16f8d (P2)
+
+Cause: the Night palette change made `--s29-accent` the royal-blue action *fill* (`#315DD5`, about 3.2:1 on the Night card), but many 2029
+rules still used it as a *text* colour (for example the contact "← חזרה" control, contact status text, number/calculator/topic/world labels).
+Fix: every text use of `color: var(--s29-accent)` now uses `var(--s29-accent-text)` (Night `#A8C7FF`, 10–11.6:1; Day and Parchment text roles
+are unchanged in meaning). The new blue/violet/cyan action roles, fills, borders, focus ring, warm canvas, the three presets and stored ELS
+colours are unchanged. The one remaining use is the large glyph outline graphic in `spatialGlyphScene2029.css` (non-text, at least 3:1 on the card and page).
+
+Evidence: `test/accent-text-contrast-2029.test.mjs` (palette ratios and a source guard that fails on any `color: var(--s29-accent)`),
+`test/contact-back-contrast-2029.browser.py` (real writer page; Day/Parchment/Night x 390/1440; "← חזרה" computed colour is the text role,
+contrast 6.4 / 6.7 / 11.6 : 1, 18px, keyboard-reachable with a visible focus ring, clickable). The browser test fails on the previous code
+(colour `49,93,213`). Captures: `writer-visual-family-evidence-20261025/contact-back-*.png`.
+Re-run: writer visual family 27, medallion 27, community-person unification 16, routes, cold-entry, actions, follow safety,
+ELS native UI 34, palette roles, Production lock, both builds.
+Not re-run here: the page-editor save acknowledgement (separate task, unchanged) and the personal-area pages; no claim is made for them.
