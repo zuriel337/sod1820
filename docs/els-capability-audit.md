@@ -1189,3 +1189,54 @@ Deterministic level-9 measurements against branch base `048f56b7` are:
 | ELS 2029 route CSS, raw / gzip | 80,551 / 11,577 B | 83,036 / 11,798 B | +2,485 / +221 B |
 
 No Preview, Production, database, RLS, permission, merge or PR action was performed.
+
+## 25. FOCUSED CORE BUNDLE V1 — 2026-10-25
+
+The default `matrix-candidates` Research action now returns
+`els_focused_core_bundle_v1` before the existing broad axis-neighborhood package. It scans a fixed
+axis-relative core (12 rows and 12 columns) across source sequence `1` and compact `S−1/S/S+1`
+paths in both reading directions. It enumerates those local paths and looks them up in the derived
+language indexes, instead of iterating every vocabulary term over the full displayed matrix. The
+historical broad scan is retained behind one explicit `הרחב עוד טבעת` action.
+
+The focused package performs at most 12 canonical admission attempts, reports distinct scan,
+verification and source-projection phases, and remains cancellable. Its bounded mixed selection
+prevents exact source phrases alone from consuming every slot. Admitted rows expose exact skip,
+direction, relation to the primary `S`, `VERIFIED`/`SOURCE_EXACT` status and bounded source verses;
+positions and start coordinates do not cross the engine/host bridge.
+
+Candidate vocabulary now draws from canonical Tanakh language for either search scope, while
+occurrence discovery and verification remain inside the active scope. Bounded morphology covers
+construct/inflection, one prefix removal and one plene/defective spelling projection. These are
+candidate labels only. They create no evidence until an exact local path is present and the
+existing verifier admits it. Runtime focused discovery strips saved/public research vocabulary.
+
+Cold Golden tests replay the historical axes for `משיח טבת עשירי`, `יום משיח בא` and
+`קולומביה` against the real canonical corpus with `CLOUD_MATRICES=[]`. The scanner
+independently rediscovers all 14 recorded structural terms. Those records are test expectations,
+not runtime hints or a curated answer path.
+
+This is an implementation refinement of F03 and the existing Research bundle, not a new item in
+the 85-capability inventory. The disposition remains **76 LIVE/ABSORBED + 4 PARTIAL
+(B19/C04/C05/G02) + 4 PARKED (B12/B13/B14/B18) + 1 NEVER (B20) = 85**. It adds no engine, state,
+store, graph, Raziel, database/RLS/permission change, Production migration, `research_objects` or
+`decision_ledger`.
+
+Branch acceptance is green: the focused/cold-Golden contract suite passed **14/14**; the broad
+non-browser ELS run completed **192 pass / 0 fail / 3 skip** (the three unchanged executable SQL
+checks require local PostgreSQL); truth/privacy census passed **9/9**; canonical browser cutover
+passed **26/26**; Advanced and FORMS passed **1/1** each in isolated runs; and the complete Native
+browser suite passed **48/48**, including mobile, all three palettes, privacy, structures, exact
+return and the full Raziel acceptance chain. Both production build targets passed. The 2029 bundle
+budget passed **5/5** with entry **9 chunks / 174.2 KB gzip**.
+
+Deterministic level-9 measurements against branch base `871cc9a0` are:
+
+| Artifact | Before | Focused Core Bundle v1 | Delta |
+|---|---:|---:|---:|
+| hosted `tzofen.html`, raw / gzip | 1,655,917 / 967,923 B | 1,675,187 / 972,865 B | +19,270 / +4,942 B |
+| Legacy standalone, raw / gzip | 2,562,236 / 1,655,268 B | 2,581,506 / 1,660,243 B | +19,270 / +4,975 B |
+| ELS 2029 route JS, raw / gzip | 231,233 / 67,283 B | 232,681 / 67,743 B | +1,448 / +460 B |
+| ELS 2029 route CSS, raw / gzip | 83,036 / 11,798 B | 83,657 / 11,905 B | +621 / +107 B |
+
+No Preview, Production, database, RLS, permission, merge or PR action was performed.

@@ -44,15 +44,18 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
   vm.runInContext([
     normalization,
     source("addCandidateLexiconTerm"),
+    source("addCorpusMorphology"),
     source("buildCorpusCandidateLexicons"),
     source("addBasicHebrewYears"),
     source("researchCandidateLexicon"),
-    "buildCorpusCandidateLexicons(['בא יבואו יבואו אליהו','ארבעה','','','','מחוץ']);",
+    "buildCorpusCandidateLexicons(['בא יבואו יבואו אליהו הספינה מחכה','ארבעה','','','','מחוץ']);",
     "this.result=researchCandidateLexicon();",
+    "this.focused=researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true});",
   ].join("\n"), context);
 
   const rows = JSON.parse(JSON.stringify(context.result));
   const byTerm = new Map(rows.map((row) => [row.term, row]));
+  const focusedByTerm = new Map(JSON.parse(JSON.stringify(context.focused)).map((row) => [row.term, row]));
   assert.ok(byTerm.get("יבואו").sources.includes("corpus_native"));
   assert.ok(byTerm.get("יבואו").sources.includes("verified_research"));
   assert.ok(byTerm.get("אליהו").sources.includes("governed_core"));
@@ -63,9 +66,12 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
   assert.equal((phraseCode >> 10) & 3, 2, "canonical phrases stay in the compact phrase index");
   assert.equal(phraseCode & 31, 2, "the compact index preserves the first word boundary");
   assert.ok(byTerm.get("בית").sources.includes("visible_saved_research"));
-  assert.equal(byTerm.has("מחוצ"), false, "Torah scope excludes words that occur only after the five Torah books");
+  assert.equal(byTerm.has("מחוצ"), false, "broad Torah discovery keeps its historical scoped vocabulary");
+  assert.ok(focusedByTerm.get("מחוצ").sources.includes("corpus_native"), "focused discovery may use canonical Tanakh language while occurrence search remains Torah-scoped");
   assert.equal(byTerm.has("אמת"), true, "the historical governed seed remains available");
   assert.equal(byTerm.has("בא"), false, "short words stay out of broad matrix discovery");
+  assert.ok(focusedByTerm.get("ספינת").sources.includes("corpus_morphology"), "construct forms are derived from canonical language rather than a saved cipher");
+  assert.ok(focusedByTerm.get("מחכי").sources.includes("corpus_morphology"), "bounded inflection supports a local compound without a curated runtime term");
   const axisRows = JSON.parse(JSON.stringify(vm.runInContext("researchCandidateLexicon(true)", context)));
   assert.ok(axisRows.find((row) => row.term === "בא")?.sources.includes("corpus_native_adjacent"), "a short Torah word is available only to exact axis continuation");
 });
@@ -87,6 +93,7 @@ test("dynamic vocabulary remains candidate-only and is loaded only by explicit s
 
 test("axis-neighborhood discovery is explicit, bounded and independent of a continuation word", () => {
   assert.match(template, /AXIS_NEIGHBORHOOD_CONTRACT="els_axis_neighborhood_bundle_v1"/);
+  assert.match(template, /FOCUSED_CORE_CONTRACT="els_focused_core_bundle_v1"/);
   const start = template.indexOf('d.lens==="matrix-candidates"');
   const end = template.indexOf('d.lens==="structure-priority"', start);
   assert.ok(start >= 0 && end > start);
@@ -98,6 +105,9 @@ test("axis-neighborhood discovery is explicit, bounded and independent of a cont
   assert.doesNotMatch(block, /scanCandidatesBatched\(lexicon\.phraseIndex/, "the compact phrase index is never brute-force scanned");
   assert.doesNotMatch(block, /if\(!continuation\.words\.length\)return null/);
   assert.match(block, /bundleContract:AXIS_NEIGHBORHOOD_CONTRACT/);
+  assert.match(block, /scanMode:"focused"/);
+  assert.match(block, /independentOfSavedResearch:true/);
+  assert.match(block, /target\.depth==="expanded"/);
   assert.match(block, /axisSuggestion=chooseAxisNeighborhoodSuggestion/);
 
   const targetStart = template.indexOf('d.lens==="neighborhood-target"');
@@ -106,6 +116,62 @@ test("axis-neighborhood discovery is explicit, bounded and independent of a cont
   assert.match(targetBlock, /resolveAxisNeighborhoodTarget\(target,lexicon\.entries\)/);
   assert.match(targetBlock, /promoteVerified\([\s\S]*?policy:"AXIS_NEIGHBORHOOD_TARGET_V1"/);
   assert.doesNotMatch(targetBlock, /(?:positions|\bstart\b|\bp0\b|\bp1\b)\s*:/, "the suggested-axis response remains coordinate-free");
+});
+
+test("focused core cold Goldens are rediscovered from the canonical corpus without saved-cipher vocabulary", () => {
+  const corpus = readFileSync(new URL("../tools/els/data/tk-letters.txt", import.meta.url), "utf8").trim();
+  const verses = readFileSync(new URL("../tools/els/data/tk-vtext.txt", import.meta.url), "utf8").trimEnd().split("\n");
+  const hebrewNumber = (number) => {
+    const units = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
+    const tens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
+    let value = number;
+    let result = "";
+    while (value >= 400) { result += "ת";value -= 400; }
+    if (value >= 100) { result += ["", "ק", "ר", "ש"][Math.floor(value / 100)];value %= 100; }
+    return result + (value === 15 ? "טו" : value === 16 ? "טז" : tens[Math.floor(value / 10)] + units[value % 10]);
+  };
+  const context = vm.createContext({
+    T: corpus,
+    DICT: ["אליהו", "מלך", "שופר", "אמת"],
+    _corpusLexiconCache: { torah: null, tanakh: null },
+    _corpusAxisWordCache: { torah: null, tanakh: null },
+    _corpusPhraseCache: { torah: null, tanakh: null },
+    VCHAP: [[5846], [], [], [], []], TORAH_BOOKS: 5, HEBNUM: hebrewNumber,
+    st: { scope: "torah", raw: "", words: [] },
+    CLOUD_MATRICES: [], scopeN: () => 304805, heb: String,
+    COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1",
+    AXIS_NEIGHBORHOOD_CONTRACT: "els_axis_neighborhood_bundle_v1",
+    gridStep: (skip, width) => { const rows = Math.round(skip / width);const columns = skip - rows * width;return Math.max(Math.abs(rows), Math.abs(columns)) || 1; },
+  });
+  vm.runInContext([
+    normalization,
+    source("addCandidateLexiconTerm"), source("addCorpusMorphology"), source("buildCorpusCandidateLexicons"),
+    source("addBasicHebrewYears"), source("researchCandidateLexicon"), source("compactGeometryMeta"),
+    source("axisNeighborhoodMeta"), source("distanceToAnchors"), source("independentCandidateRows"),
+    source("focusedPhraseRow"), source("focusedCoreBox"), source("focusedCoreSkipMeta"),
+    source("focusedCandidateStrength"), source("focusedCompoundPartsScore"), source("focusedCoreRankScore"),
+    source("scanFocusedCoreCandidates"),
+    `buildCorpusCandidateLexicons(${JSON.stringify(verses)});`,
+  ].join("\n"), context);
+
+  const goldens = [
+    { label: "משיח טבת עשירי", skip: 1820, start: 15170, dir: 1, expected: ["יבואו", "אליהו", "ישלחמלאכו", "נשבעתינאמיהוה", "תשעו"] },
+    { label: "יום משיח בא", skip: 583, start: 239480, dir: -1, expected: ["ישלח", "מלכ", "מחכיתשפו", "לכפרעליכמ", "הארחשכ", "שופר"] },
+    { label: "קולומביה", skip: 4545, start: 248765, dir: 1, expected: ["יכלאש", "ספינת", "אשאכלה"] },
+  ];
+  for (const golden of goldens) {
+    context.st.raw = golden.label;
+    const axisLength = vm.runInContext(`norm(${JSON.stringify(golden.label)}).length`, context);
+    context.axis = { skip: golden.skip, start: golden.start, dir: golden.dir,
+      positions: Array.from({ length: axisLength }, (_, index) => golden.start + index * golden.skip * golden.dir) };
+    context.axis._structuralCells = new Set(context.axis.positions);
+    vm.runInContext("this.result=scanFocusedCoreCandidates(researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true}),researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true}),_corpusPhraseCache.tanakh,axis);", context);
+    const found = new Set(context.result.candidates.map((candidate) => vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context)));
+    for (const term of golden.expected) assert.ok(found.has(term), `${golden.label} independently rediscovers ${term}`);
+    assert.equal(context.result.box.rowPad, 12);
+    assert.equal(context.result.box.colRadius, 12);
+  }
+  assert.equal(context.CLOUD_MATRICES.length, 0, "saved matrices are not runtime discovery input");
 });
 
 test("result triage extends a short finding only through immediately adjacent cells on the same path", () => {

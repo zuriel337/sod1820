@@ -497,7 +497,7 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
   </div>;
 }
 
-function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpenFinding, onExploreAxis, addingFinding, onHighlightVerse, verseHighlight }) {
+function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpenFinding, onExploreAxis, onExpand, addingFinding, onHighlightVerse, verseHighlight }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
   if (lensResult.ok === false) return <p className="els29-native-muted">{lensResult.lens === "matrix-candidates" ? "אי אפשר לסרוק את המטריצה לפני שהציר הראשי אומת." : "המקור לא זמין לתא הזה במצב הנוכחי."}</p>;
 
@@ -507,6 +507,7 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
     const lexiconCounts = lensResult.lexicon?.counts;
     const compactCount = items.filter((item) => item.geometry?.stage === "A").length;
     const groups = Array.isArray(lensResult.groups) ? lensResult.groups : [];
+    const focused = lensResult.scanMode === "focused";
     const suggestion = lensResult.axisSuggestion;
     const existing = new Set(findings.map((finding) => finding.t));
     const sections = [
@@ -524,6 +525,8 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
       const rankNote = Array.isArray(item.ranking?.reasons) ? item.ranking.reasons.slice(0, 3).join(" · ") : "";
       const geometryNote = item.geometry ? `${item.geometry.stage === "A" ? "שלב א׳" : "שלב ב׳"} · ${item.geometry.relationLabel}` : "";
       const continuations = (item.continuations || []).slice(0, 3).map((word) => word.label || word.term);
+      const verses = Array.isArray(item.source?.verses) ? item.source.verses.filter((verse) => verse?.text).slice(0, 3) : [];
+      const verificationNote = item.status === "SOURCE_EXACT" ? "רצף מקור מדויק" : item.status === "VERIFIED" ? "מופע ELS מאומת" : "מועמד מקומי";
       return <div key={`${item.neighborhood?.band || "candidate"}-${item.term}`} className="els29-native-line-word" data-geometry-stage={item.geometry?.stage || undefined}>
         {openHit ? <button type="button" className="els29-native-discovered-term"
           onClick={() => onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })}
@@ -537,13 +540,18 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
           aria-label={openHit ? `הצג את המשך הציר של ${label}` : `הוסף את ${label} מהמטריצה לממצאים`}>
           {openHit ? "המשך הציר" : added ? "מאמת…" : "אמת והוסף"}
         </button>
+        {focused ? <div className="els29-native-core-proof">
+          <small><b>{verificationNote}</b> · דילוג <bdi>{item.skip}</bdi>{item.direction === "back" ? " · קריאה אחורה" : " · קריאה קדימה"}</small>
+          {item.skipMeta?.label ? <small>{item.skipMeta.label}</small> : null}
+          {verses.map((verse) => <p key={`${item.term}-${verse.ref}`}><b>{verse.ref}</b> · {verse.text}</p>)}
+        </div> : null}
       </div>;
     };
     return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings">
-      <strong>חבילת סביבת הציר · {items.length}</strong>
-      <small>המערכת קוראת את המטריצה עצמה: קודם מקבילות, חציות ורצפים ללא פער; רק אחריהם מבנים עם פערים. ממצא מקומי אינו חייב מילה נוספת על הציר כדי להופיע.</small>
-      <small>{compactCount} ממצאים בשלב א׳ · {Math.max(0, items.length - compactCount)} בשלב ב׳. זהו סדר בדיקה, לא ציון אמת; „אמת והוסף” עדיין מפעיל אימות קנוני.</small>
-      <small>המילון נבנה בעת הלחיצה משפת התנ״ך, מביטויים בני שתיים–שלוש מילים, מתבניות שנים ומהמחקר שכבר אומת.</small>
+      <strong>{focused ? "ליבת הציר" : "חבילת סביבת הציר"} · {items.length}</strong>
+      <small>{focused ? `נסרק האזור הממוקד סביב הציר: ${lensResult.focus?.rowPad || 12} שורות ו־${lensResult.focus?.colRadius || 12} עמודות, ברצף המקור ובדילוגים S−1, S, S+1.` : "זוהי הרחבה יזומה לחלון המטריצה המלא."}</small>
+      <small>{focused ? `${lensResult.verification?.verified || 0} מופעי ELS אומתו · ${lensResult.verification?.sourceExact || 0} רצפי מקור מדויקים.` : `${compactCount} ממצאים בשלב א׳ · ${Math.max(0, items.length - compactCount)} בשלב ב׳.`} זהו סדר בדיקה, לא ציון אמת.</small>
+      <small>המילון נגזר משפת התנ״ך הקנונית, מביטויים ומתבניות שנים. צפנים שמורים אינם מזינים את הגילוי.</small>
       {lexiconCounts ? <small>{lexiconCounts.total} מונחים זמינים · {lexiconCounts.corpus} מילים · {lexiconCounts.phrases || 0} ביטויים · {lexiconCounts.years || 0} שנות Basic · {lexiconCounts.research} מהמחקר{lensResult.lexicon?.fallback ? " · מקור הפסוקים לא נטען ולכן הרשימה חלקית" : ""}</small> : null}
       {suggestion ? <section className="els29-native-axis-suggestion" aria-label="ציר מחקר סמוך מוצע">
         <span>נמצא מרכז מחקר סמוך</span><strong>{suggestion.label || suggestion.term}</strong>
@@ -568,6 +576,8 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
           {section.items.map(renderItem)}
         </section>)}
       </div>
+      {focused && onExpand ? <button type="button" className="els29-native-expand-core" disabled={addingFinding}
+        onClick={() => onExpand({ hitId: lensResult.target?.hitId, researchBundle: lensResult.target?.researchBundle === true, depth: "expanded" })}>הרחב עוד טבעת</button> : null}
       {!items.length ? <p className="els29-native-muted">לא נמצאו בחלון הזה מילים או מבנים מקומיים מוכרים. אפשר להגדיל את חלון המטריצה ולסרוק שוב.</p> : null}
       {lensResult.truncated ? <small>נבדקו {lensResult.scanned} מועמדים מקומיים מתוך {lensResult.available}. מוצגת חבילה מוגבלת לפי מבנה וקרבה; היתר לא הוכרזו כחסרים.</small> : null}
       {findings.length >= 12 && items.some((item) => !findings.some((finding) => finding.t === item.term))
@@ -783,7 +793,10 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
     : request.lens === "result-triage"
       ? progress?.completed ? "ממיין את כל התוצאות ומחפש המשכים מדויקים…" : "טוען את שפת התורה ומכין מיון תוצאות…"
     : request.lens === "matrix-candidates"
-      ? "בונה את חבילת סביבת הציר: מקבילות, חציות, ביטויים ושנים…"
+      ? progress?.phase === "core" ? "סורק את ליבת הציר ברצף ובדילוגים S−1, S, S+1…"
+        : progress?.phase === "verify" ? "מאמת את מועמדי ליבת הציר מול המנוע הקנוני…"
+          : progress?.phase === "sources" ? "מצרף את פסוקי המקור לחבילה…"
+            : "מרחיב את חלון המטריצה לבקשתך…"
       : request.lens === "line-context" && request.target?.scan
         ? "קורא את המשך הציר ומזהה מילים…"
         : ["verse-context", "letter-context"].includes(request.lens)
@@ -894,7 +907,9 @@ function ActiveResearchBundle({ bundle, lensResult, pending, onBack }) {
     <header><span>חבילת מחקר · המלצה {bundle.rank || "—"}</span><strong>{bundle.label}</strong></header>
     <small>{(bundle.reasons || []).slice(0, 3).join(" · ")}</small>
     {pending ? <small role="status">המטריצה נפתחה; כעת נאספים הממצאים הקרובים והמשכי הצירים לאותה חבילה…</small>
-      : packageResult ? <><small role="status">החבילה מוכנה: {compact} ממצאים בשלב א׳ ללא פער · {Math.max(0, items.length - compact)} בשלב ב׳ · {groups.length} קבוצות מבנה.</small>
+      : packageResult ? <><small role="status">{packageResult.scanMode === "focused"
+        ? `ליבת החבילה מוכנה: ${packageResult.verification?.verified || 0} מופעי ELS מאומתים · ${packageResult.verification?.sourceExact || 0} רצפי מקור · ${groups.length} קבוצות מבנה.`
+        : `ההרחבה מוכנה: ${compact} ממצאים בשלב א׳ ללא פער · ${Math.max(0, items.length - compact)} בשלב ב׳ · ${groups.length} קבוצות מבנה.`}</small>
         {groups.length ? <small>מבנים מובילים: {groups.slice(0, 3).map((group) => group.label).join(" · ")}</small> : null}</>
         : <small>המטריצה פתוחה על העוגן המדויק. אפשר להמשיך בחיפוש ידני או לחזור לשלוש ההמלצות.</small>}
     <button type="button" disabled={pending} onClick={onBack}>{bundle.fromExtension ? "חזור בדיוק לתוצאות" : "חזור להמלצות ולכל התוצאות"}</button>
@@ -1116,6 +1131,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           <summary>{lensResult?.lens === "matrix-candidates" ? "חבילת סביבת הציר" : lensResult?.lens === "line-context" ? (lensResult.scan ? "תוצאות סריקת הציר" : "המשך הציר") : lensPending ? "טוען…" : "מקור ופסוק"}</summary>
           {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding}
             onAddGroup={onAddGroup} onExploreAxis={onExploreAxis}
+            onExpand={(expandTarget) => onDiscover(expandTarget)}
             onOpenFinding={(findingTarget) => { selectTarget(findingTarget.term, findingTarget.hitId);onScan(findingTarget); }} addingFinding={pending} />}
         </details> : null}
       </section>

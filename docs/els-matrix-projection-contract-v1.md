@@ -176,3 +176,36 @@ bands, explanations and verified hit identity, never candidate cell arrays or st
 This contract does not implement B12/B13, full 3D, `research_objects`, Raziel, schema/data changes,
 RLS/permissions, Production migrations or `decision_ledger`, and it does not make a significance,
 meaning or Truth claim.
+
+## Focused Core Bundle v1 — 25.10.2026
+
+`els_focused_core_bundle_v1` is the default first pass of the existing axis-neighborhood action.
+It bounds work relative to the verified axis rather than imposing an unrelated absolute skip cap:
+12 rows and 12 columns around the axis, exact source sequence `1`, and the compact skip family
+`S−1`, `S`, `S+1`, in both reading directions. The previous displayed-window scan remains available
+only through the explicit **הרחב עוד טבעת** action.
+
+The first package is capped at 12 verification attempts and deliberately reserves bounded lanes
+for exact source phrases, governed/core words, canonical Biblical words, possible Hebrew-year
+forms, morphology and local exact compounds. This prevents one dense verse row or one candidate
+class from consuming the complete package. Every ELS row passes the existing canonical verifier;
+a `skip=1` row is admitted only after exact literal source replay. Each projected row exposes its
+skip, reading direction, structural relationship to `S`, verification status and at most three
+source verses. Cell arrays and start coordinates remain internal to the canonical engine.
+
+Vocabulary is derived from the canonical Tanakh language even when occurrence scope is Torah.
+That broadens words and bounded spelling/morphology candidates only: a Tanakh vocabulary word must
+still occur and verify inside the active Torah scope before it can be presented as an ELS result.
+Runtime discovery removes `visible_saved_research` and `verified_research` sources. Historical
+saved ciphers are cold Golden fixtures only and never feed candidate generation or ranking.
+
+The cold Goldens are `משיח טבת עשירי`, `יום משיח בא` and `קולומביה`. Their recorded axes
+are replayed against the canonical corpus with an empty saved-matrix input. Acceptance requires
+independent rediscovery of the known structural terms, including `אליהו`, `תשעו`,
+`לכפר עליכם`, `ספינת`, `יכל אש` and `אש אכלה`. A Golden proves recall and
+contract stability, not meaning, statistical significance or a privileged runtime answer.
+
+Progress has separate `core`, `verify` and `sources` phases and remains cancellable. No work starts
+on profile entry. The slice adds no engine, store, graph, Provider, Journey, database object,
+permission or RLS change. B12/B13, numeric interpretation, Raziel and semantic explanation remain
+separate consumers after this structural base.

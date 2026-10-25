@@ -583,17 +583,21 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
    const lexicon=await page.evaluate(()=>window.__lens.lexicon);
    const ranking=await page.evaluate(()=>window.__lens.ranking);
    assert.equal(lexicon.contract,'els_dynamic_candidate_lexicon_v1');
+   assert.equal(await page.evaluate(()=>window.__lens.contract),'els_focused_core_bundle_v1');
+   assert.equal(await page.evaluate(()=>window.__lens.scanMode),'focused');
    assert.equal(await page.evaluate(()=>window.__lens.bundleContract),'els_axis_neighborhood_bundle_v1');
-   assert.deepEqual(ranking,{contract:'els_research_candidate_ranking_v1',geometryContract:'els_compact_geometry_priority_v1',order:'axis_neighborhood_band_then_distance_then_governed_research_evidence_then_continuation'});
+   assert.deepEqual(ranking,{contract:'els_research_candidate_ranking_v1',geometryContract:'els_compact_geometry_priority_v1',order:'focused_compact_band_then_distance_then_language_evidence'});
    assert.equal(lexicon.fallback,false,'the explicit scan loaded the canonical verse vocabulary');
+   assert.equal(lexicon.independentOfSavedResearch,true,'saved cipher terms do not feed focused discovery');
    assert.ok(lexicon.counts.corpus>1000,'the scan is not limited to the historical 85-term seed');
    assert.ok(lexicon.counts.phrases>0,'canonical two- and three-word source phrases participate without a curated phrase store');
    assert.ok(lexicon.counts.years>0,'Basic recognises generated Hebrew-year forms');
-   assert.ok(items.length>0,'the existing F03 window scan returns candidates');
-   assert.ok(items.some(item=>item.lexiconSources?.includes('governed_core')),'priority sampling preserves governed vocabulary instead of filling the cap with arbitrary rare corpus forms');
+   assert.ok(items.length>0&&items.length<=12,'the focused core verifies a bounded first package');
    assert.ok(items.every(item=>Array.isArray(item.continuations)&&Number.isFinite(item.distance)&&item.distance>=0&&['A','B'].includes(item.geometry?.stage)
      &&item.neighborhood?.contract==='els_axis_neighborhood_bundle_v1'),'a local candidate does not depend on another continuation and declares one shared neighborhood band');
-   assert.ok(items.every(item=>!Object.keys(item).some(key=>['positions','start','skip','dir','rc'].includes(key))),'candidate coordinates never leave the canonical engine');
+   assert.ok(items.every(item=>Number.isFinite(item.skip)&&['fwd','back'].includes(item.direction)&&item.skipMeta?.code&&['VERIFIED','SOURCE_EXACT'].includes(item.status)),'each focused row exposes verified skip structure without coordinates');
+   assert.ok(items.every(item=>!Object.keys(item).some(key=>['positions','start','dir','rc'].includes(key))),'candidate coordinates never leave the canonical engine');
+   assert.ok(items.every(item=>Array.isArray(item.source?.verses)&&item.source.verses.every(verse=>verse.ref&&typeof verse.text==='string')),'each row carries its bounded source projection');
    assert.ok(items.every(item=>item.continuations.every(word=>Object.keys(word).sort().join(',')==='label,lexiconSources,term')),'continuations expose terms and bounded lexical provenance only');
    assert.ok(items.every(item=>item.ranking?.contract==='els_research_candidate_ranking_v1'&&Array.isArray(item.ranking.reasons)),'each candidate carries bounded explainable ranking evidence');
    const priorities=items.map(item=>item.neighborhood.priority);
@@ -604,14 +608,15 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
    }
    assert.equal(await page.locator('[data-experience-capability="els-all-matrix-findings"]').isVisible(),true);
    const candidateText=await page.locator('[data-experience-capability="els-all-matrix-findings"]').innerText();
-   assert.match(candidateText,/שלב א׳[\s\S]*ללא פער[\s\S]*שלב ב׳/);
-   assert.match(candidateText,/משפת התנ״ך[\s\S]*מביטויים[\s\S]*שנות Basic/);
-   assert.match(candidateText,/אימות קנוני/);
+   assert.match(candidateText,/ליבת הציר[\s\S]*S−1, S, S\+1/);
+   assert.match(candidateText,/שפת התנ״ך הקנונית[\s\S]*צפנים שמורים אינם מזינים/);
+   assert.match(candidateText,/דילוג[\s\S]*(?:מופע ELS מאומת|רצף מקור מדויק)/);
+   assert.equal(await button(page,'הרחב עוד טבעת').count(),1,'the broad historical scan is an explicit second action');
    const candidateList=page.getByRole('region',{name:'חבילת סביבת הציר לפי סדר עדיפות'});
    const bounded=await candidateList.evaluate(node=>({clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
    assert.ok(bounded.clientHeight<=360&&bounded.scrollHeight>bounded.clientHeight,'the long scan list is bounded and internally scrollable on mobile');
    const existing=new Set(before.findings.map(finding=>finding.t));
-   const candidate=items.find(item=>!existing.has(item.term));
+   const candidate=items.find(item=>item.status==='VERIFIED'&&!existing.has(item.term));
    assert.ok(candidate,'fixture exposes an unsaved candidate');
    await activate(page,`הוסף את ${candidate.label||candidate.term} מהמטריצה לממצאים`);
    await page.waitForFunction(term=>window.__state?.findings?.some(finding=>finding.t===term&&finding.hits?.some(hit=>hit.verified)),candidate.term);
@@ -2177,7 +2182,7 @@ test('a crossed meeting opens the same axis-neighborhood research package and ra
   await page.waitForFunction(id=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.target?.researchBundle===true&&window.__lens?.target?.hitId===id,meeting.hitId,{timeout:90000});
   const crossPackage=await page.evaluate(()=>window.__lens);
   assert.equal(crossPackage.bundleContract,'els_axis_neighborhood_bundle_v1');
-  assert.equal(crossPackage.ranking.order,'axis_neighborhood_band_then_distance_then_governed_research_evidence_then_continuation');
+  assert.equal(crossPackage.ranking.order,'focused_compact_band_then_distance_then_language_evidence');
   assert.ok(crossPackage.items.length>0);
   assert.ok(crossPackage.items.every(item=>item.neighborhood?.contract==='els_axis_neighborhood_bundle_v1'),'cross findings use the shared neighborhood bands, not a second ranking engine');
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
