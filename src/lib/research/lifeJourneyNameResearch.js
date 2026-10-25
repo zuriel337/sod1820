@@ -28,7 +28,7 @@ export function lifeJourneyGematriaMethodLabel(methodKey) {
 function safeTracks(document) {
   const tracks = Array.isArray(document?.tracks) ? document.tracks : [];
   const els = tracks.find(track => clean(track?.id).toLowerCase() === "els");
-  const elsRan = Boolean(els?.ran) || Number(els?.count || 0) > 0 || els?.status === "ok";
+  const elsRan = els?.ran === true || Number(els?.count || 0) > 0 || els?.status === "ok";
   if (elsRan) {
     throw new Error("life_journey_name_research_els_boundary");
   }
@@ -78,10 +78,12 @@ export async function runLifeJourneyNameResearch(name, providers = {}) {
   const rawName = clean(name);
   if (!rawName) return null;
   const fetchGematria = providers.fetchGematria || fetchCanonicalGematriaFindings;
-  const fetchNameLab = providers.fetchNameLab || getNameMultiWithoutEls;
+  const fetchNameLab = providers.fetchNameLab === false
+    ? null
+    : providers.fetchNameLab || getNameMultiWithoutEls;
   const [gematriaFindings, nameDocument] = await Promise.all([
     fetchGematria(rawName),
-    fetchNameLab(rawName),
+    fetchNameLab ? fetchNameLab(rawName) : Promise.resolve(null),
   ]);
   return projectLifeJourneyNameResearch({ name: rawName, gematriaFindings, nameDocument });
 }
