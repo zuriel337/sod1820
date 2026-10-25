@@ -2212,6 +2212,22 @@ test('native results: regular and crossed searches expose selectable results in 
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
 });
 
+test('literal topic context ranks both verified בלעם הרשע occurrences and exposes canonical source evidence',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('בלעם הרשע');
+  await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='בלעמהרשע',null,{timeout:90000});
+  const results=await page.evaluate(()=>window.__state.search.occurrences);
+  assert.ok(results?.total>=2,'the canonical search retains both verified occurrences');
+  await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.setId===id,results.id,{timeout:90000});
+  const contextual=await page.evaluate(()=>window.__lens.items.filter(item=>item.sourceContexts?.some(context=>context.term==='בלעמ')));
+  assert.ok(contextual.length>=2,'both occurrences carry the literal בלעם source context');
+  assert.ok(contextual.slice(0,2).every(item=>item.reasons.some(reason=>reason.includes('אותו הקשר מופיע ב־'))),'the repeated literal context is explained in the recommendations');
+  assert.ok(contextual.slice(0,2).every(item=>item.tier==='recommended'),'the two exact context rows lead the research package');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
 test('native search verification failure, retry and cancellation recover in one clean session',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  await withNative({width:390,height:844},async page=>{
