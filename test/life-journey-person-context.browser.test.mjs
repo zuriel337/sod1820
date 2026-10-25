@@ -124,6 +124,7 @@ function lifeJourneyFixturePlugin() {
         row.status="approved";row.claimant_person_id=personId();row.consumed_at=new Date().toISOString();write(rows);return {id:row.id,target_ref:row.target_ref,status:"approved"};
       }
       export async function revokeFamilyClaim(id){const rows=read();const row=rows.find(item=>item.id===id&&item.issuer_owner_id===personId());if(!row||row.status!=="pending")throw new Error("not authorized");row.status="revoked";row.reviewed_at=new Date().toISOString();write(rows);return {id,status:"revoked"};}
+      export async function reverseFamilyClaim(id){const rows=read();const row=rows.find(item=>item.id===id);if(!row||row.status!=="approved")throw new Error("only an approved claim can be reversed");row.status="reversed";write(rows);return {id,status:"reversed"};}
       export async function sendFamilyInvitationEmail(input){window.__familyInvitationEmailCalls.push({...input});return {ok:true};}
       export async function shareFamilyInvitationPrivately(token){window.__familyInvitationShareCalls.push(token);return {channel:"native_share"};}
       export function familyClaimErrorMessage(error){const message=String(error?.message||error);if(message.includes("issuer cannot redeem own"))return "אי אפשר לפדות הזמנה שנוצרה מהחשבון שלך. את הקוד פודים מהחשבון הנפרד של בן המשפחה.";if(message.includes("invalid token"))return "קוד ההזמנה אינו תקין.";return "לא ניתן להשלים כרגע את פעולת החיבור. המידע הפרטי לא שונה.";}
@@ -249,7 +250,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await family.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     await family.getByRole("heading", { name: "אותו אדם, גם כשנפתח חשבון נפרד" }).waitFor();
     assert.ok(await family.getByText("זהות משפחתית · חשבון עתידי אפשרי").count() >= 1);
-    assert.ok(await family.getByText(/מקור: הוזן במסע הזה/).count() >= 2);
+    assert.equal(await family.getByText(/מקור הפרטים: הוזן בחשבון שלך/).count(), 1);
+    assert.ok(await family.getByText(/מקור הפרטים: הוזן על ידך במסע החיים/).count() >= 1);
     const accountContinuity = family.locator('[data-experience-capability="life-journey-account-continuity"]');
     const childClaimCard = accountContinuity.locator("article", { hasText: "ילד בדיקה" });
     await childClaimCard.getByRole("button", { name: "צור הזמנה לחיבור חשבון" }).waitFor();
@@ -314,6 +316,9 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), false, "family dates are not researched by selection");
     await family.getByRole("button", { name: "חקור 2 אנשים יחד" }).click();
     await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
+    await family.getByRole("heading", { name: "המשפחה כמטריצה אחת" }).waitFor();
+    assert.equal(await family.locator('.person-journey-relation-list article').count(), 1, "two selected people produce one normalized cross-person pair");
+    assert.match(await family.getByLabel("מסר המחקר המשפחתי המאוחד").textContent(), /לאחר נרמול התלות/);
     await family.locator(".person-journey-family-shared", { hasText: "2 אנשים" }).waitFor();
     assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "ילד בדיקה")), true, "explicit family research includes the selected child through the canonical method profile");
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab")), false, "Life Journey never calls NameLab");
@@ -457,6 +462,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     const ownerContinuity = page.locator('[data-experience-capability="life-journey-account-continuity"]');
     await ownerContinuity.locator("article", { hasText: "ילד בדיקה" }).getByText("זהות אומתה").waitFor();
+    await ownerContinuity.locator("article", { hasText: "ילד בדיקה" }).getByRole("button", { name: "נתק אימות חשבון" }).waitFor();
+    await page.getByText(/זהות אומתה בחשבון נפרד; הפרטים עצמם לא אושרו אוטומטית/).waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef, "account-scoped Research Context returns only for the owner account");
 
     const privacy = await page.evaluate(() => ({
@@ -476,7 +483,9 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(privacy.ledger.members.length, 2);
     assert.equal(privacy.ledger.relations.length, 1);
     assert.equal(privacy.ledger.members.find(member => member.source_ref.endsWith(":self"))?.meta?.birth_place, "עיר בדיקה");
+    assert.equal(privacy.ledger.members.find(member => member.source_ref.endsWith(":self"))?.meta?.profile_source, "account_owner_entered");
     assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.birth_place, "יישוב מעודכן");
+    assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.profile_source, "journey_owner_entered");
     assert.ok(privacy.hintReads.every(call => call.options?.fallbackLocal === false));
     assert.equal(privacy.storageValues.some(value => String(value).includes(invitationToken)), false);
     for (const privateValue of ["הורה בדיקה", "ילד בדיקה", "1990-02-15", "2020-03-04", "עיר בדיקה", "יישוב בדיקה", "יישוב מעודכן"]) {

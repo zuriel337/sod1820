@@ -74,6 +74,16 @@ export async function revokeFamilyClaim(claimId) {
   return Object.freeze({ id: clean(data?.id), status: clean(data?.status) });
 }
 
+export async function reverseFamilyClaim(claimId) {
+  const id = clean(claimId);
+  if (!id) throw new Error("family_claim_missing_id");
+  const { data, error } = await requireClient().rpc("fn_reverse_family_claim", {
+    p_claim_id: id,
+  });
+  throwRpcError(error);
+  return Object.freeze({ id: clean(data?.id), status: clean(data?.status) });
+}
+
 export async function sendFamilyInvitationEmail({ claimId, rawToken, recipientEmail }) {
   const claim = clean(claimId);
   const token = clean(rawToken).toLowerCase();
@@ -123,5 +133,6 @@ export function familyClaimErrorMessage(error) {
   if (/invitation_not_available|FunctionsHttpError/i.test(message)) return "לא ניתן לשלוח את ההזמנה הזאת. בדקו שהיא עדיין ממתינה ושהקוד שייך לה.";
   if (/share_unavailable|NotAllowedError|AbortError/i.test(message)) return "השיתוף בוטל או אינו זמין במכשיר הזה. אפשר להעתיק את הקוד ידנית.";
   if (/arbitration required|duplicate key|family_claims_target_active_uq/i.test(message)) return "כבר קיים חיבור פעיל או ממתין עבור האדם הזה.";
+  if (/only an approved claim can be reversed/i.test(message)) return "רק חיבור זהות מאושר ניתן לנתק.";
   return "לא ניתן להשלים כרגע את פעולת החיבור. המידע הפרטי לא שונה.";
 }

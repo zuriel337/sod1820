@@ -25,6 +25,7 @@ import {
   familyClaimErrorMessage,
   listMyFamilyClaims,
   redeemFamilyInvitation,
+  reverseFamilyClaim,
   revokeFamilyClaim,
   sendFamilyInvitationEmail,
   shareFamilyInvitationPrivately,
@@ -39,6 +40,10 @@ import {
   lifeJourneyViewFromContext,
 } from "../lib/research/lifeJourneyPersonContext.js";
 import { runLifeJourneyNameResearch } from "../lib/research/lifeJourneyNameResearch.js";
+import {
+  createSupabaseLifeJourneyFamilyProviders,
+  runLifeJourneyFamilyResearch,
+} from "../lib/research/lifeJourneyFamilyResearch.js";
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import "./person-journey.css";
@@ -445,6 +450,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         birthdate_iso: date || null,
         ...(variant === "2029" ? { birth_place: place || null } : {}),
         profile_version: "life_journey_2029_v1",
+        profile_source: "account_owner_entered",
+        profile_source_person_ref: selfRef,
+        profile_updated_at: new Date().toISOString(),
       });
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
@@ -486,10 +494,21 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     try {
       const editingRef = editingMemberRef ? familyMemberRawRef(personId, editingMemberRef) : null;
       if (editingMemberRef && !editingRef) throw new Error("הפניית בן המשפחה אינה תקינה לעריכה.");
+      const existingMember = editingMemberRef ? members.find(member => clean(member.source_ref) === editingMemberRef) : null;
+      const existingMeta = metaObject(existingMember?.meta);
+      const namePieces = name.split(/\s+/u).filter(Boolean);
+      const memberFirstName = namePieces.shift() || name;
+      const memberSurname = namePieces.join(" ");
       const member = await upsertFamilyMember(personId, editingRef, name, {
+        ...existingMeta,
+        first_name: memberFirstName,
+        surname: memberSurname || null,
         birthdate_iso: clean(newMemberBirthdate) || null,
         ...(variant === "2029" ? { birth_place: clean(newMemberBirthPlace) || null } : {}),
         profile_version: "life_journey_2029_v1",
+        profile_source: existingMeta.profile_source || "journey_owner_entered",
+        profile_source_person_ref: existingMeta.profile_source_person_ref || selfRef,
+        profile_updated_at: new Date().toISOString(),
       });
       const memberRef = clean(member?.source_ref);
       if (!editingMemberRef && memberRef && selfRef && newMemberRelation !== "none") {
@@ -569,6 +588,23 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       setFamilyClaimBusy(null);
     }
   }, [claimToken, familyClaims.state, refreshFamilyClaims]);
+
+  const disconnectApprovedAccount = useCallback(async (claim) => {
+    const claimId = clean(claim?.id);
+    if (!claimId || claim?.status !== "approved") return;
+    if (!window.confirm("לנתק את אימות החשבון מהזהות המשפחתית? המחקר הפרטי של שני החשבונות לא יימחק.")) return;
+    setFamilyClaimBusy(`reverse:${claimId}`);
+    setFamilyClaimNotice(null);
+    try {
+      await reverseFamilyClaim(claimId);
+      setFamilyClaimNotice({ type: "success", text: "אימות החשבון נותק. רשומת בן המשפחה והמחקר הפרטי נשארו ללא שינוי." });
+      await refreshFamilyClaims();
+    } catch (error) {
+      setFamilyClaimNotice({ type: "error", text: familyClaimErrorMessage(error) });
+    } finally {
+      setFamilyClaimBusy(null);
+    }
+  }, [refreshFamilyClaims]);
 
   const copyInvitationToken = useCallback(async (targetRef) => {
     const token = invitationTokens[targetRef]?.token;
@@ -769,9 +805,10 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       verified_authority: { source: "supabase_auth", subject_verified: true },
     }, "authenticated_user");
     const crossProvider = createSupabasePersonalDateCrossProvider(supabase);
+    const familyProviders = createSupabaseLifeJourneyFamilyProviders(supabase);
 
     try {
-      const rows = await Promise.all(selectedMembers.map(async member => {
+      const rowsPromise = Promise.all(selectedMembers.map(async member => {
         const profile = memberResearchProfile(member);
         try {
           const dateRepresentation = profile.birthdate
@@ -808,7 +845,23 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           });
         }
       }));
-      setFamilyResearch({ state: "ready", rows, sharedValues: sharedFamilyValues(rows), error: null });
+      const unifiedPromise = runLifeJourneyFamilyResearch({
+        members: selectedMembers.map(member => {
+          const profile = memberResearchProfile(member);
+          return { memberRef: clean(member.source_ref), fullName: profile.fullName };
+        }),
+        providers: familyProviders,
+      });
+      const [rows, unified] = await Promise.all([rowsPromise, unifiedPromise]);
+      setFamilyResearch({
+        state: "ready",
+        rows,
+        sharedValues: sharedFamilyValues(rows),
+        connections: unified.connections,
+        message: unified.message,
+        coverage: unified.coverage,
+        error: null,
+      });
       track("journey_person", null, "family_research_explicit");
     } catch (error) {
       setFamilyResearch({ state: "error", rows: [], sharedValues: [], error: personJourneyErrorMessage(error) });
@@ -1008,6 +1061,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         <div aria-describedby="life-journey-family-scope-help">
           {members.map(member => {
             const memberRef = clean(member.source_ref);
+            const memberMeta = metaObject(member.meta);
+            const identityClaim = latestClaimByTarget.get(memberRef);
             return <label key={memberRef}>
               <input
                 type="checkbox"
@@ -1017,7 +1072,10 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
               <span>
                 <strong>{member.name}</strong>
                 <small>{memberRef === selfRef ? "חשבון ראשי מחובר" : "זהות משפחתית · חשבון עתידי אפשרי"}</small>
-                <small className="person-journey-member-source">מקור: הוזן במסע הזה</small>
+                <small className="person-journey-member-source">
+                  מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
+                  {identityClaim?.status === "approved" ? " · זהות החשבון אומתה" : ""}
+                </small>
               </span>
             </label>;
           })}
@@ -1110,6 +1168,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
                     disabled={Boolean(familyClaimBusy)}
                     onClick={() => cancelAccountInvitation(claim)}
                   >{familyClaimBusy === `revoke:${claim.id}` ? "מבטל…" : "בטל הזמנה"}</button> : null}
+                  {claim?.status === "approved" ? <button
+                    type="button"
+                    disabled={Boolean(familyClaimBusy)}
+                    onClick={() => disconnectApprovedAccount(claim)}
+                  >{familyClaimBusy === `reverse:${claim.id}` ? "מנתק…" : "נתק אימות חשבון"}</button> : null}
                 </footer>
               </article>;
             })}
@@ -1200,6 +1263,19 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <div><small>מחקר מפורש</small><h3>מפת המחקר המשפחתית</h3></div>
           <span>{familyResearch.rows.filter(row => row.state === "ready").length} מתוך {familyResearch.rows.length} הושלמו</span>
         </div>
+        <article className="person-journey-research-message" aria-label="מסר המחקר המשפחתי המאוחד">
+          <small>מחקר משפחתי מאוחד · מנורמל</small>
+          <h3>המשפחה כמטריצה אחת</h3>
+          <p>{familyResearch.message}</p>
+          <span>{familyResearch.coverage?.searchedPairCount || 0} זוגות אנשים נבדקו בהפעלה המפורשת הזאת. התוצאה נשארת בזיכרון המסך ואינה נשמרת כאמת על המשפחה.</span>
+        </article>
+        {familyResearch.connections?.length ? <section className="person-journey-relation-list" aria-label="חיבורים מנורמלים בין בני המשפחה">
+          <header><div><small>הצלבות בין אנשים</small><h3>חיבורים שנמצאו</h3></div><span>{familyResearch.connections.length} חיבורים</span></header>
+          <div>{familyResearch.connections.map(connection => <article key={connection.id}>
+            <p><strong>{connection.left.name}</strong> ↔ <strong>{connection.right.name}</strong></p>
+            <small>{Number.isSafeInteger(connection.independentGroupCount) ? `${connection.independentGroupCount} קבוצות שיטה עצמאיות לאחר נרמול` : "חיבור מנוע שעבר נרמול תלות"}</small>
+          </article>)}</div>
+        </section> : null}
         {familyResearch.sharedValues.length ? <div className="person-journey-family-shared">
           <small>ערכים שמופיעים אצל לפחות שני אנשים שנבחרו</small>
           <div>{familyResearch.sharedValues.map(item => <span key={item.value}><strong>{item.value}</strong> · {item.count} אנשים</span>)}</div>
@@ -1237,12 +1313,16 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       {familyMembers.length ? <div className="person-journey-family-list">
         {familyMembers.map((member) => {
           const memberMeta = metaObject(member.meta);
+          const identityClaim = latestClaimByTarget.get(clean(member.source_ref));
           return <article key={member.source_ref}>
             <div>
               <strong>{member.name}</strong>
               {memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}
               {variant === "2029" && memberMeta.birth_place ? <small>מקום לידה · {memberMeta.birth_place}</small> : null}
-              <small className="person-journey-member-source">מקור: הוזן במסע הזה · זהות ניתנת לחיבור לחשבון</small>
+              <small className="person-journey-member-source">
+                מקור הפרטים: {memberMeta.profile_source === "journey_owner_entered" ? "הוזן על ידך במסע החיים" : "רשומת Ledger פרטית קיימת"}
+                {identityClaim?.status === "approved" ? " · זהות אומתה בחשבון נפרד; הפרטים עצמם לא אושרו אוטומטית" : " · זהות ניתנת לחיבור לחשבון"}
+              </small>
             </div>
             {variant === "2029" ? <div className="person-journey-member-actions">
               <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>פתח מחקר שם</button>
