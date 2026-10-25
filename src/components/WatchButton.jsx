@@ -52,18 +52,19 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
 
   useEffect(() => { busyRef.current = false; mutationRef.current += 1; }, [scopeKey]);
 
-  const load = useCallback(() => {
+  const load = useCallback((clearOperationError = false) => {
     if (!topic) return;
     const key = scopeKey;
     const seq = ++loadSeqRef.current;
     const mutation = mutationRef.current;
-    patch(key, { loadFailed: false });
+    patch(key, { loadFailed: false, known: false });
     // The initial/verify read must not overwrite a toggle that started or completed after it was requested.
     const current = () => scopeRef.current === key && loadSeqRef.current === seq && mutationRef.current === mutation;
     Promise.resolve().then(() => io.read(idObj))
       .then(p => {
         if (!current()) return;
-        patch(key, { following: includesFollowSubject(p?.topics, topic), pushOn: !!p?.channels?.includes("push"), known: true, loadFailed: false });
+        patch(key, { following: includesFollowSubject(p?.topics, topic), pushOn: !!p?.channels?.includes("push"), known: true, loadFailed: false,
+          ...(clearOperationError === true ? { toggleError: "" } : {}) });
       })
       .catch(() => { if (current()) patch(key, { loadFailed: true }); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,7 +86,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     mutationRef.current += 1;
     if (!ack) {
       // No acknowledgment: the outcome is unknown, so show the prior state, say we did not get confirmation, and re-read.
-      patch(key, { busy: false, following: !next, known: false, toggleError: "לא קיבלנו אישור שהמעקב עודכן. בדקו את המצב ונסו שוב." });
+      patch(key, { busy: false, following: !next, known: false, justFollowed: false, showReg: false, toggleError: "לא קיבלנו אישור שהמעקב עודכן. בדקו את המצב ונסו שוב." });
       load();
       return;
     }
@@ -113,12 +114,15 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     : null;
   const locked = busy || !known;
 
-  // Design V2 presentation through the existing variant seam. State, IO and scope guards above are shared and unchanged;
-  // other variants (and the default) render exactly as before.
+  // Design V2 presentation through the existing variant seam. The shared controller owns I/O and scope guards;
+  // the view receives authoritative completion facts separately from the saved follow value.
   if (variant === "2029") {
-    return <WatchControl2029 following={following} busy={busy} known={known} loadFailed={loadFailed} toggleError={toggleError} justFollowed={justFollowed}
+    // A saved read may resume identity without being a newly confirmed mutation.
+    const savedFollowKnown = known && following && !busy && !loadFailed && !toggleError;
+    return <WatchControl2029 following={following} busy={busy} known={known} loadFailed={loadFailed} toggleError={toggleError}
+      confirmed={savedFollowKnown && justFollowed} identityRequired={savedFollowKnown && !user?.id}
       signedIn={!!user?.id} showReg={showReg} pushOn={pushOn} pushMsg={pushMsg} pushOffered={!noPush && pushReady} label={label} followLabel={followLabel} explainer={explainer}
-      onToggle={toggle} onRetry={load} onTurnOnPush={turnOnPush}
+      onToggle={toggle} onRetry={() => load(true)} onTurnOnPush={turnOnPush}
       onVerifyIdentity={() => typeof onVerifyIdentity === "function" ? onVerifyIdentity() : patch(scopeKey, { showReg: true })}
       identitySlot={<EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => patch(scopeKey, { showReg: false, justFollowed: false })} />} />;
   }

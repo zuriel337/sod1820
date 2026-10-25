@@ -8,7 +8,7 @@ import "./watchControl2029.css";
 // keeps the follow engine, scope guards and strict states and hands this view what it needs. Colour comes only from the
 // shared treatment resolver; status is always visible text (colour never states availability or success).
 export default function WatchControl2029({
-  following, busy, known, loadFailed, toggleError, justFollowed, signedIn, showReg, pushOn, pushOffered, pushMsg,
+  following, busy, known, loadFailed, toggleError, confirmed, identityRequired, signedIn, showReg, pushOn, pushOffered, pushMsg,
   label, followLabel, explainer, onToggle, onRetry, onTurnOnPush, onVerifyIdentity, identitySlot,
 }) {
   const palette = use2029Palette();
@@ -16,7 +16,6 @@ export default function WatchControl2029({
   const state = busy || unknown ? "loading" : loadFailed || toggleError ? "unknown" : "active";
   const vars = treatmentVars(palette, { purpose: "action", state });
   const message = toggleError || (loadFailed ? "לא ניתן לאמת את מצב המעקב כרגע." : "");
-  const confirmed = justFollowed && following && !busy;
   return <div className="sod29-watch" style={vars} data-following={following} data-state={state}>
     <button type="button" className="sod29-watch-btn" onClick={onToggle} disabled={busy || !known} aria-pressed={following} aria-busy={busy || unknown || undefined}>
       <NavigationIcon2029 name={following ? "check" : "add"} size={20} />
@@ -26,7 +25,7 @@ export default function WatchControl2029({
     {!following && explainer && !unknown ? <p className="sod29-watch-note">{explainer}</p> : null}
     {message ? <p className="sod29-watch-alert" role="alert">{message}{!busy ? <button type="button" className="sod29-watch-retry" onClick={onRetry}>ניסיון נוסף</button> : null}</p> : null}
     {confirmed ? <p className="sod29-watch-note" role="status">המעקב אושר. ערוץ עדכון נבחר בנפרד, בהסכמה מפורשת.</p> : null}
-    {confirmed && !signedIn ? <div className="sod29-watch-card">
+    {identityRequired && !signedIn ? <div className="sod29-watch-card">
       <div className="sod29-watch-card-head"><IconTile2029 name="personal" purpose="discovery" /><strong>שמרו את המעקב בזהות שלכם</strong></div>
       <p>הצעד הבא הוא אימות זהות בלבד. אימות לא מפעיל מייל או התראות.</p>
       {showReg ? identitySlot : <button type="button" className="sod29-watch-btn sod29-watch-btn-secondary" onClick={onVerifyIdentity}>אימות חשבון</button>}
