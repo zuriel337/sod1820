@@ -61,7 +61,7 @@ select regexp_replace(prosrc, '[[:space:]]+', '', 'g') as normalized_source
   from pg_proc
  where oid = 'public.fn_redeem_family_invitation(text)'::regprocedure;
 
-\i supabase/migrations/20261025010603_family_claim_self_redeem_owner_reader_v1.sql
+\i supabase/migrations/20261025012451_family_claim_self_redeem_owner_reader_v1.sql
 
 select public.test_assert(
   (select relrowsecurity from pg_class where oid = 'public.family_claims'::regclass),
