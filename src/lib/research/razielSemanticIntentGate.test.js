@@ -109,6 +109,38 @@ test("plain calculation commands also remove Gematria, all-method and view scaff
   }
 });
 
+test("natural calculation word order keeps action scaffolding out of every Hebrew expression", () => {
+  for (const [question, label] of [
+    ["בדוק לי שאול בגימטריה", "שאול"],
+    ["כמה זה שאול בגימטריה תחשב", "שאול"],
+    ["שאול בגימטריה כמה זה", "שאול"],
+    ["שאול בגימטריה תחשב", "שאול"],
+    ["חשב בבקשה את שאול", "שאול"],
+    ["בבקשה תחשב לי את המילה חכמה", "חכמה"],
+    ["בדוק לי את השם צוריאל", "צוריאל"],
+    ["בדוק לי גימטריה של משיח בן דוד", "משיח בן דוד"],
+    ["כמה שווה ראיתי דבר מתוך דבר בגימטריא חשב", "ראיתי דבר מתוך דבר"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, label, question);
+    assert.equal(out?.identity_key, `phrase:${label}`, question);
+    assert.equal(out?.requested_action, "research", question);
+    assert.equal(out?.explicit_text_computation, true, question);
+    assert.doesNotMatch(out?.label || "", /(?:בבקשה|גימטר|ת?חשב|בדוק)/u, question);
+  }
+});
+
+test("natural calculation grammar remains bounded and does not promote open or missing subjects", () => {
+  for (const question of [
+    "בדוק לי שאול",
+    "בדוק לי גימטריה",
+    "בדוק לי את זה בגימטריה",
+    "בדוק לי את השם שלי",
+    "כמה זה 337 בגימטריה תחשב",
+    "בדוק לי את שנת 2024 בגימטריה",
+  ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
+});
+
 test("expression continuation directives carry an earlier subject instead of calculating their scaffolding", () => {
   assert.deepEqual(resolveRazielExpressionContinuationDirective("תחשב את זה בכל השיטות ומצא הצלבות"), {
     requested_action: "connect",

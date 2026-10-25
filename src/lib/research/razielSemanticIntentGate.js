@@ -168,6 +168,7 @@ function validExplicitHebrewExpression(value) {
     .trim();
   if (!expression || /^\d+$/u.test(expression) || !/[\u0590-\u05ff]/u.test(expression)) return null;
   if (/^(?:ה?שם(?:\s+שלי)?|שמי|שלי|ה?מילה|ה?ביטוי|זה|זאת|משהו)$/u.test(expression)) return null;
+  if (/^(?:ה?גימטרי[הא]|ה?ערך\s+גימטרי)$/u.test(expression)) return null;
   if (/^(?:שנת|שנה|עמוד|דף|פרק|פסוק|מקור(?:ות)?)\s+\d+$/u.test(expression)) return null;
   return expression;
 }
@@ -216,21 +217,61 @@ function expressionSubjectFromSlot(slot, extra = {}) {
 // methods do not require another phrase-specific patch here.
 function explicitExpressionCalculationCommand(question) {
   const q = grammarText(question);
-  const command = /^(?:תחשב|חשב|חשבי|תחשבי)(?:\s+לי)?(?:\s+את)?(?:\s+(?:המילה|הביטוי|השם))?\s+(.+)$/u.exec(q);
-  if (!command) return null;
-
-  let body = clean(command[1], 240);
+  // The expression is the bounded slot between command scaffolding and a calculation lens.
+  // Keep this structural: action words may appear before or after the slot, but are never sent
+  // to the canonical engine. This covers natural variants such as "בדוק לי X בגימטריה" and
+  // "כמה זה X בגימטריה תחשב" without maintaining a dictionary of known expressions.
   const connectionSuffix = /\s+(?:ומצא|מצא|וחפש|חפש|ובדוק|בדוק)(?:\s+לי)?\s+(?:הצלבות|קשרים)$/u;
-  const asksConnections = connectionSuffix.test(body);
-  body = body.replace(connectionSuffix, "").trim();
+  const asksConnections = connectionSuffix.test(q);
+  const commandQuestion = q.replace(connectionSuffix, "").trim();
+  const calculateVerb = "(?:תחשב|חשב|חשבי|תחשבי)";
+  const inspectVerb = "(?:בדוק|בדקי|תבדוק|תבדקי)";
+  const trailingCalculation = `(?:בבקשה\\s+)?${calculateVerb}(?:\\s+לי)?`;
+
+  const prefixed = new RegExp(
+    `^(?:בבקשה\\s+)?(${calculateVerb}|${inspectVerb})(?:\\s+בבקשה)?(?:\\s+לי)?(?:\\s+בבקשה)?(?:\\s+את)?(?:\\s+(המילה|הביטוי|השם))?\\s+(.+)$`,
+    "u",
+  ).exec(commandQuestion);
+  const leadingQuestion = new RegExp(
+    `^(?:כמה\\s+(?:זה|שווה)|מה\\s+שווה)\\s+(.+?)\\s+בגימטרי[הא](?:\\s+${trailingCalculation})?$`,
+    "u",
+  ).exec(commandQuestion);
+  const trailingQuestion = new RegExp(
+    `^(.+?)\\s+בגימטרי[הא]\\s+(?:כמה\\s+(?:זה|שווה)|מה\\s+שווה|${trailingCalculation})$`,
+    "u",
+  ).exec(commandQuestion);
+
+  let body = "";
+  if (prefixed) {
+    const verb = prefixed[1];
+    const explicitRole = Boolean(prefixed[2]);
+    body = clean(prefixed[3], 240);
+    const hasCalculationCue = /(?:^|\s)(?:(?:ב|ה)?גימטרי[הא]|בכל\s+השיטות|במצב\s+(?:רגיל|כללי)|בשיטת\s+.+)(?:\s|$)/u.test(body);
+    // "בדוק X" alone is an open research request. Admit it here only when the user supplied
+    // an explicit lexical role or calculation cue; otherwise the normal research resolver owns it.
+    if (!/חשב/u.test(verb) && !explicitRole && !hasCalculationCue) return null;
+  } else if (leadingQuestion || trailingQuestion) {
+    body = clean((leadingQuestion || trailingQuestion)[1], 240);
+  } else {
+    return null;
+  }
+
+  // A computation noun before the slot is scaffolding too: "בדוק לי גימטריה של X".
+  body = body
+    .replace(/^(?:ה?גימטרי[הא]|הערך\s+הגימטרי)\s+(?:של\s+)?/u, "")
+    .trim();
 
   const marker = body.lastIndexOf(" בשיטת ");
   const requestedMethod = marker > 0
     ? clean(body.slice(marker + " בשיטת ".length), 60)
     : "";
-  const expressionText = marker > 0
+  const expressionCandidate = marker > 0
     ? body.slice(0, marker)
-    : body.replace(/\s+(?:בגימטרי[הא]|בכל\s+השיטות|במצב\s+(?:רגיל|כללי))$/u, "").trim();
+    : body;
+  const expressionText = expressionCandidate
+    .replace(new RegExp(`\\s+בגימטרי[הא](?:\\s+${trailingCalculation})?$`, "u"), "")
+    .replace(/\s+(?:בכל\s+השיטות|במצב\s+(?:רגיל|כללי))$/u, "")
+    .trim();
   const expression = validExplicitHebrewExpression(expressionText);
   if (!expression || (marker > 0 && (!requestedMethod || !/[\u0590-\u05ff]/u.test(requestedMethod)))) return null;
 
