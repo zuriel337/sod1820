@@ -898,30 +898,46 @@ function SavedResearchBundles({ result }) {
 }
 
 function collectResultResearchTargets(result) {
-  const byTerm = new Map();
+  const byKey = new Map();
   for (const target of result?.researchTargets || []) {
-    if (!target?.term || byTerm.has(target.term)) continue;
-    byTerm.set(target.term, { ...target, kind: result.kind, setId: result.setId, page: result.page });
+    const key = String(target?.key || "");
+    if (!key || !target?.term || byKey.has(key)) continue;
+    const findings = Array.isArray(target.findings) && target.findings.length
+      ? target.findings.filter((finding) => finding?.term).slice(0, 6)
+      : [{ baseTerm: target.baseTerm, term: target.term, label: target.label || target.term, gain: target.gain }];
+    byKey.set(key, { ...target, key, findings, kind: result.kind, setId: result.setId, page: result.page });
   }
-  if (!byTerm.size) for (const row of result?.items || []) {
+  if (!byKey.size) for (const row of result?.items || []) {
+    const findings = [], seen = new Set();
     for (const signal of row.signals || []) for (const extension of signal.targetable === false ? [] : signal.extensions || []) {
-      if (!extension?.term || byTerm.has(extension.term)) continue;
-      byTerm.set(extension.term, { kind: result.kind, setId: result.setId, page: result.page, key: row.key, baseTerm: signal.term,
-        term: extension.term, label: extension.label || extension.term, gain: extension.gain, rank: row.rank, reasons: row.reasons || [] });
+      if (!extension?.term || seen.has(extension.term)) continue;
+      seen.add(extension.term); findings.push({ ...extension, baseTerm: signal.term });
     }
+    const preferred = findings[0];
+    if (!preferred) continue;
+    byKey.set(String(row.key), { kind: result.kind, setId: result.setId, page: result.page, key: String(row.key), baseTerm: preferred.baseTerm,
+      term: preferred.term, label: preferred.label || preferred.term, gain: preferred.gain, rank: row.rank, skip: Number(row.skip), direction: row.direction || null,
+      ref: row.ref || null, findings: findings.slice(0, 6), findingCount: findings.length, reasons: row.reasons || [] });
   }
-  return [...byTerm.values()].slice(0, 5);
+  return [...byKey.values()].slice(0, 8);
+}
+
+function researchTargetSkipLabel(target) {
+  const skip = Number(target?.skip);
+  if (!Number.isInteger(skip) || skip < 1) return null;
+  return `${target.direction === "back" ? "−" : ""}${Math.abs(skip)}`;
 }
 
 function ResearchTargetComparison({ result, pending, onOpen }) {
   if (pending || result?.lens !== "research-target-compare") return null;
   if (!result.ok) return <p role="status">השוואת היעדים לא הושלמה. התוצאות והמטריצה לא השתנו.</p>;
   const rows = Array.isArray(result.rows) ? result.rows : [];
-  return <section className="els29-native-research-comparison" aria-label="השוואת יעדי מחקר" data-els-research-comparison={result.contract}>
-    <header><strong>{result.verified} יעדי מחקר אומתו יחד</strong><small>הסדר מבוסס על רצף מדויק ועדיפות הבדיקה שכבר חושבה. זו השוואת מחקר, לא ציון אמת או טענה סטטיסטית.</small></header>
+  return <section className="els29-native-research-comparison" aria-label="השוואת חבילות מחקר" data-els-research-comparison={result.contract}>
+    <header><strong>{result.verified} חבילות מחקר אומתו יחד</strong><small>כל חבילה מייצגת מופע אחר של הציר. הסדר מבוסס על רצף מדויק ועדיפות הבדיקה שכבר חושבה; זו השוואת מחקר, לא ציון אמת או טענה סטטיסטית.</small></header>
     {rows.map((row, index) => <article key={`${row.key}-${row.term}`} data-comparison-status={row.status} data-comparison-term={row.term}>
       <span>{index + 1}</span><div><b>{row.label}</b>
-        <small>{row.status === "VERIFIED" ? `אומת · המשך מדויק של ${row.gain || 0} אותיות · מקורו בהמלצה ${row.rank || "—"}` : "לא עבר אימות; אינו זמין לפתיחה"}</small>
+        <small>{row.status === "VERIFIED" ? `אומת · ${researchTargetSkipLabel(row) ? `דילוג ${researchTargetSkipLabel(row)} · ` : ""}המשך מדויק של ${row.gain || 0} אותיות · מקורו בהמלצה ${row.rank || "—"}` : "לא עבר אימות; אינו זמין לפתיחה"}</small>
+        {(row.findings || []).length ? <small>ממצאים סביב המופע: {row.findings.slice(0, 4).map((finding) => finding.label || finding.term).join(" · ")}</small> : null}
         {(row.reasons || []).length ? <small>{row.reasons.slice(0, 2).join(" · ")}</small> : null}</div>
       {row.status === "VERIFIED" ? <button type="button" aria-label={`פתח חבילת מחקר ${row.label}`} onClick={() => onOpen(row)}>פתח חבילת מחקר</button> : null}
     </article>)}
@@ -932,16 +948,19 @@ function ResearchTargetComparison({ result, pending, onOpen }) {
 function ResultResearchTargets({ result, comparisonResult, pending, onOpen, onCompare }) {
   const targets = collectResultResearchTargets(result);
   if (!targets.length) return null;
-  return <section className="els29-native-research-targets" aria-label="יעדי מחקר מהמשך הציר" data-els-research-targets="els_research_bundle_v1">
-    <header><strong>יעדי מחקר מהמשך הציר</strong><small>לחיצה אחת מאמתת את הביטוי המלא, פותחת את המטריצה המדויקת ואוספת אליה ממצאים ומבנים.</small></header>
-    {targets.length >= 2 ? <button type="button" className="is-compare" aria-label={`השווה את ${Math.min(3, targets.length)} היעדים המובילים`} disabled={pending} onClick={() => onCompare(targets.slice(0, 3))}>
-      <b>השווה את {Math.min(3, targets.length)} היעדים המובילים</b><small>המערכת תאמת אותם יחד ותראה מה כדאי לפתוח קודם.</small>
+  return <section className="els29-native-research-targets" aria-label="חבילות מחקר לפי מופע הציר" data-els-research-targets="els_research_bundle_v1">
+    <header><strong>חבילות מחקר לפי מופע הציר</strong><small>כל מופע של הציר מוצג פעם אחת בלבד. בתוך כל חבילה מרוכזים כמה המשכים שנמצאו סביב אותו ציר מדויק.</small></header>
+    {targets.length >= 2 ? <button type="button" className="is-compare" aria-label={`השווה את ${Math.min(3, targets.length)} חבילות המחקר`} disabled={pending} onClick={() => onCompare(targets.slice(0, 3))}>
+      <b>השווה את {Math.min(3, targets.length)} חבילות המחקר</b><small>המערכת תאמת מופעים שונים ותראה מה כדאי לפתוח קודם.</small>
     </button> : null}
     <ResearchTargetComparison result={comparisonResult} pending={pending} onOpen={onOpen} />
-    {targets.map((target) => <button type="button" key={target.term} disabled={pending} onClick={() => onOpen(target)}>
-      <b>{target.label}</b>
-      <small>המשך מדויק · +{target.gain} אותיות · מתוצאה {target.rank}</small>
-    </button>)}
+    <ul className="els29-native-research-target-list" aria-label="מופעי ציר שונים">
+      {targets.map((target) => <li key={target.key}><button type="button" disabled={pending} onClick={() => onOpen(target)}>
+          <b>{target.label}</b>
+          <small>{researchTargetSkipLabel(target) ? `דילוג ${researchTargetSkipLabel(target)} · ` : ""}{target.ref ? `${target.ref} · ` : ""}מופע מדורג {target.rank}</small>
+          <small>ממצאים סביבו: {(target.findings || []).slice(0, 4).map((finding) => finding.label || finding.term).join(" · ")}</small>
+        </button></li>)}
+    </ul>
   </section>;
 }
 

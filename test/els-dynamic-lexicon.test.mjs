@@ -467,6 +467,17 @@ test("result triage ranks repeated exact continuation first but keeps every resu
   assert.equal(context.weak[0].tier, "available", "a top-three slot alone must not become a recommendation");
 });
 
+test("result triage keeps exact content-word continuations ahead of frequent function words", () => {
+  const context = vm.createContext({ RESEARCH_CONTEXT_COVERAGE_CONTRACT: "els_research_context_coverage_v1", rows: [
+    { key: "grammar", order: 1, skip: 80, signals: [{ extensions: [{ term: "יוממשיחלי", label: "יום משיח לי", gain: 2, extensionKind: "adjacent-word", addedTerm: "לי", lexiconSupport: 100 }], nearby: [], notable: null }] },
+    { key: "content", order: 2, skip: 583, signals: [{ extensions: [{ term: "יוממשיחבא", label: "יום משיח בא", gain: 2, extensionKind: "adjacent-word", addedTerm: "בא", lexiconSupport: 59 }], nearby: [], notable: null }] },
+  ] });
+  vm.runInContext(`${source("rankResultTriageItems")}\nthis.result=rankResultTriageItems(rows,"regular");`, context);
+  const ranked = JSON.parse(JSON.stringify(context.result));
+  assert.equal(ranked[0].key, "content");
+  assert.equal(ranked[0].reasons[0], "המשך מדויק: יום משיח בא · +2 אותיות");
+});
+
 test("result triage promotes a repeated literal axis topic without hiding weaker occurrences", () => {
   const context = vm.createContext({ RESEARCH_CONTEXT_COVERAGE_CONTRACT: "els_research_context_coverage_v1", rows: [
     { key: "balaam-a", order: 1, skip: 80, signals: [{ extensions: [], nearby: [], sourceContexts: [{ term: "בלעמ", label: "בלעם" }], notable: null }] },

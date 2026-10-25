@@ -2401,8 +2401,19 @@ test('Research compares three verified continuation targets before opening one e
   await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__lens?.lens==='result-triage'&&window.__lens?.ok===true,null,{timeout:90000});
   const before=await page.evaluate(()=>structuredClone(window.__state));
   const targets=await page.evaluate(()=>window.__lens?.researchTargets||[]);
+  const expectedContinuationRow=await page.evaluate(()=>window.__lens?.items?.find(row=>String(row.key).startsWith('583_-1_239480'))||null);
   assert.ok(targets.length>=3,'the example exposes enough exact continuations for a bounded comparison');
-  await activate(page,'השווה את 3 היעדים המובילים');
+  assert.equal(new Set(targets.map(target=>String(target.key))).size,targets.length,`each research card represents one distinct primary-axis occurrence: ${JSON.stringify(targets)}`);
+  assert.ok(targets.every(target=>Number.isInteger(target.skip)&&target.skip>=2),'every research card exposes its primary-axis skip');
+  assert.ok(targets.every(target=>Array.isArray(target.findings)&&target.findings.length),'each occurrence carries several local findings as one package');
+  assert.ok(targets.some(target=>(target.findings||[]).some(finding=>String(finding.term||'').replace(/\s/g,'')==='יוממשיחבא')),
+   `the real corpus continuation יום משיח בא must survive package grouping: ${JSON.stringify({targets,expectedContinuationRow})}`);
+  const packageList=page.getByRole('list',{name:'מופעי ציר שונים'});
+  assert.equal(await packageList.getByRole('listitem').count(),new Set(targets.map(target=>String(target.key))).size);
+  assert.match(await packageList.innerText(),/יום משיח בא[\s\S]*דילוג −583/);
+  const packageScroll=await packageList.evaluate(node=>({clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
+  assert.ok(packageScroll.clientHeight<=460&&packageScroll.scrollHeight>packageScroll.clientHeight,'distinct research packages stay in a bounded internal scroller');
+  await activate(page,'השווה את 3 חבילות המחקר');
   await page.waitForFunction(()=>window.__lens?.lens==='research-target-compare'&&window.__lens?.ok===true,null,{timeout:90000});
   const comparison=await page.evaluate(()=>window.__lens);
   assert.equal(comparison.contract,'els_research_bundle_comparison_v1');
@@ -2411,7 +2422,7 @@ test('Research compares three verified continuation targets before opening one e
   assert.ok(comparison.rows.every(row=>!['positions','start','p0','p1'].some(key=>Object.hasOwn(row,key))));
   const panel=page.locator('[data-els-research-comparison="els_research_bundle_comparison_v1"]');
   await panel.waitFor({state:'visible'});
-  assert.match(await panel.innerText(),/יעדי מחקר אומתו יחד[\s\S]*לא ציון אמת/);
+  assert.match(await panel.innerText(),/חבילות מחקר אומתו יחד[\s\S]*לא ציון אמת/);
   const chosen=comparison.rows.find(row=>row.status==='VERIFIED');
   const priorSingleRequests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='research-target').length);
   await panel.getByRole('button',{name:`פתח חבילת מחקר ${chosen.label}`,exact:true}).click();

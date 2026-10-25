@@ -2785,11 +2785,21 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         const latest=kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
         if(!latest||latest.id!==target.setId||kind==="regular"&&Number(latest.page)!==Number(target.page))return;
         const ranked=rankResultTriageItems(rows,kind),latestKeys=new Set(latest.items.map(item=>kind==="regular"?item.hitId:String(item.index))),visibleRanked=ranked.filter(row=>latestKeys.has(String(row.key)))
-          .map((row,index)=>({...row,globalRank:row.rank,rank:index+1,tier:index<3&&row.inspectionPriority>0?"recommended":row.inspectionPriority>0?"inspect":"available"})),researchTargets=[],seenTargets=new Set();
-        targets:for(const row of ranked)for(const signal of row.signals||[]){if(signal.targetable===false)continue;for(const extension of signal.extensions||[]){
-          if(seenTargets.has(extension.term))continue;seenTargets.add(extension.term);researchTargets.push({key:row.key,rank:row.rank,baseTerm:signal.term,term:extension.term,label:extension.label||extension.term,gain:extension.gain,reasons:row.reasons||[]});
-          if(researchTargets.length>=8)break targets;
-        }}
+          .map((row,index)=>({...row,globalRank:row.rank,rank:index+1,tier:index<3&&row.inspectionPriority>0?"recommended":row.inspectionPriority>0?"inspect":"available"})),researchTargets=[];
+        // One card is one exact primary-axis occurrence. Alternative exact extensions stay inside
+        // that package instead of consuming the next research-card slots as duplicate ciphers.
+        const targetRows=[...visibleRanked,...ranked.filter(row=>!latestKeys.has(String(row.key)))];
+        for(const row of targetRows){
+          const findings=[],seenFindings=new Set();
+          for(const signal of row.signals||[]){if(signal.targetable===false)continue;for(const extension of signal.extensions||[]){
+            if(seenFindings.has(extension.term))continue;seenFindings.add(extension.term);findings.push({baseTerm:signal.term,term:extension.term,label:extension.label||extension.term,
+              gain:extension.gain,direction:extension.direction,extensionKind:extension.extensionKind,lexiconSources:extension.lexiconSources||[]});
+          }}
+          const preferred=findings[0];if(!preferred)continue;
+          researchTargets.push({key:row.key,rank:row.rank,baseTerm:preferred.baseTerm,term:preferred.term,label:preferred.label,gain:preferred.gain,
+            skip:Number(row.skip),direction:row.direction||null,ref:row.ref||null,findings:findings.slice(0,6),findingCount:findings.length,reasons:row.reasons||[]});
+          if(researchTargets.length>=8)break;
+        }
         const contextSeen=[...new Map(ranked.flatMap(row=>row.contextCoverage?.found||[]).map(item=>[item.term,item])).values()];
         postHost({type:"lens",lens:"result-triage",ok:true,target,status:"CANDIDATE",contract:RESULT_TRIAGE_CONTRACT,kind,setId:latest.id,
           ...(kind==="regular"?{page:latest.page}:{}),provenanceSource:lexicon.contract,coverage:kind==="regular"?"admitted-search-results":"current-result-set",scanned:rows.length,available:sourceItems.length,
@@ -2825,13 +2835,15 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           const descriptor={...requested[index],kind:target.kind,setId:target.setId,...(target.kind==="regular"?{page:target.page}:{})};
           const resolved=resolveResultResearchTarget(descriptor,lexicon.axisEntries||lexicon.entries);
           if(!resolved){rows.push({status:"FAILED",reason:"target-changed",term:norm(descriptor.term),label:descriptor.label||descriptor.term,kind:descriptor.kind,setId:descriptor.setId,
-            ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
+            ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,skip:descriptor.skip,direction:descriptor.direction||null,ref:descriptor.ref||null,
+            findings:Array.isArray(descriptor.findings)?descriptor.findings.slice(0,6):[],reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
           }else{
             postHost({type:"lens-progress",lens:"research-target-compare",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:index,total:requested.length,current:resolved.label}});
             const verified=await promoteVerified({t:resolved.term,hits:[resolved.hit],capped:false,strategy:{policy:"RESULT_EXTENSION_COMPARISON_V1"}},st.scope,null),hit=verified.hits.find(isGov);
             rows.push({status:hit?"VERIFIED":"FAILED",reason:hit?null:verified.verr||"verification-failed",term:resolved.term,label:resolved.label,scope:st.scope,
               ...(hit?{hitId:hitKey(hit),corpusId:verified.corpus_id||CORPUS_ID[st.scope]}:{}),kind:descriptor.kind,setId:descriptor.setId,
-              ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
+              ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,skip:descriptor.skip,direction:descriptor.direction||null,ref:descriptor.ref||null,
+              findings:Array.isArray(descriptor.findings)?descriptor.findings.slice(0,6):[],reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
           }
           postHost({type:"lens-progress",lens:"research-target-compare",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:index+1,total:requested.length}});
           await paintOperation();
@@ -5293,13 +5305,15 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     const bestSide=rows=>[...new Map(rows.sort((a,b)=>b.lexiconSupport-a.lexiconSupport||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")).map(row=>[row.term,row])).values()].slice(0,4);
     const beforeBest=bestSide(before),afterBest=bestSide(after);
-    for(const side of beforeBest)add({term:side.term+axis,label:`${side.label} ${axisLabel}`,gain:side.term.length,direction:"backward",extensionKind:"adjacent-word",lexiconSources:side.lexiconSources,lexiconSupport:side.lexiconSupport});
-    for(const side of afterBest)add({term:axis+side.term,label:`${axisLabel} ${side.label}`,gain:side.term.length,direction:"forward",extensionKind:"adjacent-word",lexiconSources:side.lexiconSources,lexiconSupport:side.lexiconSupport});
+    for(const side of beforeBest)add({term:side.term+axis,label:`${side.label} ${axisLabel}`,gain:side.term.length,direction:"backward",extensionKind:"adjacent-word",addedTerm:side.term,lexiconSources:side.lexiconSources,lexiconSupport:side.lexiconSupport});
+    for(const side of afterBest)add({term:axis+side.term,label:`${axisLabel} ${side.label}`,gain:side.term.length,direction:"forward",extensionKind:"adjacent-word",addedTerm:side.term,lexiconSources:side.lexiconSources,lexiconSupport:side.lexiconSupport});
     for(const left of beforeBest.slice(0,2))for(const right of afterBest.slice(0,2)){
       const sources=[...new Set([...(left.lexiconSources||[]),...(right.lexiconSources||[])])];
-      add({term:left.term+axis+right.term,label:`${left.label} ${axisLabel} ${right.label}`,gain:left.term.length+right.term.length,direction:"both",extensionKind:"adjacent-words",lexiconSources:sources,lexiconSupport:left.lexiconSupport+right.lexiconSupport});
+      add({term:left.term+axis+right.term,label:`${left.label} ${axisLabel} ${right.label}`,gain:left.term.length+right.term.length,direction:"both",extensionKind:"adjacent-words",addedTerms:[left.term,right.term],lexiconSources:sources,lexiconSupport:left.lexiconSupport+right.lexiconSupport});
     }
-    return[...found.values()].sort((a,b)=>b.gain-a.gain||b.lexiconSupport-a.lexiconSupport||a.term.localeCompare(b.term,"he")).slice(0,Math.max(1,Math.min(8,Number(limit)||5)));
+    const kindPriority={"adjacent-word":3,"registered-form":2,"adjacent-words":1},functionWords=new Set(["אל","לי","לו","לה","לך","בו","בה","בי","כי","אם","גם","כל","עם","על","מן","מי","מה","או","אך","רק","זה","זו","הוא","היא","הם","את","של","כה","כן","לא","פי"]),contentPriority=row=>row.extensionKind==="adjacent-word"&&!functionWords.has(row.addedTerm)?1:0;
+    return[...found.values()].sort((a,b)=>(kindPriority[b.extensionKind]||0)-(kindPriority[a.extensionKind]||0)||
+      contentPriority(b)-contentPriority(a)||b.lexiconSupport-a.lexiconSupport||a.gain-b.gain||a.term.localeCompare(b.term,"he")).slice(0,Math.max(1,Math.min(8,Number(limit)||5)));
   }
   // Resolve a coordinate-free triage choice back to an exact candidate inside the engine.
   // The host sends only result identity + terms; positions are reconstructed here and the
@@ -5350,7 +5364,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return {term:requested,label:typeof entry==="string"?entry:entry.label||entry.term||requested,hit:candidate,neighborhood};
   }
   function triageHitSignals(hit,word,lexicon,axis=hit,includeNearby=true,researchContext={rows:[],requested:[]}){
-    const extensions=lineExtensionCandidates(hit,word,lexicon,5),extensionTerms=new Set(extensions.map(row=>row.term));
+    const extensions=lineExtensionCandidates(hit,word,lexicon,8),extensionTerms=new Set(extensions.map(row=>row.term));
     const scan=includeNearby?scanLineWords(lineContextCells(hit),word,8,32,lexicon):{words:[],truncated:false};
     const nearby=scan.words.filter(row=>!extensionTerms.has(row.term)).slice(0,3).map(row=>({term:row.term,label:row.label,lexiconSources:row.lexiconSources}));
     const topicRows=focusedAxisTopicRows(lexicon,lexicon,word,researchContext.rows),sourceMatches=axisSourceContextMatches(hit,topicRows,24),sourceContexts=[...new Map(sourceMatches.map(match=>[match.term,{term:match.term,label:match.topic.label||match.topic.term||match.term,occurrenceCount:sourceMatches.filter(row=>row.term===match.term).length}])).values()];
@@ -5361,20 +5375,21 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return {term:norm(word),targetable:Math.abs(Number(hit?.skip))>=2,extensions,nearby,sourceContexts,contextCoverage,notable:ordered?ordered.tag:null,geometry:compactGeometryMeta(hit,axis),scanTruncated:scan.truncated};
   }
   function rankResultTriageItems(rows,kind){
+    const functionWords=new Set(["אל","לי","לו","לה","לך","בו","בה","בי","כי","אם","גם","כל","עם","על","מן","מי","מה","או","אך","רק","זה","זו","הוא","היא","הם","את","של","כה","כן","לא","פי"]);
     const extensionFrequency=new Map();
     rows.forEach(row=>(row.signals||[]).forEach(signal=>(signal.extensions||[]).forEach(extension=>extensionFrequency.set(extension.term,(extensionFrequency.get(extension.term)||0)+1))));
     const sourceContextFrequency=new Map();
     rows.forEach(row=>{const terms=new Set((row.signals||[]).flatMap(signal=>(signal.sourceContexts||[]).map(context=>context.term)));for(const term of terms)sourceContextFrequency.set(term,(sourceContextFrequency.get(term)||0)+1);});
     const ranked=rows.map(row=>{
       const signals=row.signals||[],extensions=signals.flatMap(signal=>signal.extensions||[]),nearby=signals.flatMap(signal=>signal.nearby||[]);
-      const sourceContexts=[...new Map(signals.flatMap(signal=>signal.sourceContexts||[]).map(context=>[context.term,context])).values()],sourceContextRepeat=Math.max(0,...sourceContexts.map(context=>sourceContextFrequency.get(context.term)||0)),maxGain=extensions.reduce((value,item)=>Math.max(value,Number(item.gain)||0),0),repeat=Math.max(0,...extensions.map(item=>extensionFrequency.get(item.term)||0));
+      const sourceContexts=[...new Map(signals.flatMap(signal=>signal.sourceContexts||[]).map(context=>[context.term,context])).values()],sourceContextRepeat=Math.max(0,...sourceContexts.map(context=>sourceContextFrequency.get(context.term)||0)),preferredExtension=extensions[0]||null,repeat=Math.max(0,...extensions.map(item=>extensionFrequency.get(item.term)||0));
       const requestedContexts=[...new Map(signals.flatMap(signal=>signal.contextCoverage?.requested||[]).map(context=>[context.term,context])).values()],foundContexts=[...new Map(signals.flatMap(signal=>signal.contextCoverage?.found||[]).map(context=>[context.term,context])).values()],foundContextKeys=new Set(foundContexts.map(context=>context.term)),contextCoverage={contract:RESEARCH_CONTEXT_COVERAGE_CONTRACT,complete:true,verified:false,requested:requestedContexts,found:foundContexts,notSeenInFocusedRange:requestedContexts.filter(context=>!foundContextKeys.has(context.term)),truthPromotion:false};
       const notableSignals=signals.filter(signal=>signal.notable),compactSecondary=signals.slice(1).filter(signal=>signal.geometry?.compact),reasons=[];
       if(foundContexts.length)reasons.push(`הקשר מבוקש שנראה בטווח: ${foundContexts.slice(0,4).map(context=>context.label||context.term).join(" · ")}`);
       if(requestedContexts.length&&foundContexts.length===requestedContexts.length)reasons.push("כל מונחי ההקשר שנבחרו נראו בטווח הממוקד");
       if(sourceContexts.length)reasons.push(`פסוק מקור באותו הקשר: ${sourceContexts.slice(0,3).map(context=>context.label||context.term).join(" · ")}`);
       if(sourceContextRepeat>1)reasons.push(`אותו הקשר מופיע ב־${sourceContextRepeat} תוצאות`);
-      if(maxGain){const best=extensions.find(item=>Number(item.gain)===maxGain);reasons.push(`המשך מדויק: ${best.label||best.term} · +${maxGain} אותיות`);}
+      if(preferredExtension)reasons.push(`המשך מדויק: ${preferredExtension.label||preferredExtension.term} · +${preferredExtension.gain} אותיות`);
       if(repeat>1)reasons.push(`אותו המשך מופיע ב־${repeat} תוצאות`);
       if(compactSecondary.length)reasons.push(`${compactSecondary.length} ממצאים בשלב א׳ · ללא פער בתצוגה`);
       if(kind==="cross"&&Number(row.distance)===0)reasons.push("חצייה מדויקת באות משותפת");
@@ -5382,10 +5397,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       if(notableSignals.length)reasons.push(`דילוג ${notableSignals[0].notable}`);
       if(nearby.length)reasons.push(`${nearby.length} מילים נוספות על הציר`);
       if(!reasons.length)reasons.push("לא זוהה המשך מילוני בחלון; התוצאה נשארת זמינה");
-      const contextWeight=foundContexts.reduce((score,context)=>score+(context.required?2:1)+(context.mode==="exact_phrase"?1:0),0),compactEvidence=foundContexts.length>0||sourceContexts.length>0||maxGain>0||compactSecondary.length>0,inspectionPriority=contextWeight*5000+(requestedContexts.length&&foundContexts.length===requestedContexts.length?1500:0)+sourceContexts.length*1500+sourceContextRepeat*120+(compactEvidence?1000:0)+maxGain*12+extensions.length*5+(repeat>1?repeat*4:0)+compactSecondary.length*12+Math.min(nearby.length,3)*2+notableSignals.length*3+
+      const extensionKindWeight=preferredExtension?.extensionKind==="adjacent-word"?300:preferredExtension?.extensionKind==="registered-form"?200:preferredExtension?.extensionKind==="adjacent-words"?100:0,
+        contentWordWeight=preferredExtension?.extensionKind==="adjacent-word"&&!functionWords.has(preferredExtension.addedTerm)?120:0,
+        extensionQuality=extensionKindWeight+contentWordWeight+Math.min(20,Number(preferredExtension?.lexiconSupport)||0),contextWeight=foundContexts.reduce((score,context)=>score+(context.required?2:1)+(context.mode==="exact_phrase"?1:0),0),compactEvidence=foundContexts.length>0||sourceContexts.length>0||Boolean(preferredExtension)||compactSecondary.length>0,inspectionPriority=contextWeight*5000+(requestedContexts.length&&foundContexts.length===requestedContexts.length?1500:0)+sourceContexts.length*1500+sourceContextRepeat*120+(compactEvidence?1000:0)+extensionQuality*4+compactSecondary.length*12+Math.min(nearby.length,3)*2+notableSignals.length*3+
         (kind==="cross"?(Number(row.stars)||0)*2+(Number(row.distance)===0?8:0):0);
       return {...row,inspectionPriority,reasons,extensionCount:extensions.length,sourceContexts,contextCoverage,compactEvidence,stage:compactEvidence?"A":"B"};
-    }).sort((a,b)=>Number(b.compactEvidence)-Number(a.compactEvidence)||b.inspectionPriority-a.inspectionPriority||b.extensionCount-a.extensionCount||
+    }).sort((a,b)=>Number(b.compactEvidence)-Number(a.compactEvidence)||b.inspectionPriority-a.inspectionPriority||
       (kind==="cross"?(Number(b.stars)-Number(a.stars)||Number(a.distance)-Number(b.distance)):Number(a.skip)-Number(b.skip))||Number(a.order)-Number(b.order));
     return ranked.map((row,index)=>({...row,rank:index+1,tier:index<3&&row.inspectionPriority>0?"recommended":row.inspectionPriority>0?"inspect":"available"}));
   }
