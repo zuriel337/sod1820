@@ -133,16 +133,8 @@ Deno.serve(async (req) => {
       }
       // ✉️ אוטומציית מייל-פתיחה — נרשם חדש מקבל מיד את מייל-הפתיחה (לא-קריטי, לא מפיל את ההרשמה)
       try { await sendWelcome(url, key, email); } catch { /* email לא קריטי */ }
-      // 🎁 זיכוי-הפניה: מזמין תקין (uuid) → +100 קרדיטים (דדופ לפי מייל-מוזמן ב-RPC)
-      if (/^[0-9a-fA-F-]{36}$/.test(ref)) {
-        try {
-          await fetch(`${url}/rest/v1/rpc/award_referral`, {
-            method: "POST",
-            headers: { apikey: key, authorization: `Bearer ${key}`, "content-type": "application/json" },
-            body: JSON.stringify({ p_inviter: ref, p_invitee_email: email }),
-          });
-        } catch { /* זיכוי לא קריטי — אל תפיל את ההרשמה */ }
-      }
+      // ref נשמר ב-source לצורכי ייחוס בלבד. הרשמה לניוזלטר אינה רכישה ולכן אינה
+      // מעניקה הטבת "מעגל הסוד"; ההטבה נוצרת רק לאחר אירוע תשלום מאומת.
       return wantJson ? jsonRes("new", true) : page("נרשמתם! 🎓", "נרשמתם לעדכוני סוד 1820 — הרמז הבא בדרך.", back, "🎓");
     }
     const txt = await res.text();

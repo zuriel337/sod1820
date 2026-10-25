@@ -7,15 +7,15 @@ import { track, trackWhatsappJoin } from "../lib/tracking.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { SUPABASE_URL, SUPABASE_ANON } from "../lib/supabase.js";
 import { signupAttribution, visitorId } from "../lib/acquisition.js";
+import { getMyReferralStats } from "../lib/commandCenter.js";
 
 // 🤝 /join — דף ההצטרפות המסודר. שלושה שערים במקום אחד: הרשמה במייל · קבוצת וואטסאפ ·
-// הזמנת חברים תמורת קרדיטים (referrals + credit_ledger הקיימים). מחליף את הקישור הסתמי ל-/community.
+// "מעגל הסוד": ייחוס הזמנה נשמר בהרשמה, והטבות נפתחות רק לאחר תשלום מנוי מאומת.
 const WHATSAPP_URL = "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql";
 const REWARDS = [
-  ["👥", "חבר שהזמנת נרשם", "+100"],
-  ["🔗", "כל שיתוף", "+5"],
-  ["🟢", "חיבור וואטסאפ", "+100"],
-  ["☀️", "כניסה יומית", "+5"],
+  ["🎁", "החבר החדש", "+20 נקודות חקירה"],
+  ["🌙", "מנוי חודשי מאומת", "₪15 זיכוי עבורך"],
+  ["☀️", "מנוי שנתי מאומת", "₪50 זיכוי עבורך"],
 ];
 
 export default function JoinPage() {
@@ -26,11 +26,19 @@ export default function JoinPage() {
   const [email, setEmail] = useState("");
   const [st, setSt] = useState("idle"); // idle | sending | new | exists | invalid | error
   const [copied, setCopied] = useState(false);
+  const [referralStats, setReferralStats] = useState(null);
 
   useEffect(() => {
     track("join");
-    applySeo({ title: "הצטרפו אל סוד 1820 — הרשמה, וואטסאפ וקרדיטים", description: "הצטרפו לקהילת סוד 1820: קבלו רמזים וצפנים במייל, הצטרפו לקבוצת הוואטסאפ, והזמינו חברים כדי לצבור קרדיטים לחיפוש בצופן.", path: "/join" });
+    applySeo({ title: "מעגל הסוד — מצטרפים ומשתפים | סוד 1820", description: "הצטרפו לסוד 1820, שתפו קישור אישי וקבלו זיכוי כאשר חבר שהזמנתם הופך למנוי משלם.", path: "/join" });
   }, []);
+
+  useEffect(() => {
+    let alive = true;
+    if (!user) { setReferralStats(null); return () => { alive = false; }; }
+    getMyReferralStats().then(s => { if (alive) setReferralStats(s); }).catch(() => {});
+    return () => { alive = false; };
+  }, [user]);
 
   // 🔗 קישור-הפניה אישי (למחוברים) — כל נרשם דרכו מזוכה לך.
   const myRefLink = useMemo(() => user ? `https://sod1820.co.il/join?ref=${user.id}` : "", [user]);
@@ -110,11 +118,11 @@ export default function JoinPage() {
           </a>
         </div>
 
-        {/* 3 — הזמן חברים, קבל קרדיטים */}
+        {/* 3 — מעגל הסוד */}
         <div style={{ ...card, border: `1px solid ${P.borderStrong}` }}>
-          <div style={label}>🎁 הזמינו חברים · צברו קרדיטים</div>
+          <div style={label}>🤝 מעגל הסוד · חבר מביא חבר</div>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.75, marginBottom: 14 }}>
-            כל חבר שמצטרף דרך הקישור שלכם מזכה אתכם ב<b style={{ color: P.accentText }}>קרדיטים</b> — שנפדים ל<b style={{ color: P.accentText }}>חיפושים בצופן התנ״כי</b> ולכלים מתקדמים.
+            שתפו את הקישור האישי. כשהחבר הופך למנוי משלם, הוא מקבל <b style={{ color: P.accentText }}>20 נקודות חקירה</b> ואתם מקבלים זיכוי למנוי. ההטבה מאושרת לאחר תקופת הביטול.
           </div>
 
           <div style={{ display: "grid", gap: 7, marginBottom: 16 }}>
@@ -126,6 +134,21 @@ export default function JoinPage() {
               </div>
             ))}
           </div>
+
+          {user && referralStats && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 7, marginBottom: 14 }}>
+              {[
+                [referralStats.invited || 0, "הוזמנו"],
+                [referralStats.paid || 0, "הפכו למנויים"],
+                [`₪${Number(referralStats.wallet_available_ils || 0).toLocaleString("he-IL")}`, "זיכוי זמין"],
+              ].map(([value, title]) => (
+                <div key={title} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 11, padding: "10px 7px", textAlign: "center" }}>
+                  <div style={{ color: P.accentText, fontFamily: F.heading, fontWeight: 800, fontSize: 17 }}>{value}</div>
+                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 10.5, marginTop: 2 }}>{title}</div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {user ? (
             // 📱 רספונסיבי: הקישור בשורה מלאה משלו (מתקצר עם … ולא דוחף כלום), ומתחת שני
@@ -139,6 +162,7 @@ export default function JoinPage() {
                   📤 שתפו בוואטסאפ
                 </a>
               </div>
+              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, lineHeight: 1.6 }}>הזיכוי נרשם לאחר תשלום מאומת ונפתח לשימוש כעבור 30 יום.</div>
             </div>
           ) : (
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
