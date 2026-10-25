@@ -5,9 +5,9 @@ import { readFileSync } from "node:fs";
 import {
   RAZIEL_DEFAULT_VIEW_MODE,
   RAZIEL_VIEW_MODES,
+  RAZIEL_VISIBLE_VIEW_MODES,
   RAZIEL_VIEW_MODE_META,
   normalizeRazielViewMode,
-  normalizeRazielViewModeReport,
   razielViewModeLabel,
 } from "./razielViewMode2029.js";
 import {
@@ -19,6 +19,7 @@ import {
   createRazielProvenance,
   createRazielTurnSucceededAction,
   normalizeRazielResponse,
+  normalizeRazielViewModeReport,
 } from "./razielSessionRequest2029.js";
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
@@ -31,14 +32,16 @@ const css = read("../../components/experience2029/razielViewMode2029.css");
 
 const turn = (overrides = {}) => ({ id: "t1", question: "מה זה 271?", intelligenceLevel: "fast", again: false, startedAt: "2026-10-23T00:00:00Z", ...overrides });
 
-test("closed set of modes, Hebrew labels and honest experiment flags", () => {
+test("closed set of CONTRACT modes (landscape stays valid), Hebrew labels, and exactly two VISIBLE conversation modes", () => {
   assert.deepEqual([...RAZIEL_VIEW_MODES], ["general", "landscape", "exploratory"]);
+  assert.deepEqual([...RAZIEL_VISIBLE_VIEW_MODES], ["general", "exploratory"]);
+  assert.equal(normalizeRazielViewMode("landscape"), "landscape", "old requests and the one-shot map keep working");
   assert.equal(RAZIEL_DEFAULT_VIEW_MODE, "general");
   assert.deepEqual(
     RAZIEL_VIEW_MODES.map((mode) => [mode, RAZIEL_VIEW_MODE_META[mode].label, RAZIEL_VIEW_MODE_META[mode].experimental]),
-    [["general", "כללי", false], ["landscape", "נוף", true], ["exploratory", "מתפרע", true]],
+    [["general", "כללי", false], ["landscape", "מפת מחקר", true], ["exploratory", "מתפרע", true]],
   );
-  assert.equal(razielViewModeLabel("landscape"), "נוף");
+  assert.equal(razielViewModeLabel("landscape"), "מפת מחקר");
   assert.equal(razielViewModeLabel("nonsense"), "כללי");
 });
 
@@ -168,6 +171,8 @@ test("a11y semantics: group + toggle buttons with aria-pressed, visible focus, 4
   assert.match(selector, /aria-pressed=\{pressed\}/);
   assert.match(selector, /role="status"/);
   assert.match(selector, />ניסוי</);
+  assert.match(selector, /RAZIEL_VISIBLE_VIEW_MODES\.map/);
+  assert.doesNotMatch(selector, /RAZIEL_VIEW_MODES\b/, "the selector never lists landscape");
   assert.match(css, /min-block-size: 44px/);
   assert.match(css, /\.sod29-raziel-viewmode-option:focus-visible \{ outline: 2px solid/);
   assert.match(css, /flex-wrap: wrap/);

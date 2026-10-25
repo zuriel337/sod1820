@@ -7,7 +7,6 @@ import {
   normalizeRazielQuestion,
   razielSessionReducer,
 } from "./razielSession2029.js";
-import { RAZIEL_SURPRISE_LEVEL, RAZIEL_SURPRISE_MODE } from "./razielViewMode2029.js";
 
 const RazielSessionContext2029 = createContext(null);
 const systemClock = () => new Date().toISOString();
@@ -123,15 +122,16 @@ export function RazielSessionProvider2029({
     }
   }, [clock, createTurnId, loadRequestBuilder, research.context, transport]);
 
-  // "✨ הפתע אותי": a one-shot continuation of the LAST answer's question, deep, with view_mode exploratory, over the same
-  // session and Bundle. It goes through submit() (the single AI boundary and the lazy request builder), never dispatches
-  // view_mode_set, and is refused here — before any state change or request — when the last answer has no valid Bundle.
-  // The gate is a tiny lazy module, so nothing of it enters the eager 2029 graph.
-  const submitSurprise = useCallback(async (options) => {
-    const { selectRazielSurprise } = await import("./razielSurpriseGate2029.js");
-    const surprise = selectRazielSurprise(stateRef.current);
-    if (!surprise.ok) return { ok: false, error: "no_material_for_surprise" };
-    return submit({ ...options, question: surprise.question, intelligenceLevel: RAZIEL_SURPRISE_LEVEL, again: true, continuationTurnId: surprise.turnId, viewModeOverride: RAZIEL_SURPRISE_MODE });
+  // One-shot actions ("✨ הפתע אותי" = exploratory/deep, "🗺️ פתח מפת מחקר" = landscape/fast): a continuation of the LAST answer's
+  // question over the same session and Bundle. It goes through submit() (the single AI boundary and the lazy request builder),
+  // never dispatches view_mode_set, and is refused here — before any state change or request — when the last answer has no
+  // valid Bundle. The gate is a tiny lazy module, so nothing of it enters the eager 2029 graph.
+  const submitOneShot = useCallback(async (kind, options) => {
+    const { selectRazielOneShot, RAZIEL_ONE_SHOT_SPEC } = await import("./razielOneShotGate2029.js");
+    const shot = selectRazielOneShot(stateRef.current);
+    const spec = RAZIEL_ONE_SHOT_SPEC[kind];
+    if (!spec || !shot.ok) return { ok: false, error: "no_material_for_one_shot" };
+    return submit({ ...options, question: shot.question, intelligenceLevel: spec.level, again: true, continuationTurnId: shot.turnId, viewModeOverride: spec.mode });
   }, [submit]);
 
   const setViewMode = useCallback((viewMode) => {
@@ -148,9 +148,9 @@ export function RazielSessionProvider2029({
     ...state,
     submit,
     setViewMode,
-    submitSurprise,
+    submitOneShot,
     resetTemporarySession,
-  }), [state, submit, setViewMode, submitSurprise, resetTemporarySession]);
+  }), [state, submit, setViewMode, submitOneShot, resetTemporarySession]);
 
   return (
     <RazielSessionContext2029.Provider value={value}>

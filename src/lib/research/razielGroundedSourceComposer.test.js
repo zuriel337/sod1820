@@ -51,7 +51,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v11");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v12");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -259,8 +259,11 @@ test("broad expression surprise receives a bounded canonical value constellation
   }
   assert.match(candidates[0].limit, /פרשנות של רזיאל בלבד/);
   assert.match(out.surprise_guidance, /קבוצת עוגנים ולא מסקנה/);
-  assert.match(out.surprise_guidance, /פתח בתזה ולא ברשימת שיטות/);
-  assert.match(out.exploratory_brief, /עוגן הביטוי: שאול · רגיל=337/);
+  assert.match(out.surprise_guidance, /הפתיחה: · הסיפור המרכזי: · שכבות נוספות: · עובדה ופרשנות: · מה עדיין לא הוכח:/);
+  assert.match(out.surprise_guidance, /3–7 ממצאים/);
+  assert.match(out.exploratory_brief, /1\. הביטוי והערך המרכזי:\nשאול · רגיל=337/);
+  assert.match(out.exploratory_brief, /4\. קבוצת הביטויים באותו ערך רגיל:/);
+  assert.match(out.exploratory_brief, /9\. הסתייגויות:/);
   assert.match(out.exploratory_brief, /עולה ויורד/);
   assert.ok(out.exploratory_brief.length < out.prompt.length);
   assert.doesNotMatch(out.exploratory_brief, /uf:337|source_ref|trace_ref/);

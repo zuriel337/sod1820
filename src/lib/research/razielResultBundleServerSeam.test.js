@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { runAiAnalyze, UID, USER_JWT } from "../../../test/helpers/ai-analyze-handler.mjs";
-import { buildRazielSessionRequest } from "./razielSessionRequest2029.js";
+import { buildRazielSessionRequest, prepareRazielSessionSubmission } from "./razielSessionRequest2029.js";
 import { createInitialRazielSessionState } from "./razielSession2029.js";
 import { makeUniversalFinding } from "./universalFinding.js";
 import {
@@ -144,7 +144,7 @@ function terminalNumberBundle(number, status) {
   });
 }
 
-function expressionCrossingBundle(expression, partner = "שלום") {
+function expressionCrossingBundle(expression, partner = "שלום", { richProfile = false } = {}) {
   const regularValue = expression === "צוריאל" || expression === "שאול" ? 337 : expression === "חכמה" ? 73 : 358;
   const calculation = makeUniversalFinding({
     id: `uf:gematria:${expression}:ragil`,
@@ -207,9 +207,18 @@ function expressionCrossingBundle(expression, partner = "שלום") {
   const calculations = [calculation];
   const crossingFindings = [finding];
   if (expression === "שאול") {
-    for (const [key, label, value, family] of [
+    // richProfile = the layers named in the acceptance example. Every value below is the canonical engine's value for שאול
+    // (computed with src/lib/gematria.js when this fixture was written); גדול carries the registry's conditional-equivalence rule.
+    for (const [key, label, value, family, extraFact] of [
       ["מסתתר", "מסתתר", 328, "adjacent_difference"],
       ["מסתתר גדול", "מסתתר גדול", 328, "adjacent_difference"],
+      ...(richProfile ? [
+        ["מילוי", "מילוי", 567, "base_additive"],
+        ["אתבש", "אתבש", 502, "base_additive_substitution"],
+        ["אלבם", "אלבם", 121, "base_additive"],
+        ["סידורי", "סידורי", 40, "base_additive"],
+        ["גדול", "גדול", 337, "base_additive", { dependency_version: 1, dependency_rules: [{ type: "conditional_equivalence", to: "רגיל", condition: "no_final_letters" }] }],
+      ] : []),
     ]) {
       calculations.push(makeUniversalFinding({
         id: `uf:gematria:${expression}:${key}`,
@@ -221,6 +230,7 @@ function expressionCrossingBundle(expression, partner = "שלום") {
         evidence: { refs: [], facts: [{
           type: "gematria-method-profile-value", method: key, label, value,
           category: "יסוד", mathematical_family: family, atomic_or_composite: "atomic", method_version: 1,
+          ...(extraFact || {}),
         }] },
         access: { tier: "public" },
         provenance: { createdBy: "ENGINE:gematria", inputRef: "expression:fixture" },
@@ -986,7 +996,7 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1, "the deterministic Bundle seam adds no model call");
   assert.match(run.models[0].user, /raziel-canonical-result-bundle-input-v1/);
-  assert.match(run.models[0].user, /raziel-grounded-source-composer-v11/);
+  assert.match(run.models[0].user, /raziel-grounded-source-composer-v12/);
   assert.match(run.models[0].user, /אל תמציא לו שם חלופי/);
   assert.match(run.models[0].user, /לא סופק מדד נדירות מפורש/);
   assert.match(run.models[0].user, /verified_calculations/);
@@ -1548,4 +1558,138 @@ test("Legacy/no-opt-in request never invokes research-run and retains the old pr
   assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0);
   assert.deepEqual(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).map((call) => call.name), ["number_map", "number_dossier_json"]);
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle, undefined);
+});
+
+// ── Two visible modes + one-shot map + interpretive dossier: the "שאול" acceptance flow, end to end ──────────────────
+// Real client builder (lazy prepare), real ai-analyze handler, real Bundle composer; the model is a canned mock (no live model).
+function shaulBundles() {
+  return {
+    researchBundleByExpression: { שאול: expressionCrossingBundle("שאול", "שלום", { richProfile: true }) },
+    researchBundleByNumber: {
+      337: numberBundle(337, "מאגר הגימטריה המאומת", {
+        phraseFindings: [
+          numberPhraseFinding({ id: "uf:337:rise-fall", phrase: "עולה ויורד", value: 337 }),
+          numberPhraseFinding({ id: "uf:337:king-hint", phrase: "מלך רמז", value: 337 }),
+          numberPhraseFinding({ id: "uf:337:study-hint", phrase: "לימוד רמז", value: 337 }),
+          numberPhraseFinding({ id: "uf:337:agag", phrase: "אגג מלך עמלק", value: 337 }),
+          numberPhraseFinding({ id: "uf:337:anger", phrase: "ועל יהוה יזעף לבו", value: 337 }),
+        ],
+      }),
+    },
+  };
+}
+const SHAUL_Q = 'תן לי את הגימטריות על השם "שאול"';
+const mockStory = {
+  text: JSON.stringify({
+    v: 1, agent: "raziel", facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true,
+    answer: [
+      "הפתיחה: שאול = 337 — מלך שעלה ויורד.",
+      "הסיפור המרכזי: מלך רמז ואגג מלך עמלק עומדים באותו ערך, ו״ועל יהוה יזעף לבו״ סוגר את המתח.",
+      "שכבות נוספות: במילוי 567, במסתתר 328, באתבש 502 ובאלבם 121 מופיע אותו שם בשכבות אחרות.",
+      "עובדה ופרשנות: עובדה: שאול = 337. פרשנות: זו הצעה של רזיאל ולא לשון המקור.",
+      "מה עדיין לא הוכח: קשר סמנטי בין הביטויים; עצמאות השיטות לא נטענה.",
+    ].join("\n"),
+  }),
+  usage: { input_tokens: 90, output_tokens: 120 }, attempts: 1, degraded: false,
+};
+const bodyOf = (prepared, visitor) => ({
+  subject: prepared.request.subject, facts: prepared.request.facts, context: prepared.request.context, again: prepared.request.again,
+  visitor_id: visitor, intelligence_level: prepared.request.intelligenceLevel,
+  ...(prepared.request.surfaceSemantic ? { surface_semantic: prepared.request.surfaceSemantic } : {}),
+  conversation_resolution: prepared.request.conversationResolution,
+  research_contract: prepared.request.researchContract,
+  ...(prepared.request.viewMode ? { view_mode: prepared.request.viewMode } : {}),
+});
+const prepare = (extra) => prepareRazielSessionSubmission({ question: SHAUL_Q, state: createInitialRazielSessionState(), researchContext: null, startedAt: "t", createTurnId: () => "turn-1", ...extra });
+const shaulRun = (prepared, visitor, modelResult = mockStory) => runAiAnalyze({
+  answer: noMatchAnswer(), allowed: true, bearer: "synthetic-anon-key", body: bodyOf(prepared, visitor), modelResult, ...shaulBundles(),
+});
+
+test("מתפרע: the user's choice sends exploratory + deep; the dossier carries the Bundle's anchors, layers and normalization caveats; one model call", async () => {
+  const prepared = prepare({ intelligenceLevel: "fast", state: { ...createInitialRazielSessionState(), viewMode: "exploratory" } });
+  assert.deepEqual([prepared.request.viewMode, prepared.request.intelligenceLevel], ["exploratory", "deep"]);
+  const run = await shaulRun(prepared, "vshaulexploratorydeep1");
+  assert.equal(run.models.length, 1, "one synthesis call");
+  const span = run.spans.find((item) => item.p_name === "ai-analyze:raziel:model");
+  assert.match(span.p_detail.replay.parametersRef, /level:deep/);
+  assert.match(span.p_detail.replay.parametersRef, /view_mode:exploratory/);
+  assert.equal(run.models[0].maxTokens, 4000, "the deep tier is the user's explicit request; the router still owns the model");
+  const user = run.models[0].user;
+  assert.match(user, /תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית/);
+  assert.doesNotMatch(user, /"contract":"raziel-canonical-result-bundle-input-v1"/, "the raw Bundle is never handed over in this mode");
+  assert.match(user, /1\. הביטוי והערך המרכזי:\nשאול · רגיל=337/);
+  for (const anchor of ["עולה ויורד", "מלך רמז", "אגג מלך עמלק", "ועל יהוה יזעף לבו"]) assert.match(user, new RegExp(anchor), anchor);
+  assert.match(user, /2\. מפת השיטות המחושבת:/);
+  for (const layer of ["מילוי=567", "מסתתר=328", "אתבש=502", "אלבם=121"]) assert.ok(user.includes(layer), layer);
+  assert.match(user, /3\. קבוצות שקילות לאחר נרמול:/);
+  assert.match(user, /שקילות מבנית מוכחת: רגיל = גדול/);
+  assert.match(user, /9\. הסתייגויות:[\s\S]*עצמאות בין שיטות חישוב לא נטענה/);
+  assert.match(user, /הפתיחה: · הסיפור המרכזי: · שכבות נוספות: · עובדה ופרשנות: · מה עדיין לא הוכח:/);
+  // compact: nowhere near the old 40-50k-token payload
+  assert.ok(user.length < 14000, `compact request (${user.length} chars)`);
+  assert.equal(run.result.raziel.plan_meta.view_mode.applied, true);
+  assert.deepEqual(run.result.raziel.plan_meta.view_mode.structure, { opening: true, central_story: true, additional_layers: true, fact_and_interpretation: true, unproven_boundary: true });
+  assert.doesNotMatch(run.result.raziel.answer, /בקשה ותפילה/u, "no invented lexical meaning");
+});
+
+test("שאול follow-up 'בכל השיטות' continues with שאול from the same session in exploratory deep", async () => {
+  const state = {
+    ...createInitialRazielSessionState(), viewMode: "exploratory",
+    thread: [{
+      role: "user", text: SHAUL_Q,
+      identity_resolution: { identities: [{ type: "phrase", label: "שאול", identity_key: "phrase:שאול" }], explicit_text_computation: true },
+    }, { role: "raziel", text: "שאול = 337" }],
+  };
+  const prepared = prepare({ question: "בכל השיטות", state, intelligenceLevel: "fast" });
+  assert.equal(prepared.request.conversationResolution?.referential_follow_up, true);
+  assert.equal(prepared.request.conversationResolution?.identities?.[0]?.label, "שאול");
+  assert.deepEqual([prepared.request.viewMode, prepared.request.intelligenceLevel], ["exploratory", "deep"]);
+  const run = await shaulRun(prepared, "vshaulallmethods12345");
+  const experts = run.calls.filter((call) => call.name === "research-run");
+  assert.equal(experts.length, 2, "the same two canonical reads (expression + its regular-value neighborhood)");
+  assert.equal(run.models.length, 1);
+  assert.match(run.models[0].user, /שאול · רגיל=337/);
+  assert.match(run.models[0].user, /אגג מלך עמלק/);
+});
+
+test("🗺️ one-shot map: landscape over the SAME Bundle reads, session mode untouched, no duplicate user message", async () => {
+  // the exploratory dossier run and the map run must read identical canonical Bundles
+  const base = await shaulRun(prepare({ intelligenceLevel: "deep", state: { ...createInitialRazielSessionState(), viewMode: "exploratory" } }), "vshaulmapbase123456");
+  const state = {
+    ...createInitialRazielSessionState(),
+    thread: [{ role: "user", text: SHAUL_Q }, { role: "raziel", text: "שאול = 337", question: SHAUL_Q, turnId: "turn-1", continuation: { contextSnapshot: null, facts: "", viewMode: "general" } }],
+  };
+  const map = prepare({ state, intelligenceLevel: "fast", again: true, continuationTurnId: "turn-1", viewModeOverride: "landscape" });
+  assert.deepEqual([map.request.viewMode, map.request.again, map.request.intelligenceLevel], ["landscape", true, "fast"]);
+  assert.equal(state.viewMode, "general", "the standing mode is untouched");
+  const mapAnswer = { text: JSON.stringify({ v: 1, agent: "raziel", answer: "עוגן: שאול = 337.\nעובדות חישוביות מאומתות: עובדה מתמטית: שאול = 337.", facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true }), usage: { input_tokens: 70, output_tokens: 40 }, attempts: 1, degraded: false };
+  const run = await shaulRun(map, "vshaulmaplandscape123", mapAnswer);
+  const reads = (r) => r.calls.filter((call) => call.name === "research-run").map((call) => JSON.stringify(call.payload.contract === EXPRESSION_CONTRACT ? { c: call.payload.contract, e: call.payload.expression } : { c: call.payload.contract, n: call.payload.number })).sort();
+  assert.deepEqual(reads(run), reads(base), "same canonical reads");
+  assert.equal(run.result.raziel.plan_meta.view_mode.requested, "landscape");
+  assert.equal(run.result.raziel.plan_meta.view_mode.applied, true);
+  assert.match(run.models[0].system, /מצב «נוף»/);
+  assert.match(run.models[0].user, /"contract":"raziel-canonical-result-bundle-input-v1"/, "landscape keeps the complete projection of that same Bundle");
+  assert.equal(run.models.length, 1);
+  assert.equal(run.calls.filter((call) => /persona|memory|research_objects|corpus/i.test(call.name) && /insert|upsert|write/i.test(call.name)).length, 0);
+});
+
+test("landscape is still accepted by the server contract for plain (old-style) requests, and without a Bundle nothing is guessed or sent to a model", async () => {
+  const old = await runAiAnalyze({
+    answer: noMatchAnswer(), allowed: true, bearer: "synthetic-anon-key",
+    body: { subject: "חשב את שאול בגימטריה", visitor_id: "vshaulcontractlandscape", intelligence_level: "fast", research_contract: CONTRACT, view_mode: "landscape", conversation_resolution: focusedExpressionConversation("שאול", "research") },
+    ...shaulBundles(), modelResult: mockStory,
+  });
+  assert.equal(old.result.raziel.plan_meta.view_mode.requested, "landscape");
+  assert.equal(old.result.raziel.plan_meta.view_mode.applied, true);
+  for (const viewMode of ["landscape", "exploratory"]) {
+    const none = await runAiAnalyze({
+      answer: noMatchAnswer(), allowed: true, bearer: "synthetic-anon-key", researchRunFailure: "fixture_outage",
+      body: { subject: "חשב את שאול בגימטריה", visitor_id: `vshaulnobundle${viewMode}1`, intelligence_level: "deep", research_contract: CONTRACT, view_mode: viewMode, conversation_resolution: focusedExpressionConversation("שאול", "research") },
+      ...shaulBundles(),
+    });
+    assert.equal(none.models.length, 0, `${viewMode}: no model call without a valid Bundle`);
+    assert.equal(none.result.raziel.plan_meta.view_mode.reason, "no_canonical_bundle");
+    assert.doesNotMatch(none.result.raziel.answer, /337/);
+  }
 });

@@ -7,7 +7,7 @@
 // source URL, and derive bounded presentation candidates for the exploratory view. Candidate
 // ordering never changes the canonical evidence order or promotes a candidate to research truth.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 11;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 12;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -604,6 +604,9 @@ export function razielSurpriseCandidates(input = []) {
     .map(({ source_order, strength, ...candidate }) => candidate));
 }
 
+// The writing contract of "מתפרע" (the server layer carries the same five headings): one axis, 3–7 findings, most surprising first.
+const EXPLORATORY_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] בתוך answer כתוב בדיוק בחמש הכותרות האלה, כל אחת בשורה נפרדת ובסדר הזה: הפתיחה: · הסיפור המרכזי: · שכבות נוספות: · עובדה ופרשנות: · מה עדיין לא הוכח:. בחר ציר רעיוני אחד, חבר 3–7 ממצאים מן התיק לסיפור רציף והתחל מן הממצא המפתיע ביותר. הנרמול הוא בלם אמינות ולא הסיפור. אם אין בסיס מספיק — אמור שאין עדיין בסיס לפרשנות מלאה.";
+
 function surpriseGuidance(entries) {
   const candidates = razielSurpriseCandidates(entries);
   const intro = [
@@ -614,17 +617,23 @@ function surpriseGuidance(entries) {
   ];
   if (!candidates.length) return [...intro,
     "לא נמצא בחומר קשר שעבר את סף ההפתעה. אמור שאין עדיין בסיס להפתעה טובה ואל תכפה סיפור.",
-    "[הוראת פלט סופית] בתוך answer השתמש בדיוק בארבע הכותרות: ✨ ההפתעה: · העובדה שמאחוריה: · פרשנות אפשרית: · מה עדיין לא מוכח:. פתח בתזה ולא ברשימת שיטות.",
+    EXPLORATORY_OUTPUT_INSTRUCTION,
   ].join("\n");
   return [...intro, ...candidates.map((candidate, index) => [
     `אפשרות ${index + 1} — ${candidate.kind}:`,
     `עובדה שסופקה: ${candidate.fact}`,
     `בסיס פרשני: ${candidate.interpretation_basis}`,
     `גבול הראיה: ${candidate.limit}`,
-  ].join("\n")), "[הוראת פלט סופית] בתוך answer השתמש בדיוק בארבע הכותרות: ✨ ההפתעה: · העובדה שמאחוריה: · פרשנות אפשרית: · מה עדיין לא מוכח:. פתח בתזה ולא ברשימת שיטות."].join("\n");
+  ].join("\n")), EXPLORATORY_OUTPUT_INSTRUCTION].join("\n");
 }
 
-function exploratoryBrief(entries) {
+// ── "תיק פרשנות" — the compact deterministic interpretive dossier for "מתפרע" ─────────────────────────────────────
+// A bounded projection of the SAME canonical Result Bundle (no second Bundle, no new read, no calculation). Nine labelled
+// sections, each only when the Bundle supplies it; the raw Bundle JSON is never passed to the model in this mode.
+const MAX_DOSSIER_CHARS = 7000;
+const DOSSIER_EXCLUDED_KINDS = new Set(["gematria-method-value", "gematria-method-semantic", "gematria-crossing", "gematria-confirmed-relation"]);
+
+function methodMapLine(entries) {
   const anchor = primaryExpressionAnchor(entries);
   const expressionEntry = anchor && entries.find((entry) => entry.subject?.type === "expression");
   const profile = list(expressionEntry?.projection?.model_input?.calculation_profile).flatMap((item) => {
@@ -632,19 +641,83 @@ function exploratoryBrief(entries) {
     const value = safeNumber(item?.value);
     return method && value != null ? [`${method}=${value}`] : [];
   }).slice(0, 40);
-  const boundedEvidence = entries.flatMap((entry) => {
-    const label = subjectLabel(entry.subject);
-    return list(entry?.projection?.model_input?.findings)
-      .slice(0, MAX_FALLBACK_FINDINGS)
-      .map((finding) => findingFallbackLine(finding, label));
-  }).join("\n").slice(0, 3600);
-  return [
-    "[תקציר סינתזה תחום מתוך אותה חבילת־תוצאה קנונית — לא מנוע ולא מקור אמת נוסף]",
-    anchor ? `עוגן הביטוי: ${anchor.expression} · ${anchor.method}=${anchor.value}.` : null,
-    profile.length ? `מפת החישוב הקנונית שסופקה לביטוי: ${profile.join(" · ")}.` : null,
-    boundedEvidence ? `ממצאי בסיס תחומים מן החבילה:\n${boundedEvidence}` : null,
-    surpriseGuidance(entries),
-  ].filter(Boolean).join("\n");
+  return profile.length ? `מפת החישוב הקנונית שסופקה לביטוי: ${profile.join(" · ")}.` : null;
+}
+
+function equivalenceLines(entries) {
+  return entries.flatMap((entry) => list(entry.projection?.model_input?.method_value_groups)
+    .filter((group) => safeNumber(group?.method_count) > 1)
+    .map((group) => {
+      const methods = list(group.methods).map((method) => cleanText(method?.method_label || method?.method_key, 40)).filter(Boolean).join(" · ");
+      const sets = list(group.proven_equivalence_sets).map((set) => list(set?.methods).join(" = ")).filter(Boolean).join("; ");
+      const distinct = safeNumber(group.effective_distinct_method_count);
+      return `ערך ${safeNumber(group.value)}: ${methods}${sets ? ` — שקילות מבנית מוכחת: ${sets}` : ""}${distinct != null ? ` — שיטות מובחנות אפקטיבית: ${distinct}` : ""}; עצמאות לא נטענה.`;
+    })).slice(0, 6);
+}
+
+function sourceFindingLines(entries) {
+  return entries.flatMap((entry) => entry.findings
+    .filter((finding) => !DOSSIER_EXCLUDED_KINDS.has(finding?.kind)
+      && ["source_claim", "verified_calculation", "engine_finding"].includes(razielFindingEvidenceLane(finding)))
+    .map((finding) => findingFallbackLine(finding, subjectLabel(entry.subject)))).slice(0, 6);
+}
+
+function semanticLines(entries) {
+  return entries.flatMap((entry) => entry.findings
+    .filter((finding) => finding?.kind === "gematria-method-semantic" && finding?.stage === "interpretation")
+    .map((finding) => {
+      const fact = list(finding?.evidence?.facts)[0] || {};
+      const method = cleanText(finding?.source?.method || fact.method, 60);
+      const description = cleanText(fact.semantic_description, 200) || cleanText(fact.label_he, 120);
+      return method && description ? `${method} — ${description}` : null;
+    }).filter(Boolean)).slice(0, 6);
+}
+
+// Order / hierarchy only when the canonical source states it; never inferred.
+function orderLines(entries) {
+  return entries.flatMap((entry) => entry.findings.flatMap((finding) => list(finding?.evidence?.facts)
+    .filter((fact) => /order|hierarch|sequence/i.test(String(fact?.type || "")))
+    .map((fact) => cleanText(fact.text || fact.label_he || fact.relation_note || fact.label, 200))
+    .filter(Boolean))).slice(0, 4);
+}
+
+function normalizationCaveats(entries) {
+  return entries.flatMap((entry) => entry.findings.map(crossingNormalization).filter(Boolean)).slice(0, 3).map((n) => (
+    `בהצלבה שסופקה: ${n.effective != null ? `${n.effective} משפחות חישוב אפקטיביות` : "נרמול חלקי"}${n.raw != null ? ` מתוך ${n.raw} לפני נרמול` : ""}${n.collapsed ? `; ${n.collapsed} התאמות תלויות לא הוסיפו משקל` : ""}.`
+  ));
+}
+
+function exploratoryBrief(entries) {
+  const anchor = primaryExpressionAnchor(entries);
+  const candidates = razielSurpriseCandidates(entries);
+  const constellation = candidates.find((candidate) => candidate.kind === "canonical_value_constellation");
+  const relations = candidates.filter((candidate) => candidate !== constellation);
+  const equivalences = equivalenceLines(entries);
+  const sources = sourceFindingLines(entries);
+  const meanings = semanticLines(entries);
+  const order = orderLines(entries);
+  const section = (title, lines) => (lines.filter(Boolean).length ? `${title}\n${lines.filter(Boolean).join("\n")}` : null);
+  const caveats = [
+    "עצמאות בין שיטות חישוב לא נטענה: מספר שיטות או משפחות אינו מספר ראיות עצמאיות, והנרמול הוא בלם אמינות ולא ממצא.",
+    "שוויון מספרי אינו מוכיח קשר סמנטי, סיבתי או מסורתי; תמורת אותיות וכפילות שיטות טבעית אינן הצלבה.",
+    !sources.length ? "לא סופק בתיק מקור או פוסט שמפרש את הביטוי." : null,
+    !meanings.length ? "לא סופקה בתיק משמעות מאושרת של שיטות — אין להמציא משמעות מילונית או מקור." : null,
+    ...normalizationCaveats(entries),
+  ];
+  const blocks = [
+    "[תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית — הקרנה דטרמיניסטית בלבד, לא מנוע ולא מקור אמת נוסף; השתמש רק בחומר שכאן]",
+    section("1. הביטוי והערך המרכזי:", [anchor ? `${anchor.expression} · ${anchor.method}=${anchor.value}.` : null]),
+    section("2. מפת השיטות המחושבת:", [methodMapLine(entries)]),
+    section("3. קבוצות שקילות לאחר נרמול:", equivalences),
+    section("4. קבוצת הביטויים באותו ערך רגיל:", constellation ? [constellation.fact, `בסיס פרשני: ${constellation.interpretation_basis}`] : []),
+    section("5. הצלבות בין־שיטתיות חשובות:", relations.slice(0, 3).map((candidate) => `${candidate.fact} גבול: ${candidate.limit}`)),
+    section("6. ממצאים מאומתים ממקורות ופוסטים:", sources),
+    section("7. משמעות השיטות המאושרת של SOD1820 (פרשנות SOD1820, לא עובדה מתמטית):", meanings),
+    section("8. סדר והיררכיה שנקבעו במקור:", order),
+    section("9. הסתייגויות:", caveats),
+  ];
+  // The bound applies to the material; the output instruction is always kept whole at the end.
+  return `${blocks.filter(Boolean).join("\n").slice(0, MAX_DOSSIER_CHARS - EXPLORATORY_OUTPUT_INSTRUCTION.length - 1)}\n${EXPLORATORY_OUTPUT_INSTRUCTION}`;
 }
 
 function comparable(value) {

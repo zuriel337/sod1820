@@ -134,8 +134,8 @@ for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_27
     }
     // Both modes read the same Bundle. Exploratory receives a bounded presentation projection from
     // that Bundle so the model is not drowned in the raw technical payload.
-    assert.match(runs.exploratory.models[0].user, /תקציר מתפרע מתוך חבילת-התוצאה הקנונית/);
-    assert.match(runs.exploratory.models[0].user, /תקציר סינתזה תחום מתוך אותה חבילת־תוצאה קנונית/);
+    assert.match(runs.exploratory.models[0].user, /תיק פרשנות מתוך חבילת-התוצאה הקנונית/);
+    assert.match(runs.exploratory.models[0].user, /תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית/);
     assert.doesNotMatch(runs.exploratory.models[0].user, /"contract":"raziel-canonical-result-bundle-input-v1"/);
     assert.ok(runs.exploratory.models[0].user.length < runs.landscape.models[0].user.length);
     // and the system prompt is persona + one small layer, never a duplicated persona
@@ -228,24 +228,33 @@ for (const mode of MODES) {
 
 test("4b) a clean exploratory answer built only from provided numbers passes untouched", async () => {
   const answer = [
-    "✨ ההפתעה: 271 מחבר בין חכמה להריון.",
-    "העובדה שמאחוריה: הריון בשיטת רגיל = 271.",
-    "פרשנות אפשרית: ההתאמה מצביעה על קשר חישובי בלבד, ולא על קשר רעיוני.",
-    "מה עדיין לא מוכח: לא הוכח קשר רעיוני; אפשר לבדוק אם ביטויים נוספים סביב 271 חולקים הקשר מילוני.",
+    "הפתיחה: 271 מחבר בין חכמה להריון.",
+    "הסיפור המרכזי: הריון בשיטת רגיל = 271, ולכן הוא עוגן שמאפשר להציע קריאה.",
+    "שכבות נוספות: אין בחומר שכבה נוספת משיטה אחרת.",
+    "עובדה ופרשנות: עובדה: הריון = 271. פרשנות: ההתאמה מצביעה על קשר חישובי בלבד.",
+    "מה עדיין לא הוכח: לא הוכח קשר רעיוני; אפשר לבדוק אם ביטויים נוספים סביב 271 חולקים הקשר מילוני.",
   ].join("\n");
   const run = await ask(Q_271, { mode: "exploratory", modelResult: modelText(answer) });
   assert.equal(run.models.length, 1);
   assert.equal(run.result.raziel.answer, answer);
   assert.deepEqual(run.result.raziel.plan_meta.view_mode.structure, {
-    surprise: true, supporting_fact: true, possible_interpretation: true, unproven_boundary: true,
+    opening: true, central_story: true, additional_layers: true, fact_and_interpretation: true, unproven_boundary: true,
   });
 });
 
 // ── 5: three explicit tiers / landscape layers ────────────────────────────────────────────────────────────────
-test("5) exploratory layer demands the four-part surprise contract and forbids invention; landscape layer demands anchor + ordered layers + provenance prefixes", async () => {
+test("5) exploratory layer demands the five-part interpretive contract and forbids invention; landscape layer demands anchor + ordered layers + provenance prefixes", async () => {
   const [l, e] = [await ask(Q_271, { mode: "landscape" }), await ask(Q_271, { mode: "exploratory" })];
   const exploratory = e.models[0].system.slice(e.models[0].system.indexOf(MARKER));
-  for (const tier of ["✨ ההפתעה:", "העובדה שמאחוריה:", "פרשנות אפשרית:", "מה עדיין לא מוכח:"]) assert.ok(exploratory.includes(tier), tier);
+  for (const tier of ["הפתיחה:", "הסיפור המרכזי:", "שכבות נוספות:", "עובדה ופרשנות:", "מה עדיין לא הוכח:"]) assert.ok(exploratory.includes(tier), tier);
+  const tierOrder = ["הפתיחה:", "הסיפור המרכזי:", "שכבות נוספות:", "עובדה ופרשנות:", "מה עדיין לא הוכח:"].map((tier) => exploratory.indexOf(`‘${tier}’`));
+  assert.deepEqual([...tierOrder].sort((a, b) => a - b), tierOrder, "the five parts keep the required order");
+  // the writing contract of the old-site interpreter
+  assert.match(exploratory, /ציר רעיוני מרכזי אחד/);
+  assert.match(exploratory, /3–7 ממצאים/);
+  assert.match(exploratory, /הממצא המפתיע ביותר/);
+  assert.match(exploratory, /עובדה מספרית.*פרשנות/);
+  assert.match(exploratory, /אל תהפוך אותם לנושא המרכזי/);
   assert.match(exploratory, /אסור להמציא עובדות/);
   assert.match(exploratory, /מטפורה או מונח משלך/);
   assert.match(exploratory, /הצעה של רזיאל ולא לשון המקור/);
@@ -253,15 +262,15 @@ test("5) exploratory layer demands the four-part surprise contract and forbids i
   assert.match(exploratory, /אל תחשב גימטריה/);
   assert.match(exploratory, /אל תניח זהות ביוגרפית/);
   assert.match(exploratory, /פירוש מילוני אפשרי/);
-  assert.match(exploratory, /אין בסיס מספיק להשערה/);
+  assert.match(exploratory, /אין עדיין בסיס מספיק לפרשנות מלאה/);
   assert.match(exploratory, /טקסט חשיבה גולמי/);
   assert.match(exploratory, /תמורת אותיות/);
   assert.match(exploratory, /ריבוי שיטות תלויות/);
-  assert.match(exploratory, /לא להגיש דוח טכני/);
+  assert.match(exploratory, /אל תגיש רשימת נתונים או דוח טכני/);
   assert.match(exploratory, /קבוצת ביטויים סביב אותו ערך/);
   assert.match(exploratory, /נתוני הנרמול הם בלם אמינות/);
-  assert.match(e.models[0].user, /מסנן הפתעות דטרמיניסטי/);
-  assert.match(e.models[0].user, /פתח בתזה ולא ברשימת שיטות/);
+  assert.match(e.models[0].user, /תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית/);
+  assert.match(e.models[0].user, /הפתיחה: · הסיפור המרכזי: · שכבות נוספות: · עובדה ופרשנות: · מה עדיין לא הוכח:/);
 
   const landscape = l.models[0].system.slice(l.models[0].system.indexOf(MARKER));
   assert.ok(landscape.includes("עוגן:"));
@@ -280,7 +289,7 @@ test("5) exploratory layer demands the four-part surprise contract and forbids i
 test("5a) exploratory synthesis receives a deterministic presentation shortlist, not a second evidence bundle", async () => {
   const run = await ask(Q_PAIR, { mode: "exploratory" });
   const brief = run.models[0].user;
-  assert.match(brief, /מסנן הפתעות דטרמיניסטי/);
+  assert.match(brief, /תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית/);
   assert.match(brief, /חכמה בשיטת מסתתר = 67; בינה בשיטת רגיל = 67/);
   assert.match(brief, /שוויון מספרי מאומת/);
   assert.match(brief, /עצמאות בין השיטות.*אינם מוכחים/);
@@ -290,10 +299,10 @@ test("5a) exploratory synthesis receives a deterministic presentation shortlist,
 });
 
 test("5b) the server reports which structural labels the model answer actually carried (telemetry only; the answer is never rewritten)", async () => {
-  const partial = await ask(Q_271, { mode: "exploratory", modelResult: modelText("העובדה שמאחוריה: הריון בשיטת רגיל = 271.") });
-  assert.equal(partial.result.raziel.answer, "העובדה שמאחוריה: הריון בשיטת רגיל = 271.");
+  const partial = await ask(Q_271, { mode: "exploratory", modelResult: modelText("עובדה ופרשנות: עובדה: הריון בשיטת רגיל = 271.") });
+  assert.equal(partial.result.raziel.answer, "עובדה ופרשנות: עובדה: הריון בשיטת רגיל = 271.");
   assert.deepEqual(partial.result.raziel.plan_meta.view_mode.structure, {
-    surprise: false, supporting_fact: true, possible_interpretation: false, unproven_boundary: false,
+    opening: false, central_story: false, additional_layers: false, fact_and_interpretation: true, unproven_boundary: false,
   });
   const land = await ask(Q_271, { mode: "landscape", modelResult: modelText("עוגן: 271.\nעובדות חישוביות מאומתות: עובדה מתמטית: הריון = 271.\nשאלות ונתיבי מחקר פתוחים: מה עוד?") });
   assert.deepEqual(land.result.raziel.plan_meta.view_mode.structure, { anchor: true, layers: 2 });

@@ -5,7 +5,6 @@ import {
 import {
   RAZIEL_DEFAULT_VIEW_MODE,
   normalizeRazielViewMode,
-  normalizeRazielViewModeReport,
 } from "./razielViewMode2029.js";
 import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
 
@@ -378,12 +377,14 @@ export function prepareRazielSessionSubmission({
   // replaces it for this request only; the stored answer and the session's own mode are not modified.
   const oneShotViewMode = viewModeOverride == null ? null : normalizeRazielViewMode(viewModeOverride);
   const selectedViewMode = continuation?.viewMode && !oneShotViewMode ? continuation.viewMode : oneShotViewMode ?? viewMode ?? state?.viewMode;
+  // "מתפרע" is an explicit request for interpretive depth: the user's choice of that mode (or of the one-shot) sends
+  // intelligence_level "deep". The server never derives a provider or model from view_mode; its router still owns that choice.
   const request = buildRazielSessionRequest({
     question: subject,
     state,
     contextSnapshot,
     facts: selectedFacts,
-    intelligenceLevel,
+    intelligenceLevel: normalizeRazielViewMode(selectedViewMode) === "exploratory" ? "deep" : intelligenceLevel,
     again,
     viewMode: selectedViewMode,
   });
@@ -407,6 +408,21 @@ export function prepareRazielSessionSubmission({
   };
   return { request, turn, contextSnapshot };
 }
+
+// What a server answer reports about the mode it actually applied (plan_meta.view_mode / view_mode).
+// "applied:false" (no Bundle / quota / degraded) must never be presented as a landscape/exploratory answer.
+export function normalizeRazielViewModeReport(response) {
+  const raw = response?.view_mode ?? response?.plan_meta?.view_mode;
+  if (!raw || typeof raw !== "object") return null;
+  const requested = normalizeRazielViewMode(raw.requested);
+  if (requested === RAZIEL_DEFAULT_VIEW_MODE) return null;
+  return Object.freeze({
+    requested,
+    applied: raw.applied === true,
+    reason: typeof raw.reason === "string" ? raw.reason.slice(0, 40) : null,
+  });
+}
+
 
 export function extractRazielSourceNames(response = null) {
   if (!isObject(response)) return [];
