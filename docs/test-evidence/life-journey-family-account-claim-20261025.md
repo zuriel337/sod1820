@@ -1,9 +1,9 @@
 # Life Journey 2029 — family account continuity evidence
 
 - Branch: `gpt/life-journey-real-preview-fix-20261025`
-- DB package consumed: `e71c3f0eca7363ea46c8275998127c1cd4b6c6a7`
-- DB migration: `20261025010603_family_claim_self_redeem_owner_reader_v1.sql`
-- Live DB apply: **NO**
+- DB package consumed: `7d953b989775dd82d786c2199b478815fa624142`
+- DB migration: `20261025012451_family_claim_self_redeem_owner_reader_v1.sql`
+- Live DB apply: **YES** — recorded migration version `20261025012451`
 - Merge: **NO**
 - Preview: **NO**
 - Production: **NO**
