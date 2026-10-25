@@ -374,3 +374,21 @@ test("an adjacent value is an observed value of the explicit expression, never a
   assert.equal(gate.resolveExplicitHebrewExpressionResearchSubject("תן לי גימטריות של 337"), null);
   assert.equal(gate.resolveExplicitHebrewExpressionResearchSubject("תן לי גימטריות של 12 34 שאול"), null);
 });
+
+test("natural phrasings without the definite article or a computation noun still resolve the explicit expression", async () => {
+  const gate = await import("./razielSemanticIntentGate.js");
+  for (const [question, label, observed] of [
+    ["בדוק לי גימטריה של שאול", "שאול", undefined],
+    ["בדוק לי גימטריה של שאול 337", "שאול", 337],
+    ["המילה שאול", "שאול", undefined],
+    ["הביטוי עולה ויורד", "עולה ויורד", undefined],
+  ]) {
+    const subject = gate.resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(subject?.label, label, question);
+    assert.equal(subject?.observed_value, observed, question);
+  }
+  assert.equal(gate.resolveExplicitNumericResearchSubject("מספר 337")?.value, 337);
+  for (const question of ["המילה הזאת", "המילה האחרונה", "השם שלי", "שאול"]) {
+    assert.equal(gate.resolveExplicitHebrewExpressionResearchSubject(question), null, question);
+  }
+});

@@ -133,15 +133,25 @@ export function resolveRazielExpressionContinuationDirective(question) {
 // expression and does not maintain a dictionary of known names.
 function explicitExpressionProfileCommand(question) {
   const q = grammarText(question);
-  const computation = "(?:ה?גימטריות|חישובי\\s+ה?גימטרי[הא]|החישובים\\s+הגימטריים|הערכים\\s+הגימטריים)";
+  const computation = "(?:ה?גימטרי(?:ות|[הא])|חישובי\\s+ה?גימטרי[הא]|החישובים\\s+הגימטריים|הערכים\\s+הגימטריים)";
   const role = "(?:(?:השם|המילה|הביטוי)\\s+)?";
-  const imperative = new RegExp(`^(?:תן|תני|הצג|הציגי|הראה|הראי|פרט|פרטי)(?:\\s+לי)?(?:\\s+את)?\\s+(?:כל\\s+)?${computation}\\s+(?:על|של|עבור)\\s+${role}(.+)$`, "u");
+  const imperative = new RegExp(`^(?:תן|תני|הצג|הציגי|הראה|הראי|פרט|פרטי|בדוק|בדקי|תבדוק|תבדקי)(?:\\s+לי)?(?:\\s+את)?\\s+(?:כל\\s+)?${computation}\\s+(?:על|של|עבור)\\s+${role}(.+)$`, "u");
   const interrogative = new RegExp(`^(?:מה|אילו)(?:\\s+הן)?\\s+(?:כל\\s+)?${computation}\\s+(?:של|עבור)\\s+${role}(.+)$`, "u");
   // "הכל על הגימטריה של X" — a whole-profile request over one expression.
   const everything = new RegExp(`^(?:הכל|כל\\s+מה\\s+שיש)\\s+על\\s+(?:ה?גימטרי[הא]|ה?ערכים\\s+ה?גימטריים)\\s+(?:של|על)\\s+${role}(.+)$`, "u");
   const match = imperative.exec(q) || interrogative.exec(q) || everything.exec(q);
+  // A connections tail belongs to the dedicated connect grammar below, never to the expression slot.
+  if (match && /(?:^|\s)ו?(?:מה|אילו|מצא|חפש|בדוק)(?:\s+לי)?\s+(?:ה?הצלבות|ה?קשרים)(?:\s|$)/u.test(match[1])) return null;
   const slot = match ? splitExpressionSlot(match[1]) : null;
   return slot ? expressionSubjectFromSlot(slot) : null;
+}
+
+// "המילה שאול" / "הביטוי X" — a lexical-role noun followed by the bounded expression slot is an explicit research request.
+function explicitRoleExpressionCommand(question) {
+  const match = /^(?:המילה|הביטוי|השם)\s+(.+)$/u.exec(grammarText(question));
+  const slot = match ? splitExpressionSlot(match[1]) : null;
+  if (!slot || /^(?:הז[הא]ת?|ההי?א|הבא(?:ה)?|האחרונה?|שלפני|שלעיל)$/u.test(slot.expression)) return null;
+  return expressionSubjectFromSlot(slot);
 }
 
 // "<expression> <value> בכל השיטות" — the all-methods lens over one explicit expression.
@@ -255,6 +265,9 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
 
   const expressionProfileCommand = explicitExpressionProfileCommand(q);
   if (expressionProfileCommand) return expressionProfileCommand;
+
+  const expressionRoleCommand = explicitRoleExpressionCommand(q);
+  if (expressionRoleCommand) return expressionRoleCommand;
 
   const expressionAllMethodsCommand = explicitExpressionAllMethodsCommand(q);
   if (expressionAllMethodsCommand) return expressionAllMethodsCommand;
@@ -389,7 +402,7 @@ export function resolveExplicitNumericResearchSubject(question) {
   if (contextualBefore.test(q) || contextualAfter.test(q) || explicitRoleQuestion) return null;
 
   const exactNumber = q === literal;
-  const explicitNumberNoun = new RegExp(`(?:^|\\s)המספר\\s+${escaped}(?:$|\\s)`, "u").test(q);
+  const explicitNumberNoun = new RegExp(`(?:^|\\s)ה?מספר\\s+${escaped}(?:$|\\s)`, "u").test(q);
   const cuePrefix = q.slice(0, q.indexOf(literal));
   const researchCue = /(?:^|\s)(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי|צלול|צללי|לצלול|העמק|העמיקי|תעמיק|תעמיקי|להעמיק)(?:\s|$)/u.test(cuePrefix);
   const connectionCue = /(?:^|\s)(?:קשר|קשרים|הצלבה|הצלבות|השווה|השווי|תשווה|לחבר)(?:\s|$)/u.test(cuePrefix);
