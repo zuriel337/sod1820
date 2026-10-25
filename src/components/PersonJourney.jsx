@@ -45,6 +45,13 @@ import {
   createSupabaseLifeJourneyFamilyProviders,
   runLifeJourneyFamilyResearch,
 } from "../lib/research/lifeJourneyFamilyResearch.js";
+import {
+  lifeJourneyFamilySelectionSignature,
+  lifeJourneyFamilySnapshotPatch,
+  materializeLifeJourneyFamilySnapshot,
+  readLifeJourneyFamilySnapshot,
+  serializeLifeJourneyFamilySnapshot,
+} from "../lib/research/lifeJourneyFamilyResearchSnapshot.js";
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import "./person-journey.css";
@@ -267,6 +274,10 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       .filter(ref => availableRefs.has(ref));
   }, [members, research.context, selfRef]);
   const selectedFamilyRefSet = useMemo(() => new Set(selectedFamilyRefs), [selectedFamilyRefs]);
+  const familyResearchSignature = useMemo(
+    () => lifeJourneyFamilySelectionSignature(members, selectedFamilyRefs),
+    [members, selectedFamilyRefs],
+  );
   const latestClaimByTarget = useMemo(() => {
     const claims = new Map();
     for (const claim of familyClaims.rows) {
@@ -357,6 +368,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
 
   useEffect(() => {
     if (!selfRef || !user) return;
+    if (research.syncStatus === "loading") return;
     if (variant === "2029") {
       const contextView = lifeJourneyViewFromContext(research.context, selfRef);
       if (contextView === "finding" && !pathname.startsWith("/2029/number/")) {
@@ -389,7 +401,27 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     // Research Context is navigation state only; Person data remains in the private Ledger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLifeJourneyPersonRef, currentLifeJourneyView, currentResearchSubjectId,
-    currentReturnPersonRef, pathname, persistedSelf?.name, selfRef, user?.id, variant]);
+    currentReturnPersonRef, pathname, persistedSelf?.name, research.syncStatus, selfRef, user?.id, variant]);
+
+  useEffect(() => {
+    if (variant !== "2029" || !selfRef || !familyResearchSignature || familyResearch.state !== "idle") return;
+    const snapshot = readLifeJourneyFamilySnapshot(research.context, {
+      personRef: selfRef,
+      signature: familyResearchSignature,
+    });
+    if (!snapshot) return;
+    const materialized = materializeLifeJourneyFamilySnapshot(snapshot, members, {
+      hebrewDateForMember: member => {
+        const date = memberResearchProfile(member).birthdate;
+        if (!date) return null;
+        try { return gregorianToHebrewDateRepresentation(date)?.hebrew?.pretty || null; }
+        catch { return null; }
+      },
+    });
+    if (!materialized) return;
+    setFamilyResearch(materialized.research);
+    setFamilyAnalysis(materialized.analysis || { state: "idle", data: null, error: null });
+  }, [familyResearch.state, familyResearchSignature, members, research.context, selfRef, variant]);
 
   const runInitialResearch = useCallback(async ({ first, last, date }) => {
     if (!user || !clean(first)) return null;
@@ -866,7 +898,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         providers: familyProviders,
       });
       const [rows, unified] = await Promise.all([rowsPromise, unifiedPromise]);
-      setFamilyResearch({
+      const completedResearch = {
         state: "ready",
         rows,
         sharedValues: unified.sharedValues?.length ? unified.sharedValues : sharedFamilyValues(rows),
@@ -876,12 +908,19 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         message: unified.message,
         coverage: unified.coverage,
         error: null,
+      };
+      setFamilyResearch(completedResearch);
+      const snapshot = serializeLifeJourneyFamilySnapshot({
+        personRef: selfRef,
+        signature: familyResearchSignature,
+        research: completedResearch,
       });
+      if (snapshot) research.updateResearchContext?.(lifeJourneyFamilySnapshotPatch(snapshot));
       track("journey_person", null, "family_research_explicit");
     } catch (error) {
       setFamilyResearch({ state: "error", rows: [], sharedValues: [], error: personJourneyErrorMessage(error) });
     }
-  }, [members, selectedFamilyRefs, user, variant]);
+  }, [familyResearchSignature, members, research, selectedFamilyRefs, selfRef, user, variant]);
 
   const runFamilyAnalysis = useCallback(async () => {
     if (familyResearch.state !== "ready") return;
@@ -896,12 +935,20 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         research: familyResearch,
         ...providers,
       });
-      setFamilyAnalysis({ state: "ready", data, error: null });
+      const completedAnalysis = { state: "ready", data, error: null };
+      setFamilyAnalysis(completedAnalysis);
+      const snapshot = serializeLifeJourneyFamilySnapshot({
+        personRef: selfRef,
+        signature: familyResearchSignature,
+        research: familyResearch,
+        analysis: completedAnalysis,
+      });
+      if (snapshot) research.updateResearchContext?.(lifeJourneyFamilySnapshotPatch(snapshot));
       track("journey_person", null, "family_normalized_analysis_explicit");
     } catch (error) {
       setFamilyAnalysis({ state: "error", data: null, error: personJourneyErrorMessage(error) });
     }
-  }, [familyResearch]);
+  }, [familyResearch, familyResearchSignature, research, selfRef]);
 
   if (authLoading || loading) {
     return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
@@ -1313,7 +1360,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <small>מחקר משפחתי מאוחד · מנורמל</small>
           <h3>המשפחה כמטריצה אחת</h3>
           <p>{familyResearch.message}</p>
-          <span>{familyResearch.coverage?.expressionCount || 0} ביטויי שם ותאריך יצרו {familyResearch.coverage?.searchedPairCount || 0} זוגות מועמדים שנבדקו. התוצאה נשארת בזיכרון המסך ואינה נשמרת כאמת על המשפחה.</span>
+          <span>{familyResearch.coverage?.expressionCount || 0} ביטויי שם ותאריך יצרו {familyResearch.coverage?.searchedPairCount || 0} זוגות מועמדים שנבדקו. נשמר עותק עבודה פרטי ב־Research Context; הוא אינו אמת על המשפחה.</span>
         </article>
         {familyResearch.coverage?.truncated ? <p className="person-journey-note">מספר זוגות הביטויים עבר את גבול ההפעלה הבטוח. מוצג חתך מפורש ומדווח; לא הומצאה השלמה לזוגות שלא נבדקו.</p> : null}
         {familyResearch.connections?.length ? <section className="person-journey-relation-list" aria-label="חיבורים מנורמלים בין בני המשפחה">

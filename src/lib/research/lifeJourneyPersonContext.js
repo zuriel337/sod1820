@@ -1,5 +1,6 @@
 import { buildExactReturnPatch, normalizeResearchContext } from "./researchContext.js";
 import { stableIdentityDigest } from "./researchRepresentations.js";
+import { LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION } from "./lifeJourneyFamilyResearchSnapshot.js";
 
 export const LIFE_JOURNEY_2029_HREF = "/2029/journey";
 export const LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT = "life_journey_person_context_v1";
@@ -29,6 +30,7 @@ export function lifeJourneySelectedMemberRefs(context, personRef) {
 }
 
 function personDimensions(context, personRef) {
+  const familySnapshot = context?.dimensions?.[LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION];
   const dimensions = Object.fromEntries(
     Object.entries(context?.dimensions || {}).filter(([key]) => !key.startsWith("lifeJourney")),
   );
@@ -38,6 +40,9 @@ function personDimensions(context, personRef) {
     lifeJourneyView: "person",
     lifeJourneyPersonRef: personRef,
     lifeJourneySelectedMemberRefs: lifeJourneySelectedMemberRefs(context, personRef),
+    ...(typeof familySnapshot === "string" && familySnapshot
+      ? { [LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION]: familySnapshot }
+      : {}),
   };
 }
 
@@ -133,12 +138,14 @@ export function buildLifeJourneyFamilySelectionPatch(context, { personRef, membe
   const selectedRefs = [...new Set(memberRefs
     .map(clean)
     .filter(ref => isLifeJourneyMemberRef(rootRef, ref)))];
+  const currentRefs = lifeJourneySelectedMemberRefs(safe, rootRef);
+  const selectionChanged = selectedRefs.length !== currentRefs.length
+    || selectedRefs.some((ref, index) => ref !== currentRefs[index]);
+  const dimensions = { ...safe.dimensions, lifeJourneySelectedMemberRefs: selectedRefs };
+  if (selectionChanged) delete dimensions[LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION];
   return normalizeResearchContext({
     ...safe,
-    dimensions: {
-      ...safe.dimensions,
-      lifeJourneySelectedMemberRefs: selectedRefs,
-    },
+    dimensions,
   });
 }
 
