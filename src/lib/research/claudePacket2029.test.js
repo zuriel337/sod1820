@@ -33,5 +33,9 @@ test("the packet module and page are isolated from Raziel, the network, the data
     const source = readFileSync(new URL(file, import.meta.url), "utf8");
     assert.doesNotMatch(source, /fetch\(|supabase|XMLHttpRequest|ai-analyze|research-run|useRazielSession|RazielSession|getAiAnalysis|callClaude/i, file);
   }
-  // The page is not registered in App2029 yet: the route must be lazy and the weight gate must stay green when it is.
+  // Reached only through the existing (lazily loaded) preview page; App2029 and the eager graph are untouched.
+  const preview = readFileSync(new URL("../../pages/HomePreview2029Page.jsx", import.meta.url), "utf8");
+  assert.match(preview, /import ClaudeResearchPacket2029Page from "\.\/ClaudeResearchPacket2029Page\.jsx";/, "shares the preview page's own lazy chunk: no new chunk, no new dependency-map entry in the eager entry");
+  assert.match(preview, /get\("tool"\) === "claude"/);
+  assert.doesNotMatch(readFileSync(new URL("../../App2029.jsx", import.meta.url), "utf8"), /ClaudeResearchPacket|ClaudePacket/);
 });

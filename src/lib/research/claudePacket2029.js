@@ -2,7 +2,7 @@
 // (src/lib/gematria.js). It is a plain text hand-off the user pastes to Claude in the active session; Claude then
 // writes the interpretation. No network, no database, no model call, no Raziel session: this module has no side effects
 // and never computes anything beyond what the canonical engine already defines.
-import { METHODS, hasSofiot, methodLabel, normalizeForCalc, onlyHeb } from "../gematria.js";
+import { METHODS, methodLabel, normalizeForCalc, onlyHeb } from "../gematria.js";
 
 export const CLAUDE_PACKET_VERSION = 1;
 export const CLAUDE_PACKET_MAX_LENGTH = 80;
@@ -24,7 +24,8 @@ export function buildClaudePacket(raw) {
   for (const row of rows) byValue.set(row.value, [...(byValue.get(row.value) || []), row.label]);
   const groups = [...byValue.entries()].filter(([, labels]) => labels.length > 1).map(([value, labels]) => ({ value, labels }));
   const regular = rows.find((row) => row.key === "רגיל");
-  const sofiyot = hasSofiot(expression);
+  // Final letters are visible in the engine's own values: גדול differs from רגיל exactly when the expression has final letters.
+  const sofiyot = rows.find((row) => row.key === "גדול").value !== regular.value;
   const lines = [
     "חבילת מחקר לקלוד — SOD1820 / 2029",
     `גרסה: ${CLAUDE_PACKET_VERSION}`,

@@ -3,7 +3,8 @@
 // center, typed "Now". Rail placement is NOT accepted product layout; it exists to be judged in use.
 // Reads only through existing public readers; no writes, no new owner, no change to Home2029Page.
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import ClaudeResearchPacket2029Page from "./ClaudeResearchPacket2029Page.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { use2029Palette } from "../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../lib/themeMode.js";
@@ -209,7 +210,16 @@ function SelectionPanel({ selection, razielOpen, onClose }) {
   </aside>;
 }
 
+// ?tool=claude opens the standalone Claude research packet (engine values only; no Raziel session, no model, no network).
+
 export default function HomePreview2029Page() {
+  const { search } = useLocation();
+  return new URLSearchParams(search).get("tool") === "claude"
+    ? <ClaudeResearchPacket2029Page />
+    : <HomePreview2029Body />;
+}
+
+function HomePreview2029Body() {
   const palette = use2029Palette();
   const preset = useThemePreset();
   const data = usePreviewData();
