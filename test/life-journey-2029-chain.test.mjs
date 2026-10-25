@@ -15,6 +15,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const capabilities = read("src/components/experience2029/LifeJourneyCapabilities2029.jsx");
   const nameAdapter = read("src/components/experience2029/LifeJourneyName2029.jsx");
   const nameResearch = read("src/lib/research/lifeJourneyNameResearch.js");
+  const familyResearch = read("src/lib/research/lifeJourneyFamilyResearch.js");
   const removalMigration = read("supabase/migrations/20261025035531_life_journey_remove_family_member_v1.sql");
   const supabaseClient = read("src/lib/supabase.js");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
@@ -63,6 +64,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /buildLifeJourneyFamilySelectionPatch/);
   assert.match(journey, /lifeJourneySelectedMemberRefs/);
   assert.match(journey, /family_research_explicit/);
+  assert.match(journey, /runLifeJourneyFamilyResearch/);
+  assert.match(journey, /המשפחה כמטריצה אחת/);
   assert.match(journey, /Promise\.all\(selectedMembers\.map/);
   assert.match(journey, /חקור \$\{selectedFamilyRefs\.length\} אנשים יחד/);
   assert.match(journey, /מפת המחקר המשפחתית/);
@@ -82,6 +85,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /createFamilyInvitation/);
   assert.match(journey, /redeemFamilyInvitation/);
   assert.match(journey, /revokeFamilyClaim/);
+  assert.match(journey, /reverseFamilyClaim/);
+  assert.match(journey, /נתק אימות חשבון/);
   assert.match(journey, /sendFamilyInvitationEmail/);
   assert.match(journey, /shareFamilyInvitationPrivately/);
   assert.match(journey, /קוד חד־פעמי · מוצג רק בזיכרון המסך הנוכחי/);
@@ -93,6 +98,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(familyClaimAdapter, /fn_create_family_invitation/);
   assert.match(familyClaimAdapter, /fn_redeem_family_invitation/);
   assert.match(familyClaimAdapter, /fn_revoke_family_claim/);
+  assert.match(familyClaimAdapter, /fn_reverse_family_claim/);
   assert.match(familyClaimAdapter, /send-family-invitation-email/);
   assert.match(familyClaimAdapter, /navigator\?\.share/);
   assert.match(familyClaimAdapter, /body: \{ claim_id: claim, raw_token: token, recipient_email: email \}/);
@@ -120,6 +126,10 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(nameResearch, /createGematriaRelationW2Executor/);
   assert.match(nameResearch, /INTAKE_DIRECT_PAIR/);
   assert.doesNotMatch(nameResearch, /NameLab|tarot|קלפים|fetchCanonicalGematriaFindings/i);
+  assert.match(familyResearch, /createGematriaRelationW2Executor/);
+  assert.match(familyResearch, /INTAKE_DIRECT_PAIR/);
+  assert.match(familyResearch, /LIFE_JOURNEY_FAMILY_RESEARCH_MAX_MEMBERS = 12/);
+  assert.doesNotMatch(familyResearch, /\.insert\(|\.update\(|localStorage|sessionStorage|ELS|NameLab|Raziel/i);
   assert.match(supabaseClient, /export async function getNameMultiWithoutEls/);
   assert.match(supabaseClient, /p_opts:\s*\{ skip_els: '1' \}/);
   assert.match(dateAdapter, /runLifeJourneyDateMatrixResearch/);
@@ -153,7 +163,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(removalMigration, /grant execute on function public\.fn_remove_family_member\(uuid, text\) to authenticated/);
   assert.doesNotMatch(removalMigration, /create table|create policy|grant .* on (?:table )?public\.research_objects/i);
 
-  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
+  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
   assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);
   assert.doesNotMatch(privateFlow, /channel_updates|community_hints|news/i);
   assert.doesNotMatch(privateFlow, /Raziel|רזיאל/);
