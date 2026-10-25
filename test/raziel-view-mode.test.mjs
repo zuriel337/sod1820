@@ -218,19 +218,37 @@ test("8) explicit values: חכמה רגיל=73, חכמה מסתתר=67, בינה
 
 // ── 4: no invented numbers, in all three modes ────────────────────────────────────────────────────────────────
 for (const mode of MODES) {
-  test(`4) numeric truth guard runs in "${mode}": a number outside the material is rejected, retried once, then replaced by a grounded fallback`, async () => {
+  test(`4) numeric truth guard runs in "${mode}": a number outside the material never reaches the person`, async () => {
     const invented = modelText("עובדה מאומתת: הריון בשיטת רגיל = 271. השערה ניסיונית: מספר 987654 קשור לכך.");
     const run = await ask(Q_271, { mode: mode === "general" ? null : mode, modelResults: [invented, invented] });
     assert.ok(run.models.length <= 2, "at most the existing guard retry");
     const shown = JSON.stringify(run.result);
     assert.equal(shown.includes("987654"), false);
-    assert.equal(run.result.degraded, true);
-    if (mode !== "general") {
+    if (mode === "exploratory") {
+      assert.equal(run.models.length, 1, "מתפרע repairs the already-written prose without a second deep call");
+      assert.equal(run.result.degraded, undefined);
+      assert.equal(run.result.raziel.answer, "עובדה מאומתת: הריון בשיטת רגיל = 271.");
+      assert.equal(run.result.raziel.plan_meta.view_mode.applied, true);
+      assert.equal(run.result.raziel.plan_meta.view_mode.repair, "numeric_sentence_drop");
+    } else {
+      assert.equal(run.result.degraded, true);
+    }
+    if (mode !== "general" && mode !== "exploratory") {
       assert.equal(run.result.raziel.plan_meta.view_mode.applied, false);
       assert.equal(run.result.raziel.plan_meta.view_mode.reason, "degraded");
     }
   });
 }
+
+test("4c) an exploratory provider failure never exposes the raw canonical dump as a deep answer", async () => {
+  const run = await ask(Q_271, { mode: "exploratory", modelResult: {
+    text: "guardian", usage: undefined, attempts: 1, degraded: true, reason: "timeout",
+  } });
+  assert.equal(run.result.degraded, true);
+  assert.equal(run.result.raziel.plan_meta.view_mode.applied, false);
+  assert.match(run.result.raziel.answer, /עצרתי את הפרשנות/);
+  assert.doesNotMatch(run.result.raziel.answer, /ממצאים קנוניים|מפת החישוב הקנונית|קבוצות ערך מנורמלות/);
+});
 
 test("4b) a clean exploratory answer built only from provided numbers passes untouched", async () => {
   const answer = [

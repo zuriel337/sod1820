@@ -204,6 +204,33 @@ function numericTruthRetryInstruction() {
   return "\n\nתיקון חובה: בטיוטה הקודמת הופיעה טענה מספרית שלא הייתה בחומר שסופק. כתוב מחדש בלי להוסיף שום מספר, חישוב, פירוק, סכום או ערך שלא הופיע במפורש בחומר שסופק. פרש בלבד.";
 }
 
+// A canonical interpretive draft is already grounded before it reaches the numeric guard. If one
+// sentence nevertheless contains an unsupported literal, keep the rest of the prose and remove
+// only that sentence (and any affected fact/path) instead of paying for a second full deep call.
+// This never turns an unsupported number into words: the whole user-visible claim is discarded.
+function sanitizeRazielNumericDraft(output, invented = []) {
+  const blocked = new Set(invented.map(canonicalNumericLiteral).filter(Boolean));
+  const contract = parseContract(String(output || ""));
+  if (!contract || !blocked.size) return null;
+  const isBlocked = (value) => numericLiterals(value).some((literal) => blocked.has(literal));
+  const cleanProse = (value) => String(value || "")
+    .split(/(?<=[.!?؟])\s+|\n{2,}/u)
+    .filter((part) => part.trim() && !isBlocked(part))
+    .join(" ")
+    .trim();
+  const repaired = { ...contract };
+  repaired.answer = cleanProse(contract.answer);
+  repaired.follow_up_question = isBlocked(contract.follow_up_question) ? null : contract.follow_up_question;
+  repaired.facts = Array.isArray(contract.facts)
+    ? contract.facts.filter((fact) => !isBlocked(fact?.label) && !isBlocked(fact?.value))
+    : [];
+  repaired.suggested_paths = Array.isArray(contract.suggested_paths)
+    ? contract.suggested_paths.filter((path) => !isBlocked(path?.label) && !isBlocked(path?.hint))
+    : [];
+  if (!repaired.answer) return null;
+  return JSON.stringify(repaired);
+}
+
 function numericTruthFallback() {
   return "אין לי מספיק חומר מספרי שסופק כדי להוסיף חישוב בלי להמציא. אפשר להמשיך מתוך הנתונים שכבר נמסרו בלבד.";
 }
@@ -3283,11 +3310,23 @@ Deno.serve(async (req: Request) => {
       // The rewrite is independently guarded and logged; neither rejected draft can reach the user.
       let finalRel = rel;
       let finalTruthRejected = firstRazielTruthRejected;
+      let interpretiveNumericRepairUsed = false;
       // 2029 canonical-Bundle requests already hold a deterministic evidence fallback. If the
       // provider itself degrades, return that evidence instead of an empty analysis. Legacy and
       // trusted-channel behavior stays byte-for-byte on its existing guardian path.
       let truthFallbackUsed = rel.degraded && rCanonicalResearchOptIn && !!rNcFallback;
-      if (firstRazielTruthRejected) {
+      const sanitizedInterpretiveDraft = firstRazielTruthRejected && rCanonicalResearchOptIn && rViewMode === "exploratory"
+        ? sanitizeRazielNumericDraft(rel.text, razielTruth.invented)
+        : null;
+      const sanitizedInterpretiveTruth = sanitizedInterpretiveDraft
+        ? validateRazielNumericOutput(sanitizedInterpretiveDraft, permittedRazielNumericTexts)
+        : null;
+      if (sanitizedInterpretiveDraft && sanitizedInterpretiveTruth?.ok) {
+        finalRel = { ...rel, text: sanitizedInterpretiveDraft };
+        finalTruthRejected = false;
+        truthFallbackUsed = false;
+        interpretiveNumericRepairUsed = true;
+      } else if (firstRazielTruthRejected) {
         const retrySpanId = crypto.randomUUID();
         const retryStartedAt = new Date().toISOString();
         const retryRel = await callClaudeReliable({
@@ -3352,7 +3391,9 @@ Deno.serve(async (req: Request) => {
       }
       const truthFallback = JSON.stringify({
         v: 1, agent: "raziel", context: null, greeting: null,
-        answer: rNcFallback || "לא קיבלתי מהמנוע נתונים מאומתים שמאפשרים לי לענות בלי לנחש. נסה בקשה מפורשת לחיפוש במאגר או פתח את דף המספר ובקש את הביטויים המאומתים.",
+        answer: rCanonicalResearchOptIn && rViewMode !== "general"
+          ? "מצאתי את חומר המחקר, אבל עצרתי את הפרשנות מפני שהטיוטה הוסיפה נתון מספרי שלא אומת. אפשר להפעיל שוב את הקריאה; הממצאים עצמם נשמרו ולא נפגעו."
+          : rNcFallback || "לא קיבלתי מהמנוע נתונים מאומתים שמאפשרים לי לענות בלי לנחש. נסה בקשה מפורשת לחיפוש במאגר או פתח את דף המספר ובקש את הביטויים המאומתים.",
         facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,
       });
       const out = { text: truthFallbackUsed ? truthFallback : finalRel.text };
@@ -3378,7 +3419,8 @@ Deno.serve(async (req: Request) => {
           // RAZIEL_VIEW_MODE_V1 telemetry: honest applied flag + which structural labels the answer carried (no content).
           rPlanMeta = { ...rPlanMeta, view_mode: responseDegraded
             ? { requested: rViewMode, applied: false, reason: "degraded" }
-            : { requested: rViewMode, applied: true, structure: razielViewModeStructure(rViewMode, contract.answer) } };
+            : { requested: rViewMode, applied: true, structure: razielViewModeStructure(rViewMode, contract.answer),
+              ...(interpretiveNumericRepairUsed ? { repair: "numeric_sentence_drop" } : {}) } };
         }
         if (rPlanMeta) contract.plan_meta = rPlanMeta;   // additive — lets Explain-Why say why L0 vs L2
         if (contract.continue_wa == null) contract.continue_wa = true;

@@ -683,7 +683,9 @@ function methodLayerLines(entries, layerEntries) {
 // ── "תיק פרשנות" — the compact deterministic interpretive dossier for "מתפרע" ─────────────────────────────────────
 // A bounded projection of the SAME canonical Result Bundle (no second Bundle, no new read, no calculation). Nine labelled
 // sections, each only when the Bundle supplies it; the raw Bundle JSON is never passed to the model in this mode.
-const MAX_DOSSIER_CHARS = 9000;
+// Hebrew is relatively token-dense. Keep enough room for the complete Legacy-style arc while
+// avoiding a deep prompt that crowds out the single model call inside the Edge wall-clock budget.
+const MAX_DOSSIER_CHARS = 6500;
 const DOSSIER_EXCLUDED_KINDS = new Set(["gematria-method-value", "gematria-method-semantic", "gematria-crossing", "gematria-confirmed-relation"]);
 
 function methodMapLine(entries) {
