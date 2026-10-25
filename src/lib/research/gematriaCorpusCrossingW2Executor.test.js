@@ -48,6 +48,94 @@ test('corpus crossing adapter performs one bounded canonical RPC and projects co
   assert.equal(out.trace.source_total_known, false);
 });
 
+test('optional pair normalization enriches every admitted crossing through the canonical relation engine', async () => {
+  const calls = [];
+  const executor = createGematriaCorpusCrossingW2Executor({
+    supabase: {
+      rpc: async (name, args) => {
+        calls.push({ name, args });
+        if (name === 'strongest_crossings') return {
+          data: [
+            { partner: 'שום', n_methods: 2, methods_detail: 'מסתתר=328 · סידורי=40' },
+            { partner: 'עולה ויורד', n_methods: 2, methods_detail: 'רגיל=337 · גדול=337' },
+          ],
+          error: null,
+        };
+        return {
+          data: {
+            relation_kind: 'gematria_convergence',
+            engine_signal: args.p_b === 'שום' ? 4.9 : 2,
+            confidence: 'candidate',
+            research_priority: args.p_b === 'שום' ? 'HIGH_ENGINE_NO_EVIDENCE_YET' : 'EVIDENCE_BACKED',
+            noise_flags: [],
+            engine_signal_components: {
+              raw_independent_group_count: args.p_b === 'שום' ? 2 : 1,
+              effective_independent_group_count: args.p_b === 'שום' ? 2 : 1,
+              effective_structure_sensitive_group_count: 1,
+            },
+            expression_dependency: { same_word_multiset: false, same_letter_multiset: false },
+            engine_evidence: [{ method: args.p_b === 'שום' ? 'מסתתר' : 'רגיל', value: args.p_b === 'שום' ? 328 : 337 }],
+            composite_evidence: [],
+            independent_evidence: {
+              edges: args.p_b === 'שום' ? [] : [{ private: 'must-not-cross' }],
+              topic_cards: [],
+              research_objects: [],
+            },
+          },
+          error: null,
+        };
+      },
+    },
+    normalizeRelations: true,
+  });
+
+  const out = await executor({ identityResolution: identityResolution('שאול') });
+  assert.deepEqual(calls.map((call) => call.name), [
+    'strongest_crossings',
+    'fn_relation_candidate',
+    'fn_relation_candidate',
+  ]);
+  assert.deepEqual(calls.slice(1).map((call) => call.args), [
+    { p_a: 'שאול', p_b: 'שום' },
+    { p_a: 'שאול', p_b: 'עולה ויורד' },
+  ]);
+  assert.equal(out.findings[0].verification.engine_result.relation_normalization.effective_independent_group_count, 2);
+  assert.equal(out.findings[1].verification.engine_result.relation_normalization.effective_independent_group_count, 1);
+  assert.equal(out.findings[1].verification.engine_result.relation_normalization.independent_evidence_counts.edges, 1);
+  assert.equal(Object.hasOwn(out.findings[0].verification.engine_result.relation_normalization, 'engine_evidence'), false);
+  assert.equal(Object.hasOwn(out.findings[0].verification.engine_result.relation_normalization, 'composite_evidence'), false);
+  assert.equal(JSON.stringify(out).includes('must-not-cross'), false);
+  assert.deepEqual(out.cost, { certainty: 'not_billable', ai_calls: 0, rpc_calls: 3, rest_calls: 0, retry_count: 0 });
+  assert.deepEqual(out.trace.relation_normalization, {
+    source: 'rpc:fn_relation_candidate',
+    requested: true,
+    status: 'available',
+    requested_pair_count: 2,
+    normalized_pair_count: 2,
+    empty_pair_count: 0,
+    failed_pair_count: 0,
+  });
+});
+
+test('normalization failure preserves raw crossings but marks source coverage partial', async () => {
+  const executor = createGematriaCorpusCrossingW2Executor({
+    supabase: {
+      rpc: async (name) => name === 'strongest_crossings'
+        ? { data: [{ partner: 'שום', n_methods: 2, methods_detail: 'מסתתר=328 · סידורי=40' }], error: null }
+        : { data: null, error: { name: 'RpcError' } },
+    },
+    normalizeRelations: true,
+  });
+
+  const out = await executor({ identityResolution: identityResolution('שאול') });
+  assert.equal(out.status, 'executed');
+  assert.match(out.reason, /partial canonical crossing-source coverage/);
+  assert.equal(out.findings.length, 1);
+  assert.equal(out.findings[0].verification.engine_result.relation_normalization, null);
+  assert.equal(out.trace.relation_normalization.status, 'partial');
+  assert.equal(out.trace.relation_normalization.failed_pair_count, 1);
+});
+
 test('corpus crossing adapter excludes self, anagram and malformed rows without inventing evidence', async () => {
   const executor = createGematriaCorpusCrossingW2Executor({
     supabase: { rpc: async () => ({ data: [

@@ -1,11 +1,11 @@
 import React, { useId } from "react";
 import { useOptionalRazielSession2029 } from "../../lib/research/RazielSessionProvider2029.jsx";
-import { RAZIEL_VIEW_MODES, RAZIEL_VIEW_MODE_META, normalizeRazielViewMode } from "../../lib/research/razielViewMode2029.js";
+import { RAZIEL_VISIBLE_VIEW_MODES, RAZIEL_VIEW_MODE_META, normalizeRazielViewMode } from "../../lib/research/razielViewMode2029.js";
 import "./razielViewMode2029.css";
 
-// כללי | נוף | מתפרע — one compact toggle group shared by every Raziel projection. The choice lives in the single
+// כללי | מתפרע · ניסוי — one compact toggle group shared by every Raziel projection ("נוף" is a one-shot action now, not a standing mode). The choice lives in the single
 // Raziel session (RazielSessionProvider2029), so opening Raziel from another surface or navigating keeps it.
-// Separate axis from fast/deep: this never selects a model or provider. "נוף" and "מתפרע" are labelled as experiments.
+// Separate axis from fast/deep: this never selects a model or provider. "מתפרע" is labelled as an experiment and asks for the deep tier.
 export default function RazielViewModeSelector2029() {
   const session = useOptionalRazielSession2029();
   const hintId = useId();
@@ -14,7 +14,7 @@ export default function RazielViewModeSelector2029() {
   const hint = RAZIEL_VIEW_MODE_META[current].hint;
   return (
     <div className="sod29-raziel-viewmode" role="group" aria-label="מצב התבוננות של רזיאל" data-raziel-view-mode={current}>
-      {RAZIEL_VIEW_MODES.map((mode) => {
+      {RAZIEL_VISIBLE_VIEW_MODES.map((mode) => {
         const meta = RAZIEL_VIEW_MODE_META[mode];
         const pressed = mode === current;
         return (

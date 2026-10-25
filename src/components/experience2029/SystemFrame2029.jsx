@@ -41,6 +41,7 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
+import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
 import { razielContextParts, razielStatusLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
@@ -718,13 +719,14 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         {thread.map((m, i) => (
           <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
             <small>{m.role === "user" ? "שאלת" : "רזיאל"}</small>
-            <span dir="auto">{m.text}</span>
+            {m.viewMode === "landscape" && m.viewModeApplied ? <details open><summary>מפת מחקר</summary><span dir="auto">{m.text}</span></details> : <span dir="auto">{m.text}</span>}
             {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
               <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
-              {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `מצב ${razielViewModeLabel(m.viewMode)} · ניסוי` : `מצב ${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}
+              {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `${razielViewModeLabel(m.viewMode)} · ניסוי` : `${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}
               {m === lastRaziel && sourceNames.length ? <small className="sod29-raziel-provenance">מקורות: <bdi>{sourceNames.join(" · ")}</bdi></small> : null}
               {m === lastRaziel && m.grounding === "interpretation" ? <small className="sod29-raziel-grounding" data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל</small> : null}
               {m === deepCandidate ? <button className="sod29-action" type="button" disabled={busy} aria-expanded={deepOpen} data-raziel-deepen-preview="true" onClick={() => setDeepOpen((open) => !open)}>בדוק לעומק…</button> : null}
+              {m === lastRaziel && status === "ready" ? <RazielOneShotActions2029 session={session} onRun={(kind) => session.submitOneShot(kind, { projection })} /> : null}
             </div> : null}
           </div>
         ))}

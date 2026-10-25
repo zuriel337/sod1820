@@ -9,6 +9,7 @@ import {
   createRazielRequestContextSnapshot as createRazielContextSnapshot,
   createRazielTurnSucceededAction,
   normalizeRazielResponse,
+  prepareRazielSessionSubmission,
   selectRazielContinuation,
 } from "./razielSessionRequest2029.js";
 import {
@@ -70,6 +71,102 @@ test("continuity request carries the canonical opt-in and bounded resolved ident
   assert.equal(request.conversationResolution?.referential_follow_up, true);
   assert.deepEqual(request.conversationResolution?.pair, [776, 1820]);
   assert.equal(request.conversationResolution?.guards?.server_must_reauthorize, true);
+});
+
+test("expression continuation keeps the last canonical subject across action and view-mode wording", () => {
+  const baseThread = [{
+    role: "user",
+    text: "חשב את צוריאל ומצא הצלבות",
+    identity_resolution: {
+      identities: [{ type: "phrase", label: "צוריאל", identity_key: "phrase:צוריאל" }],
+      explicit_text_computation: false,
+    },
+  }, { role: "raziel", text: "צוריאל = 337" }];
+  const first = buildRazielSessionRequest({
+    question: "תחשב את זה בכל השיטות ומצא הצלבות",
+    state: { ...createInitialRazielSessionState(), thread: baseThread },
+    contextSnapshot: null,
+  });
+  assert.equal(first.conversationResolution?.referential_follow_up, true);
+  assert.equal(first.conversationResolution?.referent_source, "prior_user_turn");
+  assert.equal(first.conversationResolution?.requested_action, "connect");
+  assert.deepEqual(first.conversationResolution?.identities, [
+    { type: "phrase", label: "צוריאל", identity_key: "phrase:צוריאל" },
+  ]);
+
+  const second = buildRazielSessionRequest({
+    question: "תחשב במצב רגיל",
+    state: { ...createInitialRazielSessionState(), thread: baseThread },
+    contextSnapshot: null,
+  });
+  assert.equal(second.conversationResolution?.referential_follow_up, true);
+  assert.equal(second.conversationResolution?.referent_source, "prior_user_turn");
+  assert.deepEqual(second.conversationResolution?.identities, [
+    { type: "phrase", label: "צוריאל", identity_key: "phrase:צוריאל" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(second.conversationResolution), /phrase:במצב רגיל/);
+});
+
+test("a plural name-profile turn stores its canonical subject for a bare all-methods follow-up", () => {
+  let nextId = 0;
+  const prepared = prepareRazielSessionSubmission({
+    question: 'תן לי את הגימטריות על השם "שאול"',
+    state: createInitialRazielSessionState(),
+    researchContext: null,
+    startedAt: "2026-10-25T12:00:00Z",
+    createTurnId: () => `profile-${++nextId}`,
+    viewMode: "exploratory",
+  });
+  assert.equal(prepared.request.conversationResolution?.identities?.[0]?.label, "שאול");
+
+  let state = razielSessionReducer(createInitialRazielSessionState(), {
+    type: "turn_started",
+    turn: prepared.turn,
+    contextSnapshot: prepared.contextSnapshot,
+  });
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
+    completedAt: "2026-10-25T12:00:01Z",
+    response: { answer: "שאול = 337", intelligenceLevel: "deep", deterministic: false, sourceNames: [] },
+    provenance: { turnId: prepared.turn.id },
+  }));
+
+  const followUp = buildRazielSessionRequest({
+    question: "בכל השיטות",
+    state,
+    contextSnapshot: null,
+    viewMode: "exploratory",
+  });
+  assert.equal(followUp.conversationResolution?.referential_follow_up, true);
+  assert.equal(followUp.conversationResolution?.referent_source, "prior_user_turn");
+  assert.equal(followUp.conversationResolution?.identities?.[0]?.label, "שאול");
+});
+
+test("method command projects only its expression while the server reauthorizes the method lens", () => {
+  const request = buildRazielSessionRequest({
+    question: "חשב את שאול בשיטת מסתתר ומצא הצלבות",
+    state: createInitialRazielSessionState(),
+    contextSnapshot: null,
+  });
+  assert.equal(request.conversationResolution?.requested_action, "connect");
+  assert.equal(request.conversationResolution?.referential_follow_up, false);
+  assert.equal(request.conversationResolution?.referent_source, "explicit_current_turn");
+  assert.deepEqual(request.conversationResolution?.identities, [
+    { type: "phrase", label: "שאול", identity_key: "phrase:שאול" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(request.conversationResolution), /phrase:שאול בשיטת/u);
+});
+
+test("plain Gematria wording never becomes part of the expression identity", () => {
+  const request = buildRazielSessionRequest({
+    question: "חשב את שאול בגימטריה",
+    state: createInitialRazielSessionState(),
+    contextSnapshot: null,
+  });
+  assert.deepEqual(request.conversationResolution?.identities, [
+    { type: "phrase", label: "שאול", identity_key: "phrase:שאול" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(request.conversationResolution), /שאול בגימטריה/u);
 });
 
 test("deep continuation keeps the original bounded context, facts and view mode after navigation", () => {

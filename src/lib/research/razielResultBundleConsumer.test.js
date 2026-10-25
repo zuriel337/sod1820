@@ -141,6 +141,21 @@ test("crossing evidence keeps bounded methods and partner while free-form payloa
         method_count: 2,
         methods: [{ method: "אתבש", value: 112 }, { method: "סידורי", value: 52 }],
         dependency_independence_claimed: false,
+        relation_normalization: {
+          source: "rpc:fn_relation_candidate",
+          relation_kind: "gematria_convergence",
+          engine_signal: 4.989,
+          confidence: "candidate",
+          research_priority: "HIGH_ENGINE_NO_EVIDENCE_YET",
+          raw_independent_group_count: 2,
+          effective_independent_group_count: 2,
+          effective_structure_sensitive_group_count: 1,
+          expression_dependency: { same_word_multiset: false, same_letter_multiset: false },
+          engine_evidence: [{ method: "אתבש", value: 112, normalized_rarity: 0.01, private: "DROP_PRIVATE" }],
+          composite_evidence: [],
+          independent_evidence_transport: "excluded_v1_access_boundary",
+          independent_evidence_counts: { edges: 0, topic_cards: 0, research_objects: 0 },
+        },
         arbitrary_commentary: "DROP",
       },
       verification_state: "not_tested",
@@ -161,8 +176,11 @@ test("crossing evidence keeps bounded methods and partner while free-form payloa
   ]);
   assert.equal(projected.verification.engine_result.method_count, 2);
   assert.equal(projected.verification.engine_result.dependency_independence_claimed, false);
+  assert.equal(projected.verification.engine_result.relation_normalization.effective_independent_group_count, 2);
+  assert.equal(projected.verification.engine_result.relation_normalization.engine_signal, 4.989);
+  assert.equal(projected.verification.engine_result.relation_normalization.independent_evidence_counts.edges, 0);
   assert.equal(projected.evidence.facts[0].partner, "שלום");
-  assert.doesNotMatch(JSON.stringify(out), /arbitrary_commentary|DROP/);
+  assert.doesNotMatch(JSON.stringify(out), /arbitrary_commentary|DROP|DROP_PRIVATE/);
 });
 
 test("confirmed cross-method fact and SOD1820 interpretation survive as distinct projected layers", () => {

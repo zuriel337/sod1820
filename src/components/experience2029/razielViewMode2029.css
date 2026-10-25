@@ -23,3 +23,7 @@
   .sod29-raziel-viewmode { gap: 4px; }
   .sod29-raziel-viewmode-option { flex: 1 1 0; padding-inline: 8px; font-size: 14px; }
 }
+
+/* "✨ הפתע אותי": same action class as "בדוק לעומק…"; its explanation panel spans the answer-meta row (logical properties only). */
+.sod29-raziel-surprise-offer { flex: 1 1 100%; min-inline-size: 0; }
+.sod29-raziel-surprise-offer p { margin: 0; }

@@ -8,8 +8,10 @@ import {
   resolveExplicitHebrewExpressionPairResearchSubject,
   resolveExplicitHebrewExpressionResearchSubject,
   resolveExplicitNumericPairResearchSubject,
+  resolveExplicitNumericResearchSubject,
   resolveRazielConversationalAct,
   resolveRazielDeterministicGuidance,
+  resolveRazielExpressionContinuationDirective,
   validateRazielSemanticIntent,
 } from "./razielSemanticIntentGate.js";
 import {
@@ -76,6 +78,142 @@ test("explicit Hebrew expression grammar is structural rather than word-specific
   ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
 });
 
+test("method calculation commands keep command scaffolding out of the canonical expression", () => {
+  for (const [question, label, method, action] of [
+    ["חשב את שאול בשיטת מסתתר ומצא הצלבות", "שאול", "מסתתר", "connect"],
+    ["תחשב לי את חכמה בשיטת משולש", "חכמה", "קדמי", "research"],
+    ["תחשב לי את משיח בשיטת משולש מילה", "משיח", "משולש מילה", "research"],
+    ["חשב את ראיתי דבר מתוך דבר בשיטת אותיות אחרי ומצא לי קשרים", "ראיתי דבר מתוך דבר", "אותיות אחרי", "connect"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, label, question);
+    assert.equal(out?.identity_key, `phrase:${label}`, question);
+    assert.equal(out?.requested_method, method, question);
+    assert.equal(out?.requested_action, action, question);
+    assert.equal(out?.explicit_text_computation, true, question);
+    assert.doesNotMatch(out?.label || "", /בשיטת|הצלבות|קשרים/u, question);
+  }
+});
+
+test("plain calculation commands also remove Gematria, all-method and view scaffolding", () => {
+  for (const [question, action] of [
+    ["חשב את שאול בגימטריה", "research"],
+    ["חשב את שאול בכל השיטות ומצא הצלבות", "connect"],
+    ["חשב את שאול במצב רגיל", "research"],
+    ["חשב את שאול ומצא הצלבות", "connect"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, "שאול", question);
+    assert.equal(out?.identity_key, "phrase:שאול", question);
+    assert.equal(out?.requested_action, action, question);
+    assert.equal(out?.requested_method, undefined, question);
+    assert.doesNotMatch(out?.label || "", /גימטר|שיטות|מצב|הצלבות/u, question);
+  }
+});
+
+test("natural calculation word order keeps action scaffolding out of every Hebrew expression", () => {
+  for (const [question, label] of [
+    ["בדוק לי שאול בגימטריה", "שאול"],
+    ["כמה זה שאול בגימטריה תחשב", "שאול"],
+    ["שאול בגימטריה כמה זה", "שאול"],
+    ["שאול בגימטריה תחשב", "שאול"],
+    ["חשב בבקשה את שאול", "שאול"],
+    ["בבקשה תחשב לי את המילה חכמה", "חכמה"],
+    ["בדוק לי את השם צוריאל", "צוריאל"],
+    ["בדוק לי גימטריה של משיח בן דוד", "משיח בן דוד"],
+    ["כמה שווה ראיתי דבר מתוך דבר בגימטריא חשב", "ראיתי דבר מתוך דבר"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, label, question);
+    assert.equal(out?.identity_key, `phrase:${label}`, question);
+    assert.equal(out?.requested_action, "research", question);
+    assert.equal(out?.explicit_text_computation, true, question);
+    assert.doesNotMatch(out?.label || "", /(?:בבקשה|גימטר|ת?חשב|בדוק)/u, question);
+  }
+});
+
+test("natural calculation grammar remains bounded and does not promote open or missing subjects", () => {
+  for (const question of [
+    "בדוק לי שאול",
+    "בדוק לי גימטריה",
+    "בדוק לי את זה בגימטריה",
+    "בדוק לי את השם שלי",
+    "כמה זה 337 בגימטריה תחשב",
+    "בדוק לי את שנת 2024 בגימטריה",
+  ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
+});
+
+test("expression continuation directives carry an earlier subject instead of calculating their scaffolding", () => {
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("תחשב את זה בכל השיטות ומצא הצלבות"), {
+    requested_action: "connect",
+    requested_method: null,
+    all_methods: true,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("תחשב במצב רגיל"), {
+    requested_action: "research",
+    requested_method: null,
+    all_methods: false,
+    view_mode_only: true,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("חשב אותו בשיטת מסתתר"), {
+    requested_action: "research",
+    requested_method: "מסתתר",
+    all_methods: false,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("בכל השיטות"), {
+    requested_action: "research",
+    requested_method: null,
+    all_methods: true,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("בשיטת מסתתר"), {
+    requested_action: "research",
+    requested_method: "מסתתר",
+    all_methods: false,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("שיטת הקדמי משולש ביקשתי"), {
+    requested_action: "research",
+    requested_method: "קדמי",
+    all_methods: false,
+    view_mode_only: false,
+  });
+  for (const question of ["תחשב את צוריאל", "תחשב את המילה חכמה", "ספר לי על זה"]) {
+    assert.equal(resolveRazielExpressionContinuationDirective(question), null, question);
+  }
+  assert.equal(resolveExplicitHebrewExpressionResearchSubject("תחשב את זה בכל השיטות ומצא הצלבות"), null);
+  assert.equal(resolveExplicitHebrewExpressionResearchSubject("תחשב במצב רגיל"), null);
+  assert.equal(resolveExplicitHebrewExpressionResearchSubject("בכל השיטות"), null);
+});
+
+test("expression profile grammar resolves singular and plural Gematria requests for any explicit Hebrew expression", () => {
+  for (const [question, label] of [
+    ['תן לי את הגימטריות על השם "שאול"', "שאול"],
+    ["הגימטריה של המילה שאול", "שאול"],
+    ["גימטריה של המילה חכמה", "חכמה"],
+    ["מה הגימטריה של הביטוי משיח בן דוד", "משיח בן דוד"],
+    ["תן לי את הגימטריה של השם צוריאל", "צוריאל"],
+    ["תני לי גימטריא עבור המילה בינה", "בינה"],
+    ["הצג את כל הערכים הגימטריים של המילה חכמה", "חכמה"],
+    ["מה הן הגימטריות של הביטוי ראיתי דבר מתוך דבר", "ראיתי דבר מתוך דבר"],
+    ["פרטי לי חישובי גימטריה עבור צוריאל", "צוריאל"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, label, question);
+    assert.equal(out?.requested_action, "research", question);
+    assert.equal(out?.explicit_text_computation, true, question);
+  }
+  for (const question of [
+    "תן לי את הגימטריות על השם שלי",
+    "הגימטריה של המילה",
+    "תן לי גימטריה של השם שלי",
+    "תן לי מידע על השם שאול",
+    "הצג לי גימטריות",
+  ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
+});
+
 test("method-focused expression grammar preserves expression, method and observed result", () => {
   for (const question of [
     "מה יש לך על המסתתר של חכמה",
@@ -97,9 +235,22 @@ test("method-focused expression grammar preserves expression, method and observe
 
   const triangle = resolveExplicitHebrewExpressionResearchSubject("מה אתה אומר על 271 המשולש של חכמה");
   assert.equal(triangle?.label, "חכמה");
-  assert.equal(triangle?.requested_method, "משולש");
+  assert.equal(triangle?.requested_method, "קדמי");
   assert.equal(triangle?.observed_value, 271);
   assert.equal(triangle?.requested_action, "research");
+
+  for (const question of [
+    "תמצא לי מידע על המשולש של משיח",
+    "נושא המחקר המילה משיח בשיטת משולש",
+  ]) {
+    const subject = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(subject?.label, "משיח", question);
+    assert.equal(subject?.requested_method, "קדמי", question);
+  }
+
+  const observed = resolveExplicitHebrewExpressionResearchSubject("1331 במשיח מה זה התוצאה?");
+  assert.equal(observed?.label, "משיח");
+  assert.equal(observed?.observed_value, 1331);
 });
 
 test("exact Hebrew expression pair grammar preserves both relation endpoints", () => {
@@ -260,4 +411,48 @@ test("semantic candidate and canonical plan never cross the bounded server proje
   assert.equal(Object.hasOwn(projected, "research_plan"), false);
   assert.deepEqual(projected.identities, [{ type: "number", value: 776, identity_key: "number:776" }]);
   assert.equal(projected.guards.server_must_reauthorize, true);
+});
+
+test("an adjacent value is an observed value of the explicit expression, never a new subject (any expression)", async () => {
+  const gate = await import("./razielSemanticIntentGate.js");
+  for (const [question, label, observed, allMethods] of [
+    ["הכל על הגימטריה של שאול", "שאול", undefined, undefined],
+    ["הגימטריה של המילה שאול", "שאול", undefined, undefined],
+    ["מה הגימטריה של המילה שאול", "שאול", undefined, undefined],
+    ["תן לי גימטריה של המילה שאול", "שאול", undefined, undefined],
+    ["תן לי גימטריות של 337 שאול", "שאול", 337, undefined],
+    ["תן לי גימטריות של שאול 337", "שאול", 337, undefined],
+    ['תן לי את הגימטריות על השם "שאול"', "שאול", undefined, undefined],
+    ["שאול 337 בכל השיטות", "שאול", 337, true],
+    ["תן לי גימטריות של 73 חכמה", "חכמה", 73, undefined],
+  ]) {
+    const subject = gate.resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(subject?.label, label, question);
+    assert.equal(subject?.observed_value, observed, question);
+    assert.equal(subject?.all_methods, allMethods, question);
+    if (observed != null) assert.equal(gate.resolveExplicitNumericResearchSubject(question), null, `${question}: the number is not a second subject`);
+  }
+  // a number alone, a year/page context, or two numbers are unchanged
+  assert.equal(gate.resolveExplicitNumericResearchSubject("מה זה 337").value, 337);
+  assert.equal(gate.resolveExplicitHebrewExpressionResearchSubject("תן לי גימטריות של 337"), null);
+  assert.equal(gate.resolveExplicitHebrewExpressionResearchSubject("תן לי גימטריות של 12 34 שאול"), null);
+});
+
+test("ported grammar: 'גימטריה של X', 'המילה X', 'הביטוי X', 'מספר N' and an adjacent observed value", () => {
+  for (const [question, label, observed] of [
+    ["בדוק לי גימטריה של שאול", "שאול", undefined],
+    ["בדוק לי גימטריה של שאול 337", "שאול", 337],
+    ["המילה שאול", "שאול", undefined],
+    ["הביטוי עולה ויורד", "עולה ויורד", undefined],
+    ["תן לי את הגימטריות של השם שאול", "שאול", undefined],
+  ]) {
+    const subject = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(subject?.label, label, question);
+    assert.equal(subject?.observed_value, observed, question);
+    assert.equal(resolveExplicitNumericResearchSubject(question), null, `${question}: no second numeric subject`);
+  }
+  assert.equal(resolveExplicitNumericResearchSubject("מספר 337")?.value, 337);
+  for (const question of ["המילה הזאת", "המילה האחרונה", "השם שלי", "שאול"]) {
+    assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
+  }
 });

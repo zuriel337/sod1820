@@ -5,7 +5,6 @@ import {
 import {
   RAZIEL_DEFAULT_VIEW_MODE,
   normalizeRazielViewMode,
-  normalizeRazielViewModeReport,
 } from "./razielViewMode2029.js";
 import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
 
@@ -360,6 +359,7 @@ export function prepareRazielSessionSubmission({
   view = {},
   projection = null,
   viewMode = null,
+  viewModeOverride = null,
   continuationTurnId = null,
   startedAt,
   createTurnId,
@@ -373,13 +373,18 @@ export function prepareRazielSessionSubmission({
   const contextSnapshot = continuation?.contextSnapshot
     || createRazielRequestContextSnapshot(researchContext, view, startedAt);
   const selectedFacts = continuation ? continuation.facts : facts;
-  const selectedViewMode = continuation?.viewMode ?? viewMode ?? state?.viewMode;
+  // A plain continuation (deepen) keeps the mode of the answer it extends. A one-shot per-request mode (the surprise)
+  // replaces it for this request only; the stored answer and the session's own mode are not modified.
+  const oneShotViewMode = viewModeOverride == null ? null : normalizeRazielViewMode(viewModeOverride);
+  const selectedViewMode = continuation?.viewMode && !oneShotViewMode ? continuation.viewMode : oneShotViewMode ?? viewMode ?? state?.viewMode;
+  // "מתפרע" is an explicit request for interpretive depth: the user's choice of that mode (or of the one-shot) sends
+  // intelligence_level "deep". The server never derives a provider or model from view_mode; its router still owns that choice.
   const request = buildRazielSessionRequest({
     question: subject,
     state,
     contextSnapshot,
     facts: selectedFacts,
-    intelligenceLevel,
+    intelligenceLevel: normalizeRazielViewMode(selectedViewMode) === "exploratory" ? "deep" : intelligenceLevel,
     again,
     viewMode: selectedViewMode,
   });
@@ -404,10 +409,88 @@ export function prepareRazielSessionSubmission({
   return { request, turn, contextSnapshot };
 }
 
+// What a server answer reports about the mode it actually applied (plan_meta.view_mode / view_mode).
+// "applied:false" (no Bundle / quota / degraded) must never be presented as a landscape/exploratory answer.
+export function normalizeRazielViewModeReport(response) {
+  const raw = response?.view_mode ?? response?.plan_meta?.view_mode;
+  if (!raw || typeof raw !== "object") return null;
+  const requested = normalizeRazielViewMode(raw.requested);
+  if (requested === RAZIEL_DEFAULT_VIEW_MODE) return null;
+  return Object.freeze({
+    requested,
+    applied: raw.applied === true,
+    reason: typeof raw.reason === "string" ? raw.reason.slice(0, 40) : null,
+  });
+}
+
+
 export function extractRazielSourceNames(response = null) {
   if (!isObject(response)) return [];
   const provenanceSources = isObject(response.provenance) ? response.provenance.sources : [];
   return uniqueSourceNames([response.sources || [], response.evidence || [], provenanceSources || []]);
+}
+
+export function normalizeRazielEvidenceSummary(value = null) {
+  if (!isObject(value)) return null;
+  const numberLink = (input) => {
+    const value = cleanInteger(input);
+    return value && value >= 1 && value <= 999999 ? { value, href: `/2029/number/${value}` } : null;
+  };
+  const calculations = (Array.isArray(value.calculations) ? value.calculations : []).slice(0, 6).flatMap((item) => {
+    if (!isObject(item)) return [];
+    const expression = cleanInline(item.expression, 120);
+    const method = cleanInline(item.method, 60);
+    const link = numberLink(item.value);
+    return expression && method && link ? [{ expression, method, ...link }] : [];
+  });
+  const findings = (Array.isArray(value.findings) ? value.findings : []).slice(0, 8).flatMap((item) => {
+    if (!isObject(item)) return [];
+    const label = cleanInline(item.label, 140);
+    if (!label) return [];
+    const link = numberLink(item.value);
+    const methods = (Array.isArray(item.methods) ? item.methods : []).slice(0, 4).flatMap((methodItem) => {
+      if (!isObject(methodItem)) return [];
+      const method = cleanInline(methodItem.method, 60);
+      const methodLink = numberLink(methodItem.value);
+      return method && methodLink ? [{ method, value: methodLink.value }] : [];
+    });
+    return [{
+      label,
+      lane: cleanInline(item.lane, 40),
+      method: cleanInline(item.method, 60),
+      sourceName: cleanInline(item.source_name ?? item.sourceName, 120),
+      ...(link || {}),
+      ...(methods.length ? { methods } : {}),
+    }];
+  });
+  if (!calculations.length && !findings.length) return null;
+  return {
+    title: cleanInline(value.title, 100) || "הממצאים האמיתיים שמאחורי הפרשנות",
+    calculations,
+    findings,
+    mapAvailable: value.map_available === true || value.mapAvailable === true,
+  };
+}
+
+export function formatRazielEvidenceSummary(value = null) {
+  const summary = normalizeRazielEvidenceSummary(value);
+  if (!summary) return "";
+  const lines = [];
+  const seen = new Set();
+  const add = (text) => {
+    if (!text || seen.has(text)) return;
+    seen.add(text);
+    lines.push(`• ${text}`);
+  };
+  for (const item of summary.calculations) add(`${item.expression} · ${item.method} = ${item.value} · חישוב מאומת`);
+  for (const item of summary.findings) {
+    const methodText = item.methods?.length
+      ? item.methods.map((method) => `${method.method}=${method.value}`).join(" · ")
+      : [item.method, item.value].filter((part) => part !== null && part !== undefined && part !== "").join(" = ");
+    const lane = item.lane === "source_claim" ? "טענת מקור" : item.lane === "engine_finding" ? "ממצא מנוע" : "חישוב מאומת";
+    add(`${item.label}${methodText ? ` · ${methodText}` : ""} · ${lane}${item.sourceName ? ` · ${item.sourceName}` : ""}`);
+  }
+  return [`🔎 ${summary.title}`, ...lines, "אלה נתוני המנוע והמחקר; הטקסט שמעליהם הוא הפרשנות.", ...(summary.mapAvailable ? ["למפת הקשרים המלאה אפשר לבחור „🗺️ פתח מפת מחקר” שמתחת."] : [])].join("\n");
 }
 
 export function normalizeRazielResponse(response, requestedLevel = "fast") {
@@ -418,12 +501,15 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
     ? "deterministic"
     : cleanInline(response.intelligence_level, 30) || (requestedLevel === "deep" ? "deep" : "fast");
   const viewModeReport = normalizeRazielViewModeReport(response);
+  const evidenceSummary = normalizeRazielEvidenceSummary(response.evidence_summary);
+  const evidenceText = formatRazielEvidenceSummary(response.evidence_summary);
   return {
     v: cleanInteger(response.v) || 1,
-    answer,
+    answer: evidenceText ? `${answer.slice(0, Math.max(1, LIMITS.answer - evidenceText.length - 2)).trim()}\n\n${evidenceText}` : answer,
     deterministic: response.deterministic === true,
     intelligenceLevel,
     sourceNames: extractRazielSourceNames(response),
+    ...(evidenceSummary ? { evidenceSummary } : {}),
     ...(viewModeReport ? { viewMode: viewModeReport } : {}),
   };
 }
@@ -453,6 +539,8 @@ export function createRazielProvenance({ response, turn, completedAt }) {
     engine: cleanInline(response.engine, 80),
     model: cleanInline(response.model, 120),
     capabilityClass: cleanInline(plan.capability_class, 80),
+    // 'ready' only when the server built a valid canonical Result Bundle for this answer (gates the one-shot surprise action).
+    bundleStatus: cleanInline(isObject(plan.canonical_result_bundle) ? plan.canonical_result_bundle.status : null, 20),
     viewMode: normalized.viewMode
       ? (normalized.viewMode.applied ? normalized.viewMode.requested : `${normalized.viewMode.requested}:not_applied`)
       : null,
@@ -466,15 +554,31 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
   const grounding = response?.deterministic === true || response?.intelligenceLevel === "deterministic"
     ? "deterministic"
     : sourceNames.length ? "sourced" : "interpretation";
+  const previousEvidence = [...(Array.isArray(state?.thread) ? state.thread : [])]
+    .reverse()
+    .find((item) => item?.role === "raziel" && item?.evidenceSummary)?.evidenceSummary || null;
+  const repeatsEvidence = state?.currentTurn?.again === true
+    && previousEvidence != null
+    && response?.evidenceSummary != null
+    && JSON.stringify(previousEvidence) === JSON.stringify(response.evidenceSummary);
+  const evidenceText = repeatsEvidence ? formatRazielEvidenceSummary(response.evidenceSummary) : "";
+  const repeatedSuffix = evidenceText && response.answer.endsWith(`\n\n${evidenceText}`)
+    ? response.answer.slice(0, -(evidenceText.length + 2)).trim()
+    : response.answer;
+  const presentedAnswer = repeatsEvidence
+    ? `${repeatedSuffix}\n\n🔎 הראיות המאומתות זהות לתשובה הקודמת; מפת המחקר נשארת זמינה לפתיחה.`
+    : response.answer;
+  const presentedResponse = repeatsEvidence ? { ...response, answer: presentedAnswer } : response;
   const message = {
     role: "raziel",
-    text: response.answer,
+    text: presentedAnswer,
     level: response.intelligenceLevel,
     question: state?.currentTurn?.question || null,
     turnId: state?.currentTurn?.id || null,
     continuation: state?.currentTurn?.continuation || null,
     sourceNames,
     grounding,
+    ...(response.evidenceSummary ? { evidenceSummary: response.evidenceSummary } : {}),
     ...(response.viewMode ? { viewMode: response.viewMode.requested, viewModeApplied: response.viewMode.applied } : {}),
   };
   return {
@@ -483,7 +587,7 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
       thread: [...(Array.isArray(state?.thread) ? state.thread : []), message].slice(-LIMITS.threadMessages),
       busy: false,
       currentTurn: { ...state?.currentTurn, status: "complete", completedAt },
-      response,
+      response: presentedResponse,
       provenance,
       status: "ready",
       announcement: "התשובה של רזיאל מוכנה.",

@@ -51,7 +51,10 @@ function hasSubstantiveEvidence(candidate = {}) {
   return Number.isFinite(signal) && signal > 0;
 }
 
-function candidateSummary(candidate = {}) {
+// Shared, allowlisted projection of the canonical relation candidate. Public crossing adapters use
+// the same projector so pair normalization has one representation at every Result-Bundle edge.
+// Independent source payloads remain excluded here; only their bounded counts may cross.
+export function projectGematriaRelationCandidateSummary(candidate = {}) {
   const components = candidate?.engine_signal_components && typeof candidate.engine_signal_components === 'object'
     ? candidate.engine_signal_components
     : {};
@@ -135,7 +138,7 @@ function pairRepresentations(representations, maxPairs) {
 
 function relationFinding(a, b, candidate) {
   const pairTier = moreRestrictiveTier(a.access_tier, b.access_tier);
-  const summary = candidateSummary(candidate);
+  const summary = projectGematriaRelationCandidateSummary(candidate);
   const aRef = clean(a.ref) || `text:${stableIdentityDigest(a.text)}`;
   const bRef = clean(b.ref) || `text:${stableIdentityDigest(b.text)}`;
   const pairKey = [aRef, bRef].sort().join('|');

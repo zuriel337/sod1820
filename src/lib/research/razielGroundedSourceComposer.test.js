@@ -1,7 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { buildRazielGroundedSourceComposer } from "./razielGroundedSourceComposer.js";
+import {
+  buildRazielGroundedSourceComposer,
+  razielSurpriseCandidates,
+} from "./razielGroundedSourceComposer.js";
+import { METHODS } from "../gematria.js";
 
 function projection(findings, cards = null, extra = {}) {
   return Object.freeze({
@@ -48,7 +52,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v6");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v15");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -61,6 +65,41 @@ test("keeps canonical presentation order and labels verified calculation separat
   assert.match(out.guidance, /לא סופק מדד נדירות מפורש/);
   assert.equal(out.guards.source_wording_integrity, true);
   assert.equal(out.guards.no_extra_model_call, true);
+  assert.equal(out.guards.visible_evidence_never_comes_from_model_output, true);
+  assert.deepEqual(out.evidence_summary.findings.map((item) => [item.label, item.lane, item.value]), [
+    ["מחשבת יהוה", "source_claim", 776],
+    ["ביאת המשיח", "verified_calculation", 776],
+  ]);
+});
+
+test("visible number evidence reserves room for a governed cross-method result", () => {
+  const ordinary = Array.from({ length: 8 }, (_, index) => ({
+    id: `uf:claim:${index}`,
+    kind: "gematria",
+    stage: null,
+    subject: { label: `ביטוי רגיל ${index + 1}`, value: 878 },
+    source: { source_name: "מנוע הגימטריה", source_ref: `bidim:regular-${index}`, method: "רגיל", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "רגיל", engine_result: 878 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: `ביטוי רגיל ${index + 1}`, method: "רגיל", value: 878 }] },
+  }));
+  const messiahFill = {
+    id: "uf:878:messiah-fill",
+    kind: "gematria",
+    stage: null,
+    subject: { label: "משיח", value: 878 },
+    source: { source_name: "מנוע הגימטריה", source_ref: "bidim:messiah-fill", method: "מילוי", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "מילוי", engine_result: 878 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: "משיח", method: "מילוי", value: 878 }] },
+  };
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "number", value: 878 },
+    projection: projection([...ordinary, messiahFill]),
+  }]);
+
+  assert.ok(out.evidence_summary.findings.some((item) => (
+    item.label === "משיח" && item.method === "מילוי" && item.value === 878
+  )));
+  assert.ok(out.evidence_summary.findings.length <= 8);
 });
 
 test("emits only canonical number navigation and never fabricates a source URL", () => {
@@ -108,6 +147,44 @@ test("engine convergence is not promoted to verified or independent evidence", (
   assert.match(out.guidance, /gematria-method-semantic הוא פרשנות מאושרת/);
 });
 
+test("normalized crossing strength survives for synthesis without becoming source evidence or a percent score", () => {
+  const crossing = {
+    id: "uf:crossing:shaul:shum",
+    kind: "gematria-crossing",
+    stage: "evidence",
+    subject: { label: "שאול ↔ שום" },
+    source: { source_name: "מאגר הביטויים", source_ref: "rpc:strongest_crossings", lang: "he" },
+    verification: {
+      state: "not_tested",
+      engine_result: {
+        methods: [{ method: "מסתתר", value: 328 }, { method: "סידורי", value: 40 }],
+        dependency_independence_claimed: false,
+        relation_normalization: {
+          raw_independent_group_count: 2,
+          effective_independent_group_count: 2,
+          independent_evidence_counts: { edges: 0, topic_cards: 0, research_objects: 0 },
+        },
+      },
+    },
+    evidence: {
+      facts: [{ type: "gematria-multi-method-corpus-crossing", expression: "שאול", partner: "שום" }],
+    },
+  };
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "שאול" },
+    projection: projection([crossing]),
+  }]);
+  const prompt = JSON.parse(out.prompt);
+
+  assert.match(out.guidance, /effective_independent_group_count הוא מספר משפחות החישוב האפקטיביות/);
+  assert.match(out.guidance, /אל תהפוך אותם לציון מתוך 100/);
+  assert.match(out.surprise_guidance, /מנוע הנרמול ספר 2 משפחות חישוב אפקטיביות מתוך 2/);
+  assert.match(out.surprise_guidance, /ראיות מקור נפרדות בחבילה: 0/);
+  assert.match(out.surprise_guidance, /גיוון נוסחאי, לא 2 מקורות מחקריים/);
+  assert.equal(prompt.presentation_contract.normalized_method_family_count_is_not_source_evidence_count, true);
+  assert.equal(prompt.presentation_contract.relation_normalization_must_not_be_rendered_as_percent_score, true);
+});
+
 test("confirmed SOD1820 relation is verified while its method meaning stays explicit interpretation", () => {
   const relation = {
     id: "uf:relation:wisdom-understanding",
@@ -115,7 +192,14 @@ test("confirmed SOD1820 relation is verified while its method meaning stays expl
     stage: "evidence",
     subject: { label: "חכמה (מסתתר) ↔ בינה (רגיל)", value: 67 },
     source: { source_name: "ממצאי המחקר המאושרים של SOD1820", source_ref: "public:relation_evidence:one", method: "מסתתר", lang: "he" },
-    verification: { state: "match", engine_method_tested: "מסתתר↔רגיל", engine_result: { value: 67, engine_verified: true } },
+    verification: {
+      state: "match",
+      engine_method_tested: "מסתתר↔רגיל",
+      engine_result: {
+        expression: "חכמה", partner: "בינה", expression_method: "מסתתר", partner_method: "רגיל",
+        value: 67, engine_verified: true,
+      },
+    },
     evidence: { facts: [{ type: "gematria-confirmed-cross-method-relation", expression: "חכמה", partner: "בינה" }] },
   };
   const interpretation = {
@@ -139,6 +223,184 @@ test("confirmed SOD1820 relation is verified while its method meaning stays expl
   assert.equal(prompt.presentation_contract.confirmed_relation_is_sod1820_research_evidence, true);
   assert.equal(prompt.presentation_contract.method_semantic_is_explicit_sod1820_interpretation, true);
   assert.match(out.guidance, /לא עובדה מתמטית ולא אמת מסורתית אוניברסלית/);
+  assert.match(out.surprise_guidance, /חכמה בשיטת מסתתר = 67; בינה בשיטת רגיל = 67/);
+  assert.match(out.surprise_guidance, /הרובד הנסתר של הביטוי/);
+  assert.match(out.surprise_guidance, /עצמאות בין השיטות.*אינם מוכחים/);
+});
+
+test("surprise shortlist prefers a supplied cross-Bundle value bridge without inventing meaning", () => {
+  const pregnancy = {
+    id: "uf:pregnancy:271",
+    kind: "gematria",
+    stage: "evidence",
+    subject: { type: "phrase", label: "הריון", value: 271 },
+    source: { source_name: "מנוע הגימטריה", source_ref: "bidim:pregnancy", method: "רגיל", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "רגיל", engine_result: 271 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: "הריון", method: "רגיל", value: 271 }] },
+  };
+  const input = [
+    {
+      subject: { type: "expression", value: "חכמה" },
+      projection: projection([], null, {
+        calculation_profile: [{ method_key: "קדמי", method_label: "משולש", value: 271 }],
+      }),
+    },
+    { subject: { type: "number", value: 271 }, projection: projection([pregnancy]) },
+  ];
+  const candidates = razielSurpriseCandidates(input);
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].kind, "cross_bundle_value_bridge");
+  assert.equal(candidates[0].fact, "חכמה בשיטת משולש = 271; הריון בשיטת רגיל = 271.");
+  assert.match(candidates[0].limit, /המשמעות המשותפת אינה מוכחת/);
+  assert.doesNotMatch(JSON.stringify(candidates), /נדיר|סיבתי|מסורתי.*מוכח/u);
+});
+
+test("broad expression surprise receives a bounded canonical value constellation for narrative synthesis", () => {
+  const phrase = (id, label) => ({
+    id,
+    kind: "gematria",
+    stage: "evidence",
+    subject: { type: "phrase", label, value: 337 },
+    source: { source_name: "מאגר הגימטריה", source_ref: `bidim:${id}`, method: "רגיל", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "רגיל", engine_result: 337 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: label, method: "רגיל", value: 337 }] },
+  });
+  const input = [
+    {
+      subject: { type: "expression", value: "שאול" },
+      projection: projection([], null, {
+        calculation_profile: [{ method_key: "ragil", method_label: "רגיל", value: 337 }],
+      }),
+    },
+    {
+      subject: { type: "number", value: 337 },
+      projection: projection([
+        phrase("rise-fall", "עולה ויורד"),
+        phrase("king-hint", "מלך רמז"),
+        phrase("study-hint", "לימוד רמז"),
+        phrase("agag", "אגג מלך עמלק"),
+        phrase("anger", "ועל יהוה יזעף לבו"),
+      ]),
+    },
+  ];
+
+  const out = buildRazielGroundedSourceComposer(input);
+  const candidates = razielSurpriseCandidates(input);
+
+  assert.deepEqual(out.primary_expression_anchor, { expression: "שאול", method: "רגיל", value: 337 });
+  assert.equal(candidates[0].kind, "canonical_value_constellation");
+  assert.match(candidates[0].fact, /שאול בשיטת רגיל = 337/);
+  for (const term of ["עולה ויורד", "מלך רמז", "אגג מלך עמלק", "ועל יהוה יזעף לבו"]) {
+    assert.match(candidates[0].fact, new RegExp(term));
+  }
+  assert.match(candidates[0].limit, /פרשנות של רזיאל בלבד/);
+  assert.match(out.surprise_guidance, /קבוצת עוגנים ולא מסקנה/);
+  // הפתע אותי is the only contract that hunts one unexpected axis; מתפרע is the full Legacy-style prose reading
+  assert.match(out.surprise_guidance, /ציר אחד בלתי צפוי/);
+  assert.doesNotMatch(out.surprise_guidance, /הפתיחה: · הסיפור המרכזי/);
+  assert.match(out.surprise_brief, /ציר אחד בלתי צפוי/);
+  assert.doesNotMatch(out.surprise_brief, /8–12 פסקאות/);
+  assert.match(out.exploratory_brief, /8–12 פסקאות, בלי כותרות ובלי רשימות/);
+  assert.match(out.exploratory_brief, /הקדש פסקה ממשית לכל שכבה/);
+  assert.match(out.exploratory_brief, /אל תדבר עם הקורא על ״התיק״, ״החבילה״, ״המודל״/);
+  assert.match(out.exploratory_brief, /אלבם כהשלמה, אתבש כמראה, מילוי כפנימיות, מסתתר כרובד נסתר, סידורי כסדר האותיות/);
+  assert.doesNotMatch(out.exploratory_brief, /הפתיחה: · הסיפור המרכזי/);
+  assert.doesNotMatch(out.exploratory_brief, /ציר אחד בלתי צפוי/);
+  assert.match(out.exploratory_brief, /1\. הביטוי והערך המרכזי:\nשאול · רגיל=337/);
+  assert.match(out.exploratory_brief, /2\. קבוצת הביטויים באותו ערך רגיל/);
+  assert.match(out.exploratory_brief, /9\. מפת עזר והסתייגות/);
+  assert.match(out.exploratory_brief, /עולה ויורד/);
+  assert.ok(out.exploratory_brief.length < out.prompt.length);
+  assert.doesNotMatch(out.exploratory_brief, /uf:337|source_ref|trace_ref/);
+});
+
+test("broad-expression constellation keeps the first exploratory slot even when confirmed pairs rank higher", () => {
+  const relation = (id, partner, method, value) => ({
+    id,
+    kind: "gematria-confirmed-relation",
+    stage: "evidence",
+    subject: { label: `שאול ↔ ${partner}`, value },
+    source: { source_name: "ממצאי המחקר המאושרים", source_ref: `relation:${id}`, method, lang: "he" },
+    verification: {
+      state: "match",
+      engine_result: {
+        expression: "שאול", partner, expression_method: method, partner_method: "רגיל",
+        value, engine_verified: true,
+      },
+    },
+    evidence: { facts: [{ type: "gematria-confirmed-cross-method-relation" }] },
+  });
+  const phrase = (id, label) => ({
+    id,
+    kind: "gematria",
+    stage: "evidence",
+    subject: { type: "phrase", label, value: 337 },
+    source: { source_name: "מאגר הגימטריה", source_ref: `bidim:${id}`, method: "רגיל", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "רגיל", engine_result: 337 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: label, method: "רגיל", value: 337 }] },
+  });
+  const input = [{
+    subject: { type: "expression", value: "שאול" },
+    projection: projection([
+      relation("one", "שום", "מסתתר", 328),
+      relation("two", "אשמה", "אתבש", 502),
+      relation("three", "מאור", "אלבם", 121),
+    ], null, { calculation_profile: [{ method_key: "ragil", method_label: "רגיל", value: 337 }] }),
+  }, {
+    subject: { type: "number", value: 337 },
+    projection: projection([
+      phrase("rise-fall", "עולה ויורד"), phrase("king-hint", "מלך רמז"),
+      phrase("agag", "אגג מלך עמלק"), phrase("anger", "ועל יהוה יזעף לבו"),
+    ]),
+  }];
+
+  const candidates = razielSurpriseCandidates(input);
+  assert.equal(candidates.length, 3);
+  assert.equal(candidates[0].kind, "canonical_value_constellation");
+  assert.match(candidates[0].fact, /עולה ויורד/);
+  assert.equal(candidates.filter((candidate) => candidate.kind === "confirmed_cross_method_relation").length, 2);
+});
+
+test("surprise shortlist suppresses a mere Hebrew-letter permutation", () => {
+  const crossing = {
+    id: "uf:crossing:anagram",
+    kind: "gematria-crossing",
+    stage: "evidence",
+    subject: { label: "אור ↔ ראו" },
+    source: { source_name: "מאגר הביטויים", source_ref: "rpc:crossings", lang: "he" },
+    verification: {
+      state: "not_tested",
+      engine_result: {
+        methods: [{ method: "רגיל", value: 207 }, { method: "סידורי", value: 27 }],
+        dependency_independence_claimed: false,
+      },
+    },
+    evidence: { facts: [{ type: "gematria-multi-method-corpus-crossing", expression: "אור", partner: "ראו" }] },
+  };
+  const input = [{ subject: { type: "expression", value: "אור" }, projection: projection([crossing]) }];
+  assert.deepEqual(razielSurpriseCandidates(input), []);
+  assert.match(buildRazielGroundedSourceComposer(input).surprise_guidance, /אין עדיין בסיס להפתעה טובה/);
+});
+
+test("surprise shortlist can form a bounded same-number pair in canonical source order", () => {
+  const phrase = (id, label) => ({
+    id,
+    kind: "gematria",
+    stage: "evidence",
+    subject: { type: "phrase", label, value: 776 },
+    source: { source_name: "מאגר הגימטריה", source_ref: `bidim:${id}`, method: "רגיל", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "רגיל", engine_result: 776 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: label, method: "רגיל", value: 776 }] },
+  });
+  const input = [{
+    subject: { type: "number", value: 776 },
+    projection: projection([phrase("arrival", "ביאת המשיח"), phrase("return", "שובו בנים שובבים")]),
+  }];
+  const candidates = razielSurpriseCandidates(input);
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].kind, "shared_value_pair");
+  assert.equal(candidates[0].fact, "ביאת המשיח בשיטת רגיל = 776; שובו בנים שובבים בשיטת רגיל = 776.");
+  assert.match(candidates[0].limit, /אין לכפות פרשנות/);
 });
 
 test("focused hidden-method question deterministically binds 67 to חכמה and בינה", () => {
@@ -184,6 +446,39 @@ test("focused hidden-method question deterministically binds 67 to חכמה and 
   assert.match(out.direct_answer.answer, /בינה בשיטת רגיל = 67/);
   assert.match(out.direct_answer.answer, /פרשנות של SOD1820/);
   assert.doesNotMatch(out.direct_answer.answer, /מסתתר = 73/);
+});
+
+test("focused Shaul method answer uses only the canonical expression and never command scaffolding", () => {
+  const profile = [
+    { method_key: "רגיל", method_label: "רגיל", value: 337 },
+    { method_key: "מסתתר", method_label: "מסתתר", value: 328 },
+    { method_key: "מסתתר גדול", method_label: "מסתתר גדול", value: 328 },
+  ];
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "שאול", requestedMethod: "מסתתר" },
+    projection: projection([], null, { calculation_profile: profile }),
+  }]);
+
+  assert.equal(out.direct_answer.kind, "exact_expression_method");
+  assert.equal(out.direct_answer.anchor_value, 328);
+  assert.match(out.direct_answer.answer, /שאול בשיטת מסתתר = 328/);
+  assert.doesNotMatch(out.direct_answer.answer, /1868|שאול בשיטת מסתתר בשיטת/u);
+  assert.equal(JSON.parse(out.prompt).presentation_contract.calculation_subject_must_equal_bundle_subject, true);
+  assert.equal(out.guards.calculation_subject_fidelity, true);
+});
+
+test("unknown requested method fails closed after a complete canonical profile", () => {
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "שאול", requestedMethod: "שיטה שאינה קיימת" },
+    projection: projection([], null, {
+      calculation_profile: [{ method_key: "רגיל", method_label: "רגיל", value: 337 }],
+    }),
+  }]);
+
+  assert.equal(out.direct_answer.kind, "exact_expression_method_unavailable");
+  assert.match(out.direct_answer.answer, /לא נמצאה במפת החישוב הקנונית/);
+  assert.match(out.direct_answer.answer, /לא חישבתי את מילות הפקודה/);
+  assert.doesNotMatch(out.direct_answer.answer, /=\s*\d/u);
 });
 
 test("focused expression pair returns only the confirmed cross-method relation", () => {
@@ -290,6 +585,29 @@ test("method result keeps expression identity and connects 271 to regular corpus
   ]);
 });
 
+test("an observed expression value resolves back to its canonical method instead of becoming a number subject", () => {
+  const triangle = METHODS.find((method) => method.key === "קדמי");
+  const fill = METHODS.find((method) => method.key === "מילוי");
+  assert.equal(triangle.fn("משיח"), 1331);
+  assert.equal(fill.fn("משיח"), 878);
+
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "משיח", observedValue: 1331, identifyObservedMethod: true },
+    projection: projection([], null, {
+      calculation_profile: [
+        { method_key: "רגיל", method_label: "רגיל", value: 358 },
+        { method_key: "קדמי", method_label: "משולש", value: triangle.fn("משיח") },
+      ],
+    }),
+  }]);
+
+  assert.equal(out.direct_answer.kind, "exact_expression_observed_value");
+  assert.equal(out.direct_answer.anchor_value, 1331);
+  assert.match(out.direct_answer.answer, /משיח/u);
+  assert.match(out.direct_answer.answer, /משולש/u);
+  assert.match(out.direct_answer.answer, /1331/u);
+});
+
 test("preserves source terminology without hard-coding a subject-specific correction", () => {
   const finding = {
     ...sourceClaim,
@@ -308,10 +626,19 @@ test("preserves source terminology without hard-coding a subject-specific correc
 
   assert.deepEqual(prompt.bundles[0].source_wording, ["מחשבת יהוה", "נקודה אמצעית", "פריעת חוב"]);
   assert.equal(prompt.presentation_contract.source_terms_must_remain_verbatim_when_attributed, true);
+  assert.equal(prompt.presentation_contract.source_terms_must_not_be_merged_or_autocorrected, true);
+  assert.equal(prompt.presentation_contract.total_count_claim_requires_explicit_total_count, true);
+  assert.equal(prompt.presentation_contract.explicit_counts_must_be_copied_as_digits, true);
   assert.equal(prompt.presentation_contract.never_coin_a_source_term, true);
+  assert.equal(prompt.presentation_contract.lexical_gloss_is_not_relation_evidence, true);
+  assert.equal(prompt.presentation_contract.rich_synthesis_requires_supplied_evidence, true);
   assert.equal(prompt.presentation_contract.original_interpretation_is_allowed_when_labeled_and_explained, true);
   assert.match(out.guidance, /מותר ואף רצוי לזהות דפוס משמעותי/);
   assert.match(out.guidance, /רזיאל מציע/);
+  assert.match(out.guidance, /פירוש מילוני אפשרי/);
+  assert.match(out.guidance, /תשובה מעמיקה אינה רשימת ערכים ארוכה/);
+  assert.match(out.guidance, /השמט את הביטוי במקום לייצר נוסח משובש/);
+  assert.match(out.guidance, /אל תכריז כמה ביטויים או ממצאים יש אלא אם total_count/);
   assert.doesNotMatch(out.prompt + out.guidance, /הטליה המעגלית/);
 });
 

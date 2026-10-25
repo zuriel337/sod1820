@@ -53,6 +53,7 @@ export function RazielSessionProvider2029({
     view = {},
     projection = null,
     viewMode = null,
+    viewModeOverride = null,
     continuationTurnId = null,
   } = {}) => {
     if (inFlightRef.current || stateRef.current.busy) return { ok: false, error: "turn_pending" };
@@ -82,6 +83,7 @@ export function RazielSessionProvider2029({
         view,
         projection,
         viewMode,
+        viewModeOverride,
         continuationTurnId,
         startedAt,
         createTurnId: () => draftTurn.id,
@@ -120,6 +122,18 @@ export function RazielSessionProvider2029({
     }
   }, [clock, createTurnId, loadRequestBuilder, research.context, transport]);
 
+  // One-shot actions ("✨ הפתע אותי" = exploratory/deep, "🗺️ פתח מפת מחקר" = landscape/fast): a continuation of the LAST answer's
+  // question over the same session and Bundle. It goes through submit() (the single AI boundary and the lazy request builder),
+  // never dispatches view_mode_set, and is refused here — before any state change or request — when the last answer has no
+  // valid Bundle. The gate is a tiny lazy module, so nothing of it enters the eager 2029 graph.
+  const submitOneShot = useCallback(async (kind, options) => {
+    const { selectRazielOneShot, RAZIEL_ONE_SHOT_SPEC } = await import("./razielOneShotGate2029.js");
+    const shot = selectRazielOneShot(stateRef.current);
+    const spec = RAZIEL_ONE_SHOT_SPEC[kind];
+    if (!spec || !shot.ok) return { ok: false, error: "no_material_for_one_shot" };
+    return submit({ ...options, question: shot.question, intelligenceLevel: spec.level, again: true, continuationTurnId: shot.turnId, viewModeOverride: spec.mode });
+  }, [submit]);
+
   const setViewMode = useCallback((viewMode) => {
     dispatch({ type: "view_mode_set", viewMode });
   }, []);
@@ -134,8 +148,9 @@ export function RazielSessionProvider2029({
     ...state,
     submit,
     setViewMode,
+    submitOneShot,
     resetTemporarySession,
-  }), [state, submit, setViewMode, resetTemporarySession]);
+  }), [state, submit, setViewMode, submitOneShot, resetTemporarySession]);
 
   return (
     <RazielSessionContext2029.Provider value={value}>
