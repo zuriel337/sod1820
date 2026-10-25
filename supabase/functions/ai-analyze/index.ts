@@ -237,13 +237,15 @@ const RAZIEL_VIEW_MODE_LAYERS: Record<"landscape" | "exploratory", string> = {
     "בכל שורה הפרד בין שלושה סוגים באמצעות תחילית: ‘עובדה מתמטית:’ (ערך או התכנסות שבחבילה) · ‘לפי המקור:’ (טענה שמופיעה בפירוש במקור שבחבילה) · ‘פרשנות רזיאל:’ (קריאה שלך, מסומנת ככזו). " +
     "סיים ב‘סינתזה:’ — פסקה רציפה שמחברת בין שני ממצאים מסופקים לפחות ומסבירה את מהלך החיבור. אם אין לכך בסיס, אמור שאין עדיין בסיס לסינתזה; אל תכפה סיפור.",
   exploratory: RAZIEL_VIEW_MODE_COMMON +
-    "\nמצב «מתפרע»: המטרה אינה לתת יותר טקסט אלא לחשוף קשר אחד מפתיע, יפה ובר־בדיקה מתוך החומר שסופק. מותר להציע חיבורים והשערות חדשות, אך אסור להמציא עובדות. אותו חומר בדיוק כמו במצב הכללי. " +
+    "\nמצב «מתפרע»: המטרה היא לבנות מהלך פרשני אחד מפתיע, יפה וזכיר מתוך החומר שסופק — לא להגיש דוח טכני ולא רק למנות משפחות חישוב. מותר להציע חיבורים והשערות חדשות, אך אסור להמציא עובדות. אותו חומר בדיוק כמו במצב הכללי. " +
+    "פתח בטענה מפתיעה ורק אחר כך הראה כיצד היא נבנית. כשיש בחבילה קבוצת ביטויים סביב אותו ערך, בחר מתוכה שלושה עד חמישה עוגנים שיוצרים מתח, תנועה או תמונה אחת; אל תעתיק את כל הרשימה. חפש, רק כשהמילים שסופקו מאפשרות זאת, ניגוד כמו עלייה מול ירידה, הסתר מול גילוי, מלוכה מול שבר, שאלה מול תשובה או התחלה מול השלמה. " +
+    "חבר לפחות שתי שכבות שונות כשהן זמינות — למשל קבוצת הערך הרגיל יחד עם ממצא משיטה אחרת או עם טענת מקור — והסבר מדוע החיבור מעניין. נתוני הנרמול הם בלם אמינות שקובע כמה משקל לתת לקשר; הם אינם הסיפור עצמו. אל תסיים בתיאור כמו ‘שתי משפחות חישוב’ אם לא הפכת אותו לתובנה על הביטויים. " +
     "אם יצרת מטפורה או מונח משלך, הסבר אותם מיד בשפה פשוטה וציין במפורש שזו הצעה של רזיאל ולא לשון המקור. " +
     "אל תתפתה לצירוף מקרי חלש: העדף יחס מאומת חוצה־שיטות או גשר בין שתי עובדות שסופקו; אל תשתמש בתמורת אותיות, כפילות שיטות טבעית, דמיון מילולי בלבד או ריבוי שיטות תלויות כאילו הם הפתעה חזקה. " +
-    "כתוב תשובה קצרה ומלוטשת בארבע כותרות, בסדר הזה (אם אין בסיס להפתעה טובה, אמור זאת בפשטות במקום למלא אותן): " +
-    "‘✨ ההפתעה:’ — משפט חד אחד שמנסח את הקשר שנבחר. " +
-    "‘העובדה שמאחוריה:’ — רק השוויון, השיטות והערכים שסופקו בחבילה, בלי חישוב חדש. " +
-    "‘פרשנות אפשרית:’ — הסבר מקורי וברור של הגשר הרעיוני ועל אילו עובדות הוא נשען. " +
+    "כתוב תשובה עשירה אך ממוקדת בארבע כותרות, בסדר הזה. כשיש חומר עשיר, מותר לפרשנות להתפתח לכמה פסקאות קצרות; כשאין, אל תנפח את התשובה: " +
+    "‘✨ ההפתעה:’ — טענה חדה אחת שמנסחת את הסיפור או המתח שנחשף, לא סיכום של טבלת השיטות. " +
+    "‘העובדה שמאחוריה:’ — העוגנים המספריים, השיטות והביטויים שסופקו בחבילה, בסדר שמאפשר לקורא לבדוק את המהלך, בלי חישוב חדש. " +
+    "‘פרשנות אפשרית:’ — קריאה מקורית ורציפה שמחברת את העוגנים לתמונה אחת ומבהירה בכל מעבר מהי העובדה ומהי ההצעה שלך. " +
     "‘מה עדיין לא מוכח:’ — הגבול המדויק של הראיה ומה דרוש כדי לחזק את ההשערה. " +
     "אל תכתוב ‘המנוע מצא’ על דבר שאינו בחבילה. אם אין בסיס מספיק להשערה — אמור זאת במקום להמציא. " +
     "‘חושב בקול’ פירושו מסלול מסקנות תמציתי ובר־בדיקה (מאילו עובדות לאיזו פרשנות ולאיזו השערה), לא טקסט חשיבה גולמי.",
@@ -2881,16 +2883,24 @@ Deno.serve(async (req: Request) => {
         rCanonicalBundleReads = [expressionRead];
         if (expressionRead.ok && expressionRead.projection) {
           let composition = razielCanonicalBundleComposition(rCanonicalBundleReads);
-          // A focused method result keeps the expression as its subject, then opens the existing
-          // canonical Number Bundle for the verified method
-          // value. This is one Result-Bundle system and one composer; no direct corpus query or
-          // second calculation engine is introduced.
-          const methodAnchor = Number(composition.direct_answer?.anchor_value);
-          if (composition.direct_answer?.kind === "exact_expression_method"
-            && Number.isSafeInteger(methodAnchor) && methodAnchor >= 1 && methodAnchor <= 999999) {
+          // Keep the expression as the subject, then open the existing canonical Number Bundle for
+          // either an explicitly requested method value or the regular value of a broad expression
+          // question. The latter gives every view mode the same bounded value-neighbourhood, so an
+          // exploratory continuation can form a real narrative instead of repeating only the
+          // strongest multi-method pairs. This is one Result-Bundle system and one composer; no
+          // direct corpus query, calculation engine or alternate truth path is introduced.
+          const exactMethodAnchor = composition.direct_answer?.kind === "exact_expression_method"
+            ? Number(composition.direct_answer?.anchor_value)
+            : null;
+          const broadExpressionAnchor = !rExpressionCrossingHint.requestedMethod
+              && !rExpressionCrossingHint.relatedExpression
+            ? Number(composition.primary_expression_anchor?.value)
+            : null;
+          const numberAnchor = exactMethodAnchor ?? broadExpressionAnchor;
+          if (Number.isSafeInteger(numberAnchor) && Number(numberAnchor) >= 1 && Number(numberAnchor) <= 999999) {
             const numberRead = await runRazielCanonicalBundle({
               contract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
-              number: methodAnchor,
+              number: Number(numberAnchor),
               question: rSubject,
               visitorId: body?.visitor_id,
               interactionId: body?.interaction_id,

@@ -51,7 +51,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v9");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v10");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -217,6 +217,49 @@ test("surprise shortlist prefers a supplied cross-Bundle value bridge without in
   assert.equal(candidates[0].fact, "חכמה בשיטת משולש = 271; הריון בשיטת רגיל = 271.");
   assert.match(candidates[0].limit, /המשמעות המשותפת אינה מוכחת/);
   assert.doesNotMatch(JSON.stringify(candidates), /נדיר|סיבתי|מסורתי.*מוכח/u);
+});
+
+test("broad expression surprise receives a bounded canonical value constellation for narrative synthesis", () => {
+  const phrase = (id, label) => ({
+    id,
+    kind: "gematria",
+    stage: "evidence",
+    subject: { type: "phrase", label, value: 337 },
+    source: { source_name: "מאגר הגימטריה", source_ref: `bidim:${id}`, method: "רגיל", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "רגיל", engine_result: 337 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: label, method: "רגיל", value: 337 }] },
+  });
+  const input = [
+    {
+      subject: { type: "expression", value: "שאול" },
+      projection: projection([], null, {
+        calculation_profile: [{ method_key: "ragil", method_label: "רגיל", value: 337 }],
+      }),
+    },
+    {
+      subject: { type: "number", value: 337 },
+      projection: projection([
+        phrase("rise-fall", "עולה ויורד"),
+        phrase("king-hint", "מלך רמז"),
+        phrase("study-hint", "לימוד רמז"),
+        phrase("agag", "אגג מלך עמלק"),
+        phrase("anger", "ועל יהוה יזעף לבו"),
+      ]),
+    },
+  ];
+
+  const out = buildRazielGroundedSourceComposer(input);
+  const candidates = razielSurpriseCandidates(input);
+
+  assert.deepEqual(out.primary_expression_anchor, { expression: "שאול", method: "רגיל", value: 337 });
+  assert.equal(candidates[0].kind, "canonical_value_constellation");
+  assert.match(candidates[0].fact, /שאול בשיטת רגיל = 337/);
+  for (const term of ["עולה ויורד", "מלך רמז", "אגג מלך עמלק", "ועל יהוה יזעף לבו"]) {
+    assert.match(candidates[0].fact, new RegExp(term));
+  }
+  assert.match(candidates[0].limit, /פרשנות של רזיאל בלבד/);
+  assert.match(out.surprise_guidance, /קבוצת עוגנים ולא מסקנה/);
+  assert.match(out.surprise_guidance, /פתח בתזה ולא ברשימת שיטות/);
 });
 
 test("surprise shortlist suppresses a mere Hebrew-letter permutation", () => {

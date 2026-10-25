@@ -251,6 +251,10 @@ test("5) exploratory layer demands the four-part surprise contract and forbids i
   assert.match(exploratory, /תמורת אותיות/);
   assert.match(exploratory, /ריבוי שיטות תלויות/);
   assert.match(exploratory, /מסנן הפתעות דטרמיניסטי/);
+  assert.match(exploratory, /לא להגיש דוח טכני/);
+  assert.match(exploratory, /קבוצת ביטויים סביב אותו ערך/);
+  assert.match(exploratory, /נתוני הנרמול הם בלם אמינות/);
+  assert.match(exploratory, /פתח בתזה ולא ברשימת שיטות/);
 
   const landscape = l.models[0].system.slice(l.models[0].system.indexOf(MARKER));
   assert.ok(landscape.includes("עוגן:"));

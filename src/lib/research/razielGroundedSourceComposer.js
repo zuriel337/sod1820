@@ -7,7 +7,7 @@
 // source URL, and derive bounded presentation candidates for the exploratory view. Candidate
 // ordering never changes the canonical evidence order or promotes a candidate to research truth.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 9;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 10;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -16,6 +16,7 @@ const MAX_NAVIGATION = 10;
 const MAX_FALLBACK_FINDINGS = 6;
 const MAX_SOURCE_TERMS = 48;
 const MAX_SURPRISE_CANDIDATES = 3;
+const MAX_CONSTELLATION_TERMS = 10;
 
 const list = (value) => Array.isArray(value) ? value : [];
 
@@ -394,6 +395,19 @@ function surpriseCandidateKey(candidate) {
   return [candidate.kind, candidate.value, ...list(candidate.terms).map(comparable).sort()].join("|");
 }
 
+function primaryExpressionAnchor(entries) {
+  const expressionEntries = entries.filter((entry) => entry.subject?.type === "expression");
+  if (expressionEntries.length !== 1) return null;
+  const entry = expressionEntries[0];
+  const profile = list(entry?.projection?.model_input?.calculation_profile).find((item) => (
+    regularMethod(item?.method_label || item?.method_key)
+  ));
+  const expression = cleanText(entry.subject?.value, 120);
+  const value = safeNumber(profile?.value);
+  const method = cleanText(profile?.method_label || profile?.method_key, 60) || "רגיל";
+  return expression && value != null ? { expression, method, value } : null;
+}
+
 // This is a deterministic presentation shortlist over already-admitted evidence. It does not
 // calculate, query, infer statistical rarity or claim method independence. Scores are UI-writing
 // preferences only: confirmed relations first, then a cross-Bundle value bridge, then bounded
@@ -433,6 +447,43 @@ export function razielSurpriseCandidates(input = []) {
           limit: "זהו שוויון מספרי מאומת; עצמאות בין השיטות וקשר סיבתי או מסורתי אינם מוכחים מעצם השוויון.",
         });
       }
+    }
+  }
+
+  // A broad expression question needs more than multi-method pairs to support a memorable reading.
+  // When the same canonical read set already contains the expression's regular Number Bundle, expose
+  // a bounded constellation in canonical source order. This is still presentation-only: the model may
+  // choose a coherent subset, but the shared value remains the sole admitted fact.
+  const primaryAnchor = primaryExpressionAnchor(entries);
+  const primaryNumberEntry = primaryAnchor && entries.find((entry) => (
+    entry.subject?.type === "number" && safeNumber(entry.subject.value) === primaryAnchor.value
+  ));
+  if (primaryAnchor && primaryNumberEntry) {
+    const seen = new Set([comparable(primaryAnchor.expression)]);
+    const phrases = primaryNumberEntry.findings.flatMap((finding) => {
+      const label = cleanText(finding?.subject?.label, 120);
+      const value = numericFindingValue(finding);
+      const method = cleanText(
+        finding?.verification?.engine_method_tested || finding?.source?.method,
+        60,
+      );
+      const lane = razielFindingEvidenceLane(finding);
+      const key = comparable(label);
+      if (!label || !key || seen.has(key) || value !== primaryAnchor.value || !regularMethod(method)
+        || !["verified_calculation", "engine_finding"].includes(lane)) return [];
+      seen.add(key);
+      return [{ label, method: method || "רגיל" }];
+    }).slice(0, MAX_CONSTELLATION_TERMS);
+    if (phrases.length >= 3) {
+      push({
+        kind: "canonical_value_constellation",
+        strength: 96,
+        value: primaryAnchor.value,
+        terms: [primaryAnchor.expression, ...phrases.map((item) => item.label)],
+        fact: `${primaryAnchor.expression} בשיטת ${primaryAnchor.method} = ${primaryAnchor.value}; באותו ערך ובשיטת רגיל מופיעים לפי הסדר הקנוני: ${phrases.map((item) => item.label).join(" · ")}.`,
+        interpretation_basis: "זו קבוצת עוגנים ולא מסקנה. בחר מתוכה שלושה עד חמישה ביטויים שיוצרים מתח, רצף או תמונה אחת, והסבר במפורש כיצד הקריאה נבנית מן המילים שסופקו.",
+        limit: "הערך המשותף מוכח בחבילה; הסיפור המחבר בין הביטויים הוא פרשנות של רזיאל בלבד, לא קשר סיבתי, מסורתי או ביוגרפי מוכח.",
+      });
     }
   }
 
@@ -552,16 +603,18 @@ function surpriseGuidance(entries) {
     "[מסנן הפתעות דטרמיניסטי — תעדוף תצוגה בלבד, לא מנוע אמת נוסף]",
     "בחר הפתעה אחת חזקה, או לכל היותר שלוש אם הן מוסיפות זוויות שונות. אל תציג רשימת אסוציאציות ואל תזכיר ציונים, מועמדים או את המסנן.",
     "השתמש רק בעובדות המועמד שסופקו כאן ובחבילת התוצאה. ניסוח הפרשנות יכול להיות מקורי ונועז, אך חייב להסביר את הגשר מן העובדה אל הרעיון.",
+    "אל תהפוך את הנרמול, מספר השיטות או סידורי שחוזר בכמה זוגות לנושא הראשי. הם קובעים משקל ובקרה; ההפתעה עצמה צריכה להיות תזה על הביטויים והמתח ביניהם.",
   ];
   if (!candidates.length) return [...intro,
     "לא נמצא בחומר קשר שעבר את סף ההפתעה. אמור שאין עדיין בסיס להפתעה טובה ואל תכפה סיפור.",
+    "[הוראת פלט סופית] בתוך answer השתמש בדיוק בארבע הכותרות: ✨ ההפתעה: · העובדה שמאחוריה: · פרשנות אפשרית: · מה עדיין לא מוכח:. פתח בתזה ולא ברשימת שיטות.",
   ].join("\n");
   return [...intro, ...candidates.map((candidate, index) => [
     `אפשרות ${index + 1} — ${candidate.kind}:`,
     `עובדה שסופקה: ${candidate.fact}`,
     `בסיס פרשני: ${candidate.interpretation_basis}`,
     `גבול הראיה: ${candidate.limit}`,
-  ].join("\n"))].join("\n");
+  ].join("\n")), "[הוראת פלט סופית] בתוך answer השתמש בדיוק בארבע הכותרות: ✨ ההפתעה: · העובדה שמאחוריה: · פרשנות אפשרית: · מה עדיין לא מוכח:. פתח בתזה ולא ברשימת שיטות."].join("\n");
 }
 
 function comparable(value) {
@@ -823,6 +876,7 @@ export function buildRazielGroundedSourceComposer(input = []) {
     sources: sourceList(entries),
     navigation: navigationList(entries),
     direct_answer: directCanonicalAnswer(entries),
+    primary_expression_anchor: primaryExpressionAnchor(entries),
     guards: {
       projection_only: true,
       preserves_result_bundle_order: true,
