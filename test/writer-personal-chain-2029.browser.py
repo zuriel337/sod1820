@@ -37,7 +37,7 @@ server = ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(StaticFiles, di
 threading.Thread(target=server.serve_forever, daemon=True).start()
 BASE = "http://127.0.0.1:" + str(server.server_port)
 report = {"runtime": "built App2029 + existing Auth/Research/frame + shared editors/inbox",
-          "data": "synthetic HTTP fixtures; no live writes", "captures": [], "flows": [], "errors": []}
+          "data": "synthetic HTTP fixtures; no live writes", "captures": [], "flows": [], "errors": [], "editor_refresh_checks": []}
 
 
 def session(uid=ACCOUNT):
@@ -51,6 +51,9 @@ def session(uid=ACCOUNT):
 def install(page, *, guest=False, writer_state="ready", fail_self=False, fail_send=False, fail_follow=False):
     state = {"writer_state": writer_state, "avatar": None, "accountAvatar": PHOTO, "fail_send": fail_send,
              "fail_follow": fail_follow, "fail_profile": False, "fail_self": fail_self, "calls": [], "messages": [],
+             "hold_self": False, "held_self": None, "held_self_data": None, "save_ack": {"ok": True},
+             "page_config": {"version": 1, "highlights": ["keep-this-highlight"], "sections": [],
+                             "links": [{"label": "קישור קיים", "url": "https://example.invalid/kept"}]},
              "uid": ACCOUNT, "held_profile": None, "hold_profile": False, "name": FIXTURE["identity"]["display_name"], "bio": "תיאור קיים", "topics": ["author:" + FIXTURE["identity"]["display_name"]]}
     page.on("pageerror", lambda error: report["errors"].append(str(error)))
 
@@ -89,6 +92,10 @@ def install(page, *, guest=False, writer_state="ready", fail_self=False, fail_se
                     "slug": "tzvi-opoc", "href": PUBLIC, "publicVisible": True, "avatar": state["avatar"]},
                     "accountAvatar": state["accountAvatar"], "rank": {"state": "ready", "level": 5, "label": "חוקר היכל"},
                     "stats": {"xp": 1234, "credits": 90, "streak": None, "tier": "free"}}
+                if state["hold_self"]:
+                    state["held_self"], state["held_self_data"] = r, data
+                    page.evaluate("window.__writerSelfRefreshHeld = true")
+                    return
             elif name == "public-contributor-rank":
                 data = {"state": "ready", "level": 5, "label": "חוקר היכל"}
             elif name == "contributor-interactions":
@@ -120,8 +127,7 @@ def install(page, *, guest=False, writer_state="ready", fail_self=False, fail_se
         elif name == "contributors":
             identity = {**FIXTURE["identity"], "user_id": ACCOUNT, "bio": state["bio"], "public_visibility": "public", "visibility": "public",
                         "public_avatar": {"enabled": bool(state["avatar"]), "url": state["avatar"]},
-                        "page_config": {"version": 1, "highlights": ["keep-this-highlight"], "sections": [],
-                                        "links": [{"label": "קישור קיים", "url": "https://example.invalid/kept"}]}}
+                        "page_config": state["page_config"]}
             data = [identity] if "in." in q.get("display_name", [""])[0] or not "application/vnd.pgrst.object+json" in req.headers.get("accept", "") else identity
         elif name == "channel_updates":
             data = FIXTURE["sources"] if q.get("contributor_id") != ["is.null"] else []
@@ -149,7 +155,11 @@ def install(page, *, guest=False, writer_state="ready", fail_self=False, fail_se
         elif name == "update_my_page_config":
             assert body["p_config"]["highlights"] == ["keep-this-highlight"]
             assert body["p_config"]["links"][0]["url"] == "https://example.invalid/kept"
-            data = {"ok": True}
+            data = state["save_ack"]
+            if isinstance(data, dict) and data.get("ok") is True:
+                state["page_config"] = body["p_config"]
+                state["bio"] = body["p_config"].get("bio", state["bio"])
+                state["name"] = body["p_config"].get("display_name", state["name"])
         elif "prefs" in name:
             data = {"topics": state["topics"], "channels": []}
         return r.fulfill(content_type="application/json", headers={"access-control-allow-origin": "*", "content-range": "0-24/25"}, body=json.dumps(data))
@@ -196,6 +206,63 @@ try:
                     report["captures"].append({"width": width, "theme": theme, "module": module, "overflow": False})
                 assert not any(c["name"] in ["update_my_page_config", "update_my_dossier", "dm_send", "watch_toggle"] for c in state["calls"])
                 context.close()
+        # Hold the overview refresh after a confirmed save: the editor and next draft must survive.
+        for width in [390, 1440]:
+            context = open_context(browser, width=width); page = context.new_page(); state = install(page)
+            page.goto(BASE + "/2029/me/page-editor")
+            bio = page.get_by_placeholder("כמה מילים עליך ועל המחקר שלך…")
+            bio.fill("תיאור שנשמר בהצלחה")
+            page.locator(".wp-body fieldset").evaluate("n=>window.__savedEditorNode=n")
+            state["hold_self"] = True
+            page.get_by_role("button", name="💾 שמור את הדף שלי").click()
+            page.wait_for_function("window.__writerSelfRefreshHeld === true")
+            snapshot = {"width": width, "editor_retained": page.evaluate("window.__savedEditorNode.isConnected"),
+                        "layout_state": page.locator(".wp-layout").get_attribute("data-state")}
+            (OUT / "editor-refresh-snapshot.json").write_text(json.dumps(snapshot, ensure_ascii=False))
+            assert snapshot["editor_retained"] and snapshot["layout_state"] == "ready", snapshot
+            expect(page.get_by_text("נשמר! הדף שלך עודכן ✓", exact=True)).to_be_visible()
+            bio.fill("טיוטה חדשה בזמן רענון")
+            state["hold_self"] = False
+            state["held_self_data"]["writer"]["href"] = PUBLIC + "?fixture-refreshed=1"
+            state["held_self"].fulfill(json=state["held_self_data"])
+            expect(page.get_by_role("link", name="בחירת כתבים והקדמה בדף שלי", exact=True)).to_have_attribute("href", PUBLIC + "?fixture-refreshed=1")
+            expect(bio).to_have_value("טיוטה חדשה בזמן רענון")
+            assert page.evaluate("window.__savedEditorNode.isConnected")
+            assert len([c for c in state["calls"] if c["name"] == "update_my_page_config"]) == 1
+            report["editor_refresh_checks"].append({**snapshot, "new_draft_preserved": True})
+            context.close()
+        for status in [503, 401]:
+            context = open_context(browser); page = context.new_page(); state = install(page)
+            page.goto(BASE + "/2029/me/page-editor")
+            bio = page.get_by_placeholder("כמה מילים עליך ועל המחקר שלך…"); bio.fill("שמירה מאושרת לפני כשל רענון")
+            state["hold_self"] = True
+            page.get_by_role("button", name="💾 שמור את הדף שלי").click()
+            page.wait_for_function("window.__writerSelfRefreshHeld === true")
+            bio.fill("טיוטה חדשה שלא נשמרה")
+            state["held_self"].fulfill(status=status, json={"state": "unavailable" if status == 503 else "login_required"})
+            if status == 503:
+                expect(page.get_by_text("הדף נשמר. רענון הפרטים לא הושלם; אפשר להמשיך לערוך.", exact=True)).to_be_visible()
+                expect(bio).to_have_value("טיוטה חדשה שלא נשמרה")
+                assert page.locator(".wp-layout").get_attribute("data-state") == "ready"
+            else:
+                page.locator('.wp-layout[data-state="error"]').wait_for()
+                assert page.get_by_placeholder("כמה מילים עליך ועל המחקר שלך…").count() == 0
+                assert "טיוטה חדשה שלא נשמרה" not in page.locator("body").inner_text()
+            assert len([c for c in state["calls"] if c["name"] == "update_my_page_config"]) == 1
+            report["editor_refresh_checks"].append({"refresh_status": status, "transient_draft_preserved_or_session_masked": True})
+            context.close()
+        for ack in [None, {"ok": "false"}]:
+            context = open_context(browser); page = context.new_page(); state = install(page); state["save_ack"] = ack
+            page.goto(BASE + "/2029/me/page-editor")
+            bio = page.get_by_placeholder("כמה מילים עליך ועל המחקר שלך…"); bio.fill("טיוטה ללא אישור שמירה")
+            before_reads = len([c for c in state["calls"] if c["name"] == "contributor-self"])
+            page.get_by_role("button", name="💾 שמור את הדף שלי").click()
+            expect(page.get_by_role("alert")).to_contain_text("לא התקבל אישור שמירה")
+            expect(bio).to_have_value("טיוטה ללא אישור שמירה")
+            assert page.get_by_text("נשמר! הדף שלך עודכן ✓", exact=True).count() == 0
+            assert len([c for c in state["calls"] if c["name"] == "contributor-self"]) == before_reads
+            report["editor_refresh_checks"].append({"unconfirmed_ack": ack, "draft_preserved_no_refresh": True})
+            context.close()
         context = open_context(browser)
         page = context.new_page()
         state = install(page)
