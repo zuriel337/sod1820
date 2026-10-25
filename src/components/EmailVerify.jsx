@@ -31,7 +31,7 @@ const btnStyle = (busy) => ({
   fontFamily: F.heading, fontSize: 15, fontWeight: 800, whiteSpace: "nowrap",
 });
 
-export default function EmailVerify({ source = "site", onVerified, cta = "שלחו לי קוד", subscribeToUpdates = true }) {
+export default function EmailVerify({ source = "site", onVerified, cta = "שלחו לי קוד", subscribeToUpdates = true, variant = null }) {
   const [step, setStep] = useState("email"); // email | code
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -40,6 +40,12 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
   const [resendIn, setResendIn] = useState(0); // ספירה-לאחור עד שאפשר לשלוח שוב
   const [resendNote, setResendNote] = useState("");
   const shouldSubscribe = shouldSubscribeEmailDuringVerification({ source, subscribeToUpdates });
+  // Explicit opt-in to the existing 2029 presentation owner. Variant never changes identity or consent intent.
+  const native2029 = variant === "2029";
+  const presentation = native2029 ? { className: "sod29-email-verify", "data-variant": "2029", "data-step": step,
+    "data-state": busy ? "pending" : err ? "error" : "ready" } : {};
+  // Let the canonical native-frame keyboard-focus rule apply instead of blocking it with Legacy inline outline:none.
+  const fieldStyle = native2029 ? { ...inputStyle, outline: undefined } : inputStyle;
 
   // טיימר ההמתנה של כפתור "שלח שוב"
   useEffect(() => {
@@ -109,7 +115,7 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
 
   if (step === "code") {
     return (
-      <form onSubmit={checkCode} style={{ direction: "rtl", maxWidth: 360, margin: "0 auto" }}>
+      <form {...presentation} onSubmit={checkCode} style={{ direction: "rtl", maxWidth: 360, margin: "0 auto" }}>
         <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 14, marginBottom: 12, lineHeight: 1.7 }}>
           שלחנו קוד אל <span style={{ color: C.goldLight }} dir="ltr">{email}</span>. הזינו אותו כאן:
         </div>
@@ -117,10 +123,12 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
           value={code} onChange={e => setCode(sanitizeEmailOtp(e.target.value))}
           maxLength={EMAIL_OTP_MAX_LENGTH} autoComplete="one-time-code"
           placeholder="קוד כניסה" dir="ltr" inputMode="numeric" autoFocus
-          style={{ ...inputStyle, letterSpacing: 6, fontSize: 22, fontWeight: 700 }} />
+          data-field={native2029 ? "otp" : undefined}
+          style={{ ...fieldStyle, letterSpacing: 6, fontSize: 22, fontWeight: 700 }} />
         <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <button type="submit" disabled={busy} style={btnStyle(busy)}>{busy ? "מאמת…" : "אמתו וכנסו"}</button>
+          <button type="submit" data-action={native2029 ? "verify" : undefined} disabled={busy} style={btnStyle(busy)}>{busy ? "מאמת…" : "אמתו וכנסו"}</button>
           <button type="button" onClick={() => { setStep("email"); setCode(""); setErr(""); setResendNote(""); }}
+            data-action={native2029 ? "change-email" : undefined}
             style={{ padding: "12px 18px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontFamily: F.heading, fontSize: 13, cursor: "pointer" }}>
             ← מייל אחר
           </button>
@@ -128,7 +136,7 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
         {/* לא קיבלת? שלח שוב (עם המתנה) + תזכורת ספאם */}
         <div style={{ marginTop: 14, textAlign: "center" }}>
           <button
-            type="button" onClick={resendCode} disabled={busy || resendIn > 0}
+            type="button" data-action={native2029 ? "resend" : undefined} onClick={resendCode} disabled={busy || resendIn > 0}
             style={{
               background: "transparent", border: "none", padding: 4,
               color: resendIn > 0 ? C.muted : C.goldLight,
@@ -151,11 +159,11 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
   }
 
   return (
-    <form onSubmit={sendCode} style={{ direction: "rtl", display: "flex", gap: 10, maxWidth: 460, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>
+    <form {...presentation} onSubmit={sendCode} style={{ direction: "rtl", display: "flex", gap: 10, maxWidth: 460, margin: "0 auto", flexWrap: "wrap", justifyContent: "center" }}>
       <input
         type="email" value={email} onChange={e => setEmail(e.target.value)}
-        placeholder="האימייל שלכם" dir="ltr" style={{ ...inputStyle, flex: "1 1 220px", minWidth: 200, width: "auto" }} />
-      <button type="submit" disabled={busy} style={btnStyle(busy)}>{busy ? "שולח…" : cta}</button>
+        placeholder="האימייל שלכם" dir="ltr" data-field={native2029 ? "email" : undefined} style={{ ...fieldStyle, flex: "1 1 220px", minWidth: 200, width: "auto" }} />
+      <button type="submit" data-action={native2029 ? "send" : undefined} disabled={busy} style={btnStyle(busy)}>{busy ? "שולח…" : cta}</button>
       {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 8, width: "100%", textAlign: "center" }}>{err}</div>}
     </form>
   );

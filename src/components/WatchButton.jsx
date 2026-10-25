@@ -124,7 +124,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
       signedIn={!!user?.id} showReg={showReg} pushOn={pushOn} pushMsg={pushMsg} pushOffered={!noPush && pushReady} label={label} followLabel={followLabel} explainer={explainer}
       onToggle={toggle} onRetry={() => load(true)} onTurnOnPush={turnOnPush}
       onVerifyIdentity={() => typeof onVerifyIdentity === "function" ? onVerifyIdentity() : patch(scopeKey, { showReg: true })}
-      identitySlot={<EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => patch(scopeKey, { showReg: false, justFollowed: false })} />} />;
+      identitySlot={<EmailVerify variant="2029" source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => patch(scopeKey, { showReg: false, justFollowed: false })} />} />;
   }
 
   // ✓ וריאנט mini — «וי קטן» עדין למשטחי-מדיה כהים (למשל בתוך נגן-הShorts). כמעט-שקוף כשלא-עוקב,
