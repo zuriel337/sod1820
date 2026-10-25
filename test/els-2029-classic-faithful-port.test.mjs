@@ -51,7 +51,7 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(nativeClassic, /onGate=\{\(\) => \{ setClassicOpen\(false\);[\s\S]*?setAccountRequired\(true\)/);
   assert.match(embed, /const gateOverlay = !experience2029 && gate && !verified/);
   assert.match(embed, /\(experience2029 \? "&experience=2029" : ""\)/);
-  assert.match(nativeClassic, /classicOpen \? "חזור למטריצה" : "כל הכלים"/);
+  assert.match(nativeClassic, /classicOpen \? "חזור למסך המחקר" : "מצב קלאסי"/);
   assert.doesNotMatch(nativeClassic, /\(engineSeed \|\| classicOpen\) \?/);
 
   assert.match(embed, /engineOnly = false/);
@@ -60,7 +60,10 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(embed, /clipPath: "inset\(50%\)"/);
   assert.match(embed, /onGate\?\.\(d\)/);
   assert.match(embed, /\(!hiddenBridge \|\| \(showResearchBusWhenHiddenBridge && !engineOnly\)\) && hasAxisFinding && !gate/);
-  assert.match(nativeClassic, /showResearchBusWhenHiddenBridge/);
+  assert.doesNotMatch(nativeClassic, /showResearchBusWhenHiddenBridge/);
+  assert.match(template, /body\.exp2029-clean :is\(#htStep2,#qb,#alwaystip,\.crossrow,#crosspanel,#labpanel,\.crosschip,\.crossbanner,\.xres,\.cross-act\)/);
+  assert.match(template, /if\(EXPR2029\)document\.body\.classList\.add\("exp2029-clean"\)/);
+  assert.match(template, /if\(!EXPR2029&&st\.crossSimple&&st\.crossMeetings&&st\.crossMeetings\.length\)/);
   assert.doesNotMatch(nativeClassic, /findAll\(|verifyBatch\(|crossFindMulti\(|els_search|fn_els/);
 });
 

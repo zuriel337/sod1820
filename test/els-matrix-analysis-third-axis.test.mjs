@@ -23,10 +23,9 @@ function functionSource(template, name) {
 
 test("the open Research matrix defaults to bounded matrix-first discovery", async () => {
   const [native, engine] = await Promise.all([readFile(NATIVE, "utf8"), readFile(ENGINE, "utf8")]);
-  assert.match(native, /גלה מה יש כאן/);
-  assert.match(native, /requestLens\("matrix-discovery", target\)/);
+  assert.match(native, /requestLens\("matrix-discovery", \{ hitId: engineState\.axis\.hitId, surface: "results"/);
   assert.match(native, /סריקה מילונית רחבה · מתקדם ואיטי/);
-  assert.match(native, /אין טעינה של אוצר המילים הגדול/);
+  assert.match(native, /אוצר המילים הגדול לא נטען/);
   assert.match(engine, /MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1"/);
   assert.match(engine, /MATRIX_DISCOVERY_BUDGET_CONTRACT="els_matrix_discovery_budget_v1"/);
   assert.match(engine, /d\.lens==="matrix-discovery"/);
@@ -35,6 +34,8 @@ test("the open Research matrix defaults to bounded matrix-first discovery", asyn
   assert.match(engine, /function discoverMatrixRepeats\(/);
   assert.match(engine, /rawPatterns:rawPatternItems/);
   assert.match(native, /דפוסים גולמיים חוזרים/);
+  const advancedRail = native.slice(native.indexOf("function StructuralPriorityRail"), native.indexOf("function SearchProgress"));
+  assert.doesNotMatch(advancedRail, /onDiscoverMatrix|<MatrixDiscoveryResults|גלה מה יש כאן/);
   const defaultHandler = engine.slice(engine.indexOf('d.lens==="matrix-discovery"'), engine.indexOf('d.lens==="cross-third-axis"'));
   assert.doesNotMatch(defaultHandler, /dynamicCandidateLexicon\(/);
   assert.match(engine.slice(engine.indexOf('d.lens==="structure-priority"')), /dynamicCandidateLexicon\(\)/);
@@ -83,12 +84,28 @@ test("regular results separate exact axes from automatic bounded matrix discover
   const native = await readFile(NATIVE, "utf8");
   const rail = native.slice(native.indexOf("function RegularResultsRail"), native.indexOf("function CrossThirdAxisResearch"));
   assert.match(rail, /מופעים מדויקים של הציר/);
-  assert.match(rail, /ממצאים סביב המופע הפתוח/);
+  assert.match(rail, /מילים והקשרים סביב המופע הנבחר/);
   assert.match(native, /requestLens\("matrix-discovery", \{ hitId: engineState\.axis\.hitId, surface: "results"/);
   assert.doesNotMatch(rail, /הושלמה סריקה בשני הכיוונים בדילוגים/);
   assert.doesNotMatch(rail, /completeThrough/);
+  assert.ok(rail.indexOf('className="els29-native-result-list"') < rail.indexOf("<MatrixDiscoveryResults"));
   assert.ok(rail.indexOf('className="els29-native-result-list"') < rail.indexOf("<SavedResearchBundles"));
   assert.ok(rail.indexOf('className="els29-native-result-list"') < rail.indexOf("<ResultResearchTargets"));
+});
+
+test("the screen exposes one ordered workflow without creating another engine surface", async () => {
+  const native = await readFile(NATIVE, "utf8");
+  const tools = native.slice(native.indexOf('[["results", "ציר ומופעים"'), native.indexOf("].map(([tool, label"));
+  assert.match(native, /חיפוש חדש/);
+  assert.match(native, /"ציר ומופעים"/);
+  assert.match(native, /"חבילת מחקר"/);
+  assert.match(native, /"מתקדם"/);
+  assert.match(native, /מצב קלאסי/);
+  assert.ok(tools.indexOf('"results"') < tools.indexOf('"findings"'));
+  assert.ok(tools.indexOf('"findings"') < tools.indexOf('"structures"'));
+  assert.ok(tools.indexOf('"structures"') < tools.indexOf('"research"'));
+  assert.equal((native.match(/<TzofenEmbed/g) || []).length, 1);
+  assert.doesNotMatch(native, /showResearchBusWhenHiddenBridge/);
 });
 
 test("a third term is searched only inside the selected or verified cross meetings", async () => {

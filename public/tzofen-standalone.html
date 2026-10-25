@@ -89,6 +89,10 @@
   body.embed .hero .eye{font-size:10.5px;letter-spacing:3.5px}
   body.embed .topbar{margin-bottom:8px}
   body.embed .wrap{padding-top:12px}
+  /* Experience 2029 owns cross-axis research in its native Research surface. The same
+     canonical engine remains mounted for Classic, but Classic exposes only its clean
+     single-axis workspace instead of duplicating cross/research controls. */
+  body.exp2029-clean :is(#htStep2,#qb,#alwaystip,.crossrow,#crosspanel,#labpanel,.crosschip,.crossbanner,.xres,.cross-act){display:none!important}
   .hero h1{margin:8px 0 6px;font-family:var(--serif);font-size:clamp(26px,6vw,42px);font-weight:800;color:var(--goldBright);
      text-shadow:0 0 40px rgba(232,200,74,.25);line-height:1.05}
   .hero p{margin:0 auto;max-width:58ch;color:var(--ink2);font-size:13.5px;line-height:1.7}
@@ -1091,6 +1095,7 @@
   // 2029 delegates account access to the platform; only the archived local search/demo gates retire here.
   // This flag never changes tier/admin, canonical verification, server access or request budgets.
   let EXPR2029=false;try{EXPR2029=new URLSearchParams(location.search).get("experience")==="2029";}catch(e){}
+  if(EXPR2029)document.body.classList.add("exp2029-clean");
   const FIN={"ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"};
   const norm=s=>{let o="";for(const c of s||"")if(c>="א"&&c<="ת")o+=(FIN[c]||c);return o;};
   // 🗜️ פענוח נתוני-המנוע המוטמעים (gzip→base64) בעזרת DecompressionStream המובנה, תואם-CSP.
@@ -5690,7 +5695,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const head=document.createElement("div");head.className="rhead";
     head.innerHTML=
       '<span class="found">נמצא <b>'+st.raw+'</b></span>'+
-      (st.crossMeetings&&!st.crossSimple?'<span class="chip crosschip">🔀 התכנסות <b>'+(st.crossMeetings[st.crossIdx].nFound)+'</b> מונחים · <button class="mprev">‹</button> אזור '+(st.crossIdx+1)+'/'+heb(st.crossMeetings.length)+' <button class="mnext">›</button></span>':"")+
+      (!EXPR2029&&st.crossMeetings&&!st.crossSimple?'<span class="chip crosschip">🔀 התכנסות <b>'+(st.crossMeetings[st.crossIdx].nFound)+'</b> מונחים · <button class="mprev">‹</button> אזור '+(st.crossIdx+1)+'/'+heb(st.crossMeetings.length)+' <button class="mnext">›</button></span>':"")+
       '<button class="chip occbtn">מופעים <b>'+heb(n)+(r.capped?"+":"")+'</b> '+(st.occOpen?"▴":"▾")+'</button>'+
       '<span class="chip">דילוג <b>'+heb(S)+'</b> · '+(h.dir===1?"↓ קדימה":"↑ אחורה")+'</span>'+
       '<span class="chip">גימטריה <b>'+heb(gem(r.t))+'</b></span>'+
@@ -5698,7 +5703,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       '<span class="spacer"></span>'+
       '<span class="nav"><button class="pv" '+(n<2?"disabled":"")+'>‹</button><span class="pos">מופע '+(st.occ+1)+' / '+heb(n)+'</span><button class="nx" '+(n<2?"disabled":"")+'>›</button></span>';
     // 🔀 באנר-מפגש בולט מעל התוצאה (מחליף את שבב-המספר הקטן שהיה «לא ברור») — רק במוצלב-פשוט
-    if(st.crossSimple&&st.crossMeetings&&st.crossMeetings.length){
+    if(!EXPR2029&&st.crossSimple&&st.crossMeetings&&st.crossMeetings.length){
       const nM=st.crossMeetings.length,banner=document.createElement("div");banner.className="crossbanner";
       // 🧾 מציגים את שני המונחים **כפי שהמשתמש הזין** (st.crossPairA/B), ומסמנים מי נבחר כציר.
       //    הציר נבחר אוטומטית לפי מספר אזורי-המפגש, ולכן הוא עשוי להיות דווקא המונח השני —
@@ -5712,7 +5717,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     wrap.appendChild(head);
     wrap.appendChild(buildOccPanel());
-    if(st.crossMeetings&&!st.crossSimple)wrap.appendChild(buildCrossResults());
+    if(!EXPR2029&&st.crossMeetings&&!st.crossSimple)wrap.appendChild(buildCrossResults());
     const work=document.createElement("div");work.className="work";
     const mbWrap=document.createElement("div");
     const mb=document.createElement("div");mb.className="matrix-box";
@@ -5729,7 +5734,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const isEdit=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים → «עדכן ממצא» במקום «שמור»
     acts.innerHTML=(st.postUrl?'<button class="mact post-act">📖 לקריאת הפוסט על «'+(st.raw||"הצופן")+'»</button>':'')+
       // 🔀 «הצלב את התוצאה» — רק אחרי חיפוש רגיל (לא כשכבר מציגים מפגש). מנוע-התגלית של המוצלב.
-      (st.crossMeetings?'':'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>')+
+      (!EXPR2029&&!st.crossMeetings?'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>':'')+
       ((st.cipherSlug&&norm(st.raw)===norm(st.cipherTerm))?'<button class="mact contrib-act" title="שתף את המילים שסימנת כתגובת-מחקר על הצופן הזה">➕ שתף כממצא</button>':'')+
       '<button class="mact save-act">'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact present-act" title="חשיפה ידנית/מתוזמנת של חלקי-הצופן — לקריינות והקלטה">🎥 מצב הצגה</button><button class="mact vread-act'+(st.verseRead?" on":"")+'" title="לחיצה על אות מדליקה את כל הפסוק — מילה-מילה בגוונים מתחלפים (קוראים את הפסוק בתוך המטריצה)">📖 קריאת פסוק</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
@@ -5778,7 +5783,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     hb.querySelector(".selbtn").onclick=()=>{st.selMode=!st.selMode;hb.querySelector(".selbtn").classList.toggle("on",st.selMode);selbar.style.display=st.selMode?"flex":"none";updateSelBar();};
     updateSelBar();
     head.querySelector(".occbtn").onclick=()=>{st.occOpen=!st.occOpen;const p=wrap.querySelector(".occpanel");if(p)p.style.display=st.occOpen?"block":"none";head.querySelector(".occbtn").lastChild.textContent=st.occOpen?" ▴":" ▾";};
-    if(st.crossMeetings&&!st.crossSimple){head.querySelector(".mprev").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx-1);};head.querySelector(".mnext").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx+1);};}
+    if(!EXPR2029&&st.crossMeetings&&!st.crossSimple){head.querySelector(".mprev").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx-1);};head.querySelector(".mnext").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx+1);};}
     // מעבר בין מופעים = מטריצה חדשה → מאפס את החיפושים שהוספת (לא גוררים ממצא קודם)
     head.querySelector(".pv").onclick=()=>shiftOccurrence(-1);
     head.querySelector(".nx").onclick=()=>shiftOccurrence(1);
