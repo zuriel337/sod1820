@@ -2,17 +2,29 @@
 .sod29-watch{display:grid;gap:8px;justify-items:start;font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif);color:var(--s29-ink);min-width:0;max-width:100%}
 .sod29-watch *{box-sizing:border-box}
 .sod29-watch p{margin:0}
-.sod29-watch-btn{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 20px;border-radius:999px;border:1px solid var(--tr-border);background:var(--s29-accent-btn,var(--s29-accent));color:var(--s29-on-accent,#fff);font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+.sod29-watch-btn{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 20px;border-radius:999px;border:1px solid var(--tr-border);background:var(--s29-accent-btn,var(--s29-accent));color:var(--s29-on-accent,#fff);font:inherit;font-size:var(--s29-type-ui,16px);font-weight:700;cursor:pointer}
 .sod29-watch[data-following=true] .sod29-watch-btn{background:var(--tr-bg);color:var(--tr-fg)}
 .sod29-watch[data-state=loading] .sod29-watch-btn,.sod29-watch[data-state=unknown] .sod29-watch-btn{background:transparent;color:var(--tr-fg);cursor:progress}
 .sod29-watch-btn:disabled{cursor:progress}
 .sod29-watch-btn-secondary{background:transparent;color:var(--s29-accent-text);border-color:var(--s29-line-strong)}
-.sod29-watch-note{color:var(--s29-muted);font-size:14px;line-height:1.5;max-width:56ch}
-.sod29-watch-alert{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;color:var(--s29-ink);font-size:14px;line-height:1.5;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft);padding:8px 12px}
-.sod29-watch-retry{min-height:44px;min-width:44px;border:0;background:transparent;color:var(--s29-accent-text);font:inherit;font-size:16px;font-weight:700;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.sod29-watch-note{color:var(--s29-muted);font-size:var(--s29-type-small,16px);line-height:1.5;max-width:56ch}
+.sod29-watch-alert{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;color:var(--s29-ink);font-size:var(--s29-type-small,16px);line-height:1.5;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft);padding:8px 12px}
+.sod29-watch-retry{min-height:44px;min-width:44px;border:0;background:transparent;color:var(--s29-accent-text);font:inherit;font-size:var(--s29-type-ui,16px);font-weight:700;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 .sod29-watch-card{display:grid;gap:8px;justify-items:start;border:1px dashed var(--s29-line-strong);border-radius:16px;background:var(--s29-panel-soft);padding:12px 14px;max-width:100%}
 .sod29-watch-card-head{display:flex;align-items:center;gap:10px}
-.sod29-watch-card-head strong{font-size:16px}
-.sod29-watch-card p{color:var(--s29-muted);font-size:14px;line-height:1.5}
+.sod29-watch-card-head strong{font-size:var(--s29-type-ui,16px)}
+.sod29-watch-card p{color:var(--s29-muted);font-size:var(--s29-type-small,16px);line-height:1.5}
 .sod29-watch button:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.sod29-watch *{transition:none!important;animation:none!important}}
+
+/* The real identity slot (EmailVerify) keeps its own logic and markup; its legacy inline sizes and dark-theme colours are
+   scoped here to the Design V2 floors and the preset's roles, only inside this card. */
+.sod29-watch-card form{width:100%;max-width:100%!important;margin:0!important}
+.sod29-watch-card form div{color:var(--s29-muted)!important;font-size:var(--s29-type-small,16px)!important;line-height:1.6!important}
+.sod29-watch-card form span{color:var(--s29-ink)!important}
+.sod29-watch-card input{min-height:44px!important;box-sizing:border-box!important;font-size:var(--s29-type-ui,16px)!important;color:var(--s29-ink)!important;background:var(--s29-panel)!important;border:1px solid var(--s29-line-strong)!important}
+.sod29-watch-card input[maxlength]{font-size:var(--s29-type-lead,21px)!important}
+.sod29-watch-card form button{min-height:44px!important;min-width:44px!important;font-size:var(--s29-type-ui,16px)!important;font-weight:700!important;color:var(--s29-accent-text)!important;background:transparent!important;border:1px solid var(--s29-line-strong)!important;border-radius:999px!important;opacity:1!important;cursor:pointer}
+.sod29-watch-card form button[type=submit]{color:var(--s29-on-accent,#fff)!important;background:var(--s29-accent-btn,var(--s29-accent))!important;border-color:transparent!important}
+.sod29-watch-card form button:disabled{cursor:progress;opacity:.75!important}
+.sod29-watch-card form div[role=alert],.sod29-watch-card form div:has(+ button[type=submit]):empty{color:var(--s29-ink)!important}

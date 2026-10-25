@@ -96,7 +96,9 @@ AUDIT = """() => {
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     if (!n.textContent.trim() || !n.parentElement.offsetParent || skip(n.parentElement)) continue;
     const size = parseFloat(getComputedStyle(n.parentElement).fontSize);
-    if (size < 14 && !n.parentElement.closest('[aria-hidden=true]')) out.small.push([n.textContent.trim().slice(0, 30), size]);
+    const tertiary = n.parentElement.closest('.fc-eyebrow, .fc-meta time, .fc-life-state, .fc-chip, .fc-group h3');   // Design V2 5.1: short tertiary labels only
+    const floor = innerWidth >= 1024 && !tertiary ? 15 : 14;
+    if (size < floor && !n.parentElement.closest('[aria-hidden=true]')) out.small.push([n.textContent.trim().slice(0, 30), size]);
   }
   for (const el of root.querySelectorAll('button, a[href]')) {
     if (!el.offsetParent || skip(el)) continue; const b = el.getBoundingClientRect();
@@ -107,7 +109,7 @@ AUDIT = """() => {
 
 SPECIMEN = """() => { const out = { smallText: [], smallTargets: [], emoji: false }; const root = document.querySelector('.fcp-specimen');
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  for (let n = walker.nextNode(); n; n = walker.nextNode()) { if (!n.textContent.trim() || !n.parentElement.offsetParent) continue; const size = parseFloat(getComputedStyle(n.parentElement).fontSize); if (size < 14) out.smallText.push(size); if (/[\\u{1F300}-\\u{1FAFF}]/u.test(n.textContent)) out.emoji = true; }
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) { if (!n.textContent.trim() || !n.parentElement.offsetParent) continue; const size = parseFloat(getComputedStyle(n.parentElement).fontSize); if (size < (innerWidth >= 1024 ? 15 : 14)) out.smallText.push(size); if (/[\\u{1F300}-\\u{1FAFF}]/u.test(n.textContent)) out.emoji = true; }
   for (const el of root.querySelectorAll('button, a[href]')) { if (!el.offsetParent) continue; const b = el.getBoundingClientRect(); if (b.height < 43.5 || b.width < 43.5) out.smallTargets.push([Math.round(b.width), Math.round(b.height)]); }
   return out; }"""
 report['specimen_findings'] = {}
@@ -190,6 +192,13 @@ def check(browser, state, width, theme):
             node = page.locator(selector).first
             fg = rgb(node.evaluate('n => getComputedStyle(n).color')); bg = rgb(node.evaluate(BG))
             assert ratio(fg, bg) >= 4.5, ('contrast', selector, round(ratio(fg, bg), 2), fg, bg, tag)
+        if width == 1440:
+            def px(selector): return page.locator(selector).first.evaluate('n => parseFloat(getComputedStyle(n).fontSize)')
+            assert px('.fc-lede') >= 18 and px('.fc-body') >= 18 and px('.fc-update h3') >= 18, ('body/reading copy 18', tag)
+            assert px('.fc-name') >= 16 and px('.fc-btn') >= 16 and px('.fc-open') >= 16 and px('.fc-life b') >= 16, ('UI labels 16', tag)
+            for sel in ('.fc-why', '.fc-life small', '.fc-inputs li span', '.fc-channel small', '.fc-row-note', '.fc-note-plain'):
+                assert px(sel) >= 15, ('supporting sentence 15 at desktop', sel, tag)
+            assert px('.fc-eyebrow') == 14 and px('.fc-meta time') == 14, ('micro token only for short tertiary labels', tag)
         # Owner-resolved purpose and state (shared treatment), not a count of hues.
         muted = rgb(page.locator('.fc-lede').evaluate('n => getComputedStyle(n).color'))
         tiles = page.locator('.sod29-icon-tile')

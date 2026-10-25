@@ -19,5 +19,5 @@ for (const text of ["בודק את מצב המעקב", "המעקב אושר", "�
 // Design V2 floors in the stylesheet: no font-size below 14px, 44px targets, no hard-coded brand colours.
 for (const [, size] of css.matchAll(/font-size:(\d+(?:\.\d+)?)px/g)) assert.ok(Number(size) >= 14, `font-size ${size}`);
 assert.equal((css.match(/min-height:44px/g) || []).length >= 2, true);
-assert.ok(!/#[0-9a-f]{3,6}\b/i.test(css.replace("var(--s29-on-accent,#fff)", "")), "no literal colour besides the on-accent fallback");
+assert.ok(!/#[0-9a-f]{3,6}\b/i.test(css.replaceAll("var(--s29-on-accent,#fff)", "")), "no literal colour besides the on-accent fallback");
 console.log("watch button 2029: PASS");

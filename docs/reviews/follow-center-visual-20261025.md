@@ -70,3 +70,12 @@ Tests: `test/watch-button-2029.test.mjs` (seam, no emoji, no IO in the view, flo
 in all presets and widths; unknown state is gated with a visible message; confirmed state; no real write), and the existing writer visual family,
 actions, follow-safety and community-person browser tests re-run unchanged and passing.
 Not changed: other `WatchButton` call sites still use their existing variants (not migrated); no data wiring.
+
+## Typography, hierarchy and the real identity slot (branch `claude/follow-center-presentation-20261025`)
+
+Base: PR #1159 head `baeec829d` (controller predicates `confirmed` / `identityRequired`, scope guards and fixture I/O untouched). BEFORE `56f3d527-b6e7-4d7b-b434-fc2b1395728d`.
+
+- **Type (Design V2 5.1/5.3):** every literal font size in the Follow Center and the WatchButton 2029 view now uses the canonical `--s29-type-*` tokens. Supporting sentences and status copy use the small token (16px, so at least 15px on desktop); the 14px micro token remains only for short tertiary labels (eyebrow, timestamp, state label, chip, group label). UI labels 16, body 18. The browser test reads computed styles at 1440 (support at least 15, UI at least 16, body at least 18, micro only on the allow-listed labels) and 320/390 (at least 14, targets 44px) in all presets.
+- **Hierarchy:** rows sit on the soft surface without a second outline; outlines remain for selection, state, failure and unavailability (dashed). No new colours, roles or glyph taxonomy.
+- **Identity slot audit (actual `EmailVerify`, OTP endpoint answered synthetically, every other request blocked):** measured on the base: inputs and buttons 41-43px high and 15px, support text 12-13px, error colour fixed, and contrast of 1.6:1 on the light presets because the component uses Legacy dark-theme colours inline. The component is unchanged; its sizes, colours and targets are scoped to the Design V2 floors and the preset roles by wrapper CSS inside the 2029 watch card only. Result in all presets at 390/1440 across the email, code and empty-code error steps: 0 problems (`test/follow-identity-slot-2029.browser.py --strict`). The Legacy callers of `EmailVerify` are not changed, so the same component still fails those floors outside this card; that is a separate decision.
+- Regressions: the six actual-component state cases from `watch-button-2029-state.browser.py` pass; the 43-case Follow Center matrix, writer visual family and community-person tests pass.
