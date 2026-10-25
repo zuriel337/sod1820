@@ -148,9 +148,14 @@ test("expression continuation directives carry an earlier subject instead of cal
   assert.equal(resolveExplicitHebrewExpressionResearchSubject("בכל השיטות"), null);
 });
 
-test("expression profile grammar resolves plural Gematria requests for any explicit Hebrew expression", () => {
+test("expression profile grammar resolves singular and plural Gematria requests for any explicit Hebrew expression", () => {
   for (const [question, label] of [
     ['תן לי את הגימטריות על השם "שאול"', "שאול"],
+    ["הגימטריה של המילה שאול", "שאול"],
+    ["גימטריה של המילה חכמה", "חכמה"],
+    ["מה הגימטריה של הביטוי משיח בן דוד", "משיח בן דוד"],
+    ["תן לי את הגימטריה של השם צוריאל", "צוריאל"],
+    ["תני לי גימטריא עבור המילה בינה", "בינה"],
     ["הצג את כל הערכים הגימטריים של המילה חכמה", "חכמה"],
     ["מה הן הגימטריות של הביטוי ראיתי דבר מתוך דבר", "ראיתי דבר מתוך דבר"],
     ["פרטי לי חישובי גימטריה עבור צוריאל", "צוריאל"],
@@ -162,6 +167,8 @@ test("expression profile grammar resolves plural Gematria requests for any expli
   }
   for (const question of [
     "תן לי את הגימטריות על השם שלי",
+    "הגימטריה של המילה",
+    "תן לי גימטריה של השם שלי",
     "תן לי מידע על השם שאול",
     "הצג לי גימטריות",
   ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
@@ -357,6 +364,9 @@ test("an adjacent value is an observed value of the explicit expression, never a
   const gate = await import("./razielSemanticIntentGate.js");
   for (const [question, label, observed, allMethods] of [
     ["הכל על הגימטריה של שאול", "שאול", undefined, undefined],
+    ["הגימטריה של המילה שאול", "שאול", undefined, undefined],
+    ["מה הגימטריה של המילה שאול", "שאול", undefined, undefined],
+    ["תן לי גימטריה של המילה שאול", "שאול", undefined, undefined],
     ["תן לי גימטריות של 337 שאול", "שאול", 337, undefined],
     ["תן לי גימטריות של שאול 337", "שאול", 337, undefined],
     ['תן לי את הגימטריות על השם "שאול"', "שאול", undefined, undefined],

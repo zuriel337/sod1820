@@ -133,15 +133,23 @@ export function resolveRazielExpressionContinuationDirective(question) {
 // expression and does not maintain a dictionary of known names.
 function explicitExpressionProfileCommand(question) {
   const q = grammarText(question);
-  const computation = "(?:ה?גימטריות|חישובי\\s+ה?גימטרי[הא]|החישובים\\s+הגימטריים|הערכים\\s+הגימטריים)";
+  const connectionSuffix = /(?:\s+ו(?:מה|אילו)\s+(?:ההצלבות|הקשרים)(?:\s+(?:שיש|שלו|שלה|קיימים|קיימות))?|\s+(?:ומצא|מצא|וחפש|חפש|ובדוק|בדוק)(?:\s+לי)?\s+(?:הצלבות|קשרים))$/u;
+  const asksConnections = connectionSuffix.test(q);
+  const profileQuestion = q.replace(connectionSuffix, "").trim();
+  // Both the singular calculation noun ("הגימטריה של המילה X") and the plural
+  // profile noun ("הגימטריות של X") own the same bounded expression slot. Keeping
+  // this in the deterministic grammar prevents the semantic classifier from
+  // treating the command scaffolding itself as the expression.
+  const computation = "(?:ה?גימטרי(?:ה|א|ות)|חישובי\\s+ה?גימטרי[הא]|החישובים\\s+הגימטריים|הערכים\\s+הגימטריים)";
   const role = "(?:(?:השם|המילה|הביטוי)\\s+)?";
   const imperative = new RegExp(`^(?:תן|תני|הצג|הציגי|הראה|הראי|פרט|פרטי)(?:\\s+לי)?(?:\\s+את)?\\s+(?:כל\\s+)?${computation}\\s+(?:על|של|עבור)\\s+${role}(.+)$`, "u");
   const interrogative = new RegExp(`^(?:מה|אילו)(?:\\s+הן)?\\s+(?:כל\\s+)?${computation}\\s+(?:של|עבור)\\s+${role}(.+)$`, "u");
+  const nominal = new RegExp(`^(?:כל\\s+)?${computation}\\s+(?:של|עבור)\\s+${role}(.+)$`, "u");
   // "הכל על הגימטריה של X" — a whole-profile request over one expression.
   const everything = new RegExp(`^(?:הכל|כל\\s+מה\\s+שיש)\\s+על\\s+(?:ה?גימטרי[הא]|ה?ערכים\\s+ה?גימטריים)\\s+(?:של|על)\\s+${role}(.+)$`, "u");
-  const match = imperative.exec(q) || interrogative.exec(q) || everything.exec(q);
+  const match = imperative.exec(profileQuestion) || interrogative.exec(profileQuestion) || nominal.exec(profileQuestion) || everything.exec(profileQuestion);
   const slot = match ? splitExpressionSlot(match[1]) : null;
-  return slot ? expressionSubjectFromSlot(slot) : null;
+  return slot ? expressionSubjectFromSlot(slot, { requested_action: asksConnections ? "connect" : "research" }) : null;
 }
 
 // "<expression> <value> בכל השיטות" — the all-methods lens over one explicit expression.

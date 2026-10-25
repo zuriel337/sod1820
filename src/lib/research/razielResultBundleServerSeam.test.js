@@ -1701,6 +1701,9 @@ test("landscape is still accepted by the server contract for plain (old-style) r
 // ── Legacy-prose contracts + routing proof (one subject: the asked expression) ────────────────────────────────────
 const SHAUL_PHRASINGS = [
   ["הכל על הגימטריה של שאול", null],
+  ["הגימטריה של המילה שאול", null],
+  ["מה הגימטריה של המילה שאול", null],
+  ["תן לי גימטריה של המילה שאול", null],
   ["תן לי גימטריות של 337 שאול", 337],
   ['תן לי את הגימטריות על השם "שאול"', null],
   ["שאול 337 בכל השיטות", 337],
