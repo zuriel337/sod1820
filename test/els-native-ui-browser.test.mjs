@@ -334,6 +334,12 @@ async function activate(page, name) {
   await button(page, name).dispatchEvent('click');
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }
+async function waitForLoggedLens(page, lens, match = {}, timeout = 90000) {
+  await page.waitForFunction(({ lensName, expected }) => window.__log?.some((message) => message.type === 'lens' && message.lens === lensName
+    && message.ok === true && Object.entries(expected).every(([key, value]) => message[key] === value)), { lensName: lens, expected: match }, { timeout });
+  return page.evaluate(({ lensName, expected }) => [...window.__log].reverse().find((message) => message.type === 'lens' && message.lens === lensName
+    && message.ok === true && Object.entries(expected).every(([key, value]) => message[key] === value)), { lensName: lens, expected: match });
+}
 const capture = (page) => page.evaluate(() => {
   const matrix = document.querySelector('.els29-native-matrix-scroll');
   const rect = matrix.getBoundingClientRect();
@@ -735,8 +741,7 @@ test('public saved research is offered before raw occurrences and uses the compa
    await activate(page,'חפש');
    await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='יוממשיח',{timeout:90000});
    const setId=await page.evaluate(()=>window.__state.search.occurrences.id);
-   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok&&window.__lens?.setId===id,setId,{timeout:90000});
-   const triage=await page.evaluate(()=>window.__lens);
+   const triage=await waitForLoggedLens(page,'result-triage',{setId});
    assert.equal(triage.bundleContract,'els_research_bundle_v1');
    assert.equal(triage.geometryContract,'els_compact_geometry_priority_v1');
    assert.equal(triage.savedBundles[0].compactFindings,6);
@@ -747,6 +752,30 @@ test('public saved research is offered before raw occurrences and uses the compa
    assert.match(await bundle.innerText(),/6\/6 ממצאים ללא פער/);
    assert.equal(await bundle.getAttribute('href'),'/code?cipher=%D7%99%D7%95%D7%9D-%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%90-583');
   },{loadGolden:false,tier:'anon'});
+ });
+
+test('regular results distinguish exact מקדש ירד axes and automatically expose ירושלם from the open matrix',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('מקדש ירד');
+   await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='מקדשירד',null,{timeout:90000});
+   const search=await page.evaluate(()=>({results:window.__state.search.occurrences,hitId:window.__state.axis.hitId}));
+   assert.equal(search.results.total,2,'the two exact axes remain distinct from their surrounding findings');
+   await waitForLoggedLens(page,'result-triage',{setId:search.results.id});
+   await page.waitForFunction(hitId=>window.__log?.some(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok===true
+    &&message.target?.surface==='results'&&message.target?.hitId===hitId),search.hitId,{timeout:90000});
+   const rail=page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible');
+   const discovery=rail.locator('[data-els-matrix-discovery="els_matrix_discovery_v1"]');
+   await discovery.waitFor({state:'visible'});
+   assert.match(await rail.innerText(),/2 מופעים מדויקים של הציר/);
+   assert.match(await discovery.innerText(),/ממצאים סביב המופע הפתוח[\s\S]*ירושלם[\s\S]*חזר 2 פעמים באזור/);
+   assert.doesNotMatch(await rail.innerText(),/דילוגים 2–50|הושלמה סריקה בשני הכיוונים בדילוגים/);
+   const request=await page.evaluate(()=>[...window.__hostLog].reverse().find(message=>message.type==='request-lens'&&message.lens==='matrix-discovery'&&message.target?.surface==='results'));
+   assert.equal(request.target.hitId,search.hitId);
+   const progress=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='matrix-discovery'&&message.target?.nativeSeq===window.__lens?.target?.nativeSeq));
+   assert.equal(progress.some(message=>String(message.progress?.phase||'').startsWith('lexicon-')),false,'automatic Results discovery never starts the broad vocabulary scan');
+  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
  });
 
 test('Research matrix discovery is bounded by default; broad structures stay explicit and Classic stays clean',
@@ -2226,8 +2255,7 @@ test('native results: regular and crossed searches expose selectable results in 
    assert.equal(await page.locator('.els29-native-panel-head>strong').innerText(),'סביבת המחקר');
    const list=page.locator('[aria-label="רשימת תוצאות החיפוש"]');
    assert.equal(await list.isVisible(),true);assert.equal(await list.locator('.els29-native-result').count(),80);
-   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.setId===id,results.id,{timeout:90000});
-   const triage=await page.evaluate(()=>window.__lens);
+   const triage=await waitForLoggedLens(page,'result-triage',{setId:results.id});
    assert.equal(triage.contract,'els_result_triage_v1');assert.equal(triage.kind,'regular');assert.equal(triage.items.length,80);
    assert.deepEqual(triage.items.map(item=>item.rank),Array.from({length:80},(_,index)=>index+1));
    assert.ok(triage.items.every(item=>item.reasons.length&&['recommended','inspect','available'].includes(item.tier)));
@@ -2244,7 +2272,7 @@ test('native results: regular and crossed searches expose selectable results in 
    assert.equal(await page.evaluate(()=>window.__state.status),'ok','previous wraps across verified ELS only, never literal hits');
    await activate(page,'מופע הבא');await page.waitForFunction(()=>window.__state.search.occurrences.selectedOrdinal===1);
    await activate(page,'עמוד הבא');await page.waitForFunction(()=>window.__state.search.occurrences.page===1);
-   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.setId===id&&window.__lens?.page===1,results.id,{timeout:90000});
+   await waitForLoggedLens(page,'result-triage',{setId:results.id,page:1});
    const next=await page.evaluate(()=>window.__state.search.occurrences.items[0]);
    assert.equal(next.ordinal,81);
    await activate(page,'פתח מופע 81');await page.waitForFunction(id=>window.__state.axis.hitId===id,next.hitId);
@@ -2281,8 +2309,8 @@ test('literal topic context ranks both verified בלעם הרשע occurrences an
   await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='בלעמהרשע',null,{timeout:90000});
   const results=await page.evaluate(()=>window.__state.search.occurrences);
   assert.ok(results?.total>=2,'the canonical search retains both verified occurrences');
-  await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.setId===id,results.id,{timeout:90000});
-  const contextual=await page.evaluate(()=>window.__lens.items.filter(item=>item.sourceContexts?.some(context=>context.term==='בלעמ')));
+  const triage=await waitForLoggedLens(page,'result-triage',{setId:results.id});
+  const contextual=triage.items.filter(item=>item.sourceContexts?.some(context=>context.term==='בלעמ'));
   assert.ok(contextual.length>=2,'both occurrences carry the literal בלעם source context');
   assert.ok(contextual.slice(0,2).every(item=>item.reasons.some(reason=>reason.includes('אותו הקשר מופיע ב־'))),'the repeated literal context is explained in the recommendations');
   assert.ok(contextual.slice(0,2).every(item=>item.tier==='recommended'),'the two exact context rows lead the research package');
@@ -2336,9 +2364,11 @@ test('Research bundle opens a verified exact continuation and returns exactly to
  await withNative({width:390,height:844},async page=>{
   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יום משיח');
   await activate(page,'חפש');
-  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__lens?.lens==='result-triage'&&window.__lens?.ok===true,null,{timeout:90000});
+  await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
+  const resultSetId=await page.evaluate(()=>window.__state.search.occurrences.id);
+  const triage=await waitForLoggedLens(page,'result-triage',{setId:resultSetId});
   const before=await page.evaluate(()=>structuredClone(window.__state));
-  const targetRows=await page.evaluate(()=>window.__lens?.researchTargets||[]);
+  const targetRows=triage.researchTargets||[];
   assert.ok(targetRows.length>0,'the verified result set exposes at least one exact continuation target');
   const chosen=targetRows[0],target=page.locator('.els29-native-research-targets button').filter({hasText:chosen.label}).first();
   await target.waitFor({state:'visible'});
@@ -2357,7 +2387,7 @@ test('Research bundle opens a verified exact continuation and returns exactly to
     {term:before.term,hitId:before.axis.hitId},{timeout:90000});
   await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').waitFor({state:'visible'});
   assert.equal(await page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible').count(),0);
-  assert.match(await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').innerText(),/מופעים מאומתים/);
+  assert.match(await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').innerText(),/מופעים מדויקים של הציר/);
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
 });
 
@@ -2418,10 +2448,12 @@ test('Research compares three verified continuation targets before opening one e
  await withNative({width:390,height:844},async page=>{
   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יום משיח');
   await activate(page,'חפש');
-  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__lens?.lens==='result-triage'&&window.__lens?.ok===true,null,{timeout:90000});
+  await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
+  const resultSetId=await page.evaluate(()=>window.__state.search.occurrences.id);
+  const triage=await waitForLoggedLens(page,'result-triage',{setId:resultSetId});
   const before=await page.evaluate(()=>structuredClone(window.__state));
-  const targets=await page.evaluate(()=>window.__lens?.researchTargets||[]);
-  const expectedContinuationRow=await page.evaluate(()=>window.__lens?.items?.find(row=>String(row.key).startsWith('583_-1_239480'))||null);
+  const targets=triage.researchTargets||[];
+  const expectedContinuationRow=triage.items?.find(row=>String(row.key).startsWith('583_-1_239480'))||null;
   assert.ok(targets.length>=3,'the example exposes enough exact continuations for a bounded comparison');
   assert.equal(new Set(targets.map(target=>String(target.key))).size,targets.length,`each research card represents one distinct primary-axis occurrence: ${JSON.stringify(targets)}`);
   assert.ok(targets.every(target=>Number.isInteger(target.skip)&&target.skip>=2),'every research card exposes its primary-axis skip');

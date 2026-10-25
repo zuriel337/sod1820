@@ -729,14 +729,66 @@ function RelationshipResearchPlanner({ axisTerm, scope, disabled, onSearchPair }
   </section>;
 }
 
+function MatrixDiscoveryResults({ result, pending = false, findings = [], onAddGroup, onOpenFinding, heading = "מילים וממצאים שכדאי לבדוק", description = "" }) {
+  if (pending && !result) return <section className="els29-native-discovery-results" aria-live="polite">
+    <header><strong>סורק את הממצאים סביב המופע הפתוח…</strong><small>הסריקה מקומית ומוגבלת למטריצה הפעילה; אין טעינה של אוצר המילים הרחב.</small></header>
+  </section>;
+  if (!result) return null;
+  if (result.ok === false) return <section className="els29-native-discovery-results" role="status">
+    <header><strong>סריקת סביבת המופע לא הושלמה</strong><small>מופעי הציר נשארו זמינים ולא השתנו.</small></header>
+  </section>;
+  const items = Array.isArray(result.items) ? result.items : [];
+  const rawPatterns = Array.isArray(result.rawPatterns) ? result.rawPatterns : [];
+  const groups = Array.isArray(result.groups) ? result.groups.filter((group) => group.kind !== "motif").slice(0, 4) : [];
+  const existing = new Set(findings.map((finding) => finding.t));
+  const renderRow = (item) => {
+    const added = existing.has(item.term);
+    const contextItem = item.kind === "context" || item.kind === "context-motif";
+    return <article className="els29-native-structure-row" key={`${item.kind}-${item.term}`}>
+      <div className="els29-native-structure-copy"><b>{item.label || item.term}</b>
+        <span>{item.length} אותיות · {contextItem ? "נמצא בחבילת ההקשר" : `חזר ${item.occurrenceCount} פעמים באזור`}</span>
+        <small>{item.matrixStage === "A" ? "שלב א׳ · ללא פער בתצוגה" : `שלב ב׳ · מרווח קבוע פי ${item.gapScale}`} · דילוג {item.skip} · מרחק {item.distance} תאים{item.contextVariant ? ` · כתיב חסר של ${item.contextVariant.source}` : ""}</small>
+      </div>
+      <button type="button" disabled={pending || (!added && findings.length >= 12)} onClick={() => added ? onOpenFinding?.(item.term) : onAddGroup?.([item.term])}>{added ? "פתח במטריצה" : "אמת והצג"}</button>
+    </article>;
+  };
+
+  return <section className="els29-native-discovery-results" data-els-matrix-discovery={result.contract}>
+    <header><strong>{heading} · {items.length}</strong>
+      {description ? <small>{description}</small> : null}
+      <small>{result.languageMatches?.length || 0} מילים נתמכות בשפת המחקר · {result.contextMatches?.length || 0} התאמות להקשר · שלב א׳ {result.stageCounts?.A || 0} · שלב ב׳ {result.stageCounts?.B || 0}.</small>
+      <small>{result.vocabularyTermsChecked || 0} מונחי הקשר נבדקו.</small>
+      <small>נסרקו {result.budget?.matrixPathsChecked || 0} קווי מפה באזור תחום; אוצר המילים הגדול לא נטען.</small></header>
+    {!items.length ? <p className="els29-native-muted">לא נמצא באזור מונח הנתמך בשפת המחקר או בחבילת ההקשר. הדפוסים הגולמיים נשמרו לבדיקה מתקדמת ואינם מוצגים כמילים.</p> : null}
+    <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="תגליות במטריצה לפי סדר עדיפות">
+      {items.map(renderRow)}
+    </div>
+    {rawPatterns.length ? <details className="els29-native-structure-settings" data-els-raw-patterns="advanced">
+      <summary>דפוסים גולמיים חוזרים · {rawPatterns.length} מוצגים מתוך {result.availableRawPatterns || rawPatterns.length}</summary>
+      <small>אלה רצפי אותיות שחזרו בגאומטריה, אך אינם נתמכים כרגע כמילים בשפת המחקר. הם אינם נדחקים לפני מונחים מוכרים ונפתחים רק לבדיקה מתקדמת.</small>
+      <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="דפוסים גולמיים לבדיקה מתקדמת">
+        {rawPatterns.map(renderRow)}
+      </div>
+    </details> : null}
+    {groups.length ? <div className="els29-native-structure-list" aria-label="קבוצות שנבנו מן הגילוי המקומי">
+      {groups.map((group, index) => {
+        const terms = [...new Set((group.members || []).map((member) => member.term))];
+        const addable = terms.filter((term) => !existing.has(term)).slice(0, Math.max(0, 12 - findings.length));
+        return <article key={`${group.kind}-${group.label}-${index}`} className="els29-native-structure-group" data-structure-kind={group.kind}>
+          <header><div><strong>{group.label}</strong><small>{group.description}</small></div><bdi>{terms.length}</bdi></header>
+          <button type="button" disabled={pending || !addable.length} onClick={() => onAddGroup?.(addable)}>{addable.length ? `אמת והצג קבוצה · ${addable.length}` : "הקבוצה כבר במטריצה"}</button>
+        </article>;
+      })}
+    </div> : null}
+    {result.truncated ? <small>הוצגו התוצאות הראשונות לפי תקציב הבטיחות. אפשר לעבור לסריקה הרחבה רק אם יש לכך צורך מחקרי.</small> : null}
+  </section>;
+}
+
 function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, contextTerms, onRun, onDiscoverMatrix, onScanAxis, onSearchPair, onAddGroup, onOpenFinding }) {
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.status === "ok" && state?.verification?.state === "MATCH";
   const result = lensResult?.lens === "structure-priority" ? lensResult : null;
   const discovery = lensResult?.lens === "matrix-discovery" ? lensResult : null;
-  const discoveryItems = discovery?.ok && Array.isArray(discovery.items) ? discovery.items : [];
-  const discoveryRawPatterns = discovery?.ok && Array.isArray(discovery.rawPatterns) ? discovery.rawPatterns : [];
-  const discoveryGroups = discovery?.ok && Array.isArray(discovery.groups) ? discovery.groups.filter((group) => group.kind !== "motif").slice(0, 4) : [];
   const items = result?.ok && Array.isArray(result.items) ? result.items : [];
   const groups = result?.ok && Array.isArray(result.groups) ? result.groups : [];
   const axisTerm = discovery?.axis?.term || result?.axis?.term || state?.termRaw || state?.term || "הציר הראשי";
@@ -756,18 +808,6 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
     return { ...current, types: selected.length ? selected : current.types };
   });
   const existing = new Set(findings.map((finding) => finding.t));
-  const discoveryRow = (item) => {
-    const added = existing.has(item.term);
-    const contextItem = item.kind === "context" || item.kind === "context-motif";
-    return <article className="els29-native-structure-row" key={`${item.kind}-${item.term}`}>
-      <div className="els29-native-structure-copy"><b>{item.label || item.term}</b>
-        <span>{item.length} אותיות · {contextItem ? "נמצא בחבילת ההקשר" : `חזר ${item.occurrenceCount} פעמים באזור`}</span>
-        <small>{item.matrixStage === "A" ? "שלב א׳ · ללא פער בתצוגה" : `שלב ב׳ · מרווח קבוע פי ${item.gapScale}`} · דילוג {item.skip} · מרחק {item.distance} תאים{item.contextVariant ? ` · כתיב חסר של ${item.contextVariant.source}` : ""}</small>
-      </div>
-      <button type="button" disabled={pending || (!added && findings.length >= 12)} onClick={() => added ? onOpenFinding(item.term) : onAddGroup([item.term])}>{added ? "פתח במטריצה" : "אמת והצג"}</button>
-    </article>;
-  };
-
   return <div className="els29-native-workrail els29-native-structures" hidden={!visible}
     aria-label="גילוי וקשרים במטריצה" aria-busy={lensPending} data-experience-capability="els-structural-priority" data-els-matrix-discovery="v1">
     <section className="els29-native-structure-intro">
@@ -821,34 +861,7 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
     </section>
     {lensPending ? <p role="status" className="els29-native-muted">קורא את אזור המטריצה ומסדר את מה שהתגלה…</p> : null}
     {discovery?.ok === false ? <p role="status" className="els29-native-muted">הגילוי לא הושלם. הציר, המטריצה והממצאים לא השתנו ואפשר לנסות שוב.</p> : null}
-    {discovery?.ok ? <section className="els29-native-discovery-results" data-els-matrix-discovery={discovery.contract}>
-      <header><strong>מילים וממצאים שכדאי לבדוק · {discoveryItems.length}</strong>
-        <small>{discovery.languageMatches?.length || 0} מילים נתמכות בשפת המחקר · {discovery.contextMatches?.length || 0} התאמות להקשר · שלב א׳ {discovery.stageCounts?.A || 0} · שלב ב׳ {discovery.stageCounts?.B || 0}.</small>
-        <small>{discovery.vocabularyTermsChecked || 0} מונחי הקשר נבדקו.</small>
-        <small>נסרקו {discovery.budget?.matrixPathsChecked || 0} קווי מפה באזור תחום; אוצר המילים הגדול לא נטען.</small></header>
-      {!discoveryItems.length ? <p className="els29-native-muted">לא נמצא באזור מונח הנתמך בשפת המחקר או בחבילת ההקשר. הדפוסים הגולמיים נשמרו לבדיקה מתקדמת ואינם מוצגים כמילים.</p> : null}
-      <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="תגליות במטריצה לפי סדר עדיפות">
-        {discoveryItems.map(discoveryRow)}
-      </div>
-      {discoveryRawPatterns.length ? <details className="els29-native-structure-settings" data-els-raw-patterns="advanced">
-        <summary>דפוסים גולמיים חוזרים · {discoveryRawPatterns.length} מוצגים מתוך {discovery.availableRawPatterns || discoveryRawPatterns.length}</summary>
-        <small>אלה רצפי אותיות שחזרו בגאומטריה, אך אינם נתמכים כרגע כמילים בשפת המחקר. הם אינם נדחקים לפני מונחים מוכרים ונפתחים רק לבדיקה מתקדמת.</small>
-        <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="דפוסים גולמיים לבדיקה מתקדמת">
-          {discoveryRawPatterns.map(discoveryRow)}
-        </div>
-      </details> : null}
-      {discoveryGroups.length ? <div className="els29-native-structure-list" aria-label="קבוצות שנבנו מן הגילוי המקומי">
-        {discoveryGroups.map((group, index) => {
-          const terms = [...new Set((group.members || []).map((member) => member.term))];
-          const addable = terms.filter((term) => !existing.has(term)).slice(0, Math.max(0, 12 - findings.length));
-          return <article key={`${group.kind}-${group.label}-${index}`} className="els29-native-structure-group" data-structure-kind={group.kind}>
-            <header><div><strong>{group.label}</strong><small>{group.description}</small></div><bdi>{terms.length}</bdi></header>
-            <button type="button" disabled={pending || !addable.length} onClick={() => onAddGroup(addable)}>{addable.length ? `אמת והצג קבוצה · ${addable.length}` : "הקבוצה כבר במטריצה"}</button>
-          </article>;
-        })}
-      </div> : null}
-      {discovery.truncated ? <small>הוצגו התוצאות הראשונות לפי תקציב הבטיחות. אפשר לעבור לסריקה הרחבה רק אם יש לכך צורך מחקרי.</small> : null}
-    </section> : null}
+    {discovery?.ok ? <MatrixDiscoveryResults result={discovery} pending={pending} findings={findings} onAddGroup={onAddGroup} onOpenFinding={onOpenFinding} /> : null}
     {result?.ok === false ? <p role="status" className="els29-native-muted">אי אפשר לסרוק מבנים לפני שהציר הראשי אומת.</p> : null}
     {result?.ok ? <>
       <div className="els29-native-structure-summary">
@@ -1000,11 +1013,10 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
 function ResultTriageSummary({ result, pending, total, visibleCount }) {
   if (pending) return <div className="els29-native-triage-summary" role="status"><strong>ממיין את התוצאות…</strong><small>בודק מילים צמודות לפני ואחרי הממצא, מילים נוספות על אותו ציר וסימני מבנה. אפשר לעצור בלי לשנות את המטריצה.</small></div>;
   if (!result?.ok) return null;
-  const recommended = (result.items || []).filter((item) => item.tier === "recommended");
   const requested = result.contextCoverage?.requested || [];
   return <div className="els29-native-triage-summary" data-els-result-triage={result.contract} data-els-geometry-contract={result.geometryContract || undefined}>
-    <strong>{recommended.length ? `${recommended.length} המלצות לפתיחה בעמוד הזה` : "המיון הושלם ללא קיצור רשימת התוצאות"}</strong>
-    <small>כל {Number(total) || Number(result.available) || visibleCount || 0} המופעים המאומתים נשארים ברשימה המלאה שמיד מתחת; בעמוד הזה מוצגים {visibleCount || 0}. ההמלצות רק מסדרות מה לבדוק קודם ואינן מסתירות תוצאה.</small>
+    <strong>סדר פתיחה למופעי הציר</strong>
+    <small>הציר המדויק נמצא ב־{Number(total) || Number(result.available) || visibleCount || 0} מקומות מאומתים; בעמוד הזה מוצגים {visibleCount || 0}. אלה נקודות פתיחה בלבד — לא מספר המילים, המבנים או הפסוקים שנמצאים סביבן.</small>
     <small>{requested.length ? `המיון בדק סביב כל מופע את ההקשר שביקשתם: ${requested.map((item) => item.label || item.term).join(" · ")}. ` : ""}רצף מדויק לפני או אחרי הממצא וגאומטריה ללא פער מקבלים קדימות. זהו סדר עדיפות לבדיקה, לא ציון אמת.</small>
     {result.lexicon?.fallback ? <small>שפת המקור לא נטענה במלואה ולכן בדיקת ההמשך חלקית.</small> : null}
   </div>;
@@ -1130,23 +1142,25 @@ function ActiveResearchBundle({ bundle, lensResult, pending, onBack }) {
   </section>;
 }
 
-function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending }) {
+function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending, discoveryResult, discoveryPending, onAddDiscovery, onOpenDiscovery }) {
   const results = state?.search?.occurrences;
   const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
   const items = blocked ? [] : results?.items || [];
   const triage = triageResult?.kind === "regular" && triageResult?.setId === results?.id && Number(triageResult?.page) === Number(results?.page) ? triageResult : null;
   const triageByKey = new Map((triage?.items || []).map((item) => [item.key, item]));
   const orderedItems = triage ? [...items].sort((a, b) => (triageByKey.get(a.hitId)?.rank || Number.MAX_SAFE_INTEGER) - (triageByKey.get(b.hitId)?.rank || Number.MAX_SAFE_INTEGER)) : items;
+  const discovery = discoveryResult?.target?.hitId === state?.axis?.hitId ? discoveryResult : null;
   return <div className="els29-native-workrail els29-native-results" hidden={!visible} aria-label="רשימת תוצאות החיפוש" aria-busy={pending}>
-    <strong>{pending ? "מחפש מופעים…" : items.length ? `${results.total} מופעים מאומתים` : "תוצאות החיפוש"}</strong>
+    <strong>{pending ? "מחפש מופעים…" : items.length ? `${results.total} מופעים מדויקים של הציר` : "תוצאות החיפוש"}</strong>
     <p className="els29-native-muted">{items.length ? state?.termRaw || state?.term : operation?.payload?.term || state?.termRaw || state?.term} · {scopeLabel(items.length ? state?.scope : operation?.payload?.scope || state?.scope)}</p>
     {items.length ? <>
-      <small>בחרו מופע לפתיחת המטריצה שלו. מוצגים רק מופעים שעברו אימות.</small>
+      <small>אלו המקומות שבהם הציר עצמו נמצא. הממצאים סביב המופע הפתוח מוצגים בנפרד מיד אחרי סדר הפתיחה.</small>
       {results.capped ? <small>הסריקה מוגבלת; זאת רשימת המופעים שנמצאו בסריקה הזאת, ולא כל המופעים האפשריים.</small> : null}
-      {results.ordered?.completeThrough >= 2 ? <small>הושלמה סריקה בשני הכיוונים בדילוגים 2–{results.ordered.completeThrough}. הדילוגים שמעבר לכך עדיין חלקיים.</small> : null}
-      {results.ordered?.error ? <small role="status">סריקת הדילוגים הקטנים לא הושלמה. אפשר להמשיך אותה כאן.</small> : null}
       <ResultTriageSummary result={triage} pending={triagePending} total={results.total} visibleCount={items.length} />
-      <strong>כל המופעים המאומתים · {items.length} בעמוד הזה מתוך {results.total}</strong>
+      <MatrixDiscoveryResults result={discovery} pending={discoveryPending} findings={state?.findings || []}
+        onAddGroup={onAddDiscovery} onOpenFinding={onOpenDiscovery} heading="ממצאים סביב המופע הפתוח"
+        description="זוהי סריקה מקומית ומהירה של המטריצה הפעילה, בנפרד ממספר מופעי הציר." />
+      <strong>מופעי הציר המדויק · {items.length} בעמוד הזה מתוך {results.total}</strong>
       <div className="els29-native-results-pages" role="group" aria-label="עמודי תוצאות">
         <button type="button" disabled={results.page === 0} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page - 1 })}>עמוד קודם</button>
         <span>עמוד <bdi>{results.page + 1} / {Math.ceil(results.total / results.pageSize)}</bdi></span>
@@ -1598,6 +1612,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   // keeping it separate lets the ranked list survive opening one result and returning to the rail.
   const [resultTriage, setResultTriage] = useState(null);
   const resultTriageKeyRef = useRef(null);
+  // The bounded matrix-first projection belongs to the selected occurrence in the Results rail.
+  // It is not another engine/store and may never outlive or mutate the engine-owned axis identity.
+  const [resultDiscovery, setResultDiscovery] = useState(null);
+  const resultDiscoveryKeyRef = useRef(null);
   const [researchBundle, setResearchBundle] = useState(null);
   const pendingResearchBundleRef = useRef(null);
   const [activeResearchContext, setActiveResearchContext] = useState(null);
@@ -1613,6 +1631,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setSearchRequest(null);setFindingsRequest(null);setOperations({ search: null, findings: null });
     setSaveResult(null);
     setResultTriage(null);resultTriageKeyRef.current = null;
+    setResultDiscovery(null);resultDiscoveryKeyRef.current = null;
     setResearchBundle(null);pendingResearchBundleRef.current = null;
     setActiveResearchContext(null);researchCommandRef.current = null;
     setDeleteConfirm(false);setDeletePending(false);setDeleteError(false);
@@ -1625,6 +1644,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (!researchLoad) return;
     if (researchLoad.researchCommand === true) return;
     setResultTriage(null);resultTriageKeyRef.current = null;
+    setResultDiscovery(null);resultDiscoveryKeyRef.current = null;
     if (researchLoad.researchBundle === true) {
       const bundle = { contract: "els_research_bundle_v1", kind: "advanced-plan", label: researchLoad.term,
         expectedHitId: researchLoad.hitId, status: "opening", fromAdvanced: true, contextTerms: safeResearchContextTerms(researchLoad.contextTerms) };
@@ -1659,6 +1679,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setAccountRequired(false);
     setSavedAxisReplacement(null);
     setResultTriage(null);resultTriageKeyRef.current = null;
+    setResultDiscovery(null);resultDiscoveryKeyRef.current = null;
     setResearchBundle(null);pendingResearchBundleRef.current = null;
     setClassicOpen(false);
     ++findingsSeqRef.current;
@@ -1764,6 +1785,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term) {
         ++findingsSeqRef.current;
         setOperations((current) => ({ ...current, findings: null }));
+        setResultDiscovery(null);resultDiscoveryKeyRef.current = null;
       }
     }
     if (next?.termRaw && (next.termRaw !== previous?.termRaw || next?.search?.crossA !== previous?.search?.crossA)) setQuery(next.search?.mode === "cross-simple" ? next.search.crossA : next.termRaw);
@@ -1863,9 +1885,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const requestLens = (lens, target = {}) => {
     // A native reading/scan action always reveals its native result, even after compatibility tools.
     setClassicOpen(false);
-    openTool(["structure-priority", "matrix-discovery"].includes(lens) ? "structures" : ["result-triage", "research-target", "research-target-compare", "cross-third-axis"].includes(lens) ? "results" : "findings");
+    const resultsDiscovery = lens === "matrix-discovery" && target.surface === "results";
+    openTool(resultsDiscovery || ["result-triage", "research-target", "research-target-compare", "cross-third-axis"].includes(lens) ? "results" : ["structure-priority", "matrix-discovery"].includes(lens) ? "structures" : "findings");
     const seq = ++lensSeqRef.current;
-    if (!(lens === "matrix-candidates" && target.resume === true && lensResult?.partial)) setLensResult(null);
+    if (!resultsDiscovery && !(lens === "matrix-candidates" && target.resume === true && lensResult?.partial)) setLensResult(null);
     setLensProgress(null);
     setLensPending(true);
     setLensRequest({ lens, target: { ...target, nativeSeq: seq }, startedAt: Date.now() });
@@ -1939,7 +1962,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       if (result.progress?.draft?.lens === "matrix-candidates") setLensResult(result.progress.draft);
       return;
     }
-    if (result?.lens === "result-triage") {
+    if (result?.lens === "matrix-discovery" && result?.target?.surface === "results") {
+      setResultDiscovery(result);
+    } else if (result?.lens === "result-triage") {
       if (!result?.ok) resultTriageKeyRef.current = null;
       setResultTriage(result?.ok ? result : null);
       setLensResult(null);
@@ -1957,8 +1982,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (result?.ok && result.lens === "letter-context" && verseReadRef.current) highlightVerse(result.verse);
   };
   const openResearchTarget = (target) => {
-    if (!researchProfile || !target?.term || journeyPendingRef.current || lensPending) return;
+    const backgroundDiscovery = lensPending && lensRequest?.lens === "matrix-discovery" && lensRequest?.target?.surface === "results";
+    if (!researchProfile || !target?.term || journeyPendingRef.current || (lensPending && !backgroundDiscovery)) return;
     if (target.status === "VERIFIED" && target.hitId) {
+      if (backgroundDiscovery) {
+        const seq = ++lensSeqRef.current;
+        setLensRequest({ lens: "cancel", target: { nativeSeq: seq }, cancelled: true });
+        setLensProgress(null);setLensPending(false);
+      }
       beginVerifiedResearchTarget(target);
       return;
     }
@@ -1975,7 +2006,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestLens("neighborhood-target", target);
   };
   const compareResearchTargets = (targets) => {
-    if (!researchProfile || !Array.isArray(targets) || targets.length < 2 || journeyPendingRef.current || lensPending) return;
+    const backgroundDiscovery = lensPending && lensRequest?.lens === "matrix-discovery" && lensRequest?.target?.surface === "results";
+    if (!researchProfile || !Array.isArray(targets) || targets.length < 2 || journeyPendingRef.current || (lensPending && !backgroundDiscovery)) return;
     const selected = targets.slice(0, 4);
     setNotice(`מאמת יחד את ${selected.length} יעדי המחקר המובילים…`);
     requestLens("research-target-compare", {
@@ -2177,6 +2209,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const activeContextKey = researchContextKey(activeResearchContext?.contextTerms);
   const resultTriageKey = resultView?.id ? `${resultsAreCross ? "cross" : "regular"}:${resultView.id}:${resultsAreCross ? 0 : resultView.page || 0}:${activeContextKey}` : null;
   const resultTriagePending = lensPending && lensRequest?.lens === "result-triage";
+  const resultDiscoveryKey = !resultsAreCross && resultView?.id && engineState?.axis?.hitId
+    ? `${resultView.id}:${engineState.axis.hitId}:${activeContextKey}` : null;
+  const resultDiscoveryPending = lensPending && lensRequest?.lens === "matrix-discovery" && lensRequest?.target?.surface === "results";
   useEffect(() => {
     if (!researchProfile || visibleTool !== "results" || operations.search?.status !== "done" || !matrixActive || !resultTriageKey || lensPending) return;
     const matches = resultTriage?.ok && resultTriage.kind === (resultsAreCross ? "cross" : "regular") && resultTriage.setId === resultView.id
@@ -2186,6 +2221,19 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestLens("result-triage", { kind: resultsAreCross ? "cross" : "regular", setId: resultView.id, ...(resultsAreCross ? {} : { page: resultView.page }),
       contextKey: activeContextKey, ...(activeResearchContext?.contextTerms?.length ? { contextTerms: activeResearchContext.contextTerms } : {}) });
   }, [researchProfile, visibleTool, operations.search?.status, matrixActive, resultTriageKey, lensPending, resultTriage?.setId, resultTriage?.page, activeContextKey]);
+  useEffect(() => {
+    const triageReady = resultTriage?.ok && resultTriage.kind === "regular" && resultTriage.setId === resultView?.id
+      && Number(resultTriage.page) === Number(resultView?.page) && (resultTriage.target?.contextKey || "") === activeContextKey;
+    if (!researchProfile || visibleTool !== "results" || resultsAreCross || operations.search?.status !== "done" || !matrixActive
+      || !resultDiscoveryKey || !triageReady || lensPending) return;
+    const discoveryReady = resultDiscovery?.target?.hitId === engineState.axis.hitId
+      && resultDiscovery?.target?.surface === "results" && (resultDiscovery?.target?.contextKey || "") === activeContextKey;
+    if (discoveryReady || resultDiscoveryKeyRef.current === resultDiscoveryKey) return;
+    resultDiscoveryKeyRef.current = resultDiscoveryKey;
+    requestLens("matrix-discovery", { hitId: engineState.axis.hitId, surface: "results", contextKey: activeContextKey, minLength: 4, maxLength: 10,
+      ...(activeResearchContext?.contextTerms?.length ? { contextTerms: activeResearchContext.contextTerms } : {}) });
+  }, [researchProfile, visibleTool, resultsAreCross, operations.search?.status, matrixActive, resultDiscoveryKey, lensPending,
+    resultTriage?.setId, resultTriage?.page, resultDiscovery?.target?.hitId, activeContextKey, engineState?.axis?.hitId]);
   const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId
     && ["searching", "verifying", "empty", "error", "cancelled"].includes(operations.search?.status);
   const matrixStatus = engineState?.status === "ready" ? "בראשית · מוכן לחיפוש" : previousResult
@@ -2438,7 +2486,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onOpenResearchTarget={openResearchTarget}
           onCompareResearchTargets={compareResearchTargets} comparisonResult={lensResult?.lens === "research-target-compare" ? lensResult : null}
           researchTargetPending={lensPending && ["research-target", "research-target-compare"].includes(lensRequest?.lens)}
-          triageResult={researchProfile ? resultTriage : null} triagePending={researchProfile && resultTriagePending} />
+          triageResult={researchProfile ? resultTriage : null} triagePending={researchProfile && resultTriagePending}
+          discoveryResult={researchProfile && (resultDiscovery?.target?.contextKey || "") === activeContextKey ? resultDiscovery : null} discoveryPending={researchProfile && resultDiscoveryPending}
+          onAddDiscovery={addStructureGroup} onOpenDiscovery={revealFindingDetails} />
         {researchProfile ? <StructuralPriorityRail visible={visibleTool === "structures"} state={engineState} lensResult={lensResult} lensPending={lensPending}
           busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           contextTerms={activeResearchContext?.contextTerms || []}

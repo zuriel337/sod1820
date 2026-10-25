@@ -79,11 +79,14 @@ test("matrix-first Stage B rediscovers the two ירושלם paths around מקד�
   assert.doesNotMatch(engine, /if\s*\([^)]*מקדש ירד|מקדש ירד[^\n]*(?:return|push|unshift)/, "the runtime contains no saved-cipher special case");
 });
 
-test("regular results show the full verified list before optional research packages", async () => {
+test("regular results separate exact axes from automatic bounded matrix discovery", async () => {
   const native = await readFile(NATIVE, "utf8");
   const rail = native.slice(native.indexOf("function RegularResultsRail"), native.indexOf("function CrossThirdAxisResearch"));
-  assert.match(native, /המלצות לפתיחה בעמוד הזה/);
-  assert.match(rail, /כל המופעים המאומתים/);
+  assert.match(rail, /מופעים מדויקים של הציר/);
+  assert.match(rail, /ממצאים סביב המופע הפתוח/);
+  assert.match(native, /requestLens\("matrix-discovery", \{ hitId: engineState\.axis\.hitId, surface: "results"/);
+  assert.doesNotMatch(rail, /הושלמה סריקה בשני הכיוונים בדילוגים/);
+  assert.doesNotMatch(rail, /completeThrough/);
   assert.ok(rail.indexOf('className="els29-native-result-list"') < rail.indexOf("<SavedResearchBundles"));
   assert.ok(rail.indexOf('className="els29-native-result-list"') < rail.indexOf("<ResultResearchTargets"));
 });
