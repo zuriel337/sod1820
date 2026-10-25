@@ -18,3 +18,7 @@ supabase/functions/expression-extract/.build/
 supabase/functions/research-run/.build/
 supabase/functions/ai-analyze/.build/
 supabase/.temp/
+
+# Python bytecode
+__pycache__/
+*.pyc
