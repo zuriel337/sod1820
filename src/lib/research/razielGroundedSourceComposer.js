@@ -16,7 +16,7 @@ const MAX_NAVIGATION = 10;
 const MAX_FALLBACK_FINDINGS = 6;
 const MAX_SOURCE_TERMS = 48;
 const MAX_SURPRISE_CANDIDATES = 3;
-const MAX_CONSTELLATION_TERMS = 10;
+const MAX_CONSTELLATION_TERMS = 12;
 
 const list = (value) => Array.isArray(value) ? value : [];
 
@@ -606,7 +606,7 @@ export function razielSurpriseCandidates(input = []) {
 
 // Final output instructions. "מתפרע" is the full Legacy-style interpretive reading: flowing prose, no template headings, built
 // around the asked expression. "הפתע אותי" is the ONLY contract that hunts one unexpected axis. The server layers carry the same contracts.
-const EXPLORATORY_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 6–10 פסקאות, בלי כותרות ובלי רשימות. התחל מהביטוי שנשאל ומערכו הרגיל ושמור עליו כנושא עד הסוף. בנה תחילה תמונה מתוך קבוצת הביטויים שבערך הרגיל, ואז עבור רק בשכבות שקיימות בתיק ובסדר הזה: אלבם כהשלמה, אתבש כמראה, מילוי כפנימיות, מסתתר כרובד נסתר, סידורי כסדר האותיות; אחריהן מותר לחבר מפגשים בכמה שיטות ולסיים בסינתזה אחת. בכל שכבה בחר כמה מן הביטויים שסופקו, הסבר את המתח או הרצף שהם יוצרים, וקשור אותם בחזרה לביטוי שנשאל — אל תסתפק בציון הערך. דלג על שכבה שאין עליה חומר. הנרמול הוא משפט בלם קצר בסוף ולא נושא הסיפור; סיים בהסתייגות טבעית אחת.";
+const EXPLORATORY_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] כתוב בתוך answer מסה פרשנית עשירה בפרוזה עברית זורמת, 8–12 פסקאות, בלי כותרות ובלי רשימות. התחל מהביטוי שנשאל ומערכו הרגיל ושמור עליו כנושא עד המשפט האחרון. פתח בקריאה לשונית רכה של הביטוי, ואז בנה תמונה רחבה מקבוצת הערך הרגיל: השתמש בלפחות ארבעה מן הביטויים שסופקו כשישנם, ואל תסתפק במנייתם. לאחר מכן הקדש פסקה ממשית לכל שכבה שקיימת בתיק, בסדר הזה: אלבם כהשלמה, אתבש כמראה, מילוי כפנימיות, מסתתר כרובד נסתר, סידורי כסדר האותיות. בכל שכבה ציין פעם אחת את השיטה והערך, בחר שניים עד ארבעה מן הביטויים שסופקו, הסבר איזה מתח, ניגוד או רצף הם יוצרים, וקשור אותם בחזרה לביטוי שנשאל. אחריהן מותר לחבר מפגשים בכמה שיטות ולסיים בסינתזה אחת שמראה איזה מוטיב חזר בשכבות השונות. דלג על שכבה שאין עליה חומר ואל תמציא השלמה. אל תדבר עם הקורא על ״התיק״, ״החבילה״, ״המודל״, ״המסנן״ או ״מנוע הנרמול״, ואל תכתוב דוח טכני; אלה מנגנוני בקרה פנימיים. את גבול הראיה אמור רק במשפט טבעי וקצר בסוף. פרשנות יכולה להיות נועזת וחיה, אבל כל מספר, שיטה וביטוי חייבים להופיע בחומר שסופק.";
 const SURPRISE_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] כתוב בתוך answer קריאה מפתיעה בפרוזה זורמת, 3–5 פסקאות, בלי כותרות ובלי רשימות: בחר ציר אחד בלתי צפוי מתוך התיק (מותר לפתוח בממצא צדדי), בנה סביבו סיפור והסבר מיד למה בחרת בו. הנרמול הוא בלם אמינות ולא הסיפור. אם אין בסיס טוב להפתעה — אמור זאת במקום לכפות סיפור.";
 
 function surpriseGuidance(entries) {
@@ -642,7 +642,7 @@ const METHOD_LAYERS = Object.freeze([
 ]);
 const STRUCTURAL_CONTEXT_METHODS = Object.freeze(["קדמי", "משולש", "ריבוע"]);
 const MAX_LAYER_READS = METHOD_LAYERS.length;
-const MAX_LAYER_TERMS = 6;
+const MAX_LAYER_TERMS = 8;
 
 export function razielMethodLayerNumbers(expressionProjection) {
   const anchor = list(expressionProjection?.model_input?.calculation_profile)
@@ -688,7 +688,7 @@ function methodLayerLines(entries, layerEntries) {
 // sections, each only when the Bundle supplies it; the raw Bundle JSON is never passed to the model in this mode.
 // Hebrew is relatively token-dense. Keep enough room for the complete Legacy-style arc while
 // avoiding a deep prompt that crowds out the single model call inside the Edge wall-clock budget.
-const MAX_DOSSIER_CHARS = 6500;
+const MAX_DOSSIER_CHARS = 7500;
 const DOSSIER_EXCLUDED_KINDS = new Set(["gematria-method-value", "gematria-method-semantic", "gematria-crossing", "gematria-confirmed-relation"]);
 
 function methodMapLine(entries) {

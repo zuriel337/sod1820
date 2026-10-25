@@ -1629,7 +1629,9 @@ test("מתפרע: the user's choice sends exploratory + deep; the dossier carrie
   assert.match(user, /3\. שכבות הקריאה לפי הסדר הסיפורי/);
   assert.match(user, /לבלם האמינות בלבד: רגיל = גדול/);
   assert.match(user, /9\. מפת עזר והסתייגות[\s\S]*מספר שיטות אינו מספר ראיות עצמאיות/);
-  assert.match(user, /\[הוראת פלט סופית\] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 6–10 פסקאות, בלי כותרות/);
+  assert.match(user, /\[הוראת פלט סופית\] כתוב בתוך answer מסה פרשנית עשירה בפרוזה עברית זורמת, 8–12 פסקאות, בלי כותרות/);
+  assert.match(user, /השתמש בלפחות ארבעה מן הביטויים שסופקו/);
+  assert.match(user, /בחר שניים עד ארבעה מן הביטויים שסופקו/);
   // compact: nowhere near the old 40-50k-token payload
   assert.ok(user.length < 14000, `compact request (${user.length} chars)`);
   assert.equal(run.result.raziel.plan_meta.view_mode.applied, true);
@@ -1766,14 +1768,14 @@ test("מתפרע vs כללי vs הפתע אותי: three separate prose contract
   assert.match(general.models[0].user, /\[סגנון תשובה\] ענה בשפה הפרשנית הזורמת של הפרשן, קצר יחסית: 2–4 פסקאות\. התחל תמיד מהמילה, מהביטוי או מהמספר שנשאלו/);
   assert.match(general.models[0].user, /בלי כותרות, בלי תבליטים ובלי שמות סעיפים/);
   // מתפרע: long prose, no headings, layered, around the subject
-  assert.match(wild.models[0].system, /מצב «מתפרע»[\s\S]*6–10 פסקאות זורמות/);
-  assert.match(wild.models[0].user, /6–10 פסקאות, בלי כותרות ובלי רשימות/);
+  assert.match(wild.models[0].system, /מצב «מתפרע»[\s\S]*8–12 פסקאות זורמות/);
+  assert.match(wild.models[0].user, /8–12 פסקאות, בלי כותרות ובלי רשימות/);
   assert.doesNotMatch(wild.models[0].system, /ציר רעיוני אחד בלתי צפוי/);
   // הפתע אותי: its own contract, the only one that hunts an unexpected axis
   assert.equal(surprise.result.raziel.plan_meta.view_mode.requested, "surprise");
   assert.equal(surprise.result.raziel.plan_meta.view_mode.applied, true);
   assert.match(surprise.models[0].system, /מצב «הפתע אותי»[\s\S]*ציר רעיוני אחד בלתי צפוי[\s\S]*3–5 פסקאות/);
-  assert.doesNotMatch(surprise.models[0].system, /6–10 פסקאות/);
+  assert.doesNotMatch(surprise.models[0].system, /8–12 פסקאות/);
   assert.match(surprise.models[0].user, /ציר אחד בלתי צפוי/);
   assert.doesNotMatch(wild.models[0].user, /ציר אחד בלתי צפוי/);
   assert.equal(surprise.result.raziel.plan_meta.view_mode.structure.template_headings, false);

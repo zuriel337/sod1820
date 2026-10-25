@@ -263,8 +263,10 @@ test("broad expression surprise receives a bounded canonical value constellation
   assert.match(out.surprise_guidance, /ציר אחד בלתי צפוי/);
   assert.doesNotMatch(out.surprise_guidance, /הפתיחה: · הסיפור המרכזי/);
   assert.match(out.surprise_brief, /ציר אחד בלתי צפוי/);
-  assert.doesNotMatch(out.surprise_brief, /6–10 פסקאות/);
-  assert.match(out.exploratory_brief, /6–10 פסקאות, בלי כותרות ובלי רשימות/);
+  assert.doesNotMatch(out.surprise_brief, /8–12 פסקאות/);
+  assert.match(out.exploratory_brief, /8–12 פסקאות, בלי כותרות ובלי רשימות/);
+  assert.match(out.exploratory_brief, /הקדש פסקה ממשית לכל שכבה/);
+  assert.match(out.exploratory_brief, /אל תדבר עם הקורא על ״התיק״, ״החבילה״, ״המודל״/);
   assert.match(out.exploratory_brief, /אלבם כהשלמה, אתבש כמראה, מילוי כפנימיות, מסתתר כרובד נסתר, סידורי כסדר האותיות/);
   assert.doesNotMatch(out.exploratory_brief, /הפתיחה: · הסיפור המרכזי/);
   assert.doesNotMatch(out.exploratory_brief, /ציר אחד בלתי צפוי/);
