@@ -4,7 +4,7 @@
 - Canonical owner: `DB_OWNER` under `person_foundation_contract_law v6`
 - Base SHA: `e73687221aa2ab639930643e5cc8c99666adce88`
 - Branch: `gpt/family-claim-self-redeem-owner-reader-20261025`
-- Migration: `20261025010603_family_claim_self_redeem_owner_reader_v1.sql`
+- Migration: `20261025012451_family_claim_self_redeem_owner_reader_v1.sql`
 - Live apply: **NO**
 - Merge: **NO**
 - Preview: **NO**

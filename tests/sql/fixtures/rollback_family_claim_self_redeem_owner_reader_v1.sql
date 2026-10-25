@@ -1,4 +1,4 @@
--- Tested rollback for 20261025010603_family_claim_self_redeem_owner_reader_v1.sql.
+-- Tested rollback for 20261025012451_family_claim_self_redeem_owner_reader_v1.sql.
 -- Restores the pre-patch redeemer and removes only the new owner reader.
 
 drop function if exists public.fn_list_my_family_claims();
