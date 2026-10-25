@@ -65,6 +65,8 @@ function lifeJourneyFixturePlugin() {
       const OWNER_PERSON_ID="11111111-1111-4111-8111-111111111111";
       const CLAIMANT_PERSON_ID="22222222-2222-4222-8222-222222222222";
       const CLAIMS_KEY="life-journey-family-claims-fixture";
+      window.__familyInvitationEmailCalls=window.__familyInvitationEmailCalls||[];
+      window.__familyInvitationShareCalls=window.__familyInvitationShareCalls||[];
       const account=()=>localStorage.getItem("life-journey-account-fixture")==="claimant"?"claimant":"owner";
       const personId=()=>account()==="claimant"?CLAIMANT_PERSON_ID:OWNER_PERSON_ID;
       const read=()=>{try{return JSON.parse(localStorage.getItem(CLAIMS_KEY)||"[]");}catch{return [];}};
@@ -86,6 +88,8 @@ function lifeJourneyFixturePlugin() {
         row.status="approved";row.claimant_person_id=personId();row.consumed_at=new Date().toISOString();write(rows);return {id:row.id,target_ref:row.target_ref,status:"approved"};
       }
       export async function revokeFamilyClaim(id){const rows=read();const row=rows.find(item=>item.id===id&&item.issuer_owner_id===personId());if(!row||row.status!=="pending")throw new Error("not authorized");row.status="revoked";row.reviewed_at=new Date().toISOString();write(rows);return {id,status:"revoked"};}
+      export async function sendFamilyInvitationEmail(input){window.__familyInvitationEmailCalls.push({...input});return {ok:true};}
+      export async function shareFamilyInvitationPrivately(token){window.__familyInvitationShareCalls.push(token);return {channel:"native_share"};}
       export function familyClaimErrorMessage(error){const message=String(error?.message||error);if(message.includes("issuer cannot redeem own"))return "אי אפשר לפדות הזמנה שנוצרה מהחשבון שלך. את הקוד פודים מהחשבון הנפרד של בן המשפחה.";if(message.includes("invalid token"))return "קוד ההזמנה אינו תקין.";return "לא ניתן להשלים כרגע את פעולת החיבור. המידע הפרטי לא שונה.";}
     `],
     ["virtual:life-journey-research.jsx", `
@@ -186,6 +190,21 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await childClaimCard.getByText("ממתין לחיבור").waitFor();
     assert.equal(await page.evaluate(token => Object.values(localStorage).some(value => String(value).includes(token)), invitationToken), false, "raw invitation token is never persisted in browser storage");
     assert.equal(decodeURIComponent(page.url()).includes(invitationToken), false, "raw invitation token is never placed in the URL");
+    assert.equal(await page.evaluate(() => window.__familyInvitationEmailCalls.length), 0, "email is never sent automatically");
+    await childClaimCard.getByText("שליחה פרטית", { exact: true }).click();
+    await childClaimCard.getByLabel("מייל של מקבל/ת ההזמנה").fill("child@example.test");
+    await childClaimCard.getByRole("button", { name: "שלח במייל" }).click();
+    await accountContinuity.getByText("ההזמנה נמסרה לספק המייל. כתובת הנמען לא נשמרה במסע החיים.").waitFor();
+    const emailDelivery = await page.evaluate(() => window.__familyInvitationEmailCalls[0]);
+    assert.equal(emailDelivery.rawToken, invitationToken);
+    assert.equal(emailDelivery.recipientEmail, "child@example.test");
+    assert.match(emailDelivery.claimId, /^[0-9a-f-]{36}$/);
+    assert.equal(await childClaimCard.getByLabel("מייל של מקבל/ת ההזמנה").inputValue(), "");
+    await childClaimCard.getByRole("button", { name: "שתף באופן פרטי" }).click();
+    await accountContinuity.getByText("חלון השיתוף הפרטי נפתח במכשיר.").waitFor();
+    assert.deepEqual(await page.evaluate(() => window.__familyInvitationShareCalls), [invitationToken]);
+    assert.equal(await page.evaluate(() => Object.values(localStorage).some(value => String(value).includes("child@example.test"))), false, "recipient email is never persisted");
+    assert.equal(decodeURIComponent(page.url()).includes("child@example.test"), false, "recipient email is never placed in the URL");
 
     const familyScope = family.getByRole("group", { name: "מי משתתף במחקר המשפחתי?" });
     const childSelection = familyScope.getByRole("checkbox", { name: /ילד בדיקה/ });
@@ -303,6 +322,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     }));
     assert.equal(JSON.stringify(privacy.telemetry).includes("הורה בדיקה"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("ילד בדיקה"), false);
+    assert.equal(JSON.stringify(privacy.telemetry).includes("child@example.test"), false);
     assert.equal(privacy.ledger.members.length, 2);
     assert.equal(privacy.ledger.relations.length, 1);
     assert.ok(privacy.hintReads.every(call => call.options?.fallbackLocal === false));

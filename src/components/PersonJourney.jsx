@@ -24,6 +24,8 @@ import {
   listMyFamilyClaims,
   redeemFamilyInvitation,
   revokeFamilyClaim,
+  sendFamilyInvitationEmail,
+  shareFamilyInvitationPrivately,
 } from "../lib/research/familyClaimAdapter.js";
 import {
   buildLifeJourneyCapabilityPatch,
@@ -183,6 +185,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [familyClaimBusy, setFamilyClaimBusy] = useState(null);
   const [familyClaimNotice, setFamilyClaimNotice] = useState(null);
   const [invitationTokens, setInvitationTokens] = useState({});
+  const [invitationEmails, setInvitationEmails] = useState({});
   const [claimToken, setClaimToken] = useState("");
 
   const [firstName, setFirstName] = useState("");
@@ -427,8 +430,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     setFamilyClaimNotice(null);
     try {
       const invitation = await createFamilyInvitation(personId, targetRef, 7);
-      if (!invitation.token) throw new Error("family_claim_missing_token");
-      setInvitationTokens(previous => ({ ...previous, [targetRef]: invitation.token }));
+      if (!invitation.id || !invitation.token) throw new Error("family_claim_missing_token");
+      setInvitationTokens(previous => ({ ...previous, [targetRef]: { claimId: invitation.id, token: invitation.token } }));
       setFamilyClaimNotice({ type: "success", text: "נוצר קוד חד־פעמי. העתיקו אותו עכשיו והעבירו לבן המשפחה בערוץ פרטי." });
       await refreshFamilyClaims();
     } catch (error) {
@@ -447,6 +450,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     try {
       await revokeFamilyClaim(claimId);
       setInvitationTokens(previous => {
+        const next = { ...previous };
+        delete next[targetRef];
+        return next;
+      });
+      setInvitationEmails(previous => {
         const next = { ...previous };
         delete next[targetRef];
         return next;
@@ -478,13 +486,54 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   }, [claimToken, familyClaims.state, refreshFamilyClaims]);
 
   const copyInvitationToken = useCallback(async (targetRef) => {
-    const token = invitationTokens[targetRef];
+    const token = invitationTokens[targetRef]?.token;
     if (!token || !globalThis.navigator?.clipboard?.writeText) return;
     try {
       await globalThis.navigator.clipboard.writeText(token);
       setFamilyClaimNotice({ type: "success", text: "קוד ההזמנה הועתק. שתפו אותו רק עם האדם שעבורו נוצר." });
     } catch {
       setFamilyClaimNotice({ type: "error", text: "לא ניתן להעתיק אוטומטית. אפשר לסמן ולהעתיק את הקוד ידנית." });
+    }
+  }, [invitationTokens]);
+
+  const emailAccountInvitation = useCallback(async (targetRef) => {
+    const invitation = invitationTokens[targetRef];
+    const recipientEmail = clean(invitationEmails[targetRef]);
+    if (!invitation?.claimId || !invitation?.token || !recipientEmail) return;
+    setFamilyClaimBusy(`email:${targetRef}`);
+    setFamilyClaimNotice(null);
+    try {
+      await sendFamilyInvitationEmail({
+        claimId: invitation.claimId,
+        rawToken: invitation.token,
+        recipientEmail,
+      });
+      setInvitationEmails(previous => ({ ...previous, [targetRef]: "" }));
+      setFamilyClaimNotice({ type: "success", text: "ההזמנה נמסרה לספק המייל. כתובת הנמען לא נשמרה במסע החיים." });
+    } catch (error) {
+      setFamilyClaimNotice({ type: "error", text: familyClaimErrorMessage(error) });
+    } finally {
+      setFamilyClaimBusy(null);
+    }
+  }, [invitationEmails, invitationTokens]);
+
+  const shareAccountInvitation = useCallback(async (targetRef) => {
+    const token = invitationTokens[targetRef]?.token;
+    if (!token) return;
+    setFamilyClaimBusy(`share:${targetRef}`);
+    setFamilyClaimNotice(null);
+    try {
+      const result = await shareFamilyInvitationPrivately(token);
+      setFamilyClaimNotice({
+        type: "success",
+        text: result.channel === "clipboard"
+          ? "נוסח ההזמנה הועתק. אפשר להדביק אותו בשיחה פרטית עם האדם שעבורו נוצר."
+          : "חלון השיתוף הפרטי נפתח במכשיר.",
+      });
+    } catch (error) {
+      setFamilyClaimNotice({ type: "error", text: familyClaimErrorMessage(error) });
+    } finally {
+      setFamilyClaimBusy(null);
     }
   }, [invitationTokens]);
 
@@ -820,7 +869,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             {familyMembers.map(member => {
               const targetRef = clean(member.source_ref);
               const claim = latestClaimByTarget.get(targetRef) || null;
-              const invitationToken = invitationTokens[targetRef] || null;
+              const invitation = invitationTokens[targetRef] || null;
+              const invitationToken = invitation?.token || null;
               const activeClaim = claim && ["pending", "approved"].includes(claim.status);
               return <article key={targetRef}>
                 <header>
@@ -833,6 +883,35 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
                   <small>קוד חד־פעמי · מוצג רק בזיכרון המסך הנוכחי</small>
                   <code dir="ltr">{invitationToken}</code>
                   <button type="button" onClick={() => copyInvitationToken(targetRef)}>העתק קוד הזמנה</button>
+                  <details className="person-journey-invitation-delivery">
+                    <summary>שליחה פרטית</summary>
+                    <p>המייל נשלח רק בלחיצה. הכתובת אינה נשמרת, והקוד אינו נכנס לקישור.</p>
+                    <label>
+                      <span>מייל של מקבל/ת ההזמנה</span>
+                      <input
+                        type="email"
+                        inputMode="email"
+                        autoComplete="off"
+                        value={invitationEmails[targetRef] || ""}
+                        onChange={event => setInvitationEmails(previous => ({ ...previous, [targetRef]: event.target.value }))}
+                        placeholder="name@example.com"
+                        dir="ltr"
+                      />
+                    </label>
+                    <div>
+                      <button
+                        type="button"
+                        disabled={Boolean(familyClaimBusy) || !clean(invitationEmails[targetRef])}
+                        onClick={() => emailAccountInvitation(targetRef)}
+                      >{familyClaimBusy === `email:${targetRef}` ? "שולח…" : "שלח במייל"}</button>
+                      <button
+                        type="button"
+                        disabled={Boolean(familyClaimBusy)}
+                        onClick={() => shareAccountInvitation(targetRef)}
+                      >{familyClaimBusy === `share:${targetRef}` ? "פותח שיתוף…" : "שתף באופן פרטי"}</button>
+                    </div>
+                    <small>בדקו את הכתובת לפני השליחה. לתיקון נמען לאחר שליחה, בטלו את ההזמנה וצרו קוד חדש.</small>
+                  </details>
                 </div> : null}
                 <footer>
                   {!activeClaim ? <button

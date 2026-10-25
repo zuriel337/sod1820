@@ -304,6 +304,14 @@
   line-height:1.7;
 }
 .person-journey-invitation-token button{justify-self:start;min-height:36px;padding:7px 11px;font-size:12px}
+.person-journey-invitation-delivery{border-top:1px dashed var(--pj-line);padding-top:8px}
+.person-journey-invitation-delivery summary{width:max-content;cursor:pointer;color:var(--pj-ink);font-size:12px;font-weight:800}
+.person-journey-invitation-delivery[open]{display:grid;gap:9px}
+.person-journey-invitation-delivery p{margin:0;color:var(--pj-soft);font-size:11px;line-height:1.6}
+.person-journey-invitation-delivery label{display:grid;gap:5px;color:var(--pj-ink);font-size:11px;font-weight:700}
+.person-journey-invitation-delivery input{width:100%;min-height:42px;border:1px solid var(--pj-line);border-radius:11px;padding:8px 10px;background:var(--pj-panel);color:var(--pj-ink);font:inherit;text-align:left}
+.person-journey-invitation-delivery>div{display:flex;gap:7px;flex-wrap:wrap}
+.person-journey-invitation-delivery>small{line-height:1.5}
 .person-journey-claim-redeem{
   display:grid;
   grid-template-columns:minmax(180px,.8fr) minmax(220px,1fr) auto;

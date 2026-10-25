@@ -74,6 +74,41 @@ export async function revokeFamilyClaim(claimId) {
   return Object.freeze({ id: clean(data?.id), status: clean(data?.status) });
 }
 
+export async function sendFamilyInvitationEmail({ claimId, rawToken, recipientEmail }) {
+  const claim = clean(claimId);
+  const token = clean(rawToken).toLowerCase();
+  const email = clean(recipientEmail).toLowerCase();
+  if (!claim || !/^[0-9a-f-]{36}$/i.test(claim)) throw new Error("family_claim_missing_id");
+  if (!/^[0-9a-f]{64}$/.test(token)) throw new Error("family_claim_missing_token");
+  if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("family_claim_invalid_email");
+  const { data, error } = await requireClient().functions.invoke("send-family-invitation-email", {
+    body: { claim_id: claim, raw_token: token, recipient_email: email },
+  });
+  throwRpcError(error);
+  if (data?.ok !== true) throw new Error(clean(data?.error) || "family_claim_delivery_failed");
+  return Object.freeze({ ok: true });
+}
+
+export async function shareFamilyInvitationPrivately(rawToken) {
+  const token = clean(rawToken).toLowerCase();
+  if (!/^[0-9a-f]{64}$/.test(token)) throw new Error("family_claim_missing_token");
+  const message = [
+    "הזמנה פרטית לחיבור למסע החיים של סוד 1820.",
+    "התחברו לחשבון שלכם, פתחו את מסע החיים והזינו באזור „קיבלתי קוד הזמנה” את הקוד החד־פעמי:",
+    token,
+    "הקוד מיועד רק לאדם שקיבל את ההזמנה.",
+  ].join("\n\n");
+  if (typeof globalThis.navigator?.share === "function") {
+    await globalThis.navigator.share({ title: "הזמנה פרטית למסע החיים", text: message });
+    return Object.freeze({ channel: "native_share" });
+  }
+  if (typeof globalThis.navigator?.clipboard?.writeText === "function") {
+    await globalThis.navigator.clipboard.writeText(message);
+    return Object.freeze({ channel: "clipboard" });
+  }
+  throw new Error("family_claim_share_unavailable");
+}
+
 export function familyClaimErrorMessage(error) {
   const message = [error?.message, error?.details, error?.hint, error]
     .find(value => typeof value === "string" && value.trim())?.trim() || "";
@@ -83,6 +118,10 @@ export function familyClaimErrorMessage(error) {
   if (/token has expired/i.test(message)) return "תוקף קוד ההזמנה פג.";
   if (/invalid token/i.test(message)) return "קוד ההזמנה אינו תקין.";
   if (/missing token|family_claim_missing_token/i.test(message)) return "יש להזין קוד הזמנה.";
+  if (/invalid email|family_claim_invalid_email/i.test(message)) return "יש להזין כתובת מייל תקינה.";
+  if (/delivery_failed|service_unavailable|FunctionsFetchError|Failed to send/i.test(message)) return "לא ניתן לשלוח את ההזמנה במייל כרגע. הקוד לא בוטל ואפשר לשתף אותו בערוץ פרטי אחר.";
+  if (/invitation_not_available|FunctionsHttpError/i.test(message)) return "לא ניתן לשלוח את ההזמנה הזאת. בדקו שהיא עדיין ממתינה ושהקוד שייך לה.";
+  if (/share_unavailable|NotAllowedError|AbortError/i.test(message)) return "השיתוף בוטל או אינו זמין במכשיר הזה. אפשר להעתיק את הקוד ידנית.";
   if (/arbitration required|duplicate key|family_claims_target_active_uq/i.test(message)) return "כבר קיים חיבור פעיל או ממתין עבור האדם הזה.";
   return "לא ניתן להשלים כרגע את פעולת החיבור. המידע הפרטי לא שונה.";
 }
