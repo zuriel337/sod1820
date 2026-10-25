@@ -2429,7 +2429,7 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
  }finally{await browser?.close();await server.close();}
 });
 
-test('historical search repairs: pending identity, saved skip, ordered continuation and finding pages',
+test('historical search repairs: pending identity, saved skip, bounded results and finding pages',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  await withNative({width:1440,height:1000},async page=>{
   const send=message=>page.locator('iframe').evaluate((frame,message)=>frame.contentWindow.postMessage({source:'sod-host',...message},location.origin),message);
@@ -2457,9 +2457,8 @@ test('historical search repairs: pending identity, saved skip, ordered continuat
   assert.equal(first.ordered.completeThrough,50);
   assert.equal(first.items.filter(h=>h.skip===2).length,31,'every skip-2 occurrence is exposed, not only the sampled two');
   const axis=await identity(page);
-  await activate(page,'המשך סריקה מסודרת עד דילוג 100');
-  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state.search.occurrences.ordered.completeThrough===100);
-  const continued=await identity(page);assert.deepEqual([continued.axis,continued.scope,continued.geometry],[axis.axis,axis.scope,axis.geometry],'continuation preserves the selected occurrence');
+  assert.equal(await page.getByRole('button',{name:/המשך סריקה מסודרת עד דילוג/}).count(),0,'the retired open-ended ordered-scan control stays out of regular results');
+  assert.deepEqual(await identity(page),axis,'bounded result presentation preserves the selected occurrence');
 
   await send({type:'load-matrix',item:{term:'תורה',scope:'torah',skip:50,start:5,dir:1,words:['משה']}});
   await page.waitForFunction(()=>window.__state?.axis?.hitId==='50_1_5'&&window.__state.findings[0]?.hits.some(h=>h.verified));

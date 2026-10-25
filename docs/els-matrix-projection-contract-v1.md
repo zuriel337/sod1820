@@ -285,3 +285,31 @@ of this refinement; cancellation here remains fail-closed.
 This is a bounded refinement of F03 and the existing Research bundle, not a new capability. It adds
 no engine, state, store, graph, Provider, Journey, schema, migration, data rewrite, RLS, permission,
 `research_objects`, Raziel or `decision_ledger` change.
+
+## Axis-source context and repeated topic projection — 25.10.2026
+
+A verified primary occurrence carries a small deterministic source-context probe. Explicit words
+of four or more Hebrew letters in the active query, plus three-letter terms already present in the
+governed core vocabulary, are checked only in the canonical verses traversed by the verified axis
+cells. A match is an exact contiguous `skip=1` source sequence. It is projected with the complete
+canonical verse and the label **פסוק מקור באותו הקשר**; it is never inferred from a saved cipher,
+an author title or an AI answer. This lets an axis such as `יום שבת תשמור` disclose `שבת` in a
+traversed Sabbath verse, and lets a query such as `בלעם הרשע` retain a literal `בלעם` match even
+when the longer expression is not present contiguously in the source.
+
+The probe does not widen the 12-row/15-column ELS scan. Its bound is the finite set of axis-touched
+verses, and at most 24 exact source occurrences are collected. Up to two topic-context terms receive
+reserved admission in the first package. Repeated occurrences of the same topic participate in the
+existing motif and result-triage projections, so multiple occurrences are ranked together while
+rank-don't-hide keeps every other search result available. Coordinates remain internal; public
+projection exposes the exact verse, declared source relationship and occurrence count only.
+
+Literal context detection is intentionally deterministic and precedes any future semantic consumer.
+Raziel or another approved S6 consumer may later explain non-literal relations (for example an entity
+and its associated event vocabulary), but it may not invent an occurrence or replace canonical
+verification. The old open-ended **המשך סריקה מסודרת עד דילוג 100** control is removed from the
+regular-results rail: focused Research remains axis-relative, bounded and cancellable, with wider
+work available only through its explicit bounded expansion controls.
+
+This refinement changes no engine, store, state graph, schema, data, RLS, permissions or Production
+configuration, and it makes no meaning, significance or Truth claim.

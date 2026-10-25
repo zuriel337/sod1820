@@ -1734,6 +1734,7 @@ __STANDALONE_ENGINE_DISPATCH__
     return items.map(item=>{
       const sources=new Set(item.lexiconSources||[]),continuationCount=(item.continuations||[]).length,classifications=item.classifications||[];
       const researchEvidence=candidateLexiconPriority(item),reasons=[];
+      if(item.sourceContext?.axisTopic)reasons.push(item.sourceContext.label||"פסוק מקור באותו הקשר");
       if(item.geometry?.compact)reasons.push(`שלב א׳ · ${item.geometry.relationLabel}`);
       else if(item.geometry)reasons.push(`שלב ב׳ · ${item.geometry.relationLabel}`);
       const year=classifications.find(entry=>entry.kind==="hebrew-year"),phrase=classifications.find(entry=>entry.kind==="corpus-phrase");
@@ -1810,8 +1811,8 @@ __STANDALONE_ENGINE_DISPATCH__
     const plan=normalizeStructurePlan(rawPlan),axisCells=axis._structuralCells||new Set(axis.positions||[]),S=Math.max(1,Math.abs(Number(axis.skip)||1));
     const axisRows=(axis.positions||[]).map(position=>Math.floor(position/S)),axisMin=axisRows.length?Math.min(...axisRows):-Infinity,axisMax=axisRows.length?Math.max(...axisRows):Infinity;
     const eligible=candidates.filter(candidate=>{const length=norm(candidate.term).length;return length>=plan.minLength&&length<=plan.maxLength;}),
-      motifCandidates=eligible.filter(candidate=>(candidate.occurrences||[]).filter(occurrence=>occurrence.distance<=plan.maxDistance).length>=plan.minMembers);
-    const prepared=eligible.filter(candidate=>candidate.distance<=plan.maxDistance)
+      motifCandidates=eligible.filter(candidate=>(candidate.occurrences||[]).filter(occurrence=>candidate.sourceContext?.axisVerse||occurrence.distance<=plan.maxDistance).length>=plan.minMembers);
+    const prepared=eligible.filter(candidate=>candidate.sourceContext?.axisVerse||candidate.distance<=plan.maxDistance)
       .map(candidate=>({...candidate,_structural:classifyStructuralCandidate(candidate,axis),_center:structuralCandidateCenter(candidate,axis),
         _intersection:(candidate.positions||[]).some(position=>axisCells.has(position))}))
       .sort((a,b)=>candidateLexiconPriority(b)-candidateLexiconPriority(a)||a.distance-b.distance||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
@@ -1823,7 +1824,7 @@ __STANDALONE_ENGINE_DISPATCH__
     const parallels=prepared.filter(candidate=>candidate._structural?.geometry?.compact&&candidate._structural?.relation?.startsWith("parallel-"));
     if(plan.types.includes("parallel"))add("parallel","משפחת מקבילות",`ממצאים הנעים במקביל לציר ${norm(st.raw)}.`,parallels.map(candidate=>({candidate,role:"parallel"})),400);
     if(plan.types.includes("motif"))for(const candidate of motifCandidates){
-      const occurrences=(candidate.occurrences||[]).filter(occurrence=>occurrence.distance<=plan.maxDistance);
+      const occurrences=(candidate.occurrences||[]).filter(occurrence=>candidate.sourceContext?.axisVerse||occurrence.distance<=plan.maxDistance);
       if(occurrences.length>=plan.minMembers)add("motif",`מוטיב חוזר: ${norm(candidate.term)}`,
         `אותו רצף מופיע ${occurrences.length} פעמים נפרדות בחלון המוצג.`,occurrences.map(occurrence=>({candidate,occurrence,role:"motif"})),375,
         {preserveOccurrences:true,contract:REPEATED_MOTIF_CONTRACT});
@@ -2867,7 +2868,7 @@ __STANDALONE_ENGINE_DISPATCH__
           postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"sources",completed:admitted.items.length,total:admitted.items.length}});
           const items=rankResearchCandidateItems(admitted.items.map(candidate=>{
             const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,focusedEntries);
-            return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,skip:candidate.skip,direction:candidate.direction,skipMeta:candidate.skipMeta,focusStage:candidate.focusStage,status:candidate.status,source:candidate.source,
+            return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,skip:candidate.skip,direction:candidate.direction,skipMeta:candidate.skipMeta,focusStage:candidate.focusStage,status:candidate.status,source:candidate.source,sourceContext:candidate.sourceContext,
               lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,geometry:candidate.geometry,neighborhood:candidate.neighborhood,classifications:[...(candidate.classifications||[])],
               continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
           }));
@@ -4184,21 +4185,53 @@ __STANDALONE_ENGINE_DISPATCH__
   function focusedCoreRankScore(candidate,axis,preferIntersection=true){
     const kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),parts=(candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[],partKinds=new Set(parts.flatMap(part=>(part.classifications||[]).map(item=>item.kind))),partSources=new Set(parts.flatMap(part=>part.sources||[])),sourceExact=Math.abs(candidate.skip)===1&&kinds.has("corpus-phrase"),axisCells=axis?._structuralCells||new Set(axis?.positions||[]),intersects=(candidate.positions||[]).some(position=>axisCells.has(position));
     let score=focusedCandidateStrength(candidate)+Number(candidate.neighborhood?.priority||0)*.16-Math.min(60,Number(candidate.distance||0)*4)+(intersects?(preferIntersection?28:0):(preferIntersection?0:28));
-    if(sourceExact)score+=650;
+    if(candidate.discoveryKind==="source-context")score+=900;
+    else if(sourceExact)score+=650;
     else if(candidate.discoveryKind==="direct")score+=220;
     else if(candidate.discoveryKind==="compound")score+=(partKinds.has("hebrew-year")?360:partKinds.has("corpus-morphology")?300:partSources.has("governed_core")?250:135)+focusedCompoundPartsScore(candidate)*.35;
     else if(candidate.discoveryKind==="phrase")score+=120;
     return score;
   }
+  // A topic word already named by the active axis is not an arbitrary dictionary hit when it
+  // appears in a canonical source verse traversed by that axis. Keep this source-context probe
+  // deterministic and tiny: explicit axis words (plus governed words contained in a compact
+  // spelling) are checked only inside the finite set of verses touched by the verified axis.
+  // It does not widen ELS skip search, infer meaning or consume saved-cipher vocabulary.
+  function focusedAxisTopicRows(entries,axisEntries,rawAxis=st.raw){
+    const axisTerm=norm(rawAxis),governed=new Map();
+    for(const raw of DICT||[]){const term=norm(typeof raw==="string"?raw:raw.term||raw.label);if(term)governed.set(term,{term,label:typeof raw==="string"?raw:raw.label||raw.term,sources:["governed_core"],support:4,classifications:[]});}
+    const selected=new Map(),add=(raw,explicit=false)=>{const term=norm(raw),row=governed.get(term);
+      if(term.length<3||term===axisTerm||term.length===3&&!row)return;
+      if(!row&&!explicit||!row&&term.length<4)return;
+      const next=row||{term,label:String(raw||term).trim()||term,sources:["active_axis_context"],support:1,classifications:[]},prior=selected.get(term);
+      if(!prior||Number(next.support)>Number(prior.support))selected.set(term,next);
+    };
+    String(rawAxis||"").split(/[^א-ת]+/).filter(Boolean).forEach(part=>add(part,true));
+    for(const[term]of governed)if(term.length>=3&&term!==axisTerm&&axisTerm.includes(term))add(term);
+    return [...selected.values()].sort((a,b)=>Number(b.support)-Number(a.support)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")).slice(0,8);
+  }
+  function axisSourceContextMatches(axis,topicRows,limit=24){
+    const S=Math.abs(Number(axis?.skip)||0);if(S<1)return[];
+    const anchors=(axis?.positions||[]).map(position=>[Math.floor(position/S),((position%S)+S)%S]),verses=[...new Set((axis?.positions||[]).map(verseAt).filter(index=>index>=0))],matches=[];
+    for(const topic of topicRows||[]){const term=norm(topic.term||topic.label);if(!term)continue;
+      for(const verseIndex of verses){const from=VCUM[verseIndex],to=Math.min(VCUM[verseIndex+1],scopeN()),sequence=T.slice(from,to);let offset=-1;
+        while((offset=sequence.indexOf(term,offset+1))>=0){const start=from+offset,positions=Array.from(term,(_,index)=>start+index);
+          matches.push({topic,term,verseIndex,start,positions,distance:distanceToAnchors(positions,anchors,S)});
+          if(matches.length>=Math.max(1,Math.min(48,Number(limit)||24)))return matches;
+        }
+      }
+    }
+    return matches;
+  }
   function focusedCoreCandidateScan(entries,axisEntries,phraseIndex,axis,limits=null){
     return (function*(){const box=focusedCoreBox(axis,limits);if(!box)return {box:null,candidates:[],probes:0,candidateCapped:false,probeCapped:false,budgetExceeded:null};
     const maxCandidates=Math.max(1,Math.min(FOCUSED_CORE_CANDIDATE_CAP,Number(limits?.maxCandidates)||FOCUSED_CORE_CANDIDATE_CAP)),maxProbes=Math.max(1,Math.min(FOCUSED_CORE_PROBE_CAP,Number(limits?.maxProbes)||FOCUSED_CORE_PROBE_CAP));
-    const {S,c0,c1,r0,r1}=box,axisTerm=norm(st.raw),mainSet=new Set(axis.positions||[]),anchors=(axis.positions||[]).map(position=>[Math.floor(position/S),((position%S)+S)%S]),termMap=new Map(),wordMap=new Map();
+    const {S,c0,c1,r0,r1}=box,axisTerm=norm(st.raw),mainSet=new Set(axis.positions||[]),anchors=(axis.positions||[]).map(position=>[Math.floor(position/S),((position%S)+S)%S]),termMap=new Map(),wordMap=new Map(),sourceContextOccurrences=new Map();
     const add=(map,row,min,max)=>{const term=norm(row.term||row.label);if(term.length<min||term.length>max||term===axisTerm)return;const current=map.get(term);if(!current||Number(row.support)>Number(current.support))map.set(term,{...row,term,label:row.label||row.term||term});};
     independentCandidateRows(entries).forEach(row=>add(termMap,row,3,24));
     independentCandidateRows(axisEntries).forEach(row=>add(wordMap,row,2,12));
     const termLengths=[...new Set([...termMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),wordLengths=[...new Set([...wordMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),
-      coreSteps=[...new Set([1,S-1,S,S+1].filter(step=>step>0))],coreStepSet=new Set(coreSteps),localGapSteps=[2,3,4,5,6,7,8].filter(step=>!coreStepSet.has(step)),
+      coreSteps=[...new Set([1,S-1,S,S+1].filter(step=>step>0))],coreStepSet=new Set(coreSteps),localGapSteps=[2,3,4,5,6,7,8].filter(step=>!coreStepSet.has(step)),axisTopicRows=focusedAxisTopicRows(entries,axisEntries),
       axisRows=(axis.positions||[]).map(position=>Math.floor(position/S)),localR0=Math.max(r0,Math.min(...axisRows)-2),localR1=Math.min(r1,Math.max(...axisRows)+2),
       localC0=Math.max(c0,mainSet.size?box.mainCol-8:c0),localC1=Math.min(c1,mainSet.size?box.mainCol+8:c1),found=new Map();let probes=0,candidateCapped=false,probeCapped=false,completedOrigins=0,lastCoreReported=0,scanSliceStarted=Date.now();
     const inBox=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return position>=0&&position<scopeN()&&row>=r0&&row<=r1&&column>=c0&&column<=c1;};
@@ -4207,8 +4240,10 @@ __STANDALONE_ENGINE_DISPATCH__
       const candidate={term:row.label||row.term||term,skip:Math.abs(step),dir:Math.sign(step),start:positions[0],positions,distance:distanceToAnchors(positions,anchors,S),lexiconSources:[...(row.sources||[])],lexiconSupport:Number(row.support)||1,classifications:[...(row.classifications||[])],discoveryKind},key=term,prior=found.get(key);
       candidate.focusStage=focusStage;
       candidate.geometry=compactGeometryMeta(candidate,axis);candidate.neighborhood=axisNeighborhoodMeta(candidate,axis);
-      if(!(candidate.geometry?.compact||candidate.focusStage==="B")||candidate.distance>15)return;
-      const stagePriority={A:2,B:1},kindPriority={direct:3,phrase:2,compound:1};
+      const sourceContext=discoveryKind==="source-context";
+      if(sourceContext?!candidate.geometry?.compact:(!(candidate.geometry?.compact||candidate.focusStage==="B")||candidate.distance>15))return;
+      const stagePriority={A:2,B:1},kindPriority={"source-context":4,direct:3,phrase:2,compound:1};
+      if(sourceContext){const rows=sourceContextOccurrences.get(term)||[],key=positions.join("_");if(!rows.some(row=>row.positions.join("_")===key))rows.push({...candidate});sourceContextOccurrences.set(term,rows);}
       if(!prior&&found.size>=maxCandidates){candidateCapped=true;return;}
       if(!prior||stagePriority[focusStage]>stagePriority[prior.focusStage]||stagePriority[focusStage]===stagePriority[prior.focusStage]&&(kindPriority[discoveryKind]>kindPriority[prior.discoveryKind]||kindPriority[discoveryKind]===kindPriority[prior.discoveryKind]&&(focusedCoreRankScore(candidate,axis,false)>focusedCoreRankScore(prior,axis,false)||focusedCoreRankScore(candidate,axis,false)===focusedCoreRankScore(prior,axis,false)&&candidate.distance<prior.distance)))found.set(key,candidate);
     };
@@ -4236,12 +4271,21 @@ __STANDALONE_ENGINE_DISPATCH__
         if(candidateCapped)return {box,candidates:[],probes,candidateCapped:true,probeCapped:false,budgetExceeded:"candidates"};
       }
     }
+    // Source-context is bounded by the exact verses touched by the primary axis, not by the
+    // 15-column geometry box. This is what lets an axis such as "יום שבת תשמור" surface שבת and
+    // the complete canonical verse even when the topical word sits farther along that same verse.
+    const sourceMatches=axisSourceContextMatches(axis,axisTopicRows,24);
+    sourceContextScan:for(const match of sourceMatches){if(probes>=maxProbes){probeCapped=true;break sourceContextScan;}probes++;
+      consider({...match.topic,classifications:[...(match.topic.classifications||[]),{kind:"axis-source-context",value:match.term,label:"מילת נושא מן הציר נמצאה בפסוק שהציר עובר בו"}]},match.positions,1,"source-context","A");
+      if(candidateCapped)break sourceContextScan;
+    }
+    if(candidateCapped)return {box,candidates:[],probes,candidateCapped:true,probeCapped:false,budgetExceeded:"candidates"};
     if(probeCapped){yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size,budgetExceeded:true};return {box,candidates:[],probes,candidateCapped:false,probeCapped:true,budgetExceeded:"probes"};}
     if(completedOrigins!==lastCoreReported)yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size};
     const values=[...found.values()],ranked=[];let projectSliceStarted=Date.now();
     for(let index=0;index<values.length;index++){
-      const candidate=values[index],term=norm(candidate.term),score=focusedCoreRankScore(candidate,axis),kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),compoundKinds=new Set(((candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[]).flatMap(part=>(part.classifications||[]).map(item=>item.kind))),flags=(candidate.discoveryKind==="phrase"&&Math.abs(candidate.skip)===1?1:0)|(candidate.geometry?.intersects?2:0)|(candidate.discoveryKind==="direct"?4:0)|(candidate.geometry?.compact?8:0)|((candidate.lexiconSources||[]).includes("governed_core")?16:0)|(kinds.has("hebrew-year")?32:0)|(candidate.focusStage==="B"?64:0)|(candidate.discoveryKind==="compound"&&compoundKinds.has("hebrew-year")?128:0)|(candidate.discoveryKind==="compound"?256:0);
-      ranked.push({candidate:{...candidate,skipMeta:focusedCoreSkipMeta(candidate,axis),focusScore:score,focusTerm:term,focusFlags:flags},score,distance:candidate.distance,priority:Number(candidate.neighborhood?.priority)||0,stage:candidate.focusStage==="B"?1:0,term});
+      const candidate=values[index],term=norm(candidate.term),score=focusedCoreRankScore(candidate,axis),kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),compoundKinds=new Set(((candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[]).flatMap(part=>(part.classifications||[]).map(item=>item.kind))),contextOccurrences=sourceContextOccurrences.get(term)||[],sourceContext=candidate.discoveryKind==="source-context"?{axisTopic:true,label:"פסוק מקור באותו הקשר",matchedTerms:[term],axisVerse:true,occurrenceCount:contextOccurrences.length}:null,flags=(candidate.discoveryKind==="phrase"&&Math.abs(candidate.skip)===1?1:0)|(candidate.geometry?.intersects?2:0)|(candidate.discoveryKind==="direct"?4:0)|(candidate.geometry?.compact?8:0)|((candidate.lexiconSources||[]).includes("governed_core")?16:0)|(kinds.has("hebrew-year")?32:0)|(candidate.focusStage==="B"?64:0)|(candidate.discoveryKind==="compound"&&compoundKinds.has("hebrew-year")?128:0)|(candidate.discoveryKind==="compound"?256:0)|(sourceContext?512:0)|(kinds.has("corpus-morphology")?1024:0);
+      ranked.push({candidate:{...candidate,...(contextOccurrences.length?{occurrences:contextOccurrences}:{}),sourceContext,skipMeta:focusedCoreSkipMeta(candidate,axis),focusScore:score,focusTerm:term,focusFlags:flags},score,distance:candidate.distance,priority:Number(candidate.neighborhood?.priority)||0,stage:candidate.focusStage==="B"?1:0,term});
       if(index+1===values.length||Date.now()-projectSliceStarted>=32){yield {phase:"collect",completed:index+1,total:values.length,probes,candidates:ranked.length};projectSliceStarted=Date.now();}
     }
     const compare=(a,b)=>a.stage-b.stage||a.distance-b.distance||b.priority-a.priority||b.score-a.score||a.term.localeCompare(b.term,"he");
@@ -4277,19 +4321,19 @@ __STANDALONE_ENGINE_DISPATCH__
       for(const position of candidate.positions||[])if(priorPositions.has(position)&&++shared>=2)return true;
       return false;
     },add=(predicate,count)=>{
-      for(const candidate of rows){if(count<=0||selected.length>=cap)break;const key=candidate.focusTerm||norm(candidate.term),flags=Number(candidate.focusFlags)||0;if(seen.has(key)||!predicate(flags)||selected.some(prior=>samePathOverlap(candidate,prior)))continue;seen.add(key);selected.push(candidate);count--;}
+      for(const candidate of rows){if(count<=0||selected.length>=cap)break;const key=candidate.focusTerm||norm(candidate.term),flags=Number(candidate.focusFlags)||0;if(seen.has(key)||!predicate(flags,candidate)||selected.some(prior=>samePathOverlap(candidate,prior)))continue;seen.add(key);selected.push(candidate);count--;}
     };
-    // A focused package is deliberately mixed, close-first and path-diverse. Exact source paths
-    // crossing the axis and nearby compact structures receive seats before general language score;
-    // nested terms on one path cannot consume several of the 12 canonical-admission attempts.
+    // The first package is bounded and path-diverse. Literal source context receives first
+    // admission, followed by a small mix of exact source, year, morphology and geometry lanes.
+    // Selection stays linear in the already-ranked pool; no second scan or semantic engine runs.
+    add(flags=>(flags&512)===512,2);
     add(flags=>(flags&3)===3,2);
-    add(flags=>(flags&1)===1,2);
-    add(flags=>(flags&12)===12,2);
-    add(flags=>(flags&20)===20,1);
-    add(flags=>(flags&36)===36,1);
+    add((flags,candidate)=>{const sources=new Set(candidate.lexiconSources||[]);return Math.abs(Number(candidate.skip))>1&&norm(candidate.term).length>=4&&(flags&32)===32&&(flags&256)===0&&sources.has("basic_hebrew_year")&&!sources.has("corpus_native")&&!sources.has("corpus_morphology")&&!sources.has("governed_core");},1);
+    add((flags,candidate)=>Math.abs(Number(candidate.skip))>1&&(flags&1024)===1024&&norm(candidate.term).length>=4,2);
+    add(flags=>(flags&256)===256,1);
+    add((flags,candidate)=>(flags&12)===12&&norm(candidate.term).length>=4,2);
+    add((flags,candidate)=>Math.abs(Number(candidate.skip))>1&&(flags&20)===20&&(flags&256)===0&&norm(candidate.term).length>=4,1);
     add(flags=>(flags&64)===64,1);
-    add(flags=>(flags&128)===128,1);
-    add(flags=>(flags&264)===264,2);
     add(()=>true,cap-selected.length);
     return selected;
   }
@@ -5260,16 +5304,21 @@ __STANDALONE_ENGINE_DISPATCH__
     const extensions=lineExtensionCandidates(hit,word,lexicon,5),extensionTerms=new Set(extensions.map(row=>row.term));
     const scan=includeNearby?scanLineWords(lineContextCells(hit),word,8,32,lexicon):{words:[],truncated:false};
     const nearby=scan.words.filter(row=>!extensionTerms.has(row.term)).slice(0,3).map(row=>({term:row.term,label:row.label,lexiconSources:row.lexiconSources}));
+    const topicRows=focusedAxisTopicRows(lexicon,lexicon,word),sourceMatches=axisSourceContextMatches(hit,topicRows,24),sourceContexts=[...new Map(sourceMatches.map(match=>[match.term,{term:match.term,label:match.topic.label||match.topic.term||match.term,occurrenceCount:sourceMatches.filter(row=>row.term===match.term).length}])).values()];
     const ordered=notable(Math.abs(hit.skip));
-    return {term:norm(word),targetable:Math.abs(Number(hit?.skip))>=2,extensions,nearby,notable:ordered?ordered.tag:null,geometry:compactGeometryMeta(hit,axis),scanTruncated:scan.truncated};
+    return {term:norm(word),targetable:Math.abs(Number(hit?.skip))>=2,extensions,nearby,sourceContexts,notable:ordered?ordered.tag:null,geometry:compactGeometryMeta(hit,axis),scanTruncated:scan.truncated};
   }
   function rankResultTriageItems(rows,kind){
     const extensionFrequency=new Map();
     rows.forEach(row=>(row.signals||[]).forEach(signal=>(signal.extensions||[]).forEach(extension=>extensionFrequency.set(extension.term,(extensionFrequency.get(extension.term)||0)+1))));
+    const sourceContextFrequency=new Map();
+    rows.forEach(row=>{const terms=new Set((row.signals||[]).flatMap(signal=>(signal.sourceContexts||[]).map(context=>context.term)));for(const term of terms)sourceContextFrequency.set(term,(sourceContextFrequency.get(term)||0)+1);});
     const ranked=rows.map(row=>{
       const signals=row.signals||[],extensions=signals.flatMap(signal=>signal.extensions||[]),nearby=signals.flatMap(signal=>signal.nearby||[]);
-      const maxGain=extensions.reduce((value,item)=>Math.max(value,Number(item.gain)||0),0),repeat=Math.max(0,...extensions.map(item=>extensionFrequency.get(item.term)||0));
+      const sourceContexts=[...new Map(signals.flatMap(signal=>signal.sourceContexts||[]).map(context=>[context.term,context])).values()],sourceContextRepeat=Math.max(0,...sourceContexts.map(context=>sourceContextFrequency.get(context.term)||0)),maxGain=extensions.reduce((value,item)=>Math.max(value,Number(item.gain)||0),0),repeat=Math.max(0,...extensions.map(item=>extensionFrequency.get(item.term)||0));
       const notableSignals=signals.filter(signal=>signal.notable),compactSecondary=signals.slice(1).filter(signal=>signal.geometry?.compact),reasons=[];
+      if(sourceContexts.length)reasons.push(`פסוק מקור באותו הקשר: ${sourceContexts.slice(0,3).map(context=>context.label||context.term).join(" · ")}`);
+      if(sourceContextRepeat>1)reasons.push(`אותו הקשר מופיע ב־${sourceContextRepeat} תוצאות`);
       if(maxGain){const best=extensions.find(item=>Number(item.gain)===maxGain);reasons.push(`המשך מדויק: ${best.label||best.term} · +${maxGain} אותיות`);}
       if(repeat>1)reasons.push(`אותו המשך מופיע ב־${repeat} תוצאות`);
       if(compactSecondary.length)reasons.push(`${compactSecondary.length} ממצאים בשלב א׳ · ללא פער בתצוגה`);
@@ -5278,9 +5327,9 @@ __STANDALONE_ENGINE_DISPATCH__
       if(notableSignals.length)reasons.push(`דילוג ${notableSignals[0].notable}`);
       if(nearby.length)reasons.push(`${nearby.length} מילים נוספות על הציר`);
       if(!reasons.length)reasons.push("לא זוהה המשך מילוני בחלון; התוצאה נשארת זמינה");
-      const compactEvidence=maxGain>0||compactSecondary.length>0,inspectionPriority=(compactEvidence?1000:0)+maxGain*12+extensions.length*5+(repeat>1?repeat*4:0)+compactSecondary.length*12+Math.min(nearby.length,3)*2+notableSignals.length*3+
+      const compactEvidence=sourceContexts.length>0||maxGain>0||compactSecondary.length>0,inspectionPriority=sourceContexts.length*1500+sourceContextRepeat*120+(compactEvidence?1000:0)+maxGain*12+extensions.length*5+(repeat>1?repeat*4:0)+compactSecondary.length*12+Math.min(nearby.length,3)*2+notableSignals.length*3+
         (kind==="cross"?(Number(row.stars)||0)*2+(Number(row.distance)===0?8:0):0);
-      return {...row,inspectionPriority,reasons,extensionCount:extensions.length,compactEvidence,stage:compactEvidence?"A":"B"};
+      return {...row,inspectionPriority,reasons,extensionCount:extensions.length,sourceContexts,compactEvidence,stage:compactEvidence?"A":"B"};
     }).sort((a,b)=>Number(b.compactEvidence)-Number(a.compactEvidence)||b.inspectionPriority-a.inspectionPriority||b.extensionCount-a.extensionCount||
       (kind==="cross"?(Number(b.stars)-Number(a.stars)||Number(a.distance)-Number(b.distance)):Number(a.skip)-Number(b.skip))||Number(a.order)-Number(b.order));
     return ranked.map((row,index)=>({...row,rank:index+1,tier:index<3&&row.inspectionPriority>0?"recommended":row.inspectionPriority>0?"inspect":"available"}));

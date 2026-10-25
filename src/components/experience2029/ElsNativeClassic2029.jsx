@@ -514,12 +514,15 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
     const focused = lensResult.scanMode === "focused";
     const suggestion = lensResult.axisSuggestion;
     const existing = new Set(findings.map((finding) => finding.t));
+    const topicalSourceItems = items.filter((item) => item.sourceContext?.axisTopic);
+    const neighborhoodItems = items.filter((item) => !item.sourceContext?.axisTopic);
     const sections = [
+      ["source-context", "פסוקי מקור באותו הקשר"],
       ["parallel", "מקבילות צמודות לציר"],
       ["intersection", "חציות הנוגעות בציר"],
       ["compact-nearby", "רצפים סמוכים ללא פער"],
       ["spaced", "שלב ב׳ · מבנים עם פערים"],
-    ].map(([band, label]) => ({ band, label, items: items.filter((item) => item.neighborhood?.band === band) })).filter((section) => section.items.length);
+    ].map(([band, label]) => ({ band, label, items: band === "source-context" ? topicalSourceItems : neighborhoodItems.filter((item) => item.neighborhood?.band === band) })).filter((section) => section.items.length);
     const renderItem = (item) => {
       const addedFinding = findings.find((finding) => finding.t === item.term);
       const openHit = [...(addedFinding?.hits || []), ...(addedFinding?.sourceHits || [])]
@@ -530,7 +533,7 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
       const geometryNote = item.geometry ? `${item.geometry.stage === "A" ? "שלב א׳" : "שלב ב׳"} · ${item.geometry.relationLabel}` : "";
       const continuations = (item.continuations || []).slice(0, 3).map((word) => word.label || word.term);
       const verses = Array.isArray(item.source?.verses) ? item.source.verses.filter((verse) => verse?.text).slice(0, 3) : [];
-      const verificationNote = item.status === "SOURCE_EXACT" ? "רצף מקור מדויק" : item.status === "VERIFIED" ? "מופע ELS מאומת" : "מועמד מקומי";
+      const verificationNote = item.sourceContext?.axisTopic ? "פסוק מקור באותו הקשר" : item.status === "SOURCE_EXACT" ? "רצף מקור מדויק" : item.status === "VERIFIED" ? "מופע ELS מאומת" : "מועמד מקומי";
       return <div key={`${item.neighborhood?.band || "candidate"}-${item.term}`} className="els29-native-line-word" data-geometry-stage={item.geometry?.stage || undefined}>
         {openHit ? <button type="button" className="els29-native-discovered-term"
           onClick={() => onOpenFinding({ term: item.term, hitId: openHit.hitId, ...(openHit.kind === "source-sequence" ? { kind: "source-sequence" } : {}) })}
@@ -546,6 +549,7 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
         </button>
         {focused ? <div className="els29-native-core-proof">
           <small><b>{verificationNote}</b> · דילוג <bdi>{item.skip}</bdi>{item.direction === "back" ? " · קריאה אחורה" : " · קריאה קדימה"}</small>
+          {item.sourceContext?.axisTopic ? <small>מילת הנושא <b>{(item.sourceContext.matchedTerms || [item.term]).join(" · ")}</b> נמצאה ברצף המקור של פסוק שהציר עובר בו{item.sourceContext.occurrenceCount > 1 ? ` · ${item.sourceContext.occurrenceCount} מופעים` : ""}.</small> : null}
           {item.skipMeta?.label ? <small>{item.skipMeta.label}</small> : null}
           {verses.map((verse) => <p key={`${item.term}-${verse.ref}`}><b>{verse.ref}</b> · {verse.text}</p>)}
         </div> : null}
@@ -936,7 +940,7 @@ function ActiveResearchBundle({ bundle, lensResult, pending, onBack }) {
   </section>;
 }
 
-function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onContinue, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending }) {
+function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending }) {
   const results = state?.search?.occurrences;
   const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
   const items = blocked ? [] : results?.items || [];
@@ -954,9 +958,6 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
       <ResultTriageSummary result={triage} pending={triagePending} />
       <SavedResearchBundles result={triage} />
       <ResultResearchTargets result={triage} comparisonResult={comparisonResult} pending={pending || triagePending || researchTargetPending} onOpen={onOpenResearchTarget} onCompare={onCompareResearchTargets} />
-      {!results.ordered || results.ordered.error || results.ordered.hasMore || results.ordered.max < 500 ? <button type="button" disabled={pending} onClick={() => onContinue(results.id)}>
-        {results.ordered?.hasMore ? `המשך מופעים בדילוגים ${results.ordered.min}–${results.ordered.max}` : results.ordered?.error ? "נסה שוב סריקת דילוגים" : `המשך סריקה מסודרת עד דילוג ${Math.min(500,(results.ordered?.max || 0)+50)}`}
-      </button> : <small>הסריקה המסודרת הושלמה עד דילוג 500. מעבר לכך מוצגים ממצאי הסריקה המוגבלת.</small>}
       <div className="els29-native-results-pages" role="group" aria-label="עמודי תוצאות">
         <button type="button" disabled={results.page === 0} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page - 1 })}>עמוד קודם</button>
         <span>עמוד <bdi>{results.page + 1} / {Math.ceil(results.total / results.pageSize)}</bdi></span>
@@ -2144,7 +2145,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onCompareResearchTargets={compareResearchTargets} comparisonResult={lensResult?.lens === "research-target-compare" ? lensResult : null}
           researchTargetPending={lensPending && ["research-target", "research-target-compare"].includes(lensRequest?.lens)}
           triageResult={researchProfile ? resultTriage : null} triagePending={researchProfile && resultTriagePending} />
-        <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={visibleTool === "results" && !resultsAreCross}
+        <RegularResultsRail state={engineState} pending={searchPending} operation={operations.search} visible={visibleTool === "results" && !resultsAreCross}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })}
           onOpenResearchTarget={openResearchTarget}
           onCompareResearchTargets={compareResearchTargets} comparisonResult={lensResult?.lens === "research-target-compare" ? lensResult : null}

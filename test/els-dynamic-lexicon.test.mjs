@@ -5,6 +5,7 @@ import vm from "node:vm";
 import { HIRSCH_GOLDEN_CANDIDATES } from "./fixtures/els-hirsch-golden-candidates.mjs";
 
 const template = readFileSync(new URL("../tools/els/els-code.template.html", import.meta.url), "utf8");
+const native2029 = readFileSync(new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url), "utf8");
 
 function source(name) {
   const asyncStart = template.indexOf(`async function ${name}(`);
@@ -170,6 +171,11 @@ test("axis-neighborhood discovery is explicit, bounded and independent of a cont
   assert.match(block, /focused\.candidateCapped\|\|focused\.probeCapped[\s\S]*?ok:false/, "a focused budget overflow fails closed instead of publishing a partial package");
   assert.match(block, /target\.depth==="expanded"/);
   assert.match(block, /axisSuggestion=chooseAxisNeighborhoodSuggestion/);
+  assert.match(template, /function axisSourceContextMatches\([\s\S]*?VCUM\[verseIndex\][\s\S]*?T\.slice\(from,to\)/, "axis context reads only canonical verses traversed by the verified axis");
+  assert.match(template, /discoveryKind==="source-context"[\s\S]*?sourceContext\?512:0/, "literal axis-topic source context receives a dedicated admission lane");
+  assert.match(native2029, /פסוקי מקור באותו הקשר/);
+  assert.match(native2029, /מילת הנושא[\s\S]*?נמצאה ברצף המקור של פסוק שהציר עובר בו/);
+  assert.doesNotMatch(native2029, /המשך סריקה מסודרת עד דילוג/, "the inherited ordered-scan continuation prompt is not rendered");
 
   const targetStart = template.indexOf('d.lens==="neighborhood-target"');
   const targetEnd = template.indexOf('d.lens==="matrix-candidates"', targetStart);
@@ -182,6 +188,10 @@ test("axis-neighborhood discovery is explicit, bounded and independent of a cont
 test("focused core cold Goldens are rediscovered from the canonical corpus without saved-cipher vocabulary", async () => {
   const corpus = readFileSync(new URL("../tools/els/data/tk-letters.txt", import.meta.url), "utf8").trim();
   const verses = readFileSync(new URL("../tools/els/data/tk-vtext.txt", import.meta.url), "utf8").trimEnd().split("\n");
+  const normalizeHebrew = (value) => String(value || "").replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, (letter) => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
+  const verseLengths = readFileSync(new URL("../tools/els/data/tk-vlens.txt", import.meta.url), "utf8").trim().split(",").map(Number);
+  const verseStarts = new Int32Array(verseLengths.length + 1);
+  verseLengths.forEach((length, index) => { verseStarts[index + 1] = verseStarts[index] + length; });
   const governedCore = JSON.parse(template.match(/const DICT=(\[[^;]+\]);/)[1]);
   let scopeLength = 304805;
   const hebrewNumber = (number) => {
@@ -194,7 +204,7 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     return result + (value === 15 ? "טו" : value === 16 ? "טז" : tens[Math.floor(value / 10)] + units[value % 10]);
   };
   const context = vm.createContext({
-    T: corpus,
+    T: corpus, N: corpus.length, VCUM: verseStarts, VLENS: verseLengths,
     DICT: governedCore,
     _corpusLexiconCache: { torah: null, tanakh: null },
     _corpusAxisWordCache: { torah: null, tanakh: null },
@@ -215,11 +225,13 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     source("axisNeighborhoodMeta"), source("distanceToAnchors"), source("independentCandidateRows"),
     source("focusedPhraseRow"), source("focusedCoreBox"), source("focusedCoreSkipMeta"),
     source("focusedCandidateStrength"), source("focusedCompoundPartsScore"), source("focusedCoreRankScore"),
+    source("focusedAxisTopicRows"), source("axisSourceContextMatches"), source("verseAt"),
     source("focusedCoreCandidateScan"), source("scanFocusedCoreCandidates"), source("scanFocusedCoreCandidatesBatched"), source("selectFocusedCoreCandidates"),
     `buildCorpusCandidateLexicons(${JSON.stringify(verses)});`,
   ].join("\n"), context);
 
   const goldens = [
+    { label: "יום שבת תשמור", skip: 1820, start: 125440, dir: 1, expected: ["שבת"], sourceContext: "שבת" },
     { label: "משיח טבת עשירי", skip: 1820, start: 15170, dir: 1, expected: ["יבואו", "אליהו", "ישלחמלאכו", "נשבעתינאמיהוה", "תשעו"] },
     { label: "יום משיח בא", skip: 583, start: 239480, dir: -1, expected: ["ישלח", "מלכ", "מחכיתשפו", "לכפרעליכמ", "הארחשכ", "שופר"] },
     { label: "קולומביה", skip: 4545, start: 248765, dir: 1, expected: ["יכלאש", "ספינת", "אשאכלה"] },
@@ -240,9 +252,16 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     vm.runInContext("this.result=scanFocusedCoreCandidates(researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true}),researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true}),_corpusPhraseCache.tanakh,axis);", context);
     const found = new Set(context.result.candidates.map((candidate) => vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context)));
     for (const term of golden.expected) assert.ok(found.has(term), `${golden.label} independently rediscovers ${term}`);
+    const selected = JSON.parse(JSON.stringify(vm.runInContext("selectFocusedCoreCandidates(result.candidates,12)", context)));
+    const selectedTerms = new Set(selected.map((candidate) => normalizeHebrew(candidate.term)));
+    if (golden.sourceContext) {
+      const contextual = selected.find((candidate) => normalizeHebrew(candidate.term) === golden.sourceContext);
+      assert.equal(contextual?.sourceContext?.axisTopic, true, `${golden.label} marks its literal topic as canonical source context`);
+      assert.equal(contextual.skip, 1, "axis-source context remains an exact source sequence");
+      assert.ok(contextual.sourceContext.occurrenceCount >= 1);
+    }
     if (golden.hirsch) {
       const byTerm = new Map(context.result.candidates.map((candidate) => [vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context), candidate]));
-      const selected = JSON.parse(JSON.stringify(vm.runInContext("selectFocusedCoreCandidates(result.candidates,12)", context)));
       assert.ok(selected.length <= 12, "the visible first package keeps its canonical-admission cap");
       for (let left = 0; left < selected.length; left += 1) for (let right = left + 1; right < selected.length; right += 1) {
         if (Math.abs(selected[left].skip) !== Math.abs(selected[right].skip)) continue;
@@ -413,6 +432,20 @@ test("result triage ranks repeated exact continuation first but keeps every resu
   context.rows = [{ key: "only", order: 1, skip: 91, signals: [{ extensions: [], nearby: [], notable: null }] }];
   vm.runInContext("this.weak=rankResultTriageItems(rows,'regular');", context);
   assert.equal(context.weak[0].tier, "available", "a top-three slot alone must not become a recommendation");
+});
+
+test("result triage promotes a repeated literal axis topic without hiding weaker occurrences", () => {
+  const context = vm.createContext({ rows: [
+    { key: "balaam-a", order: 1, skip: 80, signals: [{ extensions: [], nearby: [], sourceContexts: [{ term: "בלעמ", label: "בלעם" }], notable: null }] },
+    { key: "balaam-b", order: 2, skip: 1820, signals: [{ extensions: [], nearby: [], sourceContexts: [{ term: "בלעמ", label: "בלעם" }], notable: null }] },
+    { key: "plain", order: 3, skip: 7, signals: [{ extensions: [], nearby: [], sourceContexts: [], notable: null }] },
+  ] });
+  vm.runInContext(`${source("rankResultTriageItems")}\nthis.result=rankResultTriageItems(rows,"regular");`, context);
+  const ranked = JSON.parse(JSON.stringify(context.result));
+  assert.deepEqual(ranked.slice(0, 2).map((row) => row.key), ["balaam-a", "balaam-b"]);
+  assert.ok(ranked.slice(0, 2).every((row) => row.reasons.some((reason) => reason.includes("פסוק מקור באותו הקשר: בלעם"))));
+  assert.ok(ranked.slice(0, 2).every((row) => row.reasons.some((reason) => reason.includes("2 תוצאות"))));
+  assert.equal(ranked.length, 3, "rank-don't-hide keeps the result that has no literal topic context");
 });
 
 test("structural Research priority keeps gapless geometry ahead of spaced parallels", () => {
