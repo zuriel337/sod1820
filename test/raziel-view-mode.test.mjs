@@ -270,11 +270,11 @@ test("5) מתפרע layer demands flowing Legacy-style prose (no template headin
     assert.equal(exploratory.includes(`‘${old}’`), false, `the five old template headings are gone: ${old}`);
   }
   assert.match(exploratory, /מצב «מתפרע»/);
-  assert.match(exploratory, /5–9 פסקאות זורמות/);
+  assert.match(exploratory, /6–10 פסקאות זורמות/);
   assert.match(exploratory, /בלי כותרות, בלי תבליטים ובלי שמות סעיפים/);
   assert.match(exploratory, /הישאר סביב הביטוי שנשאל/);
   // the layer order of the Legacy deep reading
-  const layerOrder = ["משמעות הביטוי עצמו", "קבוצת הביטויים שבערך הרגיל", "מפגשים בכמה שיטות", "אתבש כמראה", "מילוי כפנימיות", "מסתתר כרובד נסתר", "סינתזה מסכמת אחת"].map((x) => exploratory.indexOf(x));
+  const layerOrder = ["משמעות הביטוי עצמו", "קבוצת הביטויים שבערך הרגיל", "אלבם כהשלמה", "אתבש כמראה", "מילוי כפנימיות", "מסתתר כרובד נסתר", "סידורי כסדר האותיות", "מפגשים בכמה שיטות", "סינתזה מסכמת אחת"].map((x) => exploratory.indexOf(x));
   assert.ok(layerOrder.every((i) => i > 0), "all layers named");
   assert.deepEqual([...layerOrder].sort((a, b) => a - b), layerOrder, "layers keep the required order");
   assert.match(exploratory, /אל תציג שכבה שאין עליה חומר/);
@@ -289,7 +289,7 @@ test("5) מתפרע layer demands flowing Legacy-style prose (no template headin
   assert.match(exploratory, /טקסט חשיבה גולמי/);
   assert.match(exploratory, /תמורת אותיות/);
   assert.match(e.models[0].user, /תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית/);
-  assert.match(e.models[0].user, /\[הוראת פלט סופית\] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 5–9 פסקאות, בלי כותרות/);
+  assert.match(e.models[0].user, /\[הוראת פלט סופית\] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 6–10 פסקאות, בלי כותרות/);
 
   const landscape = l.models[0].system.slice(l.models[0].system.indexOf(MARKER));
   assert.ok(landscape.includes("עוגן:"));

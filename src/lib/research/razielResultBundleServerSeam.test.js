@@ -1574,12 +1574,15 @@ function shaulBundles() {
           numberPhraseFinding({ id: "uf:337:study-hint", phrase: "לימוד רמז", value: 337 }),
           numberPhraseFinding({ id: "uf:337:agag", phrase: "אגג מלך עמלק", value: 337 }),
           numberPhraseFinding({ id: "uf:337:anger", phrase: "ועל יהוה יזעף לבו", value: 337 }),
+          numberPhraseFinding({ id: "uf:337:engagement", phrase: "אירוסין", value: 337 }),
         ],
       }),
-      // the words at the regular value equal to שאול's אתבש / מילוי / מסתתר (read only by the interpretive modes)
+      // The words at the regular value equal to שאול's narrative method layers (read only by the interpretive modes).
+      121: numberBundle(121, "מאגר הגימטריה המאומת", { phraseFindings: ["אצל", "אלמן", "מטבע", "פלאי", "בדיקה"].map((phrase, i) => numberPhraseFinding({ id: `uf:121:${i}`, phrase, value: 121 })) }),
       502: numberBundle(502, "מאגר הגימטריה המאומת", { phraseFindings: ["מלכותו", "שבר", "תוצאה", "בשר", "שרב"].map((phrase, i) => numberPhraseFinding({ id: `uf:502:${i}`, phrase, value: 502 })) }),
-      567: numberBundle(567, "מאגר הגימטריה המאומת", { phraseFindings: ["נפלאות", "דור אנוש", "בית המוקד"].map((phrase, i) => numberPhraseFinding({ id: `uf:567:${i}`, phrase, value: 567 })) }),
-      328: numberBundle(328, "מאגר הגימטריה המאומת", { phraseFindings: ["חשך", "כחש", "שכח", "שובך"].map((phrase, i) => numberPhraseFinding({ id: `uf:328:${i}`, phrase, value: 328 })) }),
+      567: numberBundle(567, "מאגר הגימטריה המאומת", { phraseFindings: ["נפלאות", "שניאור", "אות קין", "דור אנוש", "בית המוקד"].map((phrase, i) => numberPhraseFinding({ id: `uf:567:${i}`, phrase, value: 567 })) }),
+      328: numberBundle(328, "מאגר הגימטריה המאומת", { phraseFindings: ["חשך", "כחש", "שכח", "שובך", "ערבון"].map((phrase, i) => numberPhraseFinding({ id: `uf:328:${i}`, phrase, value: 328 })) }),
+      40: numberBundle(40, "מאגר הגימטריה המאומת", { phraseFindings: ["לי", "גזל", "ולד", "חבל", "חלב"].map((phrase, i) => numberPhraseFinding({ id: `uf:40:${i}`, phrase, value: 40 })) }),
     },
   };
 }
@@ -1620,13 +1623,13 @@ test("מתפרע: the user's choice sends exploratory + deep; the dossier carrie
   assert.match(user, /תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית/);
   assert.doesNotMatch(user, /"contract":"raziel-canonical-result-bundle-input-v1"/, "the raw Bundle is never handed over in this mode");
   assert.match(user, /1\. הביטוי והערך המרכזי:\nשאול · רגיל=337/);
-  for (const anchor of ["עולה ויורד", "מלך רמז", "אגג מלך עמלק", "ועל יהוה יזעף לבו"]) assert.match(user, new RegExp(anchor), anchor);
-  assert.match(user, /2\. מפת השיטות המחושבת:/);
+  for (const anchor of ["עולה ויורד", "מלך רמז", "אגג מלך עמלק", "ועל יהוה יזעף לבו", "אירוסין"]) assert.match(user, new RegExp(anchor), anchor);
+  assert.match(user, /2\. קבוצת הביטויים באותו ערך רגיל/);
   for (const layer of ["מילוי=567", "מסתתר=328", "אתבש=502", "אלבם=121"]) assert.ok(user.includes(layer), layer);
-  assert.match(user, /3\. קבוצות שקילות לאחר נרמול:/);
-  assert.match(user, /שקילות מבנית מוכחת: רגיל = גדול/);
-  assert.match(user, /9\. הסתייגויות:[\s\S]*עצמאות בין שיטות חישוב לא נטענה/);
-  assert.match(user, /\[הוראת פלט סופית\] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 5–9 פסקאות, בלי כותרות/);
+  assert.match(user, /3\. שכבות הקריאה לפי הסדר הסיפורי/);
+  assert.match(user, /לבלם האמינות בלבד: רגיל = גדול/);
+  assert.match(user, /9\. מפת עזר והסתייגות[\s\S]*מספר שיטות אינו מספר ראיות עצמאיות/);
+  assert.match(user, /\[הוראת פלט סופית\] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 6–10 פסקאות, בלי כותרות/);
   // compact: nowhere near the old 40-50k-token payload
   assert.ok(user.length < 14000, `compact request (${user.length} chars)`);
   assert.equal(run.result.raziel.plan_meta.view_mode.applied, true);
@@ -1649,7 +1652,7 @@ test("שאול follow-up 'בכל השיטות' continues with שאול from the 
   assert.deepEqual([prepared.request.viewMode, prepared.request.intelligenceLevel], ["exploratory", "deep"]);
   const run = await shaulRun(prepared, "vshaulallmethods12345");
   const experts = run.calls.filter((call) => call.name === "research-run");
-  assert.equal(experts.length, 5, "expression + its regular-value neighborhood + the three method-layer values (אתבש, מילוי, מסתתר)");
+  assert.equal(experts.length, 7, "expression + its regular-value neighborhood + five narrative method-layer values");
   assert.equal(run.models.length, 1);
   assert.match(run.models[0].user, /שאול · רגיל=337/);
   assert.match(run.models[0].user, /אגג מלך עמלק/);
@@ -1668,7 +1671,7 @@ test("🗺️ one-shot map: landscape over the SAME Bundle reads, session mode u
   const mapAnswer = { text: JSON.stringify({ v: 1, agent: "raziel", answer: "עוגן: שאול = 337.\nעובדות חישוביות מאומתות: עובדה מתמטית: שאול = 337.", facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true }), usage: { input_tokens: 70, output_tokens: 40 }, attempts: 1, degraded: false };
   const run = await shaulRun(map, "vshaulmaplandscape123", mapAnswer);
   const reads = (r) => r.calls.filter((call) => call.name === "research-run").map((call) => JSON.stringify(call.payload.contract === EXPRESSION_CONTRACT ? { c: call.payload.contract, e: call.payload.expression } : { c: call.payload.contract, n: call.payload.number })).sort();
-  const layerOnly = new Set([JSON.stringify({ c: "public-number-research-run-v1", n: 328 }), JSON.stringify({ c: "public-number-research-run-v1", n: 502 }), JSON.stringify({ c: "public-number-research-run-v1", n: 567 })]);
+  const layerOnly = new Set([40, 121, 328, 502, 567].map((n) => JSON.stringify({ c: "public-number-research-run-v1", n })));
   assert.deepEqual(reads(run), reads(base).filter((read) => !layerOnly.has(read)), "same canonical reads; only the interpretive dossier adds the method-layer values");
   assert.equal(run.result.raziel.plan_meta.view_mode.requested, "landscape");
   assert.equal(run.result.raziel.plan_meta.view_mode.applied, true);
@@ -1729,11 +1732,11 @@ for (const [question, observed] of SHAUL_PHRASINGS) {
     assert.equal(run.models.length, 1);
     const user = run.models[0].user;
     assert.match(user, /1\. הביטוי והערך המרכזי:\nשאול · רגיל=337/, "starts from שאול and the regular value");
-    for (const phrase of ["עולה ויורד", "מלך רמז", "לימוד רמז", "אגג מלך עמלק", "ועל יהוה יזעף לבו"]) assert.ok(user.includes(phrase), phrase);
+    for (const phrase of ["עולה ויורד", "מלך רמז", "לימוד רמז", "אגג מלך עמלק", "ועל יהוה יזעף לבו", "אירוסין"]) assert.ok(user.includes(phrase), phrase);
     for (const layer of ["מילוי=567", "מסתתר=328", "אתבש=502", "אלבם=121", "סידורי=40"]) assert.ok(user.includes(layer), layer);
-    assert.match(user, /שקילות מבנית מוכחת: רגיל = גדול/);
-    assert.match(user, /9\. הסתייגויות:/);
-    assert.ok(user.indexOf("1. הביטוי והערך המרכזי") < user.indexOf("2. מפת השיטות המחושבת"), "שאול and the regular value first, other methods after");
+    assert.match(user, /לבלם האמינות בלבד: רגיל = גדול/);
+    assert.match(user, /9\. מפת עזר והסתייגות/);
+    assert.ok(user.indexOf("1. הביטוי והערך המרכזי") < user.indexOf("2. קבוצת הביטויים באותו ערך רגיל"), "שאול and the regular value first, the regular constellation second");
   });
 }
 
@@ -1763,19 +1766,19 @@ test("מתפרע vs כללי vs הפתע אותי: three separate prose contract
   assert.match(general.models[0].user, /\[סגנון תשובה\] ענה בשפה הפרשנית הזורמת של הפרשן, קצר יחסית: 2–4 פסקאות\. התחל תמיד מהמילה, מהביטוי או מהמספר שנשאלו/);
   assert.match(general.models[0].user, /בלי כותרות, בלי תבליטים ובלי שמות סעיפים/);
   // מתפרע: long prose, no headings, layered, around the subject
-  assert.match(wild.models[0].system, /מצב «מתפרע»[\s\S]*5–9 פסקאות זורמות/);
-  assert.match(wild.models[0].user, /5–9 פסקאות, בלי כותרות ובלי רשימות/);
+  assert.match(wild.models[0].system, /מצב «מתפרע»[\s\S]*6–10 פסקאות זורמות/);
+  assert.match(wild.models[0].user, /6–10 פסקאות, בלי כותרות ובלי רשימות/);
   assert.doesNotMatch(wild.models[0].system, /ציר רעיוני אחד בלתי צפוי/);
   // הפתע אותי: its own contract, the only one that hunts an unexpected axis
   assert.equal(surprise.result.raziel.plan_meta.view_mode.requested, "surprise");
   assert.equal(surprise.result.raziel.plan_meta.view_mode.applied, true);
   assert.match(surprise.models[0].system, /מצב «הפתע אותי»[\s\S]*ציר רעיוני אחד בלתי צפוי[\s\S]*3–5 פסקאות/);
-  assert.doesNotMatch(surprise.models[0].system, /5–9 פסקאות/);
+  assert.doesNotMatch(surprise.models[0].system, /6–10 פסקאות/);
   assert.match(surprise.models[0].user, /ציר אחד בלתי צפוי/);
   assert.doesNotMatch(wild.models[0].user, /ציר אחד בלתי צפוי/);
   assert.equal(surprise.result.raziel.plan_meta.view_mode.structure.template_headings, false);
   // length ordering of the contracts: general < surprise < wild
-  const paragraphs = (text) => Number(/(\d)–(\d) פסקאות/u.exec(text)[2]);
+  const paragraphs = (text) => Number(/(\d+)–(\d+) פסקאות/u.exec(text)[2]);
   assert.ok(paragraphs(general.models[0].user) < paragraphs(wild.models[0].system));
   // all three read the same canonical Bundle
   const reads = (run) => run.calls.filter((call) => call.name === "research-run").map((call) => JSON.stringify(call.payload.contract === EXPRESSION_CONTRACT ? { e: call.payload.expression } : { n: call.payload.number })).sort();
@@ -1796,17 +1799,23 @@ test("the numeric truth guard still rejects an invented number in prose, in ever
   }
 });
 
-test("method layers: the interpretive modes read the Number Bundle of אתבש / מילוי / מסתתר (same contract), general does not; the dossier names the words per layer", async () => {
+test("method layers: interpretive modes read אלבם / אתבש / מילוי / מסתתר / סידורי through the same Number Bundle contract; the dossier keeps their narrative order", async () => {
   const wild = await shaulRun(prepare({ intelligenceLevel: "fast", state: { ...createInitialRazielSessionState(), viewMode: "exploratory" } }), "vlayerwild1234567");
   const general = await shaulRun(prepare({ intelligenceLevel: "fast" }), "vlayergeneral12345");
   const numbers = (run) => run.calls.filter((call) => call.name === "research-run" && call.payload.contract !== EXPRESSION_CONTRACT).map((call) => call.payload.number).sort((a, b) => a - b);
   assert.deepEqual(numbers(general), [337], "general keeps its two canonical reads");
-  assert.deepEqual(numbers(wild), [328, 337, 502, 567], "interpretive modes add only the three method-layer values, via the existing contract");
+  assert.deepEqual(numbers(wild), [40, 121, 328, 337, 502, 567], "interpretive modes add only the five narrative layer values, via the existing contract");
   const user = wild.models[0].user;
+  assert.match(user, /אלבם \(השלמה\): שאול בשיטת אלבם = 121; בשיטת רגיל באותו ערך 121 מופיעים: אצל · אלמן · מטבע · פלאי · בדיקה\./);
   assert.match(user, /אתבש \(מראה\): שאול בשיטת אתבש = 502; בשיטת רגיל באותו ערך 502 מופיעים: מלכותו · שבר · תוצאה · בשר · שרב\./);
-  assert.match(user, /מילוי \(פנימיות\): שאול בשיטת מילוי = 567; בשיטת רגיל באותו ערך 567 מופיעים: נפלאות · דור אנוש · בית המוקד\./);
-  assert.match(user, /מסתתר \(רובד נסתר\): שאול בשיטת מסתתר = 328; בשיטת רגיל באותו ערך 328 מופיעים: חשך · כחש · שכח · שובך\./);
+  assert.match(user, /מילוי \(פנימיות\): שאול בשיטת מילוי = 567; בשיטת רגיל באותו ערך 567 מופיעים: נפלאות · שניאור · אות קין · דור אנוש · בית המוקד\./);
+  assert.match(user, /מסתתר \(רובד נסתר\): שאול בשיטת מסתתר = 328; בשיטת רגיל באותו ערך 328 מופיעים: חשך · כחש · שכח · שובך · ערבון\./);
+  assert.match(user, /סידורי \(סדר האותיות\): שאול בשיטת סידורי = 40; בשיטת רגיל באותו ערך 40 מופיעים: לי · גזל · ולד · חבל · חלב\./);
+  const layerPositions = ["אלבם (השלמה)", "אתבש (מראה)", "מילוי (פנימיות)", "מסתתר (רובד נסתר)", "סידורי (סדר האותיות)"].map((label) => user.indexOf(label));
+  assert.ok(layerPositions.every((position) => position >= 0) && layerPositions.every((position, index) => index === 0 || position > layerPositions[index - 1]), "the dossier preserves the Legacy narrative order");
   assert.match(user, /מפגשים בכמה שיטות[^\n]*\nשאול ↔ שלום: אתבש=112 · סידורי=52/, "exact methods and values per meeting phrase");
+  assert.doesNotMatch(user, /הכפלה=90937/, "the technical 40-method map cannot crowd out narrative terms");
+  assert.doesNotMatch(user, /358/, "an unrelated Legacy jump is not introduced without canonical support");
   assert.ok(user.length < 9500, `bounded dossier (${user.length} chars)`);
   assert.equal(wild.models.length, 1);
   // a failed layer read is fail-open: the dossier simply lacks that layer
@@ -1817,7 +1826,7 @@ test("method layers: the interpretive modes read the Number Bundle of אתבש /
     researchBundleByNumber: { 337: shaulBundles().researchBundleByNumber[337] },
   });
   assert.equal(outage.models.length, 1);
-  assert.doesNotMatch(outage.models[0].user, /אתבש \(מראה\)/);
+  assert.doesNotMatch(outage.models[0].user, /אלבם \(השלמה\)|אתבש \(מראה\)|סידורי \(סדר האותיות\)/);
   assert.match(outage.models[0].user, /1\. הביטוי והערך המרכזי:\nשאול · רגיל=337/);
 });
 

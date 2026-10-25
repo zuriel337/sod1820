@@ -606,7 +606,7 @@ export function razielSurpriseCandidates(input = []) {
 
 // Final output instructions. "מתפרע" is the full Legacy-style interpretive reading: flowing prose, no template headings, built
 // around the asked expression. "הפתע אותי" is the ONLY contract that hunts one unexpected axis. The server layers carry the same contracts.
-const EXPLORATORY_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 5–9 פסקאות, בלי כותרות ובלי רשימות. התחל מהביטוי שנשאל ומערכו הרגיל ושמור עליו כנושא עד הסוף; עבור לפי הסדר על השכבות שקיימות בתיק בלבד: משמעות הביטוי (כקריאה רכה ומסומנת), קבוצת הביטויים באותו ערך, מפגשים בכמה שיטות, אתבש כמראה, מילוי כפנימיות, מסתתר כרובד נסתר — וסיים בסינתזה אחת. דלג על שכבה שאין עליה חומר. הנרמול הוא בלם אמינות ולא הסיפור; סיים במשפט הסתייגות קצר וטבעי.";
+const EXPLORATORY_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 6–10 פסקאות, בלי כותרות ובלי רשימות. התחל מהביטוי שנשאל ומערכו הרגיל ושמור עליו כנושא עד הסוף. בנה תחילה תמונה מתוך קבוצת הביטויים שבערך הרגיל, ואז עבור רק בשכבות שקיימות בתיק ובסדר הזה: אלבם כהשלמה, אתבש כמראה, מילוי כפנימיות, מסתתר כרובד נסתר, סידורי כסדר האותיות; אחריהן מותר לחבר מפגשים בכמה שיטות ולסיים בסינתזה אחת. בכל שכבה בחר כמה מן הביטויים שסופקו, הסבר את המתח או הרצף שהם יוצרים, וקשור אותם בחזרה לביטוי שנשאל — אל תסתפק בציון הערך. דלג על שכבה שאין עליה חומר. הנרמול הוא משפט בלם קצר בסוף ולא נושא הסיפור; סיים בהסתייגות טבעית אחת.";
 const SURPRISE_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] כתוב בתוך answer קריאה מפתיעה בפרוזה זורמת, 3–5 פסקאות, בלי כותרות ובלי רשימות: בחר ציר אחד בלתי צפוי מתוך התיק (מותר לפתוח בממצא צדדי), בנה סביבו סיפור והסבר מיד למה בחרת בו. הנרמול הוא בלם אמינות ולא הסיפור. אם אין בסיס טוב להפתעה — אמור זאת במקום לכפות סיפור.";
 
 function surpriseGuidance(entries) {
@@ -629,15 +629,18 @@ function surpriseGuidance(entries) {
   ].join("\n")), SURPRISE_OUTPUT_INSTRUCTION].join("\n");
 }
 
-// ── Method layers of the Legacy deep reading: אתבש (mirror), מילוי (inner), מסתתר (hidden) ─────────────────────────────
+// ── Method layers of the Legacy deep reading: complement, mirror, inner, hidden and letter-order ─────────────────────
 // The words that sit at the REGULAR value equal to one of the expression's method values. The values come from the
 // already-supplied canonical calculation profile; the words come from the existing Number Result Bundle contract read for
 // that value (the same contract, authorization and projection as every other read). Presentation only: no calculation.
 const METHOD_LAYERS = Object.freeze([
+  { key: "אלבם", role: "השלמה" },
   { key: "אתבש", role: "מראה" },
   { key: "מילוי", role: "פנימיות" },
   { key: "מסתתר", role: "רובד נסתר" },
+  { key: "סידורי", role: "סדר האותיות" },
 ]);
+const STRUCTURAL_CONTEXT_METHODS = Object.freeze(["קדמי", "משולש", "ריבוע"]);
 const MAX_LAYER_READS = METHOD_LAYERS.length;
 const MAX_LAYER_TERMS = 6;
 
@@ -691,23 +694,36 @@ const DOSSIER_EXCLUDED_KINDS = new Set(["gematria-method-value", "gematria-metho
 function methodMapLine(entries) {
   const anchor = primaryExpressionAnchor(entries);
   const expressionEntry = anchor && entries.find((entry) => entry.subject?.type === "expression");
+  const wanted = new Set(["רגיל", ...METHOD_LAYERS.map((layer) => comparableMethod(layer.key)), ...STRUCTURAL_CONTEXT_METHODS.map(comparableMethod)]);
   const profile = list(expressionEntry?.projection?.model_input?.calculation_profile).flatMap((item) => {
     const method = cleanText(item?.method_label || item?.method_key, 60);
     const value = safeNumber(item?.value);
-    return method && value != null ? [`${method}=${value}`] : [];
-  }).slice(0, 40);
-  return profile.length ? `מפת החישוב הקנונית שסופקה לביטוי: ${profile.join(" · ")}.` : null;
+    return method && value != null && wanted.has(comparableMethod(method)) ? [{ method, value }] : [];
+  });
+  const ordered = ["רגיל", ...METHOD_LAYERS.map((layer) => comparableMethod(layer.key)), ...STRUCTURAL_CONTEXT_METHODS.map(comparableMethod)].flatMap((method) => {
+    const item = profile.find((candidate) => comparableMethod(candidate.method) === method);
+    return item ? [`${item.method}=${item.value}`] : [];
+  });
+  return ordered.length ? `מפת העזר הנחוצה לקריאה בלבד: ${ordered.join(" · ")}.` : null;
 }
 
-function equivalenceLines(entries) {
-  return entries.flatMap((entry) => list(entry.projection?.model_input?.method_value_groups)
+function compactEquivalenceLine(entries) {
+  const relevant = new Set(["רגיל", ...METHOD_LAYERS.map((layer) => comparableMethod(layer.key))]);
+  const groups = entries.flatMap((entry) => list(entry.projection?.model_input?.method_value_groups))
     .filter((group) => safeNumber(group?.method_count) > 1)
-    .map((group) => {
-      const methods = list(group.methods).map((method) => cleanText(method?.method_label || method?.method_key, 40)).filter(Boolean).join(" · ");
-      const sets = list(group.proven_equivalence_sets).map((set) => list(set?.methods).join(" = ")).filter(Boolean).join("; ");
-      const distinct = safeNumber(group.effective_distinct_method_count);
-      return `ערך ${safeNumber(group.value)}: ${methods}${sets ? ` — שקילות מבנית מוכחת: ${sets}` : ""}${distinct != null ? ` — שיטות מובחנות אפקטיבית: ${distinct}` : ""}; עצמאות לא נטענה.`;
-    })).slice(0, 6);
+    .flatMap((group) => {
+      const sets = list(group.proven_equivalence_sets).flatMap((set) => {
+        const methods = list(set?.methods).map((method) => cleanText(method, 40)).filter(Boolean);
+        return methods.some((method) => relevant.has(comparableMethod(method))) && methods.length > 1
+          ? [methods.join(" = ")]
+          : [];
+      });
+      return sets;
+    });
+  const unique = [...new Set(groups)].slice(0, 3);
+  return unique.length
+    ? `לבלם האמינות בלבד: ${unique.join("; ")} הן שקילויות מבניות שסופקו, ולכן אינן מוסיפות ראיה עצמאית.`
+    : null;
 }
 
 function sourceFindingLines(entries) {
@@ -779,14 +795,13 @@ function exploratoryBrief(entries, instruction = EXPLORATORY_OUTPUT_INSTRUCTION,
   const candidates = razielSurpriseCandidates(entries);
   const constellation = candidates.find((candidate) => candidate.kind === "canonical_value_constellation");
   const relations = candidates.filter((candidate) => candidate !== constellation);
-  const equivalences = equivalenceLines(entries);
   const sources = sourceFindingLines(entries);
   const meanings = semanticLines(entries);
   const order = orderLines(entries);
   const section = (title, lines) => (lines.filter(Boolean).length ? `${title}\n${lines.filter(Boolean).join("\n")}` : null);
   const caveats = [
-    "עצמאות בין שיטות חישוב לא נטענה: מספר שיטות או משפחות אינו מספר ראיות עצמאיות, והנרמול הוא בלם אמינות ולא ממצא.",
-    "שוויון מספרי אינו מוכיח קשר סמנטי, סיבתי או מסורתי; תמורת אותיות וכפילות שיטות טבעית אינן הצלבה.",
+    compactEquivalenceLine(entries),
+    "שוויון מספרי אינו מוכיח קשר סמנטי, סיבתי או מסורתי; מספר שיטות אינו מספר ראיות עצמאיות.",
     !sources.length ? "לא סופק בתיק מקור או פוסט שמפרש את הביטוי." : null,
     !meanings.length ? "לא סופקה בתיק משמעות מאושרת של שיטות — אין להציג משמעות מילונית או מקור כעובדה; קריאה לשונית רכה ומסומנת מותרת." : null,
     ...normalizationCaveats(entries),
@@ -794,16 +809,14 @@ function exploratoryBrief(entries, instruction = EXPLORATORY_OUTPUT_INSTRUCTION,
   const blocks = [
     "[תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית — הקרנה דטרמיניסטית בלבד, לא מנוע ולא מקור אמת נוסף; השתמש רק בחומר שכאן]",
     section("1. הביטוי והערך המרכזי:", [anchor ? `${anchor.expression} · ${anchor.method}=${anchor.value}.` : null, observedValueLine(entries, anchor)]),
-    section("2. מפת השיטות המחושבת:", [methodMapLine(entries)]),
-    section("3. קבוצות שקילות לאחר נרמול:", equivalences),
-    section("4. קבוצת הביטויים באותו ערך רגיל:", constellation ? [constellation.fact, `בסיס פרשני: ${constellation.interpretation_basis}`] : []),
-    section("5. הצלבות בין־שיטתיות חשובות:", relations.slice(0, 3).map((candidate) => `${candidate.fact} גבול: ${candidate.limit}`)),
-    section("5א. מפגשים בכמה שיטות (השיטות והערכים המדויקים לכל ביטוי):", meetingLines(entries)),
-    section("5ב. שכבות המראה, הפנימיות והנסתר (ביטויים שערכם הרגיל שווה לערך השיטה):", methodLayerLines(entries, layerEntries)),
+    section("2. קבוצת הביטויים באותו ערך רגיל — זהו חומר הסיפור הראשון:", constellation ? [constellation.fact, `בסיס פרשני: ${constellation.interpretation_basis}`] : []),
+    section("3. שכבות הקריאה לפי הסדר הסיפורי — אלבם, אתבש, מילוי, מסתתר, סידורי:", methodLayerLines(entries, layerEntries)),
+    section("4. מפגשים בכמה שיטות (השיטות והערכים המדויקים לכל ביטוי):", meetingLines(entries)),
+    section("5. הצלבות נוספות שמותר לשלב רק אם הן משרתות את הסיפור:", relations.slice(0, 3).map((candidate) => `${candidate.fact} גבול: ${candidate.limit}`)),
     section("6. ממצאים מאומתים ממקורות ופוסטים:", sources),
     section("7. משמעות השיטות המאושרת של SOD1820 (פרשנות SOD1820, לא עובדה מתמטית):", meanings),
     section("8. סדר והיררכיה שנקבעו במקור:", order),
-    section("9. הסתייגויות:", caveats),
+    section("9. מפת עזר והסתייגות — אין להפוך אותן לסיפור:", [methodMapLine(entries), ...caveats]),
   ];
   // The bound applies to the material; the output instruction is always kept whole at the end.
   return `${blocks.filter(Boolean).join("\n").slice(0, MAX_DOSSIER_CHARS - instruction.length - 1)}\n${instruction}`;
