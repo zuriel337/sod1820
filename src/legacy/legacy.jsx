@@ -93,6 +93,7 @@ const TESTIMONIALS = [
 // ===== KEY NUMBERS =====
 
 const LOGO_URL = "/logo.png";
+const LEGACY_DEFAULT_HERO_URL = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/agent/2026/10/24/min-habriya-el-habechira-27-10-2026-95b164f9.jpg";
 
 const KEY_NUMBERS = {
   1:    "האחד — שורש הכל",
@@ -4459,9 +4460,9 @@ function SpotimChatPage() {
             padding-inline-start: 4px; scrollbar-width: thin; }
         }
       `}</style>
-      {/* 🖼️ הירו — אותה תמונת שער-הזהב 888 שבדף הבית (בקשת צוריאל 5.9.2026) */}
-      <div style={{ aspectRatio: "2172 / 724", position: "relative", overflow: "hidden", borderRadius: 16, marginBottom: 32, background: "#09080f" }}>
-        <img src="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/site/home-hero-fz1073-20261004.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", display: "block" }} />
+      {/* 🖼️ הירו — אותה כרזה ציבורית עדכנית שמוצגת בדף הבית. */}
+      <div style={{ width: "min(100%, 608px)", aspectRatio: "4 / 5", maxHeight: "min(82vh, 760px)", position: "relative", overflow: "hidden", borderRadius: 16, margin: "0 auto 32px", background: "#09080f" }}>
+        <img src={LEGACY_DEFAULT_HERO_URL} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", display: "block" }} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(9,8,15,0.05) 45%, rgba(9,8,15,0.6) 100%)" }} />
       </div>
       <ChatScrollRail />
@@ -4999,10 +5000,10 @@ function PostPageBySlug({ onNav }) {
           </div>
         );
       })()}
-      {/* 🖼️ פוסט בלי תמונה/fx משלו — הירו-ברירת-מחדל: אותה תמונת שער-הזהב 888 שבדף הבית (בקשת צוריאל 5.9.2026) */}
+      {/* 🖼️ פוסט בלי תמונה/fx משלו — הירו-ברירת-מחדל: הכרזה הציבורית העדכנית של Legacy. */}
       {!image && !fx && !loading && post && (
-        <div style={{ aspectRatio: "2172 / 724", position: "relative", overflow: "hidden", background: pc.goldDeep }}>
-          <img src="https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/site/home-hero-fz1073-20261004.png" alt="" style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", display: "block" }} />
+        <div style={{ width: "min(100%, 608px)", aspectRatio: "4 / 5", maxHeight: "min(82vh, 760px)", margin: "0 auto", position: "relative", overflow: "hidden", background: pc.goldDeep }}>
+          <img src={LEGACY_DEFAULT_HERO_URL} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "center", display: "block" }} />
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, rgba(5,4,0,0.1) 30%, ${pc.bg} 100%)` }} />
         </div>
       )}
