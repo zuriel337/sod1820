@@ -44,11 +44,12 @@ export async function loadCommunityPerson2029(authorKey, { client = getPublicRes
     summaryReader(authorKey, { client }).catch(() => null),
   ]);
   // Identity is limited to the author credit on an existing anonymous-visible
-  // message. No private dossier bio/photo/alias/account/presence is projected.
+  // message, supplemented only by an explicitly approved historical public bio
+  // in the existing source metadata. Private dossier fields are never read here.
   if (!page.rows.length) return null;
   const community = publicCommunity(authorKey, page, summary);
   const view = { kind: "community_person", canonicalHref: communityPersonHref(authorKey), noindex: true,
-    profile: { name: page.rows[0].authorName, avatar: null, bio: "", role: "" },
+    profile: { name: page.rows[0].authorName, avatar: null, bio: VERIFIED_ARCHIVE_PROFILES[authorKey]?.publicBio || "", role: "" },
     items: [], sourceGroups: [], availability: {}, partial: false,
     communityAuthorKey: authorKey, communityFilter: "chat", community,
     entrySection: "community", sections: [SECTIONS.find(([key]) => key === "community"), ["all", "הכול"], ["sources", "תרומות"]],

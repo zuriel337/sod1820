@@ -14,6 +14,7 @@ test("preserves the five user-authorized profile like baselines", () => {
   assert.equal(PROFILE_BASELINES["שינשין"].isPrivate, true);
   assert.equal(VERIFIED_ARCHIVE_PROFILES["f499536a-e993-4a7d-8706-a2e69337c320"].sourceUserId, "u_zawiGiUO");
   assert.equal(VERIFIED_ARCHIVE_PROFILES["e7581ab5-8c15-4832-b602-f361e41ff373"].likesLabel, "22.9K");
+  assert.match(VERIFIED_ARCHIVE_PROFILES["e7581ab5-8c15-4832-b602-f361e41ff373"].publicBio, /מנהלת.*כעשור/);
   assert.equal(VERIFIED_ARCHIVE_PROFILES["19936860-6b35-4386-bc44-113289858ff0"].accountUserId, "36f5cb84-71c3-4977-a2c7-d6413e973443");
   assert.equal(VERIFIED_ARCHIVE_PROFILES["4cd9c034-0464-4600-a35d-7156f0584d9b"].accountUserId, "b6ce542a-2b07-4749-8aba-532c886f6de7");
 });

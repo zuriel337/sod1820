@@ -17,7 +17,10 @@ export const PROFILE_BASELINES = Object.freeze({
 // A screenshot/name alone never grants account ownership.
 export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   "f499536a-e993-4a7d-8706-a2e69337c320": { sourceUserId: "u_zawiGiUO", name: "שינשין", ...PROFILE_BASELINES["שינשין"] },
-  "e7581ab5-8c15-4832-b602-f361e41ff373": { sourceUserId: "u_r6fetXIK", name: "אמילי", ...PROFILE_BASELINES["אמילי"] },
+  // ZURIEL explicitly approved this public historical bio on 2026-10-25.
+  // It grants no account binding or platform permission; the source dossier remains private.
+  "e7581ab5-8c15-4832-b602-f361e41ff373": { sourceUserId: "u_r6fetXIK", name: "אמילי", ...PROFILE_BASELINES["אמילי"],
+    publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   "27c10d9a-14a6-4493-980b-2f5eda105ad7": { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"] },
   "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "b6ce542a-2b07-4749-8aba-532c886f6de7" },
   "19936860-6b35-4386-bc44-113289858ff0": { sourceUserId: "u_3kuB1woMg6wz", name: "Yosi Viner", handle: "YosiViner559", accountUserId: "36f5cb84-71c3-4977-a2c7-d6413e973443" },

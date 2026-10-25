@@ -15,7 +15,8 @@ const options = (overrides = {}) => ({ client: { from() { throw new Error("PRIVA
 test("unclaimed archive author uses the same Person projection using public message credit only", async () => {
   const result = await loadCommunityPerson2029(source, options());
   assert.equal(result.profile.name, row.authorName);
-  assert.equal(result.profile.avatar, null); assert.equal(result.profile.bio, "");
+  assert.equal(result.profile.avatar, null);
+  assert.equal(result.profile.bio, "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור.");
   assert.equal(result.publicActions, false); assert.equal(result.noindex, true);
   assert.equal(result.personProjection.profile.metrics.messages, 1249);
   assert.equal(result.personProjection.profile.researchStanding, null);
@@ -70,6 +71,7 @@ test("account keys do not become new contributor identities or claim links", asy
   assert.equal(result.communityAuthorKey, `user:${account}`);
   assert.equal(new URL(result.canonicalHref, "https://local.invalid").searchParams.get("member"), `user:${account}`);
   assert.deepEqual(result.publicLinks, []);
+  assert.equal(result.profile.bio, "", "an account key cannot inherit a source biography without an existing binding");
   assert.equal(result.personProjection.identityScope, "account");
 });
 
@@ -81,4 +83,15 @@ test("unknown chat counts remain unknown while existing public-summary likes are
   assert.equal(result.personProjection.profile.metrics.messages, null);
   assert.equal(result.personProjection.axes.find(axis => axis.key === "communityImpact").measures.likesReceived.value, 7);
   assert.equal(result.personProjection.axes.find(axis => axis.key === "communityImpact").measures.likesReceived.source, "public_community_author_summary");
+});
+
+test("a public historical biography does not grant capabilities or invent archive tenure", async () => {
+  const view = await loadCommunityPerson2029(source, options());
+  assert.equal(view.profile.role, "");
+  assert.equal(view.personProjection.profile.capabilities.researcher, false);
+  assert.equal(view.personProjection.axes.find(axis => axis.key === "tenure").firstPublicActivityAt, "2023-01-01T00:00:00Z");
+  assert.equal(view.personProjection.axes.find(axis => axis.key === "tenure").measures.tenureDays.value, null);
+  assert.equal(view.publicActions, false);
+  const unknown = await loadCommunityPerson2029(other, options());
+  assert.equal(unknown.profile.bio, "", "no name matching or unapproved private-bio fallback");
 });
