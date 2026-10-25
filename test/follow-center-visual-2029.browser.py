@@ -91,7 +91,7 @@ BG = """n => { for (let e = n; e; e = e.parentElement) { const c = getComputedSt
   const m = c.match(/rgba?\\(([^)]+)\\)/); if (m) { const p = m[1].split(',').map(Number); if (p.length === 3 || p[3] > 0.9) return c; } } return 'rgb(255,255,255)'; }"""
 
 AUDIT = """() => {
-  const root = document.querySelector('.fcp'); const skip = (el) => el.closest('.fcp-specimen'); const out = { small: [], targets: [], overflow: document.documentElement.scrollWidth > innerWidth };
+  const root = document.querySelector('.fcp'); const skip = () => false; const out = { small: [], targets: [], overflow: document.documentElement.scrollWidth > innerWidth };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     if (!n.textContent.trim() || !n.parentElement.offsetParent || skip(n.parentElement)) continue;
@@ -163,6 +163,11 @@ def check(browser, state, width, theme):
         assert 'טוען' in text and 'אין עדכונים עדיין' not in text and 'עוד לא בחרתם' not in text, ('loading is not empty', tag)
     if state == 'unavailable':
         assert text.count('זה לא אומר שאין כלום') == 2 and 'עוד לא בחרתם' not in text and 'אין עדכונים עדיין' not in text, ('a failed read is not empty', tag)
+    if state in ('unavailable', 'partial'):
+        spec_alert = page.locator('.fcp-specimen')
+        if state == 'unavailable':
+            spec_alert.get_by_role('alert').first.wait_for(timeout=8000)
+            assert 'לא ניתן לאמת את מצב המעקב' in spec_alert.inner_text() and spec_alert.get_by_role('button', name='מעקב אחרי כתב לדוגמה').is_disabled(), ('unknown follow state is gated and says so', tag)
     if state == 'partial':
         assert 'זה לא אומר שאין כלום' in text and page.locator('.fc-follow-row').count() >= 1, ('partial read keeps the other section', tag)
     if state == 'empty':
@@ -210,9 +215,11 @@ def check(browser, state, width, theme):
         watch = page.get_by_role('button', name='מעקב אחרי כתב לדוגמה')
         assert watch.count() >= 1 and page.locator('.fcp-specimen').inner_text().count('WatchButton') == 1, tag
         spec = page.evaluate(SPECIMEN)
-        report['specimen_findings'][f'{width}-{theme}'] = {'smallText': sorted(set(spec['smallText'])), 'smallTargets': len(spec['smallTargets']), 'emoji': spec['emoji']}
+        assert not spec['smallText'] and not spec['smallTargets'] and not spec['emoji'], ('WatchButton variant 2029 meets Design V2 floors and uses no emoji', spec, tag)
+        report['specimen_findings'][f'{width}-{theme}'] = 'ok'
         spec = page.evaluate(SPECIMEN)
-        report['specimen_findings'][f'{width}-{theme}'] = {'smallText': sorted(set(spec['smallText'])), 'smallTargets': len(spec['smallTargets']), 'emoji': spec['emoji']}
+        assert not spec['smallText'] and not spec['smallTargets'] and not spec['emoji'], ('WatchButton variant 2029 meets Design V2 floors and uses no emoji', spec, tag)
+        report['specimen_findings'][f'{width}-{theme}'] = 'ok'
         # keyboard: every interactive control is reachable and shows a visible focus ring
         seen = set()
         for _ in range(40):
@@ -244,7 +251,8 @@ def interaction(browser):
     watch = spec.get_by_role('button', name='מעקב אחרי כתב לדוגמה')
     watch.wait_for(timeout=15000); page.wait_for_timeout(800)
     watch.click(); spec.get_by_role('button').filter(has_text='עוקב').first.wait_for(timeout=8000)
-    assert spec.locator('[aria-label="העתק קישור"]').count() == 1 and spec.locator('[aria-label="וואטסאפ"]').count() == 1, 'ShareActions renders its canonical channels'
+    assert spec.locator('[aria-label="העתק קישור"]').count() == 0, 'ShareActions stays in its allowed placement: hidden inline where the floating widget exists'
+    assert spec.get_by_text('המעקב אושר').count() == 1 and 'ערוץ עדכון נבחר בנפרד' in spec.inner_text(), 'confirmed state has visible non-colour text and no channel consent'
     spec.get_by_role('button').filter(has_text='אימות חשבון').first.click()
     spec.get_by_role('status').filter(has_text='לא נשלח קוד אימות').wait_for()
     assert spec.locator('input[type=email]').count() == 0, 'fixture identity action never opens a live OTP sender'

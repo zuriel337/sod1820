@@ -84,10 +84,10 @@ export default function FollowCenterPreview2029Page() {
       onSignIn={showFixtureIdentity} onVerifyIdentity={showFixtureIdentity} />
     <section className="fcp-specimen" aria-labelledby="fcp-spec-title">
       <h2 id="fcp-spec-title">מעקב ושיתוף בדף כותב</h2>
-      <p>אלה הפקדים הקנוניים עצמם, <b>WatchButton</b> למעקב ו־<b>ShareActions</b> לשיתוף. בדף הזה הקריאה והכתיבה של המעקב מוחלפות בנתוני דוגמה, כך שלחיצה אינה יוצרת מעקב אמיתי ואינה נותנת הסכמה לערוץ כלשהו.</p>
+      <p>אלה הפקדים הקנוניים עצמם, <b>WatchButton</b> למעקב ו־<b>ShareActions</b> לשיתוף, במיקום שחוק מיקום השיתוף מאפשר (בדפי 2029 הוא מוצג בווידג׳ט הצף ולכן הבלוק השורתי מסתיר את עצמו). בדף הזה הקריאה והכתיבה של המעקב מוחלפות בנתוני דוגמה, כך שלחיצה אינה יוצרת מעקב אמיתי ואינה נותנת הסכמה לערוץ כלשהו.</p>
       <div className="fcp-spec-row">
-        <WatchButton key={scenario} topic={SPECIMEN_TOPIC} source="follow-center-preview" label="מעקב אחרי כתב לדוגמה" heading="רוצים לדעת כשיש חדש?" explainer="עדכון כשמתפרסם תוכן חדש בדף שלו. המעקב לא מפעיל מייל או ערוץ אחר." compact noPush followIO={fixtureFollowIO} onVerifyIdentity={showFixtureIdentity} />
-        <ShareActions type="researcher" url="https://sod1820.co.il/community/researcher/example" title="דף כותב לדוגמה" compact force />
+        <WatchButton key={scenario} topic={SPECIMEN_TOPIC} source="follow-center-preview" label="מעקב אחרי כתב לדוגמה" heading="רוצים לדעת כשיש חדש?" explainer="עדכון כשמתפרסם תוכן חדש בדף שלו. המעקב לא מפעיל מייל או ערוץ אחר." variant="2029" noPush followIO={fixtureFollowIO} onVerifyIdentity={showFixtureIdentity} />
+        <ShareActions type="researcher" url="https://sod1820.co.il/community/researcher/example" title="דף כותב לדוגמה" compact />
       </div>
       {identityRequested ? <p role="status">זהו מסלול הדגמה בלבד: לא נשלח קוד אימות ולא מתבצעת התחברות לחשבון.</p> : null}
     </section>

@@ -9,6 +9,7 @@ import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 import { trackConversion } from "../lib/marketing.js";
 import { includesFollowSubject } from "../lib/followIdentity.js";
 import EmailVerify from "./EmailVerify.jsx";
+import WatchControl2029 from "./followCenter2029/WatchControl2029.jsx";
 
 // 🔔 WatchButton — הרכיב הקנוני היחיד של מנוע-המשפך (subscription_funnel_law).
 // חוקי-ברזל: (1) אותו רכיב בכל מקום, רק ה-topic משתנה · (2) כל Follow שומר source · (3) משפט-הסבר
@@ -111,6 +112,16 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     ? <button type="button" onClick={load} style={{ marginInlineStart: 8, minHeight: 44, minWidth: 44, cursor: "pointer", background: "transparent", border: "none", color, fontFamily: F.heading, fontSize: size, fontWeight: 800, textDecoration: "underline" }}>נסו שוב</button>
     : null;
   const locked = busy || !known;
+
+  // Design V2 presentation through the existing variant seam. State, IO and scope guards above are shared and unchanged;
+  // other variants (and the default) render exactly as before.
+  if (variant === "2029") {
+    return <WatchControl2029 following={following} busy={busy} known={known} loadFailed={loadFailed} toggleError={toggleError} justFollowed={justFollowed}
+      signedIn={!!user?.id} showReg={showReg} pushOn={pushOn} pushMsg={pushMsg} pushOffered={!noPush && pushReady} label={label} followLabel={followLabel} explainer={explainer}
+      onToggle={toggle} onRetry={load} onTurnOnPush={turnOnPush}
+      onVerifyIdentity={() => typeof onVerifyIdentity === "function" ? onVerifyIdentity() : patch(scopeKey, { showReg: true })}
+      identitySlot={<EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => patch(scopeKey, { showReg: false, justFollowed: false })} />} />;
+  }
 
   // ✓ וריאנט mini — «וי קטן» עדין למשטחי-מדיה כהים (למשל בתוך נגן-הShorts). כמעט-שקוף כשלא-עוקב,
   //   מתמלא בסגול כשעוקב. אותו מנוע-מעקב קנוני (watchToggle/getNotificationPrefs), רק תצוגה זעירה.

@@ -56,3 +56,17 @@ known empty, partial read, unavailable reads, device Push available. The unfollo
 3. The consent fix on the old save path (PR #1157) is separate and not in this base; the old `mergeChannelsForSave` implicit email default is still present here and is not touched.
 4. Writer-page specimen is static. Digest/email/WhatsApp, relevance and Raziel producers are shown as not active, not designed as live features.
 5. Subscription and credits remain open: no slot reserved, nothing built.
+
+## WatchButton 2029 presentation and canonical controls (branch `claude/follow-center-2029-controls-20261025`)
+
+Base: PR #1159 head `863d27572` (contains the shared treatment `86977fabd`). BEFORE `b77ee2e4-17bf-41ff-8792-7cc64677cbe5`.
+`WatchButton` gains `variant="2029"` through its existing variant seam. State, IO (`followIO`), scope and strict-state logic are shared
+and untouched; the default and the other variants render exactly as before. The new view (`followCenter2029/WatchControl2029.jsx`) uses
+the Design V2 floors (16px UI, 14px support text, 44px targets), `NavigationIcon2029` instead of emoji, colour only through the shared
+treatment, and visible text for unknown/loading/confirmed. A guest gets the identity step only; browser push is a separate offer for a signed-in
+user; nothing activates a channel. The writer-page follow control and the Follow Center preview consume it. `ShareActions` stays in its
+allowed placement (no `force`): on 2029 pages the floating widget owns sharing, so the inline block correctly hides itself.
+Tests: `test/watch-button-2029.test.mjs` (seam, no emoji, no IO in the view, floors), follow-center browser test (43 cases; the real control meets the floors
+in all presets and widths; unknown state is gated with a visible message; confirmed state; no real write), and the existing writer visual family,
+actions, follow-safety and community-person browser tests re-run unchanged and passing.
+Not changed: other `WatchButton` call sites still use their existing variants (not migrated); no data wiring.
