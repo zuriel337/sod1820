@@ -229,20 +229,20 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const family = page.locator('[data-experience-capability="life-journey-family"]');
     await family.getByLabel("שם בן/בת משפחה").fill("ילד בדיקה");
     await family.getByLabel("תאריך לידה").fill("2020-03-04");
-    await family.getByLabel("מקום לידה").fill("יישוב בדיקה");
+    await family.getByLabel("מקום לידה", { exact: true }).fill("יישוב בדיקה");
     await family.getByLabel("הקשר אליי").selectOption("child_of_me");
     await family.getByRole("button", { name: "הוסף למסע" }).click();
-    await family.locator(".person-journey-family-list article strong", { hasText: "ילד בדיקה" }).waitFor();
-    const childMemberCard = family.locator(".person-journey-family-list article", { hasText: "ילד בדיקה" });
+    await family.locator(".person-journey-family-member strong", { hasText: "ילד בדיקה" }).waitFor();
+    const childMemberCard = family.locator(".person-journey-family-member", { hasText: "ילד בדיקה" });
     await childMemberCard.getByRole("button", { name: "עריכה" }).click();
     assert.equal(await family.getByLabel("שם בן/בת משפחה").inputValue(), "ילד בדיקה");
-    await family.getByLabel("מקום לידה").fill("יישוב מעודכן");
+    await family.getByLabel("מקום לידה", { exact: true }).fill("יישוב מעודכן");
     await family.getByRole("button", { name: "שמור שינויים" }).click();
     await childMemberCard.getByText("מקום לידה · יישוב מעודכן").waitFor();
 
     await family.getByLabel("שם בן/בת משפחה").fill("רשומה למחיקה");
     await family.getByRole("button", { name: "הוסף למסע" }).click();
-    const disposableCard = family.locator(".person-journey-family-list article", { hasText: "רשומה למחיקה" });
+    const disposableCard = family.locator(".person-journey-family-member", { hasText: "רשומה למחיקה" });
     await disposableCard.waitFor();
     page.once("dialog", dialog => dialog.accept());
     await disposableCard.getByRole("button", { name: "מחיקה" }).click();
@@ -320,10 +320,25 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await family.locator('.person-journey-relation-list article').count(), 1, "two selected people produce one normalized cross-person pair");
     assert.match(await family.getByLabel("מסר המחקר המשפחתי המאוחד").textContent(), /לאחר נרמול התלות/);
     await family.locator(".person-journey-family-shared", { hasText: "2 אנשים" }).waitFor();
+    assert.equal(await family.locator(".person-journey-family-member", { hasText: "ילד בדיקה" }).count(), 1, "each person has one canonical row on the main family surface");
     assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "ילד בדיקה")), true, "explicit family research includes the selected child through the canonical method profile");
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab")), false, "Life Journey never calls NameLab");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");
+    assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 0, "family analysis never starts before the explicit analysis click");
+    await family.getByRole("button", { name: "נתח את המפה המשפחתית" }).click();
+    const normalizedFamilyAnalysis = family.locator('[data-experience-capability="life-journey-family-normalized-analysis"]');
+    await normalizedFamilyAnalysis.getByRole("heading", { name: "הניתוח המשפחתי המנורמל" }).waitFor();
+    await normalizedFamilyAnalysis.getByText("מסר בדיקה מבוסס ממצאים.", { exact: true }).waitFor();
+    const familyAnalysisCalls = await page.evaluate(() => window.__reflectionCalls);
+    assert.deepEqual(familyAnalysisCalls.map(call => call.kind), ["ai", "tarot"]);
+    assert.equal(familyAnalysisCalls[0].args.persistAnalysis, false, "private family analysis is never copied to AI style telemetry");
+    assert.equal(familyAnalysisCalls[0].args.surface, "research:life-journey-family-analysis");
+    assert.equal(familyAnalysisCalls[0].args.facts.includes("ילד בדיקה"), false, "family names are removed before interpretation");
+    assert.equal(familyAnalysisCalls[0].args.facts.includes("person:"), false, "person refs are removed before interpretation");
+    assert.deepEqual(familyAnalysisCalls[1].args, { p_cards: 3 });
+    assert.equal(await normalizedFamilyAnalysis.locator(".person-journey-reflection-cards").count(), 0, "internal cards are not rendered");
+    assert.equal(await normalizedFamilyAnalysis.getByText("הקוסם", { exact: true }).count(), 0, "card identities remain internal");
     await family.getByRole("button", { name: "פתח את ממצא 73 של ילד בדיקה" }).click();
     await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");
@@ -365,7 +380,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByRole("heading", { name: "מה המטריצה מראה עכשיו" }).waitFor();
     assert.equal(new URL(page.url()).search, "");
     assert.equal(await page.locator('[data-experience-capability="life-journey-normalized-message-reflection"]').count(), 0);
-    assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 0, "Life Journey does not invoke AI reflection or Tarot");
+    assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 2, "name and date views do not replay the explicit family analysis");
     const matrixCallsBeforeThemes = await page.evaluate(() => window.__matrixCalls.length);
     for (const theme of ["light", "parchment", "dark"]) {
       for (const width of [390, 1280]) {
@@ -414,7 +429,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
     assert.equal(await childSelection.isChecked(), true, "exact return preserves the family selection");
 
-    const childCard = family.locator(".person-journey-family-list article", { hasText: "ילד בדיקה" });
+    const childCard = family.locator(".person-journey-family-member", { hasText: "ילד בדיקה" });
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), false, "refresh preserves selection but never replays family research automatically");
     const elsCallsBefore = await page.evaluate(() => window.__elsCalls.length);
     await childCard.getByRole("button", { name: "פתח מחקר שם", exact: true }).click();
@@ -463,7 +478,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const ownerContinuity = page.locator('[data-experience-capability="life-journey-account-continuity"]');
     await ownerContinuity.locator("article", { hasText: "ילד בדיקה" }).getByText("זהות אומתה").waitFor();
     await ownerContinuity.locator("article", { hasText: "ילד בדיקה" }).getByRole("button", { name: "נתק אימות חשבון" }).waitFor();
-    await page.getByText(/זהות אומתה בחשבון נפרד; הפרטים עצמם לא אושרו אוטומטית/).waitFor();
+    await page.locator(".person-journey-family-member", { hasText: "ילד בדיקה" }).getByText(/זהות החשבון אומתה/).waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef, "account-scoped Research Context returns only for the owner account");
 
     const privacy = await page.evaluate(() => ({

@@ -221,19 +221,19 @@
 .person-journey-family-scope legend{padding:0 8px;color:var(--pj-ink);font-weight:800}
 .person-journey-family-scope>p{margin:0 0 12px;color:var(--pj-soft);font-size:13px;line-height:1.6}
 .person-journey-family-scope>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.person-journey-family-scope label{
-  display:flex;
-  align-items:center;
-  gap:10px;
+.person-journey-family-member{
+  display:grid;
+  align-content:start;
+  gap:9px;
   border:1px solid var(--pj-line);
   border-radius:14px;
   padding:10px 12px;
-  cursor:pointer;
   background:color-mix(in srgb,var(--pj-panel-soft) 88%,transparent);
 }
-.person-journey-family-scope label:has(input:checked){border-color:var(--pj-gold);background:color-mix(in srgb,var(--pj-gold) 8%,transparent)}
+.person-journey-family-member[data-selected="true"]{border-color:var(--pj-gold);background:color-mix(in srgb,var(--pj-gold) 8%,transparent)}
+.person-journey-family-member>label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;min-width:0}
 .person-journey-family-scope input[type="checkbox"]{width:20px;min-height:20px;margin:0;accent-color:var(--pj-gold)}
-.person-journey-family-scope label>span{display:grid;gap:2px}
+.person-journey-family-member>label>span{display:grid;gap:2px;min-width:0}
 .person-journey-family-scope small{color:var(--pj-soft)}
 .person-journey .person-journey-member-source{color:var(--pj-gold);font-size:11px;font-weight:700}
 .person-journey-family-scope footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;color:var(--pj-soft);font-size:13px}
@@ -384,20 +384,23 @@
 .person-journey-family-research-grid dt{color:var(--pj-soft);font-size:11px}
 .person-journey-family-research-grid dd{margin:0;color:var(--pj-ink);font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
 .person-journey-family-cross-values{display:flex;gap:6px;flex-wrap:wrap}
-.person-journey-family-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:16px}
-.person-journey-family-list article{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+.person-journey-family-analysis-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px}
+.person-journey-family-analysis-actions small{color:var(--pj-soft);line-height:1.6}
+.person-journey-family-analysis{
+  display:grid;
+  gap:13px;
   border:1px solid var(--pj-line);
-  border-radius:16px;
-  padding:12px 14px;
-  background:color-mix(in srgb,var(--pj-panel-soft) 88%,transparent);
+  border-radius:18px;
+  padding:16px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--pj-gold) 8%,var(--pj-panel)),var(--pj-panel));
 }
-.person-journey-family-list article>div{display:grid;gap:2px}
-.person-journey-family-list small{color:var(--pj-soft)}
-.person-journey-family-list article>span{font-size:11px;color:var(--pj-gold)}
+.person-journey-family-analysis>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.person-journey-family-analysis>header>div{display:grid;gap:3px}
+.person-journey-family-analysis h3{margin:0;font-size:20px}
+.person-journey-family-analysis>header small,.person-journey-family-analysis>header>span,.person-journey-family-analysis>div>small,.person-journey-family-analysis>footer{color:var(--pj-soft);font-size:12px}
+.person-journey-family-analysis>p{margin:0;line-height:1.85;font-size:16px}
+.person-journey-family-analysis ul{display:grid;gap:7px;margin:8px 0 0;padding-inline-start:22px;line-height:1.65}
+.person-journey-family-analysis>footer{border-top:1px solid var(--pj-line);padding-top:11px;line-height:1.65}
 .person-journey-family-form{align-items:end}
 .person-journey-family-form button{min-height:48px}
 .person-journey-relations{display:grid;gap:7px;margin-top:16px}
@@ -718,14 +721,14 @@
   .person-journey-family-research-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .person-journey-claim-redeem{grid-template-columns:1fr 1fr}
   .person-journey-claim-redeem>div{grid-column:1/-1}
-  .person-journey-fact-grid,.person-journey-family-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .person-journey-fact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .person-journey-layer-list,.person-journey-reflection-motifs,.person-journey-reflection-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
   .person-journey-expression-matrix>div{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:520px){
   .person-journey{gap:12px}
   .person-journey-hero,.person-journey-panel{border-radius:22px}
-  .person-journey-fact-grid,.person-journey-family-list{grid-template-columns:1fr}
+  .person-journey-fact-grid{grid-template-columns:1fr}
   .person-journey-family-scope>div{grid-template-columns:1fr}
   .person-journey-family-research-grid{grid-template-columns:1fr}
   .person-journey-claim-list,.person-journey-claim-redeem{grid-template-columns:1fr}
@@ -734,12 +737,11 @@
   .person-journey-research-entry,.person-journey-expression-matrix>header,.person-journey-relation-list>header{align-items:stretch;flex-direction:column}
   .person-journey-capability-nav,.person-journey-hint-list article{align-items:stretch;flex-direction:column}
   .person-journey-family-scope footer{align-items:stretch;flex-direction:column}
-  .person-journey-family-research-head,.person-journey-family-research-actions{align-items:stretch;flex-direction:column}
+  .person-journey-family-research-head,.person-journey-family-research-actions,.person-journey-family-analysis-actions,.person-journey-family-analysis>header{align-items:stretch;flex-direction:column}
   .person-journey-account-continuity>header{align-items:stretch;flex-direction:column}
   .person-journey-birth-timeline>header{align-items:stretch;flex-direction:column}
   .person-journey-birth-timeline ol::before{inset-inline-start:80px}
   .person-journey-birth-timeline li{grid-template-columns:68px 12px minmax(0,1fr)}
-  .person-journey-family-list article{align-items:flex-start;flex-direction:column}
   .person-journey-member-actions{justify-content:flex-start}
   .person-journey-section-head{align-items:flex-start}
   .person-journey-section-head>span{display:none}

@@ -5,6 +5,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import {
   getNameMulti,
   getNameProtocol,
+  getAiAnalysis,
   getOrCreateMyPersonId,
   listFamily,
   removeFamilyMember,
@@ -232,6 +233,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [busy, setBusy] = useState(false);
   const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
   const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], error: null });
+  const [familyAnalysis, setFamilyAnalysis] = useState({ state: "idle", data: null, error: null });
   const [familyClaims, setFamilyClaims] = useState({ state: "idle", rows: [], error: null });
   const [familyClaimBusy, setFamilyClaimBusy] = useState(null);
   const [familyClaimNotice, setFamilyClaimNotice] = useState(null);
@@ -456,6 +458,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       });
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
+      setFamilyAnalysis({ state: "idle", data: null, error: null });
       track("journey_person", null, "save_self");
       if (variant === "2029") {
         setAnalysis({ state: "idle", data: null, error: null });
@@ -519,6 +522,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       resetMemberForm();
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
+      setFamilyAnalysis({ state: "idle", data: null, error: null });
       track("journey_person", null, editingMemberRef ? "edit_member" : "add_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
@@ -754,6 +758,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       return;
     }
     setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
+    setFamilyAnalysis({ state: "idle", data: null, error: null });
   }, [research, selfRef]);
 
   const updateFamilySelection = useCallback((memberRef, included) => {
@@ -777,6 +782,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refresh(personId);
       await refreshFamilyClaims();
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
+      setFamilyAnalysis({ state: "idle", data: null, error: null });
       track("journey_person", null, "remove_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
@@ -799,6 +805,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     }
 
     setFamilyResearch({ state: "loading", rows: [], sharedValues: [], error: null });
+    setFamilyAnalysis({ state: "idle", data: null, error: null });
     const accessDescriptor = buildAccessDescriptor({
       user_ref: user.id,
       authenticated: true,
@@ -867,6 +874,26 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       setFamilyResearch({ state: "error", rows: [], sharedValues: [], error: personJourneyErrorMessage(error) });
     }
   }, [members, selectedFamilyRefs, user, variant]);
+
+  const runFamilyAnalysis = useCallback(async () => {
+    if (familyResearch.state !== "ready") return;
+    setFamilyAnalysis({ state: "loading", data: null, error: null });
+    try {
+      const {
+        createLifeJourneyFamilyAnalysisProviders,
+        runLifeJourneyFamilyAnalysis,
+      } = await import("../lib/research/lifeJourneyFamilyAnalysis.js");
+      const providers = createLifeJourneyFamilyAnalysisProviders({ getAiAnalysis, supabase });
+      const data = await runLifeJourneyFamilyAnalysis({
+        research: familyResearch,
+        ...providers,
+      });
+      setFamilyAnalysis({ state: "ready", data, error: null });
+      track("journey_person", null, "family_normalized_analysis_explicit");
+    } catch (error) {
+      setFamilyAnalysis({ state: "error", data: null, error: personJourneyErrorMessage(error) });
+    }
+  }, [familyResearch]);
 
   if (authLoading || loading) {
     return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
@@ -1063,21 +1090,32 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             const memberRef = clean(member.source_ref);
             const memberMeta = metaObject(member.meta);
             const identityClaim = latestClaimByTarget.get(memberRef);
-            return <label key={memberRef}>
-              <input
-                type="checkbox"
-                checked={selectedFamilyRefSet.has(memberRef)}
-                onChange={event => updateFamilySelection(memberRef, event.target.checked)}
-              />
-              <span>
-                <strong>{member.name}</strong>
-                <small>{memberRef === selfRef ? "חשבון ראשי מחובר" : "זהות משפחתית · חשבון עתידי אפשרי"}</small>
-                <small className="person-journey-member-source">
-                  מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
-                  {identityClaim?.status === "approved" ? " · זהות החשבון אומתה" : ""}
-                </small>
-              </span>
-            </label>;
+            return <article className="person-journey-family-member" data-selected={selectedFamilyRefSet.has(memberRef) ? "true" : "false"} key={memberRef}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selectedFamilyRefSet.has(memberRef)}
+                  onChange={event => updateFamilySelection(memberRef, event.target.checked)}
+                />
+                <span>
+                  <strong>{member.name}</strong>
+                  <small>{memberRef === selfRef ? "חשבון ראשי מחובר" : "זהות משפחתית · חשבון עתידי אפשרי"}</small>
+                  {memberMeta.birthdate_iso ? <small dir="ltr">{memberMeta.birthdate_iso}</small> : null}
+                  {variant === "2029" && memberMeta.birth_place ? <small>מקום לידה · {memberMeta.birth_place}</small> : null}
+                  <small className="person-journey-member-source">
+                    מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
+                    {identityClaim?.status === "approved" ? " · זהות החשבון אומתה" : memberRef === selfRef ? "" : " · זהות ניתנת לחיבור לחשבון"}
+                  </small>
+                </span>
+              </label>
+              {variant === "2029" ? <div className="person-journey-member-actions">
+                <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>פתח מחקר שם</button>
+                {memberRef !== selfRef ? <>
+                  <button type="button" disabled={busy} onClick={() => startEditingMember(member)}>עריכה</button>
+                  <button type="button" disabled={busy} onClick={() => deleteMember(member)}>מחיקה</button>
+                </> : null}
+              </div> : <span>פרטי</span>}
+            </article>;
           })}
         </div>
         <footer>
@@ -1308,30 +1346,41 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             </> : <p>{row.error}</p>}
           </article>)}
         </div>
+        <div className="person-journey-family-analysis-actions">
+          <button
+            type="button"
+            className="person-journey-primary"
+            disabled={familyAnalysis.state === "loading"}
+            onClick={runFamilyAnalysis}
+          >{familyAnalysis.state === "loading" ? "מנסח ניתוח מנורמל…" : "נתח את המפה המשפחתית"}</button>
+          <small>הניתוח מופעל רק בלחיצה. ELS אינו משתתף, ושמות בני המשפחה אינם נשלחים למפרש.</small>
+        </div>
+        {familyAnalysis.state === "loading" ? <CanonicalProgress
+          title="מנסח ניתוח משפחתי מנורמל"
+          detail="מאחד את ממצאי המנוע שכבר חושבו ומקפיא מסר לפני בדיקת עקביות פנימית."
+          phase="נרמול → סינתזה → אימות פנימי"
+          compact
+        /> : null}
+        {familyAnalysis.state === "error" ? <div className="person-journey-error" role="alert">{familyAnalysis.error}</div> : null}
+        {familyAnalysis.state === "ready" && familyAnalysis.data ? <article
+          className="person-journey-family-analysis"
+          data-experience-capability="life-journey-family-normalized-analysis"
+          aria-labelledby="life-journey-family-analysis-title"
+        >
+          <header>
+            <div><small>מסר שהוקפא מתוך הממצאים</small><h3 id="life-journey-family-analysis-title">הניתוח המשפחתי המנורמל</h3></div>
+            <span>{familyAnalysis.data.coverage.connectionCount} חיבורים · {familyAnalysis.data.coverage.searchedPairCount} זוגות נבדקו</span>
+          </header>
+          <p>{familyAnalysis.data.message}</p>
+          <div>
+            <small>על מה הניתוח נשען</small>
+            <ul>{familyAnalysis.data.claims.map(claim => <li key={claim.id}>{claim.text}</li>)}</ul>
+          </div>
+          <footer>הקלפים שימשו בדיקת השתקפות פנימית בלבד, אחרי הקפאת המסר. הם אינם מוצגים, אינם ראיה ולא שינו את הניתוח.</footer>
+        </article> : null}
       </section> : null}
 
-      {familyMembers.length ? <div className="person-journey-family-list">
-        {familyMembers.map((member) => {
-          const memberMeta = metaObject(member.meta);
-          const identityClaim = latestClaimByTarget.get(clean(member.source_ref));
-          return <article key={member.source_ref}>
-            <div>
-              <strong>{member.name}</strong>
-              {memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}
-              {variant === "2029" && memberMeta.birth_place ? <small>מקום לידה · {memberMeta.birth_place}</small> : null}
-              <small className="person-journey-member-source">
-                מקור הפרטים: {memberMeta.profile_source === "journey_owner_entered" ? "הוזן על ידך במסע החיים" : "רשומת Ledger פרטית קיימת"}
-                {identityClaim?.status === "approved" ? " · זהות אומתה בחשבון נפרד; הפרטים עצמם לא אושרו אוטומטית" : " · זהות ניתנת לחיבור לחשבון"}
-              </small>
-            </div>
-            {variant === "2029" ? <div className="person-journey-member-actions">
-              <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>פתח מחקר שם</button>
-              <button type="button" disabled={busy} onClick={() => startEditingMember(member)}>עריכה</button>
-              <button type="button" disabled={busy} onClick={() => deleteMember(member)}>מחיקה</button>
-            </div> : <span>פרטי</span>}
-          </article>;
-        })}
-      </div> : <div className="person-journey-empty">עוד לא הוספת בני משפחה. אפשר להוסיף שם ותאריך, ולקשור כהורה או ילד/ה כשזה ידוע.</div>}
+      {!familyMembers.length ? <div className="person-journey-empty">עוד לא הוספת בני משפחה. אפשר להוסיף שם ותאריך, ולקשור כהורה או ילד/ה כשזה ידוע.</div> : null}
 
       <div className="person-journey-family-form">
         {editingMemberRef ? <div className="person-journey-note" role="status">עריכת בן משפחה קיים. הקשר המשפחתי נשמר ללא שינוי.</div> : null}
