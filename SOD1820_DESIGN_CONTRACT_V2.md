@@ -404,3 +404,48 @@ controls do not move. Shared icon feedback must not require a second global
 listener, navigation store, or animation engine. Whole-frame layout, palette
 context propagation and command-island typography remain with the existing
 SystemFrame owner; this refinement does not claim those gaps closed.
+
+## Proposed clarification: shared icon and surface color resolution · 25.10.2026
+
+**Status: PROPOSED FOR ZURIEL REVIEW.** This section is a review candidate, not a new approved
+color mapping or implementation acceptance. Until adopted, the approved sections above remain
+authoritative. Owner action: **EXTEND_EXISTING** Design V2, semantic palette and canonical UI
+components; no new palette, icon registry, theme store or domain owner.
+
+1. **Geometry and meaning are separate.** `NavigationIcon2029` owns SVG geometry and
+   `currentColor`. A glyph name such as `personal`, `layers` or `signal` does not determine a
+   subject's color, availability, authority or status. Replacing a glyph for the same semantic
+   role must not silently change its color policy.
+2. **Resolve color through the existing shared owner.** The caller supplies the authorized
+   semantic purpose and state; the existing palette/shared component resolves the preset's
+   foreground, surface, border and focus roles. Reuse or extend the existing tone seams where
+   appropriate. Pages consume that result rather than establishing their own glyph-to-color map.
+3. **Keep the approved role meanings.** Ordinary icons use theme text; primary actions and
+   selection use their accent roles, including the separate accessible action-text role;
+   discovery/share use cyan/teal; secondary/spatial depth uses violet. Existing numeric identity
+   retains its approved treatment. Crown gold/sapphire remain bounded identity ornament and
+   never imply research standing, verification, delivery success or account authority.
+4. **A subject-kind palette requires an explicit shared decision.** Fixed rules such as
+   “every writer is gold” or “every category is violet” are not established by a page stylesheet
+   or by the SVG selected for that subject. If such a mapping is desired, define it once in
+   this existing contract and implement it through the existing shared owner after acceptance.
+   Compatible local tokens alone do not establish a universal subject taxonomy.
+5. **Availability/status have explicit precedence.** An unavailable or disabled channel/control
+   consumes the owned unavailable/disabled treatment, even when its glyph is also used by an
+   active discovery feature. Unknown, loading, unread, confirmed Follow and delivery remain
+   distinct states with visible text. Color alone never establishes availability or success.
+6. **Own reusable treatments once.** Repeated icon/tile/card tints, selected fills and state
+   mixtures belong to the existing palette/shared component owner. Surface CSS supplies layout
+   and requests approved roles; it does not copy a second subject-color table or mixture scale.
+   Apply adopted treatments to bounded 2029 consumers; do not mass-restyle Legacy.
+7. **Preview the actual canonical controls.** Follow uses `WatchButton`; sharing uses
+   `ShareActions`. Representative previews render these existing controls with safe fixtures or
+   authorized read-only data. A static specimen must not be the acceptance oracle for a different
+   component that will replace it during wiring. Previewing a control never grants consent or
+   permission to contact readers.
+8. **Verify semantics as well as contrast.** Tests assert the expected owner-resolved role and
+   state, rather than requiring an arbitrary number of distinct hues. Include the same glyph in
+   active and unavailable contexts, glyph replacement without semantic change, and representative
+   shared consumers across Day/Parchment/Night at 320/390/1440. Preserve text/icon contrast,
+   44px targets, keyboard focus, reduced motion and non-color status labels. Do not introduce a
+   runtime alternate-color system merely to test this policy.
