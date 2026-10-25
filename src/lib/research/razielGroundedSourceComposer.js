@@ -16,6 +16,10 @@ const MAX_NAVIGATION = 10;
 const MAX_FALLBACK_FINDINGS = 6;
 const MAX_SOURCE_TERMS = 48;
 const MAX_SURPRISE_CANDIDATES = 3;
+// Phrases standing at the same regular value come from the verified gematria corpus as "source_claim" findings (a sourced phrase whose
+// value the Bundle carries); live Number Bundles supply them in that lane only. They are admitted as value neighbours — never as a
+// calculation the model may restate beyond the shared value.
+const VALUE_NEIGHBOUR_LANES = Object.freeze(["verified_calculation", "engine_finding", "source_claim"]);
 const MAX_CONSTELLATION_TERMS = 10;
 
 const list = (value) => Array.isArray(value) ? value : [];
@@ -470,7 +474,7 @@ export function razielSurpriseCandidates(input = []) {
       const lane = razielFindingEvidenceLane(finding);
       const key = comparable(label);
       if (!label || !key || seen.has(key) || value !== primaryAnchor.value || !regularMethod(method)
-        || !["verified_calculation", "engine_finding"].includes(lane)) return [];
+        || !VALUE_NEIGHBOUR_LANES.includes(lane)) return [];
       seen.add(key);
       return [{ label, method: method || "רגיל" }];
     }).slice(0, MAX_CONSTELLATION_TERMS);
@@ -670,7 +674,7 @@ function methodLayerLines(entries, layerEntries) {
       const method = cleanText(finding?.verification?.engine_method_tested || finding?.source?.method, 60);
       if (!label || !key || seen.has(key) || /^\d+$/u.test(label) || finding?.subject?.type === "number"
         || numericFindingValue(finding) !== value || !regularMethod(method)
-        || !["verified_calculation", "engine_finding"].includes(razielFindingEvidenceLane(finding))) return [];
+        || !VALUE_NEIGHBOUR_LANES.includes(razielFindingEvidenceLane(finding))) return [];
       seen.add(key);
       return [label];
     }).slice(0, MAX_LAYER_TERMS);

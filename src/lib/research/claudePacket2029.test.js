@@ -28,11 +28,15 @@ test("final letters are reported as a real difference; invalid input yields no p
   assert.equal(normalizeClaudePacketExpression("  עולה   ויורד "), "עולה ויורד");
 });
 
-test("the packet module and page are isolated from Raziel, the network, the database and models", () => {
-  for (const file of ["claudePacket2029.js", "../../pages/ClaudeResearchPacket2029Page.jsx"]) {
-    const source = readFileSync(new URL(file, import.meta.url), "utf8");
-    assert.doesNotMatch(source, /fetch\(|supabase|XMLHttpRequest|ai-analyze|research-run|useRazielSession|RazielSession|getAiAnalysis|callClaude/i, file);
+test("the packet is isolated from Raziel and models; its database half only reads research-run", () => {
+  // the engine-values builder stays fully offline
+  assert.doesNotMatch(readFileSync(new URL("claudePacket2029.js", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, ""), /fetch\(|supabase|XMLHttpRequest|research-run|ai-analyze|Raziel/i);
+  // the database half reuses research-run only, through an injected invoke: no model, no Raziel session, no writes
+  for (const file of ["claudePacketDossier2029.js", "../../pages/ClaudeResearchPacket2029Page.jsx"]) {
+    const source = readFileSync(new URL(file, import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
+    assert.doesNotMatch(source, /ai-analyze|useRazielSession|RazielSession|getAiAnalysis|askRaziel|callClaude|\.insert\(|\.upsert\(|\.rpc\(|fetch\(/i, file);
   }
+  assert.match(readFileSync(new URL("claudePacketDossier2029.js", import.meta.url), "utf8"), /invoke\("research-run"/);
   // Reached only through the existing (lazily loaded) preview page; App2029 and the eager graph are untouched.
   const preview = readFileSync(new URL("../../pages/HomePreview2029Page.jsx", import.meta.url), "utf8");
   assert.match(preview, /import ClaudeResearchPacket2029Page from "\.\/ClaudeResearchPacket2029Page\.jsx";/, "shares the preview page's own lazy chunk: no new chunk, no new dependency-map entry in the eager entry");

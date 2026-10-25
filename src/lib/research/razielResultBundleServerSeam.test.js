@@ -36,7 +36,7 @@ function classifierResult({ action = "research", candidates = [{ type: "number",
   };
 }
 
-function numberPhraseFinding({ id, phrase, value }) {
+function numberPhraseFinding({ id, phrase, value, sourceClaim = false }) {
   return makeUniversalFinding({
     id,
     kind: "gematria",
@@ -51,7 +51,10 @@ function numberPhraseFinding({ id, phrase, value }) {
       lang: "he",
     },
     identity: { sourceIdentity: { wordId: id }, entityRef: `gematria-word:${id}` },
-    verification: { engine_method_tested: "רגיל", engine_result: value, verification_state: "match" },
+    // Live Number Bundles carry phrases at a value as sourced claims (lane "source_claim"), not as engine-matched findings.
+    verification: sourceClaim
+      ? { engine_method_tested: "רגיל", claimed_expression: phrase, engine_result: value, verification_state: "not_tested" }
+      : { engine_method_tested: "רגיל", engine_result: value, verification_state: "match" },
     evidence: {
       refs: [`gematria_words:${id}`],
       facts: [{ type: "published-gematria-phrase", phrase, method: "רגיל", value, status: "verified_published" }],
@@ -1907,4 +1910,59 @@ test("precedence: «מספר 337» is a canonical number subject (no expression)
   assert.equal(control.calls.filter((call) => call.name === "fn_raziel_answer").length, 1);
   assert.equal(control.result.engine, "deterministic");
   assert.match(control.result.raziel.answer, /377/);
+});
+
+// ── Claude research packet: the database half reuses research-run + the same composer as Raziel ───────────────────
+import { fetchClaudePacketDossier } from "./claudePacketDossier2029.js";
+
+test("claude packet dossier: reads the existing research-run contracts and returns the same תיק פרשנות Raziel gets", async () => {
+  const fixtures = shaulBundles();
+  const calls = [];
+  const invoke = async (name, { body }) => {
+    calls.push({ name, body });
+    const bundle = body.contract === EXPRESSION_CONTRACT ? fixtures.researchBundleByExpression[body.expression] : fixtures.researchBundleByNumber[body.number];
+    return bundle ? { data: { status: "ok", contract: body.contract, bundle }, error: null } : { data: { status: "error" }, error: null };
+  };
+  const result = await fetchClaudePacketDossier("שאול", { invoke, visitorId: "vclaudepacket1234" });
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls.map((call) => call.name), Array(5).fill("research-run"));
+  const numbers = calls.filter((call) => call.body.contract !== EXPRESSION_CONTRACT).map((call) => call.body.number).sort((a, b) => a - b);
+  assert.deepEqual(numbers, [328, 337, 502, 567], "regular value + the three method-layer values, same contracts as the server");
+  assert.equal(calls.filter((call) => call.body.contract === EXPRESSION_CONTRACT)[0].body.expression, "שאול");
+  assert.deepEqual(calls[0].body.requested_capabilities, ["gematria", "crossings"]);
+  // identical to what ai-analyze hands the model in מתפרע
+  const prepared = prepare({ intelligenceLevel: "fast", state: { ...createInitialRazielSessionState(), viewMode: "exploratory" } });
+  const server = await shaulRun(prepared, "vclaudepacketparity12");
+  const serverBrief = server.models[0].user.slice(server.models[0].user.indexOf("[תיק פרשנות תחום"), server.models[0].user.indexOf("\n\nכתוב את מענה-רזיאל"));
+  assert.ok(serverBrief.length > 1000);
+  assert.ok(result.brief.startsWith(serverBrief.split("\n[הקשר-הגעה")[0].slice(0, 600)), "same dossier opening and sections");
+  for (const line of ["שאול · רגיל=337", "אתבש (מראה)", "מילוי (פנימיות)", "מסתתר (רובד נסתר)", "מלכותו", "נפלאות", "חשך"]) assert.ok(result.brief.includes(line), line);
+});
+
+test("claude packet dossier: no Bundle ⇒ a clean failure, no throw, nothing invented", async () => {
+  const failing = async () => ({ data: { status: "error" }, error: null });
+  assert.deepEqual(await fetchClaudePacketDossier("שאול", { invoke: failing }), { ok: false, reason: "no_bundle" });
+  assert.deepEqual(await fetchClaudePacketDossier("שאול", { invoke: async () => { throw new Error("offline"); } }), { ok: false, reason: "no_bundle" });
+  assert.deepEqual(await fetchClaudePacketDossier("", { invoke: failing }), { ok: false, reason: "unavailable" });
+  assert.deepEqual(await fetchClaudePacketDossier("שאול", {}), { ok: false, reason: "unavailable" });
+});
+
+test("live-shaped Bundles: phrases at the same value arrive as source claims and still form the constellation and the method-layer words", async () => {
+  const claimBundles = (numbers) => Object.fromEntries(Object.entries(numbers).map(([n, phrases]) => [n, numberBundle(Number(n), "מאגר הגימטריה המאומת", {
+    phraseFindings: phrases.map((phrase, i) => numberPhraseFinding({ id: `uf:${n}:${i}`, phrase, value: Number(n), sourceClaim: true })),
+  })]));
+  const bundles = {
+    researchBundleByExpression: shaulBundles().researchBundleByExpression,
+    researchBundleByNumber: claimBundles({ 337: ["עולה ויורד", "מלך רמז", "אגג מלך עמלק", "פרזים"], 502: ["תוצאה", "שרב"], 567: ["נפלאות", "דור אנוש"], 328: ["שכח", "כחש"] }),
+  };
+  const wild = await runAiAnalyze({
+    answer: noMatchAnswer(), allowed: true, bearer: "synthetic-anon-key",
+    body: bodyOf(prepare({ intelligenceLevel: "fast", state: { ...createInitialRazielSessionState(), viewMode: "exploratory" } }), "vlivesourceclaim1234"),
+    modelResult: mockStory, ...bundles,
+  });
+  const user = wild.models[0].user;
+  assert.match(user, /4\. קבוצת הביטויים באותו ערך רגיל:\nשאול בשיטת רגיל = 337[^\n]*עולה ויורד · מלך רמז · אגג מלך עמלק · פרזים/);
+  assert.match(user, /אתבש \(מראה\)[^\n]*תוצאה · שרב/);
+  assert.match(user, /מילוי \(פנימיות\)[^\n]*נפלאות · דור אנוש/);
+  assert.match(user, /מסתתר \(רובד נסתר\)[^\n]*שכח · כחש/);
 });
