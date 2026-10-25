@@ -1,4 +1,4 @@
-export const HOSTED_HYBRID_BRANCH = "gpt/els-research-v1-closure-20261020";
+export const HOSTED_HYBRID_BRANCH = "gpt/els-research-package-review-v1-20261025";
 
 export function approvedHybridPreviewHost(raw) {
   if (typeof raw !== "string" || raw !== raw.trim() || raw !== raw.toLowerCase()) return "";

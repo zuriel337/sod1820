@@ -1137,7 +1137,7 @@
   "git": {
     "deploymentEnabled": {
       "gpt/2029-hybrid-stage-preview-20261018": true,
-      "gpt/els-research-v1-closure-20261020": true,
+      "gpt/els-research-package-review-v1-20261025": true,
       "gpt/g3-topic-golden-slug-rank-foundation-v1": true,
       "gpt/*": false,
       "claude/*": false
