@@ -352,3 +352,25 @@ test("semantic candidate and canonical plan never cross the bounded server proje
   assert.deepEqual(projected.identities, [{ type: "number", value: 776, identity_key: "number:776" }]);
   assert.equal(projected.guards.server_must_reauthorize, true);
 });
+
+test("an adjacent value is an observed value of the explicit expression, never a new subject (any expression)", async () => {
+  const gate = await import("./razielSemanticIntentGate.js");
+  for (const [question, label, observed, allMethods] of [
+    ["הכל על הגימטריה של שאול", "שאול", undefined, undefined],
+    ["תן לי גימטריות של 337 שאול", "שאול", 337, undefined],
+    ["תן לי גימטריות של שאול 337", "שאול", 337, undefined],
+    ['תן לי את הגימטריות על השם "שאול"', "שאול", undefined, undefined],
+    ["שאול 337 בכל השיטות", "שאול", 337, true],
+    ["תן לי גימטריות של 73 חכמה", "חכמה", 73, undefined],
+  ]) {
+    const subject = gate.resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(subject?.label, label, question);
+    assert.equal(subject?.observed_value, observed, question);
+    assert.equal(subject?.all_methods, allMethods, question);
+    if (observed != null) assert.equal(gate.resolveExplicitNumericResearchSubject(question), null, `${question}: the number is not a second subject`);
+  }
+  // a number alone, a year/page context, or two numbers are unchanged
+  assert.equal(gate.resolveExplicitNumericResearchSubject("מה זה 337").value, 337);
+  assert.equal(gate.resolveExplicitHebrewExpressionResearchSubject("תן לי גימטריות של 337"), null);
+  assert.equal(gate.resolveExplicitHebrewExpressionResearchSubject("תן לי גימטריות של 12 34 שאול"), null);
+});

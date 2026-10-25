@@ -7,7 +7,7 @@ import { selectRazielIntelligence, RAZIEL_LEVELS } from "../../supabase/function
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../supabase/functions/_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielResultBundleConsumer.js";
-import { buildRazielGroundedSourceComposer } from "../../src/lib/research/razielGroundedSourceComposer.js";
+import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../src/lib/research/razielGroundedSourceComposer.js";
 import {
   RAZIEL_SEMANTIC_INTENT_VERSION,
   isRazielCurrentSurfaceQuestion,
@@ -149,7 +149,7 @@ export async function runAiAnalyze({
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
   assert.ok(imports[3].includes('import { supabaseServiceHeaders }'));
   assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
-  assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer }'));
+  assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers }'));
   assert.ok(imports[6].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
   assert.ok(imports[6].includes('isRazielCurrentSurfaceQuestion'));
   assert.ok(imports[6].includes('resolveExplicitHebrewExpressionPairResearchSubject'));
@@ -169,6 +169,7 @@ export async function runAiAnalyze({
     supabaseServiceHeaders,
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
+    razielMethodLayerNumbers,
     RAZIEL_SEMANTIC_INTENT_VERSION,
     isRazielCurrentSurfaceQuestion,
     resolveExplicitHebrewExpressionPairResearchSubject,

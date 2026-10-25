@@ -3,7 +3,7 @@ import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntell
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
-import { buildRazielGroundedSourceComposer } from "../../../src/lib/research/razielGroundedSourceComposer.js";
+import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../../src/lib/research/razielGroundedSourceComposer.js";
 import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveExplicitHebrewExpressionPairResearchSubject, resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, resolveRazielExpressionContinuationDirective, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
@@ -213,23 +213,34 @@ function numericTruthFallback() {
 // Research Contract. view_mode is a SEPARATE axis from intelligence_level (fast|deep) and from the legacy `mode:"advanced"`;
 // it never selects a provider and never touches calculation, authorization or truth ranking. It appends one small
 // instruction layer to the system prompt: the user message (= the same canonical Result Bundle) and the numeric truth guard
-// are identical in all three modes. Missing/unknown value ⇒ "general" (today's behaviour, byte-for-byte).
-type RazielViewMode = "general" | "landscape" | "exploratory";
+// are identical in all modes. Missing/unknown value ⇒ "general". Under the canonical research contract "general" additionally
+// carries a short flowing-prose style block (2–4 paragraphs) in the user message; "exploratory" (מתפרע) is the full prose reading,
+// and "surprise" (הפתע אותי) is the only contract that hunts one unexpected axis. Only the interpretive modes read the extra
+// method-layer Number Bundles (same contract) for the dossier.
+type RazielViewMode = "general" | "landscape" | "exploratory" | "surprise";
 function normalizeRazielViewMode(raw: unknown): RazielViewMode {
   const v = typeof raw === "string" ? raw.trim().toLowerCase() : "";
-  return v === "landscape" || v === "exploratory" ? v : "general";
+  return v === "landscape" || v === "exploratory" || v === "surprise" ? v : "general";
 }
 const RAZIEL_VIEW_MODE_COMMON =
   "\n\n[מצב התבוננות ניסיוני — נוסף על הפרסונה; כל חוקי הברזל, האמת והפרטיות נשארים בתוקף]\n" +
   "מקור החומר היחיד הוא חבילת התוצאה הקנונית שבהודעה (כבר עברה הרשאות, סינון ונרמול). אל תוסיף מספר, שיטה, ביטוי, מקור, ממצא או קשר שאינם בה; " +
   "אל תחשב גימטריה ואל תבנה קשר מספרי חדש כדי לתמוך בפרשנות. התאמה בין שיטות שקולות מבנית (למשל גדול ורגיל כשאין סופיות) היא כפילות טבעית ולא הצלבה — אל תציג אותה כממצא. " +
-  "אם הביטוי יכול להיות גם מילה וגם אדם או דמות, אל תניח זהות ביוגרפית בלי מקור בחבילה; הצג את העמימות והצע למשתמש לבחור את ההקשר. " +
+  "אם הביטוי יכול להיות גם מילה וגם אדם או דמות, אל תציג זהות ביוגרפית כעובדה בלי מקור בחבילה; מותר לקשר בין ביטויים שסופקו לבין מה שהשם מעלה, אך רק כקריאה רכה ומסומנת (‘כמעט כמו’, ‘מתכתב עם’), בלי תאריכים, ציטוטים, מקורות או אירועים שלא סופקו. " +
   "פירוש מילוני אפשרי של מילה מצטלבת אינו ראיה על נושא המחקר. אפשר להשתמש בו רק בפרשנות מסומנת שמסבירה על אילו ממצאים היא נשענת. " +
   "אל תחשוף טקסט חשיבה גולמי, JSON, שמות שדות, מזהים או trace. הכול בתוך השדה answer כטקסט פשוט, בלי Markdown; כל כותרת בשורה נפרדת.";
 const RAZIEL_LANDSCAPE_SECTIONS = [
   "עובדות חישוביות מאומתות", "הצלבות בין שיטות", "יחסים למילים, מספרים ומקורות", "היררכיה וסדר", "שאלות ונתיבי מחקר פתוחים",
 ];
-const RAZIEL_VIEW_MODE_LAYERS: Record<"landscape" | "exploratory", string> = {
+// Shared voice of the three prose contracts (general / מתפרע / הפתע אותי): the flowing interpretive Hebrew of the Legacy deep reading.
+// Legacy is a STYLE reference only — every number, method, crossing and phrase must come from the canonical Result Bundle.
+const RAZIEL_PROSE_VOICE =
+  "כתוב בפרוזה עברית זורמת וחיה, כמו פרשן שמספר, לא כמו דוח: בלי כותרות, בלי תבליטים ובלי שמות סעיפים. בנה קשרים בין הממצאים ולא רשימת תוצאות. " +
+  "מותר קול פרשני חם ונועז (‘כאילו’, ‘כמעט כמו’, ‘מתכתב עם’, ‘עשוי לרמוז’), כל עוד ברור מה עובדה שסופקה ומה קריאה שלך. מותר לפתוח במשמעות הלשונית של הביטוי עצמו (שם, שורש, מילה) כקריאה רכה ומסומנת. " +
+  "אל תכתוב ‘זה לא צירוף מקרים’ ואל תמציא משמעות, מקור, ביוגרפיה או קשר מסורתי. אל תוסיף מספר, שיטה או ביטוי שאינם בחומר. הנרמול הוא בלם אמינות בלבד ולא מרכז הסיפור. סיים במשפט הסתייגות קצר וטבעי, לא בפרק משפטי.";
+const RAZIEL_GENERAL_PROSE_INSTRUCTION =
+  "\n\n[סגנון תשובה] ענה בשפה הפרשנית הזורמת של הפרשן, קצר יחסית: 2–4 פסקאות. התחל תמיד מהמילה, מהביטוי או מהמספר שנשאלו, הצג את הערך המרכזי ועוד שכבה אחת או שתיים משמעותיות מתוך החבילה. " + RAZIEL_PROSE_VOICE;
+const RAZIEL_VIEW_MODE_LAYERS: Record<"landscape" | "exploratory" | "surprise", string> = {
   landscape: RAZIEL_VIEW_MODE_COMMON +
     "\nמצב «נוף»: המטרה היא להרחיב את המפה, לא סתם להאריך את התשובה. פתח ב‘עוגן:’ — העוגן או הממצא המרכזי של השאלה (עד שני משפטים). " +
     "אחריו מפת קשרים לפי שכבות, בכותרות האלה ובסדר הזה: " + RAZIEL_LANDSCAPE_SECTIONS.map((s) => `‘${s}:’`).join(" · ") + ". " +
@@ -237,18 +248,15 @@ const RAZIEL_VIEW_MODE_LAYERS: Record<"landscape" | "exploratory", string> = {
     "בכל שורה הפרד בין שלושה סוגים באמצעות תחילית: ‘עובדה מתמטית:’ (ערך או התכנסות שבחבילה) · ‘לפי המקור:’ (טענה שמופיעה בפירוש במקור שבחבילה) · ‘פרשנות רזיאל:’ (קריאה שלך, מסומנת ככזו). " +
     "סיים ב‘סינתזה:’ — פסקה רציפה שמחברת בין שני ממצאים מסופקים לפחות ומסבירה את מהלך החיבור. אם אין לכך בסיס, אמור שאין עדיין בסיס לסינתזה; אל תכפה סיפור.",
   exploratory: RAZIEL_VIEW_MODE_COMMON +
-    "\nמצב «מתפרע» — פרשנות עמוקה בסגנון הפרשן של האתר הישן. המטרה היא סיפור פרשני אחד, ברור וזכיר, מתוך תיק הפרשנות שסופק. אל תגיש רשימת נתונים או דוח טכני. מותר להציע חיבורים והשערות מסומנים, אך אסור להמציא עובדות, משמעות מילונית, מקור, מספר או קשר היסטורי שאינם בתיק. אותו חומר בדיוק כמו במצב הכללי. " +
-    "כללי כתיבה: בחר ציר רעיוני מרכזי אחד. חבר 3–7 ממצאים מן התיק לסיפור רציף אחד והתחל מן הממצא המפתיע ביותר; אל תעתיק את כל הרשימה — כשיש בתיק קבוצת ביטויים סביב אותו ערך, בחר ממנה שלושה עד חמישה עוגנים שיוצרים מתח, תנועה או תמונה אחת, ורק כשהמילים שסופקו מאפשרות זאת חפש ניגוד כמו עלייה וירידה, הסתר וגילוי, מלוכה ושבר, שאלה ותשובה. " +
-    "הבדל תמיד בין עובדה מספרית (מה שהתיק מספק) לבין פרשנות (מה שאתה מציע). נתוני הנרמול הם בלם אמינות שקובע כמה משקל לתת לקשר; אל תהפוך אותם לנושא המרכזי ואל תסיים בתיאור כמו ‘שתי משפחות חישוב’ בלי להפוך אותו לתובנה על הביטויים. " +
-    "אל תתפתה לצירוף מקרי חלש: אל תשתמש בתמורת אותיות, בכפילות שיטות טבעית, בדמיון מילולי בלבד או בריבוי שיטות תלויות כאילו הם הפתעה חזקה. אם יצרת מטפורה או מונח משלך, הסבר אותם מיד בשפה פשוטה וציין שזו הצעה של רזיאל ולא לשון המקור. " +
-    "כשהבסיס חלש, אמור שאין עדיין בסיס מספיק לפרשנות מלאה — אל תכפה סיפור. " +
-    "כתוב בחמש הכותרות האלה, כל אחת בשורה נפרדת ובסדר הזה: " +
-    "‘הפתיחה:’ — כותרת או משפט פתיחה חד אחד. " +
-    "‘הסיפור המרכזי:’ — הציר הרעיוני והסיפור הרציף, מן הממצא המפתיע ביותר; מותר לכמה פסקאות קצרות כשיש חומר עשיר. " +
-    "‘שכבות נוספות:’ — שכבות משיטות אחרות או ממקורות שמחזקות או מסבכות את הסיפור, בלי חישוב חדש. " +
-    "‘עובדה ופרשנות:’ — מה עובדה מספרית שסופקה ומה פרשנות שלך, בשורות קצרות עם התחילית ‘עובדה:’ או ‘פרשנות:’. " +
-    "‘מה עדיין לא הוכח:’ — הגבול המדויק של הראיה, הסתייגויות התלות והנרמול, ומה דרוש כדי לחזק את ההשערה. " +
-    "אל תכתוב ‘המנוע מצא’ על דבר שאינו בתיק.",
+    "\nמצב «מתפרע» — פרשנות מלאה וארוכה בסגנון המחקר העמוק של הפרשן: 5–9 פסקאות זורמות מתוך תיק הפרשנות שסופק. אותו חומר בדיוק כמו במצב הכללי. " +
+    "הישאר סביב הביטוי שנשאל מתחילת התשובה ועד סופה. עבור בהדרגה על השכבות שקיימות בפועל בתיק, בסדר הזה: " +
+    "(א) משמעות הביטוי עצמו, כקריאה רכה ומסומנת; (ב) קבוצת הביטויים שבערך הרגיל — בחר מתוכה עוגנים שיוצרים מתח, תנועה או תמונה אחת, ובנה ביניהם קשרים; (ג) מפגשים בכמה שיטות, עם שמות השיטות המדויקים כפי שסופקו; " +
+    "(ד) אתבש כמראה הפוכה; (ה) מילוי כפנימיות; (ו) מסתתר כרובד נסתר — כל אחד רק אם יש עליו חומר בתיק; (ז) סינתזה מסכמת אחת. אל תציג שכבה שאין עליה חומר ואל תמלא אותה בניחוש. " +
+    "אל תפתח בממצא צדדי שאינו נושא השאלה. אל תתפתה לצירוף מקרי חלש: תמורת אותיות, כפילות שיטות טבעית ודמיון מילולי בלבד אינם הפתעה. " +
+    "אם יצרת מטפורה או מונח משלך, הסבר אותו מיד בשפה פשוטה. כשהבסיס חלש, אמור שאין עדיין בסיס לפרשנות מלאה. " + RAZIEL_PROSE_VOICE,
+  surprise: RAZIEL_VIEW_MODE_COMMON +
+    "\nמצב «הפתע אותי» — קריאה מפתיעה אחת: חפש ציר רעיוני אחד בלתי צפוי מתוך תיק הפרשנות, ומותר לפתוח בו גם אם הוא ממצא צדדי (למשל ביטוי שמצטרף לאותו ערך). " +
+    "3–5 פסקאות. הסבר מיד למה בחרת בציר הזה ועל אילו עובדות שסופקו הוא נשען. אל תהפוך את זה לקריאה מלאה של כל השכבות. " + RAZIEL_PROSE_VOICE,
 };
 // Structural telemetry only (labels present in the model answer) — never used to alter the answer.
 function razielViewModeStructure(mode: RazielViewMode, answer: unknown): Record<string, unknown> | null {
@@ -256,13 +264,10 @@ function razielViewModeStructure(mode: RazielViewMode, answer: unknown): Record<
   if (mode === "landscape") {
     return { anchor: text.includes("עוגן:"), layers: RAZIEL_LANDSCAPE_SECTIONS.filter((s) => text.includes(`${s}:`)).length };
   }
-  if (mode === "exploratory") {
+  if (mode === "exploratory" || mode === "surprise") {
     return {
-      opening: text.includes("הפתיחה:"),
-      central_story: text.includes("הסיפור המרכזי:"),
-      additional_layers: text.includes("שכבות נוספות:"),
-      fact_and_interpretation: text.includes("עובדה ופרשנות:"),
-      unproven_boundary: text.includes("מה עדיין לא הוכח"),
+      paragraphs: text.split(/\n+/u).filter((line) => line.trim()).length,
+      template_headings: /(?:^|\n)\s*(?:הפתיחה|הסיפור המרכזי|שכבות נוספות|עובדה ופרשנות|מה עדיין לא הוכח)\s*:/u.test(text),
     };
   }
   return null;
@@ -1718,7 +1723,11 @@ async function runRazielCanonicalBundle({
   return out;
 }
 
-function razielCanonicalBundleComposition(reads: RazielCanonicalBundleRead[]) {
+function razielCanonicalBundleComposition(reads: RazielCanonicalBundleRead[], layerReads: RazielCanonicalBundleRead[] = []) {
+  const toInput = (read: RazielCanonicalBundleRead) => ({
+    subject: { type: "number", value: read.number },
+    projection: read.projection,
+  });
   return buildRazielGroundedSourceComposer(reads.filter((read) => read.ok && read.projection).map((read) => ({
     subject: read.number != null
       ? { type: "number", value: read.number }
@@ -1730,7 +1739,7 @@ function razielCanonicalBundleComposition(reads: RazielCanonicalBundleRead[]) {
           observedValue: read.observedValue,
         },
     projection: read.projection,
-  })));
+  })), { layerReads: layerReads.filter((read) => read.ok && read.projection && read.number != null).map(toInput) });
 }
 
 // ── Raziel Intelligence Core v1 Phase L — bounded READ-only external live-state verifier (verified admin only) ──────────────────────────────
@@ -2846,6 +2855,7 @@ Deno.serve(async (req: Request) => {
       let rCanonicalBundlePack = "";
       let rCanonicalBundleGuidance = "";
       let rCanonicalSurpriseGuidance = "";
+      let rCanonicalSurpriseBrief = "";
       let rCanonicalExploratoryBrief = "";
       let rCanonicalBundleReads: RazielCanonicalBundleRead[] = [];
       let rCanonicalBundleSources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
@@ -2914,10 +2924,28 @@ Deno.serve(async (req: Request) => {
               composition = razielCanonicalBundleComposition(rCanonicalBundleReads);
             }
           }
+          // Interpretive modes only: read the Number Bundle (the SAME contract, authorization and projection) for the values of the
+          // expression's אתבש / מילוי / מסתתר methods, so the dossier can name the words standing in those layers. They feed the
+          // dossier only, are fail-open, and never join the primary reads, the prompt or the other modes.
+          let rLayerReads: RazielCanonicalBundleRead[] = [];
+          if (rViewMode === "exploratory" || rViewMode === "surprise") {
+            const alreadyRead = new Set(rCanonicalBundleReads.map((read) => read.number).filter((value) => value != null));
+            rLayerReads = await Promise.all(razielMethodLayerNumbers(expressionRead.projection).filter(({ value }) => !alreadyRead.has(value)).map(({ value }) => runRazielCanonicalBundle({
+              contract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+              number: value,
+              question: rSubject,
+              visitorId: body?.visitor_id,
+              interactionId: body?.interaction_id,
+              authorization: req.headers.get("authorization") || "",
+              trace: activeTrace,
+            })));
+            if (rLayerReads.some((read) => read.ok && read.projection)) composition = razielCanonicalBundleComposition(rCanonicalBundleReads, rLayerReads);
+          }
           rCanonicalBundlePack = composition.prompt;
           rCanonicalBundleGuidance = composition.guidance;
           rCanonicalSurpriseGuidance = composition.surprise_guidance;
           rCanonicalExploratoryBrief = composition.exploratory_brief;
+          rCanonicalSurpriseBrief = composition.surprise_brief;
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
@@ -2928,7 +2956,7 @@ Deno.serve(async (req: Request) => {
               contract: RAZIEL_CANONICAL_EXPRESSION_CROSSING_CONTRACT,
               status: "ready",
               subject_type: "expression",
-              trace_refs: rCanonicalBundleReads.map((read) => read.traceId).filter(Boolean),
+              trace_refs: [...rCanonicalBundleReads, ...rLayerReads].map((read) => read.traceId).filter(Boolean),
             },
           };
         } else {
@@ -2960,6 +2988,7 @@ Deno.serve(async (req: Request) => {
           rCanonicalBundleGuidance = composition.guidance;
           rCanonicalSurpriseGuidance = composition.surprise_guidance;
           rCanonicalExploratoryBrief = composition.exploratory_brief;
+          rCanonicalSurpriseBrief = composition.surprise_brief;
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
@@ -3136,9 +3165,9 @@ Deno.serve(async (req: Request) => {
         : "");
 
       const canonicalBundleText = rCanonicalBundlePack
-        ? rViewMode === "exploratory" && rCanonicalExploratoryBrief
-          ? "\n\nתיק פרשנות מתוך חבילת-התוצאה הקנונית (אותו Bundle ואותן הרשאות; הקרנה תחומה כדי למנוע הצפה טכנית. השתמש רק בעובדות שכאן):\n" + rCanonicalExploratoryBrief
-          : "\n\nחבילת-תוצאת מחקר קנונית (Research Result Bundle שכבר עבר הרשאות וסינון; חומר מובנה פנימי בלבד — אל תחשוף JSON, שמות שדות, מזהי Finding או trace; נסח עברית טבעית, קשר כל טענה לממצא שסופק, הפרד עובדה מתמטית מטענת מקור ומפרשנות, ואל תשלים יכולת חסרה):\n" + rCanonicalBundleGuidance + "\n" + rCanonicalBundlePack
+        ? (rViewMode === "exploratory" || rViewMode === "surprise") && (rViewMode === "surprise" ? rCanonicalSurpriseBrief : rCanonicalExploratoryBrief)
+          ? "\n\nתיק פרשנות מתוך חבילת-התוצאה הקנונית (אותו Bundle ואותן הרשאות; הקרנה תחומה כדי למנוע הצפה טכנית. השתמש רק בעובדות שכאן):\n" + (rViewMode === "surprise" ? rCanonicalSurpriseBrief : rCanonicalExploratoryBrief)
+          : "\n\nחבילת-תוצאת מחקר קנונית (Research Result Bundle שכבר עבר הרשאות וסינון; חומר מובנה פנימי בלבד — אל תחשוף JSON, שמות שדות, מזהי Finding או trace; נסח עברית טבעית, קשר כל טענה לממצא שסופק, הפרד עובדה מתמטית מטענת מקור ומפרשנות, ואל תשלים יכולת חסרה):\n" + rCanonicalBundleGuidance + "\n" + rCanonicalBundlePack + (rViewMode === "general" ? RAZIEL_GENERAL_PROSE_INSTRUCTION : "")
         : "";
       const toolText = (rToolRes ? rToolRes.text : "") + (rNcPack
         ? "\n\nהקשר-מספר באתר (קריאה-בלבד מ-number_map + number_dossier_json; נוכחות קשת = ראיית-קשר ולא פירוש; השתמש רק בפריטים כאן, אל תמציא פוסטים/טופיקים/מספרים, אל תחשב; ללא גוף-פוסט):\n" + rNcPack
@@ -3185,7 +3214,7 @@ Deno.serve(async (req: Request) => {
       const exactSurfaceNumber = razielSurfaceNumberRoot(body?.surface_semantic);
       const permittedRazielNumericTexts = [
         rSubject, rFacts, rzMtxFacts, rToolRes?.text, rNcPack, rCanonicalBundlePack,
-        rCanonicalSurpriseGuidance, rCanonicalExploratoryBrief, rOpPack, rPersPack,
+        rCanonicalSurpriseGuidance, rCanonicalExploratoryBrief, rCanonicalSurpriseBrief, rOpPack, rPersPack,
         rCcPack === "UNAVAILABLE" ? "" : rCcPack,
         rSource?.ok ? rSource.text : "",
         exactSurfaceNumber == null ? "" : String(exactSurfaceNumber),

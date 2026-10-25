@@ -12,7 +12,7 @@ import { buildRazielSessionRequest } from "../src/lib/research/razielSessionRequ
 import { RAZIEL_VIEW_MODES } from "../src/lib/research/razielViewMode2029.js";
 import { METHODS } from "../src/lib/gematria.js";
 
-const MODES = ["general", "landscape", "exploratory"];
+const MODES = ["general", "landscape", "exploratory", "surprise"];
 const NON_GENERAL = ["landscape", "exploratory"];
 const MARKER = "[מצב התבוננות ניסיוני";
 
@@ -121,7 +121,10 @@ for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_27
     for (const mode of NON_GENERAL) {
       const run = runs[mode];
       // identical research reads, no extra capability/calculator/RPC family
-      assert.deepEqual(researchCalls(run), researchCalls(general), `${mode}: research-run calls`);
+      // same canonical reads; only the interpretive mode may add Number reads for the method-layer values (same contract)
+      const extraReads = researchCalls(run).filter((call) => !researchCalls(general).some((base) => JSON.stringify(base) === JSON.stringify(call)));
+      assert.deepEqual(researchCalls(run).filter((call) => !extraReads.includes(call)), researchCalls(general), `${mode}: research-run calls`);
+      assert.ok(extraReads.every((call) => call.contract === "public-number-research-run-v1" && mode === "exploratory"), `${mode}: extra reads are only method-layer Number reads in the interpretive mode`);
       const extra = callNames(run).filter((n) => !callNames(general).includes(n));
       assert.deepEqual([...new Set(extra)].filter((n) => !SYNTHESIS_PLUMBING.includes(n)), [], `${mode}: only existing synthesis plumbing beyond general`);
       assert.equal(run.calls.filter((call) => /gematria|number_lookup|calc/i.test(call.name)).length, 0);
@@ -148,7 +151,10 @@ for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_27
     if (general.models.length) {
       // General and landscape retain the complete projection; exploratory alone uses the bounded
       // story brief. Provider/model selection and admitted evidence remain unchanged.
-      assert.equal(runs.landscape.models[0].user, general.models[0].user);
+      // general = the same Bundle material + only the short flowing-prose style block
+      const proseBlock = /\n\n\[סגנון תשובה\] ענה בשפה הפרשנית הזורמת[^\n]*(?=\n\nכתוב את מענה-רזיאל)/u;
+      assert.match(general.models[0].user, proseBlock);
+      assert.equal(general.models[0].user.replace(proseBlock, ""), runs.landscape.models[0].user);
       assert.equal(runs.landscape.models[0].system.startsWith(general.models[0].system), true);
     } else {
       // general answered deterministically from the Bundle → every fact it showed is present in the material landscape received
@@ -228,49 +234,44 @@ for (const mode of MODES) {
 
 test("4b) a clean exploratory answer built only from provided numbers passes untouched", async () => {
   const answer = [
-    "הפתיחה: 271 מחבר בין חכמה להריון.",
-    "הסיפור המרכזי: הריון בשיטת רגיל = 271, ולכן הוא עוגן שמאפשר להציע קריאה.",
-    "שכבות נוספות: אין בחומר שכבה נוספת משיטה אחרת.",
-    "עובדה ופרשנות: עובדה: הריון = 271. פרשנות: ההתאמה מצביעה על קשר חישובי בלבד.",
-    "מה עדיין לא הוכח: לא הוכח קשר רעיוני; אפשר לבדוק אם ביטויים נוספים סביב 271 חולקים הקשר מילוני.",
+    "271 מחבר בין חכמה להריון, וכבר בשיטת רגיל הריון = 271 — כאילו עוגן שמאפשר להציע קריאה.",
+    "אין בחומר שכבה נוספת משיטה אחרת, ולכן ההתאמה מצביעה על קשר חישובי בלבד.",
+    "עדיין לא הוכח קשר רעיוני; אפשר לבדוק אם ביטויים נוספים סביב 271 חולקים הקשר מילוני.",
   ].join("\n");
   const run = await ask(Q_271, { mode: "exploratory", modelResult: modelText(answer) });
   assert.equal(run.models.length, 1);
   assert.equal(run.result.raziel.answer, answer);
-  assert.deepEqual(run.result.raziel.plan_meta.view_mode.structure, {
-    opening: true, central_story: true, additional_layers: true, fact_and_interpretation: true, unproven_boundary: true,
-  });
+  assert.deepEqual(run.result.raziel.plan_meta.view_mode.structure, { paragraphs: 3, template_headings: false });
 });
 
 // ── 5: three explicit tiers / landscape layers ────────────────────────────────────────────────────────────────
-test("5) exploratory layer demands the five-part interpretive contract and forbids invention; landscape layer demands anchor + ordered layers + provenance prefixes", async () => {
+test("5) מתפרע layer demands flowing Legacy-style prose (no template headings) around the asked expression; landscape layer demands anchor + ordered layers + provenance prefixes", async () => {
   const [l, e] = [await ask(Q_271, { mode: "landscape" }), await ask(Q_271, { mode: "exploratory" })];
   const exploratory = e.models[0].system.slice(e.models[0].system.indexOf(MARKER));
-  for (const tier of ["הפתיחה:", "הסיפור המרכזי:", "שכבות נוספות:", "עובדה ופרשנות:", "מה עדיין לא הוכח:"]) assert.ok(exploratory.includes(tier), tier);
-  const tierOrder = ["הפתיחה:", "הסיפור המרכזי:", "שכבות נוספות:", "עובדה ופרשנות:", "מה עדיין לא הוכח:"].map((tier) => exploratory.indexOf(`‘${tier}’`));
-  assert.deepEqual([...tierOrder].sort((a, b) => a - b), tierOrder, "the five parts keep the required order");
-  // the writing contract of the old-site interpreter
-  assert.match(exploratory, /ציר רעיוני מרכזי אחד/);
-  assert.match(exploratory, /3–7 ממצאים/);
-  assert.match(exploratory, /הממצא המפתיע ביותר/);
-  assert.match(exploratory, /עובדה מספרית.*פרשנות/);
-  assert.match(exploratory, /אל תהפוך אותם לנושא המרכזי/);
-  assert.match(exploratory, /אסור להמציא עובדות/);
+  for (const old of ["הפתיחה:", "הסיפור המרכזי:", "שכבות נוספות:", "עובדה ופרשנות:", "מה עדיין לא הוכח:"]) {
+    assert.equal(exploratory.includes(`‘${old}’`), false, `the five old template headings are gone: ${old}`);
+  }
+  assert.match(exploratory, /מצב «מתפרע»/);
+  assert.match(exploratory, /5–9 פסקאות זורמות/);
+  assert.match(exploratory, /בלי כותרות, בלי תבליטים ובלי שמות סעיפים/);
+  assert.match(exploratory, /הישאר סביב הביטוי שנשאל/);
+  // the layer order of the Legacy deep reading
+  const layerOrder = ["משמעות הביטוי עצמו", "קבוצת הביטויים שבערך הרגיל", "מפגשים בכמה שיטות", "אתבש כמראה", "מילוי כפנימיות", "מסתתר כרובד נסתר", "סינתזה מסכמת אחת"].map((x) => exploratory.indexOf(x));
+  assert.ok(layerOrder.every((i) => i > 0), "all layers named");
+  assert.deepEqual([...layerOrder].sort((a, b) => a - b), layerOrder, "layers keep the required order");
+  assert.match(exploratory, /אל תציג שכבה שאין עליה חומר/);
+  assert.match(exploratory, /אל תפתח בממצא צדדי שאינו נושא השאלה/);
+  assert.match(exploratory, /אל תכתוב ‘זה לא צירוף מקרים’/);
+  assert.match(exploratory, /הנרמול הוא בלם אמינות בלבד ולא מרכז הסיפור/);
   assert.match(exploratory, /מטפורה או מונח משלך/);
-  assert.match(exploratory, /הצעה של רזיאל ולא לשון המקור/);
-  assert.match(exploratory, /המנוע מצא/);
   assert.match(exploratory, /אל תחשב גימטריה/);
-  assert.match(exploratory, /אל תניח זהות ביוגרפית/);
+  assert.match(exploratory, /בלי תאריכים, ציטוטים, מקורות או אירועים שלא סופקו/);
   assert.match(exploratory, /פירוש מילוני אפשרי/);
-  assert.match(exploratory, /אין עדיין בסיס מספיק לפרשנות מלאה/);
+  assert.match(exploratory, /אין עדיין בסיס לפרשנות מלאה/);
   assert.match(exploratory, /טקסט חשיבה גולמי/);
   assert.match(exploratory, /תמורת אותיות/);
-  assert.match(exploratory, /ריבוי שיטות תלויות/);
-  assert.match(exploratory, /אל תגיש רשימת נתונים או דוח טכני/);
-  assert.match(exploratory, /קבוצת ביטויים סביב אותו ערך/);
-  assert.match(exploratory, /נתוני הנרמול הם בלם אמינות/);
   assert.match(e.models[0].user, /תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית/);
-  assert.match(e.models[0].user, /הפתיחה: · הסיפור המרכזי: · שכבות נוספות: · עובדה ופרשנות: · מה עדיין לא הוכח:/);
+  assert.match(e.models[0].user, /\[הוראת פלט סופית\] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 5–9 פסקאות, בלי כותרות/);
 
   const landscape = l.models[0].system.slice(l.models[0].system.indexOf(MARKER));
   assert.ok(landscape.includes("עוגן:"));
@@ -301,9 +302,7 @@ test("5a) exploratory synthesis receives a deterministic presentation shortlist,
 test("5b) the server reports which structural labels the model answer actually carried (telemetry only; the answer is never rewritten)", async () => {
   const partial = await ask(Q_271, { mode: "exploratory", modelResult: modelText("עובדה ופרשנות: עובדה: הריון בשיטת רגיל = 271.") });
   assert.equal(partial.result.raziel.answer, "עובדה ופרשנות: עובדה: הריון בשיטת רגיל = 271.");
-  assert.deepEqual(partial.result.raziel.plan_meta.view_mode.structure, {
-    opening: false, central_story: false, additional_layers: false, fact_and_interpretation: true, unproven_boundary: false,
-  });
+  assert.deepEqual(partial.result.raziel.plan_meta.view_mode.structure, { paragraphs: 1, template_headings: true });
   const land = await ask(Q_271, { mode: "landscape", modelResult: modelText("עוגן: 271.\nעובדות חישוביות מאומתות: עובדה מתמטית: הריון = 271.\nשאלות ונתיבי מחקר פתוחים: מה עוד?") });
   assert.deepEqual(land.result.raziel.plan_meta.view_mode.structure, { anchor: true, layers: 2 });
 });
@@ -423,8 +422,8 @@ test("telemetry: view_mode is recorded on the model span and replay ref without 
 test("server and client agree on the closed set of modes", () => {
   assert.deepEqual([...RAZIEL_VIEW_MODES], MODES);
   const source = readFileSync(new URL("../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8");
-  assert.match(source, /type RazielViewMode = "general" \| "landscape" \| "exploratory";/);
-  assert.match(source, /return v === "landscape" \|\| v === "exploratory" \? v : "general";/);
+  assert.match(source, /type RazielViewMode = "general" \| "landscape" \| "exploratory" \| "surprise";/);
+  assert.match(source, /return v === "landscape" \|\| v === "exploratory" \|\| v === "surprise" \? v : "general";/);
   assert.match(source, /body\?\.view_mode/);
   assert.doesNotMatch(source, /body\?\.mode\b[^\n]*view_mode/, "view_mode must not reuse the legacy `mode` field");
 });

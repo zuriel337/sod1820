@@ -133,23 +133,24 @@ export function resolveRazielExpressionContinuationDirective(question) {
 // expression and does not maintain a dictionary of known names.
 function explicitExpressionProfileCommand(question) {
   const q = grammarText(question);
-  const computation = "(?:הגימטריות|חישובי\\s+ה?גימטרי[הא]|החישובים\\s+הגימטריים|הערכים\\s+הגימטריים)";
+  const computation = "(?:ה?גימטריות|חישובי\\s+ה?גימטרי[הא]|החישובים\\s+הגימטריים|הערכים\\s+הגימטריים)";
   const role = "(?:(?:השם|המילה|הביטוי)\\s+)?";
   const imperative = new RegExp(`^(?:תן|תני|הצג|הציגי|הראה|הראי|פרט|פרטי)(?:\\s+לי)?(?:\\s+את)?\\s+(?:כל\\s+)?${computation}\\s+(?:על|של|עבור)\\s+${role}(.+)$`, "u");
   const interrogative = new RegExp(`^(?:מה|אילו)(?:\\s+הן)?\\s+(?:כל\\s+)?${computation}\\s+(?:של|עבור)\\s+${role}(.+)$`, "u");
-  const match = imperative.exec(q) || interrogative.exec(q);
-  const expression = match ? validExplicitHebrewExpression(match[1]) : null;
-  if (!expression) return null;
-  return Object.freeze({
-    type: "phrase",
-    label: expression,
-    evidence_text: expression,
-    identity_key: `phrase:${expression}`,
-    source: RESEARCH_IDENTITY_SOURCE.TEXT_MATCH,
-    confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
-    requested_action: "research",
-    explicit_text_computation: true,
-  });
+  // "הכל על הגימטריה של X" — a whole-profile request over one expression.
+  const everything = new RegExp(`^(?:הכל|כל\\s+מה\\s+שיש)\\s+על\\s+(?:ה?גימטרי[הא]|ה?ערכים\\s+ה?גימטריים)\\s+(?:של|על)\\s+${role}(.+)$`, "u");
+  const match = imperative.exec(q) || interrogative.exec(q) || everything.exec(q);
+  const slot = match ? splitExpressionSlot(match[1]) : null;
+  return slot ? expressionSubjectFromSlot(slot) : null;
+}
+
+// "<expression> <value> בכל השיטות" — the all-methods lens over one explicit expression.
+function explicitExpressionAllMethodsCommand(question) {
+  const q = grammarText(question);
+  const match = /^(.+?)\s+בכל\s+השיטות$/u.exec(q);
+  const slot = match ? splitExpressionSlot(match[1]) : null;
+  if (!slot || slot.observedValue == null) return null;
+  return expressionSubjectFromSlot(slot, { all_methods: true });
 }
 
 function validExplicitHebrewExpression(value) {
@@ -161,6 +162,43 @@ function validExplicitHebrewExpression(value) {
   if (/^(?:ה?שם(?:\s+שלי)?|שמי|שלי|ה?מילה|ה?ביטוי|זה|זאת|משהו)$/u.test(expression)) return null;
   if (/^(?:שנת|שנה|עמוד|דף|פרק|פסוק|מקור(?:ות)?)\s+\d+$/u.test(expression)) return null;
   return expression;
+}
+
+// An expression slot may carry ONE adjacent integer ("337 שאול", "שאול 337"). The integer is an
+// observed value to be checked by the canonical engine, never the research subject: the Hebrew
+// expression stays the focus. Structural for any expression; no vocabulary of names.
+function splitExpressionSlot(text) {
+  let body = clean(text, 120).replace(/\s+בכל\s+השיטות$/u, "").trim();
+  let observedValue = null;
+  const tokens = body.split(/\s+/u).filter(Boolean);
+  if (tokens.filter((token) => /\d/u.test(token)).length > 1) return null;
+  if (tokens.length >= 2) {
+    const numericIndex = [0, tokens.length - 1].find((index) => /^\d{1,6}$/u.test(tokens[index]));
+    if (numericIndex != null && tokens.filter((token) => /\d/u.test(token)).length === 1) {
+      const numeric = Number(tokens[numericIndex]);
+      if (Number.isSafeInteger(numeric) && numeric >= 1) {
+        observedValue = numeric;
+        body = tokens.filter((_, index) => index !== numericIndex).join(" ");
+      }
+    }
+  }
+  const expression = validExplicitHebrewExpression(body);
+  return expression ? { expression, observedValue } : null;
+}
+
+function expressionSubjectFromSlot(slot, extra = {}) {
+  return Object.freeze({
+    type: "phrase",
+    label: slot.expression,
+    evidence_text: slot.expression,
+    identity_key: `phrase:${slot.expression}`,
+    source: RESEARCH_IDENTITY_SOURCE.TEXT_MATCH,
+    confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    requested_action: "research",
+    ...(slot.observedValue != null ? { observed_value: slot.observedValue } : {}),
+    ...extra,
+    explicit_text_computation: true,
+  });
 }
 
 // Parse a complete expression-calculation command into independent semantic slots. The words that
@@ -217,6 +255,9 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
 
   const expressionProfileCommand = explicitExpressionProfileCommand(q);
   if (expressionProfileCommand) return expressionProfileCommand;
+
+  const expressionAllMethodsCommand = explicitExpressionAllMethodsCommand(q);
+  if (expressionAllMethodsCommand) return expressionAllMethodsCommand;
 
   let match = /^(?:מצא|מצאי|חפש|חפשי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+(?:הצלבות|קשרים)\s+(?:(?:למילה|לביטוי|לשם|עבור)\s+)(.+)$/u.exec(q);
   let requestedAction = "connect";
@@ -333,6 +374,8 @@ export function resolveExplicitNumericResearchSubject(question) {
   if (!q) return null;
   const numericTokens = [...q.matchAll(/(?<!\d)\d{1,6}(?!\d)/gu)].map((match) => match[0]);
   if (numericTokens.length !== 1) return null;
+  // A value beside an explicit Hebrew expression is that expression's observed value, not a new subject.
+  if (resolveExplicitHebrewExpressionResearchSubject(q)?.observed_value != null) return null;
   const literal = numericTokens[0];
   const value = Number(literal);
   if (!Number.isSafeInteger(value) || value < 1 || value > 999999) return null;

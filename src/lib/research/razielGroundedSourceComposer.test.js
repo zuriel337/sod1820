@@ -51,7 +51,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v12");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v13");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -259,8 +259,15 @@ test("broad expression surprise receives a bounded canonical value constellation
   }
   assert.match(candidates[0].limit, /פרשנות של רזיאל בלבד/);
   assert.match(out.surprise_guidance, /קבוצת עוגנים ולא מסקנה/);
-  assert.match(out.surprise_guidance, /הפתיחה: · הסיפור המרכזי: · שכבות נוספות: · עובדה ופרשנות: · מה עדיין לא הוכח:/);
-  assert.match(out.surprise_guidance, /3–7 ממצאים/);
+  // הפתע אותי is the only contract that hunts one unexpected axis; מתפרע is the full Legacy-style prose reading
+  assert.match(out.surprise_guidance, /ציר אחד בלתי צפוי/);
+  assert.doesNotMatch(out.surprise_guidance, /הפתיחה: · הסיפור המרכזי/);
+  assert.match(out.surprise_brief, /ציר אחד בלתי צפוי/);
+  assert.doesNotMatch(out.surprise_brief, /5–9 פסקאות/);
+  assert.match(out.exploratory_brief, /5–9 פסקאות, בלי כותרות ובלי רשימות/);
+  assert.match(out.exploratory_brief, /אתבש כמראה, מילוי כפנימיות, מסתתר כרובד נסתר/);
+  assert.doesNotMatch(out.exploratory_brief, /הפתיחה: · הסיפור המרכזי/);
+  assert.doesNotMatch(out.exploratory_brief, /ציר אחד בלתי צפוי/);
   assert.match(out.exploratory_brief, /1\. הביטוי והערך המרכזי:\nשאול · רגיל=337/);
   assert.match(out.exploratory_brief, /4\. קבוצת הביטויים באותו ערך רגיל:/);
   assert.match(out.exploratory_brief, /9\. הסתייגויות:/);

@@ -4,9 +4,9 @@ import { normalizeRazielQuestion } from "./razielSession2029.js";
 // The action is offered on the latest completed answer of any level, but it can only RUN when the server reported a valid
 // canonical Result Bundle for exactly that answer (provenance.bundleStatus === "ready", built in razielSessionRequest2029.js).
 // ok=false ⇒ the panel says there is not enough material yet and nothing is sent.
-// "surprise" = deep interpretive reading (exploratory); "map" = the layered landscape (fast). Both only as a per-request view mode.
+// "surprise" = one unexpected-axis reading (its own server contract, separate from מתפרע); "map" = the layered landscape (fast). Both only as a per-request view mode.
 export const RAZIEL_ONE_SHOT_SPEC = Object.freeze({
-  surprise: Object.freeze({ mode: "exploratory", level: "deep" }),
+  surprise: Object.freeze({ mode: "surprise", level: "deep" }),
   map: Object.freeze({ mode: "landscape", level: "fast" }),
 });
 

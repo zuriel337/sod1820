@@ -2,7 +2,7 @@
 // view_mode only chooses how one answer over the same canonical Result Bundle is structured. It never selects a
 // provider, never changes calculation/authorization, and "general" is the existing behaviour byte-for-byte.
 
-export const RAZIEL_VIEW_MODES = Object.freeze(["general", "landscape", "exploratory"]);
+export const RAZIEL_VIEW_MODES = Object.freeze(["general", "landscape", "exploratory", "surprise"]);
 export const RAZIEL_DEFAULT_VIEW_MODE = "general";
 
 export const RAZIEL_VIEW_MODE_META = Object.freeze({
@@ -13,6 +13,7 @@ export const RAZIEL_VIEW_MODE_META = Object.freeze({
     experimental: true,
     hint: "פרשנות עמוקה: עובדה, פרשנות והשערה בנפרד.",
   },
+  surprise: { label: "הפתע אותי", experimental: true, hint: "" },
 });
 
 // Unknown/missing ⇒ general (mirrors the server). Never throws.

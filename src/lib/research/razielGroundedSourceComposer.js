@@ -7,7 +7,7 @@
 // source URL, and derive bounded presentation candidates for the exploratory view. Candidate
 // ordering never changes the canonical evidence order or promotes a candidate to research truth.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 12;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 13;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -604,8 +604,10 @@ export function razielSurpriseCandidates(input = []) {
     .map(({ source_order, strength, ...candidate }) => candidate));
 }
 
-// The writing contract of "מתפרע" (the server layer carries the same five headings): one axis, 3–7 findings, most surprising first.
-const EXPLORATORY_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] בתוך answer כתוב בדיוק בחמש הכותרות האלה, כל אחת בשורה נפרדת ובסדר הזה: הפתיחה: · הסיפור המרכזי: · שכבות נוספות: · עובדה ופרשנות: · מה עדיין לא הוכח:. בחר ציר רעיוני אחד, חבר 3–7 ממצאים מן התיק לסיפור רציף והתחל מן הממצא המפתיע ביותר. הנרמול הוא בלם אמינות ולא הסיפור. אם אין בסיס מספיק — אמור שאין עדיין בסיס לפרשנות מלאה.";
+// Final output instructions. "מתפרע" is the full Legacy-style interpretive reading: flowing prose, no template headings, built
+// around the asked expression. "הפתע אותי" is the ONLY contract that hunts one unexpected axis. The server layers carry the same contracts.
+const EXPLORATORY_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] כתוב בתוך answer פרשנות מלאה בפרוזה זורמת, 5–9 פסקאות, בלי כותרות ובלי רשימות. התחל מהביטוי שנשאל ומערכו הרגיל ושמור עליו כנושא עד הסוף; עבור לפי הסדר על השכבות שקיימות בתיק בלבד: משמעות הביטוי (כקריאה רכה ומסומנת), קבוצת הביטויים באותו ערך, מפגשים בכמה שיטות, אתבש כמראה, מילוי כפנימיות, מסתתר כרובד נסתר — וסיים בסינתזה אחת. דלג על שכבה שאין עליה חומר. הנרמול הוא בלם אמינות ולא הסיפור; סיים במשפט הסתייגות קצר וטבעי.";
+const SURPRISE_OUTPUT_INSTRUCTION = "[הוראת פלט סופית] כתוב בתוך answer קריאה מפתיעה בפרוזה זורמת, 3–5 פסקאות, בלי כותרות ובלי רשימות: בחר ציר אחד בלתי צפוי מתוך התיק (מותר לפתוח בממצא צדדי), בנה סביבו סיפור והסבר מיד למה בחרת בו. הנרמול הוא בלם אמינות ולא הסיפור. אם אין בסיס טוב להפתעה — אמור זאת במקום לכפות סיפור.";
 
 function surpriseGuidance(entries) {
   const candidates = razielSurpriseCandidates(entries);
@@ -617,20 +619,71 @@ function surpriseGuidance(entries) {
   ];
   if (!candidates.length) return [...intro,
     "לא נמצא בחומר קשר שעבר את סף ההפתעה. אמור שאין עדיין בסיס להפתעה טובה ואל תכפה סיפור.",
-    EXPLORATORY_OUTPUT_INSTRUCTION,
+    SURPRISE_OUTPUT_INSTRUCTION,
   ].join("\n");
   return [...intro, ...candidates.map((candidate, index) => [
     `אפשרות ${index + 1} — ${candidate.kind}:`,
     `עובדה שסופקה: ${candidate.fact}`,
     `בסיס פרשני: ${candidate.interpretation_basis}`,
     `גבול הראיה: ${candidate.limit}`,
-  ].join("\n")), EXPLORATORY_OUTPUT_INSTRUCTION].join("\n");
+  ].join("\n")), SURPRISE_OUTPUT_INSTRUCTION].join("\n");
+}
+
+// ── Method layers of the Legacy deep reading: אתבש (mirror), מילוי (inner), מסתתר (hidden) ─────────────────────────────
+// The words that sit at the REGULAR value equal to one of the expression's method values. The values come from the
+// already-supplied canonical calculation profile; the words come from the existing Number Result Bundle contract read for
+// that value (the same contract, authorization and projection as every other read). Presentation only: no calculation.
+const METHOD_LAYERS = Object.freeze([
+  { key: "אתבש", role: "מראה" },
+  { key: "מילוי", role: "פנימיות" },
+  { key: "מסתתר", role: "רובד נסתר" },
+]);
+const MAX_LAYER_READS = METHOD_LAYERS.length;
+const MAX_LAYER_TERMS = 6;
+
+export function razielMethodLayerNumbers(expressionProjection) {
+  const anchor = list(expressionProjection?.model_input?.calculation_profile)
+    .find((item) => regularMethod(cleanText(item?.method_key || item?.method_label, 60)));
+  const anchorValue = safeNumber(anchor?.value);
+  const seen = new Set([anchorValue]);
+  return METHOD_LAYERS.flatMap((layer) => {
+    const item = list(expressionProjection?.model_input?.calculation_profile)
+      .find((candidate) => comparableMethod(cleanText(candidate?.method_key || candidate?.method_label, 60)) === comparableMethod(layer.key));
+    const value = safeNumber(item?.value);
+    if (value == null || value < 1 || value > 999999 || seen.has(value)) return [];
+    seen.add(value);
+    return [{ layer: layer.key, role: layer.role, value }];
+  }).slice(0, MAX_LAYER_READS);
+}
+
+function methodLayerLines(entries, layerEntries) {
+  const expressionEntry = entries.find((entry) => entry.subject?.type === "expression");
+  const expression = cleanText(expressionEntry?.subject?.value, 120);
+  if (!expression || !layerEntries.length) return [];
+  return razielMethodLayerNumbers(expressionEntry.projection).flatMap(({ layer, role, value }) => {
+    const numberEntry = layerEntries.find((entry) => entry.subject?.type === "number" && safeNumber(entry.subject.value) === value);
+    if (!numberEntry) return [];
+    const seen = new Set([comparable(expression)]);
+    const phrases = numberEntry.findings.flatMap((finding) => {
+      const label = cleanText(finding?.subject?.label, 120);
+      const key = comparable(label);
+      const method = cleanText(finding?.verification?.engine_method_tested || finding?.source?.method, 60);
+      if (!label || !key || seen.has(key) || /^\d+$/u.test(label) || finding?.subject?.type === "number"
+        || numericFindingValue(finding) !== value || !regularMethod(method)
+        || !["verified_calculation", "engine_finding"].includes(razielFindingEvidenceLane(finding))) return [];
+      seen.add(key);
+      return [label];
+    }).slice(0, MAX_LAYER_TERMS);
+    return phrases.length
+      ? [`${layer} (${role}): ${expression} בשיטת ${layer} = ${value}; בשיטת רגיל באותו ערך ${value} מופיעים: ${phrases.join(" · ")}.`]
+      : [];
+  });
 }
 
 // ── "תיק פרשנות" — the compact deterministic interpretive dossier for "מתפרע" ─────────────────────────────────────
 // A bounded projection of the SAME canonical Result Bundle (no second Bundle, no new read, no calculation). Nine labelled
 // sections, each only when the Bundle supplies it; the raw Bundle JSON is never passed to the model in this mode.
-const MAX_DOSSIER_CHARS = 7000;
+const MAX_DOSSIER_CHARS = 9000;
 const DOSSIER_EXCLUDED_KINDS = new Set(["gematria-method-value", "gematria-method-semantic", "gematria-crossing", "gematria-confirmed-relation"]);
 
 function methodMapLine(entries) {
@@ -687,7 +740,39 @@ function normalizationCaveats(entries) {
   ));
 }
 
-function exploratoryBrief(entries) {
+// A value typed beside the expression ("337 שאול") is an observed value to be checked against the canonical profile that was
+// already supplied — never a second subject and never a new calculation.
+function observedValueLine(entries, anchor) {
+  const entry = anchor && entries.find((item) => item.subject?.type === "expression" && item.subject?.observedValue != null);
+  const observed = safeNumber(entry?.subject?.observedValue);
+  if (observed == null) return null;
+  if (observed === anchor.value) return `הערך שנשאל, ${observed}, תואם את ${anchor.method} של ${anchor.expression} במפת החישוב הקנונית.`;
+  const matching = list(entry?.projection?.model_input?.calculation_profile)
+    .filter((item) => safeNumber(item?.value) === observed)
+    .map((item) => cleanText(item?.method_label || item?.method_key, 40)).filter(Boolean);
+  return matching.length
+    ? `הערך שנשאל, ${observed}, אינו הערך ה${anchor.method} של ${anchor.expression} (${anchor.value}), אך הוא תואם בשיטות: ${matching.join(" · ")}.`
+    : `הערך שנשאל, ${observed}, אינו מופיע במפת החישוב הקנונית של ${anchor.expression}; הערך ה${anchor.method} הוא ${anchor.value}.`;
+}
+
+// Every multi-method corpus meeting the Bundle supplies for the expression (exact methods and values per partner), bounded.
+function meetingLines(entries) {
+  return entries.flatMap((entry) => entry.findings
+    .filter((finding) => finding?.kind === "gematria-crossing")
+    .map((finding) => {
+      const fact = list(finding?.evidence?.facts).find((item) => item?.type === "gematria-multi-method-corpus-crossing") || {};
+      const expression = cleanText(fact.expression, 120);
+      const partner = cleanText(fact.partner, 120);
+      const methods = list(finding?.verification?.engine_result?.methods).map((item) => {
+        const method = cleanText(item?.method, 60);
+        const value = safeNumber(item?.value);
+        return method && value != null ? `${method}=${value}` : null;
+      }).filter(Boolean);
+      return expression && partner && methods.length ? `${expression} ↔ ${partner}: ${methods.join(" · ")}` : null;
+    }).filter(Boolean)).slice(0, 8);
+}
+
+function exploratoryBrief(entries, instruction = EXPLORATORY_OUTPUT_INSTRUCTION, layerEntries = []) {
   const anchor = primaryExpressionAnchor(entries);
   const candidates = razielSurpriseCandidates(entries);
   const constellation = candidates.find((candidate) => candidate.kind === "canonical_value_constellation");
@@ -701,23 +786,25 @@ function exploratoryBrief(entries) {
     "עצמאות בין שיטות חישוב לא נטענה: מספר שיטות או משפחות אינו מספר ראיות עצמאיות, והנרמול הוא בלם אמינות ולא ממצא.",
     "שוויון מספרי אינו מוכיח קשר סמנטי, סיבתי או מסורתי; תמורת אותיות וכפילות שיטות טבעית אינן הצלבה.",
     !sources.length ? "לא סופק בתיק מקור או פוסט שמפרש את הביטוי." : null,
-    !meanings.length ? "לא סופקה בתיק משמעות מאושרת של שיטות — אין להמציא משמעות מילונית או מקור." : null,
+    !meanings.length ? "לא סופקה בתיק משמעות מאושרת של שיטות — אין להציג משמעות מילונית או מקור כעובדה; קריאה לשונית רכה ומסומנת מותרת." : null,
     ...normalizationCaveats(entries),
   ];
   const blocks = [
     "[תיק פרשנות תחום מתוך אותה חבילת־תוצאה קנונית — הקרנה דטרמיניסטית בלבד, לא מנוע ולא מקור אמת נוסף; השתמש רק בחומר שכאן]",
-    section("1. הביטוי והערך המרכזי:", [anchor ? `${anchor.expression} · ${anchor.method}=${anchor.value}.` : null]),
+    section("1. הביטוי והערך המרכזי:", [anchor ? `${anchor.expression} · ${anchor.method}=${anchor.value}.` : null, observedValueLine(entries, anchor)]),
     section("2. מפת השיטות המחושבת:", [methodMapLine(entries)]),
     section("3. קבוצות שקילות לאחר נרמול:", equivalences),
     section("4. קבוצת הביטויים באותו ערך רגיל:", constellation ? [constellation.fact, `בסיס פרשני: ${constellation.interpretation_basis}`] : []),
     section("5. הצלבות בין־שיטתיות חשובות:", relations.slice(0, 3).map((candidate) => `${candidate.fact} גבול: ${candidate.limit}`)),
+    section("5א. מפגשים בכמה שיטות (השיטות והערכים המדויקים לכל ביטוי):", meetingLines(entries)),
+    section("5ב. שכבות המראה, הפנימיות והנסתר (ביטויים שערכם הרגיל שווה לערך השיטה):", methodLayerLines(entries, layerEntries)),
     section("6. ממצאים מאומתים ממקורות ופוסטים:", sources),
     section("7. משמעות השיטות המאושרת של SOD1820 (פרשנות SOD1820, לא עובדה מתמטית):", meanings),
     section("8. סדר והיררכיה שנקבעו במקור:", order),
     section("9. הסתייגויות:", caveats),
   ];
   // The bound applies to the material; the output instruction is always kept whole at the end.
-  return `${blocks.filter(Boolean).join("\n").slice(0, MAX_DOSSIER_CHARS - EXPLORATORY_OUTPUT_INSTRUCTION.length - 1)}\n${EXPLORATORY_OUTPUT_INSTRUCTION}`;
+  return `${blocks.filter(Boolean).join("\n").slice(0, MAX_DOSSIER_CHARS - instruction.length - 1)}\n${instruction}`;
 }
 
 function comparable(value) {
@@ -918,8 +1005,10 @@ function directCanonicalAnswer(entries) {
   return null;
 }
 
-export function buildRazielGroundedSourceComposer(input = []) {
+export function buildRazielGroundedSourceComposer(input = [], { layerReads = [] } = {}) {
   const entries = list(input).slice(0, MAX_READS).map(admittedEntry).filter(Boolean);
+  // Extra Number reads for the method layers feed ONLY the interpretive dossier; the prompt, guidance and candidates stay on the primary reads.
+  const layerEntries = list(layerReads).slice(0, MAX_LAYER_READS).map(admittedEntry).filter(Boolean);
   const bundles = entries.map((entry) => ({
     subject: entry.subject,
     subject_navigation: subjectNavigation(entry.subject),
@@ -975,7 +1064,8 @@ export function buildRazielGroundedSourceComposer(input = []) {
     prompt: bundles.length ? JSON.stringify(promptObject) : "",
     guidance: bundles.length ? responseGuidance(entries) : "",
     surprise_guidance: bundles.length ? surpriseGuidance(entries) : "",
-    exploratory_brief: bundles.length ? exploratoryBrief(entries) : "",
+    exploratory_brief: bundles.length ? exploratoryBrief(entries, EXPLORATORY_OUTPUT_INSTRUCTION, layerEntries) : "",
+    surprise_brief: bundles.length ? exploratoryBrief(entries, SURPRISE_OUTPUT_INSTRUCTION, layerEntries) : "",
     fallback,
     sources: sourceList(entries),
     navigation: navigationList(entries),

@@ -33,13 +33,13 @@ const css = read("../../components/experience2029/razielViewMode2029.css");
 const turn = (overrides = {}) => ({ id: "t1", question: "מה זה 271?", intelligenceLevel: "fast", again: false, startedAt: "2026-10-23T00:00:00Z", ...overrides });
 
 test("closed set of CONTRACT modes (landscape stays valid), Hebrew labels, and exactly two VISIBLE conversation modes", () => {
-  assert.deepEqual([...RAZIEL_VIEW_MODES], ["general", "landscape", "exploratory"]);
+  assert.deepEqual([...RAZIEL_VIEW_MODES], ["general", "landscape", "exploratory", "surprise"]);
   assert.deepEqual([...RAZIEL_VISIBLE_VIEW_MODES], ["general", "exploratory"]);
   assert.equal(normalizeRazielViewMode("landscape"), "landscape", "old requests and the one-shot map keep working");
   assert.equal(RAZIEL_DEFAULT_VIEW_MODE, "general");
   assert.deepEqual(
     RAZIEL_VIEW_MODES.map((mode) => [mode, RAZIEL_VIEW_MODE_META[mode].label, RAZIEL_VIEW_MODE_META[mode].experimental]),
-    [["general", "כללי", false], ["landscape", "מפת מחקר", true], ["exploratory", "מתפרע", true]],
+    [["general", "כללי", false], ["landscape", "מפת מחקר", true], ["exploratory", "מתפרע", true], ["surprise", "הפתע אותי", true]],
   );
   assert.equal(razielViewModeLabel("landscape"), "מפת מחקר");
   assert.equal(razielViewModeLabel("nonsense"), "כללי");

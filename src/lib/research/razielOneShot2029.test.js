@@ -38,7 +38,7 @@ const submission = (extra) => prepareRazielSessionSubmission({ question: "מה �
 
 test("labels, spec and copy: two one-shot actions, spec lazy, copy lazy", () => {
   assert.deepEqual({ ...RAZIEL_ONE_SHOT_LABEL }, { surprise: "✨ הפתע אותי", map: "🗺️ פתח מפת מחקר" });
-  assert.deepEqual(JSON.parse(JSON.stringify(RAZIEL_ONE_SHOT_SPEC)), { surprise: { mode: "exploratory", level: "deep" }, map: { mode: "landscape", level: "fast" } });
+  assert.deepEqual(JSON.parse(JSON.stringify(RAZIEL_ONE_SHOT_SPEC)), { surprise: { mode: "surprise", level: "deep" }, map: { mode: "landscape", level: "fast" } });
   assert.equal(RAZIEL_ONE_SHOT_COPY.surprise.explanation, "רזיאל יחפש קשר לא צפוי בתוך העובדות המאומתות, ויפריד בין עובדה, פרשנות והשערה.");
   assert.equal(RAZIEL_ONE_SHOT_COPY.surprise.noMaterial, "אין עדיין מספיק חומר להפתעה.");
   assert.match(RAZIEL_ONE_SHOT_COPY.map.noMaterial, /אין עדיין מספיק חומר/);
