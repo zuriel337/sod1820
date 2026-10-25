@@ -1,6 +1,6 @@
 # SOD1820 DESIGN CONTRACT V2
 
-**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026
+**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026; shared icon color resolution and state precedence approved 25.10.2026
 **Owner:** experience_governance_foundation_v1_law v9 → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
@@ -405,12 +405,14 @@ listener, navigation store, or animation engine. Whole-frame layout, palette
 context propagation and command-island typography remain with the existing
 SystemFrame owner; this refinement does not claim those gaps closed.
 
-## Proposed clarification: shared icon and surface color resolution · 25.10.2026
+## Shared icon and surface color resolution · Human Gate ZURIEL · 25.10.2026
 
-**Status: PROPOSED FOR ZURIEL REVIEW.** This section is a review candidate, not a new approved
-color mapping or implementation acceptance. Until adopted, the approved sections above remain
-authoritative. Owner action: **EXTEND_EXISTING** Design V2, semantic palette and canonical UI
-components; no new palette, icon registry, theme store or domain owner.
+**Status: APPROVED DIRECTION — ZURIEL, 25.10.2026.** ZURIEL explicitly adopted the clarification
+reviewed in PR #1158 in the active user conversation. This governs shared 2029 implementation;
+repository integration, runtime implementation and visual acceptance remain separate. Existing
+role meanings and preset values are preserved; no new universal subject-kind color mapping is
+approved. Owner action: **EXTEND_EXISTING** Design V2, semantic palette and canonical UI components;
+no new palette, icon registry, theme store or domain owner.
 
 1. **Geometry and meaning are separate.** `NavigationIcon2029` owns SVG geometry and
    `currentColor`. A glyph name such as `personal`, `layers` or `signal` does not determine a

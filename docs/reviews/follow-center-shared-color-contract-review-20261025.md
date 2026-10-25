@@ -1,15 +1,17 @@
-# Follow center: shared color contract proposal and source review
+# Follow center: adopted shared color clarification and source review
 
-Status: documentation proposal, not visual acceptance or runtime implementation.
+Status: contract direction adopted by ZURIEL on 25.10.2026; repository integration, visual
+acceptance and runtime implementation remain separate.
 Branch: `gpt/shared-icon-color-contract-20261025`.
 Base: central `1baf950477e6357dc1f89d87d47db15fd457fb23`.
 Task: `SHARED_ICON_COLOR_CONTRACT_CLARIFICATION_20261025`.
 BEFORE: `ab004593-1af9-4965-a406-acc458e1f3b0`.
 
-ZURIEL asked for a coherent shared solution and offered to update the existing contracts where
-needed. This proposal extends the existing Design V2 owner. It creates no new contract family,
-palette, component registry, theme store or color engine. The appended section is explicitly
-proposed for ZURIEL review; approved role meanings and preset values remain unchanged.
+ZURIEL asked for a coherent shared solution and explicitly approved adoption of the PR #1158
+clarification in the active conversation on 25.10.2026 ("כן אני מאשר"). It extends the existing
+Design V2 owner and creates no new contract family, palette, registry, theme store or color engine.
+Existing approved role meanings and preset values remain unchanged. This approval does not adopt
+the candidate's page-local subject colors or approve its visual implementation.
 
 ## Evidence reviewed
 
@@ -19,8 +21,9 @@ The source commit changes the candidate JSX/CSS, its visual test, review note an
 It does not change Design V2, the shared palette or the shared icon catalogue.
 Claude's subsequent AFTER `fe25b685-853d-49c6-8fcc-f0a63ce8805b` was independently verified:
 it records this exact head, acknowledges the local mappings and unavailable-Push defect, agrees
-with the shared-role approach, and releases the source scope. This closes the missing-handoff
-finding; it does not constitute ZURIEL's adoption of the proposed contract or visual acceptance.
+with the shared-role approach, and releases the source scope. This closed the missing-handoff
+finding. ZURIEL's subsequent explicit adoption is recorded separately above; visual acceptance
+of a corrected implementation is still pending.
 
 The committed Day 1440 and Night 390 captures were visually inspected. The candidate is now
 visibly colored and uses existing preset tokens. This is not a complete shared semantic mapping:
@@ -43,23 +46,27 @@ meant that the entire interface had to be black and white. Ordinary navigation, 
 ornament, capability emphasis, interaction state and delivery availability are different inputs;
 one glyph can appear in several of those contexts.
 
-## Proposed contract decision
+## Adopted contract decision
 
-Review the appended “Proposed clarification: shared icon and surface color resolution” in
-`SOD1820_DESIGN_CONTRACT_V2.md`. It makes the geometry/purpose/state boundary explicit, preserves
-the existing approved colors, and assigns reusable resolution/treatments to the current shared
-owner. It does not approve a new global writer/category/channel color taxonomy.
+The approved “Shared icon and surface color resolution” section in
+`SOD1820_DESIGN_CONTRACT_V2.md` makes the geometry/purpose/state boundary explicit, preserves the
+existing approved colors, and assigns reusable resolution/treatments to the current shared owner.
+It does not approve a new global writer/category/channel color taxonomy.
 
 The recommended implementation follows the existing role language. If a fixed per-kind palette
 is desired in addition, its exact meaning and mapping need a separate explicit entry in this same
 contract before becoming a requirement for all writer, community, World and personal consumers.
 Color must not imply a research rank, verified identity, delivery or consent that is absent.
 
-## Bounded implementation handoff after adoption
+## Bounded implementation handoff
 
-1. After adoption, recheck current shared-palette, shared-component and source-file ownership.
-   Open a fresh BEFORE with the exact accepted base and paths. Source AFTER `fe25b685` now
-   matches `6144e4b9` and releases that source scope; it does not claim future shared files.
+1. Use an isolated implementation branch containing the exact approved contract commit, or a
+   verified equivalent already integrated by the central owner. Recheck current shared-palette,
+   shared-component and source-file ownership and open a fresh BEFORE with exact base/paths.
+   Apply any released source commits only once after overlap checks. Source AFTER `fe25b685`
+   matches `6144e4b9` and releases that scope; it claims no future shared files. Central integration
+   remains a separate owner action; it is not an additional prerequisite for isolated work over
+   the approved contract base.
 2. Claude implements the accepted shared presentation through existing palette/component/tone
    seams, with ownership of only the necessary shared files. No copied Follow-center palette,
    parallel SVG set, theme store or broad Legacy restyling.
@@ -80,5 +87,6 @@ reported 43 browser cases belong to Claude, not this independent review. Screens
 under `/workspace/artifacts/follow-center-color-alignment-6144/`.
 
 No source merge/cherry-pick, JSX/CSS/palette/catalog change, main/central update, Production,
-DB/RLS/configuration change or agent activation. Final SHA, draft PR and released documentation
-scope are recorded in the passive AFTER to ZURIEL.
+DB/RLS/configuration change or agent activation. Final SHA, integration-ready PR and released
+documentation scope are recorded in the passive AFTER to ZURIEL. The approval record is
+governance provenance; it is not a claim that the central branch already contains this section.
