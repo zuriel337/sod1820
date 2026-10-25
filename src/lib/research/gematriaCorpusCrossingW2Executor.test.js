@@ -102,6 +102,8 @@ test('optional pair normalization enriches every admitted crossing through the c
   assert.equal(out.findings[0].verification.engine_result.relation_normalization.effective_independent_group_count, 2);
   assert.equal(out.findings[1].verification.engine_result.relation_normalization.effective_independent_group_count, 1);
   assert.equal(out.findings[1].verification.engine_result.relation_normalization.independent_evidence_counts.edges, 1);
+  assert.equal(Object.hasOwn(out.findings[0].verification.engine_result.relation_normalization, 'engine_evidence'), false);
+  assert.equal(Object.hasOwn(out.findings[0].verification.engine_result.relation_normalization, 'composite_evidence'), false);
   assert.equal(JSON.stringify(out).includes('must-not-cross'), false);
   assert.deepEqual(out.cost, { certainty: 'not_billable', ai_calls: 0, rpc_calls: 3, rest_calls: 0, retry_count: 0 });
   assert.deepEqual(out.trace.relation_normalization, {

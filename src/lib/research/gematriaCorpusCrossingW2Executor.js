@@ -398,11 +398,16 @@ export function createGematriaCorpusCrossingW2Executor({
         if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
           return { status: 'executed_empty', summary: null };
         }
+        const projected = projectGematriaRelationCandidateSummary(candidate);
+        // strongest_crossings already transported the bounded matched methods. Repeating the
+        // Relation Engine's evidence arrays would add prompt bytes without adding a new fact, so
+        // the Raziel path keeps only the dependency/source summary needed for weighting and labels.
+        const { engine_evidence: _engineEvidence, composite_evidence: _compositeEvidence, ...compact } = projected;
         return {
           status: 'available',
           summary: {
             source: 'rpc:fn_relation_candidate',
-            ...projectGematriaRelationCandidateSummary(candidate),
+            ...compact,
           },
         };
       } catch (error) {
