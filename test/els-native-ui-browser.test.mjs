@@ -98,6 +98,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
      React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:window.__fixtureResearchProfile!==false,
       onDeleteSaved:async row=>{(window.__deleteCalls||=[]).push(row.id);if(window.__deleteFails)throw new Error('fixture delete failure');setMatrix(null);},
+      onReturnToResearchPlan:()=>{window.__returnedToResearchPlan=(window.__returnedToResearchPlan||0)+1;},
       onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
@@ -2337,6 +2338,25 @@ test('Research bundle opens a verified exact continuation and returns exactly to
   await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').waitFor({state:'visible'});
   assert.equal(await page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible').count(),0);
   assert.match(await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').innerText(),/מופעים מאומתים/);
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('an externally verified automatic-plan target opens the shared focused package and returns to its mounted plan',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const load={term:golden.term,scope:golden.scope,skip:golden.skip,dir:golden.dir,start:golden.start,
+   hitId:`${golden.skip}_${golden.dir}_${golden.start}`,corpusId:golden.corpus_id,words:[],researchBundle:true};
+  await page.evaluate(item=>window.__loadResearch(item),load);
+  await page.waitForFunction(id=>window.__state?.status==='ok'&&window.__state?.axis?.hitId===id,load.hitId,{timeout:90000});
+  await page.waitForFunction(id=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true
+   &&window.__lens?.target?.researchBundle===true&&window.__lens?.target?.hitId===id,load.hitId,{timeout:90000});
+  const bundle=page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible');
+  await bundle.waitFor({state:'visible'});
+  assert.match(await bundle.innerText(),/חבילת מחקר[\s\S]*תורהקדשה[\s\S]*ליבת החבילה מוכנה/);
+  await bundle.getByRole('button',{name:'חזור לתוכנית המטרות'}).click();
+  assert.equal(await page.evaluate(()=>window.__returnedToResearchPlan),1);
+  assert.equal(await page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible').count(),0);
+  assert.equal(await page.evaluate(()=>window.__state.axis.hitId),load.hitId,'return keeps the exact opened matrix while the plan remains mounted');
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
 });
 

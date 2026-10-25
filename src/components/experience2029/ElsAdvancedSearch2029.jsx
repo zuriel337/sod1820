@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
-import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
+import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
 
 const initialForm = { term: "", scope: "torah", spelling: "regular", skipMin: "2", skipMax: "80", pageSize: "20" };
 
@@ -237,7 +237,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     revision.current += 1; abortRef.current?.abort(); abortRef.current = null; setBusy(false); setSelecting(null); setNotice("");
     onExactSkip?.(built.request);
   };
-  const select = async (occurrence, projection) => {
+  const select = async (occurrence, projection, options = {}) => {
     const selection = buildElsAdvancedSelection(occurrence, projection, query?.scope);
     if (!selection) { setNotice("אי אפשר לבחור מופע בלי זהות מלאה."); return; }
     const seq = ++revision.current;
@@ -248,8 +248,10 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       if (seq !== revision.current) return;
       if (!verified.ok) { setNotice(`המופע לא אומת: ${verified.state}. בחרו מופע אחר.`); return; }
       const loadItem = buildElsAdvancedLoadItem(selection, projection);
-      onLoad?.(loadItem);
-      setNotice("המופע אומת ונשלח למטריצה. הממצאים והמקור יופיעו בכלי המשותף.");
+      onLoad?.(options.researchBundle === true ? { ...loadItem, researchBundle: true, returnLabel: "תוכנית המטרות" } : loadItem);
+      setNotice(options.researchBundle === true
+        ? "המופע אומת ונשלח למטריצה. ליבת הציר, המקור והמבנים נאספים כעת לאותה חבילת מחקר."
+        : "המופע אומת ונשלח למטריצה. הממצאים והמקור יופיעו בכלי המשותף.");
     } catch (error) {
       if (seq === revision.current && !controller.signal.aborted) setNotice(`אימות המופע לא הושלם: ${error?.message || "שגיאת תקשורת"}`);
     } finally {
@@ -261,6 +263,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
   const spellingPreview = elsSearchSpelling(form.term, form.spelling);
   const completedRows = new Map(automaticSlices.flatMap(slice => slice.rows).map(row => [row.canonicalTerm, row]));
   const automaticRows = automaticPlan?.candidates.map(candidate => liveRows[candidate.term] || completedRows.get(candidate.canonicalTerm) || { ...candidate, state: "NOT_SCANNED", count: 0 }) || [];
+  const automaticTargets = projectElsAutomaticResearchTargets(automaticPlan, automaticRows);
   const completedAutomatic = automaticRows.filter(row => !["NOT_SCANNED", "BUDGET_STOPPED"].includes(row.state)).length;
   const rangeMin = Number(form.skipMin);
   const rangeMax = Number(form.skipMax);
@@ -367,9 +370,19 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       </li>))}</ol>
       {cursor ? <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => search(true)}>טען תוצאות נוספות</button> : null}
     </div> : null}
-    {automaticPlan ? <div aria-label="תוכנית צורות אוטומטית">
+    {automaticPlan ? <div aria-label="תוכנית צורות אוטומטית" className="els29-automatic-plan">
       <p>{automaticPlan.sources.length} ביטויים · {automaticPlan.candidates.length} צורות שונות · {automaticRows.filter(row => row.state === "OK" || row.state === "EXECUTED_EMPTY").length} הושלמו · {automaticRows.filter(row => row.state === "FAILED").length} נכשלו</p>
       {automaticPlan.canonicalFormsPending ? <p className="sod29-muted">צורות FORMS של המנוע עדיין לא נטענו לכל הביטויים; המופעים המוצגים מתייחסים לצורות שנסרקו בלבד.</p> : null}
+      {automaticTargets.length ? <section className="els29-automatic-targets" aria-label="יעדי מחקר מוכנים מהתוכנית">
+        <header><strong>{automaticTargets.length} יעדי מחקר שכדאי לפתוח קודם</strong><small>לפי סדר המטרות שבחרתם והמשך מדויק שנמצא; זהו סדר בדיקה, לא ציון אמת.</small></header>
+        {automaticTargets.map(row => <article key={`target-${row.canonicalTerm}`}>
+          <span className="els29-target-rank">{row.researchRank}</span>
+          <div><b><bdi>{row.term}</bdi></b><small>{row.researchReason} · {row.count} מופעים בדף הראשון</small></div>
+          <button type="button" className="sod29-action primary" disabled={busy || !!selecting}
+            onClick={() => select(row.primaryOccurrence, row.projection, { researchBundle: true })}>פתח חבילת מחקר</button>
+        </article>)}
+      </section> : null}
+      <div className="els29-automatic-results" role="region" tabIndex={0} aria-label="כל תוצאות תוכנית המחקר">
       {automaticRows.map(row => <section key={row.canonicalTerm} aria-label={`תוצאות ${row.term}`}>
         <h4><bdi>{row.term}</bdi> · {row.state === "FAILED" ? "הבדיקה לא הושלמה" : row.state === "NOT_SCANNED" ? "ממתין לסריקה" : `${row.count + (automaticPages[row.canonicalTerm]?.pages || []).reduce((total, page) => total + page.projection.occurrences.length, 0)} מופעים נטענו`}</h4>
         <p className="sod29-muted">{row.derivations.map(item => `״${item.source}״ ← ${item.ruleLabel}`).join(" · ")}</p>
@@ -380,11 +393,12 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
               : row.count === 0 ? "לא נמצאו מופעים בטווח שנבדק."
                 : "הדף הראשון הושלם בטווח שנבדק."}</p>
         {[...(row.projection ? [row.projection] : []), ...(automaticPages[row.canonicalTerm]?.pages || []).map(page => page.projection)].flatMap(projection => projection.occurrences.map(hit => <button
-          key={hit.occurrenceId} type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => select(hit, projection)}>
-          דילוג {hit.skip} · {hit.dir === 1 ? "קדימה" : "אחורה"} · מיקום {hit.start + 1}
+          key={hit.occurrenceId} type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => select(hit, projection, { researchBundle: true })}>
+          פתח חבילה · דילוג {hit.skip} · {hit.dir === 1 ? "קדימה" : "אחורה"} · מיקום {hit.start + 1}
         </button>))}
         {(automaticPages[row.canonicalTerm]?.cursor || (automaticPages[row.canonicalTerm] ? null : row.cursor)) ? <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => continueVariant(row)}>טען עוד מופעים לצורה זו</button> : null}
       </section>)}
+      </div>
       {automaticSlices.at(-1)?.hasMoreCandidates && !busy ? <button type="button" className="sod29-action" disabled={!!selecting} onClick={continueAutomatic}>המשך לסרוק צורות</button> : null}
       <p className="sod29-muted">צורות של אותו ביטוי הן ניסויים תלויים. קרבה או ריבוי התאמות אינם הוכחת הצלבה; בחרו מופע מאומת לפתיחה במטריצה.</p>
     </div> : null}

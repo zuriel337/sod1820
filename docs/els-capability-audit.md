@@ -1413,3 +1413,23 @@ This is an additive UI/compiler projection over the existing ELS authority. It c
 AI dependency, database object, RLS/permission rule, Production migration, `research_objects` or
 `decision_ledger` entry. Semantic story expansion and statistical Challenge remain later governed
 layers; neither is claimed by this cut.
+
+## 30. AUTOMATIC TARGET TO SHARED PACKAGE — 2026-10-25
+
+The automatic plan now projects no more than three *open-first* rows only after a canonical search
+page contains verified occurrences. The shortlist follows the user's target order and prefers the
+literal submitted form; it is explicitly labelled as an inspection order rather than a meaning or
+Truth score. The full row set remains accessible inside a bounded scroller so the Research page no
+longer grows without limit.
+
+One **פתח חבילת מחקר** action re-verifies the selected occurrence, loads its exact axis into the
+same mounted engine, and triggers the existing focused `matrix-candidates` package only after that
+engine emits the matching `hitId`. Thus the matrix, nearby verified findings, source verses and
+structure groups are one existing `els_research_bundle_v1`, for regular, crossed and automatic-plan
+entry alike. Returning closes the package and scrolls to the still-mounted plan without changing
+the exact opened matrix or repeating the plan scan.
+
+Focused acceptance passed the automatic target ordering unit case, static authority/return guards,
+the two Advanced real-browser flows, one real native-engine package/return flow, and the 2029 build.
+No second search path, engine, store, graph, Provider, Journey, database/RLS/permission change,
+Preview or Production action was added.

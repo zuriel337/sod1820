@@ -942,7 +942,7 @@ function ActiveResearchBundle({ bundle, lensResult, pending, onBack }) {
         : `ההרחבה מוכנה: ${compact} ממצאים בשלב א׳ ללא פער · ${Math.max(0, items.length - compact)} בשלב ב׳ · ${groups.length} קבוצות מבנה.`}</small>
         {groups.length ? <small>מבנים מובילים: {groups.slice(0, 3).map((group) => group.label).join(" · ")}</small> : null}</>
         : <small>המטריצה פתוחה על העוגן המדויק. אפשר להמשיך בחיפוש ידני או לחזור לשלוש ההמלצות.</small>}
-    <button type="button" disabled={pending} onClick={onBack}>{bundle.fromExtension ? "חזור בדיוק לתוצאות" : "חזור להמלצות ולכל התוצאות"}</button>
+    <button type="button" disabled={pending} onClick={onBack}>{bundle.fromAdvanced ? "חזור לתוכנית המטרות" : bundle.fromExtension ? "חזור בדיוק לתוצאות" : "חזור להמלצות ולכל התוצאות"}</button>
   </section>;
 }
 
@@ -1244,7 +1244,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, onDeleteSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onReturnToResearchPlan, onSearchStart, onSaved, onDeleteSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user, isAdmin } = useAuth();
   const compactMobile = useMediaQuery(MOBILE_WORKSPACE_QUERY);
@@ -1398,7 +1398,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   useEffect(() => {
     if (!researchLoad) return;
     setResultTriage(null);resultTriageKeyRef.current = null;
-    setResearchBundle(null);pendingResearchBundleRef.current = null;
+    if (researchLoad.researchBundle === true) {
+      const bundle = { contract: "els_research_bundle_v1", kind: "advanced-plan", label: researchLoad.term,
+        expectedHitId: researchLoad.hitId, status: "opening", fromAdvanced: true };
+      setResearchBundle(bundle);pendingResearchBundleRef.current = bundle;
+    } else { setResearchBundle(null);pendingResearchBundleRef.current = null; }
     setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);setSavedAxisReplacement(null);
   }, [researchLoad]);
 
@@ -2201,7 +2205,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           openDetails={findingDetailsRequest}
           researchBundle={researchProfile ? researchBundle : null}
           onBackToResults={() => {
-            if (researchBundle?.fromExtension && journeyTrail.length) returnToPreviousAxis("results");
+            if (researchBundle?.fromAdvanced) { pendingResearchBundleRef.current = null;setResearchBundle(null);onReturnToResearchPlan?.(); }
+            else if (researchBundle?.fromExtension && journeyTrail.length) returnToPreviousAxis("results");
             else { pendingResearchBundleRef.current = null;setResearchBundle(null);openTool("results"); }
           }}
         />

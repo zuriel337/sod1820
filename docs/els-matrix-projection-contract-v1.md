@@ -359,3 +359,23 @@ stay behind one disclosure; the brief itself is visible immediately in Research 
 heavy entry work. This adds no engine, state store, graph, Provider, Journey, AI call, schema, RLS,
 permission or Production change. Semantic expansion by Raziel remains a later, separately governed
 consumer and may propose vocabulary but may not manufacture an occurrence.
+
+## Automatic target → shared research package — 25.10.2026
+
+Completed automatic-plan rows now project a maximum of three first-open targets. Eligibility
+requires a canonical `OK` page with at least one occurrence. Ordering follows the user's plan:
+original expressions first, then source order and deterministic tie-breakers. Occurrence count does
+not override a higher-priority requested expression, and the projection carries no meaning or
+significance score. All completed rows remain available in one bounded internal scroller.
+
+Opening a projected target runs the existing replay verifier once more, loads its exact occurrence
+into the already-mounted canonical matrix, and marks the load as a request for the existing
+`els_research_bundle_v1`. Once the canonical engine confirms the same `hitId`, the native surface
+automatically invokes its existing `matrix-candidates` focused package. Source context, nearby
+verified rows and structural groups therefore join the same package; no Advanced-specific scanner
+or package implementation exists.
+
+The automatic plan remains mounted throughout. **חזור לתוכנית המטרות** closes only the package
+projection and scrolls back to the unchanged plan; it neither re-runs the search nor changes the
+opened exact matrix. This is UI operation state only and adds no persisted return stack, engine,
+store, graph, Provider, Journey, schema, RLS, permission or Truth transition.

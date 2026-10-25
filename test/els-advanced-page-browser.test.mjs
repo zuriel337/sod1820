@@ -55,6 +55,7 @@ test("light Research entry exposes an idle brief while advanced controls stay cl
     await page.getByText(/ביטויים · .*צורות שונות/).waitFor();
     await page.getByLabel("תוצאות אמת").getByRole("button", { name: /דילוג 86/ }).click();
     await page.waitForFunction(() => window.__advancedLoad?.term === "אמת");
+    assert.equal(await page.evaluate(() => window.__advancedLoad?.researchBundle), true);
     const batchCalls = await page.evaluate(() => window.__advancedCalls.slice(2));
     assert.equal(batchCalls.at(-1).body.op, "verify");
     assert.ok(batchCalls.filter(call => call.body.op === "page").some(call => call.body.term === "תורתאמת"));
@@ -130,6 +131,9 @@ test("a private research brief stays local until explicit start and then uses th
     await plan.getByRole("button", { name: /התחל מחקר מתוך/ }).click();
     await page.getByText(/ביטויים · .*צורות שונות/).waitFor();
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), true);
+    const targets = page.getByLabel("יעדי מחקר מוכנים מהתוכנית");
+    await targets.getByRole("button", { name: "פתח חבילת מחקר" }).first().click();
+    await page.waitForFunction(() => window.__advancedLoad?.researchBundle === true);
     const state = await page.evaluate(() => ({
       calls: window.__advancedCalls,
       url: location.href,

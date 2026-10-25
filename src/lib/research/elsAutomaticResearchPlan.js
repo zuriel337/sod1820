@@ -214,6 +214,29 @@ export async function runElsAutomaticResearchSlice({ plan, offset = 0, invokePag
   });
 }
 
+/** Presentation-only shortlist. It orders verified pages by the user's plan, never by meaning. */
+export function projectElsAutomaticResearchTargets(plan, rows = [], limit = 3) {
+  if (plan?.contract !== ELS_AUTOMATIC_PLAN_CONTRACT || !Array.isArray(rows)) return Object.freeze([]);
+  const sourceOrder = new Map(plan.sources.map((source, index) => [source, index]));
+  return Object.freeze(rows.filter(row => row?.state === "OK" && row.count > 0 && row.projection?.occurrences?.length)
+    .map(row => {
+      const original = row.derivations?.some(item => item.ruleId === "original") === true;
+      const firstSource = row.derivations?.reduce((best, item) => Math.min(best, sourceOrder.get(item.source) ?? Number.MAX_SAFE_INTEGER), Number.MAX_SAFE_INTEGER);
+      return { ...row, primaryOccurrence: row.projection.occurrences[0], original, sourceOrder: firstSource };
+    })
+    .sort((a, b) => Number(b.original) - Number(a.original)
+      || a.sourceOrder - b.sourceOrder
+      || b.canonicalTerm.length - a.canonicalTerm.length
+      || b.count - a.count
+      || a.canonicalTerm.localeCompare(b.canonicalTerm, "he"))
+    .slice(0, Math.max(1, Math.min(6, Number(limit) || 3)))
+    .map((row, index) => Object.freeze({
+      ...row,
+      researchRank: index + 1,
+      researchReason: row.original ? "הביטוי שנבחר בתוכנית נמצא ואומת" : "צורה מוסברת של ביטוי מהתוכנית נמצאה ואומתה",
+    })));
+}
+
 /** Safe summary for the existing Raziel/context route; no private raw input or occurrence claim. */
 export function summarizeElsAutomaticPlan(plan, slices = [], extraPages = {}) {
   if (plan?.contract !== ELS_AUTOMATIC_PLAN_CONTRACT) return null;

@@ -155,6 +155,7 @@ export default function Els2029Page() {
   const [researchProbe, setResearchProbe] = useState(null);
   const [exactStatus, setExactStatus] = useState("idle");
   const [automaticSummary, setAutomaticSummary] = useState(null);
+  const researchPlanRef = useRef(null);
   const pendingProbeRef = useRef(null);
   const [formsPreviewRequest, setFormsPreviewRequest] = useState(null);
   const formsRequestSeq = useRef(0);
@@ -292,7 +293,7 @@ export default function Els2029Page() {
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
     {!directSavedOpen ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
-    <div data-els-research-tools="brief-visible-v1" hidden={!researchProfile || directSavedOpen}>
+    <div ref={researchPlanRef} data-els-research-tools="brief-visible-v1" hidden={!researchProfile || directSavedOpen}>
       <ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />
     </div>
     <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
@@ -329,6 +330,7 @@ export default function Els2029Page() {
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
         <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix} active={!library} researchProfile={researchProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+          onReturnToResearchPlan={() => researchPlanRef.current?.scrollIntoView({ block: "start", behavior: "smooth" })}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
             setSavedRevision(value => value + 1);

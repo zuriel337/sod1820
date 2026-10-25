@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
+import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
 
 const base = { expressions: "סוד החשמל\nאמת", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "2" };
 
@@ -116,6 +116,20 @@ test("a series longer than one slice continues through the same plan without a s
   assert.equal(first.rows.length + second.rows.length, plan.candidates.length);
   assert.equal(new Set(calls).size, plan.candidates.length);
   assert.equal(summarizeElsAutomaticPlan(plan, [first, second]).hasPending, false);
+});
+
+test("automatic research targets prefer found original expressions in plan order without a meaning score", () => {
+  const plan = prepareElsAutomaticResearchPlan({ ...base, expressions: "יום משיח בא\nקולומביה\nשבת" });
+  const bySource = source => plan.candidates.find(row => row.derivations.some(item => item.source === source && item.ruleId === "original"));
+  const found = (candidate, count = 1) => ({ ...candidate, state: "OK", count, projection: { occurrences: [{ occurrenceId: `${candidate.canonicalTerm}:1` }] } });
+  const derived = plan.candidates.find(row => row.derivations.some(item => item.source === "יום משיח בא" && item.ruleId !== "original"));
+  const targets = projectElsAutomaticResearchTargets(plan, [
+    found(bySource("קולומביה"), 20), found(derived, 30), found(bySource("שבת"), 4), found(bySource("יום משיח בא"), 1),
+    { ...plan.candidates[0], state: "EXECUTED_EMPTY", count: 0, projection: { occurrences: [] } },
+  ]);
+  assert.deepEqual(targets.map(row => row.derivations.find(item => item.ruleId === "original")?.source), ["יום משיח בא", "קולומביה", "שבת"]);
+  assert.deepEqual(targets.map(row => row.researchRank), [1, 2, 3]);
+  assert.ok(targets.every(row => row.primaryOccurrence && !Object.hasOwn(row, "meaningScore")));
 });
 
 test("automatic scan reports each active form and keeps a failed form distinct from no matches", async () => {
