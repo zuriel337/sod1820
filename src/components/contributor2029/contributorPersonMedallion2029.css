@@ -50,6 +50,8 @@
 .pc-person-note{color:var(--pm-muted);font-size:var(--s29-type-small,16px)}
 .pc-person :is(button,a):focus-visible{outline:2px solid var(--pm-focus);outline-offset:3px}
 
+/* On wide screens the introduction is already in the hero; the panel keeps it for the compact layout. */
+@media(min-width:641px){.pc-profile .pc-person-about-block{display:none}}
 @media(max-width:640px){
   .pc-person-seal{width:120px;height:128px}
   .pc-person-scene{transform:scale(.78);transform-origin:center}

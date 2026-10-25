@@ -34,7 +34,8 @@ export default function PublicSourceCatalog2029({ view, onRetry, onCommunityRepl
   const sourceCountKnown = view.catalog.sourcesAvailable && !view.catalog.truncated;
   return <section className="public-contributor-2029" dir="rtl" lang="he" aria-labelledby="public-contributor-title"
     style={{ "--pc-ink": P.ink, "--pc-muted": P.inkSoft, "--pc-card": P.card, "--pc-soft": P.cardSoft,
-      "--pc-border": P.border, "--pc-accent": P.accentText, "--pc-focus": P.focusRing || P.accent }}>
+      "--pc-border": P.border, "--pc-accent": P.accentText, "--pc-focus": P.focusRing || P.accent,
+      "--pc-secondary": P.accentSecondary, "--pc-discovery": P.accentDiscovery }}>
     {returnHref ? <Link className="pc-return" to={returnHref}>חזרה למקום שממנו הגעת ↗</Link> : null}
     <header className="pc-profile">
       <div className="pc-profile-copy"><p className="pc-eyebrow">{person?.eyebrow || "חבר קהילה"} · כתבים וחומרים</p><h1 id="public-contributor-title">{view.profile.name}</h1>
