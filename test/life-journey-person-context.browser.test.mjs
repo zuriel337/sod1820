@@ -182,12 +182,14 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByLabel("שם פרטי").fill("הורה בדיקה");
     await page.getByLabel("שם משפחה").fill("משפחה");
     await page.getByLabel("תאריך לידה").first().fill("1990-02-15");
+    await page.getByLabel("מקום לידה").first().fill("עיר בדיקה");
     await page.getByRole("button", { name: "פתח את מסע החיים" }).click();
     await page.getByRole("button", { name: "עדכן וחבר מחדש" }).waitFor();
 
     const family = page.locator('[data-experience-capability="life-journey-family"]');
     await family.getByLabel("שם בן/בת משפחה").fill("ילד בדיקה");
     await family.getByLabel("תאריך לידה").fill("2020-03-04");
+    await family.getByLabel("מקום לידה").fill("יישוב בדיקה");
     await family.getByLabel("הקשר אליי").selectOption("child_of_me");
     await family.getByRole("button", { name: "הוסף למסע" }).click();
     await family.locator(".person-journey-family-list article strong", { hasText: "ילד בדיקה" }).waitFor();
@@ -235,6 +237,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.getByLabel("שם פרטי").inputValue(), "הורה בדיקה");
     assert.equal(await page.getByLabel("שם משפחה").inputValue(), "משפחה");
     assert.equal(await page.getByLabel("תאריך לידה").first().inputValue(), "1990-02-15");
+    assert.equal(await page.getByLabel("מקום לידה").first().inputValue(), "עיר בדיקה");
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyPersonRef), firstRef);
     assert.equal(await childSelection.isChecked(), true, "family selection survives refresh through Research Context");
     await accountContinuity.getByText("קיימת הזמנה ממתינה. הקוד הגולמי אינו נשמר; אם הוא אבד, בטלו וצרו קוד חדש.").waitFor();
@@ -249,6 +252,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.deepEqual(await birthTimeline.locator("time").allTextContents(), ["15.02.1990", "04.03.2020"]);
     assert.deepEqual(await birthTimeline.locator("li strong").allTextContents(), ["הורה בדיקה משפחה", "ילד בדיקה"]);
     assert.equal(await birthTimeline.getByText("י״א בתשרי").count(), 2);
+    assert.equal(await birthTimeline.getByText("מקום לידה · עיר בדיקה").count(), 1);
+    assert.equal(await birthTimeline.getByText("מקום לידה · יישוב בדיקה").count(), 1);
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "select-all remains navigation context only");
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), false, "family names are not researched by selection");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), false, "family dates are not researched by selection");
@@ -369,12 +374,17 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     }));
     assert.equal(JSON.stringify(privacy.telemetry).includes("הורה בדיקה"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("ילד בדיקה"), false);
+    assert.equal(JSON.stringify(privacy.telemetry).includes("עיר בדיקה"), false);
+    assert.equal(JSON.stringify(privacy.telemetry).includes("יישוב בדיקה"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("child@example.test"), false);
     assert.equal(privacy.ledger.members.length, 2);
     assert.equal(privacy.ledger.relations.length, 1);
+    assert.equal(privacy.ledger.members.find(member => member.source_ref.endsWith(":self"))?.meta?.birth_place, "עיר בדיקה");
+    assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.birth_place, "יישוב בדיקה");
     assert.ok(privacy.hintReads.every(call => call.options?.fallbackLocal === false));
     assert.equal(privacy.storageValues.some(value => String(value).includes(invitationToken)), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("הורה בדיקה") || decodeURIComponent(url).includes("ילד בדיקה")), false);
+    assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("עיר בדיקה") || decodeURIComponent(url).includes("יישוב בדיקה")), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes(invitationToken)), false);
     assert.deepEqual(browserErrors, []);
   } finally {

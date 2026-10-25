@@ -122,6 +122,7 @@ function memberResearchProfile(member) {
     last,
     fullName: clean(member?.name) || joinName(first, last),
     birthdate: clean(meta.birthdate_iso),
+    birthPlace: clean(meta.birth_place),
   });
 }
 
@@ -156,6 +157,7 @@ function familyBirthTimeline(members, selectedRefs) {
       dateIso: date.iso,
       dateDisplay: date.display,
       hebrewDate,
+      birthPlace: profile.birthPlace,
     })];
   }).sort((a, b) => a.dateIso.localeCompare(b.dateIso) || a.name.localeCompare(b.name, "he"));
 }
@@ -229,9 +231,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
   const [birthdate, setBirthdate] = useState("");
+  const [birthPlace, setBirthPlace] = useState("");
 
   const [newMemberName, setNewMemberName] = useState("");
   const [newMemberBirthdate, setNewMemberBirthdate] = useState("");
+  const [newMemberBirthPlace, setNewMemberBirthPlace] = useState("");
   const [newMemberRelation, setNewMemberRelation] = useState("none");
 
   const selfRef = personId ? `person:${personId}:self` : null;
@@ -292,7 +296,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       setSurname(pieces.join(" "));
     }
     setBirthdate(clean(meta.birthdate_iso));
-  }, []);
+    if (variant === "2029") setBirthPlace(clean(meta.birth_place));
+  }, [variant]);
 
   useEffect(() => {
     if (authLoading) return undefined;
@@ -418,6 +423,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     const first = clean(firstName);
     const last = clean(surname);
     const date = clean(birthdate);
+    const place = clean(birthPlace);
     const fullName = joinName(first, last);
     if (!personId || !fullName) return;
 
@@ -430,6 +436,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         first_name: first,
         surname: last || null,
         birthdate_iso: date || null,
+        ...(variant === "2029" ? { birth_place: place || null } : {}),
         profile_version: "life_journey_2029_v1",
       });
       await refresh(personId);
@@ -451,6 +458,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     try {
       const member = await upsertFamilyMember(personId, null, name, {
         birthdate_iso: clean(newMemberBirthdate) || null,
+        ...(variant === "2029" ? { birth_place: clean(newMemberBirthPlace) || null } : {}),
         profile_version: "life_journey_2029_v1",
       });
       const memberRef = clean(member?.source_ref);
@@ -461,6 +469,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       }
       setNewMemberName("");
       setNewMemberBirthdate("");
+      setNewMemberBirthPlace("");
       setNewMemberRelation("none");
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
@@ -845,6 +854,10 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <span>תאריך לידה</span>
           <input value={birthdate} onChange={(event) => setBirthdate(event.target.value)} type="date" dir="ltr" autoComplete="bday" />
         </label>
+        {variant === "2029" ? <label>
+          <span>מקום לידה</span>
+          <input value={birthPlace} onChange={(event) => setBirthPlace(event.target.value)} placeholder="עיר או יישוב" dir="rtl" autoComplete="off" />
+        </label> : null}
       </div>
       <div className="person-journey-actions">
         <button type="button" className="person-journey-primary" disabled={busy || !clean(firstName)} onClick={beginJourney}>
@@ -1082,6 +1095,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
               <strong>{event.name}</strong>
               <span>לידה</span>
               {event.hebrewDate ? <small>{event.hebrewDate}</small> : null}
+              {event.birthPlace ? <small>מקום לידה · {event.birthPlace}</small> : null}
             </div>
           </li>)}
         </ol> : <div className="person-journey-empty">לאנשים שנבחרו עדיין אין תאריך לידה שמור.</div>}
@@ -1159,6 +1173,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             <div>
               <strong>{member.name}</strong>
               {memberMeta.birthdate_iso ? <small>{memberMeta.birthdate_iso}</small> : null}
+              {variant === "2029" && memberMeta.birth_place ? <small>מקום לידה · {memberMeta.birth_place}</small> : null}
               <small className="person-journey-member-source">מקור: הוזן במסע הזה · זהות ניתנת לחיבור לחשבון</small>
             </div>
             {variant === "2029" ? <div className="person-journey-member-actions">
@@ -1178,6 +1193,10 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <span>תאריך לידה</span>
           <input value={newMemberBirthdate} onChange={(event) => setNewMemberBirthdate(event.target.value)} type="date" dir="ltr" />
         </label>
+        {variant === "2029" ? <label>
+          <span>מקום לידה</span>
+          <input value={newMemberBirthPlace} onChange={(event) => setNewMemberBirthPlace(event.target.value)} placeholder="עיר או יישוב" dir="rtl" autoComplete="off" />
+        </label> : null}
         <label>
           <span>הקשר אליי</span>
           <select value={newMemberRelation} onChange={(event) => setNewMemberRelation(event.target.value)}>
@@ -1202,7 +1221,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       <div>
         <small>השלב הבא</small>
         <h2>המסע גדל איתך</h2>
-        <p>אירועי חיים, מקומות וממצאים שנוגעים לאנשים האלה יוכלו להצטרף בהמשך לאותו Person context — לא לעוד מערכת.</p>
+        <p>אירועי הלידה והמקומות שכבר נשמרו מחוברים לאותו Person context. אירועים נוספים יצטרפו בהמשך בלי מערכת מקבילה.</p>
       </div>
       <span aria-hidden="true">→</span>
     </section>

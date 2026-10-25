@@ -39,6 +39,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /upsertFamilyMember/);
   assert.match(journey, /upsertFamilyRelation/);
   assert.match(journey, /birthdate_iso/);
+  assert.match(journey, /birth_place/);
   assert.match(journey, /runLifeJourneyNameResearch/);
   assert.match(journey, /variant === "2029"/);
   assert.match(journey, /getNameMulti/);
@@ -65,6 +66,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /data-experience-capability="life-journey-birth-timeline"/);
   assert.match(journey, /לא נוצר Event store חדש/);
   assert.doesNotMatch(journey, /upsertLifeEvent|insertLifeEvent|life_event_store/);
+  assert.doesNotMatch(journey, /geocod|mapbox|google\.maps/i);
   assert.match(journey, /data-experience-capability="life-journey-account-continuity"/);
   assert.match(journey, /מנגנון Claim קנוני קיים/);
   assert.match(journey, /אינו מעתיק מחקר פרטי ואינו מעניק גישה/);
