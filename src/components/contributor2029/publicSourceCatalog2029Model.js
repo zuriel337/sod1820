@@ -64,7 +64,7 @@ export function appendSourceCatalogWritings2029(view, posts, { slug } = {}) {
 
 export function selectSourceCatalog2029(view, search) {
   const params = new URLSearchParams(search);
-  const section = SECTIONS.has(params.get("section")) ? params.get("section") : "recent";
+  const section = SECTIONS.has(params.get("section")) ? params.get("section") : SECTIONS.has(view.entrySection) ? view.entrySection : "recent";
   const format = CATALOG_FORMATS.some(([key]) => key === params.get("format")) ? params.get("format") : "all";
   let items = section === "recent" ? view.catalog.recentItems : view.catalog.items;
   if (section === "media") items = items.filter((item) => item.formats.some((value) => ["image", "video"].includes(value)));

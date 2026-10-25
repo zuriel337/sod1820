@@ -48,13 +48,13 @@ export function approvedReturnHref(value, origin) {
   } catch { return null; }
 }
 
-export function readContributorLocation(search, origin) {
+export function readContributorLocation(search, origin, { defaultSection = "all", sections = SECTIONS, returnHref = null } = {}) {
   const params = new URLSearchParams(search);
   return {
-    section: SECTIONS.some(([key]) => key === params.get("section")) ? params.get("section") : "all",
+    section: sections.some(([key]) => key === params.get("section")) ? params.get("section") : defaultSection,
     item: text(params.get("item")).slice(0, 250),
     sort: ["newest", "oldest", "discussed", "strength"].includes(params.get("sort")) ? params.get("sort") : "newest",
-    returnHref: approvedReturnHref(params.get("returnTo"), origin),
+    returnHref: approvedReturnHref(params.get("returnTo"), origin) || approvedReturnHref(returnHref, origin),
   };
 }
 

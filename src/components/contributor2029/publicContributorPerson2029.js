@@ -1,6 +1,7 @@
 import { projectPersonProfile2029 } from "../../lib/research/personProfile2029Projection.js";
 import { publicContributorOverview } from "./contributorOverview2029Model.js";
 import { safePublicUrl } from "./publicContributor2029Model.js";
+import { isCommunityPersonHref } from "../../lib/community/communityPersonNavigation.js";
 
 // Composition over the existing anonymous writer DTO, never a Person resolver,
 // standing engine or a substitute for a domain-owned public measurement reader.
@@ -21,8 +22,8 @@ const axis = (key, label, measures, reason = null) => ({ key, label,
   score: null, measures, reason,
 });
 
-export function publicContributorPerson2029(view, { kind = null, overview = null, entryContext = "direct", requestedLens = null } = {}) {
-  if (!view?.profile || !safePublicUrl(view.canonicalHref)?.startsWith("/community/researcher/")) {
+export function publicContributorPerson2029(view, { kind = null, overview = null, community = null, entryContext = "direct", requestedLens = null } = {}) {
+  if (!view?.profile || !(safePublicUrl(view.canonicalHref)?.startsWith("/community/researcher/") || isCommunityPersonHref(view.canonicalHref))) {
     throw new Error("public_writer_projection_required");
   }
   const catalogueComplete = view.kind === "source_catalog" && view.catalog?.sourcesAvailable === true
@@ -36,6 +37,11 @@ export function publicContributorPerson2029(view, { kind = null, overview = null
   const publications = family(view, "posts", "source-native public posts, including coauthored posts");
   const cipherRecords = family(view, "ciphers", "public cipher records attributed by credit or upload; not verified findings");
   const contributionRows = family(view, "contributions", "public contribution rows; not a chat-message or independent-finding total");
+  const chat = community && community.authorKey === view.communityAuthorKey && community.filter === "chat" ? community : null;
+  const messages = measurement(chat?.page?.count, Boolean(chat && Number.isSafeInteger(chat.page?.count)
+    && chat.page.count >= chat.page.rows.length), "public_community_author_reader", "public chat messages and replies; not research contributions");
+  const likesReceived = measurement(chat?.likes, ["verified_archive_profile_baseline", "public_community_author_summary"].includes(chat?.likesSource),
+    chat?.likesSource || null, "existing public community summary or reported source-profile lifetime likes; not research standing");
   const registered = publicContributorOverview(overview);
   const joinedAt = registered.state === "ready" ? registered.joinedAt : null;
   // Only the existing canonical kind may supply a capability. Role text, item
@@ -45,26 +51,28 @@ export function publicContributorPerson2029(view, { kind = null, overview = null
     capabilities: { writer: kind === "writer", author: kind === "author", researcher: kind === "researcher",
       contributor: ["contributor", "community", "writer", "author", "researcher"].includes(kind) },
     metrics: { sources: sourcePublications.value, media: mediaPublications.value,
-      publications: publications.value, els: cipherRecords.value },
+      publications: publications.value, els: cipherRecords.value, messages: messages.value },
+    communityImpact: { reactionsReceived: null },
   }, { viewer: "public", entryContext, requestedLens });
   return {
     version: "writer-person-2029-v1",
     // A Contributor is not silently minted into a Person. The unsafe live Person
     // resolver is not called; canonical Person binding remains an explicit gap.
-    identityScope: "contributor", personBinding: "unresolved", canonicalHref: view.canonicalHref,
+    identityScope: view.kind === "community_person" && view.communityAuthorKey?.startsWith("user:") ? "account" : "contributor",
+    personBinding: "unresolved", canonicalHref: view.canonicalHref,
     profile,
     axes: [
       axis("activity", "פעילות ותנופה", { activeDays: unknown("meaningful public active days") }, "public_activity_reader_not_connected"),
       { ...axis("tenure", "ותק והמשכיות", { tenureDays: unknown("verified historical community tenure") }, "account_age_is_not_community_tenure"),
         registeredAt: joinedAt, registeredAtBasis: joinedAt ? "account_registration" : null,
-        firstPublicActivityAt: null, lastSeenAt: null },
+        firstPublicActivityAt: chat?.summary?.firstAt || null, lastSeenAt: null },
       axis("communityImpact", "השפעה בקהילה", {
-        likesReceived: unknown("author-wide public likes, not a loaded page sum"),
+        likesReceived,
         reactionsReceived: unknown("author-wide public reactions"),
         uniqueResponders: unknown("distinct verified public responders"),
         repliesReceived: unknown("public replies received"),
       }, "native_community_activity_remains_lazy_and_separate"),
-      axis("contribution", "תרומה", { sourcePublications, mediaPublications, cipherRecords, contributionRows }),
+      axis("contribution", "תרומה", { ...(chat ? { messages } : {}), sourcePublications, mediaPublications, cipherRecords, contributionRows }),
       { ...axis("researchStanding", "מעמד מחקרי", {}, "approved_public_dossier_and_progression_gates_not_connected"),
         applicable: profile.capabilities.researcher, level: null, progress: null },
       axis("publication", "פרסומים", { publications }),

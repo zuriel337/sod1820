@@ -12,7 +12,7 @@ import { useContributorReading2029 } from "./ContributorReadingController2029.js
 
 const FORMAT_LABEL = { text: "טקסט", image: "תמונה", video: "וידאו", external_link: "קישור" };
 
-export default function PublicSourceCatalog2029({ view, onRetry }) {
+export default function PublicSourceCatalog2029({ view, onRetry, onCommunityReply }) {
   const P = use2029Palette();
   const reading = useContributorReading2029(view, onRetry);
   const person = useMemo(() => contributorPersonView2029(view.personProjection, { overview: reading.overview, name: view.profile.name }),
@@ -21,7 +21,7 @@ export default function PublicSourceCatalog2029({ view, onRetry }) {
   const [params, setParams] = useSearchParams();
   const selection = selectSourceCatalog2029(view, location.search);
   const focused = useRef(null);
-  const returnHref = approvedReturnHref(params.get("returnTo"), typeof window === "undefined" ? "https://sod1820.co.il" : window.location.origin);
+  const returnHref = approvedReturnHref(params.get("returnTo") || view.entryReturnHref, typeof window === "undefined" ? "https://sod1820.co.il" : window.location.origin);
   useEffect(() => { if (selection.item) { focused.current?.focus(); focused.current?.scrollIntoView({ block: "nearest" }); } }, [selection.item, selection.page]);
   const change = (key, value) => {
     const next = new URLSearchParams(params);
@@ -54,7 +54,8 @@ export default function PublicSourceCatalog2029({ view, onRetry }) {
     </nav>
     {selection.section === "community" ? <section aria-labelledby="writer-community-title">
       <h2 id="writer-community-title">כתיבה בקהילה</h2>
-      <ContributorCommunityActivity2029 authorKey={view.communityAuthorKey} enabled />
+      <ContributorCommunityActivity2029 authorKey={view.communityAuthorKey} filter={view.communityFilter || "all"}
+        initial={view.community || null} onReply={onCommunityReply} enabled />
     </section> : null}
     {selection.section !== "community" ? <section aria-labelledby="writer-source-title">
       <div className="pc-list-heading"><div>{selection.section === "recent" ? <p className="pc-eyebrow">כתבי מקור וחומרים שהועלו</p> : null}<h2 id="writer-source-title">{selection.section === "recent" ? "התעדכן לאחרונה" : "כתבי מקור וחומרים שהועלו"}</h2>

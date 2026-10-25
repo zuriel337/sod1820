@@ -46,7 +46,7 @@ function filterByAuthor(query, identity) {
   return identity.contributorIds.length === 1 ? query.eq("author_contributor_id", identity.contributorIds[0]) : query.in("author_contributor_id", identity.contributorIds);
 }
 
-async function resolveCommunityAuthorIdentity(authorKey, client = supabase) {
+export async function resolveCommunityAuthorIdentity(authorKey, client = supabase) {
   const identity = communityAuthorIdentity(authorKey);
   if (identity.verifiedOwner) return identity;
   if (authorKey.startsWith("user:")) {
@@ -176,7 +176,8 @@ export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, lim
     .order("id", { ascending: sort === "oldest" })
     .range(safeOffset, safeOffset + safeLimit - 1);
   if (error) throw error;
-  return { rows: (data || []).map(normalizeCommunityRow).filter((row) => row.body), count: count ?? 0, nextOffset: safeOffset + (data || []).length };
+  return { rows: (data || []).map(normalizeCommunityRow).filter((row) => row.body),
+    count: Number.isSafeInteger(count) && count >= 0 ? count : null, nextOffset: safeOffset + (data || []).length };
 }
 
 export async function fetchCommunityAuthorSummary(authorKey, { client = supabase } = {}) {

@@ -22,7 +22,7 @@ test("lookup accepts only user: and contributor uuids", () => {
 
 test("one public active writer resolves to the existing writer page", async () => {
   const client = fakeClient([writerRow]);
-  assert.deepEqual(await resolveCommunityWriter(ID, { client }), { name: "יניב לוי", href: "/community/researcher/yaniv-levi", isWriter: true });
+  assert.deepEqual(await resolveCommunityWriter(ID, { client }), { name: "יניב לוי", href: "/community/researcher/yaniv-levi", kind: "author", isWriter: true });
   assert.deepEqual(client.calls, [["from", "contributors"], ["id", ID]]);
   await resolveCommunityWriter(`user:${ID}`, { client });
   assert.deepEqual(client.calls.at(-1), ["user_id", ID]);
@@ -55,6 +55,13 @@ test("private, locked, inactive, building, missing and ambiguous writers resolve
 
 test("legacy missing visibility follows the same public default as the writer page", async () => {
   assert.equal((await resolveCommunityWriter(ID, { client: fakeClient([{ ...writerRow, visibility: null }]) })).isWriter, true);
+});
+
+test("an owned private archive source does not hide the unique public dossier; multiple public pages stay ambiguous", async () => {
+  assert.equal((await resolveCommunityWriter(`user:${ID}`, { client: fakeClient([
+    { ...writerRow, slug: "archive-source", visibility: "private", kind: "external" }, writerRow,
+  ]) })).href, "/community/researcher/yaniv-levi");
+  assert.equal(await resolveCommunityWriter(`user:${ID}`, { client: fakeClient(Array.from({ length: 101 }, () => writerRow)) }), null);
 });
 
 test("writer href carries only an approved return target", () => {

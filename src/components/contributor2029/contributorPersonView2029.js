@@ -8,6 +8,7 @@ const number = new Intl.NumberFormat("he-IL");
 
 // Hebrew explanation of what each measurement counts. The adapter's scope strings are English provenance.
 const MEASURES = Object.freeze({
+  messages: ["הודעות ותגובות", "הודעות ותגובות ציבוריות מהצ׳אט הישן ומהקהילה. אינן ספירת מאמרים או ממצאים."],
   sourcePublications: ["פרסומי מקור", "פרסומים ציבוריים בקטלוג המקורות. תמונה וטקסט באותו פרסום נספרים פעם אחת. אין זו ספירת ממצאים."],
   mediaPublications: ["מהם עם תמונה או וידאו", "פרסומי קטלוג שמכילים מדיה. אין זה מספר הקבצים."],
   publications: ["פוסטים", "פוסטים ציבוריים של הכותב, כולל פוסטים משותפים."],
@@ -21,6 +22,9 @@ const MEASURES = Object.freeze({
   repliesReceived: ["תגובות שהתקבלו", "תגובות ציבוריות להודעות הכותב."],
 });
 const SOURCES = Object.freeze({
+  public_community_author_reader: "קורא הודעות הקהילה הציבוריות",
+  public_community_author_summary: "סיכום הלייקים בקורא הקהילה הציבורי הקיים",
+  verified_archive_profile_baseline: "נתון פרופיל היסטורי מאומת; אינו סכום הלייקים בארכיון שנקלט",
   "contributorSourceCatalogProjection+posts": "קטלוג המקורות והפוסטים הציבורי",
   contributorPublicationCatalog: "קטלוג הפרסומים הציבורי",
 });

@@ -25,12 +25,15 @@ export async function resolveCommunityWriter(authorKey, { client = getPublicRese
   if (!lookup || !client) return null;
   const { data, error } = await client.from("contributors")
     .select("slug,code,display_name,kind,active,locked,building,visibility:dossier_settings->>visibility")
-    .eq(lookup.column, lookup.id).limit(2);
-  if (error || !Array.isArray(data) || data.length !== 1) return null;
-  const row = data[0];
-  if (!publicWriterVisible(row) || row.visibility && row.visibility !== "public") return null;
+    .eq(lookup.column, lookup.id).limit(101);
+  if (error || !Array.isArray(data) || data.length > 100) return null;
+  // An owned archive source is not a second public dossier. Only a unique public
+  // eligible page resolves; two public pages or an incomplete inventory stay ambiguous.
+  const visible = data.filter((row) => publicWriterVisible(row) && (!row.visibility || row.visibility === "public"));
+  if (visible.length !== 1) return null;
+  const row = visible[0];
   const href = contributorHref(row);
-  return href ? { name: row.display_name || null, href, isWriter: WRITER_KINDS.includes(row.kind) } : null;
+  return href ? { name: row.display_name || null, href, kind: row.kind || null, isWriter: WRITER_KINDS.includes(row.kind) } : null;
 }
 
 // Writer-page link carrying an approved return target, so the writer page can offer a way back.
