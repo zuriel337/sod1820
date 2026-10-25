@@ -2800,18 +2800,22 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         },{includeOccurrences:true,maxOccurrences:8,box:discovery.box},(completed,total)=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress:{phase:"context",completed,total}}),cancelled):[];
         if(contextRaw===null||cancelled())return;
         const contextCandidates=compactContextDiscoveryCandidates(contextRaw,structuralAxis).filter(candidate=>norm(candidate.term)!==norm(st.raw)),motifTerms=new Set(discovery.items.map(item=>norm(item.term))),
-          motifItems=discovery.items.map(item=>matrixDiscoveryProjection(item,structuralAxis,"motif")),contextItems=contextCandidates.map(item=>matrixDiscoveryProjection(item,structuralAxis,motifTerms.has(norm(item.term))?"context-motif":"context")),
+          motifItems=discovery.items.map(item=>matrixDiscoveryProjection(item,structuralAxis,"motif")),rawPatternItems=(discovery.rawItems||[]).map(item=>matrixDiscoveryProjection(item,structuralAxis,"raw-pattern")),
+          contextItems=contextCandidates.map(item=>matrixDiscoveryProjection(item,structuralAxis,motifTerms.has(norm(item.term))?"context-motif":"context")),
           groupCandidates=[...discovery.items,...contextCandidates.filter(item=>!motifTerms.has(norm(item.term)))],grouped=buildStructuralGroups(groupCandidates,structuralAxis,{minLength:discovery.minLength,maxLength:discovery.maxLength,maxDistance:40,minMembers:2,maxGroups:8,maxMembers:8});
         postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress:{phase:"groups",completed:groupCandidates.length,total:groupCandidates.length,found:motifItems.length+contextItems.length}});
         if(cancelled())return;
-        postHost({type:"lens",lens:"matrix-discovery",ok:true,target,status:motifItems.length||contextItems.length?"CANDIDATE":"EMPTY",contract:MATRIX_DISCOVERY_CONTRACT,
+        postHost({type:"lens",lens:"matrix-discovery",ok:true,target,status:motifItems.length||contextItems.length||rawPatternItems.length?"CANDIDATE":"EMPTY",contract:MATRIX_DISCOVERY_CONTRACT,
           strategy:"matrix-first",searchRule:"no-default-broad-lexicon",coverage:"axis-focused-window",scope:st.scope,defaultLexiconLoaded:false,vocabularyTermsChecked:contextTotal,
           budget:{contract:MATRIX_DISCOVERY_BUDGET_CONTRACT,cells:discovery.box.cells,matrixPathsChecked:discovery.pathsChecked,maxVocabularyTerms:discovery.box.maxVocabularyTerms,maxGapScale:discovery.box.maxGapScale,rowPad:discovery.box.rowPad,colRadius:discovery.box.colRadius},
           axis:{term:norm(st.raw),skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back"},minLength:discovery.minLength,maxLength:discovery.maxLength,
-          motifs:motifItems,contextMatches:contextItems,items:[...contextItems,...motifItems.filter(item=>!contextItems.some(context=>context.term===item.term))].slice(0,24),
+          motifs:[...motifItems,...rawPatternItems],languageMatches:motifItems,rawPatterns:rawPatternItems,contextMatches:contextItems,
+          items:[...contextItems,...motifItems.filter(item=>!contextItems.some(context=>context.term===item.term))].slice(0,24),
           contextCoverage:researchContextCoverage(researchContext.requested,contextCandidates,false,false),groups:grouped.groups,availableGroups:grouped.availableGroups,
           stageCounts:{A:motifItems.filter(item=>item.matrixStage==="A").length+contextItems.filter(item=>item.matrixStage==="A").length,B:motifItems.filter(item=>item.matrixStage==="B").length+contextItems.filter(item=>item.matrixStage==="B").length},
-          availableMotifs:discovery.available,truncated:discovery.truncated||motifItems.length+contextItems.length>24,geometryContract:COMPACT_GEOMETRY_CONTRACT,truthPromotion:false});
+          rawStageCounts:{A:rawPatternItems.filter(item=>item.matrixStage==="A").length,B:rawPatternItems.filter(item=>item.matrixStage==="B").length},
+          availableMotifs:discovery.available,availableLanguageMatches:discovery.availableMeaningful,availableRawPatterns:discovery.availableRaw,
+          truncated:discovery.truncated||motifItems.length+contextItems.length>24,geometryContract:COMPACT_GEOMETRY_CONTRACT,truthPromotion:false});
       })().catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"scan-failed"});});
     }
     if(d.type==="request-lens"&&d.lens==="cross-third-axis"){
@@ -4383,14 +4387,18 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const compact=nonOverlapping(row.occurrences.filter(occurrence=>occurrence._matrixStage==="A")),independent=compact.length>=2?compact:nonOverlapping(row.occurrences);if(independent.length<2)return null;
       const best=independent[0],matrixStage=compact.length>=2?"A":"B",gapScale=Math.max(...independent.map(occurrence=>occurrence._matrixScale||1)),orientationCount=new Set(independent.map(occurrence=>String(occurrence._matrixDirection||"").replace(/-reverse$/,"")).filter(Boolean)).size,languageHint=Number(hints.get(row.term))||0;
       return {...best,term:row.term,label:row.label,occurrenceCount:independent.length,occurrences:independent,matrixStage,gapScale,orientationCount,languageHint,lexiconSources:[...row.lexiconSources,...(languageHint?["bounded_language_hint"]:[])],lexiconSupport:independent.length,classifications:row.classifications};}).filter(Boolean)
-      .sort((a,b)=>Number(a.matrixStage==="B")-Number(b.matrixStage==="B")||b.languageHint-a.languageHint||b.orientationCount-a.orientationCount||norm(b.term).length-norm(a.term).length||b.occurrenceCount-a.occurrenceCount||a.gapScale-b.gapScale||a.distance-b.distance||a.skip-b.skip||norm(a.term).localeCompare(norm(b.term),"he"));
-    // Keep maximal repeated paths. A shorter row is suppressed only when every stored occurrence
-    // is physically contained in a longer repeat with the same repetition count.
-    const maximalStage=stage=>{const selected=[];for(const candidate of ranked){if(candidate.matrixStage!==stage)continue;const nested=selected.some(parent=>parent.gapScale===candidate.gapScale&&parent.occurrenceCount===candidate.occurrenceCount&&norm(parent.term).includes(norm(candidate.term))&&candidate.occurrences.every(occurrence=>parent.occurrences.some(parentOccurrence=>occurrence.positions.every(position=>parentOccurrence.positions.includes(position)))));if(!nested)selected.push(candidate);if(selected.length>=32)break;}return selected;},
-      stageA=maximalStage("A"),stageB=maximalStage("B");let takeA=Math.min(16,stageA.length),takeB=Math.min(8,stageB.length),spare=24-takeA-takeB;
-    if(spare>0){const extraA=Math.min(spare,stageA.length-takeA);takeA+=extraA;spare-=extraA;}if(spare>0)takeB+=Math.min(spare,stageB.length-takeB);
-    const maximal=[...stageA.slice(0,takeA),...stageB.slice(0,takeB)];
-    return {items:maximal,available:ranked.length,truncated:ranked.length>maximal.length,box,minLength,maxLength,pathsChecked:completed};
+      // A supported Biblical/context term belongs in the primary research list even when its
+      // geometry is bounded Stage B. Unknown letter runs keep their geometry order, but they may
+      // not hide supported language merely because they are gapless.
+      .sort((a,b)=>Number(b.languageHint>0)-Number(a.languageHint>0)||b.languageHint-a.languageHint||Number(a.matrixStage==="B")-Number(b.matrixStage==="B")||b.orientationCount-a.orientationCount||norm(b.term).length-norm(a.term).length||b.occurrenceCount-a.occurrenceCount||a.gapScale-b.gapScale||a.distance-b.distance||a.skip-b.skip||norm(a.term).localeCompare(norm(b.term),"he"));
+    // Keep maximal repeated paths separately for supported language and raw geometry. A shorter
+    // row is suppressed only when every stored occurrence is contained in a longer repeat with
+    // the same repetition count. Raw patterns remain available in the explicit advanced section.
+    const maximalRows=(rows,limit=24)=>{const selected=[];for(const candidate of rows){const nested=selected.some(parent=>parent.gapScale===candidate.gapScale&&parent.occurrenceCount===candidate.occurrenceCount&&norm(parent.term).includes(norm(candidate.term))&&candidate.occurrences.every(occurrence=>parent.occurrences.some(parentOccurrence=>occurrence.positions.every(position=>parentOccurrence.positions.includes(position)))));if(!nested)selected.push(candidate);if(selected.length>=limit)break;}return selected;},
+      meaningfulRanked=ranked.filter(candidate=>candidate.languageHint>0),rawRanked=ranked.filter(candidate=>candidate.languageHint<=0),
+      meaningful=maximalRows(meaningfulRanked),raw=maximalRows(rawRanked);
+    return {items:meaningful,rawItems:raw,available:ranked.length,availableMeaningful:meaningfulRanked.length,availableRaw:rawRanked.length,
+      truncated:meaningfulRanked.length>meaningful.length||rawRanked.length>raw.length,box,minLength,maxLength,pathsChecked:completed};
   }
   function compactContextDiscoveryCandidates(candidates,axis){
     const rows=[];
@@ -4402,7 +4410,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const geometry=compactGeometryMeta(candidate,axis),variant=(candidate.classifications||[]).find(item=>item.kind==="research-context-spelling-variant");
     return {kind,term:norm(candidate.term),label:candidate.label||candidate.term,length:norm(candidate.term).length,occurrenceCount:Number(candidate.occurrenceCount)||1,matrixStage:candidate.matrixStage||candidate._matrixStage||geometry?.stage||"B",gapScale:Number(candidate.gapScale||candidate._matrixScale)||1,
       skip:Math.abs(Number(candidate.skip)),direction:Number(candidate.dir)===1?"fwd":"back",distance:Number(candidate.distance)||0,geometry,
-      contextVariant:variant?{source:variant.source,label:variant.label}:null,lexiconSources:[...(candidate.lexiconSources||[])],status:"CANDIDATE"};
+      contextVariant:variant?{source:variant.source,label:variant.label}:null,lexiconSources:[...(candidate.lexiconSources||[])],
+      evidenceTier:kind==="raw-pattern"?"raw-pattern":kind.startsWith("context")?"research-context":"language-supported",status:"CANDIDATE"};
   }
   function independentCandidateRows(entries){
     const blocked=new Set(["visible_saved_research","verified_research"]),rows=[];

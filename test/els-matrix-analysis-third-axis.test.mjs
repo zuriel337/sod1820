@@ -33,6 +33,8 @@ test("the open Research matrix defaults to bounded matrix-first discovery", asyn
   assert.match(engine, /strategy:"matrix-first",searchRule:"no-default-broad-lexicon"/);
   assert.match(engine, /defaultLexiconLoaded:false,vocabularyTermsChecked:contextTotal/);
   assert.match(engine, /function discoverMatrixRepeats\(/);
+  assert.match(engine, /rawPatterns:rawPatternItems/);
+  assert.match(native, /דפוסים גולמיים חוזרים/);
   const defaultHandler = engine.slice(engine.indexOf('d.lens==="matrix-discovery"'), engine.indexOf('d.lens==="cross-third-axis"'));
   assert.doesNotMatch(defaultHandler, /dynamicCandidateLexicon\(/);
   assert.match(engine.slice(engine.indexOf('d.lens==="structure-priority"')), /dynamicCandidateLexicon\(\)/);
@@ -63,14 +65,27 @@ test("matrix-first Stage B rediscovers the two ירושלם paths around מקד�
   context.axis = axis;
   const result = await vm.runInContext("discoverMatrixRepeats(axis,{minLength:4,maxLength:10},null,()=>false)", context);
   const rows = JSON.parse(JSON.stringify(result.items));
+  const rawRows = JSON.parse(JSON.stringify(result.rawItems));
   const jerusalem = rows.find((row) => row.term === "ירושלמ");
   assert.ok(jerusalem, "the saved-cipher example is rediscovered from canonical letters, not a saved record");
+  assert.equal(rows[0].term, "ירושלמ", "supported language is visible before raw geometric patterns");
+  assert.ok(rawRows.length > 0, "unknown repeated strings remain available only in the advanced raw-pattern section");
+  assert.ok(rawRows.every((row) => row.languageHint === 0));
   assert.equal(jerusalem.matrixStage, "B");
   assert.equal(jerusalem.gapScale, 3);
   assert.ok(jerusalem.occurrenceCount >= 2);
   assert.equal(result.pathsChecked, result.box.rayCount);
   assert.ok(result.pathsChecked < 40000, "the local Stage A+B ray budget remains below a broad vocabulary pass");
-  assert.deepEqual(rows.map((row) => row.matrixStage), rows.map((row) => row.matrixStage).toSorted(), "all gapless motifs precede bounded Stage B motifs");
+  assert.doesNotMatch(engine, /if\s*\([^)]*מקדש ירד|מקדש ירד[^\n]*(?:return|push|unshift)/, "the runtime contains no saved-cipher special case");
+});
+
+test("regular results show the full verified list before optional research packages", async () => {
+  const native = await readFile(NATIVE, "utf8");
+  const rail = native.slice(native.indexOf("function RegularResultsRail"), native.indexOf("function CrossThirdAxisResearch"));
+  assert.match(native, /המלצות לפתיחה בעמוד הזה/);
+  assert.match(rail, /כל המופעים המאומתים/);
+  assert.ok(rail.indexOf('className="els29-native-result-list"') < rail.indexOf("<SavedResearchBundles"));
+  assert.ok(rail.indexOf('className="els29-native-result-list"') < rail.indexOf("<ResultResearchTargets"));
 });
 
 test("a third term is searched only inside the selected or verified cross meetings", async () => {

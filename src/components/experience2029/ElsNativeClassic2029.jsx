@@ -735,6 +735,7 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
   const result = lensResult?.lens === "structure-priority" ? lensResult : null;
   const discovery = lensResult?.lens === "matrix-discovery" ? lensResult : null;
   const discoveryItems = discovery?.ok && Array.isArray(discovery.items) ? discovery.items : [];
+  const discoveryRawPatterns = discovery?.ok && Array.isArray(discovery.rawPatterns) ? discovery.rawPatterns : [];
   const discoveryGroups = discovery?.ok && Array.isArray(discovery.groups) ? discovery.groups.filter((group) => group.kind !== "motif").slice(0, 4) : [];
   const items = result?.ok && Array.isArray(result.items) ? result.items : [];
   const groups = result?.ok && Array.isArray(result.groups) ? result.groups : [];
@@ -755,6 +756,17 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
     return { ...current, types: selected.length ? selected : current.types };
   });
   const existing = new Set(findings.map((finding) => finding.t));
+  const discoveryRow = (item) => {
+    const added = existing.has(item.term);
+    const contextItem = item.kind === "context" || item.kind === "context-motif";
+    return <article className="els29-native-structure-row" key={`${item.kind}-${item.term}`}>
+      <div className="els29-native-structure-copy"><b>{item.label || item.term}</b>
+        <span>{item.length} אותיות · {contextItem ? "נמצא בחבילת ההקשר" : `חזר ${item.occurrenceCount} פעמים באזור`}</span>
+        <small>{item.matrixStage === "A" ? "שלב א׳ · ללא פער בתצוגה" : `שלב ב׳ · מרווח קבוע פי ${item.gapScale}`} · דילוג {item.skip} · מרחק {item.distance} תאים{item.contextVariant ? ` · כתיב חסר של ${item.contextVariant.source}` : ""}</small>
+      </div>
+      <button type="button" disabled={pending || (!added && findings.length >= 12)} onClick={() => added ? onOpenFinding(item.term) : onAddGroup([item.term])}>{added ? "פתח במטריצה" : "אמת והצג"}</button>
+    </article>;
+  };
 
   return <div className="els29-native-workrail els29-native-structures" hidden={!visible}
     aria-label="גילוי וקשרים במטריצה" aria-busy={lensPending} data-experience-capability="els-structural-priority" data-els-matrix-discovery="v1">
@@ -810,23 +822,21 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
     {lensPending ? <p role="status" className="els29-native-muted">קורא את אזור המטריצה ומסדר את מה שהתגלה…</p> : null}
     {discovery?.ok === false ? <p role="status" className="els29-native-muted">הגילוי לא הושלם. הציר, המטריצה והממצאים לא השתנו ואפשר לנסות שוב.</p> : null}
     {discovery?.ok ? <section className="els29-native-discovery-results" data-els-matrix-discovery={discovery.contract}>
-      <header><strong>מה התגלה כאן · {discoveryItems.length}</strong>
-        <small>{discovery.motifs?.length || 0} מוטיבים חוזרים · {discovery.contextMatches?.length || 0} התאמות להקשר · שלב א׳ {discovery.stageCounts?.A || 0} · שלב ב׳ {discovery.stageCounts?.B || 0}.</small>
+      <header><strong>מילים וממצאים שכדאי לבדוק · {discoveryItems.length}</strong>
+        <small>{discovery.languageMatches?.length || 0} מילים נתמכות בשפת המחקר · {discovery.contextMatches?.length || 0} התאמות להקשר · שלב א׳ {discovery.stageCounts?.A || 0} · שלב ב׳ {discovery.stageCounts?.B || 0}.</small>
         <small>{discovery.vocabularyTermsChecked || 0} מונחי הקשר נבדקו.</small>
         <small>נסרקו {discovery.budget?.matrixPathsChecked || 0} קווי מפה באזור תחום; אוצר המילים הגדול לא נטען.</small></header>
+      {!discoveryItems.length ? <p className="els29-native-muted">לא נמצא באזור מונח הנתמך בשפת המחקר או בחבילת ההקשר. הדפוסים הגולמיים נשמרו לבדיקה מתקדמת ואינם מוצגים כמילים.</p> : null}
       <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="תגליות במטריצה לפי סדר עדיפות">
-        {discoveryItems.map((item) => {
-          const added = existing.has(item.term);
-          const contextItem = item.kind === "context" || item.kind === "context-motif";
-          return <article className="els29-native-structure-row" key={`${item.kind}-${item.term}`}>
-            <div className="els29-native-structure-copy"><b>{item.label || item.term}</b>
-              <span>{item.length} אותיות · {contextItem ? "נמצא בחבילת ההקשר" : `חזר ${item.occurrenceCount} פעמים באזור`}</span>
-              <small>{item.matrixStage === "A" ? "שלב א׳ · ללא פער בתצוגה" : `שלב ב׳ · מרווח קבוע פי ${item.gapScale}`} · דילוג {item.skip} · מרחק {item.distance} תאים{item.contextVariant ? ` · כתיב חסר של ${item.contextVariant.source}` : ""}</small>
-            </div>
-            <button type="button" disabled={pending || (!added && findings.length >= 12)} onClick={() => added ? onOpenFinding(item.term) : onAddGroup([item.term])}>{added ? "פתח במטריצה" : "אמת והצג"}</button>
-          </article>;
-        })}
+        {discoveryItems.map(discoveryRow)}
       </div>
+      {discoveryRawPatterns.length ? <details className="els29-native-structure-settings" data-els-raw-patterns="advanced">
+        <summary>דפוסים גולמיים חוזרים · {discoveryRawPatterns.length} מוצגים מתוך {discovery.availableRawPatterns || discoveryRawPatterns.length}</summary>
+        <small>אלה רצפי אותיות שחזרו בגאומטריה, אך אינם נתמכים כרגע כמילים בשפת המחקר. הם אינם נדחקים לפני מונחים מוכרים ונפתחים רק לבדיקה מתקדמת.</small>
+        <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="דפוסים גולמיים לבדיקה מתקדמת">
+          {discoveryRawPatterns.map(discoveryRow)}
+        </div>
+      </details> : null}
       {discoveryGroups.length ? <div className="els29-native-structure-list" aria-label="קבוצות שנבנו מן הגילוי המקומי">
         {discoveryGroups.map((group, index) => {
           const terms = [...new Set((group.members || []).map((member) => member.term))];
@@ -837,7 +847,6 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
           </article>;
         })}
       </div> : null}
-      {!discoveryItems.length ? <p className="els29-native-muted">לא נמצא באזור התחום רצף חוזר או מונח מחבילת ההקשר. זו אינה קביעה שאין ממצאים מחוץ לאזור.</p> : null}
       {discovery.truncated ? <small>הוצגו התוצאות הראשונות לפי תקציב הבטיחות. אפשר לעבור לסריקה הרחבה רק אם יש לכך צורך מחקרי.</small> : null}
     </section> : null}
     {result?.ok === false ? <p role="status" className="els29-native-muted">אי אפשר לסרוק מבנים לפני שהציר הראשי אומת.</p> : null}
@@ -988,14 +997,15 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
   </div>;
 }
 
-function ResultTriageSummary({ result, pending }) {
+function ResultTriageSummary({ result, pending, total, visibleCount }) {
   if (pending) return <div className="els29-native-triage-summary" role="status"><strong>ממיין את התוצאות…</strong><small>בודק מילים צמודות לפני ואחרי הממצא, מילים נוספות על אותו ציר וסימני מבנה. אפשר לעצור בלי לשנות את המטריצה.</small></div>;
   if (!result?.ok) return null;
   const recommended = (result.items || []).filter((item) => item.tier === "recommended");
   const requested = result.contextCoverage?.requested || [];
   return <div className="els29-native-triage-summary" data-els-result-triage={result.contract} data-els-geometry-contract={result.geometryContract || undefined}>
-    <strong>{recommended.length ? `${recommended.length} תוצאות שכדאי לפתוח קודם` : "המיון הושלם"}</strong>
-    <small>{requested.length ? `המיון בדק סביב כל מופע את ההקשר שביקשתם: ${requested.map((item) => item.label || item.term).join(" · ")}. ` : ""}רצף מדויק לפני או אחרי הממצא וגאומטריה ללא פער מקבלים קדימות. זהו סדר עדיפות לבדיקה, לא ציון אמת; כל התוצאות נשארות זמינות.</small>
+    <strong>{recommended.length ? `${recommended.length} המלצות לפתיחה בעמוד הזה` : "המיון הושלם ללא קיצור רשימת התוצאות"}</strong>
+    <small>כל {Number(total) || Number(result.available) || visibleCount || 0} המופעים המאומתים נשארים ברשימה המלאה שמיד מתחת; בעמוד הזה מוצגים {visibleCount || 0}. ההמלצות רק מסדרות מה לבדוק קודם ואינן מסתירות תוצאה.</small>
+    <small>{requested.length ? `המיון בדק סביב כל מופע את ההקשר שביקשתם: ${requested.map((item) => item.label || item.term).join(" · ")}. ` : ""}רצף מדויק לפני או אחרי הממצא וגאומטריה ללא פער מקבלים קדימות. זהו סדר עדיפות לבדיקה, לא ציון אמת.</small>
     {result.lexicon?.fallback ? <small>שפת המקור לא נטענה במלואה ולכן בדיקת ההמשך חלקית.</small> : null}
   </div>;
 }
@@ -1135,9 +1145,8 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
       {results.capped ? <small>הסריקה מוגבלת; זאת רשימת המופעים שנמצאו בסריקה הזאת, ולא כל המופעים האפשריים.</small> : null}
       {results.ordered?.completeThrough >= 2 ? <small>הושלמה סריקה בשני הכיוונים בדילוגים 2–{results.ordered.completeThrough}. הדילוגים שמעבר לכך עדיין חלקיים.</small> : null}
       {results.ordered?.error ? <small role="status">סריקת הדילוגים הקטנים לא הושלמה. אפשר להמשיך אותה כאן.</small> : null}
-      <ResultTriageSummary result={triage} pending={triagePending} />
-      <SavedResearchBundles result={triage} />
-      <ResultResearchTargets result={triage} comparisonResult={comparisonResult} pending={pending || triagePending || researchTargetPending} onOpen={onOpenResearchTarget} onCompare={onCompareResearchTargets} />
+      <ResultTriageSummary result={triage} pending={triagePending} total={results.total} visibleCount={items.length} />
+      <strong>כל המופעים המאומתים · {items.length} בעמוד הזה מתוך {results.total}</strong>
       <div className="els29-native-results-pages" role="group" aria-label="עמודי תוצאות">
         <button type="button" disabled={results.page === 0} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page - 1 })}>עמוד קודם</button>
         <span>עמוד <bdi>{results.page + 1} / {Math.ceil(results.total / results.pageSize)}</bdi></span>
@@ -1151,6 +1160,8 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
           <ResultTriageNote row={triageByKey.get(item.hitId)} />
         </button>)}
       </div>
+      <SavedResearchBundles result={triage} />
+      <ResultResearchTargets result={triage} comparisonResult={comparisonResult} pending={pending || triagePending || researchTargetPending} onOpen={onOpenResearchTarget} onCompare={onCompareResearchTargets} />
     </> : <p role="status">{pending ? "התוצאות יופיעו כאן בסיום החיפוש והאימות." : operation?.status === "error" ? operation.message || "החיפוש או האימות לא הושלמו. נסו שוב." : operation?.status === "cancelled" ? "החיפוש בוטל." : operation?.status === "empty" ? "לא נמצאו מופעים מאומתים בסריקה הזאת. אפשר לשנות מונח או היקף ולנסות שוב." : "חפשו מונח כדי לראות כאן את המופעים שלו."}</p>}
     {["error", "empty", "cancelled"].includes(operation?.status) ? <button type="button" onClick={onRetry}>נסה שוב</button> : null}
   </div>;
