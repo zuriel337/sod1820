@@ -2,6 +2,8 @@
 
 Branch: `gpt/follow-center-consent-foundation-20261025`.
 Base: `1baf950477e6357dc1f89d87d47db15fd457fb23`, the centrally integrated PR #1155.
+Validated runtime/test commit: `23a127448b3da8c90b9f87eb3c6b4d2b44607b89`; the subsequent commit
+clarifies this review only. Exact final branch HEAD belongs to the PR/AFTER.
 Task: `FOLLOW_CENTER_CONSENT_FOUNDATION_20261025`.
 BEFORE: `7a41ab0c-c7a3-4568-bb55-d5731c64518f`.
 
@@ -42,7 +44,7 @@ alone remains insufficient proof of consent or delivery readiness under Follow v
 
 ## Validation
 
-- Targeted Node run: 36/36 tests passed, no skips, including follow identity, writer personal,
+- Five focused Node test files passed, no skips, including follow identity, writer personal,
   contributor actions/Person and the unified-notification consent regression.
 - Regression on unchanged helper: failed at the new missing/empty-channel expectation.
 - `npm run build`: Legacy and 2029 passed, including mandatory Production lock.
