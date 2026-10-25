@@ -458,7 +458,7 @@ export function normalizeRazielEvidenceSummary(value = null) {
       label,
       lane: cleanInline(item.lane, 40),
       method: cleanInline(item.method, 60),
-      sourceName: cleanInline(item.source_name, 120),
+      sourceName: cleanInline(item.source_name ?? item.sourceName, 120),
       ...(link || {}),
       ...(methods.length ? { methods } : {}),
     }];
@@ -468,7 +468,7 @@ export function normalizeRazielEvidenceSummary(value = null) {
     title: cleanInline(value.title, 100) || "הממצאים האמיתיים שמאחורי הפרשנות",
     calculations,
     findings,
-    mapAvailable: value.map_available === true,
+    mapAvailable: value.map_available === true || value.mapAvailable === true,
   };
 }
 
@@ -554,9 +554,24 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
   const grounding = response?.deterministic === true || response?.intelligenceLevel === "deterministic"
     ? "deterministic"
     : sourceNames.length ? "sourced" : "interpretation";
+  const previousEvidence = [...(Array.isArray(state?.thread) ? state.thread : [])]
+    .reverse()
+    .find((item) => item?.role === "raziel" && item?.evidenceSummary)?.evidenceSummary || null;
+  const repeatsEvidence = state?.currentTurn?.again === true
+    && previousEvidence != null
+    && response?.evidenceSummary != null
+    && JSON.stringify(previousEvidence) === JSON.stringify(response.evidenceSummary);
+  const evidenceText = repeatsEvidence ? formatRazielEvidenceSummary(response.evidenceSummary) : "";
+  const repeatedSuffix = evidenceText && response.answer.endsWith(`\n\n${evidenceText}`)
+    ? response.answer.slice(0, -(evidenceText.length + 2)).trim()
+    : response.answer;
+  const presentedAnswer = repeatsEvidence
+    ? `${repeatedSuffix}\n\n🔎 הראיות המאומתות זהות לתשובה הקודמת; מפת המחקר נשארת זמינה לפתיחה.`
+    : response.answer;
+  const presentedResponse = repeatsEvidence ? { ...response, answer: presentedAnswer } : response;
   const message = {
     role: "raziel",
-    text: response.answer,
+    text: presentedAnswer,
     level: response.intelligenceLevel,
     question: state?.currentTurn?.question || null,
     turnId: state?.currentTurn?.id || null,
@@ -572,7 +587,7 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
       thread: [...(Array.isArray(state?.thread) ? state.thread : []), message].slice(-LIMITS.threadMessages),
       busy: false,
       currentTurn: { ...state?.currentTurn, status: "complete", completedAt },
-      response,
+      response: presentedResponse,
       provenance,
       status: "ready",
       announcement: "התשובה של רזיאל מוכנה.",

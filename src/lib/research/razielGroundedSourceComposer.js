@@ -7,7 +7,7 @@
 // source URL, and derive bounded presentation candidates for the exploratory view. Candidate
 // ordering never changes the canonical evidence order or promotes a candidate to research truth.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 14;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 15;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -56,12 +56,14 @@ function canonicalSubject(subject) {
     const requestedMethod = cleanText(subject.requestedMethod, 60);
     const relatedExpression = cleanText(subject.relatedExpression, 120);
     const observedValue = safeNumber(subject.observedValue);
+    const identifyObservedMethod = subject.identifyObservedMethod === true;
     return {
       type: "expression",
       value,
       ...(requestedMethod ? { requestedMethod } : {}),
       ...(relatedExpression ? { relatedExpression } : {}),
       ...(observedValue != null ? { observedValue } : {}),
+      ...(identifyObservedMethod ? { identifyObservedMethod: true } : {}),
     };
   }
   return null;
@@ -393,8 +395,17 @@ function visibleEvidenceSummary(entries) {
     }
   }
 
-  const addFinding = (finding) => {
-    if (findings.length >= MAX_VISIBLE_FINDINGS) return;
+  const allEntryFindings = entries.flatMap((entry) => entry.findings);
+  const reservedMethodFinding = allEntryFindings.find((finding) => {
+    const lane = razielFindingEvidenceLane(finding);
+    const method = cleanText(finding?.verification?.engine_method_tested || finding?.source?.method, 60);
+    return ["verified_calculation", "engine_finding"].includes(lane)
+      && method && !method.startsWith("fn_") && !regularMethod(method);
+  }) || null;
+  const initialFindingLimit = reservedMethodFinding ? MAX_VISIBLE_FINDINGS - 1 : MAX_VISIBLE_FINDINGS;
+
+  const addFinding = (finding, limit = MAX_VISIBLE_FINDINGS) => {
+    if (findings.length >= limit) return;
     const lane = razielFindingEvidenceLane(finding);
     if (lane === "explicit_interpretation" || lane === "unverified_finding") return;
     const label = cleanText(finding?.subject?.label, 140)
@@ -425,17 +436,21 @@ function visibleEvidenceSummary(entries) {
     let admitted = 0;
     for (const finding of entry.findings) {
       const before = findings.length;
-      addFinding(finding);
+      addFinding(finding, initialFindingLimit);
       if (findings.length > before) admitted += 1;
-      if (admitted === 3 || findings.length >= MAX_VISIBLE_FINDINGS) break;
+      if (admitted === 3 || findings.length >= initialFindingLimit) break;
     }
-    if (findings.length >= MAX_VISIBLE_FINDINGS) break;
+    if (findings.length >= initialFindingLimit) break;
   }
-  if (findings.length < MAX_VISIBLE_FINDINGS) {
+  if (findings.length < initialFindingLimit) {
     for (const entry of entries) {
-      for (const finding of entry.findings) addFinding(finding);
-      if (findings.length >= MAX_VISIBLE_FINDINGS) break;
+      for (const finding of entry.findings) addFinding(finding, initialFindingLimit);
+      if (findings.length >= initialFindingLimit) break;
     }
+  }
+  if (reservedMethodFinding) addFinding(reservedMethodFinding);
+  if (findings.length < MAX_VISIBLE_FINDINGS) {
+    for (const finding of allEntryFindings) addFinding(finding);
   }
 
   if (!calculations.length && !findings.length) return null;
@@ -1033,7 +1048,7 @@ function directCanonicalAnswer(entries) {
   const expressionEntries = entries.filter((entry) => entry.subject?.type === "expression");
   if (expressionEntries.length !== 1) return null;
   const entry = expressionEntries[0];
-  const { value: expression, requestedMethod, relatedExpression, observedValue } = entry.subject;
+  const { value: expression, requestedMethod, relatedExpression, observedValue, identifyObservedMethod } = entry.subject;
 
   if (relatedExpression) {
     const relation = confirmedRelation(entry, relatedExpression);
@@ -1093,6 +1108,26 @@ function directCanonicalAnswer(entries) {
         { label: `${expression} · ${method}`, value: String(value) },
         ...crossings.map((item) => ({ label: `${item.label} · ${item.method}`, value: String(item.value) })),
       ],
+    };
+  }
+  if (identifyObservedMethod && observedValue != null) {
+    const profiles = list(entry?.projection?.model_input?.calculation_profile)
+      .filter((item) => safeNumber(item?.value) === observedValue);
+    if (!profiles.length) {
+      const outputBounds = entry?.projection?.model_input?.output_bounds;
+      if (outputBounds?.source_truncated === true || outputBounds?.consumer_truncated === true) return null;
+      return {
+        kind: "exact_expression_observed_value_unavailable",
+        answer: `הערך ${observedValue} אינו מופיע במפת החישוב הקנונית והשלמה של ${expression}. לכן לא שייכתי אותו לשיטה שלא אומתה.`,
+        facts: [],
+      };
+    }
+    const methods = [...new Set(profiles.map((profile) => cleanText(profile?.method_label || profile?.method_key, 60)).filter(Boolean))];
+    return {
+      kind: "exact_expression_observed_value",
+      answer: `${expression} מחזיר ${observedValue} בשיטת ${methods.join(" וגם בשיטת ")}. זו התאמה מתוך מפת החישוב הקנונית של המנוע; שמות שיטות חופפים אינם ראיות עצמאיות.`,
+      anchor_value: observedValue,
+      facts: methods.map((method) => ({ label: `${expression} · ${method}`, value: String(observedValue) })),
     };
   }
   return null;

@@ -61,6 +61,21 @@ function numberPhraseFinding({ id, phrase, value }) {
   });
 }
 
+function numberMethodFinding({ id, phrase, method, value }) {
+  return makeUniversalFinding({
+    id,
+    kind: "gematria",
+    stage: null,
+    subject: { type: "phrase", key: phrase, label: phrase, value, lang: "he" },
+    source: { engine: "gematria", adapter: "number-lookup-v1", name: "מנוע הגימטריה", sourceRef: `bidim:${id}`, method, lang: "he" },
+    identity: { sourceIdentity: { bidId: id }, entityRef: `gematria-word:${id}` },
+    verification: { engine_method_tested: method, engine_result: value, verification_state: "not_tested" },
+    evidence: { refs: [`bidim:${id}`], facts: [{ type: "gematria-lookup-row", phrase, method, value }] },
+    access: { tier: "public" },
+    provenance: { createdBy: "ENGINE:gematria", inputRef: `number:${value}` },
+  });
+}
+
 function numberBundle(number, sourceName = "ספר יצירה", { phraseFindings = [], ranking = [] } = {}) {
   const finding = makeUniversalFinding({
     id: `uf:number:${number}`,
@@ -288,6 +303,27 @@ function expressionCrossingBundle(expression, partner = "שלום", { richProfil
       access: { tier: "public" },
       provenance: { createdBy: "SOURCE:method_semantics", inputRef: "expression:fixture", parentFindingIds: [relationId] },
     }));
+  }
+  if (expression === "משיח") {
+    for (const [key, label, value, family] of [
+      ["מילוי", "מילוי", 878, "base_additive"],
+      ["קדמי", "משולש", 1331, "base_additive"],
+    ]) {
+      calculations.push(makeUniversalFinding({
+        id: `uf:gematria:${expression}:${key}`,
+        kind: "gematria-method-value",
+        subject: { type: "phrase", key: expression, label: expression, value, lang: "he" },
+        source: { engine: "gematria", adapter: "gematria-method-profile-w2-v1", sourceRef: null, method: key, lang: "he" },
+        identity: { sourceIdentity: { methodKey: key, normalizedSubject: expression, value } },
+        verification: { engine_method_tested: key, engine_result: value, verification_state: "not_tested" },
+        evidence: { refs: [], facts: [{
+          type: "gematria-method-profile-value", method: key, label, value,
+          category: "יסוד", mathematical_family: family, atomic_or_composite: "atomic", method_version: 1,
+        }] },
+        access: { tier: "public" },
+        provenance: { createdBy: "ENGINE:gematria", inputRef: "expression:fixture" },
+      }));
+    }
   }
   return composeResearchResultBundle({
     query: {
@@ -885,6 +921,70 @@ test("271 triangle question keeps חכמה as subject and opens 271 only for can
   ]);
 });
 
+test("Messiah triangle wording and correction route to קדמי=1331 without losing the expression", async () => {
+  const questions = [
+    {
+      subject: "תמצא לי מידע על המשולש של משיח",
+      conversation_resolution: focusedExpressionConversation("משיח"),
+    },
+    {
+      subject: "נושא המחקר המילה משיח בשיטת משולש",
+      conversation_resolution: focusedExpressionConversation("משיח"),
+    },
+    {
+      subject: "שיטת הקדמי משולש ביקשתי",
+      conversation_resolution: {
+        ...focusedExpressionConversation("משיח"),
+        referential_follow_up: true,
+        referent_source: "prior_user_turn",
+      },
+    },
+  ];
+  for (const [index, body] of questions.entries()) {
+    const run = await runAiAnalyze({
+      answer: noMatchAnswer(),
+      allowed: false,
+      bearer: "synthetic-anon-key",
+      body: {
+        ...body,
+        visitor_id: `vmessiahtriangle${index}123`,
+        intelligence_level: "fast",
+        research_contract: CONTRACT,
+      },
+      researchBundleByExpression: { משיח: expressionCrossingBundle("משיח") },
+      researchBundleByNumber: { 1331: numberBundle(1331) },
+    });
+    const researchCalls = run.calls.filter((call) => call.name === "research-run");
+    assert.equal(run.models.length, 0, body.subject);
+    assert.equal(researchCalls[0].payload.expression, "משיח", body.subject);
+    assert.equal(researchCalls[1].payload.number, 1331, body.subject);
+    assert.match(run.result.raziel.answer, /משיח בשיטת משולש = 1331/, body.subject);
+    assert.doesNotMatch(run.result.raziel.answer, /צמח\s*=\s*358/u, body.subject);
+  }
+});
+
+test("1331 in Messiah identifies the canonical method and opens that value, not the regular 358", async () => {
+  const run = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: false,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: "1331 במשיח מה זה התוצאה?",
+      visitor_id: "vmessiahobserved1331",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: focusedExpressionConversation("משיח"),
+    },
+    researchBundleByExpression: { משיח: expressionCrossingBundle("משיח") },
+    researchBundleByNumber: { 1331: numberBundle(1331) },
+  });
+  const researchCalls = run.calls.filter((call) => call.name === "research-run");
+  assert.deepEqual(researchCalls.map((call) => call.payload.expression ?? call.payload.number), ["משיח", 1331]);
+  assert.equal(run.models.length, 0);
+  assert.match(run.result.raziel.answer, /משיח.*1331.*משולש|משיח.*משולש.*1331/u);
+  assert.doesNotMatch(run.result.raziel.answer, /צמח\s*=\s*358/u);
+});
+
 test("missing name and open capability question are deterministic and spend no AI calls", async () => {
   for (const [subject, answerPattern, kind] of [
     ["תחשב לי את השם שלי", /מה השם המדויק/, "missing_name_expression"],
@@ -997,7 +1097,7 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1, "the deterministic Bundle seam adds no model call");
   assert.match(run.models[0].user, /raziel-canonical-result-bundle-input-v1/);
-  assert.match(run.models[0].user, /raziel-grounded-source-composer-v14/);
+  assert.match(run.models[0].user, /raziel-grounded-source-composer-v15/);
   assert.match(run.models[0].user, /אל תמציא לו שם חלופי/);
   assert.match(run.models[0].user, /לא סופק מדד נדירות מפורש/);
   assert.match(run.models[0].user, /verified_calculations/);
@@ -1015,6 +1115,33 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.deepEqual(run.result.evidence_summary, run.result.raziel.evidence_summary, "the authoritative server envelope carries the same deterministic projection");
   assert.doesNotMatch(JSON.stringify(run.result.raziel.evidence_summary), /מקור מומצא/, "model-authored provenance never enters visible evidence");
   assert.doesNotMatch(JSON.stringify(run.result.evidence_summary), /מומצא|בדיה|999/, "model-authored evidence cannot replace the canonical projection");
+});
+
+test("878 visible evidence keeps the governed Messiah filling result even after many regular rows", async () => {
+  const regulars = Array.from({ length: 8 }, (_, index) => numberMethodFinding({
+    id: `regular-878-${index}`,
+    phrase: `ביטוי רגיל ${index + 1}`,
+    method: "רגיל",
+    value: 878,
+  }));
+  const messiahFill = numberMethodFinding({ id: "messiah-fill-878", phrase: "משיח", method: "מילוי", value: 878 });
+  const run = await runAiAnalyze({
+    answer: numberContextAnswer(878),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    modelResult: { text: JSON.stringify({ v: 1, agent: "raziel", answer: "פירוש 878", facts: [], suggested_paths: [] }) },
+    body: {
+      subject: "תן לי מידע על המספר 878",
+      visitor_id: "vvisibleevidence878",
+      intelligence_level: "fast",
+      research_contract: CONTRACT,
+      conversation_resolution: conversation([878]),
+    },
+    researchBundleByNumber: { 878: numberBundle(878, "מאגר", { phraseFindings: [...regulars, messiahFill] }) },
+  });
+  assert.ok(run.result.evidence_summary.findings.some((item) => (
+    item.label === "משיח" && item.method === "מילוי" && item.value === 878
+  )));
 });
 
 test("776 keeps verified symbolic phrases factual and preserves the Number-page order through model fallback", async () => {

@@ -139,6 +139,30 @@ test("responses: general carries no mode report; a non-applied mode is never lab
   assert.equal(provenanceNotApplied.viewMode, "landscape:not_applied");
 });
 
+test("a continuation keeps canonical evidence available without repeating the full appendix", () => {
+  const raw = { answer: "פרשנות חדשה", evidence_summary: {
+    title: "ראיות",
+    findings: [{ label: "משיח", lane: "engine_finding", method: "מילוי", value: 878 }],
+    map_available: true,
+  } };
+  const firstResponse = normalizeRazielResponse(raw, "fast");
+  let state = createInitialRazielSessionState();
+  state = razielSessionReducer(state, { type: "turn_started", turn: turn({ id: "t1" }), contextSnapshot: null });
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({ state, response: firstResponse, provenance: null, completedAt: "x" }));
+  state = razielSessionReducer(state, { type: "turn_started", turn: turn({ id: "t2", again: true }), contextSnapshot: null });
+  const action = createRazielTurnSucceededAction({
+    state,
+    response: normalizeRazielResponse(raw, "deep"),
+    provenance: null,
+    completedAt: "y",
+  });
+  const message = action.patch.thread.at(-1);
+  assert.match(message.text, /פרשנות חדשה/);
+  assert.match(message.text, /הראיות המאומתות זהות לתשובה הקודמת/);
+  assert.doesNotMatch(message.text, /• משיח/);
+  assert.deepEqual(message.evidenceSummary, firstResponse.evidenceSummary);
+});
+
 test("provider: one AI boundary, the session-owned mode is read at submit, and nothing is persisted", () => {
   assert.equal((provider.match(/await transport\(request\)/g) || []).length, 1);
   assert.match(requestSource, /const selectedViewMode = continuation\?\.viewMode/);

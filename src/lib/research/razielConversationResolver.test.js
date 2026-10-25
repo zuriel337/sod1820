@@ -324,6 +324,23 @@ test("plural profile wording and a bare all-methods follow-up preserve one expre
   assert.equal(projectRazielConversationResolution(followUp)?.identities?.[0]?.label, "שאול");
 });
 
+test("method correction keeps the prior expression and canonicalizes the public triangle label", () => {
+  const first = resolveRazielConversationTurn({ question: "תמצא לי מידע על המשולש של משיח" });
+  assert.deepEqual(ids(first), ["משיח"]);
+
+  const followUp = resolveRazielConversationTurn({
+    question: "שיטת הקדמי משולש ביקשתי",
+    thread: [{
+      role: "user",
+      text: "תמצא לי מידע על המשולש של משיח",
+      identity_resolution: first.identity_resolution,
+    }],
+  });
+  assert.deepEqual(ids(followUp), ["משיח"]);
+  assert.equal(followUp.referent_source, "prior_user_turn");
+  assert.equal(projectRazielConversationResolution(followUp)?.identities?.[0]?.label, "משיח");
+});
+
 test("supports every canonical identity kind from a prior resolved turn", () => {
   const types = ["person", "book", "event", "place", "number", "name", "verse", "topic", "phrase", "word", "entity"];
   for (const type of types) {

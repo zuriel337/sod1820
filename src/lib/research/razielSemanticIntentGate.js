@@ -54,6 +54,18 @@ function escapePattern(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// The public product calls the locked internal method key "קדמי" by the display label
+// "משולש". Natural combinations such as "הקדמי משולש" are therefore one method lens, not two
+// methods and never the separate "משולש מילה" formula.
+function canonicalRequestedMethod(value) {
+  const method = clean(value, 60)
+    .replace(/^שיטת\s+/u, "")
+    .replace(/\s+/gu, " ")
+    .trim();
+  const comparable = method.replace(/^ה/u, "");
+  return /^(?:קדמי\s+)?משולש(?:\s+קדמי)?$/u.test(comparable) ? "קדמי" : method;
+}
+
 // Deterministic conversation control for short, whole-turn acknowledgements. This is intentionally
 // narrower than sentiment/small-talk classification: it never consumes a mixed request and never
 // calls a model. The temporary conversation keeps its prior research identities, while ai-analyze
@@ -103,6 +115,13 @@ export function resolveRazielDeterministicGuidance(message) {
 export function resolveRazielExpressionContinuationDirective(question) {
   const q = grammarText(question);
   if (!q || q.length > 140) return null;
+  const correction = /^שיטת\s+(.{1,60}?)\s+(?:ביקשתי|התכוונתי)$/u.exec(q);
+  if (correction) return Object.freeze({
+    requested_action: "research",
+    requested_method: canonicalRequestedMethod(correction[1]),
+    all_methods: false,
+    view_mode_only: false,
+  });
   const command = /^(?:תחשב|חשב|חשבי|תחשבי)(?:\s+לי)?\s+(.+)$/u.exec(q);
   // A lens-only turn ("בכל השיטות", "בשיטת מסתתר") is already a complete
   // grammatical continuation. It carries the last explicit expression from the
@@ -121,7 +140,7 @@ export function resolveRazielExpressionContinuationDirective(question) {
   const method = /^בשיטת\s+(.{1,60})$/u.exec(directive)?.[1] || null;
   return Object.freeze({
     requested_action: asksConnections ? "connect" : "research",
-    requested_method: method ? clean(method, 60) : null,
+    requested_method: method ? canonicalRequestedMethod(method) : null,
     all_methods: directive === "בכל השיטות",
     view_mode_only: /^במצב\s+(?:רגיל|כללי)$/u.test(directive),
   });
@@ -288,7 +307,7 @@ function explicitExpressionCalculationCommand(question) {
 
   return expressionSubjectFromSlot(slot, {
     requested_action: asksConnections ? "connect" : "research",
-    ...(requestedMethod ? { requested_method: requestedMethod } : {}),
+    ...(requestedMethod ? { requested_method: canonicalRequestedMethod(requestedMethod) } : {}),
   });
 }
 
@@ -319,6 +338,26 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
   let requestedAction = "connect";
   let requestedMethod = null;
   let observedValue = null;
+  let identifyObservedMethod = false;
+
+  if (!match) {
+    const declaredFocus = /^נושא\s+המחקר\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+?)\s+בשיטת\s+(.+)$/u.exec(q);
+    if (declaredFocus) {
+      match = [declaredFocus[0], declaredFocus[1]];
+      requestedMethod = canonicalRequestedMethod(declaredFocus[2]);
+      requestedAction = "research";
+    }
+  }
+
+  if (!match) {
+    const observedResult = /^(\d{1,6})\s+ב(?:(?:מילה|ביטוי|שם)\s+)?(.+?)\s+מה\s+(?:זה|זאת)\s+התוצאה$/u.exec(q);
+    if (observedResult) {
+      match = [observedResult[0], observedResult[2]];
+      observedValue = Number(observedResult[1]);
+      identifyObservedMethod = true;
+      requestedAction = "research";
+    }
+  }
 
   if (!match) {
     const focusedValue = /^(?:מה\s+(?:אתה\s+אומר|את\s+אומרת|דעתך)\s+על|(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?(?:\s+את)?)\s+(\d{1,12})\s+ה?(.{2,60}?)\s+של\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+)$/u.exec(q);
@@ -342,10 +381,10 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
     // "מה משמעות..." and "איך מפרשים..." without letting a verb or a method label become the
     // research subject. The canonical method profile remains the authority that later decides
     // whether the requested lens actually exists.
-    const focused = /^(?:(?:מה\s+(?:יש\s+לך|ידוע(?:\s+לך)?)\s+על)|(?:מה\s+(?:אומר(?:ת)?|מראה|מלמד(?:ת)?|מגלה))|(?:מה\s+(?:ה?משמעות|ה?פירוש)(?:\s+של)?)|(?:איך\s+(?:מפרשים|מפרשות|לפרש)(?:\s+את)?)|(?:ספר(?:י)?(?:\s+לי)?\s+על)|(?:(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?\s+את))\s+ה?(.{2,60}?)\s+של\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+)$/u.exec(q);
+    const focused = /^(?:(?:מה\s+(?:יש\s+לך|ידוע(?:\s+לך)?)\s+על)|(?:מה\s+(?:אומר(?:ת)?|מראה|מלמד(?:ת)?|מגלה))|(?:מה\s+(?:ה?משמעות|ה?פירוש)(?:\s+של)?)|(?:איך\s+(?:מפרשים|מפרשות|לפרש)(?:\s+את)?)|(?:ספר(?:י)?(?:\s+לי)?\s+על)|(?:(?:תמצא|תמצאי|מצא|מצאי)(?:\s+לי)?\s+מידע\s+על)|(?:(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?\s+את))\s+ה?(.{2,60}?)\s+של\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+)$/u.exec(q);
     if (focused) {
       match = [focused[0], focused[2]];
-      requestedMethod = clean(focused[1], 60);
+      requestedMethod = canonicalRequestedMethod(focused[1]);
       requestedAction = "research";
     }
   }
@@ -381,8 +420,9 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
     source: RESEARCH_IDENTITY_SOURCE.TEXT_MATCH,
     confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
     requested_action: requestedAction,
-    ...(requestedMethod ? { requested_method: requestedMethod } : {}),
+    ...(requestedMethod ? { requested_method: canonicalRequestedMethod(requestedMethod) } : {}),
     ...(observedValue != null ? { observed_value: observedValue } : {}),
+    ...(identifyObservedMethod ? { identify_observed_method: true } : {}),
     explicit_text_computation: true,
   });
 }

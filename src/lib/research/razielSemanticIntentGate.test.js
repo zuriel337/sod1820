@@ -81,7 +81,8 @@ test("explicit Hebrew expression grammar is structural rather than word-specific
 test("method calculation commands keep command scaffolding out of the canonical expression", () => {
   for (const [question, label, method, action] of [
     ["חשב את שאול בשיטת מסתתר ומצא הצלבות", "שאול", "מסתתר", "connect"],
-    ["תחשב לי את חכמה בשיטת משולש", "חכמה", "משולש", "research"],
+    ["תחשב לי את חכמה בשיטת משולש", "חכמה", "קדמי", "research"],
+    ["תחשב לי את משיח בשיטת משולש מילה", "משיח", "משולש מילה", "research"],
     ["חשב את ראיתי דבר מתוך דבר בשיטת אותיות אחרי ומצא לי קשרים", "ראיתי דבר מתוך דבר", "אותיות אחרי", "connect"],
   ]) {
     const out = resolveExplicitHebrewExpressionResearchSubject(question);
@@ -173,6 +174,12 @@ test("expression continuation directives carry an earlier subject instead of cal
     all_methods: false,
     view_mode_only: false,
   });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("שיטת הקדמי משולש ביקשתי"), {
+    requested_action: "research",
+    requested_method: "קדמי",
+    all_methods: false,
+    view_mode_only: false,
+  });
   for (const question of ["תחשב את צוריאל", "תחשב את המילה חכמה", "ספר לי על זה"]) {
     assert.equal(resolveRazielExpressionContinuationDirective(question), null, question);
   }
@@ -228,9 +235,22 @@ test("method-focused expression grammar preserves expression, method and observe
 
   const triangle = resolveExplicitHebrewExpressionResearchSubject("מה אתה אומר על 271 המשולש של חכמה");
   assert.equal(triangle?.label, "חכמה");
-  assert.equal(triangle?.requested_method, "משולש");
+  assert.equal(triangle?.requested_method, "קדמי");
   assert.equal(triangle?.observed_value, 271);
   assert.equal(triangle?.requested_action, "research");
+
+  for (const question of [
+    "תמצא לי מידע על המשולש של משיח",
+    "נושא המחקר המילה משיח בשיטת משולש",
+  ]) {
+    const subject = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(subject?.label, "משיח", question);
+    assert.equal(subject?.requested_method, "קדמי", question);
+  }
+
+  const observed = resolveExplicitHebrewExpressionResearchSubject("1331 במשיח מה זה התוצאה?");
+  assert.equal(observed?.label, "משיח");
+  assert.equal(observed?.observed_value, 1331);
 });
 
 test("exact Hebrew expression pair grammar preserves both relation endpoints", () => {

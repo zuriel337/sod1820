@@ -1281,6 +1281,7 @@ type RazielConversationExpressionHint = {
   relatedExpression: string | null;
   requestedMethod: string | null;
   observedValue: number | null;
+  identifyObservedMethod: boolean;
   requestedAction: "connect" | "research" | "understand";
 };
 
@@ -1383,7 +1384,7 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown, s
       if (raw.referent_source !== "surface_subject"
         || requestedAction !== "understand"
         || surfaceExpression !== labels[0]) return null;
-      return { expression: labels[0], relatedExpression: null, requestedMethod: null, observedValue: null, requestedAction };
+      return { expression: labels[0], relatedExpression: null, requestedMethod: null, observedValue: null, identifyObservedMethod: false, requestedAction };
     }
     const continuation = resolveRazielExpressionContinuationDirective(originalQuestion);
     if (!continuation
@@ -1394,6 +1395,7 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown, s
       relatedExpression: null,
       requestedMethod: continuation.requested_method,
       observedValue: null,
+      identifyObservedMethod: false,
       requestedAction,
     };
   }
@@ -1408,6 +1410,7 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown, s
       relatedExpression: labels[1],
       requestedMethod: null,
       observedValue: null,
+      identifyObservedMethod: false,
       requestedAction: "connect",
     };
   }
@@ -1419,6 +1422,7 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown, s
     relatedExpression: null,
     requestedMethod: rzClean(structural.requested_method, 60) || null,
     observedValue: Number.isSafeInteger(structural.observed_value) ? structural.observed_value : null,
+    identifyObservedMethod: structural.identify_observed_method === true,
     requestedAction,
   };
 }
@@ -1597,6 +1601,7 @@ type RazielCanonicalBundleRead = {
   relatedExpression: string | null;
   requestedMethod: string | null;
   observedValue: number | null;
+  identifyObservedMethod: boolean;
   contract: string;
   outcome: string;
   traceId: string | null;
@@ -1636,7 +1641,7 @@ function razielCanonicalBundleCoverageDecision(projection: any): {
 
 async function runRazielCanonicalBundle({
   contract, number = null, expression = null, relatedExpression = null, requestedMethod = null,
-  observedValue = null, question, visitorId, interactionId, authorization, trace,
+  observedValue = null, identifyObservedMethod = false, question, visitorId, interactionId, authorization, trace,
 }: {
   contract: string;
   number?: number | null;
@@ -1644,6 +1649,7 @@ async function runRazielCanonicalBundle({
   relatedExpression?: string | null;
   requestedMethod?: string | null;
   observedValue?: number | null;
+  identifyObservedMethod?: boolean;
   question: string;
   visitorId: unknown;
   interactionId: unknown;
@@ -1654,7 +1660,7 @@ async function runRazielCanonicalBundle({
   const startedAt = new Date().toISOString();
   const t0 = Date.now();
   let out: RazielCanonicalBundleRead = {
-    ok: false, number, expression, relatedExpression, requestedMethod, observedValue,
+    ok: false, number, expression, relatedExpression, requestedMethod, observedValue, identifyObservedMethod,
     contract, outcome: "failed_with_reason", traceId: null, projection: null,
     error: "research_run_unavailable", ms: 0,
   };
@@ -1704,6 +1710,7 @@ async function runRazielCanonicalBundle({
           relatedExpression: expressionContract ? rzClean(relatedExpression, 120) || null : null,
           requestedMethod: expressionContract ? rzClean(requestedMethod, 60) || null : null,
           observedValue: expressionContract && Number.isSafeInteger(observedValue) ? observedValue : null,
+          identifyObservedMethod: expressionContract && identifyObservedMethod === true,
           contract,
           outcome: coverageDecision.outcome,
           traceId: safeTraceUuid(payload.trace_id),
@@ -1766,6 +1773,7 @@ function razielCanonicalBundleComposition(reads: RazielCanonicalBundleRead[], la
           requestedMethod: read.requestedMethod,
           relatedExpression: read.relatedExpression,
           observedValue: read.observedValue,
+          identifyObservedMethod: read.identifyObservedMethod,
         },
     projection: read.projection,
   })), { layerReads: layerReads.filter((read) => read.ok && read.projection && read.number != null).map(toInput) });
@@ -2921,6 +2929,7 @@ Deno.serve(async (req: Request) => {
           relatedExpression: rExpressionCrossingHint.relatedExpression,
           requestedMethod: rExpressionCrossingHint.requestedMethod,
           observedValue: rExpressionCrossingHint.observedValue,
+          identifyObservedMethod: rExpressionCrossingHint.identifyObservedMethod,
           question: rSubject,
           visitorId: body?.visitor_id,
           interactionId: body?.interaction_id,
@@ -2936,7 +2945,7 @@ Deno.serve(async (req: Request) => {
           // exploratory continuation can form a real narrative instead of repeating only the
           // strongest multi-method pairs. This is one Result-Bundle system and one composer; no
           // direct corpus query, calculation engine or alternate truth path is introduced.
-          const exactMethodAnchor = composition.direct_answer?.kind === "exact_expression_method"
+          const exactMethodAnchor = ["exact_expression_method", "exact_expression_observed_value"].includes(composition.direct_answer?.kind)
             ? Number(composition.direct_answer?.anchor_value)
             : null;
           const broadExpressionAnchor = !rExpressionCrossingHint.requestedMethod

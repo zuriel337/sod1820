@@ -5,6 +5,7 @@ import {
   buildRazielGroundedSourceComposer,
   razielSurpriseCandidates,
 } from "./razielGroundedSourceComposer.js";
+import { METHODS } from "../gematria.js";
 
 function projection(findings, cards = null, extra = {}) {
   return Object.freeze({
@@ -51,7 +52,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v14");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v15");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -69,6 +70,36 @@ test("keeps canonical presentation order and labels verified calculation separat
     ["מחשבת יהוה", "source_claim", 776],
     ["ביאת המשיח", "verified_calculation", 776],
   ]);
+});
+
+test("visible number evidence reserves room for a governed cross-method result", () => {
+  const ordinary = Array.from({ length: 8 }, (_, index) => ({
+    id: `uf:claim:${index}`,
+    kind: "gematria",
+    stage: null,
+    subject: { label: `ביטוי רגיל ${index + 1}`, value: 878 },
+    source: { source_name: "מנוע הגימטריה", source_ref: `bidim:regular-${index}`, method: "רגיל", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "רגיל", engine_result: 878 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: `ביטוי רגיל ${index + 1}`, method: "רגיל", value: 878 }] },
+  }));
+  const messiahFill = {
+    id: "uf:878:messiah-fill",
+    kind: "gematria",
+    stage: null,
+    subject: { label: "משיח", value: 878 },
+    source: { source_name: "מנוע הגימטריה", source_ref: "bidim:messiah-fill", method: "מילוי", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "מילוי", engine_result: 878 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: "משיח", method: "מילוי", value: 878 }] },
+  };
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "number", value: 878 },
+    projection: projection([...ordinary, messiahFill]),
+  }]);
+
+  assert.ok(out.evidence_summary.findings.some((item) => (
+    item.label === "משיח" && item.method === "מילוי" && item.value === 878
+  )));
+  assert.ok(out.evidence_summary.findings.length <= 8);
 });
 
 test("emits only canonical number navigation and never fabricates a source URL", () => {
@@ -552,6 +583,29 @@ test("method result keeps expression identity and connects 271 to regular corpus
     { label: "חכמה · משולש", value: "271" },
     { label: "הריון · רגיל", value: "271" },
   ]);
+});
+
+test("an observed expression value resolves back to its canonical method instead of becoming a number subject", () => {
+  const triangle = METHODS.find((method) => method.key === "קדמי");
+  const fill = METHODS.find((method) => method.key === "מילוי");
+  assert.equal(triangle.fn("משיח"), 1331);
+  assert.equal(fill.fn("משיח"), 878);
+
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "משיח", observedValue: 1331, identifyObservedMethod: true },
+    projection: projection([], null, {
+      calculation_profile: [
+        { method_key: "רגיל", method_label: "רגיל", value: 358 },
+        { method_key: "קדמי", method_label: "משולש", value: triangle.fn("משיח") },
+      ],
+    }),
+  }]);
+
+  assert.equal(out.direct_answer.kind, "exact_expression_observed_value");
+  assert.equal(out.direct_answer.anchor_value, 1331);
+  assert.match(out.direct_answer.answer, /משיח/u);
+  assert.match(out.direct_answer.answer, /משולש/u);
+  assert.match(out.direct_answer.answer, /1331/u);
 });
 
 test("preserves source terminology without hard-coding a subject-specific correction", () => {
