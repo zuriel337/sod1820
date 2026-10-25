@@ -1433,3 +1433,17 @@ Focused acceptance passed the automatic target ordering unit case, static author
 the two Advanced real-browser flows, one real native-engine package/return flow, and the 2029 build.
 No second search path, engine, store, graph, Provider, Journey, database/RLS/permission change,
 Preview or Production action was added.
+
+## 31. VERIFIED PACKAGE GUIDE — 2026-10-25
+
+Every completed focused package now explains in plain language what was actually verified, what is
+worth inspecting first and the next safe action. The projection counts only canonical ELS matches
+and exact source sequences, then describes Stage A/Stage B geometry, source context, parallels,
+intersections and existing structure groups. Unverified candidates never enter the explanation.
+
+The guide exposes no coordinates and has no score, probability, semantic assertion or statistical
+claim. It explicitly distinguishes source/geometry evidence from interpretation. This completes the
+non-AI explanation layer needed before Raziel can later consume the same package; C05 statistical
+Challenge still requires its separate Human Gate. Unit projection tests and the real native package
+flow pass. No engine, store, graph, Provider, Journey, database/RLS/permission, Preview or
+Production action was added.

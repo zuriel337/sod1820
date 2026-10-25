@@ -379,3 +379,17 @@ The automatic plan remains mounted throughout. **חזור לתוכנית המט�
 projection and scrolls back to the unchanged plan; it neither re-runs the search nor changes the
 opened exact matrix. This is UI operation state only and adds no persisted return stack, engine,
 store, graph, Provider, Journey, schema, RLS, permission or Truth transition.
+
+## Verified package guide — 25.10.2026
+
+`els_research_package_guide_v1` is a deterministic explanation of an already-completed focused
+package. It counts only `VERIFIED` and `SOURCE_EXACT` rows, describes source-context, compact/spaced
+geometry, parallels, intersections and existing structure groups, and gives one bounded inspection
+order plus a next action. Candidate rows are ignored. The guide consumes no coordinates and
+performs no search.
+
+The guide deliberately has no scalar score, probability, semantic relation or statistical claim.
+Its visible boundary says that the package explains occurrence, source and geometry only. A source
+verse is therefore a reason to read the source first, not proof that the user's story is encoded
+there. Semantic explanation remains a future Raziel consumer; adversarial/statistical Challenge
+remains behind its Human Gate.

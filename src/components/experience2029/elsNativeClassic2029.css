@@ -705,6 +705,11 @@
 .els29-native-active-bundle header strong{font-size:var(--s29-type-lead);overflow-wrap:anywhere}
 .els29-native-active-bundle button{min-height:44px;padding:7px 10px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;font-weight:800;cursor:pointer}
 .els29-native-active-bundle button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.els29-native-package-guide{display:grid;gap:6px;padding:10px;border:1px solid var(--s29-line);border-radius:11px;background:var(--s29-panel)}
+.els29-native-package-guide>strong{font-size:var(--s29-type-small)}
+.els29-native-package-guide ul{display:grid;gap:3px;margin:0;padding-inline-start:20px;color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.55}
+.els29-native-package-guide p{margin:0;color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.55}
+.els29-native-package-guide p b{color:var(--s29-ink)}
 .els29-native-rail-scroll .els29-native-source-list{max-height:none;overflow:visible;scrollbar-gutter:auto}
 .els29-native-finding-workspace{position:static;display:grid;gap:10px;min-width:0;padding:12px;border:1px solid var(--s29-line-strong);border-radius:16px;background:color-mix(in srgb,var(--s29-accent) 5%,var(--s29-panel));scroll-margin-block-start:calc(var(--s29-header-height,68px) + 12px)}
 .els29-native-finding-workspace>header{display:grid;gap:3px;min-width:0}

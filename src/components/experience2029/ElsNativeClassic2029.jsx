@@ -15,6 +15,7 @@ import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { savedMatrixCanReanchor, savedMatrixMatchesAxis } from "../../lib/elsSavedMatrix.js";
+import { projectElsResearchPackageGuide } from "../../lib/research/elsResearchPackageGuide.js";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import "./elsNativeClassic2029.css";
@@ -933,6 +934,7 @@ function ActiveResearchBundle({ bundle, lensResult, pending, onBack }) {
   const items = packageResult?.items || [];
   const compact = items.filter((item) => item.geometry?.stage === "A").length;
   const groups = packageResult?.groups || [];
+  const guide = projectElsResearchPackageGuide(packageResult);
   return <section className="els29-native-active-bundle" data-els-research-bundle="els_research_bundle_v1">
     <header><span>חבילת מחקר · המלצה {bundle.rank || "—"}</span><strong>{bundle.label}</strong></header>
     <small>{(bundle.reasons || []).slice(0, 3).join(" · ")}</small>
@@ -942,6 +944,13 @@ function ActiveResearchBundle({ bundle, lensResult, pending, onBack }) {
         : `ההרחבה מוכנה: ${compact} ממצאים בשלב א׳ ללא פער · ${Math.max(0, items.length - compact)} בשלב ב׳ · ${groups.length} קבוצות מבנה.`}</small>
         {groups.length ? <small>מבנים מובילים: {groups.slice(0, 3).map((group) => group.label).join(" · ")}</small> : null}</>
         : <small>המטריצה פתוחה על העוגן המדויק. אפשר להמשיך בחיפוש ידני או לחזור לשלוש ההמלצות.</small>}
+    {guide ? <section className="els29-native-package-guide" aria-label="מה חבילת המחקר אומרת">
+      <strong>מה נמצא בפועל</strong>
+      {guide.facts.length ? <ul>{guide.facts.map((fact) => <li key={fact}>{fact}</li>)}</ul> : <p>לא נוספו ממצאים מאומתים בחבילה המצומצמת.</p>}
+      <p><b>מה לבדוק קודם:</b> {guide.inspectFirst}</p>
+      <p><b>הצעד הבא:</b> {guide.next}</p>
+      <small>{guide.boundary}</small>
+    </section> : null}
     <button type="button" disabled={pending} onClick={onBack}>{bundle.fromAdvanced ? "חזור לתוכנית המטרות" : bundle.fromExtension ? "חזור בדיוק לתוצאות" : "חזור להמלצות ולכל התוצאות"}</button>
   </section>;
 }
