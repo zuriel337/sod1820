@@ -53,7 +53,8 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
   const shown = selection.rows.slice(0, Math.max(limit, selectedIndex + 1));
   const style = { "--pc-ink": P.ink, "--pc-muted": P.inkSoft, "--pc-card": P.card,
     "--pc-soft": P.cardSoft, "--pc-border": P.border, "--pc-accent": P.accentText,
-    "--pc-focus": P.focusRing || P.accent, "--pc-bg": P.pageBg };
+    "--pc-focus": P.focusRing || P.accent, "--pc-bg": P.pageBg,
+    "--pc-secondary": P.accentSecondary, "--pc-discovery": P.accentDiscovery };
   const message = loading ? "טוען את דף הכותב…" : error ? "לא ניתן לקרוא את דף הכותב כרגע." : !view ? "הכותב לא נמצא." : null;
   return <section className="public-contributor-2029" dir="rtl" lang="he" style={style} aria-busy={loading} aria-labelledby="public-contributor-title">
     {context.returnHref ? <Link className="pc-return" to={context.returnHref}>חזרה למקום שממנו הגעת <span aria-hidden="true">↗</span></Link> : null}

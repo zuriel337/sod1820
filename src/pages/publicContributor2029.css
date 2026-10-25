@@ -9,6 +9,8 @@
 .public-contributor-2029 button,.public-contributor-2029 select,.public-contributor-2029 input{font:inherit;color:var(--pc-ink);border:1px solid var(--pc-border);background:transparent;border-radius:10px;min-height:44px;min-width:44px;padding:8px 14px;max-width:100%;cursor:pointer}
 .public-contributor-2029 a{color:var(--pc-accent);text-underline-offset:4px}
 .public-contributor-2029 :is(a,button,select,input,summary):focus-visible{outline:2px solid var(--pc-focus);outline-offset:3px}
+.public-contributor-2029 h1{width:fit-content;max-width:100%}
+.public-contributor-2029 h1:focus-visible{outline-offset:8px;border-radius:12px}
 .public-contributor-2029 a.pc-return,.public-contributor-2029 .pc-open{display:inline-flex;align-items:center;gap:8px;min-height:44px}
 .public-contributor-2029 a.pc-return{align-self:flex-start;color:var(--pc-muted);text-decoration:none;font-size:var(--s29-type-small,16px)}
 .public-contributor-2029 .pc-inline{display:inline;border:0;background:none;padding:0 4px;min-height:44px;color:var(--pc-accent);text-decoration:underline;text-underline-offset:4px}
@@ -55,10 +57,11 @@
 .pc-item>a:has(.pc-catalog-media),.pc-item>.pc-catalog-media{order:-1}
 .public-contributor-2029 .pc-catalog-media{display:block;max-height:260px;width:100%;object-fit:cover;border-radius:12px;background:var(--pc-soft)}
 .pc-item-meta{display:flex;gap:4px 14px;flex-wrap:wrap;color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
-.pc-item-meta>span:first-child{color:var(--pc-accent)}
+.pc-item-meta>span:first-child{color:var(--pc-secondary)}
 .pc-item h3 a{color:var(--pc-ink);text-decoration:none}
 .pc-item h3 a:hover{text-decoration:underline}
 .pc-item .pc-open{font-size:var(--s29-type-small,16px);align-self:flex-start}
+.public-contributor-2029 :is(.pc-items .pc-open,.pc-detail .pc-open,.pc-filters .pc-world){color:var(--pc-discovery)}
 .pc-paired{font-size:var(--s29-type-small,16px)}
 .pc-metrics{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:var(--s29-type-small,16px);color:var(--pc-muted)}
 .pc-number{font-family:var(--s29-font-numeric,'IBM Plex Mono',monospace)}
@@ -75,9 +78,23 @@
 
 /* Existing community feed (ContributorCommunityActivity2029 -> CommunityLive2029): restyled in place with the page tokens. */
 .public-contributor-2029 .sod29-community-profile{--s29-ink:var(--pc-ink);--s29-muted:var(--pc-muted);--s29-line:var(--pc-border);--s29-panel:transparent;--s29-panel-soft:var(--pc-soft);--s29-accent:var(--pc-accent);--s29-accent-text:var(--pc-accent);max-width:none;padding:0;border:0;background:transparent;color:var(--pc-ink);font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif)}
+.public-contributor-2029 .sod29-community-profile{width:100%;margin-inline:0}
 .public-contributor-2029 .sod29-community-profile-section{margin-top:0;align-items:center;padding-block-end:12px}
 .public-contributor-2029 .sod29-community-profile-section p{font-size:var(--s29-type-small,16px);color:var(--pc-muted)}
-.public-contributor-2029 .sod29-community-profile :is(p,time,span,small,button,a){font-size:max(14px,1em)}
+/* Reading floor (Design V2): message text is 18px with a readable measure; metadata keeps the 14px floor; actions are 16px.
+   Replaces a blanket max(14px,1em) that shrank message text to 16px. */
+.public-contributor-2029 .sod29-community-profile :is(small,time){font-size:max(var(--s29-type-micro,14px),1em)}
+.public-contributor-2029 .sod29-community-body,.public-contributor-2029 .sod29-community-body :is(p,span,a,li){font-family:var(--s29-font-body,'Noto Sans Hebrew','Rubik',Arial,sans-serif);font-size:var(--s29-type-body,18px);line-height:1.8}
+.public-contributor-2029 .sod29-community-body{max-width:66ch;margin-block:8px 6px}
+.public-contributor-2029 .sod29-community-author time{font-size:var(--s29-type-micro,14px)}
+.public-contributor-2029 .sod29-community-activity-source{color:var(--pc-secondary);font-size:var(--s29-type-micro,14px);margin-top:6px}
+.public-contributor-2029 .sod29-community-activity-title{font-size:var(--s29-type-lead,21px);line-height:1.45}
+.public-contributor-2029 .sod29-community-thread-actions{gap:8px 16px;flex-wrap:wrap}
+.public-contributor-2029 .sod29-community-thread-actions :is(button,a){font-size:var(--s29-type-ui,16px);min-height:44px;display:inline-flex;align-items:center}
+.public-contributor-2029 .sod29-community-thread-actions a{color:var(--pc-discovery)}
+/* The shared ReactionBar sets 13px inline; inside this family its like control reads at the UI size with a 44px target. */
+.public-contributor-2029 .sod29-community-reactions button{min-height:44px;min-width:44px;font-size:var(--s29-type-ui,16px)!important}
+.public-contributor-2029 .sod29-community-reactions button span{font-size:var(--s29-type-ui,16px)!important}
 .public-contributor-2029 .sod29-community-feed{border-top:1px solid var(--pc-border)}
 .public-contributor-2029 .sod29-community-profile :is(.sod29-community-load,.sod29-community-secondary){min-height:44px;font-size:16px!important;border:1px solid var(--pc-border);background:transparent;color:var(--pc-accent)}
 .public-contributor-2029 .sod29-community-end{color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
@@ -85,26 +102,26 @@
 @media(max-width:480px){.public-contributor-2029{gap:16px}.pc-items{grid-template-columns:minmax(0,1fr)}.public-contributor-2029 .pc-filters .pc-world{margin-inline-start:0}.pc-filters{gap:2px 14px}}
 @media(prefers-reduced-motion:reduce){.public-contributor-2029 *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
-/* Desktop: the text leads; the medallion, labels, available measurements and the path control form one identity column beside it. */
+/* Desktop: the medallion sits beside the name on the start side; role labels, available measurements and the path control
+   form one row under the introduction; the path panel spans the hero. */
 @media(min-width:641px){
-  .pc-profile{display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-areas:"copy seal" "copy cap" "panel panel";column-gap:clamp(16px,4vw,40px);row-gap:6px;align-items:start}
+  .pc-profile{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"seal copy" "seal cap" "panel panel";column-gap:clamp(20px,4vw,40px);row-gap:10px;align-items:start}
   .pc-profile-copy{grid-area:copy}
-  .pc-profile .pc-person-seal{grid-area:seal;justify-self:center}
-  .pc-profile .pc-person-copy{grid-area:cap;justify-items:center;text-align:center;justify-self:center}
-  .pc-profile .pc-person-summary{justify-content:center}
-  .pc-profile .pc-person-labels{justify-content:center}
+  .pc-profile .pc-person-seal{grid-area:seal;align-self:start}
+  .pc-profile .pc-person-copy{grid-area:cap;display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;justify-items:start;text-align:start;flex:none}
   .pc-profile .pc-person-panel{grid-area:panel}
 }
 
 /* Mobile: a compact hero (name and role beside the medallion, labels and the path control on one row), then a one-row swipeable navigation.
    The full bio stays reachable from the path panel; desktop keeps the editorial layout above. */
 @media(max-width:640px){
-  .pc-profile{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"copy seal" "cap cap" "panel panel";align-items:center;gap:4px 12px;padding-block:0}
+  .pc-profile{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"seal copy" "cap cap" "panel panel";align-items:center;gap:4px 12px;padding-block:0}
   .pc-profile-copy{grid-area:copy;gap:4px}
   .pc-profile h1{font-size:clamp(26px,8vw,32px)}
   .pc-profile .pc-bio,.pc-profile .pc-boundary{display:none}
   .pc-profile .pc-person-seal{grid-area:seal;margin:0}
-  .pc-profile .pc-person-copy{grid-area:cap}
+  .pc-profile .pc-person-copy{grid-area:cap;display:flex;flex-wrap:wrap;align-items:center;gap:2px 14px}
+  .pc-profile .pc-person-summary{gap:0 14px}
   .pc-profile .pc-person-panel{grid-area:panel}
   .pc-filters{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0 16px;margin-block:0}
   .pc-filters::-webkit-scrollbar{display:none}

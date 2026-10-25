@@ -59,7 +59,7 @@ export default function ContributorPersonMedallion2029({ person, name, avatar, b
       </button>
     </div>
     <div className="pc-person-panel" id={panelId} role="region" aria-label={label} hidden={!open}>
-      {about ? <section className="pc-person-block"><h2>{person.aboutLabel}</h2><p className="pc-person-about">{about}</p></section> : null}
+      {about ? <section className="pc-person-block pc-person-about-block"><h2>{person.aboutLabel}</h2><p className="pc-person-about">{about}</p></section> : null}
       <section className="pc-person-block">
         <h2>מה נמדד</h2>
         {person.measured.length ? person.measured.map((group) => <div key={group.key} className="pc-person-group">
