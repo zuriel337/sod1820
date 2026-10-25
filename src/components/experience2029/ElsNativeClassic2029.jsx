@@ -729,10 +729,11 @@ function RelationshipResearchPlanner({ axisTerm, scope, disabled, onSearchPair }
   </section>;
 }
 
-function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onScanAxis, onSearchPair, onAddGroup, onOpenFinding }) {
+function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onAnalyzeLongAxes, onScanAxis, onSearchPair, onAddGroup, onOpenFinding }) {
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.status === "ok" && state?.verification?.state === "MATCH";
   const result = lensResult?.lens === "structure-priority" ? lensResult : null;
+  const longAxisResult = lensResult?.lens === "long-axis-analysis" ? lensResult : null;
   const items = result?.ok && Array.isArray(result.items) ? result.items : [];
   const groups = result?.ok && Array.isArray(result.groups) ? result.groups : [];
   const axisTerm = result?.axis?.term || state?.termRaw || state?.term || "הציר הראשי";
@@ -761,6 +762,12 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
       <p>בחרו פעם אחת מה לחפש. הסריקה מחזירה משפחות של מקבילות, מוטיבים חוזרים, מסדרונות, חציות ואשכולות — לא רשימת מילים שצריך לפתוח אחת־אחת.</p>
       <small>שלב א׳ תמיד קודם: כל אות סמוכה לבאה בתצוגת המטריצה. מבנים עם פערים נשארים זמינים רק בשלב ב׳.</small>
       <small>זו תוכנית בדיקה בתוך החלון המוצג — לא הוכחה ולא ציון אמת. כל קבוצה עוברת אימות קנוני אחד לפני הצגה במטריצה.</small>
+      <section className="els29-native-long-axis-action" aria-label="ניתוח צירים ארוכים במטריצה הפתוחה">
+        <div><strong>צירים ארוכים במטריצה הפתוחה</strong><small>סורק רק את החלון שעל המסך ומקדים רצפי מקור וצירים ללא פער. מוצגות רק תוצאות שעברו אימות.</small></div>
+        <button type="button" disabled={!verified || pending} onClick={() => onAnalyzeLongAxes({ hitId: state?.axis?.hitId, minLength: 5 })}>
+          {lensPending ? "מנתח את המטריצה…" : "נתח צירים ארוכים"}
+        </button>
+      </section>
       <RelationshipResearchPlanner axisTerm={verified ? axisTerm : ""} scope={state?.scope} disabled={!verified || pending} onSearchPair={onSearchPair} />
       <div className="els29-native-structure-presets" role="group" aria-label="תבניות סריקת מבנים">
         <button type="button" aria-pressed={plan.maxDistance === 12 && plan.minLength === 4} onClick={() => choosePreset("quick")}>מהיר</button>
@@ -796,6 +803,24 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
       </div>
     </section>
     {lensPending ? <p role="status" className="els29-native-muted">סורק את החלון המוצג ומסדר את הקשרים המבניים…</p> : null}
+    {longAxisResult?.ok === false ? <p role="status" className="els29-native-muted">ניתוח הצירים הארוכים לא הושלם. המטריצה לא השתנתה ואפשר לנסות שוב.</p> : null}
+    {longAxisResult?.ok ? <section className="els29-native-long-axis-results" data-els-long-axis-analysis={longAxisResult.contract}>
+      <header><strong>צירים ארוכים שנמצאו · {longAxisResult.items?.length || 0}</strong><small>חמש אותיות ומעלה בחלון הפעיל · רצף מקור קודם, אחריו גיאומטריה ללא פער ואז יתר הצירים.</small></header>
+      <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="צירים ארוכים מאומתים">
+        {(longAxisResult.items || []).map((item) => {
+          const added = existing.has(item.term);
+          return <article className="els29-native-structure-row" key={`${item.term}-${item.hitId}`}>
+            <div className="els29-native-structure-copy"><b>{item.label || item.term}</b>
+              <span>{item.length} אותיות · {item.status === "SOURCE_EXACT" ? "רצף מקור מדויק" : "מופע ELS מאומת"}</span>
+              <small>דילוג {item.skip} · {directionLabel(item.direction)} · מרחק {item.distance} תאים{item.geometry?.relationLabel ? ` · ${item.geometry.relationLabel}` : ""}</small>
+            </div>
+            <button type="button" disabled={pending || added || findings.length >= 12} onClick={() => onAddGroup([item.term])}>{added ? "בממצאים" : "הוסף למטריצה"}</button>
+          </article>;
+        })}
+      </div>
+      {!longAxisResult.items?.length ? <p className="els29-native-muted">לא נמצא בחלון הזה ציר בן חמש אותיות ומעלה שעבר אימות. אפשר להגדיל את חלון המטריצה ולנסות שוב.</p> : null}
+      {longAxisResult.truncated ? <small>הוצגו הצירים הראשונים לפי התקציב הבטוח. זו אינה קביעה שאין צירים נוספים בחלון.</small> : null}
+    </section> : null}
     {result?.ok === false ? <p role="status" className="els29-native-muted">אי אפשר לסרוק מבנים לפני שהציר הראשי אומת.</p> : null}
     {result?.ok ? <>
       <div className="els29-native-structure-summary">
@@ -884,6 +909,12 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
   const elapsed = Math.max(0, now - (request.startedAt || now)) / 1000;
   const label = request.lens === "structure-priority"
     ? progress?.phase === "groups" ? "בונה את קבוצות המבנים וההמלצות…" : progress?.phase === "candidates" ? "סורק את מונחי התורה בחלון המוצג…" : "טוען את מילון התורה ומכין סריקת מבנים…"
+    : request.lens === "long-axis-analysis"
+      ? progress?.phase === "long-axis-scan" ? "מחפש צירים ארוכים בחלון המטריצה הפעיל…"
+        : progress?.phase?.startsWith("verify") ? "מאמת את הצירים הארוכים מול המנוע הקנוני…"
+          : "טוען את שפת התורה ומכין ניתוח צירים ארוכים…"
+    : request.lens === "cross-third-axis"
+      ? progress?.phase === "third-axis-verify" ? "מאמת את הציר השלישי במפגשים שנמצאו…" : "מחפש את הציר השלישי בתוך מפגשי ההצלבה…"
     : request.lens === "research-target-compare"
       ? progress?.phase === "verify" ? `מאמת יחד את יעדי המחקר${progress?.current ? ` · ${progress.current}` : ""}…` : "משחזר את ההמשכים המדויקים מתוך התוצאות…"
     : request.lens === "research-target"
@@ -915,6 +946,9 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
     : progress?.phase === "collect" ? "מועמדים הוכנו"
     : progress?.phase === "rank" ? "צעדי מיון הושלמו"
     : progress?.phase === "verify" ? "מועמדים אומתו"
+    : progress?.phase === "long-axis-scan" ? "מונחים נסרקו בחלון"
+    : progress?.phase === "third-axis-scan" ? "מפגשים נבדקו"
+    : progress?.phase === "third-axis-verify" ? "מופעי ציר שלישי אומתו"
     : progress?.phase === "verify-prepare" ? "רשימת האימות הוכנה"
     : progress?.phase === "sources" ? "מקורות צורפו"
     : progress?.phase === "context" ? "מופעי ציר נבדקו מול ההקשר"
@@ -1102,7 +1136,44 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
   </div>;
 }
 
-function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending }) {
+function CrossThirdAxisResearch({ state, results, busy, pending, result, onRun, onSelectMeeting }) {
+  const [term, setTerm] = useState("");
+  const [meetingScope, setMeetingScope] = useState("selected");
+  useEffect(() => { setMeetingScope("selected"); }, [results?.id]);
+  const selectedIndex = Number(state?.search?.zoneIndex) || 0;
+  const currentResult = result?.target?.setId === results?.id ? result : null;
+  const submit = (event) => {
+    event.preventDefault();
+    const requested = clean(term);
+    if (!requested || pending || busy) return;
+    onRun({ setId: results.id, term: requested, meetingScope, meetingIndex: selectedIndex, maxDistance: 18 });
+  };
+  return <section className="els29-native-third-axis" aria-label="חיפוש ציר שלישי בתוך מפגשי ההצלבה" data-els-third-axis="v1">
+    <header><strong>הוסף ציר שלישי למפגש</strong><small>החיפוש נשאר בתוך מפגש מאומת — לא מתחיל שוב סריקה של כל התורה.</small></header>
+    <form onSubmit={submit}>
+      <label><span>המילה או השם השלישי</span><input value={term} onChange={(event) => setTerm(event.target.value)} maxLength={26} autoComplete="off" placeholder="לדוגמה: שם נוסף" /></label>
+      <fieldset><legend>איפה לבדוק</legend>
+        <label><input type="radio" name="els-third-axis-scope" checked={meetingScope === "selected"} onChange={() => setMeetingScope("selected")} />במפגש הפתוח · {selectedIndex + 1}</label>
+        <label><input type="radio" name="els-third-axis-scope" checked={meetingScope === "all"} onChange={() => setMeetingScope("all")} />בכל המפגשים המאומתים</label>
+      </fieldset>
+      <button type="submit" disabled={busy || pending || !clean(term)}>{pending ? "מחפש ציר שלישי…" : "מצא ציר שלישי"}</button>
+    </form>
+    {currentResult?.ok === false ? <p role="status" className="els29-native-muted">{currentResult.reason === "invalid-term" ? "כתבו לפחות שתי אותיות." : currentResult.reason === "results-changed" ? "תוצאות ההצלבה השתנו. הפעילו את החיפוש על הרשימה הנוכחית." : "חיפוש הציר השלישי לא הושלם. המפגשים הקיימים נשמרו."}</p> : null}
+    {currentResult?.ok ? <div className="els29-native-third-axis-results" data-els-third-axis-contract={currentResult.contract}>
+      <strong>{currentResult.items?.length ? `${currentResult.items.length} מפגשים משולשים מאומתים` : "לא נמצא ציר שלישי בטווח הזה"}</strong>
+      <small>נבדקו {currentResult.searchedMeetings} מפגשים, עד {currentResult.maxDistance} תאים מכל אחד משני הצירים. התוצאה אינה טענה על מקומות מחוץ לחלונות האלה.</small>
+      {(currentResult.items || []).map((item) => <article key={item.key}>
+        <div><b>{item.axis} × {(item.terms || []).join(" · ")} × {item.label || item.thirdTerm}</b>
+          <small>מפגש {item.meetingIndex + 1} · {item.status === "SOURCE_EXACT" ? "רצף מקור מדויק" : `דילוג ${item.skip}`} · מרחק מרבי {item.maxDistance} תאים</small>
+          <small>{item.ref} · {directionLabel(item.direction)}</small>
+        </div>
+        <button type="button" disabled={busy} onClick={() => onSelectMeeting("meeting-select", { setId: results.id, index: item.meetingIndex })}>פתח את המפגש</button>
+      </article>)}
+    </div> : null}
+  </section>;
+}
+
+function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry, onFindThirdAxis, thirdAxisResult, thirdAxisPending, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending }) {
   const [sort, setSort] = useState("rank");
   const [page, setPage] = useState(0);
   const [minSkip, setMinSkip] = useState("");
@@ -1122,6 +1193,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
       <p className="els29-native-muted">{state.search.crossA} × {state.search.crossB}</p>
       {state.search.coverage?.truncated ? <small>סריקה מוגבלת: נבדקו {state.search.coverage.scanned} מתוך {state.search.coverage.available} מיקומי הציר שנמצאו. רשימת הצירים עצמה עשויה להיות חלקית.</small> : null}
       <ResultTriageSummary result={triage} pending={triagePending} />
+      <CrossThirdAxisResearch state={state} results={results} busy={pending} pending={thirdAxisPending} result={thirdAxisResult} onRun={onFindThirdAxis} onSelectMeeting={onSelect} />
       <details><summary>מיון וסינון</summary>
       <label>מיון <select aria-label="מיון מפגשי ההצלבה" value={sort} onChange={(event) => setSort(event.target.value)}>
         <option value="rank">{triage ? "עדיפות לבדיקה" : "סדר המנוע"}</option><option value="skip">דילוג: מקטן לגדול</option><option value="distance">מרחק מהציר</option>
@@ -1760,7 +1832,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const requestLens = (lens, target = {}) => {
     // A native reading/scan action always reveals its native result, even after compatibility tools.
     setClassicOpen(false);
-    openTool(lens === "structure-priority" ? "structures" : ["result-triage", "research-target", "research-target-compare"].includes(lens) ? "results" : "findings");
+    openTool(["structure-priority", "long-axis-analysis"].includes(lens) ? "structures" : ["result-triage", "research-target", "research-target-compare", "cross-third-axis"].includes(lens) ? "results" : "findings");
     const seq = ++lensSeqRef.current;
     if (!(lens === "matrix-candidates" && target.resume === true && lensResult?.partial)) setLensResult(null);
     setLensProgress(null);
@@ -2323,6 +2395,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </nav> : null}
         <CrossResultsRail onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={visibleTool === "results" && resultsAreCross} onSelect={requestControl}
+          onFindThirdAxis={(target) => requestLens("cross-third-axis", target)}
+          thirdAxisResult={lensResult?.lens === "cross-third-axis" ? lensResult : null}
+          thirdAxisPending={lensPending && lensRequest?.lens === "cross-third-axis"}
           onOpenResearchTarget={openResearchTarget}
           onCompareResearchTargets={compareResearchTargets} comparisonResult={lensResult?.lens === "research-target-compare" ? lensResult : null}
           researchTargetPending={lensPending && ["research-target", "research-target-compare"].includes(lensRequest?.lens)}
@@ -2336,6 +2411,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         {researchProfile ? <StructuralPriorityRail visible={visibleTool === "structures"} state={engineState} lensResult={lensResult} lensPending={lensPending}
           busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           onRun={(target) => requestLens("structure-priority", target)}
+          onAnalyzeLongAxes={(target) => requestLens("long-axis-analysis", target)}
           onScanAxis={(target) => requestLens("line-context", { ...target, scan: true })}
           onSearchPair={startRelationshipCross}
           onAddGroup={addStructureGroup} onOpenFinding={revealFindingDetails} /> : null}
