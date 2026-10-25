@@ -26,6 +26,23 @@ const directionLabel = (direction) => direction === "back" ? "אחורה" : dire
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const MOBILE_WORKSPACE_QUERY = "(max-width:980px), (pointer:coarse) and (hover:none)";
 const isMobileWorkspace = () => window.matchMedia(MOBILE_WORKSPACE_QUERY).matches;
+const safeResearchAxis = (value) => {
+  const term = String(value || "").normalize("NFKD").replace(/[\u0591-\u05C7]/g, "").replace(/[^א-ת\s]/g, " ").trim().replace(/\s+/g, " ");
+  const length = term.replace(/\s/g, "").length;
+  return length >= 3 && length <= 12 ? term : "";
+};
+const safeResearchContextTerms = (value) => {
+  const rows = [], seen = new Set();
+  for (const item of Array.isArray(value) ? value.slice(0, 12) : []) {
+    const term = String(item?.term || "").normalize("NFKD").replace(/[\u0591-\u05C7]/g, "").replace(/[^א-ת\s]/g, " ").trim().replace(/\s+/g, " ");
+    const canonical = term.replace(/\s/g, "");
+    if (canonical.length < 2 || canonical.length > 24 || seen.has(canonical)) continue;
+    seen.add(canonical);
+    rows.push({ term, mode: item?.mode === "exact_phrase" ? "exact_phrase" : "term", required: item?.required === true, split: item?.split === true });
+  }
+  return rows;
+};
+const researchContextKey = (rows) => safeResearchContextTerms(rows).map((row) => `${row.term}:${row.mode}:${Number(row.split)}`).join("|");
 
 function MatrixSnapshot({ state, onLetterClick, onZoomChange, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView }) {
   const palette = use2029Palette("research_lab");
@@ -514,6 +531,7 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
     const groups = Array.isArray(lensResult.groups) ? lensResult.groups : [];
     const focused = lensResult.scanMode === "focused";
     const suggestion = lensResult.axisSuggestion;
+    const contextCoverage = lensResult.contextCoverage?.contract === "els_research_context_coverage_v1" ? lensResult.contextCoverage : null;
     const existing = new Set(findings.map((finding) => finding.t));
     const topicalSourceItems = items.filter((item) => item.sourceContext?.axisTopic);
     const neighborhoodItems = items.filter((item) => !item.sourceContext?.axisTopic);
@@ -564,6 +582,12 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
       </div> : null}
       <small>{focused ? `נסרק האזור הממוקד סביב הציר: ${lensResult.focus?.rowPad || 12} שורות ו־${lensResult.focus?.colRadius || 15} עמודות, ברצף המקור ובדילוגים S−1, S, S+1.` : "זוהי הרחבה יזומה לחלון המטריצה המלא."}</small>
       <small>{focused ? `${lensResult.verification?.verified || 0} מופעי ELS אומתו · ${lensResult.verification?.sourceExact || 0} רצפי מקור מדויקים.` : `${compactCount} ממצאים בשלב א׳ · ${Math.max(0, items.length - compactCount)} בשלב ב׳.`} זהו סדר בדיקה, לא ציון אמת.</small>
+      {contextCoverage?.requested?.length ? <section className="els29-native-context-coverage" aria-label="כיסוי מונחי ההקשר">
+        <strong>ההקשר שביקשתם</strong>
+        {contextCoverage.found?.length ? <small>נמצא ואומת בטווח: <b>{contextCoverage.found.map((item) => item.label || item.term).join(" · ")}</b></small> : null}
+        {contextCoverage.complete && contextCoverage.notSeenInFocusedRange?.length ? <small>עדיין לא נראה בטווח הממוקד: <b>{contextCoverage.notSeenInFocusedRange.map((item) => item.label || item.term).join(" · ")}</b>. זו אינה קביעה שהמונח אינו קיים מחוץ לטווח.</small> : null}
+        {!contextCoverage.complete ? <small>הבדיקה עדיין חלקית; מונחים שלא הופיעו עוד אינם מסומנים כחסרים.</small> : null}
+      </section> : null}
       <small>המילון נגזר משפת התנ״ך הקנונית, מביטויים ומתבניות שנים. צפנים שמורים אינם מזינים את הגילוי.</small>
       {lexiconCounts ? <small>{lexiconCounts.total} מונחים זמינים · {lexiconCounts.corpus} מילים · {lexiconCounts.phrases || 0} ביטויים · {lexiconCounts.years || 0} שנות Basic · {lexiconCounts.research} מהמחקר{lensResult.lexicon?.fallback ? " · מקור הפסוקים לא נטען ולכן הרשימה חלקית" : ""}</small> : null}
       {suggestion ? <section className="els29-native-axis-suggestion" aria-label="ציר מחקר סמוך מוצע">
@@ -590,7 +614,8 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
         </section>)}
       </div>
       {focused && onExpand ? <button type="button" className="els29-native-expand-core" disabled={addingFinding}
-        onClick={() => onExpand({ hitId: lensResult.target?.hitId, researchBundle: lensResult.target?.researchBundle === true, depth: "expanded" })}>הרחב עוד טבעת</button> : null}
+        onClick={() => onExpand({ hitId: lensResult.target?.hitId, researchBundle: lensResult.target?.researchBundle === true, depth: "expanded",
+          ...(lensResult.target?.contextTerms?.length ? { contextTerms: lensResult.target.contextTerms } : {}) })}>הרחב עוד טבעת</button> : null}
       {!items.length ? <p className="els29-native-muted">לא נמצאו בחלון הזה מילים או מבנים מקומיים מוכרים. אפשר להגדיל את חלון המטריצה ולסרוק שוב.</p> : null}
       {lensResult.truncated ? <small>נבדקו {lensResult.scanned} מועמדים מקומיים מתוך {lensResult.available}. מוצגת חבילה מוגבלת לפי מבנה וקרבה; היתר לא הוכרזו כחסרים.</small> : null}
       {findings.length >= 12 && items.some((item) => !findings.some((finding) => finding.t === item.term))
@@ -804,7 +829,7 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
     : request.lens === "neighborhood-target"
       ? progress?.phase === "verify" ? "מאמת את הציר הסמוך מול המנוע הקנוני…" : "משחזר את מרכז המחקר מתוך סביבת הציר…"
     : request.lens === "result-triage"
-      ? progress?.completed ? "ממיין את כל התוצאות ומחפש המשכים מדויקים…" : "טוען את שפת התורה ומכין מיון תוצאות…"
+      ? progress?.phase === "context" ? "בודק את מונחי ההקשר סביב כל מופע של הציר…" : progress?.completed ? "ממיין את כל התוצאות ומחפש המשכים מדויקים…" : "טוען את שפת התורה ומכין מיון תוצאות…"
     : request.lens === "matrix-candidates"
       ? progress?.phase === "lexicon-language" ? "קורא את פסוקי המקור ובונה את שפת המחקר…"
         : progress?.phase?.startsWith("lexicon-freeze-") ? "מסיים ומקבע את מילון המחקר…"
@@ -830,6 +855,7 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
     : progress?.phase === "verify" ? "מועמדים אומתו"
     : progress?.phase === "verify-prepare" ? "רשימת האימות הוכנה"
     : progress?.phase === "sources" ? "מקורות צורפו"
+    : progress?.phase === "context" ? "מופעי ציר נבדקו מול ההקשר"
     : "פריטים נבדקו";
   return <div className="els29-native-progress" aria-label="התקדמות בדיקת הממצא">
     <div><strong role="status" aria-live="polite">{label}</strong>
@@ -850,9 +876,10 @@ function ResultTriageSummary({ result, pending }) {
   if (pending) return <div className="els29-native-triage-summary" role="status"><strong>ממיין את התוצאות…</strong><small>בודק מילים צמודות לפני ואחרי הממצא, מילים נוספות על אותו ציר וסימני מבנה. אפשר לעצור בלי לשנות את המטריצה.</small></div>;
   if (!result?.ok) return null;
   const recommended = (result.items || []).filter((item) => item.tier === "recommended");
+  const requested = result.contextCoverage?.requested || [];
   return <div className="els29-native-triage-summary" data-els-result-triage={result.contract} data-els-geometry-contract={result.geometryContract || undefined}>
     <strong>{recommended.length ? `${recommended.length} תוצאות שכדאי לפתוח קודם` : "המיון הושלם"}</strong>
-    <small>רצף מדויק לפני או אחרי הממצא וגאומטריה ללא פער מקבלים קדימות. זהו סדר עדיפות לבדיקה, לא ציון אמת; כל התוצאות נשארות זמינות.</small>
+    <small>{requested.length ? `המיון בדק סביב כל מופע את ההקשר שביקשתם: ${requested.map((item) => item.label || item.term).join(" · ")}. ` : ""}רצף מדויק לפני או אחרי הממצא וגאומטריה ללא פער מקבלים קדימות. זהו סדר עדיפות לבדיקה, לא ציון אמת; כל התוצאות נשארות זמינות.</small>
     {result.lexicon?.fallback ? <small>שפת המקור לא נטענה במלואה ולכן בדיקת ההמשך חלקית.</small> : null}
   </div>;
 }
@@ -921,9 +948,12 @@ function ResultResearchTargets({ result, comparisonResult, pending, onOpen, onCo
 function ResultTriageNote({ row }) {
   if (!row) return null;
   const extensions = (row.signals || []).flatMap((signal) => signal.extensions || []);
+  const contextCoverage = row.contextCoverage;
   return <>
     <small className={`els29-native-triage-rank is-${row.tier}`}>{row.tier === "recommended" ? `מומלץ לפתוח קודם · מקום ${row.rank}` : row.tier === "inspect" ? `מעניין לבדיקה · מקום ${row.rank}` : `זמין לבדיקה · מקום ${row.rank}`}</small>
     <small>{(row.reasons || []).slice(0, 3).join(" · ")}</small>
+    {contextCoverage?.found?.length ? <small>הקשר שנראה בטווח: <b>{contextCoverage.found.map((item) => item.label || item.term).join(" · ")}</b></small> : null}
+    {contextCoverage?.requested?.length && !contextCoverage.found?.length ? <small>מונחי ההקשר עדיין לא נראו בטווח הממוקד של המופע; הם ייבדקו שוב באימות החבילה.</small> : null}
     {extensions.length ? <small>הרחבות: {[...new Set(extensions.map((item) => item.label || item.term))].slice(0, 3).join(" · ")}</small> : null}
   </>;
 }
@@ -1386,6 +1416,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const resultTriageKeyRef = useRef(null);
   const [researchBundle, setResearchBundle] = useState(null);
   const pendingResearchBundleRef = useRef(null);
+  const [activeResearchContext, setActiveResearchContext] = useState(null);
+  const researchCommandRef = useRef(null);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
   const [selectedFinding, setSelectedFinding] = useState(null);
   const [findingMenu, setFindingMenu] = useState(null);
@@ -1398,6 +1430,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setSaveResult(null);
     setResultTriage(null);resultTriageKeyRef.current = null;
     setResearchBundle(null);pendingResearchBundleRef.current = null;
+    setActiveResearchContext(null);researchCommandRef.current = null;
     setDeleteConfirm(false);setDeletePending(false);setDeleteError(false);
     const view = matrix.positions?.view || {};
     setClassicGlyphs(view.classicGlyphs === true);setHeightExpanded(view.heightExpanded === true);
@@ -1406,12 +1439,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   }, [matrix?.id]);
   useEffect(() => {
     if (!researchLoad) return;
+    if (researchLoad.researchCommand === true) return;
     setResultTriage(null);resultTriageKeyRef.current = null;
     if (researchLoad.researchBundle === true) {
       const bundle = { contract: "els_research_bundle_v1", kind: "advanced-plan", label: researchLoad.term,
-        expectedHitId: researchLoad.hitId, status: "opening", fromAdvanced: true };
+        expectedHitId: researchLoad.hitId, status: "opening", fromAdvanced: true, contextTerms: safeResearchContextTerms(researchLoad.contextTerms) };
       setResearchBundle(bundle);pendingResearchBundleRef.current = bundle;
     } else { setResearchBundle(null);pendingResearchBundleRef.current = null; }
+    setActiveResearchContext(researchLoad.contextTerms?.length ? { anchor: researchLoad.term, contextTerms: safeResearchContextTerms(researchLoad.contextTerms) } : null);
     setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);setSavedAxisReplacement(null);
   }, [researchLoad]);
 
@@ -1445,11 +1480,24 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
     const requestedWindowSize = payload.windowSize || windowSize;
-    const trackedPayload = { ...payload, windowSize: requestedWindowSize };
+    const contextTerms = safeResearchContextTerms(payload.contextTerms);
+    const trackedPayload = { ...payload, ...(contextTerms.length ? { contextTerms } : {}), windowSize: requestedWindowSize };
+    setActiveResearchContext(contextTerms.length ? { anchor: clean(payload.term || payload.axis), contextTerms } : null);
     setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now(), previousAxis: engineStateRef.current?.axis?.hitId, payload: trackedPayload }, findings: null });
     setActiveTool("results");
-    setSearchRequest({ kind, ...trackedPayload, seq });
+    const { contextTerms: _contextTerms, ...enginePayload } = trackedPayload;
+    setSearchRequest({ kind, ...enginePayload, seq });
   };
+
+  useEffect(() => {
+    if (researchLoad?.researchCommand !== true || researchLoad.contract !== "els_anchor_context_request_v1" || researchCommandRef.current === researchLoad.researchNonce) return;
+    const term = safeResearchAxis(researchLoad.term), contextTerms = safeResearchContextTerms(researchLoad.contextTerms);
+    if (!term) return;
+    researchCommandRef.current = researchLoad.researchNonce;
+    setQuery(term);
+    requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", contextTerms });
+    requestAnimationFrame(() => cameraStageRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }));
+  }, [researchLoad?.researchNonce]);
 
   const requestFindingsChange = (findings, { preserveRead = false } = {}) => {
     if (!Array.isArray(findings)) return;
@@ -1541,7 +1589,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       && (!pendingBundle.expectedHitId || pendingBundle.expectedHitId === next?.axis?.hitId)) {
       pendingResearchBundleRef.current = null;
       setResearchBundle({ ...pendingBundle, axisHitId: next.axis.hitId, status: "ready" });
-      requestAnimationFrame(() => requestLens("matrix-candidates", { hitId: next.axis.hitId, researchBundle: true }));
+      requestAnimationFrame(() => requestLens("matrix-candidates", { hitId: next.axis.hitId, researchBundle: true,
+        ...(pendingBundle.contextTerms?.length ? { contextTerms: pendingBundle.contextTerms } : {}) }));
     }
     const pendingJourney = journeyPendingRef.current;
     const journeyComplete = pendingJourney?.kind === "return"
@@ -1590,7 +1639,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           const bundle = { contract: "els_research_bundle_v1", kind: resultTriage.kind, setId: resultTriage.setId, key: row.key,
             rank: row.rank, label: action === "meeting-select" ? `${row.axis || resultItem?.axis || "מפגש"} · ${(row.terms || resultItem?.terms || []).join(" · ")}`
               : `${engineStateRef.current?.termRaw || engineStateRef.current?.term || "ממצא"} · מופע ${row.ordinal || resultItem?.ordinal || ""}`,
-            reasons: row.reasons || [], expectedHitId: value?.hitId || resultItem?.hitId || null, status: "opening" };
+            reasons: row.reasons || [], expectedHitId: value?.hitId || resultItem?.hitId || null, status: "opening",
+            contextTerms: safeResearchContextTerms(activeResearchContext?.contextTerms) };
+          pendingResearchBundleRef.current = bundle;setResearchBundle(bundle);
+        } else if (activeResearchContext?.contextTerms?.length) {
+          const bundle = { contract: "els_research_bundle_v1", kind: resultsAreCross ? "cross" : "regular", label: clean(engineStateRef.current?.termRaw || engineStateRef.current?.term || "ממצא"),
+            reasons: ["מופע של הציר שנבחר בתוכנית ההקשר"], expectedHitId: value?.hitId || resultItem?.hitId || null, status: "opening",
+            contextTerms: safeResearchContextTerms(activeResearchContext.contextTerms) };
           pendingResearchBundleRef.current = bundle;setResearchBundle(bundle);
         } else { pendingResearchBundleRef.current = null;setResearchBundle(null); }
       } else if (["occurrence-prev", "occurrence-next"].includes(action)) {
@@ -1663,6 +1718,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       expectedHitId: prepared.target.hitId,
       status: "opening",
       fromExtension: true,
+      contextTerms: safeResearchContextTerms(activeResearchContext?.contextTerms),
     };
     const pending = {
       kind: "target",
@@ -1918,16 +1974,18 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const readingView = shortSkip && shortSkipView === "reading";
   const resultsAreCross = operations.search ? ["cross", "cross-continue"].includes(operations.search.searchKind) : Boolean(engineState?.search?.zones);
   const resultView = resultsAreCross ? engineState?.search?.results : engineState?.search?.occurrences;
-  const resultTriageKey = resultView?.id ? `${resultsAreCross ? "cross" : "regular"}:${resultView.id}:${resultsAreCross ? 0 : resultView.page || 0}` : null;
+  const activeContextKey = researchContextKey(activeResearchContext?.contextTerms);
+  const resultTriageKey = resultView?.id ? `${resultsAreCross ? "cross" : "regular"}:${resultView.id}:${resultsAreCross ? 0 : resultView.page || 0}:${activeContextKey}` : null;
   const resultTriagePending = lensPending && lensRequest?.lens === "result-triage";
   useEffect(() => {
     if (!researchProfile || visibleTool !== "results" || operations.search?.status !== "done" || !matrixActive || !resultTriageKey || lensPending) return;
     const matches = resultTriage?.ok && resultTriage.kind === (resultsAreCross ? "cross" : "regular") && resultTriage.setId === resultView.id
-      && (resultsAreCross || Number(resultTriage.page) === Number(resultView.page));
+      && (resultsAreCross || Number(resultTriage.page) === Number(resultView.page)) && (resultTriage.target?.contextKey || "") === activeContextKey;
     if (matches || resultTriageKeyRef.current === resultTriageKey) return;
     resultTriageKeyRef.current = resultTriageKey;
-    requestLens("result-triage", { kind: resultsAreCross ? "cross" : "regular", setId: resultView.id, ...(resultsAreCross ? {} : { page: resultView.page }) });
-  }, [researchProfile, visibleTool, operations.search?.status, matrixActive, resultTriageKey, lensPending, resultTriage?.setId, resultTriage?.page]);
+    requestLens("result-triage", { kind: resultsAreCross ? "cross" : "regular", setId: resultView.id, ...(resultsAreCross ? {} : { page: resultView.page }),
+      contextKey: activeContextKey, ...(activeResearchContext?.contextTerms?.length ? { contextTerms: activeResearchContext.contextTerms } : {}) });
+  }, [researchProfile, visibleTool, operations.search?.status, matrixActive, resultTriageKey, lensPending, resultTriage?.setId, resultTriage?.page, activeContextKey]);
   const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId
     && ["searching", "verifying", "empty", "error", "cancelled"].includes(operations.search?.status);
   const matrixStatus = engineState?.status === "ready" ? "בראשית · מוכן לחיפוש" : previousResult
@@ -2240,7 +2298,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <TzofenEmbed
           seed={engineSeed || undefined}
           matrix={matrix}
-          journeyLoad={journeyLoad || researchLoad}
+          journeyLoad={journeyLoad || (researchLoad?.researchCommand === true ? null : researchLoad)}
           exactSkipProbe={researchProbe}
           onExactSkipProbeResult={onResearchProbeResult}
           formsPreviewRequest={formsPreviewRequest}

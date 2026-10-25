@@ -109,7 +109,7 @@ test("light Research entry exposes an idle brief while advanced controls stay cl
   }
 });
 
-test("a private research brief stays local until explicit start and then uses the existing automatic scanner", { skip: !available, timeout: 60000 }, async () => {
+test("a private research brief sends one axis and selected exact context without sending the story", { skip: !available, timeout: 60000 }, async () => {
   const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
   let browser;
   try {
@@ -119,29 +119,32 @@ test("a private research brief stays local until explicit start and then uses th
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
+    await page.getByLabel("ציר ראשי למחקר").fill("קולומביה");
     await page.getByLabel("סיפור או הקשר למחקר").fill("הספינה קולומביה עלתה באש. האש אכלה.");
-    await page.getByLabel("מונחים שחייבים לבדוק").fill("קולומביה");
-    await page.getByRole("button", { name: "בנה תוכנית מטרות" }).click();
-    const plan = page.getByLabel("מטרות המחקר המוצעות");
+    await page.getByLabel("מונחים שחייבים לבדוק").fill("יכל אש");
+    await page.getByRole("button", { name: "בנה תוכנית ציר והקשר" }).click();
+    const plan = page.getByLabel("תוכנית הציר וההקשר");
     await plan.getByText("טיוטה · לא ראיה").waitFor();
     assert.ok(await plan.getByText("קולומביה", { exact: true }).count() >= 1);
-    assert.ok(await plan.getByText("האש אכלה", { exact: true }).count() >= 1);
+    assert.ok(await plan.getByText("יכל אש", { exact: true }).count() >= 1);
+    assert.equal(await plan.locator(".els29-brief-context-row").filter({ hasText: "יכל אש" }).getByRole("button", { name: "גם כל מילה בנפרד" }).getAttribute("aria-pressed"), "false");
     assert.deepEqual(await page.evaluate(() => window.__advancedCalls), []);
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
-    await plan.getByRole("button", { name: /התחל מחקר מתוך/ }).click();
-    await page.getByText(/ביטויים · .*צורות שונות/).waitFor();
-    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), true);
-    const targets = page.getByLabel("יעדי מחקר מוכנים מהתוכנית");
-    await targets.getByRole("button", { name: "פתח חבילת מחקר" }).first().click();
-    await page.waitForFunction(() => window.__advancedLoad?.researchBundle === true);
+    await plan.getByRole("button", { name: "מצא את הציר ובנה סביבו חבילת מחקר" }).click();
+    await page.waitForFunction(() => window.__advancedLoad?.researchCommand === true);
     const state = await page.evaluate(() => ({
       calls: window.__advancedCalls,
+      load: window.__advancedLoad,
       url: location.href,
       local: Object.values(localStorage),
       session: Object.values(sessionStorage),
     }));
-    assert.ok(state.calls.some(call => call.body.op === "page" && call.body.term === "קולומביה"));
-    assert.ok(state.calls.every(call => !Object.hasOwn(call.body, "story") && !Object.hasOwn(call.body, "brief") && !Object.hasOwn(call.body, "context")));
+    assert.deepEqual(state.calls, [], "the mounted canonical engine owns the search; the brief does not call a second page scanner");
+    assert.equal(state.load.term, "קולומביה");
+    const exactContext = state.load.contextTerms.find(row => row.term === "יכל אש");
+    assert.deepEqual({ mode: exactContext?.mode, split: exactContext?.split }, { mode: "exact_phrase", split: false });
+    assert.equal(state.load.contextTerms.some(row => row.term === "יכל" || row.term === "אש"), false, "exact context is not silently split");
+    assert.ok(!JSON.stringify(state.load).includes("הספינה קולומביה עלתה באש"));
     assert.ok(!state.url.includes("הספינה"));
     assert.ok(!JSON.stringify([...state.local, ...state.session]).includes("הספינה"));
     assert.deepEqual(errors, []);

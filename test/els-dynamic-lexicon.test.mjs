@@ -171,6 +171,8 @@ test("axis-neighborhood discovery is explicit, bounded and independent of a cont
   assert.match(block, /independentOfSavedResearch:true/);
   assert.match(block, /focused\.candidateCapped\|\|focused\.probeCapped[\s\S]*?ok:false/, "a focused budget overflow fails closed instead of publishing a partial package");
   assert.match(block, /target\.depth==="expanded"/);
+  assert.match(block, /normalizeResearchContextTerms\(target\.contextTerms\)/, "the same focused lens accepts only bounded explicit context terms");
+  assert.match(block, /contextCoverage:researchContextCoverage\(researchContext\.requested,items,true\)/, "the complete package reports verified context coverage");
   assert.match(block, /axisSuggestion=chooseAxisNeighborhoodSuggestion/);
   assert.match(template, /function axisSourceContextMatches\([\s\S]*?VCUM\[verseIndex\][\s\S]*?T\.slice\(from,to\)/, "axis context reads only canonical verses traversed by the verified axis");
   assert.match(template, /discoveryKind==="source-context"[\s\S]*?sourceContext\?512:0/, "literal axis-topic source context receives a dedicated admission lane");
@@ -235,13 +237,14 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     CLOUD_MATRICES: [], scopeN: () => scopeLength, heb: String,
     COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1",
     AXIS_NEIGHBORHOOD_CONTRACT: "els_axis_neighborhood_bundle_v1",
+    RESEARCH_CONTEXT_COVERAGE_CONTRACT: "els_research_context_coverage_v1",
     FOCUSED_CORE_CANDIDATE_CAP: 32768,
     FOCUSED_CORE_PROBE_CAP: 16384,
     gridStep: (skip, width) => { const rows = Math.round(skip / width);const columns = skip - rows * width;return Math.max(Math.abs(rows), Math.abs(columns)) || 1; },
   });
   vm.runInContext([
     normalization,
-    source("addCandidateLexiconTerm"), source("addCorpusMorphology"), source("corpusCandidateLexiconBuild"), source("buildCorpusCandidateLexicons"),
+    source("addCandidateLexiconTerm"), source("normalizeResearchContextTerms"), source("researchContextCoverage"), source("addCorpusMorphology"), source("corpusCandidateLexiconBuild"), source("buildCorpusCandidateLexicons"),
     source("addBasicHebrewYears"), source("researchCandidateLexiconBuild"), source("researchCandidateLexicon"), source("compactGeometryMeta"),
     source("axisNeighborhoodMeta"), source("distanceToAnchors"), source("independentCandidateRows"),
     source("focusedPhraseRow"), source("focusedCoreBox"), source("focusedCoreSkipMeta"),
@@ -302,6 +305,15 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
       assert.equal(stages.get("חשמל"), "B", "bounded local gaps remain an explicit second-stage candidate");
       assert.equal(stages.get("נשמהללוט"), "A");
       assert.ok(context.result.probes < 8000, "the local-gap stage remains bounded around the axis rows and columns");
+    }
+    if (golden.label === "קולומביה") {
+      context.explicitContext = vm.runInContext("normalizeResearchContextTerms([{term:'יכל אש',mode:'exact_phrase',required:true,split:false}])", context);
+      context.explicitResult = vm.runInContext("scanFocusedCoreCandidates([...explicitContext.rows,...researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true})],[...explicitContext.rows,...researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true})],_corpusPhraseCache.tanakh,axis,{contextRows:explicitContext.rows})", context);
+      const explicitSelected = JSON.parse(JSON.stringify(vm.runInContext("selectFocusedCoreCandidates(explicitResult.candidates,12)", context)));
+      const explicitTerm = explicitSelected.find((candidate) => normalizeHebrew(candidate.term) === "יכלאש");
+      assert.ok(explicitTerm, "the requested exact phrase receives a seat in the first focused package");
+      assert.ok(explicitTerm.classifications.some((item) => item.kind === "research-context-exact"));
+      assert.equal(context.explicitContext.requested.some((item) => item.term === "יכל" || item.term === "אש"), false, "an exact phrase is not split without opt-in");
     }
     assert.equal(context.result.box.rowPad, 12);
     assert.equal(context.result.box.colRadius, 15);
@@ -438,7 +450,7 @@ test("bundle comparison verifies two to four existing continuation targets witho
 });
 
 test("result triage ranks repeated exact continuation first but keeps every result available", () => {
-  const context = vm.createContext({ rows: [
+  const context = vm.createContext({ RESEARCH_CONTEXT_COVERAGE_CONTRACT: "els_research_context_coverage_v1", rows: [
     { key: "a", order: 1, skip: 80, signals: [{ extensions: [{ term: "ביתישראל", label: "בית ישראל", gain: 5 }], nearby: [], notable: null }] },
     { key: "b", order: 2, skip: 120, signals: [{ extensions: [{ term: "ביתישראל", label: "בית ישראל", gain: 5 }], nearby: [{}], notable: null }] },
     { key: "c", order: 3, skip: 7, signals: [{ extensions: [], nearby: [], notable: "מספר מוכר" }] },
@@ -456,7 +468,7 @@ test("result triage ranks repeated exact continuation first but keeps every resu
 });
 
 test("result triage promotes a repeated literal axis topic without hiding weaker occurrences", () => {
-  const context = vm.createContext({ rows: [
+  const context = vm.createContext({ RESEARCH_CONTEXT_COVERAGE_CONTRACT: "els_research_context_coverage_v1", rows: [
     { key: "balaam-a", order: 1, skip: 80, signals: [{ extensions: [], nearby: [], sourceContexts: [{ term: "בלעמ", label: "בלעם" }], notable: null }] },
     { key: "balaam-b", order: 2, skip: 1820, signals: [{ extensions: [], nearby: [], sourceContexts: [{ term: "בלעמ", label: "בלעם" }], notable: null }] },
     { key: "plain", order: 3, skip: 7, signals: [{ extensions: [], nearby: [], sourceContexts: [], notable: null }] },
@@ -467,6 +479,21 @@ test("result triage promotes a repeated literal axis topic without hiding weaker
   assert.ok(ranked.slice(0, 2).every((row) => row.reasons.some((reason) => reason.includes("פסוק מקור באותו הקשר: בלעם"))));
   assert.ok(ranked.slice(0, 2).every((row) => row.reasons.some((reason) => reason.includes("2 תוצאות"))));
   assert.equal(ranked.length, 3, "rank-don't-hide keeps the result that has no literal topic context");
+});
+
+test("result triage ranks requested exact context ahead of unrelated structure without hiding results", () => {
+  const requested = [{ term: "יכלאש", label: "יכל אש", mode: "exact_phrase", required: true }];
+  const context = vm.createContext({ RESEARCH_CONTEXT_COVERAGE_CONTRACT: "els_research_context_coverage_v1", rows: [
+    { key: "context", order: 3, skip: 4545, signals: [{ extensions: [], nearby: [], sourceContexts: [], contextCoverage: { requested, found: requested }, notable: null }] },
+    { key: "extension", order: 1, skip: 80, signals: [{ extensions: [{ term: "קולומביהאש", label: "קולומביה אש", gain: 2 }], nearby: [], sourceContexts: [], contextCoverage: { requested, found: [] }, notable: null }] },
+    { key: "plain", order: 2, skip: 7, signals: [{ extensions: [], nearby: [], sourceContexts: [], contextCoverage: { requested, found: [] }, notable: null }] },
+  ] });
+  vm.runInContext(`${source("rankResultTriageItems")}\nthis.result=rankResultTriageItems(rows,"regular");`, context);
+  const ranked = JSON.parse(JSON.stringify(context.result));
+  assert.equal(ranked[0].key, "context");
+  assert.equal(ranked[0].contextCoverage.found[0].term, "יכלאש");
+  assert.ok(ranked[0].reasons.some((reason) => reason.includes("הקשר מבוקש")));
+  assert.equal(ranked.length, 3);
 });
 
 test("structural Research priority keeps gapless geometry ahead of spaced parallels", () => {

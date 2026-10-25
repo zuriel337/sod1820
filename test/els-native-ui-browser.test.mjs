@@ -2360,6 +2360,39 @@ test('an externally verified automatic-plan target opens the shared focused pack
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
 });
 
+test('an anchor-context command starts one canonical native search without sending the private story',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const command={contract:'els_anchor_context_request_v1',researchCommand:true,term:'קולומביה',scope:'torah',
+   contextTerms:[{term:'יכל אש',mode:'exact_phrase',required:true,split:false}],researchNonce:101};
+  await page.evaluate(item=>window.__loadResearch(item),command);
+  await page.waitForFunction(()=>window.__hostLog.some(message=>message.type==='native-search'&&message.request?.term==='קולומביה'));
+  const request=await page.evaluate(()=>window.__hostLog.find(message=>message.type==='native-search'&&message.request?.term==='קולומביה'));
+  assert.equal(request.request.kind,'regular');
+  assert.equal(request.request.scope,'torah');
+  assert.equal(Object.hasOwn(request.request,'contextTerms'),false,'context vocabulary is reserved for ranking/package lenses, not a second global search');
+  assert.equal(JSON.stringify(request).includes('הספינה'),false,'raw story text never crosses into the canonical search request');
+  assert.equal(await page.evaluate(()=>window.__mounts),1,'the command reuses the already mounted canonical engine');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('a focused Colombia package verifies the requested exact phrase without silently splitting it',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const load={term:'קולומביה',scope:'torah',skip:4545,dir:1,start:248765,hitId:'4545_1_248765',corpusId:'0b022e8eef6f9c16',words:[],researchBundle:true,
+   contextTerms:[{term:'יכל אש',mode:'exact_phrase',required:true,split:false}]};
+  await page.evaluate(item=>window.__loadResearch(item),load);
+  await page.waitForFunction(id=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.target?.hitId===id,load.hitId,{timeout:120000});
+  const result=await page.evaluate(()=>window.__lens);
+  assert.equal(result.contextCoverage.contract,'els_research_context_coverage_v1');
+  assert.equal(result.contextCoverage.complete,true);
+  assert.deepEqual(result.contextCoverage.requested.map(item=>item.term),['יכלאש']);
+  assert.deepEqual(result.contextCoverage.found.map(item=>item.term),['יכלאש']);
+  assert.equal(result.contextCoverage.requested.some(item=>item.term==='יכל'||item.term==='אש'),false);
+  assert.match(await page.getByLabel('כיסוי מונחי ההקשר').innerText(),/יכל אש/);
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
 test('Research compares three verified continuation targets before opening one exact package',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
  await withNative({width:390,height:844},async page=>{

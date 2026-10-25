@@ -1578,6 +1578,7 @@ __STANDALONE_ENGINE_DISPATCH__
   const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",
     AXIS_NEIGHBORHOOD_CONTRACT="els_axis_neighborhood_bundle_v1",FOCUSED_CORE_CONTRACT="els_focused_core_bundle_v1",FOCUSED_CORE_CANDIDATE_CAP=32768,FOCUSED_CORE_PROBE_CAP=16384,
     RESULT_TRIAGE_CONTRACT="els_result_triage_v1",RESEARCH_BUNDLE_CONTRACT="els_research_bundle_v1",
+    RESEARCH_CONTEXT_COVERAGE_CONTRACT="els_research_context_coverage_v1",
     RESEARCH_BUNDLE_COMPARISON_CONTRACT="els_research_bundle_comparison_v1",
     COMPACT_GEOMETRY_CONTRACT="els_compact_geometry_priority_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",
     _corpusLexiconCache={torah:null,tanakh:null},_corpusAxisWordCache={torah:null,tanakh:null},_corpusPhraseCache={torah:null,tanakh:null},_lineExtensionIndexCache=new WeakMap();
@@ -1588,6 +1589,25 @@ __STANDALONE_ENGINE_DISPATCH__
     if(prior){prior.support+=Math.max(1,support||1);prior.sources.add(source);
       for(const item of classifications)if(!prior.classifications.some(current=>current.kind===item.kind&&current.value===item.value))prior.classifications.push(item);return;}
     map.set(term,{term,label,support:Math.max(1,support||1),sources:new Set([source]),classifications:[...classifications]});
+  }
+  function normalizeResearchContextTerms(input){
+    const map=new Map(),requested=[],seenRequested=new Set(),add=(label,kind,parent,mode,required)=>{
+      const term=norm(label);if(term.length<2||term.length>24)return;
+      addCandidateLexiconTerm(map,label,kind==="component"?"explicit_research_context_component":"explicit_research_context",kind==="component"?90:180,2,
+        {kind:kind==="component"?"research-context-component":"research-context-exact",value:parent||term,label:kind==="component"?"רכיב שחיפושו אושר במפורש":"מונח הקשר מדויק שביקש החוקר"});
+      if(!seenRequested.has(term)){seenRequested.add(term);requested.push({term,label:String(label).trim().replace(/\s+/g," "),mode,required:required===true,component:kind==="component",parentTerm:parent||null});}
+    };
+    for(const item of Array.isArray(input)?input.slice(0,12):[]){
+      const label=String(item?.term||"").normalize("NFKD").replace(/[\u0591-\u05C7]/g,"").replace(/[^א-ת\s]/g," ").trim().replace(/\s+/g," "),term=norm(label);
+      if(term.length<2||term.length>24)continue;
+      add(label,"exact",null,item?.mode==="exact_phrase"?"exact_phrase":"term",item?.required===true);
+      if(item?.split===true&&label.includes(" "))for(const part of label.split(/\s+/))if(norm(part).length>=2)add(part,"component",term,"term",item?.required===true);
+    }
+    return {rows:[...map.values()].map(row=>({...row,sources:[...row.sources],classifications:[...row.classifications]})),requested};
+  }
+  function researchContextCoverage(requested,items,complete=false,verifiedOnly=true){
+    const available=new Set((items||[]).filter(item=>!verifiedOnly||["VERIFIED","SOURCE_EXACT"].includes(item.status)).map(item=>norm(item.term||item.label))),found=(requested||[]).filter(item=>available.has(item.term)),foundKeys=new Set(found.map(item=>item.term));
+    return {contract:RESEARCH_CONTEXT_COVERAGE_CONTRACT,complete:complete===true,verified:verifiedOnly===true,requested:[...(requested||[])],found,notSeenInFocusedRange:complete?(requested||[]).filter(item=>!foundKeys.has(item.term)):[],truthPromotion:false};
   }
   function addCorpusMorphology(map,raw){
     const original=norm(raw),variants=[];
@@ -2722,7 +2742,7 @@ __STANDALONE_ENGINE_DISPATCH__
       if(target.scan===true)dynamicCandidateLexicon().then(publish);else publish(null);
     }
     if(d.type==="request-lens"&&d.lens==="result-triage"){
-      const target=d.target||{},kind=target.kind==="cross"?"cross":"regular";
+      const target=d.target||{},kind=target.kind==="cross"?"cross":"regular",researchContext=normalizeResearchContextTerms(target.contextTerms);
       const initial=kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
       if(!initial||target.setId!==initial.id||kind==="regular"&&Number(target.page)!==Number(initial.page)){
         postHost({type:"lens",lens:"result-triage",ok:false,target,reason:"results-changed"});return;
@@ -2740,21 +2760,21 @@ __STANDALONE_ENGINE_DISPATCH__
           if(kind==="regular"){
             const hit=st.res?.hits?.[item.index];
             if(isGov(hit)&&hitKey(hit)===item.hitId)rows.push({key:item.hitId,order:item.ordinal,index:item.index,ordinal:item.ordinal,skip:item.skip,direction:item.direction,ref:item.ref,
-              signals:[triageHitSignals(hit,st.raw,lexicon.axisEntries||lexicon.entries,hit,visibleKeys.has(item.hitId))]});
+              signals:[triageHitSignals(hit,st.raw,lexicon.axisEntries||lexicon.entries,hit,visibleKeys.has(item.hitId),researchContext)]});
           }else{
             const zone=st.crossMeetings?.[item.index],result=zone?.axis&&st.crossResCache?st.crossResCache[zone.axis]:st.res,axisHit=result?.hits?.[zone?.occ],signals=[];
-            if(isGov(axisHit))signals.push(triageHitSignals(axisHit,zone.axis||st.raw,lexicon.axisEntries||lexicon.entries,axisHit));
+            if(isGov(axisHit))signals.push(triageHitSignals(axisHit,zone.axis||st.raw,lexicon.axisEntries||lexicon.entries,axisHit,true,researchContext));
             for(const detail of zone?.detail||[]){
               const term=norm(detail.t),skip=Math.abs(Number(detail.skip)),dir=Number(detail.dir),start=Number(detail.p0);
               if(term.length<2||skip<1||![1,-1].includes(dir)||!Number.isInteger(start))continue;
               const positions=Array.from(term,(_,index)=>start+dir*skip*index);
               if(positions.some(position=>position<0||position>=scopeN()))continue;
-              signals.push(triageHitSignals({skip,dir,start,positions},detail.t,lexicon.axisEntries||lexicon.entries,axisHit));
+              signals.push(triageHitSignals({skip,dir,start,positions},detail.t,lexicon.axisEntries||lexicon.entries,axisHit,true,researchContext));
             }
             rows.push({key:String(item.index),order:item.index,index:item.index,axis:item.axis,terms:item.terms,skip:item.skip,distance:item.distance,stars:item.stars,signals});
           }
-          if((offset+1)%16===0||offset+1===sourceItems.length)postHost({type:"lens-progress",lens:"result-triage",target:{nativeSeq:target.nativeSeq},progress:{phase:"triage",completed:offset+1,total:sourceItems.length}});
-          if((offset+1)%32===0)await paintOperation();
+          if(researchContext.rows.length||(offset+1)%16===0||offset+1===sourceItems.length)postHost({type:"lens-progress",lens:"result-triage",target:{nativeSeq:target.nativeSeq},progress:{phase:researchContext.rows.length?"context":"triage",completed:offset+1,total:sourceItems.length}});
+          if(researchContext.rows.length||(offset+1)%32===0)await paintOperation();
         }
         if(lensEpoch!==_nativeLensSeq)return;
         const latest=kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
@@ -2765,10 +2785,11 @@ __STANDALONE_ENGINE_DISPATCH__
           if(seenTargets.has(extension.term))continue;seenTargets.add(extension.term);researchTargets.push({key:row.key,rank:row.rank,baseTerm:signal.term,term:extension.term,label:extension.label||extension.term,gain:extension.gain,reasons:row.reasons||[]});
           if(researchTargets.length>=8)break targets;
         }}
+        const contextSeen=[...new Map(ranked.flatMap(row=>row.contextCoverage?.found||[]).map(item=>[item.term,item])).values()];
         postHost({type:"lens",lens:"result-triage",ok:true,target,status:"CANDIDATE",contract:RESULT_TRIAGE_CONTRACT,kind,setId:latest.id,
           ...(kind==="regular"?{page:latest.page}:{}),provenanceSource:lexicon.contract,coverage:kind==="regular"?"admitted-search-results":"current-result-set",scanned:rows.length,available:sourceItems.length,
           items:visibleRanked,researchTargets,savedBundles:visibleSavedResearchBundles(st.raw),bundleContract:RESEARCH_BUNDLE_CONTRACT,
-          geometryContract:COMPACT_GEOMETRY_CONTRACT,lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback}});
+          contextCoverage:researchContextCoverage(researchContext.requested,contextSeen,true,false),geometryContract:COMPACT_GEOMETRY_CONTRACT,lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback}});
       });
     }
     if(d.type==="request-lens"&&d.lens==="research-target"){
@@ -2852,17 +2873,17 @@ __STANDALONE_ENGINE_DISPATCH__
         if(!lexicon)return;
         const current=hasGov(st.res)?occ():null;
         if(lensEpoch!==_nativeLensSeq||!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
-        const structuralAxis={...current,_structuralCells:new Set(current.positions||[])};
-        const discoveryEntries=lexicon.entries,expanded=target.depth==="expanded";
+        const structuralAxis={...current,_structuralCells:new Set(current.positions||[])},researchContext=normalizeResearchContextTerms(target.contextTerms),contextRows=researchContext.rows;
+        const discoveryEntries=[...contextRows,...lexicon.entries],expanded=target.depth==="expanded";
         if(!expanded){
-          const focusedEntries=lexicon.focusedEntries||discoveryEntries,focused=await scanFocusedCoreCandidatesBatched(focusedEntries,lexicon.focusedAxisEntries||lexicon.axisEntries,lexicon.focusedPhraseIndex||lexicon.phraseIndex,structuralAxis,
+          const focusedEntries=[...contextRows,...(lexicon.focusedEntries||lexicon.entries)],focusedAxisEntries=[...contextRows,...(lexicon.focusedAxisEntries||lexicon.axisEntries)],focused=await scanFocusedCoreCandidatesBatched(focusedEntries,focusedAxisEntries,lexicon.focusedPhraseIndex||lexicon.phraseIndex,structuralAxis,
             progress=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"core",...progress}}),
-            ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId);
+            ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,{contextRows});
           if(!focused)return;
           if(lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
           if(focused.candidateCapped||focused.probeCapped){postHost({type:"lens",lens:"matrix-candidates",ok:false,target,reason:focused.probeCapped?"focused-core-probe-limit":"focused-core-candidate-limit",scanMode:"focused",scanned:focused.probes});return;}
           postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify-prepare",completed:0,total:0}});
-          const checkpointKey=[st.scope,hitKey(structuralAxis),"focused-core-v1"].join(":"),resumeCheckpoint=target.resume===true&&_nativeFocusedCheckpoint?.key===checkpointKey?_nativeFocusedCheckpoint:null;
+          const checkpointKey=[st.scope,hitKey(structuralAxis),"focused-core-v1",researchContext.requested.map(item=>item.term).join(",")].join(":"),resumeCheckpoint=target.resume===true&&_nativeFocusedCheckpoint?.key===checkpointKey?_nativeFocusedCheckpoint:null;
           if(!resumeCheckpoint)_nativeFocusedCheckpoint=null;
           const admitted=await verifyFocusedCoreCandidates(focused.candidates,structuralAxis,(completed,total,checkpoint)=>{
             _nativeFocusedCheckpoint={key:checkpointKey,...checkpoint};
@@ -2871,7 +2892,7 @@ __STANDALONE_ENGINE_DISPATCH__
               draft:{type:"lens",lens:"matrix-candidates",ok:true,partial:true,target,status:"PARTIAL_VERIFIED",contract:FOCUSED_CORE_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"focused",provenanceSource:lexicon.contract,coverage:"focused-axis-core",
                 focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||15,directions:["1","S−1","S","S+1"],secondStage:{skips:"2–8",rowPad:2,colRadius:8}},verification:{attempted:completed,verified:checkpoint.items.filter(item=>item.status==="VERIFIED").length,sourceExact:checkpoint.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:checkpoint.failed},
                 lexicon:{contract:lexicon.contract,counts:lexicon.focusedCounts||lexicon.counts,fallback:lexicon.fallback,independentOfSavedResearch:true},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"focused_compact_band_then_distance_then_language_evidence"},
-                items:partialItems,total:partialItems.length,scanned:focused.probes,available:focused.candidates.length,truncated:true,resume:{available:completed<total,completed,total},
+                items:partialItems,total:partialItems.length,scanned:focused.probes,available:focused.candidates.length,truncated:true,resume:{available:completed<total,completed,total},contextCoverage:researchContextCoverage(researchContext.requested,partialItems,false),
                 structurePlan:partialStructural.plan,groups:partialStructural.groups,groupTotal:partialStructural.groups.length,availableGroups:partialStructural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
                 axisSuggestion:chooseAxisNeighborhoodSuggestion(checkpoint.items,structuralAxis),geometryContract:COMPACT_GEOMETRY_CONTRACT}}});
           },()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,12,resumeCheckpoint);
@@ -2883,7 +2904,7 @@ __STANDALONE_ENGINE_DISPATCH__
           postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"VERIFIED",contract:FOCUSED_CORE_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"focused",provenanceSource:lexicon.contract,coverage:"focused-axis-core",
             focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||15,directions:["1","S−1","S","S+1"],secondStage:{skips:"2–8",rowPad:2,colRadius:8}},verification:{attempted:admitted.attempted,verified:admitted.items.filter(item=>item.status==="VERIFIED").length,sourceExact:admitted.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:admitted.failed},
             lexicon:{contract:lexicon.contract,counts:lexicon.focusedCounts||lexicon.counts,fallback:lexicon.fallback,independentOfSavedResearch:true},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"focused_compact_band_then_distance_then_language_evidence"},
-            items,total:items.length,scanned:focused.probes,available:admitted.available,truncated:admitted.truncated||focused.candidateCapped,
+            items,total:items.length,scanned:focused.probes,available:admitted.available,truncated:admitted.truncated||focused.candidateCapped,contextCoverage:researchContextCoverage(researchContext.requested,items,true),
             structurePlan:structural.plan,groups:structural.groups,groupTotal:structural.groups.length,availableGroups:structural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
             axisSuggestion,geometryContract:COMPACT_GEOMETRY_CONTRACT});return;
         }
@@ -2909,7 +2930,7 @@ __STANDALONE_ENGINE_DISPATCH__
         const structural=buildStructuralGroups(available,structuralAxis,{maxDistance:30,minLength:4,maxLength:16,minMembers:2,maxGroups:8,maxMembers:8}),axisSuggestion=chooseAxisNeighborhoodSuggestion(compactPool,structuralAxis);
         postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",contract:AXIS_NEIGHBORHOOD_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"expanded",provenanceSource:lexicon.contract,coverage:"displayed-window",
           lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"axis_neighborhood_band_then_distance_then_governed_research_evidence_then_continuation"},
-          items,total:items.length,scanned:candidatePool.length,available:available.length,truncated:available.length>candidatePool.length,
+          items,total:items.length,scanned:candidatePool.length,available:available.length,truncated:available.length>candidatePool.length,contextCoverage:researchContextCoverage(researchContext.requested,[],false),
           structurePlan:structural.plan,groups:structural.groups,groupTotal:structural.groups.length,availableGroups:structural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
           axisSuggestion,geometryContract:COMPACT_GEOMETRY_CONTRACT});
       }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"matrix-candidates",ok:false,target,reason:"scan-failed"});});
@@ -4182,7 +4203,7 @@ __STANDALONE_ENGINE_DISPATCH__
   }
   function focusedCandidateStrength(candidate){
     const kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),sources=new Set(candidate.lexiconSources||[]),length=norm(candidate.term).length;
-    return (kinds.has("corpus-phrase")?90:0)+(kinds.has("local-exact-compound")?45:0)+(kinds.has("corpus-morphology")?55:0)+(kinds.has("hebrew-year")?70:0)+(sources.has("governed_core")?55:0)+(sources.has("corpus_native")?25:0)+Math.min(36,length*3)+Math.min(20,Number(candidate.lexiconSupport)||0);
+    return (kinds.has("research-context-exact")?1400:0)+(kinds.has("research-context-component")?900:0)+(kinds.has("corpus-phrase")?90:0)+(kinds.has("local-exact-compound")?45:0)+(kinds.has("corpus-morphology")?55:0)+(kinds.has("hebrew-year")?70:0)+(sources.has("governed_core")?55:0)+(sources.has("corpus_native")?25:0)+Math.min(36,length*3)+Math.min(20,Number(candidate.lexiconSupport)||0);
   }
   function focusedCompoundPartsScore(candidate){
     const parts=(candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[];
@@ -4204,18 +4225,19 @@ __STANDALONE_ENGINE_DISPATCH__
   // deterministic and tiny: explicit axis words (plus governed words contained in a compact
   // spelling) are checked only inside the finite set of verses touched by the verified axis.
   // It does not widen ELS skip search, infer meaning or consume saved-cipher vocabulary.
-  function focusedAxisTopicRows(entries,axisEntries,rawAxis=st.raw){
+  function focusedAxisTopicRows(entries,axisEntries,rawAxis=st.raw,contextRows=[]){
     const axisTerm=norm(rawAxis),governed=new Map();
     for(const raw of DICT||[]){const term=norm(typeof raw==="string"?raw:raw.term||raw.label);if(term)governed.set(term,{term,label:typeof raw==="string"?raw:raw.label||raw.term,sources:["governed_core"],support:4,classifications:[]});}
-    const selected=new Map(),add=(raw,explicit=false)=>{const term=norm(raw),row=governed.get(term);
-      if(term.length<3||term===axisTerm||term.length===3&&!row)return;
+    const selected=new Map(),add=(raw,explicit=false,provided=null)=>{const term=norm(raw),row=provided||governed.get(term),requested=Boolean(provided);
+      if(term.length<(requested?2:3)||term===axisTerm||term.length===3&&!row)return;
       if(!row&&!explicit||!row&&term.length<4)return;
       const next=row||{term,label:String(raw||term).trim()||term,sources:["active_axis_context"],support:1,classifications:[]},prior=selected.get(term);
       if(!prior||Number(next.support)>Number(prior.support))selected.set(term,next);
     };
     String(rawAxis||"").split(/[^א-ת]+/).filter(Boolean).forEach(part=>add(part,true));
     for(const[term]of governed)if(term.length>=3&&term!==axisTerm&&axisTerm.includes(term))add(term);
-    return [...selected.values()].sort((a,b)=>Number(b.support)-Number(a.support)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")).slice(0,8);
+    for(const row of contextRows||[])add(row.term||row.label,true,row);
+    return [...selected.values()].sort((a,b)=>Number(b.support)-Number(a.support)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")).slice(0,16);
   }
   function axisSourceContextMatches(axis,topicRows,limit=24){
     const S=Math.abs(Number(axis?.skip)||0);if(S<1)return[];
@@ -4235,10 +4257,10 @@ __STANDALONE_ENGINE_DISPATCH__
     const maxCandidates=Math.max(1,Math.min(FOCUSED_CORE_CANDIDATE_CAP,Number(limits?.maxCandidates)||FOCUSED_CORE_CANDIDATE_CAP)),maxProbes=Math.max(1,Math.min(FOCUSED_CORE_PROBE_CAP,Number(limits?.maxProbes)||FOCUSED_CORE_PROBE_CAP));
     const {S,c0,c1,r0,r1}=box,axisTerm=norm(st.raw),mainSet=new Set(axis.positions||[]),anchors=(axis.positions||[]).map(position=>[Math.floor(position/S),((position%S)+S)%S]),termMap=new Map(),wordMap=new Map(),sourceContextOccurrences=new Map();
     const add=(map,row,min,max)=>{const term=norm(row.term||row.label);if(term.length<min||term.length>max||term===axisTerm)return;const current=map.get(term);if(!current||Number(row.support)>Number(current.support))map.set(term,{...row,term,label:row.label||row.term||term});};
-    independentCandidateRows(entries).forEach(row=>add(termMap,row,3,24));
+    independentCandidateRows(entries).forEach(row=>add(termMap,row,(row.classifications||[]).some(item=>["research-context-exact","research-context-component"].includes(item.kind))?2:3,24));
     independentCandidateRows(axisEntries).forEach(row=>add(wordMap,row,2,12));
     const termLengths=[...new Set([...termMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),wordLengths=[...new Set([...wordMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),
-      coreSteps=[...new Set([1,S-1,S,S+1].filter(step=>step>0))],coreStepSet=new Set(coreSteps),localGapSteps=[2,3,4,5,6,7,8].filter(step=>!coreStepSet.has(step)),axisTopicRows=focusedAxisTopicRows(entries,axisEntries),
+      coreSteps=[...new Set([1,S-1,S,S+1].filter(step=>step>0))],coreStepSet=new Set(coreSteps),localGapSteps=[2,3,4,5,6,7,8].filter(step=>!coreStepSet.has(step)),axisTopicRows=focusedAxisTopicRows(entries,axisEntries,st.raw,limits?.contextRows||[]),
       axisRows=(axis.positions||[]).map(position=>Math.floor(position/S)),localR0=Math.max(r0,Math.min(...axisRows)-2),localR1=Math.min(r1,Math.max(...axisRows)+2),
       localC0=Math.max(c0,mainSet.size?box.mainCol-8:c0),localC1=Math.min(c1,mainSet.size?box.mainCol+8:c1),found=new Map();let probes=0,candidateCapped=false,probeCapped=false,completedOrigins=0,lastCoreReported=0,scanSliceStarted=Date.now();
     const inBox=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return position>=0&&position<scopeN()&&row>=r0&&row<=r1&&column>=c0&&column<=c1;};
@@ -4291,7 +4313,7 @@ __STANDALONE_ENGINE_DISPATCH__
     if(completedOrigins!==lastCoreReported)yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size};
     const values=[...found.values()],ranked=[];let projectSliceStarted=Date.now();
     for(let index=0;index<values.length;index++){
-      const candidate=values[index],term=norm(candidate.term),score=focusedCoreRankScore(candidate,axis),kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),compoundKinds=new Set(((candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[]).flatMap(part=>(part.classifications||[]).map(item=>item.kind))),contextOccurrences=sourceContextOccurrences.get(term)||[],sourceContext=candidate.discoveryKind==="source-context"?{axisTopic:true,label:"פסוק מקור באותו הקשר",matchedTerms:[term],axisVerse:true,occurrenceCount:contextOccurrences.length}:null,flags=(candidate.discoveryKind==="phrase"&&Math.abs(candidate.skip)===1?1:0)|(candidate.geometry?.intersects?2:0)|(candidate.discoveryKind==="direct"?4:0)|(candidate.geometry?.compact?8:0)|((candidate.lexiconSources||[]).includes("governed_core")?16:0)|(kinds.has("hebrew-year")?32:0)|(candidate.focusStage==="B"?64:0)|(candidate.discoveryKind==="compound"&&compoundKinds.has("hebrew-year")?128:0)|(candidate.discoveryKind==="compound"?256:0)|(sourceContext?512:0)|(kinds.has("corpus-morphology")?1024:0);
+      const candidate=values[index],term=norm(candidate.term),score=focusedCoreRankScore(candidate,axis),kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),compoundKinds=new Set(((candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[]).flatMap(part=>(part.classifications||[]).map(item=>item.kind))),contextOccurrences=sourceContextOccurrences.get(term)||[],sourceContext=candidate.discoveryKind==="source-context"?{axisTopic:true,label:"פסוק מקור באותו הקשר",matchedTerms:[term],axisVerse:true,occurrenceCount:contextOccurrences.length}:null,flags=(candidate.discoveryKind==="phrase"&&Math.abs(candidate.skip)===1?1:0)|(candidate.geometry?.intersects?2:0)|(candidate.discoveryKind==="direct"?4:0)|(candidate.geometry?.compact?8:0)|((candidate.lexiconSources||[]).includes("governed_core")?16:0)|(kinds.has("hebrew-year")?32:0)|(candidate.focusStage==="B"?64:0)|(candidate.discoveryKind==="compound"&&compoundKinds.has("hebrew-year")?128:0)|(candidate.discoveryKind==="compound"?256:0)|(sourceContext?512:0)|(kinds.has("corpus-morphology")?1024:0)|(kinds.has("research-context-exact")?2048:0)|(kinds.has("research-context-component")?4096:0);
       ranked.push({candidate:{...candidate,...(contextOccurrences.length?{occurrences:contextOccurrences}:{}),sourceContext,skipMeta:focusedCoreSkipMeta(candidate,axis),focusScore:score,focusTerm:term,focusFlags:flags},score,distance:candidate.distance,priority:Number(candidate.neighborhood?.priority)||0,stage:candidate.focusStage==="B"?1:0,term});
       if(index+1===values.length||Date.now()-projectSliceStarted>=32){yield {phase:"collect",completed:index+1,total:values.length,probes,candidates:ranked.length};projectSliceStarted=Date.now();}
     }
@@ -4333,6 +4355,8 @@ __STANDALONE_ENGINE_DISPATCH__
     // The first package is bounded and path-diverse. Literal source context receives first
     // admission, followed by a small mix of exact source, year, morphology and geometry lanes.
     // Selection stays linear in the already-ranked pool; no second scan or semantic engine runs.
+    add(flags=>(flags&2048)===2048,6);
+    add(flags=>(flags&4096)===4096,2);
     add(flags=>(flags&512)===512,2);
     add(flags=>(flags&3)===3,2);
     add((flags,candidate)=>{const sources=new Set(candidate.lexiconSources||[]);return Math.abs(Number(candidate.skip))>1&&norm(candidate.term).length>=4&&(flags&32)===32&&(flags&256)===0&&sources.has("basic_hebrew_year")&&!sources.has("corpus_native")&&!sources.has("corpus_morphology")&&!sources.has("governed_core");},1);
@@ -5320,13 +5344,16 @@ __STANDALONE_ENGINE_DISPATCH__
     if(target?.band&&target.band!==neighborhood.band)return null;
     return {term:requested,label:typeof entry==="string"?entry:entry.label||entry.term||requested,hit:candidate,neighborhood};
   }
-  function triageHitSignals(hit,word,lexicon,axis=hit,includeNearby=true){
+  function triageHitSignals(hit,word,lexicon,axis=hit,includeNearby=true,researchContext={rows:[],requested:[]}){
     const extensions=lineExtensionCandidates(hit,word,lexicon,5),extensionTerms=new Set(extensions.map(row=>row.term));
     const scan=includeNearby?scanLineWords(lineContextCells(hit),word,8,32,lexicon):{words:[],truncated:false};
     const nearby=scan.words.filter(row=>!extensionTerms.has(row.term)).slice(0,3).map(row=>({term:row.term,label:row.label,lexiconSources:row.lexiconSources}));
-    const topicRows=focusedAxisTopicRows(lexicon,lexicon,word),sourceMatches=axisSourceContextMatches(hit,topicRows,24),sourceContexts=[...new Map(sourceMatches.map(match=>[match.term,{term:match.term,label:match.topic.label||match.topic.term||match.term,occurrenceCount:sourceMatches.filter(row=>row.term===match.term).length}])).values()];
+    const topicRows=focusedAxisTopicRows(lexicon,lexicon,word,researchContext.rows),sourceMatches=axisSourceContextMatches(hit,topicRows,24),sourceContexts=[...new Map(sourceMatches.map(match=>[match.term,{term:match.term,label:match.topic.label||match.topic.term||match.term,occurrenceCount:sourceMatches.filter(row=>row.term===match.term).length}])).values()];
+    const contextAxis={...hit,_structuralCells:new Set(hit.positions||[])},contextScan=researchContext.rows?.length
+      ?scanFocusedCoreCandidates(researchContext.rows,researchContext.rows,new Map(),contextAxis,{contextRows:researchContext.rows,maxCandidates:512,maxProbes:FOCUSED_CORE_PROBE_CAP})
+      :{candidates:[]},contextCoverage=researchContextCoverage(researchContext.requested,contextScan.candidates||[],true,false);
     const ordered=notable(Math.abs(hit.skip));
-    return {term:norm(word),targetable:Math.abs(Number(hit?.skip))>=2,extensions,nearby,sourceContexts,notable:ordered?ordered.tag:null,geometry:compactGeometryMeta(hit,axis),scanTruncated:scan.truncated};
+    return {term:norm(word),targetable:Math.abs(Number(hit?.skip))>=2,extensions,nearby,sourceContexts,contextCoverage,notable:ordered?ordered.tag:null,geometry:compactGeometryMeta(hit,axis),scanTruncated:scan.truncated};
   }
   function rankResultTriageItems(rows,kind){
     const extensionFrequency=new Map();
@@ -5336,7 +5363,10 @@ __STANDALONE_ENGINE_DISPATCH__
     const ranked=rows.map(row=>{
       const signals=row.signals||[],extensions=signals.flatMap(signal=>signal.extensions||[]),nearby=signals.flatMap(signal=>signal.nearby||[]);
       const sourceContexts=[...new Map(signals.flatMap(signal=>signal.sourceContexts||[]).map(context=>[context.term,context])).values()],sourceContextRepeat=Math.max(0,...sourceContexts.map(context=>sourceContextFrequency.get(context.term)||0)),maxGain=extensions.reduce((value,item)=>Math.max(value,Number(item.gain)||0),0),repeat=Math.max(0,...extensions.map(item=>extensionFrequency.get(item.term)||0));
+      const requestedContexts=[...new Map(signals.flatMap(signal=>signal.contextCoverage?.requested||[]).map(context=>[context.term,context])).values()],foundContexts=[...new Map(signals.flatMap(signal=>signal.contextCoverage?.found||[]).map(context=>[context.term,context])).values()],foundContextKeys=new Set(foundContexts.map(context=>context.term)),contextCoverage={contract:RESEARCH_CONTEXT_COVERAGE_CONTRACT,complete:true,verified:false,requested:requestedContexts,found:foundContexts,notSeenInFocusedRange:requestedContexts.filter(context=>!foundContextKeys.has(context.term)),truthPromotion:false};
       const notableSignals=signals.filter(signal=>signal.notable),compactSecondary=signals.slice(1).filter(signal=>signal.geometry?.compact),reasons=[];
+      if(foundContexts.length)reasons.push(`הקשר מבוקש שנראה בטווח: ${foundContexts.slice(0,4).map(context=>context.label||context.term).join(" · ")}`);
+      if(requestedContexts.length&&foundContexts.length===requestedContexts.length)reasons.push("כל מונחי ההקשר שנבחרו נראו בטווח הממוקד");
       if(sourceContexts.length)reasons.push(`פסוק מקור באותו הקשר: ${sourceContexts.slice(0,3).map(context=>context.label||context.term).join(" · ")}`);
       if(sourceContextRepeat>1)reasons.push(`אותו הקשר מופיע ב־${sourceContextRepeat} תוצאות`);
       if(maxGain){const best=extensions.find(item=>Number(item.gain)===maxGain);reasons.push(`המשך מדויק: ${best.label||best.term} · +${maxGain} אותיות`);}
@@ -5347,9 +5377,9 @@ __STANDALONE_ENGINE_DISPATCH__
       if(notableSignals.length)reasons.push(`דילוג ${notableSignals[0].notable}`);
       if(nearby.length)reasons.push(`${nearby.length} מילים נוספות על הציר`);
       if(!reasons.length)reasons.push("לא זוהה המשך מילוני בחלון; התוצאה נשארת זמינה");
-      const compactEvidence=sourceContexts.length>0||maxGain>0||compactSecondary.length>0,inspectionPriority=sourceContexts.length*1500+sourceContextRepeat*120+(compactEvidence?1000:0)+maxGain*12+extensions.length*5+(repeat>1?repeat*4:0)+compactSecondary.length*12+Math.min(nearby.length,3)*2+notableSignals.length*3+
+      const contextWeight=foundContexts.reduce((score,context)=>score+(context.required?2:1)+(context.mode==="exact_phrase"?1:0),0),compactEvidence=foundContexts.length>0||sourceContexts.length>0||maxGain>0||compactSecondary.length>0,inspectionPriority=contextWeight*5000+(requestedContexts.length&&foundContexts.length===requestedContexts.length?1500:0)+sourceContexts.length*1500+sourceContextRepeat*120+(compactEvidence?1000:0)+maxGain*12+extensions.length*5+(repeat>1?repeat*4:0)+compactSecondary.length*12+Math.min(nearby.length,3)*2+notableSignals.length*3+
         (kind==="cross"?(Number(row.stars)||0)*2+(Number(row.distance)===0?8:0):0);
-      return {...row,inspectionPriority,reasons,extensionCount:extensions.length,sourceContexts,compactEvidence,stage:compactEvidence?"A":"B"};
+      return {...row,inspectionPriority,reasons,extensionCount:extensions.length,sourceContexts,contextCoverage,compactEvidence,stage:compactEvidence?"A":"B"};
     }).sort((a,b)=>Number(b.compactEvidence)-Number(a.compactEvidence)||b.inspectionPriority-a.inspectionPriority||b.extensionCount-a.extensionCount||
       (kind==="cross"?(Number(b.stars)-Number(a.stars)||Number(a.distance)-Number(b.distance)):Number(a.skip)-Number(b.skip))||Number(a.order)-Number(b.order));
     return ranked.map((row,index)=>({...row,rank:index+1,tier:index<3&&row.inspectionPriority>0?"recommended":row.inspectionPriority>0?"inspect":"available"}));

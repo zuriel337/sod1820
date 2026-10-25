@@ -4,22 +4,30 @@ import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, projectElsAut
 
 const base = { expressions: "סוד החשמל\nאמת", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "2" };
 
-test("research brief turns a story into an editable deterministic target plan without persistence or AI", () => {
+test("research brief separates one primary axis from exact local context without persistence or AI", () => {
   const brief = prepareElsResearchBrief({
     text: "הספינה קולומביה עלתה באש. האש אכלה חלק מן הספינה בשנת תשעו. \"יום קולומביה\" הוזכר פעמיים. יום קולומביה חזר.",
-    requiredTerms: "קולומביה\nיוסף כהן",
+    anchorTerm: "קולומביה",
+    requiredTerms: "יכל אש\nיוסף כהן",
     scope: "tanakh",
   });
   assert.equal(brief.contract, "els_research_brief_v1");
+  assert.equal(brief.mode, "anchor-context");
   assert.equal(brief.scope, "tanakh");
   assert.equal(brief.persisted, false);
   assert.equal(brief.aiUsed, false);
   assert.equal(brief.truthPromotion, false);
-  const terms = new Map(brief.candidates.map(row => [row.canonicalTerm, row]));
-  assert.equal(terms.get("קולומביה").required, true);
+  assert.equal(brief.storyIsContextOnly, true);
+  assert.equal(brief.anchorCandidates.find(row => row.id === brief.recommendedAnchorId)?.canonicalTerm, "קולומביה");
+  const terms = new Map(brief.contextCandidates.map(row => [row.canonicalTerm, row]));
+  assert.equal(terms.get("יכלאש").required, true);
+  assert.equal(terms.get("יכלאש").mode, "exact_phrase");
+  assert.equal(terms.get("יכלאש").splitAllowed, true);
   assert.ok(terms.has("יוספכהנ"));
-  assert.ok(terms.has("כהניוספ"), "an explicitly supplied personal name gets a separately labelled reverse word order");
-  assert.ok(terms.has("האשאכלה"), "local story phrases become candidates without claiming a match");
+  assert.ok(!terms.has("יכל"), "a required phrase is not silently split into an independent search term");
+  assert.ok(!terms.has("אש"), "a required phrase keeps its exact identity until the user opts into splitting");
+  assert.ok(!terms.has("כהניוספ"), "reverse word order is an Advanced choice, not an automatic basic target");
+  assert.ok(terms.has("האשאכלה"), "local story phrases remain editable context without becoming an axis search");
   assert.ok(terms.has("תשעו"), "Hebrew year-shaped vocabulary stays explicit");
   assert.ok(brief.candidates.length <= 24);
   assert.equal(new Set(brief.candidates.map(row => row.canonicalTerm)).size, brief.candidates.length);
@@ -29,6 +37,14 @@ test("research brief fails visibly on empty, oversized or non-Hebrew context", (
   assert.ok(prepareElsResearchBrief({ text: "" }).error);
   assert.ok(prepareElsResearchBrief({ text: "x".repeat(6001) }).error);
   assert.ok(prepareElsResearchBrief({ text: "only latin words and 2026" }).error);
+  assert.match(prepareElsResearchBrief({ anchorTerm: "זהו ביטוי ארוך מאוד שאינו מתאים לציר בסיסי" }).error, /מתקדמות/);
+});
+
+test("a story can suggest an axis but never becomes a full-sentence search target", () => {
+  const brief = prepareElsResearchBrief({ text: "הספינה קולומביה עלתה באש ונשארה בלב ים" });
+  assert.ok(brief.anchorCandidates.some(row => row.canonicalTerm === "קולומביה"));
+  assert.ok(brief.anchorCandidates.every(row => row.canonicalTerm.length <= 12));
+  assert.ok(brief.candidates.every(row => row.canonicalTerm !== "הספינהקולומביהעלתהבאשונשארהבלבימ"));
 });
 
 test("automatic plan derives each expression once, explains every form and deduplicates canonical terms", () => {
