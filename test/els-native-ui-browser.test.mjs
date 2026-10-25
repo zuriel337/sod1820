@@ -1691,8 +1691,13 @@ async function privacyRecord(page, overrides = {}) {
   },overrides);
 }
 async function unsavedPrivacyAxis(page) {
+  // The real-host fixture intentionally has both the bootstrap and React host replay the initial
+  // Golden. Let both canonical requests settle before replacing that saved identity with an
+  // unsaved axis; otherwise a late bootstrap message can win the test race after the replacement.
+  await page.waitForFunction(()=>window.__log.filter(message=>message.type==='engine-request').length>=2
+    &&window.__hostLog.filter(message=>message.type==='engine-result').length>=2);
   await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item:{...item,id:null}},location.origin),golden);
-  await page.waitForFunction(()=>window.__state?.verification?.state==='MATCH'&&!window.__state?.provenance?.editId);
+  await page.waitForFunction(()=>window.__state?.verification?.state==='MATCH'&&!window.__state?.provenance?.editId,null,{polling:100,timeout:60000});
 }
 async function classicPrivacySave(page, overrides = null) {
   const before=await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='saved').length);
@@ -1751,8 +1756,12 @@ test('an opened personal cipher updates its exact saved record after findings ch
 test('a historical Torah-labelled record replays cross-boundary findings in Tanakh and exposes direct saved-record controls',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
  await withNative({width:390,height:844},async page=>{
-  const row={id:'legacy-hint',slug:'legacy-hint',title:'תורת הרמז',search_term:'תורת הרמז',scope:'torah',skip_distance:21940,direction:'down',start_index:null,corpus_id:null,
-    owner_user_id:'fixture-owner',visibility:'public',status:'published',self_published:true,description:'רשומת עבר',positions:{findings:[{t:'נשמהללוט',color:'#FF5D6C',sh:['21941_1_196825']}]}};
+  const row={id:'legacy-hint',slug:'legacy-hint',title:'תורת הרמז',search_term:'תורת הרמז',scope:'torah',skip_distance:21940,direction:'down',start_index:null,corpus_id:ELS_GOLDEN_CORPUS_ID,
+    owner_user_id:'fixture-owner',visibility:'public',status:'published',self_published:true,description:'רשומת עבר',positions:{findings:[
+      {t:'חשמל',color:'#2F9E5A',sh:['2_-1_87133']},
+      {t:'נשמהללוט',color:'#3B82D6',sh:['21941_1_196825']},
+      {t:'זרע',color:'#8B5CF6',sh:['1_1_196830','1_1_196826']},
+    ]}};
   await page.evaluate(value=>{window.__fixtureHoldVerification=true;window.__savedRows=[structuredClone(value)];window.__openSavedMatrix(value);},row);
   await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
   const savedLoader=page.locator('[data-els-saved-loading="true"]');
@@ -1763,7 +1772,11 @@ test('a historical Torah-labelled record replays cross-boundary findings in Tana
   assert.equal((await page.locator('body').textContent()).includes('עובדים על צופן שמור'),false);
   await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification();});
   await page.waitForFunction(()=>window.__state?.term==='תורתהרמז'&&window.__state?.scope==='tanakh'&&window.__state?.verification?.state==='MATCH',{timeout:60000});
-  await page.waitForFunction(()=>window.__state?.findings?.find(item=>item.t==='נשמהללוט')?.shown?.length>0,{timeout:60000});
+  await page.waitForFunction(()=>['חשמל','נשמהללוט','זרע'].every(term=>{const finding=window.__state?.findings?.find(item=>item.t===term);return finding?.shown?.length>0||finding?.sourceHits?.some(hit=>hit.shown);}),{timeout:60000});
+  const axisVerification=await page.evaluate(()=>window.__log.find(message=>message.type==='engine-request'&&message.op==='verify_batch'&&message.payload?.term==='תורתהרמז'));
+  assert.equal(axisVerification.payload.scope,'tanakh','the recovered evidence envelope is verified in its containing corpus');
+  assert.deepEqual(axisVerification.payload.candidates,[{skip:21940,dir:1,start:43250}],
+    'legacy saved replay verifies the known skip directly instead of discovering the term across Tanakh');
   await savedLoader.waitFor({state:'detached'});
   assert.equal(await page.locator('.els29-native-matrix').isVisible(),true);
   assert.equal(await button(page,'פתח שמירת שינויים').count(),1);

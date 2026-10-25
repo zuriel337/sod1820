@@ -121,6 +121,7 @@ test("axis-neighborhood discovery is explicit, bounded and independent of a cont
 test("focused core cold Goldens are rediscovered from the canonical corpus without saved-cipher vocabulary", () => {
   const corpus = readFileSync(new URL("../tools/els/data/tk-letters.txt", import.meta.url), "utf8").trim();
   const verses = readFileSync(new URL("../tools/els/data/tk-vtext.txt", import.meta.url), "utf8").trimEnd().split("\n");
+  let scopeLength = 304805;
   const hebrewNumber = (number) => {
     const units = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
     const tens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
@@ -138,7 +139,7 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     _corpusPhraseCache: { torah: null, tanakh: null },
     VCHAP: [[5846], [], [], [], []], TORAH_BOOKS: 5, HEBNUM: hebrewNumber,
     st: { scope: "torah", raw: "", words: [] },
-    CLOUD_MATRICES: [], scopeN: () => 304805, heb: String,
+    CLOUD_MATRICES: [], scopeN: () => scopeLength, heb: String,
     COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1",
     AXIS_NEIGHBORHOOD_CONTRACT: "els_axis_neighborhood_bundle_v1",
     gridStep: (skip, width) => { const rows = Math.round(skip / width);const columns = skip - rows * width;return Math.max(Math.abs(rows), Math.abs(columns)) || 1; },
@@ -158,8 +159,11 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     { label: "משיח טבת עשירי", skip: 1820, start: 15170, dir: 1, expected: ["יבואו", "אליהו", "ישלחמלאכו", "נשבעתינאמיהוה", "תשעו"] },
     { label: "יום משיח בא", skip: 583, start: 239480, dir: -1, expected: ["ישלח", "מלכ", "מחכיתשפו", "לכפרעליכמ", "הארחשכ", "שופר"] },
     { label: "קולומביה", skip: 4545, start: 248765, dir: 1, expected: ["יכלאש", "ספינת", "אשאכלה"] },
+    { label: "תורת הרמז", skip: 21940, start: 43250, dir: 1, scope: "tanakh", expected: ["נשמהללוט", "זרע", "חשמל"] },
   ];
   for (const golden of goldens) {
+    scopeLength = golden.scope === "tanakh" ? corpus.length : 304805;
+    context.st.scope = golden.scope === "tanakh" ? "tanakh" : "torah";
     context.st.raw = golden.label;
     const axisLength = vm.runInContext(`norm(${JSON.stringify(golden.label)}).length`, context);
     context.axis = { skip: golden.skip, start: golden.start, dir: golden.dir,
@@ -168,6 +172,12 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     vm.runInContext("this.result=scanFocusedCoreCandidates(researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true}),researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true}),_corpusPhraseCache.tanakh,axis);", context);
     const found = new Set(context.result.candidates.map((candidate) => vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context)));
     for (const term of golden.expected) assert.ok(found.has(term), `${golden.label} independently rediscovers ${term}`);
+    if (golden.label === "תורת הרמז") {
+      const stages = new Map(context.result.candidates.map(candidate => [vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context), candidate.focusStage]));
+      assert.equal(stages.get("חשמל"), "B", "bounded local gaps remain an explicit second-stage candidate");
+      assert.equal(stages.get("נשמהללוט"), "A");
+      assert.ok(context.result.probes < 8000, "the local-gap stage remains bounded around the axis rows and columns");
+    }
     assert.equal(context.result.box.rowPad, 12);
     assert.equal(context.result.box.colRadius, 12);
   }

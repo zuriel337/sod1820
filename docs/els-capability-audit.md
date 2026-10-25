@@ -1240,3 +1240,66 @@ Deterministic level-9 measurements against branch base `871cc9a0` are:
 | ELS 2029 route CSS, raw / gzip | 83,036 / 11,798 B | 83,657 / 11,905 B | +621 / +107 B |
 
 No Preview, Production, database, RLS, permission, merge or PR action was performed.
+
+## 26. SAVED EVIDENCE REPLAY + LOCAL GAP STAGE B — 2026-10-25
+
+The historical `תורת הרמז` record exposed two coupled defects. Its primary axis is stored as a
+Torah row with `skip=21940` and no `start_index`, while an explicit saved Finding continues past the
+Torah boundary. The compatibility adapter correctly chose Tanakh as the smallest containing replay
+scope, but the engine rejected the retained Torah corpus identity before it could verify that axis.
+After that rejection was removed, the old load path would still rediscover the complete term across
+Tanakh before trying the recorded skip.
+
+Saved loading now treats recorded coordinates as replay evidence. An exact saved axis verifies one
+candidate. A legacy saved skip enumerates that skip first, verifies the candidates canonically and
+accepts it directly only when one governed occurrence remains. Broad discovery is retained only for
+missing or ambiguous evidence. The sole legacy corpus exception requires all of: a stored Torah
+scope, a compatibility-selected Tanakh replay scope, explicit cross-boundary Finding coordinates
+and the canonical Torah corpus identity. The axis is then reverified in Tanakh. All other corpus
+mismatches continue to fail closed. No saved row is copied or mutated by replay.
+
+Focused discovery keeps Stage A unchanged (`1`, `S−1`, `S`, `S+1`) and adds a bounded Stage B whose
+local-gap paths (`2…8`) start within two axis rows and eight primary-axis columns and remain inside
+the fixed 12-row/12-column core. Stage B receives at most one reserved first-package admission slot
+and cannot outrank compact Stage A. This recovers a close `חשמל` path without restoring the
+unbounded displayed-window scan.
+
+The cold Golden inventory is now four axes: `משיח טבת עשירי`, `יום משיח בא`, `קולומביה` and
+`תורת הרמז`. The last independently rediscovers `נשמהללוט`, `זרע` and `חשמל` from the canonical
+corpus with `CLOUD_MATRICES=[]`; `חשמל` is explicitly Stage B and the total probe count is below
+8,000. Browser acceptance replays the actual legacy shape (`scope=torah`, real corpus ID, recorded
+skip, missing start) in Tanakh, verifies only the fixed primary candidate and restores all three
+Findings. `זרע` remains a literal source sequence rather than being promoted to ELS.
+
+The 85-capability disposition is unchanged: **76 LIVE/ABSORBED + 4 PARTIAL
+(B19/C04/C05/G02) + 4 PARKED (B12/B13/B14/B18) + 1 NEVER (B20) = 85**. This is a replay/performance
+closure of the existing save and focused-research capabilities. It adds no engine, state, store,
+graph, Provider, Journey, table, function, migration, RLS or permission change.
+
+Acceptance evidence:
+
+- non-browser ELS: **192 pass / 0 fail / 3 skip**; skipped tests require local PostgreSQL;
+- Native browser: **48/48**, including mobile, pinch, all palettes, privacy, exact return and Raziel;
+- canonical browser cutover: **26/26**; truth census: **9/9**; Advanced and FORMS: **1/1** each;
+- focused unit slice: **27 pass / 0 fail / 2 skip** when run with parity/verification contracts;
+- Legacy build and 2029 build passed; 2029 bundle budget passed **5/5** at **9 chunks / 174.2 KB gzip**;
+- public candidate-relation privacy gate passed.
+
+Performance evidence distinguishes engine work from browser overhead. The previous broad Tanakh
+rediscovery diagnostic took about **18.4 s** on this worker before the saved-skip fallback. Direct
+fixed-skip enumeration took about **35 ms** before canonical admission. The complete accepted mobile
+browser replay — startup, primary verification, three Finding reconstructions and rendering — took
+**6.08 s**. It issued one primary `verify_batch` candidate at `skip=21940`, direction `+1`,
+`start=43250`.
+
+Deterministic level-9 artifact measurements against branch base
+`24ede499b581246b97d035d6f7ac8727d0d9313a` are:
+
+| Artifact | Before raw / gzip | After raw / gzip | Delta raw / gzip |
+|---|---:|---:|---:|
+| hosted `tzofen.html` | 1,675,187 / 972,853 B | 1,677,735 / 973,744 B | +2,548 / +891 B |
+| Legacy standalone | 2,581,506 / 1,660,220 B | 2,584,054 / 1,661,120 B | +2,548 / +900 B |
+| ELS 2029 route JS | unchanged | unchanged | 0 / 0 B |
+
+Live Supabase evidence and ownership were read only. No Preview, Production, database data, RLS,
+permission, merge, PR or live-function action was performed.

@@ -209,3 +209,37 @@ Progress has separate `core`, `verify` and `sources` phases and remains cancella
 on profile entry. The slice adds no engine, store, graph, Provider, Journey, database object,
 permission or RLS change. B12/B13, numeric interpretation, Raziel and semantic explanation remain
 separate consumers after this structural base.
+
+## Saved Evidence Replay and Local Gap Stage B — 25.10.2026
+
+A saved matrix is replay evidence, not a request to rediscover its primary term across the complete
+corpus. The canonical load order is now:
+
+1. verify one recorded exact anchor when `start`, direction and skip are present;
+2. otherwise enumerate only the recorded skip and canonically verify those candidates;
+3. accept a legacy skip directly only when that verification has one governed occurrence;
+4. retain broad discovery solely as the ambiguity/missing-evidence fallback.
+
+Historical rows labelled `torah` may contain explicit saved Finding coordinates that continue into
+Joshua or Judges. Only the compatibility adapter may select Tanakh as their smallest containing
+replay scope. The stored Torah corpus identity is accepted in that one disclosed case, and the
+primary axis is then verified again against the containing canonical corpus. Every other corpus
+mismatch remains fail-closed. Replay does not mutate the saved row, infer a new coordinate or copy
+the matrix. Saved Finding identities are restored exactly; a contiguous `skip=1` occurrence remains
+a source sequence and is not relabelled as ELS.
+
+Focused Core Stage A remains the compact family `1`, `S−1`, `S` and `S+1`. A bounded Stage B now
+starts local gaps `2…8` only within two axis rows and eight columns of the primary column; every
+result must still remain inside the fixed 12-row/12-column core. Stage B cannot displace the compact
+ordering and receives at most one reserved admission seat in the first package. It exists to retain
+a nearby deliberate gap such as `חשמל` without reopening the old broad displayed-window scan.
+
+The cold Golden set now also includes `תורת הרמז` at `S=21940`. With saved-matrix vocabulary absent,
+the canonical corpus scan rediscovers `נשמהללוט` and `זרע` in Stage A and `חשמל` in bounded Stage B;
+the Stage B probe count must remain below 8,000. A saved historical replay must restore all three,
+including the source-sequence presentation of `זרע`, through one fixed-skip axis verification.
+
+This refinement adds no engine, state, store, graph, Provider, Journey, schema, data rewrite, RLS or
+permission change. It makes no semantic, statistical or Truth claim. Broader Hirsch material may be
+admitted later as cold Goldens only after each axis and Finding has independently replayable
+coordinates; it must never become runtime vocabulary or privileged ranking input.

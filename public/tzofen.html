@@ -2830,13 +2830,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"sources",completed:admitted.items.length,total:admitted.items.length}});
           const items=rankResearchCandidateItems(admitted.items.map(candidate=>{
             const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,focusedEntries);
-            return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,skip:candidate.skip,direction:candidate.direction,skipMeta:candidate.skipMeta,status:candidate.status,source:candidate.source,
+            return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,skip:candidate.skip,direction:candidate.direction,skipMeta:candidate.skipMeta,focusStage:candidate.focusStage,status:candidate.status,source:candidate.source,
               lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,geometry:candidate.geometry,neighborhood:candidate.neighborhood,classifications:[...(candidate.classifications||[])],
               continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
           }));
           const structural=buildStructuralGroups(admitted.items,structuralAxis,{maxDistance:12,minLength:3,maxLength:16,minMembers:2,maxGroups:6,maxMembers:8}),axisSuggestion=chooseAxisNeighborhoodSuggestion(admitted.items,structuralAxis);
           postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"VERIFIED",contract:FOCUSED_CORE_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"focused",provenanceSource:lexicon.contract,coverage:"focused-axis-core",
-            focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||12,directions:["1","S−1","S","S+1"]},verification:{attempted:admitted.attempted,verified:admitted.items.filter(item=>item.status==="VERIFIED").length,sourceExact:admitted.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:admitted.failed},
+            focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||12,directions:["1","S−1","S","S+1"],secondStage:{skips:"2–8",rowPad:2,colRadius:8}},verification:{attempted:admitted.attempted,verified:admitted.items.filter(item=>item.status==="VERIFIED").length,sourceExact:admitted.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:admitted.failed},
             lexicon:{contract:lexicon.contract,counts:lexicon.focusedCounts||lexicon.counts,fallback:lexicon.fallback,independentOfSavedResearch:true},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"focused_compact_band_then_distance_then_language_evidence"},
             items,total:items.length,scanned:focused.probes,available:admitted.available,truncated:admitted.truncated,
             structurePlan:structural.plan,groups:structural.groups,groupTotal:structural.groups.length,availableGroups:structural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
@@ -4132,6 +4132,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(skip===S)return {code:"AXIS_PARALLEL",label:"מקביל לציר · S",axisDelta:0};
     if(delta===-1)return {code:"AXIS_DIAGONAL_MINUS",label:"אלכסון צמוד · S−1",axisDelta:-1};
     if(delta===1)return {code:"AXIS_DIAGONAL_PLUS",label:"אלכסון צמוד · S+1",axisDelta:1};
+    if(skip>=2&&skip<=8)return {code:"LOCAL_GAP",label:`פער מקומי · דילוג ${heb(skip)}`,axisDelta:null};
     return {code:"OTHER",label:`דילוג ${heb(skip)}`,axisDelta:delta};
   }
   function focusedCandidateStrength(candidate){
@@ -4158,34 +4159,40 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const add=(map,row,min,max)=>{const term=norm(row.term||row.label);if(term.length<min||term.length>max||term===axisTerm)return;const current=map.get(term);if(!current||Number(row.support)>Number(current.support))map.set(term,{...row,term,label:row.label||row.term||term});};
     independentCandidateRows(entries).forEach(row=>add(termMap,row,3,24));
     independentCandidateRows(axisEntries).forEach(row=>add(wordMap,row,2,12));
-    const termLengths=[...new Set([...termMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),wordLengths=[...new Set([...wordMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),steps=[...new Set([1,S-1,S,S+1].filter(step=>step>0))],found=new Map();let probes=0;
+    const termLengths=[...new Set([...termMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),wordLengths=[...new Set([...wordMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),
+      coreSteps=[...new Set([1,S-1,S,S+1].filter(step=>step>0))],coreStepSet=new Set(coreSteps),localGapSteps=[2,3,4,5,6,7,8].filter(step=>!coreStepSet.has(step)),
+      axisRows=(axis.positions||[]).map(position=>Math.floor(position/S)),localR0=Math.max(r0,Math.min(...axisRows)-2),localR1=Math.min(r1,Math.max(...axisRows)+2),
+      localC0=Math.max(c0,mainSet.size?box.mainCol-8:c0),localC1=Math.min(c1,mainSet.size?box.mainCol+8:c1),found=new Map();let probes=0;
     const inBox=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return position>=0&&position<scopeN()&&row>=r0&&row<=r1&&column>=c0&&column<=c1;};
-    const consider=(row,positions,step,discoveryKind="direct")=>{
+    const consider=(row,positions,step,discoveryKind="direct",focusStage="A")=>{
       const term=norm(row.term||row.label);if(!term||term===axisTerm||positions.every(position=>mainSet.has(position)))return;
       const candidate={term:row.label||row.term||term,skip:Math.abs(step),dir:Math.sign(step),start:positions[0],positions,distance:distanceToAnchors(positions,anchors,S),lexiconSources:[...(row.sources||[])],lexiconSupport:Number(row.support)||1,classifications:[...(row.classifications||[])],discoveryKind},key=term,prior=found.get(key);
+      candidate.focusStage=focusStage;
       candidate.geometry=compactGeometryMeta(candidate,axis);candidate.neighborhood=axisNeighborhoodMeta(candidate,axis);
-      const kindPriority={direct:3,phrase:2,compound:1};
-      if(!prior||kindPriority[discoveryKind]>kindPriority[prior.discoveryKind]||kindPriority[discoveryKind]===kindPriority[prior.discoveryKind]&&(focusedCoreRankScore(candidate,axis)>focusedCoreRankScore(prior,axis)||focusedCoreRankScore(candidate,axis)===focusedCoreRankScore(prior,axis)&&candidate.distance<prior.distance))found.set(key,candidate);
+      const stagePriority={A:2,B:1},kindPriority={direct:3,phrase:2,compound:1};
+      if(!prior||stagePriority[focusStage]>stagePriority[prior.focusStage]||stagePriority[focusStage]===stagePriority[prior.focusStage]&&(kindPriority[discoveryKind]>kindPriority[prior.discoveryKind]||kindPriority[discoveryKind]===kindPriority[prior.discoveryKind]&&(focusedCoreRankScore(candidate,axis)>focusedCoreRankScore(prior,axis)||focusedCoreRankScore(candidate,axis)===focusedCoreRankScore(prior,axis)&&candidate.distance<prior.distance)))found.set(key,candidate);
     };
     for(let row=r0;row<=r1;row++)for(let column=c0;column<=c1;column++){
       const origin=row*S+column;if(origin<0||origin>=scopeN())continue;
+      const steps=row>=localR0&&row<=localR1&&column>=localC0&&column<=localC1?[...coreSteps,...localGapSteps]:coreSteps;
       for(const magnitude of steps)for(const direction of [1,-1]){
         const step=magnitude*direction,positions=[],letters=[];
         for(let index=0;index<24;index++){const position=origin+index*step;if(!inBox(position))break;positions.push(position);letters.push(T[position]);}
         const sequence=letters.join("");if(sequence.length<2)continue;probes++;
-        for(const length of termLengths){if(length>sequence.length)break;const term=sequence.slice(0,length),rowEntry=termMap.get(term);if(rowEntry)consider(rowEntry,positions.slice(0,length),step,"direct");}
-        for(let length=4;length<=sequence.length;length++){const term=sequence.slice(0,length),code=phraseIndex instanceof Map?phraseIndex.get(term):undefined;if(code===undefined)continue;const phrase=focusedPhraseRow(term,code);if(phrase)consider(phrase,positions.slice(0,length),step,"phrase");}
+        const focusStage=localGapSteps.includes(magnitude)?"B":"A";
+        for(const length of termLengths){if(length>sequence.length)break;const term=sequence.slice(0,length),rowEntry=termMap.get(term);if(rowEntry)consider(rowEntry,positions.slice(0,length),step,"direct",focusStage);}
+        for(let length=4;length<=sequence.length;length++){const term=sequence.slice(0,length),code=phraseIndex instanceof Map?phraseIndex.get(term):undefined;if(code===undefined)continue;const phrase=focusedPhraseRow(term,code);if(phrase)consider(phrase,positions.slice(0,length),step,"phrase",focusStage);}
         for(const firstLength of wordLengths){if(firstLength>=sequence.length)break;const first=wordMap.get(sequence.slice(0,firstLength));if(!first)continue;
           for(const secondLength of wordLengths){const total=firstLength+secondLength;if(total>16||total>sequence.length)break;const second=wordMap.get(sequence.slice(firstLength,total));if(!second)continue;
             const term=sequence.slice(0,total),sources=[...new Set([...(first.sources||[]),...(second.sources||[]),"local_exact_compound"])],support=(Number(first.support)||1)+(Number(second.support)||1);
             const parts=[first,second].map(part=>({term:part.term,label:part.label,sources:[...(part.sources||[])],support:Number(part.support)||1,classifications:[...(part.classifications||[])]}));
-            consider({term,label:`${first.label||first.term} ${second.label||second.term}`,sources,support,classifications:[{kind:"local-exact-compound",value:2,label:"שתי מילים צמודות שנמצאו על אותו נתיב",parts}]},positions.slice(0,total),step,"compound");
+            consider({term,label:`${first.label||first.term} ${second.label||second.term}`,sources,support,classifications:[{kind:"local-exact-compound",value:2,label:"שתי מילים צמודות שנמצאו על אותו נתיב",parts}]},positions.slice(0,total),step,"compound",focusStage);
           }
         }
       }
     }
     const candidates=[...found.values()].map(candidate=>({...candidate,skipMeta:focusedCoreSkipMeta(candidate,axis)}))
-      .filter(candidate=>candidate.geometry?.compact&&candidate.distance<=12)
+      .filter(candidate=>(candidate.geometry?.compact||candidate.focusStage==="B")&&candidate.distance<=12)
       .sort((a,b)=>focusedCoreRankScore(b,axis)-focusedCoreRankScore(a,axis)||a.distance-b.distance||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
     return {box,candidates,probes};
   }
@@ -4200,11 +4207,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     // A focused package is deliberately mixed: source, governed/core language, years and
     // morphology each get bounded seats. This prevents a single dense verse row from consuming
     // every verification slot while preserving the global evidence ranking inside each lane.
-    add(candidate=>candidate.discoveryKind==="phrase"&&Math.abs(candidate.skip)===1,3);
+    add(candidate=>candidate.discoveryKind==="phrase"&&Math.abs(candidate.skip)===1,2);
     add(candidate=>candidate.discoveryKind==="direct"&&(candidate.lexiconSources||[]).includes("governed_core"),2);
     add(candidate=>candidate.discoveryKind==="direct"&&kinds(candidate).has("hebrew-year"),1);
     add(candidate=>candidate.discoveryKind==="direct"&&kinds(candidate).has("corpus-morphology"),1);
     add(candidate=>candidate.discoveryKind==="direct"&&(candidate.lexiconSources||[]).includes("corpus_native"),2);
+    add(candidate=>candidate.focusStage==="B",1);
     add(candidate=>candidate.discoveryKind==="compound"&&compoundKinds(candidate).has("hebrew-year"),1);
     add(candidate=>candidate.discoveryKind==="compound"&&compoundKinds(candidate).has("corpus-morphology"),1);
     add(candidate=>candidate.discoveryKind==="compound",1);
@@ -4482,20 +4490,34 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     //    אם-צריך) בדיוק כמו run() — לא עוד sync-Tanakh נקודתי שעוקף את ה-Worker pool. תורה נשארת
     //    סינכרונית (מהירה ממילא). אותו findAll קנוני, אותו D4/Pass-1, אין מנוע שני.
     const exact=Number.isInteger(item.start)&&item.start>=0&&[1,-1].includes(item.dir)&&Number.isInteger(item.skip)&&item.skip>=2;
-    // Exact saved occurrences use the SAME canonical verifier. A capped
-    // discovery list must never substitute a different occurrence of the word.
-    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]){if(failResearch("corpus-mismatch"))return;st.res=null;postHost({type:"load-error",term:item.term,reason:"corpus-mismatch"});render();return;}
+    // Historical Torah rows can contain explicit saved finding coordinates that continue into
+    // Joshua/Judges. The host has already selected the smallest containing replay scope (Tanakh),
+    // while corpusId still truthfully names the stored Torah-axis corpus. This one compatibility
+    // case is admitted only after the same axis is verified again in the containing corpus; every
+    // other corpus mismatch remains fail-closed.
+    const recoveredCorpus=!!(item.legacyScopeRecovered&&item.storedScope==="torah"&&st.scope==="tanakh"&&item.corpusId===CORPUS_ID.torah);
+    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]&&!recoveredCorpus){if(failResearch("corpus-mismatch"))return;st.res=null;postHost({type:"load-error",term:item.term,reason:"corpus-mismatch"});render();return;}
     const t=norm(item.term);
     const anchor=exact?{skip:item.skip,dir:item.dir,start:item.start,positions:Array.from(t,(_,k)=>item.start+k*item.skip*item.dir)}:null;
-    const discovered=await discoverVerified(item.term,4000,null,anchor);
+    let discovered=null,fixedReplay=null;
+    // S0 REPLAY_AND_SOURCE: a saved coordinate or saved skip is evidence to replay, not a reason
+    // to rediscover the term over the complete corpus. Exact rows verify one anchor. Legacy rows
+    // first enumerate only their recorded skip; a unique governed result is the exact replay.
+    // Ambiguous/missing legacy skips retain the historical broad-discovery fallback below.
+    if(anchor)discovered=await promoteVerified({t,hits:[anchor],capped:false,strategy:{policy:"SAVED_EXACT_REPLAY_V1"}},st.scope,null);
+    else if(Number.isInteger(item.skip)&&item.skip>=2){
+      const fixed=fixedSkipCandidates(item.term,item.skip),directed=[1,-1].includes(item.dir)?fixed.filter(hit=>hit.dir===item.dir):fixed;
+      if(directed.length){fixedReplay=await promoteVerified({t,hits:directed,capped:false,strategy:{policy:"SAVED_SKIP_REPLAY_V1"}},st.scope,null);
+        const governed=fixedReplay.hits.filter(isGov);if(fixedReplay.verr||governed.length===1)discovered=fixedReplay;}
+    }
+    if(!discovered)discovered=await discoverVerified(item.term,4000,null,anchor);
     if(requestSeq!==_matrixRequestSeq)return;
     if(prior&&!discovered.hits.some(h=>isGov(h)&&h.skip===item.skip&&h.dir===item.dir&&h.start===item.start)){
       failResearch("anchor-not-found");return;
     }
     if(prior){st.editId=null;st.editTerm="";}
     if(!exact&&Number.isInteger(item.skip)&&item.skip>=2&&!discovered.hits.some(h=>isGov(h)&&Math.abs(h.skip)===item.skip)){
-      const candidates=fixedSkipCandidates(item.term,item.skip);
-      const targeted=await promoteVerified({t,hits:candidates,capped:false,strategy:{policy:"SAVED_SKIP_REPLAY_V1"}},st.scope,null);
+      const targeted=fixedReplay||await promoteVerified({t,hits:fixedSkipCandidates(item.term,item.skip),capped:false,strategy:{policy:"SAVED_SKIP_REPLAY_V1"}},st.scope,null);
       if(requestSeq!==_matrixRequestSeq)return;
       const found=targeted.hits.filter(isGov);
       if(!found.length){st.res=null;postHost({type:"load-error",term:item.term,reason:"saved-skip-not-found"});render();return;}

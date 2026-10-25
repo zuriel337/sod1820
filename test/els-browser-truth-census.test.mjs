@@ -42,8 +42,9 @@ test('every st.res assignment is census-classified (verified-eager, cache-verifi
   assert.equal(found.length, 15, 'st.res assignment census changed - classify the new site');
   const regular=code.slice(code.indexOf('const [sample,page]=await Promise.all([discoverVerified(w'),code.indexOf('logSearch("regular",w)'));
   assert.match(regular,/if\(requestSeq!==_matrixRequestSeq\)return;\s*const discovered=mergeOrderedHits\(sample,page\);/);
-  const restore=code.slice(code.indexOf('const discovered=await discoverVerified(item.term'),code.indexOf('let idx=-1;',code.indexOf('const discovered=await discoverVerified(item.term')));
-  assert.match(restore,/await promoteVerified\(/,'targeted legacy skip still uses canonical admission');
+  const restoreStart=code.indexOf('async function loadMatrix(item,filmTimes)');
+  const restore=code.slice(restoreStart,code.indexOf('let idx=-1;',restoreStart));
+  assert.match(restore,/fixedReplay=await promoteVerified\(/,'saved-skip replay still uses canonical admission');
   const guarded=restore.slice(restore.lastIndexOf('if(requestSeq!==_matrixRequestSeq)return;'));
   assert.ok(guarded.includes('st.res=discovered;'));
   assert.doesNotMatch(guarded,/\bawait\b/,'no async gap after final restore epoch check');
