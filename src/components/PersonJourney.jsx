@@ -782,9 +782,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   }
 
   const activeView = variant === "2029" ? lifeJourneyViewFromContext(research.context, selfRef) : "person";
-  const selectedName = clean(research.context?.selection?.expression);
   const selectedMemberRef = clean(research.context?.dimensions?.lifeJourneyMemberRef);
   const selectedMember = members.find(member => member.source_ref === selectedMemberRef) || null;
+  const selectedName = clean(selectedMember?.name);
   const selectedMemberMeta = metaObject(selectedMember?.meta);
   const selectedProfile = selectedMember ? {
     name: selectedName || clean(selectedMember.name),

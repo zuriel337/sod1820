@@ -269,11 +269,11 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");
     assert.equal(decodeURIComponent(page.url()).includes("ילד בדיקה"), false, "private family name never enters the Finding URL");
     const findingContext = await page.evaluate(() => window.__lifeJourneyContext);
-    assert.equal(findingContext.selection.findingId, "finding-date-cross-73");
+    assert.match(findingContext.selection.findingId, /^life-journey-finding:[a-z0-9]+$/);
     assert.equal(findingContext.selection.focusKind, "life_journey_date_cross");
     assert.equal(findingContext.returnTo.subject.id, firstRef);
     assert.equal(findingContext.dimensions.journey2029Kind, "person_life");
-    assert.equal(findingContext.journey.pendingSteps.at(-1).selection.findingId, "finding-date-cross-73");
+    assert.equal(findingContext.journey.pendingSteps.at(-1).selection.findingId, findingContext.selection.findingId);
     await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
     assert.equal(new URL(page.url()).pathname, "/2029/journey");
@@ -306,7 +306,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");
     assert.equal(decodeURIComponent(page.url()).includes("הורה בדיקה"), false);
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.selection?.focusKind), "life_journey_gematria");
-    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.selection?.findingId), "finding-gematria-ragil-73");
+    assert.match(await page.evaluate(() => window.__lifeJourneyContext?.selection?.findingId), /^life-journey-finding:[a-z0-9]+$/);
     await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
     await page.getByRole("button", { name: "פתח מסע שם" }).click();
@@ -335,7 +335,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByRole("button", { name: "פתח את ממצא 73" }).click();
     await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");
-    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.selection?.findingId), "finding-date-cross-73");
+    assert.match(await page.evaluate(() => window.__lifeJourneyContext?.selection?.findingId), /^life-journey-finding:[a-z0-9]+$/);
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.returnTo?.subject?.id), firstRef);
     await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
@@ -371,6 +371,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
       ledger: JSON.parse(localStorage.getItem("life-journey-ledger-fixture:owner")),
       hintReads: window.__hintReads,
       storageValues: Object.values(localStorage),
+      context: window.__lifeJourneyContext,
+      contextStorage: Object.entries(sessionStorage).filter(([key]) => key.startsWith("life-journey-context-fixture:")),
     }));
     assert.equal(JSON.stringify(privacy.telemetry).includes("הורה בדיקה"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("ילד בדיקה"), false);
@@ -383,6 +385,10 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.birth_place, "יישוב בדיקה");
     assert.ok(privacy.hintReads.every(call => call.options?.fallbackLocal === false));
     assert.equal(privacy.storageValues.some(value => String(value).includes(invitationToken)), false);
+    for (const privateValue of ["הורה בדיקה", "ילד בדיקה", "1990-02-15", "2020-03-04", "עיר בדיקה", "יישוב בדיקה"]) {
+      assert.equal(JSON.stringify(privacy.context).includes(privateValue), false, `Research Context excludes ${privateValue}`);
+      assert.equal(JSON.stringify(privacy.contextStorage).includes(privateValue), false, `stored Research Context excludes ${privateValue}`);
+    }
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("הורה בדיקה") || decodeURIComponent(url).includes("ילד בדיקה")), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("עיר בדיקה") || decodeURIComponent(url).includes("יישוב בדיקה")), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes(invitationToken)), false);

@@ -1,13 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { mergeResearchContext, normalizeResearchContext } from "./researchContext.js";
-import { continueResearchPathContext } from "./researchPathRuntime.js";
+import {
+  buildResearchPathRepresentation,
+  contextFromResearchPathSnapshot,
+  continueResearchPathContext,
+} from "./researchPathRuntime.js";
 import {
   LIFE_JOURNEY_2029_HREF,
   buildLifeJourneyCapabilityPatch,
   buildLifeJourneyExactReturnPatch,
   buildLifeJourneyFindingTraversalPatch,
   buildLifeJourneyPersonContext,
+  lifeJourneyPrivateFindingRef,
   lifeJourneyViewFromContext,
 } from "./lifeJourneyPersonContext.js";
 
@@ -38,16 +43,52 @@ test("an explicit Name Journey keeps private input in Context and exact-returns 
   }).context;
 
   assert.equal(lifeJourneyViewFromContext(started, PERSON_REF), "name");
-  assert.equal(started.selection.expression, "שם בדיקה");
+  assert.equal(started.selection.expression, null);
   assert.equal(started.subject.href, LIFE_JOURNEY_2029_HREF);
   assert.equal(started.returnTo.href, LIFE_JOURNEY_2029_HREF);
   assert.equal(JSON.stringify([started.subject.href, started.returnTo.href]).includes("שם בדיקה"), false);
+  assert.equal(JSON.stringify(started).includes("שם בדיקה"), false);
 
   const restored = mergeResearchContext(started, buildLifeJourneyExactReturnPatch(started));
   assert.equal(lifeJourneyViewFromContext(restored, PERSON_REF), "person");
   assert.equal(restored.subject.id, PERSON_REF);
   assert.equal(restored.returnTo, null);
   assert.equal(restored.journey.kind, "research_path");
+});
+
+test("Life Journey save/resume projection is reference-only and restores the selected member", () => {
+  const person = buildLifeJourneyPersonContext(PERSON_REF);
+  const name = buildLifeJourneyCapabilityPatch(person, {
+    personRef: PERSON_REF,
+    memberRef: MEMBER_REF,
+    name: "שם בדיקה פרטי",
+    view: "name",
+  });
+  const active = continueResearchPathContext(name, {
+    kind: "person_life",
+    surface: "life_journey_2029",
+    href: LIFE_JOURNEY_2029_HREF,
+  }).context;
+  const representation = buildResearchPathRepresentation(active, {
+    href: LIFE_JOURNEY_2029_HREF,
+    label: "מסע חיים פרטי",
+    surface: "journey",
+  });
+
+  assert.equal(JSON.stringify(representation).includes("שם בדיקה פרטי"), false);
+  assert.equal(representation.context.dimensions.lifeJourneyMemberRef, MEMBER_REF);
+
+  const restored = contextFromResearchPathSnapshot({
+    ok: true,
+    path_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    revision_id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    revision_no: 1,
+    representation,
+    steps: [],
+  });
+  assert.equal(restored.dimensions.lifeJourneyMemberRef, MEMBER_REF);
+  assert.equal(lifeJourneyViewFromContext(restored, PERSON_REF), "name");
+  assert.equal(JSON.stringify(restored).includes("שם בדיקה פרטי"), false);
 });
 
 test("ELS stays parked outside the active Person journey", () => {
@@ -75,7 +116,7 @@ test("an explicit date-cross Finding opens the canonical Number page and exact-r
   });
 
   assert.equal(finding.subject.href, "/2029/number/73");
-  assert.equal(finding.selection.findingId, findingId);
+  assert.equal(finding.selection.findingId, lifeJourneyPrivateFindingRef(findingId));
   assert.equal(finding.selection.resultValue, 73);
   assert.equal(finding.selection.focusKind, "life_journey_date_cross");
   assert.equal(finding.dimensions.lifeJourneyMemberRef, MEMBER_REF);
@@ -93,7 +134,7 @@ test("an explicit date-cross Finding opens the canonical Number page and exact-r
   assert.equal(started.dimensions.journey2029Kind, "person_life");
   assert.equal(started.journey.pendingSteps.length, 2);
   assert.equal(started.journey.pendingSteps[0].entity_ref, PERSON_REF);
-  assert.equal(started.journey.pendingSteps[1].selection.findingId, findingId);
+  assert.equal(started.journey.pendingSteps[1].selection.findingId, lifeJourneyPrivateFindingRef(findingId));
 
   const restored = mergeResearchContext(started, buildLifeJourneyExactReturnPatch(started));
   assert.equal(lifeJourneyViewFromContext(restored, PERSON_REF), "person");
@@ -123,7 +164,7 @@ test("a canonical name Finding opens Number without putting the private name in 
 
   assert.equal(finding.subject.href, "/2029/number/337");
   assert.equal(finding.subject.href.includes("שם"), false);
-  assert.equal(finding.selection.findingId, findingId);
+  assert.equal(finding.selection.findingId, lifeJourneyPrivateFindingRef(findingId));
   assert.equal(finding.selection.focusKind, "life_journey_gematria");
   assert.equal(finding.returnTo.subject.id, PERSON_REF);
 

@@ -1,10 +1,16 @@
 import { buildExactReturnPatch, normalizeResearchContext } from "./researchContext.js";
+import { stableIdentityDigest } from "./researchRepresentations.js";
 
 export const LIFE_JOURNEY_2029_HREF = "/2029/journey";
 export const LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT = "life_journey_person_context_v1";
 
 const VIEWS = new Set(["person", "name", "date", "finding"]);
 const clean = value => String(value || "").trim();
+
+export function lifeJourneyPrivateFindingRef(findingId) {
+  const id = clean(findingId);
+  return id ? `life-journey-finding:${stableIdentityDigest(id)}` : null;
+}
 
 function isLifeJourneyMemberRef(personRef, value) {
   const ref = clean(value);
@@ -96,7 +102,6 @@ export function buildLifeJourneyCapabilityPatch(context, { personRef, memberRef,
     selection: {
       entityId: selectedRef,
       entityType: "person",
-      expression,
       focusKind: view === "date" ? "identity_review" : "expression",
     },
     lens: subjectType,
@@ -206,6 +211,7 @@ export function buildLifeJourneyFindingTraversalPatch(context, {
   const rootRef = clean(personRef);
   const selectedRef = clean(memberRef);
   const exactFindingId = clean(findingId);
+  const privateFindingRef = lifeJourneyPrivateFindingRef(exactFindingId);
   if ((typeof value !== "number" && typeof value !== "string")
     || (typeof value === "string" && !value.trim())) return null;
   const number = Number(value);
@@ -213,7 +219,7 @@ export function buildLifeJourneyFindingTraversalPatch(context, {
   const resolvedFocusKind = clean(focusKind)
     || (view === "name" ? "life_journey_gematria" : "life_journey_date_cross");
   if (!safe || !rootRef || !isLifeJourneyMemberRef(rootRef, selectedRef)
-    || !exactFindingId || !Number.isSafeInteger(number) || number < 0
+    || !privateFindingRef || !Number.isSafeInteger(number) || number < 0
     || !["person", "name", "date"].includes(view)
     || !["life_journey_date_cross", "life_journey_gematria"].includes(resolvedFocusKind)) return null;
 
@@ -226,7 +232,7 @@ export function buildLifeJourneyFindingTraversalPatch(context, {
     selection: {
       entityId: String(number),
       entityType: "number",
-      findingId: exactFindingId,
+      findingId: privateFindingRef,
       sourceRef: clean(sourceRef),
       versionRef: clean(versionRef),
       resultValue: number,
