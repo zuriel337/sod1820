@@ -255,6 +255,69 @@
 .person-journey-account-continuity small,.person-journey-account-continuity>header>span,.person-journey-account-continuity p,.person-journey-account-continuity li{color:var(--pj-soft);font-size:12px;line-height:1.7}
 .person-journey-account-continuity p{margin:0}
 .person-journey-account-continuity ul{display:grid;gap:4px;margin:0;padding-inline-start:20px}
+.person-journey-claim-state,.person-journey-claim-notice{
+  border:1px dashed var(--pj-line);
+  border-radius:14px;
+  padding:12px 14px;
+  color:var(--pj-soft);
+  font-size:12px;
+  line-height:1.7;
+}
+.person-journey-claim-notice[data-state="success"]{border-style:solid;border-color:color-mix(in srgb,var(--pj-accent) 42%,var(--pj-line));color:var(--pj-ink)}
+.person-journey-claim-notice[data-state="error"]{border-style:solid;color:var(--pj-ink)}
+.person-journey-claim-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.person-journey-claim-list>article{
+  display:grid;
+  align-content:start;
+  gap:10px;
+  min-width:0;
+  border:1px solid var(--pj-line);
+  border-radius:16px;
+  padding:13px;
+  background:color-mix(in srgb,var(--pj-panel) 74%,transparent);
+}
+.person-journey-claim-list header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.person-journey-claim-list header>div{display:grid;gap:2px;min-width:0}
+.person-journey-claim-list header strong{overflow-wrap:anywhere}
+.person-journey-claim-list header small,.person-journey-claim-list>article>p{color:var(--pj-soft);font-size:12px;line-height:1.6}
+.person-journey-claim-list header>span{
+  flex:none;
+  border:1px solid var(--pj-line);
+  border-radius:999px;
+  padding:5px 8px;
+  color:var(--pj-soft);
+  font-size:11px;
+}
+.person-journey-claim-list header>span[data-status="approved"]{border-color:color-mix(in srgb,var(--pj-accent) 55%,var(--pj-line));color:var(--pj-gold)}
+.person-journey-claim-list>article>p{margin:0}
+.person-journey-claim-list footer{display:flex;gap:7px;flex-wrap:wrap}
+.person-journey-claim-list footer button{min-height:38px;padding:7px 11px;font-size:12px}
+.person-journey-invitation-token{display:grid;gap:8px;border-block:1px solid var(--pj-line);padding-block:10px}
+.person-journey-invitation-token small{color:var(--pj-soft);font-size:11px}
+.person-journey-invitation-token code{
+  max-width:100%;
+  overflow-wrap:anywhere;
+  direction:ltr;
+  unicode-bidi:isolate;
+  color:var(--pj-gold);
+  font-size:12px;
+  line-height:1.7;
+}
+.person-journey-invitation-token button{justify-self:start;min-height:36px;padding:7px 11px;font-size:12px}
+.person-journey-claim-redeem{
+  display:grid;
+  grid-template-columns:minmax(180px,.8fr) minmax(220px,1fr) auto;
+  align-items:end;
+  gap:10px;
+  border-top:1px solid var(--pj-line);
+  padding-top:14px;
+}
+.person-journey-claim-redeem>div{display:grid;gap:3px;align-self:center}
+.person-journey-claim-redeem small{color:var(--pj-soft);font-size:11px;line-height:1.5}
+.person-journey-claim-redeem button{min-height:48px}
+.person-journey-claim-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.person-journey-claim-tools button{min-height:36px;padding:7px 11px;font-size:12px}
+.person-journey-claim-tools small{color:var(--pj-soft);font-size:11px;line-height:1.6}
 .person-journey-birth-timeline{
   display:grid;
   gap:14px;
@@ -499,6 +562,8 @@
   .person-journey-fields,.person-journey-family-form{grid-template-columns:1fr}
   .person-journey-family-scope>div{grid-template-columns:repeat(2,minmax(0,1fr))}
   .person-journey-family-research-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .person-journey-claim-redeem{grid-template-columns:1fr 1fr}
+  .person-journey-claim-redeem>div{grid-column:1/-1}
   .person-journey-fact-grid,.person-journey-family-list{grid-template-columns:repeat(2,minmax(0,1fr))}
   .person-journey-layer-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
@@ -508,6 +573,7 @@
   .person-journey-fact-grid,.person-journey-family-list{grid-template-columns:1fr}
   .person-journey-family-scope>div{grid-template-columns:1fr}
   .person-journey-family-research-grid{grid-template-columns:1fr}
+  .person-journey-claim-list,.person-journey-claim-redeem{grid-template-columns:1fr}
   .person-journey-capability-summary,.person-journey-step-list,.person-journey-layer-list{grid-template-columns:1fr}
   .person-journey-capability-nav,.person-journey-hint-list article{align-items:stretch;flex-direction:column}
   .person-journey-family-scope footer{align-items:stretch;flex-direction:column}

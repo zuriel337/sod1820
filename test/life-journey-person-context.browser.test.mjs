@@ -20,7 +20,11 @@ const available = Boolean(playwright && vite && reactPlugin && existsSync(execut
 
 function lifeJourneyFixturePlugin() {
   const modules = new Map([
-    ["virtual:life-journey-auth.jsx", `const state={user:{id:"fixture-owner"},loading:false};export const useAuth=()=>state;`],
+    ["virtual:life-journey-auth.jsx", `
+      const account=localStorage.getItem("life-journey-account-fixture")==="claimant"?"claimant":"owner";
+      const state={user:{id:account==="claimant"?"fixture-claimant":"fixture-owner"},loading:false};
+      export const useAuth=()=>state;
+    `],
     ["virtual:life-journey-tracking.js", `window.__telemetry=window.__telemetry||[];export const track=(...args)=>window.__telemetry.push(args);`],
     ["virtual:life-journey-personal-date.js", `
       window.__dateCalls=window.__dateCalls||[];
@@ -34,11 +38,14 @@ function lifeJourneyFixturePlugin() {
       export async function getMyHints(user,options){window.__hintReads.push({user,options});return [{id:"hint-1",hint_type:"idea",number:73,title:"רמז קיים",source_url:"https://example.test/source"}];}
     `],
     ["virtual:life-journey-supabase.js", `
-      const PERSON_ID="11111111-1111-4111-8111-111111111111";
-      const LEDGER_KEY="life-journey-ledger-fixture";
+      const OWNER_PERSON_ID="11111111-1111-4111-8111-111111111111";
+      const CLAIMANT_PERSON_ID="22222222-2222-4222-8222-222222222222";
+      const account=()=>localStorage.getItem("life-journey-account-fixture")==="claimant"?"claimant":"owner";
+      const personId=()=>account()==="claimant"?CLAIMANT_PERSON_ID:OWNER_PERSON_ID;
+      const ledgerKey=()=>"life-journey-ledger-fixture:"+account();
       const blank=()=>({members:[],relations:[]});
-      const read=()=>{try{return JSON.parse(localStorage.getItem(LEDGER_KEY)||"null")||blank();}catch{return blank();}};
-      const write=value=>localStorage.setItem(LEDGER_KEY,JSON.stringify(value));
+      const read=()=>{try{return JSON.parse(localStorage.getItem(ledgerKey())||"null")||blank();}catch{return blank();}};
+      const write=value=>localStorage.setItem(ledgerKey(),JSON.stringify(value));
       window.__elsCalls=window.__elsCalls||[];window.__nameCalls=window.__nameCalls||[];
       export const supabase={functions:{async invoke(name,{body}){
         window.__elsCalls.push({name,body});
@@ -46,7 +53,7 @@ function lifeJourneyFixturePlugin() {
         if(body.op==="verify")return {data:{result:{contract:"els_occurrence_replay_v1",status:"OK",verification_state:"MATCH",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},occurrence:{occurrence_id:"els:fixture-torah:"+body.term+":"+body.skip+":"+body.dir+":"+body.start,skip:body.skip,dir:body.dir,start:body.start,positions:[body.start]}}}};
         return {error:{message:"unsupported"}};
       }}};
-      export async function getOrCreateMyPersonId(){return PERSON_ID;}
+      export async function getOrCreateMyPersonId(){return personId();}
       export async function listFamily(){return read();}
       export async function upsertSelfProfile(personId,name,meta){const data=read(),source_ref="person:"+personId+":self";const row={source_ref,name,meta};const index=data.members.findIndex(item=>item.source_ref===source_ref);if(index<0)data.members.push(row);else data.members[index]=row;write(data);return row;}
       export async function upsertFamilyMember(personId,sourceRef,name,meta){const data=read();const ref=sourceRef||"person:"+personId+":p:fixture-"+(data.members.filter(item=>item.source_ref.includes(":p:")).length+1);const row={source_ref:ref,name,meta};const index=data.members.findIndex(item=>item.source_ref===ref);if(index<0)data.members.push(row);else data.members[index]=row;write(data);return row;}
@@ -54,15 +61,43 @@ function lifeJourneyFixturePlugin() {
       export async function getNameMulti(name,options){window.__nameCalls.push({kind:"multi",name,options});return {input:{components:{values:{full:73,parts:{שם:73}}}},combo:{tracks_with_results:1}};}
       export async function getNameProtocol(name){window.__nameCalls.push({kind:"protocol",name});return {research_id:"fixture-name",input:{normalized:name,value:73},agents:[{output_key:"gematria",ran:true,ok:true,empty:false,ms:1,seq:1}],findings:{gematria:{regular:73}},provenance:{gematria:{fn:"fixture"}},scores:{depth:42},metatron:{headline:"סיכום בדיקה",follow_up:[]}};}
     `],
+    ["virtual:life-journey-family-claim.js", `
+      const OWNER_PERSON_ID="11111111-1111-4111-8111-111111111111";
+      const CLAIMANT_PERSON_ID="22222222-2222-4222-8222-222222222222";
+      const CLAIMS_KEY="life-journey-family-claims-fixture";
+      const account=()=>localStorage.getItem("life-journey-account-fixture")==="claimant"?"claimant":"owner";
+      const personId=()=>account()==="claimant"?CLAIMANT_PERSON_ID:OWNER_PERSON_ID;
+      const read=()=>{try{return JSON.parse(localStorage.getItem(CLAIMS_KEY)||"[]");}catch{return [];}};
+      const write=rows=>localStorage.setItem(CLAIMS_KEY,JSON.stringify(rows));
+      const hash=value=>Array.from(String(value)).reduce((out,char,index)=>((out*33)^char.charCodeAt(0)^index)>>>0,5381).toString(16);
+      const safe=row=>({id:row.id,flow:row.flow,status:row.status,target_ref:row.target_ref,created_at:row.created_at,reviewed_at:row.reviewed_at,consumed_at:row.consumed_at,token_expires_at:row.token_expires_at,has_claimant:Boolean(row.claimant_person_id)});
+      export async function listMyFamilyClaims(){const prefix="person:"+personId()+":p:";return read().filter(row=>row.target_ref.startsWith(prefix)).sort((a,b)=>b.created_at.localeCompare(a.created_at)).map(safe);}
+      export async function createFamilyInvitation(owner,target){
+        if(owner!==personId()||!target.startsWith("person:"+owner+":p:"))throw new Error("not authorized");
+        const rows=read();if(rows.some(row=>row.target_ref===target&&["pending","approved"].includes(row.status)))throw new Error("family_claims_target_active_uq");
+        const token=(crypto.randomUUID()+crypto.randomUUID()).replaceAll("-","");const now=new Date();const expires=new Date(now.getTime()+7*86400000).toISOString();
+        const row={id:crypto.randomUUID(),flow:"invitation",status:"pending",target_ref:target,issuer_owner_id:owner,claimant_person_id:null,token_hash:hash(token),token_expires_at:expires,reviewed_at:null,consumed_at:null,created_at:now.toISOString()};
+        write([...rows,row]);return {id:row.id,token,target_ref:target,expires_at:expires};
+      }
+      export async function redeemFamilyInvitation(token){
+        const rows=read();const row=rows.find(item=>item.token_hash===hash(token));if(!row)throw new Error("invalid token");
+        if(row.status!=="pending")throw new Error("token already used");if(new Date(row.token_expires_at)<=new Date())throw new Error("token has expired");
+        if(row.issuer_owner_id===personId())throw new Error("invitation issuer cannot redeem own family invitation");
+        row.status="approved";row.claimant_person_id=personId();row.consumed_at=new Date().toISOString();write(rows);return {id:row.id,target_ref:row.target_ref,status:"approved"};
+      }
+      export async function revokeFamilyClaim(id){const rows=read();const row=rows.find(item=>item.id===id&&item.issuer_owner_id===personId());if(!row||row.status!=="pending")throw new Error("not authorized");row.status="revoked";row.reviewed_at=new Date().toISOString();write(rows);return {id,status:"revoked"};}
+      export function familyClaimErrorMessage(error){const message=String(error?.message||error);if(message.includes("issuer cannot redeem own"))return "אי אפשר לפדות הזמנה שנוצרה מהחשבון שלך. את הקוד פודים מהחשבון הנפרד של בן המשפחה.";if(message.includes("invalid token"))return "קוד ההזמנה אינו תקין.";return "לא ניתן להשלים כרגע את פעולת החיבור. המידע הפרטי לא שונה.";}
+    `],
     ["virtual:life-journey-research.jsx", `
       import React,{createContext,useContext,useMemo,useRef,useState} from "react";
       import {mergeResearchContext,normalizeResearchContext} from "/src/lib/research/researchContext.js";
       import {continueResearchPathContext} from "/src/lib/research/researchPathRuntime.js";
-      const KEY="life-journey-context-fixture";const Ctx=createContext(null);
-      const initial=()=>{try{return normalizeResearchContext(JSON.parse(sessionStorage.getItem(KEY)||"null"));}catch{return null;}};
+      const account=()=>localStorage.getItem("life-journey-account-fixture")==="claimant"?"claimant":"owner";
+      const contextKey=()=>"life-journey-context-fixture:"+account();const Ctx=createContext(null);
+      const initial=()=>{try{return normalizeResearchContext(JSON.parse(sessionStorage.getItem(contextKey())||"null"));}catch{return null;}};
       export default function Provider({children}){const [context,setContextState]=useState(initial);const ref=useRef(context);
         window.__lifeJourneyContext=context;
-        const commit=value=>{const next=normalizeResearchContext(value);ref.current=next;if(next)sessionStorage.setItem(KEY,JSON.stringify(next));else sessionStorage.removeItem(KEY);window.__lifeJourneyContext=next;setContextState(next);return true;};
+        const commit=value=>{const next=normalizeResearchContext(value);ref.current=next;if(next)sessionStorage.setItem(contextKey(),JSON.stringify(next));else sessionStorage.removeItem(contextKey());window.__lifeJourneyContext=next;setContextState(next);return true;};
         const actions=useMemo(()=>({
           setResearchContext:value=>commit(value),
           updateResearchContext:patch=>commit(mergeResearchContext(ref.current,patch)),
@@ -81,6 +116,7 @@ function lifeJourneyFixturePlugin() {
     ["personalDateResearch.js", "virtual:life-journey-personal-date.js"],
     ["researchPlanV2.js", "virtual:life-journey-plan.js"],
     ["hints.js", "virtual:life-journey-hints.js"],
+    ["familyClaimAdapter.js", "virtual:life-journey-family-claim.js"],
   ]);
   return {
     name: "life-journey-person-context-browser-fixture",
@@ -117,6 +153,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
     const browserErrors = [];
     const requestUrls = [];
+    let invitationToken = "";
     page.on("pageerror", error => browserErrors.push(error.message));
     page.on("console", message => { if (message.type() === "error" && !/Failed to load resource/.test(message.text())) browserErrors.push(message.text()); });
     page.on("request", request => requestUrls.push(request.url()));
@@ -134,11 +171,21 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await family.getByLabel("תאריך לידה").fill("2020-03-04");
     await family.getByLabel("הקשר אליי").selectOption("child_of_me");
     await family.getByRole("button", { name: "הוסף למסע" }).click();
-    await family.locator("article strong", { hasText: "ילד בדיקה" }).waitFor();
+    await family.locator(".person-journey-family-list article strong", { hasText: "ילד בדיקה" }).waitFor();
     await family.getByRole("heading", { name: "אותו אדם, גם כשנפתח חשבון נפרד" }).waitFor();
     assert.ok(await family.getByText("זהות משפחתית · חשבון עתידי אפשרי").count() >= 1);
     assert.ok(await family.getByText(/מקור: הוזן במסע הזה/).count() >= 2);
-    assert.equal(await family.getByRole("button", { name: /הזמנה|Claim|תביעת/ }).count(), 0, "identity continuity is explanatory until the explicit claim UI slice");
+    const accountContinuity = family.locator('[data-experience-capability="life-journey-account-continuity"]');
+    const childClaimCard = accountContinuity.locator("article", { hasText: "ילד בדיקה" });
+    await childClaimCard.getByRole("button", { name: "צור הזמנה לחיבור חשבון" }).waitFor();
+    await childClaimCard.getByRole("button", { name: "צור הזמנה לחיבור חשבון" }).click();
+    const tokenCode = childClaimCard.locator("code");
+    await tokenCode.waitFor();
+    invitationToken = (await tokenCode.textContent())?.trim() || "";
+    assert.match(invitationToken, /^[a-f0-9]{64}$/);
+    await childClaimCard.getByText("ממתין לחיבור").waitFor();
+    assert.equal(await page.evaluate(token => Object.values(localStorage).some(value => String(value).includes(token)), invitationToken), false, "raw invitation token is never persisted in browser storage");
+    assert.equal(decodeURIComponent(page.url()).includes(invitationToken), false, "raw invitation token is never placed in the URL");
 
     const familyScope = family.getByRole("group", { name: "מי משתתף במחקר המשפחתי?" });
     const childSelection = familyScope.getByRole("checkbox", { name: /ילד בדיקה/ });
@@ -156,6 +203,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.getByLabel("תאריך לידה").first().inputValue(), "1990-02-15");
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyPersonRef), firstRef);
     assert.equal(await childSelection.isChecked(), true, "family selection survives refresh through Research Context");
+    await accountContinuity.getByText("קיימת הזמנה ממתינה. הקוד הגולמי אינו נשמר; אם הוא אבד, בטלו וצרו קוד חדש.").waitFor();
+    assert.equal(await childClaimCard.locator("code").count(), 0, "raw invitation token disappears after refresh");
     await familyScope.getByRole("button", { name: "נקה בחירה" }).click();
     assert.deepEqual(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneySelectedMemberRefs), []);
     await familyScope.getByRole("button", { name: "בחר את כולם" }).click();
@@ -223,17 +272,43 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0);
 
+    const ownerClaimInput = accountContinuity.getByLabel("קוד הזמנה");
+    await ownerClaimInput.fill(invitationToken);
+    await accountContinuity.getByRole("button", { name: "אמת וחבר את הזהות" }).click();
+    await accountContinuity.getByText(/אי אפשר לפדות הזמנה שנוצרה מהחשבון שלך/).waitFor();
+    await childClaimCard.getByText("ממתין לחיבור").waitFor();
+
+    await page.evaluate(() => localStorage.setItem("life-journey-account-fixture", "claimant"));
+    await page.reload();
+    await page.getByRole("heading", { name: "מי אני" }).waitFor();
+    const claimantContinuity = page.locator('[data-experience-capability="life-journey-account-continuity"]');
+    await claimantContinuity.getByLabel("קוד הזמנה").fill(invitationToken);
+    await claimantContinuity.getByRole("button", { name: "אמת וחבר את הזהות" }).click();
+    await claimantContinuity.getByText("הזהות אומתה. לא הועבר מחקר פרטי ולא ניתנה גישה ל־Ledger של חשבון אחר.").waitFor();
+    assert.equal(new URL(page.url()).search, "");
+    assert.equal(await page.evaluate(token => Object.values(localStorage).some(value => String(value).includes(token)), invitationToken), false, "claimant storage never receives the raw invitation token");
+
+    await page.evaluate(() => localStorage.setItem("life-journey-account-fixture", "owner"));
+    await page.reload();
+    await page.getByRole("button", { name: "עדכן וחבר מחדש" }).waitFor();
+    const ownerContinuity = page.locator('[data-experience-capability="life-journey-account-continuity"]');
+    await ownerContinuity.locator("article", { hasText: "ילד בדיקה" }).getByText("זהות אומתה").waitFor();
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef, "account-scoped Research Context returns only for the owner account");
+
     const privacy = await page.evaluate(() => ({
       telemetry: window.__telemetry,
-      ledger: JSON.parse(localStorage.getItem("life-journey-ledger-fixture")),
+      ledger: JSON.parse(localStorage.getItem("life-journey-ledger-fixture:owner")),
       hintReads: window.__hintReads,
+      storageValues: Object.values(localStorage),
     }));
     assert.equal(JSON.stringify(privacy.telemetry).includes("הורה בדיקה"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("ילד בדיקה"), false);
     assert.equal(privacy.ledger.members.length, 2);
     assert.equal(privacy.ledger.relations.length, 1);
     assert.ok(privacy.hintReads.every(call => call.options?.fallbackLocal === false));
+    assert.equal(privacy.storageValues.some(value => String(value).includes(invitationToken)), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("הורה בדיקה") || decodeURIComponent(url).includes("ילד בדיקה")), false);
+    assert.equal(requestUrls.some(url => decodeURIComponent(url).includes(invitationToken)), false);
     assert.deepEqual(browserErrors, []);
   } finally {
     await browser?.close();

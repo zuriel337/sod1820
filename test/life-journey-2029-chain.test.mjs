@@ -9,6 +9,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const page = read("src/pages/LifeJourney2029Page.jsx");
   const journey = read("src/components/PersonJourney.jsx");
   const personContext = read("src/lib/research/lifeJourneyPersonContext.js");
+  const familyClaimAdapter = read("src/lib/research/familyClaimAdapter.js");
   const capabilities = read("src/components/experience2029/LifeJourneyCapabilities2029.jsx");
   const nameAdapter = read("src/components/experience2029/LifeJourneyName2029.jsx");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
@@ -61,7 +62,21 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /data-experience-capability="life-journey-account-continuity"/);
   assert.match(journey, /מנגנון Claim קנוני קיים/);
   assert.match(journey, /אינו מעתיק מחקר פרטי ואינו מעניק גישה/);
+  assert.match(journey, /const principal = auth\.loading \? "auth:pending" : auth\.user\?\.id \|\| "guest"/);
+  assert.match(journey, /<PrincipalPersonJourney key=\{principal\}/);
   assert.doesNotMatch(journey, /fn_create_family_invitation|fn_redeem_family_invitation/);
+  assert.match(journey, /listMyFamilyClaims/);
+  assert.match(journey, /createFamilyInvitation/);
+  assert.match(journey, /redeemFamilyInvitation/);
+  assert.match(journey, /revokeFamilyClaim/);
+  assert.match(journey, /קוד חד־פעמי · מוצג רק בזיכרון המסך הנוכחי/);
+  assert.match(journey, /החיבור מאמת זהות בלבד/);
+  assert.doesNotMatch(journey, /invitationTokens[^\n]*(?:localStorage|sessionStorage|setResearchContext|track)/);
+  assert.match(familyClaimAdapter, /fn_list_my_family_claims/);
+  assert.match(familyClaimAdapter, /fn_create_family_invitation/);
+  assert.match(familyClaimAdapter, /fn_redeem_family_invitation/);
+  assert.match(familyClaimAdapter, /fn_revoke_family_claim/);
+  assert.doesNotMatch(familyClaimAdapter, /token_hash|attempts|reviewed_by|claimant_person_id|\bmeta\b|localStorage|sessionStorage|URLSearchParams|track\(|console\./);
   assert.match(journey, /continueResearchPath/);
   assert.match(personContext, /life_journey_person_context_v1/);
   assert.match(personContext, /buildExactReturnPatch/);
@@ -88,7 +103,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(hints, /פתח במספר/);
   assert.doesNotMatch(hints, /addHint|removeHint|\.insert\(|\.update\(/);
 
-  const privateFlow = [journey, personContext, nameAdapter, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
+  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
   assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);
   assert.doesNotMatch(privateFlow, /channel_updates|community_hints|news/i);
   assert.doesNotMatch(privateFlow, /Raziel|רזיאל/);

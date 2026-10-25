@@ -19,6 +19,13 @@ import {
 } from "../lib/research/personalDateResearch.js";
 import { buildAccessDescriptor } from "../lib/research/researchPlanV2.js";
 import {
+  createFamilyInvitation,
+  familyClaimErrorMessage,
+  listMyFamilyClaims,
+  redeemFamilyInvitation,
+  revokeFamilyClaim,
+} from "../lib/research/familyClaimAdapter.js";
+import {
   buildLifeJourneyCapabilityPatch,
   buildLifeJourneyExactReturnPatch,
   buildLifeJourneyFamilySelectionPatch,
@@ -40,6 +47,13 @@ const clean = (value) => String(value || "").trim();
 const metaObject = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
 const joinName = (first, last) => [clean(first), clean(last)].filter(Boolean).join(" ");
 const MAX_FAMILY_RESEARCH_MEMBERS = 12;
+const FAMILY_CLAIM_STATUS = Object.freeze({
+  pending: "ממתין לחיבור",
+  approved: "זהות אומתה",
+  rejected: "נדחה",
+  revoked: "בוטל",
+  reversed: "חיבור בוטל",
+});
 
 export function personJourneyErrorMessage(error) {
   const candidates = [error?.message, error?.error, error?.details, error?.hint, error];
@@ -147,8 +161,15 @@ function sharedFamilyValues(rows) {
     .sort((a, b) => b.count - a.count || a.value - b.value);
 }
 
-export default function PersonJourney({ variant = "legacy", CapabilitySurface = null }) {
-  const { user, loading: authLoading } = useAuth();
+export default function PersonJourney(props) {
+  const auth = useAuth();
+  const principal = auth.loading ? "auth:pending" : auth.user?.id || "guest";
+  return <PrincipalPersonJourney key={principal} {...props} auth={auth} />;
+}
+
+function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, auth }) {
+  const { user, loading: authLoading } = auth;
+  const userId = user?.id || null;
   const research = useResearch();
   const [personId, setPersonId] = useState(null);
   const [members, setMembers] = useState([]);
@@ -158,6 +179,11 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
   const [busy, setBusy] = useState(false);
   const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
   const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], error: null });
+  const [familyClaims, setFamilyClaims] = useState({ state: "idle", rows: [], error: null });
+  const [familyClaimBusy, setFamilyClaimBusy] = useState(null);
+  const [familyClaimNotice, setFamilyClaimNotice] = useState(null);
+  const [invitationTokens, setInvitationTokens] = useState({});
+  const [claimToken, setClaimToken] = useState("");
 
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
@@ -182,6 +208,14 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       .filter(ref => availableRefs.has(ref));
   }, [members, research.context, selfRef]);
   const selectedFamilyRefSet = useMemo(() => new Set(selectedFamilyRefs), [selectedFamilyRefs]);
+  const latestClaimByTarget = useMemo(() => {
+    const claims = new Map();
+    for (const claim of familyClaims.rows) {
+      const targetRef = clean(claim?.target_ref);
+      if (targetRef && !claims.has(targetRef)) claims.set(targetRef, claim);
+    }
+    return claims;
+  }, [familyClaims.rows]);
   const birthTimeline = useMemo(
     () => familyBirthTimeline(members, selectedFamilyRefs),
     [members, selectedFamilyRefs],
@@ -241,7 +275,25 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       }
     })();
     return () => { alive = false; };
-  }, [authLoading, refresh, user]);
+  }, [authLoading, refresh, userId]);
+
+  const refreshFamilyClaims = useCallback(async () => {
+    if (variant !== "2029" || !userId || !personId) return false;
+    setFamilyClaims(previous => ({ state: "loading", rows: previous.rows, error: null }));
+    try {
+      const rows = await listMyFamilyClaims();
+      setFamilyClaims({ state: "ready", rows, error: null });
+      return true;
+    } catch {
+      setFamilyClaims({ state: "unavailable", rows: [], error: "חיבור חשבונות עדיין אינו פעיל בסביבה הזאת." });
+      return false;
+    }
+  }, [personId, userId, variant]);
+
+  useEffect(() => {
+    if (variant !== "2029" || !personId || !userId) return;
+    refreshFamilyClaims();
+  }, [personId, refreshFamilyClaims, userId, variant]);
 
   useEffect(() => {
     if (!selfRef || !user) return;
@@ -367,6 +419,74 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
       setBusy(false);
     }
   };
+
+  const createAccountInvitation = useCallback(async (member) => {
+    const targetRef = clean(member?.source_ref);
+    if (!personId || !targetRef || familyClaims.state !== "ready") return;
+    setFamilyClaimBusy(`invite:${targetRef}`);
+    setFamilyClaimNotice(null);
+    try {
+      const invitation = await createFamilyInvitation(personId, targetRef, 7);
+      if (!invitation.token) throw new Error("family_claim_missing_token");
+      setInvitationTokens(previous => ({ ...previous, [targetRef]: invitation.token }));
+      setFamilyClaimNotice({ type: "success", text: "נוצר קוד חד־פעמי. העתיקו אותו עכשיו והעבירו לבן המשפחה בערוץ פרטי." });
+      await refreshFamilyClaims();
+    } catch (error) {
+      setFamilyClaimNotice({ type: "error", text: familyClaimErrorMessage(error) });
+    } finally {
+      setFamilyClaimBusy(null);
+    }
+  }, [familyClaims.state, personId, refreshFamilyClaims]);
+
+  const cancelAccountInvitation = useCallback(async (claim) => {
+    const claimId = clean(claim?.id);
+    const targetRef = clean(claim?.target_ref);
+    if (!claimId || claim?.status !== "pending") return;
+    setFamilyClaimBusy(`revoke:${claimId}`);
+    setFamilyClaimNotice(null);
+    try {
+      await revokeFamilyClaim(claimId);
+      setInvitationTokens(previous => {
+        const next = { ...previous };
+        delete next[targetRef];
+        return next;
+      });
+      setFamilyClaimNotice({ type: "success", text: "ההזמנה בוטלה. אפשר ליצור קוד חדש כשצריך." });
+      await refreshFamilyClaims();
+    } catch (error) {
+      setFamilyClaimNotice({ type: "error", text: familyClaimErrorMessage(error) });
+    } finally {
+      setFamilyClaimBusy(null);
+    }
+  }, [refreshFamilyClaims]);
+
+  const redeemAccountInvitation = useCallback(async () => {
+    const token = clean(claimToken);
+    if (!token || familyClaims.state !== "ready") return;
+    setFamilyClaimBusy("redeem");
+    setFamilyClaimNotice(null);
+    try {
+      await redeemFamilyInvitation(token);
+      setClaimToken("");
+      setFamilyClaimNotice({ type: "success", text: "הזהות אומתה. לא הועבר מחקר פרטי ולא ניתנה גישה ל־Ledger של חשבון אחר." });
+      await refreshFamilyClaims();
+    } catch (error) {
+      setFamilyClaimNotice({ type: "error", text: familyClaimErrorMessage(error) });
+    } finally {
+      setFamilyClaimBusy(null);
+    }
+  }, [claimToken, familyClaims.state, refreshFamilyClaims]);
+
+  const copyInvitationToken = useCallback(async (targetRef) => {
+    const token = invitationTokens[targetRef];
+    if (!token || !globalThis.navigator?.clipboard?.writeText) return;
+    try {
+      await globalThis.navigator.clipboard.writeText(token);
+      setFamilyClaimNotice({ type: "success", text: "קוד ההזמנה הועתק. שתפו אותו רק עם האדם שעבורו נוצר." });
+    } catch {
+      setFamilyClaimNotice({ type: "error", text: "לא ניתן להעתיק אוטומטית. אפשר לסמן ולהעתיק את הקוד ידנית." });
+    }
+  }, [invitationTokens]);
 
   const nameByRef = useCallback((ref) => {
     const member = members.find((item) => item.source_ref === ref);
@@ -678,7 +798,7 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
         </footer>
       </fieldset> : null}
 
-      {familyMembers.length ? <section
+      {variant === "2029" ? <section
         className="person-journey-account-continuity"
         data-experience-capability="life-journey-account-continuity"
         aria-labelledby="life-journey-account-continuity-title"
@@ -693,6 +813,70 @@ export default function PersonJourney({ variant = "legacy", CapabilitySurface = 
           <li>ה־Claim מתעד שזה אותו בן משפחה שכבר נמצא במסע.</li>
           <li>החיבור אינו מעתיק מחקר פרטי ואינו מעניק גישה ל־Ledger שלך.</li>
         </ul>
+        {familyClaims.state === "loading" || familyClaims.state === "idle" ? <div className="person-journey-claim-state" aria-busy="true">בודק את מצב חיבורי החשבון…</div> : null}
+        {familyClaims.state === "unavailable" ? <div className="person-journey-claim-state" role="status">{familyClaims.error}</div> : null}
+        {familyClaims.state === "ready" ? <>
+          {familyMembers.length ? <div className="person-journey-claim-list" aria-label="חיבורי חשבון לבני המשפחה">
+            {familyMembers.map(member => {
+              const targetRef = clean(member.source_ref);
+              const claim = latestClaimByTarget.get(targetRef) || null;
+              const invitationToken = invitationTokens[targetRef] || null;
+              const activeClaim = claim && ["pending", "approved"].includes(claim.status);
+              return <article key={targetRef}>
+                <header>
+                  <div><strong>{member.name}</strong><small>ה־person-ref הקיים נשמר</small></div>
+                  <span data-status={claim?.status || "none"}>{claim ? FAMILY_CLAIM_STATUS[claim.status] || claim.status : "אין חיבור"}</span>
+                </header>
+                {claim?.status === "approved" ? <p>החשבון הנפרד אומת מול הזהות הזאת. המחקר הפרטי נשאר אצל בעליו.</p> : null}
+                {claim?.status === "pending" && !invitationToken ? <p>קיימת הזמנה ממתינה. הקוד הגולמי אינו נשמר; אם הוא אבד, בטלו וצרו קוד חדש.</p> : null}
+                {invitationToken ? <div className="person-journey-invitation-token">
+                  <small>קוד חד־פעמי · מוצג רק בזיכרון המסך הנוכחי</small>
+                  <code dir="ltr">{invitationToken}</code>
+                  <button type="button" onClick={() => copyInvitationToken(targetRef)}>העתק קוד הזמנה</button>
+                </div> : null}
+                <footer>
+                  {!activeClaim ? <button
+                    type="button"
+                    disabled={Boolean(familyClaimBusy)}
+                    onClick={() => createAccountInvitation(member)}
+                  >{familyClaimBusy === `invite:${targetRef}` ? "יוצר קוד…" : "צור הזמנה לחיבור חשבון"}</button> : null}
+                  {claim?.status === "pending" ? <button
+                    type="button"
+                    disabled={Boolean(familyClaimBusy)}
+                    onClick={() => cancelAccountInvitation(claim)}
+                  >{familyClaimBusy === `revoke:${claim.id}` ? "מבטל…" : "בטל הזמנה"}</button> : null}
+                </footer>
+              </article>;
+            })}
+          </div> : null}
+          <div className="person-journey-claim-redeem">
+            <div>
+              <strong>קיבלתי קוד הזמנה</strong>
+              <small>מדביקים את הקוד רק כאן, מתוך החשבון הנפרד. הוא אינו נכנס לכתובת או להיסטוריית המחקר.</small>
+            </div>
+            <label>
+              <span>קוד הזמנה</span>
+              <input
+                type="password"
+                value={claimToken}
+                onChange={event => setClaimToken(event.target.value)}
+                dir="ltr"
+                autoComplete="one-time-code"
+                spellCheck="false"
+              />
+            </label>
+            <button
+              type="button"
+              disabled={Boolean(familyClaimBusy) || !clean(claimToken)}
+              onClick={redeemAccountInvitation}
+            >{familyClaimBusy === "redeem" ? "מאמת…" : "אמת וחבר את הזהות"}</button>
+          </div>
+          <div className="person-journey-claim-tools">
+            <button type="button" disabled={Boolean(familyClaimBusy)} onClick={refreshFamilyClaims}>רענן סטטוסים</button>
+            <small>החיבור מאמת זהות בלבד. שיתוף מחקר דורש הרשאה נפרדת שאינה פתוחה כאן.</small>
+          </div>
+          {familyClaimNotice ? <div className="person-journey-claim-notice" data-state={familyClaimNotice.type} role={familyClaimNotice.type === "error" ? "alert" : "status"}>{familyClaimNotice.text}</div> : null}
+        </> : null}
       </section> : null}
 
       {selectedFamilyRefs.length ? <section
