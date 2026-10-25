@@ -499,7 +499,11 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
 
 function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpenFinding, onExploreAxis, onExpand, addingFinding, onHighlightVerse, verseHighlight }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
-  if (lensResult.ok === false) return <p className="els29-native-muted">{lensResult.lens === "matrix-candidates" ? "אי אפשר לסרוק את המטריצה לפני שהציר הראשי אומת." : "המקור לא זמין לתא הזה במצב הנוכחי."}</p>;
+  if (lensResult.ok === false) return <p className="els29-native-muted">{lensResult.lens === "matrix-candidates"
+    ? ["focused-core-candidate-limit", "focused-core-probe-limit"].includes(lensResult.reason)
+      ? "האזור הממוקד עבר את תקציב הבטיחות. פתח ציר ממוקד יותר ונסה שוב. לא הוצגה תוצאה חלקית."
+      : "אי אפשר לסרוק את המטריצה לפני שהציר הראשי אומת."
+    : "המקור לא זמין לתא הזה במצב הנוכחי."}</p>;
 
   if (lensResult.lens === "matrix-candidates") {
     const items = Array.isArray(lensResult.items) ? [...lensResult.items] : [];
@@ -549,7 +553,7 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
     };
     return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings">
       <strong>{focused ? "ליבת הציר" : "חבילת סביבת הציר"} · {items.length}</strong>
-      <small>{focused ? `נסרק האזור הממוקד סביב הציר: ${lensResult.focus?.rowPad || 12} שורות ו־${lensResult.focus?.colRadius || 12} עמודות, ברצף המקור ובדילוגים S−1, S, S+1.` : "זוהי הרחבה יזומה לחלון המטריצה המלא."}</small>
+      <small>{focused ? `נסרק האזור הממוקד סביב הציר: ${lensResult.focus?.rowPad || 12} שורות ו־${lensResult.focus?.colRadius || 15} עמודות, ברצף המקור ובדילוגים S−1, S, S+1.` : "זוהי הרחבה יזומה לחלון המטריצה המלא."}</small>
       <small>{focused ? `${lensResult.verification?.verified || 0} מופעי ELS אומתו · ${lensResult.verification?.sourceExact || 0} רצפי מקור מדויקים.` : `${compactCount} ממצאים בשלב א׳ · ${Math.max(0, items.length - compactCount)} בשלב ב׳.`} זהו סדר בדיקה, לא ציון אמת.</small>
       <small>המילון נגזר משפת התנ״ך הקנונית, מביטויים ומתבניות שנים. צפנים שמורים אינם מזינים את הגילוי.</small>
       {lexiconCounts ? <small>{lexiconCounts.total} מונחים זמינים · {lexiconCounts.corpus} מילים · {lexiconCounts.phrases || 0} ביטויים · {lexiconCounts.years || 0} שנות Basic · {lexiconCounts.research} מהמחקר{lensResult.lexicon?.fallback ? " · מקור הפסוקים לא נטען ולכן הרשימה חלקית" : ""}</small> : null}
@@ -793,8 +797,14 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
     : request.lens === "result-triage"
       ? progress?.completed ? "ממיין את כל התוצאות ומחפש המשכים מדויקים…" : "טוען את שפת התורה ומכין מיון תוצאות…"
     : request.lens === "matrix-candidates"
-      ? progress?.phase === "core" ? "סורק את ליבת הציר ברצף ובדילוגים S−1, S, S+1…"
-        : progress?.phase === "verify" ? "מאמת את מועמדי ליבת הציר מול המנוע הקנוני…"
+      ? progress?.phase === "lexicon-language" ? "קורא את פסוקי המקור ובונה את שפת המחקר…"
+        : progress?.phase?.startsWith("lexicon-freeze-") ? "מסיים ומקבע את מילון המחקר…"
+        : progress?.phase?.startsWith("lexicon-materialize-") ? "מרכיב את מילון המועמדים לסריקה…"
+        : progress?.phase?.startsWith("lexicon-") ? "טוען את שפת התורה ומכין את מילון המחקר…"
+        : progress?.phase === "core" ? "סורק את ליבת הציר ברצף ובדילוגים S−1, S, S+1…"
+        : progress?.phase === "collect" ? "מכין את הממצאים שנמצאו למיון…"
+        : progress?.phase === "rank" ? "ממיין את ממצאי הליבה ובונה חבילה מגוונת…"
+        : progress?.phase?.startsWith("verify") ? "מאמת את מועמדי ליבת הציר מול המנוע הקנוני…"
           : progress?.phase === "sources" ? "מצרף את פסוקי המקור לחבילה…"
             : "מרחיב את חלון המטריצה לבקשתך…"
       : request.lens === "line-context" && request.target?.scan
@@ -802,10 +812,20 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
         : ["verse-context", "letter-context"].includes(request.lens)
           ? "טוען את המקור והפסוק…"
           : "מכין את תוצאת המחקר…";
+  const unitLabel = progress?.phase === "lexicon-language" ? "פסוקים נקראו"
+    : progress?.phase?.startsWith("lexicon-freeze-") ? "ערכי שפה הוכנו"
+    : progress?.phase?.startsWith("lexicon-materialize-") ? "ערכי מועמדים עובדו"
+    : progress?.phase === "core" ? "נקודות מוצא נסרקו"
+    : progress?.phase === "collect" ? "מועמדים הוכנו"
+    : progress?.phase === "rank" ? "צעדי מיון הושלמו"
+    : progress?.phase === "verify" ? "מועמדים אומתו"
+    : progress?.phase === "verify-prepare" ? "רשימת האימות הוכנה"
+    : progress?.phase === "sources" ? "מקורות צורפו"
+    : "פריטים נבדקו";
   return <div className="els29-native-progress" aria-label="התקדמות בדיקת הממצא">
     <div><strong role="status" aria-live="polite">{label}</strong>
       <small aria-hidden="true">עברו {elapsed.toFixed(1)} שניות · הבדיקה עדיין פעילה</small>
-      {progress?.total > 0 ? <><progress max={progress.total} value={progress.completed} aria-label={label} /><small>{progress.completed} מתוך {progress.total} מונחים נבדקו</small></> : <progress aria-label={label} />}
+      {progress?.total > 0 ? <><progress max={progress.total} value={progress.completed} aria-label={label} /><small>{progress.completed} מתוך {progress.total} · {unitLabel}</small></> : <progress aria-label={label} />}
       {elapsed >= 8 ? <small>אפשר להמשיך להמתין או לעצור. עצירה אינה משנה את הציר, הממצאים או המטריצה.</small> : null}
     </div>
     <span className="els29-native-progress-actions">

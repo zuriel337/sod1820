@@ -1303,3 +1303,67 @@ Deterministic level-9 artifact measurements against branch base
 
 Live Supabase evidence and ownership were read only. No Preview, Production, database data, RLS,
 permission, merge, PR or live-function action was performed.
+
+## 27. HIRSCH COLD GOLDENS + FOCUSED WIDTH — 2026-10-25
+
+Eighteen public legacy records attributed to Abraham Hirsch were inspected read-only. Their stored
+rows have no `start_index`, `corpus_id` or normalized term, so none was treated as a current exact
+ELS identity. Independent replay against the canonical corpus recovered one primary occurrence at
+the recorded skip for every row and verified all saved hit keys. Only three clean, in-scope records
+enter this cut: `מוטאטיל` (`7887_-1_59154`, Torah), `ז׳ אוקטובר`
+(`42168_-1_600006`, Tanakh), and `אטום טיל` (`10044_-1_102070`, Torah).
+
+Admission has two test-only grades. `T1_EXACT_REPLAY` verifies the recovered axis and every recorded
+Finding coordinate inside the declared corpus. `T2_COLD_RECALL` requires the existing focused
+scanner's complete pre-admission candidate pool to rediscover the same recorded occurrence from
+canonical language with no saved-matrix vocabulary. It does not promise that human-curated meaning
+will occupy one of the first 12 structural admission seats. Fifteen saved occurrences pass exact
+replay. Five contiguous findings under
+`ז׳ אוקטובר` retain `SOURCE_EXACT`/`skip=1` identity rather than becoming ELS. A fourth row,
+`תשפ״ו אלול חיבור בו הותר`, is an explicit negative control: its primary axis can replay, but the
+stored quality is unverified and it contains zero Findings, so it is not admitted as a positive
+Golden. Cross-Torah-boundary records remain outside the positive Torah set.
+
+The cold test exposed a geometry boundary rather than a lexicon defect. `פלשתימ` sits 14 columns
+from the `ז׳ אוקטובר` axis, and `משיח` sits 15 columns from the `אטום טיל` axis. The generic focused
+core now keeps 12 rows but uses a 15-column radius and a matching maximum candidate distance of 15.
+The 12 canonical-admission cap is unchanged. Stage B remains local to two axis rows and eight
+columns; no broad displayed-window scan was restored. Each of the seven cold axes stays below
+12,000 probes. A separate 16,384 hard runtime ceiling lets a longer verified extension complete the
+same bounded geometry without widening it; the largest Golden eligible pool observed is 16,223,
+below the 32,768 emergency candidate ceiling. Either runtime ceiling fails closed with no partial
+package. Cold language construction, candidate materialization, origin scanning, projection and
+stable ranking now yield between bounded chunks. Every emitted phase has one stable denominator and
+an accurate unit label. The line-context projection also reuses one derived lexicon index for all
+admitted Findings instead of rebuilding it for each row, so progress and cancel remain active
+through source attachment. A poisoned saved-only answer is rejected and cannot change the exact
+rediscovered Hirsch occurrences.
+
+The cold-Golden inventory is therefore seven axes: the prior `משיח טבת עשירי`, `יום משיח בא`,
+`קולומביה`, `תורת הרמז`, plus the three Hirsch rows above. Fixtures are imported only by tests.
+Nothing in the runtime lexicon, ranking or interpretation is keyed to Hirsch, an author, a title or
+a saved record. The visible selector reserves a mixed, path-diverse structural sample and prevents
+nested phrases on one path from consuming the package; semantic comparison remains a later consumer
+(including Raziel), not a hidden ranking rule. The evidence establishes reproducible structural
+recall only and makes no semantic, statistical, significance or Truth claim.
+
+The next Experience slice is intentionally separate: a narrow pinned, colour-coded activity meter
+may checkpoint only candidates that have already passed canonical verification. Stopping during raw
+discovery must not paint or persist unverified terms; stopping during admission may retain a clearly
+labelled partial verified bundle. This cut keeps the existing fail-closed cancellation rule and does
+not implement partial persistence.
+
+Final immutable acceptance on the generated artifacts: non-browser ELS `194 passed / 0 failed / 3
+PostgreSQL-only skips`; native browser `48/48`; Cutover `26/26`; Advanced `1/1`; FORMS `1/1`;
+truth census/artifact parity `9/9`; bundle budget `5/5`; public-candidate privacy PASS; Legacy and
+2029 builds PASS. The native run includes live heartbeat/progress/cancel, exact continuation bundle
+and return, and three-target comparison/open-package. Against base `9aaaec84`, deterministic
+level-9 sizes are: hosted `1,687,791 / 976,190 B` (`+10,056 / +2,458`), standalone
+`2,594,110 / 1,663,549 B` (`+10,056 / +2,452`), 2029 ELS JS `234,045 / 68,112 B`
+(`+1,364 / +393`), and ELS CSS unchanged at `83,657 / 11,880 B`; four-artifact total delta is
+`+21,476 raw / +5,303 gzip`.
+
+The 85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL (B19/C04/C05/G02) +
+4 PARKED (B12/B13/B14/B18) + 1 NEVER (B20) = 85**. This cut adds no engine, state, store, graph,
+Provider, Journey, database object, migration, data rewrite, RLS, permission, `research_objects`,
+Raziel or `decision_ledger` change.

@@ -1581,7 +1581,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // לא מנוע, store או אמת נוספים; כל מופע עדיין עובר אימות ELS קנוני לפני שהוא Finding.
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
   const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",
-    AXIS_NEIGHBORHOOD_CONTRACT="els_axis_neighborhood_bundle_v1",FOCUSED_CORE_CONTRACT="els_focused_core_bundle_v1",
+    AXIS_NEIGHBORHOOD_CONTRACT="els_axis_neighborhood_bundle_v1",FOCUSED_CORE_CONTRACT="els_focused_core_bundle_v1",FOCUSED_CORE_CANDIDATE_CAP=32768,FOCUSED_CORE_PROBE_CAP=16384,
     RESULT_TRIAGE_CONTRACT="els_result_triage_v1",RESEARCH_BUNDLE_CONTRACT="els_research_bundle_v1",
     RESEARCH_BUNDLE_COMPARISON_CONTRACT="els_research_bundle_comparison_v1",
     COMPACT_GEOMETRY_CONTRACT="els_compact_geometry_priority_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",
@@ -1613,8 +1613,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     }
     for(const variant of variants)addCandidateLexiconTerm(map,variant.term,"corpus_morphology",1,3,{kind:"corpus-morphology",value:variant.kind,label:variant.label,source:variant.source});
   }
-  function buildCorpusCandidateLexicons(rows){
-    const torah=new Map(),tanakh=new Map(),torahAxisWords=new Map(),tanakhAxisWords=new Map(),torahPhrases=new Map(),tanakhPhrases=new Map(),torahVerseCount=VCHAP.slice(0,TORAH_BOOKS).reduce((n,book)=>n+book.reduce((a,b)=>a+b,0),0);
+  function corpusCandidateLexiconBuild(rows){
+    return (function*(){
+    const torah=new Map(),tanakh=new Map(),torahAxisWords=new Map(),tanakhAxisWords=new Map(),torahPhrases=new Map(),tanakhPhrases=new Map(),torahVerseCount=VCHAP.slice(0,TORAH_BOOKS).reduce((n,book)=>n+book.reduce((a,b)=>a+b,0),0);let sliceStarted=Date.now();
     for(let vi=0;vi<rows.length;vi++){
       const words=String(rows[vi]||"").split(/[\s־ֽ–\-]+/).map(word=>word.replace(/[^א-ת]/g,"")).filter(Boolean);
       for(const word of words){const length=norm(word).length;if(length<2)continue;
@@ -1630,11 +1631,23 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         if(!tanakhPhrases.has(phrase))tanakhPhrases.set(phrase,code);
         if(vi<torahVerseCount&&!torahPhrases.has(phrase))torahPhrases.set(phrase,code);
       }
+      if(vi+1===rows.length||Date.now()-sliceStarted>=32){yield {phase:"language",completed:vi+1,total:rows.length};sliceStarted=Date.now();}
     }
-    const freeze=map=>Object.freeze([...map.values()].map(row=>Object.freeze({...row,sources:Object.freeze([...row.sources]),classifications:Object.freeze([...(row.classifications||[])])})));
-    _corpusLexiconCache.torah=freeze(torah);_corpusLexiconCache.tanakh=freeze(tanakh);
-    _corpusAxisWordCache.torah=freeze(torahAxisWords);_corpusAxisWordCache.tanakh=freeze(tanakhAxisWords);
+    function* freezeMap(map,phase){const values=[...map.values()],frozen=[];
+      let freezeStarted=Date.now();for(let index=0;index<values.length;index++){const row=values[index];frozen.push(Object.freeze({...row,sources:Object.freeze([...row.sources]),classifications:Object.freeze([...(row.classifications||[])])}));if(index+1===values.length||Date.now()-freezeStarted>=32){yield {phase,completed:index+1,total:values.length};freezeStarted=Date.now();}}
+      return Object.freeze(frozen);
+    }
+    const frozenTorah=yield* freezeMap(torah,"freeze-torah"),frozenTanakh=yield* freezeMap(tanakh,"freeze-tanakh"),frozenTorahAxis=yield* freezeMap(torahAxisWords,"freeze-torah-axis"),frozenTanakhAxis=yield* freezeMap(tanakhAxisWords,"freeze-tanakh-axis");
+    _corpusLexiconCache.torah=frozenTorah;_corpusLexiconCache.tanakh=frozenTanakh;
+    _corpusAxisWordCache.torah=frozenTorahAxis;_corpusAxisWordCache.tanakh=frozenTanakhAxis;
     _corpusPhraseCache.torah=torahPhrases;_corpusPhraseCache.tanakh=tanakhPhrases;
+    return true;})();
+  }
+  function buildCorpusCandidateLexicons(rows){
+    const build=corpusCandidateLexiconBuild(rows);for(;;){const next=build.next();if(next.done)return next.value;}
+  }
+  async function buildCorpusCandidateLexiconsBatched(rows,onProgress,isCancelled){
+    const build=corpusCandidateLexiconBuild(rows);for(;;){if(isCancelled?.())return null;const next=build.next();if(next.done)return next.value;onProgress?.(next.value);await paintOperation();}
   }
   function addBasicHebrewYears(map,minLength){
     // Hebrew year forms are generated, not curated. The omitted thousands are projected as
@@ -1644,27 +1657,48 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       addCandidateLexiconTerm(map,label,"basic_hebrew_year",1,minLength,{kind:"hebrew-year",value:year,label:`תבנית שנה אפשרית · ה׳${label}`});
     }
   }
-  function researchCandidateLexicon(includeShortAxisWords=false,options=null){
-    const map=new Map();
-    const minLength=includeShortAxisWords?2:3;
-    DICT.forEach(term=>addCandidateLexiconTerm(map,term,"governed_core",4,minLength));
-    const languageScope=options?.languageScope||st.scope,includeMorphology=options?.includeMorphology===true;
-    for(const row of _corpusLexiconCache[languageScope]||[])for(const source of row.sources)if(includeMorphology||source!=="corpus_morphology")addCandidateLexiconTerm(map,row.label,source,row.support,minLength,row.classifications);
-    if(includeShortAxisWords)for(const row of _corpusAxisWordCache[languageScope]||[])for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support,2,row.classifications);
-    addCandidateLexiconTerm(map,st.raw,"active_axis",8,minLength);
-    st.words.forEach(word=>addCandidateLexiconTerm(map,word.t,"verified_research",8,minLength));
-    for(const item of CLOUD_MATRICES||[]){
-      addCandidateLexiconTerm(map,item.term,"visible_saved_research",3,minLength);
-      (item.words||[]).forEach(word=>addCandidateLexiconTerm(map,word.t,"visible_saved_research",2,minLength));
-    }
-    addBasicHebrewYears(map,minLength);
-    return [...map.values()].map(row=>({...row,sources:[...row.sources],classifications:[...(row.classifications||[])]}))
-      .sort((a,b)=>b.support-a.support||b.term.length-a.term.length||a.term.localeCompare(b.term,"he"));
+  function researchCandidateLexiconBuild(includeShortAxisWords=false,options=null,progressPhase="materialize"){
+    return (function*(){
+    const map=new Map(),minLength=includeShortAxisWords?2:3,languageScope=options?.languageScope||st.scope,includeMorphology=options?.includeMorphology===true,
+      corpusRows=_corpusLexiconCache[languageScope]||[],axisRows=includeShortAxisWords?(_corpusAxisWordCache[languageScope]||[]):[],cloudRows=CLOUD_MATRICES||[],
+      collectTotal=DICT.length+corpusRows.length+axisRows.length+1+(st.words||[]).length+cloudRows.reduce((sum,item)=>sum+1+(item.words||[]).length,0)+999;
+    let completed=0,lastReported=0,sliceStarted=Date.now();
+    const report=force=>{if(completed===lastReported||!force&&Date.now()-sliceStarted<96)return null;lastReported=completed;sliceStarted=Date.now();return {phase:`${progressPhase}-collect`,completed,total:collectTotal};};
+    for(const term of DICT){addCandidateLexiconTerm(map,term,"governed_core",4,minLength);completed++;const update=report(false);if(update)yield update;}
+    for(const row of corpusRows){for(const source of row.sources)if(includeMorphology||source!=="corpus_morphology")addCandidateLexiconTerm(map,row.label,source,row.support,minLength,row.classifications);completed++;const update=report(false);if(update)yield update;}
+    for(const row of axisRows){for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support,2,row.classifications);completed++;const update=report(false);if(update)yield update;}
+    addCandidateLexiconTerm(map,st.raw,"active_axis",8,minLength);completed++;{const update=report(false);if(update)yield update;}
+    for(const word of st.words||[]){addCandidateLexiconTerm(map,word.t,"verified_research",8,minLength);completed++;const update=report(false);if(update)yield update;}
+    for(const item of cloudRows){addCandidateLexiconTerm(map,item.term,"visible_saved_research",3,minLength);completed++;let update=report(false);if(update)yield update;
+      for(const word of item.words||[]){addCandidateLexiconTerm(map,word.t,"visible_saved_research",2,minLength);completed++;update=report(false);if(update)yield update;}}
+    for(let year=5001;year<=5999;year++){const label=HEBNUM(year-5000),term=norm(label);if(term.length>=minLength)addCandidateLexiconTerm(map,label,"basic_hebrew_year",1,minLength,{kind:"hebrew-year",value:year,label:`תבנית שנה אפשרית · ה׳${label}`});completed++;const update=report(false);if(update)yield update;}
+    {const update=report(true);if(update)yield update;}
+    const values=[...map.values()],rows=[];let projectStarted=Date.now();
+    for(let index=0;index<values.length;index++){const row=values[index];rows.push({...row,sources:[...row.sources],classifications:[...(row.classifications||[])]});
+      if(index+1===values.length||Date.now()-projectStarted>=96){yield {phase:`${progressPhase}-project`,completed:index+1,total:values.length};projectStarted=Date.now();}}
+    const compare=(a,b)=>b.support-a.support||b.term.length-a.term.length||a.term.localeCompare(b.term,"he"),passes=rows.length>1?Math.ceil(Math.log2(rows.length)):0,sortTotal=rows.length*passes;
+    let source=rows,target=new Array(rows.length),sorted=0,lastSortReported=0,sortStarted=Date.now();
+    for(let width=1;width<rows.length;width*=2){for(let left=0;left<rows.length;left+=width*2){let first=left,second=Math.min(left+width,rows.length),firstEnd=second,secondEnd=Math.min(left+width*2,rows.length),cursor=left;
+      while(first<firstEnd||second<secondEnd){target[cursor++]=second>=secondEnd||first<firstEnd&&compare(source[first],source[second])<=0?source[first++]:source[second++];sorted++;
+        if(Date.now()-sortStarted>=96){lastSortReported=sorted;yield {phase:`${progressPhase}-sort`,completed:sorted,total:sortTotal};sortStarted=Date.now();}}}
+      [source,target]=[target,source];}
+    if(sorted!==lastSortReported)yield {phase:`${progressPhase}-sort`,completed:sorted,total:sortTotal};
+    return source;})();
   }
-  async function dynamicCandidateLexicon(){
+  function researchCandidateLexicon(includeShortAxisWords=false,options=null){
+    const build=researchCandidateLexiconBuild(includeShortAxisWords,options);for(;;){const next=build.next();if(next.done)return next.value;}
+  }
+  async function researchCandidateLexiconBatched(includeShortAxisWords,options,progressPhase,onProgress,isCancelled){
+    const build=researchCandidateLexiconBuild(includeShortAxisWords,options,progressPhase);for(;;){if(isCancelled?.())return null;const next=build.next();if(next.done)return next.value;onProgress?.(next.value);await paintOperation();}
+  }
+  async function dynamicCandidateLexicon(onProgress=null,isCancelled=null){
     let fallback=false;
-    if(!_corpusLexiconCache[st.scope])try{buildCorpusCandidateLexicons(await ensureVerseText());}catch(_){fallback=true;}
-    const entries=researchCandidateLexicon(),axisEntries=researchCandidateLexicon(true),focusedOptions={languageScope:_corpusLexiconCache.tanakh?"tanakh":st.scope,includeMorphology:true},focusedEntries=researchCandidateLexicon(false,focusedOptions),focusedAxisEntries=researchCandidateLexicon(true,focusedOptions);
+    if(!_corpusLexiconCache[st.scope])try{const built=await buildCorpusCandidateLexiconsBatched(await ensureVerseText(),onProgress,isCancelled);if(!built)return null;}catch(_){fallback=true;}
+    const entries=await researchCandidateLexiconBatched(false,null,"materialize-base",onProgress,isCancelled);if(!entries)return null;
+    const axisEntries=await researchCandidateLexiconBatched(true,null,"materialize-axis",onProgress,isCancelled);if(!axisEntries)return null;
+    const focusedOptions={languageScope:_corpusLexiconCache.tanakh?"tanakh":st.scope,includeMorphology:true};
+    const focusedEntries=await researchCandidateLexiconBatched(false,focusedOptions,"materialize-focused",onProgress,isCancelled);if(!focusedEntries)return null;
+    const focusedAxisEntries=await researchCandidateLexiconBatched(true,focusedOptions,"materialize-focused-axis",onProgress,isCancelled);if(!focusedAxisEntries)return null;
     const phraseIndex=_corpusPhraseCache[st.scope]||new Map(),focusedPhraseIndex=_corpusPhraseCache.tanakh||phraseIndex;
     return {contract:DYNAMIC_LEXICON_CONTRACT,entries,phraseIndex,fallback,counts:{total:entries.length+phraseIndex.size,corpus:entries.filter(row=>row.sources.includes("corpus_native")).length,
       phrases:phraseIndex.size,years:entries.filter(row=>row.sources.includes("basic_hebrew_year")).length,
@@ -2814,16 +2848,24 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       // only after an explicit click. A compact local finding no longer needs a second word on its
       // own path merely to enter the neighborhood package. Coordinates never cross the bridge and
       // adding a term still runs the normal canonical verification before it becomes a Finding.
-      dynamicCandidateLexicon().then(async lexicon=>{
+      postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"lexicon-load",completed:0,total:0}});
+      dynamicCandidateLexicon(
+        progress=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:`lexicon-${progress.phase}`,completed:progress.completed,total:progress.total}}),
+        ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId
+      ).then(async lexicon=>{
+        if(!lexicon)return;
         const current=hasGov(st.res)?occ():null;
         if(lensEpoch!==_nativeLensSeq||!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
         const structuralAxis={...current,_structuralCells:new Set(current.positions||[])};
         const discoveryEntries=lexicon.entries,expanded=target.depth==="expanded";
         if(!expanded){
-          postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"core",completed:0,total:1}});
-          const focusedEntries=lexicon.focusedEntries||discoveryEntries,focused=scanFocusedCoreCandidates(focusedEntries,lexicon.focusedAxisEntries||lexicon.axisEntries,lexicon.focusedPhraseIndex||lexicon.phraseIndex,structuralAxis);
+          const focusedEntries=lexicon.focusedEntries||discoveryEntries,focused=await scanFocusedCoreCandidatesBatched(focusedEntries,lexicon.focusedAxisEntries||lexicon.axisEntries,lexicon.focusedPhraseIndex||lexicon.phraseIndex,structuralAxis,
+            progress=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"core",...progress}}),
+            ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId);
+          if(!focused)return;
           if(lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
-          postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:0,total:Math.min(12,focused.candidates.length)}});
+          if(focused.candidateCapped||focused.probeCapped){postHost({type:"lens",lens:"matrix-candidates",ok:false,target,reason:focused.probeCapped?"focused-core-probe-limit":"focused-core-candidate-limit",scanMode:"focused",scanned:focused.probes});return;}
+          postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify-prepare",completed:0,total:0}});
           const admitted=await verifyFocusedCoreCandidates(focused.candidates,structuralAxis,(completed,total)=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed,total}}),
             ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,12);
           if(!admitted||lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
@@ -2834,11 +2876,11 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
               lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,geometry:candidate.geometry,neighborhood:candidate.neighborhood,classifications:[...(candidate.classifications||[])],
               continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
           }));
-          const structural=buildStructuralGroups(admitted.items,structuralAxis,{maxDistance:12,minLength:3,maxLength:16,minMembers:2,maxGroups:6,maxMembers:8}),axisSuggestion=chooseAxisNeighborhoodSuggestion(admitted.items,structuralAxis);
+          const structural=buildStructuralGroups(admitted.items,structuralAxis,{maxDistance:15,minLength:3,maxLength:16,minMembers:2,maxGroups:6,maxMembers:8}),axisSuggestion=chooseAxisNeighborhoodSuggestion(admitted.items,structuralAxis);
           postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"VERIFIED",contract:FOCUSED_CORE_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"focused",provenanceSource:lexicon.contract,coverage:"focused-axis-core",
-            focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||12,directions:["1","S−1","S","S+1"],secondStage:{skips:"2–8",rowPad:2,colRadius:8}},verification:{attempted:admitted.attempted,verified:admitted.items.filter(item=>item.status==="VERIFIED").length,sourceExact:admitted.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:admitted.failed},
+            focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||15,directions:["1","S−1","S","S+1"],secondStage:{skips:"2–8",rowPad:2,colRadius:8}},verification:{attempted:admitted.attempted,verified:admitted.items.filter(item=>item.status==="VERIFIED").length,sourceExact:admitted.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:admitted.failed},
             lexicon:{contract:lexicon.contract,counts:lexicon.focusedCounts||lexicon.counts,fallback:lexicon.fallback,independentOfSavedResearch:true},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"focused_compact_band_then_distance_then_language_evidence"},
-            items,total:items.length,scanned:focused.probes,available:admitted.available,truncated:admitted.truncated,
+            items,total:items.length,scanned:focused.probes,available:admitted.available,truncated:admitted.truncated||focused.candidateCapped,
             structurePlan:structural.plan,groups:structural.groups,groupTotal:structural.groups.length,availableGroups:structural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
             axisSuggestion,geometryContract:COMPACT_GEOMETRY_CONTRACT});return;
         }
@@ -4123,7 +4165,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   }
   function focusedCoreBox(axis,limits=null){
     const S=Math.abs(Number(axis?.skip)||0),positions=axis?.positions||[];if(S<2||!positions.length)return null;
-    const rows=positions.map(position=>Math.floor(position/S)),mainCol=((positions[0]%S)+S)%S,rowPad=Math.max(4,Math.min(24,Number(limits?.rowPad)||12)),colRadius=Math.max(3,Math.min(20,Number(limits?.colRadius)||12));
+    const rows=positions.map(position=>Math.floor(position/S)),mainCol=((positions[0]%S)+S)%S,rowPad=Math.max(4,Math.min(24,Number(limits?.rowPad)||12)),colRadius=Math.max(3,Math.min(20,Number(limits?.colRadius)||15));
     return {S,mainCol,c0:Math.max(0,mainCol-colRadius),c1:Math.min(S-1,mainCol+colRadius),r0:Math.max(0,Math.min(...rows)-rowPad),r1:Math.min(Math.ceil(scopeN()/S)-1,Math.max(...rows)+rowPad),rowPad,colRadius};
   }
   function focusedCoreSkipMeta(candidate,axis){
@@ -4144,17 +4186,18 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     return parts.reduce((score,part)=>{const sources=new Set(part.sources||[]),kinds=new Set((part.classifications||[]).map(item=>item.kind));
       return score+(sources.has("governed_core")?80:0)+(sources.has("corpus_native")?55:0)+(kinds.has("hebrew-year")?90:0)+(kinds.has("corpus-morphology")?25:0)+Math.min(30,Number(part.support)||0)+Math.min(18,norm(part.term).length*3);},0);
   }
-  function focusedCoreRankScore(candidate,axis){
+  function focusedCoreRankScore(candidate,axis,preferIntersection=true){
     const kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),parts=(candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[],partKinds=new Set(parts.flatMap(part=>(part.classifications||[]).map(item=>item.kind))),partSources=new Set(parts.flatMap(part=>part.sources||[])),sourceExact=Math.abs(candidate.skip)===1&&kinds.has("corpus-phrase"),axisCells=axis?._structuralCells||new Set(axis?.positions||[]),intersects=(candidate.positions||[]).some(position=>axisCells.has(position));
-    let score=focusedCandidateStrength(candidate)+Number(candidate.neighborhood?.priority||0)*.16-Math.min(60,Number(candidate.distance||0)*4)+(intersects?0:28);
+    let score=focusedCandidateStrength(candidate)+Number(candidate.neighborhood?.priority||0)*.16-Math.min(60,Number(candidate.distance||0)*4)+(intersects?(preferIntersection?28:0):(preferIntersection?0:28));
     if(sourceExact)score+=650;
     else if(candidate.discoveryKind==="direct")score+=220;
     else if(candidate.discoveryKind==="compound")score+=(partKinds.has("hebrew-year")?360:partKinds.has("corpus-morphology")?300:partSources.has("governed_core")?250:135)+focusedCompoundPartsScore(candidate)*.35;
     else if(candidate.discoveryKind==="phrase")score+=120;
     return score;
   }
-  function scanFocusedCoreCandidates(entries,axisEntries,phraseIndex,axis,limits=null){
-    const box=focusedCoreBox(axis,limits);if(!box)return {box:null,candidates:[],probes:0};
+  function focusedCoreCandidateScan(entries,axisEntries,phraseIndex,axis,limits=null){
+    return (function*(){const box=focusedCoreBox(axis,limits);if(!box)return {box:null,candidates:[],probes:0,candidateCapped:false,probeCapped:false,budgetExceeded:null};
+    const maxCandidates=Math.max(1,Math.min(FOCUSED_CORE_CANDIDATE_CAP,Number(limits?.maxCandidates)||FOCUSED_CORE_CANDIDATE_CAP)),maxProbes=Math.max(1,Math.min(FOCUSED_CORE_PROBE_CAP,Number(limits?.maxProbes)||FOCUSED_CORE_PROBE_CAP));
     const {S,c0,c1,r0,r1}=box,axisTerm=norm(st.raw),mainSet=new Set(axis.positions||[]),anchors=(axis.positions||[]).map(position=>[Math.floor(position/S),((position%S)+S)%S]),termMap=new Map(),wordMap=new Map();
     const add=(map,row,min,max)=>{const term=norm(row.term||row.label);if(term.length<min||term.length>max||term===axisTerm)return;const current=map.get(term);if(!current||Number(row.support)>Number(current.support))map.set(term,{...row,term,label:row.label||row.term||term});};
     independentCandidateRows(entries).forEach(row=>add(termMap,row,3,24));
@@ -4162,60 +4205,96 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     const termLengths=[...new Set([...termMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),wordLengths=[...new Set([...wordMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),
       coreSteps=[...new Set([1,S-1,S,S+1].filter(step=>step>0))],coreStepSet=new Set(coreSteps),localGapSteps=[2,3,4,5,6,7,8].filter(step=>!coreStepSet.has(step)),
       axisRows=(axis.positions||[]).map(position=>Math.floor(position/S)),localR0=Math.max(r0,Math.min(...axisRows)-2),localR1=Math.min(r1,Math.max(...axisRows)+2),
-      localC0=Math.max(c0,mainSet.size?box.mainCol-8:c0),localC1=Math.min(c1,mainSet.size?box.mainCol+8:c1),found=new Map();let probes=0;
+      localC0=Math.max(c0,mainSet.size?box.mainCol-8:c0),localC1=Math.min(c1,mainSet.size?box.mainCol+8:c1),found=new Map();let probes=0,candidateCapped=false,probeCapped=false,completedOrigins=0,lastCoreReported=0,scanSliceStarted=Date.now();
     const inBox=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return position>=0&&position<scopeN()&&row>=r0&&row<=r1&&column>=c0&&column<=c1;};
     const consider=(row,positions,step,discoveryKind="direct",focusStage="A")=>{
       const term=norm(row.term||row.label);if(!term||term===axisTerm||positions.every(position=>mainSet.has(position)))return;
       const candidate={term:row.label||row.term||term,skip:Math.abs(step),dir:Math.sign(step),start:positions[0],positions,distance:distanceToAnchors(positions,anchors,S),lexiconSources:[...(row.sources||[])],lexiconSupport:Number(row.support)||1,classifications:[...(row.classifications||[])],discoveryKind},key=term,prior=found.get(key);
       candidate.focusStage=focusStage;
       candidate.geometry=compactGeometryMeta(candidate,axis);candidate.neighborhood=axisNeighborhoodMeta(candidate,axis);
+      if(!(candidate.geometry?.compact||candidate.focusStage==="B")||candidate.distance>15)return;
       const stagePriority={A:2,B:1},kindPriority={direct:3,phrase:2,compound:1};
-      if(!prior||stagePriority[focusStage]>stagePriority[prior.focusStage]||stagePriority[focusStage]===stagePriority[prior.focusStage]&&(kindPriority[discoveryKind]>kindPriority[prior.discoveryKind]||kindPriority[discoveryKind]===kindPriority[prior.discoveryKind]&&(focusedCoreRankScore(candidate,axis)>focusedCoreRankScore(prior,axis)||focusedCoreRankScore(candidate,axis)===focusedCoreRankScore(prior,axis)&&candidate.distance<prior.distance)))found.set(key,candidate);
+      if(!prior&&found.size>=maxCandidates){candidateCapped=true;return;}
+      if(!prior||stagePriority[focusStage]>stagePriority[prior.focusStage]||stagePriority[focusStage]===stagePriority[prior.focusStage]&&(kindPriority[discoveryKind]>kindPriority[prior.discoveryKind]||kindPriority[discoveryKind]===kindPriority[prior.discoveryKind]&&(focusedCoreRankScore(candidate,axis,false)>focusedCoreRankScore(prior,axis,false)||focusedCoreRankScore(candidate,axis,false)===focusedCoreRankScore(prior,axis,false)&&candidate.distance<prior.distance)))found.set(key,candidate);
     };
-    for(let row=r0;row<=r1;row++)for(let column=c0;column<=c1;column++){
-      const origin=row*S+column;if(origin<0||origin>=scopeN())continue;
-      const steps=row>=localR0&&row<=localR1&&column>=localC0&&column<=localC1?[...coreSteps,...localGapSteps]:coreSteps;
-      for(const magnitude of steps)for(const direction of [1,-1]){
-        const step=magnitude*direction,positions=[],letters=[];
-        for(let index=0;index<24;index++){const position=origin+index*step;if(!inBox(position))break;positions.push(position);letters.push(T[position]);}
-        const sequence=letters.join("");if(sequence.length<2)continue;probes++;
-        const focusStage=localGapSteps.includes(magnitude)?"B":"A";
-        for(const length of termLengths){if(length>sequence.length)break;const term=sequence.slice(0,length),rowEntry=termMap.get(term);if(rowEntry)consider(rowEntry,positions.slice(0,length),step,"direct",focusStage);}
-        for(let length=4;length<=sequence.length;length++){const term=sequence.slice(0,length),code=phraseIndex instanceof Map?phraseIndex.get(term):undefined;if(code===undefined)continue;const phrase=focusedPhraseRow(term,code);if(phrase)consider(phrase,positions.slice(0,length),step,"phrase",focusStage);}
-        for(const firstLength of wordLengths){if(firstLength>=sequence.length)break;const first=wordMap.get(sequence.slice(0,firstLength));if(!first)continue;
-          for(const secondLength of wordLengths){const total=firstLength+secondLength;if(total>16||total>sequence.length)break;const second=wordMap.get(sequence.slice(firstLength,total));if(!second)continue;
-            const term=sequence.slice(0,total),sources=[...new Set([...(first.sources||[]),...(second.sources||[]),"local_exact_compound"])],support=(Number(first.support)||1)+(Number(second.support)||1);
-            const parts=[first,second].map(part=>({term:part.term,label:part.label,sources:[...(part.sources||[])],support:Number(part.support)||1,classifications:[...(part.classifications||[])]}));
-            consider({term,label:`${first.label||first.term} ${second.label||second.term}`,sources,support,classifications:[{kind:"local-exact-compound",value:2,label:"שתי מילים צמודות שנמצאו על אותו נתיב",parts}]},positions.slice(0,total),step,"compound",focusStage);
+    const totalRows=r1-r0+1,totalOrigins=totalRows*(c1-c0+1);
+    scanRows:for(let row=r0;row<=r1;row++){
+      for(let column=c0;column<=c1;column++){
+        const origin=row*S+column;if(origin<0||origin>=scopeN()){completedOrigins++;if(completedOrigins===totalOrigins||Date.now()-scanSliceStarted>=32){lastCoreReported=completedOrigins;yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size};scanSliceStarted=Date.now();}continue;}
+        const steps=row>=localR0&&row<=localR1&&column>=localC0&&column<=localC1?[...coreSteps,...localGapSteps]:coreSteps;
+        for(const magnitude of steps)for(const direction of [1,-1]){
+          const step=magnitude*direction,positions=[],letters=[];
+          for(let index=0;index<24;index++){const position=origin+index*step;if(!inBox(position))break;positions.push(position);letters.push(T[position]);}
+          const sequence=letters.join("");if(sequence.length<2)continue;if(probes>=maxProbes){probeCapped=true;break scanRows;}probes++;
+          const focusStage=localGapSteps.includes(magnitude)?"B":"A";
+          for(const length of termLengths){if(length>sequence.length)break;const term=sequence.slice(0,length),rowEntry=termMap.get(term);if(rowEntry)consider(rowEntry,positions.slice(0,length),step,"direct",focusStage);}
+          for(let length=4;length<=sequence.length;length++){const term=sequence.slice(0,length),code=phraseIndex instanceof Map?phraseIndex.get(term):undefined;if(code===undefined)continue;const phrase=focusedPhraseRow(term,code);if(phrase)consider(phrase,positions.slice(0,length),step,"phrase",focusStage);}
+          for(const firstLength of wordLengths){if(firstLength>=sequence.length)break;const first=wordMap.get(sequence.slice(0,firstLength));if(!first)continue;
+            for(const secondLength of wordLengths){const total=firstLength+secondLength;if(total>16||total>sequence.length)break;const second=wordMap.get(sequence.slice(firstLength,total));if(!second)continue;
+              const term=sequence.slice(0,total),sources=[...new Set([...(first.sources||[]),...(second.sources||[]),"local_exact_compound"])],support=(Number(first.support)||1)+(Number(second.support)||1);
+              const parts=[first,second].map(part=>({term:part.term,label:part.label,sources:[...(part.sources||[])],support:Number(part.support)||1,classifications:[...(part.classifications||[])]}));
+              consider({term,label:`${first.label||first.term} ${second.label||second.term}`,sources,support,classifications:[{kind:"local-exact-compound",value:2,label:"שתי מילים צמודות שנמצאו על אותו נתיב",parts}]},positions.slice(0,total),step,"compound",focusStage);
+            }
           }
         }
+        completedOrigins++;if(completedOrigins===totalOrigins||candidateCapped||Date.now()-scanSliceStarted>=32){lastCoreReported=completedOrigins;yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size};scanSliceStarted=Date.now();}
+        if(candidateCapped)return {box,candidates:[],probes,candidateCapped:true,probeCapped:false,budgetExceeded:"candidates"};
       }
     }
-    const candidates=[...found.values()].map(candidate=>({...candidate,skipMeta:focusedCoreSkipMeta(candidate,axis)}))
-      .filter(candidate=>(candidate.geometry?.compact||candidate.focusStage==="B")&&candidate.distance<=12)
-      .sort((a,b)=>focusedCoreRankScore(b,axis)-focusedCoreRankScore(a,axis)||a.distance-b.distance||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
-    return {box,candidates,probes};
+    if(probeCapped){yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size,budgetExceeded:true};return {box,candidates:[],probes,candidateCapped:false,probeCapped:true,budgetExceeded:"probes"};}
+    if(completedOrigins!==lastCoreReported)yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size};
+    const values=[...found.values()],ranked=[];let projectSliceStarted=Date.now();
+    for(let index=0;index<values.length;index++){
+      const candidate=values[index],term=norm(candidate.term),score=focusedCoreRankScore(candidate,axis),kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),compoundKinds=new Set(((candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[]).flatMap(part=>(part.classifications||[]).map(item=>item.kind))),flags=(candidate.discoveryKind==="phrase"&&Math.abs(candidate.skip)===1?1:0)|(candidate.geometry?.intersects?2:0)|(candidate.discoveryKind==="direct"?4:0)|(candidate.geometry?.compact?8:0)|((candidate.lexiconSources||[]).includes("governed_core")?16:0)|(kinds.has("hebrew-year")?32:0)|(candidate.focusStage==="B"?64:0)|(candidate.discoveryKind==="compound"&&compoundKinds.has("hebrew-year")?128:0)|(candidate.discoveryKind==="compound"?256:0);
+      ranked.push({candidate:{...candidate,skipMeta:focusedCoreSkipMeta(candidate,axis),focusScore:score,focusTerm:term,focusFlags:flags},score,distance:candidate.distance,priority:Number(candidate.neighborhood?.priority)||0,stage:candidate.focusStage==="B"?1:0,term});
+      if(index+1===values.length||Date.now()-projectSliceStarted>=32){yield {phase:"collect",completed:index+1,total:values.length,probes,candidates:ranked.length};projectSliceStarted=Date.now();}
+    }
+    const compare=(a,b)=>a.stage-b.stage||a.distance-b.distance||b.priority-a.priority||b.score-a.score||a.term.localeCompare(b.term,"he");
+    let source=ranked,target=new Array(ranked.length);const passes=ranked.length>1?Math.ceil(Math.log2(ranked.length)):0,sortTotal=ranked.length*passes;let sorted=0,lastYield=0,sortSliceStarted=Date.now();
+    for(let width=1;width<ranked.length;width*=2){
+      for(let left=0;left<ranked.length;left+=width*2){let first=left,second=Math.min(left+width,ranked.length),firstEnd=second,secondEnd=Math.min(left+width*2,ranked.length),cursor=left;
+        while(first<firstEnd||second<secondEnd){target[cursor++]=second>=secondEnd||first<firstEnd&&compare(source[first],source[second])<=0?source[first++]:source[second++];sorted++;
+          if(Date.now()-sortSliceStarted>=32){lastYield=sorted;yield {phase:"rank",completed:sorted,total:sortTotal,probes,candidates:ranked.length};sortSliceStarted=Date.now();}
+        }
+      }
+      [source,target]=[target,source];
+    }
+    if(sorted!==lastYield)yield {phase:"rank",completed:sorted,total:sortTotal,probes,candidates:ranked.length};
+    const candidates=source.map(row=>row.candidate);
+    return {box,candidates,probes,candidateCapped:false,probeCapped:false,budgetExceeded:null};})();
+  }
+  function scanFocusedCoreCandidates(entries,axisEntries,phraseIndex,axis,limits=null){
+    const scan=focusedCoreCandidateScan(entries,axisEntries,phraseIndex,axis,limits);
+    for(;;){const next=scan.next();if(next.done)return next.value;}
+  }
+  async function scanFocusedCoreCandidatesBatched(entries,axisEntries,phraseIndex,axis,onProgress,isCancelled,limits=null){
+    const scan=focusedCoreCandidateScan(entries,axisEntries,phraseIndex,axis,limits);
+    for(;;){if(isCancelled?.())return null;const next=scan.next();if(next.done)return next.value;onProgress?.(next.value);await paintOperation();}
   }
   function focusedSourceProjection(candidate){
     const indexes=[...new Set((candidate.positions||[]).map(verseAt).filter(index=>index>=0))],selected=indexes.length<=3?indexes:[indexes[0],indexes[Math.floor(indexes.length/2)],indexes.at(-1)],span=verseSpan(candidate.positions||[]);
     return {span:span?{fromRef:span.fromRef,toRef:span.toRef,count:span.count}:null,verses:selected.map(index=>({ref:refStr(index),text:(VTEXT&&VTEXT[index])||""}))};
   }
   function selectFocusedCoreCandidates(candidates,limit=12){
-    const cap=Math.max(1,Math.min(16,Number(limit)||12)),selected=[],seen=new Set(),rows=candidates||[],add=(predicate,count)=>{
-      for(const candidate of rows){if(count<=0||selected.length>=cap)break;const key=norm(candidate.term);if(seen.has(key)||!predicate(candidate))continue;seen.add(key);selected.push(candidate);count--;}
-    },kinds=candidate=>new Set((candidate.classifications||[]).map(item=>item.kind)),compoundKinds=candidate=>new Set(((candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[]).flatMap(part=>(part.classifications||[]).map(item=>item.kind)));
-    // A focused package is deliberately mixed: source, governed/core language, years and
-    // morphology each get bounded seats. This prevents a single dense verse row from consuming
-    // every verification slot while preserving the global evidence ranking inside each lane.
-    add(candidate=>candidate.discoveryKind==="phrase"&&Math.abs(candidate.skip)===1,2);
-    add(candidate=>candidate.discoveryKind==="direct"&&(candidate.lexiconSources||[]).includes("governed_core"),2);
-    add(candidate=>candidate.discoveryKind==="direct"&&kinds(candidate).has("hebrew-year"),1);
-    add(candidate=>candidate.discoveryKind==="direct"&&kinds(candidate).has("corpus-morphology"),1);
-    add(candidate=>candidate.discoveryKind==="direct"&&(candidate.lexiconSources||[]).includes("corpus_native"),2);
-    add(candidate=>candidate.focusStage==="B",1);
-    add(candidate=>candidate.discoveryKind==="compound"&&compoundKinds(candidate).has("hebrew-year"),1);
-    add(candidate=>candidate.discoveryKind==="compound"&&compoundKinds(candidate).has("corpus-morphology"),1);
-    add(candidate=>candidate.discoveryKind==="compound",1);
+    const cap=Math.max(1,Math.min(16,Number(limit)||12)),selected=[],seen=new Set(),rows=candidates||[],positionSets=new WeakMap(),positionSet=candidate=>{let value=positionSets.get(candidate);if(!value){value=new Set(candidate.positions||[]);positionSets.set(candidate,value);}return value;},samePathOverlap=(candidate,prior)=>{
+      if(Math.abs(candidate.skip)!==Math.abs(prior.skip))return false;
+      const priorPositions=positionSet(prior);let shared=0;
+      for(const position of candidate.positions||[])if(priorPositions.has(position)&&++shared>=2)return true;
+      return false;
+    },add=(predicate,count)=>{
+      for(const candidate of rows){if(count<=0||selected.length>=cap)break;const key=candidate.focusTerm||norm(candidate.term),flags=Number(candidate.focusFlags)||0;if(seen.has(key)||!predicate(flags)||selected.some(prior=>samePathOverlap(candidate,prior)))continue;seen.add(key);selected.push(candidate);count--;}
+    };
+    // A focused package is deliberately mixed, close-first and path-diverse. Exact source paths
+    // crossing the axis and nearby compact structures receive seats before general language score;
+    // nested terms on one path cannot consume several of the 12 canonical-admission attempts.
+    add(flags=>(flags&3)===3,2);
+    add(flags=>(flags&1)===1,2);
+    add(flags=>(flags&12)===12,2);
+    add(flags=>(flags&20)===20,1);
+    add(flags=>(flags&36)===36,1);
+    add(flags=>(flags&64)===64,1);
+    add(flags=>(flags&128)===128,1);
+    add(flags=>(flags&264)===264,2);
     add(()=>true,cap-selected.length);
     return selected;
   }
@@ -5064,17 +5143,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
   // The legacy strip and native inspector share the SAME literal on-line matcher. A caller may
   // supply the lazy dynamic lexicon; offsets remain display evidence, never verified occurrences.
   function scanLineWords(cells,word,maxWords=Infinity,maxMatches=Infinity,lexicon=DICT){
-    const lineStr=cells.map(c=>c.letter).join(""),axisN=norm(word),lookup=new Map();let maxLength=3;
-    for(const entry of lexicon){
-      const label=typeof entry==="string"?entry:entry.label||entry.term,term=norm(label);
-      if(term.length<3||term===axisN||lookup.has(term))continue;
-      maxLength=Math.max(maxLength,term.length);lookup.set(term,{term,label,matches:[],lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1});
-    }
+    const lineStr=cells.map(c=>c.letter).join(""),axisN=norm(word),lexiconIndex=lineExtensionLexiconIndex(lexicon),lookup=lexiconIndex.byTerm,maxLength=Math.max(3,lexiconIndex.maxLength||3);
     const found=new Map(),spans=new Set();let count=0,truncated=false;
     scan:for(const direction of [1,-1]){
       const sequence=direction===1?lineStr:lineStr.split("").reverse().join("");
       for(let at=0;at<sequence.length;at++)for(let length=3;length<=maxLength&&at+length<=sequence.length;length++){
-        const row=lookup.get(sequence.slice(at,at+length));if(!row)continue;
+        const row=lookup.get(sequence.slice(at,at+length));if(!row||row.term===axisN)continue;
         const shownAt=direction===1?at:lineStr.length-at-length,span=row.term+":"+shownAt+":"+length;
         if(spans.has(span))continue;
         if(count>=maxMatches){truncated=true;break scan;}
@@ -5095,7 +5169,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       if(term.length<2||term.length>24)continue;const prior=byTerm.get(term);
       if(!prior||row.lexiconSupport>prior.lexiconSupport)byTerm.set(term,row);
     }
-    const rows=[...byTerm.values()],index={byTerm,lengths:[...new Set(rows.filter(row=>row.term.length<=12).map(row=>row.term.length))].sort((a,b)=>a-b),rows,formsByAxis:new Map()};
+    const rows=[...byTerm.values()],index={byTerm,lengths:[...new Set(rows.filter(row=>row.term.length<=12).map(row=>row.term.length))].sort((a,b)=>a-b),maxLength:rows.reduce((max,row)=>Math.max(max,row.term.length),0),rows,formsByAxis:new Map()};
     _lineExtensionIndexCache.set(lexicon,index);return index;
   }
   // Exact seed expansion on one already-found path. A longer lexical candidate must contain the

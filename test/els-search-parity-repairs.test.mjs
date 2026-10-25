@@ -25,7 +25,7 @@ test('the single canonical engine finds an exact skip above the page bridge ceil
 });
 
 test('axis dictionary scan finds both reading directions with correct displayed offsets and no palindrome duplicates',()=>{
- const c=context(normalization+'\n'+source('scanLineWords')+'\nthis.scan=scanLineWords;',{DICT:['המן','תורה','אבא']});
+ const c=context(normalization+'\nconst _lineExtensionIndexCache=new WeakMap(),DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1";\n'+source('lineExtensionLexiconIndex')+'\n'+source('scanLineWords')+'\nthis.scan=scanLineWords;',{DICT:['המן','תורה','אבא']});
  const scan=c.scan(Array.from('תורהנמהאבא',(letter,i)=>({letter,i})),'ציר');
  assert.deepEqual(JSON.parse(JSON.stringify(scan.words.find(w=>w.term==='המנ').matches)),[{at:4,length:3,direction:-1}]);
  assert.equal(scan.words.find(w=>w.term==='אבא').matches.length,1);

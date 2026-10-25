@@ -2,11 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { HIRSCH_GOLDEN_CANDIDATES } from "./fixtures/els-hirsch-golden-candidates.mjs";
 
 const template = readFileSync(new URL("../tools/els/els-code.template.html", import.meta.url), "utf8");
 
 function source(name) {
-  const start = template.indexOf(`function ${name}(`);
+  const asyncStart = template.indexOf(`async function ${name}(`);
+  const plainStart = template.indexOf(`function ${name}(`);
+  const start = asyncStart >= 0 && (plainStart < 0 || asyncStart <= plainStart) ? asyncStart : plainStart;
   assert.ok(start >= 0, `${name} exists in the canonical engine`);
   let depth = 0;
   for (let index = template.indexOf("{", start); index < template.length; index += 1) {
@@ -19,7 +22,7 @@ function source(name) {
 const normalization = `const FIN={"ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"};
 const norm=s=>{let o="";for(const c of s||"")if(c>="א"&&c<="ת")o+=(FIN[c]||c);return o;};`;
 
-test("dynamic ELS vocabulary derives from canonical language and visible verified research without a new store", () => {
+test("dynamic ELS vocabulary derives from canonical language and visible verified research without a new store", async () => {
   const context = vm.createContext({
     DICT: ["אליהו", "אמת"],
     _corpusLexiconCache: { torah: null, tanakh: null },
@@ -40,14 +43,19 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
     },
     st: { scope: "torah", raw: "משיח", words: [{ t: "יבואו" }] },
     CLOUD_MATRICES: [{ term: "תשעו", words: [{ t: "בית" }] }],
+    progressRows: [], paintCount: 0,
   });
+  context.paintOperation = async () => { context.paintCount += 1; };
   vm.runInContext([
     normalization,
     source("addCandidateLexiconTerm"),
     source("addCorpusMorphology"),
+    source("corpusCandidateLexiconBuild"),
     source("buildCorpusCandidateLexicons"),
     source("addBasicHebrewYears"),
+    source("researchCandidateLexiconBuild"),
     source("researchCandidateLexicon"),
+    source("researchCandidateLexiconBatched"),
     "buildCorpusCandidateLexicons(['בא יבואו יבואו אליהו הספינה מחכה','ארבעה','','','','מחוץ']);",
     "this.result=researchCandidateLexicon();",
     "this.focused=researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true});",
@@ -74,12 +82,64 @@ test("dynamic ELS vocabulary derives from canonical language and visible verifie
   assert.ok(focusedByTerm.get("מחכי").sources.includes("corpus_morphology"), "bounded inflection supports a local compound without a curated runtime term");
   const axisRows = JSON.parse(JSON.stringify(vm.runInContext("researchCandidateLexicon(true)", context)));
   assert.ok(axisRows.find((row) => row.term === "בא")?.sources.includes("corpus_native_adjacent"), "a short Torah word is available only to exact axis continuation");
+  context.paintCount = 0;context.progressRows = [];
+  const batchedRows = JSON.parse(JSON.stringify(await vm.runInContext("researchCandidateLexiconBatched(false,null,'materialize-parity',progress=>progressRows.push(progress),()=>false)", context)));
+  assert.deepEqual(batchedRows, rows, "batched materialization preserves the exact sorted candidate lexicon");
+  assert.equal(context.paintCount, context.progressRows.length, "each materialization chunk yields to rendering");
+  assert.ok(context.progressRows.some((progress) => progress.phase === "materialize-parity-sort"), "stable ranking is also yielded");
+  assert.ok(context.progressRows.every((progress) => !["term", "text", "hitId", "positions", "start", "dir", "rc", "p0", "p1"].some((key) => Object.hasOwn(progress, key))), "materialization progress contains counts only");
+  context.paintCount = 0;context.progressRows = [];
+  const cancelled = await vm.runInContext("researchCandidateLexiconBatched(false,null,'materialize-cancel',progress=>progressRows.push(progress),()=>paintCount>=2)", context);
+  assert.equal(cancelled, null, "materialization cancellation publishes no partial candidate list");
+});
+
+test("canonical language construction keeps sync parity while yielding cancellable count-only progress", async () => {
+  const rows = Array.from({ length: 130 }, (_, index) => index % 2 ? "בא יבואו אליהו" : "הספינה מחכה אמת");
+  const createContext = () => {
+    const context = vm.createContext({
+      _corpusLexiconCache: { torah: null, tanakh: null },
+      _corpusAxisWordCache: { torah: null, tanakh: null },
+      _corpusPhraseCache: { torah: null, tanakh: null },
+      VCHAP: [[130], [], [], [], []], TORAH_BOOKS: 5,
+      progressRows: [], paintCount: 0,
+    });
+    context.paintOperation = async () => { context.paintCount += 1; };
+    return context;
+  };
+  const install = (context) => vm.runInContext([
+    normalization, source("addCandidateLexiconTerm"), source("addCorpusMorphology"),
+    source("corpusCandidateLexiconBuild"), source("buildCorpusCandidateLexicons"), source("buildCorpusCandidateLexiconsBatched"),
+  ].join("\n"), context);
+  const syncContext = createContext();install(syncContext);
+  syncContext.rows = rows;
+  vm.runInContext("buildCorpusCandidateLexicons(rows)", syncContext);
+  const snapshot = (context) => JSON.parse(vm.runInContext("JSON.stringify({torah:_corpusLexiconCache.torah.map(row=>row.term),tanakh:_corpusLexiconCache.tanakh.map(row=>row.term),axis:_corpusAxisWordCache.tanakh.map(row=>row.term),phrases:[..._corpusPhraseCache.tanakh.entries()]})", context));
+
+  const asyncContext = createContext();install(asyncContext);asyncContext.rows = rows;
+  const built = await vm.runInContext("buildCorpusCandidateLexiconsBatched(rows,progress=>progressRows.push(progress),()=>false)", asyncContext);
+  assert.equal(built, true);
+  assert.deepEqual(snapshot(asyncContext), snapshot(syncContext), "batched language construction preserves the exact canonical cache");
+  assert.equal(asyncContext.paintCount, asyncContext.progressRows.length, "each language-build chunk yields to rendering");
+  assert.ok(asyncContext.progressRows.length >= 3);
+  assert.ok(asyncContext.progressRows.every((progress) => !Object.hasOwn(progress, "term") && !Object.hasOwn(progress, "text")), "language progress contains counts only");
+
+  const cancelledContext = createContext();install(cancelledContext);cancelledContext.rows = rows;
+  const cancelled = await vm.runInContext("buildCorpusCandidateLexiconsBatched(rows,progress=>progressRows.push(progress),()=>paintCount>=4)", cancelledContext);
+  assert.equal(cancelled, null);
+  assert.equal(cancelledContext._corpusLexiconCache.torah, null, "a cancelled cold build publishes no partial Torah cache");
+  assert.equal(cancelledContext._corpusLexiconCache.tanakh, null, "a cancelled cold build publishes no partial cache");
+  assert.equal(cancelledContext._corpusAxisWordCache.torah, null, "a cancelled cold build publishes no partial axis-word cache");
+  assert.equal(cancelledContext._corpusAxisWordCache.tanakh, null, "a cancelled cold build keeps the Tanakh axis-word cache empty");
+  assert.equal(cancelledContext._corpusPhraseCache.torah, null, "a cancelled cold build publishes no partial phrase index");
+  assert.equal(cancelledContext._corpusPhraseCache.tanakh, null, "a cancelled cold build keeps the Tanakh phrase index empty");
 });
 
 test("dynamic vocabulary remains candidate-only and is loaded only by explicit scan lenses", () => {
   assert.match(template, /const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1"/);
   assert.match(template, /if\(target\.scan===true\)dynamicCandidateLexicon\(\)\.then\(publish\);else publish\(null\)/);
-  assert.match(template, /d\.lens==="matrix-candidates"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(async lexicon=>/);
+  assert.match(template, /d\.lens==="matrix-candidates"[\s\S]*?dynamicCandidateLexicon\([\s\S]*?phase:`lexicon-\$\{progress\.phase\}`[\s\S]*?\)\.then\(async lexicon=>/);
+  assert.match(template, /async function buildCorpusCandidateLexiconsBatched[\s\S]*?await paintOperation\(\)/, "the cold canonical-language build yields to rendering");
+  assert.match(template, /async function researchCandidateLexiconBatched[\s\S]*?await paintOperation\(\)/, "candidate materialization and sorting also yield to rendering");
   assert.match(template, /d\.lens==="structure-priority"[\s\S]*?dynamicCandidateLexicon\(\)\.then\(async lexicon=>/);
   assert.match(template, /d\.lens==="structure-priority"[\s\S]*?eligibleLexicon=lexicon\.entries\.filter[\s\S]*?deriveLocalPhraseCandidates\(candidatesBaseRaw,structuralAxis,lexicon\.phraseIndex\)/,
     "the structure tool shares local phrase extension instead of brute-force phrase scanning");
@@ -107,6 +167,7 @@ test("axis-neighborhood discovery is explicit, bounded and independent of a cont
   assert.match(block, /bundleContract:AXIS_NEIGHBORHOOD_CONTRACT/);
   assert.match(block, /scanMode:"focused"/);
   assert.match(block, /independentOfSavedResearch:true/);
+  assert.match(block, /focused\.candidateCapped\|\|focused\.probeCapped[\s\S]*?ok:false/, "a focused budget overflow fails closed instead of publishing a partial package");
   assert.match(block, /target\.depth==="expanded"/);
   assert.match(block, /axisSuggestion=chooseAxisNeighborhoodSuggestion/);
 
@@ -118,9 +179,10 @@ test("axis-neighborhood discovery is explicit, bounded and independent of a cont
   assert.doesNotMatch(targetBlock, /(?:positions|\bstart\b|\bp0\b|\bp1\b)\s*:/, "the suggested-axis response remains coordinate-free");
 });
 
-test("focused core cold Goldens are rediscovered from the canonical corpus without saved-cipher vocabulary", () => {
+test("focused core cold Goldens are rediscovered from the canonical corpus without saved-cipher vocabulary", async () => {
   const corpus = readFileSync(new URL("../tools/els/data/tk-letters.txt", import.meta.url), "utf8").trim();
   const verses = readFileSync(new URL("../tools/els/data/tk-vtext.txt", import.meta.url), "utf8").trimEnd().split("\n");
+  const governedCore = JSON.parse(template.match(/const DICT=(\[[^;]+\]);/)[1]);
   let scopeLength = 304805;
   const hebrewNumber = (number) => {
     const units = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"];
@@ -133,7 +195,7 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
   };
   const context = vm.createContext({
     T: corpus,
-    DICT: ["אליהו", "מלך", "שופר", "אמת"],
+    DICT: governedCore,
     _corpusLexiconCache: { torah: null, tanakh: null },
     _corpusAxisWordCache: { torah: null, tanakh: null },
     _corpusPhraseCache: { torah: null, tanakh: null },
@@ -142,16 +204,18 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     CLOUD_MATRICES: [], scopeN: () => scopeLength, heb: String,
     COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1",
     AXIS_NEIGHBORHOOD_CONTRACT: "els_axis_neighborhood_bundle_v1",
+    FOCUSED_CORE_CANDIDATE_CAP: 32768,
+    FOCUSED_CORE_PROBE_CAP: 16384,
     gridStep: (skip, width) => { const rows = Math.round(skip / width);const columns = skip - rows * width;return Math.max(Math.abs(rows), Math.abs(columns)) || 1; },
   });
   vm.runInContext([
     normalization,
-    source("addCandidateLexiconTerm"), source("addCorpusMorphology"), source("buildCorpusCandidateLexicons"),
-    source("addBasicHebrewYears"), source("researchCandidateLexicon"), source("compactGeometryMeta"),
+    source("addCandidateLexiconTerm"), source("addCorpusMorphology"), source("corpusCandidateLexiconBuild"), source("buildCorpusCandidateLexicons"),
+    source("addBasicHebrewYears"), source("researchCandidateLexiconBuild"), source("researchCandidateLexicon"), source("compactGeometryMeta"),
     source("axisNeighborhoodMeta"), source("distanceToAnchors"), source("independentCandidateRows"),
     source("focusedPhraseRow"), source("focusedCoreBox"), source("focusedCoreSkipMeta"),
     source("focusedCandidateStrength"), source("focusedCompoundPartsScore"), source("focusedCoreRankScore"),
-    source("scanFocusedCoreCandidates"),
+    source("focusedCoreCandidateScan"), source("scanFocusedCoreCandidates"), source("scanFocusedCoreCandidatesBatched"), source("selectFocusedCoreCandidates"),
     `buildCorpusCandidateLexicons(${JSON.stringify(verses)});`,
   ].join("\n"), context);
 
@@ -160,6 +224,10 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     { label: "יום משיח בא", skip: 583, start: 239480, dir: -1, expected: ["ישלח", "מלכ", "מחכיתשפו", "לכפרעליכמ", "הארחשכ", "שופר"] },
     { label: "קולומביה", skip: 4545, start: 248765, dir: 1, expected: ["יכלאש", "ספינת", "אשאכלה"] },
     { label: "תורת הרמז", skip: 21940, start: 43250, dir: 1, scope: "tanakh", expected: ["נשמהללוט", "זרע", "חשמל"] },
+    ...HIRSCH_GOLDEN_CANDIDATES.map((golden) => {
+      const [skip, dir, start] = golden.axis.hitId.split("_").map(Number);
+      return { label: golden.label, skip, start, dir, scope: golden.scope, expected: golden.findings.map((finding) => finding.term), hirsch: golden };
+    }),
   ];
   for (const golden of goldens) {
     scopeLength = golden.scope === "tanakh" ? corpus.length : 304805;
@@ -172,6 +240,23 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
     vm.runInContext("this.result=scanFocusedCoreCandidates(researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true}),researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true}),_corpusPhraseCache.tanakh,axis);", context);
     const found = new Set(context.result.candidates.map((candidate) => vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context)));
     for (const term of golden.expected) assert.ok(found.has(term), `${golden.label} independently rediscovers ${term}`);
+    if (golden.hirsch) {
+      const byTerm = new Map(context.result.candidates.map((candidate) => [vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context), candidate]));
+      const selected = JSON.parse(JSON.stringify(vm.runInContext("selectFocusedCoreCandidates(result.candidates,12)", context)));
+      assert.ok(selected.length <= 12, "the visible first package keeps its canonical-admission cap");
+      for (let left = 0; left < selected.length; left += 1) for (let right = left + 1; right < selected.length; right += 1) {
+        if (Math.abs(selected[left].skip) !== Math.abs(selected[right].skip)) continue;
+        const shared = selected[left].positions.filter((position) => selected[right].positions.includes(position)).length;
+        assert.ok(shared < 2, "nested terms on one exact path do not consume multiple visible seats, while a one-cell crossing remains eligible");
+      }
+      for (const finding of golden.hirsch.findings) {
+        const term = vm.runInContext(`norm(${JSON.stringify(finding.term)})`, context), candidate = byTerm.get(term);
+        assert.ok(candidate, `${golden.label} rediscovers ${finding.term}`);
+        assert.ok(finding.hitIds.includes(`${Math.abs(candidate.skip)}_${candidate.dir}_${candidate.start}`), `${golden.label}/${finding.term} is the recorded exact occurrence`);
+        assert.equal(candidate.skipMeta.code === "SOURCE_CONTIGUOUS", finding.kind === "source-sequence", "source sequences remain distinct from ELS");
+        assert.equal(candidate.lexiconSources.some((sourceName) => ["visible_saved_research", "verified_research"].includes(sourceName)), false, "saved research never supplies a Hirsch candidate");
+      }
+    }
     if (golden.label === "תורת הרמז") {
       const stages = new Map(context.result.candidates.map(candidate => [vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context), candidate.focusStage]));
       assert.equal(stages.get("חשמל"), "B", "bounded local gaps remain an explicit second-stage candidate");
@@ -179,8 +264,53 @@ test("focused core cold Goldens are rediscovered from the canonical corpus witho
       assert.ok(context.result.probes < 8000, "the local-gap stage remains bounded around the axis rows and columns");
     }
     assert.equal(context.result.box.rowPad, 12);
-    assert.equal(context.result.box.colRadius, 12);
+    assert.equal(context.result.box.colRadius, 15);
+    assert.ok(context.result.probes < 12000, `${golden.label} stays inside the focused-core probe budget`);
+    assert.ok(context.result.candidates.length < 32768, `${golden.label} stays inside the focused-core candidate budget (${context.result.candidates.length})`);
+    assert.equal(context.result.candidateCapped, false);
+    assert.equal(context.result.probeCapped, false);
   }
+  const poison = HIRSCH_GOLDEN_CANDIDATES[0], [poisonSkip, poisonDir, poisonStart] = poison.axis.hitId.split("_").map(Number);
+  context.CLOUD_MATRICES = [{ term: poison.label, skip: poisonSkip, scope: poison.scope, words: [{ t: "תשובתשקר", sh: ["2_1_0"] }] }];
+  context.st.scope = poison.scope;context.st.raw = poison.label;
+  context.axis = { skip: poisonSkip, start: poisonStart, dir: poisonDir,
+    positions: Array.from({ length: vm.runInContext(`norm(${JSON.stringify(poison.label)}).length`, context) }, (_, index) => poisonStart + index * poisonSkip * poisonDir) };
+  context.axis._structuralCells = new Set(context.axis.positions);
+  context.syncResult=vm.runInContext("scanFocusedCoreCandidates(researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true}),researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true}),_corpusPhraseCache.tanakh,axis)", context);
+  context.coreProgress=[];context.paintCount=0;context.paintOperation=async()=>{context.paintCount+=1;};
+  const poisonedPromise = vm.runInContext("scanFocusedCoreCandidatesBatched(researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true}),researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true}),_corpusPhraseCache.tanakh,axis,progress=>coreProgress.push(progress),()=>false)", context);
+  context.result=await poisonedPromise;
+  assert.ok(context.coreProgress.length > 4, "focused scanning yields multiple visible progress steps");
+  assert.equal(context.paintCount, context.coreProgress.length, "every core chunk yields to rendering and cancellation");
+  assert.equal(context.coreProgress.at(-1).completed, context.coreProgress.at(-1).total);
+  assert.ok(context.coreProgress.some((progress) => progress.phase === "core"), "focused scanning reports its bounded geometry pass");
+  assert.ok(context.coreProgress.some((progress) => progress.phase === "collect"), "focused scanning yields while projecting eligible candidates");
+  assert.ok(context.coreProgress.some((progress) => progress.phase === "rank"), "focused scanning yields while projecting and sorting the candidate pool");
+  for (const phase of ["core", "collect", "rank"]) {
+    const phaseRows = context.coreProgress.filter((progress) => progress.phase === phase);
+    assert.ok(phaseRows.every((progress, index) => index === 0 || progress.completed >= phaseRows[index - 1].completed), `${phase} progress is monotone`);
+    assert.equal(new Set(phaseRows.map((progress) => progress.total)).size, 1, `${phase} keeps one explicit work total`);
+  }
+  assert.ok(context.coreProgress.every((progress) => !Object.hasOwn(progress, "term") && !Object.hasOwn(progress, "hitId") && !Object.hasOwn(progress, "positions")), "core progress exports counts only");
+  const keyRows = (result) => result.candidates.map((candidate) => `${vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context)}:${candidate.skip}:${candidate.dir}:${candidate.start}`);
+  assert.deepEqual(keyRows(context.result), keyRows(context.syncResult), "batched runtime scan preserves exact sync order and identities");
+  const poisonedByTerm = new Map(context.result.candidates.map((candidate) => [vm.runInContext(`norm(${JSON.stringify(candidate.term)})`, context), `${Math.abs(candidate.skip)}_${candidate.dir}_${candidate.start}`]));
+  for (const finding of poison.findings) {
+    const term = vm.runInContext(`norm(${JSON.stringify(finding.term)})`, context);
+    assert.ok(finding.hitIds.includes(poisonedByTerm.get(term)), `poisoned saved vocabulary cannot alter ${poison.label}/${finding.term}`);
+  }
+  assert.equal(poisonedByTerm.has("תשובתשקר"), false, "a saved-only poisoned answer is not a focused candidate");
+  context.smallCandidateBudget=vm.runInContext("scanFocusedCoreCandidates(researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true}),researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true}),_corpusPhraseCache.tanakh,axis,{maxCandidates:1})", context);
+  assert.equal(context.smallCandidateBudget.budgetExceeded, "candidates");
+  assert.equal(context.smallCandidateBudget.candidates.length, 0, "candidate overflow returns no partial package");
+  context.smallProbeBudget=vm.runInContext("scanFocusedCoreCandidates(researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true}),researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true}),_corpusPhraseCache.tanakh,axis,{maxProbes:1})", context);
+  assert.equal(context.smallProbeBudget.budgetExceeded, "probes");
+  assert.equal(context.smallProbeBudget.candidates.length, 0, "probe overflow returns no partial package");
+  context.cancelProgress=[];context.paintCount=0;
+  const cancelledPromise=vm.runInContext("scanFocusedCoreCandidatesBatched(researchCandidateLexicon(false,{languageScope:'tanakh',includeMorphology:true}),researchCandidateLexicon(true,{languageScope:'tanakh',includeMorphology:true}),_corpusPhraseCache.tanakh,axis,progress=>cancelProgress.push(progress),()=>paintCount>=2)", context);
+  assert.equal(await cancelledPromise, null, "cancellation between chunks publishes no final package");
+  assert.equal(context.cancelProgress.length, 2);
+  context.CLOUD_MATRICES = [];
   assert.equal(context.CLOUD_MATRICES.length, 0, "saved matrices are not runtime discovery input");
 });
 

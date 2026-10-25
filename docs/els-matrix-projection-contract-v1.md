@@ -181,7 +181,7 @@ meaning or Truth claim.
 
 `els_focused_core_bundle_v1` is the default first pass of the existing axis-neighborhood action.
 It bounds work relative to the verified axis rather than imposing an unrelated absolute skip cap:
-12 rows and 12 columns around the axis, exact source sequence `1`, and the compact skip family
+12 rows and 15 columns around the axis, exact source sequence `1`, and the compact skip family
 `S−1`, `S`, `S+1`, in both reading directions. The previous displayed-window scan remains available
 only through the explicit **הרחב עוד טבעת** action.
 
@@ -230,7 +230,7 @@ a source sequence and is not relabelled as ELS.
 
 Focused Core Stage A remains the compact family `1`, `S−1`, `S` and `S+1`. A bounded Stage B now
 starts local gaps `2…8` only within two axis rows and eight columns of the primary column; every
-result must still remain inside the fixed 12-row/12-column core. Stage B cannot displace the compact
+result must still remain inside the fixed 12-row/15-column core. Stage B cannot displace the compact
 ordering and receives at most one reserved admission seat in the first package. It exists to retain
 a nearby deliberate gap such as `חשמל` without reopening the old broad displayed-window scan.
 
@@ -241,5 +241,47 @@ including the source-sequence presentation of `זרע`, through one fixed-skip a
 
 This refinement adds no engine, state, store, graph, Provider, Journey, schema, data rewrite, RLS or
 permission change. It makes no semantic, statistical or Truth claim. Broader Hirsch material may be
-admitted later as cold Goldens only after each axis and Finding has independently replayable
-coordinates; it must never become runtime vocabulary or privileged ranking input.
+admitted as cold Goldens only after each axis and Finding has independently replayable coordinates;
+it must never become runtime vocabulary or privileged ranking input.
+
+## Hirsch cold-Golden admission and focused width — 25.10.2026
+
+Hirsch evidence is admitted in two separate test-only grades. `T1_EXACT_REPLAY` requires one
+independently recovered primary occurrence plus exact replay of every selected Finding inside the
+declared corpus. `T2_COLD_RECALL` additionally requires the complete pre-admission candidate pool of
+the existing focused scanner to rediscover the recorded occurrence from canonical language with
+`CLOUD_MATRICES=[]`. It is not a promise that a human-curated semantic relation will occupy one of
+the first 12 structural seats. Passing either grade is a structural regression proof only; it is
+not an author endorsement, interpretation, significance score or Truth claim.
+
+Three public legacy records satisfy both grades: `מוטאטיל` at `7887_-1_59154`, `ז׳ אוקטובר` at
+`42168_-1_600006`, and `אטום טיל` at `10044_-1_102070`. Their legacy database rows still have no
+`start_index` or `corpus_id`; the recovered identities live only in the cold test fixture and do not
+rewrite those rows. Every recorded Finding is replayed exactly. The five `skip=1` findings under
+`ז׳ אוקטובר` remain literal source sequences and are never labelled ELS. The historical
+`תשפ״ו אלול חיבור בו הותר` row is a negative control: although its axis can be replayed, its stored
+quality is unverified and it has no Findings, so it cannot become a positive Golden.
+
+The evidence exposed a generic geometry boundary, not a vocabulary gap: `פלשתימ` is 14 columns
+from the `ז׳ אוקטובר` axis and `משיח` is 15 columns from the `אטום טיל` axis. The focused core is
+therefore widened from 12 to 15 columns while keeping `rowPad=12`, the 12-admission cap, and the
+Stage B start window unchanged at two rows/eight columns. Every cold-Golden axis must stay below
+12,000 local probes. A separate hard runtime ceiling of 16,384 probes lets a longer verified
+extension finish that same bounded geometry; it does not widen the window. The eligible candidate
+pool has a separate 32,768 emergency ceiling; exceeding either runtime budget fails closed and
+returns no partial package. Canonical-language construction, candidate materialization, origin
+scanning, candidate projection and stable ranking yield in bounded chunks with count-only,
+phase-stable progress and cancellation. One derived line-context index is reused across the bounded
+admitted package instead of being rebuilt for every row. Saved/public terms remain stripped from runtime candidate generation, and a poisoned
+saved-only term must not change the exact rediscovered Hirsch occurrences. The visible selector is
+structurally mixed and path-diverse; semantic comparison belongs to a later consumer such as Raziel,
+not to an author/title-specific runtime rule.
+
+A future pinned activity meter may retain a stopped package only at the canonical-verification
+boundary: verified admissions may remain as an explicitly partial draft, while raw candidates must
+never be coloured, persisted or described as Findings. That checkpointed-stop behavior is not part
+of this refinement; cancellation here remains fail-closed.
+
+This is a bounded refinement of F03 and the existing Research bundle, not a new capability. It adds
+no engine, state, store, graph, Provider, Journey, schema, migration, data rewrite, RLS, permission,
+`research_objects`, Raziel or `decision_ledger` change.

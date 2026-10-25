@@ -577,8 +577,61 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:390,height:844},async page=>{
    const before=await identity(page);
+   const activityStart=await page.evaluate(()=>{
+    window.__elsFocusedHeartbeat=0;
+    window.__elsFocusedTicks=[performance.now()];
+    window.__elsFocusedTickPhases=[null];
+    window.__elsFocusedHeartbeatTimer=setInterval(()=>{window.__elsFocusedHeartbeat+=1;window.__elsFocusedTicks.push(performance.now());window.__elsFocusedTickPhases.push(window.__log.at(-1)?.progress?.phase||null);},20);
+    return {log:window.__log.length,requests:window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-candidates').length};
+   });
+   await activate(page,'בנה חבילת סביבת הציר');
+   await page.waitForFunction(start=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-candidates').length>start,activityStart.requests);
+   const cancelledSeq=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-candidates').at(-1).target.nativeSeq);
+   await page.waitForFunction(({start,seq})=>{
+    const rows=window.__log.slice(start),progress=rows.filter(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq);
+    return window.__elsFocusedHeartbeat>=3&&progress.some(message=>['core','collect','rank'].includes(message.progress?.phase))
+      &&!rows.some(message=>message.type==='lens'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq);
+   },{start:activityStart.log,seq:cancelledSeq},{timeout:120000});
+   const liveProgress=await page.evaluate(({start,seq})=>window.__log.slice(start)
+    .filter(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq)
+    .map(message=>message.progress),{start:activityStart.log,seq:cancelledSeq});
+   assert.ok(liveProgress.some(progress=>progress.phase?.startsWith('lexicon-'))&&liveProgress.some(progress=>['core','collect','rank'].includes(progress.phase)),'cold language loading and focused work both report live progress');
+   assert.ok(liveProgress.every(progress=>!['term','text','hitId','positions','start','dir','rc','p0','p1'].some(key=>Object.hasOwn(progress,key))),'focused progress crosses the bridge as counts only');
+   const phaseProgress=new Map();
+   for(const progress of liveProgress){
+    const rows=phaseProgress.get(progress.phase)||[];rows.push(progress);phaseProgress.set(progress.phase,rows);
+   }
+   for(const [phase,rows] of phaseProgress){
+    const measured=rows.filter(progress=>progress.total>0);
+    assert.ok(measured.every((progress,index)=>index===0||progress.completed>=measured[index-1].completed),`${phase} progress never moves backward`);
+    assert.ok(new Set(measured.map(progress=>progress.total)).size<=1,`${phase} keeps one stable total`);
+   }
+   assert.ok(await page.evaluate(()=>window.__elsFocusedHeartbeat)>=3,'the browser heartbeat advances while the real focused scan is running');
+   await button(page,'עצור בדיקה').dispatchEvent('click');
+   await page.waitForFunction(seq=>window.__hostLog.some(message=>message.type==='request-lens'&&message.lens==='cancel'&&message.target.nativeSeq>seq),cancelledSeq);
+   await page.waitForTimeout(250);
+   assert.equal(await page.evaluate(({start,seq})=>window.__log.slice(start).some(message=>message.type==='lens'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq),{start:activityStart.log,seq:cancelledSeq}),false,'cancelling a yielded focused scan suppresses its stale final package');
+   const coldMaxGap=await page.evaluate(()=>{
+    const gaps=window.__elsFocusedTicks.slice(1).map((tick,index)=>tick-window.__elsFocusedTicks[index]);
+    window.__elsFocusedTicks=[performance.now()];window.__elsFocusedTickPhases=[null];return Math.max(0,...gaps);
+   });
+   assert.ok(coldMaxGap<1000,`cold language construction keeps the event loop alive (max heartbeat gap ${coldMaxGap.toFixed(1)}ms)`);
+   assert.deepEqual(await identity(page),before,'cancelling focused discovery preserves the exact matrix identity');
+
    await activate(page,'בנה חבילת סביבת הציר');
    await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true);
+   const completedProgress=await page.evaluate(()=>{const seq=window.__lens.target.nativeSeq;return window.__log
+    .filter(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq)
+    .map(message=>message.progress);});
+   assert.ok(completedProgress.some(progress=>progress.phase==='verify')&&completedProgress.some(progress=>progress.phase==='sources'),'the completed package reports canonical admission and source projection');
+   assert.ok(completedProgress.every(progress=>!['term','text','hitId','positions','start','dir','rc','p0','p1'].some(key=>Object.hasOwn(progress,key))),'completed progress remains count-only');
+   const completedByPhase=new Map();
+   for(const progress of completedProgress){const rows=completedByPhase.get(progress.phase)||[];rows.push(progress);completedByPhase.set(progress.phase,rows);}
+   for(const [phase,rows] of completedByPhase){const measured=rows.filter(progress=>progress.total>0);
+    assert.ok(measured.every((progress,index)=>index===0||progress.completed>=measured[index-1].completed),`${phase} completed progress never moves backward`);
+    assert.ok(new Set(measured.map(progress=>progress.total)).size<=1,`${phase} completed progress keeps one stable total`);}
+   const scanHeartbeat=await page.evaluate(()=>{const gaps=window.__elsFocusedTicks.slice(1).map((tick,index)=>tick-window.__elsFocusedTicks[index]),max=Math.max(0,...gaps),index=gaps.indexOf(max);clearInterval(window.__elsFocusedHeartbeatTimer);delete window.__elsFocusedHeartbeatTimer;return {max,phase:window.__elsFocusedTickPhases[index]||'unknown'};});
+   assert.ok(scanHeartbeat.max<1000,`focused scan, selection and verification stay responsive (max heartbeat gap ${scanHeartbeat.max.toFixed(1)}ms after ${scanHeartbeat.phase})`);
    const items=await page.evaluate(()=>window.__lens.items);
    const lexicon=await page.evaluate(()=>window.__lens.lexicon);
    const ranking=await page.evaluate(()=>window.__lens.ranking);
