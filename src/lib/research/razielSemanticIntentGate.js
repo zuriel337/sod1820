@@ -14,6 +14,7 @@ import {
 export const RAZIEL_SEMANTIC_INTENT_VERSION = "raziel-semantic-intent-v1";
 export const RAZIEL_CONVERSATIONAL_ACT_VERSION = "raziel-conversational-act-v1";
 export const RAZIEL_DETERMINISTIC_GUIDANCE_VERSION = "raziel-deterministic-guidance-v1";
+export const RAZIEL_CANONICAL_REQUEST_VERSION = "raziel-canonical-request-v1";
 
 const ACTIONS = new Set(["understand", "research", "connect", "continue"]);
 const TYPES = new Set(["number", "phrase", "word", "name", "topic"]);
@@ -57,14 +58,26 @@ function escapePattern(value) {
 // The public product calls the locked internal method key "קדמי" by the display label
 // "משולש". Natural combinations such as "הקדמי משולש" are therefore one method lens, not two
 // methods and never the separate "משולש מילה" formula.
-function canonicalRequestedMethod(value) {
+export function normalizeRazielRequestedMethod(value) {
   const method = clean(value, 60)
     .replace(/^שיטת\s+/u, "")
+    .replace(/["'״׳`]/gu, "")
+    .replace(/\s*\+\s*/gu, "+")
     .replace(/\s+/gu, " ")
     .trim();
-  const comparable = method.replace(/^ה/u, "");
-  return /^(?:קדמי\s+)?משולש(?:\s+קדמי)?$/u.test(comparable) ? "קדמי" : method;
+  const comparable = method
+    .replace(/^ה/u, "")
+    .replace(/[·:]/gu, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
+  if (/^(?:קדמי\s+)?משולש(?:\s+קדמי)?$/u.test(comparable)) return "קדמי";
+  // A definite article is presentation grammar, except in the canonical family "הכפלה" where
+  // the initial ה is part of the method's actual name. "ההכפלה" still loses only its article.
+  if (method.startsWith("ההכפלה")) return method.slice(1);
+  return method.startsWith("הכפלה") ? method : method.replace(/^ה/u, "");
 }
+
+const canonicalRequestedMethod = normalizeRazielRequestedMethod;
 
 // Deterministic conversation control for short, whole-turn acknowledgements. This is intentionally
 // narrower than sentiment/small-talk classification: it never consumes a mixed request and never
@@ -103,6 +116,14 @@ export function resolveRazielDeterministicGuidance(message) {
     return Object.freeze({
       version: RAZIEL_DETERMINISTIC_GUIDANCE_VERSION,
       kind: "research_menu",
+    });
+  }
+  const canonicalRequest = resolveRazielCanonicalRequest(q);
+  if (canonicalRequest.status === "clarify") {
+    return Object.freeze({
+      version: RAZIEL_DETERMINISTIC_GUIDANCE_VERSION,
+      kind: "routing_clarification",
+      reason: canonicalRequest.reason,
     });
   }
   return null;
@@ -381,7 +402,7 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
     // "מה משמעות..." and "איך מפרשים..." without letting a verb or a method label become the
     // research subject. The canonical method profile remains the authority that later decides
     // whether the requested lens actually exists.
-    const focused = /^(?:(?:מה\s+(?:יש\s+לך|ידוע(?:\s+לך)?)\s+על)|(?:מה\s+(?:אומר(?:ת)?|מראה|מלמד(?:ת)?|מגלה))|(?:מה\s+(?:ה?משמעות|ה?פירוש)(?:\s+של)?)|(?:איך\s+(?:מפרשים|מפרשות|לפרש)(?:\s+את)?)|(?:ספר(?:י)?(?:\s+לי)?\s+על)|(?:(?:תמצא|תמצאי|מצא|מצאי)(?:\s+לי)?\s+מידע\s+על)|(?:(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?\s+את))\s+ה?(.{2,60}?)\s+של\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+)$/u.exec(q);
+    const focused = /^(?:(?:מה\s+(?:יש\s+לך|ידוע(?:\s+לך)?)\s+על)|(?:מה\s+(?:אומר(?:ת)?|מראה|מלמד(?:ת)?|מגלה))|(?:מה\s+(?:ה?משמעות|ה?פירוש)(?:\s+של)?)|(?:איך\s+(?:מפרשים|מפרשות|לפרש)(?:\s+את)?)|(?:ספר(?:י)?(?:\s+לי)?\s+על)|(?:(?:תמצא|תמצאי|מצא|מצאי)(?:\s+לי)?\s+מידע\s+על)|(?:(?:תסביר|הסבר|תסבירי|הסבירי)(?:\s+לי)?\s+את))\s+(.{2,60}?)\s+של\s+(?:(?:המילה|הביטוי|השם)\s+)?(.+)$/u.exec(q);
     if (focused) {
       match = [focused[0], focused[2]];
       requestedMethod = canonicalRequestedMethod(focused[1]);
@@ -440,6 +461,14 @@ export function resolveExplicitHebrewExpressionPairResearchSubject(question) {
   return Object.freeze({ expressions: Object.freeze(expressions), requested_action: "connect" });
 }
 
+function resolveCandidateExpressionPair(question) {
+  const q = grammarText(question);
+  const match = /^(?:השווה|השווי|תשווה)(?:\s+לי)?(?:\s+בין)?\s+(.+?)\s+(?:לבין\s+|מול\s+|עם\s+|ו(?=[\u0590-\u05ff]))(.+?)(?:\s+בכל\s+השיטות)?$/u.exec(q);
+  if (!match) return null;
+  const expressions = [validExplicitHebrewExpression(match[1]), validExplicitHebrewExpression(match[2])];
+  return expressions.every(Boolean) && expressions[0] !== expressions[1] ? expressions : null;
+}
+
 // High-confidence two-number subject grammar shared by the browser resolver and the server
 // re-authorization gate. The numerals must occupy the two complete grammatical subject slots, so
 // years, pages, quantities and incidental numbers in prose are never promoted into research roots.
@@ -476,6 +505,18 @@ export function resolveExplicitNumericResearchSubject(question) {
   const value = Number(literal);
   if (!Number.isSafeInteger(value) || value < 1 || value > 999999) return null;
 
+  const relationalTail = new RegExp(`^(?:ומה|מה)\\s+(?:הקשר|ההבדל)\\s+(?:ל|עם)\\s*${escapePattern(literal)}$`, "u");
+  if (relationalTail.test(q)) return Object.freeze({
+    type: "number",
+    value,
+    label: literal,
+    evidence_text: literal,
+    identity_key: `number:${value}`,
+    source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL,
+    confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    requested_action: "connect",
+  });
+
   const escaped = escapePattern(literal);
   const contextLabels = NUMERIC_CONTEXT_LABELS.join("|");
   const contextualBefore = new RegExp(`(?:^|\\s)(?:${contextLabels})\\s+(?:מספר\\s+)?${escaped}(?:$|\\s)`, "u");
@@ -489,7 +530,7 @@ export function resolveExplicitNumericResearchSubject(question) {
   const cuePrefix = q.slice(0, q.indexOf(literal));
   const researchCue = /(?:^|\s)(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי|צלול|צללי|לצלול|העמק|העמיקי|תעמיק|תעמיקי|להעמיק)(?:\s|$)/u.test(cuePrefix);
   const connectionCue = /(?:^|\s)(?:קשר|קשרים|הצלבה|הצלבות|השווה|השווי|תשווה|לחבר)(?:\s|$)/u.test(cuePrefix);
-  const explanationCue = /(?:^|\s)(?:מה|מהו|תן|תני|ספר|ספרי|הסבר|הסבירי|הראה|הראי|הצג|הציגי)(?:\s|$)/u.test(cuePrefix);
+  const explanationCue = /(?:^|\s)(?:מה|מהו|איזה|איזו|אילו|תן|תני|ספר|ספרי|הסבר|הסבירי|הראה|הראי|הצג|הציגי)(?:\s|$)/u.test(cuePrefix);
   if (!exactNumber && !explicitNumberNoun && !researchCue && !connectionCue && !explanationCue) return null;
 
   const requestedAction = connectionCue ? "connect" : researchCue ? "research" : "understand";
@@ -502,6 +543,115 @@ export function resolveExplicitNumericResearchSubject(question) {
     source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL,
     confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
     requested_action: requestedAction,
+  });
+}
+
+function canonicalRequestResult(kind, action, subjects, extra = {}) {
+  return Object.freeze({
+    version: RAZIEL_CANONICAL_REQUEST_VERSION,
+    status: "resolved",
+    kind,
+    action,
+    subjects: Object.freeze(subjects.map((subject) => Object.freeze({ ...subject }))),
+    requested_method: null,
+    observed_value: null,
+    identify_observed_method: false,
+    all_methods: false,
+    view_mode_only: false,
+    ...extra,
+  });
+}
+
+// One deterministic, whole-turn request shape shared by the temporary browser session and the
+// server re-authorization boundary. It composes the existing canonical identity grammar; it does
+// not calculate, choose a capability, authorize, execute or create another router. Keeping the
+// semantic slots together prevents subject/method/value/action precedence from drifting between
+// client and server as new Hebrew phrasings are added.
+export function resolveRazielCanonicalRequest(question) {
+  const q = grammarText(question);
+  if (!q) return Object.freeze({
+    version: RAZIEL_CANONICAL_REQUEST_VERSION,
+    status: "unresolved",
+    kind: null,
+    action: null,
+    subjects: Object.freeze([]),
+    reason: "empty",
+  });
+
+  const continuation = resolveRazielExpressionContinuationDirective(q);
+  if (continuation) return canonicalRequestResult(
+    "expression_continuation",
+    continuation.requested_action,
+    [],
+    {
+      requested_method: continuation.requested_method,
+      all_methods: continuation.all_methods === true,
+      view_mode_only: continuation.view_mode_only === true,
+    },
+  );
+
+  const numberPair = resolveExplicitNumericPairResearchSubject(q);
+  if (numberPair) return canonicalRequestResult(
+    "number_pair",
+    numberPair.requested_action,
+    numberPair.numbers.map((value) => ({
+      type: "number",
+      value,
+      label: String(value),
+      evidence_text: String(value),
+      identity_key: `number:${value}`,
+      source: RESEARCH_IDENTITY_SOURCE.NUMERIC_LITERAL,
+      confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    })),
+  );
+
+  const expressionPair = resolveExplicitHebrewExpressionPairResearchSubject(q);
+  if (expressionPair) return canonicalRequestResult(
+    "expression_pair",
+    expressionPair.requested_action,
+    expressionPair.expressions.map((expression) => expressionSubjectFromSlot({ expression, observedValue: null })),
+  );
+
+  const candidateExpressionPair = resolveCandidateExpressionPair(q);
+  if (candidateExpressionPair) return canonicalRequestResult(
+    "expression_pair_candidate",
+    "connect",
+    candidateExpressionPair.map((expression) => expressionSubjectFromSlot({ expression, observedValue: null })),
+    { server_authorizable: false },
+  );
+
+  const expression = resolveExplicitHebrewExpressionResearchSubject(q);
+  if (expression) return canonicalRequestResult("expression", expression.requested_action, [expression], {
+    requested_method: expression.requested_method || null,
+    observed_value: Number.isSafeInteger(expression.observed_value) ? expression.observed_value : null,
+    identify_observed_method: expression.identify_observed_method === true,
+    all_methods: expression.all_methods === true,
+  });
+
+  const number = resolveExplicitNumericResearchSubject(q);
+  if (number) return canonicalRequestResult("number", number.requested_action, [number]);
+
+  // Fail closed only when the user clearly invoked calculation/research grammar but omitted or
+  // supplied conflicting subject slots. Ordinary conversation remains unresolved and may follow
+  // the existing bounded semantic path. Context numerals (year/page/chapter/count) are excluded.
+  const computationCue = /(?:^|\s)(?:גימטרי[הא]|גימטריות|חשב|חשבי|תחשב|תחשבי|חישוב|חישובי)(?:\s|$)/u.test(q);
+  const contextualNumber = /(?:^|\s)(?:שנת|שנה|עמוד|דף|פרק|פסוק|כמות)\s+\d/u.test(q);
+  if (computationCue && !contextualNumber) return Object.freeze({
+    version: RAZIEL_CANONICAL_REQUEST_VERSION,
+    status: "clarify",
+    kind: "expression",
+    action: "research",
+    subjects: Object.freeze([]),
+    reason: /(?:^|\s)\d{1,6}(?:\s|$)/u.test(q) ? "ambiguous_expression_value" : "missing_expression",
+  });
+
+  return Object.freeze({
+    version: RAZIEL_CANONICAL_REQUEST_VERSION,
+    status: "unresolved",
+    kind: null,
+    action: null,
+    subjects: Object.freeze([]),
+    reason: "no_deterministic_match",
   });
 }
 

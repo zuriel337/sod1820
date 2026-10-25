@@ -985,10 +985,12 @@ test("1331 in Messiah identifies the canonical method and opens that value, not 
   assert.doesNotMatch(run.result.raziel.answer, /צמח\s*=\s*358/u);
 });
 
-test("missing name and open capability question are deterministic and spend no AI calls", async () => {
+test("missing, ambiguous and open capability questions are deterministic and spend no AI calls", async () => {
   for (const [subject, answerPattern, kind] of [
     ["תחשב לי את השם שלי", /מה השם המדויק/, "missing_name_expression"],
     ["מה אתה יכול ללמד אותי", /מספר; מילה או ראשי תיבות; שם; מקום; מושג; ביטוי/, "research_menu"],
+    ["בדוק לי גימטריה", /כתוב את המילה או הביטוי המדויקים/, "routing_clarification"],
+    ["תן לי גימטריות של 12 34 חכמה", /כתוב את המילה או הביטוי המדויקים/, "routing_clarification"],
   ]) {
     const run = await runAiAnalyze({
       answer: noMatchAnswer(),
@@ -1005,6 +1007,7 @@ test("missing name and open capability question are deterministic and spend no A
     assert.equal(run.result.model, "none", subject);
     assert.equal(run.models.length, 0, subject);
     assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0, subject);
+    assert.equal(run.calls.filter((call) => call.name === "fn_raziel_answer").length, 0, subject);
     assert.equal(run.result.plan_meta.deterministic_guidance.kind, kind, subject);
     assert.deepEqual(run.result.plan_meta.deterministic_guidance.cost, { ai_calls: 0, retry_count: 0 }, subject);
   }

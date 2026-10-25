@@ -11,13 +11,9 @@ import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../
 import {
   RAZIEL_SEMANTIC_INTENT_VERSION,
   isRazielCurrentSurfaceQuestion,
-  resolveExplicitHebrewExpressionPairResearchSubject,
-  resolveExplicitHebrewExpressionResearchSubject,
-  resolveExplicitNumericPairResearchSubject,
-  resolveExplicitNumericResearchSubject,
+  resolveRazielCanonicalRequest,
   resolveRazielConversationalAct,
   resolveRazielDeterministicGuidance,
-  resolveRazielExpressionContinuationDirective,
   validateRazielSemanticIntent,
 } from "../../src/lib/research/razielSemanticIntentGate.js";
 
@@ -152,13 +148,9 @@ export async function runAiAnalyze({
   assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers }'));
   assert.ok(imports[6].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
   assert.ok(imports[6].includes('isRazielCurrentSurfaceQuestion'));
-  assert.ok(imports[6].includes('resolveExplicitHebrewExpressionPairResearchSubject'));
-  assert.ok(imports[6].includes('resolveExplicitHebrewExpressionResearchSubject'));
-  assert.ok(imports[6].includes('resolveExplicitNumericPairResearchSubject'));
-  assert.ok(imports[6].includes('resolveExplicitNumericResearchSubject'));
+  assert.ok(imports[6].includes('resolveRazielCanonicalRequest'));
   assert.ok(imports[6].includes('resolveRazielConversationalAct'));
   assert.ok(imports[6].includes('resolveRazielDeterministicGuidance'));
-  assert.ok(imports[6].includes('resolveRazielExpressionContinuationDirective'));
   assert.ok(imports[6].includes('validateRazielSemanticIntent'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
@@ -172,13 +164,9 @@ export async function runAiAnalyze({
     razielMethodLayerNumbers,
     RAZIEL_SEMANTIC_INTENT_VERSION,
     isRazielCurrentSurfaceQuestion,
-    resolveExplicitHebrewExpressionPairResearchSubject,
-    resolveExplicitHebrewExpressionResearchSubject,
-    resolveExplicitNumericPairResearchSubject,
-    resolveExplicitNumericResearchSubject,
+    resolveRazielCanonicalRequest,
     resolveRazielConversationalAct,
     resolveRazielDeterministicGuidance,
-    resolveRazielExpressionContinuationDirective,
     validateRazielSemanticIntent,
     callClaudeReliable: async (options) => {
       models.push(options);

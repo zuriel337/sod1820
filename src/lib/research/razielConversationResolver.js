@@ -10,6 +10,7 @@ import {
   resolveExplicitNumericPairResearchSubject,
   resolveExplicitNumericResearchSubject,
   isRazielCurrentSurfaceQuestion,
+  resolveRazielCanonicalRequest,
   resolveRazielExpressionContinuationDirective,
   validateRazielSemanticIntent,
 } from "./razielSemanticIntentGate.js";
@@ -246,25 +247,31 @@ export function resolveRazielConversationTurn({
   semanticIntent = null,
 } = {}) {
   const currentQuestion = clean(question, 500);
-  const expressionContinuation = resolveRazielExpressionContinuationDirective(currentQuestion);
-  const structuralNumericSubject = resolveExplicitNumericResearchSubject(currentQuestion);
-  const structuralExpressionSubject = resolveExplicitHebrewExpressionResearchSubject(currentQuestion);
-  const structuralExpressionPair = resolveExplicitHebrewExpressionPairResearchSubject(currentQuestion);
-  // A numeral beside a named expression method is the observed result, not the research subject.
-  // Preserve the expression identity and let the canonical method profile verify both the
-  // method and the observed value. Ordinary number questions keep the existing numeric owner.
-  const explicitNumbers = structuralExpressionSubject?.requested_method
-    ? []
-    : explicitNumberCandidates(currentQuestion);
-  // Numeric grammar owns a turn once it has matched. This prevents its grammatical scaffolding
-  // (for example "המספרים 337" or "את זה") from becoming a second phrase identity.
-  const explicitPhrases = explicitNumbers.length ? [] : explicitPhraseCandidates(currentQuestion);
-  const deterministicCandidates = [...explicitNumbers, ...explicitPhrases];
+  const canonicalRequest = resolveRazielCanonicalRequest(currentQuestion);
+  const expressionContinuation = canonicalRequest.kind === "expression_continuation"
+    ? canonicalRequest
+    : null;
+  const structuralNumericSubject = canonicalRequest.kind === "number"
+    ? canonicalRequest.subjects[0]
+    : null;
+  const structuralExpressionSubject = canonicalRequest.kind === "expression"
+    ? canonicalRequest.subjects[0]
+    : null;
+  const structuralExpressionPair = canonicalRequest.kind === "expression_pair"
+    ? { requested_action: canonicalRequest.action }
+    : null;
+  // The canonical whole-turn request owns subject precedence. A numeral beside an expression is
+  // its observed value; a method word is a lens; neither can become a second research identity.
+  const deterministicCandidates = canonicalRequest.status === "resolved"
+    ? canonicalRequest.subjects
+    : [];
+  const explicitNumbers = deterministicCandidates.filter((candidate) => candidate?.type === "number");
+  const explicitPhrases = deterministicCandidates.filter((candidate) => ["phrase", "word"].includes(candidate?.type));
   const referential = isReferentialFollowUp(currentQuestion);
   const currentSurfaceQuestion = isRazielCurrentSurfaceQuestion(currentQuestion);
   // Semantic fallback is considered only after deterministic/current-turn and referential grammar
   // had no answer. The gate itself is pure and exact-evidence-bound; it never calls a model.
-  const semantic = !deterministicCandidates.length && !referential
+  const semantic = canonicalRequest.status !== "clarify" && !deterministicCandidates.length && !referential
     ? validateRazielSemanticIntent(semanticIntent, currentQuestion)
     : null;
   const semanticCandidates = semantic?.status === "resolved" ? semantic.candidates : [];
@@ -301,7 +308,7 @@ export function resolveRazielConversationTurn({
   // parallel Raziel-only planner. This object remains temporary and execution-neutral; the bounded
   // transport projection below deliberately does not forward it as authority.
   const requestedPlanIntent = semantic?.action
-    || expressionContinuation?.requested_action
+    || canonicalRequest.action
     || structuralExpressionPair?.requested_action
     || structuralExpressionSubject?.requested_action
     || structuralNumericSubject?.requested_action
@@ -335,6 +342,7 @@ export function resolveRazielConversationTurn({
     )),
     identity_resolution: resolution,
     research_plan: researchPlan,
+    canonical_request: canonicalRequest,
     semantic_intent: semantic,
     pair: orderedNumberPair(candidates) ?? numberPair(resolution),
     guards: Object.freeze({
@@ -370,9 +378,19 @@ export function projectRazielConversationResolution(resolved) {
     .filter((value, index, values) => values.indexOf(value) === index);
   const textIdentities = (resolved.identity_resolution?.identities || [])
     .filter((identity) => identity?.type === "phrase" || identity?.type === "word");
-  const structuralExpression = resolveExplicitHebrewExpressionResearchSubject(resolved.question);
-  const structuralExpressionPair = resolveExplicitHebrewExpressionPairResearchSubject(resolved.question);
-  const expressionContinuation = resolveRazielExpressionContinuationDirective(resolved.question);
+  const canonicalRequest = resolveRazielCanonicalRequest(resolved.question);
+  const structuralExpression = canonicalRequest.kind === "expression"
+    ? canonicalRequest.subjects[0]
+    : null;
+  const structuralExpressionPair = canonicalRequest.kind === "expression_pair"
+    ? {
+      requested_action: canonicalRequest.action,
+      expressions: canonicalRequest.subjects.map((subject) => subject.label),
+    }
+    : null;
+  const expressionContinuation = canonicalRequest.kind === "expression_continuation"
+    ? { requested_action: canonicalRequest.action }
+    : null;
   const exactTextLabels = textIdentities.map((identity) => clean(identity?.label ?? identity?.value, 120));
   const exactTextKeys = textIdentities.every((identity, index) => {
     const expectedKey = `phrase:${exactTextLabels[index]}`;

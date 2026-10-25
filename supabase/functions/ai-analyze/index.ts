@@ -4,7 +4,7 @@ import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_sha
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../../src/lib/research/razielGroundedSourceComposer.js";
-import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveExplicitHebrewExpressionPairResearchSubject, resolveExplicitHebrewExpressionResearchSubject, resolveExplicitNumericPairResearchSubject, resolveExplicitNumericResearchSubject, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, resolveRazielExpressionContinuationDirective, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
+import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveRazielCanonicalRequest, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -1309,6 +1309,7 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown, surfa
     if (numbers.includes(value)) return null;
     numbers.push(value);
   }
+  const canonicalRequest = resolveRazielCanonicalRequest(originalQuestion);
 
   if (raw.referential_follow_up === true) {
     if (isRazielCurrentSurfaceQuestion(originalQuestion)) {
@@ -1334,24 +1335,15 @@ function razielConversationNumberHint(raw: any, originalQuestion: unknown, surfa
   // seam for planner no_match: exact decimal subject slots, no surrounding prose, and an action
   // whose server-side meaning agrees with the projected action. Legacy callers send no envelope.
   if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn") return null;
-  const structural = resolveExplicitNumericResearchSubject(q);
-  if (structural) {
-    if (numbers.length !== 1 || numbers[0] !== structural.value || requestedAction !== structural.requested_action) return null;
+  if (canonicalRequest.kind === "number") {
+    const value = canonicalRequest.subjects[0]?.value;
+    if (numbers.length !== 1 || numbers[0] !== value || requestedAction !== canonicalRequest.action) return null;
     return { numbers: numbers as [number], requestedAction };
   }
-  const definition = /^(?:(בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+)?(?:מה זה|מהו|מה הוא|ספר לי על|מה ידוע על)\s+(?:המספר\s+)?(\d{1,6})$/u.exec(q);
-  const singleResearch = /^(?:חקור|חקרי|תחקור|תחקירי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?(?:\s+את)?\s+(?:המספר\s+)?(\d{1,6})$/u.exec(q);
-  const singleValue = definition ? Number(definition[2]) : singleResearch ? Number(singleResearch[1]) : null;
-  if (singleValue != null) {
-    if (numbers.length !== 1 || numbers[0] !== singleValue) return null;
-    const expectedAction = (definition?.[1] || singleResearch) ? "research" : "understand";
-    if (requestedAction !== expectedAction) return null;
-    return { numbers: numbers as [number], requestedAction };
-  }
-  if (numbers.length !== 2) return null;
-  const pair = resolveExplicitNumericPairResearchSubject(q);
-  if (!pair || pair.numbers[0] !== numbers[0] || pair.numbers[1] !== numbers[1]) return null;
-  if (requestedAction !== pair.requested_action) return null;
+  if (canonicalRequest.kind !== "number_pair" || numbers.length !== 2) return null;
+  if (canonicalRequest.subjects[0]?.value !== numbers[0]
+    || canonicalRequest.subjects[1]?.value !== numbers[1]
+    || requestedAction !== canonicalRequest.action) return null;
   return { numbers: numbers as [number] | [number, number], requestedAction };
 }
 
@@ -1377,6 +1369,7 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown, s
     labels.push(label);
   }
 
+  const canonicalRequest = resolveRazielCanonicalRequest(originalQuestion);
   if (raw.referential_follow_up === true) {
     if (labels.length !== 1) return null;
     const surfaceExpression = razielSurfaceExpressionFocus(surfaceSemantic);
@@ -1386,14 +1379,13 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown, s
         || surfaceExpression !== labels[0]) return null;
       return { expression: labels[0], relatedExpression: null, requestedMethod: null, observedValue: null, identifyObservedMethod: false, requestedAction };
     }
-    const continuation = resolveRazielExpressionContinuationDirective(originalQuestion);
-    if (!continuation
+    if (canonicalRequest.kind !== "expression_continuation"
       || raw.referent_source !== "prior_user_turn"
-      || continuation.requested_action !== requestedAction) return null;
+      || canonicalRequest.action !== requestedAction) return null;
     return {
       expression: labels[0],
       relatedExpression: null,
-      requestedMethod: continuation.requested_method,
+      requestedMethod: canonicalRequest.requested_method,
       observedValue: null,
       identifyObservedMethod: false,
       requestedAction,
@@ -1402,9 +1394,9 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown, s
   if (raw.referential_follow_up !== false || raw.referent_source !== "explicit_current_turn") return null;
 
   if (labels.length === 2) {
-    const pair = resolveExplicitHebrewExpressionPairResearchSubject(originalQuestion);
-    if (!pair || requestedAction !== "connect"
-      || pair.expressions[0] !== labels[0] || pair.expressions[1] !== labels[1]) return null;
+    if (canonicalRequest.kind !== "expression_pair" || requestedAction !== "connect"
+      || canonicalRequest.subjects[0]?.label !== labels[0]
+      || canonicalRequest.subjects[1]?.label !== labels[1]) return null;
     return {
       expression: labels[0],
       relatedExpression: labels[1],
@@ -1415,14 +1407,15 @@ function razielConversationExpressionHint(raw: any, originalQuestion: unknown, s
     };
   }
 
-  const structural = resolveExplicitHebrewExpressionResearchSubject(originalQuestion);
-  if (!structural || structural.requested_action !== requestedAction || structural.label !== labels[0]) return null;
+  if (canonicalRequest.kind !== "expression"
+    || canonicalRequest.action !== requestedAction
+    || canonicalRequest.subjects[0]?.label !== labels[0]) return null;
   return {
     expression: labels[0],
     relatedExpression: null,
-    requestedMethod: rzClean(structural.requested_method, 60) || null,
-    observedValue: Number.isSafeInteger(structural.observed_value) ? structural.observed_value : null,
-    identifyObservedMethod: structural.identify_observed_method === true,
+    requestedMethod: rzClean(canonicalRequest.requested_method, 60) || null,
+    observedValue: Number.isSafeInteger(canonicalRequest.observed_value) ? canonicalRequest.observed_value : null,
+    identifyObservedMethod: canonicalRequest.identify_observed_method === true,
     requestedAction,
   };
 }
@@ -2506,22 +2499,30 @@ Deno.serve(async (req: Request) => {
         : null;
       if (rDeterministicGuidance) {
         const missingName = rDeterministicGuidance.kind === "missing_name_expression";
+        const routingClarification = rDeterministicGuidance.kind === "routing_clarification";
+        const guidanceAnswer = missingName
+          ? "בשמחה — מה השם המדויק שתרצה לחשב? כתוב למשל: ‘חשב את צוריאל ומצא הצלבות’."
+          : routingClarification
+            ? "כדי לחשב בלי לנחש, כתוב את המילה או הביטוי המדויקים. למשל: ‘חשב את חכמה בשיטת מסתתר’ או ‘בדוק את משיח בכל השיטות’."
+            : "אפשר להתחיל ממספר; מילה או ראשי תיבות; שם; מקום; מושג; ביטוי או צירוף קצר מפסוק; ושני נושאים להשוואה. למשל: ‘מה זה 776?’, ‘חשב את צוריאל ומצא הצלבות’, ‘מצא הצלבות למילה אלהים’, או ‘השווה בין 776 ל־1820’. כתוב את מוקד המחקר עצמו ואחזיר קודם עובדות חישוביות ומקורות; פרשנות תסומן בנפרד.";
         return rzJson({
           raziel: {
             v: 1,
             agent: "raziel",
             context: null,
             greeting: null,
-            answer: missingName
-              ? "בשמחה — מה השם המדויק שתרצה לחשב? כתוב למשל: ‘חשב את צוריאל ומצא הצלבות’."
-              : "אפשר להתחיל ממספר; מילה או ראשי תיבות; שם; מקום; מושג; ביטוי או צירוף קצר מפסוק; ושני נושאים להשוואה. למשל: ‘מה זה 776?’, ‘חשב את צוריאל ומצא הצלבות’, ‘מצא הצלבות למילה אלהים’, או ‘השווה בין 776 ל־1820’. כתוב את מוקד המחקר עצמו ואחזיר קודם עובדות חישוביות ומקורות; פרשנות תסומן בנפרד.",
+            answer: guidanceAnswer,
             facts: [],
-            suggested_paths: missingName ? [] : [
+            suggested_paths: missingName || routingClarification ? [] : [
               { id: "number", label: "בדיקת מספר", icon: "number", hint: "למשל: מה זה 776?" },
               { id: "expression", label: "חישוב מילה או שם", icon: "text", hint: "למשל: חשב את צוריאל ומצא הצלבות" },
               { id: "compare", label: "השוואה", icon: "compare", hint: "למשל: השווה בין 776 ל־1820" },
             ],
-            follow_up_question: missingName ? "מה השם המדויק?" : "מה תרצה לחקור קודם?",
+            follow_up_question: missingName
+              ? "מה השם המדויק?"
+              : routingClarification
+                ? "איזו מילה או ביטוי לחשב?"
+                : "מה תרצה לחקור קודם?",
             continue_wa: true,
             deterministic: true,
           },
@@ -2684,12 +2685,11 @@ Deno.serve(async (req: Request) => {
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
         && (!rDet || rDet.enabled !== true || rDet.mode === "no_match" || rPlanMeta?.availability === "no_match");
       if (rSemanticEligible) {
-        const deterministicPair = resolveExplicitNumericPairResearchSubject(rSubject);
-        const deterministicSubject = deterministicPair ? null : resolveExplicitNumericResearchSubject(rSubject);
-        if (deterministicPair) {
+        const canonicalRequest = resolveRazielCanonicalRequest(rSubject);
+        if (canonicalRequest.kind === "number_pair") {
           rSemanticHint = {
-            numbers: [...deterministicPair.numbers] as [number, number],
-            requestedAction: deterministicPair.requested_action,
+            numbers: canonicalRequest.subjects.map((subject: any) => subject.value) as [number, number],
+            requestedAction: canonicalRequest.action,
           };
           rPlanMeta = {
             ...(rPlanMeta || {}),
@@ -2700,10 +2700,10 @@ Deno.serve(async (req: Request) => {
               cost: { ai_calls: 0 },
             },
           };
-        } else if (deterministicSubject) {
+        } else if (canonicalRequest.kind === "number") {
           rSemanticHint = {
-            numbers: [deterministicSubject.value],
-            requestedAction: deterministicSubject.requested_action,
+            numbers: [canonicalRequest.subjects[0].value],
+            requestedAction: canonicalRequest.action,
           };
           rPlanMeta = {
             ...(rPlanMeta || {}),
