@@ -855,7 +855,13 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       const unifiedPromise = runLifeJourneyFamilyResearch({
         members: selectedMembers.map(member => {
           const profile = memberResearchProfile(member);
-          return { memberRef: clean(member.source_ref), fullName: profile.fullName };
+          return {
+            memberRef: clean(member.source_ref),
+            fullName: profile.fullName,
+            firstName: profile.first,
+            surname: profile.last,
+            birthdate: profile.birthdate,
+          };
         }),
         providers: familyProviders,
       });
@@ -863,7 +869,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       setFamilyResearch({
         state: "ready",
         rows,
-        sharedValues: sharedFamilyValues(rows),
+        sharedValues: unified.sharedValues?.length ? unified.sharedValues : sharedFamilyValues(rows),
+        methodFindings: unified.methodFindings,
+        relationRows: unified.relationRows,
         connections: unified.connections,
         message: unified.message,
         coverage: unified.coverage,
@@ -1305,13 +1313,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <small>מחקר משפחתי מאוחד · מנורמל</small>
           <h3>המשפחה כמטריצה אחת</h3>
           <p>{familyResearch.message}</p>
-          <span>{familyResearch.coverage?.searchedPairCount || 0} זוגות אנשים נבדקו בהפעלה המפורשת הזאת. התוצאה נשארת בזיכרון המסך ואינה נשמרת כאמת על המשפחה.</span>
+          <span>{familyResearch.coverage?.expressionCount || 0} ביטויי שם ותאריך יצרו {familyResearch.coverage?.searchedPairCount || 0} זוגות מועמדים שנבדקו. התוצאה נשארת בזיכרון המסך ואינה נשמרת כאמת על המשפחה.</span>
         </article>
+        {familyResearch.coverage?.truncated ? <p className="person-journey-note">מספר זוגות הביטויים עבר את גבול ההפעלה הבטוח. מוצג חתך מפורש ומדווח; לא הומצאה השלמה לזוגות שלא נבדקו.</p> : null}
         {familyResearch.connections?.length ? <section className="person-journey-relation-list" aria-label="חיבורים מנורמלים בין בני המשפחה">
           <header><div><small>הצלבות בין אנשים</small><h3>חיבורים שנמצאו</h3></div><span>{familyResearch.connections.length} חיבורים</span></header>
           <div>{familyResearch.connections.map(connection => <article key={connection.id}>
-            <p><strong>{connection.left.name}</strong> ↔ <strong>{connection.right.name}</strong></p>
-            <small>{Number.isSafeInteger(connection.independentGroupCount) ? `${connection.independentGroupCount} קבוצות שיטה עצמאיות לאחר נרמול` : "חיבור מנוע שעבר נרמול תלות"}</small>
+            <p><strong>{connection.left.name}</strong> · {connection.left.expressionLabel} ↔ <strong>{connection.right.name}</strong> · {connection.right.expressionLabel}</p>
+            <small>{Number.isSafeInteger(connection.independentGroupCount) ? `${connection.independentGroupCount} קבוצות שיטה עצמאיות לאחר נרמול` : "חיבור מנוע שעבר נרמול תלות"} · {connection.expressionConnectionCount || 1} חיבורי ביטויים בזוג הזה</small>
           </article>)}</div>
         </section> : null}
         {familyResearch.sharedValues.length ? <div className="person-journey-family-shared">

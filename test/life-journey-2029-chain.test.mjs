@@ -134,7 +134,12 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.doesNotMatch(nameResearch, /NameLab|tarot|קלפים|fetchCanonicalGematriaFindings/i);
   assert.match(familyResearch, /createGematriaRelationW2Executor/);
   assert.match(familyResearch, /INTAKE_DIRECT_PAIR/);
+  assert.match(familyResearch, /compileLifeJourneyDateExpressionMatrix/);
+  assert.match(familyResearch, /fn_all_methods/);
+  assert.match(familyResearch, /crossPersonPairs/);
+  assert.match(familyResearch, /hasSharedNumericBasis/);
   assert.match(familyResearch, /LIFE_JOURNEY_FAMILY_RESEARCH_MAX_MEMBERS = 12/);
+  assert.match(familyResearch, /LIFE_JOURNEY_FAMILY_RESEARCH_MAX_RELATION_PAIRS = 768/);
   assert.doesNotMatch(familyResearch, /\.insert\(|\.update\(|localStorage|sessionStorage|ELS|NameLab|Raziel/i);
   assert.match(familyAnalysis, /composeNormalizedMessageReflection/);
   assert.match(familyAnalysis, /persistAnalysis: false/);

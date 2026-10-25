@@ -19,10 +19,12 @@ function collectEvidence(research = {}) {
   const evidence = [];
   const connectionEvidenceIds = new Map();
   const valueEvidenceIds = new Map();
+  const relationRows = Array.isArray(research.relationRows) && research.relationRows.length
+    ? research.relationRows
+    : Array.isArray(research.connections) ? research.connections : [];
 
-  (Array.isArray(research.connections) ? research.connections : []).forEach((connection, index) => {
+  relationRows.forEach((connection, index) => {
     const id = clean(connection?.id) || `life-family-connection-${index + 1}`;
-    connectionEvidenceIds.set(index, id);
     evidence.push(Object.freeze({
       id,
       kind: "normalized_family_connection",
@@ -31,7 +33,23 @@ function collectEvidence(research = {}) {
     }));
   });
 
-  (Array.isArray(research.rows) ? research.rows : []).forEach((row, memberIndex) => {
+  (Array.isArray(research.connections) ? research.connections : []).forEach((connection, index) => {
+    const ids = (Array.isArray(connection?.findingIds) ? connection.findingIds : [connection?.id]).map(clean).filter(Boolean);
+    connectionEvidenceIds.set(index, ids);
+  });
+
+  const matrixMethodFindings = Array.isArray(research.methodFindings) ? research.methodFindings : [];
+  matrixMethodFindings.forEach((finding, index) => {
+    const value = finiteInteger(finding?.value);
+    if (value == null) return;
+    const id = clean(finding?.id) || `life-family-matrix-finding-${index + 1}`;
+    evidence.push(Object.freeze({ id, kind: "family_numeric_finding", value }));
+    const ids = valueEvidenceIds.get(value) || [];
+    ids.push(id);
+    valueEvidenceIds.set(value, ids);
+  });
+
+  if (!matrixMethodFindings.length) (Array.isArray(research.rows) ? research.rows : []).forEach((row, memberIndex) => {
     if (row?.state !== "ready") return;
     const findings = [
       ...(Array.isArray(row?.data?.methodFindings) ? row.data.methodFindings : []),
@@ -62,15 +80,18 @@ function collectEvidence(research = {}) {
 export function buildLifeJourneyFamilyAnalysisFacts(research = {}) {
   const rows = Array.isArray(research.rows) ? research.rows : [];
   const connections = Array.isArray(research.connections) ? research.connections : [];
+  const relationRows = Array.isArray(research.relationRows) ? research.relationRows : connections;
   const sharedValues = Array.isArray(research.sharedValues) ? research.sharedValues : [];
   const lines = [
     "מפת מחקר משפחתית פרטית — הקלט עבר אנונימיזציה לפני הפרשנות.",
     `אנשים שנבדקו: ${rows.length}.`,
+    `ביטויי שם ותאריך שנבדקו: ${finiteInteger(research?.coverage?.expressionCount) ?? 0}.`,
     `זוגות שנבדקו: ${finiteInteger(research?.coverage?.searchedPairCount) ?? 0}.`,
-    `חיבורים מנורמלים שנמצאו: ${connections.length}.`,
+    `חיבורי ביטויים מנורמלים שנמצאו: ${relationRows.length}.`,
+    `זוגות אנשים עם חיבור: ${connections.length}.`,
   ];
   connections.slice(0, MAX_CONNECTIONS).forEach((connection, index) => {
-    lines.push(`- זוג ${index + 1}: קבוצות שיטה עצמאיות=${finiteInteger(connection?.independentGroupCount) ?? "לא זמין"}; אות מנוע=${finiteInteger(connection?.engineSignal) ?? "לא זמין"}.`);
+    lines.push(`- זוג אנשים ${index + 1}: ביטוי שמאל=${clean(connection?.left?.expressionRole) || "לא זמין"}; ביטוי ימין=${clean(connection?.right?.expressionRole) || "לא זמין"}; קבוצות שיטה עצמאיות=${finiteInteger(connection?.independentGroupCount) ?? "לא זמין"}; חיבורי ביטויים בזוג=${finiteInteger(connection?.expressionConnectionCount) ?? 1}.`);
   });
   sharedValues.slice(0, MAX_SHARED_VALUES).forEach(item => {
     lines.push(`- ערך משותף ${finiteInteger(item?.value) ?? "לא זמין"}: הופיע אצל ${finiteInteger(item?.count) ?? 0} אנשים.`);
@@ -89,7 +110,7 @@ function analysisClaims(research, evidence) {
       id: `life-family-analysis-connection-${index + 1}`,
       text: `${left} ו־${right}: ${groups == null ? "נמצא חיבור מנוע שעבר נרמול תלות" : `נמצאו ${groups} קבוצות שיטה עצמאיות לאחר נרמול`}.`,
       role: "engine_finding_summary",
-      support: { finding_ids: [evidence.connectionEvidenceIds.get(index)].filter(Boolean) },
+      support: { finding_ids: evidence.connectionEvidenceIds.get(index) || [] },
     });
   });
 
@@ -198,7 +219,9 @@ export async function runLifeJourneyFamilyAnalysis({
     })).filter(item => item.value != null)),
     coverage: Object.freeze({
       memberCount: finiteInteger(research?.coverage?.memberCount) ?? research.rows.length,
+      expressionCount: finiteInteger(research?.coverage?.expressionCount) ?? 0,
       searchedPairCount: finiteInteger(research?.coverage?.searchedPairCount) ?? 0,
+      relationCount: finiteInteger(research?.coverage?.relationCount) ?? 0,
       connectionCount: finiteInteger(research?.coverage?.connectionCount) ?? 0,
     }),
     boundaries: Object.freeze({

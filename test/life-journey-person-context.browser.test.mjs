@@ -71,7 +71,7 @@ function lifeJourneyFixturePlugin() {
           return {data:[{method_key:"ragil",display_label:"רגיל",computed_value:73},{method_key:"miluy",display_label:"מילוי",computed_value:101},{method_key:"siduri",display_label:"סידורי",computed_value:40}],error:null};
         }
         if(name==="fn_all_methods"){
-          window.__matrixCalls.push({kind:"methods",name,args:{has_input:Boolean(args?.p_word)}});
+          window.__matrixCalls.push({kind:"methods",name,args:{has_input:Boolean(args?.p_word),word:args?.p_word}});
           return {data:{"רגיל":73,"מילוי":101,"מסתתר":55,"מהמאגר":false},error:null};
         }
         if(name==="fn_relation_candidate"){
@@ -317,11 +317,14 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await family.getByRole("button", { name: "חקור 2 אנשים יחד" }).click();
     await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
     await family.getByRole("heading", { name: "המשפחה כמטריצה אחת" }).waitFor();
+    await family.getByText(/16 ביטויי שם ותאריך יצרו 64 זוגות מועמדים שנבדקו/).waitFor();
     assert.equal(await family.locator('.person-journey-relation-list article').count(), 1, "two selected people produce one normalized cross-person pair");
     assert.match(await family.getByLabel("מסר המחקר המשפחתי המאוחד").textContent(), /לאחר נרמול התלות/);
     await family.locator(".person-journey-family-shared", { hasText: "2 אנשים" }).waitFor();
     assert.equal(await family.locator(".person-journey-family-member", { hasText: "ילד בדיקה" }).count(), 1, "each person has one canonical row on the main family surface");
     assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "ילד בדיקה")), true, "explicit family research includes the selected child through the canonical method profile");
+    assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "methods" && call.args.word === "י״א")), true, "family matrix converts the Hebrew day into a gematria expression");
+    assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "methods" && call.args.word === "בתשרי")), true, "family matrix converts the Hebrew month into a gematria expression");
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab")), false, "Life Journey never calls NameLab");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");
@@ -336,6 +339,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(familyAnalysisCalls[0].args.surface, "research:life-journey-family-analysis");
     assert.equal(familyAnalysisCalls[0].args.facts.includes("ילד בדיקה"), false, "family names are removed before interpretation");
     assert.equal(familyAnalysisCalls[0].args.facts.includes("person:"), false, "person refs are removed before interpretation");
+    assert.match(familyAnalysisCalls[0].args.facts, /ביטויי שם ותאריך שנבדקו: 16/);
     assert.deepEqual(familyAnalysisCalls[1].args, { p_cards: 3 });
     assert.equal(await normalizedFamilyAnalysis.locator(".person-journey-reflection-cards").count(), 0, "internal cards are not rendered");
     assert.equal(await normalizedFamilyAnalysis.getByText("הקוסם", { exact: true }).count(), 0, "card identities remain internal");
