@@ -576,6 +576,74 @@ test("expression continuation reuses צוריאל through the real client and se
   }
 });
 
+test("the user's plural Shaul request and bare all-methods follow-up both reach the canonical Bundle", async () => {
+  const firstState = createInitialRazielSessionState();
+  const firstQuestion = 'תן לי את הגימטריות על השם "שאול"';
+  const firstRequest = buildRazielSessionRequest({
+    question: firstQuestion,
+    state: firstState,
+    contextSnapshot: null,
+    viewMode: "exploratory",
+  });
+  assert.equal(firstRequest.conversationResolution?.identities?.[0]?.label, "שאול");
+
+  const firstRun = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: firstRequest.subject,
+      visitor_id: "vshaulpluralprofile123",
+      intelligence_level: firstRequest.intelligenceLevel,
+      research_contract: firstRequest.researchContract,
+      conversation_resolution: firstRequest.conversationResolution,
+      view_mode: firstRequest.viewMode,
+    },
+    researchBundleByExpression: { שאול: expressionCrossingBundle("שאול") },
+    researchBundleByNumber: { 337: numberBundle(337, "מאגר הגימטריה המאומת") },
+  });
+  assert.equal(firstRun.result.raziel.plan_meta.view_mode.applied, true);
+  assert.equal(firstRun.calls.filter((call) => call.name === "research-run").length, 2);
+
+  const followState = {
+    ...createInitialRazielSessionState(),
+    thread: [{
+      role: "user",
+      text: firstQuestion,
+      identity_resolution: {
+        identities: [{ type: "phrase", label: "שאול", identity_key: "phrase:שאול" }],
+        explicit_text_computation: true,
+      },
+    }, { role: "raziel", text: "שאול = 337" }],
+  };
+  const followRequest = buildRazielSessionRequest({
+    question: "בכל השיטות",
+    state: followState,
+    contextSnapshot: null,
+    viewMode: "exploratory",
+  });
+  assert.equal(followRequest.conversationResolution?.referential_follow_up, true);
+  assert.equal(followRequest.conversationResolution?.identities?.[0]?.label, "שאול");
+
+  const followRun = await runAiAnalyze({
+    answer: noMatchAnswer(),
+    allowed: true,
+    bearer: "synthetic-anon-key",
+    body: {
+      subject: followRequest.subject,
+      visitor_id: "vshaulbarecontinuation123",
+      intelligence_level: followRequest.intelligenceLevel,
+      research_contract: followRequest.researchContract,
+      conversation_resolution: followRequest.conversationResolution,
+      view_mode: followRequest.viewMode,
+    },
+    researchBundleByExpression: { שאול: expressionCrossingBundle("שאול") },
+    researchBundleByNumber: { 337: numberBundle(337, "מאגר הגימטריה המאומת") },
+  });
+  assert.equal(followRun.result.raziel.plan_meta.view_mode.applied, true);
+  assert.equal(followRun.calls.filter((call) => call.name === "research-run").length, 2);
+});
+
 test("combined Gematria and crossing wording resolves any explicit Hebrew expression", async () => {
   const expression = "צוריאל";
   const run = await runAiAnalyze({

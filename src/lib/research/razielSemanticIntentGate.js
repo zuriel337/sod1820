@@ -104,9 +104,10 @@ export function resolveRazielExpressionContinuationDirective(question) {
   const q = grammarText(question);
   if (!q || q.length > 140) return null;
   const command = /^(?:תחשב|חשב|חשבי|תחשבי)(?:\s+לי)?\s+(.+)$/u.exec(q);
-  if (!command) return null;
-
-  let remainder = clean(command[1], 120);
+  // A lens-only turn ("בכל השיטות", "בשיטת מסתתר") is already a complete
+  // grammatical continuation. It carries the last explicit expression from the
+  // temporary session; it must never be mistaken for a new expression itself.
+  let remainder = clean(command ? command[1] : q, 120);
   const asksConnections = /(?:^|\s)(?:ומצא|מצא|וחפש|חפש|ובדוק|בדוק)(?:\s+לי)?\s+(?:הצלבות|קשרים)$/u.test(remainder);
   remainder = remainder
     .replace(/\s+(?:ומצא|מצא|וחפש|חפש|ובדוק|בדוק)(?:\s+לי)?\s+(?:הצלבות|קשרים)$/u, "")
@@ -123,6 +124,31 @@ export function resolveRazielExpressionContinuationDirective(question) {
     requested_method: method ? clean(method, 60) : null,
     all_methods: directive === "בכל השיטות",
     view_mode_only: /^במצב\s+(?:רגיל|כללי)$/u.test(directive),
+  });
+}
+
+// A whole-turn request for the calculation profile of one explicit expression. The grammar
+// separates the computation noun ("הגימטריות", "הערכים הגימטריים") and the lexical role
+// ("השם", "המילה", "הביטוי") from the bounded expression slot. This applies to every Hebrew
+// expression and does not maintain a dictionary of known names.
+function explicitExpressionProfileCommand(question) {
+  const q = grammarText(question);
+  const computation = "(?:הגימטריות|חישובי\\s+ה?גימטרי[הא]|החישובים\\s+הגימטריים|הערכים\\s+הגימטריים)";
+  const role = "(?:(?:השם|המילה|הביטוי)\\s+)?";
+  const imperative = new RegExp(`^(?:תן|תני|הצג|הציגי|הראה|הראי|פרט|פרטי)(?:\\s+לי)?(?:\\s+את)?\\s+(?:כל\\s+)?${computation}\\s+(?:על|של|עבור)\\s+${role}(.+)$`, "u");
+  const interrogative = new RegExp(`^(?:מה|אילו)(?:\\s+הן)?\\s+(?:כל\\s+)?${computation}\\s+(?:של|עבור)\\s+${role}(.+)$`, "u");
+  const match = imperative.exec(q) || interrogative.exec(q);
+  const expression = match ? validExplicitHebrewExpression(match[1]) : null;
+  if (!expression) return null;
+  return Object.freeze({
+    type: "phrase",
+    label: expression,
+    evidence_text: expression,
+    identity_key: `phrase:${expression}`,
+    source: RESEARCH_IDENTITY_SOURCE.TEXT_MATCH,
+    confidence: RESEARCH_IDENTITY_CONFIDENCE.EXACT,
+    requested_action: "research",
+    explicit_text_computation: true,
   });
 }
 
@@ -188,6 +214,9 @@ export function resolveExplicitHebrewExpressionResearchSubject(question) {
 
   const expressionCalculationCommand = explicitExpressionCalculationCommand(q);
   if (expressionCalculationCommand) return expressionCalculationCommand;
+
+  const expressionProfileCommand = explicitExpressionProfileCommand(q);
+  if (expressionProfileCommand) return expressionProfileCommand;
 
   let match = /^(?:מצא|מצאי|חפש|חפשי|בדוק|בדקי|תבדוק|תבדקי)(?:\s+לי)?\s+(?:הצלבות|קשרים)\s+(?:(?:למילה|לביטוי|לשם|עבור)\s+)(.+)$/u.exec(q);
   let requestedAction = "connect";

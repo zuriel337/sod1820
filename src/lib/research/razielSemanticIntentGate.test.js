@@ -128,11 +128,43 @@ test("expression continuation directives carry an earlier subject instead of cal
     all_methods: false,
     view_mode_only: false,
   });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("בכל השיטות"), {
+    requested_action: "research",
+    requested_method: null,
+    all_methods: true,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("בשיטת מסתתר"), {
+    requested_action: "research",
+    requested_method: "מסתתר",
+    all_methods: false,
+    view_mode_only: false,
+  });
   for (const question of ["תחשב את צוריאל", "תחשב את המילה חכמה", "ספר לי על זה"]) {
     assert.equal(resolveRazielExpressionContinuationDirective(question), null, question);
   }
   assert.equal(resolveExplicitHebrewExpressionResearchSubject("תחשב את זה בכל השיטות ומצא הצלבות"), null);
   assert.equal(resolveExplicitHebrewExpressionResearchSubject("תחשב במצב רגיל"), null);
+  assert.equal(resolveExplicitHebrewExpressionResearchSubject("בכל השיטות"), null);
+});
+
+test("expression profile grammar resolves plural Gematria requests for any explicit Hebrew expression", () => {
+  for (const [question, label] of [
+    ['תן לי את הגימטריות על השם "שאול"', "שאול"],
+    ["הצג את כל הערכים הגימטריים של המילה חכמה", "חכמה"],
+    ["מה הן הגימטריות של הביטוי ראיתי דבר מתוך דבר", "ראיתי דבר מתוך דבר"],
+    ["פרטי לי חישובי גימטריה עבור צוריאל", "צוריאל"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, label, question);
+    assert.equal(out?.requested_action, "research", question);
+    assert.equal(out?.explicit_text_computation, true, question);
+  }
+  for (const question of [
+    "תן לי את הגימטריות על השם שלי",
+    "תן לי מידע על השם שאול",
+    "הצג לי גימטריות",
+  ]) assert.equal(resolveExplicitHebrewExpressionResearchSubject(question), null, question);
 });
 
 test("method-focused expression grammar preserves expression, method and observed result", () => {

@@ -301,6 +301,29 @@ test("extracts an explicit phrase pair and a corpus-crossing target", () => {
   assert.equal(projectRazielConversationResolution(pair), null, "phrase pairs stay on the separate authenticated pair contract");
 });
 
+test("plural profile wording and a bare all-methods follow-up preserve one expression", () => {
+  const first = resolveRazielConversationTurn({
+    question: 'תן לי את הגימטריות על השם "שאול"',
+  });
+  assert.deepEqual(ids(first), ["שאול"]);
+  assert.equal(first.requested_action, "research");
+  assert.equal(first.referent_source, "explicit_current_turn");
+
+  const followUp = resolveRazielConversationTurn({
+    question: "בכל השיטות",
+    thread: [{
+      role: "user",
+      text: 'תן לי את הגימטריות על השם "שאול"',
+      identity_resolution: first.identity_resolution,
+    }],
+  });
+  assert.deepEqual(ids(followUp), ["שאול"]);
+  assert.equal(followUp.requested_action, "research");
+  assert.equal(followUp.referential_follow_up, true);
+  assert.equal(followUp.referent_source, "prior_user_turn");
+  assert.equal(projectRazielConversationResolution(followUp)?.identities?.[0]?.label, "שאול");
+});
+
 test("supports every canonical identity kind from a prior resolved turn", () => {
   const types = ["person", "book", "event", "place", "number", "name", "verse", "topic", "phrase", "word", "entity"];
   for (const type of types) {

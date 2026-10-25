@@ -9,6 +9,7 @@ import {
   createRazielRequestContextSnapshot as createRazielContextSnapshot,
   createRazielTurnSucceededAction,
   normalizeRazielResponse,
+  prepareRazielSessionSubmission,
   selectRazielContinuation,
 } from "./razielSessionRequest2029.js";
 import {
@@ -104,6 +105,41 @@ test("expression continuation keeps the last canonical subject across action and
     { type: "phrase", label: "צוריאל", identity_key: "phrase:צוריאל" },
   ]);
   assert.doesNotMatch(JSON.stringify(second.conversationResolution), /phrase:במצב רגיל/);
+});
+
+test("a plural name-profile turn stores its canonical subject for a bare all-methods follow-up", () => {
+  let nextId = 0;
+  const prepared = prepareRazielSessionSubmission({
+    question: 'תן לי את הגימטריות על השם "שאול"',
+    state: createInitialRazielSessionState(),
+    researchContext: null,
+    startedAt: "2026-10-25T12:00:00Z",
+    createTurnId: () => `profile-${++nextId}`,
+    viewMode: "exploratory",
+  });
+  assert.equal(prepared.request.conversationResolution?.identities?.[0]?.label, "שאול");
+
+  let state = razielSessionReducer(createInitialRazielSessionState(), {
+    type: "turn_started",
+    turn: prepared.turn,
+    contextSnapshot: prepared.contextSnapshot,
+  });
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({
+    state,
+    completedAt: "2026-10-25T12:00:01Z",
+    response: { answer: "שאול = 337", intelligenceLevel: "deep", deterministic: false, sourceNames: [] },
+    provenance: { turnId: prepared.turn.id },
+  }));
+
+  const followUp = buildRazielSessionRequest({
+    question: "בכל השיטות",
+    state,
+    contextSnapshot: null,
+    viewMode: "exploratory",
+  });
+  assert.equal(followUp.conversationResolution?.referential_follow_up, true);
+  assert.equal(followUp.conversationResolution?.referent_source, "prior_user_turn");
+  assert.equal(followUp.conversationResolution?.identities?.[0]?.label, "שאול");
 });
 
 test("method command projects only its expression while the server reauthorizes the method lens", () => {
