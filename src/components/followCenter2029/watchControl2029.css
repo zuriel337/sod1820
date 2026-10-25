@@ -16,15 +16,5 @@
 .sod29-watch-card p{color:var(--s29-muted);font-size:var(--s29-type-small,16px);line-height:1.5}
 .sod29-watch button:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.sod29-watch *{transition:none!important;animation:none!important}}
-
-/* The real identity slot (EmailVerify) keeps its own logic and markup; its legacy inline sizes and dark-theme colours are
-   scoped here to the Design V2 floors and the preset's roles, only inside this card. */
-.sod29-watch-card form{width:100%;max-width:100%!important;margin:0!important}
-.sod29-watch-card form div{color:var(--s29-muted)!important;font-size:var(--s29-type-small,16px)!important;line-height:1.6!important}
-.sod29-watch-card form span{color:var(--s29-ink)!important}
-.sod29-watch-card input{min-height:44px!important;box-sizing:border-box!important;font-size:var(--s29-type-ui,16px)!important;color:var(--s29-ink)!important;background:var(--s29-panel)!important;border:1px solid var(--s29-line-strong)!important}
-.sod29-watch-card input[maxlength]{font-size:var(--s29-type-lead,21px)!important}
-.sod29-watch-card form button{min-height:44px!important;min-width:44px!important;font-size:var(--s29-type-ui,16px)!important;font-weight:700!important;color:var(--s29-accent-text)!important;background:transparent!important;border:1px solid var(--s29-line-strong)!important;border-radius:999px!important;opacity:1!important;cursor:pointer}
-.sod29-watch-card form button[type=submit]{color:var(--s29-on-accent,#fff)!important;background:var(--s29-accent-btn,var(--s29-accent))!important;border-color:transparent!important}
-.sod29-watch-card form button:disabled{cursor:progress;opacity:.75!important}
-.sod29-watch-card form div[role=alert],.sod29-watch-card form div:has(+ button[type=submit]):empty{color:var(--s29-ink)!important}
+/* The identity slot is the shared EmailVerify variant 2029 (experience2029/emailVerify2029.css); only its width is set here. */
+.sod29-watch-card .sod29-email-verify{width:100%}

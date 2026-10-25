@@ -6,6 +6,7 @@ import { trackSubscribe } from "../lib/marketing.js";
 import { broadcastJoin } from "../lib/joinEvents.js";
 import { shouldSubscribeEmailDuringVerification } from "../lib/emailVerificationIntent.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../lib/emailOtp.js";
+import "./experience2029/emailVerify2029.css"; // scoped to variant="2029"; inert for the default presentation
 
 /**
  * אימות מייל בשני שלבים (Supabase Auth OTP) — רכיב קבוע וניתן-להצבה.

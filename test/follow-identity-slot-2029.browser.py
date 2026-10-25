@@ -39,7 +39,7 @@ MEASURE = """() => { const root = document.querySelector('.sod29-watch-card'); c
   return out; }"""
 
 
-def run(browser, theme, width, step):
+def run(browser, theme, width, step, mode='watch'):
     ctx = browser.new_context(viewport={'width': width, 'height': 900})
     ctx.add_init_script("localStorage.setItem('sod-theme'," + json.dumps(theme) + ")")
     page = ctx.new_page()
@@ -54,8 +54,8 @@ def run(browser, theme, width, step):
         if r.request.method == 'OPTIONS': return r.fulfill(status=204, headers={'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*'})
         report['external'].append(r.request.method + ' ' + u.hostname + u.path); return r.abort()
     page.route('**/*', route)
-    page.goto(BASE + '/follow-identity-slot')
-    page.get_by_role('button', name='אימות חשבון', exact=True).click()
+    page.goto(BASE + '/follow-identity-slot' + ('?mode=direct' if mode == 'direct' else ''))
+    if mode == 'watch': page.get_by_role('button', name='אימות חשבון', exact=True).click()
     page.locator('.sod29-watch-card input').first.wait_for(timeout=15000)
     if step >= 1:
         page.locator('.sod29-watch-card input').first.fill('nobody@example.invalid')
@@ -63,7 +63,8 @@ def run(browser, theme, width, step):
         page.locator('.sod29-watch-card input[inputmode], .sod29-watch-card form >> text=שלחנו קוד').first.wait_for(timeout=15000)
     if step >= 2:  # error state: empty code submit
         page.locator('.sod29-watch-card button[type=submit]').click(); page.wait_for_timeout(500)
-    page.screenshot(path=str(OUT / f'slot-{theme}-{width}-step{step}.png'))
+    assert page.locator('.sod29-email-verify[data-variant="2029"]').count() == 1, 'the shared 2029 variant renders'
+    page.screenshot(path=str(OUT / f'slot-{mode}-{theme}-{width}-step{step}.png'))
     items = page.evaluate(MEASURE)
     ctx.close()
     return items
@@ -74,11 +75,11 @@ with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=CHROMIUM, headless=True, args=['--no-sandbox'])
     for theme in ('light', 'parchment', 'dark'):
         for width in (390, 1440):
-            for step in (0, 1, 2):
-                items = run(browser, theme, width, step)
+            for mode, step in [(m, st) for m in ('watch', 'direct') for st in (0, 1, 2)]:
+                items = run(browser, theme, width, step, mode)
                 floor = 15 if width >= 1024 else 14
                 for it in items:
-                    tag = (theme, width, step, it.get('text'))
+                    tag = (mode, theme, width, step, it.get('text'))
                     if it['kind'] == 'text':
                         if it['size'] < floor: problems.append(('size', it['size'], tag))
                         fg, bgc = rgb(it['color']), rgb(it['bg'])
@@ -86,7 +87,7 @@ with sync_playwright() as p:
                     else:
                         if it.get('h', 99) < 43.5 or it.get('w', 99) < 43.5: problems.append(('target', (it['w'], it['h']), tag))
                         if it['size'] < 16 and it['kind'] != 'a': problems.append(('control-size', it['size'], tag))
-                report['cases'].append([theme, width, step, len(items)])
+                report['cases'].append([mode, theme, width, step, len(items)])
     browser.close()
 report['problems'] = len(problems); report['sample'] = [list(map(str, x)) for x in problems[:25]]
 print(json.dumps(report, ensure_ascii=False))

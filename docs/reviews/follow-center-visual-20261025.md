@@ -79,3 +79,16 @@ Base: PR #1159 head `baeec829d` (controller predicates `confirmed` / `identityRe
 - **Hierarchy:** rows sit on the soft surface without a second outline; outlines remain for selection, state, failure and unavailability (dashed). No new colours, roles or glyph taxonomy.
 - **Identity slot audit (actual `EmailVerify`, OTP endpoint answered synthetically, every other request blocked):** measured on the base: inputs and buttons 41-43px high and 15px, support text 12-13px, error colour fixed, and contrast of 1.6:1 on the light presets because the component uses Legacy dark-theme colours inline. The component is unchanged; its sizes, colours and targets are scoped to the Design V2 floors and the preset roles by wrapper CSS inside the 2029 watch card only. Result in all presets at 390/1440 across the email, code and empty-code error steps: 0 problems (`test/follow-identity-slot-2029.browser.py --strict`). The Legacy callers of `EmailVerify` are not changed, so the same component still fails those floors outside this card; that is a separate decision.
 - Regressions: the six actual-component state cases from `watch-button-2029-state.browser.py` pass; the 43-case Follow Center matrix, writer visual family and community-person tests pass.
+
+## Shared EmailVerify 2029 presentation (branch `claude/email-verify-2029-presentation-20261025`)
+
+Base: PR #1159 head `347d2ae7d` (EmailVerify `variant="2029"` boundary and native focus, record 2e951644). BEFORE `8352d288-4dfd-4bfb-880b-12a3a5ba6032`.
+The presentation now lives once, in `src/components/experience2029/emailVerify2029.css`, keyed on the component's own markers (`data-variant`, `data-step`,
+`data-state`, `data-field`, `data-action`). `EmailVerify.jsx` gained a single CSS import; markup, identity/source/subscription intent, OTP validation,
+cooldown and callbacks are untouched, and every rule is scoped to `[data-variant="2029"]`, so the default presentation is unchanged (the 20 boundary cases include the
+default and opt-out paths). My earlier watch-card overrides were removed from `watchControl2029.css` after adoption (only the slot width remains there).
+The native-frame keyboard focus baseline is not overridden. Roles/tokens only: `--s29-type-*`, ink/muted/accent-text/accent-btn/on-accent/line roles, 44px targets,
+support text at least 15px on desktop, UI 16, OTP at the lead token.
+Verification: `follow-identity-slot-2029.browser.py --strict` now measures the standalone variant as well as the watch-card mount, across email/code/error steps, 3 presets and
+390/1440 (36 cases, 0 problems on size, contrast and targets); the 20 actual-component boundary cases, the 6 state cases, the 43-case Follow Center matrix, writer visual family,
+community-person, actions and follow-safety all pass. No caller was migrated: `SubscribeGate` and its Legacy/shared callers are untouched.

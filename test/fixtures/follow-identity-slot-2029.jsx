@@ -4,6 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../../src/lib/AuthContext.jsx";
 import { use2029Palette } from "../../src/lib/palette.js";
 import WatchButton from "../../src/components/WatchButton.jsx";
+import EmailVerify from "../../src/components/EmailVerify.jsx";
+import "../../src/components/experience2029/systemFrame2029.css";
 
 // Test-only: the REAL WatchButton variant 2029 with a saved guest follow, so the REAL EmailVerify identity slot renders.
 // Follow I/O is an instance fake; every external request is blocked or answered by the test harness (no mail, no OTP, no write).
@@ -16,9 +18,11 @@ const tokens = (p) => ({
 function Review() {
   const palette = use2029Palette();
   const io = useMemo(() => ({ read: async () => ({ topics: [TOPIC], channels: [] }), toggle: async () => ({ ok: true }), track: () => {} }), []);
-  return <main dir="rtl" style={{ ...tokens(palette), background: palette.pageBg, color: palette.ink, padding: 16, minHeight: "100vh" }}>
+  return <main dir="rtl" className="sod29-root native-frame" style={{ ...tokens(palette), background: palette.pageBg, color: palette.ink, padding: 16, minHeight: "100vh" }}>
     <div style={{ background: palette.card, border: `1px solid ${palette.border}`, borderRadius: 16, padding: 16 }}>
-      <WatchButton variant="2029" topic={TOPIC} source="identity-slot-fixture" label="מעקב בדיקה" noPush followIO={io} />
+      {new URLSearchParams(location.search).get("mode") === "direct"
+        ? <div className="sod29-watch-card" style={{ background: "transparent", border: 0, padding: 0 }}><EmailVerify variant="2029" source="follow:identity-slot-fixture" /></div>
+        : <WatchButton variant="2029" topic={TOPIC} source="identity-slot-fixture" label="מעקב בדיקה" noPush followIO={io} />}
     </div>
   </main>;
 }
