@@ -7,7 +7,7 @@
 // source URL, and derive bounded presentation candidates for the exploratory view. Candidate
 // ordering never changes the canonical evidence order or promotes a candidate to research truth.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 13;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 14;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -17,6 +17,8 @@ const MAX_FALLBACK_FINDINGS = 6;
 const MAX_SOURCE_TERMS = 48;
 const MAX_SURPRISE_CANDIDATES = 3;
 const MAX_CONSTELLATION_TERMS = 12;
+const MAX_VISIBLE_CALCULATIONS = 6;
+const MAX_VISIBLE_FINDINGS = 8;
 
 const list = (value) => Array.isArray(value) ? value : [];
 
@@ -368,6 +370,82 @@ function numericFindingValue(finding) {
   const raw = result && typeof result === "object" ? result.value : result;
   const value = Number(raw ?? finding?.subject?.value);
   return Number.isSafeInteger(value) && value >= 1 && value <= 999999 ? value : null;
+}
+
+function visibleEvidenceSummary(entries) {
+  const calculations = [];
+  const findings = [];
+  const calculationKeys = new Set();
+  const findingKeys = new Set();
+
+  for (const entry of entries) {
+    if (entry.subject?.type !== "expression") continue;
+    const expression = cleanText(entry.subject.value, 120);
+    if (!expression) continue;
+    for (const row of list(entry.projection?.model_input?.calculation_profile)) {
+      if (calculations.length >= MAX_VISIBLE_CALCULATIONS) break;
+      const method = cleanText(row?.method_label || row?.method_key, 60);
+      const value = safeNumber(row?.value);
+      const key = `${expression}|${method}|${value}`;
+      if (!method || value == null || calculationKeys.has(key)) continue;
+      calculationKeys.add(key);
+      calculations.push({ expression, method, value, href: `/2029/number/${value}` });
+    }
+  }
+
+  const addFinding = (finding) => {
+    if (findings.length >= MAX_VISIBLE_FINDINGS) return;
+    const lane = razielFindingEvidenceLane(finding);
+    if (lane === "explicit_interpretation" || lane === "unverified_finding") return;
+    const label = cleanText(finding?.subject?.label, 140)
+      || cleanText(finding?.verification?.claimed_expression, 140);
+    if (!label) return;
+    const methods = list(finding?.verification?.engine_result?.methods).slice(0, 4).map((item) => {
+      const method = cleanText(item?.method, 60);
+      const value = safeNumber(item?.value);
+      return method && value != null ? { method, value } : null;
+    }).filter(Boolean);
+    const value = numericFindingValue(finding);
+    const rawMethod = cleanText(finding?.verification?.engine_method_tested || finding?.source?.method, 60);
+    const method = rawMethod?.startsWith("fn_") ? null : rawMethod === "ragil" ? "רגיל" : rawMethod;
+    const sourceName = cleanText(finding?.source?.source_name, 120);
+    const key = `${label}|${method || ""}|${value || ""}|${methods.map((item) => `${item.method}:${item.value}`).join(",")}`;
+    if (findingKeys.has(key)) return;
+    findingKeys.add(key);
+    findings.push({
+      label,
+      lane,
+      ...(method ? { method } : {}),
+      ...(value != null ? { value, href: `/2029/number/${value}` } : {}),
+      ...(methods.length ? { methods } : {}),
+      ...(sourceName ? { source_name: sourceName } : {}),
+    });
+  };
+  for (const entry of entries) {
+    let admitted = 0;
+    for (const finding of entry.findings) {
+      const before = findings.length;
+      addFinding(finding);
+      if (findings.length > before) admitted += 1;
+      if (admitted === 3 || findings.length >= MAX_VISIBLE_FINDINGS) break;
+    }
+    if (findings.length >= MAX_VISIBLE_FINDINGS) break;
+  }
+  if (findings.length < MAX_VISIBLE_FINDINGS) {
+    for (const entry of entries) {
+      for (const finding of entry.findings) addFinding(finding);
+      if (findings.length >= MAX_VISIBLE_FINDINGS) break;
+    }
+  }
+
+  if (!calculations.length && !findings.length) return null;
+  return deepFreeze({
+    v: 1,
+    title: "הממצאים האמיתיים שמאחורי הפרשנות",
+    calculations,
+    findings,
+    map_available: true,
+  });
 }
 
 function hebrewLetterSignature(value) {
@@ -1033,6 +1111,7 @@ export function buildRazielGroundedSourceComposer(input = [], { layerReads = [] 
     result: entry.projection.model_input,
   }));
   const mode = responseMode(entries);
+  const evidenceSummary = visibleEvidenceSummary(entries);
   const promptObject = {
     contract: "raziel-canonical-result-bundle-input-v1",
     composer_contract: `raziel-grounded-source-composer-v${RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION}`,
@@ -1084,6 +1163,7 @@ export function buildRazielGroundedSourceComposer(input = [], { layerReads = [] 
     fallback,
     sources: sourceList(entries),
     navigation: navigationList(entries),
+    evidence_summary: evidenceSummary,
     direct_answer: directCanonicalAnswer(entries),
     primary_expression_anchor: primaryExpressionAnchor(entries),
     guards: {
@@ -1104,6 +1184,8 @@ export function buildRazielGroundedSourceComposer(input = [], { layerReads = [] 
       surprise_candidates_do_not_claim_independence_or_rarity: true,
       direct_answer_uses_canonical_projection_only: true,
       calculation_subject_fidelity: true,
+      visible_evidence_is_deterministic_projection: true,
+      visible_evidence_never_comes_from_model_output: true,
     },
   };
   return deepFreeze(result);

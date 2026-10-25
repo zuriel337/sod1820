@@ -974,7 +974,7 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
     allowed: true,
     bearer: "synthetic-anon-key",
     modelResult: {
-      text: JSON.stringify({ v: 1, agent: "raziel", answer: "Mock synthesis", facts: [], suggested_paths: [], sources: [{ original_name: "מקור מומצא" }] }),
+      text: JSON.stringify({ v: 1, agent: "raziel", answer: "Mock synthesis", facts: [], suggested_paths: [], sources: [{ original_name: "מקור מומצא" }], evidence_summary: { title: "ממצאים מומצאים", findings: [{ label: "בדיה", value: 999 }] } }),
       usage: { input_tokens: 11, output_tokens: 7 }, attempts: 1, degraded: false,
     },
     body: {
@@ -997,7 +997,7 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.calls.filter((call) => ["number_map", "number_dossier_json"].includes(call.name)).length, 0);
   assert.equal(run.models.length, 1, "the deterministic Bundle seam adds no model call");
   assert.match(run.models[0].user, /raziel-canonical-result-bundle-input-v1/);
-  assert.match(run.models[0].user, /raziel-grounded-source-composer-v13/);
+  assert.match(run.models[0].user, /raziel-grounded-source-composer-v14/);
   assert.match(run.models[0].user, /אל תמציא לו שם חלופי/);
   assert.match(run.models[0].user, /לא סופק מדד נדירות מפורש/);
   assert.match(run.models[0].user, /verified_calculations/);
@@ -1008,6 +1008,13 @@ test("2029 guest consumes one authorized canonical Bundle and suppresses duplica
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   assert.deepEqual(run.result.raziel.sources, [{ original_name: "Sefer Yetzirah", source_ref: "number-source:776", lang: "he" }]);
   assert.deepEqual(run.result.raziel.navigation, [{ kind: "number", label: "פתח את דף המספר 776", href: "/2029/number/776" }]);
+  assert.equal(run.result.raziel.evidence_summary.title, "הממצאים האמיתיים שמאחורי הפרשנות");
+  assert.deepEqual(run.result.raziel.evidence_summary.findings.map(({ label, lane, value, href }) => ({ label, lane, value, href })), [
+    { label: "776", lane: "verified_calculation", value: 776, href: "/2029/number/776" },
+  ]);
+  assert.deepEqual(run.result.evidence_summary, run.result.raziel.evidence_summary, "the authoritative server envelope carries the same deterministic projection");
+  assert.doesNotMatch(JSON.stringify(run.result.raziel.evidence_summary), /מקור מומצא/, "model-authored provenance never enters visible evidence");
+  assert.doesNotMatch(JSON.stringify(run.result.evidence_summary), /מומצא|בדיה|999/, "model-authored evidence cannot replace the canonical projection");
 });
 
 test("776 keeps verified symbolic phrases factual and preserves the Number-page order through model fallback", async () => {

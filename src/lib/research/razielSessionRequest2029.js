@@ -430,6 +430,69 @@ export function extractRazielSourceNames(response = null) {
   return uniqueSourceNames([response.sources || [], response.evidence || [], provenanceSources || []]);
 }
 
+export function normalizeRazielEvidenceSummary(value = null) {
+  if (!isObject(value)) return null;
+  const numberLink = (input) => {
+    const value = cleanInteger(input);
+    return value && value >= 1 && value <= 999999 ? { value, href: `/2029/number/${value}` } : null;
+  };
+  const calculations = (Array.isArray(value.calculations) ? value.calculations : []).slice(0, 6).flatMap((item) => {
+    if (!isObject(item)) return [];
+    const expression = cleanInline(item.expression, 120);
+    const method = cleanInline(item.method, 60);
+    const link = numberLink(item.value);
+    return expression && method && link ? [{ expression, method, ...link }] : [];
+  });
+  const findings = (Array.isArray(value.findings) ? value.findings : []).slice(0, 8).flatMap((item) => {
+    if (!isObject(item)) return [];
+    const label = cleanInline(item.label, 140);
+    if (!label) return [];
+    const link = numberLink(item.value);
+    const methods = (Array.isArray(item.methods) ? item.methods : []).slice(0, 4).flatMap((methodItem) => {
+      if (!isObject(methodItem)) return [];
+      const method = cleanInline(methodItem.method, 60);
+      const methodLink = numberLink(methodItem.value);
+      return method && methodLink ? [{ method, value: methodLink.value }] : [];
+    });
+    return [{
+      label,
+      lane: cleanInline(item.lane, 40),
+      method: cleanInline(item.method, 60),
+      sourceName: cleanInline(item.source_name, 120),
+      ...(link || {}),
+      ...(methods.length ? { methods } : {}),
+    }];
+  });
+  if (!calculations.length && !findings.length) return null;
+  return {
+    title: cleanInline(value.title, 100) || "הממצאים האמיתיים שמאחורי הפרשנות",
+    calculations,
+    findings,
+    mapAvailable: value.map_available === true,
+  };
+}
+
+export function formatRazielEvidenceSummary(value = null) {
+  const summary = normalizeRazielEvidenceSummary(value);
+  if (!summary) return "";
+  const lines = [];
+  const seen = new Set();
+  const add = (text) => {
+    if (!text || seen.has(text)) return;
+    seen.add(text);
+    lines.push(`• ${text}`);
+  };
+  for (const item of summary.calculations) add(`${item.expression} · ${item.method} = ${item.value} · חישוב מאומת`);
+  for (const item of summary.findings) {
+    const methodText = item.methods?.length
+      ? item.methods.map((method) => `${method.method}=${method.value}`).join(" · ")
+      : [item.method, item.value].filter((part) => part !== null && part !== undefined && part !== "").join(" = ");
+    const lane = item.lane === "source_claim" ? "טענת מקור" : item.lane === "engine_finding" ? "ממצא מנוע" : "חישוב מאומת";
+    add(`${item.label}${methodText ? ` · ${methodText}` : ""} · ${lane}${item.sourceName ? ` · ${item.sourceName}` : ""}`);
+  }
+  return [`🔎 ${summary.title}`, ...lines, "אלה נתוני המנוע והמחקר; הטקסט שמעליהם הוא הפרשנות.", ...(summary.mapAvailable ? ["למפת הקשרים המלאה אפשר לבחור „🗺️ פתח מפת מחקר” שמתחת."] : [])].join("\n");
+}
+
 export function normalizeRazielResponse(response, requestedLevel = "fast") {
   if (!isObject(response)) return null;
   const answer = cleanAnswer(response.answer);
@@ -438,12 +501,15 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
     ? "deterministic"
     : cleanInline(response.intelligence_level, 30) || (requestedLevel === "deep" ? "deep" : "fast");
   const viewModeReport = normalizeRazielViewModeReport(response);
+  const evidenceSummary = normalizeRazielEvidenceSummary(response.evidence_summary);
+  const evidenceText = formatRazielEvidenceSummary(response.evidence_summary);
   return {
     v: cleanInteger(response.v) || 1,
-    answer,
+    answer: evidenceText ? `${answer.slice(0, Math.max(1, LIMITS.answer - evidenceText.length - 2)).trim()}\n\n${evidenceText}` : answer,
     deterministic: response.deterministic === true,
     intelligenceLevel,
     sourceNames: extractRazielSourceNames(response),
+    ...(evidenceSummary ? { evidenceSummary } : {}),
     ...(viewModeReport ? { viewMode: viewModeReport } : {}),
   };
 }
@@ -497,6 +563,7 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
     continuation: state?.currentTurn?.continuation || null,
     sourceNames,
     grounding,
+    ...(response.evidenceSummary ? { evidenceSummary: response.evidenceSummary } : {}),
     ...(response.viewMode ? { viewMode: response.viewMode.requested, viewModeApplied: response.viewMode.applied } : {}),
   };
   return {

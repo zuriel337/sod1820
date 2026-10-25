@@ -2894,6 +2894,7 @@ Deno.serve(async (req: Request) => {
       let rCanonicalBundleReads: RazielCanonicalBundleRead[] = [];
       let rCanonicalBundleSources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
       let rCanonicalBundleNavigation: { kind: string; label: string; href: string }[] = [];
+      let rCanonicalEvidenceSummary: any = null;
       let rCanonicalDirectAnswer: any = null;
       const rConversationFallback = (rConversationHint ?? rSemanticHint)
         && !rToolRes && !rOpDesc && !rCoordDesc && !rPersDesc
@@ -2983,6 +2984,7 @@ Deno.serve(async (req: Request) => {
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
+          rCanonicalEvidenceSummary = composition.evidence_summary;
           rCanonicalDirectAnswer = composition.direct_answer;
           rPlanMeta = {
             ...(rPlanMeta || {}),
@@ -3026,6 +3028,7 @@ Deno.serve(async (req: Request) => {
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
+          rCanonicalEvidenceSummary = composition.evidence_summary;
           rCanonicalDirectAnswer = composition.direct_answer;
           rPlanMeta = {
             ...(rPlanMeta || {}),
@@ -3094,10 +3097,12 @@ Deno.serve(async (req: Request) => {
             source_of_truth: "canonical Research Result Bundle",
             sources: rCanonicalBundleSources,
             navigation: rCanonicalBundleNavigation,
+            evidence_summary: rCanonicalEvidenceSummary,
             plan_meta: rPlanMeta,
           },
           engine: "deterministic",
           model: "none",
+          evidence_summary: rCanonicalEvidenceSummary,
           intelligence_level: "deterministic",
           plan_meta: rPlanMeta,
           trace_id: activeTrace?.traceId || null,
@@ -3414,6 +3419,7 @@ Deno.serve(async (req: Request) => {
           // labels and navigation are not evidence and must never enter the response surface.
           contract.sources = rCanonicalBundleSources;
           contract.navigation = rCanonicalBundleNavigation;
+          contract.evidence_summary = rCanonicalEvidenceSummary;
         }
         if (rTrusted?.media) contract.source_stage = { executed: true, ok: !!rSource?.ok, reason: rSource?.reason ?? null, derivative: true, moderation: "pending" };   // additive; numeric routing skipped for attached sources
         contract.intelligence_selection = rSelMeta;      // Phase D — additive: requested/selected/escalation_reason
@@ -3434,11 +3440,11 @@ Deno.serve(async (req: Request) => {
           contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
         }
         if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
-        return rzJson({ raziel: contract, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+        return rzJson({ raziel: contract, evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
       if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
-      return rzJson({ analysis: out.text, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      return rzJson({ analysis: out.text, evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";

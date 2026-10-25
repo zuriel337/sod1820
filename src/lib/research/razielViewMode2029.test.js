@@ -101,8 +101,20 @@ test("session reducer: the mode belongs to the one session — set, normalised, 
 });
 
 test("responses: general carries no mode report; a non-applied mode is never labelled as that mode's answer", () => {
-  const plain = normalizeRazielResponse({ answer: "תשובה", plan_meta: { capability_class: "x" } }, "fast");
+  const plain = normalizeRazielResponse({ answer: "תשובה", plan_meta: { capability_class: "x" }, evidence_summary: {
+    title: "ראיות",
+    calculations: [{ expression: "חכמה", method: "רגיל", value: 73, href: "https://evil.invalid" }],
+    findings: [{ label: "בינה", lane: "verified_calculation", method: "רגיל", value: 67, source_name: "מאגר" }],
+    map_available: true,
+  } }, "fast");
   assert.equal("viewMode" in plain, false);
+  assert.equal(plain.answer, "תשובה\n\n🔎 ראיות\n• חכמה · רגיל = 73 · חישוב מאומת\n• בינה · רגיל = 67 · חישוב מאומת · מאגר\nאלה נתוני המנוע והמחקר; הטקסט שמעליהם הוא הפרשנות.\nלמפת הקשרים המלאה אפשר לבחור „🗺️ פתח מפת מחקר” שמתחת.");
+  assert.deepEqual(plain.evidenceSummary, {
+    title: "ראיות",
+    calculations: [{ expression: "חכמה", method: "רגיל", value: 73, href: "/2029/number/73" }],
+    findings: [{ label: "בינה", lane: "verified_calculation", method: "רגיל", sourceName: "מאגר", value: 67, href: "/2029/number/67" }],
+    mapAvailable: true,
+  });
 
   const applied = normalizeRazielResponse({ answer: "עוגן: …", plan_meta: { view_mode: { requested: "landscape", applied: true } } }, "fast");
   assert.deepEqual(applied.viewMode, { requested: "landscape", applied: true, reason: null });
@@ -116,6 +128,10 @@ test("responses: general carries no mode report; a non-applied mode is never lab
   let state = razielSessionReducer(createInitialRazielSessionState(), { type: "turn_started", turn: turn(), contextSnapshot: null });
   state = razielSessionReducer(state, createRazielTurnSucceededAction({ state, completedAt: "x", response: notApplied, provenance: null }));
   assert.equal(state.thread.at(-1).viewModeApplied, false);
+
+  let evidenceState = razielSessionReducer(createInitialRazielSessionState(), { type: "turn_started", turn: turn(), contextSnapshot: null });
+  evidenceState = razielSessionReducer(evidenceState, createRazielTurnSucceededAction({ state: evidenceState, completedAt: "x", response: plain, provenance: null }));
+  assert.deepEqual(evidenceState.thread.at(-1).evidenceSummary, plain.evidenceSummary);
 
   const provenance = createRazielProvenance({ response: { answer: "תשובה", plan_meta: { view_mode: { requested: "landscape", applied: true } } }, turn: turn(), completedAt: "x" });
   assert.equal(provenance.viewMode, "landscape");
@@ -149,6 +165,8 @@ test("askRaziel: view_mode is additive, sent only under the canonical 2029 contr
   assert.match(supabase, /\.\.\.\(level \? \{ intelligence_level: level \} : \{\}\)/);
   // never reuses the legacy `mode` field (reserved for "advanced")
   assert.doesNotMatch(supabase, /\bmode: viewMode|\bmode: ['"]landscape/);
+  assert.match(supabase, /new Set\(\['trace_id', 'engine', 'model', 'usage', 'evidence_summary'\]\)/, "a model-authored evidence block is stripped");
+  assert.match(supabase, /data\?\.evidence_summary \? \{ evidence_summary: data\.evidence_summary \}/, "only the server envelope restores canonical evidence");
 });
 
 test("UI wiring: one shared selector inside the single RazielNativeChat, App2029 and other surfaces untouched", () => {

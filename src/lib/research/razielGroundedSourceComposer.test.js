@@ -51,7 +51,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v13");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v14");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -64,6 +64,11 @@ test("keeps canonical presentation order and labels verified calculation separat
   assert.match(out.guidance, /לא סופק מדד נדירות מפורש/);
   assert.equal(out.guards.source_wording_integrity, true);
   assert.equal(out.guards.no_extra_model_call, true);
+  assert.equal(out.guards.visible_evidence_never_comes_from_model_output, true);
+  assert.deepEqual(out.evidence_summary.findings.map((item) => [item.label, item.lane, item.value]), [
+    ["מחשבת יהוה", "source_claim", 776],
+    ["ביאת המשיח", "verified_calculation", 776],
+  ]);
 });
 
 test("emits only canonical number navigation and never fabricates a source URL", () => {
