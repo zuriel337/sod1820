@@ -95,6 +95,25 @@ test("method calculation commands keep command scaffolding out of the canonical 
   }
 });
 
+test("method questions in natural word order never calculate the instruction scaffolding", () => {
+  for (const [question, label, method] of [
+    ["כמה זה שאול בשיטת משולש", "שאול", "קדמי"],
+    ["כמה שווה משיח בשיטת מסתתר", "משיח", "מסתתר"],
+    ["מה שווה אור הגאולה בשיטת מילוי דמילוי", "אור הגאולה", "מילוי דמילוי"],
+    ["שאול בשיטת משולש כמה זה", "שאול", "קדמי"],
+    ["כמה זה משיח במשולש", "משיח", "קדמי"],
+    ["משיח במשולש כמה זה", "משיח", "קדמי"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, label, question);
+    assert.equal(out?.identity_key, `phrase:${label}`, question);
+    assert.equal(out?.requested_method, method, question);
+    assert.equal(out?.requested_action, "research", question);
+    assert.equal(out?.explicit_text_computation, true, question);
+    assert.doesNotMatch(out?.label || "", /בשיטת|משולש|מסתתר|מילוי/u, question);
+  }
+});
+
 test("plain calculation commands also remove Gematria, all-method and view scaffolding", () => {
   for (const [question, action] of [
     ["חשב את שאול בגימטריה", "research"],

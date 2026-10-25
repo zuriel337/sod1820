@@ -227,6 +227,7 @@ function expressionCrossingBundle(expression, partner = "שלום", { richProfil
     for (const [key, label, value, family, extraFact] of [
       ["מסתתר", "מסתתר", 328, "adjacent_difference"],
       ["מסתתר גדול", "מסתתר גדול", 328, "adjacent_difference"],
+      ["קדמי", "משולש", 1222, "base_additive"],
       ...(richProfile ? [
         ["מילוי", "מילוי", 567, "base_additive"],
         ["אתבש", "אתבש", 502, "base_additive_substitution"],
@@ -960,6 +961,54 @@ test("Messiah triangle wording and correction route to קדמי=1331 without los
     assert.equal(researchCalls[1].payload.number, 1331, body.subject);
     assert.match(run.result.raziel.answer, /משיח בשיטת משולש = 1331/, body.subject);
     assert.doesNotMatch(run.result.raziel.answer, /צמח\s*=\s*358/u, body.subject);
+  }
+});
+
+test("natural method questions bypass Legacy command arithmetic and return canonical triangle values", async () => {
+  const cases = [
+    { question: "כמה זה שאול בשיטת משולש", expression: "שאול", value: 1222, bundles: shaulBundles() },
+    { question: "כמה זה משיח במשולש", expression: "משיח", value: 1331, bundles: {
+      researchBundleByExpression: { משיח: expressionCrossingBundle("משיח") },
+      researchBundleByNumber: { 1331: numberBundle(1331) },
+    } },
+  ];
+  for (const [index, item] of cases.entries()) {
+    const prepared = prepare({ question: item.question });
+    assert.equal(prepared.request.conversationResolution?.identities?.[0]?.label, item.expression, item.question);
+    const run = await runAiAnalyze({
+      answer: legacyScaffoldingAnswer(), allowed: true, bearer: "synthetic-anon-key",
+      body: bodyOf(prepared, `vmethodnatural${index}12345`),
+      ...item.bundles,
+    });
+    assert.equal(run.calls.filter((call) => call.name === "fn_raziel_answer").length, 0, item.question);
+    const reads = run.calls.filter((call) => call.name === "research-run");
+    assert.equal(reads[0]?.payload?.expression, item.expression, item.question);
+    assert.equal(reads[1]?.payload?.number, item.value, item.question);
+    assert.equal(run.result.engine, "deterministic", item.question);
+    assert.match(run.result.raziel.answer, new RegExp(`${item.expression} בשיטת משולש = ${item.value}`), item.question);
+    assert.doesNotMatch(run.result.raziel.answer, /1734|1036|גימטריה רגילה/u, item.question);
+  }
+});
+
+test("method-routing guard fails closed before Legacy when a 2029 method envelope is missing or forged", async () => {
+  const prepared = prepare({ question: "כמה זה שאול בשיטת משולש" });
+  for (const [name, conversation_resolution] of [
+    ["missing", undefined],
+    ["forged", { ...prepared.request.conversationResolution, version: "forged" }],
+  ]) {
+    const body = bodyOf(prepared, `vmethodguard${name}12345`);
+    if (conversation_resolution === undefined) delete body.conversation_resolution;
+    else body.conversation_resolution = conversation_resolution;
+    const run = await runAiAnalyze({
+      answer: legacyScaffoldingAnswer(), allowed: true, bearer: "synthetic-anon-key", body,
+      ...shaulBundles(),
+    });
+    assert.equal(run.calls.filter((call) => call.name === "fn_raziel_answer").length, 0, name);
+    assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0, name);
+    assert.equal(run.models.length, 0, name);
+    assert.equal(run.result.engine, "method_routing_guard", name);
+    assert.match(run.result.raziel.answer, /לא חישבתי את מילות ההוראה/u, name);
+    assert.doesNotMatch(run.result.raziel.answer, /1734|1036|= 377/u, name);
   }
 });
 
@@ -1714,6 +1763,7 @@ function shaulBundles() {
           numberPhraseFinding({ id: "uf:337:engagement", phrase: "אירוסין", value: 337 }),
         ],
       }),
+      1222: numberBundle(1222, "מאגר הגימטריה המאומת"),
       // The words at the regular value equal to שאול's narrative method layers (read only by the interpretive modes).
       121: numberBundle(121, "מאגר הגימטריה המאומת", { phraseFindings: ["אצל", "אלמן", "מטבע", "פלאי", "בדיקה"].map((phrase, i) => numberPhraseFinding({ id: `uf:121:${i}`, phrase, value: 121 })) }),
       502: numberBundle(502, "מאגר הגימטריה המאומת", { phraseFindings: ["מלכותו", "שבר", "תוצאה", "בשר", "שרב"].map((phrase, i) => numberPhraseFinding({ id: `uf:502:${i}`, phrase, value: 502 })) }),
