@@ -6,6 +6,7 @@ import {
   LIFE_JOURNEY_2029_HREF,
   buildLifeJourneyCapabilityPatch,
   buildLifeJourneyExactReturnPatch,
+  buildLifeJourneyFindingTraversalPatch,
   buildLifeJourneyPersonContext,
   lifeJourneyViewFromContext,
 } from "./lifeJourneyPersonContext.js";
@@ -60,4 +61,52 @@ test("ELS stays parked outside the active Person journey", () => {
   assert.equal(els, null);
   assert.equal(person.subject.id, PERSON_REF);
   assert.equal(lifeJourneyViewFromContext(person, PERSON_REF), "person");
+});
+
+test("an explicit date-cross Finding opens the canonical Number page and exact-returns to Person", () => {
+  const person = buildLifeJourneyPersonContext(PERSON_REF);
+  const findingId = "uf1:date_cross:gregorian%3A1990-02-15:private-input";
+  const finding = buildLifeJourneyFindingTraversalPatch(person, {
+    personRef: PERSON_REF,
+    memberRef: MEMBER_REF,
+    findingId,
+    value: 73,
+    versionRef: "personal-date-representation-v1",
+  });
+
+  assert.equal(finding.subject.href, "/2029/number/73");
+  assert.equal(finding.selection.findingId, findingId);
+  assert.equal(finding.selection.resultValue, 73);
+  assert.equal(finding.selection.focusKind, "life_journey_date_cross");
+  assert.equal(finding.dimensions.lifeJourneyMemberRef, MEMBER_REF);
+  assert.equal(finding.returnTo.subject.id, PERSON_REF);
+  assert.equal(finding.subject.href.includes("1990-02-15"), false);
+  assert.equal(lifeJourneyViewFromContext(finding, PERSON_REF), "finding");
+
+  const started = continueResearchPathContext(finding, {
+    kind: "person_life",
+    mode: "organic",
+    surface: "life_journey_2029",
+    href: finding.subject.href,
+    reason: "explicit_person_finding_traversal",
+  }).context;
+  assert.equal(started.dimensions.journey2029Kind, "person_life");
+  assert.equal(started.journey.pendingSteps.length, 2);
+  assert.equal(started.journey.pendingSteps[0].entity_ref, PERSON_REF);
+  assert.equal(started.journey.pendingSteps[1].selection.findingId, findingId);
+
+  const restored = mergeResearchContext(started, buildLifeJourneyExactReturnPatch(started));
+  assert.equal(lifeJourneyViewFromContext(restored, PERSON_REF), "person");
+  assert.equal(restored.subject.id, PERSON_REF);
+  assert.equal(restored.dimensions.lifeJourneyMemberRef, undefined);
+  assert.equal(restored.returnTo, null);
+});
+
+test("Finding traversal rejects foreign family refs, missing Finding identity and blank values", () => {
+  const person = buildLifeJourneyPersonContext(PERSON_REF);
+  const base = { personRef: PERSON_REF, memberRef: MEMBER_REF, findingId: "finding-73", value: 73 };
+  assert.equal(buildLifeJourneyFindingTraversalPatch(person, { ...base, memberRef: "person:other:self" }), null);
+  assert.equal(buildLifeJourneyFindingTraversalPatch(person, { ...base, findingId: "" }), null);
+  assert.equal(buildLifeJourneyFindingTraversalPatch(person, { ...base, value: "" }), null);
+  assert.equal(buildLifeJourneyFindingTraversalPatch(person, { ...base, value: -1 }), null);
 });

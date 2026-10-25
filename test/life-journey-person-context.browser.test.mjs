@@ -30,7 +30,7 @@ function lifeJourneyFixturePlugin() {
       window.__dateCalls=window.__dateCalls||[];
       export const gregorianToHebrewDateRepresentation=()=>({hebrew:{pretty:"י״א בתשרי"}});
       export const createSupabasePersonalDateCrossProvider=()=>async()=>[];
-      export const runPersonalDateResearch=async(input)=>{window.__dateCalls.push(input);return {findings:[{kind:"date_cross",subject:{value:73}}]};};
+      export const runPersonalDateResearch=async(input)=>{window.__dateCalls.push(input);return {findings:[{id:"finding-date-cross-73",kind:"date_cross",subject:{value:73},source:{sourceRef:null,adapter:"personal-date-representation-v1"}}]};};
     `],
     ["virtual:life-journey-plan.js", `export const buildAccessDescriptor=()=>({scope:"private"});`],
     ["virtual:life-journey-hints.js", `
@@ -133,7 +133,7 @@ function lifeJourneyFixturePlugin() {
     load(id) { return modules.get(id.replace(/^\0/, "")) ?? null; },
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
-        if (!request.url?.startsWith("/2029/journey")) return next();
+        if (!request.url?.startsWith("/2029/journey") && !request.url?.startsWith("/2029/number/")) return next();
         response.setHeader("Content-Type", "text/html; charset=utf-8");
         const html = "<!doctype html><html lang=\"he\" dir=\"rtl\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>*{box-sizing:border-box}body{margin:0}</style><div id=\"root\"></div><script type=\"module\" src=\"/test/fixtures/life-journey-person-context-browser-entry.jsx\"></script></html>";
         response.end(await server.transformIndexHtml(request.url, html));
@@ -243,6 +243,21 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "protocol" && call.name === "ילד בדיקה")), true, "explicit family research includes the selected child");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");
+    await family.getByRole("button", { name: "פתח את ממצא 73 של ילד בדיקה" }).click();
+    await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
+    assert.equal(new URL(page.url()).pathname, "/2029/number/73");
+    assert.equal(decodeURIComponent(page.url()).includes("ילד בדיקה"), false, "private family name never enters the Finding URL");
+    const findingContext = await page.evaluate(() => window.__lifeJourneyContext);
+    assert.equal(findingContext.selection.findingId, "finding-date-cross-73");
+    assert.equal(findingContext.selection.focusKind, "life_journey_date_cross");
+    assert.equal(findingContext.returnTo.subject.id, firstRef);
+    assert.equal(findingContext.dimensions.journey2029Kind, "person_life");
+    assert.equal(findingContext.journey.pendingSteps.at(-1).selection.findingId, "finding-date-cross-73");
+    await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
+    await page.getByRole("heading", { name: "מי אני" }).waitFor();
+    assert.equal(new URL(page.url()).pathname, "/2029/journey");
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
+    assert.equal(await childSelection.isChecked(), true, "Finding exact return preserves the selected family scope");
 
     for (const theme of ["light", "parchment", "dark"]) {
       for (const width of [390, 1280]) {
@@ -286,9 +301,15 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__elsCalls.length), elsCallsBefore, "date research does not scan ELS");
     assert.equal(await page.getByText("תוכנית ELS אוטומטית").count(), 0, "ELS is parked outside the active Life Journey path");
     assert.equal(new URL(page.url()).search, "");
-    await page.getByRole("button", { name: "סיים וחזור למרכז המשפחתי" }).click();
+    await page.getByRole("button", { name: "פתח את ממצא 73" }).click();
+    await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
+    assert.equal(new URL(page.url()).pathname, "/2029/number/73");
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.selection?.findingId), "finding-date-cross-73");
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.returnTo?.subject?.id), firstRef);
+    await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef);
+    assert.equal(await childSelection.isChecked(), true, "child Finding exact return preserves the family selection");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0);
 
     const ownerClaimInput = accountContinuity.getByLabel("קוד הזמנה");

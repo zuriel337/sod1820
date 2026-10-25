@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import {
@@ -31,6 +32,7 @@ import {
   buildLifeJourneyCapabilityPatch,
   buildLifeJourneyExactReturnPatch,
   buildLifeJourneyFamilySelectionPatch,
+  buildLifeJourneyFindingTraversalPatch,
   buildLifeJourneyPersonContext,
   lifeJourneySelectedMemberRefs,
   lifeJourneyViewFromContext,
@@ -57,6 +59,25 @@ const FAMILY_CLAIM_STATUS = Object.freeze({
   reversed: "חיבור בוטל",
 });
 
+function dateCrossFindingRefs(dateBundle) {
+  const seen = new Set();
+  return (Array.isArray(dateBundle?.findings) ? dateBundle.findings : [])
+    .filter(finding => finding?.kind === "date_cross")
+    .map(finding => Object.freeze({
+      id: clean(finding?.id),
+      value: Number(finding?.subject?.value),
+      sourceRef: clean(finding?.source?.sourceRef),
+      versionRef: clean(finding?.source?.adapter),
+    }))
+    .filter(finding => finding.id && Number.isSafeInteger(finding.value))
+    .filter(finding => {
+      const key = `${finding.id}:${finding.value}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
 export function personJourneyErrorMessage(error) {
   const candidates = [error?.message, error?.error, error?.details, error?.hint, error];
   const message = candidates.find((value) => typeof value === "string" && value.trim())?.trim() || "";
@@ -68,10 +89,8 @@ export function personJourneyErrorMessage(error) {
 function researchSummary(nameResult, dateBundle, dateRepresentation) {
   const values = nameResult?.input?.components?.values || {};
   const parts = values?.parts && typeof values.parts === "object" ? values.parts : {};
-  const crossValues = [...new Set((Array.isArray(dateBundle?.findings) ? dateBundle.findings : [])
-    .filter((finding) => finding?.kind === "date_cross")
-    .map((finding) => Number(finding?.subject?.value))
-    .filter(Number.isSafeInteger))];
+  const crossFindings = dateCrossFindingRefs(dateBundle);
+  const crossValues = [...new Set(crossFindings.map(finding => finding.value))];
 
   return Object.freeze({
     fullValue: Number.isSafeInteger(Number(values.full)) ? Number(values.full) : null,
@@ -79,6 +98,7 @@ function researchSummary(nameResult, dateBundle, dateRepresentation) {
       .map(([label, value]) => ({ label, value: Number(value) }))
       .filter((item) => Number.isSafeInteger(item.value)),
     hebrewDate: dateRepresentation?.hebrew?.pretty || null,
+    crossFindings,
     crossValues,
     tracksWithResults: Number(nameResult?.combo?.tracks_with_results ?? nameResult?.tracks_with_results ?? 0) || 0,
   });
@@ -133,16 +153,15 @@ function familyBirthTimeline(members, selectedRefs) {
 }
 
 function familyResearchSummary(nameDocument, dateBundle, dateRepresentation) {
-  const crossValues = [...new Set((Array.isArray(dateBundle?.findings) ? dateBundle.findings : [])
-    .filter(finding => finding?.kind === "date_cross")
-    .map(finding => Number(finding?.subject?.value))
-    .filter(Number.isSafeInteger))];
+  const crossFindings = dateCrossFindingRefs(dateBundle);
+  const crossValues = [...new Set(crossFindings.map(finding => finding.value))];
   const rawFullValue = nameDocument?.input?.value;
   const fullValue = rawFullValue == null || rawFullValue === "" ? null : Number(rawFullValue);
   const agents = Array.isArray(nameDocument?.agents) ? nameDocument.agents : [];
   return Object.freeze({
     fullValue: Number.isSafeInteger(fullValue) ? fullValue : null,
     hebrewDate: dateRepresentation?.hebrew?.pretty || null,
+    crossFindings,
     crossValues,
     tracksWithResults: agents.filter(agent => agent?.ran && agent?.ok && !agent?.empty).length,
     partial: !nameDocument,
@@ -173,6 +192,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const { user, loading: authLoading } = auth;
   const userId = user?.id || null;
   const research = useResearch();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [personId, setPersonId] = useState(null);
   const [members, setMembers] = useState([]);
   const [relations, setRelations] = useState([]);
@@ -301,7 +322,16 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   useEffect(() => {
     if (!selfRef || !user) return;
     if (variant === "2029") {
-      if (lifeJourneyViewFromContext(research.context, selfRef)) return;
+      const contextView = lifeJourneyViewFromContext(research.context, selfRef);
+      if (contextView === "finding" && !pathname.startsWith("/2029/number/")) {
+        const timer = window.setTimeout(() => {
+          if (!window.location.pathname.startsWith("/2029/number/")) {
+            research.setResearchContext?.(buildLifeJourneyPersonContext(selfRef, research.context));
+          }
+        }, 0);
+        return () => window.clearTimeout(timer);
+      }
+      if (contextView) return;
       research.setResearchContext?.(buildLifeJourneyPersonContext(selfRef, research.context));
       return;
     }
@@ -323,7 +353,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     // Research Context is navigation state only; Person data remains in the private Ledger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLifeJourneyPersonRef, currentLifeJourneyView, currentResearchSubjectId,
-    currentReturnPersonRef, persistedSelf?.name, selfRef, user?.id, variant]);
+    currentReturnPersonRef, pathname, persistedSelf?.name, selfRef, user?.id, variant]);
 
   const runInitialResearch = useCallback(async ({ first, last, date }) => {
     if (!user || !clean(first)) return null;
@@ -587,6 +617,36 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     }
   }, [research]);
 
+  const openFindingTraversal = useCallback((memberRef, finding) => {
+    if (variant !== "2029" || !selfRef) return;
+    const patch = buildLifeJourneyFindingTraversalPatch(research.context, {
+      personRef: selfRef,
+      memberRef,
+      findingId: finding?.id,
+      value: finding?.value,
+      sourceRef: finding?.sourceRef,
+      versionRef: finding?.versionRef,
+    });
+    if (!patch) {
+      setErr("לא ניתן לפתוח את הממצא בלי הקשר אדם תקין.");
+      return;
+    }
+    const result = research.continueResearchPath?.({
+      context: patch,
+      kind: "person_life",
+      mode: "organic",
+      surface: "life_journey_2029",
+      href: patch.subject.href,
+      label: "ממצא שם ותאריך",
+      reason: "explicit_person_finding_traversal",
+    });
+    if (!result?.ok) {
+      setErr("לא ניתן לפתוח כרגע את הממצא במסלול המחקר.");
+      return;
+    }
+    navigate(patch.subject.href);
+  }, [navigate, research, selfRef, variant]);
+
   const commitFamilySelection = useCallback((memberRefs) => {
     if (!selfRef) return;
     const patch = buildLifeJourneyFamilySelectionPatch(research.context, {
@@ -711,6 +771,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       view="date"
       user={user}
       profile={selectedProfile}
+      personRef={selfRef}
+      memberRef={selectedMemberRef}
       onContinue={returnToPerson}
       onReturn={returnToPerson}
     />;
@@ -804,10 +866,16 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             <span>כיסוי, לא ציון אמת</span>
           </article>
         </div>
-        {analysisData.crossValues.length ? <div className="person-journey-crosses">
+        {analysisData.crossFindings.length ? <div className="person-journey-crosses">
           <small>נקודות מפגש שם ↔ תאריך</small>
-          <div>{analysisData.crossValues.map((value) => <span key={value}>{value}</span>)}</div>
-          <p>נקודת מפגש היא עובדה מחושבת. המשמעות שלה נשארת שאלה למחקר.</p>
+          <div>{analysisData.crossFindings.map((finding) => <button
+            type="button"
+            className="person-journey-finding-link"
+            key={`${finding.id}:${finding.value}`}
+            onClick={() => openFindingTraversal(selfRef, finding)}
+            aria-label={`פתח את ממצא ${finding.value}`}
+          >{finding.value}</button>)}</div>
+          <p>כל מספר פותח במפורש את דף המספר הקיים. נקודת מפגש היא עובדה מחושבת; המשמעות שלה נשארת שאלה למחקר.</p>
         </div> : null}
       </div> : null}
     </section>
@@ -1026,7 +1094,13 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
                 <div><dt>שכבות עם תוצאה</dt><dd>{row.data.tracksWithResults}</dd></div>
                 <div><dt>נקודות מפגש</dt><dd>{row.data.crossValues.length}</dd></div>
               </dl>
-              {row.data.crossValues.length ? <div className="person-journey-family-cross-values">{row.data.crossValues.map(value => <span key={value}>{value}</span>)}</div> : null}
+              {row.data.crossFindings.length ? <div className="person-journey-family-cross-values">{row.data.crossFindings.map(finding => <button
+                type="button"
+                className="person-journey-finding-link"
+                key={`${finding.id}:${finding.value}`}
+                onClick={() => openFindingTraversal(row.memberRef, finding)}
+                aria-label={`פתח את ממצא ${finding.value} של ${row.name}`}
+              >{finding.value}</button>)}</div> : null}
               {row.data.partial ? <small>שכבת השם לא הייתה זמינה; מוצג המידע שחושב מהתאריך בלבד.</small> : null}
             </> : <p>{row.error}</p>}
           </article>)}

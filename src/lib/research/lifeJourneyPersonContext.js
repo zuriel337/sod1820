@@ -3,7 +3,7 @@ import { buildExactReturnPatch, normalizeResearchContext } from "./researchConte
 export const LIFE_JOURNEY_2029_HREF = "/2029/journey";
 export const LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT = "life_journey_person_context_v1";
 
-const VIEWS = new Set(["person", "name", "date"]);
+const VIEWS = new Set(["person", "name", "date", "finding"]);
 const clean = value => String(value || "").trim();
 
 function isLifeJourneyMemberRef(personRef, value) {
@@ -181,6 +181,62 @@ export function buildLifeJourneyHintReferencePatch(context, number) {
     subject: { id: String(value), type: "number", label: String(value), href },
     selection: { entityId: String(value), entityType: "number", focusKind: "hint_reference" },
     lens: "number",
+    returnTo: {
+      href: LIFE_JOURNEY_2029_HREF,
+      label: "חזרה למסע החיים",
+      subject: origin.subject,
+      selection: origin.selection,
+      lens: origin.lens,
+      dimensions: origin.dimensions,
+      journey: origin.journey,
+    },
+  });
+}
+
+export function buildLifeJourneyFindingTraversalPatch(context, {
+  personRef,
+  memberRef,
+  findingId,
+  value,
+  sourceRef = null,
+  versionRef = null,
+} = {}) {
+  const safe = normalizeResearchContext(context);
+  const rootRef = clean(personRef);
+  const selectedRef = clean(memberRef);
+  const exactFindingId = clean(findingId);
+  if ((typeof value !== "number" && typeof value !== "string")
+    || (typeof value === "string" && !value.trim())) return null;
+  const number = Number(value);
+  const view = lifeJourneyViewFromContext(safe, rootRef);
+  if (!safe || !rootRef || !isLifeJourneyMemberRef(rootRef, selectedRef)
+    || !exactFindingId || !Number.isSafeInteger(number) || number < 0
+    || !["person", "date"].includes(view)) return null;
+
+  const origin = buildLifeJourneyPersonContext(rootRef, safe);
+  if (!origin) return null;
+  const href = `/2029/number/${number}`;
+  return normalizeResearchContext({
+    ...safe,
+    subject: { id: String(number), type: "number", label: String(number), href },
+    selection: {
+      entityId: String(number),
+      entityType: "number",
+      findingId: exactFindingId,
+      sourceRef: clean(sourceRef),
+      versionRef: clean(versionRef),
+      resultValue: number,
+      focusKind: "life_journey_date_cross",
+    },
+    lens: "number",
+    dimensions: {
+      ...safe.dimensions,
+      lifeJourneyContract: LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT,
+      lifeJourneyView: "finding",
+      lifeJourneyPersonRef: rootRef,
+      lifeJourneyMemberRef: selectedRef,
+    },
+    access: { tier: "authenticated", scope: "private" },
     returnTo: {
       href: LIFE_JOURNEY_2029_HREF,
       label: "חזרה למסע החיים",

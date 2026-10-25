@@ -199,7 +199,7 @@
 .person-journey-crosses{border-top:1px solid var(--pj-line);padding-top:15px}
 .person-journey-crosses>small{color:var(--pj-soft)}
 .person-journey-crosses>div{display:flex;gap:8px;flex-wrap:wrap;margin:9px 0}
-.person-journey-crosses span{
+.person-journey-crosses span,.person-journey-finding-link{
   min-width:54px;
   text-align:center;
   border:1px solid color-mix(in srgb,var(--pj-accent) 35%,transparent);
@@ -208,6 +208,8 @@
   color:var(--pj-gold);
   font-weight:800;
 }
+.person-journey-finding-link{background:transparent;cursor:pointer;min-height:36px;font:inherit}
+.person-journey-finding-link:hover,.person-journey-finding-link:focus-visible{border-color:var(--pj-gold);background:color-mix(in srgb,var(--pj-gold) 10%,transparent)}
 .person-journey-crosses p{margin:0;color:var(--pj-soft);font-size:13px}
 
 .person-journey-family-scope{
@@ -366,7 +368,7 @@
 .person-journey-family-shared{border-block:1px solid var(--pj-line);padding:12px 0}
 .person-journey-family-shared>small,.person-journey-family-shared p{color:var(--pj-soft)}
 .person-journey-family-shared>div{display:flex;gap:8px;flex-wrap:wrap;margin:9px 0}
-.person-journey-family-shared>div span,.person-journey-family-cross-values span{
+.person-journey-family-shared>div span,.person-journey-family-cross-values span,.person-journey-family-cross-values .person-journey-finding-link{
   border:1px solid color-mix(in srgb,var(--pj-accent) 35%,transparent);
   border-radius:999px;
   padding:6px 10px;
