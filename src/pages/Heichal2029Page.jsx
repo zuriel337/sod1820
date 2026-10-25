@@ -5,15 +5,17 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
 import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { isRazielNextAction } from "../lib/research/razielActionContract.js";
+import { resolveContextTools, CONTEXT_ACTION_KIND } from "../lib/research/contextualCapabilities.js";
 import { supabase } from "../lib/supabase.js";
 import { getVisitorId } from "../lib/visitorId.js";
 import { newInteractionId } from "../lib/research/interactionCorrelation.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
+import HeichalGuidedFirstStep from "../components/heichal/HeichalGuidedFirstStep.jsx";
 import { fetchTanachVerseByOrdinal, TANACH_ORDINAL_SCOPE } from "../lib/research/tanachOrdinalSources.js";
 
 const ACTIONS = [
-  { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/research?tool=gematria", live: true },
+  { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/2029/calculator", live: true },
   { id: "sources", label: "חפש במקורות", detail: "Books / Sources", to: "/books", live: true },
   { id: "text", label: "חקור טקסט", detail: "ELS / Biblical Cipher", to: "/els", live: true },
   { id: "world", label: "פתח בעולם", detail: "Research World", to: "/world", live: true },
@@ -200,6 +202,20 @@ function ActiveResearchEnvironment() {
   const shell = use2029Shell();
   const context = research.context || null;
   const subject = context?.subject;
+  // The same semantic actions already used by Number/World/Books/ELS in System Frame.
+  // This is a Heichal consumer, not a local tool registry or another navigation rail.
+  const focusTarget = subject ? {
+    ...subject,
+    expression: context?.selection?.expression || null,
+    method: context?.selection?.method || null,
+    resultValue: context?.selection?.resultValue ?? null,
+    locator: context?.selection?.locator || null,
+  } : null;
+  const connectedTools = resolveContextTools({ surface: "heichal", target: focusTarget });
+  // An already-owned Number href may be used verbatim; never mint an URL for a finding.
+  const numberHref = subject?.type === "number" && /^\/2029\/number\/\d+(?:\?|$)/.test(String(subject.href || ""))
+    && String(subject.href).split(/[?#]/)[0] === `/2029/number/${subject.id}`
+    ? subject.href : null;
   const [state, setState] = useState({ loading: true, data: null, error: null });
   const [ordinalState, setOrdinalState] = useState({ loading: false, data: null, error: null });
   const key = subject ? `${subject.type}:${subject.id}` : null;
@@ -326,6 +342,14 @@ function ActiveResearchEnvironment() {
       <div className="sod29-muted" style={{ marginTop: 9 }}>Research Spine מקרין את ה־Context הקיים. הוא לא טוען ל־research_path שמור אם runtime כזה עדיין לא נוצר.</div>
     </section>
 
+    <HeichalGuidedFirstStep
+      key={key}
+      subject={subject}
+      projection={data}
+      loading={state.loading}
+      onRunNumber={openRazielFromServerGatedResult}
+    />
+
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">RESEARCH CANVAS</div><h2>משטח העבודה</h2><div className="sod29-muted">זהו המוקד: עובדות, ממצאים, מקורות וקשרים נאספים סביב אותו Root, עם Evidence Inspector לצדם.</div></div></div>
       <div className="sod29-two">
@@ -378,16 +402,18 @@ function ActiveResearchEnvironment() {
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NEXT BEST ACTIONS</div><h2>מה אפשר לעשות עכשיו</h2><div className="sod29-muted">הפעולות נגזרות מההקשר ומהיכולות שכבר מחוברות; לא Toolbar קבוע של כל הכלים.</div></div></div>
       <div className="sod29-actions">
-        <Link className="sod29-action primary" to="/research?tool=gematria">חשב / בדוק שיטה</Link>
-        {data?.sources?.length ? <Link className="sod29-action" to="/books">פתח מקורות</Link> : null}
+        {numberHref ? <button className="sod29-action primary" type="button" onClick={() => shell.go(numberHref)}>דף המספר · המשך בעוגן</button> : null}
+        {connectedTools.map((tool) => tool.kind === CONTEXT_ACTION_KIND.CAPABILITY
+          ? <button className="sod29-action" type="button" key={tool.id} onClick={() => shell.openCapability(tool.capability, focusTarget)}>{tool.label}</button>
+          : tool.kind === CONTEXT_ACTION_KIND.ROUTE
+            ? <button className="sod29-action" type="button" key={tool.id} onClick={() => shell.go(tool.href)}>{tool.label}</button>
+            : null)}
         {canProbeTorahOrdinal ? (
           <button className="sod29-action" onClick={runOrdinalDiscovery} disabled={ordinalState.loading}>
             {ordinalState.loading ? "בודק מיקום פסוק…" : `בדוק כפסוק #${ordinalValue} בתורה`}
           </button>
         ) : null}
         <Link className="sod29-action" to="/verse-gematria">חיפוש גימטריית פסוקים</Link>
-        <Link className="sod29-action" to="/els">ELS</Link>
-        <Link className="sod29-action" to="/world">פתח בעולם</Link>
         <button className="sod29-action" onClick={openRazielFromServerGatedResult}>✦ שאל את רזיאל</button>
       </div>
     </section>
