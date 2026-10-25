@@ -1,8 +1,40 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
+import { prepareElsAutomaticResearchPlan, prepareElsRelationshipResearchPlan, prepareElsResearchBrief, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
 
 const base = { expressions: "סוד החשמל\nאמת", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "2" };
+
+test("relationship research builds only bounded primary-to-explicit-target pairs", () => {
+  const plan = prepareElsRelationshipResearchPlan({
+    primaryTerm: "ראובן",
+    secondTerm: "כהן",
+    additionalTerms: "דוד\nמרים\nכהן\nראובן",
+    scope: "tanakh",
+  });
+  assert.equal(plan.contract, "els_relationship_research_plan_v1");
+  assert.equal(plan.mode, "primary-to-explicit-targets");
+  assert.equal(plan.scope, "tanakh");
+  assert.equal(plan.radius, 18);
+  assert.deepEqual(plan.pairs.map(row => [row.axis, row.term]), [["ראובן", "כהן"], ["ראובן", "דוד"], ["ראובן", "מרים"]]);
+  assert.ok(plan.pairs.every(row => row.searchKind === "cross"));
+  assert.equal(plan.pairs.filter(row => row.selected).length, 1);
+  assert.equal(plan.allPairsGenerated, false);
+  assert.equal(plan.explicitExecutionRequired, true);
+  assert.equal(plan.identityMerged, false);
+  assert.equal(plan.persisted, false);
+  assert.equal(plan.aiUsed, false);
+  assert.equal(plan.truthPromotion, false);
+  assert.ok(Object.isFrozen(plan));
+  assert.ok(Object.isFrozen(plan.pairs));
+});
+
+test("relationship research rejects missing, duplicate-only, oversized and unbounded targets", () => {
+  assert.match(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד" }).error, /הוסיפו/);
+  assert.match(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד", secondTerm: "דוד" }).error, /זהים/);
+  assert.match(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד", secondTerm: "מילהעבריתארוכהמאוד" }).error, /ארוך מדי/);
+  assert.match(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד", additionalTerms: "אחד\nשתים\nשלש\nארבע\nחמש\nשש\nשבע" }).error, /עד שישה/);
+  assert.equal(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד", secondTerm: "כהן", radius: 200 }).radius, 20);
+});
 
 test("research brief separates one primary axis from exact local context without persistence or AI", () => {
   const brief = prepareElsResearchBrief({

@@ -3,6 +3,7 @@ import { runElsAdaptiveScan } from "./els2029AdaptiveScanner.js";
 
 export const ELS_AUTOMATIC_PLAN_CONTRACT = "els_automatic_research_plan_v1";
 export const ELS_RESEARCH_BRIEF_CONTRACT = "els_research_brief_v1";
+export const ELS_RELATIONSHIP_PLAN_CONTRACT = "els_relationship_research_plan_v1";
 export const ELS_AUTOMATIC_SLICE_SIZE = 8;
 const MAX_INPUT_LENGTH = 4000;
 const MAX_EXPRESSIONS = 40;
@@ -10,6 +11,8 @@ const MAX_BRIEF_LENGTH = 6000;
 const MAX_BRIEF_TARGETS = 24;
 const MAX_BASIC_AXIS_LENGTH = 12;
 const MAX_BRIEF_CONTEXTS = 18;
+const MAX_RELATIONSHIP_TERM_LENGTH = 16;
+const MAX_RELATIONSHIP_ADDITIONAL_TERMS = 6;
 const HEBREW_MARKS = /[\u0591-\u05C7]/g;
 const BRIEF_STOP_WORDS = new Set(["אבל", "אשר", "את", "בין", "גם", "הוא", "היא", "היו", "היה", "הזה", "הזאת", "וכל", "זה", "זאת", "כי", "כל", "לא", "לו", "מה", "מי", "מן", "עם", "על", "של", "שם", "או", "אם", "אל", "בו", "בה", "הם", "הן", "יש", "עוד", "כמו", "כדי", "אחרי", "לפני", "מתוך", "בתוך"]);
 const RULES = Object.freeze([
@@ -23,6 +26,80 @@ const canonicalKey = value => String(value || "").replace(/[^א-ת]/g, "").repla
 const briefPhrase = value => String(value || "").normalize("NFKD").replace(HEBREW_MARKS, "").replace(/[^א-ת\s]/g, " ").trim().replace(/\s+/g, " ");
 const briefWords = value => briefPhrase(value).split(" ").filter(Boolean);
 const meaningfulBriefWord = word => canonicalKey(word).length >= 3 && !BRIEF_STOP_WORDS.has(word);
+
+const relationshipTerm = value => briefPhrase(value);
+const relationshipInputRows = value => (Array.isArray(value) ? value : String(value || "").split(/[,;\n]+/))
+  .map(relationshipTerm).filter(Boolean);
+
+/**
+ * A bounded, local-only relationship plan over the existing canonical cross search.
+ * It deliberately builds primary-to-target pairs instead of an unbounded all-pairs graph.
+ */
+export function prepareElsRelationshipResearchPlan({ primaryTerm = "", secondTerm = "", additionalTerms = "", scope = "torah", radius = 18 } = {}) {
+  const primary = relationshipTerm(primaryTerm);
+  const second = relationshipTerm(secondTerm);
+  const additional = relationshipInputRows(additionalTerms);
+  const validate = (term, label) => {
+    const length = canonicalKey(term).length;
+    if (!term || length < 2) return `${label} צריך לכלול לפחות שתי אותיות עבריות.`;
+    if (length > MAX_RELATIONSHIP_TERM_LENGTH) return `${label} ארוך מדי. מחקר קשרים מיועד למילה או ביטוי קצר של עד 16 אותיות.`;
+    return null;
+  };
+  const primaryError = validate(primary, "הציר הראשי");
+  if (primaryError) return { error: primaryError };
+  if (!second && !additional.length) return { error: "הוסיפו שם משפחה, ציר שני או שם נוסף אחד לפחות." };
+  if (second) {
+    const secondError = validate(second, "הציר השני");
+    if (secondError) return { error: secondError };
+  }
+  if (additional.length > MAX_RELATIONSHIP_ADDITIONAL_TERMS) return { error: "אפשר להוסיף עד שישה שמות או צירים נוספים בכל תוכנית." };
+  for (const term of additional) {
+    const rowError = validate(term, `״${term}״`);
+    if (rowError) return { error: rowError };
+  }
+
+  const primaryKey = canonicalKey(primary);
+  const targets = [], seen = new Set([primaryKey]);
+  const addTarget = (term, role, reason) => {
+    const key = canonicalKey(term);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    targets.push({ term, canonicalTerm: key, role, reason });
+  };
+  if (second) addTarget(second, "second-axis", "הציר השני שנכתב במפורש");
+  for (const term of additional) addTarget(term, "additional-axis", "שם או ציר נוסף שנכתב במפורש");
+  if (!targets.length) return { error: "הצירים שנוספו זהים לציר הראשי. הוסיפו ציר אחר לבדיקה." };
+
+  const boundedRadius = Number.isSafeInteger(Number(radius)) ? Math.max(2, Math.min(20, Number(radius))) : 18;
+  const pairs = targets.map((target, index) => Object.freeze({
+    id: `pair:${primaryKey}:${target.canonicalTerm}`,
+    rank: index + 1,
+    axis: primary,
+    axisCanonical: primaryKey,
+    term: target.term,
+    termCanonical: target.canonicalTerm,
+    targetRole: target.role,
+    reason: target.reason,
+    searchKind: "cross",
+    selected: index === 0,
+  }));
+  return Object.freeze({
+    contract: ELS_RELATIONSHIP_PLAN_CONTRACT,
+    status: "READY",
+    mode: "primary-to-explicit-targets",
+    scope: scope === "tanakh" ? "tanakh" : "torah",
+    radius: boundedRadius,
+    primaryTerm: primary,
+    pairs: Object.freeze(pairs),
+    pairLimit: 1 + MAX_RELATIONSHIP_ADDITIONAL_TERMS,
+    allPairsGenerated: false,
+    explicitExecutionRequired: true,
+    identityMerged: false,
+    persisted: false,
+    aiUsed: false,
+    truthPromotion: false,
+  });
+}
 
 /**
  * Deterministic, local-only compiler from free research context to editable ELS targets.

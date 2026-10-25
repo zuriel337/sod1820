@@ -16,6 +16,7 @@ import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { savedMatrixCanReanchor, savedMatrixMatchesAxis } from "../../lib/elsSavedMatrix.js";
 import { projectElsResearchPackageGuide } from "../../lib/research/elsResearchPackageGuide.js";
+import { prepareElsRelationshipResearchPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import "./elsNativeClassic2029.css";
@@ -668,7 +669,67 @@ const STRUCTURE_GUIDANCE = Object.freeze({
   cluster: { why: "כמה מועמדים מרוכזים באותו אזור במטריצה.", next: "אמתו רק את המילים הרלוונטיות, ואז השוו לסריקה רחבה יותר; צפיפות לבדה אינה חוזק סטטיסטי." },
 });
 
-function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onScanAxis, onAddGroup, onOpenFinding }) {
+function RelationshipResearchPlanner({ axisTerm, scope, disabled, onSearchPair }) {
+  const [primaryTerm, setPrimaryTerm] = useState(axisTerm || "");
+  const [secondTerm, setSecondTerm] = useState("");
+  const [additionalTerms, setAdditionalTerms] = useState("");
+  const [plan, setPlan] = useState(null);
+  const [selectedPairId, setSelectedPairId] = useState(null);
+  const [notice, setNotice] = useState("");
+  useEffect(() => {
+    setPrimaryTerm(axisTerm || "");
+    setPlan(null);
+    setSelectedPairId(null);
+    setNotice("");
+  }, [axisTerm]);
+  const edit = (setter) => (event) => {
+    setter(event.target.value);
+    setPlan(null);
+    setSelectedPairId(null);
+    setNotice("");
+  };
+  const buildPlan = () => {
+    const next = prepareElsRelationshipResearchPlan({ primaryTerm, secondTerm, additionalTerms, scope });
+    if (next.error) {
+      setPlan(null);
+      setSelectedPairId(null);
+      setNotice(next.error);
+      return;
+    }
+    setPlan(next);
+    setSelectedPairId(next.pairs[0]?.id || null);
+    setNotice(`${next.pairs.length} זוגות מוכנים. בחרו זוג אחד להפעלה.`);
+  };
+  const selectedPair = plan?.pairs.find((pair) => pair.id === selectedPairId) || null;
+  const runSelectedPair = () => {
+    if (!selectedPair || !plan) return;
+    onSearchPair({ ...selectedPair, scope: plan.scope, radius: plan.radius });
+    setNotice(`הזוג ${selectedPair.axis} × ${selectedPair.term} נשלח לחיפוש המוצלב הקנוני.`);
+  };
+
+  return <section className="els29-native-relationship-plan" data-els-relationship-research="v1" aria-label="מחקר קשרים">
+    <header><strong>מחקר קשרים</strong><small>ציר ראשי מול שם משפחה, אדם או ציר נוסף</small></header>
+    <p>המערכת מכינה רק את הציר הראשי מול כל יעד שכתבתם — לא את כל השמות מול כולם. כל זוג מופעל בנפרד ורק בלחיצה.</p>
+    <div className="els29-native-relationship-fields">
+      <label><span>שם או ציר ראשי</span><input value={primaryTerm} onChange={edit(setPrimaryTerm)} maxLength={80} autoComplete="off" /></label>
+      <label><span>שם משפחה או ציר שני</span><input value={secondTerm} onChange={edit(setSecondTerm)} maxLength={80} autoComplete="off" placeholder="לדוגמה: כהן" /></label>
+      <label className="is-wide"><span>שמות נוספים לבדיקה — אחד בשורה</span><textarea value={additionalTerms} onChange={edit(setAdditionalTerms)} rows={3} maxLength={500} placeholder="לדוגמה: שם של ילד או קשר נוסף" /></label>
+    </div>
+    <button type="button" className="els29-native-relationship-build" disabled={disabled} onClick={buildPlan}>הכן זוגות לחיפוש</button>
+    <small>טיוטת השמות אינה נשמרת ואינה נכנסת לכתובת. רק הזוג שבחרתם נשלח למנוע בלחיצה; אין מיזוג זהויות או חיפוש אוטומטי של בני משפחה.</small>
+    {notice ? <p role="status" className="els29-native-relationship-notice">{notice}</p> : null}
+    {plan ? <fieldset className="els29-native-relationship-pairs">
+      <legend>בחרו זוג אחד לסריקה</legend>
+      {plan.pairs.map((pair) => <label key={pair.id}>
+        <input type="radio" name="els-relationship-pair" checked={selectedPairId === pair.id} onChange={() => setSelectedPairId(pair.id)} />
+        <span><strong><bdi>{pair.axis}</bdi> × <bdi>{pair.term}</bdi></strong><small>{pair.reason} · טווח קרוב עד {plan.radius} תאים</small></span>
+      </label>)}
+      <button type="button" className="is-primary" disabled={disabled || !selectedPair} onClick={runSelectedPair}>חפש את הזוג הנבחר</button>
+    </fieldset> : null}
+  </section>;
+}
+
+function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onScanAxis, onSearchPair, onAddGroup, onOpenFinding }) {
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.status === "ok" && state?.verification?.state === "MATCH";
   const result = lensResult?.lens === "structure-priority" ? lensResult : null;
@@ -700,6 +761,7 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
       <p>בחרו פעם אחת מה לחפש. הסריקה מחזירה משפחות של מקבילות, מוטיבים חוזרים, מסדרונות, חציות ואשכולות — לא רשימת מילים שצריך לפתוח אחת־אחת.</p>
       <small>שלב א׳ תמיד קודם: כל אות סמוכה לבאה בתצוגת המטריצה. מבנים עם פערים נשארים זמינים רק בשלב ב׳.</small>
       <small>זו תוכנית בדיקה בתוך החלון המוצג — לא הוכחה ולא ציון אמת. כל קבוצה עוברת אימות קנוני אחד לפני הצגה במטריצה.</small>
+      <RelationshipResearchPlanner axisTerm={verified ? axisTerm : ""} scope={state?.scope} disabled={!verified || pending} onSearchPair={onSearchPair} />
       <div className="els29-native-structure-presets" role="group" aria-label="תבניות סריקת מבנים">
         <button type="button" aria-pressed={plan.maxDistance === 12 && plan.minLength === 4} onClick={() => choosePreset("quick")}>מהיר</button>
         <button type="button" aria-pressed={plan.maxDistance === 40 && plan.minLength === 4} onClick={() => choosePreset("broad")}>רחב</button>
@@ -1576,6 +1638,22 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestSearch("cross", { axis, term, scope, radius: crossRadius });
   };
 
+  const startRelationshipCross = (pair) => {
+    const axis = clean(pair?.axis), term = clean(pair?.term);
+    if (axis.length < 2 || term.length < 2) {
+      setNotice("אי אפשר להתחיל מחקר קשרים בלי שני צירים תקינים.");
+      return;
+    }
+    const scope = pair?.scope === "tanakh" ? "tanakh" : "torah";
+    const radius = clamp(Number(pair?.radius) || 18, 2, 20);
+    setQuery(axis);
+    setCrossTerm(term);
+    setCrossOpen(true);
+    setCrossRadius(radius);
+    crossRadiusDraftRef.current.submitted = { value: radius, revision: crossRadiusDraftRef.current.revision };
+    requestSearch("cross", { axis, term, scope, radius });
+  };
+
   const handleEngineState = (next) => {
     const previous = engineStateRef.current;
     if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term || next?.status !== "ok") {
@@ -2259,6 +2337,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           onRun={(target) => requestLens("structure-priority", target)}
           onScanAxis={(target) => requestLens("line-context", { ...target, scan: true })}
+          onSearchPair={startRelationshipCross}
           onAddGroup={addStructureGroup} onOpenFinding={revealFindingDetails} /> : null}
         <ElsSavePanel2029 visible={visibleTool === "research"} state={engineState} matrix={matrix} user={user} isAdmin={isAdmin} replacement={activeSavedAxisReplacement}
           pending={savePending} busy={!!journeyPending || searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
