@@ -11,16 +11,19 @@ import { ContributorRankSeal2029 } from "../components/contributor2029/Contribut
 import { WriterPersonalLayout2029, WriterPersonalHome2029, WriterPublicPortrait2029, WriterPrivateProgress2029 } from "../components/contributor2029/WriterPersonalViews2029.jsx";
 
 function useSelf(userId) {
-  const [attempt, setAttempt] = useState(0);
+  const [attempt, setAttempt] = useState({ version: 0, background: false });
   const [state, setState] = useState({ key: null, state: "loading" });
-  const reload = useCallback(() => setAttempt((value) => value + 1), []);
+  const reload = useCallback((background = false) => setAttempt((value) => ({ version: value.version + 1, background: background === true })), []);
   useEffect(() => {
     if (!userId) return;
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), 12000);
-    setState({ key: userId, state: "loading" });
-    writerSelfRequest({ userId, signal: abort.signal }).then((value) => { if (!abort.signal.aborted) setState({ key: userId, ...value }); }).finally(() => clearTimeout(timer));
-    const timeout = () => setState({ key: userId, state: "unavailable" });
+    const sameReadyAccount = (value) => attempt.background && value.key === userId && value.state === "ready";
+    setState((value) => sameReadyAccount(value) ? { ...value, refreshState: "loading" } : { key: userId, state: "loading" });
+    const settle = (value) => setState((current) => value.state === "unavailable" && sameReadyAccount(current)
+      ? { ...current, refreshState: "unavailable" } : { key: userId, ...value, refreshState: "idle" });
+    writerSelfRequest({ userId, signal: abort.signal }).then((value) => { if (!abort.signal.aborted) settle(value); }).finally(() => clearTimeout(timer));
+    const timeout = () => settle({ state: "unavailable" });
     abort.signal.addEventListener("abort", timeout, { once: true });
     return () => { abort.signal.removeEventListener("abort", timeout); abort.abort(); clearTimeout(timer); };
   }, [userId, attempt]);
@@ -96,7 +99,7 @@ function WriterPersonalController2029({ module, user, authLoading }) {
       {selected === "public-page" ? <WriterPersonalHome2029 principalKey={user.id} writer={writer} state="ready" onRetry={reload}
         onCreate={(values) => mutate("create", values)} onEdit={() => setActive("page-editor")} /> : null}
       {selected === "page-editor" ? <>
-        {writer.state === "ready" ? <PageEditor T={T} goto={goto} onSaved={reload} /> : <WriterPersonalHome2029 principalKey={user.id} writer={writer} state="ready" onRetry={reload} onCreate={(values) => mutate("create", values)} />}
+        {writer.state === "ready" ? <PageEditor T={T} goto={goto} onSaved={() => reload(true)} refreshUnavailable={data.refreshState === "unavailable"} /> : <WriterPersonalHome2029 principalKey={user.id} writer={writer} state="ready" onRetry={reload} onCreate={(values) => mutate("create", values)} />}
         {writer.publicVisible ? <a className="pc-open" href={writer.href}>בחירת כתבים והקדמה בדף שלי</a> : null}
       </> : null}
       {selected === "profile" ? <>

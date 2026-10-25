@@ -780,7 +780,7 @@ const PE_SECTIONS = [
   { id: 'dossier',          label: '📁 תיק החוקר' },
   { id: 'links',            label: '🔗 קישורים חיצוניים' },
 ];
-export function PageEditor({ T, goto, onSaved }) {
+export function PageEditor({ T, goto, onSaved, refreshUnavailable = false }) {
   const { user } = useAuth();
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -852,10 +852,10 @@ export function PageEditor({ T, goto, onSaved }) {
     };
     try {
       const { data, error } = await supabase.rpc("update_my_page_config", { p_config });
-      if (error || !data?.ok) {
+      if (error || data?.ok !== true) {
         const e = data?.error || "";
         const msgs = { bio_too_long: "הביו ארוך מדי (עד 600 תווים).", display_name_required: "השם לא יכול להישאר ריק.", display_name_too_long: "השם ארוך מדי (עד 60 תווים).", display_name_no_email: "השם לא יכול להיות כתובת מייל." };
-        setMsg({ kind: "err", text: msgs[e] || (e.startsWith("bad_link") ? "קישור לא תקין — בדקו כותרת (עד 40) וכתובת (https:// או /)." : "שמירה נכשלה. נסו שוב.") });
+        setMsg({ kind: "err", text: msgs[e] || (e.startsWith("bad_link") ? "קישור לא תקין — בדקו כותרת (עד 40) וכתובת (https:// או /)." : "לא התקבל אישור שמירה. מה שהקלדת נשאר כאן.") });
       } else {
         if (nameTrim) setOrigName(nameTrim);
         setMsg({ kind: "ok", text: "נשמר! הדף שלך עודכן ✓" });
@@ -939,9 +939,9 @@ export function PageEditor({ T, goto, onSaved }) {
       </div>
 
       {msg && (
-        <div style={{ marginTop: 14, fontSize: 12.5, fontWeight: 700, lineHeight: 1.6, borderRadius: 10, padding: "9px 12px",
+        <div role={msg.kind === "ok" ? "status" : "alert"} style={{ marginTop: 14, fontSize: 12.5, fontWeight: 700, lineHeight: 1.6, borderRadius: 10, padding: "9px 12px",
           background: msg.kind === "ok" ? "#e9f9ef" : "#fdecea", color: msg.kind === "ok" ? "#1a7f37" : "#b3261e", border: `1px solid ${msg.kind === "ok" ? "#bfe9cd" : "#f5c6c0"}` }}>
-          {msg.text}
+          {msg.kind === "ok" && refreshUnavailable ? "הדף נשמר. רענון הפרטים לא הושלם; אפשר להמשיך לערוך." : msg.text}
         </div>
       )}
       <button onClick={save} disabled={busy} style={{ width: "100%", marginTop: 14, background: T.acc, color: "#fff", border: "none", borderRadius: 11, padding: "13px 16px", minHeight: 48, fontFamily: "inherit", fontSize: 14, fontWeight: 800, cursor: busy ? "default" : "pointer", opacity: busy ? .7 : 1 }}>
