@@ -25,6 +25,7 @@ or `WatchButton` was edited, so the three old stacked panels still render there 
 | Truthful capability | Email, WhatsApp and Push show "לא זמין עדיין"/note from the existing channel metadata; Push becomes "אפשר להפעיל" only when the device reports it. No working switch is manufactured |
 | Truthful states | loading ≠ empty; a failed read says "זה לא אומר שאין כלום" with retry; partial read keeps the other section; unfollow shows pending and an unconfirmed failure leaves the row; confirmed removes it |
 | Record time | Bilingual Hebrew + Gregorian date (relative time is Home-only per the record-time rule; the old panel used relative time) |
+| 2029 icons | Subject kinds and channels use the `NavigationIcon2029` catalogue (personal, number, layers, signal, discovery, posts, conversation, check); no emoji. There is no bell or mail icon in the catalogue, so email uses `posts` and device Push uses `signal`; a dedicated icon would be a catalogue extension for ZURIEL to approve |
 | Design V2 | 18px reading, 16px UI, 14px metadata floor, 44px targets, three presets, accent text role, focus ring, reduced motion |
 
 ## Preview and fixtures

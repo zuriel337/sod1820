@@ -51,7 +51,9 @@
 .fc-row-error,.fc-row-note{grid-column:1/-1;font-size:14px;line-height:1.5;padding-bottom:6px}
 .fc-row-error{color:var(--s29-ink);font-weight:700}
 .fc-row-note{color:var(--s29-muted)}
-.fc-icon{font-size:18px;line-height:1}
+.fc-icon{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:999px;border:1px solid var(--s29-line-strong);color:var(--s29-accent-text);line-height:1}
+.fc-icon-sm{display:inline-grid;vertical-align:-3px;color:var(--s29-accent-text)}
+.fc-btn svg{margin-inline-start:6px}
 .fc-name{min-height:44px;display:inline-flex;align-items:center;font-size:16px;font-weight:700;color:var(--s29-ink);overflow-wrap:anywhere;text-decoration:none}
 a.fc-name{color:var(--s29-accent-text);text-decoration:underline;text-underline-offset:4px}
 .fc-channel{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;border:1px solid var(--s29-line);border-radius:14px;padding:10px 12px;background:var(--s29-panel-soft)}

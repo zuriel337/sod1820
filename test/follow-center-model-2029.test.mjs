@@ -23,6 +23,12 @@ assert.deepEqual(ready.following.groups.map((group) => group.key), ["כתב", "�
 const writers = ready.following.groups[0].items;
 assert.equal(writers[0].href, "/community/researcher/yaniv-levi"); assert.equal(writers[1].href, null, "unresolved or unsafe writer links are not guessed");
 
+// 2029 icon names, never the legacy emoji.
+assert.deepEqual(ready.following.groups.map((group) => group.items[0].icon), ["personal", "number", "layers", "signal"]);
+assert.equal(ready.updates.items[0].why.icon, "personal");
+assert.deepEqual(off0().channels.map((channel) => channel.icon), ["posts", "signal", "conversation"]);
+function off0() { return buildFollowCenterModel({ principal: "registered" }); }
+
 // An unconfirmed change keeps its marker; nothing is removed locally.
 const pending = buildFollowCenterModel({ principal: "registered", follows: { state: "ready", topics: ["number:1820"], pending: { "number:1820": "failed" } } });
 assert.equal(pending.following.groups[0].items[0].change, "failed");

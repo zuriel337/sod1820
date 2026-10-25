@@ -9,6 +9,9 @@ import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 export const READ_STATES = Object.freeze(["loading", "ready", "unavailable"]);
 const KIND_ORDER = ["כתב", "מספר", "קטגוריה", "ערוץ", "נושא", ""];
 const KIND_HEADINGS = { "כתב": "כותבים", "מספר": "מספרים", "קטגוריה": "קטגוריות", "ערוץ": "ערוצים", "נושא": "נושאים", "": "אחר" };
+// 2029 icon names (NavigationIcon2029 catalog) per subject kind and channel. The legacy emoji from topicLabel are not used.
+const KIND_ICON = { "כתב": "personal", "מספר": "number", "קטגוריה": "layers", "ערוץ": "signal", "נושא": "discovery", "": "help" };
+const CHANNEL_ICON = { email: "posts", push: "signal", whatsapp: "conversation" };
 const readState = (value) => READ_STATES.includes(value) ? value : "unavailable";
 const safeInternal = (href) => typeof href === "string" && /^\/(?!\/)/.test(href) ? href : null;
 
@@ -33,7 +36,7 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
     return {
       id: item.id, title: item.title || "", body: item.body || "", unread: !item.read_at,
       time: bilingualDateLabel(item.created_at), href: safeInternal(item.link),
-      why: why ? { icon: why.icon, label: why.label, kind: why.kind } : null,
+      why: why ? { icon: KIND_ICON[why.kind] || "help", label: why.label, kind: why.kind } : null,
     };
   });
   const topics = fState === "ready" && Array.isArray(follows.topics) ? follows.topics : [];
@@ -44,14 +47,14 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
     const key = KIND_ORDER.includes(label.kind) ? label.kind : "";
     const href = key === "כתב" ? safeInternal(links[topic]) : safeInternal(label.link);
     if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push({ topic, icon: label.icon, label: label.label, href, change: pending[topic] || "idle" });
+    groups.get(key).push({ topic, icon: KIND_ICON[key], label: label.label, href, change: pending[topic] || "idle" });
   }
   const followGroups = KIND_ORDER.filter((key) => groups.has(key)).map((key) => ({ key, heading: KIND_HEADINGS[key], items: groups.get(key) }));
   const followCount = followGroups.reduce((sum, group) => sum + group.items.length, 0);
   // Capability metadata comes from the existing channel list; only device Push has its own readiness.
   const channels = NOTIFICATION_CHANNELS.map((channel) => {
     const ready = channel.key === "push" && device.push === "available";
-    return { key: channel.key, icon: channel.emoji, label: channel.label, available: ready, chosen: ready && device.pushSubscribed === true,
+    return { key: channel.key, icon: CHANNEL_ICON[channel.key] || "help", label: channel.label, available: ready, chosen: ready && device.pushSubscribed === true,
       note: ready ? (device.pushSubscribed ? "פעיל במכשיר הזה" : "אפשר להפעיל במכשיר הזה") : channel.note };
   });
   return {

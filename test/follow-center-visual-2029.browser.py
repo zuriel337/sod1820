@@ -111,8 +111,8 @@ def audit(page, tag):
     assert not result['targets'], ('targets below 44px', result['targets'][:4], tag)
 
 
-def open_state(browser, state, width, theme, reduced='no-preference'):
-    context = browser.new_context(viewport={'width': width, 'height': 900}, reduced_motion=reduced)
+def open_state(browser, state, width, theme, reduced='no-preference', height=900):
+    context = browser.new_context(viewport={'width': width, 'height': height}, reduced_motion=reduced)
     context.add_init_script("localStorage.setItem('sod-theme'," + json.dumps(theme) + ")")
     page = context.new_page(); install(page)
     page.goto(BASE + PATH + '?state=' + state)
@@ -121,11 +121,10 @@ def open_state(browser, state, width, theme, reduced='no-preference'):
     return context, page
 
 
-def capture(page, width, path):
-    # Tall viewport instead of full_page, so the fixed frame chrome stays where a reader sees it and does not float over the content.
-    height = page.evaluate('document.documentElement.scrollHeight')
-    page.set_viewport_size({'width': width, 'height': min(max(height, 900), 6000)}); page.wait_for_timeout(300)
-    page.screenshot(path=str(path)); page.set_viewport_size({'width': width, 'height': 900})
+def capture(browser, state, width, theme, height, path):
+    # Fresh tall viewport (not full_page and not a resize), so the fixed frame chrome sits where a reader sees it.
+    context, page = open_state(browser, state, width, theme, height=min(max(height, 900), 6000))
+    page.wait_for_timeout(1500); page.screenshot(path=str(path)); context.close()
 
 
 def check(browser, state, width, theme):
@@ -133,6 +132,9 @@ def check(browser, state, width, theme):
     context, page = open_state(browser, state, width, theme)
     audit(page, tag)
     text = page.locator('.fc').inner_text()
+    import re as _re
+    assert not _re.search('[\U0001F300-\U0001FAFF\u2600-\u27BF]', text), ('2029 icons only, no emoji', tag)
+    if state == 'registered': assert page.locator('.fc-icon svg').count() >= 8, ('2029 SVG icons are rendered', tag)
     assert page.locator('.fcp-banner').inner_text().count('סינתטיים') == 1, tag
     assert page.locator('.fc-life li').count() == 4, tag
     assert page.locator('.fc-inputs li').count() == 3, tag
@@ -175,7 +177,7 @@ def check(browser, state, width, theme):
             if info:
                 seen.add(info[0]); assert info[2] != 'none' and info[1] >= 2, ('focus ring', info, tag)
         assert len(seen) >= 8, ('keyboard reach', len(seen), tag)
-    if SHOTS and width in (390, 1440) and (state in FULL_MATRIX or theme == 'dark'): capture(page, width, OUT / f'follow-{state}-{theme}-{width}.png')
+    if SHOTS and width in (390, 1440) and (state in FULL_MATRIX or theme == 'dark'): capture(browser, state, width, theme, page.evaluate('document.documentElement.scrollHeight'), OUT / f'follow-{state}-{theme}-{width}.png')
     context.close()
 
 

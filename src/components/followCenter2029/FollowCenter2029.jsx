@@ -1,4 +1,5 @@
 import React from "react";
+import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import "./followCenter2029.css";
 
 // Presentational 2029 personal update center. Everything arrives through the view model and callbacks:
@@ -61,7 +62,7 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
               </div>
               {item.body ? <p className="fc-body">{item.body}</p> : null}
               <p className="fc-meta"><time>{item.time}</time>
-                {item.why ? <span className="fc-why">כי אתם עוקבים אחרי <b>{item.why.icon} {item.why.label}</b>{item.why.kind ? ` · ${item.why.kind}` : ""}</span> : null}</p>
+                {item.why ? <span className="fc-why">כי אתם עוקבים אחרי <b className="fc-why-name"><span className="fc-icon-sm" aria-hidden="true"><NavigationIcon2029 name={item.why.icon} size={16} /></span> {item.why.label}</b>{item.why.kind ? ` · ${item.why.kind}` : ""}</span> : null}</p>
               {href ? <a className="fc-open" href={href} onClick={() => onOpenUpdate?.(item)}>לצפייה בתוכן <span aria-hidden="true">←</span></a> : null}
             </li>;
           })}
@@ -82,10 +83,10 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
               {group.items.map((entry) => {
                 const href = withReturn(entry.href, returnHref);
                 return <li key={entry.topic} className="fc-follow-row" data-change={entry.change}>
-                  <span className="fc-icon" aria-hidden="true">{entry.icon}</span>
+                  <span className="fc-icon" aria-hidden="true"><NavigationIcon2029 name={entry.icon} size={22} /></span>
                   {href ? <a className="fc-name" href={href}>{entry.label}</a> : <span className="fc-name">{entry.label}</span>}
                   <button type="button" className="fc-btn" aria-label={`ביטול מעקב: ${entry.label}`} aria-busy={entry.change === "pending"} disabled={entry.change === "pending"} onClick={() => onUnfollow?.(entry.topic)}>
-                    {entry.change === "pending" ? "מבטל…" : "עוקב ✓"}</button>
+                    {entry.change === "pending" ? "מבטל…" : <>עוקב <NavigationIcon2029 name="check" size={16} /></>}</button>
                   {entry.change === "failed" ? <p className="fc-row-error" role="alert">לא התקבל אישור ביטול. המעקב עדיין פעיל. רעננו ונסו שוב.</p> : null}
                   {!href && group.key === "כתב" ? <p className="fc-row-note">אין דף ציבורי יחיד ומאומת לכותב הזה, לכן אין קישור.</p> : null}
                 </li>;
@@ -99,7 +100,7 @@ export default function FollowCenter2029({ model, returnHref = null, onMarkAllRe
           <p className="fc-note-plain">מעקב לא מפעיל שום ערוץ. כל ערוץ מופעל בנפרד, בהסכמה מפורשת, אחרי אימות זהות.</p>
           <ul className="fc-list">
             {channels.map((channel) => <li key={channel.key} className="fc-channel" data-available={channel.available}>
-              <span className="fc-icon" aria-hidden="true">{channel.icon}</span>
+              <span className="fc-icon" aria-hidden="true"><NavigationIcon2029 name={channel.icon} size={22} /></span>
               <div><strong>{channel.label}</strong><small>{channel.note}</small></div>
               <span className="fc-chip" data-on={channel.chosen}>{channel.chosen ? "פעיל" : channel.available ? "אפשר להפעיל" : "לא זמין עדיין"}</span>
             </li>)}
