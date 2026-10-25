@@ -15,6 +15,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const capabilities = read("src/components/experience2029/LifeJourneyCapabilities2029.jsx");
   const nameAdapter = read("src/components/experience2029/LifeJourneyName2029.jsx");
   const nameResearch = read("src/lib/research/lifeJourneyNameResearch.js");
+  const nameReflection = read("src/lib/research/nameLabReflectionRuntime.js");
   const supabaseClient = read("src/lib/supabase.js");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
   const elsAdapter = read("src/lib/research/lifeJourneyElsAdapter.js");
@@ -106,6 +107,14 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(personContext, /buildLifeJourneyHintReferencePatch/);
   assert.match(personContext, /\/2029\/number\/\$\{value\}/);
   assert.match(nameAdapter, /runLifeJourneyNameResearch/);
+  assert.match(nameAdapter, /runNameLabReflectionRuntime/);
+  assert.match(nameAdapter, /createNameLabReflectionRuntimeProviders/);
+  assert.match(nameAdapter, /life-journey-normalized-message-reflection/);
+  assert.match(nameAdapter, /פתח מסר ושלושה קלפים/);
+  assert.match(nameAdapter, /המסר הוקפא לפני הקלפים/);
+  assert.match(nameAdapter, /משקל הראיה שלהם אפס/);
+  assert.match(nameReflection, /persistAnalysis:\s*false/);
+  assert.match(nameReflection, /createSupabaseThreeCardProvider/);
   assert.match(nameAdapter, /life_journey_gematria/);
   assert.match(nameAdapter, /המשך לשם ותאריך/);
   assert.match(nameResearch, /fetchCanonicalGematriaFindings/);

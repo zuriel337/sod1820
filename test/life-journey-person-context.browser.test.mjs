@@ -59,13 +59,21 @@ function lifeJourneyFixturePlugin() {
       const blank=()=>({members:[],relations:[]});
       const read=()=>{try{return JSON.parse(localStorage.getItem(ledgerKey())||"null")||blank();}catch{return blank();}};
       const write=value=>localStorage.setItem(ledgerKey(),JSON.stringify(value));
-      window.__elsCalls=window.__elsCalls||[];window.__nameCalls=window.__nameCalls||[];
+      window.__elsCalls=window.__elsCalls||[];window.__nameCalls=window.__nameCalls||[];window.__reflectionCalls=window.__reflectionCalls||[];
       export const supabase={functions:{async invoke(name,{body}){
         window.__elsCalls.push({name,body});
         if(body.op==="page")return {data:{result:{contract:"els_search_page_v1",status:"OK",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},selection_protocol:"POST_HOC_EXPLORATORY",hits:[{occurrence_id:"els:fixture-torah:"+body.term+":7:1:120",skip:7,dir:1,start:120,end:150,positions:[120,127,134]}],completion:{executed:true,returned_hits:1,total_hits:1,has_more:false,truncated:false}}}};
         if(body.op==="verify")return {data:{result:{contract:"els_occurrence_replay_v1",status:"OK",verification_state:"MATCH",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},occurrence:{occurrence_id:"els:fixture-torah:"+body.term+":"+body.skip+":"+body.dir+":"+body.start,skip:body.skip,dir:body.dir,start:body.start,positions:[body.start]}}}};
         return {error:{message:"unsupported"}};
-      }}};
+      }},async rpc(name,args){
+        window.__reflectionCalls.push({kind:"tarot",name,args});
+        if(name!=="fn_tarot_sos")return {error:{message:"unsupported"}};
+        return {data:{framework:"שלושה קלפים להשראה",cards:[
+          {position:"המצב",n:1,arcana:"הקוסם",theme:"יוזמה",meaning:"להפוך מחשבה למעשה",letter:"א",orientation:"ישר"},
+          {position:"האתגר",n:9,arcana:"הנזיר",theme:"התבוננות",meaning:"לברר לפני תנועה",letter:"י",orientation:"ישר"},
+          {position:"העצה",n:17,arcana:"הכוכב",theme:"תקווה",meaning:"לשמור על כיוון בהיר",letter:"צ",orientation:"ישר"}
+        ]},error:null};
+      }};
       export async function getOrCreateMyPersonId(){return personId();}
       export async function listFamily(){return read();}
       export async function upsertSelfProfile(personId,name,meta){const data=read(),source_ref="person:"+personId+":self";const row={source_ref,name,meta};const index=data.members.findIndex(item=>item.source_ref===source_ref);if(index<0)data.members.push(row);else data.members[index]=row;write(data);return row;}
@@ -74,6 +82,7 @@ function lifeJourneyFixturePlugin() {
       export async function getNameMulti(name,options){window.__nameCalls.push({kind:"multi",name,options});return {input:{components:{values:{full:73,parts:{שם:73}}}},combo:{tracks_with_results:1}};}
       export async function getNameProtocol(name){window.__nameCalls.push({kind:"protocol",name});return {research_id:"fixture-name",input:{normalized:name,value:73},agents:[{output_key:"gematria",ran:true,ok:true,empty:false,ms:1,seq:1}],findings:{gematria:{regular:73}},provenance:{gematria:{fn:"fixture"}},scores:{depth:42},metatron:{headline:"סיכום בדיקה",follow_up:[]}};}
       export async function getNameMultiWithoutEls(name){window.__nameCalls.push({kind:"name_lab",name,options:{skip_els:"1"}});return {tracks_with_results:1,tracks:[{id:"variants",status:"ok",data:[{form:"שם בדיקה",note:"fixture"}]},{id:"els",status:"skipped",ran:false,count:0}]};}
+      export async function getAiAnalysis(args){window.__reflectionCalls.push({kind:"ai",args});return "מסר בדיקה מבוסס ממצאים.";}
     `],
     ["virtual:life-journey-family-claim.js", `
       const OWNER_PERSON_ID="11111111-1111-4111-8111-111111111111";
@@ -301,6 +310,43 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByRole("button", { name: "פתח מסע שם" }).click();
     await page.getByRole("heading", { name: "מסע השם" }).waitFor();
     assert.equal(new URL(page.url()).search, "");
+    await page.getByRole("button", { name: "פתח מסר ושלושה קלפים" }).waitFor();
+    assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 0, "message and cards are explicit, never automatic");
+    const telemetryBeforeReflection = await page.evaluate(() => window.__telemetry.length);
+    await page.getByRole("button", { name: "פתח מסר ושלושה קלפים" }).click();
+    await page.getByText("מסר בדיקה מבוסס ממצאים.").waitFor();
+    const reflection = page.locator('[data-experience-capability="life-journey-normalized-message-reflection"]');
+    assert.deepEqual(await reflection.locator(".person-journey-reflection-cards article>div>small").allTextContents(), ["המצב", "האתגר", "העצה"]);
+    const reflectionCalls = await page.evaluate(() => window.__reflectionCalls);
+    assert.deepEqual(reflectionCalls.map(call => call.kind), ["ai", "tarot"]);
+    assert.equal(reflectionCalls[0].args.operation, "normalized_reflection");
+    assert.equal(reflectionCalls[0].args.persistAnalysis, false, "private name analysis is not copied to the style-learning log");
+    assert.equal(reflectionCalls[1].name, "fn_tarot_sos");
+    assert.deepEqual(reflectionCalls[1].args, { p_cards: 3 });
+    assert.equal(await page.evaluate(() => window.__telemetry.length), telemetryBeforeReflection, "private reflection emits no client telemetry");
+    assert.equal(decodeURIComponent(page.url()).includes("הורה בדיקה"), false, "private name never enters the reflection URL");
+    for (const theme of ["light", "parchment", "dark"]) {
+      for (const width of [390, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.evaluate(value => window.__setLifeJourneyTheme(value), theme);
+        await page.waitForFunction(value => document.querySelector("[data-fixture-theme]")?.dataset.fixtureTheme === value, theme);
+        const reflectionLayout = await page.evaluate(() => {
+          const surface = document.querySelector('[data-experience-capability="life-journey-normalized-message-reflection"]');
+          const card = surface?.querySelector(".person-journey-reflection-cards article");
+          return {
+            viewport: innerWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+            surfaceWidth: surface?.getBoundingClientRect().width || 0,
+            cardWidth: card?.getBoundingClientRect().width || 0,
+            message: surface?.querySelector(".person-journey-reflection-message")?.textContent || "",
+          };
+        });
+        assert.ok(reflectionLayout.scrollWidth <= reflectionLayout.viewport + 1, `reflection ${theme} ${width}px must not overflow`);
+        assert.ok(reflectionLayout.surfaceWidth > 0 && reflectionLayout.cardWidth > 0, `reflection ${theme} ${width}px stays visible`);
+        assert.match(reflectionLayout.message, /מסר בדיקה מבוסס ממצאים/);
+      }
+    }
+    await page.setViewportSize({ width: 390, height: 900 });
     await page.getByRole("button", { name: "פתח רגיל 73 בדף המספר" }).click();
     await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");
@@ -313,6 +359,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByRole("heading", { name: "מסע השם" }).waitFor();
     await page.reload();
     await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByRole("button", { name: "פתח מסר ושלושה קלפים" }).waitFor();
+    assert.equal(await page.getByText("מסר בדיקה מבוסס ממצאים.").count(), 0, "refresh never redraws or regenerates the private reflection automatically");
     await page.getByRole("button", { name: "המשך לשם ותאריך" }).click();
     await page.getByRole("heading", { name: "שם ותאריך" }).waitFor();
     await page.getByText("י״א בתשרי").waitFor();

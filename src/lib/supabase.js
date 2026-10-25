@@ -1306,7 +1306,7 @@ function aiInteractionId() {
     return globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : null;
   } catch { return null; }
 }
-export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation, interaction_id, surface }) {
+export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation, interaction_id, surface, persistAnalysis = true }) {
   if (!supabase) return null;
   try {
     // 📏 ai_quota_law — visitor_id מאפשר ספירת-מכסה יציבה לאורח (מדויק יותר מ-IP).
@@ -1333,7 +1333,12 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine,
     const analysisText = structuredReflection?.message || data?.analysis || null;
     // 🧪 ai_style_learning_law — כל ניתוח מוצלח נרשם אוטומטית (בכל משטח באתר, כי כולם עוברים כאן).
     // fire-and-forget: הרישום לא מעכב ולא מפיל את הניתוח.
-    if (analysisText) logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: analysisText });
+    // Private research surfaces may use the existing AI transport without copying their
+    // subject/message into the style-learning log. Operational cost traces remain bounded
+    // server-side and contain no raw non-numeric subject.
+    if (analysisText && persistAnalysis !== false) {
+      logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: analysisText });
+    }
     return structuredReflection || analysisText;
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
 }

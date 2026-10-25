@@ -284,8 +284,8 @@ export async function runNameLabReflectionRuntime({
 }
 
 /**
- * Non-UI root binder. This is the missing wiring seam: existing product providers are bound once
- * to the pure runtime without mounting any renderer or introducing a new endpoint/engine.
+ * Product-provider binder. Existing providers are bound once to the pure runtime; renderers may
+ * consume the bounded projection without introducing a new endpoint, engine or message authority.
  */
 export function createNameLabReflectionRuntimeProviders({
   getNameMulti,
@@ -305,6 +305,8 @@ export function createNameLabReflectionRuntimeProviders({
       fast: false,
       long: true,
       surface: "research:name-lab-reflection",
+      // A selected Life Journey name is authorized execution input, not telemetry.
+      persistAnalysis: false,
     }),
     tarotProvider: createSupabaseThreeCardProvider(supabase),
   });
