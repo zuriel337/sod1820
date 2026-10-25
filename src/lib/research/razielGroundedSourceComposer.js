@@ -7,7 +7,7 @@
 // source URL, and derive bounded presentation candidates for the exploratory view. Candidate
 // ordering never changes the canonical evidence order or promotes a candidate to research truth.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 10;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 11;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -585,15 +585,22 @@ export function razielSurpriseCandidates(input = []) {
   }
 
   const seen = new Set();
-  return deepFreeze(candidates
+  const ranked = candidates
     .sort((a, b) => b.strength - a.strength || a.source_order - b.source_order)
     .filter((candidate) => {
       const key = surpriseCandidateKey(candidate);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
-    })
-    .slice(0, MAX_SURPRISE_CANDIDATES)
+    });
+  // Broad expression readings need their regular-value constellation to lead the story. Without a
+  // reserved slot, technically stronger pair relations can crowd it out and make the model narrate
+  // normalization instead of the supplied words. This changes presentation priority only.
+  const constellation = ranked.find((candidate) => candidate.kind === "canonical_value_constellation");
+  const selected = constellation
+    ? [constellation, ...ranked.filter((candidate) => candidate !== constellation).slice(0, MAX_SURPRISE_CANDIDATES - 1)]
+    : ranked.slice(0, MAX_SURPRISE_CANDIDATES);
+  return deepFreeze(selected
     .map(({ source_order, strength, ...candidate }) => candidate));
 }
 
@@ -615,6 +622,29 @@ function surpriseGuidance(entries) {
     `בסיס פרשני: ${candidate.interpretation_basis}`,
     `גבול הראיה: ${candidate.limit}`,
   ].join("\n")), "[הוראת פלט סופית] בתוך answer השתמש בדיוק בארבע הכותרות: ✨ ההפתעה: · העובדה שמאחוריה: · פרשנות אפשרית: · מה עדיין לא מוכח:. פתח בתזה ולא ברשימת שיטות."].join("\n");
+}
+
+function exploratoryBrief(entries) {
+  const anchor = primaryExpressionAnchor(entries);
+  const expressionEntry = anchor && entries.find((entry) => entry.subject?.type === "expression");
+  const profile = list(expressionEntry?.projection?.model_input?.calculation_profile).flatMap((item) => {
+    const method = cleanText(item?.method_label || item?.method_key, 60);
+    const value = safeNumber(item?.value);
+    return method && value != null ? [`${method}=${value}`] : [];
+  }).slice(0, 40);
+  const boundedEvidence = entries.flatMap((entry) => {
+    const label = subjectLabel(entry.subject);
+    return list(entry?.projection?.model_input?.findings)
+      .slice(0, MAX_FALLBACK_FINDINGS)
+      .map((finding) => findingFallbackLine(finding, label));
+  }).join("\n").slice(0, 3600);
+  return [
+    "[תקציר סינתזה תחום מתוך אותה חבילת־תוצאה קנונית — לא מנוע ולא מקור אמת נוסף]",
+    anchor ? `עוגן הביטוי: ${anchor.expression} · ${anchor.method}=${anchor.value}.` : null,
+    profile.length ? `מפת החישוב הקנונית שסופקה לביטוי: ${profile.join(" · ")}.` : null,
+    boundedEvidence ? `ממצאי בסיס תחומים מן החבילה:\n${boundedEvidence}` : null,
+    surpriseGuidance(entries),
+  ].filter(Boolean).join("\n");
 }
 
 function comparable(value) {
@@ -872,6 +902,7 @@ export function buildRazielGroundedSourceComposer(input = []) {
     prompt: bundles.length ? JSON.stringify(promptObject) : "",
     guidance: bundles.length ? responseGuidance(entries) : "",
     surprise_guidance: bundles.length ? surpriseGuidance(entries) : "",
+    exploratory_brief: bundles.length ? exploratoryBrief(entries) : "",
     fallback,
     sources: sourceList(entries),
     navigation: navigationList(entries),

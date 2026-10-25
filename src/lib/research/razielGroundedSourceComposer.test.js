@@ -51,7 +51,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v10");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v11");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -260,6 +260,57 @@ test("broad expression surprise receives a bounded canonical value constellation
   assert.match(candidates[0].limit, /פרשנות של רזיאל בלבד/);
   assert.match(out.surprise_guidance, /קבוצת עוגנים ולא מסקנה/);
   assert.match(out.surprise_guidance, /פתח בתזה ולא ברשימת שיטות/);
+  assert.match(out.exploratory_brief, /עוגן הביטוי: שאול · רגיל=337/);
+  assert.match(out.exploratory_brief, /עולה ויורד/);
+  assert.ok(out.exploratory_brief.length < out.prompt.length);
+  assert.doesNotMatch(out.exploratory_brief, /uf:337|source_ref|trace_ref/);
+});
+
+test("broad-expression constellation keeps the first exploratory slot even when confirmed pairs rank higher", () => {
+  const relation = (id, partner, method, value) => ({
+    id,
+    kind: "gematria-confirmed-relation",
+    stage: "evidence",
+    subject: { label: `שאול ↔ ${partner}`, value },
+    source: { source_name: "ממצאי המחקר המאושרים", source_ref: `relation:${id}`, method, lang: "he" },
+    verification: {
+      state: "match",
+      engine_result: {
+        expression: "שאול", partner, expression_method: method, partner_method: "רגיל",
+        value, engine_verified: true,
+      },
+    },
+    evidence: { facts: [{ type: "gematria-confirmed-cross-method-relation" }] },
+  });
+  const phrase = (id, label) => ({
+    id,
+    kind: "gematria",
+    stage: "evidence",
+    subject: { type: "phrase", label, value: 337 },
+    source: { source_name: "מאגר הגימטריה", source_ref: `bidim:${id}`, method: "רגיל", lang: "he" },
+    verification: { state: "not_tested", engine_method_tested: "רגיל", engine_result: 337 },
+    evidence: { facts: [{ type: "gematria-lookup-row", phrase: label, method: "רגיל", value: 337 }] },
+  });
+  const input = [{
+    subject: { type: "expression", value: "שאול" },
+    projection: projection([
+      relation("one", "שום", "מסתתר", 328),
+      relation("two", "אשמה", "אתבש", 502),
+      relation("three", "מאור", "אלבם", 121),
+    ], null, { calculation_profile: [{ method_key: "ragil", method_label: "רגיל", value: 337 }] }),
+  }, {
+    subject: { type: "number", value: 337 },
+    projection: projection([
+      phrase("rise-fall", "עולה ויורד"), phrase("king-hint", "מלך רמז"),
+      phrase("agag", "אגג מלך עמלק"), phrase("anger", "ועל יהוה יזעף לבו"),
+    ]),
+  }];
+
+  const candidates = razielSurpriseCandidates(input);
+  assert.equal(candidates.length, 3);
+  assert.equal(candidates[0].kind, "canonical_value_constellation");
+  assert.match(candidates[0].fact, /עולה ויורד/);
+  assert.equal(candidates.filter((candidate) => candidate.kind === "confirmed_cross_method_relation").length, 2);
 });
 
 test("surprise shortlist suppresses a mere Hebrew-letter permutation", () => {

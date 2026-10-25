@@ -113,7 +113,7 @@ test("2b) view_mode without the canonical 2029 Research Contract is ignored (Leg
 
 // ── 3 + 7: same Result Bundle, same facts, one model call, no extra calculator ─────────────────────────────
 for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_271], ["hidden method של חכמה", Q_HIDDEN]]) {
-  test(`3/7) ${name}: landscape and exploratory read the SAME canonical Bundle as general; only the system layer differs`, async () => {
+  test(`3/7) ${name}: landscape and exploratory read the SAME canonical Bundle; exploratory uses only a bounded presentation projection`, async () => {
     const general = await ask(question);
     const runs = {};
     for (const mode of NON_GENERAL) runs[mode] = await ask(question, { mode });
@@ -132,8 +132,12 @@ for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_27
       assert.equal(run.result.raziel.plan_meta.view_mode.requested, mode);
       assert.equal(run.result.raziel.plan_meta.view_mode.applied, true);
     }
-    // landscape and exploratory receive byte-identical factual material
-    assert.equal(runs.landscape.models[0].user, runs.exploratory.models[0].user);
+    // Both modes read the same Bundle. Exploratory receives a bounded presentation projection from
+    // that Bundle so the model is not drowned in the raw technical payload.
+    assert.match(runs.exploratory.models[0].user, /תקציר מתפרע מתוך חבילת-התוצאה הקנונית/);
+    assert.match(runs.exploratory.models[0].user, /תקציר סינתזה תחום מתוך אותה חבילת־תוצאה קנונית/);
+    assert.doesNotMatch(runs.exploratory.models[0].user, /"contract":"raziel-canonical-result-bundle-input-v1"/);
+    assert.ok(runs.exploratory.models[0].user.length < runs.landscape.models[0].user.length);
     // and the system prompt is persona + one small layer, never a duplicated persona
     const [l, e] = [runs.landscape.models[0].system, runs.exploratory.models[0].system];
     const common = l.slice(0, l.indexOf(MARKER));
@@ -142,7 +146,8 @@ for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_27
     assert.equal(e.split(MARKER).length, 2);
 
     if (general.models.length) {
-      // general also synthesised → the user material is byte-identical to general's
+      // General and landscape retain the complete projection; exploratory alone uses the bounded
+      // story brief. Provider/model selection and admitted evidence remain unchanged.
       assert.equal(runs.landscape.models[0].user, general.models[0].user);
       assert.equal(runs.landscape.models[0].system.startsWith(general.models[0].system), true);
     } else {
@@ -151,6 +156,8 @@ for (const [name, question] of [["pair חכמה/בינה", Q_PAIR], ["271", Q_27
       for (const fact of general.result.raziel.facts) {
         assert.ok(runs.landscape.models[0].user.includes(fact.value), `fact value ${fact.value}`);
         assert.ok(runs.landscape.models[0].user.includes(fact.label.split(" · ")[0]), `fact label ${fact.label}`);
+        assert.ok(runs.exploratory.models[0].user.includes(fact.value), `exploratory fact value ${fact.value}`);
+        assert.ok(runs.exploratory.models[0].user.includes(fact.label.split(" · ")[0]), `exploratory fact label ${fact.label}`);
       }
     }
   });
@@ -250,11 +257,11 @@ test("5) exploratory layer demands the four-part surprise contract and forbids i
   assert.match(exploratory, /טקסט חשיבה גולמי/);
   assert.match(exploratory, /תמורת אותיות/);
   assert.match(exploratory, /ריבוי שיטות תלויות/);
-  assert.match(exploratory, /מסנן הפתעות דטרמיניסטי/);
   assert.match(exploratory, /לא להגיש דוח טכני/);
   assert.match(exploratory, /קבוצת ביטויים סביב אותו ערך/);
   assert.match(exploratory, /נתוני הנרמול הם בלם אמינות/);
-  assert.match(exploratory, /פתח בתזה ולא ברשימת שיטות/);
+  assert.match(e.models[0].user, /מסנן הפתעות דטרמיניסטי/);
+  assert.match(e.models[0].user, /פתח בתזה ולא ברשימת שיטות/);
 
   const landscape = l.models[0].system.slice(l.models[0].system.indexOf(MARKER));
   assert.ok(landscape.includes("עוגן:"));
@@ -272,12 +279,12 @@ test("5) exploratory layer demands the four-part surprise contract and forbids i
 
 test("5a) exploratory synthesis receives a deterministic presentation shortlist, not a second evidence bundle", async () => {
   const run = await ask(Q_PAIR, { mode: "exploratory" });
-  const system = run.models[0].system;
-  assert.match(system, /מסנן הפתעות דטרמיניסטי/);
-  assert.match(system, /חכמה בשיטת מסתתר = 67; בינה בשיטת רגיל = 67/);
-  assert.match(system, /שוויון מספרי מאומת/);
-  assert.match(system, /עצמאות בין השיטות.*אינם מוכחים/);
-  assert.doesNotMatch(system, /uf:relation|public:relation_evidence|trace_id/);
+  const brief = run.models[0].user;
+  assert.match(brief, /מסנן הפתעות דטרמיניסטי/);
+  assert.match(brief, /חכמה בשיטת מסתתר = 67; בינה בשיטת רגיל = 67/);
+  assert.match(brief, /שוויון מספרי מאומת/);
+  assert.match(brief, /עצמאות בין השיטות.*אינם מוכחים/);
+  assert.doesNotMatch(brief, /uf:relation|public:relation_evidence|trace_id/);
   assert.equal(run.models.length, 1);
   assert.equal(run.calls.filter((call) => /gematria|number_lookup|calc/i.test(call.name)).length, 0);
 });

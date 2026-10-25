@@ -2845,6 +2845,7 @@ Deno.serve(async (req: Request) => {
       let rCanonicalBundlePack = "";
       let rCanonicalBundleGuidance = "";
       let rCanonicalSurpriseGuidance = "";
+      let rCanonicalExploratoryBrief = "";
       let rCanonicalBundleReads: RazielCanonicalBundleRead[] = [];
       let rCanonicalBundleSources: { original_name: string; source_ref: string | null; lang: string | null }[] = [];
       let rCanonicalBundleNavigation: { kind: string; label: string; href: string }[] = [];
@@ -2915,6 +2916,7 @@ Deno.serve(async (req: Request) => {
           rCanonicalBundlePack = composition.prompt;
           rCanonicalBundleGuidance = composition.guidance;
           rCanonicalSurpriseGuidance = composition.surprise_guidance;
+          rCanonicalExploratoryBrief = composition.exploratory_brief;
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
@@ -2956,6 +2958,7 @@ Deno.serve(async (req: Request) => {
           rCanonicalBundlePack = composition.prompt;
           rCanonicalBundleGuidance = composition.guidance;
           rCanonicalSurpriseGuidance = composition.surprise_guidance;
+          rCanonicalExploratoryBrief = composition.exploratory_brief;
           rNcFallback = composition.fallback;
           rCanonicalBundleSources = composition.sources;
           rCanonicalBundleNavigation = composition.navigation;
@@ -3113,9 +3116,6 @@ Deno.serve(async (req: Request) => {
       // RAZIEL_VIEW_MODE_V1: one small layer on the existing persona — never a second persona or prompt.
       if (rViewSynthesis && rViewMode !== "general") {
         rzSys += RAZIEL_VIEW_MODE_LAYERS[rViewMode];
-        if (rViewMode === "exploratory" && rCanonicalSurpriseGuidance) {
-          rzSys += "\n\n" + rCanonicalSurpriseGuidance;
-        }
       }
 
       // 🧭 Research Plan v0 (advanced-only, deterministic, zero DB writes) — FAIL-OPEN: any throw
@@ -3134,11 +3134,14 @@ Deno.serve(async (req: Request) => {
         ? "\n\nנתוני-מפעיל (קריאה-בלבד ממקור הבעלים, אומתו כאדמין; השתמש רק במספרים כאן, אל תמציא ואל תחשב מעבר; שמור על תוויות EXACT/ESTIMATED/UNKNOWN):\n" + rOpPack
         : "");
 
+      const canonicalBundleText = rCanonicalBundlePack
+        ? rViewMode === "exploratory" && rCanonicalExploratoryBrief
+          ? "\n\nתקציר מתפרע מתוך חבילת-התוצאה הקנונית (אותו Bundle ואותן הרשאות; הקרנה תחומה כדי למנוע הצפה טכנית. השתמש רק בעובדות שכאן):\n" + rCanonicalExploratoryBrief
+          : "\n\nחבילת-תוצאת מחקר קנונית (Research Result Bundle שכבר עבר הרשאות וסינון; חומר מובנה פנימי בלבד — אל תחשוף JSON, שמות שדות, מזהי Finding או trace; נסח עברית טבעית, קשר כל טענה לממצא שסופק, הפרד עובדה מתמטית מטענת מקור ומפרשנות, ואל תשלים יכולת חסרה):\n" + rCanonicalBundleGuidance + "\n" + rCanonicalBundlePack
+        : "";
       const toolText = (rToolRes ? rToolRes.text : "") + (rNcPack
         ? "\n\nהקשר-מספר באתר (קריאה-בלבד מ-number_map + number_dossier_json; נוכחות קשת = ראיית-קשר ולא פירוש; השתמש רק בפריטים כאן, אל תמציא פוסטים/טופיקים/מספרים, אל תחשב; ללא גוף-פוסט):\n" + rNcPack
-        : rCanonicalBundlePack
-        ? "\n\nחבילת-תוצאת מחקר קנונית (Research Result Bundle שכבר עבר הרשאות וסינון; חומר מובנה פנימי בלבד — אל תחשוף JSON, שמות שדות, מזהי Finding או trace; נסח עברית טבעית, קשר כל טענה לממצא שסופק, הפרד עובדה מתמטית מטענת מקור ומפרשנות, ואל תשלים יכולת חסרה):\n" + rCanonicalBundleGuidance + "\n" + rCanonicalBundlePack
-        : "") + (rCcPack === "UNAVAILABLE"
+        : canonicalBundleText) + (rCcPack === "UNAVAILABLE"
         ? "\n\nתוכן הדף הנוכחי אינו זמין כרגע (אין זהות-משטח מדויקת או שהקריאה נכשלה) — אל תמציא ואל תנחש תוכן; אמור זאת בקצרה וענה כרגיל."
         : rCcPack
         ? "\n\nתוכן הדף הנוכחי (קריאה-בלבד, פרסום/ייצוג — לא עובדה קנונית ולא ראיה; סכם/הסבר רק מה שכתוב כאן, אל תחשב מספרים ואל תוסיף טענות; אל תצטט את הגוף במלואו):\n" + rCcPack
@@ -3180,7 +3183,8 @@ Deno.serve(async (req: Request) => {
       });
       const exactSurfaceNumber = razielSurfaceNumberRoot(body?.surface_semantic);
       const permittedRazielNumericTexts = [
-        rSubject, rFacts, rzMtxFacts, rToolRes?.text, rNcPack, rCanonicalBundlePack, rOpPack, rPersPack,
+        rSubject, rFacts, rzMtxFacts, rToolRes?.text, rNcPack, rCanonicalBundlePack,
+        rCanonicalSurpriseGuidance, rCanonicalExploratoryBrief, rOpPack, rPersPack,
         rCcPack === "UNAVAILABLE" ? "" : rCcPack,
         rSource?.ok ? rSource.text : "",
         exactSurfaceNumber == null ? "" : String(exactSurfaceNumber),
