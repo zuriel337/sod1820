@@ -343,6 +343,14 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.deepEqual(familyAnalysisCalls[1].args, { p_cards: 3 });
     assert.equal(await normalizedFamilyAnalysis.locator(".person-journey-reflection-cards").count(), 0, "internal cards are not rendered");
     assert.equal(await normalizedFamilyAnalysis.getByText("הקוסם", { exact: true }).count(), 0, "card identities remain internal");
+    await page.reload();
+    await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
+    await normalizedFamilyAnalysis.getByRole("heading", { name: "הניתוח המשפחתי המנורמל" }).waitFor();
+    assert.deepEqual(await page.evaluate(() => ({
+      matrix: window.__matrixCalls.length,
+      reflection: window.__reflectionCalls.length,
+      els: window.__elsCalls.length,
+    })), { matrix: 0, reflection: 0, els: 0 }, "refresh restores the private family snapshot without automatically researching names or ELS again");
     await family.getByRole("button", { name: "פתח את ממצא 73 של ילד בדיקה" }).click();
     await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");
@@ -384,7 +392,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByRole("heading", { name: "מה המטריצה מראה עכשיו" }).waitFor();
     assert.equal(new URL(page.url()).search, "");
     assert.equal(await page.locator('[data-experience-capability="life-journey-normalized-message-reflection"]').count(), 0);
-    assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 2, "name and date views do not replay the explicit family analysis");
+    assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 0, "name and date views do not replay the restored family analysis");
     const matrixCallsBeforeThemes = await page.evaluate(() => window.__matrixCalls.length);
     for (const theme of ["light", "parchment", "dark"]) {
       for (const width of [390, 1280]) {

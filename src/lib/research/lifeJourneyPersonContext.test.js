@@ -10,11 +10,13 @@ import {
   LIFE_JOURNEY_2029_HREF,
   buildLifeJourneyCapabilityPatch,
   buildLifeJourneyExactReturnPatch,
+  buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyFindingTraversalPatch,
   buildLifeJourneyPersonContext,
   lifeJourneyPrivateFindingRef,
   lifeJourneyViewFromContext,
 } from "./lifeJourneyPersonContext.js";
+import { LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION } from "./lifeJourneyFamilyResearchSnapshot.js";
 
 const PERSON_REF = "person:11111111-1111-4111-8111-111111111111:self";
 const MEMBER_REF = "person:11111111-1111-4111-8111-111111111111:p:child-1";
@@ -26,6 +28,27 @@ test("person context preserves one opaque person-ref through a refresh round tri
   assert.equal(reloaded.selection.entityId, PERSON_REF);
   assert.equal(reloaded.dimensions.lifeJourneyPersonRef, PERSON_REF);
   assert.equal(lifeJourneyViewFromContext(reloaded, PERSON_REF), "person");
+});
+
+test("person exact return preserves a matching family snapshot and a changed selection clears it", () => {
+  const snapshot = "{\"private\":\"family-work-snapshot\"}";
+  const person = buildLifeJourneyPersonContext(PERSON_REF, normalizeResearchContext({
+    subject: { id: PERSON_REF, type: "person" },
+    selection: { entityId: PERSON_REF, entityType: "person" },
+    lens: "person",
+    dimensions: {
+      lifeJourneyContract: "life_journey_person_context_v1",
+      lifeJourneyView: "person",
+      lifeJourneyPersonRef: PERSON_REF,
+      lifeJourneySelectedMemberRefs: [PERSON_REF, MEMBER_REF],
+      [LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION]: snapshot,
+    },
+  }));
+  assert.equal(person.dimensions[LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION], snapshot);
+  const unchanged = buildLifeJourneyFamilySelectionPatch(person, { personRef: PERSON_REF, memberRefs: [PERSON_REF, MEMBER_REF] });
+  assert.equal(unchanged.dimensions[LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION], snapshot);
+  const changed = buildLifeJourneyFamilySelectionPatch(person, { personRef: PERSON_REF, memberRefs: [PERSON_REF] });
+  assert.equal(changed.dimensions[LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION], undefined);
 });
 
 test("an explicit Name Journey keeps private input in Context and exact-returns to Person", () => {

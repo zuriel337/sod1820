@@ -86,6 +86,12 @@ test('cloud hydration never overwrites active Context or return_exact',async()=>
   f.runtime.commit([op('context_set',{context})]);d.resolve({...emptyResearchState(),revision:0,context:{old:'cloud'}});await tick();
   assert.deepEqual(f.runtime.getSnapshot().context,context);f.runtime.stop();
 });
+test('a fresh browser origin resumes the same principal cloud Context',async()=>{
+  const context={subject:{id:'person:A:self',type:'person'},lens:'person',dimensions:{lifeJourneyView:'person'}};
+  const f=await ready(setup({readCloud:async()=>({...emptyResearchState(),revision:3,context})}));
+  assert.equal(f.runtime.getSnapshot().context.subject.id,'person:A:self');
+  assert.equal(f.runtime.getSnapshot().context.dimensions.lifeJourneyView,'person');f.runtime.stop();
+});
 test('clear context during hydration stays null after read finishes',async()=>{
   const d=deferred(),f=setup({readCloud:()=>d.promise});f.runtime.commit([op('context_set',{context:{subject:'x'}})]);f.runtime.commit([op('context_set',{context:null})]);
   d.resolve({...emptyResearchState(),revision:0,context:{old:'cloud'}});await tick();assert.equal(f.runtime.getSnapshot().context,null);f.runtime.stop();
