@@ -55,3 +55,22 @@ test("a bare number is a number subject: no engine values are invented, the data
   assert.deepEqual(await fetchClaudeNumberDossier(337, { invoke: failing }), { ok: false, reason: "no_bundle" });
   assert.deepEqual(await fetchClaudeNumberDossier(0, { invoke: failing }), { ok: false, reason: "unavailable" });
 });
+
+import { askClaudeRaziel } from "./claudeRazielClient2029.js";
+
+test("claude raziel client: sends only question, packet and a capped clean history; maps access errors; never throws", async () => {
+  const seen = [];
+  const invoke = async (name, { body }) => { seen.push({ name, body }); return { data: { answer: "תשובה", degraded: false }, error: null }; };
+  const history = Array.from({ length: 9 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", text: `t${i}` })).concat([{ role: "system", text: "x" }, { role: "user", text: " " }]);
+  const ok = await askClaudeRaziel({ question: " ש ", packet: " חבילה ", history }, { invoke });
+  assert.deepEqual(ok, { ok: true, answer: "תשובה", degraded: false });
+  assert.equal(seen[0].name, "claude-raziel");
+  assert.deepEqual(Object.keys(seen[0].body).sort(), ["history", "packet", "question"]);
+  assert.equal(seen[0].body.history.length, 6);
+  assert.equal(seen[0].body.history.every((turn) => turn.role !== "system" && turn.text.trim()), true);
+  assert.deepEqual(await askClaudeRaziel({ question: "ש", packet: "ח" }, { invoke: async () => ({ data: null, error: { context: { status: 403 } } }) }), { ok: false, reason: "admin_required" });
+  assert.deepEqual(await askClaudeRaziel({ question: "ש", packet: "ח" }, { invoke: async () => ({ data: { error: "admin_required" }, error: null }) }), { ok: false, reason: "admin_required" });
+  assert.deepEqual(await askClaudeRaziel({ question: "ש", packet: "ח" }, { invoke: async () => { throw new Error("x"); } }), { ok: false, reason: "unavailable" });
+  assert.deepEqual(await askClaudeRaziel({ question: "", packet: "ח" }, { invoke }), { ok: false, reason: "invalid" });
+  assert.deepEqual((await askClaudeRaziel({ question: "ש", packet: "ח" }, { invoke: async () => ({ data: { answer: " " }, error: null }) })).reason, "unavailable");
+});
