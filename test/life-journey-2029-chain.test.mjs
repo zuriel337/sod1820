@@ -15,6 +15,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const capabilities = read("src/components/experience2029/LifeJourneyCapabilities2029.jsx");
   const nameAdapter = read("src/components/experience2029/LifeJourneyName2029.jsx");
   const nameResearch = read("src/lib/research/lifeJourneyNameResearch.js");
+  const removalMigration = read("supabase/migrations/20261025035531_life_journey_remove_family_member_v1.sql");
   const supabaseClient = read("src/lib/supabase.js");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
   const dateMatrix = read("src/lib/research/lifeJourneyDateMatrix.js");
@@ -39,6 +40,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /upsertSelfProfile/);
   assert.match(journey, /upsertFamilyMember/);
   assert.match(journey, /upsertFamilyRelation/);
+  assert.match(journey, /removeFamilyMember/);
+  assert.match(journey, /startEditingMember/);
+  assert.match(journey, /openCapability\(member, "name"\)/);
   assert.match(journey, /birthdate_iso/);
   assert.match(journey, /birth_place/);
   assert.match(journey, /runLifeJourneyNameResearch/);
@@ -107,14 +111,15 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(personContext, /buildLifeJourneyHintReferencePatch/);
   assert.match(personContext, /\/2029\/number\/\$\{value\}/);
   assert.match(nameAdapter, /runLifeJourneyNameResearch/);
-  assert.match(nameAdapter, /fetchNameLab:\s*false/);
+  assert.match(nameAdapter, /profile\?\.firstName/);
+  assert.match(nameAdapter, /מסר מנורמל/);
   assert.doesNotMatch(nameAdapter, /runNameLabReflectionRuntime|createNameLabReflectionRuntimeProviders|שלושה קלפים/);
   assert.match(nameAdapter, /life_journey_gematria/);
   assert.match(nameAdapter, /המשך למטריצת השם והתאריך/);
-  assert.match(nameResearch, /fetchCanonicalGematriaFindings/);
-  assert.match(nameResearch, /nameLabTrackListsToUniversalFindings/);
-  assert.match(nameResearch, /aggregateFindings/);
-  assert.match(nameResearch, /life_journey_name_research_els_boundary/);
+  assert.match(nameResearch, /fetchNumberMethodProfile/);
+  assert.match(nameResearch, /createGematriaRelationW2Executor/);
+  assert.match(nameResearch, /INTAKE_DIRECT_PAIR/);
+  assert.doesNotMatch(nameResearch, /NameLab|tarot|קלפים|fetchCanonicalGematriaFindings/i);
   assert.match(supabaseClient, /export async function getNameMultiWithoutEls/);
   assert.match(supabaseClient, /p_opts:\s*\{ skip_els: '1' \}/);
   assert.match(dateAdapter, /runLifeJourneyDateMatrixResearch/);
@@ -140,6 +145,13 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(hints, /buildLifeJourneyHintReferencePatch/);
   assert.match(hints, /פתח במספר/);
   assert.doesNotMatch(hints, /addHint|removeHint|\.insert\(|\.update\(/);
+
+  assert.match(supabaseClient, /fn_remove_family_member/);
+  assert.match(removalMigration, /approved family claim must be reversed before member removal/);
+  assert.match(removalMigration, /status = 'revoked'/);
+  assert.match(removalMigration, /ro\.source = 'family_input'/);
+  assert.match(removalMigration, /grant execute on function public\.fn_remove_family_member\(uuid, text\) to authenticated/);
+  assert.doesNotMatch(removalMigration, /create table|create policy|grant .* on (?:table )?public\.research_objects/i);
 
   const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
   assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);

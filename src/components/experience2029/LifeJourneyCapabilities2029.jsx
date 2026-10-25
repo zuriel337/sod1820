@@ -5,7 +5,7 @@ import LifeJourneyName2029 from "./LifeJourneyName2029.jsx";
 
 export default function LifeJourneyCapabilities2029({ view, user, name, profile, personRef, memberRef, onContinue, onReturn }) {
   if (view === "hints") return <LifeJourneyHints2029 user={user} />;
-  if (view === "name") return <LifeJourneyName2029 name={name} personRef={personRef} memberRef={memberRef} onContinue={onContinue} onReturn={onReturn} />;
+  if (view === "name") return <LifeJourneyName2029 name={name} profile={profile} personRef={personRef} memberRef={memberRef} onContinue={onContinue} onReturn={onReturn} />;
   if (view === "date") return <LifeJourneyDate2029 user={user} profile={profile} personRef={personRef} memberRef={memberRef} onContinue={onContinue} onReturn={onReturn} />;
   return null;
 }

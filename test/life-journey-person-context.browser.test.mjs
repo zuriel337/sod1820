@@ -65,7 +65,11 @@ function lifeJourneyFixturePlugin() {
         if(body.op==="page")return {data:{result:{contract:"els_search_page_v1",status:"OK",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},selection_protocol:"POST_HOC_EXPLORATORY",hits:[{occurrence_id:"els:fixture-torah:"+body.term+":7:1:120",skip:7,dir:1,start:120,end:150,positions:[120,127,134]}],completion:{executed:true,returned_hits:1,total_hits:1,has_more:false,truncated:false}}}};
         if(body.op==="verify")return {data:{result:{contract:"els_occurrence_replay_v1",status:"OK",verification_state:"MATCH",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},occurrence:{occurrence_id:"els:fixture-torah:"+body.term+":"+body.skip+":"+body.dir+":"+body.start,skip:body.skip,dir:body.dir,start:body.start,positions:[body.start]}}}};
         return {error:{message:"unsupported"}};
-      }},async rpc(name,args){
+      }},from(table){return {select(){return {in(key,values){if(table!=="gematria_methods")return Promise.resolve({data:[],error:null});return Promise.resolve({data:values.map((method_key,index)=>({method_key,display_label:method_key==="ragil"?"רגיל":method_key==="miluy"?"מילוי":"סידורי",sort_order:index+1,category:"base",mathematical_family:method_key,derived_from:[],dependency_rules:[]})),error:null});}};}};},async rpc(name,args){
+        if(name==="fn_method_profile"){
+          window.__matrixCalls.push({kind:"name-methods",name,args:{has_input:Boolean(args?.p_phrase),phrase:args?.p_phrase}});
+          return {data:[{method_key:"ragil",display_label:"רגיל",computed_value:73},{method_key:"miluy",display_label:"מילוי",computed_value:101},{method_key:"siduri",display_label:"סידורי",computed_value:40}],error:null};
+        }
         if(name==="fn_all_methods"){
           window.__matrixCalls.push({kind:"methods",name,args:{has_input:Boolean(args?.p_word)}});
           return {data:{"רגיל":73,"מילוי":101,"מסתתר":55,"מהמאגר":false},error:null};
@@ -85,8 +89,9 @@ function lifeJourneyFixturePlugin() {
       export async function getOrCreateMyPersonId(){return personId();}
       export async function listFamily(){return read();}
       export async function upsertSelfProfile(personId,name,meta){const data=read(),source_ref="person:"+personId+":self";const row={source_ref,name,meta};const index=data.members.findIndex(item=>item.source_ref===source_ref);if(index<0)data.members.push(row);else data.members[index]=row;write(data);return row;}
-      export async function upsertFamilyMember(personId,sourceRef,name,meta){const data=read();const ref=sourceRef||"person:"+personId+":p:fixture-"+(data.members.filter(item=>item.source_ref.includes(":p:")).length+1);const row={source_ref:ref,name,meta};const index=data.members.findIndex(item=>item.source_ref===ref);if(index<0)data.members.push(row);else data.members[index]=row;write(data);return row;}
+      export async function upsertFamilyMember(personId,sourceRef,name,meta){const data=read();const ref=sourceRef?"person:"+personId+":p:"+sourceRef:"person:"+personId+":p:fixture-"+(data.members.filter(item=>item.source_ref.includes(":p:")).length+1);const row={source_ref:ref,name,meta};const index=data.members.findIndex(item=>item.source_ref===ref);if(index<0)data.members.push(row);else data.members[index]=row;write(data);return row;}
       export async function upsertFamilyRelation(personId,parent_ref,child_ref,relation_type){const data=read();const row={source_ref:"relation:"+(data.relations.length+1),parent_ref,child_ref,relation_type};data.relations.push(row);write(data);return row;}
+      export async function removeFamilyMember(personId,targetRef){const data=read();data.members=data.members.filter(item=>item.source_ref!==targetRef);data.relations=data.relations.filter(item=>item.parent_ref!==targetRef&&item.child_ref!==targetRef);write(data);return {ok:true,target_ref:targetRef};}
       export async function getNameMulti(name,options){window.__nameCalls.push({kind:"multi",name,options});return {input:{components:{values:{full:73,parts:{שם:73}}}},combo:{tracks_with_results:1}};}
       export async function getNameProtocol(name){window.__nameCalls.push({kind:"protocol",name});return {research_id:"fixture-name",input:{normalized:name,value:73},agents:[{output_key:"gematria",ran:true,ok:true,empty:false,ms:1,seq:1}],findings:{gematria:{regular:73}},provenance:{gematria:{fn:"fixture"}},scores:{depth:42},metatron:{headline:"סיכום בדיקה",follow_up:[]}};}
       export async function getNameMultiWithoutEls(name){window.__nameCalls.push({kind:"name_lab",name,options:{skip_els:"1"}});return {tracks_with_results:1,tracks:[{id:"variants",status:"ok",data:[{form:"שם בדיקה",note:"fixture"}]},{id:"els",status:"skipped",ran:false,count:0}]};}
@@ -204,11 +209,17 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByRole("button", { name: "עדכן וחבר מחדש" }).waitFor();
     assert.equal(await page.evaluate(() => window.__matrixCalls.length), 0, "saving a Person does not start research automatically");
     await page.getByRole("button", { name: "פתח את המחקר שלי" }).first().click();
+    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByText("מסר מנורמל · מבוסס תוצאות מנוע", { exact: true }).waitFor();
+    assert.equal(await page.locator(".person-journey-expression-matrix article").count(), 3);
+    assert.equal(await page.evaluate(() => window.__matrixCalls.filter(call => call.kind === "name-methods").length), 3);
+    assert.equal(await page.evaluate(() => window.__matrixCalls.filter(call => call.kind === "relation").length), 3);
+    await page.getByRole("button", { name: "המשך למטריצת השם והתאריך" }).click();
     await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
     await page.getByRole("heading", { name: "מה המטריצה מראה עכשיו" }).waitFor();
     assert.equal(await page.locator(".person-journey-expression-matrix article").count(), 8);
     assert.equal(await page.evaluate(() => window.__matrixCalls.filter(call => call.kind === "methods").length), 8);
-    assert.equal(await page.evaluate(() => window.__matrixCalls.filter(call => call.kind === "relation").length), 28);
+    assert.equal(await page.evaluate(() => window.__matrixCalls.filter(call => call.kind === "relation").length), 31);
     assert.equal(await page.getByText("רשימות הגימטריה המלאות", { exact: true }).count(), 1);
     assert.equal(await page.locator(".person-journey-reflection-cards").count(), 0, "no cards are mounted in Life Journey");
     await page.getByRole("button", { name: "סיים וחזור למסע החיים" }).click();
@@ -221,6 +232,20 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await family.getByLabel("הקשר אליי").selectOption("child_of_me");
     await family.getByRole("button", { name: "הוסף למסע" }).click();
     await family.locator(".person-journey-family-list article strong", { hasText: "ילד בדיקה" }).waitFor();
+    const childMemberCard = family.locator(".person-journey-family-list article", { hasText: "ילד בדיקה" });
+    await childMemberCard.getByRole("button", { name: "עריכה" }).click();
+    assert.equal(await family.getByLabel("שם בן/בת משפחה").inputValue(), "ילד בדיקה");
+    await family.getByLabel("מקום לידה").fill("יישוב מעודכן");
+    await family.getByRole("button", { name: "שמור שינויים" }).click();
+    await childMemberCard.getByText("מקום לידה · יישוב מעודכן").waitFor();
+
+    await family.getByLabel("שם בן/בת משפחה").fill("רשומה למחיקה");
+    await family.getByRole("button", { name: "הוסף למסע" }).click();
+    const disposableCard = family.locator(".person-journey-family-list article", { hasText: "רשומה למחיקה" });
+    await disposableCard.waitFor();
+    page.once("dialog", dialog => dialog.accept());
+    await disposableCard.getByRole("button", { name: "מחיקה" }).click();
+    await disposableCard.waitFor({ state: "detached" });
     await family.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     await family.getByRole("heading", { name: "אותו אדם, גם כשנפתח חשבון נפרד" }).waitFor();
     assert.ok(await family.getByText("זהות משפחתית · חשבון עתידי אפשרי").count() >= 1);
@@ -283,14 +308,14 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.deepEqual(await birthTimeline.locator("li strong").allTextContents(), ["הורה בדיקה משפחה", "ילד בדיקה"]);
     assert.equal(await birthTimeline.getByText("י״א בתשרי").count(), 2);
     assert.equal(await birthTimeline.getByText("מקום לידה · עיר בדיקה").count(), 1);
-    assert.equal(await birthTimeline.getByText("מקום לידה · יישוב בדיקה").count(), 1);
+    assert.equal(await birthTimeline.getByText("מקום לידה · יישוב מעודכן").count(), 1);
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "select-all remains navigation context only");
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), false, "family names are not researched by selection");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), false, "family dates are not researched by selection");
     await family.getByRole("button", { name: "חקור 2 אנשים יחד" }).click();
     await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
     await family.locator(".person-journey-family-shared", { hasText: "2 אנשים" }).waitFor();
-    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "gematria" && call.name === "ילד בדיקה")), true, "explicit family research includes the selected child through canonical Gematria");
+    assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "ילד בדיקה")), true, "explicit family research includes the selected child through the canonical method profile");
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab")), false, "Life Journey never calls NameLab");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");
@@ -329,6 +354,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
 
     await page.setViewportSize({ width: 390, height: 900 });
     await page.getByRole("button", { name: "פתח את המחקר שלי" }).first().click();
+    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByRole("button", { name: "המשך למטריצת השם והתאריך" }).click();
     await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
     await page.getByRole("heading", { name: "מה המטריצה מראה עכשיו" }).waitFor();
     assert.equal(new URL(page.url()).search, "");
@@ -368,6 +395,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
     await page.getByRole("button", { name: "פתח את המחקר שלי" }).first().click();
+    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByRole("button", { name: "המשך למטריצת השם והתאריך" }).click();
     await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
     await page.reload();
     await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
@@ -383,7 +412,9 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const childCard = family.locator(".person-journey-family-list article", { hasText: "ילד בדיקה" });
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), false, "refresh preserves selection but never replays family research automatically");
     const elsCallsBefore = await page.evaluate(() => window.__elsCalls.length);
-    await childCard.getByRole("button", { name: "פתח מחקר", exact: true }).click();
+    await childCard.getByRole("button", { name: "פתח מחקר שם", exact: true }).click();
+    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByRole("button", { name: "המשך למטריצת השם והתאריך" }).click();
     await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
     await page.getByRole("heading", { name: "מה המטריצה מראה עכשיו" }).waitFor();
     await page.locator(".person-journey-capability-summary").getByText("י״א בתשרי תשפ״ז", { exact: true }).waitFor();
@@ -440,14 +471,15 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(JSON.stringify(privacy.telemetry).includes("ילד בדיקה"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("עיר בדיקה"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("יישוב בדיקה"), false);
+    assert.equal(JSON.stringify(privacy.telemetry).includes("יישוב מעודכן"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("child@example.test"), false);
     assert.equal(privacy.ledger.members.length, 2);
     assert.equal(privacy.ledger.relations.length, 1);
     assert.equal(privacy.ledger.members.find(member => member.source_ref.endsWith(":self"))?.meta?.birth_place, "עיר בדיקה");
-    assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.birth_place, "יישוב בדיקה");
+    assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.birth_place, "יישוב מעודכן");
     assert.ok(privacy.hintReads.every(call => call.options?.fallbackLocal === false));
     assert.equal(privacy.storageValues.some(value => String(value).includes(invitationToken)), false);
-    for (const privateValue of ["הורה בדיקה", "ילד בדיקה", "1990-02-15", "2020-03-04", "עיר בדיקה", "יישוב בדיקה"]) {
+    for (const privateValue of ["הורה בדיקה", "ילד בדיקה", "1990-02-15", "2020-03-04", "עיר בדיקה", "יישוב בדיקה", "יישוב מעודכן"]) {
       assert.equal(JSON.stringify(privacy.context).includes(privateValue), false, `Research Context excludes ${privateValue}`);
       assert.equal(JSON.stringify(privacy.contextStorage).includes(privateValue), false, `stored Research Context excludes ${privateValue}`);
     }

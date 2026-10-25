@@ -4340,6 +4340,13 @@ export async function upsertFamilyRelation(ownerId, parentRef, childRef, relatio
   return data;
 }
 
+export async function removeFamilyMember(ownerId, targetRef) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('fn_remove_family_member', { p_owner: ownerId, p_target_ref: targetRef });
+  if (error) throw error;
+  return data;
+}
+
 export async function listFamily(ownerId) {
   if (!supabase) return { members: [], relations: [] };
   const { data, error } = await supabase.rpc('fn_list_family', { p_owner: ownerId });

@@ -7,6 +7,7 @@ import {
   getNameProtocol,
   getOrCreateMyPersonId,
   listFamily,
+  removeFamilyMember,
   supabase,
   upsertFamilyMember,
   upsertFamilyRelation,
@@ -51,6 +52,11 @@ const RELATIONS = Object.freeze([
 const clean = (value) => String(value || "").trim();
 const metaObject = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
 const joinName = (first, last) => [clean(first), clean(last)].filter(Boolean).join(" ");
+const familyMemberRawRef = (ownerId, sourceRef) => {
+  const prefix = `person:${ownerId}:p:`;
+  const value = clean(sourceRef);
+  return value.startsWith(prefix) ? value.slice(prefix.length) : "";
+};
 const MAX_FAMILY_RESEARCH_MEMBERS = 12;
 const FAMILY_CLAIM_STATUS = Object.freeze({
   pending: "ממתין לחיבור",
@@ -237,6 +243,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [newMemberBirthdate, setNewMemberBirthdate] = useState("");
   const [newMemberBirthPlace, setNewMemberBirthPlace] = useState("");
   const [newMemberRelation, setNewMemberRelation] = useState("none");
+  const [editingMemberRef, setEditingMemberRef] = useState(null);
 
   const selfRef = personId ? `person:${personId}:self` : null;
   const persistedSelf = useMemo(
@@ -391,7 +398,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       const crossProvider = createSupabasePersonalDateCrossProvider(supabase);
       const [nameResult, dateBundle] = await Promise.all([
         variant === "2029"
-          ? runLifeJourneyNameResearch(joinName(first, last), { fetchNameLab: false })
+          ? runLifeJourneyNameResearch({ firstName: first, surname: last, fullName: joinName(first, last) })
           : getNameMulti(clean(first), {
               surname: clean(last) || null,
               birthdate: null,
@@ -454,30 +461,46 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     }
   };
 
-  const addMember = async () => {
+  const resetMemberForm = useCallback(() => {
+    setNewMemberName("");
+    setNewMemberBirthdate("");
+    setNewMemberBirthPlace("");
+    setNewMemberRelation("none");
+    setEditingMemberRef(null);
+  }, []);
+
+  const startEditingMember = useCallback((member) => {
+    const profile = memberResearchProfile(member);
+    setEditingMemberRef(clean(member?.source_ref));
+    setNewMemberName(profile.fullName);
+    setNewMemberBirthdate(profile.birthdate);
+    setNewMemberBirthPlace(profile.birthPlace);
+    setNewMemberRelation("none");
+  }, []);
+
+  const saveMember = async () => {
     const name = clean(newMemberName);
     if (!personId || !name) return;
     setBusy(true);
     setErr(null);
     try {
-      const member = await upsertFamilyMember(personId, null, name, {
+      const editingRef = editingMemberRef ? familyMemberRawRef(personId, editingMemberRef) : null;
+      if (editingMemberRef && !editingRef) throw new Error("הפניית בן המשפחה אינה תקינה לעריכה.");
+      const member = await upsertFamilyMember(personId, editingRef, name, {
         birthdate_iso: clean(newMemberBirthdate) || null,
         ...(variant === "2029" ? { birth_place: clean(newMemberBirthPlace) || null } : {}),
         profile_version: "life_journey_2029_v1",
       });
       const memberRef = clean(member?.source_ref);
-      if (memberRef && selfRef && newMemberRelation !== "none") {
+      if (!editingMemberRef && memberRef && selfRef && newMemberRelation !== "none") {
         const parentRef = newMemberRelation === "parent_of_me" ? memberRef : selfRef;
         const childRef = newMemberRelation === "parent_of_me" ? selfRef : memberRef;
         await upsertFamilyRelation(personId, parentRef, childRef, "parent_of");
       }
-      setNewMemberName("");
-      setNewMemberBirthdate("");
-      setNewMemberBirthPlace("");
-      setNewMemberRelation("none");
+      resetMemberForm();
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
-      track("journey_person", null, "add_member");
+      track("journey_person", null, editingMemberRef ? "edit_member" : "add_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
     } finally {
@@ -704,6 +727,28 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     commitFamilySelection(nextRefs);
   }, [commitFamilySelection, selectedFamilyRefs]);
 
+  const deleteMember = useCallback(async (member) => {
+    const targetRef = clean(member?.source_ref);
+    if (!personId || !targetRef) return;
+    const confirmed = window.confirm(`למחוק את ${clean(member?.name) || "בן המשפחה"} ממסע החיים? קשרים משפחתיים והזמנה ממתינה יוסרו גם הם.`);
+    if (!confirmed) return;
+    setBusy(true);
+    setErr(null);
+    try {
+      await removeFamilyMember(personId, targetRef);
+      commitFamilySelection(selectedFamilyRefs.filter(ref => ref !== targetRef));
+      if (editingMemberRef === targetRef) resetMemberForm();
+      await refresh(personId);
+      await refreshFamilyClaims();
+      setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
+      track("journey_person", null, "remove_member");
+    } catch (error) {
+      setErr(personJourneyErrorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  }, [commitFamilySelection, editingMemberRef, personId, refresh, refreshFamilyClaims, resetMemberForm, selectedFamilyRefs]);
+
   const runSelectedFamilyResearch = useCallback(async () => {
     if (!user) return;
     const selectedSet = new Set(selectedFamilyRefs);
@@ -734,7 +779,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             : null;
           const [nameResult, dateBundle] = await Promise.all([
             variant === "2029"
-              ? runLifeJourneyNameResearch(profile.fullName, { fetchNameLab: false })
+              ? runLifeJourneyNameResearch({ firstName: profile.first, surname: profile.last, fullName: profile.fullName })
               : getNameProtocol(profile.fullName),
             profile.birthdate
               ? runPersonalDateResearch({
@@ -789,18 +834,19 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const selectedMemberRef = clean(research.context?.dimensions?.lifeJourneyMemberRef);
   const selectedMember = members.find(member => member.source_ref === selectedMemberRef) || null;
   const selectedName = clean(selectedMember?.name);
-  const selectedMemberMeta = metaObject(selectedMember?.meta);
-  const selectedProfile = selectedMember ? {
-    name: selectedName || clean(selectedMember.name),
-    firstName: clean(selectedMemberMeta.first_name),
-    surname: clean(selectedMemberMeta.surname),
-    birthdate: clean(selectedMemberMeta.birthdate_iso),
+  const selectedResearchProfile = selectedMember ? memberResearchProfile(selectedMember) : null;
+  const selectedProfile = selectedResearchProfile ? {
+    name: selectedResearchProfile.fullName,
+    firstName: selectedResearchProfile.first,
+    surname: selectedResearchProfile.last,
+    birthdate: selectedResearchProfile.birthdate,
   } : null;
 
   if (activeView === "name" && selectedName && CapabilitySurface) {
     return <CapabilitySurface
       view="name"
       name={selectedName}
+      profile={selectedProfile}
       personRef={selfRef}
       memberRef={selectedMemberRef}
       onContinue={() => continueSelectedCapability("date")}
@@ -869,8 +915,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         </button>
         {variant === "2029" && persistedSelf ? <button
           type="button"
-          disabled={busy || !clean(birthdate)}
-          onClick={() => openCapability(persistedSelf, "date")}
+          disabled={busy}
+          onClick={() => openCapability(persistedSelf, "name")}
         >פתח את המחקר שלי</button> : null}
         <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
       </div>
@@ -879,7 +925,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     <section className="person-journey-panel" data-experience-capability="life-journey-first-findings">
       <div className="person-journey-section-head">
         <div><small>02</small><h2>החיבורים הראשונים</h2></div>
-        <span>{variant === "2029" ? (persistedSelf && clean(birthdate) ? "מוכן למחקר" : "ממתין לשם ותאריך") : analysis.state === "ready" ? "מנועים חיים" : "ממתין לקלט"}</span>
+        <span>{variant === "2029" ? (persistedSelf ? "מוכן למחקר השם" : "ממתין לשם") : analysis.state === "ready" ? "מנועים חיים" : "ממתין לקלט"}</span>
       </div>
 
       {variant === "2029" ? <article className="person-journey-research-entry">
@@ -891,8 +937,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         <button
           type="button"
           className="person-journey-primary"
-          disabled={busy || !persistedSelf || !clean(birthdate)}
-          onClick={() => openCapability(persistedSelf, "date")}
+          disabled={busy || !persistedSelf}
+          onClick={() => openCapability(persistedSelf, "name")}
         >פתח את המחקר שלי</button>
       </article> : null}
 
@@ -1199,13 +1245,16 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
               <small className="person-journey-member-source">מקור: הוזן במסע הזה · זהות ניתנת לחיבור לחשבון</small>
             </div>
             {variant === "2029" ? <div className="person-journey-member-actions">
-              <button type="button" disabled={busy || !clean(memberMeta.birthdate_iso)} onClick={() => openCapability(member, "date")}>פתח מחקר</button>
+              <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>פתח מחקר שם</button>
+              <button type="button" disabled={busy} onClick={() => startEditingMember(member)}>עריכה</button>
+              <button type="button" disabled={busy} onClick={() => deleteMember(member)}>מחיקה</button>
             </div> : <span>פרטי</span>}
           </article>;
         })}
       </div> : <div className="person-journey-empty">עוד לא הוספת בני משפחה. אפשר להוסיף שם ותאריך, ולקשור כהורה או ילד/ה כשזה ידוע.</div>}
 
       <div className="person-journey-family-form">
+        {editingMemberRef ? <div className="person-journey-note" role="status">עריכת בן משפחה קיים. הקשר המשפחתי נשמר ללא שינוי.</div> : null}
         <label>
           <span>שם בן/בת משפחה</span>
           <input value={newMemberName} onChange={(event) => setNewMemberName(event.target.value)} placeholder="שם מלא" dir="rtl" />
@@ -1220,11 +1269,12 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         </label> : null}
         <label>
           <span>הקשר אליי</span>
-          <select value={newMemberRelation} onChange={(event) => setNewMemberRelation(event.target.value)}>
+          <select value={newMemberRelation} disabled={Boolean(editingMemberRef)} onChange={(event) => setNewMemberRelation(event.target.value)}>
             {RELATIONS.map((relation) => <option key={relation.id} value={relation.id}>{relation.label}</option>)}
           </select>
         </label>
-        <button type="button" disabled={busy || !clean(newMemberName)} onClick={addMember}>הוסף למסע</button>
+        <button type="button" disabled={busy || !clean(newMemberName)} onClick={saveMember}>{editingMemberRef ? "שמור שינויים" : "הוסף למסע"}</button>
+        {editingMemberRef ? <button type="button" disabled={busy} onClick={resetMemberForm}>ביטול עריכה</button> : null}
       </div>
 
       {relations.length ? <div className="person-journey-relations" aria-label="קשרים משפחתיים">

@@ -5,7 +5,7 @@ import { runLifeJourneyNameResearch } from "../../lib/research/lifeJourneyNameRe
 import { buildLifeJourneyFindingTraversalPatch } from "../../lib/research/lifeJourneyPersonContext.js";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 
-export default function LifeJourneyName2029({ name, personRef, memberRef, onContinue, onReturn }) {
+export default function LifeJourneyName2029({ name, profile, personRef, memberRef, onContinue, onReturn }) {
   const navigate = useNavigate();
   const research = useResearch();
   const [state, setState] = useState({ phase: "loading", result: null, error: null });
@@ -13,7 +13,11 @@ export default function LifeJourneyName2029({ name, personRef, memberRef, onCont
   useEffect(() => {
     let alive = true;
     setState({ phase: "loading", result: null, error: null });
-    runLifeJourneyNameResearch(name, { fetchNameLab: false })
+    runLifeJourneyNameResearch({
+      firstName: profile?.firstName,
+      surname: profile?.surname,
+      fullName: profile?.name || name,
+    })
       .then(result => {
         if (!alive) return;
         setState(result
@@ -24,7 +28,7 @@ export default function LifeJourneyName2029({ name, personRef, memberRef, onCont
         if (alive) setState({ phase: "error", result: null, error: "מחקר השם אינו זמין כרגע." });
       });
     return () => { alive = false; };
-  }, [name]);
+  }, [name, profile?.firstName, profile?.name, profile?.surname]);
 
   const openFinding = (finding) => {
     const patch = buildLifeJourneyFindingTraversalPatch(research.context, {
@@ -76,27 +80,39 @@ export default function LifeJourneyName2029({ name, personRef, memberRef, onCont
       /> : null}
       {state.error ? <div className="person-journey-error" role="alert">{state.error}</div> : null}
       {state.phase === "ready" && result ? <>
+        <article className="person-journey-research-message" aria-label="מסר מחקר השם">
+          <small>מסר מנורמל · מבוסס תוצאות מנוע</small>
+          <h3>{result.rawName}</h3>
+          <p>{result.message}</p>
+          <span>המסר נבנה פנימית משיטות קנוניות ומקבוצות שיטה עצמאיות. אין כאן קלפים, ELS או ניתוח אישיות.</span>
+        </article>
+
         <div className="person-journey-capability-summary person-journey-name-summary" aria-label="סיכום מסע השם">
           <article><small>ערך רגיל</small><strong>{result.regularValue ?? "—"}</strong></article>
-          <article><small>שיטות שחזרו</small><strong>{result.methodFindings.length}</strong></article>
+          <article><small>שיטות קנוניות</small><strong>{result.coverage.methodCount}</strong></article>
+          <article><small>רכיבי שם</small><strong>{result.coverage.expressionCount}</strong></article>
         </div>
 
-        <div className="person-journey-crosses" aria-label="ערכי השם לפי שיטה">
-          <small>ערכי מנוע קנוניים</small>
-          {result.methodFindings.length ? <div>{result.methodFindings.map(finding => <button
-            type="button"
-            className="person-journey-finding-link"
-            key={finding.id}
-            onClick={() => openFinding(finding)}
-            aria-label={`פתח ${finding.methodLabel} ${finding.value} בדף המספר`}
-          ><span>{finding.methodLabel}</span> <strong>{finding.value}</strong></button>)}</div>
-            : <p>המנוע הקנוני לא החזיר ערכים. לא חושב ערך חלופי בדפדפן.</p>}
+        <section className="person-journey-expression-matrix" aria-label="רשימות הגימטריה של רכיבי השם">
+          <header><div><small>כל השיטות הזמינות</small><h3>רשימות הגימטריה</h3></div><span>{result.coverage.methodValueCount} ערכי מנוע</span></header>
+          <div>{result.expressions.map(item => <article key={item.id}>
+            <small>{item.label}</small>
+            <strong>{item.text}</strong>
+            <span>{item.methods.length} שיטות</span>
+            <div>{item.methods.map(finding => <button
+              type="button"
+              className="person-journey-finding-link"
+              key={finding.id}
+              onClick={() => openFinding(finding)}
+              aria-label={`פתח ${finding.methodLabel} ${finding.value} בדף המספר`}
+            >{finding.methodLabel} <strong>{finding.value}</strong></button>)}</div>
+          </article>)}</div>
           <p>לחיצה על מספר פותחת את דף המספר הקיים ומחזירה אחר כך בדיוק למסע החיים.</p>
-        </div>
+        </section>
 
         <div className="person-journey-actions">
-          <button type="button" className="person-journey-primary" onClick={onContinue}>המשך למטריצת השם והתאריך</button>
-          <small>המסר נוצר בשלב הבא רק לאחר פירוק התאריך והצלבת תוצאות מנוע מנורמלות.</small>
+          <button type="button" className="person-journey-primary" disabled={!profile?.birthdate} onClick={onContinue}>המשך למטריצת השם והתאריך</button>
+          <small>{profile?.birthdate ? "השלב הבא מפרק את התאריך ומצליב אותו עם השם." : "כדי להמשיך למטריצת התאריך, חזרו למסע והשלימו תאריך לידה."}</small>
         </div>
       </> : null}
     </section>
