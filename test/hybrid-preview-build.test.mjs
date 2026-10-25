@@ -59,7 +59,7 @@ test("local server routes candidate paths to 2029 and unknown paths to Legacy", 
     ["/", "2029", 'content="2029"'],
     ["/world", "2029", 'content="2029"'],
     ["/post/example", "2029", 'content="2029"'],
-    ["/code", "legacy", 'content="legacy"'],
+    ["/code", "2029", 'content="2029"'],
     ["/not-yet-mapped", "legacy", 'content="legacy"'],
   ]) {
     const response = await fetch(`${base}${path}`);
