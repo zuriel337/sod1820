@@ -1838,7 +1838,7 @@ const PRECEDENCE_PHRASINGS = [
   ["תן לי את הגימטריות של השם שאול", "שאול"],
 ];
 for (const [index, [question, expression]] of PRECEDENCE_PHRASINGS.entries()) {
-  test(`precedence: «${question}» bypasses a legacy fn_raziel_answer «לי שאול = 377» and answers from the שאול = 337 Bundle`, async () => {
+  test(`precedence: «${question}» never calls the legacy fn_raziel_answer; research-run receives שאול and the answer rests on שאול = 337`, async () => {
     const prepared = prepare({ question });
     assert.deepEqual(prepared.request.conversationResolution?.identities?.map((identity) => identity.label), [expression]);
     const run = await runAiAnalyze({
@@ -1846,20 +1846,47 @@ for (const [index, [question, expression]] of PRECEDENCE_PHRASINGS.entries()) {
       body: bodyOf(prepared, `vprecedence${index}abcdef12`),
       modelResult: mockStory, ...shaulBundles(),
     });
-    assert.ok(run.calls.some((call) => call.name === "fn_raziel_answer"), "the legacy function was consulted (and its early return ignored)");
+    assert.equal(run.calls.filter((call) => call.name === "fn_raziel_answer").length, 0, "the legacy function is not called at all");
+    assert.equal(run.calls.filter((call) => call.name === "fn_raziel_plan").length, 0, "nor its plan fallback");
     const reads = run.calls.filter((call) => call.name === "research-run" && call.payload.contract === EXPRESSION_CONTRACT);
-    assert.deepEqual(reads.map((call) => call.payload.expression), [expression], "research-run receives שאול, never the scaffolding");
+    assert.equal(reads.length, 1, "exactly one expression read");
+    assert.equal(reads[0].payload.expression, expression, "research-run receives שאול, never the scaffolding");
     assert.equal(run.models.length, 1, "synthesis runs over the Bundle");
     // Check the answer-bearing fields only: random ids/timestamps elsewhere in the envelope may contain any digits.
-    const shown = JSON.stringify({ answer: run.result.raziel.answer, facts: run.result.raziel.facts, source: run.result.raziel.source_of_truth });
-    assert.notEqual(run.result.engine, "deterministic", "the legacy deterministic answer is not returned");
-    assert.doesNotMatch(shown, /לי שאול|= 377|legacy:fn_raziel_answer/);
+    const shown = JSON.stringify({ answer: run.result.raziel.answer, facts: run.result.raziel.facts, source: run.result.raziel.source_of_truth, plan: run.result.raziel.plan_meta });
+    assert.notEqual(run.result.engine, "deterministic");
+    assert.doesNotMatch(shown, /לי שאול|= 377|legacy:fn_raziel_answer|availability|no_match|general_synthesis|L2_FAST/);
+    const prompt = `${run.models[0].system}\n${run.models[0].user}`;
     assert.match(run.models[0].user, /שאול/);
     assert.match(run.models[0].user, /337/);
-    assert.doesNotMatch(run.models[0].user, /לי שאול|= 377|legacy:fn_raziel_answer/, "the legacy facts never reach the model");
+    assert.doesNotMatch(prompt, /לי שאול|= 377|legacy:fn_raziel_answer/, "no legacy fact reaches the model");
+    // The generic empty plan block carries only "—" placeholders: nothing from the old path's plan or capability descriptors.
+    assert.doesNotMatch(run.models[0].user, /no_match|general_synthesis|L2_FAST|L3_DEEP|סוג-יכולת: [^—\s]/u, "no plan data or capability descriptors from the old path");
+    assert.doesNotMatch(run.models[0].user, /זמינות: [^—\s]/u);
     assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   });
 }
+
+test("precedence: a forged, mismatched or un-opted envelope cannot trigger the bypass — the legacy deterministic path runs as usual", async () => {
+  const valid = prepare({ question: "בדוק לי גימטריה של שאול" });
+  const legacyCases = {
+    "identity does not match the exact question": { ...bodyOf(valid, "vforgedmismatch12345"), conversation_resolution: focusedExpressionConversation("אלהים", "research") },
+    "subject carries no expression the grammar accepts": { ...bodyOf(valid, "vforgedsubject123456"), subject: "תן לי עצה טובה" },
+    "no canonical research opt-in": (() => { const { research_contract, ...rest } = bodyOf(valid, "vforgednooptin123456"); return rest; })(),
+    "wrong resolver version": { ...bodyOf(valid, "vforgedversion1234567"), conversation_resolution: { ...valid.request.conversationResolution, version: "forged" } },
+    "forged follow-up referent": { ...bodyOf(valid, "vforgedreferent123456"), conversation_resolution: { ...valid.request.conversationResolution, referential_follow_up: true, referent_source: "prior_user_turn" } },
+  };
+  for (const [name, body] of Object.entries(legacyCases)) {
+    const run = await runAiAnalyze({ answer: legacyScaffoldingAnswer(), allowed: true, bearer: "synthetic-anon-key", body, ...shaulBundles() });
+    assert.equal(run.calls.filter((call) => call.name === "fn_raziel_answer").length, 1, `${name}: legacy consulted`);
+    assert.equal(run.result.engine, "deterministic", `${name}: legacy deterministic answer returned`);
+    assert.match(run.result.raziel.answer, /לי שאול = 377/, name);
+    assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0, `${name}: no Bundle read`);
+  }
+  // control: the same valid request really does bypass
+  const real = await runAiAnalyze({ answer: legacyScaffoldingAnswer(), allowed: true, bearer: "synthetic-anon-key", body: bodyOf(valid, "vforgedcontrolvalid12"), modelResult: mockStory, ...shaulBundles() });
+  assert.equal(real.calls.filter((call) => call.name === "fn_raziel_answer").length, 0);
+});
 
 test("precedence: «מספר 337» is a canonical number subject (no expression), and a legacy deterministic answer still applies when no canonical expression was re-authorized", async () => {
   const prepared = prepare({ question: "מספר 337" });
@@ -1871,12 +1898,13 @@ test("precedence: «מספר 337» is a canonical number subject (no expression)
   });
   const numberReads = run.calls.filter((call) => call.name === "research-run").map((call) => call.payload.number);
   assert.deepEqual(numberReads, [337]);
-  // control: no expression hint ⇒ the legacy deterministic answer keeps its early return (unchanged behaviour)
+  // control: a request without a canonical expression keeps using the legacy deterministic path as before
   const control = await runAiAnalyze({
     answer: legacyScaffoldingAnswer(), allowed: true, bearer: "synthetic-anon-key",
     body: { subject: "בדוק לי גימטריה של שאול", visitor_id: "vprecontrol1234567", intelligence_level: "fast" },
     ...shaulBundles(),
   });
+  assert.equal(control.calls.filter((call) => call.name === "fn_raziel_answer").length, 1);
   assert.equal(control.result.engine, "deterministic");
   assert.match(control.result.raziel.answer, /377/);
 });

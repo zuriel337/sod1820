@@ -2521,24 +2521,25 @@ Deno.serve(async (req: Request) => {
       // straight into deterministic gematria/ELS routing — the visual read is a derivative and numeric research is user-driven later.
       let rSource: { ok: boolean; text: string; mime: string | null; reason: string | null } | null = null;
       if (rTrusted?.media && rTrusted.uid) rSource = await razielSourceStage(rTrusted.uid, rTrusted.media);
+      // Precedence: a 2029 canonical expression the SERVER re-authorized against the exact question (rExpressionCrossingHint is null for any
+      // forged or non-matching envelope, and for requests without the canonical research opt-in) owns the turn. The legacy fn_raziel_answer
+      // is not called at all — no deterministic early return, tool facts, plan block or descriptors from the old path — and the turn goes
+      // straight to research-run and the Result Bundle.
+      const rLegacyDeterministicSkipped = rCanonicalResearchOptIn && !!rExpressionCrossingHint;
       try {
-        if (rSubject && SB_URL && SB_SVC && !rTrusted?.media) {
+        if (rSubject && SB_URL && SB_SVC && !rTrusted?.media && !rLegacyDeterministicSkipped) {
           const detR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_answer`, {
             method: "POST", headers: svcHeaders(),
             body: JSON.stringify({ p_question: rSubject, p_context_type: rCtxType, p_user_ref: rVerifiedRef, p_visitor: String(body?.visitor_id || "") }),
           });
           if (detR.ok) {
             const det = await detR.json();
-            // Precedence: a 2029 canonical expression the SERVER re-authorized (rExpressionCrossingHint) owns the answer. The legacy
-            // fn_raziel_answer result — however confident (e.g. it may have read the command scaffolding as the expression) — must never
-            // early-return a deterministic answer or feed tool facts; the turn continues through research-run and the Result Bundle.
-            const rLegacyDetBypassed = rCanonicalResearchOptIn && !!rExpressionCrossingHint;
             rPlanMeta = razielPlanMeta(det);
             rOpDesc = razielOperatorDescriptor(det, tier);   // admin-verified + flag-enabled + allowlisted capability only
             rCoordDesc = razielCoordDescriptor(det, tier);   // Phase K: admin-verified coordination/attention capability only
             rPersDesc = rTrusted ? null : razielPersonalDescriptor(det, tier, rVerifiedRef);   // Phase L: authenticated + verified uid + enabled + allowlisted capability only
-            rToolRes = rLegacyDetBypassed ? null : razielToolResearch(det);               // Phase E: deterministic Gematria+ELS already executed in the DB
-            rDet = rLegacyDetBypassed ? null : det;
+            rToolRes = razielToolResearch(det);               // Phase E: deterministic Gematria+ELS already executed in the DB
+            rDet = det;
             if (!rPlanMeta && !(det && det.mode === "deterministic")) {
               // flag/disabled answer carries no plan → reuse the existing read-only fn_raziel_plan
               try {
@@ -2549,7 +2550,7 @@ Deno.serve(async (req: Request) => {
                 if (pR.ok) rPlanMeta = razielPlanMeta(await pR.json());
               } catch { /* fail-open: no plan block */ }
             }
-            if (!rLegacyDetBypassed && det && det.enabled === true && det.mode === "deterministic" && det.needs_synthesis === false) {
+            if (det && det.enabled === true && det.mode === "deterministic" && det.needs_synthesis === false) {
               const dFacts = Array.isArray(det.facts) ? det.facts.map((f: any) => ({ label: f.label, value: f.value })) : [];
               return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: det.answer || "",
                 facts: dFacts, suggested_paths: [], follow_up_question: null, continue_wa: true,
@@ -2559,7 +2560,7 @@ Deno.serve(async (req: Request) => {
                 engine: "deterministic", model: "none", intelligence_level: "deterministic" });
             }
             // Phase F: unsupported source phrase / no clean subject → fail closed with the deterministic clarification (no model, no guess).
-            if (!rLegacyDetBypassed && det && det.enabled === true && det.mode === "needs_clarification" && det.intent === "tanakh_source" && det.needs_synthesis === false) {
+            if (det && det.enabled === true && det.mode === "needs_clarification" && det.intent === "tanakh_source" && det.needs_synthesis === false) {
               const msg = [det.reason, det.recommendation].filter((s: unknown) => typeof s === "string" && s).join(" ");
               return rzJson({ raziel: { v: 1, agent: "raziel", context: null, greeting: null, answer: msg,
                 facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true,
