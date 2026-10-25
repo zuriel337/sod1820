@@ -35,7 +35,7 @@ server = ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Files, director
 threading.Thread(target=server.serve_forever, daemon=True).start()
 BASE = 'http://127.0.0.1:' + str(server.server_port)
 CACHE = {}
-report = {'cases': [], 'errors': [], 'unexpected_writes': [], 'blocked_telemetry': {}, 'mode': 'real public data'}
+report = {'cases': [], 'errors': [], 'unexpected_writes': [], 'blocked_telemetry': {}, 'mode': 'synthetic follow-center fixtures; public frame reads; external writes blocked'}
 
 
 def forward(req):
