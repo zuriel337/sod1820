@@ -6,7 +6,7 @@ import "./followCenter2029.css";
 
 // Presentational 2029 personal update center. Everything arrives through the view model and callbacks:
 // there is no store, sender, preference writer or second follow implementation in this file.
-const STATE_TEXT = { done: "הושלם", idle: "עוד לא", needed: "נדרש", unavailable: "לא פעיל" };
+const STATE_TEXT = { done: "הושלם", idle: "עוד לא", needed: "נדרש", unavailable: "לא פעיל", loading: "בטעינה", unknown: "לא ידוע" };
 const withReturn = (href, returnHref) => {
   if (!href) return null;
   if (!returnHref) return href;

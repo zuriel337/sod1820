@@ -18,8 +18,14 @@ import EmailVerify from "./EmailVerify.jsx";
 //   paletteMode: כפיית פלטה ('light'/'dark') כדי להתאים לצבע-הסביבה (למשל בתחתית פוסט נעול-כהה) — ברירת-מחדל: פלטת-האתר.
 //   icon: אייקון מוביל (ברירת-מחדל 🔔; בתחתית-פוסט 📁/✍️ כדי להבחין קטגוריה מכתב) · ghost: מצב-מתאר (מילוי שקוף) להבחנה ויזואלית בין שתי פעולות סמוכות.
 const blankView = (key) => ({ key, following: false, busy: false, justFollowed: false, showReg: false, pushOn: false, pushMsg: "", loadFailed: false, toggleError: "", known: false });
+// One controller, with instance-scoped I/O. A supplied adapter never falls back to live I/O.
+const DEFAULT_FOLLOW_IO = Object.freeze({
+  read: getNotificationPrefs,
+  toggle: watchToggle,
+  track: (detail) => trackConversion("follow", detail),
+});
 
-export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null }) {
+export default function WatchButton({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null, followIO = null, onVerifyIdentity = null }) {
   const auto = usePalette();
   const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();
@@ -27,7 +33,10 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
   const pushReady = PUSH_CONFIGURED && pushSupported();
   const idObj = user?.id ? { userId: user.id } : { visitorId: getVisitorId() };
   // Principal+topic scope: results that resolve after the account or topic changed must not touch the new scope.
-  const scopeKey = `${user?.id || "guest"}|${topic || ""}`;
+  const io = followIO ?? DEFAULT_FOLLOW_IO;
+  const ioScope = useRef({ io, version: 0 });
+  if (ioScope.current.io !== io) ioScope.current = { io, version: ioScope.current.version + 1 };
+  const scopeKey = `${user?.id || "guest"}|${topic || ""}|${ioScope.current.version}`;
   const scopeRef = useRef(scopeKey);
   const busyRef = useRef(false);
   const loadSeqRef = useRef(0);
@@ -50,14 +59,14 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     patch(key, { loadFailed: false });
     // The initial/verify read must not overwrite a toggle that started or completed after it was requested.
     const current = () => scopeRef.current === key && loadSeqRef.current === seq && mutationRef.current === mutation;
-    getNotificationPrefs(idObj)
+    Promise.resolve().then(() => io.read(idObj))
       .then(p => {
         if (!current()) return;
         patch(key, { following: includesFollowSubject(p?.topics, topic), pushOn: !!p?.channels?.includes("push"), known: true, loadFailed: false });
       })
       .catch(() => { if (current()) patch(key, { loadFailed: true }); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topic, user?.id]);
+  }, [topic, user?.id, io]);
   useEffect(() => { load(); }, [load]);
 
   async function toggle() {
@@ -69,7 +78,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
     const next = !following;
     patch(key, { busy: true, toggleError: "", following: next });
     let ack = null;
-    try { ack = await watchToggle(topic, source, next, user?.id ? null : getVisitorId()); } catch { ack = null; }
+    try { ack = await io.toggle(topic, source, next, user?.id ? null : getVisitorId()); } catch { ack = null; }
     if (scopeRef.current !== key) return; // scope changed mid-flight; the scope effect already cleared busy
     busyRef.current = false;
     mutationRef.current += 1;
@@ -80,7 +89,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
       return;
     }
     patch(key, next ? { busy: false, justFollowed: true } : { busy: false, justFollowed: false });
-    if (next) { try { trackConversion("follow", { source, topic }); } catch { /* noop */ } }
+    if (next) { try { io.track?.({ source, topic }); } catch { /* noop */ } }
   }
 
   async function turnOnPush() {
@@ -184,7 +193,7 @@ export default function WatchButton({ topic, source = "unknown", explainer = "",
         <>
           <div style={{ color: gold, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔑 שמור את המעקב שלך</div>
           <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, margin: "3px 0 9px" }}>אמת את החשבון כדי לקשור את המעקב לזהות שלך. ערוצי מייל/Push נבחרים בנפרד ורק בהסכמה.</div>
-          <button onClick={() => patch(scopeKey, { showReg: true })} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ אימות חשבון</button>
+          <button onClick={() => typeof onVerifyIdentity === "function" ? onVerifyIdentity() : patch(scopeKey, { showReg: true })} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ אימות חשבון</button>
         </>
       ) : (
         <EmailVerify source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => patch(scopeKey, { showReg: false, justFollowed: false })} />

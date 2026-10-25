@@ -6,11 +6,18 @@ const note = (over = {}) => ({ id: "n1", title: "כותרת", body: "גוף", li
 // A failed or loading read is never an empty list.
 for (const state of ["loading", "unavailable", "bogus"]) {
   const model = buildFollowCenterModel({ principal: "registered", notifications: { state, items: [note()] }, follows: { state, topics: ["number:1820"] } });
-  assert.equal(model.updates.items.length, 0, state); assert.notEqual(model.updates.state, "ready"); assert.equal(model.following.count, 0);
+  assert.equal(model.updates.items.length, 0, state); assert.notEqual(model.updates.state, "ready");
+  assert.equal(model.following.count, null, "an unmeasured follow count is not zero");
+  assert.equal(model.updates.unread, null, "an unavailable inbox has no measured unread count");
+  assert.equal(model.lifecycle[0].state, state === "loading" ? "loading" : "unknown");
+  assert.notEqual(model.lifecycle[0].note, "עוד לא בחרת", "failed/loading reads never claim that no follows were selected");
+  assert.equal(model.lifecycle[2].state, "unknown");
 }
 // Known empty is a ready state with zero items.
 const empty = buildFollowCenterModel({ principal: "registered", notifications: { state: "ready", items: [] }, follows: { state: "ready", topics: [] } });
 assert.equal(empty.updates.state, "ready"); assert.equal(empty.following.state, "ready"); assert.equal(empty.following.count, 0);
+assert.equal(empty.updates.unread, 0); assert.equal(empty.lifecycle[0].state, "idle");
+assert.equal(buildFollowCenterModel().lifecycle[1].state, "loading", "an unresolved principal is not a known guest");
 
 // Why-received comes only from source_topic; absent means no invented reason; unsafe links are dropped.
 const ready = buildFollowCenterModel({ principal: "registered",
@@ -19,6 +26,12 @@ const ready = buildFollowCenterModel({ principal: "registered",
 assert.equal(ready.updates.items[0].why.kind, "כתב"); assert.equal(ready.updates.items[1].why, null);
 assert.equal(ready.updates.items[1].href, null); assert.equal(ready.updates.items[2].href, null); assert.equal(ready.updates.unread, 2);
 assert.match(ready.updates.items[0].time, /·/, "outside Home a record time is the bilingual date, not relative time");
+for (const link of ["/\\evil.invalid", "/%5C%5Cevil.invalid", "/%2F%2Fevil.invalid", "/\n/evil.invalid", "/post/%00x"]) {
+  const unsafe = buildFollowCenterModel({ notifications: { state: "ready", items: [note({ link })] }, follows: { state: "ready", topics: [] } });
+  assert.equal(unsafe.updates.items[0].href, null, "browser-normalized external/control-character links are not internal targets");
+}
+assert.equal(buildFollowCenterModel({ notifications: { state: "ready", items: [note({ link: "/category/%D7%A9%D7%9D%20%D7%A0%D7%95%D7%A9%D7%90" })] } }).updates.items[0].href,
+  "/category/%D7%A9%D7%9D%20%D7%A0%D7%95%D7%A9%D7%90", "valid encoded subject names remain navigable");
 assert.deepEqual(ready.following.groups.map((group) => group.key), ["כתב", "מספר", "קטגוריה", "ערוץ"]);
 const writers = ready.following.groups[0].items;
 assert.equal(writers[0].href, "/community/researcher/yaniv-levi"); assert.equal(writers[1].href, null, "unresolved or unsafe writer links are not guessed");

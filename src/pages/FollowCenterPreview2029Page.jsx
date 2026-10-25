@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { applySeo } from "../lib/seo.js";
-import supabase from "../lib/supabase.js";
 import WatchButton from "../components/WatchButton.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import FollowCenter2029 from "../components/followCenter2029/FollowCenter2029.jsx";
@@ -29,29 +28,24 @@ const SCENARIOS = {
   push: { label: "Push זמין במכשיר", principal: "registered", device: { push: "available", pushSubscribed: false } },
 };
 
-// The canonical WatchButton is rendered for real. While this flag-gated page is mounted, only its two follow calls
-// (guest preference read and watch_toggle) and the signed-in preference read are answered with fixtures, so the control's
-// pending/confirmed states can be judged without reading or writing any real subscription. Restored on unmount.
+// Instance-local fixture I/O for the real WatchButton. No shared client or Auth method is patched.
 const SPECIMEN_TOPIC = "author:כתב לדוגמה";
-function useFixtureFollow(enabled) {
-  const [followed, setFollowed] = useState(false), [ready, setReady] = useState(false);
-  useEffect(() => {
-    if (!enabled) return undefined;
-    const { rpc, from } = supabase;
-    supabase.rpc = (name, args, ...rest) => {
-      if (name === "notification_prefs_guest_get_v1") return Promise.resolve({ data: { topics: followed ? [SPECIMEN_TOPIC] : [], channels: [] }, error: null });
-      if (name === "watch_toggle") { setFollowed(!!args?.p_on); return new Promise((resolve) => setTimeout(() => resolve({ data: { ok: true, fixture: true, following: !!args?.p_on }, error: null }), 500)); }
-      return rpc.call(supabase, name, args, ...rest);
-    };
-    supabase.from = (table, ...rest) => {
-      if (table !== "notification_prefs") return from.call(supabase, table, ...rest);
-      const query = { select: () => query, eq: () => query, maybeSingle: () => Promise.resolve({ data: { topics: followed ? [SPECIMEN_TOPIC] : [], channels: [], intensity: null, muted_until: null }, error: null }) };
-      return query;
-    };
-    setReady(true);
-    return () => { supabase.rpc = rpc; supabase.from = from; };
-  }, [enabled, followed]);
-  return ready;
+function createFixtureFollowIO(scenario) {
+  let followed = false;
+  return {
+    read: async () => {
+      if (scenario === "unavailable") throw new Error("Fixture preference read unavailable");
+      return { topics: followed ? [SPECIMEN_TOPIC] : [], channels: [] };
+    },
+    // The partial specimen intentionally has no writer: the controller must not fall back to live I/O.
+    ...(scenario === "partial" ? {} : { toggle: async (topic, source, on) => {
+      if (topic !== SPECIMEN_TOPIC) throw new Error("Unknown fixture topic");
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      followed = !!on;
+      return { ok: true, fixture: true, following: followed };
+    } }),
+    track: () => {},
+  };
 }
 
 export default function FollowCenterPreview2029Page() {
@@ -59,7 +53,9 @@ export default function FollowCenterPreview2029Page() {
   const key = new URLSearchParams(location.search).get("state");
   const scenario = SCENARIOS[key] ? key : "registered";
   const spec = SCENARIOS[scenario];
-  const fixtureReady = useFixtureFollow(true);
+  const fixtureFollowIO = useMemo(() => createFixtureFollowIO(scenario), [scenario]);
+  const [identityRequested, setIdentityRequested] = useState(false);
+  const showFixtureIdentity = () => setIdentityRequested(true);
   const [topics, setTopics] = useState(TOPICS), [pending, setPending] = useState({}), [items, setItems] = useState(UPDATES);
   useEffect(() => { applySeo({ title: "מרכז עדכונים · הדגמה", description: "מועמד חזותי עם נתוני דוגמה.", path: "/2029/preview/follow-center", noindex: true }); }, []);
   useEffect(() => { setTopics(TOPICS); setPending({}); setItems(UPDATES); }, [scenario]);
@@ -85,14 +81,15 @@ export default function FollowCenterPreview2029Page() {
     <FollowCenter2029 model={model} returnHref="/2029/preview/follow-center"
       onMarkAllRead={() => setItems((list) => list.map((item) => ({ ...item, read_at: item.read_at || ago(0) })))}
       onUnfollow={unfollow} onRetry={() => navigate(`${location.pathname}?state=registered`, { replace: true })}
-      onSignIn={() => {}} onVerifyIdentity={() => {}} />
+      onSignIn={showFixtureIdentity} onVerifyIdentity={showFixtureIdentity} />
     <section className="fcp-specimen" aria-labelledby="fcp-spec-title">
       <h2 id="fcp-spec-title">מעקב ושיתוף בדף כותב</h2>
       <p>אלה הפקדים הקנוניים עצמם, <b>WatchButton</b> למעקב ו־<b>ShareActions</b> לשיתוף. בדף הזה הקריאה והכתיבה של המעקב מוחלפות בנתוני דוגמה, כך שלחיצה אינה יוצרת מעקב אמיתי ואינה נותנת הסכמה לערוץ כלשהו.</p>
       <div className="fcp-spec-row">
-        {fixtureReady ? <WatchButton topic={SPECIMEN_TOPIC} source="follow-center-preview" label="מעקב אחרי כתב לדוגמה" heading="רוצים לדעת כשיש חדש?" explainer="עדכון כשמתפרסם תוכן חדש בדף שלו. המעקב לא מפעיל מייל או ערוץ אחר." compact /> : <p role="status">מכין את נתוני הדוגמה…</p>}
+        <WatchButton key={scenario} topic={SPECIMEN_TOPIC} source="follow-center-preview" label="מעקב אחרי כתב לדוגמה" heading="רוצים לדעת כשיש חדש?" explainer="עדכון כשמתפרסם תוכן חדש בדף שלו. המעקב לא מפעיל מייל או ערוץ אחר." compact noPush followIO={fixtureFollowIO} onVerifyIdentity={showFixtureIdentity} />
         <ShareActions type="researcher" url="https://sod1820.co.il/community/researcher/example" title="דף כותב לדוגמה" compact force />
       </div>
+      {identityRequested ? <p role="status">זהו מסלול הדגמה בלבד: לא נשלח קוד אימות ולא מתבצעת התחברות לחשבון.</p> : null}
     </section>
   </main>;
 }

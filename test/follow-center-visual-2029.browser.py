@@ -139,6 +139,10 @@ def capture(browser, state, width, theme, height, path):
 def check(browser, state, width, theme):
     tag = (state, width, theme)
     context, page = open_state(browser, state, width, theme)
+    if state in ('loading', 'unavailable'):
+        follow_step = page.locator('.fc-life li').first
+        assert follow_step.get_attribute('data-state') == ('loading' if state == 'loading' else 'unknown'), ('unmeasured lifecycle stays unknown', tag)
+        assert 'עוד לא בחרת' not in follow_step.inner_text(), ('unavailable preferences are not an empty selection', tag)
     audit(page, tag)
     text = page.locator('.fc').inner_text()
     if state == 'push':
@@ -241,6 +245,22 @@ def interaction(browser):
     watch.wait_for(timeout=15000); page.wait_for_timeout(800)
     watch.click(); spec.get_by_role('button').filter(has_text='עוקב').first.wait_for(timeout=8000)
     assert spec.locator('[aria-label="העתק קישור"]').count() == 1 and spec.locator('[aria-label="וואטסאפ"]').count() == 1, 'ShareActions renders its canonical channels'
+    spec.get_by_role('button').filter(has_text='אימות חשבון').first.click()
+    spec.get_by_role('status').filter(has_text='לא נשלח קוד אימות').wait_for()
+    assert spec.locator('input[type=email]').count() == 0, 'fixture identity action never opens a live OTP sender'
+    assert not report['unexpected_writes'], ('fixture Follow/identity emitted a live write', report['unexpected_writes'])
+    context.close()
+    context, page = open_state(browser, 'partial', 390, 'dark')
+    spec = page.locator('.fcp-specimen')
+    spec.get_by_role('button', name='מעקב אחרי כתב לדוגמה').click()
+    spec.get_by_role('alert').filter(has_text='לא קיבלנו אישור שהמעקב עודכן').wait_for()
+    assert spec.get_by_role('button', name='מעקב אחרי כתב לדוגמה').count() == 1, 'missing fixture writer never confirms a follow'
+    assert not report['unexpected_writes'], 'an incomplete I/O adapter must not fall back to live mutation'
+    context.close()
+    context, page = open_state(browser, 'unavailable', 390, 'dark')
+    spec = page.locator('.fcp-specimen')
+    spec.get_by_role('alert').wait_for()
+    assert spec.get_by_role('button', name='מעקב אחרי כתב לדוגמה').is_disabled(), 'unknown fixture preferences block mutations'
     context.close()
     context, page = open_state(browser, 'registered', 1440, 'dark', reduced='reduce')
     assert page.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")

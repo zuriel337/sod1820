@@ -13,16 +13,27 @@ const KIND_HEADINGS = { "כתב": "כותבים", "מספר": "מספרים", "�
 const KIND_ICON = { "כתב": "personal", "מספר": "number", "קטגוריה": "layers", "ערוץ": "signal", "נושא": "discovery", "": "help" };
 const CHANNEL_ICON = { email: "posts", push: "signal", whatsapp: "conversation" };
 const readState = (value) => READ_STATES.includes(value) ? value : "unavailable";
-const safeInternal = (href) => typeof href === "string" && /^\/(?!\/)/.test(href) ? href : null;
+const safeInternal = (href) => {
+  if (typeof href !== "string" || !/^\/(?!\/)/.test(href) || /[\\\u0000-\u0020]/.test(href)) return null;
+  try {
+    const url = new URL(href, "https://internal.invalid");
+    const path = decodeURIComponent(url.pathname);
+    if (url.origin !== "https://internal.invalid" || path.startsWith("//") || /[\\\u0000-\u001f]/.test(path)) return null;
+    return url.pathname + url.search + url.hash;
+  } catch { return null; }
+};
 
 // Follow v19: follow, identity, channel choice and delivery are four separate states.
-export function followLifecycle({ principal, followCount, channels }) {
+export function followLifecycle({ principal, followCount, channels, followReadState = "ready" }) {
   const registered = principal === "registered";
+  const guest = principal === "guest";
+  const known = followReadState === "ready";
+  const followState = known ? (followCount > 0 ? "done" : "idle") : followReadState === "loading" ? "loading" : "unknown";
   const chosen = registered && Array.isArray(channels) && channels.some((channel) => channel.chosen);
   return [
-    { key: "follow", label: "מעקב", state: followCount > 0 ? "done" : "idle", note: followCount > 0 ? `${followCount} במעקב` : "עוד לא בחרת" },
-    { key: "identity", label: "זהות", state: registered ? "done" : "needed", note: registered ? "מחובר" : "נדרש אימות זהות" },
-    { key: "channel", label: "ערוץ", state: chosen ? "done" : "idle", note: chosen ? "נבחר במפורש" : "לא נבחר" },
+    { key: "follow", label: "מעקב", state: followState, note: known ? (followCount > 0 ? `${followCount} במעקב` : "עוד לא בחרת") : followReadState === "loading" ? "טוען את המעקבים" : "לא ניתן לקרוא את המעקבים כרגע" },
+    { key: "identity", label: "זהות", state: registered ? "done" : guest ? "needed" : "loading", note: registered ? "מחובר" : guest ? "נדרש אימות זהות" : "בודק את הזהות" },
+    { key: "channel", label: "ערוץ", state: guest || registered && known ? (chosen ? "done" : "idle") : "unknown", note: guest || registered && known ? (chosen ? "נבחר במפורש" : "לא נבחר") : "טרם נקראו העדפות הערוצים" },
     { key: "delivery", label: "משלוח", state: "unavailable", note: "לא הופעל" },
   ];
 }
@@ -50,7 +61,7 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
     groups.get(key).push({ topic, icon: KIND_ICON[key], label: label.label, href, change: pending[topic] || "idle" });
   }
   const followGroups = KIND_ORDER.filter((key) => groups.has(key)).map((key) => ({ key, heading: KIND_HEADINGS[key], items: groups.get(key) }));
-  const followCount = followGroups.reduce((sum, group) => sum + group.items.length, 0);
+  const followCount = fState === "ready" ? followGroups.reduce((sum, group) => sum + group.items.length, 0) : null;
   // Capability metadata comes from the existing channel list; only device Push has its own readiness.
   const channels = NOTIFICATION_CHANNELS.map((channel) => {
     const ready = channel.key === "push" && device.push === "available";
@@ -59,9 +70,9 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
   });
   return {
     principal: kind,
-    updates: { state: nState, items: updates, unread: updates.filter((item) => item.unread).length },
+    updates: { state: nState, items: updates, unread: nState === "ready" ? updates.filter((item) => item.unread).length : null },
     following: { state: fState, groups: followGroups, count: followCount },
-    channels, lifecycle: followLifecycle({ principal: kind, followCount, channels }),
+    channels, lifecycle: followLifecycle({ principal: kind, followCount, channels, followReadState: fState }),
     // Inferred relevance and Raziel suggestions are different inputs from an explicit follow and are not active producers yet.
     inputs: [
       { key: "follow", label: "אני עוקב", note: "בחירה מפורשת שלך", active: true },
