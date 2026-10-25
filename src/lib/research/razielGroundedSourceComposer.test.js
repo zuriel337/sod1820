@@ -51,7 +51,7 @@ test("keeps canonical presentation order and labels verified calculation separat
   }]);
   const prompt = JSON.parse(out.prompt);
 
-  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v8");
+  assert.equal(prompt.composer_contract, "raziel-grounded-source-composer-v9");
   assert.deepEqual(prompt.bundles[0].result.findings.map((finding) => finding.id), ["uf:claim", "uf:verified"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.source_claims, ["uf:claim"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, ["uf:verified"]);
@@ -109,6 +109,44 @@ test("engine convergence is not promoted to verified or independent evidence", (
   assert.match(out.fallback, /אתבש=112/);
   assert.match(out.fallback, /עצמאות בין משפחות החישוב לא נטענה/);
   assert.match(out.guidance, /gematria-method-semantic הוא פרשנות מאושרת/);
+});
+
+test("normalized crossing strength survives for synthesis without becoming source evidence or a percent score", () => {
+  const crossing = {
+    id: "uf:crossing:shaul:shum",
+    kind: "gematria-crossing",
+    stage: "evidence",
+    subject: { label: "שאול ↔ שום" },
+    source: { source_name: "מאגר הביטויים", source_ref: "rpc:strongest_crossings", lang: "he" },
+    verification: {
+      state: "not_tested",
+      engine_result: {
+        methods: [{ method: "מסתתר", value: 328 }, { method: "סידורי", value: 40 }],
+        dependency_independence_claimed: false,
+        relation_normalization: {
+          raw_independent_group_count: 2,
+          effective_independent_group_count: 2,
+          independent_evidence_counts: { edges: 0, topic_cards: 0, research_objects: 0 },
+        },
+      },
+    },
+    evidence: {
+      facts: [{ type: "gematria-multi-method-corpus-crossing", expression: "שאול", partner: "שום" }],
+    },
+  };
+  const out = buildRazielGroundedSourceComposer([{
+    subject: { type: "expression", value: "שאול" },
+    projection: projection([crossing]),
+  }]);
+  const prompt = JSON.parse(out.prompt);
+
+  assert.match(out.guidance, /effective_independent_group_count הוא מספר משפחות החישוב האפקטיביות/);
+  assert.match(out.guidance, /אל תהפוך אותם לציון מתוך 100/);
+  assert.match(out.surprise_guidance, /מנוע הנרמול ספר 2 משפחות חישוב אפקטיביות מתוך 2/);
+  assert.match(out.surprise_guidance, /ראיות מקור נפרדות בחבילה: 0/);
+  assert.match(out.surprise_guidance, /גיוון נוסחאי, לא 2 מקורות מחקריים/);
+  assert.equal(prompt.presentation_contract.normalized_method_family_count_is_not_source_evidence_count, true);
+  assert.equal(prompt.presentation_contract.relation_normalization_must_not_be_rendered_as_percent_score, true);
 });
 
 test("confirmed SOD1820 relation is verified while its method meaning stays explicit interpretation", () => {

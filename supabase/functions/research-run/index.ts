@@ -529,6 +529,7 @@ Deno.serve(async (req: Request) => {
           [PUBLIC_EXPRESSION_CROSSING_CAPABILITY]: createGematriaCorpusCrossingW2Executor({
             supabase: callerRpc,
             limit: 8,
+            normalizeRelations: true,
             readConfirmedRelations: (args: { expression: string }) => (
               fetchConfirmedSemanticRelationRows(ANON_KEY, authHeader, args)
             ),

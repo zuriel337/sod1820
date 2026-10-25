@@ -47,12 +47,18 @@ test('public expression research performs canonical calculation and crossing RPC
   assert.equal(out.data.contract, CONTRACT);
   const calculationCalls = runtime.calls.filter(call => call.name === 'fn_method_profile');
   const crossingCalls = runtime.calls.filter(call => call.name === 'strongest_crossings');
+  const normalizationCalls = runtime.calls.filter(call => call.name === 'fn_relation_candidate');
   assert.equal(calculationCalls.length, 1);
   assert.deepEqual(calculationCalls[0].body, { p_phrase: EXPRESSION, p_depth: 'value' });
   assert.equal(calculationCalls[0].authorization, `Bearer ${runtime.anon}`);
   assert.equal(crossingCalls.length, 1);
   assert.deepEqual(crossingCalls[0].body, { p_self: EXPRESSION, p_min: 2, p_limit: 8 });
   assert.equal(crossingCalls[0].authorization, `Bearer ${runtime.anon}`);
+  assert.deepEqual(normalizationCalls.map(call => call.body), [
+    { p_a: EXPRESSION, p_b: 'שלום' },
+    { p_a: EXPRESSION, p_b: 'שבוים' },
+  ]);
+  assert.ok(normalizationCalls.every(call => call.authorization === `Bearer ${runtime.anon}`));
   assert.equal(runtime.calls.filter(call => call.name === 'gematria_words').length, 0);
   assert.equal(runtime.calls.filter(call => call.name === 'gematria_methods').length, 1);
   assert.equal(out.data.bundle.findings.filter(finding => finding.kind === 'gematria-method-value').length, 3);
@@ -73,7 +79,9 @@ test('public expression research performs canonical calculation and crossing RPC
   assert.equal(calculation.status, 'executed');
   assert.deepEqual(calculation.cost, { certainty: 'not_billable', ai_calls: 0, rpc_calls: 1, rest_calls: 1, retry_count: 0 });
   assert.equal(capability.status, 'executed');
-  assert.deepEqual(capability.cost, { certainty: 'not_billable', ai_calls: 0, rpc_calls: 1, rest_calls: 1, retry_count: 0 });
+  assert.deepEqual(capability.cost, { certainty: 'not_billable', ai_calls: 0, rpc_calls: 3, rest_calls: 1, retry_count: 0 });
+  assert.equal(capability.trace.relation_normalization.status, 'available');
+  assert.equal(capability.trace.relation_normalization.normalized_pair_count, 2);
   assert.equal(runtime.calls.filter(call => call.name === 'relation_evidence').length, 1);
   const gate = runtime.calls.find(call => call.name === 'fn_capability_execution_gate_v1');
   assert.equal(gate.body.p_capability, 'research-w2:public-expression-crossings');

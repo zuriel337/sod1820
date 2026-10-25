@@ -7,7 +7,7 @@
 // source URL, and derive bounded presentation candidates for the exploratory view. Candidate
 // ordering never changes the canonical evidence order or promotes a candidate to research truth.
 
-export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 8;
+export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 9;
 
 const MAX_READS = 2;
 const MAX_FINDINGS = 12;
@@ -145,6 +145,27 @@ function hasExplicitRarityEvidence(findings) {
   )));
 }
 
+function crossingNormalization(finding) {
+  const value = finding?.verification?.engine_result?.relation_normalization;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const finite = (input) => Number.isFinite(Number(input)) ? Number(input) : null;
+  const raw = finite(value.raw_independent_group_count);
+  const effective = finite(value.effective_independent_group_count);
+  const evidenceCounts = value.independent_evidence_counts && typeof value.independent_evidence_counts === "object"
+    ? value.independent_evidence_counts
+    : {};
+  const sourceEvidenceCount = ["edges", "topic_cards", "research_objects"]
+    .map((key) => finite(evidenceCounts[key]) || 0)
+    .reduce((sum, count) => sum + count, 0);
+  if (raw == null && effective == null) return null;
+  return {
+    raw,
+    effective,
+    collapsed: raw != null && effective != null ? Math.max(0, raw - effective) : null,
+    sourceEvidenceCount,
+  };
+}
+
 function responseMode(entries) {
   if (entries.length === 2 && entries.every((entry) => entry.subject?.type === "number")) {
     return "number_comparison";
@@ -182,7 +203,7 @@ function responseGuidance(entries) {
       ? "בהשוואת שני מספרים: בדוק וסכם לפי הסדר התאמה באותה שיטה, התאמה חוצת־שיטות, תלות בין שיטות, ורק אחר כך קשרי נושא. אם לא סופקה התאמה ישירה — אמור זאת לפני הפרשנות; אחר כך מותר להציע מטפורה מסומנת ומוסברת, בלי להציג אותה כראיה."
       : null,
     mode === "expression_crossing"
-      ? "בהצלבות: הפרד בין שוויון מספרי שסופק, עצמאות או תלות בין השיטות, וקשר סמנטי. ממצא מסוג gematria-confirmed-relation הוא יחס מחקרי מאושר ומאומת־מנוע של SOD1820; ממצא מסוג gematria-method-semantic הוא פרשנות מאושרת של מודל SOD1820, לא עובדה מתמטית ולא אמת מסורתית אוניברסלית."
+      ? "בהצלבות: הפרד בין שוויון מספרי שסופק, עצמאות או תלות בין השיטות, וקשר סמנטי. כאשר relation_normalization סופק, effective_independent_group_count הוא מספר משפחות החישוב האפקטיביות אחרי נרמול; raw_independent_group_count הוא המספר לפני נרמול. אל תהפוך אותם לציון מתוך 100 ואל תכנה משפחות חישוב ׳מקורות עצמאיים׳. independent_evidence_counts מתאר ראיות מקור נפרדות. ממצא מסוג gematria-confirmed-relation הוא יחס מחקרי מאושר ומאומת־מנוע של SOD1820; ממצא מסוג gematria-method-semantic הוא פרשנות מאושרת של מודל SOD1820, לא עובדה מתמטית ולא אמת מסורתית אוניברסלית."
       : null,
     expressionResearch
       ? "בניתוח ביטוי מן המחשבון: פתח במפת החישוב הקנונית המלאה שב-calculation_profile והשתמש ב-method_value_groups כדי להציג שיטות שמחזירות אותו ערך כקבוצה אחת. שמור את שמות השיטות, אך אל תהפוך method_count למספר ראיות עצמאיות ואל תטען לעצמאות כש-independent_support_count הוא null. רק אחר כך הצג הצלבות. אל תצמצם את הניתוח לאריח הפעיל בלבד."
@@ -491,15 +512,22 @@ export function razielSurpriseCandidates(input = []) {
         return method && value != null ? `${method}=${value}` : null;
       }).filter(Boolean);
       if (!expression || !partner || !methods.length) continue;
+      const normalization = crossingNormalization(finding);
+      const normalizedFact = normalization?.effective != null
+        ? ` מנוע הנרמול ספר ${normalization.effective} משפחות חישוב אפקטיביות${normalization.raw != null ? ` מתוך ${normalization.raw} לפני נרמול` : ""}${normalization.collapsed ? `; ${normalization.collapsed} התאמות תלויות לא הוסיפו משקל` : ""}.`
+        : "";
+      const sourceFact = normalization
+        ? ` ראיות מקור נפרדות בחבילה: ${normalization.sourceEvidenceCount}.`
+        : "";
       push({
         kind: "bounded_corpus_convergence",
-        strength: result?.dependency_independence_claimed === true ? 74 : 58,
+        strength: normalization?.effective >= 2 ? 76 : normalization?.effective === 1 ? 62 : 58,
         value: null,
         terms: [expression, partner],
-        fact: `${expression} ו${partner} מתכנסים בחבילת המאגר דרך ${methods.join(" וגם ")}.`,
+        fact: `${expression} ו${partner} מתכנסים בחבילת המאגר דרך ${methods.join(" וגם ")}.${normalizedFact}${sourceFact}`,
         interpretation_basis: "מותר לבחון אם המילים יוצרות ניגוד, רצף או תמונה משותפת, בלי להפוך פירוש מילוני לראיה.",
-        limit: result?.dependency_independence_claimed === true
-          ? "ההתכנסות סופקה בחבילה; הקשר הסמנטי עדיין אינו מוכח."
+        limit: normalization?.effective != null
+          ? `${normalization.effective} משפחות החישוב הן גיוון נוסחאי, לא ${normalization.effective} מקורות מחקריים; הקשר הסמנטי עדיין אינו מוכח.`
           : "עצמאות בין שיטות החישוב לא נטענה, ולכן אין לספור את מספר השיטות כמספר ראיות נפרדות.",
       });
     }
@@ -776,6 +804,8 @@ export function buildRazielGroundedSourceComposer(input = []) {
       calculation_profile_is_complete_bounded_method_map: true,
       method_value_groups_are_normalized_presentation_not_new_calculation: true,
       method_count_is_not_independent_support_count: true,
+      normalized_method_family_count_is_not_source_evidence_count: true,
+      relation_normalization_must_not_be_rendered_as_percent_score: true,
       proven_equivalence_requires_satisfied_canonical_registry_rule: true,
       confirmed_relation_is_sod1820_research_evidence: true,
       method_semantic_is_explicit_sod1820_interpretation: true,

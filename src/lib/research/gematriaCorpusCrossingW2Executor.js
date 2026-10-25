@@ -2,8 +2,9 @@ import { normalizeForCalc, onlyHeb } from '../gematria.js';
 import { stableIdentityDigest } from './researchRepresentations.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS, EVIDENCE_RELATION, SEMANTIC_CLASS } from './researchResultBundle.js';
 import { makeUniversalFinding } from './universalFinding.js';
+import { projectGematriaRelationCandidateSummary } from './gematriaRelationW2Executor.js';
 
-export const GEMATRIA_CORPUS_CROSSING_ADAPTER_VERSION = 'gematria-corpus-crossing-w2-v2';
+export const GEMATRIA_CORPUS_CROSSING_ADAPTER_VERSION = 'gematria-corpus-crossing-w2-v3';
 export const GEMATRIA_CORPUS_CROSSING_RPC = 'strongest_crossings';
 export const GEMATRIA_CONFIRMED_RELATION_SOURCE = 'public:relation_evidence';
 export const GEMATRIA_METHOD_SEMANTICS_SOURCE = 'public:method_semantics';
@@ -80,6 +81,7 @@ function crossingFinding(expression, row) {
     methods: row.methods,
     minimum_required_methods: MIN_METHODS,
     dependency_independence_claimed: false,
+    relation_normalization: row.relation_normalization || null,
   };
 
   return makeUniversalFinding({
@@ -339,6 +341,7 @@ export function createGematriaCorpusCrossingW2Executor({
   supabase,
   limit = DEFAULT_LIMIT,
   readConfirmedRelations = null,
+  normalizeRelations = false,
 } = {}) {
   if (typeof supabase?.rpc !== 'function') throw new Error('canonical Supabase RPC client required');
   const boundedLimit = Math.max(1, Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT));
@@ -377,11 +380,39 @@ export function createGematriaCorpusCrossingW2Executor({
 
     const crossingOutput = crossingRead.output;
     const crossingComplete = !crossingRead.error && !crossingOutput?.error && Array.isArray(crossingOutput?.data);
-    const crossingFindings = crossingComplete ? crossingOutput.data
+    const projectedCrossings = crossingComplete ? crossingOutput.data
       .slice(0, boundedLimit)
       .map(row => projectRow(expression, row))
-      .filter(Boolean)
-      .map(row => crossingFinding(expression, row)) : [];
+      .filter(Boolean) : [];
+
+    // Pair normalization is an optional, bounded enrichment over the SAME canonical RPC already
+    // owned by the Relation Engine. It never replaces or deletes the raw crossing, and a failed
+    // enrichment leaves the crossing visible while marking the capability partial.
+    const normalizationReads = normalizeRelations ? await Promise.all(projectedCrossings.map(async (row) => {
+      try {
+        const response = await supabase.rpc('fn_relation_candidate', { p_a: expression, p_b: row.partner });
+        if (response?.error) throw response.error;
+        const candidate = response && typeof response === 'object' && Object.prototype.hasOwnProperty.call(response, 'data')
+          ? response.data
+          : response;
+        if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
+          return { status: 'executed_empty', summary: null };
+        }
+        return {
+          status: 'available',
+          summary: {
+            source: 'rpc:fn_relation_candidate',
+            ...projectGematriaRelationCandidateSummary(candidate),
+          },
+        };
+      } catch (error) {
+        return { status: 'failed', error_class: error?.name || 'Error', summary: null };
+      }
+    })) : [];
+    const crossingFindings = projectedCrossings.map((row, index) => crossingFinding(expression, {
+      ...row,
+      relation_normalization: normalizationReads[index]?.summary || null,
+    }));
 
     const relationOutput = relationRead.output;
     const relationConfigured = typeof readConfirmedRelations === 'function';
@@ -396,7 +427,9 @@ export function createGematriaCorpusCrossingW2Executor({
       : [];
     const relationFindings = projectedRelations.flatMap(row => confirmedRelationFindings(expression, row));
     const findings = [...relationFindings, ...crossingFindings];
-    const allSourcesComplete = crossingComplete && relationComplete;
+    const normalizationComplete = !normalizeRelations
+      || normalizationReads.every((read) => ['available', 'executed_empty'].includes(read?.status));
+    const allSourcesComplete = crossingComplete && relationComplete && normalizationComplete;
     const status = findings.length
       ? CAPABILITY_STATUS.EXECUTED
       : allSourcesComplete ? CAPABILITY_STATUS.NEGATIVE_RESULT : CAPABILITY_STATUS.FAILED;
@@ -438,15 +471,20 @@ export function createGematriaCorpusCrossingW2Executor({
       } : undefined,
       sourceRefs: [
         `rpc:${GEMATRIA_CORPUS_CROSSING_RPC}`,
+        ...(normalizeRelations ? ['rpc:fn_relation_candidate'] : []),
         'public:gematria_words',
         'public:bidim',
         ...(relationConfigured ? [GEMATRIA_CONFIRMED_RELATION_SOURCE, GEMATRIA_METHOD_SEMANTICS_SOURCE] : []),
       ],
-      versionRefs: [GEMATRIA_CORPUS_CROSSING_ADAPTER_VERSION, `rpc:${GEMATRIA_CORPUS_CROSSING_RPC}`],
+      versionRefs: [
+        GEMATRIA_CORPUS_CROSSING_ADAPTER_VERSION,
+        `rpc:${GEMATRIA_CORPUS_CROSSING_RPC}`,
+        ...(normalizeRelations ? ['rpc:fn_relation_candidate'] : []),
+      ],
       cost: {
         certainty: 'not_billable',
         ai_calls: 0,
-        rpc_calls: 1,
+        rpc_calls: 1 + (normalizeRelations ? projectedCrossings.length : 0),
         rest_calls: Number(relationOutput?.rest_calls) || 0,
         retry_count: 0,
       },
@@ -467,6 +505,15 @@ export function createGematriaCorpusCrossingW2Executor({
           status: crossingComplete ? 'available' : 'unavailable',
           returned_count: crossingComplete ? crossingOutput.data.length : 0,
         },
+        relation_normalization: {
+          source: 'rpc:fn_relation_candidate',
+          requested: normalizeRelations === true,
+          status: !normalizeRelations ? 'not_requested' : normalizationComplete ? 'available' : 'partial',
+          requested_pair_count: normalizeRelations ? projectedCrossings.length : 0,
+          normalized_pair_count: normalizationReads.filter((read) => read?.status === 'available').length,
+          empty_pair_count: normalizationReads.filter((read) => read?.status === 'executed_empty').length,
+          failed_pair_count: normalizationReads.filter((read) => read?.status === 'failed').length,
+        },
         confirmed_relation_source: {
           source: GEMATRIA_CONFIRMED_RELATION_SOURCE,
           status: relationConfigured ? (relationOutput?.status || 'unavailable') : 'not_configured',
@@ -481,6 +528,7 @@ export function createGematriaCorpusCrossingW2Executor({
         error_class: crossingRead.error?.name
           || (crossingOutput?.error ? 'RpcError' : null)
           || relationRead.error?.name
+          || normalizationReads.find((read) => read?.status === 'failed')?.error_class
           || (relationConfigured && !relationUsable ? 'RelationReadError' : null)
           || (relationOutput?.status === 'partial' ? 'PartialRelationRead' : null),
       },
