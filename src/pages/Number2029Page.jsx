@@ -1,7 +1,7 @@
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchEntityHubProjection, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
@@ -1358,6 +1358,13 @@ function NumberPageBody() {
   </div>;
 }
 
+// Preview-only entry to the Claude research packet: rendered ONLY when the URL carries ?claude=1, so the number page is unchanged for everyone else.
+function ClaudeRazielLink({ value }) {
+  const { search } = useLocation();
+  if (new URLSearchParams(search).get("claude") !== "1" || !/^\d{1,6}$/u.test(String(value || ""))) return null;
+  return <Link dir="rtl" to={`/2029/home-preview?tool=claude&q=${value}`} style={{ display: "inline-block", margin: "8px 0", padding: "10px 16px", border: "1px solid currentColor", borderRadius: 10, color: "inherit", textDecoration: "none" }}>רזיאל של קלוד · חבילת מחקר למספר {value}</Link>;
+}
+
 export default function Number2029Page() {
   const { value } = useParams();
 
@@ -1375,6 +1382,7 @@ export default function Number2029Page() {
     symbol={<NavigationIcon2029 name="number" />}
     status="LIVING NUMBER · DESIGN PREVIEW"
   >
+    <ClaudeRazielLink value={value} />
     <NumberPageBody />
   </Sod2029Shell>;
 }

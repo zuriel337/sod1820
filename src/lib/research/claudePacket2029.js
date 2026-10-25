@@ -15,8 +15,23 @@ export function normalizeClaudePacketExpression(raw) {
   return text;
 }
 
-// Returns null for an empty/non-Hebrew expression; otherwise a frozen object { expression, rows, groups, text }.
+function buildNumberPacket(number) {
+  const lines = [
+    "חבילת מחקר לקלוד — SOD1820 / 2029",
+    `גרסה: ${CLAUDE_PACKET_VERSION}`,
+    "המספר הוא הנושא. ערכי השיטות והביטויים שבערך נקבעים רק מנתוני המאגר שיצורפו (כפתור «הוסף נתוני מאגר»). אל תחשב מחדש ואל תוסיף מספרים.",
+    "",
+    `המספר: ${number}`,
+    "",
+    "הוראה לקלוד: כתוב פרשנות בפרוזה זורמת שמתחילה מהמספר עצמו, אחר כך הביטויים שבאותו ערך, הקשרים ביניהם והסינתזה. הפרד עובדה (המספרים והביטויים שכאן) מפרשנות; אל תמציא מקור או קשר מסורתי; הנרמול הוא בלם אמינות בלבד. השער האנושי נשאר של צוריאל.",
+  ];
+  return Object.freeze({ version: CLAUDE_PACKET_VERSION, kind: "number", subject: String(number), number, expression: null, rows: Object.freeze([]), groups: Object.freeze([]), text: lines.join("\n") });
+}
+
+// A bare integer 1..999999 is a number subject; Hebrew text is an expression; anything else yields null.
 export function buildClaudePacket(raw) {
+  const bare = String(raw ?? "").trim();
+  if (/^\d{1,6}$/u.test(bare) && Number(bare) >= 1) return buildNumberPacket(Number(bare));
   const expression = normalizeClaudePacketExpression(raw);
   if (!expression) return null;
   const rows = METHODS.map((method) => ({ key: method.key, label: methodLabel(method.key), value: method.fn(expression) }));
@@ -46,5 +61,5 @@ export function buildClaudePacket(raw) {
     "",
     "הוראה לקלוד: כתוב פרשנות בפרוזה זורמת, מתחילה מהביטוי עצמו ומערכו הרגיל, ואחר כך על השכבות לפי הסדר: קבוצת הביטויים באותו ערך (אם הועברה), אתבש כמראה, מילוי כפנימיות, מסתתר כרובד נסתר, וסינתזה אחת. הפרד עובדה (המספרים שכאן) מפרשנות; אל תמציא מקור, ביוגרפיה או קשר מסורתי; הנרמול הוא בלם אמינות בלבד. השער האנושי נשאר של צוריאל.",
   ];
-  return Object.freeze({ version: CLAUDE_PACKET_VERSION, expression, rows: Object.freeze(rows), groups: Object.freeze(groups), text: lines.join("\n") });
+  return Object.freeze({ version: CLAUDE_PACKET_VERSION, kind: "expression", subject: expression, expression, rows: Object.freeze(rows), groups: Object.freeze(groups), text: lines.join("\n") });
 }

@@ -776,6 +776,25 @@ function meetingLines(entries) {
     }).filter(Boolean)).slice(0, 8);
 }
 
+// A Number subject without an expression anchor (e.g. the Claude research packet for "337"): the phrases standing at that regular value.
+function numberNeighbourLines(entries) {
+  return entries.filter((entry) => entry.subject?.type === "number").flatMap((entry) => {
+    const value = safeNumber(entry.subject.value);
+    const seen = new Set();
+    const phrases = entry.findings.flatMap((finding) => {
+      const label = cleanText(finding?.subject?.label, 120);
+      const key = comparable(label);
+      const method = cleanText(finding?.verification?.engine_method_tested || finding?.source?.method, 60);
+      if (!label || !key || seen.has(key) || /^\d+$/u.test(label) || finding?.subject?.type === "number"
+        || numericFindingValue(finding) !== value || !regularMethod(method)
+        || !VALUE_NEIGHBOUR_LANES.includes(razielFindingEvidenceLane(finding))) return [];
+      seen.add(key);
+      return [label];
+    }).slice(0, 16);
+    return phrases.length ? [`ערך ${value} (שיטת רגיל): ${phrases.join(" · ")}.`] : [];
+  });
+}
+
 function exploratoryBrief(entries, instruction = EXPLORATORY_OUTPUT_INSTRUCTION, layerEntries = []) {
   const anchor = primaryExpressionAnchor(entries);
   const candidates = razielSurpriseCandidates(entries);
@@ -799,6 +818,7 @@ function exploratoryBrief(entries, instruction = EXPLORATORY_OUTPUT_INSTRUCTION,
     section("2. מפת השיטות המחושבת:", [methodMapLine(entries)]),
     section("3. קבוצות שקילות לאחר נרמול:", equivalences),
     section("4. קבוצת הביטויים באותו ערך רגיל:", constellation ? [constellation.fact, `בסיס פרשני: ${constellation.interpretation_basis}`] : []),
+    section("4ב. ביטויים באותו ערך (ללא ביטוי עוגן):", anchor ? [] : numberNeighbourLines(entries)),
     section("5. הצלבות בין־שיטתיות חשובות:", relations.slice(0, 3).map((candidate) => `${candidate.fact} גבול: ${candidate.limit}`)),
     section("5א. מפגשים בכמה שיטות (השיטות והערכים המדויקים לכל ביטוי):", meetingLines(entries)),
     section("5ב. שכבות המראה, הפנימיות והנסתר (ביטויים שערכם הרגיל שווה לערך השיטה):", methodLayerLines(entries, layerEntries)),

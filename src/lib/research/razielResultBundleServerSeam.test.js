@@ -1913,7 +1913,7 @@ test("precedence: «מספר 337» is a canonical number subject (no expression)
 });
 
 // ── Claude research packet: the database half reuses research-run + the same composer as Raziel ───────────────────
-import { fetchClaudePacketDossier } from "./claudePacketDossier2029.js";
+import { fetchClaudeNumberDossier, fetchClaudePacketDossier } from "./claudePacketDossier2029.js";
 
 test("claude packet dossier: reads the existing research-run contracts and returns the same תיק פרשנות Raziel gets", async () => {
   const fixtures = shaulBundles();
@@ -1965,4 +1965,18 @@ test("live-shaped Bundles: phrases at the same value arrive as source claims and
   assert.match(user, /אתבש \(מראה\)[^\n]*תוצאה · שרב/);
   assert.match(user, /מילוי \(פנימיות\)[^\n]*נפלאות · דור אנוש/);
   assert.match(user, /מסתתר \(רובד נסתר\)[^\n]*שכח · כחש/);
+});
+
+test("claude packet for a bare number: one Number research-run read, and the dossier lists the phrases at that value", async () => {
+  const fixtures = shaulBundles();
+  const calls = [];
+  const invoke = async (name, { body }) => {
+    calls.push(body);
+    const bundle = fixtures.researchBundleByNumber[body.number];
+    return bundle ? { data: { status: "ok", contract: body.contract, bundle }, error: null } : { data: { status: "error" }, error: null };
+  };
+  const result = await fetchClaudeNumberDossier(337, { invoke, visitorId: "vclaudenumber1234" });
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls.map((body) => [body.contract, body.number, body.surface]), [["public-number-research-run-v1", 337, "number"]]);
+  assert.match(result.brief, /4ב\. ביטויים באותו ערך[^\n]*\nערך 337 \(שיטת רגיל\): עולה ויורד · מלך רמז · לימוד רמז · אגג מלך עמלק · ועל יהוה יזעף לבו\./);
 });

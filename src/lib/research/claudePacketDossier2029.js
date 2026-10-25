@@ -56,3 +56,12 @@ export async function fetchClaudePacketDossier(expression, { invoke, visitorId =
   if (!composition.exploratory_brief) return { ok: false, reason: "no_brief" };
   return { ok: true, brief: composition.exploratory_brief, reads: reads.length + layerReads.length };
 }
+
+// A bare number: the same Number research-run contract and composer, subject = the number itself.
+export async function fetchClaudeNumberDossier(number, { invoke, visitorId = null } = {}) {
+  if (typeof invoke !== "function" || !Number.isSafeInteger(number) || number < 1 || number > 999999) return { ok: false, reason: "unavailable" };
+  const projection = await readBundle(invoke, { contract: CLAUDE_PACKET_NUMBER_CONTRACT, number, visitorId });
+  if (!projection) return { ok: false, reason: "no_bundle" };
+  const composition = buildRazielGroundedSourceComposer([{ subject: { type: "number", value: number }, projection }]);
+  return composition.exploratory_brief ? { ok: true, brief: composition.exploratory_brief, reads: 1 } : { ok: false, reason: "no_brief" };
+}

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 
 import { METHODS } from "../gematria.js";
 import { buildClaudePacket, normalizeClaudePacketExpression } from "./claudePacket2029.js";
+import { fetchClaudeNumberDossier } from "./claudePacketDossier2029.js";
 
 test("the packet carries exactly the canonical engine's values for every method", () => {
   const packet = buildClaudePacket("שאול");
@@ -24,7 +25,7 @@ test("the packet carries exactly the canonical engine's values for every method"
 
 test("final letters are reported as a real difference; invalid input yields no packet", () => {
   assert.match(buildClaudePacket("מלך").text, /אותיות סופיות: רגיל וגדול נבדלים/);
-  for (const value of ["", "   ", "abc", "123", null, undefined, "א".repeat(81)]) assert.equal(buildClaudePacket(value), null, String(value));
+  for (const value of ["", "   ", "abc", "0", "1234567", "12 34", null, undefined, "א".repeat(81)]) assert.equal(buildClaudePacket(value), null, String(value));
   assert.equal(normalizeClaudePacketExpression("  עולה   ויורד "), "עולה ויורד");
 });
 
@@ -42,4 +43,15 @@ test("the packet is isolated from Raziel and models; its database half only read
   assert.match(preview, /import ClaudeResearchPacket2029Page from "\.\/ClaudeResearchPacket2029Page\.jsx";/, "shares the preview page's own lazy chunk: no new chunk, no new dependency-map entry in the eager entry");
   assert.match(preview, /get\("tool"\) === "claude"/);
   assert.doesNotMatch(readFileSync(new URL("../../App2029.jsx", import.meta.url), "utf8"), /ClaudeResearchPacket|ClaudePacket/);
+});
+
+test("a bare number is a number subject: no engine values are invented, the database supplies the phrases", async () => {
+  const packet = buildClaudePacket("337");
+  assert.deepEqual([packet.kind, packet.subject, packet.number, packet.rows.length], ["number", "337", 337, 0]);
+  assert.match(packet.text, /המספר: 337/);
+  assert.match(packet.text, /אל תחשב מחדש ואל תוסיף מספרים/);
+  assert.equal(buildClaudePacket("שאול").kind, "expression");
+  const failing = async () => ({ data: { status: "error" }, error: null });
+  assert.deepEqual(await fetchClaudeNumberDossier(337, { invoke: failing }), { ok: false, reason: "no_bundle" });
+  assert.deepEqual(await fetchClaudeNumberDossier(0, { invoke: failing }), { ok: false, reason: "unavailable" });
 });
