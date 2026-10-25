@@ -61,9 +61,10 @@ export function mergeTopicsForSave(existing = [], { gates = [], adminTopics = nu
   return [...new Set([...keep, ...gatesToTopics(gates), ...adm])];
 }
 
-// ערוצים: משנים רק push / whatsapp; email וכל ערוץ קיים אחר נשמרים. ברירת מחדל לשורה חדשה: ["email"].
+// משנים רק push / whatsapp; שומרים ערוצים קיימים בלי להוסיף הסכמה חדשה ל-email.
+// היעדר ערוצים או בחירה ריקה נשארים ריקים גם בשמירת העדפות או מצב שקט (Follow v19).
 export function mergeChannelsForSave(existing = null, { push = false, whatsapp = false, whatsappAllowed = false } = {}) {
-  const base = Array.isArray(existing) && existing.length ? existing : ["email"];
+  const base = Array.isArray(existing) ? existing : [];
   const out = base.filter(c => c !== "push" && c !== "whatsapp");
   if (push) out.push("push");
   if (whatsapp && whatsappAllowed) out.push("whatsapp");
