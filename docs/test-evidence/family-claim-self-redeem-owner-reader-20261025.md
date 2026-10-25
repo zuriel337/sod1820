@@ -5,7 +5,7 @@
 - Base SHA: `e73687221aa2ab639930643e5cc8c99666adce88`
 - Branch: `gpt/family-claim-self-redeem-owner-reader-20261025`
 - Migration: `20261025012451_family_claim_self_redeem_owner_reader_v1.sql`
-- Live apply: **NO**
+- Live apply: **YES** — project `Sod1820`, recorded migration version `20261025012451`
 - Merge: **NO**
 - Preview: **NO**
 - Production: **NO**
@@ -50,3 +50,7 @@ The focused test runs only against a throwaway local PostgreSQL 15 container (or
 ## Rollback proof
 
 `tests/sql/fixtures/rollback_family_claim_self_redeem_owner_reader_v1.sql` is executed inside the focused test. The test proves that it removes the new reader, restores the normalized pre-patch redeemer body, and preserves authenticated-only execution for the restored RPC.
+
+## Live verification
+
+The migration was applied once through the Supabase migration API and recorded as version `20261025012451`. Post-apply catalog verification proved that both functions exist with fixed `search_path`, `anon` cannot execute them, `authenticated` can execute them, the self-redeem guard and row lock are present, and `family_claims` still has RLS enabled with zero policies and zero client table grants. The PostgREST schema cache was reloaded. No application deployment or data mutation was performed.
