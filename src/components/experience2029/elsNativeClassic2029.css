@@ -11,7 +11,7 @@
 .els29-native-classic>[hidden]{display:none!important}
 [data-els-2029-surface="v1"].sod29-focus-stage{padding-inline:6px}
 [data-els-2029-surface="v1"].sod29-focus-stage::after{display:none}
-[data-els-classic-2029="native-v1"].sod29-section{padding:6px}
+[data-els-classic-2029="native-v1"].sod29-section{padding:6px;overflow:clip!important}
 /* The first verified axis fills this strip asynchronously. Reserve one readable row. */
 .sod29-root.surface-els .sod29-context-strip{min-height:44px;flex-wrap:nowrap;overflow-x:auto;align-items:flex-start}
 .sod29-root.surface-els .sod29-context-strip span{flex-shrink:0;white-space:nowrap}
@@ -386,12 +386,15 @@
 .els29-native-results{gap:10px}
 .els29-native-results label{display:grid;gap:5px;font-size:var(--s29-type-micro)}
 .els29-native-results p{margin:0}
-.els29-native-progress{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft);color:var(--s29-ink)}
+.els29-native-progress{position:sticky;z-index:18;top:78px;display:flex;align-items:center;gap:12px;padding:12px;border:2px solid var(--s29-accent);border-radius:12px;background:color-mix(in srgb,var(--s29-panel) 92%,var(--s29-accent) 8%);color:var(--s29-ink);box-shadow:0 10px 28px color-mix(in srgb,var(--s29-accent) 20%,transparent);backdrop-filter:blur(14px)}
 .els29-native-progress>div{display:grid;gap:5px;min-width:0;flex:1}
 .els29-native-progress small{font-size:var(--s29-type-micro);color:var(--s29-muted);line-height:1.5}
 .els29-native-progress progress{width:100%;accent-color:var(--s29-accent)}
 .els29-native-progress button{flex-shrink:0;min-height:44px;padding:6px 10px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
 .els29-native-progress-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;flex-shrink:0}
+.els29-native-partial-package{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid var(--s29-accent);border-radius:12px;background:color-mix(in srgb,var(--s29-panel-soft) 88%,var(--s29-accent) 12%)}
+.els29-native-partial-package span{font-size:var(--s29-type-micro);line-height:1.5}
+.els29-native-partial-package button{min-height:44px;flex-shrink:0;border:1px solid var(--s29-accent);border-radius:10px;padding:6px 12px;background:var(--s29-accent);color:var(--s29-on-accent);font:inherit;font-weight:900;cursor:pointer}
 .els29-native-results summary{display:flex;align-items:center;min-height:44px;cursor:pointer;font-size:var(--s29-type-micro)}
 .els29-native-results details>label{margin-block:6px 10px}
 .els29-native-results small{line-height:1.55;color:var(--s29-muted);overflow-wrap:anywhere}
@@ -616,6 +619,8 @@
   .els29-native-progress{align-items:stretch;flex-direction:column}
   .els29-native-progress-actions{width:100%}
   .els29-native-progress-actions button{flex:1 1 140px}
+  .els29-native-partial-package{align-items:stretch;flex-direction:column}
+  .els29-native-partial-package button{width:100%}
 }
 @media(prefers-reduced-motion:reduce){
   .els29-native-classic *{scroll-behavior:auto!important}

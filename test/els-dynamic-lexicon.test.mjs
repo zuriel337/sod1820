@@ -6,6 +6,7 @@ import { HIRSCH_GOLDEN_CANDIDATES } from "./fixtures/els-hirsch-golden-candidate
 
 const template = readFileSync(new URL("../tools/els/els-code.template.html", import.meta.url), "utf8");
 const native2029 = readFileSync(new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url), "utf8");
+const nativeCss2029 = readFileSync(new URL("../src/components/experience2029/elsNativeClassic2029.css", import.meta.url), "utf8");
 
 function source(name) {
   const asyncStart = template.indexOf(`async function ${name}(`);
@@ -183,6 +184,26 @@ test("axis-neighborhood discovery is explicit, bounded and independent of a cont
   assert.match(targetBlock, /resolveAxisNeighborhoodTarget\(target,lexicon\.entries\)/);
   assert.match(targetBlock, /promoteVerified\([\s\S]*?policy:"AXIS_NEIGHBORHOOD_TARGET_V1"/);
   assert.doesNotMatch(targetBlock, /(?:positions|\bstart\b|\bp0\b|\bp1\b)\s*:/, "the suggested-axis response remains coordinate-free");
+});
+
+test("focused verification exposes a resumable verified-only activity draft", () => {
+  assert.match(template, /function focusedCheckpointSignature\(selected\)/);
+  assert.match(template, /target\.resume===true&&_nativeFocusedCheckpoint\?\.key===checkpointKey/,
+    "resume is accepted only for the same canonical scope and primary occurrence");
+  assert.match(template, /onProgress\?\.\(index\+1,selected\.length,\{signature,completed:index\+1,items:\[\.\.\.verified\],failed,resumed:false\}\)/,
+    "a checkpoint is emitted only after one verification attempt completes");
+  assert.match(template, /status:"PARTIAL_VERIFIED"[\s\S]*?items:partialItems[\s\S]*?resume:\{available:completed<total,completed,total\}/,
+    "the bridge projects verified admissions without raw candidates");
+  const partialBlock = template.slice(template.indexOf('status:"PARTIAL_VERIFIED"'), template.indexOf('status:"PARTIAL_VERIFIED"') + 2600);
+  assert.doesNotMatch(partialBlock, /(?:positions|\bstart\b|\bp0\b|\bp1\b)\s*:/,
+    "the partial presentation does not export engine coordinates");
+  assert.match(native2029, /טיוטה מאומתת/);
+  assert.match(native2029, /מועמדים שלא אומתו אינם מוצגים/);
+  assert.match(native2029, /המשך מאותה נקודה/);
+  assert.match(native2029, /result\.progress\?\.draft\?\.lens === "matrix-candidates"/,
+    "the existing lens presentation retains the verified draft without a new store");
+  assert.match(nativeCss2029, /\.els29-native-progress\{position:sticky;/,
+    "the activity meter stays visible while the researcher scrolls");
 });
 
 test("focused core cold Goldens are rediscovered from the canonical corpus without saved-cipher vocabulary", async () => {

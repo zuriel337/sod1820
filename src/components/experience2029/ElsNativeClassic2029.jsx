@@ -497,7 +497,7 @@ function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
   </div>;
 }
 
-function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpenFinding, onExploreAxis, onExpand, addingFinding, onHighlightVerse, verseHighlight }) {
+function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpenFinding, onExploreAxis, onExpand, onResume, addingFinding, onHighlightVerse, verseHighlight }) {
   if (!lensResult) return <p className="els29-native-muted">לחצו על אות במטריצה כדי לראות את המקור שלה, או השתמשו ב״מקור הממצא״ לקריאה נגישה של פסוקי הציר.</p>;
   if (lensResult.ok === false) return <p className="els29-native-muted">{lensResult.lens === "matrix-candidates"
     ? ["focused-core-candidate-limit", "focused-core-probe-limit"].includes(lensResult.reason)
@@ -555,8 +555,12 @@ function SourceLens({ lensResult, findings, onAddLineFinding, onAddGroup, onOpen
         </div> : null}
       </div>;
     };
-    return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings">
-      <strong>{focused ? "ליבת הציר" : "חבילת סביבת הציר"} · {items.length}</strong>
+    return <div className="els29-native-source-list els29-native-matrix-candidates" data-experience-capability="els-all-matrix-findings" data-package-state={lensResult.partial ? "partial-verified" : "complete"}>
+      <strong>{focused ? "ליבת הציר" : "חבילת סביבת הציר"} · {items.length}{lensResult.partial ? " · טיוטה מאומתת" : ""}</strong>
+      {lensResult.partial ? <div className="els29-native-partial-package" role="status">
+        <span>הבדיקה נעצרה, אך התוצאות שכבר עברו אימות נשמרו. מועמדים שלא אומתו אינם מוצגים.</span>
+        {lensResult.resume?.available ? <button type="button" disabled={addingFinding} onClick={() => onResume?.(lensResult.target)}>המשך מאותה נקודה</button> : null}
+      </div> : null}
       <small>{focused ? `נסרק האזור הממוקד סביב הציר: ${lensResult.focus?.rowPad || 12} שורות ו־${lensResult.focus?.colRadius || 15} עמודות, ברצף המקור ובדילוגים S−1, S, S+1.` : "זוהי הרחבה יזומה לחלון המטריצה המלא."}</small>
       <small>{focused ? `${lensResult.verification?.verified || 0} מופעי ELS אומתו · ${lensResult.verification?.sourceExact || 0} רצפי מקור מדויקים.` : `${compactCount} ממצאים בשלב א׳ · ${Math.max(0, items.length - compactCount)} בשלב ב׳.`} זהו סדר בדיקה, לא ציון אמת.</small>
       <small>המילון נגזר משפת התנ״ך הקנונית, מביטויים ומתבניות שנים. צפנים שמורים אינם מזינים את הגילוי.</small>
@@ -830,6 +834,8 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
     <div><strong role="status" aria-live="polite">{label}</strong>
       <small aria-hidden="true">עברו {elapsed.toFixed(1)} שניות · הבדיקה עדיין פעילה</small>
       {progress?.total > 0 ? <><progress max={progress.total} value={progress.completed} aria-label={label} /><small>{progress.completed} מתוך {progress.total} · {unitLabel}</small></> : <progress aria-label={label} />}
+      {Number.isSafeInteger(progress?.verified) ? <small><b>{progress.verified}</b> תוצאות כבר אומתו ונשמרו בטיוטת החבילה</small> : null}
+      {progress?.resumed ? <small>הבדיקה ממשיכה מנקודת העצירה המאומתת.</small> : null}
       {elapsed >= 8 ? <small>אפשר להמשיך להמתין או לעצור. עצירה אינה משנה את הציר, הממצאים או המטריצה.</small> : null}
     </div>
     <span className="els29-native-progress-actions">
@@ -1153,6 +1159,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
           {lensPending ? <p role="status">טוען את הציר הנבחר…</p> : <SourceLens onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} lensResult={lensResult} findings={findings} onAddLineFinding={onAddLineFinding}
             onAddGroup={onAddGroup} onExploreAxis={onExploreAxis}
             onExpand={(expandTarget) => onDiscover(expandTarget)}
+            onResume={(resumeTarget) => onDiscover({ hitId: resumeTarget?.hitId || state.axis.hitId, resume: true })}
             onOpenFinding={(findingTarget) => { selectTarget(findingTarget.term, findingTarget.hitId);onScan(findingTarget); }} addingFinding={pending} />}
         </details> : null}
       </section>
@@ -1590,7 +1597,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setClassicOpen(false);
     openTool(lens === "structure-priority" ? "structures" : ["result-triage", "research-target", "research-target-compare"].includes(lens) ? "results" : "findings");
     const seq = ++lensSeqRef.current;
-    setLensResult(null);
+    if (!(lens === "matrix-candidates" && target.resume === true && lensResult?.partial)) setLensResult(null);
     setLensProgress(null);
     setLensPending(true);
     setLensRequest({ lens, target: { ...target, nativeSeq: seq }, startedAt: Date.now() });
@@ -1601,9 +1608,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (["research-target", "neighborhood-target"].includes(lensRequest?.lens)) { pendingResearchBundleRef.current = null;setResearchBundle(null); }
     const seq = ++lensSeqRef.current;
     setLensRequest({ lens: "cancel", target: { nativeSeq: seq }, cancelled: true });
+    const retainedVerified = lensRequest?.lens === "matrix-candidates" && lensResult?.partial ? lensResult.items?.length || 0 : 0;
     setLensProgress(null);
     setLensPending(false);
-    setNotice("הבדיקה נעצרה. המטריצה והממצאים נשמרו כפי שהיו.");
+    setNotice(retainedVerified
+      ? `הבדיקה נעצרה. ${retainedVerified} תוצאות מאומתות נשמרו בטיוטת החבילה ואפשר להמשיך מאותה נקודה.`
+      : "הבדיקה נעצרה. המטריצה והממצאים נשמרו כפי שהיו.");
   };
 
   const lensReduction = lensRequest?.lens === "structure-priority" && Number(lensRequest.target?.structurePlan?.maxDistance) > 12
@@ -1655,7 +1665,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const handleLens = (result) => {
     if (result?.target?.nativeSeq !== lensSeqRef.current) return;
-    if (result?.type === "lens-progress") { setLensProgress(result.progress || null); return; }
+    if (result?.type === "lens-progress") {
+      setLensProgress(result.progress || null);
+      if (result.progress?.draft?.lens === "matrix-candidates") setLensResult(result.progress.draft);
+      return;
+    }
     if (result?.lens === "result-triage") {
       if (!result?.ok) resultTriageKeyRef.current = null;
       setResultTriage(result?.ok ? result : null);

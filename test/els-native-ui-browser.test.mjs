@@ -43,7 +43,9 @@ export default function Host(props){
    window.__log.push(message);
    if(message.type==='ready'){ready.current=true;send({type:'tier',tier:'admin'});if(window.__fixtureLoadGolden)send({type:'load-matrix',item:${JSON.stringify(golden)}});}
    if(message.type==='engine-request'){
-    if(window.__fixtureHoldVerification)await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());});
+    window.__fixtureVerificationRequests=(window.__fixtureVerificationRequests||0)+1;
+    const holdAfter=Number(window.__fixtureHoldVerificationAfter)||0;
+    if(window.__fixtureHoldVerification&&(!holdAfter||window.__fixtureVerificationRequests>holdAfter))await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());});
     const result=await fetch('/oracle',{method:'POST',body:JSON.stringify({op:message.op,payload:message.payload,denied:window.__fixtureVerificationDenied})}).then(response=>response.json());
     send({type:'engine-result',requestId:message.requestId,...result});
    }
@@ -679,6 +681,44 @@ test('every viewer can inspect unsaved matrix candidates and verify one without 
    assert.match(await page.locator('[data-experience-capability="els-line-inspection"]').innerText(),new RegExp(`לאורך הציר · ${candidate.term}`));
    assert.equal((await identity(page)).axis.hitId,before.axis.hitId,'candidate verification keeps the saved primary axis');
    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'inspection and verification do not persist or edit the saved row');
+  },{tier:'anon'});
+ });
+
+test('focused activity meter retains verified admissions on stop and resumes the same canonical package',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const before=await identity(page);
+   await page.evaluate(()=>{
+    window.__fixtureVerificationRequests=0;
+    window.__fixtureHoldVerification=true;
+    window.__fixtureHoldVerificationAfter=2;
+    window.__fixtureHeld=[];
+   });
+   await activate(page,'בנה חבילת סביבת הציר');
+   await page.waitForFunction(()=>window.__log.some(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'
+    &&message.progress?.phase==='verify'&&message.progress?.draft?.items?.length>=1),null,{timeout:120000});
+   const meter=page.locator('.els29-native-progress').first();
+   await meter.waitFor({state:'visible'});
+   assert.equal(await meter.evaluate(node=>getComputedStyle(node).position),'sticky','the active meter remains pinned inside the ELS work area');
+   assert.match(await meter.innerText(),/תוצאות כבר אומתו ונשמרו בטיוטת החבילה/);
+   await button(page,'עצור בדיקה').click();
+   const partial=page.locator('[data-package-state="partial-verified"]');
+   await partial.waitFor({state:'visible'});
+   assert.match(await partial.innerText(),/טיוטה מאומתת[\s\S]*מועמדים שלא אומתו אינם מוצגים/);
+   const retained=await page.evaluate(()=>{
+    const progress=[...window.__log].reverse().find(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'&&message.progress?.draft?.items?.length);
+    return {count:progress?.progress?.draft?.items?.length||0,completed:progress?.progress?.completed||0,total:progress?.progress?.total||0};
+   });
+   assert.ok(retained.count>=1&&retained.completed<retained.total,'only completed canonical admissions are retained before the held verification');
+   assert.deepEqual(await identity(page),before,'stopping the package never changes the primary matrix or Findings');
+   await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification?.();});
+   await activate(page,'המשך מאותה נקודה');
+   await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.partial!==true,null,{timeout:120000});
+   const resumed=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-candidates').at(-1));
+   assert.equal(resumed.target.resume,true,'resume is an explicit request on the same engine lens');
+   const items=await page.evaluate(()=>window.__lens.items);
+   assert.equal(new Set(items.map(item=>item.term)).size,items.length,'resuming does not duplicate verified admissions');
+   assert.deepEqual(await identity(page),before,'completion after resume still preserves exact matrix identity');
   },{tier:'anon'});
  });
 

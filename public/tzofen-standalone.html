@@ -2579,7 +2579,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(membershipChanged)recomputeWords();
     recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
   }
-  let _nativeFindingsOperation=null,_nativeSearchOperation=null,_nativeFindingsSeq=0,_nativeLensSeq=0;
+  let _nativeFindingsOperation=null,_nativeSearchOperation=null,_nativeFindingsSeq=0,_nativeLensSeq=0,_nativeFocusedCheckpoint=null;
   function searchUncommitted(){return !!(_nativeSearchOperation&&!_nativeSearchOperation.terminal&&!_nativeSearchOperation.committed);}
   function operationStatus(operation,status,message,progress){
     if(!operation||(operation.kind==="findings"?operation!==_nativeFindingsOperation:operation!==_nativeSearchOperation))return;
@@ -2904,16 +2904,23 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
           if(lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
           if(focused.candidateCapped||focused.probeCapped){postHost({type:"lens",lens:"matrix-candidates",ok:false,target,reason:focused.probeCapped?"focused-core-probe-limit":"focused-core-candidate-limit",scanMode:"focused",scanned:focused.probes});return;}
           postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify-prepare",completed:0,total:0}});
-          const admitted=await verifyFocusedCoreCandidates(focused.candidates,structuralAxis,(completed,total)=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed,total}}),
-            ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,12);
+          const checkpointKey=[st.scope,hitKey(structuralAxis),"focused-core-v1"].join(":"),resumeCheckpoint=target.resume===true&&_nativeFocusedCheckpoint?.key===checkpointKey?_nativeFocusedCheckpoint:null;
+          if(!resumeCheckpoint)_nativeFocusedCheckpoint=null;
+          const admitted=await verifyFocusedCoreCandidates(focused.candidates,structuralAxis,(completed,total,checkpoint)=>{
+            _nativeFocusedCheckpoint={key:checkpointKey,...checkpoint};
+            const partialItems=projectFocusedCoreItems(checkpoint.items,focusedEntries),partialStructural=buildStructuralGroups(checkpoint.items,structuralAxis,{maxDistance:15,minLength:3,maxLength:16,minMembers:2,maxGroups:6,maxMembers:8});
+            postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed,total,verified:partialItems.length,resumed:checkpoint.resumed===true,
+              draft:{type:"lens",lens:"matrix-candidates",ok:true,partial:true,target,status:"PARTIAL_VERIFIED",contract:FOCUSED_CORE_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"focused",provenanceSource:lexicon.contract,coverage:"focused-axis-core",
+                focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||15,directions:["1","S−1","S","S+1"],secondStage:{skips:"2–8",rowPad:2,colRadius:8}},verification:{attempted:completed,verified:checkpoint.items.filter(item=>item.status==="VERIFIED").length,sourceExact:checkpoint.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:checkpoint.failed},
+                lexicon:{contract:lexicon.contract,counts:lexicon.focusedCounts||lexicon.counts,fallback:lexicon.fallback,independentOfSavedResearch:true},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"focused_compact_band_then_distance_then_language_evidence"},
+                items:partialItems,total:partialItems.length,scanned:focused.probes,available:focused.candidates.length,truncated:true,resume:{available:completed<total,completed,total},
+                structurePlan:partialStructural.plan,groups:partialStructural.groups,groupTotal:partialStructural.groups.length,availableGroups:partialStructural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
+                axisSuggestion:chooseAxisNeighborhoodSuggestion(checkpoint.items,structuralAxis),geometryContract:COMPACT_GEOMETRY_CONTRACT}}});
+          },()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,12,resumeCheckpoint);
           if(!admitted||lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
+          _nativeFocusedCheckpoint=null;
           postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"sources",completed:admitted.items.length,total:admitted.items.length}});
-          const items=rankResearchCandidateItems(admitted.items.map(candidate=>{
-            const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,focusedEntries);
-            return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,skip:candidate.skip,direction:candidate.direction,skipMeta:candidate.skipMeta,focusStage:candidate.focusStage,status:candidate.status,source:candidate.source,sourceContext:candidate.sourceContext,
-              lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,geometry:candidate.geometry,neighborhood:candidate.neighborhood,classifications:[...(candidate.classifications||[])],
-              continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
-          }));
+          const items=projectFocusedCoreItems(admitted.items,focusedEntries);
           const structural=buildStructuralGroups(admitted.items,structuralAxis,{maxDistance:15,minLength:3,maxLength:16,minMembers:2,maxGroups:6,maxMembers:8}),axisSuggestion=chooseAxisNeighborhoodSuggestion(admitted.items,structuralAxis);
           postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"VERIFIED",contract:FOCUSED_CORE_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"focused",provenanceSource:lexicon.contract,coverage:"focused-axis-core",
             focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||15,directions:["1","S−1","S","S+1"],secondStage:{skips:"2–8",rowPad:2,colRadius:8}},verification:{attempted:admitted.attempted,verified:admitted.items.filter(item=>item.status==="VERIFIED").length,sourceExact:admitted.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:admitted.failed},
@@ -4379,15 +4386,28 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     add(()=>true,cap-selected.length);
     return selected;
   }
-  async function verifyFocusedCoreCandidates(candidates,axis,onProgress,isCancelled,limit=12){
-    const selected=selectFocusedCoreCandidates(candidates,limit),verified=[];let failed=0;
-    for(let index=0;index<selected.length;index++){
+  function focusedCheckpointSignature(selected){
+    return (selected||[]).map(candidate=>[candidate.focusTerm||norm(candidate.term),candidate.start,candidate.skip,candidate.dir].join(":")).join("|");
+  }
+  async function verifyFocusedCoreCandidates(candidates,axis,onProgress,isCancelled,limit=12,resumeCheckpoint=null){
+    const selected=selectFocusedCoreCandidates(candidates,limit),signature=focusedCheckpointSignature(selected),canResume=resumeCheckpoint?.signature===signature,
+      verified=canResume?[...(resumeCheckpoint.items||[])]:[];let failed=canResume?Number(resumeCheckpoint.failed)||0:0,startIndex=canResume?Math.min(selected.length,Math.max(0,Number(resumeCheckpoint.completed)||0)):0;
+    if(startIndex)onProgress?.(startIndex,selected.length,{signature,completed:startIndex,items:[...verified],failed,resumed:true});
+    for(let index=startIndex;index<selected.length;index++){
       if(isCancelled?.())return null;const candidate=selected[index],term=norm(candidate.term),plain=Math.abs(candidate.skip)===1&&isSourceHit(candidate,term);let admitted=plain?candidate:null,status=plain?"SOURCE_EXACT":"VERIFIED";
-      if(!plain){const result=await promoteVerified({t:term,hits:[candidate],capped:false,strategy:{policy:"FOCUSED_CORE_BUNDLE_V1"}},st.scope,null);admitted=result.hits.find(isGov);if(!admitted)failed++;}
+      if(!plain){const result=await promoteVerified({t:term,hits:[candidate],capped:false,strategy:{policy:"FOCUSED_CORE_BUNDLE_V1"}},st.scope,null);if(isCancelled?.())return null;admitted=result.hits.find(isGov);if(!admitted)failed++;}
       if(admitted)verified.push({...candidate,status,skip:Math.abs(candidate.skip),direction:candidate.dir===1?"fwd":"back",source:focusedSourceProjection(candidate),classifications:[...(candidate.classifications||[])]});
-      onProgress?.(index+1,selected.length);await paintOperation();
+      onProgress?.(index+1,selected.length,{signature,completed:index+1,items:[...verified],failed,resumed:false});await paintOperation();
     }
     return {items:verified,attempted:selected.length,failed,available:candidates.length,truncated:candidates.length>selected.length};
+  }
+  function projectFocusedCoreItems(candidates,focusedEntries){
+    return rankResearchCandidateItems((candidates||[]).map(candidate=>{
+      const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,focusedEntries);
+      return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,skip:candidate.skip,direction:candidate.direction,skipMeta:candidate.skipMeta,focusStage:candidate.focusStage,status:candidate.status,source:candidate.source,sourceContext:candidate.sourceContext,
+        lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,geometry:candidate.geometry,neighborhood:candidate.neighborhood,classifications:[...(candidate.classifications||[])],
+        continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
+    }));
   }
   // Canonical multi-word phrases are not brute-forced as a second global matrix scan. Instead,
   // start from words already found in the displayed window and extend their exact path only when

@@ -1367,3 +1367,26 @@ The 85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL (B19/C04/C0
 4 PARKED (B12/B13/B14/B18) + 1 NEVER (B20) = 85**. This cut adds no engine, state, store, graph,
 Provider, Journey, database object, migration, data rewrite, RLS, permission, `research_objects`,
 Raziel or `decision_ledger` change.
+
+## 28. CHECKPOINTED RESEARCH ACTIVITY — 2026-10-25
+
+The pinned activity surface closes the Experience follow-up recorded in §27 without changing the
+85-capability register. Regular, cross, advanced-plan and focused-package work use the existing
+progress sources. The meter stays visible while scrolling, names the current phase, shows elapsed
+time and bounded counts, and keeps the existing stop/reduction controls.
+
+The focused package now checkpoints only after each candidate has completed canonical verification.
+The bridge may project those admitted rows as `PARTIAL_VERIFIED`; it exports the same bounded labels,
+source verses, geometry class and explanations as the final package, but no positions, starts or raw
+candidates. A stop preserves that draft without changing the current matrix or Findings. The
+researcher can resume from the engine-held checkpoint only when scope, exact primary hit and the
+deterministic candidate signature still match. The final package replaces the draft and clears the
+checkpoint. Nothing is persisted or written to Research Context.
+
+Focused acceptance for this slice is green: dynamic/cold-Golden contracts **17/17**, a real Chromium
+stop-and-resume scenario **1/1**, the existing real-browser public-candidate package **1/1**, and the
+2029 build passed. Generated hosted and standalone artifacts were rebuilt from the one canonical
+template. Broader final acceptance remains required after the subsequent chained slices.
+
+No new engine, product state, store, graph, Provider, Journey, schema, migration, DB/RLS/permission,
+`research_objects`, Raziel, merge, Preview or Production action was introduced.

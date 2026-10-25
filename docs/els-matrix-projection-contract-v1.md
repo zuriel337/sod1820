@@ -313,3 +313,26 @@ work available only through its explicit bounded expansion controls.
 
 This refinement changes no engine, store, state graph, schema, data, RLS, permissions or Production
 configuration, and it makes no meaning, significance or Truth claim.
+
+## Checkpointed Research activity v1 — 25.10.2026
+
+The existing Research progress surface is now one pinned, colour-coded activity projection for
+regular search, cross search, automatic plans and the focused axis package. It reports the current
+bounded phase, elapsed time, completed work and the count of canonically admitted rows. Updates stay
+batched; scrolling the page or the local findings rail does not hide the active meter.
+
+Focused-package cancellation remains fail-closed before canonical admission. Once an individual row
+has passed the existing verifier, the same engine operation may expose that already-safe projection
+inside an explicitly labelled **partial verified draft**. Raw candidates, coordinates and starts do
+not cross the bridge, do not colour the matrix and never become Findings. Stopping leaves the axis,
+Findings, source geometry and selection unchanged.
+
+One in-memory operation checkpoint is retained inside the already-mounted canonical engine. Resume
+is accepted only when scope, exact primary occurrence and deterministic selected-candidate signature
+still match. It continues after the last completed verification attempt and merges no host-supplied
+truth. A new axis, scope, candidate signature or ordinary fresh package request discards the
+checkpoint. Completion replaces the draft with the ordinary complete package.
+
+The checkpoint is ephemeral presentation/operation state: it is not persisted, synced, written to
+Research Context or treated as an ELS/Research store. It adds no engine, Provider, graph, Journey,
+schema, RLS, permission or Truth transition.
