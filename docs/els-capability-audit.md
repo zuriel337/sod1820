@@ -1447,3 +1447,43 @@ non-AI explanation layer needed before Raziel can later consume the same package
 Challenge still requires its separate Human Gate. Unit projection tests and the real native package
 flow pass. No engine, store, graph, Provider, Journey, database/RLS/permission, Preview or
 Production action was added.
+
+## 32. RESEARCH BRIEF TO VERIFIED PACKAGE — FINAL CHAIN ACCEPTANCE — 2026-10-25
+
+The branch-only chain is complete as one canonical flow: a researcher can prepare a bounded local
+brief, explicitly start the existing automatic plan, open one of at most three first-inspection
+targets, canonically re-verify its exact occurrence, inspect the shared matrix/source/nearby
+Findings/structure package, read a deterministic evidence guide, and return to the unchanged target
+plan. Classic remains available, the canonical matrix engine stays mounted, and no heavy corpus
+work occurs merely by entering Research or editing the brief. Stopping focused work retains only
+rows that already passed canonical verification and can resume only from the matching in-memory
+engine checkpoint.
+
+Final acceptance on the generated candidate is green:
+
+- selected non-browser ELS contracts: **225 pass / 0 fail / 3 skip**; the three skips are the
+  unchanged executable PostgreSQL fixtures for which no local PostgreSQL service was available;
+- full native Chromium acceptance: **51/51 pass**, including search → verify → matrix → Finding →
+  source → save → add to research → exact reopen/return → Raziel-envelope compatibility;
+- Cutover **26/26**, truth census/artifact parity **9/9**, Advanced **2/2**, FORMS **1/1**, and
+  deferred verse-payload **4/4**;
+- Legacy and 2029 production builds: **PASS**;
+- 2029 bundle budget: **5/5 pass**, entry **9 chunks / 174.2 KB gzip**;
+- public-candidate relation privacy: **PASS**, fail-closed and scope-isolated.
+
+Deterministic level-9 gzip measurements against chain base `e1da148c` are:
+
+| Artifact | Base raw / gzip | Candidate raw / gzip | Delta raw / gzip |
+| --- | ---: | ---: | ---: |
+| Hosted ELS HTML | 1,694,295 / 974,535 B | 1,697,446 / 975,286 B | +3,151 / +751 B |
+| Standalone ELS HTML | 2,600,614 / 1,658,196 B | 2,603,765 / 1,658,931 B | +3,151 / +735 B |
+| 2029 ELS route JS | 233,981 / 68,470 B | 247,970 / 72,667 B | +13,989 / +4,197 B |
+| 2029 ELS route CSS | 83,657 / 11,875 B | 89,291 / 12,548 B | +5,634 / +673 B |
+| **Four-artifact total** | **4,612,547 / 2,713,076 B** | **4,638,472 / 2,719,432 B** | **+25,925 / +6,356 B** |
+
+The 85-capability disposition remains **76 LIVE/ABSORBED + 4 PARTIAL (B19/C04/C05/G02) +
+4 PARKED (B12/B13/B14/B18) + 1 NEVER (B20) = 85**. C05 statistical Challenge remains behind its
+Human Gate. Semantic interpretation and Raziel remain later consumers of this verified package;
+they are not silently approximated here. This chain adds no second ELS engine, state store, graph,
+Provider, Journey, B12/B13 implementation, full 3D, `research_objects`, schema/migration,
+database/RLS/permission/data change, `decision_ledger`, merge, Preview or Production action.

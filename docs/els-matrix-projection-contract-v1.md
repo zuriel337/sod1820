@@ -393,3 +393,26 @@ Its visible boundary says that the package explains occurrence, source and geome
 verse is therefore a reason to read the source first, not proof that the user's story is encoded
 there. Semantic explanation remains a future Raziel consumer; adversarial/statistical Challenge
 remains behind its Human Gate.
+
+## Final Research v1 chain acceptance — 25.10.2026
+
+The accepted branch-only projection is one ordered flow:
+
+1. prepare a local, bounded `els_research_brief_v1` without scanning or persistence;
+2. explicitly submit selected targets to the existing `els_automatic_research_plan_v1`;
+3. canonically replay an exact occurrence before opening it;
+4. load that occurrence in the already-mounted matrix and request the shared
+   `els_research_bundle_v1`;
+5. admit only verifier-approved nearby rows, source sequences and structural groups;
+6. project `els_research_package_guide_v1` from that verified package; and
+7. return to the unchanged, still-mounted plan without re-running it or changing the exact matrix.
+
+The complete candidate passed 225 non-browser ELS contracts (three unchanged PostgreSQL-only
+fixtures skipped without a local service), 51/51 native Chromium cases, 26/26 Cutover, 9/9 truth
+census/artifact parity, 2/2 Advanced, 1/1 FORMS and 4/4 deferred verse-payload checks. Both build
+targets, the 5/5 2029 bundle budget and the fail-closed public-candidate privacy check passed.
+
+This closes the non-AI Research v1 base only. It does not infer semantic relevance, significance or
+truth; does not add an engine, store, graph, Provider or Journey; and does not implement C05,
+B12/B13, full 3D, `research_objects`, a database/RLS/permission/data change, `decision_ledger`,
+Raziel, merge, Preview or Production work.
