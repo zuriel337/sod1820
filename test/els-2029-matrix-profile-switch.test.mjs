@@ -23,8 +23,7 @@ test("ELS 2029 publicly defaults to light Research and keeps Classic always avai
   assert.match(page, /useState\(ELS_MATRIX_PROFILE\.RESEARCH\)/);
   assert.match(page, /projectElsMatrixProfile/);
   assert.match(page, /<ElsMatrixProfileSwitch profile=\{matrixProfile\} onChange=\{setMatrixProfile\} \/>/);
-  assert.match(page, /data-els-research-tools="explicit-open-v1"/);
-  assert.match(page, /<summary>כלי מחקר מתקדמים · הפעלה יזומה בלבד<\/summary>/);
+  assert.match(page, /data-els-research-tools="brief-visible-v1" hidden=\{!researchProfile \|\| directSavedOpen\}/);
   assert.match(page, /const researchProfile = profileModel\.profile === ELS_MATRIX_PROFILE\.RESEARCH/);
   assert.match(page, /<Els2029Representation layers=\{replayLayers\} profile=\{matrixProfile\}/);
 

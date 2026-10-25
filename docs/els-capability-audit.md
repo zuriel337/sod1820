@@ -1390,3 +1390,26 @@ template. Broader final acceptance remains required after the subsequent chained
 
 No new engine, product state, store, graph, Provider, Journey, schema, migration, DB/RLS/permission,
 `research_objects`, Raziel, merge, Preview or Production action was introduced.
+
+## 29. RESEARCH BRIEF V1 — 2026-10-25
+
+Research now exposes one simple context-first entry above the matrix: free story/news/person text
+plus an explicit list of names or terms that must be checked. `prepareElsResearchBrief` compiles the
+input locally into an editable maximum of 24 targets. Required terms and their components lead;
+quoted expressions, contiguous two-/three-word phrases, repetition and possible Hebrew-year forms
+follow with visible reasons. Numeric dates remain reference-only. Every row is labelled as a draft,
+not a Finding or proof.
+
+Compilation is idle and local. It makes no bridge request, does not persist the raw brief, and does
+not place it in URL, local/session storage, shared Research Context or Raziel context. Only an
+explicit **התחל מחקר** action forwards the selected terms to the existing
+`els_automatic_research_plan_v1`; its existing page, verification, matrix-load and exact-return
+paths remain the sole execution route. The manual range/spelling controls remain available under an
+advanced disclosure, while the context entry is visible by default in Research. Classic selection
+hides rather than unmounts it, preserving the in-progress draft and advanced state.
+
+This is an additive UI/compiler projection over the existing ELS authority. It changes none of the
+85 capability dispositions and introduces no new engine, store, state graph, Provider, Journey,
+AI dependency, database object, RLS/permission rule, Production migration, `research_objects` or
+`decision_ledger` entry. Semantic story expansion and statistical Challenge remain later governed
+layers; neither is claimed by this cut.

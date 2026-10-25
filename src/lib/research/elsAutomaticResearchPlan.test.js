@@ -1,8 +1,35 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prepareElsAutomaticResearchPlan, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
+import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
 
 const base = { expressions: "סוד החשמל\nאמת", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "2" };
+
+test("research brief turns a story into an editable deterministic target plan without persistence or AI", () => {
+  const brief = prepareElsResearchBrief({
+    text: "הספינה קולומביה עלתה באש. האש אכלה חלק מן הספינה בשנת תשעו. \"יום קולומביה\" הוזכר פעמיים. יום קולומביה חזר.",
+    requiredTerms: "קולומביה\nיוסף כהן",
+    scope: "tanakh",
+  });
+  assert.equal(brief.contract, "els_research_brief_v1");
+  assert.equal(brief.scope, "tanakh");
+  assert.equal(brief.persisted, false);
+  assert.equal(brief.aiUsed, false);
+  assert.equal(brief.truthPromotion, false);
+  const terms = new Map(brief.candidates.map(row => [row.canonicalTerm, row]));
+  assert.equal(terms.get("קולומביה").required, true);
+  assert.ok(terms.has("יוספכהנ"));
+  assert.ok(terms.has("כהניוספ"), "an explicitly supplied personal name gets a separately labelled reverse word order");
+  assert.ok(terms.has("האשאכלה"), "local story phrases become candidates without claiming a match");
+  assert.ok(terms.has("תשעו"), "Hebrew year-shaped vocabulary stays explicit");
+  assert.ok(brief.candidates.length <= 24);
+  assert.equal(new Set(brief.candidates.map(row => row.canonicalTerm)).size, brief.candidates.length);
+});
+
+test("research brief fails visibly on empty, oversized or non-Hebrew context", () => {
+  assert.ok(prepareElsResearchBrief({ text: "" }).error);
+  assert.ok(prepareElsResearchBrief({ text: "x".repeat(6001) }).error);
+  assert.ok(prepareElsResearchBrief({ text: "only latin words and 2026" }).error);
+});
 
 test("automatic plan derives each expression once, explains every form and deduplicates canonical terms", () => {
   const plan = prepareElsAutomaticResearchPlan(base);

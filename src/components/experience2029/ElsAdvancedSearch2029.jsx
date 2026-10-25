@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
-import { prepareElsAutomaticResearchPlan, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
+import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
 
 const initialForm = { term: "", scope: "torah", spelling: "regular", skipMin: "2", skipMax: "80", pageSize: "20" };
 
@@ -29,6 +29,11 @@ function AdvancedLiveProgress({ label, completed = 0, total = 0, onStop, reducti
 
 export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanonicalForms, onPlanSummary, exactStatus = "idle" }) {
   const [form, setForm] = useState(initialForm);
+  const [briefText, setBriefText] = useState("");
+  const [briefRequired, setBriefRequired] = useState("");
+  const [briefPlan, setBriefPlan] = useState(null);
+  const [briefSelected, setBriefSelected] = useState(() => new Set());
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [query, setQuery] = useState(null);
   const [pages, setPages] = useState([]);
   const [cursor, setCursor] = useState(null);
@@ -131,8 +136,9 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     if (seq === revision.current && slices.some(slice => slice.rows.some(row => row.state === "FAILED")))
       setNotice("הסריקה הסתיימה, אך חלק מהצורות לא נבדקו עד הסוף בגלל שגיאת שרת. אין להסיק שאין להן מופעים.");
   };
-  const searchAutomatic = async () => {
-    const input = [researchTarget !== "secondary" ? form.term : "", researchTarget !== "primary" ? related : ""].filter(Boolean).join("\n");
+  const searchAutomatic = async inputOverride => {
+    const input = typeof inputOverride === "string" ? inputOverride
+      : [researchTarget !== "secondary" ? form.term : "", researchTarget !== "primary" ? related : ""].filter(Boolean).join("\n");
     const preflight = prepareElsAutomaticResearchPlan({ expressions: input, scope: form.scope,
       skipMin: form.skipMin, skipMax: form.skipMax, pageSize: form.pageSize });
     if (preflight.error) { setNotice(preflight.error); return; }
@@ -156,6 +162,27 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       if (seq === revision.current) { setBusy(false); setActiveVariant(null); }
       finishRequest(controller);
     }
+  };
+  const buildBrief = () => {
+    const next = prepareElsResearchBrief({ text: briefText, requiredTerms: briefRequired, scope: form.scope });
+    if (next.error) { setBriefPlan(null); setBriefSelected(new Set()); setNotice(next.error); return; }
+    setBriefPlan(next);
+    setBriefSelected(new Set(next.candidates.map(candidate => candidate.id)));
+    setNotice("");
+  };
+  const clearBrief = () => {
+    setBriefText(""); setBriefRequired(""); setBriefPlan(null); setBriefSelected(new Set()); setNotice("");
+  };
+  const toggleBriefCandidate = id => setBriefSelected(current => {
+    const next = new Set(current);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+  const startBriefResearch = async () => {
+    const selected = briefPlan?.candidates.filter(candidate => briefSelected.has(candidate.id)) || [];
+    if (!selected.length) { setNotice("בחרו לפחות מטרת מחקר אחת לפני תחילת הסריקה."); return; }
+    setAdvancedOpen(true);
+    await searchAutomatic(selected.map(candidate => candidate.term).join("\n"));
   };
   const continueAutomatic = async () => {
     const offset = automaticSlices.at(-1)?.nextOffset ?? 0;
@@ -254,8 +281,45 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     setNotice(reduction.type === "scope" ? "הסריקה נעצרה וההיקף הוקטן לתורה. לחצו שוב כדי להתחיל." : "הסריקה נעצרה וטווח הדילוגים הוקטן. לחצו שוב כדי להתחיל.");
   };
   return <section className="sod29-section" aria-label="חיפוש דילוגים מתקדם" data-els-advanced-search="v1">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">מחקר דילוגים</div><h3>חיפוש אחד, כל המופעים</h3></div></div>
-    <form onSubmit={event => { event.preventDefault(); search(false); }} className="els29-advanced-form">
+    <div className="sod29-section-head"><div><div className="sod29-kicker">מחקר דילוגים</div><h3>הקשר למחקר</h3></div></div>
+    <div className="els29-research-brief" data-els-research-brief="v1">
+      <p className="els29-advanced-note">כתבו סיפור, ידיעה או תיאור אדם. המערכת תציע ביטויים לבדיקה; אפשר להסיר ולהוסיף לפני שמתחילים לחפש.</p>
+      <label>הסיפור או ההקשר
+        <textarea aria-label="סיפור או הקשר למחקר" value={briefText} onChange={event => {
+          setBriefText(event.target.value); setBriefPlan(null); setBriefSelected(new Set()); setNotice("");
+        }} rows={5} maxLength={6000} placeholder="לדוגמה: הספינה קולומביה עלתה באש…" />
+      </label>
+      <label>שמות ומונחים שחייבים לבדוק
+        <textarea aria-label="מונחים שחייבים לבדוק" value={briefRequired} onChange={event => {
+          setBriefRequired(event.target.value); setBriefPlan(null); setBriefSelected(new Set()); setNotice("");
+        }} rows={2} maxLength={1000} placeholder="מונח אחד בכל שורה, למשל שם פרטי ושם משפחה" />
+      </label>
+      <div className="sod29-actions els29-brief-actions">
+        <button type="button" className="sod29-action primary" disabled={busy || !!selecting} onClick={buildBrief}>בנה תוכנית מטרות</button>
+        <button type="button" className="sod29-action" disabled={busy || !!selecting || (!briefText && !briefRequired && !briefPlan)} onClick={clearBrief}>נקה</button>
+      </div>
+      <p className="sod29-muted els29-brief-privacy">הטקסט נשאר בזיכרון המסך בלבד: הוא לא נשמר, לא נכנס לכתובת ולא נשלח לסריקה עד לחיצה מפורשת.</p>
+      {briefPlan ? <section className="els29-brief-plan" aria-label="מטרות המחקר המוצעות">
+        <div className="els29-brief-plan-head">
+          <div><strong>{briefPlan.candidates.length} מטרות מוצעות</strong><small>{briefSelected.size} נבחרו לסריקה</small></div>
+          <span className="sod29-chip">טיוטה · לא ראיה</span>
+        </div>
+        <div className="els29-brief-candidates">
+          {briefPlan.candidates.map(candidate => <label key={candidate.id} className="els29-brief-candidate">
+            <input type="checkbox" checked={briefSelected.has(candidate.id)} onChange={() => toggleBriefCandidate(candidate.id)} />
+            <span><bdi>{candidate.term}</bdi><small>{candidate.reason}{candidate.required ? " · מונח מחייב" : ""}</small></span>
+          </label>)}
+        </div>
+        {briefPlan.references.length ? <p className="sod29-muted">תאריכים ומספרים שנשמרו כהקשר בלבד, לא כמילת ELS: <bdi>{briefPlan.references.join(" · ")}</bdi></p> : null}
+        <button type="button" className="sod29-action primary els29-brief-start" disabled={busy || !!selecting || !briefSelected.size} onClick={startBriefResearch}>
+          התחל מחקר מתוך {briefSelected.size} מטרות
+        </button>
+      </section> : null}
+    </div>
+    {notice ? <p role="status">{notice}</p> : null}
+    <details className="sod29-els-research-details els29-advanced-options" data-els-advanced-options="explicit-open-v1" open={advancedOpen} onToggle={event => setAdvancedOpen(event.currentTarget.open)}>
+      <summary>חיפוש ידני והגדרות מתקדמות</summary>
+      <form onSubmit={event => { event.preventDefault(); search(false); }} className="els29-advanced-form">
       <label>מונח <input aria-label="מונח לחיפוש מתקדם" value={form.term} onChange={event => edit("term", event.target.value)} /></label>
       <label>טקסט <select aria-label="טקסט לחיפוש מתקדם" value={form.scope} onChange={event => edit("scope", event.target.value)}><option value="torah">תורה</option><option value="tanakh">תנ״ך</option></select></label>
       <label>צורת כתיבה לחיפוש יחיד <select aria-label="צורת כתיבה לחיפוש" value={form.spelling} onChange={event => edit("spelling", event.target.value)}>
@@ -281,9 +345,9 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       }}>
         <option value="all">ראשי ומשניים</option><option value="primary">המונח הראשי</option><option value="secondary">המונחים המשניים</option>
       </select></label>
-      <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={searchAutomatic}>חקור את כל הצורות אוטומטית</button>
-    </form>
-    {notice ? <p role="status">{notice}</p> : null}
+      <button type="button" className="sod29-action" disabled={busy || !!selecting} onClick={() => searchAutomatic()}>חקור את כל הצורות אוטומטית</button>
+      </form>
+    </details>
     {exactStatus === "failed" ? <p role="alert">לא הצלחנו למצוא או לאמת מופע בדילוג המבוקש. המטריצה הקיימת נשמרה.</p>
       : exactStatus === "verified" ? <p role="status">המופע אומת ונשלח למטריצה.</p>
         : exactStatus === "probing" ? <p role="status">מחפש ומאמת מופע במנוע הקנוני…</p> : null}

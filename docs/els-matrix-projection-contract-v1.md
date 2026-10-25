@@ -336,3 +336,26 @@ checkpoint. Completion replaces the draft with the ordinary complete package.
 The checkpoint is ephemeral presentation/operation state: it is not persisted, synced, written to
 Research Context or treated as an ELS/Research store. It adds no engine, Provider, graph, Journey,
 schema, RLS, permission or Truth transition.
+
+## Research Brief v1 — 25.10.2026
+
+`els_research_brief_v1` is the light Research entry for a story, news excerpt or person description.
+It is a deterministic local compiler, not an ELS engine and not a semantic oracle. It normalizes
+Hebrew text, keeps explicitly required names/terms first, proposes bounded quoted, contiguous,
+repeated and Hebrew-year-shaped targets, and exposes at most 24 editable candidates with a reason
+for each. Compact contiguous pairs precede wider local phrases. A proposed target is labelled as a
+draft and makes no occurrence, meaning, significance or Truth claim.
+
+Typing or compiling a brief performs no network request and no search. The raw brief stays only in
+the mounted component's memory; it is not placed in a URL, browser storage, analytics, Research
+Context or the Raziel envelope. After an explicit start action, only the targets left selected by
+the user enter `els_automatic_research_plan_v1`, which continues through the existing canonical
+page bridge, occurrence verification, matrix load and exact-return seam. Dates written with Arabic
+digits remain visible context references and are not silently transformed into ELS terms.
+
+The brief remains mounted while Classic is selected so a Classic↔Research round trip does not lose
+its draft or the existing advanced-search state. Advanced range, spelling and exact-skip controls
+stay behind one disclosure; the brief itself is visible immediately in Research and still does no
+heavy entry work. This adds no engine, state store, graph, Provider, Journey, AI call, schema, RLS,
+permission or Production change. Semantic expansion by Raziel remains a later, separately governed
+consumer and may propose vocabulary but may not manufacture an occurrence.

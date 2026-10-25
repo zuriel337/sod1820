@@ -292,10 +292,9 @@ export default function Els2029Page() {
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
     {!directSavedOpen ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
-    <details className="sod29-els-research-details" data-els-research-tools="explicit-open-v1" hidden={!researchProfile || directSavedOpen}>
-      <summary>כלי מחקר מתקדמים · הפעלה יזומה בלבד</summary>
+    <div data-els-research-tools="brief-visible-v1" hidden={!researchProfile || directSavedOpen}>
       <ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />
-    </details>
+    </div>
     <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>

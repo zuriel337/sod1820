@@ -16,7 +16,7 @@ try {
 const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromium";
 const available = Boolean(pw && vite && react && existsSync(executablePath));
 
-test("light Research entry stays idle until advanced tools are opened; exact load survives Classic round-trip", { skip: !available, timeout: 60000 }, async () => {
+test("light Research entry exposes an idle brief while advanced controls stay closed; exact load survives Classic round-trip", { skip: !available, timeout: 60000 }, async () => {
   const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
   let browser;
   try {
@@ -28,9 +28,10 @@ test("light Research entry stays idle until advanced tools are opened; exact loa
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     await page.getByRole("heading", { name: "מחקר דילוגי אותיות" }).waitFor();
     assert.ok(await page.getByRole("button", { name: "מחקר", exact: true }).count() >= 1);
+    assert.equal(await page.getByLabel("סיפור או הקשר למחקר").isVisible(), true);
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
     assert.deepEqual(await page.evaluate(() => window.__advancedCalls), []);
-    await page.locator('[data-els-research-tools="explicit-open-v1"] > summary').click();
+    await page.locator('[data-els-advanced-options="explicit-open-v1"] > summary').click();
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), true);
     await page.getByLabel("מונח לחיפוש מתקדם").fill("תורתאמת");
     assert.equal(await page.getByRole("button", { name: /קרוב|בינוני|רחוק/ }).count(), 0);
@@ -100,6 +101,45 @@ test("light Research entry stays idle until advanced tools are opened; exact loa
     await page.getByLabel("תוצאות חשפד").getByRole("heading", { name: /הבדיקה לא הושלמה/ }).waitFor();
     assert.equal(await page.getByLabel("תוצאות חשפד").getByText(/לא נמצאו מופעים/).count(), 0);
     assert.equal(await page.getByText(/הטווח פתוח גם מעל 500/).count(), 0);
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
+test("a private research brief stays local until explicit start and then uses the existing automatic scanner", { skip: !available, timeout: 60000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    browser = await pw.chromium.launch({ headless: true, executablePath });
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    const errors = [];
+    page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
+    await page.getByLabel("סיפור או הקשר למחקר").fill("הספינה קולומביה עלתה באש. האש אכלה.");
+    await page.getByLabel("מונחים שחייבים לבדוק").fill("קולומביה");
+    await page.getByRole("button", { name: "בנה תוכנית מטרות" }).click();
+    const plan = page.getByLabel("מטרות המחקר המוצעות");
+    await plan.getByText("טיוטה · לא ראיה").waitFor();
+    assert.ok(await plan.getByText("קולומביה", { exact: true }).count() >= 1);
+    assert.ok(await plan.getByText("האש אכלה", { exact: true }).count() >= 1);
+    assert.deepEqual(await page.evaluate(() => window.__advancedCalls), []);
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
+    await plan.getByRole("button", { name: /התחל מחקר מתוך/ }).click();
+    await page.getByText(/ביטויים · .*צורות שונות/).waitFor();
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), true);
+    const state = await page.evaluate(() => ({
+      calls: window.__advancedCalls,
+      url: location.href,
+      local: Object.values(localStorage),
+      session: Object.values(sessionStorage),
+    }));
+    assert.ok(state.calls.some(call => call.body.op === "page" && call.body.term === "קולומביה"));
+    assert.ok(state.calls.every(call => !Object.hasOwn(call.body, "story") && !Object.hasOwn(call.body, "brief") && !Object.hasOwn(call.body, "context")));
+    assert.ok(!state.url.includes("הספינה"));
+    assert.ok(!JSON.stringify([...state.local, ...state.session]).includes("הספינה"));
     assert.deepEqual(errors, []);
   } finally {
     await browser?.close();
