@@ -200,6 +200,7 @@ export function buildLifeJourneyFindingTraversalPatch(context, {
   value,
   sourceRef = null,
   versionRef = null,
+  focusKind = null,
 } = {}) {
   const safe = normalizeResearchContext(context);
   const rootRef = clean(personRef);
@@ -209,9 +210,12 @@ export function buildLifeJourneyFindingTraversalPatch(context, {
     || (typeof value === "string" && !value.trim())) return null;
   const number = Number(value);
   const view = lifeJourneyViewFromContext(safe, rootRef);
+  const resolvedFocusKind = clean(focusKind)
+    || (view === "name" ? "life_journey_gematria" : "life_journey_date_cross");
   if (!safe || !rootRef || !isLifeJourneyMemberRef(rootRef, selectedRef)
     || !exactFindingId || !Number.isSafeInteger(number) || number < 0
-    || !["person", "date"].includes(view)) return null;
+    || !["person", "name", "date"].includes(view)
+    || !["life_journey_date_cross", "life_journey_gematria"].includes(resolvedFocusKind)) return null;
 
   const origin = buildLifeJourneyPersonContext(rootRef, safe);
   if (!origin) return null;
@@ -226,7 +230,7 @@ export function buildLifeJourneyFindingTraversalPatch(context, {
       sourceRef: clean(sourceRef),
       versionRef: clean(versionRef),
       resultValue: number,
-      focusKind: "life_journey_date_cross",
+      focusKind: resolvedFocusKind,
     },
     lens: "number",
     dimensions: {

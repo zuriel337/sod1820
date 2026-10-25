@@ -102,6 +102,36 @@ test("an explicit date-cross Finding opens the canonical Number page and exact-r
   assert.equal(restored.returnTo, null);
 });
 
+test("a canonical name Finding opens Number without putting the private name in the URL", () => {
+  const person = buildLifeJourneyPersonContext(PERSON_REF);
+  const name = buildLifeJourneyCapabilityPatch(person, {
+    personRef: PERSON_REF,
+    memberRef: MEMBER_REF,
+    name: "שם בדיקה",
+    view: "name",
+  });
+  const findingId = "uf1:gematria:private-normalized-name:method";
+  const finding = buildLifeJourneyFindingTraversalPatch(name, {
+    personRef: PERSON_REF,
+    memberRef: MEMBER_REF,
+    findingId,
+    value: 337,
+    sourceRef: "gematria",
+    versionRef: "gematria-api-v1",
+    focusKind: "life_journey_gematria",
+  });
+
+  assert.equal(finding.subject.href, "/2029/number/337");
+  assert.equal(finding.subject.href.includes("שם"), false);
+  assert.equal(finding.selection.findingId, findingId);
+  assert.equal(finding.selection.focusKind, "life_journey_gematria");
+  assert.equal(finding.returnTo.subject.id, PERSON_REF);
+
+  const restored = mergeResearchContext(finding, buildLifeJourneyExactReturnPatch(finding));
+  assert.equal(lifeJourneyViewFromContext(restored, PERSON_REF), "person");
+  assert.equal(restored.subject.id, PERSON_REF);
+});
+
 test("Finding traversal rejects foreign family refs, missing Finding identity and blank values", () => {
   const person = buildLifeJourneyPersonContext(PERSON_REF);
   const base = { personRef: PERSON_REF, memberRef: MEMBER_REF, findingId: "finding-73", value: 73 };

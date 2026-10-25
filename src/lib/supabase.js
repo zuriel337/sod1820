@@ -3798,6 +3798,23 @@ export async function getNameMulti(name, { surname, birthdate, question } = {}) 
   return data || null;
 }
 
+// Life Journey's bounded non-ELS NameLab reader. This consumes the existing fn_name_multi
+// opt-out seam directly so a one-word name cannot fall through fn_name_research_graded's
+// historical ELS branch. It is a read adapter only: no calculation, persistence or new store.
+export async function getNameMultiWithoutEls(name) {
+  const w = (name || '').trim();
+  if (!supabase || !w) return null;
+  const { data, error } = await supabase.rpc('fn_name_multi', {
+    p_name: w,
+    p_surname: null,
+    p_birthdate: null,
+    p_question: null,
+    p_opts: { skip_els: '1' },
+  });
+  if (error) return null;
+  return data || null;
+}
+
 // 📊 לוח-איכות פנימי — מתעד כל מחקר-שם (fire-and-forget, לצורכי פיתוח). לא חוסם את ה-UI.
 export function logNameResearch(doc, ms) {
   try {

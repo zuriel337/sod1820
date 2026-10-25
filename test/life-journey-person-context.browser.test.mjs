@@ -32,10 +32,23 @@ function lifeJourneyFixturePlugin() {
       export const createSupabasePersonalDateCrossProvider=()=>async()=>[];
       export const runPersonalDateResearch=async(input)=>{window.__dateCalls.push(input);return {findings:[{id:"finding-date-cross-73",kind:"date_cross",subject:{value:73},source:{sourceRef:null,adapter:"personal-date-representation-v1"}}]};};
     `],
-    ["virtual:life-journey-plan.js", `export const buildAccessDescriptor=()=>({scope:"private"});`],
+    ["virtual:life-journey-plan.js", `
+      export const buildAccessDescriptor=()=>({scope:"private"});
+      export const normalizeAccessDescriptor=value=>value||{scope:"private"};
+    `],
     ["virtual:life-journey-hints.js", `
       window.__hintReads=window.__hintReads||[];
       export async function getMyHints(user,options){window.__hintReads.push({user,options});return [{id:"hint-1",hint_type:"idea",number:73,title:"רמז קיים",source_url:"https://example.test/source"}];}
+    `],
+    ["virtual:life-journey-canonical-gematria.js", `
+      window.__nameCalls=window.__nameCalls||[];
+      export async function fetchCanonicalGematriaFindings(name){
+        window.__nameCalls.push({kind:"gematria",name});
+        return [
+          {id:"finding-gematria-ragil-73",kind:"gematria",subject:{value:73},source:{engine:"gematria",adapter:"gematria-api-v1",method:"ragil"}},
+          {id:"finding-gematria-miluy-101",kind:"gematria",subject:{value:101},source:{engine:"gematria",adapter:"gematria-api-v1",method:"miluy"}},
+        ];
+      }
     `],
     ["virtual:life-journey-supabase.js", `
       const OWNER_PERSON_ID="11111111-1111-4111-8111-111111111111";
@@ -60,6 +73,7 @@ function lifeJourneyFixturePlugin() {
       export async function upsertFamilyRelation(personId,parent_ref,child_ref,relation_type){const data=read();const row={source_ref:"relation:"+(data.relations.length+1),parent_ref,child_ref,relation_type};data.relations.push(row);write(data);return row;}
       export async function getNameMulti(name,options){window.__nameCalls.push({kind:"multi",name,options});return {input:{components:{values:{full:73,parts:{שם:73}}}},combo:{tracks_with_results:1}};}
       export async function getNameProtocol(name){window.__nameCalls.push({kind:"protocol",name});return {research_id:"fixture-name",input:{normalized:name,value:73},agents:[{output_key:"gematria",ran:true,ok:true,empty:false,ms:1,seq:1}],findings:{gematria:{regular:73}},provenance:{gematria:{fn:"fixture"}},scores:{depth:42},metatron:{headline:"סיכום בדיקה",follow_up:[]}};}
+      export async function getNameMultiWithoutEls(name){window.__nameCalls.push({kind:"name_lab",name,options:{skip_els:"1"}});return {tracks_with_results:1,tracks:[{id:"variants",status:"ok",data:[{form:"שם בדיקה",note:"fixture"}]},{id:"els",status:"skipped",ran:false,count:0}]};}
     `],
     ["virtual:life-journey-family-claim.js", `
       const OWNER_PERSON_ID="11111111-1111-4111-8111-111111111111";
@@ -121,6 +135,7 @@ function lifeJourneyFixturePlugin() {
     ["researchPlanV2.js", "virtual:life-journey-plan.js"],
     ["hints.js", "virtual:life-journey-hints.js"],
     ["familyClaimAdapter.js", "virtual:life-journey-family-claim.js"],
+    ["canonicalGematria.js", "virtual:life-journey-canonical-gematria.js"],
   ]);
   return {
     name: "life-journey-person-context-browser-fixture",
@@ -235,12 +250,13 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.deepEqual(await birthTimeline.locator("li strong").allTextContents(), ["הורה בדיקה משפחה", "ילד בדיקה"]);
     assert.equal(await birthTimeline.getByText("י״א בתשרי").count(), 2);
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "select-all remains navigation context only");
-    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "protocol" && call.name === "ילד בדיקה")), false, "family names are not researched by selection");
+    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), false, "family names are not researched by selection");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), false, "family dates are not researched by selection");
     await family.getByRole("button", { name: "חקור 2 אנשים יחד" }).click();
     await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
     await family.locator(".person-journey-family-shared", { hasText: "2 אנשים" }).waitFor();
-    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "protocol" && call.name === "ילד בדיקה")), true, "explicit family research includes the selected child");
+    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), true, "explicit family research includes the selected child");
+    assert.equal(await page.evaluate(() => window.__nameCalls.filter(call => call.kind === "name_lab").every(call => call.options?.skip_els === "1")), true, "every Life Journey NameLab read explicitly skips ELS");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");
     await family.getByRole("button", { name: "פתח את ממצא 73 של ילד בדיקה" }).click();
@@ -280,6 +296,16 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByRole("button", { name: "פתח מסע שם" }).click();
     await page.getByRole("heading", { name: "מסע השם" }).waitFor();
     assert.equal(new URL(page.url()).search, "");
+    await page.getByRole("button", { name: "פתח רגיל 73 בדף המספר" }).click();
+    await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
+    assert.equal(new URL(page.url()).pathname, "/2029/number/73");
+    assert.equal(decodeURIComponent(page.url()).includes("הורה בדיקה"), false);
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.selection?.focusKind), "life_journey_gematria");
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.selection?.findingId), "finding-gematria-ragil-73");
+    await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
+    await page.getByRole("heading", { name: "מי אני" }).waitFor();
+    await page.getByRole("button", { name: "פתח מסע שם" }).click();
+    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
     await page.reload();
     await page.getByRole("heading", { name: "מסע השם" }).waitFor();
     await page.getByRole("button", { name: "המשך לשם ותאריך" }).click();
@@ -293,7 +319,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await childSelection.isChecked(), true, "exact return preserves the family selection");
 
     const childCard = family.locator("article", { hasText: "ילד בדיקה" });
-    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "protocol" && call.name === "ילד בדיקה")), false, "refresh preserves selection but never replays family research automatically");
+    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), false, "refresh preserves selection but never replays family research automatically");
     const elsCallsBefore = await page.evaluate(() => window.__elsCalls.length);
     await childCard.getByRole("button", { name: "שם ותאריך", exact: true }).click();
     await page.getByRole("heading", { name: "שם ותאריך" }).waitFor();

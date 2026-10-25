@@ -37,6 +37,7 @@ import {
   lifeJourneySelectedMemberRefs,
   lifeJourneyViewFromContext,
 } from "../lib/research/lifeJourneyPersonContext.js";
+import { runLifeJourneyNameResearch } from "../lib/research/lifeJourneyNameResearch.js";
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import "./person-journey.css";
@@ -91,16 +92,23 @@ function researchSummary(nameResult, dateBundle, dateRepresentation) {
   const parts = values?.parts && typeof values.parts === "object" ? values.parts : {};
   const crossFindings = dateCrossFindingRefs(dateBundle);
   const crossValues = [...new Set(crossFindings.map(finding => finding.value))];
+  const methodFindings = Array.isArray(nameResult?.methodFindings) ? nameResult.methodFindings : [];
 
   return Object.freeze({
-    fullValue: Number.isSafeInteger(Number(values.full)) ? Number(values.full) : null,
+    fullValue: Number.isSafeInteger(nameResult?.regularValue)
+      ? nameResult.regularValue
+      : Number.isSafeInteger(Number(values.full)) ? Number(values.full) : null,
+    methodFindings,
     partValues: Object.entries(parts)
       .map(([label, value]) => ({ label, value: Number(value) }))
-      .filter((item) => Number.isSafeInteger(item.value)),
+      .filter(item => Number.isSafeInteger(item.value)),
     hebrewDate: dateRepresentation?.hebrew?.pretty || null,
     crossFindings,
     crossValues,
-    tracksWithResults: Number(nameResult?.combo?.tracks_with_results ?? nameResult?.tracks_with_results ?? 0) || 0,
+    tracksWithResults: Number(nameResult?.tracksWithResults
+      ?? nameResult?.combo?.tracks_with_results
+      ?? nameResult?.tracks_with_results
+      ?? 0),
   });
 }
 
@@ -152,19 +160,25 @@ function familyBirthTimeline(members, selectedRefs) {
   }).sort((a, b) => a.dateIso.localeCompare(b.dateIso) || a.name.localeCompare(b.name, "he"));
 }
 
-function familyResearchSummary(nameDocument, dateBundle, dateRepresentation) {
+function familyResearchSummary(nameResult, dateBundle, dateRepresentation) {
   const crossFindings = dateCrossFindingRefs(dateBundle);
   const crossValues = [...new Set(crossFindings.map(finding => finding.value))];
-  const rawFullValue = nameDocument?.input?.value;
-  const fullValue = rawFullValue == null || rawFullValue === "" ? null : Number(rawFullValue);
-  const agents = Array.isArray(nameDocument?.agents) ? nameDocument.agents : [];
+  const methodFindings = Array.isArray(nameResult?.methodFindings) ? nameResult.methodFindings : [];
+  const rawLegacyValue = nameResult?.input?.value;
+  const legacyValue = rawLegacyValue == null || rawLegacyValue === "" ? null : Number(rawLegacyValue);
+  const legacyAgents = Array.isArray(nameResult?.agents) ? nameResult.agents : [];
   return Object.freeze({
-    fullValue: Number.isSafeInteger(fullValue) ? fullValue : null,
+    fullValue: Number.isSafeInteger(nameResult?.regularValue)
+      ? nameResult.regularValue
+      : Number.isSafeInteger(legacyValue) ? legacyValue : null,
+    methodFindings,
     hebrewDate: dateRepresentation?.hebrew?.pretty || null,
     crossFindings,
     crossValues,
-    tracksWithResults: agents.filter(agent => agent?.ran && agent?.ok && !agent?.empty).length,
-    partial: !nameDocument,
+    tracksWithResults: Number(nameResult?.tracksWithResults
+      ?? legacyAgents.filter(agent => agent?.ran && agent?.ok && !agent?.empty).length
+      ?? 0),
+    partial: !nameResult || Boolean(nameResult.partial),
   });
 }
 
@@ -172,7 +186,10 @@ function sharedFamilyValues(rows) {
   const counts = new Map();
   for (const row of rows) {
     if (row.state !== "ready") continue;
-    const values = new Set([row.data?.fullValue, ...(row.data?.crossValues || [])]
+    const values = new Set([
+      ...(row.data?.methodFindings || []).map(finding => finding.value),
+      ...(row.data?.crossValues || []),
+    ]
       .filter(Number.isSafeInteger));
     for (const value of values) counts.set(value, (counts.get(value) || 0) + 1);
   }
@@ -368,11 +385,13 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       const dateRepresentation = date ? gregorianToHebrewDateRepresentation(date) : null;
       const crossProvider = createSupabasePersonalDateCrossProvider(supabase);
       const [nameResult, dateBundle] = await Promise.all([
-        getNameMulti(clean(first), {
-          surname: clean(last) || null,
-          birthdate: null,
-          question: null,
-        }),
+        variant === "2029"
+          ? runLifeJourneyNameResearch(joinName(first, last))
+          : getNameMulti(clean(first), {
+              surname: clean(last) || null,
+              birthdate: null,
+              question: null,
+            }),
         date
           ? runPersonalDateResearch({
               name: clean(first),
@@ -393,7 +412,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       setAnalysis({ state: "error", data: null, error: message });
       return null;
     }
-  }, [user]);
+  }, [user, variant]);
 
   const beginJourney = async () => {
     const first = clean(firstName);
@@ -626,6 +645,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       value: finding?.value,
       sourceRef: finding?.sourceRef,
       versionRef: finding?.versionRef,
+      focusKind: finding?.focusKind,
     });
     if (!patch) {
       setErr("לא ניתן לפתוח את הממצא בלי הקשר אדם תקין.");
@@ -699,8 +719,10 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           const dateRepresentation = profile.birthdate
             ? gregorianToHebrewDateRepresentation(profile.birthdate)
             : null;
-          const [nameDocument, dateBundle] = await Promise.all([
-            getNameProtocol(profile.fullName),
+          const [nameResult, dateBundle] = await Promise.all([
+            variant === "2029"
+              ? runLifeJourneyNameResearch(profile.fullName)
+              : getNameProtocol(profile.fullName),
             profile.birthdate
               ? runPersonalDateResearch({
                   name: profile.first,
@@ -715,7 +737,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             memberRef: clean(member.source_ref),
             name: profile.fullName,
             state: "ready",
-            data: familyResearchSummary(nameDocument, dateBundle, dateRepresentation),
+            data: familyResearchSummary(nameResult, dateBundle, dateRepresentation),
             error: null,
           });
         } catch {
@@ -733,7 +755,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     } catch (error) {
       setFamilyResearch({ state: "error", rows: [], sharedValues: [], error: personJourneyErrorMessage(error) });
     }
-  }, [members, selectedFamilyRefs, user]);
+  }, [members, selectedFamilyRefs, user, variant]);
 
   if (authLoading || loading) {
     return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
@@ -763,7 +785,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   } : null;
 
   if (activeView === "name" && selectedName && CapabilitySurface) {
-    return <CapabilitySurface view="name" name={selectedName} onContinue={() => continueSelectedCapability("date")} onReturn={returnToPerson} />;
+    return <CapabilitySurface
+      view="name"
+      name={selectedName}
+      personRef={selfRef}
+      memberRef={selectedMemberRef}
+      onContinue={() => continueSelectedCapability("date")}
+      onReturn={returnToPerson}
+    />;
   }
 
   if (activeView === "date" && selectedName && selectedProfile && CapabilitySurface) {
@@ -850,7 +879,16 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <span>גימטריה רגילה · תוצאת מנוע</span>
         </div>
         <div className="person-journey-fact-grid">
-          {analysisData.partValues.map((item) => <article key={item.label}>
+          {variant === "2029" ? analysisData.methodFindings.filter(item => item.methodKey !== "ragil").map((item) => <article key={item.id}>
+            <small>{item.methodLabel}</small>
+            <button
+              type="button"
+              className="person-journey-finding-link"
+              onClick={() => openFindingTraversal(selfRef, { ...item, focusKind: "life_journey_gematria" })}
+              aria-label={`פתח ${item.methodLabel} ${item.value} בדף המספר`}
+            >{item.value}</button>
+            <span>תוצאת מנוע קנונית</span>
+          </article>) : analysisData.partValues.map(item => <article key={item.label}>
             <small>{item.label}</small>
             <strong>{item.value}</strong>
             <span>ערך רכיב</span>
@@ -1094,6 +1132,13 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
                 <div><dt>שכבות עם תוצאה</dt><dd>{row.data.tracksWithResults}</dd></div>
                 <div><dt>נקודות מפגש</dt><dd>{row.data.crossValues.length}</dd></div>
               </dl>
+              {variant === "2029" && row.data.methodFindings.length ? <div className="person-journey-family-cross-values">{row.data.methodFindings.map(finding => <button
+                type="button"
+                className="person-journey-finding-link"
+                key={finding.id}
+                onClick={() => openFindingTraversal(row.memberRef, { ...finding, focusKind: "life_journey_gematria" })}
+                aria-label={`פתח ${finding.methodLabel} ${finding.value} של ${row.name}`}
+              >{finding.methodLabel} {finding.value}</button>)}</div> : null}
               {row.data.crossFindings.length ? <div className="person-journey-family-cross-values">{row.data.crossFindings.map(finding => <button
                 type="button"
                 className="person-journey-finding-link"
