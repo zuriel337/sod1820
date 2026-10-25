@@ -136,6 +136,17 @@ export function resolveRazielDeterministicGuidance(message) {
 export function resolveRazielExpressionContinuationDirective(question) {
   const q = grammarText(question);
   if (!q || q.length > 140) return null;
+  // A natural correction after a misunderstood calculation keeps the subject from the
+  // preceding turn and changes only its method lens.  The trailing action words are
+  // conversation scaffolding, not part of the method name.
+  const naturalCorrection = /^(?:התכוונתי|ביקשתי)(?:\s+לחשב)?\s+בשיטת\s+(.{1,60}?)(?:\s+(?:תבדוק|בדוק|תחשב|חשב)(?:\s+לי)?)?$/u.exec(q)
+    || /^(?:התכוונתי|ביקשתי)(?:\s+לחשב)?\s+ב([א-ת][א-ת״׳"']{1,59})(?:\s+(?:תבדוק|בדוק|תחשב|חשב)(?:\s+לי)?)?$/u.exec(q);
+  if (naturalCorrection) return Object.freeze({
+    requested_action: "research",
+    requested_method: canonicalRequestedMethod(naturalCorrection[1]),
+    all_methods: false,
+    view_mode_only: false,
+  });
   const correction = /^שיטת\s+(.{1,60}?)\s+(?:ביקשתי|התכוונתי)$/u.exec(q);
   if (correction) return Object.freeze({
     requested_action: "research",
@@ -292,14 +303,16 @@ function explicitExpressionCalculationCommand(question) {
   ).exec(commandQuestion);
   const leadingMethodQuestion = /^(?:כמה\s+(?:זה|שווה)|מה\s+שווה)\s+(.+?)\s+בשיטת\s+(.+)$/u.exec(commandQuestion);
   const trailingMethodQuestion = /^(.+?)\s+בשיטת\s+(.+?)\s+(?:כמה\s+(?:זה|שווה)|מה\s+שווה)$/u.exec(commandQuestion);
+  const gematriaMethodQuestion = /^(?:מה\s+(?:ה?גימטרי[הא]|הערך\s+הגימטרי)\s+של|כמה\s+(?:ה?גימטרי[הא]|הערך\s+הגימטרי)\s+של)\s+(.+?)\s+בשיטת\s+(.+)$/u.exec(commandQuestion);
   // Natural Hebrew often contracts "בשיטת משולש" to "במשולש". Keep the compact
   // lens to one bounded Hebrew token; the canonical method profile still decides downstream
   // whether that token names a real method. An unknown token can therefore fail closed, but it
   // can never be appended to the expression and calculated as ordinary letters.
   const leadingCompactMethodQuestion = /^(?:כמה\s+(?:זה|שווה)|מה\s+שווה)\s+(.+?)\s+ב([א-ת][א-ת״׳"']{1,59})$/u.exec(commandQuestion);
   const trailingCompactMethodQuestion = /^(.+?)\s+ב([א-ת][א-ת״׳"']{1,59})\s+(?:כמה\s+(?:זה|שווה)|מה\s+שווה)$/u.exec(commandQuestion);
-  const methodQuestion = leadingMethodQuestion || trailingMethodQuestion
-    || leadingCompactMethodQuestion || trailingCompactMethodQuestion;
+  const gematriaCompactMethodQuestion = /^(?:מה\s+(?:ה?גימטרי[הא]|הערך\s+הגימטרי)\s+של|כמה\s+(?:ה?גימטרי[הא]|הערך\s+הגימטרי)\s+של)\s+(.+?)\s+ב([א-ת][א-ת״׳"']{1,59})$/u.exec(commandQuestion);
+  const methodQuestion = leadingMethodQuestion || trailingMethodQuestion || gematriaMethodQuestion
+    || leadingCompactMethodQuestion || trailingCompactMethodQuestion || gematriaCompactMethodQuestion;
 
   let body = "";
   let explicitRequestedMethod = "";
@@ -326,12 +339,13 @@ function explicitExpressionCalculationCommand(question) {
     .trim();
 
   const marker = body.lastIndexOf(" בשיטת ");
+  const compactMarker = marker > 0 ? null : /^(.+?)\s+ב((?!גימטרי[הא]$|מצב$|כל$)[א-ת][א-ת״׳"']{1,59})$/u.exec(body);
   const requestedMethod = explicitRequestedMethod || (marker > 0
     ? clean(body.slice(marker + " בשיטת ".length), 60)
-    : "");
+    : clean(compactMarker?.[2], 60));
   const expressionCandidate = marker > 0
     ? body.slice(0, marker)
-    : body;
+    : compactMarker?.[1] || body;
   const expressionText = expressionCandidate
     .replace(new RegExp(`\\s+בגימטרי[הא](?:\\s+${trailingCalculation})?$`, "u"), "")
     .replace(/\s+(?:בכל\s+השיטות|במצב\s+(?:רגיל|כללי))$/u, "")

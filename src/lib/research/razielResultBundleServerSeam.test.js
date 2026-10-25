@@ -971,6 +971,10 @@ test("natural method questions bypass Legacy command arithmetic and return canon
       researchBundleByExpression: { משיח: expressionCrossingBundle("משיח") },
       researchBundleByNumber: { 1331: numberBundle(1331) },
     } },
+    { question: "מה הגימטריה של משיח במשולש", expression: "משיח", value: 1331, bundles: {
+      researchBundleByExpression: { משיח: expressionCrossingBundle("משיח") },
+      researchBundleByNumber: { 1331: numberBundle(1331) },
+    } },
   ];
   for (const [index, item] of cases.entries()) {
     const prepared = prepare({ question: item.question });

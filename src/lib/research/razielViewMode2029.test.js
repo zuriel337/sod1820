@@ -108,7 +108,7 @@ test("responses: general carries no mode report; a non-applied mode is never lab
     map_available: true,
   } }, "fast");
   assert.equal("viewMode" in plain, false);
-  assert.equal(plain.answer, "תשובה\n\n🔎 ראיות\n• חכמה · רגיל = 73 · חישוב מאומת\n• בינה · רגיל = 67 · חישוב מאומת · מאגר\nאלה נתוני המנוע והמחקר; הטקסט שמעליהם הוא הפרשנות.\nלמפת הקשרים המלאה אפשר לבחור „🗺️ פתח מפת מחקר” שמתחת.");
+  assert.equal(plain.answer, "תשובה\n\n🔎 2 ממצאים מאומתים עומדים מאחורי הפרשנות · הפירוט המלא במפת המחקר.");
   assert.deepEqual(plain.evidenceSummary, {
     title: "ראיות",
     calculations: [{ expression: "חכמה", method: "רגיל", value: 73, href: "/2029/number/73" }],
@@ -116,8 +116,16 @@ test("responses: general carries no mode report; a non-applied mode is never lab
     mapAvailable: true,
   });
 
-  const applied = normalizeRazielResponse({ answer: "עוגן: …", plan_meta: { view_mode: { requested: "landscape", applied: true } } }, "fast");
+  const applied = normalizeRazielResponse({ answer: "עוגן: …", plan_meta: { view_mode: { requested: "landscape", applied: true } }, evidence_summary: {
+    title: "ראיות",
+    calculations: [{ expression: "חכמה", method: "רגיל", value: 73 }],
+    findings: [{ label: "בינה", lane: "verified_calculation", method: "רגיל", value: 67, source_name: "מאגר" }],
+    map_available: true,
+  } }, "fast");
   assert.deepEqual(applied.viewMode, { requested: "landscape", applied: true, reason: null });
+  assert.match(applied.answer, /🔎 ראיות/);
+  assert.match(applied.answer, /• חכמה · רגיל = 73/);
+  assert.match(applied.answer, /• בינה · רגיל = 67/);
 
   const notApplied = normalizeRazielResponse({ answer: "אין חבילה", deterministic: true, plan_meta: { view_mode: { requested: "exploratory", applied: false, reason: "no_canonical_bundle" } } }, "fast");
   assert.deepEqual(notApplied.viewMode, { requested: "exploratory", applied: false, reason: "no_canonical_bundle" });

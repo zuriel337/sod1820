@@ -103,6 +103,9 @@ test("method questions in natural word order never calculate the instruction sca
     ["שאול בשיטת משולש כמה זה", "שאול", "קדמי"],
     ["כמה זה משיח במשולש", "משיח", "קדמי"],
     ["משיח במשולש כמה זה", "משיח", "קדמי"],
+    ["מה הגימטריה של משיח במשולש", "משיח", "קדמי"],
+    ["מה הגימטריא של אור הגאולה בשיטת מסתתר", "אור הגאולה", "מסתתר"],
+    ["חשב את משיח במשולש", "משיח", "קדמי"],
   ]) {
     const out = resolveExplicitHebrewExpressionResearchSubject(question);
     assert.equal(out?.label, label, question);
@@ -194,6 +197,18 @@ test("expression continuation directives carry an earlier subject instead of cal
     view_mode_only: false,
   });
   assert.deepEqual(resolveRazielExpressionContinuationDirective("שיטת הקדמי משולש ביקשתי"), {
+    requested_action: "research",
+    requested_method: "קדמי",
+    all_methods: false,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("התכוונתי בשיטת המשולש תבדוק לי"), {
+    requested_action: "research",
+    requested_method: "קדמי",
+    all_methods: false,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("התכוונתי במשולש"), {
     requested_action: "research",
     requested_method: "קדמי",
     all_methods: false,
