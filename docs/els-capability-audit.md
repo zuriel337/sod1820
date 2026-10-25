@@ -1487,3 +1487,41 @@ Human Gate. Semantic interpretation and Raziel remain later consumers of this ve
 they are not silently approximated here. This chain adds no second ELS engine, state store, graph,
 Provider, Journey, B12/B13 implementation, full 3D, `research_objects`, schema/migration,
 database/RLS/permission/data change, `decision_ledger`, merge, Preview or Production action.
+
+## 33. MATRIX-FIRST DISCOVERY + DEFAULT COST RULE — 2026-10-25
+
+The separate long-axis experiment is absorbed into one normal Research action, **גלה מה יש כאן**.
+`els_matrix_discovery_v1` reads a bounded grid around the verified primary axis and enumerates
+contiguous horizontal, vertical and diagonal paths directly as Stage A, followed by only fixed
+gap scales 2–3 over those directions as Stage B. Repeated sequences therefore come from the matrix
+itself rather than from a preloaded vocabulary. A tiny governed seed and the explicit Context pack
+may rank an already-discovered sequence but never trigger a second term scan. The same pass can check no more
+than 12 explicitly selected Research Context terms (32 bounded rows including defective-spelling
+variants), then projects candidates without starts, positions or cell coordinates. A candidate is
+painted only after the existing **אמת והצג** verification path admits it as a Finding.
+
+The default-cost law is now explicit: normal matrix discovery exposes
+`defaultLexiconLoaded=false`; it must not load or scan the tens-of-thousands-term dynamic lexicon.
+The prior lexical structure program remains available only inside a closed **מתקדם ואיטי** section
+and only after its own explicit click. Opening Research, opening the structures panel, editing a
+plan or enlarging the matrix does not start that work. Both paths retain progress and fail-closed
+cancellation, but only the advanced path may incur corpus-wide vocabulary materialization.
+
+This changes neither the 85-capability disposition nor Truth authority. It adds no engine, state
+store, graph, Provider, Journey, AI call, B12/B13, full 3D, `research_objects`, database/RLS/
+permission/data change or `decision_ledger` entry. Raziel may later supply the same bounded Context
+pack; it does not receive a second scanner or occurrence authority.
+
+Acceptance on the isolated branch used the real canonical Torah stream. The fixed Golden
+`מקדש ירד` (`skip=8780`, reverse) rediscovered two independent `ירושלם` paths in Stage B at fixed
+gap scale 3 without a saved-record lookup or broad vocabulary load. The complete non-browser ELS
+set passed 207/207 with three PostgreSQL-only skips; the native Chromium set passed 53/53; and the
+canonical browser cutover set passed 26/26. The Legacy and 2029 build targets, the public-candidate
+privacy check, and the 2029 bundle budget all passed. The 2029 entry graph remained 9 chunks / 174.2
+KB gzip.
+
+Measured against base `df82065f488b1abb2b77a83fa1f4d1ac60851c07`: `public/tzofen.html`
+changed from 1,720,392 / 984,157 gzip bytes to 1,729,496 / 987,157 (+9,104 / +3,000);
+`public/tzofen-standalone.html` from 2,626,711 / 1,671,500 to 2,635,815 / 1,674,500
+(+9,104 / +3,000); the native JSX from 188,506 / 45,452 to 191,076 / 46,062
+(+2,570 / +610); and scoped CSS from 78,754 / 11,134 to 78,810 / 11,137 (+56 / +3).

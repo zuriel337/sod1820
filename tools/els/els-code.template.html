@@ -1581,7 +1581,7 @@ __STANDALONE_ENGINE_DISPATCH__
     RESEARCH_CONTEXT_COVERAGE_CONTRACT="els_research_context_coverage_v1",
     RESEARCH_BUNDLE_COMPARISON_CONTRACT="els_research_bundle_comparison_v1",
     COMPACT_GEOMETRY_CONTRACT="els_compact_geometry_priority_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",
-    LONG_AXIS_ANALYSIS_CONTRACT="els_long_axis_analysis_v1",CROSS_THIRD_AXIS_CONTRACT="els_cross_third_axis_v1",
+    MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1",MATRIX_DISCOVERY_BUDGET_CONTRACT="els_matrix_discovery_budget_v1",CROSS_THIRD_AXIS_CONTRACT="els_cross_third_axis_v1",
     _corpusLexiconCache={torah:null,tanakh:null},_corpusAxisWordCache={torah:null,tanakh:null},_corpusPhraseCache={torah:null,tanakh:null},_lineExtensionIndexCache=new WeakMap();
   function addCandidateLexiconTerm(map,raw,source,support=1,minLength=3,classification=null){
     const label=String(raw||"").trim().replace(/\s+/g," "),term=norm(label);
@@ -2742,35 +2742,35 @@ __STANDALONE_ENGINE_DISPATCH__
       };
       if(target.scan===true)dynamicCandidateLexicon().then(publish);else publish(null);
     }
-    if(d.type==="request-lens"&&d.lens==="long-axis-analysis"){
-      const target=d.target||{},hit=hasGov(st.res)?occ():null,minLength=Math.max(4,Math.min(12,Number(target.minLength)||5));
-      if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"long-axis-analysis",ok:false,target,reason:"axis-changed"});return;}
-      postHost({type:"lens-progress",lens:"long-axis-analysis",target:{nativeSeq:target.nativeSeq},progress:{phase:"lexicon-load",completed:0,total:0}});
-      dynamicCandidateLexicon(
-        progress=>postHost({type:"lens-progress",lens:"long-axis-analysis",target:{nativeSeq:target.nativeSeq},progress:{phase:`lexicon-${progress.phase}`,completed:progress.completed,total:progress.total}}),
-        ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId
-      ).then(async lexicon=>{
-        if(!lexicon||lensEpoch!==_nativeLensSeq)return;const current=hasGov(st.res)?occ():null;
-        if(!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"long-axis-analysis",ok:false,target,reason:"axis-changed"});return;}
-        const structuralAxis={...current,_structuralCells:new Set(current.positions||[])},entries=independentCandidateRows(lexicon.focusedEntries||lexicon.entries)
-          .filter(entry=>norm(entry.term||entry.label).length>=minLength);
-        const base=await scanCandidatesBatched(entries,(candidate,best)=>{
-          const next=compactGeometryMeta(candidate,structuralAxis),previous=compactGeometryMeta(best,structuralAxis),nextStage=Math.abs(candidate.skip)===1?0:next?.compact?1:2,previousStage=Math.abs(best.skip)===1?0:previous?.compact?1:2;
-          return nextStage<previousStage||nextStage===previousStage&&(norm(candidate.term).length>norm(best.term).length||candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip);
-        },{includeOccurrences:true,maxOccurrences:4},(completed,total)=>postHost({type:"lens-progress",lens:"long-axis-analysis",target:{nativeSeq:target.nativeSeq},progress:{phase:"long-axis-scan",completed,total}}),
-        ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId);
-        if(!base||lensEpoch!==_nativeLensSeq)return;
-        const phrases=deriveLocalPhraseCandidates(base,structuralAxis,lexicon.focusedPhraseIndex||lexicon.phraseIndex,96),ranked=rankLongAxisCandidates([...base,...phrases],structuralAxis,minLength);
-        postHost({type:"lens-progress",lens:"long-axis-analysis",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify-prepare",completed:0,total:Math.min(18,ranked.length)}});
-        const admitted=await verifyExplicitResearchCandidates(ranked,"LONG_AXIS_ANALYSIS_V1",(completed,total,verified)=>postHost({type:"lens-progress",lens:"long-axis-analysis",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed,total,verified}}),
-          ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,18);
-        if(!admitted||lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
-        const items=admitted.items.map(item=>({term:norm(item.term),label:item.label||item.term,length:norm(item.term).length,status:item.status,hitId:item.hitId,skip:item.skip,direction:item.direction,
-          distance:item.distance,geometry:item.geometry,neighborhood:item.neighborhood,lexiconSources:item.lexiconSources||[],classifications:item.classifications||[],source:item.source}));
-        postHost({type:"lens",lens:"long-axis-analysis",ok:true,target,status:items.length?"VERIFIED":"EMPTY",contract:LONG_AXIS_ANALYSIS_CONTRACT,coverage:"displayed-window",scope:st.scope,minLength,
-          items,total:items.length,scanned:base.length,available:ranked.length,truncated:admitted.truncated,verification:{attempted:admitted.attempted,verified:items.filter(item=>item.status==="VERIFIED").length,sourceExact:items.filter(item=>item.status==="SOURCE_EXACT").length,failed:admitted.failed},
-          lexicon:{contract:lexicon.contract,counts:lexicon.focusedCounts||lexicon.counts,fallback:lexicon.fallback,independentOfSavedResearch:true},geometryContract:COMPACT_GEOMETRY_CONTRACT});
-      }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"long-axis-analysis",ok:false,target,reason:"scan-failed"});});
+    if(d.type==="request-lens"&&d.lens==="matrix-discovery"){
+      const target=d.target||{},hit=hasGov(st.res)?occ():null;
+      if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"axis-changed"});return;}
+      (async()=>{
+        const cancelled=()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,structuralAxis={...hit,_structuralCells:new Set(hit.positions||[])},researchContext=matrixDiscoveryContext(target.contextTerms);
+        const discovery=await discoverMatrixRepeats(structuralAxis,{...target,preferredTerms:researchContext.rows.map(row=>row.term)},
+          progress=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress}),cancelled);
+        if(!discovery||cancelled())return;
+        const contextTotal=researchContext.rows.length;
+        postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress:{phase:"context",completed:0,total:contextTotal,found:0}});
+        const contextRaw=contextTotal?await scanCandidatesBatched(researchContext.rows,(candidate,best)=>{
+          const next=compactGeometryMeta(candidate,structuralAxis),previous=compactGeometryMeta(best,structuralAxis);
+          return Number(next?.compact)-Number(previous?.compact)>0||next?.compact===previous?.compact&&(candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip);
+        },{includeOccurrences:true,maxOccurrences:8,box:discovery.box},(completed,total)=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress:{phase:"context",completed,total}}),cancelled):[];
+        if(contextRaw===null||cancelled())return;
+        const contextCandidates=compactContextDiscoveryCandidates(contextRaw,structuralAxis).filter(candidate=>norm(candidate.term)!==norm(st.raw)),motifTerms=new Set(discovery.items.map(item=>norm(item.term))),
+          motifItems=discovery.items.map(item=>matrixDiscoveryProjection(item,structuralAxis,"motif")),contextItems=contextCandidates.map(item=>matrixDiscoveryProjection(item,structuralAxis,motifTerms.has(norm(item.term))?"context-motif":"context")),
+          groupCandidates=[...discovery.items,...contextCandidates.filter(item=>!motifTerms.has(norm(item.term)))],grouped=buildStructuralGroups(groupCandidates,structuralAxis,{minLength:discovery.minLength,maxLength:discovery.maxLength,maxDistance:40,minMembers:2,maxGroups:8,maxMembers:8});
+        postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress:{phase:"groups",completed:groupCandidates.length,total:groupCandidates.length,found:motifItems.length+contextItems.length}});
+        if(cancelled())return;
+        postHost({type:"lens",lens:"matrix-discovery",ok:true,target,status:motifItems.length||contextItems.length?"CANDIDATE":"EMPTY",contract:MATRIX_DISCOVERY_CONTRACT,
+          strategy:"matrix-first",searchRule:"no-default-broad-lexicon",coverage:"axis-focused-window",scope:st.scope,defaultLexiconLoaded:false,vocabularyTermsChecked:contextTotal,
+          budget:{contract:MATRIX_DISCOVERY_BUDGET_CONTRACT,cells:discovery.box.cells,matrixPathsChecked:discovery.pathsChecked,maxVocabularyTerms:discovery.box.maxVocabularyTerms,maxGapScale:discovery.box.maxGapScale,rowPad:discovery.box.rowPad,colRadius:discovery.box.colRadius},
+          axis:{term:norm(st.raw),skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back"},minLength:discovery.minLength,maxLength:discovery.maxLength,
+          motifs:motifItems,contextMatches:contextItems,items:[...contextItems,...motifItems.filter(item=>!contextItems.some(context=>context.term===item.term))].slice(0,24),
+          contextCoverage:researchContextCoverage(researchContext.requested,contextCandidates,false,false),groups:grouped.groups,availableGroups:grouped.availableGroups,
+          stageCounts:{A:motifItems.filter(item=>item.matrixStage==="A").length+contextItems.filter(item=>item.matrixStage==="A").length,B:motifItems.filter(item=>item.matrixStage==="B").length+contextItems.filter(item=>item.matrixStage==="B").length},
+          availableMotifs:discovery.available,truncated:discovery.truncated||motifItems.length+contextItems.length>24,geometryContract:COMPACT_GEOMETRY_CONTRACT,truthPromotion:false});
+      })().catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"scan-failed"});});
     }
     if(d.type==="request-lens"&&d.lens==="cross-third-axis"){
       const target=d.target||{},results=nativeCrossResults(),term=norm(target.term),meetingScope=target.meetingScope==="all"?"all":"selected",maxDistance=Math.max(3,Math.min(80,Number(target.maxDistance)||18));
@@ -4248,7 +4248,7 @@ __STANDALONE_ENGINE_DISPATCH__
   function scanCandidates(lexicon=DICT,prefer=null,options=null){
     if(!hasGov(st.res))return [];
     const includeOccurrences=options?.includeOccurrences===true,maxOccurrences=Math.max(2,Math.min(12,Number(options?.maxOccurrences)||10));
-    const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
+    const b=options?.box||blockOf(),S=b.S,c1=Number.isInteger(b.c1)?b.c1+1:b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
     const mainSet=new Set(occ().positions),axisAnchors=occ().positions.map(rc),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
@@ -4283,30 +4283,84 @@ __STANDALONE_ENGINE_DISPATCH__
     }
     return isCancelled?.()?null:rows;
   }
-  function rankLongAxisCandidates(candidates,axis,minLength=5){
-    const minimum=Math.max(4,Math.min(12,Number(minLength)||5)),axisTerm=norm(st.raw),byTerm=new Map();
-    for(const raw of candidates||[]){
-      const term=norm(raw.term);if(term.length<minimum||term===axisTerm)continue;
-      const candidate={...raw,term,label:raw.term,geometry:compactGeometryMeta(raw,axis),neighborhood:axisNeighborhoodMeta(raw,axis)};
-      const prior=byTerm.get(term),stage=Math.abs(Number(candidate.skip))===1?0:candidate.geometry?.compact?1:2,
-        priorStage=prior?(Math.abs(Number(prior.skip))===1?0:prior.geometry?.compact?1:2):99;
-      if(!prior||stage<priorStage||stage===priorStage&&(term.length>norm(prior.term).length||candidate.distance<prior.distance||candidate.distance===prior.distance&&candidate.skip<prior.skip))byTerm.set(term,candidate);
+  // Matrix discovery is deliberately matrix-first. The normal action reads a finite grid around
+  // the verified axis and checks only the small context pack explicitly supplied by Research.
+  // It must never materialize dynamicCandidateLexicon(); the broad lexicon remains an explicit
+  // advanced action (`structure-priority`) and can therefore never be an entry/default cost.
+  function matrixDiscoveryContext(input){
+    const source=(Array.isArray(input)?input:[]).slice(0,12).map(item=>typeof item==="string"?{term:item}:item),normalized=normalizeResearchContextTerms(source),rows=new Map();
+    const add=row=>{const term=norm(row?.term||row?.label);if(term.length>=2&&!rows.has(term)&&rows.size<32)rows.set(term,{...row,term,label:row.label||term,sources:[...(row.sources||[])],classifications:[...(row.classifications||[])]});};
+    normalized.rows.forEach(add);
+    // Biblical plene/defective spelling stays bounded to one removed internal ו/י per requested
+    // term. These are candidate spellings only; occurrence proof still goes through the one engine.
+    for(const row of normalized.rows){const original=norm(row.term);if(original.length<5)continue;
+      for(let index=1;index<original.length-1&&rows.size<32;index++)if("וי".includes(original[index])){
+        const term=original.slice(0,index)+original.slice(index+1);if(term.length<3||rows.has(term))continue;
+        add({term,label:matrixDiscoveryDisplayLabel(term),sources:["bounded_research_context_variant"],support:Math.max(1,Number(row.support)||1),classifications:[...(row.classifications||[]),
+          {kind:"research-context-spelling-variant",value:term,source:row.label||original,label:"כתיב חסר תחום ממונח ההקשר"}]});
+      }
     }
-    return [...byTerm.values()].sort((a,b)=>{
-      const aStage=Math.abs(Number(a.skip))===1?0:a.geometry?.compact?1:2,bStage=Math.abs(Number(b.skip))===1?0:b.geometry?.compact?1:2;
-      return aStage-bStage||norm(b.term).length-norm(a.term).length||a.distance-b.distance||candidateLexiconPriority(b)-candidateLexiconPriority(a)||a.skip-b.skip||norm(a.term).localeCompare(norm(b.term),"he");
-    });
+    return {rows:[...rows.values()],requested:normalized.requested};
   }
-  async function verifyExplicitResearchCandidates(candidates,policy,onProgress,isCancelled,limit=18){
-    const selected=(candidates||[]).slice(0,Math.max(1,Math.min(24,Number(limit)||18))),items=[];let failed=0;
-    for(let index=0;index<selected.length;index++){
-      if(isCancelled?.())return null;const candidate=selected[index],term=norm(candidate.term),plain=Math.abs(Number(candidate.skip))===1&&isSourceHit(candidate,term);
-      let admitted=plain?candidate:null,status=plain?"SOURCE_EXACT":"VERIFIED";
-      if(!plain){const verified=await promoteVerified({t:term,hits:[candidate],capped:false,strategy:{policy}},st.scope,null);if(isCancelled?.())return null;admitted=verified.hits.find(isGov);if(!admitted)failed++;}
-      if(admitted)items.push({...candidate,status,hitId:hitKey(admitted),skip:Math.abs(Number(candidate.skip)),direction:Number(candidate.dir)===1?"fwd":"back",source:focusedSourceProjection(candidate)});
-      onProgress?.(index+1,selected.length,items.length);await paintOperation();
+  function matrixDiscoveryBox(axis){
+    const box=focusedCoreBox(axis,{rowPad:20,colRadius:20});if(!box)return null;
+    const cw=box.c1-box.c0+1,rows=box.r1-box.r0+1,cells=cw*rows;
+    return {...box,cw,cells,rayCount:cells*12,contract:MATRIX_DISCOVERY_BUDGET_CONTRACT,maxVocabularyTerms:32,maxGapScale:3,defaultLexiconLoaded:false};
+  }
+  function plausibleMatrixSequence(term){
+    const letters=[...norm(term)],finals=new Set(["ך","ם","ן","ף","ץ"]);return letters.length>=4&&new Set(letters).size>=3&&!letters.slice(0,-1).some(letter=>finals.has(letter));
+  }
+  function matrixDiscoveryDisplayLabel(term){const value=norm(term),final={"כ":"ך","מ":"ם","נ":"ן","פ":"ף","צ":"ץ"};return value.slice(0,-1)+(final[value.at(-1)]||value.at(-1)||"");}
+  function matrixPathMeta(candidate,axis){
+    const S=Math.abs(Number(axis?.skip)||0),skip=Math.abs(Number(candidate?.skip)||0);if(S<2||skip<1)return null;
+    for(let scale=1;scale<=3;scale++)for(const row of [[scale,"horizontal"],[S*scale,"vertical"],[(S+1)*scale,"diagonal-right"],[(S-1)*scale,"diagonal-left"]])if(skip===Math.abs(row[0]))return {stage:scale===1?"A":"B",gapScale:scale,direction:row[1]};
+    return null;
+  }
+  async function discoverMatrixRepeats(axis,rawOptions,onProgress,isCancelled){
+    const minLength=Math.max(4,Math.min(8,Number(rawOptions?.minLength)||4)),maxLength=Math.max(minLength,Math.min(12,Number(rawOptions?.maxLength)||10)),box=matrixDiscoveryBox(axis);
+    if(!box)return null;
+    const directions=[];for(let scale=1;scale<=box.maxGapScale;scale++)for(const base of [{dr:0,dc:1,name:"horizontal"},{dr:1,dc:0,name:"vertical"},{dr:1,dc:1,name:"diagonal-right"},{dr:1,dc:-1,name:"diagonal-left"}])directions.push({...base,dr:base.dr*scale,dc:base.dc*scale,scale,stage:scale===1?"A":"B"});
+    const hints=new Map(),addHint=(raw,strength)=>{const term=norm(raw);if(term.length<3)return;hints.set(term,Math.max(Number(hints.get(term))||0,strength));for(let index=1;index<term.length-1;index++)if("וי".includes(term[index])){const variant=term.slice(0,index)+term.slice(index+1);hints.set(variant,Math.max(Number(hints.get(variant))||0,strength-1));}};
+    for(const term of typeof DICT==="undefined"?[]:DICT)addHint(term,2);for(const term of Array.isArray(rawOptions?.preferredTerms)?rawOptions.preferredTerms.slice(0,32):[])addHint(term,3);
+    const axisTerm=norm(st.raw),axisAnchors=(axis.positions||[]).map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]),found=new Map();let repeatTerms=0;
+    const remember=(raw,positions,direction)=>{const term=norm(raw);if(term===axisTerm||!plausibleMatrixSequence(term))return;const occurrenceKey=[...positions].sort((a,b)=>a-b).join("_");let row=found.get(term);
+      if(!row){row={term,label:matrixDiscoveryDisplayLabel(term),occurrenceCount:0,occurrences:[],_keys:new Set(),lexiconSources:["matrix_derived_repeat"],lexiconSupport:1,classifications:[{kind:"matrix-repeat",value:term,label:"רצף שחזר באזור המטריצה"}]};found.set(term,row);}
+      if(row._keys.has(occurrenceKey))return;row._keys.add(occurrenceKey);row.occurrenceCount++;if(row.occurrenceCount===2)repeatTerms++;
+      if(row.occurrences.length<8){const step=positions.length>1?positions[1]-positions[0]:1,distance=distanceToAnchors(positions,axisAnchors,box.S);row.occurrences.push({term,label:term,skip:Math.abs(step),dir:Math.sign(step)||1,start:positions[0],positions:[...positions],distance,_matrixDirection:direction.name,_matrixScale:direction.scale,_matrixStage:direction.stage});}
+    };
+    const total=box.rayCount;let completed=0;
+    for(let r=box.r0;r<=box.r1;r++){
+      for(let c=box.c0;c<=box.c1;c++)for(const direction of directions){completed++;const chars=[],positions=[];
+        for(let length=1;length<=maxLength;length++){const rr=r+direction.dr*(length-1),cc=c+direction.dc*(length-1);if(rr<box.r0||rr>box.r1||cc<box.c0||cc>box.c1)break;const position=rr*box.S+cc;if(position<0||position>=scopeN())break;chars.push(T[position]);positions.push(position);
+          if(length<minLength)continue;const word=chars.join("");remember(word,positions,direction);const reversed=[...word].reverse().join("");if(reversed!==word)remember(reversed,[...positions].reverse(),{...direction,name:`${direction.name}-reverse`});}
+      }
+      if((r-box.r0+1)%3===0||r===box.r1){onProgress?.({phase:"matrix",completed,total,found:repeatTerms});if(isCancelled?.())return null;await paintOperation();}
     }
-    return {items,attempted:selected.length,failed,available:(candidates||[]).length,truncated:(candidates||[]).length>selected.length};
+    const nonOverlapping=occurrences=>{const independent=[];for(const occurrence of occurrences){const cells=new Set(occurrence.positions);if(independent.some(prior=>prior.positions.some(position=>cells.has(position))))continue;independent.push(occurrence);}return independent;};
+    const ranked=[...found.values()].filter(row=>row.occurrenceCount>=2).map(row=>{row.occurrences.sort((a,b)=>Number(a._matrixStage==="B")-Number(b._matrixStage==="B")||a._matrixScale-b._matrixScale||a.distance-b.distance||a.skip-b.skip||a.start-b.start);
+      const compact=nonOverlapping(row.occurrences.filter(occurrence=>occurrence._matrixStage==="A")),independent=compact.length>=2?compact:nonOverlapping(row.occurrences);if(independent.length<2)return null;
+      const best=independent[0],matrixStage=compact.length>=2?"A":"B",gapScale=Math.max(...independent.map(occurrence=>occurrence._matrixScale||1)),orientationCount=new Set(independent.map(occurrence=>String(occurrence._matrixDirection||"").replace(/-reverse$/,"")).filter(Boolean)).size,languageHint=Number(hints.get(row.term))||0;
+      return {...best,term:row.term,label:row.label,occurrenceCount:independent.length,occurrences:independent,matrixStage,gapScale,orientationCount,languageHint,lexiconSources:[...row.lexiconSources,...(languageHint?["bounded_language_hint"]:[])],lexiconSupport:independent.length,classifications:row.classifications};}).filter(Boolean)
+      .sort((a,b)=>Number(a.matrixStage==="B")-Number(b.matrixStage==="B")||b.languageHint-a.languageHint||b.orientationCount-a.orientationCount||norm(b.term).length-norm(a.term).length||b.occurrenceCount-a.occurrenceCount||a.gapScale-b.gapScale||a.distance-b.distance||a.skip-b.skip||norm(a.term).localeCompare(norm(b.term),"he"));
+    // Keep maximal repeated paths. A shorter row is suppressed only when every stored occurrence
+    // is physically contained in a longer repeat with the same repetition count.
+    const maximalStage=stage=>{const selected=[];for(const candidate of ranked){if(candidate.matrixStage!==stage)continue;const nested=selected.some(parent=>parent.gapScale===candidate.gapScale&&parent.occurrenceCount===candidate.occurrenceCount&&norm(parent.term).includes(norm(candidate.term))&&candidate.occurrences.every(occurrence=>parent.occurrences.some(parentOccurrence=>occurrence.positions.every(position=>parentOccurrence.positions.includes(position)))));if(!nested)selected.push(candidate);if(selected.length>=32)break;}return selected;},
+      stageA=maximalStage("A"),stageB=maximalStage("B");let takeA=Math.min(16,stageA.length),takeB=Math.min(8,stageB.length),spare=24-takeA-takeB;
+    if(spare>0){const extraA=Math.min(spare,stageA.length-takeA);takeA+=extraA;spare-=extraA;}if(spare>0)takeB+=Math.min(spare,stageB.length-takeB);
+    const maximal=[...stageA.slice(0,takeA),...stageB.slice(0,takeB)];
+    return {items:maximal,available:ranked.length,truncated:ranked.length>maximal.length,box,minLength,maxLength,pathsChecked:completed};
+  }
+  function compactContextDiscoveryCandidates(candidates,axis){
+    const rows=[];
+    for(const candidate of candidates||[]){const occurrences=(candidate.occurrences||[]).map(occurrence=>{const path=matrixPathMeta(occurrence,axis);return path?{...occurrence,_matrixStage:path.stage,_matrixScale:path.gapScale,_matrixDirection:path.direction}:null;}).filter(Boolean)
+        .sort((a,b)=>Number(a._matrixStage==="B")-Number(b._matrixStage==="B")||a._matrixScale-b._matrixScale||a.distance-b.distance||a.skip-b.skip||a.start-b.start);if(!occurrences.length)continue;const best=occurrences[0];rows.push({...best,term:norm(candidate.term),label:candidate.term,occurrenceCount:occurrences.length,occurrences,matrixStage:best._matrixStage,gapScale:best._matrixScale,lexiconSources:candidate.lexiconSources||[],lexiconSupport:candidate.lexiconSupport||1,classifications:candidate.classifications||[]});}
+    return rows.sort((a,b)=>Number(a.matrixStage==="B")-Number(b.matrixStage==="B")||norm(b.term).length-norm(a.term).length||a.gapScale-b.gapScale||a.distance-b.distance||a.skip-b.skip||norm(a.term).localeCompare(norm(b.term),"he"));
+  }
+  function matrixDiscoveryProjection(candidate,axis,kind){
+    const geometry=compactGeometryMeta(candidate,axis),variant=(candidate.classifications||[]).find(item=>item.kind==="research-context-spelling-variant");
+    return {kind,term:norm(candidate.term),label:candidate.label||candidate.term,length:norm(candidate.term).length,occurrenceCount:Number(candidate.occurrenceCount)||1,matrixStage:candidate.matrixStage||candidate._matrixStage||geometry?.stage||"B",gapScale:Number(candidate.gapScale||candidate._matrixScale)||1,
+      skip:Math.abs(Number(candidate.skip)),direction:Number(candidate.dir)===1?"fwd":"back",distance:Number(candidate.distance)||0,geometry,
+      contextVariant:variant?{source:variant.source,label:variant.label}:null,lexiconSources:[...(candidate.lexiconSources||[])],status:"CANDIDATE"};
   }
   function independentCandidateRows(entries){
     const blocked=new Set(["visible_saved_research","verified_research"]),rows=[];

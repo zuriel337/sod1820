@@ -749,7 +749,7 @@ test('public saved research is offered before raw occurrences and uses the compa
   },{loadGolden:false,tier:'anon'});
  });
 
-test('Research structures is explicit, prioritizes existing geometry rules and stays out of Classic',
+test('Research matrix discovery is bounded by default; broad structures stay explicit and Classic stays clean',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:390,height:844},async page=>{
    await page.evaluate(()=>window.__fixtureLoadGolden=false);
@@ -760,16 +760,36 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
    assert.deepEqual(await page.evaluate(()=>window.__state.findings.map(finding=>finding.t)),['התורה','אמיתית']);
    const before=await identity(page);
    const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length);
-   await activate(page,'מבנים וקשרים');
+   await activate(page,'גילוי במטריצה');
    assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,'opening the structures panel performs no scan');
    const panel=page.locator('[data-experience-capability="els-structural-priority"]');
    await panel.waitFor({state:'visible'});
-   assert.match(await panel.innerText(),/משפחות של מקבילות, מוטיבים חוזרים, מסדרונות, חציות ואשכולות/);
-   assert.match(await panel.innerText(),/לא הוכחה ולא ציון אמת/);
+   assert.match(await panel.innerText(),/אין טעינה של אוצר המילים הגדול/);
+   assert.match(await panel.innerText(),/גלה מה יש כאן/);
+   const discoveryStarted=Date.now();
+   await activate(page,'גלה מה יש כאן');
+   await page.waitForFunction(()=>window.__lens?.lens==='matrix-discovery'&&window.__lens?.ok===true);
+   assert.ok(Date.now()-discoveryStarted<5000,'bounded matrix discovery finishes without a broad vocabulary pass');
+   const discovery=await page.evaluate(()=>window.__lens);
+   const discoveryProgress=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='matrix-discovery').map(message=>message.progress));
+   assert.equal(discovery.contract,'els_matrix_discovery_v1');
+   assert.equal(discovery.strategy,'matrix-first');
+   assert.equal(discovery.searchRule,'no-default-broad-lexicon');
+   assert.equal(discovery.defaultLexiconLoaded,false);
+   assert.ok(discovery.vocabularyTermsChecked<=32,'default discovery checks only the bounded context pack');
+   assert.equal(discovery.budget.maxGapScale,3,'default Stage B remains a small fixed-gap pass');
+   assert.ok(discovery.budget.matrixPathsChecked>0&&discovery.budget.matrixPathsChecked<=40000,'matrix-first work has a finite local ray budget, not a vocabulary scan');
+   assert.ok(discovery.motifs.length>0,'the real matrix-first pass discovers at least one repeated local sequence without vocabulary');
+   assert.ok(discoveryProgress.some(progress=>progress.phase==='matrix'&&progress.total>0),'the local map scan reports live progress');
+   assert.ok(!discoveryProgress.some(progress=>String(progress.phase).startsWith('lexicon-')),'the default action never loads the broad lexicon');
+   assert.ok(discovery.items.every(item=>!Object.keys(item).some(key=>['positions','start','rc'].includes(key))),'matrix discovery keeps coordinates in the canonical engine');
+   assert.ok(discovery.groups.flatMap(group=>group.members).every(item=>!Object.keys(item).some(key=>['positions','start','rc','_center'].includes(key))),'matrix-first groups also remain coordinate-free');
+   assert.deepEqual((await identity(page)).axis,before.axis,'matrix discovery preserves the exact axis');
+   const requestsAfterDiscovery=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length);
+   await panel.getByText('סריקה מילונית רחבה · מתקדם ואיטי',{exact:true}).click();
    await panel.getByRole('button',{name:'רחב',exact:true}).click();
-   await panel.getByText('הגדרות הסריקה',{exact:true}).click();
    await panel.getByLabel('מקסימום אותיות',{exact:true}).selectOption('10');
-   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,'editing the declared plan performs no scan');
+   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requestsAfterDiscovery,'editing the declared advanced plan performs no scan');
    await activate(page,'סרוק מבנים בעדיפות');
    await page.waitForFunction(()=>window.__lens?.lens==='structure-priority'&&window.__lens?.ok===true);
    const result=await page.evaluate(()=>window.__lens);
@@ -816,7 +836,7 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
    assert.deepEqual((await identity(page)).axis,before.axis,'structural inspection preserves the exact axis');
    assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'structural inspection does not save or edit the cipher');
 
-   await activate(page,'מבנים וקשרים');
+   await activate(page,'גילוי במטריצה');
    const cancellationStart=await page.evaluate(()=>({
     log:window.__log.length,
     progress:window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='structure-priority').length,
@@ -834,7 +854,7 @@ test('Research structures is explicit, prioritizes existing geometry rules and s
   },{tier:'anon'});
 
   await withNative({width:390,height:844},async page=>{
-   assert.equal(await button(page,'מבנים וקשרים').count(),0,'Classic exposes no structural Research control');
+   assert.equal(await button(page,'גילוי במטריצה').count(),0,'Classic exposes no Research discovery control');
   },{researchProfile:false,mobile:true});
  });
 

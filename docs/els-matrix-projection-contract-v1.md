@@ -416,3 +416,28 @@ This closes the non-AI Research v1 base only. It does not infer semantic relevan
 truth; does not add an engine, store, graph, Provider or Journey; and does not implement C05,
 B12/B13, full 3D, `research_objects`, a database/RLS/permission/data change, `decision_ledger`,
 Raziel, merge, Preview or Production work.
+
+## Matrix-first discovery and the default-work budget — 25.10.2026
+
+`els_matrix_discovery_v1` is the single normal discovery action for an already-open, verified
+matrix. It reads a finite grid around the exact primary axis once, enumerates contiguous
+horizontal, vertical and diagonal paths first (Stage A), then one bounded Stage B over the same
+directions at fixed gap scales 2–3, and reports repeated 4–10-letter sequences. It may also
+check the explicit Research Context pack, capped at 12 requested terms and 32 deterministic rows
+after one-letter Biblical plene/defective spelling variants. It does not load or materialize the
+dynamic corpus lexicon. A bounded governed seed and the explicit Context pack may rank a sequence
+already discovered from the grid; they never cause another term-by-term matrix scan.
+
+This is a binding cost rule: a default/entry discovery action must expose
+`defaultLexiconLoaded=false` and must not scan tens of thousands of vocabulary terms. Any broad
+lexical structure scan remains behind the clearly labelled **מתקדם ואיטי** disclosure, starts only
+on a separate explicit click, keeps live progress/cancel, and does not change the matrix merely by
+opening its settings. Increasing matrix display size also does not silently widen this discovery
+budget.
+
+Discovered rows are candidates, not Findings. The bridge exposes term, repetition count and bounded
+geometry metadata but no positions, starts or cell coordinates. **אמת והצג** routes the selected
+term through the existing canonical verifier before it can colour the matrix. Cancellation or an
+axis change fails closed and preserves axis, Findings, source, geometry, selection, Journey and
+Research Context. This supersedes the separate long-axis patch; it creates no engine, store,
+Provider, graph, Journey, AI dependency, schema, RLS, permission or Truth transition.

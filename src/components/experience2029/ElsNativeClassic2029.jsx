@@ -729,15 +729,18 @@ function RelationshipResearchPlanner({ axisTerm, scope, disabled, onSearchPair }
   </section>;
 }
 
-function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, onRun, onAnalyzeLongAxes, onScanAxis, onSearchPair, onAddGroup, onOpenFinding }) {
+function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy, contextTerms, onRun, onDiscoverMatrix, onScanAxis, onSearchPair, onAddGroup, onOpenFinding }) {
   const findings = Array.isArray(state?.findings) ? state.findings : [];
   const verified = state?.status === "ok" && state?.verification?.state === "MATCH";
   const result = lensResult?.lens === "structure-priority" ? lensResult : null;
-  const longAxisResult = lensResult?.lens === "long-axis-analysis" ? lensResult : null;
+  const discovery = lensResult?.lens === "matrix-discovery" ? lensResult : null;
+  const discoveryItems = discovery?.ok && Array.isArray(discovery.items) ? discovery.items : [];
+  const discoveryGroups = discovery?.ok && Array.isArray(discovery.groups) ? discovery.groups.filter((group) => group.kind !== "motif").slice(0, 4) : [];
   const items = result?.ok && Array.isArray(result.items) ? result.items : [];
   const groups = result?.ok && Array.isArray(result.groups) ? result.groups : [];
-  const axisTerm = result?.axis?.term || state?.termRaw || state?.term || "הציר הראשי";
-  const axisSkip = result?.axis?.skip || state?.axis?.skip;
+  const axisTerm = discovery?.axis?.term || result?.axis?.term || state?.termRaw || state?.term || "הציר הראשי";
+  const axisSkip = discovery?.axis?.skip || result?.axis?.skip || state?.axis?.skip;
+  const boundedContextTerms = Array.isArray(contextTerms) ? contextTerms.slice(0, 12) : [];
   const pending = lensPending || busy;
   const [plan, setPlan] = useState(STRUCTURE_PRESETS.quick);
   const choosePreset = (name) => setPlan({ ...STRUCTURE_PRESETS[name] });
@@ -754,28 +757,28 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
   const existing = new Set(findings.map((finding) => finding.t));
 
   return <div className="els29-native-workrail els29-native-structures" hidden={!visible}
-    aria-label="מבנים וקשרים במטריצה" aria-busy={lensPending} data-experience-capability="els-structural-priority">
+    aria-label="גילוי וקשרים במטריצה" aria-busy={lensPending} data-experience-capability="els-structural-priority" data-els-matrix-discovery="v1">
     <section className="els29-native-structure-intro">
       <span>ציר המחקר הנוכחי</span>
       <strong>{axisTerm}{axisSkip ? <> · דילוג <bdi>{axisSkip}</bdi></> : null}</strong>
       {result?.axis?.notable ? <small className="els29-native-structure-badge">דילוג מסודר: {result.axis.notable.tag}</small> : null}
-      <p>בחרו פעם אחת מה לחפש. הסריקה מחזירה משפחות של מקבילות, מוטיבים חוזרים, מסדרונות, חציות ואשכולות — לא רשימת מילים שצריך לפתוח אחת־אחת.</p>
-      <small>שלב א׳ תמיד קודם: כל אות סמוכה לבאה בתצוגת המטריצה. מבנים עם פערים נשארים זמינים רק בשלב ב׳.</small>
-      <small>זו תוכנית בדיקה בתוך החלון המוצג — לא הוכחה ולא ציון אמת. כל קבוצה עוברת אימות קנוני אחד לפני הצגה במטריצה.</small>
-      <section className="els29-native-long-axis-action" aria-label="ניתוח צירים ארוכים במטריצה הפתוחה">
-        <div><strong>צירים ארוכים במטריצה הפתוחה</strong><small>סורק רק את החלון שעל המסך ומקדים רצפי מקור וצירים ללא פער. מוצגות רק תוצאות שעברו אימות.</small></div>
-        <button type="button" disabled={!verified || pending} onClick={() => onAnalyzeLongAxes({ hitId: state?.axis?.hitId, minLength: 5 })}>
-          {lensPending ? "מנתח את המטריצה…" : "נתח צירים ארוכים"}
+      <p>הפעולה הראשית קוראת את אזור המטריצה סביב הציר פעם אחת, מאתרת רצפים שחוזרים ובודקת רק את חבילת ההקשר הקטנה שבחרתם.</p>
+      <small>אין טעינה של אוצר המילים הגדול ואין סריקה של עשרות אלפי מונחים כברירת מחדל. כל תוצאה נשארת מועמדת עד לחיצה על „אמת והצג”.</small>
+      <section className="els29-native-matrix-discovery-action" aria-label="גילוי במטריצה הפתוחה">
+        <div><strong>גילוי במטריצה</strong><small>קודם רצפים בני 4–10 אותיות ללא פער, אחריהם שלב ב׳ קטן במרווח קבוע פי 2–3{boundedContextTerms.length ? `, וגם ${boundedContextTerms.length} מונחי הקשר שנבחרו` : " — ללא מילון חיצוני"}.</small></div>
+        <button type="button" disabled={!verified || pending} onClick={() => onDiscoverMatrix({ hitId: state?.axis?.hitId, minLength: 4, maxLength: 10,
+          ...(boundedContextTerms.length ? { contextTerms: boundedContextTerms } : {}) })}>
+          {lensPending ? "קורא את המטריצה…" : discovery ? "גלה שוב מה יש כאן" : "גלה מה יש כאן"}
         </button>
       </section>
-      <RelationshipResearchPlanner axisTerm={verified ? axisTerm : ""} scope={state?.scope} disabled={!verified || pending} onSearchPair={onSearchPair} />
-      <div className="els29-native-structure-presets" role="group" aria-label="תבניות סריקת מבנים">
-        <button type="button" aria-pressed={plan.maxDistance === 12 && plan.minLength === 4} onClick={() => choosePreset("quick")}>מהיר</button>
-        <button type="button" aria-pressed={plan.maxDistance === 40 && plan.minLength === 4} onClick={() => choosePreset("broad")}>רחב</button>
-        <button type="button" aria-pressed={plan.maxDistance === 80 && plan.minLength === 5} onClick={() => choosePreset("deep")}>עמוק</button>
-      </div>
-      <details className="els29-native-structure-settings">
-        <summary>הגדרות הסריקה</summary>
+      <details className="els29-native-structure-settings els29-native-broad-scan">
+        <summary>סריקה מילונית רחבה · מתקדם ואיטי</summary>
+        <p>הפעולה הזאת עשויה לטעון ולבדוק עשרות אלפי מונחים. היא לעולם אינה מתחילה לבד ומתאימה רק לחיפוש מחקרי מפורש מעבר לגילוי המקומי.</p>
+        <div className="els29-native-structure-presets" role="group" aria-label="תבניות סריקת מבנים רחבה">
+          <button type="button" aria-pressed={plan.maxDistance === 12 && plan.minLength === 4} onClick={() => choosePreset("quick")}>מהיר</button>
+          <button type="button" aria-pressed={plan.maxDistance === 40 && plan.minLength === 4} onClick={() => choosePreset("broad")}>רחב</button>
+          <button type="button" aria-pressed={plan.maxDistance === 80 && plan.minLength === 5} onClick={() => choosePreset("deep")}>עמוק</button>
+        </div>
         <div className="els29-native-structure-fields">
           <label>מינימום אותיות<select aria-label="מינימום אותיות" value={plan.minLength} onChange={(event) => updateNumber("minLength", event.target.value)}>
             {[3, 4, 5, 6, 7, 8].map((value) => <option key={value} value={value}>{value}</option>)}
@@ -793,33 +796,49 @@ function StructuralPriorityRail({ visible, state, lensResult, lensPending, busy,
         <fieldset className="els29-native-structure-types"><legend>סוגי המבנים</legend>
           {STRUCTURE_TYPE_OPTIONS.map(([type, label]) => <label key={type}><input type="checkbox" checked={plan.types.includes(type)} onChange={() => toggleType(type)} />{label}</label>)}
         </fieldset>
-        <small>הטווח נשאר מוגבל למטריצה הפעילה. „עמוק” אינו מפעיל סדרות דילוג או חוקי מספרים חדשים.</small>
+        <small>הטווח נשאר מוגבל למטריצה הפעילה. „עמוק” אינו מפעיל סדרות דילוג או חוקי מספרים חדשים, אך הוא עדיין כבד יותר מן הגילוי המקומי.</small>
+        <div className="els29-native-structure-actions" role="group" aria-label="פעולות סריקה מילונית מתקדמת">
+          <button type="button" className="is-primary" disabled={!verified || pending}
+            onClick={() => onRun({ hitId: state?.axis?.hitId, structurePlan: plan })}>{lensPending ? "סורק את התוכנית…" : result ? "סרוק את התוכנית מחדש" : "סרוק מבנים בעדיפות"}</button>
+          <button type="button" disabled={!verified || pending} onClick={() => onScanAxis({ hitId: state?.axis?.hitId })}>בדוק את המשך הציר במילון</button>
+        </div>
       </details>
-      <div className="els29-native-structure-actions" role="group" aria-label="פעולות מבנה על הציר הראשי">
-        <button type="button" className="is-primary" disabled={!verified || pending}
-          onClick={() => onRun({ hitId: state?.axis?.hitId, structurePlan: plan })}>{lensPending ? "סורק את התוכנית…" : result ? "סרוק את התוכנית מחדש" : "סרוק מבנים בעדיפות"}</button>
-        <button type="button" disabled={!verified || pending}
-          onClick={() => onScanAxis({ hitId: state?.axis?.hitId })}>בדוק את המשך הציר</button>
-      </div>
+      <details className="els29-native-structure-settings"><summary>חיפוש מוצלב וציר נוסף</summary>
+        <RelationshipResearchPlanner axisTerm={verified ? axisTerm : ""} scope={state?.scope} disabled={!verified || pending} onSearchPair={onSearchPair} />
+      </details>
     </section>
-    {lensPending ? <p role="status" className="els29-native-muted">סורק את החלון המוצג ומסדר את הקשרים המבניים…</p> : null}
-    {longAxisResult?.ok === false ? <p role="status" className="els29-native-muted">ניתוח הצירים הארוכים לא הושלם. המטריצה לא השתנתה ואפשר לנסות שוב.</p> : null}
-    {longAxisResult?.ok ? <section className="els29-native-long-axis-results" data-els-long-axis-analysis={longAxisResult.contract}>
-      <header><strong>צירים ארוכים שנמצאו · {longAxisResult.items?.length || 0}</strong><small>חמש אותיות ומעלה בחלון הפעיל · רצף מקור קודם, אחריו גיאומטריה ללא פער ואז יתר הצירים.</small></header>
-      <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="צירים ארוכים מאומתים">
-        {(longAxisResult.items || []).map((item) => {
+    {lensPending ? <p role="status" className="els29-native-muted">קורא את אזור המטריצה ומסדר את מה שהתגלה…</p> : null}
+    {discovery?.ok === false ? <p role="status" className="els29-native-muted">הגילוי לא הושלם. הציר, המטריצה והממצאים לא השתנו ואפשר לנסות שוב.</p> : null}
+    {discovery?.ok ? <section className="els29-native-discovery-results" data-els-matrix-discovery={discovery.contract}>
+      <header><strong>מה התגלה כאן · {discoveryItems.length}</strong>
+        <small>{discovery.motifs?.length || 0} מוטיבים חוזרים · {discovery.contextMatches?.length || 0} התאמות להקשר · שלב א׳ {discovery.stageCounts?.A || 0} · שלב ב׳ {discovery.stageCounts?.B || 0}.</small>
+        <small>{discovery.vocabularyTermsChecked || 0} מונחי הקשר נבדקו.</small>
+        <small>נסרקו {discovery.budget?.matrixPathsChecked || 0} קווי מפה באזור תחום; אוצר המילים הגדול לא נטען.</small></header>
+      <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="תגליות במטריצה לפי סדר עדיפות">
+        {discoveryItems.map((item) => {
           const added = existing.has(item.term);
-          return <article className="els29-native-structure-row" key={`${item.term}-${item.hitId}`}>
+          const contextItem = item.kind === "context" || item.kind === "context-motif";
+          return <article className="els29-native-structure-row" key={`${item.kind}-${item.term}`}>
             <div className="els29-native-structure-copy"><b>{item.label || item.term}</b>
-              <span>{item.length} אותיות · {item.status === "SOURCE_EXACT" ? "רצף מקור מדויק" : "מופע ELS מאומת"}</span>
-              <small>דילוג {item.skip} · {directionLabel(item.direction)} · מרחק {item.distance} תאים{item.geometry?.relationLabel ? ` · ${item.geometry.relationLabel}` : ""}</small>
+              <span>{item.length} אותיות · {contextItem ? "נמצא בחבילת ההקשר" : `חזר ${item.occurrenceCount} פעמים באזור`}</span>
+              <small>{item.matrixStage === "A" ? "שלב א׳ · ללא פער בתצוגה" : `שלב ב׳ · מרווח קבוע פי ${item.gapScale}`} · דילוג {item.skip} · מרחק {item.distance} תאים{item.contextVariant ? ` · כתיב חסר של ${item.contextVariant.source}` : ""}</small>
             </div>
-            <button type="button" disabled={pending || added || findings.length >= 12} onClick={() => onAddGroup([item.term])}>{added ? "בממצאים" : "הוסף למטריצה"}</button>
+            <button type="button" disabled={pending || (!added && findings.length >= 12)} onClick={() => added ? onOpenFinding(item.term) : onAddGroup([item.term])}>{added ? "פתח במטריצה" : "אמת והצג"}</button>
           </article>;
         })}
       </div>
-      {!longAxisResult.items?.length ? <p className="els29-native-muted">לא נמצא בחלון הזה ציר בן חמש אותיות ומעלה שעבר אימות. אפשר להגדיל את חלון המטריצה ולנסות שוב.</p> : null}
-      {longAxisResult.truncated ? <small>הוצגו הצירים הראשונים לפי התקציב הבטוח. זו אינה קביעה שאין צירים נוספים בחלון.</small> : null}
+      {discoveryGroups.length ? <div className="els29-native-structure-list" aria-label="קבוצות שנבנו מן הגילוי המקומי">
+        {discoveryGroups.map((group, index) => {
+          const terms = [...new Set((group.members || []).map((member) => member.term))];
+          const addable = terms.filter((term) => !existing.has(term)).slice(0, Math.max(0, 12 - findings.length));
+          return <article key={`${group.kind}-${group.label}-${index}`} className="els29-native-structure-group" data-structure-kind={group.kind}>
+            <header><div><strong>{group.label}</strong><small>{group.description}</small></div><bdi>{terms.length}</bdi></header>
+            <button type="button" disabled={pending || !addable.length} onClick={() => onAddGroup(addable)}>{addable.length ? `אמת והצג קבוצה · ${addable.length}` : "הקבוצה כבר במטריצה"}</button>
+          </article>;
+        })}
+      </div> : null}
+      {!discoveryItems.length ? <p className="els29-native-muted">לא נמצא באזור התחום רצף חוזר או מונח מחבילת ההקשר. זו אינה קביעה שאין ממצאים מחוץ לאזור.</p> : null}
+      {discovery.truncated ? <small>הוצגו התוצאות הראשונות לפי תקציב הבטיחות. אפשר לעבור לסריקה הרחבה רק אם יש לכך צורך מחקרי.</small> : null}
     </section> : null}
     {result?.ok === false ? <p role="status" className="els29-native-muted">אי אפשר לסרוק מבנים לפני שהציר הראשי אומת.</p> : null}
     {result?.ok ? <>
@@ -907,12 +926,12 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
   }, [request?.target?.nativeSeq]);
   if (!request) return null;
   const elapsed = Math.max(0, now - (request.startedAt || now)) / 1000;
-  const label = request.lens === "structure-priority"
+  const label = request.lens === "matrix-discovery"
+    ? progress?.phase === "matrix" ? "קורא את קווי המפה סביב הציר…"
+      : progress?.phase === "context" ? "בודק את חבילת ההקשר הקטנה בתוך המפה…"
+        : "מסדר מוטיבים וקבוצות שנמצאו…"
+    : request.lens === "structure-priority"
     ? progress?.phase === "groups" ? "בונה את קבוצות המבנים וההמלצות…" : progress?.phase === "candidates" ? "סורק את מונחי התורה בחלון המוצג…" : "טוען את מילון התורה ומכין סריקת מבנים…"
-    : request.lens === "long-axis-analysis"
-      ? progress?.phase === "long-axis-scan" ? "מחפש צירים ארוכים בחלון המטריצה הפעיל…"
-        : progress?.phase?.startsWith("verify") ? "מאמת את הצירים הארוכים מול המנוע הקנוני…"
-          : "טוען את שפת התורה ומכין ניתוח צירים ארוכים…"
     : request.lens === "cross-third-axis"
       ? progress?.phase === "third-axis-verify" ? "מאמת את הציר השלישי במפגשים שנמצאו…" : "מחפש את הציר השלישי בתוך מפגשי ההצלבה…"
     : request.lens === "research-target-compare"
@@ -939,14 +958,15 @@ function LensProgress({ request, progress, onCancel, reduction = null, onReduce 
         : ["verse-context", "letter-context"].includes(request.lens)
           ? "טוען את המקור והפסוק…"
           : "מכין את תוצאת המחקר…";
-  const unitLabel = progress?.phase === "lexicon-language" ? "פסוקים נקראו"
+  const unitLabel = progress?.phase === "matrix" ? "קווי מפה נבדקו"
+    : request.lens === "matrix-discovery" && progress?.phase === "context" ? "מונחי הקשר נבדקו"
+    : progress?.phase === "lexicon-language" ? "פסוקים נקראו"
     : progress?.phase?.startsWith("lexicon-freeze-") ? "ערכי שפה הוכנו"
     : progress?.phase?.startsWith("lexicon-materialize-") ? "ערכי מועמדים עובדו"
     : progress?.phase === "core" ? "נקודות מוצא נסרקו"
     : progress?.phase === "collect" ? "מועמדים הוכנו"
     : progress?.phase === "rank" ? "צעדי מיון הושלמו"
     : progress?.phase === "verify" ? "מועמדים אומתו"
-    : progress?.phase === "long-axis-scan" ? "מונחים נסרקו בחלון"
     : progress?.phase === "third-axis-scan" ? "מפגשים נבדקו"
     : progress?.phase === "third-axis-verify" ? "מופעי ציר שלישי אומתו"
     : progress?.phase === "verify-prepare" ? "רשימת האימות הוכנה"
@@ -1832,7 +1852,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const requestLens = (lens, target = {}) => {
     // A native reading/scan action always reveals its native result, even after compatibility tools.
     setClassicOpen(false);
-    openTool(["structure-priority", "long-axis-analysis"].includes(lens) ? "structures" : ["result-triage", "research-target", "research-target-compare", "cross-third-axis"].includes(lens) ? "results" : "findings");
+    openTool(["structure-priority", "matrix-discovery"].includes(lens) ? "structures" : ["result-triage", "research-target", "research-target-compare", "cross-third-axis"].includes(lens) ? "results" : "findings");
     const seq = ++lensSeqRef.current;
     if (!(lens === "matrix-candidates" && target.resume === true && lensResult?.partial)) setLensResult(null);
     setLensProgress(null);
@@ -2372,11 +2392,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         </section> : null}
         </div>
         {!compactMobile ? <div className="els29-native-toolstrip" hidden={classicOpen || savedLoadPending} role="group" aria-label="כלי המטריצה">
-          {[["findings", "סריקה וממצאים", "els"], ...(researchProfile ? [["structures", "מבנים וקשרים", "dna"]] : []), ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
+          {[["findings", "סריקה וממצאים", "els"], ...(researchProfile ? [["structures", "גילוי במטריצה", "dna"]] : []), ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={visibleTool === tool} aria-controls="els29-context-panel"
             onClick={(event) => visibleTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
-          ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : tool === "structures" ? "מבנים" : label}</small></button>)}
+          ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : tool === "structures" ? "גילוי" : label}</small></button>)}
         </div> : null}
         <div ref={panelRef} className="els29-native-panel-wrap"
           data-mobile-inline-workspace={mobileInlineWorkspace ? "true" : undefined}
@@ -2384,12 +2404,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           hidden={classicOpen || savedLoadPending || !visibleTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{compactMobile && matrixActive ? "סביבת המחקר" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "structures" ? "מבנים בעדיפות" : visibleTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
+            <strong>{compactMobile && matrixActive ? "סביבת המחקר" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "structures" ? "גילוי במטריצה" : visibleTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
             {!compactMobile ? <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את החלונית">×</button> : null}
           </header>
           {compactMobile ? <nav className="els29-native-context-nav" aria-label="תצוגות סביבת המחקר">
             <button type="button" aria-label="סריקה וממצאים" aria-pressed={visibleTool === "findings"} onClick={() => openTool("findings")}>ממצאים</button>
-            {researchProfile ? <button type="button" aria-label="מבנים וקשרים" aria-pressed={visibleTool === "structures"} onClick={() => openTool("structures")}>מבנים</button> : null}
+            {researchProfile ? <button type="button" aria-label="גילוי במטריצה" aria-pressed={visibleTool === "structures"} onClick={() => openTool("structures")}>גילוי</button> : null}
             <button type="button" aria-label="תוצאות" aria-pressed={visibleTool === "results"} onClick={() => openTool("results")}>תוצאות</button>
             <button type="button" className="is-action" aria-label="שמירה" aria-pressed={visibleTool === "research"} onClick={() => openTool("research")}>שמור</button>
           </nav> : null}
@@ -2410,8 +2430,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           triageResult={researchProfile ? resultTriage : null} triagePending={researchProfile && resultTriagePending} />
         {researchProfile ? <StructuralPriorityRail visible={visibleTool === "structures"} state={engineState} lensResult={lensResult} lensPending={lensPending}
           busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
+          contextTerms={activeResearchContext?.contextTerms || []}
           onRun={(target) => requestLens("structure-priority", target)}
-          onAnalyzeLongAxes={(target) => requestLens("long-axis-analysis", target)}
+          onDiscoverMatrix={(target) => requestLens("matrix-discovery", target)}
           onScanAxis={(target) => requestLens("line-context", { ...target, scan: true })}
           onSearchPair={startRelationshipCross}
           onAddGroup={addStructureGroup} onOpenFinding={revealFindingDetails} /> : null}
