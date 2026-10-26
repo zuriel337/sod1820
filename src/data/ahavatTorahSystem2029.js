@@ -103,15 +103,31 @@ export const AHAVAT_TORAH_DATASETS = Object.freeze([
   Object.freeze({ id: "DS-03", title: "מספר תיבות התורה", total: "79,976", pages: [25, 26, 27, 28, 29, 30, 31, 41, 42], state: "closed", truthState: "source_verified", summary: "סך המחבר מופיע בשני מוקדי מקור נפרדים בתוך הספר.", nextStep: "השוואה לקורפוס מוגדר בלי לשנות את מעמד טענת המקור." }),
   Object.freeze({ id: "DS-04", title: "מספר אותיות התורה", total: "304,812", pages: [41, 42], state: "partial", truthState: "source_verified", summary: "סיכום המחבר נקרא ישירות בצילום: ש״ד אלף תתי״ב — 304,812. הסך הוכרע; חילוץ כל שורות הפרשות עדיין חלקי.", nextStep: "השלמת שורות הפרשות והסיכומים המצטברים, לצד צילום המקור בעמוד 42." }),
   Object.freeze({ id: "DS-05", title: "אוריין תליתאי · אנשים וייחוסים", total: "79,976 תיבות", pages: [25, 26, 27, 28, 29, 30, 31], state: "open", truthState: "open", summary: "טבלת ייחוס כפולה: מספר הופעות ומספר תיבות לכל אדם או קבוצה.", nextStep: "השלמת כל השורות והפרדת שני המדדים לאורך הטבלה." }),
-  Object.freeze({ id: "DS-06", title: "מופעי מילה או שורש לאורך פרשות", total: "טרם נקבע", pages: [70, 71], state: "partial", truthState: "source_located", summary: "טבלת מופעים רחבה שנצפתה מתרומה ועד האזינו; גבולותיה עדיין אינם סגורים.", nextStep: "זיהוי מדויק של מילת הספירה וקריאת סוף הטבלה." }),
-  Object.freeze({ id: "DS-07", title: "שרשרת מסירת טהרת פרה אדומה", total: "37", pages: [78], state: "open", truthState: "open", summary: "ספירת ל״ז שורות או דורות במסורת מסירה המיוחסת לסנהדרין.", nextStep: "הכרעת יחידת הספירה והיקף הרשימה במקור." }),
-  Object.freeze({ id: "DS-08", title: "השוואת תיבות התוכחה", total: "טרם הושלם", pages: [90], state: "open", truthState: "open", summary: "השוואה מספרית בין ברכות וקללות בפרשת כי תבוא.", nextStep: "קריאת כל הערכים והגדרת גבולות הקטעים המושווים." }),
+  Object.freeze({ id: "DS-06", title: "מופעי השם משה בתורה", total: "647 · בדברי הספר", pages: [70], state: "partial", truthState: "source_located", summary: "סיכום המחבר הוא 647 מופעי משה. עשר פרשות ספר שמות נקראו מחדש ונסגרות ל־290; סיכומי ארבעת החומשים נגישים לצד המקור.", nextStep: "קריאה מחודשת של יתר שורות הפרשות וצורות השם, תוך שימור התעתיק הקודם בנפרד." }),
+  Object.freeze({ id: "DS-07", title: "שרשרת מסירת טהרת פרה אדומה", total: "איתור להמשך", pages: [], state: "unknown", truthState: "open", summary: "נושא ממפת המחקר ההיסטורית שמראה־המקום שלו עדיין בבירור. הדיון במסורת המסירה נשמר להמשך קריאה, בלי לייחסו לעמוד שלא אומת.", nextStep: "איתור מחדש של הקטע, ורק לאחריו הכרעת יחידת הספירה והיקף הרשימה.", locatorReview: Object.freeze({ previousEstimate: 78, reviewedRange: [71, 80], note: "ההערכה הישנה הייתה עמוד 78; בדיקת הטווח המאוחרת לא איתרה את השרשרת. אין עמוד מקור מדויק מוכרע." }) }),
+  Object.freeze({ id: "DS-08", title: "השוואת תיבות התוכחה", total: "איתור להמשך", pages: [], state: "unknown", truthState: "open", summary: "נושא ממפת המחקר ההיסטורית שמקומו טרם הוכרע. נבדיל בין דיון בתוכחה לבין טבלת מניינים, ונציג את הטבלה רק כשתאותר במקור.", nextStep: "יישוב דוחות החיפוש ואיתור קטע מספרי תחום לפני שיוך עמוד או תאים למאגר.", locatorReview: Object.freeze({ previousEstimate: 90, reviewedRange: [81, 99], note: "האיתור המשוער בעמוד 90 לא אושר. דוחות החיפוש המאוחרים לא מצאו את הטבלה המספרית בטווח 81–99; אין זו טענה שהנושא נעדר מכל הספר." }) }),
   Object.freeze({ id: "DS-09", title: "אותיות חמש המגילות", total: "חמש מגילות", pages: [42, 43], state: "open", truthState: "source_located", summary: "מטריצת אותיות לאסתר, שיר השירים, רות, איכה וקהלת.", nextStep: "תעתוק התאים, סכומי המגילות וסכום־העל." }),
   Object.freeze({ id: "DS-10", title: "תיבות חמש המגילות", total: "טרם נקבע", pages: [43], state: "open", truthState: "open", summary: "טבלת תיבות מקבילה לחמש המגילות, שסכומיה עדיין לא נקראו במלואם.", nextStep: "קריאה מלאה והצלבה עם טבלת האותיות הסמוכה." }),
   Object.freeze({ id: "DS-11", title: "רשימת השרשים בתורה", total: "1,820", pages: [30, 31, 32, 33, 34, 35], state: "open", truthState: "source_located", summary: "רשימת שרשים שהמחבר מונה; המספר הוא טענת מחבר ולא תוצאת מנוע.", nextStep: "תעתוק הרשימה והכרעת כללי ההכללה והצורות." }),
   Object.freeze({ id: "DS-12", title: "לוח השמטות ותיקונים", total: "רשימה איכותנית", pages: [99], state: "closed", truthState: "source_verified", summary: "תיקוני מהדורת תשמ״ג ושאלות עריכה; זהו מאגר טקסטואלי, לא מספרי.", nextStep: "קישור כל תיקון אל העמוד והנוסח שאליהם הוא מתייחס." }),
-  Object.freeze({ id: "DS-13", title: "מופעי הפועל ״עשה״ לפי פרשה", total: "248 · טענת מקור", pages: [69, 70], state: "unknown", truthState: "candidate", summary: "ספירה שטרם נחקרה לעומק; הזיקה לרמ״ח מצוות נשארת טענת מקור בלבד.", nextStep: "איתור תחילת הטבלה, הגדרת השורש וסגירת כל השורות." }),
+  Object.freeze({ id: "DS-13", title: "מופעי הפועל ״עשה״ לפי פרשה", total: "248 · בדברי הספר", pages: [70], state: "partial", truthState: "source_located", summary: "חמש פרשות המשכן נקראו בעמוד 70, ולאחריהן דיון בצורות הפועל ובהשמטות. סיום המחבר הוא רמ״ח — 248; מנייני הפרשות מוצגים בנפרד.", nextStep: "תעתוק כל צורות הפועל וההשמטות וקישורן למנייני הפרשות, בלי לערבב בין שלבי הספירה." }),
 ]);
+
+// An unresolved locator must not navigate to an old estimate or invent a page.
+export function ahavatDatasetSourcePage(dataset, currentPage = 6) {
+  const valid = value => Number.isInteger(value) && value >= 1 && value <= AHAVAT_TORAH_SOURCE.pdfPages;
+  return dataset?.pages?.find(valid) || (valid(currentPage) ? currentPage : 6);
+}
+
+export function ahavatCurrentOccurrenceReading(table) {
+  const reading = table?.current_reading;
+  if (reading?.source_identity !== AHAVAT_TORAH_SOURCE.identity
+    || reading?.source_pdf_sha256 !== "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b"
+    || reading?.pdf_page !== 70 || reading?.source_anchor !== "#page=70&view=FitH"
+    || !Array.isArray(reading?.rows) || !reading.rows.length || !reading.rows.every(row => row.pdf_page === 70 && Number.isSafeInteger(row.decimal) && row.decimal >= 0 && typeof row.printed === "string" && row.printed)
+    || !Array.isArray(reading.book_totals) || !reading.book_totals.every(book => book.pdf_page === 70 && Number.isSafeInteger(book.decimal) && book.decimal >= 0)) return null;
+  return reading;
+}
 
 export const AHAVAT_TORAH_DEEP_PAGES = Object.freeze([
   { page: 1, printed: null, section: "שער הספר", blocks: 5, tables: 0, unresolved: 0, depth: "זהות ביבליוגרפית" },

@@ -13,6 +13,8 @@ import {
   AHAVAT_TORAH_SOURCE,
   AHAVAT_TORAH_TRUTH_STATES,
   ahavatCompanionPage,
+  ahavatCurrentOccurrenceReading,
+  ahavatDatasetSourcePage,
   hebrewBlockKind,
   readingArcForPage,
   sectionForPage,
@@ -170,13 +172,13 @@ function DatasetCatalog({ selectedId, onSelect }) {
         <strong>{dataset.title}</strong>
         <b>{dataset.total}</b>
         <p>{dataset.summary}</p>
-        <footer><span>PDF {dataset.pages.join(" · ")}</span><em>פתח מקור ופרטים ←</em></footer>
+        <footer><span>{dataset.pages.length ? `PDF ${dataset.pages.join(" · ")}` : "מראה־המקום בבירור"}</span><em>{dataset.pages.length ? "פתח מקור ופרטים ←" : "פרטי האיתור ←"}</em></footer>
       </button>)}
     </div>
     {selected ? <article className="ahavat29-dataset-detail" aria-live="polite">
-      <div><span>{selected.id} · {selected.pages.length} עמודי מקור</span><h3>{selected.title}</h3><p>{selected.summary}</p></div>
+      <div><span>{selected.id} · {selected.pages.length ? `${selected.pages.length} עמודי מקור` : "מראה־המקום בבירור"}</span><h3>{selected.title}</h3><p>{selected.summary}</p></div>
       <section><span>השלב הבא למאגר הזה</span><p>{selected.nextStep}</p></section>
-      <button type="button" onClick={() => onSelect(selected)}>פתח PDF בעמוד {selected.pages[0]}</button>
+      {selected.pages.length ? <button type="button" onClick={() => onSelect(selected)}>פתח PDF בעמוד {selected.pages[0]}</button> : <details className="ahavat29-source-details"><summary>פרטי המקור והאיתור</summary><p>{selected.locatorReview?.note}</p><p>ה־PDF נשאר פתוח בעמוד הנוכחי.</p></details>}
     </article> : null}
   </section>;
 }
@@ -184,7 +186,8 @@ function DatasetCatalog({ selectedId, onSelect }) {
 const SPATIAL_TABS = Object.freeze([
   { id: "datasets", label: "מאגרי הספר", count: 13 },
   { id: "letters", label: "טבלת האותיות", count: 187 },
-  { id: "moses", label: "מופעי משה", count: 37 },
+  { id: "moses", label: "מופעי משה", count: 10 },
+  { id: "aseh", label: "מופעי עשה", count: 5 },
   { id: "calculations", label: "חישובים", count: 7 },
   { id: "families", label: "משפחות 1,820", count: 9 },
   { id: "contradictions", label: "פערים במקור", count: 10 },
@@ -239,7 +242,7 @@ function SpatialDatasetLegend({ selectedId, onSelect }) {
     >
       <span>{dataset.id}</span>
       <strong>{dataset.title}</strong>
-      <small>{dataset.pages.length} עמודי מקור · {DATASET_STATE_LABELS[dataset.state]}</small>
+      <small>{dataset.pages.length ? `${dataset.pages.length} עמודי מקור` : "מראה־המקום בבירור"} · {DATASET_STATE_LABELS[dataset.state]}</small>
     </button>)}
   </div>;
 }
@@ -249,8 +252,8 @@ function DatasetTable({ selectedId, onSelect }) {
     <table className="ahavat29-data-table">
       <thead><tr><th>מאגר</th><th>נושא</th><th>תוצאה בדברי הספר</th><th>עמודי מקור</th><th>מצב</th><th><span className="sr-only">פעולה</span></th></tr></thead>
       <tbody>{AHAVAT_TORAH_DATASETS.map(dataset => <tr key={dataset.id} className={selectedId === dataset.id ? "is-active" : ""}>
-        <td><b>{dataset.id}</b></td><td>{dataset.title}</td><td>{dataset.total}</td><td>{dataset.pages.join(" · ")}</td><td>{DATASET_STATE_LABELS[dataset.state]}</td>
-        <td><button type="button" onClick={() => onSelect(dataset)}>פתח PDF {dataset.pages[0]}</button></td>
+        <td><b>{dataset.id}</b></td><td>{dataset.title}</td><td>{dataset.total}</td><td>{dataset.pages.length ? dataset.pages.join(" · ") : "מראה־המקום בבירור"}</td><td>{DATASET_STATE_LABELS[dataset.state]}</td>
+        <td><button type="button" onClick={() => onSelect(dataset)}>{dataset.pages.length ? `פתח PDF ${dataset.pages[0]}` : "פרטי האיתור"}</button></td>
       </tr>)}</tbody>
     </table>
   </div>;
@@ -259,7 +262,8 @@ function DatasetTable({ selectedId, onSelect }) {
 function OccurrenceTable({ table, kind, onPage }) {
   const [query, setQuery] = useState("");
   const [limit, setLimit] = useState(36);
-  const rows = table?.rows || [];
+  const currentReading = ahavatCurrentOccurrenceReading(table);
+  const rows = table?.current_reading ? currentReading?.rows || [] : table?.rows || [];
   const normalized = normalizeSearch(query);
   const filtered = useMemo(() => rows.filter(row => !normalized || normalizeSearch(Object.values(row).filter(value => typeof value === "string" || typeof value === "number").join(" ")).includes(normalized)), [normalized, rows]);
   const visibleRows = filtered.slice(0, limit);
@@ -268,6 +272,8 @@ function OccurrenceTable({ table, kind, onPage }) {
   useEffect(() => setLimit(36), [kind, query]);
 
   return <div className="ahavat29-occurrence">
+    {table?.current_reading && !currentReading ? <p role="alert">הקריאה המעודכנת אינה תואמת לעד המקור. ה־PDF נשאר זמין.</p> : null}
+    {(currentReading?.summary_he || table?.summary_he) ? <div className="ahavat29-ds01-guide"><strong>{currentReading?.title_he || table.title}</strong><p>{currentReading?.summary_he || table.summary_he}</p><button type="button" onClick={() => onPage(70)}>פתח מקור הקריאה · PDF 70</button></div> : null}
     <div className="ahavat29-table-tools">
       <label><span>חיפוש בתוך הטבלה</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={letters ? "אות, פרשה, חומש או מספר" : "פרשה, חומש או מספר"} /></label>
       <strong>{filtered.length} שורות</strong>
@@ -292,7 +298,11 @@ function OccurrenceTable({ table, kind, onPage }) {
     </div>
     {limit < filtered.length ? <button className="ahavat29-show-more" type="button" onClick={() => setLimit(value => value + 36)}>הצג עוד 36 שורות</button> : null}
     {!filtered.length ? <p className="ahavat29-table-empty">לא נמצאה התאמה בטבלה.</p> : null}
-    <details className="ahavat29-source-details"><summary>פרטי המקור</summary><p>{table?.title}</p><p>עמודי PDF: {(table?.pdf_pages || []).join(" · ")}</p><p>מצב השכבה: {sourceStateLabel(table?.status)}</p></details>
+    <details className="ahavat29-source-details"><summary>פרטי המקור</summary><p>{table?.title}</p><p>עמודי PDF: {(table?.pdf_pages || []).join(" · ")}</p><p>מצב השכבה: {sourceStateLabel(table?.status)}</p>
+      {(currentReading?.source_note_he || table?.source_note_he) ? <p>{currentReading?.source_note_he || table.source_note_he}</p> : null}
+      {currentReading?.book_totals ? <ul>{currentReading.book_totals.map(book => <li key={book.sefer}>{book.sefer}: {book.printed} = {book.decimal}</li>)}</ul> : null}
+      {currentReading ? <details className="ahavat29-machine-text"><summary>תעתיק קודם · {table.rows.length} שורות</summary><p>קריאות מוקדמות נשמרות לתיעוד; אינן מחליפות את הקריאה המחודשת מול ה־PDF.</p><pre>{table.rows.map(row => `${row.sefer} · ${row.parasha} · ${row.printed || "לא מודפס"} · ${row.decimal}`).join("\n")}</pre></details> : null}
+    </details>
   </div>;
 }
 
@@ -459,7 +469,7 @@ function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage }) {
   return <section className="ahavat29-spatial" aria-labelledby="ahavat29-spatial-title">
     <header>
       <div><span>מצפה הנתונים של הספר</span><h2 id="ahavat29-spatial-title">טבלאות שאפשר להיכנס לתוכן</h2></div>
-      <p>התלת־ממד מציג מבנה אמיתי: גובה הוא מספר עמודי המקור, צבע הוא מצב הקריאה, וכל מגדל פותח את ה־PDF המדויק.</p>
+      <p>התלת־ממד מציג מבנה אמיתי: גובה הוא מספר עמודי המקור, צבע הוא מצב הקריאה, ומאגר שאותר פותח את ה־PDF המדויק.</p>
     </header>
 
     <DivineNameSourceModel onPage={onPage} />
@@ -473,7 +483,7 @@ function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage }) {
 
     <div className="ahavat29-spatial-stage">
       <div className="ahavat29-spatial-stage-head">
-        <div><span>המאגר הנבחר</span><strong>{selected.id} · {selected.title}</strong><small>{selected.pages.length} עמודי מקור · PDF {selected.pages.join(" · ")}</small></div>
+        <div><span>המאגר הנבחר</span><strong>{selected.id} · {selected.title}</strong><small>{selected.pages.length ? `${selected.pages.length} עמודי מקור · PDF ${selected.pages.join(" · ")}` : "מראה־המקום בבירור; ה־PDF נשאר פתוח"}</small></div>
         <button type="button" aria-expanded={showScene} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מצפה תלת־ממדי" : "פתח מצפה תלת־ממדי"}</button>
       </div>
       {showScene ? <div className="ahavat29-spatial-scene">
@@ -495,6 +505,7 @@ function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage }) {
       {bundleState === "ready" && tab === "datasets" ? <DatasetTable selectedId={selected.id} onSelect={onSelect} /> : null}
       {bundleState === "ready" && tab === "letters" ? <OccurrenceTable table={occurrenceTables[0]} kind="letters" onPage={onPage} /> : null}
       {bundleState === "ready" && tab === "moses" ? <OccurrenceTable table={occurrenceTables[1]} kind="moses" onPage={onPage} /> : null}
+      {bundleState === "ready" && tab === "aseh" ? <OccurrenceTable table={occurrenceTables[2]} kind="aseh" onPage={onPage} /> : null}
       {bundleState === "ready" && tab === "calculations" ? <ResearchCards kind="calculations" records={bundle?.calculations} onPage={onPage} /> : null}
       {bundleState === "ready" && tab === "families" ? <ResearchCards kind="families" records={bundle?.number_families} onPage={onPage} /> : null}
       {bundleState === "ready" && tab === "contradictions" ? <ResearchCards kind="contradictions" records={bundle?.contradictions} onPage={onPage} /> : null}
@@ -701,11 +712,15 @@ export default function AhavatTorahSystem2029Page() {
   };
 
   const selectDataset = dataset => {
-    setPage(dataset.pages[0]);
+    const nextPage = ahavatDatasetSourcePage(dataset, page);
+    setPage(nextPage);
     setFindingId("");
     setDatasetId(dataset.id);
-    replaceSelectionInUrl(dataset.pages[0], "", dataset.id);
-    window.requestAnimationFrame(() => document.getElementById("ahavat29-source")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    replaceSelectionInUrl(nextPage, "", dataset.id);
+    if (dataset.pages.length) {
+      const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+      window.requestAnimationFrame(() => document.getElementById("ahavat29-source")?.scrollIntoView({ behavior, block: "start" }));
+    }
   };
 
   const openPage = nextPage => {

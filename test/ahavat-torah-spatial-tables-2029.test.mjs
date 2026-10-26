@@ -22,13 +22,15 @@ test("Ahavat Torah spatial observatory encodes source footprint and truth state 
 
 test("the table explorer exposes every bounded structured layer", () => {
   assert.equal(bundle.datasets.length, 13);
-  assert.equal(bundle.occurrence_tables.length, 2);
+  assert.equal(bundle.occurrence_tables.length, 3);
   assert.equal(bundle.occurrence_tables[0].rows.length, 187);
   assert.equal(bundle.occurrence_tables[1].rows.length, 37);
+  assert.equal(bundle.occurrence_tables[1].current_reading.rows.length, 10);
+  assert.equal(bundle.occurrence_tables[2].rows.length, 5);
   assert.equal(bundle.calculations.length, 7);
   assert.equal(bundle.number_families.length, 9);
   assert.equal(bundle.contradictions.length, 10);
-  for (const count of [13, 187, 37, 7, 9, 10]) assert.match(page, new RegExp(`count: ${count}`));
+  for (const count of [13, 187, 10, 5, 7, 9, 10]) assert.match(page, new RegExp(`count: ${count}`));
   assert.match(page, /function OccurrenceTable/);
   assert.match(page, /function ResearchCards/);
   assert.match(page, /פרטי המקור/);
@@ -37,7 +39,8 @@ test("the table explorer exposes every bounded structured layer", () => {
 test("every spatial and tabular selection keeps an exact PDF action", () => {
   assert.match(page, /onSelect\(dataset\)/);
   assert.match(page, /onPage\(page\)/);
-  assert.match(page, /פתח PDF \{dataset\.pages\[0\]\}/);
+  assert.match(page, /dataset\.pages\.length \? `פתח PDF \$\{dataset\.pages\[0\]\}` : "פרטי האיתור"/);
+  assert.match(page, /ahavatDatasetSourcePage\(dataset, page\)/);
   assert.match(page, /PDF \{page\}/);
   assert.match(page, /AHAVAT_TORAH_SOURCE\.pdfPages/);
   assert.match(page, /שכבת הטבלאות לא נטענה\. ה־PDF המלא נשאר זמין/);

@@ -85,6 +85,31 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       await page.locator(".ahavat29-spatial-canvas canvas").waitFor();
       assert.equal(await page.locator(".ahavat29-spatial-canvas canvas").count(), 1);
 
+      for (const id of ["DS-07", "DS-08"]) {
+        await page.locator(".ahavat29-spatial-legend button").filter({ hasText: id }).click();
+        assert.equal(new URL(page.url()).searchParams.get("dataset"), id);
+        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=6&view=FitH$/);
+        assert.match(await page.locator(".ahavat29-dataset-detail").textContent(), /מראה־המקום בבירור/);
+        assert.equal(await page.locator(".ahavat29-dataset-detail").getByRole("button", { name: /פתח PDF/ }).count(), 0);
+      }
+      await page.locator(".ahavat29-table-tabs").getByRole("button", { name: /מופעי משה/ }).click();
+      const occurrence = page.locator(".ahavat29-occurrence");
+      assert.equal(await occurrence.locator("tbody tr").count(), 10);
+      assert.equal(await occurrence.locator("tbody tr").filter({ hasText: "כי תשא" }).locator("td:nth-child(4)").textContent(), "49");
+      assert.equal(await occurrence.locator("tbody tr").filter({ hasText: "ויקהל" }).locator("td:nth-child(4)").textContent(), "9");
+      await occurrence.getByRole("button", { name: "פתח מקור הקריאה · PDF 70", exact: true }).click();
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=70&view=FitH$/);
+      await occurrence.locator(":scope > details > summary").click();
+      await occurrence.getByText("תעתיק קודם · 37 שורות", { exact: true }).click();
+      assert.match(await occurrence.locator("pre").textContent(), /כי תשא · מ"ם · 40/);
+      assert.equal(await occurrence.locator("pre").evaluate(element => getComputedStyle(element).whiteSpace), "pre-wrap");
+      assert.equal(await occurrence.locator("pre").evaluate(element => element.scrollWidth <= element.clientWidth + 1), true, `historical source transcript overflows at ${width}px`);
+      await page.locator(".ahavat29-table-tabs").getByRole("button", { name: /מופעי עשה/ }).click();
+      assert.equal(await occurrence.locator("tbody tr").count(), 5);
+      assert.equal(await occurrence.locator("tbody tr").filter({ hasText: "ויקהל" }).locator("td:nth-child(4)").textContent(), "84");
+      await occurrence.getByRole("button", { name: "פתח מקור הקריאה · PDF 70", exact: true }).click();
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=70&view=FitH$/);
+
       const datasetButton = page.locator(".ahavat29-spatial-legend button").filter({ hasText: "DS-02" });
       await datasetButton.click();
       assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-02");
