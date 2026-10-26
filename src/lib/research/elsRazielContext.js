@@ -24,6 +24,13 @@ const EXACT_RETURN = "verified-v1";
 const LANGUAGE_INSPECTION_CONTRACT = "els_matrix_language_inspection_v1";
 const LANGUAGE_INSPECTION_STATUS = "CANDIDATE_INPUT";
 const LANGUAGE_ORIENTATIONS = new Set(["horizontal", "vertical", "diagonal-right", "diagonal-left"]);
+const LANGUAGE_FACT_LIMIT = 2800;
+const LANGUAGE_ORIENTATION_CODE = Object.freeze({
+  horizontal: "H",
+  vertical: "V",
+  "diagonal-right": "D+",
+  "diagonal-left": "D-",
+});
 
 function canonicalHebrewLetters(value) {
   const finals = { ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" };
@@ -147,6 +154,79 @@ function boundedLanguageInspection(value, selected, projection, scope) {
     modelCallsTriggered: 0,
     rays: Object.freeze(rays),
   });
+}
+
+export function buildElsRazielLanguageFacts(surfaceContext) {
+  const occurrence = surfaceContext?.occurrence || null;
+  const result = surfaceContext?.result || null;
+  const inspection = surfaceContext?.languageInspection || null;
+  const axis = inspection?.axis || null;
+  const scope = cleanScope(occurrence?.corpus);
+  const occurrenceTerm = canonicalHebrewLetters(occurrence?.term);
+  if (
+    surfaceContext?.surface !== "els"
+    || !occurrence?.occurrenceRef
+    || result?.contract !== EXACT_CONTRACT
+    || result?.status !== EXACT_STATUS
+    || result?.presentationPolicy !== EXACT_POLICY
+    || inspection?.contract !== LANGUAGE_INSPECTION_CONTRACT
+    || inspection?.status !== LANGUAGE_INSPECTION_STATUS
+    || inspection?.source !== "canonical_matrix_letters"
+    || inspection?.modelCallsTriggered !== 0
+    || inspection?.authority?.letters !== "CANONICAL"
+    || inspection?.authority?.segmentation !== "UNVERIFIED"
+    || inspection?.authority?.meaning !== "UNVERIFIED"
+    || inspection?.authority?.canonicalReplayRequired !== true
+    || !occurrenceTerm
+    || canonicalHebrewLetters(axis?.term) !== occurrenceTerm
+    || cleanScope(axis?.scope) !== scope
+    || safeInt(axis?.skip) !== safeInt(occurrence?.skip)
+    || safeInt(axis?.dir) !== safeInt(occurrence?.dir)
+    || safeInt(axis?.start) !== safeInt(occurrence?.start)
+  ) return "";
+
+  const rays = [];
+  for (const raw of Array.isArray(inspection.rays) ? inspection.rays.slice(0, 24) : []) {
+    const orientation = clean(raw?.orientation);
+    const text = canonicalHebrewLetters(raw?.text);
+    const reverseText = canonicalHebrewLetters(raw?.reverseText);
+    const start = safeInt(raw?.start);
+    const step = safeInt(raw?.step);
+    const distance = safeInt(raw?.distance);
+    if (
+      !LANGUAGE_ORIENTATIONS.has(orientation)
+      || text.length < 4
+      || text.length > 24
+      || reverseText !== [...text].reverse().join("")
+      || start == null
+      || start < 0
+      || step == null
+      || step === 0
+      || distance == null
+      || distance < 0
+      || distance > 80
+    ) continue;
+    rays.push({ orientation, text, reverseText, start, step, distance });
+  }
+  if (!rays.length) return "";
+
+  const direction = occurrence.dir === -1 ? "לאחור" : "קדימה";
+  const header = [
+    "ELS_LANGUAGE_MAP_V1 — חומר מועמד בלבד, לא ממצאי ELS.",
+    `ציר מאומת: ${occurrence.term}; היקף=${scope}; דילוג=${occurrence.skip}; כיוון=${direction}; התחלה=${occurrence.start}.`,
+    "רק אותיות הקווים נגזרו מן המטריצה הקנונית. חלוקה למילים, קריאה ומשמעות אינן מאומתות.",
+    "אפשר להציע עד שלוש קריאות ולסמן כל אחת כהשערה בלבד. אין לחשב או להשלים מיקום, דילוג או התאמה.",
+    "כל הצעה חייבת exact replay במנוע ELS הקנוני לפני שתוצג כממצא.",
+    "קווים: f=קדימה, r=הפוך, d=מרחק מן הציר; s/k הם מטא־נתונים קנוניים לקריאה בלבד.",
+  ].join(" ");
+  let facts = header;
+  for (let index = 0; index < rays.length; index += 1) {
+    const ray = rays[index];
+    const row = ` R${index + 1}[${LANGUAGE_ORIENTATION_CODE[ray.orientation]};d=${ray.distance};s=${ray.start};k=${ray.step}] f=${ray.text};r=${ray.reverseText}.`;
+    if (facts.length + row.length > LANGUAGE_FACT_LIMIT) break;
+    facts += row;
+  }
+  return facts;
 }
 
 function exactReturnFields(value) {

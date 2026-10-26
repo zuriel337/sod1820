@@ -4,6 +4,7 @@ import {
   buildElsRazielExactHref,
   buildElsRazielSurfaceContext,
   buildElsRazielGuidance,
+  buildElsRazielLanguageFacts,
   readElsRazielExactReturn,
 } from "../src/lib/research/elsRazielContext.js";
 
@@ -158,6 +159,21 @@ test("Raziel receives a bounded exact-letter language map only when it belongs t
     languageInspection: { ...languageInspection, status: "VERIFIED_LANGUAGE" },
   });
   assert.equal("languageInspection" in interpreted, false, "the seam never accepts an engine-external truth promotion");
+});
+
+test("the explicit-submit fact pack keeps canonical rays separate from unverified language readings", () => {
+  const out = buildElsRazielSurfaceContext({ researchContext, projection, languageInspection });
+  const facts = buildElsRazielLanguageFacts(out);
+  assert.match(facts, /^ELS_LANGUAGE_MAP_V1/);
+  assert.match(facts, /חומר מועמד בלבד, לא ממצאי ELS/);
+  assert.match(facts, /חלוקה למילים, קריאה ומשמעות אינן מאומתות/);
+  assert.match(facts, /עד שלוש קריאות/);
+  assert.match(facts, /exact replay במנוע ELS הקנוני/);
+  assert.match(facts, /f=באשאטמינ;r=נימטאשאב/);
+  assert.match(facts, /f=שבררומי;r=ימוררבש/);
+  assert.ok(facts.length <= 2800);
+  assert.equal(buildElsRazielLanguageFacts({ ...out, result: { ...out.result, status: "UNVERIFIED" } }), "");
+  assert.equal(buildElsRazielLanguageFacts({ ...out, languageInspection: { ...out.languageInspection, axis: { ...out.languageInspection.axis, start: 101 } } }), "");
 });
 
 test("unverified, ordinary-search and incomplete occurrences never cross the ELS to Raziel seam", () => {

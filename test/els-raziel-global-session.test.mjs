@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   buildElsRazielExactHref,
+  buildElsRazielLanguageFacts,
   buildElsRazielSurfaceContext,
   readElsRazielExactReturn,
 } from "../src/lib/research/elsRazielContext.js";
@@ -148,6 +149,43 @@ test("unverified ELS cannot become a Raziel fact and one-shots stay on the exist
   assert.match(provider, /if \(!spec \|\| !shot\.ok\) return \{ ok: false, error: "no_material_for_one_shot" \}/);
   assert.match(provider, /return submit\(\{ \.\.\.options, question: shot\.question/);
   assert.doesNotMatch(provider, /submitOneShot[\s\S]*transport\(/);
+});
+
+test("one explicit ELS question carries the bounded language map through the existing request only", () => {
+  const projection = exactProjection();
+  const languageInspection = {
+    contract: "els_matrix_language_inspection_v1",
+    status: "CANDIDATE_INPUT",
+    source: "canonical_matrix_letters",
+    axis: { term: "משיח", scope: "torah", skip: 17, dir: 1, start: 100 },
+    authority: { letters: "CANONICAL", segmentation: "UNVERIFIED", meaning: "UNVERIFIED", canonicalReplayRequired: true },
+    coverage: { stage: "A", totalRays: 24, returnedRays: 24, truncated: true },
+    modelCallsTriggered: 0,
+    rays: Array.from({ length: 24 }, (_, index) => {
+      const text = index === 4 ? "באשאטמינ" : index === 20 ? "ימוררבש" : `אבגד${"ה".repeat(index % 8)}`;
+      return { orientation: index % 2 ? "diagonal-right" : "diagonal-left", text, reverseText: [...text].reverse().join(""), start: 200 + index, step: index % 2 ? 18 : 16, length: text.length, distance: index < 19 ? 0 : 1, intersectsAxis: index < 19 };
+    }),
+  };
+  const els = buildElsRazielSurfaceContext({ researchContext, projection, languageInspection });
+  const languageFacts = buildElsRazielLanguageFacts(els);
+  assert.ok(languageFacts.length > 1200, "the quality map exercises the ELS-only larger envelope");
+  const prepared = prepareRazielSessionSubmission({
+    question: "אילו קריאות לשוניות כדאי לאמת?",
+    state: createInitialRazielSessionState(),
+    researchContext,
+    facts: `מופע ELS מאומת: משיח\n${languageFacts}`,
+    view: { elsFocus: els },
+    startedAt: "2026-10-26T12:04:00Z",
+    createTurnId: () => "language-turn",
+  });
+  assert.match(prepared.request.facts, /ELS_LANGUAGE_MAP_V1/);
+  assert.match(prepared.request.facts, /באשאטמינ/);
+  assert.match(prepared.request.facts, /ימוררבש/);
+  assert.match(prepared.request.facts, /אינן מאומתות/);
+  assert.ok(prepared.request.facts.length > 1200);
+  assert.ok(prepared.request.facts.length <= 3500);
+  assert.equal(prepared.request.surfaceSemantic.els.occurrence, els.occurrence.occurrenceRef);
+  assert.match(prepared.turn.continuation.facts, /ELS_LANGUAGE_MAP_V1/);
 });
 
 test("the 320px-safe UI uses bounded cards and links without a second chat/provider", () => {

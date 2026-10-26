@@ -63,7 +63,7 @@ import {
   markSurfaceFamiliarity,
   resolveEntryOrientation,
 } from "../../lib/entryLearn2029.js";
-import { buildElsRazielExactHref, buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
+import { buildElsRazielExactHref, buildElsRazielGuidance, buildElsRazielLanguageFacts } from "../../lib/research/elsRazielContext.js";
 import { SystemToolDockContext2029, SystemToolDockActions2029 } from "./SystemToolDock2029.jsx";
 import "./sod2029.css";
 import "./sod2029-closed.css";
@@ -711,8 +711,9 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     elsFocus ? `זהות אימות ELS: contract=${elsFocus.result.contract}; status=${elsFocus.result.status}; presentation=${elsFocus.result.presentationPolicy}; occurrenceRef=${elsFocus.occurrence.occurrenceRef}` : "",
     elsFocus ? `מיקום ELS: scope=${elsFocus.occurrence.corpus}; corpusId=${elsFocus.result.corpusId}; skip=${elsFocus.occurrence.skip}; direction=${elsFocus.occurrence.dir}; start=${elsFocus.occurrence.start}; end=${elsFocus.occurrence.end ?? "לא נמסר"}` : "",
     elsFocus ? "גבול ELS: המנוע הקנוני אימת את הביטוי והמיקום בלבד. משמעות וקשרים הם פרשנות; אין לחשב או להשלים נתוני ELS חסרים." : "",
+    elsFocus ? buildElsRazielLanguageFacts(elsFocus) : "",
     label && label !== subjectLabel ? `מוקד נבחר: ${label}` : "",
-  ].filter(Boolean).join("\n").slice(0, 1200);
+  ].filter(Boolean).join("\n").slice(0, 3500);
   const send = async (question, level, again = false, continuationTurnId = null) => {
     const q = String(question || "").trim();
     if (!q || busy) return;
@@ -918,6 +919,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <small>מיקום · {elsFocus.occurrence.corpus || "—"} · דילוג {elsFocus.occurrence.skip ?? "—"} · {elsDirectionLabel(elsFocus.occurrence.dir)} · {elsFocus.occurrence.start ?? "—"} → {elsFocus.occurrence.end ?? "—"}</small>
         <small>מאומת · {elsFocus.result.contract} · {elsFocus.result.status} · {elsFocus.result.presentationPolicy}</small>
         <small>מאומתים הביטוי והמיקום; משמעות וקשרים הם פרשנות של רזיאל.</small>
+        {elsFocus.languageInspection ? <small data-raziel-els-language-map="candidate-only">מפת שפה מקומית מוכנה. רזיאל יקרא אותה רק לאחר שליחת שאלה; כל חלוקה למילים תישאר השערה עד אימות במנוע.</small> : null}
         {elsReturnHref ? <Link className="sod29-action" to={elsReturnHref} data-raziel-return-to-els="true">חזור למופע המדויק</Link> : null}
       </section> : null}
       {elsGuide ? <section className="sod29-panel-context-card sod29-raziel-els-guide" data-raziel-els-guide={elsGuide.contract}>

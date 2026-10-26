@@ -13,6 +13,10 @@ const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
 const LIMITS = Object.freeze({
   question: 300,
   factPack: 1200,
+  // ai-analyze enforces the same 3,500-character server cap. Only a validated ELS snapshot with
+  // the bounded language-map marker may use the larger client envelope; every other surface keeps
+  // the existing 1,200-character budget.
+  elsLanguageFactPack: 3500,
   context: 600,
   transcript: 500,
   transcriptTurn: 200,
@@ -51,6 +55,13 @@ function cleanInteger(value) {
 
 function compactObject(value) {
   return Object.fromEntries(Object.entries(value).filter(([, item]) => item != null && item !== ""));
+}
+
+function factPackLimit(value, contextSnapshot) {
+  const facts = String(value ?? "");
+  return contextSnapshot?.focus?.els?.occurrence && facts.includes("ELS_LANGUAGE_MAP_V1")
+    ? LIMITS.elsLanguageFactPack
+    : LIMITS.factPack;
 }
 
 function sourceName(value) {
@@ -261,7 +272,7 @@ export function createRazielContinuationSnapshot({ contextSnapshot, facts = "", 
   if (!boundedContextSnapshot) return null;
   return Object.freeze({
     contextSnapshot: boundedContextSnapshot,
-    facts: cleanInline(facts, LIMITS.factPack) || "",
+    facts: cleanInline(facts, factPackLimit(facts, boundedContextSnapshot)) || "",
     viewMode: normalizeRazielViewMode(viewMode),
   });
 }
@@ -336,7 +347,7 @@ export function buildRazielSessionRequest({
     .slice(0, LIMITS.context) || null;
   return {
     subject,
-    facts: cleanInline(facts, LIMITS.factPack) || "",
+    facts: cleanInline(facts, factPackLimit(facts, contextSnapshot)) || "",
     context: boundedContext,
     again: Boolean(again),
     intelligenceLevel: intelligenceLevel === "deep" ? "deep" : "fast",

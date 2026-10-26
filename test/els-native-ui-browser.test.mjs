@@ -106,7 +106,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
 if(window.__fixtureFullFrame){
  const [{default:Frame,use2029Shell},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
  function PaletteProbe(){const p=usePalette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
- function VerifiedElsRazielFixture(){const shell=use2029Shell();return React.createElement('button',{type:'button','data-open-verified-els':'true',onClick:()=>shell.openRaziel({razielMicroIntent:'explain_els_occurrence',elsSurfaceContext:{v:1,surface:'els',occurrence:{occurrenceRef:'anon:fixture-occurrence',term:'משיח',corpus:'torah',skip:17,dir:1,start:100,end:151,positions:[100,117,134,151]},result:{contract:'els_2029_projection_v1',status:'OK',corpusId:'fixture-torah',presentationPolicy:'exact_replay_v1'},verification:{state:'MATCH',source:'canonical_els_engine',interpretation:false}}})},'פתח מופע ELS מאומת');}
+ function VerifiedElsRazielFixture(){const shell=use2029Shell();return React.createElement('button',{type:'button','data-open-verified-els':'true',onClick:()=>shell.openRaziel({razielMicroIntent:'explain_els_occurrence',elsSurfaceContext:{v:1,surface:'els',occurrence:{occurrenceRef:'anon:fixture-occurrence',term:'משיח',corpus:'torah',skip:17,dir:1,start:100,end:151,positions:[100,117,134,151]},result:{contract:'els_2029_projection_v1',status:'OK',corpusId:'fixture-torah',presentationPolicy:'exact_replay_v1'},verification:{state:'MATCH',source:'canonical_els_engine',interpretation:false},languageInspection:{contract:'els_matrix_language_inspection_v1',status:'CANDIDATE_INPUT',source:'canonical_matrix_letters',axis:{term:'משיח',scope:'torah',skip:17,dir:1,start:100},authority:{letters:'CANONICAL',segmentation:'UNVERIFIED',meaning:'UNVERIFIED',canonicalReplayRequired:true},coverage:{stage:'A',rayCap:24,maxLetters:24,totalRays:2,returnedRays:2,truncated:false},modelCallsTriggered:0,rays:[{orientation:'diagonal-left',text:'באשאטמינ',reverseText:'נימטאשאב',start:80,step:16,length:8,distance:0,intersectsAxis:true},{orientation:'vertical',text:'שבררומי',reverseText:'ימוררבש',start:101,step:17,length:7,distance:1,intersectsAxis:false}]}}})},'פתח מופע ELS מאומת');}
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
   const [researchLoad,setResearchLoad]=React.useState(null);window.__loadResearch=setResearchLoad;
@@ -1245,6 +1245,7 @@ test('native UI: verified ELS context reaches the one global Raziel session at 3
    assert.match(await card.innerText(),/הביטוי · משיח/);
    assert.match(await card.innerText(),/דילוג 17 · קדימה · 100 → 151/);
    assert.match(await card.innerText(),/els_2029_projection_v1 · OK · exact_replay_v1/);
+   assert.match(await card.innerText(),/מפת שפה מקומית מוכנה/);
    assert.equal(await page.locator('[data-raziel-return-to-els="true"]:visible').count(),1);
    assert.equal(await page.evaluate(()=>window.__razielAiCalls?.length||0),0,'opening verified context makes no AI request');
    const chat=page.locator('[data-raziel-native-chat="true"]:visible');
@@ -1256,6 +1257,10 @@ test('native UI: verified ELS context reaches the one global Raziel session at 3
    assert.equal(request.surfaceSemantic.els.start,100);
    assert.equal(request.surfaceSemantic.els.skip,17);
    assert.match(request.facts,/אין לחשב או להשלים נתוני ELS חסרים/);
+   assert.match(request.facts,/ELS_LANGUAGE_MAP_V1/);
+   assert.match(request.facts,/f=באשאטמינ;r=נימטאשאב/);
+   assert.match(request.facts,/f=שבררומי;r=ימוררבש/);
+   assert.match(request.facts,/חלוקה למילים, קריאה ומשמעות אינן מאומתות/);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${width}: ELS Raziel has no horizontal overflow`);
   },{fullFrame:true,mobile:width<981});
  });
