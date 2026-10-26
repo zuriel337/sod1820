@@ -164,3 +164,19 @@ No arbitrary deletion interval, purge cron, live executor, automatic cleanup or 
 - Return branch/Base/HEAD, exact migration path, RPC signatures/grants, security and negative-case results, rollback proof, any remaining blocker and explicit `LIVE_APPLY/MAIN/PREVIEW/PRODUCTION: NO`.
 
 The existing personal entry remains `/2029/journey?focus=hints`; exact return stays in Router state and personal hints stay in `research_items` bucket `hint`, separate from `community_hints`. This gate adds no frontend upload control or automatic research action. All live apply, Edge deployment, hosted Preview, main merge and Production remain unauthorized.
+
+### Branch implementation contract
+
+The isolated server slice implements the approved owner-kind as an extension of `media-upload-intent`. A request is authorized from the JWT on every action. Issue produces a non-overwriting signed TUS upload plus a short-lived HMAC receipt binding the authenticated account, exact hint, server-generated account path, declared image MIME/size, submission id, role and expiry. Verification accepts that receipt, performs the private Storage read-back, and produces a second signed receipt. Binding accepts only that verified receipt and rechecks the hint owner, object, MIME, size, extension, account prefix and every known media reference in the database.
+
+The durable hint row contains only:
+
+`{ storage_object_id, intent_id, kind: "image", role: "evidence_image", visibility: "private", state }`
+
+Both identifiers are opaque UUIDs; `intent_id` is the server-generated upload identity, not a path. `state` is `bound`, `cleanup_pending`, `delete_pending` or `detached`. A detached tombstone revokes an outstanding upload/binding receipt without preventing a later, newly issued attachment. The array never contains a bucket path, URL, upload token or receipt. Direct client and direct service-key JSON mutation cannot manage this field; only the service-only, security-definer RPC boundary may do so. The existing contribution binder is cross-guarded so the same object or upload intent cannot be claimed by a contribution after a hint has reserved it.
+
+Read access resolves the opaque id through the exact owner and exact hint binding, then signs a private URL for 60 seconds. Responses are `private, no-store`. Detach first changes the reference to `cleanup_pending`; hint deletion first changes all references to `delete_pending`. Both states deny reads and new bindings before Storage deletion. The Edge function deletes the binary through the Storage API. Only after deletion succeeds does the database remove the reference or row. A failed Storage deletion returns a signed, owner-bound retry receipt; it does not restore readability or expose the path.
+
+The retention helper is service-only and dry-run-only. It reports an unreferenced account object only after the existing 7,200-second upload capability window has elapsed and after checking hints, contributions, channel media, gallery media and Research OS source references. It exposes no executor, scheduled job, TTL decision or automatic purge. A live retention interval and executor remain unapproved.
+
+This implementation adds no frontend control. Upload, verify, bind, read, detach and delete perform no AI, ELS, Raziel, publication, gallery or `community_hints` action. The migration and Edge function remain source code on the isolated branch; neither is applied or deployed by this slice.
