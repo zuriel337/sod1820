@@ -158,6 +158,15 @@ const LEGACY_REPLAY_LABELS = Object.freeze({
   mixed_replay_states: "אשכול עם מצבי replay שונים",
 });
 
+const MISSING_ENGINE_QUEUE_LABELS = Object.freeze({
+  spatial_or_constants: "מרחבים, צורות או קבועים",
+  els_or_cipher: "צפנים ודילוגים",
+  language: "שפה ותעתיק",
+  formula: "ביטוי עם אופרטור",
+  numeric_statement: "טענה עם מספר",
+  textual_statement: "טענה טקסטואלית",
+});
+
 const LEGACY_REPLAY_READY = new Set(["deterministic_match", "arithmetic_match", "compound_match", "explicit_match", "legacy_matrix_match"]);
 const LEGACY_REPLAY_BLOCKED = new Set([
   "deterministic_mismatch",
@@ -199,8 +208,8 @@ function legacyReplayDescription(replay) {
   if (replay?.state === "legacy_matrix_partial") return "חלק מן הביטויים במטריצה אינם כוללים שיטה קנונית שניתנת לשחזור.";
   if (replay?.state === "legacy_incomplete_method_envelope") return "נשמרו שיטה ותוצאה בלי ביטוי מלא; אין אפשרות לשחזר את החישוב.";
   if (replay?.state === "legacy_source_metadata_only") return "השדה מכיל פרטי קליטה של המקור ואינו מעטפת חישוב.";
-  if (replay?.state === "missing_engine_detail_unverified") return "המקור והטקסט קיימים, אך אין פירוט שמסביר מדוע הממצא לא אומת; נשאר חסום.";
-  if (replay?.state === "missing_engine_assessment") return "לא נשמרה הערכת מנוע. ייתכן שהממצא אינו חישובי; יש למיין לפי סוג לפני הרצה.";
+  if (replay?.state === "missing_engine_detail_unverified") return `המקור והטקסט קיימים, אך אין פירוט שמסביר מדוע הממצא לא אומת; ${replay.routingReason || "נשאר חסום."}`;
+  if (replay?.state === "missing_engine_assessment") return `לא נשמרה הערכת מנוע. ${replay.routingReason || "יש למיין לפי סוג לפני הרצה."}`;
   if (replay?.state === "missing_replay_envelope") return "הסימון הישן אינו כולל קלט ושיטה מובנים שאפשר להריץ מחדש.";
   if (replay?.state?.endsWith("_unsupported")) return "המבנה אינו עומד בדקדוק הדטרמיניסטי המצומצם ונשאר לבדיקה.";
   return "נדרשת השלמת מעטפת או הכרעת מפעיל לפני אישור.";
@@ -250,7 +259,7 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
@@ -258,6 +267,7 @@ function initialReviewFilters() {
   const recommendation = clean(params.get("recommendation"));
   const verification = clean(params.get("verification"));
   const replay = clean(params.get("replay"));
+  const replayQueue = clean(params.get("replayQueue"));
   return {
     finding: clean(params.get("finding")),
     contributorId: clean(params.get("contributorId")),
@@ -268,6 +278,7 @@ function initialReviewFilters() {
       ? recommendation : "all",
     verification: Object.hasOwn(VERIFICATION_LABELS, verification) ? verification : "all",
     replay: Object.hasOwn(LEGACY_REPLAY_LABELS, replay) ? replay : "all",
+    replayQueue: Object.hasOwn(MISSING_ENGINE_QUEUE_LABELS, replayQueue) ? replayQueue : "all",
   };
 }
 
@@ -343,6 +354,7 @@ export default function WorldAllResearchTable({ state }) {
   const [topic, setTopic] = useState("all");
   const [source, setSource] = useState("all");
   const [replay, setReplay] = useState(initial.replay);
+  const [replayQueue, setReplayQueue] = useState(initial.replayQueue);
   const [retryKey, setRetryKey] = useState(0);
   const [review, setReview] = useState({ loading: false, loadingMore: false, error: null, projection: null, page: null });
   const [elsQueue, setElsQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
@@ -354,8 +366,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, continuation, quality, topic, source, replay,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay]);
+    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue]);
 
   const resetFilters = () => {
     setQuery("");
@@ -375,6 +387,7 @@ export default function WorldAllResearchTable({ state }) {
     setTopic("all");
     setSource("all");
     setReplay("all");
+    setReplayQueue("all");
   };
 
   useEffect(() => {
@@ -842,6 +855,7 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>מצב פרסום / ממשל</span><select value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">כל המצבים</option>{Object.keys(projection.byStatus).sort().map((v) => <option value={v} key={v}>{humanLabel(STATUS_LABELS, v, "מצב פנימי")} · {projection.byStatus[v]}</option>)}</select></label>
         <label><span>אימות</span><select value={verification} onChange={(e) => setVerification(e.target.value)}><option value="all">כל מצבי האימות</option>{Object.keys(projection.byVerification).sort().map((v) => <option value={v} key={v}>{humanLabel(VERIFICATION_LABELS, v, "מצב אימות נוסף")} · {projection.byVerification[v]}</option>)}</select></label>
         <label><span>Replay לאות ישן</span><select value={replay} onChange={(e) => setReplay(e.target.value)}><option value="all">כל מצבי ה־replay</option>{Object.entries(projection.byLegacyReplayState || {}).map(([value, count]) => <option value={value} key={value}>{humanLabel(LEGACY_REPLAY_LABELS, value, "מצב replay נוסף")} · {count}</option>)}</select></label>
+        <label><span>ניתוב ללא מעטפת מנוע</span><select value={replayQueue} onChange={(e) => setReplayQueue(e.target.value)}><option value="all">כל סוגי התוכן</option>{Object.entries(MISSING_ENGINE_QUEUE_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
         <label><span>ייחוס / תורם</span><select value={contributor} onChange={(e) => setContributor(e.target.value)}><option value="all">כל הייחוסים</option>{Object.entries(projection.byContributor).sort((a,b) => b[1]-a[1]).map(([v,count]) => <option value={v} key={v}>{contributorLabel(v)} · {count}</option>)}</select></label>
         <label><span>חיבור לעץ · מנהל</span><select value={tree} onChange={(e) => setTree(e.target.value)}>
           <option value="all">הכול</option><option value="matched">מחוברים ליעד קיים</option><option value="unmatched">ממתין לשיוך · מנהל בלבד</option>
@@ -902,7 +916,7 @@ export default function WorldAllResearchTable({ state }) {
           </div> : null}
 
           {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${legacyReplayClass(row.legacyReplay.state)}`}>
-            <span><small>Replay מנהלי · אינו משנה סטטוס אמת</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
+            <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
             <small>{legacyReplayDescription(row.legacyReplay)}</small>
           </div> : null}
 

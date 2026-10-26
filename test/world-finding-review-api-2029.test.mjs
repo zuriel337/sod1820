@@ -255,6 +255,16 @@ test("legacy replay is a separate manager filter and never replaces verification
   assert.equal(replayed.legacyReplay.mutatesLiveData, false);
 });
 
+test("missing-engine content routing is independently filterable", () => {
+  const spatial = reviewRow("10000000-0000-4000-8000-000000000012", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "spatial_or_constants", mutatesLiveData: false },
+  });
+  const textual = reviewRow("10000000-0000-4000-8000-000000000013", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "textual_statement", mutatesLiveData: false },
+  });
+  assert.deepEqual(filterWorldFindingReviewRows([textual, spatial], { replayQueue: "spatial_or_constants" }), [spatial]);
+});
+
 test("canonical contributor scope keeps stable identity and registered aliases without guessing", () => {
   const exact = reviewRow("10000000-0000-4000-8000-000000000001", {
     sourceContributorId: ZVI_ID,

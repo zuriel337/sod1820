@@ -184,6 +184,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const topic = clean(filters.topic) || "all";
   const source = clean(filters.source) || "all";
   const replay = clean(filters.replay) || "all";
+  const replayQueue = clean(filters.replayQueue) || "all";
   return base.filter((row) => {
     if (finding && clean(row.sourceId) !== finding) return false;
     if (strength !== "all" && row?.triage?.strength !== strength) return false;
@@ -195,6 +196,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (topic !== "all" && !rowTopicKeys(row).includes(topic)) return false;
     if (source !== "all" && row?.sourceFilterKey !== source) return false;
     if (replay !== "all" && row?.legacyReplay?.state !== replay) return false;
+    if (replayQueue !== "all" && row?.legacyReplay?.routingQueue !== replayQueue) return false;
     return !query || reviewSearchHaystack(row).includes(query);
   });
 }
@@ -590,6 +592,7 @@ function pageResponse(projection, req, contributorScope = null) {
     topic: queryValue(req, "topic"),
     source: queryValue(req, "source"),
     replay: queryValue(req, "replay"),
+    replayQueue: queryValue(req, "replay_queue"),
   };
   const filtered = filterWorldFindingReviewRows(projection.rows, filters);
   const ordered = sortWorldFindingReviewRows(filtered, queryValue(req, "sort", "strength"));

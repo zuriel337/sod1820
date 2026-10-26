@@ -38,6 +38,32 @@ function sourceLocatorState(sourceRef) {
     : "stored_ref_requires_resolution";
 }
 
+export function classifyWorldMissingEngineStatement(value) {
+  const statement = clean(value);
+  const signals = Object.freeze({
+    spatialOrConstants: /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה|קובייה|פירמיד|פאון|ציר|גאומטר|גיאומטר|מעגל|עיגול|כדור|π|פאי)/iu.test(statement),
+    elsOrCipher: /(צופן|דילוג|אותיות בדילוג|\bELS\b)/iu.test(statement),
+    language: /(אנגלית|לטינית|ערבית|שפה|תרגום|תעתיק)/u.test(statement),
+    formula: /[=+×*÷]/u.test(statement),
+    number: /[0-9]/u.test(statement),
+  });
+  let queue = "textual_statement";
+  if (signals.spatialOrConstants) queue = "spatial_or_constants";
+  else if (signals.elsOrCipher) queue = "els_or_cipher";
+  else if (signals.language) queue = "language";
+  else if (signals.formula) queue = "formula";
+  else if (signals.number) queue = "numeric_statement";
+  const reasons = {
+    spatial_or_constants: "הטקסט כולל מונח מרחבי או קבוע; להעביר למיון מבנים לפני בחירת מנוע.",
+    els_or_cipher: "הטקסט כולל סימן מפורש לצופן או דילוג; להעביר לתור ELS בלי להסיק אימות.",
+    language: "הטקסט כולל סימן שפה או תעתיק; להעביר לגשרי שפה ומקור.",
+    formula: "הטקסט כולל אופרטור חישובי; נדרשת מעטפת ביטוי ושיטה לפני replay.",
+    numeric_statement: "הטקסט כולל מספר אך לא אופרטור מפורש; למיין טענה מספרית מול אזכור בלבד.",
+    textual_statement: "לא נמצא סימן חישובי מפורש; לבדוק מקור, נושא וסוג ידע לפני הפעלת מנוע.",
+  };
+  return Object.freeze({ queue, reason: reasons[queue], signals });
+}
+
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
 const ARITHMETIC_NUMBER_RE = /^\d{1,9}$/u;
 
@@ -270,6 +296,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
   const sourceRef = clean(row?.source_ref) || null;
   const compound = asObject(detail.compound);
   if (!Object.keys(detail).length && row?.engine_verified !== true) {
+    const routing = classifyWorldMissingEngineStatement(row?.statement);
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -281,6 +308,9 @@ export function projectWorldLegacyReplayOccurrence(row) {
       engineVerified: row?.engine_verified === true,
       sourceRef,
       sourceLocatorState: sourceLocatorState(sourceRef),
+      routingQueue: routing.queue,
+      routingReason: routing.reason,
+      contentSignals: routing.signals,
     });
   }
   const isLegacyMatrixCandidate = Object.keys(detail).length

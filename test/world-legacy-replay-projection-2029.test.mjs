@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   attachWorldLegacyReplay,
   buildWorldLegacyReplayIndex,
+  classifyWorldMissingEngineStatement,
   projectWorldLegacyReplayOccurrence,
   replayWorldArithmeticExpression,
   replayWorldCompoundEnvelope,
@@ -202,13 +203,22 @@ test("legacy non-matrix payloads remain blocked by their precise reason", () => 
 });
 
 test("missing engine detail separates an explicit negative from no assessment", () => {
-  const unverified = projectWorldLegacyReplayOccurrence(row({ engine_verified: false, engine_detail: null }));
+  const unverified = projectWorldLegacyReplayOccurrence(row({ engine_verified: false, engine_detail: null, statement: "קובייה תלת ממדית 1820" }));
   assert.equal(unverified.state, "missing_engine_detail_unverified");
   assert.equal(unverified.sourceLocatorState, "channel_uuid");
+  assert.equal(unverified.routingQueue, "spatial_or_constants");
 
-  const unassessed = projectWorldLegacyReplayOccurrence(row({ engine_verified: null, engine_detail: {} }));
+  const unassessed = projectWorldLegacyReplayOccurrence(row({ engine_verified: null, engine_detail: {}, statement: "170 + 650 = 820" }));
   assert.equal(unassessed.state, "missing_engine_assessment");
   assert.equal(unassessed.engineVerified, false);
+  assert.equal(unassessed.routingQueue, "formula");
+});
+
+test("missing-engine routing uses explicit text markers without claiming verification", () => {
+  assert.equal(classifyWorldMissingEngineStatement("צופן בדילוג 1820").queue, "els_or_cipher");
+  assert.equal(classifyWorldMissingEngineStatement("תרגום לאנגלית").queue, "language");
+  assert.equal(classifyWorldMissingEngineStatement("המספר 1820 מופיע כאן").queue, "numeric_statement");
+  assert.equal(classifyWorldMissingEngineStatement("הקשר מתואר במקור").queue, "textual_statement");
 });
 
 test("cluster attachment preserves every occurrence and never mutates live truth", () => {
