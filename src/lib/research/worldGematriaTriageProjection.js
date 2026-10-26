@@ -35,6 +35,16 @@ export const WORLD_GEMATRIA_REVIEW_SUMMARY = Object.freeze({
   outsideCleanHebrew: 1380,
   containsDigits: 1122,
   containsLatin: 4,
+  outsideDigits: 1122,
+  outsidePunctuation: 121,
+  outsideDelta: 81,
+  outsideDiacritics: 29,
+  outsideMathOperators: 24,
+  outsideLatinExclusive: 3,
+  outsideMissingMethods: 1374,
+  outsideCompleteMethods: 6,
+  cleanEngineMismatches: 0,
+  encryptedUnverified: 2,
   duplicateGroups: 2,
   duplicateRows: 4,
   unverifiedPublished: 1,
@@ -47,11 +57,38 @@ function cleanHebrewPhrase(value) {
 
 function inputSignals(value) {
   const phrase = clean(value);
+  const cleanHebrew = cleanHebrewPhrase(phrase);
+  const containsDigits = /[0-9]/u.test(phrase);
+  const containsLatin = /[A-Za-z]/u.test(phrase);
+  const containsDiacritics = /\p{M}/u.test(phrase);
+  const containsMathOperators = /[=+*/×÷]/u.test(phrase);
+  const containsDelta = /∆/u.test(phrase);
+  const containsPunctuation = /[־׳״'"“”‘’.,:;!?()[\]{}_\-–—]/u.test(phrase);
+  const inputClass = cleanHebrew
+    ? "clean_hebrew"
+    : containsDigits
+      ? "contains_digits"
+      : containsLatin
+        ? "contains_latin"
+        : containsDiacritics
+          ? "hebrew_diacritics"
+          : containsMathOperators
+            ? "math_expression"
+            : containsPunctuation
+              ? "punctuation"
+              : containsDelta
+                ? "delta_expression"
+                : "other_or_spacing";
   return Object.freeze({
-    cleanHebrew: cleanHebrewPhrase(phrase),
-    containsDigits: /[0-9]/u.test(phrase),
-    containsLatin: /[A-Za-z]/u.test(phrase),
+    cleanHebrew,
+    containsDigits,
+    containsLatin,
+    containsDiacritics,
+    containsMathOperators,
+    containsDelta,
+    containsPunctuation,
     containsOtherGlyphs: /[^א-ת ]/u.test(phrase),
+    inputClass,
   });
 }
 
@@ -108,6 +145,15 @@ export function projectWorldGematriaReviewRows(rows = [], {
       engine_mismatch: "נמצאה אי־התאמה לערך המנוע; להשאיר לבדיקה ולא לפרסם כאימות.",
       engine_parity_ready: "כל 14 הערכים השמורים תואמים לשער המנוע; מוכן להחלטת אימות מבוקרת, לא לקידום אוטומטי.",
     };
+    const outsideRecommendations = {
+      contains_digits: "זהו ביטוי מספרי או מורכב, לא מילת מקור נקייה. להעביר לבדיקת ביטוי וחיבור למקור לפני חישוב מילוני.",
+      contains_latin: "להעביר לתור שפה או תעתיק; מנוע העברית אינו מאמת רכיב לטיני.",
+      hebrew_diacritics: "לשמור את הכתיב המנוקד כמקור וליצור צורת חישוב מנורמלת רק לפי חוזה השיטות.",
+      math_expression: "זהו ביטוי חישובי. לפרק לאופרנדים ולפעולה מאומתת במקום לשמור כמילה אחת.",
+      punctuation: "דורש בדיקת תעתיק ופיסוק מול המקור לפני נרמול; אין להסיר סימנים אוטומטית.",
+      delta_expression: "זהו ביטוי הפרש Δ. להעביר למסלול יחסים מספריים ולא לאמת כמילת גימטריה.",
+      other_or_spacing: "דורש בדיקת כתיב ומקור לפני בדיקת מנוע.",
+    };
     const duplicateGroupIds = duplicates.get(id) || [];
     const encrypted = row?.is_encrypted === true;
     const publicationWarning = row?.is_published === true || publishedExceptions.has(id);
@@ -135,7 +181,9 @@ export function projectWorldGematriaReviewRows(rows = [], {
       duplicateGroupIds: Object.freeze(duplicateGroupIds),
       duplicateOccurrenceCount: Math.max(0, duplicateGroupIds.length - 1),
       independentSourceCount: duplicateGroupIds.length > 1 ? null : 1,
-      recommendation: recommendations[integrityState],
+      recommendation: integrityState === "outside_clean_hebrew"
+        ? outsideRecommendations[signals.inputClass]
+        : recommendations[integrityState],
     });
   }));
 }

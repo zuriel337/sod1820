@@ -35,9 +35,27 @@ test("input boundary, missing methods, mismatch and publication stay separate", 
     duplicateGroups: [],
   });
   assert.equal(projected[0].integrityState, "outside_clean_hebrew");
+  assert.equal(projected[0].inputSignals.inputClass, "contains_digits");
   assert.equal(projected[1].integrityState, "missing_method_values");
   assert.equal(projected[2].integrityState, "engine_mismatch");
   assert.equal(projected[2].publicationWarning, true);
+});
+
+test("outside-Hebrew review classes route expressions, source spelling and language separately", () => {
+  const rows = projectWorldGematriaReviewRows([
+    completeRow({ id: "digits", phrase: "סוד 1820" }),
+    completeRow({ id: "latin", phrase: "SOD" }),
+    completeRow({ id: "nikud", phrase: "סוֹד" }),
+    completeRow({ id: "math", phrase: "סוד+חשמל" }),
+    completeRow({ id: "punctuation", phrase: "סוד־החשמל" }),
+    completeRow({ id: "delta", phrase: "∆סוד" }),
+  ], { duplicateGroups: [], publishedExceptionIds: [] });
+  assert.deepEqual(rows.map((row) => row.inputSignals.inputClass), [
+    "contains_digits", "contains_latin", "hebrew_diacritics", "math_expression", "punctuation", "delta_expression",
+  ]);
+  assert.match(rows[1].recommendation, /תור שפה/u);
+  assert.match(rows[3].recommendation, /אופרנדים/u);
+  assert.match(rows[5].recommendation, /יחסים מספריים/u);
 });
 
 test("exact duplicate annotation preserves both source references", () => {

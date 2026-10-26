@@ -53,6 +53,9 @@ test("manager corpus audit keeps publication, verification and catalog completen
 
   const gematria = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "gematria");
   assert.equal(gematria.counts.find((item) => item.label === "טרם אומתו").value, 2894);
+  assert.deepEqual([
+    "מכילים ספרות", "פיסוק או סימני מקור", "ביטויי הפרש Δ", "עברית מנוקדת", "ביטויים חישוביים", "שפה או תעתיק לטיני",
+  ].map((label) => gematria.counts.find((item) => item.label === label).value), [1122, 121, 81, 29, 24, 3]);
   assert.match(gematria.state, /נפרדים/u);
 });
 

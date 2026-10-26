@@ -100,6 +100,17 @@ const GEMATRIA_QUEUE_LABELS = Object.freeze({
   integrity_unavailable: "שער האימות אינו זמין",
 });
 
+const GEMATRIA_INPUT_CLASS_LABELS = Object.freeze({
+  clean_hebrew: "עברית נקייה",
+  contains_digits: "ביטוי עם ספרות",
+  contains_latin: "שפה או תעתיק לטיני",
+  hebrew_diacritics: "עברית מנוקדת",
+  math_expression: "ביטוי חישובי",
+  punctuation: "פיסוק או סימני מקור",
+  delta_expression: "ביטוי הפרש Δ",
+  other_or_spacing: "כתיב או ריווח לבדיקה",
+});
+
 const INSIGHT_QUEUE_LABELS = Object.freeze({
   ready_for_connection_review: "שלם מבנית · מוכן לבדיקת חיבור",
   missing_source: "חסר מקור מדויק",
@@ -711,6 +722,11 @@ export default function WorldAllResearchTable({ state }) {
             <span><b>{gematriaQueue.projection.summary.deterministicReady}</b> התאמת מנוע מלאה</span>
             <span><b>{gematriaQueue.projection.summary.outsideCleanHebrew}</b> לבדיקת כתיב ומקור</span>
             <span><b>{gematriaQueue.projection.summary.containsDigits}</b> מכילים ספרות</span>
+            <span><b>{gematriaQueue.projection.summary.outsidePunctuation}</b> עם פיסוק מקור</span>
+            <span><b>{gematriaQueue.projection.summary.outsideDelta}</b> ביטויי Δ</span>
+            <span><b>{gematriaQueue.projection.summary.outsideDiacritics}</b> כתיב מנוקד</span>
+            <span><b>{gematriaQueue.projection.summary.outsideMathOperators}</b> ביטויים חישוביים</span>
+            <span><b>{gematriaQueue.projection.summary.outsideLatinExclusive}</b> שפה או תעתיק לטיני</span>
             <span><b>{gematriaQueue.projection.summary.duplicateGroups}</b> קבוצות ביטוי זהה</span>
             <span><b>{gematriaQueue.projection.summary.unverifiedPublished}</b> פורסם בלי סימון אימות</span>
           </div>
@@ -725,7 +741,7 @@ export default function WorldAllResearchTable({ state }) {
               <div><small>אי־התאמות</small><strong>{row.mismatches.length || "אין"}</strong></div>
               <div><small>פרסום</small><strong>{row.isPublished ? "מסומן מפורסם" : "לא פורסם"}</strong></div>
             </div>
-            {!row.inputSignals.cleanHebrew ? <p className="sod29-world-all-research-secondary">מחוץ לגבול העברית הנקייה{row.inputSignals.containsDigits ? " · מכיל ספרות" : ""}{row.inputSignals.containsLatin ? " · מכיל אותיות לטיניות" : ""}{row.inputSignals.containsOtherGlyphs ? " · מכיל סימנים נוספים" : ""}</p> : null}
+            {!row.inputSignals.cleanHebrew ? <p className="sod29-world-all-research-secondary">מחוץ לגבול העברית הנקייה · {GEMATRIA_INPUT_CLASS_LABELS[row.inputSignals.inputClass]}</p> : null}
             {row.missingMethods.length ? <p><b>חסרים:</b> {row.missingMethods.join(" · ")}</p> : null}
             {row.mismatches.length ? <details className="sod29-world-all-research-duplicates"><summary>אי־התאמות לערכי המנוע</summary><ul>{row.mismatches.map((mismatch) => <li key={mismatch.method}>{mismatch.method}: שמור {String(mismatch.stored)} · מנוע {String(mismatch.engine)}</li>)}</ul></details> : null}
             <div className={`sod29-world-triage-recommendation ${row.integrityState === "engine_parity_ready" ? "is-ready" : row.integrityState === "engine_mismatch" ? "is-blocked" : "is-review"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
