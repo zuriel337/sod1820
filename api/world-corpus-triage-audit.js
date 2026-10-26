@@ -273,11 +273,13 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
     Object.freeze({
       key: "zvi_findings",
       label: "ממצאי צבי",
-      total: 7353,
+      total: 7354,
       route: "/world?admin=1&view=admin&contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8&contributorLabel=צבי%20(OPOC)&strength=חזק",
       state: "מנת החזקים הוכרעה",
       counts: Object.freeze([
         Object.freeze({ label: "חזקים שנבדקו", value: 183 }),
+        Object.freeze({ label: "ציבוריים מאושרים בעדשת העולם", value: 5649 }),
+        Object.freeze({ label: "מועמדים בתור נפרד", value: 1705 }),
         Object.freeze({ label: "כבר מחוברים", value: 106 }),
         Object.freeze({ label: "מוכנים ליישום", value: 55 }),
         Object.freeze({ label: "קבוצות טקסט זהה", value: 301 }),

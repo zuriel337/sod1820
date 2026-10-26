@@ -82,5 +82,8 @@ test("audit routes only to existing canonical World views", () => {
     assert.match(stream.route, /^\/world(?:\?|$)/u);
   }
   const zvi = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "zvi_findings");
+  assert.equal(zvi.total, 7354);
+  assert.equal(zvi.counts.find((item) => item.label === "ציבוריים מאושרים בעדשת העולם").value, 5649);
+  assert.equal(zvi.counts.find((item) => item.label === "מועמדים בתור נפרד").value, 1705);
   assert.match(zvi.route, /contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8/u);
 });
