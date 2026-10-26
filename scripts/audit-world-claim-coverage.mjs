@@ -342,6 +342,169 @@ export function composeTypedReviewBundle(rows, accessDescriptor = null) {
     })] });
 }
 
+export const readSourceBindingPlan = () => JSON.parse(readFileSync(new URL(
+  '../docs/reviews/world-source-bound-corrections-20261026.json', import.meta.url), 'utf8'));
+export const readSourceBindingReceipt = () => JSON.parse(readFileSync(new URL(
+  '../docs/reviews/world-source-bound-receipt-20261026.json', import.meta.url), 'utf8'));
+
+// A bounded, manually reviewed evidence mapping, NOT a new general extractor.
+// It neither changes the shared AST nor upgrades its generic fidelity status.
+export function selectSourceBindings(evidence, plan = readSourceBindingPlan()) {
+  const selected = selectTypedClaims(evidence);
+  const ids = ['4ec599a6-5237-487b-9ee0-2fe57fba7610',
+    'cf605c84-21e9-4a73-85c5-575e6c5fe8dd', 'da0a6436-9e18-4249-8340-470e7ccef2f2'];
+  check(plan.bindings?.length === ids.length && ids.every(id =>
+    plan.bindings.filter(b => b.id === id).length === 1), 'Wrong bounded binding set');
+  return plan.bindings.map(binding => {
+    const r = selected.find(r => r.id === binding.id);
+    const source = evidence.sources.find(s => s.id === r.sourceId);
+    const exact = span => {
+      check(span && Number.isInteger(span.start) && Number.isInteger(span.end)
+        && span.start >= 0 && span.end > span.start
+        && source.text.slice(span.start, span.end) === span.excerpt, 'Binding source span drift');
+      return span;
+    };
+    const context = exact(binding.contextSpan), spans = binding.operandSpans.map(exact);
+    check(context.end === r.sourceSpan.end && context.start <= r.sourceSpan.start
+      && spans.every(s => s.start >= context.start && s.end <= r.sourceSpan.start + r.sourceSpan.excerpt.length),
+    'Binding is outside the exact claim context');
+    const inputs = r.replay.claim.numericOccurrences.map((n, index) => ({ ...n, occurrenceIndex:index }))
+      .filter(n => n.syntacticRole === 'arithmetic_input');
+    check(inputs.length > 0 && inputs.every(n => n.linkIndex === 0), 'Unexpected input AST');
+    let origins;
+    if (binding.kind === 'adjacent_phrase_sum') {
+      check(r.id === ids[0] && spans.length === 2 && inputs.length === 2
+        && spans[0].start === context.start && spans[1].start > spans[0].end
+        && source.text.slice(spans[0].end, spans[1].start) === '  + '
+        && source.text.slice(spans[1].end, r.sourceSpan.start) === '=\n',
+      'Unproven adjacent phrase-to-sum binding');
+      origins = spans.map(span => ({ span, phrase:span.excerpt, role:'gematria_operand' }));
+    } else {
+      const originalPlan = evidence.reviewPlan.find(p => p.id === r.id);
+      check(binding.kind === 'positional_letters' && r.kind === 'letter_decomposition'
+        && spans.length === 1 && spans[0].start === context.start
+        && spans[0].excerpt === originalPlan.operand && context.start === r.sourceSpan.start
+        && context.excerpt === `${spans[0].excerpt}: ${originalPlan.letterValues.join(' + ')} = ${r.value}`,
+      'Unproven positional letter binding');
+      // Offset mapping only. Values come from the existing canonical engine below.
+      origins = [...spans[0].excerpt.matchAll(/[א-ת]/gu)].map((match, letterIndex) => ({
+        span:{start:spans[0].start + match.index, end:spans[0].start + match.index + 1, excerpt:match[0]},
+        wordSpan:spans[0], letterIndex, phrase:match[0], role:'letter_value',
+      }));
+      check(origins.map(o => o.phrase).join('') === normalizeForCalc(originalPlan.operand),
+        'Letter normalization drift');
+    }
+    check(origins.length === inputs.length, 'Incomplete occurrence binding');
+    const bindings = inputs.map((input, index) => {
+      const origin = origins[index];
+      const replay = verifyCandidate({type:'explicit-claim', text:origin.phrase, method:'רגיל', value:input.value});
+      check(replay.engine_verified === true, 'Source-origin calculation mismatch');
+      return { value:input.value, role:origin.role, origin_type:'canonical_calculation',
+        origin_statement:origin.phrase,
+        origin_ref:{sourceRef:r.sourceRef, sourceMd5:source.md5, sourceSpan:origin.span,
+          ...(origin.wordSpan ? {wordSpan:origin.wordSpan, letterIndex:origin.letterIndex} : {})},
+        expression_ref:{expression:input.expression, link_index:input.linkIndex, ast_path:input.astPath},
+        occurrenceIndex:input.occurrenceIndex, canonicalCheckRole:`source_origin_${index}`,
+        method:'רגיל', verification_state:'match', calculationTrace:replay.engine_detail };
+    });
+    return {id:r.id, sourceRef:r.sourceRef, sourceMd5:source.md5, contextSpan:context, bindings};
+  });
+}
+
+export function collectSourceBindingChecks(evidence, plan = readSourceBindingPlan()) {
+  return [...selectSourceBindings(evidence, plan).flatMap(r => r.bindings.map(b => ({
+    id:r.id, role:b.canonicalCheckRole, phrase:b.origin_statement, method:b.method, expected:b.value,
+  }))), {id:'cf605c84-21e9-4a73-85c5-575e6c5fe8dd', role:'prose_spelling_contrast',
+    phrase:'עיכוב', method:'רגיל', expected:108}];
+}
+
+export function buildSourceBindingReceiptSql(evidence, plan = readSourceBindingPlan()) {
+  const quote = value => `'${String(value).replaceAll("'", "''")}'`;
+  const leaves = collectSourceBindingChecks(evidence, plan).map(r =>
+    `(${quote(r.id)}::uuid,${quote(r.role)},${quote(r.phrase)},${quote(r.method)},${r.expected}::integer)`).join(',\n');
+  return assertReadOnly(`WITH typed AS (${buildTypedClaimReceiptSql(evidence)}),
+    leaves(id,role,phrase,method,expected) AS (VALUES ${leaves}),
+    replay AS (SELECT i.*,public.fn_method_value(i.method,i.phrase) computed,
+      EXISTS(SELECT 1 FROM public.gematria_methods m WHERE m.method_key=i.method AND m.in_engine IS TRUE) method_in_engine
+      FROM leaves i),
+    writers AS (SELECT p.proname,md5(pg_get_functiondef(p.oid)) definition_md5,
+      pg_get_functiondef(p.oid) definition FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname='public' AND p.oid IN (
+        'public.fn_research_object_correct(uuid,text,text,integer,text[],text[])'::regprocedure,
+        'public.fn_zvi_standing_approve_research_object()'::regprocedure)),
+    triggers AS (SELECT t.tgname,t.tgenabled,t.tgtype,pg_get_triggerdef(t.oid) definition,
+      md5(pg_get_triggerdef(t.oid)) definition_md5
+      FROM pg_trigger t WHERE t.tgrelid='public.research_objects'::regclass AND NOT t.tgisinternal
+        AND t.tgfoid='public.fn_zvi_standing_approve_research_object()'::regprocedure)
+    SELECT to_jsonb(typed) typed,(SELECT jsonb_agg(r ORDER BY r.id,r.role) FROM replay r) origin_checks,
+      (SELECT jsonb_agg(w ORDER BY w.proname) FROM writers w) writers,
+      (SELECT jsonb_agg(t ORDER BY t.tgname) FROM triggers t) approval_triggers FROM typed`);
+}
+
+export function buildSourceBoundCorrectionReview(evidence, receipt, plan = readSourceBindingPlan()) {
+  const typed = buildTypedClaimReview(evidence, receipt?.typed);
+  const expected = collectSourceBindingChecks(evidence, plan);
+  check(receipt.origin_checks?.length === expected.length && expected.every(e =>
+    receipt.origin_checks.filter(r => r.id === e.id && r.role === e.role && r.phrase === e.phrase
+      && r.method === e.method && r.expected === e.expected && r.computed === e.expected
+      && r.method_in_engine === true).length === 1), 'Source-origin canonical receipt mismatch');
+  const definitions = {
+    fn_research_object_correct:'cf7ff46e3d376faa5760ac3680fcb391',
+    fn_zvi_standing_approve_research_object:'50536aed430fcfc7ecbf069f24316bcc',
+  };
+  check(receipt.writers?.length === 2 && Object.entries(definitions).every(([name, hash]) =>
+    receipt.writers.filter(w => w.proname === name && w.definition_md5 === hash
+      && md5(w.definition) === hash).length === 1), 'Correction writer definition drift; re-review required');
+  check(receipt.typed.correction_definition_md5 === definitions.fn_research_object_correct,
+    'Correction receipt definition mismatch');
+  check(receipt.approval_triggers?.length === 1 && receipt.approval_triggers.every(t =>
+    t.tgenabled === 'O' && t.tgtype === 23 && md5(t.definition) === t.definition_md5
+      && t.tgname === 'trg_00_zvi_standing_approve_research_object'
+      && t.definition_md5 === '5df13da5c490e1376abbcc298b5954dd'),
+  'Standing approval trigger drift; re-review required');
+  const sourceBindings = selectSourceBindings(evidence, plan).map(binding => {
+    const original = typed.find(r => r.id === binding.id);
+    return { ...binding, originalSourceSpan:original.sourceSpan,
+      reviewedInputCoverage:'complete', genericExtractionFidelity:original.calculation.extractionIntegrity.fidelityStatus,
+      scope:'reviewed_source_spans_only', interpretationVerified:false, mediaInspected:false,
+      independentSourcesAdded:0, automaticPromotion:false, publicationChanged:false,
+      canonicalChecks:receipt.origin_checks.filter(c => c.id === binding.id),
+      // Existing Intake §7.1 shape, offered as evidence only; never persisted here.
+      proposedDerivation:{inputs:binding.bindings, outputs:original.calculation.intakeMeta.ext.derivation.outputs},
+      originalTrace:original.calculation.trace, retainIds:original.retainIds,
+    };
+  });
+  const corrections = typed.filter(r => r.correction).map(r => ({
+    id:r.id, sourceRef:r.sourceRef, sourceMd5:r.finding.identity.occurrence.sourceMd5,
+    sourceSpan:r.sourceSpan, original:r.original, retainIds:r.retainIds,
+    canonicalWriter:'fn_research_object_correct',
+    parameters:{p_id:r.id,
+      p_reason:`Exact source extraction correction; ${r.sourceRef}; source_md5=${r.finding.identity.occurrence.sourceMd5}; span=${r.sourceSpan.start}:${r.sourceSpan.end}. Preserve predecessor and source; no new claim of publication.`,
+      p_new_statement:r.correction.proposedStatement, p_new_value:r.calculation.value,
+      p_new_terms:r.correction.proposedTerms, p_new_relates:null},
+    proposedClaimUid:r.correction.proposedClaimUid, identityConflicts:r.correction.identityConflicts,
+    calculation:r.calculation, execute:false, publicationChanged:false, automaticPromotion:false,
+    readiness:r.route === 'governed_successor_required'
+      ? 'blocked_standing_approval_side_effect' : r.route,
+    writerEffect:{rpcReportedStatus:'candidate', storedStatusFromReviewedDefinitions:'approved',
+      engineVerifiedAfterCorrection:false, engineDetailAfterCorrection:null,
+      successorMeta:'revision_only_plus_standing_approval_governance; predecessor metadata retained on predecessor',
+      evidence:'current_function_and_trigger_definitions_not_live_execution',
+      requires:'Authorized correction/status decision, fresh preflight, transaction and stored-row postcondition checks'},
+  }));
+  check(corrections.length === 6, 'Wrong atomic correction set');
+  return {base:plan.base, checkedAt:receipt.typed.checked_at,
+    counts:{reviewedInputBindings:sourceBindings.length,
+      numericOccurrences:sourceBindings.reduce((count,r) => count+r.bindings.length,0),
+      atomicCorrectionPlans:corrections.length,
+      newFindings:0, liveCorrections:0, treePromotions:0}, sourceBindings, corrections,
+    publicationChanged:false, automaticPromotion:false, execute:false,
+    remaining:['Generic extractor still reports three partial slices; no runtime parser change',
+      'Six corrections blocked on governed writer side-effect acceptance, not arithmetic',
+      'Historical 378-source full regression manifest unavailable; prior shared fix not deployment-ready'],
+  };
+}
+
 // Review selection only, never a writer or a standing admission rule. Reuse the
 // already source-inspected audit, without replacing a whole source/value cluster.
 export function selectPendingAtomicClaims(evidence) {
@@ -539,7 +702,10 @@ ROLLBACK;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const evidence = readEvidence();
-  if (process.argv[2] === 'typed-sql') process.stdout.write(buildTypedClaimReceiptSql(evidence) + '\n');
+  if (process.argv[2] === 'source-bound-sql') process.stdout.write(buildSourceBindingReceiptSql(evidence) + '\n');
+  else if (process.argv[2] === 'source-bound') process.stdout.write(JSON.stringify(
+    buildSourceBoundCorrectionReview(evidence, readSourceBindingReceipt()), null, 2) + '\n');
+  else if (process.argv[2] === 'typed-sql') process.stdout.write(buildTypedClaimReceiptSql(evidence) + '\n');
   else if (process.argv[2] === 'typed') process.stdout.write(JSON.stringify(
     buildTypedClaimReview(evidence, readTypedClaimReceipt()), null, 2) + '\n');
   else if (process.argv[2] === 'rehearsal-sql') process.stdout.write(buildAtomicReplacementRehearsalSql(evidence));
