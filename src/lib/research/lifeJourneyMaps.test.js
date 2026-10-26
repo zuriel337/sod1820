@@ -79,6 +79,8 @@ test("life maps project the existing private family state without inventing stor
   assert.deepEqual(out.sources.numbers[0].phrases, ["אור", "מאור"]);
   assert.equal(out.creation.people.length, 2);
   assert.equal(out.creation.birthAnchors[0].birthPlace, "עיר בדיקה");
+  assert.equal(out.timeMap.people[0].expressions.find(item => item.role === "hebrew_day").text, "כ׳");
+  assert.equal(out.timeMap.state, "ready");
   assert.equal(out.birthMap.people[0].birthTime, "05:30");
   assert.equal(out.birthMap.people[0].humanDesign.state, "adapter_required");
   assert.equal(out.birthMap.people[0].humanDesign.output, null);

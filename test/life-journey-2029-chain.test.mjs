@@ -26,6 +26,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const birthMapProjection = read("src/lib/research/lifeJourneyBirthMap.js");
   const birthMapStudio = read("src/components/experience2029/BirthMapStudio2029.jsx");
   const birthMapScene = read("src/components/experience2029/BirthMapScene3D2029.jsx");
+  const timeMapProjection = read("src/lib/research/lifeJourneyTimeMap.js");
+  const timeMapSurface = read("src/components/experience2029/LifeJourneyTimeMap2029.jsx");
   const removalMigration = read("supabase/migrations/20261025035531_life_journey_remove_family_member_v1.sql");
   const supabaseClient = read("src/lib/supabase.js");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
@@ -114,6 +116,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMaps, /התכנסויות/);
   assert.match(lifeJourneyMaps, /עוצמות\/פערים/);
   assert.match(lifeJourneyMaps, /ציר זמן/);
+  assert.match(lifeJourneyMaps, /שערי זמן/);
+  assert.match(lifeJourneyMaps, /LifeJourneyTimeMap2029/);
   assert.match(lifeJourneyMaps, /מפת יצירה/);
   assert.match(lifeJourneyMaps, /life-journey-sefer-yetzirah-map/);
   assert.match(lifeJourneyMaps, /BirthMapStudio2029/);
@@ -148,6 +152,14 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(birthMapScene, /ConvergenceCosmos/);
   assert.doesNotMatch(birthMapScene, /name|birthTime|birthPlace|dateIso/);
   assert.doesNotMatch(birthMapProjection, /fetch\(|supabase|localStorage|sessionStorage|URLSearchParams|track\(|console\./i);
+  assert.match(timeMapProjection, /existing_date_matrix_only: true/);
+  assert.match(timeMapProjection, /no_astrology: true/);
+  assert.match(timeMapProjection, /no_predicted_cycles: true/);
+  assert.match(timeMapSurface, /data-experience-capability="life-journey-time-gates-map"/);
+  assert.match(timeMapSurface, /מילות התאריך/);
+  assert.match(timeMapSurface, /התכנסויות זמן/);
+  assert.match(timeMapSurface, /מרווחי לידה/);
+  assert.doesNotMatch(timeMapProjection, /fetch\(|supabase|localStorage|sessionStorage|URLSearchParams|track\(|console\./i);
   assert.match(seferYetzirahMapProjection, /p183:gra_commentary:gra:mishnah5_planets/);
   assert.match(seferYetzirahMapProjection, /p187:gra_commentary:gra:twelve_correspondences/);
   assert.match(seferYetzirahMapProjection, /no_personal_astrology: true/);

@@ -331,6 +331,16 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await birthTimeline.getByText("שעת לידה · 14:45").count(), 1);
     assert.equal(await birthTimeline.getByText("מקום לידה · עיר בדיקה").count(), 1);
     assert.equal(await birthTimeline.getByText("מקום לידה · יישוב מעודכן").count(), 1);
+    await lifeMaps.getByRole("tab", { name: "שערי זמן" }).click();
+    const timeMap = family.locator('[data-experience-capability="life-journey-time-gates-map"]');
+    await timeMap.getByRole("heading", { name: "מפת שערי הזמן" }).waitFor();
+    await timeMap.getByRole("button", { name: /ילד בדיקה/ }).click();
+    await timeMap.getByRole("heading", { name: "י״א בתשרי תשפ״ז" }).waitFor();
+    await timeMap.getByText("יום עברי", { exact: true }).waitFor();
+    await timeMap.getByRole("tab", { name: "התכנסויות זמן" }).click();
+    await timeMap.getByText(/בחירת אנשים לבדה אינה מפעילה חיפוש/).waitFor();
+    await timeMap.getByRole("tab", { name: "מרווחי לידה" }).click();
+    await timeMap.getByText("ימים בדיוק", { exact: true }).waitFor();
     await lifeMaps.getByRole("tab", { name: "מפת יצירה" }).click();
     const birthStudio = family.locator('[data-experience-capability="life-journey-birth-map-studio"]');
     await birthStudio.getByRole("heading", { name: "סטודיו מפת החיים" }).waitFor();
@@ -393,6 +403,10 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await birthStudio.getByRole("tab", { name: "התכנסויות" }).click();
     await birthStudio.locator(".birth-map-spatial-details.is-convergences article").first().waitFor();
     await birthStudio.locator(".birth-map-spatial-details.is-convergences").getByText("73", { exact: true }).first().waitFor();
+    await lifeMaps.getByRole("tab", { name: "שערי זמן" }).click();
+    await timeMap.getByRole("tab", { name: "התכנסויות זמן" }).click();
+    await timeMap.locator(".life-time-convergences").getByText("73", { exact: true }).first().waitFor();
+    await timeMap.getByText(/ביטויי תאריך בלבד/).first().waitFor();
     await lifeMaps.getByRole("tab", { name: "מסלול" }).click();
     await lifeMaps.getByText("זהות ומשפחה", { exact: true }).waitFor();
     await family.getByText("פתח פירוט מלא של הממצאים והמקורות", { exact: true }).click();

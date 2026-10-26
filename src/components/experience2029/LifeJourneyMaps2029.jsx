@@ -2,6 +2,7 @@ import React, { useId, useMemo, useState } from "react";
 import { formatTanakhRef } from "../../lib/presentation/canonicalPresentation.js";
 import { buildLifeJourneyMaps } from "../../lib/research/lifeJourneyMaps.js";
 import BirthMapStudio2029 from "./BirthMapStudio2029.jsx";
+import LifeJourneyTimeMap2029 from "./LifeJourneyTimeMap2029.jsx";
 import "./life-journey-maps-2029.css";
 
 const MAP_TABS = Object.freeze([
@@ -12,6 +13,7 @@ const MAP_TABS = Object.freeze([
   { id: "convergences", label: "התכנסויות" },
   { id: "evidence", label: "עוצמות/פערים" },
   { id: "timeline", label: "ציר זמן" },
+  { id: "time", label: "שערי זמן" },
   { id: "creation", label: "מפת יצירה" },
   { id: "sources", label: "מקורות" },
   { id: "coverage", label: "כיסוי" },
@@ -286,6 +288,7 @@ function MapPanel({ active, projection }) {
   if (active === "convergences") return <ConvergencesMap rows={projection.convergences} ready={projection.overview.researchReady} />;
   if (active === "evidence") return <EvidenceMap data={projection.evidence} ready={projection.overview.researchReady} />;
   if (active === "timeline") return <TimelineMap rows={projection.timeline} missing={projection.timelineMissing} />;
+  if (active === "time") return <LifeJourneyTimeMap2029 data={projection.timeMap} />;
   if (active === "creation") return <BirthMapStudio2029
     data={projection.birthMap}
     seferContent={<CreationMap data={projection.creation} />}

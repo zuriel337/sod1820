@@ -1,7 +1,8 @@
 import { buildLifeJourneySeferYetzirahMap } from "./lifeJourneySeferYetzirahMap.js";
 import { buildLifeJourneyBirthMap } from "./lifeJourneyBirthMap.js";
+import { buildLifeJourneyTimeMap } from "./lifeJourneyTimeMap.js";
 
-export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v4";
+export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v5";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
@@ -234,6 +235,7 @@ export function buildLifeJourneyMaps({
     summary: combinedSummary,
     timeline: Object.freeze(list(birthTimeline)),
     timelineMissing: Object.freeze(timelineMissing),
+    timeMap: buildLifeJourneyTimeMap({ birthTimeline, methodFindings, researchReady }),
     sources: Object.freeze({ members: Object.freeze(memberSources), numbers: Object.freeze(numberSources) }),
     creation,
     birthMap: buildLifeJourneyBirthMap({
