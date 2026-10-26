@@ -228,6 +228,11 @@ export function buildContinuationReadSql(page) {
   requireEvidence(Number.isInteger(page) && page >= 0, 'Invalid continuation page');
   const ids=selectContinuationRows().slice(page*40,(page+1)*40).map(r=>r.id);
   requireEvidence(ids.length>0 && ids.every(id=>/^[a-f0-9-]{36}$/u.test(id)), 'Empty continuation page');
+  return buildBoundedPublicSourceReadSql(ids,page);
+}
+
+function buildBoundedPublicSourceReadSql(ids,page) {
+  requireEvidence(ids.length>0 && ids.length<=40 && ids.every(id=>/^[a-f0-9-]{36}$/u.test(id)), 'Invalid bounded source IDs');
   return assertReadOnly(`WITH selected(id) AS (VALUES ${ids.map(id=>`('${id}'::uuid)`).join(',')}),
     admitted AS (
       SELECT ro.id,ro.kind,ro.statement,ro.terms,ro.value,ro.source_ref,ro.status,ro.privacy_scope,
@@ -404,6 +409,114 @@ export function validateContinuationReceipt(evidence = readContinuationEvidence(
       c.key===i.key && c.phrase===i.phrase && c.method===i.method && c.expected===i.expected
       && c.computed===i.expected && c.in_engine===true).length===1), 'Continuation canonical receipt drift');
   return screen;
+}
+
+export function selectSourceTextReviewRows() {
+  return validateContinuationReceipt().rows
+    .filter(r=>r.reason==='matched_operand_is_not_full_claim_verification').slice(0,40);
+}
+
+export const buildSourceTextReviewReadSql = () => buildBoundedPublicSourceReadSql(selectSourceTextReviewRows().map(r=>r.id),0);
+
+export const readSourceTextReview = () => readReviewJson('world-source-text-review-20261026.json');
+export const readSourceTextReceipt = () => readReviewJson('world-source-text-receipt-20261026.json');
+export const sourceTextReviewFingerprint = evidence => createHash('sha256').update(JSON.stringify(evidence)).digest('hex');
+
+// Fixed manual source review. Reuses canonical atomic/compound replay and receipt
+// gates; does not change the candidate screen, parser, method registry or runtime.
+export function replaySourceTextReview(evidence = readSourceTextReview()) {
+  const ids=selectSourceTextReviewRows().map(r=>r.id);
+  requireEvidence(evidence.rows?.length===40 && evidence.reviews?.length===40
+    && JSON.stringify(evidence.rows.map(r=>r.id))===JSON.stringify(ids)
+    && JSON.stringify(evidence.reviews.map(r=>r.id))===JSON.stringify(ids), 'Source text review coverage drift');
+  requireEvidence(!Number.isNaN(Date.parse(evidence.checkedAt))
+    && new Set(evidence.sources.map(s=>s.id)).size===evidence.sources.length, 'Invalid source snapshot');
+  for(const s of evidence.sources) requireEvidence(hash(s.text)===s.md5 && s.status==='live'
+    && s.page_only===false && s.channel==='torat-haremez'
+    && s.contributor_id==='c66f0464-0928-490e-be9b-66d8a87e7fc8', 'Source text access/drift');
+  return evidence.rows.map(({id,finding:row},index)=>{
+    const plan=evidence.reviews[index],source=evidence.sources.find(s=>s.id===row?.source_id);
+    requireEvidence(row?.id===id && source && row.status==='approved' && row.privacy_scope==='public'
+      && row.promoted_node_id===null && row.revision===null
+      && row.source_ref.split('#')[0]===`channel_updates:${source.id}`, 'Source text admission drift');
+    requireEvidence(plan.reason?.length>0 && plan.scope==='numeric_source_slices_only'
+      && ['wholeSourceVerified','corpusCountsVerified','interpretationVerified','mediaInspected','publicationChanged'].every(k=>plan[k]===false)
+      && ['מתאים לעץ','כפילות','דורש בדיקה','דורש מקור','דורש OCR או תמלול'].includes(plan.recommendation), 'Missing scoped review');
+    const calculations=plan.checks.map((c,i)=>{
+      const span=c.operandSpan;
+      requireEvidence(span && Number.isInteger(span.start) && span.start>=0
+        && span.end===span.start+c.expression.length && source.text.slice(span.start,span.end)===c.expression
+        && c.sourceContext?.start===0 && c.sourceContext.end===source.text.length
+        && /[א-ת]/u.test(c.expression) && /^[א-ת\u0591-\u05c7\s"'׳״,_־\-]+$/u.test(c.expression)
+        && c.method==='רגיל', 'Exact source operand drift');
+      requireEvidence(c.claimed===null ? c.claimBasis==='source_operand_calculation'
+        : c.claimBasis==='manual_full_source_context' && Number.isSafeInteger(c.claimed)
+          && new RegExp(`(^|[^0-9])${c.claimed}([^0-9]|$)`,'u').test(source.text), 'Invented source value');
+      const trace=c.claimed===null ? null : verifyCandidate({type:'explicit-claim',text:c.expression,method:c.method,value:c.claimed}).engine_detail;
+      const computed=METHODS.find(m=>m.key===c.method).fn(c.expression);
+      return {...c,type:'atomic',computed,trace,verification:c.claimed===null?'system_calculation':computed===c.claimed?'match':'mismatch',
+        engineInputs:[{role:`atomic_${i}`,phrase:c.expression,method:c.method,expected:computed}]};
+    });
+    const compounds=plan.compoundSlices.map((c,i)=>{
+      requireEvidence(c.sourceSpan?.start>=0 && c.sourceSpan.end===c.sourceSpan.start+c.expression.length
+        && source.text.slice(c.sourceSpan.start,c.sourceSpan.end)===c.expression
+        && c.sourceSpan.excerpt===c.expression, 'Compound source span drift');
+      const claims=extractCompoundClaims(c.expression);
+      requireEvidence(claims.length===1, 'Ambiguous shared source extraction');
+      const trace=claims[0],operands=trace.operands || (trace.operand?[trace.operand]:[]);
+      requireEvidence(operands.every(o=>o.ok && o.method==='רגיל'), 'Unresolved source method');
+      return {...c,type:'compound',trace,computed:trace.result,verification:trace.status==='ENGINE_VERIFIED_COMPOSITE'?'match':'mismatch',
+        extractionIntegrity:computeExtractionIntegrity([trace],[]),extractionScope:'source_span_only',
+        engineInputs:operands.map((o,j)=>({role:`compound_${i}_operand_${j}`,phrase:o.phrase,method:o.method,expected:o.value}))};
+    });
+    if(plan.recommendation==='מתאים לעץ' || plan.recommendation==='כפילות') {
+      requireEvidence(plan.numericScopeComplete===true && calculations.length>0 && row.targets.length===1
+        && !['hypothesis','question'].includes(row.kind)
+        && calculations.every(c=>c.verification==='match' || c.verification==='system_calculation'
+          && compounds.some(p=>(p.trace.operands || []).some(o=>o.phrase===c.expression && o.value===c.computed)))
+        && calculations.some(c=>c.claimed===row.value)
+        && compounds.every(c=>c.verification==='match' && (c.trace.skipUsed || 0)===0
+          && c.extractionIntegrity.fidelityStatus==='complete'), 'Unready numeric scope');
+    }
+    if(plan.recommendation==='כפילות') {
+      const other=evidence.rows.find(r=>r.id===plan.duplicateOf)?.finding;
+      const otherSource=evidence.sources.find(s=>s.id===other?.source_id);
+      const otherPlan=evidence.reviews.find(r=>r.id===plan.duplicateOf);
+      requireEvidence(other && other.id!==id && otherSource?.text===source.text && otherPlan?.recommendation==='מתאים לעץ'
+        && JSON.stringify(otherPlan.checks)===JSON.stringify(plan.checks), 'Unproven duplicate scope');
+    } else requireEvidence(plan.duplicateOf===null, 'Unexpected duplicate decision');
+    return {row,plan,source,calculations:[...calculations,...compounds]};
+  });
+}
+
+export const buildSourceTextReceiptSql = (evidence = readSourceTextReview()) => buildSelectedReceiptSql(replaySourceTextReview(evidence));
+
+export function buildSourceTextReport(evidence = readSourceTextReview(), receipt = readSourceTextReceipt()) {
+  requireEvidence(receipt.evidenceFingerprint===sourceTextReviewFingerprint(evidence), 'Source text evidence fingerprint drift');
+  const selected=replaySourceTextReview(evidence),expected=validateSelectedReceipt(selected,receipt);
+  const rows=selected.map(({row:r,plan:p,source:s,calculations})=>{
+    const live=receipt.claims.find(c=>c.id===r.id);validateLiveClaim(r,s,live);
+    return {id:r.id,title:r.statement,recommendation:p.recommendation,reason:p.reason,
+      sourceRef:r.source_ref,sourceId:s.id,sourceMd5:s.md5,calculations,
+      target:p.recommendation==='מתאים לעץ'?live.targets[0]:null,
+      strength:null,score:null,scoreTargetId:null,sourceCount:null,independentSourcesAdded:0,
+      duplicateOf:p.duplicateOf,identityOverlapIds:live.identity_overlaps.map(o=>o.id),
+      retainIds:[r.id,...live.identity_overlaps.map(o=>o.id)],
+      media:{imageUrl:s.image_url,markers:s.text.match(/\[Image [^\]]+\]/gu)||[],inspected:false},
+      wholeSourceVerified:false,interpretationVerified:false,corpusCountsVerified:false,
+      numericScopeComplete:p.numericScopeComplete,requiresGovernedRepresentation:true,
+      automaticPromotion:false,suppress:false,publicationChanged:false,execute:false};
+  });
+  const textGroups=new Map();
+  for(const s of evidence.sources) {const group=textGroups.get(s.text)||[];group.push(s.id);textGroups.set(s.text,group);}
+  const repeatedSourceTexts=[...textGroups.values()].filter(ids=>ids.length>1).map(ids=>({sourceIds:ids,
+    findingIds:rows.filter(r=>ids.includes(r.sourceId)).map(r=>r.id),fullerTextVersion:null,
+    sameTextOnly:true,independentSourcesAdded:0,merge:false,suppress:false}));
+  return {base:evidence.base,checkedAt:receipt.checked_at,rows,repeatedSourceTexts,
+    counts:{reviewed:40,sourceMessages:evidence.sources.length,canonicalChecks:expected.length,
+      atomicChecks:rows.flatMap(r=>r.calculations).filter(c=>c.type==='atomic').length,
+      compoundChecks:rows.flatMap(r=>r.calculations).filter(c=>c.type==='compound').length,
+      byRecommendation:rows.reduce((a,r)=>(a[r.recommendation]=(a[r.recommendation]||0)+1,a),{}),promoted:0,deleted:0},execute:false};
 }
 
 export function selectNextNumericResidualIds(batch = 1) {
@@ -724,7 +837,10 @@ export function buildImageSourceReport(evidence = readImageSourceReview(), recei
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const mode = process.argv[2] || 'summary';
-  if (mode === 'continuation') process.stdout.write(JSON.stringify(validateContinuationReceipt(),null,2)+'\n');
+  if (mode === 'source-text') process.stdout.write(JSON.stringify(buildSourceTextReport(),null,2)+'\n');
+  else if (mode === 'source-text-read-sql') process.stdout.write(buildSourceTextReviewReadSql()+'\n');
+  else if (mode === 'source-text-receipt-sql') process.stdout.write(buildSourceTextReceiptSql()+'\n');
+  else if (mode === 'continuation') process.stdout.write(JSON.stringify(validateContinuationReceipt(),null,2)+'\n');
   else if (mode === 'continuation-read-sql') process.stdout.write(buildContinuationReadSql(Number(process.argv[3]))+'\n');
   else if (mode === 'continuation-replay-sql') process.stdout.write(buildContinuationReplaySql(Number(process.argv[3]))+'\n');
   else if (mode === 'numeric-batch-sql') process.stdout.write(buildNumericResidualReceiptSql() + '\n');

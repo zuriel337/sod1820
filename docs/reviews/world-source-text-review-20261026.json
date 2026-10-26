@@ -1,0 +1,4292 @@
+{
+  "base": "43914a63c8d25e5161012cd570434dcc6fe3ce4c",
+  "scope": "manual_public_source_text_review_40_no_product_writes",
+  "checkedAt": "2026-10-26 19:56:54.762775+00",
+  "rows": [
+    {
+      "id": "1eaefed1-56b1-4f97-b7ff-99b992d6b6d2",
+      "finding": {
+        "id": "1eaefed1-56b1-4f97-b7ff-99b992d6b6d2",
+        "kind": "relation",
+        "terms": [
+          "כמשפטם",
+          "צהלה ושמחה",
+          "וענו כל העם אמן ואמן"
+        ],
+        "value": 489,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "aa856c20-320d-4739-94d0-654f1f074b68",
+            "label": "489"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "כמשפטם=489וצהלהושמחה=489-pass.טענת9ההופעותנכונהרקאםסופריםגםאתוכמשפטםעםותחילית;כטוקןמדויקכמשפטםיש8.לעומתזאתוענוכלהעםאמןואמן=485,לא489.",
+        "source_id": "5e2c055a-b8b5-4669-a2d4-4e6abb9265bd",
+        "statement": "כמשפטם = 489 וצהלה ושמחה = 489 — PASS. טענת 9 ההופעות נכונה רק אם סופרים גם את וכמשפטם עם ו׳ תחילית; כטוקן מדויק כמשפטם יש 8. לעומת זאת וענו כל העם אמן ואמן = 485, לא 489.",
+        "source_ref": "channel_updates:5e2c055a-b8b5-4669-a2d4-4e6abb9265bd#zvi-fullscan:kemishpatam-489",
+        "source_uid": "channel_updates:5e2c055a-b8b5-4669-a2d4-4e6abb9265bd#zvi-fullscan:kemishpatam-489",
+        "ocr_pending": null,
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": null
+      }
+    },
+    {
+      "id": "31c9d826-871d-448b-8a2d-e974941e45b1",
+      "finding": {
+        "id": "31c9d826-871d-448b-8a2d-e974941e45b1",
+        "kind": "observation",
+        "terms": [
+          "מתנה טובה",
+          "אמונה",
+          "מעשה",
+          "אמונתך",
+          "ואהיה תמים"
+        ],
+        "value": 517,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "738e7dd7-7270-4529-86fe-b81e1913f459",
+            "label": "517"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "ארבעהביטוייםשונים-«מתנהטובה»,«אמונה+מעשה»,«אמונתך»ו«ואהיהתמים»-נטעניםכבעליאותוערךגימטרי517",
+        "source_id": "25852ac7-9bee-4b84-9ffa-e848e613c48b",
+        "statement": "ארבעה ביטויים שונים - «מתנה טובה», «אמונה+מעשה», «אמונתך» ו«ואהיה תמים» - נטענים כבעלי אותו ערך גימטרי 517",
+        "source_ref": "channel_updates:25852ac7-9bee-4b84-9ffa-e848e613c48b",
+        "source_uid": "channel_updates:25852ac7-9bee-4b84-9ffa-e848e613c48b",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "42240ce6-1006-4b10-8fad-f2b844c6fac2",
+      "finding": {
+        "id": "42240ce6-1006-4b10-8fad-f2b844c6fac2",
+        "kind": "observation",
+        "terms": [
+          "כמשפטם",
+          "וענו כל העם אמן ואמן",
+          "צהלה ושמחה"
+        ],
+        "value": 489,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "aa856c20-320d-4739-94d0-654f1f074b68",
+            "label": "489"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "נמצאושלושהביטוייםשוניםלגמריבתוכן,כולםעםאותוערךגימטרי489",
+        "source_id": "06e1f6ee-cce0-40d7-b035-0dc671b5cb8f",
+        "statement": "נמצאו שלושה ביטויים שונים לגמרי בתוכן, כולם עם אותו ערך גימטרי 489",
+        "source_ref": "channel_updates:06e1f6ee-cce0-40d7-b035-0dc671b5cb8f",
+        "source_uid": "channel_updates:06e1f6ee-cce0-40d7-b035-0dc671b5cb8f",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "4fdb263b-90ca-44d2-b488-6d76e1a0d8dc",
+      "finding": {
+        "id": "4fdb263b-90ca-44d2-b488-6d76e1a0d8dc",
+        "kind": "observation",
+        "terms": [
+          "אליך",
+          "אחד משישים"
+        ],
+        "value": 61,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "bfefacce-c2f8-44b8-8885-7324a8e5bf3e",
+            "label": "61"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "השבתנחשבתכאחדמשישיםמהעולםהבא,מספרהקרובלגימטרייתאליך(61)",
+        "source_id": "cdeb5220-ff14-4dc0-9fe1-d9153f846056",
+        "statement": "השבת נחשבת כאחד משישים מהעולם הבא, מספר הקרוב לגימטריית 'אליך' (61)",
+        "source_ref": "channel_updates:cdeb5220-ff14-4dc0-9fe1-d9153f846056",
+        "source_uid": "channel_updates:cdeb5220-ff14-4dc0-9fe1-d9153f846056",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "5aa024eb-ab16-46dd-a7f5-f5944aadfb12",
+      "finding": {
+        "id": "5aa024eb-ab16-46dd-a7f5-f5944aadfb12",
+        "kind": "observation",
+        "terms": [
+          "580",
+          "שפר"
+        ],
+        "value": 580,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "be377e4c-3482-41d2-a943-e9f9ea2c4dfa",
+            "label": "580"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "מספרביטוייםשונים(«שפר»,הפסוקמתהילים,«כיאתהי-ה-ו-המחסי»,«לשבורילב»,«שמרם»)נטעניםכולםכשוויםל-580",
+        "source_id": "7acd1391-1bbf-4c4b-9baf-c6db11ff90c1",
+        "statement": "מספר ביטויים שונים («שפר», הפסוק מתהילים, «כי אתה י-ה-ו-ה מחסי», «לשבורי לב», «שמרם») נטענים כולם כשווים ל-580",
+        "source_ref": "channel_updates:7acd1391-1bbf-4c4b-9baf-c6db11ff90c1",
+        "source_uid": "channel_updates:7acd1391-1bbf-4c4b-9baf-c6db11ff90c1",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "5e8ba023-f408-4cf4-9d64-f7e0f94c4eec",
+      "finding": {
+        "id": "5e8ba023-f408-4cf4-9d64-f7e0f94c4eec",
+        "kind": "observation",
+        "terms": [
+          "בזאת תדעון",
+          "ועמי בבקשתי",
+          "על לב שפחתך"
+        ],
+        "value": 940,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "a6cad5e9-9560-4cd6-b280-da3a5ba36608",
+            "label": "940"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "ארבעהביטוייםשוניםמהתנך(בזאתתדעון,פסוקעלשלמה,אסתר,רות)נטעןשחולקיםאתאותוערךגימטרי940",
+        "source_id": "aaa53647-59b5-4e48-b40e-6878a031193c",
+        "statement": "ארבעה ביטויים שונים מהתנ\"ך (בזאת תדעון, פסוק על שלמה, אסתר, רות) נטען שחולקים את אותו ערך גימטרי 940",
+        "source_ref": "channel_updates:aaa53647-59b5-4e48-b40e-6878a031193c",
+        "source_uid": "channel_updates:aaa53647-59b5-4e48-b40e-6878a031193c",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "5f3b48c1-f6ec-4759-b4f5-3d7d112db0ef",
+      "finding": {
+        "id": "5f3b48c1-f6ec-4759-b4f5-3d7d112db0ef",
+        "kind": "observation",
+        "terms": [
+          "נשבר",
+          "552"
+        ],
+        "value": 552,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "00f5714f-23b7-414d-8206-66ce9b5eba46",
+            "label": "552"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "מספרביטוייםשוניםהקשוריםלתקווה,תפילהולבנטעניםכשוויםבגימטריהלערך552,כמונשבר",
+        "source_id": "9d288d91-0888-4673-95a9-8a3cdcc884c9",
+        "statement": "מספר ביטויים שונים הקשורים לתקווה, תפילה ולב נטענים כשווים בגימטריה לערך 552, כמו 'נשבר'",
+        "source_ref": "channel_updates:9d288d91-0888-4673-95a9-8a3cdcc884c9",
+        "source_uid": "channel_updates:9d288d91-0888-4673-95a9-8a3cdcc884c9",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "5fe5217a-1844-4605-b3c4-87a67018160c",
+      "finding": {
+        "id": "5fe5217a-1844-4605-b3c4-87a67018160c",
+        "kind": "observation",
+        "terms": [
+          "מסכת בכורות",
+          "לו משפט הבכרה",
+          "פעם הבאה אתם באים"
+        ],
+        "value": 697,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "ec7fc96c-1f6f-4b84-ae80-988226167b81",
+            "label": "697"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "תחילתלימודמסכתבכורותבדףהיומיחופפתלביטוימהתורה«לומשפטהבכרה»שעוסקבבכורה,ושניהםבגימטריה697כמוהביטוי«פעםהבאהאתםבאים»",
+        "source_id": "d4370201-7683-4805-9007-14c5a77f3a08",
+        "statement": "תחילת לימוד מסכת בכורות בדף היומי חופפת לביטוי מהתורה «לו משפט הבכרה» שעוסק בבכורה, ושניהם בגימטריה 697 כמו הביטוי «פעם הבאה אתם באים»",
+        "source_ref": "channel_updates:d4370201-7683-4805-9007-14c5a77f3a08",
+        "source_uid": "channel_updates:d4370201-7683-4805-9007-14c5a77f3a08",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "6cdd1164-efb2-4bf9-ad43-94d5fe48c0a4",
+      "finding": {
+        "id": "6cdd1164-efb2-4bf9-ad43-94d5fe48c0a4",
+        "kind": "observation",
+        "terms": [
+          "ששזפתני",
+          "הללויה אל בקדשו"
+        ],
+        "value": 1147,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "330e90b8-2fa5-4994-8220-495bfefa5b6b",
+            "label": "1147"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "שניביטוייםשונים-«ששזפתני»והפסוקמתהילים-חולקיםאתאותוערךגימטרי1147",
+        "source_id": "f70e4049-2f62-465a-9626-ee687fdc54ff",
+        "statement": "שני ביטויים שונים - «ששזפתני» והפסוק מתהילים - חולקים את אותו ערך גימטרי 1147",
+        "source_ref": "channel_updates:f70e4049-2f62-465a-9626-ee687fdc54ff",
+        "source_uid": "channel_updates:f70e4049-2f62-465a-9626-ee687fdc54ff",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "7015b387-05f8-4aab-b492-a570070924f8",
+      "finding": {
+        "id": "7015b387-05f8-4aab-b492-a570070924f8",
+        "kind": "observation",
+        "terms": [
+          "כרם",
+          "הוי'ה"
+        ],
+        "value": 260,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "903806de-09e1-4f53-bca1-81ba2a4625b5",
+            "label": "260"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "הערך260מוצגכעשרפעמיםהגימטריהשלשםהויה(26)",
+        "source_id": "a48fbfb0-9471-463d-b297-3a0bd58d09bd",
+        "statement": "הערך 260 מוצג כעשר פעמים הגימטריה של שם הוי'ה (26)",
+        "source_ref": "channel_updates:a48fbfb0-9471-463d-b297-3a0bd58d09bd",
+        "source_uid": "channel_updates:a48fbfb0-9471-463d-b297-3a0bd58d09bd",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "71ad6864-c9be-427e-9b29-488001b54c30",
+      "finding": {
+        "id": "71ad6864-c9be-427e-9b29-488001b54c30",
+        "kind": "observation",
+        "terms": [
+          "ורפא ירפא",
+          "פדיון נפש"
+        ],
+        "value": 580,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "be377e4c-3482-41d2-a943-e9f9ea2c4dfa",
+            "label": "580"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "הערך580מופיעהןבביטויורפאירפאוהןבביטויפדיוןנפש",
+        "source_id": "d9a0a902-ab10-451a-8c9c-76d7e8ed389d",
+        "statement": "הערך 580 מופיע הן בביטוי 'ורפא ירפא' והן בביטוי 'פדיון נפש'",
+        "source_ref": "channel_updates:d9a0a902-ab10-451a-8c9c-76d7e8ed389d",
+        "source_uid": "channel_updates:d9a0a902-ab10-451a-8c9c-76d7e8ed389d",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "767aacc8-472f-44ef-913b-f3903ec904c6",
+      "finding": {
+        "id": "767aacc8-472f-44ef-913b-f3903ec904c6",
+        "kind": "observation",
+        "terms": [
+          "דגול מרבבה",
+          "חסדי דוד הנאמנים",
+          "כי חפץ חסד"
+        ],
+        "value": 292,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "eea824ba-2b86-42e9-b162-7a77f9430081",
+            "label": "292"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "שלושהפסוקיםמספריםשונים(שירהשירים,ישעיהו,מיכה)חולקיםאתאותוערךגימטרי292סביבנושאהחסד",
+        "source_id": "dd17aac8-c1f1-45eb-aa3e-a5e3d2d11f36",
+        "statement": "שלושה פסוקים מספרים שונים (שיר השירים, ישעיהו, מיכה) חולקים את אותו ערך גימטרי 292 סביב נושא החסד",
+        "source_ref": "channel_updates:dd17aac8-c1f1-45eb-aa3e-a5e3d2d11f36",
+        "source_uid": "channel_updates:dd17aac8-c1f1-45eb-aa3e-a5e3d2d11f36",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "7f89bfeb-1cf7-4f61-8e6e-e90ad38e994b",
+      "finding": {
+        "id": "7f89bfeb-1cf7-4f61-8e6e-e90ad38e994b",
+        "kind": "observation",
+        "terms": [
+          "שפר",
+          "580"
+        ],
+        "value": 580,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "be377e4c-3482-41d2-a943-e9f9ea2c4dfa",
+            "label": "580"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "מספרביטוייםשונים(שפר,כיאתהיהוהמחסי,לשבורילב,שמרם,הפסוקמתהילים)חולקיםאתאותוערךגימטרי580",
+        "source_id": "583a91ee-b38d-43dc-a0d1-83bcd86cd36c",
+        "statement": "מספר ביטויים שונים (שפר, כי אתה יהוה מחסי, לשבורי לב, שמרם, הפסוק מתהילים) חולקים את אותו ערך גימטרי 580",
+        "source_ref": "channel_updates:583a91ee-b38d-43dc-a0d1-83bcd86cd36c",
+        "source_uid": "channel_updates:583a91ee-b38d-43dc-a0d1-83bcd86cd36c",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "833f7594-9b58-4c33-a299-2df334936ef9",
+      "finding": {
+        "id": "833f7594-9b58-4c33-a299-2df334936ef9",
+        "kind": "observation",
+        "terms": [
+          "מן העולם עד העולם",
+          "שמעון",
+          "נחמיה"
+        ],
+        "value": 466,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "36e84fad-e1bc-4e98-917f-a5ac8d09d1b4",
+            "label": "466"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "הביטוי«מןהעולםעדהעולם»מופיעבפסוקמספרנחמיהכחלקמברכתהלוויים,והואשווהבגימטריהלשםשמעון",
+        "source_id": "d442dc56-0099-4b60-93e7-cb05c277728f",
+        "statement": "הביטוי «מן העולם עד העולם» מופיע בפסוק מספר נחמיה כחלק מברכת הלוויים, והוא שווה בגימטריה לשם שמעון",
+        "source_ref": "channel_updates:d442dc56-0099-4b60-93e7-cb05c277728f",
+        "source_uid": "channel_updates:d442dc56-0099-4b60-93e7-cb05c277728f",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "86a671d0-563d-47a5-8ecf-52fafb890b2b",
+      "finding": {
+        "id": "86a671d0-563d-47a5-8ecf-52fafb890b2b",
+        "kind": "observation",
+        "terms": [
+          "580",
+          "שפר"
+        ],
+        "value": 580,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "be377e4c-3482-41d2-a943-e9f9ea2c4dfa",
+            "label": "580"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "שניביטוייםשונים(כיאתה...מחסי,ושמרם)חולקיםאתאותוערך580כמושפרבכתיבחסר",
+        "source_id": "a5398004-94c2-4342-bbd1-3f634d2ae51a",
+        "statement": "שני ביטויים שונים (כי אתה... מחסי, ושמרם) חולקים את אותו ערך 580 כמו שפר בכתיב חסר",
+        "source_ref": "channel_updates:a5398004-94c2-4342-bbd1-3f634d2ae51a",
+        "source_uid": "channel_updates:a5398004-94c2-4342-bbd1-3f634d2ae51a",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "881e0a79-b0c5-4036-974a-111b2262a09a",
+      "finding": {
+        "id": "881e0a79-b0c5-4036-974a-111b2262a09a",
+        "kind": "observation",
+        "terms": [
+          "ישרים",
+          "אבות העולם",
+          "560"
+        ],
+        "value": 560,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "44372cda-46fc-4c02-985e-f88e43d2a108",
+            "label": "560"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "הסכום474+85+1מתכנסלערך560שמופיעגםבביטוייםישריםואבותהעולם",
+        "source_id": "3a1cf449-90eb-411b-9454-b895443bbc70",
+        "statement": "הסכום 474+85+1 מתכנס לערך 560 שמופיע גם בביטויים ישרים ואבות העולם",
+        "source_ref": "channel_updates:3a1cf449-90eb-411b-9454-b895443bbc70",
+        "source_uid": "channel_updates:3a1cf449-90eb-411b-9454-b895443bbc70",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "91b5c0c2-e45e-46f0-9911-0c5001721849",
+      "finding": {
+        "id": "91b5c0c2-e45e-46f0-9911-0c5001721849",
+        "kind": "observation",
+        "terms": [
+          "58+489+58",
+          "ומחקק מבין רגליו"
+        ],
+        "value": 605,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "ae5d3530-f844-4c0e-8475-8391a197299f",
+            "label": "605"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "החישוב58+489+58והביטוי«ומחקקמביןרגליו»מניביםאותוערך605",
+        "source_id": "0a9d43c6-3806-4f3f-9539-3e107f399d43",
+        "statement": "החישוב 58+489+58 והביטוי «ומחקק מבין רגליו» מניבים אותו ערך 605",
+        "source_ref": "channel_updates:0a9d43c6-3806-4f3f-9539-3e107f399d43",
+        "source_uid": "channel_updates:0a9d43c6-3806-4f3f-9539-3e107f399d43",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "937e2c6a-2ded-4ff8-8764-19fbbab7bd19",
+      "finding": {
+        "id": "937e2c6a-2ded-4ff8-8764-19fbbab7bd19",
+        "kind": "observation",
+        "terms": [
+          "עמכם",
+          "טוב"
+        ],
+        "value": 170,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "6d5adbc1-e506-4bdb-a7f1-0306d0ba8fe2",
+            "label": "170"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "המילהעמכם(170)שווהגםלעשרפעמיםהערךשלטוב(17)",
+        "source_id": "7608f874-dbfc-4b2d-876a-0a8d91c1af60",
+        "statement": "המילה 'עמכם' (170) שווה גם לעשר פעמים הערך של 'טוב' (17)",
+        "source_ref": "channel_updates:7608f874-dbfc-4b2d-876a-0a8d91c1af60",
+        "source_uid": "channel_updates:7608f874-dbfc-4b2d-876a-0a8d91c1af60",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "94db058f-b32b-4ac5-8489-6a99d6ba4802",
+      "finding": {
+        "id": "94db058f-b32b-4ac5-8489-6a99d6ba4802",
+        "kind": "observation",
+        "terms": [
+          "ברחמים גדולים",
+          "קטנתי מכל החסדים",
+          "אור פניך י-ה-ו-ה",
+          "הארת פנים"
+        ],
+        "value": 786,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+            "label": "786"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "ארבעהביטוייםשונים-«ברחמיםגדולים»(כפול),«קטנתימכלהחסדים»,«אורפניךי-ה-ו-ה»(כפול)ו«הארתפנים»-כולםמגיעיםלאותוערך786,המקביללשנתתשפו",
+        "source_id": "fc4cad9c-645f-48bc-8fab-2ae1eda228df",
+        "statement": "ארבעה ביטויים שונים - «ברחמים גדולים» (כפול), «קטנתי מכל החסדים», «אור פניך י-ה-ו-ה» (כפול) ו«הארת פנים» - כולם מגיעים לאותו ערך 786, המקביל לשנת תשפ\"ו",
+        "source_ref": "channel_updates:fc4cad9c-645f-48bc-8fab-2ae1eda228df",
+        "source_uid": "channel_updates:fc4cad9c-645f-48bc-8fab-2ae1eda228df",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "94ee9e70-413b-4fc8-911f-fef4405527a1",
+      "finding": {
+        "id": "94ee9e70-413b-4fc8-911f-fef4405527a1",
+        "kind": "observation",
+        "terms": [
+          "שמעון",
+          "מן העולם עד העולם",
+          "נחמיה"
+        ],
+        "value": 466,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "36e84fad-e1bc-4e98-917f-a5ac8d09d1b4",
+            "label": "466"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "הפסוקמספרנחמיהעלברכתהלוייםמכילאתהביטוי«מןהעולםעדהעולם»שערכוהגימטריזההלשם«שמעון»",
+        "source_id": "5c3c5033-278d-40a3-8bac-bd71d854643c",
+        "statement": "הפסוק מספר נחמיה על ברכת הלויים מכיל את הביטוי «מן העולם עד העולם» שערכו הגימטרי זהה לשם «שמעון»",
+        "source_ref": "channel_updates:5c3c5033-278d-40a3-8bac-bd71d854643c",
+        "source_uid": "channel_updates:5c3c5033-278d-40a3-8bac-bd71d854643c",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "96064fcb-d32f-4639-850c-af00f5bdc14a",
+      "finding": {
+        "id": "96064fcb-d32f-4639-850c-af00f5bdc14a",
+        "kind": "relation",
+        "terms": [
+          "כמשפטם",
+          "צהלה ושמחה",
+          "וענו כל העם אמן ואמן"
+        ],
+        "value": 489,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "aa856c20-320d-4739-94d0-654f1f074b68",
+            "label": "489"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "משפחת«כמשפטם»במקורהיאmixed:כמשפטם=489וצהלהושמחה=489עובריםבמנוע;«וענוכלהעםאמןואמן»הוא485ולא489.בנוסף«כמשפטם»מופיע8פעמיםבקורפוסולא9.לכןנשמרתrelationעםשתיהתאמותושתיסתירותמפורשות.",
+        "source_id": "5e2c055a-b8b5-4669-a2d4-4e6abb9265bd",
+        "statement": "משפחת «כמשפטם» במקור היא mixed: כמשפטם=489 וצהלה ושמחה=489 עוברים במנוע; «וענו כל העם אמן ואמן» הוא 485 ולא 489. בנוסף «כמשפטם» מופיע 8 פעמים בקורפוס ולא 9. לכן נשמרת relation עם שתי התאמות ושתי סתירות מפורשות.",
+        "source_ref": "channel_updates:5e2c055a-b8b5-4669-a2d4-4e6abb9265bd#fullscan:kemishpatam-489",
+        "source_uid": "channel_updates:5e2c055a-b8b5-4669-a2d4-4e6abb9265bd#fullscan:kemishpatam-489",
+        "ocr_pending": null,
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": null
+      }
+    },
+    {
+      "id": "97c58ca3-81a5-471c-a3a2-1b7c509ad081",
+      "finding": {
+        "id": "97c58ca3-81a5-471c-a3a2-1b7c509ad081",
+        "kind": "observation",
+        "terms": [
+          "ישראל בעל שם טוב",
+          "1000",
+          "פסוקים"
+        ],
+        "value": 1000,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "f9af9c48-6b36-4ab9-a4ba-9ac6c6d8166c",
+            "label": "1000"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "ישראלבעלשםטוב=1000ברגיל-pass.לאחרנרמולפסוקיהתנךכךשטוקניפרשהטכנייםפ/סאינםנספרים,נמצאים5פסוקיםשלמיםבערך1000ולא4:תהלים10:10,30:9,59:18,116:14,116:18.המקורשלצבימנהארבעהוהשמיטאתתהלים10:10.",
+        "source_id": "713aa6b2-c347-49de-9e89-78cd36ec5c98",
+        "statement": "ישראל בעל שם טוב = 1000 ברגיל — PASS. לאחר נרמול פסוקי התנ״ך כך שטוקני פרשה טכניים פ/ס אינם נספרים, נמצאים 5 פסוקים שלמים בערך 1000 ולא 4: תהלים 10:10, 30:9, 59:18, 116:14, 116:18. המקור של צבי מנה ארבעה והשמיט את תהלים 10:10.",
+        "source_ref": "channel_updates:713aa6b2-c347-49de-9e89-78cd36ec5c98#zvi-fullscan:1000-verses",
+        "source_uid": "channel_updates:713aa6b2-c347-49de-9e89-78cd36ec5c98#zvi-fullscan:1000-verses",
+        "ocr_pending": null,
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": null
+      }
+    },
+    {
+      "id": "9a8fea1b-9151-4ea9-beb4-07a6be7b58b1",
+      "finding": {
+        "id": "9a8fea1b-9151-4ea9-beb4-07a6be7b58b1",
+        "kind": "observation",
+        "terms": [
+          "אחישנה",
+          "374"
+        ],
+        "value": 374,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "b84f4fbe-86aa-4c32-adbd-5a7dcf17450c",
+            "label": "374"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "מספרביטוייםשונים(אחישנה,יברכנואלהים,ובוטחבי-ה-ו-הישגב,וחסדיךכימעולםהמה)נטעניםכחולקיםאתאותוערךגימטרי374",
+        "source_id": "426c6b3a-7515-4fdf-aac9-81a699b14d3e",
+        "statement": "מספר ביטויים שונים (אחישנה, יברכנו אלהים, ובוטח בי-ה-ו-ה ישגב, וחסדיך כי מעולם המה) נטענים כחולקים את אותו ערך גימטרי 374",
+        "source_ref": "channel_updates:426c6b3a-7515-4fdf-aac9-81a699b14d3e",
+        "source_uid": "channel_updates:426c6b3a-7515-4fdf-aac9-81a699b14d3e",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "9b1f7715-60cb-466b-b6a4-6a99bbdb2ae3",
+      "finding": {
+        "id": "9b1f7715-60cb-466b-b6a4-6a99bbdb2ae3",
+        "kind": "observation",
+        "terms": [
+          "רחם ארחמנו",
+          "אברהם, רחל מבכה",
+          "איכה רבה"
+        ],
+        "value": 553,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "e2fe5017-f468-433d-af4c-7006ad4d9e02",
+            "label": "553"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "השוואהביןהביטויהמקראילביןתיאורהמדרשעלרחלהבוכהלפניאברהםמצביעהעלזיקהביןרחמיהלביןסיפורהמדרש",
+        "source_id": "2895c51f-bb93-4de2-b5d1-78b10b86c4d9",
+        "statement": "השוואה בין הביטוי המקראי לבין תיאור המדרש על רחל הבוכה לפני אברהם מצביעה על זיקה בין רחמי ה' לבין סיפור המדרש",
+        "source_ref": "channel_updates:2895c51f-bb93-4de2-b5d1-78b10b86c4d9",
+        "source_uid": "channel_updates:2895c51f-bb93-4de2-b5d1-78b10b86c4d9",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "9d2ca343-dca1-4a39-8ad5-2e2a0e891325",
+      "finding": {
+        "id": "9d2ca343-dca1-4a39-8ad5-2e2a0e891325",
+        "kind": "observation",
+        "terms": [
+          "חיים",
+          "חסד",
+          "דין"
+        ],
+        "value": 68,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "d3a5a1ee-0e62-4f1f-b507-f6ab517929dc",
+            "label": "68"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "חייםהואבדיוקהממוצעהחשבוניביןחסדלדין",
+        "source_id": "d50965ea-23b4-4fc2-a83e-7c9464d03e9a",
+        "statement": "חיים הוא בדיוק הממוצע החשבוני בין חסד לדין",
+        "source_ref": "channel_updates:d50965ea-23b4-4fc2-a83e-7c9464d03e9a",
+        "source_uid": "channel_updates:d50965ea-23b4-4fc2-a83e-7c9464d03e9a",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "adbd6eb0-85ab-4f6d-a543-1ac6d82857de",
+      "finding": {
+        "id": "adbd6eb0-85ab-4f6d-a543-1ac6d82857de",
+        "kind": "observation",
+        "terms": [
+          "שבת קודש",
+          "תמים תהיה"
+        ],
+        "value": 1112,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "d69f1adb-6c1e-444d-8a49-913f61def0d1",
+            "label": "1112"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "אותוערך1112מופיעהןבצירוף«שבתקודש»והןבפסוקהמלא«תמיםתהיהעםהאלהיך»",
+        "source_id": "aac28a52-121e-4944-82e0-c46f8a5d6646",
+        "statement": "אותו ערך 1112 מופיע הן בצירוף «שבת קודש» והן בפסוק המלא «תמים תהיה עם ה' אלהיך»",
+        "source_ref": "channel_updates:aac28a52-121e-4944-82e0-c46f8a5d6646",
+        "source_uid": "channel_updates:aac28a52-121e-4944-82e0-c46f8a5d6646",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "b3de3a74-c9a4-4df6-b6c9-4d5e3daa2438",
+      "finding": {
+        "id": "b3de3a74-c9a4-4df6-b6c9-4d5e3daa2438",
+        "kind": "observation",
+        "terms": [
+          "אשר פדה",
+          "תצילני",
+          "פדך ממות"
+        ],
+        "value": 590,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "0dbfa864-2801-4ccf-8382-4c39a37cc398",
+            "label": "590"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "שלושתהביטויים(אשרפדה,תצילני,פדךממות)חולקיםערךגימטריזהה(590)ומופעזהה(3פעמים)בתנך",
+        "source_id": "0041cc96-ec4b-4b60-88a9-6cb74fee4bba",
+        "statement": "שלושת הביטויים ('אשר פדה', 'תצילני', 'פדך ממות') חולקים ערך גימטרי זהה (590) ומופע זהה (3 פעמים) בתנ\"ך",
+        "source_ref": "channel_updates:0041cc96-ec4b-4b60-88a9-6cb74fee4bba",
+        "source_uid": "channel_updates:0041cc96-ec4b-4b60-88a9-6cb74fee4bba",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "b93c368c-34f4-4089-a6a4-d77537123a68",
+      "finding": {
+        "id": "b93c368c-34f4-4089-a6a4-d77537123a68",
+        "kind": "observation",
+        "terms": [
+          "ששזפתני",
+          "הללויה אל בקדשו הללוהו ברקיע עזו"
+        ],
+        "value": 1147,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "330e90b8-2fa5-4994-8220-495bfefa5b6b",
+            "label": "1147"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "גם«ששזפתני»וגםהפסוקמתהיליםשוויםבגימטריהל-1147",
+        "source_id": "5207ac3f-8251-4c8c-b159-2ad2dbd5fe0c",
+        "statement": "גם «ששזפתני» וגם הפסוק מתהילים שווים בגימטריה ל-1147",
+        "source_ref": "channel_updates:5207ac3f-8251-4c8c-b159-2ad2dbd5fe0c",
+        "source_uid": "channel_updates:5207ac3f-8251-4c8c-b159-2ad2dbd5fe0c",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "bc6f8721-a653-469f-90d9-ce524cf13401",
+      "finding": {
+        "id": "bc6f8721-a653-469f-90d9-ce524cf13401",
+        "kind": "observation",
+        "terms": [
+          "ביצוע",
+          "פשרה",
+          "בטל רצונך"
+        ],
+        "value": 585,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "1afaa6db-c996-4ea1-889a-b3a6057c475a",
+            "label": "585"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "הזיקההמושגיתביןביטולהרצוןלזכייהבמשפטלביןביצועפשרהמתבטאתגםבחישובהגימטרישלהם",
+        "source_id": "7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b",
+        "statement": "הזיקה המושגית בין ביטול הרצון לזכייה במשפט לבין ביצוע פשרה מתבטאת גם בחישוב הגימטרי שלהם",
+        "source_ref": "channel_updates:7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b",
+        "source_uid": "channel_updates:7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "caa970d0-0696-4d44-8005-497264bfae4e",
+      "finding": {
+        "id": "caa970d0-0696-4d44-8005-497264bfae4e",
+        "kind": "observation",
+        "terms": [
+          "תפוח בדבש",
+          "אב הרחמן",
+          "תהילים קי״ח כ״ה"
+        ],
+        "value": 802,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "cd7bc426-f541-4098-99e9-ea4a1e5d5c10",
+            "label": "802"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "שלושהביטוייםשונים-«תפוחבדבש»,הפסוקמתהיליםקיחכה,ו«אבהרחמן»-חולקיםלכאורהאתאותוערךגימטרי802",
+        "source_id": "e0140247-7ed0-4040-a5b2-a12b5991d3b6",
+        "statement": "שלושה ביטויים שונים — «תפוח בדבש», הפסוק מתהילים קי״ח כ״ה, ו«אב הרחמן» — חולקים לכאורה את אותו ערך גימטרי 802",
+        "source_ref": "channel_updates:e0140247-7ed0-4040-a5b2-a12b5991d3b6",
+        "source_uid": "channel_updates:e0140247-7ed0-4040-a5b2-a12b5991d3b6",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "cb07e6a4-5560-46a5-b8c0-a0825786629b",
+      "finding": {
+        "id": "cb07e6a4-5560-46a5-b8c0-a0825786629b",
+        "kind": "observation",
+        "terms": [
+          "ענן",
+          "מקל"
+        ],
+        "value": 170,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "6d5adbc1-e506-4bdb-a7f1-0306d0ba8fe2",
+            "label": "170"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "אותוערך170מופיעגםבענןוגםבמקל",
+        "source_id": "948d2947-7054-46c6-b029-793cff07b6c8",
+        "statement": "אותו ערך 170 מופיע גם ב'ענן' וגם ב'מקל'",
+        "source_ref": "channel_updates:948d2947-7054-46c6-b029-793cff07b6c8",
+        "source_uid": "channel_updates:948d2947-7054-46c6-b029-793cff07b6c8",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "cdb23fb1-4134-468b-9a82-fd3727f678ff",
+      "finding": {
+        "id": "cdb23fb1-4134-468b-9a82-fd3727f678ff",
+        "kind": "observation",
+        "terms": [
+          "קץ"
+        ],
+        "value": 190,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "15162ba3-08b8-42ee-82f8-0f8a87813f3b",
+            "label": "190"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "ביטוייםשוניםהקשוריםלדמויותואירועיםשוניםבמקרא(יוסף,אברהם,יהושע,אליהו,עםישראל)כולםנטעניםכשוויםבגימטריהלמילה«קץ»",
+        "source_id": "ece7009a-7ba2-4e46-bd2d-fd0677193fa4",
+        "statement": "ביטויים שונים הקשורים לדמויות ואירועים שונים במקרא (יוסף, אברהם, יהושע, אליהו, עם ישראל) כולם נטענים כשווים בגימטריה למילה «קץ»",
+        "source_ref": "channel_updates:ece7009a-7ba2-4e46-bd2d-fd0677193fa4",
+        "source_uid": "channel_updates:ece7009a-7ba2-4e46-bd2d-fd0677193fa4",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "d57a0673-e226-4826-8ec3-09f79966fe5a",
+      "finding": {
+        "id": "d57a0673-e226-4826-8ec3-09f79966fe5a",
+        "kind": "observation",
+        "terms": [
+          "כמשפטם",
+          "וענו כל העם אמן ואמן",
+          "צהלה ושמחה"
+        ],
+        "value": 489,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "aa856c20-320d-4739-94d0-654f1f074b68",
+            "label": "489"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "אותוערךגימטרי489חוזרבשלושהביטוייםשוניםבמקור",
+        "source_id": "8f5b6c50-658a-4e21-8ce6-e042c264e515",
+        "statement": "אותו ערך גימטרי 489 חוזר בשלושה ביטויים שונים במקור",
+        "source_ref": "channel_updates:8f5b6c50-658a-4e21-8ce6-e042c264e515",
+        "source_uid": "channel_updates:8f5b6c50-658a-4e21-8ce6-e042c264e515",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "dab8f778-c104-424a-8e62-2acaf193a30e",
+      "finding": {
+        "id": "dab8f778-c104-424a-8e62-2acaf193a30e",
+        "kind": "observation",
+        "terms": [
+          "סנה",
+          "משה"
+        ],
+        "value": 345,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "a5c9602d-ace7-4272-b829-faeae9849fdf",
+            "label": "345"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "שלושהופעותהמילהסנהבפסוקהסנההבוערמסתכמותבדיוקלגימטרייתמשה",
+        "source_id": "484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+        "statement": "שלוש הופעות המילה סנה בפסוק הסנה הבוער מסתכמות בדיוק לגימטריית משה",
+        "source_ref": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+        "source_uid": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "dce5155d-0b45-4c1b-911d-4564a26f46d5",
+      "finding": {
+        "id": "dce5155d-0b45-4c1b-911d-4564a26f46d5",
+        "kind": "observation",
+        "terms": [
+          "מצא",
+          "אשה",
+          "זך בעיניו",
+          "ומום איך בך",
+          "מצילה",
+          "למעלה"
+        ],
+        "value": 306,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "3a06e519-ce0e-4721-a4de-9df893e017a5",
+            "label": "306"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "ארבעהצירופימיליםשוניםעם«מצא»מגיעיםכולםלאותוערךגימטרישל«אשה»(306)",
+        "source_id": "9e5ec3ce-3da7-46a4-b3a2-dfb9845da3ed",
+        "statement": "ארבעה צירופי מילים שונים עם «מצא» מגיעים כולם לאותו ערך גימטרי של «אשה» (306)",
+        "source_ref": "channel_updates:9e5ec3ce-3da7-46a4-b3a2-dfb9845da3ed",
+        "source_uid": "channel_updates:9e5ec3ce-3da7-46a4-b3a2-dfb9845da3ed",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "df8c2668-b567-49d4-be53-d04b15938de6",
+      "finding": {
+        "id": "df8c2668-b567-49d4-be53-d04b15938de6",
+        "kind": "observation",
+        "terms": [
+          "רחל",
+          "דמעה",
+          "חסד עליון",
+          "ארך",
+          "טוב"
+        ],
+        "value": 238,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "8935de02-56d5-4f56-a0d7-bc6694b22582",
+            "label": "238"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "הערך238חוזראצל«רחל»,«דמעה+דמעה»,«חסדעליון»ו-«ארך+טוב»",
+        "source_id": "a2d5b645-39b9-499a-b86e-7e4c693bd40a",
+        "statement": "הערך 238 חוזר אצל «רחל», «דמעה+דמעה», «חסד עליון» ו-«ארך+טוב»",
+        "source_ref": "channel_updates:a2d5b645-39b9-499a-b86e-7e4c693bd40a",
+        "source_uid": "channel_updates:a2d5b645-39b9-499a-b86e-7e4c693bd40a",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "e2c56dd3-1810-4535-ae56-fffee15962c8",
+      "finding": {
+        "id": "e2c56dd3-1810-4535-ae56-fffee15962c8",
+        "kind": "observation",
+        "terms": [
+          "כוכבים",
+          "עכוב",
+          "נגהם",
+          "יואל"
+        ],
+        "value": 98,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "9d426b9e-3b4e-400c-9fef-eb187cc9edf4",
+            "label": "98"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "שלושמיליםהקשורותלנושאאחד(כוכבים,הסתרתאור,גילוי)חולקותערך98ומופיעותבקשרלשניפסוקיםדומיםביואל",
+        "source_id": "0b127386-76b2-4caf-9ce9-2204f7a1e693",
+        "statement": "שלוש מילים הקשורות לנושא אחד (כוכבים, הסתרת אור, גילוי) חולקות ערך 98 ומופיעות בקשר לשני פסוקים דומים ביואל",
+        "source_ref": "channel_updates:0b127386-76b2-4caf-9ce9-2204f7a1e693",
+        "source_uid": "channel_updates:0b127386-76b2-4caf-9ce9-2204f7a1e693",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "e777f210-53b0-4df5-a74a-80ef0a02c227",
+      "finding": {
+        "id": "e777f210-53b0-4df5-a74a-80ef0a02c227",
+        "kind": "observation",
+        "terms": [
+          "שובו בני אדם",
+          "לישועה",
+          "זכות אבות"
+        ],
+        "value": 842,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "84b2fd22-26ca-489b-a134-3da48f50bcac",
+            "label": "842"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "שנימסלוליםשונים(כפלשובובניאדםוכפללישועה)מוביליםלאותוערך842,הזההלגימטרייתזכותאבות",
+        "source_id": "a8e67092-d048-42e4-8508-8280002da226",
+        "statement": "שני מסלולים שונים (כפל 'שובו בני אדם' וכפל 'לישועה') מובילים לאותו ערך 842, הזהה לגימטריית 'זכות אבות'",
+        "source_ref": "channel_updates:a8e67092-d048-42e4-8508-8280002da226",
+        "source_uid": "channel_updates:a8e67092-d048-42e4-8508-8280002da226",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "e8e65a0c-a78c-442b-a207-aead49e3af4f",
+      "finding": {
+        "id": "e8e65a0c-a78c-442b-a207-aead49e3af4f",
+        "kind": "observation",
+        "terms": [
+          "345",
+          "משה"
+        ],
+        "value": 345,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "a5c9602d-ace7-4272-b829-faeae9849fdf",
+            "label": "345"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "מספרביטוייםשונים(שילה,בטרםיבואחבללה,אנייהוהאלהיהםואענם,משגב,בשגם)נטעניםכולםכשוויםלערך345כמו«משה»",
+        "source_id": "5539d957-47a5-4e5b-9d93-1bbb890d6ecd",
+        "statement": "מספר ביטויים שונים (שילה, בטרם יבוא חבל לה, אני יהוה אלהיהם ואענם, משגב, בשגם) נטענים כולם כשווים לערך 345 כמו «משה»",
+        "source_ref": "channel_updates:5539d957-47a5-4e5b-9d93-1bbb890d6ecd",
+        "source_uid": "channel_updates:5539d957-47a5-4e5b-9d93-1bbb890d6ecd",
+        "ocr_pending": "false",
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": "false"
+      }
+    },
+    {
+      "id": "ebc38bcb-1985-46e3-a0cc-604641deabe9",
+      "finding": {
+        "id": "ebc38bcb-1985-46e3-a0cc-604641deabe9",
+        "kind": "relation",
+        "terms": [
+          "לב",
+          "ראש השנה",
+          "תשובה",
+          "שוב מחרון אפך",
+          "שוב",
+          "קרח"
+        ],
+        "value": 713,
+        "status": "approved",
+        "targets": [
+          {
+            "id": "083b5735-7a3b-458d-b9e9-5a0202b486da",
+            "label": "713"
+          }
+        ],
+        "revision": null,
+        "claim_uid": "לב+ראשהשנה=תשובה-failבמספריםכפישנכתבובמקור:לב=32ותשובה=713,אבלראשהשנה=861ולא681;לכן32+861=893.לעומתזאתשובמחרוןאפך=תשובה=713ושוב=קרח=308-pass.",
+        "source_id": "786de42e-4f25-4508-bd7e-329a06b72239",
+        "statement": "לב + ראש השנה = תשובה — FAIL במספרים כפי שנכתבו במקור: לב=32 ותשובה=713, אבל ראש השנה=861 ולא 681; לכן 32+861=893. לעומת זאת שוב מחרון אפך=תשובה=713 ושוב=קרח=308 — PASS.",
+        "source_ref": "channel_updates:786de42e-4f25-4508-bd7e-329a06b72239#zvi-fullscan:teshuva-mixed",
+        "source_uid": "channel_updates:786de42e-4f25-4508-bd7e-329a06b72239#zvi-fullscan:teshuva-mixed",
+        "ocr_pending": null,
+        "privacy_scope": "public",
+        "promoted_node_id": null,
+        "transcription_pending": null
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "0041cc96-ec4b-4b60-88a9-6cb74fee4bba",
+      "md5": "f3d6941aee72e4bb2b7e1d38edf98cc5",
+      "text": "של נעליך מעל רגליך חלק ג\nראשי תיבות של הפסוק בכותרת:\nש+נ+מ+ר=590 בגימטריא.נביא 3 רמזים;\nא- \"אשר פדה\" 590 בגימטריא.מופיע 3 פעמים בתנ\"ך.כאן מתחילה הגאולה של עם ישראל.\nב- \"תצילני\"  590 בגימטריא.מופיע גם כן 3 פעמים בתנ\"ך.הצלת עם ישראל בגאולה השלימה.\nג- \"פדך ממות\" גימטריא 590.גם כן 3 פעמים בתנ\"ך.שוב רמז להצלת עם ישראל בגאולה השלימה.\nוהכל רמוז בראשי תיבות:ש-ל נ-עליך מ-על ר-גליך.הפסוק שהוא המפתח להתחלת כל הגאולות של עם ישראל!!!\n🏺🏺\nיש לשים לב למילים 'נעליך' וגם 'רגליך'.שכוללות :\nכף סופית מנוקדת בקמץ.\nזה מורה על חיבור לכתר.\nהגאולה האחרונה תהיה דומה לגאולת מצרים.כי הכל הולך אחר הראש לפי הזוהר.\nרא\"ש נוטריקון: ר-צון א-בינו ש-בשמיים;\nספירת הכתר! תשפ\"ו גימטריא:\"כתר עליון\".(786).",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-07-24T13:28:40+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "06e1f6ee-cce0-40d7-b035-0dc671b5cb8f",
+      "md5": "41dbcae0b26671aff829eb026282c117",
+      "text": "\"כמשפטם\"גימטריא 489\n'כמשפטם' מופיע 9  פעמים בתנ\"ך.\nהגימטריא של 'כמשפטם'÷489.\n\"וענו כל העם אמן ואמן\"=\n=489 בגמטריא.❤️‍🩹❤️‍🩹❤️‍🩹❤️❤️\nוכן ✓צהלה ושמחה✓ בגימטריא 489.🐋🐋🐋💌🙏🏻💌💌💌",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-07-30T12:06:11+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "0a9d43c6-3806-4f3f-9539-3e107f399d43",
+      "md5": "00642cadc7d34f82e5a1a0150c6a9f9f",
+      "text": "58+489+58=605.\n\"ומחקק מבין רגליו\"=605.\nזה כנוי למשיח משבט יהודה בברכת יעקב",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-15T21:13:53+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "0b127386-76b2-4caf-9ce9-2204f7a1e693",
+      "md5": "fb30cc1e6a8f23516c3c33b1d80e696d",
+      "text": "כוכבים=עכוב=נגהם=98 בגימטריא\n❤️❤️❤️❤️❤️❤️❤️❤️\n גימטריא ומשמעות רעיונית וקשר לנבואת יואל.(שני פסוקים  דומים ביואל)\nכוכבים=98 בגימטריא. המאורות המנהיגים את הטבע, המסמלים גם את שרי העמים והכוחות הפועלים בעולם.\nנגהם=98  בגימטריא האור והזוהר הפנימי של הכוכבים, שאותו הם \"אוספים\" (מכניסים פנימה ומחשיכים) בשעת דין ומשפט.\nעכוב=98  בגימטריא.הסתר הפנים והעכוב הקודם לגילוי האור; החושך שקודם לפריצת הגאולה.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-07-29T18:22:20+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "25852ac7-9bee-4b84-9ffa-e848e613c48b",
+      "md5": "4e3f0fc1d9fbc1a3e6094ca23ea2359c",
+      "text": "\"מתנה טובה\" ושבת שמה!!!\nהשבת נקראת :\n\"מתנה טובה\"\nבגימטריא =517.\nאמונה+ מעשה=517\nאמונתך=517\nואהיה תמים=517",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-07-23T11:09:44+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "2895c51f-bb93-4de2-b5d1-78b10b86c4d9",
+      "md5": "786cd5bd569d7c364cb20dec8b3bbb90",
+      "text": "\"רחם ארחמנו\" כפל של רחמים?\nמפרשי המקרא והחסידות עומדים על כך שהכפילות \"רחם ארחמנו\" מלמדת על שני ממדים של רחמים:\nרש\"י: מפרש שכל חזרה בלשון זו באה להגדיל את עוצמת החמלה והזיקה של הקב\"ה לבניו, במיוחד בעת יציאה מהגלות והשיבה אל ה' (כפי שנאמר: \"עַל כֵּן הָמוּ מֵעַי לוֹ\").\nכפילות של סליחה וקירוב: דרשנים מסבירים ש\"רַחֵם\" ראשון הוא הרחמים על העבר (מחיקת העוון והצער), ו\"אֲרַחֲמֶנּוּ\" השני הוא הרחמים על העתיד (השפעת טובה, קירבה וגאולה).\nהתעוררות מלמעלה ומלמטה: יש המסבירים כי הרחמים הכפולים משקפים את המפגש בין ההתעוררות של התשובה מלמטה לבין החסד והרחמים האינסופיים היורדים מלמעלה.\nלסיכום:\nהחזרה באה לבטא עוצמת רגש אלוקי בלתי מותנית — רחמים כפולים, מופלגים ומוחלטים שאינם תלויים בדבר.\n💢💢💢💢💢💢💢💢💢💢💢\nחידוש צבי א. --\n\"רחם ארחמנו\" בגימטריא:553.\n\"אברהם, רחל  מבכה\" = 553.\nלפי מדרש \"איכה רבה;\n רחל באה  ובוכה לפני אברהם אבינו לזרז את הגאולה לגרום לתחיית המתים של בניה.\nספירת המלכות באה לבקש את  ספירת החסד לזרז את הגאולה.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-10-21T18:29:54+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "3a1cf449-90eb-411b-9454-b895443bbc70",
+      "md5": "67eb257deac0949903f8e81ee42c8c23",
+      "text": "אם נחבר נקבל;\n474+85+1=560.\n560 בגימטריא \"ישרים\".\nהאבות נקראים ישרים.\n\"אבות העולם\" בגימטריא:560",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-06T11:14:20+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "426c6b3a-7515-4fdf-aac9-81a699b14d3e",
+      "md5": "beb893da3b3bb606324b3c7c9e4c04ee",
+      "text": "אחישנה גימטריא: 374\nהמאמר הידוע של חז\"ל במסכת סנהדרין (דף צח עמוד א) עוסק בסתירה כביכול בין שני פסוקים המתארים את הגאולה, ומיישב אותה בחדות:\n\"כתיב: 'אֲנִי ה' בְּעִתָּהּ אֲחִישֶׁנָּה' (ישעיהו ס, כב). זָכוּ – 'אֲחִישֶׁנָּה', לֹא זָכוּ – 'בְּעִתָּהּ'.\"\nהמנגנון הכפול של הגאולה\nחכמים מלמדים כי קיימים שני מסלולים מרכזיים להגעת הגאולה:\nזכו – \"אחישנה\": אם עם ישראל זוכים (על ידי תשובה, מעשים טובים, ואחדות), הגאולה מגיעה בדרך מואצת, למעלה מגדר הטבע, מוקדם מזמנה הקצוב והמיועד.\nלא זכו – \"בעתה\": אם אין זכות מספקת, הגאולה אינה מתבטלת חלילה, אלא מגיעה בזמנה הקבוע מראש (\"בעתה\") – דרך תהליכים טבעיים, ולעיתים דרך קשיים ומצוקות המעוררים את ההתעוררות הנדרשת.\nשני דיוקנים של המשיח\nבהמשך הגמרא שם, מובאת סתירה נוספת המקבילה ליסוד זה לגבי אופן הופעת המשיח:\n\"כתיב: 'וַאֲרוּ עִם עֲנָנֵי שְׁמַיָּא כְּבַר אֱנָשׁ אָתֵה' (דניאל ז, יג), וּכְתִיב: 'עָנִי וְרֹכֵב עַל חֲמוֹר' (זכריה ט, ט)! זָכוּ – 'עִם עֲנָנֵי שְׁמַיָּא', לֹא זָכוּ – 'עָנִי וְרֹכֵב עַל חֲמוֹר'.\"\nמכאן שהבחירה והמעשים של הכלל והפרט הם המכרעת את איכות התהליך ואת המהירות שבה האור נחשף.\n🌹🌹🦌🦌🌹🌹🦌🦌🌹🌹🦌\n\"אחישנה\"=22 כפול טו\"ב(17)=374.\n\"יברכנו אלהים\" בגימטריא\"אחישנה\".\nמופיע 3 פעמים בתהילים -יברכנו.\n🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈\nגם בטחון בהשם מזרז את הגאולה.\nזה מופיע 3 פעמים במשלי:\n\"ובוטח בי-ה+ו-ה ישגב\" בגימטריא\n374 וגם \"אחישנה\"=374✓\n⁦(⁠◍⁠•⁠ᴗ⁠•⁠◍⁠)⁠❤⁩⁦(⁠◍⁠•⁠ᴗ⁠•⁠◍⁠)⁠❤⁩⁦(⁠◍⁠•⁠ᴗ⁠•⁠◍⁠)⁠❤⁩אחישנה בגאולה: זה חסד הקב\"ה עם עם ישראל שנאמר:\n'וחסדיך כי מעולם המה\"=\"אחישנה\"\nבגימטריא:374",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-07-25T20:12:34+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+      "md5": "75aa7f733786166ce21fc30533c4cdd1",
+      "text": "משה רבינו\n\nמשה בגימטריא 345 🫶🫶\nחזק+חזק+חזק=345 .\n\"וַ֠יֵּרָ֠א מַלְאַ֨ךְ יְ‑הֹוָ֥ה אֵלָ֛יו בְּלַבַּת־אֵ֖שׁ מִתּ֣וֹךְ הַסְּנֶ֑ה וַיַּ֗רְא וְהִנֵּ֤ה הַסְּנֶה֙ בֹּעֵ֣ר בָּאֵ֔שׁ וְהַסְּנֶ֖ה אֵינֶ֥נּוּ אֻכָּֽל׃\" (שמות ג', ב'). 3 פעמים יש \"סנה\" בפסוק הזה.\n\"משה'' קשור \"לסנה\" !!!\nסנה+סנה+סנה=345=משה בגימטריא!!!\n👑👑🍒🍒🪬👑👑🍒🍒👑👑\nאשרי העם שככה לו.\n \"שככה\" גימטריא \"משה\" 345.\n🏺🏺🫶🫶🌈🌈🏺🏺🫶🫶🌈🌈\nהממוצע בין רצון (346) לשמד(344) \n הוא משה(345).\n שהוא למעשה מתווך בין רצון השם לקיים את עם ישראל לבין השמד שכמעט קרה לעם ישראל לאחר חטא העגל.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-02T17:54:30+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "5207ac3f-8251-4c8c-b159-2ad2dbd5fe0c",
+      "md5": "582ac75ef7edc3a285e159a4ca3eb9f3",
+      "text": "\"ששזפתני\" גימטריא 1147   (שה\"ש פרק א פסוק ו)\n(1) \"ששזפתני\" בגימטריא:1147.\n              תשפ\"ז +שין=1147.\nהמשמעות: שנת תשפ\"ז +300(ש).\n300 בגימטריא=\"ברחמים\".\nקבלנו: תשפ\"ז שנה של רחמים.\n(2) \"הללויה אל בקדשו הללוהו ברקיע עזו\" כל הפסוק הזה הגימטריא שלו:1147.\n\"אל\" זה שם של רחמים(אל מלא רחמים).\nרמז נוסף ששנת תשפ\"ז תהיה שנת רחמים.\n💢💢👑👑💢💢👑👑💢💢",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-10T13:37:01+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "5539d957-47a5-4e5b-9d93-1bbb890d6ecd",
+      "md5": "2533be23cec18318bd3867e685a9783b",
+      "text": "משה-משיח-גאולה\n\"לֹֽא־יָס֥וּר שֵׁ֨בֶט֙ מִֽיהוּדָ֔ה וּמְחֹקֵ֖ק מִבֵּ֣ין רַגְלָ֑יו עַ֚ד כִּֽי־יָבֹ֣א שִׁילֹ֔ה וְל֖וֹ יִקְּהַ֥ת עַמִּֽים׃\" (בראשית מ\"ט, י').\n\"שילה\"=345=\"משה\" בגימטריא.\nזה גואל ראשון.\n\"יבא שילה\"=358=\"משיח\".\nזה גואל אחרון.\n\nפסוקי הגאולה:\n\"בטרם יבוא חבל לה\"=345=משה.\n''אני יהוה אלהיהם ואענם''=345.\n(זכריה י' ו'). \nמשגב=בשגם=345 גימטריא משה.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-10-16T08:21:04+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "583a91ee-b38d-43dc-a0d1-83bcd86cd36c",
+      "md5": "7d77beb585b0761b93ee81cd3e6eac04",
+      "text": "שופר או שפר בכתיב חסר?\nהאם בתורה כתוב שופר או שפר בכתיב חסר??\nהמילה \"שופר\" מופיעה בתורה רק פעמיים בפסוק אחד.בפרשת בהר.\nהמילה \"שפר\" בכתיב חסר מופיעה בתורה 3 פעמים במעמד הר סיני.\nבפרשת יתרו.\n💜💜💜💜💜💜💜💜💜💜💜\nיש גם פסוק שלם יחיד בתהילים עם גימטריא \"שפר\"=580.{כתיב חסר}\n\"לדוד אודך בכל לבי נגד אלהים אזמרך\" (580 בגימטריא).\nלְדָוִ֨ד ׀ אֽוֹדְךָ֥ בְכָל־לִבִּ֑י נֶ֖גֶד אֱלֹהִ֣ים אֲזַמְּרֶֽךָּ׃ ב אֶשְׁתַּֽחֲוֶ֨ה אֶל־הֵיכַ֪ל קָדְשְׁךָ֡ וְא֘וֹדֶ֤ה אֶת־שְׁמֶ֗ךָ עַל־חַסְדְּךָ֥. וְעַל־אֲמִתֶּ֑ךָ כִּֽי־הִגְדַּ֥לְתָּ עַל־כָּל־שִׁ֝מְךָ֗ אִמְרָתֶֽךָ׃ \nבשני הפסוקים (תהילים) האלה יש 8 פעמים כף סופית מנוקדת בקמץ.חיבור לכתר לשמירה ברכה והצלחה לדוד המלך לעולם!\n❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹\n\"כי אתה י-ה-ו-ה מחסי\"=\"שפר\" בגימטריא 580.\nהשופר מעורר לתשובה וגם שומר על עם ישראל המקיים את מצוות שמיעת קול שופר.\n\"לשבורי לב\"=580=\"שפר\".✓\n\"שמרם\"=580=\"שפר\".✓✓",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-06T04:59:36+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "5c3c5033-278d-40a3-8bac-bd71d854643c",
+      "md5": "a8e170b91a65bc089ff188784c4a5651",
+      "text": "שמעון בגימטריא:466\nוַיֹּאמְרוּ הַלְוִיִּם יֵשׁוּעַ וְקַדְמִיאֵל בָּנִי חֲשַׁבְנְיָה שֵׁרֵבְיָה הוֹדִיָּה, שְׁבַנְיָה פְתַחְיָה, קוּמוּ בָּרְכוּ אֶת-יְהוָה אֱלֹהֵיכֶם, מִן-הָעוֹלָם עַד-הָעוֹלָם; וִיבָרְכוּ שֵׁם כְּבֹדֶךָ, וּמְרוֹמַם עַל-כָּל-בְּרָכָה וּתְהִלָּה_👑-------------------------------------\nמן העולם עד העולם=466;\n\"שמעון\"=466\n**בקיצור- ברכה בכל העולמות**\n----------------👑-----------------------------\nנוטריקון אותיות \"שמעון\" ראשי תיבות:🌹🌹🌹🌹🌹\nש-וקד מ-בין ע-ומק ו-תבונה נ-פלאה!\n⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡\n          ברכת יום הולדת\nמזל טוב לשמעון, \nשתהיה תמיד רק בנחת ושמחה,\nשכל דרכיך יביאו לך ברכה והצלחה.\nשרק אור, בריאות ושפע ימלאו את קבוצתך!",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-07-26T18:32:04+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "5e2c055a-b8b5-4669-a2d4-4e6abb9265bd",
+      "md5": "41dbcae0b26671aff829eb026282c117",
+      "text": "\"כמשפטם\"גימטריא 489\n'כמשפטם' מופיע 9  פעמים בתנ\"ך.\nהגימטריא של 'כמשפטם'÷489.\n\"וענו כל העם אמן ואמן\"=\n=489 בגמטריא.❤️‍🩹❤️‍🩹❤️‍🩹❤️❤️\nוכן ✓צהלה ושמחה✓ בגימטריא 489.🐋🐋🐋💌🙏🏻💌💌💌",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-07-30T12:07:12+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "713aa6b2-c347-49de-9e89-78cd36ec5c98",
+      "md5": "6b212f7e86bfecdb42d4c1e9c4e380ec",
+      "text": "\"ישראל בעל שם טוב\"=1000.      י\"ח אלול  יום לידת הבעש\"ט.\n4 פסוקים שלמים בספר תהילים עם גימטריא:1000 בדיוק.\nא-\"אליך י-ה-וה אקרא ואל א_ד- ני אתחנן\" (תהלים ל,ט).\nב-\"נדרי לי-ה-וה אשלם נגדה נא לכל עמו\" (תהילים קט\"ז י\"ד וגם תהילים קט\"ז יח').\nג- \"עזי אליך אזמרה כי אל-ה-ים משגבי אל-הי חסדי\"(תהילים נט,יח').\nאלו הפסוקים היחידים השלמים עם גימטריא:1000 בכל התנ\"ך.\n1000 בגימטריא:\n\"ישראל בעל שם טוב\"\nכולם פסוקי בטחון בהשם !!!",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-31T19:05:39+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "7608f874-dbfc-4b2d-876a-0a8d91c1af60",
+      "md5": "78a52bdef8918bf41ab2ab4560af05c8",
+      "text": "לבן והרמזים בפסוק\nיֶשׁ־לְאֵ֣ל יָדִ֔י לַֽעֲשׂ֥וֹת עִמָּכֶ֖ם רָ֑ע וֵֽאלֹהֵ֨י אֲבִיכֶ֜ם אֶ֣מֶשׁ ׀ אָמַ֧ר אֵלַ֣י לֵאמֹ֗ר הִשָּׁ֧מֶר לְךָ֛ מִדַּבֵּ֥ר עִֽם־יַעֲקֹ֖ב מִטּ֥וֹב עַד־רָֽע׃\" (בראשית ל\"א, כ\"ט).\n1- בפסוק הזה יש 4 אלפין רצופים בראשי תיבות:\"א-ביכם א-מש א-מר א-לי\".\nאלף כנוי לקב\"ה. לבן משתף את הקב\"ה כי הוא ירא ממנו.\n❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️\n2- אמ\"ש ; ראשי תיבות משמאל לימין:\nש-בת מ-ברכים א-אלול. בזכות אלול וחזרה בתשובה לבן לא יכול לפגוע בעם ישראל.\n🙏🙏🙏🙏🙏🙏🙏🙏🙏🙏🙏🙏🙏\n3-בפסוק מופיע פעמיים המילה \"רע\" אבל תמיד הטוב מקדים את הרע.הגנה על עם ישראל.להקדים תרופה למכה!\nלפני ה\"רע\" הראשון בפסוק כתוב \"עמכם\".\nעמכם =170 בגימטריא.ניסים=170.\nמסיני=170.אליו במילוי=170.על כן=170.\nוגם \"עמכם\"=10 פעמים טו\"ב=170.\nגם \"לפני\" =170=\"עמכם\".\n🍒🍒🍒🍒🍒🍒🍒🍒🍒🍒🍒🍒\n4- לפני \"הרע\" השני כתוב :\n\"יעקב מטוב עד רע\" גם כאן הטוב קודם בפועל לרע .הגנה על עם ישראל.קודם מטוב ואח\"כ \"עד רע\" ולא עד בכלל.רק טוב.\n5-\"השמר לך\" כף סופית מנוקדת בקמץ.לבן צריך להשמר כי עם ישראל מחובר למלכות שבכתר (כף סופית עם ניקוד קמץ) להארה ברכה ושמירה עד רמת  יעקב- מלכות שבמלכות.\n🏺🏺🍇🏺🏺🍇🏺🏺🍇🏺🏺🍇",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-14T07:31:45+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "786de42e-4f25-4508-bd7e-329a06b72239",
+      "md5": "4f94b5b9d6c54c92fb93df5842afc974",
+      "text": "לב+ראש השנה=תשובה\nא- לב(32)+ראש השנה(681)=\nתשובה(713).\n🩵🩵🩷🩷💜💜🧡🧡❤️❤️❤️‍🩹\nב- \"שוב מחרון אפך\"=713=\"תשובה\" בגימטריא.\n🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈\nזוהי בקשת משה מבורא עולם,'שוב'.\nג- \"שוב\"=308 בגימטריא=\"קרח\".\nבני קרח הרהרו תשובה בלבם ומקום מיוחד התבצר להם בגיהנום.\n  ⭐⭐❤️🧡💜🩷🩵⭐⭐",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-11T13:12:49+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "7acd1391-1bbf-4c4b-9baf-c6db11ff90c1",
+      "md5": "7d77beb585b0761b93ee81cd3e6eac04",
+      "text": "שופר או שפר בכתיב חסר?\nהאם בתורה כתוב שופר או שפר בכתיב חסר??\nהמילה \"שופר\" מופיעה בתורה רק פעמיים בפסוק אחד.בפרשת בהר.\nהמילה \"שפר\" בכתיב חסר מופיעה בתורה 3 פעמים במעמד הר סיני.\nבפרשת יתרו.\n💜💜💜💜💜💜💜💜💜💜💜\nיש גם פסוק שלם יחיד בתהילים עם גימטריא \"שפר\"=580.{כתיב חסר}\n\"לדוד אודך בכל לבי נגד אלהים אזמרך\" (580 בגימטריא).\nלְדָוִ֨ד ׀ אֽוֹדְךָ֥ בְכָל־לִבִּ֑י נֶ֖גֶד אֱלֹהִ֣ים אֲזַמְּרֶֽךָּ׃ ב אֶשְׁתַּֽחֲוֶ֨ה אֶל־הֵיכַ֪ל קָדְשְׁךָ֡ וְא֘וֹדֶ֤ה אֶת־שְׁמֶ֗ךָ עַל־חַסְדְּךָ֥. וְעַל־אֲמִתֶּ֑ךָ כִּֽי־הִגְדַּ֥לְתָּ עַל־כָּל־שִׁ֝מְךָ֗ אִמְרָתֶֽךָ׃ \nבשני הפסוקים (תהילים) האלה יש 8 פעמים כף סופית מנוקדת בקמץ.חיבור לכתר לשמירה ברכה והצלחה לדוד המלך לעולם!\n❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹\n\"כי אתה י-ה-ו-ה מחסי\"=\"שפר\" בגימטריא 580.\nהשופר מעורר לתשובה וגם שומר על עם ישראל המקיים את מצוות שמיעת קול שופר.\n\"לשבורי לב\"=580=\"שפר\".✓\n\"שמרם\"=580=\"שפר\".✓✓",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-06T05:00:46+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b",
+      "md5": "5dbdb2c80ab8baccba065c356bfe1188",
+      "text": "פשרה  או ביצוע בגמרא\nהמושגים \"פשרה\" ו\"ביצוע\" בין בעלי הדין מופיעים במסכת סנהדרין.\nלשניהם משמעות דומה מאד ואפילו זהה.\n'פשרה' בגימטריא:585.\n'ביצוע' בגימטריא:178.\nוכאן יש  פלא ברמז:\nבעלי הדין חייבים להסכים לפשרה לפי הגמרא.הם מבטלים את הרצון שלהם לזכייה במשפט  אם הם מוכנים ללכת לפשרה.\nביצוע(178)+בטל רצונך(407)=585\nאבל 585 בגימטריא זה:\"פשרה\"!!!\n⭐⭐⭐⭐⭐\nיש מחלוקת בגמרא האם מותר לבצוע או חובה לבצוע.\nומעניין שהגימטריא של \n\"ביצוע\"=\"למצא טוב\"=178.\nכלומר  גם ברמז (גימטריא) מצווה לבצוע.\n🍒🍒🍒🍒🍒🍒🍒\n\"ואלה המשפטים אשר תשים לפניהם\"\n\"המשפטים\" נוטריקון ר\"ת:\nה-דיין מ-צווה ש-יעשה פ-שרה ט-רם י-עשה מ-שפט. הפלא ופלא.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-20T10:22:04+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "8f5b6c50-658a-4e21-8ce6-e042c264e515",
+      "md5": "41dbcae0b26671aff829eb026282c117",
+      "text": "\"כמשפטם\"גימטריא 489\n'כמשפטם' מופיע 9  פעמים בתנ\"ך.\nהגימטריא של 'כמשפטם'÷489.\n\"וענו כל העם אמן ואמן\"=\n=489 בגמטריא.❤️‍🩹❤️‍🩹❤️‍🩹❤️❤️\nוכן ✓צהלה ושמחה✓ בגימטריא 489.🐋🐋🐋💌🙏🏻💌💌💌",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-15T21:04:01+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "948d2947-7054-46c6-b029-793cff07b6c8",
+      "md5": "2253080596ea436de7018fe06cd70a5a",
+      "text": "ענן חלק א\nענן בגימטריא 170.\n\"ענן\" בגימטריא \"מקל\".גם כן 170.\n👑👑👑👑👑👑👑👑👑👑👑\nהענן תמיד בא להקל.כמו פעולת המשתמש במקל הזקנה או במקל בספורט שבא לסייע ביציבות האדם וגם בא לסייע במהירות האדם.\nהמקל עוזר בסילוק מכשולים מהדרך.\n🏺🏺🏺🏺🏺❤️🏺🏺🏺🏺🏺\nגם הענן במסעות בני ישראל היה מסלק מכשולים מדרכם .עם סילוק המכשולים, האדם מתקדם יותר מהר.גם בדרך רגילה וגם בדרך עבודת השם. \n[Image 1795.jpg]",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-27T19:40:48+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "9d288d91-0888-4673-95a9-8a3cdcc884c9",
+      "md5": "0428c416cd6514668679b7c4347f6e33",
+      "text": "אדם נשבר לצורך חיזוק יתר שלו\n⭐⭐⭐⭐⭐⭐⭐⭐\nאדם נשבר כדי להתחזק יותר.\nצריך לזכור שאין חושך שנשאר לנצח.\n\"נשבר \" בגימטריא 552.\nכאשר אדם נמצא בתהליך של שבירה הוא למעשה צריך לקוות לקב\"ה.\nהשבירה מסמנת לאדם,תתחזק✓\n\"קויתי י-הוה\" =נשבר=552.\n\"כי מי-ה-וה היתה לו\"=נשבר=552.\nהאדם צריך לכוון לבו לקב\"ה.צריך להתחזק באמונה בהשם דווקא במהלך שלכאורה נראה אבוד וחסר תקנה.\"תכין לבם\" =נשבר=552 בגימטריא.\n\"ישרי לב\"=נשבר =552 בגימטריא.\nלאחר שבירה אסור להתייאש כי תבוא ישועה.\"יושיע ציון\"=נשבר=552\nבגימטריא.\nכדי להתחזק אדם ישיר וישבח  את קב\"ה גם על הטוב שבתוך השבירה!\nלחפש אפילו מעט מתיקות גם במרירות של נשבר.\n\"ומתוק\" גימטריא \"נשבר\"=552 בגימטריא.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-17T13:35:34+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "9e5ec3ce-3da7-46a4-b3a2-dfb9845da3ed",
+      "md5": "ad3e0a6a75b093c2975f48c75ebddb12",
+      "text": "הקשר בין \"מצא\" לבין \"אשה\"\nידוע ש\"מצא אשה מצא טוב\"\nוגם פחות ידוע ש\"אשה\" בגימטריא:\nח\"י(18) פעמים טו\"ב(17)=אשה(306).\nאבל מה הקשר בין \"מצא\" ל\"אשה\"?\nאביא 4 תשובות:\nא- \"מצא\"+\"זך בעיניו\"=\"אשה\"=306 בגימטריא.כלומר ,קח אותה לאשה אם היא זכה וישרה בעיניך.\nב.\"מצא+\"ומום איך בך\"=\"אשה\"= =306 בגימטריא.כלומר קח אותה לאשה אם לא מצאת בה חסרונות רוחניים.\nג. \"מצא\"+\"מצילה\"=\"אשה\"=306 בגימטריא.כלומר קח אותה לאשה אם אתה מבין שדווקא היא האחת שיכולה להציל ולשמור אותך.\nד. \"מצא\"+\"למעלה\"=\"אשה\"=306 בגימטריא.מהשם אשה לאיש.קח אותה לאשה אם הבנת שהיא חלק נשמתך מלמעלה.מהעליונים.האשה מגיעה אליך מלמעלה! נאמר באשה:\n\"ויבאה אל האדם\" הקב\"ה הביא אותה אל האדם מקושטת ב-כ\"ד קישוטים(אורות רוחניים) גימטריא\"ויבאה\"=24 על פי הזוהר הקדוש.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-19T05:43:56+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "a2d5b645-39b9-499a-b86e-7e4c693bd40a",
+      "md5": "e1ec3809ba774d253d44df6573a5080e",
+      "text": "רחל מעוררת את ישני חברון\n\n✓רחל=דמעה+דמעה=238\n✓✓רחל=חסד עליון=238\n✓✓✓\"מנעי קולך מבכי\"\n\"מנעי\"בגימטריא 10 פעמים טוב או 170 סה\"כ.\n✓✓✓✓\"קולך\" בגימטריא \"יוסף\"=156.\nרמז למשיח בן יוסף.\n✓✓✓✓✓רחל +קול =238+136=374 בגימטריא \"אחישנה\"=374.\nקולה של רחל מזרז את הגאולה.\n√רחל =ארך+טוב=221+17=238 בגימטריא.\nרחל יודעת לעורר את מידת ארך (רחמים) כדי להשפיע טוב על עם ישראל.\n√√רחל לקחה את התרפים של לבן \n\"ותשמם\" בכר הגמל.\n\"ותשמם\" גימטריא תשפ\"ו=786.\n√√√רחל+רחל+רחל+חסד=תשפ\"ו",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC89E85F46A8371EE3CBA2F3F77250CF.jpg",
+      "page_only": false,
+      "created_at": "2026-07-24T12:25:55+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "a48fbfb0-9471-463d-b297-3a0bd58d09bd",
+      "md5": "20e45b87cbb8a235edb4649bcd9f5172",
+      "text": "\"ויסר\" מה המשמעות???\n🦌🦌🦌🦌🦌🦌🦌🦌\n\"ויסר\" פרושו  סילוק הרע ממצב של \"וי\" (יסורין או צרה).\nההסרה מביאה לשינוי מצב ממצב רע, למצב של הצלה וישועה.\n\"סר\" גימטריא 260 כלומר \"כרם\" בגימטריא.\"כרם\" הוא מצב ללא דין.(10 פעמים י-ה-ו-ה) אין בו קוצים כמו ב\"שדה\".\nויסר=וי+סר הצרה (וי) נעלמת(סר)\nשנוי מצב שמביא הצלה וישועה.\n\"ויסר\" מופיע 25 פעמים בתנ\"ך.\nומתוכם 8 פעמים בתורה. \n1-נח מסיר את מכסה התיבה תם המבול.(פרשת נח)\n2-לבן מסיר את העקודים והתלואים בצאן.(פרשת ויצא)\n3-פרעה מסיר טבעתו ונותן ליוסף.\n(פרשת מקץ).\n4-הסרת מכת הצפרדעים ממצרים.\n(פרשת וארא)\n5-הסרת מכת הערוב ממצרים.\n(פרשת וארא)\n6- הסרת מכת ארבה ממצרים.\n(פרשת בוא).\n7-הסרת אופני מרכבות פרעה בים סוף.(פרשת בשלח)\n8-הסרת מכת הנחשים השרפים מים ישראל(פרשת חוקת).\nבכל 8 הפעמים בתורה נעלם הדין (נמתק) ומתחילה ישועה.\n\"סר\"=260=\"כרם\"=10 הוויות!!!\nכלומר יש \"וי\" (צרה) ואז מגיעים רחמים \"כרם\"(\"סר\" בגימטריא) שאין בו דין.\n***\nאגב \"כרם\"=\"סר\" הוא כנוי למצב השכינה ביום השבת שאין בה דינים והגיהנום לא פועל ביום השבת.\nכמו שחשב אגג \"אכן סר מר המות\"",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-04T11:25:26+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "a5398004-94c2-4342-bbd1-3f634d2ae51a",
+      "md5": "1f1bd10cb9fdd84a8aa92bc2de960189",
+      "text": "שפר( 3 פעמים) וגם שופר( 2 פעמים)\n1.מהתבוננות במסורת הכתובים בתורה בלבד יעלה:-\n​במעמד הר סיני (ספר שמות): המילה מופיעה בכתיב חסר (שָׁפָר / שֹׁפָר):\n​\"וְקֹל שֹׁפָר חָזָק מְאֹד\" (שמות יט, טז).\n​\"וְקֹל הַשֹּׁפָר הוֹלֵךְ וְחָזֵק מְאֹד\" (שמות יט, יט).\n(וכן בהמשך: \"וְאֶת קוֹל הַשֹּׁפָר\" – שמות כ, טו).\n​בספר ויקרא: המילה מופיעה בכתיב מלא (שׁוֹפָר):\n​\"וּהַעֲבַרְתָּ שׁוֹפַר תְּרוּעָה בַּחֹדֶשׁ הַשְּׁבִעִי\" \n​\"תַּעֲבִירוּ שׁוֹפָר בְּכָל אַרְצְכֶם\" (ויקרא כה, ט).\n​2. הטעם הרעיוני והפנימי: קול אלוקי מופשט מול מצווה מעשית\n​א. מעמד הר סיני – קול שאינו מן העולם הזה (כתיב חסר)\n​במעמד הר סיני, השופר לא היה גשמי. לא היה זה שופר של איל שנעשה בידי אדם, אלא קול שמימי ואלוקי.קול ניסי.קול בעוצמה קבועה אבל מותאמת לכל אדם ואדם.חוסר האות ו במילה שפר במעמד הר סיני מראה על שויון בקולות.\nב.שופר בכתיב מלא כתוב בספר ויקרא .זהו קול תקיעות משתנה וגם נחלש כי זה שופר אנושי.\nרמז לכך \"ותענני\"=586=שופר.\n(אנושי בכתיב מלא) .\n\"כי אתה י-ה-ו-ה מחסי\"=580=שפר.\n(אלוהי בכתיב חסר). \nגם \"שמרם\" גימטריא 580 =שפר בכתיב חסר.שלימות אלו-ה-ית.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-07T05:57:54+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "a8e67092-d048-42e4-8508-8280002da226",
+      "md5": "949ad283487433f01721485740d9c883",
+      "text": "חלק א: זכות אבות\nא-התשובה מרובה מעוררת את זכות האבות! (בתהלים צ,ג);\nרמז לכך: \"שובו בני אדם\"×2=\n=421×2=842=\"זכות אבות\"  גימט'.\nב- \"קמעא קמעא לישועה\"=843.\n     \"זכות אבות\" עם הכולל=843.\n'כך היא גאולתן של ישראל קמעא קמעא.'✓✓\nג- כפל \"לישועה\"=421+421=842.\n    \"זכות אבות\" גימטריא:842.\nכלומר כפל \"לישועה\" נגרם בזכות אבות!!!✓✓✓",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-26T05:12:29+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "aaa53647-59b5-4e48-b40e-6878a031193c",
+      "md5": "82c7c89a70e205ebff593e3337fe67ba",
+      "text": "בזאת תדעון -חלק ב\n\"בזאת תדעון\" חיבור בין דעת למלכות.\nהחבור הזה גורר אחריו ניסים לעם ישראל  כמו בזמן יהושע ובזמן  ומשה שהשתמשו בצרוף הזה כדי לטפל ברשעים ולהביא את הישועה לעם ישראל! (קורח ועדתו, וכן שבעת עמי כנען).\n'בזאת תדעון' גימטריא 940.\n\"ויהי דבר י-ה-וה אל שלמה לאמר\" בגימטריא:\"בזאת תדעון\" 940 גימטריא בפסוק שלם בכל התנ\"ך.\nזה נאמר לשלמה בזמן בניין בית המקדש חיבור בין עליונים ותחתונים חיבור בין מלכות ודעת!\nאסתר: \"ועמי בבקשתי\"-940 בגימטריא\nרות: \"על לב שפחתך'' 940 בגימטריא.\nאצל שניהם זאת התחלת הגאולה לעם ישראל...(מרדכי מול המן,רות מול בועז)",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-30T05:07:05+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "aac28a52-121e-4944-82e0-c46f8a5d6646",
+      "md5": "f7d4038eed1155ec804de7095297a66b",
+      "text": "שבת קודש בגימטריא\n[Image 918.jpg]\n\"שבת קודש \" בגימטריא 1112.\n\"תמים תהיה עם י-ה-ו-ה  א-לה-יך\" גימטריא של כל הפסוק גם כן: 1112.\n👑👑👑👑👑👑👑👑👑👑👑\nא+יב\"ק=1000+112=1112.\nכלומר א-1000 ,אלופו של עולם הקב\"ה.\nיבק=י-ה-ו-ה+א-ל-הי-ם=86+26=112.\nתוספת אלופו של עולם(א) לשם הרחמים ולשם הדין (יבק) נותן \"שבת קודש\" גימטריא 1112.\nלסכום:\n\"שבת קודש\" מצרוף השם ושם הרחמים ושם הדין גורמת למיתוק הדינים(אין בשבת דינים!) ,ושמירה וברכה למי שהולך בתמימות עם השם יתברך.ליחיד ולכל עם ישראל.\n🍒🏺👑🍒👑👑👑🍒👑🏺🍒",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-21T02:06:51+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "cdeb5220-ff14-4dc0-9fe1-d9153f846056",
+      "md5": "5a2565c768dabb6c2867ec2708b4ed34",
+      "text": "נאות דשא ונאות מדבר!\n👑👑👑👑👑👑👑👑\nבספר \"לב  אברהם\" מזכיר ; \n\"בנאות דשא\" בגימטריא \"יומא דשבתא\"\nסה\"כ:764.\nלעומת זאת \"נאות מדבר\" גימטריא 703.(גימטריא \"שבת\" עם הכולל)\nהמילה \"אליך\" בגימטריא:61.\nכלומר יש כאן משוואת מצב:\nנאות מדבר(703)+אליך(61)=נאות דשא.(764).והרמז כאן שאם מחבר את השבת בעולם הזה (נאות מדבר)  אל הקב\"ה (אליך) נקבל את העולם הבא.(בנאות דשא)בגאולה השלימה.\nיש כאן תאור המעבר מהכרם (השכינה בשבת)אל הכתר(מלכות שבכתר) דרך \"אליך\" שהוא חיבר לכתר.(יאר השם פניו אליך,ישא השם פניו אליך,בברכת הכהנים).\nנביא 3 ראיות לכך:\nא-השבת היא אחד משישים מהעולם הבא.ועל כך רומזת \"אליך\" \nגימטריא:61.\"אליך\" עם כף סופית בקמץ כלומר חיבור לכתר. גאולה שלימה.\nב-יש פסוק נחמה בספר יואל:\n\"אַל־תִּֽירְאוּ֙ בַּֽהֲמ֣וֹת שָׂדַ֔י כִּ֥י דָֽשְׁא֖וּ נְא֣וֹת מִדְבָּ֑ר כִּי־עֵץ֙ נָשָׂ֣א פִרְי֔וֹ תְּאֵנָ֥ה וָגֶ֖פֶן נָֽתְנ֥וּ חֵילָֽם׃\" (יואל ב', כ\"ב).\nכלומר נאות המדבר יהפכו לנאות דשא! מצב של כתר בגאולה השלימה.\nג-גם בספר תהילים מוזכר המעבר מ'נאות מדבר' לנאות דשא שנאמר:\n\"יִ֭רְעֲפוּ נְא֣וֹת מִדְבָּ֑ר וְ֝גִ֗יל גְּבָע֥וֹת תַּחְגֹּֽרְנָה׃\" (תהילים ס\"ה, י\"ג).כלומר נאות המדבר יהפכו לנאות דשא!",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-14T14:34:38+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "d4370201-7683-4805-9007-14c5a77f3a08",
+      "md5": "7fc1a03acd8181cc0329f345a904d597",
+      "text": "\"פעם הבאה אתם באים\" גימטריא:697.\n\nהשבוע התחלנו ללמוד את מסכת בכורות בדף היומי.\n\nכתוב בתורה: \n\"לו משפט הבכרה\"\nבגימטריא: 697.\n\n😀😀😀😀😀😀",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-23T11:01:48+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "d442dc56-0099-4b60-93e7-cb05c277728f",
+      "md5": "019732c1c95366eb387aac9ced095d91",
+      "text": "שמעון בגימטריא:466\nוַיֹּאמְרוּ הַלְוִיִּם יֵשׁוּעַ וְקַדְמִיאֵל בָּנִי חֲשַׁבְנְיָה שֵׁרֵבְיָה הוֹדִיָּה, שְׁבַנְיָה פְתַחְיָה, קוּמוּ בָּרְכוּ אֶת-יְהוָה אֱלֹהֵיכֶם, מִן-הָעוֹלָם עַד-הָעוֹלָם; וִיבָרְכוּ שֵׁם כְּבֹדֶךָ, וּמְרוֹמַם עַל-כָּל-בְּרָכָה וּתְהִלָּה._👑-------------------------------------\nמן העולם עד העולם=466;\n\"שמעון\"=466\n----------------👑-----------------------------\nנוטריקון אותיות \"שמעון\" ראשי תיבות:🌹🌹🌹🌹🌹\nש-וקד מ-בין ע-ומק ו-תבונה נ-פלאה!",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-07-26T18:19:22+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "d50965ea-23b4-4fc2-a83e-7c9464d03e9a",
+      "md5": "509bceb412f8bc161db94c688930fd4e",
+      "text": "חיים חלק א\n\nחיים בגימטריא 68.\nחכם בגימטריא 68.\nכאן יש רמז שהגילוי הראשון של החיים לאחר הכתר, מתהווה בחוכמה.\nשעשר הספירות הן :כתר,חכמה,בינה וכ\"ו. \nהממוצע החשבוני בין חסד(72) לבין דין(64) הוא בדיוק חיים(68).\nאין חיים בלי חסד ובלי דין.צריך את שניהם לקיום חיים.\n\" ביום עשות יהוה אלוהים וכו'\" אומר רש\"י...הקדים מידת הרחמים למידת הדין ושתפם כאחד.שיתוף בין 'חסד' ו'דין' זה הממוצע שהוא 'חיים' כפי שראינו.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-17T13:51:14+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "d9a0a902-ab10-451a-8c9c-76d7e8ed389d",
+      "md5": "23e6bc61ad6acfff32c91154403186ee",
+      "text": "פדיון נפש -חלק א\n[Image 3461.jpg]\n\"ורפא ירפא\" עם שני הכוללים=580.✓\n\"פדיון נפש\"=580.✓",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-21T14:26:52+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "dd17aac8-c1f1-45eb-aa3e-a5e3d2d11f36",
+      "md5": "cb4dc58aa5a67da81543afecdd9e8791",
+      "text": "\"דגול מרבבה\" גימטריא:292\nהפסוק \"דּוֹדִי צַח וְאָדוֹם, דָּגוּל מֵרְבָבָה\" (שיר השירים ה, י) מקבל עומק מיוחד כאשר מתבוננים בו על דרך החסד ועל דרך הפנימיות והרחמים:\n1. הנהגת החסד הגלוי והנסתר (\"דָּגוּל\")\nהתיאור \"דָּגוּל\" מגיע מלשון דגל – מורם, מובלט ומוכר, אך גם מלשון דְּגָלִים וציבור גדול (\"מרבבה\").\nעל דרך החסד: הקב\"ה (\"דודי\") מנהיג את עולמו בחסד שאינו מוסתר או מסופק, אלא בחסד בולט וברור מאליו – חסד המאיר ומרומם את הנשמה, כך שגם מתוך \"רבבה\" של מסכים, ניסיונות או הסתרות, החסד האלוהי מתגלה ונראֶה לכל עין כדגל מורם.\n2. התעלות הרחמים והחסד מעל כל ההגבלות (\"מֵרְבָבָה\")\nהמספר רבבה (10,000) מסמל בנסתר את בחינת המחשבה והעולמות העליונים (שם כל דרגה נכפלת ברבבות).\nעל דרך החסד: \"דגול מרבבה\" פירושו שהחסד של הקב\"ה אינו מוגבל לפי מידת הדין או לפי מדרגת הנבראים. זהו חסד עליון ואינסופי הנובע מרום המעלה (מעל ה\"רבבה\"), היורד אל התחתונים ומכסה על כל הפשעים והחסרונות בבחינת רחמים פשוטים.\n3. היחוד בין דין לחסד (\"צַח וְאָדוֹם\")\nהקשר של \"דגול מרבבה\" לתחילת הפסוק \"צַח וְאָדוֹם\":\nצַח – בחינת לובן, חסד פשוט, רחמים וגילוי אור.\nאָדוֹם – בחינת דין, גבורה ותיקון.\nדָּגוּל מֵרְבָבָה: החסד הגדול מתבטא בכך שהלובן והחסד המוחלט (\"צח\") ממתקים את הגבורות והדינים (\"אדום\"), והופכים את הכל לדגל של אהבה וגאולה. החסד מנצח ומולך מעל כל המידות אחרות.\nבקיצור:\nעל דרך החסד, \"דודי דגול מרבבה\" פירושו שהגילוי של הקב\"ה כ\"דוד\" ואוהב הוא חסד עליון, בולט ומרומם, המתגלה מעל כל הסתרה, מתק את כל הדינים, ומאיר לכל נשמה ונשמה באהבה וברחמים גמורים.\n💢💢💢💢💢💢💢💢💢💢💢\n\"חסדי דוד הנאמנים\" (ישעיהו)\nבגימטריא:\"דגול מרבבה''=292.\nוגם :\"כי חפץ חסד\" (מיכה ז,יח') בגימטריא:\"דגול מרבבה\"=292 בגימטריא.💢💢💢💢💢💢💢",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-10-12T14:22:28+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "e0140247-7ed0-4040-a5b2-a12b5991d3b6",
+      "md5": "e459f1519e8d936b563f11dceabad9dd",
+      "text": "\"תפוח בדבש\" גימטריא:802.\n\"אָנָּ֣א יְ֭הֹוָה הֽוֹשִׁ֘יעָ֥ה נָּ֑א אָנָּ֥א יְ֝הֹוָ֗ה הַצְלִ֘יחָ֥ה נָּֽא׃\" (תהילים קי\"ח, כ\"ה).\nזהו פסוק מיוחד.\nהגימטריא שלו בשלימות:802.\nגם\"תפוח בדבש\" וגם \"אב הרחמן\" כ\"א בגימטריא:802.\nזה סימן חשוב שאוכלים בערב ר\"ה שנזכה לעמוד בדין של ראש השנה ברחמים.\nלכן טובלים תפוח בדבש ואוכלים בראש השנה.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-09-10T14:07:08+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "ece7009a-7ba2-4e46-bd2d-fd0677193fa4",
+      "md5": "1c70ee7e1fbef6b76138799fbc9e5a8f",
+      "text": "\"קץ\" גימטריא 190\nאצל יוסף \"פסים\" גימטריא \"קץ\"\nאצל אברהם \"ויעקד\" גימטריא \"קץ\".\nאצל יהושע \"וימס לבבם\" גימטריא \"קץ\".\nאצל אליהו הנביא \"בקול אליהו\" \nגימטריא \"קץ\".(נס החייאת המת).\nאצל עם ישראל \"ופקד\"-גפן זאת-גימטריא \"קץ\".\n\"ונסלח לו\" על  חוטא בשגגה גימטריא \"קץ\".{יש 10 פסוקים כאלה}.\n\"לעד יכון\" גימטריא \"קץ\".{גם על מלך רגיל שעושה משפט צדק וגם על מלך המשיח}\n💌💌💌💌💌💌💌💌💌💌💌💌💌\nה\"קץ\" הוא כנוי לאחרית הימים-זמן הגאולה וביאת המשיח.\nסיכום: \nץ סופית במילה קץ רומזת על הגאולה החמישית והאחרונה של ביאת המשיח.\n(אותיות מנצפ\"ך -אותיות הגאולה)\nהגימטריות שהובאו כאן הם שלבים  וגם זכויות בדרך אל הגאולה השלימה באחרית הימים.\nבספר דניאל יש מושג:\"קץ הפלאות\" \nגימטריא : 712 וגם \"תשבי\".\nבמהרה בימינו אמן.",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-12T17:25:35+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "f70e4049-2f62-465a-9626-ee687fdc54ff",
+      "md5": "4c838e14cffc15ac9b412a374706d51e",
+      "text": "\"ששזפתני\" גימטריא 1147   (שה\"ש פרק א פסוק ו)\n(1) \"ששזפתני\" בגימטריא:1147.\n              תשפ\"ז +שין=1147.\nהמשמעות: שנת תשפ\"ז +300(ש).\n300 בגימטריא=\"ברחמים\".\nקבלנו: תשפ\"ז שנה של רחמים.\n(2) \"הללויה אל בקדשו הללוהו ברקיע עזו\" כל הפסוק הזה הגימטריא שלו:1147.\n\"אל\" זה שם של רחמים(אל מלא רחמים).\nרמז נוסף ששנת תשפ\"ז תהיה שנת רחמים.\n** \"רקיע עזו\"-רמז לנס המטוס שקרה ברקיע.\n💢💢👑👑💢💢👑👑💢💢",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-10-10T16:40:23+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    },
+    {
+      "id": "fc4cad9c-645f-48bc-8fab-2ae1eda228df",
+      "md5": "e38573e45ee3b6b19a9da459522800b4",
+      "text": "\"תשפ\"ו\" שנת \"הארת פנים\"\n🦌🦌🦌🦌🦌🦌🦌🦌\n                       א\nברחמים גדולים+ברחמים גדולים=\n=393+393=786=תשפ\"ו.\nכפל של \"ברחמים גדולים\" שנת תשפ\"ו !\n🦈🦈🌿🌿🦈🦈🦈🦈🌿🌿🧡🧡\n                     ב\nשנת:תשפ\"ו\n \"קטנתי מכל החסדים\"=תשפ\"ו=786\n👑👑👑👑👑👑👑👑👑👑👑👑\n                    ג\nאור פניך י-ה-ו-ה  + אור פניך י-ה-ו-ה=\n393+393=תשפ\"ו=786.\nכפל של הארת פנים!!!\n🏺🏺🏺🏺🏺🏺🏺🏺🏺🏺🏺🏺\n                     ד\n\"הארת פנים\" בגימטריא   ;         786=תשפ\"ו.\n🍒🍒🍒🌈🌈🌈🍒🍒🍒🌈🌈🌈",
+      "status": "live",
+      "channel": "torat-haremez",
+      "image_url": null,
+      "page_only": false,
+      "created_at": "2026-08-13T11:17:24+00:00",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "1eaefed1-56b1-4f97-b7ff-99b992d6b6d2",
+      "checks": [
+        {
+          "expression": "כמשפטם",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 7
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        },
+        {
+          "expression": "וענו כל העם אמן ואמן",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 78,
+            "end": 98
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        },
+        {
+          "expression": "צהלה ושמחה",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 139,
+            "end": 149
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "משפחה מעורבת: כמשפטם וצהלה ושמחה שווים 489; וענו כל העם אמן ואמן שווה 485. טענות 8/9 הופעות ברשומה לא נספרו מחדש. אין לאשר את המשפחה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "31c9d826-871d-448b-8a2d-e974941e45b1",
+      "checks": [
+        {
+          "expression": "מתנה טובה",
+          "claimed": 517,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 10
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 105
+          }
+        },
+        {
+          "expression": "אמונתך",
+          "claimed": 517,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 80,
+            "end": 86
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 105
+          }
+        },
+        {
+          "expression": "ואהיה תמים",
+          "claimed": 517,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 91,
+            "end": 101
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 105
+          }
+        },
+        {
+          "expression": "אמונה",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 64,
+            "end": 69
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 105
+          }
+        },
+        {
+          "expression": "מעשה",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 71,
+            "end": 75
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 105
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "שלושת הביטויים הישירים שווים 517 וגם אמונה+מעשה=517 משוחזר כנגזרת מלאה במחלץ הקיים. רק ארבעת הקשרים המספריים, לא משמעות השבת.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "אמונה+ מעשה=517",
+          "sourceSpan": {
+            "start": 64,
+            "end": 79,
+            "excerpt": "אמונה+ מעשה=517"
+          }
+        }
+      ]
+    },
+    {
+      "id": "42240ce6-1006-4b10-8fad-f2b844c6fac2",
+      "checks": [
+        {
+          "expression": "כמשפטם",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 7
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        },
+        {
+          "expression": "וענו כל העם אמן ואמן",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 78,
+            "end": 98
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        },
+        {
+          "expression": "צהלה ושמחה",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 139,
+            "end": 149
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "אותה הודעת 489 חוזרת; השוויון השלישי נכשל (485). טקסט חוזר אינו ראיה עצמאית.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "4fdb263b-90ca-44d2-b488-6d76e1a0d8dc",
+      "checks": [
+        {
+          "expression": "אליך",
+          "claimed": 61,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 174,
+            "end": 178
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1058
+          }
+        }
+      ],
+      "recommendation": "דורש מקור",
+      "reason": "אליך=61 מאומת, אך אחד משישים אינו שוויון ל־61 והקשר לעולם הבא הוא פרשנות. נדרש מקור מדויק למאמר, לא אישור באמצעות ערך המילה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "5aa024eb-ab16-46dd-a7f5-f5944aadfb12",
+      "checks": [
+        {
+          "expression": "שפר",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 8,
+            "end": 11
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        },
+        {
+          "expression": "לדוד אודך בכל לבי נגד אלהים אזמרך",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 273,
+            "end": 306
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        },
+        {
+          "expression": "כי אתה י-ה-ו-ה מחסי",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 705,
+            "end": 724
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        },
+        {
+          "expression": "לשבורי לב",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 819,
+            "end": 828
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        },
+        {
+          "expression": "שמרם",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 843,
+            "end": 847
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "חמשת הביטויים המדויקים במקור שווים 580. המלצה למשפחה המספרית בלבד, ללא אישור ייחוד הפסוק, ספירות אותיות או משמעות שופר.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "5e8ba023-f408-4cf4-9d64-f7e0f94c4eec",
+      "checks": [
+        {
+          "expression": "בזאת תדעון",
+          "claimed": 940,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 10
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 543
+          }
+        },
+        {
+          "expression": "ויהי דבר י-ה-וה אל שלמה לאמר",
+          "claimed": 940,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 240,
+            "end": 268
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 543
+          }
+        },
+        {
+          "expression": "ועמי בבקשתי",
+          "claimed": 940,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 416,
+            "end": 427
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 543
+          }
+        },
+        {
+          "expression": "על לב שפחתך",
+          "claimed": 940,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 448,
+            "end": 459
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 543
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "כל ארבעת הביטויים המצוטטים במקור שווים 940, כולל השורה על שלמה שנעדרה מה־terms. היקף ההמלצה הוא ארבעת השוויונות, לא ייחוד פסוק או משמעות הגאולה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "5f3b48c1-f6ec-4759-b4f5-3d7d112db0ef",
+      "checks": [
+        {
+          "expression": "נשבר",
+          "claimed": 552,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 4,
+            "end": 8
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 617
+          }
+        },
+        {
+          "expression": "קויתי י-הוה",
+          "claimed": 552,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 203,
+            "end": 214
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 617
+          }
+        },
+        {
+          "expression": "כי מי-ה-וה היתה לו",
+          "claimed": 552,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 228,
+            "end": 246
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 617
+          }
+        },
+        {
+          "expression": "תכין לבם",
+          "claimed": 552,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 349,
+            "end": 357
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 617
+          }
+        },
+        {
+          "expression": "ישרי לב",
+          "claimed": 552,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 380,
+            "end": 387
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 617
+          }
+        },
+        {
+          "expression": "יושיע ציון",
+          "claimed": 552,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 448,
+            "end": 458
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 617
+          }
+        },
+        {
+          "expression": "ומתוק",
+          "claimed": 552,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 582,
+            "end": 587
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 617
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "שבעת הביטויים המפורשים במקור שווים 552. הפרשנות על שבירה וישועה נשארת נפרדת.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "5fe5217a-1844-4605-b3c4-87a67018160c",
+      "checks": [
+        {
+          "expression": "פעם הבאה אתם באים",
+          "claimed": 697,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 18
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 137
+          }
+        },
+        {
+          "expression": "לו משפט הבכרה",
+          "claimed": 697,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 94,
+            "end": 107
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 137
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "שני הביטויים שווים 697, אך לא אומת תאריך תחילת מסכת בכורות בדף היומי; מסכת בכורות היא הקשר ולא ביטוי שנטען לו הערך 697.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "6cdd1164-efb2-4bf9-ad43-94d5fe48c0a4",
+      "checks": [
+        {
+          "expression": "ששזפתני",
+          "claimed": 1147,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 8
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 385
+          }
+        },
+        {
+          "expression": "הללויה אל בקדשו הללוהו ברקיע עזו",
+          "claimed": 1147,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 188,
+            "end": 220
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 385
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "ששזפתני=1147, אבל הפסוק כפי שנכתב במקור שווה 1076. אין להוסיף מילה חסרה כדי לתקן בשקט ל־1147.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "7015b387-05f8-4aab-b492-a570070924f8",
+      "checks": [
+        {
+          "expression": "כרם",
+          "claimed": 260,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 169,
+            "end": 172
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 971
+          }
+        },
+        {
+          "expression": "סר",
+          "claimed": 260,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 3,
+            "end": 5
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 971
+          }
+        },
+        {
+          "expression": "י-ה-ו-ה",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 215,
+            "end": 222
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 971
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "כרם וסר שווים 260 וי-ה-ו-ה שווה 26. המקור מתאר עשר פעמים במילים; ההקשר וספירת ויסר לא אומתו. אין לחלץ את הכינוי הוי'ה כאיות החלופי של שם.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "71ad6864-c9be-427e-9b29-488001b54c30",
+      "checks": [
+        {
+          "expression": "ורפא ירפא",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 35,
+            "end": 44
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 84
+          }
+        },
+        {
+          "expression": "פדיון נפש",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 9
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 84
+          }
+        }
+      ],
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "ורפא ירפא שווה 578; במקור נכתב במפורש עם שני הכוללים, בעוד התקציר השמיט זאת. פדיון נפש=580. תמונה 3461 חסרה ונדרשת נגזרת מתועדת, לא שוויון ישיר שגוי.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "767aacc8-472f-44ef-913b-f3903ec904c6",
+      "checks": [
+        {
+          "expression": "דגול מרבבה",
+          "claimed": 292,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 11
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1569
+          }
+        },
+        {
+          "expression": "חסדי דוד הנאמנים",
+          "claimed": 292,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1434,
+            "end": 1450
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1569
+          }
+        },
+        {
+          "expression": "כי חפץ חסד",
+          "claimed": 292,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1495,
+            "end": 1505
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1569
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "דגול מרבבה וחסדי דוד הנאמנים שווים 292, אך כי חפץ חסד שווה 280 באיות המקור. אין להשלים מילה כדי להתאים.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "7f89bfeb-1cf7-4f61-8e6e-e90ad38e994b",
+      "checks": [
+        {
+          "expression": "שפר",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 8,
+            "end": 11
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        },
+        {
+          "expression": "לדוד אודך בכל לבי נגד אלהים אזמרך",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 273,
+            "end": 306
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        },
+        {
+          "expression": "כי אתה י-ה-ו-ה מחסי",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 705,
+            "end": 724
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        },
+        {
+          "expression": "לשבורי לב",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 819,
+            "end": 828
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        },
+        {
+          "expression": "שמרם",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 843,
+            "end": 847
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 861
+          }
+        }
+      ],
+      "recommendation": "כפילות",
+      "reason": "אותו טקסט מקור וחמשת ביטויי 580 כמו בממצא 5aa024eb-ab16-46dd-a7f5-f5944aadfb12. חזרת תצוגה של אותה משפחה מספרית; לשמר את שתי ההופעות, ללא מחיקה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": "5aa024eb-ab16-46dd-a7f5-f5944aadfb12",
+      "compoundSlices": []
+    },
+    {
+      "id": "833f7594-9b58-4c33-a299-2df334936ef9",
+      "checks": [
+        {
+          "expression": "שמעון",
+          "claimed": 466,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 5
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 464
+          }
+        },
+        {
+          "expression": "מן העולם עד העולם",
+          "claimed": 466,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 302,
+            "end": 319
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 464
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "שמעון ומן העולם עד העולם שווים 466. חיבור מילולי־מספרי בלבד; אין שיוך לאדם לפי שמו ואין אישור נוטריקון או ייחוס היסטורי.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "86a671d0-563d-47a5-8ecf-52fafb890b2b",
+      "checks": [
+        {
+          "expression": "שפר",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 3
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1002
+          }
+        },
+        {
+          "expression": "כי אתה י-ה-ו-ה מחסי",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 899,
+            "end": 918
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1002
+          }
+        },
+        {
+          "expression": "שמרם",
+          "claimed": 580,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 953,
+            "end": 957
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1002
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "שלושת ביטויי 580 תואמים. זו תת־קבוצה של משפחת 580, בהודעה בעלת הסבר נוסף; לשמר הקשר ומקור, לא לספור ראיה עצמאית נוספת.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "881e0a79-b0c5-4036-974a-111b2262a09a",
+      "checks": [
+        {
+          "expression": "ישרים",
+          "claimed": 560,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 42,
+            "end": 47
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 95
+          }
+        },
+        {
+          "expression": "אבות העולם",
+          "claimed": 560,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 71,
+            "end": 81
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 95
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "השוויונות לישרים ולאבות העולם והסכום 474+85+1 משתחזרים. מקור המספרים והכולל חסר; שאלה 7 לצבי נשארת פתוחה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "474+85+1=560",
+          "sourceSpan": {
+            "start": 14,
+            "end": 26,
+            "excerpt": "474+85+1=560"
+          }
+        }
+      ]
+    },
+    {
+      "id": "91b5c0c2-e45e-46f0-9911-0c5001721849",
+      "checks": [
+        {
+          "expression": "ומחקק מבין רגליו",
+          "claimed": 605,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 16,
+            "end": 32
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 74
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "ומחקק מבין רגליו=605 והסכום 58+489+58 תקין. מקור שני מופעי 58 ושל 489 לא מוסבר; אין לשייך אותם לפי ניחוש.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "58+489+58=605",
+          "sourceSpan": {
+            "start": 0,
+            "end": 13,
+            "excerpt": "58+489+58=605"
+          }
+        }
+      ]
+    },
+    {
+      "id": "937e2c6a-2ded-4ff8-8764-19fbbab7bd19",
+      "checks": [
+        {
+          "expression": "עמכם",
+          "claimed": 170,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 602,
+            "end": 606
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1061
+          }
+        },
+        {
+          "expression": "טו\"ב",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 696,
+            "end": 700
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 1061
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "עמכם=170 וטו\"ב=17; המכפלה במקור משתחזרת אך fidelity של הכמות עדיין חלקי במחלץ. אין להעביר לכאן את אי־התאמת אליו במילוי או להכשיר אותה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "10 פעמים טו\"ב=170",
+          "sourceSpan": {
+            "start": 687,
+            "end": 704,
+            "excerpt": "10 פעמים טו\"ב=170"
+          }
+        }
+      ]
+    },
+    {
+      "id": "94db058f-b32b-4ac5-8489-6a99d6ba4802",
+      "checks": [
+        {
+          "expression": "ברחמים גדולים",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 66,
+            "end": 79
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 478
+          }
+        },
+        {
+          "expression": "קטנתי מכל החסדים",
+          "claimed": 786,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 210,
+            "end": 226
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 478
+          }
+        },
+        {
+          "expression": "אור פניך י-ה-ו-ה",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 285,
+            "end": 301
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 478
+          }
+        },
+        {
+          "expression": "הארת פנים",
+          "claimed": 786,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 13,
+            "end": 22
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 478
+          }
+        },
+        {
+          "expression": "תשפ\"ו",
+          "claimed": 786,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 6
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 478
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "ערכי הביטויים תואמים. המחלץ משחזר 393+393 אך אינו קושר בשלמות את שתי הכפילויות לביטויים שמעליהן. נדרש ייצוג נגזרת, לא גימטריה ישירה 786 לכל ביטוי בודד.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "393+393=תשפ\"ו=786",
+          "sourceSpan": {
+            "start": 323,
+            "end": 340,
+            "excerpt": "393+393=תשפ\"ו=786"
+          }
+        }
+      ]
+    },
+    {
+      "id": "94ee9e70-413b-4fc8-911f-fef4405527a1",
+      "checks": [
+        {
+          "expression": "שמעון",
+          "claimed": 466,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 5
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 642
+          }
+        },
+        {
+          "expression": "מן העולם עד העולם",
+          "claimed": 466,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 301,
+            "end": 318
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 642
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "אותו קשר מספרי 466 כמו בהודעה המוקדמת, עם תוספת ברכת יום הולדת במקור. לשמר את שתי ההופעות ללא ניחוש זהות וללא ספירתן כראיות עצמאיות.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "96064fcb-d32f-4639-850c-af00f5bdc14a",
+      "checks": [
+        {
+          "expression": "כמשפטם",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 7
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        },
+        {
+          "expression": "וענו כל העם אמן ואמן",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 78,
+            "end": 98
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        },
+        {
+          "expression": "צהלה ושמחה",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 139,
+            "end": 149
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "אותו מקור של רשומת 1eaefed1; שני ערכי 489 נכונים ואחד 485. ניסוח ביקורת ארוך יותר אינו טענה חדשה; ספירת 8/9 נותרת לאימות בקורפוס.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "97c58ca3-81a5-471c-a3a2-1b7c509ad081",
+      "checks": [
+        {
+          "expression": "ישראל בעל שם טוב",
+          "claimed": 1000,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 17
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 413
+          }
+        },
+        {
+          "expression": "אליך י-ה-וה אקרא ואל א_ד- ני אתחנן",
+          "claimed": 1000,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 110,
+            "end": 144
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 413
+          }
+        },
+        {
+          "expression": "נדרי לי-ה-וה אשלם נגדה נא לכל עמו",
+          "claimed": 1000,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 162,
+            "end": 195
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 413
+          }
+        },
+        {
+          "expression": "עזי אליך אזמרה כי אל-ה-ים משגבי אל-הי חסדי",
+          "claimed": 1000,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 240,
+            "end": 282
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 413
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "ישראל בעל שם טוב ושלוש שורות הפסוקים המצוטטות שווים 1000. הטענה ארבעה לעומת חמישה פסוקים וייחודיותם לא נבדקה מחדש בקורפוס, ולכן הרשומה המורכבת אינה מאושרת.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "9a8fea1b-9151-4ea9-beb4-07a6be7b58b1",
+      "checks": [
+        {
+          "expression": "אחישנה",
+          "claimed": 374,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 6
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1418
+          }
+        },
+        {
+          "expression": "יברכנו אלהים",
+          "claimed": 374,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1084,
+            "end": 1096
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1418
+          }
+        },
+        {
+          "expression": "וחסדיך כי מעולם המה",
+          "claimed": 374,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1376,
+            "end": 1395
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1418
+          }
+        },
+        {
+          "expression": "טו\"ב",
+          "claimed": 17,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1069,
+            "end": 1073
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 1418
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "שלושה ביטויי 374 וערך טו\"ב נבדקו. בביטוי ובוטח בי-ה+ו-ה ישגב יש + בתוך הכתיב; אין למחוק אותו בשקט. ספירות ההופעות והטענה על זירוז הגאולה לא אומתו.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "9b1f7715-60cb-466b-b6a4-6a99bbdb2ae3",
+      "checks": [
+        {
+          "expression": "רחם ארחמנו",
+          "claimed": 553,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 11
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 919
+          }
+        },
+        {
+          "expression": "אברהם, רחל  מבכה",
+          "claimed": 553,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 746,
+            "end": 762
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 919
+          }
+        }
+      ],
+      "recommendation": "דורש מקור",
+      "reason": "שני הביטויים המספריים שווים 553. הסיפור המיוחס לאיכה רבה דורש פרק/סימן ומקור מדויק; גימטריה אינה מאמתת מדרש.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "9d2ca343-dca1-4a39-8ad5-2e2a0e891325",
+      "checks": [
+        {
+          "expression": "חיים",
+          "claimed": 68,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 4
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 396
+          }
+        },
+        {
+          "expression": "חסד",
+          "claimed": 72,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 165,
+            "end": 168
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 396
+          }
+        },
+        {
+          "expression": "דין",
+          "claimed": 64,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 178,
+            "end": 181
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 396
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "חיים=68, חסד=72 ודין=64 תואמים. תיאור ממוצע חשבוני במילים דורש ייצוג נגזרת קנוני; לא נוצרה כאן נוסחה חדשה ולא אומתה פרשנות רש\"י.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "adbd6eb0-85ab-4f6d-a543-1ac6d82857de",
+      "checks": [
+        {
+          "expression": "שבת קודש",
+          "claimed": 1112,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 8
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 491
+          }
+        },
+        {
+          "expression": "תמים תהיה עם י-ה-ו-ה  א-לה-יך",
+          "claimed": 1112,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 62,
+            "end": 91
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 491
+          }
+        }
+      ],
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "שני הביטויים המלאים שבטקסט שווים 1112; terms קיצר את הפסוק לתמים תהיה. תמונה 918 חסרה. נדרש תיקון ייצוג מבוקר, בלי הרחבה שקטה של ה׳ או אישור א=1000.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "b3de3a74-c9a4-4df6-b6c9-4d5e3daa2438",
+      "checks": [
+        {
+          "expression": "אשר פדה",
+          "claimed": 590,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 92,
+            "end": 99
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 675
+          }
+        },
+        {
+          "expression": "תצילני",
+          "claimed": 590,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 169,
+            "end": 175
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 675
+          }
+        },
+        {
+          "expression": "פדך ממות",
+          "claimed": 590,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 250,
+            "end": 258
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 675
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "שלושת ערכי 590 תואמים. הטענה שכל ביטוי מופיע שלוש פעמים בתנ\"ך לא נבדקה ולכן הממצא הכולל נשאר לבדיקה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "b93c368c-34f4-4089-a6a4-d77537123a68",
+      "checks": [
+        {
+          "expression": "ששזפתני",
+          "claimed": 1147,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 8
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 345
+          }
+        },
+        {
+          "expression": "הללויה אל בקדשו הללוהו ברקיע עזו",
+          "claimed": 1147,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 188,
+            "end": 220
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 345
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "אותו פער 1147/1076 כמו בהודעה המאוחרת: ששזפתני נכון, הפסוק המקוצר אינו שווה 1147. המקור המאוחר מוסיף הקשר אך אינו מתקן את השוויון.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "bc6f8721-a653-469f-90d9-ce524cf13401",
+      "checks": [
+        {
+          "expression": "פשרה",
+          "claimed": 585,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 4
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 603
+          }
+        },
+        {
+          "expression": "ביצוע",
+          "claimed": 178,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 9,
+            "end": 14
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 603
+          }
+        },
+        {
+          "expression": "בטל רצונך",
+          "claimed": 407,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 293,
+            "end": 302
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 603
+          }
+        },
+        {
+          "expression": "למצא טוב",
+          "claimed": 178,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 425,
+            "end": 433
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 603
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "ביצוע=178, בטל רצונך=407 ופשרה=585, והסכום משוחזר כנגזרת מלאה. הטענה ההלכתית והזיקה הרעיונית דורשות מקור; אישור החשבון אינו פסק הלכה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "ביצוע(178)+בטל רצונך(407)=585",
+          "sourceSpan": {
+            "start": 282,
+            "end": 311,
+            "excerpt": "ביצוע(178)+בטל רצונך(407)=585"
+          }
+        }
+      ]
+    },
+    {
+      "id": "caa970d0-0696-4d44-8005-497264bfae4e",
+      "checks": [
+        {
+          "expression": "תפוח בדבש",
+          "claimed": 802,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 10
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 317
+          }
+        },
+        {
+          "expression": "אב הרחמן",
+          "claimed": 802,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 183,
+            "end": 191
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 317
+          }
+        },
+        {
+          "expression": "אָנָּ֣א יְ֭הֹוָה הֽוֹשִׁ֘יעָ֥ה נָּ֑א אָנָּ֥א יְ֝הֹוָ֗ה הַצְלִ֘יחָ֥ה נָּֽא",
+          "claimed": 802,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 26,
+            "end": 99
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 317
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "תפוח בדבש והפסוק המנוקד שווים 802; אב הרחמן שווה 306, לא 802. אין לאשר את שלושת הביטויים כמשפחה אחת.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "cb07e6a4-5560-46a5-b8c0-a0825786629b",
+      "checks": [
+        {
+          "expression": "ענן",
+          "claimed": 170,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 3
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 388
+          }
+        },
+        {
+          "expression": "מקל",
+          "claimed": 170,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 44,
+            "end": 47
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 388
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "ענן ומקל שווים 170 במקור הטקסטואלי. המלצה לשני השוויונות בלבד; תמונה 1795 חסרה ולא נבדקה, ואין אישור למשמעות הענן.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "cdb23fb1-4134-468b-9a82-fd3727f678ff",
+      "checks": [
+        {
+          "expression": "קץ",
+          "claimed": 190,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 3
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 685
+          }
+        },
+        {
+          "expression": "פסים",
+          "claimed": 190,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 27,
+            "end": 31
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 685
+          }
+        },
+        {
+          "expression": "ויעקד",
+          "claimed": 190,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 57,
+            "end": 62
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 685
+          }
+        },
+        {
+          "expression": "וימס לבבם",
+          "claimed": 190,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 89,
+            "end": 98
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 685
+          }
+        },
+        {
+          "expression": "בקול אליהו",
+          "claimed": 190,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 131,
+            "end": 141
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 685
+          }
+        },
+        {
+          "expression": "ופקד",
+          "claimed": 190,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 188,
+            "end": 192
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 685
+          }
+        },
+        {
+          "expression": "ונסלח לו",
+          "claimed": 190,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 217,
+            "end": 225
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 685
+          }
+        },
+        {
+          "expression": "לעד יכון",
+          "claimed": 190,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 277,
+            "end": 285
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 685
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "שמונת ביטויי 190 המפורשים במקור תואמים. ספירת ונסלח לו, הסיפורים ופרשנות הקץ אינם כלולים בהמלצה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "d57a0673-e226-4826-8ec3-09f79966fe5a",
+      "checks": [
+        {
+          "expression": "כמשפטם",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 1,
+            "end": 7
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        },
+        {
+          "expression": "וענו כל העם אמן ואמן",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 78,
+            "end": 98
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        },
+        {
+          "expression": "צהלה ושמחה",
+          "claimed": 489,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 139,
+            "end": 149
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 182
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "אותו טקסט מקור של משפחת 489 החוזרת; 485 אינו הופך ל־489 בשל ריבוי הופעות. לשמר את המקור ואת הסתירה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "dab8f778-c104-424a-8e62-2acaf193a30e",
+      "checks": [
+        {
+          "expression": "סנה",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 234,
+            "end": 237
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 539
+          }
+        },
+        {
+          "expression": "משה",
+          "claimed": 345,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 3
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 539
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "סנה=115 ומשה=345; שרשרת סנה+סנה+סנה=345 משוחזרת. טענת שלוש ההופעות דורשת הבחנה בין סנה לבין הסנה ובדיקת פסוק קנוני; החשבון אינו ספירה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "סנה+סנה+סנה=345=משה בגימטריא",
+          "sourceSpan": {
+            "start": 273,
+            "end": 301,
+            "excerpt": "סנה+סנה+סנה=345=משה בגימטריא"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dce5155d-0b45-4c1b-911d-4564a26f46d5",
+      "checks": [
+        {
+          "expression": "מצא",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 10,
+            "end": 13
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 695
+          }
+        },
+        {
+          "expression": "אשה",
+          "claimed": 306,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 21,
+            "end": 24
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 695
+          }
+        },
+        {
+          "expression": "זך בעיניו",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 169,
+            "end": 178
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 695
+          }
+        },
+        {
+          "expression": "ומום איך בך",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 252,
+            "end": 263
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 695
+          }
+        },
+        {
+          "expression": "מצילה",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 346,
+            "end": 351
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 695
+          }
+        },
+        {
+          "expression": "למעלה",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 455,
+            "end": 460
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 695
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "שלושה סכומים עם מצא ניתנים לשחזור, אך ומום איך בך שווה 145 ולכן אינו משלים את מצא=131 ל־306. אין לשנות איך לאין או לתקן סימני שוויון בשקט.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "\"מצא\"+\"זך בעיניו\"=\"אשה\"=306 בגימטריא",
+          "sourceSpan": {
+            "start": 162,
+            "end": 198,
+            "excerpt": "\"מצא\"+\"זך בעיניו\"=\"אשה\"=306 בגימטריא"
+          }
+        },
+        {
+          "expression": "\"מצא\"+\"מצילה\"=\"אשה\"=306 בגימטריא",
+          "sourceSpan": {
+            "start": 339,
+            "end": 371,
+            "excerpt": "\"מצא\"+\"מצילה\"=\"אשה\"=306 בגימטריא"
+          }
+        },
+        {
+          "expression": "\"מצא\"+\"למעלה\"=\"אשה\"=306 בגימטריא",
+          "sourceSpan": {
+            "start": 448,
+            "end": 480,
+            "excerpt": "\"מצא\"+\"למעלה\"=\"אשה\"=306 בגימטריא"
+          }
+        }
+      ]
+    },
+    {
+      "id": "df8c2668-b567-49d4-be53-d04b15938de6",
+      "checks": [
+        {
+          "expression": "רחל",
+          "claimed": 238,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 3
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 452
+          }
+        },
+        {
+          "expression": "דמעה",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 31,
+            "end": 35
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 452
+          }
+        },
+        {
+          "expression": "חסד עליון",
+          "claimed": 238,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 51,
+            "end": 60
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 452
+          }
+        },
+        {
+          "expression": "ארך",
+          "claimed": 221,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 261,
+            "end": 264
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 452
+          }
+        },
+        {
+          "expression": "טוב",
+          "claimed": 17,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 109,
+            "end": 112
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 452
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "ערכי רחל, דמעה, חסד עליון, ארך וטוב נבדקו; מכפלת הדמעה משוחזרת. הקישור ארך+טוב נשאר fidelity חלקי במחלץ והתמונה לא נבדקה. אין אישור לגוף חזותי או למדרש.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "רחל=דמעה+דמעה=238",
+          "sourceSpan": {
+            "start": 27,
+            "end": 44,
+            "excerpt": "רחל=דמעה+דמעה=238"
+          }
+        },
+        {
+          "expression": "רחל =ארך+טוב=221+17=238 בגימטריא",
+          "sourceSpan": {
+            "start": 256,
+            "end": 288,
+            "excerpt": "רחל =ארך+טוב=221+17=238 בגימטריא"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e2c56dd3-1810-4535-ae56-fffee15962c8",
+      "checks": [
+        {
+          "expression": "כוכבים",
+          "claimed": 98,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 6
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 396
+          }
+        },
+        {
+          "expression": "עכוב",
+          "claimed": 98,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 7,
+            "end": 11
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 396
+          }
+        },
+        {
+          "expression": "נגהם",
+          "claimed": 98,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 12,
+            "end": 16
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 396
+          }
+        }
+      ],
+      "recommendation": "דורש מקור",
+      "reason": "כוכבים, עכוב ונגהם שווים 98. שני פסוקי יואל אינם מצוטטים במקור; נדרשים מראי מקום לפני אישור הקשר המקראי, ללא תיקון עכוב לכתיב אחר.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "e777f210-53b0-4df5-a74a-80ef0a02c227",
+      "checks": [
+        {
+          "expression": "שובו בני אדם",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 78,
+            "end": 90
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 320
+          }
+        },
+        {
+          "expression": "לישועה",
+          "claimed": null,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 140,
+            "end": 146
+          },
+          "claimBasis": "source_operand_calculation",
+          "sourceContext": {
+            "start": 0,
+            "end": 320
+          }
+        },
+        {
+          "expression": "זכות אבות",
+          "claimed": 842,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 7,
+            "end": 16
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 320
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "שני הביטויים שווים 421 וזכות אבות=842. כפל לישועה נכתב במילים; המחלץ עלול להשמיט כפל ולהחזיר שוויון שגוי. נשמרת ההבחנה בין פער חילוץ לטעות מקור.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": [
+        {
+          "expression": "421+421=842",
+          "sourceSpan": {
+            "start": 238,
+            "end": 249,
+            "excerpt": "421+421=842"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e8e65a0c-a78c-442b-a207-aead49e3af4f",
+      "checks": [
+        {
+          "expression": "שילה",
+          "claimed": 345,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 154,
+            "end": 158
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 349
+          }
+        },
+        {
+          "expression": "משה",
+          "claimed": 345,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 3
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 349
+          }
+        },
+        {
+          "expression": "בטרם יבוא חבל לה",
+          "claimed": 345,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 249,
+            "end": 265
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 349
+          }
+        },
+        {
+          "expression": "אני יהוה אלהיהם ואענם",
+          "claimed": 345,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 278,
+            "end": 299
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 349
+          }
+        },
+        {
+          "expression": "משגב",
+          "claimed": 345,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 323,
+            "end": 327
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 349
+          }
+        },
+        {
+          "expression": "בשגם",
+          "claimed": 345,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 328,
+            "end": 332
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 349
+          }
+        }
+      ],
+      "recommendation": "מתאים לעץ",
+      "reason": "ששת הביטויים המדויקים במקור שווים 345. ההמלצה מוגבלת למשפחה המספרית, ללא זיהוי גואל או פרשנות נבואית.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": true,
+      "duplicateOf": null,
+      "compoundSlices": []
+    },
+    {
+      "id": "ebc38bcb-1985-46e3-a0cc-604641deabe9",
+      "checks": [
+        {
+          "expression": "לב",
+          "claimed": 32,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 0,
+            "end": 2
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 278
+          }
+        },
+        {
+          "expression": "ראש השנה",
+          "claimed": 681,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 3,
+            "end": 11
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 278
+          }
+        },
+        {
+          "expression": "תשובה",
+          "claimed": 713,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 12,
+            "end": 17
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 278
+          }
+        },
+        {
+          "expression": "שוב מחרון אפך",
+          "claimed": 713,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 85,
+            "end": 98
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 278
+          }
+        },
+        {
+          "expression": "שוב",
+          "claimed": 308,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 13,
+            "end": 16
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 278
+          }
+        },
+        {
+          "expression": "קרח",
+          "claimed": 308,
+          "method": "רגיל",
+          "operandSpan": {
+            "start": 200,
+            "end": 203
+          },
+          "claimBasis": "manual_full_source_context",
+          "sourceContext": {
+            "start": 0,
+            "end": 278
+          }
+        }
+      ],
+      "recommendation": "דורש בדיקה",
+      "reason": "ראש השנה שווה 861 ולא 681. הערכים תשובה=713, שוב מחרון אפך=713 ושוב=קרח=308 תקינים אך אינם מאשרים את המשוואה הראשונה.",
+      "scope": "numeric_source_slices_only",
+      "wholeSourceVerified": false,
+      "corpusCountsVerified": false,
+      "interpretationVerified": false,
+      "mediaInspected": false,
+      "publicationChanged": false,
+      "numericScopeComplete": false,
+      "duplicateOf": null,
+      "compoundSlices": []
+    }
+  ]
+}
