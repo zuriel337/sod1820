@@ -4,8 +4,11 @@ import { runElsAdaptiveScan } from "./els2029AdaptiveScanner.js";
 export const ELS_AUTOMATIC_PLAN_CONTRACT = "els_automatic_research_plan_v1";
 export const ELS_RESEARCH_BRIEF_CONTRACT = "els_research_brief_v1";
 export const ELS_CIPHER_DISCOVERY_PLAN_CONTRACT = "els_cipher_discovery_plan_v1";
+export const ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT = "els_guided_occurrence_coverage_v1";
 export const ELS_RELATIONSHIP_PLAN_CONTRACT = "els_relationship_research_plan_v1";
 export const ELS_AUTOMATIC_SLICE_SIZE = 8;
+export const ELS_GUIDED_OCCURRENCE_BATCH_SIZE = 4;
+export const ELS_GUIDED_OCCURRENCE_MAX_BATCHES = 2;
 const MAX_INPUT_LENGTH = 4000;
 const MAX_EXPRESSIONS = 40;
 const MAX_BRIEF_LENGTH = 6000;
@@ -254,7 +257,9 @@ export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredT
     limits: Object.freeze({
       semanticFamilies: 4,
       targetTerms: MAX_DISCOVERY_TARGETS,
-      fullAxisOccurrences: 5,
+      fullAxisOccurrences: ELS_GUIDED_OCCURRENCE_BATCH_SIZE,
+      continuationAxisOccurrences: ELS_GUIDED_OCCURRENCE_BATCH_SIZE,
+      maximumOccurrenceBatches: ELS_GUIDED_OCCURRENCE_MAX_BATCHES,
       verificationAttemptsPerOccurrence: 12,
       visibleStructures: 1,
       alternateStructures: 2,
@@ -275,6 +280,250 @@ export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredT
       maxCallsBeforeSearch: 1,
     }),
     aiUsed: false,
+    persisted: false,
+    truthPromotion: false,
+  });
+}
+
+const MATRIX_DISCOVERY_CONTRACT = "els_matrix_discovery_v1";
+const GUIDED_FAILURE_CATEGORIES = Object.freeze({
+  VOCABULARY: "vocabulary",
+  VOCABULARY_MISS: "vocabulary",
+  LEXICON: "vocabulary",
+  RECOGNITION: "recognition_normalization",
+  NORMALIZATION: "recognition_normalization",
+  RECOGNITION_NORMALIZATION: "recognition_normalization",
+  GEOMETRY: "geometry",
+  NO_STRONG_GEOMETRY: "geometry",
+  RANKING: "ranking",
+  NO_RANKED_PAIR: "ranking",
+  MATRIX_BOUNDS: "matrix_bounds",
+  UI: "ui_projection",
+  UI_PROJECTION: "ui_projection",
+});
+
+const occurrenceIdentity = row => {
+  const value = row?.hitId ?? row?.key ?? row?.occurrenceId;
+  return value == null ? "" : String(value);
+};
+const finiteNumber = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+const finiteRank = value => Number.isFinite(Number(value)) ? Number(value) : Number.MAX_SAFE_INTEGER;
+
+/**
+ * Maps only an explicit engine failure to the research taxonomy. Unknown failures stay unresolved;
+ * the projection must not invent a diagnosis from an empty result.
+ */
+export function diagnoseElsGuidedFailure(failureCause) {
+  const code = String(failureCause || "").trim().toUpperCase();
+  const category = GUIDED_FAILURE_CATEGORIES[code] || "UNRESOLVED";
+  return Object.freeze({
+    code: code || null,
+    category,
+    diagnosisRequired: category === "UNRESOLVED",
+  });
+}
+
+const projectOccurrence = (row, inputOrder, triage) => Object.freeze({
+  hitId: occurrenceIdentity(row),
+  ordinal: Number.isSafeInteger(Number(row?.ordinal)) ? Number(row.ordinal) : inputOrder + 1,
+  skip: Number.isFinite(Number(row?.skip)) ? Number(row.skip) : null,
+  direction: row?.direction ?? row?.dir ?? null,
+  start: Number.isSafeInteger(Number(row?.start)) ? Number(row.start) : null,
+  ref: String(row?.ref || ""),
+  resultSetId: String(row?.resultSetId || row?.setId || ""),
+  inputOrder,
+  triage: triage ? Object.freeze({
+    rank: finiteRank(triage.rank),
+    globalRank: finiteRank(triage.globalRank),
+    inspectionPriority: finiteNumber(triage.inspectionPriority),
+    compactEvidence: triage.compactEvidence === true,
+    tier: String(triage.tier || "available"),
+    reasons: Object.freeze((Array.isArray(triage.reasons) ? triage.reasons : []).map(String).slice(0, 8)),
+  }) : null,
+});
+
+const compareOccurrencesForInspection = (first, second) =>
+  Number(second.triage?.compactEvidence === true) - Number(first.triage?.compactEvidence === true)
+  || finiteNumber(second.triage?.inspectionPriority) - finiteNumber(first.triage?.inspectionPriority)
+  || finiteRank(first.triage?.rank) - finiteRank(second.triage?.rank)
+  || finiteRank(first.triage?.globalRank) - finiteRank(second.triage?.globalRank)
+  || first.ordinal - second.ordinal
+  || first.inputOrder - second.inputOrder;
+
+const projectVerifiedSupport = support => Object.freeze({
+  term: String(support?.term || ""),
+  label: String(support?.label || support?.term || ""),
+  status: String(support?.status || ""),
+  skip: Number.isFinite(Number(support?.skip)) ? Number(support.skip) : null,
+  direction: support?.direction ?? null,
+  occurrenceCount: Math.max(0, finiteNumber(support?.occurrenceCount)),
+  matrixStage: String(support?.matrixStage || ""),
+  ref: String(support?.ref || ""),
+  book: String(support?.book || ""),
+});
+
+const projectInspection = (inspection, occurrence, inputOrder) => {
+  const bundle = inspection.discoveryBundle;
+  const selected = bundle?.selected;
+  const supports = (Array.isArray(selected?.supports) ? selected.supports : []).map(projectVerifiedSupport);
+  const pairVerified = bundle?.status === "VERIFIED_PAIR"
+    && supports.length === DEFAULT_DISCOVERY_SUPPORTS
+    && supports.every(support => support.status === "VERIFIED");
+  const relation = Object.freeze({
+    code: String(selected?.relation?.code || ""),
+    label: String(selected?.relation?.label || ""),
+    priority: finiteNumber(selected?.relation?.priority),
+    stage: String(selected?.relation?.stage || ""),
+  });
+  const strongGeometry = pairVerified && relation.stage === "A" && relation.priority >= 400;
+  const recurrence = supports.reduce((sum, support) => sum + support.occurrenceCount, 0);
+  const sourceCount = new Set(supports.map(support => `${support.book}:${support.ref}`).filter(value => value !== ":")).size;
+  return Object.freeze({
+    hitId: occurrence.hitId,
+    occurrence,
+    status: String(bundle?.status || ""),
+    pairVerified,
+    strongGeometry,
+    relation,
+    storyMatches: Math.max(0, finiteNumber(selected?.storyMatches)),
+    recurrence,
+    sourceCount,
+    supports: Object.freeze(supports),
+    reasons: Object.freeze((Array.isArray(selected?.reasons) ? selected.reasons : []).map(String).slice(0, 8)),
+    failure: pairVerified ? null : diagnoseElsGuidedFailure(bundle?.failureCause),
+    inputOrder,
+  });
+};
+
+const compareInspections = (first, second) =>
+  Number(second.pairVerified) - Number(first.pairVerified)
+  || Number(second.strongGeometry) - Number(first.strongGeometry)
+  || second.storyMatches - first.storyMatches
+  || second.relation.priority - first.relation.priority
+  || second.recurrence - first.recurrence
+  || second.sourceCount - first.sourceCount
+  || finiteNumber(second.occurrence.triage?.inspectionPriority) - finiteNumber(first.occurrence.triage?.inspectionPriority)
+  || first.occurrence.ordinal - second.occurrence.ordinal
+  || first.inputOrder - second.inputOrder;
+
+/**
+ * Breadth-before-depth projection over canonical ELS outputs.
+ *
+ * It does not search, verify, persist, call AI or create a second result bundle. It only schedules
+ * exact occurrence identities and consumes matrix-discovery reports produced by the canonical
+ * engine. A patterned or otherwise notable numeric skip is never part of its ordering law.
+ */
+export function projectElsGuidedOccurrenceCoverage({
+  plan,
+  occurrences = [],
+  triageItems = [],
+  inspections = [],
+  approvedBatches = 1,
+  resultSetId = "",
+} = {}) {
+  if (plan?.contract !== ELS_CIPHER_DISCOVERY_PLAN_CONTRACT || !Array.isArray(occurrences)
+    || !Array.isArray(triageItems) || !Array.isArray(inspections)) {
+    return Object.freeze({ error: "תוכנית הגילוי או תוצאות המנוע אינן תקינות." });
+  }
+
+  const approved = Math.max(1, Math.min(ELS_GUIDED_OCCURRENCE_MAX_BATCHES, Math.trunc(Number(approvedBatches)) || 1));
+  const triageById = new Map();
+  for (const item of triageItems) {
+    const hitId = occurrenceIdentity(item);
+    if (!hitId) continue;
+    const prior = triageById.get(hitId);
+    if (!prior || finiteNumber(item.inspectionPriority) > finiteNumber(prior.inspectionPriority)
+      || finiteNumber(item.inspectionPriority) === finiteNumber(prior.inspectionPriority) && finiteRank(item.rank) < finiteRank(prior.rank)) {
+      triageById.set(hitId, item);
+    }
+  }
+
+  const seenOccurrences = new Set();
+  const uniqueOccurrences = [];
+  for (const [inputOrder, occurrence] of occurrences.entries()) {
+    const hitId = occurrenceIdentity(occurrence);
+    if (!hitId || seenOccurrences.has(hitId)) continue;
+    seenOccurrences.add(hitId);
+    uniqueOccurrences.push(projectOccurrence(occurrence, inputOrder, triageById.get(hitId)));
+  }
+  uniqueOccurrences.sort(compareOccurrencesForInspection);
+  const scheduleLimit = approved * ELS_GUIDED_OCCURRENCE_BATCH_SIZE;
+  const schedule = Object.freeze(uniqueOccurrences.slice(0, scheduleLimit));
+  const scheduledById = new Map(schedule.map(occurrence => [occurrence.hitId, occurrence]));
+  const expectedResultSetId = String(resultSetId || "");
+  const acceptedById = new Map(), rejectedInspections = [];
+
+  for (const [inputOrder, inspection] of inspections.entries()) {
+    const targetHitId = inspection?.target?.hitId == null ? "" : String(inspection.target.hitId);
+    const occurrence = scheduledById.get(targetHitId);
+    const targetSetId = String(inspection?.target?.resultSetId || inspection?.target?.setId || "");
+    let reason = null;
+    if (!targetHitId) reason = "MISSING_EXACT_OCCURRENCE_ID";
+    else if (!seenOccurrences.has(targetHitId)) reason = "UNKNOWN_OCCURRENCE";
+    else if (!occurrence) reason = "OUTSIDE_APPROVED_BATCH";
+    else if (expectedResultSetId && targetSetId && targetSetId !== expectedResultSetId) reason = "STALE_RESULT_SET";
+    else if (inspection?.lens !== "matrix-discovery" || inspection?.ok !== true
+      || inspection?.contract !== MATRIX_DISCOVERY_CONTRACT
+      || inspection?.discoveryBundle?.contract !== ELS_CIPHER_DISCOVERY_PLAN_CONTRACT) reason = "INVALID_CANONICAL_REPORT";
+    else if (acceptedById.has(targetHitId)) reason = "DUPLICATE_REPORT";
+    if (reason) {
+      rejectedInspections.push(Object.freeze({ hitId: targetHitId || null, reason }));
+      continue;
+    }
+    acceptedById.set(targetHitId, projectInspection(inspection, occurrence, inputOrder));
+  }
+
+  const rankedInspections = [...acceptedById.values()].sort(compareInspections);
+  const recommendation = rankedInspections.find(inspection => inspection.pairVerified && inspection.strongGeometry) || null;
+  const alternatives = Object.freeze(rankedInspections
+    .filter(inspection => inspection !== recommendation && inspection.pairVerified)
+    .slice(0, 2));
+  const nextOccurrence = schedule.find(occurrence => !acceptedById.has(occurrence.hitId)) || null;
+  const remainingUnscheduledCount = Math.max(0, uniqueOccurrences.length - schedule.length);
+  let status, stopReason;
+  if (recommendation) {
+    status = "RECOMMENDED";
+    stopReason = "STRONG_VERIFIED_PAIR";
+  } else if (nextOccurrence) {
+    status = "INSPECTING";
+    stopReason = "NEXT_APPROVED_OCCURRENCE";
+  } else if (remainingUnscheduledCount > 0 && approved < ELS_GUIDED_OCCURRENCE_MAX_BATCHES) {
+    status = "AWAITING_CONTINUATION";
+    stopReason = "APPROVED_BATCH_EXHAUSTED";
+  } else {
+    status = "BOUNDED_EMPTY";
+    stopReason = remainingUnscheduledCount > 0 ? "OCCURRENCE_LIMIT_REACHED" : "NO_STRONG_VERIFIED_PAIR";
+  }
+
+  return Object.freeze({
+    contract: ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT,
+    sourceContract: plan.contract,
+    status,
+    stopReason,
+    schedule,
+    nextOccurrence,
+    recommendation,
+    alternatives,
+    inspections: Object.freeze(rankedInspections),
+    rejectedInspections: Object.freeze(rejectedInspections),
+    coverage: Object.freeze({
+      batchSize: ELS_GUIDED_OCCURRENCE_BATCH_SIZE,
+      maximumBatches: ELS_GUIDED_OCCURRENCE_MAX_BATCHES,
+      approvedBatches: approved,
+      totalOccurrences: uniqueOccurrences.length,
+      scheduledCount: schedule.length,
+      inspectedCount: acceptedById.size,
+      uninspectedScheduledCount: schedule.length - acceptedById.size,
+      remainingUnscheduledCount,
+      complete: schedule.length === uniqueOccurrences.length && acceptedById.size === schedule.length,
+      uninspectedAreNotNegativeEvidence: true,
+    }),
+    selectionLaw: Object.freeze({
+      order: Object.freeze(["canonical-verification", "strong-geometry", "story-relevance", "recurrence-and-source", "triage-evidence", "stable-ordinal"]),
+      numericSkipPromoted: false,
+    }),
+    aiUsed: false,
+    findingMutation: false,
     persisted: false,
     truthPromotion: false,
   });
