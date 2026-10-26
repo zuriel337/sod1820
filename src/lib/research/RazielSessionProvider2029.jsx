@@ -138,19 +138,69 @@ export function RazielSessionProvider2029({
     dispatch({ type: "view_mode_set", viewMode });
   }, []);
 
+  // Saving/restoring is an explicit ResearchProvider action. The serializer is loaded only
+  // after the user asks to save or reopen a conversation; ordinary chat stays on the lean path.
+  const saveCurrentSession = useCallback(async () => {
+    if (inFlightRef.current || stateRef.current.busy) return { ok: false, error: "turn_pending" };
+    const { buildRazielSavedSessionEntity } = await import("./razielSavedSession2029.js");
+    const built = buildRazielSavedSessionEntity(stateRef.current, { now: clock });
+    if (!built.ok) return built;
+    if (!research.saveItem?.(built.entity)) return { ok: false, error: "research_save_unavailable" };
+    dispatch({ type: "session_saved", sessionRef: built.entity.ref, savedAt: built.entity.saved_at });
+    return { ok: true, session: built.entity };
+  }, [clock, research]);
+
+  const restoreSavedSession = useCallback(async (sessionId) => {
+    if (inFlightRef.current || stateRef.current.busy) return { ok: false, error: "turn_pending" };
+    const selected = (Array.isArray(research.saved) ? research.saved : []).find((item) => (
+      item?.type === "raziel_session" && (item.id === sessionId || item.ref === sessionId)
+    ));
+    if (!selected) return { ok: false, error: "saved_session_not_found" };
+    const { razielSavedSessionState } = await import("./razielSavedSession2029.js");
+    const restored = razielSavedSessionState(selected);
+    if (!restored) return { ok: false, error: "saved_session_invalid" };
+    dispatch({ type: "session_restored", state: restored });
+    return { ok: true, session: selected };
+  }, [research.saved]);
+
+  const removeSavedSession = useCallback((sessionId) => {
+    const selected = (Array.isArray(research.saved) ? research.saved : []).find((item) => (
+      item?.type === "raziel_session" && (item.id === sessionId || item.ref === sessionId)
+    ));
+    return selected ? Boolean(research.removeSaved?.(selected.id)) : false;
+  }, [research]);
+
   const resetTemporarySession = useCallback(() => {
     if (inFlightRef.current || stateRef.current.busy) return false;
     dispatch({ type: "session_reset" });
     return true;
   }, []);
 
+  const savedSessions = useMemo(() => (Array.isArray(research.saved) ? research.saved : [])
+    .filter((item) => item?.type === "raziel_session" && typeof item?.id === "string")
+    .map((item) => ({
+      id: item.id,
+      ref: typeof item.ref === "string" ? item.ref : item.id,
+      title: typeof item.title === "string" ? item.title.slice(0, 96) : "שיחה עם רזיאל",
+      turn_count: Number.isSafeInteger(item.turn_count) && item.turn_count >= 0 ? item.turn_count : 0,
+      saved_at: typeof item.saved_at === "string" ? item.saved_at : null,
+    }))
+    .sort((a, b) => String(b.saved_at || "").localeCompare(String(a.saved_at || "")))
+    .slice(0, 50), [research.saved]);
+
   const value = useMemo(() => ({
     ...state,
     submit,
     setViewMode,
     submitOneShot,
+    saveCurrentSession,
+    restoreSavedSession,
+    removeSavedSession,
+    savedSessions,
+    savedSessionsSyncStatus: research.syncStatus || "local_only",
     resetTemporarySession,
-  }), [state, submit, setViewMode, submitOneShot, resetTemporarySession]);
+  }), [state, submit, setViewMode, submitOneShot, saveCurrentSession, restoreSavedSession,
+    removeSavedSession, savedSessions, research.syncStatus, resetTemporarySession]);
 
   return (
     <RazielSessionContext2029.Provider value={value}>

@@ -144,6 +144,9 @@ export function createInitialRazielSessionState() {
     provenance: null,
     status: "idle",
     announcement: "",
+    // Set only after an explicit save or restore. The active chat itself stays temporary.
+    sessionRef: null,
+    savedAt: null,
     // Belongs to the one temporary Raziel session (not to any page), so it survives navigation between surfaces.
     viewMode: RAZIEL_DEFAULT_VIEW_MODE,
   };
@@ -196,6 +199,15 @@ export function razielSessionReducer(state, action) {
     }
     case "turn_succeeded":
       return { ...state, ...action.patch };
+    case "session_saved":
+      return {
+        ...state,
+        sessionRef: cleanInline(action.sessionRef, 160),
+        savedAt: cleanInline(action.savedAt, 40),
+        announcement: "השיחה נשמרה במחקר הפרטי שלך.",
+      };
+    case "session_restored":
+      return isObject(action.state) ? { ...state, ...action.state } : state;
     case "turn_failed":
       return {
         ...state,

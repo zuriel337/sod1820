@@ -294,7 +294,7 @@ test("privacy: absent numeric values do not become invented zeroes", () => {
   assert.equal("usage" in provenance, false);
 });
 
-test("cost: request is bounded and the provider has one explicit transport boundary only", () => {
+test("cost: request is bounded, ordinary turns do not persist, and the provider has one explicit transport boundary only", () => {
   const state = {
     ...createInitialRazielSessionState(),
     thread: [
@@ -310,7 +310,10 @@ test("cost: request is bounded and the provider has one explicit transport bound
   assert.ok(request.context.length <= 600);
   assert.ok(request.facts.length <= 1200);
   assert.equal((providerSource.match(/await transport\(request\)/g) || []).length, 1);
-  assert.doesNotMatch(providerSource, /localStorage|sessionStorage|saveItem|addToResearch|saveCurrentResearchPath/);
+  assert.doesNotMatch(providerSource, /localStorage|sessionStorage|addToResearch|saveCurrentResearchPath/);
+  const submitBlock = providerSource.slice(providerSource.indexOf("const submit"), providerSource.indexOf("// One-shot actions"));
+  assert.doesNotMatch(submitBlock, /saveItem|removeSaved|razielSavedSession2029/);
+  assert.equal((providerSource.match(/research\.saveItem\?\.\(built\.entity\)/g) || []).length, 1);
   const beforeSubmit = providerSource.slice(0, providerSource.indexOf("const submit"));
   assert.doesNotMatch(beforeSubmit, /transport\s*\(/);
   assert.match(providerSource, /if \(!mountedRef\.current\) return \{ ok: false, error: "session_unmounted" \}/);
