@@ -44,8 +44,17 @@ The source-verified current email for `Sod1820` matches the current `zyz997` acc
 
 Five negative cases reject missing source verification, duplicate account matches, missing Person, conflicting Person ownership and an unresolved merge. A late failure leaves no partial bindings. Eleven positive assertions cover correct Person edges, single primary dossier, retained source rows/visibility, excluded personal profiles, audit entries and idempotent replay. All pass.
 
-## Apply status
+## Applied and verified
 
-Prepared and tested; live application has not yet been attempted at this commit. Application results and any approval-review restriction will be appended after execution.
+The exact committed operation was applied through the authorized Supabase SQL connector after the local tests passed. Follow-up read-only queries verified:
+
+- Four historical Contributors attached to four existing account Persons.
+- Eight historical identity edges, four applied decision_ledger records and two primary contributor claim events.
+- Jasha8 and Adi Ifrach now have direct primary Contributor ownership. eli and Johel TV keep their pre-existing primary dossier and carry their older source identities through Person.
+- All 202 imported messages retained; original source/provenance rows untouched.
+- Zero accounts with multiple primary Contributor rows.
+- All six inspected source dossiers retain their private visibility settings. The two held personal identities still have zero new edges and no new direct ownership.
+
+No claims of deployed frontend behavior follow from this data operation. No schema, RPC, RLS, Auth/provider values, merged_into, main or deployment changed.
 
 The replies RPC migration in PR #1169 remains a separate central/DB-owner integration dependency. Identity links alone do not claim the new inbox reader or all frontend consumers are already deployed.
