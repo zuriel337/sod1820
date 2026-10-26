@@ -360,7 +360,7 @@ test("preparing state locks the shared session without appending a partial user 
   assert.equal(prepared.busy, true);
   assert.equal(prepared.currentTurn.status, "preparing");
   assert.strictEqual(prepared.thread, initial.thread);
-  assert.equal(prepared.announcement, "רזיאל מכין את המחקר…");
+  assert.equal(prepared.announcement, "רזיאל בודק את השאלה…");
 
   const failed = razielSessionReducer(prepared, {
     type: "turn_failed",

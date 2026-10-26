@@ -39,9 +39,9 @@ test("closed set of CONTRACT modes (landscape stays valid), Hebrew labels, and e
   assert.equal(RAZIEL_DEFAULT_VIEW_MODE, "general");
   assert.deepEqual(
     RAZIEL_VIEW_MODES.map((mode) => [mode, RAZIEL_VIEW_MODE_META[mode].label, RAZIEL_VIEW_MODE_META[mode].experimental]),
-    [["general", "כללי", false], ["landscape", "מפת מחקר", true], ["exploratory", "מתפרע", true], ["surprise", "הפתע אותי", true]],
+    [["general", "כללי", false], ["landscape", "התמונה המלאה", true], ["exploratory", "מתפרע", true], ["surprise", "הפתע אותי", true]],
   );
-  assert.equal(razielViewModeLabel("landscape"), "מפת מחקר");
+  assert.equal(razielViewModeLabel("landscape"), "התמונה המלאה");
   assert.equal(razielViewModeLabel("nonsense"), "כללי");
 });
 
@@ -108,7 +108,7 @@ test("responses: general carries no mode report; a non-applied mode is never lab
     map_available: true,
   } }, "fast");
   assert.equal("viewMode" in plain, false);
-  assert.equal(plain.answer, "תשובה\n\n🔎 2 ממצאים מאומתים עומדים מאחורי הפרשנות · הפירוט המלא במפת המחקר.");
+  assert.equal(plain.answer, "תשובה\n\n🔎 רזיאל מצא 2 חיבורים מאחורי התשובה · אפשר לפתוח את התמונה המלאה.");
   assert.deepEqual(plain.evidenceSummary, {
     title: "ראיות",
     calculations: [{ expression: "חכמה", method: "רגיל", value: 73, href: "/2029/number/73" }],
@@ -166,7 +166,7 @@ test("a continuation keeps canonical evidence available without repeating the fu
   });
   const message = action.patch.thread.at(-1);
   assert.match(message.text, /פרשנות חדשה/);
-  assert.match(message.text, /הראיות המאומתות זהות לתשובה הקודמת/);
+  assert.match(message.text, /מה שרזיאל מצא זהה לתשובה הקודמת/);
   assert.doesNotMatch(message.text, /• משיח/);
   assert.deepEqual(message.evidenceSummary, firstResponse.evidenceSummary);
 });

@@ -154,7 +154,7 @@ test("deep continuation is not rebound to a newly opened surface", () => {
 test("zero AI on open/navigation: the only transport boundary is an explicit submit", () => {
   assert.doesNotMatch(chat, /useEffect|useLayoutEffect/);
   assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
-  assert.match(chat, /if \(!q \|\| busy\) return;/);
+  assert.match(chat, /if \(!q \|\| busy \|\| quotaEnded\) return;/);
   assert.match(chat, /send\(text, "fast"\)/);
   const reset = mount.slice(mount.indexOf("function RazielSessionOwnerReset2029"), mount.indexOf("export default"));
   assert.doesNotMatch(reset, /submit|transport|askRaziel/);
