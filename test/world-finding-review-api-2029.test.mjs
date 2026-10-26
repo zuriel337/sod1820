@@ -259,10 +259,14 @@ test("missing-engine content routing is independently filterable", () => {
   const spatial = reviewRow("10000000-0000-4000-8000-000000000012", {
     legacyReplay: { state: "missing_engine_assessment", routingQueue: "spatial_or_constants", mutatesLiveData: false },
   });
+  const constants = reviewRow("10000000-0000-4000-8000-000000000014", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "constants_or_sequences", mutatesLiveData: false },
+  });
   const textual = reviewRow("10000000-0000-4000-8000-000000000013", {
     legacyReplay: { state: "missing_engine_assessment", routingQueue: "textual_statement", mutatesLiveData: false },
   });
-  assert.deepEqual(filterWorldFindingReviewRows([textual, spatial], { replayQueue: "spatial_or_constants" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "spatial_or_constants" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "constants_or_sequences" }), [constants]);
 });
 
 test("technically-ready source and target axes are independently filterable", () => {

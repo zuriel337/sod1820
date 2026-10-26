@@ -146,7 +146,8 @@ function ZviMultiValueShelf({ projection }) {
 
 function SpatialShelf({ projection }) {
   return <section className="sod29-world-kind-section sod29-world-spatial-shelf" aria-label="הגימטריה המרחבית של צבי">
-    <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div><span>{projection.counts.models} מבנים · {projection.counts.sourceOccurrences} הופעות מקור · לא מקורות עצמאיים</span></header>
+    <header><div><h3>{projection.title}</h3><p>{projection.description}</p></div><span>{projection.counts.models} מבנים מאוצרים · {projection.counts.sourceOccurrences} הופעות מקור · לא מקורות עצמאיים</span></header>
+    {projection.coverage?.completeCorpus === false ? <p className="sod29-world-spatial-rule"><b>{projection.coverage.label}.</b> מקרים שטרם עברו הפרדת חישוב, צורה, המחשה ופרשנות אינם מוצגים כאן כאילו אושרו.</p> : null}
     <p className="sod29-world-spatial-rule">כל קישור פותח את ההופעה המדויקת בתוך ספריית צבי הציבורית בעולם — לא דף פרטי. כמה הופעות של אותו חומר אינן נספרות כמקורות עצמאיים. חוזק החיבור, איכות הראיות ומצב הפרסום מוצגים בנפרד.</p>
     <div className="sod29-world-spatial-grid">{projection.cards.map((card) => <article key={card.id} id={`spatial-${card.slug}`} className="sod29-world-spatial-card">
       {card.image ? <img src={card.image} width="640" height="360" loading="lazy"

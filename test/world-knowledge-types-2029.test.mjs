@@ -54,6 +54,12 @@ test("media shelf uses one bounded public World projection and preserves source 
   assert.doesNotMatch(reader, /\.(insert|update|upsert|delete)\(/);
 });
 
+test("spatial shelf labels the six curated models as a selection rather than the full corpus", () => {
+  assert.match(types, /מבנים מאוצרים/);
+  assert.match(types, /completeCorpus === false/);
+  assert.match(types, /אינם מוצגים כאן כאילו אושרו/);
+});
+
 test("the type browser does not turn quality, OCR or publication into one truth score", () => {
   assert.match(types, /איכות: אין נתון בתצוגה/);
   assert.match(types, /אינה הופכת OCR או כיתוב לממצא מאומת/);

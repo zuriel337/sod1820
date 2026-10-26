@@ -217,6 +217,10 @@ test("missing engine detail separates an explicit negative from no assessment", 
 });
 
 test("missing-engine routing uses explicit text markers without claiming verification", () => {
+  assert.equal(classifyWorldMissingEngineStatement("קובייה תלת ממדית 1820").queue, "spatial_or_constants");
+  assert.equal(classifyWorldMissingEngineStatement("הערך e בחזקת e מתקרב ל־15.15").queue, "constants_or_sequences");
+  assert.equal(classifyWorldMissingEngineStatement("רצף המספרים 1-2-3-4").queue, "constants_or_sequences");
+  assert.equal(classifyWorldMissingEngineStatement("שלוש מילים מופיעות ברצף").queue, "textual_statement");
   assert.equal(classifyWorldMissingEngineStatement("צופן בדילוג 1820").queue, "els_or_cipher");
   assert.equal(classifyWorldMissingEngineStatement("תרגום לאנגלית").queue, "language");
   assert.equal(classifyWorldMissingEngineStatement("המספר 1820 מופיע כאן").queue, "numeric_statement");

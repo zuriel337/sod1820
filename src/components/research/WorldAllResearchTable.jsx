@@ -159,7 +159,8 @@ const LEGACY_REPLAY_LABELS = Object.freeze({
 });
 
 const MISSING_ENGINE_QUEUE_LABELS = Object.freeze({
-  spatial_or_constants: "מרחבים, צורות או קבועים",
+  spatial_or_constants: "מרחבים וצורות",
+  constants_or_sequences: "קבועים ורצפים",
   els_or_cipher: "צפנים ודילוגים",
   language: "שפה ותעתיק",
   formula: "ביטוי עם אופרטור",

@@ -48,7 +48,8 @@ function sourceLocatorState(sourceRef) {
 export function classifyWorldMissingEngineStatement(value) {
   const statement = clean(value);
   const signals = Object.freeze({
-    spatialOrConstants: /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה|קובייה|פירמיד|פאון|ציר|גאומטר|גיאומטר|מעגל|עיגול|כדור|π|פאי)/iu.test(statement),
+    spatialOrConstants: /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה|קובייה|פירמיד|פאון|ציר|גאומטר|גיאומטר|מעגל|עיגול|כדור)/iu.test(statement),
+    constantsOrSequences: /(π|פאי|(?:^|[^A-Za-z0-9א-ת])e(?:$|[^A-Za-z0-9א-ת])|אוילר|2[.,]718|רצף (?:ה)?מספרים|סדרת (?:ה)?מספרים|פיבונאצ|numeric sequence)/iu.test(statement),
     elsOrCipher: /(צופן|דילוג|אותיות בדילוג|\bELS\b)/iu.test(statement),
     language: /(אנגלית|לטינית|ערבית|שפה|תרגום|תעתיק)/u.test(statement),
     formula: /[=+×*÷]/u.test(statement),
@@ -56,12 +57,14 @@ export function classifyWorldMissingEngineStatement(value) {
   });
   let queue = "textual_statement";
   if (signals.spatialOrConstants) queue = "spatial_or_constants";
+  else if (signals.constantsOrSequences) queue = "constants_or_sequences";
   else if (signals.elsOrCipher) queue = "els_or_cipher";
   else if (signals.language) queue = "language";
   else if (signals.formula) queue = "formula";
   else if (signals.number) queue = "numeric_statement";
   const reasons = {
-    spatial_or_constants: "הטקסט כולל מונח מרחבי או קבוע; להעביר למיון מבנים לפני בחירת מנוע.",
+    spatial_or_constants: "הטקסט כולל מונח של צורה או מרחב; להעביר למיון מבנים לפני בחירת מנוע.",
+    constants_or_sequences: "הטקסט כולל π, e או רצף מספרי; להעביר לסדרת קבועים ורצפים, ולקשר למרחבים רק אם קיים קשר גיאומטרי מפורש.",
     els_or_cipher: "הטקסט כולל סימן מפורש לצופן או דילוג; להעביר לתור ELS בלי להסיק אימות.",
     language: "הטקסט כולל סימן שפה או תעתיק; להעביר לגשרי שפה ומקור.",
     formula: "הטקסט כולל אופרטור חישובי; נדרשת מעטפת ביטוי ושיטה לפני replay.",

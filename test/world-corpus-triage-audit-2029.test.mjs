@@ -5,7 +5,7 @@ import { WORLD_CORPUS_TRIAGE_AUDIT } from "../api/world-corpus-triage-audit.js";
 test("manager corpus audit keeps publication, verification and catalog completeness separate", () => {
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.scope, "read_only_recommendations");
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.workstreams.length, 7);
-  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 45);
+  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 46);
   assert.deepEqual(["medium", "weak"].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [4164, 6362]);
   assert.match(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "duplicates").next, /בלי מחיקה/u);
   const zviReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_replay");
@@ -57,8 +57,8 @@ test("manager corpus audit keeps publication, verification and catalog completen
   ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [20, 82, 259, 31]);
   assert.deepEqual([
     "zvi_missing_engine_textual", "zvi_missing_engine_numeric", "zvi_missing_engine_formula",
-    "zvi_missing_engine_spatial", "zvi_missing_engine_els", "zvi_missing_engine_language",
-  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [1492, 595, 335, 171, 27, 3]);
+    "zvi_missing_engine_spatial", "zvi_missing_engine_constants", "zvi_missing_engine_els", "zvi_missing_engine_language",
+  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [1492, 593, 335, 168, 5, 27, 3]);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_match").total, 734);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_claim_unmatched").total, 112);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_missing_engine_unverified").total, 173);
@@ -149,7 +149,7 @@ test("audit routes only to existing canonical World views", () => {
     "ללא מעטפת · בלי יעד שמור",
     "ללא מעטפת · עם value",
     "ללא מעטפת · בלי value",
-  ].map((label) => zvi.counts.find((item) => item.label === label).value), [513, 2623, 0, 132, 2120, 371, 392, 2231]);
+  ].map((label) => zvi.counts.find((item) => item.label === label).value), [514, 2623, 0, 132, 2120, 371, 392, 2231]);
   assert.deepEqual([
     "ללא מעטפת · יעד יחיד תואם ל־value",
     "ללא מעטפת · יעד יחיד לא תואם או לא מספרי",
