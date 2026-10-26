@@ -4,6 +4,8 @@ import { addContribution } from "../contributions.js";
 export const COMMUNITY_PAGE_SIZE = 40;
 export const COMMUNITY_REPLY_PAGE_SIZE = 20;
 export const COMMUNITY_ARCHIVE_TOTAL = 41080;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const COMMUNITY_ORIGINS = ["openweb", "community_2029"];
 
 export const PROFILE_BASELINES = Object.freeze({
   "תורה תמימה": { handle: "torahtamima", likes: 648, likesLabel: "648", isPrivate: true },
@@ -96,6 +98,15 @@ export function normalizeCommunityRow(row) {
   };
 }
 
+export function normalizeCommunityThreadFocus({ threadId = "", replyId = "", path = "" } = {}) {
+  if (!UUID_PATTERN.test(threadId)) return null;
+  const safeReply = UUID_PATTERN.test(replyId) ? replyId : null;
+  const ids = String(path || "").split(",").filter((id) => UUID_PATTERN.test(id));
+  const safePath = ids[0] === threadId && (!safeReply || ids[ids.length - 1] === safeReply)
+    ? [...new Set(ids)] : [threadId, safeReply].filter(Boolean);
+  return { threadId, replyId: safeReply, path: safePath };
+}
+
 export function legacyLikeCount(reactions) {
   const legacy = Number(reactions?.likes);
   const modern = Array.isArray(reactions?.["👍"]) ? reactions["👍"].length : 0;
@@ -109,7 +120,7 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: safeOffset === 0 ? "exact" : undefined })
     .eq("status", "approved")
-    .in("origin", ["openweb", "community_2029"])
+    .in("origin", COMMUNITY_ORIGINS)
     .is("parent_id", null)
     .order("created_at", { ascending: sort === "oldest" })
     .order("id", { ascending: sort === "oldest" })
@@ -118,17 +129,48 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
   return { rows: (data || []).map(normalizeCommunityRow), count: count ?? null, nextOffset: safeOffset + (data || []).length };
 }
 
+// Exact public root reader for links from the private "Replies to me" inbox.
+// It does not search by text/name and never widens visibility: only an approved
+// root from one of the two public community origins can be returned.
+export async function fetchCommunityThread(threadId, { client = supabase } = {}) {
+  if (!UUID_PATTERN.test(threadId || "")) throw new Error("invalid thread id");
+  const { data, error } = await client
+    .from("research_contributions")
+    .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)")
+    .eq("id", threadId)
+    .eq("status", "approved")
+    .in("origin", COMMUNITY_ORIGINS)
+    .is("parent_id", null)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? normalizeCommunityRow(data) : null;
+}
+
+export async function fetchCommunityReply(parentId, replyId, { client = supabase } = {}) {
+  if (!UUID_PATTERN.test(parentId || "") || !UUID_PATTERN.test(replyId || "")) throw new Error("invalid reply context");
+  const { data, error } = await client
+    .from("research_contributions")
+    .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)")
+    .eq("id", replyId)
+    .eq("parent_id", parentId)
+    .eq("status", "approved")
+    .in("origin", COMMUNITY_ORIGINS)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? normalizeCommunityRow(data) : null;
+}
+
 // The feed pages roots only. Replies are read from the same RLS-protected source
 // when a thread opens, so an approved reply never appears detached from its parent.
 export async function fetchCommunityReplies(parentId, { offset = 0, limit = COMMUNITY_REPLY_PAGE_SIZE } = {}) {
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(parentId || "")) throw new Error("invalid parent id");
+  if (!UUID_PATTERN.test(parentId || "")) throw new Error("invalid parent id");
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
   const { data, error, count } = await supabase
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: "exact" })
     .eq("status", "approved")
-    .in("origin", ["openweb", "community_2029"])
+    .in("origin", COMMUNITY_ORIGINS)
     .eq("parent_id", parentId)
     .not("body", "is", null)
     .neq("body", "")
@@ -140,14 +182,14 @@ export async function fetchCommunityReplies(parentId, { offset = 0, limit = COMM
 }
 
 export async function fetchCommunityReplyCounts(parentIds) {
-  const ids = [...new Set(parentIds)].filter((id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || ""));
+  const ids = [...new Set(parentIds)].filter((id) => UUID_PATTERN.test(id || ""));
   if (!ids.length) return {};
   const counts = Object.fromEntries(ids.map((id) => [id, 0]));
   for (let offset = 0; offset < 25000; offset += 1000) {
     const { data, error } = await supabase.from("research_contributions")
       .select("id,parent_id")
       .eq("status", "approved")
-      .in("origin", ["openweb", "community_2029"])
+      .in("origin", COMMUNITY_ORIGINS)
       .in("parent_id", ids)
       .not("body", "is", null)
       .neq("body", "")
@@ -175,7 +217,7 @@ export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, lim
     .eq("status", "approved")
     .not("body", "is", null)
     .neq("body", "");
-  if (filter === "chat") base = base.in("origin", ["openweb", "community_2029"]);
+  if (filter === "chat") base = base.in("origin", COMMUNITY_ORIGINS);
   else if (filter === "contributions") base = base.not("origin", "in", '("openweb","community_2029")');
   const { data, error, count } = await filterByAuthor(base, identity)
     .order("created_at", { ascending: sort === "oldest" })
@@ -191,7 +233,7 @@ export async function fetchCommunityAuthorSummary(authorKey, { client = supabase
   const base = () => filterByAuthor(client.from("research_contributions")
     .select("created_at,reactions")
     .eq("status", "approved")
-    .in("origin", ["openweb", "community_2029"]), identity);
+    .in("origin", COMMUNITY_ORIGINS), identity);
   const { data: first, error: firstError } = await base().order("created_at", { ascending: true }).limit(1);
   if (firstError) throw firstError;
   if (!identity.verifiedOwner) return { firstAt: first?.[0]?.created_at || null, archiveLikes: null };

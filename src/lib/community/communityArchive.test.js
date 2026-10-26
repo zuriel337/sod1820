@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReplies, fetchCommunityReplyCounts, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityRow } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus } from "./communityArchive.js";
 
 test("preserves the five user-authorized profile like baselines", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(PROFILE_BASELINES).map(([name, value]) => [name, value.likesLabel])), {
@@ -98,6 +98,32 @@ test("the chat pages roots and fetches approved direct replies in reading order"
     assert.match(requests[1].searchParams.get("order"), /created_at\.asc,id\.asc/);
     assert.ok(requests[1].searchParams.getAll("body").includes("neq."));
     assert.ok(requests.every((url) => url.searchParams.get("status") === "eq.approved"));
+  } finally { globalThis.fetch = previousFetch; }
+});
+
+test("an exact personal reply link reads only an approved public root and its requested child", async () => {
+  const rootId = "94970bb8-f12a-43b5-b1a8-5898e7e6cc57";
+  const replyId = "d69c5c78-fc0c-4f2c-9da5-620d426d84ed";
+  assert.deepEqual(normalizeCommunityThreadFocus({ threadId: rootId, replyId, path: `${rootId},${replyId}` }), { threadId: rootId, replyId, path: [rootId, replyId] });
+  assert.equal(normalizeCommunityThreadFocus({ threadId: "not-a-uuid", replyId }), null);
+  const requests = [];
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = new URL(input.url || input); requests.push(url);
+    const isReply = url.searchParams.get("parent_id") === `eq.${rootId}`;
+    const row = isReply
+      ? { id: replyId, parent_id: rootId, body: "תגובה ישנה", origin: "openweb", created_at: "2016-03-08T00:00:00Z" }
+      : { id: rootId, parent_id: null, body: "פוסט ישן", origin: "openweb", created_at: "2016-03-07T00:00:00Z" };
+    return new Response(JSON.stringify(row), { status: 200, headers: { "content-type": "application/vnd.pgrst.object+json" } });
+  };
+  try {
+    const root = await fetchCommunityThread(rootId);
+    const reply = await fetchCommunityReply(rootId, replyId);
+    assert.equal(root.id, rootId); assert.equal(root.origin, "openweb");
+    assert.equal(reply.id, replyId); assert.equal(reply.parentId, rootId);
+    assert.ok(requests.every((url) => url.searchParams.get("status") === "eq.approved"));
+    assert.ok(requests.every((url) => url.searchParams.get("origin") === "in.(openweb,community_2029)"));
+    assert.equal(requests[0].searchParams.get("parent_id"), "is.null");
   } finally { globalThis.fetch = previousFetch; }
 });
 

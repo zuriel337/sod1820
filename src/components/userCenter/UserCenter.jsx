@@ -1091,7 +1091,27 @@ function AdminOnlinePanel({ T }) {
   );
 }
 
-// 📨 ההודעות שלי — שני טאבים: 💬 הודעות פרטיות (DM) · 🗣 תגובות אליי (על התרומות שלי).
+const PERSONAL_REPLY_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const PERSONAL_REPLY_COMMUNITY_ORIGINS = new Set(["openweb", "community_2029"]);
+
+export function personalReplyContext(row) {
+  const origin = String(row?.origin || "");
+  if (PERSONAL_REPLY_COMMUNITY_ORIGINS.has(origin) && PERSONAL_REPLY_UUID.test(row?.thread_root_id || "")) {
+    const replyId = PERSONAL_REPLY_UUID.test(row?.id || "") ? row.id : "";
+    const rawPath = Array.isArray(row?.thread_path) ? row.thread_path : [];
+    const path = rawPath.filter((id) => PERSONAL_REPLY_UUID.test(id));
+    const safePath = path[0] === row.thread_root_id && (!replyId || path[path.length - 1] === replyId) ? path : [row.thread_root_id, replyId].filter(Boolean);
+    const query = new URLSearchParams({ preview: "community", data: "live", thread: row.thread_root_id, returnTo: "/2029/me/messages" });
+    if (replyId) query.set("reply", replyId);
+    if (safePath.length > 1) query.set("path", safePath.join(","));
+    return { kind: "community", label: origin === "openweb" ? "הצ׳אט הוותיק" : "הקהילה", href: `/2029?${query}` };
+  }
+  if (row?.target_type === "number" && row?.target_id) return { kind: "research", label: "מספר ומחקר", href: `/number/${encodeURIComponent(row.target_id)}` };
+  if (row?.convergence_slug) return { kind: "research", label: "נושא ומחקר", href: `/topic/${encodeURIComponent(row.convergence_slug)}` };
+  return { kind: "research", label: "תרומה מחקרית", href: null };
+}
+
+// 📨 ההודעות שלי — שני טאבים: 💬 הודעות פרטיות (DM) · 🗣 תגובות לפוסטים ולתרומות.
 export function MessagesHub({ T, goto, initialDm = null, resolveWriterHref }) {
   const [tab, setTab] = useState("dm");   // deep-link ל-DM → תמיד טאב ההודעות
   const tabBtn = (active) => ({ flex: 1, padding: "9px", borderRadius: 9, border: `1px solid ${active ? T.acc : T.line}`, background: active ? T.accSoft : T.card, color: active ? T.acc : T.sub, fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit" });
@@ -1106,7 +1126,7 @@ export function MessagesHub({ T, goto, initialDm = null, resolveWriterHref }) {
   );
 }
 
-// 🗣 תגובות אליי — תגובות של אחרים על התרומות שלי (RPC replies_to_me). לחיצה → הקשר בגרף.
+// 🗣 תגובות אליי — תגובות של אחרים לפוסטים בקהילה ולתרומות מחקריות (RPC replies_to_me).
 // §4, COMMAND_CENTER_ATTENTION_CLOSURE Pass 1: תיקון-נעלמות — LIMIT קבוע (50) בלי pagination
 // היה חוסם כל תגובה מעבר לזה, בלי דרך לראות אותה. עכשיו: "טען עוד" עם cursor (p_before, אותה
 // RPC replies_to_me מורחבת) — סדר חדש→ישן נשמר, שום store חדש.
@@ -1134,24 +1154,28 @@ function RepliesPanel({ T, goto }) {
     } catch { setError("לא ניתן לטעון תגובות נוספות כרגע."); } finally { setLoadingMore(false); }
   };
   const fmt = t => bilingualDateLabel(t) || "תאריך לא זמין";
-  const linkFor = r => (r.target_type === "number" && r.target_id) ? `/number/${r.target_id}` : (r.convergence_slug ? `/topic/${r.convergence_slug}` : null);
+  const contextNote = <p style={{ color: T.sub, fontSize: 14, lineHeight: 1.65, margin: "0 0 12px" }}>כאן מופיעות תגובות לפוסטים שלך בקהילה ולתרומות מחקריות. תגובות מהצ׳אט הוותיק יוצגו אחרי חיבור מאומת של הפרופיל הישן לחשבון.</p>;
   if (rows === null) return <div style={{ color: T.sub, fontSize: 13, padding: "8px 0" }}>טוען…</div>;
   if (error && !rows.length) return <p role="alert">{error} <button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון נוסף</button></p>;
   if (!rows.length) return (
-    <div style={{ textAlign: "center", padding: "26px 14px", color: T.sub }}>
+    <>{contextNote}<div style={{ textAlign: "center", padding: "26px 14px", color: T.sub }}>
       <div style={{ fontSize: 30, marginBottom: 8 }}>🗣</div>
-      <div style={{ fontSize: 13.5, lineHeight: 1.7 }}>אין עדיין תגובות על התרומות שלך.<br />כשמישהו יגיב לרמז/מחקר שלך — זה יופיע כאן.</div>
-    </div>
+      <div style={{ fontSize: 13.5, lineHeight: 1.7 }}>אין עדיין תגובות לפוסטים או לתרומות שלך.<br />כשמישהו יגיב לפוסט שפרסמת בקהילה, לתגובה שלך או לתרומה מחקרית — זה יופיע כאן.</div>
+    </div></>
   );
   return (
     <div style={{ display: "grid", gap: 8 }}>
+      {contextNote}
       {rows.map(r => {
-        const link = linkFor(r);
+        const context = personalReplyContext(r);
+        const link = context.href;
         const inner = (<>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2, flexWrap: "wrap" }}>
+            <span style={{ color: T.acc, border: `1px solid ${T.line}`, borderRadius: 999, padding: "1px 8px", fontSize: 11, fontWeight: 800 }}>{context.label}</span>
             <span style={{ fontWeight: 800, fontSize: 13, color: T.ink }}>{r.author_name || "משתמש"}</span>
             <span style={{ color: T.sub, fontSize: 11 }}>הגיב/ה</span>
-            {r.parent_title && <span style={{ color: T.sub, fontSize: 11, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>· על «{r.parent_title}»</span>}
+            {r.parent_title ? <span style={{ color: T.sub, fontSize: 11, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>· על «{r.parent_title}»</span>
+              : context.kind === "community" ? <span style={{ color: T.sub, fontSize: 11 }}>· תגובה בשיחה בקהילה</span> : null}
           </div>
           <div style={{ color: T.sub, fontSize: 12.5, lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{r.body}</div>
           <div style={{ color: T.sub, fontSize: 10.5, marginTop: 3 }}>{fmt(r.created_at)}{link ? " · פתח ←" : ""}</div>
