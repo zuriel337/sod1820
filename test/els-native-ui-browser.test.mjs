@@ -1629,6 +1629,20 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
       assert.ok((await cards.evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-snapshot-kind')))).every(kind=>['verified-pair','verified-language-relation','verified-finding'].includes(kind)));
       assert.match(copy,/אימות קנוני/);assert.match(copy,/מספר דילוג לבדו/);assert.match(copy,/הקשר ומשמעות נשארים פרשנות לבדיקה/);
       assert.ok(await smartSnapshot.getByRole('button',{name:'פתח את מופע הציר'}).count()>=1);
+      assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotSource===true).length),0,
+        'source context stays on-demand after the snapshot appears');
+      const firstCard=cards.first(),itemId=await firstCard.getAttribute('data-snapshot-item-id');
+      await firstCard.getByRole('button',{name:'מקור ופסוקים',exact:true}).dispatchEvent('click');
+      if(process.env.ELS_SAVE_DIAGNOSTICS){await page.waitForTimeout(600);console.error('GUIDED-SOURCE-DIAG',width,JSON.stringify(await page.evaluate(()=>({state:window.__state?.axis,requests:window.__hostLog.filter(message=>message.type==='request-lens').slice(-4).map(message=>({lens:message.lens,target:message.target})),responses:window.__log.filter(message=>message.type==='lens').slice(-4).map(message=>({lens:message.lens,ok:message.ok,target:message.target})),sourceNodes:[...document.querySelectorAll('[data-els-guided-source-context]')].map(node=>node.getAttribute('data-els-guided-source-context'))}))));}
+      await page.waitForFunction(id=>window.__log.some(message=>message.type==='lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotItemId===id),itemId,{timeout:30000});
+      const source=smartSnapshot.locator('[data-els-guided-source-context="ready"]');await source.waitFor({timeout:30000});
+      const sourceCard=source.locator('xpath=ancestor::article[@data-snapshot-item-id][1]');
+      assert.equal(await sourceCard.getAttribute('data-snapshot-item-id'),itemId,'background ranking may move but never mix the opened source item');
+      assert.ok(await source.locator('.els29-smart-source-verses>article').count()<=3,'source attention stays bounded');
+      assert.equal(await source.getAttribute('data-source-hit-id'),await page.evaluate(()=>window.__state.axis.hitId));
+      if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await source.scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`guided-source-context-${width}.png`),fullPage:true});}
+      await source.getByRole('button',{name:'חזור לממצא המדורג',exact:true}).dispatchEvent('click');
+      assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-snapshot-item-id')),itemId,'exact return restores the ranked item');
     }
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'guided package has no horizontal page overflow');
     if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`guided-smart-snapshot-${width}.png`),fullPage:true});}
@@ -1656,6 +1670,27 @@ test('guided golden: מקדש ירד keeps two exact axes and recognizes the gen
     const snapshot=packageNode.locator('[data-els-smart-matrix-snapshot="v1"]');
     assert.equal(await snapshot.count(),1,'the verified local finding is consolidated into one smart snapshot');
     assert.ok(await snapshot.locator('[data-snapshot-kind]').count()<=5);
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotSource===true).length),0,
+      'Guided does not load source text before an explicit source action');
+    const rankedItem=snapshot.locator('[data-snapshot-item-id]').first(),rankedItemId=await rankedItem.getAttribute('data-snapshot-item-id');
+    await rankedItem.getByRole('button',{name:'מקור ופסוקים',exact:true}).dispatchEvent('click');
+    if(process.env.ELS_SAVE_DIAGNOSTICS){await page.waitForTimeout(600);console.error('GUIDED-SOURCE-DIAG',JSON.stringify(await page.evaluate(()=>({state:window.__state?.axis,requests:window.__hostLog.filter(message=>message.type==='request-lens').slice(-4).map(message=>({lens:message.lens,target:message.target})),responses:window.__log.filter(message=>message.type==='lens').slice(-4).map(message=>({lens:message.lens,ok:message.ok,target:message.target})),sourceNodes:[...document.querySelectorAll('[data-els-guided-source-context]')].map(node=>node.getAttribute('data-els-guided-source-context'))}))));}
+    await page.waitForFunction(id=>window.__log.some(message=>message.type==='lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotItemId===id),rankedItemId,{timeout:30000});
+    const sourceContext=rankedItem.locator('[data-els-guided-source-context="ready"]');
+    await sourceContext.waitFor({timeout:30000});
+    const sourceRequests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotSource===true));
+    assert.equal(sourceRequests.length,1,'one explicit action uses the existing canonical verse lens once');
+    assert.equal(sourceRequests[0].target.guidedSnapshotItemId,rankedItemId);
+    assert.ok(sourceRequests[0].target.resultSetId&&Number.isInteger(sourceRequests[0].target.index)&&sourceRequests[0].target.hitId&&sourceRequests[0].target.occurrenceRef);
+    assert.equal(await sourceContext.getAttribute('data-source-hit-id'),await page.evaluate(()=>window.__state.axis.hitId),'source text belongs to the exact active occurrence');
+    const visibleVerses=sourceContext.locator('.els29-smart-source-verses>article');
+    assert.ok(await visibleVerses.count()>=1&&await visibleVerses.count()<=3,'the quiet source package shows at most three canonical verses');
+    assert.match(await sourceContext.innerText(),/עדשת המקור הקנונית/);
+    await sourceContext.getByRole('button',{name:'הדגש פסוק במטריצה'}).first().dispatchEvent('click');
+    assert.ok(await page.locator('.is-verse-word').count()>0,'the package reuses the existing exact verse highlight');
+    await sourceContext.getByRole('button',{name:'חזור לממצא המדורג',exact:true}).dispatchEvent('click');
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-snapshot-item-id')),rankedItemId,'return focuses the exact ranked item');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'source package keeps the 390px page within bounds');
   },{realHost:true,loadGolden:false,mobile:true,guided:true});
  });
 

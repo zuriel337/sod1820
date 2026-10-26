@@ -12,6 +12,7 @@ import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js
 import {
   ELS_CIPHER_DISCOVERY_PLAN_CONTRACT,
   projectElsGuidedOccurrenceCoverage,
+  projectElsGuidedSourceContext,
 } from "../../lib/research/elsAutomaticResearchPlan.js";
 import "./elsNativeClassic2029.css";
 
@@ -431,7 +432,8 @@ const guidedLexiconSourceLabel = source => ({
   "bounded-dictionary": "מילון המחקר המצומצם",
 })[source] || "מקור לשוני תחום";
 
-function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOpen, onContinue, onAddSupports }) {
+function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOpen, onContinue, onAddSupports,
+  onOpenSource, onCloseSource, sourceContext, sourcePendingItemId, onHighlightVerse, verseHighlight }) {
   if (!coverage) return pending ? <section className="els29-guided-coverage" aria-label="בדיקת מופעי הציר"><p role="status">ממתין לאימות הציר והמופעים…</p></section> : null;
   const recommendation = coverage.recommendation;
   const rawPatterns = [...new Map(coverage.inspections.flatMap(inspection => inspection.rawPatterns || []).map(pattern => [pattern.term, pattern])).values()];
@@ -456,7 +458,9 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
       <progress max={Math.max(1, coverage.coverage.scheduledCount)} value={coverage.coverage.inspectedCount} aria-label="מופעי ציר שנבדקו" />
       <small>נבדקו {coverage.coverage.inspectedCount} מתוך {coverage.coverage.scheduledCount} המופעים שאושרו לגל הזה. מופע שלא נבדק אינו ראיה שלילית.</small>
     </div>
-    <React.Suspense fallback={null}><ElsGuidedMatrixSnapshot2029 snapshot={coverage.matrixSnapshot} currentHitId={currentHitId} onOpen={onOpen} onAddSupports={onAddSupports} /></React.Suspense>
+    <React.Suspense fallback={null}><ElsGuidedMatrixSnapshot2029 snapshot={coverage.matrixSnapshot} currentHitId={currentHitId}
+      onOpen={onOpen} onAddSupports={onAddSupports} onOpenSource={onOpenSource} sourceContext={sourceContext}
+      onCloseSource={onCloseSource} sourcePendingItemId={sourcePendingItemId} onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} /></React.Suspense>
     {!recommendation && coverage.status === "AWAITING_CONTINUATION" ? <div className="els29-guided-next-wave">
       <p>בארבעת המופעים הראשונים לא נמצא עדיין זוג חזק שעבר אימות. אפשר לבדוק עוד ארבעה—לא מעבר לכך בחתך הזה.</p>
       <button type="button" onClick={onContinue}>בדוק עוד עד 4 מופעים</button>
@@ -490,7 +494,8 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
   </section>;
 }
 
-function RegularResultsRail({ state, pending, operation, visible, guided = false, guidedCoverage = null, onGuidedContinue, onGuidedAddSupports, onSelect, onRetry, onContinue }) {
+function RegularResultsRail({ state, pending, operation, visible, guided = false, guidedCoverage = null, onGuidedContinue, onGuidedAddSupports,
+  onGuidedOpenSource, onGuidedCloseSource, guidedSourceContext, guidedSourcePendingItemId, onHighlightVerse, verseHighlight, onSelect, onRetry, onContinue }) {
   const results = state?.search?.occurrences;
   const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
   const items = blocked ? [] : results?.items || [];
@@ -506,7 +511,9 @@ function RegularResultsRail({ state, pending, operation, visible, guided = false
       <small>בחרו מופע לפתיחת המטריצה שלו. מוצגים רק מופעים שעברו אימות.</small>
       {guided ? <GuidedCoveragePanel coverage={guidedCoverage} exactTotal={results.total} pending={pending} currentHitId={state.axis?.hitId}
         onOpen={(occurrence) => onSelect("occurrence-select", { setId: results.id, index: occurrence.index, hitId: occurrence.hitId })}
-        onContinue={onGuidedContinue} onAddSupports={onGuidedAddSupports} /> : null}
+        onContinue={onGuidedContinue} onAddSupports={onGuidedAddSupports} onOpenSource={onGuidedOpenSource} onCloseSource={onGuidedCloseSource}
+        sourceContext={guidedSourceContext} sourcePendingItemId={guidedSourcePendingItemId}
+        onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} /> : null}
       {results.capped ? <small>הסריקה מוגבלת; זאת רשימת המופעים שנמצאו בסריקה הזאת, ולא כל המופעים האפשריים.</small> : null}
       {results.ordered?.completeThrough >= 2 ? <small>הושלמה סריקה בשני הכיוונים בדילוגים 2–{results.ordered.completeThrough}. הדילוגים שמעבר לכך עדיין חלקיים.</small> : null}
       {results.ordered?.error ? <small role="status">סריקת הדילוגים הקטנים לא הושלמה. אפשר להמשיך אותה כאן.</small> : null}
@@ -870,6 +877,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [selectedFinding, setSelectedFinding] = useState(null);
   const guidedContextRef = useRef(null);
   const guidedLensSeqRef = useRef(0);
+  const guidedSourceQueueRef = useRef(null);
+  const guidedSourceActiveRef = useRef(false);
+  const guidedDeferredInspectionRef = useRef(null);
+  const [guidedSourceActive, setGuidedSourceActive] = useState(false);
   const [guidedRun, setGuidedRun] = useState({ key: "", inspections: [], approvedBatches: 1, pendingHitId: null });
   useEffect(() => {
     if (!matrix) return;
@@ -883,7 +894,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
 
-  const resetReadContext = () => {
+  const resetReadContext = ({ preserveGuidedSource = false } = {}) => {
+    if (!preserveGuidedSource) {
+      guidedSourceQueueRef.current = null;guidedSourceActiveRef.current = false;guidedDeferredInspectionRef.current = null;setGuidedSourceActive(false);
+    }
     ++lensSeqRef.current;
     setLensRequest(null);
     setLensResult(null);
@@ -1020,24 +1034,24 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setEngineState(next);
   };
 
-  const requestControl = (action, value) => {
+  const requestControl = (action, value, { suppressScroll = false, preserveGuidedSource = false } = {}) => {
     if (!action) return;
     if (action === "occurrence-prev" || action === "occurrence-next" || action === "meeting-select" || action === "occurrence-select") {
-      resetReadContext();
+      resetReadContext({ preserveGuidedSource });
       ++findingsSeqRef.current;
       setOperations((current) => ({ ...current, findings: null }));
     }
     if (action === "finding-radius" || action === "finding-count") resetReadContext();
     setControlRequest({ action, ...(value === undefined ? {} : { value }), seq: ++controlSeqRef.current });
-    if (["occurrence-select", "meeting-select"].includes(action)) requestAnimationFrame(() => {
+    if (!suppressScroll && ["occurrence-select", "meeting-select"].includes(action)) requestAnimationFrame(() => {
       if (window.matchMedia("(max-width:980px)").matches) cameraStageRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
     });
   };
 
-  const requestLens = (lens, target = {}) => {
-    // A native reading/scan action always reveals its native result, even after compatibility tools.
+  const requestLens = (lens, target = {}, { revealTool = true } = {}) => {
+    // The existing inspector remains the default; Guided may project the same exact lens inline.
     setClassicOpen(false);
-    openTool("findings");
+    if (revealTool) openTool("findings");
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensPending(true);
@@ -1047,6 +1061,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const handleLens = (result) => {
     if (result?.target?.guidedOccurrenceCoverage === true) {
       if (result.target.guidedSeq !== guidedLensSeqRef.current) return;
+      if (guidedSourceActiveRef.current) { guidedDeferredInspectionRef.current = result;return; }
       setGuidedRun((current) => current.key === result.target.guidedKey && current.pendingHitId === result.target.hitId
         ? { ...current, pendingHitId: null, inspections: [...current.inspections, result] }
         : current);
@@ -1097,8 +1112,47 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       resultSetId: guidedResults.id,
     });
   }, [guidedResults, guidedKey, guidedRun]);
+  const guidedSourceContext = useMemo(() => projectElsGuidedSourceContext({
+    snapshot: guidedCoverage?.matrixSnapshot,
+    lensResult,
+  }), [guidedCoverage?.matrixSnapshot, lensResult]);
+  const guidedSourcePendingItemId = lensPending && lensRequest?.target?.guidedSnapshotSource === true
+    ? String(lensRequest.target.guidedSnapshotItemId || "")
+    : String(guidedSourceQueueRef.current?.guidedSnapshotItemId || "");
+  const openGuidedSource = (item) => {
+    const occurrence = item?.occurrence;
+    if (!item?.id || !occurrence?.hitId || !occurrence.resultSetId || !Number.isSafeInteger(occurrence.index)) return;
+    const target = {
+      guidedSnapshotSource: true, guidedSnapshotItemId: item.id, hitId: occurrence.hitId,
+      resultSetId: occurrence.resultSetId, setId: occurrence.resultSetId, index: occurrence.index,
+      occurrenceRef: occurrence.ref,
+    };
+    guidedSourceActiveRef.current = true;setGuidedSourceActive(true);
+    if (engineStateRef.current?.axis?.hitId === occurrence.hitId) {
+      guidedSourceQueueRef.current = null;
+      requestLens("verse-context", target, { revealTool: false });
+      return;
+    }
+    requestControl("occurrence-select", { setId: occurrence.resultSetId, index: occurrence.index, hitId: occurrence.hitId },
+      { suppressScroll: true, preserveGuidedSource: true });
+    guidedSourceQueueRef.current = target;
+  };
+  const closeGuidedSource = () => {
+    const deferred = guidedDeferredInspectionRef.current;
+    guidedDeferredInspectionRef.current = null;
+    resetReadContext();
+    if (deferred) setGuidedRun((current) => current.key === deferred.target.guidedKey && current.pendingHitId === deferred.target.hitId
+      ? { ...current, pendingHitId: null, inspections: [...current.inspections, deferred] }
+      : current);
+  };
   useEffect(() => {
-    if (!guidedCoverage || searchPending || !guidedKey) return;
+    const target = guidedSourceQueueRef.current;
+    if (!target || engineState?.verification?.state !== "MATCH" || engineState?.axis?.hitId !== target.hitId) return;
+    guidedSourceQueueRef.current = null;
+    requestLens("verse-context", target, { revealTool: false });
+  }, [engineState?.axis?.hitId, engineState?.verification?.state]);
+  useEffect(() => {
+    if (!guidedCoverage || searchPending || !guidedKey || guidedSourceActive) return;
     if (guidedRun.key !== guidedKey) {
       setGuidedRun({ key: guidedKey, inspections: [], approvedBatches: 1, pendingHitId: null });
       return;
@@ -1121,7 +1175,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         discoveryGoal: guidedContextRef.current?.goal || null,
       },
     });
-  }, [guidedCoverage?.nextOccurrence?.hitId, guidedKey, guidedRun.key, guidedRun.pendingHitId, searchPending]);
+  }, [guidedCoverage?.nextOccurrence?.hitId, guidedKey, guidedRun.key, guidedRun.pendingHitId, searchPending, guidedSourceActive]);
   const continueGuidedCoverage = () => setGuidedRun((current) => current.key === guidedKey
     ? { ...current, approvedBatches: 2 } : current);
   const addGuidedSupports = (supports) => {
@@ -1343,6 +1397,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={activeTool === "results" && !resultsAreCross}
           guided={guidedProfile} guidedCoverage={guidedCoverage} onGuidedContinue={continueGuidedCoverage} onGuidedAddSupports={addGuidedSupports}
+          onGuidedOpenSource={openGuidedSource} onGuidedCloseSource={closeGuidedSource}
+          guidedSourceContext={guidedSourceContext} guidedSourcePendingItemId={guidedSourcePendingItemId}
+          onHighlightVerse={highlightVerse} verseHighlight={verseHighlight}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
         <ElsSavePanel2029 visible={activeTool === "research"} state={engineState} matrix={matrix} user={user}
           pending={savePending} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}

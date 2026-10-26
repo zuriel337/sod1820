@@ -5,6 +5,7 @@ import {
   prepareElsAutomaticResearchPlan,
   prepareElsCipherDiscoveryPlan,
   projectElsGuidedOccurrenceCoverage,
+  projectElsGuidedSourceContext,
   runElsAutomaticResearchSlice,
   summarizeElsAutomaticPlan,
   summarizeElsGuidedDiscoveryPlan,
@@ -49,7 +50,7 @@ const guidedPlan = () => prepareElsCipherDiscoveryPlan({
   requiredTerms: "ספינת\nיכל אש",
 });
 const guidedOccurrences = count => Array.from({ length: count }, (_, index) => ({
-  hitId: `hit-${index + 1}`, ordinal: index + 1, skip: index === 1 ? 4545 : 31 + index,
+  hitId: `hit-${index + 1}`, index, ordinal: index + 1, skip: index === 1 ? 4545 : 31 + index,
   dir: index % 2 ? -1 : 1, start: 1000 + index * 100, ref: `מקור ${index + 1}`, setId: "set-current",
 }));
 const guidedInspection = (hitId, {
@@ -362,6 +363,59 @@ test("unverified language candidates remain outside the smart matrix snapshot", 
   assert.equal(snapshot.status, "VERIFIED_EMPTY");
   assert.equal(snapshot.items.length, 0);
   assert.equal(snapshot.candidateOnlyCount > 0, true);
+});
+
+test("guided source context accepts only the exact ranked occurrence and limits visible verses", () => {
+  const occurrences = guidedOccurrences(1).map(({ setId: _setId, ...occurrence }) => occurrence);
+  const coverage = projectElsGuidedOccurrenceCoverage({
+    plan: guidedPlan(), occurrences, resultSetId: "set-current",
+    inspections: [guidedInspection("hit-1", { status: "VERIFIED_LOCAL", verifiedFindings: [{
+      term: "אמת", label: "אמת", status: "VERIFIED", skip: 31, direction: "fwd",
+      occurrenceCount: 2, matrixStage: "A", distance: 1, source: "story", ref: "בראשית א א", book: "בראשית",
+    }] })],
+  });
+  const item = coverage.matrixSnapshot.items[0];
+  const target = {
+    guidedSnapshotSource: true, guidedSnapshotItemId: item.id, hitId: item.occurrence.hitId,
+    resultSetId: item.occurrence.resultSetId, index: item.occurrence.index, occurrenceRef: item.occurrence.ref,
+  };
+  const verses = Array.from({ length: 5 }, (_, index) => ({
+    verseIndex: 10 + index, ref: `בראשית א ${index + 1}`, text: `פסוק ${index + 1}`, from: 100 + index * 10, to: 109 + index * 10,
+  }));
+  const source = projectElsGuidedSourceContext({ snapshot: coverage.matrixSnapshot, lensResult: {
+    lens: "verse-context", ok: true, target, hitId: item.occurrence.hitId,
+    span: { from: 10, to: 14, fromRef: "בראשית א א", toRef: "בראשית א ה", count: 5 }, verses, truncated: false,
+  } });
+  assert.equal(source.contract, "els_guided_source_context_v1");
+  assert.equal(source.status, "OK");
+  assert.equal(source.verses.length, 3);
+  assert.equal(source.engineReturnedCount, 5);
+  assert.equal(source.hasMore, true);
+  assert.deepEqual(source.exactReturn, { resultSetId: "set-current", index: 0, hitId: "hit-1", ordinal: 1, ref: "מקור 1" });
+  assert.deepEqual(source.verification, { occurrence: "MATCH", sourceText: "CANONICAL", meaning: "UNVERIFIED" });
+  assert.equal(source.modelCallsTriggered, 0);
+  assert.equal(source.findingMutation, false);
+  assert.equal(source.persisted, false);
+
+  assert.equal(projectElsGuidedSourceContext({ snapshot: coverage.matrixSnapshot, lensResult: {
+    lens: "verse-context", ok: true, target: { ...target, hitId: "hit-2" }, hitId: "hit-2", span: { from: 10, to: 10 }, verses: [verses[0]],
+  } }), null, "a response for another occurrence cannot attach to this item");
+});
+
+test("guided source context keeps an exact unavailable result honest", () => {
+  const occurrences = guidedOccurrences(1);
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [guidedInspection("hit-1")] });
+  const item = coverage.matrixSnapshot.items[0];
+  const source = projectElsGuidedSourceContext({ snapshot: coverage.matrixSnapshot, lensResult: {
+    lens: "verse-context", ok: false, target: {
+      guidedSnapshotSource: true, guidedSnapshotItemId: item.id, hitId: item.occurrence.hitId,
+      resultSetId: item.occurrence.resultSetId, index: item.occurrence.index, occurrenceRef: item.occurrence.ref,
+    },
+  } });
+  assert.equal(source.status, "UNAVAILABLE");
+  assert.equal(source.verses.length, 0);
+  assert.equal(source.verification.sourceText, "UNAVAILABLE");
+  assert.equal(source.truthPromotion, false);
 });
 
 test("a forged canonical replay receipt cannot verify a language relation", () => {

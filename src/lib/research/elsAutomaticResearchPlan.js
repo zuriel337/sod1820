@@ -7,10 +7,12 @@ export const ELS_CIPHER_DISCOVERY_PLAN_CONTRACT = "els_cipher_discovery_plan_v1"
 export const ELS_GUIDED_PLAN_SUMMARY_CONTRACT = "els_guided_discovery_plan_summary_v1";
 export const ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT = "els_guided_occurrence_coverage_v1";
 export const ELS_GUIDED_MATRIX_SNAPSHOT_CONTRACT = "els_guided_matrix_snapshot_v1";
+export const ELS_GUIDED_SOURCE_CONTEXT_CONTRACT = "els_guided_source_context_v1";
 export const ELS_AUTOMATIC_SLICE_SIZE = 8;
 export const ELS_GUIDED_OCCURRENCE_BATCH_SIZE = 4;
 export const ELS_GUIDED_OCCURRENCE_MAX_BATCHES = 2;
 export const ELS_GUIDED_MATRIX_SNAPSHOT_MAX_ITEMS = 5;
+export const ELS_GUIDED_SOURCE_VISIBLE_VERSE_LIMIT = 3;
 const MAX_INPUT_LENGTH = 4000;
 const MAX_EXPRESSIONS = 40;
 const MAX_BRIEF_LENGTH = 6000;
@@ -231,7 +233,7 @@ export function diagnoseElsGuidedFailure(failureCause) {
   return Object.freeze({ code: code || null, category, diagnosisRequired: category === "UNRESOLVED" });
 }
 
-const projectOccurrence = (row, inputOrder, triage) => Object.freeze({
+const projectOccurrence = (row, inputOrder, triage, resultSetId = "") => Object.freeze({
   hitId: occurrenceIdentity(row),
   index: Number.isSafeInteger(Number(row?.index)) ? Number(row.index) : null,
   ordinal: Number.isSafeInteger(Number(row?.ordinal)) ? Number(row.ordinal) : inputOrder + 1,
@@ -239,7 +241,7 @@ const projectOccurrence = (row, inputOrder, triage) => Object.freeze({
   direction: row?.direction ?? row?.dir ?? null,
   start: Number.isSafeInteger(Number(row?.start)) ? Number(row.start) : null,
   ref: String(row?.ref || ""),
-  resultSetId: String(row?.resultSetId || row?.setId || ""),
+  resultSetId: String(row?.resultSetId || row?.setId || resultSetId || ""),
   inputOrder,
   triage: triage ? Object.freeze({
     rank: finiteRank(triage.rank),
@@ -656,6 +658,58 @@ const projectGuidedMatrixSnapshot = (plan, inspections) => {
 };
 
 /**
+ * Projects the existing canonical verse-context lens for one ranked snapshot item. The exact
+ * occurrence identity must agree at every seam; a late response for another item is rejected.
+ * This is presentation-only and never searches, verifies, persists or invokes a model.
+ */
+export function projectElsGuidedSourceContext({ snapshot, lensResult } = {}) {
+  if (snapshot?.contract !== ELS_GUIDED_MATRIX_SNAPSHOT_CONTRACT || !Array.isArray(snapshot.items)
+    || lensResult?.lens !== "verse-context" || lensResult?.target?.guidedSnapshotSource !== true) return null;
+  const itemId = String(lensResult.target.guidedSnapshotItemId || "");
+  const item = snapshot.items.find(candidate => candidate.id === itemId);
+  const occurrence = item?.occurrence;
+  if (!item || !occurrence?.hitId || String(lensResult.target.hitId || "") !== occurrence.hitId
+    || String(lensResult.target.resultSetId || "") !== occurrence.resultSetId
+    || Number(lensResult.target.index) !== occurrence.index
+    || String(lensResult.target.occurrenceRef || "") !== occurrence.ref) return null;
+  const exactReturn = Object.freeze({
+    resultSetId: occurrence.resultSetId, index: occurrence.index, hitId: occurrence.hitId,
+    ordinal: occurrence.ordinal, ref: occurrence.ref,
+  });
+  const base = {
+    contract: ELS_GUIDED_SOURCE_CONTEXT_CONTRACT, itemId, hitId: occurrence.hitId,
+    occurrenceRef: occurrence.ref, exactReturn, source: "canonical_verse_context_lens",
+    modelCallsTriggered: 0, findingMutation: false, persisted: false, truthPromotion: false,
+  };
+  if (lensResult.ok !== true || String(lensResult.hitId || "") !== occurrence.hitId) {
+    return Object.freeze({ ...base, status: "UNAVAILABLE", span: null, verses: Object.freeze([]),
+      engineReturnedCount: 0, visibleLimit: ELS_GUIDED_SOURCE_VISIBLE_VERSE_LIMIT, hasMore: false,
+      verification: Object.freeze({ occurrence: "MATCH", sourceText: "UNAVAILABLE", meaning: "UNVERIFIED" }) });
+  }
+  const rawSpan = lensResult.span || {}, spanFrom = safeInteger(rawSpan.from), spanTo = safeInteger(rawSpan.to);
+  if (spanFrom == null || spanTo == null || spanFrom < 0 || spanTo < spanFrom) return null;
+  const span = Object.freeze({
+    from: spanFrom, to: spanTo, fromRef: String(rawSpan.fromRef || ""), toRef: String(rawSpan.toRef || ""),
+    count: Math.max(1, finiteNumber(rawSpan.count, spanTo - spanFrom + 1)),
+  });
+  const seen = new Set(), verses = [];
+  for (const raw of Array.isArray(lensResult.verses) ? lensResult.verses.slice(0, 60) : []) {
+    const verseIndex = safeInteger(raw?.verseIndex), from = safeInteger(raw?.from), to = safeInteger(raw?.to);
+    const ref = String(raw?.ref || "").trim(), text = String(raw?.text || "").trim().slice(0, 1200);
+    if (verseIndex == null || verseIndex < spanFrom || verseIndex > spanTo || from == null || to == null || to < from
+      || !ref || !text || seen.has(verseIndex)) continue;
+    seen.add(verseIndex);verses.push(Object.freeze({ verseIndex, ref, text, from, to }));
+  }
+  const visible = Object.freeze(verses.slice(0, ELS_GUIDED_SOURCE_VISIBLE_VERSE_LIMIT));
+  return Object.freeze({
+    ...base, status: visible.length ? "OK" : "UNAVAILABLE", span, verses: visible,
+    engineReturnedCount: verses.length, visibleLimit: ELS_GUIDED_SOURCE_VISIBLE_VERSE_LIMIT,
+    hasMore: lensResult.truncated === true || verses.length > visible.length, engineTruncated: lensResult.truncated === true,
+    verification: Object.freeze({ occurrence: "MATCH", sourceText: visible.length ? "CANONICAL" : "UNAVAILABLE", meaning: "UNVERIFIED" }),
+  });
+}
+
+/**
  * Breadth-before-depth projection over canonical reports. It schedules exact occurrence identities;
  * it does not search, verify, persist, mutate findings or call AI. Numeric skip patterns never rank.
  */
@@ -677,7 +731,7 @@ export function projectElsGuidedOccurrenceCoverage({
   for (const [inputOrder, occurrence] of occurrences.entries()) {
     const hitId = occurrenceIdentity(occurrence);
     if (!hitId || seenOccurrences.has(hitId)) continue;
-    seenOccurrences.add(hitId);uniqueOccurrences.push(projectOccurrence(occurrence, inputOrder, triageById.get(hitId)));
+    seenOccurrences.add(hitId);uniqueOccurrences.push(projectOccurrence(occurrence, inputOrder, triageById.get(hitId), resultSetId));
   }
   uniqueOccurrences.sort(compareOccurrencesForInspection);
   const schedule = Object.freeze(uniqueOccurrences.slice(0, approved * ELS_GUIDED_OCCURRENCE_BATCH_SIZE));

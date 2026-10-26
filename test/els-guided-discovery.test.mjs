@@ -99,6 +99,13 @@ test("Torah-language candidates stay Advanced while the smart snapshot is verifi
   assert.match(snapshot, /הקשר ומשמעות נשארים פרשנות לבדיקה/);
   assert.match(snapshot, /לעולם לא מספר דילוג לבדו/);
   assert.match(snapshot, /עוד \{snapshot\.candidateOnlyCount\} מועמדים לא מאומתים נשמרו תחת „מתקדם”/);
+  assert.match(snapshot, /מקור ופסוקים/);
+  assert.match(snapshot, /data-els-guided-source-context="ready"/);
+  assert.match(snapshot, /מראה־המקום וטקסט הפסוק הגיעו מעדשת המקור הקנונית/);
+  assert.match(snapshot, /חזור לממצא המדורג/);
+  assert.match(source, /projectElsGuidedSourceContext/);
+  assert.match(source, /guidedSnapshotSource: true/);
+  assert.match(source, /requestLens\("verse-context", target, \{ revealTool: false \}\)/);
   assert.match(source, /data-els-language-boundaries="unverified"/);
   assert.match(source, /פרופיל קטן של לשון התורה/);
   assert.match(source, /אינו מחזיק מילון ואינו קובע שאלה מילים/);
@@ -111,6 +118,7 @@ test("Torah-language candidates stay Advanced while the smart snapshot is verifi
   assert.match(source, /AI: אפס קריאות/);
   assert.doesNotMatch(source, /languageInspection[\s\S]{0,1200}requestFindingsChange/);
   assert.doesNotMatch(snapshot, /languageInspection|rawPatterns|requestFindingsChange|askRaziel|ai-analyze/);
+  assert.doesNotMatch(snapshot, /fetch\s*\(|postMessage\s*\(/);
 });
 
 test("Classic stays clean while Research alone owns manual cross-search controls", async () => {
