@@ -94,6 +94,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /LifeJourneyMaps2029/);
   assert.match(journey, /birthReflections/);
   assert.match(journey, /onBirthCalculationChange=\{rememberBirthReflection\}/);
+  assert.match(journey, /\/login\?returnTo=%2F2029%2Fjourney/);
   assert.match(journey, /תוצאות המחקר המשפחתי/);
   assert.match(journey, /runLifeJourneyFamilyAnalysis/);
   assert.match(journey, /runLifeJourneyFamilySourceResearch/);

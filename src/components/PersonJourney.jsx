@@ -1024,7 +1024,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       </div> : <span className="person-journey-symbol" aria-hidden="true">✦</span>}
       <h2>מסע החיים הוא מרחב פרטי</h2>
       <p>שם, תאריך ומשפחה נשמרים רק בהקשר האישי שלך. יש להתחבר כדי לפתוח מסע.</p>
-      <a href="/login">התחברות</a>
+      <a href={variant === "2029" ? "/login?returnTo=%2F2029%2Fjourney" : "/login"}>התחברות</a>
     </section>;
   }
 
