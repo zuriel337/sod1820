@@ -1,10 +1,24 @@
 import assert from "node:assert/strict";
-import { buildUploadIntent, evaluateReadBack, mayVerifyPath, validateDeclaredFile, SIX_MIB } from "../supabase/functions/media-upload-intent/contract.mjs";
+import { readFile } from "node:fs/promises";
+import {
+  buildHintMediaIntent,
+  buildUploadIntent,
+  evaluateReadBack,
+  HINT_MEDIA_CONTRACT,
+  makeHintMediaReceiptPayload,
+  mayVerifyPath,
+  signHintMediaReceipt,
+  validateDeclaredFile,
+  verifyHintMediaReceipt,
+  SIX_MIB,
+} from "../supabase/functions/media-upload-intent/contract.mjs";
 import { encodeTusMetadata, TUS_CHUNK_SIZE, TUS_VERSION, uploadResumableMedia, verifyUploadedMedia } from "../src/lib/mediaResumableUpload.js";
 
 const USER = "11111111-1111-4111-8111-111111111111";
 const CONTRIBUTOR = "22222222-2222-4222-8222-222222222222";
 const ID = "33333333-3333-4333-8333-333333333333";
+const HINT = "44444444-4444-4444-8444-444444444444";
+const OTHER_USER = "55555555-5555-4555-8555-555555555555";
 const NOW = new Date("2026-09-17T12:00:00Z");
 const idFactory = () => ID;
 
@@ -25,6 +39,42 @@ assert.equal(mayVerifyPath({ scope: "submission", path: accountImage.path, userI
 assert.equal(mayVerifyPath({ scope: "submission", path: `sod1820/2029/accounts/${CONTRIBUTOR}/x`, userId: USER }), false);
 assert.equal(mayVerifyPath({ scope: "public", path: publicVideo.path, userId: USER, isAdmin: false }), false);
 assert.equal(mayVerifyPath({ scope: "public", path: publicVideo.path, userId: USER, isAdmin: true }), true);
+
+const hintImage = buildHintMediaIntent({ hintId: HINT, userId: USER, mime: "image/webp", size: 2048, filename: "hint.webp", now: NOW, idFactory });
+assert.equal(hintImage.ownerKind, "research_item_hint");
+assert.equal(hintImage.role, "evidence_image");
+assert.equal(hintImage.bucket, "submission-inbox");
+assert.equal(hintImage.path, `sod1820/2029/accounts/${USER}/2026/09/${ID}/image/original.webp`);
+assert.throws(() => buildHintMediaIntent({ hintId: HINT, userId: USER, mime: "video/mp4", size: 2048, filename: "hint.mp4", now: NOW, idFactory }), /unsupported_mime/);
+
+const secret = "test-only-receipt-secret";
+const issuedPayload = makeHintMediaReceiptPayload({
+  phase: "issued", userId: USER, hintId: HINT, path: hintImage.path, submissionId: ID,
+  mime: hintImage.mime, size: hintImage.size, now: NOW,
+});
+const issuedToken = await signHintMediaReceipt(issuedPayload, secret);
+const verifiedIssued = await verifyHintMediaReceipt(issuedToken, secret, { phase: "issued", userId: USER, hintId: HINT, now: new Date("2026-09-17T12:30:00Z") });
+assert.equal(verifiedIssued.path, hintImage.path);
+assert.equal(verifiedIssued.cleanup_mode, null);
+await assert.rejects(verifyHintMediaReceipt(`${issuedToken.slice(0, -1)}x`, secret, { phase: "issued", userId: USER, now: NOW }), /invalid_receipt_signature|invalid_receipt/);
+await assert.rejects(verifyHintMediaReceipt(issuedToken, secret, { phase: "issued", userId: OTHER_USER, now: NOW }), /receipt_owner_mismatch/);
+await assert.rejects(verifyHintMediaReceipt(issuedToken, secret, { phase: "verified", userId: USER, now: NOW }), /invalid_receipt_phase/);
+await assert.rejects(verifyHintMediaReceipt(issuedToken, secret, { phase: "issued", userId: USER, now: new Date("2026-09-17T14:00:01Z") }), /receipt_expired/);
+
+const cleanupPayload = makeHintMediaReceiptPayload({
+  phase: "cleanup", cleanupMode: "delete", userId: USER, hintId: HINT, path: hintImage.path,
+  submissionId: ID, mime: hintImage.mime, size: hintImage.size,
+  storageObjectId: "66666666-6666-4666-8666-666666666666", now: NOW,
+});
+const cleanupToken = await signHintMediaReceipt(cleanupPayload, secret);
+assert.equal((await verifyHintMediaReceipt(cleanupToken, secret, { phase: "cleanup", userId: USER, now: NOW })).cleanup_mode, "delete");
+assert.throws(() => makeHintMediaReceiptPayload({
+  phase: "cleanup", cleanupMode: "purge", userId: USER, hintId: HINT, path: hintImage.path,
+  submissionId: ID, mime: hintImage.mime, size: hintImage.size,
+  storageObjectId: "66666666-6666-4666-8666-666666666666", now: NOW,
+}), /invalid_cleanup_mode/);
+assert.equal(HINT_MEDIA_CONTRACT.signedReadTtlSeconds, 60);
+assert.equal(HINT_MEDIA_CONTRACT.receiptTtlSeconds, 7200);
 
 const metadata = encodeTusMetadata({ bucketName: "media", objectName: publicVideo.path, contentType: "video/mp4" });
 assert.match(metadata, /^bucketName /);
@@ -85,5 +135,23 @@ await assert.rejects(verifyUploadedMedia(intent, opts(mkFetch(200, { ok: true, v
 await assert.rejects(verifyUploadedMedia(intent, {}), /verify_endpoint_required/);
 const receipt = await verifyUploadedMedia(intent, opts(mkFetch(200, good)));
 assert.equal(receipt.receipt.path, publicVideo.path);
+
+const edgeSource = await readFile(new URL("../supabase/functions/media-upload-intent/index.ts", import.meta.url), "utf8");
+const migrationSource = await readFile(new URL("../supabase/migrations/20261026212450_research_item_hint_private_media_v1.sql", import.meta.url), "utf8");
+for (const action of ["verify_hint_media", "bind_hint_media", "read_hint_media", "detach_hint_media", "delete_hint_with_media", "retry_hint_media_cleanup"]) {
+  assert.match(edgeSource, new RegExp(`action === ["']${action}["']`));
+}
+assert.match(edgeSource, /Cache-Control["']:\s*["']private, no-store/);
+assert.match(edgeSource, /private_research_item_hint_media_owner_check/);
+assert.match(edgeSource, /private_research_item_hint_media_bind/);
+assert.match(edgeSource, /p_actor_id:\s*actor\.userId/g);
+assert.doesNotMatch(edgeSource, /p_actor_id:\s*body\./);
+assert.match(edgeSource, /createSignedUrl\(resolved\.path, HINT_MEDIA_CONTRACT\.signedReadTtlSeconds\)/);
+assert.doesNotMatch(edgeSource, /uploadHintImage|community_hints|gallery\.upload/);
+assert.doesNotMatch(edgeSource, /ai-analyze|research-run|els2029|Raziel|raziel/i);
+assert.match(migrationSource, /research_items\s+add column if not exists media jsonb not null default '\[\]'/i);
+assert.match(migrationSource, /executor_enabled', false/);
+assert.match(migrationSource, /retention_ttl_decided', false/);
+assert.doesNotMatch(migrationSource, /cron\.schedule|net\.http|create table/i);
 
 console.log("G3 media upload runtime acceptance: PASS");
