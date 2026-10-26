@@ -103,3 +103,56 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     await server.close();
   }
 });
+
+test("Raziel exact-return URL loads the saved ELS coordinates through the existing canonical matrix input", { skip: !available, timeout: 60000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    browser = await pw.chromium.launch({ headless: true, executablePath });
+    for (const width of [320, 1440]) {
+      const page = await browser.newPage({ viewport: { width, height: 900 } });
+      const query = new URLSearchParams({
+        els_return: "verified-v1",
+        term: "משיח",
+        scope: "torah",
+        corpus: "fixture-torah",
+        skip: "17",
+        dir: "1",
+        start: "100",
+        occurrence: "anon:fixture-occurrence",
+      });
+      await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?${query}`);
+      await page.waitForFunction(() => window.__advancedLoad?.hitId === "17_1_100");
+      const loaded = await page.evaluate(() => window.__advancedLoad);
+      assert.deepEqual({
+        term: loaded.term,
+        scope: loaded.scope,
+        corpusId: loaded.corpusId,
+        skip: loaded.skip,
+        dir: loaded.dir,
+        start: loaded.start,
+        occurrenceRef: loaded.occurrenceRef,
+      }, {
+        term: "משיח",
+        scope: "torah",
+        corpusId: "fixture-torah",
+        skip: 17,
+        dir: 1,
+        start: 100,
+        occurrenceRef: "anon:fixture-occurrence",
+      });
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${width}: exact return has no horizontal overflow`);
+      await page.close();
+    }
+    const invalid = await browser.newPage({ viewport: { width: 320, height: 900 } });
+    await invalid.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?els_return=verified-v1&term=${encodeURIComponent("משיח")}&scope=torah&skip=17&dir=1`);
+    await invalid.getByRole("heading", { name: "הצופן הקלאסי" }).waitFor();
+    assert.equal(await invalid.evaluate(() => window.__advancedLoad), null);
+    assert.equal(await invalid.evaluate(() => window.__libraryMatrix), null, "an incomplete exact return never degrades to legacy skip-only loading");
+    await invalid.close();
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});

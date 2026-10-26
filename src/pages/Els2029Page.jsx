@@ -16,7 +16,7 @@ import { supabase } from "../lib/supabase.js";
 import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
 import { projectEls2029Result } from "../lib/research/els2029Projection.js";
 import { projectEls2029Layers } from "../lib/research/els2029Layers.js";
-import { buildElsRazielSurfaceContext } from "../lib/research/elsRazielContext.js";
+import { buildElsRazielSurfaceContext, readElsRazielExactReturn } from "../lib/research/elsRazielContext.js";
 import { ELS_MATRIX_PROFILE, projectElsMatrixProfile } from "../lib/research/els2029MatrixMode.js";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
@@ -87,6 +87,12 @@ export default function Els2029Page({ previewAdvanced = false }) {
   const research = useResearch();
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
+  const paramsKey = params.toString();
+  const hasRazielReturnMarker = params.has("els_return");
+  const exactRazielReturn = useMemo(
+    () => readElsRazielExactReturn(new URLSearchParams(paramsKey)),
+    [paramsKey]
+  );
   const library = params.get("library");
   const [workspaceVisited, setWorkspaceVisited] = useState(!library);
   const [searchRevision, setSearchRevision] = useState(0);
@@ -149,6 +155,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
   const [exactStatus, setExactStatus] = useState("idle");
   const [automaticSummary, setAutomaticSummary] = useState(null);
   const pendingProbeRef = useRef(null);
+  const exactReturnLoadRef = useRef(null);
   const [formsPreviewRequest, setFormsPreviewRequest] = useState(null);
   const formsRequestSeq = useRef(0);
   const pendingFormsRef = useRef(new Map());
@@ -175,6 +182,26 @@ export default function Els2029Page({ previewAdvanced = false }) {
     pending.resolve(Array.isArray(result.rows) ? result.rows : []);
   };
   useEffect(() => { setResearchLoad(null); setResearchProbe(null); setExactStatus("idle"); setAutomaticSummary(null); pendingProbeRef.current = null; }, [cipherSlug, recordId]);
+  useEffect(() => {
+    if (!exactRazielReturn) {
+      exactReturnLoadRef.current = null;
+      return;
+    }
+    const loadKey = [
+      exactRazielReturn.term,
+      exactRazielReturn.scope,
+      exactRazielReturn.corpusId || "",
+      exactRazielReturn.skip,
+      exactRazielReturn.dir,
+      exactRazielReturn.start,
+    ].join("|");
+    if (exactReturnLoadRef.current === loadKey) return;
+    exactReturnLoadRef.current = loadKey;
+    pendingProbeRef.current = null;
+    setResearchProbe(null);
+    setExactStatus("idle");
+    setResearchLoad(exactRazielReturn);
+  }, [exactRazielReturn]);
   const requestExactSkip = request => {
     pendingProbeRef.current = request.requestId;
     setExactStatus("probing");
@@ -195,7 +222,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
   // and becomes the replayable 2029 selection; do not remount the tool on every context update.
   const [classicSeed] = useState(() => clean(params.get("term") || params.get("q") || selection?.term || subject?.label || ""));
   const legacySkip = Number(params.get("skip"));
-  const legacyMatrix = classicSeed && Number.isSafeInteger(legacySkip) && Math.abs(legacySkip) >= 2
+  const legacyMatrix = !hasRazielReturnMarker && classicSeed && Number.isSafeInteger(legacySkip) && Math.abs(legacySkip) >= 2
     ? { search_term: classicSeed, skip_distance: legacySkip, scope: params.get("scope") === "tanakh" ? "tanakh" : "torah", positions: null }
     : null;
 
@@ -326,7 +353,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix} active={!library} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+        <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix || hasRazielReturnMarker ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix} active={!library} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
             setSavedRevision(value => value + 1);

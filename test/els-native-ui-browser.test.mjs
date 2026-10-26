@@ -95,11 +95,13 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
      React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
- const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
+ const [{default:Frame,use2029Shell},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
  function PaletteProbe(){const p=usePalette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
+ function VerifiedElsRazielFixture(){const shell=use2029Shell();return React.createElement('button',{type:'button','data-open-verified-els':'true',onClick:()=>shell.openRaziel({razielMicroIntent:'explain_els_occurrence',elsSurfaceContext:{v:1,surface:'els',occurrence:{occurrenceRef:'anon:fixture-occurrence',term:'משיח',corpus:'torah',skip:17,dir:1,start:100,end:151,positions:[100,117,134,151]},result:{contract:'els_2029_projection_v1',status:'OK',corpusId:'fixture-torah',presentationPolicy:'exact_replay_v1'},verification:{state:'MATCH',source:'canonical_els_engine',interpretation:false}}})},'פתח מופע ELS מאומת');}
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
   return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},React.createElement(PaletteProbe),
+   React.createElement(VerifiedElsRazielFixture),
    React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native):React.createElement('p',null,'Library fixture'))));
  }
  createRoot(document.getElementById('root')).render(React.createElement(FullFrameFixture));
@@ -202,7 +204,7 @@ const realHostStubs = {
 // Use the actual SystemFrame/Command Island for integration acceptance. Only unrelated
 // domain projections and external reads are isolated; no dock/registration test double.
 const frameStubs = {
- '../../lib/supabase.js': `export const askRaziel=async()=>({});export const getNotificationPrefs=async()=>({});`,
+ '../../lib/supabase.js': `export const askRaziel=async request=>{(window.__razielAiCalls||=[]).push(structuredClone(request));return {answer:'תשובת fixture',intelligence_level:'fast'};};export const getNotificationPrefs=async()=>({});`,
  '../../lib/notifications.js': `export const getMyNotifications=async()=>[];export const getUnreadCount=async()=>0;export const markNotificationRead=async()=>{};export const topicLabel=x=>x;`,
  '../../lib/commandCenter.js': `export const getMyProfile=async()=>null;export const watchToggle=async()=>{};`,
  '../../lib/tracking.js': `export const getVisitorId=()=>'frame-fixture';`,
@@ -220,7 +222,9 @@ async function withNative(viewport, run, options = {}) {
       if (id === 'els-native-fixture') return '\0els-native-fixture';
       if (fullFrame && id.endsWith('/ResearchProvider.jsx')) return '\0els-frame-research';
       if (fullFrame && id.endsWith('/MaintenanceLock.jsx')) return '\0els-frame-open-flags';
-      if (fullFrame && importer?.endsWith('/SystemFrame2029.jsx') && Object.hasOwn(frameStubs,id)) return '\0els-frame-stub:'+Object.keys(frameStubs).indexOf(id);
+      const frameImporter = importer?.endsWith('/SystemFrame2029.jsx')
+        || (id === '../../lib/supabase.js' && importer?.endsWith('/RazielSessionMount2029.jsx'));
+      if (fullFrame && frameImporter && Object.hasOwn(frameStubs,id)) return '\0els-frame-stub:'+Object.keys(frameStubs).indexOf(id);
       if (id.endsWith('/AuthContext.jsx')) return '\0els-host-stub:../lib/AuthContext.jsx';
       if (!realHost && id === '../TzofenEmbed.jsx' && importer?.endsWith('/ElsNativeClassic2029.jsx')) return '\0els-native-host';
       if (realHost && importer?.endsWith('/TzofenEmbed.jsx') && Object.hasOwn(realHostStubs, id)) return '\0els-host-stub:' + id;
@@ -675,6 +679,30 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    assert.equal(await dock.locator('[data-tool-action]').count(),0,'leaving the matrix removes its tool registration');
    assert.equal(await dock.getByRole('button',{name:'עכשיו · בשבילי',exact:true}).count(),1);
   },{fullFrame:true,leavesMatrix:true,mobile:width<981});
+ });
+
+test('native UI: verified ELS context reaches the one global Raziel session at 320px and desktop only after explicit submit',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,1440])await withNative({width,height:900},async page=>{
+   await page.locator('[data-open-verified-els="true"]').click();
+   const card=page.locator('[data-raziel-els-context="true"]:visible');
+   await card.waitFor();
+   assert.match(await card.innerText(),/הביטוי · משיח/);
+   assert.match(await card.innerText(),/דילוג 17 · קדימה · 100 → 151/);
+   assert.match(await card.innerText(),/els_2029_projection_v1 · OK · exact_replay_v1/);
+   assert.equal(await page.locator('[data-raziel-return-to-els="true"]:visible').count(),1);
+   assert.equal(await page.evaluate(()=>window.__razielAiCalls?.length||0),0,'opening verified context makes no AI request');
+   const chat=page.locator('[data-raziel-native-chat="true"]:visible');
+   await chat.getByLabel('שאלה לרזיאל').fill('מה מאומת במופע הזה?');
+   await chat.getByRole('button',{name:'שלח',exact:true}).click();
+   await page.waitForFunction(()=>window.__razielAiCalls?.length===1);
+   const request=await page.evaluate(()=>window.__razielAiCalls[0]);
+   assert.equal(request.surfaceSemantic.els.term,'משיח');
+   assert.equal(request.surfaceSemantic.els.start,100);
+   assert.equal(request.surfaceSemantic.els.skip,17);
+   assert.match(request.facts,/אין לחשב או להשלים נתוני ELS חסרים/);
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${width}: ELS Raziel has no horizontal overflow`);
+  },{fullFrame:true,mobile:width<981});
  });
 
 test('native UI: vivid colors and exact finding focus stay readable in every theme without changing research',
