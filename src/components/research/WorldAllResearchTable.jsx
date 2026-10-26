@@ -75,6 +75,15 @@ const SORT_LABELS = Object.freeze({
   newest: "החדשים ביותר",
 });
 
+const CONTINUATION_LABELS = Object.freeze({
+  already_connected: "כבר מחובר לעץ",
+  ready: "מוכן ליישום מבוקר",
+  clustered: "אשכול כפילות מאושר",
+  blocked_missing_target: "חסום · חסר יעד",
+  needs_review: "עדיין דורש בדיקה",
+  set_aside: "הושם בצד",
+});
+
 function humanLabel(map, value, fallback = "אחר") {
   return map[clean(value)] || fallback;
 }
@@ -143,6 +152,13 @@ function triageClass(value) {
   return "is-review";
 }
 
+function continuationClass(value) {
+  if (["already_connected", "ready"].includes(value)) return "is-ready";
+  if (value === "clustered") return "is-duplicate";
+  if (["blocked_missing_target", "set_aside"].includes(value)) return "is-blocked";
+  return "is-review";
+}
+
 function treeTargetLabel(match) {
   const type = match?.type === "number" ? "מספר" : match?.type === "topic" ? "נושא" : match?.type === "book" ? "ספר" : "יעד";
   return `${type} · ${clean(match?.label || match?.key)}`;
@@ -196,6 +212,7 @@ export default function WorldAllResearchTable({ state }) {
   const [sort, setSort] = useState(initial.sort);
   const [strength, setStrength] = useState(initial.strength);
   const [recommendation, setRecommendation] = useState(initial.recommendation);
+  const [continuation, setContinuation] = useState("all");
   const [quality, setQuality] = useState("all");
   const [topic, setTopic] = useState("all");
   const [source, setSource] = useState("all");
@@ -205,8 +222,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, quality, topic, source,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, quality, topic, source]);
+    sort, strength, recommendation, continuation, quality, topic, source,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source]);
 
   const resetFilters = () => {
     setQuery("");
@@ -221,6 +238,7 @@ export default function WorldAllResearchTable({ state }) {
     setSort("strength");
     setStrength("all");
     setRecommendation("all");
+    setContinuation("all");
     setQuality("all");
     setTopic("all");
     setSource("all");
@@ -299,7 +317,7 @@ export default function WorldAllResearchTable({ state }) {
     {projection ? <>
       <div className="sod29-world-all-research-summary">
         <span><b>{projection.triageSnapshot?.matchedCards || 0}</b> כרטיסים מדוח המיון</span>
-        <span><b>{projection.triageSnapshot?.recommendationCounts?.["מתאים לעץ"] || 0}</b> מומלצים לעץ</span>
+        <span><b>{projection.triageSnapshot?.recommendationCounts?.["מתאים לעץ"] || 0}</b> המלצות עץ בדוח 22.10</span>
         <span><b>{projection.triageSnapshot?.strengthCounts?.["חזק"] || 0}</b> ממצאים חזקים</span>
         <span><b>{projection.treeMatchedResearchOccurrences || 0}</b> רשומות מחוברות ליעד קיים בעץ</span>
         <span><b>{projection.meteredResearchOccurrences || 0}</b> רשומות עם מד יעד זמין</span>
@@ -307,14 +325,25 @@ export default function WorldAllResearchTable({ state }) {
         <span><b>{projection.triageSnapshot?.untriagedLiveCards || 0}</b> חדשים שטרם מוינו בדוח</span>
       </div>
 
+      {projection.triageSnapshot?.strongContinuation ? <div className="sod29-world-all-research-summary">
+        <span><b>{projection.triageSnapshot.strongContinuation.alreadyConnected}</b> חזקים שכבר מחוברים</span>
+        <span><b>{projection.triageSnapshot.strongContinuation.readyForImplementation}</b> מוכנים ליישום מבוקר</span>
+        <span><b>{projection.triageSnapshot.strongContinuation.clusteredDuplicates}</b> כפילויות תקינות לתצוגת אשכול</span>
+        <span><b>{projection.triageSnapshot.strongContinuation.correctedDuplicateClassifications}</b> סיווגי כפילות שתוקנו</span>
+        <span><b>{projection.triageSnapshot.strongContinuation.blockedMissingTarget}</b> חסומים עד יצירת יעד</span>
+        <span><b>{projection.triageSnapshot.strongContinuation.needsReview}</b> עדיין דורשים בדיקה</span>
+        <span><b>{projection.triageSnapshot.strongContinuation.setAside}</b> הושמו בצד</span>
+      </div> : null}
+
       {projection.truncated ? <div className="sod29-world-all-research-state">המאגר גדול מגבול הקריאה הנוכחי; מוצג כל מה שנטען והמצב מסומן כחלקי.</div> : null}
-      <div className="sod29-world-all-research-state">דוח המיון מ־22.10.2026 מוצמד לקריאה החיה לפי מזהה ממצא. הטקסט, ההרשאות, מצב הפרסום, המקורות והיעדים נקראים עכשיו מהמערכת; הדוח אינו משנה אותם.</div>
+      <div className="sod29-world-all-research-state">דוח המיון מ־22.10.2026 נשמר כנקודת ייחוס. החלטות ההמשך מ־26.10.2026 מוצגות מעליו בנפרד. הטקסט, ההרשאות, מצב הפרסום, המקורות והיעדים נקראים עכשיו מהמערכת; שכבת המיון אינה משנה אותם.</div>
 
       <div className="sod29-world-all-research-filters">
         <label className="is-wide"><span>חיפוש בממצאים</span><input value={query} onChange={(e) => { setQuery(e.target.value); setFinding(""); }} placeholder="טקסט, מזהה, חוקר, מספר או מקור…" /></label>
         <label><span>סדר</span><select value={sort} onChange={(e) => setSort(e.target.value)}>{Object.entries(SORT_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
         <label><span>חוזק</span><select value={strength} onChange={(e) => setStrength(e.target.value)}><option value="all">כל רמות החוזק</option>{Object.entries(projection.byTriageStrength || {}).map(([value, count]) => <option value={value} key={value}>{value} · {count}</option>)}</select></label>
         <label><span>המלצת מיון</span><select value={recommendation} onChange={(e) => setRecommendation(e.target.value)}><option value="all">כל ההמלצות</option>{Object.entries(projection.byTriageRecommendation || {}).map(([value, count]) => <option value={value} key={value}>{value} · {count}</option>)}</select></label>
+        <label><span>החלטת המשך</span><select value={continuation} onChange={(e) => setContinuation(e.target.value)}><option value="all">כל החלטות ההמשך</option>{Object.entries(projection.byContinuationState || {}).map(([value, count]) => <option value={value} key={value}>{humanLabel(CONTINUATION_LABELS, value, "מצב המשך נוסף")} · {count}</option>)}</select></label>
         <label><span>איכות ראיות</span><select value={quality} onChange={(e) => setQuality(e.target.value)}><option value="all">עם ובלי נתון</option>{Object.entries(QUALITY_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
         <label><span>נושא בעץ</span><select value={topic} onChange={(e) => setTopic(e.target.value)}><option value="all">כל הנושאים</option>{(projection.topicOptions || []).map((option) => <option value={option.value} key={option.value}>{option.label} · {option.count}</option>)}</select></label>
         <label><span>מקור</span><select value={source} onChange={(e) => setSource(e.target.value)}><option value="all">כל המקורות</option>{(projection.sourceOptions || []).map((option) => <option value={option.value} key={option.value}>{option.label} · {option.count}</option>)}</select></label>
@@ -341,9 +370,16 @@ export default function WorldAllResearchTable({ state }) {
           const highlightNumbers = rating?.highlightNumbers?.length ? rating.highlightNumbers : row.values;
           const triage = row.triage || null;
           const treeTargets = Array.isArray(row.treeMatches) ? row.treeMatches : [];
+          const representativeId = triage?.displayRepresentativeId || triage?.recommendedKeepId || null;
+          const representativeHref = representativeId
+            ? `/world?admin=1&finding=${encodeURIComponent(representativeId)}#finding-${encodeURIComponent(representativeId)}`
+            : null;
           const keepHref = triage?.recommendedKeepId
             ? `/world?admin=1&finding=${encodeURIComponent(triage.recommendedKeepId)}#finding-${encodeURIComponent(triage.recommendedKeepId)}`
             : null;
+          const proposedTreeTargets = triage?.proposedTreeTargets?.length
+            ? triage.proposedTreeTargets
+            : triage?.proposedTreeTarget ? [triage.proposedTreeTarget] : [];
           return <article className="sod29-world-all-research-row" id={`finding-${row.sourceId}`} key={row.id}>
           <div className="sod29-world-all-research-row-head">
             <div className="sod29-world-all-research-tags">
@@ -369,6 +405,11 @@ export default function WorldAllResearchTable({ state }) {
             <strong>{triage?.recommendation || "טרם מוין בדוח"}</strong>
           </div>
 
+          {triage?.continuationState ? <div className={`sod29-world-triage-recommendation ${continuationClass(triage.continuationState)}`}>
+            <span><small>החלטת המשך · 26.10.2026</small><strong>{triage.continuationLabel || humanLabel(CONTINUATION_LABELS, triage.continuationState, "מצב המשך")}</strong></span>
+            <small>{triage.continuationReason}</small>
+          </div> : null}
+
           {row.mediaUrl ? <img className="sod29-world-all-research-media" src={row.mediaUrl} loading="lazy" alt="" /> : null}
           <strong>{safeVisibleText(row.statement, "ממצא מחקר")}</strong>
           {row.secondary && row.secondary !== row.statement ? <p className="sod29-world-all-research-secondary">{safeVisibleText(row.secondary, null)}</p> : null}
@@ -385,6 +426,7 @@ export default function WorldAllResearchTable({ state }) {
             <summary>למה הממצא נמצא במקום הזה?</summary>
             <div>
               <p>{triage?.evidenceReason || "הממצא נוסף אחרי נקודת החיתוך של הדוח ולכן טרם קיבל הכרעת מיון."}</p>
+              {triage?.historicalRecommendation ? <p>בדוח 22.10 ההמלצה הייתה „{triage.historicalRecommendation}”; החלטת ההמשך מוצגת בנפרד ואינה משנה את הרשומה החיה.</p> : null}
               {row.researchStrength?.reasons?.length ? <ul>{row.researchStrength.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul> : null}
               <small>חוזק, איכות ראיות, מספר מקורות, אימות ופרסום נשארים צירים נפרדים. אף אחד מהם אינו ציון אמת.</small>
             </div>
@@ -392,11 +434,20 @@ export default function WorldAllResearchTable({ state }) {
 
           <DuplicateOccurrences row={row} />
 
-          {keepHref ? <div className="sod29-world-semantic-duplicate">
+          {representativeHref ? <div className="sod29-world-semantic-duplicate">
             <strong>כפילות סמנטית שסומנה בדוח</strong>
-            <p>הרשומה נשמרת. הגרסה הארוכה/המלאה יותר שמומלץ לשמור כנציגה היא <code dir="ltr">{triage.recommendedKeepId}</code>.</p>
+            <p>כל הרשומות והמקורות נשמרים. הנוסח הארוך/המלא שנבחר כנציג התצוגה הוא <code dir="ltr">{representativeId}</code>.</p>
+            {triage.recommendedKeepId && triage.recommendedKeepId !== representativeId ? <p>מצביע השמירה מדוח 22.10 נשאר <code dir="ltr">{triage.recommendedKeepId}</code>; הוא אינו מחליף את נציג התצוגה המלא יותר.</p> : null}
             {triage.duplicateIds?.length ? <small>מזהים קשורים: {triage.duplicateIds.join(" · ")}</small> : null}
-            <a className="sod29-action" href={keepHref}>פתח את הגרסה המומלצת ←</a>
+            <div className="sod29-actions">
+              <a className="sod29-action" href={representativeHref}>פתח את נציג התצוגה ←</a>
+              {keepHref && keepHref !== representativeHref ? <a className="sod29-action" href={keepHref}>פתח את מצביע השמירה ←</a> : null}
+            </div>
+          </div> : null}
+
+          {triage?.relatedFindingIds?.length ? <div className="sod29-world-semantic-duplicate">
+            <strong>ממצאים קשורים · אינם כפילות</strong>
+            <small>{triage.relatedFindingIds.join(" · ")}</small>
           </div> : null}
 
           {row.attributionLabel ? <div className="sod29-world-all-research-cluster">{safeVisibleText(row.attributionLabel, "ייחוס המקור לא הוכרע")}</div> : null}
@@ -415,7 +466,10 @@ export default function WorldAllResearchTable({ state }) {
               popover
             />
             {rating?.href ? <Link className="sod29-action" to={rating.href}>פתח את יעד העץ ←</Link> : null}
-            {triage?.proposedTreeTarget ? <p>יעד שהומלץ בדוח: <code dir="ltr">{triage.proposedTreeTarget}</code></p> : null}
+            {proposedTreeTargets.length ? <details className="sod29-world-all-research-duplicates" open={proposedTreeTargets.length > 1}>
+              <summary>יעדי העץ שהומלצו · {proposedTreeTargets.length}</summary>
+              <ul>{proposedTreeTargets.map((target) => <li key={target}><code dir="ltr">{target}</code></li>)}</ul>
+            </details> : null}
             {treeTargets.length ? <details className="sod29-world-all-research-duplicates">
               <summary>כל החיבורים המתועדים לעץ · {treeTargets.length}</summary>
               <ul>{treeTargets.map((match, targetIndex) => <li key={`${match.type}:${match.key}:${targetIndex}`}>{treeTargetLabel(match)}</li>)}</ul>

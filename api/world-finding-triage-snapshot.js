@@ -2,6 +2,11 @@
 // Server-only preview annotation: identifiers and decisions only; live finding text,
 // access, status, sources and tree targets still come from the canonical World reader.
 
+import {
+  WORLD_FINDING_STRONG_CONTINUATION_META,
+  getWorldFindingStrongContinuation,
+} from "./world-finding-triage-continuation.js";
+
 const STRENGTH_LABELS = Object.freeze(["חזק","בינוני","חלש"]);
 const RECOMMENDATION_LABELS = Object.freeze(["מתאים לעץ","דורש בדיקה","כפילות","דורש מקור","שיוך זהות לא פתור","דורש OCR או תמלול","לא מתאים"]);
 const EVIDENCE_REASONS = Object.freeze(["אימות מנוע מפורש תואם ויעד מדויק קיים.","האימות המפורש עובר, אך לא נמצא יעד עץ מדויק קיים.","אימות מנוע מפורש תואם ויעד מדויק קיים. 2 הופעות מדויקות אוגדו ואינן מקורות עצמאיים.","אותה ליבה כבר כלולה ב-bd2b112f-f8ad-41dc-ab30-959795200d6d; חזרות מקור אינן ראיה עצמאית.","יש התאמה מכנית, אך work_log הוא provenance ולא מקור תוכן עצמאי.","אותה ליבה כבר כלולה ב-8593fe3e-9606-4b2b-bd52-0c4a0285c4e3; חזרות מקור אינן ראיה עצמאית.","אין שיוך אדם/תורם מבוסס מספיק; אין לייחס לפי ניחוש.","אותה ליבה כבר כלולה ב-050ca908-d01f-413a-b32d-3db37e72c7e2; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-ef7d9c29-675d-47f5-afdb-b0606497c9c3; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-3f50af95-8e82-412c-bbac-b87b60de66e9; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-103cdb3e-048f-46dd-b19a-ac45526c0008; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-d643fec4-c276-4c32-9560-6f06a60172f3; חזרות מקור אינן ראיה עצמאית.","החישוב עובר, אך זהות המדיה המצוטטת אינה קשורה ישירות לממצא.","אותה ליבה כבר כלולה ב-2912366c-b1f6-4c60-8823-35cf5ccfa9d1; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-6b25e21e-52a5-4be8-b2d2-573e553c6e80; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-d41cc580-6773-4401-b587-4dd0bbf9bd87; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-80e1a0dd-dbc1-4da5-9a92-86952ee98962; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-06c22b3f-9988-460b-9888-516015e20e68; חזרות מקור אינן ראיה עצמאית.","חפיפה חלקית עם ממצא אחר, אך קיימת גם שורה ייחודית; יש לפצל בלי לאבד תוכן.","אותה ליבה כבר כלולה ב-cb1e33ad-ed76-4370-9272-f8518c24ee10; חזרות מקור אינן ראיה עצמאית.","מצב האימות הוא not_tested; חיבור לעץ או מד אינם הופכים אותו לאמת.","הכרטיס תלוי במדיה ולא קיים אימות מפורש של החילוץ.","אין מקור תוכן עצמאי מספיק ואין verification_state=match.","זהו engine_verified ישן ללא verification_state מפורש; נדרש replay עדכני.","השיטה אינה ממופה וגם אין מקור תוכן עצמאי מספיק.","הטענה תלויה במדיה והשיטה אינה מזוהה.","טענת מקור לא־חישובית עם עדות עמוד מדויקת; יש לשמור אותה כטענת המקור, לא כאמת חיצונית.","זו השערה/התכנסות ולא חיבור מאומת.","האימות החישובי אינו חל; נדרשת הכרעת מקור/ניסוח לפני הכנסה.","עדות המקור אומתה או שוחזרה עם רכיבים בדוקים ויעד ספר מדויק קיים.","הממצא מעורב או סותר בחלקו; יש לפצל את החלקים העוברים מן החלקים שנכשלו.","רק הליבה המספרית מאומתת; הפרשנות, האירוע או התחזית מוחרגים.","מצב האימות החריג אינו אישור מלא; נדרשת הכרעת אדם.","תוצאת המנוע סותרת את הערך הנטען; אין להכניס את הטענה.","עדות/תבנית קיימת, אך האופרטור או הסמנטיקה אינם ממופים קנונית.","השחזור או רכיבי המנוע קיימים, אך עדות ה־PDF טרם הוכרעה."]);
@@ -40,10 +45,24 @@ export const WORLD_FINDING_TRIAGE_META = Object.freeze({
   duplicateOccurrencesCombined: 487,
   strengthCounts: Object.freeze({ ...strengthCounts }),
   recommendationCounts: Object.freeze({ ...recommendationCounts }),
+  strongContinuation: WORLD_FINDING_STRONG_CONTINUATION_META,
 });
 
 export function getWorldFindingTriageSnapshot(findingId) {
-  return SNAPSHOT_INDEX.get(String(findingId || "").replace(/^research:/, "")) || null;
+  const id = String(findingId || "").replace(/^research:/, "");
+  const snapshot = SNAPSHOT_INDEX.get(id) || null;
+  if (!snapshot) return null;
+  const continuation = getWorldFindingStrongContinuation(id);
+  if (!continuation) return snapshot;
+  const historicalRecommendation = continuation.recommendation
+    && continuation.recommendation !== snapshot.recommendation
+    ? snapshot.recommendation
+    : null;
+  return Object.freeze({
+    ...snapshot,
+    ...continuation,
+    ...(historicalRecommendation ? { historicalRecommendation } : {}),
+  });
 }
 
 export function hasWorldFindingTriageSnapshot(findingId) {

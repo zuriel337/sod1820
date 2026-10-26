@@ -20,6 +20,7 @@ export async function fetchWorldFindingReviewPage({ filters = {}, offset = 0, si
     sort: clean(filters.sort) || "strength",
     strength: clean(filters.strength) || "all",
     recommendation: clean(filters.recommendation) || "all",
+    continuation: clean(filters.continuation) || "all",
     quality: clean(filters.quality) || "all",
     topic: clean(filters.topic) || "all",
     source: clean(filters.source) || "all",

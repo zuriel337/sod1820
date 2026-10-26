@@ -223,6 +223,20 @@ test("strength, evidence quality and publication remain separate filterable axes
   assert.deepEqual(filterWorldFindingReviewRows([row], { status: "published" }), []);
 });
 
+test("continuation decisions are manager-only filterable annotations and live promotion wins", () => {
+  const ready = reviewRow("38ac8d16-9bee-4292-97c6-b02b0eee8cf6");
+  const blocked = reviewRow("06c22b3f-9988-460b-9888-516015e20e68");
+  const promoted = reviewRow("01ab7adc-92f0-4c76-92fb-3ee43411d32e", {
+    promotedNodeId: "4c6bbf1f-3e0c-49df-8798-b9c41caef85c",
+  });
+
+  assert.equal(ready.triage.continuationState, "ready");
+  assert.equal(ready.triage.proposedTreeTargets.length, 3);
+  assert.equal(blocked.triage.continuationState, "blocked_missing_target");
+  assert.equal(promoted.triage.continuationState, "already_connected");
+  assert.deepEqual(filterWorldFindingReviewRows([blocked, promoted, ready], { continuation: "ready" }), [ready]);
+});
+
 test("canonical contributor scope keeps stable identity and registered aliases without guessing", () => {
   const exact = reviewRow("10000000-0000-4000-8000-000000000001", {
     sourceContributorId: ZVI_ID,

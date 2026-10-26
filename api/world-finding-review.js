@@ -72,7 +72,15 @@ function directFindingHref(sourceId) {
 }
 
 export function enrichWorldFindingReviewRow(row) {
-  const triage = getWorldFindingTriageSnapshot(row?.sourceId || row?.id);
+  const snapshotTriage = getWorldFindingTriageSnapshot(row?.sourceId || row?.id);
+  const triage = snapshotTriage?.strength === "חזק" && clean(row?.promotedNodeId)
+    ? Object.freeze({
+      ...snapshotTriage,
+      continuationState: "already_connected",
+      continuationLabel: "כבר מחובר לעץ",
+      continuationReason: "הרשומה החיה כבר מצביעה ליעד קיים. שכבת המיון אינה משנה את החיבור.",
+    })
+    : snapshotTriage;
   const quality = evidenceQuality(row);
   return {
     ...row,
@@ -140,8 +148,13 @@ function reviewSearchHaystack(row) {
     row?.triage?.strength,
     row?.triage?.recommendation,
     row?.triage?.evidenceReason,
+    row?.triage?.continuationLabel,
+    row?.triage?.continuationReason,
     row?.triage?.proposedTreeTarget,
+    ...(row?.triage?.proposedTreeTargets || []),
     row?.triage?.recommendedKeepId,
+    row?.triage?.displayRepresentativeId,
+    ...(row?.triage?.relatedFindingIds || []),
     ...(row?.treeMatches || []).flatMap((match) => [match?.key, match?.label, match?.type]),
   ].filter((value) => value != null).join(" ").toLowerCase();
 }
@@ -152,6 +165,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const finding = clean(filters.finding).replace(/^research:/, "");
   const strength = clean(filters.strength) || "all";
   const recommendation = clean(filters.recommendation) || "all";
+  const continuation = clean(filters.continuation) || "all";
   const quality = clean(filters.quality) || "all";
   const topic = clean(filters.topic) || "all";
   const source = clean(filters.source) || "all";
@@ -159,6 +173,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (finding && clean(row.sourceId) !== finding) return false;
     if (strength !== "all" && row?.triage?.strength !== strength) return false;
     if (recommendation !== "all" && row?.triage?.recommendation !== recommendation) return false;
+    if (continuation !== "all" && row?.triage?.continuationState !== continuation) return false;
     if (quality !== "all" && row?.evidenceQuality?.band !== quality) {
       if (!(quality === "rated" && row?.evidenceQuality?.score != null)) return false;
     }
@@ -396,7 +411,15 @@ async function buildAuthorizedProjection(token) {
       orderedFindings.filter((row) => row.triage).map((row) => ({ strength: row.triage.strength })),
       "strength",
     ),
-    byTriageRecommendation: WORLD_FINDING_TRIAGE_META.recommendationCounts,
+    byTriageRecommendation: countBy(
+      orderedFindings.filter((row) => row.triage).map((row) => ({ recommendation: row.triage.recommendation })),
+      "recommendation",
+    ),
+    byContinuationState: countBy(
+      orderedFindings.filter((row) => row.triage?.continuationState)
+        .map((row) => ({ continuationState: row.triage.continuationState })),
+      "continuationState",
+    ),
     byEvidenceQuality: countBy(
       orderedFindings.map((row) => ({ evidenceQualityBand: row.evidenceQuality?.band || "unrated" })),
       "evidenceQualityBand",
@@ -437,6 +460,7 @@ function pageResponse(projection, req, contributorScope = null) {
     meter: queryValue(req, "meter"),
     strength: queryValue(req, "strength"),
     recommendation: queryValue(req, "recommendation"),
+    continuation: queryValue(req, "continuation"),
     quality: queryValue(req, "quality"),
     topic: queryValue(req, "topic"),
     source: queryValue(req, "source"),
@@ -456,6 +480,7 @@ function pageResponse(projection, req, contributorScope = null) {
       untriagedLiveCards: filtered.length - triaged.length,
       strengthCounts: countBy(triaged.map((row) => ({ strength: row.triage.strength })), "strength"),
       recommendationCounts: countBy(triaged.map((row) => ({ recommendation: row.triage.recommendation })), "recommendation"),
+      strongContinuation: WORLD_FINDING_TRIAGE_META.strongContinuation,
     };
     summary.treeMatchedResearchOccurrences = filtered
       .filter((row) => row.treeMatches?.length)
