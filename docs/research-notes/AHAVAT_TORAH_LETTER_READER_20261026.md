@@ -37,3 +37,15 @@ Verified: 31 non-browser Books tests; the browser flow at 320/390/1440 with fina
 Remaining: full per-parasha transcription of the other 27 printed forms. No count for an untranscribed form is inferred from alphabet order, a corpus or a historical candidate. Historical dossiers remain provenance. The central books branch still requires integration of the preceding DS-01 branch and this dependent continuation; this branch performs no merge.
 
 AFTER scope: released at handoff; actor GPT reports to ZURIEL in the active conversation. The branch and its Preview are reviewable outputs; no live work-log write, main change, Production action, Legacy edit, DB/RLS or permission change was made.
+
+## Continued at ZURIEL's request — Bet, from checkpoint 63167fd8
+
+The same bounded scope was resumed after a fresh live coordination read found no overlapping active writer. Bet's paragraph begins in the right column of PDF 35 and continues at the top of the left column. All 54 rows were visually re-read, including the printed numerals. The five cumulative checkpoints are 4,332; 7,437; 9,845; 13,393; 16,345. Their book contributions are 4,332; 3,105; 2,408; 3,548; 2,952. Every book row sum closes to its contribution. Examples directly re-read include שמות שט״ו=315, ויקרא ש״ו=306, מסעי ש״נ=350 and דברים של״ט=339.
+
+The letter reader now selects a source reading by form, rather than always rendering Aleph data. The table, Hebrew printed numerals, search, five cumulative checkpoints, 2D bars, 3D bars and accessible labels all update together when switching between א and ב. The first checkpoint's generic source-location view remains available for the other forms. Both complete letter readings have exact PDF 35 anchors, independent data arrays and 108 source rows in total.
+
+Updated remaining scope: full per-parasha reading of the other **26** printed forms. No other form is assigned a numeric total by inference. The source-model tests check both letters' complete cumulative chains and verify that a Bet search cannot return Aleph data. The browser regression exercises switching letters, Bet's 315 row, its 16,345 total and the updated 3D accessible label at 320/390/1440.
+
+The previous checkpoint's protected hosted Preview was additionally verified in a real browser: HTTP 200, 28 forms, 54 Aleph rows, correct PDF 35/37 navigation, 3D, runtime noindex and no page errors. The generic Git Preview omitted the experimental surface; a deployment-specific build command enabled it without altering project environment settings. Headless browser requests were rejected by the existing bot classifier; ordinary-browser emulation passed, with no middleware or security change.
+
+Bet checkpoint acceptance: **33/33 Books tests**, including the browser flow at all three widths, passed without skips; Preview-enabled Build 2029, graph/weight gate (78,458 gzip bytes recovered), language 3/3, Auth Guard 4/4, Legacy Production Lock and whitespace checks passed. Scope is released again at final handoff. The parent checkpoint remains intact; continuation is additive on the same isolated branch.

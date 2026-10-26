@@ -48,9 +48,47 @@ export function ahavatLetterForm(form) {
   return AHAVAT_LETTER_FORMS.find(item => item.form === form) || AHAVAT_LETTER_FORMS[0];
 }
 
-export function ahavatAlephRows(bookId = "all", query = "") {
+// Bet begins in the right column of PDF 35 and continues at the top of the left.
+export const AHAVAT_BET_BOOKS = Object.freeze([
+  { id: "bereshit", title: "בראשית", cumulative: 4332, printed: "ד׳ אלף של״ב", rows: [
+    ["בראשית", "רע״ח", 278], ["נח", "שע״ב", 372], ["לך לך", "שנ״א", 351], ["וירא", "תמ״ו", 446],
+    ["חיי שרה", "ש״י", 310], ["תולדות", "שנ״ז", 357], ["ויצא", "תפ״ג", 483], ["וישלח", "תמ״ג", 443],
+    ["וישב", "רע״ד", 274], ["מקץ", "תי״א", 411], ["ויגש", "שכ״ט", 329], ["ויחי", "רע״ח", 278],
+  ] },
+  { id: "shemot", title: "שמות", cumulative: 7437, printed: "ז׳ אלף תל״ז", rows: [
+    ["שמות", "שט״ו", 315], ["וארא", "שמ״ח", 348], ["בא", "שכ״ז", 327], ["בשלח", "שמ״ה", 345],
+    ["יתרו", "קע״ה", 175], ["משפטים", "רס״ד", 264], ["תרומה", "ר׳", 200], ["תצוה", "רפ״ה", 285],
+    ["כי תשא", "של״ז", 337], ["ויקהל", "שי״ג", 313], ["פקודי", "קצ״ו", 196],
+  ] },
+  { id: "vayikra", title: "ויקרא", cumulative: 9845, printed: "ט׳ אלף תתמ״ה", rows: [
+    ["ויקרא", "ש״ו", 306], ["צו", "ר״צ", 290], ["שמיני", "רי״ד", 214], ["תזריע", "רכ״ח", 228],
+    ["מצורע", "ש״ג", 303], ["אחרי מות", "רל״ה", 235], ["קדושים", "קל״א", 131], ["אמור", "שכ״ט", 329],
+    ["בהר", "קס״ד", 164], ["בחוקותי", "ר״ח", 208],
+  ] },
+  { id: "bamidbar", title: "במדבר", cumulative: 13393, printed: "י״ג אלף שצ״ג", rows: [
+    ["במדבר", "תל״ב", 432], ["נשא", "תקי״ח", 518], ["בהעלותך", "שמ״ח", 348], ["שלח", "רצ״ו", 296],
+    ["קרח", "רס״ב", 262], ["חקת", "רע״ה", 275], ["בלק", "שס״ג", 363], ["פנחס", "תי״ג", 413],
+    ["מטות", "רצ״א", 291], ["מסעי", "ש״נ", 350],
+  ] },
+  { id: "devarim", title: "דברים", cumulative: 16345, printed: "ט״ז אלף שמ״ה", rows: [
+    ["דברים", "של״ט", 339], ["ואתחנן", "ש״פ", 380], ["עקב", "שנ״ה", 355], ["ראה", "ת״ט", 409],
+    ["שופטים", "רע״ו", 276], ["כי תצא", "ש״ם", 340], ["כי תבוא", "שמ״ג", 343], ["ניצבים", "קס״ד", 164],
+    ["וילך", "צ״ב", 92], ["האזינו", "קל״ב", 132], ["וזאת הברכה", "קכ״ב", 122],
+  ] },
+].map((book, index, books) => Object.freeze({
+  ...book, count: book.cumulative - (books[index - 1]?.cumulative || 0), page: 35,
+  rows: Object.freeze(book.rows.map(([parasha, printed, count]) => Object.freeze({ parasha, printed, count, page: 35 }))),
+})));
+
+export const AHAVAT_LETTER_READINGS = Object.freeze({ "א": AHAVAT_ALEPH_BOOKS, "ב": AHAVAT_BET_BOOKS });
+
+export function ahavatLetterRows(form, bookId = "all", query = "") {
   const needle = query.normalize("NFKD").replace(/[\u0591-\u05c7]/g, "").replace(/\s/g, "");
-  return AHAVAT_ALEPH_BOOKS.filter(book => bookId === "all" || book.id === bookId)
+  return (AHAVAT_LETTER_READINGS[form] || []).filter(book => bookId === "all" || book.id === bookId)
     .flatMap(book => book.rows.map(row => ({ ...row, book: book.title })))
     .filter(row => !needle || `${row.parasha}${row.book}${row.printed}${row.count}`.normalize("NFKD").replace(/[\u0591-\u05c7\s]/g, "").includes(needle));
+}
+
+export function ahavatAlephRows(bookId = "all", query = "") {
+  return ahavatLetterRows("א", bookId, query);
 }

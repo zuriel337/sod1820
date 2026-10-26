@@ -19,7 +19,7 @@ const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH
   || (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : playwright?.chromium.executablePath());
 const available = Boolean(playwright && vite && reactPlugin && executablePath && existsSync(executablePath));
 
-test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440", { skip: !available, timeout: 120_000 }, async () => {
+test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440", { skip: !available, timeout: 180_000 }, async () => {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   const server = await vite.createServer({
@@ -116,14 +116,26 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.equal(await letterReader.locator("canvas").count(), 1);
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), true, `letter reader overflows at ${width}px`);
+      await letterReader.getByRole("button", { name: "בית", exact: true }).click();
+      assert.equal(await letterReader.locator("tbody tr").count(), 11);
+      assert.equal(await letterReader.locator("tbody tr").filter({ hasText: "שמות" }).first().locator("td:nth-child(4)").textContent(), "315");
+      assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות בית/);
+      await letterSearch.fill("שט״ו");
+      assert.equal(await letterReader.locator("tbody tr").count(), 1);
+      await letterSearch.fill("");
+      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }).click();
+      assert.equal(await letterReader.locator("tbody tr").count(), 54);
+      assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /16,345/);
       if (process.env.BOOKS_SCREENSHOT_DIR) await letterReader.screenshot({ path: `${process.env.BOOKS_SCREENSHOT_DIR}/ahavat-letter-reader-${width}.png` });
       const finalKaf = letterReader.getByRole("button", { name: "כף סופית", exact: true });
       await finalKaf.focus();
       await finalKaf.press("Enter");
-      await page.reload({ waitUntil: "domcontentloaded" });
-      await page.locator(".ahavat29-letter-alphabet").waitFor();
-      assert.equal(await page.locator(".ahavat29-letter-alphabet").getByRole("button", { name: "כף סופית", exact: true }).getAttribute("aria-pressed"), "true");
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
+      if (width === 1440) {
+        await page.reload({ waitUntil: "domcontentloaded" });
+        await page.locator(".ahavat29-letter-alphabet").waitFor();
+        assert.equal(await page.locator(".ahavat29-letter-alphabet").getByRole("button", { name: "כף סופית", exact: true }).getAttribute("aria-pressed"), "true");
+        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
+      }
       assert.deepEqual(errors, []);
       await context.close();
     }

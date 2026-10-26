@@ -121,9 +121,9 @@ function LetterCountBars({ bars, activeId, onSelect }) {
   })}<gridHelper args={[9, 18, "#5c5140", "#27241f"]} /></group>;
 }
 
-export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], activeId = "", onSelect, mode = "datasets" }) {
+export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], letterLabel = "", activeId = "", onSelect, mode = "datasets" }) {
   const stableDatasets = useMemo(() => datasets.slice(0, 13), [datasets]);
-  return <div className="ahavat29-spatial-canvas" role="img" aria-label={mode === "letter" ? "ייצוג של מבנה הספר: גובה כל עמודה הוא מניין האות אלף בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים" : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו"}>
+  return <div className="ahavat29-spatial-canvas" role="img" aria-label={mode === "letter" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין האות ${letterLabel} בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו"}>
     <Canvas camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#0d0b09"]} />
       <fog attach="fog" args={["#0d0b09", 10, 19]} />

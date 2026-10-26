@@ -18,7 +18,7 @@ import {
 } from "../data/ahavatTorahSystem2029.js";
 import { applySeo } from "../lib/seo.js";
 import { AHAVAT_DS01_BOOKS, AHAVAT_DS01_SOURCE_PAGE, AHAVAT_DS01_TOTAL, ahavatDs01RowSum } from "../data/ahavatTorahDs01Source2029.js";
-import { AHAVAT_LETTER_FORMS, AHAVAT_ALEPH_BOOKS, ahavatLetterForm, ahavatAlephRows } from "../data/ahavatTorahLetters2029.js";
+import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, ahavatLetterForm, ahavatLetterRows } from "../data/ahavatTorahLetters2029.js";
 import "./ahavatTorahSystem2029.css";
 
 const AhavatTorahSpatialScene2029 = lazy(() => import("../components/books2029/AhavatTorahSpatialScene2029.jsx"));
@@ -353,17 +353,18 @@ function LetterSourceReader({ onPage }) {
   const [form, setForm] = useState(() => ahavatLetterForm(new URLSearchParams(window.location.search).get("letter")).form);
   const [bookId, setBookId] = useState(() => {
     const id = new URLSearchParams(window.location.search).get("letterBook");
-    return AHAVAT_ALEPH_BOOKS.some(book => book.id === id) ? id : "all";
+    return Object.values(AHAVAT_LETTER_READINGS).some(books => books.some(book => book.id === id)) ? id : "all";
   });
   const [query, setQuery] = useState("");
   const [showScene, setShowScene] = useState(false);
   const [selectedBar, setSelectedBar] = useState("");
   const source = ahavatLetterForm(form);
-  const rows = useMemo(() => ahavatAlephRows(bookId, query), [bookId, query]);
-  const activeBook = AHAVAT_ALEPH_BOOKS.find(book => book.id === bookId);
+  const books = AHAVAT_LETTER_READINGS[form];
+  const rows = useMemo(() => ahavatLetterRows(form, bookId, query), [form, bookId, query]);
+  const activeBook = books?.find(book => book.id === bookId);
   const bars = useMemo(() => activeBook
     ? activeBook.rows.map(row => ({ id: row.parasha, label: row.parasha, count: row.count }))
-    : AHAVAT_ALEPH_BOOKS.map(book => ({ id: book.id, label: book.title, count: book.count })), [activeBook]);
+    : (books || []).map(book => ({ id: book.id, label: book.title, count: book.count })), [activeBook, books]);
 
   const select = (nextForm, nextBook = bookId) => {
     setForm(nextForm);
@@ -387,16 +388,16 @@ function LetterSourceReader({ onPage }) {
     <p className="ahavat29-ds01-guide"><b>הסבר נלווה:</b> המחבר עובר אות אחר אות, ומונה אותה בכל פרשה. כ״ב האותיות מתפרטות כאן גם לחמש אותיות סופיות ולשׁין ושׂין בנפרד. בחירת צורה פותחת את מקומה המדויק בספר.</p>
     <nav className="ahavat29-letter-alphabet" aria-label="צורות האותיות בדפוס">{AHAVAT_LETTER_FORMS.map(item => <button type="button" key={item.form} aria-label={item.name} aria-pressed={item.form === form} onClick={() => select(item.form)}><b>{item.form}</b><small>{item.name}</small></button>)}</nav>
     <div className="ahavat29-letter-location" aria-live="polite"><div><strong>{source.form}</strong><span>{source.name} · {source.pages.length === 1 ? "עמוד מקור אחד" : "הסעיף נמשך לעמוד הבא"}</span></div><div>{source.pages.map(page => <button type="button" key={page} onClick={() => onPage(page)}>פתח PDF {page}</button>)}</div></div>
-    {form === "א" ? <>
-      <p className="ahavat29-ds01-guide">לאות א׳ מוצגת כאן קריאה של כל 54 הפרשות: <b>27,059</b> בסיכום הספר. המספר של כל חומש הוא חלקו במניין; השורה שמתחתיו מראה עד היכן הגיע הסכום המצטבר.</p>
-      <div className="ahavat29-letter-checkpoints" aria-label="מניין אלף לפי חומש">{AHAVAT_ALEPH_BOOKS.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}><span>{book.title}</span><strong>{book.count.toLocaleString("en-US")}</strong><small>מצטבר {book.cumulative.toLocaleString("en-US")}</small></button>)}</div>
-      <nav className="ahavat29-letter-books" aria-label="בחירת חומש באות אלף"><button type="button" aria-pressed={bookId === "all"} onClick={() => select(form, "all")}>כל התורה</button>{AHAVAT_ALEPH_BOOKS.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}>{book.title}</button>)}</nav>
+    {books ? <>
+      <p className="ahavat29-ds01-guide">לאות {form}׳ מוצגת כאן קריאה של כל 54 הפרשות: <b>{books.at(-1).cumulative.toLocaleString("en-US")}</b> בסיכום הספר. המספר של כל חומש הוא חלקו במניין; השורה שמתחתיו מראה עד היכן הגיע הסכום המצטבר.</p>
+      <div className="ahavat29-letter-checkpoints" aria-label={`מניין ${source.name} לפי חומש`}>{books.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}><span>{book.title}</span><strong>{book.count.toLocaleString("en-US")}</strong><small>מצטבר {book.cumulative.toLocaleString("en-US")}</small></button>)}</div>
+      <nav className="ahavat29-letter-books" aria-label={`בחירת חומש באות ${source.name}`}><button type="button" aria-pressed={bookId === "all"} onClick={() => select(form, "all")}>כל התורה</button>{books.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}>{book.title}</button>)}</nav>
       <div className="ahavat29-table-tools"><label><span>חיפוש בפרשות האות</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="פרשה, חומש, מספר או אותיות המניין" /></label><strong aria-live="polite">{rows.length} פרשות</strong></div>
       <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מבנה האות בתלת־ממד" : "פתח מבנה האות בתלת־ממד"}</button><button type="button" onClick={() => onPage(35)}>המקור המלא · PDF 35</button></div>
-      {showScene ? <div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה האות…</p>}><AhavatTorahSpatialScene2029 mode="letter" bars={bars} activeId={selectedBar || bookId} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = מספר מופעי א׳ {activeBook ? "בכל פרשה" : "בכל חומש"} · לחיצה פותחת את המקור</p></div> : null}
-      <div className="ahavat29-letter-bars" aria-label={activeBook ? "מופעי אלף בפרשות החומש" : "מופעי אלף בחומשים"}>{bars.map(bar => <button type="button" key={bar.id} aria-pressed={selectedBar === bar.id} onClick={() => selectBar(bar.id)}><span>{bar.label}</span><i style={{ "--letter-share": `${bar.count / Math.max(...bars.map(item => item.count)) * 100}%` }} /><b>{bar.count.toLocaleString("en-US")}</b></button>)}</div>
-      {rows.length ? <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><caption>אות א׳ · {activeBook?.title || "כל התורה"} · קריאת דברי הספר</caption><thead><tr><th>פרשה</th><th>חומש</th><th>המניין בדפוס</th><th>מספר</th><th>מקור</th></tr></thead><tbody>{rows.map(row => <tr key={row.parasha}><td>{row.parasha}</td><td>{row.book}</td><td>{row.printed}</td><td><b>{row.count.toLocaleString("en-US")}</b></td><td><button type="button" onClick={() => onPage(row.page)}>PDF {row.page}</button></td></tr>)}</tbody></table></div> : <p role="status">לא נמצאה פרשה מתאימה לחיפוש.</p>}
-      <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>PDF 35, הטור הימני. כל 54 השורות נקראו מול הצילום, וחמשת סיכומי הפרשות נסגרים לסיכומים המצטברים המודפסים. חלקו של חומש מתקבל בהפרש בין שני סיכומים עוקבים. זו קריאת המניין של המחבר; לא בוצעה ספירת קורפוס עצמאית במנוע.</p><ul>{AHAVAT_ALEPH_BOOKS.map(book => <li key={book.id}>{book.title}: {book.printed} = {book.cumulative.toLocaleString("en-US")} מצטבר.</li>)}</ul></details>
+      {showScene ? <div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה האות…</p>}><AhavatTorahSpatialScene2029 mode="letter" letterLabel={source.name} bars={bars} activeId={selectedBar || bookId} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = מספר מופעי {form}׳ {activeBook ? "בכל פרשה" : "בכל חומש"} · לחיצה פותחת את המקור</p></div> : null}
+      <div className="ahavat29-letter-bars" aria-label={`מופעי ${source.name} ${activeBook ? "בפרשות החומש" : "בחומשים"}`}>{bars.map(bar => <button type="button" key={bar.id} aria-pressed={selectedBar === bar.id} onClick={() => selectBar(bar.id)}><span>{bar.label}</span><i style={{ "--letter-share": `${bar.count / Math.max(...bars.map(item => item.count)) * 100}%` }} /><b>{bar.count.toLocaleString("en-US")}</b></button>)}</div>
+      {rows.length ? <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><caption>אות {form}׳ · {activeBook?.title || "כל התורה"} · קריאת דברי הספר</caption><thead><tr><th>פרשה</th><th>חומש</th><th>המניין בדפוס</th><th>מספר</th><th>מקור</th></tr></thead><tbody>{rows.map(row => <tr key={row.parasha}><td>{row.parasha}</td><td>{row.book}</td><td>{row.printed}</td><td><b>{row.count.toLocaleString("en-US")}</b></td><td><button type="button" onClick={() => onPage(row.page)}>PDF {row.page}</button></td></tr>)}</tbody></table></div> : <p role="status">לא נמצאה פרשה מתאימה לחיפוש.</p>}
+      <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>PDF 35, {form === "ב" ? "הטור הימני והמשכו בראש הטור השמאלי" : "הטור הימני"}. כל 54 השורות נקראו מול הצילום, וחמשת סיכומי הפרשות נסגרים לסיכומים המצטברים המודפסים. חלקו של חומש מתקבל בהפרש בין שני סיכומים עוקבים. זו קריאת המניין של המחבר; לא בוצעה ספירת קורפוס עצמאית במנוע.</p><ul>{books.map(book => <li key={book.id}>{book.title}: {book.printed} = {book.cumulative.toLocaleString("en-US")} מצטבר.</li>)}</ul></details>
     </> : <div className="ahavat29-letter-reading"><p><b>הסבר נלווה:</b> בסעיף {source.name} כל פרשה מקבלת מניין משלה, והמחבר ממשיך בסיכום מצטבר מחומש לחומש. {/[ךםןףץ]/.test(form) ? "הצורה הסופית נכתבת בסעיף עצמאי, ולכן אין לצרף אותה אוטומטית למניין הצורה הרגילה." : form === "שׁ" || form === "שׂ" ? "הדפוס מבחין בין שׁין לשׂין; לכל אחת יש סעיף ומניין משלה." : "אפשר לקרוא את רצף הפרשות ואת סיכום האות במלואם בעמוד המקור."}</p><button type="button" onClick={() => onPage(source.pages[0])}>קרא את סעיף {source.name} בספר · PDF {source.pages[0]}</button><details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>מפת המיקום נבדקה מול PDF 35–41. התעתיק המובנה של כל פרשות האות הזו עדיין אינו מלא; סעיף המקור עצמו נגיש במלואו בקורא. הכותרת והעוגן אינם אישור של תאים מספריים שלא נקראו.</p></details></div>}
   </section>;
 }

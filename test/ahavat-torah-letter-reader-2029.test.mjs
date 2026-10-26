@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { AHAVAT_LETTER_FORMS, AHAVAT_ALEPH_BOOKS, ahavatLetterForm, ahavatAlephRows } from "../src/data/ahavatTorahLetters2029.js";
+import { AHAVAT_LETTER_FORMS, AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS, AHAVAT_LETTER_READINGS, ahavatLetterForm, ahavatAlephRows, ahavatLetterRows } from "../src/data/ahavatTorahLetters2029.js";
 
 test("the printed letter sequence preserves finals, shin/sin and exact page boundaries", () => {
   assert.equal(AHAVAT_LETTER_FORMS.length, 28);
@@ -33,4 +33,23 @@ test("letter search filters by book and parasha while retaining the printed nume
   assert.equal(ahavatAlephRows("shemot").length, 11);
   assert.deepEqual(ahavatAlephRows("all", "וַיַּקְהֵל").map(row => [row.parasha, row.count, row.printed, row.page]), [["ויקהל", 485, "תפ״ה", 35]]);
   assert.equal(ahavatAlephRows("bereshit", "ויקהל").length, 0);
+});
+
+test("Bet closes all five source checkpoints and switching letters cannot reuse Aleph rows", () => {
+  assert.deepEqual(AHAVAT_BET_BOOKS.map(book => book.cumulative), [4332, 7437, 9845, 13393, 16345]);
+  assert.deepEqual(AHAVAT_BET_BOOKS.map(book => book.count), [4332, 3105, 2408, 3548, 2952]);
+  assert.equal(Object.values(AHAVAT_LETTER_READINGS).flatMap(books => books.flatMap(book => book.rows)).length, 108);
+  for (const books of Object.values(AHAVAT_LETTER_READINGS)) {
+    let total = 0;
+    assert.equal(new Set(books.flatMap(book => book.rows.map(row => row.parasha))).size, 54);
+    for (const book of books) {
+      const sum = book.rows.reduce((value, row) => value + row.count, 0);
+      assert.equal(sum, book.count);
+      total += sum;
+      assert.equal(total, book.cumulative);
+    }
+  }
+  assert.equal(ahavatLetterRows("ב", "shemot", "שט״ו")[0].count, 315);
+  assert.equal(ahavatLetterRows("א", "shemot", "שט״ו").length, 0);
+  assert.deepEqual(ahavatLetterRows("ך"), []);
 });
