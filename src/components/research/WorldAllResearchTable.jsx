@@ -664,32 +664,36 @@ export default function WorldAllResearchTable({ state }) {
             <span><b>{galleryQueue.data.counts.total}</b> תמונות במאגר המורשה</span>
             <span><b>{galleryQueue.data.counts.publicVisible}</b> בעדשה הציבורית</span>
             <span><b>{galleryQueue.data.counts.ocrReview}</b> בתור בדיקת OCR</span>
-            <span><b>{galleryQueue.data.counts.ocrStatusIncomplete}</b> סטטוס OCR לא הושלם</span>
+            <span><b>{galleryQueue.data.counts.ocrPending}</b> OCR בהמתנה</span>
+            <span><b>{galleryQueue.data.counts.ocrError}</b> שגיאות OCR</span>
+            <span><b>{galleryQueue.data.counts.ocrDoneMissingText}</b> הושלם בלי טקסט</span>
+            <span><b>{galleryQueue.data.counts.ocrMissingSource}</b> מקור OCR חסר</span>
             <span><b>{galleryQueue.data.counts.duplicateGroups}</b> אשכולות כתובת זהה</span>
             <span><b>{galleryQueue.data.counts.duplicateRows}</b> הופעות עודפות שנשמרו</span>
-            <span><b>{galleryQueue.data.counts.missingTags}</b> ללא תגיות</span>
+            <span><b>{galleryQueue.data.counts.fullyUnlabeledClusters}</b> אשכולות בלי שם ותיאור</span>
           </div>
           <div className="sod29-world-all-research-filters">
             <label><span>סוג טיפול</span><select value={galleryQueue.filter} onChange={(event) => setGalleryQueue((current) => ({ ...current, filter: event.target.value, limit: 40 }))}>
               <option value="all">כל התור · {galleryQueue.data.rows.length}</option>
               <option value="ocr">דורש OCR · {galleryQueue.data.rows.filter((row) => row.issues.includes("ocr")).length}</option>
               <option value="duplicate">כתובת זהה · {galleryQueue.data.rows.filter((row) => row.issues.includes("duplicate")).length}</option>
+              <option value="missing_label">בלי שם ותיאור · {galleryQueue.data.rows.filter((row) => row.issues.includes("missing_label")).length}</option>
             </select></label>
           </div>
           <div className="sod29-world-all-research-count">מוצגים {Math.min(galleryQueue.limit, filteredGalleryRows.length)} מתוך {filteredGalleryRows.length} במסנן הגלריות.</div>
           <div className="sod29-world-all-research-list">{filteredGalleryRows.slice(0, galleryQueue.limit).map((row) => <article className="sod29-world-all-research-row sod29-world-gallery-triage-row" key={row.id}>
-            <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>תמונה</span>{row.issues.includes("ocr") ? <span>דורש OCR</span> : null}{row.issues.includes("duplicate") ? <span>{row.occurrenceCount} הופעות זהות</span> : null}<span>{row.publicVisible ? "בעדשה הציבורית" : "מחוץ לעדשה הציבורית"}</span></div><span>{row.independentSourceCount} מקור עצמאי</span></div>
+            <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>תמונה</span>{row.issues.includes("ocr") ? <span>דורש OCR</span> : null}{row.issues.includes("duplicate") ? <span>{row.occurrenceCount} הופעות זהות</span> : null}{row.issues.includes("missing_label") ? <span>בלי שם ותיאור</span> : null}<span>{row.publicVisible ? "בעדשה הציבורית" : "מחוץ לעדשה הציבורית"}</span></div><span>{row.independentSourceCount} מקור עצמאי</span></div>
             {row.thumbUrl ? <a href={row.imageUrl} target="_blank" rel="noreferrer" aria-label={`פתח תמונת מקור: ${row.title}`}><img className="sod29-world-all-research-media" src={row.thumbUrl} alt={row.title} loading="lazy" decoding="async" /></a> : null}
             <strong>{row.title}</strong>
             {row.description ? <p className="sod29-world-all-research-secondary">{row.description}</p> : null}
             <div className="sod29-world-finding-measures" aria-label="צירי בדיקת תמונה נפרדים">
-              <div><small>מצב OCR</small><strong>{row.issues.includes("ocr") ? "דורש השלמה" : row.ocrStatus}</strong></div>
+              <div><small>מצב OCR</small><strong>{row.ocrReviewStates.includes("pending") ? "בהמתנה" : row.ocrReviewStates.includes("error") ? "שגיאה" : row.ocrReviewStates.includes("missing_source") ? "מקור חסר" : row.ocrReviewStates.includes("missing_text") ? "הושלם בלי טקסט" : row.ocrStatus}</strong></div>
               <div><small>הופעות</small><strong>{row.occurrenceCount}</strong></div>
               <div><small>מקורות עצמאיים</small><strong>{row.independentSourceCount}</strong></div>
               <div><small>תגיות</small><strong>{row.tags.length || "אין נתון"}</strong></div>
               <div><small>מספרי OCR</small><strong>{row.numbers.length ? row.numbers.join(" · ") : "אין נתון"}</strong></div>
             </div>
-            <div className={`sod29-world-triage-recommendation ${row.issues.includes("ocr") ? "is-review" : "is-duplicate"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
+            <div className={`sod29-world-triage-recommendation ${row.issues.includes("ocr") || row.issues.includes("missing_label") ? "is-review" : "is-duplicate"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
             <div className="sod29-world-source-locator"><strong>נציג התצוגה המומלץ</strong><code dir="ltr">gallery_images:{row.recommendedDisplayId}</code><small>{row.representativeReason}</small></div>
             {row.occurrences.length > 1 ? <details className="sod29-world-all-research-duplicates"><summary><span>כל {row.occurrences.length} הופעות המקור</span><small>אף רשומה לא נמחקה</small></summary><ol>{row.occurrences.map((occurrence) => <li key={occurrence.id}><code dir="ltr">{occurrence.sourceRef}</code><span>{occurrence.id === row.recommendedDisplayId ? "נציג מומלץ" : "הופעה שמורה"}{occurrence.ocrIncomplete ? " · דורשת OCR" : ""}</span></li>)}</ol></details> : null}
           </article>)}</div>

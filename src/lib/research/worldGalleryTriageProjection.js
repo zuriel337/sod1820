@@ -18,6 +18,19 @@ function isPublicGalleryRow(row) {
     && Boolean(clean(row?.image_url));
 }
 
+function missingLabel(row) {
+  return !clean(row?.name) && !clean(row?.description);
+}
+
+function ocrReviewState(row) {
+  const status = clean(row?.ocr_status).toLowerCase();
+  if (status === "pending") return "pending";
+  if (status === "error") return "error";
+  if (status === "missing_source") return "missing_source";
+  if (OCR_COMPLETE.has(status)) return "missing_text";
+  return "needs_review";
+}
+
 function completenessScore(row) {
   return clean(row?.description).length * 2
     + clean(row?.name).length
@@ -52,6 +65,8 @@ function projectOccurrence(row, ocrIssueIds) {
     createdAt: row?.created_at || null,
     ocrStatus: clean(row?.ocr_status) || "לא צוין",
     ocrIncomplete: ocrIssueIds.has(id),
+    ocrReviewState: ocrIssueIds.has(id) ? ocrReviewState(row) : null,
+    missingLabel: missingLabel(row),
     tags: Object.freeze(stringList(row?.tags)),
     numbers: Object.freeze(numberList(row?.ocr_numbers)),
     publicVisible: isPublicGalleryRow(row),
@@ -81,17 +96,30 @@ export function projectWorldGalleryTriageRows(rows = [], { ocrIssueIds = [] } = 
   for (const groupRows of byExactUrl.values()) {
     const hasDuplicate = groupRows.length > 1;
     const hasOcrIssue = groupRows.some((row) => issueIds.has(clean(row.id)));
+    const hasMissingLabel = groupRows.every(missingLabel);
     if (hasDuplicate) {
       duplicateGroups += 1;
       duplicateRows += groupRows.length - 1;
     }
-    if (!hasDuplicate && !hasOcrIssue) continue;
+    if (!hasDuplicate && !hasOcrIssue && !hasMissingLabel) continue;
 
     const representativeRow = chooseRepresentative(groupRows);
     const representative = projectOccurrence(representativeRow, issueIds);
     const occurrences = [representativeRow, ...groupRows.filter((row) => row !== representativeRow)]
       .map((row) => projectOccurrence(row, issueIds));
-    const issues = [hasOcrIssue ? "ocr" : null, hasDuplicate ? "duplicate" : null].filter(Boolean);
+    const issues = [hasOcrIssue ? "ocr" : null, hasDuplicate ? "duplicate" : null, hasMissingLabel ? "missing_label" : null].filter(Boolean);
+    const ocrReviewStates = [...new Set(occurrences.map((row) => row.ocrReviewState).filter(Boolean))];
+    const recommendation = hasOcrIssue
+      ? ocrReviewStates.includes("missing_source")
+        ? "דורש שחזור של מקור התמונה לפני OCR; אין להשלים טקסט לפי ניחוש."
+        : ocrReviewStates.includes("error")
+          ? "הרצת ה־OCR נכשלה; לבדוק את קובץ המקור ולהריץ מחדש בלי לשנות את הרשומה."
+          : ocrReviewStates.includes("pending")
+            ? "ממתין להשלמת OCR; הטקסט הקיים אינו מוצג כתוצאה מאומתת."
+            : "ה־OCR סומן כהושלם אך הטקסט חסר; דורש שחזור או הרצה חוזרת."
+      : hasMissingLabel
+        ? "דורש שם או תיאור המבוססים על המקור לפני חיבור לנושא; אין לתייג לפי ניחוש חזותי."
+        : "לאגד בתצוגה בלבד ולשמור את כל הופעות המקור.";
     workItems.push(Object.freeze({
       id: representative.id,
       sourceRef: representative.sourceRef,
@@ -101,6 +129,7 @@ export function projectWorldGalleryTriageRows(rows = [], { ocrIssueIds = [] } = 
       thumbUrl: representative.thumbUrl,
       publicVisible: occurrences.some((row) => row.publicVisible),
       ocrStatus: representative.ocrStatus,
+      ocrReviewStates: Object.freeze(ocrReviewStates),
       tags: representative.tags,
       numbers: representative.numbers,
       issues: Object.freeze(issues),
@@ -109,14 +138,12 @@ export function projectWorldGalleryTriageRows(rows = [], { ocrIssueIds = [] } = 
       occurrences: Object.freeze(occurrences),
       sourceRefs: Object.freeze(occurrences.map((row) => row.sourceRef).filter(Boolean)),
       recommendedDisplayId: representative.id,
-      recommendation: hasOcrIssue
-        ? "להשלים OCR ולבדוק את הטקסט לפני חיבור מחקרי."
-        : "לאגד בתצוגה בלבד ולשמור את כל הופעות המקור.",
+      recommendation,
       representativeReason: "זהו הנוסח העשיר ביותר בשם, תיאור, תגיות ומספרי OCR בתוך כתובת התמונה הזהה.",
     }));
   }
 
-  const issuePriority = (item) => item.issues.includes("ocr") ? 0 : 1;
+  const issuePriority = (item) => item.issues.includes("ocr") ? 0 : item.issues.includes("missing_label") ? 1 : 2;
   workItems.sort((left, right) => issuePriority(left) - issuePriority(right)
     || right.occurrenceCount - left.occurrenceCount
     || left.title.localeCompare(right.title, "he")
@@ -130,10 +157,18 @@ export function projectWorldGalleryTriageRows(rows = [], { ocrIssueIds = [] } = 
       publicVisible: uniqueRows.filter(isPublicGalleryRow).length,
       ocrReview: issueIds.size,
       ocrStatusIncomplete: uniqueRows.filter((row) => !OCR_COMPLETE.has(clean(row?.ocr_status).toLowerCase())).length,
+      ocrPending: uniqueRows.filter((row) => issueIds.has(clean(row.id)) && ocrReviewState(row) === "pending").length,
+      ocrError: uniqueRows.filter((row) => issueIds.has(clean(row.id)) && ocrReviewState(row) === "error").length,
+      ocrMissingSource: uniqueRows.filter((row) => issueIds.has(clean(row.id)) && ocrReviewState(row) === "missing_source").length,
+      ocrDoneMissingText: uniqueRows.filter((row) => issueIds.has(clean(row.id)) && ocrReviewState(row) === "missing_text").length,
       missingTags: uniqueRows.filter((row) => stringList(row?.tags).length === 0).length,
-      missingLabel: uniqueRows.filter((row) => !clean(row?.name) && !clean(row?.description)).length,
+      missingLabel: uniqueRows.filter(missingLabel).length,
+      fullyUnlabeledClusters: workItems.filter((item) => item.issues.includes("missing_label")).length,
+      fullyUnlabeledRows: workItems.filter((item) => item.issues.includes("missing_label")).reduce((sum, item) => sum + item.occurrenceCount, 0),
       duplicateGroups,
       duplicateRows,
+      ocrDuplicateGroups: workItems.filter((item) => item.issues.includes("ocr") && item.issues.includes("duplicate")).length,
+      publicQueueItems: workItems.filter((item) => item.publicVisible).length,
       queueItems: workItems.length,
     }),
     rules: Object.freeze({

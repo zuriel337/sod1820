@@ -46,6 +46,11 @@ test("manager corpus audit keeps publication, verification and catalog completen
   assert.match(els.next, /אינם אימות חי/u);
   assert.match(els.state, /els_search_v1/u);
 
+  const gallery = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "gallery");
+  assert.equal(gallery.counts.find((item) => item.label === "אשכולות טיפול מאוחדים").value, 415);
+  assert.equal(gallery.counts.find((item) => item.label === "אשכולות בלי שם ותיאור").value, 228);
+  assert.match(gallery.next, /חפיפה של 9/u);
+
   const gematria = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "gematria");
   assert.equal(gematria.counts.find((item) => item.label === "טרם אומתו").value, 2894);
   assert.match(gematria.state, /נפרדים/u);

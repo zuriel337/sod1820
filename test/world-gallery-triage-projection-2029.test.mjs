@@ -43,12 +43,22 @@ test("gallery triage groups exact URLs, keeps every source and chooses the fulle
 });
 
 test("gallery OCR state remains separate from publication and tree promotion", () => {
-  const projection = projectWorldGalleryTriageRows([base], { ocrIssueIds: [base.id] });
+  const projection = projectWorldGalleryTriageRows([{ ...base, ocr_status: "error" }], { ocrIssueIds: [base.id] });
   assert.deepEqual(projection.rows[0].issues, ["ocr"]);
+  assert.deepEqual(projection.rows[0].ocrReviewStates, ["error"]);
+  assert.equal(projection.counts.ocrError, 1);
   assert.equal(projection.rows[0].publicVisible, true);
-  assert.match(projection.rows[0].recommendation, /להשלים OCR/u);
+  assert.match(projection.rows[0].recommendation, /להריץ מחדש/u);
   assert.equal(projection.rules.ocrIsStoredExtractionNotTruth, true);
   assert.equal(projection.rules.noAutomaticTreePromotion, true);
+});
+
+test("gallery triage includes fully unlabeled clusters without guessing a label", () => {
+  const projection = projectWorldGalleryTriageRows([{ ...base, name: null, description: null }]);
+  assert.equal(projection.rows.length, 1);
+  assert.deepEqual(projection.rows[0].issues, ["missing_label"]);
+  assert.equal(projection.counts.fullyUnlabeledClusters, 1);
+  assert.match(projection.rows[0].recommendation, /אין לתייג לפי ניחוש/u);
 });
 
 test("gallery review paginates the existing reader and loads OCR issues separately", async () => {
