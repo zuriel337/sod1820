@@ -8,7 +8,6 @@ import { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ProfileSettings from "../components/ProfileSettings.jsx";
 import { PageEditor, MessagesHub } from "../components/userCenter/UserCenter.jsx";
 import FollowCenterController2029 from "../components/followCenter2029/FollowCenterController2029.jsx";
-import { ContributorRankSeal2029 } from "../components/contributor2029/ContributorRankSeal2029.jsx";
 import { WriterPersonalLayout2029, WriterPersonalHome2029, WriterPublicPortrait2029, WriterPrivateProgress2029 } from "../components/contributor2029/WriterPersonalViews2029.jsx";
 
 function useSelf(userId) {
@@ -114,9 +113,9 @@ function WriterPersonalController2029({ module, user, authLoading }) {
         {(sourceWriter || dm) && !conversation ? <p role="status">בודק את השיחה בתיבה שלך…</p> : <MessagesHub key={`${user.id}:${conversation?.counterpart || "inbox"}`} T={T} goto={goto} initialDm={conversation?.counterpart || null} resolveWriterHref={resolveWriterHref} />}
       </> : null}
       {selected === "notifications" ? <FollowCenterController2029 returnHref={`${location.pathname}${location.search}`} onSignIn={shell.openWorkspace} /> : null}
-      {selected === "progress" ? <WriterPrivateProgress2029 rank={data.rank} stats={data.stats}>
-        <ContributorRankSeal2029 rank={data.rank} name={writer.name || (auth.profile?.id === user.id ? auth.profile.display_name : "")} avatar={writer.avatar} />
-      </WriterPrivateProgress2029> : null}
+      {/* Activity stats are not a research standing. The approved 2029 standing
+          adapter is not connected; never reuse the Legacy five-level result. */}
+      {selected === "progress" ? <WriterPrivateProgress2029 rank={null} stats={{ ...data.stats, tier: null }} /> : null}
     </> : null}
   </WriterPersonalLayout2029>;
 }

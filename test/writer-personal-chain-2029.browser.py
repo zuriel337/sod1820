@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "docs/reviews/personal-area-balanced-rtl-evidence-20261026"
+OUT = Path(os.environ.get("WRITER_PERSONAL_OUT", str(ROOT / "docs/reviews/personal-area-balanced-rtl-evidence-20261026")))
 OUT.mkdir(parents=True, exist_ok=True)
 HTML = (ROOT / "dist/2029.html").read_text()
 ACCOUNT = "22222222-2222-4222-8222-222222222222"
@@ -197,7 +197,8 @@ try:
                     elif module == "notifications":
                         page.locator(".fc-update").filter(has_text="הודעה מהכותב").wait_for()
                     elif module == "progress":
-                        page.locator(".pc-rank[data-rank-state=ready]").wait_for()
+                        expect(page.locator(".pc-rank")).to_have_count(0)
+                        expect(page.get_by_text("הדרגה אינה זמינה כרגע.",exact=True)).to_be_visible()
                         assert "לא זמין" in page.locator(".wp-stats").inner_text()
                     assert page.locator(".sod29-root.surface-community").count() == 1
                     assert page.locator("meta[name=robots]").get_attribute("content").startswith("noindex")

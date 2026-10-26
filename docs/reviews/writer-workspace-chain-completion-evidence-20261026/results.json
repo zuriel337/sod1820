@@ -1,0 +1,1552 @@
+{
+  "status": "TESTED_BRANCH_ONLY",
+  "base_sha": "5f2810e780c434be3638730b7f694f79eea40321",
+  "branch": "gpt/2029-writer-workspace-chain-completion-20261026",
+  "central_observed": "ea5736aba4aa9bca052beee87fe17015cb5ede14",
+  "main_observed": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "follow_source_delta": "1baf950477e6357dc1f89d87d47db15fd457fb23..ba194c2d3c4ff6c17b8bea74f73d8a19d77851cf",
+  "adoption_commit": "5308e3c52027db83199e2c31976c2d8054ef4c93",
+  "files": [
+    "SOD1820_DESIGN_CONTRACT_V2.md",
+    "docs/reviews/email-verify-2029-boundary-20261025.md",
+    "docs/reviews/follow-category-series-alignment-20261026.md",
+    "docs/reviews/follow-center-consent-foundation-20261025.md",
+    "docs/reviews/follow-center-data-20261025.md",
+    "docs/reviews/follow-center-inbox-ack-20261025.md",
+    "docs/reviews/follow-center-shared-color-contract-review-20261025.md",
+    "docs/reviews/follow-center-shared-technical-review-20261025.md",
+    "docs/reviews/follow-center-visual-20261025.md",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-empty-dark-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-empty-dark-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-guest-dark-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-guest-dark-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-guest-light-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-guest-light-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-guest-parchment-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-guest-parchment-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-loading-dark-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-loading-dark-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-partial-dark-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-partial-dark-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-push-dark-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-push-dark-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-registered-dark-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-registered-dark-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-registered-light-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-registered-light-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-registered-parchment-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-registered-parchment-390.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-unavailable-dark-1440.png",
+    "docs/reviews/follow-center-visual-evidence-20261025/follow-unavailable-dark-390.png",
+    "docs/reviews/watch-button-state-recovery-20261025.md",
+    "docs/reviews/workspace-writer-chain-20261026.md",
+    "docs/reviews/writer-workspace-chain-completion-20261026.md",
+    "docs/reviews/writer-workspace-chain-completion-evidence-20261026/1440-light.png",
+    "docs/reviews/writer-workspace-chain-completion-evidence-20261026/320-dark.png",
+    "docs/reviews/writer-workspace-chain-completion-evidence-20261026/results.json",
+    "scripts/generate-follow-category-series-alignment.mjs",
+    "scripts/run-follow-category-series-sql-test.sh",
+    "scripts/test-2029-system-frame.mjs",
+    "scripts/test-my-workspace-2029.mjs",
+    "src/App2029.jsx",
+    "src/components/EmailVerify.jsx",
+    "src/components/WatchButton.jsx",
+    "src/components/contributor2029/ContributorActionsController2029.jsx",
+    "src/components/contributor2029/contributorPersonView2029.js",
+    "src/components/contributor2029/contributorPersonView2029.test.js",
+    "src/components/contributor2029/publicContributorPerson2029.js",
+    "src/components/contributor2029/publicContributorPerson2029.test.js",
+    "src/components/experience2029/IconTile2029.jsx",
+    "src/components/experience2029/PostCategories2029.jsx",
+    "src/components/experience2029/SystemFrame2029.jsx",
+    "src/components/experience2029/emailVerify2029.css",
+    "src/components/experience2029/iconTile2029.css",
+    "src/components/followCenter2029/FollowCenter2029.jsx",
+    "src/components/followCenter2029/FollowCenterController2029.jsx",
+    "src/components/followCenter2029/WatchControl2029.jsx",
+    "src/components/followCenter2029/followCenter2029.css",
+    "src/components/followCenter2029/followCenterModel2029.js",
+    "src/components/followCenter2029/watchControl2029.css",
+    "src/lib/commandCenter.js",
+    "src/lib/community/communityArchive.js",
+    "src/lib/community/communityArchive.test.js",
+    "src/lib/followIdentity.js",
+    "src/lib/notifications.js",
+    "src/lib/palette.js",
+    "src/lib/research/contentSeries2029Identity.js",
+    "src/lib/research/contentSeries2029Projection.js",
+    "src/lib/research/postsCatalog2029Projection.js",
+    "src/lib/research/publicPostBoundary.js",
+    "src/lib/userCenter/followCenter2029.js",
+    "src/pages/FollowCenterPreview2029Page.jsx",
+    "src/pages/Posts2029Page.jsx",
+    "src/pages/WriterPersonal2029Page.jsx",
+    "src/pages/community2029.css",
+    "supabase/migrations/20261026012207_follow_category_series_alignment_v1.sql",
+    "test/content-series-2029-projection.test.mjs",
+    "test/email-verify-2029-boundary.browser.py",
+    "test/fixtures/email-verify-2029-boundary.jsx",
+    "test/fixtures/follow-center-data-2029.jsx",
+    "test/fixtures/follow-identity-slot-2029.jsx",
+    "test/fixtures/watch-button-2029-state.jsx",
+    "test/follow-category-series-alignment.browser.py",
+    "test/follow-category-series-alignment.test.mjs",
+    "test/follow-center-data-2029.browser.py",
+    "test/follow-center-data-2029.test.mjs",
+    "test/follow-center-model-2029.test.mjs",
+    "test/follow-center-visual-2029.browser.py",
+    "test/follow-identity-slot-2029.browser.py",
+    "test/icon-treatment-2029.test.mjs",
+    "test/notification-inbox-ack.test.mjs",
+    "test/personal-replies-community-2029.browser.py",
+    "test/raziel-wa-unified-notifications.test.mjs",
+    "test/watch-button-2029-state.browser.py",
+    "test/watch-button-2029.test.mjs",
+    "test/workspace-profile-read-2029.test.mjs",
+    "test/writer-personal-chain-2029.browser.py",
+    "test/writer-workspace-chain-acceptance-2029.browser.py",
+    "tests/fixtures/follow-engine-live-20261026.sql",
+    "tests/sql/follow_category_series_alignment_v1.sql",
+    "vercel.json"
+  ],
+  "checks": {
+    "node_focused": 125,
+    "node_additional": 21,
+    "node_total": 146,
+    "public_copy": 3,
+    "sql_checks": 44,
+    "sql_changed_preimage_aborts": true,
+    "sql_live_writes": 0,
+    "legacy_build": true,
+    "2029_build": true,
+    "workspace": true,
+    "system_frame": true,
+    "built_graph": {
+      "reachable": 118,
+      "eager": 9,
+      "eager_js_gzip_bytes": 401543,
+      "submit_adapter_lazy": true,
+      "research_plan_lazy": true
+    },
+    "cheap_hardening": true,
+    "hard_isolation": true,
+    "legacy_containment": true,
+    "legacy_production_lock": true,
+    "diff_check": true
+  },
+  "browser": {
+    "suites": [
+      {
+        "name": "follow-data",
+        "script": "test/follow-center-data-2029.browser.py",
+        "exit_code": 0,
+        "passed": true,
+        "result": {
+          "cases": [
+            "partial mark ack changes only confirmed IDs",
+            "empty mark ack clears nothing",
+            "failed mark and read-only retry",
+            "pending mark blocks duplicate clicks",
+            "partial reader failure is not empty",
+            "measured empty inbox/follows",
+            "retained follow only after authoritative read",
+            "unconfirmed mutation applied: readback resolves",
+            "unfollow recovery reads without replay",
+            "late mutation after adapter switch ignored",
+            "late mutation after account switch ignored",
+            "late private read after account switch ignored",
+            "read deadline and late completion cannot prove empty",
+            "connected view light/320",
+            "connected view light/390",
+            "connected view light/1440",
+            "connected view parchment/320",
+            "connected view parchment/390",
+            "connected view parchment/1440",
+            "connected view dark/320",
+            "connected view dark/390",
+            "connected view dark/1440",
+            "canonical helper transport + strict acks",
+            "actual App2029 personal route + canonical helpers",
+            "guest has no account inbox or mutation requests",
+            "unread exact target is marked before native conversation navigation",
+            "Workspace native handoff/placeholder/metadata cannot grant access light/320",
+            "Workspace native handoff/placeholder/metadata cannot grant access light/390",
+            "Workspace native handoff/placeholder/metadata cannot grant access light/1440",
+            "Workspace native handoff/placeholder/metadata cannot grant access parchment/320",
+            "Workspace native handoff/placeholder/metadata cannot grant access parchment/390",
+            "Workspace native handoff/placeholder/metadata cannot grant access parchment/1440",
+            "Workspace native handoff/placeholder/metadata cannot grant access dark/320",
+            "Workspace native handoff/placeholder/metadata cannot grant access dark/390",
+            "Workspace native handoff/placeholder/metadata cannot grant access dark/1440",
+            "Workspace count error remains unknown; read-only recovery preserves measured zero",
+            "Workspace account switch rejects delayed prior-account credits",
+            "guest Workspace uses native account entry, no private reads or legacy navigation"
+          ],
+          "failures": [],
+          "errors": [],
+          "unexpected": [],
+          "live_writes": 0
+        },
+        "findings": {}
+      },
+      {
+        "name": "follow-categories-series",
+        "script": "test/follow-category-series-alignment.browser.py",
+        "exit_code": 0,
+        "passed": true,
+        "result": {
+          "cases": [
+            "center series link/native paging light/320",
+            "exact public series mah-kore-habora light/320",
+            "exact public series sod-hashmal light/320",
+            "category alias/native target light/320",
+            "center series link/native paging light/390",
+            "exact public series mah-kore-habora light/390",
+            "exact public series sod-hashmal light/390",
+            "category alias/native target light/390",
+            "center series link/native paging light/1440",
+            "exact public series mah-kore-habora light/1440",
+            "exact public series sod-hashmal light/1440",
+            "category alias/native target light/1440",
+            "center series link/native paging parchment/320",
+            "exact public series mah-kore-habora parchment/320",
+            "exact public series sod-hashmal parchment/320",
+            "category alias/native target parchment/320",
+            "center series link/native paging parchment/390",
+            "exact public series mah-kore-habora parchment/390",
+            "exact public series sod-hashmal parchment/390",
+            "category alias/native target parchment/390",
+            "center series link/native paging parchment/1440",
+            "exact public series mah-kore-habora parchment/1440",
+            "exact public series sod-hashmal parchment/1440",
+            "category alias/native target parchment/1440",
+            "center series link/native paging dark/320",
+            "exact public series mah-kore-habora dark/320",
+            "exact public series sod-hashmal dark/320",
+            "category alias/native target dark/320",
+            "center series link/native paging dark/390",
+            "exact public series mah-kore-habora dark/390",
+            "exact public series sod-hashmal dark/390",
+            "category alias/native target dark/390",
+            "center series link/native paging dark/1440",
+            "exact public series mah-kore-habora dark/1440",
+            "exact public series sod-hashmal dark/1440",
+            "category alias/native target dark/1440",
+            "invalid filter fails closed: series=unknown",
+            "invalid filter fails closed: series=dimension-five&category=x",
+            "invalid filter fails closed: category=%00",
+            "late series response never replaces a newer selection",
+            "older server cannot fake successful renamed-category unfollow",
+            "series unfollow preserves separate category and channel consent"
+          ],
+          "failures": [],
+          "errors": [],
+          "unexpected": [],
+          "live_writes": 0
+        },
+        "findings": {}
+      },
+      {
+        "name": "workspace-raziel",
+        "script": "test/raziel-workspace-completion-2029.browser.py",
+        "exit_code": 0,
+        "passed": true,
+        "result": {
+          "cases": [
+            {
+              "width": 320,
+              "theme": "light",
+              "current": true,
+              "title_search": true,
+              "landscape_lineage": true,
+              "dossier_explicit_links": true,
+              "resave_no_duplicate": true,
+              "scroll": true,
+              "no_ai": true
+            },
+            {
+              "width": 320,
+              "theme": "parchment",
+              "current": true,
+              "title_search": true,
+              "landscape_lineage": true,
+              "dossier_explicit_links": true,
+              "resave_no_duplicate": true,
+              "scroll": true,
+              "no_ai": true
+            },
+            {
+              "width": 320,
+              "theme": "dark",
+              "current": true,
+              "title_search": true,
+              "landscape_lineage": true,
+              "dossier_explicit_links": true,
+              "resave_no_duplicate": true,
+              "scroll": true,
+              "no_ai": true
+            },
+            {
+              "width": 390,
+              "theme": "light",
+              "current": true,
+              "title_search": true,
+              "landscape_lineage": true,
+              "dossier_explicit_links": true,
+              "resave_no_duplicate": true,
+              "scroll": true,
+              "no_ai": true
+            },
+            {
+              "width": 390,
+              "theme": "parchment",
+              "current": true,
+              "title_search": true,
+              "landscape_lineage": true,
+              "dossier_explicit_links": true,
+              "resave_no_duplicate": true,
+              "scroll": true,
+              "no_ai": true
+            },
+            {
+              "width": 390,
+              "theme": "dark",
+              "current": true,
+              "title_search": true,
+              "landscape_lineage": true,
+              "dossier_explicit_links": true,
+              "resave_no_duplicate": true,
+              "scroll": true,
+              "no_ai": true
+            },
+            {
+              "width": 1440,
+              "theme": "light",
+              "current": true,
+              "title_search": true,
+              "landscape_lineage": true,
+              "dossier_explicit_links": true,
+              "resave_no_duplicate": true,
+              "scroll": true,
+              "no_ai": true
+            },
+            {
+              "width": 1440,
+              "theme": "parchment",
+              "current": true,
+              "title_search": true,
+              "landscape_lineage": true,
+              "dossier_explicit_links": true,
+              "resave_no_duplicate": true,
+              "scroll": true,
+              "no_ai": true
+            },
+            {
+              "width": 1440,
+              "theme": "dark",
+              "current": true,
+              "title_search": true,
+              "landscape_lineage": true,
+              "dossier_explicit_links": true,
+              "resave_no_duplicate": true,
+              "scroll": true,
+              "no_ai": true
+            },
+            {
+              "guest_a_logout_b": true,
+              "private_sync": true,
+              "known_zero": true,
+              "rename_identity": true,
+              "confirmed_delete": true,
+              "no_ai": true
+            },
+            {
+              "stale_private_hydration_discarded": true,
+              "unknown_not_zero": true
+            },
+            {
+              "existing_buckets": true,
+              "saved_and_collection_share_session": true,
+              "source_exact_locator": true,
+              "reload": true,
+              "exact_return": true
+            },
+            {
+              "sync_error_truthful": true
+            },
+            {
+              "invalid_saved_conversation_fails_closed": true,
+              "no_ai": true
+            }
+          ],
+          "errors": [],
+          "model_calls": [],
+          "unexpected_writes": [],
+          "private_telemetry": [],
+          "live_requests": 0
+        },
+        "findings": {}
+      },
+      {
+        "name": "writer-personal",
+        "script": "test/writer-personal-chain-2029.browser.py",
+        "exit_code": 0,
+        "passed": true,
+        "result": {
+          "runtime": "built App2029 + existing Auth/Research/frame + shared editors/inbox",
+          "data": "synthetic HTTP fixtures; no live writes",
+          "captures": [
+            {
+              "width": 320,
+              "theme": "light",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "light",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "light",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "light",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "light",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "light",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "parchment",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "parchment",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "parchment",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "parchment",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "parchment",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "parchment",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "dark",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "dark",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "dark",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "dark",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "dark",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 320,
+              "theme": "dark",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 296
+            },
+            {
+              "width": 390,
+              "theme": "light",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "light",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "light",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "light",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "light",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "light",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "parchment",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "parchment",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "parchment",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "parchment",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "parchment",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "parchment",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "dark",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "dark",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "dark",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "dark",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "dark",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 390,
+              "theme": "dark",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 366
+            },
+            {
+              "width": 768,
+              "theme": "light",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "light",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "light",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "light",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "light",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "light",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "parchment",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "parchment",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "parchment",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "parchment",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "parchment",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "parchment",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "dark",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "dark",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "dark",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "dark",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "dark",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 768,
+              "theme": "dark",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                12,
+                12
+              ],
+              "layout_width": 744
+            },
+            {
+              "width": 1440,
+              "theme": "light",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "light",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "light",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "light",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "light",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "light",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "parchment",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "parchment",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "parchment",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "parchment",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "parchment",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "parchment",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "dark",
+              "module": "public-page",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "dark",
+              "module": "page-editor",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "dark",
+              "module": "profile",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "dark",
+              "module": "messages",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "dark",
+              "module": "notifications",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            },
+            {
+              "width": 1440,
+              "theme": "dark",
+              "module": "progress",
+              "overflow": false,
+              "balanced_gutters": [
+                100,
+                100
+              ],
+              "layout_width": 980
+            }
+          ],
+          "flows": [
+            "self resolves canonical URL and strips private query; viewing never creates",
+            "shared page editor preserves existing highlights/links",
+            "explicit photo consent -> actual public avatar -> revoke; visitor preview hides owner tools",
+            "existing inbox exact conversation/writer return, failed send retains draft, confirmed retry, native replies",
+            "failed unfollow does not remove row; confirmed unfollow; DM notification opens native conversation",
+            "profile missing acknowledgment retains draft; account switch masks old draft while new profile is pending",
+            "guard: unlinked",
+            "guard: ambiguous",
+            "guard: failure",
+            "guard: guest"
+          ],
+          "errors": [],
+          "editor_refresh_checks": [
+            {
+              "width": 390,
+              "editor_retained": true,
+              "layout_state": "ready",
+              "new_draft_preserved": true
+            },
+            {
+              "width": 1440,
+              "editor_retained": true,
+              "layout_state": "ready",
+              "new_draft_preserved": true
+            },
+            {
+              "refresh_status": 503,
+              "transient_draft_preserved_or_session_masked": true
+            },
+            {
+              "refresh_status": 401,
+              "transient_draft_preserved_or_session_masked": true
+            },
+            {
+              "unconfirmed_ack": null,
+              "draft_preserved_no_refresh": true
+            },
+            {
+              "unconfirmed_ack": {
+                "ok": "false"
+              },
+              "draft_preserved_no_refresh": true
+            }
+          ]
+        },
+        "findings": {}
+      },
+      {
+        "name": "community-person",
+        "script": "test/community-person-unification-2029.browser.py",
+        "exit_code": 0,
+        "passed": true,
+        "result": {
+          "cases": 19,
+          "errors": [],
+          "unexpected_writes": [],
+          "blocked_identity_telemetry": 155
+        },
+        "findings": {}
+      },
+      {
+        "name": "message-actions",
+        "script": "test/community-message-actions-2029.browser.py",
+        "exit_code": 0,
+        "passed": true,
+        "result": {
+          "cases": 26,
+          "errors": [],
+          "unexpected_writes": [],
+          "model_attempts": []
+        },
+        "findings": {}
+      },
+      {
+        "name": "personal-replies",
+        "script": "test/personal-replies-community-2029.browser.py",
+        "exit_code": 0,
+        "passed": true,
+        "result": {
+          "cases": [
+            {
+              "width": 320,
+              "account": 1,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 196,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 320,
+              "account": 2,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 196,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 320,
+              "account": 3,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 196,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 320,
+              "account": 4,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 196,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 320,
+              "account": 5,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 196,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 320,
+              "account": 6,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 196,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 390,
+              "account": 1,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 266,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 390,
+              "account": 2,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 266,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 390,
+              "account": 3,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 266,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 390,
+              "account": 4,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 266,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 390,
+              "account": 5,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 266,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 390,
+              "account": 6,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 266,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 1440,
+              "account": 1,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 560,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 1440,
+              "account": 2,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 560,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 1440,
+              "account": 3,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 560,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 1440,
+              "account": 4,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 560,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 1440,
+              "account": 5,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 560,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            },
+            {
+              "width": 1440,
+              "account": 6,
+              "old_thread": true,
+              "exact_reply": true,
+              "reload": true,
+              "exact_return": true,
+              "account_switch_pending_isolated": true,
+              "overflow": false,
+              "model_calls": 0,
+              "focused_body_width": 560,
+              "unexpected_writes": [],
+              "blocked_background_writes": 24
+            }
+          ],
+          "errors": [],
+          "sql_backed": true
+        },
+        "findings": {}
+      }
+    ],
+    "errors": [],
+    "fixture_only": true,
+    "live_product_writes": 0,
+    "passed": true
+  },
+  "screenshots": {
+    "320-dark.png": "affcac9a7ef9c1137990c818e3a4273dfcba993162a64845ea95495b2d54e1bc",
+    "1440-light.png": "a6e3e618da707594ee8b2a2dd75934c34a740b90b000ff1443bd4fe83317d690"
+  },
+  "boundaries": {
+    "journey_hint_processing": "reserved_for_user_personal_journey_session_task_key_pending",
+    "central_main_merge": false,
+    "hosted_preview": false,
+    "production": false,
+    "product_db_apply": false,
+    "live_authenticated_acceptance": false,
+    "independent_claude_visual_review": false,
+    "unsafe_public_person_rpc_connected": false,
+    "quota_reader_invented": false
+  }
+}

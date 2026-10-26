@@ -115,7 +115,7 @@ def catalog(page, query, label, item):
 
 
 with sync_playwright() as playwright:
-    browser = playwright.chromium.launch()
+    browser = playwright.chromium.launch(executable_path=os.environ.get("CHROMIUM_PATH", "/usr/bin/chromium"), headless=True, args=["--no-sandbox"])
     for theme in ("light", "parchment", "dark"):
         for width in (320, 390, 1440):
             context, page, state = open_page(browser, theme, width)

@@ -89,6 +89,21 @@ test("the unresolved Person binding is stated and is not shown as a completed id
   assert.equal(contributorPersonView2029({ ...projection, personBinding: "resolved" }, { name: "א" }).binding, "");
 });
 
+test("public writing days explain their scope and never call public activity a private login", () => {
+  const projection = publicContributorPerson2029(generic(), { kind: "author" });
+  const activity = projection.axes.find((axis) => axis.key === "activity");
+  activity.measures.activeDays = { state: "measured", value: 2, source: "public_community_author_summary" };
+  activity.lastPublicActivityAt = "2026-10-25T20:00:00Z";
+  const person = contributorPersonView2029(projection);
+  const item = person.measured.flatMap((group) => group.items).find((measure) => measure.key === "activeDays");
+  assert.equal(item.label, "ימי כתיבה ציבורית");
+  assert.equal(item.value, 2);
+  assert.match(item.explain, /לפי שעון ישראל/);
+  assert.match(item.explain, /פעילות ציבורית אחרונה:/);
+  assert.match(item.explain, /אינו מועד החיבור האחרון/);
+  assert.ok(person.unmeasured.some((measure) => measure.key === "tenure.tenureDays"));
+});
+
 test("the presentation model has no rank, score, percentage or threshold vocabulary", () => {
   const code = (file) => fs.readFileSync(new URL(file, import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
   const source = code("./contributorPersonView2029.js") + code("./ContributorPersonMedallion2029.jsx");

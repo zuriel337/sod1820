@@ -40,11 +40,16 @@ export const followCenterIO = Object.freeze({
   },
   async readFollows(userId) {
     await requireAccount(userId);
-    const topics = followTopics(await getNotificationPrefs({ userId }));
+    const prefs = await getNotificationPrefs({ userId });
+    const topics = followTopics(prefs);
+    const channelKnown = prefs === null || Array.isArray(prefs?.channels) && prefs.channels.every(channel => typeof channel === "string" && channel.trim());
+    const channels = channelKnown ? [...new Set((prefs?.channels || []).map(channel => channel.trim()))] : null;
     // One anonymous-visible batch; ambiguous/private authors never receive guessed links.
     const links = await publicWriterFollowLinks(topics);
     await requireAccount(userId);
-    return { topics, links };
+    // Selection is not delivery readiness. Never return the private email or
+    // infer a chosen channel from a device permission/default.
+    return { topics, links, channels, channelState: channelKnown ? "ready" : "unavailable" };
   },
   async unfollow(userId, topic) {
     await requireAccount(userId);

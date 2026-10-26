@@ -110,7 +110,7 @@ export default function FollowCenter2029({ model, returnHref = null, readChange 
             {channels.map((channel) => <li key={channel.key} className="fc-channel" data-available={channel.available} style={tv(channel.chosen ? "action" : "ordinary", channel.available ? "active" : "unavailable")}>
               <IconTile2029 name={channel.icon} purpose={channel.chosen ? "action" : "ordinary"} state={channel.available ? "active" : "unavailable"} />
               <div><strong>{channel.label}</strong><small>{channel.note}</small></div>
-              <span className="fc-chip" data-on={channel.chosen}>{channel.known === false ? "לא נבדק" : channel.chosen ? "פעיל" : channel.available ? "אפשר להפעיל" : "לא זמין עדיין"}</span>
+              <span className="fc-chip" data-on={channel.chosen}>{channel.known === false ? "לא נבדק" : channel.consentKnown ? channel.chosen ? "נבחר בהעדפות" : "לא נבחר" : channel.chosen ? "פעיל" : channel.available ? "אפשר להפעיל" : "לא זמין עדיין"}</span>
             </li>)}
           </ul>
           <p className="fc-note-plain">מייל, תקציר ו־WhatsApp יופיעו כאן כשתהליך ההסכמה והמשלוח שלהם יהיה קיים בפועל.</p>

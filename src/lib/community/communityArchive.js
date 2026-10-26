@@ -279,18 +279,28 @@ export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, lim
 export async function fetchCommunityAuthorSummary(authorKey, { client = supabase } = {}) {
   const identity = await resolveCommunityAuthorIdentity(authorKey, client);
   const base = () => filterByAuthor(client.from("research_contributions")
-    .select("created_at,reactions")
+    .select("id,created_at,reactions")
     .eq("status", "approved")
-    .in("origin", COMMUNITY_ORIGINS), identity);
+    .in("origin", COMMUNITY_ORIGINS).not("body", "is", null).neq("body", ""), identity);
   const { data: first, error: firstError } = await base().order("created_at", { ascending: true }).limit(1);
   if (firstError) throw firstError;
   if (!identity.verifiedOwner) return { firstAt: first?.[0]?.created_at || null, archiveLikes: null };
-  let archiveLikes = 0;
+  let archiveLikes = 0, datesValid = true, lastPublicActivityAt = null;
+  const activeDates = new Set();
+  const day = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" });
   for (let offset = 0; offset < 5000; offset += 500) {
-    const { data, error } = await base().order("created_at", { ascending: true }).range(offset, offset + 499);
+    const { data, error } = await base().order("created_at", { ascending: true }).order("id", { ascending: true }).range(offset, offset + 499);
     if (error) throw error;
-    for (const row of data || []) archiveLikes += legacyLikeCount(row.reactions);
-    if ((data || []).length < 500) return { firstAt: first?.[0]?.created_at || null, archiveLikes };
+    for (const row of data || []) {
+      archiveLikes += legacyLikeCount(row.reactions);
+      const time = row.created_at ? Date.parse(row.created_at) : NaN;
+      if (!Number.isFinite(time)) { datesValid = false; continue; }
+      activeDates.add(day.format(new Date(time)));
+      if (!lastPublicActivityAt || time > Date.parse(lastPublicActivityAt)) lastPublicActivityAt = row.created_at;
+    }
+    if ((data || []).length < 500) return { firstAt: first?.[0]?.created_at || null, archiveLikes,
+      publicActivity: { version: "public-chat-summary-v1", scope: "public_chat_only", complete: datesValid,
+        activeDays: datesValid ? activeDates.size : null, lastPublicActivityAt: datesValid ? lastPublicActivityAt : null } };
   }
   return { firstAt: first?.[0]?.created_at || null, archiveLikes: null };
 }

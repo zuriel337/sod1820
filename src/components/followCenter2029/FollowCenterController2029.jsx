@@ -48,7 +48,8 @@ function AccountCenter({ userId, authLoading, io, returnHref, onSignIn }) {
         setUpdates({ state: "ready", items: value });
       } else {
         if (!Array.isArray(value?.topics)) throw new Error("Invalid follows");
-        setFollows({ state: "ready", topics: value.topics, links: value.links || {}, pending: {} });
+        setFollows({ state: "ready", topics: value.topics, links: value.links || {}, pending: {},
+          channels: value.channels, channelState: value.channelState });
       }
       return value;
     } catch {
@@ -105,7 +106,9 @@ function AccountCenter({ userId, authLoading, io, returnHref, onSignIn }) {
     if (section === "following" && !followLock.current) load(section);
   };
   const model = buildFollowCenterModel({ principal: authLoading ? "loading" : userId ? "registered" : "guest",
-    notifications: updates, follows, channelReadState: "unavailable" });
+    notifications: updates, follows,
+    channelReadState: follows.state === "ready" && follows.channelState === "ready" ? "ready" : "unavailable",
+    deliveryReadState: "unavailable" });
   return <FollowCenter2029 model={model} returnHref={returnHref} readChange={readChange} loadedPage
     onRetry={retry} onUnfollow={unfollow} onMarkAllRead={() => mark()}
     onOpenUpdate={async (item, event, href) => {

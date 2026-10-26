@@ -62,14 +62,27 @@ await test("preferences and public writer links are read in one batch, with no p
     const result = await followCenterIO.readFollows(ACCOUNT);
     assert.deepEqual(result.links, { "author:יחיד": "/community/researcher/unique" });
     assert.equal(result.topics.at(-1), "number:1820");
-    assert.deepEqual(Object.keys(result).sort(), ["links", "topics"]);
+    assert.deepEqual(Object.keys(result).sort(), ["channelState", "channels", "links", "topics"]);
+    assert.deepEqual(result.channels, ["email"]); assert.equal(result.channelState, "ready");
+    assert.doesNotMatch(JSON.stringify(result), /must-not-escape/);
     assert.equal(calls.length, 2); assert.equal(calls[0].params.get("user_id"), `eq.${ACCOUNT}`);
     assert.equal(calls[1].method, "GET"); assert.ok(calls[1].params.has("display_name"));
   });
 });
 await test("known absent preferences are empty but malformed preferences stay unavailable", async () => {
-  await transport({ notification_prefs: { data: null } }, async () => assert.deepEqual(await followCenterIO.readFollows(ACCOUNT), { topics: [], links: {} }));
+  await transport({ notification_prefs: { data: null } }, async () => assert.deepEqual(await followCenterIO.readFollows(ACCOUNT), { topics: [], links: {}, channels: [], channelState: "ready" }));
   await transport({ notification_prefs: { data: {} } }, async () => assert.rejects(followCenterIO.readFollows(ACCOUNT)));
+});
+
+await test("unknown channel selections stay unknown without discarding valid follows", async () => {
+  for (const channels of [undefined, null, [1], [""]]) {
+    await transport({ notification_prefs: { data: { topics: ["number:1820"], channels } } }, async calls => {
+      const result = await followCenterIO.readFollows(ACCOUNT);
+      assert.deepEqual(result.topics, ["number:1820"]);
+      assert.equal(result.channels, null); assert.equal(result.channelState, "unavailable");
+      assert.equal(calls.length, 1, "no channel activation or extra request");
+    });
+  }
 });
 await test("every operation rejects a changed account before touching the transport", async () => {
   await transport({}, async calls => {

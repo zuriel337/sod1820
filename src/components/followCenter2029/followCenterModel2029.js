@@ -32,7 +32,7 @@ function updateHref2029(item) {
 }
 
 // Follow v19: follow, identity, channel choice and delivery are four separate states.
-export function followLifecycle({ principal, followCount, channels, followReadState = "ready", channelReadState = "ready" }) {
+export function followLifecycle({ principal, followCount, channels, followReadState = "ready", channelReadState = "ready", deliveryReadState = channelReadState }) {
   const registered = principal === "registered";
   const guest = principal === "guest";
   const known = followReadState === "ready";
@@ -42,11 +42,11 @@ export function followLifecycle({ principal, followCount, channels, followReadSt
     { key: "follow", label: "מעקב", state: followState, note: known ? (followCount > 0 ? `${followCount} במעקב` : "עוד לא בחרת") : followReadState === "loading" ? "טוען את המעקבים" : "לא ניתן לקרוא את המעקבים כרגע" },
     { key: "identity", label: "זהות", state: registered ? "done" : guest ? "needed" : "loading", note: registered ? "מחובר" : guest ? "נדרש אימות זהות" : "בודק את הזהות" },
     { key: "channel", label: "ערוץ", state: channelReadState === "ready" && (guest || registered && known) ? (chosen ? "done" : "idle") : "unknown", note: channelReadState === "ready" && (guest || registered && known) ? (chosen ? "נבחר במפורש" : "לא נבחר") : "טרם נקראו העדפות הערוצים" },
-    { key: "delivery", label: "משלוח", state: channelReadState === "ready" ? "unavailable" : "unknown", note: channelReadState === "ready" ? "לא הופעל" : "מצב המשלוח לא נבדק" },
+    { key: "delivery", label: "משלוח", state: deliveryReadState === "ready" ? "unavailable" : "unknown", note: deliveryReadState === "ready" ? "לא הופעל" : "מצב המשלוח לא נבדק" },
   ];
 }
 
-export function buildFollowCenterModel({ principal = "loading", notifications = {}, follows = {}, device = {}, channelReadState = "ready" } = {}) {
+export function buildFollowCenterModel({ principal = "loading", notifications = {}, follows = {}, device = {}, channelReadState = "ready", deliveryReadState = channelReadState } = {}) {
   const kind = principal === "registered" || principal === "guest" ? principal : "loading";
   const nState = readState(notifications.state), fState = readState(follows.state);
   const items = nState === "ready" && Array.isArray(notifications.items) ? notifications.items : [];
@@ -74,14 +74,17 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
   const channels = NOTIFICATION_CHANNELS.map((channel) => {
     const known = channelReadState === "ready";
     const ready = known && channel.key === "push" && device.push === "available";
-    return { key: channel.key, icon: CHANNEL_ICON[channel.key] || "help", label: channel.label, known, available: ready, chosen: known ? ready && device.pushSubscribed === true : null,
-      note: !known ? "מצב הערוץ לא נבדק. ההעדפות הקיימות נשמרות." : ready ? (device.pushSubscribed ? "פעיל במכשיר הזה" : "אפשר להפעיל במכשיר הזה") : channel.note };
+    const consentKnown = known && kind === "registered" && fState === "ready" && follows.channelState === "ready" && Array.isArray(follows.channels);
+    const chosen = consentKnown ? follows.channels.includes(channel.key) : known ? ready && device.pushSubscribed === true : null;
+    return { key: channel.key, icon: CHANNEL_ICON[channel.key] || "help", label: channel.label, known, consentKnown, available: ready, chosen,
+      note: consentKnown ? chosen ? "נבחר בהעדפות החשבון. מצב המשלוח לא נבדק." : "לא נבחר בהעדפות החשבון."
+        : !known ? "מצב הערוץ לא נבדק. ההעדפות הקיימות נשמרות." : ready ? (device.pushSubscribed ? "פעיל במכשיר הזה" : "אפשר להפעיל במכשיר הזה") : channel.note };
   });
   return {
     principal: kind,
     updates: { state: nState, items: updates, unread: nState === "ready" ? updates.filter((item) => item.unread).length : null },
     following: { state: fState, groups: followGroups, count: followCount },
-    channels, lifecycle: followLifecycle({ principal: kind, followCount, channels, followReadState: fState, channelReadState }),
+    channels, lifecycle: followLifecycle({ principal: kind, followCount, channels, followReadState: fState, channelReadState, deliveryReadState }),
     // Inferred relevance and Raziel suggestions are different inputs from an explicit follow and are not active producers yet.
     inputs: [
       { key: "follow", label: "אני עוקב", note: "בחירה מפורשת שלך", active: true },

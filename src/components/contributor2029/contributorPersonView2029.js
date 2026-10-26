@@ -1,4 +1,5 @@
 import { publicContributorOverview } from "./contributorOverview2029Model.js";
+import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 
 // Presentation model over the existing public writer `personProjection`.
 // It reads measurements; it never computes a rank, score, percentage or threshold, and it never turns
@@ -14,7 +15,7 @@ const MEASURES = Object.freeze({
   publications: ["פוסטים", "פוסטים ציבוריים של הכותב, כולל פוסטים משותפים."],
   cipherRecords: ["רשומות צופן", "רשומות צופן ציבוריות לפי קרדיט או העלאה. אינן ממצאים מאומתים."],
   contributionRows: ["שורות תרומה", "שורות תרומה ציבוריות. אינן ספירת הודעות ואינן ממצאים עצמאיים."],
-  activeDays: ["ימי פעילות", "ימים עם פעילות ציבורית משמעותית."],
+  activeDays: ["ימי כתיבה ציבורית", "ימים עם הודעות ותגובות ציבוריות לפי שעון ישראל. אינם כוללים חיפושים או ביקורים פרטיים."],
   tenureDays: ["ותק בקהילה", "ותק מוכח מההיסטוריה הציבורית."],
   likesReceived: ["לייקים שהתקבלו", "כל הלייקים הציבוריים של הכותב, לא סכום הדף שנטען."],
   reactionsReceived: ["ריאקציות שהתקבלו", "כל הריאקציות הציבוריות של הכותב."],
@@ -23,7 +24,7 @@ const MEASURES = Object.freeze({
 });
 const SOURCES = Object.freeze({
   public_community_author_reader: "קורא הודעות הקהילה הציבוריות",
-  public_community_author_summary: "סיכום הלייקים בקורא הקהילה הציבורי הקיים",
+  public_community_author_summary: "סיכום הפעילות בקורא הקהילה הציבורי הקיים",
   verified_archive_profile_baseline: "נתון פרופיל היסטורי מאומת; אינו סכום הלייקים בארכיון שנקלט",
   "contributorSourceCatalogProjection+posts": "קטלוג המקורות והפוסטים הציבורי",
   contributorPublicationCatalog: "קטלוג הפרסומים הציבורי",
@@ -75,7 +76,9 @@ export function contributorPersonView2029(projection, { overview = null, name = 
     for (const [key, measure] of Object.entries(axis.measures || {})) {
       const [label, explain] = MEASURES[key] || [axis.label, ""];
       if (measure?.state === "measured" && Number.isSafeInteger(measure.value) && measure.value >= 0) {
-        items.push({ key, label, value: measure.value, valueText: number.format(measure.value), explain,
+        const lastActivity = key === "activeDays" && axis.lastPublicActivityAt ? bilingualDateLabel(axis.lastPublicActivityAt) : "";
+        items.push({ key, label, value: measure.value, valueText: number.format(measure.value),
+          explain: lastActivity ? `${explain} פעילות ציבורית אחרונה: ${lastActivity}. זה אינו מועד החיבור האחרון לאתר.` : explain,
           source: SOURCES[measure.source] || "קורא ציבורי קיים" });
       } else unmeasured.push({ key: `${axis.key}.${key}`, axis: axis.label, label, reason: REASONS[axis.reason] || DEFAULT_REASON });
     }

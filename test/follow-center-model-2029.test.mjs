@@ -65,3 +65,11 @@ const unreadChannels = buildFollowCenterModel({ principal: "registered", follows
 assert.ok(unreadChannels.channels.every(channel => !channel.known && channel.chosen === null && !channel.available));
 assert.equal(unreadChannels.lifecycle[2].state, "unknown", "unread channel consent is never a measured opt-out");
 assert.equal(unreadChannels.lifecycle[3].state, "unknown", "unread delivery state is never a claim that no delivery exists");
+
+const selectedOnly = buildFollowCenterModel({ principal: "registered", follows: { state: "ready", topics: ["number:1820"],
+  channelState: "ready", channels: ["email"] }, channelReadState: "ready", deliveryReadState: "unavailable" });
+assert.equal(selectedOnly.channels[0].chosen, true);
+assert.equal(selectedOnly.channels[0].available, false, "a stored choice never activates delivery");
+assert.equal(selectedOnly.lifecycle[2].state, "done");
+assert.equal(selectedOnly.lifecycle[3].state, "unknown", "delivery has its own unmeasured owner state");
+assert.match(selectedOnly.channels[0].note, /נבחר.*מצב המשלוח לא נבדק/);

@@ -187,6 +187,10 @@ try:
             assert "is-focused" in (target.get_attribute("class") or "")
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
             body_width = target.locator(".sod29-community-body").evaluate("element => Math.round(element.getBoundingClientRect().width)")
+            if width <= 390:
+                root_width = page.locator(f"#message-{case['root']} .sod29-community-body").evaluate("element => Math.round(element.getBoundingClientRect().width)")
+                assert body_width >= root_width - 18, (width, root_width, body_width)
+                assert body_width >= min(220, root_width - 18), "deep replies must retain a usable mobile reading column"
             assert not any(any(token in path for token in ("dm_send", "watch_toggle", "add_contribution")) for path, _ in state["writes"]), state["writes"]
             page.screenshot(path=str(OUT / f"{prefix}-old-community-reply.png"), full_page=True)
             page.get_by_role("link", name="חזרה להודעות שלי", exact=True).click()
