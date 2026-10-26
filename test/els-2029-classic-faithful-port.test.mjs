@@ -27,7 +27,7 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
 test("saved ciphers open directly through an on-screen canonical replay state", () => {
   assert.match(page, /const directSavedOpen = Boolean\(cipherSlug \|\| recordId\)/);
   assert.match(page, /introVariant=\{library \|\| directSavedOpen \? "none" : "compact"\}/);
-  assert.match(page, /!directSavedOpen && !researchProfile \? <ElsRecentCiphers2029/);
+  assert.match(page, /!directSavedOpen \? <ElsRecentCiphers2029/);
   assert.match(page, /directSavedOpen \? <ElsRecentCiphers2029/);
   assert.match(page, /data-els-research-tools="brief-visible-v1" hidden=\{!researchProfile \|\| directSavedOpen\}/);
   assert.ok(page.indexOf("<ElsNativeClassic2029") < page.lastIndexOf("<ElsRecentCiphers2029"), "the saved-cipher folder follows the matrix on a direct saved open");

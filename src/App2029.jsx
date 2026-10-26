@@ -121,8 +121,10 @@ function CanonicalBookAlias2029() {
 }
 
 function ElsAddressAlias2029() {
-  const location = useLocation();
-  return <Navigate replace to={`/code${location.search || ""}${location.hash || ""}`} />;
+  // Keep /els on the 2029 document. Redirecting the browser-visible address to
+  // /code made a refresh cross the document boundary back into Legacy, even
+  // though the same client navigation had rendered the 2029 ELS surface.
+  return <Els2029Page />;
 }
 
 function LegacyDocumentHandoff() {

@@ -6,9 +6,9 @@ const page = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.ur
 const bar = readFileSync(new URL("../src/components/experience2029/ElsResearchBar2029.jsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/components/experience2029/els2029-research.css", import.meta.url), "utf8");
 
-test("research bar renders only after Cipher Discovery starts and keeps Classic mounted in place", () => {
-  assert.match(page, /\{researchProfile && discoveryWorkspaceReady \? <ElsResearchBarConnected/);
-  assert.match(page, /hidden=\{!discoveryWorkspaceReady\}/);
+test("research bar follows the Research profile and keeps Classic mounted in place", () => {
+  assert.match(page, /\{researchProfile \? <ElsResearchBarConnected/);
+  assert.doesNotMatch(page, /discoveryWorkspaceReady/);
   assert.match(page, /<ElsNativeClassic2029 initialSeed=/);
   assert.match(page, /data-els-research-composition/);
 });

@@ -64,7 +64,7 @@ function ElsRazielEntry({ researchContext, projection, layers, planSummary, read
   </button>;
 }
 
-function ElsResearchBarConnected({ researchContext, projection, layers, planSummary, replay, ready, subject, locator, onLibrary, profileSwitch }) {
+function ElsResearchBarConnected({ researchContext, projection, layers, planSummary, replay, ready, subject, locator, onLibrary }) {
   const shell = use2029Shell();
   const surfaceContext = useMemo(
     () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary }) : null,
@@ -79,7 +79,6 @@ function ElsResearchBarConnected({ researchContext, projection, layers, planSumm
     onRaziel={() => shell.openRaziel({ razielMicroIntent: "explain_els_occurrence", elsSurfaceContext: surfaceContext })}
     onLibrary={() => onLibrary("public")}
     onMine={() => onLibrary("mine")}
-    profileSwitch={profileSwitch}
   />;
 }
 
@@ -286,7 +285,6 @@ export default function Els2029Page() {
     razielAvailable: replayMatched && layeredReady,
   }), [matrixProfile, replayMatched, layeredReady]);
   const researchProfile = profileModel.profile === ELS_MATRIX_PROFILE.RESEARCH;
-  const discoveryWorkspaceReady = !researchProfile || directSavedOpen || Boolean(researchLoad || classicSeed || replayRequest || legacyMatrix);
 
   useEffect(() => {
     applySeo({ title: "ELS · SOD1820", description: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים", path: "/code" });
@@ -320,25 +318,25 @@ export default function Els2029Page() {
       : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("public")}>כל הממצאים הציבוריים</button> <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
-    {!directSavedOpen && !researchProfile ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
+    {!directSavedOpen ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
     <div ref={researchPlanRef} data-els-research-tools="brief-visible-v1" hidden={!researchProfile || directSavedOpen}>
       <ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />
     </div>
     <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">{researchProfile ? "גילוי צופן" : "הצופן הקלאסי"}</div>
+          <div className="sod29-kicker">{researchProfile ? "סביבת המחקר" : "כלי המחקר הקלאסי"}</div>
           <h2>{savedRecord.row?.title || (researchProfile
-            ? (subject?.label ? "גילוי צופן סביב " + subject.label : "מסיפור לצופן")
+            ? (subject?.label ? "מחקר ELS סביב " + subject.label : "מחקר דילוגי אותיות")
             : "הצופן הקלאסי")}</h2>
           <div className="sod29-muted">
             {savedRecord.row
               ? "משחזר את הציר, הממצאים והמקור מאותה רשומה שמורה."
               : researchProfile
               ? (subject
-                ? "הסיפור מכוון את החיפוש; המנוע הקנוני מאמת את הציר, הגיאומטריה והמקור."
-                : "כתבו את הסיפור למעלה. המטריצה תיפתח רק לאחר שתאשרו ציר ותוכנית חיפוש מוגבלת.")
-              : "חיפוש ישיר, מטריצה ומופעי הציר — בלי שכבות גילוי אוטומטיות."}
+                ? "חפשו מונח או הצלבה, עיינו במקור ושמרו את הממצאים להמשך."
+                : "התחילו בחיפוש. המטריצה, הצבעים והבחירות נשמרים במעבר בין מחקר לקלאסי.")
+              : "חיפוש ישיר, מטריצה ומופעי הציר — ללא טעינת שכבות המחקר."}
           </div>
         </div>
         <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
@@ -352,7 +350,6 @@ export default function Els2029Page() {
         className="sod29-section"
         aria-label="סביבת המחקר של הצופן"
         data-els-classic-2029="native-v1"
-        hidden={!discoveryWorkspaceReady}
         style={{ marginTop: 18, overflow: "hidden" }}
       >
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
@@ -380,7 +377,7 @@ export default function Els2029Page() {
         </> : null}
       </details> : null}
 
-      {researchProfile && discoveryWorkspaceReady ? <ElsResearchBarConnected
+      {researchProfile ? <ElsResearchBarConnected
         researchContext={context}
         projection={replayProjection}
         layers={replayLayers}
@@ -390,7 +387,6 @@ export default function Els2029Page() {
         subject={subject}
         locator={locator}
         onLibrary={showLibrary}
-        profileSwitch={<ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />}
       /> : null}
 
 
