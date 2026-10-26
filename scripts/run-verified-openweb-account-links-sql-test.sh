@@ -17,3 +17,7 @@ done
 local_docker exec "$TASK_LINK_CONTAINER" pg_isready -h 127.0.0.1 -U postgres >/dev/null
 local_docker exec -w /repo "$TASK_LINK_CONTAINER" psql -X -U postgres -d postgres \
   -v ON_ERROR_STOP=1 -q -f tests/sql/verified_openweb_account_links_v1.sql
+if [[ -n "${TASK_REPLIES_EXPORT:-}" ]]; then
+  # Only synthetic rows produced inside this network-isolated container.
+  local_docker cp "$TASK_LINK_CONTAINER:/tmp/verified-replies-browser.json" "$TASK_REPLIES_EXPORT"
+fi

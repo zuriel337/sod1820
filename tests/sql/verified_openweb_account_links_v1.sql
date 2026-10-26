@@ -151,4 +151,7 @@ select test_assert((select count(*)=6 from decision_ledger) and (select count(*)
 \i scripts/ops/link-verified-openweb-accounts-20261026.sql
 select test_assert((select count(*)=12 from identity_edges) and (select count(*)=6 from decision_ledger) and (select count(*)=2 from contributor_claim_events),'replay is idempotent');
 select 'verified historical account links PostgreSQL acceptance: PASS' as result;
+-- Exercise both committed operations in the same isolated transaction. This is
+-- deliberately after the identity-only assertions, so their baseline stays exact.
+\i tests/sql/verified_openweb_replies_integration_v1.sql
 rollback;
