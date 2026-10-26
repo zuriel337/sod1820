@@ -4,7 +4,12 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 
 const ENGINE = new URL("../tools/els/els-code.template.html", import.meta.url);
+const BUILT_ENGINE = new URL("../public/tzofen.html", import.meta.url);
 const CORPUS = new URL("../tools/els/data/tk-letters.txt", import.meta.url);
+const builtEngine = await readFile(BUILT_ENGINE, "utf8");
+const profileMatch = builtEngine.match(/const TORAH_LANGUAGE_PROFILE=JSON\.parse\(atob\("([A-Za-z0-9+/=]+)"\)\);/);
+assert.ok(profileMatch, "the built canonical engine embeds one compact Torah-language profile");
+const TORAH_LANGUAGE_PROFILE = JSON.parse(Buffer.from(profileMatch[1], "base64").toString("utf8"));
 
 function functionSource(template, name) {
   let start = template.indexOf(`function ${name}(`);
@@ -25,13 +30,16 @@ function languageContext(engine, corpus, raw, scope = "torah") {
   context.scopeN = () => scope === "tanakh" ? context.T.length : 304805;
   vm.runInContext([
     NORMALIZER,
-    `const GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1",GUIDED_LANGUAGE_REPLAY_CONTRACT="els_language_relation_replay_v1";`,
+    `const GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1",GUIDED_LANGUAGE_REPLAY_CONTRACT="els_language_relation_replay_v1",GUIDED_LANGUAGE_BOUNDARY_CONTRACT="els_torah_language_boundary_v1";`,
+    `const TORAH_LANGUAGE_PROFILE=${JSON.stringify(TORAH_LANGUAGE_PROFILE)};`,
     `const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;`,
     `const replayCalls=[];let replayMode="match";async function verifyBatch(term,hits,strategy,operation,scope){const hit=hits[0];replayCalls.push({term,hit,strategy,scope});const matched=replayMode==="match"||replayMode==="second-mismatch"&&replayCalls.length!==2;return {ok:true,verified:new Set(matched?[hitKey(hit)]:[]),traces:["trace-"+replayCalls.length],corpus_id:"wlc-torah-consonantal-v1"};}`,
     functionSource(engine, "guidedMatrixBox"),
     functionSource(engine, "guidedMatrixDisplayTerm"),
     functionSource(engine, "guidedLanguageReading"),
     functionSource(engine, "guidedLanguageRelations"),
+    functionSource(engine, "guidedLanguageBoundaryScore"),
+    functionSource(engine, "guidedLanguageBoundaryHypotheses"),
     functionSource(engine, "guidedMatrixLanguageInspection"),
     functionSource(engine, "guidedVerifyLanguageRelations"),
   ].join("\n"), context);
@@ -68,11 +76,18 @@ test("bounded local rays preserve unseen exact letters without a cipher-specific
   assert.ok(result.rays.every(ray => ray.text.length <= 24 && [...ray.text].reverse().join("") === ray.reverseText));
   assert.ok(result.rays.some(ray => ray.text.includes("באשאטמינ") || ray.reverseText.includes("באשאטמינ")), "the intersecting exact-letter sequence survives the bounded map");
   assert.ok(result.rays.some(ray => ray.text.includes("שבררומי") || ray.reverseText.includes("שבררומי")), "the nearby reverse sequence survives the same bounded map");
-  assert.deepEqual(result.authority, { letters: "CANONICAL", segmentation: "UNRESOLVED", meaning: "UNVERIFIED", canonicalReplayRequired: true });
+  assert.deepEqual(result.authority, { letters: "CANONICAL", segmentation: "UNRESOLVED", boundarySegmentation: "DETERMINISTIC_CANDIDATE", meaning: "UNVERIFIED", canonicalReplayRequired: true });
   assert.equal(result.readings.length, 0);
   assert.equal(result.segmentations.length, 0);
   assert.equal(result.relations.length, 0);
+  assert.ok(result.boundaries.some(boundary => boundary.readingDirection === "forward" && boundary.leftContext.endsWith("באש") && boundary.rightContext.startsWith("אטמינ")));
+  assert.ok(result.boundaries.some(boundary => boundary.readingDirection === "reverse" && boundary.leftContext.endsWith("שבר") && boundary.rightContext.startsWith("רומי")));
+  assert.equal(result.boundaryProfile.vocabularyRetained, false);
+  assert.equal(result.boundaryProfile.modelCallsTriggered, 0);
+  assert.ok(result.coverage.returnedBoundaries <= result.coverage.boundaryCap);
+  assert.ok(result.coverage.boundaryProfileComparisons <= 816);
   assert.doesNotMatch(functionSource(engine, "guidedMatrixLanguageInspection"), /באשאטמינ|שבררומי|ד\. טראמפ/, "runtime logic contains no Golden phrase or cipher special case");
+  assert.doesNotMatch(functionSource(engine, "guidedLanguageBoundaryHypotheses"), /באשאטמינ|שבררומי|ד\. טראמפ/, "boundary selection contains no Golden answer");
 });
 
 test("Colombia holdout letters are inside the same bounded map without supplying its findings", async () => {
@@ -85,6 +100,13 @@ test("Colombia holdout letters are inside the same bounded map without supplying
   assert.equal(result.modelCallsTriggered, 0);
   assert.equal(result.readings.length, 0, "withheld words are not silently inserted into the controlled lexicon");
   assert.equal(result.relations.length, 0, "unrecognized holdout letters do not become a semantic relation");
+  assert.ok(result.boundaries.some(boundary => boundary.leftContext.endsWith("יכל") && boundary.rightContext.startsWith("אש")), "the compact profile retains the possible יכל|אש boundary without knowing either word");
+  assert.ok(result.boundaries.some(boundary => boundary.leftContext.endsWith("אש") && boundary.rightContext.startsWith("אכלה")), "a second possible division remains an unverified alternative");
+  assert.ok(result.boundaries.every(boundary => boundary.status === "UNVERIFIED_BOUNDARY" && boundary.interpretationRequired === true && boundary.truthPromotion === false));
+  assert.equal(TORAH_LANGUAGE_PROFILE.contract, "torah_language_boundary_profile_v1");
+  assert.equal(TORAH_LANGUAGE_PROFILE.vocabularyRetained, false);
+  assert.equal(TORAH_LANGUAGE_PROFILE.boundaryScores.length, 22 * 22);
+  assert.equal(JSON.stringify(TORAH_LANGUAGE_PROFILE).includes("ספינת"), false, "the language profile retains no holdout vocabulary");
 });
 
 test("Uranium geometry candidates survive independently of the memorable skip", async () => {

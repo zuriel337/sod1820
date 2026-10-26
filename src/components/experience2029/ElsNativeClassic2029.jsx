@@ -433,6 +433,9 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
   const languageInspections = coverage.inspections.map(inspection => inspection.languageInspection).filter(Boolean);
   const languageReadings = languageInspections.flatMap(inspection => inspection.readings || []).slice(0, 8);
   const languageSegmentations = languageInspections.flatMap(inspection => inspection.segmentations || []).slice(0, 4);
+  const languageBoundaries = languageInspections.flatMap(inspection => inspection.boundaries || []).sort((first, second) =>
+    first.focusDistance - second.focusDistance || second.profileScore - first.profileScore
+    || first.rayId.localeCompare(second.rayId) || first.boundaryOffset - second.boundaryOffset).slice(0, 8);
   const languageCandidate = coverage.inspections.flatMap(inspection => (inspection.languageInspection?.relations || [])
     .map(relation => ({ relation, occurrence: inspection.occurrence, hitId: inspection.hitId }))).sort((first, second) =>
     Number(second.relation.status === "VERIFIED_RELATION") - Number(first.relation.status === "VERIFIED_RELATION")
@@ -513,6 +516,13 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
     </details> : null}
     {languageInspections.length ? <details className="els29-guided-raw" data-els-language-inspection="candidate-only"><summary>מתקדם · מפת לשון מקומית ({languageRayCount} קווים)</summary>
       <p>האותיות נלקחו מהמטריצה הקנונית. חלוקה למילים, כתיב ומשמעות הם קריאות מועמדות בלבד—לא ממצא ולא עובדה.</p>
+      {languageBoundaries.length ? <section data-els-language-boundaries="unverified"><strong>גבולות חלוקה אפשריים</strong>
+        <p>פרופיל קטן של לשון התורה מדרג רק היכן עשוי לעבור רווח. הוא אינו מחזיק מילון ואינו קובע שאלה מילים.</p>
+        <ul>{languageBoundaries.map(boundary => <li key={`${boundary.rayId}:${boundary.readingDirection}:${boundary.boundaryOffset}`}>
+          <bdi>{boundary.leftContext}</bdi> <b aria-hidden="true">|</b> <bdi>{boundary.rightContext}</bdi>
+          <small> · {boundary.focusDistance} אותיות ממוקד הקרן · לא מאומת</small>
+        </li>)}</ul>
+      </section> : null}
       {languageSegmentations.length ? <ul>{languageSegmentations.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}`}><bdi>{reading.exactLetters}</bdi> → {reading.tokens.map(token => token.label || token.baseTerm).join(" · ")} · {guidedReadingLabel(reading.relation)}</li>)}</ul> : null}
       {languageReadings.length ? <ul>{languageReadings.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}:${reading.baseTerm}`}><bdi>{reading.exactLetters}</bdi> → {reading.label || reading.baseTerm} · {guidedReadingLabel(reading.relation)}</li>)}</ul> : <p>לא נמצאה עדיין חלוקה בטוחה באוצר המצומצם. הקווים נשמרו כקלט תחום להמשך מחקר.</p>}
       <small>AI: אפס קריאות · אין הוספה אוטומטית למטריצה · גם לאחר replay של האותיות, קריאה ומשמעות נשארות פרשנות לא מאומתת.</small>

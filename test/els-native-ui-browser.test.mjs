@@ -1580,10 +1580,19 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
     assert.ok(reports.length>=1&&reports.every(report=>report.languageInspection?.contract==='els_matrix_language_inspection_v1'));
     assert.ok(reports.every(report=>report.languageInspection.modelCallsTriggered===0&&report.languageInspection.coverage.returnedRays<=24&&report.languageInspection.coverage.maxLetters===24&&report.languageInspection.coverage.returnedRelations<=3&&Number(report.languageInspection.coverage.relationReplayCalls||0)<=2&&Number(report.languageInspection.canonicalReplayCalls||0)<=2));
     assert.ok(reports.every(report=>(report.languageInspection.relations||[]).every(relation=>['UNVERIFIED_RELATION','VERIFIED_RELATION'].includes(relation.status)&&relation.truthPromotion===false)));
+    assert.ok(reports.every(report=>report.languageInspection.boundaryProfile?.contract==='torah_language_boundary_profile_v1'&&report.languageInspection.boundaryProfile.vocabularyRetained===false&&report.languageInspection.boundaryProfile.modelCallsTriggered===0));
+    assert.ok(reports.every(report=>report.languageInspection.coverage.returnedBoundaries<=480&&report.languageInspection.coverage.boundaryProfileComparisons<=816));
+    assert.ok(reports.every(report=>(report.languageInspection.boundaries||[]).every(boundary=>boundary.status==='UNVERIFIED_BOUNDARY'&&boundary.interpretationRequired===true&&boundary.truthPromotion===false)));
     assert.equal(await page.evaluate(()=>window.__hostLog.some(message=>message.type==='update-findings')),false,'inspection never adds findings without the explicit button');
     assert.ok((await coverage.innerText()).includes('מופעים מאומתים'),'exact axis count is separate from local discoveries');
     assert.equal(await coverage.getByText(/דפוסים גולמיים/).count()<=1,true,'raw patterns have one advanced disclosure only');
     assert.equal(await coverage.locator('[data-els-language-inspection="candidate-only"]').count(),1,'language candidates stay in one Advanced disclosure');
+    const boundaryPanel=coverage.locator('[data-els-language-boundaries="unverified"]');
+    assert.ok(await boundaryPanel.count()<=1,'unverified boundary candidates have one Advanced section only');
+    if(await boundaryPanel.count()){
+      const boundaryCopy=await boundaryPanel.textContent();
+      assert.match(boundaryCopy,/אינו מחזיק מילון/);assert.match(boundaryCopy,/אינו קובע שאלה מילים/);assert.match(boundaryCopy,/לא מאומת/);
+    }
     const rankedLanguage=coverage.locator('[data-els-language-relation]');
     assert.ok(await rankedLanguage.count()<=1,'attention budget exposes at most one ranked language relation');
     if(await rankedLanguage.count()){

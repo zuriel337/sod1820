@@ -172,6 +172,8 @@ const MATRIX_LANGUAGE_INSPECTION_CONTRACT = "els_matrix_language_inspection_v1";
 const TORAH_LANGUAGE_READING_CONTRACT = "els_torah_language_reading_v1";
 const TORAH_LANGUAGE_RELATION_CONTRACT = "els_torah_language_relation_v1";
 const LANGUAGE_RELATION_REPLAY_CONTRACT = "els_language_relation_replay_v1";
+const TORAH_LANGUAGE_BOUNDARY_CONTRACT = "els_torah_language_boundary_v1";
+const TORAH_LANGUAGE_BOUNDARY_PROFILE_CONTRACT = "torah_language_boundary_profile_v1";
 const LANGUAGE_ORIENTATIONS = new Set(["horizontal", "vertical", "diagonal-right", "diagonal-left"]);
 const LANGUAGE_RELATIONS = new Set(["exact-lexicon-match", "defective-spelling", "prefixed-form", "suffixed-form", "prefixed-suffixed-form"]);
 const LANGUAGE_GEOMETRIES = new Set(["PARALLEL_AXIS_RAY", "AXIS_INTERSECTING_RAY", "LOCAL_SAME_RAY"]);
@@ -254,7 +256,9 @@ const projectLanguageInspection = (value, occurrence) => {
       || reverseText !== [...text].reverse().join("") || start == null || start < 0 || step == null || step === 0
       || distance == null || distance < 0 || distance > 80 || letterCount + text.length > 576) continue;
     const id = `${orientation}:${start}:${step}:${text.length}`;
-    const ray = Object.freeze({ id, orientation, text, reverseText, start, step, length: text.length, distance, intersectsAxis: distance === 0 });
+    const rawFocusOffset = safeInteger(raw?.focusOffset), focusOffset = rawFocusOffset != null && rawFocusOffset >= 0 && rawFocusOffset < text.length
+      ? rawFocusOffset : Math.floor((text.length - 1) / 2);
+    const ray = Object.freeze({ id, orientation, text, reverseText, start, step, length: text.length, distance, intersectsAxis: distance === 0, focusOffset });
     rays.push(ray);rayById.set(id, ray);letterCount += text.length;
   }
   if (!rays.length) return null;
@@ -304,6 +308,39 @@ const projectLanguageInspection = (value, occurrence) => {
       length: locus.length, distance: locus.ray.distance, canonicalReplayRequired: true, truthPromotion: false,
     }));
   }
+  const boundaryProfile = value?.boundaryProfile;
+  const boundaryProfileValid = boundaryProfile?.contract === TORAH_LANGUAGE_BOUNDARY_PROFILE_CONTRACT
+    && boundaryProfile?.source === "canonical_torah_word_boundaries" && boundaryProfile?.vocabularyRetained === false
+    && boundaryProfile?.modelCallsTriggered === 0;
+  const boundaries = [];
+  if (boundaryProfileValid) for (const raw of Array.isArray(value.boundaries) ? value.boundaries.slice(0, 480) : []) {
+    const ray = rayById.get(String(raw?.rayId || "")), readingDirection = String(raw?.readingDirection || "");
+    const boundaryOffset = safeInteger(raw?.boundaryOffset), reportedStep = safeInteger(raw?.step);
+    if (!ray || raw?.contract !== TORAH_LANGUAGE_BOUNDARY_CONTRACT || raw?.status !== "UNVERIFIED_BOUNDARY"
+      || raw?.selectionProtocol !== "TORAH_BOUNDARY_PROFILE_V1" || !["forward", "reverse"].includes(readingDirection)
+      || boundaryOffset == null || boundaryOffset <= 0 || boundaryOffset >= ray.length || raw?.interpretationRequired !== true
+      || raw?.truthPromotion !== false) continue;
+    const text = readingDirection === "forward" ? ray.text : ray.reverseText;
+    const start = readingDirection === "forward" ? ray.start : ray.start + (ray.length - 1) * ray.step;
+    const step = readingDirection === "forward" ? ray.step : -ray.step;
+    const focusOffset = readingDirection === "forward" ? ray.focusOffset : ray.length - 1 - ray.focusOffset;
+    const leftContext = text.slice(Math.max(0, boundaryOffset - 6), boundaryOffset);
+    const rightContext = text.slice(boundaryOffset, boundaryOffset + 6);
+    const leftEnd = start + (boundaryOffset - 1) * step, rightStart = start + boundaryOffset * step;
+    const profileScore = safeInteger(raw?.profileScore), focusDistance = Math.abs(boundaryOffset - focusOffset);
+    if (canonicalKey(raw?.leftContext) !== leftContext || canonicalKey(raw?.rightContext) !== rightContext
+      || safeInteger(raw?.leftEnd) !== leftEnd || safeInteger(raw?.rightStart) !== rightStart || reportedStep !== step
+      || safeInteger(raw?.focusDistance) !== focusDistance || focusDistance > 8 || profileScore == null || Math.abs(profileScore) > 800) continue;
+    boundaries.push(Object.freeze({ contract: TORAH_LANGUAGE_BOUNDARY_CONTRACT, status: "UNVERIFIED_BOUNDARY",
+      selectionProtocol: "TORAH_BOUNDARY_PROFILE_V1", rayId: ray.id, orientation: ray.orientation, readingDirection,
+      boundaryOffset, leftContext, rightContext, leftEnd, rightStart, step, focusDistance, profileScore,
+      interpretationRequired: true, truthPromotion: false }));
+  }
+  const reportedBoundaryComparisons = safeInteger(value?.coverage?.boundaryProfileComparisons);
+  if (boundaryProfileValid && (safeInteger(value?.coverage?.boundaryCap) !== 480
+    || safeInteger(value?.coverage?.boundaryPerTraversalCap) !== 10 || safeInteger(value?.coverage?.boundaryFocusRadius) !== 8
+    || reportedBoundaryComparisons == null || reportedBoundaryComparisons < 0 || reportedBoundaryComparisons > 816
+    || safeInteger(value?.coverage?.returnedBoundaries) !== boundaries.length)) return null;
   const relations = [], relationKeys = new Set();
   for (const raw of Array.isArray(value.relations) ? value.relations.slice(0, 3) : []) {
     const relationStatus = String(raw?.status || ""), relationVerified = relationStatus === "VERIFIED_RELATION";
@@ -384,14 +421,20 @@ const projectLanguageInspection = (value, occurrence) => {
   return Object.freeze({
     contract: MATRIX_LANGUAGE_INSPECTION_CONTRACT, status: "CANDIDATE_INPUT", source: "canonical_matrix_letters",
     stage: "S3_OPEN_SEQUENCE_SEGMENTATION", axis: Object.freeze({ hitId: occurrence.hitId, skip: occurrence.skip, direction: occurrence.direction, start: occurrence.start }),
-    authority: Object.freeze({ letters: "CANONICAL", segmentation: segmentations.length ? "DETERMINISTIC_CANDIDATE" : "UNRESOLVED", meaning: "UNVERIFIED", canonicalReplayRequired: true }),
+    authority: Object.freeze({ letters: "CANONICAL", segmentation: segmentations.length ? "DETERMINISTIC_CANDIDATE" : "UNRESOLVED",
+      boundarySegmentation: boundaries.length ? "DETERMINISTIC_CANDIDATE" : "UNRESOLVED", meaning: "UNVERIFIED", canonicalReplayRequired: true }),
     coverage: Object.freeze({ rayCap: 24, maxLetters: 24, maxCandidateWindows: 8192, returnedRays: rays.length, letterCount,
       candidatesExamined: Math.max(0, Math.min(8192, safeInteger(value?.coverage?.candidatesExamined) || 0)), returnedReadings: readings.length,
       returnedSegmentations: segmentations.length, returnedRelations: relations.length, relationReplayCap: relationReplayCap ?? 0,
-      relationReplayCalls: relationReplayCalls ?? 0, truncated: value?.coverage?.truncated === true }),
+      relationReplayCalls: relationReplayCalls ?? 0, boundaryCap: 480, boundaryPerTraversalCap: 10, boundaryFocusRadius: 8,
+      boundaryProfileComparisons: Math.max(0, Math.min(816, reportedBoundaryComparisons || 0)),
+      returnedBoundaries: boundaries.length, truncated: value?.coverage?.truncated === true }),
     canonicalReplayCalls: canonicalReplayCalls ?? 0,
+    boundaryProfile: boundaryProfileValid ? Object.freeze({ contract: TORAH_LANGUAGE_BOUNDARY_PROFILE_CONTRACT,
+      source: "canonical_torah_word_boundaries", vocabularyRetained: false, modelCallsTriggered: 0 }) : null,
     modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
-    rays: Object.freeze(rays), readings: Object.freeze(readings), segmentations: Object.freeze(segmentations), relations: Object.freeze(relations),
+    rays: Object.freeze(rays), readings: Object.freeze(readings), segmentations: Object.freeze(segmentations),
+    boundaries: Object.freeze(boundaries), relations: Object.freeze(relations),
   });
 };
 const projectInspection = (inspection, occurrence, inputOrder) => {

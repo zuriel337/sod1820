@@ -51,9 +51,12 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.match(source, /guidedMatrixLanguageInspection/);
   assert.match(source, /guidedLanguageRelations/);
   assert.match(source, /guidedVerifyLanguageRelations/);
+  assert.match(source, /guidedLanguageBoundaryHypotheses/);
   assert.match(source, /els_matrix_language_inspection_v1/);
   assert.match(source, /els_torah_language_relation_v1/);
   assert.match(source, /els_language_relation_replay_v1/);
+  assert.match(source, /els_torah_language_boundary_v1/);
+  assert.match(source, /TORAH_LANGUAGE_PROFILE=JSON\.parse\(atob\("__TORAH_LANGUAGE_PROFILE_B64__"\)\)/);
   assert.match(source, /S3_OPEN_SEQUENCE_SEGMENTATION/);
   assert.match(source, /maxCandidateWindows=8192/);
   assert.match(source, /rayCap=24,maxLetters=24/);
@@ -67,6 +70,8 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.match(source, /relationReplayCap=2/);
   assert.match(source, /await verifyBatch\(token\.canonicalLetters/);
   assert.match(source, /skip<2/);
+  assert.match(source, /boundaryCap=480,perTraversalCap=10,focusRadius=8,contextLetters=6/);
+  assert.match(source, /vocabularyRetained:false,modelCallsTriggered:0/);
   assert.match(source, /numericSkipPromoted:false/);
   assert.doesNotMatch(source, /matrix-discovery"[\s\S]{0,1200}dynamicCandidateLexicon/);
   assert.doesNotMatch(source, /guidedMatrixLanguageInspection[\s\S]{0,12000}(?:fetch\s*\(|ai-analyze|Math\.random|dynamicCandidateLexicon)/);
@@ -79,6 +84,9 @@ test("Torah-language readings stay Advanced while the ranked relation separates 
   assert.match(source, /קשר לשוני מדורג/);
   assert.match(source, /אומת replay/);
   assert.match(source, /המשמעות הלשונית והפרשנות אינן מאומתות/);
+  assert.match(source, /data-els-language-boundaries="unverified"/);
+  assert.match(source, /פרופיל קטן של לשון התורה/);
+  assert.match(source, /אינו מחזיק מילון ואינו קובע שאלה מילים/);
   assert.match(source, /מספר הדילוג אינו אות דירוג/);
   assert.match(source, /זהו מועמד למחקר, לא ממצא/);
   assert.match(source, /languageCandidate\.occurrence/);

@@ -75,8 +75,12 @@ const guidedLanguageInspection = ({ hitId = "hit-1", skip = 31, dir = 1, axisSta
   contract: "els_matrix_language_inspection_v1", status: "CANDIDATE_INPUT", source: "canonical_matrix_letters",
   stage: "S3_OPEN_SEQUENCE_SEGMENTATION", axis: { term: "ציר", scope: "torah", skip, dir, start: axisStart, hitId },
   authority: { letters: "CANONICAL", segmentation: "DETERMINISTIC_CANDIDATE", meaning: "UNVERIFIED", canonicalReplayRequired: true },
-  coverage: { candidatesExamined: 160, truncated: false }, modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
-  rays: [{ id: "horizontal:500:1:11", orientation: "horizontal", text: "אבמלכימדודא", reverseText: "אדודמיכלמבא", start: 500, step: 1, length: 11, distance: 0, intersectsAxis: true }],
+  coverage: { candidatesExamined: 160, boundaryCap: 480, boundaryPerTraversalCap: 10, boundaryFocusRadius: 8,
+    boundaryProfileComparisons: 34, returnedBoundaries: 1, truncated: false },
+  boundaryProfile: { contract: "torah_language_boundary_profile_v1", source: "canonical_torah_word_boundaries",
+    vocabularyRetained: false, modelCallsTriggered: 0 },
+  modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
+  rays: [{ id: "horizontal:500:1:11", orientation: "horizontal", text: "אבמלכימדודא", reverseText: "אדודמיכלמבא", start: 500, step: 1, length: 11, distance: 0, intersectsAxis: true, focusOffset: 7 }],
   readings: [{
     contract: "els_torah_language_reading_v1", status: "UNVERIFIED_READING", exactLetters: "במלכים", canonicalLetters: "במלכימ",
     baseTerm: "מלכ", label: "מלך", relation: "prefixed-suffixed-form", prefix: "ב", suffix: "ים", source: "bounded-dictionary",
@@ -89,6 +93,11 @@ const guidedLanguageInspection = ({ hitId = "hit-1", skip = 31, dir = 1, axisSta
     offset: 7, start: 507, step: 1, length: 3, distance: 0, canonicalReplayRequired: true, truthPromotion: false,
   }],
   segmentations: [],
+  boundaries: [{ contract: "els_torah_language_boundary_v1", status: "UNVERIFIED_BOUNDARY",
+    selectionProtocol: "TORAH_BOUNDARY_PROFILE_V1", rayId: "horizontal:500:1:11", orientation: "horizontal",
+    readingDirection: "forward", boundaryOffset: 7, leftContext: "במלכימ", rightContext: "דודא",
+    leftEnd: 506, rightStart: 507, step: 1, focusDistance: 0, profileScore: 120,
+    interpretationRequired: true, truthPromotion: false }],
   relations: [{
     contract: "els_torah_language_relation_v1", status: "UNVERIFIED_RELATION", geometry: "AXIS_INTERSECTING_RAY",
     rayId: "horizontal:500:1:11", orientation: "horizontal", readingDirection: "forward", gap: 0, distance: 0,
@@ -115,6 +124,7 @@ const guidedVerifiedLanguageInspection = ({ forgedReceipt = false } = {}) => {
   relation.tokens.forEach((token, index) => Object.assign(token, {
     step: 31, start: inspection.readings[index].start,
   }));
+  Object.assign(inspection.boundaries[0], { rayId, orientation: "vertical", leftEnd: 686, rightStart: 717, step: 31 });
   relation.verification = {
     contract: "els_language_relation_replay_v1", status: "MATCH", callsTriggered: 2, truthPromotion: false,
     receipts: relation.tokens.map((token, index) => ({
@@ -207,6 +217,11 @@ test("bounded Torah-language readings preserve exact letters and never become fi
   assert.deepEqual(language.relations[0].tokens.map(token => token.baseTerm), ["מלכ", "דוד"]);
   assert.equal(language.relations[0].status, "UNVERIFIED_RELATION");
   assert.equal(language.relations[0].truthPromotion, false);
+  assert.equal(language.boundaries[0].status, "UNVERIFIED_BOUNDARY");
+  assert.equal(language.boundaries[0].leftContext, "במלכימ");
+  assert.equal(language.boundaries[0].rightContext, "דודא");
+  assert.equal(language.boundaries[0].truthPromotion, false);
+  assert.equal(language.boundaryProfile.vocabularyRetained, false);
   assert.equal(language.truthPromotion, false);
   assert.equal(language.findingMutation, false);
   assert.equal(language.modelCallsTriggered, 0);
@@ -239,6 +254,14 @@ test("language relation geometry is rechecked instead of trusting its reported g
   const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
   assert.equal(coverage.inspections[0].languageInspection.readings.length, 2);
   assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
+});
+
+test("language boundary letters are recomputed from the canonical ray", () => {
+  const occurrences = guidedOccurrences(1), languageInspection = guidedLanguageInspection();
+  languageInspection.boundaries[0].rightContext = "מזויף";
+  const inspection = guidedInspection("hit-1", { languageInspection });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection, null);
 });
 
 test("a canonically replayed language relation verifies exact structure but never meaning", () => {
