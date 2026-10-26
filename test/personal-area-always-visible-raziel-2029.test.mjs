@@ -17,7 +17,8 @@ test("My Workspace keeps a deterministic Raziel presence and explicit execution"
   const end = frame.indexOf('aria-label="תמונת מצב אישית"', start);
   const presence = frame.slice(start, end);
   assert.match(presence, /onClick=\{onRaziel\}/);
-  assert.doesNotMatch(presence, /\.submit|submitOneShot|askRaziel|research-run|ai-analyze|\bELS\b/i);
+  assert.match(presence, /onClick=\{requestPersonalAreaCompanion\}/);
+  assert.doesNotMatch(presence, /submitOneShot|askRaziel|research-run|ai-analyze|\bELS\b/i);
 });
 
 test("the canonical hints route and router-state exact return remain intact", () => {
