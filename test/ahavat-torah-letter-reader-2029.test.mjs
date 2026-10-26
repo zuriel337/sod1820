@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { AHAVAT_LETTER_FORMS, AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS, AHAVAT_LETTER_READINGS, ahavatLetterForm, ahavatAlephRows, ahavatLetterRows } from "../src/data/ahavatTorahLetters2029.js";
+import { AHAVAT_LETTER_FORMS, AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS, AHAVAT_GIMEL_BOOKS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatAlephRows, ahavatLetterRows, ahavatLetterBalance, ahavatLetterCsv } from "../src/data/ahavatTorahLetters2029.js";
 
 test("the printed letter sequence preserves finals, shin/sin and exact page boundaries", () => {
   assert.equal(AHAVAT_LETTER_FORMS.length, 28);
@@ -38,8 +38,9 @@ test("letter search filters by book and parasha while retaining the printed nume
 test("Bet closes all five source checkpoints and switching letters cannot reuse Aleph rows", () => {
   assert.deepEqual(AHAVAT_BET_BOOKS.map(book => book.cumulative), [4332, 7437, 9845, 13393, 16345]);
   assert.deepEqual(AHAVAT_BET_BOOKS.map(book => book.count), [4332, 3105, 2408, 3548, 2952]);
-  assert.equal(Object.values(AHAVAT_LETTER_READINGS).flatMap(books => books.flatMap(book => book.rows)).length, 108);
-  for (const books of Object.values(AHAVAT_LETTER_READINGS)) {
+  const closedReadings = [AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS];
+  assert.equal(closedReadings.flatMap(books => books.flatMap(book => book.rows)).length, 108);
+  for (const books of closedReadings) {
     let total = 0;
     assert.equal(new Set(books.flatMap(book => book.rows.map(row => row.parasha))).size, 54);
     for (const book of books) {
@@ -52,4 +53,36 @@ test("Bet closes all five source checkpoints and switching letters cannot reuse 
   assert.equal(ahavatLetterRows("ב", "shemot", "שט״ו")[0].count, 315);
   assert.equal(ahavatLetterRows("א", "shemot", "שט״ו").length, 0);
   assert.deepEqual(ahavatLetterRows("ך"), []);
+});
+
+test("Gimel retains all source rows and printed totals without concealing or balancing reading gaps", () => {
+  assert.equal(Object.values(AHAVAT_LETTER_READINGS).flatMap(books => books.flatMap(book => book.rows)).length, 162);
+  assert.equal(ahavatLetterRows("ג").length, 54);
+  assert.equal(new Set(ahavatLetterRows("ג").map(row => row.parasha)).size, 54);
+  assert.equal(AHAVAT_LETTER_READING_LOCATIONS["ג"], "הטור השמאלי");
+  assert.deepEqual(AHAVAT_GIMEL_BOOKS.map(book => book.cumulative), [577, 945, 1332, 1726, 2109]);
+  assert.deepEqual(AHAVAT_GIMEL_BOOKS.map(ahavatLetterBalance), [
+    { rowTotal: 577, printedBookCount: 577, delta: 0 },
+    { rowTotal: 368, printedBookCount: 368, delta: 0 },
+    { rowTotal: 377, printedBookCount: 387, delta: -10 },
+    { rowTotal: 394, printedBookCount: 394, delta: 0 },
+    { rowTotal: 374, printedBookCount: 383, delta: -9 },
+  ]);
+  assert.equal(ahavatLetterRows("ג").reduce((sum, row) => sum + row.count, 0), 2090);
+  assert.deepEqual(ahavatLetterRows("ג", "all", "ויקהל").map(row => [row.count, row.printed, row.page]), [[26, "כ״ו", 35]]);
+  for (const books of [AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS]) assert.ok(books.every(book => ahavatLetterBalance(book).delta === 0));
+});
+
+test("research CSV exports the selected source rows with Hebrew encoding, exact PDF anchors and both sides of a gap", () => {
+  const csv = ahavatLetterCsv("ג", "vayikra", "", "https://example.test/book.pdf");
+  assert.ok(csv.startsWith("\uFEFF"));
+  assert.equal(csv.trimEnd().split("\r\n").length, 11);
+  assert.match(csv, /"סיכום מצטבר בדפוס"/);
+  assert.match(csv, /"book:hebrewbooks:5635","ג","ויקרא","ויקרא","כ״ד","24","35"/);
+  assert.match(csv, /https:\/\/example\.test\/book\.pdf#page=35&view=FitH/);
+  assert.match(csv, /"1332","387","377","-10"/);
+  const filtered = ahavatLetterCsv("ג", "all", "ויקהל");
+  assert.equal(filtered.trimEnd().split("\r\n").length, 2);
+  assert.match(filtered, /"ג","ויקהל","שמות","כ״ו","26"/);
+  assert.equal(ahavatLetterCsv("ך").trimEnd().split("\r\n").length, 1);
 });

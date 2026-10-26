@@ -80,7 +80,49 @@ export const AHAVAT_BET_BOOKS = Object.freeze([
   rows: Object.freeze(book.rows.map(([parasha, printed, count]) => Object.freeze({ parasha, printed, count, page: 35 }))),
 })));
 
-export const AHAVAT_LETTER_READINGS = Object.freeze({ "א": AHAVAT_ALEPH_BOOKS, "ב": AHAVAT_BET_BOOKS });
+// Gimel occupies the left column of PDF 35. Printed checkpoints and row readings
+// are separate witnesses: retain the Leviticus/Deuteronomy gaps, never balance by guessing.
+export const AHAVAT_GIMEL_BOOKS = Object.freeze([
+  { id: "bereshit", title: "בראשית", cumulative: 577, printed: "תקע״ז", rows: [
+    ["בראשית", "מ״ג", 43], ["נח", "נ׳", 50], ["לך לך", "נ״ז", 57], ["וירא", "ס״ב", 62],
+    ["חיי שרה", "מ״ה", 45], ["תולדות", "מ״ה", 45], ["ויצא", "ס״ז", 67], ["וישלח", "מ״ב", 42],
+    ["וישב", "מ״ב", 42], ["מקץ", "מ״א", 41], ["ויגש", "מ״ח", 48], ["ויחי", "ל״ה", 35],
+  ] },
+  { id: "shemot", title: "שמות", cumulative: 945, printed: "תתקמ״ה", rows: [
+    ["שמות", "מ״ה", 45], ["וארא", "כ״ז", 27], ["בא", "נ״ב", 52], ["בשלח", "כ״ד", 24],
+    ["יתרו", "כ״ו", 26], ["משפטים", "נ״ח", 58], ["תרומה", "ט״ז", 16], ["תצוה", "כ״ו", 26],
+    ["כי תשא", "מ״ו", 46], ["ויקהל", "כ״ו", 26], ["פקודי", "כ״ב", 22],
+  ] },
+  { id: "vayikra", title: "ויקרא", cumulative: 1332, printed: "אלף של״ב", rows: [
+    ["ויקרא", "כ״ד", 24], ["צו", "כ׳", 20], ["שמיני", "ל״א", 31], ["תזריע", "ע״ט", 79],
+    ["מצורע", "ס״א", 61], ["אחרי מות", "ל״ח", 38], ["קדושים", "כ״ה", 25], ["אמור", "ל״ד", 34],
+    ["בהר", "ל״ב", 32], ["בחוקותי", "ל״ג", 33],
+  ] },
+  { id: "bamidbar", title: "במדבר", cumulative: 1726, printed: "אלף תשכ״ו", rows: [
+    ["במדבר", "נ׳", 50], ["נשא", "כ״ט", 29], ["בהעלותך", "ל״א", 31], ["שלח", "נ״ט", 59],
+    ["קרח", "כ״ב", 22], ["חקת", "ל״ו", 36], ["בלק", "מ״א", 41], ["פנחס", "כ״ד", 24],
+    ["מטות", "ל״ב", 32], ["מסעי", "ע׳", 70],
+  ] },
+  { id: "devarim", title: "דברים", cumulative: 2109, printed: "ב׳ אלף ק״ט", rows: [
+    ["דברים", "נ״ט", 59], ["ואתחנן", "מ״ג", 43], ["עקב", "מ״ח", 48], ["ראה", "מ״ה", 45],
+    ["שופטים", "ל״ו", 36], ["כי תצא", "כ״ט", 29], ["כי תבוא", "ס״ז", 67], ["ניצבים", "י״א", 11],
+    ["וילך", "ה׳", 5], ["האזינו", "ח׳", 8], ["וזאת הברכה", "כ״ג", 23],
+  ] },
+].map((book, index, books) => Object.freeze({
+  ...book, count: book.cumulative - (books[index - 1]?.cumulative || 0), page: 35,
+  rows: Object.freeze(book.rows.map(([parasha, printed, count]) => Object.freeze({ parasha, printed, count, page: 35 }))),
+})));
+
+export const AHAVAT_LETTER_READINGS = Object.freeze({ "א": AHAVAT_ALEPH_BOOKS, "ב": AHAVAT_BET_BOOKS, "ג": AHAVAT_GIMEL_BOOKS });
+
+export const AHAVAT_LETTER_READING_LOCATIONS = Object.freeze({
+  "א": "הטור הימני", "ב": "הטור הימני והמשכו בראש הטור השמאלי", "ג": "הטור השמאלי",
+});
+
+export function ahavatLetterBalance(book) {
+  const rowTotal = book.rows.reduce((sum, row) => sum + row.count, 0);
+  return { rowTotal, printedBookCount: book.count, delta: rowTotal - book.count };
+}
 
 export function ahavatLetterRows(form, bookId = "all", query = "") {
   const needle = query.normalize("NFKD").replace(/[\u0591-\u05c7]/g, "").replace(/\s/g, "");
@@ -91,4 +133,17 @@ export function ahavatLetterRows(form, bookId = "all", query = "") {
 
 export function ahavatAlephRows(bookId = "all", query = "") {
   return ahavatLetterRows("א", bookId, query);
+}
+
+export function ahavatLetterCsv(form, bookId = "all", query = "", pdfUrl = "") {
+  const books = AHAVAT_LETTER_READINGS[form] || [];
+  const header = ["זהות מקור", "אות", "פרשה", "חומש", "המניין בדפוס", "קריאת המספר", "עמוד PDF", "קישור למקור", "סיכום מצטבר בדפוס", "חלק החומש לפי הסיכומים", "סכום קריאת שורות החומש", "פער קריאה בחומש"];
+  const rows = ahavatLetterRows(form, bookId, query).map(row => {
+    const book = books.find(item => item.title === row.book);
+    const balance = ahavatLetterBalance(book);
+    return ["book:hebrewbooks:5635", form, row.parasha, row.book, row.printed, row.count, row.page,
+      pdfUrl ? `${pdfUrl}#page=${row.page}&view=FitH` : "", book.cumulative, book.count, balance.rowTotal, balance.delta];
+  });
+  const escapeCell = value => `"${String(value).replaceAll('"', '""')}"`;
+  return "\uFEFF" + [header, ...rows].map(row => row.map(escapeCell).join(",")).join("\r\n") + "\r\n";
 }
