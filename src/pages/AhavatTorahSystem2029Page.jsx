@@ -23,7 +23,7 @@ import { applySeo } from "../lib/seo.js";
 import { AHAVAT_DS01_BOOKS, AHAVAT_DS01_SOURCE_PAGE, AHAVAT_DS01_TOTAL, ahavatDs01RowSum } from "../data/ahavatTorahDs01Source2029.js";
 import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterBalance, ahavatLetterNumber, ahavatLetterSourceFragments, ahavatSourceCountRows, ahavatSourceCountPage, ahavatSourceCountBars, ahavatSourceCountCsv } from "../data/ahavatTorahLetters2029.js";
 import { AHAVAT_PARASHA_COUNT_FORMS, AHAVAT_PARASHA_COUNT_READINGS } from "../data/ahavatTorahParashaCounts2029.js";
-import { AhavatTorahPeopleReader2029, AhavatTorahRootsReader2029 } from "../components/books2029/AhavatTorahSourceTables2029.jsx";
+import { AhavatTorahPeopleReader2029, AhavatTorahRootsReader2029, AhavatTorahMegillotReader2029 } from "../components/books2029/AhavatTorahSourceTables2029.jsx";
 import "./ahavatTorahSystem2029.css";
 
 const AhavatTorahSpatialScene2029 = lazy(() => import("../components/books2029/AhavatTorahSpatialScene2029.jsx"));
@@ -503,6 +503,7 @@ function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage }) {
     <LetterSourceReader countMode selectedDatasetId={selectedId} onPage={onPage} />
     <AhavatTorahPeopleReader2029 onPage={onPage} />
     <AhavatTorahRootsReader2029 onPage={onPage} />
+    <AhavatTorahMegillotReader2029 onPage={onPage} selectedDatasetId={selectedId} />
 
     <div className="ahavat29-spatial-key" aria-label="מקרא המצפה">
       <span><i className="is-height" />גובה = מספר עמודי מקור</span>
