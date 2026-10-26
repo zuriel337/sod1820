@@ -7,13 +7,12 @@ test("the five printed book subtotals close to the author's 1,820", () => {
   assert.equal(AHAVAT_DS01_BOOKS.reduce((sum, book) => sum + book.count, 0), AHAVAT_DS01_TOTAL);
 });
 
-test("all parasha lines remain present while only matching readings are closed", () => {
-  assert.deepEqual(AHAVAT_DS01_BOOKS.filter(book => book.reading === "closed").map(book => book.id), ["bereshit", "vayikra", "devarim"]);
+test("all 54 parasha lines read from PDF page 6 close to their printed book subtotals", () => {
+  assert.ok(AHAVAT_DS01_BOOKS.every(book => book.reading === "closed"));
   assert.equal(AHAVAT_DS01_BOOKS.reduce((sum, book) => sum + book.rows.length, 0), 54);
   for (const book of AHAVAT_DS01_BOOKS) {
-    if (book.reading === "closed") assert.equal(ahavatDs01RowSum(book), book.count, book.id);
-    else assert.equal(book.reading, "candidate_transcription", book.id);
+    assert.equal(ahavatDs01RowSum(book), book.count, book.id);
   }
-  assert.equal(ahavatDs01RowSum(AHAVAT_DS01_BOOKS[1]) - AHAVAT_DS01_BOOKS[1].count, 32);
-  assert.equal(ahavatDs01RowSum(AHAVAT_DS01_BOOKS[3]) - AHAVAT_DS01_BOOKS[3].count, 30);
+  assert.deepEqual(AHAVAT_DS01_BOOKS[1].rows.filter(([name]) => ["משפטים", "פקודי"].includes(name)), [["משפטים", 16], ["פקודי", 26]]);
+  assert.deepEqual(AHAVAT_DS01_BOOKS[3].rows[0], ["במדבר", 25]);
 });
