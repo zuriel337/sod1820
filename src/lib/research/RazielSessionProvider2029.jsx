@@ -11,6 +11,8 @@ import {
 const RazielSessionContext2029 = createContext(null);
 const systemClock = () => new Date().toISOString();
 const systemTurnId = () => globalThis.crypto?.randomUUID?.() || `raziel-${Date.now()}`;
+const PERSONAL_AREA_COMPANION_ACTION = "personal_area_companion_v1";
+const PERSONAL_AREA_COMPANION_SUBJECT = "לווה אותי בצעד הבא באזור האישי";
 
 // Non-throwing read for hosts that may need to install the provider themselves. This is a plain,
 // unconditional context read so it follows the Rules of Hooks and never relies on catch-as-control-flow.
@@ -37,12 +39,17 @@ export function RazielSessionProvider2029({
   const [state, dispatch] = useReducer(razielSessionReducer, undefined, createInitialRazielSessionState);
   const stateRef = useRef(state);
   const inFlightRef = useRef(false);
+  const activeRequestRef = useRef(null);
   const mountedRef = useRef(true);
   stateRef.current = state;
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; };
+    return () => {
+      mountedRef.current = false;
+      activeRequestRef.current?.abort();
+      activeRequestRef.current = null;
+    };
   }, []);
 
   const submit = useCallback(async ({
@@ -55,6 +62,7 @@ export function RazielSessionProvider2029({
     viewMode = null,
     viewModeOverride = null,
     continuationTurnId = null,
+    companionAction = null,
   } = {}) => {
     if (inFlightRef.current || stateRef.current.busy) return { ok: false, error: "turn_pending" };
     const capturedQuestion = normalizeRazielQuestion(question);
@@ -85,6 +93,7 @@ export function RazielSessionProvider2029({
         viewMode,
         viewModeOverride,
         continuationTurnId,
+        companionAction,
         startedAt,
         createTurnId: () => draftTurn.id,
       });
@@ -97,6 +106,13 @@ export function RazielSessionProvider2029({
       dispatch({ type: "turn_started", turn, contextSnapshot });
       // The only AI boundary in this module: an explicit submit action.
       failure = "transport_failed";
+      const requestController = new AbortController();
+      activeRequestRef.current = requestController;
+      Object.defineProperty(request, "__razielAbortSignal", {
+        value: requestController.signal,
+        enumerable: false,
+        configurable: true,
+      });
       const rawResponse = await transport(request);
       if (!mountedRef.current) return { ok: false, error: "session_unmounted" };
       const completedAt = clock();
@@ -118,9 +134,30 @@ export function RazielSessionProvider2029({
       if (mountedRef.current) dispatch({ type: "turn_failed", completedAt, error: failure });
       return { ok: false, error: failure };
     } finally {
+      activeRequestRef.current = null;
       inFlightRef.current = false;
     }
   }, [clock, createTurnId, loadRequestBuilder, research.context, transport]);
+
+  // Personal-area companionship is an explicit action over the SAME temporary session and transport.
+  // Its lazy request adapter rejects free text and projects only closed capability/focus tokens,
+  // opaque references and an optional already-checked evidence receipt.
+  const submitPersonalAreaCompanion = useCallback(({
+    capability,
+    focus,
+    opaqueRefs = [],
+    evidencePack = null,
+  } = {}) => submit({
+    question: PERSONAL_AREA_COMPANION_SUBJECT,
+    intelligenceLevel: "fast",
+    companionAction: {
+      id: PERSONAL_AREA_COMPANION_ACTION,
+      capability,
+      focus,
+      opaqueRefs,
+      evidencePack,
+    },
+  }), [submit]);
 
   // One-shot actions ("✨ הפתע אותי" = exploratory/deep, "🗺️ פתח מפת מחקר" = landscape/fast): a continuation of the LAST answer's
   // question over the same session and Bundle. It goes through submit() (the single AI boundary and the lazy request builder),
@@ -219,6 +256,7 @@ export function RazielSessionProvider2029({
     submit,
     setViewMode,
     submitOneShot,
+    submitPersonalAreaCompanion,
     saveCurrentSession,
     restoreSavedSession,
     removeSavedSession,
@@ -226,7 +264,7 @@ export function RazielSessionProvider2029({
     savedSessions,
     savedSessionsSyncStatus: research.syncStatus || "local_only",
     resetTemporarySession,
-  }), [state, submit, setViewMode, submitOneShot, saveCurrentSession, restoreSavedSession,
+  }), [state, submit, setViewMode, submitOneShot, submitPersonalAreaCompanion, saveCurrentSession, restoreSavedSession,
     removeSavedSession, renameSavedSession, savedSessions, research.syncStatus, resetTemporarySession]);
 
   return (
