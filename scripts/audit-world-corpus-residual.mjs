@@ -422,6 +422,132 @@ export const readSourceTextReview = () => readReviewJson('world-source-text-revi
 export const readSourceTextReceipt = () => readReviewJson('world-source-text-receipt-20261026.json');
 export const sourceTextReviewFingerprint = evidence => createHash('sha256').update(JSON.stringify(evidence)).digest('hex');
 
+// Review the other claims of already-read sources once per source family.
+// Selection is explicit and disjoint from prior manual reviews; no new parser.
+export function selectSourceFamilyRows() {
+  const prior=readSourceTextReview(),continuation=readContinuationEvidence();
+  const done=new Set([...prior.rows,...continuation.manualReviews].map(r=>r.id));
+  const sourceIds=new Set(prior.sources.map(s=>s.id));
+  return validateContinuationReceipt().rows.filter(r=>!done.has(r.id) && sourceIds.has(r.sourceId));
+}
+export function buildSourceFamilyReadSql(page) {
+  requireEvidence(Number.isInteger(page) && page>=0, 'Invalid family page');
+  return buildBoundedPublicSourceReadSql(selectSourceFamilyRows().slice(page*40,(page+1)*40).map(r=>r.id),page);
+}
+
+export const readSourceFamilyReview = () => readReviewJson('world-source-family-review-20261026.json');
+export const readSourceFamilyReceipt = () => readReviewJson('world-source-family-receipt-20261026.json');
+
+// Fixed manual classification, not a runtime triage/ranking/dedup system.
+export function replaySourceFamilyReview(evidence = readSourceFamilyReview()) {
+  const ids=selectSourceFamilyRows().map(r=>r.id),prior=readSourceTextReview();
+  requireEvidence(JSON.stringify(evidence.rows?.map(r=>r.id))===JSON.stringify(ids)
+    && JSON.stringify(evidence.reviews?.map(r=>r.id))===JSON.stringify(ids)
+    && evidence.pages?.length===Math.ceil(ids.length/40), 'Family coverage drift');
+  for(const [i,p] of evidence.pages.entries()) requireEvidence(p.page===i
+    && !Number.isNaN(Date.parse(p.checkedAt))
+    && JSON.stringify(p.ids)===JSON.stringify(ids.slice(i*40,(i+1)*40)), 'Family page drift');
+  requireEvidence(evidence.sources?.length===prior.sources.length
+    && new Set(evidence.sources.map(s=>s.id)).size===evidence.sources.length
+    && evidence.families?.length===evidence.sources.length, 'Family source coverage drift');
+  for(const [i,s] of evidence.sources.entries()) {
+    const old=prior.sources.find(p=>p.id===s.id),family=evidence.families[i];
+    requireEvidence(old && s.text===old.text && s.md5===hash(s.text) && s.image_url===old.image_url
+      && s.status==='live' && s.page_only===false && s.channel==='torat-haremez'
+      && s.contributor_id==='c66f0464-0928-490e-be9b-66d8a87e7fc8'
+      && family.sourceId===s.id && family.reviewNote?.length
+      && JSON.stringify(family.priorReviewIds)===JSON.stringify(prior.rows.filter(r=>r.finding.source_id===s.id).map(r=>r.id)),
+    'Family source/previous review drift');
+  }
+  return evidence.rows.map(({id,finding:row},index)=>{
+    const plan=evidence.reviews[index],source=evidence.sources.find(s=>s.id===row?.source_id);
+    requireEvidence(row?.id===id && source && row.status==='approved' && row.privacy_scope==='public'
+      && row.promoted_node_id===null && row.revision===null
+      && row.source_ref.split('#')[0]===`channel_updates:${source.id}`
+      && plan.sourceContext?.start===0 && plan.sourceContext.end===source.text.length
+      && plan.reason?.length && plan.category?.length
+      && ['wholeSourceVerified','interpretationVerified','corpusCountsVerified','mediaInspected','publicationChanged'].every(k=>plan[k]===false),
+    'Family admission/scope drift');
+    const calculations=plan.checks.map((c,i)=>{
+      const p=c.operandSpan;
+      requireEvidence(p?.start>=0 && Number.isInteger(p.start) && p.end===p.start+c.expression.length
+        && source.text.slice(p.start,p.end)===c.expression && /[א-ת]/u.test(c.expression)
+        && /^[א-ת\u0591-\u05c7\s"'׳״,_־\-]+$/u.test(c.expression) && c.method==='רגיל'
+        && c.sourceContext?.start===0 && c.sourceContext.end===source.text.length, 'Family operand drift');
+      requireEvidence(c.claimed===null ? c.claimBasis==='source_operand_calculation'
+        : c.claimBasis==='manual_full_source_context' && Number.isSafeInteger(c.claimed)
+          && new RegExp(`(^|[^0-9])${c.claimed}([^0-9]|$)`,'u').test(source.text), 'Family invented source value');
+      const computed=METHODS.find(m=>m.key===c.method).fn(c.expression);
+      const trace=c.claimed===null?null:verifyCandidate({type:'explicit-claim',text:c.expression,method:c.method,value:c.claimed}).engine_detail;
+      return {...c,type:'atomic',computed,trace,verification:c.claimed===null?'system_calculation':computed===c.claimed?'match':'mismatch',
+        engineInputs:[{role:`atomic_${i}`,phrase:c.expression,method:c.method,expected:computed}]};
+    });
+    for(const [i,c] of plan.compoundSlices.entries()) {
+      const p=c.sourceSpan;
+      requireEvidence(p?.start>=0 && Number.isInteger(p.start) && p.end===p.start+c.expression.length
+        && p.excerpt===c.expression && source.text.slice(p.start,p.end)===c.expression, 'Family equation span drift');
+      const claims=extractCompoundClaims(c.expression);
+      requireEvidence(claims.length===1, 'Family extraction unresolved');
+      const trace=claims[0],operands=trace.operands || (trace.operand?[trace.operand]:[]);
+      requireEvidence(operands.every(o=>o.ok && o.method==='רגיל') && (trace.skipUsed || 0)===0, 'Family operand method unresolved');
+      calculations.push({...c,type:'compound',trace,computed:trace.result,
+        verification:trace.status==='ENGINE_VERIFIED_COMPOSITE'?'match':'mismatch',
+        extractionIntegrity:computeExtractionIntegrity([trace],[]),extractionScope:'source_span_only',
+        engineInputs:operands.map((o,j)=>({role:`compound_${i}_operand_${j}`,phrase:o.phrase,method:o.method,expected:o.value}))});
+    }
+    if(plan.recommendation==='מתאים לעץ' || plan.category==='numeric_scope_overlap') {
+      requireEvidence(plan.numericScopeComplete===true && ['numeric_claim','derivation','numeric_scope_overlap'].includes(plan.category)
+        && !['hypothesis','question'].includes(row.kind) && row.targets.length===1 && calculations.length>0
+        && calculations.every(c=>c.verification==='match' && (!c.extractionIntegrity || c.extractionIntegrity.fidelityStatus==='complete'))
+        && calculations.some(c=>c.computed===row.value), 'Unready family numeric scope');
+    } else requireEvidence(plan.numericScopeComplete===false, 'Unsupported family completeness');
+    if(plan.category==='source_representation') requireEvidence(plan.recommendation==='כפילות'
+      && row.statement.length>0 && source.text.startsWith(row.statement), 'Unproven source copy');
+    if(plan.category==='numeric_scope_overlap') {
+      const other=prior.reviews.find(p=>p.id===plan.overlapPriorId),old=prior.rows.find(r=>r.id===plan.overlapPriorId)?.finding;
+      requireEvidence(plan.recommendation==='כפילות' && other?.recommendation==='מתאים לעץ'
+        && old?.source_id===source.id && old.value===row.value && plan.compoundSlices.length>0
+        && plan.compoundSlices.every(c=>other.compoundSlices.some(o=>JSON.stringify(o)===JSON.stringify(c))), 'Unproven family scope overlap');
+    } else requireEvidence(!plan.overlapPriorId, 'Unexpected prior overlap');
+    requireEvidence(['מתאים לעץ','כפילות','דורש בדיקה','דורש מקור','דורש OCR או תמלול','לא מתאים'].includes(plan.recommendation)
+      && (plan.recommendation!=='כפילות' || ['source_representation','numeric_scope_overlap'].includes(plan.category))
+      && (plan.recommendation!=='לא מתאים' || plan.category==='research_question' && row.kind==='question'), 'Family disposition drift');
+    return {row,plan,source,calculations};
+  });
+}
+
+export const buildSourceFamilyReceiptSql = (evidence = readSourceFamilyReview()) => buildSelectedReceiptSql(replaySourceFamilyReview(evidence));
+
+export function buildSourceFamilyReport(evidence = readSourceFamilyReview(), receipt = readSourceFamilyReceipt()) {
+  requireEvidence(receipt.evidenceFingerprint===sourceTextReviewFingerprint(evidence), 'Family evidence fingerprint drift');
+  const selected=replaySourceFamilyReview(evidence),checks=validateSelectedReceipt(selected,receipt);
+  const rows=selected.map(({row:r,plan:p,source:s,calculations})=>{
+    const live=receipt.claims.find(c=>c.id===r.id);validateLiveClaim(r,s,live);
+    return {id:r.id,title:r.statement,category:p.category,recommendation:p.recommendation,reason:p.reason,
+      sourceRef:r.source_ref,sourceId:s.id,sourceMd5:s.md5,
+      sourceNote:evidence.families.find(f=>f.sourceId===s.id).reviewNote,calculations,
+      target:p.recommendation==='מתאים לעץ'?live.targets[0]:null,
+      strength:null,score:null,scoreTargetId:null,sourceCount:null,independentSourcesAdded:0,
+      duplicateOf:p.overlapPriorId || null,identityOverlapIds:live.identity_overlaps.map(o=>o.id),
+      retainIds:[r.id,...live.identity_overlaps.map(o=>o.id)],
+      fullerSource:p.category==='source_representation'?`channel_updates:${s.id}`:null,
+      fullSourceCopy:p.category==='source_representation'?r.statement===s.text:null,
+      media:{imageUrl:s.image_url,markers:s.text.match(/\[Image [^\]]+\]/gu)||[],inspected:false},
+      numericScopeComplete:p.numericScopeComplete,wholeSourceVerified:false,interpretationVerified:false,corpusCountsVerified:false,
+      requiresGovernedRepresentation:true,automaticPromotion:false,publicationChanged:false,suppress:false,execute:false};
+  });
+  const groups=new Map();for(const s of evidence.sources){const g=groups.get(s.text)||[];g.push(s);groups.set(s.text,g);}
+  const repeatedSourceTexts=[...groups.values()].filter(g=>g.length>1).map(g=>({sourceIds:g.map(s=>s.id),
+    findingIds:rows.filter(r=>g.some(s=>s.id===r.sourceId)).map(r=>r.id),fullerTextVersion:null,
+    sameTextOnly:true,independentSourcesAdded:0,merge:false,suppress:false}));
+  return {base:evidence.base,checkedAt:receipt.checked_at,rows,repeatedSourceTexts,
+    counts:{classified:rows.length,sourceFamilies:evidence.sources.length,canonicalChecks:checks.length,
+      atomicChecks:rows.flatMap(r=>r.calculations).filter(c=>c.type==='atomic').length,
+      compoundChecks:rows.flatMap(r=>r.calculations).filter(c=>c.type==='compound').length,
+      byRecommendation:rows.reduce((a,r)=>(a[r.recommendation]=(a[r.recommendation]||0)+1,a),{}),
+      byCategory:rows.reduce((a,r)=>(a[r.category]=(a[r.category]||0)+1,a),{}),promoted:0,deleted:0},execute:false};
+}
+
 // Fixed manual source review. Reuses canonical atomic/compound replay and receipt
 // gates; does not change the candidate screen, parser, method registry or runtime.
 export function replaySourceTextReview(evidence = readSourceTextReview()) {
@@ -623,7 +749,7 @@ function buildSelectedReceiptSql(selected) {
         AND coalesce(lower(btrim(ro.source)),'') NOT IN ('old_chat','openweb_legacy','or-geula')
         AND coalesce(btrim(ro.contributor),'')<>'אור הגאולה' general_scope,
       coalesce(ro.source_ref=s.source_ref AND md5(ro.statement)=s.statement_md5 AND ro.kind=s.kind
-        AND ro.value=s.value AND to_jsonb(ro.terms)=s.terms
+        AND ro.value IS NOT DISTINCT FROM s.value AND to_jsonb(ro.terms)=s.terms
         AND public.fn_research_source_uid(ro.source_ref)=s.source_uid
         AND md5(public.fn_research_claim_uid(ro.statement))=s.claim_uid_md5,false) exact_claim,
       coalesce(cu.status='live' AND cu.page_only IS FALSE AND cu.channel='torat-haremez'
@@ -837,7 +963,10 @@ export function buildImageSourceReport(evidence = readImageSourceReview(), recei
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const mode = process.argv[2] || 'summary';
-  if (mode === 'source-text') process.stdout.write(JSON.stringify(buildSourceTextReport(),null,2)+'\n');
+  if (mode === 'source-family') process.stdout.write(JSON.stringify(buildSourceFamilyReport(),null,2)+'\n');
+  else if (mode === 'source-family-read-sql') process.stdout.write(buildSourceFamilyReadSql(Number(process.argv[3]))+'\n');
+  else if (mode === 'source-family-receipt-sql') process.stdout.write(buildSourceFamilyReceiptSql()+'\n');
+  else if (mode === 'source-text') process.stdout.write(JSON.stringify(buildSourceTextReport(),null,2)+'\n');
   else if (mode === 'source-text-read-sql') process.stdout.write(buildSourceTextReviewReadSql()+'\n');
   else if (mode === 'source-text-receipt-sql') process.stdout.write(buildSourceTextReceiptSql()+'\n');
   else if (mode === 'continuation') process.stdout.write(JSON.stringify(validateContinuationReceipt(),null,2)+'\n');
