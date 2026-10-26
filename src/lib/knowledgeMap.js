@@ -104,6 +104,20 @@ const CLOSED_FIRST_STAGE_GATES = FIRST_STAGE_RELEASE_GATES.filter(g => g.state =
 export const BUILD_PROGRESS = Math.round((CLOSED_FIRST_STAGE_GATES / FIRST_STAGE_RELEASE_GATES.length) * 100);
 export const BUILD_REMAINING = 100 - BUILD_PROGRESS;
 
+// Public-facing estimate chosen after the 26.10.2026 progress review.
+// This is a manually reviewed BUILD estimate for the first 2029 public slice,
+// NOT the audited Golden/release gate meter (BUILD_PROGRESS = 4/6 = 67%).
+// Never close G3.5 or G4, activate features, or infer a cutover from this estimate.
+export const BUILD_PUBLIC_PROGRESS = Object.freeze({
+  percent: 80,
+  updatedAt: "26 באוקטובר 2026",
+  label: "הערכת התקדמות הפיתוח",
+  headline: "מתקדמים לקראת פתיחת השלב הראשון",
+  explanation: "הערכת מצב פיתוח, לא אישור פתיחה או הבטחה למועד השקה. המערכת תיפתח בהדרגה אחרי בדיקות.",
+  auditedClosedGates: CLOSED_FIRST_STAGE_GATES,
+  auditedTotalGates: FIRST_STAGE_RELEASE_GATES.length,
+});
+
 // Historical milestone comparison (not a live rolling metric): 21.9 -> 9.10.
 // On 21.9 only G0-G2 were sealed; G3 was sealed on 1.10 (Human Gate).
 export const BUILD_WEEKLY_LABEL = "21.9–9.10";
