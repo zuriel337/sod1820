@@ -150,13 +150,15 @@ export const AHAVAT_DALET_BOOKS = Object.freeze([
 // Compact source transcription, not a numeral calculator. Both the printed
 // string and its visually read decimal are explicit; no engine result is derived.
 function sourceBooks(page, readings) {
-  return Object.freeze(readings.map(([cumulative, printed, cells], index) => {
+  return Object.freeze(readings.map(([cumulative, printed, cells, location = {}], index) => {
     const template = AHAVAT_ALEPH_BOOKS[index];
     const values = cells.split("|").map(cell => cell.split("="));
     if (values.length !== template.rows.length) throw new Error(`Incomplete letter transcription: ${template.id}`);
-    return Object.freeze({ id: template.id, title: template.title, page, pages: Object.freeze([page]), cumulative, printed,
+    const rows = values.map(([numeral, decimal], row) => Object.freeze({ parasha: template.rows[row].parasha, printed: numeral, count: Number(decimal), page: location.rowPages?.[row] || location.rowPage || page }));
+    return Object.freeze({ id: template.id, title: template.title, page: location.checkpointPage || page,
+      pages: Object.freeze([...new Set(rows.map(row => row.page))]), cumulative, printed,
       count: cumulative - (readings[index - 1]?.[0] || 0),
-      rows: Object.freeze(values.map(([numeral, decimal], row) => Object.freeze({ parasha: template.rows[row].parasha, printed: numeral, count: Number(decimal), page }))),
+      rows: Object.freeze(rows),
     });
   }));
 }
@@ -177,12 +179,38 @@ export const AHAVAT_VAV_BOOKS = sourceBooks(36, [
   [30516, "למ״ד אלף תקט״ז", "תקצ״ד=594|תש״ז=707|תרט״ז=616|תרפ״ג=683|תקל״ז=537|תקס״ב=562|תשי״ח=718|רע״א=271|רי״ד=214|רל״ט=239|רמ״ב=242"],
 ]);
 
-export const AHAVAT_LETTER_READINGS = Object.freeze({ "א": AHAVAT_ALEPH_BOOKS, "ב": AHAVAT_BET_BOOKS, "ג": AHAVAT_GIMEL_BOOKS, "ד": AHAVAT_DALET_BOOKS, "ה": AHAVAT_HEH_BOOKS, "ו": AHAVAT_VAV_BOOKS });
+export const AHAVAT_CHET_BOOKS = sourceBooks(36, [
+  [1844, "אלף תתמ״ד", "קע״ג=173|רל״ט=239|צ״ה=95|קפ״ב=182|קכ״ז=127|קל״ט=139|קס״ב=162|קפ״ט=189|קל״א=131|ר״ח=208|קי״ד=114|פ״ה=85"],
+  [3361, "ג׳ אלף שס״א", "קט״ו=115|קכ״ב=122|ק״כ=120|קכ״ח=128|ס״ח=68|קכ״ו=126|קע״ב=172|קנ״ג=153|קצ״ה=195|ר״י=210|ק״ח=108"],
+  [4481, "ד׳ אלף תפ״א", "רמ״ה=245|ק״פ=180|צ״ב=92|נ״ג=53|קכ״ג=123|קט״ו=115|נ״א=51|קל״ב=132|נ״ו=56|ע״ג=73"],
+  [6180, "ו׳ אלף ק״פ", "קע״ו=176|רצ״ו=296|ק״נ=150|קי״ד=114|קל״א=131|ק״א=101|ע״ה=75|שמ״ג=343|ק״מ=140|קע״ג=173", { checkpointPage: 37, rowPages: { 9: 37 } }],
+  [7189, "ז׳ אלף קפ״ט", "קכ״א=121|קכ״ה=125|ק״א=101|קנ״ט=159|קט״ז=116|קל״ז=137|צ׳=90|מ״ג=43|כ״ג=23|נ״ה=55|ל״ט=39", { checkpointPage: 37, rowPage: 37 }],
+]);
+
+export const AHAVAT_TET_BOOKS = sourceBooks(37, [
+  [308, "ש״ח", "כ״ו=26|י״ז=17|כ״ו=26|מ״ד=44|י״ד=14|כ״ב=22|כ״ו=26|כ״ג=23|כ״ה=25|ל״ח=38|כ״ד=24|כ״ג=23"],
+  [656, "תרנ״ו", "י״ט=19|מ״ה=45|כ״ה=25|כ״ח=28|י״א=11|כ״ג=23|ל״ו=36|נ״א=51|ל״ג=33|נ׳=50|כ״ז=27"],
+  [1148, "אלף קמ״ח", "ק״א=101|מ׳=40|ע׳=70|נ״ו=56|ק׳=100|מ״ו=46|כ״ו=26|כ״ו=26|ז׳=7|י״ט=19"],
+  [1545, "אלף תקמ״ה", "ל׳=30|נ״ז=57|מ״ח=48|ל״ב=32|מ״א=41|מ״ז=47|כ״א=21|כ״ט=29|ל׳=30|ס״ב=62"],
+  [1804, "אלף תת״ד", "כ״ד=24|ל״ג=33|ל״ג=33|ל״ד=34|ל״ד=34|ל׳=30|ל״ג=33|י״ב=12|ה׳=5|י׳=10|י״א=11"],
+]);
+
+export const AHAVAT_KAF_BOOKS = sourceBooks(37, [
+  [1909, "אלף תתק״ט", "קנ״ז=157|קפ״ז=187|קנ״ט=159|קפ״ב=182|ק״ד=104|קכ״ח=128|קפ״ב=182|קנ״ז=157|קל״ה=135|רל״ה=235|קע״ב=172|קי״א=111"],
+  [3683, "ג׳ אלף תרפ״ג", "קנ״ט=159|קס״ב=162|רנ״ח=258|קנ״ו=156|צ״ה=95|קנ״ו=156|ק״כ=120|ק״ט=109|ר״ב=202|קצ״ב=192|קס״ה=165"],
+  [5255, "ה׳ אלף רנ״ה", "קע״ו=176|קנ״ב=152|קע״ה=175|קכ״ה=125|קס״ט=169|קמ״ו=146|ק״ט=109|רכ״ה=225|צ״ז=97|קצ״ח=198"],
+  [6833, "ו׳ אלף תתל״ג", "קע״ו=176|ר״י=210|קפ״ז=187|קפ״ה=185|קס״ד=164|פ׳=80|קכ״ה=125|ר״ב=202|קל״ט=139|ק״י=110"],
+  [8612, "ח׳ אלף תרי״ב", "ר״י=210|רל״ז=237|רי״ד=214|שכ״ג=323|קנ״א=151|קע״ג=173|קצ״ח=198|פ״ה=85|ס״ג=63|פ״ב=82|מ״ג=43"],
+]);
+
+export const AHAVAT_LETTER_READINGS = Object.freeze({ "א": AHAVAT_ALEPH_BOOKS, "ב": AHAVAT_BET_BOOKS, "ג": AHAVAT_GIMEL_BOOKS, "ד": AHAVAT_DALET_BOOKS, "ה": AHAVAT_HEH_BOOKS, "ו": AHAVAT_VAV_BOOKS, "ח": AHAVAT_CHET_BOOKS, "ט": AHAVAT_TET_BOOKS, "כ": AHAVAT_KAF_BOOKS });
 
 export const AHAVAT_LETTER_READING_LOCATIONS = Object.freeze({
   "א": "הטור הימני", "ב": "הטור הימני והמשכו בראש הטור השמאלי", "ג": "הטור השמאלי",
   "ד": "סוף הטור השמאלי ב־PDF 35 והמשך בראש הטור הימני ב־PDF 36",
   "ה": "הטור הימני ב־PDF 36", "ו": "סוף הטור הימני והמשך בראש הטור השמאלי ב־PDF 36",
+  "ח": "סוף הטור השמאלי ב־PDF 36 והמשך בראש הטור הימני ב־PDF 37", "ט": "הטור הימני ב־PDF 37",
+  "כ": "הטור השמאלי ב־PDF 37",
 });
 
 export function ahavatLetterSourcePage(form, bookId = "all", parasha) {
