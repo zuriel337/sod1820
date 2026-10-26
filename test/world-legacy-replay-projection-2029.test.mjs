@@ -295,6 +295,29 @@ test("spatial routing reuses the canonical compound parser without promoting the
   assert.equal(descriptive.spatialTextOrigin, "not_marked_ocr");
 });
 
+test("spatial routing reports curated coverage only from an exact stored source ref", () => {
+  const represented = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה: 6 ×אמונה(102)=612",
+    source_ref: "channel_updates:aa5276b4-6246-4334-8d96-5e8111ccff0c",
+  }));
+  assert.equal(represented.spatialCuratedCoverage.state, "represented");
+  assert.equal(represented.spatialCuratedCoverage.matchBasis, "exact_source_ref");
+  assert.deepEqual(represented.spatialCuratedCoverage.modelSlugs, ["emunah-cube-612"]);
+  assert.equal(represented.spatialCuratedCoverage.inferred, false);
+
+  const unrepresented = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה: 6 ×אמונה(102)=612",
+    source_ref: "channel_updates:10000000-0000-4000-8000-000000000099",
+  }));
+  assert.equal(unrepresented.spatialCuratedCoverage.state, "not_represented");
+  assert.equal(unrepresented.spatialCuratedCoverage.matchBasis, "none");
+  assert.deepEqual(unrepresented.spatialCuratedCoverage.modelSlugs, []);
+});
+
 test("constant replay distinguishes exact sums, rounded constants and unsupported source claims", () => {
   const ePower = verifyWorldConstantStatement("הערך המספרי e בחזקת e מתקרב ל־15.15");
   assert.equal(ePower.state, "rounded_match");

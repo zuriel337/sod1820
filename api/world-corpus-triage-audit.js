@@ -261,6 +261,22 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       next: "לבדוק בנפרד את מקור הכמות, הצורה והפרשנות. שחזור הפעולה אינו אישור הממצא ואינו קידום לעץ.",
     }),
     Object.freeze({
+      key: "zvi_spatial_verified_already_represented",
+      label: "צבי · חישוב משוחזר ומקור כבר מיוצג",
+      total: 5,
+      route: "/world?admin=1&view=admin&contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8&contributorLabel=צבי%20(OPOC)&status=approved&replayQueue=spatial_or_constants&replaySpatialCalculation=verified&replaySpatialCoverage=represented",
+      state: "5 מתוך 10 הרשומות בעלות חישוב משוחזר מפנות ב־source_ref מדויק למודל שכבר נמצא במבחר המרחבי",
+      next: "להציג כהופעות מקור של המודל הקיים ולא כמבנים חדשים. המקורות נשמרים; אין למחוק או לספור אותם כמקור עצמאי נוסף בלי בדיקת עצמאות.",
+    }),
+    Object.freeze({
+      key: "zvi_spatial_verified_not_represented",
+      label: "צבי · חישוב משוחזר ומקור שאינו מיוצג",
+      total: 5,
+      route: "/world?admin=1&view=admin&contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8&contributorLabel=צבי%20(OPOC)&status=approved&replayQueue=spatial_or_constants&replaySpatialCalculation=verified&replaySpatialCoverage=not_represented",
+      state: "5 מתוך 10 הרשומות אינן תואמות source_ref של מודל נבחר; אחת חוזרת על רזא דשבת, אחת היא OCR של קוביית אמונה, אחת מרחיבה את אמונה–ברית, ושתיים הן מועמדות OCR נפרדות לציציות וליוסף",
+      next: "לקבץ תחילה את שלוש החזרות או ההרחבות עם המודל המתאים. בשתי מועמדות ה־OCR לבדוק תמונה, שם צורה ומקור הכמות לפני יצירת מודל חדש.",
+    }),
+    Object.freeze({
       key: "zvi_spatial_calculation_unresolved",
       label: "צבי · שיטה מרחבית לא פתורה",
       total: 9,

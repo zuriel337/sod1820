@@ -1,4 +1,5 @@
 import { DEPTH_METHODS, METHODS } from "../gematria.js";
+import { spatialModelSlugsForSourceRef } from "../spatialModels.js";
 import { extractCompoundClaims } from "../triage.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -195,6 +196,19 @@ function projectSpatialCalculation(row, routing) {
     claims: Object.freeze(projectedClaims),
     verifiesCalculationOnly: true,
     mutatesLiveData: false,
+  });
+}
+
+function projectSpatialCuratedCoverage(row, routing) {
+  if (routing?.queue !== "spatial_or_constants") return null;
+  const sourceRef = clean(row?.source_ref) || null;
+  const modelSlugs = spatialModelSlugsForSourceRef(sourceRef);
+  return Object.freeze({
+    state: modelSlugs.length ? "represented" : "not_represented",
+    modelSlugs,
+    sourceRef,
+    matchBasis: modelSlugs.length ? "exact_source_ref" : "none",
+    inferred: false,
   });
 }
 
@@ -433,6 +447,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
     const routing = classifyWorldMissingEngineStatement(row?.statement);
     const spatialResearchContext = projectSpatialResearchContext(row, routing);
     const spatialCalculation = projectSpatialCalculation(row, routing);
+    const spatialCuratedCoverage = projectSpatialCuratedCoverage(row, routing);
     const constantCheck = routing.queue === "constants_or_sequences"
       ? verifyWorldConstantStatement(row?.statement)
       : null;
@@ -456,6 +471,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       contentSignals: routing.signals,
       spatialResearchContext,
       spatialCalculation,
+      spatialCuratedCoverage,
       spatialTextOrigin,
       constantCheck,
     });
