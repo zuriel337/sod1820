@@ -43,7 +43,7 @@ test("the full-picture action changes representation labels without renaming int
   const saved = read("src/lib/research/razielSavedSession2029.js");
   const gate = read("src/lib/research/razielOneShotGate2029.js");
 
-  assert.match(modes, /map: "🗺️ פתח את התמונה המלאה"/);
+  assert.match(modes, /map: "🗺️ פתח מפת מחקר"/);
   assert.match(modes, /landscape: \{ label: "התמונה המלאה"/);
   assert.match(gate, /map: Object\.freeze\(\{ mode: "landscape", level: "fast" \}\)/);
   assert.match(saved, /RAZIEL_SAVED_SESSION_TYPE = "raziel_session"/);
@@ -63,7 +63,7 @@ test("ordinary answer copy says what Raziel found; depth copy may explain source
   assert.doesNotMatch(compact, /מחקר|ממצא|מקור מאומת|engine|evidence|provenance|Result Bundle/i);
   assert.match(expanded, /מה רזיאל מצא/);
   assert.match(expanded, /ממצא מחושב/);
-  assert.match(expanded, /פתח את התמונה המלאה/);
+  assert.match(expanded, /פתח מפת מחקר/);
   assert.doesNotMatch(expanded, /מנוע|engine|evidence|provenance|Result Bundle/i);
 });
 

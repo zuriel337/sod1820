@@ -37,7 +37,7 @@ function answered({ response = ready, level = "fast", viewMode = null, question 
 const submission = (extra) => prepareRazielSessionSubmission({ question: "מה זה 337?", state: answered(), researchContext: null, facts: "", view: {}, projection: "desktop", startedAt: "s", createTurnId: () => "t2", ...extra });
 
 test("labels, spec and copy: two one-shot actions, spec lazy, copy lazy", () => {
-  assert.deepEqual({ ...RAZIEL_ONE_SHOT_LABEL }, { surprise: "✨ הפתע אותי", map: "🗺️ פתח את התמונה המלאה" });
+  assert.deepEqual({ ...RAZIEL_ONE_SHOT_LABEL }, { surprise: "✨ הפתע אותי", map: "🗺️ פתח מפת מחקר" });
   assert.deepEqual(JSON.parse(JSON.stringify(RAZIEL_ONE_SHOT_SPEC)), { surprise: { mode: "surprise", level: "deep" }, map: { mode: "landscape", level: "fast" } });
   assert.equal(RAZIEL_ONE_SHOT_COPY.surprise.explanation, "רזיאל יחפש קשר לא צפוי בתוך העובדות המאומתות, ויפריד בין עובדה, פרשנות והשערה.");
   assert.equal(RAZIEL_ONE_SHOT_COPY.surprise.noMaterial, "אין עדיין מספיק חומר להפתעה.");

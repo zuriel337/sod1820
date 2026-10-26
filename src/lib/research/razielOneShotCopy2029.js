@@ -1,4 +1,4 @@
-// Copy of the one-shot offer panels ("✨ הפתע אותי", "🗺️ פתח את התמונה המלאה"). Loaded only together with the panel (first click),
+// Copy of the one-shot offer panels ("✨ הפתע אותי", "🗺️ פתח מפת מחקר"). Loaded only together with the panel (first click),
 // never in the eager 2029 graph.
 export const RAZIEL_ONE_SHOT_COPY = Object.freeze({
   surprise: Object.freeze({
@@ -8,9 +8,9 @@ export const RAZIEL_ONE_SHOT_COPY = Object.freeze({
     run: "הפעל הפתעה",
   }),
   map: Object.freeze({
-    aria: "פתח את התמונה המלאה",
+    aria: "פתח מפת מחקר",
     explanation: "רזיאל יפרוש את הקשרים לפי שכבות על אותו חומר שנבדק, ויפריד בין עובדה, מקור ופרשנות. הפעולה חד־פעמית ואינה משנה את מצב השיחה.",
     noMaterial: "אין עדיין מספיק חומר להצגת התמונה המלאה.",
-    run: "פתח את התמונה המלאה",
+    run: "פתח מפת מחקר",
   }),
 });

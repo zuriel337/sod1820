@@ -496,7 +496,7 @@ export function formatRazielEvidenceSummary(value = null, { expanded = false } =
     const lane = item.lane === "source_claim" ? "טענת מקור" : item.lane === "engine_finding" ? "ממצא מחושב" : "חישוב שנבדק";
     add(`${item.label}${methodText ? ` · ${methodText}` : ""} · ${lane}${item.sourceName ? ` · ${item.sourceName}` : ""}`);
   }
-  return [`🔎 ${summary.title}`, ...lines, "כך הגענו לתשובה; הטקסט שמעל הוא ההסבר של רזיאל.", ...(summary.mapAvailable ? ["כדי לראות את כל הקשרים, אפשר לבחור „🗺️ פתח את התמונה המלאה” שמתחת."] : [])].join("\n");
+  return [`🔎 ${summary.title}`, ...lines, "כך הגענו לתשובה; הטקסט שמעל הוא ההסבר של רזיאל.", ...(summary.mapAvailable ? ["כדי לראות את כל הקשרים, אפשר לבחור „🗺️ פתח מפת מחקר” שמתחת."] : [])].join("\n");
 }
 
 export function normalizeRazielResponse(response, requestedLevel = "fast") {
