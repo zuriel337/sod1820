@@ -181,6 +181,7 @@ const REPLAY_TARGET_LABELS = Object.freeze({
 });
 
 const REPLAY_TARGET_EVIDENCE_LABELS = Object.freeze({
+  existing_promotion: "חיבור חי קיים",
   exact_row_value_match: "יעד מספר יחיד תואם לערך",
   exact_value_primary_with_context: "מספר ראשי תואם + הקשרים",
   exact_value_among_multiple_numbers: "מספר תואם + מספרים נוספים",

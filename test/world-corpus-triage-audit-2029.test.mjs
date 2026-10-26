@@ -110,6 +110,14 @@ test("audit routes only to existing canonical World views", () => {
     "בשלים ללא יעד מובנה",
   ].map((label) => zvi.counts.find((item) => item.label === label).value), [102, 153, 1856, 486]);
   assert.deepEqual([
+    "nodes פעילים בחיבורים הבשלים",
+    "nodes נפרדים בחיבורים הבשלים",
+    "חיבורים שתואמים בדיוק ל־value",
+    "חיבורים יתומים או לא פעילים",
+    "חיבורים עם מקור מדויק",
+    "חיבורים הדורשים תיקון locator",
+  ].map((label) => zvi.counts.find((item) => item.label === label).value), [102, 74, 102, 0, 100, 2]);
+  assert.deepEqual([
     "חסרי יעד עם value להצעה",
     "חסרי יעד וללא value",
     "חסרי יעד עם מקור מדויק",
