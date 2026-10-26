@@ -296,10 +296,10 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const activateThree = birthStudio.getByRole("button", { name: "הפעל תלת־ממד חי" });
     await activateThree.waitFor();
     await activateThree.click();
-    await page.waitForTimeout(350);
+    const spatialReady = birthStudio.locator('[data-experience-capability="life-journey-birth-map-3d"], .birth-map-spatial [role="status"]:not(.birth-map-loading)');
+    await spatialReady.first().waitFor({ state: "visible", timeout: 10_000 });
     assert.ok(
-      await birthStudio.locator('[data-experience-capability="life-journey-birth-map-3d"]').count()
-        + await birthStudio.locator('[role="status"]').count() >= 1,
+      await spatialReady.count() >= 1,
       "explicit 3D activation renders WebGL or an accessible capability fallback",
     );
     await birthStudio.getByRole("tab", { name: "משפחה" }).click();

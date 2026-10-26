@@ -1,7 +1,8 @@
 # ELS Guided Discovery — ספר העבודה v1
 
-**Status:** active staged program.  
-**Central base:** `18848029f3a32cba1a45a3035344ed56eb01415b`.  
+**Status:** active staged program.
+
+**Central base:** `18848029f3a32cba1a45a3035344ed56eb01415b`.
 **First implementation base:** `d59a2ff8d5d094e8a80966af16f1c16093aa1caa`.
 
 המטרה היא להגיע מסיפור או מביטוי לחבילת מחקר אחת, קטנה וניתנת לבדיקה, באמצעות מנוע

@@ -1,6 +1,6 @@
 # ELS Guided Discovery — יומן מבחנים v1
 
-**Program:** `els-guided-discovery-program-v1.md`.  
+**Program:** `els-guided-discovery-program-v1.md`.
 **Rule:** תשובות של holdout אינן נכנסות למונחי הסיפור, למילון, ל־fixture או לענף runtime.
 
 ## סטטוסים
