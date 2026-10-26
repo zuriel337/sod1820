@@ -10,6 +10,23 @@ import { LOGO_URL } from "../theme.js";
 // mode ב-DB: 'all' = כולם חסומים (חוץ מאדמין) · 'anon' = משתמשים רשומים עוברים.
 
 const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגים · חוזרים בקרוב";
+const LIFE_JOURNEY_PREVIEW_OPEN = import.meta.env?.VITE_LIFE_JOURNEY_PREVIEW_OPEN === "true";
+
+function applyPreviewFeatureState(flag, state) {
+  if (flag !== "lock_life_journey" || !LIFE_JOURNEY_PREVIEW_OPEN) return state;
+  return {
+    ...state,
+    enabled: false,
+    blocked: false,
+    allowed: true,
+    adminBypass: false,
+    registeredBypass: false,
+    publicState: "open",
+    viewerState: "open",
+    showLogin: false,
+    status: "active",
+  };
+}
 
 export function MaintenanceLock({ message, showLogin = false, alternatives = false, homeHref = "/" }) {
   return (
@@ -141,12 +158,15 @@ export function resolveFeatureState(lock, { user = null, isAdmin = false, requir
 export function useFeatureState(flag, { requireFlag = false } = {}) {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { loading, lock } = useSiteFlag(flag);
-  return useMemo(() => ({
-    flag,
-    loading: loading || authLoading,
-    lock,
-    ...resolveFeatureState(lock, { user, isAdmin, requireFlag }),
-  }), [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
+  return useMemo(() => {
+    const resolved = resolveFeatureState(lock, { user, isAdmin, requireFlag });
+    return {
+      flag,
+      loading: loading || authLoading,
+      lock,
+      ...applyPreviewFeatureState(flag, resolved),
+    };
+  }, [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.

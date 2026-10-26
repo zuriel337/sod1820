@@ -30,6 +30,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const elsSurface = read("src/components/experience2029/LifeJourneyEls2029.jsx");
   const hints = read("src/components/experience2029/LifeJourneyHints2029.jsx");
   const home = read("src/pages/Home2029Page.jsx");
+  const maintenanceLock = read("src/components/MaintenanceLock.jsx");
   const css = read("src/components/person-journey.css");
   const vercel = JSON.parse(read("vercel.json"));
 
@@ -43,6 +44,10 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(home, /navigate\("\/2029\/journey"\)/);
   assert.match(home, /useFeatureState\("lock_life_journey", \{ requireFlag: true \}\)/);
   assert.doesNotMatch(home, /const numeric = \/\^\\d\+\$\//);
+  assert.match(maintenanceLock, /VITE_LIFE_JOURNEY_PREVIEW_OPEN === "true"/);
+  assert.match(maintenanceLock, /flag !== "lock_life_journey"/);
+  assert.match(maintenanceLock, /viewerState: "open"/);
+  assert.match(maintenanceLock, /blocked: false/);
 
   assert.match(journey, /upsertSelfProfile/);
   assert.match(journey, /upsertFamilyMember/);
