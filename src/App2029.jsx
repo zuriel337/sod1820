@@ -41,6 +41,7 @@ const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx")
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
 const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
 const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
+const AuthPage = lazy(() => import("./pages/AuthPage.jsx"));
 
 // Design review on an existing document route; does not open public Community
 // navigation or require a competing edit to the deployment rewrite configuration.
@@ -207,6 +208,7 @@ export default function App2029() {
               <Route path="/world" element={<Locked flag="lock_world" homeHref="/2029"><World2029Page /></Locked>} />
               <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
+              <Route path="/login" element={<AuthPage />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />
               <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><LifeJourney2029Page /></Locked>} />
               <Route path="/post/:slug" element={<Post2029Page />} />
