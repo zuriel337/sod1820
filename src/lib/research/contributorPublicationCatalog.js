@@ -4,6 +4,30 @@ const PAGE_SIZE = 100;
 const MAX_PAGES = 100;
 const quoted = (value) => JSON.stringify(String(value));
 
+export function contributorPublicationRecordTime(row) {
+  return row?.modified || row?.date || row?.created_at || null;
+}
+
+export function contributorPublicationRecordTimeKind(row) {
+  if (row?.modified) return "updated";
+  if (row?.date) return "published";
+  return row?.created_at ? "created" : null;
+}
+
+export function sortContributorPublicationRows(rows = []) {
+  const time = (row) => {
+    const parsed = Date.parse(contributorPublicationRecordTime(row));
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+  return [...(Array.isArray(rows) ? rows : [])].sort((left, right) => {
+    const leftTime = time(left), rightTime = time(right);
+    if (leftTime == null || rightTime == null) {
+      if (leftTime !== rightTime) return leftTime == null ? 1 : -1;
+    } else if (leftTime !== rightTime) return rightTime - leftTime;
+    return String(left?.id ?? "").localeCompare(String(right?.id ?? ""));
+  });
+}
+
 async function pages(read) {
   const rows = [];
   for (let page = 0; page < MAX_PAGES; page += 1) {
@@ -27,11 +51,12 @@ export async function fetchContributorPublicationCatalog(identity, { client, att
     posts: async () => {
       const { names } = await attribution();
       if (!names.length) throw new Error("public_author_credit_unresolved");
-      return pages((offset, size) => client.from("posts")
-      .select("id,slug,title,date,image_url,thumb_url,author,authors")
+      const result = await pages((offset, size) => client.from("posts")
+      .select("id,slug,title,date,modified,created_at,image_url,thumb_url,author,authors")
       .or(names.flatMap((name) => [`author.eq.${quoted(name)}`, `authors.cs.{${quoted(name)}}`]).join(","))
       .order("date", { ascending: false }).order("id", { ascending: false })
       .range(offset, offset + size - 1));
+      return { ...result, rows: sortContributorPublicationRows(result.rows) };
     },
     ciphers: async () => {
       const { identity: canonical, names } = await attribution();

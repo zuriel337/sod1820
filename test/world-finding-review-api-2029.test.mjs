@@ -114,6 +114,10 @@ test("owner review validates admin, ranks server-side, and returns only 40 findi
     assert.equal(response.body.projection.rows.every((row) => row.family === "research_object"), true);
     assert.equal(response.headers.get("cache-control"), "private, no-store, max-age=0");
     assert.equal(response.body.projection.triageSnapshot.totalCards, 10709);
+    assert.equal(response.body.projection.corpusAudit.scope, "read_only_recommendations");
+    assert.equal(response.body.projection.corpusAudit.workstreams.length, 7);
+    assert.equal(response.body.projection.corpusAudit.workstreams.find((row) => row.key === "els").total, 135);
+    assert.equal(response.body.projection.corpusAudit.workstreams.find((row) => row.key === "languages").counts.at(-1).value, 1);
 
     const secondPageResponse = mockResponse();
     await handler({
@@ -221,6 +225,135 @@ test("strength, evidence quality and publication remain separate filterable axes
     query: row.sourceId,
   }), [row]);
   assert.deepEqual(filterWorldFindingReviewRows([row], { status: "published" }), []);
+});
+
+test("continuation decisions are manager-only filterable annotations and live promotion wins", () => {
+  const ready = reviewRow("38ac8d16-9bee-4292-97c6-b02b0eee8cf6");
+  const blocked = reviewRow("06c22b3f-9988-460b-9888-516015e20e68");
+  const promoted = reviewRow("01ab7adc-92f0-4c76-92fb-3ee43411d32e", {
+    promotedNodeId: "4c6bbf1f-3e0c-49df-8798-b9c41caef85c",
+  });
+
+  assert.equal(ready.triage.continuationState, "ready");
+  assert.equal(ready.triage.proposedTreeTargets.length, 3);
+  assert.equal(blocked.triage.continuationState, "blocked_missing_target");
+  assert.equal(promoted.triage.continuationState, "already_connected");
+  assert.deepEqual(filterWorldFindingReviewRows([blocked, promoted, ready], { continuation: "ready" }), [ready]);
+});
+
+test("legacy replay is a separate manager filter and never replaces verification", () => {
+  const replayed = reviewRow("10000000-0000-4000-8000-000000000010", {
+    verification: "legacy_signal",
+    legacyReplay: { state: "deterministic_match", replayComputed: 204, mutatesLiveData: false },
+  });
+  const missing = reviewRow("10000000-0000-4000-8000-000000000011", {
+    verification: "legacy_signal",
+    legacyReplay: { state: "missing_replay_envelope", mutatesLiveData: false },
+  });
+  assert.deepEqual(filterWorldFindingReviewRows([missing, replayed], { replay: "deterministic_match" }), [replayed]);
+  assert.equal(replayed.verification, "legacy_signal");
+  assert.equal(replayed.legacyReplay.mutatesLiveData, false);
+});
+
+test("missing-engine content routing is independently filterable", () => {
+  const spatial = reviewRow("10000000-0000-4000-8000-000000000012", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "spatial_or_constants", routingSubtype: "cubes", spatialResearchContext: { state: "partial" }, spatialCalculation: { state: "verified" }, spatialCuratedCoverage: { state: "represented" }, spatialReviewLane: "represented_source", spatialTextOrigin: "ocr_derived", mutatesLiveData: false },
+  });
+  const constants = reviewRow("10000000-0000-4000-8000-000000000014", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "constants_or_sequences", routingSubtype: "pi", mutatesLiveData: false },
+  });
+  const textual = reviewRow("10000000-0000-4000-8000-000000000013", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "textual_statement", mutatesLiveData: false },
+  });
+  const els = reviewRow("10000000-0000-4000-8000-000000000015", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "els_or_cipher", elsResearchContext: { clusterKey: "tashpaz_633" }, mutatesLiveData: false },
+  });
+  const language = reviewRow("10000000-0000-4000-8000-000000000016", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "language", languageResearchContext: { reviewLane: "duplicate_source_text" }, mutatesLiveData: false },
+  });
+  const formula = reviewRow("10000000-0000-4000-8000-000000000017", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "formula", formulaCalculation: { state: "verified" }, formulaReviewLane: "expression_review", mutatesLiveData: false },
+  });
+  const numeric = reviewRow("10000000-0000-4000-8000-000000000018", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "numeric_statement", numericStatementContext: { state: "structured_value_matches_literal" }, numericReviewLane: "structured_value_review", mutatesLiveData: false },
+  });
+  const textReview = reviewRow("10000000-0000-4000-8000-000000000019", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "textual_statement", textualStatementContext: { state: "interpretation_hypothesis" }, textualReviewLane: "interpretation_review", mutatesLiveData: false },
+  });
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "spatial_or_constants" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "constants_or_sequences" }), [constants]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySubtype: "cubes" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySubtype: "pi" }), [constants]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialMetadata: "partial" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialCalculation: "verified" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialCoverage: "represented" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialCoverage: "not_represented" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialLane: "represented_source" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialLane: "quantity_review" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialTextOrigin: "ocr_derived" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial, els], { replayElsCluster: "tashpaz_633" }), [els]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial, els], { replayElsCluster: "plumber_skip_6" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, language, spatial], { replayLanguageLane: "duplicate_source_text" }), [language]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, language, spatial], { replayLanguageLane: "derived_relation_review" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, formula, spatial], { replayFormulaCalculation: "verified" }), [formula]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, formula, spatial], { replayFormulaCalculation: "mismatch" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, formula, spatial], { replayFormulaLane: "expression_review" }), [formula]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, numeric, spatial], { replayNumericState: "structured_value_matches_literal" }), [numeric]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, numeric, spatial], { replayNumericState: "numbers_without_structured_value" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, numeric, spatial], { replayNumericLane: "structured_value_review" }), [numeric]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, textReview, spatial], { replayTextualState: "interpretation_hypothesis" }), [textReview]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, textReview, spatial], { replayTextualState: "research_question" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, textReview, spatial], { replayTextualLane: "interpretation_review" }), [textReview]);
+});
+
+test("technically-ready source and target axes are independently filterable", () => {
+  const exactSingle = reviewRow("10000000-0000-4000-8000-000000000014", {
+    legacyReplay: {
+      state: "deterministic_match",
+      decision: {
+        sourceLocatorStateCounts: { channel_uuid_available: 1 },
+        sourceRepairOccurrenceCount: 0,
+        targetStateCounts: { single_structured_target: 1 },
+        targetEvidenceStateCounts: { exact_row_value_match: 1 },
+      },
+    },
+  });
+  const repairMultiple = reviewRow("10000000-0000-4000-8000-000000000015", {
+    legacyReplay: {
+      state: "legacy_matrix_match",
+      decision: {
+        sourceLocatorStateCounts: { stored_ref_requires_resolution: 1 },
+        sourceRepairOccurrenceCount: 1,
+        targetStateCounts: { multiple_structured_targets: 1 },
+        targetEvidenceStateCounts: { exact_value_among_multiple_numbers: 1 },
+      },
+    },
+  });
+
+  assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replaySource: "exact_source" }), [exactSingle]);
+  assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replaySource: "source_locator_repair" }), [repairMultiple]);
+  assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replayTarget: "multiple_structured_targets" }), [repairMultiple]);
+  assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replayTargetEvidence: "exact_value_among_multiple_numbers" }), [repairMultiple]);
+});
+
+test("missing-engine target context is filterable without becoming a ready decision", () => {
+  const pending = reviewRow("10000000-0000-4000-8000-000000000016", {
+    legacyReplay: {
+      state: "missing_engine_assessment",
+      decision: null,
+      pendingEngineContext: {
+        targetStateCounts: { single_structured_target: 1 },
+        targetEvidenceStateCounts: { exact_row_value_match: 1 },
+      },
+    },
+  });
+  const unrelated = reviewRow("10000000-0000-4000-8000-000000000017", {
+    legacyReplay: { state: "missing_engine_assessment", decision: null },
+  });
+
+  assert.deepEqual(filterWorldFindingReviewRows([unrelated, pending], { pendingEngineTarget: "single_structured_target" }), [pending]);
+  assert.deepEqual(filterWorldFindingReviewRows([unrelated, pending], { pendingEngineTargetEvidence: "exact_row_value_match" }), [pending]);
+  assert.deepEqual(filterWorldFindingReviewRows([unrelated, pending], { replayTarget: "single_structured_target" }), []);
 });
 
 test("canonical contributor scope keeps stable identity and registered aliases without guessing", () => {

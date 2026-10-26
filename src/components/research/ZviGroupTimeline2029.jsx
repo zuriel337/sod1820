@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
-import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import "./ZviGroupTimeline2029.css";
 
 const PAGE = 40;
@@ -26,7 +25,6 @@ export default function ZviGroupTimeline2029({ recentItems = [] }) {
   const [opened, setOpened] = useState(false);
   const [state, setState] = useState(EMPTY);
   const [search, setSearch] = useState("");
-  const [seen, setSeen] = useState(readSeen);
 
   const load = async ({ older = false } = {}) => {
     if (state.loading || state.loadingMore || (older && !state.hasMore)) return;
@@ -64,11 +62,6 @@ export default function ZviGroupTimeline2029({ recentItems = [] }) {
     const q = search.trim().toLocaleLowerCase("he");
     return !q ? state.rows : state.rows.filter((row) => (row.fullText || "").toLocaleLowerCase("he").includes(q));
   }, [state.rows, search]);
-  const acknowledge = (item) => {
-    const key = `source:${item.id}`;
-    setSeen((current) => current[key] ? current : markSeen(key, current));
-  };
-
   return <section id="world-zvi-source-timeline" className="sod29-zvi-timeline" aria-label="כל הודעות המקור של צבי">
     <header className="sod29-zvi-timeline-head">
       <div>
@@ -92,13 +85,12 @@ export default function ZviGroupTimeline2029({ recentItems = [] }) {
       <div className="sod29-zvi-timeline-count">נטענו {state.rows.length} הודעות של צבי · מוצגות {visible.length}</div>
       <ol className="sod29-zvi-timeline-list">
         {visible.map((item) => {
-          const isSeen = Boolean(seen[`source:${item.id}`]);
           return <li key={item.sourceRef}>
-            <details onToggle={(event) => { if (event.currentTarget.open) acknowledge(item); }}>
+            <details>
               <summary>
                 <span>{bilingualDateLabel(item.arrivalAt || item.at, "זמן לא צוין")}</span>
                 <strong>{item.label}</strong>
-                <small>{isSeen ? "נקראה" : "טרם נקראה"} · הודעת מקור</small>
+                <small>הודעת מקור</small>
               </summary>
               <p>{item.fullText}</p>
               <small>דברי צבי · הודעת מקור</small>
@@ -109,7 +101,7 @@ export default function ZviGroupTimeline2029({ recentItems = [] }) {
       {!state.loading && !state.loadingMore && state.hasMore ? <button type="button" className="sod29-action"
         onClick={() => void load({ older: true })}>עוד הודעות ישנות יותר</button> : null}
       {state.loadingMore ? <p role="status">טוען הודעות קודמות…</p> : null}
-      {!state.loading && !state.loadingMore && !state.hasMore && state.rows.length ? <p>הגעת לסוף ההודעות הזמינות דרך קורא המקור המאושר.</p> : null}
+      {!state.loading && !state.loadingMore && !state.hasMore && state.rows.length ? <p>סוף ההודעות הזמינות דרך קורא המקור המאושר.</p> : null}
     </div> : null}
   </section>;
 }

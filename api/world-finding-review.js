@@ -14,6 +14,20 @@ import {
   WORLD_FINDING_TRIAGE_META,
   getWorldFindingTriageSnapshot,
 } from "./world-finding-triage-snapshot.js";
+import { WORLD_CORPUS_TRIAGE_AUDIT } from "./world-corpus-triage-audit.js";
+import {
+  WORLD_GEMATRIA_METHOD_COLUMNS,
+  WORLD_GEMATRIA_REVIEW_SUMMARY,
+  projectWorldGematriaReviewRows,
+} from "../src/lib/research/worldGematriaTriageProjection.js";
+import {
+  WORLD_INSIGHT_REVIEW_SUMMARY,
+  projectWorldInsightReviewRows,
+} from "../src/lib/research/worldInsightTriageProjection.js";
+import {
+  attachWorldLegacyReplay,
+  buildWorldLegacyReplayIndex,
+} from "../src/lib/research/worldLegacyReplayProjection.js";
 
 const SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
@@ -72,7 +86,15 @@ function directFindingHref(sourceId) {
 }
 
 export function enrichWorldFindingReviewRow(row) {
-  const triage = getWorldFindingTriageSnapshot(row?.sourceId || row?.id);
+  const snapshotTriage = getWorldFindingTriageSnapshot(row?.sourceId || row?.id);
+  const triage = snapshotTriage?.strength === "חזק" && clean(row?.promotedNodeId)
+    ? Object.freeze({
+      ...snapshotTriage,
+      continuationState: "already_connected",
+      continuationLabel: "כבר מחובר לעץ",
+      continuationReason: "הרשומה החיה כבר מצביעה ליעד קיים. שכבת המיון אינה משנה את החיבור.",
+    })
+    : snapshotTriage;
   const quality = evidenceQuality(row);
   return {
     ...row,
@@ -140,8 +162,13 @@ function reviewSearchHaystack(row) {
     row?.triage?.strength,
     row?.triage?.recommendation,
     row?.triage?.evidenceReason,
+    row?.triage?.continuationLabel,
+    row?.triage?.continuationReason,
     row?.triage?.proposedTreeTarget,
+    ...(row?.triage?.proposedTreeTargets || []),
     row?.triage?.recommendedKeepId,
+    row?.triage?.displayRepresentativeId,
+    ...(row?.triage?.relatedFindingIds || []),
     ...(row?.treeMatches || []).flatMap((match) => [match?.key, match?.label, match?.type]),
   ].filter((value) => value != null).join(" ").toLowerCase();
 }
@@ -152,18 +179,67 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const finding = clean(filters.finding).replace(/^research:/, "");
   const strength = clean(filters.strength) || "all";
   const recommendation = clean(filters.recommendation) || "all";
+  const continuation = clean(filters.continuation) || "all";
   const quality = clean(filters.quality) || "all";
   const topic = clean(filters.topic) || "all";
   const source = clean(filters.source) || "all";
+  const replay = clean(filters.replay) || "all";
+  const replayQueue = clean(filters.replayQueue) || "all";
+  const replaySubtype = clean(filters.replaySubtype) || "all";
+  const replaySpatialMetadata = clean(filters.replaySpatialMetadata) || "all";
+  const replaySpatialCalculation = clean(filters.replaySpatialCalculation) || "all";
+  const replaySpatialCoverage = clean(filters.replaySpatialCoverage) || "all";
+  const replaySpatialLane = clean(filters.replaySpatialLane) || "all";
+  const replayElsCluster = clean(filters.replayElsCluster) || "all";
+  const replayLanguageLane = clean(filters.replayLanguageLane) || "all";
+  const replayFormulaCalculation = clean(filters.replayFormulaCalculation) || "all";
+  const replayFormulaLane = clean(filters.replayFormulaLane) || "all";
+  const replayNumericState = clean(filters.replayNumericState) || "all";
+  const replayNumericLane = clean(filters.replayNumericLane) || "all";
+  const replayTextualState = clean(filters.replayTextualState) || "all";
+  const replayTextualLane = clean(filters.replayTextualLane) || "all";
+  const replaySpatialTextOrigin = clean(filters.replaySpatialTextOrigin) || "all";
+  const replaySource = clean(filters.replaySource) || "all";
+  const replayTarget = clean(filters.replayTarget) || "all";
+  const replayTargetEvidence = clean(filters.replayTargetEvidence) || "all";
+  const pendingEngineTarget = clean(filters.pendingEngineTarget) || "all";
+  const pendingEngineTargetEvidence = clean(filters.pendingEngineTargetEvidence) || "all";
   return base.filter((row) => {
     if (finding && clean(row.sourceId) !== finding) return false;
     if (strength !== "all" && row?.triage?.strength !== strength) return false;
     if (recommendation !== "all" && row?.triage?.recommendation !== recommendation) return false;
+    if (continuation !== "all" && row?.triage?.continuationState !== continuation) return false;
     if (quality !== "all" && row?.evidenceQuality?.band !== quality) {
       if (!(quality === "rated" && row?.evidenceQuality?.score != null)) return false;
     }
     if (topic !== "all" && !rowTopicKeys(row).includes(topic)) return false;
     if (source !== "all" && row?.sourceFilterKey !== source) return false;
+    if (replay !== "all" && row?.legacyReplay?.state !== replay) return false;
+    if (replayQueue !== "all" && row?.legacyReplay?.routingQueue !== replayQueue) return false;
+    if (replaySubtype !== "all" && row?.legacyReplay?.routingSubtype !== replaySubtype) return false;
+    if (replaySpatialMetadata !== "all" && row?.legacyReplay?.spatialResearchContext?.state !== replaySpatialMetadata) return false;
+    if (replaySpatialCalculation !== "all" && row?.legacyReplay?.spatialCalculation?.state !== replaySpatialCalculation) return false;
+    if (replaySpatialCoverage !== "all" && row?.legacyReplay?.spatialCuratedCoverage?.state !== replaySpatialCoverage) return false;
+    if (replaySpatialLane !== "all" && row?.legacyReplay?.spatialReviewLane !== replaySpatialLane) return false;
+    if (replayElsCluster !== "all" && row?.legacyReplay?.elsResearchContext?.clusterKey !== replayElsCluster) return false;
+    if (replayLanguageLane !== "all" && row?.legacyReplay?.languageResearchContext?.reviewLane !== replayLanguageLane) return false;
+    if (replayFormulaCalculation !== "all" && row?.legacyReplay?.formulaCalculation?.state !== replayFormulaCalculation) return false;
+    if (replayFormulaLane !== "all" && row?.legacyReplay?.formulaReviewLane !== replayFormulaLane) return false;
+    if (replayNumericState !== "all" && row?.legacyReplay?.numericStatementContext?.state !== replayNumericState) return false;
+    if (replayNumericLane !== "all" && row?.legacyReplay?.numericReviewLane !== replayNumericLane) return false;
+    if (replayTextualState !== "all" && row?.legacyReplay?.textualStatementContext?.state !== replayTextualState) return false;
+    if (replayTextualLane !== "all" && row?.legacyReplay?.textualReviewLane !== replayTextualLane) return false;
+    if (replaySpatialTextOrigin !== "all" && row?.legacyReplay?.spatialTextOrigin !== replaySpatialTextOrigin) return false;
+    const decision = row?.legacyReplay?.decision;
+    const exactSourceCount = (Number(decision?.sourceLocatorStateCounts?.channel_uuid) || 0)
+      + (Number(decision?.sourceLocatorStateCounts?.channel_uuid_available) || 0);
+    if (replaySource === "exact_source" && !(exactSourceCount > 0)) return false;
+    if (replaySource === "source_locator_repair" && !(Number(decision?.sourceRepairOccurrenceCount) > 0)) return false;
+    if (replayTarget !== "all" && !(Number(decision?.targetStateCounts?.[replayTarget]) > 0)) return false;
+    if (replayTargetEvidence !== "all" && !(Number(decision?.targetEvidenceStateCounts?.[replayTargetEvidence]) > 0)) return false;
+    const pendingContext = row?.legacyReplay?.pendingEngineContext;
+    if (pendingEngineTarget !== "all" && !(Number(pendingContext?.targetStateCounts?.[pendingEngineTarget]) > 0)) return false;
+    if (pendingEngineTargetEvidence !== "all" && !(Number(pendingContext?.targetEvidenceStateCounts?.[pendingEngineTargetEvidence]) > 0)) return false;
     return !query || reviewSearchHaystack(row).includes(query);
   });
 }
@@ -235,10 +311,10 @@ function contentRangeTotal(value, fallback) {
   return Number.isFinite(total) ? total : fallback;
 }
 
-async function fetchRange({ table, select, token, start, end, filters = [], count = false }) {
+async function fetchRange({ table, select, token, start, end, filters = [], count = false, order = "created_at.desc,id.asc" }) {
   const url = new URL(`${SUPABASE_URL}/rest/v1/${table}`);
   url.searchParams.set("select", select);
-  url.searchParams.set("order", "created_at.desc");
+  if (order) url.searchParams.set("order", order);
   for (const [key, value] of filters) url.searchParams.append(key, value);
   const response = await fetch(url, {
     headers: supabaseHeaders(token, {
@@ -258,6 +334,107 @@ async function fetchRange({ table, select, token, start, end, filters = [], coun
   return {
     rows: Array.isArray(rows) ? rows : [],
     total: contentRangeTotal(response.headers.get("content-range"), rows?.length || 0),
+  };
+}
+
+const GEMATRIA_REVIEW_SELECT = [
+  "id", "phrase", "phrase_hint", "is_encrypted", "category", "source", "created_at", "updated_at",
+  "node_id", "is_verified", "is_published", "unverified_reason", "tags",
+  ...WORLD_GEMATRIA_METHOD_COLUMNS.map(({ key }) => key),
+].join(",");
+
+async function buildGematriaReviewResponse(token, req) {
+  const offset = Math.max(0, Math.min(Number(req.query?.offset) || 0, MAX_SOURCE_ROWS));
+  const page = await fetchRange({
+    table: "gematria_words",
+    select: GEMATRIA_REVIEW_SELECT,
+    token,
+    filters: [["is_verified", "eq.false"]],
+    start: offset,
+    end: offset + REVIEW_PAGE - 1,
+    count: true,
+  });
+  const ids = page.rows.map((row) => clean(row?.id)).filter(UUID_RE.test.bind(UUID_RE));
+  let integrityRows = [];
+  let integrityAvailable = true;
+  if (ids.length) {
+    try {
+      const integrity = await fetchRange({
+        table: "gematria_integrity",
+        select: "id,method,stored,engine",
+        token,
+        filters: [["id", `in.(${ids.join(",")})`]],
+        start: 0,
+        end: REVIEW_PAGE * WORLD_GEMATRIA_METHOD_COLUMNS.length - 1,
+        order: null,
+      });
+      integrityRows = integrity.rows;
+    } catch {
+      integrityAvailable = false;
+    }
+  }
+  const rows = projectWorldGematriaReviewRows(page.rows, { integrityRows, integrityAvailable });
+  return {
+    projection: {
+      rows,
+      summary: WORLD_GEMATRIA_REVIEW_SUMMARY,
+      integrityAvailable,
+      rules: {
+        verificationIsNotPublication: true,
+        engineParityIsNotMeaning: true,
+        noAutomaticPromotion: true,
+        noSourceDeletion: true,
+      },
+    },
+    page: {
+      offset,
+      limit: REVIEW_PAGE,
+      returned: rows.length,
+      totalFiltered: page.total,
+      hasMore: offset + rows.length < page.total,
+      nextOffset: offset + rows.length,
+    },
+  };
+}
+
+const INSIGHT_REVIEW_SELECT = [
+  "id", "title", "body", "source_type", "source_ref", "related_numbers", "related_phrases",
+  "tags", "is_active", "created_at", "updated_at", "proof", "proof_method", "category",
+  "evidence_level", "space", "verified",
+].join(",");
+
+async function buildInsightReviewResponse(token, req) {
+  const offset = Math.max(0, Math.min(Number(req.query?.offset) || 0, MAX_SOURCE_ROWS));
+  const page = await fetchRange({
+    table: "insights",
+    select: INSIGHT_REVIEW_SELECT,
+    token,
+    start: offset,
+    end: offset + REVIEW_PAGE - 1,
+    count: true,
+    order: "source_ref.asc.nullsfirst,evidence_level.asc.nullsfirst,verified.asc,is_active.desc,created_at.desc,id.asc",
+  });
+  const rows = projectWorldInsightReviewRows(page.rows);
+  return {
+    projection: {
+      rows,
+      summary: WORLD_INSIGHT_REVIEW_SUMMARY,
+      rules: {
+        sourceIsSeparateFromEvidence: true,
+        evidenceIsSeparateFromVerification: true,
+        activeIsNotPublishedTruth: true,
+        noAutomaticPromotion: true,
+        noSourceDeletion: true,
+      },
+    },
+    page: {
+      offset,
+      limit: REVIEW_PAGE,
+      returned: rows.length,
+      totalFiltered: page.total,
+      hasMore: offset + rows.length < page.total,
+      nextOffset: offset + rows.length,
+    },
   };
 }
 
@@ -335,6 +512,57 @@ function countContributors(rows) {
   return result;
 }
 
+function countLegacyReplayDecisionOccurrences(rows) {
+  const source = { exact_source: 0, source_locator_repair: 0 };
+  const target = {};
+  const targetEvidence = {};
+  let technicallyReady = 0;
+  for (const row of rows) {
+    const decision = row?.legacyReplay?.decision;
+    if (!decision) continue;
+    const occurrenceCount = Number(decision.readyOccurrenceCount) || 0;
+    const repairCount = Number(decision.sourceRepairOccurrenceCount) || 0;
+    technicallyReady += occurrenceCount;
+    source.exact_source += Math.max(0, occurrenceCount - repairCount);
+    source.source_locator_repair += repairCount;
+    for (const [state, count] of Object.entries(decision.targetStateCounts || {})) {
+      target[state] = (target[state] || 0) + (Number(count) || 0);
+    }
+    for (const [state, count] of Object.entries(decision.targetEvidenceStateCounts || {})) {
+      targetEvidence[state] = (targetEvidence[state] || 0) + (Number(count) || 0);
+    }
+  }
+  return Object.freeze({
+    technicallyReady,
+    source: Object.freeze(source),
+    target: Object.freeze(target),
+    targetEvidence: Object.freeze(targetEvidence),
+  });
+}
+
+function countPendingEngineContextOccurrences(rows) {
+  const source = { exact_source: 0, source_locator_repair: 0 };
+  const target = {};
+  const targetEvidence = {};
+  let total = 0;
+  for (const row of rows) {
+    const context = row?.legacyReplay?.pendingEngineContext;
+    if (!context) continue;
+    const occurrenceCount = Number(context.pendingOccurrenceCount) || 0;
+    const repairCount = Number(context.sourceRepairOccurrenceCount) || 0;
+    total += occurrenceCount;
+    source.exact_source += Math.max(0, occurrenceCount - repairCount);
+    source.source_locator_repair += repairCount;
+    for (const [state, count] of Object.entries(context.targetStateCounts || {})) {
+      target[state] = (target[state] || 0) + (Number(count) || 0);
+    }
+    for (const [state, count] of Object.entries(context.targetEvidenceStateCounts || {})) {
+      targetEvidence[state] = (targetEvidence[state] || 0) + (Number(count) || 0);
+    }
+  }
+  return Object.freeze({ total, source: Object.freeze(source), target: Object.freeze(target), targetEvidence: Object.freeze(targetEvidence) });
+}
+
 async function buildAuthorizedProjection(token) {
   const [excludedChannelRows, research, topics] = await Promise.all([
     fetchAllAuthorizedRows({
@@ -375,10 +603,14 @@ async function buildAuthorizedProjection(token) {
   });
   // This endpoint is a findings queue. Topic rows are lookup material for meters,
   // not a second family in the response.
+  const legacyReplayIndex = buildWorldLegacyReplayIndex(scoped.researchObjects);
   const findings = projection.rows
     .filter((row) => row.family === "research_object")
-    .map(enrichWorldFindingReviewRow);
+    .map(enrichWorldFindingReviewRow)
+    .map((row) => attachWorldLegacyReplay(row, legacyReplayIndex));
   const orderedFindings = sortWorldFindingReviewRows(findings, "strength");
+  const replayDecisionCounts = countLegacyReplayDecisionOccurrences(orderedFindings);
+  const pendingEngineCounts = countPendingEngineContextOccurrences(orderedFindings);
   const matchedSnapshotCards = orderedFindings.filter((row) => row.triage).length;
   return {
     ...projection,
@@ -391,12 +623,103 @@ async function buildAuthorizedProjection(token) {
     byAccess: countBy(orderedFindings, "access"),
     byStatus: countBy(orderedFindings, "status"),
     byVerification: countBy(orderedFindings, "verification"),
+    byLegacyReplayState: countBy(
+      orderedFindings.filter((row) => row.legacyReplay)
+        .map((row) => ({ legacyReplayState: row.legacyReplay.state })),
+      "legacyReplayState",
+    ),
+    byLegacyReplaySubtype: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.routingSubtype)
+        .map((row) => ({ replaySubtype: row.legacyReplay.routingSubtype })),
+      "replaySubtype",
+    ),
+    bySpatialResearchMetadataState: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.spatialResearchContext?.state)
+        .map((row) => ({ spatialMetadataState: row.legacyReplay.spatialResearchContext.state })),
+      "spatialMetadataState",
+    ),
+    bySpatialCalculationState: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.spatialCalculation?.state)
+        .map((row) => ({ spatialCalculationState: row.legacyReplay.spatialCalculation.state })),
+      "spatialCalculationState",
+    ),
+    bySpatialCuratedCoverage: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.spatialCuratedCoverage?.state)
+        .map((row) => ({ spatialCuratedCoverage: row.legacyReplay.spatialCuratedCoverage.state })),
+      "spatialCuratedCoverage",
+    ),
+    bySpatialReviewLane: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.spatialReviewLane)
+        .map((row) => ({ spatialReviewLane: row.legacyReplay.spatialReviewLane })),
+      "spatialReviewLane",
+    ),
+    byElsResearchCluster: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.elsResearchContext?.clusterKey)
+        .map((row) => ({ elsResearchCluster: row.legacyReplay.elsResearchContext.clusterKey })),
+      "elsResearchCluster",
+    ),
+    byLanguageResearchLane: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.languageResearchContext?.reviewLane)
+        .map((row) => ({ languageResearchLane: row.legacyReplay.languageResearchContext.reviewLane })),
+      "languageResearchLane",
+    ),
+    byFormulaCalculationState: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.formulaCalculation?.state)
+        .map((row) => ({ formulaCalculationState: row.legacyReplay.formulaCalculation.state })),
+      "formulaCalculationState",
+    ),
+    byFormulaReviewLane: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.formulaReviewLane)
+        .map((row) => ({ formulaReviewLane: row.legacyReplay.formulaReviewLane })),
+      "formulaReviewLane",
+    ),
+    byNumericStatementState: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.numericStatementContext?.state)
+        .map((row) => ({ numericStatementState: row.legacyReplay.numericStatementContext.state })),
+      "numericStatementState",
+    ),
+    byNumericReviewLane: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.numericReviewLane)
+        .map((row) => ({ numericReviewLane: row.legacyReplay.numericReviewLane })),
+      "numericReviewLane",
+    ),
+    byTextualStatementState: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.textualStatementContext?.state)
+        .map((row) => ({ textualStatementState: row.legacyReplay.textualStatementContext.state })),
+      "textualStatementState",
+    ),
+    byTextualReviewLane: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.textualReviewLane)
+        .map((row) => ({ textualReviewLane: row.legacyReplay.textualReviewLane })),
+      "textualReviewLane",
+    ),
+    bySpatialTextOrigin: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.spatialTextOrigin)
+        .map((row) => ({ spatialTextOrigin: row.legacyReplay.spatialTextOrigin })),
+      "spatialTextOrigin",
+    ),
+    technicallyReadyReplayOccurrences: replayDecisionCounts.technicallyReady,
+    byLegacyReplaySourceReadiness: replayDecisionCounts.source,
+    byLegacyReplayTargetReadiness: replayDecisionCounts.target,
+    byLegacyReplayTargetEvidence: replayDecisionCounts.targetEvidence,
+    pendingEngineReviewOccurrences: pendingEngineCounts.total,
+    byPendingEngineSourceReadiness: pendingEngineCounts.source,
+    byPendingEngineTargetReadiness: pendingEngineCounts.target,
+    byPendingEngineTargetEvidence: pendingEngineCounts.targetEvidence,
     byContributor: countContributors(orderedFindings),
     byTriageStrength: countBy(
       orderedFindings.filter((row) => row.triage).map((row) => ({ strength: row.triage.strength })),
       "strength",
     ),
-    byTriageRecommendation: WORLD_FINDING_TRIAGE_META.recommendationCounts,
+    byTriageRecommendation: countBy(
+      orderedFindings.filter((row) => row.triage).map((row) => ({ recommendation: row.triage.recommendation })),
+      "recommendation",
+    ),
+    byContinuationState: countBy(
+      orderedFindings.filter((row) => row.triage?.continuationState)
+        .map((row) => ({ continuationState: row.triage.continuationState })),
+      "continuationState",
+    ),
     byEvidenceQuality: countBy(
       orderedFindings.map((row) => ({ evidenceQualityBand: row.evidenceQuality?.band || "unrated" })),
       "evidenceQualityBand",
@@ -412,6 +735,7 @@ async function buildAuthorizedProjection(token) {
       matchedCards: matchedSnapshotCards,
       untriagedLiveCards: orderedFindings.length - matchedSnapshotCards,
     },
+    corpusAudit: WORLD_CORPUS_TRIAGE_AUDIT,
   };
 }
 
@@ -437,9 +761,31 @@ function pageResponse(projection, req, contributorScope = null) {
     meter: queryValue(req, "meter"),
     strength: queryValue(req, "strength"),
     recommendation: queryValue(req, "recommendation"),
+    continuation: queryValue(req, "continuation"),
     quality: queryValue(req, "quality"),
     topic: queryValue(req, "topic"),
     source: queryValue(req, "source"),
+    replay: queryValue(req, "replay"),
+    replayQueue: queryValue(req, "replay_queue"),
+    replaySubtype: queryValue(req, "replay_subtype"),
+    replaySpatialMetadata: queryValue(req, "replay_spatial_metadata"),
+    replaySpatialCalculation: queryValue(req, "replay_spatial_calculation"),
+    replaySpatialCoverage: queryValue(req, "replay_spatial_coverage"),
+    replaySpatialLane: queryValue(req, "replay_spatial_lane"),
+    replayElsCluster: queryValue(req, "replay_els_cluster"),
+    replayLanguageLane: queryValue(req, "replay_language_lane"),
+    replayFormulaCalculation: queryValue(req, "replay_formula_calculation"),
+    replayFormulaLane: queryValue(req, "replay_formula_lane"),
+    replayNumericState: queryValue(req, "replay_numeric_state"),
+    replayNumericLane: queryValue(req, "replay_numeric_lane"),
+    replayTextualState: queryValue(req, "replay_textual_state"),
+    replayTextualLane: queryValue(req, "replay_textual_lane"),
+    replaySpatialTextOrigin: queryValue(req, "replay_spatial_text_origin"),
+    replaySource: queryValue(req, "replay_source"),
+    replayTarget: queryValue(req, "replay_target"),
+    replayTargetEvidence: queryValue(req, "replay_target_evidence"),
+    pendingEngineTarget: queryValue(req, "pending_engine_target"),
+    pendingEngineTargetEvidence: queryValue(req, "pending_engine_target_evidence"),
   };
   const filtered = filterWorldFindingReviewRows(projection.rows, filters);
   const ordered = sortWorldFindingReviewRows(filtered, queryValue(req, "sort", "strength"));
@@ -447,6 +793,8 @@ function pageResponse(projection, req, contributorScope = null) {
   const { rows: _allRows, convergenceCandidates: _candidates, ...summary } = projection;
   if (contributorScope) {
     const triaged = filtered.filter((row) => row.triage);
+    const replayDecisionCounts = countLegacyReplayDecisionOccurrences(filtered);
+    const pendingEngineCounts = countPendingEngineContextOccurrences(filtered);
     summary.corpusTriageSnapshot = summary.triageSnapshot;
     summary.triageSnapshot = {
       snapshotDate: WORLD_FINDING_TRIAGE_META.snapshotDate,
@@ -456,6 +804,7 @@ function pageResponse(projection, req, contributorScope = null) {
       untriagedLiveCards: filtered.length - triaged.length,
       strengthCounts: countBy(triaged.map((row) => ({ strength: row.triage.strength })), "strength"),
       recommendationCounts: countBy(triaged.map((row) => ({ recommendation: row.triage.recommendation })), "recommendation"),
+      strongContinuation: WORLD_FINDING_TRIAGE_META.strongContinuation,
     };
     summary.treeMatchedResearchOccurrences = filtered
       .filter((row) => row.treeMatches?.length)
@@ -469,6 +818,14 @@ function pageResponse(projection, req, contributorScope = null) {
       occurrencesCombined: filtered.reduce((sum, row) => sum + Number(row.duplicateOccurrenceCount || 0), 0),
       clusteredResearchRows: filtered.length,
     };
+    summary.technicallyReadyReplayOccurrences = replayDecisionCounts.technicallyReady;
+    summary.byLegacyReplaySourceReadiness = replayDecisionCounts.source;
+    summary.byLegacyReplayTargetReadiness = replayDecisionCounts.target;
+    summary.byLegacyReplayTargetEvidence = replayDecisionCounts.targetEvidence;
+    summary.pendingEngineReviewOccurrences = pendingEngineCounts.total;
+    summary.byPendingEngineSourceReadiness = pendingEngineCounts.source;
+    summary.byPendingEngineTargetReadiness = pendingEngineCounts.target;
+    summary.byPendingEngineTargetEvidence = pendingEngineCounts.targetEvidence;
     summary.reviewScope = contributorScope;
   }
   return {
@@ -496,6 +853,12 @@ export default async function handler(req, res) {
   try {
     const user = await verifyAdmin(token);
     if (!user) return res.status(403).json({ error: "admin_required" });
+    if (queryValue(req, "mode", "findings") === "gematria") {
+      return res.status(200).json(await buildGematriaReviewResponse(token, req));
+    }
+    if (queryValue(req, "mode", "findings") === "insights") {
+      return res.status(200).json(await buildInsightReviewResponse(token, req));
+    }
     const contributorId = queryValue(req, "contributor_id", "");
     const contributorScope = contributorId ? await resolveContributorScope(token, contributorId) : null;
     const projection = await buildAuthorizedProjection(token);

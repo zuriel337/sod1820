@@ -66,8 +66,15 @@ export function buildZviSpatialWorldProjection(models = SPATIAL_MODELS) {
     counts: {
       models: cards.length,
       sourceOccurrences: cards.reduce((sum, card) => sum + card.source.occurrenceCount, 0),
+      exactSourceOccurrences: cards.reduce((sum, card) => sum + card.source.locators.filter((locator) => locator.exact).length, 0),
+      historicalSourceOccurrences: cards.reduce((sum, card) => sum + card.source.locators.filter((locator) => !locator.exact).length, 0),
       withImage: cards.filter((card) => card.image).length,
       multiPath: cards.filter((card) => card.pathCount > 1).length,
+    },
+    coverage: {
+      kind: "curated_showcase",
+      completeCorpus: false,
+      label: "מבחר מבנים מאוצר · לא כל קורפוס המרחבים",
     },
     rules: {
       truthLayers: ["source", "gematria", "mathematical_structure", "spatial_form", "interpretation"],

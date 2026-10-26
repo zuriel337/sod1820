@@ -1,0 +1,738 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  attachWorldLegacyReplay,
+  buildWorldLegacyReplayIndex,
+  classifyWorldLegacyReplayDecision,
+  classifyWorldMissingEngineContext,
+  classifyWorldMissingEngineStatement,
+  projectWorldLegacyReplayOccurrence,
+  replayWorldArithmeticExpression,
+  replayWorldCompoundEnvelope,
+  replayWorldLegacyMethodMatrix,
+  verifyWorldConstantStatement,
+  verifyWorldSpatialQuantityProduct,
+} from "../src/lib/research/worldLegacyReplayProjection.js";
+
+const id = (digit) => `${digit.repeat(8)}-${digit.repeat(4)}-4${digit.repeat(3)}-8${digit.repeat(3)}-${digit.repeat(12)}`;
+
+function row(overrides = {}) {
+  return {
+    id: id("1"),
+    engine_verified: true,
+    engine_detail: { verification: { method: "רגיל", phrase: "חיים", claimed: 68, computed: 68 } },
+    source_ref: `channel_updates:${id("a")}`,
+    ...overrides,
+  };
+}
+
+test("canonical regular replay separates a technical match from live verification", () => {
+  const replay = projectWorldLegacyReplayOccurrence(row());
+  assert.equal(replay.state, "deterministic_match");
+  assert.equal(replay.replayComputed, 68);
+  assert.equal(replay.sourceLocatorState, "channel_uuid");
+  assert.equal(replay.verificationState, undefined);
+
+  const mismatch = projectWorldLegacyReplayOccurrence(row({
+    id: id("2"),
+    engine_detail: { verification: { method: "רגיל", phrase: "חיים", claimed: 69, computed: 69 } },
+  }));
+  assert.equal(mismatch.state, "deterministic_mismatch");
+  assert.equal(mismatch.replayComputed, 68);
+});
+
+test("mixed input and incomplete envelopes fail into separate review queues", () => {
+  assert.equal(projectWorldLegacyReplayOccurrence(row({
+    engine_detail: { verification: { method: "רגיל", phrase: "חיים 68", claimed: 68, computed: 68 } },
+  })).state, "mixed_input_match");
+  assert.equal(projectWorldLegacyReplayOccurrence(row({
+    engine_detail: { verification: { kind: "arithmetic", text: "37 × 73 = 2701", ok: true } },
+  })).state, "arithmetic_unsupported");
+  assert.equal(projectWorldLegacyReplayOccurrence(row({ engine_detail: { compound: { status: "ENGINE_VERIFIED_COMPOSITE" } } })).state, "compound_unsupported");
+  assert.equal(projectWorldLegacyReplayOccurrence(row({ engine_detail: { "חיים": 68 } })).state, "legacy_matrix_unsupported");
+});
+
+test("addition replay verifies both arithmetic and explicit Hebrew operands", () => {
+  const numeric = replayWorldArithmeticExpression("119 + 119 = 238", true);
+  assert.equal(numeric.state, "arithmetic_match");
+  assert.equal(numeric.replayComputed, 238);
+  assert.equal(numeric.operandCount, 2);
+
+  const phrases = replayWorldArithmeticExpression("רזא(208) + שבת(702) = 910", true);
+  assert.equal(phrases.state, "arithmetic_match");
+  assert.deepEqual(phrases.operandChecks.map((operand) => operand.replayComputed), [208, 702]);
+
+  assert.equal(replayWorldArithmeticExpression("רזא(209) + שבת(702) = 911", true).state, "arithmetic_envelope_mismatch");
+  assert.equal(replayWorldArithmeticExpression("37 × 73 = 2701", true).state, "arithmetic_unsupported");
+});
+
+test("compound replay covers canonical product and sum families", () => {
+  const samples = [
+    {
+      raw: "6 ×טוב(17) =102", kind: "quantity-product", text: "6 ×טוב(17) =102",
+      quantity: 6, operand: { phrase: "טוב", value: 17, method: "רגיל", ok: true, status: "verified" },
+      result: 102, computedTotal: 102, status: "ENGINE_VERIFIED_COMPOSITE",
+    },
+    {
+      raw: "א-הי-ה(21) × א-הי-ה(21)=441", kind: "two-phrase-product", text: "א-הי-ה(21) × א-הי-ה(21)=441",
+      operands: [
+        { phrase: "א-הי-ה", value: 21, method: "רגיל", ok: true, status: "verified" },
+        { phrase: "א-הי-ה", value: 21, method: "רגיל", ok: true, status: "verified" },
+      ], result: 441, computedTotal: 441, status: "ENGINE_VERIFIED_COMPOSITE",
+    },
+    {
+      raw: "21×21 =אמת", kind: "number-product-equals-phrase", text: "21×21 =אמת", a: 21, b: 21,
+      operand: { phrase: "אמת", value: 441, method: "רגיל", ok: true, status: "verified" },
+      computedTotal: 441, status: "ENGINE_VERIFIED_COMPOSITE",
+    },
+    {
+      raw: "עין+עין+ציצת=130+130+590=850", kind: "phrase-sum-chain", text: "עין+עין+ציצת=130+130+590=850",
+      operands: [
+        { phrase: "עין", value: 130, method: "רגיל", ok: true, status: "verified" },
+        { phrase: "עין", value: 130, method: "רגיל", ok: true, status: "verified" },
+        { phrase: "ציצת", value: 590, method: "רגיל", ok: true, status: "verified" },
+      ], numbers: [130, 130, 590], sum: 850, result: 850, status: "ENGINE_VERIFIED_COMPOSITE",
+    },
+  ];
+  for (const sample of samples) {
+    const replay = replayWorldCompoundEnvelope(sample);
+    assert.equal(replay.state, "compound_match", sample.kind);
+    assert.equal(replay.envelopeMatches, true, sample.kind);
+  }
+});
+
+test("general chains replay through the canonical extractor and unresolved methods remain blocked", () => {
+  const general = replayWorldCompoundEnvelope({
+    raw: "10 × 102 = 1020", kind: "general-chain", text: "10 × 102 = 1020", result: 1020,
+    operands: [], linkCount: 2, linkValues: [1020, 1020], computedTotal: 1020,
+    status: "ENGINE_VERIFIED_COMPOSITE",
+  });
+  assert.equal(general.state, "compound_match");
+  assert.equal(general.replayComputed, 1020);
+
+  const unresolved = replayWorldCompoundEnvelope({
+    raw: "א+יב\"ק=1000+112=1112", kind: "phrase-sum-chain", text: "א+יב\"ק=1000+112=1112",
+    operands: [
+      { phrase: "א", value: 1000, method: null, ok: false, status: "METHOD_UNRESOLVED" },
+      { phrase: "יבק", value: 112, method: "רגיל", ok: true, status: "verified" },
+    ], numbers: [1000, 112], sum: 1112, result: 1112, status: "METHOD_UNRESOLVED",
+  });
+  assert.equal(unresolved.state, "compound_method_unresolved");
+  assert.equal(unresolved.envelopeMatches, true);
+  assert.equal(replayWorldCompoundEnvelope({ kind: "general-chain", text: "טקסט לא נתמך" }).state, "compound_unsupported");
+});
+
+test("explicit verification envelopes stay separate from replay and expose internal conflicts", () => {
+  const exact = projectWorldLegacyReplayOccurrence(row({
+    engine_detail: { verification_state: "match", claimed_expression: "חיים", claimed_value: 68 },
+  }));
+  assert.equal(exact.state, "explicit_match");
+  assert.equal(exact.explicitVerificationState, "match");
+  assert.equal(exact.replayComputed, null);
+
+  const numeric = projectWorldLegacyReplayOccurrence(row({
+    engine_detail: { verification_state: "match_numeric_only" },
+  }));
+  assert.equal(numeric.state, "explicit_numeric_match");
+
+  const review = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: { verification_state: "partial_match_with_mismatch" },
+  }));
+  assert.equal(review.state, "explicit_review_required");
+
+  const conflict = projectWorldLegacyReplayOccurrence(row({
+    engine_detail: { verification_state: "mismatch" },
+  }));
+  assert.equal(conflict.state, "explicit_state_conflict");
+});
+
+test("explicit verification attaches outside the legacy-signal queue without changing live truth", () => {
+  const explicit = row({ engine_detail: { verification_state: "match" } });
+  const projected = attachWorldLegacyReplay({
+    id: `research:${explicit.id}`,
+    sourceId: explicit.id,
+    verification: "match",
+    occurrences: [{ id: `research:${explicit.id}`, sourceId: explicit.id }],
+  }, buildWorldLegacyReplayIndex([explicit]));
+  assert.equal(projected.legacyReplay.state, "explicit_match");
+  assert.equal(projected.legacyReplay.mutatesLiveData, false);
+});
+
+test("legacy method matrices replay canonical methods without treating parity as claim truth", () => {
+  const matrix = {
+    "חיים": {
+      "רגיל": 68,
+      "מילוי": 538,
+      "מסתתר": 32,
+      "קדמי": 291,
+      "אלבם": 702,
+      "מהמאגר": true,
+      "כל_הערכים": [32, 68, 291, 538, 702],
+    },
+  };
+  const matched = replayWorldLegacyMethodMatrix(matrix, true);
+  assert.equal(matched.state, "legacy_matrix_match");
+  assert.equal(matched.phraseCount, 1);
+  assert.equal(matched.checkedMethodCount, 5);
+  assert.equal(matched.mismatchCount, 0);
+
+  const unmatchedClaim = replayWorldLegacyMethodMatrix(matrix, false);
+  assert.equal(unmatchedClaim.state, "legacy_matrix_claim_unmatched");
+  assert.equal(unmatchedClaim.engineVerified, false);
+  assert.equal(projectWorldLegacyReplayOccurrence(row({ engine_verified: false, engine_detail: matrix })).state, "legacy_matrix_claim_unmatched");
+
+  const mismatch = replayWorldLegacyMethodMatrix({ "חיים": { "רגיל": 69 } }, true);
+  assert.equal(mismatch.state, "legacy_matrix_mismatch");
+  assert.equal(mismatch.mismatchCount, 1);
+  assert.equal(mismatch.mismatches[0].replayComputed, 68);
+
+  const fullMatrix = replayWorldLegacyMethodMatrix({
+    "מקל": {
+      "אלבם": 11, "אתבש": 34, "גדול": 170, "קדמי": 845, "רגיל": 170,
+      "הכפלה": 12500, "מילוי": 340, "מסתתר": 130, "ריבוע": 350, "סידורי": 44,
+      "קדמי_גדול": 845, "הכפלה_גדול": 12500, "ריבוע_גדול": 350,
+      "אותיות_אחרי": 290, "אותיות_לפני": 140, "מילוי_דמילוי": 1037,
+      "מהמאגר": true,
+    },
+  }, true);
+  assert.equal(fullMatrix.state, "legacy_matrix_match");
+  assert.equal(fullMatrix.checkedMethodCount, 16);
+});
+
+test("legacy non-matrix payloads remain blocked by their precise reason", () => {
+  assert.equal(replayWorldLegacyMethodMatrix({ method: "רגיל", computed: 1020 }, true).state, "legacy_incomplete_method_envelope");
+  assert.equal(replayWorldLegacyMethodMatrix({ channel: "source", saved_from: "pipeline" }, false).state, "legacy_source_metadata_only");
+  assert.equal(replayWorldLegacyMethodMatrix({ note: "unknown" }, false).state, "legacy_matrix_unsupported");
+});
+
+test("missing engine detail separates an explicit negative from no assessment", () => {
+  const unverified = projectWorldLegacyReplayOccurrence(row({ engine_verified: false, engine_detail: null, statement: "קובייה תלת ממדית 1820" }));
+  assert.equal(unverified.state, "missing_engine_detail_unverified");
+  assert.equal(unverified.sourceLocatorState, "channel_uuid");
+  assert.equal(unverified.routingQueue, "spatial_or_constants");
+
+  const unassessed = projectWorldLegacyReplayOccurrence(row({ engine_verified: null, engine_detail: {}, statement: "170 + 650 = 820" }));
+  assert.equal(unassessed.state, "missing_engine_assessment");
+  assert.equal(unassessed.engineVerified, false);
+  assert.equal(unassessed.routingQueue, "formula");
+});
+
+test("missing-engine routing uses explicit text markers without claiming verification", () => {
+  assert.equal(classifyWorldMissingEngineStatement("קובייה תלת ממדית 1820").queue, "spatial_or_constants");
+  assert.equal(classifyWorldMissingEngineStatement("קובייה תלת ממדית 1820").subtype, "cubes");
+  assert.equal(classifyWorldMissingEngineStatement("הערך e בחזקת e מתקרב ל־15.15").queue, "constants_or_sequences");
+  assert.equal(classifyWorldMissingEngineStatement("הערך e בחזקת e מתקרב ל־15.15").subtype, "euler_e");
+  assert.equal(classifyWorldMissingEngineStatement("רצף המספרים 1-2-3-4").queue, "constants_or_sequences");
+  assert.equal(classifyWorldMissingEngineStatement("π קרוב ל־3.14").subtype, "pi");
+  assert.equal(classifyWorldMissingEngineStatement("עשרימון בעל עשרים פאות").subtype, "polyhedra_and_pyramids");
+  assert.equal(classifyWorldMissingEngineStatement("מעגל סביב המספר").subtype, "circles_and_spheres");
+  assert.equal(classifyWorldMissingEngineStatement("ציר במרחב תלת ממדי").subtype, "space_and_axes");
+  assert.equal(classifyWorldMissingEngineStatement("שלושה צירים במבנה").queue, "spatial_or_constants");
+  assert.equal(classifyWorldMissingEngineStatement("הצירוף המשותף בין ארבע מילים").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("קציר חטים קשור לשבועות").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("הטענה סוגרת מעגל רעיוני").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("זאת סגירת המעגל עם המקור הקודם").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("צירופי החודשים יוצאים מציר").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("מעגל פנימי בתוך מחומש").subtype, "circles_and_spheres");
+  assert.equal(classifyWorldMissingEngineStatement("שלוש מילים מופיעות ברצף").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("שלוש מילים מופיעות ברצף").subtype, null);
+  assert.equal(classifyWorldMissingEngineStatement("צופן בדילוג 1820").queue, "els_or_cipher");
+  assert.equal(classifyWorldMissingEngineStatement("תרגום לאנגלית").queue, "language");
+  assert.equal(classifyWorldMissingEngineStatement("המספר 1820 מופיע כאן").queue, "numeric_statement");
+  assert.equal(classifyWorldMissingEngineStatement("הקשר מתואר במקור").queue, "textual_statement");
+});
+
+test("spatial routing exposes only stored spatial identity fields and marks incomplete metadata", () => {
+  const complete = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה תלת ממדית",
+    meta: { ext: { spatial_research: {
+      classification: "spatial_gematria",
+      cluster: "cube-1",
+      role: "STRUCTURAL_3D",
+      research_focus_key: "zvi:spatial:cube-1",
+      source_ref: "channel_updates:10000000-0000-4000-8000-000000000001",
+    } } },
+  }));
+  assert.equal(complete.spatialResearchContext.state, "complete");
+  assert.equal(complete.spatialResearchContext.inferred, false);
+
+  const missing = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה תלת ממדית",
+    meta: {},
+  }));
+  assert.equal(missing.spatialResearchContext.state, "missing");
+  assert.equal(missing.spatialResearchContext.cluster, null);
+});
+
+test("spatial routing reuses the canonical compound parser without promoting the finding", () => {
+  const verified = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קוביית אמונה: 6 ×אמונה(102)=612",
+    meta: {},
+  }));
+  assert.equal(verified.spatialCalculation.state, "verified");
+  assert.equal(verified.spatialCalculation.claimCount, 1);
+  assert.equal(verified.spatialCalculation.claims[0].computed, 612);
+  assert.equal(verified.spatialCalculation.verifiesCalculationOnly, true);
+  assert.equal(verified.spatialCalculation.mutatesLiveData, false);
+  assert.equal(verified.engineVerified, false);
+
+  const descriptive = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "הקובייה מתוארת כמבנה רוחני",
+    meta: {},
+  }));
+  assert.equal(descriptive.spatialCalculation.state, "not_detected");
+  assert.equal(descriptive.spatialCalculation.claimCount, 0);
+
+  const ocr = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "OCR מהמדיה:\nקובייה בעלת שש פאות",
+    meta: {},
+  }));
+  assert.equal(ocr.contentSignals.ocrDerived, true);
+  assert.equal(ocr.spatialTextOrigin, "ocr_derived");
+  assert.equal(descriptive.spatialTextOrigin, "not_marked_ocr");
+});
+
+test("spatial routing reports curated coverage only from an exact stored source ref", () => {
+  const represented = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה: 6 ×אמונה(102)=612",
+    source_ref: "channel_updates:aa5276b4-6246-4334-8d96-5e8111ccff0c",
+  }));
+  assert.equal(represented.spatialCuratedCoverage.state, "represented");
+  assert.equal(represented.spatialCuratedCoverage.matchBasis, "exact_source_ref");
+  assert.deepEqual(represented.spatialCuratedCoverage.modelSlugs, ["emunah-cube-612"]);
+  assert.equal(represented.spatialCuratedCoverage.inferred, false);
+  assert.equal(represented.spatialReviewLane, "represented_source");
+
+  const unrepresented = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה: 6 ×אמונה(102)=612",
+    source_ref: "channel_updates:10000000-0000-4000-8000-000000000099",
+  }));
+  assert.equal(unrepresented.spatialCuratedCoverage.state, "not_represented");
+  assert.equal(unrepresented.spatialCuratedCoverage.matchBasis, "none");
+  assert.deepEqual(unrepresented.spatialCuratedCoverage.modelSlugs, []);
+  assert.equal(unrepresented.spatialReviewLane, "calculation_review");
+});
+
+test("spatial quantity products verify arithmetic without treating a shape count as gematria", () => {
+  const statement = "בתצורת עשרימון: עשרים(20) × \"אל\"(31)=כתר[620]";
+  const check = verifyWorldSpatialQuantityProduct(statement);
+  assert.equal(check.state, "exact_match");
+  assert.equal(check.quantityLabel, "עשרים");
+  assert.equal(check.quantity, 20);
+  assert.equal(check.operandPhrase, "אל");
+  assert.equal(check.computed, 620);
+  assert.equal(check.verifiesGeometry, false);
+  assert.equal(check.verifiesQuantitySource, false);
+
+  const replay = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: `עשרימון ${statement}`,
+  }));
+  assert.equal(replay.spatialCalculation.state, "verified_quantity");
+  assert.equal(replay.spatialCalculation.quantityCheck.computed, 620);
+  assert.equal(replay.engineVerified, false);
+
+  const mismatch = verifyWorldSpatialQuantityProduct("עשרימון: עשרים(20) × אל(31)=כתר[621]");
+  assert.equal(mismatch.state, "exact_mismatch");
+  assert.equal(mismatch.computed, 620);
+
+  const wordCount = verifyWorldSpatialQuantityProduct("קובייה: 180× שש פאות=1080");
+  assert.equal(wordCount.kind, "hebrew_count_product");
+  assert.equal(wordCount.state, "exact_match");
+  assert.equal(wordCount.quantity, 6);
+  assert.equal(wordCount.operandValue, 180);
+  const wordReplay = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה: 180× שש פאות=1080",
+  }));
+  assert.equal(wordReplay.spatialCalculation.state, "verified_quantity");
+  assert.equal(wordReplay.spatialReviewLane, "quantity_review");
+});
+
+test("constant replay distinguishes exact sums, rounded constants and unsupported source claims", () => {
+  const ePower = verifyWorldConstantStatement("הערך המספרי e בחזקת e מתקרב ל־15.15");
+  assert.equal(ePower.state, "rounded_match");
+  assert.equal(ePower.expression, "e^e");
+  assert.equal(ePower.roundedComputed, 15.15);
+  assert.equal(ePower.isApproximation, true);
+
+  const ePi = verifyWorldConstantStatement("נטען כי e^π ≈ 23.14");
+  assert.equal(ePi.state, "rounded_match");
+  assert.equal(ePi.roundedComputed, 23.14);
+
+  const piPower = verifyWorldConstantStatement("הערך המספרי π בחזקת π מתקרב ל-36.46");
+  assert.equal(piPower.state, "rounded_match");
+  assert.equal(piPower.roundedComputed, 36.46);
+
+  const sequence = verifyWorldConstantStatement("רצף המספרים 1-2-3-4 (שסכומם 10)");
+  assert.equal(sequence.state, "exact_match");
+  assert.equal(sequence.computed, 10);
+  assert.equal(sequence.isApproximation, false);
+
+  const unsupported = verifyWorldConstantStatement("משוואה של e ו-π שואפת לערך 20");
+  assert.equal(unsupported.state, "unsupported_expression");
+  assert.equal(unsupported.computed, null);
+  assert.equal(unsupported.mutatesLiveData, false);
+});
+
+test("ELS research routing groups exact reviewed sources without claiming replay identity", () => {
+  const clustered = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "question",
+    statement: "האם הדילוג של תשפ״ז 633 חוזר בתורה?",
+    source_ref: "channel_updates:aa785ea8-50eb-4255-ae6f-ba458382ee4d",
+  }));
+  assert.equal(clustered.routingQueue, "els_or_cipher");
+  assert.equal(clustered.elsResearchContext.clusterKey, "tashpaz_633");
+  assert.equal(clustered.elsResearchContext.declaredSkip, 633);
+  assert.equal(clustered.elsResearchContext.reviewRole, "interpretation_or_question");
+  assert.equal(clustered.elsResearchContext.replayIdentityState, "partial_identity");
+  assert.equal(clustered.elsResearchContext.inferred, false);
+  assert.equal(clustered.elsResearchContext.countsAsIndependentSource, false);
+
+  const verseStride = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "observation",
+    statement: "רחל מבכה בדילוג 1503 פסוקים",
+    source_ref: "channel_updates:812ecd29-d277-4247-b66d-c1cdc52c1b31",
+  }));
+  assert.equal(verseStride.elsResearchContext.methodFamily, "verse_stride");
+  assert.equal(verseStride.elsResearchContext.replayIdentityState, "different_method_family");
+});
+
+test("language routing separates a repeated narrative source from a language bridge", () => {
+  const duplicate = projectWorldLegacyReplayOccurrence(row({
+    id: "b5fc2bc6-1d0d-4bd9-8abf-57b0c0b4b992",
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "כתבי הרונות הם שפה עתיקה; הרמיוני מתרגמת את הספר לאנגלית",
+    source_ref: "channel_updates:188214ea-658f-4b70-9005-8fffbcb8ae81",
+  }));
+  assert.equal(duplicate.routingQueue, "language");
+  assert.equal(duplicate.languageResearchContext.clusterKey, "harry_potter_ancient_runes");
+  assert.equal(duplicate.languageResearchContext.reviewLane, "duplicate_source_text");
+  assert.equal(duplicate.languageResearchContext.bridgeEligibility, "not_language_bridge");
+  assert.equal(duplicate.languageResearchContext.displayRepresentativeId, "b1d78f6b-cebe-421f-9f58-377232554320");
+  assert.equal(duplicate.languageResearchContext.independentEvidenceCount, 0);
+  assert.equal(duplicate.languageResearchContext.inferred, false);
+
+  const relation = projectWorldLegacyReplayOccurrence(row({
+    id: "2f96d7f6-c271-4676-9eb3-c9ca317cbc81",
+    engine_verified: null,
+    engine_detail: null,
+    kind: "relation",
+    statement: "תרגום הרמיוני את ספר הרונות חושף קשר עלילתי",
+    source_ref: "channel_updates:82de1c00-ec3d-4466-bdfe-aaa2d8b694d6",
+  }));
+  assert.equal(relation.languageResearchContext.reviewLane, "derived_relation_review");
+  assert.equal(relation.languageResearchContext.reviewRole, "extracted_relation");
+
+  const unknown = projectWorldLegacyReplayOccurrence(row({
+    id: id("9"),
+    engine_verified: null,
+    engine_detail: null,
+    statement: "תרגום לאנגלית דורש מקור",
+    source_ref: `channel_updates:${id("9")}`,
+  }));
+  assert.equal(unknown.routingQueue, "language");
+  assert.equal(unknown.languageResearchContext, null);
+});
+
+test("formula routing reuses the canonical extractor and separates links from calculations", () => {
+  const verified = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "fact",
+    statement: "714+73=787",
+  }));
+  assert.equal(verified.routingQueue, "formula");
+  assert.equal(verified.formulaCalculation.state, "verified");
+  assert.equal(verified.formulaCalculation.usesCanonicalExtractor, true);
+  assert.equal(verified.formulaCalculation.verifiesCalculationOnly, true);
+  assert.equal(verified.formulaReviewLane, "expression_review");
+
+  const mismatch = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "fact",
+    statement: "714+73=788",
+  }));
+  assert.equal(mismatch.formulaCalculation.state, "mismatch");
+
+  const sourceUrl = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "https://youtu.be/GrK04RoJzbY?si=9AhgEb_gAybRVp7M",
+  }));
+  assert.equal(sourceUrl.routingQueue, "formula");
+  assert.equal(sourceUrl.formulaCalculation.state, "not_formula_url");
+  assert.equal(sourceUrl.formulaReviewLane, "source_url_cleanup");
+
+  const interpretation = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "hypothesis",
+    statement: "ייתכן שהמבנה 156=12×13 מרמז על אחדות",
+  }));
+  assert.equal(interpretation.formulaReviewLane, "interpretation_review");
+});
+
+test("numeric routing separates structured values from mentions without inventing arithmetic", () => {
+  const matched = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "observation",
+    statement: "הערך 585 מופיע בשני ביטויים",
+    value: 585,
+  }));
+  assert.equal(matched.routingQueue, "numeric_statement");
+  assert.equal(matched.numericStatementContext.state, "structured_value_matches_literal");
+  assert.deepEqual(matched.numericStatementContext.literals, [585]);
+  assert.equal(matched.numericStatementContext.verifiesCalculation, false);
+  assert.equal(matched.numericReviewLane, "structured_value_review");
+
+  const mention = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "האירוע תועד בשנת 2026",
+    value: null,
+  }));
+  assert.equal(mention.numericStatementContext.state, "numbers_without_structured_value");
+  assert.equal(mention.numericReviewLane, "numeric_context_review");
+
+  const sourceUrl = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "https://example.test/video/12345",
+  }));
+  assert.equal(sourceUrl.routingQueue, "numeric_statement");
+  assert.equal(sourceUrl.numericStatementContext.state, "not_numeric_claim_url");
+  assert.equal(sourceUrl.numericReviewLane, "source_url_cleanup");
+
+  const interpretation = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "question",
+    statement: "האם 585 קשור לנושא?",
+  }));
+  assert.equal(interpretation.numericReviewLane, "interpretation_review");
+});
+
+test("textual routing preserves claim type, evidence structure and proposed targets separately", () => {
+  const hypothesis = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "hypothesis",
+    statement: "ייתכן שהקשר מרמז על אירוע עתידי",
+    terms: ["אירוע"],
+    relates: ["רמז"],
+    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "topic", key: "event" }] } } },
+  }));
+  assert.equal(hypothesis.routingQueue, "textual_statement");
+  assert.equal(hypothesis.textualStatementContext.state, "interpretation_hypothesis");
+  assert.equal(hypothesis.textualStatementContext.termCount, 1);
+  assert.equal(hypothesis.textualStatementContext.relationCount, 1);
+  assert.equal(hypothesis.textualStatementContext.structuredTargetCount, 1);
+  assert.equal(hypothesis.textualStatementContext.calculationApplicable, false);
+  assert.equal(hypothesis.textualReviewLane, "interpretation_review");
+
+  const ocr = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "OCR מהמדיה: טקסט חזותי לבדיקה",
+    meta: { ext: { wa_channel_intake: { media_ref: "https://example.test/source.jpg", tree_matches: [] } } },
+  }));
+  assert.equal(ocr.textualStatementContext.ocrDerived, true);
+  assert.equal(ocr.textualStatementContext.hasMedia, true);
+  assert.equal(ocr.textualReviewLane, "ocr_text_review");
+
+  const treeTarget = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "observation",
+    statement: "תצפית מקורית ללא טענה חישובית",
+    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "topic", key: "documented" }] } } },
+  }));
+  assert.equal(treeTarget.textualStatementContext.state, "source_observation");
+  assert.equal(treeTarget.textualReviewLane, "tree_target_review");
+  assert.equal(treeTarget.textualStatementContext.requiresHumanTruthDecision, true);
+});
+
+test("missing-engine source and target context stays separate from technical readiness", () => {
+  const missing = row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "טענה מספרית לבדיקה",
+    value: 68,
+    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "number", key: "68" }] } } },
+  });
+  const projected = attachWorldLegacyReplay({
+    id: `research:${missing.id}`, sourceId: missing.id, verification: "not_tested",
+  }, buildWorldLegacyReplayIndex([missing]));
+
+  assert.equal(projected.legacyReplay.decision, null);
+  assert.equal(projected.legacyReplay.pendingEngineContext.stage, "pending_engine");
+  assert.equal(projected.legacyReplay.pendingEngineContext.pendingOccurrenceCount, 1);
+  assert.equal(projected.legacyReplay.pendingEngineContext.targetEvidenceStateCounts.exact_row_value_match, 1);
+  assert.match(projected.legacyReplay.pendingEngineContext.reason, /חסרה הכרעת מנוע/u);
+  assert.equal(classifyWorldMissingEngineContext([{ state: "deterministic_match" }]), null);
+});
+
+test("cluster attachment preserves every occurrence and never mutates live truth", () => {
+  const first = row();
+  const second = row({ id: id("2") });
+  const index = buildWorldLegacyReplayIndex([first, second]);
+  const projected = attachWorldLegacyReplay({
+    id: `research:${first.id}`,
+    sourceId: first.id,
+    verification: "legacy_signal",
+    occurrences: [
+      { id: `research:${first.id}`, sourceId: first.id },
+      { id: `research:${second.id}`, sourceId: second.id },
+    ],
+  }, index);
+  assert.equal(projected.legacyReplay.state, "deterministic_match");
+  assert.equal(projected.legacyReplay.occurrenceCount, 2);
+  assert.equal(projected.legacyReplay.stateCounts.deterministic_match, 2);
+  assert.equal(projected.legacyReplay.mutatesLiveData, false);
+});
+
+test("technically-ready replay keeps source and target decisions separate", () => {
+  const singleTarget = row({
+    value: 68,
+    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "number", key: "68", label: "68" }] } } },
+  });
+  const projected = attachWorldLegacyReplay({
+    id: `research:${singleTarget.id}`,
+    sourceId: singleTarget.id,
+    verification: "legacy_signal",
+    occurrences: [{ id: `research:${singleTarget.id}`, sourceId: singleTarget.id }],
+  }, buildWorldLegacyReplayIndex([singleTarget]));
+
+  assert.equal(projected.legacyReplay.decision.sourceReadiness, "exact_source");
+  assert.equal(projected.legacyReplay.decision.targetReadiness, "single_structured_target");
+  assert.equal(projected.legacyReplay.decision.readyOccurrenceCount, 1);
+  assert.equal(projected.legacyReplay.decision.targetEvidenceStateCounts.exact_row_value_match, 1);
+  assert.deepEqual(projected.legacyReplay.decision.targets.map((target) => target.key), ["68"]);
+  assert.equal(projected.legacyReplay.decision.mutatesLiveData, false);
+});
+
+test("multiple targets preserve an exact primary number separately from contextual and numeric candidates", () => {
+  const contextual = row({
+    value: 68,
+    meta: { ext: { wa_channel_intake: { tree_matches: [
+      { type: "number", key: "68" },
+      { type: "topic", key: "life" },
+    ] } } },
+  });
+  const additionalNumber = row({
+    id: id("2"),
+    value: 68,
+    meta: { ext: { wa_channel_intake: { tree_matches: [
+      { type: "number", key: "68" },
+      { type: "number", key: "7" },
+    ] } } },
+  });
+  const index = buildWorldLegacyReplayIndex([contextual, additionalNumber]);
+  const contextualDecision = attachWorldLegacyReplay({
+    id: `research:${contextual.id}`, sourceId: contextual.id, verification: "legacy_signal",
+  }, index).legacyReplay.decision;
+  const additionalNumberDecision = attachWorldLegacyReplay({
+    id: `research:${additionalNumber.id}`, sourceId: additionalNumber.id, verification: "legacy_signal",
+  }, index).legacyReplay.decision;
+
+  assert.equal(contextualDecision.targetEvidenceStateCounts.exact_value_primary_with_context, 1);
+  assert.equal(additionalNumberDecision.targetEvidenceStateCounts.exact_value_among_multiple_numbers, 1);
+  assert.equal(contextualDecision.targetReadiness, "multiple_structured_targets");
+  assert.equal(additionalNumberDecision.targetReadiness, "multiple_structured_targets");
+});
+
+test("a structured value can propose a number target without inventing a live tree connection", () => {
+  const withValue = row({ value: 68 });
+  const withoutValue = row({ id: id("2"), value: null });
+  const index = buildWorldLegacyReplayIndex([withValue, withoutValue]);
+  const withValueDecision = attachWorldLegacyReplay({
+    id: `research:${withValue.id}`, sourceId: withValue.id, verification: "legacy_signal",
+  }, index).legacyReplay.decision;
+  const withoutValueDecision = attachWorldLegacyReplay({
+    id: `research:${withoutValue.id}`, sourceId: withoutValue.id, verification: "legacy_signal",
+  }, index).legacyReplay.decision;
+
+  assert.deepEqual(withValueDecision.proposedNumberTargets, [68]);
+  assert.equal(withValueDecision.targetEvidenceStateCounts.structured_value_without_target, 1);
+  assert.equal(withValueDecision.targetReadiness, "missing_structured_target");
+  assert.equal(withValueDecision.mutatesLiveData, false);
+  assert.equal(withoutValueDecision.targetEvidenceStateCounts.missing_value_and_target, 1);
+  assert.deepEqual(withoutValueDecision.proposedNumberTargets, []);
+});
+
+test("an exact channel source in source_refs resolves a legacy primary locator without rewriting it", () => {
+  const channelRef = `channel_updates:${id("a")}`;
+  const raw = row({
+    source_ref: "gallery_images:legacy-image",
+    meta: { source_refs: ["gallery_images:legacy-image", channelRef] },
+  });
+  const projected = attachWorldLegacyReplay({
+    id: `research:${raw.id}`, sourceId: raw.id, verification: "legacy_signal",
+  }, buildWorldLegacyReplayIndex([raw]));
+
+  assert.equal(projected.legacyReplay.sourceLocatorState, "channel_uuid_available");
+  assert.equal(projected.legacyReplay.canonicalSourceRef, channelRef);
+  assert.equal(projected.legacyReplay.decision.sourceReadiness, "exact_source");
+  assert.equal(projected.legacyReplay.decision.sourceRepairOccurrenceCount, 0);
+});
+
+test("source repair blocks automatic target handling and target counts preserve every occurrence", () => {
+  const decision = classifyWorldLegacyReplayDecision([
+    {
+      state: "explicit_match",
+      sourceLocatorState: "stored_ref_requires_resolution",
+      targetReview: { state: "already_connected", targets: [] },
+    },
+    {
+      state: "legacy_matrix_match",
+      sourceLocatorState: "channel_uuid",
+      targetReview: {
+        state: "multiple_structured_targets",
+        targets: [{ type: "topic", key: "a" }, { type: "topic", key: "b" }],
+      },
+    },
+  ]);
+
+  assert.equal(decision.decisionState, "source_locator_repair");
+  assert.equal(decision.sourceRepairOccurrenceCount, 1);
+  assert.equal(decision.targetReadiness, "mixed_target_states");
+  assert.deepEqual(decision.targetStateCounts, { already_connected: 1, multiple_structured_targets: 1 });
+  assert.equal(decision.targetCount, 2);
+});
+
+test("source-target adjudication is absent when any clustered occurrence is not technically ready", () => {
+  assert.equal(classifyWorldLegacyReplayDecision([
+    { state: "deterministic_match", sourceLocatorState: "channel_uuid" },
+    { state: "mixed_input_match", sourceLocatorState: "channel_uuid" },
+  ]), null);
+});

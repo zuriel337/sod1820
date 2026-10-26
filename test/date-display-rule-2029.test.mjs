@@ -58,7 +58,7 @@ test("relative time stays on the main Home only; World and other surfaces use He
   assert.deepEqual(offenders, [], "outside the main Home use bilingualDateLabel or recordTimeLabel(..., 'bilingual')");
 });
 
-test("shared Home/World components choose relative only for Home and World opts into bilingual dates", () => {
+test("shared Home/World components choose relative only for Home and World formats its own dates bilingually", () => {
   const sourceArrivals = fs.readFileSync(path.join(ROOT, "src/components/research/SourceArrivalList2029.jsx"), "utf8");
   const flightStory = fs.readFileSync(path.join(ROOT, "src/components/research/WorldFlightStory2029.jsx"), "utf8");
   const systemFrame = fs.readFileSync(path.join(ROOT, "src/components/experience2029/SystemFrame2029.jsx"), "utf8");
@@ -66,5 +66,5 @@ test("shared Home/World components choose relative only for Home and World opts 
   assert.match(sourceArrivals, /surface === 'home' \? 'relative' : 'bilingual'/);
   assert.match(flightStory, /home \? 'relative' : 'bilingual'/);
   assert.match(systemFrame, /surface === "home" \? "relative" : "bilingual"/);
-  assert.match(world, /timeMode="bilingual"/);
+  assert.match(world, /function researchAddedDate\(value\) \{[\s\S]*?return bilingualDateLabel\(value/);
 });

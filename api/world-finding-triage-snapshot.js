@@ -2,6 +2,15 @@
 // Server-only preview annotation: identifiers and decisions only; live finding text,
 // access, status, sources and tree targets still come from the canonical World reader.
 
+import {
+  WORLD_FINDING_STRONG_CONTINUATION_META,
+  getWorldFindingStrongContinuation,
+} from "./world-finding-triage-continuation.js";
+import {
+  WORLD_FINDING_MEDIUM_MATCH_CONTINUATION_META,
+  getWorldFindingMediumMatchContinuation,
+} from "./world-finding-medium-match-continuation.js";
+
 const STRENGTH_LABELS = Object.freeze(["חזק","בינוני","חלש"]);
 const RECOMMENDATION_LABELS = Object.freeze(["מתאים לעץ","דורש בדיקה","כפילות","דורש מקור","שיוך זהות לא פתור","דורש OCR או תמלול","לא מתאים"]);
 const EVIDENCE_REASONS = Object.freeze(["אימות מנוע מפורש תואם ויעד מדויק קיים.","האימות המפורש עובר, אך לא נמצא יעד עץ מדויק קיים.","אימות מנוע מפורש תואם ויעד מדויק קיים. 2 הופעות מדויקות אוגדו ואינן מקורות עצמאיים.","אותה ליבה כבר כלולה ב-bd2b112f-f8ad-41dc-ab30-959795200d6d; חזרות מקור אינן ראיה עצמאית.","יש התאמה מכנית, אך work_log הוא provenance ולא מקור תוכן עצמאי.","אותה ליבה כבר כלולה ב-8593fe3e-9606-4b2b-bd52-0c4a0285c4e3; חזרות מקור אינן ראיה עצמאית.","אין שיוך אדם/תורם מבוסס מספיק; אין לייחס לפי ניחוש.","אותה ליבה כבר כלולה ב-050ca908-d01f-413a-b32d-3db37e72c7e2; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-ef7d9c29-675d-47f5-afdb-b0606497c9c3; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-3f50af95-8e82-412c-bbac-b87b60de66e9; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-103cdb3e-048f-46dd-b19a-ac45526c0008; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-d643fec4-c276-4c32-9560-6f06a60172f3; חזרות מקור אינן ראיה עצמאית.","החישוב עובר, אך זהות המדיה המצוטטת אינה קשורה ישירות לממצא.","אותה ליבה כבר כלולה ב-2912366c-b1f6-4c60-8823-35cf5ccfa9d1; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-6b25e21e-52a5-4be8-b2d2-573e553c6e80; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-d41cc580-6773-4401-b587-4dd0bbf9bd87; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-80e1a0dd-dbc1-4da5-9a92-86952ee98962; חזרות מקור אינן ראיה עצמאית.","אותה ליבה כבר כלולה ב-06c22b3f-9988-460b-9888-516015e20e68; חזרות מקור אינן ראיה עצמאית.","חפיפה חלקית עם ממצא אחר, אך קיימת גם שורה ייחודית; יש לפצל בלי לאבד תוכן.","אותה ליבה כבר כלולה ב-cb1e33ad-ed76-4370-9272-f8518c24ee10; חזרות מקור אינן ראיה עצמאית.","מצב האימות הוא not_tested; חיבור לעץ או מד אינם הופכים אותו לאמת.","הכרטיס תלוי במדיה ולא קיים אימות מפורש של החילוץ.","אין מקור תוכן עצמאי מספיק ואין verification_state=match.","זהו engine_verified ישן ללא verification_state מפורש; נדרש replay עדכני.","השיטה אינה ממופה וגם אין מקור תוכן עצמאי מספיק.","הטענה תלויה במדיה והשיטה אינה מזוהה.","טענת מקור לא־חישובית עם עדות עמוד מדויקת; יש לשמור אותה כטענת המקור, לא כאמת חיצונית.","זו השערה/התכנסות ולא חיבור מאומת.","האימות החישובי אינו חל; נדרשת הכרעת מקור/ניסוח לפני הכנסה.","עדות המקור אומתה או שוחזרה עם רכיבים בדוקים ויעד ספר מדויק קיים.","הממצא מעורב או סותר בחלקו; יש לפצל את החלקים העוברים מן החלקים שנכשלו.","רק הליבה המספרית מאומתת; הפרשנות, האירוע או התחזית מוחרגים.","מצב האימות החריג אינו אישור מלא; נדרשת הכרעת אדם.","תוצאת המנוע סותרת את הערך הנטען; אין להכניס את הטענה.","עדות/תבנית קיימת, אך האופרטור או הסמנטיקה אינם ממופים קנונית.","השחזור או רכיבי המנוע קיימים, אך עדות ה־PDF טרם הוכרעה."]);
@@ -12,6 +21,7 @@ const SNAPSHOT_ROWS = "01ab7adc-92f0-4c76-92fb-3ee43411d32e,0,0,0\n01fe92d4-7747
 const SNAPSHOT_INDEX = new Map();
 const strengthCounts = {};
 const recommendationCounts = {};
+const strengthRecommendationCounts = {};
 for (const [index, line] of SNAPSHOT_ROWS.trim().split("\n").entries()) {
   const [id, strengthCode, recommendationCode, reasonCode] = line.split(",");
   if (!id || SNAPSHOT_INDEX.has(id)) throw new Error("invalid World triage snapshot row: " + (id || index));
@@ -26,9 +36,56 @@ for (const [index, line] of SNAPSHOT_ROWS.trim().split("\n").entries()) {
   }));
   strengthCounts[strength] = (strengthCounts[strength] || 0) + 1;
   recommendationCounts[recommendation] = (recommendationCounts[recommendation] || 0) + 1;
+  strengthRecommendationCounts[strength] ||= {};
+  strengthRecommendationCounts[strength][recommendation]
+    = (strengthRecommendationCounts[strength][recommendation] || 0) + 1;
 }
 
 if (SNAPSHOT_INDEX.size !== 10709) throw new Error("World triage snapshot expected 10709 rows, got " + SNAPSHOT_INDEX.size);
+
+// These bounded aggregates were generated from the same source CSV as SNAPSHOT_ROWS.
+// They intentionally describe separate axes: an occurrence is not an independent
+// source, a proposed target is not a live tree connection, and a verification state
+// is not a publication or truth decision.
+const STRENGTH_OPERATIONAL_COUNTS = Object.freeze({
+  "חזק": Object.freeze({ occurrences: 192, exactDuplicateClusters: 9, duplicateOccurrencesCombined: 9, proposedTreeTargets: 174 }),
+  "בינוני": Object.freeze({ occurrences: 4429, exactDuplicateClusters: 211, duplicateOccurrencesCombined: 265, proposedTreeTargets: 4133 }),
+  "חלש": Object.freeze({ occurrences: 6575, exactDuplicateClusters: 110, duplicateOccurrencesCombined: 213, proposedTreeTargets: 5139 }),
+});
+
+const VERIFICATION_COHORTS = Object.freeze({
+  "בינוני": Object.freeze({
+    explicitMatch: 37,
+    legacySignal: 4076,
+    notApplicable: 9,
+    partialOrExceptional: 42,
+  }),
+  "חלש": Object.freeze({
+    notTested: 6347,
+    methodUnknown: 9,
+    mismatch: 6,
+  }),
+});
+
+const strengthBreakdown = Object.freeze(Object.fromEntries(STRENGTH_LABELS.map((strength) => [
+  strength,
+  Object.freeze({
+    cards: strengthCounts[strength] || 0,
+    recommendations: Object.freeze({ ...(strengthRecommendationCounts[strength] || {}) }),
+    verificationCohorts: VERIFICATION_COHORTS[strength] || null,
+    ...STRENGTH_OPERATIONAL_COUNTS[strength],
+  }),
+])));
+
+if (Object.values(VERIFICATION_COHORTS["בינוני"]).reduce((sum, count) => sum + count, 0) !== strengthCounts["בינוני"]) {
+  throw new Error("World medium verification cohorts do not cover the full snapshot");
+}
+if (Object.values(VERIFICATION_COHORTS["חלש"]).reduce((sum, count) => sum + count, 0) !== strengthCounts["חלש"]) {
+  throw new Error("World weak verification cohorts do not cover the full snapshot");
+}
+if (Object.values(STRENGTH_OPERATIONAL_COUNTS).reduce((sum, row) => sum + row.exactDuplicateClusters, 0) !== 330) {
+  throw new Error("World duplicate cohorts do not match the snapshot total");
+}
 
 export const WORLD_FINDING_TRIAGE_META = Object.freeze({
   snapshotDate: "2026-10-22",
@@ -40,10 +97,27 @@ export const WORLD_FINDING_TRIAGE_META = Object.freeze({
   duplicateOccurrencesCombined: 487,
   strengthCounts: Object.freeze({ ...strengthCounts }),
   recommendationCounts: Object.freeze({ ...recommendationCounts }),
+  strengthBreakdown,
+  strongContinuation: WORLD_FINDING_STRONG_CONTINUATION_META,
+  mediumMatchContinuation: WORLD_FINDING_MEDIUM_MATCH_CONTINUATION_META,
 });
 
 export function getWorldFindingTriageSnapshot(findingId) {
-  return SNAPSHOT_INDEX.get(String(findingId || "").replace(/^research:/, "")) || null;
+  const id = String(findingId || "").replace(/^research:/, "");
+  const snapshot = SNAPSHOT_INDEX.get(id) || null;
+  if (!snapshot) return null;
+  const continuation = getWorldFindingStrongContinuation(id)
+    || getWorldFindingMediumMatchContinuation(id);
+  if (!continuation) return snapshot;
+  const historicalRecommendation = continuation.recommendation
+    && continuation.recommendation !== snapshot.recommendation
+    ? snapshot.recommendation
+    : null;
+  return Object.freeze({
+    ...snapshot,
+    ...continuation,
+    ...(historicalRecommendation ? { historicalRecommendation } : {}),
+  });
 }
 
 export function hasWorldFindingTriageSnapshot(findingId) {

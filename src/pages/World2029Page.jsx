@@ -1,7 +1,7 @@
 import WorldSourceConnections from '../components/research/WorldSourceConnections.jsx';
 import WorldConnectedDiscovery from '../components/research/WorldSourceStory.jsx';
 import WorldFlightStory2029 from '../components/research/WorldFlightStory2029.jsx';
-import SourceArrivalList2029 from '../components/research/SourceArrivalList2029.jsx';
+import WorldPublicUpdates2029 from '../components/research/WorldPublicUpdates2029.jsx';
 import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
@@ -191,7 +191,7 @@ const RESEARCH_VERIFICATION_LABELS_HE = Object.freeze({
 const axisLabel = (map, value, fallback) => map[String(value || "").trim()] || fallback;
 
 const WORLD_LANES = Object.freeze([
-  { key: "overview", label: "מבט כללי" },
+  { key: "overview", label: "כללי" },
   { key: "media", label: "תמונות" },
   { key: "calculations", label: "גימטריה" },
   { key: "sources", label: "מקורות" },
@@ -579,7 +579,7 @@ function PublicWorldFindingFocus({ finding, context, shell }) {
 
   return <section className="sod29-section sod29-world-all-research sod29-world-public-finding" aria-label="ממצא ציבורי בעולם">
     <div className="sod29-section-head"><div><div className="sod29-kicker">ממצא ציבורי · מקור מדויק</div>
-      <h2>הממצא שביקשת לפתוח</h2>
+      <h2>הממצא הציבורי</h2>
       <p>הממצא נקרא מן ההקרנה הציבורית בלבד. חוזק, איכות ראיות, אימות ופרסום נשארים מדדים נפרדים ואינם ציון אמת.</p></div></div>
     <article className="sod29-world-all-research-row" id={findingAnchor} tabIndex={-1}
       data-world-public-finding={finding.sourceId}>
@@ -990,6 +990,7 @@ function LiveWorldLanding({ research, shell, context }) {
 
   const openDiscoveryItem = (item) => {
     if (!item) return;
+    const publicUpdatesReturnHref = `${location.pathname}${location.search}#world-public-updates`;
     if (item.sourceKind === "group_message") {
       research.updateResearchContext?.({ subject: null, selection: { entityId: item.sourceRef, entityType: 'source', sourceRef: item.sourceRef }, lens: 'world' });
       shell.go(item.href, { preserve: false });
@@ -1000,7 +1001,7 @@ function LiveWorldLanding({ research, shell, context }) {
         subject: { id: item.sourceRef, type: "post", label: item.label, href: item.href },
         selection: { entityId: item.sourceRef, entityType: "post", sourceRef: item.sourceRef },
         lens: "reading",
-        returnTo: { href: "/world#world-sources", label: "המקורות בעולם",
+        returnTo: { href: publicUpdatesReturnHref, label: "העדכונים בעולם",
           subject: context?.subject || null, selection: context?.selection || null,
           lens: "world", dimensions: context?.dimensions || {}, journey: context?.journey || null },
       });
@@ -1019,7 +1020,7 @@ function LiveWorldLanding({ research, shell, context }) {
           selection: { entityId: String(value), entityType: "number" },
           lens: "world",
           dimensions: { entrySource: "world-discovery-finding", sourceRef: item.sourceRef || null },
-          returnTo: { href: "/world", label: "מה חדש בעולם" },
+          returnTo: { href: publicUpdatesReturnHref, label: "העדכונים בעולם" },
         });
         return;
       }
@@ -1029,6 +1030,10 @@ function LiveWorldLanding({ research, shell, context }) {
         return;
       }
       shell.openInspect?.({ id: item.id, type: "finding", label: item.label, href: "/world" });
+      return;
+    }
+    if (item.kind === "writer" && item.href) {
+      shell.go(`${item.href}?${new URLSearchParams({ returnTo: publicUpdatesReturnHref })}`, { preserve: false });
     }
   };
   const creatorLabel = (value) => {
@@ -1050,7 +1055,7 @@ function LiveWorldLanding({ research, shell, context }) {
         <div>
           <div className="sod29-kicker">המסע הראשון של 2029</div>
           <h2>מסע 878</h2>
-          <div className="sod29-muted">מסע הוא תנועה בתוך העולם: עוגן, התכנסות, שביל ותחנה. הוא לא קובע מסקנה; הוא שומר את הדרך שעברת ומראה לאן אפשר להמשיך.</div>
+          <div className="sod29-muted">מסע הוא תנועה בתוך העולם: עוגן, התכנסות, שביל ותחנה. הוא לא קובע מסקנה; הוא שומר את סדר התחנות ומציג מסלולי המשך.</div>
         </div>
         {lastJourney ? <button className="sod29-action" type="button" onClick={() => resumeJourney(lastJourney)}>המשך את מסע 878</button> : null}
       </div>
@@ -1077,8 +1082,8 @@ function LiveWorldLanding({ research, shell, context }) {
     <section className="sod29-world-overview sod29-world-entry" aria-label="כניסה לעולם">
       <div className="sod29-world-entry-copy">
         <div className="sod29-kicker">SOD1820 · עולם של חיבורים</div>
-        <h2>מתחילים ממה שמסקרן אותך.</h2>
-        <p>מספר, מילה, אדם, מקור או תמונה — העולם מחבר את הנקודה שבחרת למה שכבר נמצא סביבה.</p>
+        <h2>מפת הידע של SOD1820</h2>
+        <p>מספרים, מילים, אנשים, מקורות ותמונות מחוברים לפי קשרים מתועדים.</p>
         <button className="sod29-action primary" type="button" onClick={() => shell.openCommand()}>חיפוש מספר, מילה או נושא</button>
       </div>
       <nav className="sod29-world-entry-grid" aria-label="דרכים לגלות את העולם">
@@ -1099,7 +1104,7 @@ function LiveWorldLanding({ research, shell, context }) {
         טוען את הממצא מן הקורא הציבורי.
       </FrameState></NativeStateSection> : null}
       {publicFinding.error ? <NativeStateSection><FrameState kind="unavailable" title="הממצא אינו זמין כרגע">
-        לא יוצג ממצא חלופי במקום המזהה שביקשת לפתוח.
+        לא יוצג ממצא חלופי במקום המזהה שצוין בקישור.
       </FrameState></NativeStateSection> : null}
       {!publicFinding.loading && !publicFinding.error && !publicFinding.finding
         ? <NativeStateSection><FrameState kind="unavailable" title="הממצא המבוקש אינו זמין לציבור">
@@ -1111,8 +1116,8 @@ function LiveWorldLanding({ research, shell, context }) {
 
     {activeView === WORLD_LANDING_VIEW.START ? <>
       <section className="sod29-world-start-guide" aria-label="מה אפשר למצוא בעולם">
-        <div><div className="sod29-kicker">נקודה אחת · הרבה דרכים</div><h2>לא צריך להכיר את המאגר כדי להתחיל.</h2></div>
-        <p>אפשר לפתוח עדכון חדש, לעבור לנושא שבו כמה מסלולים נפגשים, או להיכנס דרך אדם ומקור. כל מסך מחזיר למקור המדויק.</p>
+        <div><div className="sod29-kicker">מפה אחת · כמה דרכי עיון</div><h2>תוכן ציבורי לפי נושא, מקור וסוג ידע</h2></div>
+        <p>עדכונים, נושאים, אנשים ומקורות מוצגים באותה מפת ידע, עם קישור חזרה למקור המדויק.</p>
         <div className="sod29-world-start-facets" aria-label="סוגי ידע בעולם">
           <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.NUMBERS)}>מספרים ומילים</button>
           <button type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.CONNECTIONS)}>נושאים וחיבורים</button>
@@ -1123,11 +1128,12 @@ function LiveWorldLanding({ research, shell, context }) {
           <button type="button" onClick={() => openKnowledgeKind(WORLD_KNOWLEDGE_KIND.TIME)}>אירועים וזמן</button>
         </div>
       </section>
-      <SourceArrivalList2029 loading={landing.discoveryLoading} items={landing.discovery?.arrivals || discoveryItems} limit={5}
-        availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
-      {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">אפשר להמשיך לנושאים, למקורות או לחיפוש.</FrameState> : null}
+      <WorldPublicUpdates2029 loading={landing.discoveryLoading} error={landing.discoveryError}
+        items={discoveryItems} arrivals={landing.discovery?.arrivals || []}
+        people={landing.contributors?.people || []} availability={landing.discovery?.groupArrivals}
+        initialLimit={8} onOpen={openDiscoveryItem} />
       <section className="sod29-section sod29-world-featured-connections" aria-label="חיבורים נבחרים">
-        <div className="sod29-section-head"><div><div className="sod29-kicker">אפשר להתחיל מכאן</div><h2>נושאים וחיבורים נבחרים</h2>
+        <div className="sod29-section-head"><div><div className="sod29-kicker">בחירה מערכתית</div><h2>נושאים וחיבורים נבחרים</h2>
           <p className="sod29-muted">כרטיס הוא שער לממצאים, למספרים ולמקורות המחוברים אליו.</p></div></div>
         {allConvergences.loading ? <p role="status">פותח כמה חיבורים להתחלה…</p> : renderCatalogCards(allConvergences.cards.slice(0, 4))}
         <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => openLandingView(WORLD_LANDING_VIEW.CONNECTIONS)}>לכל הנושאים והחיבורים</button>
@@ -1136,10 +1142,11 @@ function LiveWorldLanding({ research, shell, context }) {
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.LIVE ? <>
-      <SourceArrivalList2029 loading={landing.discoveryLoading} items={landing.discovery?.arrivals || discoveryItems} limit={40}
-        availability={landing.discovery?.groupArrivals} onOpen={openDiscoveryItem} />
+      <WorldPublicUpdates2029 loading={landing.discoveryLoading} error={landing.discoveryError}
+        items={discoveryItems} arrivals={landing.discovery?.arrivals || []}
+        people={landing.contributors?.people || []} availability={landing.discovery?.groupArrivals}
+        initialLimit={12} onOpen={openDiscoveryItem} />
       <ZviGroupTimeline2029 recentItems={landing.discovery?.items || []} />
-      {landing.discoveryError ? <FrameState kind="unavailable" title="העדכונים אינם זמינים כרגע">המקורות והנושאים האחרים נשארים פתוחים.</FrameState> : null}
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.SOURCES ? <>
@@ -1161,7 +1168,7 @@ function LiveWorldLanding({ research, shell, context }) {
           <p className="sod29-muted">נושא הוא תחום רחב. התכנסות מסמנת כמה מסלולים שנפגשים בתוכו; היא אינה ציון אמת.</p></div>
           {allConvergences.total != null ? <span className="sod29-chip">{allConvergences.total} כרטיסים ציבוריים</span> : null}</div>
         <div className="sod29-world-catalog-controls">
-          <label className="sod29-world-catalog-search"><span>מה מסקרן אותך?</span>
+          <label className="sod29-world-catalog-search"><span>חיפוש בנושאים ובחיבורים</span>
             <input value={allQuery} onChange={(e) => setAllQuery(e.target.value)} placeholder="מספר, שם או נושא…" aria-label="חיפוש בנושאים ובחיבורים" /></label>
           <div className="sod29-world-catalog-creators" role="group" aria-label="סינון נושאים וחיבורים לפי יוצר">
             {["all", ...allCreatorOptions.filter(publicCreator)].map((creator) => <button key={creator} type="button"
@@ -1182,7 +1189,7 @@ function LiveWorldLanding({ research, shell, context }) {
       </section>
     </> : null}
 
-    {activeView === WORLD_LANDING_VIEW.EXPLORE ? <React.Suspense fallback={<NativeStateSection><FrameState kind="loading" title="פותח את סוגי הידע">טוען רק את הסוג שבחרת.</FrameState></NativeStateSection>}>
+    {activeView === WORLD_LANDING_VIEW.EXPLORE ? <React.Suspense fallback={<NativeStateSection><FrameState kind="loading" title="פותח את סוגי הידע">סוג הידע נטען.</FrameState></NativeStateSection>}>
       <WorldKnowledgeTypes2029 kind={knowledgeKind} onKindChange={openKnowledgeKind} />
     </React.Suspense> : null}
 
@@ -1191,11 +1198,11 @@ function LiveWorldLanding({ research, shell, context }) {
       {goldenJourneySection}
       <section className="sod29-home-review-entry sod29-world-journey-doors" id="world-journey-entry" aria-label="להמשיך למסע">
         <div className="sod29-kicker">מסע מחקר</div><h2>לשמור דרך ולחזור אליה.</h2>
-        <p>מסע מחקר שומר את הנקודות שפתחת ואת הדרך ביניהן. מסע החיים הוא מרחב אישי ופרטי נפרד.</p>
+        <p>מסע מחקר שומר נקודות ואת הרצף ביניהן. מסע החיים הוא מרחב אישי ופרטי נפרד.</p>
         <div className="sod29-actions"><Link className="sod29-action primary"
           to={numberExpressionFocusHref(878, { expression: "משיח", method: "מילוי" })}>878 · לתוך המילוי של משיח</Link>
           <button className="sod29-action" onClick={() => shell.openCommand()}>לבחור מספר או ביטוי אחר</button></div>
-        <p className="sod29-muted">התחלת מסע ושמירה הן פעולות לבחירתך; המסע הערוך המלא של 878 עדיין בבנייה.</p>
+        <p className="sod29-muted">התחלה ושמירה של מסע זמינות; המסע הערוך המלא של 878 עדיין בבנייה.</p>
       </section>
     </> : null}
 
@@ -1204,7 +1211,7 @@ function LiveWorldLanding({ research, shell, context }) {
     </React.Suspense> : <NativeStateSection><FrameState kind="unavailable" title="בקרת הממצאים זמינה למנהל מורשה">החומר הציבורי נשאר זמין דרך הכניסות האחרות לעולם.</FrameState></NativeStateSection>) : null}
 
     {topicDetail.loading ? <NativeStateSection><FrameState kind="loading" title="פותח את ההתכנסות">טוען את מה שנמצא סביב ההתכנסות.</FrameState></NativeStateSection> : null}
-    {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="ההתכנסות לא נטענה כרגע">לא יוצג חומר חלופי במקום מה שביקשת לפתוח.</FrameState></NativeStateSection> : null}
+    {topicDetail.error ? <NativeStateSection><FrameState kind="error" title="ההתכנסות לא נטענה כרגע">לא יוצג חומר חלופי במקום ההתכנסות שצוינה בקישור.</FrameState></NativeStateSection> : null}
     {topicDetail.finding ? <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">מה נפגש כאן</div>
         <h2>{topicDetail.finding.subject?.label || topicDetail.card?.label}</h2></div>
@@ -1639,7 +1646,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
   return <>
     {focusedExpression ? <section className="sod29-world-focus-ribbon" data-expression-focus="true" aria-label="מיקוד הביטוי בעולם">
       <div>
-        <span>המבט הנוכחי</span>
+        <span>התצוגה הנוכחית</span>
         <strong>{subject.label || subject.id} · דרך {focusedCrossing ? `${focusedExpression} ↔ ${focusedCrossing}` : focusedExpression}</strong>
         <small>{focusedMethod ? `שיטה · ${focusedMethod}` : "מיקוד ביטוי"} · העולם מרחיב הקשר, Number נשאר בית החישוב</small>
       </div>
@@ -1657,7 +1664,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div>
           <div className="sod29-kicker">{WORLD_EXPERIENCE.experience.question}</div>
           <h2>{subject.label || subject.id}</h2>
-          <div className="sod29-muted">כאן רואים מה מתחבר לנקודה הזאת. מתחילים במהות, ואז בוחרים את השכבה שרוצים לחקור — תמונות, גימטריה, מקורות, קשרים, מחקר או זמן.</div>
+          <div className="sod29-muted">החומר סביב העוגן מסודר לפי שכבות: תמונות, גימטריה, מקורות, קשרים, מחקר וזמן.</div>
         </div>
         <div className="sod29-actions">
           {data?.identity ? <span className="sod29-chip">{FACET_LABELS[data.identity.type] || data.identity.type}</span> : null}
@@ -1677,7 +1684,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
       <div className="sod29-world-journey-rail-head">
         <div>
           <div className="sod29-kicker">מסע · 878</div>
-          <h2>{journeyIsActive ? "אתה בתוך מסע 878" : "מסע 878"}</h2>
+          <h2>{journeyIsActive ? "מסע 878 פעיל" : "מסע 878"}</h2>
           <p>878 הוא העוגן. כל שביל למטה מגיע מהתכנסות ציבורית קיימת שמכילה את 878 ומצביעה גם למספר נוסף.</p>
         </div>
         {!journeyIsActive
@@ -1685,7 +1692,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
           : <span className="sod29-chip">תחנה {Math.max(1, Number(context?.journey?.position || 0) + 1)}</span>}
       </div>
 
-      <div className="sod29-world-journey-track" aria-label="התחנות שעברת">
+      <div className="sod29-world-journey-track" aria-label="התחנות במסע">
         {(journeyVisitedValues.length ? journeyVisitedValues : [GOLDEN_WORLD_JOURNEY_878.rootValue]).map((value, index) => <React.Fragment key={value}>
           {index > 0 ? <span className="sod29-world-journey-track-line" aria-hidden="true" /> : null}
           <button
@@ -1754,7 +1761,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div className="sod29-section-head">
           <div>
             <div className="sod29-kicker">התמצאות</div>
-            <h2>מה אתה רוצה לראות עכשיו?</h2>
+            <h2>שכבות המידע</h2>
           </div>
         </div>
         <div className="sod29-world-lanes" role="group" aria-label="בחירת שכבה בעולם">
@@ -2183,7 +2190,7 @@ export default function World2029Page() {
   useEffect(() => {
     applySeo({
       title: `העולם · ${WORLD_EXPERIENCE.brand.canonicalLatinIdentity}`,
-      description: "העולם של סוד 1820 — מספרים, ביטויים, מקורות, אירועים וקשרים שנפתחים מתוך נקודה שמסקרנת אותך.",
+      description: "העולם של סוד 1820 — מפת ידע ציבורית של מספרים, ביטויים, מקורות, אירועים וקשרים מתועדים.",
       path: "/world",
     });
   }, []);
@@ -2194,7 +2201,7 @@ export default function World2029Page() {
       symbol="◌"
       eyebrow={`${WORLD_EXPERIENCE.brand.identity} · ${WORLD_EXPERIENCE.experience.question}`}
       title="העולם"
-      description="רמזי גאולה מתוך סיפורים, תמונות ותיעוד. גלה מה מחבר ביניהם, פתח את המקור וחזור למקום שממנו יצאת."
+      description="רמזי גאולה מתוך סיפורים, תמונות ותיעוד, עם קשרים ומקורות מדויקים."
       status="עולם · גילוי"
     >
       <WorldBody />

@@ -1,0 +1,27 @@
+{
+  "base": "b9c25844a5098513f5d2247d5ea24ec863fc1b29",
+  "scope": "Offline reviewed source bindings only; not a parser rule, publication decision or executable batch",
+  "bindings": [
+    {
+      "id": "4ec599a6-5237-487b-9ee0-2fe57fba7610",
+      "kind": "adjacent_phrase_sum",
+      "contextSpan": { "start": 285, "end": 340, "excerpt": "אור פניך י-ה-ו-ה  + אור פניך י-ה-ו-ה=\n393+393=תשפ\"ו=786" },
+      "operandSpans": [
+        { "start": 285, "end": 301, "excerpt": "אור פניך י-ה-ו-ה" },
+        { "start": 305, "end": 321, "excerpt": "אור פניך י-ה-ו-ה" }
+      ]
+    },
+    {
+      "id": "cf605c84-21e9-4a73-85c5-575e6c5fe8dd",
+      "kind": "positional_letters",
+      "contextSpan": { "start": 135, "end": 164, "excerpt": "עִכּוּב: 70 + 20 + 6 + 2 = 98" },
+      "operandSpans": [{ "start": 135, "end": 142, "excerpt": "עִכּוּב" }]
+    },
+    {
+      "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+      "kind": "positional_letters",
+      "contextSpan": { "start": 92, "end": 134, "excerpt": "כּוֹכָבִים: 20 + 6 + 20 + 2 + 10 + 40 = 98" },
+      "operandSpans": [{ "start": 92, "end": 102, "excerpt": "כּוֹכָבִים" }]
+    }
+  ]
+}

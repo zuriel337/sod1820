@@ -1,0 +1,1256 @@
+{
+  "base": "d80ec7777a4d3c4466c3ba0c0fbdb14976279789",
+  "scope": "Seven OCR follow-ups from the preceding forty; not seven additional corpus records",
+  "sourceCheckedAt": "2026-10-26 18:35:49.074893+00",
+  "rows": [
+    {
+      "id": "052cf69c-f400-4217-b27a-9e9395725515",
+      "admitted": true,
+      "statement": "מספר ביטויים שונים (סגלה, עקוב, חסד יהוה, כוכבים, לכולם) מוצגים כבעלי אותו ערך גימטרי 98",
+      "kind": "observation",
+      "terms": [
+        "סגלה",
+        "עקוב",
+        "חסד יהוה",
+        "כוכבים",
+        "לכולם"
+      ],
+      "value": 98,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:90e49faf-70a1-4e98-9edd-ab8a9f571e4f",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:90e49faf-70a1-4e98-9edd-ab8a9f571e4f",
+      "claim_uid": "מספרביטוייםשונים(סגלה,עקוב,חסדיהוה,כוכבים,לכולם)מוצגיםכבעליאותוערךגימטרי98",
+      "source_id": "90e49faf-70a1-4e98-9edd-ab8a9f571e4f",
+      "targets": [
+        {
+          "id": "9d426b9e-3b4e-400c-9fef-eb187cc9edf4",
+          "label": "98"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACEF2E9D139B098D0AC853E041558EC2.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "09235881-0a1c-437a-9e37-1d76ddd5b46f",
+      "admitted": true,
+      "statement": "המספר 6 מתפרש ככיוונים רוחניים של יושר במשפט",
+      "kind": "observation",
+      "terms": [
+        "6",
+        "כיוונים רוחניים",
+        "יושר"
+      ],
+      "value": 6,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:33fe2919-1005-4d43-808c-06c4aa775c1f",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:33fe2919-1005-4d43-808c-06c4aa775c1f",
+      "claim_uid": "המספר6מתפרשככיווניםרוחנייםשליושרבמשפט",
+      "source_id": "33fe2919-1005-4d43-808c-06c4aa775c1f",
+      "targets": [
+        {
+          "id": "37d1c890-39f7-4419-bb17-b61581c61309",
+          "label": "6"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC1A0C392AE3B2C07F8E71A16F83DB9A.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0b2892d2-a429-4518-892e-a264022725d7",
+      "admitted": true,
+      "statement": "הביטוי «בע\"ה» שווה בגימטריה 146",
+      "kind": "fact",
+      "terms": [
+        "בע\"ה"
+      ],
+      "value": 146,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "בע\"ה": {
+          "אלבם": 115,
+          "אתבש": 397,
+          "גדול": 77,
+          "קדמי": 343,
+          "רגיל": 77,
+          "הכפלה": 4929,
+          "מילוי": 557,
+          "מסתתר": 133,
+          "ריבוע": 151,
+          "מהמאגר": false,
+          "סידורי": 23,
+          "קדמי_גדול": 343,
+          "הכפלה_גדול": 4929,
+          "ריבוע_גדול": 151,
+          "אותיות_אחרי": 89,
+          "אותיות_לפני": 65,
+          "מילוי_דמילוי": 1139
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:ec57cdd0-07b5-4192-b0e3-1bd83df2f530",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:ec57cdd0-07b5-4192-b0e3-1bd83df2f530",
+      "claim_uid": "הביטוי«בעה»שווהבגימטריה146",
+      "source_id": "ec57cdd0-07b5-4192-b0e3-1bd83df2f530",
+      "targets": [
+        {
+          "id": "f11709a1-3565-46d9-9417-7cfc86eeadc2",
+          "label": "146"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "storage-object:78e4d9aa-38a5-4f6d-a511-2988bd97a64c",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0b5e8fa3-6180-4f7d-bbeb-eafc054061e6",
+      "admitted": true,
+      "statement": "נטען כי «ברית טוב»×36 גימטריא = 3060",
+      "kind": "fact",
+      "terms": [
+        "ברית טוב"
+      ],
+      "value": 3060,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "ברית טוב": {
+          "אלבם": 689,
+          "אתבש": 774,
+          "גדול": 629,
+          "קדמי": 2417,
+          "רגיל": 629,
+          "הכפלה": 200225,
+          "מילוי": 2211,
+          "מסתתר": 785,
+          "ריבוע": 1069,
+          "מהמאגר": false,
+          "סידורי": 71,
+          "קדמי_גדול": 2417,
+          "הכפלה_גדול": 200225,
+          "ריבוע_גדול": 1069,
+          "אותיות_אחרי": 344,
+          "אותיות_לפני": 424,
+          "מילוי_דמילוי": 4439
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:305b8335-72bf-43e5-9edd-0d1b4340f97f",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:305b8335-72bf-43e5-9edd-0d1b4340f97f",
+      "claim_uid": "נטעןכי«בריתטוב»×36גימטריא=3060",
+      "source_id": "305b8335-72bf-43e5-9edd-0d1b4340f97f",
+      "targets": [
+        {
+          "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+          "label": "3060"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACA7523DCE7E63590200605D7E6B1CFC.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0bc3869b-631e-4219-8026-0a91a34e0583",
+      "admitted": true,
+      "statement": "הופעה חוזרת של הערך 1254 בשני ביטויים שונים הקשורים לעץ הדעת ולמטעמים",
+      "kind": "observation",
+      "terms": [
+        "עץ הדעת",
+        "מטעמים"
+      ],
+      "value": 1254,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:b104914a-dd48-4b49-9f74-2e9c3c80e718",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:b104914a-dd48-4b49-9f74-2e9c3c80e718",
+      "claim_uid": "הופעהחוזרתשלהערך1254בשניביטוייםשוניםהקשוריםלעץהדעתולמטעמים",
+      "source_id": "b104914a-dd48-4b49-9f74-2e9c3c80e718",
+      "targets": [
+        {
+          "id": "416d148f-1903-4c5a-b304-94b01741dcae",
+          "label": "1254"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC9508E173F97F831FB128CC6E4D6054.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0d9498a6-9f44-4edf-bdbf-9d2e20906376",
+      "admitted": true,
+      "statement": "פסוק העוסק בהעלאת ארון הברית חולק ערך גימטרי זהה עם הביטוי המתאר טקס הכנסת ספר תורה",
+      "kind": "observation",
+      "terms": [
+        "ארון ברית",
+        "ספר תורה"
+      ],
+      "value": 1486,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:388e49e7-d2dd-4973-abbe-4a4704d73118",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:388e49e7-d2dd-4973-abbe-4a4704d73118",
+      "claim_uid": "פסוקהעוסקבהעלאתארוןהבריתחולקערךגימטריזההעםהביטויהמתארטקסהכנסתספרתורה",
+      "source_id": "388e49e7-d2dd-4973-abbe-4a4704d73118",
+      "targets": [
+        {
+          "id": "55be2699-22fe-487e-8e02-21474ce9815e",
+          "label": "1486"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC666A0B4C65E8BA1F4C2B8526B36829.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0e479992-c6fd-4feb-b87d-78c8dad64ade",
+      "admitted": true,
+      "statement": "סכום הגימטריא של 4 הפסוקים במשולשים הפנימיים = 3060",
+      "kind": "fact",
+      "terms": [
+        "4 הפסוקים",
+        "משולשים פנימיים"
+      ],
+      "value": 3060,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "4 הפסוקים": {
+          "אלבם": 470,
+          "אתבש": 238,
+          "גדול": 861,
+          "קדמי": 1491,
+          "רגיל": 301,
+          "הכפלה": 21761,
+          "מילוי": 524,
+          "מסתתר": 363,
+          "ריבוע": 1199,
+          "מהמאגר": false,
+          "סידורי": 85,
+          "קדמי_גדול": 3941,
+          "הכפלה_גדול": 380161,
+          "ריבוע_גדול": 1759,
+          "אותיות_אחרי": 443,
+          "אותיות_לפני": 258,
+          "מילוי_דמילוי": 1516
+        },
+        "משולשים פנימיים": {
+          "אלבם": 1318,
+          "אתבש": 319,
+          "גדול": 2086,
+          "קדמי": 3716,
+          "רגיל": 966,
+          "הכפלה": 196636,
+          "מילוי": 1403,
+          "מסתתר": 1328,
+          "ריבוע": 4350,
+          "מהמאגר": false,
+          "סידורי": 183,
+          "קדמי_גדול": 8616,
+          "הכפלה_גדול": 913436,
+          "ריבוע_גדול": 5470,
+          "אותיות_אחרי": 1277,
+          "אותיות_לפני": 691,
+          "מילוי_דמילוי": 4594
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+      "claim_uid": "סכוםהגימטריאשל4הפסוקיםבמשולשיםהפנימיים=3060",
+      "source_id": "3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+      "targets": [
+        {
+          "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+          "label": "3060"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACE0C9614EC4DFC0DEFF6A8BBCB7210D.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "90e49faf-70a1-4e98-9edd-ab8a9f571e4f",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACEF2E9D139B098D0AC853E041558EC2.jpg"
+    },
+    {
+      "id": "33fe2919-1005-4d43-808c-06c4aa775c1f",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC1A0C392AE3B2C07F8E71A16F83DB9A.jpg"
+    },
+    {
+      "id": "ec57cdd0-07b5-4192-b0e3-1bd83df2f530",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "storage-object:78e4d9aa-38a5-4f6d-a511-2988bd97a64c"
+    },
+    {
+      "id": "305b8335-72bf-43e5-9edd-0d1b4340f97f",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACA7523DCE7E63590200605D7E6B1CFC.jpg"
+    },
+    {
+      "id": "b104914a-dd48-4b49-9f74-2e9c3c80e718",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC9508E173F97F831FB128CC6E4D6054.jpg"
+    },
+    {
+      "id": "388e49e7-d2dd-4973-abbe-4a4704d73118",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC666A0B4C65E8BA1F4C2B8526B36829.jpg"
+    },
+    {
+      "id": "3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACE0C9614EC4DFC0DEFF6A8BBCB7210D.jpg"
+    }
+  ],
+  "reviewPlan": [
+    {
+      "title": "משפחת 98 — תיקון חילוץ נדרש",
+      "recommendation": "דורש בדיקה",
+      "reason": "בתמונה עכוב בכ׳, לא עקוב בק׳; לכולם אינו מופיע בחלקי התמונה שנבדקו. ארבעת הביטויים הקריאים נותנים 98. אין לתקן את זהות הרשומה בשקט.",
+      "regions": [
+        {
+          "key": "table98",
+          "text": "סגלה / עכוב\n98\nחסד יהוה\n98\nכוכבים\n98",
+          "box": [
+            0.62,
+            0.13,
+            0.3,
+            0.21
+          ],
+          "note": "תמלול חזותי ממוקד; אינו תמלול מלא של התמונה"
+        },
+        {
+          "key": "handwriting",
+          "text": "עכוב = 98 בגימטריא",
+          "box": [
+            0.42,
+            0.77,
+            0.32,
+            0.06
+          ],
+          "note": "תמלול חזותי ממוקד; אינו תמלול מלא של התמונה"
+        }
+      ],
+      "calculations": [
+        {
+          "key": "segula",
+          "type": "atomic",
+          "expression": "סגלה",
+          "method": "רגיל",
+          "claimed": 98,
+          "regions": [
+            "table98"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "ikuv",
+          "type": "atomic",
+          "expression": "עכוב",
+          "method": "רגיל",
+          "claimed": 98,
+          "regions": [
+            "table98",
+            "handwriting"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "chesed",
+          "type": "atomic",
+          "expression": "חסד יהוה",
+          "method": "רגיל",
+          "claimed": 98,
+          "regions": [
+            "table98"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "stars",
+          "type": "atomic",
+          "expression": "כוכבים",
+          "method": "רגיל",
+          "claimed": 98,
+          "regions": [
+            "table98"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "old_aqov",
+          "type": "atomic",
+          "expression": "עקוב",
+          "method": "רגיל",
+          "claimed": 98,
+          "regions": [],
+          "diagnosticOnly": true,
+          "constructed": false
+        },
+        {
+          "key": "old_lekulam",
+          "type": "atomic",
+          "expression": "לכולם",
+          "method": "רגיל",
+          "claimed": 98,
+          "regions": [],
+          "diagnosticOnly": true,
+          "constructed": false
+        }
+      ],
+      "geometry": {
+        "type": null,
+        "verified": false
+      },
+      "gaps": [
+        "נדרש תיקון מנוהל לתקציר ולמונחי החילוץ הישן; לא בוצע.",
+        "שאר טבלת הפרשנות והמספרים אינה כלולה בבדיקת משפחת 98."
+      ],
+      "id": "052cf69c-f400-4217-b27a-9e9395725515",
+      "media": {
+        "sourceLocator": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACEF2E9D139B098D0AC853E041558EC2.jpg",
+        "inspected": true,
+        "downloadAttempted": true,
+        "access": "public_url",
+        "id": "052cf69c-f400-4217-b27a-9e9395725515",
+        "bytes": 223928,
+        "sha256": "83f613f82edb4230115de75bd9915c3e8c446db90990ffce7cb21c4f6b771ba4",
+        "width": 1500,
+        "height": 2000
+      },
+      "transcription": {
+        "method": "assistant_visual_inspection",
+        "status": "candidate_region_transcription",
+        "fullImage": false,
+        "humanApproved": false
+      },
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "title": "שישה כיוונים — פרשנות, לצד חישוב 3060",
+      "recommendation": "דורש בדיקה",
+      "reason": "הפרשנות לשישה כיוונים אכן מופיעה בתמונה. הפסוק נותן 3060, וכן 6×ישר; הדבר אינו מוכיח פרשנות רוחנית או גוף תלת־ממדי.",
+      "regions": [
+        {
+          "key": "verse",
+          "text": "נבל תבל גם אתה גם העם הזה אשר עמך כי כבד ממך הדבר לא תוכל עשהו לבדך",
+          "box": [
+            0.12,
+            0.59,
+            0.77,
+            0.17
+          ],
+          "note": "הוסר ניקוד ופיסוק לתמלול אותיות; לא הוחלף איות. אין אימות מהדורת המקרא."
+        },
+        {
+          "key": "equation",
+          "text": "3060\n3060 בגימטריא:6×ישר(510).",
+          "box": [
+            0.28,
+            0.81,
+            0.61,
+            0.085
+          ],
+          "note": "תמלול חזותי ממוקד; אינו תמלול מלא של התמונה"
+        },
+        {
+          "key": "interpretation",
+          "text": "חובה שפע 6) כיוונים רוחניים) של יושר במשפט.",
+          "box": [
+            0.13,
+            0.9,
+            0.77,
+            0.08
+          ],
+          "note": "תמלול חזותי ממוקד; אינו תמלול מלא של התמונה"
+        }
+      ],
+      "calculations": [
+        {
+          "key": "verse",
+          "type": "atomic",
+          "expression": "נבל תבל גם אתה גם העם הזה אשר עמך כי כבד ממך הדבר לא תוכל עשהו לבדך",
+          "method": "רגיל",
+          "claimed": 3060,
+          "regions": [
+            "verse",
+            "equation"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "straight",
+          "type": "atomic",
+          "expression": "ישר",
+          "method": "רגיל",
+          "claimed": 510,
+          "regions": [
+            "equation"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "six_directions",
+          "type": "compound",
+          "expression": "6×ישר=3060",
+          "method": null,
+          "claimed": 3060,
+          "regions": [
+            "equation"
+          ],
+          "diagnosticOnly": false,
+          "constructed": true,
+          "constructionReason": "סידור מתמטי של הטענה המודפסת, לא ציטוט ברצף המקורי."
+        }
+      ],
+      "geometry": {
+        "type": null,
+        "verified": false
+      },
+      "gaps": [
+        "תחתית צילום העמוד קטועה; לא הושלם טקסט מחוץ לתמונה.",
+        "הממצא הנבחר הוא פרשנות לערך 6, לא טענת הפסוק ל־3060; אין שינוי יעד לפי טענה אחרת."
+      ],
+      "id": "09235881-0a1c-437a-9e37-1d76ddd5b46f",
+      "media": {
+        "sourceLocator": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC1A0C392AE3B2C07F8E71A16F83DB9A.jpg",
+        "inspected": true,
+        "downloadAttempted": true,
+        "access": "public_url",
+        "id": "09235881-0a1c-437a-9e37-1d76ddd5b46f",
+        "bytes": 211019,
+        "sha256": "7ae7e7f570b9dfed6e850af484ea825c36eacc5a18190c7226a358a4a1e2fd87",
+        "width": 1080,
+        "height": 2000
+      },
+      "transcription": {
+        "method": "assistant_visual_inspection",
+        "status": "candidate_region_transcription",
+        "fullImage": false,
+        "humanApproved": false
+      },
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "title": "בע״ה — המדיה אינה נגישה במסלול הציבורי",
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "המזהה מצביע לאובייקט ב־submission-inbox שה־bucket שלו אינו ציבורי. אין שינוי הרשאה, אין הורדת קובץ ואין השערה מה כתוב בתמונה.",
+      "regions": [],
+      "calculations": [
+        {
+          "key": "old_beah",
+          "type": "atomic",
+          "expression": "בע\"ה",
+          "method": "רגיל",
+          "claimed": 146,
+          "regions": [],
+          "diagnosticOnly": true,
+          "constructed": false
+        }
+      ],
+      "geometry": {
+        "type": null,
+        "verified": false
+      },
+      "gaps": [
+        "חסר ייצוג מקור מורשה וקריא; בדיקת המחרוזת הישנה בלבד אינה קובעת מה נטען בתמונה."
+      ],
+      "id": "0b2892d2-a429-4518-892e-a264022725d7",
+      "media": {
+        "sourceLocator": "storage-object:78e4d9aa-38a5-4f6d-a511-2988bd97a64c",
+        "inspected": false,
+        "downloadAttempted": false,
+        "access": "nonpublic_storage_object",
+        "id": "0b2892d2-a429-4518-892e-a264022725d7",
+        "bytes": null,
+        "sha256": null,
+        "width": null,
+        "height": null
+      },
+      "transcription": {
+        "method": "assistant_visual_inspection",
+        "status": "unavailable",
+        "fullImage": false,
+        "humanApproved": false
+      },
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "title": "מחומש ברית — הפרדת הסימונים",
+      "recommendation": "דורש בדיקה",
+      "reason": "חמש צלעות מסומנות ברית; ליד כל צלע טוב×36. טוב=17, ברית=612, וחמש פעמים ברית=3060. החילוץ ברית טוב×36 שגוי ואינו שווה 3060.",
+      "regions": [
+        {
+          "key": "pentagon",
+          "text": "ברית\nטוב×36\n3060",
+          "box": [
+            0.29,
+            0.12,
+            0.42,
+            0.8
+          ],
+          "note": "חמישה זוגות סימונים חוזרים בהיקף מחומש דו־ממדי. זהו תיאור סידור, לא שרשרת שוויון מודפסת אחת."
+        }
+      ],
+      "calculations": [
+        {
+          "key": "good",
+          "type": "atomic",
+          "expression": "טוב",
+          "method": "רגיל",
+          "claimed": null,
+          "regions": [
+            "pentagon"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "covenant",
+          "type": "atomic",
+          "expression": "ברית",
+          "method": "רגיל",
+          "claimed": null,
+          "regions": [
+            "pentagon"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "side",
+          "type": "compound",
+          "expression": "36×טוב=ברית=612",
+          "method": null,
+          "claimed": 612,
+          "regions": [
+            "pentagon"
+          ],
+          "diagnosticOnly": false,
+          "constructed": true,
+          "constructionReason": "תרגום הזוגות הנפרדים למשוואה; 612 הוא פלט המנוע, לא מספר מודפס בתצלום."
+        },
+        {
+          "key": "perimeter",
+          "type": "compound",
+          "expression": "5×ברית=3060",
+          "method": null,
+          "claimed": 3060,
+          "regions": [
+            "pentagon"
+          ],
+          "diagnosticOnly": false,
+          "constructed": true,
+          "constructionReason": "חמש הופעות ברית נספרו חזותית בחמש הצלעות; 3060 מודפס במרכז."
+        },
+        {
+          "key": "old_join",
+          "type": "compound",
+          "expression": "ברית טוב×36=3060",
+          "method": null,
+          "claimed": 3060,
+          "regions": [],
+          "diagnosticOnly": true,
+          "constructed": true,
+          "constructionReason": "בדיקת נוסח הרשומה הישנה בלבד; שתי התוויות אינן ביטוי אחד בתמונה."
+        }
+      ],
+      "geometry": {
+        "type": "pentagon_2d",
+        "visibleSides": 5,
+        "verified": false,
+        "meaning": "תצפית צורנית בלבד; אין יחידות אורך או מודל 3D"
+      },
+      "gaps": [
+        "נדרש תיקון מנוהל של החילוץ הישן, ללא החלפת המקור.",
+        "36 מופיע בסימונים; משמעות הבחירה בכמות אינה מאומתת."
+      ],
+      "id": "0b5e8fa3-6180-4f7d-bbeb-eafc054061e6",
+      "media": {
+        "sourceLocator": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACA7523DCE7E63590200605D7E6B1CFC.jpg",
+        "inspected": true,
+        "downloadAttempted": true,
+        "access": "public_url",
+        "id": "0b5e8fa3-6180-4f7d-bbeb-eafc054061e6",
+        "bytes": 19145,
+        "sha256": "e645888496c04204b2792367753de78f45187f057332ade279d491f505861f99",
+        "width": 512,
+        "height": 279
+      },
+      "transcription": {
+        "method": "assistant_visual_inspection",
+        "status": "candidate_region_transcription",
+        "fullImage": false,
+        "humanApproved": false
+      },
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "title": "1254 — ביטוי לצד שש פעמים מטעמים",
+      "recommendation": "מתאים לעץ",
+      "reason": "הדעת טוב ורע לא תאכל=1254; מטעמים=209 ושש פעמים מטעמים=1254. לא נטען שמטעמים לבדו שווה 1254, ולא אומתו שש פאות מן התצלום.",
+      "regions": [
+        {
+          "key": "bottom",
+          "text": "הדעת טוב ורע לא תאכל\nבגימטריא 1254\nשש \"מטעמים\"=1254",
+          "box": [
+            0.04,
+            0.8,
+            0.93,
+            0.12
+          ],
+          "note": "הנוסח המצוטט הוא המקטע הנראה בתמונה, לא פסוק מלא משוחזר."
+        },
+        {
+          "key": "faces",
+          "text": "עץ הדעת\nמטעמים",
+          "box": [
+            0.21,
+            0.39,
+            0.56,
+            0.37
+          ],
+          "note": "נראות שלוש פאות של המחשה דמוית קובייה; אין קריאה של פאות נסתרות."
+        }
+      ],
+      "calculations": [
+        {
+          "key": "phrase",
+          "type": "atomic",
+          "expression": "הדעת טוב ורע לא תאכל",
+          "method": "רגיל",
+          "claimed": 1254,
+          "regions": [
+            "bottom"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "tastes",
+          "type": "atomic",
+          "expression": "מטעמים",
+          "method": "רגיל",
+          "claimed": null,
+          "regions": [
+            "bottom",
+            "faces"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "six_tastes",
+          "type": "compound",
+          "expression": "6×מטעמים=1254",
+          "method": null,
+          "claimed": 1254,
+          "regions": [
+            "bottom"
+          ],
+          "diagnosticOnly": false,
+          "constructed": true,
+          "constructionReason": "המרת המילה המפורשת שש ל־6; לא הסקת הכמות משלוש הפאות הנראות."
+        }
+      ],
+      "geometry": {
+        "type": "cube_like_illustration",
+        "visibleFaces": 3,
+        "verified": false,
+        "meaning": "לא אומת שכל שש הפאות נושאות אותה תווית"
+      },
+      "gaps": [
+        "מומלץ חיבור מספרי בלבד; לא אישור הוכחה גיאומטרית או פרשנית."
+      ],
+      "id": "0bc3869b-631e-4219-8026-0a91a34e0583",
+      "media": {
+        "sourceLocator": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC9508E173F97F831FB128CC6E4D6054.jpg",
+        "inspected": true,
+        "downloadAttempted": true,
+        "access": "public_url",
+        "id": "0bc3869b-631e-4219-8026-0a91a34e0583",
+        "bytes": 337490,
+        "sha256": "0aaa04eaa597ada5338dbfb3d2751821f8701e47886d1e8209a0a5989b2f3ab7",
+        "width": 1500,
+        "height": 2000
+      },
+      "transcription": {
+        "method": "assistant_visual_inspection",
+        "status": "candidate_region_transcription",
+        "fullImage": false,
+        "humanApproved": false
+      },
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "title": "1486 — הכנסת ספר תורה וקטע הפסוק",
+      "recommendation": "מתאים לעץ",
+      "reason": "הכנסת ספר תורה=1486, וגם מעלים את ארון ברית י-ה-ו-ה=1486. זהו הקטע המודגש בלבד, לא כל הפסוק הארוך שמודפס מעליו.",
+      "regions": [
+        {
+          "key": "heading",
+          "text": "הכנסת ספר תורה\n1486",
+          "box": [
+            0.12,
+            0.08,
+            0.78,
+            0.16
+          ],
+          "note": "תמלול חזותי ממוקד; אינו תמלול מלא של התמונה"
+        },
+        {
+          "key": "highlight",
+          "text": "מעלים את ארון ברית י-ה-ו-ה\n1486",
+          "box": [
+            0.2,
+            0.79,
+            0.68,
+            0.07
+          ],
+          "note": "נשמרה הפרדת האותיות בשם כפי שהיא מופיעה במקטע המודגש."
+        }
+      ],
+      "calculations": [
+        {
+          "key": "torah",
+          "type": "atomic",
+          "expression": "הכנסת ספר תורה",
+          "method": "רגיל",
+          "claimed": 1486,
+          "regions": [
+            "heading"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "ark",
+          "type": "atomic",
+          "expression": "מעלים את ארון ברית י-ה-ו-ה",
+          "method": "רגיל",
+          "claimed": 1486,
+          "regions": [
+            "highlight"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        }
+      ],
+      "geometry": {
+        "type": null,
+        "verified": false
+      },
+      "gaps": [
+        "אין אימות לזהות האנשים בתצלום, לתאריך האירוע או לכל הפסוק."
+      ],
+      "id": "0d9498a6-9f44-4edf-bdbf-9d2e20906376",
+      "media": {
+        "sourceLocator": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC666A0B4C65E8BA1F4C2B8526B36829.jpg",
+        "inspected": true,
+        "downloadAttempted": true,
+        "access": "public_url",
+        "id": "0d9498a6-9f44-4edf-bdbf-9d2e20906376",
+        "bytes": 233339,
+        "sha256": "d7c5dbfd25213a0cefaeb1ad4baba4593b56ea5b37680a0a53e2d03c0f4c8773",
+        "width": 1080,
+        "height": 2000
+      },
+      "transcription": {
+        "method": "assistant_visual_inspection",
+        "status": "candidate_region_transcription",
+        "fullImage": false,
+        "humanApproved": false
+      },
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "title": "ארבעת המשולשים — אי־התאמה בכתיב הנראה",
+      "recommendation": "דורש בדיקה",
+      "reason": "שלושה מקטעים נותנים 765. במרכז נקרא וישבתם בטח, שנותן 777; לכן סכום הנוסחים הנראים הוא 3072, לא 3060. אין לשנות אות כדי להתאים למספר.",
+      "regions": [
+        {
+          "key": "triangle_top",
+          "text": "ויברך אתם אלהים",
+          "box": [
+            0.47,
+            0.28,
+            0.061,
+            0.035
+          ],
+          "note": "תמלול אותיות ללא ניקוד; בתמונה נקרא אתם, לא אותם."
+        },
+        {
+          "key": "triangle_middle",
+          "text": "וישבתם בטח",
+          "box": [
+            0.46,
+            0.331,
+            0.077,
+            0.029
+          ],
+          "note": "מקטע קטן בתמונה; תמלול חזותי לבדיקה, לא אישור אנושי."
+        },
+        {
+          "key": "triangle_left",
+          "text": "להתפלל לפניך",
+          "box": [
+            0.372,
+            0.355,
+            0.077,
+            0.031
+          ],
+          "note": "תמלול חזותי ממוקד; אינו תמלול מלא של התמונה"
+        },
+        {
+          "key": "triangle_right",
+          "text": "ביום השבת",
+          "box": [
+            0.551,
+            0.356,
+            0.05,
+            0.029
+          ],
+          "note": "תמלול חזותי ממוקד; אינו תמלול מלא של התמונה"
+        },
+        {
+          "key": "triangle_claim",
+          "text": "סכום הגימטריא של כל 4 הפסוקים במשולשים הפנימיים הוא:3060.\nכל פסוק בתוך משולש קטן הוא תמיד בגימטריא:765.",
+          "box": [
+            0.13,
+            0.44,
+            0.76,
+            0.17
+          ],
+          "note": "תמלול חזותי ממוקד; אינו תמלול מלא של התמונה"
+        },
+        {
+          "key": "pentagon",
+          "text": "ברית\nטוב×36\n3060",
+          "box": [
+            0.35,
+            0.69,
+            0.3,
+            0.17
+          ],
+          "note": "האיור חוזר בצילום משולב, לא מקור מחקר עצמאי."
+        },
+        {
+          "key": "pentagon_caption",
+          "text": "גם היקף המחומש החיצוני:\n(5× \"ברית\")=3060 בגימטריא",
+          "box": [
+            0.1,
+            0.89,
+            0.8,
+            0.08
+          ],
+          "note": "תמלול חזותי ממוקד; אינו תמלול מלא של התמונה"
+        }
+      ],
+      "calculations": [
+        {
+          "key": "top",
+          "type": "atomic",
+          "expression": "ויברך אתם אלהים",
+          "method": "רגיל",
+          "claimed": 765,
+          "regions": [
+            "triangle_top",
+            "triangle_claim"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "middle",
+          "type": "atomic",
+          "expression": "וישבתם בטח",
+          "method": "רגיל",
+          "claimed": 765,
+          "regions": [
+            "triangle_middle",
+            "triangle_claim"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "left",
+          "type": "atomic",
+          "expression": "להתפלל לפניך",
+          "method": "רגיל",
+          "claimed": 765,
+          "regions": [
+            "triangle_left",
+            "triangle_claim"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "right",
+          "type": "atomic",
+          "expression": "ביום השבת",
+          "method": "רגיל",
+          "claimed": 765,
+          "regions": [
+            "triangle_right",
+            "triangle_claim"
+          ],
+          "diagnosticOnly": false,
+          "constructed": false
+        },
+        {
+          "key": "triangle_total",
+          "type": "compound",
+          "expression": "ויברך אתם אלהים+וישבתם בטח+להתפלל לפניך+ביום השבת=3060",
+          "method": null,
+          "claimed": 3060,
+          "regions": [
+            "triangle_top",
+            "triangle_middle",
+            "triangle_left",
+            "triangle_right",
+            "triangle_claim"
+          ],
+          "diagnosticOnly": false,
+          "constructed": true,
+          "constructionReason": "שרשרת מחושבת מהארבעה הקריאים; אינה רצף טקסט מודפס בתמונה."
+        },
+        {
+          "key": "pentagon_caption",
+          "type": "compound",
+          "expression": "5×ברית=3060",
+          "method": null,
+          "claimed": 3060,
+          "regions": [
+            "pentagon_caption"
+          ],
+          "diagnosticOnly": false,
+          "constructed": true,
+          "constructionReason": "הסרת מרכאות ורווחים מהנוסחה המפורשת בכיתוב."
+        }
+      ],
+      "geometry": {
+        "type": "four_triangles_2d",
+        "visibleTriangles": 4,
+        "verified": false,
+        "meaning": "תצפית צורנית; הסכום המספרי הנטען אינו מתאים"
+      },
+      "gaps": [
+        "נדרש בירור נוסח המקור/תמונה חדה יותר של מרכז המשולש, בלי ניחוש תיקון.",
+        "התצלום נקטע בתחתית; יתר הדיון במחומש לא תומלל.",
+        "מחומש מאומת בחלקו אינו מאמת את ארבעת המשולשים."
+      ],
+      "id": "0e479992-c6fd-4feb-b87d-78c8dad64ade",
+      "media": {
+        "sourceLocator": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACE0C9614EC4DFC0DEFF6A8BBCB7210D.jpg",
+        "inspected": true,
+        "downloadAttempted": true,
+        "access": "public_url",
+        "id": "0e479992-c6fd-4feb-b87d-78c8dad64ade",
+        "bytes": 205947,
+        "sha256": "efb237372181d7c07b3f164c216f4069e23224ca55e62a060688d7c7d26d9031",
+        "width": 1080,
+        "height": 2000
+      },
+      "transcription": {
+        "method": "assistant_visual_inspection",
+        "status": "candidate_region_transcription",
+        "fullImage": false,
+        "humanApproved": false
+      },
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    }
+  ],
+  "storageChecks": [
+    {
+      "objectId": "78e4d9aa-38a5-4f6d-a511-2988bd97a64c",
+      "bucketId": "submission-inbox",
+      "public": false,
+      "downloadAttempted": false
+    }
+  ],
+  "visualReuse": [
+    {
+      "findingIds": [
+        "0b5e8fa3-6180-4f7d-bbeb-eafc054061e6",
+        "0e479992-c6fd-4feb-b87d-78c8dad64ade"
+      ],
+      "sourceIds": [
+        "305b8335-72bf-43e5-9edd-0d1b4340f97f",
+        "3c8ea715-0e4e-4690-9d49-b011b71b61d2"
+      ],
+      "kind": "embedded_pentagon_visual_reuse",
+      "fullerContextFindingId": "0e479992-c6fd-4feb-b87d-78c8dad64ade",
+      "retainOriginalDetailFindingId": "0b5e8fa3-6180-4f7d-bbeb-eafc054061e6",
+      "sameFinding": false,
+      "byteIdentical": false,
+      "independentSourcesAdded": 0,
+      "merge": false,
+      "suppress": false,
+      "reason": "אותו איור מחומש נראה כתמונה נפרדת ובמסמך מורחב; טענת המחומש וטענת המשולשים שונות. נשמרים שניהם."
+    }
+  ]
+}

@@ -9,6 +9,10 @@ import {
 
 test("spatial World projection exposes the six canonical Zvi models", () => {
   assert.equal(ZVI_SPATIAL_WORLD.counts.models, 6);
+  assert.equal(ZVI_SPATIAL_WORLD.counts.sourceOccurrences, 12);
+  assert.equal(ZVI_SPATIAL_WORLD.counts.exactSourceOccurrences, 11);
+  assert.equal(ZVI_SPATIAL_WORLD.counts.historicalSourceOccurrences, 1);
+  assert.equal(ZVI_SPATIAL_WORLD.coverage.completeCorpus, false);
   assert.equal(new Set(ZVI_SPATIAL_WORLD.cards.map((card) => card.slug)).size, 6);
   assert.ok(ZVI_SPATIAL_WORLD.cards.every((card) => card.source.contributor === "צבי"));
 });

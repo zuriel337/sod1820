@@ -25,6 +25,8 @@ const publicPerson = (index, extra = {}) => ({
   building: false,
   public_visibility: "public",
   trusted: false,
+  created_at: `2026-08-${String((index % 27) + 1).padStart(2, "0")}T00:00:00Z`,
+  updated_at: `2026-09-${String((index % 27) + 1).padStart(2, "0")}T00:00:00Z`,
   ...extra,
 });
 test("public people index follows the writer-page contract and includes non-trusted people", () => {
@@ -37,7 +39,9 @@ test("public people index follows the writer-page contract and includes non-trus
   assert.equal(index.people.some((person) => person.slug === "writer-4" && person.trusted === false), true);
   assert.equal(index.people.some((person) => ["private", "locked", "building"].includes(person.slug)), false);
   assert.equal(index.people[0].href.startsWith("/community/researcher/"), true);
-  assert.equal(WORLD_PEOPLE_PAGE_SIZE, 8);
+  assert.equal(index.people[0].slug, "writer-26");
+  assert.equal(index.people[0].updatedAt, "2026-09-27T00:00:00Z");
+  assert.equal(WORLD_PEOPLE_PAGE_SIZE, 20);
   assert.doesNotMatch(JSON.stringify(index), /user_id|email|phone|wa_names/i);
 });
 
@@ -60,16 +64,20 @@ test("anonymous index reader is paged, safe-field only and never uses People Dir
   const index = await fetchWorldPublicPeopleIndex({ client });
   assert.equal(index.total, 101);
   assert.deepEqual(calls.flatMap((call) => call.ranges), [[0, 99], [100, 199]]);
+  assert.ok(calls.every((call) => call.select.includes("created_at,updated_at")));
   assert.ok(calls.every((call) => !/user_id|email|phone|wa_names|people_public_rows_v1|person_public_profile_v1/i.test(call.select)));
   assert.doesNotMatch(source, /people_public_rows_v1|person_public_profile_v1|People Directory/i);
 });
 
-test("material keeps findings attached to source_ref and deduplicates source-native records", () => {
+test("material keeps findings attached to source_ref, deduplicates source-native records and orders updated writings first", () => {
   const identity = { id: "writer", slug: "writer", displayName: "כותב" };
   const findings = { mode: "public_view", availability: { sources: "ok", research: "deferred" }, rows: [{ id: "finding-not-a-source" }] };
   const sourceCatalog = { items: [{ id: "one", sourceRef: "channel_updates:one", title: "מקור", text: "טקסט", createdAt: "2026-10-20", href: "/world?source=writer&sourceRef=one", researchFacets: { count: 1 } }] };
   const publications = {
-    posts: { rows: [{ id: "p1", slug: "post-one", title: "כותרת", date: "2026-10-21" }], complete: true, availability: "ok" },
+    posts: { rows: [
+      { id: "p1", slug: "post-one", title: "כותרת", date: "2026-10-21", modified: "2026-10-24" },
+      { id: "p2", slug: "post-two", title: "כותרת ישנה", date: "2026-10-23" },
+    ], complete: true, availability: "ok" },
     ciphers: { rows: [{ id: "e1", slug: "cipher", title: "צופן", status: "published", visibility: "public" }], complete: true, availability: "ok" },
     contributions: { rows: [{ id: "c1", title: "תרומה", status: "approved", projected_insight_id: "i1" }], complete: true, availability: "ok" },
     insights: { rows: [{ id: "i1", title: "כפילות הקרנה", is_active: true }], complete: true, availability: "ok" },
@@ -80,6 +88,8 @@ test("material keeps findings attached to source_ref and deduplicates source-nat
   assert.deepEqual(new Set(result.items.map((row) => row.type)), new Set(["sources", "writings", "ciphers", "topics"]));
   assert.equal(result.items.some((row) => row.id === "finding-not-a-source"), false);
   assert.equal(result.items.some((row) => row.sourceRef === "insights:i1"), false, "projected insight is not another source");
+  assert.deepEqual(result.items.filter((row) => row.type === "writings").map((row) => row.sourceRef), ["posts:p1", "posts:p2"]);
+  assert.equal(result.items.find((row) => row.sourceRef === "posts:p1")?.dateKind, "updated");
   assert.equal(result.items.find((row) => row.sourceRef === "channel_updates:one")?.number, null, "missing number stays missing");
   assert.equal(result.partial, false, "intentional source-library research deferral is not a failed reader");
   assert.equal(new Set(result.items.map((row) => row.sourceRef)).size, result.items.length);

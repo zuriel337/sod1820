@@ -3044,13 +3044,29 @@ export async function addImageToRealityStream(id, occurredAt = null) {
 
 // גלריה ציבורית — כל התמונות עם פילטר סוג + חיפוש + פגינציה
 // hidden: 'no' = רק גלויות (ברירת מחדל) · 'only' = רק מוסתרות (אדמין) · 'all' = הכל (אדמין)
-export async function getGalleryPage({ type = null, page = 0, limit = 60, search = "", hidden = "no" } = {}) {
+export async function getGalleryPage({
+  type = null,
+  page = 0,
+  limit = 60,
+  search = "",
+  hidden = "no",
+  review = null,
+  withCount = true,
+} = {}) {
   if (!supabase) return { data: [], count: 0 };
+  const publicFields = 'id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden';
+  // The review shape is consumed only by the existing authenticated World manager surface.
+  // It deliberately omits OCR text and metadata bodies: the queue needs status, source
+  // identity and completeness signals, not the extracted corpus itself.
+  const reviewFields = `${publicFields},created_at,published,min_tier,tags,ocr_status,ocr_numbers,gallery_id,wp_gallery_id`;
   let q = supabase.from('gallery_images')
-    .select('id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden', { count: 'exact' })
+    .select(review ? reviewFields : publicFields, { count: withCount ? 'exact' : undefined })
     .not('image_url', 'is', null);
   if (hidden === 'only') q = q.eq('curator_hidden', true);
   else if (hidden !== 'all') q = q.not('curator_hidden', 'is', true);
+  if (review === 'ocr') {
+    q = q.or('ocr_status.is.null,ocr_status.neq.done,ocr_text.is.null,ocr_text.eq.');
+  }
   if (type) q = q.eq('image_type', type);
   if (search.trim()) {
     const t = search.trim();
@@ -3060,9 +3076,10 @@ export async function getGalleryPage({ type = null, page = 0, limit = 60, search
   const { data, count, error } = await q
     .order('occurred_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
     .range(page * limit, (page + 1) * limit - 1);
   if (error) return { data: [], count: 0 };
-  return { data: data || [], count: count || 0 };
+  return { data: data || [], count: withCount ? count || 0 : null };
 }
 export async function createTopicCardDraft(card) {
   if (!supabase) throw new Error('no supabase');

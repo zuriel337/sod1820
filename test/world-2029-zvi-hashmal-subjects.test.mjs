@@ -21,16 +21,19 @@ test("only approved Topic identities are subjects; Hashmal post is a source work
   assert.equal(filterPublicSourceSubjects(cards, { query: "1234" }).length, 1);
 });
 
-test("the 78 approved Topic and 132 public source rows are paged completely", async () => {
+test("the 78 approved Zvi Topics stay a ranked subset of 205 Topics; 132 source rows stay separate", async () => {
   const calls = [];
   const out = await fetchPublicSourceSubjectIndex({
-    topicReader: async ({ offset, limit, creator }) => {
-      calls.push(["topic", offset, creator]);
+    topicReader: async ({ offset, limit, creator, rankByMeterScore }) => {
+      calls.push(["topic", offset, creator, rankByMeterScore]);
+      assert.equal(rankByMeterScore, true);
+      if (!creator) return { rows: [{ id: "all-1" }], total: 205, hasMore: true };
       assert.equal(creator, "צבי (OPOC)");
       assert.equal(limit, 60);
       const n = offset === 0 ? 60 : 18;
       return { rows: Array.from({ length: n }, (_, i) => ({
         id: String(offset + i + 1), slug: `z-${offset + i + 1}`, title: `צבי ${offset + i + 1}`,
+        meter_score: 100 - offset - i,
       })), total: 78, hasMore: offset === 0 };
     },
     corpusReader: async (spec, page) => {
@@ -42,10 +45,11 @@ test("the 78 approved Topic and 132 public source rows are paged completely", as
     },
   });
   assert.equal(out.cards.length, 210);
-  assert.deepEqual(out.totals, { zvi: 78, hashmal: 132 });
-  assert.deepEqual(out.available, { zvi: true, hashmal: true });
+  assert.deepEqual(out.totals, { allTopics: 205, zvi: 78, hashmal: 132 });
+  assert.deepEqual(out.available, { allTopics: true, zvi: true, hashmal: true });
+  assert.equal(out.cards[0].meterScore, 100);
   assert.equal(out.incomplete, false);
-  assert.equal(calls.filter(([type]) => type === "topic").length, 2);
+  assert.equal(calls.filter(([type]) => type === "topic").length, 3);
   assert.equal(calls.filter(([type]) => type === "source").length, 6);
 });
 
@@ -54,8 +58,8 @@ test("one unavailable source reader never turns unknown inventory into zero", as
     topicReader: async () => { throw new Error("unavailable"); },
     corpusReader: async () => ({ items: [{ id: "8", slug: "a", title: "המקור" }], total: 1, hasMore: false }),
   });
-  assert.deepEqual(out.totals, { zvi: null, hashmal: 1 });
-  assert.deepEqual(out.available, { zvi: false, hashmal: true });
+  assert.deepEqual(out.totals, { allTopics: null, zvi: null, hashmal: 1 });
+  assert.deepEqual(out.available, { allTopics: false, zvi: false, hashmal: true });
   assert.equal(out.cards.length, 1);
 });
 
@@ -73,9 +77,11 @@ test("the single public World layout uses one category-free subject reader and k
   const ui = readFileSync(new URL("../src/components/research/WorldPublicSourceSubjects2029.jsx", import.meta.url), "utf8");
   assert.doesNotMatch(ui, /קטגוריות סוד החשמל|publicSourceSubjectCategories|category ===/);
   assert.match(ui, /מקורות סוד החשמל/);
-  assert.match(ui, /נושאי צבי מאושרים/);
-  assert.match(ui, /פרסומי סוד החשמל/);
-  assert.match(ui, /ממצאי המחקר של צבי נספרים וממוינים בנפרד/);
+  assert.match(ui, /נושאים ציבוריים בעץ/);
+  assert.match(ui, /מתוכם.*נושאי צבי/);
+  assert.match(ui, /פרסומי סוד החשמל · מקורות/);
+  assert.match(ui, /נושאי צבי הם עדשה בתוך אותו עץ/);
+  assert.match(ui, /חוזק תצוגה:.*טרם דורג/);
   const reader = readFileSync(new URL("../src/lib/research/worldPublicSourceSubjects2029.js", import.meta.url), "utf8");
   assert.doesNotMatch(reader, /posts\.categories|\.map\(.*categories|category\s*=/);
   const source = readFileSync(new URL("../src/components/research/ContributorFindingsLens.jsx", import.meta.url), "utf8");

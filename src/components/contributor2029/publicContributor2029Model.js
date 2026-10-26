@@ -1,6 +1,10 @@
 // Page-local presentation over the canonical readers. No persistence or attribution inference.
 import { normalizeWorldAllResearchRow } from "../../lib/research/worldAllResearchProjection.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
+import {
+  contributorPublicationRecordTime,
+  contributorPublicationRecordTimeKind,
+} from "../../lib/research/contributorPublicationCatalog.js";
 export const SECTIONS = Object.freeze([
   ["all", "הכול"], ["writings", "כתבים ומאמרים"], ["sources", "מקורות ועדכונים"],
   ["findings", "ממצאים"], ["topics", "התכנסויות ונושאים"], ["media", "מדיה וגלריות"], ["community", "הודעות, לייקים ותגובות"],
@@ -202,7 +206,8 @@ export function appendContributorPublicationCatalog(view, catalogue, identity) {
     if (!row.slug) continue;
     const mediaUrl = safePublicUrl(row.thumb_url || row.image_url);
     put({ id: `post:${row.id}`, sourceRef: `posts:${row.id}`, type: "writings", title: humanContentTitle(row.title, { max: 0 }),
-      date: row.date, href: safePublicUrl(`/${row.slug}`), media: Boolean(mediaUrl), mediaUrl,
+      date: contributorPublicationRecordTime(row), dateKind: contributorPublicationRecordTimeKind(row),
+      href: safePublicUrl(`/${row.slug}`), media: Boolean(mediaUrl), mediaUrl,
       reason: row.author === identity.display_name ? "מאמר שהמערכת מייחסת לכותב." : "מאמר בהשתתפות הכותב." });
   }
   for (const row of catalogue.ciphers?.rows || []) {

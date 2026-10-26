@@ -25,6 +25,7 @@ export function canonicalSourceSubjectCards({ zviTopics = [], hashmalPosts = [] 
       title: clean(row.title) || slug, description: clean(row.subtitle),
       at: row.approved_at || row.created_at || null,
       values: Array.isArray(row.numbers) ? row.numbers : [],
+      meterScore: Number.isFinite(Number(row.meter_score)) ? Number(row.meter_score) : null,
       href: `/topic/${encodeURIComponent(slug)}`,
     });
   }
@@ -57,13 +58,21 @@ async function readZviTopics(reader) {
   const rows = [];
   let total = null, hasMore = true;
   for (let offset = 0; offset < MAX_TOPIC_ROWS && hasMore; offset += TOPIC_BATCH) {
-    const page = await reader({ creator: ZVI_CREATOR, limit: TOPIC_BATCH, offset, includeTotal: true });
+    const page = await reader({ creator: ZVI_CREATOR, limit: TOPIC_BATCH, offset, includeTotal: true, rankByMeterScore: true });
     if (!page || !Array.isArray(page.rows)) throw new Error("topic_index_unavailable");
     rows.push(...page.rows);
     if (Number.isFinite(page.total)) total = page.total;
     hasMore = Boolean(page.hasMore);
   }
   return { rows, total: total ?? rows.length, incomplete: hasMore };
+}
+
+async function readAllTopicTotal(reader) {
+  const page = await reader({ limit: 1, offset: 0, includeTotal: true, rankByMeterScore: true });
+  if (!page || !Array.isArray(page.rows) || !Number.isFinite(Number(page.total))) {
+    throw new Error("topic_total_unavailable");
+  }
+  return Number(page.total);
 }
 
 async function readHashmalSources(reader) {
@@ -84,8 +93,8 @@ export async function fetchPublicSourceSubjectIndex({
   corpusReader = fetchCorpusPage,
 } = {}) {
   if (!HASHMAL) throw new Error("source_corpus_missing");
-  const [topicResult, corpusResult] = await Promise.allSettled([
-    readZviTopics(topicReader), readHashmalSources(corpusReader),
+  const [topicResult, totalResult, corpusResult] = await Promise.allSettled([
+    readZviTopics(topicReader), readAllTopicTotal(topicReader), readHashmalSources(corpusReader),
   ]);
   if (topicResult.status === "rejected" && corpusResult.status === "rejected") {
     throw new Error("public_subject_readers_unavailable");
@@ -97,8 +106,16 @@ export async function fetchPublicSourceSubjectIndex({
       zviTopics: zvi?.rows || [],
       hashmalPosts: hashmal?.rows || [],
     }),
-    totals: { zvi: zvi?.total ?? null, hashmal: hashmal?.total ?? null },
-    available: { zvi: Boolean(zvi), hashmal: Boolean(hashmal) },
+    totals: {
+      allTopics: totalResult.status === "fulfilled" ? totalResult.value : null,
+      zvi: zvi?.total ?? null,
+      hashmal: hashmal?.total ?? null,
+    },
+    available: {
+      allTopics: totalResult.status === "fulfilled",
+      zvi: Boolean(zvi),
+      hashmal: Boolean(hashmal),
+    },
     incomplete: Boolean(zvi?.incomplete || hashmal?.incomplete),
   };
 }
