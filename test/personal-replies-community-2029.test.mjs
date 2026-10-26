@@ -10,7 +10,7 @@ test("the owner-only reader includes imported posts only through a canonical acc
   assert.match(sql, /a\.author_user_id = \(select auth\.uid\(\)\)/);
   assert.match(sql, /edge\.legacy_id = 'contributor:' \|\| c\.id::text/);
   assert.match(sql, /person\.account_user_id = \(select auth\.uid\(\)\)/);
-  assert.match(sql, /r\.author_contributor_id in \(select id from my_contributors\)/);
+  assert.match(sql, /coalesce\(r\.author_contributor_id in \(select id from my_contributors\), false\)/);
   assert.match(sql, /thread_root_id uuid/);
   assert.match(sql, /thread_path uuid\[\]/);
   assert.match(sql, /r\.origin/);

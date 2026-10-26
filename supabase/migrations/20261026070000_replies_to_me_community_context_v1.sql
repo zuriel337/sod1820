@@ -74,7 +74,7 @@ as $function$
   join public.research_contributions p on p.id = r.parent_id
   where not (
       coalesce(r.author_user_id = (select auth.uid()), false)
-      or r.author_contributor_id in (select id from my_contributors)
+      or coalesce(r.author_contributor_id in (select id from my_contributors), false)
     )
     and coalesce(r.status, '') not in ('hidden', 'rejected')
     and (coalesce(r.origin, '') not in ('openweb', 'community_2029') or r.status = 'approved')
