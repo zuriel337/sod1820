@@ -338,8 +338,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__nameCalls.filter(call => call.kind === "name_lab").length), 2, "the explicit family action reads the existing bounded non-ELS name source once per selected person");
     assert.equal(await page.evaluate(() => window.__nameCalls.filter(call => call.kind === "name_lab").every(call => call.options.skip_els === "1")), true, "every name source read carries the non-ELS contract");
     await family.getByRole("heading", { name: "מילים וביטויים סביב המספרים" }).waitFor();
-    await family.getByText("פסוקים ומקורות לשם", { exact: true }).first().click();
-    await family.getByText("תהלים 1:1", { exact: true }).first().waitFor();
+    await family.getByText("פסוק לשם", { exact: true }).first().waitFor();
+    await family.getByText("תהלים א׳, א׳", { exact: true }).first().waitFor();
     assert.equal(await page.evaluate(() => window.__sourceCalls.length > 0), true, "canonical number lookup supplies equal-value phrases");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");

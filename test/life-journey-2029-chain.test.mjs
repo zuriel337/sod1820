@@ -18,6 +18,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const familyResearch = read("src/lib/research/lifeJourneyFamilyResearch.js");
   const familySourceResearch = read("src/lib/research/lifeJourneyFamilySourceResearch.js");
   const familyAnalysis = read("src/lib/research/lifeJourneyFamilyAnalysis.js");
+  const canonicalVerseCards = read("src/components/experience2029/CanonicalVerseCards2029.jsx");
+  const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
   const removalMigration = read("supabase/migrations/20261025035531_life_journey_remove_family_member_v1.sql");
   const supabaseClient = read("src/lib/supabase.js");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
@@ -74,7 +76,15 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /runLifeJourneyFamilyAnalysis/);
   assert.match(journey, /runLifeJourneyFamilySourceResearch/);
   assert.match(journey, /מילים וביטויים סביב המספרים/);
-  assert.match(journey, /פסוקים ומקורות לשם/);
+  assert.match(journey, /CanonicalVerseCards2029/);
+  assert.match(journey, /פסוק לשם/);
+  assert.match(numberLivingWorld, /CanonicalVerseCards2029/);
+  assert.match(numberLivingWorld, /fallbackValue=\{root\}/);
+  assert.match(canonicalVerseCards, /formatTanakhRef/);
+  assert.match(canonicalVerseCards, /formatVerseGematriaSuffix/);
+  assert.match(canonicalVerseCards, /data-verse-identity/);
+  assert.match(canonicalVerseCards, /variant === "gematria"/);
+  assert.match(canonicalVerseCards, /variant === "name"/);
   assert.match(journey, /await analyzeCompletedFamilyResearch\(completedResearch\)/);
   assert.match(journey, /המסר המשפחתי/);
   assert.match(journey, /data-experience-capability="life-journey-family-normalized-analysis"/);

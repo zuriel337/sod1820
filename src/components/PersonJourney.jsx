@@ -58,6 +58,7 @@ import {
 } from "../lib/research/lifeJourneyFamilyResearchSnapshot.js";
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
+import CanonicalVerseCards2029 from "./experience2029/CanonicalVerseCards2029.jsx";
 import "./person-journey.css";
 
 const RELATIONS = Object.freeze([
@@ -1502,14 +1503,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
                 onClick={() => openFindingTraversal(row.memberRef, finding)}
                 aria-label={`פתח את ממצא ${finding.value} של ${row.name}`}
               >{finding.value}</button>)}</div> : null}
-              {memberSources?.verses?.length ? <details className="person-journey-member-sources">
-                <summary>פסוקים ומקורות לשם</summary>
-                {memberSources.verses.map(verse => <blockquote key={verse.id}>
-                  <strong>{verse.ref}</strong>
-                  <span>{verse.text}</span>
-                </blockquote>)}
+              {memberSources?.verses?.length ? <section className="person-journey-member-sources" aria-label={`פסוק לשם של ${row.name}`}>
+                <header><strong>פסוק לשם</strong><small>מקור מקראי קנוני</small></header>
+                <CanonicalVerseCards2029 rows={memberSources.verses.slice(0, 1)} variant="name" compact />
+                {memberSources.verses.length > 1 ? <details>
+                  <summary>פתח פסוק נוסף</summary>
+                  <CanonicalVerseCards2029 rows={memberSources.verses.slice(1)} variant="name" compact />
+                </details> : null}
                 <small>{memberSources.tracksWithResults} מסלולי מקור החזירו תוצאה · ללא ELS</small>
-              </details> : null}
+              </section> : null}
               {row.data.partial ? <small>שכבת השם לא הייתה זמינה; מוצג המידע שחושב מהתאריך בלבד.</small> : null}
             </> : <p>{row.error}</p>}
           </article>;})}

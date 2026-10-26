@@ -37,7 +37,7 @@ function completedResearch() {
     connections: [{ id: "pair-1", left: { memberRef: PERSON_REF, name: "הורה בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, right: { memberRef: CHILD_REF, name: "ילד בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, independentGroupCount: 1, expressionConnectionCount: 4, findingIds: ["relation-1"] }],
     sourceResearch: {
       version: "life-journey-family-source-v1",
-      memberSources: [{ memberRef: PERSON_REF, verses: [{ id: "verse-1", ref: "תהלים 1:1", text: "הורה בדיקה הולך בדרך", sourceRef: "rpc:fn_name_verse", evidence: "direct" }], tracks: [{ id: "name_verse", label: "הפסוק שלך", count: 1, sourceRef: "rpc:fn_name_verse" }], consensus: [], tracksWithResults: 1, sourceRef: "rpc:fn_name_multi?skip_els=1" }],
+      memberSources: [{ memberRef: PERSON_REF, verses: [{ id: "verse:tehilim:1:1", ref: "תהלים 1:1", text: "הורה בדיקה הולך בדרך", sourceRef: "rpc:fn_name_verse", evidence: "direct", verseIdentity: "verse:tehilim:1:1", canonicalBookIdentity: "book:tehilim", corpusBookKey: "tehilim", corpusBookIndex: 26, verseDisplayRef: "תהלים 1:1", verseSource: { corpusSourceId: "sod1820:public.tanach_verses (public/tanakh-verses.json mirror)", textWitness: "displayText" } }], tracks: [{ id: "name_verse", label: "הפסוק שלך", count: 1, sourceRef: "rpc:fn_name_verse" }], consensus: [], tracksWithResults: 1, sourceRef: "rpc:fn_name_multi?skip_els=1" }],
       numberSources: [{ value: 73, phrases: [{ id: "phrase-1", phrase: "הורה בדיקה", methods: ["רגיל"], sourceRefs: ["bidim:1"], governed: true, evidence: "value_match" }, { id: "phrase-2", phrase: "אור", methods: ["רגיל"], sourceRefs: ["bidim:2"], governed: true, evidence: "value_match" }], sourceRef: "rpc:fn_number_lookup", truncated: false }],
       coverage: { requestedMemberCount: 2, returnedMemberCount: 1, requestedValueCount: 1, returnedValueCount: 1, verseCount: 1, equalPhraseCount: 2, truncated: false },
       boundaries: { no_els: true, no_new_store: true },
@@ -83,6 +83,8 @@ test("family research snapshot round-trips only through the existing private Con
   assert.equal(materialized.research.methodNormalization.collapsedMethodResultCount, 2);
   assert.equal(materialized.research.sourceResearch.numberSources[0].phrases[1].phrase, "אור");
   assert.equal(materialized.research.sourceResearch.memberSources[0].verses[0].text.includes("הורה בדיקה"), false);
+  assert.equal(materialized.research.sourceResearch.memberSources[0].verses[0].verseIdentity, "verse:tehilim:1:1");
+  assert.equal(materialized.research.sourceResearch.memberSources[0].verses[0].verseSource.textWitness, "displayText");
   assert.deepEqual(lifeJourneyFamilySnapshotPatch(serialized), {
     dimensions: { [LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION]: serialized },
   });

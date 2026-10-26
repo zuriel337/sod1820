@@ -78,6 +78,15 @@ function compactSourceResearch(sourceResearch, privateLabels) {
         text: redactPrivateLabels(verse?.text, privateLabels),
         sourceRef: text(verse?.sourceRef, 160),
         evidence: text(verse?.evidence, 40),
+        verseIdentity: text(verse?.verseIdentity, 160),
+        canonicalBookIdentity: text(verse?.canonicalBookIdentity, 160),
+        corpusBookKey: text(verse?.corpusBookKey, 120),
+        corpusBookIndex: integer(verse?.corpusBookIndex),
+        verseDisplayRef: text(verse?.verseDisplayRef, 160),
+        verseSource: verse?.verseSource && typeof verse.verseSource === "object" ? {
+          corpusSourceId: text(verse.verseSource.corpusSourceId, 240),
+          textWitness: text(verse.verseSource.textWitness, 80),
+        } : null,
       })).filter(verse => verse.id && verse.ref && verse.text),
       tracks: list(source?.tracks).slice(0, 18).map(track => ({
         id: text(track?.id, 80),

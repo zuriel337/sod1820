@@ -21,6 +21,9 @@ test("member source projection keeps canonical references and drops ELS complete
     ],
   });
   assert.equal(out.verses.length, 2);
+  assert.equal(out.verses[0].verseIdentity, "verse:bereshit:1:1");
+  assert.equal(out.verses[0].canonicalBookIdentity, "book:bereshit");
+  assert.equal(out.verses[0].verseSource.textWitness, "displayText");
   assert.deepEqual(out.tracks.map(row => row.id), ["name_verse", "combo_gem"]);
   assert.equal(JSON.stringify(out).includes("fn_els_search"), false);
   assert.equal(out.consensus[0].independentFamilyCount, 3);

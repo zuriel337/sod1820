@@ -1,5 +1,6 @@
 import { getNameMultiWithoutEls, getNumberLookup } from "../supabase.js";
 import { stableIdentityDigest } from "./researchRepresentations.js";
+import { verseIdentityForEngineRow } from "./tanakhVerseResultAdapter.js";
 
 export const LIFE_JOURNEY_FAMILY_SOURCE_VERSION = "life-journey-family-source-v1";
 export const LIFE_JOURNEY_FAMILY_SOURCE_MAX_MEMBERS = 12;
@@ -48,12 +49,19 @@ function sourceVerse(verse, index) {
   const ref = clean(verse?.ref);
   const text = clean(verse?.text);
   if (!ref || !text) return null;
+  const identity = verseIdentityForEngineRow(verse, { textWitness: "displayText" });
   return Object.freeze({
-    id: `life-family-verse:${stableIdentityDigest(`${ref}:${index}`)}`,
+    id: identity?.verseIdentity || `life-family-verse:${stableIdentityDigest(`${ref}:${index}`)}`,
     ref,
     text,
     sourceRef: "rpc:fn_name_verse",
     evidence: "direct",
+    verseIdentity: identity?.verseIdentity || null,
+    canonicalBookIdentity: identity?.canonicalBookIdentity || null,
+    corpusBookKey: identity?.corpusBookKey || null,
+    corpusBookIndex: identity?.corpusBookIndex ?? null,
+    verseDisplayRef: identity?.displayRef || ref,
+    verseSource: identity?.source || null,
   });
 }
 
