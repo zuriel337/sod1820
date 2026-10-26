@@ -85,6 +85,27 @@ export function classifyWorldMissingEngineStatement(value) {
   return Object.freeze({ queue, subtype, reason: reasons[queue], signals });
 }
 
+function projectSpatialResearchContext(row, routing) {
+  if (routing?.queue !== "spatial_or_constants") return null;
+  const spatial = asObject(asObject(asObject(row?.meta).ext).spatial_research);
+  const classification = clean(spatial.classification) || null;
+  const cluster = clean(spatial.cluster) || null;
+  const role = clean(spatial.role) || null;
+  const researchFocusKey = clean(spatial.research_focus_key) || null;
+  const sourceRef = clean(spatial.source_ref) || null;
+  const present = Object.keys(spatial).length > 0;
+  const complete = Boolean(classification && cluster && role && researchFocusKey && sourceRef);
+  return Object.freeze({
+    state: complete ? "complete" : present ? "partial" : "missing",
+    classification,
+    cluster,
+    role,
+    researchFocusKey,
+    sourceRef,
+    inferred: false,
+  });
+}
+
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
 const ARITHMETIC_NUMBER_RE = /^\d{1,9}$/u;
 
@@ -318,6 +339,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
   const compound = asObject(detail.compound);
   if (!Object.keys(detail).length && row?.engine_verified !== true) {
     const routing = classifyWorldMissingEngineStatement(row?.statement);
+    const spatialResearchContext = projectSpatialResearchContext(row, routing);
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -333,6 +355,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       routingSubtype: routing.subtype,
       routingReason: routing.reason,
       contentSignals: routing.signals,
+      spatialResearchContext,
     });
   }
   const isLegacyMatrixCandidate = Object.keys(detail).length

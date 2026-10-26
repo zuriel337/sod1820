@@ -234,6 +234,32 @@ test("missing-engine routing uses explicit text markers without claiming verific
   assert.equal(classifyWorldMissingEngineStatement("הקשר מתואר במקור").queue, "textual_statement");
 });
 
+test("spatial routing exposes only stored spatial identity fields and marks incomplete metadata", () => {
+  const complete = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה תלת ממדית",
+    meta: { ext: { spatial_research: {
+      classification: "spatial_gematria",
+      cluster: "cube-1",
+      role: "STRUCTURAL_3D",
+      research_focus_key: "zvi:spatial:cube-1",
+      source_ref: "channel_updates:10000000-0000-4000-8000-000000000001",
+    } } },
+  }));
+  assert.equal(complete.spatialResearchContext.state, "complete");
+  assert.equal(complete.spatialResearchContext.inferred, false);
+
+  const missing = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה תלת ממדית",
+    meta: {},
+  }));
+  assert.equal(missing.spatialResearchContext.state, "missing");
+  assert.equal(missing.spatialResearchContext.cluster, null);
+});
+
 test("missing-engine source and target context stays separate from technical readiness", () => {
   const missing = row({
     engine_verified: null,

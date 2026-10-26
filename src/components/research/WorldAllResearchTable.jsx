@@ -178,6 +178,12 @@ const MISSING_ENGINE_SUBTYPE_LABELS = Object.freeze({
   numeric_sequence: "רצף מספרי",
 });
 
+const SPATIAL_METADATA_LABELS = Object.freeze({
+  complete: "זהות מרחבית מלאה",
+  partial: "מטא־דאטה מרחבי חלקי",
+  missing: "חסר מטא־דאטה מרחבי",
+});
+
 const REPLAY_SOURCE_LABELS = Object.freeze({
   exact_source: "מקור מדויק",
   source_locator_repair: "דורש תיקון locator",
@@ -296,7 +302,7 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySubtype: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySubtype: "all", replaySpatialMetadata: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
@@ -306,6 +312,7 @@ function initialReviewFilters() {
   const replay = clean(params.get("replay"));
   const replayQueue = clean(params.get("replayQueue"));
   const replaySubtype = clean(params.get("replaySubtype"));
+  const replaySpatialMetadata = clean(params.get("replaySpatialMetadata"));
   const replaySource = clean(params.get("replaySource"));
   const replayTarget = clean(params.get("replayTarget"));
   const replayTargetEvidence = clean(params.get("replayTargetEvidence"));
@@ -323,6 +330,7 @@ function initialReviewFilters() {
     replay: Object.hasOwn(LEGACY_REPLAY_LABELS, replay) ? replay : "all",
     replayQueue: Object.hasOwn(MISSING_ENGINE_QUEUE_LABELS, replayQueue) ? replayQueue : "all",
     replaySubtype: Object.hasOwn(MISSING_ENGINE_SUBTYPE_LABELS, replaySubtype) ? replaySubtype : "all",
+    replaySpatialMetadata: Object.hasOwn(SPATIAL_METADATA_LABELS, replaySpatialMetadata) ? replaySpatialMetadata : "all",
     replaySource: Object.hasOwn(REPLAY_SOURCE_LABELS, replaySource) ? replaySource : "all",
     replayTarget: Object.hasOwn(REPLAY_TARGET_LABELS, replayTarget) ? replayTarget : "all",
     replayTargetEvidence: Object.hasOwn(REPLAY_TARGET_EVIDENCE_LABELS, replayTargetEvidence) ? replayTargetEvidence : "all",
@@ -405,6 +413,7 @@ export default function WorldAllResearchTable({ state }) {
   const [replay, setReplay] = useState(initial.replay);
   const [replayQueue, setReplayQueue] = useState(initial.replayQueue);
   const [replaySubtype, setReplaySubtype] = useState(initial.replaySubtype);
+  const [replaySpatialMetadata, setReplaySpatialMetadata] = useState(initial.replaySpatialMetadata);
   const [replaySource, setReplaySource] = useState(initial.replaySource);
   const [replayTarget, setReplayTarget] = useState(initial.replayTarget);
   const [replayTargetEvidence, setReplayTargetEvidence] = useState(initial.replayTargetEvidence);
@@ -421,8 +430,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
+    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
 
   const resetFilters = () => {
     setQuery("");
@@ -444,6 +453,7 @@ export default function WorldAllResearchTable({ state }) {
     setReplay("all");
     setReplayQueue("all");
     setReplaySubtype("all");
+    setReplaySpatialMetadata("all");
     setReplaySource("all");
     setReplayTarget("all");
     setReplayTargetEvidence("all");
@@ -944,6 +954,7 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>Replay לאות ישן</span><select value={replay} onChange={(e) => setReplay(e.target.value)}><option value="all">כל מצבי ה־replay</option>{Object.entries(projection.byLegacyReplayState || {}).map(([value, count]) => <option value={value} key={value}>{humanLabel(LEGACY_REPLAY_LABELS, value, "מצב replay נוסף")} · {count}</option>)}</select></label>
         <label><span>ניתוב ללא מעטפת מנוע</span><select value={replayQueue} onChange={(e) => setReplayQueue(e.target.value)}><option value="all">כל סוגי התוכן</option>{Object.entries(MISSING_ENGINE_QUEUE_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
         <label><span>תת־סוג מרחב או קבוע</span><select value={replaySubtype} onChange={(e) => setReplaySubtype(e.target.value)}><option value="all">כל תתי־הסוג</option>{Object.entries(MISSING_ENGINE_SUBTYPE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplaySubtype?.[value] || 0}</option>)}</select></label>
+        <label><span>שלמות זהות מרחבית</span><select value={replaySpatialMetadata} onChange={(e) => setReplaySpatialMetadata(e.target.value)}><option value="all">עם ובלי מטא־דאטה</option>{Object.entries(SPATIAL_METADATA_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialResearchMetadataState?.[value] || 0}</option>)}</select></label>
         <label><span>שלמות מקור · בשל טכנית</span><select value={replaySource} onChange={(e) => setReplaySource(e.target.value)}><option value="all">מקור מדויק ותיקונים</option>{Object.entries(REPLAY_SOURCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplaySourceReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>מצב יעד · בשל טכנית</span><select value={replayTarget} onChange={(e) => setReplayTarget(e.target.value)}><option value="all">כל מצבי היעד</option>{Object.entries(REPLAY_TARGET_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>ראיית יעד · בשל טכנית</span><select value={replayTargetEvidence} onChange={(e) => setReplayTargetEvidence(e.target.value)}><option value="all">כל ראיות היעד</option>{Object.entries(REPLAY_TARGET_EVIDENCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetEvidence?.[value] || 0}</option>)}</select></label>
@@ -1009,9 +1020,21 @@ export default function WorldAllResearchTable({ state }) {
           </div> : null}
 
           {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${legacyReplayClass(row.legacyReplay.state)}`}>
-            <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}{row.legacyReplay.routingSubtype ? ` · ${humanLabel(MISSING_ENGINE_SUBTYPE_LABELS, row.legacyReplay.routingSubtype, "תת־סוג")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
+            <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}{row.legacyReplay.routingSubtype ? ` · ${humanLabel(MISSING_ENGINE_SUBTYPE_LABELS, row.legacyReplay.routingSubtype, "תת־סוג")}` : ""}{row.legacyReplay.spatialResearchContext ? ` · ${humanLabel(SPATIAL_METADATA_LABELS, row.legacyReplay.spatialResearchContext.state, "זהות מרחבית")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
             <small>{legacyReplayDescription(row.legacyReplay)}</small>
           </div> : null}
+
+          {row.legacyReplay?.spatialResearchContext?.state !== "missing" && row.legacyReplay?.spatialResearchContext ? <details className="sod29-world-all-research-duplicates">
+            <summary>מטא־דאטה מרחבי מתועד · {humanLabel(SPATIAL_METADATA_LABELS, row.legacyReplay.spatialResearchContext.state, "זהות מרחבית")}</summary>
+            <ul>
+              <li>סיווג: {row.legacyReplay.spatialResearchContext.classification || "אין נתון"}</li>
+              <li>אשכול: {row.legacyReplay.spatialResearchContext.cluster || "אין נתון"}</li>
+              <li>תפקיד: {row.legacyReplay.spatialResearchContext.role || "אין נתון"}</li>
+              <li>מפתח מוקד: <code dir="ltr">{row.legacyReplay.spatialResearchContext.researchFocusKey || "אין נתון"}</code></li>
+              <li>מקור מרחבי: <code dir="ltr">{row.legacyReplay.spatialResearchContext.sourceRef || "אין נתון"}</code></li>
+            </ul>
+            <small>השדות מוצגים כפי שנשמרו במקור; המערכת אינה משלימה אותם לפי שם או טקסט.</small>
+          </details> : null}
 
           {row.legacyReplay?.pendingEngineContext ? <div className="sod29-world-triage-recommendation is-review">
             <span>
