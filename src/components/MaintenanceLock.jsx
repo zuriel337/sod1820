@@ -10,6 +10,9 @@ import { LOGO_URL } from "../theme.js";
 // mode ב-DB: 'all' = כולם חסומים (חוץ מאדמין) · 'anon' = משתמשים רשומים עוברים.
 
 const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגים · חוזרים בקרוב";
+// Review-only capability switch. It is compiled into an isolated Preview only
+// and never inferred from a URL, browser storage, identity or Production state.
+const unlockedPreview = import.meta.env.VITE_UNLOCKED_2029_PREVIEW === "true";
 
 export function MaintenanceLock({ message, showLogin = false, alternatives = false, homeHref = "/" }) {
   return (
@@ -102,7 +105,28 @@ export function useSiteFlag(flag) {
 
 // pure resolver — מקור יחיד לכל נוסחת availability/access.
 // שפה/locale אינה פרמטר בכוונה: לפי content_translation_law v2 היא Projection בלבד.
-export function resolveFeatureState(lock, { user = null, isAdmin = false, requireFlag = false } = {}) {
+export function resolveFeatureState(lock, {
+  user = null,
+  isAdmin = false,
+  requireFlag = false,
+  previewBypass = false,
+} = {}) {
+  if (previewBypass) {
+    return {
+      enabled: !!lock?.enabled,
+      mode: lock?.mode || "all",
+      blocked: false,
+      allowed: true,
+      adminBypass: false,
+      registeredBypass: false,
+      previewBypass: true,
+      publicState: "preview_only",
+      viewerState: "preview_bypass",
+      message: lock?.message || DEFAULT_MSG,
+      showLogin: false,
+      status: "active",
+    };
+  }
   // A named launch gate must exist explicitly before it can open, including to
   // admins. The server capability gate also denies unknown flags.
   if (!lock && requireFlag) {
@@ -145,7 +169,7 @@ export function useFeatureState(flag, { requireFlag = false } = {}) {
     flag,
     loading: loading || authLoading,
     lock,
-    ...resolveFeatureState(lock, { user, isAdmin, requireFlag }),
+    ...resolveFeatureState(lock, { user, isAdmin, requireFlag, previewBypass: unlockedPreview }),
   }), [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
 }
 
