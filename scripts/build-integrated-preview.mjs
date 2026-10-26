@@ -11,6 +11,7 @@ await build({ root, define: {
   "import.meta.env.VITE_INTEGRATED_PREVIEW": '"true"',
   "import.meta.env.VITE_KINGDOM_PREVIEW": '"true"',
   "import.meta.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW": '"true"',
+  "import.meta.env.VITE_UNLOCKED_2029_PREVIEW": '"true"',
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 
 const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale", "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey", "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods", "world_group_source_arrivals_v2", "rd_is_admin"];

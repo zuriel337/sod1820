@@ -472,9 +472,15 @@ export function normalizeRazielEvidenceSummary(value = null) {
   };
 }
 
-export function formatRazielEvidenceSummary(value = null) {
+export function formatRazielEvidenceSummary(value = null, { expanded = false } = {}) {
   const summary = normalizeRazielEvidenceSummary(value);
   if (!summary) return "";
+  const count = summary.calculations.length + summary.findings.length;
+  if (!expanded) {
+    return summary.mapAvailable
+      ? `🔎 ${count} ממצאים מאומתים עומדים מאחורי הפרשנות · הפירוט המלא במפת המחקר.`
+      : `🔎 ${count} ממצאים מאומתים עומדים מאחורי הפרשנות.`;
+  }
   const lines = [];
   const seen = new Set();
   const add = (text) => {
@@ -502,7 +508,12 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
     : cleanInline(response.intelligence_level, 30) || (requestedLevel === "deep" ? "deep" : "fast");
   const viewModeReport = normalizeRazielViewModeReport(response);
   const evidenceSummary = normalizeRazielEvidenceSummary(response.evidence_summary);
-  const evidenceText = formatRazielEvidenceSummary(response.evidence_summary);
+  // The conversation stays readable.  The full calculation/source appendix belongs to the
+  // explicit Research Map action; ordinary and exploratory answers retain only a compact,
+  // auditable pointer while keeping the structured evidence on the message object.
+  const evidenceText = formatRazielEvidenceSummary(response.evidence_summary, {
+    expanded: viewModeReport?.requested === "landscape" && viewModeReport.applied === true,
+  });
   return {
     v: cleanInteger(response.v) || 1,
     answer: evidenceText ? `${answer.slice(0, Math.max(1, LIMITS.answer - evidenceText.length - 2)).trim()}\n\n${evidenceText}` : answer,

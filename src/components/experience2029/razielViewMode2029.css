@@ -27,3 +27,69 @@
 /* "✨ הפתע אותי": same action class as "בדוק לעומק…"; its explanation panel spans the answer-meta row (logical properties only). */
 .sod29-raziel-surprise-offer { flex: 1 1 100%; min-inline-size: 0; }
 .sod29-raziel-surprise-offer p { margin: 0; }
+
+/* Explicit saved conversations stay in the normal Raziel flow. The existing
+   ResearchProvider owns persistence; this is only its compact chat projection. */
+.sod29-raziel-session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-inline-size: 0;
+}
+.sod29-raziel-session-actions .sod29-action {
+  min-block-size: 44px;
+  flex: 1 1 132px;
+}
+.sod29-raziel-saved-panel {
+  display: grid;
+  gap: 8px;
+  min-inline-size: 0;
+  padding: 10px;
+  border: 1px solid var(--s29-line-strong);
+  border-radius: 12px;
+  background: var(--s29-panel-soft);
+}
+.sod29-raziel-saved-panel > small,
+.sod29-raziel-save-notice { color: var(--s29-muted); }
+.sod29-raziel-saved-panel ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sod29-raziel-saved-panel li {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  min-inline-size: 0;
+}
+.sod29-raziel-saved-open {
+  display: grid;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  min-block-size: 44px;
+  padding: 8px 10px;
+  text-align: start;
+  color: inherit;
+  border: 1px solid var(--s29-line);
+  border-radius: 10px;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+.sod29-raziel-saved-open strong,
+.sod29-raziel-saved-open small { overflow-wrap: anywhere; }
+.sod29-raziel-saved-open small { color: var(--s29-muted); }
+.sod29-raziel-saved-open:focus-visible {
+  outline: 2px solid var(--s29-raziel-indigo);
+  outline-offset: 2px;
+}
+.sod29-raziel-saved-panel .sod29-workspace-unfollow {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+}
+@media (max-width: 420px) {
+  .sod29-raziel-session-actions .sod29-action { flex-basis: 100%; }
+}

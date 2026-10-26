@@ -680,12 +680,18 @@ function ToolsProjection({ surface, target, go, onCapability }) {
 
 const RAZIEL_LEVEL_LABEL = { deterministic: "דטרמיניסטי", fast: "מהיר", deep: "עמוק" };
 
+function savedRazielDate(value) {
+  return recordTimeLabel(value, "bilingual", "");
+}
+
 // One temporary Raziel conversation is shared by the desktop Companion and the mobile sheet.
 // Opening, navigating and changing view mode make no AI call; only an explicit submit crosses the transport.
 function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false, projection = "mobile" }) {
   const session = useOptionalRazielSession2029();
   const [text, setText] = useState("");
   const [deepOpen, setDeepOpen] = useState(false);
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [savedNotice, setSavedNotice] = useState("");
   const threadLength = session?.thread?.length || 0;
   const lastTurnRef = useCallback((node) => { node?.scrollIntoView?.({ block: "nearest" }); }, [threadLength]);
   if (!session) return <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="unavailable"><b>רזיאל</b><small role="status">השיחה עם רזיאל אינה זמינה כאן כרגע.</small></section>;
@@ -703,6 +709,36 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     setDeepOpen(false);
     const result = await session.submit({ question: q, intelligenceLevel: level, again, continuationTurnId, facts: buildFacts(), view: { numberFocus, readingFocus, elsFocus }, projection });
     if (result?.ok && !again) setText("");
+  };
+  const saveConversation = async () => {
+    setSavedNotice("");
+    const result = await session.saveCurrentSession?.();
+    setSavedNotice(result?.ok
+      ? (session.savedSessionsSyncStatus === "synced" ? "השיחה נשמרה באופן פרטי בחשבון."
+        : session.savedSessionsSyncStatus === "local_only" ? "השיחה נשמרה מקומית בדפדפן הזה. כניסה לחשבון תאפשר סנכרון פרטי."
+          : "השיחה נשמרה; הסנכרון הפרטי ממשיך דרך אזור המחקר שלך.")
+      : result?.error === "session_too_large" ? "השיחה ארוכה מדי לשמירה אחת. כדאי לפתוח שיחה חדשה ולשמור את החלק הבא בנפרד."
+        : "לא הצלחנו לשמור את השיחה כרגע.");
+  };
+  const openConversation = async (saved) => {
+    setSavedNotice("");
+    const result = await session.restoreSavedSession?.(saved.id);
+    if (result?.ok) {
+      setSavedOpen(false);
+      setSavedNotice("השיחה השמורה נפתחה ואפשר להמשיך ממנה.");
+    } else setSavedNotice("השיחה השמורה אינה זמינה כרגע.");
+  };
+  const removeConversation = (saved) => {
+    if (typeof window !== "undefined" && !window.confirm(`למחוק את השיחה „${saved.title || "שיחה עם רזיאל"}”?`)) return;
+    if (session.removeSavedSession?.(saved.id)) setSavedNotice("השיחה הוסרה מהשמורים.");
+  };
+  const newConversation = () => {
+    if (busy || !thread.length) return;
+    if (typeof window !== "undefined" && !window.confirm("לפתוח שיחה חדשה? השיחה הנוכחית תיעלם אם עדיין לא שמרת אותה.")) return;
+    if (session.resetTemporarySession?.()) {
+      setDeepOpen(false);
+      setSavedNotice("נפתחה שיחה חדשה.");
+    }
   };
   const contextParts = razielContextParts(createRazielContextSnapshot(context, { numberFocus, readingFocus, elsFocus }));
   const lastRaziel = [...thread].reverse().find((m) => m.role === "raziel");
@@ -743,6 +779,25 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         <button className="sod29-action primary" type="button" disabled={busy} data-raziel-deepen="true" onClick={() => send(deepCandidate.question, "deep", true, deepCandidate.turnId)}>הפעל העמקה</button>
         <button className="sod29-action" type="button" onClick={() => setDeepOpen(false)}>לא עכשיו</button>
       </div> : null}
+      <div className="sod29-raziel-session-actions" aria-label="שמירה והיסטוריה של שיחות רזיאל">
+        <button className="sod29-action" type="button" disabled={busy || !lastRaziel} data-raziel-save-session="true" onClick={saveConversation}>♡ שמור מחקר</button>
+        <button className="sod29-action" type="button" disabled={busy || !session.savedSessions?.length} aria-expanded={savedOpen} data-raziel-saved-sessions="true" onClick={() => setSavedOpen((open) => !open)}>▤ השיחות שלי{session.savedSessions?.length ? ` · ${session.savedSessions.length}` : ""}</button>
+        <button className="sod29-action" type="button" disabled={busy || !thread.length} data-raziel-new-session="true" onClick={newConversation}>＋ שיחה חדשה</button>
+      </div>
+      {savedOpen ? <div className="sod29-raziel-saved-panel" data-raziel-saved-panel="true">
+        <b>השיחות השמורות שלי</b>
+        <small>{session.savedSessionsSyncStatus === "synced" ? "פרטי ומסונכרן לחשבון" : session.savedSessionsSyncStatus === "local_only" ? "מקומי בדפדפן הזה" : "בסנכרון עם החשבון"}</small>
+        <ul>
+          {session.savedSessions.map((saved) => <li key={saved.id}>
+            <button type="button" className="sod29-raziel-saved-open" onClick={() => openConversation(saved)}>
+              <strong>{saved.title || "שיחה עם רזיאל"}</strong>
+              <small>{saved.turn_count || 0} שאלות{savedRazielDate(saved.saved_at) ? ` · ${savedRazielDate(saved.saved_at)}` : ""}</small>
+            </button>
+            <button type="button" className="sod29-workspace-unfollow" aria-label={`מחק שיחה: ${saved.title || "שיחה עם רזיאל"}`} onClick={() => removeConversation(saved)}>מחק</button>
+          </li>)}
+        </ul>
+      </div> : null}
+      {savedNotice ? <small className="sod29-raziel-save-notice" role="status">{savedNotice}</small> : null}
       <small className="sod29-raziel-status" role="status">{busy || status === "error" ? announcement : ""}</small>
       <form className="sod29-raziel-composer" onSubmit={(e) => { e.preventDefault(); send(text, "fast"); }}>
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder="שאל את רזיאל על מה שמולך" maxLength={300} aria-label="שאלה לרזיאל" dir="auto" disabled={busy} />

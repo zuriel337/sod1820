@@ -2554,6 +2554,46 @@ Deno.serve(async (req: Request) => {
       const rExpressionCrossingHint = rTrusted
         ? null
         : razielConversationExpressionHint(body?.conversation_resolution, rSubject, body?.surface_semantic);
+      // A method-scoped 2029 question may never fall through to the Legacy regular calculator.
+      // That calculator treats unknown command scaffolding as literal Hebrew input (for example,
+      // "שאול בשיטת משולש"), producing a valid regular sum for the WRONG expression. The client
+      // envelope remains a hint and must still match the server parse; when it is missing/forged,
+      // fail closed before fn_raziel_answer instead of calculating the instruction itself.
+      const rServerCanonicalMethodRequest = rCanonicalResearchOptIn
+        ? resolveRazielCanonicalRequest(rSubject)
+        : null;
+      const rMethodRouteRejected = !rExpressionCrossingHint
+        && rServerCanonicalMethodRequest?.status === "resolved"
+        && ["expression", "expression_continuation"].includes(String(rServerCanonicalMethodRequest?.kind || ""))
+        && !!rServerCanonicalMethodRequest?.requested_method;
+      if (rMethodRouteRejected) {
+        return rzJson({
+          raziel: {
+            v: 1,
+            agent: "raziel",
+            context: null,
+            greeting: null,
+            answer: "זיהיתי בקשה לחישוב בשיטה מסוימת, אבל לא הצלחתי לשייך בבטחה את הביטוי לבקשה. כתוב למשל: ‘חשב את שאול בשיטת משולש’. לא חישבתי את מילות ההוראה עצמן.",
+            facts: [],
+            suggested_paths: [],
+            follow_up_question: "איזו מילה או ביטוי לחשב?",
+            continue_wa: true,
+            deterministic: true,
+            degraded: true,
+          },
+          engine: "method_routing_guard",
+          model: "none",
+          intelligence_level: "deterministic",
+          degraded: true,
+          plan_meta: {
+            method_routing_guard: {
+              status: "rejected",
+              reason: "canonical_method_request_without_matching_expression_envelope",
+              cost: { ai_calls: 0, retry_count: 0 },
+            },
+          },
+        });
+      }
       let rSemanticHint: RazielConversationNumberHint | null = null;
       // Multimodal source stage FIRST (trusted internal path only). When a source is attached, caption/subject words never fall
       // straight into deterministic gematria/ELS routing — the visual read is a derivative and numeric research is user-driven later.

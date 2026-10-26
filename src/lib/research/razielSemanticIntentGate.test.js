@@ -95,6 +95,28 @@ test("method calculation commands keep command scaffolding out of the canonical 
   }
 });
 
+test("method questions in natural word order never calculate the instruction scaffolding", () => {
+  for (const [question, label, method] of [
+    ["כמה זה שאול בשיטת משולש", "שאול", "קדמי"],
+    ["כמה שווה משיח בשיטת מסתתר", "משיח", "מסתתר"],
+    ["מה שווה אור הגאולה בשיטת מילוי דמילוי", "אור הגאולה", "מילוי דמילוי"],
+    ["שאול בשיטת משולש כמה זה", "שאול", "קדמי"],
+    ["כמה זה משיח במשולש", "משיח", "קדמי"],
+    ["משיח במשולש כמה זה", "משיח", "קדמי"],
+    ["מה הגימטריה של משיח במשולש", "משיח", "קדמי"],
+    ["מה הגימטריא של אור הגאולה בשיטת מסתתר", "אור הגאולה", "מסתתר"],
+    ["חשב את משיח במשולש", "משיח", "קדמי"],
+  ]) {
+    const out = resolveExplicitHebrewExpressionResearchSubject(question);
+    assert.equal(out?.label, label, question);
+    assert.equal(out?.identity_key, `phrase:${label}`, question);
+    assert.equal(out?.requested_method, method, question);
+    assert.equal(out?.requested_action, "research", question);
+    assert.equal(out?.explicit_text_computation, true, question);
+    assert.doesNotMatch(out?.label || "", /בשיטת|משולש|מסתתר|מילוי/u, question);
+  }
+});
+
 test("plain calculation commands also remove Gematria, all-method and view scaffolding", () => {
   for (const [question, action] of [
     ["חשב את שאול בגימטריה", "research"],
@@ -175,6 +197,18 @@ test("expression continuation directives carry an earlier subject instead of cal
     view_mode_only: false,
   });
   assert.deepEqual(resolveRazielExpressionContinuationDirective("שיטת הקדמי משולש ביקשתי"), {
+    requested_action: "research",
+    requested_method: "קדמי",
+    all_methods: false,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("התכוונתי בשיטת המשולש תבדוק לי"), {
+    requested_action: "research",
+    requested_method: "קדמי",
+    all_methods: false,
+    view_mode_only: false,
+  });
+  assert.deepEqual(resolveRazielExpressionContinuationDirective("התכוונתי במשולש"), {
     requested_action: "research",
     requested_method: "קדמי",
     all_methods: false,
