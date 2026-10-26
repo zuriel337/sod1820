@@ -45,6 +45,7 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     language: "עברית",
     pdfPages: 99,
     pdfUrl: `${GALLERY_ROOT}/daat-tevunot-site-edition.pdf`,
+    pageTextUrl: "/book-data/daat-tevunot.page-text.json",
     introduction: "דיאלוג שיטתי בין הנשמה לשכל על תכלית האדם, הנהגת הייחוד, גוף ונשמה, הסתר וגילוי, הנהגת המשפט ונבואה. הדרך הקלה לקרוא היא לעקוב אחרי תשעת ענפי השיחה ולא לנסות לפתור את כל 195 הסעיפים בבת אחת.",
     readingKeys: ["מי מדבר עכשיו — הנשמה או השכל", "לאיזה ענף הנהגה שייך הסעיף", "מהו הכלל שהסעיף מוסיף למהלך הכולל"],
     chapters: [
