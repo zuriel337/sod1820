@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
-import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
+import { prepareElsAutomaticResearchPlan, prepareElsCipherDiscoveryPlan, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
 
 const initialForm = { term: "", scope: "torah", spelling: "regular", skipMin: "2", skipMax: "80", pageSize: "20" };
 
@@ -168,7 +168,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     }
   };
   const buildBrief = () => {
-    const next = prepareElsResearchBrief({ text: briefText, anchorTerm: briefAnchor, requiredTerms: briefRequired, scope: form.scope });
+    const next = prepareElsCipherDiscoveryPlan({ text: briefText, anchorTerm: briefAnchor, requiredTerms: briefRequired, scope: form.scope });
     if (next.error) { setBriefPlan(null); setBriefAnchorId(null); setBriefSelected(new Set()); setBriefSplit(new Set()); setNotice(next.error); return; }
     setBriefPlan(next);
     setBriefAnchorId(next.recommendedAnchorId);
@@ -204,6 +204,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       term: anchor.term,
       scope: briefPlan.scope,
       contextTerms,
+      discoveryGoal: briefPlan.goal,
       researchNonce: ++briefRequestId.current,
       returnLabel: "תוכנית המחקר",
     });

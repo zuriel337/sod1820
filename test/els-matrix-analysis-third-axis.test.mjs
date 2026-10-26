@@ -132,6 +132,24 @@ test("regular results separate exact axes from automatic bounded matrix discover
   assert.ok(rail.indexOf('className="els29-native-result-list"') < rail.indexOf("<ResultResearchTargets"));
 });
 
+test("guided occurrence coverage reuses matrix-discovery for exact off-screen hits without moving the selected matrix", async () => {
+  const [native, engine] = await Promise.all([readFile(NATIVE, "utf8"), readFile(ENGINE, "utf8")]);
+  assert.match(native, /projectElsGuidedOccurrenceCoverage/);
+  assert.match(native, /guidedOccurrenceCoverage: true/);
+  assert.match(native, /setId: resultView\.id/);
+  assert.match(native, /page: resultView\.page/);
+  assert.match(native, /בדוק עוד עד 4 מופעים/);
+  assert.match(native, /מספר דילוג בולט/);
+  const handler = engine.slice(engine.indexOf('d.lens==="matrix-discovery"'), engine.indexOf('d.lens==="cross-third-axis"'));
+  assert.match(handler, /guided=target\.guidedOccurrenceCoverage===true/);
+  assert.match(handler, /guided\?nativeOccurrenceResults\(\):null/);
+  assert.match(handler, /occurrences\.items\.find\(row=>row\.hitId===target\.hitId\)/);
+  assert.match(handler, /st\.res!==sourceResult/);
+  assert.equal((engine.match(/d\.lens==="matrix-discovery"/g) || []).length, 1, "the runner adds no second discovery lens");
+  assert.equal((native.match(/<TzofenEmbed/g) || []).length, 1, "the runner adds no second engine surface");
+  assert.doesNotMatch(handler, /openNativeOccurrence|st\.occ\s*=/, "background inspection never selects or moves the visible occurrence");
+});
+
 test("the screen exposes one ordered workflow without creating another engine surface", async () => {
   const native = await readFile(NATIVE, "utf8");
   const tools = native.slice(native.indexOf('[["results", "ציר ומופעים"'), native.indexOf("].map(([tool, label"));

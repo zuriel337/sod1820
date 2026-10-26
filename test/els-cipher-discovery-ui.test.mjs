@@ -8,16 +8,16 @@ const PAGE = new URL("../src/pages/Els2029Page.jsx", import.meta.url);
 const SWITCH = new URL("../src/components/experience2029/ElsMatrixProfileSwitch.jsx", import.meta.url);
 const APP = new URL("../src/App2029.jsx", import.meta.url);
 
-test("restored Research brief stays explicit, local and bounded", async () => {
+test("Research brief compiles the bounded pair-first goal without sending its private story", async () => {
   const source = await readFile(ADVANCED, "utf8");
-  assert.match(source, /prepareElsResearchBrief/);
-  assert.doesNotMatch(source, /prepareElsCipherDiscoveryPlan/);
+  assert.match(source, /prepareElsCipherDiscoveryPlan/);
   assert.match(source, /מחקר דילוגים/);
   assert.match(source, /בנה תוכנית ציר והקשר/);
   assert.match(source, /מצא את הציר ובנה סביבו חבילת מחקר/);
   assert.match(source, /הסיפור נשאר בזיכרון המסך בלבד/);
   assert.match(source, /רק הציר ומונחי ההקשר שבחרתם נשלחים בלחיצה מפורשת/);
-  assert.doesNotMatch(source, /discoveryGoal: briefPlan\.goal/);
+  assert.match(source, /discoveryGoal: briefPlan\.goal/);
+  assert.doesNotMatch(source, /story: briefText|brief: briefText|context: briefText/);
 });
 
 test("Classic keeps its original clean labels and exposes no cross-search control", async () => {

@@ -325,6 +325,7 @@ export function diagnoseElsGuidedFailure(failureCause) {
 
 const projectOccurrence = (row, inputOrder, triage) => Object.freeze({
   hitId: occurrenceIdentity(row),
+  index: Number.isSafeInteger(Number(row?.index)) ? Number(row.index) : null,
   ordinal: Number.isSafeInteger(Number(row?.ordinal)) ? Number(row.ordinal) : inputOrder + 1,
   skip: Number.isFinite(Number(row?.skip)) ? Number(row.skip) : null,
   direction: row?.direction ?? row?.dir ?? null,

@@ -125,6 +125,7 @@ const guidedPlan = () => prepareElsCipherDiscoveryPlan({
 });
 const guidedOccurrences = count => Array.from({ length: count }, (_, index) => ({
   hitId: `hit-${index + 1}`,
+  index,
   ordinal: index + 1,
   skip: index === 1 ? 4545 : 31 + index,
   dir: index % 2 ? -1 : 1,
@@ -184,6 +185,7 @@ test("guided occurrence coverage starts with exactly four canonical occurrences 
   assert.equal(coverage.coverage.remainingUnscheduledCount, 5);
   assert.equal(coverage.coverage.uninspectedAreNotNegativeEvidence, true);
   assert.equal(coverage.schedule[0].hitId, "hit-6", "result triage evidence may bring a later occurrence into the bounded first wave");
+  assert.equal(coverage.schedule[0].index, 5, "the exact canonical result index survives scheduling for a later open action");
   assert.equal(coverage.selectionLaw.numericSkipPromoted, false);
   assert.equal(coverage.aiUsed, false);
   assert.equal(coverage.findingMutation, false);

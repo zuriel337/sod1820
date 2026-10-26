@@ -2748,10 +2748,15 @@ __STANDALONE_ENGINE_DISPATCH__
       if(target.scan===true)dynamicCandidateLexicon().then(publish);else publish(null);
     }
     if(d.type==="request-lens"&&d.lens==="matrix-discovery"){
-      const target=d.target||{},hit=hasGov(st.res)?occ():null;
-      if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"axis-changed"});return;}
+      const target=d.target||{},guided=target.guidedOccurrenceCoverage===true,sourceResult=st.res,occurrences=guided?nativeOccurrenceResults():null,
+        item=guided&&occurrences&&target.setId===occurrences.id&&Number(target.page)===Number(occurrences.page)
+          ?occurrences.items.find(row=>row.hitId===target.hitId):null,
+        hit=guided?(item&&isGov(sourceResult?.hits?.[item.index])?sourceResult.hits[item.index]:null):(hasGov(sourceResult)?occ():null);
+      if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:guided?"results-changed":"axis-changed"});return;}
       (async()=>{
-        const cancelled=()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,structuralAxis={...hit,_structuralCells:new Set(hit.positions||[])},researchContext=matrixDiscoveryContext(target.contextTerms),discoveryGoal=normalizedCipherDiscoveryGoal(target.discoveryGoal);
+        const cancelled=()=>{if(lensEpoch!==_nativeLensSeq||st.res!==sourceResult||!isGov(hit))return true;if(!guided)return !hasGov(st.res)||hitKey(occ())!==target.hitId;
+          const current=nativeOccurrenceResults();return !current||current.id!==target.setId||Number(current.page)!==Number(target.page)||!current.items.some(row=>row.hitId===target.hitId&&row.index===item.index);},
+          structuralAxis={...hit,_structuralCells:new Set(hit.positions||[])},researchContext=matrixDiscoveryContext(target.contextTerms),discoveryGoal=normalizedCipherDiscoveryGoal(target.discoveryGoal);
         const discovery=await discoverMatrixRepeats(structuralAxis,{...target,preferredTerms:researchContext.rows.map(row=>row.term)},
           progress=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress}),cancelled);
         if(!discovery||cancelled())return;

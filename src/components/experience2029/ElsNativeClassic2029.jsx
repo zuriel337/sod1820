@@ -16,7 +16,11 @@ import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { savedMatrixCanReanchor, savedMatrixMatchesAxis } from "../../lib/elsSavedMatrix.js";
 import { projectElsResearchPackageGuide } from "../../lib/research/elsResearchPackageGuide.js";
-import { prepareElsRelationshipResearchPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
+import {
+  ELS_CIPHER_DISCOVERY_PLAN_CONTRACT,
+  prepareElsRelationshipResearchPlan,
+  projectElsGuidedOccurrenceCoverage,
+} from "../../lib/research/elsAutomaticResearchPlan.js";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
 import "./elsNativeClassic2029.css";
@@ -48,6 +52,7 @@ const safeDiscoveryGoal = (value) => value?.primaryAxes === 1 && value?.connecte
   ? { primaryAxes: 1, connectedSupports: 2, sourceSequence: "WHEN_AVAILABLE", resultPolicy: "ONE_BEST_STRUCTURE" }
   : null;
 const researchContextKey = (rows, goal = null) => `${safeResearchContextTerms(rows).map((row) => `${row.term}:${row.mode}:${Number(row.split)}`).join("|")}${safeDiscoveryGoal(goal) ? "#verified-pair" : ""}`;
+const emptyGuidedOccurrenceRun = (key = null) => ({ key, approvedBatches: 1, inspections: [], failure: null });
 
 function MatrixSnapshot({ state, onLetterClick, onZoomChange, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView }) {
   const palette = use2029Palette("research_lab");
@@ -1161,7 +1166,32 @@ function ActiveResearchBundle({ bundle, lensResult, pending, onBack }) {
   </section>;
 }
 
-function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending, discoveryResult, discoveryPending, onAddDiscovery, onOpenDiscovery }) {
+function GuidedOccurrenceCoverage({ coverage, failure, onContinue, onRetry, onOpen }) {
+  if (!coverage) return null;
+  const checked = coverage.coverage?.inspectedCount || 0;
+  const scheduled = coverage.coverage?.scheduledCount || 0;
+  const recommendation = coverage.recommendation;
+  return <section className="els29-native-discovery-results" data-els-guided-coverage={coverage.contract} aria-live="polite">
+    <header><strong>בדיקת המופעים המובילים</strong><small>המנוע בודק קודם עד ארבעה מופעים לפי ההקשר והמבנה, בלי להעדיף מספר דילוג בולט.</small></header>
+    {failure ? <><p>הבדיקה נעצרה במופע הנוכחי ולא הוסקה מסקנה מן המופעים שטרם נבדקו.</p>
+      <button type="button" onClick={onRetry}>נסה שוב את המופע</button></> : recommendation ? <>
+      <strong>נמצא צופן מוביל לבדיקה</strong>
+      <p><b>{recommendation.supports.map((support) => support.label || support.term).join(" × ")}</b> · {recommendation.relation.label}</p>
+      <small>מופע {recommendation.occurrence.ordinal} · דילוג <bdi>{recommendation.occurrence.direction === "back" || recommendation.occurrence.direction === -1 ? "−" : ""}{recommendation.occurrence.skip}</bdi>{recommendation.occurrence.ref ? ` · ${recommendation.occurrence.ref}` : ""}</small>
+      <button type="button" onClick={() => onOpen(recommendation.occurrence)}>פתח את המופע המוביל</button>
+    </> : coverage.status === "INSPECTING" ? <p role="status">נבדקו {checked} מתוך {scheduled} מופעים בגל הזה. בודק כעת את מופע {coverage.nextOccurrence?.ordinal || checked + 1}…</p>
+      : coverage.status === "AWAITING_CONTINUATION" ? <>
+        <p>ארבעת המופעים הראשונים נבדקו ולא נמצא בהם עדיין זוג מאומת בעל גיאומטריה חזקה.</p>
+        <small>שאר המופעים לא הוכרזו כחסרים. אפשר לאשר גל אחד נוסף של עד ארבעה מופעים.</small>
+        <button type="button" onClick={onContinue}>בדוק עוד עד 4 מופעים</button>
+      </> : <>
+        <p>הבדיקה המוגבלת הסתיימה בלי המלצה חזקה.</p>
+        <small>{coverage.coverage?.remainingUnscheduledCount ? `${coverage.coverage.remainingUnscheduledCount} מופעים נשארו מחוץ לתקציב ואינם ראיה שלילית.` : "לא מוצגת ערימת ממצאים חלשים; אפשר לעבור לבדיקה ידנית."}</small>
+      </>}
+  </section>;
+}
+
+function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onOpenResearchTarget, onCompareResearchTargets, comparisonResult, researchTargetPending, triageResult, triagePending, discoveryResult, discoveryPending, guidedCoverage, guidedFailure, onContinueGuided, onRetryGuided, onOpenGuided, onAddDiscovery, onOpenDiscovery }) {
   const results = state?.search?.occurrences;
   const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
   const items = blocked ? [] : results?.items || [];
@@ -1190,6 +1220,7 @@ function RegularResultsRail({ state, pending, operation, visible, onSelect, onRe
           <ResultTriageNote row={triageByKey.get(item.hitId)} />
         </button>)}
       </div>
+      <GuidedOccurrenceCoverage coverage={guidedCoverage} failure={guidedFailure} onContinue={onContinueGuided} onRetry={onRetryGuided} onOpen={onOpenGuided} />
       <MatrixDiscoveryResults result={discovery} pending={discoveryPending} findings={state?.findings || []}
         onAddGroup={onAddDiscovery} onOpenFinding={onOpenDiscovery} heading="מילים והקשרים סביב המופע הנבחר"
         description="זוהי הסריקה המקומית והמהירה של המטריצה הפעילה. היא שייכת לחבילת המחקר ואינה משנה את מספר מופעי הציר." />
@@ -1636,6 +1667,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   // It is not another engine/store and may never outlive or mutate the engine-owned axis identity.
   const [resultDiscovery, setResultDiscovery] = useState(null);
   const resultDiscoveryKeyRef = useRef(null);
+  // A bounded queue over reports from the existing matrix-discovery lens. This is ephemeral
+  // presentation progress only: it is not ELS state, persistence or another result bundle.
+  const [guidedOccurrenceRun, setGuidedOccurrenceRun] = useState({ key: null, approvedBatches: 1, inspections: [], failure: null });
   const [researchBundle, setResearchBundle] = useState(null);
   const pendingResearchBundleRef = useRef(null);
   const [activeResearchContext, setActiveResearchContext] = useState(null);
@@ -1652,6 +1686,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setSaveResult(null);
     setResultTriage(null);resultTriageKeyRef.current = null;
     setResultDiscovery(null);resultDiscoveryKeyRef.current = null;
+    setGuidedOccurrenceRun(emptyGuidedOccurrenceRun());
     setResearchBundle(null);pendingResearchBundleRef.current = null;
     setActiveResearchContext(null);researchCommandRef.current = null;
     setDeleteConfirm(false);setDeletePending(false);setDeleteError(false);
@@ -1665,6 +1700,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (researchLoad.researchCommand === true) return;
     setResultTriage(null);resultTriageKeyRef.current = null;
     setResultDiscovery(null);resultDiscoveryKeyRef.current = null;
+    setGuidedOccurrenceRun(emptyGuidedOccurrenceRun());
     if (researchLoad.researchBundle === true) {
       const bundle = { contract: "els_research_bundle_v1", kind: "advanced-plan", label: researchLoad.term,
         expectedHitId: researchLoad.hitId, status: "opening", fromAdvanced: true, contextTerms: safeResearchContextTerms(researchLoad.contextTerms) };
@@ -1701,6 +1737,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setSavedAxisReplacement(null);
     setResultTriage(null);resultTriageKeyRef.current = null;
     setResultDiscovery(null);resultDiscoveryKeyRef.current = null;
+    setGuidedOccurrenceRun(emptyGuidedOccurrenceRun());
     setResearchBundle(null);pendingResearchBundleRef.current = null;
     setClassicOpen(false);
     ++findingsSeqRef.current;
@@ -1984,7 +2021,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       return;
     }
     if (result?.lens === "matrix-discovery" && result?.target?.surface === "results") {
-      setResultDiscovery(result);
+      const guidedKey = result?.target?.guidedOccurrenceCoverage === true ? String(result.target.guidedCoverageKey || "") : "";
+      if (!guidedKey || result?.target?.hitId === engineStateRef.current?.axis?.hitId) setResultDiscovery(result);
+      if (guidedKey) setGuidedOccurrenceRun((current) => {
+        if (current.key !== guidedKey || current.inspections.some((row) => row?.target?.hitId === result?.target?.hitId)) return current;
+        if (!result?.ok) return { ...current, failure: { hitId: result?.target?.hitId || null, reason: result?.reason || "scan-failed" } };
+        return { ...current, failure: null, inspections: [...current.inspections, result] };
+      });
     } else if (result?.lens === "result-triage") {
       if (!result?.ok) resultTriageKeyRef.current = null;
       setResultTriage(result?.ok ? result : null);
@@ -2230,9 +2273,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const activeContextKey = researchContextKey(activeResearchContext?.contextTerms, activeResearchContext?.discoveryGoal);
   const resultTriageKey = resultView?.id ? `${resultsAreCross ? "cross" : "regular"}:${resultView.id}:${resultsAreCross ? 0 : resultView.page || 0}:${activeContextKey}` : null;
   const resultTriagePending = lensPending && lensRequest?.lens === "result-triage";
+  const guidedOccurrenceEnabled = !resultsAreCross && Boolean(activeResearchContext?.discoveryGoal);
   const resultDiscoveryKey = !resultsAreCross && resultView?.id && engineState?.axis?.hitId
     ? `${resultView.id}:${engineState.axis.hitId}:${activeContextKey}` : null;
-  const resultDiscoveryPending = lensPending && lensRequest?.lens === "matrix-discovery" && lensRequest?.target?.surface === "results";
+  const resultDiscoveryPending = lensPending && lensRequest?.lens === "matrix-discovery" && lensRequest?.target?.surface === "results"
+    && lensRequest?.target?.hitId === engineState?.axis?.hitId;
   useEffect(() => {
     if (!researchProfile || visibleTool !== "results" || operations.search?.status !== "done" || !matrixActive || !resultTriageKey || lensPending) return;
     const matches = resultTriage?.ok && resultTriage.kind === (resultsAreCross ? "cross" : "regular") && resultTriage.setId === resultView.id
@@ -2245,7 +2290,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   useEffect(() => {
     const triageReady = resultTriage?.ok && resultTriage.kind === "regular" && resultTriage.setId === resultView?.id
       && Number(resultTriage.page) === Number(resultView?.page) && (resultTriage.target?.contextKey || "") === activeContextKey;
-    if (!researchProfile || visibleTool !== "results" || resultsAreCross || operations.search?.status !== "done" || !matrixActive
+    if (!researchProfile || guidedOccurrenceEnabled || visibleTool !== "results" || resultsAreCross || operations.search?.status !== "done" || !matrixActive
       || !resultDiscoveryKey || !triageReady || lensPending) return;
     const discoveryReady = resultDiscovery?.target?.hitId === engineState.axis.hitId
       && resultDiscovery?.target?.surface === "results" && (resultDiscovery?.target?.contextKey || "") === activeContextKey;
@@ -2254,8 +2299,55 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestLens("matrix-discovery", { hitId: engineState.axis.hitId, surface: "results", contextKey: activeContextKey, minLength: 4, maxLength: 10,
       ...(activeResearchContext?.contextTerms?.length ? { contextTerms: activeResearchContext.contextTerms } : {}),
       ...(activeResearchContext?.discoveryGoal ? { discoveryGoal: activeResearchContext.discoveryGoal } : {}) });
-  }, [researchProfile, visibleTool, resultsAreCross, operations.search?.status, matrixActive, resultDiscoveryKey, lensPending,
+  }, [researchProfile, guidedOccurrenceEnabled, visibleTool, resultsAreCross, operations.search?.status, matrixActive, resultDiscoveryKey, lensPending,
     resultTriage?.setId, resultTriage?.page, resultDiscovery?.target?.hitId, activeContextKey, engineState?.axis?.hitId]);
+  const guidedTriageReady = guidedOccurrenceEnabled && resultTriage?.ok && resultTriage.kind === "regular"
+    && resultTriage.setId === resultView?.id && Number(resultTriage.page) === Number(resultView?.page)
+    && (resultTriage.target?.contextKey || "") === activeContextKey;
+  const guidedCoverageKey = guidedTriageReady ? `${resultView.id}:${resultView.page || 0}:${activeContextKey}` : null;
+  useEffect(() => {
+    setGuidedOccurrenceRun((current) => current.key === guidedCoverageKey ? current : emptyGuidedOccurrenceRun(guidedCoverageKey));
+  }, [guidedCoverageKey]);
+  const guidedCoverage = useMemo(() => {
+    if (!guidedCoverageKey || guidedOccurrenceRun.key !== guidedCoverageKey) return null;
+    return projectElsGuidedOccurrenceCoverage({
+      plan: { contract: ELS_CIPHER_DISCOVERY_PLAN_CONTRACT },
+      occurrences: resultView?.items || [],
+      triageItems: resultTriage?.items || [],
+      inspections: guidedOccurrenceRun.inspections,
+      approvedBatches: guidedOccurrenceRun.approvedBatches,
+      resultSetId: resultView?.id,
+    });
+  }, [guidedCoverageKey, guidedOccurrenceRun, resultView?.id, resultView?.items, resultTriage?.items]);
+  useEffect(() => {
+    const next = guidedCoverage?.nextOccurrence;
+    if (!researchProfile || visibleTool !== "results" || operations.search?.status !== "done" || !matrixActive
+      || guidedOccurrenceRun.failure || guidedCoverage?.status !== "INSPECTING" || !next || lensPending || journeyPendingRef.current) return;
+    requestLens("matrix-discovery", {
+      hitId: next.hitId,
+      setId: resultView.id,
+      page: resultView.page,
+      surface: "results",
+      guidedOccurrenceCoverage: true,
+      guidedCoverageKey,
+      contextKey: activeContextKey,
+      minLength: 4,
+      maxLength: 10,
+      ...(activeResearchContext?.contextTerms?.length ? { contextTerms: activeResearchContext.contextTerms } : {}),
+      discoveryGoal: activeResearchContext.discoveryGoal,
+    });
+  }, [researchProfile, visibleTool, operations.search?.status, matrixActive, lensPending, guidedCoverage?.status,
+    guidedCoverage?.nextOccurrence?.hitId, guidedOccurrenceRun.failure, guidedCoverageKey, resultView?.id, resultView?.page, activeContextKey]);
+  const continueGuidedOccurrenceCoverage = () => setGuidedOccurrenceRun((current) => current.key === guidedCoverageKey
+    ? { ...current, approvedBatches: Math.min(2, current.approvedBatches + 1), failure: null } : current);
+  const retryGuidedOccurrenceCoverage = () => setGuidedOccurrenceRun((current) => current.key === guidedCoverageKey
+    ? { ...current, failure: null } : current);
+  const openGuidedOccurrence = (occurrence) => {
+    if (!occurrence || occurrence.index == null || !resultView?.id) return;
+    const report = guidedOccurrenceRun.inspections.find((row) => row?.target?.hitId === occurrence.hitId);
+    if (report) setResultDiscovery(report);
+    requestControl("occurrence-select", { setId: resultView.id, index: occurrence.index, hitId: occurrence.hitId });
+  };
   const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId
     && ["searching", "verifying", "empty", "error", "cancelled"].includes(operations.search?.status);
   const matrixStatus = engineState?.status === "ready" ? "בראשית · מוכן לחיפוש" : previousResult
@@ -2522,6 +2614,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           researchTargetPending={lensPending && ["research-target", "research-target-compare"].includes(lensRequest?.lens)}
           triageResult={researchProfile ? resultTriage : null} triagePending={researchProfile && resultTriagePending}
           discoveryResult={researchProfile && (resultDiscovery?.target?.contextKey || "") === activeContextKey ? resultDiscovery : null} discoveryPending={researchProfile && resultDiscoveryPending}
+          guidedCoverage={researchProfile ? guidedCoverage : null} guidedFailure={guidedOccurrenceRun.failure}
+          onContinueGuided={continueGuidedOccurrenceCoverage} onRetryGuided={retryGuidedOccurrenceCoverage} onOpenGuided={openGuidedOccurrence}
           onAddDiscovery={addStructureGroup} onOpenDiscovery={revealFindingDetails} />
         {researchProfile ? <StructuralPriorityRail visible={visibleTool === "structures"} state={engineState} lensResult={lensResult} lensPending={lensPending}
           busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}

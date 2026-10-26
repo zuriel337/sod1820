@@ -46,7 +46,9 @@ export default function Host(props){
     window.__fixtureVerificationRequests=(window.__fixtureVerificationRequests||0)+1;
     const holdAfter=Number(window.__fixtureHoldVerificationAfter)||0;
     if(window.__fixtureHoldVerification&&(!holdAfter||window.__fixtureVerificationRequests>holdAfter))await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());});
-    const result=await fetch('/oracle',{method:'POST',body:JSON.stringify({op:message.op,payload:message.payload,denied:window.__fixtureVerificationDenied})}).then(response=>response.json());
+    const requestedTerm=String(message.payload?.term||'').replace(/[^א-ת]/g,'');
+    const result=await fetch('/oracle',{method:'POST',body:JSON.stringify({op:message.op,payload:message.payload,
+      denied:window.__fixtureVerificationDenied||(window.__fixtureOnlyVerifyTerm&&requestedTerm!==window.__fixtureOnlyVerifyTerm)})}).then(response=>response.json());
     send({type:'engine-result',requestId:message.requestId,...result});
    }
    if(message.type==='state'){window.__state=message;latest.current.onState?.(message);}
@@ -2477,6 +2479,34 @@ test('an anchor-context command starts one canonical native search without sendi
   assert.match(cardText,/הצופן המוביל לבדיקה/);assert.match(cardText,/ספינת/);assert.match(cardText,/יכל אש/);assert.match(cardText,/מקבילים לציר/);
   assert.equal(await page.locator('[data-els-discovery-evidence="advanced"]:visible').getAttribute('open'),null,'the remaining local findings stay collapsed under Advanced');
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:environment.mobile});
+});
+
+test('guided discovery inspects four exact occurrences through the same lens without moving the open matrix',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:360000},async()=>{
+ await withNative({width:320,height:844},async page=>{
+  await page.evaluate(()=>{window.__fixtureOnlyVerifyTerm='יהוה';});
+  const command={contract:'els_anchor_context_request_v1',researchCommand:true,term:'יהוה',scope:'torah',
+   contextTerms:[{term:'התורה',mode:'term',required:true,split:false}],
+   discoveryGoal:{primaryAxes:1,connectedSupports:2,sourceSequence:'WHEN_AVAILABLE',resultPolicy:'ONE_BEST_STRUCTURE'},researchNonce:202};
+  await page.evaluate(item=>window.__loadResearch(item),command);
+  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='יהוה',null,{timeout:90000});
+  const before=await page.evaluate(()=>({hitId:window.__state.axis.hitId,setId:window.__state.search.occurrences.id,page:window.__state.search.occurrences.page}));
+  await page.waitForFunction(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-discovery'
+   &&message.target?.guidedOccurrenceCoverage===true).length===4,null,{timeout:240000});
+  await page.waitForFunction(()=>window.__log.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'
+   &&message.target?.guidedOccurrenceCoverage===true&&message.ok===true).length===4,null,{timeout:240000});
+  const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-discovery'
+   &&message.target?.guidedOccurrenceCoverage===true));
+  assert.equal(requests.length,4);
+  assert.equal(new Set(requests.map(request=>request.target.hitId)).size,4,'one bounded wave inspects four distinct exact occurrences');
+  assert.ok(requests.every(request=>request.target.setId===before.setId&&request.target.page===before.page));
+  assert.equal(await page.evaluate(()=>window.__state.axis.hitId),before.hitId,'background breadth never changes the selected matrix');
+  const coverage=page.locator('[data-els-guided-coverage="els_guided_occurrence_coverage_v1"]:visible');
+  await coverage.waitFor({state:'visible'});
+  assert.match(await coverage.innerText(),/ארבעת המופעים הראשונים נבדקו[\s\S]*שאר המופעים לא הוכרזו כחסרים/);
+  assert.equal(await coverage.getByRole('button',{name:'בדוק עוד עד 4 מופעים'}).count(),1);
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'the bounded summary remains 320px-safe');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
 });
 
 test('a focused Colombia package verifies the requested exact phrase without silently splitting it',
