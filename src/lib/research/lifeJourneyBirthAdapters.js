@@ -59,6 +59,25 @@ const AUTHORITY_LABELS = Object.freeze({
   "Lunar Authority": "ירחית",
 });
 
+const STRATEGY_LABELS = Object.freeze({
+  Inform: "ליידע לפני פעולה",
+  "Wait to Respond": "להמתין לתגובה",
+  "Wait to Respond, then Inform": "להמתין לתגובה ואז ליידע",
+  "Wait for the Invitation": "להמתין להזמנה",
+  "Wait a Lunar Cycle": "להמתין למחזור ירח",
+  Wait: "להמתין",
+});
+
+const DEFINITION_LABELS = Object.freeze({
+  "No Definition": "ללא הגדרה קבועה",
+  "Single Definition": "הגדרה אחידה",
+  "Split Definition": "הגדרה מפוצלת",
+  "Triple Split Definition": "הגדרה מפוצלת לשלושה",
+  "Triple Split": "הגדרה מפוצלת לשלושה",
+  "Quadruple Split Definition": "הגדרה מפוצלת לארבעה",
+  "Quadruple Split": "הגדרה מפוצלת לארבעה",
+});
+
 const CENTER_LABELS = Object.freeze({
   head: "ראש",
   ajna: "אג'נה",
@@ -174,14 +193,18 @@ function sanitizePoint(point = {}) {
 }
 
 function sanitizeHumanDesign(humanDesign = {}) {
+  const strategy = clean(humanDesign.type?.strategy);
+  const definition = clean(humanDesign.definition);
   return Object.freeze({
     type: clean(humanDesign.type?.name),
     typeLabel: TYPE_LABELS[humanDesign.type?.name] || clean(humanDesign.type?.name),
-    strategy: clean(humanDesign.type?.strategy),
+    strategy,
+    strategyLabel: STRATEGY_LABELS[strategy] || strategy,
     authority: clean(humanDesign.authority?.name),
     authorityLabel: AUTHORITY_LABELS[clean(humanDesign.authority?.name)] || clean(humanDesign.authority?.name),
     profile: clean(humanDesign.profile?.numbers),
-    definition: clean(humanDesign.definition),
+    definition,
+    definitionLabel: DEFINITION_LABELS[definition] || definition,
     activatedGates: Object.freeze((humanDesign.gates?.all || []).map(Number).filter(Number.isSafeInteger)),
     definedChannels: Object.freeze((humanDesign.channels || []).map(channel => Object.freeze({
       key: (channel?.gates || []).map(Number).filter(Number.isSafeInteger).sort((a, b) => a - b).join("-"),

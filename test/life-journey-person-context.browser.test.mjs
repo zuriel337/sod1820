@@ -328,7 +328,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const guidedFlow = family.locator('[data-experience-capability="life-journey-guided-map-flow"]');
     await guidedFlow.getByRole("heading", { name: "המסלול המודרך" }).waitFor();
     await guidedFlow.getByLabel("4 מתוך 8 תחנות הושלמו").waitFor();
-    assert.equal(await guidedFlow.locator('button[aria-current="step"]').innerText().then(text => text.includes("מחקר")), true);
+    assert.equal(await guidedFlow.locator('button[aria-current="step"]').innerText().then(text => text.includes("חיבורים")), true);
     const callsBeforeGuidedNavigation = await page.evaluate(() => ({
       matrix: window.__matrixCalls.length,
       reflection: window.__reflectionCalls.length,
@@ -336,7 +336,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
       dates: window.__dateCalls.length,
       els: window.__elsCalls.length,
     }));
-    await guidedFlow.getByRole("button", { name: "המשך ל־מחקר" }).click();
+    await guidedFlow.getByRole("button", { name: "המשך ל־חיבורים" }).click();
     await lifeMaps.getByText("המטריצה תופיע לאחר הפעלת המחקר המפורש לאנשים שנבחרו.", { exact: true }).waitFor();
     assert.deepEqual(await page.evaluate(() => ({
       matrix: window.__matrixCalls.length,
@@ -385,8 +385,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await spatialLegend.locator('button[data-focused="true"]').count(), 1);
     await birthStudio.getByRole("tab", { name: "התכנסויות" }).click();
     await spatialLegend.getByText(/עדיין אין התכנסות מנורמלת/).waitFor();
-    await birthStudio.getByRole("tab", { name: "Human Design" }).click();
-    await birthStudio.getByRole("heading", { name: "Human Design" }).waitFor();
+    await birthStudio.getByRole("tab", { name: "המפה האישית" }).click();
+    await birthStudio.getByRole("heading", { name: "המפה האישית · Human Design" }).waitFor();
     assert.equal(await birthStudio.locator('[data-result="human-design"]').count(), 0, "birth calculations never run on tab open");
     const temporaryBirthdate = birthStudio.getByLabel(/תאריך לידה לבדיקה/);
     const temporaryBirthtime = birthStudio.getByLabel(/שעת לידה לבדיקה/);
@@ -405,7 +405,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await birthStudio.getByRole("button", { name: "חשב מפה מקומית" }).click();
     const humanDesignResult = birthStudio.locator('[data-result="human-design"]');
     await humanDesignResult.waitFor();
-    await humanDesignResult.getByText("Strategy · Definition", { exact: true }).waitFor();
+    await humanDesignResult.getByText("הקריאה שלך לפי השיטה", { exact: true }).waitFor();
+    await humanDesignResult.getByText("דרך פעולה · מבנה החיבור", { exact: true }).waitFor();
     await birthStudio.getByText(/natalengine 1\.6\.0/).waitFor();
     await birthStudio.getByRole("tab", { name: "מפת שמיים" }).click();
     const skyResult = birthStudio.locator('[data-result="sky-map"]');
@@ -442,8 +443,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), false, "family names are not researched by selection");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), false, "family dates are not researched by selection");
     assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 0, "the normalized message engine waits for the explicit research action");
-    await family.getByRole("button", { name: "צור מחקר ומסר ל־2 אנשים" }).click();
-    await family.getByRole("heading", { name: "תוצאות המחקר המשפחתי" }).waitFor();
+    await family.getByRole("button", { name: "בנה מפת חיבורים ל־2 אנשים" }).click();
+    await family.getByRole("heading", { name: "מפת החיבורים המשפחתית" }).waitFor();
     await lifeMaps.getByRole("tab", { name: "מטריצה" }).click();
     assert.equal(await lifeMaps.locator("tbody tr").count(), 2, "one matrix row is shown per selected person");
     await lifeMaps.getByRole("tab", { name: "דורות" }).click();
@@ -461,7 +462,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await lifeMaps.locator(".person-journey-coverage-map article").count(), 2);
     await lifeMaps.getByText("זוגות עם חיבור", { exact: true }).first().waitFor();
     await lifeMaps.getByRole("tab", { name: "סיכום" }).click();
-    await lifeMaps.getByRole("heading", { name: "הסיכום המשפחתי" }).waitFor();
+    await lifeMaps.getByRole("heading", { name: "התמונה המשפחתית" }).waitFor();
     await lifeMaps.getByText("מסר בדיקה מבוסס ממצאים.", { exact: true }).waitFor();
     await lifeMaps.getByRole("heading", { name: "חבילת המחקר המאוחדת" }).waitFor();
     await lifeMaps.getByText("Human Design · עדשת עזר פנימית", { exact: true }).waitFor();
@@ -500,7 +501,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");
     const normalizedFamilyAnalysis = family.locator('[data-experience-capability="life-journey-family-normalized-analysis"]');
-    await normalizedFamilyAnalysis.getByRole("heading", { name: "המסר המשפחתי" }).waitFor();
+    await normalizedFamilyAnalysis.getByRole("heading", { name: "התמונה המשפחתית" }).waitFor();
     await normalizedFamilyAnalysis.getByText("מסר בדיקה מבוסס ממצאים.", { exact: true }).waitFor();
     const familyAnalysisCalls = await page.evaluate(() => window.__reflectionCalls);
     assert.deepEqual(familyAnalysisCalls.map(call => call.kind), ["ai", "tarot"]);
@@ -513,8 +514,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await normalizedFamilyAnalysis.locator(".person-journey-reflection-cards").count(), 0, "internal cards are not rendered");
     assert.equal(await normalizedFamilyAnalysis.getByText("הקוסם", { exact: true }).count(), 0, "card identities remain internal");
     await page.reload();
-    await family.getByRole("heading", { name: "תוצאות המחקר המשפחתי" }).waitFor();
-    await normalizedFamilyAnalysis.getByRole("heading", { name: "המסר המשפחתי" }).waitFor();
+    await family.getByRole("heading", { name: "מפת החיבורים המשפחתית" }).waitFor();
+    await normalizedFamilyAnalysis.getByRole("heading", { name: "התמונה המשפחתית" }).waitFor();
     assert.deepEqual(await page.evaluate(() => ({
       matrix: window.__matrixCalls.length,
       reflection: window.__reflectionCalls.length,

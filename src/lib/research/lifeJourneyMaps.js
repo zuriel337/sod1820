@@ -219,10 +219,10 @@ export function buildLifeJourneyMaps({
     { id: "time", label: "זמן", tab: "time", state: birthTimeline.length ? "ready" : "waiting" },
     { id: "letters", label: "אותיות", tab: "creation", state: creation.people.some(person => person.sequence.length) ? "ready" : "waiting" },
     { id: "family", label: "משפחה", tab: "generations", state: selectedMembers.length >= 2 ? "ready" : "available" },
-    { id: "research", label: "מחקר", tab: "matrix", state: researchReady ? "ready" : "available" },
+    { id: "research", label: "חיבורים", tab: "matrix", state: researchReady ? "ready" : "available" },
     { id: "convergence", label: "התכנסויות", tab: "convergences", state: convergences.length ? "ready" : researchReady ? "empty" : "waiting" },
     { id: "sources", label: "מקורות", tab: "sources", state: memberSources.length || numberSources.length ? "ready" : researchReady ? "empty" : "waiting" },
-    { id: "summary", label: "מסר", tab: "summary", state: combinedSummary.message ? "ready" : researchReady ? "available" : "waiting" },
+    { id: "summary", label: "סיכום", tab: "summary", state: combinedSummary.message ? "ready" : researchReady ? "available" : "waiting" },
   ].map(step => Object.freeze(step));
   const completedPathSteps = pathSteps.filter(step => step.state === "ready" || step.state === "empty");
   const nextPathStep = pathSteps.find(step => step.state !== "ready" && step.state !== "empty") || null;

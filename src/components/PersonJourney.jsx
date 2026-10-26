@@ -1391,14 +1391,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           onClick={runSelectedFamilyResearch}
         >
           {familyResearch.state === "loading"
-            ? "בונה מפה, מקורות ומסר…"
+            ? "בונה את מפת החיבורים…"
             : familyAnalysis.state === "loading"
-              ? "מנסח את המסר מהממצאים…"
+              ? "מסכם את הממצאים…"
             : selectedFamilyRefs.length === 1
-              ? "צור מחקר ומסר לאדם שנבחר"
-              : `צור מחקר ומסר ל־${selectedFamilyRefs.length} אנשים`}
+              ? "בנה מפה לאדם שנבחר"
+              : `בנה מפת חיבורים ל־${selectedFamilyRefs.length} אנשים`}
         </button>
-        <small>לחיצה אחת בונה מפה, ביטויים שווי־ערך, מקורות תנ״ך ומסר. ELS אינו משתתף בשלב הזה.</small>
+        <small>לחיצה אחת בודקת ביטויים שווי־ערך, חיבורים ומקורות תנ״ך, ומציגה סיכום ברור. ELS אינו משתתף בשלב הזה.</small>
       </div> : null}
 
       {familyResearch.state === "loading" ? <CanonicalProgress
@@ -1408,14 +1408,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         compact
       /> : null}
       {familyResearch.state === "error" ? <div className="person-journey-error" role="alert">{familyResearch.error}</div> : null}
-      {familyResearch.state === "ready" ? <section className="person-journey-family-research" aria-label="תוצאות המחקר המשפחתי">
+      {familyResearch.state === "ready" ? <section className="person-journey-family-research" aria-label="מפת החיבורים המשפחתית">
         <div className="person-journey-family-research-head">
-          <div><small>מחקר מפורש</small><h3>תוצאות המחקר המשפחתי</h3></div>
+          <div><small>בדיקה שביקשת</small><h3>מפת החיבורים המשפחתית</h3></div>
           <span>{familyResearch.rows.filter(row => row.state === "ready").length} מתוך {familyResearch.rows.length} הושלמו</span>
         </div>
         {familyAnalysis.state === "loading" ? <CanonicalProgress
-          title="מנסח מסר מהמפה המנורמלת"
-          detail="המסר נבנה רק מהממצאים שכבר חושבו; בדיקת ההשתקפות נשארת פנימית."
+          title="מסכם את מפת החיבורים"
+          detail="הסיכום נבנה רק מהממצאים שכבר חושבו; בדיקת ההשתקפות נשארת פנימית."
           phase="נרמול → סינתזה → אימות פנימי"
           compact
         /> : null}
@@ -1425,7 +1425,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           aria-labelledby="life-journey-family-analysis-title"
         >
           <header>
-            <div><small>מסר מתוך הממצאים המנורמלים</small><h3 id="life-journey-family-analysis-title">המסר המשפחתי</h3></div>
+            <div><small>סיכום מתוך הממצאים המנורמלים</small><h3 id="life-journey-family-analysis-title">התמונה המשפחתית</h3></div>
             <span>{familyAnalysis.data.coverage.connectionCount} חיבורים · {familyAnalysis.data.coverage.searchedPairCount} זוגות נבדקו</span>
           </header>
           <p>{familyAnalysis.data.message}</p>
@@ -1435,14 +1435,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             <span>{familyResearch.sourceResearch.coverage.returnedMemberCount} אנשים עם שכבת מקור</span>
           </div> : null}
           <details>
-            <summary>על מה המסר נשען?</summary>
+            <summary>על מה הסיכום נשען?</summary>
             <ul>{familyAnalysis.data.claims.map(claim => <li key={claim.id}>{claim.text}</li>)}</ul>
           </details>
-          <footer>המסר נוסח רק מתוצאות המנוע שכבר חושבו. בדיקות פנימיות אינן מוצגות, אינן ראיה ואינן משנות את הממצאים.</footer>
+          <footer>הסיכום נוסח רק מתוצאות המנוע שכבר חושבו. בדיקות פנימיות אינן מוצגות, אינן ראיה ואינן משנות את הממצאים.</footer>
         </article> : null}
         {familyAnalysis.state === "error" || familyAnalysis.state === "idle" ? <>
-          <article className="person-journey-research-message" aria-label="מסר המחקר המשפחתי המאוחד">
-          <small>מחקר משפחתי מאוחד · מנורמל</small>
+          <article className="person-journey-research-message" aria-label="סיכום מפת החיבורים המשפחתית">
+          <small>מפה משפחתית מאוחדת · מנורמלת</small>
           <h3>המשפחה כמטריצה אחת</h3>
           <p>{familyResearch.message}</p>
           <span>{familyResearch.coverage?.expressionCount || 0} ביטויי שם ותאריך יצרו {familyResearch.coverage?.searchedPairCount || 0} זוגות מועמדים שנבדקו. נשמר עותק עבודה פרטי ב־Research Context; הוא אינו אמת על המשפחה.</span>
@@ -1452,7 +1452,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
               type="button"
               className="person-journey-primary"
               onClick={runFamilyAnalysis}
-            >{familyAnalysis.state === "error" ? "נסה שוב לנסח את המסר" : "נסח מסר מהמפה השמורה"}</button>
+            >{familyAnalysis.state === "error" ? "נסה שוב ליצור סיכום" : "הצג סיכום מהמפה השמורה"}</button>
             <small role={familyAnalysis.state === "error" ? "alert" : undefined}>{familyAnalysis.state === "error" ? familyAnalysis.error : "המפה שוחזרה מהזיכרון הפרטי בלי להפעיל מחדש את מנוע הניסוח."}</small>
           </div>
         </> : null}

@@ -91,12 +91,12 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /runLifeJourneyFamilyResearch/);
   assert.match(journey, /המשפחה כמטריצה אחת/);
   assert.match(journey, /Promise\.all\(selectedMembers\.map/);
-  assert.match(journey, /צור מחקר ומסר ל־\$\{selectedFamilyRefs\.length\} אנשים/);
+  assert.match(journey, /בנה מפת חיבורים ל־\$\{selectedFamilyRefs\.length\} אנשים/);
   assert.match(journey, /LifeJourneyMaps2029/);
   assert.match(journey, /birthReflections/);
   assert.match(journey, /onBirthCalculationChange=\{rememberBirthReflection\}/);
   assert.match(journey, /\/login\?returnTo=%2F2029%2Fjourney/);
-  assert.match(journey, /תוצאות המחקר המשפחתי/);
+  assert.match(journey, /מפת החיבורים המשפחתית/);
   assert.match(journey, /runLifeJourneyFamilyAnalysis/);
   assert.match(journey, /runLifeJourneyFamilySourceResearch/);
   assert.match(journey, /מילים וביטויים סביב המספרים/);
@@ -110,7 +110,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(canonicalVerseCards, /variant === "gematria"/);
   assert.match(canonicalVerseCards, /variant === "name"/);
   assert.match(journey, /await analyzeCompletedFamilyResearch\(completedResearch\)/);
-  assert.match(journey, /המסר המשפחתי/);
+  assert.match(journey, /התמונה המשפחתית/);
   assert.match(journey, /data-experience-capability="life-journey-family-normalized-analysis"/);
   assert.doesNotMatch(journey, /person-journey-family-list/);
   assert.doesNotMatch(journey, /person-journey-reflection-cards/);

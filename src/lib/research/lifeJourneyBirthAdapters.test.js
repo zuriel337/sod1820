@@ -35,6 +35,8 @@ test("computes the published golden Human Design and sky fixture locally", async
   assert.equal(result.humanDesign.authority, "Sacral Authority");
   assert.equal(result.humanDesign.profile, "3/5");
   assert.equal(result.humanDesign.definition, "Single Definition");
+  assert.equal(result.humanDesign.strategyLabel, "להמתין לתגובה ואז ליידע");
+  assert.equal(result.humanDesign.definitionLabel, "הגדרה אחידה");
   assert.ok(result.humanDesign.activatedGates.includes(33));
   assert.equal(result.sky.angles.ascendant.sign, "Sagittarius");
   assert.equal(result.sky.angles.midheaven.sign, "Virgo");
@@ -113,4 +115,6 @@ test("keeps the engine behind an injectable narrow adapter", async () => {
   assert.equal("memberRef" in received, false);
   assert.equal("birthPlace" in received, false);
   assert.equal(result.humanDesign.typeLabel, "Reflector · משקף");
+  assert.equal(result.humanDesign.strategyLabel, "להמתין");
+  assert.equal(result.humanDesign.definitionLabel, "ללא הגדרה קבועה");
 });

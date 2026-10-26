@@ -12,7 +12,7 @@ const BirthMapScene3D = lazy(() => import("./BirthMapScene3D2029.jsx"));
 
 const LENSES = Object.freeze([
   { id: "spatial", label: "תלת־ממד" },
-  { id: "human", label: "Human Design" },
+  { id: "human", label: "המפה האישית" },
   { id: "sky", label: "מפת שמיים" },
   { id: "sefer", label: "ספר יצירה" },
 ]);
@@ -53,6 +53,14 @@ const FALLBACK_LABEL = Object.freeze({
   context_lost: "הקשר הגרפי אבד; חזרנו לתצוגה הבטוחה.",
   render_error: "התצוגה התלת־ממדית לא נטענה; הנתונים עצמם לא נפגעו.",
   ssr: "התצוגה התלת־ממדית זמינה בדפדפן בלבד.",
+});
+
+const HUMAN_DESIGN_TYPE_COPY = Object.freeze({
+  Generator: "לפי השיטה, הדרך מתבהרת מתוך תגובה למה שכבר נמצא מולך.",
+  "Manifesting Generator": "לפי השיטה, הדרך מתחילה בתגובה ויכולה להתקדם במהירות, גם עם תיקוני כיוון.",
+  Projector: "לפי השיטה, החוזקה נמצאת בזיהוי ובהכוונה, במיוחד כשיש הכרה והזמנה.",
+  Manifestor: "לפי השיטה, היוזמה טבעית; יידוע לפני פעולה עשוי להפחית התנגדות.",
+  Reflector: "לפי השיטה, הבהירות נבנית לאורך זמן ומתוך המפגש עם הסביבה.",
 });
 
 class BirthSceneBoundary extends React.Component {
@@ -131,15 +139,22 @@ function BirthCalculationControls({ people, selectedRef, birthdate, birthtime, p
 function HumanDesignResult({ result }) {
   if (!result) return <div className="birth-map-awaiting"><strong>המפה מחכה להפעלה שלך</strong><span>החישוב מתחיל רק בלחיצה ואינו מופעל בעת בחירת אדם.</span></div>;
   return <div className="birth-map-result" data-result="human-design">
-    <section className="birth-map-result__headline">
-      <article><small>Type</small><strong>{result.typeLabel}</strong></article>
-      <article><small>Authority</small><strong>{result.authorityLabel}</strong></article>
-      <article><small>Profile</small><strong dir="ltr">{result.profile}</strong></article>
+    <section className="birth-map-result__reading" aria-label="הקריאה האישית לפי Human Design">
+      <small>הקריאה שלך לפי השיטה</small>
+      <h6>{result.typeLabel}</h6>
+      <p>{HUMAN_DESIGN_TYPE_COPY[result.type] || "המפה מציגה את מבנה ה־Human Design שחושב מנתוני הלידה שהזנת."}</p>
+      <span>דרך פעולה: <strong>{result.strategyLabel || result.strategy}</strong> · דרך הכרעה: <strong>{result.authorityLabel}</strong></span>
     </section>
-    <section className="birth-map-result__group"><h6>Strategy · Definition</h6><div><span>{result.strategy}</span><span>{result.definition}</span></div></section>
+    <section className="birth-map-result__headline">
+      <article><small>הטיפוס שלך</small><strong>{result.typeLabel}</strong></article>
+      <article><small>דרך ההכרעה</small><strong>{result.authorityLabel}</strong></article>
+      <article><small>הפרופיל שלך</small><strong dir="ltr">{result.profile}</strong></article>
+    </section>
+    <section className="birth-map-result__group"><h6>דרך פעולה · מבנה החיבור</h6><div><span>{result.strategyLabel || result.strategy}</span><span>{result.definitionLabel || result.definition}</span></div></section>
     <section className="birth-map-result__group"><h6>מרכזים מוגדרים</h6><div>{result.definedCenters.map(center => <span key={center.key}>{center.label}</span>)}</div></section>
     <section className="birth-map-result__group"><h6>ערוצים מוגדרים</h6><div>{result.definedChannels.length ? result.definedChannels.map(channel => <span key={channel.key} dir="ltr">{channel.key}</span>) : <span>אין ערוץ מלא</span>}</div></section>
     <section className="birth-map-result__group"><h6>שערים פעילים</h6><div>{result.activatedGates.map(gate => <span key={gate}>{gate}</span>)}</div></section>
+    <small className="birth-map-result__boundary">זו קריאה לפי מסגרת Human Design בלבד; היא אינה עובדה מדעית, אבחון או קביעה על האישיות.</small>
   </div>;
 }
 
@@ -350,8 +365,8 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
     </div> : null}
 
     {lens === "human" ? <div className="birth-map-lens" role="tabpanel">
-      <header><span>חישוב מקומי · עדשה פרשנית</span><h5>Human Design</h5></header>
-      <p>Type, Authority, Profile, Centers, Channels ו־Gates מחושבים במכשיר מנתוני הלידה שהזנת. זו מסגרת פרשנית — לא אבחון מדעי, רפואי או קביעה על האדם.</p>
+      <header><span>חישוב מקומי · עדשה פרשנית</span><h5>המפה האישית · Human Design</h5></header>
+      <p>הטיפוס, דרך ההכרעה, הפרופיל, המרכזים, הערוצים והשערים מחושבים במכשיר מנתוני הלידה שהזנת. זו מסגרת פרשנית — לא אבחון מדעי, רפואי או קביעה על האדם.</p>
       {calculator}
       <HumanDesignResult result={calculation?.humanDesign} />
       <footer>trace · natalengine 1.6.0 · astronomy-engine VSOP87 · חישוב ידני בלבד · ללא API חיצוני</footer>

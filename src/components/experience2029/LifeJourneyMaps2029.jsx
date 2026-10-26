@@ -61,7 +61,7 @@ function JourneyGuide({ data, onSelect }) {
   const complete = !data.nextStep;
   return <section className="person-journey-guide" data-experience-capability="life-journey-guided-map-flow" aria-label="המסלול המודרך">
     <header>
-      <div><small>זהות ← זמן ← אותיות ← משפחה ← מחקר ← התכנסויות ← מקורות ← מסר</small><h4>המסלול המודרך</h4></div>
+      <div><small>זהות ← זמן ← אותיות ← משפחה ← חיבורים ← התכנסויות ← מקורות ← סיכום</small><h4>המסלול המודרך</h4></div>
       <div className="person-journey-guide-progress" style={{ "--guide-progress": `${data.progressPercent}%` }} aria-label={`${data.completedCount} מתוך ${data.steps.length} תחנות הושלמו`}>
         <strong>{data.progressPercent}%</strong><span>{data.completedCount}/{data.steps.length}</span>
       </div>
@@ -300,19 +300,19 @@ function CoverageMap({ rows, ready }) {
 }
 
 function SummaryMap({ data }) {
-  if (data.state === "loading") return <div className="person-journey-map-summary" role="status"><strong>מנסח מסר מהממצאים המנורמלים…</strong><p>המפות נשארות זמינות בזמן שהסיכום נבנה.</p></div>;
+  if (data.state === "loading") return <div className="person-journey-map-summary" role="status"><strong>מרכיב סיכום מהממצאים המנורמלים…</strong><p>המפות נשארות זמינות בזמן שהסיכום נבנה.</p></div>;
   const hasActiveLayer = data.synthesisPack?.coverage?.layers?.some(layer => layer.state !== "waiting");
-  if (!data.message && !hasActiveLayer) return <EmptyMap>הסיכום יופיע לאחר הפעלת המחקר המשפחתי המפורש.</EmptyMap>;
+  if (!data.message && !hasActiveLayer) return <EmptyMap>הסיכום יופיע לאחר הפעלת הבדיקה המשפחתית שבחרת.</EmptyMap>;
   return <article className="person-journey-map-summary" data-experience-capability="life-journey-combined-summary">
-    <header><div><small>{data.normalized ? "מסר מנורמל שכבר נוצר" : "סיכום חישובי לפני ניסוח"}</small><h4>הסיכום המשפחתי</h4></div><span>{data.connectionCount} חיבורים · {data.searchedPairCount} זוגות נבדקו</span></header>
-    <p>{data.message || "המסר יופיע לאחר הפעלת המחקר המשפחתי המפורש. עד אז מוצג רק מצב שכבות המחקר שכבר הופעלו."}</p>
+    <header><div><small>{data.normalized ? "סיכום מנורמל שכבר נוצר" : "סיכום חישובי לפני ניסוח"}</small><h4>התמונה המשפחתית</h4></div><span>{data.connectionCount} חיבורים · {data.searchedPairCount} זוגות נבדקו</span></header>
+    <p>{data.message || "הסיכום יופיע לאחר הפעלת הבדיקה המשפחתית המפורשת. עד אז מוצג רק מצב השכבות שכבר הופעלו."}</p>
     <div><span>{data.verseCount} פסוקים</span><span>{data.normalized ? "ניסוח מאומת פנימית" : "ממתין לניסוח המלא"}</span></div>
     {data.synthesisPack?.coverage?.layers?.length ? <section aria-label="שכבות חבילת הסינתזה">
       <h5>חבילת המחקר המאוחדת</h5>
       <div className="person-journey-map-chips">{data.synthesisPack.coverage.layers.map(layer => <span key={layer.id} data-state={layer.state}>
         {layer.label} · {SYNTHESIS_LAYER_STATE_LABEL[layer.state] || layer.state}
       </span>)}</div>
-      <small>גימטריה, תאריך, משפחה ומקורות מזינים את המסר. Human Design, מפת שמיים והקלפים נשארים בדיקות השתקפות פנימיות במשקל ראיה אפס ואינם משנים אותו.</small>
+      <small>גימטריה, תאריך, משפחה ומקורות מזינים את הסיכום. Human Design, מפת שמיים והקלפים נשארים בדיקות השתקפות פנימיות במשקל ראיה אפס ואינם משנים אותו.</small>
     </section> : null}
     {data.claims.length ? <details><summary>על מה הסיכום נשען?</summary><ul>{data.claims.map((claim, index) => <li key={`${index}:${claim}`}>{claim}</li>)}</ul></details> : null}
     {data.error ? <small role="alert">{data.error}</small> : null}
