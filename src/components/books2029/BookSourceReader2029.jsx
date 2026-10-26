@@ -140,6 +140,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
           {deepReading.pageText ? <div><dt>חיפוש טקסט</dt><dd>{searchablePages}/{manifest.pdfPages} עמודים · שכבת איתור בלבד</dd></div> : null}
           {sourceOnlyPages.length ? <div><dt>עמודים ללא טקסט לחיפוש</dt><dd>{sourceOnlyPages.join(", ")} · נקראים ישירות מן ה־PDF</dd></div> : null}
           {deepReading.commentary?.source_layers?.printed_commentary ? <div><dt>פירוש מודפס במהדורה</dt><dd>{deepReading.commentary.source_layers.printed_commentary}</dd></div> : null}
+          {deepReading.commentary?.source_layers?.translation ? <div><dt>תרגום עברי</dt><dd>{deepReading.commentary.source_layers.translation}</dd></div> : null}
           {pageCommentary?.technical_note ? <div><dt>הבחנת קריאה</dt><dd>{pageCommentary.technical_note}</dd></div> : null}
         </dl>
         {deepReading.commentary?.source_note ? <p className="book-reader29-source-note">{deepReading.commentary.source_note}</p> : null}
@@ -168,6 +169,11 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
       </aside>
 
       <div className="book-reader29-guide">
+        {pageCommentary?.hebrew_translation ? <article className="book-reader29-current book-reader29-translation">
+          <span>תרגום עברי · PDF {page}</span>
+          <h3>{pageCommentary.title || manifest.title}</h3>
+          <p lang="he" dir="rtl">{pageCommentary.hebrew_translation}</p>
+        </article> : null}
         <article className="book-reader29-current" aria-live="polite">
           <span>הסבר נלווה · PDF {pageCommentary ? page : `${chapter?.from}–${chapter?.to}`}</span>
           <h3>{pageCommentary?.title || chapter?.title || manifest.title}</h3>

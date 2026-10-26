@@ -179,6 +179,19 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
           assert.equal(new URL(page.url()).searchParams.get("page"), "61");
           await page.getByRole("heading", { name: "פרק ראשון · עשר ספירות", exact: true }).waitFor();
         }
+        if (manifest.slug === "bentov-brief-tour-higher-consciousness" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("125/127 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          await page.getByText("1, 2 · נקראים ישירות מן ה־PDF", { exact: true }).waitFor();
+          await page.getByText("תרגום עברי · מועמד מכונה", { exact: true }).waitFor();
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("pure awareness");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 99" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "99");
+          await page.getByText("תרגום עברי · PDF 99", { exact: true }).waitFor();
+          await page.getByRole("heading", { name: "חלק חמישי · העצמי הגבוה · עמוד 99", exact: true }).first().waitFor();
+        }
       }
       await context.close();
     }

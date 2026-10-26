@@ -154,6 +154,8 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     language: "אנגלית",
     pdfPages: 127,
     pdfUrl: "https://avalonlibrary.net/ebooks/Itzhak%20Bentov%20-%20Brief%20Tour%20of%20Higher%20Consciousness.pdf",
+    pageTextUrl: "/book-data/bentov-brief-tour-higher-consciousness.page-text.json",
+    commentaryUrl: "/book-data/bentov-brief-tour-higher-consciousness.commentary.json",
     introduction: "מסע רעיוני וחזותי מן היקום והגלים אל מערכות מקוננות, התפתחות, חוויות תודעה ושאלת העצמי. דברי הספר באנגלית נשארים פתוחים, ולצדם הסבר נלווה בעברית.",
     readingKeys: ["להבחין בין דימוי חזותי, מודל וטענה", "לעקוב אחר הגדלת קנה המידה מן הגוף אל הקוסמוס", "לשאול בכל פרק מי הוא המתבונן בתוך המודל"],
     chapters: [
