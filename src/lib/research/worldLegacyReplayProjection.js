@@ -61,6 +61,32 @@ const ELS_RESEARCH_CLUSTERS = Object.freeze([
   ]) }),
 ]);
 const ELS_RESEARCH_CLUSTER_BY_SOURCE_REF = new Map(ELS_RESEARCH_CLUSTERS.flatMap((cluster) => cluster.sourceRefs.map((sourceRef) => [sourceRef, cluster])));
+const LANGUAGE_RESEARCH_FINDINGS = Object.freeze({
+  "b1d78f6b-cebe-421f-9f58-377232554320": Object.freeze({
+    sourceRef: "channel_updates:82de1c00-ec3d-4466-bdfe-aaa2d8b694d6",
+    reviewLane: "duplicate_source_text",
+    reviewRole: "source_narrative",
+  }),
+  "b5fc2bc6-1d0d-4bd9-8abf-57b0c0b4b992": Object.freeze({
+    sourceRef: "channel_updates:188214ea-658f-4b70-9005-8fffbcb8ae81",
+    reviewLane: "duplicate_source_text",
+    reviewRole: "source_narrative",
+  }),
+  "2f96d7f6-c271-4676-9eb3-c9ca317cbc81": Object.freeze({
+    sourceRef: "channel_updates:82de1c00-ec3d-4466-bdfe-aaa2d8b694d6",
+    reviewLane: "derived_relation_review",
+    reviewRole: "extracted_relation",
+  }),
+});
+const LANGUAGE_RESEARCH_CLUSTER = Object.freeze({
+  key: "harry_potter_ancient_runes",
+  label: "כתבי הרונות בעולם הארי פוטר",
+  findingOccurrenceCount: 3,
+  sourceOccurrenceCount: 2,
+  uniqueSourceTextCount: 1,
+  independentEvidenceCount: 0,
+  displayRepresentativeId: "b1d78f6b-cebe-421f-9f58-377232554320",
+});
 
 if (!REGULAR_METHOD?.fn) throw new Error("World legacy replay requires the canonical regular gematria method");
 
@@ -316,6 +342,32 @@ function projectElsResearchContext(row, routing) {
   });
 }
 
+function projectLanguageResearchContext(row, routing) {
+  if (routing?.queue !== "language") return null;
+  const findingId = clean(row?.id);
+  const sourceRef = clean(row?.source_ref) || null;
+  const reviewed = LANGUAGE_RESEARCH_FINDINGS[findingId] || null;
+  if (!reviewed || reviewed.sourceRef !== sourceRef) return null;
+  return Object.freeze({
+    state: "reviewed_contextual_language_cluster",
+    clusterKey: LANGUAGE_RESEARCH_CLUSTER.key,
+    clusterLabel: LANGUAGE_RESEARCH_CLUSTER.label,
+    reviewLane: reviewed.reviewLane,
+    reviewRole: reviewed.reviewRole,
+    findingOccurrenceCount: LANGUAGE_RESEARCH_CLUSTER.findingOccurrenceCount,
+    sourceOccurrenceCount: LANGUAGE_RESEARCH_CLUSTER.sourceOccurrenceCount,
+    uniqueSourceTextCount: LANGUAGE_RESEARCH_CLUSTER.uniqueSourceTextCount,
+    independentEvidenceCount: LANGUAGE_RESEARCH_CLUSTER.independentEvidenceCount,
+    displayRepresentativeId: LANGUAGE_RESEARCH_CLUSTER.displayRepresentativeId,
+    sourceRef,
+    bridgeEligibility: "not_language_bridge",
+    sourceVerificationState: "missing_external_source",
+    inferred: false,
+    countsAsIndependentSource: false,
+    mutatesLiveData: false,
+  });
+}
+
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
 const ARITHMETIC_NUMBER_RE = /^\d{1,9}$/u;
 
@@ -565,6 +617,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       textOrigin: spatialTextOrigin,
     });
     const elsResearchContext = projectElsResearchContext(row, routing);
+    const languageResearchContext = projectLanguageResearchContext(row, routing);
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -586,6 +639,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       spatialTextOrigin,
       spatialReviewLane,
       elsResearchContext,
+      languageResearchContext,
       constantCheck,
     });
   }

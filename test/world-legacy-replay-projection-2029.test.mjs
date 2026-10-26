@@ -419,6 +419,45 @@ test("ELS research routing groups exact reviewed sources without claiming replay
   assert.equal(verseStride.elsResearchContext.replayIdentityState, "different_method_family");
 });
 
+test("language routing separates a repeated narrative source from a language bridge", () => {
+  const duplicate = projectWorldLegacyReplayOccurrence(row({
+    id: "b5fc2bc6-1d0d-4bd9-8abf-57b0c0b4b992",
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "כתבי הרונות הם שפה עתיקה; הרמיוני מתרגמת את הספר לאנגלית",
+    source_ref: "channel_updates:188214ea-658f-4b70-9005-8fffbcb8ae81",
+  }));
+  assert.equal(duplicate.routingQueue, "language");
+  assert.equal(duplicate.languageResearchContext.clusterKey, "harry_potter_ancient_runes");
+  assert.equal(duplicate.languageResearchContext.reviewLane, "duplicate_source_text");
+  assert.equal(duplicate.languageResearchContext.bridgeEligibility, "not_language_bridge");
+  assert.equal(duplicate.languageResearchContext.displayRepresentativeId, "b1d78f6b-cebe-421f-9f58-377232554320");
+  assert.equal(duplicate.languageResearchContext.independentEvidenceCount, 0);
+  assert.equal(duplicate.languageResearchContext.inferred, false);
+
+  const relation = projectWorldLegacyReplayOccurrence(row({
+    id: "2f96d7f6-c271-4676-9eb3-c9ca317cbc81",
+    engine_verified: null,
+    engine_detail: null,
+    kind: "relation",
+    statement: "תרגום הרמיוני את ספר הרונות חושף קשר עלילתי",
+    source_ref: "channel_updates:82de1c00-ec3d-4466-bdfe-aaa2d8b694d6",
+  }));
+  assert.equal(relation.languageResearchContext.reviewLane, "derived_relation_review");
+  assert.equal(relation.languageResearchContext.reviewRole, "extracted_relation");
+
+  const unknown = projectWorldLegacyReplayOccurrence(row({
+    id: id("9"),
+    engine_verified: null,
+    engine_detail: null,
+    statement: "תרגום לאנגלית דורש מקור",
+    source_ref: `channel_updates:${id("9")}`,
+  }));
+  assert.equal(unknown.routingQueue, "language");
+  assert.equal(unknown.languageResearchContext, null);
+});
+
 test("missing-engine source and target context stays separate from technical readiness", () => {
   const missing = row({
     engine_verified: null,

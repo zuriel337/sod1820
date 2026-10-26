@@ -222,6 +222,11 @@ const ELS_RESEARCH_CLUSTER_LABELS = Object.freeze({
   plumber_skip_6: "שרברב · דילוג 6",
 });
 
+const LANGUAGE_RESEARCH_LANE_LABELS = Object.freeze({
+  duplicate_source_text: "טקסט מקור כפול · נציג אחד לתצוגה",
+  derived_relation_review: "קשר שחולץ מן המקור · דורש מקור חיצוני",
+});
+
 const SPATIAL_TEXT_ORIGIN_LABELS = Object.freeze({
   ocr_derived: "חילוץ OCR מהמדיה",
   not_marked_ocr: "אינו מסומן כחילוץ OCR",
@@ -345,7 +350,7 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySubtype: "all", replaySpatialMetadata: "all", replaySpatialCalculation: "all", replaySpatialCoverage: "all", replaySpatialLane: "all", replayElsCluster: "all", replaySpatialTextOrigin: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySubtype: "all", replaySpatialMetadata: "all", replaySpatialCalculation: "all", replaySpatialCoverage: "all", replaySpatialLane: "all", replayElsCluster: "all", replayLanguageLane: "all", replaySpatialTextOrigin: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
@@ -360,6 +365,7 @@ function initialReviewFilters() {
   const replaySpatialCoverage = clean(params.get("replaySpatialCoverage"));
   const replaySpatialLane = clean(params.get("replaySpatialLane"));
   const replayElsCluster = clean(params.get("replayElsCluster"));
+  const replayLanguageLane = clean(params.get("replayLanguageLane"));
   const replaySpatialTextOrigin = clean(params.get("replaySpatialTextOrigin"));
   const replaySource = clean(params.get("replaySource"));
   const replayTarget = clean(params.get("replayTarget"));
@@ -383,6 +389,7 @@ function initialReviewFilters() {
     replaySpatialCoverage: Object.hasOwn(SPATIAL_COVERAGE_LABELS, replaySpatialCoverage) ? replaySpatialCoverage : "all",
     replaySpatialLane: Object.hasOwn(SPATIAL_REVIEW_LANE_LABELS, replaySpatialLane) ? replaySpatialLane : "all",
     replayElsCluster: Object.hasOwn(ELS_RESEARCH_CLUSTER_LABELS, replayElsCluster) ? replayElsCluster : "all",
+    replayLanguageLane: Object.hasOwn(LANGUAGE_RESEARCH_LANE_LABELS, replayLanguageLane) ? replayLanguageLane : "all",
     replaySpatialTextOrigin: Object.hasOwn(SPATIAL_TEXT_ORIGIN_LABELS, replaySpatialTextOrigin) ? replaySpatialTextOrigin : "all",
     replaySource: Object.hasOwn(REPLAY_SOURCE_LABELS, replaySource) ? replaySource : "all",
     replayTarget: Object.hasOwn(REPLAY_TARGET_LABELS, replayTarget) ? replayTarget : "all",
@@ -471,6 +478,7 @@ export default function WorldAllResearchTable({ state }) {
   const [replaySpatialCoverage, setReplaySpatialCoverage] = useState(initial.replaySpatialCoverage);
   const [replaySpatialLane, setReplaySpatialLane] = useState(initial.replaySpatialLane);
   const [replayElsCluster, setReplayElsCluster] = useState(initial.replayElsCluster);
+  const [replayLanguageLane, setReplayLanguageLane] = useState(initial.replayLanguageLane);
   const [replaySpatialTextOrigin, setReplaySpatialTextOrigin] = useState(initial.replaySpatialTextOrigin);
   const [replaySource, setReplaySource] = useState(initial.replaySource);
   const [replayTarget, setReplayTarget] = useState(initial.replayTarget);
@@ -488,8 +496,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replayElsCluster, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replayElsCluster, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
+    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replayElsCluster, replayLanguageLane, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replayElsCluster, replayLanguageLane, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
 
   const resetFilters = () => {
     setQuery("");
@@ -516,6 +524,7 @@ export default function WorldAllResearchTable({ state }) {
     setReplaySpatialCoverage("all");
     setReplaySpatialLane("all");
     setReplayElsCluster("all");
+    setReplayLanguageLane("all");
     setReplaySpatialTextOrigin("all");
     setReplaySource("all");
     setReplayTarget("all");
@@ -1022,6 +1031,7 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>כיסוי במבחר המרחבי</span><select value={replaySpatialCoverage} onChange={(e) => setReplaySpatialCoverage(e.target.value)}><option value="all">מיוצגים ושאינם מיוצגים</option>{Object.entries(SPATIAL_COVERAGE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialCuratedCoverage?.[value] || 0}</option>)}</select></label>
         <label><span>תור עבודה מרחבי</span><select value={replaySpatialLane} onChange={(e) => setReplaySpatialLane(e.target.value)}><option value="all">כל תורי העבודה</option>{Object.entries(SPATIAL_REVIEW_LANE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialReviewLane?.[value] || 0}</option>)}</select></label>
         <label><span>אשכול צפנים מן המחקר</span><select value={replayElsCluster} onChange={(e) => setReplayElsCluster(e.target.value)}><option value="all">כל אשכולות הצפנים</option>{Object.entries(ELS_RESEARCH_CLUSTER_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byElsResearchCluster?.[value] || 0}</option>)}</select></label>
+        <label><span>מיון שפה מן המחקר</span><select value={replayLanguageLane} onChange={(e) => setReplayLanguageLane(e.target.value)}><option value="all">כל מסלולי מיון השפה</option>{Object.entries(LANGUAGE_RESEARCH_LANE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLanguageResearchLane?.[value] || 0}</option>)}</select></label>
         <label><span>מקור הטקסט המרחבי</span><select value={replaySpatialTextOrigin} onChange={(e) => setReplaySpatialTextOrigin(e.target.value)}><option value="all">OCR ורשומות אחרות</option>{Object.entries(SPATIAL_TEXT_ORIGIN_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialTextOrigin?.[value] || 0}</option>)}</select></label>
         <label><span>שלמות מקור · בשל טכנית</span><select value={replaySource} onChange={(e) => setReplaySource(e.target.value)}><option value="all">מקור מדויק ותיקונים</option>{Object.entries(REPLAY_SOURCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplaySourceReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>מצב יעד · בשל טכנית</span><select value={replayTarget} onChange={(e) => setReplayTarget(e.target.value)}><option value="all">כל מצבי היעד</option>{Object.entries(REPLAY_TARGET_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetReadiness?.[value] || 0}</option>)}</select></label>
@@ -1088,7 +1098,7 @@ export default function WorldAllResearchTable({ state }) {
           </div> : null}
 
           {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${legacyReplayClass(row.legacyReplay.state)}`}>
-            <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}{row.legacyReplay.routingSubtype ? ` · ${humanLabel(MISSING_ENGINE_SUBTYPE_LABELS, row.legacyReplay.routingSubtype, "תת־סוג")}` : ""}{row.legacyReplay.spatialResearchContext ? ` · ${humanLabel(SPATIAL_METADATA_LABELS, row.legacyReplay.spatialResearchContext.state, "זהות מרחבית")}` : ""}{row.legacyReplay.spatialCalculation ? ` · ${humanLabel(SPATIAL_CALCULATION_LABELS, row.legacyReplay.spatialCalculation.state, "חישוב מרחבי")}` : ""}{row.legacyReplay.spatialCuratedCoverage ? ` · ${humanLabel(SPATIAL_COVERAGE_LABELS, row.legacyReplay.spatialCuratedCoverage.state, "כיסוי מרחבי")}` : ""}{row.legacyReplay.spatialReviewLane ? ` · ${humanLabel(SPATIAL_REVIEW_LANE_LABELS, row.legacyReplay.spatialReviewLane, "תור מרחבי")}` : ""}{row.legacyReplay.elsResearchContext?.clusterKey ? ` · ${humanLabel(ELS_RESEARCH_CLUSTER_LABELS, row.legacyReplay.elsResearchContext.clusterKey, "אשכול צופן")}` : ""}{row.legacyReplay.spatialTextOrigin ? ` · ${humanLabel(SPATIAL_TEXT_ORIGIN_LABELS, row.legacyReplay.spatialTextOrigin, "מקור טקסט")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
+            <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}{row.legacyReplay.routingSubtype ? ` · ${humanLabel(MISSING_ENGINE_SUBTYPE_LABELS, row.legacyReplay.routingSubtype, "תת־סוג")}` : ""}{row.legacyReplay.spatialResearchContext ? ` · ${humanLabel(SPATIAL_METADATA_LABELS, row.legacyReplay.spatialResearchContext.state, "זהות מרחבית")}` : ""}{row.legacyReplay.spatialCalculation ? ` · ${humanLabel(SPATIAL_CALCULATION_LABELS, row.legacyReplay.spatialCalculation.state, "חישוב מרחבי")}` : ""}{row.legacyReplay.spatialCuratedCoverage ? ` · ${humanLabel(SPATIAL_COVERAGE_LABELS, row.legacyReplay.spatialCuratedCoverage.state, "כיסוי מרחבי")}` : ""}{row.legacyReplay.spatialReviewLane ? ` · ${humanLabel(SPATIAL_REVIEW_LANE_LABELS, row.legacyReplay.spatialReviewLane, "תור מרחבי")}` : ""}{row.legacyReplay.elsResearchContext?.clusterKey ? ` · ${humanLabel(ELS_RESEARCH_CLUSTER_LABELS, row.legacyReplay.elsResearchContext.clusterKey, "אשכול צופן")}` : ""}{row.legacyReplay.languageResearchContext?.reviewLane ? ` · ${humanLabel(LANGUAGE_RESEARCH_LANE_LABELS, row.legacyReplay.languageResearchContext.reviewLane, "מיון שפה")}` : ""}{row.legacyReplay.spatialTextOrigin ? ` · ${humanLabel(SPATIAL_TEXT_ORIGIN_LABELS, row.legacyReplay.spatialTextOrigin, "מקור טקסט")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
             <small>{legacyReplayDescription(row.legacyReplay)}</small>
           </div> : null}
 
@@ -1123,6 +1133,11 @@ export default function WorldAllResearchTable({ state }) {
           {row.legacyReplay?.elsResearchContext ? <div className="sod29-world-triage-recommendation is-review">
             <span><small>אשכול מחקר מנהלי · אינו אימות ELS</small><strong>{row.legacyReplay.elsResearchContext.clusterLabel || "מקור צופן שטרם קובץ"}</strong></span>
             <small>מונח: {row.legacyReplay.elsResearchContext.term || "אין נתון"} · דילוג מוצהר: {row.legacyReplay.elsResearchContext.declaredSkip ?? "אין נתון"} · משפחת שיטה: {row.legacyReplay.elsResearchContext.methodFamily || "אין נתון"} · {row.legacyReplay.elsResearchContext.occurrenceCount} רשומות ב־{row.legacyReplay.elsResearchContext.sourceOccurrenceCount} מקורות. כל ההופעות נשמרות ואינן נספרות כמקורות עצמאיים.</small>
+          </div> : null}
+          {row.legacyReplay?.languageResearchContext ? <div className={`sod29-world-triage-recommendation ${row.legacyReplay.languageResearchContext.reviewLane === "duplicate_source_text" ? "is-duplicate" : "is-review"}`}>
+            <span><small>אשכול מקור מנהלי · אינו גשר שפה</small><strong>{row.legacyReplay.languageResearchContext.clusterLabel}</strong></span>
+            <small>{row.legacyReplay.languageResearchContext.findingOccurrenceCount} ממצאים נגזרו משתי הופעות של אותו טקסט מקור; יש טקסט ייחודי אחד ואין מקור חיצוני עצמאי. כל הרשומות וה־source_ref נשמרים.</small>
+            <small>נציג תצוגה מומלץ: {row.legacyReplay.languageResearchContext.displayRepresentativeId} · המסלול הנוכחי: {humanLabel(LANGUAGE_RESEARCH_LANE_LABELS, row.legacyReplay.languageResearchContext.reviewLane, "דורש בדיקה")}.</small>
           </div> : null}
 
           {row.legacyReplay?.pendingEngineContext ? <div className="sod29-world-triage-recommendation is-review">

@@ -433,8 +433,8 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       label: "צבי · שפה ותעתיק ללא מעטפת",
       total: 3,
       route: "/world?admin=1&view=admin&contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8&contributorLabel=צבי%20(OPOC)&status=approved&replayQueue=language",
-      state: "3 רשומות · 2 סומנו לא מאומתות ואחת טרם הוערכה · כולן עם locator UUID",
-      next: "להעביר לגשרי השפה ולדרוש מקור תרגום או תעתיק; אין לנחש קשר לשוני.",
+      state: "3 רשומות קובצו לאשכול אחד על כתבי הרונות בעולם הארי פוטר · שתי הופעות מכילות טקסט מקור זהה והשלישית היא קשר שחולץ מאחת מהן · כולן עם locator UUID",
+      next: "לא להציג כגשר שפה. לשמור את כל ההופעות בפרובננס, להציג את הגרסה המלאה המוקדמת כנציג, ולדרוש מקור חיצוני לפני אימות הטענות העלילתיות.",
     }),
     Object.freeze({
       key: "zvi_candidate_matrix_match",
