@@ -32,6 +32,8 @@ test("the fixed Life Journey entry focus carries no hint identity or content in 
   assert.match(journey, /buildLifeJourneyEntryContext/);
   assert.match(page, /personalReturnHref/);
   assert.match(page, /location\.state\?\.sodReturnTo2029/);
+  assert.match(page, /personalReturnHref\(location\.state\?\.sodReturnTo2029, \{ native2029: true \}\)/);
+  assert.doesNotMatch(page, /safeReturnHref\?\.startsWith\("\/2029"\)/);
   assert.doesNotMatch(frame, /returnTo: currentHref/);
   assert.doesNotMatch(frame, /hintId|hint_id|research_question|occurred_at/);
   assert.doesNotMatch(page, /hintId|hint_id|research_question|occurred_at/);

@@ -13,8 +13,7 @@ function LifeJourney2029Surface() {
   const shell = use2029Shell();
   const raziel = useOptionalRazielSession2029();
   const location = useLocation();
-  const safeReturnHref = personalReturnHref(location.state?.sodReturnTo2029);
-  const returnHref = safeReturnHref?.startsWith("/2029") ? safeReturnHref : null;
+  const returnHref = personalReturnHref(location.state?.sodReturnTo2029, { native2029: true });
   const requestHintExplanation = useCallback((submission) => requestLifeJourneyHintEvidenceExplanation({
     submission,
     locked: shell.razielLocked,

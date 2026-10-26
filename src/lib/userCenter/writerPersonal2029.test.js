@@ -96,3 +96,10 @@ test("native personal routes preserve exact allowed return and refuse external/i
  assert.equal(params.get("returnTo"),original);assert.equal(params.get("writer"),"writer");
  for(const value of ["https://evil.invalid","//evil.invalid","/admin","/2029/%2f%2fevil","/2029/%252fadmin","/\\evil.invalid"]){assert.equal(personalReturnHref(value),null);}
 });
+test("Life Journey native returns preserve every App2029 route family without accepting Legacy or external paths",()=>{
+ const targets=["/world?view=sources&source=tzvi-opoc#source-occurrence-example","/post/5107?part=631#post-discovery-meeting","/topic/631","/books","/books/ahavat-torah","/book/ahavat-torah?page=35#source","/beit-midrash/standard","/code?matrix=example#selection","/els","/heichal","/היכל","/community/chat","/community/researcher/2042","/researcher/2042","/video/example","/early-access","/melech-hamisparim/718","/entity-hub-preview/number/337","/2029","/2029/me/messages","/2029/number/337"];
+ for(const href of targets){const url=new URL(href,"https://example.invalid");assert.equal(personalReturnHref(href,{native2029:true}),url.pathname+url.search+url.hash,href);}
+ for(const href of ["/profile","/profile?module=hints","/number/337","/20290","/world/unknown","/admin","/login","/community/unknown","https://evil.invalid","//evil.invalid","/2029/%2f%2fevil","/2029/%252fadmin","/\\evil.invalid"]){assert.equal(personalReturnHref(href,{native2029:true}),null,href);}
+ assert.equal(personalReturnHref("/profile?module=hints"),"/profile?module=hints","compatibility callers retain their previous policy");
+ assert.equal(personalReturnHref("/books"),null,"native policy is opt-in");
+});

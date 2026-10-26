@@ -6,12 +6,17 @@ export const WRITER_PERSONAL_MODULES = Object.freeze([
   ["public-page", "הדף שלי"], ["page-editor", "עורך הדף"], ["profile", "פרופיל ותמונה"],
   ["messages", "הודעות"], ["notifications", "מעקב ועדכונים"], ["progress", "ההתקדמות שלי"],
 ]);
-export function personalReturnHref(value) {
+export function personalReturnHref(value, { native2029 = false } = {}) {
   if (typeof value !== "string" || value.length > 2500 || !value.startsWith("/") || /[\\\u0000-\u0020]/.test(value) || value.startsWith("//")) return null;
   try {
     const url = new URL(value, "https://local.invalid");
     const path = decodeURIComponent(url.pathname);
-    if (url.origin !== "https://local.invalid" || /[\\%\u0000-\u0020]/.test(path) || path.includes("//") || !/^\/(?:2029|community|world|number|post|topic|book|els|heichal|profile)(?:\/|$)/.test(path)) return null;
+    const allowedPath = native2029
+      // App2029 owns these canonical paths even when they have no /2029 prefix.
+      // Keep the compatibility callers' existing return policy unchanged.
+      ? /^\/(?:2029(?:\/|$)|(?:world|code|els|heichal|היכל|early-access)\/?$|(?:post|topic|book|researcher|video)\/[^/]+\/?$|(?:books|beit-midrash)(?:\/[^/]+)?\/?$|community\/(?:chat|researcher\/[^/]+)\/?$|melech-hamisparim\/718\/?$|entity-hub-preview\/[^/]+\/[^/]+\/?$)/.test(path)
+      : /^\/(?:2029|community|world|number|post|topic|book|els|heichal|profile)(?:\/|$)/.test(path);
+    if (url.origin !== "https://local.invalid" || /[\\%\u0000-\u0020]/.test(path) || path.includes("//") || !allowedPath) return null;
     return url.pathname + url.search + url.hash;
   } catch { return null; }
 }
