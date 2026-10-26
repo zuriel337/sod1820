@@ -180,7 +180,7 @@ export default function Footer() {
           </div>
         </section>
 
-        <section id="build-progress" className="foot-progress-card" aria-label="מצב בניית המערכת — הערכת פיתוח 80 אחוז">
+        <section id="build-progress" className="foot-progress-card" aria-label={`מצב בניית המערכת — הערכת פיתוח ${BUILD_PUBLIC_PROGRESS.percent} אחוז`}>
           <div className="foot-progress-top">
             <div>
               <div className="foot-progress-kicker">SOD1820 · {BUILD_PUBLIC_PROGRESS.updatedAt}</div>
