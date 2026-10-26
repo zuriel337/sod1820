@@ -107,9 +107,14 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       counts: Object.freeze([
         Object.freeze({ label: "פעילות", value: 293 }),
         Object.freeze({ label: "ללא source_ref", value: 235 }),
+        Object.freeze({ label: "source_ref תיאורי בלבד", value: 64 }),
+        Object.freeze({ label: "locator שניתן לאיתור", value: 16 }),
         Object.freeze({ label: "ללא רמת ראיות", value: 186 }),
+        Object.freeze({ label: "לא מסומנות מאומתות", value: 193 }),
+        Object.freeze({ label: "שלמות מבנית לבדיקה", value: 2 }),
+        Object.freeze({ label: "קבוצת טקסט זהה", value: 1 }),
       ]),
-      next: "לחבר מקור מדויק ורמת ראיות לפני הצגה כממצא; פעילות לבדה אינה אישור אמת.",
+      next: "להשלים locator מדויק ורמת ראיות לפני בדיקת חיבור. רק 2 רשומות שלמות מבנית; פעילות לבדה אינה אימות או אמת.",
     }),
     Object.freeze({
       key: "posts",

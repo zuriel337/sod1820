@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchWorldFindingReviewPage, fetchWorldGematriaReviewPage } from "../../lib/research/worldFindingReviewClient.js";
+import { fetchWorldFindingReviewPage, fetchWorldGematriaReviewPage, fetchWorldInsightReviewPage } from "../../lib/research/worldFindingReviewClient.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "../experience2029/ConvergenceRatings2029.jsx";
 
@@ -97,6 +97,15 @@ const GEMATRIA_QUEUE_LABELS = Object.freeze({
   missing_method_values: "חסרים ערכי שיטות",
   engine_mismatch: "אי־התאמה למנוע",
   integrity_unavailable: "שער האימות אינו זמין",
+});
+
+const INSIGHT_QUEUE_LABELS = Object.freeze({
+  ready_for_connection_review: "שלם מבנית · מוכן לבדיקת חיבור",
+  missing_source: "חסר מקור מדויק",
+  descriptive_source: "המקור תיאורי בלבד",
+  missing_evidence: "חסרה רמת ראיות",
+  not_verified: "דורש בדיקת אימות",
+  inactive: "מחוץ לעדשה הפעילה",
 });
 
 function humanLabel(map, value, fallback = "אחר") {
@@ -237,6 +246,7 @@ export default function WorldAllResearchTable({ state }) {
   const [languageQueue, setLanguageQueue] = useState({ open: false, loading: false, error: null, data: null });
   const [galleryQueue, setGalleryQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
   const [gematriaQueue, setGematriaQueue] = useState({ open: false, loading: false, loadingMore: false, error: null, projection: null, page: null });
+  const [insightQueue, setInsightQueue] = useState({ open: false, loading: false, loadingMore: false, error: null, projection: null, page: null });
   const requestRef = useRef(0);
 
   const filters = useMemo(() => ({
@@ -402,6 +412,36 @@ export default function WorldAllResearchTable({ state }) {
     }
   };
 
+  const openInsightQueue = async () => {
+    if (insightQueue.projection) {
+      setInsightQueue((current) => ({ ...current, open: !current.open }));
+      return;
+    }
+    setInsightQueue((current) => ({ ...current, open: true, loading: true, error: null }));
+    try {
+      const data = await fetchWorldInsightReviewPage({ offset: 0 });
+      setInsightQueue({ open: true, loading: false, loadingMore: false, error: null, projection: data.projection, page: data.page });
+    } catch (error) {
+      setInsightQueue((current) => ({ ...current, open: true, loading: false, loadingMore: false, error }));
+    }
+  };
+
+  const loadMoreInsights = async () => {
+    if (!insightQueue.page?.hasMore || insightQueue.loadingMore) return;
+    setInsightQueue((current) => ({ ...current, loadingMore: true, error: null }));
+    try {
+      const data = await fetchWorldInsightReviewPage({ offset: insightQueue.page.nextOffset });
+      setInsightQueue((current) => ({
+        ...current,
+        loadingMore: false,
+        projection: { ...data.projection, rows: [...(current.projection?.rows || []), ...(data.projection?.rows || [])] },
+        page: data.page,
+      }));
+    } catch (error) {
+      setInsightQueue((current) => ({ ...current, loadingMore: false, error }));
+    }
+  };
+
   if (!state?.enabled) return null;
 
   return <section className="sod29-section sod29-world-all-research" id="world-all-research" aria-label="ממצאים לבדיקה">
@@ -434,6 +474,7 @@ export default function WorldAllResearchTable({ state }) {
           <button className="sod29-action" type="button" onClick={openLanguageQueue} aria-expanded={languageQueue.open}>{languageQueue.open ? "סגור את תור השפה" : "פתח תור שפה מפורט"}</button>
           <button className="sod29-action" type="button" onClick={openGalleryQueue} aria-expanded={galleryQueue.open}>{galleryQueue.open ? "סגור את תור התמונות" : "פתח תור גלריות ו־OCR"}</button>
           <button className="sod29-action" type="button" onClick={openGematriaQueue} aria-expanded={gematriaQueue.open}>{gematriaQueue.open ? "סגור את תור הגימטריה" : "פתח תור גימטריה מפורט"}</button>
+          <button className="sod29-action" type="button" onClick={openInsightQueue} aria-expanded={insightQueue.open}>{insightQueue.open ? "סגור את תור התובנות" : "פתח תור תובנות ומקורות"}</button>
         </div>
       </section> : null}
 
@@ -577,6 +618,38 @@ export default function WorldAllResearchTable({ state }) {
             <div className="sod29-world-source-locator"><strong>מזהה מקור</strong><code dir="ltr">{row.sourceRef}</code><small>התאמת חישוב אינה הוכחת משמעות, איכות או אמת.</small></div>
           </article>)}</div>
           {gematriaQueue.page?.hasMore ? <div className="sod29-actions"><button className="sod29-action" type="button" disabled={gematriaQueue.loadingMore} onClick={loadMoreGematria}>{gematriaQueue.loadingMore ? "טוען…" : "טען עוד 40"}</button></div> : null}
+        </> : null}
+      </section> : null}
+
+      {insightQueue.open ? <section className="sod29-world-kind-section" aria-label="תור תובנות מקורות וראיות">
+        <header><div><h3>תור תובנות, מקורות וראיות</h3><p>המקור, רמת הראיות, האימות והפעילות מוצגים בנפרד. מקור תיאורי נשמר אך אינו מוצג כקישור מדויק.</p></div>{insightQueue.page ? <span>{insightQueue.projection.rows.length} מתוך {insightQueue.page.totalFiltered}</span> : null}</header>
+        {insightQueue.loading ? <p role="status">טוען את מנת התובנות הראשונה…</p> : null}
+        {insightQueue.error ? <p role="status">תור התובנות אינו זמין כרגע. לא הומצאו מקורות או רמות ראיות.</p> : null}
+        {insightQueue.projection ? <>
+          <div className="sod29-world-all-research-summary">
+            <span><b>{insightQueue.projection.summary.total}</b> תובנות</span>
+            <span><b>{insightQueue.projection.summary.active}</b> פעילות</span>
+            <span><b>{insightQueue.projection.summary.missingSourceRef}</b> ללא source_ref</span>
+            <span><b>{insightQueue.projection.summary.descriptiveSourceRef}</b> מקור תיאורי בלבד</span>
+            <span><b>{insightQueue.projection.summary.missingEvidence}</b> ללא רמת ראיות</span>
+            <span><b>{insightQueue.projection.summary.structurallyReady}</b> שלמות מבנית</span>
+          </div>
+          <div className="sod29-world-all-research-list">{insightQueue.projection.rows.map((row) => <article className="sod29-world-all-research-row" key={row.id}>
+            <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>תובנה</span><span>{row.active ? "פעילה" : "מחוץ לעדשה הפעילה"}</span><span>{row.verified ? "מסומנת מאומתת" : "טרם סומנה מאומתת"}</span>{row.duplicateOccurrenceCount ? <span>{row.duplicateGroupIds.length} הופעות טקסט זהה</span> : null}</div><span>{INSIGHT_QUEUE_LABELS[row.state]}</span></div>
+            <strong>{row.title}</strong>
+            {row.summary ? <p className="sod29-world-all-research-secondary">{row.summary}</p> : null}
+            <div className="sod29-world-finding-measures" aria-label="צירי בדיקת תובנה נפרדים">
+              <div><small>מקור</small><strong>{row.sourceLocatorState === "locator_like" ? "locator שמור" : row.sourceLocatorState === "descriptive_only" ? "תיאור בלבד" : "חסר"}</strong></div>
+              <div><small>רמת ראיות</small><strong>{row.evidenceLevel ?? "אין נתון"}</strong></div>
+              <div><small>אימות</small><strong>{row.verified ? "כן" : "טרם"}</strong></div>
+              <div><small>הוכחה שמורה</small><strong>{row.proofPresent ? "קיימת" : "אין נתון"}</strong></div>
+              <div><small>מספרים קשורים</small><strong>{row.relatedNumbers.length ? row.relatedNumbers.join(" · ") : "אין נתון"}</strong></div>
+            </div>
+            <div className={`sod29-world-triage-recommendation ${row.structurallyReady ? "is-ready" : row.state === "inactive" ? "is-blocked" : "is-review"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
+            <div className="sod29-world-source-locator"><strong>מזהה התובנה</strong><code dir="ltr">{row.sourceRef}</code>{row.storedSourceRef ? <code dir="ltr">source_ref: {row.storedSourceRef}</code> : <small>לא נשמר source_ref.</small>}{row.sourceHref ? <div className="sod29-actions"><a className="sod29-action" href={row.sourceHref}>פתח מקור מדויק ←</a></div> : null}<small>רמת ראיות או סימון אימות אינם תחליף למקור שניתן לאיתור.</small></div>
+            {row.duplicateGroupIds.length ? <div className="sod29-world-semantic-duplicate"><strong>טקסט זהה · קיבוץ תצוגה בלבד</strong>{row.duplicateGroupIds.map((id) => <code dir="ltr" key={id}>insights:{id}</code>)}<p>שתי הרשומות נשמרות; לא בוצע מיזוג או מחיקה.</p></div> : null}
+          </article>)}</div>
+          {insightQueue.page?.hasMore ? <div className="sod29-actions"><button className="sod29-action" type="button" disabled={insightQueue.loadingMore} onClick={loadMoreInsights}>{insightQueue.loadingMore ? "טוען…" : "טען עוד 40"}</button></div> : null}
         </> : null}
       </section> : null}
 

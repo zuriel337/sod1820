@@ -20,6 +20,10 @@ import {
   WORLD_GEMATRIA_REVIEW_SUMMARY,
   projectWorldGematriaReviewRows,
 } from "../src/lib/research/worldGematriaTriageProjection.js";
+import {
+  WORLD_INSIGHT_REVIEW_SUMMARY,
+  projectWorldInsightReviewRows,
+} from "../src/lib/research/worldInsightTriageProjection.js";
 
 const SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
@@ -342,6 +346,47 @@ async function buildGematriaReviewResponse(token, req) {
   };
 }
 
+const INSIGHT_REVIEW_SELECT = [
+  "id", "title", "body", "source_type", "source_ref", "related_numbers", "related_phrases",
+  "tags", "is_active", "created_at", "updated_at", "proof", "proof_method", "category",
+  "evidence_level", "space", "verified",
+].join(",");
+
+async function buildInsightReviewResponse(token, req) {
+  const offset = Math.max(0, Math.min(Number(req.query?.offset) || 0, MAX_SOURCE_ROWS));
+  const page = await fetchRange({
+    table: "insights",
+    select: INSIGHT_REVIEW_SELECT,
+    token,
+    start: offset,
+    end: offset + REVIEW_PAGE - 1,
+    count: true,
+    order: "source_ref.asc.nullsfirst,evidence_level.asc.nullsfirst,verified.asc,is_active.desc,created_at.desc,id.asc",
+  });
+  const rows = projectWorldInsightReviewRows(page.rows);
+  return {
+    projection: {
+      rows,
+      summary: WORLD_INSIGHT_REVIEW_SUMMARY,
+      rules: {
+        sourceIsSeparateFromEvidence: true,
+        evidenceIsSeparateFromVerification: true,
+        activeIsNotPublishedTruth: true,
+        noAutomaticPromotion: true,
+        noSourceDeletion: true,
+      },
+    },
+    page: {
+      offset,
+      limit: REVIEW_PAGE,
+      returned: rows.length,
+      totalFiltered: page.total,
+      hasMore: offset + rows.length < page.total,
+      nextOffset: offset + rows.length,
+    },
+  };
+}
+
 async function fetchAllAuthorizedRows({ table, select, token, filters = [] }) {
   const first = await fetchRange({
     table,
@@ -590,6 +635,9 @@ export default async function handler(req, res) {
     if (!user) return res.status(403).json({ error: "admin_required" });
     if (queryValue(req, "mode", "findings") === "gematria") {
       return res.status(200).json(await buildGematriaReviewResponse(token, req));
+    }
+    if (queryValue(req, "mode", "findings") === "insights") {
+      return res.status(200).json(await buildInsightReviewResponse(token, req));
     }
     const contributorId = queryValue(req, "contributor_id", "");
     const contributorScope = contributorId ? await resolveContributorScope(token, contributorId) : null;
