@@ -6,7 +6,7 @@ import { useThemeMode } from "../../lib/themeMode.js";
 import { chromeColors } from "../../lib/chromeTheme.js";
 import StayUpdatedCTA from "../StayUpdatedCTA.jsx";
 import DimensionFiveRail from "../DimensionFiveRail.jsx";
-import { BUILD_PROGRESS } from "../../lib/knowledgeMap.js";
+import { BUILD_PROGRESS, BUILD_PUBLIC_PROGRESS } from "../../lib/knowledgeMap.js";
 
 const DISCOVER_LINKS = [
   { label: "פוסטים", to: "/post" },
@@ -69,12 +69,15 @@ const FOOTER_CSS = (cc) => `
 
   .foot-progress-card { margin-top:20px; border:1px solid ${cc.borderGold}; border-radius:24px; padding:22px; background:linear-gradient(180deg, rgba(24,18,10,.86), rgba(10,9,12,.96)); box-shadow:inset 0 0 42px rgba(212,175,55,.04); overflow:hidden; }
   .foot-progress-top { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; }
-  .foot-progress-kicker { color:${cc.goldLight}; font-family:${F.body}; font-size:12px; font-weight:800; letter-spacing:.7px; }
+  .foot-progress-kicker { color:${cc.goldLight}; font-family:${F.body}; font-size:12px; font-weight:800; letter-spacing:.7px; display:inline-flex;align-items:center;gap:9px; }
+  .foot-progress-kicker::before { content:"";width:9px;height:9px;flex:none;border-radius:50%;background:#f5cf62;box-shadow:0 0 0 2px rgba(245,207,98,.12),0 0 12px rgba(245,207,98,.75);animation:footBuildPulse 2.8s ease-in-out infinite; }
+  @keyframes footBuildPulse {0%,100%{opacity:1;box-shadow:0 0 0 2px rgba(245,207,98,.12),0 0 12px rgba(245,207,98,.55)}50%{opacity:.65;box-shadow:0 0 0 6px rgba(245,207,98,.07),0 0 20px rgba(245,207,98,.4)}}
+  @keyframes footBuildShimmer {0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
   .foot-progress-title { color:${cc.goldBright}; font-family:${F.regal}; font-size:28px; font-weight:900; margin-top:3px; }
   .foot-progress-num { color:${cc.goldBright}; font-family:${F.mono}; font-size:48px; font-weight:900; line-height:1; white-space:nowrap; }
   .foot-progress-num span { font-size:18px; }
   .foot-progress-bar { height:11px; border-radius:999px; margin-top:16px; background:rgba(255,255,255,.07); overflow:hidden; border:1px solid rgba(212,175,55,.14); }
-  .foot-progress-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg, #b88924, #f4d766, #ffe986); box-shadow:0 0 16px rgba(244,215,102,.38); }
+  .foot-progress-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg, #b88924, #f4d766, #ffe986); background-size:180% 100%; box-shadow:0 0 16px rgba(244,215,102,.38); animation:footBuildShimmer 4s ease-in-out infinite; }
   .foot-progress-copy { margin-top:9px; color:${cc.muted}; font-family:${F.body}; font-size:12px; line-height:1.7; }
   .foot-now { margin-top:14px; padding:13px 15px; border-radius:15px; border:1px solid ${cc.faint}; background:rgba(3,3,7,.44); font-family:${F.body}; }
   .foot-now strong { color:${cc.goldBright}; font-size:16px; }
@@ -125,7 +128,7 @@ const FOOTER_CSS = (cc) => `
     .foot-orbit { width:210px; height:92px; }
     .foot-orbit.o2 { width:240px; height:80px; }
   }
-  @media (prefers-reduced-motion: reduce) { .foot-orbit { display:none; } }
+  @media (prefers-reduced-motion: reduce) { .foot-orbit { display:none; } .foot-progress-kicker::before,.foot-progress-fill { animation:none; } }
 `;
 
 function FooterColumn({ title, links }) {
@@ -177,25 +180,26 @@ export default function Footer() {
           </div>
         </section>
 
-        <section className="foot-progress-card" aria-label="מצב בניית המערכת">
+        <section id="build-progress" className="foot-progress-card" aria-label="מצב בניית המערכת — הערכת פיתוח 80 אחוז">
           <div className="foot-progress-top">
             <div>
-              <div className="foot-progress-kicker">המערכת מתפתחת בזמן אמת</div>
-              <div className="foot-progress-title">מפת הבנייה החדשה</div>
+              <div className="foot-progress-kicker">SOD1820 · {BUILD_PUBLIC_PROGRESS.updatedAt}</div>
+              <div className="foot-progress-title">{BUILD_PUBLIC_PROGRESS.headline}</div>
             </div>
-            <div className="foot-progress-num">{BUILD_PROGRESS}<span>%</span></div>
+            <div className="foot-progress-num" aria-label={`${BUILD_PUBLIC_PROGRESS.label}: ${BUILD_PUBLIC_PROGRESS.percent} אחוז`}>{BUILD_PUBLIC_PROGRESS.percent}<span>%</span></div>
           </div>
-          <div className="foot-progress-bar" aria-hidden="true"><div className="foot-progress-fill" style={{ width: `${BUILD_PROGRESS}%` }} /></div>
-          <div className="foot-progress-copy">האחוז נגזר ממפת הבנייה הציבורית של המערכת.</div>
+          <div className="foot-progress-bar" aria-hidden="true"><div className="foot-progress-fill" style={{ width: `${BUILD_PUBLIC_PROGRESS.percent}%` }} /></div>
+          <div className="foot-progress-copy">{BUILD_PUBLIC_PROGRESS.label} · {BUILD_PUBLIC_PROGRESS.explanation}</div>
           <div className="foot-now">
-            <strong>עכשיו בבנייה: העולם</strong>
-            <div>מרכז הידע הראשי שמחבר ישויות, נושאים, מקורות וקשרים.</div>
+            <strong>עכשיו: משלבים ומאמתים את האתר החדש</strong>
+            <div>העולם, הפוסטים, הקהילה והמחקר מתחברים ב־2029. המעבר לאתר החדש יקרה רק לאחר בדיקות ואישור פתיחה.</div>
           </div>
           <div className="foot-states">
-            <div className="foot-state"><b>● פעיל</b><span>פוסטים · ארכיון · העולם · דף המספר · דילוגי אותיות</span></div>
-            <div className="foot-state"><b>◐ בבנייה</b><span>העולם · המחקר שלי · מעקב ועדכונים</span></div>
-            <div className="foot-state"><b>○ בהמשך</b><span>שפות · שכבות עומק · חוויות מרחביות</span></div>
+            <div className="foot-state"><b>✓ תשתיות הושלמו</b><span>G0–G3 נסגרו ואומתו.</span></div>
+            <div className="foot-state"><b>◐ בבדיקות ובשילוב</b><span>2029 · ניווט, תוכן, קהילה ומסעות.</span></div>
+            <div className="foot-state"><b>○ לפני הפתיחה</b><span>שערי G3.5 ו־G4, בדיקות מעבר ואישור.</span></div>
           </div>
+          <div className="foot-progress-copy">מדד אבני הדרך המאומתות: {BUILD_PUBLIC_PROGRESS.auditedClosedGates} מתוך {BUILD_PUBLIC_PROGRESS.auditedTotalGates} נסגרו ({BUILD_PROGRESS}%).</div>
           <Link to="/map" className="foot-map-link">מפת המערכת ←</Link>
           {!isHome && <div className="foot-email"><StayUpdatedCTA variant="footer" /></div>}
         </section>
