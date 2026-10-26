@@ -7,7 +7,7 @@ export const LIFE_JOURNEY_2029_HREF = "/2029/journey";
 export const LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT = "life_journey_person_context_v1";
 
 const VIEWS = new Set(["person", "name", "date", "finding"]);
-const MAP_TABS = new Set(["summary", "overview", "matrix", "generations", "relationships", "convergences", "evidence", "timeline", "time", "creation", "sources", "coverage", "path"]);
+const MAP_TABS = new Set(["summary", "overview", "matrix", "generations", "relationships", "convergences", "evidence", "timeline", "time", "creation", "sources", "coverage", "hints", "path"]);
 const MAP_LENSES = new Set(["spatial", "human", "sky", "sefer"]);
 const PATH_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const clean = value => String(value || "").trim();

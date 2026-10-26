@@ -28,6 +28,8 @@
 .person-journey.is-2029:not(#pj-v2) .life-atlas__foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin-top:4px}
 .person-journey.is-2029:not(#pj-v2) .life-atlas__state{display:inline-flex;align-items:center;min-height:32px;padding:2px 12px;border:1px solid var(--pj-line);border-radius:999px;font:650 var(--s29-type-small,15px)/1 var(--s29-font-ui,Rubik,sans-serif);color:var(--pj-soft)}
 .person-journey.is-2029:not(#pj-v2) .life-atlas__state[data-state="available"]{color:var(--s29-accent-btn,var(--pj-accent-btn));border-color:currentColor}
+.person-journey.is-2029:not(#pj-v2) .life-atlas__state[data-state="references"]{color:var(--s29-accent-btn,var(--pj-accent-btn));border-color:currentColor}
+.person-journey.is-2029:not(#pj-v2) .life-atlas__state[data-state="no_references"],.person-journey.is-2029:not(#pj-v2) .life-atlas__state[data-state="error"]{border-style:dashed}
 .person-journey.is-2029:not(#pj-v2) .life-atlas__state[data-state="checked"]{color:var(--pj-gold);border-color:var(--pj-gold);background:color-mix(in srgb,var(--pj-gold) 12%,transparent)}
 .person-journey.is-2029:not(#pj-v2) .life-atlas__state[data-state="waiting"]{border-style:dashed}
 .person-journey.is-2029:not(#pj-v2) .life-atlas__state[data-state="building"],.person-journey.is-2029:not(#pj-v2) .life-atlas__state[data-state="not_connected"]{border-style:dotted;opacity:.9}

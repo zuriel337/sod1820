@@ -20,7 +20,7 @@ const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromiu
 const available = Boolean(playwright && vite && reactPlugin && existsSync(executablePath));
 
 
-test("Life Journey keeps Person and explicit family selection through Name and Date across mobile/desktop themes", { skip: !available, timeout: 90_000 }, async () => {
+test("Life Journey keeps Person and explicit family selection through Name and Date across mobile/desktop themes", { skip: !available, timeout: 180_000 }, async () => {
   const server = await vite.createServer({
     root,
     configFile: false,
@@ -168,11 +168,19 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await guidedFlow.getByLabel("4 מתוך 10 תחנות הושלמו").waitFor();
     assert.equal(await guidedFlow.getByRole("button", { name: /ELS/ }).isDisabled(), true);
     const hintPanel = page.locator('[data-experience-capability="life-journey-hint-references"]');
+    const hintBranch = lifeMaps.locator('[data-tree-branch="private-hints"]');
+    const callsBeforeHints = await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]);
+    await hintBranch.getByRole("button", { name: /הרמזים הפרטיים שלי/ }).click();
     await hintPanel.getByText(/2024-02-29/).waitFor();
     await hintPanel.getByText("מועד האירוע לא צוין", { exact: true }).waitFor();
     await hintPanel.getByText("מועד האירוע דורש הבהרה לפני בדיקה", { exact: true }).waitFor();
     assert.equal(await hintPanel.getByText(/2035-11-03/).count(), 0, "submission date is not displayed as the event date");
     assert.equal(await page.evaluate(() => window.__hintReads.length), 1, "picture and hint list share one owned read");
+    assert.equal(await hintBranch.getByRole("button").getAttribute("aria-pressed"), "true", "private hints are an active branch in the same research tree");
+    assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyMapTab), "hints");
+    assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]), callsBeforeHints, "opening owned hint references starts no research, AI or ELS call");
+    await openMap("summary");
+    await guidedFlow.getByRole("heading", { name: "המסלול המודרך" }).waitFor();
     assert.equal(await guidedFlow.locator('button[aria-current="step"]').innerText().then(text => text.includes("חיבורים")), true);
     const callsBeforeGuidedNavigation = await page.evaluate(() => ({
       matrix: window.__matrixCalls.length,
@@ -389,6 +397,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
         await page.setViewportSize({ width, height: 900 });
         await page.evaluate(value => window.__setLifeJourneyTheme(value), theme);
         await page.waitForFunction(value => document.querySelector("[data-fixture-theme]")?.dataset.fixtureTheme === value, theme);
+        await openMap("summary");
         const metrics = await picture.evaluate(element => ({
           overflow: element.scrollWidth > element.clientWidth + 1,
           bodySize: parseFloat(getComputedStyle(element.querySelector("header p")).fontSize),
@@ -403,6 +412,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
         }));
         assert.equal(resumeMetrics.overflow, false, `save/resume fits ${theme} ${width}px`);
         assert.equal(resumeMetrics.smallTargets, 0);
+        await openMap("private-hints");
         const hintMetrics = await hintPanel.evaluate(element => ({
           overflow: element.scrollWidth > element.clientWidth + 1,
           smallTargets: [...element.querySelectorAll("button")].filter(button => button.getBoundingClientRect().width < 43.5 || button.getBoundingClientRect().height < 43.5).length,
@@ -426,8 +436,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await timeMap.getByText(/ביטויי תאריך בלבד/).first().waitFor();
     await openMap("guide");
     await guidedFlow.getByLabel("8 מתוך 10 תחנות הושלמו").waitFor();
-    await guidedFlow.getByText("הבדיקות הזמינות הושלמו. ELS ופענוח הרמזים עדיין ממתינים לחיבור.", { exact: true }).waitFor();
-    await guidedFlow.getByText("המסע ממשיך — השכבות הבאות טרם נבדקו", { exact: true }).waitFor();
+    await guidedFlow.getByRole("button", { name: "המשך ל־הרמזים הפרטיים שלי" }).waitFor();
     await openMap("guide");
     await lifeMaps.getByText("רשימת התחנות המלאה", { exact: true }).click();
     await lifeMaps.locator(".person-journey-path-map").getByText("זהות", { exact: true }).waitFor();
@@ -706,6 +715,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes(invitationToken)), false);
     await page.evaluate(() => localStorage.setItem("life-journey-deny-hints-fixture", "1"));
     await page.reload();
+    await openMap("private-hints");
     await hintPanel.getByText("הרמזים אינם זמינים כרגע.", { exact: true }).waitFor();
     assert.equal(await hintPanel.getByText("רמז קיים", { exact: true }).count(), 0);
     assert.equal(await hintPanel.getByText("אין כרגע רמזים שמורים ב־research_items / hint.", { exact: true }).count(), 0, "a denied read is not an empty result");

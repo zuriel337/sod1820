@@ -3,6 +3,7 @@ import { formatTanakhRef } from "../../lib/presentation/canonicalPresentation.js
 import { buildLifeJourneyMaps } from "../../lib/research/lifeJourneyMaps.js";
 import LifeJourneyTree2029 from "./LifeJourneyTree2029.jsx";
 import LifeJourneyAtlas2029 from "./LifeJourneyAtlas2029.jsx";
+import LifeJourneyHints2029 from "./LifeJourneyHints2029.jsx";
 import "./life-journey-maps-2029.css";
 
 const loadBirthMapStudio2029 = () => import("./BirthMapStudio2029.jsx");
@@ -24,6 +25,7 @@ const MAP_TABS = Object.freeze([
   { id: "creation", label: "מפת יצירה", preload: loadBirthMapStudio2029 },
   { id: "sources", label: "מקורות" },
   { id: "coverage", label: "כיסוי" },
+  { id: "hints", label: "הרמזים הפרטיים שלי" },
   { id: "path", label: "מסלול" },
 ]);
 
@@ -311,7 +313,7 @@ function PathMap({ data }) {
   </div>;
 }
 
-function MapPanel({ active, atlasMode, projection, onSelect, onBirthCalculationChange, birthReflections, birthFocus, focusedMemberRef, onPersonFocus }) {
+function MapPanel({ active, atlasMode, projection, hintState, onSelect, onBirthCalculationChange, birthReflections, birthFocus, focusedMemberRef, onPersonFocus }) {
   if (active === "matrix") return <MatrixMap rows={projection.matrix} />;
   if (active === "generations") return <GenerationsMap data={projection.generations} />;
   if (active === "relationships") return <RelationshipsMap rows={projection.relationships} ready={projection.overview.researchReady} />;
@@ -333,6 +335,7 @@ function MapPanel({ active, atlasMode, projection, onSelect, onBirthCalculationC
   />;
   if (active === "sources") return <SourcesMap data={projection.sources} ready={projection.overview.researchReady} />;
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
+  if (active === "hints") return <LifeJourneyHints2029 state={hintState} />;
   if (active === "summary") return <LifeJourneyPicture2029 data={projection.picture} summary={projection.summary} onSelect={onSelect} focusedMemberRef={focusedMemberRef} onPersonFocus={onPersonFocus}><JourneyGuide data={projection.path} onSelect={onSelect} /></LifeJourneyPicture2029>;
   if (active === "path") return <PathMap data={projection.path} />;
   return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} showStations={atlasMode} />;
@@ -385,7 +388,16 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
     </header>
     <p>כל מפה היא תצוגה של ה־Ledger וה־Research Context הקיימים. מעבר בין מפות אינו מחפש שמות ואינו משנה את הממצאים.</p>
     {atlasMode ? <>
-      <LifeJourneyTree2029 ref={treeRef} generations={projection.generations} coverage={projection.coverage} focusedMemberRef={effectiveFocus} onFocus={focusPerson} />
+      <LifeJourneyTree2029
+        ref={treeRef}
+        generations={projection.generations}
+        coverage={projection.coverage}
+        hints={projection.synthesisPack.observations.hints}
+        hintsActive={panelOpen && active === "hints"}
+        focusedMemberRef={effectiveFocus}
+        onFocus={focusPerson}
+        onOpenHints={() => openFromAtlas("hints")}
+      />
       <div ref={atlasRef} tabIndex={-1} className="person-journey-atlas-anchor">
         <LifeJourneyAtlas2029
           projection={projection}
@@ -427,9 +439,9 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
         <button type="button" onClick={closePanel}>חזרה לאטלס</button>
       </div> : null}
       <Suspense fallback={<LazyMapLoading />}>
-        <MapPanel active={active} atlasMode={atlasMode} projection={projection} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
+        <MapPanel active={active} atlasMode={atlasMode} projection={projection} hintState={hintState} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
       </Suspense>
     </div> : null}
-    <footer>{includeProgramBranches ? "תצוגה פרטית בלבד · ELS ממתין לחיבור · ללא Graph או store חדש" : "תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש"}</footer>
+    <footer>{includeProgramBranches ? "תצוגה פרטית בלבד · הרמזים הקיימים מחוברים בהפניה · ELS ממתין לחיבור · ללא Graph או store חדש" : "תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש"}</footer>
   </section>;
 }

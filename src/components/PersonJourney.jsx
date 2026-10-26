@@ -1682,7 +1682,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       </div> : null}
     </section>
 
-    {variant === "2029" && CapabilitySurface ? <CapabilitySurface view="hints" user={user} hintState={hintState} /> : null}
+    {variant === "2029" && CapabilitySurface && !selectedFamilyRefs.length
+      ? <CapabilitySurface view="hints" user={user} hintState={hintState} />
+      : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">
       <div>

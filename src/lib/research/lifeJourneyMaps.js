@@ -3,7 +3,7 @@ import { buildLifeJourneyBirthMap } from "./lifeJourneyBirthMap.js";
 import { buildLifeJourneyTimeMap } from "./lifeJourneyTimeMap.js";
 import { buildLifeJourneySynthesisPack } from "./lifeJourneySynthesisPack.js";
 
-export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v7";
+export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v8";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
@@ -228,7 +228,12 @@ export function buildLifeJourneyMaps({
     { id: "sources", label: "מקורות", tab: "sources", state: memberSources.length || numberSources.length ? "ready" : researchReady ? "empty" : "waiting" },
     ...(includeProgramBranches ? [
       { id: "els", label: "ELS", tab: null, state: "not_connected" },
-      { id: "hints", label: "בדיקת רמזים ותאריכים", tab: null, state: "not_connected" },
+      {
+        id: "hints",
+        label: "הרמזים הפרטיים שלי",
+        tab: "hints",
+        state: synthesisPack.observations.hints.state === "references" ? "available" : "waiting",
+      },
     ] : []),
     { id: "summary", label: "סיכום", tab: "summary", state: combinedSummary.message ? "ready" : researchReady ? "available" : "waiting" },
   ].map(step => Object.freeze(step));

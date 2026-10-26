@@ -33,6 +33,10 @@ function fixture() {
     relations: [{ source_ref: "rel:1", parent_ref: SELF, child_ref: CHILD }],
     birthTimeline: [{ id: `${SELF}:birth`, memberRef: SELF, name: "הורה בדיקה", dateIso: "1990-02-15", dateDisplay: "15.02.1990", hebrewDate: "כ׳ בשבט תש״ן", birthTime: "05:30", birthPlace: "עיר בדיקה" }],
     context: { journey: { id: "path:1", position: 3 } },
+    hintState: { loading: false, rows: [
+      { id: "hint-1", occurred_at: "2024-02-29" },
+      { id: "hint-2" },
+    ] },
     analysis: {
       state: "ready",
       data: {
@@ -120,8 +124,9 @@ test("life maps project the existing private family state without inventing stor
   assert.equal(out.path.completedCount, 8);
   assert.equal(out.path.progressPercent, 80);
   assert.equal(out.path.complete, false);
-  assert.ok(out.path.steps.filter(step => ["els", "hints"].includes(step.id)).every(step => step.state === "not_connected" && step.tab === null));
-  assert.equal(out.path.nextStep, null);
+  assert.deepEqual(out.path.steps.find(step => step.id === "els"), { id: "els", label: "ELS", tab: null, state: "not_connected" });
+  assert.deepEqual(out.path.steps.find(step => step.id === "hints"), { id: "hints", label: "הרמזים הפרטיים שלי", tab: "hints", state: "available" });
+  assert.equal(out.path.nextStep.id, "hints");
   assert.deepEqual(out.boundaries, { read_only_projection: true, no_els_execution: true, no_new_store: true, no_graph_write: true });
 });
 

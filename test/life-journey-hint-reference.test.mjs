@@ -5,13 +5,16 @@ import {
   buildLifeJourneyExactReturnPatch,
   buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyHintReferencePatch,
+  buildLifeJourneyMapPositionPatch,
   buildLifeJourneyPersonContext,
 } from "../src/lib/research/lifeJourneyPersonContext.js";
+import { mergeResearchContext } from "../src/lib/research/researchContext.js";
 
 test("a numeric personal hint opens the canonical Number surface with exact Person return", () => {
   const personRef = "person:11111111-1111-4111-8111-111111111111:self";
   const context = buildLifeJourneyPersonContext(personRef);
-  const next = buildLifeJourneyHintReferencePatch(context, 73);
+  const positioned = mergeResearchContext(context, buildLifeJourneyMapPositionPatch(context, { personRef, tab: "hints" }));
+  const next = buildLifeJourneyHintReferencePatch(positioned, 73);
 
   assert.equal(next.subject.id, "73");
   assert.equal(next.subject.type, "number");
@@ -21,6 +24,11 @@ test("a numeric personal hint opens the canonical Number surface with exact Pers
   assert.equal(next.returnTo.subject.id, personRef);
   assert.equal(next.returnTo.selection.entityId, personRef);
   assert.equal(next.returnTo.dimensions.lifeJourneyView, "person");
+  const returned = mergeResearchContext(next, buildLifeJourneyExactReturnPatch(next));
+  assert.equal(returned.subject.href, "/2029/journey");
+  assert.equal(returned.dimensions.lifeJourneyView, "person");
+  assert.equal(returned.dimensions.lifeJourneyMapTab, "hints");
+  assert.equal(returned.returnTo, null);
 });
 
 test("Name advances through the private date bridge and returns to the selected family context", () => {

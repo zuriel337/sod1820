@@ -102,8 +102,8 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
       personal: ["name", "date", "time", "summary"],
       family: ["family-tree", "generations", "relationships", "convergences", "timeline"],
       deep: ["human", "sky", "creation", "sefer"],
-      evidence: ["matrix", "evidence", "sources", "coverage", "guide"],
-      soon: ["els", "hints", "raziel"],
+      evidence: ["matrix", "evidence", "sources", "coverage", "private-hints", "guide"],
+      soon: ["els", "hint-analysis", "raziel"],
     };
     await atlas.waitFor();
     for (const [group, ids] of Object.entries(GROUPS)) {
@@ -113,13 +113,14 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
     assert.equal(await lifeMaps.getByRole("tablist").count(), 0, "the 13-tab row is gone from the face of the screen");
     assert.equal(await atlas.locator("details").count(), 0, "the atlas is not an accordion");
     assert.equal(await lifeMaps.locator(".person-journey-map-panel").count(), 0, "no map is open until a card is chosen");
-    for (const id of ["els", "hints", "raziel"]) {
+    for (const id of ["els", "hint-analysis", "raziel"]) {
       assert.equal(await card(id).locator("[data-atlas-action]").count(), 0, `${id} has no action: it is future-only`);
       assert.equal(await card(id).getAttribute("data-kind"), "future");
     }
     assert.equal(await card("els").getAttribute("data-state"), "not_connected");
     assert.equal(await card("els").locator(".life-atlas__state").innerText(), "ממתין לחיבור");
-    assert.equal(await card("hints").getAttribute("data-state"), "building");
+    assert.equal(await card("private-hints").getAttribute("data-state"), "references");
+    assert.equal(await card("hint-analysis").getAttribute("data-state"), "building");
     assert.equal(await card("raziel").getAttribute("data-state"), "building");
     assert.equal(await card("raziel").locator("button").count(), 0, "Raziel preview is display-only");
     for (const id of ["name", "date", "time", "generations", "matrix", "human"]) assert.equal(await card(id).locator("svg").count(), 1, `${id} has its own illustration`);
@@ -129,7 +130,8 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
     await tree.waitFor();
     const order = await page.evaluate(() => ["life-journey-profile", "life-journey-research-tree", "life-journey-capability-atlas", "life-journey-intake", "life-journey-family"].map(name => document.querySelector(`[data-experience-capability="${name}"]`)?.getBoundingClientRect().top + scrollY));
     assert.deepEqual([...order].sort((x, y) => x - y), order, "hero → tree → atlas come before the intake and family forms");
-    assert.equal(await tree.locator(".life-tree__node").count(), 2, "person and family appear once in one tree");
+    assert.equal(await tree.locator(".life-tree__node[data-member-ref]").count(), 2, "person and family appear once in one tree");
+    assert.equal(await tree.locator('[data-tree-branch="private-hints"]').count(), 1, "the owned private-hint archive is one branch of the same tree");
     assert.equal(await tree.locator(".life-tree__item .life-tree__item .life-tree__node").count(), 1, "the child hangs under the parent");
     assert.equal(await tree.locator('[role="tree"],[role="treeitem"]').count(), 0, "no tree role is claimed without tree keyboard support");
     assert.equal(await tree.locator("ul[aria-label]").count(), 1, "nested list is labelled");
@@ -159,7 +161,7 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
     // Every existing map is reachable from its card; none starts research.
     const callsBeforeMaps = await counters();
     const mapCards = await lifeMaps.locator('[data-map-card][data-kind="map"]').evaluateAll(nodes => nodes.map(node => node.dataset.mapCard));
-    assert.equal(mapCards.length, 15, "every map view has a card");
+    assert.equal(mapCards.length, 16, "every map view, including private hints, has a card");
     for (const id of mapCards) {
       await openCard(id);
       await lifeMaps.locator(".person-journey-map-panel").waitFor();

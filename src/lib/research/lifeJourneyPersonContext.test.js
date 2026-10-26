@@ -40,6 +40,15 @@ test("map position survives Context and Path round trips using only allowed refe
   assert.deepEqual(Object.keys(patch.dimensions).sort(), ["lifeJourneyMapLens", "lifeJourneyMapMemberRef", "lifeJourneyMapTab"]);
 });
 
+test("the private-hint branch is an allowed map position and carries no hint payload", () => {
+  const context = buildLifeJourneyPersonContext(PERSON_REF);
+  const patch = buildLifeJourneyMapPositionPatch(context, { personRef: PERSON_REF, tab: "hints" });
+  const positioned = mergeResearchContext(context, patch);
+  assert.deepEqual(lifeJourneyMapPosition(positioned, PERSON_REF), { tab: "hints", lens: "spatial", memberRef: PERSON_REF });
+  assert.equal(JSON.stringify(positioned).includes("occurred_at"), false);
+  assert.equal(JSON.stringify(positioned).includes("hint-"), false);
+});
+
 test("map position rejects foreign/deselected people and unknown views", () => {
   const context = buildLifeJourneyPersonContext(PERSON_REF);
   assert.equal(buildLifeJourneyMapPositionPatch(context, { personRef: PERSON_REF, memberRef: MEMBER_REF }), null);
