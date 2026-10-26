@@ -79,3 +79,15 @@ export function razielStatusLabel({ closed = false, busy = false, status = "idle
   if (status === "error") return "לא זמין כרגע";
   return "איתך כאן";
 }
+
+// Button for a deterministic navigation answer (RAZIEL_CANONICAL_NAVIGATION_ACTIONS_V1). The href was produced by the
+// shared resolver from the closed canonical route table; it is re-checked here against the same two shapes, so a stored
+// or restored message can never render a link to anything else.
+const CANONICAL_NAVIGATION_HREF = /^(?:\/2029\/number\/[1-9]\d{0,5}|\/world)$/;
+export function razielNavigationButton(message) {
+  const action = message?.role === "raziel" ? message.navigationAction : null;
+  if (!action || typeof action !== "object") return null;
+  const href = typeof action.href === "string" ? action.href : "";
+  const label = clean(action.label, 80);
+  return CANONICAL_NAVIGATION_HREF.test(href) && label ? { href, label, intent: clean(action.intent, 40) } : null;
+}

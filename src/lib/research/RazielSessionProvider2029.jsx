@@ -93,8 +93,19 @@ export function RazielSessionProvider2029({
         if (mountedRef.current) dispatch({ type: "turn_failed", completedAt, error: "question_required" });
         return { ok: false, error: "question_required" };
       }
-      const { request, turn, contextSnapshot } = prepared;
+      const { request, turn, contextSnapshot, navigation } = prepared;
       dispatch({ type: "turn_started", turn, contextSnapshot });
+      // Explicit navigation request: answered locally and deterministically (shared grammar, canonical routes).
+      // No transport call, no model, no quota use. The follow-up action is derived from the reducer's own
+      // result, because no render happens between the two dispatches.
+      if (navigation) {
+        dispatch(buildRazielSessionRequest.createNavigationSucceededAction({
+          state: razielSessionReducer(stateRef.current, { type: "turn_started", turn, contextSnapshot }),
+          navigation,
+          completedAt: clock(),
+        }));
+        return { ok: true, navigation };
+      }
       // The only AI boundary in this module: an explicit submit action.
       failure = "transport_failed";
       const rawResponse = await transport(request);

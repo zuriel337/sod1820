@@ -7,6 +7,15 @@ import {
   normalizeRazielViewMode,
 } from "./razielViewMode2029.js";
 import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
+import { isRegularMethodIdentity } from "./methodIdentity.js";
+import {
+  isValidRazielNavigationNumber,
+  normalizeRazielNavigationAction,
+  parseRazielNavigationRequest,
+  razielNavigationNeedsFocus,
+  resolveRazielNavigationAction,
+  resolveRazielNavigationFollowUp,
+} from "../../../supabase/functions/_shared/razielNavigationActions.js";
 
 const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
 
@@ -349,6 +358,113 @@ export function buildRazielSessionRequest({
   };
 }
 
+// ── Canonical navigation actions (RAZIEL_CANONICAL_NAVIGATION_ACTIONS_V1) ──────────────────────────
+// Explicit navigation requests are answered here, deterministically, before any request is built:
+// no model, no transport, no URL from model output. Grammar, routes and copy live in the shared
+// module that wa-raziel also imports. This adapter only supplies the VERIFIED conversation focus:
+// a number the person typed, a server-calculated value in the answer's evidence summary, a page we
+// opened ourselves, or the current surface's number subject. Anything else asks instead of guessing.
+
+function distinctNumbers(values) {
+  return [...new Set(values.filter((value) => isValidRazielNavigationNumber(value)).map(Number))];
+}
+
+function focusFromRazielMessage(message) {
+  const navigated = cleanInteger(message.navigationAction?.number);
+  if (isValidRazielNavigationNumber(navigated)) return { number: navigated, source: "conversation" };
+  const calculations = normalizeRazielEvidenceSummary(message.evidenceSummary)?.calculations || [];
+  const regular = calculations.filter((item) => isRegularMethodIdentity(item.method));
+  const values = distinctNumbers((regular.length ? regular : calculations).map((item) => item.value));
+  if (values.length === 1) return { number: values[0], source: "conversation" };
+  return values.length > 1 ? { ambiguous: true } : null;
+}
+
+function focusFromUserMessage(message) {
+  const identities = Array.isArray(message.identity_resolution?.identities) ? message.identity_resolution.identities : [];
+  if (!identities.length) return null;
+  const numbers = distinctNumbers(identities.filter((item) => item?.type === "number").map((item) => cleanInteger(item.value ?? item.id)));
+  if (numbers.length === 1) return { number: numbers[0], source: "conversation" };
+  if (numbers.length > 1) return { ambiguous: true };
+  // The latest subject is an expression/word whose value was not verified in its answer: do not reach
+  // past it to an older number.
+  return { unresolved: true };
+}
+
+// Most recent verified focus wins; the current surface subject is only a fallback for a thread
+// that has no subject of its own.
+export function selectRazielVerifiedNumberFocus({ thread = [], surfaceSemantic = null } = {}) {
+  const messages = Array.isArray(thread) ? thread : [];
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (!isObject(message)) continue;
+    const found = message.role === "raziel" ? focusFromRazielMessage(message)
+      : message.role === "user" ? focusFromUserMessage(message) : null;
+    if (!found) continue;
+    return found.unresolved ? null : found;
+  }
+  const subject = surfaceSemantic?.subject;
+  if (subject?.type === "number") {
+    const number = cleanInteger(subject.id ?? subject.label);
+    if (isValidRazielNavigationNumber(number)) return { number, source: "surface" };
+  }
+  return null;
+}
+
+export function resolveRazielNavigationTurn({ question, state, contextSnapshot } = {}) {
+  const thread = Array.isArray(state?.thread) ? state.thread : [];
+  const latest = thread[thread.length - 1];
+  if (isObject(latest?.navigationClarify)) {
+    const followUp = resolveRazielNavigationFollowUp({ text: question, pendingIntent: latest.navigationClarify.intent });
+    if (followUp) return followUp;
+  }
+  const request = parseRazielNavigationRequest(question);
+  if (!request) return null;
+  const focus = razielNavigationNeedsFocus(request)
+    ? selectRazielVerifiedNumberFocus({ thread, surfaceSemantic: snapshotSurfaceSemantic(contextSnapshot) })
+    : null;
+  return resolveRazielNavigationAction({ request, focus });
+}
+
+export function createRazielNavigationTurnSucceededAction({ state, navigation, completedAt }) {
+  const action = navigation?.type === "navigate" ? normalizeRazielNavigationAction(navigation) : null;
+  const answer = cleanAnswer(navigation?.message);
+  const turn = state?.currentTurn || {};
+  const message = {
+    role: "raziel",
+    text: answer,
+    level: "deterministic",
+    question: turn.question || null,
+    turnId: turn.id || null,
+    continuation: null,
+    sourceNames: [],
+    grounding: "deterministic",
+    ...(action ? { navigationAction: action } : {}),
+    ...(navigation?.type === "clarify" ? { navigationClarify: { intent: navigation.intent, reason: navigation.reason } } : {}),
+  };
+  return {
+    type: "turn_succeeded",
+    patch: {
+      thread: [...(Array.isArray(state?.thread) ? state.thread : []), message].slice(-LIMITS.threadMessages),
+      busy: false,
+      currentTurn: { ...turn, status: "complete", completedAt },
+      response: { v: 1, answer, deterministic: true, intelligenceLevel: "deterministic", sourceNames: [] },
+      provenance: compactObject({
+        turnId: cleanInline(turn.id, 120),
+        transport: "deterministic_navigation",
+        requestedAt: cleanInline(turn.startedAt, 40),
+        completedAt: cleanInline(completedAt, 40),
+        intelligenceLevel: "deterministic",
+        deterministic: true,
+        basis: "raziel_canonical_navigation_actions_v1",
+        modelCalls: 0,
+        sourceNames: [],
+      }),
+      status: "ready",
+      announcement: "רזיאל מוכן.",
+    },
+  };
+}
+
 export function prepareRazielSessionSubmission({
   question,
   state,
@@ -373,6 +489,25 @@ export function prepareRazielSessionSubmission({
   const contextSnapshot = continuation?.contextSnapshot
     || createRazielRequestContextSnapshot(researchContext, view, startedAt);
   const selectedFacts = continuation ? continuation.facts : facts;
+  // Explicit navigation never reaches a model or the transport (continuations/deepening are never navigation).
+  const navigation = again ? null : resolveRazielNavigationTurn({ question: subject, state, contextSnapshot });
+  if (navigation) {
+    return {
+      navigation,
+      request: null,
+      contextSnapshot,
+      turn: {
+        id: createTurnId(),
+        question: subject,
+        identityResolution: null,
+        intelligenceLevel: "fast",
+        again: false,
+        projection: projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null,
+        startedAt,
+        continuation: null,
+      },
+    };
+  }
   // A plain continuation (deepen) keeps the mode of the answer it extends. A one-shot per-request mode (the surprise)
   // replaces it for this request only; the stored answer and the session's own mode are not modified.
   const oneShotViewMode = viewModeOverride == null ? null : normalizeRazielViewMode(viewModeOverride);
