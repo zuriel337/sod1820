@@ -1,0 +1,10 @@
+{
+  "framework": null,
+  "installCommand": "npm ci --prefix ../../.. --include=dev --ignore-scripts --no-audit --no-fund && node build.mjs",
+  "buildCommand": "node build.mjs",
+  "outputDirectory": "dist",
+  "headers": [{ "source": "/(.*)", "headers": [
+    { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
+    { "key": "Cache-Control", "value": "no-store" }
+  ]}]
+}

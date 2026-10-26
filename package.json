@@ -15,7 +15,7 @@
     "test:world-group-source": "node --test src/lib/research/worldGroupSource.test.js && bash scripts/run-world-group-source-sql-test.sh",
     "test:zvi-stable-writer-binding": "node --test scripts/test-zvi-stable-writer-binding.mjs && bash scripts/run-zvi-stable-writer-binding-sql-test.sh",
     "test:spatial-scene-v1": "node --test test/spatial-scene-v1-m0.test.mjs test/spatial-scene-v1-m1.test.mjs test/spatial-scene-v1-m2.test.mjs test/spatial-scene-v1-m3.test.mjs",
-    "test:cn-sg-security": "node --test test/edge-country-adaptive-strict.test.mjs test/edge-country-smart-quarantine.test.mjs test/sg-browser-policy-order.test.mjs test/sg-quarantine-rate-limit-chain.test.mjs test/sg-rate-limit-function.test.mjs",
+    "test:cn-sg-security": "node --test test/edge-country-adaptive-strict.test.mjs test/edge-country-smart-quarantine.test.mjs test/sg-browser-policy-order.test.mjs test/sg-quarantine-rate-limit-chain.test.mjs test/sg-rate-limit-function.test.mjs test/sg-runtime-oidc-chain.test.mjs",
     "test:legacy-production-lock": "node scripts/test-legacy-production-lock.mjs",
     "test:issue-report": "node scripts/test-issue-report-canonical-emitter.mjs",
     "test:experience-context": "node scripts/test-experience-context-2029.mjs",
@@ -78,6 +78,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.1",
+    "jose": "6.2.12",
     "vite": "^8.3.0"
   }
 }
