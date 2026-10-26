@@ -477,6 +477,51 @@ function projectNumericReviewLane(row, routing) {
   return "numeric_context_review";
 }
 
+function projectTextualStatementContext(row, routing) {
+  if (routing?.queue !== "textual_statement") return null;
+  const kind = clean(row?.kind) || "observation";
+  const targets = Array.isArray(row?.meta?.ext?.wa_channel_intake?.tree_matches)
+    ? row.meta.ext.wa_channel_intake.tree_matches.filter((target) => target && typeof target === "object")
+    : [];
+  const terms = Array.isArray(row?.terms) ? row.terms.map(clean).filter(Boolean) : [];
+  const relates = Array.isArray(row?.relates) ? row.relates.map(clean).filter(Boolean) : [];
+  const states = {
+    fact: "source_fact_claim",
+    relation: "source_relation_claim",
+    observation: "source_observation",
+    hypothesis: "interpretation_hypothesis",
+    question: "research_question",
+  };
+  return Object.freeze({
+    state: states[kind] || "source_observation",
+    kind,
+    termCount: terms.length,
+    relationCount: relates.length,
+    structuredTargetCount: targets.length,
+    hasStructuredValue: finite(row?.value) != null,
+    hasMedia: Boolean(clean(row?.meta?.ext?.wa_channel_intake?.media_ref)),
+    ocrDerived: /^OCR מהמדיה\s*:/u.test(clean(row?.statement)),
+    sourceRef: clean(row?.source_ref) || null,
+    sourceLocatorState: sourceLocatorState(row?.source_ref),
+    requiresHumanTruthDecision: true,
+    calculationApplicable: false,
+    inferred: false,
+    mutatesLiveData: false,
+  });
+}
+
+function projectTextualReviewLane(row, routing) {
+  if (routing?.queue !== "textual_statement") return null;
+  const statement = clean(row?.statement);
+  if (/^OCR מהמדיה\s*:/u.test(statement)) return "ocr_text_review";
+  if (["hypothesis", "question"].includes(clean(row?.kind))) return "interpretation_review";
+  if (clean(row?.meta?.ext?.wa_channel_intake?.media_ref)) return "media_text_review";
+  if (finite(row?.value) != null) return "structured_value_review";
+  if (Array.isArray(row?.meta?.ext?.wa_channel_intake?.tree_matches)
+    && row.meta.ext.wa_channel_intake.tree_matches.length) return "tree_target_review";
+  return "source_text_review";
+}
+
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
 const ARITHMETIC_NUMBER_RE = /^\d{1,9}$/u;
 
@@ -731,6 +776,8 @@ export function projectWorldLegacyReplayOccurrence(row) {
     const formulaReviewLane = projectFormulaReviewLane(row, routing);
     const numericStatementContext = projectNumericStatementContext(row, routing);
     const numericReviewLane = projectNumericReviewLane(row, routing);
+    const textualStatementContext = projectTextualStatementContext(row, routing);
+    const textualReviewLane = projectTextualReviewLane(row, routing);
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -757,6 +804,8 @@ export function projectWorldLegacyReplayOccurrence(row) {
       formulaReviewLane,
       numericStatementContext,
       numericReviewLane,
+      textualStatementContext,
+      textualReviewLane,
       constantCheck,
     });
   }

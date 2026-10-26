@@ -196,6 +196,8 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const replayFormulaLane = clean(filters.replayFormulaLane) || "all";
   const replayNumericState = clean(filters.replayNumericState) || "all";
   const replayNumericLane = clean(filters.replayNumericLane) || "all";
+  const replayTextualState = clean(filters.replayTextualState) || "all";
+  const replayTextualLane = clean(filters.replayTextualLane) || "all";
   const replaySpatialTextOrigin = clean(filters.replaySpatialTextOrigin) || "all";
   const replaySource = clean(filters.replaySource) || "all";
   const replayTarget = clean(filters.replayTarget) || "all";
@@ -225,6 +227,8 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (replayFormulaLane !== "all" && row?.legacyReplay?.formulaReviewLane !== replayFormulaLane) return false;
     if (replayNumericState !== "all" && row?.legacyReplay?.numericStatementContext?.state !== replayNumericState) return false;
     if (replayNumericLane !== "all" && row?.legacyReplay?.numericReviewLane !== replayNumericLane) return false;
+    if (replayTextualState !== "all" && row?.legacyReplay?.textualStatementContext?.state !== replayTextualState) return false;
+    if (replayTextualLane !== "all" && row?.legacyReplay?.textualReviewLane !== replayTextualLane) return false;
     if (replaySpatialTextOrigin !== "all" && row?.legacyReplay?.spatialTextOrigin !== replaySpatialTextOrigin) return false;
     const decision = row?.legacyReplay?.decision;
     const exactSourceCount = (Number(decision?.sourceLocatorStateCounts?.channel_uuid) || 0)
@@ -679,6 +683,16 @@ async function buildAuthorizedProjection(token) {
         .map((row) => ({ numericReviewLane: row.legacyReplay.numericReviewLane })),
       "numericReviewLane",
     ),
+    byTextualStatementState: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.textualStatementContext?.state)
+        .map((row) => ({ textualStatementState: row.legacyReplay.textualStatementContext.state })),
+      "textualStatementState",
+    ),
+    byTextualReviewLane: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.textualReviewLane)
+        .map((row) => ({ textualReviewLane: row.legacyReplay.textualReviewLane })),
+      "textualReviewLane",
+    ),
     bySpatialTextOrigin: countBy(
       orderedFindings.filter((row) => row?.legacyReplay?.spatialTextOrigin)
         .map((row) => ({ spatialTextOrigin: row.legacyReplay.spatialTextOrigin })),
@@ -764,6 +778,8 @@ function pageResponse(projection, req, contributorScope = null) {
     replayFormulaLane: queryValue(req, "replay_formula_lane"),
     replayNumericState: queryValue(req, "replay_numeric_state"),
     replayNumericLane: queryValue(req, "replay_numeric_lane"),
+    replayTextualState: queryValue(req, "replay_textual_state"),
+    replayTextualLane: queryValue(req, "replay_textual_lane"),
     replaySpatialTextOrigin: queryValue(req, "replay_spatial_text_origin"),
     replaySource: queryValue(req, "replay_source"),
     replayTarget: queryValue(req, "replay_target"),

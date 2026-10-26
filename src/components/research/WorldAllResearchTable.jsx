@@ -261,6 +261,23 @@ const NUMERIC_REVIEW_LANE_LABELS = Object.freeze({
   numeric_context_review: "אזכור מספרי · מיון הקשר",
 });
 
+const TEXTUAL_STATEMENT_LABELS = Object.freeze({
+  source_fact_claim: "טענת עובדה מן המקור · טרם הוכרעה",
+  source_relation_claim: "טענת קשר מן המקור · טרם הוכרעה",
+  source_observation: "תצפית מן המקור",
+  interpretation_hypothesis: "השערה / פרשנות",
+  research_question: "שאלת מחקר",
+});
+
+const TEXTUAL_REVIEW_LANE_LABELS = Object.freeze({
+  ocr_text_review: "OCR · השוואה למדיה",
+  interpretation_review: "שאלה או השערה",
+  media_text_review: "טקסט עם מדיה · בדיקת מקור",
+  structured_value_review: "טקסט עם value מובנה",
+  tree_target_review: "יעד עץ מוצע · דורש הכרעה",
+  source_text_review: "טקסט מקור · מיון נושא וראיות",
+});
+
 const SPATIAL_TEXT_ORIGIN_LABELS = Object.freeze({
   ocr_derived: "חילוץ OCR מהמדיה",
   not_marked_ocr: "אינו מסומן כחילוץ OCR",
@@ -384,7 +401,7 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySubtype: "all", replaySpatialMetadata: "all", replaySpatialCalculation: "all", replaySpatialCoverage: "all", replaySpatialLane: "all", replayElsCluster: "all", replayLanguageLane: "all", replayFormulaCalculation: "all", replayFormulaLane: "all", replayNumericState: "all", replayNumericLane: "all", replaySpatialTextOrigin: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySubtype: "all", replaySpatialMetadata: "all", replaySpatialCalculation: "all", replaySpatialCoverage: "all", replaySpatialLane: "all", replayElsCluster: "all", replayLanguageLane: "all", replayFormulaCalculation: "all", replayFormulaLane: "all", replayNumericState: "all", replayNumericLane: "all", replayTextualState: "all", replayTextualLane: "all", replaySpatialTextOrigin: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
@@ -404,6 +421,8 @@ function initialReviewFilters() {
   const replayFormulaLane = clean(params.get("replayFormulaLane"));
   const replayNumericState = clean(params.get("replayNumericState"));
   const replayNumericLane = clean(params.get("replayNumericLane"));
+  const replayTextualState = clean(params.get("replayTextualState"));
+  const replayTextualLane = clean(params.get("replayTextualLane"));
   const replaySpatialTextOrigin = clean(params.get("replaySpatialTextOrigin"));
   const replaySource = clean(params.get("replaySource"));
   const replayTarget = clean(params.get("replayTarget"));
@@ -432,6 +451,8 @@ function initialReviewFilters() {
     replayFormulaLane: Object.hasOwn(FORMULA_REVIEW_LANE_LABELS, replayFormulaLane) ? replayFormulaLane : "all",
     replayNumericState: Object.hasOwn(NUMERIC_STATEMENT_LABELS, replayNumericState) ? replayNumericState : "all",
     replayNumericLane: Object.hasOwn(NUMERIC_REVIEW_LANE_LABELS, replayNumericLane) ? replayNumericLane : "all",
+    replayTextualState: Object.hasOwn(TEXTUAL_STATEMENT_LABELS, replayTextualState) ? replayTextualState : "all",
+    replayTextualLane: Object.hasOwn(TEXTUAL_REVIEW_LANE_LABELS, replayTextualLane) ? replayTextualLane : "all",
     replaySpatialTextOrigin: Object.hasOwn(SPATIAL_TEXT_ORIGIN_LABELS, replaySpatialTextOrigin) ? replaySpatialTextOrigin : "all",
     replaySource: Object.hasOwn(REPLAY_SOURCE_LABELS, replaySource) ? replaySource : "all",
     replayTarget: Object.hasOwn(REPLAY_TARGET_LABELS, replayTarget) ? replayTarget : "all",
@@ -525,6 +546,8 @@ export default function WorldAllResearchTable({ state }) {
   const [replayFormulaLane, setReplayFormulaLane] = useState(initial.replayFormulaLane);
   const [replayNumericState, setReplayNumericState] = useState(initial.replayNumericState);
   const [replayNumericLane, setReplayNumericLane] = useState(initial.replayNumericLane);
+  const [replayTextualState, setReplayTextualState] = useState(initial.replayTextualState);
+  const [replayTextualLane, setReplayTextualLane] = useState(initial.replayTextualLane);
   const [replaySpatialTextOrigin, setReplaySpatialTextOrigin] = useState(initial.replaySpatialTextOrigin);
   const [replaySource, setReplaySource] = useState(initial.replaySource);
   const [replayTarget, setReplayTarget] = useState(initial.replayTarget);
@@ -542,8 +565,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replayElsCluster, replayLanguageLane, replayFormulaCalculation, replayFormulaLane, replayNumericState, replayNumericLane, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replayElsCluster, replayLanguageLane, replayFormulaCalculation, replayFormulaLane, replayNumericState, replayNumericLane, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
+    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replayElsCluster, replayLanguageLane, replayFormulaCalculation, replayFormulaLane, replayNumericState, replayNumericLane, replayTextualState, replayTextualLane, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replayElsCluster, replayLanguageLane, replayFormulaCalculation, replayFormulaLane, replayNumericState, replayNumericLane, replayTextualState, replayTextualLane, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
 
   const resetFilters = () => {
     setQuery("");
@@ -575,6 +598,8 @@ export default function WorldAllResearchTable({ state }) {
     setReplayFormulaLane("all");
     setReplayNumericState("all");
     setReplayNumericLane("all");
+    setReplayTextualState("all");
+    setReplayTextualLane("all");
     setReplaySpatialTextOrigin("all");
     setReplaySource("all");
     setReplayTarget("all");
@@ -1086,6 +1111,8 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>תור עבודה לנוסחאות</span><select value={replayFormulaLane} onChange={(e) => setReplayFormulaLane(e.target.value)}><option value="all">כל תורי הנוסחאות</option>{Object.entries(FORMULA_REVIEW_LANE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byFormulaReviewLane?.[value] || 0}</option>)}</select></label>
         <label><span>מצב טענה מספרית</span><select value={replayNumericState} onChange={(e) => setReplayNumericState(e.target.value)}><option value="all">כל מצבי הטענות המספריות</option>{Object.entries(NUMERIC_STATEMENT_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byNumericStatementState?.[value] || 0}</option>)}</select></label>
         <label><span>תור עבודה מספרי</span><select value={replayNumericLane} onChange={(e) => setReplayNumericLane(e.target.value)}><option value="all">כל תורי הטענות המספריות</option>{Object.entries(NUMERIC_REVIEW_LANE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byNumericReviewLane?.[value] || 0}</option>)}</select></label>
+        <label><span>סוג טענה טקסטואלית</span><select value={replayTextualState} onChange={(e) => setReplayTextualState(e.target.value)}><option value="all">כל סוגי הטענות הטקסטואליות</option>{Object.entries(TEXTUAL_STATEMENT_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byTextualStatementState?.[value] || 0}</option>)}</select></label>
+        <label><span>תור עבודה טקסטואלי</span><select value={replayTextualLane} onChange={(e) => setReplayTextualLane(e.target.value)}><option value="all">כל תורי הטקסטים</option>{Object.entries(TEXTUAL_REVIEW_LANE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byTextualReviewLane?.[value] || 0}</option>)}</select></label>
         <label><span>מקור הטקסט המרחבי</span><select value={replaySpatialTextOrigin} onChange={(e) => setReplaySpatialTextOrigin(e.target.value)}><option value="all">OCR ורשומות אחרות</option>{Object.entries(SPATIAL_TEXT_ORIGIN_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialTextOrigin?.[value] || 0}</option>)}</select></label>
         <label><span>שלמות מקור · בשל טכנית</span><select value={replaySource} onChange={(e) => setReplaySource(e.target.value)}><option value="all">מקור מדויק ותיקונים</option>{Object.entries(REPLAY_SOURCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplaySourceReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>מצב יעד · בשל טכנית</span><select value={replayTarget} onChange={(e) => setReplayTarget(e.target.value)}><option value="all">כל מצבי היעד</option>{Object.entries(REPLAY_TARGET_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetReadiness?.[value] || 0}</option>)}</select></label>
@@ -1203,6 +1230,11 @@ export default function WorldAllResearchTable({ state }) {
             <span><small>מיון מספרי · ללא המצאת חישוב</small><strong>{humanLabel(NUMERIC_STATEMENT_LABELS, row.legacyReplay.numericStatementContext.state, "דורש בדיקה")}</strong></span>
             <small>תור: {humanLabel(NUMERIC_REVIEW_LANE_LABELS, row.legacyReplay.numericReviewLane, "אזכור מספרי לבדיקה")} · value מובנה: {row.legacyReplay.numericStatementContext.rowValue ?? "אין נתון"} · מספרים שנקראו מן הטקסט: {row.legacyReplay.numericStatementContext.literals?.join(" · ") || "אין נתון"}{row.legacyReplay.numericStatementContext.truncated ? " · ועוד" : ""}.</small>
             <small>התאמה לערך מובנה היא התאמת מספר מילולית בלבד; היא אינה מאמתת מקור, חישוב, משמעות או קשר לעץ.</small>
+          </div> : null}
+          {row.legacyReplay?.textualStatementContext ? <div className="sod29-world-triage-recommendation is-review">
+            <span><small>מיון טקסטואלי · לא נשלח למנוע חישובי</small><strong>{humanLabel(TEXTUAL_STATEMENT_LABELS, row.legacyReplay.textualStatementContext.state, "טקסט לבדיקה")}</strong></span>
+            <small>תור: {humanLabel(TEXTUAL_REVIEW_LANE_LABELS, row.legacyReplay.textualReviewLane, "מיון מקור ונושא")} · מונחים: {row.legacyReplay.textualStatementContext.termCount} · קשרים: {row.legacyReplay.textualStatementContext.relationCount} · יעדים מובנים מוצעים: {row.legacyReplay.textualStatementContext.structuredTargetCount}.</small>
+            <small>יעד מוצע, סוג הטענה ומקור מדויק נשמרים כצירים נפרדים. השערה או שאלה אינן הופכות לעובדה, וגם יעד מובנה אינו חיבור מאושר.</small>
           </div> : null}
 
           {row.legacyReplay?.pendingEngineContext ? <div className="sod29-world-triage-recommendation is-review">

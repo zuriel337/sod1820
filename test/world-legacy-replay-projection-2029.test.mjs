@@ -541,6 +541,47 @@ test("numeric routing separates structured values from mentions without inventin
   assert.equal(interpretation.numericReviewLane, "interpretation_review");
 });
 
+test("textual routing preserves claim type, evidence structure and proposed targets separately", () => {
+  const hypothesis = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "hypothesis",
+    statement: "ייתכן שהקשר מרמז על אירוע עתידי",
+    terms: ["אירוע"],
+    relates: ["רמז"],
+    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "topic", key: "event" }] } } },
+  }));
+  assert.equal(hypothesis.routingQueue, "textual_statement");
+  assert.equal(hypothesis.textualStatementContext.state, "interpretation_hypothesis");
+  assert.equal(hypothesis.textualStatementContext.termCount, 1);
+  assert.equal(hypothesis.textualStatementContext.relationCount, 1);
+  assert.equal(hypothesis.textualStatementContext.structuredTargetCount, 1);
+  assert.equal(hypothesis.textualStatementContext.calculationApplicable, false);
+  assert.equal(hypothesis.textualReviewLane, "interpretation_review");
+
+  const ocr = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "OCR מהמדיה: טקסט חזותי לבדיקה",
+    meta: { ext: { wa_channel_intake: { media_ref: "https://example.test/source.jpg", tree_matches: [] } } },
+  }));
+  assert.equal(ocr.textualStatementContext.ocrDerived, true);
+  assert.equal(ocr.textualStatementContext.hasMedia, true);
+  assert.equal(ocr.textualReviewLane, "ocr_text_review");
+
+  const treeTarget = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "observation",
+    statement: "תצפית מקורית ללא טענה חישובית",
+    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "topic", key: "documented" }] } } },
+  }));
+  assert.equal(treeTarget.textualStatementContext.state, "source_observation");
+  assert.equal(treeTarget.textualReviewLane, "tree_target_review");
+  assert.equal(treeTarget.textualStatementContext.requiresHumanTruthDecision, true);
+});
+
 test("missing-engine source and target context stays separate from technical readiness", () => {
   const missing = row({
     engine_verified: null,

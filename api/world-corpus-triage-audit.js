@@ -370,7 +370,7 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       total: 1551,
       route: "/world?admin=1&view=admin&contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8&contributorLabel=צבי%20(OPOC)&status=approved&replayQueue=textual_statement",
       state: "1,551 רשומות · 109 סומנו לא מאומתות ו־1,442 טרם הוערכו · 251 כוללות תמונה · כל המקורות עם channel UUID",
-      next: "למיין מקור, נושא וסוג ידע; אין צורך במנוע גימטריה אם המקור אינו טוען טענה חישובית.",
+      next: "למיין בנפרד OCR, מדיה, שאלות/השערות, value מובנה, יעד עץ מוצע וטקסט מקור. אין צורך במנוע גימטריה בלי טענה חישובית; סוג טענה או יעד מובנה אינם אישור אמת ואינם קידום לעץ.",
     }),
     Object.freeze({
       key: "zvi_missing_engine_els",

@@ -277,6 +277,9 @@ test("missing-engine content routing is independently filterable", () => {
   const numeric = reviewRow("10000000-0000-4000-8000-000000000018", {
     legacyReplay: { state: "missing_engine_assessment", routingQueue: "numeric_statement", numericStatementContext: { state: "structured_value_matches_literal" }, numericReviewLane: "structured_value_review", mutatesLiveData: false },
   });
+  const textReview = reviewRow("10000000-0000-4000-8000-000000000019", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "textual_statement", textualStatementContext: { state: "interpretation_hypothesis" }, textualReviewLane: "interpretation_review", mutatesLiveData: false },
+  });
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "spatial_or_constants" }), [spatial]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "constants_or_sequences" }), [constants]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySubtype: "cubes" }), [spatial]);
@@ -298,6 +301,9 @@ test("missing-engine content routing is independently filterable", () => {
   assert.deepEqual(filterWorldFindingReviewRows([textual, numeric, spatial], { replayNumericState: "structured_value_matches_literal" }), [numeric]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, numeric, spatial], { replayNumericState: "numbers_without_structured_value" }), []);
   assert.deepEqual(filterWorldFindingReviewRows([textual, numeric, spatial], { replayNumericLane: "structured_value_review" }), [numeric]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, textReview, spatial], { replayTextualState: "interpretation_hypothesis" }), [textReview]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, textReview, spatial], { replayTextualState: "research_question" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, textReview, spatial], { replayTextualLane: "interpretation_review" }), [textReview]);
 });
 
 test("technically-ready source and target axes are independently filterable", () => {
