@@ -55,12 +55,15 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       state: "OCR וכפילויות כתובת בראש התור",
       counts: Object.freeze([
         Object.freeze({ label: "זמינות בקורא הציבורי", value: 2192 }),
+        Object.freeze({ label: "בתור בדיקת OCR", value: 29 }),
         Object.freeze({ label: "OCR לא הושלם", value: 22 }),
+        Object.freeze({ label: "ללא טקסט OCR", value: 23 }),
         Object.freeze({ label: "ללא תגיות", value: 2496 }),
+        Object.freeze({ label: "אשכולות כתובת זהה", value: 167 }),
         Object.freeze({ label: "הופעות URL עודפות", value: 194 }),
         Object.freeze({ label: "תמונות עם קישורי עץ נגזרים", value: 2535 }),
       ]),
-      next: "לטפל ב־22 פריטי OCR, ולאחר מכן לאגד כתובות זהות בתצוגה. קישורי עץ נגזרים אינם מקורות עצמאיים.",
+      next: "לטפל ב־29 פריטי תור ה־OCR (22 בסטטוס לא מושלם ו־23 ללא טקסט, בחפיפה), ולאחר מכן לאגד כתובות זהות בתצוגה. קישורי עץ נגזרים אינם מקורות עצמאיים.",
     }),
     Object.freeze({
       key: "gematria",

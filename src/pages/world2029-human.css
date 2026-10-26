@@ -1632,6 +1632,28 @@
   border-radius:12px;
   background:color-mix(in srgb,var(--s29-panel) 88%,transparent);
 }
+.sod29-world-gallery-triage-row{
+  grid-template-columns:minmax(150px,220px) minmax(0,1fr);
+  align-items:start;
+}
+.sod29-world-gallery-triage-row>.sod29-world-all-research-row-head,
+.sod29-world-gallery-triage-row>.sod29-world-finding-measures,
+.sod29-world-gallery-triage-row>.sod29-world-triage-recommendation,
+.sod29-world-gallery-triage-row>.sod29-world-source-locator,
+.sod29-world-gallery-triage-row>.sod29-world-all-research-duplicates{
+  grid-column:1/-1;
+}
+.sod29-world-gallery-triage-row>strong,
+.sod29-world-gallery-triage-row>.sod29-world-all-research-secondary{
+  grid-column:2;
+}
+.sod29-world-gallery-triage-row>.sod29-world-all-research-media,
+.sod29-world-gallery-triage-row>a>.sod29-world-all-research-media{
+  width:100%;
+  max-height:190px;
+}
+.sod29-world-gallery-triage-row>.sod29-world-all-research-duplicates ol{margin:0;padding:0 28px 12px 12px}
+.sod29-world-gallery-triage-row>.sod29-world-all-research-duplicates li{display:grid;gap:3px;margin-block:7px}
 .sod29-world-all-research-secondary{
   margin:0;
   color:var(--s29-muted);
@@ -1743,6 +1765,8 @@
   .sod29-world-all-research-filters{grid-template-columns:1fr}
   .sod29-world-finding-measures{grid-template-columns:repeat(2,minmax(0,1fr))}
   .sod29-world-all-research-row-head{display:grid}
+  .sod29-world-gallery-triage-row{grid-template-columns:1fr}
+  .sod29-world-gallery-triage-row>*{grid-column:1!important}
   .sod29-world-triage-recommendation{align-items:flex-start;flex-direction:column}
   .sod29-world-all-research-duplicates summary,
   .sod29-world-all-research-occurrence-head,

@@ -227,6 +227,7 @@ export default function WorldAllResearchTable({ state }) {
   const [review, setReview] = useState({ loading: false, loadingMore: false, error: null, projection: null, page: null });
   const [elsQueue, setElsQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
   const [languageQueue, setLanguageQueue] = useState({ open: false, loading: false, error: null, data: null });
+  const [galleryQueue, setGalleryQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
   const requestRef = useRef(0);
 
   const filters = useMemo(() => ({
@@ -311,6 +312,11 @@ export default function WorldAllResearchTable({ state }) {
     const all = elsQueue.data?.rows || [];
     return elsQueue.filter === "all" ? all : all.filter((row) => row.state === elsQueue.filter);
   }, [elsQueue.data, elsQueue.filter]);
+  const filteredGalleryRows = useMemo(() => {
+    const all = galleryQueue.data?.rows || [];
+    if (galleryQueue.filter === "all") return all;
+    return all.filter((row) => row.issues.includes(galleryQueue.filter));
+  }, [galleryQueue.data, galleryQueue.filter]);
 
   const openElsQueue = async () => {
     if (elsQueue.data) {
@@ -339,6 +345,21 @@ export default function WorldAllResearchTable({ state }) {
       setLanguageQueue({ open: true, loading: false, error: null, data });
     } catch (error) {
       setLanguageQueue((current) => ({ ...current, open: true, loading: false, error }));
+    }
+  };
+
+  const openGalleryQueue = async () => {
+    if (galleryQueue.data) {
+      setGalleryQueue((current) => ({ ...current, open: !current.open, limit: 40 }));
+      return;
+    }
+    setGalleryQueue((current) => ({ ...current, open: true, loading: true, error: null }));
+    try {
+      const { fetchWorldGalleryTriageProjection } = await import("../../lib/research/worldGalleryTriageProjection.js");
+      const data = await fetchWorldGalleryTriageProjection();
+      setGalleryQueue((current) => ({ ...current, open: true, loading: false, error: null, data, limit: 40 }));
+    } catch (error) {
+      setGalleryQueue((current) => ({ ...current, open: true, loading: false, error }));
     }
   };
 
@@ -372,6 +393,7 @@ export default function WorldAllResearchTable({ state }) {
         <div className="sod29-actions">
           <button className="sod29-action primary" type="button" onClick={openElsQueue} aria-expanded={elsQueue.open}>{elsQueue.open ? "סגור את תור ELS" : "פתח תור ELS מפורט"}</button>
           <button className="sod29-action" type="button" onClick={openLanguageQueue} aria-expanded={languageQueue.open}>{languageQueue.open ? "סגור את תור השפה" : "פתח תור שפה מפורט"}</button>
+          <button className="sod29-action" type="button" onClick={openGalleryQueue} aria-expanded={galleryQueue.open}>{galleryQueue.open ? "סגור את תור התמונות" : "פתח תור גלריות ו־OCR"}</button>
         </div>
       </section> : null}
 
@@ -438,6 +460,48 @@ export default function WorldAllResearchTable({ state }) {
             <div className={`sod29-world-triage-recommendation ${row.humanVerified ? "is-ready" : "is-review"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
             <div className="sod29-world-source-locator"><strong>מזהה מקור</strong><code dir="ltr">{row.sourceRef}</code><small>אימות של תרגום או תעתיק אינו הופך את הפרשנות לאמת, ושוויון מספרי אינו מוכיח משמעות.</small></div>
           </article>)}</div>
+        </> : null}
+      </section> : null}
+
+      {galleryQueue.open ? <section className="sod29-world-kind-section" aria-label="תור גלריות תמונות ו-OCR">
+        <header><div><h3>תור גלריות, OCR וכפילויות</h3><p>נטען רק בלחיצה. כתובת תמונה זהה מתקבצת לתצוגה אחת, אך כל הופעת מקור נשמרת ואינה נספרת כראיה עצמאית נוספת.</p></div>{galleryQueue.data ? <span>{galleryQueue.data.counts.queueItems} אשכולות לטיפול</span> : null}</header>
+        {galleryQueue.loading ? <p role="status">סורק את זהויות התמונות ואת מצב ה־OCR…</p> : null}
+        {galleryQueue.error ? <p role="status">תור התמונות אינו זמין כרגע. לא הומצאו נתונים חלופיים.</p> : null}
+        {galleryQueue.data ? <>
+          <div className="sod29-world-all-research-summary">
+            <span><b>{galleryQueue.data.counts.total}</b> תמונות במאגר המורשה</span>
+            <span><b>{galleryQueue.data.counts.publicVisible}</b> בעדשה הציבורית</span>
+            <span><b>{galleryQueue.data.counts.ocrReview}</b> בתור בדיקת OCR</span>
+            <span><b>{galleryQueue.data.counts.ocrStatusIncomplete}</b> סטטוס OCR לא הושלם</span>
+            <span><b>{galleryQueue.data.counts.duplicateGroups}</b> אשכולות כתובת זהה</span>
+            <span><b>{galleryQueue.data.counts.duplicateRows}</b> הופעות עודפות שנשמרו</span>
+            <span><b>{galleryQueue.data.counts.missingTags}</b> ללא תגיות</span>
+          </div>
+          <div className="sod29-world-all-research-filters">
+            <label><span>סוג טיפול</span><select value={galleryQueue.filter} onChange={(event) => setGalleryQueue((current) => ({ ...current, filter: event.target.value, limit: 40 }))}>
+              <option value="all">כל התור · {galleryQueue.data.rows.length}</option>
+              <option value="ocr">דורש OCR · {galleryQueue.data.rows.filter((row) => row.issues.includes("ocr")).length}</option>
+              <option value="duplicate">כתובת זהה · {galleryQueue.data.rows.filter((row) => row.issues.includes("duplicate")).length}</option>
+            </select></label>
+          </div>
+          <div className="sod29-world-all-research-count">מוצגים {Math.min(galleryQueue.limit, filteredGalleryRows.length)} מתוך {filteredGalleryRows.length} במסנן הגלריות.</div>
+          <div className="sod29-world-all-research-list">{filteredGalleryRows.slice(0, galleryQueue.limit).map((row) => <article className="sod29-world-all-research-row sod29-world-gallery-triage-row" key={row.id}>
+            <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>תמונה</span>{row.issues.includes("ocr") ? <span>דורש OCR</span> : null}{row.issues.includes("duplicate") ? <span>{row.occurrenceCount} הופעות זהות</span> : null}<span>{row.publicVisible ? "בעדשה הציבורית" : "מחוץ לעדשה הציבורית"}</span></div><span>{row.independentSourceCount} מקור עצמאי</span></div>
+            {row.thumbUrl ? <a href={row.imageUrl} target="_blank" rel="noreferrer" aria-label={`פתח תמונת מקור: ${row.title}`}><img className="sod29-world-all-research-media" src={row.thumbUrl} alt={row.title} loading="lazy" decoding="async" /></a> : null}
+            <strong>{row.title}</strong>
+            {row.description ? <p className="sod29-world-all-research-secondary">{row.description}</p> : null}
+            <div className="sod29-world-finding-measures" aria-label="צירי בדיקת תמונה נפרדים">
+              <div><small>מצב OCR</small><strong>{row.issues.includes("ocr") ? "דורש השלמה" : row.ocrStatus}</strong></div>
+              <div><small>הופעות</small><strong>{row.occurrenceCount}</strong></div>
+              <div><small>מקורות עצמאיים</small><strong>{row.independentSourceCount}</strong></div>
+              <div><small>תגיות</small><strong>{row.tags.length || "אין נתון"}</strong></div>
+              <div><small>מספרי OCR</small><strong>{row.numbers.length ? row.numbers.join(" · ") : "אין נתון"}</strong></div>
+            </div>
+            <div className={`sod29-world-triage-recommendation ${row.issues.includes("ocr") ? "is-review" : "is-duplicate"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
+            <div className="sod29-world-source-locator"><strong>נציג התצוגה המומלץ</strong><code dir="ltr">gallery_images:{row.recommendedDisplayId}</code><small>{row.representativeReason}</small></div>
+            {row.occurrences.length > 1 ? <details className="sod29-world-all-research-duplicates"><summary><span>כל {row.occurrences.length} הופעות המקור</span><small>אף רשומה לא נמחקה</small></summary><ol>{row.occurrences.map((occurrence) => <li key={occurrence.id}><code dir="ltr">{occurrence.sourceRef}</code><span>{occurrence.id === row.recommendedDisplayId ? "נציג מומלץ" : "הופעה שמורה"}{occurrence.ocrIncomplete ? " · דורשת OCR" : ""}</span></li>)}</ol></details> : null}
+          </article>)}</div>
+          {galleryQueue.limit < filteredGalleryRows.length ? <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => setGalleryQueue((current) => ({ ...current, limit: current.limit + 40 }))}>הצג עוד 40</button></div> : null}
         </> : null}
       </section> : null}
 
