@@ -78,8 +78,10 @@ test('missing live claim, source drift, privacy, scope, target or revision drift
   }
 });
 
-test('compound arithmetic match does not erase the existing partial extraction fidelity', () => {
+test('compound fidelity distinguishes 17 complete equation slices from three unresolved input origins', () => {
+  const unresolved = ['4ec599a6','cf605c84','da0a6436'];
   for (const r of rows.filter(r => r.calculation.type === 'derivation')) {
+    const partial = unresolved.some(prefix => r.id.startsWith(prefix));
     assert.equal(r.finding.kind,'derivation');
     assert.equal(r.finding.verification.claimed_method,null);
     assert.equal(r.finding.verification.engine_method_tested,null);
@@ -89,10 +91,11 @@ test('compound arithmetic match does not erase the existing partial extraction f
     assert.equal(r.finding.verification.verification_state,'match');
     assert.equal(r.finding.verification.scope,'calculation_only');
     assert.equal(r.calculation.extractionIntegrity.arithmeticVerified,true);
-    assert.equal(r.calculation.extractionIntegrity.fidelityStatus,'partial');
-    assert.equal(r.calculation.intakeMeta.ext.extraction_integrity.fidelity_status,'partial');
+    assert.equal(r.calculation.extractionIntegrity.fidelityStatus,partial ? 'partial' : 'complete');
+    assert.equal(r.calculation.intakeMeta.ext.extraction_integrity.fidelity_status,partial ? 'partial' : 'complete');
+    assert.equal(r.calculation.extractionScope,'source_span_only');
     assert.ok(r.calculation.trace.numericLiterals.some(n => n.status === 'unresolved'));
-    assert.equal(r.route,'derivation_fidelity_review');
+    assert.equal(r.route,partial ? 'derivation_fidelity_review' : 'derivation_slice_complete_requires_review');
     assert.equal(r.automaticPromotion,false);
   }
 });
@@ -202,8 +205,21 @@ test('explicit review fixture preserves 27 envelopes and 20 dependency outcomes 
   }
 });
 
-test('checked-in review is deterministic and exactly replayable', () => {
+test('historical review preserves every field outside the explicit provenance/fidelity correction', () => {
   const saved=JSON.parse(readFileSync(new URL('../docs/reviews/world-typed-claim-representation-20261026.json',import.meta.url)));
-  assert.deepEqual(saved,rows);
+  const withoutCorrectedMetadata = input => structuredClone(input).map(r => {
+    if (r.calculation.type !== 'derivation') return r;
+    delete r.route;
+    for (const calc of [r.calculation, ...r.finding.evidence.facts]) {
+      delete calc.trace.numericOccurrences;
+      delete calc.extractionIntegrity;
+      delete calc.intakeMeta;
+      delete calc.extractionScope;
+    }
+    return r;
+  });
+  assert.ok(saved.filter(r => r.calculation.type === 'derivation')
+    .every(r => r.calculation.extractionIntegrity.fidelityStatus === 'partial'));
+  assert.deepEqual(withoutCorrectedMetadata(saved),withoutCorrectedMetadata(rows));
   assert.deepEqual(buildTypedClaimReview(evidence,receipt),rows);
 });

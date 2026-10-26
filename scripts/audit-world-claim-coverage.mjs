@@ -286,7 +286,8 @@ export function buildTypedClaimReview(evidence, receipt) {
     const intakeMeta = derivation ? buildIntakeMeta({ compoundClaims:[r.replay.claim],
       sourceMediaRefs:[], extractionIntegrity:integrity }) : {};
     const correction = r.kind === 'atomic_extraction';
-    const route = derivation ? 'derivation_fidelity_review'
+    const route = derivation ? (integrity.fidelityStatus === 'complete'
+      ? 'derivation_slice_complete_requires_review' : 'derivation_fidelity_review')
       : !correction ? 'preserve_claim_add_calculation_trace'
       : live.proposed_identity_conflicts > 0 ? 'existing_identity_requires_review'
       : live.proposed_claim_uid !== r.stored.claim_uid ? 'governed_successor_required'
@@ -298,6 +299,7 @@ export function buildTypedClaimReview(evidence, receipt) {
       trace:derivation ? r.replay.claim : r.replay.atomic.engine_detail,
       canonicalChecks:receipt.engine_replays.filter(c => c.id === r.id),
       arithmeticVerified:true, extractionIntegrity:integrity, intakeMeta,
+      ...(derivation ? {extractionScope:'source_span_only'} : {}),
       mediaInspected:false, interpretationVerified:false };
     const finding = makeUniversalFinding({
       id:`world-typed-review:${r.id}`, kind:derivation ? 'derivation' : 'gematria', stage:'claim', status:null,

@@ -425,6 +425,7 @@ function extractGeneralArithmeticClaims(text) {
       linkValues: values, operands: leaves, result, computedTotal: allComputed ? values[0] : null, status,
       ...(strippedAnnotations.length ? { strippedAnnotations } : {}), // RULE #36 — מילים שהוסרו (לא-אופרנד), פרוונאנס
       ...(numericLiterals ? { numericLiterals } : {}),
+      numericOccurrences: numericOccurrencesFor(links, text, span),
     });
   }
   return out;
@@ -501,6 +502,7 @@ function extractVerticalArithmetic(text) {
             computedTotal: allComputed ? values[0] : null, status,
             ...(stripped.length ? { strippedAnnotations: stripped } : {}),
             ...(numericLiterals ? { numericLiterals } : {}),
+            numericOccurrences: numericOccurrencesFor(links, text, vRaw),
           });
         }
       }
@@ -524,6 +526,49 @@ function numericLiteralsFor(links, fullText, excludeRaw) {
   const values = [...new Set(links.flatMap((l) => collectNumLeaves(l)))];
   if (!values.length) return null;
   return values.map((value) => deriveQuantityProvenance(fullText, value, excludeRaw));
+}
+
+// R26/R35 provenance FIX: read the already-evaluated AST, never reparse or calculate.
+// Keep numericLiterals above byte-compatible as historical value-grouped evidence.
+// Occurrences preserve repeated inputs and distinguish a whole equality-side value
+// from a numeric input inside an operation. Syntax is NOT a geometric/semantic role.
+function numericOccurrencesFor(links, fullText, expression) {
+  const out = [];
+  function visit(node, linkIndex, astPath) {
+    if (node.kind === "num") {
+      const syntacticRole = astPath.length ? "arithmetic_input" : "equation_value";
+      const verifiedByLink = syntacticRole === "equation_value"
+        ? links.findIndex((other, index) => index !== linkIndex && other.kind !== "num"
+          && Number.isSafeInteger(other.value) && other.value === node.value) : -1;
+      out.push({ ...deriveQuantityProvenance(fullText, node.value, expression),
+        syntacticRole, linkIndex, astPath, expression,
+        verifiedByLink: verifiedByLink < 0 ? null : verifiedByLink });
+    } else if (node.kind === "add" || node.kind === "mul") {
+      visit(node.a, linkIndex, [...astPath, "a"]);
+      visit(node.b, linkIndex, [...astPath, "b"]);
+    }
+  }
+  links.forEach((link, index) => visit(link, index, []));
+  return out;
+}
+
+function isEquationValue(p) {
+  return p?.syntacticRole === "equation_value" && Array.isArray(p.astPath) && p.astPath.length === 0
+    && Number.isInteger(p.linkIndex) && p.linkIndex >= 0 && typeof p.expression === "string";
+}
+
+function verifiedEquationValue(p, claim) {
+  return isEquationValue(p) && claim.status === "ENGINE_VERIFIED_COMPOSITE"
+    && Number.isSafeInteger(p.value) && Number.isInteger(p.verifiedByLink) && p.verifiedByLink >= 0
+    && p.verifiedByLink !== p.linkIndex && claim.linkValues?.[p.linkIndex] === p.value
+    && claim.linkValues?.[p.verifiedByLink] === p.value;
+}
+
+function numericProvenance(claim) {
+  if (Array.isArray(claim?.quantityProvenance)) return claim.quantityProvenance;
+  if (claim?.quantityProvenance) return [claim.quantityProvenance];
+  if (Array.isArray(claim?.numericOccurrences) && claim.numericOccurrences.length) return claim.numericOccurrences;
+  return Array.isArray(claim?.numericLiterals) ? claim.numericLiterals : [];
 }
 
 // ── מונע כפילות מול 4 החלצנים-הייעודיים: אם raw-span של general-chain חופף (substring) לטענה-ייעודית ──
@@ -840,15 +885,11 @@ export function computeExtractionIntegrity(compoundClaims, mediaRefs) {
   const media = mediaRefs || [];
   const arithmeticVerified = claims.length > 0 && claims.every((c) => c.status === "ENGINE_VERIFIED_COMPOSITE");
 
-  const provItems = claims.flatMap((c) => {
-    if (Array.isArray(c.quantityProvenance)) return c.quantityProvenance;
-    if (c.quantityProvenance) return [c.quantityProvenance];
-    if (Array.isArray(c.numericLiterals)) return c.numericLiterals;
-    return [];
-  });
+  const provItems = claims.flatMap((c) => numericProvenance(c).map(p => ({ p, claim:c })));
   let semanticOperandCoverage;
   if (!provItems.length) semanticOperandCoverage = "not_applicable";
-  else semanticOperandCoverage = provItems.every((p) => p.status !== "unresolved") ? "complete" : "partial";
+  else semanticOperandCoverage = provItems.every(({p,claim}) => isEquationValue(p)
+    ? verifiedEquationValue(p, claim) : p.status === "source_explicit") ? "complete" : "partial";
 
   let mediaReferenceCoverage;
   if (!media.length) mediaReferenceCoverage = "not_applicable";
@@ -904,6 +945,8 @@ function provenanceToInput(p) {
     origin_statement: p.sourceText ?? null,     // הקטע מהמקור שממנו נלקח המספר
     origin_ref: p.sourceLineIndex != null ? { source_line_index: p.sourceLineIndex } : null,
     status,
+    ...(p.syntacticRole ? { syntactic_role:p.syntacticRole,
+      expression_ref:{ expression:p.expression, link_index:p.linkIndex, ast_path:p.astPath } } : {}),
   };
 }
 
@@ -931,18 +974,22 @@ export function buildIntakeMeta(kase, artifact = null) {
     : claims;
   const useClaims = scoped.length ? scoped : claims;
 
-  const inputs = useClaims.flatMap((c) => {
-    const prov = Array.isArray(c?.quantityProvenance) ? c.quantityProvenance
-      : c?.quantityProvenance ? [c.quantityProvenance] : [];
-    return prov.map(provenanceToInput).filter(Boolean);
-  });
+  const inputs = useClaims.flatMap(c => numericProvenance(c).filter(p => !isEquationValue(p))
+    .map(provenanceToInput).filter(Boolean));
+  // Equation-side literals are recorded separately, never smuggled into semantic
+  // quantity inputs. A matched equation does not resolve the origins of its inputs.
+  const outputs = useClaims.flatMap(c => numericProvenance(c).filter(isEquationValue).map(p => ({
+    value:p.value, role:"equation_value", origin_type:"source_equation", origin_statement:p.expression,
+    origin_ref:{link_index:p.linkIndex,ast_path:p.astPath},
+    calculation_match:verifiedEquationValue(p,c), verified_by_link:p.verifiedByLink,
+  })));
 
   const mediaRefs = (Array.isArray(kase.sourceMediaRefs) ? kase.sourceMediaRefs : [])
     .map(mediaRefToRecord).filter(Boolean);
 
   const ei = kase.extractionIntegrity;
   const ext = {};
-  if (inputs.length) ext.derivation = { inputs };
+  if (inputs.length || outputs.length) ext.derivation = { inputs, ...(outputs.length ? {outputs} : {}) };
   if (mediaRefs.length) ext.media_refs = mediaRefs;
   // §7.3 חל על «מקורות מורכבים» בלבד. אם אין בכלל טענה-מורכבת ואין marker-מדיה, אין מה לאמת —
   // computeExtractionIntegrity() מחזיר "partial" גם כשאין קלט (כי arithmeticVerified=false),
