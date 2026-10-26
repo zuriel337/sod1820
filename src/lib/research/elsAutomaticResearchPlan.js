@@ -5,6 +5,7 @@ export const ELS_AUTOMATIC_PLAN_CONTRACT = "els_automatic_research_plan_v1";
 export const ELS_RESEARCH_BRIEF_CONTRACT = "els_research_brief_v1";
 export const ELS_CIPHER_DISCOVERY_PLAN_CONTRACT = "els_cipher_discovery_plan_v1";
 export const ELS_GUIDED_PLAN_SUMMARY_CONTRACT = "els_guided_discovery_plan_summary_v1";
+export const ELS_GUIDED_SEARCH_STRATEGY_CONTRACT = "els_guided_search_strategy_v1";
 export const ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT = "els_guided_occurrence_coverage_v1";
 export const ELS_GUIDED_MATRIX_SNAPSHOT_CONTRACT = "els_guided_matrix_snapshot_v1";
 export const ELS_GUIDED_SOURCE_CONTEXT_CONTRACT = "els_guided_source_context_v1";
@@ -72,8 +73,18 @@ export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms =
     addContext(term, "required", "מונח הקשר שסומן במפורש", 140, true);
   }
   for (const match of input.matchAll(/["״]([^"״\n]{3,80})["״]/g)) {
-    addAnchor(match[1], "quote", "ביטוי קצר שצוטט במפורש", 130);
-    addContext(match[1], "quote", "ביטוי שצוטט במפורש בתוך ההקשר", 115);
+    addAnchor(match[1], "quote", "ביטוי קצר שצוטט במפורש", 190);
+    addContext(match[1], "quote", "ביטוי שצוטט במפורש בתוך ההקשר", 150);
+  }
+
+  // Two-token input is usually a deliberate search expression rather than a narrative. Keep the
+  // component words as alternatives, but let the intact expression lead without knowing any name,
+  // cipher or vocabulary item. Longer input still follows the ordinary narrative ranking below.
+  const compactInput = briefPhrase(input), compactWords = briefWords(compactInput), compactLength = canonicalKey(compactInput).length;
+  if (compactWords.length === 2 && compactLength >= 3 && compactLength <= MAX_BASIC_AXIS_LENGTH
+    && compactWords.some(meaningfulBriefWord)) {
+    addAnchor(compactInput, "compact-expression", "ביטוי קצר שנכתב כיחידת חיפוש אחת", 165);
+    addContext(compactInput, "compact-expression", "הביטוי הקצר בשלמותו", 125);
   }
 
   const sentenceTexts = input.normalize("NFKD").replace(HEBREW_MARKS, "").split(/[.!?։;:\n]+/).map(value => value.trim()).filter(Boolean);
@@ -126,6 +137,44 @@ export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms =
   });
 }
 
+const buildGuidedSearchStrategy = (plan, selectedAnchorId = null) => {
+  const anchor = plan?.anchorCandidates?.find(candidate => candidate.id === selectedAnchorId)
+    || plan?.anchorCandidates?.find(candidate => candidate.id === plan?.recommendedAnchorId) || null;
+  if (!anchor) return null;
+  const storyTerms = plan.contextCandidates.filter(candidate => candidate.selected && candidate.canonicalTerm !== anchor.canonicalTerm)
+    .slice(0, 6).map(candidate => candidate.term);
+  return Object.freeze({
+    contract: ELS_GUIDED_SEARCH_STRATEGY_CONTRACT,
+    status: "PROPOSED",
+    selectedAxis: Object.freeze({ id: anchor.id, term: anchor.term, canonicalTerm: anchor.canonicalTerm,
+      basis: anchor.kind, reason: anchor.reason, authority: "PROPOSED_UNTIL_CANONICAL_MATCH" }),
+    lanes: Object.freeze([
+      Object.freeze({ id: "exact-axis", order: 1, label: "ציר מדויק", trigger: "EXPLICIT_SUBMIT",
+        source: "story_plan", terms: Object.freeze([anchor.term]), maximumTerms: 1, verificationRequired: true }),
+      Object.freeze({ id: "story-context", order: 2, label: "מילות הסיפור", trigger: "VERIFIED_AXIS",
+        source: "bounded_story_terms", terms: Object.freeze(storyTerms), maximumTerms: 6, verificationRequired: true }),
+      Object.freeze({ id: "local-language", order: 3, label: "לשון מקומית", trigger: "VERIFIED_OCCURRENCE",
+        source: "canonical_matrix_letters_and_lazy_index", terms: Object.freeze([]), maximumTerms: null,
+        matrixLocalOnly: true, vocabularyScanned: false, lazyIndexAllowed: true, verificationRequired: true }),
+    ]),
+    stopPolicy: Object.freeze({ firstOccurrenceBatch: ELS_GUIDED_OCCURRENCE_BATCH_SIZE,
+      maximumOccurrenceBatches: ELS_GUIDED_OCCURRENCE_MAX_BATCHES, automaticFallbackToAnotherAxis: false,
+      stopOnStrongVerifiedStructure: true }),
+    advanced: Object.freeze({ reverseForms: false, widerMatrix: false, extraOccurrenceBatch: false,
+      broadVocabularyScan: false, requiresExplicitAction: true }),
+    modelCallsBeforeSearch: 0,
+    modelCallsTriggered: 0,
+    rawStoryIncluded: false,
+    truthPromotion: false,
+  });
+};
+
+export function projectElsGuidedSearchStrategy(plan, selectedAnchorId = null) {
+  if (plan?.contract !== ELS_CIPHER_DISCOVERY_PLAN_CONTRACT || !Array.isArray(plan.anchorCandidates)
+    || !Array.isArray(plan.contextCandidates)) return null;
+  return buildGuidedSearchStrategy(plan, selectedAnchorId);
+}
+
 export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
   const brief = prepareElsResearchBrief({ text, anchorTerm, requiredTerms, scope });
   if (brief.error) return brief;
@@ -136,7 +185,7 @@ export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredT
     .sort((a, b) => Number(b.required) - Number(a.required) || Number(a.mode !== "term") - Number(b.mode !== "term") || b.priority - a.priority || a.term.localeCompare(b.term, "he"))
     .slice(0, MAX_DISCOVERY_TARGETS)
     .map((candidate, index) => Object.freeze({ ...candidate, selected: candidate.required || index < 6, supportPriority: index + 1 }));
-  return Object.freeze({
+  const discoveryPlan = {
     ...brief,
     contract: ELS_CIPHER_DISCOVERY_PLAN_CONTRACT,
     mode: "story-first-pair",
@@ -148,7 +197,8 @@ export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredT
     aiUsed: false,
     persisted: false,
     truthPromotion: false,
-  });
+  };
+  return Object.freeze({ ...discoveryPlan, strategy: buildGuidedSearchStrategy(discoveryPlan) });
 }
 
 /** Bounded proposed terms for the existing Raziel seam; never the raw story. */
@@ -157,6 +207,7 @@ export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
   const anchor = plan.anchorCandidates.find(candidate => candidate.id === selectedAnchorId)
     || plan.anchorCandidates.find(candidate => candidate.id === plan.recommendedAnchorId) || null;
   if (!anchor) return null;
+  const strategy = projectElsGuidedSearchStrategy(plan, anchor.id);
   return Object.freeze({
     contract: ELS_GUIDED_PLAN_SUMMARY_CONTRACT,
     status: "PROPOSED_SEARCH_PLAN",
@@ -165,6 +216,10 @@ export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
     targetTerms: Object.freeze(plan.contextCandidates.filter(candidate => candidate.selected).map(candidate => candidate.term).filter(Boolean).slice(0, 8)),
     occurrenceBatchSize: plan.limits.fullAxisOccurrences,
     maximumOccurrenceBatches: plan.limits.maximumOccurrenceBatches,
+    strategy: strategy ? Object.freeze({ contract: strategy.contract,
+      laneOrder: Object.freeze(strategy.lanes.map(lane => lane.id)),
+      localLanguageTrigger: strategy.lanes.find(lane => lane.id === "local-language")?.trigger || null,
+      broadVocabularyScan: strategy.advanced.broadVocabularyScan }) : null,
     modelCallsTriggered: 0,
     rawStoryIncluded: false,
     evidencePromotion: false,

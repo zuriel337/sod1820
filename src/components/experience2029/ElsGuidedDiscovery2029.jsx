@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState } from "react";
 import {
   prepareElsCipherDiscoveryPlan,
+  projectElsGuidedSearchStrategy,
   summarizeElsGuidedDiscoveryPlan,
 } from "../../lib/research/elsAutomaticResearchPlan.js";
 
@@ -18,6 +19,7 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
   const [notice, setNotice] = useState("");
   const requestId = useRef(0);
   const axis = useMemo(() => selectedAxis(plan, axisId), [plan, axisId]);
+  const strategy = useMemo(() => projectElsGuidedSearchStrategy(plan, axisId), [plan, axisId]);
 
   const runPlan = (nextPlan, nextAxisId) => {
     const nextAxis = selectedAxis(nextPlan, nextAxisId);
@@ -122,7 +124,16 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
           <div><small>הציר הראשון שהוצע</small><strong><bdi>{axis.term}</bdi></strong></div>
           <span className="sod29-chip">הצעה · טרם ממצא</span>
         </header>
-        <p>לבדיקה סביב המופע: {plan.contextCandidates.filter((candidate) => candidate.selected).slice(0, 6).map((candidate) => candidate.term).join(" · ") || "מילות הקשר מקומיות"}</p>
+        <p className="els29-guided-axis-reason">למה הוא ראשון: {axis.reason}.</p>
+        {strategy ? <div className="els29-guided-strategy" data-els-guided-search-strategy={strategy.contract} aria-label="סדר החיפוש המודרך">
+          {strategy.lanes.map(lane => <article key={lane.id} data-lane={lane.id}>
+            <span>{lane.order}</span>
+            <div><strong>{lane.label}</strong><small>{lane.id === "exact-axis" ? `בודק את ״${axis.term}״ ומאמת כל מופע.`
+              : lane.id === "story-context" ? (lane.terms.length ? lane.terms.join(" · ") : "אין כרגע מילת סיפור נוספת; ממשיכים רק אחרי אימות הציר.")
+              : "מחפש מילים שלא נכתבו בסיפור רק בתוך המטריצה המאומתת, דרך אינדקס עצל ומוגבל."}</small></div>
+          </article>)}
+          <small>אין סריקה של כל האוצר. היפוכים, חלון רחב וגל נוסף נשארים כבויים עד פעולה מפורשת.</small>
+        </div> : null}
         {plan.anchorCandidates.length > 1 ? <details className="els29-discovery-targets">
           <summary>צירים חלופיים שהמערכת זיהתה</summary>
           <p className="sod29-muted">בחירה כאן מתחילה חיפוש חדש באותו מנוע ואינה משנה את הסיפור.</p>

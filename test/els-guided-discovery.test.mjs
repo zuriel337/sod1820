@@ -6,7 +6,19 @@ const COMPONENT = new URL("../src/components/experience2029/ElsGuidedDiscovery20
 const NATIVE = new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url);
 const SNAPSHOT = new URL("../src/components/experience2029/ElsGuidedMatrixSnapshot2029.jsx", import.meta.url);
 const PAGE = new URL("../src/pages/Els2029Page.jsx", import.meta.url);
+const PLANNER = new URL("../src/lib/research/elsAutomaticResearchPlan.js", import.meta.url);
 const ENGINE = new URL("../tools/els/els-code.template.html", import.meta.url);
+
+test("Guided planning remains structural and contains no Golden vocabulary patches", async () => {
+  const source = await readFile(PLANNER, "utf8");
+  assert.doesNotMatch(source, /מקדש|טראמפ|אורניום|קולומביה|משיח|בלעם|ירושלמ|ספינת|אטמינ/);
+  assert.match(source, /compactWords\.length === 2/);
+  assert.match(source, /canonical_matrix_letters_and_lazy_index/);
+  assert.match(source, /automaticFallbackToAnotherAxis: false/);
+  assert.match(source, /label: "ציר מדויק"/);
+  assert.match(source, /label: "מילות הסיפור"/);
+  assert.match(source, /label: "לשון מקומית"/);
+});
 
 test("Guided Discovery is one explicit story window with no AI, persistence or transport", async () => {
   const source = await readFile(COMPONENT, "utf8");
@@ -16,6 +28,9 @@ test("Guided Discovery is one explicit story window with no AI, persistence or t
   assert.equal((source.match(/<textarea/g) || []).length, 1);
   assert.match(source, /onSubmit=\{submit\}/);
   assert.match(source, /els_anchor_context_request_v1/);
+  assert.match(source, /projectElsGuidedSearchStrategy/);
+  assert.match(source, /data-els-guided-search-strategy/);
+  assert.match(source, /אין סריקה של כל האוצר/);
   assert.match(source, /contextTerms/);
   assert.match(source, /\.slice\(0, 6\)/);
   assert.match(source, /החיפוש מתחיל רק בלחיצה/);

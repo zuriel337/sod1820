@@ -51,8 +51,19 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "Guided delegates to the mounted engine without an AI/page transport");
     assert.equal(await page.getByLabel("תוצאות הגילוי המודרך").isVisible(), true, "Guided owns a separate result region after explicit submit");
     assert.match(await page.locator(".els29-guided-result-stage").innerText(), /חבילת הגילוי/);
+    const strategy = page.getByLabel("סדר החיפוש המודרך");
+    assert.equal(await strategy.isVisible(), true);
+    assert.deepEqual(await strategy.locator("article").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-lane"))),
+      ["exact-axis", "story-context", "local-language"]);
+    assert.match(await strategy.innerText(), /אין סריקה של כל האוצר/);
     if (process.env.ELS_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, "guided-run-390.png"), fullPage: true });
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    for (const width of [320, 1440]) {
+      await page.setViewportSize({ width, height: width === 320 ? 720 : 900 });
+      assert.equal(await strategy.isVisible(), true);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true,
+        `Guided search strategy must not overflow at ${width}px`);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.getByRole("button", { name: "קלאסי", exact: true }).click();
     assert.equal(await page.getByLabel("הסיפור לגילוי מודרך").isVisible(), false);
     assert.equal(await page.evaluate(() => window.__advancedLoad?.term), "קולומביה");

@@ -4,6 +4,7 @@ import {
   diagnoseElsGuidedFailure,
   prepareElsAutomaticResearchPlan,
   prepareElsCipherDiscoveryPlan,
+  projectElsGuidedSearchStrategy,
   projectElsGuidedOccurrenceCoverage,
   projectElsGuidedSourceContext,
   runElsAutomaticResearchSlice,
@@ -27,12 +28,21 @@ test("guided story compiles locally into one bounded axis plus context proposals
   assert.equal(plan.persisted, false);
   assert.equal(plan.truthPromotion, false);
   assert.equal("text" in plan, false);
+  assert.equal(plan.strategy.contract, "els_guided_search_strategy_v1");
+  assert.deepEqual(plan.strategy.lanes.map(lane => lane.id), ["exact-axis", "story-context", "local-language"]);
+  assert.equal(plan.strategy.selectedAxis.term, "קולומביה");
+  assert.equal(plan.strategy.lanes[2].trigger, "VERIFIED_OCCURRENCE");
+  assert.equal(plan.strategy.lanes[2].vocabularyScanned, false);
+  assert.equal(plan.strategy.advanced.broadVocabularyScan, false);
+  assert.equal(plan.strategy.advanced.requiresExplicitAction, true);
+  assert.equal(plan.strategy.modelCallsTriggered, 0);
 
   const summary = summarizeElsGuidedDiscoveryPlan(plan);
   assert.equal(summary.status, "PROPOSED_SEARCH_PLAN");
   assert.equal(summary.modelCallsTriggered, 0);
   assert.equal(summary.rawStoryIncluded, false);
   assert.equal(summary.targetTerms.length <= 8, true);
+  assert.deepEqual(summary.strategy.laneOrder, ["exact-axis", "story-context", "local-language"]);
   assert.equal(JSON.stringify(summary).includes(story), false);
 });
 
@@ -42,6 +52,19 @@ test("a quoted or explicit axis wins without a cipher-specific rule", () => {
   const explicit = prepareElsCipherDiscoveryPlan({ text: "הקשר ארוך", anchorTerm: "אורניום", requiredTerms: "איראן; ארהב" });
   assert.equal(explicit.anchorCandidates[0].term, "אורניום");
   assert.deepEqual(explicit.contextCandidates.filter(row => row.required).map(row => row.term), ["איראן", "ארהב"]);
+});
+
+test("a short two-token expression stays intact while its words remain general alternatives", () => {
+  const plan = prepareElsCipherDiscoveryPlan({ text: "מגדל גבוה" });
+  assert.equal(plan.anchorCandidates[0].term, "מגדל גבוה");
+  assert.equal(plan.anchorCandidates[0].kind, "compact-expression");
+  assert.ok(plan.anchorCandidates.some(candidate => candidate.term === "מגדל"));
+  assert.ok(plan.anchorCandidates.some(candidate => candidate.term === "גבוה"));
+  const alternate = plan.anchorCandidates.find(candidate => candidate.term === "מגדל");
+  const alternateStrategy = projectElsGuidedSearchStrategy(plan, alternate.id);
+  assert.equal(alternateStrategy.selectedAxis.term, "מגדל");
+  assert.equal(alternateStrategy.stopPolicy.automaticFallbackToAnotherAxis, false);
+  assert.equal(alternateStrategy.rawStoryIncluded, false);
 });
 
 const guidedPlan = () => prepareElsCipherDiscoveryPlan({
