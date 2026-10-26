@@ -1,9 +1,18 @@
-export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v1";
+export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v2";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
 const integer = value => (typeof value === "number" || (typeof value === "string" && value.trim()))
   && Number.isSafeInteger(Number(value)) ? Number(value) : null;
+const pairKey = (left, right) => [clean(left), clean(right)].sort().join("|");
+
+function evidenceBand(independentGroupCount, expressionConnectionCount) {
+  if ((independentGroupCount ?? 0) >= 3) return "three_plus_groups";
+  if (independentGroupCount === 2) return "two_groups";
+  if (independentGroupCount === 1) return "one_group";
+  if ((expressionConnectionCount ?? 0) > 0) return "engine_connection";
+  return "not_found";
+}
 
 function uniqueValues(rows) {
   const seen = new Set();
@@ -24,6 +33,7 @@ export function buildLifeJourneyMaps({
   relations = [],
   selectedRefs = [],
   research = null,
+  analysis = null,
   context = null,
   birthTimeline = [],
 } = {}) {
@@ -83,6 +93,7 @@ export function buildLifeJourneyMaps({
     }
     return Object.freeze({
       value,
+      participantRefs: Object.freeze([...participantRefs]),
       participantNames: Object.freeze([...participantRefs].map(ref => names.get(ref)).filter(Boolean)),
       personCount: integer(item?.count) ?? participantRefs.size,
       expressionCount: integer(item?.distinctExpressionCount) ?? 0,
@@ -90,6 +101,50 @@ export function buildLifeJourneyMaps({
       classification: clean(item?.classification),
     });
   }).filter(item => item.value != null);
+
+  const generationByPair = new Map(generationLinks.map(link => [pairKey(link.parentRef, link.childRef), link]));
+  const connectionByPair = new Map();
+  for (const connection of list(research?.connections)) {
+    const leftRef = clean(connection?.left?.memberRef);
+    const rightRef = clean(connection?.right?.memberRef);
+    if (!leftRef || !rightRef || leftRef === rightRef || !selected.has(leftRef) || !selected.has(rightRef)) continue;
+    connectionByPair.set(pairKey(leftRef, rightRef), connection);
+  }
+  const relationships = [];
+  for (let leftIndex = 0; leftIndex < selectedMembers.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < selectedMembers.length; rightIndex += 1) {
+      const leftRef = clean(selectedMembers[leftIndex]?.source_ref);
+      const rightRef = clean(selectedMembers[rightIndex]?.source_ref);
+      const key = pairKey(leftRef, rightRef);
+      const generation = generationByPair.get(key) || null;
+      const connection = connectionByPair.get(key) || null;
+      const independentGroupCount = integer(connection?.independentGroupCount);
+      const expressionConnectionCount = integer(connection?.expressionConnectionCount) ?? (connection ? 1 : 0);
+      relationships.push(Object.freeze({
+        id: `life-map-pair:${key}`,
+        leftRef,
+        leftName: names.get(leftRef) || "אדם ללא שם",
+        rightRef,
+        rightName: names.get(rightRef) || "אדם ללא שם",
+        generation: generation ? Object.freeze({
+          parentRef: generation.parentRef,
+          parentName: generation.parentName,
+          childRef: generation.childRef,
+          childName: generation.childName,
+        }) : null,
+        hasResearchConnection: Boolean(connection),
+        independentGroupCount,
+        expressionConnectionCount,
+        engineSignal: integer(connection?.engineSignal),
+        leftExpressionLabel: clean(connection?.left?.expressionLabel),
+        rightExpressionLabel: clean(connection?.right?.expressionLabel),
+        evidenceBand: evidenceBand(independentGroupCount, expressionConnectionCount),
+      }));
+    }
+  }
+
+  const evidenceSignals = relationships.filter(row => row.hasResearchConnection);
+  const evidenceGaps = relationships.filter(row => !row.hasResearchConnection);
 
   const memberSources = list(research?.sourceResearch?.memberSources).flatMap(source => {
     const memberRef = clean(source?.memberRef);
@@ -115,6 +170,36 @@ export function buildLifeJourneyMaps({
   const timelineMissing = selectedMembers
     .filter(member => !datedRefs.has(clean(member?.source_ref)))
     .map(member => clean(member?.name) || "אדם ללא שם");
+  const sourceByMember = new Map(memberSources.map(source => [source.memberRef, source]));
+  const coverage = selectedMembers.map(member => {
+    const memberRef = clean(member?.source_ref);
+    const matrixRow = matrix.find(row => row.memberRef === memberRef) || null;
+    const source = sourceByMember.get(memberRef) || null;
+    return Object.freeze({
+      memberRef,
+      name: names.get(memberRef) || "אדם ללא שם",
+      hasBirthdate: datedRefs.has(memberRef),
+      researchReady: matrixRow?.state === "ready",
+      methodCount: matrixRow?.methods?.length || 0,
+      convergenceCount: convergences.filter(item => item.participantRefs.includes(memberRef)).length,
+      verseCount: source?.verses?.length || 0,
+      sourceTrackCount: source?.trackCount || 0,
+      relationshipCount: relationships.filter(item => item.leftRef === memberRef || item.rightRef === memberRef).length,
+      researchedRelationshipCount: relationships.filter(item => item.hasResearchConnection
+        && (item.leftRef === memberRef || item.rightRef === memberRef)).length,
+    });
+  });
+  const analysisData = analysis?.state === "ready" && analysis?.data ? analysis.data : null;
+  const combinedSummary = Object.freeze({
+    state: analysis?.state === "loading" ? "loading" : analysisData ? "ready" : researchReady ? "research_ready" : "waiting",
+    message: clean(analysisData?.message) || clean(research?.message),
+    claims: Object.freeze(list(analysisData?.claims).map(claim => clean(claim?.text)).filter(Boolean).slice(0, 12)),
+    connectionCount: integer(analysisData?.coverage?.connectionCount) ?? list(research?.connections).length,
+    searchedPairCount: integer(analysisData?.coverage?.searchedPairCount) ?? integer(research?.coverage?.searchedPairCount) ?? 0,
+    verseCount: integer(analysisData?.coverage?.verseCount) ?? integer(research?.sourceResearch?.coverage?.verseCount) ?? 0,
+    normalized: Boolean(analysisData),
+    error: analysis?.state === "error" ? clean(analysis?.error) : "",
+  });
   const pathSteps = [
     { id: "person", label: "זהות ומשפחה", state: selectedMembers.length ? "ready" : "waiting" },
     { id: "matrix", label: "שם ותאריך", state: researchReady ? "ready" : "waiting" },
@@ -132,11 +217,17 @@ export function buildLifeJourneyMaps({
       convergenceCount: convergences.length,
       sourceCount: memberSources.reduce((sum, row) => sum + row.verses.length, 0) + numberSources.length,
       connectionCount: list(research?.connections).length,
+      relationshipPairCount: relationships.length,
+      evidenceGapCount: evidenceGaps.length,
       researchReady,
     }),
     matrix: Object.freeze(matrix),
     generations: Object.freeze({ links: Object.freeze(generationLinks), unlinkedPeople: Object.freeze(unlinkedPeople) }),
     convergences: Object.freeze(convergences),
+    relationships: Object.freeze(relationships),
+    evidence: Object.freeze({ signals: Object.freeze(evidenceSignals), gaps: Object.freeze(evidenceGaps) }),
+    coverage: Object.freeze(coverage),
+    summary: combinedSummary,
     timeline: Object.freeze(list(birthTimeline)),
     timelineMissing: Object.freeze(timelineMissing),
     sources: Object.freeze({ members: Object.freeze(memberSources), numbers: Object.freeze(numberSources) }),

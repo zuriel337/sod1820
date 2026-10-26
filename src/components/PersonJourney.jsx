@@ -1333,6 +1333,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         relations={relations}
         selectedRefs={selectedFamilyRefs}
         research={familyResearch}
+        analysis={familyAnalysis}
         context={research.context}
         birthTimeline={birthTimeline}
       /> : null}

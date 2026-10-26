@@ -7,9 +7,13 @@ const MAP_TABS = Object.freeze([
   { id: "overview", label: "מפת־על" },
   { id: "matrix", label: "מטריצה" },
   { id: "generations", label: "דורות" },
+  { id: "relationships", label: "קשרים" },
   { id: "convergences", label: "התכנסויות" },
+  { id: "evidence", label: "עוצמות/פערים" },
   { id: "timeline", label: "ציר זמן" },
   { id: "sources", label: "מקורות" },
+  { id: "coverage", label: "כיסוי" },
+  { id: "summary", label: "סיכום" },
   { id: "path", label: "מסלול" },
 ]);
 
@@ -18,6 +22,14 @@ const PATH_STATE_LABEL = Object.freeze({
   empty: "נבדק · אין תוצאה",
   waiting: "ממתין למחקר מפורש",
   available: "זמין לפתיחה",
+});
+
+const EVIDENCE_BAND_LABEL = Object.freeze({
+  three_plus_groups: "3+ קבוצות שיטה עצמאיות",
+  two_groups: "2 קבוצות שיטה עצמאיות",
+  one_group: "קבוצת שיטה עצמאית אחת",
+  engine_connection: "חיבור מנוע ללא ספירת קבוצות",
+  not_found: "טרם נמצא חיבור מנורמל",
 });
 
 function EmptyMap({ children }) {
@@ -74,6 +86,23 @@ function GenerationsMap({ data }) {
   </div>;
 }
 
+function RelationshipsMap({ rows, ready }) {
+  if (!rows.length) return <EmptyMap>נדרשים לפחות שני אנשים נבחרים כדי להציג קשרים ביניהם.</EmptyMap>;
+  return <div className="person-journey-relationship-map">
+    {rows.map(row => <article key={row.id} data-research={row.hasResearchConnection ? "found" : "not-found"}>
+      <header><strong>{row.leftName}</strong><i aria-hidden="true">↔</i><strong>{row.rightName}</strong></header>
+      {row.generation ? <p>{row.generation.parentName} · הורה של · {row.generation.childName}</p> : <p>לא הוגדר קשר דורי ישיר ב־Ledger.</p>}
+      {row.hasResearchConnection ? <div>
+        <span>{row.leftExpressionLabel || "ביטוי"}</span><i aria-hidden="true">↔</i><span>{row.rightExpressionLabel || "ביטוי"}</span>
+      </div> : null}
+      <small>{row.hasResearchConnection
+        ? `${EVIDENCE_BAND_LABEL[row.evidenceBand]} · ${row.expressionConnectionCount} חיבורי ביטויים`
+        : ready ? "הזוג נבדק, אך לא נמצא כרגע חיבור מנורמל להצגה." : "הקשר המחקרי יתמלא רק לאחר מחקר מפורש."}</small>
+    </article>)}
+    <p>המפה מחברת בין הקשר המשפחתי שהוזן לבין תוצאות המנוע. היא אינה קובעת מה טיב היחסים בין האנשים.</p>
+  </div>;
+}
+
 function ConvergencesMap({ rows, ready }) {
   if (!rows.length) return <EmptyMap>{ready
     ? "לא נמצאה כרגע התכנסות בין ביטויים שונים. זו אינה קביעה שאין קשר."
@@ -84,6 +113,29 @@ function ConvergencesMap({ rows, ready }) {
       <div>{row.participantNames.map(name => <span key={name}>{name}</span>)}</div>
       <small>{row.personCount} אנשים · {row.expressionCount} ביטויים · {row.methodGroupCount} קבוצות שיטה</small>
     </article>)}
+  </div>;
+}
+
+function EvidenceMap({ data, ready }) {
+  if (!data.signals.length && !data.gaps.length) return <EmptyMap>נדרשים לפחות שני אנשים כדי למפות עוצמת ראיה ופערי מחקר.</EmptyMap>;
+  return <div className="person-journey-evidence-map">
+    <p>“עוצמה” כאן היא מספר קבוצות השיטה העצמאיות לאחר נרמול — לא עוצמת קשר אישי. “פער” הוא רק תוצאה שטרם נמצאה.</p>
+    {data.signals.length ? <section aria-label="חיבורים עם ראיה חישובית">
+      <h4>ראיה חישובית שנמצאה</h4>
+      <div>{data.signals.map(row => <article key={row.id} data-band={row.evidenceBand}>
+        <strong>{row.leftName} ↔ {row.rightName}</strong>
+        <span>{EVIDENCE_BAND_LABEL[row.evidenceBand]}</span>
+        <small>{row.expressionConnectionCount} חיבורי ביטויים שנקבצו לזוג אחד</small>
+      </article>)}</div>
+    </section> : null}
+    {data.gaps.length ? <section aria-label="פערי מחקר">
+      <h4>פערי מחקר</h4>
+      <div>{data.gaps.map(row => <article key={row.id} data-band="not_found">
+        <strong>{row.leftName} ↔ {row.rightName}</strong>
+        <span>{ready ? "טרם נמצא חיבור מנורמל" : "טרם בוצע מחקר מפורש"}</span>
+        <small>אין להסיק מכך שאין קשר.</small>
+      </article>)}</div>
+    </section> : null}
   </div>;
 }
 
@@ -119,6 +171,37 @@ function SourcesMap({ data, ready }) {
   </div>;
 }
 
+function CoverageMap({ rows, ready }) {
+  if (!rows.length) return <EmptyMap>אין אנשים נבחרים למפת הכיסוי.</EmptyMap>;
+  return <div className="person-journey-coverage-map">
+    {rows.map(row => <article key={row.memberRef}>
+      <header><strong>{row.name}</strong><span>{row.researchReady ? "נבדק" : ready ? "חלקי" : "ממתין"}</span></header>
+      <dl>
+        <div><dt>תאריך</dt><dd>{row.hasBirthdate ? "קיים" : "חסר"}</dd></div>
+        <div><dt>שיטות</dt><dd>{row.methodCount}</dd></div>
+        <div><dt>התכנסויות</dt><dd>{row.convergenceCount}</dd></div>
+        <div><dt>פסוקים</dt><dd>{row.verseCount}</dd></div>
+        <div><dt>מסלולי מקור</dt><dd>{row.sourceTrackCount}</dd></div>
+        <div><dt>זוגות עם חיבור</dt><dd>{row.researchedRelationshipCount}/{row.relationshipCount}</dd></div>
+      </dl>
+    </article>)}
+    <p>כיסוי מציין מה נבדק ומה חסר. הוא אינו ציון איכות לאדם ואינו משלים נתונים שלא נשמרו.</p>
+  </div>;
+}
+
+function SummaryMap({ data }) {
+  if (data.state === "loading") return <div className="person-journey-map-summary" role="status"><strong>מנסח מסר מהממצאים המנורמלים…</strong><p>המפות נשארות זמינות בזמן שהסיכום נבנה.</p></div>;
+  if (!data.message) return <EmptyMap>הסיכום יופיע לאחר הפעלת המחקר המשפחתי המפורש.</EmptyMap>;
+  return <article className="person-journey-map-summary" data-experience-capability="life-journey-combined-summary">
+    <header><div><small>{data.normalized ? "מסר מנורמל שכבר נוצר" : "סיכום חישובי לפני ניסוח"}</small><h4>הסיכום המשפחתי</h4></div><span>{data.connectionCount} חיבורים · {data.searchedPairCount} זוגות נבדקו</span></header>
+    <p>{data.message}</p>
+    <div><span>{data.verseCount} פסוקים</span><span>{data.normalized ? "ניסוח מאומת פנימית" : "ממתין לניסוח המלא"}</span></div>
+    {data.claims.length ? <details><summary>על מה הסיכום נשען?</summary><ul>{data.claims.map((claim, index) => <li key={`${index}:${claim}`}>{claim}</li>)}</ul></details> : null}
+    {data.error ? <small role="alert">{data.error}</small> : null}
+    <footer>הסיכום משתמש רק במחקר השמור. הוא אינו מפעיל ELS ואינו יוצר אמת על המשפחה.</footer>
+  </article>;
+}
+
 function PathMap({ data }) {
   return <div className="person-journey-path-map">
     <ol>{data.steps.map((step, index) => <li key={step.id} data-state={step.state}>
@@ -133,17 +216,21 @@ function PathMap({ data }) {
 function MapPanel({ active, projection }) {
   if (active === "matrix") return <MatrixMap rows={projection.matrix} />;
   if (active === "generations") return <GenerationsMap data={projection.generations} />;
+  if (active === "relationships") return <RelationshipsMap rows={projection.relationships} ready={projection.overview.researchReady} />;
   if (active === "convergences") return <ConvergencesMap rows={projection.convergences} ready={projection.overview.researchReady} />;
+  if (active === "evidence") return <EvidenceMap data={projection.evidence} ready={projection.overview.researchReady} />;
   if (active === "timeline") return <TimelineMap rows={projection.timeline} missing={projection.timelineMissing} />;
   if (active === "sources") return <SourcesMap data={projection.sources} ready={projection.overview.researchReady} />;
+  if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
+  if (active === "summary") return <SummaryMap data={projection.summary} />;
   if (active === "path") return <PathMap data={projection.path} />;
   return <OverviewMap data={projection.overview} />;
 }
 
-export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, context, birthTimeline }) {
+export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, context, birthTimeline }) {
   const [active, setActive] = useState("overview");
   const id = useId();
-  const projection = useMemo(() => buildLifeJourneyMaps({ members, relations, selectedRefs, research, context, birthTimeline }), [members, relations, selectedRefs, research, context, birthTimeline]);
+  const projection = useMemo(() => buildLifeJourneyMaps({ members, relations, selectedRefs, research, analysis, context, birthTimeline }), [members, relations, selectedRefs, research, analysis, context, birthTimeline]);
   if (!projection.overview.selectedPeople) return null;
 
   return <section className="person-journey-maps" data-experience-capability="life-journey-maps" aria-labelledby={`${id}-title`}>
