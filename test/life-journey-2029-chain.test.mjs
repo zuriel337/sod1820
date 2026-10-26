@@ -20,6 +20,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const familyAnalysis = read("src/lib/research/lifeJourneyFamilyAnalysis.js");
   const canonicalVerseCards = read("src/components/experience2029/CanonicalVerseCards2029.jsx");
   const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
+  const lifeJourneyMaps = read("src/components/experience2029/LifeJourneyMaps2029.jsx");
+  const lifeJourneyMapProjection = read("src/lib/research/lifeJourneyMaps.js");
   const removalMigration = read("supabase/migrations/20261025035531_life_journey_remove_family_member_v1.sql");
   const supabaseClient = read("src/lib/supabase.js");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
@@ -72,7 +74,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /המשפחה כמטריצה אחת/);
   assert.match(journey, /Promise\.all\(selectedMembers\.map/);
   assert.match(journey, /צור מחקר ומסר ל־\$\{selectedFamilyRefs\.length\} אנשים/);
-  assert.match(journey, /מפת המחקר המשפחתית/);
+  assert.match(journey, /LifeJourneyMaps2029/);
+  assert.match(journey, /תוצאות המחקר המשפחתי/);
   assert.match(journey, /runLifeJourneyFamilyAnalysis/);
   assert.match(journey, /runLifeJourneyFamilySourceResearch/);
   assert.match(journey, /מילים וביטויים סביב המספרים/);
@@ -92,8 +95,20 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.doesNotMatch(journey, /person-journey-reflection-cards/);
   assert.match(journey, /ELS אינו משתתף בשלב הזה/);
   assert.match(journey, /familyBirthTimeline/);
-  assert.match(journey, /data-experience-capability="life-journey-birth-timeline"/);
-  assert.match(journey, /לא נוצר Event store חדש/);
+  assert.match(lifeJourneyMaps, /data-experience-capability="life-journey-maps"/);
+  assert.match(lifeJourneyMaps, /data-experience-capability="life-journey-birth-timeline"/);
+  assert.match(lifeJourneyMaps, /מפת־על/);
+  assert.match(lifeJourneyMaps, /מטריצה/);
+  assert.match(lifeJourneyMaps, /דורות/);
+  assert.match(lifeJourneyMaps, /התכנסויות/);
+  assert.match(lifeJourneyMaps, /ציר זמן/);
+  assert.match(lifeJourneyMaps, /מקורות/);
+  assert.match(lifeJourneyMaps, /מסלול/);
+  assert.match(lifeJourneyMaps, /לא נוצר Event store חדש/);
+  assert.match(lifeJourneyMapProjection, /read_only_projection: true/);
+  assert.match(lifeJourneyMapProjection, /no_els: true/);
+  assert.match(lifeJourneyMapProjection, /no_new_store: true/);
+  assert.doesNotMatch(lifeJourneyMapProjection, /\.insert\(|\.update\(|localStorage|sessionStorage|fn_els_search|nodes|edges/i);
   assert.doesNotMatch(journey, /upsertLifeEvent|insertLifeEvent|life_event_store/);
   assert.doesNotMatch(journey, /geocod|mapbox|google\.maps/i);
   assert.match(journey, /data-experience-capability="life-journey-account-continuity"/);
@@ -201,7 +216,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(removalMigration, /grant execute on function public\.fn_remove_family_member\(uuid, text\) to authenticated/);
   assert.doesNotMatch(removalMigration, /create table|create policy|grant .* on (?:table )?public\.research_objects/i);
 
-  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familySourceResearch, familyAnalysis, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
+  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familySourceResearch, familyAnalysis, lifeJourneyMaps, lifeJourneyMapProjection, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
   assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);
   assert.doesNotMatch(privateFlow, /channel_updates|community_hints|news/i);
   assert.doesNotMatch(privateFlow, /Raziel|רזיאל/);

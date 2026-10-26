@@ -59,6 +59,7 @@ import {
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import CanonicalVerseCards2029 from "./experience2029/CanonicalVerseCards2029.jsx";
+import LifeJourneyMaps2029 from "./experience2029/LifeJourneyMaps2029.jsx";
 import "./person-journey.css";
 
 const RELATIONS = Object.freeze([
@@ -303,12 +304,6 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     () => familyBirthTimeline(members, selectedFamilyRefs),
     [members, selectedFamilyRefs],
   );
-  const selectedWithoutBirthdate = useMemo(() => {
-    const selected = new Set(selectedFamilyRefs);
-    return members
-      .filter(member => selected.has(clean(member.source_ref)) && !validIsoDate(memberResearchProfile(member).birthdate))
-      .map(member => clean(member.name) || "אדם ללא שם");
-  }, [members, selectedFamilyRefs]);
   const currentResearchSubjectId = research.context?.subject?.id || null;
   const currentLifeJourneyView = research.context?.dimensions?.lifeJourneyView || null;
   const currentLifeJourneyPersonRef = research.context?.dimensions?.lifeJourneyPersonRef || null;
@@ -1333,32 +1328,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         </section>
       </details> : null}
 
-      {selectedFamilyRefs.length ? <section
-        className="person-journey-birth-timeline"
-        data-experience-capability="life-journey-birth-timeline"
-        aria-labelledby="life-journey-birth-timeline-title"
-      >
-        <header>
-          <div><small>נגזר מה־Ledger הפרטי</small><h3 id="life-journey-birth-timeline-title">ציר אירועי היסוד</h3></div>
-          <span>{birthTimeline.length} אירועי לידה</span>
-        </header>
-        <p>סדר כרונולוגי של תאריכי הלידה שכבר שמרת עבור האנשים שנבחרו. זו תצוגה בלבד — לא נוצר Event store חדש.</p>
-        {birthTimeline.length ? <ol>
-          {birthTimeline.map(event => <li key={event.id}>
-            <time dateTime={event.dateIso} dir="ltr">{event.dateDisplay}</time>
-            <i aria-hidden="true" />
-            <div>
-              <strong>{event.name}</strong>
-              <span>לידה</span>
-              {event.hebrewDate ? <small>{event.hebrewDate}</small> : null}
-              {event.birthPlace ? <small>מקום לידה · {event.birthPlace}</small> : null}
-            </div>
-          </li>)}
-        </ol> : <div className="person-journey-empty">לאנשים שנבחרו עדיין אין תאריך לידה שמור.</div>}
-        {selectedWithoutBirthdate.length ? <small className="person-journey-timeline-missing">
-          ללא תאריך שמור: {selectedWithoutBirthdate.join(" · ")}
-        </small> : null}
-      </section> : null}
+      {selectedFamilyRefs.length ? <LifeJourneyMaps2029
+        members={members}
+        relations={relations}
+        selectedRefs={selectedFamilyRefs}
+        research={familyResearch}
+        context={research.context}
+        birthTimeline={birthTimeline}
+      /> : null}
 
       {members.length ? <div className="person-journey-family-research-actions">
         <button
@@ -1387,7 +1364,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       {familyResearch.state === "error" ? <div className="person-journey-error" role="alert">{familyResearch.error}</div> : null}
       {familyResearch.state === "ready" ? <section className="person-journey-family-research" aria-label="תוצאות המחקר המשפחתי">
         <div className="person-journey-family-research-head">
-          <div><small>מחקר מפורש</small><h3>מפת המחקר המשפחתית</h3></div>
+          <div><small>מחקר מפורש</small><h3>תוצאות המחקר המשפחתי</h3></div>
           <span>{familyResearch.rows.filter(row => row.state === "ready").length} מתוך {familyResearch.rows.length} הושלמו</span>
         </div>
         {familyAnalysis.state === "loading" ? <CanonicalProgress
@@ -1434,6 +1411,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           </div>
         </> : null}
         {familyResearch.coverage?.truncated ? <p className="person-journey-note">מספר זוגות הביטויים עבר את גבול ההפעלה הבטוח. מוצג חתך מפורש ומדווח; לא הומצאה השלמה לזוגות שלא נבדקו.</p> : null}
+        <details className="person-journey-deep-results">
+          <summary>פתח פירוט מלא של הממצאים והמקורות</summary>
+          <div>
         {familyResearch.connections?.length ? <section className="person-journey-relation-list" aria-label="חיבורים מנורמלים בין בני המשפחה">
           <header><div><small>הצלבות בין אנשים</small><h3>חיבורים שנמצאו</h3></div><span>{familyResearch.connections.length} חיבורים</span></header>
           <div>{familyResearch.connections.map(connection => <article key={connection.id}>
@@ -1516,6 +1496,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             </> : <p>{row.error}</p>}
           </article>;})}
         </div>
+          </div>
+        </details>
       </section> : null}
 
       {!familyMembers.length ? <div className="person-journey-empty">עוד לא הוספת בני משפחה. אפשר להוסיף שם ותאריך, ולקשור כהורה או ילד/ה כשזה ידוע.</div> : null}

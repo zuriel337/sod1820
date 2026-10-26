@@ -315,6 +315,9 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await familyScope.getByRole("button", { name: "בחר את כולם" }).click();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneySelectedMemberRefs?.length), 2);
     assert.equal(await childSelection.isChecked(), true);
+    const lifeMaps = family.locator('[data-experience-capability="life-journey-maps"]');
+    await lifeMaps.getByRole("heading", { name: "מפות החיים" }).waitFor();
+    await lifeMaps.getByRole("tab", { name: "ציר זמן" }).click();
     const birthTimeline = family.locator('[data-experience-capability="life-journey-birth-timeline"]');
     await birthTimeline.getByRole("heading", { name: "ציר אירועי היסוד" }).waitFor();
     assert.deepEqual(await birthTimeline.locator("time").allTextContents(), ["15.02.1990", "04.03.2020"]);
@@ -327,7 +330,18 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), false, "family dates are not researched by selection");
     assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 0, "the normalized message engine waits for the explicit research action");
     await family.getByRole("button", { name: "צור מחקר ומסר ל־2 אנשים" }).click();
-    await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
+    await family.getByRole("heading", { name: "תוצאות המחקר המשפחתי" }).waitFor();
+    await lifeMaps.getByRole("tab", { name: "מטריצה" }).click();
+    assert.equal(await lifeMaps.locator("tbody tr").count(), 2, "one matrix row is shown per selected person");
+    await lifeMaps.getByRole("tab", { name: "דורות" }).click();
+    await lifeMaps.getByText("הורה של", { exact: true }).waitFor();
+    await lifeMaps.getByRole("tab", { name: "התכנסויות" }).click();
+    await lifeMaps.getByText("73", { exact: true }).first().waitFor();
+    await lifeMaps.getByRole("tab", { name: "מקורות" }).click();
+    await lifeMaps.getByText("תהלים א׳, א׳", { exact: true }).first().waitFor();
+    await lifeMaps.getByRole("tab", { name: "מסלול" }).click();
+    await lifeMaps.getByText("זהות ומשפחה", { exact: true }).waitFor();
+    await family.getByText("פתח פירוט מלא של הממצאים והמקורות", { exact: true }).click();
     assert.equal(await family.locator('.person-journey-relation-list article').count(), 1, "two selected people produce one normalized cross-person pair");
     await family.locator('.person-journey-family-shared[data-kind="cross-expression"]', { hasText: "2 אנשים" }).waitFor();
     await family.locator('.person-journey-family-shared[data-kind="shared-expression"]', { hasText: "לא התכנסות עצמאית" }).waitFor();
@@ -357,7 +371,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await normalizedFamilyAnalysis.locator(".person-journey-reflection-cards").count(), 0, "internal cards are not rendered");
     assert.equal(await normalizedFamilyAnalysis.getByText("הקוסם", { exact: true }).count(), 0, "card identities remain internal");
     await page.reload();
-    await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
+    await family.getByRole("heading", { name: "תוצאות המחקר המשפחתי" }).waitFor();
     await normalizedFamilyAnalysis.getByRole("heading", { name: "המסר המשפחתי" }).waitFor();
     assert.deepEqual(await page.evaluate(() => ({
       matrix: window.__matrixCalls.length,
@@ -366,6 +380,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
       names: window.__nameCalls.length,
       els: window.__elsCalls.length,
     })), { matrix: 0, reflection: 0, sources: 0, names: 0, els: 0 }, "refresh restores the private family snapshot without automatically researching names, sources or ELS again");
+    await family.getByText("פתח פירוט מלא של הממצאים והמקורות", { exact: true }).click();
     await family.getByRole("button", { name: "פתח את ממצא 73 של ילד בדיקה" }).click();
     await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");
