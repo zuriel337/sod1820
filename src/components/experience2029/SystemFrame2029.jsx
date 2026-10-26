@@ -45,7 +45,7 @@ import RazielCenter2029 from "./RazielCenter2029.jsx";
 import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
-import { razielContextParts, razielStatusLabel } from "./razielSessionSeam2029.js";
+import { razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
 import { readRazielCompanionView, writeRazielCompanionView } from "../../lib/research/razielCompanionPreference2029.js";
@@ -781,6 +781,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
           <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
             <small>{m.role === "user" ? "שאלת" : "רזיאל"}</small>
             {m.viewMode === "landscape" && m.viewModeApplied ? <details open><summary>התמונה המלאה</summary><span dir="auto">{m.text}</span></details> : <span dir="auto">{m.text}</span>}
+            {razielNavigationButton(m) ? <div className="sod29-raziel-nav-action"><Link className="sod29-action primary" to={razielNavigationButton(m).href} data-raziel-navigation-action={razielNavigationButton(m).intent}>{razielNavigationButton(m).label}</Link></div> : null}
             {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
               <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
               {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `${razielViewModeLabel(m.viewMode)} · ניסוי` : `${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}

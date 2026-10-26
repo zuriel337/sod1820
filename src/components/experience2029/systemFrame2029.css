@@ -1211,6 +1211,8 @@
 .sod29-raziel-chat-raziel > span { overflow-wrap: anywhere; white-space: pre-wrap; line-height: 1.65; }
 .sod29-raziel-answer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .sod29-raziel-answer-meta small { color: var(--s29-muted); }
+.sod29-raziel-nav-action { display: flex; min-width: 0; margin-top: 6px; }
+.sod29-raziel-nav-action .sod29-action { max-width: 100%; min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: center; text-decoration: none; }
 .sod29-raziel-grounding { flex-basis: 100%; }
 .sod29-raziel-deep-offer { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--s29-line-strong); border-radius: 12px; background: var(--s29-panel-soft); }
 .sod29-raziel-deep-offer ul { margin: 0; padding-inline-start: 20px; line-height: 1.6; }

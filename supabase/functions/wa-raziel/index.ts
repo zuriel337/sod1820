@@ -5,6 +5,10 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { renderWhatsappReply, whatsappContinuationLink, hasContinuityCue, hasDepthCue, SOURCE_ACK_TEXT, SOURCE_ACK_TEXT_DOC } from "../_shared/waRazielRender.ts";
+import {
+  parseRazielNavigationRequest, resolveRazielNavigationAction, resolveRazielNavigationFollowUp, razielNavigationNeedsFocus,
+  razielNavigationWhatsappText, razielNavigationIsClarification, razielWhatsappVerifiedFocus,
+} from "../_shared/razielNavigationActions.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA_PHONE = "972507555102";
@@ -601,10 +605,64 @@ async function ingestInboundSource(media, phone, idn, msgId, ts) {
   return { contribution_id: data.contribution_id, storage_object_id: data.storage_object_id };
 }
 
+// ── RAZIEL_CANONICAL_NAVIGATION_ACTIONS_V1 ──────────────────────────────────────────────────────────────────────────
+// Explicit navigation requests ("תן לי את דף המספר 73", "פתח את העולם") are answered by the SAME shared resolver the site
+// uses: no Raziel core call, no model, no URL from model output. The link is built from the closed canonical route table and the
+// production origin (SITE, https) only. The conversation focus is VERIFIED chat evidence of the latest CONTINUOUS topic only
+// (see razielWhatsappVerifiedFocus): a typed numeral, a short gematria question whose value the canonical RPC computes, or a
+// canonical page link Raziel itself sent. An unrelated message ends the topic; Raziel's own prose is never a source.
+const NAV_FOCUS_WINDOW_SEC = 6 * 3600;
+const NAV_FOCUS_MESSAGES = 12;
+async function recentChatNewestFirst(chatId, skipMsgId) {
+  try {
+    const hist = await waAdmin("getChatHistory", { chatId, count: NAV_FOCUS_MESSAGES + 4 });
+    const floor = Math.floor(Date.now() / 1000) - NAV_FOCUS_WINDOW_SEC;
+    return pick(hist)
+      .filter((m) => m.idMessage !== skipMsgId && Number(m.timestamp || 0) >= floor)
+      .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
+      .map((m) => ({ outgoing: m.type === "outgoing", text: String(m.textMessage || m.extendedTextMessage?.text || m.caption || "") }))
+      .filter((m) => m.text)
+      .slice(0, NAV_FOCUS_MESSAGES);
+  } catch { return []; }
+}
+async function verifiedNavigationFocus(chatId, skipMsgId) {
+  const subject = razielWhatsappVerifiedFocus(await recentChatNewestFirst(chatId, skipMsgId), SITE);
+  if (!subject) return null;
+  if (subject.kind === "number") return { number: subject.value, source: "conversation" };
+  const methods = await allMethods(subject.label);   // existing canonical engine RPC (fn_all_methods); never a model
+  const value = Number(methods?.["רגיל"]);
+  return Number.isInteger(value) && value >= 1 && value <= 999999 ? { number: value, source: "conversation" } : null;
+}
+async function respondWithNavigation(cleanText, chatId, quotedId) {
+  let action = null;
+  const request = parseRazielNavigationRequest(cleanText);
+  if (request) {
+    const focus = razielNavigationNeedsFocus(request) ? await verifiedNavigationFocus(chatId, quotedId) : null;
+    action = resolveRazielNavigationAction({ request, focus });
+  } else if (/^\s*(?:(?:ה)?מספר\s+)?\d{1,12}\s*$/.test(cleanText)) {
+    // A bare numeral answers Raziel's own "לאיזה מספר תרצה שאפתח דף?" — only when that was the last thing Raziel said.
+    const lastOutgoing = (await recentChatNewestFirst(chatId, quotedId)).find((m) => m.outgoing);
+    if (lastOutgoing && razielNavigationIsClarification(lastOutgoing.text)) action = resolveRazielNavigationFollowUp({ text: cleanText });
+  }
+  if (!action) return null;
+  const reply = razielNavigationWhatsappText(action, SITE);
+  if (!reply) return null;   // never send a malformed/empty link; the normal path answers instead
+  trace.push({ step: "navigation", intent: action.intent, type: action.type, model_calls: 0 });
+  const payload = { chatId, message: reply };
+  if (quotedId) payload.quotedMessageId = quotedId;
+  const okId = await sendVerified(payload);
+  if (!okId) await enqueueOutbox("raziel-nav:" + (quotedId || chatId), chatId, reply, cleanText);
+  return { status: "answered" };
+}
+
 async function razielCoreRespond(text, chatId, quotedId, opts = {}) {
   const cleanText = String(text || "").replace(RAZIEL_TRIGGER, "").trim();
   const hasSource = !!opts.source;
   if (!cleanText && !hasSource) return { status: "permanent_error" };
+  if (!hasSource) {
+    const navigated = await respondWithNavigation(cleanText, chatId, quotedId);
+    if (navigated) return navigated;
+  }
   const opTrace = await beginRazielTrace(chatId, cleanText || "[source]");
   const sender = String(chatId).replace("@c.us", "");
   // Context isolation: an attached source is answered from the source + the current ask only. Prior dialogue (and, in

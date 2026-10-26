@@ -30,6 +30,7 @@ export function createRazielRequestBuilderLoader(importer) {
         builder.normalizeResponse = module.normalizeRazielResponse;
         builder.createProvenance = module.createRazielProvenance;
         builder.createSucceededAction = module.createRazielTurnSucceededAction;
+        builder.createNavigationSucceededAction = module.createRazielNavigationTurnSucceededAction;
         return builder;
       })
       .catch((error) => {
