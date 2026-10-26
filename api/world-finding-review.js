@@ -15,6 +15,11 @@ import {
   getWorldFindingTriageSnapshot,
 } from "./world-finding-triage-snapshot.js";
 import { WORLD_CORPUS_TRIAGE_AUDIT } from "./world-corpus-triage-audit.js";
+import {
+  WORLD_GEMATRIA_METHOD_COLUMNS,
+  WORLD_GEMATRIA_REVIEW_SUMMARY,
+  projectWorldGematriaReviewRows,
+} from "../src/lib/research/worldGematriaTriageProjection.js";
 
 const SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
@@ -251,10 +256,10 @@ function contentRangeTotal(value, fallback) {
   return Number.isFinite(total) ? total : fallback;
 }
 
-async function fetchRange({ table, select, token, start, end, filters = [], count = false }) {
+async function fetchRange({ table, select, token, start, end, filters = [], count = false, order = "created_at.desc,id.asc" }) {
   const url = new URL(`${SUPABASE_URL}/rest/v1/${table}`);
   url.searchParams.set("select", select);
-  url.searchParams.set("order", "created_at.desc");
+  if (order) url.searchParams.set("order", order);
   for (const [key, value] of filters) url.searchParams.append(key, value);
   const response = await fetch(url, {
     headers: supabaseHeaders(token, {
@@ -274,6 +279,66 @@ async function fetchRange({ table, select, token, start, end, filters = [], coun
   return {
     rows: Array.isArray(rows) ? rows : [],
     total: contentRangeTotal(response.headers.get("content-range"), rows?.length || 0),
+  };
+}
+
+const GEMATRIA_REVIEW_SELECT = [
+  "id", "phrase", "phrase_hint", "is_encrypted", "category", "source", "created_at", "updated_at",
+  "node_id", "is_verified", "is_published", "unverified_reason", "tags",
+  ...WORLD_GEMATRIA_METHOD_COLUMNS.map(({ key }) => key),
+].join(",");
+
+async function buildGematriaReviewResponse(token, req) {
+  const offset = Math.max(0, Math.min(Number(req.query?.offset) || 0, MAX_SOURCE_ROWS));
+  const page = await fetchRange({
+    table: "gematria_words",
+    select: GEMATRIA_REVIEW_SELECT,
+    token,
+    filters: [["is_verified", "eq.false"]],
+    start: offset,
+    end: offset + REVIEW_PAGE - 1,
+    count: true,
+  });
+  const ids = page.rows.map((row) => clean(row?.id)).filter(UUID_RE.test.bind(UUID_RE));
+  let integrityRows = [];
+  let integrityAvailable = true;
+  if (ids.length) {
+    try {
+      const integrity = await fetchRange({
+        table: "gematria_integrity",
+        select: "id,method,stored,engine",
+        token,
+        filters: [["id", `in.(${ids.join(",")})`]],
+        start: 0,
+        end: REVIEW_PAGE * WORLD_GEMATRIA_METHOD_COLUMNS.length - 1,
+        order: null,
+      });
+      integrityRows = integrity.rows;
+    } catch {
+      integrityAvailable = false;
+    }
+  }
+  const rows = projectWorldGematriaReviewRows(page.rows, { integrityRows, integrityAvailable });
+  return {
+    projection: {
+      rows,
+      summary: WORLD_GEMATRIA_REVIEW_SUMMARY,
+      integrityAvailable,
+      rules: {
+        verificationIsNotPublication: true,
+        engineParityIsNotMeaning: true,
+        noAutomaticPromotion: true,
+        noSourceDeletion: true,
+      },
+    },
+    page: {
+      offset,
+      limit: REVIEW_PAGE,
+      returned: rows.length,
+      totalFiltered: page.total,
+      hasMore: offset + rows.length < page.total,
+      nextOffset: offset + rows.length,
+    },
   };
 }
 
@@ -523,6 +588,9 @@ export default async function handler(req, res) {
   try {
     const user = await verifyAdmin(token);
     if (!user) return res.status(403).json({ error: "admin_required" });
+    if (queryValue(req, "mode", "findings") === "gematria") {
+      return res.status(200).json(await buildGematriaReviewResponse(token, req));
+    }
     const contributorId = queryValue(req, "contributor_id", "");
     const contributorScope = contributorId ? await resolveContributorScope(token, contributorId) : null;
     const projection = await buildAuthorizedProjection(token);

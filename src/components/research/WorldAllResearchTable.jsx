@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchWorldFindingReviewPage } from "../../lib/research/worldFindingReviewClient.js";
+import { fetchWorldFindingReviewPage, fetchWorldGematriaReviewPage } from "../../lib/research/worldFindingReviewClient.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "../experience2029/ConvergenceRatings2029.jsx";
 
@@ -89,6 +89,14 @@ const ELS_QUEUE_LABELS = Object.freeze({
   missing_engine_envelope: "חסרה מעטפת מנוע",
   envelope_not_verified: "מעטפת קיימת · טרם אומת replay",
   replay_evidence_available: "ראיית replay קיימת",
+});
+
+const GEMATRIA_QUEUE_LABELS = Object.freeze({
+  engine_parity_ready: "התאמת מנוע מלאה · מוכן להכרעה",
+  outside_clean_hebrew: "דורש בדיקת כתיב ומקור",
+  missing_method_values: "חסרים ערכי שיטות",
+  engine_mismatch: "אי־התאמה למנוע",
+  integrity_unavailable: "שער האימות אינו זמין",
 });
 
 function humanLabel(map, value, fallback = "אחר") {
@@ -228,6 +236,7 @@ export default function WorldAllResearchTable({ state }) {
   const [elsQueue, setElsQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
   const [languageQueue, setLanguageQueue] = useState({ open: false, loading: false, error: null, data: null });
   const [galleryQueue, setGalleryQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
+  const [gematriaQueue, setGematriaQueue] = useState({ open: false, loading: false, loadingMore: false, error: null, projection: null, page: null });
   const requestRef = useRef(0);
 
   const filters = useMemo(() => ({
@@ -363,6 +372,36 @@ export default function WorldAllResearchTable({ state }) {
     }
   };
 
+  const openGematriaQueue = async () => {
+    if (gematriaQueue.projection) {
+      setGematriaQueue((current) => ({ ...current, open: !current.open }));
+      return;
+    }
+    setGematriaQueue((current) => ({ ...current, open: true, loading: true, error: null }));
+    try {
+      const data = await fetchWorldGematriaReviewPage({ offset: 0 });
+      setGematriaQueue({ open: true, loading: false, loadingMore: false, error: null, projection: data.projection, page: data.page });
+    } catch (error) {
+      setGematriaQueue((current) => ({ ...current, open: true, loading: false, loadingMore: false, error }));
+    }
+  };
+
+  const loadMoreGematria = async () => {
+    if (!gematriaQueue.page?.hasMore || gematriaQueue.loadingMore) return;
+    setGematriaQueue((current) => ({ ...current, loadingMore: true, error: null }));
+    try {
+      const data = await fetchWorldGematriaReviewPage({ offset: gematriaQueue.page.nextOffset });
+      setGematriaQueue((current) => ({
+        ...current,
+        loadingMore: false,
+        projection: { ...data.projection, rows: [...(current.projection?.rows || []), ...(data.projection?.rows || [])] },
+        page: data.page,
+      }));
+    } catch (error) {
+      setGematriaQueue((current) => ({ ...current, loadingMore: false, error }));
+    }
+  };
+
   if (!state?.enabled) return null;
 
   return <section className="sod29-section sod29-world-all-research" id="world-all-research" aria-label="ממצאים לבדיקה">
@@ -394,6 +433,7 @@ export default function WorldAllResearchTable({ state }) {
           <button className="sod29-action primary" type="button" onClick={openElsQueue} aria-expanded={elsQueue.open}>{elsQueue.open ? "סגור את תור ELS" : "פתח תור ELS מפורט"}</button>
           <button className="sod29-action" type="button" onClick={openLanguageQueue} aria-expanded={languageQueue.open}>{languageQueue.open ? "סגור את תור השפה" : "פתח תור שפה מפורט"}</button>
           <button className="sod29-action" type="button" onClick={openGalleryQueue} aria-expanded={galleryQueue.open}>{galleryQueue.open ? "סגור את תור התמונות" : "פתח תור גלריות ו־OCR"}</button>
+          <button className="sod29-action" type="button" onClick={openGematriaQueue} aria-expanded={gematriaQueue.open}>{gematriaQueue.open ? "סגור את תור הגימטריה" : "פתח תור גימטריה מפורט"}</button>
         </div>
       </section> : null}
 
@@ -502,6 +542,41 @@ export default function WorldAllResearchTable({ state }) {
             {row.occurrences.length > 1 ? <details className="sod29-world-all-research-duplicates"><summary><span>כל {row.occurrences.length} הופעות המקור</span><small>אף רשומה לא נמחקה</small></summary><ol>{row.occurrences.map((occurrence) => <li key={occurrence.id}><code dir="ltr">{occurrence.sourceRef}</code><span>{occurrence.id === row.recommendedDisplayId ? "נציג מומלץ" : "הופעה שמורה"}{occurrence.ocrIncomplete ? " · דורשת OCR" : ""}</span></li>)}</ol></details> : null}
           </article>)}</div>
           {galleryQueue.limit < filteredGalleryRows.length ? <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => setGalleryQueue((current) => ({ ...current, limit: current.limit + 40 }))}>הצג עוד 40</button></div> : null}
+        </> : null}
+      </section> : null}
+
+      {gematriaQueue.open ? <section className="sod29-world-kind-section" aria-label="תור אימות גימטריה">
+        <header><div><h3>תור אימות גימטריה</h3><p>כל עמוד כולל עד 40 רשומות דרך שער המנהל הקיים. התאמת מנוע, אישור אנושי, פרסום וחיבור לעץ נשארים צירים נפרדים.</p></div>{gematriaQueue.page ? <span>{gematriaQueue.projection.rows.length} מתוך {gematriaQueue.page.totalFiltered}</span> : null}</header>
+        {gematriaQueue.loading ? <p role="status">טוען את מנת הגימטריה הראשונה…</p> : null}
+        {gematriaQueue.error ? <p role="status">תור הגימטריה אינו זמין כרגע. לא הומצאו תוצאות אימות.</p> : null}
+        {gematriaQueue.projection ? <>
+          <div className="sod29-world-all-research-summary">
+            <span><b>{gematriaQueue.projection.summary.unverified}</b> טרם סומנו מאומתים</span>
+            <span><b>{gematriaQueue.projection.summary.deterministicReady}</b> התאמת מנוע מלאה</span>
+            <span><b>{gematriaQueue.projection.summary.outsideCleanHebrew}</b> לבדיקת כתיב ומקור</span>
+            <span><b>{gematriaQueue.projection.summary.containsDigits}</b> מכילים ספרות</span>
+            <span><b>{gematriaQueue.projection.summary.duplicateGroups}</b> קבוצות ביטוי זהה</span>
+            <span><b>{gematriaQueue.projection.summary.unverifiedPublished}</b> פורסם בלי סימון אימות</span>
+          </div>
+          {!gematriaQueue.projection.integrityAvailable ? <p className="sod29-world-all-research-boundary">שער התאמת המנוע לא היה זמין. כל הרשומות במנה נשארו במצב חסום.</p> : null}
+          <div className="sod29-world-all-research-list">{gematriaQueue.projection.rows.map((row) => <article className="sod29-world-all-research-row" key={row.id}>
+            <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>גימטריה</span><span>{row.encrypted ? "ביטוי מוצפן" : "ביטוי מקור"}</span>{row.duplicateOccurrenceCount ? <span>{row.duplicateGroupIds.length} הופעות זהות</span> : null}{row.publicationWarning ? <span>דורש בדיקת פרסום</span> : null}</div><span>{GEMATRIA_QUEUE_LABELS[row.integrityState]}</span></div>
+            <strong>{row.displayPhrase}</strong>
+            <div className="sod29-world-finding-measures" aria-label="צירי בדיקת גימטריה נפרדים">
+              <div><small>רגיל שמור</small><strong>{row.regularValue ?? "אין נתון"}</strong></div>
+              <div><small>שער מנוע</small><strong>{GEMATRIA_QUEUE_LABELS[row.integrityState]}</strong></div>
+              <div><small>ערכים חסרים</small><strong>{row.missingMethods.length || "אין"}</strong></div>
+              <div><small>אי־התאמות</small><strong>{row.mismatches.length || "אין"}</strong></div>
+              <div><small>פרסום</small><strong>{row.isPublished ? "מסומן מפורסם" : "לא פורסם"}</strong></div>
+            </div>
+            {!row.inputSignals.cleanHebrew ? <p className="sod29-world-all-research-secondary">מחוץ לגבול העברית הנקייה{row.inputSignals.containsDigits ? " · מכיל ספרות" : ""}{row.inputSignals.containsLatin ? " · מכיל אותיות לטיניות" : ""}{row.inputSignals.containsOtherGlyphs ? " · מכיל סימנים נוספים" : ""}</p> : null}
+            {row.missingMethods.length ? <p><b>חסרים:</b> {row.missingMethods.join(" · ")}</p> : null}
+            {row.mismatches.length ? <details className="sod29-world-all-research-duplicates"><summary>אי־התאמות לערכי המנוע</summary><ul>{row.mismatches.map((mismatch) => <li key={mismatch.method}>{mismatch.method}: שמור {String(mismatch.stored)} · מנוע {String(mismatch.engine)}</li>)}</ul></details> : null}
+            <div className={`sod29-world-triage-recommendation ${row.integrityState === "engine_parity_ready" ? "is-ready" : row.integrityState === "engine_mismatch" ? "is-blocked" : "is-review"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
+            {row.duplicateGroupIds.length ? <div className="sod29-world-semantic-duplicate"><strong>קבוצת ביטוי זהה · תצוגה בלבד</strong>{row.duplicateGroupIds.map((id) => <code dir="ltr" key={id}>gematria_words:{id}</code>)}<p>כל הרשומות נשמרות; החזרה אינה מקור עצמאי נוסף.</p></div> : null}
+            <div className="sod29-world-source-locator"><strong>מזהה מקור</strong><code dir="ltr">{row.sourceRef}</code><small>התאמת חישוב אינה הוכחת משמעות, איכות או אמת.</small></div>
+          </article>)}</div>
+          {gematriaQueue.page?.hasMore ? <div className="sod29-actions"><button className="sod29-action" type="button" disabled={gematriaQueue.loadingMore} onClick={loadMoreGematria}>{gematriaQueue.loadingMore ? "טוען…" : "טען עוד 40"}</button></div> : null}
         </> : null}
       </section> : null}
 

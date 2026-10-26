@@ -40,3 +40,19 @@ export async function fetchWorldFindingReviewPage({ filters = {}, offset = 0, si
   if (!response.ok) throw new Error(clean(body?.error) || "review_temporarily_unavailable");
   return body;
 }
+
+export async function fetchWorldGematriaReviewPage({ offset = 0, signal } = {}) {
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data?.session?.access_token) throw new Error("authentication_required");
+  const params = new URLSearchParams({ mode: "gematria", offset: String(Math.max(0, Number(offset) || 0)) });
+  const response = await fetch(`/api/world-finding-review?${params}`, {
+    method: "GET",
+    headers: { Accept: "application/json", Authorization: `Bearer ${data.session.access_token}` },
+    cache: "no-store",
+    credentials: "same-origin",
+    signal,
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(clean(body?.error) || "review_temporarily_unavailable");
+  return body;
+}
