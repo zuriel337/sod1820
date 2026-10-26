@@ -17,10 +17,11 @@ This reconciliation names the umbrella idea **System Self-Model** for human clar
 
 ```text
 Canonical laws / domain owners
+  → generic One Tree Branch Contract + domain profiles
+  → Universal Finding / Result Bundle / authorized consumer projections
   → machine-readable Surface Registration
   → one compiled System Self-Model projection
   → route / owner / availability / coverage indexes
-  → One Reality Graph + Research Context adapters
   → Raziel / Personal Reality authorized projections
   → Control Plane coverage and launch evidence
   → Claude-owned final visual composition
@@ -79,13 +80,16 @@ The approved Elections One Tree remains a domain program inside existing owners,
 | Raziel explanation and next research step | bounded Context Pack over canonical readers |
 | Personal relevance/resume | authorized Personal Reality projection only |
 
-The existing elections preview branch is an implementation candidate and must later be reconciled into this chain. Its static preview model is not canonical data and must not become a parallel tree.
+The elections research bundle is now implemented as the first profile of the generic One Tree Branch
+Contract. The separate elections preview branch remains an implementation candidate and must consume
+that shared branch projection rather than preserve static domain truth in its presentation model.
 
 ## 6. Adoption chain — no mass activation
 
 No other session is activated by this document. Adoption happens only when its current owner reaches the seam:
 
-1. **Foundation slice — this branch:** compiler, validation and tests; no route/UI/runtime wiring.
+1. **Foundation slice — this branch:** System Self-Model compiler plus generic One Tree Branch
+   compiler, domain-profile validation and tests; no route/UI/runtime wiring.
 2. **Central integration:** inventory current `App2029` route families and compile approved registrations; enforce coverage in CI only after current surfaces have honest registrations.
 3. **Elections pilot:** reconcile the approved elections model with canonical graph/findings/source readers, then register the Topic/World projections.
 4. **World:** consume the canonical elections bundle and registration; no duplicated World data model.
@@ -96,11 +100,15 @@ No other session is activated by this document. Adoption happens only when its c
 
 ## 7. Concurrent-session boundary observed
 
-Live `work_log_current` showed active World, central SystemFrame/Raziel and Personal Area file scopes on 2026-10-26. This branch therefore adds only:
+Live `work_log_current` showed active World, central SystemFrame/Raziel and Personal Area file scopes
+on 2026-10-26. The initial slice added only:
 
 - `src/lib/systemSelfModel2029.js`
 - `test/system-self-model-2029.test.mjs`
 - this review
+
+The next isolated slice added the generic branch contract, its tests/reconciliation and the
+elections profile/seed without entering any active session-owned path.
 
 It does not edit `App2029.jsx`, `SystemFrame2029.jsx`, World, Topic, Raziel, Personal Area, CSS, database objects, migrations, flags, routes or production.
 
@@ -111,5 +119,8 @@ It does not edit `App2029.jsx`, `SystemFrame2029.jsx`, World, Topic, Raziel, Per
 - OPEN cannot bypass launch evidence;
 - existing canonical owners remain explicit;
 - no domain data or presentation enters the self-model;
+- domain data enters only the generic One Tree Branch Contract and remains outside the self-model;
+- elections is a profile of that contract, not a second branch architecture;
+- public/private/personal access is filtered at the consumer boundary and never widened locally;
 - focused tests pass;
 - branch remains isolated and reviewable.

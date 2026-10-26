@@ -8,9 +8,10 @@ State: branch-only research candidate; no canonical write, publication, flag cha
 
 ## Outcome
 
-The elections topic now has one non-visual domain contract that can feed World, Topic, Post,
-Number, Person, Gallery, Search, Journey and Raziel without creating another graph, truth store,
-research context or UI model.
+The elections topic is now the first domain profile of the generic One Tree Branch Contract. It can
+feed World, Topic, Post, Number, Person, Gallery, Search, Journey and Raziel without creating another
+graph, truth store, research context or UI model. The generic contract and full cross-domain
+reconciliation live in `docs/reviews/one-tree-branch-contract-20261026.md`.
 
 The first compiled pilot covers the two Israeli election systems currently in scope:
 
@@ -37,9 +38,10 @@ Universal Findings in the existing Research Result Bundle path.
 | Personal reality | `person_foundation_contract_law` | Carries no personal/user data and does not enter Personal Reality without authorization |
 | Presentation | Design Contract V2 + System Frame | Carries no layout, style, component, color, motion, 3D or renderer instruction |
 
-This is the domain companion to `src/lib/systemSelfModel2029.js`. The System Self-Model describes
-what a surface is and which canonical rails it participates in; this elections contract carries the
-truth-safe research payload. Neither one takes ownership from the systems above.
+The System Self-Model describes what a surface is and which canonical rails it participates in. The
+generic One Tree Branch Contract carries a truth-safe research payload. This elections profile adds
+only election-specific validation and seed mapping. None of the three takes ownership from the
+systems above.
 
 ## Four lanes — never collapsed
 

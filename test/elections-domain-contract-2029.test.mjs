@@ -9,6 +9,7 @@ import {
   inspectElectionsDomainInput,
   projectElectionsDomainForConsumer,
 } from "../src/lib/research/electionsDomainContract2029.js";
+import { ONE_TREE_BRANCH_CONTRACT_VERSION } from "../src/lib/research/oneTreeBranchContract2029.js";
 import {
   ELECTIONS_ISRAEL_21_26_BUNDLE,
   ELECTIONS_ISRAEL_21_26_INPUT,
@@ -21,6 +22,9 @@ test("two Israeli election systems compile into one non-canonical domain bundle"
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
 
   assert.equal(bundle.contractVersion, ELECTIONS_DOMAIN_CONTRACT_VERSION);
+  assert.equal(bundle.branchContractVersion, ONE_TREE_BRANCH_CONTRACT_VERSION);
+  assert.equal(bundle.branchContract.profileId, "elections");
+  assert.equal(bundle.invariants.elections_is_a_domain_profile, true);
   assert.equal(bundle.rootEntityRef, "node:2bb53dbf-816a-4033-aff2-874c4981cd39");
   assert.equal(bundle.invariants.one_reality_graph, true);
   assert.equal(bundle.invariants.one_research_context, true);
@@ -87,7 +91,8 @@ test("threshold and gap stay deterministic derivations over official inputs", ()
   const factIds = new Set(bundle.evidence.source_fact.map(row => row.id));
   const calculations = Object.fromEntries(bundle.evidence.engine_calculation.map(row => [row.id, row]));
   const capability = bundle.resultBundle.capability_trace.find(
-    row => row.key === "elections_deterministic_derivations",
+    row => row.semantic_class === "derivation"
+      && row.finding_ids.includes("elections:derived-threshold-140052"),
   );
 
   assert.equal(factIds.has("official-threshold-140052"), false);
@@ -125,12 +130,12 @@ test("Raziel receives an attributed context pack but no promotion or publishing 
   assert.equal(projection.razielContext.requiredAttribution, true);
   assert.equal(projection.razielContext.mayPromoteToCanonical, false);
   assert.equal(projection.razielContext.mayPublish, false);
-  assert.deepEqual(Object.keys(projection.evidenceIdsByLane).sort(), [
-    "engine_calculation",
-    "interpretation",
-    "source_fact",
-    "source_provenance",
-  ]);
+  assert.equal(projection.evidenceIdsByLane.engine_calculation.length, 14);
+  assert.equal(projection.evidenceIdsByLane.interpretation.length, 8);
+  assert.equal(projection.evidenceIdsByLane.source_fact.length, 16);
+  assert.equal(projection.evidenceIdsByLane.source_provenance.length, 15);
+  assert.deepEqual(projection.evidenceIdsByLane.observation, []);
+  assert.deepEqual(projection.evidenceIdsByLane.authored_claim, []);
 });
 
 test("a source fact cannot exist without a resolvable source", () => {
@@ -160,7 +165,7 @@ test("an engine calculation requires explicit engine and method versions", () =>
   const inspection = inspectElectionsDomainInput(input);
   assert.equal(inspection.valid, false);
   assert.match(inspection.errors.join("\n"), /methodVersion is required/);
-  assert.match(inspection.errors.join("\n"), /engineRef is required/);
+  assert.match(inspection.errors.join("\n"), /engineRef must be a stable engine ref/);
 });
 
 test("interpretation cannot masquerade as approved fact or depend on unknown evidence", () => {
