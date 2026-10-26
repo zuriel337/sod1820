@@ -59,6 +59,12 @@ test("the bounded system keeps the canonical source identity and all 99 source p
   assert.equal(sectionForPage(94).id, "addenda");
 });
 
+test("DS-01 source details reflect the closed transcription without claiming an engine count", () => {
+  assert.match(page, /54 שורות הפרשות נסגרות חשבונית/);
+  assert.match(page, /לא בוצעה כאן ספירת קורפוס עצמאית/);
+  assert.doesNotMatch(page, /קריאת תאי שמות ובמדבר נשמרת כמועמדת/);
+});
+
 test("first findings remain typed and agree with the bounded source bundle", () => {
   assert.deepEqual(Object.keys(AHAVAT_TORAH_TRUTH_STATES), ["source_verified", "source_located", "structural_map", "candidate", "open", "machine_candidate"]);
   assert.equal(AHAVAT_TORAH_FINDINGS.length, 4);

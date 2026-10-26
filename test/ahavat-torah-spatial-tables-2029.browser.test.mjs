@@ -59,6 +59,15 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       await page.getByRole("heading", { name: "טבלאות שאפשר להיכנס לתוכן", exact: true }).waitFor();
       await page.locator("#ahavat29-source iframe").waitFor();
 
+      await page.locator(".ahavat29-ds01-equation button").filter({ hasText: "שמות" }).click();
+      assert.match(await page.locator(".ahavat29-ds01-detail p").textContent(), /398/);
+      assert.equal(await page.locator(".ahavat29-ds01 .ahavat29-data-table tbody tr").filter({ hasText: "משפטים" }).locator("td:nth-child(2)").textContent(), "16");
+      assert.equal(await page.locator(".ahavat29-ds01 .ahavat29-data-table tbody tr").filter({ hasText: "פקודי" }).locator("td:nth-child(2)").textContent(), "26");
+      await page.locator(".ahavat29-ds01-equation button").filter({ hasText: "במדבר" }).click();
+      assert.match(await page.locator(".ahavat29-ds01-detail p").textContent(), /396/);
+      assert.equal(await page.locator(".ahavat29-ds01 .ahavat29-data-table tbody tr").filter({ hasText: "במדבר" }).locator("td:nth-child(2)").textContent(), "25");
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=6&view=FitH$/);
+
       assert.equal(await page.evaluate(() => (
         document.documentElement.scrollWidth <= window.innerWidth + 1
         && document.body.scrollWidth <= window.innerWidth + 1
