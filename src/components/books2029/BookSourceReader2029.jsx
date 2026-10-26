@@ -104,8 +104,8 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
       }));
   }, [commentaryByPage, manifest, normalizedQuery, searchIndex]);
   const searchablePages = searchIndex.length;
-  const imageOnlyPages = useMemo(() => (deepReading.pageText?.pages || [])
-    .filter(item => item.extraction_status === "image_only")
+  const sourceOnlyPages = useMemo(() => (deepReading.pageText?.pages || [])
+    .filter(item => item.extraction_status !== "machine_candidate")
     .map(item => item.pdf_page), [deepReading.pageText]);
 
   const openPage = nextPage => {
@@ -138,7 +138,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
           <div><dt>שפת המקור</dt><dd>{manifest.language}</dd></div>
           <div><dt>היקף</dt><dd>{manifest.pdfPages} עמודי PDF · {manifest.chapters.length} חטיבות קריאה</dd></div>
           {deepReading.pageText ? <div><dt>חיפוש טקסט</dt><dd>{searchablePages}/{manifest.pdfPages} עמודים · שכבת איתור בלבד</dd></div> : null}
-          {imageOnlyPages.length ? <div><dt>עמודים חזותיים</dt><dd>{imageOnlyPages.join(", ")} · נקראים ישירות מן ה־PDF</dd></div> : null}
+          {sourceOnlyPages.length ? <div><dt>עמודים ללא טקסט לחיפוש</dt><dd>{sourceOnlyPages.join(", ")} · נקראים ישירות מן ה־PDF</dd></div> : null}
           {deepReading.commentary?.source_layers?.printed_commentary ? <div><dt>פירוש מודפס במהדורה</dt><dd>{deepReading.commentary.source_layers.printed_commentary}</dd></div> : null}
           {pageCommentary?.technical_note ? <div><dt>הבחנת קריאה</dt><dd>{pageCommentary.technical_note}</dd></div> : null}
         </dl>
