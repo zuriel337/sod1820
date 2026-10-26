@@ -1,3 +1,5 @@
+import { AHAVAT_LETTER_COVERAGE } from "./ahavatTorahLetters2029.js";
+
 export const AHAVAT_TORAH_SOURCE = Object.freeze({
   identity: "book:hebrewbooks:5635",
   title: "ספר אהבת תורה",
@@ -99,7 +101,7 @@ export const AHAVAT_TORAH_EXTRACTION_LAYERS = Object.freeze([
 
 export const AHAVAT_TORAH_DATASETS = Object.freeze([
   Object.freeze({ id: "DS-01", title: "מופעי שם ה׳ בתורה", total: "1,820", pages: [6], state: "closed", truthState: "source_verified", summary: "כל 54 שורות הפרשות נסגרות לחמשת סיכומי החומשים ול־1,820 בדברי הספר.", nextStep: "הרחבת ההסבר על שיטת המחבר וקישור למבנים המקבילים בספר." }),
-  Object.freeze({ id: "DS-02", title: "אותיות התורה וצורותיהן", total: "28 צורות בדפוס", pages: [35, 36, 37, 38, 39, 40, 41], state: "partial", truthState: "source_located", summary: "כל 28 צורות האותיות נגישות לקריאה לצד המקור. לאותיות א׳–ו׳, ח׳, ט׳, כ׳, ל׳ ומ׳ קריאה מספרית של כל 54 הפרשות — 594 שורות; ליתר 17 הסעיפים תעתיק לפי סדר הטורים והעמודים.", nextStep: "המשך חילוץ התאים המספריים מן הדפוס ושימור הסיכומים המצטברים, בלי להפוך תעתיק מכונה לקריאה מאומתת." }),
+  Object.freeze({ id: "DS-02", title: "אותיות התורה וצורותיהן", total: "28 צורות בדפוס", pages: [35, 36, 37, 38, 39, 40, 41], state: "partial", truthState: "source_located", summary: `כל ${AHAVAT_LETTER_COVERAGE.forms} צורות האותיות נפתחות כטבלאות של 54 פרשות — ${AHAVAT_LETTER_COVERAGE.rows.toLocaleString("en-US")} שורות לצד המקור. אפשר לחפש, לייצא ולהציג את המבנה בתלת־ממד.`, nextStep: `בפרטי המקור: ${AHAVAT_LETTER_COVERAGE.unresolvedRows} תאי פרשות ו־${AHAVAT_LETTER_COVERAGE.unresolvedCheckpoints} סיכומים מצטברים טרם הוכרעו, ופערי קריאה נשמרים בלי התאמה מלאכותית לסכום.` }),
   Object.freeze({ id: "DS-03", title: "מספר תיבות התורה", total: "79,976", pages: [25, 26, 27, 28, 29, 30, 31, 41, 42], state: "closed", truthState: "source_verified", summary: "סך המחבר מופיע בשני מוקדי מקור נפרדים בתוך הספר.", nextStep: "השוואה לקורפוס מוגדר בלי לשנות את מעמד טענת המקור." }),
   Object.freeze({ id: "DS-04", title: "מספר אותיות התורה", total: "304,812", pages: [41, 42], state: "partial", truthState: "source_verified", summary: "סיכום המחבר נקרא ישירות בצילום: ש״ד אלף תתי״ב — 304,812. הסך הוכרע; חילוץ כל שורות הפרשות עדיין חלקי.", nextStep: "השלמת שורות הפרשות והסיכומים המצטברים, לצד צילום המקור בעמוד 42." }),
   Object.freeze({ id: "DS-05", title: "אוריין תליתאי · אנשים וייחוסים", total: "79,976 תיבות", pages: [25, 26, 27, 28, 29, 30, 31], state: "open", truthState: "open", summary: "טבלת ייחוס כפולה: מספר הופעות ומספר תיבות לכל אדם או קבוצה.", nextStep: "השלמת כל השורות והפרדת שני המדדים לאורך הטבלה." }),

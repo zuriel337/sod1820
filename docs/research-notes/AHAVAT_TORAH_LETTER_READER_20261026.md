@@ -171,3 +171,66 @@ Hosted follow-up, base `da18b121ca0ac13981127727c1a487bfc68f2576`: protected Pre
 Follow-up verification: focused tests 20/20; final Preview Build/graph/Legacy/whitespace passed (380,298 eager JS gzip bytes; 78,444 recovered). All non-browser Books/source tests were rerun after the class-wiring correction; hosted visual/action checks target the follow-up SHA separately. The preceding 265-test full run and 192s focused browser acceptance remain the functional baseline, not a claim that another full browser suite ran after this one-wrapper correction.
 
 Final source-context correction, base `ff608ba2dd2fdcb2ed010c826dcce6771a5da79f`: an unresolved dataset may remain selected as a research topic, but it must not label the current PDF as its exact witness. The existing source-panel badge now uses a dataset ID only when that dataset's located pages actually include the open page; otherwise the current book section stays the context. This complements the already-tested no-navigation behavior. Scope remains the same existing reader/source test/note; no visual or truth owner changed. The final hosted probe checks this badge as well as the reused control styles before reporting a Preview result.
+
+## Complete letter-table reading continuation — base da26d5d0
+
+BEFORE: ZURIEL requested continuation through completion, not another approval loop. Clean same isolated branch at `da26d5d00ea585589ae272590553c30f1c300f36`; matching remote, central `0ab97e8bd6cde0792735d8e8b50e0577d2d861d5`, main `2195c9784c5c9f0b1ec3cd3c1137fbd76045845b`. Fresh bounded live ownership read returned no overlap. Scope: remaining letter-table source transcriptions, existing letter model/reader/export, source notes and focused tests. Existing Intake/Truth ownership is reused. A visually unresolved cell must be nullable, never a guessed numeral or synthetic zero; charts/arithmetical checks must not silently coerce it. Completing a source reading interface is distinct from closing every editorial ambiguity. No new engine/store, visual redesign, frame, Legacy, DB/RLS, permission, main, central merge or Production action. The connector is read-only; no work-log write is claimed.
+
+### Complete form coverage, with explicit source gaps
+
+The 17 previously unstructured forms now use the same reader/model/export as the existing eleven: ז, י, ך, ם, נ, ן, ס, ע, פ, ף, צ, ץ, ק, ר, שׁ, שׂ, ת. All **28 forms × 54 parasha positions = 1,512 rows** are present. There are **1,492 numerical readings, 20 unresolved row cells and two unresolved cumulative checkpoints**. These are source readings, not engine results or a declaration of exhaustive research completion. The eleven preceding source arrays are JSON-equivalent to base `da26d5d0`; their previously recorded gaps remain intact. The original 22-section/32-fragment OCR asset is unchanged provenance, not a numeral parser. No OCR model or image is added to the repository or browser bundle.
+
+Each row retains its printed numeral and exact PDF page. Final Nun's Tazria number is on PDF 39, not the PDF 38 catchword. Tzadi's Bereshit rows/checkpoint are on PDF 39; subsequent books are on PDF 40. Shin's Bamidbar rows remain on PDF 40 while its cumulative checkpoint is on PDF 41; Devarim is on PDF 41. Yod and left/right column continuations on the same physical page retain the same PDF number. Finals and shin/sin are independent source datasets, never aliases or sums of their regular form.
+
+Unresolved cells: Zayin—Haazinu; final Mem—Vayetze, Vayeshev, Tetzaveh, Bamidbar, Chukat; Nun—Vayechi, Vayakhel, Bamidbar; Samekh—Re'eh; Ayin—Beha'alotcha; final Pe—Tazria; Kof—Tetzaveh, Tzav; Shin—Vayakhel; Sin—Re'eh; Tav—Vayishlach, Bo, Pekudei, Tzav. Unresolved cumulative checkpoints: Yod/Bamidbar and Tav/Devarim. An unresolved preceding checkpoint also leaves the following book contribution unresolved. These gaps were not filled from subtraction, a similar-looking glyph or an arithmetic target.
+
+Unknowns are `null`, display as an em dash, export as empty numeric CSV cells, and never produce numeric 2D/3D bars. A sum including an unknown cell and its delta remain `null`; a genuinely read zero would remain zero. The source PDF action remains available on that same row. Source details distinguish unresolved readings from nonzero deltas and do not claim that an incomplete sum closes. Row/cumulative arithmetic is only a consistency check of the transcription, not an independent Torah corpus count. Residual nonzero deltas in the new source readings (including Tzadi/Resh/Shin) remain editorial review items, not corrections imposed on the book.
+
+No CSS, font, color, layout, frame or new rendering dependency was introduced. The existing lazy source-count 3D scene receives only the known numerical values, and all 28 forms retain search, book selection, exact source navigation and research CSV. The existing 99-page PDF reader, 98 text pages, 99 companion guides and 15 earlier deep-read pages remain available. DS-06's corrected ten Shemot rows and DS-13's separate 254/248 stages remain unchanged; DS-07/08 remain unlocated rather than acquiring invented page numbers.
+
+### Cumulative handoff scope
+
+Central is still `gpt/2029-central-books-unified-reader-20261026` at `0ab97e8bd6cde0792735d8e8b50e0577d2d861d5` at the fresh remote check. This isolated branch contains the full unmerged chain, not just the latest letter-table patch: six Maamar Esther mapping/UI/browser commits (139 units / 84 PDF pages), the Daat Tevunot internal map (229 units / 99 PDF pages), Ahavat Torah spatial/source readers, full DS-01 source reading, 28-form source access, complete 99-page companion access, source-gap reconciliation and the present all-form structured reader. A coordinator must review the whole central-to-HEAD range; do not cherry-pick only its last commit or resurrect PR #1144 as a package. No central/main integration or notification is claimed here.
+
+Changed paths in this checkpoint: this existing note; `src/data/ahavatTorahLetters2029.js`; `src/data/ahavatTorahSystem2029.js`; `src/pages/AhavatTorahSystem2029Page.jsx`; `test/ahavat-torah-letter-reader-2029.test.mjs`; `test/ahavat-torah-spatial-tables-2029.browser.test.mjs`. Dependencies are the preceding isolated chain, unchanged public PDF/hash and existing source reader/lazy scene. No new package, engine, database table, permission or source store is required.
+
+Remaining book research is deliberately not hidden by the complete reader coverage: the 20 row cells/two checkpoints and residual deltas; DS-03/04 per-parasha tables; DS-05 people/attribution rows; remaining DS-06 books/form rules; exact DS-07/08 locators; DS-09/10 five-scroll matrices; DS-11 root dictionary; DS-12 links from nine errata entries to corrected passages; and DS-13 form/exclusion reconciliation. Prior research notes/registers are retained, but their older glyph guesses and estimated locators do not override later direct readings. “Closed” for a source total or source list does not mean all associated research/UI wiring is finished. No verification engine is required to read the book in Preview. Public publication is a separate authorized administrative transition, not an automatic outcome of this source checkpoint.
+
+Full cumulative file manifest from the observed central base (30 paths; not only this checkpoint's six):
+
+```text
+docs/research-notes/AHAVAT_TORAH_LETTER_READER_20261026.md
+public/book-data/ahavat-torah.commentary.json
+public/book-data/ahavat-torah.letter-sections.json
+public/book-data/ahavat-torah.tables.json
+public/book-data/daat-tevunot.internal-map.json
+public/book-data/maamar-esther.internal-map.json
+scripts/build-ahavat-letter-sections-2029.mjs
+scripts/build-maamar-esther-internal-map.mjs
+scripts/generate-daat-tevunot-internal-map.mjs
+src/components/books2029/AhavatTorahSpatialScene2029.jsx
+src/components/books2029/BookSourceReader2029.jsx
+src/components/books2029/MaamarEstherInternalMap2029.jsx
+src/components/books2029/bookSourceReader2029.css
+src/components/books2029/maamarEstherInternalMap2029.css
+src/data/ahavatTorahDs01Source2029.js
+src/data/ahavatTorahLetters2029.js
+src/data/ahavatTorahSystem2029.js
+src/data/bookReader2029.js
+src/pages/AhavatTorahSystem2029Page.jsx
+src/pages/ahavatTorahSystem2029.css
+test/ahavat-torah-commentary-2029.test.mjs
+test/ahavat-torah-ds01-source-2029.test.mjs
+test/ahavat-torah-letter-reader-2029.test.mjs
+test/ahavat-torah-source-gaps-2029.test.mjs
+test/ahavat-torah-spatial-tables-2029.browser.test.mjs
+test/ahavat-torah-spatial-tables-2029.test.mjs
+test/ahavat-torah-system-2029.test.mjs
+test/books-unified-reader-2029.browser.test.mjs
+test/daat-tevunot-internal-map-2029.test.mjs
+test/maamar-esther-internal-map-2029.test.mjs
+```
+
+Acceptance at the all-form checkpoint: **269/269 Books tests**, zero skips/cancellations, including the unified-reader browser and Ahavat Torah flow at 320/390/1440 (280.8s aggregate). The added nullable-cell/unknown-checkpoint paths, exact source boundaries, all 28 forms at desktop, research CSV and 3D switching passed. An initial run hit the old 240s global test budget after the expanded coverage; it is not recorded as a pass. The final browser test records viewport progress, closes its already-tested live WebGL scene before the exhaustive desktop table-switch loop, and has a 360s budget for the broader acceptance story. No assertions were removed or forced clicks added.
+
+Preview-enabled Build 2029 passed; graph/weight passed (7 eager / 121 reachable records, 380,295 eager JS gzip bytes, 78,447 recovered); language 3/3; Preview Auth Guard 4/4; Legacy Production Lock and whitespace checks passed. The finite source refinements and final exact-SHA hosted check are recorded separately below; no hosted result is assumed from this local run.
