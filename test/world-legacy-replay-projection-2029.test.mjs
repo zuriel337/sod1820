@@ -392,6 +392,33 @@ test("constant replay distinguishes exact sums, rounded constants and unsupporte
   assert.equal(unsupported.mutatesLiveData, false);
 });
 
+test("ELS research routing groups exact reviewed sources without claiming replay identity", () => {
+  const clustered = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "question",
+    statement: "האם הדילוג של תשפ״ז 633 חוזר בתורה?",
+    source_ref: "channel_updates:aa785ea8-50eb-4255-ae6f-ba458382ee4d",
+  }));
+  assert.equal(clustered.routingQueue, "els_or_cipher");
+  assert.equal(clustered.elsResearchContext.clusterKey, "tashpaz_633");
+  assert.equal(clustered.elsResearchContext.declaredSkip, 633);
+  assert.equal(clustered.elsResearchContext.reviewRole, "interpretation_or_question");
+  assert.equal(clustered.elsResearchContext.replayIdentityState, "partial_identity");
+  assert.equal(clustered.elsResearchContext.inferred, false);
+  assert.equal(clustered.elsResearchContext.countsAsIndependentSource, false);
+
+  const verseStride = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "observation",
+    statement: "רחל מבכה בדילוג 1503 פסוקים",
+    source_ref: "channel_updates:812ecd29-d277-4247-b66d-c1cdc52c1b31",
+  }));
+  assert.equal(verseStride.elsResearchContext.methodFamily, "verse_stride");
+  assert.equal(verseStride.elsResearchContext.replayIdentityState, "different_method_family");
+});
+
 test("missing-engine source and target context stays separate from technical readiness", () => {
   const missing = row({
     engine_verified: null,

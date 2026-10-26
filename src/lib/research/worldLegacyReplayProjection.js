@@ -40,6 +40,27 @@ const SPATIAL_CORE_RE = /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה
 const SPATIAL_AXIS_RE = /(?:^|[^א-ת])(?:[בלכהמשו])?ציר(?:ים|י)?(?![א-ת])/iu;
 const SPATIAL_ROUND_RE = /(מעגל|עיגול|כדור(?!גל))/iu;
 const FIGURATIVE_CIRCLE_RE = /(סגירת\s+ה?מעגל|סוגר(?:ת)?\s+(?:את\s+)?ה?מעגל)/iu;
+const ELS_RESEARCH_CLUSTERS = Object.freeze([
+  Object.freeze({ key: "tashpaz_633", label: "תשפ״ז · דילוג 633", term: "תשפ״ז", declaredSkip: 633, methodFamily: "letter_skip", occurrenceCount: 5, sourceRefs: Object.freeze([
+    "channel_updates:02542110-02ca-4e69-a699-641ee5f0ff45", "channel_updates:aa785ea8-50eb-4255-ae6f-ba458382ee4d",
+  ]) }),
+  Object.freeze({ key: "yaniv_hayun", label: "יניב חיון · דילוג בתורה", term: "יניב חיון", declaredSkip: null, methodFamily: "letter_skip", occurrenceCount: 5, sourceRefs: Object.freeze([
+    "channel_updates:13f08d9b-fbf1-44c2-a9e7-af210bfcfd49",
+  ]) }),
+  Object.freeze({ key: "stars_delay_skip_2", label: "כוכבים–עכוב · כל אות שנייה", term: "עכוב", declaredSkip: 2, methodFamily: "letter_skip", occurrenceCount: 10, sourceRefs: Object.freeze([
+    "channel_updates:343a5101-7d9e-47dd-be4e-2aeaed223314", "channel_updates:bc06978f-581f-457e-9cd4-9dd1707f0f11",
+  ]) }),
+  Object.freeze({ key: "delay_contiguous", label: "עכוב · רצף אותיות / דילוג אפס", term: "עכוב", declaredSkip: 0, methodFamily: "contiguous_text", occurrenceCount: 2, sourceRefs: Object.freeze([
+    "channel_updates:3c9ab15a-86ee-41ef-b9a3-147c0a36262a", "channel_updates:c8231285-eee3-4b08-9905-be10db21fd90",
+  ]) }),
+  Object.freeze({ key: "rachel_verse_stride", label: "רחל מבכה–ארחמנו · דילוג פסוקים", term: "רחל מבכה / ארחמנו", declaredSkip: 1503, methodFamily: "verse_stride", occurrenceCount: 2, sourceRefs: Object.freeze([
+    "channel_updates:812ecd29-d277-4247-b66d-c1cdc52c1b31",
+  ]) }),
+  Object.freeze({ key: "plumber_skip_6", label: "שרברב · דילוג 6", term: "שרברב", declaredSkip: 6, methodFamily: "letter_skip", occurrenceCount: 3, sourceRefs: Object.freeze([
+    "channel_updates:f9babea4-a9b4-4f35-bacb-9b0913eb8dc4",
+  ]) }),
+]);
+const ELS_RESEARCH_CLUSTER_BY_SOURCE_REF = new Map(ELS_RESEARCH_CLUSTERS.flatMap((cluster) => cluster.sourceRefs.map((sourceRef) => [sourceRef, cluster])));
 
 if (!REGULAR_METHOD?.fn) throw new Error("World legacy replay requires the canonical regular gematria method");
 
@@ -268,6 +289,31 @@ function projectSpatialReviewLane({ routing, coverage, calculation, textOrigin }
   if (calculation?.state === "verified_quantity") return "quantity_review";
   if (textOrigin === "ocr_derived") return "ocr_shape_review";
   return "source_shape_review";
+}
+
+function projectElsResearchContext(row, routing) {
+  if (routing?.queue !== "els_or_cipher") return null;
+  const sourceRef = clean(row?.source_ref) || null;
+  const cluster = ELS_RESEARCH_CLUSTER_BY_SOURCE_REF.get(sourceRef) || null;
+  const kind = clean(row?.kind);
+  return Object.freeze({
+    state: cluster ? "clustered_source_review" : "unclustered_source_review",
+    clusterKey: cluster?.key || null,
+    clusterLabel: cluster?.label || null,
+    term: cluster?.term || null,
+    declaredSkip: cluster?.declaredSkip ?? null,
+    methodFamily: cluster?.methodFamily || null,
+    occurrenceCount: cluster?.occurrenceCount || 1,
+    sourceOccurrenceCount: cluster?.sourceRefs?.length || 1,
+    reviewRole: ["question", "hypothesis"].includes(kind) ? "interpretation_or_question" : "source_claim",
+    replayIdentityState: cluster?.methodFamily === "verse_stride"
+      ? "different_method_family"
+      : "partial_identity",
+    sourceRef,
+    inferred: false,
+    countsAsIndependentSource: false,
+    mutatesLiveData: false,
+  });
 }
 
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
@@ -518,6 +564,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       calculation: spatialCalculation,
       textOrigin: spatialTextOrigin,
     });
+    const elsResearchContext = projectElsResearchContext(row, routing);
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -538,6 +585,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       spatialCuratedCoverage,
       spatialTextOrigin,
       spatialReviewLane,
+      elsResearchContext,
       constantCheck,
     });
   }

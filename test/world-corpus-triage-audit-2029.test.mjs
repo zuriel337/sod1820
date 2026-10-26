@@ -5,7 +5,7 @@ import { WORLD_CORPUS_TRIAGE_AUDIT } from "../api/world-corpus-triage-audit.js";
 test("manager corpus audit keeps publication, verification and catalog completeness separate", () => {
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.scope, "read_only_recommendations");
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.workstreams.length, 7);
-  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 57);
+  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 63);
   assert.deepEqual(["medium", "weak"].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [4164, 6362]);
   assert.match(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "duplicates").next, /בלי מחיקה/u);
   const zviReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_replay");
@@ -70,6 +70,10 @@ test("manager corpus audit keeps publication, verification and catalog completen
     "zvi_spatial_represented_source_lane", "zvi_spatial_quantity_review_lane",
     "zvi_spatial_ocr_shape_review_lane", "zvi_spatial_source_shape_review_lane",
   ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [13, 11, 5, 39]);
+  assert.deepEqual([
+    "zvi_els_tashpaz_633", "zvi_els_yaniv_hayun", "zvi_els_stars_delay_skip_2",
+    "zvi_els_delay_contiguous", "zvi_els_rachel_verse_stride", "zvi_els_plumber_skip_6",
+  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [5, 5, 10, 2, 2, 3]);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_match").total, 734);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_claim_unmatched").total, 112);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_missing_engine_unverified").total, 173);

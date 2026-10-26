@@ -265,6 +265,9 @@ test("missing-engine content routing is independently filterable", () => {
   const textual = reviewRow("10000000-0000-4000-8000-000000000013", {
     legacyReplay: { state: "missing_engine_assessment", routingQueue: "textual_statement", mutatesLiveData: false },
   });
+  const els = reviewRow("10000000-0000-4000-8000-000000000015", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "els_or_cipher", elsResearchContext: { clusterKey: "tashpaz_633" }, mutatesLiveData: false },
+  });
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "spatial_or_constants" }), [spatial]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "constants_or_sequences" }), [constants]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySubtype: "cubes" }), [spatial]);
@@ -276,6 +279,8 @@ test("missing-engine content routing is independently filterable", () => {
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialLane: "represented_source" }), [spatial]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialLane: "quantity_review" }), []);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySpatialTextOrigin: "ocr_derived" }), [spatial]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial, els], { replayElsCluster: "tashpaz_633" }), [els]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial, els], { replayElsCluster: "plumber_skip_6" }), []);
 });
 
 test("technically-ready source and target axes are independently filterable", () => {
