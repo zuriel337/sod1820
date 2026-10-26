@@ -1,3 +1,7 @@
+-- INTEGRATION HOLD (2026-10-26, claim coverage review c427e237): UNAPPLIED DRAFT.
+-- Source+number is not claim identity; historical engine_verified is not replay.
+-- The historical body is retained for audit only. Do not bypass this guard.
+-- See docs/reviews/world-pending-batch-safety-20261026.md for replacement preflight.
 -- ZVI SAFE AUTOMATIC TREE PROMOTION v2
 --
 -- Human Gate: ZURIEL explicitly approved automatic promotion without opening
@@ -37,6 +41,11 @@ DECLARE
   v_note constant text :=
     'ZURIEL explicit Human-Gate 2026-10-26: automatically promote the audited exact single-number-target Zvi clusters; keep duplicate occurrences as provenance.';
 BEGIN
+  RAISE EXCEPTION USING
+    ERRCODE = 'P0001',
+    MESSAGE = 'WORLD_BATCH_REVIEW_REQUIRED_V2',
+    DETAIL = 'Unapplied draft held: source-number grouping can omit distinct claims; canonical per-claim replay required.';
+
   SELECT count(*), min(id::text)::uuid
   INTO v_admin_count, v_admin_id
   FROM public.users

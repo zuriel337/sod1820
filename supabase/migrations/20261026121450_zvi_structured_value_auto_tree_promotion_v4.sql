@@ -28,6 +28,13 @@ DECLARE
   v_note constant text :=
     'ZURIEL explicit Human-Gate 2026-10-26: attach the audited structured row.value to the identical existing public number node where historical intake stored no tree_match; preserve duplicates as provenance.';
 BEGIN
+  -- UNAPPLIED DRAFT held by exact-source review c427e237. Historical cohort
+  -- remains readable; see docs/reviews/world-pending-batch-safety-20261026.md.
+  RAISE EXCEPTION USING
+    ERRCODE = 'P0001',
+    MESSAGE = 'WORLD_BATCH_REVIEW_REQUIRED_V4',
+    DETAIL = 'Unapplied draft held: source-number grouping can omit distinct claims; canonical per-claim replay required.';
+
   SELECT count(*), min(id::text)::uuid
   INTO v_admin_count, v_admin_id
   FROM public.users

@@ -184,9 +184,73 @@ export function summarizeReview(rows) {
     livePromotions: 0, hiddenRecords: 0 };
 }
 
+// Review selection only, never a writer or a standing admission rule. Reuse the
+// already source-inspected audit, without replacing a whole source/value cluster.
+export function selectPendingAtomicClaims(evidence) {
+  const blockedId = evidence.integrationHold?.retainedClaimMismatch?.id;
+  const selected = buildReview(evidence)
+    .filter(r => r.kind === 'coverage_gap' && r.recommendation === 'additional_operand_required');
+  check(selected.length > 0, 'No verified atomic claims selected');
+  return selected.map(r => {
+    check(r.id !== blockedId && r.replay.type === 'atomic' && r.databaseConfirmed, 'Unsafe selection');
+    const stored = evidence.rows.find(row => row.id === r.id);
+    const source = evidence.sources.find(row => row.id === r.sourceId);
+    return { id:r.id, sourceRef:r.sourceRef, sourceId:r.sourceId, sourceMd5:source.md5,
+      sourceUid:stored.source_uid, claimUid:stored.claim_uid,
+      statementMd5:md5(stored.statement), phrase:r.phrase, method:'רגיל', value:r.value,
+      targetId:r.targetId, sourceSpan:r.sourceSpan,
+      preserveSiblingIds:r.retainedIds, independentSourcesAdded:0, execute:false };
+  });
+}
+
+export function buildPendingAtomicPreflightSql(evidence) {
+  const quote = text => `'${String(text).replaceAll("'", "''")}'`;
+  const values = selectPendingAtomicClaims(evidence).map(r => `(${quote(r.id)}::uuid,`
+    + `${quote(r.sourceId)}::uuid,${quote(r.sourceRef)},${quote(r.sourceMd5)},`
+    + `${quote(r.sourceUid)},${quote(r.claimUid)},${quote(r.statementMd5)},`
+    + `${quote(r.phrase)},${quote(r.method)},${r.value}::integer,${quote(r.targetId)}::uuid)`)
+    .join(',\n');
+  return assertReadOnly(`WITH selected(id,source_id,source_ref,source_md5,source_uid,claim_uid,
+      statement_md5,phrase,method,value,target_id) AS (VALUES ${values}), checks AS (
+    SELECT s.id,s.source_id,s.source_ref,s.phrase,s.method,s.value,s.target_id,
+      ro.id IS NOT NULL AS finding_found,
+      coalesce(ro.status='approved' AND ro.privacy_scope='public' AND ro.promoted_node_id IS NULL,false) AS public_unattached,
+      coalesce(lower(btrim(ro.meta#>>'{ext,personal_scope,scope}')),'')<>'person_only'
+        AND coalesce(lower(btrim(ro.source)),'') NOT IN ('openweb_legacy','old_chat','or-geula')
+        AND coalesce(btrim(ro.contributor),'')<>'אור הגאולה' AS general_world_scope,
+      coalesce(ro.source_ref=s.source_ref AND public.fn_research_source_uid(ro.source_ref)=s.source_uid
+        AND public.fn_research_claim_uid(ro.statement)=s.claim_uid AND md5(ro.statement)=s.statement_md5,false) AS exact_identity,
+      coalesce(ro.value=s.value AND ro.terms=ARRAY[s.phrase]::text[]
+        AND ro.engine_detail#>>'{verification,method}'=s.method
+        AND ro.engine_detail#>>'{verification,phrase}'=s.phrase
+        AND ro.engine_detail#>>'{verification,claimed}'=s.value::text,false) AS exact_atomic_claim,
+      coalesce(ro.engine_detail->>'verification_state','') NOT IN ('mismatch','conflict','partial','method_unknown')
+        AND coalesce(ro.meta#>>'{ext,extraction_integrity,fidelity_status}','')<>'partial' AS no_known_conflict,
+      coalesce(cu.id=s.source_id AND cu.status='live' AND cu.page_only IS FALSE
+        AND cu.channel='torat-haremez'
+        AND cu.contributor_id='c66f0464-0928-490e-be9b-66d8a87e7fc8'::uuid
+        AND md5(cu.text)=s.source_md5,false) AS exact_public_source,
+      EXISTS (SELECT 1 FROM public.gematria_methods m WHERE m.method_key=s.method AND m.in_engine IS TRUE) AS method_in_engine,
+      public.fn_method_value(s.method,s.phrase) AS computed,
+      coalesce(n.id=s.target_id AND n.type='number' AND n.label=s.value::text AND n.is_active IS TRUE
+        AND coalesce(n.metadata->>'space','core')='core',false) AS exact_public_target,
+      (SELECT count(*) FROM public.nodes nn WHERE nn.type='number' AND nn.label=s.value::text
+        AND nn.is_active IS TRUE AND coalesce(nn.metadata->>'space','core')='core')=1 AS unique_target
+    FROM selected s
+    LEFT JOIN public.research_objects ro ON ro.id=s.id
+    LEFT JOIN public.channel_updates cu ON cu.id=s.source_id
+    LEFT JOIN public.nodes n ON n.id=s.target_id
+  ) SELECT *,coalesce(finding_found AND public_unattached AND general_world_scope AND exact_identity
+      AND exact_atomic_claim AND no_known_conflict AND exact_public_source AND method_in_engine
+      AND computed=value AND exact_public_target AND unique_target,false) AS ready_for_review,
+    now() AS checked_at FROM checks ORDER BY id`);
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const evidence = readEvidence();
-  if (process.argv[2] === 'sql') process.stdout.write(buildReplaySql(evidence) + '\n');
+  if (process.argv[2] === 'preflight-sql') process.stdout.write(buildPendingAtomicPreflightSql(evidence) + '\n');
+  else if (process.argv[2] === 'selection') process.stdout.write(JSON.stringify(selectPendingAtomicClaims(evidence), null, 2) + '\n');
+  else if (process.argv[2] === 'sql') process.stdout.write(buildReplaySql(evidence) + '\n');
   else if (process.argv[2] === 'inputs') process.stdout.write(JSON.stringify(collectReplayInputs(evidence)) + '\n');
   else {
     const rows = buildReview(evidence);

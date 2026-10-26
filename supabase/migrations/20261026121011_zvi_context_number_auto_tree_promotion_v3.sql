@@ -41,6 +41,14 @@ DECLARE
   v_note constant text :=
     'ZURIEL explicit Human-Gate 2026-10-26: automatically attach the audited primary row.value number target; preserve every additional target as context and every duplicate occurrence as provenance.';
 BEGIN
+  -- UNAPPLIED DRAFT held by exact-source review c427e237. Preserve this body
+  -- as audit provenance; never bypass the guard or merely exclude one known ID.
+  -- See docs/reviews/world-pending-batch-safety-20261026.md.
+  RAISE EXCEPTION USING
+    ERRCODE = 'P0001',
+    MESSAGE = 'WORLD_BATCH_REVIEW_REQUIRED_V3',
+    DETAIL = 'Unapplied draft held: source-number grouping omits distinct claims; retained 74af383a-0053-44a8-9bd0-fe8fcd23521f also contains a verified mismatch.';
+
   SELECT count(*), min(id::text)::uuid
   INTO v_admin_count, v_admin_id
   FROM public.users
