@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { RAZIEL_ONE_SHOT_LABEL } from "../../lib/research/razielViewMode2029.js";
 
-// "✨ הפתע אותי" and "🗺️ פתח מפת מחקר" — sit next to "בדוק לעומק…" with the same weight (same action class). Each is a ONE-SHOT
+// "✨ הפתע אותי" and "🗺️ פתח את התמונה המלאה" sit next to "בדוק לעומק" with the same weight. Each is a ONE-SHOT
 // request: the last question is sent again as a continuation in an explicit per-request view mode over the same session and
 // Result Bundle. This component owns only which explanation is open; the session's mode is never changed, nothing is persisted.
 // The first click loads and shows the explanation (lazy chunk); the request is sent only from its explicit button, and the

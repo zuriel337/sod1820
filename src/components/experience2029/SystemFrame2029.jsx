@@ -44,6 +44,7 @@ import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
 import { razielContextParts, razielStatusLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
+import { readRazielCompanionView, writeRazielCompanionView } from "../../lib/research/razielCompanionPreference2029.js";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
@@ -716,7 +717,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     setSavedNotice(result?.ok
       ? (session.savedSessionsSyncStatus === "synced" ? "השיחה נשמרה באופן פרטי בחשבון."
         : session.savedSessionsSyncStatus === "local_only" ? "השיחה נשמרה מקומית בדפדפן הזה. כניסה לחשבון תאפשר סנכרון פרטי."
-          : "השיחה נשמרה; הסנכרון הפרטי ממשיך דרך אזור המחקר שלך.")
+          : "השיחה נשמרה; הסנכרון הפרטי ממשיך דרך השיחות שלך.")
       : result?.error === "session_too_large" ? "השיחה ארוכה מדי לשמירה אחת. כדאי לפתוח שיחה חדשה ולשמור את החלק הבא בנפרד."
         : "לא הצלחנו לשמור את השיחה כרגע.");
   };
@@ -747,7 +748,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
   const stateLabel = razielStatusLabel({ busy, status });
   return (
     <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="true" data-raziel-session="shared" data-raziel-projection={projection} aria-label="שיחה עם רזיאל">
-      <b>✦ המשך עם רזיאל</b><small data-raziel-state={busy ? "thinking" : status}>{stateLabel}</small>
+      <b>✦ השיחה עם רזיאל</b><small data-raziel-state={busy ? "thinking" : status}>{stateLabel}</small>
       <div className="sod29-raziel-context" data-raziel-context-strip="true" aria-label="מה רזיאל רואה עכשיו">
         <p>{contextParts.length ? contextParts.map((part, index) => <React.Fragment key={part.key}>{index ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "שאלה חופשית — או בחר מספר, ביטוי או קטע"}</p>
       </div>
@@ -756,13 +757,13 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
         {thread.map((m, i) => (
           <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
             <small>{m.role === "user" ? "שאלת" : "רזיאל"}</small>
-            {m.viewMode === "landscape" && m.viewModeApplied ? <details open><summary>מפת מחקר</summary><span dir="auto">{m.text}</span></details> : <span dir="auto">{m.text}</span>}
+            {m.viewMode === "landscape" && m.viewModeApplied ? <details open><summary>התמונה המלאה</summary><span dir="auto">{m.text}</span></details> : <span dir="auto">{m.text}</span>}
             {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
               <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
               {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `${razielViewModeLabel(m.viewMode)} · ניסוי` : `${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}
               {m === lastRaziel && sourceNames.length ? <small className="sod29-raziel-provenance">מקורות: <bdi>{sourceNames.join(" · ")}</bdi></small> : null}
               {m === lastRaziel && m.grounding === "interpretation" ? <small className="sod29-raziel-grounding" data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל</small> : null}
-              {m === deepCandidate ? <button className="sod29-action" type="button" disabled={busy} aria-expanded={deepOpen} data-raziel-deepen-preview="true" onClick={() => setDeepOpen((open) => !open)}>בדוק לעומק…</button> : null}
+              {m === deepCandidate ? <button className="sod29-action" type="button" disabled={busy} aria-expanded={deepOpen} data-raziel-deepen-preview="true" onClick={() => setDeepOpen((open) => !open)}>בדוק לעומק</button> : null}
               {m === lastRaziel && status === "ready" ? <RazielOneShotActions2029 session={session} onRun={(kind) => session.submitOneShot(kind, { projection })} /> : null}
             </div> : null}
           </div>
@@ -776,11 +777,11 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
           <li>לא מורצים כלים חדשים ואין חיפוש ברשת.</li>
           <li>אם אין ראיה לקשר, התשובה תאמר זאת.</li>
         </ul>
-        <button className="sod29-action primary" type="button" disabled={busy} data-raziel-deepen="true" onClick={() => send(deepCandidate.question, "deep", true, deepCandidate.turnId)}>הפעל העמקה</button>
+        <button className="sod29-action primary" type="button" disabled={busy} data-raziel-deepen="true" onClick={() => send(deepCandidate.question, "deep", true, deepCandidate.turnId)}>בדוק לעומק</button>
         <button className="sod29-action" type="button" onClick={() => setDeepOpen(false)}>לא עכשיו</button>
       </div> : null}
       <div className="sod29-raziel-session-actions" aria-label="שמירה והיסטוריה של שיחות רזיאל">
-        <button className="sod29-action" type="button" disabled={busy || !lastRaziel} data-raziel-save-session="true" onClick={saveConversation}>♡ שמור מחקר</button>
+        <button className="sod29-action" type="button" disabled={busy || !lastRaziel} data-raziel-save-session="true" onClick={saveConversation}>♡ שמור שיחה</button>
         <button className="sod29-action" type="button" disabled={busy || !session.savedSessions?.length} aria-expanded={savedOpen} data-raziel-saved-sessions="true" onClick={() => setSavedOpen((open) => !open)}>▤ השיחות שלי{session.savedSessions?.length ? ` · ${session.savedSessions.length}` : ""}</button>
         <button className="sod29-action" type="button" disabled={busy || !thread.length} data-raziel-new-session="true" onClick={newConversation}>＋ שיחה חדשה</button>
       </div>
@@ -1336,7 +1337,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
     { id: "messages", icon: "📨", title: "ההודעות שלי", sub: "הודעות פרטיות ותגובות אליי", state: "live", onClick: () => openExistingModule("messages") },
     { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits} · פירוט` : "יתרה והיסטוריה", state: "live", onClick: () => openExistingModule("credits") },
     { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "live", onClick: () => go("/els?library=mine") },
-    { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: razielLocked ? "נעול עד השלמת האימות" : "המשך עם אותו הקשר אישי", state: razielLocked ? "building" : "live", locked: razielLocked, onClick: razielLocked ? null : onRaziel },
+    { id: "raziel", icon: "✦", title: "השיחות שלי", sub: razielLocked ? "נעול עד השלמת האימות" : "המשך מאיפה שעצרת", state: razielLocked ? "building" : "live", locked: razielLocked, onClick: razielLocked ? null : onRaziel },
   ];
 
   return (
@@ -1555,6 +1556,7 @@ function SystemFrame2029Body({
   const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
   const [companionPeek, setCompanionPeek] = useState(false);
   const [companionTab, setCompanionTab] = useState("feed");
+  const [razielCompanionView, setRazielCompanionView] = useState(readRazielCompanionView);
   const companionTimer = useRef(null);
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return undefined;
@@ -1567,6 +1569,11 @@ function SystemFrame2029Body({
     const next = pinned ? "slim" : "pinned";
     setCompanionPref(next); setCompanionPeek(false);
     try { window.localStorage.setItem("sod-companion", next); } catch (_) { /* optional */ }
+  }, []);
+  const chooseRazielCompanionView = useCallback((view) => {
+    const next = writeRazielCompanionView(view);
+    setRazielCompanionView(next);
+    setCompanionPeek(next !== "quiet");
   }, []);
   // The logo opens and closes the navigation rail (click, Enter or Space). Hover only highlights; nothing moves.
   const [transient, setTransient] = useState(null);
@@ -2067,7 +2074,7 @@ function SystemFrame2029Body({
   const companionHasContext = showContextRail && !numberPageRoute;
   const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
   const companionPinned = companionPref === "pinned" || (!corePublicViewer && companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
-  const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
+  const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek || razielCompanionView !== "quiet" ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
     if (!companionHasContext) { setCompanionTab("feed"); return; }
@@ -2076,7 +2083,7 @@ function SystemFrame2029Body({
   }, [contextSubjectKey, companionHasContext]);
   const focusCompanionRaziel = () => {
     if (razielLocked) return;
-    setCompanionPeek(true);
+    chooseRazielCompanionView("open");
     setTimeout(() => { document.querySelector(".sod29-companion-raziel input")?.focus(); }, 80);
   };
   const peekCompanion = (open) => {
@@ -2308,6 +2315,9 @@ function SystemFrame2029Body({
           onOpenHref={(href) => go(href)}
           timeMode={recordTimeMode}
           razielNode={razielLocked || surface === "post" || transientKind === TRANSIENT.RAZIEL ? null : <RazielNativeChat projection="desktop" context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
+          razielView={razielCompanionView}
+          onRazielView={chooseRazielCompanionView}
+          razielHint={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שמולך עכשיו"}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {recordTimeLabel(feed.newest, recordTimeMode, recordTimeMode === "relative" ? "עכשיו" : "תאריך לא צוין")}</span></button> : null}

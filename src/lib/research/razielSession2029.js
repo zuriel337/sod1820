@@ -172,7 +172,7 @@ export function razielSessionReducer(state, action) {
         contextSnapshot,
         provenance: null,
         status: "busy",
-        announcement: "רזיאל מכין את המחקר…",
+        announcement: "רזיאל בודק את השאלה…",
       };
     }
     case "turn_started": {
@@ -204,7 +204,7 @@ export function razielSessionReducer(state, action) {
         ...state,
         sessionRef: cleanInline(action.sessionRef, 160),
         savedAt: cleanInline(action.savedAt, 40),
-        announcement: "השיחה נשמרה במחקר הפרטי שלך.",
+        announcement: "השיחה נשמרה באזור שלך.",
       };
     case "session_restored":
       return isObject(action.state) ? { ...state, ...action.state } : state;

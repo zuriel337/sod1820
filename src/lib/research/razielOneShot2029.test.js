@@ -37,13 +37,13 @@ function answered({ response = ready, level = "fast", viewMode = null, question 
 const submission = (extra) => prepareRazielSessionSubmission({ question: "מה זה 337?", state: answered(), researchContext: null, facts: "", view: {}, projection: "desktop", startedAt: "s", createTurnId: () => "t2", ...extra });
 
 test("labels, spec and copy: two one-shot actions, spec lazy, copy lazy", () => {
-  assert.deepEqual({ ...RAZIEL_ONE_SHOT_LABEL }, { surprise: "✨ הפתע אותי", map: "🗺️ פתח מפת מחקר" });
+  assert.deepEqual({ ...RAZIEL_ONE_SHOT_LABEL }, { surprise: "✨ הפתע אותי", map: "🗺️ פתח את התמונה המלאה" });
   assert.deepEqual(JSON.parse(JSON.stringify(RAZIEL_ONE_SHOT_SPEC)), { surprise: { mode: "surprise", level: "deep" }, map: { mode: "landscape", level: "fast" } });
   assert.equal(RAZIEL_ONE_SHOT_COPY.surprise.explanation, "רזיאל יחפש קשר לא צפוי בתוך העובדות המאומתות, ויפריד בין עובדה, פרשנות והשערה.");
   assert.equal(RAZIEL_ONE_SHOT_COPY.surprise.noMaterial, "אין עדיין מספיק חומר להפתעה.");
   assert.match(RAZIEL_ONE_SHOT_COPY.map.noMaterial, /אין עדיין מספיק חומר/);
   assert.equal(RAZIEL_DEFAULT_VIEW_MODE, "general");
-  assert.equal(razielViewModeLabel("landscape"), "מפת מחקר");
+  assert.equal(razielViewModeLabel("landscape"), "התמונה המלאה");
 });
 
 test("bundleStatus lives in the request module's provenance and reflects only an object status on THAT answer", () => {
@@ -140,7 +140,7 @@ test("weight: gate, spec, copy and panel are lazy-only; the report normaliser mo
   assert.match(requestSource, /export function normalizeRazielViewModeReport/);
 });
 
-test("UI: both actions sit beside 'בדוק לעומק…' on the latest answer, never in the composer; the map is a native collapsible; no mode switch", () => {
+test("UI: both actions sit beside 'בדוק לעומק' on the latest answer, never in the composer; the full picture is a native collapsible; no mode switch", () => {
   assert.match(frame, /import RazielOneShotActions2029 from "\.\/RazielOneShotActions2029\.jsx"/);
   assert.match(frame, /\{m === lastRaziel && status === "ready" \? <RazielOneShotActions2029 session=\{session\} onRun=\{\(kind\) => session\.submitOneShot\(kind, \{ projection \}\)\} \/> : null\}/);
   assert.ok(frame.indexOf("data-raziel-deepen-preview") < frame.indexOf("<RazielOneShotActions2029"), "next to the deepen action");
@@ -148,7 +148,7 @@ test("UI: both actions sit beside 'בדוק לעומק…' on the latest answer,
   const composer = chat.slice(chat.indexOf('<form className="sod29-raziel-composer"'));
   assert.doesNotMatch(composer, /OneShot|submitOneShot/);
   assert.doesNotMatch(chat, /setViewMode/);
-  assert.match(chat, /m\.viewMode === "landscape" && m\.viewModeApplied \? <details open><summary>מפת מחקר<\/summary><span dir="auto">\{m\.text\}<\/span><\/details>/, "closing the map is a native collapse — the standing mode is untouched");
+  assert.match(chat, /m\.viewMode === "landscape" && m\.viewModeApplied \? <details open><summary>התמונה המלאה<\/summary><span dir="auto">\{m\.text\}<\/span><\/details>/, "closing the full picture is a native collapse — the standing mode is untouched");
 });
 
 test("component: same action class as deepen, explains first (lazy panel), activates only from the explicit button, blocks without a valid Bundle", () => {

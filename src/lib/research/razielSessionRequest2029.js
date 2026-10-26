@@ -465,7 +465,7 @@ export function normalizeRazielEvidenceSummary(value = null) {
   });
   if (!calculations.length && !findings.length) return null;
   return {
-    title: cleanInline(value.title, 100) || "הממצאים האמיתיים שמאחורי הפרשנות",
+    title: cleanInline(value.title, 100) || "מה רזיאל מצא",
     calculations,
     findings,
     mapAvailable: value.map_available === true || value.mapAvailable === true,
@@ -478,8 +478,8 @@ export function formatRazielEvidenceSummary(value = null, { expanded = false } =
   const count = summary.calculations.length + summary.findings.length;
   if (!expanded) {
     return summary.mapAvailable
-      ? `🔎 ${count} ממצאים מאומתים עומדים מאחורי הפרשנות · הפירוט המלא במפת המחקר.`
-      : `🔎 ${count} ממצאים מאומתים עומדים מאחורי הפרשנות.`;
+      ? `🔎 רזיאל מצא ${count} חיבורים מאחורי התשובה · אפשר לפתוח את התמונה המלאה.`
+      : `🔎 רזיאל מצא ${count} חיבורים מאחורי התשובה.`;
   }
   const lines = [];
   const seen = new Set();
@@ -493,10 +493,10 @@ export function formatRazielEvidenceSummary(value = null, { expanded = false } =
     const methodText = item.methods?.length
       ? item.methods.map((method) => `${method.method}=${method.value}`).join(" · ")
       : [item.method, item.value].filter((part) => part !== null && part !== undefined && part !== "").join(" = ");
-    const lane = item.lane === "source_claim" ? "טענת מקור" : item.lane === "engine_finding" ? "ממצא מנוע" : "חישוב מאומת";
+    const lane = item.lane === "source_claim" ? "טענת מקור" : item.lane === "engine_finding" ? "ממצא מחושב" : "חישוב שנבדק";
     add(`${item.label}${methodText ? ` · ${methodText}` : ""} · ${lane}${item.sourceName ? ` · ${item.sourceName}` : ""}`);
   }
-  return [`🔎 ${summary.title}`, ...lines, "אלה נתוני המנוע והמחקר; הטקסט שמעליהם הוא הפרשנות.", ...(summary.mapAvailable ? ["למפת הקשרים המלאה אפשר לבחור „🗺️ פתח מפת מחקר” שמתחת."] : [])].join("\n");
+  return [`🔎 ${summary.title}`, ...lines, "כך הגענו לתשובה; הטקסט שמעל הוא ההסבר של רזיאל.", ...(summary.mapAvailable ? ["כדי לראות את כל הקשרים, אפשר לבחור „🗺️ פתח את התמונה המלאה” שמתחת."] : [])].join("\n");
 }
 
 export function normalizeRazielResponse(response, requestedLevel = "fast") {
@@ -577,7 +577,7 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
     ? response.answer.slice(0, -(evidenceText.length + 2)).trim()
     : response.answer;
   const presentedAnswer = repeatsEvidence
-    ? `${repeatedSuffix}\n\n🔎 הראיות המאומתות זהות לתשובה הקודמת; מפת המחקר נשארת זמינה לפתיחה.`
+    ? `${repeatedSuffix}\n\n🔎 מה שרזיאל מצא זהה לתשובה הקודמת; התמונה המלאה עדיין זמינה לפתיחה.`
     : response.answer;
   const presentedResponse = repeatsEvidence ? { ...response, answer: presentedAnswer } : response;
   const message = {
