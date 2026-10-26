@@ -113,11 +113,51 @@ export const AHAVAT_GIMEL_BOOKS = Object.freeze([
   rows: Object.freeze(book.rows.map(([parasha, printed, count]) => Object.freeze({ parasha, printed, count, page: 35 }))),
 })));
 
-export const AHAVAT_LETTER_READINGS = Object.freeze({ "א": AHAVAT_ALEPH_BOOKS, "ב": AHAVAT_BET_BOOKS, "ג": AHAVAT_GIMEL_BOOKS });
+// Dalet crosses PDF 35/36, including a page break inside Vayikra. The book page
+// locates its printed cumulative checkpoint; a row always retains its own page.
+export const AHAVAT_DALET_BOOKS = Object.freeze([
+  { id: "bereshit", title: "בראשית", page: 35, cumulative: 1848, printed: "אלף תתמ״ח", rows: [
+    ["בראשית", "ר״ו", 206], ["נח", "קס״ח", 168], ["לך לך", "קמ״ב", 142], ["וירא", "קע״ז", 177],
+    ["חיי שרה", "קנ״ו", 156], ["תולדות", "ק״ג", 103], ["ויצא", "קפ״ב", 182], ["וישלח", "קס״ז", 167],
+    ["וישב", "קנ״ב", 152], ["מקץ", "קע״ה", 175], ["ויגש", "קכ״ו", 126], ["ויחי", "צ״ד", 94],
+  ] },
+  { id: "shemot", title: "שמות", page: 35, cumulative: 3312, printed: "ג׳ אלף שי״ב", rows: [
+    ["שמות", "קמ״ח", 148], ["וארא", "קפ״ד", 184], ["בא", "קכ״ט", 129], ["בשלח", "קמ״ה", 145],
+    ["יתרו", "צ״ט", 99], ["משפטים", "קי״ב", 112], ["תרומה", "ק״ב", 102], ["תצוה", "ק״ל", 130],
+    ["כי תשא", "קע״ד", 174], ["ויקהל", "קל״ב", 132], ["פקודי", "ק״ט", 109],
+  ] },
+  { id: "vayikra", title: "ויקרא", page: 36, cumulative: 4228, printed: "ד׳ אלף רכ״ח", rows: [
+    ["ויקרא", "קי״ב", 112, 35], ["צו", "ק״ט", 109], ["שמיני", "פ״ד", 84], ["תזריע", "נ״ו", 56],
+    ["מצורע", "צ״ב", 92], ["אחרי מות", "קי״א", 111], ["קדושים", "ס״א", 61], ["אמור", "קנ״ח", 158],
+    ["בהר", "נ״ה", 55], ["בחוקותי", "ע״ח", 78],
+  ] },
+  { id: "bamidbar", title: "במדבר", page: 36, cumulative: 5851, printed: "ה׳ אלף תתנ״א", rows: [
+    ["במדבר", "ר״ל", 230], ["נשא", "רנ״ה", 255], ["בהעלותך", "קע״ט", 179], ["שלח", "קכ״ח", 128],
+    ["קרח", "ק״נ", 150], ["חקת", "ק״י", 110], ["בלק", "ק״ב", 102], ["פנחס", "ר״ה", 205],
+    ["מטות", "קכ״א", 121], ["מסעי", "קמ״ג", 143],
+  ] },
+  { id: "devarim", title: "דברים", page: 36, cumulative: 7036, printed: "ז׳ אלף ל״ו", rows: [
+    ["דברים", "קמ״ט", 149], ["ואתחנן", "קס״ו", 166], ["עקב", "קנ״ד", 154], ["ראה", "קכ״ז", 127],
+    ["שופטים", "קל״ח", 138], ["כי תצא", "ק׳", 100], ["כי תבוא", "קמ״ה", 145], ["ניצבים", "ל״ח", 38],
+    ["וילך", "מ״ח", 48], ["האזינו", "ס״ה", 65], ["וזאת הברכה", "נ״ה", 55],
+  ] },
+].map((book, index, books) => Object.freeze({
+  ...book, count: book.cumulative - (books[index - 1]?.cumulative || 0),
+  pages: Object.freeze([...new Set(book.rows.map(row => row[3] || book.page))]),
+  rows: Object.freeze(book.rows.map(([parasha, printed, count, page = book.page]) => Object.freeze({ parasha, printed, count, page }))),
+})));
+
+export const AHAVAT_LETTER_READINGS = Object.freeze({ "א": AHAVAT_ALEPH_BOOKS, "ב": AHAVAT_BET_BOOKS, "ג": AHAVAT_GIMEL_BOOKS, "ד": AHAVAT_DALET_BOOKS });
 
 export const AHAVAT_LETTER_READING_LOCATIONS = Object.freeze({
   "א": "הטור הימני", "ב": "הטור הימני והמשכו בראש הטור השמאלי", "ג": "הטור השמאלי",
+  "ד": "סוף הטור השמאלי ב־PDF 35 והמשך בראש הטור הימני ב־PDF 36",
 });
+
+export function ahavatLetterSourcePage(form, bookId = "all", parasha) {
+  const book = AHAVAT_LETTER_READINGS[form]?.find(item => item.id === bookId);
+  return book?.rows.find(row => row.parasha === parasha)?.page || book?.page || ahavatLetterForm(form).pages[0];
+}
 
 export function ahavatLetterBalance(book) {
   const rowTotal = book.rows.reduce((sum, row) => sum + row.count, 0);

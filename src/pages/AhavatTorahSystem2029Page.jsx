@@ -18,7 +18,7 @@ import {
 } from "../data/ahavatTorahSystem2029.js";
 import { applySeo } from "../lib/seo.js";
 import { AHAVAT_DS01_BOOKS, AHAVAT_DS01_SOURCE_PAGE, AHAVAT_DS01_TOTAL, ahavatDs01RowSum } from "../data/ahavatTorahDs01Source2029.js";
-import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatLetterRows, ahavatLetterBalance, ahavatLetterCsv } from "../data/ahavatTorahLetters2029.js";
+import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatLetterRows, ahavatLetterBalance, ahavatLetterCsv, ahavatLetterSourcePage } from "../data/ahavatTorahLetters2029.js";
 import "./ahavatTorahSystem2029.css";
 
 const AhavatTorahSpatialScene2029 = lazy(() => import("../components/books2029/AhavatTorahSpatialScene2029.jsx"));
@@ -363,6 +363,7 @@ function LetterSourceReader({ onPage }) {
   const hasReadingGap = books?.some(book => ahavatLetterBalance(book).delta !== 0);
   const rows = useMemo(() => ahavatLetterRows(form, bookId, query), [form, bookId, query]);
   const activeBook = books?.find(book => book.id === bookId);
+  const readingPages = activeBook?.pages || source.pages;
   const bars = useMemo(() => activeBook
     ? activeBook.rows.map(row => ({ id: row.parasha, label: row.parasha, count: row.count }))
     : (books || []).map(book => ({ id: book.id, label: book.title, count: book.count })), [activeBook, books]);
@@ -376,12 +377,12 @@ function LetterSourceReader({ onPage }) {
     url.searchParams.set("letter", nextForm);
     url.searchParams.set("letterBook", nextBook);
     window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
-    onPage(ahavatLetterForm(nextForm).pages[0]);
+    onPage(ahavatLetterSourcePage(nextForm, nextBook));
   };
 
   const selectBar = id => {
     if (!activeBook) select(form, id);
-    else { setSelectedBar(id); onPage(35); }
+    else { setSelectedBar(id); onPage(ahavatLetterSourcePage(form, bookId, id)); }
   };
 
   const downloadRows = () => {
@@ -406,11 +407,11 @@ function LetterSourceReader({ onPage }) {
       <div className="ahavat29-letter-checkpoints" aria-label={`מניין ${source.name} לפי חומש`}>{books.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}><span>{book.title}</span><strong>{book.count.toLocaleString("en-US")}</strong><small>מצטבר {book.cumulative.toLocaleString("en-US")}</small></button>)}</div>
       <nav className="ahavat29-letter-books" aria-label={`בחירת חומש באות ${source.name}`}><button type="button" aria-pressed={bookId === "all"} onClick={() => select(form, "all")}>כל התורה</button>{books.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}>{book.title}</button>)}</nav>
       <div className="ahavat29-table-tools"><label><span>חיפוש בפרשות האות</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="פרשה, חומש, מספר או אותיות המניין" /></label><strong aria-live="polite">{rows.length} פרשות</strong></div>
-      <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מבנה האות בתלת־ממד" : "פתח מבנה האות בתלת־ממד"}</button><button type="button" onClick={() => onPage(35)}>המקור המלא · PDF 35</button><button type="button" disabled={!rows.length} onClick={downloadRows}>הורד טבלה למחקר · {rows.length} שורות</button></div>
+      <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מבנה האות בתלת־ממד" : "פתח מבנה האות בתלת־ממד"}</button>{readingPages.map(page => <button type="button" key={page} onClick={() => onPage(page)}>המקור המלא · PDF {page}</button>)}<button type="button" disabled={!rows.length} onClick={downloadRows}>הורד טבלה למחקר · {rows.length} שורות</button></div>
       {showScene ? <div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה האות…</p>}><AhavatTorahSpatialScene2029 mode="letter" letterLabel={source.name} bars={bars} activeId={selectedBar || bookId} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = מספר מופעי {form}׳ {activeBook ? "בכל פרשה" : "בכל חומש"} · לחיצה פותחת את המקור</p></div> : null}
       <div className="ahavat29-letter-bars" aria-label={`מופעי ${source.name} ${activeBook ? "בפרשות החומש" : "בחומשים"}`}>{bars.map(bar => <button type="button" key={bar.id} aria-pressed={selectedBar === bar.id} onClick={() => selectBar(bar.id)}><span>{bar.label}</span><i style={{ "--letter-share": `${bar.count / Math.max(...bars.map(item => item.count)) * 100}%` }} /><b>{bar.count.toLocaleString("en-US")}</b></button>)}</div>
       {rows.length ? <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><caption>אות {form}׳ · {activeBook?.title || "כל התורה"} · קריאת דברי הספר</caption><thead><tr><th>פרשה</th><th>חומש</th><th>המניין בדפוס</th><th>מספר</th><th>מקור</th></tr></thead><tbody>{rows.map(row => <tr key={row.parasha}><td>{row.parasha}</td><td>{row.book}</td><td>{row.printed}</td><td><b>{row.count.toLocaleString("en-US")}</b></td><td><button type="button" onClick={() => onPage(row.page)}>PDF {row.page}</button></td></tr>)}</tbody></table></div> : <p role="status">לא נמצאה פרשה מתאימה לחיפוש.</p>}
-      <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>PDF 35, {AHAVAT_LETTER_READING_LOCATIONS[form]}. כל 54 השורות נקראו מול הצילום. {hasReadingGap ? "נותרו פערים בין קריאת השורות לבין חלק מסיכומי הדפוס; שתי הקריאות נשמרות להכרעה בלי לשנות מספר כדי להתאים לסכום." : "חמשת סיכומי הפרשות נסגרים לסיכומים המצטברים המודפסים."} חלקו של חומש מתקבל בהפרש בין שני סיכומים עוקבים. עמודות החומשים מייצגות את סיכומי הספר; עמודות הפרשות מייצגות את קריאת השורות. זו קריאת המניין של המחבר; לא בוצעה ספירת קורפוס עצמאית במנוע.</p><ul>{books.map(book => {
+      <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>PDF {source.pages.join(" · ")}, {AHAVAT_LETTER_READING_LOCATIONS[form]}. כל 54 השורות נקראו מול הצילום. {hasReadingGap ? "נותרו פערים בין קריאת השורות לבין חלק מסיכומי הדפוס; שתי הקריאות נשמרות להכרעה בלי לשנות מספר כדי להתאים לסכום." : "חמשת סיכומי הפרשות נסגרים לסיכומים המצטברים המודפסים."} חלקו של חומש מתקבל בהפרש בין שני סיכומים עוקבים. עמודות החומשים מייצגות את סיכומי הספר; עמודות הפרשות מייצגות את קריאת השורות. זו קריאת המניין של המחבר; לא בוצעה ספירת קורפוס עצמאית במנוע.</p><ul>{books.map(book => {
         const balance = ahavatLetterBalance(book);
         return <li key={book.id}>{book.title}: {book.printed} = {book.cumulative.toLocaleString("en-US")} מצטבר. חלק החומש לפי הסיכומים: {book.count.toLocaleString("en-US")}; קריאת השורות: {balance.rowTotal.toLocaleString("en-US")}. {balance.delta ? `פער קריאה: ${balance.delta}.` : "סכום השורות תואם."}</li>;
       })}</ul></details>
@@ -672,7 +673,8 @@ export default function AhavatTorahSystem2029Page() {
     setFindingId("");
     setDatasetId("");
     replaceSelectionInUrl(nextPage, "", "");
-    document.getElementById("ahavat29-source")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+    document.getElementById("ahavat29-source")?.scrollIntoView({ behavior, block: "start" });
   };
 
   return <Sod2029Shell

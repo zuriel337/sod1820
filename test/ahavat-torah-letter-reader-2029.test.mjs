@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { AHAVAT_LETTER_FORMS, AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS, AHAVAT_GIMEL_BOOKS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatAlephRows, ahavatLetterRows, ahavatLetterBalance, ahavatLetterCsv } from "../src/data/ahavatTorahLetters2029.js";
+import { AHAVAT_LETTER_FORMS, AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS, AHAVAT_GIMEL_BOOKS, AHAVAT_DALET_BOOKS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatAlephRows, ahavatLetterRows, ahavatLetterBalance, ahavatLetterCsv, ahavatLetterSourcePage } from "../src/data/ahavatTorahLetters2029.js";
 
 test("the printed letter sequence preserves finals, shin/sin and exact page boundaries", () => {
   assert.equal(AHAVAT_LETTER_FORMS.length, 28);
@@ -56,7 +56,7 @@ test("Bet closes all five source checkpoints and switching letters cannot reuse 
 });
 
 test("Gimel retains all source rows and printed totals without concealing or balancing reading gaps", () => {
-  assert.equal(Object.values(AHAVAT_LETTER_READINGS).flatMap(books => books.flatMap(book => book.rows)).length, 162);
+  assert.equal(Object.values(AHAVAT_LETTER_READINGS).flatMap(books => books.flatMap(book => book.rows)).length, 216);
   assert.equal(ahavatLetterRows("ג").length, 54);
   assert.equal(new Set(ahavatLetterRows("ג").map(row => row.parasha)).size, 54);
   assert.equal(AHAVAT_LETTER_READING_LOCATIONS["ג"], "הטור השמאלי");
@@ -85,4 +85,35 @@ test("research CSV exports the selected source rows with Hebrew encoding, exact 
   assert.equal(filtered.trimEnd().split("\r\n").length, 2);
   assert.match(filtered, /"ג","ויקהל","שמות","כ״ו","26"/);
   assert.equal(ahavatLetterCsv("ך").trimEnd().split("\r\n").length, 1);
+});
+
+test("Dalet closes 54 directly read rows while preserving a page break inside Vayikra", () => {
+  const rows = ahavatLetterRows("ד");
+  assert.equal(rows.length, 54);
+  assert.equal(new Set(rows.map(row => row.parasha)).size, 54);
+  assert.deepEqual(AHAVAT_DALET_BOOKS.map(book => book.cumulative), [1848, 3312, 4228, 5851, 7036]);
+  assert.deepEqual(AHAVAT_DALET_BOOKS.map(book => book.count), [1848, 1464, 916, 1623, 1185]);
+  assert.ok(AHAVAT_DALET_BOOKS.every(book => ahavatLetterBalance(book).delta === 0));
+  assert.deepEqual(AHAVAT_DALET_BOOKS.map(book => book.pages), [[35], [35], [35, 36], [36], [36]]);
+  assert.equal(rows.filter(row => row.page === 35).length, 24);
+  assert.equal(rows.filter(row => row.page === 36).length, 30);
+  assert.equal(rows.reduce((sum, row) => sum + row.count, 0), 7036);
+  for (const [parasha, numeral, count] of [["תרומה", "ק״ב", 102], ["קרח", "ק״נ", 150], ["מטות", "קכ״א", 121], ["מסעי", "קמ״ג", 143], ["דברים", "קמ״ט", 149], ["ראה", "קכ״ז", 127], ["האזינו", "ס״ה", 65]]) {
+    assert.deepEqual(rows.filter(row => row.parasha === parasha).map(row => [row.printed, row.count]), [[numeral, count]]);
+  }
+});
+
+test("Dalet book checkpoints, row actions and exports resolve their own source page", () => {
+  assert.equal(ahavatLetterSourcePage("ד"), 35);
+  assert.equal(ahavatLetterSourcePage("ד", "shemot"), 35);
+  assert.equal(ahavatLetterSourcePage("ד", "vayikra"), 36);
+  assert.equal(ahavatLetterSourcePage("ד", "vayikra", "ויקרא"), 35);
+  assert.equal(ahavatLetterSourcePage("ד", "vayikra", "צו"), 36);
+  assert.equal(ahavatLetterSourcePage("ד", "devarim", "האזינו"), 36);
+  assert.equal(ahavatLetterSourcePage("ך"), 37);
+  const csv = ahavatLetterCsv("ד", "vayikra", "", "https://example.test/book.pdf");
+  assert.equal(csv.trimEnd().split("\r\n").length, 11);
+  assert.match(csv, /"ד","ויקרא","ויקרא","קי״ב","112","35","https:\/\/example.test\/book.pdf#page=35&view=FitH"/);
+  assert.match(csv, /"ד","צו","ויקרא","ק״ט","109","36","https:\/\/example.test\/book.pdf#page=36&view=FitH"/);
+  assert.match(csv, /"4228","916","916","0"/);
 });
