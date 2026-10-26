@@ -15,6 +15,7 @@ import { fibonacciRailModel } from "../../lib/research/fibonacciSequence.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
+import CanonicalVerseCards2029 from "../experience2029/CanonicalVerseCards2029.jsx";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -375,16 +376,11 @@ export default function NumberLivingWorld2029({
         text="פסוק שלם שנמצא דרך מנוע פסוקי-הערך הקנוני. מראה המקום מוצג באותיות עבריות; הערך מופיע רק אחרי הפסוק."
         aside={<span className="sod29-lw-count">{verseRows.length} מתוך {Math.max(verseCount, verseRows.length)}</span>}
       />
-      {versesLoading ? <div className="sod29-lw-empty">טוען פסוקי־ערך…</div> : <div className="sod29-lw-verse-grid">
-        {(showAllVerses ? verseRows : verseRows.slice(0, 3)).map((row, index) => <article key={row.ref || index}>
-          <span>{formatTanakhRef(row.ref)}</span>
-          <p className="sod29-lw-verse-equality">
-            <span>{row.text}</span>
-            <strong>{formatVerseGematriaSuffix(row.value ?? root)}</strong>
-          </p>
-          <small>פסוק שלם · גימטריה רגילה</small>
-        </article>)}
-      </div>}
+      {versesLoading ? <div className="sod29-lw-empty">טוען פסוקי־ערך…</div> : <CanonicalVerseCards2029
+        rows={showAllVerses ? verseRows : verseRows.slice(0, 3)}
+        variant="gematria"
+        fallbackValue={root}
+      />}
       {!versesLoading && !showAllVerses && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses(true)}>{`פתח עוד ${verseRows.length - 3} פסוקים`}</DepthButton> : null}
       {showAllVerses && verseCount > verseRows.length ? <DepthButton onClick={onLoadMoreVerses}>{`טען עוד פסוקים · ${verseRows.length} מתוך ${verseCount}`}</DepthButton> : null}
       {showAllVerses && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses(false)}>צמצם פסוקים</DepthButton> : null}

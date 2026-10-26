@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   LIFE_JOURNEY_ELS_ADAPTER_CONTRACT,
+  LIFE_JOURNEY_ELS_HANDOFF_CONTRACT,
+  LIFE_JOURNEY_ELS_VERIFIED_RETURN_HREF,
+  buildLifeJourneyElsVerifiedHandoff,
   prepareLifeJourneyElsPlan,
   replayLifeJourneyElsSelection,
   verifyLifeJourneyElsOccurrence,
@@ -26,6 +29,16 @@ const verifyResponse = Object.freeze({
       status: "OK",
       verification_state: "MATCH",
       corpus_id: "torah-v1",
+      corpus_version: "v1",
+      input: { normalized: "שםבדיקה" },
+      occurrence: {
+        occurrence_id: occurrence.occurrenceId,
+        skip: 7,
+        dir: 1,
+        start: 120,
+        end: 141,
+        positions: [120, 127, 134, 141],
+      },
     },
   },
 });
@@ -76,4 +89,52 @@ test("persisted exact selection replays through the same canonical verifier", as
   const result = await replayLifeJourneyElsSelection(selection, async () => verifyResponse);
   assert.equal(result.ok, true);
   assert.equal(result.loadItem.hitId, "7_1_120");
+});
+
+test("verified Life Journey handoff uses the existing text-private elsSurfaceContext and fixed return URL", async () => {
+  const verified = await replayLifeJourneyElsSelection({
+    entityType: "els",
+    term: "שםבדיקה",
+    corpus: "torah",
+    corpusVersion: "v1",
+    occurrenceId: occurrence.occurrenceId,
+    skip: 7,
+    dir: 1,
+    start: 120,
+  }, async () => verifyResponse);
+  const handoff = buildLifeJourneyElsVerifiedHandoff({
+    verified: verified.verified,
+    researchContext: {
+      lens: "els",
+      subject: { id: "person:private:self", type: "person", label: "שם פרטי" },
+      journey: { id: "journey:private", kind: "person_life", position: 4 },
+    },
+  });
+
+  assert.equal(handoff.contract, LIFE_JOURNEY_ELS_HANDOFF_CONTRACT);
+  assert.equal(handoff.ok, true);
+  assert.equal(handoff.href, LIFE_JOURNEY_ELS_VERIFIED_RETURN_HREF);
+  assert.equal(handoff.href, "/code?els_return=verified-v1");
+  assert.equal(handoff.elsSurfaceContext.surface, "els");
+  assert.match(handoff.elsSurfaceContext.occurrence.occurrenceRef, /^anon:/);
+  assert.equal(handoff.elsSurfaceContext.result.presentationPolicy, "exact_replay_v1");
+  assert.equal(handoff.elsSurfaceContext.privacy.includeText, false);
+  const serialized = JSON.stringify(handoff);
+  assert.equal(serialized.includes("שםבדיקה"), false);
+  assert.equal(serialized.includes("שם פרטי"), false);
+  assert.equal(serialized.includes("term="), false);
+  assert.equal("loadItem" in handoff, false);
+});
+
+test("Life Journey handoff fails closed for an unverified occurrence", () => {
+  const handoff = buildLifeJourneyElsVerifiedHandoff({
+    verified: { ok: false, state: "MISMATCH", result: verifyResponse.data.result },
+  });
+  assert.deepEqual(handoff, {
+    contract: LIFE_JOURNEY_ELS_HANDOFF_CONTRACT,
+    ok: false,
+    state: "VERIFIED_OCCURRENCE_REQUIRED",
+    href: null,
+    elsSurfaceContext: null,
+  });
 });

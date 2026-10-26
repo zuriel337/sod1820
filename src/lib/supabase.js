@@ -1306,7 +1306,7 @@ function aiInteractionId() {
     return globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : null;
   } catch { return null; }
 }
-export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation, interaction_id, surface }) {
+export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation, interaction_id, surface, persistAnalysis = true }) {
   if (!supabase) return null;
   try {
     // 📏 ai_quota_law — visitor_id מאפשר ספירת-מכסה יציבה לאורח (מדויק יותר מ-IP).
@@ -1333,7 +1333,12 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine,
     const analysisText = structuredReflection?.message || data?.analysis || null;
     // 🧪 ai_style_learning_law — כל ניתוח מוצלח נרשם אוטומטית (בכל משטח באתר, כי כולם עוברים כאן).
     // fire-and-forget: הרישום לא מעכב ולא מפיל את הניתוח.
-    if (analysisText) logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: analysisText });
+    // Private research surfaces may use the existing AI transport without copying their
+    // subject/message into the style-learning log. Operational cost traces remain bounded
+    // server-side and contain no raw non-numeric subject.
+    if (analysisText && persistAnalysis !== false) {
+      logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: analysisText });
+    }
     return structuredReflection || analysisText;
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
 }
@@ -3798,6 +3803,23 @@ export async function getNameMulti(name, { surname, birthdate, question } = {}) 
   return data || null;
 }
 
+// Life Journey's bounded non-ELS NameLab reader. This consumes the existing fn_name_multi
+// opt-out seam directly so a one-word name cannot fall through fn_name_research_graded's
+// historical ELS branch. It is a read adapter only: no calculation, persistence or new store.
+export async function getNameMultiWithoutEls(name) {
+  const w = (name || '').trim();
+  if (!supabase || !w) return null;
+  const { data, error } = await supabase.rpc('fn_name_multi', {
+    p_name: w,
+    p_surname: null,
+    p_birthdate: null,
+    p_question: null,
+    p_opts: { skip_els: '1' },
+  });
+  if (error) return null;
+  return data || null;
+}
+
 // 📊 לוח-איכות פנימי — מתעד כל מחקר-שם (fire-and-forget, לצורכי פיתוח). לא חוסם את ה-UI.
 export function logNameResearch(doc, ms) {
   try {
@@ -4314,6 +4336,13 @@ export async function upsertFamilyMember(ownerId, ref, name, meta = {}) {
 export async function upsertFamilyRelation(ownerId, parentRef, childRef, relationType = 'parent_of', meta = {}) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.rpc('fn_upsert_family_relation', { p_owner: ownerId, p_parent_ref: parentRef, p_child_ref: childRef, p_relation_type: relationType, p_meta: meta });
+  if (error) throw error;
+  return data;
+}
+
+export async function removeFamilyMember(ownerId, targetRef) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('fn_remove_family_member', { p_owner: ownerId, p_target_ref: targetRef });
   if (error) throw error;
   return data;
 }

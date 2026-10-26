@@ -114,7 +114,7 @@ test("runtime accepts surname/birthdate for canonical NameLab call but never sen
   assert.equal(result.payload.messageReflection.message, "האור מקבל כיוון.");
 });
 
-test("non-UI binder reuses getNameMulti/getAiAnalysis/fn_tarot_sos without a new endpoint", async () => {
+test("product binder reuses getNameMulti/getAiAnalysis/fn_tarot_sos without a new endpoint", async () => {
   const calls = [];
   const providers = createNameLabReflectionRuntimeProviders({
     getNameMulti: async (name, opts) => {
@@ -122,7 +122,7 @@ test("non-UI binder reuses getNameMulti/getAiAnalysis/fn_tarot_sos without a new
       return { graded: false, tracks: tracks() };
     },
     getAiAnalysis: async (args) => {
-      calls.push(["ai", args.operation, args.surface]);
+      calls.push(["ai", args.operation, args.surface, args.persistAnalysis]);
       return "מסר";
     },
     supabase: {
@@ -140,5 +140,6 @@ test("non-UI binder reuses getNameMulti/getAiAnalysis/fn_tarot_sos without a new
   });
   assert.equal(out.status, "ok");
   assert.deepEqual(calls.map((x) => x[0]), ["name", "ai", "rpc"]);
+  assert.deepEqual(calls[1], ["ai", "normalized_reflection", "research:name-lab-reflection", false]);
   assert.deepEqual(calls[2], ["rpc", "fn_tarot_sos", 3]);
 });

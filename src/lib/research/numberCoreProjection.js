@@ -32,11 +32,14 @@ export function projectNumberMethodProfileRow(row) {
   };
 }
 
-export async function fetchNumberMethodProfile(expression) {
+export async function fetchNumberMethodProfile(expression, { client = null, registryRows = null } = {}) {
   const phrase = clean(expression);
   if (!phrase || /^\d+$/.test(phrase)) return [];
-  const { supabase } = await import("../supabase.js");
-  const { data, error } = await supabase.rpc("fn_method_profile", {
+  const activeClient = client || (await import("../supabase.js")).supabase;
+  if (!activeClient || typeof activeClient.rpc !== "function") {
+    throw new TypeError("numberMethodProfile: Supabase client with rpc() is required");
+  }
+  const { data, error } = await activeClient.rpc("fn_method_profile", {
     p_phrase: phrase,
     p_depth: "value",
   });
@@ -45,11 +48,17 @@ export async function fetchNumberMethodProfile(expression) {
 
   const keys = rows.map((row) => row.methodKey);
   if (!keys.length) return rows;
-  const { data: registry, error: registryError } = await supabase
-    .from("gematria_methods")
-    .select("method_key,db_column,display_label,category,sub,soul,sort_order,mathematical_family,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
-    .in("method_key", keys);
-  if (registryError) throw registryError;
+  let registry = Array.isArray(registryRows)
+    ? registryRows.filter(row => keys.includes(clean(row?.method_key)))
+    : null;
+  if (!registry) {
+    const { data, error: registryError } = await activeClient
+      .from("gematria_methods")
+      .select("method_key,db_column,display_label,category,sub,soul,sort_order,mathematical_family,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
+      .in("method_key", keys);
+    if (registryError) throw registryError;
+    registry = data;
+  }
   const deps = new Map((registry || []).map((row) => [clean(row?.method_key), row]));
   return rows.map((row) => {
     const registryRow = deps.get(row.methodKey) || {};

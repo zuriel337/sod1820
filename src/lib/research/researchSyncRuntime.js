@@ -4,6 +4,7 @@
 import { applyResearchOps, assertCloudSnapshot, emptyResearchState, normalizeResearchState,
   newResearchId, principalToken, principalStateKey, principalContextKey, LEGACY_UNSCOPED_KEY,
   LEGACY_CONTEXT_SESSION_KEY } from './researchSyncState.js';
+import { normalizeResearchContext } from './researchContext.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 const object = x => !!x && typeof x === 'object' && !Array.isArray(x);
@@ -145,7 +146,13 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         if (!active || generation !== epoch) return;
         // Never reset an uncertain pending journal's revision from a fresh read.
         if (!queue.length || revision == null) revision = cloud.revision;
-        state = { ...applyResearchOps(cloud, queue.flatMap(b => b.ops)), context: state.context };
+        const hasQueuedContextIntent = queue.some(batch => batch.ops.some(op => op?.kind === 'context_set'));
+        const cloudContext = normalizeResearchContext(cloud.context);
+        // A mounted tab owns its active navigation. A genuinely fresh browser origin has no
+        // session Context, so it may resume the same principal's private cloud Context. This is
+        // what lets an exact-SHA Preview change without making the user's Life Journey disappear.
+        const hydratedContext = state.context ?? (hasQueuedContextIntent ? null : cloudContext);
+        state = { ...applyResearchOps(cloud, queue.flatMap(b => b.ops)), context: hydratedContext };
         cloudReady = true; status = queue.length ? 'pending' : 'synced';
         persist(); notify();
       } catch (e) { if (active && generation === epoch) { cloudReady = false; markError(e); } }

@@ -13,6 +13,12 @@ const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגי
 // Review-only capability switch. It is compiled into an isolated Preview only
 // and never inferred from a URL, browser storage, identity or Production state.
 const unlockedPreview = import.meta.env.VITE_UNLOCKED_2029_PREVIEW === "true";
+const LIFE_JOURNEY_PREVIEW_OPEN = import.meta.env?.VITE_LIFE_JOURNEY_PREVIEW_OPEN === "true";
+
+function applyPreviewFeatureState(flag, state) {
+  if (flag !== "lock_life_journey" || !LIFE_JOURNEY_PREVIEW_OPEN) return state;
+  return resolveFeatureState(null);
+}
 
 export function MaintenanceLock({ message, showLogin = false, alternatives = false, homeHref = "/" }) {
   return (
@@ -39,10 +45,6 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
         :root[data-theme="light"] .mlock p{color:#33260a;}
         :root[data-theme="light"] .mlock a{color:#8a5a0a;}
         :root[data-theme="light"] .mlock a.mlock-cta{background:#8a5a0a;color:#fff;}
-        :root[data-theme="dark"] .mlock h1{color:#f0dc9a;}
-        :root[data-theme="dark"] .mlock p{color:#cdbf9f;}
-        :root[data-theme="dark"] .mlock a{color:#e8c84a;}
-        :root[data-theme="dark"] .mlock a.mlock-cta{background:#e8c84a;color:#1a0e00;}
       `}</style>
       <img src={LOGO_URL} alt="סוד 1820" />
       <h1>{message || DEFAULT_MSG}</h1>
@@ -165,12 +167,20 @@ export function resolveFeatureState(lock, {
 export function useFeatureState(flag, { requireFlag = false } = {}) {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { loading, lock } = useSiteFlag(flag);
-  return useMemo(() => ({
-    flag,
-    loading: loading || authLoading,
-    lock,
-    ...resolveFeatureState(lock, { user, isAdmin, requireFlag, previewBypass: unlockedPreview }),
-  }), [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
+  return useMemo(() => {
+    const resolved = resolveFeatureState(lock, {
+      user,
+      isAdmin,
+      requireFlag,
+      previewBypass: unlockedPreview,
+    });
+    return {
+      flag,
+      loading: loading || authLoading,
+      lock,
+      ...applyPreviewFeatureState(flag, resolved),
+    };
+  }, [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
