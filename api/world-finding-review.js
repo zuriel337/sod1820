@@ -201,7 +201,9 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (replay !== "all" && row?.legacyReplay?.state !== replay) return false;
     if (replayQueue !== "all" && row?.legacyReplay?.routingQueue !== replayQueue) return false;
     const decision = row?.legacyReplay?.decision;
-    if (replaySource === "exact_source" && !(Number(decision?.sourceLocatorStateCounts?.channel_uuid) > 0)) return false;
+    const exactSourceCount = (Number(decision?.sourceLocatorStateCounts?.channel_uuid) || 0)
+      + (Number(decision?.sourceLocatorStateCounts?.channel_uuid_available) || 0);
+    if (replaySource === "exact_source" && !(exactSourceCount > 0)) return false;
     if (replaySource === "source_locator_repair" && !(Number(decision?.sourceRepairOccurrenceCount) > 0)) return false;
     if (replayTarget !== "all" && !(Number(decision?.targetStateCounts?.[replayTarget]) > 0)) return false;
     if (replayTargetEvidence !== "all" && !(Number(decision?.targetEvidenceStateCounts?.[replayTargetEvidence]) > 0)) return false;

@@ -35,7 +35,7 @@ test("manager corpus audit keeps publication, verification and catalog completen
     "zvi_ready_single_target",
     "zvi_ready_multiple_targets",
     "zvi_ready_missing_target",
-  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [12, 102, 153, 1856, 486]);
+  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [10, 102, 153, 1856, 486]);
   assert.deepEqual([
     "zvi_ready_primary_number_context",
     "zvi_ready_additional_numbers",
@@ -101,8 +101,10 @@ test("audit routes only to existing canonical World views", () => {
   assert.equal(zvi.counts.find((item) => item.label === "ציבוריים מאושרים בעדשת העולם").value, 5649);
   assert.equal(zvi.counts.find((item) => item.label === "מועמדים בתור נפרד").value, 1705);
   assert.equal(zvi.counts.find((item) => item.label === "בשלים טכנית לביקורת מקור ויעד").value, 2597);
-  assert.equal(zvi.counts.find((item) => item.label === "בשלים עם locator מדויק").value, 2585);
-  assert.equal(zvi.counts.find((item) => item.label === "בשלים הדורשים תיקון locator").value, 12);
+  assert.equal(zvi.counts.find((item) => item.label === "בשלים עם מקור מדויק").value, 2587);
+  assert.equal(zvi.counts.find((item) => item.label === "locator ראשי מסוג channel UUID").value, 2585);
+  assert.equal(zvi.counts.find((item) => item.label === "מקור channel מדויק ב־source_refs").value, 2);
+  assert.equal(zvi.counts.find((item) => item.label === "בשלים הדורשים איתור מקור").value, 10);
   assert.deepEqual([
     "בשלים שכבר מחוברים לעץ",
     "בשלים עם יעד מובנה יחיד",
@@ -115,8 +117,9 @@ test("audit routes only to existing canonical World views", () => {
     "חיבורים שתואמים בדיוק ל־value",
     "חיבורים יתומים או לא פעילים",
     "חיבורים עם מקור מדויק",
-    "חיבורים הדורשים תיקון locator",
-  ].map((label) => zvi.counts.find((item) => item.label === label).value), [102, 74, 102, 0, 100, 2]);
+    "חיבורים עם channel UUID ב־source_refs",
+    "חיבורים הדורשים איתור מקור",
+  ].map((label) => zvi.counts.find((item) => item.label === label).value), [102, 74, 102, 0, 102, 2, 0]);
   assert.deepEqual([
     "חסרי יעד עם value להצעה",
     "חסרי יעד וללא value",

@@ -1058,6 +1058,9 @@ export default function WorldAllResearchTable({ state }) {
           <div className="sod29-world-source-locator">
             <strong>מקור וכתובת מדויקת</strong>
             <code dir="ltr">{row.sourceRef || "אין source locator"}</code>
+            {row.legacyReplay?.canonicalSourceRef && row.legacyReplay.canonicalSourceRef !== row.sourceRef
+              ? <small>מקור channel מדויק נוסף שנשמר ב־source_refs: <code dir="ltr">{row.legacyReplay.canonicalSourceRef}</code></small>
+              : null}
             <div className="sod29-actions">
               <a className="sod29-action" href={row.canonicalFindingHref}>קישור ישיר לממצא</a>
               {row.sourceHref ? <a className="sod29-action" href={row.sourceHref} target="_blank" rel="noreferrer">פתח מקור ↗</a> : null}

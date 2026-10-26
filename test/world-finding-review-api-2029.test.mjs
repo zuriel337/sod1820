@@ -270,7 +270,7 @@ test("technically-ready source and target axes are independently filterable", ()
     legacyReplay: {
       state: "deterministic_match",
       decision: {
-        sourceLocatorStateCounts: { channel_uuid: 1 },
+        sourceLocatorStateCounts: { channel_uuid_available: 1 },
         sourceRepairOccurrenceCount: 0,
         targetStateCounts: { single_structured_target: 1 },
         targetEvidenceStateCounts: { exact_row_value_match: 1 },

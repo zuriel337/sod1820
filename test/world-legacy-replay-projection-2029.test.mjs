@@ -310,6 +310,22 @@ test("a structured value can propose a number target without inventing a live tr
   assert.deepEqual(withoutValueDecision.proposedNumberTargets, []);
 });
 
+test("an exact channel source in source_refs resolves a legacy primary locator without rewriting it", () => {
+  const channelRef = `channel_updates:${id("a")}`;
+  const raw = row({
+    source_ref: "gallery_images:legacy-image",
+    meta: { source_refs: ["gallery_images:legacy-image", channelRef] },
+  });
+  const projected = attachWorldLegacyReplay({
+    id: `research:${raw.id}`, sourceId: raw.id, verification: "legacy_signal",
+  }, buildWorldLegacyReplayIndex([raw]));
+
+  assert.equal(projected.legacyReplay.sourceLocatorState, "channel_uuid_available");
+  assert.equal(projected.legacyReplay.canonicalSourceRef, channelRef);
+  assert.equal(projected.legacyReplay.decision.sourceReadiness, "exact_source");
+  assert.equal(projected.legacyReplay.decision.sourceRepairOccurrenceCount, 0);
+});
+
 test("source repair blocks automatic target handling and target counts preserve every occurrence", () => {
   const decision = classifyWorldLegacyReplayDecision([
     {

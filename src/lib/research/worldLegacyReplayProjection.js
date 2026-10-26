@@ -401,8 +401,17 @@ export function buildWorldLegacyReplayIndex(rows = []) {
   const index = new Map();
   for (const row of Array.isArray(rows) ? rows : []) {
     const replay = projectWorldLegacyReplayOccurrence(row);
+    const alternateSourceRefs = Array.isArray(row?.meta?.source_refs) ? row.meta.source_refs : [];
+    const exactChannelSourceRefs = [...new Set([row?.source_ref, ...alternateSourceRefs]
+      .map(clean)
+      .filter((sourceRef) => sourceLocatorState(sourceRef) === "channel_uuid"))];
+    const resolvedSourceLocatorState = replay?.sourceLocatorState === "channel_uuid"
+      ? "channel_uuid"
+      : exactChannelSourceRefs.length ? "channel_uuid_available" : replay?.sourceLocatorState;
     if (replay?.id) index.set(replay.id, Object.freeze({
       ...replay,
+      sourceLocatorState: resolvedSourceLocatorState,
+      canonicalSourceRef: exactChannelSourceRefs[0] || null,
       targetReview: projectStructuredTargetReview(row),
     }));
   }
@@ -511,9 +520,10 @@ export function classifyWorldLegacyReplayDecision(occurrences = []) {
   const targets = new Map();
   const proposedNumberTargets = new Set();
   let repairCount = 0;
+  const exactSourceStates = new Set(["channel_uuid", "channel_uuid_available"]);
   for (const item of items) {
     incrementCount(sourceLocatorStateCounts, item.sourceLocatorState);
-    if (item.sourceLocatorState !== "channel_uuid") repairCount += 1;
+    if (!exactSourceStates.has(item.sourceLocatorState)) repairCount += 1;
     const targetReview = item.targetReview || { state: "missing_structured_target", targets: [] };
     incrementCount(targetStateCounts, targetReview.state);
     incrementCount(targetEvidenceStateCounts, targetReview.evidenceState);
