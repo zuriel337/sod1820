@@ -7,8 +7,10 @@ const loadBirthMapStudio2029 = () => import("./BirthMapStudio2029.jsx");
 const loadLifeJourneyTimeMap2029 = () => import("./LifeJourneyTimeMap2029.jsx");
 const BirthMapStudio2029 = lazy(loadBirthMapStudio2029);
 const LifeJourneyTimeMap2029 = lazy(loadLifeJourneyTimeMap2029);
+const LifeJourneyPicture2029 = lazy(() => import("./LifeJourneyPicture2029.jsx"));
 
 const MAP_TABS = Object.freeze([
+  { id: "summary", label: "התמונה שלי" },
   { id: "overview", label: "מפת־על" },
   { id: "matrix", label: "מטריצה" },
   { id: "generations", label: "דורות" },
@@ -20,7 +22,6 @@ const MAP_TABS = Object.freeze([
   { id: "creation", label: "מפת יצירה", preload: loadBirthMapStudio2029 },
   { id: "sources", label: "מקורות" },
   { id: "coverage", label: "כיסוי" },
-  { id: "summary", label: "סיכום" },
   { id: "path", label: "מסלול" },
 ]);
 
@@ -29,14 +30,6 @@ const PATH_STATE_LABEL = Object.freeze({
   empty: "נבדק · אין תוצאה",
   waiting: "ממתין למחקר מפורש",
   available: "זמין לפתיחה",
-});
-
-const SYNTHESIS_LAYER_STATE_LABEL = Object.freeze({
-  ready: "ראיה זמינה",
-  empty: "נבדק · ללא תוצאה",
-  auxiliary: "עדשת עזר פנימית",
-  internal: "בדיקה פנימית",
-  waiting: "ממתין",
 });
 
 const EVIDENCE_BAND_LABEL = Object.freeze({
@@ -299,27 +292,6 @@ function CoverageMap({ rows, ready }) {
   </div>;
 }
 
-function SummaryMap({ data }) {
-  if (data.state === "loading") return <div className="person-journey-map-summary" role="status"><strong>מרכיב סיכום מהממצאים המנורמלים…</strong><p>המפות נשארות זמינות בזמן שהסיכום נבנה.</p></div>;
-  const hasActiveLayer = data.synthesisPack?.coverage?.layers?.some(layer => layer.state !== "waiting");
-  if (!data.message && !hasActiveLayer) return <EmptyMap>הסיכום יופיע לאחר הפעלת הבדיקה המשפחתית שבחרת.</EmptyMap>;
-  return <article className="person-journey-map-summary" data-experience-capability="life-journey-combined-summary">
-    <header><div><small>{data.normalized ? "סיכום מנורמל שכבר נוצר" : "סיכום חישובי לפני ניסוח"}</small><h4>התמונה המשפחתית</h4></div><span>{data.connectionCount} חיבורים · {data.searchedPairCount} זוגות נבדקו</span></header>
-    <p>{data.message || "הסיכום יופיע לאחר הפעלת הבדיקה המשפחתית המפורשת. עד אז מוצג רק מצב השכבות שכבר הופעלו."}</p>
-    <div><span>{data.verseCount} פסוקים</span><span>{data.normalized ? "ניסוח מאומת פנימית" : "ממתין לניסוח המלא"}</span></div>
-    {data.synthesisPack?.coverage?.layers?.length ? <section aria-label="שכבות חבילת הסינתזה">
-      <h5>חבילת המחקר המאוחדת</h5>
-      <div className="person-journey-map-chips">{data.synthesisPack.coverage.layers.map(layer => <span key={layer.id} data-state={layer.state}>
-        {layer.label} · {SYNTHESIS_LAYER_STATE_LABEL[layer.state] || layer.state}
-      </span>)}</div>
-      <small>גימטריה, תאריך, משפחה ומקורות מזינים את הסיכום. Human Design, מפת שמיים והקלפים נשארים בדיקות השתקפות פנימיות במשקל ראיה אפס ואינם משנים אותו.</small>
-    </section> : null}
-    {data.claims.length ? <details><summary>על מה הסיכום נשען?</summary><ul>{data.claims.map((claim, index) => <li key={`${index}:${claim}`}>{claim}</li>)}</ul></details> : null}
-    {data.error ? <small role="alert">{data.error}</small> : null}
-    <footer>הסיכום משתמש רק במחקר השמור. הוא אינו מפעיל ELS ואינו יוצר אמת על המשפחה.</footer>
-  </article>;
-}
-
 function PathMap({ data }) {
   return <div className="person-journey-path-map">
     <ol>{data.steps.map((step, index) => <li key={step.id} data-state={step.state}>
@@ -331,28 +303,41 @@ function PathMap({ data }) {
   </div>;
 }
 
-function MapPanel({ active, projection, onSelect, onBirthCalculationChange }) {
+function MapPanel({ active, projection, onSelect, onBirthCalculationChange, birthReflections, birthFocus, focusedMemberRef, onPersonFocus }) {
   if (active === "matrix") return <MatrixMap rows={projection.matrix} />;
   if (active === "generations") return <GenerationsMap data={projection.generations} />;
   if (active === "relationships") return <RelationshipsMap rows={projection.relationships} ready={projection.overview.researchReady} />;
   if (active === "convergences") return <ConvergencesMap rows={projection.convergences} ready={projection.overview.researchReady} />;
   if (active === "evidence") return <EvidenceMap data={projection.evidence} ready={projection.overview.researchReady} />;
   if (active === "timeline") return <TimelineMap rows={projection.timeline} missing={projection.timelineMissing} />;
-  if (active === "time") return <LifeJourneyTimeMap2029 data={projection.timeMap} />;
+  if (active === "time") return <LifeJourneyTimeMap2029 key={focusedMemberRef} data={projection.timeMap} initialMemberRef={focusedMemberRef} />;
   if (active === "creation") return <BirthMapStudio2029
+    key={`${birthFocus.memberRef}:${birthFocus.lens}`}
     data={projection.birthMap}
+    initialMemberRef={birthFocus.memberRef}
+    initialLens={birthFocus.lens}
+    birthReflections={birthReflections}
+    onReturnToPicture={() => onSelect("summary")}
+    onPersonFocus={onPersonFocus}
     seferContent={<CreationMap data={projection.creation} />}
     onCalculationChange={onBirthCalculationChange}
   />;
   if (active === "sources") return <SourcesMap data={projection.sources} ready={projection.overview.researchReady} />;
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
-  if (active === "summary") return <SummaryMap data={projection.summary} />;
+  if (active === "summary") return <LifeJourneyPicture2029 data={projection.picture} summary={projection.summary} onSelect={onSelect} focusedMemberRef={focusedMemberRef} onPersonFocus={onPersonFocus}><JourneyGuide data={projection.path} onSelect={onSelect} /></LifeJourneyPicture2029>;
   if (active === "path") return <PathMap data={projection.path} />;
   return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} />;
 }
 
 export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline }) {
-  const [active, setActive] = useState("overview");
+  const [active, setActive] = useState("summary");
+  const [birthFocus, setBirthFocus] = useState({ memberRef: "", lens: "spatial" });
+  const [focusedMemberRef, setFocusedMemberRef] = useState("");
+  const selectMap = (tab, options) => {
+    if (tab === "creation") setBirthFocus(options || { memberRef: "", lens: "spatial" });
+    if (options?.memberRef) setFocusedMemberRef(options.memberRef);
+    setActive(tab);
+  };
   const id = useId();
   const projection = useMemo(() => buildLifeJourneyMaps({ members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline }), [members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline]);
   if (!projection.overview.selectedPeople) return null;
@@ -375,12 +360,12 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
         onMouseEnter={tab.preload}
         onFocus={tab.preload}
         onPointerDown={tab.preload}
-        onClick={() => setActive(tab.id)}
+        onClick={() => selectMap(tab.id)}
       >{tab.label}</button>)}
     </div>
     <div className="person-journey-map-panel" id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${active}-tab`}>
       <Suspense fallback={<LazyMapLoading />}>
-        <MapPanel active={active} projection={projection} onSelect={setActive} onBirthCalculationChange={onBirthCalculationChange} />
+        <MapPanel active={active} projection={projection} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={setFocusedMemberRef} />
       </Suspense>
     </div>
     <footer>תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש</footer>

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState } from "react";
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { evaluateS4Capability, prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { calculateLifeJourneyBirthMap } from "../../lib/research/lifeJourneyBirthAdapters.js";
 import {
@@ -214,10 +214,11 @@ function SpatialDetails({ mode, data, focusIndex, onFocus }) {
   </div>;
 }
 
-export default function BirthMapStudio2029({ data, seferContent, onCalculationChange = null }) {
-  const firstPerson = data.people[0] || null;
+export default function BirthMapStudio2029({ data, seferContent, onCalculationChange = null, initialMemberRef = "", initialLens = "spatial", birthReflections = null, onReturnToPicture = null, onPersonFocus = null }) {
+  const firstPerson = data.people.find(person => person.memberRef === initialMemberRef) || data.people[0] || null;
   const firstPlace = resolveLifeJourneyBirthPlace(firstPerson?.birthPlace);
-  const [lens, setLens] = useState("spatial");
+  const rememberedCalculation = memberRef => birthReflections instanceof Map ? birthReflections.get(memberRef) : birthReflections?.[memberRef];
+  const [lens, setLens] = useState(() => LENSES.some(item => item.id === initialLens) ? initialLens : "spatial");
   const [spatialMode, setSpatialMode] = useState("letters");
   const [focusIndex, setFocusIndex] = useState(-1);
   const [spatialState, setSpatialState] = useState("idle");
@@ -230,9 +231,11 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
   const [timezone, setTimezone] = useState(firstPlace?.timezone || "");
   const [latitude, setLatitude] = useState(firstPlace ? String(firstPlace.latitude) : "");
   const [longitude, setLongitude] = useState(firstPlace ? String(firstPlace.longitude) : "");
-  const [calculationState, setCalculationState] = useState("idle");
+  const [calculationState, setCalculationState] = useState(() => rememberedCalculation(firstPerson?.memberRef) ? "ready" : "idle");
   const [calculationError, setCalculationError] = useState("");
-  const [calculation, setCalculation] = useState(null);
+  const [calculation, setCalculation] = useState(() => rememberedCalculation(firstPerson?.memberRef) || null);
+  const calculationRevision = useRef(0);
+  useEffect(() => () => { calculationRevision.current += 1; }, []);
   const placeOptions = selectedPlace ? [] : searchLifeJourneyBirthPlaces(placeQuery);
   const enableSpatial = () => {
     const capability = evaluateS4Capability();
@@ -242,9 +245,11 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
   };
   const onFallback = reason => { setFallback(reason); setSpatialState("fallback"); };
   const selectPerson = memberRef => {
+    calculationRevision.current += 1;
     const person = data.people.find(item => item.memberRef === memberRef);
     const matchedPlace = resolveLifeJourneyBirthPlace(person?.birthPlace);
     setSelectedRef(memberRef);
+    onPersonFocus?.(memberRef);
     setBirthdate(person?.dateIso || "");
     setBirthtime(person?.birthTime || "");
     setPlaceQuery(person?.birthPlace || "");
@@ -252,11 +257,12 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
     setTimezone(matchedPlace?.timezone || "");
     setLatitude(matchedPlace ? String(matchedPlace.latitude) : "");
     setLongitude(matchedPlace ? String(matchedPlace.longitude) : "");
-    setCalculation(null);
+    setCalculation(rememberedCalculation(memberRef) || null);
     setCalculationError("");
-    setCalculationState("idle");
+    setCalculationState(rememberedCalculation(memberRef) ? "ready" : "idle");
   };
   const updatePlaceQuery = value => {
+    calculationRevision.current += 1;
     setPlaceQuery(value);
     setSelectedPlace(null);
     setTimezone("");
@@ -268,6 +274,7 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
     setCalculationState("idle");
   };
   const choosePlace = place => {
+    calculationRevision.current += 1;
     setPlaceQuery(place.label);
     setSelectedPlace(place);
     setTimezone(place.timezone);
@@ -283,6 +290,7 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
     updateCalculationInput(setter, value);
   };
   const updateCalculationInput = (setter, value) => {
+    calculationRevision.current += 1;
     setter(value);
     onCalculationChange?.(selectedRef, null);
     setCalculation(null);
@@ -292,6 +300,7 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
   const calculateBirthMap = async () => {
     const person = data.people.find(item => item.memberRef === selectedRef) || data.people[0];
     if (!person) return;
+    const revision = ++calculationRevision.current;
     setCalculationState("loading");
     setCalculationError("");
     try {
@@ -302,10 +311,12 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
         latitude,
         longitude,
       });
+      if (revision !== calculationRevision.current) return;
       setCalculation(result);
       onCalculationChange?.(person.memberRef, result);
       setCalculationState("ready");
     } catch (error) {
+      if (revision !== calculationRevision.current) return;
       onCalculationChange?.(person.memberRef, null);
       setCalculation(null);
       setCalculationError(error?.message || "calculation_failed");
@@ -337,10 +348,12 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
   />;
 
   return <section className="birth-map-studio" data-experience-capability="life-journey-birth-map-studio">
+    {onReturnToPicture ? <button className="birth-map-return" type="button" onClick={onReturnToPicture}>חזרה לתמונה שלי</button> : null}
     <header className="birth-map-studio__hero">
       <div><small>לידה · אותיות · מערכות</small><h4>סטודיו מפת החיים</h4><p>בסיס פרטי אחד לכל העדשות — בלי לשכפל אנשים ובלי לשלוח את פרטי הלידה לשירות חיצוני.</p></div>
       <div className="birth-map-studio__seal" aria-hidden="true"><i /><b>22</b><span>3 · 7 · 12</span></div>
     </header>
+    {calculation && (lens === "human" || lens === "sky") ? <p className="birth-map-session-note">מוצגת המפה מהחישוב האחרון במסך הזה. שינוי פרטים יכין בדיקה חדשה.</p> : null}
 
     <div className="birth-map-studio__tabs" role="tablist" aria-label="עדשות מפת הלידה">
       {LENSES.map(item => <button key={item.id} type="button" role="tab" aria-selected={lens === item.id} onClick={() => setLens(item.id)}>{item.label}</button>)}

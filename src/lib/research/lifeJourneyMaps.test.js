@@ -92,6 +92,13 @@ test("life maps project the existing private family state without inventing stor
   assert.equal(out.summary.message, "מסר מנורמל מתוך הממצאים.");
   assert.equal(out.summary.normalized, true);
   assert.equal(out.summary.synthesisPack, out.synthesisPack);
+  assert.equal(out.picture.people.length, 2);
+  assert.equal(out.picture.people[0].nameValue, 73);
+  assert.equal(out.picture.people[0].dateDisplay, "15.02.1990");
+  assert.equal(out.picture.people[0].human.profile, "3/5");
+  assert.equal(out.picture.people[1].human, null);
+  assert.equal(out.picture.people[0].sky.bodyCount, 1);
+  assert.equal(out.picture.people[1].sky, null);
   assert.equal(out.synthesisPack.auxiliary.humanDesignCount, 1);
   assert.equal(out.synthesisPack.auxiliary.skyCount, 1);
   assert.equal(out.synthesisPack.coverage.layers.find(layer => layer.id === "human_design").state, "auxiliary");
@@ -147,4 +154,22 @@ test("life maps report an unresearched pair as a gap without inventing personal 
   assert.equal(out.evidence.signals.length, 0);
   assert.equal(out.evidence.gaps.length, 1);
   assert.equal(JSON.stringify(out).includes("מתח"), false);
+});
+
+test("personal picture excludes unselected birth results and keeps unknown values distinct from zero", () => {
+  const input = {
+    members: [{ source_ref: SELF, name: "הורה" }, { source_ref: CHILD, name: "לא נבחר" }],
+    selectedRefs: [SELF],
+    birthReflections: new Map([[CHILD, { humanDesign: { typeLabel: "תוצאה פרטית זרה" } }]]),
+    research: { state: "ready", rows: [{ memberRef: SELF, state: "ready", data: { fullValue: 0 } }] },
+  };
+  const out = buildLifeJourneyMaps(input);
+  assert.equal(out.picture.people[0].nameValue, 0);
+  assert.equal(out.picture.people[0].human, null);
+  assert.equal(JSON.stringify(out.picture).includes("תוצאה פרטית זרה"), false);
+  assert.equal(JSON.stringify(out.picture).includes(CHILD), false);
+  const waiting = buildLifeJourneyMaps({ ...input, research: { state: "idle" } });
+  assert.equal(waiting.picture.people[0].nameValue, null);
+  assert.equal(waiting.picture.people[0].researchState, "waiting");
+  assert.equal(waiting.summary.message, "");
 });

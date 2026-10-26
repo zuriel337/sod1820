@@ -250,6 +250,11 @@ export default function PersonJourney(props) {
   return <PrincipalPersonJourney key={principal} {...props} auth={auth} />;
 }
 
+function FamilyAnalysisDisclosure({ variant, children }) {
+  if (variant !== "2029") return <>{children}</>;
+  return <details className="person-journey-summary-disclosure"><summary>פירוט הסיכום המשפחתי</summary>{children}</details>;
+}
+
 function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, auth }) {
   const { user, loading: authLoading } = auth;
   const userId = user?.id || null;
@@ -1419,7 +1424,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           phase="נרמול → סינתזה → אימות פנימי"
           compact
         /> : null}
-        {familyAnalysis.state === "ready" && familyAnalysis.data ? <article
+        {familyAnalysis.state === "ready" && familyAnalysis.data ? <FamilyAnalysisDisclosure variant={variant}><article
           className="person-journey-family-analysis"
           data-experience-capability="life-journey-family-normalized-analysis"
           aria-labelledby="life-journey-family-analysis-title"
@@ -1439,7 +1444,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             <ul>{familyAnalysis.data.claims.map(claim => <li key={claim.id}>{claim.text}</li>)}</ul>
           </details>
           <footer>הסיכום נוסח רק מתוצאות המנוע שכבר חושבו. בדיקות פנימיות אינן מוצגות, אינן ראיה ואינן משנות את הממצאים.</footer>
-        </article> : null}
+        </article></FamilyAnalysisDisclosure> : null}
         {familyAnalysis.state === "error" || familyAnalysis.state === "idle" ? <>
           <article className="person-journey-research-message" aria-label="סיכום מפת החיבורים המשפחתית">
           <small>מפה משפחתית מאוחדת · מנורמלת</small>

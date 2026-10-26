@@ -22,6 +22,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
   const lifeJourneyMaps = read("src/components/experience2029/LifeJourneyMaps2029.jsx");
   const lifeJourneyMapProjection = read("src/lib/research/lifeJourneyMaps.js");
+  const lifeJourneyPicture = read("src/components/experience2029/LifeJourneyPicture2029.jsx");
   const synthesisPack = read("src/lib/research/lifeJourneySynthesisPack.js");
   const seferYetzirahMapProjection = read("src/lib/research/lifeJourneySeferYetzirahMap.js");
   const birthMapProjection = read("src/lib/research/lifeJourneyBirthMap.js");
@@ -145,8 +146,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMaps, /מקורות/);
   assert.match(lifeJourneyMaps, /כיסוי/);
   assert.match(lifeJourneyMaps, /סיכום/);
-  assert.match(lifeJourneyMaps, /חבילת המחקר המאוחדת/);
-  assert.match(lifeJourneyMaps, /Human Design, מפת שמיים והקלפים/);
+  assert.match(lifeJourneyPicture, /חבילת המחקר המאוחדת/);
+  assert.match(lifeJourneyPicture, /Human Design, מפת שמיים והקלפים/);
   assert.match(lifeJourneyMaps, /onBirthCalculationChange/);
   assert.match(lifeJourneyMaps, /מסלול/);
   assert.match(lifeJourneyMaps, /לא נוצר Event store חדש/);

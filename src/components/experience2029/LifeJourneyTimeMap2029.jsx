@@ -59,9 +59,9 @@ function IntervalsLayer({ intervals }) {
   </section>;
 }
 
-export default function LifeJourneyTimeMap2029({ data }) {
+export default function LifeJourneyTimeMap2029({ data, initialMemberRef = "" }) {
   const [layer, setLayer] = useState("words");
-  const [focusRef, setFocusRef] = useState(() => data.people[0]?.memberRef || "");
+  const [focusRef, setFocusRef] = useState(() => data.people.find(person => person.memberRef === initialMemberRef)?.memberRef || data.people[0]?.memberRef || "");
   const focused = useMemo(() => data.people.find(person => person.memberRef === focusRef) || data.people[0] || null, [data.people, focusRef]);
 
   if (!data.people.length) return <div className="life-time-empty">לאנשים שנבחרו עדיין אין תאריכי לידה שמורים.</div>;

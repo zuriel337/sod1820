@@ -226,8 +226,39 @@ export function buildLifeJourneyMaps({
   ].map(step => Object.freeze(step));
   const completedPathSteps = pathSteps.filter(step => step.state === "ready" || step.state === "empty");
   const nextPathStep = pathSteps.find(step => step.state !== "ready" && step.state !== "empty") || null;
+  const reflections = birthReflections instanceof Map ? birthReflections : new Map(Object.entries(birthReflections || {}));
+  // Private view projection only. Never serialize this into the anonymized synthesis pack.
+  const picturePeople = selectedMembers.map(member => {
+    const memberRef = clean(member.source_ref);
+    const event = list(birthTimeline).find(row => row.memberRef === memberRef);
+    const row = matrix.find(item => item.memberRef === memberRef);
+    const result = reflections.get(memberRef);
+    const personCoverage = coverage.find(item => item.memberRef === memberRef);
+    return Object.freeze({
+      memberRef,
+      name: names.get(memberRef),
+      dateDisplay: clean(event?.dateDisplay),
+      hebrewDate: clean(event?.hebrewDate),
+      researchState: row?.state || "waiting",
+      nameValue: row?.nameValue ?? null,
+      methodCount: row?.methods.length || 0,
+      verseCount: personCoverage?.verseCount || 0,
+      sourceReady: sourceByMember.has(memberRef),
+      human: result?.humanDesign ? Object.freeze({
+        type: clean(result.humanDesign.typeLabel) || clean(result.humanDesign.type),
+        profile: clean(result.humanDesign.profileLabel) || clean(result.humanDesign.profile),
+        authority: clean(result.humanDesign.authorityLabel) || clean(result.humanDesign.authority),
+      }) : null,
+      sky: result?.sky ? Object.freeze({
+        sun: clean(result.sky.bodies?.find(body => body.key === "sun")?.signLabel),
+        ascendant: clean(result.sky.angles?.ascendant?.signLabel),
+        bodyCount: list(result.sky.bodies).length,
+      }) : null,
+    });
+  });
   return Object.freeze({
     version: LIFE_JOURNEY_MAPS_VERSION,
+    picture: Object.freeze({ people: Object.freeze(picturePeople), researchReady, connectionCount: combinedSummary.connectionCount, convergenceCount: convergences.length }),
     overview: Object.freeze({
       selectedPeople: selectedMembers.length,
       datedPeople: list(birthTimeline).length,
