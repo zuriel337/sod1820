@@ -1,0 +1,97 @@
+import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import test from "node:test";
+
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const req = createRequire(import.meta.url);
+let playwright;
+let vite;
+let reactPlugin;
+try {
+  playwright = req("playwright");
+  vite = await import(pathToFileURL(req.resolve("vite")).href);
+  reactPlugin = (await import(pathToFileURL(req.resolve("@vitejs/plugin-react")).href)).default;
+} catch { /* Browser tooling is optional in lightweight checkouts. */ }
+
+const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH
+  || (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : playwright?.chromium.executablePath());
+const available = Boolean(playwright && vite && reactPlugin && executablePath && existsSync(executablePath));
+
+test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440", { skip: !available, timeout: 120_000 }, async () => {
+  process.env.SOD_BUILD_TARGET = "2029";
+  process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
+  const server = await vite.createServer({
+    root: ROOT,
+    configFile: false,
+    plugins: [reactPlugin()],
+    appType: "spa",
+    server: { host: "127.0.0.1", port: 0 },
+  });
+  await server.listen();
+  const address = server.httpServer.address();
+  const base = `http://127.0.0.1:${address.port}`;
+  const browser = await playwright.chromium.launch({ headless: true, executablePath, args: ["--no-sandbox", "--use-angle=swiftshader"] });
+
+  try {
+    for (const width of [320, 390, 1440]) {
+      const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
+      await context.route("**/*", async route => {
+        const url = new URL(route.request().url());
+        if (url.origin === base && route.request().isNavigationRequest() && url.pathname === "/2029/control") {
+          const response = await context.request.get(`${base}/2029.html`);
+          return route.fulfill({ status: response.status(), contentType: "text/html", body: await response.body() });
+        }
+        if (url.pathname.endsWith(".pdf")) return route.abort();
+        if (url.hostname === "linswmnnkjxvweumprav.supabase.co") {
+          if (url.pathname.startsWith("/auth/v1/")) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ user: null, session: null }) });
+          return route.fulfill({ status: 200, contentType: "application/json", body: "[]" });
+        }
+        if (url.hostname.endsWith("googleapis.com") || url.hostname.endsWith("gstatic.com")) return route.abort();
+        return route.continue();
+      });
+
+      const page = await context.newPage();
+      const errors = [];
+      page.on("pageerror", error => errors.push(error.message));
+      await page.goto(`${base}/2029/control?surface=ahavat-torah-system`, { waitUntil: "domcontentloaded" });
+      await page.getByRole("heading", { name: "טבלאות שאפשר להיכנס לתוכן", exact: true }).waitFor();
+      await page.locator("#ahavat29-source iframe").waitFor();
+
+      assert.equal(await page.evaluate(() => (
+        document.documentElement.scrollWidth <= window.innerWidth + 1
+        && document.body.scrollWidth <= window.innerWidth + 1
+        && document.querySelector(".ahavat29").getBoundingClientRect().right <= window.innerWidth + 1
+      )), true, `Ahavat Torah overflows at ${width}px`);
+
+      if (width <= 390) {
+        const sourceBox = await page.locator("#ahavat29-source").boundingBox();
+        const storyBox = await page.locator(".ahavat29-story").boundingBox();
+        assert.ok(sourceBox && storyBox && sourceBox.y < storyBox.y, `PDF source is not first at ${width}px`);
+      }
+
+      await page.getByRole("button", { name: "פתח מצפה תלת־ממדי", exact: true }).click();
+      await page.locator(".ahavat29-spatial-canvas canvas").waitFor();
+      assert.equal(await page.locator(".ahavat29-spatial-canvas canvas").count(), 1);
+
+      const datasetButton = page.locator(".ahavat29-spatial-legend button").filter({ hasText: "DS-02" });
+      await datasetButton.click();
+      assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-02");
+      assert.equal(new URL(page.url()).searchParams.get("page"), "36");
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
+
+      await page.getByRole("button", { name: /טבלת האותיות/ }).click();
+      const search = page.getByRole("searchbox", { name: "חיפוש בתוך הטבלה" });
+      await search.fill("שמיני");
+      await page.getByRole("cell", { name: "שמיני", exact: true }).first().waitFor();
+      assert.equal(await page.locator(".ahavat29-data-table tbody tr").count() > 0, true);
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+  } finally {
+    await browser.close();
+    await server.close();
+    delete process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW;
+  }
+});
