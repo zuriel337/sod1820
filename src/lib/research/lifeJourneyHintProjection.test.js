@@ -44,3 +44,15 @@ test("loading/denied reads never become empty or investigated and references rem
   assert.equal(projectLifeJourneyHintReferences({ loading: false, rows: [] }).state, "no_references");
   assert.equal(projectLifeJourneyHintReferences({ loading: false, rows: Array.from({ length: 700 }, (_, id) => ({ id: `hint-${id}` })) }).rows.length, 500);
 });
+
+test("an explicit member association is projected only inside the authorized journey", () => {
+  const childRef = "person:owner:p:child";
+  const rows = [
+    { id: "mine", occurred_at: "2026-10-26", life_journey_member_ref: childRef },
+    { id: "foreign", occurred_at: "2026-10-27", life_journey_member_ref: "person:other:p:child" },
+  ];
+  const out = projectLifeJourneyHintReferences({ loading: false, rows }, { authorizedMemberRefs: [childRef] });
+  assert.equal(out.rows[0].personRef, childRef);
+  assert.equal(out.rows[1].personRef, null);
+  assert.equal(out.coverage.unassignedCount, 1);
+});

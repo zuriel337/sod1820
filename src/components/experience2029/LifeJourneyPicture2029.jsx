@@ -43,7 +43,7 @@ export default function LifeJourneyPicture2029({ data, summary, onSelect, focuse
     <details className="life-picture__details"><summary>איך הורכבה התמונה?</summary>
       <h5>חבילת המחקר המאוחדת</h5>
       <ul>{summary.synthesisPack?.coverage?.layers?.map(layer => <li key={layer.id}>{layer.label} · {LAYER_STATE[layer.state] || layer.state}</li>)}</ul>
-      {summary.synthesisPack?.observations?.hints?.referenceCount ? <p>{summary.synthesisPack.observations.hints.referenceCount} רמזים שמורים; {summary.synthesisPack.observations.hints.datedCount} עם תאריך יום מפורש. הם עדיין לא שויכו לאנשים ולא נכללו בסיכום המשפחתי.</p> : null}
+      {summary.synthesisPack?.observations?.hints?.referenceCount ? <p>{summary.synthesisPack.observations.hints.referenceCount} רמזים שמורים; {summary.synthesisPack.observations.hints.datedCount} עם תאריך יום מפורש. שיוכים פרטיים אינם נחשפים בחבילה ואינם נכללים בסיכום המשפחתי.</p> : null}
       <p>Human Design, מפת שמיים והקלפים נשארים בדיקות השתקפות פנימיות במשקל ראיה אפס ואינם משנים אותו.</p>
       {summary.claims.length ? <><h5>על מה הסיכום נשען?</h5><ul>{summary.claims.map((claim, index) => <li key={index}>{claim}</li>)}</ul></> : null}
       <p>המפות שחושבו כאן זמינות בזיכרון המסך עד רענון. אין הפעלה מחדש במעבר בין התצוגות.</p>

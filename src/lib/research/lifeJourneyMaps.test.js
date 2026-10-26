@@ -34,7 +34,7 @@ function fixture() {
     birthTimeline: [{ id: `${SELF}:birth`, memberRef: SELF, name: "הורה בדיקה", dateIso: "1990-02-15", dateDisplay: "15.02.1990", hebrewDate: "כ׳ בשבט תש״ן", birthTime: "05:30", birthPlace: "עיר בדיקה" }],
     context: { journey: { id: "path:1", position: 3 } },
     hintState: { loading: false, rows: [
-      { id: "hint-1", occurred_at: "2024-02-29" },
+      { id: "hint-1", occurred_at: "2024-02-29", life_journey_member_ref: CHILD },
       { id: "hint-2" },
     ] },
     analysis: {
@@ -108,12 +108,23 @@ test("life maps project the existing private family state without inventing stor
   assert.equal(out.synthesisPack.auxiliary.skyCount, 1);
   assert.equal(out.synthesisPack.coverage.layers.find(layer => layer.id === "human_design").state, "auxiliary");
   assert.equal(JSON.stringify(out.synthesisPack).includes(SELF), false);
+  assert.equal(JSON.stringify(out.synthesisPack).includes(CHILD), false);
   assert.equal(out.sources.members[0].verses[0].verseIdentity, "verse:tehilim:1:1");
   assert.deepEqual(out.sources.numbers[0].phrases, ["אור", "מאור"]);
   assert.equal(out.creation.people.length, 2);
   assert.equal(out.creation.birthAnchors[0].birthPlace, "עיר בדיקה");
   assert.equal(out.timeMap.people[0].expressions.find(item => item.role === "hebrew_day").text, "כ׳");
   assert.equal(out.timeMap.state, "ready");
+  assert.deepEqual(out.hintTimeline, [{
+    id: "hint:hint-1",
+    dateIso: "2024-02-29",
+    dateDisplay: "29.02.2024",
+    hebrewDate: out.hintTimeline[0].hebrewDate,
+    memberRef: CHILD,
+    memberName: "ילד בדיקה",
+    label: "תצפית פרטית · ילד בדיקה",
+  }]);
+  assert.equal(JSON.stringify(out.hintTimeline).includes("תוכן פרטי"), false);
   assert.equal(out.birthMap.people[0].birthTime, "05:30");
   assert.equal(out.birthMap.people[0].humanDesign.state, "ready_for_explicit_calculation");
   assert.equal(out.birthMap.people[0].humanDesign.output, null);

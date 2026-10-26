@@ -2,8 +2,9 @@ import { buildLifeJourneySeferYetzirahMap } from "./lifeJourneySeferYetzirahMap.
 import { buildLifeJourneyBirthMap } from "./lifeJourneyBirthMap.js";
 import { buildLifeJourneyTimeMap } from "./lifeJourneyTimeMap.js";
 import { buildLifeJourneySynthesisPack } from "./lifeJourneySynthesisPack.js";
+import { projectLifeJourneyHintReferences } from "./lifeJourneyHintProjection.js";
 
-export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v8";
+export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v9";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
@@ -206,6 +207,23 @@ export function buildLifeJourneyMaps({
     hintState,
     includeProgramBranches,
   });
+  const privateHintReferences = projectLifeJourneyHintReferences(hintState, {
+    authorizedMemberRefs: [...selected],
+  });
+  const hintTimeline = privateHintReferences.rows.flatMap(row => {
+    if (row.date.state !== "dated") return [];
+    const memberName = row.personRef ? names.get(row.personRef) || null : null;
+    const [year, month, day] = row.date.dateIso.split("-");
+    return [Object.freeze({
+      id: `hint:${row.id}`,
+      dateIso: row.date.dateIso,
+      dateDisplay: `${day}.${month}.${year}`,
+      hebrewDate: row.date.hebrewDate,
+      memberRef: row.personRef,
+      memberName,
+      label: memberName ? `תצפית פרטית · ${memberName}` : "תצפית פרטית · כלל המסע",
+    })];
+  }).sort((left, right) => left.dateIso.localeCompare(right.dateIso) || left.id.localeCompare(right.id));
   const combinedSummary = Object.freeze({
     state: analysis?.state === "loading" ? "loading" : analysisData ? "ready" : researchReady ? "research_ready" : "waiting",
     message: clean(analysisData?.message) || clean(research?.message),
@@ -292,6 +310,7 @@ export function buildLifeJourneyMaps({
     summary: combinedSummary,
     synthesisPack,
     timeline: Object.freeze(list(birthTimeline)),
+    hintTimeline: Object.freeze(hintTimeline),
     timelineMissing: Object.freeze(timelineMissing),
     timeMap: buildLifeJourneyTimeMap({ birthTimeline, methodFindings, researchReady }),
     sources: Object.freeze({ members: Object.freeze(memberSources), numbers: Object.freeze(numberSources) }),

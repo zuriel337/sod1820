@@ -14,18 +14,24 @@ function lsWrite(arr) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch { /* מלא/חסום */ }
 }
 
-// שורת-רמז מנורמלת (אותו מבנה בענן ובמקומי) → { id, hint_type, number, title, image_url, note, source_url, occurred_at, created_at }
+// שורת-רמז מנורמלת (אותו מבנה בענן ובמקומי). שדות Life Journey
+// נשארים metadata של אותה רשומת research_items/hint — אין store מקביל.
 function normalize(row) {
   const m = row.metadata || {};
   return {
     id: row.id,
+    capture_ref: m.capture_ref || null,
+    capture_contract: m.capture_contract || null,
     hint_type: m.hint_type || "idea",
     number: row.entity_ref ? Number(row.entity_ref) : (m.number ?? null),
     title: row.title || "",
     image_url: m.image_url || null,
     note: m.note || "",
+    research_question: m.research_question || "",
     source_url: m.source_url || row.link || null,
     occurred_at: m.occurred_at || null,
+    date_precision: m.date_precision || null,
+    life_journey_member_ref: m.life_journey_member_ref || null,
     created_at: row.created_at || m.created_at || null,
   };
 }
@@ -71,34 +77,57 @@ export function countByType(hints) {
 }
 
 // ── הוספת רמז ──
-export async function addHint(user, h) {
+export async function addHint(user, h, { fallbackLocal = true } = {}) {
   const metadata = {
+    capture_ref: h.capture_ref || null,
+    capture_contract: h.capture_contract || null,
     hint_type: h.hint_type || "idea",
     image_url: h.image_url || null,
     note: h.note || "",
+    research_question: h.research_question || "",
     source_url: h.source_url || null,
     occurred_at: h.occurred_at || null,
+    date_precision: h.date_precision || null,
+    life_journey_member_ref: h.life_journey_member_ref || null,
   };
   const number = h.number != null && h.number !== "" ? Number(h.number) : null;
   const title = (h.title || "").trim() || (number != null ? `רמז · ${number}` : "רמז");
+  const captureId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(h.capture_ref || "")
+    ? h.capture_ref
+    : null;
 
   if (user && supabase) {
+    const values = {
+      ...(captureId ? { id: captureId } : {}),
+      user_id: user.id,
+      bucket: BUCKET,
+      entity_type: "hint",
+      entity_ref: number != null ? String(number) : null,
+      title,
+      link: h.source_url || null,
+      metadata,
+    };
     const { data, error } = await supabase
       .from("research_items")
-      .insert({
-        user_id: user.id,
-        bucket: BUCKET,
-        entity_type: "hint",
-        entity_ref: number != null ? String(number) : null,
-        title,
-        link: h.source_url || null,
-        metadata,
-      })
+      .insert(values)
       .select("id, entity_ref, title, link, metadata, created_at")
       .single();
     if (!error && data) return normalize(data);
+    // Retrying a confirmed capture is idempotent. Read back only the exact owned
+    // hint; never turn an unrelated conflict into a successful receipt.
+    if (error && captureId) {
+      const { data: existing, error: readError } = await supabase
+        .from("research_items")
+        .select("id, entity_ref, title, link, metadata, created_at")
+        .eq("id", captureId)
+        .eq("user_id", user.id)
+        .eq("bucket", BUCKET)
+        .maybeSingle();
+      if (!readError && existing) return normalize(existing);
+    }
     if (error) throw error;
   }
+  if (!fallbackLocal) throw new Error("hint_writer_unavailable");
   // אנונימי → מקומי (id זמני מקומי; ISO ידני כי אין שרת)
   const local = {
     id: `local-${lsRead().length + 1}-${(number ?? "x")}`,

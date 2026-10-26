@@ -1,6 +1,6 @@
 import { gregorianDateToHebrewRepresentation } from "../timeFlow.js";
 
-export const LIFE_JOURNEY_HINT_PROJECTION_VERSION = "life-journey-hint-references-v1";
+export const LIFE_JOURNEY_HINT_PROJECTION_VERSION = "life-journey-hint-references-v2";
 const clean = value => typeof value === "string" ? value.trim() : "";
 
 // Civil-day representation only. An instant/partial date needs confirmation;
@@ -21,8 +21,9 @@ export function projectLifeJourneyHintDate(occurredAt) {
 }
 
 /** Private read projection of already-owned hints, not a hint/event store or Finding. */
-export function projectLifeJourneyHintReferences(state = null) {
+export function projectLifeJourneyHintReferences(state = null, { authorizedMemberRefs = [] } = {}) {
   const seen = new Set();
+  const authorized = new Set((Array.isArray(authorizedMemberRefs) ? authorizedMemberRefs : []).map(clean).filter(Boolean));
   const ready = state?.loading === false && !state.error;
   const rows = ready ? (Array.isArray(state.rows) ? state.rows : []).slice(0, 500).flatMap(hint => {
     const id = clean(hint?.id);
@@ -31,7 +32,9 @@ export function projectLifeJourneyHintReferences(state = null) {
     return [Object.freeze({
       id,
       date: projectLifeJourneyHintDate(hint.occurred_at),
-      personRef: null, // No implicit attribution from a number/name/family selection.
+      // Attribution exists only when the user explicitly saved an opaque member ref
+      // that is still present in the current authorized Life Journey projection.
+      personRef: authorized.has(clean(hint?.life_journey_member_ref)) ? clean(hint.life_journey_member_ref) : null,
       verification: "user_observation",
       analysisState: "not_connected",
     })];
@@ -45,7 +48,7 @@ export function projectLifeJourneyHintReferences(state = null) {
       datedCount: rows.filter(row => row.date.state === "dated").length,
       unknownDateCount: rows.filter(row => row.date.state === "unknown").length,
       dateReviewCount: rows.filter(row => ["invalid", "needs_review"].includes(row.date.state)).length,
-      unassignedCount: rows.length,
+      unassignedCount: rows.filter(row => !row.personRef).length,
     }),
     evidenceWeight: 0,
   });

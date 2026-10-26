@@ -18,11 +18,15 @@ export function createLifeJourneyFixturePlugin() {
     `],
     ["virtual:life-journey-hints.js", `
       window.__hintReads=window.__hintReads||[];
-      export async function getMyHints(user,options){window.__hintReads.push({user,options});if(localStorage.getItem("life-journey-deny-hints-fixture")==="1")throw new Error("denied");return user?.id==="fixture-owner"?[
+      window.__hintWrites=window.__hintWrites||[];
+      const saved=[];
+      const initial=[
         {id:"hint-1",hint_type:"idea",number:73,title:"רמז קיים",source_url:"https://example.test/source",occurred_at:"2024-02-29",created_at:"2035-11-03",note:"תוכן רמז פרטי"},
         {id:"hint-2",hint_type:"idea",title:"רמז ללא מועד",created_at:"2035-11-03"},
         {id:"hint-3",hint_type:"idea",title:"רמז עם שעה",occurred_at:"2024-02-29T21:30:00+02:00"},
-      ]:[];}
+      ];
+      export async function getMyHints(user,options){window.__hintReads.push({user,options});if(localStorage.getItem("life-journey-deny-hints-fixture")==="1")throw new Error("denied");return user?.id==="fixture-owner"?[...saved,...initial]:[];}
+      export async function addHint(user,h,options){window.__hintWrites.push({user,h,options});const row={id:h.capture_ref,created_at:"2026-10-26T12:00:00Z",...h};saved.unshift(row);return row;}
     `],
     ["virtual:life-journey-canonical-gematria.js", `
       window.__nameCalls=window.__nameCalls||[];

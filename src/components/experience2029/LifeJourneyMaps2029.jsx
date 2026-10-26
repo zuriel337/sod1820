@@ -190,17 +190,26 @@ function EvidenceMap({ data, ready }) {
   </div>;
 }
 
-function TimelineMap({ rows, missing }) {
-  if (!rows.length) return <EmptyMap>לאנשים שנבחרו עדיין אין תאריכי לידה שמורים.</EmptyMap>;
+function TimelineMap({ rows, missing, hintRows = [] }) {
+  if (!rows.length && !hintRows.length) return <EmptyMap>לאנשים שנבחרו עדיין אין תאריכי לידה או תצפיות פרטיות מתוארכות.</EmptyMap>;
   return <section className="person-journey-map-timeline" data-experience-capability="life-journey-birth-timeline">
     <h4>ציר אירועי היסוד</h4>
     <p>תצוגה כרונולוגית מה־Ledger הפרטי הקיים; לא נוצר Event store חדש.</p>
-    <ol>{rows.map(event => <li key={event.id}>
+    {rows.length ? <ol>{rows.map(event => <li key={event.id}>
       <time dateTime={event.dateIso} dir="ltr">{event.dateDisplay}</time>
       <i aria-hidden="true" />
       <div><strong>{event.name}</strong><span>לידה</span>{event.hebrewDate ? <small>{event.hebrewDate}</small> : null}{event.birthTime ? <small dir="ltr">שעת לידה · {event.birthTime}</small> : null}{event.birthPlace ? <small>מקום לידה · {event.birthPlace}</small> : null}</div>
-    </li>)}</ol>
+    </li>)}</ol> : null}
     {missing.length ? <small className="person-journey-map-timeline-missing">ללא תאריך שמור: {missing.join(" · ")}</small> : null}
+    {hintRows.length ? <section className="person-journey-map-hint-timeline" aria-label="תצפיות פרטיות מתוארכות">
+      <h4>תצפיות פרטיות מתוארכות</h4>
+      <p>הציר מציג מועד ושיוך שאושרו בלבד. תוכן התצפית נשאר בתוך הרמז הפרטי.</p>
+      <ol>{hintRows.map(event => <li key={event.id}>
+        <time dateTime={event.dateIso} dir="ltr">{event.dateDisplay}</time>
+        <i aria-hidden="true" />
+        <div><strong>{event.label}</strong><span>{event.hebrewDate}</span></div>
+      </li>)}</ol>
+    </section> : null}
   </section>;
 }
 
@@ -313,13 +322,13 @@ function PathMap({ data }) {
   </div>;
 }
 
-function MapPanel({ active, atlasMode, projection, hintState, onSelect, onBirthCalculationChange, birthReflections, birthFocus, focusedMemberRef, onPersonFocus }) {
+function MapPanel({ active, atlasMode, projection, hintState, onSaveHint, onSelect, onBirthCalculationChange, birthReflections, birthFocus, focusedMemberRef, onPersonFocus }) {
   if (active === "matrix") return <MatrixMap rows={projection.matrix} />;
   if (active === "generations") return <GenerationsMap data={projection.generations} />;
   if (active === "relationships") return <RelationshipsMap rows={projection.relationships} ready={projection.overview.researchReady} />;
   if (active === "convergences") return <ConvergencesMap rows={projection.convergences} ready={projection.overview.researchReady} />;
   if (active === "evidence") return <EvidenceMap data={projection.evidence} ready={projection.overview.researchReady} />;
-  if (active === "timeline") return <TimelineMap rows={projection.timeline} missing={projection.timelineMissing} />;
+  if (active === "timeline") return <TimelineMap rows={projection.timeline} missing={projection.timelineMissing} hintRows={projection.hintTimeline} />;
   if (active === "time") return <LifeJourneyTimeMap2029 key={focusedMemberRef} data={projection.timeMap} initialMemberRef={focusedMemberRef} onPersonFocus={onPersonFocus} />;
   if (active === "creation") return <BirthMapStudio2029
     key={birthFocus.memberRef}
@@ -335,13 +344,13 @@ function MapPanel({ active, atlasMode, projection, hintState, onSelect, onBirthC
   />;
   if (active === "sources") return <SourcesMap data={projection.sources} ready={projection.overview.researchReady} />;
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
-  if (active === "hints") return <LifeJourneyHints2029 state={hintState} />;
+  if (active === "hints") return <LifeJourneyHints2029 state={hintState} members={projection.coverage} onSave={onSaveHint} onOpenTimeline={() => onSelect("timeline")} />;
   if (active === "summary") return <LifeJourneyPicture2029 data={projection.picture} summary={projection.summary} onSelect={onSelect} focusedMemberRef={focusedMemberRef} onPersonFocus={onPersonFocus}><JourneyGuide data={projection.path} onSelect={onSelect} /></LifeJourneyPicture2029>;
   if (active === "path") return <PathMap data={projection.path} />;
   return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} showStations={atlasMode} />;
 }
 
-export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange, hintState, includeProgramBranches = false, onOpenCapability }) {
+export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange, hintState, onSaveHint, includeProgramBranches = false, onOpenCapability }) {
   const [localPosition, setLocalPosition] = useState({ tab: "summary", memberRef: "", lens: "spatial" });
   const currentPosition = position || localPosition;
   const active = currentPosition.tab;
@@ -439,7 +448,7 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
         <button type="button" onClick={closePanel}>חזרה לאטלס</button>
       </div> : null}
       <Suspense fallback={<LazyMapLoading />}>
-        <MapPanel active={active} atlasMode={atlasMode} projection={projection} hintState={hintState} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
+        <MapPanel active={active} atlasMode={atlasMode} projection={projection} hintState={hintState} onSaveHint={onSaveHint} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
       </Suspense>
     </div> : null}
     <footer>{includeProgramBranches ? "תצוגה פרטית בלבד · הרמזים הקיימים מחוברים בהפניה · ELS ממתין לחיבור · ללא Graph או store חדש" : "תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש"}</footer>

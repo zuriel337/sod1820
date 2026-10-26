@@ -15,7 +15,7 @@ import {
   upsertSelfProfile,
 } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
-import { getMyHints } from "../lib/hints.js";
+import { addHint, getMyHints } from "../lib/hints.js";
 import {
   createSupabasePersonalDateCrossProvider,
   gregorianToHebrewDateRepresentation,
@@ -44,6 +44,7 @@ import {
   lifeJourneyViewFromContext,
 } from "../lib/research/lifeJourneyPersonContext.js";
 import { runLifeJourneyNameResearch } from "../lib/research/lifeJourneyNameResearch.js";
+import { saveLifeJourneyHintCapture } from "../lib/research/lifeJourneyHintCapture.js";
 import {
   createSupabaseLifeJourneyFamilyProviders,
   runLifeJourneyFamilyResearch,
@@ -955,6 +956,28 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     if (patch) research.updateResearchContext?.(patch);
   }, [research, selfRef]);
 
+  const savePrivateHint = useCallback(async input => {
+    if (variant !== "2029" || !user || !selfRef) return { ok: false, error: "writer_unavailable" };
+    const result = await saveLifeJourneyHintCapture({
+      user,
+      input,
+      personRef: selfRef,
+      authorizedMemberRefs: members.map(member => clean(member?.source_ref)).filter(Boolean),
+      writeHint: addHint,
+    });
+    if (!result.ok) return result;
+    setOwnedHints(previous => {
+      const rows = previous.principal === userId && Array.isArray(previous.rows) ? previous.rows : [];
+      return {
+        principal: userId,
+        loading: false,
+        error: null,
+        rows: [result.row, ...rows.filter(row => row?.id !== result.row.id)],
+      };
+    });
+    return result;
+  }, [members, selfRef, user, userId, variant]);
+
   const resumeLifeJourney = useCallback(result => {
     const materialized = materializeFamilyContext(result.context || result.representation?.context);
     setBirthReflections(new Map());
@@ -1146,6 +1169,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           onPositionChange={variant === "2029" ? updateMapPosition : undefined}
           birthTimeline={birthTimeline}
           hintState={variant === "2029" ? hintState : null}
+          onSaveHint={variant === "2029" ? savePrivateHint : undefined}
           includeProgramBranches={variant === "2029"}
           onOpenCapability={variant === "2029" ? openMemberCapability : undefined}
         />
@@ -1683,7 +1707,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     </section>
 
     {variant === "2029" && CapabilitySurface && !selectedFamilyRefs.length
-      ? <CapabilitySurface view="hints" user={user} hintState={hintState} />
+      ? <CapabilitySurface view="hints" user={user} hintState={hintState} hintMembers={members} onSaveHint={savePrivateHint} />
       : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">
