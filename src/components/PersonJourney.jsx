@@ -71,6 +71,7 @@ const familyMemberRawRef = (ownerId, sourceRef) => {
   return value.startsWith(prefix) ? value.slice(prefix.length) : "";
 };
 const MAX_FAMILY_RESEARCH_MEMBERS = 12;
+const MAX_VISIBLE_FAMILY_CONVERGENCES = 10;
 const FAMILY_CLAIM_STATUS = Object.freeze({
   pending: "ממתין לחיבור",
   approved: "זהות אומתה",
@@ -78,6 +79,13 @@ const FAMILY_CLAIM_STATUS = Object.freeze({
   revoked: "בוטל",
   reversed: "חיבור בוטל",
 });
+
+function FamilyConvergenceChip({ item }) {
+  return <span>
+    <strong>{item.value}</strong> · {item.count} אנשים · {item.distinctExpressionCount} ביטויים
+    <em>{item.sameMethod ? "כולל אותה שיטה" : "שיטות שונות"}{item.repeatedExpressionCount ? " · כולל ביטוי משותף" : ""}</em>
+  </span>;
+}
 
 function dateCrossFindingRefs(dateBundle) {
   const seen = new Set();
@@ -239,7 +247,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
   const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
-  const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], error: null });
+  const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], sharedExpressions: [], error: null });
   const [familyAnalysis, setFamilyAnalysis] = useState({ state: "idle", data: null, error: null });
   const [familyClaims, setFamilyClaims] = useState({ state: "idle", rows: [], error: null });
   const [familyClaimBusy, setFamilyClaimBusy] = useState(null);
@@ -901,7 +909,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       const completedResearch = {
         state: "ready",
         rows,
-        sharedValues: unified.sharedValues?.length ? unified.sharedValues : sharedFamilyValues(rows),
+        sharedValues: Array.isArray(unified.sharedValues) ? unified.sharedValues : sharedFamilyValues(rows),
+        sharedExpressions: Array.isArray(unified.sharedExpressions) ? unified.sharedExpressions : [],
+        methodNormalization: unified.methodNormalization || null,
         methodFindings: unified.methodFindings,
         relationRows: unified.relationRows,
         connections: unified.connections,
@@ -1370,11 +1380,28 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             <small>{Number.isSafeInteger(connection.independentGroupCount) ? `${connection.independentGroupCount} קבוצות שיטה עצמאיות לאחר נרמול` : "חיבור מנוע שעבר נרמול תלות"} · {connection.expressionConnectionCount || 1} חיבורי ביטויים בזוג הזה</small>
           </article>)}</div>
         </section> : null}
-        {familyResearch.sharedValues.length ? <div className="person-journey-family-shared">
-          <small>ערכים שמופיעים אצל לפחות שני אנשים שנבחרו</small>
-          <div>{familyResearch.sharedValues.map(item => <span key={item.value}><strong>{item.value}</strong> · {item.count} אנשים</span>)}</div>
-          <p>זהו חיבור מחושב בלבד — לא פרשנות על המשפחה.</p>
-        </div> : <p className="person-journey-note">לא נמצא כרגע ערך משותף בין תוצאות השם ונקודות המפגש. זו אינה קביעה שאין קשר.</p>}
+        {familyResearch.sharedValues.length ? <div className="person-journey-family-shared" data-kind="cross-expression">
+          <small>התכנסויות בין ביטויים שונים</small>
+          <div>{familyResearch.sharedValues.slice(0, MAX_VISIBLE_FAMILY_CONVERGENCES)
+            .map(item => <FamilyConvergenceChip item={item} key={item.value} />)}</div>
+          {familyResearch.sharedValues.length > MAX_VISIBLE_FAMILY_CONVERGENCES ? <details className="person-journey-family-shared-more">
+            <summary>עוד {familyResearch.sharedValues.length - MAX_VISIBLE_FAMILY_CONVERGENCES} התכנסויות מחושבות</summary>
+            <div>{familyResearch.sharedValues.slice(MAX_VISIBLE_FAMILY_CONVERGENCES)
+              .map(item => <FamilyConvergenceChip item={item} key={item.value} />)}</div>
+          </details> : null}
+          <p>כאן נספרים רק ביטויים שונים. שיטות שקובצו לפי Registry ושם משפחה זהה אינם מנפחים את מספר הראיות.</p>
+        </div> : <p className="person-journey-note">לא נמצאה כרגע התכנסות בין ביטויים שונים של האנשים שנבחרו. זו אינה קביעה שאין קשר.</p>}
+        {familyResearch.sharedExpressions?.length ? <div className="person-journey-family-shared" data-kind="shared-expression">
+          <small>ביטויים משפחתיים משותפים · לא התכנסות עצמאית</small>
+          <div>{familyResearch.sharedExpressions.map(item => <span key={item.id}>
+            <strong>{item.expressionText}</strong> · {item.memberCount} אנשים · {item.valueCount} ערכים
+          </span>)}</div>
+          <p>אותו ביטוי שחוזר אצל כמה בני משפחה מוצג פעם אחת, כעוגן משפחתי משותף.</p>
+        </div> : null}
+        {familyResearch.methodNormalization?.collapsedMethodResultCount > 0 ? <details className="person-journey-normalization-note">
+          <summary>איך נוטרלו כפילויות השיטות?</summary>
+          <p>{familyResearch.methodNormalization.collapsedMethodResultCount} תוצאות מקבילות קובצו לפי כללי התלות הקנוניים של הקלט. רגיל וגדול נספרים יחד רק כשאין אות סופית; כך גם זוגות מקבילים נוספים שה־Registry מאשר.</p>
+        </details> : null}
         <div className="person-journey-family-research-grid">
           {familyResearch.rows.map(row => <article key={row.memberRef}>
             <header><strong>{row.name}</strong><small>{row.data?.hebrewDate || "תאריך עברי לא זמין"}</small></header>

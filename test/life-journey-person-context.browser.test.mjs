@@ -65,7 +65,17 @@ function lifeJourneyFixturePlugin() {
         if(body.op==="page")return {data:{result:{contract:"els_search_page_v1",status:"OK",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},selection_protocol:"POST_HOC_EXPLORATORY",hits:[{occurrence_id:"els:fixture-torah:"+body.term+":7:1:120",skip:7,dir:1,start:120,end:150,positions:[120,127,134]}],completion:{executed:true,returned_hits:1,total_hits:1,has_more:false,truncated:false}}}};
         if(body.op==="verify")return {data:{result:{contract:"els_occurrence_replay_v1",status:"OK",verification_state:"MATCH",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},occurrence:{occurrence_id:"els:fixture-torah:"+body.term+":"+body.skip+":"+body.dir+":"+body.start,skip:body.skip,dir:body.dir,start:body.start,positions:[body.start]}}}};
         return {error:{message:"unsupported"}};
-      }},from(table){return {select(){return {in(key,values){if(table!=="gematria_methods")return Promise.resolve({data:[],error:null});return Promise.resolve({data:values.map((method_key,index)=>({method_key,display_label:method_key==="ragil"?"רגיל":method_key==="miluy"?"מילוי":"סידורי",sort_order:index+1,category:"base",mathematical_family:method_key,derived_from:[],dependency_rules:[]})),error:null});}};}};},async rpc(name,args){
+      }},from(table){
+        const registry=[
+          {method_key:"ragil",display_label:"רגיל",sort_order:1,category:"base",mathematical_family:"base_additive",derived_from:[],dependency_rules:[],dependency_version:1},
+          {method_key:"miluy",display_label:"מילוי",sort_order:2,category:"base",mathematical_family:"letter_expansion",derived_from:[],dependency_rules:[],dependency_version:1},
+          {method_key:"siduri",display_label:"סידורי",sort_order:3,category:"base",mathematical_family:"ordinal",derived_from:[],dependency_rules:[],dependency_version:1},
+        ];
+        let selectedKeys=null;
+        const result=()=>({data:table==="gematria_methods"?(selectedKeys?registry.filter(row=>selectedKeys.includes(row.method_key)):registry):[],error:null});
+        const builder={select(){return builder;},eq(){return builder;},order(){return builder;},in(key,values){selectedKeys=values;return Promise.resolve(result());},then(resolve,reject){return Promise.resolve(result()).then(resolve,reject);}};
+        return builder;
+      },async rpc(name,args){
         if(name==="fn_method_profile"){
           window.__matrixCalls.push({kind:"name-methods",name,args:{has_input:Boolean(args?.p_phrase),phrase:args?.p_phrase}});
           return {data:[{method_key:"ragil",display_label:"רגיל",computed_value:73},{method_key:"miluy",display_label:"מילוי",computed_value:101},{method_key:"siduri",display_label:"סידורי",computed_value:40}],error:null};
@@ -317,14 +327,15 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await family.getByRole("button", { name: "חקור 2 אנשים יחד" }).click();
     await family.getByRole("heading", { name: "מפת המחקר המשפחתית" }).waitFor();
     await family.getByRole("heading", { name: "המשפחה כמטריצה אחת" }).waitFor();
-    await family.getByText(/16 ביטויי שם ותאריך יצרו 64 זוגות מועמדים שנבדקו/).waitFor();
+    await family.getByText(/16 ביטויי שם ותאריך יצרו 59 זוגות מועמדים שנבדקו/).waitFor();
     assert.equal(await family.locator('.person-journey-relation-list article').count(), 1, "two selected people produce one normalized cross-person pair");
     assert.match(await family.getByLabel("מסר המחקר המשפחתי המאוחד").textContent(), /לאחר נרמול התלות/);
-    await family.locator(".person-journey-family-shared", { hasText: "2 אנשים" }).waitFor();
+    await family.locator('.person-journey-family-shared[data-kind="cross-expression"]', { hasText: "2 אנשים" }).waitFor();
+    await family.locator('.person-journey-family-shared[data-kind="shared-expression"]', { hasText: "לא התכנסות עצמאית" }).waitFor();
     assert.equal(await family.locator(".person-journey-family-member", { hasText: "ילד בדיקה" }).count(), 1, "each person has one canonical row on the main family surface");
     assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "ילד בדיקה")), true, "explicit family research includes the selected child through the canonical method profile");
-    assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "methods" && call.args.word === "י״א")), true, "family matrix converts the Hebrew day into a gematria expression");
-    assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "methods" && call.args.word === "בתשרי")), true, "family matrix converts the Hebrew month into a gematria expression");
+    assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "י״א")), true, "family matrix converts the Hebrew day into a canonical method profile");
+    assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "בתשרי")), true, "family matrix converts the Hebrew month into a canonical method profile");
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab")), false, "Life Journey never calls NameLab");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");

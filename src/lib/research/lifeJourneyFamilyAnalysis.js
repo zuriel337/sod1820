@@ -94,7 +94,7 @@ export function buildLifeJourneyFamilyAnalysisFacts(research = {}) {
     lines.push(`- זוג אנשים ${index + 1}: ביטוי שמאל=${clean(connection?.left?.expressionRole) || "לא זמין"}; ביטוי ימין=${clean(connection?.right?.expressionRole) || "לא זמין"}; קבוצות שיטה עצמאיות=${finiteInteger(connection?.independentGroupCount) ?? "לא זמין"}; חיבורי ביטויים בזוג=${finiteInteger(connection?.expressionConnectionCount) ?? 1}.`);
   });
   sharedValues.slice(0, MAX_SHARED_VALUES).forEach(item => {
-    lines.push(`- ערך משותף ${finiteInteger(item?.value) ?? "לא זמין"}: הופיע אצל ${finiteInteger(item?.count) ?? 0} אנשים.`);
+    lines.push(`- חיבור מספרי ${finiteInteger(item?.value) ?? "לא זמין"}: הופיע אצל ${finiteInteger(item?.count) ?? 0} אנשים דרך ${finiteInteger(item?.distinctExpressionCount) ?? 0} ביטויים שונים; ${item?.sameMethod === true ? "כולל מפגש באותה שיטה" : "החיבור חוצה שיטות"}.`);
   });
   lines.push("נסח מסר מחקרי זהיר מתוך העובדות בלבד. אין להסיק גורל, אישיות, נבואה או אמת משפחתית.");
   return lines.join("\n");
@@ -120,7 +120,7 @@ function analysisClaims(research, evidence) {
     if (value == null) return;
     claims.push({
       id: `life-family-analysis-shared-${index + 1}`,
-      text: `הערך ${value} הופיע בתוצאות של ${count ?? 0} אנשים שנבחרו. זו חזרה מחושבת, לא פרשנות על המשפחה.`,
+      text: `הערך ${value} חיבר ${count ?? 0} אנשים דרך ${finiteInteger(item?.distinctExpressionCount) ?? 0} ביטויים שונים לאחר נרמול. זו חזרה מחושבת, לא פרשנות על המשפחה.`,
       role: "engine_finding_summary",
       support: { finding_ids: evidence.valueEvidenceIds.get(value) || [] },
     });

@@ -374,6 +374,18 @@
   padding:6px 10px;
   color:var(--pj-gold);
 }
+.person-journey-family-shared>div span{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
+.person-journey-family-shared>div span em{font-size:10px;font-style:normal;color:var(--pj-soft);border-inline-start:1px solid var(--pj-line);padding-inline-start:6px}
+.person-journey-family-shared-more{margin-block:10px;color:var(--pj-soft)}
+.person-journey-family-shared-more summary{cursor:pointer;font-weight:800;color:var(--pj-ink)}
+.person-journey-family-shared-more>div{display:flex;gap:8px;flex-wrap:wrap;margin-block:9px}
+.person-journey-family-shared-more span{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap;border:1px solid color-mix(in srgb,var(--pj-accent) 35%,transparent);border-radius:999px;padding:6px 10px;color:var(--pj-gold)}
+.person-journey-family-shared-more span em{font-size:10px;font-style:normal;color:var(--pj-soft);border-inline-start:1px solid var(--pj-line);padding-inline-start:6px}
+.person-journey-family-shared[data-kind="shared-expression"]{border-block-start:0}
+.person-journey-family-shared[data-kind="shared-expression"]>div span{background:transparent;border-style:dashed}
+.person-journey-normalization-note{border:1px solid var(--pj-line);border-radius:14px;padding:10px 13px;color:var(--pj-soft)}
+.person-journey-normalization-note summary{cursor:pointer;color:var(--pj-ink);font-weight:800}
+.person-journey-normalization-note p{margin:8px 0 0;line-height:1.65;font-size:12px}
 .person-journey-family-shared p{margin:0;font-size:12px}
 .person-journey-family-research-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
 .person-journey-family-research-grid article{display:grid;align-content:start;gap:12px;border:1px solid var(--pj-line);border-radius:16px;padding:13px;background:var(--pj-panel)}

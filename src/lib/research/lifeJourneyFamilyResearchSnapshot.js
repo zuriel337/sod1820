@@ -1,6 +1,7 @@
 import { stableIdentityDigest } from "./researchRepresentations.js";
+import { compileLifeJourneyFamilyExpressionMatrix } from "./lifeJourneyFamilyResearch.js";
 
-export const LIFE_JOURNEY_FAMILY_SNAPSHOT_VERSION = "life-journey-family-snapshot-v1";
+export const LIFE_JOURNEY_FAMILY_SNAPSHOT_VERSION = "life-journey-family-snapshot-v2";
 export const LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION = "lifeJourneyFamilyResearchSnapshot";
 export const LIFE_JOURNEY_FAMILY_SNAPSHOT_MAX_BYTES = 240000;
 
@@ -19,6 +20,9 @@ function compactFinding(finding) {
     value,
     methodLabel: text(finding?.methodLabel, 80),
     methodKey: text(finding?.methodKey, 80),
+    memberRef: text(finding?.memberRef, 240),
+    expressionRole: text(finding?.expressionRole, 80),
+    expressionLabel: text(finding?.expressionLabel, 120),
     sourceRef: null,
     versionRef: text(finding?.versionRef, 160),
     focusKind: text(finding?.focusKind, 80),
@@ -82,7 +86,29 @@ function compactResearch(research) {
       value: integer(item?.value),
       count: integer(item?.count),
       expressionCount: integer(item?.expressionCount),
+      distinctExpressionCount: integer(item?.distinctExpressionCount),
+      normalizedEvidenceCount: integer(item?.normalizedEvidenceCount),
+      methodGroupCount: integer(item?.methodGroupCount),
+      repeatedExpressionCount: integer(item?.repeatedExpressionCount),
+      sameMethod: item?.sameMethod === true,
+      classification: text(item?.classification, 80),
     })).filter(item => item.value != null && item.count != null).slice(0, 256),
+    sharedExpressions: list(research.sharedExpressions).map(item => ({
+      id: text(item?.id, 240),
+      memberCount: integer(item?.memberCount),
+      memberRefs: list(item?.memberRefs).map(value => text(value, 240)).filter(Boolean).slice(0, 12),
+      expressionRoles: list(item?.expressionRoles).map(value => text(value, 80)).filter(Boolean).slice(0, 12),
+      valueCount: integer(item?.valueCount),
+      values: list(item?.values).map(integer).filter(value => value != null).slice(0, 64),
+      effectiveMethodGroupCount: integer(item?.effectiveMethodGroupCount),
+    })).filter(item => item.id && item.memberCount).slice(0, 64),
+    methodNormalization: {
+      rawMethodResultCount: integer(research?.methodNormalization?.rawMethodResultCount) ?? 0,
+      effectiveMethodResultCount: integer(research?.methodNormalization?.effectiveMethodResultCount) ?? 0,
+      collapsedMethodResultCount: integer(research?.methodNormalization?.collapsedMethodResultCount) ?? 0,
+      appliedEquivalenceFamilies: list(research?.methodNormalization?.appliedEquivalenceFamilies)
+        .map(value => text(value, 180)).filter(Boolean).slice(0, 32),
+    },
     methodFindings: list(research.methodFindings).map(compactFinding).filter(Boolean).slice(0, 2048),
     relationRows: list(research.relationRows).map(compactConnection).filter(Boolean).slice(0, 768),
     connections: list(research.connections).map(compactConnection).filter(Boolean).slice(0, 66),
@@ -202,7 +228,7 @@ function restoredAnalysisClaims(research) {
   }));
   list(research?.sharedValues).slice(0, 8).forEach((item, index) => claims.push({
     id: `life-family-analysis-shared-${index + 1}`,
-    text: `הערך ${item.value} הופיע בתוצאות של ${item.count} אנשים שנבחרו. זו חזרה מחושבת, לא פרשנות על המשפחה.`,
+    text: `הערך ${item.value} חיבר ${item.count} אנשים דרך ${item.distinctExpressionCount || 0} ביטויים שונים לאחר נרמול. זו חזרה מחושבת, לא פרשנות על המשפחה.`,
     role: "engine_finding_summary",
   }));
   if (!claims.length) claims.push({
@@ -241,11 +267,34 @@ export function materializeLifeJourneyFamilySnapshot(snapshot, members = [], { h
   const relationRows = list(snapshot.research.relationRows).map(restoreConnection);
   const connections = list(snapshot.research.connections).map(restoreConnection);
   if ([...relationRows, ...connections].some(connection => !connection.left.name || !connection.right.name)) return null;
+  const expressionTextById = new Map();
+  const expressionInputs = list(members).map(member => {
+    const meta = member?.meta && typeof member.meta === "object" && !Array.isArray(member.meta) ? member.meta : {};
+    const name = clean(member?.name);
+    const pieces = name.split(/\s+/u).filter(Boolean);
+    return {
+      memberRef: clean(member?.source_ref),
+      fullName: name,
+      firstName: clean(meta.first_name) || pieces[0] || "",
+      surname: clean(meta.surname) || pieces.slice(1).join(" "),
+      birthdate: clean(meta.birthdate_iso),
+    };
+  });
+  for (const expression of compileLifeJourneyFamilyExpressionMatrix(expressionInputs)) {
+    const normalized = clean(expression?.text).normalize("NFKC").replace(/\s+/gu, " ");
+    const id = `life-family-shared-expression:${stableIdentityDigest(normalized)}`;
+    if (!expressionTextById.has(id)) expressionTextById.set(id, clean(expression?.text));
+  }
+  const sharedExpressions = list(snapshot.research.sharedExpressions).map(item => ({
+    ...item,
+    expressionText: expressionTextById.get(clean(item?.id)) || null,
+  })).filter(item => item.expressionText);
   const research = {
     ...snapshot.research,
     rows,
     relationRows,
     connections,
+    sharedExpressions,
   };
   research.message = restoredFamilyMessage(research);
   const analysis = snapshot.analysis ? {

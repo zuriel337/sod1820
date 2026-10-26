@@ -135,7 +135,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(familyResearch, /createGematriaRelationW2Executor/);
   assert.match(familyResearch, /INTAKE_DIRECT_PAIR/);
   assert.match(familyResearch, /compileLifeJourneyDateExpressionMatrix/);
-  assert.match(familyResearch, /fn_all_methods/);
+  assert.match(familyResearch, /fetchNumberMethodProfile/);
+  assert.match(familyResearch, /gematria_methods/);
+  assert.match(familyResearch, /conditional_equivalence/);
   assert.match(familyResearch, /crossPersonPairs/);
   assert.match(familyResearch, /hasSharedNumericBasis/);
   assert.match(familyResearch, /LIFE_JOURNEY_FAMILY_RESEARCH_MAX_MEMBERS = 12/);

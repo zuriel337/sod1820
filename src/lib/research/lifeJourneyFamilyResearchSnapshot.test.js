@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { normalizeResearchContext } from "./researchContext.js";
+import { stableIdentityDigest } from "./researchRepresentations.js";
 import {
   LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION,
   lifeJourneyFamilySelectionSignature,
@@ -28,7 +29,9 @@ function completedResearch() {
       data: { fullValue: 73, methodFindings: [finding], hebrewDate: "י״א בתשרי", crossFindings: [finding], crossValues: [73], tracksWithResults: 1, partial: false },
       error: null,
     })),
-    sharedValues: [{ value: 73, count: 2 }],
+    sharedValues: [{ value: 73, count: 2, distinctExpressionCount: 2, normalizedEvidenceCount: 2, methodGroupCount: 1, repeatedExpressionCount: 0, sameMethod: true, classification: "same_method_distinct_expressions" }],
+    sharedExpressions: [{ id: `life-family-shared-expression:${stableIdentityDigest("בדיקה")}`, expressionText: "בדיקה", memberCount: 2, memberRefs: [PERSON_REF, CHILD_REF], expressionRoles: ["family_name"], valueCount: 1, values: [73], effectiveMethodGroupCount: 1 }],
+    methodNormalization: { rawMethodResultCount: 4, effectiveMethodResultCount: 2, collapsedMethodResultCount: 2, appliedEquivalenceFamilies: ["רגיל ↔ גדול"] },
     methodFindings: [finding],
     relationRows: [{ id: "relation-1", left: { memberRef: PERSON_REF, name: "הורה בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, right: { memberRef: CHILD_REF, name: "ילד בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, independentGroupCount: 1 }],
     connections: [{ id: "pair-1", left: { memberRef: PERSON_REF, name: "הורה בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, right: { memberRef: CHILD_REF, name: "ילד בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, independentGroupCount: 1, expressionConnectionCount: 4, findingIds: ["relation-1"] }],
@@ -52,6 +55,7 @@ test("family research snapshot round-trips only through the existing private Con
   assert.equal(serialized.includes("הורה בדיקה"), false, "private names remain in the Ledger, not Context");
   assert.equal(serialized.includes("ילד בדיקה"), false, "family names remain reference-only in Context");
   assert.equal(serialized.includes("1990-02-15"), false, "birth dates remain in the Ledger, not Context");
+  assert.equal(serialized.includes('"expressionText"'), false, "shared private expressions remain in the Ledger, not Context");
 
   const context = normalizeResearchContext({
     subject: { id: PERSON_REF, type: "person" },
@@ -65,6 +69,9 @@ test("family research snapshot round-trips only through the existing private Con
   assert.equal(materialized.research.rows[1].data.hebrewDate, "י״א בתשרי");
   assert.match(materialized.research.message, /הורה בדיקה/);
   assert.match(materialized.analysis.data.claims[0].text, /ילד בדיקה/);
+  assert.equal(materialized.research.sharedValues[0].distinctExpressionCount, 2);
+  assert.equal(materialized.research.sharedExpressions[0].expressionText, "בדיקה");
+  assert.equal(materialized.research.methodNormalization.collapsedMethodResultCount, 2);
   assert.deepEqual(lifeJourneyFamilySnapshotPatch(serialized), {
     dimensions: { [LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION]: serialized },
   });

@@ -84,6 +84,27 @@ export function compileLifeJourneyDateExpressionMatrix({ firstName, surname, bir
 }
 
 function numericMethodEntries(payload) {
+  if (Array.isArray(payload)) return payload.flatMap(row => {
+    const methodKey = clean(row?.methodKey ?? row?.method_key);
+    const value = Number(row?.computedValue ?? row?.computed_value ?? row?.value);
+    if (!methodKey || !Number.isSafeInteger(value)) return [];
+    return [{
+      methodKey,
+      methodLabel: clean(row?.displayLabel ?? row?.display_label) || methodKey.replaceAll("_", " "),
+      value,
+      sortOrder: Number.isFinite(Number(row?.sortOrder ?? row?.sort_order))
+        ? Number(row?.sortOrder ?? row?.sort_order)
+        : null,
+      mathematicalFamily: clean(row?.mathematicalFamily ?? row?.mathematical_family) || null,
+      dependencyRules: Array.isArray(row?.dependencyRules ?? row?.dependency_rules)
+        ? (row?.dependencyRules ?? row?.dependency_rules).map(rule => ({ ...rule }))
+        : [],
+      dependencyVersion: Number.isFinite(Number(row?.dependencyVersion ?? row?.dependency_version))
+        ? Number(row?.dependencyVersion ?? row?.dependency_version)
+        : null,
+    }];
+  }).sort((a, b) => (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999)
+    || a.methodLabel.localeCompare(b.methodLabel, "he"));
   const source = payload?.methods && typeof payload.methods === "object" && !Array.isArray(payload.methods)
     ? payload.methods
     : payload;

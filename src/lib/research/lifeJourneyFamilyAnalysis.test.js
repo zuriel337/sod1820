@@ -18,7 +18,7 @@ const research = {
     independentGroupCount: 2,
     engineSignal: 4,
   }],
-  sharedValues: [{ value: 73, count: 2 }],
+  sharedValues: [{ value: 73, count: 2, distinctExpressionCount: 2, sameMethod: true }],
   coverage: { memberCount: 2, searchedPairCount: 1, connectionCount: 1 },
   message: "מסר מקומי חלופי",
 };
@@ -53,7 +53,8 @@ test("family analysis sends only anonymized normalized facts and never exposes i
   assert.deepEqual(events, ["analysis", "internal-reflection"]);
   assert.equal(received.subject, "מפת מחקר משפחתית");
   assert.doesNotMatch(received.facts, /שם פרטי|person:private/);
-  assert.match(received.facts, /ערך משותף 73/);
+  assert.match(received.facts, /חיבור מספרי 73/);
+  assert.match(received.facts, /2 ביטויים שונים/);
   assert.equal(out.message, "המסר המנורמל הוקפא מתוך ממצאי המנוע.");
   assert.equal(out.claims.length, 2);
   assert.deepEqual(out.sharedValues, [{ value: 73, count: 2 }]);

@@ -7,13 +7,190 @@ import {
   compileLifeJourneyDateExpressionMatrix,
   projectLifeJourneyMethodPack,
 } from "./lifeJourneyDateMatrix.js";
+import { fetchNumberMethodProfile } from "./numberCoreProjection.js";
 import { stableIdentityDigest } from "./researchRepresentations.js";
 
-export const LIFE_JOURNEY_FAMILY_RESEARCH_VERSION = "life-journey-family-research-v2";
+export const LIFE_JOURNEY_FAMILY_RESEARCH_VERSION = "life-journey-family-research-v3";
 export const LIFE_JOURNEY_FAMILY_RESEARCH_MAX_MEMBERS = 12;
 export const LIFE_JOURNEY_FAMILY_RESEARCH_MAX_RELATION_PAIRS = 768;
 
 const clean = value => String(value || "").trim();
+const normalizedIdentity = value => clean(value)
+  .normalize("NFKC")
+  .replace(/["'״׳`]/gu, "")
+  .replace(/[\s־–—-]+/gu, "")
+  .toLowerCase();
+const normalizedExpression = value => clean(value).normalize("NFKC").replace(/\s+/gu, " ");
+
+function dependencyConditionApplies(condition, expressionText) {
+  const value = clean(condition);
+  const expression = clean(expressionText);
+  const words = expression.match(/[\p{L}\p{N}]+/gu) || [];
+  const noFinalLetters = !/[ךםןףץ]/u.test(expression);
+  if (value === "no_final_letters") return noFinalLetters;
+  if (value === "single_word_input") return words.length === 1;
+  if (value === "single_word_and_no_final_letters") return words.length === 1 && noFinalLetters;
+  return false;
+}
+
+/** Projection-only collapse of Registry-proven aliases/equivalences for one exact expression. */
+export function normalizeLifeJourneyExpressionMethods(expression = {}) {
+  const methods = Array.isArray(expression?.methods) ? expression.methods : [];
+  const parent = methods.map((_, index) => index);
+  const find = index => {
+    let root = index;
+    while (parent[root] !== root) root = parent[root];
+    while (parent[index] !== index) {
+      const next = parent[index];
+      parent[index] = root;
+      index = next;
+    }
+    return root;
+  };
+  const union = (left, right) => {
+    const a = find(left);
+    const b = find(right);
+    if (a !== b) parent[b] = a;
+  };
+  const methodIndex = new Map();
+  methods.forEach((method, index) => {
+    for (const identity of [method?.methodKey, method?.methodLabel]) {
+      const key = normalizedIdentity(identity);
+      if (key) methodIndex.set(key, index);
+    }
+  });
+  const appliedRules = [];
+  methods.forEach((method, index) => {
+    for (const rule of Array.isArray(method?.dependencyRules) ? method.dependencyRules : []) {
+      if (clean(rule?.type) !== "conditional_equivalence"
+        || !dependencyConditionApplies(rule?.condition, expression?.text)) continue;
+      const target = methodIndex.get(normalizedIdentity(rule?.to));
+      if (target == null || target === index || Number(methods[target]?.value) !== Number(method?.value)) continue;
+      union(index, target);
+      appliedRules.push(Object.freeze({
+        from: clean(method?.methodLabel || method?.methodKey),
+        to: clean(methods[target]?.methodLabel || methods[target]?.methodKey),
+        condition: clean(rule?.condition),
+      }));
+    }
+  });
+  const groups = new Map();
+  methods.forEach((method, index) => {
+    const root = find(index);
+    const group = groups.get(root) || [];
+    group.push(method);
+    groups.set(root, group);
+  });
+  return Object.freeze({
+    groups: Object.freeze([...groups.values()].map(group => {
+      const ordered = [...group].sort((a, b) => (a.sortOrder ?? 9999) - (b.sortOrder ?? 9999)
+        || clean(a.methodLabel).localeCompare(clean(b.methodLabel), "he"));
+      const representative = ordered[0];
+      return Object.freeze({
+        id: `${expression.id}:method-family:${stableIdentityDigest(ordered.map(item => item.methodKey).sort().join("|"))}`,
+        methodGroupKey: clean(representative?.methodKey || representative?.methodLabel),
+        methodLabel: clean(representative?.methodLabel || representative?.methodKey),
+        value: Number(representative?.value),
+        methods: Object.freeze(ordered),
+        equivalentMethodCount: ordered.length,
+      });
+    }).filter(group => Number.isSafeInteger(group.value))),
+    appliedRules: Object.freeze(appliedRules),
+    rawMethodCount: methods.length,
+    effectiveMethodCount: groups.size,
+  });
+}
+
+/** Separates repeated exact family expressions from cross-expression numeric intersections. */
+export function classifyLifeJourneyFamilyValues(expressions = []) {
+  const byValue = new Map();
+  const byExpression = new Map();
+  let rawMethodResultCount = 0;
+  let effectiveMethodResultCount = 0;
+  const appliedRuleKeys = new Set();
+
+  for (const expression of Array.isArray(expressions) ? expressions : []) {
+    const expressionKey = normalizedExpression(expression?.text);
+    if (!expressionKey) continue;
+    const normalized = normalizeLifeJourneyExpressionMethods(expression);
+    rawMethodResultCount += normalized.rawMethodCount;
+    effectiveMethodResultCount += normalized.groups.length;
+    normalized.appliedRules.forEach(rule => appliedRuleKeys.add(`${rule.from} ↔ ${rule.to}`));
+    const expressionEntry = byExpression.get(expressionKey) || { rows: [], memberRefs: new Set(), values: new Set(), methodGroups: new Set() };
+    expressionEntry.rows.push(expression);
+    expressionEntry.memberRefs.add(expression.memberRef);
+    for (const group of normalized.groups) {
+      expressionEntry.values.add(group.value);
+      expressionEntry.methodGroups.add(`${group.value}:${normalizedIdentity(group.methodGroupKey)}`);
+      const valueEntry = byValue.get(group.value) || { occurrences: [], memberRefs: new Set(), expressionKeys: new Set() };
+      valueEntry.occurrences.push({ expression, expressionKey, group });
+      valueEntry.memberRefs.add(expression.memberRef);
+      valueEntry.expressionKeys.add(expressionKey);
+      byValue.set(group.value, valueEntry);
+    }
+    byExpression.set(expressionKey, expressionEntry);
+  }
+
+  const sharedExpressions = [...byExpression.entries()].flatMap(([expressionKey, entry]) => {
+    if (entry.memberRefs.size < 2) return [];
+    const sample = entry.rows[0];
+    return [Object.freeze({
+      id: `life-family-shared-expression:${stableIdentityDigest(expressionKey)}`,
+      expressionText: clean(sample?.text),
+      memberCount: entry.memberRefs.size,
+      memberRefs: Object.freeze([...entry.memberRefs].sort()),
+      expressionRoles: Object.freeze([...new Set(entry.rows.map(row => clean(row?.role)).filter(Boolean))]),
+      valueCount: entry.values.size,
+      values: Object.freeze([...entry.values].sort((a, b) => a - b)),
+      effectiveMethodGroupCount: entry.methodGroups.size,
+    })];
+  }).sort((a, b) => b.memberCount - a.memberCount || b.valueCount - a.valueCount || a.expressionText.localeCompare(b.expressionText, "he"));
+
+  const convergences = [...byValue.entries()].flatMap(([value, entry]) => {
+    if (entry.memberRefs.size < 2 || entry.expressionKeys.size < 2) return [];
+    const repeatedExpressionCount = [...entry.expressionKeys]
+      .filter(expressionKey => (byExpression.get(expressionKey)?.memberRefs.size || 0) >= 2).length;
+    const evidenceKeys = new Set(entry.occurrences.map(({ expressionKey, group }) => (
+      `${expressionKey}:${normalizedIdentity(group.methodGroupKey)}`
+    )));
+    const byMethodGroup = new Map();
+    for (const occurrence of entry.occurrences) {
+      const key = normalizedIdentity(occurrence.group.methodGroupKey);
+      const method = byMethodGroup.get(key) || { expressionKeys: new Set(), memberRefs: new Set() };
+      method.expressionKeys.add(occurrence.expressionKey);
+      method.memberRefs.add(occurrence.expression.memberRef);
+      byMethodGroup.set(key, method);
+    }
+    const sameMethod = [...byMethodGroup.values()].some(method => method.expressionKeys.size >= 2 && method.memberRefs.size >= 2);
+    return [Object.freeze({
+      value,
+      count: entry.memberRefs.size,
+      memberCount: entry.memberRefs.size,
+      expressionCount: entry.occurrences.length,
+      distinctExpressionCount: entry.expressionKeys.size,
+      normalizedEvidenceCount: evidenceKeys.size,
+      methodGroupCount: byMethodGroup.size,
+      repeatedExpressionCount,
+      sameMethod,
+      classification: sameMethod ? "same_method_distinct_expressions" : "cross_method_distinct_expressions",
+    })];
+  }).sort((a, b) => b.memberCount - a.memberCount
+    || b.distinctExpressionCount - a.distinctExpressionCount
+    || Number(b.sameMethod) - Number(a.sameMethod)
+    || b.normalizedEvidenceCount - a.normalizedEvidenceCount
+    || a.value - b.value);
+
+  return Object.freeze({
+    convergences: Object.freeze(convergences),
+    sharedExpressions: Object.freeze(sharedExpressions),
+    normalization: Object.freeze({
+      rawMethodResultCount,
+      effectiveMethodResultCount,
+      collapsedMethodResultCount: Math.max(0, rawMethodResultCount - effectiveMethodResultCount),
+      appliedEquivalenceFamilies: Object.freeze([...appliedRuleKeys].sort((a, b) => a.localeCompare(b, "he"))),
+    }),
+  });
+}
 
 export function compileLifeJourneyFamilyRepresentations(members = []) {
   const rows = (Array.isArray(members) ? members : []).slice(0, LIFE_JOURNEY_FAMILY_RESEARCH_MAX_MEMBERS).flatMap(member => {
@@ -162,24 +339,6 @@ function groupPersonConnections(rows) {
   }).sort((a, b) => connectionStrength(b) - connectionStrength(a)));
 }
 
-function sharedFamilyMethodValues(expressions) {
-  const values = new Map();
-  for (const expression of expressions) {
-    for (const method of Array.isArray(expression?.methods) ? expression.methods : []) {
-      const value = Number(method?.value);
-      if (!Number.isSafeInteger(value)) continue;
-      const entry = values.get(value) || { members: new Set(), expressions: new Set() };
-      entry.members.add(expression.memberRef);
-      entry.expressions.add(expression.id);
-      values.set(value, entry);
-    }
-  }
-  return Object.freeze([...values.entries()]
-    .filter(([, entry]) => entry.members.size >= 2)
-    .map(([value, entry]) => Object.freeze({ value, count: entry.members.size, expressionCount: entry.expressions.size }))
-    .sort((a, b) => b.count - a.count || b.expressionCount - a.expressionCount || a.value - b.value));
-}
-
 export function composeLifeJourneyFamilyMessage({ representations = [], expressions = [], connections = [] } = {}) {
   if (representations.length < 2) return "כדי ליצור מחקר משפחתי מאוחד יש לבחור לפחות שני אנשים.";
   const strongest = connections[0] || null;
@@ -198,11 +357,25 @@ export function createSupabaseLifeJourneyFamilyProviders(client = supabase) {
     supabase: client,
     pairMode: GEMATRIA_RELATION_PAIR_MODE.INTAKE_DIRECT_PAIR,
   });
+  let registryPromise = null;
+  const readRegistry = () => {
+    if (!registryPromise) registryPromise = client
+      .from("gematria_methods")
+      .select("method_key,db_column,display_label,category,sub,soul,sort_order,mathematical_family,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
+      .eq("active", true)
+      .eq("in_engine", true)
+      .order("sort_order", { ascending: true })
+      .then(({ data, error }) => {
+        if (error) throw error;
+        return Array.isArray(data) ? data : [];
+      });
+    return registryPromise;
+  };
   return Object.freeze({
     methodPack: async matrixExpression => {
-      const { data, error } = await client.rpc("fn_all_methods", { p_word: matrixExpression.text });
-      if (error) throw error;
-      return projectLifeJourneyMethodPack(matrixExpression, data);
+      const registryRows = await readRegistry();
+      const profile = await fetchNumberMethodProfile(matrixExpression.text, { client, registryRows });
+      return projectLifeJourneyMethodPack(matrixExpression, profile);
     },
     relationPair: (left, right) => relationExecutor({
       intake: {
@@ -210,7 +383,7 @@ export function createSupabaseLifeJourneyFamilyProviders(client = supabase) {
           ref: item.id,
           kind: item.kind,
           role: item.role,
-          content: item.name,
+          content: item.text,
           access: { tier: "personal" },
         })),
       },
@@ -228,6 +401,13 @@ export async function runLifeJourneyFamilyResearch({ members = [], providers = n
     relationRows: Object.freeze([]),
     connections: Object.freeze([]),
     sharedValues: Object.freeze([]),
+    sharedExpressions: Object.freeze([]),
+    methodNormalization: Object.freeze({
+      rawMethodResultCount: 0,
+      effectiveMethodResultCount: 0,
+      collapsedMethodResultCount: 0,
+      appliedEquivalenceFamilies: Object.freeze([]),
+    }),
     message: composeLifeJourneyFamilyMessage({ representations }),
     coverage: Object.freeze({ memberCount: representations.length, expressionCount: 0, methodValueCount: 0, possiblePairCount: 0, candidatePairCount: 0, searchedPairCount: 0, relationCount: 0, connectionCount: 0, truncated: members.length > representations.length }),
   });
@@ -240,7 +420,10 @@ export async function runLifeJourneyFamilyResearch({ members = [], providers = n
     methods: Object.freeze(await activeProviders.methodPack(item)),
   }));
   const possiblePairs = crossPersonPairs(expressionRows);
-  const candidatePairs = possiblePairs.filter(([left, right]) => hasSharedNumericBasis(left, right));
+  const candidatePairs = possiblePairs.filter(([left, right]) => (
+    normalizedExpression(left.text) !== normalizedExpression(right.text)
+    && hasSharedNumericBasis(left, right)
+  ));
   const searchedPairs = candidatePairs.slice(0, LIFE_JOURNEY_FAMILY_RESEARCH_MAX_RELATION_PAIRS);
   const relationRows = (await mapWithConcurrency(searchedPairs, 6, async ([left, right]) => (
     projectExpressionConnection(left, right, await activeProviders.relationPair(left, right))
@@ -252,6 +435,7 @@ export async function runLifeJourneyFamilyResearch({ members = [], providers = n
     expressionRole: item.role,
     expressionLabel: item.label,
   }))));
+  const valueProjection = classifyLifeJourneyFamilyValues(expressionRows);
   const truncated = members.length > representations.length || candidatePairs.length > searchedPairs.length;
   return Object.freeze({
     version: LIFE_JOURNEY_FAMILY_RESEARCH_VERSION,
@@ -260,7 +444,9 @@ export async function runLifeJourneyFamilyResearch({ members = [], providers = n
     methodFindings,
     relationRows: Object.freeze(relationRows),
     connections,
-    sharedValues: sharedFamilyMethodValues(expressionRows),
+    sharedValues: valueProjection.convergences,
+    sharedExpressions: valueProjection.sharedExpressions,
+    methodNormalization: valueProjection.normalization,
     message: composeLifeJourneyFamilyMessage({ representations, expressions: expressionRows, connections }),
     coverage: Object.freeze({
       memberCount: representations.length,

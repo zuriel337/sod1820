@@ -32,7 +32,7 @@ export function projectNumberMethodProfileRow(row) {
   };
 }
 
-export async function fetchNumberMethodProfile(expression, { client = null } = {}) {
+export async function fetchNumberMethodProfile(expression, { client = null, registryRows = null } = {}) {
   const phrase = clean(expression);
   if (!phrase || /^\d+$/.test(phrase)) return [];
   const activeClient = client || (await import("../supabase.js")).supabase;
@@ -48,11 +48,17 @@ export async function fetchNumberMethodProfile(expression, { client = null } = {
 
   const keys = rows.map((row) => row.methodKey);
   if (!keys.length) return rows;
-  const { data: registry, error: registryError } = await activeClient
-    .from("gematria_methods")
-    .select("method_key,db_column,display_label,category,sub,soul,sort_order,mathematical_family,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
-    .in("method_key", keys);
-  if (registryError) throw registryError;
+  let registry = Array.isArray(registryRows)
+    ? registryRows.filter(row => keys.includes(clean(row?.method_key)))
+    : null;
+  if (!registry) {
+    const { data, error: registryError } = await activeClient
+      .from("gematria_methods")
+      .select("method_key,db_column,display_label,category,sub,soul,sort_order,mathematical_family,execution_kind,operator,derived_from,source_of_truth,dependency_rules,dependency_version")
+      .in("method_key", keys);
+    if (registryError) throw registryError;
+    registry = data;
+  }
   const deps = new Map((registry || []).map((row) => [clean(row?.method_key), row]));
   return rows.map((row) => {
     const registryRow = deps.get(row.methodKey) || {};
