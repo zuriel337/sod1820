@@ -11,6 +11,7 @@ import ContributorActionsController2029 from "./ContributorActionsController2029
 import { useContributorReading2029 } from "./ContributorReadingController2029.jsx";
 
 const FORMAT_LABEL = { text: "טקסט", image: "תמונה", video: "וידאו", external_link: "קישור" };
+const recordTimePrefix = (item) => item?.dateKind === "updated" ? "עודכן · " : item?.dateKind === "published" ? "פורסם · " : "";
 
 export default function PublicSourceCatalog2029({ view, onRetry, onCommunityReply }) {
   const P = use2029Palette();
@@ -60,7 +61,7 @@ export default function PublicSourceCatalog2029({ view, onRetry, onCommunityRepl
     </section> : null}
     {selection.section !== "community" ? <section aria-labelledby="writer-source-title">
       <div className="pc-list-heading"><div>{selection.section === "recent" ? <p className="pc-eyebrow">כתבי מקור וחומרים שהועלו</p> : null}<h2 id="writer-source-title">{selection.section === "recent" ? "התעדכן לאחרונה" : "כתבי מקור וחומרים שהועלו"}</h2>
-        <p className="pc-reason">{selection.section === "recent" ? "עד 20 פרסומים אחרונים, חדשים תחילה." : "פרסומי המקור שהועלו, חדשים תחילה."}</p>
+        <p className="pc-reason">{selection.section === "recent" ? "עד 20 כתבים וחומרי מקור, לפי מועד העדכון או הפרסום — החדש ביותר תחילה." : "פרסומי המקור שהועלו, חדשים תחילה."}</p>
       </div></div>
       {selection.section !== "recent" ? <div className="pc-filters" role="group" aria-label="סוג חומר המקור">
         {CATALOG_FORMATS.map(([key, label]) => <button key={key} type="button" aria-pressed={selection.format === key} onClick={() => change("format", key)}>{label}</button>)}
@@ -73,7 +74,7 @@ export default function PublicSourceCatalog2029({ view, onRetry, onCommunityRepl
         tabIndex={-1} ref={item.id === selection.item ? focused : null} data-catalog-source="true">
         <div className="pc-item-meta"><span>{item.formats.filter((format) => FORMAT_LABEL[format]).map((format) => FORMAT_LABEL[format]).join(" · ") || "מקור"}</span>
           {item.publicationState ? <span className="pc-state">פורסם</span> : null}
-          {bilingualDateLabel(item.createdAt) ? <time dateTime={item.createdAt}>{bilingualDateLabel(item.createdAt)}</time> : <span>תאריך לא זמין</span>}</div>
+          {bilingualDateLabel(item.createdAt) ? <time dateTime={item.createdAt}>{recordTimePrefix(item)}{bilingualDateLabel(item.createdAt)}</time> : <span>תאריך לא זמין</span>}</div>
         <h3>{item.href ? <Link to={item.href} onClick={() => reading.recordOpen(item)}>{item.title}</Link> : item.title}</h3>
         {item.media ? item.media.type === "video" ? <video className="pc-catalog-media" src={item.media.url} poster={item.media.thumbUrl || undefined} controls preload="none" aria-label={item.title} />
           : item.href ? <Link to={item.href} onClick={() => reading.recordOpen(item)}><img className="pc-catalog-media" src={item.media.thumbUrl || item.media.url} alt={item.title} loading="lazy" width="480" height="300" /></Link>

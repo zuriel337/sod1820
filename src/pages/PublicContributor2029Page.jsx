@@ -17,6 +17,7 @@ import { useContributorReading2029 } from "../components/contributor2029/Contrib
 
 const TYPE_LABELS = { sources: "מקור", findings: "ממצא", writings: "כתב", topics: "נושא" };
 const VERIFICATION = { match: "טענה אומתה מול המנוע", mismatch: "טענה נסתרה במנוע", not_tested: "לא נבדקה טענה מול המנוע", method_unknown: "השיטה לא זוהתה" };
+const recordTimePrefix = (item) => item?.dateKind === "updated" ? "עודכן · " : item?.dateKind === "published" ? "פורסם · " : "";
 
 export function PublicContributor2029View(props) {
   return props.view?.kind === "source_catalog" ? <PublicSourceCatalog2029 view={props.view} onRetry={props.onRetry} onCommunityReply={props.onCommunityReply} /> : <GeneralContributor2029View {...props} />;
@@ -100,7 +101,7 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
           const expanded = item.id === context.item;
           const date = bilingualDateLabel(item.date);
           return <article className="pc-item" key={item.id} ref={expanded ? selectedRef : null} tabIndex={-1}>
-            <div className="pc-item-meta"><span>{item.label || TYPE_LABELS[item.type]}</span>{date ? <time dateTime={item.date}>{date}</time> : <span>תאריך לא זמין</span>}</div>
+            <div className="pc-item-meta"><span>{item.label || TYPE_LABELS[item.type]}</span>{date ? <time dateTime={item.date}>{recordTimePrefix(item)}{date}</time> : <span>תאריך לא זמין</span>}</div>
             <h3>{item.href ? <a href={item.href} onClick={() => reading.recordOpen(item)}>{item.title}</a> : item.title}</h3>
             <p className="pc-reason">{item.reason}</p>
             {item.sourceOnly ? <p className="pc-source-state">מקור ללא ממצאים משויכים.</p> : null}

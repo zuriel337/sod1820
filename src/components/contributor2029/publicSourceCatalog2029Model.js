@@ -1,6 +1,10 @@
 import { safePublicUrl } from "./publicContributor2029Model.js";
 import { contributorSourceLibraryHref } from "../../lib/research/worldContributorSourceLocator.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
+import {
+  contributorPublicationRecordTime,
+  contributorPublicationRecordTimeKind,
+} from "../../lib/research/contributorPublicationCatalog.js";
 
 const PUBLISHED = new Set(["live", "on", "approved", "published", "public"]);
 export const CATALOG_FORMATS = Object.freeze([["all", "הכול"], ["text", "טקסטים"], ["image", "תמונות וגלריה"],
@@ -37,8 +41,8 @@ export function publicSourceCatalog2029(catalog, { profile, canonicalHref, commu
   };
 }
 
-// Posts keep their native references. The canonical source reader still owns
-// recentItems; adding older writings must never replace that exact recent 20.
+// Posts keep their native references. This display projection recomputes the
+// recent twenty across sources and writings without changing reader identity.
 export function appendSourceCatalogWritings2029(view, posts, { slug } = {}) {
   if (!slug) throw new Error("source_catalog_writer_slug_required");
   const rows = [...new Map((posts?.rows || []).filter((row) => row.id != null && row.slug).map((row) => [String(row.id), row])).values()];
@@ -48,7 +52,8 @@ export function appendSourceCatalogWritings2029(view, posts, { slug } = {}) {
     const params = new URLSearchParams({ view: "sources", source: slug, sourceRef });
     const mediaUrl = safePublicUrl(row.thumb_url || row.image_url);
     return { id: `post:${row.id}`, sourceRef, linkedSourceRefs: [sourceRef],
-      title: humanContentTitle(row.title, { max: 0 }) || "מאמר ללא כותרת", createdAt: row.date,
+      title: humanContentTitle(row.title, { max: 0 }) || "מאמר ללא כותרת",
+      createdAt: contributorPublicationRecordTime(row), dateKind: contributorPublicationRecordTimeKind(row),
       publicationState: "published", formats: ["text", ...(mediaUrl ? ["image"] : [])], sourceTopics: [], categoryBasis: null,
       media: mediaUrl ? { url: mediaUrl, type: "image", thumbUrl: mediaUrl } : null,
       href: `/world?${params}#source-occurrence-${encodeURIComponent(String(row.id))}`,
@@ -56,7 +61,7 @@ export function appendSourceCatalogWritings2029(view, posts, { slug } = {}) {
   });
   const items = [...view.catalog.items, ...writings].sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || ""))
     || a.sourceRef.localeCompare(b.sourceRef));
-  return { ...view, catalog: { ...view.catalog, items,
+  return { ...view, catalog: { ...view.catalog, items, recentItems: items.slice(0, 20),
     truncated: view.catalog.truncated || posts?.complete !== true },
     publicationCoverage: { posts: { count: posts?.complete ? rows.length : null,
       complete: posts?.complete === true, availability: posts?.availability || "unavailable" } } };

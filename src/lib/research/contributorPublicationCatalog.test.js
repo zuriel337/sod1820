@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fetchContributorPublicationCatalog } from "./contributorPublicationCatalog.js";
+import {
+  contributorPublicationRecordTime,
+  fetchContributorPublicationCatalog,
+  sortContributorPublicationRows,
+} from "./contributorPublicationCatalog.js";
 import { appendContributorPublicationCatalog, buildPublicContributorView } from "../../components/contributor2029/publicContributor2029Model.js";
 
 const identity = { id: "writer", user_id: "owner", slug: "writer", display_name: "Writer", wa_names: [], active: true };
@@ -30,6 +34,20 @@ test("all 123 published source records are reachable across RPC pages without lo
   assert.equal(result.items.filter(i => i.label === "תרומה").length, 123);
   assert.equal(new Set(result.items.map(i => i.id)).size, result.items.length);
   assert.ok(result.items.some(i => i.id === "contribution:c122" && i.href.includes("item=contribution%3Ac122")));
+});
+
+test("writings use modified, then publication, then creation time and keep a stable newest-first order", () => {
+  const rows = [
+    { id: "published-newer", slug: "published-newer", title: "Published", date: "2026-10-25T00:00:00Z" },
+    { id: "updated", slug: "updated", title: "Updated", date: "2020-01-01T00:00:00Z", modified: "2026-10-26T00:00:00Z" },
+    { id: "created", created_at: "2026-10-24T00:00:00Z" },
+    { id: "missing" },
+  ];
+  assert.equal(contributorPublicationRecordTime(rows[1]), "2026-10-26T00:00:00Z");
+  assert.deepEqual(sortContributorPublicationRows(rows).map((row) => row.id), ["updated", "published-newer", "created", "missing"]);
+  const projected = appendContributorPublicationCatalog(view(), { posts: { rows: rows.slice(0, 2), complete: true, availability: "ok" } }, identity);
+  assert.equal(projected.items.find((item) => item.id === "post:updated")?.date, "2026-10-26T00:00:00Z");
+  assert.equal(projected.items.find((item) => item.id === "post:updated")?.dateKind, "updated");
 });
 
 test("a failed source remains unknown and preserves available articles", async () => {

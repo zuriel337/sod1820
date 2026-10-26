@@ -21,6 +21,11 @@ function MaterialLink({ href, children }) {
 function materialLabel(type) {
   return Object.fromEntries(WORLD_SOURCE_FILTERS)[type] || "חומר ציבורי";
 }
+function materialDatePrefix(row) {
+  if (row?.dateKind === "updated") return "עודכן · ";
+  if (row?.dateKind === "published") return "פורסם · ";
+  return "";
+}
 
 export default function WorldPeopleSources2029({ index, loading = false, error = null, recentCounts = {}, focusedSourceRef = null }) {
   const location = useLocation();
@@ -98,8 +103,8 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
 
   return <div className="sod29-world-people-sources" id="world-source-selection">
     <section className="sod29-world-source-homes" aria-label="כל האנשים הציבוריים בעולם">
-      <header><div className="sod29-kicker">אנשים ציבוריים</div><h2>כל הכותבים והחוקרים שאפשר לפתוח</h2>
-        <p>הקבלה לעולם זהה לחוזה דף הכתב הציבורי. רשומות פרטיות, נעולות או בבנייה אינן נכנסות לאינדקס.</p></header>
+      <header><div className="sod29-kicker">דפי כותבים שהתעדכנו לאחרונה</div><h2>העדכניים ביותר תחילה</h2>
+        <p>מוצגים תחילה עד 20 דפים ציבוריים לפי מועד העדכון. רשומות פרטיות, נעולות או בבנייה אינן נכנסות לאינדקס.</p></header>
       <div className="sod29-world-source-controls">
         <label><span>חיפוש לפי אדם, כותרת או מספר</span>
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="שם, כותרת או מספר…" /></label>
@@ -117,6 +122,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             <span>{person.slug === "tzvi-opoc" ? "מקור בולט" : person.role}</span>
             <strong>{person.displayName}</strong>
             {person.code ? <small>מספר כתב · {person.code}</small> : null}
+            <small>{person.updatedAt ? <>עודכן · <time dateTime={person.updatedAt}>{bilingualDateLabel(person.updatedAt)}</time></> : "תאריך עדכון לא צוין"}</small>
             <div className="sod29-actions">
               <button type="button" aria-pressed={selected?.slug === person.slug} onClick={() => chooseSource(person.slug)}>החומר בעולם</button>
               <Link to={person.href}>דף הכתב</Link>
@@ -124,7 +130,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
           </article>)}
         </div>
         {shownPeople.length < filtered.people.length ? <button className="sod29-action" type="button"
-          onClick={() => setPeopleLimit((value) => value + WORLD_PEOPLE_PAGE_SIZE)}>עוד אנשים</button> : null}
+          onClick={() => setPeopleLimit((value) => value + WORLD_PEOPLE_PAGE_SIZE)}>לכל דפי הכותבים ({filtered.people.length - shownPeople.length} נוספים)</button> : null}
       </> : null}
     </section>
 
@@ -163,7 +169,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             ref={focusedSourceRef === row.sourceRef ? focusedCard : null}
             tabIndex={focusedSourceRef === row.sourceRef ? -1 : undefined}
             id={focusedSourceRef === row.sourceRef ? `source-occurrence-${row.sourceRef.split(":").pop()}` : undefined}>
-            <div><span>{row.label || materialLabel(row.type)}</span>{row.date ? <time>{bilingualDateLabel(row.date)}</time> : <time>אין נתון</time>}</div>
+            <div><span>{row.label || materialLabel(row.type)}</span>{row.date ? <time dateTime={row.date}>{materialDatePrefix(row)}{bilingualDateLabel(row.date)}</time> : <time>אין נתון</time>}</div>
             <h3>{row.title}</h3>
             {row.summary ? <p>{row.summary}</p> : null}
             {row.number != null ? <strong className="sod29-world-material-number">{row.number}</strong> : null}

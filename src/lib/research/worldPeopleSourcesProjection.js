@@ -1,6 +1,10 @@
 import { humanContentTitle } from "../presentation/contentTitle.js";
 import { fetchContributorFindingsProjection, CONTRIBUTOR_LOAD_PROFILE } from "./contributorFindingsProjection.js";
-import { fetchContributorPublicationCatalog } from "./contributorPublicationCatalog.js";
+import {
+  fetchContributorPublicationCatalog,
+  contributorPublicationRecordTime,
+  contributorPublicationRecordTimeKind,
+} from "./contributorPublicationCatalog.js";
 import { fetchContributorSourceCatalogProjection } from "./contributorSourceCatalogProjection.js";
 import { getPublicResearchClient, PROJECTOR_MODE } from "./researchViewMode.js";
 import { isWorldPublicContributor } from "./worldPublicPeopleIndex.js";
@@ -27,7 +31,7 @@ function safePublicUrl(value) {
     return null;
   }
 }
-function item({ id, sourceRef, type, label, title, summary = null, date = null, href = null, number = null, mediaUrl = null, meta = null }) {
+function item({ id, sourceRef, type, label, title, summary = null, date = null, dateKind = null, href = null, number = null, mediaUrl = null, meta = null }) {
   const safeId = clean(id || sourceRef);
   const safeSourceRef = clean(sourceRef);
   const numericValue = clean(number) && Number.isFinite(Number(number)) ? Number(number) : null;
@@ -40,6 +44,7 @@ function item({ id, sourceRef, type, label, title, summary = null, date = null, 
     title: clean(title),
     summary: clean(summary) || null,
     date: date || null,
+    dateKind,
     href: safePublicUrl(href),
     number: numericValue,
     mediaUrl: safePublicUrl(mediaUrl),
@@ -74,7 +79,8 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
   }
   for (const row of publications?.posts?.rows || []) put(item({
     id: `post:${row.id}`, sourceRef: `posts:${row.id}`, type: "writings", label: "כתב או פוסט",
-    title: humanContentTitle(row.title, { max: 0 }), date: row.date,
+    title: humanContentTitle(row.title, { max: 0 }), date: contributorPublicationRecordTime(row),
+    dateKind: contributorPublicationRecordTimeKind(row),
     href: row.slug ? `/${encodeURIComponent(row.slug)}` : null, mediaUrl: row.thumb_url || row.image_url,
   }));
   for (const row of publications?.ciphers?.rows || []) {
