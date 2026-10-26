@@ -43,7 +43,11 @@ const safeResearchContextTerms = (value) => {
   }
   return rows;
 };
-const researchContextKey = (rows) => safeResearchContextTerms(rows).map((row) => `${row.term}:${row.mode}:${Number(row.split)}`).join("|");
+const safeDiscoveryGoal = (value) => value?.primaryAxes === 1 && value?.connectedSupports === 2
+  && value?.sourceSequence === "WHEN_AVAILABLE" && value?.resultPolicy === "ONE_BEST_STRUCTURE"
+  ? { primaryAxes: 1, connectedSupports: 2, sourceSequence: "WHEN_AVAILABLE", resultPolicy: "ONE_BEST_STRUCTURE" }
+  : null;
+const researchContextKey = (rows, goal = null) => `${safeResearchContextTerms(rows).map((row) => `${row.term}:${row.mode}:${Number(row.split)}`).join("|")}${safeDiscoveryGoal(goal) ? "#verified-pair" : ""}`;
 
 function MatrixSnapshot({ state, onLetterClick, onZoomChange, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView }) {
   const palette = use2029Palette("research_lab");
@@ -741,6 +745,10 @@ function MatrixDiscoveryResults({ result, pending = false, findings = [], onAddG
   const rawPatterns = Array.isArray(result.rawPatterns) ? result.rawPatterns : [];
   const groups = Array.isArray(result.groups) ? result.groups.filter((group) => group.kind !== "motif").slice(0, 4) : [];
   const existing = new Set(findings.map((finding) => finding.t));
+  const discoveryBundle = result.discoveryBundle?.contract === "els_cipher_discovery_plan_v1" ? result.discoveryBundle : null;
+  const selectedPair = discoveryBundle?.status === "VERIFIED_PAIR" ? discoveryBundle.selected : null;
+  const selectedTerms = (selectedPair?.supports || []).map((support) => support.term);
+  const addableSelectedTerms = selectedTerms.filter((term) => !existing.has(term)).slice(0, Math.max(0, 12 - findings.length));
   const renderRow = (item) => {
     const added = existing.has(item.term);
     const contextItem = item.kind === "context" || item.kind === "context-motif";
@@ -752,13 +760,7 @@ function MatrixDiscoveryResults({ result, pending = false, findings = [], onAddG
       <button type="button" disabled={pending || (!added && findings.length >= 12)} onClick={() => added ? onOpenFinding?.(item.term) : onAddGroup?.([item.term])}>{added ? "פתח במטריצה" : "אמת והצג"}</button>
     </article>;
   };
-
-  return <section className="els29-native-discovery-results" data-els-matrix-discovery={result.contract}>
-    <header><strong>{heading} · {items.length}</strong>
-      {description ? <small>{description}</small> : null}
-      <small>{result.languageMatches?.length || 0} מילים נתמכות בשפת המחקר · {result.contextMatches?.length || 0} התאמות להקשר · שלב א׳ {result.stageCounts?.A || 0} · שלב ב׳ {result.stageCounts?.B || 0}.</small>
-      <small>{result.vocabularyTermsChecked || 0} מונחי הקשר נבדקו.</small>
-      <small>נסרקו {result.budget?.matrixPathsChecked || 0} קווי מפה באזור תחום; אוצר המילים הגדול לא נטען.</small></header>
+  const evidence = <>
     {!items.length ? <p className="els29-native-muted">לא נמצא באזור מונח הנתמך בשפת המחקר או בחבילת ההקשר. הדפוסים הגולמיים נשמרו לבדיקה מתקדמת ואינם מוצגים כמילים.</p> : null}
     <div className="els29-native-line-words els29-native-structure-list" role="region" tabIndex={0} aria-label="תגליות במטריצה לפי סדר עדיפות">
       {items.map(renderRow)}
@@ -781,6 +783,34 @@ function MatrixDiscoveryResults({ result, pending = false, findings = [], onAddG
       })}
     </div> : null}
     {result.truncated ? <small>הוצגו התוצאות הראשונות לפי תקציב הבטיחות. אפשר לעבור לסריקה הרחבה רק אם יש לכך צורך מחקרי.</small> : null}
+  </>;
+
+  return <section className="els29-native-discovery-results" data-els-matrix-discovery={result.contract}>
+    <header><strong>{discoveryBundle ? "חבילת גילוי אחת" : `${heading} · ${items.length}`}</strong>
+      {description ? <small>{description}</small> : null}
+      <small>{result.languageMatches?.length || 0} מילים נתמכות בשפת המחקר · {result.contextMatches?.length || 0} התאמות להקשר · שלב א׳ {result.stageCounts?.A || 0} · שלב ב׳ {result.stageCounts?.B || 0}.</small>
+      <small>{result.vocabularyTermsChecked || 0} מונחי הקשר נבדקו.</small>
+      <small>נסרקו {result.budget?.matrixPathsChecked || 0} קווי מפה באזור תחום; אוצר המילים הגדול לא נטען.</small></header>
+    {selectedPair ? <article className="els29-native-discovery-bundle" data-els-discovery-bundle="verified-pair">
+      <header><span>הצופן המוביל לבדיקה</span><strong><bdi>{result.axis?.term}</bdi> + {(selectedPair.supports || []).map((support) => <bdi key={support.term}>{support.label || support.term}</bdi>)}</strong></header>
+      <p>{selectedPair.relation?.label}</p>
+      <ul>{(selectedPair.reasons || []).map((reason) => <li key={reason}>{reason}</li>)}</ul>
+      <div className="els29-native-discovery-supports">{(selectedPair.supports || []).map((support) => <span key={support.term}>
+        <b>{support.label || support.term}</b><small>מאומת · {support.matrixStage === "A" ? "ללא פער בתצוגה" : "מבנה מקומי"} · {support.ref || "מקור זמין במטריצה"}</small>
+      </span>)}</div>
+      <small>נבחר מתוך {discoveryBundle.consideredPairs} זוגות בתחום המקומי. הדילוג המספרי אינו תנאי בחירה.</small>
+      <button type="button" disabled={pending || !addableSelectedTerms.length} onClick={() => onAddGroup?.(addableSelectedTerms)}>{addableSelectedTerms.length ? "הצג את שניהם במטריצה" : "שני הממצאים כבר במטריצה"}</button>
+      {discoveryBundle.alternatives?.length ? <details><summary>חלופות מאומתות · {discoveryBundle.alternatives.length}</summary>
+        {(discoveryBundle.alternatives || []).map((pair) => <p key={pair.supports.map((support) => support.term).join("-")}><b>{pair.supports.map((support) => support.label || support.term).join(" + ")}</b> · {pair.relation?.label}</p>)}
+      </details> : null}
+    </article> : discoveryBundle ? <article className="els29-native-discovery-bundle is-empty" role="status" data-els-discovery-bundle="bounded-empty">
+      <header><span>החיפוש המקומי הושלם</span><strong>עדיין אין זוג מאומת להצגה כצופן מוביל</strong></header>
+      <p>{discoveryBundle.status === "NO_CANDIDATE_PAIR" ? "סיבת העצירה: שני מונחים מחוברים לא זוהו בתוך גבולות המטריצה הפעילה." : "סיבת העצירה: הזוגות המקומיים לא עברו אימות קנוני מלא."}</p>
+      <small>זו תוצאה מוגבלת לאזור שנבדק, לא הוכחה שאין קשר במקום אחר. אפשר לבדוק את חומר הגלם תחת „מתקדם”.</small>
+    </article> : null}
+    {discoveryBundle ? <details className="els29-native-structure-settings els29-native-discovery-evidence" data-els-discovery-evidence="advanced">
+      <summary>מתקדם · כל הממצאים באזור</summary>{evidence}
+    </details> : evidence}
   </section>;
 }
 
@@ -1640,7 +1670,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         expectedHitId: researchLoad.hitId, status: "opening", fromAdvanced: true, contextTerms: safeResearchContextTerms(researchLoad.contextTerms) };
       setResearchBundle(bundle);pendingResearchBundleRef.current = bundle;
     } else { setResearchBundle(null);pendingResearchBundleRef.current = null; }
-    setActiveResearchContext(researchLoad.contextTerms?.length ? { anchor: researchLoad.term, contextTerms: safeResearchContextTerms(researchLoad.contextTerms) } : null);
+    const contextTerms = safeResearchContextTerms(researchLoad.contextTerms), discoveryGoal = safeDiscoveryGoal(researchLoad.discoveryGoal);
+    setActiveResearchContext(contextTerms.length || discoveryGoal ? { anchor: researchLoad.term, contextTerms, discoveryGoal } : null);
     setJourneyLoad(null);setJourneyPending(null);journeyPendingRef.current = null;setJourneyTrail([]);setSavedAxisReplacement(null);
   }, [researchLoad]);
 
@@ -1675,22 +1706,22 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
     const requestedWindowSize = payload.windowSize || windowSize;
-    const contextTerms = safeResearchContextTerms(payload.contextTerms);
-    const trackedPayload = { ...payload, ...(contextTerms.length ? { contextTerms } : {}), windowSize: requestedWindowSize };
-    setActiveResearchContext(contextTerms.length ? { anchor: clean(payload.term || payload.axis), contextTerms } : null);
+    const contextTerms = safeResearchContextTerms(payload.contextTerms), discoveryGoal = safeDiscoveryGoal(payload.discoveryGoal);
+    const trackedPayload = { ...payload, ...(contextTerms.length ? { contextTerms } : {}), ...(discoveryGoal ? { discoveryGoal } : {}), windowSize: requestedWindowSize };
+    setActiveResearchContext(contextTerms.length || discoveryGoal ? { anchor: clean(payload.term || payload.axis), contextTerms, discoveryGoal } : null);
     setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now(), previousAxis: engineStateRef.current?.axis?.hitId, payload: trackedPayload }, findings: null });
     setActiveTool("results");
-    const { contextTerms: _contextTerms, ...enginePayload } = trackedPayload;
+    const { contextTerms: _contextTerms, discoveryGoal: _discoveryGoal, ...enginePayload } = trackedPayload;
     setSearchRequest({ kind, ...enginePayload, seq });
   };
 
   useEffect(() => {
     if (researchLoad?.researchCommand !== true || researchLoad.contract !== "els_anchor_context_request_v1" || researchCommandRef.current === researchLoad.researchNonce) return;
-    const term = safeResearchAxis(researchLoad.term), contextTerms = safeResearchContextTerms(researchLoad.contextTerms);
+    const term = safeResearchAxis(researchLoad.term), contextTerms = safeResearchContextTerms(researchLoad.contextTerms), discoveryGoal = safeDiscoveryGoal(researchLoad.discoveryGoal);
     if (!term) return;
     researchCommandRef.current = researchLoad.researchNonce;
     setQuery(term);
-    requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", contextTerms });
+    requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", contextTerms, ...(discoveryGoal ? { discoveryGoal } : {}) });
     requestAnimationFrame(() => cameraStageRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }));
   }, [researchLoad?.researchNonce]);
 
@@ -2196,7 +2227,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const readingView = shortSkip && shortSkipView === "reading";
   const resultsAreCross = operations.search ? ["cross", "cross-continue"].includes(operations.search.searchKind) : Boolean(engineState?.search?.zones);
   const resultView = resultsAreCross ? engineState?.search?.results : engineState?.search?.occurrences;
-  const activeContextKey = researchContextKey(activeResearchContext?.contextTerms);
+  const activeContextKey = researchContextKey(activeResearchContext?.contextTerms, activeResearchContext?.discoveryGoal);
   const resultTriageKey = resultView?.id ? `${resultsAreCross ? "cross" : "regular"}:${resultView.id}:${resultsAreCross ? 0 : resultView.page || 0}:${activeContextKey}` : null;
   const resultTriagePending = lensPending && lensRequest?.lens === "result-triage";
   const resultDiscoveryKey = !resultsAreCross && resultView?.id && engineState?.axis?.hitId
@@ -2221,7 +2252,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (discoveryReady || resultDiscoveryKeyRef.current === resultDiscoveryKey) return;
     resultDiscoveryKeyRef.current = resultDiscoveryKey;
     requestLens("matrix-discovery", { hitId: engineState.axis.hitId, surface: "results", contextKey: activeContextKey, minLength: 4, maxLength: 10,
-      ...(activeResearchContext?.contextTerms?.length ? { contextTerms: activeResearchContext.contextTerms } : {}) });
+      ...(activeResearchContext?.contextTerms?.length ? { contextTerms: activeResearchContext.contextTerms } : {}),
+      ...(activeResearchContext?.discoveryGoal ? { discoveryGoal: activeResearchContext.discoveryGoal } : {}) });
   }, [researchProfile, visibleTool, resultsAreCross, operations.search?.status, matrixActive, resultDiscoveryKey, lensPending,
     resultTriage?.setId, resultTriage?.page, resultDiscovery?.target?.hitId, activeContextKey, engineState?.axis?.hitId]);
   const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId

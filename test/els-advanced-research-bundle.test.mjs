@@ -23,7 +23,8 @@ test("basic research sends one axis and bounded context to the already mounted c
   assert.doesNotMatch(advanced, /story: briefText|brief: briefText|context: briefText/);
   assert.match(native, /const safeResearchAxis =/);
   assert.match(native, /length >= 3 && length <= 12/);
-  assert.match(native, /requestSearch\("regular", \{ term, scope:[\s\S]*?contextTerms \}\)/);
+  assert.match(native, /requestSearch\("regular", \{ term, scope:[\s\S]*?contextTerms, \.\.\.\(discoveryGoal \? \{ discoveryGoal \}/);
+  assert.match(native, /const \{ contextTerms: _contextTerms, discoveryGoal: _discoveryGoal, \.\.\.enginePayload \}/);
   assert.match(native, /researchCommand === true \? null : researchLoad/);
   assert.match(native, /contextTerms: pendingBundle\.contextTerms/);
   assert.match(page, /setResearchLoad\(item\)/);

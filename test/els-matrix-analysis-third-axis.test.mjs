@@ -80,6 +80,45 @@ test("matrix-first Stage B rediscovers the two ירושלם paths around מקד�
   assert.doesNotMatch(engine, /if\s*\([^)]*מקדש ירד|מקדש ירד[^\n]*(?:return|push|unshift)/, "the runtime contains no saved-cipher special case");
 });
 
+test("pair-first discovery ranks verified story geometry without numeric-skip favoritism", async () => {
+  const engine = await readFile(ENGINE, "utf8");
+  const context = vm.createContext({ st: { raw: "אורניום" }, COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1" });
+  vm.runInContext([
+    `const FIN={"ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"};const norm=s=>{let out="";for(const ch of s||"")if(ch>="א"&&ch<="ת")out+=FIN[ch]||ch;return out;};`,
+    `const gridStep=(sk,S)=>{const rs=Math.round(sk/S),co=sk-rs*S;return Math.max(Math.abs(rs),Math.abs(co))||1;};`,
+    functionSource(engine, "compactGeometryMeta"),
+    functionSource(engine, "discoveryPairRelation"),
+    functionSource(engine, "discoveryPairCandidates"),
+  ].join("\n"), context);
+  context.axis = { skip: 10101, positions: [100000, 110101, 120202, 130303], _structuralCells: new Set([100000, 110101, 120202, 130303]) };
+  context.candidates = [
+    { term: "אירנ", label: "איראן", skip: 10101, dir: 1, start: 100001, positions: [100001, 110102, 120203, 130304], distance: 1, matrixStage: "A", occurrenceCount: 1 },
+    { term: "ארהב", label: "ארה״ב", skip: 10101, dir: 1, start: 100003, positions: [100003, 110104, 120205, 130306], distance: 3, matrixStage: "A", occurrenceCount: 1 },
+    { term: "ישראל", label: "ישראל", skip: 10100, dir: 1, start: 99980, positions: [99980, 110080, 120180, 130280, 140380], distance: 20, matrixStage: "A", occurrenceCount: 4 },
+  ];
+  context.groups = [{ kind: "parallel", label: "משפחת מקבילות", stage: "A", members: context.candidates.map(candidate => ({ term: candidate.term })) }];
+  context.requested = [{ term: "אירנ" }, { term: "ארהב" }];
+  const pairs = JSON.parse(JSON.stringify(vm.runInContext("discoveryPairCandidates(candidates,groups,axis,requested,24)", context)));
+  assert.deepEqual(pairs[0].terms, ["אירנ", "ארהב"]);
+  assert.equal(pairs[0].relation.code, "SHARED_PARALLEL");
+  assert.equal(pairs[0].storyMatches, 2);
+  assert.doesNotMatch(functionSource(engine, "discoveryPairCandidates"), /notable|10101|primary_number|anchor_numbers/, "numeric resonance is not a pair-ranking input");
+  assert.doesNotMatch(engine, /if\s*\([^)]*(?:אורניום|אירנ|ארהב)|(?:אורניום|אירנ|ארהב)[^\n]*(?:return|push|unshift)/, "the runtime has no Uranium-specific branch");
+});
+
+test("Cipher Discovery goal reaches only the bounded lens and exposes one verified-pair surface", async () => {
+  const [native, engine] = await Promise.all([readFile(NATIVE, "utf8"), readFile(ENGINE, "utf8")]);
+  assert.match(native, /const safeDiscoveryGoal/);
+  assert.match(native, /discoveryGoal: _discoveryGoal/);
+  assert.match(native, /activeResearchContext\?\.discoveryGoal \? \{ discoveryGoal: activeResearchContext\.discoveryGoal \}/);
+  assert.match(native, /data-els-discovery-bundle="verified-pair"/);
+  assert.match(native, /מתקדם · כל הממצאים באזור/);
+  assert.match(engine, /policy:"MATRIX_DISCOVERY_PAIR_V1"/);
+  assert.match(engine, /maxAttempts=12/);
+  assert.match(engine, /findingMutation:false/);
+  assert.doesNotMatch(engine.slice(engine.indexOf('d.lens==="matrix-discovery"'), engine.indexOf('d.lens==="cross-third-axis"')), /dynamicCandidateLexicon\(/);
+});
+
 test("regular results separate exact axes from automatic bounded matrix discovery", async () => {
   const native = await readFile(NATIVE, "utf8");
   const rail = native.slice(native.indexOf("function RegularResultsRail"), native.indexOf("function CrossThirdAxisResearch"));

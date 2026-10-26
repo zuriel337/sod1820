@@ -2751,7 +2751,7 @@ __STANDALONE_ENGINE_DISPATCH__
       const target=d.target||{},hit=hasGov(st.res)?occ():null;
       if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"axis-changed"});return;}
       (async()=>{
-        const cancelled=()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,structuralAxis={...hit,_structuralCells:new Set(hit.positions||[])},researchContext=matrixDiscoveryContext(target.contextTerms);
+        const cancelled=()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,structuralAxis={...hit,_structuralCells:new Set(hit.positions||[])},researchContext=matrixDiscoveryContext(target.contextTerms),discoveryGoal=normalizedCipherDiscoveryGoal(target.discoveryGoal);
         const discovery=await discoverMatrixRepeats(structuralAxis,{...target,preferredTerms:researchContext.rows.map(row=>row.term)},
           progress=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress}),cancelled);
         if(!discovery||cancelled())return;
@@ -2768,6 +2768,9 @@ __STANDALONE_ENGINE_DISPATCH__
           groupCandidates=[...discovery.items,...contextCandidates.filter(item=>!motifTerms.has(norm(item.term)))],grouped=buildStructuralGroups(groupCandidates,structuralAxis,{minLength:discovery.minLength,maxLength:discovery.maxLength,maxDistance:40,minMembers:2,maxGroups:8,maxMembers:8});
         postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress:{phase:"groups",completed:groupCandidates.length,total:groupCandidates.length,found:motifItems.length+contextItems.length}});
         if(cancelled())return;
+        const discoveryBundle=discoveryGoal?await verifyDiscoveryPairBundle(groupCandidates,grouped.groups,structuralAxis,researchContext,discoveryGoal,
+          progress=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress}),cancelled):null;
+        if(cancelled()||discoveryGoal&&!discoveryBundle)return;
         postHost({type:"lens",lens:"matrix-discovery",ok:true,target,status:motifItems.length||contextItems.length||rawPatternItems.length?"CANDIDATE":"EMPTY",contract:MATRIX_DISCOVERY_CONTRACT,
           strategy:"matrix-first",searchRule:"no-default-broad-lexicon",coverage:"axis-focused-window",scope:st.scope,defaultLexiconLoaded:false,vocabularyTermsChecked:contextTotal,
           budget:{contract:MATRIX_DISCOVERY_BUDGET_CONTRACT,cells:discovery.box.cells,matrixPathsChecked:discovery.pathsChecked,maxVocabularyTerms:discovery.box.maxVocabularyTerms,maxGapScale:discovery.box.maxGapScale,rowPad:discovery.box.rowPad,colRadius:discovery.box.colRadius},
@@ -2775,6 +2778,7 @@ __STANDALONE_ENGINE_DISPATCH__
           motifs:[...motifItems,...rawPatternItems],languageMatches:motifItems,rawPatterns:rawPatternItems,contextMatches:contextItems,
           items:[...contextItems,...motifItems.filter(item=>!contextItems.some(context=>context.term===item.term))].slice(0,24),
           contextCoverage:researchContextCoverage(researchContext.requested,contextCandidates,false,false),groups:grouped.groups,availableGroups:grouped.availableGroups,
+          ...(discoveryBundle?{discoveryBundle}:{}),
           stageCounts:{A:motifItems.filter(item=>item.matrixStage==="A").length+contextItems.filter(item=>item.matrixStage==="A").length,B:motifItems.filter(item=>item.matrixStage==="B").length+contextItems.filter(item=>item.matrixStage==="B").length},
           rawStageCounts:{A:rawPatternItems.filter(item=>item.matrixStage==="A").length,B:rawPatternItems.filter(item=>item.matrixStage==="B").length},
           availableMotifs:discovery.available,availableLanguageMatches:discovery.availableMeaningful,availableRawPatterns:discovery.availableRaw,
@@ -4375,6 +4379,65 @@ __STANDALONE_ENGINE_DISPATCH__
       skip:Math.abs(Number(candidate.skip)),direction:Number(candidate.dir)===1?"fwd":"back",distance:Number(candidate.distance)||0,geometry,
       contextVariant:variant?{source:variant.source,label:variant.label}:null,lexiconSources:[...(candidate.lexiconSources||[])],
       evidenceTier:kind==="raw-pattern"?"raw-pattern":kind.startsWith("context")?"research-context":"language-supported",status:"CANDIDATE"};
+  }
+  function normalizedCipherDiscoveryGoal(raw){
+    return raw?.primaryAxes===1&&raw?.connectedSupports===2&&raw?.sourceSequence==="WHEN_AVAILABLE"&&raw?.resultPolicy==="ONE_BEST_STRUCTURE"
+      ?{primaryAxes:1,connectedSupports:2,sourceSequence:"WHEN_AVAILABLE",resultPolicy:"ONE_BEST_STRUCTURE"}:null;
+  }
+  function discoveryPairRelation(first,second,axis,groups){
+    const firstCells=new Set(first?.positions||[]),secondPositions=second?.positions||[],S=Math.max(1,Math.abs(Number(axis?.skip)||1));
+    if(secondPositions.some(position=>firstCells.has(position)))return {code:"EXACT_INTERSECTION",label:"שני הממצאים נחתכים באות משותפת",priority:600,stage:"A"};
+    const shared=(groups||[]).filter(group=>group?.kind!=="motif"&&[first,second].every(candidate=>(group.members||[]).some(member=>norm(member.term)===norm(candidate.term))))
+      .sort((a,b)=>({parallel:550,intersection:520,corridor:430,cluster:280}[b.kind]||0)-({parallel:550,intersection:520,corridor:430,cluster:280}[a.kind]||0)||Number(b.stage==="A")-Number(a.stage==="A"));
+    if(shared.length){const group=shared[0],labels={parallel:"שני הממצאים מקבילים לציר",intersection:"שני הממצאים חוצים את הציר",corridor:"שני הממצאים שייכים לאותו מסדרון",cluster:"שני הממצאים מרוכזים באותו אשכול"};
+      return {code:`SHARED_${group.kind.toUpperCase()}`,label:labels[group.kind]||group.label,priority:{parallel:550,intersection:520,corridor:430,cluster:280}[group.kind]||250,stage:group.stage||"B",group:group.label};}
+    let adjacent=false;
+    for(const a of first?.positions||[]){const ar=Math.floor(a/S),ac=((a%S)+S)%S;for(const b of secondPositions){const br=Math.floor(b/S),bc=((b%S)+S)%S;if(Math.max(Math.abs(ar-br),Math.abs(ac-bc))<=1){adjacent=true;break;}}if(adjacent)break;}
+    if(adjacent)return {code:"TOUCH_OR_ADJACENCY",label:"שני הממצאים נוגעים או צמודים במטריצה",priority:500,stage:"A"};
+    const firstGeometry=compactGeometryMeta(first,axis),secondGeometry=compactGeometryMeta(second,axis),bothCompact=firstGeometry?.compact&&secondGeometry?.compact;
+    if(bothCompact&&[firstGeometry.relation,secondGeometry.relation].every(relation=>["vertical","diagonal","horizontal","adjacent"].includes(relation)))
+      return {code:"PARALLEL_TO_AXIS",label:"שני הממצאים בנויים ללא פער סביב אותו ציר",priority:480,stage:"A"};
+    if(Math.abs(Math.abs(Number(first?.skip)||0)-Math.abs(Number(second?.skip)||0))<=2)
+      return {code:"SAME_OR_NEAR_SKIP",label:"שני הממצאים חולקים דילוג זהה או סמוך",priority:380,stage:bothCompact?"A":"B"};
+    if(first?.sourceContext?.axisVerse&&second?.sourceContext?.axisVerse)
+      return {code:"SHARED_SOURCE_SEQUENCE",label:"שני הממצאים נתמכים באותו הקשר מקור",priority:360,stage:"B"};
+    return {code:"BOUNDED_LOCAL_GAP",label:"שני הממצאים נמצאו באותו אזור תחום",priority:100,stage:"B"};
+  }
+  // One bounded selector over candidates already found by matrix-discovery. Raw patterns never
+  // enter it. The ordering is categorical and inspectable: story agreement and strong geometry
+  // precede recurrence/distance tie-breakers; a notable numeric skip is deliberately irrelevant.
+  function discoveryPairCandidates(candidates,groups,axis,requested,limit=24){
+    const contextTerms=new Set((requested||[]).map(item=>norm(item.term))),byTerm=new Map();
+    for(const candidate of candidates||[]){const term=norm(candidate?.term);if(!term||term===norm(st.raw))continue;const prior=byTerm.get(term),stage=candidate.matrixStage||candidate._matrixStage||compactGeometryMeta(candidate,axis)?.stage||"B";
+      if(!prior||Number(stage==="A")>Number((prior.matrixStage||prior._matrixStage)==="A")||stage===(prior.matrixStage||prior._matrixStage)&&(Number(candidate.distance)||0)<(Number(prior.distance)||0))byTerm.set(term,candidate);}
+    const rows=[...byTerm.values()].sort((a,b)=>Number(contextTerms.has(norm(b.term)))-Number(contextTerms.has(norm(a.term)))||Number((b.matrixStage||b._matrixStage)==="A")-Number((a.matrixStage||a._matrixStage)==="A")||(Number(a.distance)||0)-(Number(b.distance)||0)||norm(a.term).localeCompare(norm(b.term),"he")).slice(0,24),pairs=[];
+    for(let firstIndex=0;firstIndex<rows.length;firstIndex++)for(let secondIndex=firstIndex+1;secondIndex<rows.length;secondIndex++){
+      const first=rows[firstIndex],second=rows[secondIndex],storyMatches=Number(contextTerms.has(norm(first.term)))+Number(contextTerms.has(norm(second.term))),relation=discoveryPairRelation(first,second,axis,groups),strong=relation.stage==="A"&&relation.priority>=400,
+        band=storyMatches===2&&strong?0:storyMatches>=1&&strong?1:storyMatches===2?2:strong?3:storyMatches===1?4:5,
+        recurrence=(Number(first.occurrenceCount)||1)+(Number(second.occurrenceCount)||1),distance=(Number(first.distance)||0)+(Number(second.distance)||0),
+        labels=[first.label||first.term,second.label||second.term],reasons=[];
+      if(storyMatches===2)reasons.push("שני הממצאים נלקחו מן ההקשר שביקשתם");else if(storyMatches===1)reasons.push("ממצא אחד נלקח מן ההקשר שביקשתם");
+      reasons.push(relation.label);if(recurrence>2)reasons.push(`לזוג יש ${recurrence} מופעים מקומיים יחד`);
+      pairs.push({supports:[first,second],terms:[norm(first.term),norm(second.term)],relation,storyMatches,reasons,_order:[band,-relation.priority,-recurrence,distance,labels.join("|")]});
+    }
+    return pairs.sort((a,b)=>{for(let index=0;index<a._order.length;index++){if(a._order[index]===b._order[index])continue;return typeof a._order[index]==="number"?a._order[index]-b._order[index]:String(a._order[index]).localeCompare(String(b._order[index]),"he");}return 0;}).slice(0,Math.max(1,Math.min(24,Number(limit)||24)));
+  }
+  function verifiedDiscoverySupport(candidate,hit,axis){
+    return {term:norm(candidate.term),label:candidate.label||candidate.term,status:"VERIFIED",skip:Math.abs(Number(hit.skip)),direction:Number(hit.dir)===1?"fwd":"back",distance:Number(candidate.distance)||0,
+      occurrenceCount:Number(candidate.occurrenceCount)||1,matrixStage:candidate.matrixStage||candidate._matrixStage||compactGeometryMeta(hit,axis)?.stage||"B",geometry:compactGeometryMeta(hit,axis),ref:refStr(verseAt(hit.start)),book:bookOf(hit.start)};
+  }
+  async function verifyDiscoveryPairBundle(candidates,groups,axis,researchContext,goal,onProgress,isCancelled){
+    const maxAttempts=12,ranked=discoveryPairCandidates(candidates,groups,axis,researchContext.requested,24),cache=new Map(),verifiedPairs=[];let attempts=0,failed=0,processedPairs=0;
+    const verify=async candidate=>{const key=`${norm(candidate.term)}:${hitKey(candidate)}`;if(cache.has(key))return cache.get(key);if(attempts>=maxAttempts)return null;attempts++;onProgress?.({phase:"verify-pair",completed:attempts,total:maxAttempts,found:verifiedPairs.length});
+      const probe={skip:Math.abs(Number(candidate.skip)),dir:Number(candidate.dir)===-1?-1:1,start:Number(candidate.start),positions:[...(candidate.positions||[])]};
+      let admitted=null;try{const result=await promoteVerified({t:norm(candidate.term),hits:[probe],capped:false,strategy:{policy:"MATRIX_DISCOVERY_PAIR_V1"}},st.scope,null);admitted=result.hits.find(isGov)||null;}catch(_){admitted=null;}
+      if(!admitted)failed++;const projected=admitted?verifiedDiscoverySupport(candidate,admitted,axis):null;cache.set(key,projected);return projected;};
+    for(const pair of ranked){if(isCancelled?.()||verifiedPairs.length>=3||attempts>=maxAttempts)break;processedPairs++;const supports=[];for(const candidate of pair.supports){const support=await verify(candidate);if(isCancelled?.())return null;if(!support)break;supports.push(support);}if(supports.length!==2)continue;
+      verifiedPairs.push({rank:verifiedPairs.length+1,supports,relation:pair.relation,storyMatches:pair.storyMatches,reasons:[...pair.reasons,"שני הממצאים עברו אימות קנוני"]});}
+    return {contract:"els_cipher_discovery_plan_v1",projection:"verified-pair",goal,status:verifiedPairs.length?"VERIFIED_PAIR":ranked.length?"NO_VERIFIED_PAIR":"NO_CANDIDATE_PAIR",
+      failureCause:verifiedPairs.length?null:ranked.length?"CANONICAL_VERIFICATION":"MATRIX_BOUNDS",selected:verifiedPairs[0]||null,alternatives:verifiedPairs.slice(1,3),consideredPairs:ranked.length,
+      verification:{attempted:attempts,failed,maxAttempts,complete:verifiedPairs.length>=3||attempts>=maxAttempts||processedPairs>=ranked.length},
+      selectionLaw:{order:["canonical-verification","strong-geometry","story-relevance","recurrence-and-source","distance","stable-label"],numericSkipPromoted:false},findingMutation:false};
   }
   function independentCandidateRows(entries){
     const blocked=new Set(["visible_saved_research","verified_research"]),rows=[];

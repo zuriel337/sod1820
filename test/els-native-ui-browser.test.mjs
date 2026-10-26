@@ -2423,19 +2423,32 @@ test('an externally verified automatic-plan target opens the shared focused pack
 });
 
 test('an anchor-context command starts one canonical native search without sending the private story',
- {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
- await withNative({width:390,height:844},async page=>{
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+ for(const environment of [{width:390,height:844,mobile:true},{width:1366,height:900,mobile:false}])await withNative({width:environment.width,height:environment.height},async page=>{
   const command={contract:'els_anchor_context_request_v1',researchCommand:true,term:'קולומביה',scope:'torah',
-   contextTerms:[{term:'יכל אש',mode:'exact_phrase',required:true,split:false}],researchNonce:101};
+   contextTerms:[{term:'ספינת',mode:'term',required:true,split:false},{term:'יכל אש',mode:'exact_phrase',required:true,split:false}],
+   discoveryGoal:{primaryAxes:1,connectedSupports:2,sourceSequence:'WHEN_AVAILABLE',resultPolicy:'ONE_BEST_STRUCTURE'},researchNonce:101};
   await page.evaluate(item=>window.__loadResearch(item),command);
   await page.waitForFunction(()=>window.__hostLog.some(message=>message.type==='native-search'&&message.request?.term==='קולומביה'));
   const request=await page.evaluate(()=>window.__hostLog.find(message=>message.type==='native-search'&&message.request?.term==='קולומביה'));
   assert.equal(request.request.kind,'regular');
   assert.equal(request.request.scope,'torah');
   assert.equal(Object.hasOwn(request.request,'contextTerms'),false,'context vocabulary is reserved for ranking/package lenses, not a second global search');
+  assert.equal(Object.hasOwn(request.request,'discoveryGoal'),false,'the pair goal configures the bounded lens, not canonical axis search');
   assert.equal(JSON.stringify(request).includes('הספינה'),false,'raw story text never crosses into the canonical search request');
   assert.equal(await page.evaluate(()=>window.__mounts),1,'the command reuses the already mounted canonical engine');
- },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+  await page.waitForFunction(()=>window.__log.some(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.discoveryBundle?.status==='VERIFIED_PAIR'),null,{timeout:120000});
+  const discovery=await page.evaluate(()=>[...window.__log].reverse().find(message=>message.type==='lens'&&message.lens==='matrix-discovery'));
+  assert.equal(discovery.target.discoveryGoal.connectedSupports,2);
+  assert.equal(discovery.discoveryBundle.selected.relation.code,'SHARED_PARALLEL');
+  assert.deepEqual(new Set(discovery.discoveryBundle.selected.supports.map(item=>item.term)),new Set(['ספינת','יכלאש']));
+  assert.equal(discovery.discoveryBundle.selectionLaw.numericSkipPromoted,false);
+  const card=page.locator('[data-els-discovery-bundle="verified-pair"]:visible');
+  await card.waitFor({state:'visible'});
+  const cardText=await card.innerText();
+  assert.match(cardText,/הצופן המוביל לבדיקה/);assert.match(cardText,/ספינת/);assert.match(cardText,/יכל אש/);assert.match(cardText,/מקבילים לציר/);
+  assert.equal(await page.locator('[data-els-discovery-evidence="advanced"]:visible').getAttribute('open'),null,'the remaining local findings stay collapsed under Advanced');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:environment.mobile});
 });
 
 test('a focused Colombia package verifies the requested exact phrase without silently splitting it',
