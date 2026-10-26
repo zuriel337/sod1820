@@ -201,6 +201,16 @@ test("legacy non-matrix payloads remain blocked by their precise reason", () => 
   assert.equal(replayWorldLegacyMethodMatrix({ note: "unknown" }, false).state, "legacy_matrix_unsupported");
 });
 
+test("missing engine detail separates an explicit negative from no assessment", () => {
+  const unverified = projectWorldLegacyReplayOccurrence(row({ engine_verified: false, engine_detail: null }));
+  assert.equal(unverified.state, "missing_engine_detail_unverified");
+  assert.equal(unverified.sourceLocatorState, "channel_uuid");
+
+  const unassessed = projectWorldLegacyReplayOccurrence(row({ engine_verified: null, engine_detail: {} }));
+  assert.equal(unassessed.state, "missing_engine_assessment");
+  assert.equal(unassessed.engineVerified, false);
+});
+
 test("cluster attachment preserves every occurrence and never mutates live truth", () => {
   const first = row();
   const second = row({ id: id("2") });

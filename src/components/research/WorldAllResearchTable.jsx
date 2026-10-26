@@ -133,6 +133,8 @@ const LEGACY_REPLAY_LABELS = Object.freeze({
   legacy_matrix_unsupported: "מבנה מטריצה לא נתמך",
   legacy_incomplete_method_envelope: "מעטפת שיטה חסרה",
   legacy_source_metadata_only: "מטא־דאטה של מקור · ללא חישוב",
+  missing_engine_detail_unverified: "סומן לא מאומת · חסר פירוט מנוע",
+  missing_engine_assessment: "אין הערכת מנוע",
   missing_replay_envelope: "חסרה מעטפת replay",
   mixed_replay_states: "אשכול עם מצבי replay שונים",
 });
@@ -178,6 +180,8 @@ function legacyReplayDescription(replay) {
   if (replay?.state === "legacy_matrix_partial") return "חלק מן הביטויים במטריצה אינם כוללים שיטה קנונית שניתנת לשחזור.";
   if (replay?.state === "legacy_incomplete_method_envelope") return "נשמרו שיטה ותוצאה בלי ביטוי מלא; אין אפשרות לשחזר את החישוב.";
   if (replay?.state === "legacy_source_metadata_only") return "השדה מכיל פרטי קליטה של המקור ואינו מעטפת חישוב.";
+  if (replay?.state === "missing_engine_detail_unverified") return "המקור והטקסט קיימים, אך אין פירוט שמסביר מדוע הממצא לא אומת; נשאר חסום.";
+  if (replay?.state === "missing_engine_assessment") return "לא נשמרה הערכת מנוע. ייתכן שהממצא אינו חישובי; יש למיין לפי סוג לפני הרצה.";
   if (replay?.state === "missing_replay_envelope") return "הסימון הישן אינו כולל קלט ושיטה מובנים שאפשר להריץ מחדש.";
   if (replay?.state?.endsWith("_unsupported")) return "המבנה אינו עומד בדקדוק הדטרמיניסטי המצומצם ונשאר לבדיקה.";
   return "נדרשת השלמת מעטפת או הכרעת מפעיל לפני אישור.";

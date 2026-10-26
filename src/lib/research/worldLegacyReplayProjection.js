@@ -269,6 +269,20 @@ export function projectWorldLegacyReplayOccurrence(row) {
   const expression = clean(verification.phrase || verification.text);
   const sourceRef = clean(row?.source_ref) || null;
   const compound = asObject(detail.compound);
+  if (!Object.keys(detail).length && row?.engine_verified !== true) {
+    return Object.freeze({
+      id: clean(row?.id),
+      state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
+      method: null,
+      expression: null,
+      claimed: null,
+      storedComputed: null,
+      replayComputed: null,
+      engineVerified: row?.engine_verified === true,
+      sourceRef,
+      sourceLocatorState: sourceLocatorState(sourceRef),
+    });
+  }
   const isLegacyMatrixCandidate = Object.keys(detail).length
     && !method
     && clean(verification.kind) !== "arithmetic"
@@ -367,7 +381,9 @@ export function attachWorldLegacyReplay(row, replayIndex) {
   const occurrences = ids.map((id) => replayIndex.get(id)).filter(Boolean);
   if (!occurrences.length) return row;
   const hasIndependentReviewProjection = occurrences.some((occurrence) =>
-    occurrence.state.startsWith("explicit_") || occurrence.state.startsWith("legacy_"));
+    occurrence.state.startsWith("explicit_")
+    || occurrence.state.startsWith("legacy_")
+    || occurrence.state.startsWith("missing_engine_"));
   if (row.verification !== "legacy_signal" && !hasIndependentReviewProjection) return row;
   const stateCounts = {};
   for (const occurrence of occurrences) stateCounts[occurrence.state] = (stateCounts[occurrence.state] || 0) + 1;
