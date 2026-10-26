@@ -75,7 +75,7 @@ export async function awardShareCredit() {
   try { const { data } = await supabase.rpc("award_share_credit"); return data || { ok: false }; } catch { return { ok: false }; }
 }
 
-// 👥 רישום הזמנה (החבר נרשם דרך קישור שלי) → מזמין +100, חבר +50. idempotent.
+// 👥 רישום ייחוס הזמנה. אין כאן זיכוי: ההטבות נוצרות רק אחרי תשלום מנוי מאומת.
 export async function recordReferral(refId) {
   if (!supabase || !refId) return { ok: false };
   try { const { data } = await supabase.rpc("record_referral", { p_ref: refId }); return data || { ok: false }; } catch { return { ok: false }; }
@@ -83,8 +83,17 @@ export async function recordReferral(refId) {
 
 // 👥 כמה חברים הזמנתי (לתצוגה).
 export async function getMyReferralStats() {
-  if (!supabase) return { invited: 0 };
-  try { const { data } = await supabase.rpc("my_referral_stats"); return data || { invited: 0 }; } catch { return { invited: 0 }; }
+  const empty = { invited: 0, pending: 0, paid: 0, wallet_available_ils: 0, wallet_pending_ils: 0, affiliate_available_ils: 0, affiliate_pending_ils: 0, affiliate_status: null, affiliate_eligible: false };
+  if (!supabase) return empty;
+  try { const { data } = await supabase.rpc("my_referral_stats"); return data ? { ...empty, ...data } : empty; } catch { return empty; }
+}
+
+export async function requestAffiliateEnrollment() {
+  if (!supabase) return { ok: false, error: "no_client" };
+  try {
+    const { data, error } = await supabase.rpc("request_affiliate_enrollment");
+    return error ? { ok: false, error: error.message } : (data || { ok: false });
+  } catch (e) { return { ok: false, error: String(e?.message || e) }; }
 }
 
 // 🌳 מנוע-הגדילה — דרגת-חוקר + XP + מה-מרכיב-אותה + כמה עד הדרגה הבאה. מחשב ושומר ב-profiles.

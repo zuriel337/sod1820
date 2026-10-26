@@ -94,7 +94,7 @@ export function AuthProvider({ children }) {
     try { supabase.rpc('claim_my_founding_grants'); } catch { /* ignore */ }
     try { supabase.rpc('claim_daily_credit'); } catch { /* ignore */ }
     try { supabase.rpc('claim_wa_activity_credits'); } catch { /* ignore */ }
-    // 👥 הזמנת-חברים: אם המשתמש הגיע דרך קישור-הזמנה — רושמים (מזמין +100, הוא +50). פעם אחת.
+    // 👥 הזמנת-חברים: רושמים ייחוס בלבד. הטבות נוצרות רק לאחר תשלום מנוי מאומת.
     try {
       const ref = localStorage.getItem('sod_ref');
       if (ref && ref !== user.id) {
