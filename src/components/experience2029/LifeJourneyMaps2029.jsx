@@ -1,9 +1,12 @@
-import React, { useId, useMemo, useState } from "react";
+import React, { lazy, Suspense, useId, useMemo, useState } from "react";
 import { formatTanakhRef } from "../../lib/presentation/canonicalPresentation.js";
 import { buildLifeJourneyMaps } from "../../lib/research/lifeJourneyMaps.js";
-import BirthMapStudio2029 from "./BirthMapStudio2029.jsx";
-import LifeJourneyTimeMap2029 from "./LifeJourneyTimeMap2029.jsx";
 import "./life-journey-maps-2029.css";
+
+const loadBirthMapStudio2029 = () => import("./BirthMapStudio2029.jsx");
+const loadLifeJourneyTimeMap2029 = () => import("./LifeJourneyTimeMap2029.jsx");
+const BirthMapStudio2029 = lazy(loadBirthMapStudio2029);
+const LifeJourneyTimeMap2029 = lazy(loadLifeJourneyTimeMap2029);
 
 const MAP_TABS = Object.freeze([
   { id: "overview", label: "מפת־על" },
@@ -13,8 +16,8 @@ const MAP_TABS = Object.freeze([
   { id: "convergences", label: "התכנסויות" },
   { id: "evidence", label: "עוצמות/פערים" },
   { id: "timeline", label: "ציר זמן" },
-  { id: "time", label: "שערי זמן" },
-  { id: "creation", label: "מפת יצירה" },
+  { id: "time", label: "שערי זמן", preload: loadLifeJourneyTimeMap2029 },
+  { id: "creation", label: "מפת יצירה", preload: loadBirthMapStudio2029 },
   { id: "sources", label: "מקורות" },
   { id: "coverage", label: "כיסוי" },
   { id: "summary", label: "סיכום" },
@@ -40,6 +43,10 @@ const CREATION_GROUP_LABEL = Object.freeze({ mothers: "אמות", doubles: "כפ
 
 function EmptyMap({ children }) {
   return <div className="person-journey-map-empty">{children}</div>;
+}
+
+function LazyMapLoading() {
+  return <div className="person-journey-map-lazy-loading" role="status"><i aria-hidden="true" /><span><strong>פותח את המפה…</strong><small>הרכיב נטען רק כשצריך אותו.</small></span></div>;
 }
 
 function JourneyGuide({ data, onSelect }) {
@@ -348,11 +355,16 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
         aria-selected={active === tab.id}
         aria-controls={`${id}-panel`}
         tabIndex={active === tab.id ? 0 : -1}
+        onMouseEnter={tab.preload}
+        onFocus={tab.preload}
+        onPointerDown={tab.preload}
         onClick={() => setActive(tab.id)}
       >{tab.label}</button>)}
     </div>
     <div className="person-journey-map-panel" id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${active}-tab`}>
-      <MapPanel active={active} projection={projection} onSelect={setActive} />
+      <Suspense fallback={<LazyMapLoading />}>
+        <MapPanel active={active} projection={projection} onSelect={setActive} />
+      </Suspense>
     </div>
     <footer>תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש</footer>
   </section>;

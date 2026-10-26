@@ -44,7 +44,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(page, /data-experience-surface="life-journey-2029"/);
   assert.match(page, /LifeJourneyCapabilities2029/);
   assert.match(page, /<PersonJourney variant="2029" CapabilitySurface=\{LifeJourneyCapabilities2029\}/);
-  assert.doesNotMatch(journey, /lazy\(\(\) => import\("\.\/experience2029\/LifeJourney/);
+  assert.match(journey, /lazy\(\(\) => import\("\.\/experience2029\/LifeJourneyMaps2029\.jsx"\)\)/);
+  assert.match(journey, /<Suspense fallback=\{<LifeJourneyMapsLoading \/>\}>/);
+  assert.match(journey, /data-experience-capability="life-journey-maps-loading"/);
 
   assert.match(home, /buildUnifiedResearchEntry/);
   assert.match(home, /navigate\("\/2029\/journey"\)/);
@@ -121,9 +123,17 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMaps, /ציר זמן/);
   assert.match(lifeJourneyMaps, /שערי זמן/);
   assert.match(lifeJourneyMaps, /LifeJourneyTimeMap2029/);
+  assert.match(lifeJourneyMaps, /lazy\(loadLifeJourneyTimeMap2029\)/);
+  assert.match(lifeJourneyMaps, /preload: loadLifeJourneyTimeMap2029/);
   assert.match(lifeJourneyMaps, /מפת יצירה/);
   assert.match(lifeJourneyMaps, /life-journey-sefer-yetzirah-map/);
   assert.match(lifeJourneyMaps, /BirthMapStudio2029/);
+  assert.match(lifeJourneyMaps, /lazy\(loadBirthMapStudio2029\)/);
+  assert.match(lifeJourneyMaps, /preload: loadBirthMapStudio2029/);
+  assert.match(lifeJourneyMaps, /onMouseEnter=\{tab\.preload\}/);
+  assert.match(lifeJourneyMaps, /onFocus=\{tab\.preload\}/);
+  assert.match(lifeJourneyMaps, /onPointerDown=\{tab\.preload\}/);
+  assert.doesNotMatch(lifeJourneyMaps, /import BirthMapStudio2029 from|import LifeJourneyTimeMap2029 from/);
   assert.match(lifeJourneyMaps, /אינה הורוסקופ/);
   assert.match(lifeJourneyMaps, /מקורות/);
   assert.match(lifeJourneyMaps, /כיסוי/);

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -59,8 +59,9 @@ import {
 import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import CanonicalVerseCards2029 from "./experience2029/CanonicalVerseCards2029.jsx";
-import LifeJourneyMaps2029 from "./experience2029/LifeJourneyMaps2029.jsx";
 import "./person-journey.css";
+
+const LifeJourneyMaps2029 = lazy(() => import("./experience2029/LifeJourneyMaps2029.jsx"));
 
 const RELATIONS = Object.freeze([
   { id: "none", label: "קשר יוגדר אחר כך" },
@@ -91,6 +92,13 @@ function FamilyConvergenceChip({ item }) {
     <strong>{item.value}</strong> · {item.count} אנשים · {item.distinctExpressionCount} ביטויים
     <em>{item.sameMethod ? "כולל אותה שיטה" : "שיטות שונות"}{item.repeatedExpressionCount ? " · כולל ביטוי משותף" : ""}</em>
   </span>;
+}
+
+function LifeJourneyMapsLoading() {
+  return <section className="person-journey-maps-loading" data-experience-capability="life-journey-maps-loading" role="status" aria-label="טוען את מפות החיים">
+    <div><i /><span><b>טוען את מפות החיים</b><small>מכין את התצוגות מההקשר הפרטי הקיים…</small></span></div>
+    <div aria-hidden="true"><i /><i /><i /></div>
+  </section>;
 }
 
 function dateCrossFindingRefs(dateBundle) {
@@ -1344,15 +1352,17 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         </section>
       </details> : null}
 
-      {selectedFamilyRefs.length ? <LifeJourneyMaps2029
-        members={members}
-        relations={relations}
-        selectedRefs={selectedFamilyRefs}
-        research={familyResearch}
-        analysis={familyAnalysis}
-        context={research.context}
-        birthTimeline={birthTimeline}
-      /> : null}
+      {selectedFamilyRefs.length ? <Suspense fallback={<LifeJourneyMapsLoading />}>
+        <LifeJourneyMaps2029
+          members={members}
+          relations={relations}
+          selectedRefs={selectedFamilyRefs}
+          research={familyResearch}
+          analysis={familyAnalysis}
+          context={research.context}
+          birthTimeline={birthTimeline}
+        />
+      </Suspense> : null}
 
       {members.length ? <div className="person-journey-family-research-actions">
         <button
