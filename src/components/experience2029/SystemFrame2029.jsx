@@ -44,6 +44,7 @@ import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
 import { razielContextParts, razielStatusLabel } from "./razielSessionSeam2029.js";
 import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
 import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
+import { readRazielCompanionView, writeRazielCompanionView } from "../../lib/research/razielCompanionPreference2029.js";
 import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
@@ -1578,6 +1579,7 @@ function SystemFrame2029Body({
   const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
   const [companionPeek, setCompanionPeek] = useState(false);
   const [companionTab, setCompanionTab] = useState("feed");
+  const [razielCompanionView, setRazielCompanionView] = useState(readRazielCompanionView);
   const companionTimer = useRef(null);
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return undefined;
@@ -1590,6 +1592,11 @@ function SystemFrame2029Body({
     const next = pinned ? "slim" : "pinned";
     setCompanionPref(next); setCompanionPeek(false);
     try { window.localStorage.setItem("sod-companion", next); } catch (_) { /* optional */ }
+  }, []);
+  const chooseRazielCompanionView = useCallback((view) => {
+    const next = writeRazielCompanionView(view);
+    setRazielCompanionView(next);
+    setCompanionPeek(next !== "quiet");
   }, []);
   // The logo opens and closes the navigation rail (click, Enter or Space). Hover only highlights; nothing moves.
   const [transient, setTransient] = useState(null);
@@ -2090,7 +2097,7 @@ function SystemFrame2029Body({
   const companionHasContext = showContextRail && !numberPageRoute;
   const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
   const companionPinned = companionPref === "pinned" || (!corePublicViewer && companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
-  const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
+  const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek || razielCompanionView !== "quiet" ? "peek" : "slim";
   const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
   useEffect(() => {
     if (!companionHasContext) { setCompanionTab("feed"); return; }
@@ -2099,7 +2106,7 @@ function SystemFrame2029Body({
   }, [contextSubjectKey, companionHasContext]);
   const focusCompanionRaziel = () => {
     if (razielLocked) return;
-    setCompanionPeek(true);
+    chooseRazielCompanionView("open");
     setTimeout(() => { document.querySelector(".sod29-companion-raziel input")?.focus(); }, 80);
   };
   const peekCompanion = (open) => {
@@ -2331,6 +2338,9 @@ function SystemFrame2029Body({
           onOpenHref={(href) => go(href)}
           timeMode={recordTimeMode}
           razielNode={razielLocked || surface === "post" || transientKind === TRANSIENT.RAZIEL ? null : <RazielNativeChat projection="desktop" context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary onSignup={openWorkspace} />}
+          razielView={razielCompanionView}
+          onRazielView={chooseRazielCompanionView}
+          razielHint={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שמולך עכשיו"}
           hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
         /> : null}
         {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {recordTimeLabel(feed.newest, recordTimeMode, recordTimeMode === "relative" ? "עכשיו" : "תאריך לא צוין")}</span></button> : null}

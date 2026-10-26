@@ -1,14 +1,14 @@
 // Left companion panel (desktop): a floating capsule that shows what entered the system everywhere on the site, plus the
 // context of the current selection as a second tab. Slim by default (icon + quiet count), opens on hover/focus or when a
-// selection exists, can be pinned open (the content moves aside). Raziel is NOT in this panel: each row asks Raziel through
-// the bottom orb. Read-only over the existing stream; Home opts into relative time and other surfaces use calendar dates.
+// selection exists, can be pinned open (the content moves aside). Raziel reuses the same panel in quiet, contextual-hint and
+// open-chat presentations while the existing bottom orb remains available. Read-only over the existing stream.
 import React from "react";
 import { Link } from "react-router-dom";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import OrGeulaStoryColumn from "../OrGeulaStoryColumn.jsx";
 import "./companionPanel2029.css";
 
-export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, hoverProps, timeMode = "bilingual" }) {
+export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, razielView = "quiet", onRazielView, razielHint = "מה שמולך עכשיו", hoverProps, timeMode = "bilingual" }) {
   const open = mode !== "slim";
   const badge = feed.newCount > 9 ? "9+" : String(feed.newCount);
   return <aside className={`sod29-companion is-${mode}`} aria-label="עדכונים, הקשר ורצף האירועים" data-companion-mode={mode} {...hoverProps}>
@@ -60,8 +60,20 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
         <Link className="sod29-companion-all" to="/world" onClick={() => feed.rows.forEach((row) => feed.see(row))}>כל החידושים בעולם ←</Link>
       </div>}
     </div>}
-    {razielNode ? <section className="sod29-companion-raziel" aria-label="רזיאל" hidden={!open}>
-      {razielNode}
+    {razielNode && razielView === "quiet" ? <button type="button" className="sod29-companion-raziel-quiet" data-raziel-companion-quiet="true" onClick={() => onRazielView?.("hints")} aria-label="הצג רמז מרזיאל" title="רזיאל">
+      <span aria-hidden="true">✦</span>
+    </button> : null}
+    {razielNode && razielView !== "quiet" ? <section className={`sod29-companion-raziel is-${razielView}`} aria-label="רזיאל" data-raziel-companion-view={razielView} hidden={!open}>
+      <div className="sod29-companion-raziel-view" role="group" aria-label="תצוגת רזיאל">
+        <button type="button" aria-pressed={razielView === "quiet"} onClick={() => onRazielView?.("quiet")}>שקט</button>
+        <button type="button" aria-pressed={razielView === "hints"} onClick={() => onRazielView?.("hints")}>רמזים</button>
+        <button type="button" aria-pressed={razielView === "open"} onClick={() => onRazielView?.("open")}>פתוח</button>
+      </div>
+      {razielView === "hints" ? <div className="sod29-companion-raziel-hint" data-raziel-hint="deterministic">
+        <small>אפשר להמשיך מכאן</small>
+        <p>רזיאל רואה את ההקשר: <bdi>{razielHint}</bdi></p>
+        <button type="button" onClick={() => onRazielView?.("open")}>פתח שיחה</button>
+      </div> : razielNode}
     </section> : null}
   </aside>;
 }

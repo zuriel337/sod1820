@@ -59,3 +59,28 @@ test("ordinary answer copy says what Raziel found; depth copy may explain source
   assert.match(expanded, /פתח את התמונה המלאה/);
   assert.doesNotMatch(expanded, /מנוע|engine|evidence|provenance|Result Bundle/i);
 });
+
+test("desktop Companion has three local presentation states and changing them never reaches submit or transport", () => {
+  const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+  const companion = read("src/components/experience2029/CompanionPanel2029.jsx");
+  const chooserStart = frame.indexOf("const chooseRazielCompanionView");
+  const chooserEnd = frame.indexOf("// The logo opens", chooserStart);
+  const chooser = frame.slice(chooserStart, chooserEnd);
+
+  assert.match(frame, /useState\(readRazielCompanionView\)/);
+  assert.match(chooser, /writeRazielCompanionView\(view\)/);
+  assert.match(chooser, /setRazielCompanionView\(next\)/);
+  assert.doesNotMatch(chooser, /submit|askRaziel|fetch|invoke|transport|model/i);
+  assert.match(companion, /razielView !== "quiet"/);
+  assert.match(companion, /data-raziel-companion-quiet="true"/);
+  assert.match(companion, /data-raziel-hint="deterministic"/);
+  assert.match(companion, /onRazielView\?\.\("hints"\)/);
+  assert.match(companion, /onRazielView\?\.\("open"\)/);
+  assert.match(companion, /onRazielView\?\.\("quiet"\)/);
+  assert.doesNotMatch(companion, /useOptionalRazielSession2029|RazielSessionProvider|ResearchProvider|askRaziel|submit\(/);
+
+  assert.match(frame, /const companionActive = companionWide && surface !== "control"/,
+    "the desktop Companion remains media-gated");
+  assert.match(frame, /onClick=\{companionActive && surface !== "post" \? focusCompanionRaziel : openRaziel\}/,
+    "mobile continues through the existing Raziel sheet");
+});
