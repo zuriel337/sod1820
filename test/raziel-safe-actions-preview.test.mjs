@@ -9,6 +9,11 @@ const builder = readFileSync(new URL("../scripts/build-integrated-preview.mjs", 
 const start = builder.indexOf("const allow =");
 const end = builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")');
 const base = vm.runInNewContext(builder.slice(start, end) + "\nworker;");
+const selectorStart = builder.indexOf("const legacyMockBranch =");
+const selectorEnd = builder.indexOf("const selectedMockBranch =");
+const selectMockPreviewBranch = vm.runInNewContext(
+  builder.slice(selectorStart, selectorEnd) + "\nselectMockPreviewBranch;",
+);
 
 async function request(path, { body = {}, origin = "https://linswmnnkjxvweumprav.supabase.co" } = {}) {
   let handler, output, forwarded = 0;
@@ -91,7 +96,31 @@ test("mock configuration cannot admit real product writes, new Person creation o
   }
   const { response } = await request("/functions/v1/ai-analyze", { origin: "https://evil.test", body: { persona: "raziel" } });
   assert.equal(response.status, 403);
-  assert.match(builder, /mock_preview_is_never_production/);
-  assert.match(builder, /mock_preview_branch_mismatch/);
-  assert.match(builder, /process\.env\.VERCEL_ENV === "preview" && process\.env\.VERCEL_GIT_COMMIT_REF === expectedMockBranch/);
+});
+
+test("mock Preview selection admits only the two exact reviewed branches", () => {
+  for (const branch of [
+    "gpt/2029-central-raziel-safe-actions-integration-20261026",
+    "gpt/2029-central-raziel-personal-navigation-integration-20261026",
+  ]) {
+    assert.equal(selectMockPreviewBranch({
+      VERCEL_ENV: "preview",
+      VERCEL_GIT_COMMIT_REF: branch,
+    }), branch);
+  }
+
+  assert.equal(selectMockPreviewBranch({
+    VERCEL_ENV: "preview",
+    VERCEL_GIT_COMMIT_REF: "gpt/unreviewed-preview-branch",
+  }), null);
+  assert.throws(() => selectMockPreviewBranch({
+    SOD_RAZIEL_SAFE_ACTIONS_PREVIEW: "true",
+    VERCEL_ENV: "preview",
+    VERCEL_GIT_COMMIT_REF: "gpt/unreviewed-preview-branch",
+  }), /mock_preview_branch_mismatch/);
+  assert.throws(() => selectMockPreviewBranch({
+    SOD_RAZIEL_SAFE_ACTIONS_PREVIEW: "true",
+    VERCEL_ENV: "production",
+    VERCEL_GIT_COMMIT_REF: "gpt/2029-central-raziel-personal-navigation-integration-20261026",
+  }), /mock_preview_is_never_production/);
 });

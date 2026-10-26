@@ -19,6 +19,7 @@ export const RAZIEL_NAVIGATION_INTENT = Object.freeze({
   NUMBER_PAGE: "number_page",
   NUMBER_EXPRESSIONS: "number_expressions",
   RESEARCH_MAP: "research_map",
+  WORLD: "world",
 });
 
 export const RAZIEL_NAVIGATION_NUMBER_MIN = 1;
@@ -137,6 +138,9 @@ const TARGETS = [
     re: /^(?:את |אל |ל)?(?:ה)?מספר$/u, requireReference: true },
   { intent: RAZIEL_NAVIGATION_INTENT.NUMBER_EXPRESSIONS, allow: ["open", "take", "none"],
     re: new RegExp(`^${PREP}(?:ה)?ביטויים(?: של(?:ו|ה)| (?:של|עבור) ${NUMBER_REF}| (?:של|עבור) (?:ה)?מספר)?$`, "u") },
+  // "/world" is opened only by an explicit request for the world; "מפת המחקר" is never mapped to it (owner decision pending).
+  { intent: RAZIEL_NAVIGATION_INTENT.WORLD, allow: ["open", "take", "none"],
+    re: new RegExp(`^${PREP}(?:ה)?עולם$`, "u") },
   { intent: RAZIEL_NAVIGATION_INTENT.RESEARCH_MAP, allow: ["open", "take", "none"],
     re: new RegExp(`^${PREP}מפת (?:ה)?מחקר(?: של(?:ו|ה)| (?:של|עבור) ${NUMBER_REF}| (?:של|עבור) (?:ה)?מספר)?$`, "u") },
 ];
@@ -219,8 +223,8 @@ const COPY = Object.freeze({
   }),
 });
 const WORLD_COPY = Object.freeze({
-  message: "בשמחה — הנה העולם, שבו נפרשת מפת החיבורים והמקורות. 🌳",
-  label: "פתח את מפת המחקר",
+  message: "בשמחה — הנה העולם. 🌳",
+  label: "פתח את העולם",
 });
 
 const CLARIFY = Object.freeze({
@@ -241,7 +245,7 @@ function clarify(reason, intent = RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE) {
 }
 
 function navigate(intent, number, numberSource) {
-  if (number == null) {
+  if (intent === RAZIEL_NAVIGATION_INTENT.WORLD) {
     return Object.freeze({
       type: "navigate",
       version: RAZIEL_NAVIGATION_ACTIONS_VERSION,
@@ -273,24 +277,22 @@ export function resolveRazielNavigationAction({ text = "", request = null, focus
   const parsed = request || parseRazielNavigationRequest(text);
   if (!parsed) return null;
   const { intent, number } = parsed;
+  if (intent === RAZIEL_NAVIGATION_INTENT.WORLD) return navigate(intent, null, null);
   if (number.status === "invalid") return clarify("invalid_number", intent);
   if (number.status === "explicit") return navigate(intent, number.value, "explicit");
 
   if (focus && focus.ambiguous === true) return clarify("ambiguous_number", intent);
   const focused = focus && isValidRazielNavigationNumber(focus.number) ? Number(focus.number) : null;
   if (focused != null) return navigate(intent, focused, typeof focus.source === "string" && focus.source ? focus.source : "conversation");
-  // A plain "open the research map" with no number anywhere is the world-level map; any wording that
-  // points at a number ("של המספר הזה") and has none verified asks instead of opening something else.
-  if (intent === RAZIEL_NAVIGATION_INTENT.RESEARCH_MAP && number.status === "none") {
-    return navigate(intent, null, null);
-  }
+  // No explicit and no verified number: ask. "מפת המחקר" has no owner-approved home without a number, so it is never
+  // redirected to the world page; only an explicit request for the world opens it.
   return clarify("missing_number", intent);
 }
 
 // Does the message need a verified focus before it can resolve? Lets a transport skip any context
 // lookup (history fetch, DB call) when the number is explicit or the request does not need one.
 export function razielNavigationNeedsFocus(request) {
-  return Boolean(request) && (request.number.status === "reference" || request.number.status === "none");
+  return Boolean(request) && request.intent !== RAZIEL_NAVIGATION_INTENT.WORLD && (request.number.status === "reference" || request.number.status === "none");
 }
 
 // After Raziel asked "לאיזה מספר תרצה שאפתח דף?", a bare numeral ("73" / "המספר 73") answers it.
@@ -310,11 +312,11 @@ export function resolveRazielNavigationFollowUp({ text = "", pendingIntent = RAZ
 }
 
 // Strict single-subject reading of a *user's own earlier turn* for transports that only hold chat text
-// (WhatsApp). A typed numeral is verified by construction; a short Hebrew expression is returned as a
+// (WhatsApp). A typed numeral is verified by construction; a short Hebrew expression with an explicit gematria/check cue is returned as a
 // label that the adapter may resolve through the canonical gematria RPC. Model prose never reaches here.
 const SUBJECT_STOP = /(?:^| )(?:דף|עמוד|מספר|מספרים|אתר|לינק|קישור|מפת|ביטויים|מחקר|תודה|שלום|בבקשה|כן|לא)(?: |$)/u;
 const NUMBER_TURN = new RegExp(`^(?:(?:מה זה|מהו|מה הוא|ספר על|ספר לי על|מה ידוע על|בדוק|תבדוק|בדקי|תבדקי|חקור|תחקור|חקרי|תחקרי)(?: את)? )?(?:ה)?(?:מספר )?(\\d{1,6})$`, "u");
-const EXPRESSION_TURN = /^(?:(?:מה )?(?:ה)?(?:גימטריה|גימטריא|ערך) של|(?:בדוק|תבדוק|בדקי|תבדקי|חשב|תחשב|חשבי|תחשבי|חקור|תחקור)(?: את)?|מה זה|מהו|ספר על|ספר לי על) ([א-ת]{2,}(?: [א-ת]{2,}){0,2})$/u;
+const EXPRESSION_TURN = /^(?:(?:מה )?(?:ה)?(?:גימטריה|גימטריא|ערך) של|(?:בדוק|תבדוק|בדקי|תבדקי|חשב|תחשב|חשבי|תחשבי|חקור|תחקור)(?: את)?) ([א-ת]{2,}(?: [א-ת]{2,}){0,2})$/u;
 
 export function razielFocusSubjectFromUserText(text) {
   const normalized = stripFiller(normalize(text));
@@ -349,6 +351,38 @@ export function razielFocusNumberFromCanonicalLink(text, origin) {
       const match = url.pathname.match(NUMBER_HREF);
       if (url.origin === base && match) return Number(match[1]);
     } catch { /* Malformed tokens cannot establish a verified focus. */ }
+  }
+  return null;
+}
+
+// WhatsApp focus (pure). `turns` is the chat NEWEST FIRST: [{ outgoing: boolean, text: string }]. A focus is valid only from
+//   • a canonical page link Raziel itself sent in this stretch, or
+//   • the latest CONTINUOUS topic: the newest substantive user message, provided it is a verified subject (a typed numeral, or a
+//     short gematria question whose value the adapter resolves through the canonical engine).
+// The first substantive user message that is neither a subject nor a navigation request ends the stretch: an older number is never
+// reached across an unrelated conversation. Raziel's own prose is never a source. Returns
+//   { kind: "number", value } | { kind: "expression", label } | null.
+export function razielWhatsappVerifiedFocus(turns, origin) {
+  for (const turn of Array.isArray(turns) ? turns : []) {
+    const text = typeof turn?.text === "string" ? turn.text : "";
+    // Empty incoming media still ends the previous topic; it must not disappear
+    // merely because the transport has no caption to project.
+    if (!text) {
+      if (turn?.outgoing !== true) return null;
+      continue;
+    }
+    if (turn.outgoing) {
+      const linked = razielFocusNumberFromCanonicalLink(text, origin);
+      if (linked) return Object.freeze({ kind: "number", value: linked });
+      continue;
+    }
+    const content = stripFiller(normalize(text));
+    if (!content) continue;                                   // thanks / greetings carry no topic
+    const subject = razielFocusSubjectFromUserText(text);
+    if (subject) return subject;
+    if (parseRazielNavigationRequest(text)) continue;         // a navigation request keeps the same topic
+    if (FOLLOW_UP_NUMBER.test(content)) continue;             // a bare numeral answering the clarification
+    return null;                                              // unrelated message: the topic ended here
   }
   return null;
 }

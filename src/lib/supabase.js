@@ -1391,7 +1391,12 @@ function razielTransportMetadata(data) {
 }
 
 export async function askRaziel({ subject, facts, context = null, path = null, again = false, metatron = false, intelligenceLevel = null, surfaceSemantic = null, conversationResolution = null, researchContract = null, viewMode = null }) {
+  // Keep the public transport signature stable for every existing caller. The personal-area adapter
+  // adds only two internal request fields: the closed action envelope and a non-enumerable AbortSignal.
+  const companionAction = arguments[0]?.companionAction ?? null;
+  const signal = arguments[0]?.__razielAbortSignal ?? null;
   if (!supabase) return null;
+  if (signal?.aborted) return null;
   try {
     // intelligenceLevel='fast'|'deep' — בחירה מפורשת של הקורא בלבד. נשלח (intelligence_level) רק כשהתבקש;
     // קוראים קיימים לא מציינים → גוף-הבקשה זהה ל-before והשרת מתנהג עמוק כברירת-מחדל.
@@ -1401,9 +1406,12 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     const interactionId = researchContract === 'public-number-research-run-v1' ? aiInteractionId() : null;
     const { data, error } = await supabase.functions.invoke('ai-analyze', {
       // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
-      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}), ...(conversationResolution && typeof conversationResolution === 'object' ? { conversation_resolution: conversationResolution } : {}), ...(researchContract === 'public-number-research-run-v1' ? { research_contract: researchContract, ...(interactionId ? { interaction_id: interactionId } : {}) } : {}), ...(researchContract === 'public-number-research-run-v1' && (viewMode === 'landscape' || viewMode === 'exploratory') ? { view_mode: viewMode } : {}) },
+      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}), ...(conversationResolution && typeof conversationResolution === 'object' ? { conversation_resolution: conversationResolution } : {}), ...(researchContract === 'public-number-research-run-v1' ? { research_contract: researchContract, ...(interactionId ? { interaction_id: interactionId } : {}) } : {}), ...(researchContract === 'public-number-research-run-v1' && companionAction && typeof companionAction === 'object' ? { companion_action: companionAction } : {}), ...(researchContract === 'public-number-research-run-v1' && (viewMode === 'landscape' || viewMode === 'exploratory') ? { view_mode: viewMode } : {}) },
+      ...(signal instanceof AbortSignal ? { signal } : {}),
     });
-    if (error) return null;
+    // A principal change may race a completed response. Do not emit the old
+    // principal's quota event or fallback telemetry after cancellation.
+    if (signal?.aborted || error) return null;
     if (data?.error === 'quota') {
       try { window.dispatchEvent(new CustomEvent('sod:ai-quota', { detail: { tier: data.tier, used: data.used, limit: data.limit, message: data.message } })); } catch { /* noop */ }
       return null;

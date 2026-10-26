@@ -31,6 +31,10 @@ export default function RazielOneShotActions2029({ session, onRun, disabled = fa
       if (/^\/2029\/number\/[1-9]\d{0,5}$/.test(action.href || "")) navigate(action.href);
       return;
     }
+    if (action.id === "save_as_life_journey_hint") {
+      if (action.href === "/2029/journey?focus=hints") navigate(action.href);
+      return;
+    }
     setActionState({ id: action.id, status: "pending" });
     let result = { ok: false };
     if (action.id === "all_methods" && action.subject) {

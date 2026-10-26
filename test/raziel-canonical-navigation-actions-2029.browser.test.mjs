@@ -122,6 +122,7 @@ test("built 2029 app: navigation turns are deterministic buttons with zero model
         [QUESTIONS.link73, "/2029/number/73", "number_page"],
         [QUESTIONS.expressions, "/2029/number/73", "number_expressions"],
         [QUESTIONS.map, "/2029/number/73", "research_map"],
+        ["פתח את העולם", "/world", "world"],
       ]) {
         const before = await buttons().count();
         await ask(chat, question);

@@ -191,7 +191,7 @@ function navigationState(question) {
 }
 
 test("explicit save and restore retain every canonical navigation action without changing the conversation mode", () => {
-  for (const question of ["פתח את דף המספר 73", "קח אותי לביטויים של המספר 337", "פתח את מפת המחקר"]) {
+  for (const question of ["פתח את דף המספר 73", "קח אותי לביטויים של המספר 337", "פתח את מפת המחקר", "פתח את העולם"]) {
     const state = navigationState(question);
     const built = buildRazielSavedSessionEntity(state, { now: () => "2026-10-26T12:00:02Z" });
     assert.equal(built.ok, true, question);
@@ -232,6 +232,8 @@ test("restored navigation is a bounded exact projection and rejects forged versi
     { ...valid, href: "/2029/number/073" }, { ...valid, href: "/2029/number/73?source=private" },
     { ...valid, href: "/2029/number/1000000", number: 1000000 }, { ...valid, number: 337 },
     { ...valid, number: "73" }, { ...valid, href: "/world", number: null },
+    { ...valid, intent: "world" }, { ...valid, intent: "world", href: "/world", number: 73 },
+    { ...valid, intent: "world", href: "/world?private=1", number: null },
     { ...valid, label: { href: "https://evil.invalid" } }, { ...valid, label: " " },
   ]) assert.equal(restoredAnswer({ navigationAction: action }).navigationAction, undefined, JSON.stringify(action));
   for (const clarification of [{ intent: "admin", reason: "missing_number" }, { intent: "number_page", reason: "private-payload" }]) {

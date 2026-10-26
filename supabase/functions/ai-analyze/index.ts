@@ -550,13 +550,120 @@ const RAZIEL_SHARED_WARM_ACCURACY_LAYER =
   "• פעולות ההמשך נבחרות בשרת מרשימה סגורה. השאר תמיד את suggested_paths ריק ואל תמציא כפתור, קישור או פעולה.\n";
 
 type RazielSafeSuggestedPath = {
-  id: "all_methods" | "open_number" | "save_conversation" | "deepen";
+  id: "all_methods" | "open_number" | "save_conversation" | "deepen" | "save_as_life_journey_hint";
   label: string;
   icon: string;
   hint: string;
   subject?: string;
   href?: string;
 };
+
+const RAZIEL_PERSONAL_AREA_COMPANION_ACTION = "personal_area_companion_v1";
+const RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT = "לווה אותי בצעד הבא באזור האישי";
+const RAZIEL_PERSONAL_AREA_EVIDENCE_CONTRACT = "personal_area_checked_evidence_v1";
+const RAZIEL_PERSONAL_AREA_CAPABILITIES = new Set([
+  "personal_overview", "life_journey", "saved_conversations", "hint_review",
+]);
+const RAZIEL_PERSONAL_AREA_FOCUSES = new Set([
+  "overview", "current_step", "conversation_center", "checked_hint",
+]);
+const RAZIEL_PERSONAL_AREA_REF_RE = /^(?:journey|session|finding|source|check):[A-Za-z0-9_-]{8,96}$/;
+
+type RazielPersonalAreaCompanionAction = {
+  id: typeof RAZIEL_PERSONAL_AREA_COMPANION_ACTION;
+  surface: "personal_area";
+  capability: string;
+  focus: string;
+  opaque_refs: string[];
+  evidence_pack?: {
+    contract: typeof RAZIEL_PERSONAL_AREA_EVIDENCE_CONTRACT;
+    checked: true;
+    check_ref: string;
+    refs: string[];
+  };
+};
+
+function exactObjectKeys(value: unknown, allowed: string[]): boolean {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const permitted = new Set(allowed);
+  return Object.keys(value as Record<string, unknown>).every((key) => permitted.has(key));
+}
+
+function normalizeRazielPersonalAreaCompanionAction(value: unknown): RazielPersonalAreaCompanionAction | null {
+  if (!exactObjectKeys(value, ["id", "surface", "capability", "focus", "opaque_refs", "evidence_pack"])) return null;
+  const input = value as Record<string, unknown>;
+  if (input.id !== RAZIEL_PERSONAL_AREA_COMPANION_ACTION || input.surface !== "personal_area") return null;
+  const capability = typeof input.capability === "string" ? input.capability.trim() : "";
+  const focus = typeof input.focus === "string" ? input.focus.trim() : "";
+  if (!RAZIEL_PERSONAL_AREA_CAPABILITIES.has(capability) || !RAZIEL_PERSONAL_AREA_FOCUSES.has(focus)) return null;
+  const refs = Array.isArray(input.opaque_refs) ? input.opaque_refs : [];
+  if (refs.length > 6 || refs.some((ref) => typeof ref !== "string" || !RAZIEL_PERSONAL_AREA_REF_RE.test(ref))) return null;
+  const opaqueRefs = [...new Set(refs as string[])];
+  if (opaqueRefs.length !== refs.length) return null;
+  let evidencePack: RazielPersonalAreaCompanionAction["evidence_pack"];
+  if (input.evidence_pack != null) {
+    if (!exactObjectKeys(input.evidence_pack, ["contract", "checked", "check_ref", "refs"])) return null;
+    const evidence = input.evidence_pack as Record<string, unknown>;
+    const evidenceRefs = Array.isArray(evidence.refs) ? evidence.refs : [];
+    if (
+      evidence.contract !== RAZIEL_PERSONAL_AREA_EVIDENCE_CONTRACT
+      || evidence.checked !== true
+      || typeof evidence.check_ref !== "string"
+      || !/^check:[A-Za-z0-9_-]{8,96}$/.test(evidence.check_ref)
+      || evidenceRefs.length < 1
+      || evidenceRefs.length > 4
+      || evidenceRefs.some((ref) => typeof ref !== "string" || !/^(?:finding|source):[A-Za-z0-9_-]{8,96}$/.test(ref))
+      || new Set(evidenceRefs).size !== evidenceRefs.length
+    ) return null;
+    evidencePack = {
+      contract: RAZIEL_PERSONAL_AREA_EVIDENCE_CONTRACT,
+      checked: true,
+      check_ref: evidence.check_ref,
+      refs: evidenceRefs as string[],
+    };
+  }
+  return {
+    id: RAZIEL_PERSONAL_AREA_COMPANION_ACTION,
+    surface: "personal_area",
+    capability,
+    focus,
+    opaque_refs: opaqueRefs,
+    ...(evidencePack ? { evidence_pack: evidencePack } : {}),
+  };
+}
+
+function razielPersonalAreaEnvelopeSafe(body: any, action: RazielPersonalAreaCompanionAction): boolean {
+  const surface = body?.surface_semantic;
+  const forbiddenPrivateFields = [
+    "raw_hint", "hint_text", "family_name", "family_names", "birth_date", "birth_dates",
+    "media", "media_url", "signed_url", "els_term", "els_terms", "calculator_state",
+  ];
+  return body?.subject === RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT
+    && String(body?.facts || "") === ""
+    && (body?.context == null || body.context === "")
+    && (body?.path == null || body.path === "")
+    && body?.again !== true
+    && body?.conversation_resolution == null
+    && body?.view_mode == null
+    && body?.mode == null
+    && body?.surface_context == null
+    && forbiddenPrivateFields.every((key) => body?.[key] == null)
+    && exactObjectKeys(surface, ["surface"])
+    && surface?.surface === action.surface;
+}
+
+function razielPersonalAreaPrompt(action: RazielPersonalAreaCompanionAction): string {
+  const refs = [...action.opaque_refs, ...(action.evidence_pack?.refs || [])];
+  return [
+    "\n\nבקשת ליווי מפורשת מן האזור האישי (חוזה personal_area_companion_v1):",
+    `capability=${action.capability}`,
+    `focus=${action.focus}`,
+    `opaque_refs=${refs.length ? refs.join(",") : "none"}`,
+    `evidence_checked=${action.evidence_pack ? "true" : "false"}`,
+    "אלה מזהים אטומים בלבד. אל תציג אותם, אל תנחש את תוכנם ואל תטען שנחשפת למידע האישי שמאחוריהם.",
+    "תן ליווי חם וקצר לצעד הבא בלבד. אל תחפש משפחה, אל תפעיל ELS, אל תחשב ואל תציג מידע שלא סופק.",
+  ].join("\n");
+}
 
 // The model never owns executable suggestions. This deterministic registry is the only place that
 // turns already-authorized context into a bounded action. Personal state is never changed here:
@@ -567,13 +674,24 @@ function razielSafeSuggestedPaths({
   navigation,
   canonicalReady,
   question,
+  personalCompanion,
 }: {
   trusted: boolean;
   expression?: unknown;
   navigation?: unknown;
   canonicalReady: boolean;
   question?: unknown;
+  personalCompanion?: RazielPersonalAreaCompanionAction | null;
 }): RazielSafeSuggestedPath[] {
+  if (personalCompanion) {
+    return personalCompanion.evidence_pack ? [{
+      id: "save_as_life_journey_hint",
+      label: "שמור כרמז במסע שלי",
+      icon: "hint",
+      hint: "פתח טופס אישור באזור האישי; שום דבר לא נשמר אוטומטית.",
+      href: "/2029/journey?focus=hints",
+    }] : [];
+  }
   if (trusted) {
     return [{
       id: "deepen",
@@ -2531,6 +2649,16 @@ Deno.serve(async (req: Request) => {
       // Requests without the contract (including Legacy and the existing WhatsApp adapter) stay unchanged.
       const rCanonicalResearchOptIn = !rTrusted && razielCanonicalBundleOptedIn(body);
       const rLegacyPersistentMemoryAllowed = !rCanonicalResearchOptIn;
+      const rPersonalAreaCompanionRequested = body?.companion_action != null;
+      const rPersonalAreaCompanion = rCanonicalResearchOptIn
+        ? normalizeRazielPersonalAreaCompanionAction(body?.companion_action)
+        : null;
+      if (
+        rPersonalAreaCompanionRequested
+        && (!rPersonalAreaCompanion || !razielPersonalAreaEnvelopeSafe(body, rPersonalAreaCompanion))
+      ) {
+        return rzJson({ analysis: null, error: "invalid_personal_area_companion_contract" }, 400);
+      }
       // RAZIEL_VIEW_MODE_V1: only the 2029 canonical contract can select a non-general observation mode.
       const rViewMode: RazielViewMode = rCanonicalResearchOptIn ? normalizeRazielViewMode(body?.view_mode) : "general";
       const { identity, tier } = rTrusted ? { identity: rTrusted.identity, tier: rTrusted.tier } : await resolveIdentity(req, body);
@@ -2555,7 +2683,7 @@ Deno.serve(async (req: Request) => {
       // 2029 only: answer deterministically before planner/quota/model work, keep the temporary
       // thread intact, and never spend tokens merely because the user said thanks or praised the
       // preceding result. Mixed requests are deliberately excluded by the bounded shared grammar.
-      const rConversationAct = rCanonicalResearchOptIn
+      const rConversationAct = rCanonicalResearchOptIn && !rPersonalAreaCompanion
         ? resolveRazielConversationalAct(rSubject)
         : null;
       if (rConversationAct?.act === "acknowledgement") {
@@ -2584,7 +2712,7 @@ Deno.serve(async (req: Request) => {
           },
         });
       }
-      const rDeterministicGuidance = rCanonicalResearchOptIn
+      const rDeterministicGuidance = rCanonicalResearchOptIn && !rPersonalAreaCompanion
         ? resolveRazielDeterministicGuidance(rSubject)
         : null;
       if (rDeterministicGuidance) {
@@ -2693,7 +2821,8 @@ Deno.serve(async (req: Request) => {
       // forged or non-matching envelope, and for requests without the canonical research opt-in) owns the turn. The legacy fn_raziel_answer
       // is not called at all — no deterministic early return, tool facts, plan block or descriptors from the old path — and the turn goes
       // straight to research-run and the Result Bundle.
-      const rLegacyDeterministicSkipped = rCanonicalResearchOptIn && !!rExpressionCrossingHint;
+      const rLegacyDeterministicSkipped = rCanonicalResearchOptIn
+        && (!!rExpressionCrossingHint || !!rPersonalAreaCompanion);
       try {
         if (rSubject && SB_URL && SB_SVC && !rTrusted?.media && !rLegacyDeterministicSkipped) {
           const detR = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_answer`, {
@@ -2771,11 +2900,24 @@ Deno.serve(async (req: Request) => {
       activeTrace = await beginOperationalTrace({
         body,
         identityClass: tier,
-        capability: rMode ? "ai-analyze:raziel:advanced" : "ai-analyze:raziel",
-        surface: rSurface || "raziel-site",
+        capability: rPersonalAreaCompanion
+          ? "ai-analyze:raziel:personal_area_companion"
+          : rMode ? "ai-analyze:raziel:advanced" : "ai-analyze:raziel",
+        surface: rPersonalAreaCompanion ? "personal_area" : rSurface || "raziel-site",
         ownerRef: "raziel_companion_layer_law + ai_analyze_contract v2",
-        subject: rSubject,
+        subject: rPersonalAreaCompanion ? RAZIEL_PERSONAL_AREA_COMPANION_ACTION : rSubject,
       });
+      if (rPersonalAreaCompanion) {
+        rPlanMeta = {
+          personal_area_companion: {
+            contract: RAZIEL_PERSONAL_AREA_COMPANION_ACTION,
+            capability: rPersonalAreaCompanion.capability,
+            focus: rPersonalAreaCompanion.focus,
+            evidence_checked: !!rPersonalAreaCompanion.evidence_pack,
+            opaque_ref_count: rPersonalAreaCompanion.opaque_refs.length,
+          },
+        };
+      }
 
       // Reuse the same redacted tool spans on both quota denial and ordinary synthesis.
       const recordCompletedToolSpans = async () => {
@@ -3198,6 +3340,7 @@ Deno.serve(async (req: Request) => {
         navigation: rCanonicalBundleNavigation,
         canonicalReady: !!rCanonicalBundlePack,
         question: rSubject,
+        personalCompanion: rPersonalAreaCompanion,
       });
 
       // RAZIEL_VIEW_MODE_V1 gate. A non-general mode runs ONE synthesis over the SAME canonical Result Bundle that
@@ -3297,7 +3440,9 @@ Deno.serve(async (req: Request) => {
 
       // Phase J — current Post/Topic content READ. Explicit current-surface question + exact slug in surface_semantic only; identity missing/mismatched ⇒ fail closed (no tool).
       let rCcPack = "";
-      const rCcDesc = razielCurrentContentDescriptor(rSubject, body?.surface_semantic);
+      const rCcDesc = rPersonalAreaCompanion
+        ? { trigger: false, kind: null, slug: null }
+        : razielCurrentContentDescriptor(rSubject, body?.surface_semantic);
       if (rCcDesc.trigger) {
         if (rCcDesc.kind && rCcDesc.slug) {
           const cc = await runRazielCurrentContent({ kind: rCcDesc.kind, slug: rCcDesc.slug }, activeTrace);
@@ -3325,7 +3470,7 @@ Deno.serve(async (req: Request) => {
       let rzSys = persona + RAZIEL_SHARED_WARM_ACCURACY_LAYER;
       let rzMtxFacts = "";
       let rzMtxVersion: unknown = null;
-      if (rSubject) {
+      if (rSubject && !rPersonalAreaCompanion) {
         const mtx = await fetchMetatronContext(rSubject, rSubject, "site-raziel");
         if (mtx) { rzSys += metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
       }
@@ -3343,7 +3488,7 @@ Deno.serve(async (req: Request) => {
       }
       const surfaceText = rMode ? razielSurfaceContextText(rSurfaceCtx) : "";
       // Phase B: bounded semantic surface (any persona=raziel request) + non-authoritative plan block.
-      const semText = razielSemanticSurfaceText(body?.surface_semantic);
+      const semText = rPersonalAreaCompanion ? "" : razielSemanticSurfaceText(body?.surface_semantic);
       const planText = razielPlanBlockText(rPlanMeta) + (rPersPack
         ? "\n\nמצב-מחקר אישי של המשתמש (קריאה-בלבד מהבעלים עם ה-JWT שלו; PERSONAL_RESEARCH_STATE — לא עובדה/קנוני; המלץ להמשך רק על בסיס הפריטים כאן, אל תמציא פריטים ואל תחשב):\n" + rPersPack
         : "") + (rOpPack
@@ -3367,20 +3512,21 @@ Deno.serve(async (req: Request) => {
           ? "\n\nניתוח-מקור חזותי (נגזרת-מכונה מהמקור הפרטי ששלח המשתמש; המקור עצמו נשמר כ-provenance פרטי וממתין למודרציה — אינו עובדה, אינו קנוני ואינו פורסם; ייתכנו טעויות קריאה. אל תחשב גימטריה ואל תציג ערכים לטקסט הזה; אפשר להציע לבדוק מילה מסוימת אם המשתמש מעוניין. בתשובה הפרד בבהירות בין: מה שנקרא בבירור מהמקור, קריאה לא בטוחה, ופרשנות שלך; אל תציג כוודאי דבר שסומן [לא בטוח]/[לא קריא]. פנה למשתמש בלשון ניטרלית — אל תקרא לו בשם ואל תסיק שם מטקסט המקור או מזיכרון; התמקד במקור ובשאלה הנוכחית בלבד. ענה בטקסט טבעי קצר בתוך שדה answer):\n" + rSource.text + "\n"
           : "\n\nהמשתמש שלח מקור (תמונה/מסמך) ונשמר פרטית וממתין למודרציה, אך קריאתו החזותית לא זמינה כרגע — אמור זאת בקצרה, אל תמציא תוכן ואל תנחש מה כתוב.\n")
         : "";
-      const user =
-        (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
-        (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
-        rzMtxFacts +
-        surfaceText +
-        semText +
-        planText +
-        toolText +
-        sourceText +
-        (rPath ? `\nהמשתמש בחר את מסלול-המחקר: "${rPath}". ענה עליו ב-answer, והצע 0-2 מסלולי-המשך חדשים.\n` : "") +
-        (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
-        (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
-        ctxText +
-        (rTrusted ? whatsappSurfaceProfileText(rTrusted.depth) : "") +
+      const user = (rPersonalAreaCompanion
+        ? razielPersonalAreaPrompt(rPersonalAreaCompanion)
+        : (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
+          (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
+          rzMtxFacts +
+          surfaceText +
+          semText +
+          planText +
+          toolText +
+          sourceText +
+          (rPath ? `\nהמשתמש בחר את מסלול-המחקר: "${rPath}". ענה עליו ב-answer, והצע 0-2 מסלולי-המשך חדשים.\n` : "") +
+          (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
+          (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
+          ctxText +
+          (rTrusted ? whatsappSurfaceProfileText(rTrusted.depth) : "")) +
         `\n\nכתוב את מענה-רזיאל לפי חוקי הברזל והחוזה. כל ספרה בתשובה חייבת להופיע במפורש בחומר שסופק; אל תמספר רשימות בספרות. החזר JSON בלבד.`;
 
       const razielModelSpanId = crypto.randomUUID();
@@ -3389,6 +3535,7 @@ Deno.serve(async (req: Request) => {
       //    ה-guardian מחזיר JSON חוקי לפי חוזה-התשובה של רזיאל (לעולם לא null/ריק).
       const rel = await callClaudeReliable({
         apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user, maxTokens: rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS, ...(rViewMaxTokens && rViewSynthesis ? { maxTokens: rViewMaxTokens } : {}),
+        ...(rPersonalAreaCompanion ? { policy: { retries: 1, backoffMs: [] } } : {}),
         buildFallback: (reason) => JSON.stringify({
           v: 1, agent: "raziel", context: null, greeting: null,
           answer: reason === "timeout" || reason === "overload"
@@ -3403,6 +3550,7 @@ Deno.serve(async (req: Request) => {
         rCanonicalSurpriseGuidance, rCanonicalExploratoryBrief, rCanonicalSurpriseBrief, rOpPack, rPersPack,
         rCcPack === "UNAVAILABLE" ? "" : rCcPack,
         rSource?.ok ? rSource.text : "",
+        rPersonalAreaCompanion ? razielPersonalAreaPrompt(rPersonalAreaCompanion) : "",
         exactSurfaceNumber == null ? "" : String(exactSurfaceNumber),
       ];
       const razielTruth = rel.degraded ? { ok: true, invented: [] } : validateRazielNumericOutput(rel.text, permittedRazielNumericTexts);
@@ -3449,7 +3597,9 @@ Deno.serve(async (req: Request) => {
       // generic AI Analysis, logged under kind="number"/etc. elsewhere) using the existing ai_token_log
       // primitive only — no new analytics table. A path/again request on an advanced call is logged as
       // a distinct "…_followup" kind so a deeper-research action can be told apart from the first ask.
-      const rzKind = rMode ? (rPath || rAgain ? `raziel_advanced_followup:${rSurface || "number_page"}` : `raziel_advanced:${rSurface || "number_page"}`) : "raziel";
+      const rzKind = rPersonalAreaCompanion
+        ? "raziel_personal_area_companion"
+        : rMode ? (rPath || rAgain ? `raziel_advanced_followup:${rSurface || "number_page"}` : `raziel_advanced:${rSurface || "number_page"}`) : "raziel";
       const razielTokenLogId = await logTokens(
         rzKind,
         rModel,
@@ -3468,7 +3618,8 @@ Deno.serve(async (req: Request) => {
       // 2029 canonical-Bundle requests already hold a deterministic evidence fallback. If the
       // provider itself degrades, return that evidence instead of an empty analysis. Legacy and
       // trusted-channel behavior stays byte-for-byte on its existing guardian path.
-      let truthFallbackUsed = rel.degraded && rCanonicalResearchOptIn && !!rNcFallback;
+      let truthFallbackUsed = (rel.degraded && rCanonicalResearchOptIn && !!rNcFallback)
+        || (!!rPersonalAreaCompanion && firstRazielTruthRejected);
       const sanitizedInterpretiveDraft = firstRazielTruthRejected && rCanonicalResearchOptIn && rViewMode === "exploratory"
         ? sanitizeRazielNumericDraft(rel.text, razielTruth.invented)
         : null;
@@ -3481,71 +3632,77 @@ Deno.serve(async (req: Request) => {
         truthFallbackUsed = false;
         interpretiveNumericRepairUsed = true;
       } else if (firstRazielTruthRejected) {
-        const retrySpanId = crypto.randomUUID();
-        const retryStartedAt = new Date().toISOString();
-        const retryRel = await callClaudeReliable({
-          apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user: user + numericTruthRetryInstruction(), maxTokens: rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS, ...(rViewMaxTokens && rViewSynthesis ? { maxTokens: rViewMaxTokens } : {}),
-          policy: { retries: 1 },
-          buildFallback: () => JSON.stringify({
-            v: 1, agent: "raziel", context: null, greeting: null,
-            answer: "לא הצלחתי לנסח את התשובה מחדש בלי להוסיף נתון שלא אומת.",
-            facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,
-          }),
-        });
-        const retryTruth = retryRel.degraded ? { ok: false, invented: [] } : validateRazielNumericOutput(retryRel.text, permittedRazielNumericTexts);
-        const retryRejected = !retryRel.degraded && !retryTruth.ok;
-        const retryOutcome = retryRel.degraded ? "provider_error" : retryRejected ? "failed_with_reason" : "success";
-        const retryEndedAt = new Date().toISOString();
-        await recordOperationalSpan(activeTrace, {
-          spanId: retrySpanId,
-          parentSpanId: razielModelSpanId,
-          kind: "model_call",
-          name: "ai-analyze:raziel:model-truth-retry",
-          startedAt: retryStartedAt,
-          endedAt: retryEndedAt,
-          outcome: retryOutcome,
-          detail: {
-            capability: rMode ? "ai-analyze:raziel:advanced" : "ai-analyze:raziel",
-            owner_ref: "raziel_companion_layer_law + ai_analyze_contract v2 + truth_axes_foundation_law v3",
-            intelligence_level: rLevel,
-            ...rSelMeta,
-            provider: "anthropic",
-            model: rModel,
-            routing_reason: "numeric_truth_guard_retry",
-            escalation_reason: "untrusted_numeric_literal",
-            output_use: retryRel.degraded ? "fallback_guardian" : retryRejected ? "rejected" : "used",
-            stop_reason: retryRel.degraded ? retryRel.reason : retryRejected ? "numeric_truth_guard_untrusted_literal" : null,
-            retry_ordinal: 1,
-            resources: {
-              input_tokens: retryRel.usage?.input_tokens ?? null,
-              output_tokens: retryRel.usage?.output_tokens ?? null,
-              api_calls: retryRel.attempts,
-              latency_ms: Math.max(0, Date.parse(retryEndedAt) - Date.parse(retryStartedAt)),
+        // The personal-area companion is deliberately one-call only. Other Raziel requests retain
+        // the existing bounded truth-guard rewrite without changing their control flow.
+        if (!rPersonalAreaCompanion) {
+          const retrySpanId = crypto.randomUUID();
+          const retryStartedAt = new Date().toISOString();
+          const retryRel = await callClaudeReliable({
+            apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user: user + numericTruthRetryInstruction(), maxTokens: rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS, ...(rViewMaxTokens && rViewSynthesis ? { maxTokens: rViewMaxTokens } : {}),
+            policy: { retries: 1 },
+            buildFallback: () => JSON.stringify({
+              v: 1, agent: "raziel", context: null, greeting: null,
+              answer: "לא הצלחתי לנסח את התשובה מחדש בלי להוסיף נתון שלא אומת.",
+              facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,
+            }),
+          });
+          const retryTruth = retryRel.degraded ? { ok: false, invented: [] } : validateRazielNumericOutput(retryRel.text, permittedRazielNumericTexts);
+          const retryRejected = !retryRel.degraded && !retryTruth.ok;
+          const retryOutcome = retryRel.degraded ? "provider_error" : retryRejected ? "failed_with_reason" : "success";
+          const retryEndedAt = new Date().toISOString();
+          await recordOperationalSpan(activeTrace, {
+            spanId: retrySpanId,
+            parentSpanId: razielModelSpanId,
+            kind: "model_call",
+            name: "ai-analyze:raziel:model-truth-retry",
+            startedAt: retryStartedAt,
+            endedAt: retryEndedAt,
+            outcome: retryOutcome,
+            detail: {
+              capability: rMode ? "ai-analyze:raziel:advanced" : "ai-analyze:raziel",
+              owner_ref: "raziel_companion_layer_law + ai_analyze_contract v2 + truth_axes_foundation_law v3",
+              intelligence_level: rLevel,
+              ...rSelMeta,
+              provider: "anthropic",
+              model: rModel,
+              routing_reason: "numeric_truth_guard_retry",
+              escalation_reason: "untrusted_numeric_literal",
+              output_use: retryRel.degraded ? "fallback_guardian" : retryRejected ? "rejected" : "used",
+              stop_reason: retryRel.degraded ? retryRel.reason : retryRejected ? "numeric_truth_guard_untrusted_literal" : null,
+              retry_ordinal: 1,
+              resources: {
+                input_tokens: retryRel.usage?.input_tokens ?? null,
+                output_tokens: retryRel.usage?.output_tokens ?? null,
+                api_calls: retryRel.attempts,
+                latency_ms: Math.max(0, Date.parse(retryEndedAt) - Date.parse(retryStartedAt)),
+              },
+              cost: { certainty: "unknown" },
+              replay: {
+                ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2", "truth_axes_foundation_law v3"],
+                parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"};numeric_truth_guard:v1${rViewSynthesis ? `;view_mode:${rViewMode}${rViewMaxTokens ? `;view_max_tokens:${rViewMaxTokens}` : ""}` : ""};retry:1`,
+                continuationRef: rAgain ? safeTraceUuid(body?.interaction_id) : null,
+              },
+              privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
             },
-            cost: { certainty: "unknown" },
-            replay: {
-              ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2", "truth_axes_foundation_law v3"],
-              parametersRef: `raziel:max_tokens:${rFast ? 1600 : RAZIEL_DEEP_MAX_TOKENS};level:${rLevel};mode:${rMode ? "advanced" : "baseline"};numeric_truth_guard:v1${rViewSynthesis ? `;view_mode:${rViewMode}${rViewMaxTokens ? `;view_max_tokens:${rViewMaxTokens}` : ""}` : ""};retry:1`,
-              continuationRef: rAgain ? safeTraceUuid(body?.interaction_id) : null,
-            },
-            privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
-          },
-        });
-        const retryTokenLogId = await logTokens(
-          rzKind,
-          rModel,
-          retryRel.usage,
-          identity,
-          { traceId: activeTrace?.traceId, spanId: retrySpanId },
-        );
-        await linkOperationalAiCost(activeTrace, retrySpanId, retryTokenLogId);
-        finalRel = retryRel;
-        finalTruthRejected = retryRejected;
-        truthFallbackUsed = retryRel.degraded || retryRejected;
+          });
+          const retryTokenLogId = await logTokens(
+            rzKind,
+            rModel,
+            retryRel.usage,
+            identity,
+            { traceId: activeTrace?.traceId, spanId: retrySpanId },
+          );
+          await linkOperationalAiCost(activeTrace, retrySpanId, retryTokenLogId);
+          finalRel = retryRel;
+          finalTruthRejected = retryRejected;
+          truthFallbackUsed = retryRel.degraded || retryRejected;
+        }
       }
       const truthFallback = JSON.stringify({
         v: 1, agent: "raziel", context: null, greeting: null,
-        answer: rCanonicalResearchOptIn && rViewMode !== "general"
+        answer: rPersonalAreaCompanion
+          ? "לא הצלחתי לנסח כרגע ליווי בטוח מתוך ההקשר המצומצם. אפשר לנסות שוב או לבחור צעד מפורש באזור האישי."
+          : rCanonicalResearchOptIn && rViewMode !== "general"
           ? "מצאתי את חומר המחקר, אבל עצרתי את הפרשנות מפני שהטיוטה הוסיפה נתון מספרי שלא אומת. אפשר להפעיל שוב את הקריאה; הממצאים עצמם נשמרו ולא נפגעו."
           : rNcFallback || "לא קיבלתי מהמנוע נתונים מאומתים שמאפשרים לי לענות בלי לנחש. נסה בקשה מפורשת לחיפוש במאגר או פתח את דף המספר ובקש את הביטויים המאומתים.",
         facts: [], suggested_paths: [], follow_up_question: null, continue_wa: true, degraded: true,

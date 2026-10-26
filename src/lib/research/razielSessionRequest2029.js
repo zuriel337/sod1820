@@ -18,6 +18,23 @@ import {
 } from "../../../supabase/functions/_shared/razielNavigationActions.js";
 
 const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
+export const RAZIEL_PERSONAL_AREA_COMPANION_ACTION = "personal_area_companion_v1";
+export const RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT = "לווה אותי בצעד הבא באזור האישי";
+const RAZIEL_PERSONAL_AREA_EVIDENCE_CONTRACT = "personal_area_checked_evidence_v1";
+
+const PERSONAL_AREA_CAPABILITIES = new Set([
+  "personal_overview",
+  "life_journey",
+  "saved_conversations",
+  "hint_review",
+]);
+const PERSONAL_AREA_FOCUSES = new Set([
+  "overview",
+  "current_step",
+  "conversation_center",
+  "checked_hint",
+]);
+const PERSONAL_AREA_OPAQUE_REF_RE = /^(?:journey|session|finding|source|check):[A-Za-z0-9_-]{8,96}$/;
 
 const LIMITS = Object.freeze({
   question: 300,
@@ -60,6 +77,78 @@ function cleanInteger(value) {
 
 function compactObject(value) {
   return Object.fromEntries(Object.entries(value).filter(([, item]) => item != null && item !== ""));
+}
+
+function normalizePersonalAreaOpaqueRefs(value, limit = 6) {
+  const refs = [];
+  const seen = new Set();
+  for (const raw of Array.isArray(value) ? value : []) {
+    const ref = typeof raw === "string" ? raw.trim() : "";
+    if (!PERSONAL_AREA_OPAQUE_REF_RE.test(ref) || seen.has(ref)) continue;
+    seen.add(ref);
+    refs.push(ref);
+    if (refs.length === limit) break;
+  }
+  return refs;
+}
+
+// The personal area may ask the existing Raziel session for companionship only after an explicit
+// click. This adapter deliberately accepts machine tokens and opaque references, never labels,
+// hint text, family data, dates, media URLs, ELS terms or calculator state.
+export function normalizeRazielPersonalAreaCompanionAction(value = null) {
+  if (!isObject(value) || value.id !== RAZIEL_PERSONAL_AREA_COMPANION_ACTION) return null;
+  const capability = typeof value.capability === "string" ? value.capability.trim() : "";
+  const focus = typeof value.focus === "string" ? value.focus.trim() : "";
+  if (!PERSONAL_AREA_CAPABILITIES.has(capability) || !PERSONAL_AREA_FOCUSES.has(focus)) return null;
+  const rawOpaqueRefs = value.opaqueRefs ?? value.opaque_refs ?? [];
+  if (!Array.isArray(rawOpaqueRefs)) return null;
+  const opaqueRefs = normalizePersonalAreaOpaqueRefs(rawOpaqueRefs);
+  if (opaqueRefs.length !== rawOpaqueRefs.length) return null;
+  const rawEvidence = value.evidencePack ?? value.evidence_pack ?? null;
+  if (rawEvidence != null && !isObject(rawEvidence)) return null;
+  const evidence = rawEvidence;
+  let evidencePack = null;
+  if (evidence) {
+    const checkRef = typeof evidence.checkRef === "string"
+      ? evidence.checkRef.trim()
+      : typeof evidence.check_ref === "string" ? evidence.check_ref.trim() : "";
+    const rawEvidenceRefs = evidence.refs;
+    if (!Array.isArray(rawEvidenceRefs)) return null;
+    const evidenceRefs = normalizePersonalAreaOpaqueRefs(rawEvidenceRefs, 4)
+      .filter((ref) => /^(?:finding|source):/.test(ref));
+    if (
+      evidence.contract === RAZIEL_PERSONAL_AREA_EVIDENCE_CONTRACT
+      && evidence.checked === true
+      && /^check:[A-Za-z0-9_-]{8,96}$/.test(checkRef)
+      && evidenceRefs.length
+      && evidenceRefs.length === rawEvidenceRefs.length
+    ) {
+      evidencePack = Object.freeze({
+        contract: RAZIEL_PERSONAL_AREA_EVIDENCE_CONTRACT,
+        checked: true,
+        check_ref: checkRef,
+        refs: Object.freeze(evidenceRefs),
+      });
+    } else return null;
+  }
+  return Object.freeze({
+    id: RAZIEL_PERSONAL_AREA_COMPANION_ACTION,
+    surface: "personal_area",
+    capability,
+    focus,
+    opaque_refs: Object.freeze(opaqueRefs),
+    ...(evidencePack ? { evidence_pack: evidencePack } : {}),
+  });
+}
+
+function createPersonalAreaCompanionSnapshot(action, capturedAt) {
+  return Object.freeze({
+    v: 1,
+    surface: "personal_area",
+    capturedAt: cleanInline(capturedAt, 40),
+    companionAction: action,
+    description: "ליווי מפורש באזור האישי",
+  });
 }
 
 function sourceName(value) {
@@ -326,9 +415,25 @@ export function buildRazielSessionRequest({
   intelligenceLevel = "fast",
   again = false,
   viewMode = RAZIEL_DEFAULT_VIEW_MODE,
+  companionAction = null,
 } = {}) {
   const subject = cleanInline(question, LIMITS.question);
   if (!subject) return null;
+  const normalizedCompanionAction = normalizeRazielPersonalAreaCompanionAction(companionAction);
+  if (companionAction != null) {
+    if (!normalizedCompanionAction || subject !== RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT) return null;
+    return {
+      subject: RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT,
+      facts: "",
+      context: null,
+      again: false,
+      intelligenceLevel: "fast",
+      surfaceSemantic: { surface: "personal_area" },
+      conversationResolution: null,
+      researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+      companionAction: normalizedCompanionAction,
+    };
+  }
   const surfaceSemantic = snapshotSurfaceSemantic(contextSnapshot);
   const resolvedTurn = resolveRazielConversationTurn({
     question: subject,
@@ -381,7 +486,11 @@ function focusFromRazielMessage(message) {
 
 function focusFromUserMessage(message) {
   const identities = Array.isArray(message.identity_resolution?.identities) ? message.identity_resolution.identities : [];
-  if (!identities.length) return null;
+  if (!identities.length) {
+    // A navigation request keeps the same topic; any other message without a resolved subject ends the stretch,
+    // so an older number is never reached across an unrelated conversation.
+    return parseRazielNavigationRequest(message.text) ? null : { unresolved: true };
+  }
   const numbers = distinctNumbers(identities.filter((item) => item?.type === "number").map((item) => cleanInteger(item.value ?? item.id)));
   if (numbers.length === 1) return { number: numbers[0], source: "conversation" };
   if (numbers.length > 1) return { ambiguous: true };
@@ -397,6 +506,9 @@ export function selectRazielVerifiedNumberFocus({ thread = [], surfaceSemantic =
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const message = messages[index];
     if (!isObject(message)) continue;
+    // A personal-area companion answer is private context: it never supplies a navigation focus and ends the stretch.
+    if (message.role === "raziel" && messages[index - 1]?.role === "user"
+      && messages[index - 1].text === RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT) return null;
     const found = message.role === "raziel" ? focusFromRazielMessage(message)
       : message.role === "user" ? focusFromUserMessage(message) : null;
     if (!found) continue;
@@ -477,11 +589,45 @@ export function prepareRazielSessionSubmission({
   viewMode = null,
   viewModeOverride = null,
   continuationTurnId = null,
+  companionAction = null,
   startedAt,
   createTurnId,
 } = {}) {
-  const subject = cleanInline(question, LIMITS.question);
+  const normalizedCompanionAction = normalizeRazielPersonalAreaCompanionAction(companionAction);
+  const subject = cleanInline(
+    normalizedCompanionAction ? RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT : question,
+    LIMITS.question,
+  );
   if (!subject) return null;
+  if (companionAction != null && !normalizedCompanionAction) return null;
+  // Navigation is checked ONLY for an ordinary explicit request. The personal-area companion action, continuations
+  // (deepen / one-shot / again) and per-request view-mode overrides are decided above and never routed as navigation.
+  const ordinaryExplicitRequest = !normalizedCompanionAction
+    && companionAction == null
+    && !again
+    && continuationTurnId == null
+    && viewModeOverride == null;
+  if (ordinaryExplicitRequest) {
+    const navContextSnapshot = createRazielRequestContextSnapshot(researchContext, view, startedAt);
+    const navigation = resolveRazielNavigationTurn({ question: subject, state, contextSnapshot: navContextSnapshot });
+    if (navigation) {
+      return {
+        navigation,
+        request: null,
+        contextSnapshot: navContextSnapshot,
+        turn: {
+          id: createTurnId(),
+          question: subject,
+          identityResolution: null,
+          intelligenceLevel: "fast",
+          again: false,
+          projection: projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null,
+          startedAt,
+          continuation: null,
+        },
+      };
+    }
+  }
   const continuation = again ? selectRazielContinuation(state?.thread, {
     turnId: continuationTurnId,
     question: subject,
@@ -489,25 +635,9 @@ export function prepareRazielSessionSubmission({
   const contextSnapshot = continuation?.contextSnapshot
     || createRazielRequestContextSnapshot(researchContext, view, startedAt);
   const selectedFacts = continuation ? continuation.facts : facts;
-  // Explicit navigation never reaches a model or the transport (continuations/deepening are never navigation).
-  const navigation = again ? null : resolveRazielNavigationTurn({ question: subject, state, contextSnapshot });
-  if (navigation) {
-    return {
-      navigation,
-      request: null,
-      contextSnapshot,
-      turn: {
-        id: createTurnId(),
-        question: subject,
-        identityResolution: null,
-        intelligenceLevel: "fast",
-        again: false,
-        projection: projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null,
-        startedAt,
-        continuation: null,
-      },
-    };
-  }
+  const selectedContextSnapshot = normalizedCompanionAction
+    ? createPersonalAreaCompanionSnapshot(normalizedCompanionAction, startedAt)
+    : contextSnapshot;
   // A plain continuation (deepen) keeps the mode of the answer it extends. A one-shot per-request mode (the surprise)
   // replaces it for this request only; the stored answer and the session's own mode are not modified.
   const oneShotViewMode = viewModeOverride == null ? null : normalizeRazielViewMode(viewModeOverride);
@@ -517,11 +647,12 @@ export function prepareRazielSessionSubmission({
   const request = buildRazielSessionRequest({
     question: subject,
     state,
-    contextSnapshot,
-    facts: selectedFacts,
+    contextSnapshot: selectedContextSnapshot,
+    facts: normalizedCompanionAction ? "" : selectedFacts,
     intelligenceLevel: normalizeRazielViewMode(selectedViewMode) === "exploratory" ? "deep" : intelligenceLevel,
     again,
     viewMode: selectedViewMode,
+    companionAction: normalizedCompanionAction,
   });
   if (!request) return null;
   const turn = {
@@ -536,12 +667,12 @@ export function prepareRazielSessionSubmission({
     projection: projection === "mobile" ? "mobile" : projection === "desktop" ? "desktop" : null,
     startedAt,
     continuation: createRazielContinuationSnapshot({
-      contextSnapshot,
+      contextSnapshot: selectedContextSnapshot,
       facts: request.facts,
       viewMode: selectedViewMode,
     }),
   };
-  return { request, turn, contextSnapshot };
+  return { request, turn, contextSnapshot: selectedContextSnapshot };
 }
 
 // What a server answer reports about the mode it actually applied (plan_meta.view_mode / view_mode).
@@ -638,6 +769,7 @@ const RAZIEL_SUGGESTED_ACTION_LABELS = Object.freeze({
   all_methods: "בדוק בכל השיטות",
   save_conversation: "שמור את השיחה",
   deepen: "להעמיק בתשובה",
+  save_as_life_journey_hint: "שמור כרמז במסע שלי",
 });
 
 // suggested_paths is an executable surface, not prose. Accept only the closed server registry,
@@ -658,6 +790,13 @@ export function normalizeRazielSuggestedActions(value = null) {
       const number = match ? Number(match[1]) : 0;
       if (!Number.isSafeInteger(number) || number < 1 || number > 999999) continue;
       actions.push({ id: item.id, label: `פתח את המספר ${number}`, href: `/2029/number/${number}` });
+    } else if (item.id === "save_as_life_journey_hint") {
+      if (item.href !== "/2029/journey?focus=hints") continue;
+      actions.push({
+        id: item.id,
+        label: RAZIEL_SUGGESTED_ACTION_LABELS[item.id],
+        href: "/2029/journey?focus=hints",
+      });
     } else if (item.id === "save_conversation" || item.id === "deepen") {
       actions.push({ id: item.id, label: RAZIEL_SUGGESTED_ACTION_LABELS[item.id] });
     } else {

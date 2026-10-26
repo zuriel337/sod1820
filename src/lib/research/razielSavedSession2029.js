@@ -83,7 +83,7 @@ function normalizeSources(value) {
 // rechecks the existing href shapes without loading the lazy navigation grammar.
 // Saved data is untrusted; neither a URL nor a focus number is recovered from prose.
 const NAVIGATION_VERSION = "raziel-canonical-navigation-actions-v1";
-const NAVIGATION_INTENTS = new Set(["number_page", "number_expressions", "research_map"]);
+const NAVIGATION_INTENTS = new Set(["number_page", "number_expressions", "research_map", "world"]);
 const NAVIGATION_REASONS = new Set(["missing_number", "invalid_number", "ambiguous_number"]);
 
 function normalizeSavedNavigationAction(value) {
@@ -92,7 +92,11 @@ function normalizeSavedNavigationAction(value) {
   const button = razielNavigationButton({ role: "raziel", navigationAction: value });
   if (!button) return null;
   const number = button.href === "/world" ? null : Number(button.href.split("/").at(-1));
-  if (value.number !== number || (number === null && value.intent !== "research_map")) return null;
+  // Older saved v1 research_map → /world links remain readable. New world
+  // actions must keep the exact null-number /world pair, never a number URL.
+  if (value.number !== number
+    || (number === null && !["research_map", "world"].includes(value.intent))
+    || (value.intent === "world" && number !== null)) return null;
   const label = cleanInline(value.label, 80);
   return label ? { version: NAVIGATION_VERSION, intent: value.intent, href: button.href, label, number } : null;
 }

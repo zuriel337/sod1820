@@ -18,6 +18,7 @@ import {
   razielNavigationUrl,
   razielNavigationWhatsappText,
   razielNumberPageHref,
+  razielWhatsappVerifiedFocus,
   resolveRazielNavigationAction,
   resolveRazielNavigationFollowUp,
 } from "../supabase/functions/_shared/razielNavigationActions.js";
@@ -43,7 +44,8 @@ const MATRIX = [
   ["לינק לדף המספר 73", null, RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/73"],
   ["תן לי לינק לדף המספר באתר", focus(73), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/73"],
   ["פתח לי את דף המספר", focus(337), RAZIEL_NAVIGATION_INTENT.NUMBER_PAGE, "/2029/number/337"],
-  ["פתח את מפת המחקר", null, RAZIEL_NAVIGATION_INTENT.RESEARCH_MAP, "/world"],
+  ["פתח את העולם", null, RAZIEL_NAVIGATION_INTENT.WORLD, "/world"],
+  ["קח אותי לעולם", null, RAZIEL_NAVIGATION_INTENT.WORLD, "/world"],
   ["פתח את מפת המחקר", focus(73), RAZIEL_NAVIGATION_INTENT.RESEARCH_MAP, "/2029/number/73"],
   ["קח אותי לביטויים של המספר הזה", focus(73), RAZIEL_NAVIGATION_INTENT.NUMBER_EXPRESSIONS, "/2029/number/73"],
   // natural variants
@@ -75,7 +77,7 @@ test("requests that are not navigation (questions, information, mixed asks, nega
   for (const text of [
     "מה זה 73", "תן לי את המספר 73", "מה המשמעות של דף המספר", "איך פותחים את דף המספר", "אל תפתח את דף המספר 73",
     "פתח את דף המספר 73 ותסביר לי מה הוא אומר", "פתח את דף המספר 73 ו 337", "דף 73 בגמרא", "שלום", "תחקור את 73",
-    "מה הלינק של דף המספר", "ביטויים של 73", "", null,
+    "מה הלינק של דף המספר", "ביטויים של 73", "תן לי את העולם", "איפה העולם", "", null,
   ]) assert.equal(parseRazielNavigationRequest(text), null, String(text));
 });
 
@@ -84,6 +86,7 @@ test("a missing number never opens a page: the exact short question is asked", (
     ["פתח לי את דף המספר", null],
     ["תן לי לינק לדף המספר באתר", null],
     ["קח אותי לביטויים של המספר הזה", null],
+    ["פתח את מפת המחקר", null],
     ["פתח את מפת המחקר של המספר הזה", null],
     ["תן לי לינק לדף המספר", { number: 0, source: "conversation" }],
     ["תן לי לינק לדף המספר", { number: 1000000, source: "conversation" }],
@@ -373,7 +376,7 @@ test("the actual WhatsApp history adapter selects the newest focus regardless of
     const adapter = vm.runInNewContext(`${historyAdapter}\n({recentChatNewestFirst,verifiedNavigationFocus});`, {
       waAdmin: async () => history, pick: value => value, Date,
       NAV_FOCUS_WINDOW_SEC: 6 * 3600, NAV_FOCUS_MESSAGES: 12, SITE,
-      razielFocusNumberFromCanonicalLink, razielFocusSubjectFromUserText,
+      razielFocusNumberFromCanonicalLink, razielFocusSubjectFromUserText, razielWhatsappVerifiedFocus,
       allMethods: async () => { modelOrEngineCalls += 1; throw new Error("unexpected engine call"); },
     });
     const messages = await adapter.recentChatNewestFirst("fixture-chat", "current");
@@ -383,7 +386,6 @@ test("the actual WhatsApp history adapter selects the newest focus regardless of
     assert.equal(modelOrEngineCalls, 0);
   }
 });
-
 test("the thread renders the button from the validated seam helper and offers no research one-shots on a navigation answer", () => {
   const frame = read("src/components/experience2029/SystemFrame2029.jsx");
   assert.match(frame, /razielNavigationButton\(m\)\.href/);
@@ -391,4 +393,93 @@ test("the thread renders the button from the validated seam helper and offers no
   assert.match(oneShots, /if \(latestRaziel\?\.navigationAction \|\| latestRaziel\?\.navigationClarify\) return null;/);
   assert.ok(oneShots.indexOf("useState") < oneShots.indexOf("latestRaziel?.navigationAction"), "early return stays after every hook");
   assert.match(read("src/components/experience2029/systemFrame2029.css"), /\.sod29-raziel-nav-action \.sod29-action \{[^}]*overflow-wrap: anywhere/);
+});
+
+// ── Adaptation over the personal-area companion base ────────────────────────────────────────────────────────────────
+import {
+  RAZIEL_PERSONAL_AREA_COMPANION_ACTION,
+  RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT,
+} from "../src/lib/research/razielSessionRequest2029.js";
+
+test("owner decision: 'מפת המחקר' never resolves to /world; only an explicit request for the world does", () => {
+  const withNumber = resolveRazielNavigationAction({ text: "פתח את מפת המחקר", focus: focus(73) });
+  assert.equal(withNumber.href, "/2029/number/73");
+  const without = resolveRazielNavigationAction({ text: "פתח את מפת המחקר", focus: null });
+  assert.equal(without.type, "clarify");
+  assert.equal(without.message, RAZIEL_NAVIGATION_ASK_NUMBER);
+  for (const text of ["פתח את מפת המחקר", "קח אותי למפת המחקר", "לינק למפת המחקר"]) {
+    const action = resolveRazielNavigationAction({ text, focus: null });
+    assert.notEqual(action.href, "/world", text);
+  }
+  assert.equal(resolveRazielNavigationAction({ text: "פתח את העולם" }).href, "/world");
+  assert.equal(resolveRazielNavigationAction({ text: "קח אותי לעולם", focus: focus(73) }).href, "/world");
+  assert.equal(razielNavigationNeedsFocus(parseRazielNavigationRequest("פתח את העולם")), false);
+});
+
+test("precedence: the personal-area companion action and every continuation are decided before navigation", () => {
+  const companion = {
+    id: RAZIEL_PERSONAL_AREA_COMPANION_ACTION,
+    capability: "hint_review",
+    focus: "checked_hint",
+    opaqueRefs: ["journey:journey_AbC12345"],
+  };
+  const base = { state: { ...createInitialRazielSessionState(), thread: [userTurn("73", [numberId(73)]), razielTurn()] }, researchContext: null, startedAt: "t", createTurnId: () => "t" };
+  // a navigation-looking question can never turn a companion action into navigation
+  const viaCompanion = prepareRazielSessionSubmission({ ...base, question: "פתח את דף המספר 73", companionAction: companion });
+  assert.equal(viaCompanion.navigation, undefined);
+  assert.equal(viaCompanion.request.companionAction.id, RAZIEL_PERSONAL_AREA_COMPANION_ACTION);
+  assert.equal(viaCompanion.request.subject, RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT);
+  // an invalid companion action fails closed instead of falling back to navigation
+  assert.equal(prepareRazielSessionSubmission({ ...base, question: "פתח את דף המספר 73", companionAction: { id: "other" } }), null);
+  // continuation / deepen / one-shot / view-mode override
+  for (const extra of [{ again: true }, { continuationTurnId: "turn-1" }, { viewModeOverride: "landscape" }]) {
+    const prepared = prepareRazielSessionSubmission({ ...base, question: "פתח את דף המספר 73", ...extra });
+    assert.equal(prepared?.navigation, undefined, JSON.stringify(extra));
+    assert.ok(prepared?.request, JSON.stringify(extra));
+  }
+  // only an ordinary explicit request is routed
+  const ordinary = prepareRazielSessionSubmission({ ...base, question: "פתח את דף המספר 73" });
+  assert.equal(ordinary.navigation.href, "/2029/number/73");
+  assert.equal(ordinary.request, null);
+  // the provider keeps one transport boundary, the abort controller, and the companion entry
+  const provider = read("src/lib/research/RazielSessionProvider2029.jsx");
+  for (const needle of ["new AbortController()", "activeRequestRef.current?.abort()", "submitPersonalAreaCompanion", "companionAction,", "if (!mountedRef.current) return { ok: false, error: \"session_unmounted\" }"]) {
+    assert.ok(provider.includes(needle), needle);
+  }
+  assert.equal((provider.match(/await transport\(request\)/g) || []).length, 1);
+});
+
+test("private companion turns and unrelated messages never supply a navigation focus", () => {
+  const companionThread = [
+    { role: "user", text: RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT },
+    razielTurn({ evidenceSummary: evidence(calc("שם פרטי", "רגיל", 4242)) }),
+  ];
+  assert.equal(selectRazielVerifiedNumberFocus({ thread: [userTurn("73", [numberId(73)]), razielTurn(), ...companionThread] }), null);
+  assert.equal(resolveRazielNavigationTurn({ question: "פתח לי את דף המספר", state: { thread: companionThread } }).type, "clarify");
+  // an unrelated user message (no resolved subject) ends the stretch even when an older turn had a number
+  const unrelated = [userTurn("73", [numberId(73)]), razielTurn(), { role: "user", text: "ספר לי על הפרשה" }, razielTurn()];
+  assert.equal(selectRazielVerifiedNumberFocus({ thread: unrelated }), null);
+  // a navigation request keeps the topic
+  const withNav = [userTurn("73", [numberId(73)]), razielTurn(), { role: "user", text: "תן לי את דף המספר" }, razielTurn()];
+  assert.equal(selectRazielVerifiedNumberFocus({ thread: withNav }).number, 73);
+});
+
+test("WhatsApp focus is pure: continuous topic only (shared by the handler)", () => {
+  const turn = (outgoing, text) => ({ outgoing, text });
+  assert.deepEqual(razielWhatsappVerifiedFocus([turn(false, "מה זה 73"), turn(true, "תשובה")], SITE), { kind: "number", value: 73 });
+  assert.equal(razielWhatsappVerifiedFocus([turn(false, "ספר לי על הפרשה"), turn(false, "מה זה 73")], SITE), null);
+  assert.equal(razielWhatsappVerifiedFocus([turn(false, "מה שלומך היום"), turn(true, `${SITE}/2029/number/9`)], SITE), null);
+  assert.deepEqual(razielWhatsappVerifiedFocus([turn(false, "תודה"), turn(true, `${SITE}/2029/number/9`)], SITE), { kind: "number", value: 9 });
+  assert.deepEqual(razielWhatsappVerifiedFocus([turn(false, "מה הגימטריה של שאול"), turn(true, "337")], SITE), { kind: "expression", label: "שאול" });
+  assert.equal(razielWhatsappVerifiedFocus([turn(false, "ספר לי על שאול"), turn(true, "337")], SITE), null, "a generic 'tell me about' is not a gematria subject");
+  assert.equal(razielWhatsappVerifiedFocus([], SITE), null);
+  assert.equal(razielWhatsappVerifiedFocus([turn(false, ""), turn(false, "מה זה 73")], SITE), null,
+    "captionless incoming media ends an older numerical topic");
+});
+
+test("handler tests execute the real wa-raziel source", () => {
+  const helper = read("test/helpers/wa-raziel-handler.mjs");
+  assert.match(helper, /supabase\/functions\/wa-raziel\/index\.ts/);
+  assert.match(helper, /runInNewContext/);
+  assert.match(read("test/raziel-wa-navigation-handler.test.mjs"), /runWaRaziel/);
 });
