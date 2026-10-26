@@ -103,8 +103,17 @@ async function sha256Hex(value) {
 }
 
 function vercelOidcToken() {
+  // Edge-safe lookup contract used by @vercel/oidc getVercelOidcTokenSync:
+  // the platform's request-scoped context wins over an optional environment token.
+  // This is NOT request.headers: a browser-supplied OIDC header is never trusted.
+  // Read on every proof-bearing request; never cache or log a bearer token.
   try {
-    return typeof process !== 'undefined' ? String(process.env?.VERCEL_OIDC_TOKEN || '') : '';
+    const token = globalThis[Symbol.for('@vercel/request-context')]?.get?.()
+      ?.headers?.['x-vercel-oidc-token'];
+    if (typeof token === 'string' && token.trim()) return token.trim();
+  } catch { /* non-Vercel/test runtimes may not expose a request context */ }
+  try {
+    return typeof process !== 'undefined' ? String(process.env?.VERCEL_OIDC_TOKEN || '').trim() : '';
   } catch {
     return '';
   }
@@ -119,7 +128,7 @@ async function sgBrowserRateLimit(request, risk, path) {
   if (!oidc) {
     if (!SG_RATE_LIMIT_WARNED) {
       SG_RATE_LIMIT_WARNED = true;
-      console.warn('sg-rate-limit fail-open: missing VERCEL_OIDC_TOKEN');
+      console.warn('sg-rate-limit fail-open: missing runtime OIDC token (request context/environment)');
     }
     return { allowed: true, limit, windowSeconds: SG_RATE_LIMIT_WINDOW_SECONDS };
   }
