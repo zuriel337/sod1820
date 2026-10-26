@@ -271,6 +271,9 @@ test("missing-engine content routing is independently filterable", () => {
   const language = reviewRow("10000000-0000-4000-8000-000000000016", {
     legacyReplay: { state: "missing_engine_assessment", routingQueue: "language", languageResearchContext: { reviewLane: "duplicate_source_text" }, mutatesLiveData: false },
   });
+  const formula = reviewRow("10000000-0000-4000-8000-000000000017", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "formula", formulaCalculation: { state: "verified" }, formulaReviewLane: "expression_review", mutatesLiveData: false },
+  });
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "spatial_or_constants" }), [spatial]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "constants_or_sequences" }), [constants]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySubtype: "cubes" }), [spatial]);
@@ -286,6 +289,9 @@ test("missing-engine content routing is independently filterable", () => {
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial, els], { replayElsCluster: "plumber_skip_6" }), []);
   assert.deepEqual(filterWorldFindingReviewRows([textual, language, spatial], { replayLanguageLane: "duplicate_source_text" }), [language]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, language, spatial], { replayLanguageLane: "derived_relation_review" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, formula, spatial], { replayFormulaCalculation: "verified" }), [formula]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, formula, spatial], { replayFormulaCalculation: "mismatch" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, formula, spatial], { replayFormulaLane: "expression_review" }), [formula]);
 });
 
 test("technically-ready source and target axes are independently filterable", () => {

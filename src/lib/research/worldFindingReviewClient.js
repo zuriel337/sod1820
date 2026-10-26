@@ -33,6 +33,8 @@ export async function fetchWorldFindingReviewPage({ filters = {}, offset = 0, si
     replay_spatial_lane: clean(filters.replaySpatialLane) || "all",
     replay_els_cluster: clean(filters.replayElsCluster) || "all",
     replay_language_lane: clean(filters.replayLanguageLane) || "all",
+    replay_formula_calculation: clean(filters.replayFormulaCalculation) || "all",
+    replay_formula_lane: clean(filters.replayFormulaLane) || "all",
     replay_spatial_text_origin: clean(filters.replaySpatialTextOrigin) || "all",
     replay_source: clean(filters.replaySource) || "all",
     replay_target: clean(filters.replayTarget) || "all",

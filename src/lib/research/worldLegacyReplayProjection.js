@@ -368,6 +368,66 @@ function projectLanguageResearchContext(row, routing) {
   });
 }
 
+function projectFormulaCalculation(row, routing) {
+  if (routing?.queue !== "formula") return null;
+  const statement = clean(row?.statement);
+  if (/^https?:\/\/\S+$/iu.test(statement)) {
+    return Object.freeze({
+      state: "not_formula_url",
+      claimCount: 0,
+      shownClaimCount: 0,
+      statusCounts: Object.freeze({}),
+      claims: Object.freeze([]),
+      usesCanonicalExtractor: true,
+      verifiesCalculationOnly: true,
+      mutatesLiveData: false,
+    });
+  }
+  let extracted = [];
+  try {
+    extracted = extractCompoundClaims(statement);
+  } catch {
+    extracted = [];
+  }
+  const statusCounts = {};
+  for (const claim of extracted) {
+    const status = clean(claim?.status) || "unknown";
+    statusCounts[status] = (statusCounts[status] || 0) + 1;
+  }
+  let state = "unsupported_expression";
+  if (statusCounts.ENGINE_MISMATCH) state = "mismatch";
+  else if (statusCounts.METHOD_UNRESOLVED || statusCounts.unknown) state = "unresolved";
+  else if (extracted.length && statusCounts.ENGINE_VERIFIED_COMPOSITE === extracted.length) state = "verified";
+  const claims = extracted.slice(0, 4).map((claim) => Object.freeze({
+    kind: clean(claim?.kind) || null,
+    expression: clean(claim?.text || claim?.raw) || null,
+    status: clean(claim?.status) || null,
+    result: finite(claim?.result),
+    computedTotal: finite(claim?.computedTotal),
+    operandCount: Array.isArray(claim?.operands) ? claim.operands.length : 0,
+  }));
+  return Object.freeze({
+    state,
+    claimCount: extracted.length,
+    shownClaimCount: claims.length,
+    statusCounts: Object.freeze(statusCounts),
+    claims: Object.freeze(claims),
+    usesCanonicalExtractor: true,
+    verifiesCalculationOnly: true,
+    mutatesLiveData: false,
+  });
+}
+
+function projectFormulaReviewLane(row, routing) {
+  if (routing?.queue !== "formula") return null;
+  const statement = clean(row?.statement);
+  if (/^https?:\/\/\S+$/iu.test(statement)) return "source_url_cleanup";
+  if (["hypothesis", "question"].includes(clean(row?.kind))) return "interpretation_review";
+  if (/^OCR מהמדיה\s*:/u.test(statement)) return "ocr_formula_review";
+  if (clean(row?.meta?.ext?.wa_channel_intake?.media_ref)) return "media_formula_review";
+  return "expression_review";
+}
+
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
 const ARITHMETIC_NUMBER_RE = /^\d{1,9}$/u;
 
@@ -618,6 +678,8 @@ export function projectWorldLegacyReplayOccurrence(row) {
     });
     const elsResearchContext = projectElsResearchContext(row, routing);
     const languageResearchContext = projectLanguageResearchContext(row, routing);
+    const formulaCalculation = projectFormulaCalculation(row, routing);
+    const formulaReviewLane = projectFormulaReviewLane(row, routing);
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -640,6 +702,8 @@ export function projectWorldLegacyReplayOccurrence(row) {
       spatialReviewLane,
       elsResearchContext,
       languageResearchContext,
+      formulaCalculation,
+      formulaReviewLane,
       constantCheck,
     });
   }

@@ -458,6 +458,46 @@ test("language routing separates a repeated narrative source from a language bri
   assert.equal(unknown.languageResearchContext, null);
 });
 
+test("formula routing reuses the canonical extractor and separates links from calculations", () => {
+  const verified = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "fact",
+    statement: "714+73=787",
+  }));
+  assert.equal(verified.routingQueue, "formula");
+  assert.equal(verified.formulaCalculation.state, "verified");
+  assert.equal(verified.formulaCalculation.usesCanonicalExtractor, true);
+  assert.equal(verified.formulaCalculation.verifiesCalculationOnly, true);
+  assert.equal(verified.formulaReviewLane, "expression_review");
+
+  const mismatch = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "fact",
+    statement: "714+73=788",
+  }));
+  assert.equal(mismatch.formulaCalculation.state, "mismatch");
+
+  const sourceUrl = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "https://youtu.be/GrK04RoJzbY?si=9AhgEb_gAybRVp7M",
+  }));
+  assert.equal(sourceUrl.routingQueue, "formula");
+  assert.equal(sourceUrl.formulaCalculation.state, "not_formula_url");
+  assert.equal(sourceUrl.formulaReviewLane, "source_url_cleanup");
+
+  const interpretation = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "hypothesis",
+    statement: "ייתכן שהמבנה 156=12×13 מרמז על אחדות",
+  }));
+  assert.equal(interpretation.formulaReviewLane, "interpretation_review");
+});
+
 test("missing-engine source and target context stays separate from technical readiness", () => {
   const missing = row({
     engine_verified: null,

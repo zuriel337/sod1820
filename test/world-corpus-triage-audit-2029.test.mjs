@@ -77,6 +77,9 @@ test("manager corpus audit keeps publication, verification and catalog completen
   const languageBatch = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_missing_engine_language");
   assert.match(languageBatch.state, /אשכול אחד/u);
   assert.match(languageBatch.next, /לא להציג כגשר שפה/u);
+  const formulaBatch = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_missing_engine_formula");
+  assert.match(formulaBatch.state, /239 מקורות/u);
+  assert.match(formulaBatch.next, /קישורי YouTube/u);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_match").total, 734);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_claim_unmatched").total, 112);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_missing_engine_unverified").total, 173);
