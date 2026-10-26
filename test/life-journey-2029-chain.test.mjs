@@ -16,6 +16,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const nameAdapter = read("src/components/experience2029/LifeJourneyName2029.jsx");
   const nameResearch = read("src/lib/research/lifeJourneyNameResearch.js");
   const familyResearch = read("src/lib/research/lifeJourneyFamilyResearch.js");
+  const familySourceResearch = read("src/lib/research/lifeJourneyFamilySourceResearch.js");
   const familyAnalysis = read("src/lib/research/lifeJourneyFamilyAnalysis.js");
   const removalMigration = read("supabase/migrations/20261025035531_life_journey_remove_family_member_v1.sql");
   const supabaseClient = read("src/lib/supabase.js");
@@ -71,6 +72,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /צור מחקר ומסר ל־\$\{selectedFamilyRefs\.length\} אנשים/);
   assert.match(journey, /מפת המחקר המשפחתית/);
   assert.match(journey, /runLifeJourneyFamilyAnalysis/);
+  assert.match(journey, /runLifeJourneyFamilySourceResearch/);
+  assert.match(journey, /מילים וביטויים סביב המספרים/);
+  assert.match(journey, /פסוקים ומקורות לשם/);
   assert.match(journey, /await analyzeCompletedFamilyResearch\(completedResearch\)/);
   assert.match(journey, /המסר המשפחתי/);
   assert.match(journey, /data-experience-capability="life-journey-family-normalized-analysis"/);
@@ -144,6 +148,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(familyResearch, /LIFE_JOURNEY_FAMILY_RESEARCH_MAX_MEMBERS = 12/);
   assert.match(familyResearch, /LIFE_JOURNEY_FAMILY_RESEARCH_MAX_RELATION_PAIRS = 768/);
   assert.doesNotMatch(familyResearch, /\.insert\(|\.update\(|localStorage|sessionStorage|ELS|NameLab|Raziel/i);
+  assert.match(familySourceResearch, /getNameMultiWithoutEls/);
+  assert.match(familySourceResearch, /getNumberLookup/);
+  assert.match(familySourceResearch, /LIFE_JOURNEY_FAMILY_SOURCE_MAX_VALUES = 8/);
+  assert.match(familySourceResearch, /equality_is_not_meaning: true/);
+  assert.doesNotMatch(familySourceResearch, /\.insert\(|\.update\(|localStorage|sessionStorage|fn_els_search\(/i);
   assert.match(familyAnalysis, /composeNormalizedMessageReflection/);
   assert.match(familyAnalysis, /persistAnalysis: false/);
   assert.match(familyAnalysis, /names_not_sent_to_interpreter: true/);
@@ -182,7 +191,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(removalMigration, /grant execute on function public\.fn_remove_family_member\(uuid, text\) to authenticated/);
   assert.doesNotMatch(removalMigration, /create table|create policy|grant .* on (?:table )?public\.research_objects/i);
 
-  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familyAnalysis, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
+  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familySourceResearch, familyAnalysis, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
   assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);
   assert.doesNotMatch(privateFlow, /channel_updates|community_hints|news/i);
   assert.doesNotMatch(privateFlow, /Raziel|רזיאל/);

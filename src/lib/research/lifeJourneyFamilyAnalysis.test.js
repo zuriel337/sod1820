@@ -19,6 +19,14 @@ const research = {
     engineSignal: 4,
   }],
   sharedValues: [{ value: 73, count: 2, distinctExpressionCount: 2, sameMethod: true }],
+  sourceResearch: {
+    memberSources: [{ memberRef: "person:private:1", verses: [{ ref: "תהלים 1:1", text: "שם פרטי א הולך בדרך", sourceRef: "rpc:fn_name_verse" }], consensus: [] }],
+    numberSources: [{ value: 73, phrases: [
+      { phrase: "שם פרטי א", sourceRefs: ["bidim:private-name"] },
+      { phrase: "אור", sourceRefs: ["bidim:public-light"] },
+    ] }],
+    coverage: { verseCount: 1, equalPhraseCount: 2 },
+  },
   coverage: { memberCount: 2, searchedPairCount: 1, connectionCount: 1 },
   message: "מסר מקומי חלופי",
 };
@@ -55,10 +63,16 @@ test("family analysis sends only anonymized normalized facts and never exposes i
   assert.doesNotMatch(received.facts, /שם פרטי|person:private/);
   assert.match(received.facts, /חיבור מספרי 73/);
   assert.match(received.facts, /2 ביטויים שונים/);
+  assert.match(received.facts, /אור/);
+  assert.match(received.facts, /תהלים 1:1/);
+  assert.doesNotMatch(received.facts, /שם פרטי א/);
   assert.equal(out.message, "המסר המנורמל הוקפא מתוך ממצאי המנוע.");
-  assert.equal(out.claims.length, 2);
+  assert.equal(out.claims.length, 4);
   assert.deepEqual(out.sharedValues, [{ value: 73, count: 2 }]);
   assert.equal(out.boundaries.internal_reflection_not_exposed, true);
+  assert.equal(out.boundaries.public_source_text_sanitized_before_interpreter, true);
+  assert.equal(out.coverage.verseCount, 1);
+  assert.equal(out.coverage.equalPhraseCount, 2);
   assert.equal("cards" in out, false);
   assert.equal("reflection" in out, false);
   assert.equal("reflection_check" in out, false);

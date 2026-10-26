@@ -59,7 +59,7 @@ function lifeJourneyFixturePlugin() {
       const blank=()=>({members:[],relations:[]});
       const read=()=>{try{return JSON.parse(localStorage.getItem(ledgerKey())||"null")||blank();}catch{return blank();}};
       const write=value=>localStorage.setItem(ledgerKey(),JSON.stringify(value));
-      window.__elsCalls=window.__elsCalls||[];window.__nameCalls=window.__nameCalls||[];window.__matrixCalls=window.__matrixCalls||[];window.__reflectionCalls=window.__reflectionCalls||[];
+      window.__elsCalls=window.__elsCalls||[];window.__nameCalls=window.__nameCalls||[];window.__matrixCalls=window.__matrixCalls||[];window.__sourceCalls=window.__sourceCalls||[];window.__reflectionCalls=window.__reflectionCalls||[];
       export const supabase={functions:{async invoke(name,{body}){
         window.__elsCalls.push({name,body});
         if(body.op==="page")return {data:{result:{contract:"els_search_page_v1",status:"OK",corpus_id:"fixture-torah",corpus_version:"v1",input:{normalized:body.term},selection_protocol:"POST_HOC_EXPLORATORY",hits:[{occurrence_id:"els:fixture-torah:"+body.term+":7:1:120",skip:7,dir:1,start:120,end:150,positions:[120,127,134]}],completion:{executed:true,returned_hits:1,total_hits:1,has_more:false,truncated:false}}}};
@@ -104,7 +104,8 @@ function lifeJourneyFixturePlugin() {
       export async function removeFamilyMember(personId,targetRef){const data=read();data.members=data.members.filter(item=>item.source_ref!==targetRef);data.relations=data.relations.filter(item=>item.parent_ref!==targetRef&&item.child_ref!==targetRef);write(data);return {ok:true,target_ref:targetRef};}
       export async function getNameMulti(name,options){window.__nameCalls.push({kind:"multi",name,options});return {input:{components:{values:{full:73,parts:{שם:73}}}},combo:{tracks_with_results:1}};}
       export async function getNameProtocol(name){window.__nameCalls.push({kind:"protocol",name});return {research_id:"fixture-name",input:{normalized:name,value:73},agents:[{output_key:"gematria",ran:true,ok:true,empty:false,ms:1,seq:1}],findings:{gematria:{regular:73}},provenance:{gematria:{fn:"fixture"}},scores:{depth:42},metatron:{headline:"סיכום בדיקה",follow_up:[]}};}
-      export async function getNameMultiWithoutEls(name){window.__nameCalls.push({kind:"name_lab",name,options:{skip_els:"1"}});return {tracks_with_results:1,tracks:[{id:"variants",status:"ok",data:[{form:"שם בדיקה",note:"fixture"}]},{id:"els",status:"skipped",ran:false,count:0}]};}
+      export async function getNameMultiWithoutEls(name){window.__nameCalls.push({kind:"name_lab",name,options:{skip_els:"1"}});return {name_verse:{verses:[{ref:"תהלים 1:1",text:"אשרי האיש אשר לא הלך בעצת רשעים"}]},consensus:[{type:"מילה",target:"אור",consensus:2,families:["גימטריה","שורש"]}],tracks_with_results:2,tracks:[{id:"name_verse",label:"הפסוק שלך",status:"ok",count:1,evidence:"direct",source_fn:"fn_name_verse"},{id:"combo_gem",label:"גימטריית הצירוף",status:"ok",count:2,evidence:"value_match",source_fn:"fn_verses_by_gematria"},{id:"els",status:"skipped",ran:false,count:0,source_fn:"fn_els_search"}]};}
+      export async function getNumberLookup(value){window.__sourceCalls.push({kind:"number_lookup",value});return [{bid_id:"fixture-"+value+"-1",phrase:"אור",method:"רגיל",value,method_governed:true},{bid_id:"fixture-"+value+"-2",phrase:"דרך",method:"מילוי",value,method_governed:true}];}
       export async function getAiAnalysis(args){window.__reflectionCalls.push({kind:"ai",args});return "מסר בדיקה מבוסס ממצאים.";}
     `],
     ["virtual:life-journey-family-claim.js", `
@@ -334,7 +335,12 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "ילד בדיקה")), true, "explicit family research includes the selected child through the canonical method profile");
     assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "י״א")), true, "family matrix converts the Hebrew day into a canonical method profile");
     assert.equal(await page.evaluate(() => window.__matrixCalls.some(call => call.kind === "name-methods" && call.args.phrase === "בתשרי")), true, "family matrix converts the Hebrew month into a canonical method profile");
-    assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab")), false, "Life Journey never calls NameLab");
+    assert.equal(await page.evaluate(() => window.__nameCalls.filter(call => call.kind === "name_lab").length), 2, "the explicit family action reads the existing bounded non-ELS name source once per selected person");
+    assert.equal(await page.evaluate(() => window.__nameCalls.filter(call => call.kind === "name_lab").every(call => call.options.skip_els === "1")), true, "every name source read carries the non-ELS contract");
+    await family.getByRole("heading", { name: "מילים וביטויים סביב המספרים" }).waitFor();
+    await family.getByText("פסוקים ומקורות לשם", { exact: true }).first().click();
+    await family.getByText("תהלים 1:1", { exact: true }).first().waitFor();
+    assert.equal(await page.evaluate(() => window.__sourceCalls.length > 0), true, "canonical number lookup supplies equal-value phrases");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), true, "explicit family research includes the selected date");
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "explicit family research still excludes ELS");
     const normalizedFamilyAnalysis = family.locator('[data-experience-capability="life-journey-family-normalized-analysis"]');
@@ -356,8 +362,10 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.deepEqual(await page.evaluate(() => ({
       matrix: window.__matrixCalls.length,
       reflection: window.__reflectionCalls.length,
+      sources: window.__sourceCalls.length,
+      names: window.__nameCalls.length,
       els: window.__elsCalls.length,
-    })), { matrix: 0, reflection: 0, els: 0 }, "refresh restores the private family snapshot without automatically researching names or ELS again");
+    })), { matrix: 0, reflection: 0, sources: 0, names: 0, els: 0 }, "refresh restores the private family snapshot without automatically researching names, sources or ELS again");
     await family.getByRole("button", { name: "פתח את ממצא 73 של ילד בדיקה" }).click();
     await page.getByRole("heading", { name: "דף המספר 73" }).waitFor();
     assert.equal(new URL(page.url()).pathname, "/2029/number/73");

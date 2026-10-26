@@ -46,6 +46,10 @@ import {
   runLifeJourneyFamilyResearch,
 } from "../lib/research/lifeJourneyFamilyResearch.js";
 import {
+  createLifeJourneyFamilySourceReaders,
+  runLifeJourneyFamilySourceResearch,
+} from "../lib/research/lifeJourneyFamilySourceResearch.js";
+import {
   lifeJourneyFamilySelectionSignature,
   lifeJourneyFamilySnapshotPatch,
   materializeLifeJourneyFamilySnapshot,
@@ -936,7 +940,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         providers: familyProviders,
       });
       const [rows, unified] = await Promise.all([rowsPromise, unifiedPromise]);
-      const completedResearch = {
+      const computedResearch = {
         state: "ready",
         rows,
         sharedValues: Array.isArray(unified.sharedValues) ? unified.sharedValues : sharedFamilyValues(rows),
@@ -949,6 +953,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         coverage: unified.coverage,
         error: null,
       };
+      const sourceResearch = await runLifeJourneyFamilySourceResearch({
+        members: selectedMembers.map(member => {
+          const profile = memberResearchProfile(member);
+          return { memberRef: clean(member.source_ref), fullName: profile.fullName };
+        }),
+        research: computedResearch,
+        readers: createLifeJourneyFamilySourceReaders(),
+      });
+      const completedResearch = { ...computedResearch, sourceResearch };
       setFamilyResearch(completedResearch);
       const snapshot = serializeLifeJourneyFamilySnapshot({
         personRef: selfRef,
@@ -1354,20 +1367,20 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           onClick={runSelectedFamilyResearch}
         >
           {familyResearch.state === "loading"
-            ? "בונה את מפת המחקר…"
+            ? "בונה מפה, מקורות ומסר…"
             : familyAnalysis.state === "loading"
               ? "מנסח את המסר מהממצאים…"
             : selectedFamilyRefs.length === 1
               ? "צור מחקר ומסר לאדם שנבחר"
               : `צור מחקר ומסר ל־${selectedFamilyRefs.length} אנשים`}
         </button>
-        <small>לחיצה אחת בונה את המפה ומנסחת ממנה מסר. ELS אינו משתתף בשלב הזה.</small>
+        <small>לחיצה אחת בונה מפה, ביטויים שווי־ערך, מקורות תנ״ך ומסר. ELS אינו משתתף בשלב הזה.</small>
       </div> : null}
 
       {familyResearch.state === "loading" ? <CanonicalProgress
         title="בונה מפת מחקר משפחתית"
-        detail="בודק במקביל רק את האנשים שבחרת, דרך מנועי השם והתאריך הקיימים."
-        phase="משפחה ↔ שם ↔ תאריך"
+        detail="בודק רק את האנשים שבחרת, ואז מצרף ביטויים ומקורות מהמנועים הקנוניים הקיימים."
+        phase="משפחה ↔ שם ↔ תאריך ↔ מקורות"
         compact
       /> : null}
       {familyResearch.state === "error" ? <div className="person-journey-error" role="alert">{familyResearch.error}</div> : null}
@@ -1392,6 +1405,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             <span>{familyAnalysis.data.coverage.connectionCount} חיבורים · {familyAnalysis.data.coverage.searchedPairCount} זוגות נבדקו</span>
           </header>
           <p>{familyAnalysis.data.message}</p>
+          {familyResearch.sourceResearch?.coverage ? <div className="person-journey-family-source-summary">
+            <span>{familyResearch.sourceResearch.coverage.equalPhraseCount} ביטויים שווי־ערך</span>
+            <span>{familyResearch.sourceResearch.coverage.verseCount} פסוקים</span>
+            <span>{familyResearch.sourceResearch.coverage.returnedMemberCount} אנשים עם שכבת מקור</span>
+          </div> : null}
           <details>
             <summary>על מה המסר נשען?</summary>
             <ul>{familyAnalysis.data.claims.map(claim => <li key={claim.id}>{claim.text}</li>)}</ul>
@@ -1444,8 +1462,25 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <summary>איך נוטרלו כפילויות השיטות?</summary>
           <p>{familyResearch.methodNormalization.collapsedMethodResultCount} תוצאות מקבילות קובצו לפי כללי התלות הקנוניים של הקלט. רגיל וגדול נספרים יחד רק כשאין אות סופית; כך גם זוגות מקבילים נוספים שה־Registry מאשר.</p>
         </details> : null}
+        {familyResearch.sourceResearch?.numberSources?.some(source => source.phrases.length) ? <section
+          className="person-journey-family-sources"
+          data-experience-capability="life-journey-family-number-sources"
+          aria-labelledby="life-journey-family-number-sources-title"
+        >
+          <header>
+            <div><small>התאמות־ערך קנוניות</small><h3 id="life-journey-family-number-sources-title">מילים וביטויים סביב המספרים</h3></div>
+            <span>מאגר הגימטריה המאומת</span>
+          </header>
+          <p>אלה ביטויים בעלי אותו ערך במאגר המאומת. שוויון מספרי הוא כיוון למחקר — לא הוכחת משמעות או קשר משפחתי.</p>
+          <div>{familyResearch.sourceResearch.numberSources.filter(source => source.phrases.length).map(source => <article key={source.value}>
+            <strong>{source.value}</strong>
+            <div>{source.phrases.map(phrase => <span key={phrase.id} title={`שיטות: ${phrase.methods.join(" · ")}`}>{phrase.phrase}</span>)}</div>
+          </article>)}</div>
+        </section> : null}
         <div className="person-journey-family-research-grid">
-          {familyResearch.rows.map(row => <article key={row.memberRef}>
+          {familyResearch.rows.map(row => {
+            const memberSources = familyResearch.sourceResearch?.memberSources?.find(item => item.memberRef === row.memberRef) || null;
+            return <article key={row.memberRef}>
             <header><strong>{row.name}</strong><small>{row.data?.hebrewDate || "תאריך עברי לא זמין"}</small></header>
             {row.state === "ready" ? <>
               <dl>
@@ -1467,9 +1502,17 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
                 onClick={() => openFindingTraversal(row.memberRef, finding)}
                 aria-label={`פתח את ממצא ${finding.value} של ${row.name}`}
               >{finding.value}</button>)}</div> : null}
+              {memberSources?.verses?.length ? <details className="person-journey-member-sources">
+                <summary>פסוקים ומקורות לשם</summary>
+                {memberSources.verses.map(verse => <blockquote key={verse.id}>
+                  <strong>{verse.ref}</strong>
+                  <span>{verse.text}</span>
+                </blockquote>)}
+                <small>{memberSources.tracksWithResults} מסלולי מקור החזירו תוצאה · ללא ELS</small>
+              </details> : null}
               {row.data.partial ? <small>שכבת השם לא הייתה זמינה; מוצג המידע שחושב מהתאריך בלבד.</small> : null}
             </> : <p>{row.error}</p>}
-          </article>)}
+          </article>;})}
         </div>
       </section> : null}
 

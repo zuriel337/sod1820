@@ -35,6 +35,13 @@ function completedResearch() {
     methodFindings: [finding],
     relationRows: [{ id: "relation-1", left: { memberRef: PERSON_REF, name: "הורה בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, right: { memberRef: CHILD_REF, name: "ילד בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, independentGroupCount: 1 }],
     connections: [{ id: "pair-1", left: { memberRef: PERSON_REF, name: "הורה בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, right: { memberRef: CHILD_REF, name: "ילד בדיקה", expressionRole: "given_name", expressionLabel: "שם פרטי" }, independentGroupCount: 1, expressionConnectionCount: 4, findingIds: ["relation-1"] }],
+    sourceResearch: {
+      version: "life-journey-family-source-v1",
+      memberSources: [{ memberRef: PERSON_REF, verses: [{ id: "verse-1", ref: "תהלים 1:1", text: "הורה בדיקה הולך בדרך", sourceRef: "rpc:fn_name_verse", evidence: "direct" }], tracks: [{ id: "name_verse", label: "הפסוק שלך", count: 1, sourceRef: "rpc:fn_name_verse" }], consensus: [], tracksWithResults: 1, sourceRef: "rpc:fn_name_multi?skip_els=1" }],
+      numberSources: [{ value: 73, phrases: [{ id: "phrase-1", phrase: "הורה בדיקה", methods: ["רגיל"], sourceRefs: ["bidim:1"], governed: true, evidence: "value_match" }, { id: "phrase-2", phrase: "אור", methods: ["רגיל"], sourceRefs: ["bidim:2"], governed: true, evidence: "value_match" }], sourceRef: "rpc:fn_number_lookup", truncated: false }],
+      coverage: { requestedMemberCount: 2, returnedMemberCount: 1, requestedValueCount: 1, returnedValueCount: 1, verseCount: 1, equalPhraseCount: 2, truncated: false },
+      boundaries: { no_els: true, no_new_store: true },
+    },
     message: "מסר משפחתי בדוק",
     coverage: { memberCount: 2, expressionCount: 16, searchedPairCount: 64, relationCount: 1, connectionCount: 1, truncated: false },
     error: null,
@@ -56,6 +63,8 @@ test("family research snapshot round-trips only through the existing private Con
   assert.equal(serialized.includes("ילד בדיקה"), false, "family names remain reference-only in Context");
   assert.equal(serialized.includes("1990-02-15"), false, "birth dates remain in the Ledger, not Context");
   assert.equal(serialized.includes('"expressionText"'), false, "shared private expressions remain in the Ledger, not Context");
+  assert.equal(serialized.includes("הורה בדיקה הולך בדרך"), false, "private labels are redacted from public source excerpts before Context persistence");
+  assert.equal(serialized.includes("אור"), true, "bounded public source projections remain available after refresh");
 
   const context = normalizeResearchContext({
     subject: { id: PERSON_REF, type: "person" },
@@ -72,6 +81,8 @@ test("family research snapshot round-trips only through the existing private Con
   assert.equal(materialized.research.sharedValues[0].distinctExpressionCount, 2);
   assert.equal(materialized.research.sharedExpressions[0].expressionText, "בדיקה");
   assert.equal(materialized.research.methodNormalization.collapsedMethodResultCount, 2);
+  assert.equal(materialized.research.sourceResearch.numberSources[0].phrases[1].phrase, "אור");
+  assert.equal(materialized.research.sourceResearch.memberSources[0].verses[0].text.includes("הורה בדיקה"), false);
   assert.deepEqual(lifeJourneyFamilySnapshotPatch(serialized), {
     dimensions: { [LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION]: serialized },
   });

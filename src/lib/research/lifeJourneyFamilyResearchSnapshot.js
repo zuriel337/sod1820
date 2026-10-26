@@ -1,7 +1,7 @@
 import { stableIdentityDigest } from "./researchRepresentations.js";
 import { compileLifeJourneyFamilyExpressionMatrix } from "./lifeJourneyFamilyResearch.js";
 
-export const LIFE_JOURNEY_FAMILY_SNAPSHOT_VERSION = "life-journey-family-snapshot-v2";
+export const LIFE_JOURNEY_FAMILY_SNAPSHOT_VERSION = "life-journey-family-snapshot-v3";
 export const LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION = "lifeJourneyFamilyResearchSnapshot";
 export const LIFE_JOURNEY_FAMILY_SNAPSHOT_MAX_BYTES = 240000;
 
@@ -56,7 +56,9 @@ function compactConnection(connection) {
 function compactCoverage(coverage) {
   const out = {};
   for (const key of ["memberCount", "expressionCount", "methodValueCount", "possiblePairCount",
-    "candidatePairCount", "searchedPairCount", "relationCount", "connectionCount"]) {
+    "candidatePairCount", "searchedPairCount", "relationCount", "connectionCount", "verseCount",
+    "equalPhraseCount", "requestedMemberCount", "returnedMemberCount", "requestedValueCount",
+    "returnedValueCount"]) {
     const value = integer(coverage?.[key]);
     if (value != null) out[key] = value;
   }
@@ -64,7 +66,57 @@ function compactCoverage(coverage) {
   return out;
 }
 
-function compactResearch(research) {
+function compactSourceResearch(sourceResearch, privateLabels) {
+  if (!sourceResearch || typeof sourceResearch !== "object") return null;
+  return {
+    version: text(sourceResearch.version, 120),
+    memberSources: list(sourceResearch.memberSources).slice(0, 12).map(source => ({
+      memberRef: text(source?.memberRef, 240),
+      verses: list(source?.verses).slice(0, 2).map(verse => ({
+        id: text(verse?.id, 240),
+        ref: text(verse?.ref, 160),
+        text: redactPrivateLabels(verse?.text, privateLabels),
+        sourceRef: text(verse?.sourceRef, 160),
+        evidence: text(verse?.evidence, 40),
+      })).filter(verse => verse.id && verse.ref && verse.text),
+      tracks: list(source?.tracks).slice(0, 18).map(track => ({
+        id: text(track?.id, 80),
+        label: text(track?.label, 160),
+        evidence: text(track?.evidence, 40),
+        count: integer(track?.count) ?? 0,
+        sourceRef: text(track?.sourceRef, 160),
+      })).filter(track => track.id),
+      consensus: list(source?.consensus).slice(0, 6).map(item => ({
+        id: text(item?.id, 240),
+        type: text(item?.type, 80),
+        target: redactPrivateLabels(item?.target, privateLabels),
+        independentFamilyCount: integer(item?.independentFamilyCount) ?? 0,
+        families: list(item?.families).map(value => text(value, 80)).filter(Boolean).slice(0, 6),
+        sourceRef: text(item?.sourceRef, 160),
+      })).filter(item => item.id && item.target),
+      tracksWithResults: integer(source?.tracksWithResults) ?? 0,
+      sourceRef: text(source?.sourceRef, 160),
+    })).filter(source => source.memberRef),
+    numberSources: list(sourceResearch.numberSources).slice(0, 8).map(source => ({
+      value: integer(source?.value),
+      phrases: list(source?.phrases).slice(0, 6).map(phrase => ({
+        id: text(phrase?.id, 240),
+        phrase: redactPrivateLabels(phrase?.phrase, privateLabels),
+        methods: list(phrase?.methods).map(value => text(value, 80)).filter(Boolean).slice(0, 12),
+        sourceRefs: list(phrase?.sourceRefs).map(value => text(value, 160)).filter(Boolean).slice(0, 12),
+        governed: phrase?.governed === true,
+        evidence: text(phrase?.evidence, 40),
+      })).filter(phrase => phrase.id && phrase.phrase),
+      sourceRef: text(source?.sourceRef, 160),
+      truncated: source?.truncated === true,
+    })).filter(source => source.value != null),
+    coverage: compactCoverage(sourceResearch.coverage),
+    boundaries: Object.fromEntries(Object.entries(sourceResearch.boundaries || {})
+      .filter(([, value]) => typeof value === "boolean")),
+  };
+}
+
+function compactResearch(research, privateLabels = []) {
   if (research?.state !== "ready") return null;
   const rows = list(research.rows).slice(0, 12).map(row => ({
     memberRef: text(row?.memberRef, 240),
@@ -112,6 +164,7 @@ function compactResearch(research) {
     methodFindings: list(research.methodFindings).map(compactFinding).filter(Boolean).slice(0, 2048),
     relationRows: list(research.relationRows).map(compactConnection).filter(Boolean).slice(0, 768),
     connections: list(research.connections).map(compactConnection).filter(Boolean).slice(0, 66),
+    sourceResearch: compactSourceResearch(research.sourceResearch, privateLabels),
     message: null,
     coverage: compactCoverage(research.coverage),
     error: null,
@@ -170,7 +223,11 @@ export function lifeJourneyFamilySelectionSignature(members = [], selectedRefs =
 export function serializeLifeJourneyFamilySnapshot({ personRef, signature, research, analysis = null, savedAt = null } = {}) {
   const rootRef = clean(personRef);
   const selectionSignature = clean(signature);
-  const compactedResearch = compactResearch(research);
+  const privateLabels = [...new Set(list(research?.rows).flatMap(row => {
+    const name = clean(row?.name);
+    return name ? [name, ...name.split(/\s+/u).filter(part => part.length > 1)] : [];
+  }))];
+  const compactedResearch = compactResearch(research, privateLabels);
   if (!rootRef || !selectionSignature || !compactedResearch) return null;
   const payload = {
     version: LIFE_JOURNEY_FAMILY_SNAPSHOT_VERSION,
@@ -178,10 +235,7 @@ export function serializeLifeJourneyFamilySnapshot({ personRef, signature, resea
     selectionSignature,
     savedAt: text(savedAt || new Date().toISOString(), 64),
     research: compactedResearch,
-    analysis: compactAnalysis(analysis, [...new Set(list(research?.rows).flatMap(row => {
-      const name = clean(row?.name);
-      return name ? [name, ...name.split(/\s+/u).filter(part => part.length > 1)] : [];
-    }))]),
+    analysis: compactAnalysis(analysis, privateLabels),
   };
   const serialized = JSON.stringify(payload);
   return new TextEncoder().encode(serialized).byteLength <= LIFE_JOURNEY_FAMILY_SNAPSHOT_MAX_BYTES
@@ -231,6 +285,24 @@ function restoredAnalysisClaims(research) {
     text: `הערך ${item.value} חיבר ${item.count} אנשים דרך ${item.distinctExpressionCount || 0} ביטויים שונים לאחר נרמול. זו חזרה מחושבת, לא פרשנות על המשפחה.`,
     role: "engine_finding_summary",
   }));
+  list(research?.sourceResearch?.numberSources).slice(0, 8).forEach((source, index) => {
+    const phrases = list(source?.phrases).slice(0, 6).map(item => clean(item?.phrase)).filter(Boolean);
+    if (!phrases.length) return;
+    claims.push({
+      id: `life-family-analysis-number-source-${index + 1}`,
+      text: `לערך ${source.value} נמצאו במאגר הביטויים: ${phrases.join(" · ")}. זהו שוויון מספרי, לא הוכחת משמעות.`,
+      role: "canonical_source_summary",
+    });
+  });
+  list(research?.sourceResearch?.memberSources).slice(0, 12).forEach((source, index) => {
+    const refs = list(source?.verses).slice(0, 2).map(verse => clean(verse?.ref)).filter(Boolean);
+    if (!refs.length) return;
+    claims.push({
+      id: `life-family-analysis-verse-source-${index + 1}`,
+      text: `לאדם ${index + 1} נמצאו מקורות פסוק מפורשים: ${refs.join(" · ")}.`,
+      role: "canonical_source_summary",
+    });
+  });
   if (!claims.length) claims.push({
     id: "life-family-analysis-coverage",
     text: `המחקר בדק ${research?.coverage?.searchedPairCount || 0} זוגות ולא העלה כרגע חיבור מנורמל להצגה.`,

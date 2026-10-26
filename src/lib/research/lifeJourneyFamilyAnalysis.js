@@ -4,12 +4,13 @@ import {
 } from "./normalizedMessageReflection.js";
 import { SYNTHESIS_STATUS } from "./researchSynthesis.js";
 
-export const LIFE_JOURNEY_FAMILY_ANALYSIS_VERSION = "life-journey-family-analysis-v1";
+export const LIFE_JOURNEY_FAMILY_ANALYSIS_VERSION = "life-journey-family-analysis-v2";
 const MAX_CONNECTIONS = 8;
 const MAX_SHARED_VALUES = 8;
 
 const clean = value => String(value || "").trim();
 const finiteInteger = value => Number.isSafeInteger(Number(value)) ? Number(value) : null;
+const list = value => Array.isArray(value) ? value : [];
 
 function freezeRows(rows) {
   return Object.freeze(rows.map(row => Object.freeze(row)));
@@ -17,6 +18,7 @@ function freezeRows(rows) {
 
 function collectEvidence(research = {}) {
   const evidence = [];
+  const evidenceIds = new Set();
   const connectionEvidenceIds = new Map();
   const valueEvidenceIds = new Map();
   const relationRows = Array.isArray(research.relationRows) && research.relationRows.length
@@ -31,6 +33,7 @@ function collectEvidence(research = {}) {
       independent_group_count: finiteInteger(connection?.independentGroupCount),
       engine_signal: finiteInteger(connection?.engineSignal),
     }));
+    evidenceIds.add(id);
   });
 
   (Array.isArray(research.connections) ? research.connections : []).forEach((connection, index) => {
@@ -44,6 +47,7 @@ function collectEvidence(research = {}) {
     if (value == null) return;
     const id = clean(finding?.id) || `life-family-matrix-finding-${index + 1}`;
     evidence.push(Object.freeze({ id, kind: "family_numeric_finding", value }));
+    evidenceIds.add(id);
     const ids = valueEvidenceIds.get(value) || [];
     ids.push(id);
     valueEvidenceIds.set(value, ids);
@@ -60,9 +64,27 @@ function collectEvidence(research = {}) {
       if (value == null) return;
       const id = `life-family-member-${memberIndex + 1}-finding-${findingIndex + 1}`;
       evidence.push(Object.freeze({ id, kind: "family_numeric_finding", value }));
+      evidenceIds.add(id);
       const ids = valueEvidenceIds.get(value) || [];
       ids.push(id);
       valueEvidenceIds.set(value, ids);
+    });
+  });
+
+  list(research?.sourceResearch?.numberSources).forEach(source => {
+    list(source?.phrases).forEach(phrase => list(phrase?.sourceRefs).forEach(value => {
+      const id = clean(value);
+      if (!id || evidenceIds.has(id)) return;
+      evidenceIds.add(id);
+      evidence.push(Object.freeze({ id, kind: "canonical_equal_value_source", value: finiteInteger(source?.value) }));
+    }));
+  });
+  list(research?.sourceResearch?.memberSources).forEach(source => {
+    list(source?.verses).forEach(verse => {
+      const id = clean(verse?.sourceRef);
+      if (!id || evidenceIds.has(id)) return;
+      evidenceIds.add(id);
+      evidence.push(Object.freeze({ id, kind: "canonical_tanakh_source" }));
     });
   });
 
@@ -96,6 +118,36 @@ export function buildLifeJourneyFamilyAnalysisFacts(research = {}) {
   sharedValues.slice(0, MAX_SHARED_VALUES).forEach(item => {
     lines.push(`- חיבור מספרי ${finiteInteger(item?.value) ?? "לא זמין"}: הופיע אצל ${finiteInteger(item?.count) ?? 0} אנשים דרך ${finiteInteger(item?.distinctExpressionCount) ?? 0} ביטויים שונים; ${item?.sameMethod === true ? "כולל מפגש באותה שיטה" : "החיבור חוצה שיטות"}.`);
   });
+  const privateLabels = [...new Set(rows.flatMap(row => {
+    const name = clean(row?.name);
+    return name ? [name, ...name.split(/\s+/u).filter(part => part.length > 1)] : [];
+  }))].sort((a, b) => b.length - a.length);
+  const redact = value => {
+    let safe = clean(value);
+    for (const label of privateLabels) safe = safe.split(label).join("הביטוי שנבדק");
+    return safe;
+  };
+  const sourceResearch = research?.sourceResearch || {};
+  list(sourceResearch?.numberSources).slice(0, MAX_SHARED_VALUES).forEach(source => {
+    const value = finiteInteger(source?.value);
+    const phrases = list(source?.phrases).slice(0, 6)
+      .map(item => redact(item?.phrase)).filter(Boolean);
+    if (value != null && phrases.length) {
+      lines.push(`- ביטויים מאומתים בעלי ערך ${value}: ${phrases.join(" · ")}. זהו שוויון מספרי בלבד.`);
+    }
+  });
+  list(sourceResearch?.memberSources).slice(0, 12).forEach((source, index) => {
+    const verses = list(source?.verses).slice(0, 2).map(verse => {
+      const ref = clean(verse?.ref);
+      const verseText = redact(verse?.text);
+      return ref && verseText ? `${ref} — ${verseText}` : null;
+    }).filter(Boolean);
+    if (verses.length) lines.push(`- מקורות תנ״ך לאדם ${index + 1}: ${verses.join(" | ")}.`);
+    const consensus = list(source?.consensus).slice(0, 3)
+      .map(item => `${redact(item?.target)} (${finiteInteger(item?.independentFamilyCount) ?? 0} משפחות מקור)`)
+      .filter(item => !item.startsWith(" ("));
+    if (consensus.length) lines.push(`- התכנסויות מקור לאדם ${index + 1}: ${consensus.join(" · ")}.`);
+  });
   lines.push("נסח מסר מחקרי זהיר מתוך העובדות בלבד. אין להסיק גורל, אישיות, נבואה או אמת משפחתית.");
   return lines.join("\n");
 }
@@ -123,6 +175,29 @@ function analysisClaims(research, evidence) {
       text: `הערך ${value} חיבר ${count ?? 0} אנשים דרך ${finiteInteger(item?.distinctExpressionCount) ?? 0} ביטויים שונים לאחר נרמול. זו חזרה מחושבת, לא פרשנות על המשפחה.`,
       role: "engine_finding_summary",
       support: { finding_ids: evidence.valueEvidenceIds.get(value) || [] },
+    });
+  });
+
+  const sources = research?.sourceResearch || {};
+  list(sources?.numberSources).slice(0, MAX_SHARED_VALUES).forEach((source, index) => {
+    const value = finiteInteger(source?.value);
+    const phrases = list(source?.phrases).slice(0, 6).map(item => clean(item?.phrase)).filter(Boolean);
+    if (value == null || !phrases.length) return;
+    claims.push({
+      id: `life-family-analysis-number-source-${index + 1}`,
+      text: `לערך ${value} נמצאו במאגר הביטויים: ${phrases.join(" · ")}. זהו שוויון מספרי, לא הוכחת משמעות.`,
+      role: "canonical_source_summary",
+      support: { finding_ids: list(source?.phrases).flatMap(item => list(item?.sourceRefs)).slice(0, 24) },
+    });
+  });
+  list(sources?.memberSources).slice(0, 12).forEach((source, index) => {
+    const refs = list(source?.verses).slice(0, 2).map(verse => clean(verse?.ref)).filter(Boolean);
+    if (!refs.length) return;
+    claims.push({
+      id: `life-family-analysis-verse-source-${index + 1}`,
+      text: `לאדם ${index + 1} נמצאו מקורות פסוק מפורשים: ${refs.join(" · ")}.`,
+      role: "canonical_source_summary",
+      support: { finding_ids: list(source?.verses).map(verse => clean(verse?.sourceRef)).filter(Boolean) },
     });
   });
 
@@ -223,12 +298,15 @@ export async function runLifeJourneyFamilyAnalysis({
       searchedPairCount: finiteInteger(research?.coverage?.searchedPairCount) ?? 0,
       relationCount: finiteInteger(research?.coverage?.relationCount) ?? 0,
       connectionCount: finiteInteger(research?.coverage?.connectionCount) ?? 0,
+      verseCount: finiteInteger(research?.sourceResearch?.coverage?.verseCount) ?? 0,
+      equalPhraseCount: finiteInteger(research?.sourceResearch?.coverage?.equalPhraseCount) ?? 0,
     }),
     boundaries: Object.freeze({
       message_frozen_before_internal_reflection: true,
       internal_reflection_not_exposed: true,
       internal_reflection_evidence_weight: 0,
       names_not_sent_to_interpreter: true,
+      public_source_text_sanitized_before_interpreter: true,
       no_els: true,
       not_family_truth: true,
     }),
