@@ -10,7 +10,7 @@ for (const label of [
   "הדף שלי",
   "המחקר שלי",
   "ההתקדמות שלי",
-  "הודעות ועדכונים",
+  "מעקב ועדכונים",
   "מסע החיים שלי",
   "הרמזים שלי",
   "התרומות שלי",
@@ -59,18 +59,23 @@ assert.match(css, /@media\(max-width:640px\)/);
 
 
 
-// Follows / attention activation — existing owners only, no new store.
+// Workspace summaries are read-only; the accepted native center owns management.
 assert.match(frame, /getNotificationPrefs/);
-assert.match(frame, /topicLabel\(topic\)/);
-assert.match(frame, /watchToggle\(topic, "workspace-2029", false/);
-assert.match(frame, /getMyNotifications\(4\)/);
-assert.match(frame, /getUnreadCount\(\)/);
-assert.match(frame, /markNotificationRead/);
-assert.match(frame, /getMyProfile/);
+assert.match(frame, /followTopics\(row\)/);
+assert.match(frame, /getUnreadCount\(\{ strict: true \}\)/);
+assert.match(frame, /getMyProfile\(\{ strict: true, userId \}\)/);
+assert.doesNotMatch(frame, /watchToggle|markNotificationRead|getMyNotifications/);
+assert.match(frame, /openExistingModule\("notifications"\)/);
+assert.match(frame, /writerPersonalHref\(module, \{ returnTo \}\)/);
+assert.match(frame, /new Set\(WRITER_PERSONAL_MODULES\.map/);
+assert.doesNotMatch(frame, /\/profile\?|MembersPage|JoinPage|UserCenter/);
+assert.match(frame, /<WorkspaceProjection key=\{authLoading \? "auth-loading" : user\?\.id \|\| "guest"\}/);
 assert.match(frame, /data-workspace-section="follow"/);
-assert.match(frame, /\/2029\/number\/\$\{m\[1\]\}/);
 assert.match(frame, /אחרי מה אני עוקב/);
 assert.doesNotMatch(frame, /supabase\.from\(|\.rpc\(/);
+const membership = frame.slice(frame.indexOf('<section data-workspace-section="access-membership"'), frame.indexOf('<section className="sod29-workspace-home"'));
+assert.match(membership, /גישה ומנוי · בהכנה/);
+assert.doesNotMatch(membership, /₪|checkout|cardcom|entitlement|active|monthly|annually|onClick|href=/i);
 // follow list sits after research section; summary count near top
 assert.ok(frame.indexOf('data-workspace-section="follow"') > frame.indexOf('<section data-workspace-section="research"'));
 assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<section data-workspace-section="research"'));

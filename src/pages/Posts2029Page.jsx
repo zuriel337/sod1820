@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
-import { getPostsFromSupabase } from "../lib/supabase.js";
+import { fetchPostsCatalog2029, postsCatalogScope2029 } from "../lib/research/postsCatalog2029Projection.js";
 import { applySeo } from "../lib/seo.js";
 import { stripHtml } from "../lib/format.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
@@ -63,38 +63,41 @@ function PostIndexCard({ post, index }) {
 
 export default function Posts2029Page() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const scope = postsCatalogScope2029(searchParams);
+  const scopeKey = JSON.stringify([scope.kind, scope.key]);
   const requestedPage = Number(searchParams.get("page") || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
-  const [state, setState] = useState({ page, loading: true, posts: [], total: 0, error: null });
+  const [state, setState] = useState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
 
   useEffect(() => {
     applySeo({
-      title: "פוסטים · SOD1820 2029",
+      title: `${scope.label} · SOD1820 2029`,
       description: "אינדקס הפוסטים של SOD1820.",
       path: "/2029/posts",
       noindex: true,
     });
 
     let live = true;
-    setState({ page, loading: true, posts: [], total: 0, error: null });
-    getPostsFromSupabase({ limit: 24, page, orderBy: "modified", ascending: false, stableOrder: true })
+    setState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
+    fetchPostsCatalog2029({ scope, page })
       .then(({ posts, total }) => {
         if (!live) return;
-        setState({ page, loading: false, posts: posts || [], total: total || 0, error: null });
+        setState({ page, scopeKey, loading: false, posts, total, error: null });
       })
       .catch((error) => {
         if (!live) return;
         const message = error?.code === "PGRST103" ? "העמוד הזה נמצא מעבר לפוסטים הזמינים." : error?.message || "טעינת הפוסטים נכשלה";
-        setState({ page, loading: false, posts: [], total: 0, error: message });
+        setState({ page, scopeKey, loading: false, posts: [], total: null, error: message });
       });
 
     return () => { live = false; };
-  }, [page]);
+  }, [page, scopeKey]);
 
   const pages = Math.max(1, Math.ceil(state.total / 24));
-  const posts = state.page === page ? state.posts : [];
-  const loading = state.loading || state.page !== page;
-  const error = state.page === page ? state.error : null;
+  const sameScope = state.page === page && state.scopeKey === scopeKey;
+  const posts = sameScope ? state.posts : [];
+  const loading = state.loading || !sameScope;
+  const error = sameScope ? state.error : null;
   const goToPage = (nextPage) => {
     const next = new URLSearchParams(searchParams);
     if (nextPage === 1) next.delete("page");
@@ -103,13 +106,13 @@ export default function Posts2029Page() {
     document.getElementById("posts-catalog")?.scrollIntoView({ block: "start", behavior: "instant" });
   };
 
-  return <Sod2029Shell surface="post" title="פוסטים" introVariant="none" symbol="✦" status="פוסטים">
+  return <Sod2029Shell surface="post" title={scope.label} introVariant="none" symbol="✦" status="פוסטים">
     <main className="sod29-posts-index" data-experience-surface="posts-index">
       <header className="sod29-posts-index-hero" data-experience-capability="posts-index-hero">
         <div className="sod29-posts-index-eyebrow">אירועים · סיפורים · רמזים</div>
         <div className="sod29-posts-index-hero-grid">
           <div>
-            <h1>הפוסטים</h1>
+            <h1>{scope.label}</h1>
             <details className="sod29-post-details sod29-post-index-about">
               <summary>על הפוסטים <span aria-hidden="true">⌄</span></summary>
               <p>אירועים · סיפורים · רמזים</p>
