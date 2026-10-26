@@ -63,3 +63,9 @@ Research export downloads the **current filtered rows** as a UTF-8-with-BOM CSV.
 Remaining: full row reading for the other 25 printed forms, plus re-reading the two Gimel gaps. Historical reconstruction files and the preceding checkpoints are preserved.
 
 Acceptance: **35/35 Books tests**, no skips, including full browser interaction/download at 320/390/1440; Preview-enabled Build 2029; built graph/weight gate (78,446 gzip bytes recovered); public language 3/3; Preview Auth Guard 4/4; Legacy Production Lock; whitespace check. The CSV browser test reads the downloaded bytes and verifies all 54 source rows plus the preserved reading delta. AFTER: bounded scope released at final handoff, branch-only output, no main merge, Production action, Legacy edit, DB/RLS or permission change. No live work-log write is claimed.
+
+### Desktop visual follow-up from 41a8a040
+
+Hosted visual inspection caught a real overlap hidden by the document's horizontal clipping: the story grid was 790px wide but its implicit child track expanded the tables to 918px. The letter reader began at x=463 while the PDF panel ended at x=530. The page-scoped story grid now uses an explicit `minmax(0,1fr)` column, allowing the existing table scroll containers to handle dense rows inside their own column. No SystemFrame or Legacy layout is changed. A desktop browser assertion checks the PDF panel's right boundary against the letter reader's left boundary, in addition to the existing 320/390/1440 overflow and source-navigation checks.
+
+The extended browser flow passed at all three widths after the column fix, including the no-overlap assertion and CSV download. Preview build, graph/weight (78,468 gzip bytes recovered), Legacy Production Lock and whitespace checks passed. The browser timeout is 240s to accommodate the expanded three-width/three-letter/WebGL/download flow, which passed in 171s; assertions are unchanged. Final scope is released after this follow-up.

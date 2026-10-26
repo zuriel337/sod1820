@@ -19,7 +19,7 @@ const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH
   || (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : playwright?.chromium.executablePath());
 const available = Boolean(playwright && vite && reactPlugin && executablePath && existsSync(executablePath));
 
-test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440", { skip: !available, timeout: 180_000 }, async () => {
+test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440", { skip: !available, timeout: 240_000 }, async () => {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   const server = await vite.createServer({
@@ -116,6 +116,11 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.equal(await letterReader.locator("canvas").count(), 1);
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), true, `letter reader overflows at ${width}px`);
+      if (width > 900) {
+        const sourceBounds = await page.locator("#ahavat29-source").boundingBox();
+        const readerBounds = await letterReader.boundingBox();
+        assert.ok(sourceBounds && readerBounds && sourceBounds.x + sourceBounds.width <= readerBounds.x + 1, "PDF overlaps the letter reader on desktop");
+      }
       await letterReader.getByRole("button", { name: "בית", exact: true }).click();
       assert.equal(await letterReader.locator("tbody tr").count(), 11);
       assert.equal(await letterReader.locator("tbody tr").filter({ hasText: "שמות" }).first().locator("td:nth-child(4)").textContent(), "315");
