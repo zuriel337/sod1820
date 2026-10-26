@@ -68,6 +68,8 @@ test("unlocated transmission/Tochecha datasets never reuse disproved page estima
   const page = read("src/pages/AhavatTorahSystem2029Page.jsx");
   assert.match(page, /מראה־המקום בבירור/);
   assert.match(page, /ה־PDF נשאר פתוח בעמוד הנוכחי/);
+  assert.match(page, /dataset\.id === datasetId && dataset\.pages\.includes\(page\)/);
+  assert.match(page, /contextLabel=\{selectedFinding\?\.dataset \|\| locatedDataset\?\.id \|\| selectedSection\.shortTitle\}/);
 });
 
 test("new occurrence readings fail closed for a foreign identity, hash, page, anchor or malformed row", () => {

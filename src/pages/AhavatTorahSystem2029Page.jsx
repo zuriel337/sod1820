@@ -643,6 +643,7 @@ export default function AhavatTorahSystem2029Page() {
   const [pageTextState, setPageTextState] = useState("loading");
   const selectedSection = useMemo(() => sectionForPage(page), [page]);
   const selectedFinding = AHAVAT_TORAH_FINDINGS.find(finding => finding.id === findingId) || null;
+  const locatedDataset = AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === datasetId && dataset.pages.includes(page));
 
   useEffect(() => {
     let active = true;
@@ -796,7 +797,7 @@ export default function AhavatTorahSystem2029Page() {
           </footer>
         </div>
 
-        <SourcePanel page={page} contextLabel={selectedFinding?.dataset || datasetId || selectedSection.shortTitle} onPage={openPage} />
+        <SourcePanel page={page} contextLabel={selectedFinding?.dataset || locatedDataset?.id || selectedSection.shortTitle} onPage={openPage} />
       </div>
     </main>
   </Sod2029Shell>;
