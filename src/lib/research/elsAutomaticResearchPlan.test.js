@@ -74,11 +74,17 @@ const guidedInspection = (hitId, {
 const guidedLanguageInspection = ({ hitId = "hit-1", skip = 31, dir = 1, axisStart = 1000 } = {}) => ({
   contract: "els_matrix_language_inspection_v1", status: "CANDIDATE_INPUT", source: "canonical_matrix_letters",
   stage: "S3_OPEN_SEQUENCE_SEGMENTATION", axis: { term: "ציר", scope: "torah", skip, dir, start: axisStart, hitId },
-  authority: { letters: "CANONICAL", segmentation: "DETERMINISTIC_CANDIDATE", meaning: "UNVERIFIED", canonicalReplayRequired: true },
-  coverage: { candidatesExamined: 160, boundaryCap: 480, boundaryPerTraversalCap: 10, boundaryFocusRadius: 8,
+  authority: { letters: "CANONICAL", segmentation: "DETERMINISTIC_CANDIDATE", lexicalRecognition: "DETERMINISTIC_CANDIDATE", meaning: "UNVERIFIED", canonicalReplayRequired: true },
+  coverage: { rayCap: 24, maxLetters: 24, maxCandidateWindows: 9216, maxLexiconLookups: 196608,
+    perTraversalReadingCap: 16, returnedRays: 1, candidatesExamined: 160, lexiconLookups: 320,
+    returnedReadings: 2, returnedSegmentations: 0, returnedRelations: 1,
+    boundaryCap: 480, boundaryPerTraversalCap: 10, boundaryFocusRadius: 8,
     boundaryProfileComparisons: 34, returnedBoundaries: 1, truncated: false },
   boundaryProfile: { contract: "torah_language_boundary_profile_v1", source: "canonical_torah_word_boundaries",
     vocabularyRetained: false, modelCallsTriggered: 0 },
+  dynamicLexicon: { contract: "els_dynamic_lexicon_profile_v1", sources: ["canonical_tanakh_words", "maftech_core_snapshot"],
+    matchingAlgorithm: "bounded_window_lookup_v1", entryCount: 41835, tanakhEntryCount: 39959, coreEntryCount: 4529,
+    coreFingerprint: "a".repeat(64), lazyLoaded: true, vocabularyScanned: false, modelCallsTriggered: 0 },
   modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
   rays: [{ id: "horizontal:500:1:11", orientation: "horizontal", text: "אבמלכימדודא", reverseText: "אדודמיכלמבא", start: 500, step: 1, length: 11, distance: 0, intersectsAxis: true, focusOffset: 7 }],
   readings: [{
@@ -233,6 +239,26 @@ test("language input with a foreign occurrence identity fails closed", () => {
   const inspection = guidedInspection("hit-1", { languageInspection: guidedLanguageInspection({ hitId: "hit-other" }) });
   const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
   assert.equal(coverage.inspections[0].languageInspection, null);
+});
+
+test("dynamic lexical provenance is projected only from the declared lazy profile", () => {
+  const occurrences = guidedOccurrences(1), languageInspection = guidedLanguageInspection();
+  Object.assign(languageInspection.readings[1], {
+    source: "maftech-core", selectionProtocol: "DYNAMIC_LEXICON_LOOKUP_V1",
+    lexiconSources: ["maftech_core_snapshot"], lexiconFrequency: 0, lexicalConfidence: 85, lexicalPriority: 62,
+  });
+  Object.assign(languageInspection.relations[0].tokens[1], languageInspection.readings[1]);
+  const projected = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences,
+    inspections: [guidedInspection("hit-1", { languageInspection })] }).inspections[0].languageInspection;
+  assert.equal(projected.readings[1].source, "maftech-core");
+  assert.deepEqual(projected.readings[1].lexiconSources, ["maftech_core_snapshot"]);
+  assert.equal(projected.readings[1].selectionProtocol, "DYNAMIC_LEXICON_LOOKUP_V1");
+  assert.equal(projected.readings[1].truthPromotion, false);
+
+  languageInspection.dynamicLexicon.entryCount = 50001;
+  const rejected = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences,
+    inspections: [guidedInspection("hit-1", { languageInspection })] }).inspections[0].languageInspection;
+  assert.equal(rejected, null, "a forged broad profile fails closed instead of becoming language evidence");
 });
 
 test("language input cannot substitute different letters at a valid ray locus", () => {

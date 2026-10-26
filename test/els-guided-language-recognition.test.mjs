@@ -1,15 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { gunzipSync } from "node:zlib";
+import { createHash } from "node:crypto";
 import vm from "node:vm";
 
 const ENGINE = new URL("../tools/els/els-code.template.html", import.meta.url);
 const BUILT_ENGINE = new URL("../public/tzofen.html", import.meta.url);
 const CORPUS = new URL("../tools/els/data/tk-letters.txt", import.meta.url);
+const CORE_LEXICON = new URL("../tools/els/data/maftech-core-lexicon.txt", import.meta.url);
 const builtEngine = await readFile(BUILT_ENGINE, "utf8");
 const profileMatch = builtEngine.match(/const TORAH_LANGUAGE_PROFILE=JSON\.parse\(atob\("([A-Za-z0-9+/=]+)"\)\);/);
 assert.ok(profileMatch, "the built canonical engine embeds one compact Torah-language profile");
 const TORAH_LANGUAGE_PROFILE = JSON.parse(Buffer.from(profileMatch[1], "base64").toString("utf8"));
+const lexiconMatch = builtEngine.match(/const GUIDED_DYNAMIC_LEXICON_GZ64="([A-Za-z0-9+/=]+)";/);
+assert.ok(lexiconMatch, "the built canonical engine embeds one lazy dynamic lexicon profile");
+const DYNAMIC_LEXICON_PROFILE = JSON.parse(gunzipSync(Buffer.from(lexiconMatch[1], "base64")).toString("utf8"));
 
 function functionSource(template, name) {
   let start = template.indexOf(`function ${name}(`);
@@ -32,16 +38,20 @@ function languageContext(engine, corpus, raw, scope = "torah") {
     NORMALIZER,
     `const GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1",GUIDED_LANGUAGE_REPLAY_CONTRACT="els_language_relation_replay_v1",GUIDED_LANGUAGE_BOUNDARY_CONTRACT="els_torah_language_boundary_v1";`,
     `const TORAH_LANGUAGE_PROFILE=${JSON.stringify(TORAH_LANGUAGE_PROFILE)};`,
+    `const DYNAMIC_LEXICON_PROFILE=${JSON.stringify(DYNAMIC_LEXICON_PROFILE)};`,
     `const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;`,
     `const replayCalls=[];let replayMode="match";async function verifyBatch(term,hits,strategy,operation,scope){const hit=hits[0];replayCalls.push({term,hit,strategy,scope});const matched=replayMode==="match"||replayMode==="second-mismatch"&&replayCalls.length!==2;return {ok:true,verified:new Set(matched?[hitKey(hit)]:[]),traces:["trace-"+replayCalls.length],corpus_id:"wlc-torah-consonantal-v1"};}`,
     functionSource(engine, "guidedMatrixBox"),
     functionSource(engine, "guidedMatrixDisplayTerm"),
+    functionSource(engine, "guidedDynamicLexiconSkeleton"),
+    functionSource(engine, "guidedLanguageReadings"),
     functionSource(engine, "guidedLanguageReading"),
     functionSource(engine, "guidedLanguageRelations"),
     functionSource(engine, "guidedLanguageBoundaryScore"),
     functionSource(engine, "guidedLanguageBoundaryHypotheses"),
     functionSource(engine, "guidedMatrixLanguageInspection"),
     functionSource(engine, "guidedVerifyLanguageRelations"),
+    `const dynamicWords=new Map(),dynamicSkeletons=new Map();for(const row of DYNAMIC_LEXICON_PROFILE.entries){const [term,label,mask,frequency]=row,source=mask===3?"tanakh-core-lexicon":mask===2?"maftech-core":"tanakh-lexicon",lexiconSources=[...(mask&1?["canonical_tanakh_words"]:[]),...(mask&2?["maftech_core_snapshot"]:[])],sourceConfidence=(mask===3?88:mask===2?82:76)+Math.min(8,term.length),hint={term,label,source,lexiconSources,lexiconFrequency:frequency,sourceConfidence,selectionProtocol:"DYNAMIC_LEXICON_LOOKUP_V1"};dynamicWords.set(term,hint);const skeleton=guidedDynamicLexiconSkeleton(term);if(mask&2&&term.length>=4&&skeleton.length>=3&&skeleton!==term){if(!dynamicSkeletons.has(skeleton))dynamicSkeletons.set(skeleton,[]);dynamicSkeletons.get(skeleton).push(hint);}}for(const [key,rows] of dynamicSkeletons)dynamicSkeletons.set(key,rows.sort((a,b)=>b.sourceConfidence-a.sourceConfidence||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")).slice(0,4));const dynamicLexicon={profile:{contract:DYNAMIC_LEXICON_PROFILE.contract,sources:DYNAMIC_LEXICON_PROFILE.sources,matchingAlgorithm:DYNAMIC_LEXICON_PROFILE.matchingAlgorithm,entryCount:dynamicWords.size,tanakhEntryCount:DYNAMIC_LEXICON_PROFILE.tanakhEntryCount,coreEntryCount:DYNAMIC_LEXICON_PROFILE.coreEntryCount,coreFingerprint:DYNAMIC_LEXICON_PROFILE.coreFingerprint},words:dynamicWords,skeletons:dynamicSkeletons};`,
   ].join("\n"), context);
   return context;
 }
@@ -60,7 +70,12 @@ async function replayInspection(context, inspection, mode = "match") {
 function inspectAxis(context, { skip, dir, start, length }, hints = []) {
   context.axis = { skip, dir, start, positions: Array.from({ length }, (_, index) => start + dir * skip * index) };
   context.hintEntries = hints.map(({ term, source = "story" }) => [term, { term, label: term, source }]);
-  return JSON.parse(JSON.stringify(vm.runInContext("guidedMatrixLanguageInspection(axis,guidedMatrixBox(axis),new Map(hintEntries))", context)));
+  return JSON.parse(JSON.stringify(vm.runInContext("guidedMatrixLanguageInspection(axis,guidedMatrixBox(axis),new Map(hintEntries),dynamicLexicon)", context)));
+}
+
+function recognizeSurface(context, surface) {
+  context.surfaceInput = surface;
+  return JSON.parse(JSON.stringify(vm.runInContext("guidedLanguageReadings(norm(surfaceInput),new Map(),dynamicLexicon,{count:0,max:4096,exhausted:false})", context)));
 }
 
 test("bounded local rays preserve unseen exact letters without a cipher-specific rule", async () => {
@@ -76,10 +91,10 @@ test("bounded local rays preserve unseen exact letters without a cipher-specific
   assert.ok(result.rays.every(ray => ray.text.length <= 24 && [...ray.text].reverse().join("") === ray.reverseText));
   assert.ok(result.rays.some(ray => ray.text.includes("באשאטמינ") || ray.reverseText.includes("באשאטמינ")), "the intersecting exact-letter sequence survives the bounded map");
   assert.ok(result.rays.some(ray => ray.text.includes("שבררומי") || ray.reverseText.includes("שבררומי")), "the nearby reverse sequence survives the same bounded map");
-  assert.deepEqual(result.authority, { letters: "CANONICAL", segmentation: "UNRESOLVED", boundarySegmentation: "DETERMINISTIC_CANDIDATE", meaning: "UNVERIFIED", canonicalReplayRequired: true });
-  assert.equal(result.readings.length, 0);
-  assert.equal(result.segmentations.length, 0);
-  assert.equal(result.relations.length, 0);
+  assert.deepEqual(result.authority, { letters: "CANONICAL", segmentation: "DETERMINISTIC_CANDIDATE", boundarySegmentation: "DETERMINISTIC_CANDIDATE", lexicalRecognition: "DETERMINISTIC_CANDIDATE", meaning: "UNVERIFIED", canonicalReplayRequired: true });
+  assert.ok(recognizeSurface(context, "אטמ").some(reading => reading.baseTerm === "אטומ" && reading.relation === "mater-omission"));
+  assert.ok(result.readings.some(reading => reading.baseTerm === "רומי"), JSON.stringify(result.readings));
+  assert.ok(result.readings.every(reading => reading.status === "UNVERIFIED_READING" && reading.truthPromotion === false));
   assert.ok(result.boundaries.some(boundary => boundary.readingDirection === "forward" && boundary.leftContext.endsWith("באש") && boundary.rightContext.startsWith("אטמינ")));
   assert.ok(result.boundaries.some(boundary => boundary.readingDirection === "reverse" && boundary.leftContext.endsWith("שבר") && boundary.rightContext.startsWith("רומי")));
   assert.equal(result.boundaryProfile.vocabularyRetained, false);
@@ -98,8 +113,13 @@ test("Colombia holdout letters are inside the same bounded map without supplying
   assert.match(rayText, /ספינת/, "the exact local letters for ספינת survive without a vocabulary hint");
   assert.match(rayText, /אשאכלה/, "the source-line phrase survives in the same bounded map");
   assert.equal(result.modelCallsTriggered, 0);
-  assert.equal(result.readings.length, 0, "withheld words are not silently inserted into the controlled lexicon");
-  assert.equal(result.relations.length, 0, "unrecognized holdout letters do not become a semantic relation");
+  assert.ok(result.readings.some(reading => reading.baseTerm === "ספינה" && reading.relation === "construct-form"), JSON.stringify(result.readings));
+  const context = languageContext(engine, corpus, "קולומביה");
+  assert.ok(recognizeSurface(context, "יכל").some(reading => reading.baseTerm === "יכל" && reading.relation === "exact-lexicon-match"));
+  assert.ok(recognizeSurface(context, "אש").some(reading => reading.baseTerm === "אש" && reading.relation === "exact-lexicon-match"));
+  assert.ok(recognizeSurface(context, "אכלה").some(reading => reading.baseTerm === "אכלה" && reading.relation === "exact-lexicon-match"));
+  assert.ok(result.segmentations.length <= 24 && result.segmentations.every(segmentation => segmentation.status === "UNVERIFIED_READING" && segmentation.truthPromotion === false));
+  assert.ok(result.readings.every(reading => reading.selectionProtocol !== "CONTEXT_PRE_REGISTERED"), "the held-out words came from declared lexicon sources, not the story input");
   assert.ok(result.boundaries.some(boundary => boundary.leftContext.endsWith("יכל") && boundary.rightContext.startsWith("אש")), "the compact profile retains the possible יכל|אש boundary without knowing either word");
   assert.ok(result.boundaries.some(boundary => boundary.leftContext.endsWith("אש") && boundary.rightContext.startsWith("אכלה")), "a second possible division remains an unverified alternative");
   assert.ok(result.boundaries.every(boundary => boundary.status === "UNVERIFIED_BOUNDARY" && boundary.interpretationRequired === true && boundary.truthPromotion === false));
@@ -107,6 +127,10 @@ test("Colombia holdout letters are inside the same bounded map without supplying
   assert.equal(TORAH_LANGUAGE_PROFILE.vocabularyRetained, false);
   assert.equal(TORAH_LANGUAGE_PROFILE.boundaryScores.length, 22 * 22);
   assert.equal(JSON.stringify(TORAH_LANGUAGE_PROFILE).includes("ספינת"), false, "the language profile retains no holdout vocabulary");
+  assert.equal(DYNAMIC_LEXICON_PROFILE.contract, "els_dynamic_lexicon_profile_v1");
+  assert.ok(DYNAMIC_LEXICON_PROFILE.entryCount > 40000);
+  assert.ok(DYNAMIC_LEXICON_PROFILE.coreEntryCount > 4000);
+  assert.equal(DYNAMIC_LEXICON_PROFILE.entries.some(entry => entry[0] === "ספינת"), false, "the exact Golden surface was not inserted as a special-case word");
 });
 
 test("Uranium geometry candidates survive independently of the memorable skip", async () => {
@@ -174,8 +198,9 @@ test("the 1820 Golden keeps its local source language in a bounded deterministic
   assert.match(rayText, /אליהו/);
   assert.match(rayText, /יבואו/);
   assert.ok(result.readings.some(reading => reading.baseTerm === "אליהו" && reading.source === "bounded-dictionary"));
-  assert.equal(result.relations.length, 0, "one recognized word cannot create a pair");
-  assert.ok(result.coverage.candidatesExamined <= 8192);
+  assert.ok(result.relations.length <= 3);
+  assert.ok(result.relations.every(relation => relation.status === "UNVERIFIED_RELATION" && relation.truthPromotion === false), "broad lexical candidates remain unverified and never become findings");
+  assert.ok(result.coverage.candidatesExamined <= 9216);
   assert.equal(result.modelCallsTriggered, 0);
 });
 
@@ -185,6 +210,8 @@ test("generic Hebrew affixes create only an unverified reading candidate", async
   vm.runInContext([
     NORMALIZER,
     `const guidedMatrixDisplayTerm=term=>term;`,
+    functionSource(engine, "guidedDynamicLexiconSkeleton"),
+    functionSource(engine, "guidedLanguageReadings"),
     functionSource(engine, "guidedLanguageReading"),
     `const hints=new Map([["מלכ",{term:"מלכ",label:"מלך",source:"bounded-dictionary"}]]);`,
   ].join("\n"), context);
@@ -196,6 +223,29 @@ test("generic Hebrew affixes create only an unverified reading candidate", async
   assert.equal(reading.suffix, "ימ");
   assert.equal(reading.source, "bounded-dictionary");
   assert.equal(reading.selectionProtocol, "GOVERNED_CORE");
+});
+
+test("the broad lookup recognizes general construct, prefix and mater-omission forms without Golden rules", async () => {
+  const [engine, corpus] = await Promise.all([readFile(ENGINE, "utf8"), readFile(CORPUS, "utf8")]);
+  const context = languageContext(engine, corpus, "בדיקת לשון");
+  assert.ok(recognizeSurface(context, "ספינת").some(reading => reading.baseTerm === "ספינה" && reading.relation === "construct-form"));
+  assert.ok(recognizeSurface(context, "באש").some(reading => reading.baseTerm === "אש" && reading.relation === "prefixed-form"));
+  assert.ok(recognizeSurface(context, "אטמ").some(reading => reading.baseTerm === "אטומ" && reading.relation === "mater-omission"));
+  const runtime = [functionSource(engine, "guidedLanguageReadings"), functionSource(engine, "guidedMatrixLanguageInspection")].join("\n");
+  assert.doesNotMatch(runtime, /ספינת|באש|אטמ|קולומביה|טראמפ/);
+});
+
+test("the embedded dynamic profile is a deterministic sanitized snapshot, not a Golden patch", async () => {
+  const words = (await readFile(CORE_LEXICON, "utf8")).trim().split(/\n+/);
+  assert.equal(words.length, 4529);
+  assert.equal(new Set(words).size, words.length);
+  assert.ok(words.every(word => /^[א-ת]{2,12}$/.test(word)));
+  const normalized = words.map(word => word.replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]));
+  const fingerprint = createHash("sha256").update(`${[...new Set(normalized)].sort().join("\n")}\n`).digest("hex");
+  assert.equal(DYNAMIC_LEXICON_PROFILE.coreFingerprint, fingerprint);
+  assert.equal(DYNAMIC_LEXICON_PROFILE.coreEntryCount, 4529);
+  assert.ok(DYNAMIC_LEXICON_PROFILE.entryCount > 40000 && DYNAMIC_LEXICON_PROFILE.entryCount < 50000);
+  assert.equal(DYNAMIC_LEXICON_PROFILE.entries.some(entry => entry[0] === "ספינת"), false);
 });
 
 test("language-pair ranking is geometry and context based, never skip based", async () => {

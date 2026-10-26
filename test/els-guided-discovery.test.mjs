@@ -57,13 +57,18 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.match(source, /els_language_relation_replay_v1/);
   assert.match(source, /els_torah_language_boundary_v1/);
   assert.match(source, /TORAH_LANGUAGE_PROFILE=JSON\.parse\(atob\("__TORAH_LANGUAGE_PROFILE_B64__"\)\)/);
+  assert.match(source, /GUIDED_DYNAMIC_LEXICON_GZ64="__DYNAMIC_LEXICON_GZ64__"/);
+  assert.match(source, /guidedLoadDynamicLexicon/);
+  assert.match(source, /bounded_window_lookup_v1/);
   assert.match(source, /S3_OPEN_SEQUENCE_SEGMENTATION/);
-  assert.match(source, /maxCandidateWindows=8192/);
+  assert.match(source, /maxCandidateWindows=9216/);
+  assert.match(source, /maxLexiconLookups=196608/);
   assert.match(source, /rayCap=24,maxLetters=24/);
   assert.match(source, /status:"UNVERIFIED_READING"/);
   assert.match(source, /modelCallsTriggered:0,findingMutation:false,truthPromotion:false/);
   assert.match(source, /guidedMatrixDisplayTerm/);
-  assert.match(source, /searchRule:"no-default-broad-lexicon"/);
+  assert.match(source, /searchRule:"lazy-bounded-dynamic-lexicon"/);
+  assert.match(source, /defaultLexiconLoaded:false,dynamicLexiconLoaded:!!dynamicLexicon/);
   assert.match(source, /rawPatterns/);
   assert.match(source, /status:"UNVERIFIED_PATTERN"/);
   assert.match(source, /promoteVerified/);
@@ -73,8 +78,7 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.match(source, /boundaryCap=480,perTraversalCap=10,focusRadius=8,contextLetters=6/);
   assert.match(source, /vocabularyRetained:false,modelCallsTriggered:0/);
   assert.match(source, /numericSkipPromoted:false/);
-  assert.doesNotMatch(source, /matrix-discovery"[\s\S]{0,1200}dynamicCandidateLexicon/);
-  assert.doesNotMatch(source, /guidedMatrixLanguageInspection[\s\S]{0,12000}(?:fetch\s*\(|ai-analyze|Math\.random|dynamicCandidateLexicon)/);
+  assert.doesNotMatch(source, /guidedMatrixLanguageInspection[\s\S]{0,18000}(?:fetch\s*\(|ai-analyze|Math\.random)/);
 });
 
 test("Torah-language readings stay Advanced while the ranked relation separates replay from meaning", async () => {
@@ -92,6 +96,10 @@ test("Torah-language readings stay Advanced while the ranked relation separates 
   assert.match(source, /languageCandidate\.occurrence/);
   assert.match(source, /האותיות נלקחו מהמטריצה הקנונית/);
   assert.match(source, /קריאות מועמדות בלבד/);
+  assert.match(source, /data-els-dynamic-lexicon="lazy-bounded"/);
+  assert.match(source, /אוצר לשון רחב, סריקה מקומית בלבד/);
+  assert.match(source, /לא נסרקו/);
+  assert.match(source, /מילון הליבה/);
   assert.match(source, /AI: אפס קריאות/);
   assert.doesNotMatch(source, /languageInspection[\s\S]{0,1200}requestFindingsChange/);
   assert.ok(source.indexOf("data-els-language-relation=") < source.indexOf('data-els-language-inspection="candidate-only"'));

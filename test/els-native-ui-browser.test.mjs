@@ -1578,7 +1578,10 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
     assert.ok(requests.every(message=>message.target.guidedOccurrenceCoverage===true&&message.target.setId&&message.target.hitId));
     const reports=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok));
     assert.ok(reports.length>=1&&reports.every(report=>report.languageInspection?.contract==='els_matrix_language_inspection_v1'));
-    assert.ok(reports.every(report=>report.languageInspection.modelCallsTriggered===0&&report.languageInspection.coverage.returnedRays<=24&&report.languageInspection.coverage.maxLetters===24&&report.languageInspection.coverage.returnedRelations<=3&&Number(report.languageInspection.coverage.relationReplayCalls||0)<=2&&Number(report.languageInspection.canonicalReplayCalls||0)<=2));
+    assert.ok(reports.every(report=>report.searchRule==='lazy-bounded-dynamic-lexicon'&&report.defaultLexiconLoaded===false&&report.dynamicLexiconLoaded===true));
+    assert.ok(reports.every(report=>report.languageInspection.modelCallsTriggered===0&&report.languageInspection.coverage.returnedRays<=24&&report.languageInspection.coverage.maxLetters===24&&report.languageInspection.coverage.maxCandidateWindows===9216&&report.languageInspection.coverage.candidatesExamined<=9216&&report.languageInspection.coverage.maxLexiconLookups===196608&&report.languageInspection.coverage.lexiconLookups<=196608&&report.languageInspection.coverage.returnedReadings<=24&&report.languageInspection.coverage.returnedSegmentations<=24&&report.languageInspection.coverage.returnedRelations<=3&&Number(report.languageInspection.coverage.relationReplayCalls||0)<=2&&Number(report.languageInspection.canonicalReplayCalls||0)<=2));
+    assert.ok(reports.every(report=>report.languageInspection.dynamicLexicon?.contract==='els_dynamic_lexicon_profile_v1'&&report.languageInspection.dynamicLexicon.entryCount>40000&&report.languageInspection.dynamicLexicon.coreEntryCount>4000&&report.languageInspection.dynamicLexicon.lazyLoaded===true&&report.languageInspection.dynamicLexicon.vocabularyScanned===false&&report.languageInspection.dynamicLexicon.modelCallsTriggered===0));
+    assert.ok(reports.every(report=>(report.languageInspection.readings||[]).every(reading=>reading.status==='UNVERIFIED_READING'&&reading.truthPromotion===false)));
     assert.ok(reports.every(report=>(report.languageInspection.relations||[]).every(relation=>['UNVERIFIED_RELATION','VERIFIED_RELATION'].includes(relation.status)&&relation.truthPromotion===false)));
     assert.ok(reports.every(report=>report.languageInspection.boundaryProfile?.contract==='torah_language_boundary_profile_v1'&&report.languageInspection.boundaryProfile.vocabularyRetained===false&&report.languageInspection.boundaryProfile.modelCallsTriggered===0));
     assert.ok(reports.every(report=>report.languageInspection.coverage.returnedBoundaries<=480&&report.languageInspection.coverage.boundaryProfileComparisons<=816));
@@ -1587,6 +1590,9 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
     assert.ok((await coverage.innerText()).includes('מופעים מאומתים'),'exact axis count is separate from local discoveries');
     assert.equal(await coverage.getByText(/דפוסים גולמיים/).count()<=1,true,'raw patterns have one advanced disclosure only');
     assert.equal(await coverage.locator('[data-els-language-inspection="candidate-only"]').count(),1,'language candidates stay in one Advanced disclosure');
+    const dynamicLexicon=coverage.locator('[data-els-dynamic-lexicon="lazy-bounded"]');
+    assert.equal(await dynamicLexicon.count(),1,'the lazy broad lexicon is disclosed once under Advanced');
+    const dynamicCopy=await dynamicLexicon.textContent();assert.match(dynamicCopy,/לא נסרקו/);assert.match(dynamicCopy,/בדיקות אינדקס ישירות/);assert.match(dynamicCopy,/ללא קריאת AI/);
     const boundaryPanel=coverage.locator('[data-els-language-boundaries="unverified"]');
     assert.ok(await boundaryPanel.count()<=1,'unverified boundary candidates have one Advanced section only');
     if(await boundaryPanel.count()){

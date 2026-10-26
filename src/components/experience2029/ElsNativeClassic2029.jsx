@@ -411,13 +411,23 @@ const guidedFailureLabel = category => ({
 })[category] || "הסיבה עדיין לא סווגה";
 
 const guidedReadingLabel = relation => ({
-  "exact-lexicon-match": "התאמה לאוצר המצומצם",
+  "exact-lexicon-match": "התאמה לאוצר הלשון",
   "defective-spelling": "כתיב חסר/מלא",
   "prefixed-form": "צורה עם תחילית",
   "suffixed-form": "צורה עם סופית",
   "prefixed-suffixed-form": "צורה עם תחילית וסופית",
+  "construct-form": "סמיכות/צורת נסמך אפשרית",
+  "mater-omission": "קריאה אפשרית בלי אם־קריאה",
   "bounded-word-split": "חלוקה תחומה לשתי מילים",
 })[relation] || "קריאה לשונית אפשרית";
+
+const guidedLexiconSourceLabel = source => ({
+  "tanakh-lexicon": "לשון התנ״ך",
+  "maftech-core": "מילון הליבה",
+  "tanakh-core-lexicon": "לשון התנ״ך + מילון הליבה",
+  story: "מונח מהסיפור",
+  "bounded-dictionary": "מילון המחקר המצומצם",
+})[source] || "מקור לשוני תחום";
 
 const guidedLanguageGeometryLabel = geometry => ({
   PARALLEL_AXIS_RAY: "אותה קרן מקבילה לציר",
@@ -445,6 +455,9 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
   const languageRelation = languageCandidate?.relation || null;
   const languageRelationVerified = languageRelation?.status === "VERIFIED_RELATION";
   const languageRayCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.returnedRays || 0), 0);
+  const dynamicLanguageProfile = languageInspections.find(inspection => inspection.dynamicLexicon)?.dynamicLexicon || null;
+  const languageWindowCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.candidatesExamined || 0), 0);
+  const languageLookupCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.lexiconLookups || 0), 0);
   const recommendationTerms = new Set((recommendation?.supports || []).map(support => support.term));
   const localByTerm = new Map();
   for (const finding of coverage.inspections.flatMap(inspection => inspection.verifiedFindings || [])) {
@@ -516,6 +529,11 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
     </details> : null}
     {languageInspections.length ? <details className="els29-guided-raw" data-els-language-inspection="candidate-only"><summary>מתקדם · מפת לשון מקומית ({languageRayCount} קווים)</summary>
       <p>האותיות נלקחו מהמטריצה הקנונית. חלוקה למילים, כתיב ומשמעות הם קריאות מועמדות בלבד—לא ממצא ולא עובדה.</p>
+      {dynamicLanguageProfile ? <section data-els-dynamic-lexicon="lazy-bounded">
+        <strong>אוצר לשון רחב, סריקה מקומית בלבד</strong>
+        <p>האוצר נטען רק אחרי שנבחר ציר מאומת. לא נסרקו {dynamicLanguageProfile.entryCount.toLocaleString("he-IL")} מילים מול המטריצה; נבדקו {languageWindowCount.toLocaleString("he-IL")} חלונות מתוך 24 קרניים מקומיות באמצעות {languageLookupCount.toLocaleString("he-IL")} בדיקות אינדקס ישירות.</p>
+        <small>מקורות: לשון התנ״ך ומילון הליבה · ללא קריאת AI · ללא קידום אוטומטי לממצא.</small>
+      </section> : null}
       {languageBoundaries.length ? <section data-els-language-boundaries="unverified"><strong>גבולות חלוקה אפשריים</strong>
         <p>פרופיל קטן של לשון התורה מדרג רק היכן עשוי לעבור רווח. הוא אינו מחזיק מילון ואינו קובע שאלה מילים.</p>
         <ul>{languageBoundaries.map(boundary => <li key={`${boundary.rayId}:${boundary.readingDirection}:${boundary.boundaryOffset}`}>
@@ -524,7 +542,7 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
         </li>)}</ul>
       </section> : null}
       {languageSegmentations.length ? <ul>{languageSegmentations.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}`}><bdi>{reading.exactLetters}</bdi> → {reading.tokens.map(token => token.label || token.baseTerm).join(" · ")} · {guidedReadingLabel(reading.relation)}</li>)}</ul> : null}
-      {languageReadings.length ? <ul>{languageReadings.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}:${reading.baseTerm}`}><bdi>{reading.exactLetters}</bdi> → {reading.label || reading.baseTerm} · {guidedReadingLabel(reading.relation)}</li>)}</ul> : <p>לא נמצאה עדיין חלוקה בטוחה באוצר המצומצם. הקווים נשמרו כקלט תחום להמשך מחקר.</p>}
+      {languageReadings.length ? <ul>{languageReadings.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}:${reading.baseTerm}`}><bdi>{reading.exactLetters}</bdi> → {reading.label || reading.baseTerm} · {guidedReadingLabel(reading.relation)} · {guidedLexiconSourceLabel(reading.source)} · לא מאומת</li>)}</ul> : <p>לא נמצאה עדיין חלוקה לשונית חזקה. הקווים נשמרו כקלט תחום להמשך מחקר.</p>}
       <small>AI: אפס קריאות · אין הוספה אוטומטית למטריצה · גם לאחר replay של האותיות, קריאה ומשמעות נשארות פרשנות לא מאומתת.</small>
     </details> : null}
   </section>;
