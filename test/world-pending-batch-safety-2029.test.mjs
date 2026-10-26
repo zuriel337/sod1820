@@ -3,11 +3,14 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { COHORT_FILES, extractCohortSelect, buildResidualAuditSql } from '../scripts/audit-world-corpus-residual.mjs';
-import { readEvidence, buildReview, selectPendingAtomicClaims, buildPendingAtomicPreflightSql } from '../scripts/audit-world-claim-coverage.mjs';
+import { readEvidence, buildReview, selectPendingAtomicClaims, buildPendingAtomicPreflightSql,
+  readWriterSnapshot, buildAtomicReplacementRehearsalSql } from '../scripts/audit-world-claim-coverage.mjs';
 
 const evidence=readEvidence();
 const selection=selectPendingAtomicClaims(evidence);
 const sql=buildPendingAtomicPreflightSql(evidence);
+const writerSnapshot=readWriterSnapshot();
+const rehearsal=buildAtomicReplacementRehearsalSql(evidence,writerSnapshot);
 const migrations=COHORT_FILES.map(([file,table])=>({file,table,
   body:readFileSync(new URL(`../supabase/migrations/${file}`,import.meta.url),'utf8')}));
 const quote=s=>`'${String(s).replaceAll("'","''")}'`;
@@ -70,6 +73,32 @@ test('mixed expressions, covered variants and failed engine evidence cannot ente
   const kinds=new Map(evidence.reviewPlan.map(p=>[p.id,p.kind]));
   assert.ok(selection.every(r=>kinds.get(r.id)==='coverage_gap'));
   assert.equal(new Set(selection.map(r=>r.id)).size,47);
+});
+
+test('replacement is a rollback-only offline artifact with real admin authorization, not impersonation',()=>{
+  assert.match(rehearsal,/BEGIN ISOLATION LEVEL SERIALIZABLE/);
+  assert.match(rehearsal,/ROLLBACK;\s*$/u);
+  assert.doesNotMatch(rehearsal,/\bCOMMIT\s*;|set_config|request\.jwt|localStorage|CREATE (?:OR REPLACE )?FUNCTION/iu);
+  assert.match(rehearsal,/id=auth.uid\(\) AND role='admin'/u);
+  assert.match(rehearsal,/SET LOCAL lock_timeout = '3s'/u);
+  assert.ok(rehearsal.indexOf('WORLD_ATOMIC_PREFLIGHT_FAILED')<rehearsal.indexOf('result := public.admin_research_review('));
+});
+
+test('replacement preserves siblings, source text and graph identity without source-number ranking',()=>{
+  for(const key of ['WORLD_ATOMIC_IDENTITY_COLLISION','WORLD_ATOMIC_SELECTED_POSTCONDITION',
+    'WORLD_ATOMIC_PRESERVATION_FAILED','preserve_sibling_ids','independent_sources_added']) assert.ok(rehearsal.includes(key));
+  assert.doesNotMatch(rehearsal,/\bDELETE\b|row_number\(|PARTITION BY|UPDATE public\.(?:research_objects|channel_updates|nodes)\b/iu);
+  assert.match(rehearsal,/UPDATE public\.decision_ledger l SET provenance=/u);
+  assert.ok(rehearsal.includes('interpretation not verified'));
+});
+
+test('engine, writer and registry drift invalidate the replacement artifact',()=>{
+  const modified=structuredClone(writerSnapshot);
+  modified.functions[0].definition+=' changed';
+  assert.throws(()=>buildAtomicReplacementRehearsalSql(evidence,modified),/Invalid writer snapshot/);
+  assert.match(rehearsal,/WORLD_ATOMIC_IMPLEMENTATION_DRIFT/);
+  assert.match(rehearsal,/WORLD_ATOMIC_METHOD_DRIFT/);
+  assert.match(rehearsal,/md5\(pg_get_functiondef\(to_regprocedure/);
 });
 
 // Optional integration harness: real PostgreSQL in an explicitly supplied,
@@ -172,4 +201,99 @@ test('real PostgreSQL executes holds and negative preflight cases without produc
       assert.equal(actual.find(x=>x.id===r.id).ready_for_review,false,mutation);
     }
     assert.equal(read().filter(r=>r.ready_for_review).length,47,'Every negative fixture was rolled back');
+
+    // Rehearse with captured canonical SQL functions, including the actual regular
+    // engine and revision trigger. Only auth and surrounding fixture schema are local.
+    const siblings=evidence.rows.filter(row=>!selection.some(s=>s.id===row.id)
+      && sources.some(s=>s.id===row.source_id));
+    const actor='00000000-0000-4000-8000-000000000001';
+    const member='00000000-0000-4000-8000-000000000002';
+    pg(`
+      ALTER TABLE research_objects ADD kind text DEFAULT 'observation', ADD engine_verified boolean DEFAULT false,
+        ADD relates text[] DEFAULT '{}', ADD confidence numeric, ADD evidence jsonb, ADD parent_id uuid, ADD owner_person_id uuid;
+      ALTER TABLE channel_updates ADD credit text;
+      ALTER TABLE gematria_methods ADD function text, ADD version integer, ADD active boolean,
+        ADD deterministic boolean, ADD execution_kind text, ADD dependency_version integer,
+        ADD dependency_versions jsonb, ADD required_entitlement text;
+      UPDATE gematria_methods SET function='fn_ragil',version=1,active=true,deterministic=true,
+        execution_kind='sql_function',dependency_version=1,dependency_versions='{}',required_entitlement='public';
+      INSERT INTO research_objects(id,source_ref,statement,value,terms,status,privacy_scope,source,contributor,meta,engine_detail)
+        VALUES ${siblings.map(s=>`(${quote(s.id)},${quote(s.source_ref)},${quote(s.statement)},${s.value},ARRAY[${s.terms.map(quote).join(',')}]::text[],${quote(s.status)},'public','channel','צבי','{}',${quote(JSON.stringify({verification:s.verification}))}::jsonb)`).join(',')};
+      CREATE TABLE public.users(id uuid primary key,role text);
+      INSERT INTO public.users VALUES ('${actor}','admin'),('${member}','member');
+      CREATE SCHEMA auth;
+      CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS
+        $$ SELECT nullif(current_setting('world_fixture.actor',true),'')::uuid $$;
+      CREATE TABLE public.decision_ledger(id uuid primary key DEFAULT gen_random_uuid(),decision_type text,
+        subject_type text,subject_ref text,candidate jsonb,domain text,created_by_agent text,agents_involved text[],
+        human_decision text,human_reason text,decided_by text,result_ref jsonb,provenance jsonb,status text,
+        created_at timestamptz DEFAULT now());
+      CREATE TABLE public.research_object_revisions(research_object_id uuid,research_object_source_uid text,
+        research_object_claim_uid text,change_kind text,changed_fields text[],before_snapshot jsonb,
+        statement_before text,actor uuid,actor_fallback text,occurred_at timestamptz);
+      DROP FUNCTION public.fn_method_value(text,text);
+      ${writerSnapshot.functions.map(f=>f.definition+';').join('\n')}
+      CREATE TRIGGER trg_00_zvi_standing_approve_research_object BEFORE INSERT OR UPDATE OF status,source_ref
+        ON research_objects FOR EACH ROW EXECUTE FUNCTION fn_zvi_standing_approve_research_object();
+      CREATE TRIGGER trg_snapshot_research_object_before_update BEFORE UPDATE ON research_objects
+        FOR EACH ROW EXECUTE FUNCTION fn_snapshot_research_object_revision();
+      CREATE TRIGGER trg_snapshot_research_object_before_delete BEFORE DELETE ON research_objects
+        FOR EACH ROW EXECUTE FUNCTION fn_snapshot_research_object_revision();
+    `);
+    const baseline=pg('SELECT jsonb_agg(to_jsonb(r) ORDER BY id) FROM research_objects r;').stdout;
+    const run=(body=rehearsal,as=actor)=>pg(`SET world_fixture.actor=${quote(as)};\n${body}`,true);
+    const unchanged=()=>{
+      assert.equal(pg('SELECT jsonb_agg(to_jsonb(r) ORDER BY id) FROM research_objects r;').stdout,baseline);
+      assert.equal(pg('SELECT count(*) FROM decision_ledger; SELECT count(*) FROM research_object_revisions;').stdout,'0\n0\n');
+    };
+    for(const as of ['',member]) {
+      const result=run(rehearsal,as);
+      assert.equal(result.status,3);
+      assert.match(result.stderr,/WORLD_ATOMIC_ADMIN_REQUIRED/);
+      unchanged();
+    }
+    for(let attempt=0;attempt<2;attempt++) {
+      const result=run();
+      assert.equal(result.status,0,result.stderr);
+      assert.deepEqual(JSON.parse(result.stdout),{rehearsed:47,persisted:false});
+      unchanged();
+    }
+    const inject=change=>rehearsal.replace('BEGIN ISOLATION LEVEL SERIALIZABLE;',
+      ()=>`BEGIN ISOLATION LEVEL SERIALIZABLE;\n${change}`);
+    for(const [mutation,marker] of [
+      [`UPDATE research_objects SET privacy_scope='private' WHERE id=${id};`,'WORLD_ATOMIC_PREFLIGHT_FAILED'],
+      [`UPDATE channel_updates SET text=text||' changed' WHERE id=${sourceId};`,'WORLD_ATOMIC_PREFLIGHT_FAILED'],
+      [`UPDATE gematria_methods SET version=version+1;`,'WORLD_ATOMIC_METHOD_DRIFT'],
+      [`CREATE OR REPLACE FUNCTION fn_letter_val(c text) RETURNS integer LANGUAGE sql IMMUTABLE AS 'SELECT 0';`,'WORLD_ATOMIC_IMPLEMENTATION_DRIFT'],
+      [`INSERT INTO research_objects SELECT (jsonb_populate_record(null::research_objects,
+          to_jsonb(r)||'{"id":"00000000-0000-4000-8000-000000000003"}')).* FROM research_objects r WHERE id=${id};`,'WORLD_ATOMIC_IDENTITY_COLLISION'],
+      [`ALTER TABLE decision_ledger ADD CONSTRAINT fixture_late_failure CHECK(subject_ref<>${quote([...selection].sort((a,b)=>a.id.localeCompare(b.id)).at(-1).id)});`,'fixture_late_failure'],
+    ]) {
+      const result=run(inject(mutation));
+      assert.equal(result.status,3,result.stdout);
+      assert.ok(result.stderr.includes(marker),result.stderr);
+      unchanged();
+    }
+    // An extra fixture-only trigger attempts to corrupt an unselected sibling.
+    // The canonical revision trigger permits this metadata-only update; our
+    // transaction's preservation postcondition must catch and roll it all back.
+    const corrupt=`CREATE FUNCTION fixture_touch_sibling() RETURNS trigger LANGUAGE plpgsql AS $$
+      BEGIN UPDATE research_objects SET meta='{"fixture_corruption":true}' WHERE id=${quote(siblings[0].id)}; RETURN NEW; END; $$;
+      CREATE TRIGGER fixture_corruption AFTER UPDATE ON research_objects
+        FOR EACH ROW WHEN (NEW.id=${id} AND NEW.status='canonical') EXECUTE FUNCTION fixture_touch_sibling();`;
+    const rejected=run(inject(corrupt));
+    assert.equal(rejected.status,3);
+    assert.match(rejected.stderr,/WORLD_ATOMIC_PRESERVATION_FAILED/);
+    unchanged();
+    // Only in this disposable, network-none test database: persist once to test
+    // the actual writers' end state and refusal to promote the cohort twice.
+    const committed=run(rehearsal.replace(/ROLLBACK;\s*$/u,'COMMIT;'));
+    assert.equal(committed.status,0,committed.stderr);
+    assert.equal(pg("SELECT count(*) FROM decision_ledger; SELECT count(*) FROM research_object_revisions;").stdout,'47\n94\n');
+    const ledger=JSON.parse(pg('SELECT jsonb_agg(provenance) FROM decision_ledger').stdout);
+    assert.ok(ledger.every(p=>p.independent_sources_added===0 && p.truth_score_created===false
+      && p.computed===p.expected && !p.selection.includes('strength=')));
+    const repeated=run();
+    assert.equal(repeated.status,3);
+    assert.match(repeated.stderr,/WORLD_ATOMIC_PREFLIGHT_FAILED/);
   });

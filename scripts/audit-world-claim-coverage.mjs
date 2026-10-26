@@ -1,4 +1,5 @@
-// Offline, bounded review adapter. No connection, write, runtime projection or new parser.
+// Offline, bounded review adapter. No connection, execution, runtime projection or new parser.
+// rehearsal-sql emits a reviewed transaction ending in ROLLBACK; it never executes SQL.
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +13,8 @@ const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/u;
 const md5 = text => createHash('md5').update(text).digest('hex');
 const check = (ok, reason) => { if (!ok) throw new Error(reason); };
 export const readEvidence = () => JSON.parse(readFileSync(evidenceUrl, 'utf8'));
+export const readWriterSnapshot = () => JSON.parse(readFileSync(new URL(
+  '../docs/reviews/world-exact-claim-writer-snapshot-20261026.json', import.meta.url), 'utf8'));
 
 export function validateEvidence(evidence) {
   const { original, rows, sources, reviewPlan } = evidence;
@@ -246,9 +249,143 @@ export function buildPendingAtomicPreflightSql(evidence) {
     now() AS checked_at FROM checks ORDER BY id`);
 }
 
+// Fixed review artifact, deliberately outside migration discovery. This is not a
+// replacement RPC, admin credential injector, automatic promoter or release gate.
+export function buildAtomicReplacementRehearsalSql(evidence, snapshot = readWriterSnapshot()) {
+  const selected = selectPendingAtomicClaims(evidence);
+  check(selected.length === 47 && new Set(selected.map(r => `${r.sourceUid}\n${r.claimUid}`)).size === 47,
+    'Replacement requires all 47 distinct source-native claims');
+  const quote = s => `'${String(s).replaceAll("'", "''")}'`;
+  const ids = [...selected.map(r => r.id)].sort();
+  const sources = [...new Set(selected.map(r => r.sourceId))].sort();
+  const targets = [...new Set(selected.map(r => r.targetId))].sort();
+  const array = values => `ARRAY[${values.map(quote).join(',')}]::uuid[]`;
+  const methodKeys = ['method_key','function','version','active','in_engine','deterministic',
+    'execution_kind','dependency_version','dependency_versions','required_entitlement'];
+  const method = Object.fromEntries(methodKeys.map(k => [k,snapshot.method[k]]));
+  check(snapshot.functions.length === 11 && snapshot.functions.every(f =>
+    /^[a-z_][a-z0-9_]*\([a-z0-9,]*\)$/u.test(f.signature) && md5(f.definition) === f.definition_md5), 'Invalid writer snapshot');
+  const functions = snapshot.functions.map(f => `(${quote(`public.${f.signature}`)},${quote(f.definition_md5)})`).join(',\n');
+  const provenance = selected.map(r => `(${quote(r.id)}::uuid,${quote(JSON.stringify({
+    source_ref:r.sourceRef,source_uid:r.sourceUid,claim_uid:r.claimUid,source_md5:r.sourceMd5,
+    statement_md5:r.statementMd5,source_span:r.sourceSpan,phrase:r.phrase,method:r.method,
+    expected:r.value,target_id:r.targetId,preserve_sibling_ids:r.preserveSiblingIds
+  }))}::jsonb)`).join(',\n');
+  return `-- REVIEW REHEARSAL ONLY. Never run against the live project in this cut.
+-- Existing v2-v5 holds remain mandatory; no migration history is modified.
+BEGIN ISOLATION LEVEL SERIALIZABLE;
+SET LOCAL lock_timeout = '3s';
+SET LOCAL statement_timeout = '60s';
+DO $world_atomic$
+DECLARE
+  r record;
+  result jsonb;
+  updated integer;
+  processed integer := 0;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.users WHERE id=auth.uid() AND role='admin') THEN
+    RAISE EXCEPTION 'WORLD_ATOMIC_ADMIN_REQUIRED' USING ERRCODE='42501';
+  END IF;
+  IF EXISTS (SELECT 1 FROM (VALUES ${functions}) AS expected(signature,digest)
+    WHERE md5(pg_get_functiondef(to_regprocedure(expected.signature))) IS DISTINCT FROM expected.digest) THEN
+    RAISE EXCEPTION 'WORLD_ATOMIC_IMPLEMENTATION_DRIFT';
+  END IF;
+  PERFORM 1 FROM public.gematria_methods WHERE method_key='רגיל' FOR SHARE;
+  IF (SELECT jsonb_build_object(${methodKeys.flatMap(k => [quote(k),`to_jsonb(m)->${quote(k)}`]).join(',')})
+      FROM public.gematria_methods m WHERE method_key='רגיל') IS DISTINCT FROM ${quote(JSON.stringify(method))}::jsonb THEN
+    RAISE EXCEPTION 'WORLD_ATOMIC_METHOD_DRIFT';
+  END IF;
+  -- Lock in stable order; no network calls or whole-table locks inside the transaction.
+  PERFORM ro.id FROM public.research_objects ro
+    WHERE ro.id=ANY(${array(ids)}) OR split_part(ro.source_ref,'#',1)=ANY(
+      ARRAY(SELECT 'channel_updates:'||x::text FROM unnest(${array(sources)}) x))
+    ORDER BY ro.id FOR UPDATE;
+  PERFORM id FROM public.channel_updates WHERE id=ANY(${array(sources)}) ORDER BY id FOR SHARE;
+  PERFORM id FROM public.nodes WHERE id=ANY(${array(targets)}) ORDER BY id FOR SHARE;
+
+  CREATE TEMP TABLE _world_atomic_ready ON COMMIT DROP AS
+    ${buildPendingAtomicPreflightSql(evidence)};
+  IF (SELECT count(*) FROM _world_atomic_ready)<>47
+    OR EXISTS (SELECT 1 FROM _world_atomic_ready WHERE ready_for_review IS DISTINCT FROM true) THEN
+    RAISE EXCEPTION 'WORLD_ATOMIC_PREFLIGHT_FAILED';
+  END IF;
+  IF EXISTS (SELECT 1 FROM _world_atomic_ready s
+    JOIN public.research_objects a ON a.id=s.id JOIN public.research_objects b ON b.id<>a.id
+      AND public.fn_research_source_uid(b.source_ref)=public.fn_research_source_uid(a.source_ref)
+      AND public.fn_research_claim_uid(b.statement)=public.fn_research_claim_uid(a.statement)) THEN
+    RAISE EXCEPTION 'WORLD_ATOMIC_IDENTITY_COLLISION';
+  END IF;
+  CREATE TEMP TABLE _world_atomic_provenance(id uuid PRIMARY KEY,data jsonb) ON COMMIT DROP;
+  INSERT INTO _world_atomic_provenance VALUES ${provenance};
+  CREATE TEMP TABLE _world_atomic_before ON COMMIT DROP AS
+    SELECT ro.id,to_jsonb(ro) AS body FROM public.research_objects ro
+    WHERE ro.id=ANY(${array(ids)}) OR split_part(ro.source_ref,'#',1)=ANY(
+      ARRAY(SELECT 'channel_updates:'||x::text FROM unnest(${array(sources)}) x));
+  CREATE TEMP TABLE _world_atomic_sources ON COMMIT DROP AS
+    SELECT id,to_jsonb(cu) AS body FROM public.channel_updates cu WHERE id=ANY(${array(sources)});
+  CREATE TEMP TABLE _world_atomic_targets ON COMMIT DROP AS
+    SELECT id,to_jsonb(n) AS body FROM public.nodes n WHERE id=ANY(${array(targets)});
+  FOR r IN SELECT * FROM _world_atomic_ready ORDER BY id LOOP
+    result := public.admin_research_review(r.id,'canonicalize','match',false);
+    IF result->>'ok' IS DISTINCT FROM 'true' OR result->>'status' IS DISTINCT FROM 'canonical'
+      OR result->>'verification_state' IS DISTINCT FROM 'match' OR result->>'published' IS DISTINCT FROM 'false' THEN
+      RAISE EXCEPTION 'WORLD_ATOMIC_REVIEW_FAILED: %',r.id;
+    END IF;
+    result := public.admin_research_attach_existing_graph_node_v1(r.id,r.target_id,
+      'ZURIEL reviewed Zvi corpus; exact atomic source claim replay; existing number target only; interpretation not verified.');
+    IF result->>'ok' IS DISTINCT FROM 'true' OR result->>'tree_attached' IS DISTINCT FROM 'true'
+      OR result->>'target_node_id' IS DISTINCT FROM r.target_id::text
+      OR result->>'created_node' IS DISTINCT FROM 'false' OR result->>'created_edge' IS DISTINCT FROM 'false' THEN
+      RAISE EXCEPTION 'WORLD_ATOMIC_ATTACH_FAILED: %',r.id;
+    END IF;
+    -- Correct the existing RPC's historical triage provenance; never invent strength.
+    UPDATE public.decision_ledger l SET provenance=coalesce(l.provenance,'{}'::jsonb)
+      || (SELECT data FROM _world_atomic_provenance WHERE id=r.id)
+      || jsonb_build_object('triage_snapshot_date','2026-10-26',
+        'triage_base_commit','15716bbf10d8fb2de3470b7ac438b4f3476e2f26',
+        'selection','47 reviewed exact atomic source-native claims; no source-number suppression',
+        'computed',r.computed,'verification_scope','numeric equality only; interpretation not verified',
+        'independent_sources_added',0,'truth_score_created',false,'privacy_changed',false,'publication_changed',false,
+        'engine_verified_boolean_changed',false)
+    WHERE l.id=(result->>'decision_ledger_id')::uuid AND l.subject_ref=r.id::text
+      AND l.subject_type='research_object' AND l.decision_type='research_graph_attach'
+      AND l.candidate->>'target_node_id'=r.target_id::text;
+    GET DIAGNOSTICS updated=ROW_COUNT;
+    IF updated<>1 THEN RAISE EXCEPTION 'WORLD_ATOMIC_LEDGER_FAILED: %',r.id; END IF;
+    processed := processed+1;
+  END LOOP;
+  IF processed<>47 OR EXISTS (
+    SELECT 1 FROM _world_atomic_ready s
+    JOIN _world_atomic_before b ON b.id=s.id
+    LEFT JOIN public.research_objects ro ON ro.id=s.id
+    WHERE ro.status IS DISTINCT FROM 'canonical' OR ro.promoted_node_id IS DISTINCT FROM s.target_id
+      OR ro.engine_detail->>'verification_state' IS DISTINCT FROM 'match'
+      OR (to_jsonb(ro)-ARRAY['status','promoted_node_id','meta','engine_detail'])
+        IS DISTINCT FROM (b.body-ARRAY['status','promoted_node_id','meta','engine_detail'])
+      OR (coalesce(ro.meta,'{}'::jsonb)-'governance') IS DISTINCT FROM (coalesce(b.body->'meta','{}'::jsonb)-'governance')
+      OR (ro.engine_detail-ARRAY['verification_state','verification_declared'])
+        IS DISTINCT FROM ((b.body->'engine_detail')-ARRAY['verification_state','verification_declared'])
+  ) THEN RAISE EXCEPTION 'WORLD_ATOMIC_SELECTED_POSTCONDITION'; END IF;
+  IF EXISTS (SELECT 1 FROM _world_atomic_before b LEFT JOIN public.research_objects ro ON ro.id=b.id
+    WHERE NOT EXISTS(SELECT 1 FROM _world_atomic_ready s WHERE s.id=b.id)
+      AND to_jsonb(ro) IS DISTINCT FROM b.body)
+    OR EXISTS (SELECT 1 FROM _world_atomic_sources b LEFT JOIN public.channel_updates cu ON cu.id=b.id
+      WHERE to_jsonb(cu) IS DISTINCT FROM b.body)
+    OR EXISTS (SELECT 1 FROM _world_atomic_targets b LEFT JOIN public.nodes n ON n.id=b.id
+      WHERE to_jsonb(n) IS DISTINCT FROM b.body) THEN
+    RAISE EXCEPTION 'WORLD_ATOMIC_PRESERVATION_FAILED';
+  END IF;
+END;
+$world_atomic$;
+SELECT jsonb_build_object('rehearsed',count(*),'persisted',false) FROM _world_atomic_ready;
+ROLLBACK;
+`;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const evidence = readEvidence();
-  if (process.argv[2] === 'preflight-sql') process.stdout.write(buildPendingAtomicPreflightSql(evidence) + '\n');
+  if (process.argv[2] === 'rehearsal-sql') process.stdout.write(buildAtomicReplacementRehearsalSql(evidence));
+  else if (process.argv[2] === 'preflight-sql') process.stdout.write(buildPendingAtomicPreflightSql(evidence) + '\n');
   else if (process.argv[2] === 'selection') process.stdout.write(JSON.stringify(selectPendingAtomicClaims(evidence), null, 2) + '\n');
   else if (process.argv[2] === 'sql') process.stdout.write(buildReplaySql(evidence) + '\n');
   else if (process.argv[2] === 'inputs') process.stdout.write(JSON.stringify(collectReplayInputs(evidence)) + '\n');
