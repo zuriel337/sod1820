@@ -1,6 +1,6 @@
 -- Explicit ZURIEL instruction: connect proven historical identities, 2026-10-26.
 -- Operational DML only; no schema, RPC, authentication impersonation or publication.
--- The two owner display-pair conflicts are deliberately outside this allowlist.
+-- ZURIEL resolved the two display-pair conflicts: each profile follows its verified email.
 -- One DO statement is atomic. All evidence is rechecked inside it before each link.
 do $batch$
 declare
@@ -9,7 +9,9 @@ declare
     'b8c49719-6fd4-4027-ada1-1a986466eaf9',
     '4a6ae4d2-5372-4b7b-8e3b-3a230dc1a291',
     '8894bec6-b252-4405-bcd9-3773488e2a91',
-    '2b189295-f30d-4061-a1a0-b26afb313863'
+    '2b189295-f30d-4061-a1a0-b26afb313863',
+    '4cd9c034-0464-4600-a35d-7156f0584d9b',
+    '19936860-6b35-4386-bc44-113289858ff0'
   ]::uuid[];
   c record;
   e record;
@@ -28,14 +30,13 @@ declare
   v_new_edges uuid[];
   v_primary_set boolean;
 begin
-  if (select count(*) from public.contributors where id=any(v_ids)) <> 4 then
+  if (select count(*) from public.contributors where id=any(v_ids)) <> 6 then
     raise exception 'allowlisted historical contributors changed';
   end if;
   for c in select * from public.contributors where id=any(v_ids) order by id for update loop
     perform pg_advisory_xact_lock(hashtextextended('person_contributor:'||c.id::text,1820));
     if c.source is distinct from 'openweb_import' or c.active is false
-       or coalesce(c.locked,false) or coalesce(c.trusted,false) or coalesce(c.vip,false)
-       or nullif(btrim(c.merged_into),'') is not null then
+       or coalesce(c.locked,false) or coalesce(c.trusted,false) or coalesce(c.vip,false) then
       raise exception 'historical contributor is no longer eligible';
     end if;
 
@@ -69,6 +70,11 @@ begin
     if coalesce(cardinality(v_accounts),0)<>1 then raise exception 'one verified current account required'; end if;
     v_uid:=v_accounts[1];
     if c.user_id is not null and c.user_id<>v_uid then raise exception 'historical contributor already has a different owner'; end if;
+    -- Preserve an existing alias only if it points uniquely to the same account.
+    if nullif(btrim(c.merged_into),'') is not null and not coalesce((
+      select count(*)=1 and bool_and(target.user_id=v_uid)
+      from public.contributors target where target.slug=c.merged_into or target.code=c.merged_into
+    ),false) then raise exception 'unresolved historical merge conflicts with verified account'; end if;
     perform pg_advisory_xact_lock(hashtextextended('person_account:'||v_uid::text,1820));
     perform pg_advisory_xact_lock(hashtextextended('person_openweb_source:'||v_source,1820));
     select count(*) into v_person_count from public.persons where account_user_id=v_uid;
@@ -121,7 +127,7 @@ begin
         jsonb_build_object('source_id',v_source),'person_identity','GPT',
         jsonb_build_object('source_verified_email',true,'current_confirmed_email',true,'unique_account',true,'existing_person',true),
         jsonb_build_object('person_foundation_contract_law',6),'modify',
-        'ZURIEL explicitly requested connecting proven historical identities on 2026-10-26; ambiguous personal display pairs excluded.',
+        'ZURIEL explicitly requested connecting proven historical identities and confirmed each personal source profile follows its own verified email on 2026-10-26.',
         'ZURIEL',jsonb_build_object('person_id',v_person,'contributor_id',c.id,'new_edge_ids',v_new_edges,'primary_link_created',v_primary_set),
         jsonb_build_object('task_key',v_task,'user_id_before',c.user_id,'person_bounds_before',v_person_before,
           'primary_link_created',v_primary_set,'new_edge_ids',v_new_edges,
