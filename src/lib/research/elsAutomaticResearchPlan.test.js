@@ -56,6 +56,7 @@ const guidedInspection = (hitId, {
   status = "VERIFIED_PAIR",
   relation = { code: "EXACT_INTERSECTION", label: "חצייה", priority: 600, stage: "A" },
   terms = ["ממצאא", "ממצאבח"], storyMatches = 0, failureCause = null, setId = "set-current", languageInspection = null,
+  verifiedFindings = [],
 } = {}) => ({
   lens: "matrix-discovery", ok: true, contract: "els_matrix_discovery_v1", target: { hitId, setId },
   discoveryBundle: {
@@ -67,6 +68,7 @@ const guidedInspection = (hitId, {
         occurrenceCount: 1, matrixStage: relation.stage, ref: `מקור ${index + 1}`, book: "בראשית",
       })),
     } : null,
+    verifiedFindings,
   },
   ...(languageInspection ? { languageInspection } : {}),
 });
@@ -170,6 +172,8 @@ test("strong verified geometry outranks a memorable numeric skip", () => {
   assert.equal(occurrences[1].skip, 4545);
   assert.equal(coverage.recommendation.hitId, "hit-1");
   assert.equal(coverage.stopReason, "STRONG_VERIFIED_PAIR");
+  assert.equal(coverage.matrixSnapshot.items[0].occurrence.hitId, "hit-1");
+  assert.equal(coverage.matrixSnapshot.selectionLaw.numericSkipPromoted, false);
 });
 
 test("guided coverage waits after four misses and admits only four more after continuation", () => {
@@ -318,6 +322,46 @@ test("a canonically replayed language relation verifies exact structure but neve
   assert.equal(language.coverage.relationReplayCalls, 2);
   assert.equal(language.canonicalReplayCalls, 2);
   assert.equal(coverage.recommendation.supports.some(support => support.term === "במלכימ"), false);
+  assert.equal(coverage.matrixSnapshot.items.some(item => item.kind === "verified-language-relation"), true);
+  assert.equal(coverage.matrixSnapshot.items.find(item => item.kind === "verified-language-relation").meaningVerified, false);
+});
+
+test("smart matrix snapshot is verified-only, deduplicated and bounded to five visible items", () => {
+  const occurrences = guidedOccurrences(4);
+  const verifiedFinding = (term, occurrenceCount, matrixStage = "A") => ({
+    term, label: term, status: "VERIFIED", skip: 31, direction: "fwd", occurrenceCount,
+    matrixStage, distance: 1, source: "tanakh-core-lexicon", ref: "בראשית א א", book: "בראשית",
+  });
+  const reports = [
+    guidedInspection("hit-1", { status: "VERIFIED_LOCAL", languageInspection: guidedVerifiedLanguageInspection(),
+      verifiedFindings: [verifiedFinding("דוד", 3), verifiedFinding("אמת", 2), verifiedFinding("אור", 1)] }),
+    guidedInspection("hit-2", { status: "VERIFIED_LOCAL", verifiedFindings: [verifiedFinding("שלום", 5), verifiedFinding("ברית", 2)] }),
+    guidedInspection("hit-3", { status: "VERIFIED_LOCAL", verifiedFindings: [verifiedFinding("מלך", 4), verifiedFinding("ציון", 2)] }),
+    guidedInspection("hit-4", { status: "VERIFIED_LOCAL", verifiedFindings: [verifiedFinding("תורה", 3), verifiedFinding("משה", 2)] }),
+  ];
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: reports });
+  const snapshot = coverage.matrixSnapshot;
+  assert.equal(snapshot.contract, "els_guided_matrix_snapshot_v1");
+  assert.equal(snapshot.status, "READY");
+  assert.equal(snapshot.attentionLimit, 5);
+  assert.equal(snapshot.items.length, 5);
+  assert.deepEqual(snapshot.items.map(item => item.rank), [1, 2, 3, 4, 5]);
+  assert.ok(snapshot.items.every(item => item.status.startsWith("VERIFIED")));
+  assert.equal(snapshot.items.filter(item => item.exactTerms.includes("דוד")).length, 1, "a relation token is not repeated as a local card");
+  assert.equal(snapshot.verifiedOnly, true);
+  assert.equal(snapshot.meaningAuthority, "UNVERIFIED");
+  assert.equal(snapshot.modelCallsTriggered, 0);
+  assert.equal(snapshot.findingMutation, false);
+  assert.equal(snapshot.truthPromotion, false);
+});
+
+test("unverified language candidates remain outside the smart matrix snapshot", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { status: "NO_CANDIDATE_PAIR", languageInspection: guidedLanguageInspection() });
+  const snapshot = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] }).matrixSnapshot;
+  assert.equal(snapshot.status, "VERIFIED_EMPTY");
+  assert.equal(snapshot.items.length, 0);
+  assert.equal(snapshot.candidateOnlyCount > 0, true);
 });
 
 test("a forged canonical replay receipt cannot verify a language relation", () => {

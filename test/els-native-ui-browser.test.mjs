@@ -259,10 +259,13 @@ async function withNative(viewport, run, options = {}) {
     const page = await browser.newPage({ viewport, isMobile: mobile, hasTouch: mobile });
     const errors = [];
     page.__elsDynamicLexiconRequests = [];
+    page.__elsGuidedSnapshotRequests = [];
     page.on('request', request => {
-      if (new URL(request.url()).pathname.endsWith('/els-dynamic-lexicon-v1.gz64.txt')) {
+      const pathname=new URL(request.url()).pathname;
+      if (pathname.endsWith('/els-dynamic-lexicon-v1.gz64.txt')) {
         page.__elsDynamicLexiconRequests.push(request.url());
       }
+      if(pathname.includes('ElsGuidedMatrixSnapshot2029'))page.__elsGuidedSnapshotRequests.push(request.url());
     });
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
@@ -439,6 +442,8 @@ test('Classic opens on unmarked Genesis letters, right aligned, with no sample c
     await activate(page,'חפש');
     await page.waitForFunction(id=>window.__operation?.kind==='search'&&window.__operation.requestId>id&&window.__operation.status==='done',requestId,{timeout:90000});
     assert.equal(page.__elsDynamicLexiconRequests.length,0,'a regular Classic search never downloads the guided language asset');
+    assert.equal(page.__elsGuidedSnapshotRequests.length,0,'Classic never downloads the Guided snapshot component');
+    assert.equal(await page.locator('[data-els-smart-matrix-snapshot="v1"]').count(),0,'Classic never renders the Guided snapshot');
   },{realHost:true,loadGolden:false,mobile:width===390});
 });
 
@@ -1574,6 +1579,7 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
  {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
   for(const width of [320,1440])await withNative({width,height:900},async page=>{
     assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening Guided does not download the language asset before explicit discovery');
+    assert.equal(page.__elsGuidedSnapshotRequests.length,0,'opening Guided does not download snapshot presentation before explicit discovery');
     await page.evaluate(()=>window.__loadResearch({
       contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,researchNonce:1,
       term:'יהוה',scope:'torah',contextTerms:[{term:'משה'},{term:'תורה'},{term:'ישראל'}],
@@ -1614,19 +1620,18 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
       const boundaryCopy=await boundaryPanel.textContent();
       assert.match(boundaryCopy,/אינו מחזיק מילון/);assert.match(boundaryCopy,/אינו קובע שאלה מילים/);assert.match(boundaryCopy,/לא מאומת/);
     }
-    const rankedLanguage=coverage.locator('[data-els-language-relation]');
-    assert.ok(await rankedLanguage.count()<=1,'attention budget exposes at most one ranked language relation');
-    if(await rankedLanguage.count()){
-      const copy=await rankedLanguage.innerText(),state=await rankedLanguage.getAttribute('data-els-language-relation');
-      if(state==='verified'){
-        assert.match(copy,/אומת replay/);assert.match(copy,/הגיאומטריה אומתה/);assert.match(copy,/המשמעות הלשונית והפרשנות אינן מאומתות/);assert.match(copy,/אין הוספה אוטומטית/);
-      }else{
-        assert.equal(state,'unverified');assert.match(copy,/לא מאומת/);assert.match(copy,/לא ממצא/);
-      }
-      assert.match(copy,/מספר הדילוג אינו אות דירוג/);
-      assert.equal(await rankedLanguage.getByRole('button',{name:'פתח את מופע הציר המדויק'}).count(),1);
+    const smartSnapshot=coverage.locator('[data-els-smart-matrix-snapshot="v1"]');
+    assert.ok(await smartSnapshot.count()<=1,'one quiet matrix snapshot owns the verified visible findings');
+    assert.ok(page.__elsGuidedSnapshotRequests.length>=1,'the snapshot presentation is loaded only after Guided has verified material');
+    if(await smartSnapshot.count()){
+      const cards=smartSnapshot.locator('[data-snapshot-kind]'),copy=await smartSnapshot.innerText(),count=await cards.count();
+      assert.ok(count>=1&&count<=5,'the attention budget exposes at most five verified items');
+      assert.ok((await cards.evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-snapshot-kind')))).every(kind=>['verified-pair','verified-language-relation','verified-finding'].includes(kind)));
+      assert.match(copy,/אימות קנוני/);assert.match(copy,/מספר דילוג לבדו/);assert.match(copy,/הקשר ומשמעות נשארים פרשנות לבדיקה/);
+      assert.ok(await smartSnapshot.getByRole('button',{name:'פתח את מופע הציר'}).count()>=1);
     }
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'guided package has no horizontal page overflow');
+    if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`guided-smart-snapshot-${width}.png`),fullPage:true});}
   },{realHost:true,loadGolden:false,mobile:width===320,guided:true});
  });
 
@@ -1646,8 +1651,11 @@ test('guided golden: מקדש ירד keeps two exact axes and recognizes the gen
     assert.ok(recognized,`the general plene/defective recognizer sees the exact matrix letters; reports=${JSON.stringify(reports.map(report=>({axis:report.axis,items:report.items,raw:report.rawPatterns?.slice(0,8),failure:report.discoveryBundle?.failureCause,budget:report.budget})))}`);
     assert.ok(recognized.occurrenceCount>=2,'the recognized form repeats twice in the bounded matrix');
     assert.equal(recognized.readingLabel,'ירושלים','the fuller reading stays annotation, not replacement text');
-    const packageText=await page.locator('[data-els-guided-occurrence-coverage="v1"]').innerText();
+    const packageNode=page.locator('[data-els-guided-occurrence-coverage="v1"]'),packageText=await packageNode.innerText();
     assert.match(packageText,/ירושלם/,'the recognized exact form is visible in the guided research package');
+    const snapshot=packageNode.locator('[data-els-smart-matrix-snapshot="v1"]');
+    assert.equal(await snapshot.count(),1,'the verified local finding is consolidated into one smart snapshot');
+    assert.ok(await snapshot.locator('[data-snapshot-kind]').count()<=5);
   },{realHost:true,loadGolden:false,mobile:true,guided:true});
  });
 

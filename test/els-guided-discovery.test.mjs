@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const COMPONENT = new URL("../src/components/experience2029/ElsGuidedDiscovery2029.jsx", import.meta.url);
 const NATIVE = new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url);
+const SNAPSHOT = new URL("../src/components/experience2029/ElsGuidedMatrixSnapshot2029.jsx", import.meta.url);
 const PAGE = new URL("../src/pages/Els2029Page.jsx", import.meta.url);
 const ENGINE = new URL("../tools/els/els-code.template.html", import.meta.url);
 
@@ -86,19 +87,21 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.doesNotMatch(source, /guidedMatrixLanguageInspection[\s\S]{0,18000}(?:fetch\s*\(|ai-analyze|Math\.random)/);
 });
 
-test("Torah-language readings stay Advanced while the ranked relation separates replay from meaning", async () => {
-  const source = await readFile(NATIVE, "utf8");
+test("Torah-language candidates stay Advanced while the smart snapshot is verified-only", async () => {
+  const source = await readFile(NATIVE, "utf8"), snapshot = await readFile(SNAPSHOT, "utf8");
   assert.match(source, /data-els-language-inspection="candidate-only"/);
-  assert.match(source, /data-els-language-relation=\{languageRelationVerified \? "verified" : "unverified"\}/);
-  assert.match(source, /קשר לשוני מדורג/);
-  assert.match(source, /אומת replay/);
-  assert.match(source, /המשמעות הלשונית והפרשנות אינן מאומתות/);
+  assert.match(source, /<ElsGuidedMatrixSnapshot2029 snapshot=\{coverage\.matrixSnapshot\}/);
+  assert.match(source, /React\.lazy\(\(\) => import\("\.\/ElsGuidedMatrixSnapshot2029\.jsx"\)\)/);
+  assert.match(source, /<React\.Suspense fallback=\{null\}>/);
+  assert.match(snapshot, /data-els-smart-matrix-snapshot="v1"/);
+  assert.match(snapshot, /רק מבנים ומופעים שעברו אימות קנוני/);
+  assert.match(snapshot, /המבנה אומת · המשמעות לא/);
+  assert.match(snapshot, /הקשר ומשמעות נשארים פרשנות לבדיקה/);
+  assert.match(snapshot, /לעולם לא מספר דילוג לבדו/);
+  assert.match(snapshot, /עוד \{snapshot\.candidateOnlyCount\} מועמדים לא מאומתים נשמרו תחת „מתקדם”/);
   assert.match(source, /data-els-language-boundaries="unverified"/);
   assert.match(source, /פרופיל קטן של לשון התורה/);
   assert.match(source, /אינו מחזיק מילון ואינו קובע שאלה מילים/);
-  assert.match(source, /מספר הדילוג אינו אות דירוג/);
-  assert.match(source, /זהו מועמד למחקר, לא ממצא/);
-  assert.match(source, /languageCandidate\.occurrence/);
   assert.match(source, /האותיות נלקחו מהמטריצה הקנונית/);
   assert.match(source, /קריאות מועמדות בלבד/);
   assert.match(source, /data-els-dynamic-lexicon="lazy-bounded"/);
@@ -107,7 +110,7 @@ test("Torah-language readings stay Advanced while the ranked relation separates 
   assert.match(source, /מילון הליבה/);
   assert.match(source, /AI: אפס קריאות/);
   assert.doesNotMatch(source, /languageInspection[\s\S]{0,1200}requestFindingsChange/);
-  assert.ok(source.indexOf("data-els-language-relation=") < source.indexOf('data-els-language-inspection="candidate-only"'));
+  assert.doesNotMatch(snapshot, /languageInspection|rawPatterns|requestFindingsChange|askRaziel|ai-analyze/);
 });
 
 test("Classic stays clean while Research alone owns manual cross-search controls", async () => {

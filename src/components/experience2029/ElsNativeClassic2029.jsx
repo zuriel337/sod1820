@@ -15,6 +15,8 @@ import {
 } from "../../lib/research/elsAutomaticResearchPlan.js";
 import "./elsNativeClassic2029.css";
 
+const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
+
 const clean = (value) => String(value ?? "").trim();
 const canonicalHebrew = (value) => clean(value).replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
 const safeGuidedAxis = (value) => {
@@ -429,12 +431,6 @@ const guidedLexiconSourceLabel = source => ({
   "bounded-dictionary": "מילון המחקר המצומצם",
 })[source] || "מקור לשוני תחום";
 
-const guidedLanguageGeometryLabel = geometry => ({
-  PARALLEL_AXIS_RAY: "אותה קרן מקבילה לציר",
-  AXIS_INTERSECTING_RAY: "אותה קרן חוצה את הציר",
-  LOCAL_SAME_RAY: "אותה קרן מקומית",
-})[geometry] || "קשר גיאומטרי מקומי";
-
 function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOpen, onContinue, onAddSupports }) {
   if (!coverage) return pending ? <section className="els29-guided-coverage" aria-label="בדיקת מופעי הציר"><p role="status">ממתין לאימות הציר והמופעים…</p></section> : null;
   const recommendation = coverage.recommendation;
@@ -446,83 +442,29 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
   const languageBoundaries = languageInspections.flatMap(inspection => inspection.boundaries || []).sort((first, second) =>
     first.focusDistance - second.focusDistance || second.profileScore - first.profileScore
     || first.rayId.localeCompare(second.rayId) || first.boundaryOffset - second.boundaryOffset).slice(0, 8);
-  const languageCandidate = coverage.inspections.flatMap(inspection => (inspection.languageInspection?.relations || [])
-    .map(relation => ({ relation, occurrence: inspection.occurrence, hitId: inspection.hitId }))).sort((first, second) =>
-    Number(second.relation.status === "VERIFIED_RELATION") - Number(first.relation.status === "VERIFIED_RELATION")
-    || second.relation.contextMatches - first.relation.contextMatches || second.relation.exactMatches - first.relation.exactMatches
-    || first.relation.distance - second.relation.distance || first.relation.gap - second.relation.gap
-    || first.relation.rank - second.relation.rank || first.hitId.localeCompare(second.hitId))[0] || null;
-  const languageRelation = languageCandidate?.relation || null;
-  const languageRelationVerified = languageRelation?.status === "VERIFIED_RELATION";
   const languageRayCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.returnedRays || 0), 0);
   const dynamicLanguageProfile = languageInspections.find(inspection => inspection.dynamicLexicon)?.dynamicLexicon || null;
   const languageWindowCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.candidatesExamined || 0), 0);
   const languageLookupCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.lexiconLookups || 0), 0);
-  const recommendationTerms = new Set((recommendation?.supports || []).map(support => support.term));
-  const localByTerm = new Map();
-  for (const finding of coverage.inspections.flatMap(inspection => inspection.verifiedFindings || [])) {
-    if (!finding.term || recommendationTerms.has(finding.term)) continue;
-    const prior = localByTerm.get(finding.term);
-    if (!prior || finding.occurrenceCount > prior.occurrenceCount) localByTerm.set(finding.term, finding);
-  }
-  const localFindings = [...localByTerm.values()].sort((first, second) => second.term.length - first.term.length
-    || second.occurrenceCount - first.occurrenceCount || Number(second.matrixStage === "A") - Number(first.matrixStage === "A")
-    || first.term.localeCompare(second.term, "he")).slice(0, 4);
+  const snapshotReady = coverage.matrixSnapshot?.items?.length > 0;
   return <section className="els29-guided-coverage" data-els-guided-occurrence-coverage="v1" aria-label="חבילת הגילוי המודרך">
     <header>
       <div><small>הציר המדויק</small><strong>{exactTotal || 0} מופעים מאומתים</strong></div>
-      <span className={`els29-guided-state is-${coverage.status.toLowerCase()}`}>{coverage.status === "INSPECTING" ? "בודק סביב המופעים" : recommendation ? "נמצא חיבור חזק" : coverage.status === "AWAITING_CONTINUATION" ? "הבדיקה הראשונה הושלמה" : "הבדיקה המוגבלת הושלמה"}</span>
+      <span className={`els29-guided-state is-${coverage.status.toLowerCase()}`}>{coverage.status === "INSPECTING" ? "בודק סביב המופעים" : recommendation ? "נמצא חיבור חזק" : snapshotReady ? "תמונת המטריצה מוכנה" : coverage.status === "AWAITING_CONTINUATION" ? "הבדיקה הראשונה הושלמה" : "הבדיקה המוגבלת הושלמה"}</span>
     </header>
     <div className="els29-guided-progress" role="status" aria-live="polite">
       <progress max={Math.max(1, coverage.coverage.scheduledCount)} value={coverage.coverage.inspectedCount} aria-label="מופעי ציר שנבדקו" />
       <small>נבדקו {coverage.coverage.inspectedCount} מתוך {coverage.coverage.scheduledCount} המופעים שאושרו לגל הזה. מופע שלא נבדק אינו ראיה שלילית.</small>
     </div>
-    {recommendation ? <article className="els29-guided-recommendation">
-      <div className="els29-guided-recommendation-head"><div><small>{coverage.status === "INSPECTING" ? "החיבור החזק ביותר עד כה" : "החיבור החזק ביותר"}</small><h4>{recommendation.supports.map(support => support.label || support.term).join(" × ")}</h4></div><span>מאומת</span></div>
-      <p>{recommendation.relation.label}. {recommendation.reasons.join(" · ")}</p>
-      <div className="els29-guided-supports">{recommendation.supports.map(support => <div key={support.term}>
-        <b>{support.label || support.term}</b><span>דילוג {support.direction === "back" ? "−" : ""}{support.skip}</span><small>{support.ref || support.book} · {support.occurrenceCount} מופעים בחלון</small>
-        {support.readingLabel ? <small>קריאת לשון אפשרית: {support.readingLabel} · האותיות המדויקות נשמרות</small> : null}
-      </div>)}</div>
-      <div className="els29-guided-actions">
-        <button type="button" onClick={() => onOpen(recommendation.occurrence)}>פתח את מופע הציר המדויק</button>
-        <button type="button" disabled={currentHitId !== recommendation.hitId} onClick={() => onAddSupports(recommendation.supports)}>{currentHitId === recommendation.hitId ? "הוסף את הממצאים למטריצה" : "פתחו את המופע כדי להוסיף"}</button>
-      </div>
-    </article> : null}
-    {localFindings.length ? <section className="els29-guided-local-findings" aria-label="מילים והקשרים סביב המופעים">
-      <header><div><small>מילים והקשרים סביב המופעים</small><strong>ממצאים מקומיים מאומתים</strong></div><span>{localFindings.length}</span></header>
-      <div>{localFindings.map(finding => <article key={finding.term}>
-        <b>{finding.label || finding.term}</b><span>חזר {finding.occurrenceCount} פעמים באזור</span>
-        <small>דילוג {finding.direction === "back" ? "−" : ""}{finding.skip} · {finding.ref || finding.book}</small>
-        {finding.readingLabel ? <small>קריאת לשון אפשרית: {finding.readingLabel} · האותיות המדויקות נשמרות</small> : null}
-      </article>)}</div>
-    </section> : null}
-    {languageRelation ? <section className="els29-guided-local-findings" data-els-language-relation={languageRelationVerified ? "verified" : "unverified"} aria-label="קשר לשוני מדורג">
-      <header><div><small>קשר לשוני מדורג</small><strong>{languageRelationVerified ? "מבנה אותיות מאומת" : "צירוף לבדיקה"}</strong></div><span>{languageRelationVerified ? "אומת replay" : "לא מאומת"}</span></header>
-      <div><article>
-        <b>{languageRelation.tokens.map(token => token.label || token.baseTerm).join(" × ")}</b>
-        <span>{guidedLanguageGeometryLabel(languageRelation.geometry)} · רווח {languageRelation.gap} אותיות</span>
-        <small>אותיות מדויקות: {languageRelation.tokens.map(token => token.exactLetters).join(" · ")}</small>
-        <small>הדירוג מבוסס על גיאומטריה ומונחי הקשר בלבד; מספר הדילוג אינו אות דירוג.</small>
-        {languageRelationVerified ? <>
-          <small>Replay קנוני אישר את האותיות המדויקות ואת מיקומן בשני חלקי הקשר.</small>
-          <small>הגיאומטריה אומתה; המשמעות הלשונית והפרשנות אינן מאומתות.</small>
-          <small>אין הוספה אוטומטית למטריצה.</small>
-        </> : <small>זהו מועמד למחקר, לא ממצא. נדרש replay קנוני לפני אימות או הוספה.</small>}
-      </article></div>
-      <div className="els29-guided-actions"><button type="button" onClick={() => onOpen(languageCandidate.occurrence)}>פתח את מופע הציר המדויק</button></div>
-    </section> : null}
+    <React.Suspense fallback={null}><ElsGuidedMatrixSnapshot2029 snapshot={coverage.matrixSnapshot} currentHitId={currentHitId} onOpen={onOpen} onAddSupports={onAddSupports} /></React.Suspense>
     {!recommendation && coverage.status === "AWAITING_CONTINUATION" ? <div className="els29-guided-next-wave">
       <p>בארבעת המופעים הראשונים לא נמצא עדיין זוג חזק שעבר אימות. אפשר לבדוק עוד ארבעה—לא מעבר לכך בחתך הזה.</p>
       <button type="button" onClick={onContinue}>בדוק עוד עד 4 מופעים</button>
     </div> : null}
     {!recommendation && coverage.status === "BOUNDED_EMPTY" ? <div className="els29-guided-empty">
-      <strong>לא נמצא חיבור חזק בגבול שנבדק.</strong>
+      <strong>{snapshotReady ? "לא נמצא זוג נוסף שעבר את סף החיבור החזק." : "לא נמצא חיבור חזק בגבול שנבדק."}</strong>
       {failures.length ? <ul>{failures.map(category => <li key={category}>{guidedFailureLabel(category)}</li>)}</ul> : <p>נדרשת אבחנה לפני הרחבת החיפוש.</p>}
     </div> : null}
-    {coverage.alternatives.length ? <details><summary>עוד זוגות מאומתים ({coverage.alternatives.length})</summary>
-      {coverage.alternatives.map(alternative => <p key={alternative.hitId}>{alternative.supports.map(support => support.label || support.term).join(" × ")} · {alternative.relation.label}</p>)}
-    </details> : null}
     {rawPatterns.length ? <details className="els29-guided-raw"><summary>מתקדם · דפוסים גולמיים ({rawPatterns.length})</summary>
       <p>אלה רצפי אותיות שחזרו בחלון. הם אינם מילים מזוהות ואינם מוצגים כממצא.</p>
       <ul>{rawPatterns.slice(0, 12).map(pattern => <li key={pattern.term}><bdi>{pattern.term}</bdi> · חזר {pattern.occurrenceCount} פעמים · {pattern.matrixStage === "A" ? "ללא פער במטריצה" : "מבנה עם פער"}</li>)}</ul>
@@ -980,7 +922,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (!term) return;
     guidedContextRef.current = {
       nonce: researchLoad.researchNonce,
+      anchorTerm: term,
       anchorKey: canonicalHebrew(term),
+      scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah",
       terms: safeGuidedContextTerms(researchLoad.contextTerms),
       goal: researchLoad.discoveryGoal || null,
     };
@@ -1146,7 +1090,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (!guidedResults) return null;
     const activeRun = guidedRun.key === guidedKey ? guidedRun : { inspections: [], approvedBatches: 1 };
     return projectElsGuidedOccurrenceCoverage({
-      plan: { contract: ELS_CIPHER_DISCOVERY_PLAN_CONTRACT },
+      plan: { contract: ELS_CIPHER_DISCOVERY_PLAN_CONTRACT, scope: guidedContextRef.current?.scope, anchorTerm: guidedContextRef.current?.anchorTerm },
       occurrences: guidedResults.items || [],
       inspections: activeRun.inspections,
       approvedBatches: activeRun.approvedBatches,

@@ -6,9 +6,11 @@ export const ELS_RESEARCH_BRIEF_CONTRACT = "els_research_brief_v1";
 export const ELS_CIPHER_DISCOVERY_PLAN_CONTRACT = "els_cipher_discovery_plan_v1";
 export const ELS_GUIDED_PLAN_SUMMARY_CONTRACT = "els_guided_discovery_plan_summary_v1";
 export const ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT = "els_guided_occurrence_coverage_v1";
+export const ELS_GUIDED_MATRIX_SNAPSHOT_CONTRACT = "els_guided_matrix_snapshot_v1";
 export const ELS_AUTOMATIC_SLICE_SIZE = 8;
 export const ELS_GUIDED_OCCURRENCE_BATCH_SIZE = 4;
 export const ELS_GUIDED_OCCURRENCE_MAX_BATCHES = 2;
+export const ELS_GUIDED_MATRIX_SNAPSHOT_MAX_ITEMS = 5;
 const MAX_INPUT_LENGTH = 4000;
 const MAX_EXPRESSIONS = 40;
 const MAX_BRIEF_LENGTH = 6000;
@@ -560,6 +562,99 @@ const compareInspections = (first, second) => Number(second.pairVerified) - Numb
   || finiteNumber(second.occurrence.triage?.inspectionPriority) - finiteNumber(first.occurrence.triage?.inspectionPriority)
   || first.occurrence.ordinal - second.occurrence.ordinal || first.inputOrder - second.inputOrder;
 
+const snapshotGeometryPriority = geometry => ({
+  EXACT_INTERSECTION: 5, PARALLEL_CLUSTER: 5, EXACT_PARALLEL_FAMILY: 5,
+  PARALLEL_AXIS_RAY: 5, AXIS_INTERSECTING_RAY: 4, LOCAL_SAME_RAY: 3,
+  A: 4, B: 2,
+})[geometry] || 1;
+const snapshotTermKey = terms => [...new Set(terms.map(canonicalKey).filter(Boolean))].sort().join("|");
+const snapshotRefs = values => Object.freeze([...new Set(values.map(value => String(value || "").trim()).filter(Boolean))].slice(0, 4));
+const compareSnapshotCandidates = (first, second) => Number(second.strongGeometry) - Number(first.strongGeometry)
+  || second.geometryPriority - first.geometryPriority || second.storyMatches - first.storyMatches
+  || second.recurrence - first.recurrence || second.sourceCount - first.sourceCount
+  || second.kindPriority - first.kindPriority || second.letterCount - first.letterCount
+  || first.occurrence.ordinal - second.occurrence.ordinal || first.id.localeCompare(second.id, "he");
+
+/**
+ * A quiet attention projection over already-projected canonical evidence. It does not trust an
+ * engine score, search, verify or call AI. Unverified readings remain in Advanced and can never
+ * become one of the five visible snapshot items.
+ */
+const projectGuidedMatrixSnapshot = (plan, inspections) => {
+  const candidates = [];
+  for (const inspection of inspections) {
+    if (inspection.pairVerified && inspection.supports.length === DEFAULT_DISCOVERY_SUPPORTS) {
+      const terms = inspection.supports.map(support => support.term), labels = inspection.supports.map(support => support.label || support.term);
+      const geometry = inspection.relation.code || inspection.relation.stage;
+      candidates.push({
+        id: `pair:${inspection.hitId}:${snapshotTermKey(terms)}`, kind: "verified-pair", kindPriority: 3,
+        status: "VERIFIED_STRUCTURE", title: labels.join(" × "), exactTerms: Object.freeze(terms), labels: Object.freeze(labels),
+        occurrence: inspection.occurrence, supports: inspection.supports, tokens: Object.freeze([]), geometry,
+        geometryLabel: inspection.relation.label || "מבנה מקומי מאומת", geometryPriority: snapshotGeometryPriority(geometry),
+        strongGeometry: inspection.strongGeometry, storyMatches: inspection.storyMatches, recurrence: inspection.recurrence,
+        sourceCount: inspection.sourceCount, sourceRefs: snapshotRefs(inspection.supports.map(support => support.ref || support.book)),
+        letterCount: terms.reduce((sum, term) => sum + canonicalKey(term).length, 0), meaningVerified: false,
+        reasons: Object.freeze(["שני הממצאים עברו אימות קנוני", inspection.relation.label,
+          inspection.storyMatches ? `כולל ${inspection.storyMatches} התאמות להקשר שנכתב` : "דורג לפי הגיאומטריה המקומית",
+          inspection.recurrence > 2 ? `${inspection.recurrence} מופעים מצטברים בחלון` : null].filter(Boolean)),
+      });
+    }
+    for (const relation of inspection.languageInspection?.relations || []) {
+      if (relation.status !== "VERIFIED_RELATION" || relation.verification?.status !== "MATCH") continue;
+      const terms = relation.tokens.map(token => token.exactLetters), labels = relation.tokens.map(token => token.label || token.baseTerm);
+      const sourceRefs = snapshotRefs([inspection.occurrence.ref]);
+      candidates.push({
+        id: `language:${inspection.hitId}:${snapshotTermKey(terms)}`, kind: "verified-language-relation", kindPriority: 2,
+        status: "VERIFIED_STRUCTURE_MEANING_UNVERIFIED", title: labels.join(" × "), exactTerms: Object.freeze(terms), labels: Object.freeze(labels),
+        occurrence: inspection.occurrence, supports: Object.freeze([]), tokens: relation.tokens, geometry: relation.geometry,
+        geometryLabel: relation.geometry, geometryPriority: snapshotGeometryPriority(relation.geometry),
+        strongGeometry: ["PARALLEL_AXIS_RAY", "AXIS_INTERSECTING_RAY"].includes(relation.geometry),
+        storyMatches: relation.contextMatches, recurrence: 2, sourceCount: sourceRefs.length, sourceRefs,
+        letterCount: terms.reduce((sum, term) => sum + canonicalKey(term).length, 0), meaningVerified: false,
+        reasons: Object.freeze(["שתי הקריאות עברו replay קנוני", relation.contextMatches ? "כולל מונח מן ההקשר שנכתב" : "דורג לפי הגיאומטריה המקומית", "המשמעות נשארת פרשנות לא מאומתת"]),
+      });
+    }
+    for (const finding of inspection.verifiedFindings) {
+      if (finding.status !== "VERIFIED" || !finding.term) continue;
+      const terms = [finding.term], labels = [finding.label || finding.term], sourceRefs = snapshotRefs([finding.ref || finding.book]);
+      candidates.push({
+        id: `finding:${inspection.hitId}:${snapshotTermKey(terms)}`, kind: "verified-finding", kindPriority: 1,
+        status: "VERIFIED_OCCURRENCE", title: labels[0], exactTerms: Object.freeze(terms), labels: Object.freeze(labels),
+        occurrence: inspection.occurrence, supports: Object.freeze([finding]), tokens: Object.freeze([]), geometry: finding.matrixStage,
+        geometryLabel: finding.matrixStage === "A" ? "מבנה מקומי צפוף" : "מבנה מקומי", geometryPriority: snapshotGeometryPriority(finding.matrixStage),
+        strongGeometry: finding.matrixStage === "A", storyMatches: Number(finding.source === "story"), recurrence: finding.occurrenceCount,
+        sourceCount: sourceRefs.length, sourceRefs, letterCount: canonicalKey(finding.term).length, meaningVerified: false,
+        reasons: Object.freeze(["המופע עבר אימות קנוני", finding.matrixStage === "A" ? "גיאומטריה מקומית צפופה" : "נמצא בחלון המקומי",
+          finding.occurrenceCount > 1 ? `חזר ${finding.occurrenceCount} פעמים באזור` : null].filter(Boolean)),
+      });
+    }
+  }
+  candidates.sort(compareSnapshotCandidates);
+  const selected = [], seenSignatures = new Set(), structuralTerms = new Set(candidates
+    .filter(candidate => candidate.kind !== "verified-finding").flatMap(candidate => candidate.exactTerms.map(canonicalKey)));
+  for (const candidate of candidates) {
+    const signature = snapshotTermKey(candidate.exactTerms);
+    if (!signature || seenSignatures.has(signature) || candidate.kind === "verified-finding" && structuralTerms.has(signature)) continue;
+    seenSignatures.add(signature);
+    selected.push(Object.freeze({ ...candidate, rank: selected.length + 1 }));
+    if (selected.length >= ELS_GUIDED_MATRIX_SNAPSHOT_MAX_ITEMS) break;
+  }
+  const anchors = Array.isArray(plan.anchorCandidates) ? plan.anchorCandidates : [];
+  const anchor = anchors.find(candidate => candidate.id === plan.recommendedAnchorId) || anchors[0]
+    || (plan.anchorTerm ? { term: String(plan.anchorTerm), canonicalTerm: canonicalKey(plan.anchorTerm) } : null);
+  const candidateOnlyCount = inspections.reduce((sum, inspection) => sum
+    + (inspection.rawPatterns?.length || 0)
+    + (inspection.languageInspection?.relations || []).filter(relation => relation.status !== "VERIFIED_RELATION").length, 0);
+  return Object.freeze({
+    contract: ELS_GUIDED_MATRIX_SNAPSHOT_CONTRACT, status: selected.length ? "READY" : inspections.length ? "VERIFIED_EMPTY" : "BUILDING",
+    scope: plan.scope, anchor: anchor ? Object.freeze({ term: anchor.term, canonicalTerm: anchor.canonicalTerm }) : null,
+    items: Object.freeze(selected), returnedCount: selected.length, attentionLimit: ELS_GUIDED_MATRIX_SNAPSHOT_MAX_ITEMS,
+    inspectedOccurrences: inspections.length, candidateOnlyCount, verifiedOnly: true, meaningAuthority: "UNVERIFIED",
+    selectionLaw: Object.freeze({ order: Object.freeze(["canonical-verification", "strong-geometry", "story-relevance", "recurrence-and-source", "stable-identity"]), numericSkipPromoted: false }),
+    modelCallsTriggered: 0, findingMutation: false, persisted: false, truthPromotion: false,
+  });
+};
+
 /**
  * Breadth-before-depth projection over canonical reports. It schedules exact occurrence identities;
  * it does not search, verify, persist, mutate findings or call AI. Numeric skip patterns never rank.
@@ -608,6 +703,7 @@ export function projectElsGuidedOccurrenceCoverage({
   const rankedInspections = [...acceptedById.values()].sort(compareInspections);
   const recommendation = rankedInspections.find(inspection => inspection.pairVerified && inspection.strongGeometry) || null;
   const alternatives = Object.freeze(rankedInspections.filter(inspection => inspection !== recommendation && inspection.pairVerified).slice(0, 2));
+  const matrixSnapshot = projectGuidedMatrixSnapshot(plan, rankedInspections);
   const nextOccurrence = schedule.find(occurrence => !acceptedById.has(occurrence.hitId)) || null;
   const remainingUnscheduledCount = Math.max(0, uniqueOccurrences.length - schedule.length);
   let status, stopReason;
@@ -617,7 +713,7 @@ export function projectElsGuidedOccurrenceCoverage({
   else { status = "BOUNDED_EMPTY";stopReason = remainingUnscheduledCount > 0 ? "OCCURRENCE_LIMIT_REACHED" : "NO_STRONG_VERIFIED_PAIR"; }
   return Object.freeze({
     contract: ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT, sourceContract: plan.contract, status, stopReason,
-    schedule, nextOccurrence, recommendation, alternatives, inspections: Object.freeze(rankedInspections),
+    schedule, nextOccurrence, recommendation, alternatives, matrixSnapshot, inspections: Object.freeze(rankedInspections),
     rejectedInspections: Object.freeze(rejectedInspections),
     coverage: Object.freeze({
       batchSize: ELS_GUIDED_OCCURRENCE_BATCH_SIZE, maximumBatches: ELS_GUIDED_OCCURRENCE_MAX_BATCHES,
