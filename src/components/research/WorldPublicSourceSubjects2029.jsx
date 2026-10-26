@@ -9,8 +9,8 @@ import "./worldPublicSourceSubjects2029.css";
 // One World reader stage. Source works are shown AFTER approved Topic identities,
 // not falsely promoted to Topics by their title, previous CMS category or author.
 const CHUNK = 18;
-const EMPTY = { loading: true, cards: [], totals: { zvi: null, hashmal: null },
-  available: { zvi: false, hashmal: false }, error: false, incomplete: false };
+const EMPTY = { loading: true, cards: [], totals: { allTopics: null, zvi: null, hashmal: null },
+  available: { allTopics: false, zvi: false, hashmal: false }, error: false, incomplete: false };
 
 export default function WorldPublicSourceSubjects2029() {
   const anchor = useRef(null);
@@ -67,6 +67,9 @@ export default function WorldPublicSourceSubjects2029() {
     {item.values?.length ? <span className="sod29-world-source-subject-meta">
       מספרים: {item.values.slice(0, 5).join(" · ")}
     </span> : null}
+    {item.type === "approved_topic" ? <span className="sod29-world-source-subject-meta">
+      חוזק תצוגה: {item.meterScore ?? "טרם דורג"} · אינו ציון אמת
+    </span> : null}
     <small>פתח {item.type === "approved_topic" ? "נושא" : "מקור"} ←</small>
   </Link>;
 
@@ -77,12 +80,14 @@ export default function WorldPublicSourceSubjects2029() {
         <h3>לגלות נושאים דרך המקורות</h3>
         <p>נושאים מאושרים וקשריהם מצד אחד, מקורות מלאים מהצד השני. אותו עולם — בלי קטגוריות ישנות.</p>
       </div>
-      {!state.loading && !state.error ? <span className="sod29-world-source-subject-count">
-        {state.totals.zvi ?? "—"} נושאי צבי מאושרים · {state.totals.hashmal ?? "—"} פרסומי סוד החשמל
-      </span> : null}
+      {!state.loading && !state.error ? <div className="sod29-world-source-subject-counts" aria-label="מלאי הנושאים והמקורות">
+        <span className="sod29-world-source-subject-count">{state.totals.allTopics ?? "—"} נושאים ציבוריים בעץ</span>
+        <span className="sod29-world-source-subject-count">מתוכם {state.totals.zvi ?? "—"} נושאי צבי</span>
+        <span className="sod29-world-source-subject-count">{state.totals.hashmal ?? "—"} פרסומי סוד החשמל · מקורות</span>
+      </div> : null}
     </div>
     {!state.loading && !state.error ? <p className="sod29-world-source-subject-inventory-note">
-      זו ספירת שתי ספריות התוכן בלבד; ממצאי המחקר של צבי נספרים וממוינים בנפרד בעדשת המקור.
+      נושאי צבי הם עדשה בתוך אותו עץ — לא מאגר נוסף. פרסומי סוד החשמל הם מקורות לקריאה ואינם נספרים כנושאים.
     </p> : null}
     <div className="sod29-world-source-subject-filters" role="group" aria-label="בחירה לפי מקור">
       {[["all", "הכול"], ["zvi", "צבי"], ["hashmal", "סוד החשמל"]].map(([key, label]) =>
@@ -110,8 +115,8 @@ export default function WorldPublicSourceSubjects2029() {
     {state.incomplete && !state.loading ? <p role="status">חלק מהחומר אינו כלול בחלון הנוכחי. ספריית המקור נשארת זמינה.</p> : null}
 
     {origin !== "hashmal" && (state.available.zvi || topics.length > 0) ? <section className="sod29-world-source-subject-group" aria-label="נושאים מאושרים">
-      <h4>נושאים מאושרים</h4>
-      <p>נושאים בעלי זהות קיימת בעולם. לחיצה פותחת את הקשרים והמקורות שכבר שויכו אליהם.</p>
+      <h4>נושאי צבי · {state.totals.zvi ?? "—"} מתוך {state.totals.allTopics ?? "—"}</h4>
+      <p>אותן זהויות נושא של העץ הכללי, מסודרות לפי חוזק התצוגה. המד מסביר סדר בלבד ואינו ציון אמת.</p>
       <div className="sod29-world-source-subject-list">{topics.slice(0, visibleTopics).map(card)}</div>
       {!state.loading && !topics.length ? <p>לא נמצאו נושאים במסנן הזה.</p> : null}
       {topics.length > visibleTopics ? <button type="button" className="sod29-world-source-subject-more"
