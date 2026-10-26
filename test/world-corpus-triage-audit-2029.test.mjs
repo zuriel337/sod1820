@@ -5,7 +5,7 @@ import { WORLD_CORPUS_TRIAGE_AUDIT } from "../api/world-corpus-triage-audit.js";
 test("manager corpus audit keeps publication, verification and catalog completeness separate", () => {
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.scope, "read_only_recommendations");
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.workstreams.length, 7);
-  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 9);
+  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 12);
   assert.deepEqual(["medium", "weak"].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [4164, 6362]);
   assert.match(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "duplicates").next, /בלי מחיקה/u);
   const zviReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_replay");
@@ -15,6 +15,15 @@ test("manager corpus audit keeps publication, verification and catalog completen
   const deterministicReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_regular_replay_match");
   assert.equal(deterministicReplay.total, 227);
   assert.match(deterministicReplay.state, /232\/232/u);
+  const arithmeticReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_arithmetic_replay");
+  assert.equal(arithmeticReplay.total, 22);
+  assert.match(arithmeticReplay.route, /replay=arithmetic_match/u);
+  const compoundReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_compound_replay");
+  assert.equal(compoundReplay.total, 33);
+  assert.match(compoundReplay.route, /replay=compound_match/u);
+  const unresolvedReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_compound_unresolved");
+  assert.equal(unresolvedReplay.total, 1);
+  assert.match(unresolvedReplay.route, /replay=compound_method_unresolved/u);
 
   const els = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "els");
   assert.equal(els.total, 135);

@@ -113,11 +113,51 @@ const LEGACY_REPLAY_LABELS = Object.freeze({
   mixed_input_match: "Replay תואם · קלט מעורב לבדיקה",
   deterministic_mismatch: "Replay מצא אי־התאמה",
   incomplete_regular_envelope: "מעטפת רגיל חסרה",
-  arithmetic_executor_required: "נדרש executor אריתמטי",
-  compound_mapping_required: "נדרש מיפוי פעולה מורכבת",
+  arithmetic_match: "חיבור שוחזר במלואו",
+  arithmetic_mismatch: "החיבור אינו משתחזר",
+  arithmetic_envelope_mismatch: "החישוב והמעטפת אינם תואמים",
+  arithmetic_unsupported: "תחביר חשבוני לא נתמך",
+  compound_match: "שרשרת מורכבת שוחזרה במלואה",
+  compound_mismatch: "השרשרת המורכבת אינה משתחזרת",
+  compound_envelope_mismatch: "השרשרת והמעטפת אינן תואמות",
+  compound_method_unresolved: "שיטת רכיב בשרשרת אינה פתורה",
+  compound_unsupported: "מבנה השרשרת אינו נתמך",
   missing_replay_envelope: "חסרה מעטפת replay",
   mixed_replay_states: "אשכול עם מצבי replay שונים",
 });
+
+const LEGACY_REPLAY_READY = new Set(["deterministic_match", "arithmetic_match", "compound_match"]);
+const LEGACY_REPLAY_BLOCKED = new Set([
+  "deterministic_mismatch",
+  "arithmetic_mismatch",
+  "arithmetic_envelope_mismatch",
+  "compound_mismatch",
+  "compound_envelope_mismatch",
+  "compound_method_unresolved",
+]);
+
+function legacyReplayClass(state) {
+  if (LEGACY_REPLAY_READY.has(state)) return "is-ready";
+  if (LEGACY_REPLAY_BLOCKED.has(state)) return "is-blocked";
+  return "is-review";
+}
+
+function legacyReplayDescription(replay) {
+  if (replay?.state === "deterministic_match") {
+    return `המנוע הקנוני החזיר ${replay.replayComputed}; עדיין נדרשת הכרעת מקור ויעד.`;
+  }
+  if (replay?.state === "mixed_input_match") return "החישוב תואם, אך הביטוי כולל ספרות או לטינית ולכן נשאר לבדיקה.";
+  if (replay?.state === "arithmetic_match") {
+    return `החיבור וכל ${replay.operandCount || 0} הרכיבים שוחזרו; מצב האמת והחיבור לעץ לא השתנו.`;
+  }
+  if (replay?.state === "compound_match") {
+    return `השרשרת וכל ${replay.operandCount || 0} רכיבי הגימטריה שוחזרו במנוע הקנוני; עדיין נדרשת הכרעת מקור ויעד.`;
+  }
+  if (replay?.state === "compound_method_unresolved") return "לפחות רכיב אחד דורש הכרעת שיטה; השרשרת נשארת חסומה.";
+  if (replay?.state === "missing_replay_envelope") return "הסימון הישן אינו כולל קלט ושיטה מובנים שאפשר להריץ מחדש.";
+  if (replay?.state?.endsWith("_unsupported")) return "המבנה אינו עומד בדקדוק הדטרמיניסטי המצומצם ונשאר לבדיקה.";
+  return "נדרשת השלמת מעטפת או הכרעת מפעיל לפני אישור.";
+}
 
 function humanLabel(map, value, fallback = "אחר") {
   return map[clean(value)] || fallback;
@@ -798,15 +838,9 @@ export default function WorldAllResearchTable({ state }) {
             <small>{triage.continuationReason}</small>
           </div> : null}
 
-          {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${row.legacyReplay.state === "deterministic_match" ? "is-ready" : row.legacyReplay.state === "deterministic_mismatch" ? "is-blocked" : "is-review"}`}>
+          {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${legacyReplayClass(row.legacyReplay.state)}`}>
             <span><small>Replay מנהלי · אינו משנה סטטוס אמת</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
-            <small>{row.legacyReplay.state === "deterministic_match"
-              ? `המנוע הקנוני החזיר ${row.legacyReplay.replayComputed}; עדיין נדרשת הכרעת מקור ויעד.`
-              : row.legacyReplay.state === "mixed_input_match"
-                ? "החישוב תואם, אך הביטוי כולל ספרות או לטינית ולכן נשאר לבדיקה."
-                : row.legacyReplay.state === "missing_replay_envelope"
-                  ? "הסימון הישן אינו כולל קלט ושיטה מובנים שאפשר להריץ מחדש."
-                  : "נדרשת השלמת מעטפת או הכרעת מפעיל לפני אישור."}</small>
+            <small>{legacyReplayDescription(row.legacyReplay)}</small>
           </div> : null}
 
           {row.mediaUrl ? <img className="sod29-world-all-research-media" src={row.mediaUrl} loading="lazy" alt="" /> : null}
