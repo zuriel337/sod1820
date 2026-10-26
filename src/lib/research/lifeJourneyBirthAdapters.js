@@ -201,7 +201,7 @@ function sanitizePoint(point = {}) {
   });
 }
 
-function sanitizeHumanDesign(humanDesign = {}) {
+function sanitizeHumanDesign(humanDesign = {}, channelDefinitions = []) {
   const strategy = clean(humanDesign.type?.strategy);
   const definition = clean(humanDesign.definition);
   const profile = clean(humanDesign.profile?.numbers);
@@ -221,7 +221,14 @@ function sanitizeHumanDesign(humanDesign = {}) {
     definedChannels: Object.freeze((humanDesign.channels || []).map(channel => Object.freeze({
       key: (channel?.gates || []).map(Number).filter(Number.isSafeInteger).sort((a, b) => a - b).join("-"),
       name: clean(channel?.name),
+      centers: Object.freeze((channel?.centers || []).map(clean)),
     })).filter(channel => channel.key)),
+    // Geometry consumes the installed engine's own topology, never a second HD registry.
+    channelTopology: Object.freeze(channelDefinitions.map(channel => Object.freeze({
+      key: (channel?.gates || []).map(Number).filter(Number.isSafeInteger).sort((a, b) => a - b).join("-"),
+      gates: Object.freeze((channel?.gates || []).map(Number).filter(Number.isSafeInteger)),
+      centers: Object.freeze((channel?.centers || []).map(clean)),
+    })).filter(channel => channel.gates.length === 2 && channel.centers.length === 2)),
     definedCenters: Object.freeze((humanDesign.centers?.defined || []).map(center => Object.freeze({
       key: clean(center?.key),
       label: CENTER_LABELS[center?.key] || clean(center?.name),
@@ -300,7 +307,7 @@ export async function calculateLifeJourneyBirthMap(input, {
 
   return Object.freeze({
     version: LIFE_JOURNEY_BIRTH_ADAPTER_VERSION,
-    humanDesign: sanitizeHumanDesign(humanDesign),
+    humanDesign: sanitizeHumanDesign(humanDesign, engine.CHANNELS || []),
     sky: normalized.location ? sanitizeSky(sky) : null,
     trace: Object.freeze({
       engine: LIFE_JOURNEY_BIRTH_ENGINE.package,

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -407,24 +407,68 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await humanDesignResult.waitFor();
     await humanDesignResult.getByText("הקריאה שלך לפי השיטה", { exact: true }).waitFor();
     await humanDesignResult.getByText("דרך פעולה · מבנה החיבור", { exact: true }).waitFor();
+    const bodyGraph = humanDesignResult.locator('[data-chart="human-design"]');
+    assert.equal(await bodyGraph.locator("polygon").count(), 9);
+    assert.equal(await bodyGraph.locator(".birth-chart__channel").count(), 36);
+    await bodyGraph.getByRole("button", { name: /מרכז שורש/ }).click();
+    await bodyGraph.locator(".birth-chart__detail h6").filter({ hasText: "שורש" }).waitFor();
+    const rootCenter = bodyGraph.getByRole("button", { name: /מרכז ראש ·/ });
+    await rootCenter.focus();
+    await page.keyboard.press("Enter");
+    assert.equal(await rootCenter.getAttribute("aria-pressed"), "true");
+    const channelButtons = bodyGraph.getByLabel("ערוצים לחיצים").getByRole("button");
+    if (await channelButtons.count()) {
+      await channelButtons.first().click();
+      await bodyGraph.locator(".birth-chart__detail h6").filter({ hasText: "ערוץ" }).waitFor();
+      assert.equal(await bodyGraph.locator('.birth-chart__channel[data-selected="true"]').count(), 1);
+    }
     await birthStudio.getByText(/natalengine 1\.6\.0/).waitFor();
     await birthStudio.getByRole("tab", { name: "מפת שמיים" }).click();
     const skyResult = birthStudio.locator('[data-result="sky-map"]');
     await skyResult.waitFor();
+    const skyChart = skyResult.locator('[data-chart="sky"]');
+    assert.equal(await skyChart.locator(".birth-chart__sign").count(), 12);
+    assert.equal(await skyChart.locator(".birth-chart__position").count(), 12);
+    await skyChart.getByRole("button", { name: "2 ירח", exact: true }).click();
+    await skyChart.locator(".birth-chart__detail h6").filter({ hasText: "ירח" }).waitFor();
+    await skyResult.getByText("כל מיקומי גרמי השמיים", { exact: true }).click();
     assert.equal(await skyResult.locator(".birth-map-sky-wheel article").count(), 12);
     await skyResult.getByText("אופק עולה", { exact: true }).waitFor();
     await skyResult.getByText("היבטים מרכזיים", { exact: true }).waitFor();
     for (const theme of ["light", "parchment", "dark"]) {
-      for (const width of [390, 1280]) {
+      for (const width of [320, 390, 1440]) {
         await page.setViewportSize({ width, height: 900 });
         await page.evaluate(value => window.__setLifeJourneyTheme(value), theme);
         await page.waitForFunction(value => document.querySelector("[data-fixture-theme]")?.dataset.fixtureTheme === value, theme);
         const birthLayout = await birthStudio.evaluate(element => ({ scrollWidth: element.scrollWidth, clientWidth: element.clientWidth }));
         assert.ok(birthLayout.scrollWidth <= birthLayout.clientWidth + 1, `birth studio ${theme} ${width}px must not overflow`);
         assert.equal(await skyResult.isVisible(), true, `sky result remains visible in ${theme} at ${width}px`);
+        for (const lens of ["מפת שמיים", "המפה האישית"]) {
+          await birthStudio.getByRole("tab", { name: lens, exact: true }).click();
+          const chart = birthStudio.locator(".birth-chart");
+          const metrics = await chart.evaluate(element => ({
+            overflow: element.scrollWidth > element.clientWidth + 1,
+            bodySize: parseFloat(getComputedStyle(element.querySelector(".birth-chart__reading p")).fontSize),
+            smallTargets: [...element.querySelectorAll("button")].filter(button => button.getBoundingClientRect().width < 43.5 || button.getBoundingClientRect().height < 43.5).length,
+          }));
+          assert.equal(metrics.overflow, false, `${lens} ${theme} ${width}px chart fits`);
+          assert.ok(metrics.bodySize >= 18, `${lens} uses readable body text`);
+          assert.equal(metrics.smallTargets, 0, `${lens} has 44px touch targets`);
+          if (process.env.LIFE_JOURNEY_CHART_SCREENSHOT_DIR) {
+            mkdirSync(process.env.LIFE_JOURNEY_CHART_SCREENSHOT_DIR, { recursive: true });
+            await chart.screenshot({ path: `${process.env.LIFE_JOURNEY_CHART_SCREENSHOT_DIR}/${lens === "המפה האישית" ? "human" : "sky"}-${theme}-${width}.png` });
+          }
+        }
+        await birthStudio.getByRole("tab", { name: "מפת שמיים", exact: true }).click();
       }
     }
     await page.setViewportSize({ width: 390, height: 900 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await skyChart.getByRole("button", { name: "1 שמש", exact: true }).focus();
+    assert.equal(await skyChart.getByRole("button", { name: "1 שמש", exact: true }).evaluate(element => getComputedStyle(element).transitionDuration), "0s");
+    await page.keyboard.press("Enter");
+    await skyChart.locator(".birth-chart__detail h6").filter({ hasText: "שמש" }).waitFor();
+    await page.emulateMedia({ reducedMotion: "no-preference" });
     const calculationRequests = requestUrls.slice(birthCalculationRequestIndex).map(url => decodeURIComponent(url)).join("\n");
     const calculationBodies = requestBodies.join("\n");
     for (const privateValue of ["1990-02-15", "05:30", "Asia/Jerusalem", "31.76904", "35.21633", "ירושלים", "הורה בדיקה", "עיר בדיקה"]) {

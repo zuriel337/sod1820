@@ -7,6 +7,7 @@ import {
   searchLifeJourneyBirthPlaces,
 } from "../../lib/research/lifeJourneyBirthPlaces.js";
 import "./birth-map-studio-2029.css";
+import { HumanDesignBodyGraph2029, SkyWheel2029 } from "./BirthCharts2029.jsx";
 
 const BirthMapScene3D = lazy(() => import("./BirthMapScene3D2029.jsx"));
 
@@ -145,6 +146,7 @@ function HumanDesignResult({ result }) {
       <p>{HUMAN_DESIGN_TYPE_COPY[result.type] || "המפה מציגה את מבנה ה־Human Design שחושב מנתוני הלידה שהזנת."}</p>
       <span>דרך פעולה: <strong>{result.strategyLabel || result.strategy}</strong> · דרך הכרעה: <strong>{result.authorityLabel}</strong></span>
     </section>
+    <HumanDesignBodyGraph2029 result={result} />
     <section className="birth-map-result__headline">
       <article><small>הטיפוס שלך</small><strong>{result.typeLabel}</strong></article>
       <article><small>דרך ההכרעה</small><strong>{result.authorityLabel}</strong></article>
@@ -159,7 +161,7 @@ function HumanDesignResult({ result }) {
 }
 
 function SkyResult({ result, hasCalculation }) {
-  if (!hasCalculation) return <div className="birth-map-awaiting"><strong>המפה מחכה להפעלה שלך</strong><span>לחישוב בתים וזוויות דרושים אזור זמן וקואורדינטות מפורשות.</span></div>;
+  if (!hasCalculation) return <div className="birth-map-awaiting"><strong>המפה מחכה להפעלה שלך</strong><span>בחרו עיר והזינו תאריך ושעה כדי לראות את מיקומי הכוכבים והזוויות.</span></div>;
   if (!result) return <div className="birth-map-awaiting is-missing"><strong>Human Design חושב; מפת השמיים ממתינה לקואורדינטות</strong><span>הוסיפו קו רוחב וקו אורך והפעילו שוב. המערכת אינה מנחשת מקום.</span></div>;
   return <div className="birth-map-result" data-result="sky-map">
     <section className="birth-map-result__headline is-sky">
@@ -167,11 +169,12 @@ function SkyResult({ result, hasCalculation }) {
       <article><small>רום שמיים</small><strong>{result.angles.midheaven.signLabel} · {result.angles.midheaven.degree}°</strong></article>
       <article><small>מסגרת</small><strong>טרופית · גאוצנטרית</strong></article>
     </section>
-    <section className="birth-map-sky-wheel" aria-label="מיקומי גרמי השמיים">
+    <SkyWheel2029 result={result} />
+    <details><summary>כל מיקומי גרמי השמיים</summary><section className="birth-map-sky-wheel" aria-label="מיקומי גרמי השמיים">
       {result.bodies.map((body, index) => <article key={body.key} style={{ "--body-index": index }}>
         <i aria-hidden="true" /><small>{body.label}</small><strong>{body.signLabel}</strong><span>{body.degree}°</span>
       </article>)}
-    </section>
+    </section></details>
     <section className="birth-map-result__group"><h6>היבטים מרכזיים</h6><div>{result.aspects.length ? result.aspects.map((aspect, index) => <span key={`${aspect.left}-${aspect.right}-${aspect.kind}-${index}`}>{aspect.left} {aspect.symbol} {aspect.right} · {aspect.label} · orb {aspect.orb}°</span>) : <span>לא נמצא היבט מרכזי בטווח החישוב.</span>}</div></section>
   </div>;
 }

@@ -40,6 +40,13 @@ test("computes the published golden Human Design and sky fixture locally", async
   assert.equal(result.humanDesign.strategyLabel, "להמתין לתגובה ואז ליידע");
   assert.equal(result.humanDesign.definitionLabel, "הגדרה אחידה");
   assert.ok(result.humanDesign.activatedGates.includes(33));
+  assert.equal(result.humanDesign.channelTopology.length, 36);
+  const activeGates = new Set(result.humanDesign.activatedGates);
+  const definedChannelKeys = new Set(result.humanDesign.definedChannels.map(channel => channel.key));
+  for (const channel of result.humanDesign.channelTopology) {
+    assert.equal(channel.centers.length, 2);
+    assert.equal(definedChannelKeys.has(channel.key), channel.gates.every(gate => activeGates.has(gate)), `engine topology and calculated channel ${channel.key} agree`);
+  }
   assert.equal(result.sky.angles.ascendant.sign, "Sagittarius");
   assert.equal(result.sky.angles.midheaven.sign, "Virgo");
   assert.equal(result.sky.coordinateSource, "explicit_session_coordinates");
