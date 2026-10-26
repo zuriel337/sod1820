@@ -42,6 +42,8 @@ export default function RazielOneShotActions2029({ session, onRun, disabled = fa
     }
     setActionState({ id: action.id, status: result?.ok ? "done" : "error" });
   };
+  // A deterministic navigation answer is a link/question, not research material: no one-shot offers under it.
+  if (latestRaziel?.navigationAction || latestRaziel?.navigationClarify) return null;
   return (
     <>
       {Object.keys(RAZIEL_ONE_SHOT_LABEL).map((kind) => (
