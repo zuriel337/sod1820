@@ -2,6 +2,15 @@
 .sod29-frame-panel[data-panel-kind="workspace"] .sod29-panel-lead{text-align:center;justify-items:center}
 .sod29-frame-panel[data-panel-kind="workspace"] .sod29-panel-lead p{max-width:66ch}
 .sod29-workspace-home{display:grid;gap:12px;width:100%;min-width:0}
+.sod29-workspace-raziel-presence{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--s29-line-strong);border-radius:20px;background:var(--s29-panel-grad);padding:14px}
+.sod29-workspace-raziel-mark{display:grid;place-items:center;width:48px;height:48px;border:1px solid var(--s29-line-strong);border-radius:999px;background:linear-gradient(135deg,var(--s29-raziel-blue),var(--s29-raziel-indigo) 52%,var(--s29-raziel-violet));color:var(--s29-ink);font-size:22px;box-shadow:0 0 20px var(--s29-raziel-glow)}
+.sod29-workspace-raziel-copy{display:grid;gap:3px;min-width:0;text-align:start}
+.sod29-workspace-raziel-copy>span{color:var(--s29-accent-text);font-size:14px;font-weight:700}
+.sod29-workspace-raziel-copy>strong{color:var(--s29-ink);font-size:18px;overflow-wrap:anywhere}
+.sod29-workspace-raziel-copy>p{margin:2px 0 0;color:var(--s29-ink);font-size:16px;line-height:1.6;overflow-wrap:anywhere}
+.sod29-workspace-raziel-copy>small{color:var(--s29-muted);font-size:14px;line-height:1.55}
+.sod29-workspace-raziel-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.sod29-workspace-raziel-actions .sod29-action{min-height:44px}
 .sod29-workspace-section-head{display:flex;align-items:center;justify-content:center;gap:12px;text-align:center;flex-wrap:wrap}
 .sod29-workspace-section-head strong{color:var(--s29-ink);font-size:16px}
 .sod29-workspace-section-head small{color:var(--s29-muted);font-size:14px;text-align:center}
@@ -29,6 +38,10 @@
   .sod29-workspace-core-grid,.sod29-workspace-secondary-grid{grid-template-columns:1fr}
   .sod29-workspace-section-head{align-items:center}
   .sod29-workspace-section-head small{text-align:center}
+  .sod29-workspace-raziel-presence{grid-template-columns:44px minmax(0,1fr)}
+  .sod29-workspace-raziel-mark{width:44px;height:44px}
+  .sod29-workspace-raziel-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}
+  .sod29-workspace-raziel-actions .sod29-action{width:100%}
 }
 .sod29-workspace-pulse{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center;border:1px solid var(--s29-line-strong);border-radius:18px;background:var(--s29-panel-soft);padding:12px 13px}
 .sod29-workspace-pulse-id strong,.sod29-workspace-pulse-id small{display:block}
@@ -80,4 +93,5 @@
   .sod29-workspace-home-card,.sod29-workspace-mini-card{grid-template-columns:44px minmax(0,1fr)}
   .sod29-workspace-home-card>b,.sod29-workspace-mini-card>b{grid-column:2;justify-self:start}
   .sod29-workspace-section-head{display:grid;justify-items:center;gap:2px}
+  .sod29-workspace-raziel-actions{grid-template-columns:1fr}
 }

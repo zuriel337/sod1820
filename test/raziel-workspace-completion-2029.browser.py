@@ -57,7 +57,7 @@ class Files(SimpleHTTPRequestHandler):
 server = ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Files, directory=str(ROOT / "dist")))
 threading.Thread(target=server.serve_forever, daemon=True).start()
 BASE = f"http://127.0.0.1:{server.server_port}"
-REPORT = {"cases": [], "errors": [], "model_calls": [], "unexpected_writes": [], "private_telemetry": [], "live_requests": 0}
+REPORT = {"cases": [], "errors": [], "model_calls": [], "els_calls": [], "family_research_calls": [], "unexpected_writes": [], "private_telemetry": [], "live_requests": 0}
 READS = {"research_state_snapshot_v1", "fn_research_path_resume_v1", "world_group_source_arrivals_v2",
          "notification_prefs_guest_get_v1", "notification_prefs_get_v1", "fn_method_value", "community_feed_page", "community_reply_counts"}
 TELEMETRY = {"track_visit", "link_identity", "ingest_event", "claim_research_lead", "user_activity", "behavior_signal"}
@@ -69,10 +69,13 @@ def wire(page):
     page.on("pageerror", lambda error: REPORT["errors"].append(str(error)))
     def route(handler):
         req = handler.request; url = urlparse(req.url); name = url.path.rsplit("/", 1)[-1]
+        request_body = (req.post_data or "").lower()
         actor = None
         token = req.headers.get("authorization", "").removeprefix("Bearer ").split(".")
         if len(token) == 3 and token[2] == "synthetic":
             actor = json.loads(base64.urlsafe_b64decode(token[1] + "=" * (-len(token[1]) % 4)))["sub"]
+        if name == "research-run" and "els" in request_body: REPORT["els_calls"].append(name)
+        if name == "research-run" and any(marker in request_body for marker in ["family", "member_ref", "family_relation"]): REPORT["family_research_calls"].append(name)
         if name in {"ai-analyze", "research-run", "raziel-submit"} or any(provider in (url.hostname or "") for provider in ["openai", "anthropic", "generativelanguage"]):
             REPORT["model_calls"].append(name); return handler.abort()
         if url.hostname == "127.0.0.1":
@@ -167,6 +170,19 @@ try:
             for theme in ["light", "parchment", "dark"]:
                 ctx = browser.new_context(viewport={"width": width, "height": 950}, reduced_motion="reduce", is_mobile=width<400, has_touch=width<400)
                 seed(ctx, theme); page = ctx.new_page(); state = wire(page); page.goto(BASE + "/2029")
+                workspace = open_workspace(page)
+                presence = workspace.locator('[data-workspace-raziel-presence="deterministic"]')
+                expect(presence).to_be_visible()
+                expect(presence).to_contain_text("רזיאל איתך באזור האישי")
+                expect(presence).to_contain_text("הרמזים מחוברים למסע החיים")
+                ask = presence.get_by_role("button", name="שאל את רזיאל", exact=True)
+                box = ask.bounding_box(); assert box["width"] >= 44 and box["height"] >= 44
+                assert presence.evaluate("e=>e.scrollWidth<=e.clientWidth+1")
+                workspace.evaluate("e=>e.scrollTop=0")
+                page.screenshot(path=str(OUT / f"presence-{width}-{theme}.png"), full_page=False)
+                ask.click()
+                page.locator('.sod29-frame-panel [data-raziel-native-chat="true"]').wait_for()
+                assert not REPORT["model_calls"] and not REPORT["els_calls"] and not REPORT["family_research_calls"]
                 center = open_center(page)
                 row = center.locator('[data-raziel-center-session="raziel-session:GUEST_ONLY"]')
                 expect(row).to_contain_text("מקומי בדפדפן הזה"); expect(row).to_contain_text("מתפרע")
@@ -243,6 +259,11 @@ try:
         expect(center.get_by_text("אין עדיין שיחות שמורות", exact=True)).to_be_visible()
         assert len([item for item in local_saved(page, "user:"+B) if item["type"] == "raziel_session"]) == 0
         assert "ACCOUNT_A" not in json.dumps(state["cloud"][B]) and "GUEST_ONLY" not in json.dumps(state["cloud"][A])
+        workspace = open_workspace(page)
+        presence = workspace.locator('[data-workspace-raziel-presence="deterministic"]')
+        expect(presence).to_contain_text("0 שיחות שמורות")
+        expect(presence).not_to_contain_text("ACCOUNT_A")
+        expect(presence).not_to_contain_text("GUEST_ONLY")
         assert not any("credit" in json.dumps(write) for write in state["ops"])
         REPORT["cases"].append({"guest_a_logout_b": True, "private_sync": True, "known_zero": True, "rename_identity": True, "confirmed_delete": True, "no_ai": True})
         ctx.close()
@@ -299,6 +320,8 @@ finally:
 
 assert not REPORT["errors"], REPORT["errors"]
 assert not REPORT["model_calls"], REPORT["model_calls"]
+assert not REPORT["els_calls"], REPORT["els_calls"]
+assert not REPORT["family_research_calls"], REPORT["family_research_calls"]
 assert not REPORT["unexpected_writes"], REPORT["unexpected_writes"]
 assert not REPORT["private_telemetry"], REPORT["private_telemetry"]
 (OUT/"results.json").write_text(json.dumps(REPORT, ensure_ascii=False, indent=2))
