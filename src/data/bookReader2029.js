@@ -71,6 +71,7 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     pdfPages: 220,
     pdfUrl: `${GALLERY_ROOT}/Sefer%20Yetsirah.pdf`,
     pageTextUrl: "/book-data/sefer-yetzirah.page-text.json",
+    commentaryUrl: "/book-data/sefer-yetzirah.commentary.json",
     introduction: "כרך משולב של ספר יצירה עם תשעה קולות פרשניים, ספר חכמוני, פירושי הגר״א ופרי יצחק, לוחות שערים ונספחים. המקור אינו טקסט יחיד רציף בלבד; בכל טווח צריך לזהות איזה חיבור ואיזה מפרש נמצאים מול העיניים.",
     readingKeys: ["עשר ספירות וכ״ב אותיות הן שני צירים משלימים", "שלוש אמות, שבע כפולות ושתים־עשרה פשוטות בונות את מפת האותיות", "יש להבחין בין נוסח הספר לבין כל אחד מן הפירושים"],
     chapters: [

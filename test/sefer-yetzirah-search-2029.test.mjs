@@ -28,5 +28,5 @@ test("Sefer Yetzirah OCR covers every searchable scan without filling visual pag
 test("the canonical reader lazily connects Sefer Yetzirah OCR search", () => {
   const manifest = getBookReaderManifest("sefer-yetzirah");
   assert.equal(manifest.pageTextUrl, "/book-data/sefer-yetzirah.page-text.json");
-  assert.equal(manifest.commentaryUrl, undefined);
+  assert.equal(manifest.commentaryUrl, "/book-data/sefer-yetzirah.commentary.json");
 });
