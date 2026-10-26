@@ -295,6 +295,26 @@ test("technically-ready source and target axes are independently filterable", ()
   assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replayTargetEvidence: "exact_value_among_multiple_numbers" }), [repairMultiple]);
 });
 
+test("missing-engine target context is filterable without becoming a ready decision", () => {
+  const pending = reviewRow("10000000-0000-4000-8000-000000000016", {
+    legacyReplay: {
+      state: "missing_engine_assessment",
+      decision: null,
+      pendingEngineContext: {
+        targetStateCounts: { single_structured_target: 1 },
+        targetEvidenceStateCounts: { exact_row_value_match: 1 },
+      },
+    },
+  });
+  const unrelated = reviewRow("10000000-0000-4000-8000-000000000017", {
+    legacyReplay: { state: "missing_engine_assessment", decision: null },
+  });
+
+  assert.deepEqual(filterWorldFindingReviewRows([unrelated, pending], { pendingEngineTarget: "single_structured_target" }), [pending]);
+  assert.deepEqual(filterWorldFindingReviewRows([unrelated, pending], { pendingEngineTargetEvidence: "exact_row_value_match" }), [pending]);
+  assert.deepEqual(filterWorldFindingReviewRows([unrelated, pending], { replayTarget: "single_structured_target" }), []);
+});
+
 test("canonical contributor scope keeps stable identity and registered aliases without guessing", () => {
   const exact = reviewRow("10000000-0000-4000-8000-000000000001", {
     sourceContributorId: ZVI_ID,

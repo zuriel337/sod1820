@@ -506,13 +506,9 @@ function decisionReason(sourceReadiness, targetReadiness, repairCount, targetCou
   return "לא קיים יעד מובנה; יש למפות יעד על בסיס מקור מפורש לפני חיבור לעץ.";
 }
 
-/**
- * Separates technical replay readiness from source and tree-target decisions.
- * It is manager-only projection metadata and never writes, promotes or changes truth.
- */
-export function classifyWorldLegacyReplayDecision(occurrences = []) {
+function projectSourceTargetContext(occurrences = [], stage = "ready") {
   const items = Array.isArray(occurrences) ? occurrences.filter(Boolean) : [];
-  if (!items.length || items.some((item) => !REVIEW_READY_STATES.has(item.state))) return null;
+  if (!items.length) return null;
 
   const sourceLocatorStateCounts = {};
   const targetStateCounts = {};
@@ -539,11 +535,14 @@ export function classifyWorldLegacyReplayDecision(occurrences = []) {
   const sourceReadiness = repairCount ? "source_locator_repair" : "exact_source";
   const decisionState = sourceReadiness === "source_locator_repair" ? sourceReadiness : targetReadiness;
   const structuredTargets = Object.freeze([...targets.values()]);
+  const baseReason = decisionReason(sourceReadiness, targetReadiness, repairCount, structuredTargets.length, targetEvidenceStateCounts);
   return Object.freeze({
+    stage,
     decisionState,
     sourceReadiness,
     targetReadiness,
-    readyOccurrenceCount: items.length,
+    readyOccurrenceCount: stage === "ready" ? items.length : 0,
+    pendingOccurrenceCount: stage === "pending_engine" ? items.length : 0,
     sourceRepairOccurrenceCount: repairCount,
     sourceLocatorStateCounts: Object.freeze(sourceLocatorStateCounts),
     targetStateCounts: Object.freeze(targetStateCounts),
@@ -551,9 +550,27 @@ export function classifyWorldLegacyReplayDecision(occurrences = []) {
     targetCount: structuredTargets.length,
     targets: structuredTargets,
     proposedNumberTargets: Object.freeze([...proposedNumberTargets]),
-    reason: decisionReason(sourceReadiness, targetReadiness, repairCount, structuredTargets.length, targetEvidenceStateCounts),
+    reason: stage === "pending_engine"
+      ? `המקור והיעד מנותבים בלבד; חסרה הכרעת מנוע לפני חיבור. ${baseReason}`
+      : baseReason,
     mutatesLiveData: false,
   });
+}
+
+/**
+ * Separates technical replay readiness from source and tree-target decisions.
+ * It is manager-only projection metadata and never writes, promotes or changes truth.
+ */
+export function classifyWorldLegacyReplayDecision(occurrences = []) {
+  const items = Array.isArray(occurrences) ? occurrences.filter(Boolean) : [];
+  if (!items.length || items.some((item) => !REVIEW_READY_STATES.has(item.state))) return null;
+  return projectSourceTargetContext(items, "ready");
+}
+
+export function classifyWorldMissingEngineContext(occurrences = []) {
+  const items = Array.isArray(occurrences) ? occurrences.filter(Boolean) : [];
+  if (!items.length || items.some((item) => !["missing_engine_detail_unverified", "missing_engine_assessment"].includes(item.state))) return null;
+  return projectSourceTargetContext(items, "pending_engine");
 }
 
 function sourceId(value) {
@@ -578,6 +595,7 @@ export function attachWorldLegacyReplay(row, replayIndex) {
   const state = states.length === 1 ? states[0] : "mixed_replay_states";
   const representative = occurrences.find((item) => item.id === sourceId(row.sourceId)) || occurrences[0];
   const decision = classifyWorldLegacyReplayDecision(occurrences);
+  const pendingEngineContext = classifyWorldMissingEngineContext(occurrences);
   return {
     ...row,
     legacyReplay: Object.freeze({
@@ -586,6 +604,7 @@ export function attachWorldLegacyReplay(row, replayIndex) {
       stateCounts: Object.freeze(stateCounts),
       occurrenceCount: occurrences.length,
       decision,
+      pendingEngineContext,
       mutatesLiveData: false,
     }),
   };

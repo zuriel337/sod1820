@@ -4,6 +4,7 @@ import {
   attachWorldLegacyReplay,
   buildWorldLegacyReplayIndex,
   classifyWorldLegacyReplayDecision,
+  classifyWorldMissingEngineContext,
   classifyWorldMissingEngineStatement,
   projectWorldLegacyReplayOccurrence,
   replayWorldArithmeticExpression,
@@ -220,6 +221,26 @@ test("missing-engine routing uses explicit text markers without claiming verific
   assert.equal(classifyWorldMissingEngineStatement("תרגום לאנגלית").queue, "language");
   assert.equal(classifyWorldMissingEngineStatement("המספר 1820 מופיע כאן").queue, "numeric_statement");
   assert.equal(classifyWorldMissingEngineStatement("הקשר מתואר במקור").queue, "textual_statement");
+});
+
+test("missing-engine source and target context stays separate from technical readiness", () => {
+  const missing = row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "טענה מספרית לבדיקה",
+    value: 68,
+    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "number", key: "68" }] } } },
+  });
+  const projected = attachWorldLegacyReplay({
+    id: `research:${missing.id}`, sourceId: missing.id, verification: "not_tested",
+  }, buildWorldLegacyReplayIndex([missing]));
+
+  assert.equal(projected.legacyReplay.decision, null);
+  assert.equal(projected.legacyReplay.pendingEngineContext.stage, "pending_engine");
+  assert.equal(projected.legacyReplay.pendingEngineContext.pendingOccurrenceCount, 1);
+  assert.equal(projected.legacyReplay.pendingEngineContext.targetEvidenceStateCounts.exact_row_value_match, 1);
+  assert.match(projected.legacyReplay.pendingEngineContext.reason, /חסרה הכרעת מנוע/u);
+  assert.equal(classifyWorldMissingEngineContext([{ state: "deterministic_match" }]), null);
 });
 
 test("cluster attachment preserves every occurrence and never mutates live truth", () => {

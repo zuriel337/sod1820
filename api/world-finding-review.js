@@ -188,6 +188,8 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const replaySource = clean(filters.replaySource) || "all";
   const replayTarget = clean(filters.replayTarget) || "all";
   const replayTargetEvidence = clean(filters.replayTargetEvidence) || "all";
+  const pendingEngineTarget = clean(filters.pendingEngineTarget) || "all";
+  const pendingEngineTargetEvidence = clean(filters.pendingEngineTargetEvidence) || "all";
   return base.filter((row) => {
     if (finding && clean(row.sourceId) !== finding) return false;
     if (strength !== "all" && row?.triage?.strength !== strength) return false;
@@ -207,6 +209,9 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (replaySource === "source_locator_repair" && !(Number(decision?.sourceRepairOccurrenceCount) > 0)) return false;
     if (replayTarget !== "all" && !(Number(decision?.targetStateCounts?.[replayTarget]) > 0)) return false;
     if (replayTargetEvidence !== "all" && !(Number(decision?.targetEvidenceStateCounts?.[replayTargetEvidence]) > 0)) return false;
+    const pendingContext = row?.legacyReplay?.pendingEngineContext;
+    if (pendingEngineTarget !== "all" && !(Number(pendingContext?.targetStateCounts?.[pendingEngineTarget]) > 0)) return false;
+    if (pendingEngineTargetEvidence !== "all" && !(Number(pendingContext?.targetEvidenceStateCounts?.[pendingEngineTargetEvidence]) > 0)) return false;
     return !query || reviewSearchHaystack(row).includes(query);
   });
 }
@@ -507,6 +512,29 @@ function countLegacyReplayDecisionOccurrences(rows) {
   });
 }
 
+function countPendingEngineContextOccurrences(rows) {
+  const source = { exact_source: 0, source_locator_repair: 0 };
+  const target = {};
+  const targetEvidence = {};
+  let total = 0;
+  for (const row of rows) {
+    const context = row?.legacyReplay?.pendingEngineContext;
+    if (!context) continue;
+    const occurrenceCount = Number(context.pendingOccurrenceCount) || 0;
+    const repairCount = Number(context.sourceRepairOccurrenceCount) || 0;
+    total += occurrenceCount;
+    source.exact_source += Math.max(0, occurrenceCount - repairCount);
+    source.source_locator_repair += repairCount;
+    for (const [state, count] of Object.entries(context.targetStateCounts || {})) {
+      target[state] = (target[state] || 0) + (Number(count) || 0);
+    }
+    for (const [state, count] of Object.entries(context.targetEvidenceStateCounts || {})) {
+      targetEvidence[state] = (targetEvidence[state] || 0) + (Number(count) || 0);
+    }
+  }
+  return Object.freeze({ total, source: Object.freeze(source), target: Object.freeze(target), targetEvidence: Object.freeze(targetEvidence) });
+}
+
 async function buildAuthorizedProjection(token) {
   const [excludedChannelRows, research, topics] = await Promise.all([
     fetchAllAuthorizedRows({
@@ -554,6 +582,7 @@ async function buildAuthorizedProjection(token) {
     .map((row) => attachWorldLegacyReplay(row, legacyReplayIndex));
   const orderedFindings = sortWorldFindingReviewRows(findings, "strength");
   const replayDecisionCounts = countLegacyReplayDecisionOccurrences(orderedFindings);
+  const pendingEngineCounts = countPendingEngineContextOccurrences(orderedFindings);
   const matchedSnapshotCards = orderedFindings.filter((row) => row.triage).length;
   return {
     ...projection,
@@ -575,6 +604,10 @@ async function buildAuthorizedProjection(token) {
     byLegacyReplaySourceReadiness: replayDecisionCounts.source,
     byLegacyReplayTargetReadiness: replayDecisionCounts.target,
     byLegacyReplayTargetEvidence: replayDecisionCounts.targetEvidence,
+    pendingEngineReviewOccurrences: pendingEngineCounts.total,
+    byPendingEngineSourceReadiness: pendingEngineCounts.source,
+    byPendingEngineTargetReadiness: pendingEngineCounts.target,
+    byPendingEngineTargetEvidence: pendingEngineCounts.targetEvidence,
     byContributor: countContributors(orderedFindings),
     byTriageStrength: countBy(
       orderedFindings.filter((row) => row.triage).map((row) => ({ strength: row.triage.strength })),
@@ -639,6 +672,8 @@ function pageResponse(projection, req, contributorScope = null) {
     replaySource: queryValue(req, "replay_source"),
     replayTarget: queryValue(req, "replay_target"),
     replayTargetEvidence: queryValue(req, "replay_target_evidence"),
+    pendingEngineTarget: queryValue(req, "pending_engine_target"),
+    pendingEngineTargetEvidence: queryValue(req, "pending_engine_target_evidence"),
   };
   const filtered = filterWorldFindingReviewRows(projection.rows, filters);
   const ordered = sortWorldFindingReviewRows(filtered, queryValue(req, "sort", "strength"));
@@ -647,6 +682,7 @@ function pageResponse(projection, req, contributorScope = null) {
   if (contributorScope) {
     const triaged = filtered.filter((row) => row.triage);
     const replayDecisionCounts = countLegacyReplayDecisionOccurrences(filtered);
+    const pendingEngineCounts = countPendingEngineContextOccurrences(filtered);
     summary.corpusTriageSnapshot = summary.triageSnapshot;
     summary.triageSnapshot = {
       snapshotDate: WORLD_FINDING_TRIAGE_META.snapshotDate,
@@ -674,6 +710,10 @@ function pageResponse(projection, req, contributorScope = null) {
     summary.byLegacyReplaySourceReadiness = replayDecisionCounts.source;
     summary.byLegacyReplayTargetReadiness = replayDecisionCounts.target;
     summary.byLegacyReplayTargetEvidence = replayDecisionCounts.targetEvidence;
+    summary.pendingEngineReviewOccurrences = pendingEngineCounts.total;
+    summary.byPendingEngineSourceReadiness = pendingEngineCounts.source;
+    summary.byPendingEngineTargetReadiness = pendingEngineCounts.target;
+    summary.byPendingEngineTargetEvidence = pendingEngineCounts.targetEvidence;
     summary.reviewScope = contributorScope;
   }
   return {

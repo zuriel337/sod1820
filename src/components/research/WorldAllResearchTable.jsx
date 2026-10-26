@@ -285,7 +285,7 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
@@ -297,6 +297,8 @@ function initialReviewFilters() {
   const replaySource = clean(params.get("replaySource"));
   const replayTarget = clean(params.get("replayTarget"));
   const replayTargetEvidence = clean(params.get("replayTargetEvidence"));
+  const pendingEngineTarget = clean(params.get("pendingEngineTarget"));
+  const pendingEngineTargetEvidence = clean(params.get("pendingEngineTargetEvidence"));
   return {
     finding: clean(params.get("finding")),
     contributorId: clean(params.get("contributorId")),
@@ -311,6 +313,8 @@ function initialReviewFilters() {
     replaySource: Object.hasOwn(REPLAY_SOURCE_LABELS, replaySource) ? replaySource : "all",
     replayTarget: Object.hasOwn(REPLAY_TARGET_LABELS, replayTarget) ? replayTarget : "all",
     replayTargetEvidence: Object.hasOwn(REPLAY_TARGET_EVIDENCE_LABELS, replayTargetEvidence) ? replayTargetEvidence : "all",
+    pendingEngineTarget: Object.hasOwn(REPLAY_TARGET_LABELS, pendingEngineTarget) ? pendingEngineTarget : "all",
+    pendingEngineTargetEvidence: Object.hasOwn(REPLAY_TARGET_EVIDENCE_LABELS, pendingEngineTargetEvidence) ? pendingEngineTargetEvidence : "all",
   };
 }
 
@@ -390,6 +394,8 @@ export default function WorldAllResearchTable({ state }) {
   const [replaySource, setReplaySource] = useState(initial.replaySource);
   const [replayTarget, setReplayTarget] = useState(initial.replayTarget);
   const [replayTargetEvidence, setReplayTargetEvidence] = useState(initial.replayTargetEvidence);
+  const [pendingEngineTarget, setPendingEngineTarget] = useState(initial.pendingEngineTarget);
+  const [pendingEngineTargetEvidence, setPendingEngineTargetEvidence] = useState(initial.pendingEngineTargetEvidence);
   const [retryKey, setRetryKey] = useState(0);
   const [review, setReview] = useState({ loading: false, loadingMore: false, error: null, projection: null, page: null });
   const [elsQueue, setElsQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
@@ -401,8 +407,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget, replayTargetEvidence,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget, replayTargetEvidence]);
+    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
 
   const resetFilters = () => {
     setQuery("");
@@ -426,6 +432,8 @@ export default function WorldAllResearchTable({ state }) {
     setReplaySource("all");
     setReplayTarget("all");
     setReplayTargetEvidence("all");
+    setPendingEngineTarget("all");
+    setPendingEngineTargetEvidence("all");
   };
 
   useEffect(() => {
@@ -891,6 +899,17 @@ export default function WorldAllResearchTable({ state }) {
         <span><b>{projection.byLegacyReplayTargetReadiness?.missing_structured_target || 0}</b> בלי יעד מובנה</span>
       </div> : null}
 
+      {projection.pendingEngineReviewOccurrences ? <div className="sod29-world-all-research-summary" aria-label="מצב מקור ויעד לפני השלמת מעטפת מנוע">
+        <span><b>{projection.pendingEngineReviewOccurrences}</b> הופעות ללא מעטפת מנוע</span>
+        <span><b>{projection.byPendingEngineSourceReadiness?.exact_source || 0}</b> עם מקור מדויק</span>
+        <span><b>{projection.byPendingEngineSourceReadiness?.source_locator_repair || 0}</b> דורשות איתור מקור</span>
+        <span><b>{projection.byPendingEngineTargetReadiness?.single_structured_target || 0}</b> עם יעד יחיד שמור</span>
+        <span><b>{projection.byPendingEngineTargetReadiness?.multiple_structured_targets || 0}</b> עם כמה יעדים שמורים</span>
+        <span><b>{projection.byPendingEngineTargetReadiness?.missing_structured_target || 0}</b> בלי יעד שמור</span>
+        <span><b>{projection.byPendingEngineTargetEvidence?.exact_row_value_match || 0}</b> יעד יחיד תואם ל־value</span>
+        <span><b>{projection.byPendingEngineTargetEvidence?.structured_value_without_target || 0}</b> value קיים בלי יעד</span>
+      </div> : null}
+
       {projection.truncated ? <div className="sod29-world-all-research-state">המאגר גדול מגבול הקריאה הנוכחי; מוצג כל מה שנטען והמצב מסומן כחלקי.</div> : null}
       <div className="sod29-world-all-research-state">דוח המיון מ־22.10.2026 נשמר כנקודת ייחוס. החלטות ההמשך מ־26.10.2026 מוצגות מעליו בנפרד. הטקסט, ההרשאות, מצב הפרסום, המקורות והיעדים נקראים עכשיו מהמערכת; שכבת המיון אינה משנה אותם.</div>
 
@@ -912,6 +931,8 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>שלמות מקור · בשל טכנית</span><select value={replaySource} onChange={(e) => setReplaySource(e.target.value)}><option value="all">מקור מדויק ותיקונים</option>{Object.entries(REPLAY_SOURCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplaySourceReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>מצב יעד · בשל טכנית</span><select value={replayTarget} onChange={(e) => setReplayTarget(e.target.value)}><option value="all">כל מצבי היעד</option>{Object.entries(REPLAY_TARGET_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>ראיית יעד · בשל טכנית</span><select value={replayTargetEvidence} onChange={(e) => setReplayTargetEvidence(e.target.value)}><option value="all">כל ראיות היעד</option>{Object.entries(REPLAY_TARGET_EVIDENCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetEvidence?.[value] || 0}</option>)}</select></label>
+        <label><span>יעד · חסרה מעטפת מנוע</span><select value={pendingEngineTarget} onChange={(e) => setPendingEngineTarget(e.target.value)}><option value="all">כל מצבי היעד לפני מנוע</option>{Object.entries(REPLAY_TARGET_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byPendingEngineTargetReadiness?.[value] || 0}</option>)}</select></label>
+        <label><span>ראיית יעד · חסרה מעטפת</span><select value={pendingEngineTargetEvidence} onChange={(e) => setPendingEngineTargetEvidence(e.target.value)}><option value="all">כל ראיות היעד לפני מנוע</option>{Object.entries(REPLAY_TARGET_EVIDENCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byPendingEngineTargetEvidence?.[value] || 0}</option>)}</select></label>
         <label><span>ייחוס / תורם</span><select value={contributor} onChange={(e) => setContributor(e.target.value)}><option value="all">כל הייחוסים</option>{Object.entries(projection.byContributor).sort((a,b) => b[1]-a[1]).map(([v,count]) => <option value={v} key={v}>{contributorLabel(v)} · {count}</option>)}</select></label>
         <label><span>חיבור לעץ · מנהל</span><select value={tree} onChange={(e) => setTree(e.target.value)}>
           <option value="all">הכול</option><option value="matched">מחוברים ליעד קיים</option><option value="unmatched">ממתין לשיוך · מנהל בלבד</option>
@@ -974,6 +995,15 @@ export default function WorldAllResearchTable({ state }) {
           {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${legacyReplayClass(row.legacyReplay.state)}`}>
             <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
             <small>{legacyReplayDescription(row.legacyReplay)}</small>
+          </div> : null}
+
+          {row.legacyReplay?.pendingEngineContext ? <div className="sod29-world-triage-recommendation is-review">
+            <span>
+              <small>הקשר מקור ויעד · לפני השלמת מעטפת מנוע</small>
+              <strong>{humanLabel(REPLAY_SOURCE_LABELS, row.legacyReplay.pendingEngineContext.sourceReadiness, "מצב מקור נוסף")} · {humanLabel(REPLAY_TARGET_LABELS, row.legacyReplay.pendingEngineContext.targetReadiness, "מצב יעד נוסף")}</strong>
+            </span>
+            <small>{row.legacyReplay.pendingEngineContext.reason}</small>
+            {row.legacyReplay.pendingEngineContext.proposedNumberTargets?.length ? <small>הצעת מספר מן ה־value המובנה: {row.legacyReplay.pendingEngineContext.proposedNumberTargets.join(" · ")}. אין לחבר לפני הכרעת המנוע.</small> : null}
           </div> : null}
 
           {row.legacyReplay?.decision ? <div className={`sod29-world-triage-recommendation ${row.legacyReplay.decision.decisionState === "already_connected" ? "is-ready" : "is-review"}`}>

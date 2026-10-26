@@ -29,6 +29,8 @@ export async function fetchWorldFindingReviewPage({ filters = {}, offset = 0, si
     replay_source: clean(filters.replaySource) || "all",
     replay_target: clean(filters.replayTarget) || "all",
     replay_target_evidence: clean(filters.replayTargetEvidence) || "all",
+    pending_engine_target: clean(filters.pendingEngineTarget) || "all",
+    pending_engine_target_evidence: clean(filters.pendingEngineTargetEvidence) || "all",
     finding: clean(filters.finding),
   });
   const response = await fetch(`/api/world-finding-review?${params}`, {
