@@ -362,7 +362,7 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       total: 622,
       route: "/world?admin=1&view=admin&contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8&contributorLabel=צבי%20(OPOC)&status=approved&replayQueue=numeric_statement",
       state: "622 רשומות · 127 סומנו לא מאומתות ו־495 טרם הוערכו · 129 כוללות תמונה · כולן עם מקור UUID",
-      next: "להבדיל בין טענה מספרית לבין אזכור מספר בלבד; המקור המדויק נשמר אך עדיין חסרה מעטפת בדיקה.",
+      next: "להבדיל בין value מובנה, אזכור מספר בלבד, שאלה/פרשנות, OCR, מדיה, תאריך וקישור המכיל ספרות. התאמת value למספר כתוב אינה אימות חישוב או משמעות; המקור המדויק נשמר אך עדיין חסרה מעטפת בדיקה.",
     }),
     Object.freeze({
       key: "zvi_missing_engine_textual",

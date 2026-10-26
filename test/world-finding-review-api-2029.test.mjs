@@ -274,6 +274,9 @@ test("missing-engine content routing is independently filterable", () => {
   const formula = reviewRow("10000000-0000-4000-8000-000000000017", {
     legacyReplay: { state: "missing_engine_assessment", routingQueue: "formula", formulaCalculation: { state: "verified" }, formulaReviewLane: "expression_review", mutatesLiveData: false },
   });
+  const numeric = reviewRow("10000000-0000-4000-8000-000000000018", {
+    legacyReplay: { state: "missing_engine_assessment", routingQueue: "numeric_statement", numericStatementContext: { state: "structured_value_matches_literal" }, numericReviewLane: "structured_value_review", mutatesLiveData: false },
+  });
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "spatial_or_constants" }), [spatial]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replayQueue: "constants_or_sequences" }), [constants]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, constants, spatial], { replaySubtype: "cubes" }), [spatial]);
@@ -292,6 +295,9 @@ test("missing-engine content routing is independently filterable", () => {
   assert.deepEqual(filterWorldFindingReviewRows([textual, formula, spatial], { replayFormulaCalculation: "verified" }), [formula]);
   assert.deepEqual(filterWorldFindingReviewRows([textual, formula, spatial], { replayFormulaCalculation: "mismatch" }), []);
   assert.deepEqual(filterWorldFindingReviewRows([textual, formula, spatial], { replayFormulaLane: "expression_review" }), [formula]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, numeric, spatial], { replayNumericState: "structured_value_matches_literal" }), [numeric]);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, numeric, spatial], { replayNumericState: "numbers_without_structured_value" }), []);
+  assert.deepEqual(filterWorldFindingReviewRows([textual, numeric, spatial], { replayNumericLane: "structured_value_review" }), [numeric]);
 });
 
 test("technically-ready source and target axes are independently filterable", () => {

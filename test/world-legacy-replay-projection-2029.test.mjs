@@ -498,6 +498,49 @@ test("formula routing reuses the canonical extractor and separates links from ca
   assert.equal(interpretation.formulaReviewLane, "interpretation_review");
 });
 
+test("numeric routing separates structured values from mentions without inventing arithmetic", () => {
+  const matched = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "observation",
+    statement: "הערך 585 מופיע בשני ביטויים",
+    value: 585,
+  }));
+  assert.equal(matched.routingQueue, "numeric_statement");
+  assert.equal(matched.numericStatementContext.state, "structured_value_matches_literal");
+  assert.deepEqual(matched.numericStatementContext.literals, [585]);
+  assert.equal(matched.numericStatementContext.verifiesCalculation, false);
+  assert.equal(matched.numericReviewLane, "structured_value_review");
+
+  const mention = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "האירוע תועד בשנת 2026",
+    value: null,
+  }));
+  assert.equal(mention.numericStatementContext.state, "numbers_without_structured_value");
+  assert.equal(mention.numericReviewLane, "numeric_context_review");
+
+  const sourceUrl = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: null,
+    kind: "observation",
+    statement: "https://example.test/video/12345",
+  }));
+  assert.equal(sourceUrl.routingQueue, "numeric_statement");
+  assert.equal(sourceUrl.numericStatementContext.state, "not_numeric_claim_url");
+  assert.equal(sourceUrl.numericReviewLane, "source_url_cleanup");
+
+  const interpretation = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    kind: "question",
+    statement: "האם 585 קשור לנושא?",
+  }));
+  assert.equal(interpretation.numericReviewLane, "interpretation_review");
+});
+
 test("missing-engine source and target context stays separate from technical readiness", () => {
   const missing = row({
     engine_verified: null,

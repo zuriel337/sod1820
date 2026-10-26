@@ -428,6 +428,55 @@ function projectFormulaReviewLane(row, routing) {
   return "expression_review";
 }
 
+function numericLiterals(value) {
+  const matches = clean(value).match(/[0-9]+(?:[.,][0-9]+)?/gu) || [];
+  const numbers = [];
+  const seen = new Set();
+  for (const token of matches) {
+    const number = Number(token.replace(",", "."));
+    if (!Number.isFinite(number) || seen.has(number)) continue;
+    seen.add(number);
+    numbers.push(number);
+  }
+  return numbers;
+}
+
+function projectNumericStatementContext(row, routing) {
+  if (routing?.queue !== "numeric_statement") return null;
+  const statement = clean(row?.statement);
+  const allNumbers = numericLiterals(statement);
+  const rowValue = finite(row?.value);
+  const sourceUrl = /^https?:\/\/\S+$/iu.test(statement);
+  let state = "numbers_without_structured_value";
+  if (sourceUrl) state = "not_numeric_claim_url";
+  else if (rowValue != null && allNumbers.includes(rowValue)) state = "structured_value_matches_literal";
+  else if (rowValue != null) state = "structured_value_not_literal";
+  return Object.freeze({
+    state,
+    rowValue,
+    literalCount: allNumbers.length,
+    literals: Object.freeze(allNumbers.slice(0, 12)),
+    truncated: allNumbers.length > 12,
+    valueMatchBasis: rowValue != null && allNumbers.includes(rowValue) ? "exact_numeric_literal" : "none",
+    verifiesCalculation: false,
+    inferred: false,
+    mutatesLiveData: false,
+  });
+}
+
+function projectNumericReviewLane(row, routing) {
+  if (routing?.queue !== "numeric_statement") return null;
+  const statement = clean(row?.statement);
+  if (/^https?:\/\/\S+$/iu.test(statement)) return "source_url_cleanup";
+  if (["hypothesis", "question"].includes(clean(row?.kind))) return "interpretation_review";
+  if (/^OCR מהמדיה\s*:/u.test(statement)) return "ocr_numeric_review";
+  if (clean(row?.meta?.ext?.wa_channel_intake?.media_ref)) return "media_numeric_review";
+  if (finite(row?.value) != null) return "structured_value_review";
+  if (/(?:^|[^0-9])[12][0-9]{3}[-/.][01]?[0-9](?:[-/.][0-3]?[0-9])?(?:[^0-9]|$)|(?:^|[^0-9])[0-2]?[0-9]:[0-5][0-9](?:[^0-9]|$)/u.test(statement)) return "date_time_context";
+  if (/(גימטר|גמטר)/u.test(statement)) return "gematria_claim_review";
+  return "numeric_context_review";
+}
+
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
 const ARITHMETIC_NUMBER_RE = /^\d{1,9}$/u;
 
@@ -680,6 +729,8 @@ export function projectWorldLegacyReplayOccurrence(row) {
     const languageResearchContext = projectLanguageResearchContext(row, routing);
     const formulaCalculation = projectFormulaCalculation(row, routing);
     const formulaReviewLane = projectFormulaReviewLane(row, routing);
+    const numericStatementContext = projectNumericStatementContext(row, routing);
+    const numericReviewLane = projectNumericReviewLane(row, routing);
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -704,6 +755,8 @@ export function projectWorldLegacyReplayOccurrence(row) {
       languageResearchContext,
       formulaCalculation,
       formulaReviewLane,
+      numericStatementContext,
+      numericReviewLane,
       constantCheck,
     });
   }

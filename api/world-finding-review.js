@@ -194,6 +194,8 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const replayLanguageLane = clean(filters.replayLanguageLane) || "all";
   const replayFormulaCalculation = clean(filters.replayFormulaCalculation) || "all";
   const replayFormulaLane = clean(filters.replayFormulaLane) || "all";
+  const replayNumericState = clean(filters.replayNumericState) || "all";
+  const replayNumericLane = clean(filters.replayNumericLane) || "all";
   const replaySpatialTextOrigin = clean(filters.replaySpatialTextOrigin) || "all";
   const replaySource = clean(filters.replaySource) || "all";
   const replayTarget = clean(filters.replayTarget) || "all";
@@ -221,6 +223,8 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (replayLanguageLane !== "all" && row?.legacyReplay?.languageResearchContext?.reviewLane !== replayLanguageLane) return false;
     if (replayFormulaCalculation !== "all" && row?.legacyReplay?.formulaCalculation?.state !== replayFormulaCalculation) return false;
     if (replayFormulaLane !== "all" && row?.legacyReplay?.formulaReviewLane !== replayFormulaLane) return false;
+    if (replayNumericState !== "all" && row?.legacyReplay?.numericStatementContext?.state !== replayNumericState) return false;
+    if (replayNumericLane !== "all" && row?.legacyReplay?.numericReviewLane !== replayNumericLane) return false;
     if (replaySpatialTextOrigin !== "all" && row?.legacyReplay?.spatialTextOrigin !== replaySpatialTextOrigin) return false;
     const decision = row?.legacyReplay?.decision;
     const exactSourceCount = (Number(decision?.sourceLocatorStateCounts?.channel_uuid) || 0)
@@ -665,6 +669,16 @@ async function buildAuthorizedProjection(token) {
         .map((row) => ({ formulaReviewLane: row.legacyReplay.formulaReviewLane })),
       "formulaReviewLane",
     ),
+    byNumericStatementState: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.numericStatementContext?.state)
+        .map((row) => ({ numericStatementState: row.legacyReplay.numericStatementContext.state })),
+      "numericStatementState",
+    ),
+    byNumericReviewLane: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.numericReviewLane)
+        .map((row) => ({ numericReviewLane: row.legacyReplay.numericReviewLane })),
+      "numericReviewLane",
+    ),
     bySpatialTextOrigin: countBy(
       orderedFindings.filter((row) => row?.legacyReplay?.spatialTextOrigin)
         .map((row) => ({ spatialTextOrigin: row.legacyReplay.spatialTextOrigin })),
@@ -748,6 +762,8 @@ function pageResponse(projection, req, contributorScope = null) {
     replayLanguageLane: queryValue(req, "replay_language_lane"),
     replayFormulaCalculation: queryValue(req, "replay_formula_calculation"),
     replayFormulaLane: queryValue(req, "replay_formula_lane"),
+    replayNumericState: queryValue(req, "replay_numeric_state"),
+    replayNumericLane: queryValue(req, "replay_numeric_lane"),
     replaySpatialTextOrigin: queryValue(req, "replay_spatial_text_origin"),
     replaySource: queryValue(req, "replay_source"),
     replayTarget: queryValue(req, "replay_target"),
