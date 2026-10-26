@@ -143,7 +143,11 @@ function ControlEntry2029() {
   const daatTevunotTreeRequested = params.get("surface") === "daat-tevunot-tree";
   const ahavatTorahSystemRequested = params.get("surface") === "ahavat-torah-system";
   const seferYetzirahWorldRequested = params.get("surface") === "sefer-yetzirah-world";
+  const unifiedBooksReaderRequested = params.get("surface") === "books-unified-reader";
   const slug = params.get("book") || "";
+  if (bookPublicationReviewPreviewEnabled && unifiedBooksReaderRequested) {
+    return <Books2029Page previewSlug={slug} />;
+  }
   if (bookPublicationReviewPreviewEnabled && seferYetzirahWorldRequested && SeferYetzirahWorld2029Page) {
     return <SeferYetzirahWorld2029Page />;
   }
