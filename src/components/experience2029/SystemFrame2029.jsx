@@ -40,6 +40,7 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 import RazielCenter2029 from "./RazielCenter2029.jsx";
+import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
 import { razielContextParts, razielStatusLabel } from "./razielSessionSeam2029.js";
@@ -974,14 +975,14 @@ const RESEARCH_SECTIONS = [
   { key: "history", title: "אחרונים", limit: 8 },
 ];
 
-function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
+function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSavedConversation }) {
   const syncStatus = research?.syncStatus || "local_only";
   const syncLabel = syncStatus === "synced" ? "מסונכרן לחשבון" : syncStatus === "local_only" ? "מקומי בדפדפן הזה — לא מסונכרן" : syncStatus === "auth_loading" ? "בודק חשבון" : "בסנכרון עם החשבון";
   const rowTarget = (e) => ({ id: e.id, type: e.type, label: e.title, href: e.link || null, number: e.type === "number" ? e.ref : null });
   const openRow = (e) => {
-    const m = /^\/number\/(\d+)\/?$/.exec(e.link || "");
-    if (m) return go(`/2029/number/${m[1]}`);
-    if (e.link) return go(e.link);
+    if (e.type === "raziel_session") return onOpenSavedConversation?.(e.id);
+    const href = workspaceResearchHref(e);
+    if (href) return go(href);
     if (e.type === "number" || e.type === "phrase") return onOpenNumber?.(rowTarget(e));
     return onInspect?.(rowTarget(e));
   };
@@ -1005,7 +1006,7 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
             {rows.length ? <ul className="sod29-workspace-list">
               {rows.map((e) => (
                 <li key={`${sec.key}:${e.id}`} className="sod29-workspace-follow-row">
-                  <button type="button" className="sod29-workspace-follow-open" onClick={() => openRow(e)}><strong>{e.title || e.id}</strong><small>{e.type}</small></button>
+                  <button type="button" className="sod29-workspace-follow-open" onClick={() => openRow(e)}><strong>{e.title || e.id}</strong><small>{e.type === "raziel_session" ? "שיחה שמורה" : e.type}</small></button>
                   {sec.remove ? <button type="button" className="sod29-workspace-unfollow" aria-label={`הסר: ${e.title || e.id}`} onClick={() => research?.[sec.remove]?.(sec.removeWithEntity ? e : e.id)}>הסר</button> : null}
                 </li>
               ))}
@@ -1016,7 +1017,9 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
       <section className="sod29-workspace-research-bucket" data-research-bucket="collections">
         <div className="sod29-workspace-section-head"><strong>אוספים</strong><small>{collections.length}</small></div>
         {collections.length ? <ul className="sod29-workspace-list">
-          {collections.map((c) => <li key={c.id}><span className="sod29-workspace-collection"><strong>{c.name}</strong><small>{saved.filter((e) => e.coll === c.id).length} שמורים</small></span></li>)}
+          {collections.map((c) => <li key={c.id}><details className="sod29-raziel-center-reading"><summary>{c.name} · {saved.filter(e => e.coll === c.id).length} שמורים</summary>
+            <ul className="sod29-workspace-list">{saved.filter(e => e.coll === c.id).map(e => <li key={e.id}><button type="button" className="sod29-workspace-follow-open" onClick={() => openRow(e)}>{e.title || "פתח פריט שמור"}</button></li>)}</ul>
+          </details></li>)}
         </ul> : <FrameState kind="empty" title="אין אוספים">אוספים מוצגים כאן כשהם קיימים.</FrameState>}
       </section>
     </div>
@@ -1281,11 +1284,14 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
     let alive = true;
     if (!userId) { setInbox({ status: "signed-out", items: [], unread: 0 }); setStats(null); return () => { alive = false; }; }
     setInbox({ status: "loading", items: [], unread: 0 });
-    Promise.all([getMyNotifications(4), getUnreadCount(), getMyProfile()])
+    setStats(null);
+    Promise.allSettled([getMyNotifications(4), getUnreadCount(), getMyProfile()])
       .then(([items, unread, prof]) => {
         if (!alive) return;
-        setInbox({ status: "ready", items: items || [], unread: unread || 0 });
-        setStats(prof || null);
+        setInbox(items.status === "fulfilled" && unread.status === "fulfilled"
+          ? { status: "ready", items: items.value || [], unread: unread.value || 0 }
+          : { status: "error", items: [], unread: 0 });
+        setStats(prof.status === "fulfilled" ? prof.value || null : null);
       })
       .catch(() => { if (alive) setInbox({ status: "error", items: [], unread: 0 }); });
     return () => { alive = false; };
@@ -1351,9 +1357,25 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
     go(`/profile?module=${encodeURIComponent(module)}&returnTo=${encodeURIComponent(returnTo)}`, { preserve: false });
   };
 
+  const openSavedConversation = async id => {
+    try {
+      const result = await razielSession?.restoreSavedSession?.(id);
+      if (result?.ok) { onRaziel(); return; }
+    } catch { /* existing library or lazy serializer unavailable */ }
+    setActionState({ kind: "conversation_error" });
+  };
+  const openResearchItem = item => {
+    const href = workspaceResearchHref(item);
+    if (href) return go(href);
+    onInspect?.({ id: item.id, type: item.type, label: item.title });
+  };
+
   if (workspaceSection === "raziel") {
     return <RazielCenter2029
       session={razielSession}
+      research={research}
+      credits={stats?.credits}
+      onOpenResearchItem={openResearchItem}
       onBack={() => setWorkspaceSection("home")}
       onOpenConversation={onRaziel}
     />;
@@ -1489,10 +1511,11 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
         {!subject && !savedSubject && !pathResume?.loading ? (
           <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
         ) : null}
-        <ResearchStateSections research={research} go={go} onInspect={onInspect} onOpenNumber={onOpenNumber} />
+        <ResearchStateSections research={research} go={go} onInspect={onInspect} onOpenNumber={onOpenNumber} onOpenSavedConversation={openSavedConversation} />
         {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
         {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
         {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
+        {actionState?.kind === "conversation_error" ? <FrameState kind="error" title="השיחה אינה זמינה">לא הצלחנו לפתוח את השיחה כרגע.</FrameState> : null}
       </section>
 
       <section className="sod29-workspace-follow" aria-label="אחרי מה אני עוקב" data-workspace-section="follow">

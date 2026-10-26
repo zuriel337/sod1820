@@ -135,7 +135,7 @@ try:
             center = open_center(page)
             expect(center.get_by_role("heading", name="השיחות שלי", exact=True)).to_be_visible()
             expect(center.locator("[data-raziel-center-session]")).to_have_count(2)
-            expect(center).to_contain_text("26 באוק׳ 2026")
+            expect(center).to_contain_text("26.10.2026")
             expect(center).to_contain_text("שאלה אחת")
             assert page.locator('[data-raziel-native-chat="true"]').count() == 0
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

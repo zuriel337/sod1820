@@ -424,7 +424,9 @@ function PrincipalResearchProvider({ children, userId, disabled }) {
       && current?.lens === "number";
     if (current?.subject && sameSelection) return;
     const focusDimensions = { expressionFocusExplicit: Boolean(route.focusExplicit) };
-    const next = current?.subject
+    // A 2029 Workspace departure may carry only returnTo. Preserve it when
+    // establishing the first Number subject; Legacy route behavior is unchanged.
+    const next = current?.subject || pathname.startsWith("/2029/number/")
       ? mergeResearchContext(current, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions })
       : mergeResearchContext(null, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions });
     actions.setResearchContext(next);

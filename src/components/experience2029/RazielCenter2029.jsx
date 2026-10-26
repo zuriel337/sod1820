@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { recordTimeLabel } from "../../lib/relativeTime2029.js";
+import { filterRazielTitles, projectRazielConversation, projectSavedRazielConversations, projectRazielDossier, razielGroundingCopy, workspaceCreditBalance } from "../../lib/research/razielWorkspaceProjection2029.js";
 import "./razielCenter2029.css";
 
 const LOADING_STATES = new Set(["auth_loading", "loading"]);
@@ -6,11 +8,7 @@ const ERROR_STATES = new Set(["conflict", "error", "local_error", "local_recover
 
 function savedDate(value) {
   if (!value || !Number.isFinite(Date.parse(value))) return "תאריך לא זמין";
-  return new Intl.DateTimeFormat("he-IL", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value));
+  return recordTimeLabel(value, "bilingual", "תאריך לא זמין");
 }
 
 function syncCopy(status) {
@@ -23,33 +21,88 @@ function syncCopy(status) {
 }
 
 function questionCountCopy(value) {
-  const count = Number.isSafeInteger(value) && value >= 0 ? value : 0;
+  if (!Number.isSafeInteger(value) || value < 0) return "מספר השאלות אינו זמין";
+  const count = value;
   return count === 1 ? "שאלה אחת" : `${count} שאלות`;
 }
 
-export default function RazielCenter2029({ session, onBack, onOpenConversation }) {
+function ConversationReading({ conversation }) {
+  const [open, setOpen] = useState(false);
+  return <details className="sod29-raziel-center-reading" data-conversation-reading="true" onToggle={event => { if (event.target === event.currentTarget) setOpen(event.currentTarget.open); }}>
+    <summary>פתיחת שיחה לקריאה</summary>
+    {open ? conversation.messages.length ? conversation.messages.map((message, index) => <div key={index} data-message-role={message.role}>
+      <strong>{message.role === "user" ? "השאלה שלי" : razielGroundingCopy(message)}</strong>
+      {message.role === "raziel" && message.viewMode === "landscape" && message.viewModeApplied
+        ? <details data-raziel-picture="true"><summary>תמונה מלאה</summary><p>השאלה: {message.question || conversation.pictures.find(picture => picture.index === index)?.question || "לא נשמר קישור לשאלה"}</p><p dir="auto">{message.text}</p></details>
+        : <p dir="auto">{message.text}</p>}
+      {message.role === "raziel" && Array.isArray(message.sourceNames) && message.sourceNames.length ? <small>מקורות שיוחסו בשיחה: {message.sourceNames.filter(name => typeof name === "string").join(" · ")}</small> : null}
+    </div>) : <p>תוכן השיחה אינו זמין לקריאה כרגע.</p> : null}
+  </details>;
+}
+
+function ConversationDossier({ conversation, conversations, research, onOpenResearchItem }) {
+  const [open, setOpen] = useState(false);
+  const dossier = projectRazielDossier(conversation, conversations, research);
+  return <details className="sod29-raziel-center-reading" data-conversation-dossier="true" onToggle={event => { if (event.target === event.currentTarget) setOpen(event.currentTarget.open); }}>
+    <summary>תיק מחקר · קריאה בלבד</summary>
+    {open ? <>
+    <p>מקור, עובדה, חישוב ופרשנות נשארים נפרדים. ייחוס למקור אינו אישור לעובדה; מוצג רק הסיווג שכבר נשמר.</p>
+    <strong>{dossier.subject?.label || "לא נשמר נושא מקושר"}</strong>
+    <p>{dossier.conversations.length} שיחות קשורות · {dossier.conversations.reduce((count, item) => count + item.pictures.length, 0)} תמונות מלאות מהשיחות</p>
+    {dossier.conversations.map(item => <details key={item.ref}><summary>{item.title}</summary><ConversationReading conversation={item} /></details>)}
+    {dossier.items.length ? <ul>{dossier.items.map(item => <li key={`${item.type}:${item.ref ?? item.id}`}>
+      {item.type === "note" ? <><strong>הערה · {item.title}</strong><p dir="auto">{typeof item.metadata?.text === "string" ? item.metadata.text : ""}</p></> : <>
+        <span>{["source", "post", "verse", "book"].includes(item.type) ? "מקור שמור" : "פריט מחקר שמור · הסיווג כפי שנשמר"}</span>
+        <button type="button" className="sod29-action" onClick={() => onOpenResearchItem?.(item)}>{item.title || "פתח פריט"}</button>
+      </>}
+    </li>)}</ul> : <p>לא נמצאו ממצאים או הערות עם קישור מפורש לאותו נושא. לא בוצע שיוך לפי מילות הכותרת.</p>}
+    </> : null}
+  </details>;
+}
+
+export default function RazielCenter2029({ session, research, credits, onBack, onOpenConversation, onOpenResearchItem }) {
+  const root = useRef(null);
+  useLayoutEffect(() => {
+    const panel = root.current?.closest(".sod29-frame-panel");
+    if (panel) panel.scrollTop = 0;
+    root.current?.querySelector("h3")?.focus({ preventScroll: true });
+  }, []);
   const [notice, setNotice] = useState("");
   const [pendingId, setPendingId] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [draftTitle, setDraftTitle] = useState("");
   const [deleteId, setDeleteId] = useState(null);
-  const savedSessions = Array.isArray(session?.savedSessions) ? session.savedSessions : [];
+  const [query, setQuery] = useState("");
+  const savedSessions = useMemo(() => projectSavedRazielConversations(Array.isArray(research?.saved) ? research.saved : session?.savedSessions), [research?.saved, session?.savedSessions]);
+  const visibleSessions = useMemo(() => filterRazielTitles(savedSessions, query), [savedSessions, query]);
+  const current = projectRazielConversation(session, true);
+  const storedCurrent = savedSessions.find(saved => saved.ref === current.ref);
+  if (storedCurrent) current.title = storedCurrent.title;
+  const balance = workspaceCreditBalance(credits);
   const syncStatus = session?.savedSessionsSyncStatus || "auth_loading";
   const loading = LOADING_STATES.has(syncStatus);
   const error = ERROR_STATES.has(syncStatus);
-  const activeRef = session?.sessionRef || null;
+  const activeRef = current.ref;
   const sessionById = useMemo(() => new Map(savedSessions.map((saved) => [saved.id, saved])), [savedSessions]);
 
   const continueConversation = async (saved) => {
     setNotice("");
     setPendingId(saved.id);
-    const result = await session?.restoreSavedSession?.(saved.id);
-    setPendingId(null);
-    if (!result?.ok) {
+    try {
+      const result = await session?.restoreSavedSession?.(saved.id);
+      if (result?.ok) { onOpenConversation?.(); return; }
       setNotice("לא הצלחנו לפתוח את השיחה כרגע.");
-      return;
-    }
-    onOpenConversation?.();
+    } catch { setNotice("לא הצלחנו לפתוח את השיחה כרגע."); }
+    finally { setPendingId(null); }
+  };
+
+  const saveCurrent = async () => {
+    setNotice(""); setPendingId("current");
+    try {
+      const result = await session?.saveCurrentSession?.();
+      setNotice(result?.ok ? "השיחה נשמרה. מצב הסנכרון מופיע למעלה." : "לא הצלחנו לשמור את השיחה כרגע.");
+    } catch { setNotice("לא הצלחנו לשמור את השיחה כרגע."); }
+    finally { setPendingId(null); }
   };
 
   const startNewConversation = () => {
@@ -75,15 +128,17 @@ export default function RazielCenter2029({ session, onBack, onOpenConversation }
     event.preventDefault();
     setNotice("");
     setPendingId(saved.id);
-    const result = await session?.renameSavedSession?.(saved.id, draftTitle);
-    setPendingId(null);
-    if (!result?.ok) {
-      setNotice(result?.error === "title_required" ? "יש להזין שם לשיחה." : "לא הצלחנו לשנות את שם השיחה כרגע.");
-      return;
-    }
-    setEditingId(null);
-    setDraftTitle("");
-    setNotice("שם השיחה עודכן.");
+    try {
+      const result = await session?.renameSavedSession?.(saved.id, draftTitle);
+      if (!result?.ok) {
+        setNotice(result?.error === "title_required" ? "יש להזין שם לשיחה." : "לא הצלחנו לשנות את שם השיחה כרגע.");
+        return;
+      }
+      setEditingId(null);
+      setDraftTitle("");
+      setNotice("שם השיחה עודכן.");
+    } catch { setNotice("לא הצלחנו לשנות את שם השיחה כרגע."); }
+    finally { setPendingId(null); }
   };
 
   const confirmDelete = (saved) => {
@@ -104,12 +159,12 @@ export default function RazielCenter2029({ session, onBack, onOpenConversation }
   };
 
   return (
-    <section className="sod29-raziel-center" data-raziel-center="true" aria-labelledby="sod29-raziel-center-title">
+    <section ref={root} className="sod29-raziel-center" data-raziel-center="true" aria-labelledby="sod29-raziel-center-title">
       <div className="sod29-raziel-center-head">
         <button type="button" className="sod29-action" onClick={onBack}>חזרה לאזור האישי</button>
         <div>
           <div className="sod29-kicker">האזור של רזיאל</div>
-          <h3 id="sod29-raziel-center-title">השיחות שלי</h3>
+          <h3 id="sod29-raziel-center-title" tabIndex={-1}>השיחות שלי</h3>
           <p>אפשר לפתוח שיחה שמורה ולהמשיך בדיוק מאותה נקודה.</p>
         </div>
       </div>
@@ -119,12 +174,30 @@ export default function RazielCenter2029({ session, onBack, onOpenConversation }
         <small data-raziel-center-sync={syncStatus}>{syncCopy(syncStatus)}</small>
       </div>
 
+      <section className="sod29-raziel-center-state" data-current-conversation="true" aria-labelledby="raziel-current-title">
+        <h4 id="raziel-current-title">השיחה הנוכחית</h4>
+        {current.messages.length ? <>
+          <strong>{current.title}</strong><span>{questionCountCopy(current.questions)} · {current.mode}</span>
+          <div className="sod29-raziel-center-row-actions">
+            <button type="button" className="sod29-action primary" onClick={() => onOpenConversation?.()}>המשך שיחה</button>
+            <button type="button" className="sod29-action" disabled={session?.busy || pendingId != null || !current.messages.some(message => message.role === "raziel")} onClick={saveCurrent}>שמור שיחה</button>
+          </div>
+          <ConversationReading conversation={current} />
+          <ConversationDossier conversation={current} conversations={[current, ...savedSessions.filter(saved => saved.ref !== current.ref)]} research={research} onOpenResearchItem={onOpenResearchItem} />
+        </> : <span>אין כרגע שיחה פתוחה. אפשר להמשיך משיחה שמורה או לפתוח שיחה חדשה.</span>}
+      </section>
+
+      <div className="sod29-raziel-center-rename">
+        <label htmlFor="raziel-conversation-search">חיפוש בכותרות השיחות</label>
+        <input id="raziel-conversation-search" type="search" value={query} onChange={event => setQuery(event.target.value)} autoComplete="off" />
+      </div>
+
       {loading && !savedSessions.length ? <div className="sod29-raziel-center-state" role="status"><strong>טוען את השיחות שלך…</strong><span>השיחות יוצגו כאן כשהטעינה תסתיים.</span></div> : null}
       {error ? <div className="sod29-raziel-center-state is-error" role="status"><strong>הסנכרון אינו זמין כרגע</strong><span>אם קיימות שיחות מקומיות אפשר עדיין לפתוח אותן. לא נמחק דבר.</span></div> : null}
       {!loading && !error && !savedSessions.length ? <div className="sod29-raziel-center-state is-empty"><strong>אין עדיין שיחות שמורות</strong><span>אחרי שרזיאל עונה, אפשר לבחור „שמור שיחה” ולחזור אליה מכאן.</span></div> : null}
 
       {savedSessions.length ? <ul className="sod29-raziel-center-list" aria-label="השיחות השמורות שלי">
-        {savedSessions.map((saved) => {
+        {visibleSessions.map((saved) => {
           const pending = pendingId === saved.id;
           const active = activeRef != null && (saved.ref === activeRef || saved.id === activeRef);
           return <li key={saved.id} data-raziel-center-session={saved.id} data-active={active ? "true" : "false"}>
@@ -138,8 +211,11 @@ export default function RazielCenter2029({ session, onBack, onOpenConversation }
             </form> : <>
               <div className="sod29-raziel-center-session-copy">
                 <strong>{saved.title || "שיחה עם רזיאל"}</strong>
-                <small>{savedDate(saved.saved_at)} · {questionCountCopy(saved.turn_count)}{active ? " · פתוחה עכשיו" : ""}</small>
+                <small>{savedDate(saved.savedAt)} · {questionCountCopy(saved.questions)} · {saved.mode}{active ? " · פתוחה עכשיו" : ""}</small>
+                <small>{syncCopy(syncStatus)}</small>
               </div>
+              <ConversationReading conversation={saved} />
+              <ConversationDossier conversation={saved} conversations={savedSessions} research={research} onOpenResearchItem={onOpenResearchItem} />
               <div className="sod29-raziel-center-row-actions">
                 <button type="button" className="sod29-action primary" disabled={pending || session?.busy} onClick={() => continueConversation(saved)}>{pending ? "פותח…" : "המשך מאיפה שעצרתי"}</button>
                 <button type="button" className="sod29-action" disabled={pending || session?.busy} onClick={() => beginRename(saved)}>שינוי שם</button>
@@ -154,6 +230,17 @@ export default function RazielCenter2029({ session, onBack, onOpenConversation }
           </li>;
         })}
       </ul> : null}
+
+      {savedSessions.length > 0 && !visibleSessions.length ? <p role="status">לא נמצאו שיחות בכותרת הזאת.</p> : null}
+
+      <section className="sod29-raziel-center-state" data-raziel-credits="true" aria-label="יתרת הקרדיטים">
+        <strong>הקרדיטים שלי</strong><span>{balance == null ? "היתרה אינה זמינה להצגה כרגע" : `${balance.toLocaleString("he-IL")} קרדיטים`}</span>
+        <span>שמירה, שחזור וניהול של שיחה או צפייה בתמונה שכבר נוצרה אינם מחייבים קרדיטים.</span>
+      </section>
+      <section className="sod29-raziel-center-state" data-raziel-allowance="unavailable" aria-label="מכסת השיחות עם רזיאל">
+        <strong>מכסת השיחות עם רזיאל</strong><span>המכסה עדיין אינה זמינה להצגה</span>
+        <span>מכסת השיחות ויתרת הקרדיטים הן מערכות נפרדות.</span>
+      </section>
 
       {notice ? <p className="sod29-raziel-center-notice" role="status">{notice}</p> : null}
     </section>

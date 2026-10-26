@@ -62,3 +62,14 @@ test("slice 3 remains outside the center", () => {
   const slice = `${center}\n${provider}`;
   assert.doesNotMatch(slice, /credit_ledger|spendCredits|quotaEnded|completedAiAnswers|answerCount|registration-nudge|onSignup/i);
 });
+
+test("the completion reads existing ResearchProvider state and keeps management separate from submission", () => {
+  assert.match(frame, /research=\{research\}[\s\S]*credits=\{stats\?\.credits\}/);
+  assert.match(center, /projectSavedRazielConversations/);
+  assert.match(center, /filterRazielTitles/);
+  assert.match(center, /saveCurrentSession/);
+  assert.match(center, /data-current-conversation="true"/);
+  assert.match(center, /data-conversation-dossier="true"/);
+  assert.match(center, /data-raziel-allowance="unavailable"/);
+  assert.doesNotMatch(center, /localStorage|sessionStorage|setResearchContext|credit_grant|fetch\(|\.rpc\(|askRaziel|\.submit\(/);
+});
