@@ -226,6 +226,7 @@ export default function WorldAllResearchTable({ state }) {
   const [retryKey, setRetryKey] = useState(0);
   const [review, setReview] = useState({ loading: false, loadingMore: false, error: null, projection: null, page: null });
   const [elsQueue, setElsQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
+  const [languageQueue, setLanguageQueue] = useState({ open: false, loading: false, error: null, data: null });
   const requestRef = useRef(0);
 
   const filters = useMemo(() => ({
@@ -326,6 +327,21 @@ export default function WorldAllResearchTable({ state }) {
     }
   };
 
+  const openLanguageQueue = async () => {
+    if (languageQueue.data) {
+      setLanguageQueue((current) => ({ ...current, open: !current.open }));
+      return;
+    }
+    setLanguageQueue((current) => ({ ...current, open: true, loading: true, error: null }));
+    try {
+      const { fetchWorldLanguageTriageProjection } = await import("../../lib/research/worldLanguageTriageProjection.js");
+      const data = await fetchWorldLanguageTriageProjection();
+      setLanguageQueue({ open: true, loading: false, error: null, data });
+    } catch (error) {
+      setLanguageQueue((current) => ({ ...current, open: true, loading: false, error }));
+    }
+  };
+
   if (!state?.enabled) return null;
 
   return <section className="sod29-section sod29-world-all-research" id="world-all-research" aria-label="ממצאים לבדיקה">
@@ -353,7 +369,10 @@ export default function WorldAllResearchTable({ state }) {
           <a className="sod29-action" href={stream.route}>פתח את המקור הקנוני ←</a>
         </article>)}</div>
         <details className="sod29-world-all-research-duplicates"><summary>כללי הקריאה של המפה</summary><ul>{projection.corpusAudit.rules.map((rule) => <li key={rule}>{rule}</li>)}</ul></details>
-        <div className="sod29-actions"><button className="sod29-action primary" type="button" onClick={openElsQueue} aria-expanded={elsQueue.open}>{elsQueue.open ? "סגור את תור ELS" : "פתח תור ELS מפורט"}</button></div>
+        <div className="sod29-actions">
+          <button className="sod29-action primary" type="button" onClick={openElsQueue} aria-expanded={elsQueue.open}>{elsQueue.open ? "סגור את תור ELS" : "פתח תור ELS מפורט"}</button>
+          <button className="sod29-action" type="button" onClick={openLanguageQueue} aria-expanded={languageQueue.open}>{languageQueue.open ? "סגור את תור השפה" : "פתח תור שפה מפורט"}</button>
+        </div>
       </section> : null}
 
       {elsQueue.open ? <section className="sod29-world-kind-section" aria-label="תור אימות צפני ELS">
@@ -391,6 +410,34 @@ export default function WorldAllResearchTable({ state }) {
             <div className="sod29-world-source-locator"><strong>מזהה ומקור קנוני</strong><code dir="ltr">els_records:{row.id}</code><div className="sod29-actions">{row.href ? <a className="sod29-action" href={row.href}>פתח את הצופן ←</a> : null}</div><small>ראיית replay מאמתת את ההופעה הטכנית בלבד; היא אינה ציון אמת, איכות או משמעות.</small></div>
           </article>)}</div>
           {elsQueue.limit < filteredElsRows.length ? <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => setElsQueue((current) => ({ ...current, limit: current.limit + 40 }))}>הצג עוד 40</button></div> : null}
+        </> : null}
+      </section> : null}
+
+      {languageQueue.open ? <section className="sod29-world-kind-section" aria-label="תור אימות שפה וגשרים">
+        <header><div><h3>תור אימות שפה וגשרים</h3><p>תרגום, שוויון מספרי, שיטה, רמת ראיות ואימות אנושי נשארים צירים נפרדים.</p></div>{languageQueue.data ? <span>{languageQueue.data.counts.total} קשרים</span> : null}</header>
+        {languageQueue.loading ? <p role="status">טוען את גשרי השפה מן הקורא הקנוני…</p> : null}
+        {languageQueue.error ? <p role="status">תור השפה אינו זמין כרגע. לא הומצאו נתונים חלופיים.</p> : null}
+        {languageQueue.data ? <>
+          <div className="sod29-world-all-research-summary">
+            <span><b>{languageQueue.data.counts.approved}</b> מאושרים</span>
+            <span><b>{languageQueue.data.counts.humanVerified}</b> מאומתים אנושית</span>
+            <span><b>{languageQueue.data.counts.needsHumanReview}</b> דורשים הכרעה</span>
+            <span><b>{languageQueue.data.counts.duplicateGroups}</b> קבוצות זהות</span>
+          </div>
+          <div className="sod29-world-all-research-list">{languageQueue.data.rows.map((row) => <article className="sod29-world-all-research-row" key={row.id}>
+            <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>{row.language}</span><span>{row.relationshipType}</span><span>{row.status === "approved" ? "מאושר" : row.status}</span></div><span>{row.humanVerified ? "אומת אנושית" : "דורש אימות אנושי"}</span></div>
+            <strong>{row.hebrew} ↔ <span dir="ltr">{row.foreignWord}</span></strong>
+            <div className="sod29-world-finding-measures" aria-label="צירי גשר שפה נפרדים">
+              <div><small>ערך עברי</small><strong>{row.gematriaHebrew ?? "אין נתון"}</strong></div>
+              <div><small>שיטה</small><strong>{row.method || "אין נתון"}</strong></div>
+              <div><small>רמת ראיות</small><strong>{row.evidenceLevel || "אין נתון"}</strong></div>
+              <div><small>מקור תרגום</small><strong>{row.translationSource || "אין נתון"}</strong></div>
+              <div><small>אימות אנושי</small><strong>{row.humanVerified ? "כן" : "טרם"}</strong></div>
+            </div>
+            {row.note ? <p className="sod29-world-all-research-secondary">{row.note}</p> : null}
+            <div className={`sod29-world-triage-recommendation ${row.humanVerified ? "is-ready" : "is-review"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
+            <div className="sod29-world-source-locator"><strong>מזהה מקור</strong><code dir="ltr">{row.sourceRef}</code><small>אימות של תרגום או תעתיק אינו הופך את הפרשנות לאמת, ושוויון מספרי אינו מוכיח משמעות.</small></div>
+          </article>)}</div>
         </> : null}
       </section> : null}
 
