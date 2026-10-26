@@ -321,6 +321,27 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await childSelection.isChecked(), true);
     const lifeMaps = family.locator('[data-experience-capability="life-journey-maps"]');
     await lifeMaps.getByRole("heading", { name: "מפות החיים" }).waitFor();
+    const guidedFlow = family.locator('[data-experience-capability="life-journey-guided-map-flow"]');
+    await guidedFlow.getByRole("heading", { name: "המסלול המודרך" }).waitFor();
+    await guidedFlow.getByLabel("4 מתוך 8 תחנות הושלמו").waitFor();
+    assert.equal(await guidedFlow.locator('button[aria-current="step"]').innerText().then(text => text.includes("מחקר")), true);
+    const callsBeforeGuidedNavigation = await page.evaluate(() => ({
+      matrix: window.__matrixCalls.length,
+      reflection: window.__reflectionCalls.length,
+      names: window.__nameCalls.length,
+      dates: window.__dateCalls.length,
+      els: window.__elsCalls.length,
+    }));
+    await guidedFlow.getByRole("button", { name: "המשך ל־מחקר" }).click();
+    await lifeMaps.getByText("המטריצה תופיע לאחר הפעלת המחקר המפורש לאנשים שנבחרו.", { exact: true }).waitFor();
+    assert.deepEqual(await page.evaluate(() => ({
+      matrix: window.__matrixCalls.length,
+      reflection: window.__reflectionCalls.length,
+      names: window.__nameCalls.length,
+      dates: window.__dateCalls.length,
+      els: window.__elsCalls.length,
+    })), callsBeforeGuidedNavigation, "guided navigation never starts research");
+    await lifeMaps.getByRole("tab", { name: "מפת־על" }).click();
     await lifeMaps.getByRole("tab", { name: "ציר זמן" }).click();
     const birthTimeline = family.locator('[data-experience-capability="life-journey-birth-timeline"]');
     await birthTimeline.getByRole("heading", { name: "ציר אירועי היסוד" }).waitFor();
@@ -407,8 +428,13 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await timeMap.getByRole("tab", { name: "התכנסויות זמן" }).click();
     await timeMap.locator(".life-time-convergences").getByText("73", { exact: true }).first().waitFor();
     await timeMap.getByText(/ביטויי תאריך בלבד/).first().waitFor();
+    await lifeMaps.getByRole("tab", { name: "מפת־על" }).click();
+    await guidedFlow.getByLabel("8 מתוך 8 תחנות הושלמו").waitFor();
+    await guidedFlow.getByText("השרשרת המחקרית מלאה. אפשר לחזור לכל תחנה בלי להפעיל את המנוע מחדש.", { exact: true }).waitFor();
+    await guidedFlow.getByText("המסלול הושלם", { exact: true }).waitFor();
     await lifeMaps.getByRole("tab", { name: "מסלול" }).click();
-    await lifeMaps.getByText("זהות ומשפחה", { exact: true }).waitFor();
+    await lifeMaps.getByText("זהות", { exact: true }).waitFor();
+    assert.equal(await lifeMaps.locator(".person-journey-path-map li").count(), 8);
     await family.getByText("פתח פירוט מלא של הממצאים והמקורות", { exact: true }).click();
     assert.equal(await family.locator('.person-journey-relation-list article').count(), 1, "two selected people produce one normalized cross-person pair");
     await family.locator('.person-journey-family-shared[data-kind="cross-expression"]', { hasText: "2 אנשים" }).waitFor();

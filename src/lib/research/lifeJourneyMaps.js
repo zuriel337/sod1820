@@ -2,7 +2,7 @@ import { buildLifeJourneySeferYetzirahMap } from "./lifeJourneySeferYetzirahMap.
 import { buildLifeJourneyBirthMap } from "./lifeJourneyBirthMap.js";
 import { buildLifeJourneyTimeMap } from "./lifeJourneyTimeMap.js";
 
-export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v5";
+export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v6";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
@@ -204,15 +204,19 @@ export function buildLifeJourneyMaps({
     normalized: Boolean(analysisData),
     error: analysis?.state === "error" ? clean(analysis?.error) : "",
   });
-  const pathSteps = [
-    { id: "person", label: "זהות ומשפחה", state: selectedMembers.length ? "ready" : "waiting" },
-    { id: "matrix", label: "שם ותאריך", state: researchReady ? "ready" : "waiting" },
-    { id: "convergence", label: "התכנסויות", state: convergences.length ? "ready" : researchReady ? "empty" : "waiting" },
-    { id: "sources", label: "מקורות ופסוקים", state: memberSources.length || numberSources.length ? "ready" : researchReady ? "empty" : "waiting" },
-    { id: "finding", label: "ממצא ודף המספר", state: context?.journey ? "ready" : "available" },
-  ].map(step => Object.freeze(step));
-
   const creation = buildLifeJourneySeferYetzirahMap({ members, relations, selectedRefs, birthTimeline });
+  const pathSteps = [
+    { id: "identity", label: "זהות", tab: "overview", state: selectedMembers.length ? "ready" : "waiting" },
+    { id: "time", label: "זמן", tab: "time", state: birthTimeline.length ? "ready" : "waiting" },
+    { id: "letters", label: "אותיות", tab: "creation", state: creation.people.some(person => person.sequence.length) ? "ready" : "waiting" },
+    { id: "family", label: "משפחה", tab: "generations", state: selectedMembers.length >= 2 ? "ready" : "available" },
+    { id: "research", label: "מחקר", tab: "matrix", state: researchReady ? "ready" : "available" },
+    { id: "convergence", label: "התכנסויות", tab: "convergences", state: convergences.length ? "ready" : researchReady ? "empty" : "waiting" },
+    { id: "sources", label: "מקורות", tab: "sources", state: memberSources.length || numberSources.length ? "ready" : researchReady ? "empty" : "waiting" },
+    { id: "summary", label: "מסר", tab: "summary", state: combinedSummary.message ? "ready" : researchReady ? "available" : "waiting" },
+  ].map(step => Object.freeze(step));
+  const completedPathSteps = pathSteps.filter(step => step.state === "ready" || step.state === "empty");
+  const nextPathStep = pathSteps.find(step => step.state !== "ready" && step.state !== "empty") || null;
   return Object.freeze({
     version: LIFE_JOURNEY_MAPS_VERSION,
     overview: Object.freeze({
@@ -249,6 +253,9 @@ export function buildLifeJourneyMaps({
     }),
     path: Object.freeze({
       steps: Object.freeze(pathSteps),
+      completedCount: completedPathSteps.length,
+      progressPercent: Math.round((completedPathSteps.length / pathSteps.length) * 100),
+      nextStep: nextPathStep,
       saved: Boolean(context?.journey?.id),
       position: integer(context?.journey?.position),
     }),

@@ -87,6 +87,10 @@ test("life maps project the existing private family state without inventing stor
   assert.equal(out.creation.cosmicFrames[0].items.includes("שבתאי"), true);
   assert.equal(out.creation.boundaries.no_personal_astrology, true);
   assert.equal(out.path.saved, true);
+  assert.equal(out.path.steps.length, 8);
+  assert.equal(out.path.completedCount, 8);
+  assert.equal(out.path.progressPercent, 100);
+  assert.equal(out.path.nextStep, null);
   assert.deepEqual(out.boundaries, { read_only_projection: true, no_els: true, no_new_store: true, no_graph_write: true });
 });
 
@@ -105,6 +109,8 @@ test("life maps stay useful before research and never include unselected people"
   assert.equal(out.summary.state, "waiting");
   assert.equal(JSON.stringify(out).includes("ילד"), false);
   assert.equal(out.path.steps.some(step => step.state === "waiting"), true);
+  assert.equal(out.path.nextStep.id, "time");
+  assert.equal(out.path.nextStep.tab, "time");
 });
 
 test("life maps report an unresearched pair as a gap without inventing personal tension", () => {

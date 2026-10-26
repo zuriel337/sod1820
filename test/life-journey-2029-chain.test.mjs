@@ -108,6 +108,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /ELS אינו משתתף בשלב הזה/);
   assert.match(journey, /familyBirthTimeline/);
   assert.match(lifeJourneyMaps, /data-experience-capability="life-journey-maps"/);
+  assert.match(lifeJourneyMaps, /data-experience-capability="life-journey-guided-map-flow"/);
+  assert.match(lifeJourneyMaps, /המסלול המודרך/);
+  assert.match(lifeJourneyMaps, /מחקר חדש יתחיל רק בלחיצה המפורשת/);
   assert.match(lifeJourneyMaps, /data-experience-capability="life-journey-birth-timeline"/);
   assert.match(lifeJourneyMaps, /מפת־על/);
   assert.match(lifeJourneyMaps, /מטריצה/);
@@ -133,6 +136,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMapProjection, /relationshipPairCount/);
   assert.match(lifeJourneyMapProjection, /evidenceGapCount/);
   assert.match(lifeJourneyMapProjection, /combinedSummary/);
+  assert.match(lifeJourneyMapProjection, /progressPercent/);
+  assert.match(lifeJourneyMapProjection, /nextStep/);
   assert.match(lifeJourneyMapProjection, /buildLifeJourneySeferYetzirahMap/);
   assert.match(lifeJourneyMapProjection, /buildLifeJourneyBirthMap/);
   assert.match(birthMapProjection, /no_external_birth_api: true/);

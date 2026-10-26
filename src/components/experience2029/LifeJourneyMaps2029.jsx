@@ -42,7 +42,31 @@ function EmptyMap({ children }) {
   return <div className="person-journey-map-empty">{children}</div>;
 }
 
-function OverviewMap({ data }) {
+function JourneyGuide({ data, onSelect }) {
+  const complete = !data.nextStep;
+  return <section className="person-journey-guide" data-experience-capability="life-journey-guided-map-flow" aria-label="המסלול המודרך">
+    <header>
+      <div><small>זהות ← זמן ← אותיות ← משפחה ← מחקר ← התכנסויות ← מקורות ← מסר</small><h4>המסלול המודרך</h4></div>
+      <div className="person-journey-guide-progress" style={{ "--guide-progress": `${data.progressPercent}%` }} aria-label={`${data.completedCount} מתוך ${data.steps.length} תחנות הושלמו`}>
+        <strong>{data.progressPercent}%</strong><span>{data.completedCount}/{data.steps.length}</span>
+      </div>
+    </header>
+    <ol>{data.steps.map((step, index) => <li key={step.id} data-state={step.state}>
+      <button type="button" onClick={() => onSelect(step.tab)} aria-current={data.nextStep?.id === step.id ? "step" : undefined}>
+        <i aria-hidden="true">{step.state === "ready" || step.state === "empty" ? "✓" : index + 1}</i>
+        <span><strong>{step.label}</strong><small>{PATH_STATE_LABEL[step.state]}</small></span>
+      </button>
+    </li>)}</ol>
+    <footer>
+      <p>{complete
+        ? "השרשרת המחקרית מלאה. אפשר לחזור לכל תחנה בלי להפעיל את המנוע מחדש."
+        : "ההמשך פותח את התצוגה המתאימה בלבד. מחקר חדש יתחיל רק בלחיצה המפורשת באזור המחקר המשפחתי."}</p>
+      {data.nextStep ? <button type="button" onClick={() => onSelect(data.nextStep.tab)}>המשך ל־{data.nextStep.label}</button> : <span>המסלול הושלם</span>}
+    </footer>
+  </section>;
+}
+
+function OverviewMap({ data, path, onSelect }) {
   const cards = [
     ["אנשים שנבחרו", data.selectedPeople],
     ["תאריכים על הציר", data.datedPeople],
@@ -51,11 +75,14 @@ function OverviewMap({ data }) {
     ["חיבורים", data.connectionCount],
     ["קבוצות מקור", data.sourceCount],
   ];
-  return <div className="person-journey-map-overview">
-    {cards.map(([label, value]) => <article key={label}><strong>{value}</strong><span>{label}</span></article>)}
-    <p>{data.researchReady
-      ? "המפות נגזרות מאותו מחקר משפחתי שמור. מעבר בין מפות אינו מפעיל מנוע מחדש."
-      : "מפת הדורות וציר הזמן כבר זמינים. המטריצה, ההתכנסויות והמקורות יתמלאו רק בלחיצה על יצירת המחקר."}</p>
+  return <div className="person-journey-map-overview-shell">
+    <JourneyGuide data={path} onSelect={onSelect} />
+    <div className="person-journey-map-overview">
+      {cards.map(([label, value]) => <article key={label}><strong>{value}</strong><span>{label}</span></article>)}
+      <p>{data.researchReady
+        ? "המפות נגזרות מאותו מחקר משפחתי שמור. מעבר בין מפות אינו מפעיל מנוע מחדש."
+        : "מפת הדורות וציר הזמן כבר זמינים. המטריצה, ההתכנסויות והמקורות יתמלאו רק בלחיצה על יצירת המחקר."}</p>
+    </div>
   </div>;
 }
 
@@ -281,7 +308,7 @@ function PathMap({ data }) {
   </div>;
 }
 
-function MapPanel({ active, projection }) {
+function MapPanel({ active, projection, onSelect }) {
   if (active === "matrix") return <MatrixMap rows={projection.matrix} />;
   if (active === "generations") return <GenerationsMap data={projection.generations} />;
   if (active === "relationships") return <RelationshipsMap rows={projection.relationships} ready={projection.overview.researchReady} />;
@@ -297,7 +324,7 @@ function MapPanel({ active, projection }) {
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
   if (active === "summary") return <SummaryMap data={projection.summary} />;
   if (active === "path") return <PathMap data={projection.path} />;
-  return <OverviewMap data={projection.overview} />;
+  return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} />;
 }
 
 export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, context, birthTimeline }) {
@@ -325,7 +352,7 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
       >{tab.label}</button>)}
     </div>
     <div className="person-journey-map-panel" id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${active}-tab`}>
-      <MapPanel active={active} projection={projection} />
+      <MapPanel active={active} projection={projection} onSelect={setActive} />
     </div>
     <footer>תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש</footer>
   </section>;
