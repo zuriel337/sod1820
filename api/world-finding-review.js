@@ -189,6 +189,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const replaySpatialMetadata = clean(filters.replaySpatialMetadata) || "all";
   const replaySpatialCalculation = clean(filters.replaySpatialCalculation) || "all";
   const replaySpatialCoverage = clean(filters.replaySpatialCoverage) || "all";
+  const replaySpatialLane = clean(filters.replaySpatialLane) || "all";
   const replaySpatialTextOrigin = clean(filters.replaySpatialTextOrigin) || "all";
   const replaySource = clean(filters.replaySource) || "all";
   const replayTarget = clean(filters.replayTarget) || "all";
@@ -211,6 +212,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (replaySpatialMetadata !== "all" && row?.legacyReplay?.spatialResearchContext?.state !== replaySpatialMetadata) return false;
     if (replaySpatialCalculation !== "all" && row?.legacyReplay?.spatialCalculation?.state !== replaySpatialCalculation) return false;
     if (replaySpatialCoverage !== "all" && row?.legacyReplay?.spatialCuratedCoverage?.state !== replaySpatialCoverage) return false;
+    if (replaySpatialLane !== "all" && row?.legacyReplay?.spatialReviewLane !== replaySpatialLane) return false;
     if (replaySpatialTextOrigin !== "all" && row?.legacyReplay?.spatialTextOrigin !== replaySpatialTextOrigin) return false;
     const decision = row?.legacyReplay?.decision;
     const exactSourceCount = (Number(decision?.sourceLocatorStateCounts?.channel_uuid) || 0)
@@ -630,6 +632,11 @@ async function buildAuthorizedProjection(token) {
         .map((row) => ({ spatialCuratedCoverage: row.legacyReplay.spatialCuratedCoverage.state })),
       "spatialCuratedCoverage",
     ),
+    bySpatialReviewLane: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.spatialReviewLane)
+        .map((row) => ({ spatialReviewLane: row.legacyReplay.spatialReviewLane })),
+      "spatialReviewLane",
+    ),
     bySpatialTextOrigin: countBy(
       orderedFindings.filter((row) => row?.legacyReplay?.spatialTextOrigin)
         .map((row) => ({ spatialTextOrigin: row.legacyReplay.spatialTextOrigin })),
@@ -708,6 +715,7 @@ function pageResponse(projection, req, contributorScope = null) {
     replaySpatialMetadata: queryValue(req, "replay_spatial_metadata"),
     replaySpatialCalculation: queryValue(req, "replay_spatial_calculation"),
     replaySpatialCoverage: queryValue(req, "replay_spatial_coverage"),
+    replaySpatialLane: queryValue(req, "replay_spatial_lane"),
     replaySpatialTextOrigin: queryValue(req, "replay_spatial_text_origin"),
     replaySource: queryValue(req, "replay_source"),
     replayTarget: queryValue(req, "replay_target"),

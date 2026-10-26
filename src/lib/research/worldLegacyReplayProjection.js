@@ -36,7 +36,10 @@ const REVIEW_READY_STATES = new Set([
   "explicit_match",
   "legacy_matrix_match",
 ]);
-const SPATIAL_STATEMENT_RE = /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה|קובייה|פירמיד|פאון|עשרימון|טטרה|אוקטה|איקוס|דודקה|ציר(?:ים|י)?(?![א-ת])|גאומטר|גיאומטר|מעגל|עיגול|כדור)/iu;
+const SPATIAL_CORE_RE = /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה|קובייה|פירמיד|פאון|עשרימון|טטרה|אוקטה|איקוס|דודקה|גאומטר|גיאומטר)/iu;
+const SPATIAL_AXIS_RE = /(?:^|[^א-ת])(?:[בלכהמשו])?ציר(?:ים|י)?(?![א-ת])/iu;
+const SPATIAL_ROUND_RE = /(מעגל|עיגול|כדור(?!גל))/iu;
+const FIGURATIVE_CIRCLE_RE = /(סגירת\s+ה?מעגל|סוגר(?:ת)?\s+(?:את\s+)?ה?מעגל)/iu;
 
 if (!REGULAR_METHOD?.fn) throw new Error("World legacy replay requires the canonical regular gematria method");
 
@@ -49,8 +52,11 @@ function sourceLocatorState(sourceRef) {
 
 export function classifyWorldMissingEngineStatement(value) {
   const statement = clean(value);
+  const hasTruncatedTziruf = /צירופ/iu.test(statement) && /מציר\s*$/iu.test(statement);
+  const hasCoreSpatialSignal = SPATIAL_CORE_RE.test(statement) || (SPATIAL_AXIS_RE.test(statement) && !hasTruncatedTziruf);
+  const hasRoundSpatialSignal = SPATIAL_ROUND_RE.test(statement) && !FIGURATIVE_CIRCLE_RE.test(statement);
   const signals = Object.freeze({
-    spatialOrConstants: SPATIAL_STATEMENT_RE.test(statement),
+    spatialOrConstants: hasCoreSpatialSignal || hasRoundSpatialSignal,
     constantsOrSequences: /(π|פאי|(?:^|[^A-Za-z0-9א-ת])e(?:$|[^A-Za-z0-9א-ת])|אוילר|2[.,]718|רצף (?:ה)?מספרים|סדרת (?:ה)?מספרים|פיבונאצ|numeric sequence)/iu.test(statement),
     elsOrCipher: /(צופן|דילוג|אותיות בדילוג|\bELS\b)/iu.test(statement),
     language: /(אנגלית|לטינית|ערבית|שפה|תרגום|תעתיק)/u.test(statement),
@@ -253,6 +259,15 @@ function projectSpatialCuratedCoverage(row, routing) {
     matchBasis: modelSlugs.length ? "exact_source_ref" : "none",
     inferred: false,
   });
+}
+
+function projectSpatialReviewLane({ routing, coverage, calculation, textOrigin }) {
+  if (routing?.queue !== "spatial_or_constants") return null;
+  if (coverage?.state === "represented") return "represented_source";
+  if (calculation?.state === "verified") return "calculation_review";
+  if (calculation?.state === "verified_quantity") return "quantity_review";
+  if (textOrigin === "ocr_derived") return "ocr_shape_review";
+  return "source_shape_review";
 }
 
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
@@ -497,6 +512,12 @@ export function projectWorldLegacyReplayOccurrence(row) {
     const spatialTextOrigin = routing.queue === "spatial_or_constants"
       ? routing.signals.ocrDerived ? "ocr_derived" : "not_marked_ocr"
       : null;
+    const spatialReviewLane = projectSpatialReviewLane({
+      routing,
+      coverage: spatialCuratedCoverage,
+      calculation: spatialCalculation,
+      textOrigin: spatialTextOrigin,
+    });
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -516,6 +537,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       spatialCalculation,
       spatialCuratedCoverage,
       spatialTextOrigin,
+      spatialReviewLane,
       constantCheck,
     });
   }

@@ -205,6 +205,14 @@ const SPATIAL_COVERAGE_LABELS = Object.freeze({
   not_represented: "המקור אינו מיוצג במבחר המרחבי",
 });
 
+const SPATIAL_REVIEW_LANE_LABELS = Object.freeze({
+  represented_source: "כבר מיוצג במבחר",
+  calculation_review: "חישוב שוחזר · דורש מקור וצורה",
+  quantity_review: "כמות × ערך שוחזרו · דורש גיאומטריה",
+  ocr_shape_review: "OCR · דורש השוואה למדיה",
+  source_shape_review: "תיאור מרחבי · דורש מקור וצורה",
+});
+
 const SPATIAL_TEXT_ORIGIN_LABELS = Object.freeze({
   ocr_derived: "חילוץ OCR מהמדיה",
   not_marked_ocr: "אינו מסומן כחילוץ OCR",
@@ -328,7 +336,7 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySubtype: "all", replaySpatialMetadata: "all", replaySpatialCalculation: "all", replaySpatialCoverage: "all", replaySpatialTextOrigin: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySubtype: "all", replaySpatialMetadata: "all", replaySpatialCalculation: "all", replaySpatialCoverage: "all", replaySpatialLane: "all", replaySpatialTextOrigin: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
@@ -341,6 +349,7 @@ function initialReviewFilters() {
   const replaySpatialMetadata = clean(params.get("replaySpatialMetadata"));
   const replaySpatialCalculation = clean(params.get("replaySpatialCalculation"));
   const replaySpatialCoverage = clean(params.get("replaySpatialCoverage"));
+  const replaySpatialLane = clean(params.get("replaySpatialLane"));
   const replaySpatialTextOrigin = clean(params.get("replaySpatialTextOrigin"));
   const replaySource = clean(params.get("replaySource"));
   const replayTarget = clean(params.get("replayTarget"));
@@ -362,6 +371,7 @@ function initialReviewFilters() {
     replaySpatialMetadata: Object.hasOwn(SPATIAL_METADATA_LABELS, replaySpatialMetadata) ? replaySpatialMetadata : "all",
     replaySpatialCalculation: Object.hasOwn(SPATIAL_CALCULATION_LABELS, replaySpatialCalculation) ? replaySpatialCalculation : "all",
     replaySpatialCoverage: Object.hasOwn(SPATIAL_COVERAGE_LABELS, replaySpatialCoverage) ? replaySpatialCoverage : "all",
+    replaySpatialLane: Object.hasOwn(SPATIAL_REVIEW_LANE_LABELS, replaySpatialLane) ? replaySpatialLane : "all",
     replaySpatialTextOrigin: Object.hasOwn(SPATIAL_TEXT_ORIGIN_LABELS, replaySpatialTextOrigin) ? replaySpatialTextOrigin : "all",
     replaySource: Object.hasOwn(REPLAY_SOURCE_LABELS, replaySource) ? replaySource : "all",
     replayTarget: Object.hasOwn(REPLAY_TARGET_LABELS, replayTarget) ? replayTarget : "all",
@@ -448,6 +458,7 @@ export default function WorldAllResearchTable({ state }) {
   const [replaySpatialMetadata, setReplaySpatialMetadata] = useState(initial.replaySpatialMetadata);
   const [replaySpatialCalculation, setReplaySpatialCalculation] = useState(initial.replaySpatialCalculation);
   const [replaySpatialCoverage, setReplaySpatialCoverage] = useState(initial.replaySpatialCoverage);
+  const [replaySpatialLane, setReplaySpatialLane] = useState(initial.replaySpatialLane);
   const [replaySpatialTextOrigin, setReplaySpatialTextOrigin] = useState(initial.replaySpatialTextOrigin);
   const [replaySource, setReplaySource] = useState(initial.replaySource);
   const [replayTarget, setReplayTarget] = useState(initial.replayTarget);
@@ -465,8 +476,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
+    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySpatialMetadata, replaySpatialCalculation, replaySpatialCoverage, replaySpatialLane, replaySpatialTextOrigin, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
 
   const resetFilters = () => {
     setQuery("");
@@ -491,6 +502,7 @@ export default function WorldAllResearchTable({ state }) {
     setReplaySpatialMetadata("all");
     setReplaySpatialCalculation("all");
     setReplaySpatialCoverage("all");
+    setReplaySpatialLane("all");
     setReplaySpatialTextOrigin("all");
     setReplaySource("all");
     setReplayTarget("all");
@@ -995,6 +1007,7 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>שלמות זהות מרחבית</span><select value={replaySpatialMetadata} onChange={(e) => setReplaySpatialMetadata(e.target.value)}><option value="all">עם ובלי מטא־דאטה</option>{Object.entries(SPATIAL_METADATA_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialResearchMetadataState?.[value] || 0}</option>)}</select></label>
         <label><span>בדיקת חישוב מרחבי</span><select value={replaySpatialCalculation} onChange={(e) => setReplaySpatialCalculation(e.target.value)}><option value="all">כל מצבי החישוב</option>{Object.entries(SPATIAL_CALCULATION_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialCalculationState?.[value] || 0}</option>)}</select></label>
         <label><span>כיסוי במבחר המרחבי</span><select value={replaySpatialCoverage} onChange={(e) => setReplaySpatialCoverage(e.target.value)}><option value="all">מיוצגים ושאינם מיוצגים</option>{Object.entries(SPATIAL_COVERAGE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialCuratedCoverage?.[value] || 0}</option>)}</select></label>
+        <label><span>תור עבודה מרחבי</span><select value={replaySpatialLane} onChange={(e) => setReplaySpatialLane(e.target.value)}><option value="all">כל תורי העבודה</option>{Object.entries(SPATIAL_REVIEW_LANE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialReviewLane?.[value] || 0}</option>)}</select></label>
         <label><span>מקור הטקסט המרחבי</span><select value={replaySpatialTextOrigin} onChange={(e) => setReplaySpatialTextOrigin(e.target.value)}><option value="all">OCR ורשומות אחרות</option>{Object.entries(SPATIAL_TEXT_ORIGIN_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.bySpatialTextOrigin?.[value] || 0}</option>)}</select></label>
         <label><span>שלמות מקור · בשל טכנית</span><select value={replaySource} onChange={(e) => setReplaySource(e.target.value)}><option value="all">מקור מדויק ותיקונים</option>{Object.entries(REPLAY_SOURCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplaySourceReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>מצב יעד · בשל טכנית</span><select value={replayTarget} onChange={(e) => setReplayTarget(e.target.value)}><option value="all">כל מצבי היעד</option>{Object.entries(REPLAY_TARGET_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetReadiness?.[value] || 0}</option>)}</select></label>
@@ -1061,7 +1074,7 @@ export default function WorldAllResearchTable({ state }) {
           </div> : null}
 
           {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${legacyReplayClass(row.legacyReplay.state)}`}>
-            <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}{row.legacyReplay.routingSubtype ? ` · ${humanLabel(MISSING_ENGINE_SUBTYPE_LABELS, row.legacyReplay.routingSubtype, "תת־סוג")}` : ""}{row.legacyReplay.spatialResearchContext ? ` · ${humanLabel(SPATIAL_METADATA_LABELS, row.legacyReplay.spatialResearchContext.state, "זהות מרחבית")}` : ""}{row.legacyReplay.spatialCalculation ? ` · ${humanLabel(SPATIAL_CALCULATION_LABELS, row.legacyReplay.spatialCalculation.state, "חישוב מרחבי")}` : ""}{row.legacyReplay.spatialCuratedCoverage ? ` · ${humanLabel(SPATIAL_COVERAGE_LABELS, row.legacyReplay.spatialCuratedCoverage.state, "כיסוי מרחבי")}` : ""}{row.legacyReplay.spatialTextOrigin ? ` · ${humanLabel(SPATIAL_TEXT_ORIGIN_LABELS, row.legacyReplay.spatialTextOrigin, "מקור טקסט")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
+            <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}{row.legacyReplay.routingSubtype ? ` · ${humanLabel(MISSING_ENGINE_SUBTYPE_LABELS, row.legacyReplay.routingSubtype, "תת־סוג")}` : ""}{row.legacyReplay.spatialResearchContext ? ` · ${humanLabel(SPATIAL_METADATA_LABELS, row.legacyReplay.spatialResearchContext.state, "זהות מרחבית")}` : ""}{row.legacyReplay.spatialCalculation ? ` · ${humanLabel(SPATIAL_CALCULATION_LABELS, row.legacyReplay.spatialCalculation.state, "חישוב מרחבי")}` : ""}{row.legacyReplay.spatialCuratedCoverage ? ` · ${humanLabel(SPATIAL_COVERAGE_LABELS, row.legacyReplay.spatialCuratedCoverage.state, "כיסוי מרחבי")}` : ""}{row.legacyReplay.spatialReviewLane ? ` · ${humanLabel(SPATIAL_REVIEW_LANE_LABELS, row.legacyReplay.spatialReviewLane, "תור מרחבי")}` : ""}{row.legacyReplay.spatialTextOrigin ? ` · ${humanLabel(SPATIAL_TEXT_ORIGIN_LABELS, row.legacyReplay.spatialTextOrigin, "מקור טקסט")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
             <small>{legacyReplayDescription(row.legacyReplay)}</small>
           </div> : null}
 

@@ -230,6 +230,11 @@ test("missing-engine routing uses explicit text markers without claiming verific
   assert.equal(classifyWorldMissingEngineStatement("ציר במרחב תלת ממדי").subtype, "space_and_axes");
   assert.equal(classifyWorldMissingEngineStatement("שלושה צירים במבנה").queue, "spatial_or_constants");
   assert.equal(classifyWorldMissingEngineStatement("הצירוף המשותף בין ארבע מילים").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("קציר חטים קשור לשבועות").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("הטענה סוגרת מעגל רעיוני").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("זאת סגירת המעגל עם המקור הקודם").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("צירופי החודשים יוצאים מציר").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("מעגל פנימי בתוך מחומש").subtype, "circles_and_spheres");
   assert.equal(classifyWorldMissingEngineStatement("שלוש מילים מופיעות ברצף").queue, "textual_statement");
   assert.equal(classifyWorldMissingEngineStatement("שלוש מילים מופיעות ברצף").subtype, null);
   assert.equal(classifyWorldMissingEngineStatement("צופן בדילוג 1820").queue, "els_or_cipher");
@@ -309,6 +314,7 @@ test("spatial routing reports curated coverage only from an exact stored source 
   assert.equal(represented.spatialCuratedCoverage.matchBasis, "exact_source_ref");
   assert.deepEqual(represented.spatialCuratedCoverage.modelSlugs, ["emunah-cube-612"]);
   assert.equal(represented.spatialCuratedCoverage.inferred, false);
+  assert.equal(represented.spatialReviewLane, "represented_source");
 
   const unrepresented = projectWorldLegacyReplayOccurrence(row({
     engine_verified: null,
@@ -319,6 +325,7 @@ test("spatial routing reports curated coverage only from an exact stored source 
   assert.equal(unrepresented.spatialCuratedCoverage.state, "not_represented");
   assert.equal(unrepresented.spatialCuratedCoverage.matchBasis, "none");
   assert.deepEqual(unrepresented.spatialCuratedCoverage.modelSlugs, []);
+  assert.equal(unrepresented.spatialReviewLane, "calculation_review");
 });
 
 test("spatial quantity products verify arithmetic without treating a shape count as gematria", () => {
@@ -356,6 +363,7 @@ test("spatial quantity products verify arithmetic without treating a shape count
     statement: "קובייה: 180× שש פאות=1080",
   }));
   assert.equal(wordReplay.spatialCalculation.state, "verified_quantity");
+  assert.equal(wordReplay.spatialReviewLane, "quantity_review");
 });
 
 test("constant replay distinguishes exact sums, rounded constants and unsupported source claims", () => {
