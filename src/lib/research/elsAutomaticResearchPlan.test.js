@@ -76,14 +76,28 @@ const guidedLanguageInspection = ({ hitId = "hit-1", skip = 31, dir = 1, axisSta
   stage: "S3_OPEN_SEQUENCE_SEGMENTATION", axis: { term: "ציר", scope: "torah", skip, dir, start: axisStart, hitId },
   authority: { letters: "CANONICAL", segmentation: "DETERMINISTIC_CANDIDATE", meaning: "UNVERIFIED", canonicalReplayRequired: true },
   coverage: { candidatesExamined: 160, truncated: false }, modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
-  rays: [{ id: "horizontal:500:1:7", orientation: "horizontal", text: "אבמלכימ", reverseText: "מיכלמבא", start: 500, step: 1, length: 7, distance: 0, intersectsAxis: true }],
+  rays: [{ id: "horizontal:500:1:11", orientation: "horizontal", text: "אבמלכימדודא", reverseText: "אדודמיכלמבא", start: 500, step: 1, length: 11, distance: 0, intersectsAxis: true }],
   readings: [{
     contract: "els_torah_language_reading_v1", status: "UNVERIFIED_READING", exactLetters: "במלכים", canonicalLetters: "במלכימ",
     baseTerm: "מלכ", label: "מלך", relation: "prefixed-suffixed-form", prefix: "ב", suffix: "ים", source: "bounded-dictionary",
-    selectionProtocol: "GOVERNED_CORE", rayId: "horizontal:500:1:7", orientation: "horizontal", readingDirection: "forward",
+    selectionProtocol: "GOVERNED_CORE", rayId: "horizontal:500:1:11", orientation: "horizontal", readingDirection: "forward",
     offset: 1, start: 501, step: 1, length: 6, distance: 0, canonicalReplayRequired: true, truthPromotion: false,
+  }, {
+    contract: "els_torah_language_reading_v1", status: "UNVERIFIED_READING", exactLetters: "דוד", canonicalLetters: "דוד",
+    baseTerm: "דוד", label: "דוד", relation: "exact-lexicon-match", prefix: null, suffix: null, source: "story",
+    selectionProtocol: "CONTEXT_PRE_REGISTERED", rayId: "horizontal:500:1:11", orientation: "horizontal", readingDirection: "forward",
+    offset: 7, start: 507, step: 1, length: 3, distance: 0, canonicalReplayRequired: true, truthPromotion: false,
   }],
   segmentations: [],
+  relations: [{
+    contract: "els_torah_language_relation_v1", status: "UNVERIFIED_RELATION", geometry: "AXIS_INTERSECTING_RAY",
+    rayId: "horizontal:500:1:11", orientation: "horizontal", readingDirection: "forward", gap: 0, distance: 0,
+    contextMatches: 1, exactMatches: 1, candidateScore: 164, rank: 1, canonicalReplayRequired: true, truthPromotion: false,
+    tokens: [
+      { exactLetters: "במלכים", canonicalLetters: "במלכימ", baseTerm: "מלכ", label: "מלך", relation: "prefixed-suffixed-form", source: "bounded-dictionary", start: 501, step: 1, length: 6, offset: 1 },
+      { exactLetters: "דוד", canonicalLetters: "דוד", baseTerm: "דוד", label: "דוד", relation: "exact-lexicon-match", source: "story", start: 507, step: 1, length: 3, offset: 7 },
+    ],
+  }],
 });
 
 test("guided coverage inspects exactly four canonical occurrences before explicit continuation", () => {
@@ -160,6 +174,11 @@ test("bounded Torah-language readings preserve exact letters and never become fi
   assert.equal(language.readings[0].label, "מלך");
   assert.equal(language.readings[0].relation, "prefixed-suffixed-form");
   assert.equal(language.readings[0].canonicalReplayRequired, true);
+  assert.equal(language.relations[0].contract, "els_torah_language_relation_v1");
+  assert.equal(language.relations[0].geometry, "AXIS_INTERSECTING_RAY");
+  assert.deepEqual(language.relations[0].tokens.map(token => token.baseTerm), ["מלכ", "דוד"]);
+  assert.equal(language.relations[0].status, "UNVERIFIED_RELATION");
+  assert.equal(language.relations[0].truthPromotion, false);
   assert.equal(language.truthPromotion, false);
   assert.equal(language.findingMutation, false);
   assert.equal(language.modelCallsTriggered, 0);
@@ -180,7 +199,18 @@ test("language input cannot substitute different letters at a valid ray locus", 
   languageInspection.readings[0].exactLetters = "במלחים";
   const inspection = guidedInspection("hit-1", { languageInspection });
   const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
-  assert.equal(coverage.inspections[0].languageInspection.readings.length, 0);
+  assert.deepEqual(coverage.inspections[0].languageInspection.readings.map(reading => reading.baseTerm), ["דוד"]);
+  assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
+});
+
+test("language relation geometry is rechecked instead of trusting its reported gap", () => {
+  const occurrences = guidedOccurrences(1);
+  const languageInspection = guidedLanguageInspection();
+  languageInspection.relations[0].gap = 4;
+  const inspection = guidedInspection("hit-1", { languageInspection });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection.readings.length, 2);
+  assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
 });
 
 test("automatic plan derives each expression once, explains every form and deduplicates canonical terms", () => {

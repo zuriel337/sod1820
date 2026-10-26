@@ -49,7 +49,9 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.match(source, /for\(const term of DICT\)addHint/);
   assert.match(source, /readingRelation:"defective-spelling"/);
   assert.match(source, /guidedMatrixLanguageInspection/);
+  assert.match(source, /guidedLanguageRelations/);
   assert.match(source, /els_matrix_language_inspection_v1/);
+  assert.match(source, /els_torah_language_relation_v1/);
   assert.match(source, /S3_OPEN_SEQUENCE_SEGMENTATION/);
   assert.match(source, /maxCandidateWindows=8192/);
   assert.match(source, /rayCap=24,maxLetters=24/);
@@ -65,13 +67,19 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.doesNotMatch(source, /guidedMatrixLanguageInspection[\s\S]{0,12000}(?:fetch\s*\(|ai-analyze|Math\.random|dynamicCandidateLexicon)/);
 });
 
-test("Torah-language readings stay in Advanced and preserve the exact-letter authority", async () => {
+test("Torah-language readings stay Advanced while one ranked relation remains explicitly unverified", async () => {
   const source = await readFile(NATIVE, "utf8");
   assert.match(source, /data-els-language-inspection="candidate-only"/);
+  assert.match(source, /data-els-language-relation="unverified"/);
+  assert.match(source, /מועמד לשוני מדורג/);
+  assert.match(source, /מספר הדילוג אינו אות דירוג/);
+  assert.match(source, /זהו מועמד למחקר, לא ממצא/);
+  assert.match(source, /languageCandidate\.occurrence/);
   assert.match(source, /האותיות נלקחו מהמטריצה הקנונית/);
   assert.match(source, /קריאות מועמדות בלבד/);
   assert.match(source, /AI: אפס קריאות/);
   assert.doesNotMatch(source, /languageInspection[\s\S]{0,1200}requestFindingsChange/);
+  assert.ok(source.indexOf('data-els-language-relation="unverified"') < source.indexOf('data-els-language-inspection="candidate-only"'));
 });
 
 test("Classic stays clean while Research alone owns manual cross-search controls", async () => {

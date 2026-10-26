@@ -24,11 +24,12 @@ function languageContext(engine, corpus, raw, scope = "torah") {
   context.scopeN = () => scope === "tanakh" ? context.T.length : 304805;
   vm.runInContext([
     NORMALIZER,
-    `const GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1";`,
+    `const GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1";`,
     `const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;`,
     functionSource(engine, "guidedMatrixBox"),
     functionSource(engine, "guidedMatrixDisplayTerm"),
     functionSource(engine, "guidedLanguageReading"),
+    functionSource(engine, "guidedLanguageRelations"),
     functionSource(engine, "guidedMatrixLanguageInspection"),
   ].join("\n"), context);
   return context;
@@ -56,6 +57,7 @@ test("bounded local rays preserve unseen exact letters without a cipher-specific
   assert.deepEqual(result.authority, { letters: "CANONICAL", segmentation: "UNRESOLVED", meaning: "UNVERIFIED", canonicalReplayRequired: true });
   assert.equal(result.readings.length, 0);
   assert.equal(result.segmentations.length, 0);
+  assert.equal(result.relations.length, 0);
   assert.doesNotMatch(functionSource(engine, "guidedMatrixLanguageInspection"), /באשאטמינ|שבררומי|ד\. טראמפ/, "runtime logic contains no Golden phrase or cipher special case");
 });
 
@@ -68,6 +70,7 @@ test("Colombia holdout letters are inside the same bounded map without supplying
   assert.match(rayText, /אשאכלה/, "the source-line phrase survives in the same bounded map");
   assert.equal(result.modelCallsTriggered, 0);
   assert.equal(result.readings.length, 0, "withheld words are not silently inserted into the controlled lexicon");
+  assert.equal(result.relations.length, 0, "unrecognized holdout letters do not become a semantic relation");
 });
 
 test("Uranium geometry candidates survive independently of the memorable skip", async () => {
@@ -83,6 +86,13 @@ test("Uranium geometry candidates survive independently of the memorable skip", 
   assert.ok(iran && usa, "both pre-registered context terms receive bounded reading candidates");
   assert.equal(iran.rayId, usa.rayId, "the parallel pair is preserved as one exact geometric ray");
   assert.equal(iran.status, "UNVERIFIED_READING");
+  assert.equal(result.relations[0].contract, "els_torah_language_relation_v1");
+  assert.equal(result.relations[0].status, "UNVERIFIED_RELATION");
+  assert.equal(result.relations[0].geometry, "PARALLEL_AXIS_RAY");
+  assert.deepEqual(result.relations[0].tokens.map(token => token.baseTerm), ["אירנ", "ארהב"]);
+  assert.equal(result.relations[0].contextMatches, 2);
+  assert.equal(result.relations[0].canonicalReplayRequired, true);
+  assert.equal(result.relations[0].truthPromotion, false);
   assert.equal(result.coverage.rayCap, 24);
   assert.ok(result.coverage.hintComparisons <= result.coverage.maxHintComparisons);
   assert.equal(result.axis.skip, 10101);
@@ -99,6 +109,7 @@ test("the 1820 Golden keeps its local source language in a bounded deterministic
   assert.match(rayText, /אליהו/);
   assert.match(rayText, /יבואו/);
   assert.ok(result.readings.some(reading => reading.baseTerm === "אליהו" && reading.source === "bounded-dictionary"));
+  assert.equal(result.relations.length, 0, "one recognized word cannot create a pair");
   assert.ok(result.coverage.candidatesExamined <= 8192);
   assert.equal(result.modelCallsTriggered, 0);
 });
@@ -120,4 +131,13 @@ test("generic Hebrew affixes create only an unverified reading candidate", async
   assert.equal(reading.suffix, "ימ");
   assert.equal(reading.source, "bounded-dictionary");
   assert.equal(reading.selectionProtocol, "GOVERNED_CORE");
+});
+
+test("language-pair ranking is geometry and context based, never skip based", async () => {
+  const engine = await readFile(ENGINE, "utf8");
+  const source = functionSource(engine, "guidedLanguageRelations");
+  assert.match(source, /contextMatches\*100/);
+  assert.match(source, /gap>8/);
+  assert.match(source, /PARALLEL_AXIS_RAY/);
+  assert.doesNotMatch(source, /axis|skip|10101|4545/);
 });

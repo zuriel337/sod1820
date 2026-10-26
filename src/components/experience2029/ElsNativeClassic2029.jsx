@@ -419,6 +419,12 @@ const guidedReadingLabel = relation => ({
   "bounded-word-split": "חלוקה תחומה לשתי מילים",
 })[relation] || "קריאה לשונית אפשרית";
 
+const guidedLanguageGeometryLabel = geometry => ({
+  PARALLEL_AXIS_RAY: "אותה קרן מקבילה לציר",
+  AXIS_INTERSECTING_RAY: "אותה קרן חוצה את הציר",
+  LOCAL_SAME_RAY: "אותה קרן מקומית",
+})[geometry] || "קשר גיאומטרי מקומי";
+
 function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOpen, onContinue, onAddSupports }) {
   if (!coverage) return pending ? <section className="els29-guided-coverage" aria-label="בדיקת מופעי הציר"><p role="status">ממתין לאימות הציר והמופעים…</p></section> : null;
   const recommendation = coverage.recommendation;
@@ -427,6 +433,12 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
   const languageInspections = coverage.inspections.map(inspection => inspection.languageInspection).filter(Boolean);
   const languageReadings = languageInspections.flatMap(inspection => inspection.readings || []).slice(0, 8);
   const languageSegmentations = languageInspections.flatMap(inspection => inspection.segmentations || []).slice(0, 4);
+  const languageCandidate = coverage.inspections.flatMap(inspection => (inspection.languageInspection?.relations || [])
+    .map(relation => ({ relation, occurrence: inspection.occurrence, hitId: inspection.hitId }))).sort((first, second) =>
+    second.relation.contextMatches - first.relation.contextMatches || second.relation.exactMatches - first.relation.exactMatches
+    || first.relation.distance - second.relation.distance || first.relation.gap - second.relation.gap
+    || first.relation.rank - second.relation.rank || first.hitId.localeCompare(second.hitId))[0] || null;
+  const languageRelation = languageCandidate?.relation || null;
   const languageRayCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.returnedRays || 0), 0);
   const recommendationTerms = new Set((recommendation?.supports || []).map(support => support.term));
   const localByTerm = new Map();
@@ -466,6 +478,17 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
         <small>דילוג {finding.direction === "back" ? "−" : ""}{finding.skip} · {finding.ref || finding.book}</small>
         {finding.readingLabel ? <small>קריאת לשון אפשרית: {finding.readingLabel} · האותיות המדויקות נשמרות</small> : null}
       </article>)}</div>
+    </section> : null}
+    {languageRelation ? <section className="els29-guided-local-findings" data-els-language-relation="unverified" aria-label="מועמד לשוני מדורג">
+      <header><div><small>מועמד לשוני מדורג</small><strong>צירוף לבדיקה</strong></div><span>לא מאומת</span></header>
+      <div><article>
+        <b>{languageRelation.tokens.map(token => token.label || token.baseTerm).join(" × ")}</b>
+        <span>{guidedLanguageGeometryLabel(languageRelation.geometry)} · רווח {languageRelation.gap} אותיות</span>
+        <small>אותיות מדויקות: {languageRelation.tokens.map(token => token.exactLetters).join(" · ")}</small>
+        <small>הדירוג מבוסס על גיאומטריה ומונחי הקשר בלבד; מספר הדילוג אינו אות דירוג.</small>
+        <small>זהו מועמד למחקר, לא ממצא. נדרש replay קנוני לפני אימות או הוספה.</small>
+      </article></div>
+      <div className="els29-guided-actions"><button type="button" onClick={() => onOpen(languageCandidate.occurrence)}>פתח את מופע הציר המדויק</button></div>
     </section> : null}
     {!recommendation && coverage.status === "AWAITING_CONTINUATION" ? <div className="els29-guided-next-wave">
       <p>בארבעת המופעים הראשונים לא נמצא עדיין זוג חזק שעבר אימות. אפשר לבדוק עוד ארבעה—לא מעבר לכך בחתך הזה.</p>
