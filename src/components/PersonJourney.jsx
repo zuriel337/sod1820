@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -254,6 +254,14 @@ export default function PersonJourney(props) {
   return <PrincipalPersonJourney key={principal} {...props} auth={auth} />;
 }
 
+function PersonalDetailsDisclosure({ variant, open, onToggle, summary, children }) {
+  if (variant !== "2029") return <>{children}</>;
+  return <details className="person-journey-personal-details" open={open} onToggle={event => onToggle(event.currentTarget.open)}>
+    <summary>{summary}</summary>
+    {children}
+  </details>;
+}
+
 function FamilyAnalysisDisclosure({ variant, children }) {
   if (variant !== "2029") return <>{children}</>;
   return <details className="person-journey-summary-disclosure"><summary>פירוט הסיכום המשפחתי</summary>{children}</details>;
@@ -271,6 +279,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [personDetailsOpen, setPersonDetailsOpen] = useState(true);
+  const personDetailsCollapsed = useRef(false);
   const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
   const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], sharedExpressions: [], error: null });
   const [familyAnalysis, setFamilyAnalysis] = useState({ state: "idle", data: null, error: null });
@@ -302,6 +312,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     () => selfRef ? members.find((member) => member.source_ref === selfRef) : null,
     [members, selfRef],
   );
+  useEffect(() => {
+    if (variant !== "2029" || !persistedSelf || personDetailsCollapsed.current) return;
+    personDetailsCollapsed.current = true;
+    setPersonDetailsOpen(false);
+  }, [persistedSelf, variant]);
   const familyMembers = useMemo(
     () => members.filter((member) => member.source_ref !== selfRef),
     [members, selfRef],
@@ -1056,7 +1071,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   }, [analyzeCompletedFamilyResearch, familyResearch]);
 
   if (authLoading || loading) {
-    return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
+    return <div className={`person-journey ${variant === "2029" ? "is-2029" : ""}`}><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
   }
 
   if (!user) {
@@ -1121,6 +1136,22 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         <div className="person-journey-kicker">מסע חיים · פרטי</div>
         <h1>מתחילים ממך.<br />ומשם מחברים את הסיפור.</h1>
         <p>שם ותאריך פותחים את המסע הראשון. אחר כך אפשר להוסיף בני משפחה ואירועים — בלי לפתוח כלי חדש בכל פעם.</p>
+        {variant === "2029" ? <div className="person-journey-hero-status" data-experience-capability="life-journey-status">
+          <div className="person-journey-identity">
+            <span className="person-journey-identity-name">{persistedSelf ? persistedSelf.name : "מסע חדש"}</span>
+            <span className="person-journey-state-chip" data-state={persistedSelf ? "ready" : "waiting"}>{persistedSelf ? "מוכן למחקר השם" : "ממתין לשם"}</span>
+          </div>
+          {persistedSelf ? <button
+            type="button"
+            className="person-journey-primary"
+            disabled={busy}
+            onClick={() => openCapability(persistedSelf, "name")}
+          >פתח את המחקר שלי</button> : <button
+            type="button"
+            className="person-journey-primary"
+            onClick={() => { setPersonDetailsOpen(true); window.requestAnimationFrame?.(() => document.getElementById("life-journey-first-name")?.focus()); }}
+          >מלאו את הפרטים שלכם</button>}
+        </div> : null}
       </div>
     </section>
 
@@ -1131,10 +1162,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         <div><small>01</small><h2>מי אני</h2></div>
         <span>נשמר פרטי</span>
       </div>
+      <PersonalDetailsDisclosure variant={variant} open={personDetailsOpen} onToggle={setPersonDetailsOpen} summary={persistedSelf ? "פרטים אישיים · עריכה" : "פרטים אישיים"}>
       <div className="person-journey-fields">
         <label>
           <span>שם פרטי</span>
-          <input value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder="שם פרטי" dir="rtl" autoComplete="given-name" />
+          <input id="life-journey-first-name" value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder="שם פרטי" dir="rtl" autoComplete="given-name" />
         </label>
         <label>
           <span>שם משפחה</span>
@@ -1153,15 +1185,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <input value={birthPlace} onChange={(event) => setBirthPlace(event.target.value)} placeholder="עיר או יישוב" dir="rtl" autoComplete="off" />
         </label> : null}
       </div>
+      </PersonalDetailsDisclosure>
       <div className="person-journey-actions">
         <button type="button" className="person-journey-primary" disabled={busy || !clean(firstName)} onClick={beginJourney}>
           {busy ? "פותח את המסע…" : persistedSelf ? "עדכן וחבר מחדש" : "פתח את מסע החיים"}
         </button>
-        {variant === "2029" && persistedSelf ? <button
-          type="button"
-          disabled={busy}
-          onClick={() => openCapability(persistedSelf, "name")}
-        >פתח את המחקר שלי</button> : null}
         <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
       </div>
     </section>
@@ -1178,12 +1206,6 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <h3>מטריצת המחקר האישית</h3>
           <p>התאריך מתפרק לביטויים עבריים, כל ביטוי עובר בשיטות הגימטריה הזמינות, והחיבורים מנורמלים לפני שנוצר מסר.</p>
         </div>
-        <button
-          type="button"
-          className="person-journey-primary"
-          disabled={busy || !persistedSelf}
-          onClick={() => openCapability(persistedSelf, "name")}
-        >פתח את המחקר שלי</button>
       </article> : null}
 
       {variant !== "2029" && analysis.state === "idle" ? <div className="person-journey-empty">אחרי שמירה נציג כאן רק עובדות מנוע ונגזרות: ערכי השם, התאריך העברי ונקודות מפגש שנמצאו.</div> : null}
@@ -1264,15 +1286,27 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
                 <span>
                   <strong>{member.name}</strong>
                   <small>{memberRef === selfRef ? "חשבון ראשי מחובר" : "זהות משפחתית · חשבון עתידי אפשרי"}</small>
-                  {memberMeta.birthdate_iso ? <small dir="ltr">{memberMeta.birthdate_iso}</small> : null}
-                  {variant === "2029" && memberMeta.birth_time_local ? <small dir="ltr">שעת לידה · {memberMeta.birth_time_local}</small> : null}
-                  {variant === "2029" && memberMeta.birth_place ? <small>מקום לידה · {memberMeta.birth_place}</small> : null}
-                  <small className="person-journey-member-source">
-                    מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
-                    {identityClaim?.status === "approved" ? " · זהות החשבון אומתה" : memberRef === selfRef ? "" : " · זהות ניתנת לחיבור לחשבון"}
-                  </small>
+                  {memberMeta.birthdate_iso ? <small dir="ltr" className="person-journey-numeric">{memberMeta.birthdate_iso}</small> : null}
+                  {variant === "2029" && identityClaim?.status === "approved" ? <small className="person-journey-member-verified">זהות החשבון אומתה</small> : null}
+                  {variant === "2029" ? null : <>
+                    <small className="person-journey-member-source">
+                      מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
+                      {identityClaim?.status === "approved" ? " · זהות החשבון אומתה" : memberRef === selfRef ? "" : " · זהות ניתנת לחיבור לחשבון"}
+                    </small>
+                  </>}
                 </span>
               </label>
+              {variant === "2029" ? <details className="person-journey-member-more">
+                <summary>פרטי לידה ומקור</summary>
+                <div>
+                  {memberMeta.birth_time_local ? <small dir="ltr">שעת לידה · {memberMeta.birth_time_local}</small> : null}
+                  {memberMeta.birth_place ? <small>מקום לידה · {memberMeta.birth_place}</small> : null}
+                  <small className="person-journey-member-source">
+                    מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
+                    {identityClaim?.status === "approved" || memberRef === selfRef ? "" : " · זהות ניתנת לחיבור לחשבון"}
+                  </small>
+                </div>
+              </details> : null}
               {variant === "2029" ? <div className="person-journey-member-actions">
                 <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>פתח מחקר שם</button>
                 {memberRef !== selfRef ? <>

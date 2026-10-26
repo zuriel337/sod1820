@@ -103,7 +103,7 @@ export default function LifeJourneyEls2029({ name, context, onVerified, onReturn
   const rows = slice?.rows || [];
   const occurrenceCount = rows.reduce((total, row) => total + (row.projection?.occurrences?.length || 0), 0);
 
-  return <div className="person-journey" data-experience-surface="life-journey-els-2029">
+  return <div className="person-journey is-2029" data-experience-surface="life-journey-els-2029">
     <section className="person-journey-panel person-journey-capability" data-experience-capability="els_automatic_research_plan_v1">
       <div className="person-journey-section-head">
         <div><small>מסע החיים</small><h2>תוכנית ELS אוטומטית</h2></div>
