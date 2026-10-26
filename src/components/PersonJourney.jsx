@@ -155,6 +155,7 @@ function memberResearchProfile(member) {
     last,
     fullName: clean(member?.name) || joinName(first, last),
     birthdate: clean(meta.birthdate_iso),
+    birthTime: clean(meta.birth_time_local),
     birthPlace: clean(meta.birth_place),
   });
 }
@@ -190,6 +191,7 @@ function familyBirthTimeline(members, selectedRefs) {
       dateIso: date.iso,
       dateDisplay: date.display,
       hebrewDate,
+      birthTime: profile.birthTime,
       birthPlace: profile.birthPlace,
     })];
   }).sort((a, b) => a.dateIso.localeCompare(b.dateIso) || a.name.localeCompare(b.name, "he"));
@@ -265,10 +267,12 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
   const [birthdate, setBirthdate] = useState("");
+  const [birthTime, setBirthTime] = useState("");
   const [birthPlace, setBirthPlace] = useState("");
 
   const [newMemberName, setNewMemberName] = useState("");
   const [newMemberBirthdate, setNewMemberBirthdate] = useState("");
+  const [newMemberBirthTime, setNewMemberBirthTime] = useState("");
   const [newMemberBirthPlace, setNewMemberBirthPlace] = useState("");
   const [newMemberRelation, setNewMemberRelation] = useState("none");
   const [editingMemberRef, setEditingMemberRef] = useState(null);
@@ -329,6 +333,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       setSurname(pieces.join(" "));
     }
     setBirthdate(clean(meta.birthdate_iso));
+    if (variant === "2029") setBirthTime(clean(meta.birth_time_local));
     if (variant === "2029") setBirthPlace(clean(meta.birth_place));
   }, [variant]);
 
@@ -477,6 +482,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     const first = clean(firstName);
     const last = clean(surname);
     const date = clean(birthdate);
+    const time = clean(birthTime);
     const place = clean(birthPlace);
     const fullName = joinName(first, last);
     if (!personId || !fullName) return;
@@ -490,7 +496,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         first_name: first,
         surname: last || null,
         birthdate_iso: date || null,
-        ...(variant === "2029" ? { birth_place: place || null } : {}),
+        ...(variant === "2029" ? { birth_time_local: time || null, birth_place: place || null } : {}),
         profile_version: "life_journey_2029_v1",
         profile_source: "account_owner_entered",
         profile_source_person_ref: selfRef,
@@ -515,6 +521,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const resetMemberForm = useCallback(() => {
     setNewMemberName("");
     setNewMemberBirthdate("");
+    setNewMemberBirthTime("");
     setNewMemberBirthPlace("");
     setNewMemberRelation("none");
     setEditingMemberRef(null);
@@ -525,6 +532,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     setEditingMemberRef(clean(member?.source_ref));
     setNewMemberName(profile.fullName);
     setNewMemberBirthdate(profile.birthdate);
+    setNewMemberBirthTime(profile.birthTime);
     setNewMemberBirthPlace(profile.birthPlace);
     setNewMemberRelation("none");
   }, []);
@@ -547,7 +555,10 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         first_name: memberFirstName,
         surname: memberSurname || null,
         birthdate_iso: clean(newMemberBirthdate) || null,
-        ...(variant === "2029" ? { birth_place: clean(newMemberBirthPlace) || null } : {}),
+        ...(variant === "2029" ? {
+          birth_time_local: clean(newMemberBirthTime) || null,
+          birth_place: clean(newMemberBirthPlace) || null,
+        } : {}),
         profile_version: "life_journey_2029_v1",
         profile_source: existingMeta.profile_source || "journey_owner_entered",
         profile_source_person_ref: existingMeta.profile_source_person_ref || selfRef,
@@ -1067,6 +1078,10 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <input value={birthdate} onChange={(event) => setBirthdate(event.target.value)} type="date" dir="ltr" autoComplete="bday" />
         </label>
         {variant === "2029" ? <label>
+          <span>שעת לידה מדויקת</span>
+          <input value={birthTime} onChange={(event) => setBirthTime(event.target.value)} type="time" dir="ltr" autoComplete="bday-time" />
+        </label> : null}
+        {variant === "2029" ? <label>
           <span>מקום לידה</span>
           <input value={birthPlace} onChange={(event) => setBirthPlace(event.target.value)} placeholder="עיר או יישוב" dir="rtl" autoComplete="off" />
         </label> : null}
@@ -1183,6 +1198,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
                   <strong>{member.name}</strong>
                   <small>{memberRef === selfRef ? "חשבון ראשי מחובר" : "זהות משפחתית · חשבון עתידי אפשרי"}</small>
                   {memberMeta.birthdate_iso ? <small dir="ltr">{memberMeta.birthdate_iso}</small> : null}
+                  {variant === "2029" && memberMeta.birth_time_local ? <small dir="ltr">שעת לידה · {memberMeta.birth_time_local}</small> : null}
                   {variant === "2029" && memberMeta.birth_place ? <small>מקום לידה · {memberMeta.birth_place}</small> : null}
                   <small className="person-journey-member-source">
                     מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
@@ -1513,6 +1529,10 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <span>תאריך לידה</span>
           <input value={newMemberBirthdate} onChange={(event) => setNewMemberBirthdate(event.target.value)} type="date" dir="ltr" />
         </label>
+        {variant === "2029" ? <label>
+          <span>שעת לידה מדויקת</span>
+          <input value={newMemberBirthTime} onChange={(event) => setNewMemberBirthTime(event.target.value)} type="time" dir="ltr" />
+        </label> : null}
         {variant === "2029" ? <label>
           <span>מקום לידה</span>
           <input value={newMemberBirthPlace} onChange={(event) => setNewMemberBirthPlace(event.target.value)} placeholder="עיר או יישוב" dir="rtl" autoComplete="off" />

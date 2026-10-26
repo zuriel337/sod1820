@@ -1,6 +1,7 @@
 import { buildLifeJourneySeferYetzirahMap } from "./lifeJourneySeferYetzirahMap.js";
+import { buildLifeJourneyBirthMap } from "./lifeJourneyBirthMap.js";
 
-export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v3";
+export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v4";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
@@ -210,6 +211,7 @@ export function buildLifeJourneyMaps({
     { id: "finding", label: "ממצא ודף המספר", state: context?.journey ? "ready" : "available" },
   ].map(step => Object.freeze(step));
 
+  const creation = buildLifeJourneySeferYetzirahMap({ members, relations, selectedRefs, birthTimeline });
   return Object.freeze({
     version: LIFE_JOURNEY_MAPS_VERSION,
     overview: Object.freeze({
@@ -233,7 +235,8 @@ export function buildLifeJourneyMaps({
     timeline: Object.freeze(list(birthTimeline)),
     timelineMissing: Object.freeze(timelineMissing),
     sources: Object.freeze({ members: Object.freeze(memberSources), numbers: Object.freeze(numberSources) }),
-    creation: buildLifeJourneySeferYetzirahMap({ members, relations, selectedRefs, birthTimeline }),
+    creation,
+    birthMap: buildLifeJourneyBirthMap({ members, selectedRefs, birthTimeline, creation }),
     path: Object.freeze({
       steps: Object.freeze(pathSteps),
       saved: Boolean(context?.journey?.id),

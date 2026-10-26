@@ -23,6 +23,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const lifeJourneyMaps = read("src/components/experience2029/LifeJourneyMaps2029.jsx");
   const lifeJourneyMapProjection = read("src/lib/research/lifeJourneyMaps.js");
   const seferYetzirahMapProjection = read("src/lib/research/lifeJourneySeferYetzirahMap.js");
+  const birthMapProjection = read("src/lib/research/lifeJourneyBirthMap.js");
+  const birthMapStudio = read("src/components/experience2029/BirthMapStudio2029.jsx");
+  const birthMapScene = read("src/components/experience2029/BirthMapScene3D2029.jsx");
   const removalMigration = read("supabase/migrations/20261025035531_life_journey_remove_family_member_v1.sql");
   const supabaseClient = read("src/lib/supabase.js");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
@@ -58,6 +61,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /openCapability\(member, "name"\)/);
   assert.match(journey, /birthdate_iso/);
   assert.match(journey, /birth_place/);
+  assert.match(journey, /birth_time_local/);
   assert.match(journey, /runLifeJourneyNameResearch/);
   assert.match(journey, /variant === "2029"/);
   assert.match(journey, /getNameMulti/);
@@ -112,6 +116,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMaps, /ציר זמן/);
   assert.match(lifeJourneyMaps, /מפת יצירה/);
   assert.match(lifeJourneyMaps, /life-journey-sefer-yetzirah-map/);
+  assert.match(lifeJourneyMaps, /BirthMapStudio2029/);
   assert.match(lifeJourneyMaps, /אינה הורוסקופ/);
   assert.match(lifeJourneyMaps, /מקורות/);
   assert.match(lifeJourneyMaps, /כיסוי/);
@@ -125,6 +130,18 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMapProjection, /evidenceGapCount/);
   assert.match(lifeJourneyMapProjection, /combinedSummary/);
   assert.match(lifeJourneyMapProjection, /buildLifeJourneySeferYetzirahMap/);
+  assert.match(lifeJourneyMapProjection, /buildLifeJourneyBirthMap/);
+  assert.match(birthMapProjection, /no_external_birth_api: true/);
+  assert.match(birthMapProjection, /no_fabricated_traits: true/);
+  assert.match(birthMapProjection, /no_telemetry_payload: true/);
+  assert.match(birthMapStudio, /lazy\(\(\) => import\("\.\/BirthMapScene3D2029\.jsx"\)\)/);
+  assert.match(birthMapStudio, /Human Design/);
+  assert.match(birthMapStudio, /מפת שמיים/);
+  assert.match(birthMapStudio, /אינה מנחשת שעה/);
+  assert.match(birthMapScene, /@react-three\/fiber/);
+  assert.match(birthMapScene, /OrbitControls/);
+  assert.doesNotMatch(birthMapScene, /name|birthTime|birthPlace|dateIso/);
+  assert.doesNotMatch(birthMapProjection, /fetch\(|supabase|localStorage|sessionStorage|URLSearchParams|track\(|console\./i);
   assert.match(seferYetzirahMapProjection, /p183:gra_commentary:gra:mishnah5_planets/);
   assert.match(seferYetzirahMapProjection, /p187:gra_commentary:gra:twelve_correspondences/);
   assert.match(seferYetzirahMapProjection, /no_personal_astrology: true/);

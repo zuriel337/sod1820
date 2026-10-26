@@ -1,6 +1,7 @@
 import React, { useId, useMemo, useState } from "react";
 import { formatTanakhRef } from "../../lib/presentation/canonicalPresentation.js";
 import { buildLifeJourneyMaps } from "../../lib/research/lifeJourneyMaps.js";
+import BirthMapStudio2029 from "./BirthMapStudio2029.jsx";
 import "./life-journey-maps-2029.css";
 
 const MAP_TABS = Object.freeze([
@@ -150,7 +151,7 @@ function TimelineMap({ rows, missing }) {
     <ol>{rows.map(event => <li key={event.id}>
       <time dateTime={event.dateIso} dir="ltr">{event.dateDisplay}</time>
       <i aria-hidden="true" />
-      <div><strong>{event.name}</strong><span>לידה</span>{event.hebrewDate ? <small>{event.hebrewDate}</small> : null}{event.birthPlace ? <small>מקום לידה · {event.birthPlace}</small> : null}</div>
+      <div><strong>{event.name}</strong><span>לידה</span>{event.hebrewDate ? <small>{event.hebrewDate}</small> : null}{event.birthTime ? <small dir="ltr">שעת לידה · {event.birthTime}</small> : null}{event.birthPlace ? <small>מקום לידה · {event.birthPlace}</small> : null}</div>
     </li>)}</ol>
     {missing.length ? <small className="person-journey-map-timeline-missing">ללא תאריך שמור: {missing.join(" · ")}</small> : null}
   </section>;
@@ -209,6 +210,7 @@ function CreationMap({ data }) {
       {data.birthAnchors.map(item => <article key={item.memberRef}>
         <strong>{item.name}</strong>
         <span>{item.hebrewDate || "תאריך עברי חסר"}</span>
+        <small>{item.birthTime ? `שעת לידה · ${item.birthTime}` : "שעת לידה חסרה"}</small>
         <small>{item.birthPlace ? `מקום לידה · ${item.birthPlace}` : "מקום לידה חסר"}</small>
       </article>)}
     </section>
@@ -284,7 +286,10 @@ function MapPanel({ active, projection }) {
   if (active === "convergences") return <ConvergencesMap rows={projection.convergences} ready={projection.overview.researchReady} />;
   if (active === "evidence") return <EvidenceMap data={projection.evidence} ready={projection.overview.researchReady} />;
   if (active === "timeline") return <TimelineMap rows={projection.timeline} missing={projection.timelineMissing} />;
-  if (active === "creation") return <CreationMap data={projection.creation} />;
+  if (active === "creation") return <BirthMapStudio2029
+    data={projection.birthMap}
+    seferContent={<CreationMap data={projection.creation} />}
+  />;
   if (active === "sources") return <SourcesMap data={projection.sources} ready={projection.overview.researchReady} />;
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
   if (active === "summary") return <SummaryMap data={projection.summary} />;

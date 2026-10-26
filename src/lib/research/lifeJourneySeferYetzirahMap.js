@@ -97,6 +97,7 @@ export function buildLifeJourneySeferYetzirahMap({
       name: person.name,
       dateIso: clean(event?.dateIso),
       hebrewDate: clean(event?.hebrewDate),
+      birthTime: clean(event?.birthTime),
       birthPlace: clean(event?.birthPlace),
       state: event?.dateIso ? "calendar_ready" : "missing_date",
     });

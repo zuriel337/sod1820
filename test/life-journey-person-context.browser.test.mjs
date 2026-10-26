@@ -216,6 +216,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByLabel("שם פרטי").fill("הורה בדיקה");
     await page.getByLabel("שם משפחה").fill("משפחה");
     await page.getByLabel("תאריך לידה").first().fill("1990-02-15");
+    await page.getByLabel("שעת לידה מדויקת").first().fill("05:30");
     await page.getByLabel("מקום לידה").first().fill("עיר בדיקה");
     await page.getByRole("button", { name: "פתח את מסע החיים" }).click();
     await page.getByRole("button", { name: "עדכן וחבר מחדש" }).waitFor();
@@ -240,6 +241,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const family = page.locator('[data-experience-capability="life-journey-family"]');
     await family.getByLabel("שם בן/בת משפחה").fill("ילד בדיקה");
     await family.getByLabel("תאריך לידה").fill("2020-03-04");
+    await family.getByLabel("שעת לידה מדויקת").fill("14:20");
     await family.getByLabel("מקום לידה", { exact: true }).fill("יישוב בדיקה");
     await family.getByLabel("הקשר אליי").selectOption("child_of_me");
     await family.getByRole("button", { name: "הוסף למסע" }).click();
@@ -247,6 +249,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const childMemberCard = family.locator(".person-journey-family-member", { hasText: "ילד בדיקה" });
     await childMemberCard.getByRole("button", { name: "עריכה" }).click();
     assert.equal(await family.getByLabel("שם בן/בת משפחה").inputValue(), "ילד בדיקה");
+    await family.getByLabel("שעת לידה מדויקת").fill("14:45");
     await family.getByLabel("מקום לידה", { exact: true }).fill("יישוב מעודכן");
     await family.getByRole("button", { name: "שמור שינויים" }).click();
     await childMemberCard.getByText("מקום לידה · יישוב מעודכן").waitFor();
@@ -304,6 +307,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.getByLabel("שם פרטי").inputValue(), "הורה בדיקה");
     assert.equal(await page.getByLabel("שם משפחה").inputValue(), "משפחה");
     assert.equal(await page.getByLabel("תאריך לידה").first().inputValue(), "1990-02-15");
+    assert.equal(await page.getByLabel("שעת לידה מדויקת").first().inputValue(), "05:30");
     assert.equal(await page.getByLabel("מקום לידה").first().inputValue(), "עיר בדיקה");
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyPersonRef), firstRef);
     assert.equal(await childSelection.isChecked(), true, "family selection survives refresh through Research Context");
@@ -323,9 +327,28 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.deepEqual(await birthTimeline.locator("time").allTextContents(), ["15.02.1990", "04.03.2020"]);
     assert.deepEqual(await birthTimeline.locator("li strong").allTextContents(), ["הורה בדיקה משפחה", "ילד בדיקה"]);
     assert.equal(await birthTimeline.getByText("י״א בתשרי").count(), 2);
+    assert.equal(await birthTimeline.getByText("שעת לידה · 05:30").count(), 1);
+    assert.equal(await birthTimeline.getByText("שעת לידה · 14:45").count(), 1);
     assert.equal(await birthTimeline.getByText("מקום לידה · עיר בדיקה").count(), 1);
     assert.equal(await birthTimeline.getByText("מקום לידה · יישוב מעודכן").count(), 1);
     await lifeMaps.getByRole("tab", { name: "מפת יצירה" }).click();
+    const birthStudio = family.locator('[data-experience-capability="life-journey-birth-map-studio"]');
+    await birthStudio.getByRole("heading", { name: "סטודיו מפת החיים" }).waitFor();
+    const activateThree = birthStudio.getByRole("button", { name: "הפעל תלת־ממד חי" });
+    await activateThree.waitFor();
+    await activateThree.click();
+    await page.waitForTimeout(350);
+    assert.ok(
+      await birthStudio.locator('[data-experience-capability="life-journey-birth-map-3d"]').count()
+        + await birthStudio.locator('[role="status"]').count() >= 1,
+      "explicit 3D activation renders WebGL or an accessible capability fallback",
+    );
+    await birthStudio.getByRole("tab", { name: "Human Design" }).click();
+    await birthStudio.getByRole("heading", { name: "Human Design" }).waitFor();
+    assert.equal(await birthStudio.getByText("הקלט מוכן · המחשבון טרם חובר").count(), 2);
+    await birthStudio.getByRole("tab", { name: "מפת שמיים" }).click();
+    await birthStudio.getByText("אין כרגע מיקום כוכב, מזל, בית או היבט שחושב עבור אדם.", { exact: true }).waitFor();
+    await birthStudio.getByRole("tab", { name: "ספר יצירה" }).click();
     const creationMap = family.locator('[data-experience-capability="life-journey-sefer-yetzirah-map"]');
     await creationMap.getByRole("heading", { name: "מפת האותיות והמערכות" }).waitFor();
     assert.equal(await creationMap.locator(".person-journey-creation-people>article").count(), 2);
@@ -555,21 +578,26 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(JSON.stringify(privacy.telemetry).includes("עיר בדיקה"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("יישוב בדיקה"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("יישוב מעודכן"), false);
+    assert.equal(JSON.stringify(privacy.telemetry).includes("05:30"), false);
+    assert.equal(JSON.stringify(privacy.telemetry).includes("14:45"), false);
     assert.equal(JSON.stringify(privacy.telemetry).includes("child@example.test"), false);
     assert.equal(privacy.ledger.members.length, 2);
     assert.equal(privacy.ledger.relations.length, 1);
     assert.equal(privacy.ledger.members.find(member => member.source_ref.endsWith(":self"))?.meta?.birth_place, "עיר בדיקה");
+    assert.equal(privacy.ledger.members.find(member => member.source_ref.endsWith(":self"))?.meta?.birth_time_local, "05:30");
     assert.equal(privacy.ledger.members.find(member => member.source_ref.endsWith(":self"))?.meta?.profile_source, "account_owner_entered");
     assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.birth_place, "יישוב מעודכן");
+    assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.birth_time_local, "14:45");
     assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.profile_source, "journey_owner_entered");
     assert.ok(privacy.hintReads.every(call => call.options?.fallbackLocal === false));
     assert.equal(privacy.storageValues.some(value => String(value).includes(invitationToken)), false);
-    for (const privateValue of ["הורה בדיקה", "ילד בדיקה", "1990-02-15", "2020-03-04", "עיר בדיקה", "יישוב בדיקה", "יישוב מעודכן"]) {
+    for (const privateValue of ["הורה בדיקה", "ילד בדיקה", "1990-02-15", "2020-03-04", "05:30", "14:45", "עיר בדיקה", "יישוב בדיקה", "יישוב מעודכן"]) {
       assert.equal(JSON.stringify(privacy.context).includes(privateValue), false, `Research Context excludes ${privateValue}`);
       assert.equal(JSON.stringify(privacy.contextStorage).includes(privateValue), false, `stored Research Context excludes ${privateValue}`);
     }
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("הורה בדיקה") || decodeURIComponent(url).includes("ילד בדיקה")), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("עיר בדיקה") || decodeURIComponent(url).includes("יישוב בדיקה")), false);
+    assert.equal(requestUrls.some(url => /1990-02-15|2020-03-04|05%3A30|14%3A45/.test(url)), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes(invitationToken)), false);
     assert.deepEqual(browserErrors, []);
   } finally {

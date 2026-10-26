@@ -42,10 +42,6 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
         :root[data-theme="light"] .mlock p{color:#33260a;}
         :root[data-theme="light"] .mlock a{color:#8a5a0a;}
         :root[data-theme="light"] .mlock a.mlock-cta{background:#8a5a0a;color:#fff;}
-        :root[data-theme="dark"] .mlock h1{color:#f0dc9a;}
-        :root[data-theme="dark"] .mlock p{color:#cdbf9f;}
-        :root[data-theme="dark"] .mlock a{color:#e8c84a;}
-        :root[data-theme="dark"] .mlock a.mlock-cta{background:#e8c84a;color:#1a0e00;}
       `}</style>
       <img src={LOGO_URL} alt="סוד 1820" />
       <h1>{message || DEFAULT_MSG}</h1>

@@ -14,7 +14,7 @@ function fixture() {
     ],
     selectedRefs: [SELF, CHILD],
     relations: [{ source_ref: "rel:1", parent_ref: SELF, child_ref: CHILD }],
-    birthTimeline: [{ id: `${SELF}:birth`, memberRef: SELF, name: "הורה בדיקה", dateIso: "1990-02-15", dateDisplay: "15.02.1990", hebrewDate: "כ׳ בשבט תש״ן", birthPlace: "עיר בדיקה" }],
+    birthTimeline: [{ id: `${SELF}:birth`, memberRef: SELF, name: "הורה בדיקה", dateIso: "1990-02-15", dateDisplay: "15.02.1990", hebrewDate: "כ׳ בשבט תש״ן", birthTime: "05:30", birthPlace: "עיר בדיקה" }],
     context: { journey: { id: "path:1", position: 3 } },
     analysis: {
       state: "ready",
@@ -79,6 +79,9 @@ test("life maps project the existing private family state without inventing stor
   assert.deepEqual(out.sources.numbers[0].phrases, ["אור", "מאור"]);
   assert.equal(out.creation.people.length, 2);
   assert.equal(out.creation.birthAnchors[0].birthPlace, "עיר בדיקה");
+  assert.equal(out.birthMap.people[0].birthTime, "05:30");
+  assert.equal(out.birthMap.people[0].humanDesign.state, "adapter_required");
+  assert.equal(out.birthMap.people[0].humanDesign.output, null);
   assert.equal(out.creation.cosmicFrames[0].items.includes("שבתאי"), true);
   assert.equal(out.creation.boundaries.no_personal_astrology, true);
   assert.equal(out.path.saved, true);
