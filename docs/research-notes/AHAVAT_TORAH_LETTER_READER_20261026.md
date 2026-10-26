@@ -24,3 +24,16 @@ Aleph is printed entirely in the right column of PDF 35. All 54 parasha rows wer
 Each book's row sum equals its contribution. Thus these subtotals must be read as **cumulative**. The historical thousands-scale hypothesis in P35_LETTER_CLOSURE is not needed to explain Aleph's apparent large gaps: its numeral readings and its treatment of running totals were mistaken. No typography-based multiplier has been added. Important directly re-read examples include נח תקס״ג=563, לך תרל״ו=636, תולדות תקכ״ח=528, ויקהל תפ״ה=485, תצא תקנ״ה=555.
 
 The source claim is 27,059, preserved as printed. Arithmetic closure confirms the transcription's internal consistency; no independent corpus count or engine verification is asserted. The remaining forms have a complete source-page map; this checkpoint does not claim complete per-parasha transcription for them.
+
+## Implemented / tested / handoff
+
+Source-model checkpoint: `99411b84`. Interactive-reader checkpoint: `09e701cb`.
+The final content checkpoint extends seven explanations in the shared book companion, PDF 35–41. These are source-linked companion explanations, not source quotations.
+
+Implemented: 28-form selection with exact PDF page(s), deep-link form/book persistence across reload, Aleph's 54 rows with printed numerals, five book contributions and cumulative totals, book filtering, Hebrew-numeral/parasha search, count-proportional 2D and lazy 3D projections. Both projections use the same source model. Keyboard buttons and the complete table remain available independently of 3D interaction. Existing raw reconstruction rows are retained unchanged.
+
+Verified: 31 non-browser Books tests; the browser flow at 320/390/1440 with finals, shin/sin, exact PDF anchors, search, 3D and keyboard/reload restoration; 3 public-language tests; 4 Preview Auth Guard tests; normal Build 2029 and a build explicitly enabling the protected Books preview; built dependency graph/weight gate (78,462 gzip bytes recovered); Legacy Production Lock; diff whitespace check. Browser screenshots were inspected outside the repository.
+
+Remaining: full per-parasha transcription of the other 27 printed forms. No count for an untranscribed form is inferred from alphabet order, a corpus or a historical candidate. Historical dossiers remain provenance. The central books branch still requires integration of the preceding DS-01 branch and this dependent continuation; this branch performs no merge.
+
+AFTER scope: released at handoff; actor GPT reports to ZURIEL in the active conversation. The branch and its Preview are reviewable outputs; no live work-log write, main change, Production action, Legacy edit, DB/RLS or permission change was made.
