@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { selectRazielIntelligence } from "../../../supabase/functions/_shared/razielIntelligence.js";
+import { supabaseServiceHeaders } from "../../../supabase/functions/_shared/supabaseServiceHeaders.js";
 
 // RAZIEL_INTELLIGENCE_CORE_V1_PHASE_M — cross-surface Golden (verification only: no production code is added by this phase).
 // Runs the REAL ai-analyze Raziel adapter region (Phase H..L + surface context) against a counting fetch and asserts, per natural-language row:
@@ -26,8 +27,9 @@ function load(log, scenario = {}) {
     const host = u.host === "api.github.com" ? "github" : "supabase";
     const rpc = u.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)?.[1] || null;
     const table = !rpc ? u.pathname.match(/\/rest\/v1\/(\w+)$/)?.[1] || null : null;
-    const auth = init.headers?.Authorization || init.headers?.authorization || null;
-    log.push({ host, rpc, table, path: u.pathname, auth });
+    const headers = new Headers(init.headers);
+    const auth = headers.get("authorization"), apiKey = headers.get("apikey");
+    log.push({ host, rpc, table, path: u.pathname, auth, apiKey });
     if (host === "github") {
       if (u.pathname.endsWith("/commits/main")) return resp(200, { sha: SHA });
       if (u.pathname.endsWith("/deployments")) return resp(200, [{ id: 1, sha: SHA }]);
@@ -51,7 +53,8 @@ function load(log, scenario = {}) {
     `const SB_URL = "https://x.supabase.co"; const SB_ANON = "anon-key";\n${region}\n`) +
     "\nreturn { razielPersonalDescriptor, runRazielPersonal, razielOperatorDescriptor, razielCoordDescriptor, runRazielOperator, runRazielCoordination, razielNumberContextDescriptor, runRazielNumberContext, razielCurrentContentDescriptor, runRazielCurrentContent, razielSemanticSurfaceText };";
   const spans = [];
-  const m = new Function("fetch", "recordOperationalSpan", "crypto", "AbortSignal", code)(fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" }, AbortSignal);
+  const m = new Function("fetch", "recordOperationalSpan", "crypto", "AbortSignal", "supabaseServiceHeaders", code)(
+    fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" }, AbortSignal, supabaseServiceHeaders);
   return { m, spans };
 }
 
@@ -150,6 +153,7 @@ for (const row of MATRIX) {
     if (out.cc) {
       assert.equal(out.cc.ok, true); assert.equal(out.cc.kind, "post");
       assert.equal(log.length, 1); assert.match(log[0].path, /\/rest\/v1\/posts$/); assert.ok(log[0].auth === "Bearer anon-key");
+      assert.equal(log[0].apiKey, "anon-key");
       assert.doesNotMatch(out.cc.pack, /<script|alert\(1\)|<p>/);
     }
     if (row.ctx) assert.match(m.razielSemanticSurfaceText(row.ss), row.ctx);
