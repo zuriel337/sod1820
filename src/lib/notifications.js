@@ -61,9 +61,10 @@ export function mergeTopicsForSave(existing = [], { gates = [], adminTopics = nu
   return [...new Set([...keep, ...gatesToTopics(gates), ...adm])];
 }
 
-// ערוצים: משנים רק push / whatsapp; email וכל ערוץ קיים אחר נשמרים. ברירת מחדל לשורה חדשה: ["email"].
+// משנים רק push / whatsapp; שומרים ערוצים קיימים בלי להוסיף הסכמה חדשה ל-email.
+// היעדר ערוצים או בחירה ריקה נשארים ריקים גם בשמירת העדפות או מצב שקט (Follow v19).
 export function mergeChannelsForSave(existing = null, { push = false, whatsapp = false, whatsappAllowed = false } = {}) {
-  const base = Array.isArray(existing) && existing.length ? existing : ["email"];
+  const base = Array.isArray(existing) ? existing : [];
   const out = base.filter(c => c !== "push" && c !== "whatsapp");
   if (push) out.push("push");
   if (whatsapp && whatsappAllowed) out.push("whatsapp");
@@ -86,7 +87,7 @@ export function gatesToTopics(gateKeys = []) {
 export const COMMUNITY_LABEL = "חידושי הקהילה";
 
 export async function getMyNotifications(limit = 30, { strict = false } = {}) {
-  if (!supabase) return [];
+  if (!supabase) { if (strict) throw new Error("Notification reader unavailable"); return []; }
   try {
     const { data, error } = await supabase
       .from("user_notifications")
@@ -94,6 +95,7 @@ export async function getMyNotifications(limit = 30, { strict = false } = {}) {
       .order("created_at", { ascending: false })
       .limit(limit);
     if (error) throw error;
+    if (strict && !Array.isArray(data)) throw new Error("Notification list unavailable");
     return data || [];
   } catch (error) { if (strict) throw error; return []; }
 }
@@ -123,25 +125,63 @@ export const FOLLOW_STATES = [
   { key: "raziel",  icon: "✨", label: "רזיאל מציע",   note: "המלצה אישית",            live: false },
 ];
 
-export async function getUnreadCount() {
-  if (!supabase) return 0;
+export async function getUnreadCount({ strict = false } = {}) {
+  if (!supabase) { if (strict) throw new Error("Notification reader unavailable"); return 0; }
   try {
-    const { count } = await supabase
+    const { count, error } = await supabase
       .from("user_notifications")
       .select("id", { count: "exact", head: true })
       .is("read_at", null);
+    if (strict) {
+      if (error) throw error;
+      if (!Number.isSafeInteger(count) || count < 0) throw new Error("Unread count unavailable");
+      return count;
+    }
     return count || 0;
-  } catch { return 0; }
+  } catch (error) { if (strict) throw error; return 0; }
 }
 
-export async function markNotificationRead(id) {
-  if (!supabase || !id) return;
-  try { await supabase.from("user_notifications").update({ read_at: new Date().toISOString() }).eq("id", id).is("read_at", null); }
-  catch { /* noop */ }
+// Strict callers apply only these confirmed IDs to their same-account snapshot.
+// An empty representation is a confirmed no-op, never permission to clear a badge.
+function notificationReadAck(data, expectedId = null) {
+  if (!Array.isArray(data)) throw new Error("Notification update not confirmed");
+  const markedIds = [];
+  const seen = new Set();
+  for (const row of data) {
+    if (typeof row?.id !== "string" || !row.id || seen.has(row.id)
+      || expectedId !== null && row.id !== expectedId
+      || typeof row.read_at !== "string" || !Number.isFinite(Date.parse(row.read_at))) {
+      throw new Error("Notification update not confirmed");
+    }
+    seen.add(row.id);
+    markedIds.push(row.id);
+  }
+  return { ok: true, markedIds };
 }
 
-export async function markAllRead() {
-  if (!supabase) return;
-  try { await supabase.from("user_notifications").update({ read_at: new Date().toISOString() }).is("read_at", null); }
-  catch { /* noop */ }
+export async function markNotificationRead(id, { strict = false } = {}) {
+  if (!supabase || !id || strict && typeof id !== "string") {
+    if (strict) throw new Error("Notification update unavailable");
+    return;
+  }
+  try {
+    const query = supabase.from("user_notifications").update({ read_at: new Date().toISOString() }).eq("id", id).is("read_at", null);
+    const { data, error } = await (strict ? query.select("id,read_at") : query);
+    if (strict) {
+      if (error) throw error;
+      return notificationReadAck(data, id);
+    }
+  } catch (error) { if (strict) throw error; }
+}
+
+export async function markAllRead({ strict = false } = {}) {
+  if (!supabase) { if (strict) throw new Error("Notification update unavailable"); return; }
+  try {
+    const query = supabase.from("user_notifications").update({ read_at: new Date().toISOString() }).is("read_at", null);
+    const { data, error } = await (strict ? query.select("id,read_at") : query);
+    if (strict) {
+      if (error) throw error;
+      return notificationReadAck(data);
+    }
+  } catch (error) { if (strict) throw error; }
 }

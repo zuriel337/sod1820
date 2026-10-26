@@ -80,7 +80,7 @@ export default function ContributorActionsController2029({ view, onPublicData, e
   return <>
     <ContributorOverview2029 overview={data} />
     <ContributorActionRow2029>
-      {caps.followTopic && !caps.owner ? <WatchButton key={caps.followTopic} topic={caps.followTopic} source="writer-2029" label={`מעקב אחרי ${view.profile.name}`}
+      {caps.followTopic && !caps.owner ? <WatchButton key={caps.followTopic} topic={caps.followTopic} source="writer-2029" variant="2029" label={`מעקב אחרי ${view.profile.name}`}
         explainer="עדכונים על פרסומים חדשים של הכותב. ערוצי ההתראה נבחרים בנפרד." noPush /> : null}
       {caps.message === "ready" ? <button type="button" className="pc-open" onClick={() => setDialog({ scope, open: true, state: "idle" })}>שליחת הודעה לכותב</button>
         : caps.message === "login_required" || caps.state === "login_required" ? <a className="pc-open" href={`/login?returnTo=${encodeURIComponent(view.canonicalHref)}`}>התחברות לשליחת הודעה</a>
