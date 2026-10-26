@@ -116,6 +116,43 @@ test("general chains replay through the canonical extractor and unresolved metho
   assert.equal(replayWorldCompoundEnvelope({ kind: "general-chain", text: "טקסט לא נתמך" }).state, "compound_unsupported");
 });
 
+test("explicit verification envelopes stay separate from replay and expose internal conflicts", () => {
+  const exact = projectWorldLegacyReplayOccurrence(row({
+    engine_detail: { verification_state: "match", claimed_expression: "חיים", claimed_value: 68 },
+  }));
+  assert.equal(exact.state, "explicit_match");
+  assert.equal(exact.explicitVerificationState, "match");
+  assert.equal(exact.replayComputed, null);
+
+  const numeric = projectWorldLegacyReplayOccurrence(row({
+    engine_detail: { verification_state: "match_numeric_only" },
+  }));
+  assert.equal(numeric.state, "explicit_numeric_match");
+
+  const review = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: false,
+    engine_detail: { verification_state: "partial_match_with_mismatch" },
+  }));
+  assert.equal(review.state, "explicit_review_required");
+
+  const conflict = projectWorldLegacyReplayOccurrence(row({
+    engine_detail: { verification_state: "mismatch" },
+  }));
+  assert.equal(conflict.state, "explicit_state_conflict");
+});
+
+test("explicit verification attaches outside the legacy-signal queue without changing live truth", () => {
+  const explicit = row({ engine_detail: { verification_state: "match" } });
+  const projected = attachWorldLegacyReplay({
+    id: `research:${explicit.id}`,
+    sourceId: explicit.id,
+    verification: "match",
+    occurrences: [{ id: `research:${explicit.id}`, sourceId: explicit.id }],
+  }, buildWorldLegacyReplayIndex([explicit]));
+  assert.equal(projected.legacyReplay.state, "explicit_match");
+  assert.equal(projected.legacyReplay.mutatesLiveData, false);
+});
+
 test("cluster attachment preserves every occurrence and never mutates live truth", () => {
   const first = row();
   const second = row({ id: id("2") });

@@ -122,11 +122,15 @@ const LEGACY_REPLAY_LABELS = Object.freeze({
   compound_envelope_mismatch: "השרשרת והמעטפת אינן תואמות",
   compound_method_unresolved: "שיטת רכיב בשרשרת אינה פתורה",
   compound_unsupported: "מבנה השרשרת אינו נתמך",
+  explicit_match: "מעטפת אימות מפורשת · התאמה מלאה",
+  explicit_numeric_match: "מעטפת אימות מפורשת · התאמה מספרית בלבד",
+  explicit_state_conflict: "סתירה בין דגל המנוע למצב הבדיקה",
+  explicit_review_required: "מעטפת אימות מפורשת · דורשת בדיקה",
   missing_replay_envelope: "חסרה מעטפת replay",
   mixed_replay_states: "אשכול עם מצבי replay שונים",
 });
 
-const LEGACY_REPLAY_READY = new Set(["deterministic_match", "arithmetic_match", "compound_match"]);
+const LEGACY_REPLAY_READY = new Set(["deterministic_match", "arithmetic_match", "compound_match", "explicit_match"]);
 const LEGACY_REPLAY_BLOCKED = new Set([
   "deterministic_mismatch",
   "arithmetic_mismatch",
@@ -134,6 +138,7 @@ const LEGACY_REPLAY_BLOCKED = new Set([
   "compound_mismatch",
   "compound_envelope_mismatch",
   "compound_method_unresolved",
+  "explicit_state_conflict",
 ]);
 
 function legacyReplayClass(state) {
@@ -154,6 +159,10 @@ function legacyReplayDescription(replay) {
     return `השרשרת וכל ${replay.operandCount || 0} רכיבי הגימטריה שוחזרו במנוע הקנוני; עדיין נדרשת הכרעת מקור ויעד.`;
   }
   if (replay?.state === "compound_method_unresolved") return "לפחות רכיב אחד דורש הכרעת שיטה; השרשרת נשארת חסומה.";
+  if (replay?.state === "explicit_match") return "המעטפת הקיימת מתעדת התאמה מלאה; עדיין נדרשת הכרעת מקור ויעד.";
+  if (replay?.state === "explicit_numeric_match") return "המספרים תואמים, אך זו אינה הוכחת קורפוס, ייחודיות או משמעות.";
+  if (replay?.state === "explicit_state_conflict") return "דגל המנוע ומצב הבדיקה סותרים זה את זה; ההופעה חסומה עד תיקון המעטפת.";
+  if (replay?.state === "explicit_review_required") return "המעטפת מתעדת אי־התאמה, בדיקה חלקית או שיטה שאינה רשומה; אין לקדם.";
   if (replay?.state === "missing_replay_envelope") return "הסימון הישן אינו כולל קלט ושיטה מובנים שאפשר להריץ מחדש.";
   if (replay?.state?.endsWith("_unsupported")) return "המבנה אינו עומד בדקדוק הדטרמיניסטי המצומצם ונשאר לבדיקה.";
   return "נדרשת השלמת מעטפת או הכרעת מפעיל לפני אישור.";

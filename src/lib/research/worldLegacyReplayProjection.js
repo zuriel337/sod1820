@@ -166,7 +166,31 @@ export function replayWorldCompoundEnvelope(value) {
 
 export function projectWorldLegacyReplayOccurrence(row) {
   const detail = asObject(row?.engine_detail);
-  if (row?.engine_verified !== true || clean(detail.verification_state)) return null;
+  const explicitVerificationState = clean(detail.verification_state);
+  if (explicitVerificationState) {
+    const isExactMatch = explicitVerificationState === "match";
+    const isNumericOnlyMatch = explicitVerificationState === "match_numeric_only";
+    let state;
+    if (isExactMatch && row?.engine_verified === true) state = "explicit_match";
+    else if (isNumericOnlyMatch && row?.engine_verified === true) state = "explicit_numeric_match";
+    else if (row?.engine_verified === true) state = "explicit_state_conflict";
+    else state = "explicit_review_required";
+    const sourceRef = clean(row?.source_ref) || null;
+    return Object.freeze({
+      id: clean(row?.id),
+      state,
+      method: clean(detail.claimed_method || detail.method || detail.engine_method_tested) || null,
+      expression: clean(detail.claimed_expression || detail.term || detail.source_claim) || null,
+      claimed: finite(detail.claimed_value),
+      storedComputed: finite(detail.engine_result),
+      replayComputed: null,
+      explicitVerificationState,
+      engineVerified: row?.engine_verified === true,
+      sourceRef,
+      sourceLocatorState: sourceLocatorState(sourceRef),
+    });
+  }
+  if (row?.engine_verified !== true) return null;
 
   const verification = asObject(detail.verification);
   const method = clean(verification.method);
@@ -240,12 +264,14 @@ function sourceId(value) {
 }
 
 export function attachWorldLegacyReplay(row, replayIndex) {
-  if (!row || row.verification !== "legacy_signal" || !(replayIndex instanceof Map)) return row;
+  if (!row || !(replayIndex instanceof Map)) return row;
   const ids = Array.isArray(row.occurrences) && row.occurrences.length
     ? row.occurrences.map((occurrence) => sourceId(occurrence.sourceId || occurrence.id))
     : [sourceId(row.sourceId || row.id)];
   const occurrences = ids.map((id) => replayIndex.get(id)).filter(Boolean);
   if (!occurrences.length) return row;
+  const hasExplicitVerification = occurrences.some((occurrence) => occurrence.state.startsWith("explicit_"));
+  if (row.verification !== "legacy_signal" && !hasExplicitVerification) return row;
   const stateCounts = {};
   for (const occurrence of occurrences) stateCounts[occurrence.state] = (stateCounts[occurrence.state] || 0) + 1;
   const states = Object.keys(stateCounts);
