@@ -2237,7 +2237,7 @@
 
   // Guided discovery is a bounded lens over the same verified result set. It never changes st.res,
   // st.occ or st.words, never loads a broad lexicon and never promotes raw letter runs to findings.
-  const GUIDED_MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1",GUIDED_MATRIX_BUDGET_CONTRACT="els_matrix_discovery_budget_v1",GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1";
+  const GUIDED_MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1",GUIDED_MATRIX_BUDGET_CONTRACT="els_matrix_discovery_budget_v1",GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1",GUIDED_LANGUAGE_REPLAY_CONTRACT="els_language_relation_replay_v1";
   let _guidedMatrixLensSeq=0;
   function guidedMatrixBox(axis){
     const S=Math.abs(Number(axis?.skip)||0),positions=axis?.positions||[];if(S<2||!positions.length)return null;
@@ -2312,6 +2312,22 @@
     const returnedReadings=dedupedReadings.slice(0,readingCap),relations=guidedLanguageRelations(returnedReadings,selected);
     return {contract:GUIDED_MATRIX_LANGUAGE_CONTRACT,status:"CANDIDATE_INPUT",source:"canonical_matrix_letters",stage:"S3_OPEN_SEQUENCE_SEGMENTATION",axis:{term:norm(st.raw),scope:st.scope,skip:Math.abs(Number(axis.skip)),dir:Number(axis.dir)===-1?-1:1,start:Number(axis.start),hitId:hitKey(axis)},authority:{letters:"CANONICAL",segmentation:uniqueSegmentations.length?"DETERMINISTIC_CANDIDATE":"UNRESOLVED",meaning:"UNVERIFIED",canonicalReplayRequired:true},coverage:{rayCap,maxLetters,maxCandidateWindows,maxHintComparisons,totalRays:rays.length,returnedRays:selected.length,hintComparisons,candidatesExamined,returnedReadings:returnedReadings.length,returnedSegmentations:uniqueSegmentations.length,returnedRelations:relations.length,truncated:rays.length>selected.length||dedupedReadings.length>readingCap,rowPad:box.rowPad,colRadius:box.colRadius},lexiconSources:[...new Set([...hints.values()].map(hint=>hint.source||"bounded-dictionary"))],modelCallsTriggered:0,findingMutation:false,truthPromotion:false,rays:selected,readings:returnedReadings,segmentations:uniqueSegmentations,relations};
   }
+  async function guidedVerifyLanguageRelations(inspection,isCancelled){
+    if(!inspection||inspection.contract!==GUIDED_MATRIX_LANGUAGE_CONTRACT||!Array.isArray(inspection.relations)||!inspection.relations.length)return inspection;
+    const relationReplayCap=2,relations=inspection.relations.map(relation=>({...relation,tokens:relation.tokens.map(token=>({...token}))}));let relationReplayCalls=0;
+    for(let relationIndex=0;relationIndex<relations.length;relationIndex++){
+      const relation=relations[relationIndex];if(relationIndex>0){relation.verification={contract:GUIDED_LANGUAGE_REPLAY_CONTRACT,status:"NOT_RUN",callsTriggered:0,receipts:[],truthPromotion:false};continue;}
+      const receipts=[];for(const token of relation.tokens){const step=Number(token.step),skip=Math.abs(step),dir=step<0?-1:1;
+        if(!Number.isInteger(skip)||skip<2){receipts.push({status:"SOURCE_SEQUENCE",term:token.canonicalLetters,start:token.start,step,skip,dir,traceIds:[]});continue;}
+        if(relationReplayCalls>=relationReplayCap){receipts.push({status:"BUDGET_STOP",term:token.canonicalLetters,start:token.start,step,skip,dir,traceIds:[]});continue;}relationReplayCalls++;
+        const hit={skip,dir,start:token.start,positions:Array.from({length:token.length},(_,index)=>token.start+step*index)},key=hitKey(hit);
+        let replay=null;try{replay=await verifyBatch(token.canonicalLetters,[hit],{policy:"GUIDED_LANGUAGE_RELATION_REPLAY_V1"},null,st.scope);}catch(_){replay=null;}if(isCancelled())return null;
+        const matched=!!replay?.ok&&replay.verified instanceof Set&&replay.verified.has(key);receipts.push({status:matched?"MATCH":replay?.ok?"MISMATCH":"UNAVAILABLE",term:token.canonicalLetters,start:token.start,step,skip,dir,corpusId:replay?.corpus_id||null,traceIds:Array.isArray(replay?.traces)?replay.traces.slice(0,2):[]});
+      }
+      const verified=receipts.length===2&&receipts.every(receipt=>receipt.status==="MATCH");relation.status=verified?"VERIFIED_RELATION":"UNVERIFIED_RELATION";relation.canonicalReplayRequired=!verified;relation.verification={contract:GUIDED_LANGUAGE_REPLAY_CONTRACT,status:verified?"MATCH":receipts.some(receipt=>receipt.status==="UNAVAILABLE")?"UNAVAILABLE":receipts.some(receipt=>receipt.status==="MISMATCH")?"MISMATCH":receipts.some(receipt=>receipt.status==="SOURCE_SEQUENCE")?"SOURCE_SEQUENCE":"INCOMPLETE",callsTriggered:receipts.filter(receipt=>["MATCH","MISMATCH","UNAVAILABLE"].includes(receipt.status)).length,receipts,truthPromotion:false};
+    }
+    return {...inspection,coverage:{...inspection.coverage,relationReplayCap,relationReplayCalls},relations,canonicalReplayCalls:relationReplayCalls,modelCallsTriggered:0,findingMutation:false,truthPromotion:false};
+  }
   async function guidedMatrixCandidates(axis,target,isCancelled){
     const box=guidedMatrixBox(axis);if(!box)return null;
     const context=new Map(),hints=new Map(),addHint=(raw,source)=>{const term=norm(raw),label=String(raw||term).trim()||term;if(term.length<3||term.length>10)return;if(!hints.has(term)&&hints.size<100)hints.set(term,{term,label,source});
@@ -2366,7 +2382,7 @@
     const seq=++_guidedMatrixLensSeq,sourceResult=st.res,occurrences=nativeOccurrenceResults(),item=occurrences&&target.setId===occurrences.id&&Number(target.page)===Number(occurrences.page)?occurrences.items.find(row=>row.hitId===target.hitId):null,axis=item&&isGov(sourceResult?.hits?.[item.index])?sourceResult.hits[item.index]:null;
     if(!axis){postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"results-changed"});return;}
     const cancelled=()=>seq!==_guidedMatrixLensSeq||st.res!==sourceResult||!isGov(axis)||!nativeOccurrenceResults()?.items.some(row=>row.hitId===target.hitId&&row.index===item.index);
-    try{const scan=await guidedMatrixCandidates(axis,target,cancelled);if(!scan||cancelled())return;const discoveryBundle=await guidedVerifyBundle(scan,axis,cancelled);if(!discoveryBundle||cancelled())return;const languageInspection=guidedMatrixLanguageInspection(axis,scan.box,scan.hints);
+    try{const scan=await guidedMatrixCandidates(axis,target,cancelled);if(!scan||cancelled())return;const discoveryBundle=await guidedVerifyBundle(scan,axis,cancelled);if(!discoveryBundle||cancelled())return;const languageInspection=await guidedVerifyLanguageRelations(guidedMatrixLanguageInspection(axis,scan.box,scan.hints),cancelled);if(!languageInspection||cancelled())return;
       const rawPatterns=scan.raw.map(row=>({kind:"raw-pattern",term:guidedMatrixDisplayTerm(row.term),length:row.term.length,occurrenceCount:row.occurrenceCount,matrixStage:row.matrixStage,gapScale:row.gapScale,distance:row.distance,status:"UNVERIFIED_PATTERN"}));
       postHost({type:"lens",lens:"matrix-discovery",ok:true,target,contract:GUIDED_MATRIX_DISCOVERY_CONTRACT,status:discoveryBundle.status,scope:st.scope,strategy:"matrix-first",searchRule:"no-default-broad-lexicon",defaultLexiconLoaded:false,vocabularyTermsChecked:scan.hintCount,budget:{contract:GUIDED_MATRIX_BUDGET_CONTRACT,cells:scan.box.cells,matrixPathsChecked:scan.pathsChecked,maxVocabularyTerms:scan.box.maxVocabularyTerms,maxGapScale:scan.box.maxGapScale,rowPad:scan.box.rowPad,colRadius:scan.box.colRadius},axis:{term:norm(st.raw),skip:Math.abs(axis.skip),direction:axis.dir===1?"fwd":"back",hitId:hitKey(axis)},items:scan.recognized.map(row=>({term:row.term,label:row.label,readingLabel:row.readingLabel,readingRelation:row.readingRelation,occurrenceCount:row.occurrenceCount,matrixStage:row.matrixStage,status:"CANDIDATE"})),rawPatterns,languageInspection,discoveryBundle,truthPromotion:false});
     }catch(_){if(!cancelled())postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"scan-failed"});}

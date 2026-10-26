@@ -100,6 +100,34 @@ const guidedLanguageInspection = ({ hitId = "hit-1", skip = 31, dir = 1, axisSta
   }],
 });
 
+const guidedVerifiedLanguageInspection = ({ forgedReceipt = false } = {}) => {
+  const inspection = guidedLanguageInspection();
+  const rayId = "vertical:500:31:11";
+  Object.assign(inspection.rays[0], { id: rayId, orientation: "vertical", step: 31, distance: 1, intersectsAxis: false });
+  for (const reading of inspection.readings) Object.assign(reading, {
+    rayId, orientation: "vertical", step: 31, start: 500 + reading.offset * 31, distance: 1,
+  });
+  const relation = inspection.relations[0];
+  Object.assign(relation, {
+    status: "VERIFIED_RELATION", geometry: "PARALLEL_AXIS_RAY", rayId, orientation: "vertical", distance: 1,
+    canonicalReplayRequired: false,
+  });
+  relation.tokens.forEach((token, index) => Object.assign(token, {
+    step: 31, start: inspection.readings[index].start,
+  }));
+  relation.verification = {
+    contract: "els_language_relation_replay_v1", status: "MATCH", callsTriggered: 2, truthPromotion: false,
+    receipts: relation.tokens.map((token, index) => ({
+      status: "MATCH", term: index === 0 && forgedReceipt ? "מזויף" : token.canonicalLetters,
+      start: token.start, step: token.step, skip: 31, dir: 1,
+      corpusId: "wlc-torah-consonantal-v1", traceIds: [`trace-${index + 1}`],
+    })),
+  };
+  Object.assign(inspection.coverage, { relationReplayCap: 2, relationReplayCalls: 2 });
+  inspection.canonicalReplayCalls = 2;
+  return inspection;
+};
+
 test("guided coverage inspects exactly four canonical occurrences before explicit continuation", () => {
   const occurrences = guidedOccurrences(9);
   const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences });
@@ -210,6 +238,44 @@ test("language relation geometry is rechecked instead of trusting its reported g
   const inspection = guidedInspection("hit-1", { languageInspection });
   const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
   assert.equal(coverage.inspections[0].languageInspection.readings.length, 2);
+  assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
+});
+
+test("a canonically replayed language relation verifies exact structure but never meaning", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { languageInspection: guidedVerifiedLanguageInspection() });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  const language = coverage.inspections[0].languageInspection;
+  assert.equal(language.relations[0].status, "VERIFIED_RELATION");
+  assert.equal(language.relations[0].canonicalReplayRequired, false);
+  assert.equal(language.relations[0].verification.status, "MATCH");
+  assert.equal(language.relations[0].verification.receipts.length, 2);
+  assert.equal(language.relations[0].truthPromotion, false);
+  assert.equal(language.authority.meaning, "UNVERIFIED");
+  assert.equal(language.coverage.relationReplayCap, 2);
+  assert.equal(language.coverage.relationReplayCalls, 2);
+  assert.equal(language.canonicalReplayCalls, 2);
+  assert.equal(coverage.recommendation.supports.some(support => support.term === "במלכימ"), false);
+});
+
+test("a forged canonical replay receipt cannot verify a language relation", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { languageInspection: guidedVerifiedLanguageInspection({ forgedReceipt: true }) });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
+});
+
+test("source-sequence letters cannot be relabeled as a verified ELS relation", () => {
+  const occurrences = guidedOccurrences(1), languageInspection = guidedLanguageInspection();
+  const relation = languageInspection.relations[0];
+  Object.assign(relation, { status: "VERIFIED_RELATION", canonicalReplayRequired: false,
+    verification: { contract: "els_language_relation_replay_v1", status: "MATCH", callsTriggered: 2, truthPromotion: false,
+      receipts: relation.tokens.map(token => ({ status: "MATCH", term: token.canonicalLetters, start: token.start,
+        step: 1, skip: 1, dir: 1, corpusId: "wlc-torah-consonantal-v1", traceIds: [] })) } });
+  Object.assign(languageInspection.coverage, { relationReplayCap: 2, relationReplayCalls: 2 });
+  languageInspection.canonicalReplayCalls = 2;
+  const inspection = guidedInspection("hit-1", { languageInspection });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
   assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
 });
 

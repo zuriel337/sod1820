@@ -435,10 +435,12 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
   const languageSegmentations = languageInspections.flatMap(inspection => inspection.segmentations || []).slice(0, 4);
   const languageCandidate = coverage.inspections.flatMap(inspection => (inspection.languageInspection?.relations || [])
     .map(relation => ({ relation, occurrence: inspection.occurrence, hitId: inspection.hitId }))).sort((first, second) =>
-    second.relation.contextMatches - first.relation.contextMatches || second.relation.exactMatches - first.relation.exactMatches
+    Number(second.relation.status === "VERIFIED_RELATION") - Number(first.relation.status === "VERIFIED_RELATION")
+    || second.relation.contextMatches - first.relation.contextMatches || second.relation.exactMatches - first.relation.exactMatches
     || first.relation.distance - second.relation.distance || first.relation.gap - second.relation.gap
     || first.relation.rank - second.relation.rank || first.hitId.localeCompare(second.hitId))[0] || null;
   const languageRelation = languageCandidate?.relation || null;
+  const languageRelationVerified = languageRelation?.status === "VERIFIED_RELATION";
   const languageRayCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.returnedRays || 0), 0);
   const recommendationTerms = new Set((recommendation?.supports || []).map(support => support.term));
   const localByTerm = new Map();
@@ -479,14 +481,18 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
         {finding.readingLabel ? <small>קריאת לשון אפשרית: {finding.readingLabel} · האותיות המדויקות נשמרות</small> : null}
       </article>)}</div>
     </section> : null}
-    {languageRelation ? <section className="els29-guided-local-findings" data-els-language-relation="unverified" aria-label="מועמד לשוני מדורג">
-      <header><div><small>מועמד לשוני מדורג</small><strong>צירוף לבדיקה</strong></div><span>לא מאומת</span></header>
+    {languageRelation ? <section className="els29-guided-local-findings" data-els-language-relation={languageRelationVerified ? "verified" : "unverified"} aria-label="קשר לשוני מדורג">
+      <header><div><small>קשר לשוני מדורג</small><strong>{languageRelationVerified ? "מבנה אותיות מאומת" : "צירוף לבדיקה"}</strong></div><span>{languageRelationVerified ? "אומת replay" : "לא מאומת"}</span></header>
       <div><article>
         <b>{languageRelation.tokens.map(token => token.label || token.baseTerm).join(" × ")}</b>
         <span>{guidedLanguageGeometryLabel(languageRelation.geometry)} · רווח {languageRelation.gap} אותיות</span>
         <small>אותיות מדויקות: {languageRelation.tokens.map(token => token.exactLetters).join(" · ")}</small>
         <small>הדירוג מבוסס על גיאומטריה ומונחי הקשר בלבד; מספר הדילוג אינו אות דירוג.</small>
-        <small>זהו מועמד למחקר, לא ממצא. נדרש replay קנוני לפני אימות או הוספה.</small>
+        {languageRelationVerified ? <>
+          <small>Replay קנוני אישר את האותיות המדויקות ואת מיקומן בשני חלקי הקשר.</small>
+          <small>הגיאומטריה אומתה; המשמעות הלשונית והפרשנות אינן מאומתות.</small>
+          <small>אין הוספה אוטומטית למטריצה.</small>
+        </> : <small>זהו מועמד למחקר, לא ממצא. נדרש replay קנוני לפני אימות או הוספה.</small>}
       </article></div>
       <div className="els29-guided-actions"><button type="button" onClick={() => onOpen(languageCandidate.occurrence)}>פתח את מופע הציר המדויק</button></div>
     </section> : null}
@@ -509,7 +515,7 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
       <p>האותיות נלקחו מהמטריצה הקנונית. חלוקה למילים, כתיב ומשמעות הם קריאות מועמדות בלבד—לא ממצא ולא עובדה.</p>
       {languageSegmentations.length ? <ul>{languageSegmentations.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}`}><bdi>{reading.exactLetters}</bdi> → {reading.tokens.map(token => token.label || token.baseTerm).join(" · ")} · {guidedReadingLabel(reading.relation)}</li>)}</ul> : null}
       {languageReadings.length ? <ul>{languageReadings.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}:${reading.baseTerm}`}><bdi>{reading.exactLetters}</bdi> → {reading.label || reading.baseTerm} · {guidedReadingLabel(reading.relation)}</li>)}</ul> : <p>לא נמצאה עדיין חלוקה בטוחה באוצר המצומצם. הקווים נשמרו כקלט תחום להמשך מחקר.</p>}
-      <small>AI: אפס קריאות · אין הוספה אוטומטית למטריצה · כל קריאה דורשת replay קנוני לפני שימוש כממצא.</small>
+      <small>AI: אפס קריאות · אין הוספה אוטומטית למטריצה · גם לאחר replay של האותיות, קריאה ומשמעות נשארות פרשנות לא מאומתת.</small>
     </details> : null}
   </section>;
 }

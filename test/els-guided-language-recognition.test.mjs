@@ -7,8 +7,9 @@ const ENGINE = new URL("../tools/els/els-code.template.html", import.meta.url);
 const CORPUS = new URL("../tools/els/data/tk-letters.txt", import.meta.url);
 
 function functionSource(template, name) {
-  const start = template.indexOf(`function ${name}(`);
+  let start = template.indexOf(`function ${name}(`);
   assert.ok(start >= 0, `${name} exists in the canonical engine`);
+  if (template.slice(Math.max(0, start - 6), start) === "async ") start -= 6;
   let depth = 0;
   for (let index = template.indexOf("{", start); index < template.length; index += 1) {
     if (template[index] === "{") depth += 1;
@@ -24,15 +25,28 @@ function languageContext(engine, corpus, raw, scope = "torah") {
   context.scopeN = () => scope === "tanakh" ? context.T.length : 304805;
   vm.runInContext([
     NORMALIZER,
-    `const GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1";`,
+    `const GUIDED_MATRIX_LANGUAGE_CONTRACT="els_matrix_language_inspection_v1",GUIDED_LANGUAGE_READING_CONTRACT="els_torah_language_reading_v1",GUIDED_LANGUAGE_RELATION_CONTRACT="els_torah_language_relation_v1",GUIDED_LANGUAGE_REPLAY_CONTRACT="els_language_relation_replay_v1";`,
     `const hitKey=h=>h.skip+"_"+h.dir+"_"+h.start;`,
+    `const replayCalls=[];let replayMode="match";async function verifyBatch(term,hits,strategy,operation,scope){const hit=hits[0];replayCalls.push({term,hit,strategy,scope});const matched=replayMode==="match"||replayMode==="second-mismatch"&&replayCalls.length!==2;return {ok:true,verified:new Set(matched?[hitKey(hit)]:[]),traces:["trace-"+replayCalls.length],corpus_id:"wlc-torah-consonantal-v1"};}`,
     functionSource(engine, "guidedMatrixBox"),
     functionSource(engine, "guidedMatrixDisplayTerm"),
     functionSource(engine, "guidedLanguageReading"),
     functionSource(engine, "guidedLanguageRelations"),
     functionSource(engine, "guidedMatrixLanguageInspection"),
+    functionSource(engine, "guidedVerifyLanguageRelations"),
   ].join("\n"), context);
   return context;
+}
+
+async function replayInspection(context, inspection, mode = "match") {
+  context.inspection = inspection;
+  context.replayModeInput = mode;
+  vm.runInContext("replayMode=replayModeInput;replayCalls.length=0", context);
+  const result = await vm.runInContext("guidedVerifyLanguageRelations(inspection,()=>false)", context);
+  return {
+    result: JSON.parse(JSON.stringify(result)),
+    calls: JSON.parse(JSON.stringify(vm.runInContext("replayCalls", context))),
+  };
 }
 
 function inspectAxis(context, { skip, dir, start, length }, hints = []) {
@@ -75,7 +89,8 @@ test("Colombia holdout letters are inside the same bounded map without supplying
 
 test("Uranium geometry candidates survive independently of the memorable skip", async () => {
   const [engine, corpus] = await Promise.all([readFile(ENGINE, "utf8"), readFile(CORPUS, "utf8")]);
-  const result = inspectAxis(languageContext(engine, corpus, "אורניום"), { skip: 10101, dir: 1, start: 81020, length: 7 }, [
+  const context = languageContext(engine, corpus, "אורניום");
+  const result = inspectAxis(context, { skip: 10101, dir: 1, start: 81020, length: 7 }, [
     { term: "אירנ" }, { term: "ארהב" },
   ]);
   const rayText = result.rays.flatMap(ray => [ray.text, ray.reverseText]).join("|");
@@ -98,6 +113,34 @@ test("Uranium geometry candidates survive independently of the memorable skip", 
   assert.equal(result.axis.skip, 10101);
   assert.equal(result.truthPromotion, false);
   assert.doesNotMatch(functionSource(engine, "guidedMatrixLanguageInspection"), /אירנ|ארהב|10101/, "the runtime rule contains no Golden terms or skip");
+
+  const verified = await replayInspection(context, result);
+  assert.equal(verified.calls.length, 2, "only the two tokens in the top relation reach the canonical verifier");
+  assert.deepEqual(verified.calls.map(call => call.term), result.relations[0].tokens.map(token => token.canonicalLetters));
+  assert.ok(verified.calls.every((call, index) => call.hit.start === result.relations[0].tokens[index].start
+    && call.hit.skip === Math.abs(result.relations[0].tokens[index].step)));
+  assert.equal(verified.result.relations[0].status, "VERIFIED_RELATION");
+  assert.equal(verified.result.relations[0].verification.contract, "els_language_relation_replay_v1");
+  assert.equal(verified.result.relations[0].verification.status, "MATCH");
+  assert.equal(verified.result.relations[0].canonicalReplayRequired, false);
+  assert.equal(verified.result.relations[0].truthPromotion, false, "letter replay never verifies meaning");
+  assert.equal(verified.result.coverage.relationReplayCalls, 2);
+  assert.equal(verified.result.canonicalReplayCalls, 2);
+  assert.equal(verified.result.modelCallsTriggered, 0);
+
+  const mismatch = await replayInspection(context, result, "second-mismatch");
+  assert.equal(mismatch.calls.length, 2);
+  assert.equal(mismatch.result.relations[0].status, "UNVERIFIED_RELATION");
+  assert.equal(mismatch.result.relations[0].verification.status, "MISMATCH");
+  assert.equal(mismatch.result.relations[0].canonicalReplayRequired, true);
+
+  const sourceInspection = JSON.parse(JSON.stringify(result));
+  sourceInspection.relations = [sourceInspection.relations[0]];
+  sourceInspection.relations[0].tokens.forEach((token, index) => { token.step = 1;token.start = 200 + index * 10; });
+  const sourceSequence = await replayInspection(context, sourceInspection);
+  assert.equal(sourceSequence.calls.length, 0, "skip 1 remains source sequence and never reaches ELS verification");
+  assert.equal(sourceSequence.result.relations[0].status, "UNVERIFIED_RELATION");
+  assert.equal(sourceSequence.result.relations[0].verification.status, "SOURCE_SEQUENCE");
 });
 
 test("the 1820 Golden keeps its local source language in a bounded deterministic map", async () => {

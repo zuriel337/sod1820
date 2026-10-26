@@ -171,6 +171,7 @@ const MATRIX_DISCOVERY_CONTRACT = "els_matrix_discovery_v1";
 const MATRIX_LANGUAGE_INSPECTION_CONTRACT = "els_matrix_language_inspection_v1";
 const TORAH_LANGUAGE_READING_CONTRACT = "els_torah_language_reading_v1";
 const TORAH_LANGUAGE_RELATION_CONTRACT = "els_torah_language_relation_v1";
+const LANGUAGE_RELATION_REPLAY_CONTRACT = "els_language_relation_replay_v1";
 const LANGUAGE_ORIENTATIONS = new Set(["horizontal", "vertical", "diagonal-right", "diagonal-left"]);
 const LANGUAGE_RELATIONS = new Set(["exact-lexicon-match", "defective-spelling", "prefixed-form", "suffixed-form", "prefixed-suffixed-form"]);
 const LANGUAGE_GEOMETRIES = new Set(["PARALLEL_AXIS_RAY", "AXIS_INTERSECTING_RAY", "LOCAL_SAME_RAY"]);
@@ -305,8 +306,10 @@ const projectLanguageInspection = (value, occurrence) => {
   }
   const relations = [], relationKeys = new Set();
   for (const raw of Array.isArray(value.relations) ? value.relations.slice(0, 3) : []) {
-    if (raw?.contract !== TORAH_LANGUAGE_RELATION_CONTRACT || raw?.status !== "UNVERIFIED_RELATION"
-      || raw?.canonicalReplayRequired !== true || raw?.truthPromotion !== false || !LANGUAGE_GEOMETRIES.has(String(raw?.geometry || ""))) continue;
+    const relationStatus = String(raw?.status || ""), relationVerified = relationStatus === "VERIFIED_RELATION";
+    if (raw?.contract !== TORAH_LANGUAGE_RELATION_CONTRACT || !["UNVERIFIED_RELATION", "VERIFIED_RELATION"].includes(relationStatus)
+      || raw?.canonicalReplayRequired !== !relationVerified || raw?.truthPromotion !== false
+      || !LANGUAGE_GEOMETRIES.has(String(raw?.geometry || ""))) continue;
     const rawTokens = Array.isArray(raw?.tokens) ? raw.tokens.slice(0, 2) : [];
     if (rawTokens.length !== 2) continue;
     const tokens = rawTokens.map(token => {
@@ -321,25 +324,72 @@ const projectLanguageInspection = (value, occurrence) => {
     if (!ray || gap < 0 || gap > 8 || safeInteger(raw?.gap) !== gap || String(raw?.rayId || "") !== ray.id) continue;
     const geometry = ray.orientation === "vertical" ? "PARALLEL_AXIS_RAY" : ray.distance === 0 ? "AXIS_INTERSECTING_RAY" : "LOCAL_SAME_RAY";
     if (raw.geometry !== geometry) continue;
+    const rawVerification = raw?.verification;
+    let verification = null;
+    if (rawVerification != null) {
+      const receiptStatuses = new Set(["MATCH", "MISMATCH", "UNAVAILABLE", "SOURCE_SEQUENCE", "BUDGET_STOP"]);
+      const verificationStatuses = new Set(["MATCH", "MISMATCH", "UNAVAILABLE", "SOURCE_SEQUENCE", "INCOMPLETE", "NOT_RUN"]);
+      const receipts = Array.isArray(rawVerification?.receipts) ? rawVerification.receipts : [];
+      const callsTriggered = safeInteger(rawVerification?.callsTriggered);
+      const notRun = rawVerification?.status === "NOT_RUN";
+      if (rawVerification?.contract !== LANGUAGE_RELATION_REPLAY_CONTRACT || rawVerification?.truthPromotion !== false
+        || !verificationStatuses.has(String(rawVerification?.status || "")) || callsTriggered == null || callsTriggered < 0 || callsTriggered > 2
+        || notRun && (relationVerified || callsTriggered !== 0 || receipts.length !== 0) || !notRun && receipts.length !== 2
+        || relationVerified && (rawVerification?.status !== "MATCH" || callsTriggered !== 2)
+        || !relationVerified && rawVerification?.status === "MATCH") continue;
+      const projectedReceipts = [], usedTokens = new Set();
+      for (const receipt of receipts) {
+        const term = canonicalKey(receipt?.term), start = safeInteger(receipt?.start), step = safeInteger(receipt?.step);
+        const skip = safeInteger(receipt?.skip), dir = safeInteger(receipt?.dir), status = String(receipt?.status || "");
+        const tokenIndex = tokens.findIndex((token, index) => !usedTokens.has(index) && token.exactLetters === term
+          && token.start === start && token.step === step && Math.abs(token.step) === skip && (token.step < 0 ? -1 : 1) === dir);
+        if (!receiptStatuses.has(status) || tokenIndex < 0 || skip < 2 && status !== "SOURCE_SEQUENCE"
+          || skip >= 2 && status === "SOURCE_SEQUENCE" || relationVerified && status !== "MATCH") { projectedReceipts.length = 0;break; }
+        usedTokens.add(tokenIndex);
+        projectedReceipts.push(Object.freeze({ status, term, start, step, skip, dir,
+          corpusId: receipt?.corpusId == null ? null : String(receipt.corpusId).slice(0, 100),
+          traceIds: Object.freeze((Array.isArray(receipt?.traceIds) ? receipt.traceIds : []).map(String).slice(0, 2).map(trace => trace.slice(0, 160))),
+        }));
+      }
+      if (!notRun && projectedReceipts.length !== 2 || relationVerified && !projectedReceipts.every(receipt => receipt.status === "MATCH")) continue;
+      if (!notRun) {
+        const projectedCalls = projectedReceipts.filter(receipt => ["MATCH", "MISMATCH", "UNAVAILABLE"].includes(receipt.status)).length;
+        const projectedStatus = projectedReceipts.every(receipt => receipt.status === "MATCH") ? "MATCH"
+          : projectedReceipts.some(receipt => receipt.status === "UNAVAILABLE") ? "UNAVAILABLE"
+            : projectedReceipts.some(receipt => receipt.status === "MISMATCH") ? "MISMATCH"
+              : projectedReceipts.some(receipt => receipt.status === "SOURCE_SEQUENCE") ? "SOURCE_SEQUENCE" : "INCOMPLETE";
+        if (callsTriggered !== projectedCalls || rawVerification.status !== projectedStatus) continue;
+      }
+      verification = Object.freeze({ contract: LANGUAGE_RELATION_REPLAY_CONTRACT, status: String(rawVerification.status || ""),
+        callsTriggered, receipts: Object.freeze(projectedReceipts), truthPromotion: false });
+    } else if (relationVerified) continue;
     const key = `${ray.id}:${tokens.map(token => `${token.start}:${token.step}:${token.length}:${token.baseTerm}`).join("|")}`;
     if (relationKeys.has(key)) continue;relationKeys.add(key);
     relations.push(Object.freeze({
-      contract: TORAH_LANGUAGE_RELATION_CONTRACT, status: "UNVERIFIED_RELATION", geometry, rank: relations.length + 1,
+      contract: TORAH_LANGUAGE_RELATION_CONTRACT, status: relationStatus, geometry, rank: relations.length + 1,
       rayId: ray.id, orientation: ray.orientation, readingDirection: tokens[0].readingDirection, gap, distance: ray.distance,
       contextMatches: tokens.filter(token => token.source === "story").length,
       exactMatches: tokens.filter(token => token.relation === "exact-lexicon-match").length,
       tokens: Object.freeze(tokens.map(token => Object.freeze({ exactLetters: token.exactLetters, baseTerm: token.baseTerm,
         label: token.label, relation: token.relation, source: token.source, start: token.start, step: token.step, length: token.length }))),
-      canonicalReplayRequired: true, truthPromotion: false,
+      canonicalReplayRequired: !relationVerified, verification, truthPromotion: false,
     }));
   }
+  const relationReplayCap = safeInteger(value?.coverage?.relationReplayCap);
+  const relationReplayCalls = safeInteger(value?.coverage?.relationReplayCalls);
+  const canonicalReplayCalls = safeInteger(value?.canonicalReplayCalls);
+  if (relationReplayCap != null && relationReplayCap !== 2 || relationReplayCalls != null && (relationReplayCalls < 0 || relationReplayCalls > 2)
+    || canonicalReplayCalls != null && (canonicalReplayCalls < 0 || canonicalReplayCalls > 2 || relationReplayCalls != null && canonicalReplayCalls !== relationReplayCalls)
+    || relations.some(relation => relation.status === "VERIFIED_RELATION") && (relationReplayCalls !== 2 || canonicalReplayCalls !== 2)) return null;
   return Object.freeze({
     contract: MATRIX_LANGUAGE_INSPECTION_CONTRACT, status: "CANDIDATE_INPUT", source: "canonical_matrix_letters",
     stage: "S3_OPEN_SEQUENCE_SEGMENTATION", axis: Object.freeze({ hitId: occurrence.hitId, skip: occurrence.skip, direction: occurrence.direction, start: occurrence.start }),
     authority: Object.freeze({ letters: "CANONICAL", segmentation: segmentations.length ? "DETERMINISTIC_CANDIDATE" : "UNRESOLVED", meaning: "UNVERIFIED", canonicalReplayRequired: true }),
     coverage: Object.freeze({ rayCap: 24, maxLetters: 24, maxCandidateWindows: 8192, returnedRays: rays.length, letterCount,
       candidatesExamined: Math.max(0, Math.min(8192, safeInteger(value?.coverage?.candidatesExamined) || 0)), returnedReadings: readings.length,
-      returnedSegmentations: segmentations.length, returnedRelations: relations.length, truncated: value?.coverage?.truncated === true }),
+      returnedSegmentations: segmentations.length, returnedRelations: relations.length, relationReplayCap: relationReplayCap ?? 0,
+      relationReplayCalls: relationReplayCalls ?? 0, truncated: value?.coverage?.truncated === true }),
+    canonicalReplayCalls: canonicalReplayCalls ?? 0,
     modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
     rays: Object.freeze(rays), readings: Object.freeze(readings), segmentations: Object.freeze(segmentations), relations: Object.freeze(relations),
   });
