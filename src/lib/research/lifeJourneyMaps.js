@@ -1,8 +1,10 @@
 import { buildLifeJourneySeferYetzirahMap } from "./lifeJourneySeferYetzirahMap.js";
 import { buildLifeJourneyBirthMap } from "./lifeJourneyBirthMap.js";
 import { buildLifeJourneyTimeMap } from "./lifeJourneyTimeMap.js";
+import { buildLifeJourneySynthesisPack } from "./lifeJourneySynthesisPack.js";
+import { projectLifeJourneyHintReferences } from "./lifeJourneyHintProjection.js";
 
-export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v6";
+export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v9";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
@@ -38,8 +40,11 @@ export function buildLifeJourneyMaps({
   selectedRefs = [],
   research = null,
   analysis = null,
+  birthReflections = null,
   context = null,
   birthTimeline = [],
+  hintState = null,
+  includeProgramBranches = false,
 } = {}) {
   const selected = new Set(list(selectedRefs).map(clean).filter(Boolean));
   const selectedMembers = list(members).filter(member => selected.has(clean(member?.source_ref)));
@@ -194,6 +199,31 @@ export function buildLifeJourneyMaps({
     });
   });
   const analysisData = analysis?.state === "ready" && analysis?.data ? analysis.data : null;
+  const synthesisPack = buildLifeJourneySynthesisPack({
+    research,
+    analysis,
+    birthReflections,
+    selectedRefs,
+    hintState,
+    includeProgramBranches,
+  });
+  const privateHintReferences = projectLifeJourneyHintReferences(hintState, {
+    authorizedMemberRefs: [...selected],
+  });
+  const hintTimeline = privateHintReferences.rows.flatMap(row => {
+    if (row.date.state !== "dated") return [];
+    const memberName = row.personRef ? names.get(row.personRef) || null : null;
+    const [year, month, day] = row.date.dateIso.split("-");
+    return [Object.freeze({
+      id: `hint:${row.id}`,
+      dateIso: row.date.dateIso,
+      dateDisplay: `${day}.${month}.${year}`,
+      hebrewDate: row.date.hebrewDate,
+      memberRef: row.personRef,
+      memberName,
+      label: memberName ? `תצפית פרטית · ${memberName}` : "תצפית פרטית · כלל המסע",
+    })];
+  }).sort((left, right) => left.dateIso.localeCompare(right.dateIso) || left.id.localeCompare(right.id));
   const combinedSummary = Object.freeze({
     state: analysis?.state === "loading" ? "loading" : analysisData ? "ready" : researchReady ? "research_ready" : "waiting",
     message: clean(analysisData?.message) || clean(research?.message),
@@ -203,6 +233,7 @@ export function buildLifeJourneyMaps({
     verseCount: integer(analysisData?.coverage?.verseCount) ?? integer(research?.sourceResearch?.coverage?.verseCount) ?? 0,
     normalized: Boolean(analysisData),
     error: analysis?.state === "error" ? clean(analysis?.error) : "",
+    synthesisPack,
   });
   const creation = buildLifeJourneySeferYetzirahMap({ members, relations, selectedRefs, birthTimeline });
   const pathSteps = [
@@ -210,15 +241,55 @@ export function buildLifeJourneyMaps({
     { id: "time", label: "זמן", tab: "time", state: birthTimeline.length ? "ready" : "waiting" },
     { id: "letters", label: "אותיות", tab: "creation", state: creation.people.some(person => person.sequence.length) ? "ready" : "waiting" },
     { id: "family", label: "משפחה", tab: "generations", state: selectedMembers.length >= 2 ? "ready" : "available" },
-    { id: "research", label: "מחקר", tab: "matrix", state: researchReady ? "ready" : "available" },
+    { id: "research", label: "חיבורים", tab: "matrix", state: researchReady ? "ready" : "available" },
     { id: "convergence", label: "התכנסויות", tab: "convergences", state: convergences.length ? "ready" : researchReady ? "empty" : "waiting" },
     { id: "sources", label: "מקורות", tab: "sources", state: memberSources.length || numberSources.length ? "ready" : researchReady ? "empty" : "waiting" },
-    { id: "summary", label: "מסר", tab: "summary", state: combinedSummary.message ? "ready" : researchReady ? "available" : "waiting" },
+    ...(includeProgramBranches ? [
+      { id: "els", label: "ELS", tab: null, state: "not_connected" },
+      {
+        id: "hints",
+        label: "הרמזים הפרטיים שלי",
+        tab: "hints",
+        state: synthesisPack.observations.hints.state === "references" ? "available" : "waiting",
+      },
+    ] : []),
+    { id: "summary", label: "סיכום", tab: "summary", state: combinedSummary.message ? "ready" : researchReady ? "available" : "waiting" },
   ].map(step => Object.freeze(step));
   const completedPathSteps = pathSteps.filter(step => step.state === "ready" || step.state === "empty");
-  const nextPathStep = pathSteps.find(step => step.state !== "ready" && step.state !== "empty") || null;
+  const nextPathStep = pathSteps.find(step => step.tab && step.state !== "ready" && step.state !== "empty") || null;
+  const reflections = birthReflections instanceof Map ? birthReflections : new Map(Object.entries(birthReflections || {}));
+  // Private view projection only. Never serialize this into the anonymized synthesis pack.
+  const picturePeople = selectedMembers.map(member => {
+    const memberRef = clean(member.source_ref);
+    const event = list(birthTimeline).find(row => row.memberRef === memberRef);
+    const row = matrix.find(item => item.memberRef === memberRef);
+    const result = reflections.get(memberRef);
+    const personCoverage = coverage.find(item => item.memberRef === memberRef);
+    return Object.freeze({
+      memberRef,
+      name: names.get(memberRef),
+      dateDisplay: clean(event?.dateDisplay),
+      hebrewDate: clean(event?.hebrewDate),
+      researchState: row?.state || "waiting",
+      nameValue: row?.nameValue ?? null,
+      methodCount: row?.methods.length || 0,
+      verseCount: personCoverage?.verseCount || 0,
+      sourceReady: sourceByMember.has(memberRef),
+      human: result?.humanDesign ? Object.freeze({
+        type: clean(result.humanDesign.typeLabel) || clean(result.humanDesign.type),
+        profile: clean(result.humanDesign.profileLabel) || clean(result.humanDesign.profile),
+        authority: clean(result.humanDesign.authorityLabel) || clean(result.humanDesign.authority),
+      }) : null,
+      sky: result?.sky ? Object.freeze({
+        sun: clean(result.sky.bodies?.find(body => body.key === "sun")?.signLabel),
+        ascendant: clean(result.sky.angles?.ascendant?.signLabel),
+        bodyCount: list(result.sky.bodies).length,
+      }) : null,
+    });
+  });
   return Object.freeze({
     version: LIFE_JOURNEY_MAPS_VERSION,
+    picture: Object.freeze({ people: Object.freeze(picturePeople), researchReady, connectionCount: combinedSummary.connectionCount, convergenceCount: convergences.length }),
     overview: Object.freeze({
       selectedPeople: selectedMembers.length,
       datedPeople: list(birthTimeline).length,
@@ -237,7 +308,9 @@ export function buildLifeJourneyMaps({
     evidence: Object.freeze({ signals: Object.freeze(evidenceSignals), gaps: Object.freeze(evidenceGaps) }),
     coverage: Object.freeze(coverage),
     summary: combinedSummary,
+    synthesisPack,
     timeline: Object.freeze(list(birthTimeline)),
+    hintTimeline: Object.freeze(hintTimeline),
     timelineMissing: Object.freeze(timelineMissing),
     timeMap: buildLifeJourneyTimeMap({ birthTimeline, methodFindings, researchReady }),
     sources: Object.freeze({ members: Object.freeze(memberSources), numbers: Object.freeze(numberSources) }),
@@ -256,10 +329,11 @@ export function buildLifeJourneyMaps({
       completedCount: completedPathSteps.length,
       progressPercent: Math.round((completedPathSteps.length / pathSteps.length) * 100),
       nextStep: nextPathStep,
+      complete: completedPathSteps.length === pathSteps.length,
       saved: Boolean(context?.journey?.id),
       position: integer(context?.journey?.position),
     }),
-    boundaries: Object.freeze({ read_only_projection: true, no_els: true, no_new_store: true, no_graph_write: true }),
+    boundaries: Object.freeze({ read_only_projection: true, no_els_execution: true, no_new_store: true, no_graph_write: true }),
   });
 }
 

@@ -61,7 +61,7 @@ export default function LifeJourneyName2029({ name, profile, personRef, memberRe
   };
 
   const result = state.result;
-  return <div className="person-journey" data-experience-surface="life-journey-name-2029">
+  return <div className="person-journey is-2029" data-experience-surface="life-journey-name-2029">
     <section className="person-journey-panel person-journey-capability" data-experience-capability="life-journey-name-adapter">
       <div className="person-journey-section-head">
         <div><small>מסע החיים</small><h2>מסע השם</h2></div>
@@ -93,6 +93,8 @@ export default function LifeJourneyName2029({ name, profile, personRef, memberRe
           <article><small>רכיבי שם</small><strong>{result.coverage.expressionCount}</strong></article>
         </div>
 
+        <details className="person-journey-engine-layer">
+        <summary>שכבת המנוע · רשימות הגימטריה של רכיבי השם</summary>
         <section className="person-journey-expression-matrix" aria-label="רשימות הגימטריה של רכיבי השם">
           <header><div><small>כל השיטות הזמינות</small><h3>רשימות הגימטריה</h3></div><span>{result.coverage.methodValueCount} ערכי מנוע</span></header>
           <div>{result.expressions.map(item => <article key={item.id}>
@@ -109,6 +111,7 @@ export default function LifeJourneyName2029({ name, profile, personRef, memberRe
           </article>)}</div>
           <p>לחיצה על מספר פותחת את דף המספר הקיים ומחזירה אחר כך בדיוק למסע החיים.</p>
         </section>
+        </details>
 
         <div className="person-journey-actions">
           <button type="button" className="person-journey-primary" disabled={!profile?.birthdate} onClick={onContinue}>המשך למטריצת השם והתאריך</button>

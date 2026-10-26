@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -15,6 +15,7 @@ import {
   upsertSelfProfile,
 } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
+import { addHint, getMyHints } from "../lib/hints.js";
 import {
   createSupabasePersonalDateCrossProvider,
   gregorianToHebrewDateRepresentation,
@@ -37,10 +38,14 @@ import {
   buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyFindingTraversalPatch,
   buildLifeJourneyPersonContext,
+  buildLifeJourneyMapPositionPatch,
+  lifeJourneyMapPosition,
   lifeJourneySelectedMemberRefs,
   lifeJourneyViewFromContext,
 } from "../lib/research/lifeJourneyPersonContext.js";
 import { runLifeJourneyNameResearch } from "../lib/research/lifeJourneyNameResearch.js";
+import { saveLifeJourneyHintCapture } from "../lib/research/lifeJourneyHintCapture.js";
+import { runLifeJourneyHintInvestigation } from "../lib/research/lifeJourneyHintInvestigation.js";
 import {
   createSupabaseLifeJourneyFamilyProviders,
   runLifeJourneyFamilyResearch,
@@ -60,6 +65,7 @@ import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import CanonicalVerseCards2029 from "./experience2029/CanonicalVerseCards2029.jsx";
 import "./person-journey.css";
+import LifeJourneyResume2029 from "./experience2029/LifeJourneyResume2029.jsx";
 
 const LifeJourneyMaps2029 = lazy(() => import("./experience2029/LifeJourneyMaps2029.jsx"));
 
@@ -79,6 +85,7 @@ const familyMemberRawRef = (ownerId, sourceRef) => {
 };
 const MAX_FAMILY_RESEARCH_MEMBERS = 12;
 const MAX_VISIBLE_FAMILY_CONVERGENCES = 10;
+const EMPTY_HINT_INVESTIGATIONS = new Map();
 const FAMILY_CLAIM_STATUS = Object.freeze({
   pending: "ממתין לחיבור",
   approved: "זהות אומתה",
@@ -250,7 +257,20 @@ export default function PersonJourney(props) {
   return <PrincipalPersonJourney key={principal} {...props} auth={auth} />;
 }
 
-function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, auth }) {
+function PersonalDetailsDisclosure({ variant, open, onToggle, summary, children }) {
+  if (variant !== "2029") return <>{children}</>;
+  return <details className="person-journey-personal-details" open={open} onToggle={event => onToggle(event.currentTarget.open)}>
+    <summary>{summary}</summary>
+    {children}
+  </details>;
+}
+
+function FamilyAnalysisDisclosure({ variant, children }) {
+  if (variant !== "2029") return <>{children}</>;
+  return <details className="person-journey-summary-disclosure"><summary>פירוט הסיכום המשפחתי</summary>{children}</details>;
+}
+
+function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, auth, onRequestHintExplanation }) {
   const { user, loading: authLoading } = auth;
   const userId = user?.id || null;
   const research = useResearch();
@@ -262,9 +282,16 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [personDetailsOpen, setPersonDetailsOpen] = useState(true);
+  const personDetailsCollapsed = useRef(false);
   const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
   const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], sharedExpressions: [], error: null });
   const [familyAnalysis, setFamilyAnalysis] = useState({ state: "idle", data: null, error: null });
+  const [birthReflections, setBirthReflections] = useState(() => new Map());
+  const [ownedHints, setOwnedHints] = useState({ principal: userId, loading: true, rows: [], error: null });
+  const [ownedHintInvestigations, setOwnedHintInvestigations] = useState(() => ({ principal: userId, rows: new Map() }));
+  const hintInvestigations = ownedHintInvestigations.principal === userId ? ownedHintInvestigations.rows : EMPTY_HINT_INVESTIGATIONS;
+  const hintState = ownedHints.principal === userId ? ownedHints : { loading: true, rows: [], error: null };
   const [familyClaims, setFamilyClaims] = useState({ state: "idle", rows: [], error: null });
   const [familyClaimBusy, setFamilyClaimBusy] = useState(null);
   const [familyClaimNotice, setFamilyClaimNotice] = useState(null);
@@ -290,6 +317,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     () => selfRef ? members.find((member) => member.source_ref === selfRef) : null,
     [members, selfRef],
   );
+  useEffect(() => {
+    if (variant !== "2029" || !persistedSelf || personDetailsCollapsed.current) return;
+    personDetailsCollapsed.current = true;
+    setPersonDetailsOpen(false);
+  }, [persistedSelf, variant]);
   const familyMembers = useMemo(
     () => members.filter((member) => member.source_ref !== selfRef),
     [members, selfRef],
@@ -320,6 +352,18 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const currentLifeJourneyView = research.context?.dimensions?.lifeJourneyView || null;
   const currentLifeJourneyPersonRef = research.context?.dimensions?.lifeJourneyPersonRef || null;
   const currentReturnPersonRef = research.context?.returnTo?.subject?.id || null;
+
+  useEffect(() => {
+    if (variant !== "2029" || !userId) return;
+    let alive = true;
+    setOwnedHints({ principal: userId, loading: true, rows: [], error: null });
+    getMyHints({ id: userId }, { fallbackLocal: false }).then(rows => {
+      if (alive) setOwnedHints({ principal: userId, loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
+    }).catch(() => {
+      if (alive) setOwnedHints({ principal: userId, loading: false, rows: [], error: "הרמזים אינם זמינים כרגע." });
+    });
+    return () => { alive = false; };
+  }, [userId, variant]);
 
   const refresh = useCallback(async (pid) => {
     const data = await listFamily(pid);
@@ -424,14 +468,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   }, [currentLifeJourneyPersonRef, currentLifeJourneyView, currentResearchSubjectId,
     currentReturnPersonRef, pathname, persistedSelf?.name, research.syncStatus, selfRef, user?.id, variant]);
 
-  useEffect(() => {
-    if (variant !== "2029" || !selfRef || !familyResearchSignature || familyResearch.state !== "idle") return;
-    const snapshot = readLifeJourneyFamilySnapshot(research.context, {
+  const materializeFamilyContext = useCallback(context => {
+    const availableRefs = new Set(members.map(member => clean(member.source_ref)));
+    const selectedRefs = lifeJourneySelectedMemberRefs(context, selfRef).filter(ref => availableRefs.has(ref));
+    const snapshot = readLifeJourneyFamilySnapshot(context, {
       personRef: selfRef,
-      signature: familyResearchSignature,
+      signature: lifeJourneyFamilySelectionSignature(members, selectedRefs),
     });
-    if (!snapshot) return;
-    const materialized = materializeLifeJourneyFamilySnapshot(snapshot, members, {
+    if (!snapshot) return null;
+    return materializeLifeJourneyFamilySnapshot(snapshot, members, {
       hebrewDateForMember: member => {
         const date = memberResearchProfile(member).birthdate;
         if (!date) return null;
@@ -439,10 +484,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         catch { return null; }
       },
     });
+  }, [members, selfRef]);
+
+  useEffect(() => {
+    if (variant !== "2029" || !selfRef || !familyResearchSignature || familyResearch.state !== "idle") return;
+    const materialized = materializeFamilyContext(research.context);
     if (!materialized) return;
     setFamilyResearch(materialized.research);
     setFamilyAnalysis(materialized.analysis || { state: "idle", data: null, error: null });
-  }, [familyResearch.state, familyResearchSignature, members, research.context, selfRef, variant]);
+  }, [familyResearch.state, familyResearchSignature, materializeFamilyContext, research.context, selfRef, variant]);
 
   const runInitialResearch = useCallback(async ({ first, last, date }) => {
     if (!user || !clean(first)) return null;
@@ -513,6 +563,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       setFamilyAnalysis({ state: "idle", data: null, error: null });
+      setBirthReflections(new Map());
       track("journey_person", null, "save_self");
       if (variant === "2029") {
         setAnalysis({ state: "idle", data: null, error: null });
@@ -582,6 +633,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       setFamilyAnalysis({ state: "idle", data: null, error: null });
+      setBirthReflections(new Map());
       track("journey_person", null, editingMemberRef ? "edit_member" : "add_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
@@ -764,6 +816,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     openCapability(member, view);
   }, [members, openCapability, research.context?.dimensions?.lifeJourneyMemberRef]);
 
+  const openMemberCapability = useCallback((memberRef, view) => {
+    const member = members.find(item => clean(item.source_ref) === clean(memberRef));
+    if (!member) {
+      setErr("האדם שנבחר אינו זמין כרגע במסע החיים.");
+      return;
+    }
+    openCapability(member, view);
+  }, [members, openCapability]);
+
   const returnToPerson = useCallback(() => {
     const patch = buildLifeJourneyExactReturnPatch(research.context);
     if (!patch || !research.updateResearchContext?.(patch)) {
@@ -818,6 +879,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     }
     setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
     setFamilyAnalysis({ state: "idle", data: null, error: null });
+    setBirthReflections(new Map());
   }, [research, selfRef]);
 
   const updateFamilySelection = useCallback((memberRef, included) => {
@@ -842,6 +904,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refreshFamilyClaims();
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       setFamilyAnalysis({ state: "idle", data: null, error: null });
+      setBirthReflections(new Map());
       track("journey_person", null, "remove_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
@@ -861,6 +924,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       const providers = createLifeJourneyFamilyAnalysisProviders({ getAiAnalysis, supabase });
       const data = await runLifeJourneyFamilyAnalysis({
         research: completedResearch,
+        birthReflections,
         ...providers,
       });
       const completedAnalysis = { state: "ready", data, error: null };
@@ -878,7 +942,86 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       setFamilyAnalysis({ state: "error", data: null, error: personJourneyErrorMessage(error) });
       return null;
     }
-  }, [familyResearchSignature, research, selfRef]);
+  }, [birthReflections, familyResearchSignature, research, selfRef]);
+
+  const rememberBirthReflection = useCallback((memberRef, result) => {
+    const targetRef = clean(memberRef);
+    if (!targetRef || !selectedFamilyRefSet.has(targetRef)) return;
+    setBirthReflections(previous => {
+      const next = new Map(previous);
+      if (result && typeof result === "object" && !Array.isArray(result)) next.set(targetRef, result);
+      else next.delete(targetRef);
+      return next;
+    });
+  }, [selectedFamilyRefSet]);
+
+  const updateMapPosition = useCallback(position => {
+    const patch = buildLifeJourneyMapPositionPatch(research.context, { personRef: selfRef, ...position });
+    if (patch) research.updateResearchContext?.(patch);
+  }, [research, selfRef]);
+
+  const savePrivateHint = useCallback(async input => {
+    if (variant !== "2029" || !user || !selfRef) return { ok: false, error: "writer_unavailable" };
+    const result = await saveLifeJourneyHintCapture({
+      user,
+      input,
+      personRef: selfRef,
+      authorizedMemberRefs: members.map(member => clean(member?.source_ref)).filter(Boolean),
+      writeHint: addHint,
+    });
+    if (!result.ok) return result;
+    setOwnedHints(previous => {
+      const rows = previous.principal === userId && Array.isArray(previous.rows) ? previous.rows : [];
+      return {
+        principal: userId,
+        loading: false,
+        error: null,
+        rows: [result.row, ...rows.filter(row => row?.id !== result.row.id)],
+      };
+    });
+    return result;
+  }, [members, selfRef, user, userId, variant]);
+
+  const investigatePrivateHint = useCallback(async hintId => {
+    const targetId = clean(hintId);
+    const setHintInvestigation = value => setOwnedHintInvestigations(previous => {
+      const rows = new Map(previous.principal === userId ? previous.rows : []);
+      rows.set(targetId, value);
+      return { principal: userId, rows };
+    });
+    const hint = hintState.rows.find(row => clean(row?.id) === targetId);
+    if (variant !== "2029" || !targetId || !hint || hintState.loading || hintState.error) {
+      const outcome = { state: "error", result: null, error: "הרמז הפרטי אינו זמין כרגע לבדיקה." };
+      if (targetId) setHintInvestigation(outcome);
+      return outcome;
+    }
+    setHintInvestigation({ state: "loading", result: null, error: null });
+    let next;
+    try {
+      const outcome = await runLifeJourneyHintInvestigation({
+        hint,
+        members,
+        selectedRefs: selectedFamilyRefs,
+        birthTimeline,
+        research: familyResearch,
+      });
+      next = outcome.ok
+        ? { state: "ready", result: outcome.result, error: null }
+        : { state: "error", result: null, error: outcome.error };
+    } catch {
+      next = { state: "error", result: null, error: "hint_investigation_failed" };
+    }
+    setHintInvestigation(next);
+    return next;
+  }, [birthTimeline, familyResearch, hintState.error, hintState.loading, hintState.rows, members, selectedFamilyRefs, userId, variant]);
+
+  const resumeLifeJourney = useCallback(result => {
+    const materialized = materializeFamilyContext(result.context || result.representation?.context);
+    setBirthReflections(new Map());
+    setFamilyResearch(materialized?.research || { state: "idle", rows: [], sharedValues: [], error: null });
+    setFamilyAnalysis(materialized?.analysis || { state: "idle", data: null, error: null });
+    if (result.href && result.href !== "/2029/journey") navigate(result.href);
+  }, [materializeFamilyContext, navigate]);
 
   const runSelectedFamilyResearch = useCallback(async () => {
     if (!user) return;
@@ -997,7 +1140,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   }, [analyzeCompletedFamilyResearch, familyResearch]);
 
   if (authLoading || loading) {
-    return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
+    return <div className={`person-journey ${variant === "2029" ? "is-2029" : ""}`}><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
   }
 
   if (!user) {
@@ -1007,7 +1150,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       </div> : <span className="person-journey-symbol" aria-hidden="true">✦</span>}
       <h2>מסע החיים הוא מרחב פרטי</h2>
       <p>שם, תאריך ומשפחה נשמרים רק בהקשר האישי שלך. יש להתחבר כדי לפתוח מסע.</p>
-      <a href="/login">התחברות</a>
+      <a href={variant === "2029" ? "/login?returnTo=%2F2029%2Fjourney" : "/login"}>התחברות</a>
     </section>;
   }
 
@@ -1049,6 +1192,30 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
 
   const analysisData = analysis.data;
 
+  const mapsBlock = selectedFamilyRefs.length ? <Suspense fallback={<LifeJourneyMapsLoading />}>
+        <LifeJourneyMaps2029
+          members={members}
+          relations={relations}
+          selectedRefs={selectedFamilyRefs}
+          research={familyResearch}
+          analysis={familyAnalysis}
+          birthReflections={birthReflections}
+          onBirthCalculationChange={rememberBirthReflection}
+          context={research.context}
+          position={variant === "2029" ? lifeJourneyMapPosition(research.context, selfRef, members.map(member => member.source_ref)) : undefined}
+          onPositionChange={variant === "2029" ? updateMapPosition : undefined}
+          birthTimeline={birthTimeline}
+          hintState={variant === "2029" ? hintState : null}
+          onSaveHint={variant === "2029" ? savePrivateHint : undefined}
+          hintInvestigations={variant === "2029" ? hintInvestigations : undefined}
+          onInvestigateHint={variant === "2029" ? investigatePrivateHint : undefined}
+          onExplainHint={variant === "2029" ? onRequestHintExplanation : undefined}
+          includeProgramBranches={variant === "2029"}
+          onOpenCapability={variant === "2029" ? openMemberCapability : undefined}
+        />
+      </Suspense> : null;
+
+
   return <div
     className={`person-journey ${variant === "2029" ? "is-2029" : ""}`}
     data-experience-surface="life-journey"
@@ -1062,20 +1229,39 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         <div className="person-journey-kicker">מסע חיים · פרטי</div>
         <h1>מתחילים ממך.<br />ומשם מחברים את הסיפור.</h1>
         <p>שם ותאריך פותחים את המסע הראשון. אחר כך אפשר להוסיף בני משפחה ואירועים — בלי לפתוח כלי חדש בכל פעם.</p>
+        {variant === "2029" ? <div className="person-journey-hero-status" data-experience-capability="life-journey-status">
+          <div className="person-journey-identity">
+            <span className="person-journey-identity-name">{persistedSelf ? persistedSelf.name : "מסע חדש"}</span>
+            <span className="person-journey-state-chip" data-state={persistedSelf ? "ready" : "waiting"}>{persistedSelf ? "מוכן למחקר השם" : "ממתין לשם"}</span>
+          </div>
+          {persistedSelf ? <button
+            type="button"
+            className="person-journey-primary"
+            disabled={busy}
+            onClick={() => openCapability(persistedSelf, "name")}
+          >פתח את המחקר שלי</button> : <button
+            type="button"
+            className="person-journey-primary"
+            onClick={() => { setPersonDetailsOpen(true); window.requestAnimationFrame?.(() => document.getElementById("life-journey-first-name")?.focus()); }}
+          >מלאו את הפרטים שלכם</button>}
+        </div> : null}
       </div>
     </section>
 
     {err ? <div className="person-journey-error" role="alert">{err}</div> : null}
+
+    {variant === "2029" ? mapsBlock : null}
 
     <section className="person-journey-panel" data-experience-capability="life-journey-intake">
       <div className="person-journey-section-head">
         <div><small>01</small><h2>מי אני</h2></div>
         <span>נשמר פרטי</span>
       </div>
+      <PersonalDetailsDisclosure variant={variant} open={personDetailsOpen} onToggle={setPersonDetailsOpen} summary={persistedSelf ? "פרטים אישיים · עריכה" : "פרטים אישיים"}>
       <div className="person-journey-fields">
         <label>
           <span>שם פרטי</span>
-          <input value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder="שם פרטי" dir="rtl" autoComplete="given-name" />
+          <input id="life-journey-first-name" value={firstName} onChange={(event) => setFirstName(event.target.value)} placeholder="שם פרטי" dir="rtl" autoComplete="given-name" />
         </label>
         <label>
           <span>שם משפחה</span>
@@ -1094,20 +1280,16 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <input value={birthPlace} onChange={(event) => setBirthPlace(event.target.value)} placeholder="עיר או יישוב" dir="rtl" autoComplete="off" />
         </label> : null}
       </div>
+      </PersonalDetailsDisclosure>
       <div className="person-journey-actions">
         <button type="button" className="person-journey-primary" disabled={busy || !clean(firstName)} onClick={beginJourney}>
           {busy ? "פותח את המסע…" : persistedSelf ? "עדכן וחבר מחדש" : "פתח את מסע החיים"}
         </button>
-        {variant === "2029" && persistedSelf ? <button
-          type="button"
-          disabled={busy}
-          onClick={() => openCapability(persistedSelf, "name")}
-        >פתח את המחקר שלי</button> : null}
         <small>המנועים מחשבים ומצליבים; הם לא קובעים אופי, גורל או אמת אישית.</small>
       </div>
     </section>
 
-    <section className="person-journey-panel" data-experience-capability="life-journey-first-findings">
+    {variant !== "2029" ? <section className="person-journey-panel" data-experience-capability="life-journey-first-findings">
       <div className="person-journey-section-head">
         <div><small>02</small><h2>החיבורים הראשונים</h2></div>
         <span>{variant === "2029" ? (persistedSelf ? "מוכן למחקר השם" : "ממתין לשם") : analysis.state === "ready" ? "מנועים חיים" : "ממתין לקלט"}</span>
@@ -1119,12 +1301,6 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <h3>מטריצת המחקר האישית</h3>
           <p>התאריך מתפרק לביטויים עבריים, כל ביטוי עובר בשיטות הגימטריה הזמינות, והחיבורים מנורמלים לפני שנוצר מסר.</p>
         </div>
-        <button
-          type="button"
-          className="person-journey-primary"
-          disabled={busy || !persistedSelf}
-          onClick={() => openCapability(persistedSelf, "name")}
-        >פתח את המחקר שלי</button>
       </article> : null}
 
       {variant !== "2029" && analysis.state === "idle" ? <div className="person-journey-empty">אחרי שמירה נציג כאן רק עובדות מנוע ונגזרות: ערכי השם, התאריך העברי ונקודות מפגש שנמצאו.</div> : null}
@@ -1179,11 +1355,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <p>כל מספר פותח במפורש את דף המספר הקיים. נקודת מפגש היא עובדה מחושבת; המשמעות שלה נשארת שאלה למחקר.</p>
         </div> : null}
       </div> : null}
-    </section>
+    </section> : null}
 
     <section className="person-journey-panel" data-experience-capability="life-journey-family">
       <div className="person-journey-section-head">
-        <div><small>03</small><h2>המשפחה שלי</h2></div>
+        <div><small>{variant === "2029" ? "02" : "03"}</small><h2>המשפחה שלי</h2></div>
         <span>{familyMembers.length ? `${familyMembers.length} אנשים` : "אפשר להתחיל מאדם אחד"}</span>
       </div>
 
@@ -1205,15 +1381,27 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
                 <span>
                   <strong>{member.name}</strong>
                   <small>{memberRef === selfRef ? "חשבון ראשי מחובר" : "זהות משפחתית · חשבון עתידי אפשרי"}</small>
-                  {memberMeta.birthdate_iso ? <small dir="ltr">{memberMeta.birthdate_iso}</small> : null}
-                  {variant === "2029" && memberMeta.birth_time_local ? <small dir="ltr">שעת לידה · {memberMeta.birth_time_local}</small> : null}
-                  {variant === "2029" && memberMeta.birth_place ? <small>מקום לידה · {memberMeta.birth_place}</small> : null}
-                  <small className="person-journey-member-source">
-                    מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
-                    {identityClaim?.status === "approved" ? " · זהות החשבון אומתה" : memberRef === selfRef ? "" : " · זהות ניתנת לחיבור לחשבון"}
-                  </small>
+                  {memberMeta.birthdate_iso ? <small dir="ltr" className="person-journey-numeric">{memberMeta.birthdate_iso}</small> : null}
+                  {variant === "2029" && identityClaim?.status === "approved" ? <small className="person-journey-member-verified">זהות החשבון אומתה</small> : null}
+                  {variant === "2029" ? null : <>
+                    <small className="person-journey-member-source">
+                      מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
+                      {identityClaim?.status === "approved" ? " · זהות החשבון אומתה" : memberRef === selfRef ? "" : " · זהות ניתנת לחיבור לחשבון"}
+                    </small>
+                  </>}
                 </span>
               </label>
+              {variant === "2029" ? <details className="person-journey-member-more">
+                <summary>פרטי לידה ומקור</summary>
+                <div>
+                  {memberMeta.birth_time_local ? <small dir="ltr">שעת לידה · {memberMeta.birth_time_local}</small> : null}
+                  {memberMeta.birth_place ? <small>מקום לידה · {memberMeta.birth_place}</small> : null}
+                  <small className="person-journey-member-source">
+                    מקור הפרטים: {memberRef === selfRef || memberMeta.profile_source === "account_owner_entered" ? "הוזן בחשבון שלך" : "הוזן על ידך במסע החיים"}
+                    {identityClaim?.status === "approved" || memberRef === selfRef ? "" : " · זהות ניתנת לחיבור לחשבון"}
+                  </small>
+                </div>
+              </details> : null}
               {variant === "2029" ? <div className="person-journey-member-actions">
                 <button type="button" disabled={busy} onClick={() => openCapability(member, "name")}>פתח מחקר שם</button>
                 {memberRef !== selfRef ? <>
@@ -1352,17 +1540,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         </section>
       </details> : null}
 
-      {selectedFamilyRefs.length ? <Suspense fallback={<LifeJourneyMapsLoading />}>
-        <LifeJourneyMaps2029
-          members={members}
-          relations={relations}
-          selectedRefs={selectedFamilyRefs}
-          research={familyResearch}
-          analysis={familyAnalysis}
-          context={research.context}
-          birthTimeline={birthTimeline}
-        />
-      </Suspense> : null}
+      {variant !== "2029" ? mapsBlock : null}
+
+      {variant === "2029" && selfRef ? <LifeJourneyResume2029 research={research} personRef={selfRef} readOnly={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} onResume={resumeLifeJourney} /> : null}
 
       {members.length ? <div className="person-journey-family-research-actions">
         <button
@@ -1372,14 +1552,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           onClick={runSelectedFamilyResearch}
         >
           {familyResearch.state === "loading"
-            ? "בונה מפה, מקורות ומסר…"
+            ? "בונה את מפת החיבורים…"
             : familyAnalysis.state === "loading"
-              ? "מנסח את המסר מהממצאים…"
+              ? "מסכם את הממצאים…"
             : selectedFamilyRefs.length === 1
-              ? "צור מחקר ומסר לאדם שנבחר"
-              : `צור מחקר ומסר ל־${selectedFamilyRefs.length} אנשים`}
+              ? "בנה מפה לאדם שנבחר"
+              : `בנה מפת חיבורים ל־${selectedFamilyRefs.length} אנשים`}
         </button>
-        <small>לחיצה אחת בונה מפה, ביטויים שווי־ערך, מקורות תנ״ך ומסר. ELS אינו משתתף בשלב הזה.</small>
+        <small>לחיצה אחת בודקת ביטויים שווי־ערך, חיבורים ומקורות תנ״ך, ומציגה סיכום ברור. ELS אינו משתתף בשלב הזה.</small>
       </div> : null}
 
       {familyResearch.state === "loading" ? <CanonicalProgress
@@ -1389,24 +1569,24 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         compact
       /> : null}
       {familyResearch.state === "error" ? <div className="person-journey-error" role="alert">{familyResearch.error}</div> : null}
-      {familyResearch.state === "ready" ? <section className="person-journey-family-research" aria-label="תוצאות המחקר המשפחתי">
+      {familyResearch.state === "ready" ? <section className="person-journey-family-research" aria-label="מפת החיבורים המשפחתית">
         <div className="person-journey-family-research-head">
-          <div><small>מחקר מפורש</small><h3>תוצאות המחקר המשפחתי</h3></div>
+          <div><small>בדיקה שביקשת</small><h3>מפת החיבורים המשפחתית</h3></div>
           <span>{familyResearch.rows.filter(row => row.state === "ready").length} מתוך {familyResearch.rows.length} הושלמו</span>
         </div>
         {familyAnalysis.state === "loading" ? <CanonicalProgress
-          title="מנסח מסר מהמפה המנורמלת"
-          detail="המסר נבנה רק מהממצאים שכבר חושבו; בדיקת ההשתקפות נשארת פנימית."
+          title="מסכם את מפת החיבורים"
+          detail="הסיכום נבנה רק מהממצאים שכבר חושבו; בדיקת ההשתקפות נשארת פנימית."
           phase="נרמול → סינתזה → אימות פנימי"
           compact
         /> : null}
-        {familyAnalysis.state === "ready" && familyAnalysis.data ? <article
+        {familyAnalysis.state === "ready" && familyAnalysis.data ? <FamilyAnalysisDisclosure variant={variant}><article
           className="person-journey-family-analysis"
           data-experience-capability="life-journey-family-normalized-analysis"
           aria-labelledby="life-journey-family-analysis-title"
         >
           <header>
-            <div><small>מסר מתוך הממצאים המנורמלים</small><h3 id="life-journey-family-analysis-title">המסר המשפחתי</h3></div>
+            <div><small>סיכום מתוך הממצאים המנורמלים</small><h3 id="life-journey-family-analysis-title">התמונה המשפחתית</h3></div>
             <span>{familyAnalysis.data.coverage.connectionCount} חיבורים · {familyAnalysis.data.coverage.searchedPairCount} זוגות נבדקו</span>
           </header>
           <p>{familyAnalysis.data.message}</p>
@@ -1416,14 +1596,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             <span>{familyResearch.sourceResearch.coverage.returnedMemberCount} אנשים עם שכבת מקור</span>
           </div> : null}
           <details>
-            <summary>על מה המסר נשען?</summary>
+            <summary>על מה הסיכום נשען?</summary>
             <ul>{familyAnalysis.data.claims.map(claim => <li key={claim.id}>{claim.text}</li>)}</ul>
           </details>
-          <footer>המסר נוסח רק מתוצאות המנוע שכבר חושבו. בדיקות פנימיות אינן מוצגות, אינן ראיה ואינן משנות את הממצאים.</footer>
-        </article> : null}
+          <footer>הסיכום נוסח רק מתוצאות המנוע שכבר חושבו. בדיקות פנימיות אינן מוצגות, אינן ראיה ואינן משנות את הממצאים.</footer>
+        </article></FamilyAnalysisDisclosure> : null}
         {familyAnalysis.state === "error" || familyAnalysis.state === "idle" ? <>
-          <article className="person-journey-research-message" aria-label="מסר המחקר המשפחתי המאוחד">
-          <small>מחקר משפחתי מאוחד · מנורמל</small>
+          <article className="person-journey-research-message" aria-label="סיכום מפת החיבורים המשפחתית">
+          <small>מפה משפחתית מאוחדת · מנורמלת</small>
           <h3>המשפחה כמטריצה אחת</h3>
           <p>{familyResearch.message}</p>
           <span>{familyResearch.coverage?.expressionCount || 0} ביטויי שם ותאריך יצרו {familyResearch.coverage?.searchedPairCount || 0} זוגות מועמדים שנבדקו. נשמר עותק עבודה פרטי ב־Research Context; הוא אינו אמת על המשפחה.</span>
@@ -1433,7 +1613,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
               type="button"
               className="person-journey-primary"
               onClick={runFamilyAnalysis}
-            >{familyAnalysis.state === "error" ? "נסה שוב לנסח את המסר" : "נסח מסר מהמפה השמורה"}</button>
+            >{familyAnalysis.state === "error" ? "נסה שוב ליצור סיכום" : "הצג סיכום מהמפה השמורה"}</button>
             <small role={familyAnalysis.state === "error" ? "alert" : undefined}>{familyAnalysis.state === "error" ? familyAnalysis.error : "המפה שוחזרה מהזיכרון הפרטי בלי להפעיל מחדש את מנוע הניסוח."}</small>
           </div>
         </> : null}
@@ -1566,7 +1746,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       </div> : null}
     </section>
 
-    {variant === "2029" && CapabilitySurface ? <CapabilitySurface view="hints" user={user} /> : null}
+    {variant === "2029" && CapabilitySurface && !selectedFamilyRefs.length
+      ? <CapabilitySurface view="hints" user={user} hintState={hintState} hintMembers={members} onSaveHint={savePrivateHint} hintInvestigations={hintInvestigations} onInvestigateHint={investigatePrivateHint} onExplainHint={onRequestHintExplanation} />
+      : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">
       <div>
