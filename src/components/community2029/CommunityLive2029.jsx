@@ -5,7 +5,7 @@ import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommu
 import { applySeo } from "../../lib/seo.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { use2029Palette } from "../../lib/palette.js";
-import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReplies, fetchCommunityReplyCounts, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, publishCommunityMessage } from "../../lib/community/communityArchive.js";
+import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage } from "../../lib/community/communityArchive.js";
 import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
@@ -18,6 +18,8 @@ import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import "../../pages/community2029.css";
 import ReactionBar from "../ReactionBar.jsx";
 import UserBadge from "../UserBadge.jsx";
+import { MessageConfirm, MessageEditor } from "./CommunityMessageManage.jsx";
+import { useCommunityMessageActions2029 } from "./useCommunityMessageActions2029.js";
 
 const dateFormat = new Intl.DateTimeFormat("he-IL", { dateStyle: "medium", timeStyle: "short" });
 const sinceFormat = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric" });
@@ -47,26 +49,48 @@ function LiveLike({ row }) {
   </div>;
 }
 
-function LiveMessage({ row, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true }) {
+function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true, focused = false, messageActions }) {
+  const row = { ...sourceRow, ...messageActions?.patches[sourceRow.id] };
+  const permissions = messageActions?.items[row.id];
+  const [selection, setSelection] = useState({ principalKey: null, mode: null });
+  const editButton = useRef(null);
+  const actor = messageActions?.principalKey || null;
+  const mode = actor && selection.principalKey === actor
+    && (selection.mode === "edit" && permissions?.canEdit || selection.mode === "delete" && permissions?.canDelete)
+    ? selection.mode : null;
+  const open = mode => setSelection({ principalKey: actor, mode });
+  const close = () => { open(null); requestAnimationFrame(() => editButton.current?.focus()); };
   const canReply = typeof onReply === "function" && (row.origin === "openweb" || row.origin === "community_2029");
   const target = row.targetType === "number" && row.targetId ? `/number/${encodeURIComponent(row.targetId)}`
     : row.targetType === "els" && row.targetId ? `/codes/${encodeURIComponent(row.targetId)}`
     : row.targetType === "topic" && row.targetId ? `/topic/${encodeURIComponent(row.targetId)}` : null;
-  return <article id={`message-${row.id}`} className="sod29-community-thread">
+  if (row.isDeleted) return <article id={`message-${row.id}`} className={`sod29-community-thread sod29-community-thread--deleted${focused ? " is-focused" : ""}`} tabIndex={focused ? -1 : undefined}>
+    <p className="sod29-community-deleted" role="note">ההודעה נמחקה</p>
+  </article>;
+  return <article id={`message-${row.id}`} className={`sod29-community-thread${focused ? " is-focused" : ""}`} tabIndex={focused ? -1 : undefined}>
     <div className="sod29-community-author"><LiveAuthor row={row} accountProfiles={accountProfiles} formatDate={formatDate} linkAuthor={linkAuthor} showAvatar={showAuthorAvatar} /></div>
+    {row.editedAt ? <p className="sod29-community-edited">נערך · {bilingualDateLabel(row.editedAt) || "תאריך לא זמין"}</p> : null}
     {showSource ? <div className="sod29-community-activity-source">{sourceLabels[row.origin] || "תרומה"}{row.parentId ? " · תגובה" : ""}</div> : null}
     {showSource && row.title && row.title !== row.body ? <h4 className="sod29-community-activity-title" dir="auto">{row.title}</h4> : null}
-    {row.body ? <CommunityMessageContent text={row.body} /> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
+    {mode === "edit" ? <MessageEditor key={`${actor}:${row.id}`} row={row} actions={messageActions} onCancel={close} onSaved={close} />
+      : row.body ? <CommunityMessageContent text={row.body} /> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
     <div className="sod29-community-thread-actions">
       {canReply ? <button type="button" className="sod29-community-reply-action" onClick={() => onReply(row)}>השב</button> : null}
       <LiveLike row={row} />
       {showSource && target ? <Link to={target}>לתרומה המלאה ←</Link> : null}
+      {permissions?.state === "ready" && permissions.canEdit && mode !== "edit" ? <button type="button" ref={editButton} className="sod29-community-manage-action" onClick={() => open("edit")}>עריכה</button> : null}
+      {permissions?.state === "ready" && permissions.canDelete && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => open("delete")}>מחיקה</button> : null}
     </div>
+    {permissions?.reason === "source_requires_review" ? <p className="sod29-community-edited">עדכון המקור דורש בדיקה.</p> : null}
+    {mode === "delete" ? <MessageConfirm key={`${actor}:${row.id}`} row={row} actions={messageActions} onCancel={close} onDone={close} /> : null}
   </article>;
 }
 
-function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoaded, refreshToken, ancestors = [] }) {
-  const [expanded, setExpanded] = useState(false);
+function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoaded, refreshToken, ancestors = [], focusPath = [], messageActions }) {
+  const focusIndex = focusPath.indexOf(row.id);
+  const focusChildId = focusIndex >= 0 ? focusPath[focusIndex + 1] || null : null;
+  const focused = focusPath.length > 0 && focusPath[focusPath.length - 1] === row.id;
+  const [expanded, setExpanded] = useState(Boolean(focusChildId));
   const [replies, setReplies] = useState([]);
   const [replyTotal, setReplyTotal] = useState(null);
   const [nextReplyOffset, setNextReplyOffset] = useState(0);
@@ -78,6 +102,25 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   const count = replyTotal ?? knownCount;
   const canExpand = expanded || count == null || count > 0 || replies.length > 0;
   const childrenId = `community-replies-${row.id}`;
+
+  useEffect(() => {
+    if (!focusChildId) return undefined;
+    let active = true;
+    setExpanded(true); setLoadingReplies(true); setReplyError("");
+    fetchCommunityReply(row.id, focusChildId).then((reply) => {
+      if (!active) return;
+      if (!reply) { setReplyError("התגובה המבוקשת אינה ציבורית או אינה זמינה."); return; }
+      setReplies([reply]); setReplyTotal(1); setNextReplyOffset(1); onRepliesLoaded([reply]);
+    }).catch(() => { if (active) setReplyError("לא הצלחנו לטעון את התגובה המבוקשת."); })
+      .finally(() => { if (active) setLoadingReplies(false); });
+    return () => { active = false; };
+  }, [focusChildId, onRepliesLoaded, row.id]);
+  useLayoutEffect(() => {
+    if (!focused) return;
+    const target = document.getElementById(`message-${row.id}`);
+    target?.focus({ preventScroll: true });
+    target?.scrollIntoView({ block: "center", behavior: "auto" });
+  }, [focused]);
 
   const loadReplies = async (offset = 0) => {
     if (replyReadRef.current) return;
@@ -102,16 +145,16 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
     setExpanded(true);
     if (replyTotal === null) loadReplies();
   };
-  useEffect(() => { if (expanded && !document.hidden) loadReplies(0); }, [refreshToken]);
+  useEffect(() => { if (expanded && !focusChildId && !document.hidden) loadReplies(0); }, [refreshToken, focusChildId]);
   useLayoutEffect(() => { restoreCommunityScrollAnchor(replyAnchorRef.current); replyAnchorRef.current = null; }, [replies]);
 
   return <div className="sod29-community-thread-group">
-    <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} />
+    <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} focused={focused} messageActions={messageActions} />
     {canExpand ? <button type="button" className="sod29-community-replies-toggle" aria-expanded={expanded} aria-controls={childrenId} onClick={toggleReplies}>{expanded ? "הסתר תגובות" : "הצג תגובות"}{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}</button> : null}
     <div id={childrenId} className="sod29-community-replies" hidden={!expanded}>
       {replyError ? <p role="alert">{replyError} <button type="button" onClick={() => loadReplies(nextReplyOffset)}>ניסיון נוסף</button></p> : null}
       {loadingReplies && !replies.length ? <p role="status">טוען תגובות…</p> : null}
-      {replies.map((reply) => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[...ancestors, row.id]} />)}
+      {replies.map((reply) => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[...ancestors, row.id]} focusPath={focusPath} messageActions={messageActions} />)}
       {!loadingReplies && !replyError && replyTotal === 0 ? <p>אין תגובות גלויות.</p> : null}
       {replyTotal != null && nextReplyOffset < replyTotal ? <button type="button" className="sod29-community-more-replies" disabled={loadingReplies} onClick={() => loadReplies(nextReplyOffset)}>{loadingReplies ? "טוען…" : "עוד תגובות"}</button> : null}
     </div>
@@ -124,7 +167,8 @@ const countLabel = (value) => Number(value).toLocaleString("he-IL");
 
 // Controlled, embeddable author activity. Same LiveMessage/ReactionBar rows as the community feed;
 // the parent owns reading and state. Totals render only when supplied.
-export function PublicCommunityActivity2029({ rows = [], count = null, loading = false, error = "", onRetry, hasMore = false, onLoadMore, loadingMore = false, fullHref = "", firstAt = null, likesTotal = null, likesSource = null, itemLabel = "הודעות", onReply }) {
+export function PublicCommunityActivity2029({ rows = [], count = null, loading = false, error = "", onRetry, hasMore = false, onLoadMore, loadingMore = false, fullHref = "", firstAt = null, likesTotal = null, likesSource = null, itemLabel = "הודעות", onReply, onMessagesChanged }) {
+  const messageActions = useCommunityMessageActions2029(rows, onMessagesChanged);
   const firstLabel = firstAt ? bilingualDateLabel(firstAt) : "";
   const facts = [count != null ? `${countLabel(count)} ${itemLabel}` : "", firstLabel ? `פעילות ציבורית מאז ${firstLabel}` : "", likesTotal != null ? `👍 ${countLabel(likesTotal)} ${likesSource === "verified_archive_profile_baseline" ? "לייקים בפרופיל המקור" : "לייקים בהודעות"}` : ""].filter(Boolean);
   return <div className="sod29-community-profile" aria-busy={loading || loadingMore}>
@@ -134,7 +178,8 @@ export function PublicCommunityActivity2029({ rows = [], count = null, loading =
     </div> : null}
     {error ? <p role="alert">{error}{onRetry ? <> <button type="button" onClick={onRetry}>ניסיון נוסף</button></> : null}</p> : null}
     {loading && !rows.length ? <p className="sod29-community-end" role="status">טוען הודעות…</p> : null}
-    <div className="sod29-community-feed">{rows.map((row) => <LiveMessage key={row.id} row={row} accountProfiles={NO_ACCOUNT_PROFILES} showSource onReply={onReply} formatDate={formatActivityDate} linkAuthor={false} showAuthorAvatar={false} />)}</div>
+    {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
+    <div className="sod29-community-feed">{rows.map((row) => <LiveMessage key={row.id} row={row} accountProfiles={NO_ACCOUNT_PROFILES} showSource onReply={onReply} formatDate={formatActivityDate} linkAuthor={false} showAuthorAvatar={false} messageActions={messageActions} />)}</div>
     {!loading && !error && !rows.length ? <p className="sod29-community-end">אין הודעות ציבוריות משויכות.</p> : null}
     {hasMore && onLoadMore ? <button className="sod29-community-load" type="button" disabled={loadingMore} onClick={onLoadMore}>{loadingMore ? "טוען…" : "עוד הודעות"}</button> : null}
   </div>;
@@ -148,6 +193,12 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
   const memberId = claimId ? "" : params.get("member") || "";
   const cardId = memberId || claimId ? "" : params.get("memberCard") || "";
   const selectedAuthorId = memberId || cardId;
+  const threadIdParam = params.get("thread") || "";
+  const replyIdParam = params.get("reply") || "";
+  const threadPathParam = params.get("path") || "";
+  const threadFocus = useMemo(() => normalizeCommunityThreadFocus({ threadId: threadIdParam, replyId: replyIdParam, path: threadPathParam }), [threadIdParam, replyIdParam, threadPathParam]);
+  const threadReturnHref = params.get("returnTo") === "/2029/me/messages" ? "/2029/me/messages" : canonicalPath;
+  const fullThreadHref = `/2029?${new URLSearchParams({ preview: "community", data: "live", thread: threadFocus?.threadId || "", returnTo: threadReturnHref })}`;
   const [rows, setRows] = useState([]);
   const [nextOffset, setNextOffset] = useState(0);
   const [total, setTotal] = useState(COMMUNITY_ARCHIVE_TOTAL);
@@ -173,6 +224,10 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
   const [accountProfiles, setAccountProfiles] = useState({});
   const [replyCounts, setReplyCounts] = useState({});
   const [threadRefresh, setThreadRefresh] = useState(0);
+  const onMessageChanged = useCallback(() => setThreadRefresh(value => value + 1), []);
+  const messageActions = useCommunityMessageActions2029(rows, onMessageChanged);
+  const [focusedThread, setFocusedThread] = useState(null);
+  const [focusedThreadState, setFocusedThreadState] = useState("idle");
   const requestedReplyCounts = useRef(new Set());
   const composerRef = useRef(null);
   const attachmentRef = useRef(null);
@@ -212,10 +267,22 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
   }, [sort]);
 
   useEffect(() => {
-    if (memberId || claimId || loadedFeedSort.current === sort) return;
+    if (memberId || claimId || threadFocus || loadedFeedSort.current === sort) return;
     loadPage(0, true);
     return () => { streamRequestRef.current++; };
-  }, [loadPage, memberId, claimId, sort]);
+  }, [loadPage, memberId, claimId, sort, threadFocus]);
+  useEffect(() => {
+    setFocusedThread(null);
+    if (!threadFocus) { setFocusedThreadState("idle"); return undefined; }
+    let active = true;
+    setFocusedThreadState("loading");
+    fetchCommunityThread(threadFocus.threadId).then((thread) => {
+      if (!active) return;
+      setFocusedThread(thread);
+      setFocusedThreadState(thread ? "ready" : "not_found");
+    }).catch(() => { if (active) setFocusedThreadState("error"); });
+    return () => { active = false; };
+  }, [threadFocus]);
   useLayoutEffect(() => { restoreCommunityScrollAnchor(feedAnchorRef.current); feedAnchorRef.current = null; }, [rows]);
   useLayoutEffect(() => {
     if (!memberId && profileReturnAnchor.current) {
@@ -224,7 +291,7 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
     }
   }, [memberId]);
   useEffect(() => {
-    if (memberId || claimId || cardId) return undefined;
+    if (memberId || claimId || cardId || threadFocus) return undefined;
     let active = true;
     const stop = startCommunityRefresh({ refresh: async () => {
       const current = feedStateRef.current;
@@ -251,17 +318,18 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
       } finally { if (feedReadRef.current === read) feedReadRef.current = null; }
     }});
     return () => { active = false; stop(); };
-  }, [sort, memberId, claimId, cardId]);
+  }, [sort, memberId, claimId, cardId, threadFocus]);
   useEffect(() => { applySeo({ title: "הקהילה — סוד 1820", description: "שיחות והודעות של קהילת סוד 1820.", path: canonicalPath, noindex: true }); }, [canonicalPath]);
   useEffect(() => { let active = true; fetchLinkedAccountProfiles().then((accounts) => { if (active) setAccountProfiles(accounts); }).catch(() => {}); return () => { active = false; }; }, []);
   useEffect(() => {
-    const ids = [...new Set([...rows, ...profileRows].flatMap((row) => [row.authorUserId, row.linkedUserId]).filter(Boolean))];
+    const ids = [...new Set([...rows, ...profileRows, focusedThread].filter(Boolean).flatMap((row) => [row.authorUserId, row.linkedUserId]).filter(Boolean))];
     if (!ids.length) return undefined;
     let active = true;
     fetchLinkedAccountProfiles(ids).then((accounts) => { if (active) setAccountProfiles((current) => ({ ...current, ...accounts })); }).catch(() => {});
     return () => { active = false; };
-  }, [rows, profileRows]);
+  }, [rows, profileRows, focusedThread]);
   const onRepliesLoaded = useCallback((items) => {
+    messageActions.register(items);
     const ids = [...new Set(items.map((item) => item.id).filter((id) => !requestedReplyCounts.current.has(id)))];
     if (ids.length) {
       ids.forEach((id) => requestedReplyCounts.current.add(id));
@@ -270,8 +338,9 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
     }
     const accountIds = [...new Set(items.flatMap((item) => [item.authorUserId, item.linkedUserId]).filter(Boolean))];
     if (accountIds.length) fetchLinkedAccountProfiles(accountIds).then((accounts) => setAccountProfiles((current) => ({ ...current, ...accounts }))).catch(() => {});
-  }, []);
+  }, [messageActions.register]);
   useEffect(() => { onRepliesLoaded(rows); }, [rows, onRepliesLoaded]);
+  useEffect(() => { if (focusedThread) onRepliesLoaded([focusedThread]); }, [focusedThread, onRepliesLoaded]);
 
   useEffect(() => {
     setProfileRows([]); setProfileNextOffset(0); setProfileCount(0); setProfileError("");
@@ -314,7 +383,7 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("he");
-    const visible = rows.filter((row) => row.body || replyCounts[row.id] > 0);
+    const visible = rows.filter((row) => row.isDeleted || row.body || replyCounts[row.id] > 0);
     return needle ? visible.filter((row) => `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : visible;
   }, [query, rows, replyCounts]);
   const baseline = VERIFIED_ARCHIVE_PROFILES[selectedAuthorId];
@@ -385,6 +454,7 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
           onCommunityReply={(item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         <CommunitySignIn />
+        {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         <section className="sod29-community-composer" aria-label="כתיבת הודעה">
           <label htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
@@ -396,12 +466,23 @@ export default function CommunityLive2029({ leadingContent = null, canonicalPath
           <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div>
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
         </section>
-        <label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בשיחות שבדף</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שבדף" /></label>
-        <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">החדש ביותר</option><option value="oldest">הישן ביותר</option></select></label>
-        {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
-        {!error && !loading && !filtered.length ? <FrameState kind="empty" title="לא נמצאו הודעות"><p>אפשר לחפש מילה אחרת.</p></FrameState> : null}
-        <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} />)}</div>
-        {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
+        {threadFocus ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
+          <header className="sod29-community-focus-head"><div><p>מתוך התגובות אליי</p><h2 id="community-focus-title">השיחה שבה התקבלה התגובה</h2></div><div>
+            <Link className="sod29-community-secondary" to={threadReturnHref}>חזרה להודעות שלי</Link>
+            {threadFocus.replyId ? <Link className="sod29-community-secondary" to={fullThreadHref}>לשרשור המלא</Link> : null}
+          </div></header>
+          {focusedThreadState === "loading" ? <p role="status">טוען את השיחה…</p> : null}
+          {focusedThreadState === "error" ? <FrameState kind="error" title="טעינת השיחה נכשלה"><p>לא הצלחנו לפתוח את השיחה כרגע.</p></FrameState> : null}
+          {focusedThreadState === "not_found" ? <FrameState kind="empty" title="השיחה אינה זמינה"><p>ייתכן שהשיחה אינה ציבורית או שהוסרה.</p></FrameState> : null}
+          {focusedThread ? <LiveThread key={focusedThread.id} row={focusedThread} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} focusPath={threadFocus.path} messageActions={messageActions} /> : null}
+        </section> : <>
+          <label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בשיחות שבדף</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שבדף" /></label>
+          <label className="sod29-community-sort sod29-community-stream-sort">סדר לפי <select value={sort} onChange={(event) => setSort(event.target.value)}><option value="newest">החדש ביותר</option><option value="oldest">הישן ביותר</option></select></label>
+          {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
+          {!error && !loading && !filtered.length ? <FrameState kind="empty" title="לא נמצאו הודעות"><p>אפשר לחפש מילה אחרת.</p></FrameState> : null}
+          <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} />)}</div>
+          {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
+        </>}
       </section><aside className="sod29-community-aside" aria-label="על הקהילה"><section className="sod29-community-side-card"><h2>שיחה טובה</h2><ul><li>נותנים מקום לדעות שונות.</li><li>מצרפים מקור כשיש כזה.</li><li>שומרים פרטים אישיים מחוץ לשיחה ציבורית.</li></ul></section></aside></div>}
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>

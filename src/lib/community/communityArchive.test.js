@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReplies, fetchCommunityReplyCounts, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityRow } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus } from "./communityArchive.js";
 
 test("preserves the five user-authorized profile like baselines", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(PROFILE_BASELINES).map(([name, value]) => [name, value.likesLabel])), {
@@ -15,8 +15,8 @@ test("preserves the five user-authorized profile like baselines", () => {
   assert.equal(VERIFIED_ARCHIVE_PROFILES["f499536a-e993-4a7d-8706-a2e69337c320"].sourceUserId, "u_zawiGiUO");
   assert.equal(VERIFIED_ARCHIVE_PROFILES["e7581ab5-8c15-4832-b602-f361e41ff373"].likesLabel, "22.9K");
   assert.match(VERIFIED_ARCHIVE_PROFILES["e7581ab5-8c15-4832-b602-f361e41ff373"].publicBio, /מנהלת.*כעשור/);
-  assert.equal(VERIFIED_ARCHIVE_PROFILES["19936860-6b35-4386-bc44-113289858ff0"].accountUserId, "36f5cb84-71c3-4977-a2c7-d6413e973443");
-  assert.equal(VERIFIED_ARCHIVE_PROFILES["4cd9c034-0464-4600-a35d-7156f0584d9b"].accountUserId, "b6ce542a-2b07-4749-8aba-532c886f6de7");
+  assert.equal(VERIFIED_ARCHIVE_PROFILES["19936860-6b35-4386-bc44-113289858ff0"].accountUserId, "b6ce542a-2b07-4749-8aba-532c886f6de7");
+  assert.equal(VERIFIED_ARCHIVE_PROFILES["4cd9c034-0464-4600-a35d-7156f0584d9b"].accountUserId, "02a0d207-0136-4beb-a34d-8ff57d10cd85");
 });
 
 test("adds the immutable imported likes baseline to new canonical reactions", () => {
@@ -39,25 +39,27 @@ test("normalizes an archive message without exposing identity fields", () => {
   assert.equal(row.authorKey, "c1");
   assert.equal(row.parentId, "p1");
   assert.equal(row.body, decodeCommunityText("שלום &#34;עולם&#34;"));
-  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "id", "linkedUserId", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
+  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "editedAt", "isDeleted", "id", "linkedUserId", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
   assert.equal(row.authorUserId, null);
   assert.equal(row.linkedUserId, null);
 });
 
 test("a signed-in message uses the account identity even when a new contributor row exists", () => {
   const row = normalizeCommunityRow({
-    id: "new-message", author_name: "sod1820", author_user_id: "b6ce542a-2b07-4749-8aba-532c886f6de7",
+    id: "new-message", author_name: "sod1820", author_user_id: "02a0d207-0136-4beb-a34d-8ff57d10cd85",
     author_contributor_id: "fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf", body: "בדיקה", origin: "community_2029",
   });
-  assert.equal(row.authorKey, "user:b6ce542a-2b07-4749-8aba-532c886f6de7");
+  assert.equal(row.authorKey, "user:02a0d207-0136-4beb-a34d-8ff57d10cd85");
   const identity = communityAuthorIdentity(row.authorKey);
-  assert.deepEqual(identity.accountIds, ["b6ce542a-2b07-4749-8aba-532c886f6de7"]);
+  assert.deepEqual(identity.accountIds, ["02a0d207-0136-4beb-a34d-8ff57d10cd85"]);
   assert.deepEqual(identity.contributorIds, ["4cd9c034-0464-4600-a35d-7156f0584d9b"]);
   const other = communityAuthorIdentity("4cd9c034-0464-4600-a35d-7156f0584d9b");
-  assert.deepEqual(other.accountIds, ["b6ce542a-2b07-4749-8aba-532c886f6de7"]);
+  assert.deepEqual(other.accountIds, ["02a0d207-0136-4beb-a34d-8ff57d10cd85"]);
   assert.deepEqual(other.contributorIds, ["4cd9c034-0464-4600-a35d-7156f0584d9b"]);
   const second = communityAuthorIdentity("19936860-6b35-4386-bc44-113289858ff0");
-  assert.deepEqual(second.accountIds, ["36f5cb84-71c3-4977-a2c7-d6413e973443"]);
+  assert.deepEqual(second.accountIds, ["b6ce542a-2b07-4749-8aba-532c886f6de7"]);
+  assert.deepEqual(communityAuthorIdentity("user:b6ce542a-2b07-4749-8aba-532c886f6de7").contributorIds, ["19936860-6b35-4386-bc44-113289858ff0"]);
+  assert.equal(communityAuthorIdentity("user:36f5cb84-71c3-4977-a2c7-d6413e973443").verifiedOwner, false, "former presentation pair is no longer ownership evidence");
   assert.equal(communityAuthorIdentity("e7581ab5-8c15-4832-b602-f361e41ff373").verifiedOwner, false);
 });
 
@@ -76,6 +78,7 @@ test("the chat pages roots and fetches approved direct replies in reading order"
   const previousFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
     const url = new URL(input.url || input);
+    if (url.pathname.includes("/rpc/")) return new Response(JSON.stringify({ code: "PGRST202" }), { status: 404, headers: { "content-type": "application/json" } });
     requests.push(url);
     const isRoot = url.searchParams.get("parent_id") === "is.null";
     const isReply = url.searchParams.get("parent_id") === `eq.${parentId}`;
@@ -101,6 +104,34 @@ test("the chat pages roots and fetches approved direct replies in reading order"
   } finally { globalThis.fetch = previousFetch; }
 });
 
+test("an exact personal reply link reads only an approved public root and its requested child", async () => {
+  const rootId = "94970bb8-f12a-43b5-b1a8-5898e7e6cc57";
+  const replyId = "d69c5c78-fc0c-4f2c-9da5-620d426d84ed";
+  assert.deepEqual(normalizeCommunityThreadFocus({ threadId: rootId, replyId, path: `${rootId},${replyId}` }), { threadId: rootId, replyId, path: [rootId, replyId] });
+  assert.equal(normalizeCommunityThreadFocus({ threadId: "not-a-uuid", replyId }), null);
+  const requests = [];
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const url = new URL(input.url || input);
+    if (url.pathname.includes("/rpc/")) return new Response(JSON.stringify({ code: "PGRST202" }), { status: 404, headers: { "content-type": "application/json" } });
+    requests.push(url);
+    const isReply = url.searchParams.get("parent_id") === `eq.${rootId}`;
+    const row = isReply
+      ? { id: replyId, parent_id: rootId, body: "תגובה ישנה", origin: "openweb", created_at: "2016-03-08T00:00:00Z" }
+      : { id: rootId, parent_id: null, body: "פוסט ישן", origin: "openweb", created_at: "2016-03-07T00:00:00Z" };
+    return new Response(JSON.stringify(row), { status: 200, headers: { "content-type": "application/vnd.pgrst.object+json" } });
+  };
+  try {
+    const root = await fetchCommunityThread(rootId);
+    const reply = await fetchCommunityReply(rootId, replyId);
+    assert.equal(root.id, rootId); assert.equal(root.origin, "openweb");
+    assert.equal(reply.id, replyId); assert.equal(reply.parentId, rootId);
+    assert.ok(requests.every((url) => url.searchParams.get("status") === "eq.approved"));
+    assert.ok(requests.every((url) => url.searchParams.get("origin") === "in.(openweb,community_2029)"));
+    assert.equal(requests[0].searchParams.get("parent_id"), "is.null");
+  } finally { globalThis.fetch = previousFetch; }
+});
+
 test("a public author page with no count header keeps its messages and an unknown total", async () => {
   const previousFetch = globalThis.fetch;
   const requests = [];
@@ -119,4 +150,56 @@ test("a public author page with no count header keeps its messages and an unknow
     unknownRange = true;
     assert.equal((await fetchPublicAuthorActivityPage("e7581ab5-8c15-4832-b602-f361e41ff373", { filter: "chat", limit: 20 })).count, null);
   } finally { globalThis.fetch = previousFetch; }
+});
+
+test("a tombstone retains only thread identity/time and strips author, text, media and reactions", () => {
+  const row = normalizeCommunityRow({ id: "removed", parent_id: "parent", origin: "openweb", is_deleted: true,
+    body: "PRIVATE-BODY", title: "PRIVATE-TITLE", author_name: "PRIVATE-NAME", author_user_id: "PRIVATE-ACCOUNT",
+    author_contributor_id: "PRIVATE-SOURCE", contributor: { id: "PRIVATE-SOURCE", user_id: "PRIVATE-ACCOUNT", avatar_url: "PRIVATE-IMAGE" },
+    reactions: { likes: 999 }, created_at: "2016-03-08", edited_at: "2026-10-26" });
+  assert.equal(row.id, "removed"); assert.equal(row.parentId, "parent"); assert.equal(row.isDeleted, true);
+  assert.equal(row.createdAt, "2016-03-08");
+  assert.doesNotMatch(JSON.stringify(row), /PRIVATE|999/);
+  assert.equal(normalizeCommunityRow({ id: "removed", deleted_at: "2026-10-26", body: "PRIVATE-BODY" }).body, "");
+});
+
+test("canonical feed/reply readers request only public message fields and preserve tombstones", async () => {
+  const previousFetch = globalThis.fetch, requests = [];
+  const id = "94970bb8-f12a-43b5-b1a8-5898e7e6cc57";
+  globalThis.fetch = async input => {
+    const url = new URL(input.url || input); requests.push(url);
+    const data = url.pathname.endsWith("community_reply_counts") ? [{ parent_id: id, reply_count: "2" }]
+      : [{ id, parent_id: null, origin: "openweb", is_deleted: true, created_at: "2016-03-08", total_count: "1",
+           contributor_user_id: "PRIVATE-ACCOUNT", contributor_avatar_url: "PRIVATE-AVATAR" }];
+    return new Response(JSON.stringify(data), { headers: { "content-type": "application/json" } });
+  };
+  try {
+    const feed = await fetchCommunityArchivePage();
+    const replies = await fetchCommunityReplies(id);
+    const counts = await fetchCommunityReplyCounts([id]);
+    assert.equal(feed.rows[0].isDeleted, true); assert.equal(feed.count, 1);
+    assert.equal(replies.rows[0].isDeleted, true); assert.equal(replies.count, 1);
+    assert.equal(counts[id], 2);
+    assert.equal(requests.length, 3, "one public RPC per operation; no fallback on a valid result");
+    for (const request of requests.slice(0, 2)) {
+      assert.doesNotMatch(request.searchParams.get("select"), /contributor_(user|avatar|display)/);
+      assert.match(request.searchParams.get("select"), /is_deleted/);
+    }
+    assert.doesNotMatch(JSON.stringify(feed), /PRIVATE/);
+  } finally { globalThis.fetch = previousFetch; }
+});
+
+test("canonical exact context matches the requested root/child and never falls back on absent or denied content", async () => {
+  const root = "94970bb8-f12a-43b5-b1a8-5898e7e6cc57", child = "d69c5c78-fc0c-4f2c-9da5-620d426d84ed";
+  let rows = [{ id: root, parent_id: null, origin: "openweb", is_deleted: true }, { id: child, parent_id: root, origin: "openweb", body: "visible child" }];
+  let error = null;
+  const client = { rpc() { return { select() { return Promise.resolve({ data: rows, error }); } }; },
+    from() { throw new Error("must not widen an authoritative RPC result"); } };
+  assert.equal((await fetchCommunityThread(root, { client })).isDeleted, true);
+  assert.equal((await fetchCommunityReply(root, child, { client })).body, "visible child");
+  assert.equal(await fetchCommunityReply(child, root, { client }), null);
+  rows = [];
+  assert.equal(await fetchCommunityThread(root, { client }), null);
+  error = { code: "42501", message: "denied" };
+  await assert.rejects(fetchCommunityThread(root, { client }), value => value.code === "42501");
 });

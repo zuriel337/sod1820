@@ -15,11 +15,16 @@ async function boundWriter(client, uid) {
   return error || !Array.isArray(data) ? { state: "unavailable" } : data.length > 1 ? { state: "ambiguous" }
     : data.length ? { state: "ready", row: data[0] } : { state: "unlinked" };
 }
-export function contributorSelfHandler({ authenticatedClient = privateClient, publicClient = getPublicResearchClient } = {}) {
+export function contributorSelfHandler({ authenticatedClient = privateClient, publicClient = getPublicResearchClient, previewReadOnly = process.env.VERCEL_ENV === "preview" } = {}) {
   return async (req, res) => {
     res.setHeader("Cache-Control", "private, no-store"); res.setHeader("Vary", "Authorization");
     res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive"); res.setHeader("X-Content-Type-Options", "nosniff");
     if (!["GET", "POST"].includes(req.method)) { res.setHeader("Allow", "GET, POST"); return reply(res, 405, "unavailable"); }
+    if (previewReadOnly) res.setHeader("X-Preview-Read-Only", "true");
+    if (previewReadOnly && req.method === "POST") {
+      res.setHeader("X-Preview-Write-Blocked", "true");
+      return reply(res, 403, "preview_read_only");
+    }
     try {
       if (req.method === "POST" && (!req.headers?.origin || new URL(req.headers.origin).host !== req.headers.host || req.headers["sec-fetch-site"] === "cross-site")) return reply(res, 403, "unavailable");
       const token = /^Bearer ([A-Za-z0-9_.-]{20,8192})$/.exec(req.headers?.authorization || "")?.[1];

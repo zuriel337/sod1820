@@ -8,14 +8,14 @@ const person={id:"writer-id",user_id:UID,slug:"writer",code:"2042",display_name:
 const accountAvatar="https://example.invalid/account-avatar.jpg";
 const response=()=>({code:200,headers:{},setHeader(k,v){this.headers[k]=v;},status(c){this.code=c;return this;},json(v){this.body=v;return this;}});
 const request=(method="GET",body={},query={})=>({method,headers:{authorization:"Bearer synthetic_verified_session_123",host:"preview.invalid",origin:"https://preview.invalid"},body,query});
-function setup({rows=[person],user=UID,inbox=[{counterpart:OTHER}],pub=[{...person,user_id:OTHER}],photo=accountAvatar,readError=false,nameCollision=false}={}) {
+function setup({rows=[person],user=UID,inbox=[{counterpart:OTHER}],pub=[{...person,user_id:OTHER}],photo=accountAvatar,readError=false,nameCollision=false,previewReadOnly=false}={}) {
  const calls=[];
  function builder(table,anon=false){let nameCheck=false;const b={select(fields){calls.push({table,anon,fields});return b;},eq(key,value){calls.push({key,value,table,anon});return b;},in(key,value){calls.push({key,value,table,anon});return b;},ilike(key,value){nameCheck=true;calls.push({key,value,table,anon,operator:"ilike"});return b;},
   then(resolve){return Promise.resolve({data:anon?pub:rows,error:readError}).then(resolve);},limit:async()=>({data:nameCheck?(nameCollision?[person]:[]):anon?pub:rows,error:readError}),maybeSingle:async()=>({data:table==="users"?{avatar_url:photo}:table==="profiles"?{xp:120,credits:4,streak:2,tier:"free"}:pub[0]||null,error:readError})};return b;}
  const client={auth:{getUser:async()=>user?{data:{user:{id:user,user_metadata:{role:"admin"}}}}:{error:true}},from:(table)=>builder(table),
   rpc:async(name,params)=>{calls.push({rpc:name,params});return {data:name==="research_level_of"?{level:5,label:"חוקר היכל",private_count:999}:name==="dm_inbox"?inbox:{ok:true}};}};
  const publicClient=()=>({from:(table)=>builder(table,true)});
- return {calls,client,publicClient,handler:contributorSelfHandler({authenticatedClient:()=>client,publicClient})};
+ return {calls,client,publicClient,handler:contributorSelfHandler({authenticatedClient:()=>client,publicClient,previewReadOnly})};
 }
 test("self GET verifies account and scopes reads, never creates a contributor or mutates a profile",async()=>{
  const{handler,calls}=setup();const r=response();await handler(request("GET",{}, {user_id:OTHER,mode:"admin_all"}),r);
@@ -77,6 +77,12 @@ test("conversation lookup resolves only existing own-inbox counterpart to anonym
 test("cross-origin and unsupported self writes cannot run any product RPC",async()=>{
  const f=setup(),a=response();await f.handler({...request("POST",{action:"portrait",enabled:true,ack:true}),headers:{...request().headers,origin:"https://evil.invalid"}},a);assert.equal(a.code,403);assert.equal(f.calls.length,0);
  const b=response();await f.handler(request("DELETE"),b);assert.equal(b.code,405);
+});
+test("read-only Preview serves the existing verified GET and blocks every profile write before authentication or product RPC",async()=>{
+ const f=setup({previewReadOnly:true}),read=response();await f.handler(request("GET"),read);
+ assert.equal(read.code,200);assert.equal(read.body.state,"ready");assert.equal(read.headers["X-Preview-Read-Only"],"true");
+ const before=f.calls.length,write=response();await f.handler(request("POST",{action:"portrait",enabled:false,ack:true}),write);
+ assert.equal(write.code,403);assert.deepEqual(write.body,{state:"preview_read_only"});assert.equal(write.headers["X-Preview-Write-Blocked"],"true");assert.equal(f.calls.length,before);
 });
 test("legacy follow label links need exact unambiguous anonymous public identity; no display-name slug fabrication",async()=>{
  const f=setup();const links=await publicWriterFollowLinks(["author:שם קנוני","number:1820"],{client:f.publicClient()});

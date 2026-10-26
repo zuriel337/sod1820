@@ -14,8 +14,10 @@ EMILY = 'e7581ab5-8c15-4832-b602-f361e41ff373'
 YANIV = '66666666-6666-4666-8666-666666666666'
 YANIV_ACCOUNT = '22222222-2222-4222-8222-222222222222'
 PRIVATE = '44444444-4444-4444-8444-444444444444'
-SELF_ACCOUNT = 'b6ce542a-2b07-4749-8aba-532c886f6de7'
+SELF_ACCOUNT = '02a0d207-0136-4beb-a34d-8ff57d10cd85'
 SELF_SOURCE = '4cd9c034-0464-4600-a35d-7156f0584d9b'
+OTHER_ACCOUNT = 'b6ce542a-2b07-4749-8aba-532c886f6de7'
+OTHER_SOURCE = '19936860-6b35-4386-bc44-113289858ff0'
 fixture = json.loads(subprocess.check_output(['node', '--input-type=module', '-e',
     "import*as m from'./src/components/contributor2029/publicSourceCatalog2029Fixtures.js';console.log(JSON.stringify({identity:m.catalogFixtureIdentity,sources:m.catalogFixtureSources()}))"], cwd=ROOT, text=True))
 TZVI = {**fixture['identity'], 'kind': 'contributor', 'public_visibility': 'public', 'visibility': 'public', 'wa_names': ['צבי']}
@@ -40,6 +42,9 @@ ROWS += [{'id': '20000000-0000-4000-8000-' + str(i + 1).zfill(12), 'parent_id': 
 ROWS += [{'id': '30000000-0000-4000-8000-000000000001', 'parent_id': None, 'status': 'approved',
     'author_name': 'Sod1820', 'author_contributor_id': SELF_SOURCE, 'author_user_id': None, 'origin': 'openweb',
     'body': 'הודעה ציבורית מהחשבון המקושר במפורש', 'created_at': '2024-01-01T00:00:00Z', 'reactions': {}}]
+ROWS += [{'id': '30000000-0000-4000-8000-000000000002', 'parent_id': None, 'status': 'approved',
+    'author_name': 'Yosi Viner', 'author_contributor_id': OTHER_SOURCE, 'author_user_id': None, 'origin': 'openweb',
+    'body': 'הודעה ציבורית מהחשבון השני', 'created_at': '2024-01-02T00:00:00Z', 'reactions': {}}]
 POSTS = [{'id': 5038 + i, 'slug': f'fixture-post-{i}', 'title': f'מאמר מקור {i}', 'author': 'צבי', 'date': '2020-01-01T00:00:00Z'} for i in range(5)]
 
 class Files(SimpleHTTPRequestHandler):
@@ -49,7 +54,7 @@ server = ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Files, director
 threading.Thread(target=server.serve_forever, daemon=True).start()
 BASE = f'http://127.0.0.1:{server.server_port}'
 REPORT = {'cases': [], 'errors': [], 'unexpected_writes': [], 'blocked_identity_telemetry': []}
-READ_RPCS = {'writer_public_contributions_page_v1', 'world_group_source_arrivals_v2', 'research_state_snapshot_v1', 'fn_research_path_resume_v1'}
+READ_RPCS = {'writer_public_contributions_page_v1', 'world_group_source_arrivals_v2', 'research_state_snapshot_v1', 'fn_research_path_resume_v1', 'community_feed_page', 'community_replies_page', 'community_message_context', 'community_reply_counts', 'community_message_actions_v1'}
 
 def install(page, unknown_count=False, self_uid=None):
     calls = []
@@ -80,6 +85,16 @@ def install(page, unknown_count=False, self_uid=None):
         assert table not in ['research_objects', 'person_public_profile_v1', 'people_public_rows_v1', 'researcher_reputation', 'research_level_of'], table
         calls.append((table, q))
         data = PEOPLE.copy() if table == 'contributors' else ROWS.copy() if table == 'research_contributions' else []
+        if table in {'community_feed_page', 'community_replies_page', 'community_message_context', 'community_reply_counts'}:
+            args = req.post_data_json or {}
+            eligible = [row for row in ROWS if row.get('status') == 'approved' and row.get('origin') in ('openweb', 'community_2029')]
+            if table == 'community_feed_page': data = [row for row in eligible if not row.get('parent_id')]
+            elif table == 'community_replies_page': data = [row for row in eligible if row.get('parent_id') == args.get('p_parent')]
+            elif table == 'community_message_context': data = [row for row in eligible if row['id'] == args.get('p_id')]
+            else: data = [{'parent_id': parent, 'reply_count': sum(row.get('parent_id') == parent for row in eligible)} for parent in args.get('p_ids', [])]
+            if table != 'community_reply_counts':
+                fields = q.get('select', [''])[0].split(',')
+                data = [{key: value for key, value in {**row, 'is_deleted': False, 'total_count': len(data)}.items() if key in fields} for row in data]
         if table == 'users' and self_uid:
             data = {'id': self_uid, 'display_name': 'חשבון בדיקה', 'username': 'fixture-self', 'role': 'member', 'avatar_url': None}
             return r.fulfill(json=data if 'vnd.pgrst.object' in req.headers.get('accept', '') else [data], headers={'access-control-allow-origin': '*'})
@@ -164,18 +179,24 @@ try:
             expect(page.locator('.public-contributor-2029 .sod29-community-thread')).to_have_count(count)
         expect(page.get_by_role('button', name='עוד הודעות', exact=True)).to_have_count(0)
         REPORT['cases'].append({'unknown_total_is_not_zero': True, 'pagination_until_exhaustion': True}); context.close()
-        # Known owner bridge reuses the existing 2029 personal editor; no claim or identity write runs.
-        context = browser.new_context(); page = context.new_page(); install(page, self_uid=SELF_ACCOUNT)
+        # Each email-confirmed display bridge edits only its own profile.
         def part(value): return base64.urlsafe_b64encode(json.dumps(value).encode()).decode().rstrip('=')
-        token = part({'alg': 'HS256'}) + '.' + part({'sub': SELF_ACCOUNT, 'role': 'authenticated', 'exp': int(time.time()) + 3600}) + '.synthetic'
-        session = {'access_token': token, 'refresh_token': 'synthetic', 'expires_at': int(time.time()) + 3600,
-                   'expires_in': 3600, 'token_type': 'bearer', 'user': {'id': SELF_ACCOUNT}}
-        context.add_init_script('localStorage.setItem("sb-linswmnnkjxvweumprav-auth-token",' + json.dumps(json.dumps(session)) + ');localStorage.setItem("ua_visit_' + SELF_ACCOUNT + '_' + time.strftime('%Y-%m-%d') + '","1")')
-        page.goto(member_url(SELF_SOURCE)); page.locator('.pc-person').wait_for(); page.locator('.pc-person-toggle').click()
-        edit = page.get_by_role('link', name='עריכת הפרופיל שלי', exact=True)
-        expect(edit).to_be_visible(); assert edit.get_attribute('href').startswith('/2029/me/profile?returnTo=')
-        assert page.get_by_role('link', name='זה החשבון הישן שלי', exact=True).count() == 0
-        REPORT['cases'].append({'known_self_bridge': True, 'existing_personal_editor': True}); context.close()
+        for self_uid, source_id, is_owner in [(SELF_ACCOUNT, SELF_SOURCE, True), (OTHER_ACCOUNT, OTHER_SOURCE, True),
+                                               (OTHER_ACCOUNT, SELF_SOURCE, False), (SELF_ACCOUNT, OTHER_SOURCE, False)]:
+            context = browser.new_context(); page = context.new_page(); install(page, self_uid=self_uid)
+            token = part({'alg': 'HS256'}) + '.' + part({'sub': self_uid, 'role': 'authenticated', 'exp': int(time.time()) + 3600}) + '.synthetic'
+            session = {'access_token': token, 'refresh_token': 'synthetic', 'expires_at': int(time.time()) + 3600,
+                       'expires_in': 3600, 'token_type': 'bearer', 'user': {'id': self_uid}}
+            context.add_init_script('localStorage.setItem("sb-linswmnnkjxvweumprav-auth-token",' + json.dumps(json.dumps(session)) + ');localStorage.setItem("ua_visit_' + self_uid + '_' + time.strftime('%Y-%m-%d') + '","1")')
+            page.goto(member_url(source_id)); page.locator('.pc-person').wait_for(); page.locator('.pc-person-toggle').click()
+            edit = page.get_by_role('link', name='עריכת הפרופיל שלי', exact=True)
+            if is_owner:
+                expect(edit).to_be_visible(); assert edit.get_attribute('href').startswith('/2029/me/profile?returnTo=')
+                assert page.get_by_role('link', name='זה החשבון הישן שלי', exact=True).count() == 0
+            else:
+                expect(edit).to_have_count(0)
+                expect(page.get_by_role('link', name='זה החשבון הישן שלי', exact=True)).to_be_visible()
+            REPORT['cases'].append({'source_id': source_id, 'own_editor': is_owner, 'account_isolation': True}); context.close()
         # Canonical public writer/account and special Tzvi catalogue use the same family and context.
         for key, name in [(YANIV, 'יניב לוי'), ('user:' + YANIV_ACCOUNT, 'יניב לוי'), (TZVI['id'], TZVI['display_name'])]:
             context = browser.new_context(viewport={'width': 390, 'height': 1000}); page = context.new_page(); install(page)

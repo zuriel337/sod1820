@@ -1,0 +1,11 @@
+/* Existing Community inline controls (15a4a956), aligned to adopted type tokens. */
+.sod29-community-edited{color:var(--s29-muted);font-size:var(--s29-type-small)}
+.sod29-community-deleted{margin:0;padding:10px 0;color:var(--s29-muted);font-size:var(--s29-type-ui)}
+.sod29-community-thread--deleted{padding:14px 0 6px}
+.sod29-community-thread-actions .sod29-community-manage-action{min-height:44px;min-width:44px;padding:8px 2px;font-size:var(--s29-type-ui)}
+.sod29-community-editor{display:grid;gap:10px;margin:8px 0 4px;min-width:0}
+.sod29-community-editor textarea{width:100%;box-sizing:border-box;display:block;min-height:96px;resize:vertical;border:1px solid var(--s29-line-strong);border-radius:6px;padding:14px;background:var(--community-input,var(--s29-panel));color:var(--s29-ink);font:inherit;font-size:var(--s29-type-body);line-height:1.65}
+.sod29-community-editor-actions{display:flex;gap:10px;flex-wrap:wrap}
+.sod29-community-editor-actions button{min-height:44px;min-width:44px;font-size:var(--s29-type-ui)}
+.sod29-community-confirm{display:grid;gap:10px;margin:10px 0 6px;padding:14px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft)}
+.sod29-community-confirm p{margin:0;color:var(--s29-ink);font-size:var(--s29-type-ui);line-height:1.6}
