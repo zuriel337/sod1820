@@ -269,7 +269,9 @@ const projectLanguageInspection = (value, occurrence) => {
   if (String(axis.hitId || "") !== occurrence.hitId || safeInteger(axis.skip) !== safeInteger(occurrence.skip)
     || (axisDirection !== occurrence.direction && safeInteger(axis.dir) !== safeInteger(occurrence.direction))
     || occurrence.start != null && safeInteger(axis.start) !== occurrence.start) return null;
-  const rawLexicon = value.dynamicLexicon, lexiconSources = Array.isArray(rawLexicon?.sources) ? rawLexicon.sources.map(String) : [];
+  const rawLexicon = value.dynamicLexicon, rawLexiconAsset = rawLexicon?.asset,
+    lexiconSources = Array.isArray(rawLexicon?.sources) ? rawLexicon.sources.map(String) : [],
+    lexiconDownloadMs = finiteNumber(rawLexiconAsset?.downloadMs, -1), lexiconTotalLoadMs = finiteNumber(rawLexiconAsset?.totalLoadMs, -1);
   const dynamicLexiconValid = rawLexicon?.contract === DYNAMIC_LANGUAGE_LEXICON_CONTRACT
     && rawLexicon?.matchingAlgorithm === "bounded_window_lookup_v1" && rawLexicon?.lazyLoaded === true
     && rawLexicon?.vocabularyScanned === false && rawLexicon?.modelCallsTriggered === 0
@@ -277,7 +279,13 @@ const projectLanguageInspection = (value, occurrence) => {
     && safeInteger(rawLexicon?.entryCount) >= 40000 && safeInteger(rawLexicon?.entryCount) <= 50000
     && safeInteger(rawLexicon?.tanakhEntryCount) >= 35000 && safeInteger(rawLexicon?.tanakhEntryCount) <= safeInteger(rawLexicon?.entryCount)
     && safeInteger(rawLexicon?.coreEntryCount) >= 4000 && safeInteger(rawLexicon?.coreEntryCount) <= safeInteger(rawLexicon?.entryCount)
-    && /^[a-f0-9]{64}$/.test(String(rawLexicon?.coreFingerprint || ""));
+    && /^[a-f0-9]{64}$/.test(String(rawLexicon?.coreFingerprint || ""))
+    && rawLexiconAsset?.path === "els-dynamic-lexicon-v1.gz64.txt"
+    && safeInteger(rawLexiconAsset?.encodedBytes) >= 300000 && safeInteger(rawLexiconAsset?.encodedBytes) <= 400000
+    && /^[a-f0-9]{64}$/.test(String(rawLexiconAsset?.sha256 || ""))
+    && rawLexiconAsset?.loadTrigger === "VERIFIED_MATRIX_DISCOVERY" && rawLexiconAsset?.cachePolicy === "force-cache"
+    && safeInteger(rawLexiconAsset?.requestCount) === 1 && lexiconDownloadMs >= 0 && lexiconDownloadMs <= 60000
+    && lexiconTotalLoadMs >= lexiconDownloadMs && lexiconTotalLoadMs <= 60000;
   if (rawLexicon != null && !dynamicLexiconValid) return null;
   const projectLexicalReading = (raw, canonicalLetters, { allowShort = false } = {}) => {
     const relation = String(raw?.relation || ""), source = String(raw?.source || ""), baseTerm = canonicalKey(raw?.baseTerm);
@@ -504,7 +512,10 @@ const projectLanguageInspection = (value, occurrence) => {
     dynamicLexicon: dynamicLexiconValid ? Object.freeze({ contract: DYNAMIC_LANGUAGE_LEXICON_CONTRACT,
       sources: Object.freeze(lexiconSources), matchingAlgorithm: "bounded_window_lookup_v1", entryCount: safeInteger(rawLexicon.entryCount),
       tanakhEntryCount: safeInteger(rawLexicon.tanakhEntryCount), coreEntryCount: safeInteger(rawLexicon.coreEntryCount),
-      coreFingerprint: String(rawLexicon.coreFingerprint), lazyLoaded: true, vocabularyScanned: false, modelCallsTriggered: 0 }) : null,
+      coreFingerprint: String(rawLexicon.coreFingerprint), lazyLoaded: true, vocabularyScanned: false, modelCallsTriggered: 0,
+      asset: Object.freeze({ path: rawLexiconAsset.path, encodedBytes: safeInteger(rawLexiconAsset.encodedBytes),
+        sha256: String(rawLexiconAsset.sha256), loadTrigger: "VERIFIED_MATRIX_DISCOVERY", cachePolicy: "force-cache",
+        requestCount: 1, downloadMs: lexiconDownloadMs, totalLoadMs: lexiconTotalLoadMs }) }) : null,
     modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
     rays: Object.freeze(rays), readings: Object.freeze(readings), segmentations: Object.freeze(segmentations),
     boundaries: Object.freeze(boundaries), relations: Object.freeze(relations),

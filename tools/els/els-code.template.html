@@ -1545,7 +1545,7 @@
   // 🤖 מאגר-מונחים ל«הצע אשכול» (בכלי העצמאי — באתר יוזרם מ-ai-analyze דינמית)
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
   const TORAH_LANGUAGE_PROFILE=JSON.parse(atob("__TORAH_LANGUAGE_PROFILE_B64__"));
-  const GUIDED_DYNAMIC_LEXICON_GZ64="__DYNAMIC_LEXICON_GZ64__";
+  const GUIDED_DYNAMIC_LEXICON_ASSET="els-dynamic-lexicon-v1.gz64.txt",GUIDED_DYNAMIC_LEXICON_ASSET_SHA256="__DYNAMIC_LEXICON_ASSET_SHA256__",GUIDED_DYNAMIC_LEXICON_ASSET_BYTES=__DYNAMIC_LEXICON_ASSET_BYTES__;
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
   st.verseRead=false;st.verseHL=-1;
@@ -2244,8 +2244,16 @@
   let _guidedMatrixLensSeq=0;
   let _guidedDynamicLexiconPromise=null;
   function guidedDynamicLexiconSkeleton(term){const value=norm(term);return value.length<3?value:value[0]+value.slice(1,-1).replace(/[וי]/g,"")+value.at(-1);}
+  async function guidedDynamicLexiconAsset(){
+    const started=performance.now(),url=new URL(`${GUIDED_DYNAMIC_LEXICON_ASSET}?v=${GUIDED_DYNAMIC_LEXICON_ASSET_SHA256.slice(0,16)}`,location.href);let response,text,digest;
+    try{response=await fetch(url,{cache:"force-cache",credentials:"same-origin"});if(!response.ok)return null;text=(await response.text()).trim();}catch(_){return null;}
+    const downloaded=performance.now();if(text.length!==GUIDED_DYNAMIC_LEXICON_ASSET_BYTES||!globalThis.crypto?.subtle)return null;
+    try{const hash=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(text));digest=[...new Uint8Array(hash)].map(value=>value.toString(16).padStart(2,"0")).join("");}catch(_){return null;}
+    if(digest!==GUIDED_DYNAMIC_LEXICON_ASSET_SHA256)return null;
+    return {payload:text,asset:{path:GUIDED_DYNAMIC_LEXICON_ASSET,encodedBytes:text.length,sha256:digest,loadTrigger:"VERIFIED_MATRIX_DISCOVERY",cachePolicy:"force-cache",requestCount:1,downloadMs:Math.max(0,Math.round((downloaded-started)*10)/10)}};
+  }
   async function guidedLoadDynamicLexicon(){
-    if(!_guidedDynamicLexiconPromise)_guidedDynamicLexiconPromise=(async()=>{let profile=null;try{profile=JSON.parse(await inflate(GUIDED_DYNAMIC_LEXICON_GZ64));}catch(_){profile=null;}
+    if(!_guidedDynamicLexiconPromise)_guidedDynamicLexiconPromise=(async()=>{const started=performance.now(),loaded=await guidedDynamicLexiconAsset();let profile=null;try{profile=JSON.parse(await inflate(loaded?.payload||""));}catch(_){profile=null;}
       if(!profile||profile.contract!==GUIDED_DYNAMIC_LEXICON_CONTRACT||profile.matchingAlgorithm!=="bounded_window_lookup_v1"||!Array.isArray(profile.entries)||profile.entries.length>50000)return null;
       const words=new Map(),skeletons=new Map();for(const row of profile.entries){const term=norm(row?.[0]),label=String(row?.[1]||""),mask=Number(row?.[2]),frequency=Number(row?.[3]);if(term!==row?.[0]||term.length<2||term.length>10||![1,2,3].includes(mask)||!Number.isSafeInteger(frequency)||frequency<0)continue;
         const source=mask===3?"tanakh-core-lexicon":mask===2?"maftech-core":"tanakh-lexicon",lexiconSources=[...(mask&1?["canonical_tanakh_words"]:[]),...(mask&2?["maftech_core_snapshot"]:[])],sourceConfidence=(mask===3?88:mask===2?82:76)+Math.min(8,term.length);
@@ -2253,7 +2261,7 @@
         const skeleton=guidedDynamicLexiconSkeleton(term);if(mask&2&&term.length>=4&&skeleton.length>=3&&skeleton!==term){if(!skeletons.has(skeleton))skeletons.set(skeleton,[]);skeletons.get(skeleton).push(hint);}}
       for(const [key,rows] of skeletons)skeletons.set(key,rows.sort((a,b)=>b.sourceConfidence-a.sourceConfidence||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")).slice(0,4));
       if(words.size!==Number(profile.entryCount)||Number(profile.tanakhEntryCount)<1||Number(profile.coreEntryCount)<1)return null;
-      return {profile:{contract:GUIDED_DYNAMIC_LEXICON_CONTRACT,sources:[...profile.sources],matchingAlgorithm:profile.matchingAlgorithm,entryCount:words.size,tanakhEntryCount:Number(profile.tanakhEntryCount),coreEntryCount:Number(profile.coreEntryCount),coreFingerprint:String(profile.coreFingerprint||"")},words,skeletons};})();
+      return {profile:{contract:GUIDED_DYNAMIC_LEXICON_CONTRACT,sources:[...profile.sources],matchingAlgorithm:profile.matchingAlgorithm,entryCount:words.size,tanakhEntryCount:Number(profile.tanakhEntryCount),coreEntryCount:Number(profile.coreEntryCount),coreFingerprint:String(profile.coreFingerprint||""),asset:{...loaded.asset,totalLoadMs:Math.max(0,Math.round((performance.now()-started)*10)/10)}},words,skeletons};})();
     return _guidedDynamicLexiconPromise;
   }
   function guidedMatrixBox(axis){

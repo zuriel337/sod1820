@@ -57,7 +57,12 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.match(source, /els_language_relation_replay_v1/);
   assert.match(source, /els_torah_language_boundary_v1/);
   assert.match(source, /TORAH_LANGUAGE_PROFILE=JSON\.parse\(atob\("__TORAH_LANGUAGE_PROFILE_B64__"\)\)/);
-  assert.match(source, /GUIDED_DYNAMIC_LEXICON_GZ64="__DYNAMIC_LEXICON_GZ64__"/);
+  assert.match(source, /GUIDED_DYNAMIC_LEXICON_ASSET="els-dynamic-lexicon-v1\.gz64\.txt"/);
+  assert.match(source, /GUIDED_DYNAMIC_LEXICON_ASSET_SHA256="__DYNAMIC_LEXICON_ASSET_SHA256__"/);
+  assert.match(source, /GUIDED_DYNAMIC_LEXICON_ASSET_BYTES=__DYNAMIC_LEXICON_ASSET_BYTES__/);
+  assert.match(source, /guidedDynamicLexiconAsset/);
+  assert.match(source, /fetch\(url,\{cache:"force-cache",credentials:"same-origin"\}\)/);
+  assert.match(source, /loadTrigger:"VERIFIED_MATRIX_DISCOVERY"/);
   assert.match(source, /guidedLoadDynamicLexicon/);
   assert.match(source, /bounded_window_lookup_v1/);
   assert.match(source, /S3_OPEN_SEQUENCE_SEGMENTATION/);

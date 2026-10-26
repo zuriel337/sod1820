@@ -134,10 +134,13 @@ test('corpus identity is injected by build.py from the exact tk-letters source',
   assert.doesNotMatch(out, /__CORPUS_ID_|__TORAH_DATA__|__ELS_LOGO__/);
 });
 
-test('deterministic template -> public/tzofen.html build sync', () => {
+test('deterministic template -> public/tzofen.html and lazy lexicon asset build sync', () => {
   const before = readFileSync(root + 'public/tzofen.html');
+  const lexiconBefore = readFileSync(root + 'public/els-dynamic-lexicon-v1.gz64.txt');
   const r = spawnSync('python3', ['tools/els/build.py'], { cwd: root, encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
   const after = readFileSync(root + 'public/tzofen.html');
+  const lexiconAfter = readFileSync(root + 'public/els-dynamic-lexicon-v1.gz64.txt');
   assert.ok(before.equals(after), 'public/tzofen.html is stale vs tools/els/els-code.template.html - run tools/els/build.py');
+  assert.ok(lexiconBefore.equals(lexiconAfter), 'lazy dynamic lexicon asset is stale vs its declared sources');
 });

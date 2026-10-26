@@ -7,15 +7,15 @@ import vm from "node:vm";
 
 const ENGINE = new URL("../tools/els/els-code.template.html", import.meta.url);
 const BUILT_ENGINE = new URL("../public/tzofen.html", import.meta.url);
+const DYNAMIC_LEXICON_ASSET = new URL("../public/els-dynamic-lexicon-v1.gz64.txt", import.meta.url);
 const CORPUS = new URL("../tools/els/data/tk-letters.txt", import.meta.url);
 const CORE_LEXICON = new URL("../tools/els/data/maftech-core-lexicon.txt", import.meta.url);
 const builtEngine = await readFile(BUILT_ENGINE, "utf8");
 const profileMatch = builtEngine.match(/const TORAH_LANGUAGE_PROFILE=JSON\.parse\(atob\("([A-Za-z0-9+/=]+)"\)\);/);
 assert.ok(profileMatch, "the built canonical engine embeds one compact Torah-language profile");
 const TORAH_LANGUAGE_PROFILE = JSON.parse(Buffer.from(profileMatch[1], "base64").toString("utf8"));
-const lexiconMatch = builtEngine.match(/const GUIDED_DYNAMIC_LEXICON_GZ64="([A-Za-z0-9+/=]+)";/);
-assert.ok(lexiconMatch, "the built canonical engine embeds one lazy dynamic lexicon profile");
-const DYNAMIC_LEXICON_PROFILE = JSON.parse(gunzipSync(Buffer.from(lexiconMatch[1], "base64")).toString("utf8"));
+const dynamicLexiconPayload = (await readFile(DYNAMIC_LEXICON_ASSET, "utf8")).trim();
+const DYNAMIC_LEXICON_PROFILE = JSON.parse(gunzipSync(Buffer.from(dynamicLexiconPayload, "base64")).toString("utf8"));
 
 function functionSource(template, name) {
   let start = template.indexOf(`function ${name}(`);
@@ -235,17 +235,22 @@ test("the broad lookup recognizes general construct, prefix and mater-omission f
   assert.doesNotMatch(runtime, /ספינת|באש|אטמ|קולומביה|טראמפ/);
 });
 
-test("the embedded dynamic profile is a deterministic sanitized snapshot, not a Golden patch", async () => {
+test("the lazy dynamic profile is a deterministic sanitized asset, not a Golden patch", async () => {
   const words = (await readFile(CORE_LEXICON, "utf8")).trim().split(/\n+/);
   assert.equal(words.length, 4529);
   assert.equal(new Set(words).size, words.length);
   assert.ok(words.every(word => /^[א-ת]{2,12}$/.test(word)));
   const normalized = words.map(word => word.replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]));
   const fingerprint = createHash("sha256").update(`${[...new Set(normalized)].sort().join("\n")}\n`).digest("hex");
+  const assetFingerprint = createHash("sha256").update(dynamicLexiconPayload).digest("hex");
   assert.equal(DYNAMIC_LEXICON_PROFILE.coreFingerprint, fingerprint);
   assert.equal(DYNAMIC_LEXICON_PROFILE.coreEntryCount, 4529);
   assert.ok(DYNAMIC_LEXICON_PROFILE.entryCount > 40000 && DYNAMIC_LEXICON_PROFILE.entryCount < 50000);
   assert.equal(DYNAMIC_LEXICON_PROFILE.entries.some(entry => entry[0] === "ספינת"), false);
+  assert.match(builtEngine, new RegExp(`GUIDED_DYNAMIC_LEXICON_ASSET_SHA256="${assetFingerprint}"`));
+  assert.match(builtEngine, new RegExp(`GUIDED_DYNAMIC_LEXICON_ASSET_BYTES=${dynamicLexiconPayload.length}`));
+  assert.ok(Buffer.byteLength(builtEngine) < 2_600_000, "the broad profile is not embedded in the default ELS document");
+  assert.equal(builtEngine.includes(dynamicLexiconPayload.slice(0, 1000)), false);
 });
 
 test("language-pair ranking is geometry and context based, never skip based", async () => {

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # בונה את הכלי «הצופן התנכי» (public/tzofen.html) מהתבנית + הנתונים הדחוסים.
 # הרצה:  cd tools/els && python3 build.py
-# פלט:   ../../public/tzofen.html  (קובץ עצמאי אחד, ~2.2MB, ללא תלות-רשת)
+# פלט:   ../../public/tzofen.html + אוצר לשון דחוס ועצל ל-Guided Research בלבד.
 import json, gzip, base64, os, hashlib, math, re
 from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 OUT  = os.path.normpath(os.path.join(HERE, "..", "..", "public", "tzofen.html"))
+DYNAMIC_LEXICON_OUT = os.path.normpath(os.path.join(HERE, "..", "..", "public", "els-dynamic-lexicon-v1.gz64.txt"))
 
 def d(name):  # קורא קובץ-נתונים מתיקיית data/
     return open(os.path.join(DATA, name), encoding="utf-8").read()
@@ -106,6 +107,7 @@ dynamic_lexicon = {
     "entries": lexicon_entries,
 }
 dynamic_lexicon_b64 = gz64(json.dumps(dynamic_lexicon, ensure_ascii=False, separators=(",", ":")))
+dynamic_lexicon_asset_sha256 = hashlib.sha256(dynamic_lexicon_b64.encode("ascii")).hexdigest()
 
 # 🧬 corpus identities — derived from the exact tk-letters source relation (the bytes gz64(tk) embeds):
 #   Tanakh = full sha256 of tk-letters; Torah = the historical 16-char prefix (fn_els_corpus_id contract).
@@ -120,7 +122,9 @@ out = (tmpl.replace("__TORAH_DATA__", gz64(tk)).replace("__NIQQUD_DATA__", gz64(
           .replace("__VERSE_TEXT__", gz64(vtext)).replace("__BOOK_NAMES__", books)
           .replace("__ELS_LOGO__", logo)
           .replace("__TORAH_LANGUAGE_PROFILE_B64__", language_profile_b64)
-          .replace("__DYNAMIC_LEXICON_GZ64__", dynamic_lexicon_b64)
+          .replace("__DYNAMIC_LEXICON_ASSET_SHA256__", dynamic_lexicon_asset_sha256)
+          .replace("__DYNAMIC_LEXICON_ASSET_BYTES__", str(len(dynamic_lexicon_b64.encode("ascii"))))
           .replace("__CORPUS_ID_TORAH__", corpus_torah).replace("__CORPUS_ID_TANAKH__", corpus_tanakh))
+open(DYNAMIC_LEXICON_OUT, "w", encoding="ascii").write(dynamic_lexicon_b64)
 open(OUT, "w", encoding="utf-8").write(out)
-print("wrote", OUT, "| KB:", round(len(out.encode("utf-8")) / 1024))
+print("wrote", OUT, "| KB:", round(len(out.encode("utf-8")) / 1024), "| lazy lexicon KB:", round(len(dynamic_lexicon_b64) / 1024))

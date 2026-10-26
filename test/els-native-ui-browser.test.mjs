@@ -258,6 +258,12 @@ async function withNative(viewport, run, options = {}) {
     browser = await pw.chromium.launch({ headless: true, executablePath });
     const page = await browser.newPage({ viewport, isMobile: mobile, hasTouch: mobile });
     const errors = [];
+    page.__elsDynamicLexiconRequests = [];
+    page.on('request', request => {
+      if (new URL(request.url()).pathname.endsWith('/els-dynamic-lexicon-v1.gz64.txt')) {
+        page.__elsDynamicLexiconRequests.push(request.url());
+      }
+    });
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
     await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided }) => {
@@ -427,6 +433,12 @@ test('Classic opens on unmarked Genesis letters, right aligned, with no sample c
     const first=await page.locator('.els29-native-cell').first().boundingBox();
     assert.ok(first.x+first.width<=region.x+region.width+2&&first.x+first.width>=region.x+region.width-55,'בראשית starts at the visible right edge');
     assert.equal(await page.locator('.els29-native-stage-head h3').textContent(),'הצופן הקלאסי');
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening Classic never downloads the guided language asset');
+    const requestId=await page.evaluate(()=>window.__operation?.requestId||0);
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משה');
+    await activate(page,'חפש');
+    await page.waitForFunction(id=>window.__operation?.kind==='search'&&window.__operation.requestId>id&&window.__operation.status==='done',requestId,{timeout:90000});
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'a regular Classic search never downloads the guided language asset');
   },{realHost:true,loadGolden:false,mobile:width===390});
 });
 
@@ -1561,6 +1573,7 @@ test('native presentation: verse words alternate from either entry and camera re
 test('guided discovery inspects at most four exact occurrences, keeps raw runs advanced and fits 320px',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
   for(const width of [320,1440])await withNative({width,height:900},async page=>{
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening Guided does not download the language asset before explicit discovery');
     await page.evaluate(()=>window.__loadResearch({
       contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,researchNonce:1,
       term:'יהוה',scope:'torah',contextTerms:[{term:'משה'},{term:'תורה'},{term:'ישראל'}],
@@ -1577,10 +1590,12 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
     assert.ok(requests.length>=1&&requests.length<=4,'the automatic first wave stays within four occurrences');
     assert.ok(requests.every(message=>message.target.guidedOccurrenceCoverage===true&&message.target.setId&&message.target.hitId));
     const reports=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok));
+    assert.equal(page.__elsDynamicLexiconRequests.length,1,'one lazy language asset request serves every inspected occurrence');
     assert.ok(reports.length>=1&&reports.every(report=>report.languageInspection?.contract==='els_matrix_language_inspection_v1'));
     assert.ok(reports.every(report=>report.searchRule==='lazy-bounded-dynamic-lexicon'&&report.defaultLexiconLoaded===false&&report.dynamicLexiconLoaded===true));
     assert.ok(reports.every(report=>report.languageInspection.modelCallsTriggered===0&&report.languageInspection.coverage.returnedRays<=24&&report.languageInspection.coverage.maxLetters===24&&report.languageInspection.coverage.maxCandidateWindows===9216&&report.languageInspection.coverage.candidatesExamined<=9216&&report.languageInspection.coverage.maxLexiconLookups===196608&&report.languageInspection.coverage.lexiconLookups<=196608&&report.languageInspection.coverage.returnedReadings<=24&&report.languageInspection.coverage.returnedSegmentations<=24&&report.languageInspection.coverage.returnedRelations<=3&&Number(report.languageInspection.coverage.relationReplayCalls||0)<=2&&Number(report.languageInspection.canonicalReplayCalls||0)<=2));
     assert.ok(reports.every(report=>report.languageInspection.dynamicLexicon?.contract==='els_dynamic_lexicon_profile_v1'&&report.languageInspection.dynamicLexicon.entryCount>40000&&report.languageInspection.dynamicLexicon.coreEntryCount>4000&&report.languageInspection.dynamicLexicon.lazyLoaded===true&&report.languageInspection.dynamicLexicon.vocabularyScanned===false&&report.languageInspection.dynamicLexicon.modelCallsTriggered===0));
+    assert.ok(reports.every(report=>report.languageInspection.dynamicLexicon.asset?.path==='els-dynamic-lexicon-v1.gz64.txt'&&report.languageInspection.dynamicLexicon.asset.loadTrigger==='VERIFIED_MATRIX_DISCOVERY'&&report.languageInspection.dynamicLexicon.asset.cachePolicy==='force-cache'&&report.languageInspection.dynamicLexicon.asset.requestCount===1));
     assert.ok(reports.every(report=>(report.languageInspection.readings||[]).every(reading=>reading.status==='UNVERIFIED_READING'&&reading.truthPromotion===false)));
     assert.ok(reports.every(report=>(report.languageInspection.relations||[]).every(relation=>['UNVERIFIED_RELATION','VERIFIED_RELATION'].includes(relation.status)&&relation.truthPromotion===false)));
     assert.ok(reports.every(report=>report.languageInspection.boundaryProfile?.contract==='torah_language_boundary_profile_v1'&&report.languageInspection.boundaryProfile.vocabularyRetained===false&&report.languageInspection.boundaryProfile.modelCallsTriggered===0));

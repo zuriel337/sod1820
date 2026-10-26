@@ -84,7 +84,9 @@ const guidedLanguageInspection = ({ hitId = "hit-1", skip = 31, dir = 1, axisSta
     vocabularyRetained: false, modelCallsTriggered: 0 },
   dynamicLexicon: { contract: "els_dynamic_lexicon_profile_v1", sources: ["canonical_tanakh_words", "maftech_core_snapshot"],
     matchingAlgorithm: "bounded_window_lookup_v1", entryCount: 41835, tanakhEntryCount: 39959, coreEntryCount: 4529,
-    coreFingerprint: "a".repeat(64), lazyLoaded: true, vocabularyScanned: false, modelCallsTriggered: 0 },
+    coreFingerprint: "a".repeat(64), lazyLoaded: true, vocabularyScanned: false, modelCallsTriggered: 0,
+    asset: { path: "els-dynamic-lexicon-v1.gz64.txt", encodedBytes: 347000, sha256: "b".repeat(64),
+      loadTrigger: "VERIFIED_MATRIX_DISCOVERY", cachePolicy: "force-cache", requestCount: 1, downloadMs: 8.2, totalLoadMs: 19.4 } },
   modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
   rays: [{ id: "horizontal:500:1:11", orientation: "horizontal", text: "אבמלכימדודא", reverseText: "אדודמיכלמבא", start: 500, step: 1, length: 11, distance: 0, intersectsAxis: true, focusOffset: 7 }],
   readings: [{
@@ -254,11 +256,22 @@ test("dynamic lexical provenance is projected only from the declared lazy profil
   assert.deepEqual(projected.readings[1].lexiconSources, ["maftech_core_snapshot"]);
   assert.equal(projected.readings[1].selectionProtocol, "DYNAMIC_LEXICON_LOOKUP_V1");
   assert.equal(projected.readings[1].truthPromotion, false);
+  assert.deepEqual(projected.dynamicLexicon.asset, {
+    path: "els-dynamic-lexicon-v1.gz64.txt", encodedBytes: 347000, sha256: "b".repeat(64),
+    loadTrigger: "VERIFIED_MATRIX_DISCOVERY", cachePolicy: "force-cache", requestCount: 1,
+    downloadMs: 8.2, totalLoadMs: 19.4,
+  });
 
   languageInspection.dynamicLexicon.entryCount = 50001;
   const rejected = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences,
     inspections: [guidedInspection("hit-1", { languageInspection })] }).inspections[0].languageInspection;
   assert.equal(rejected, null, "a forged broad profile fails closed instead of becoming language evidence");
+
+  const forgedAssetInspection = guidedLanguageInspection();
+  forgedAssetInspection.dynamicLexicon.asset.requestCount = 2;
+  const forgedAsset = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences,
+    inspections: [guidedInspection("hit-1", { languageInspection: forgedAssetInspection })] }).inspections[0].languageInspection;
+  assert.equal(forgedAsset, null, "a forged lazy-asset receipt fails closed instead of becoming language evidence");
 });
 
 test("language input cannot substitute different letters at a valid ray locus", () => {
