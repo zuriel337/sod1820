@@ -134,12 +134,18 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(birthMapProjection, /no_external_birth_api: true/);
   assert.match(birthMapProjection, /no_fabricated_traits: true/);
   assert.match(birthMapProjection, /no_telemetry_payload: true/);
+  assert.match(birthMapProjection, /webgl_identity_free: true/);
+  assert.match(birthMapProjection, /spatialModel/);
   assert.match(birthMapStudio, /lazy\(\(\) => import\("\.\/BirthMapScene3D2029\.jsx"\)\)/);
   assert.match(birthMapStudio, /Human Design/);
   assert.match(birthMapStudio, /מפת שמיים/);
   assert.match(birthMapStudio, /אינה מנחשת שעה/);
+  assert.match(birthMapStudio, /התכנסויות/);
+  assert.match(birthMapStudio, /חיבור מחקרי שכבר נמצא/);
   assert.match(birthMapScene, /@react-three\/fiber/);
   assert.match(birthMapScene, /OrbitControls/);
+  assert.match(birthMapScene, /FamilyCosmos/);
+  assert.match(birthMapScene, /ConvergenceCosmos/);
   assert.doesNotMatch(birthMapScene, /name|birthTime|birthPlace|dateIso/);
   assert.doesNotMatch(birthMapProjection, /fetch\(|supabase|localStorage|sessionStorage|URLSearchParams|track\(|console\./i);
   assert.match(seferYetzirahMapProjection, /p183:gra_commentary:gra:mishnah5_planets/);

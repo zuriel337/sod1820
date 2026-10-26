@@ -343,6 +343,13 @@ test("Life Journey keeps Person and explicit family selection through Name and D
         + await birthStudio.locator('[role="status"]').count() >= 1,
       "explicit 3D activation renders WebGL or an accessible capability fallback",
     );
+    await birthStudio.getByRole("tab", { name: "משפחה" }).click();
+    const spatialLegend = birthStudio.locator(".birth-map-spatial-details");
+    await spatialLegend.getByRole("button", { name: /הורה בדיקה משפחה/ }).waitFor();
+    await spatialLegend.getByRole("button", { name: /ילד בדיקה/ }).click();
+    assert.equal(await spatialLegend.locator('button[data-focused="true"]').count(), 1);
+    await birthStudio.getByRole("tab", { name: "התכנסויות" }).click();
+    await spatialLegend.getByText(/עדיין אין התכנסות מנורמלת/).waitFor();
     await birthStudio.getByRole("tab", { name: "Human Design" }).click();
     await birthStudio.getByRole("heading", { name: "Human Design" }).waitFor();
     assert.equal(await birthStudio.getByText("הקלט מוכן · המחשבון טרם חובר").count(), 2);
@@ -381,6 +388,11 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await lifeMaps.getByRole("tab", { name: "סיכום" }).click();
     await lifeMaps.getByRole("heading", { name: "הסיכום המשפחתי" }).waitFor();
     await lifeMaps.getByText("מסר בדיקה מבוסס ממצאים.", { exact: true }).waitFor();
+    await lifeMaps.getByRole("tab", { name: "מפת יצירה" }).click();
+    await birthStudio.getByRole("tab", { name: "תלת־ממד" }).click();
+    await birthStudio.getByRole("tab", { name: "התכנסויות" }).click();
+    await birthStudio.locator(".birth-map-spatial-details.is-convergences article").first().waitFor();
+    await birthStudio.locator(".birth-map-spatial-details.is-convergences").getByText("73", { exact: true }).first().waitFor();
     await lifeMaps.getByRole("tab", { name: "מסלול" }).click();
     await lifeMaps.getByText("זהות ומשפחה", { exact: true }).waitFor();
     await family.getByText("פתח פירוט מלא של הממצאים והמקורות", { exact: true }).click();

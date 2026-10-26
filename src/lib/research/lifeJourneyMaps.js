@@ -236,7 +236,15 @@ export function buildLifeJourneyMaps({
     timelineMissing: Object.freeze(timelineMissing),
     sources: Object.freeze({ members: Object.freeze(memberSources), numbers: Object.freeze(numberSources) }),
     creation,
-    birthMap: buildLifeJourneyBirthMap({ members, selectedRefs, birthTimeline, creation }),
+    birthMap: buildLifeJourneyBirthMap({
+      members,
+      selectedRefs,
+      birthTimeline,
+      creation,
+      familyLinks: generationLinks,
+      researchLinks: relationships,
+      convergenceRows: convergences,
+    }),
     path: Object.freeze({
       steps: Object.freeze(pathSteps),
       saved: Boolean(context?.journey?.id),
