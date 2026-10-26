@@ -14,13 +14,17 @@ const razielBlock = edge.slice(edge.indexOf('persona || "").toLowerCase() === "r
 const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
 
 test("native chat: no provider call on open/render; fast by default; deep only via explicit action", () => {
-  assert.doesNotMatch(chat, /useEffect/);
+  assert.equal((chat.match(/useEffect\(/g) || []).length, 1);
+  assert.match(chat, /useEffect\(\(\) => \{ setGuestQuotaEnded\(false\); \}, \[user\?\.id\]\)/);
+  assert.doesNotMatch(chat.slice(chat.indexOf("useEffect("), chat.indexOf("if (!session)")), /submit|transport|fetch|askRaziel/);
   assert.match(chat, /send\(text, "fast"\)/);
   assert.match(chat, /data-raziel-deepen[\s\S]*send\(deepCandidate\.question, "deep", true, deepCandidate\.turnId\)/);
   assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
   assert.match(provider, /const submit = useCallback[\s\S]*const rawResponse = await transport\(request\)/);
   assert.equal((chat.match(/"deep"/g) || []).length, 1);
-  assert.doesNotMatch(chat, /tier|isSubscriber|admin/);
+  assert.doesNotMatch(chat, /isSubscriber|admin/);
+  assert.equal((chat.match(/tier/g) || []).length, 1);
+  assert.match(chat, /event\?\.detail\?\.tier === "anon"/);
   assert.doesNotMatch(frame, /askRazielFast|askRazielAdvanced/);
   assert.doesNotMatch(frame, /תחובר בהמשך/);
 });

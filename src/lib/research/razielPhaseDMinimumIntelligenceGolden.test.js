@@ -128,7 +128,9 @@ test("Golden: smart routing stays OFF — no fn_raziel_model / routing_enabled /
 
 test("Golden: no model/tool call on chat open; bounded semantic surface context; model only on send", () => {
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
-  assert.doesNotMatch(chat, /useEffect/);
+  assert.equal((chat.match(/useEffect\(/g) || []).length, 1);
+  assert.match(chat, /useEffect\(\(\) => \{ setGuestQuotaEnded\(false\); \}, \[user\?\.id\]\)/);
+  assert.doesNotMatch(chat.slice(chat.indexOf("useEffect("), chat.indexOf("if (!session)")), /submit|transport|fetch|askRaziel/);
   assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
   assert.match(chat, /const send = async[\s\S]*session\.submit\(\{ question: q,/);
   assert.match(provider, /const submit = useCallback[\s\S]*const rawResponse = await transport\(request\)/);

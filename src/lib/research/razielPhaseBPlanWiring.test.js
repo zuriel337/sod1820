@@ -53,7 +53,9 @@ test("Phase B: askRaziel transport is additive — surface_semantic only when pr
 });
 
 test("Phase B: SystemFrame builds the pack from existing context only; no provider call on open; no HTML", () => {
-  assert.doesNotMatch(chat, /useEffect/);
+  assert.equal((chat.match(/useEffect\(/g) || []).length, 1);
+  assert.match(chat, /useEffect\(\(\) => \{ setGuestQuotaEnded\(false\); \}, \[user\?\.id\]\)/);
+  assert.doesNotMatch(chat.slice(chat.indexOf("useEffect("), chat.indexOf("if (!session)")), /submit|transport|fetch|askRaziel/);
   assert.match(chat, /session\.submit\(\{ question: q,[\s\S]*view: \{ numberFocus, readingFocus, elsFocus \}/);
   assert.match(provider, /prepareSubmission\(\{/);
   assert.match(request, /createRazielRequestContextSnapshot\(researchContext, view, startedAt\)/);

@@ -22,20 +22,29 @@ test("conversation-first copy keeps internal contracts stable and technical lang
   assert.doesNotMatch(chat, /credit_ledger|spendCredits|CREDIT_COST|Result Bundle/);
 });
 
-test("slice 1 boundary excludes registration, quota accounting, AI-answer counting and credits", () => {
+test("slice 3 offers registration only after value and represents only the server-owned guest quota denial", () => {
   const frame = read("src/components/experience2029/SystemFrame2029.jsx");
   const actions = read("src/components/experience2029/RazielOneShotActions2029.jsx");
   const chatStart = frame.indexOf("function RazielNativeChat");
   const chatEnd = frame.indexOf("const RESEARCH_SECTIONS", chatStart);
   const slice = `${frame.slice(chatStart, chatEnd)}\n${actions}`;
 
-  assert.doesNotMatch(slice, /data-raziel-registration-nudge|registration[-_ ]nudge|onSignup/);
-  assert.doesNotMatch(slice, /data-raziel-quota-ended|quotaEnded|sod:ai-quota|quota listener/i);
+  assert.match(slice, /!user\?\.id && lastRaziel \? guestQuotaEnded \?/,
+    "the registration journey is absent before the first Raziel answer");
+  assert.match(slice, /data-raziel-registration-nudge="after-value"/);
+  assert.match(slice, /נהנית מהשיחה\? הירשם בחינם כדי לשמור אותה ולהמשיך בדיוק מאותה נקודה, גם ממכשיר אחר\./);
+  assert.match(slice, /data-raziel-quota-ended="guest"/);
+  assert.match(slice, /שיחות הניסיון להיום הסתיימו\. הרשמה חינמית תאפשר לך להמשיך לדבר עם רזיאל ולשמור את השיחות שלך\./);
+  assert.match(slice, /window\.addEventListener\("sod:ai-quota", onQuota\)/);
+  assert.match(slice, /event\?\.detail\?\.tier === "anon"/,
+    "only the existing server event for the anonymous tier can block the guest composer");
+  assert.match(slice, /useEffect\(\(\) => \{ setGuestQuotaEnded\(false\); \}, \[user\?\.id\]\)/,
+    "quota representation is reset across principal changes");
   assert.doesNotMatch(slice, /completedAiAnswers|aiAnswerCount|answerCount|two.*answers|2.*answers/i);
   assert.doesNotMatch(slice, /credit_ledger|spendCredits|CREDIT_COST|creditsCharged/i);
-  assert.doesNotMatch(slice, /quota\s*[-+]=|setQuota|quotaLimit|limitOverride/i);
-  assert.match(slice, /session\.submit\(\{ question: q/);
-  assert.match(slice, /session\.submitOneShot\(kind, \{ projection \}\)/);
+  assert.doesNotMatch(slice, /localStorage[\s\S]{0,120}quota|quota\s*[-+]=|quotaLimit|limitOverride/i);
+  assert.match(slice, /runSessionAction\(\(\) => session\.submit\(\{ question: q/);
+  assert.match(slice, /runSessionAction\(\(\) => session\.submitOneShot\(kind, \{ projection \}\)\)/);
 });
 
 test("the full-picture action changes representation labels without renaming internal modes or saved-session types", () => {

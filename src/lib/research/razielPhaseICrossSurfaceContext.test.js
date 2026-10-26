@@ -57,7 +57,9 @@ test("I: never forwards body/html/raw discovery/private workspace keys", () => {
 
 test("I: SystemFrame wires it into existing surface_semantic only; no new read/provider call on open; Number/ELS/transcript intact", () => {
   assert.match(chat, /session\.submit\(\{ question: q,[\s\S]*view: \{ numberFocus, readingFocus, elsFocus \}/);
-  assert.doesNotMatch(chat, /useEffect/);
+  assert.equal((chat.match(/useEffect\(/g) || []).length, 1);
+  assert.match(chat, /useEffect\(\(\) => \{ setGuestQuotaEnded\(false\); \}, \[user\?\.id\]\)/);
+  assert.doesNotMatch(chat.slice(chat.indexOf("useEffect("), chat.indexOf("if (!session)")), /submit|transport|fetch|askRaziel/);
   assert.match(provider, /prepareSubmission\(\{/);
   assert.match(request, /createRazielRequestContextSnapshot\(researchContext, view, startedAt\)/);
   const semantic = request.slice(request.indexOf("function snapshotSurfaceSemantic"), request.indexOf("export function buildRazielSessionRequest"));
