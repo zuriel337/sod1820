@@ -152,12 +152,13 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
   const strength = clean(params.get("strength"));
   const recommendation = clean(params.get("recommendation"));
+  const verification = clean(params.get("verification"));
   return {
     finding: clean(params.get("finding")),
     contributorId: clean(params.get("contributorId")),
@@ -166,6 +167,7 @@ function initialReviewFilters() {
     strength: ["חזק", "בינוני", "חלש"].includes(strength) ? strength : "all",
     recommendation: ["מתאים לעץ", "דורש בדיקה", "כפילות", "דורש מקור", "שיוך זהות לא פתור", "דורש OCR או תמלול", "לא מתאים"].includes(recommendation)
       ? recommendation : "all",
+    verification: Object.hasOwn(VERIFICATION_LABELS, verification) ? verification : "all",
   };
 }
 
@@ -228,7 +230,7 @@ export default function WorldAllResearchTable({ state }) {
   const [kind, setKind] = useState("all");
   const [access, setAccess] = useState("all");
   const [status, setStatus] = useState("all");
-  const [verification, setVerification] = useState("all");
+  const [verification, setVerification] = useState(initial.verification);
   const [contributor, setContributor] = useState("all");
   const [contributorId] = useState(initial.contributorId);
   const [tree, setTree] = useState("all");

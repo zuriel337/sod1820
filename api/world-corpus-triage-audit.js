@@ -21,6 +21,14 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       next: "להשלים את שלושת החסמים; 4,076 אותות ישנים נשארים תור replay ואינם אישור.",
     }),
     Object.freeze({
+      key: "zvi_legacy_replay",
+      label: "צבי · תור replay של אותות ישנים",
+      total: 2299,
+      route: "/world?admin=1&view=admin&contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8&contributorLabel=צבי%20(OPOC)&strength=בינוני&verification=legacy_signal",
+      state: "2,468 הופעות · 134 אשכולות כפילות · 169 הופעות עודפות · 533 הודעות מקור",
+      next: "להריץ replay לפי שיטה ומקור. 84 הודעות כבר כוללות טקסט ותמונה באותה רשומת מקור; אין צורך לנחש התאמה סמוכה.",
+    }),
+    Object.freeze({
       key: "weak",
       label: "כל החלשים",
       total: 6362,
@@ -82,8 +90,12 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
         Object.freeze({ label: "מוכנים ליישום", value: 55 }),
         Object.freeze({ label: "קבוצות טקסט זהה", value: 301 }),
         Object.freeze({ label: "רשומות עודפות בקבוצות", value: 371 }),
+        Object.freeze({ label: "כרטיסי צבי בתור legacy replay", value: 2299 }),
+        Object.freeze({ label: "הופעות בתור legacy replay", value: 2468 }),
+        Object.freeze({ label: "הודעות מקור בתור", value: 533 }),
+        Object.freeze({ label: "הודעות מקור עם טקסט ותמונה", value: 84 }),
       ]),
-      next: "להמשיך מן המסנן „מוכן ליישום”, בלי קידום אוטומטי ובלי למחוק הופעות מקור.",
+      next: "להמשיך בתור ה־legacy replay המסונן לצבי בלבד, בלי קידום אוטומטי ובלי למחוק הופעות מקור.",
     }),
     Object.freeze({
       key: "els",
