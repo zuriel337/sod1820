@@ -58,7 +58,7 @@ test("Bet closes all five source checkpoints and switching letters cannot reuse 
 });
 
 test("Gimel retains all source rows and printed totals without concealing or balancing reading gaps", () => {
-  assert.equal(Object.values(AHAVAT_LETTER_READINGS).flatMap(books => books.flatMap(book => book.rows)).length, 486);
+  assert.equal(Object.values(AHAVAT_LETTER_READINGS).flatMap(books => books.flatMap(book => book.rows)).length, 594);
   assert.equal(ahavatLetterRows("ג").length, 54);
   assert.equal(new Set(ahavatLetterRows("ג").map(row => row.parasha)).size, 54);
   assert.equal(AHAVAT_LETTER_READING_LOCATIONS["ג"], "הטור השמאלי");
@@ -138,7 +138,7 @@ test("all 28 printed forms have source material, without treating OCR sections a
   assert.equal(bundle.sections.reduce((sum, section) => sum + section.fragments.length, 0), 32);
   const materialForms = [...Object.keys(AHAVAT_LETTER_READINGS), ...bundle.sections.map(section => section.form)];
   assert.equal(new Set(materialForms).size, 28);
-  assert.equal(Object.keys(AHAVAT_LETTER_READINGS).length, 9);
+  assert.equal(Object.keys(AHAVAT_LETTER_READINGS).length, 11);
   for (const section of bundle.sections) {
     const fragments = ahavatLetterSourceFragments(bundle, section.form);
     assert.deepEqual(fragments.map(item => item.pdf_page), LETTER_SOURCE_REGIONS[section.form].map(item => item[0]));
@@ -205,4 +205,46 @@ test("Kaf keeps its own 54 source readings and is never merged with final Kaf", 
   }
   assert.equal(AHAVAT_LETTER_READINGS["י"], undefined, "uncertain Yod cells remain in source OCR, not inferred numbers");
   assert.equal(AHAVAT_LETTER_READINGS["ז"], undefined, "uncertain Zayin cells remain in source OCR, not inferred numbers");
+});
+
+test("Lamed keeps a split label/numeral source boundary and both unbalanced printed checkpoints", () => {
+  const books = AHAVAT_LETTER_READINGS["ל"];
+  const rows = ahavatLetterRows("ל");
+  assert.equal(rows.length, 54);
+  assert.equal(new Set(rows.map(row => row.parasha)).size, 54);
+  assert.deepEqual(books.map(book => book.cumulative), [5275, 9566, 12654, 17482, 21570]);
+  assert.deepEqual(books.map(book => ahavatLetterBalance(book).delta), [0, 0, -1, 0, -1]);
+  assert.deepEqual(books.map(book => book.pages), [[37, 38], [38], [38], [38], [38]]);
+  assert.equal(rows.filter(row => row.page === 37).length, 7);
+  assert.equal(rows.filter(row => row.page === 38).length, 47);
+  assert.equal(ahavatLetterSourcePage("ל"), 37);
+  assert.equal(ahavatLetterSourcePage("ל", "bereshit"), 38);
+  assert.equal(ahavatLetterSourcePage("ל", "bereshit", "ויצא"), 37);
+  assert.equal(ahavatLetterSourcePage("ל", "bereshit", "וישלח"), 38);
+  assert.match(AHAVAT_LETTER_READING_LOCATIONS["ל"], /המספר של וישלח מופיע ב־PDF 38/);
+  for (const [parasha, printed, count] of [["ויקרא", "ת״ע", 470], ["אחרי מות", "של״ז", 337], ["דברים", "ת״ו", 406]]) {
+    assert.deepEqual(rows.filter(row => row.parasha === parasha).map(row => [row.printed, row.count]), [[printed, count]]);
+  }
+});
+
+test("Lamed research export retains each row's PDF and does not hide one-unit reading deltas", () => {
+  const csv = ahavatLetterCsv("ל", "bereshit", "", "https://example.test/book.pdf");
+  assert.equal(csv.trimEnd().split("\r\n").length, 13);
+  assert.match(csv, /"ל","ויצא","בראשית","תר״ט","609","37","https:\/\/example.test\/book.pdf#page=37&view=FitH"/);
+  assert.match(csv, /"ל","וישלח","בראשית","תקמ״ח","548","38","https:\/\/example.test\/book.pdf#page=38&view=FitH"/);
+  assert.match(ahavatLetterCsv("ל", "vayikra"), /"12654","3088","3087","-1"/);
+  assert.match(ahavatLetterCsv("ל", "devarim"), /"21570","4088","4087","-1"/);
+});
+
+test("Mem reproduces all 54 source rows and five closed checkpoints without inheriting final Mem", () => {
+  const books = AHAVAT_LETTER_READINGS["מ"];
+  assert.deepEqual(books.map(book => book.cumulative), [3421, 6728, 8762, 12143, 14465]);
+  assert.deepEqual(books.map(book => book.count), [3421, 3307, 2034, 3381, 2322]);
+  assert.equal(ahavatLetterRows("מ").length, 54);
+  assert.ok(books.every(book => ahavatLetterBalance(book).delta === 0));
+  assert.ok(ahavatLetterRows("מ").every(row => row.page === 38));
+  assert.deepEqual(ahavatLetterRows("מ", "all", "וישב").map(row => [row.printed, row.count]), [["רע״א", 271]]);
+  assert.equal(ahavatLetterSourcePage("מ", "devarim"), 38);
+  assert.deepEqual(ahavatLetterRows("ם"), [], "unsettled final-Mem cells stay in OCR/PDF");
+  assert.match(ahavatLetterCsv("מ", "bamidbar"), /"12143","3381","3381","0"/);
 });

@@ -107,9 +107,9 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
         assert.equal(await letterReader.locator(".ahavat29-letter-transcript pre").count(), form === "ך" ? 1 : 2);
         assert.ok((await letterReader.locator(".ahavat29-letter-transcript pre").first().textContent()).length > 25);
       }
-      await letterReader.getByRole("button", { name: "למד", exact: true }).click();
-      await letterReader.getByRole("button", { name: "פתח מקור הקטע · PDF 38", exact: true }).click();
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
+      await letterReader.getByRole("button", { name: "נון סופית", exact: true }).click();
+      await letterReader.getByRole("button", { name: "פתח מקור הקטע · PDF 39", exact: true }).click();
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=39&view=FitH$/);
       await letterReader.getByRole("button", { name: "אלף", exact: true }).click();
       await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "שמות", exact: true }).click();
       assert.equal(await letterReader.locator("tbody tr").count(), 11);
@@ -229,6 +229,27 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /8,612/);
       assert.equal(await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "אחרי מות", exact: true }) }).locator("td:nth-child(4)").textContent(), "146");
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות כף/);
+      await letterReader.getByRole("button", { name: "למד", exact: true }).click();
+      assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /21,570/);
+      assert.equal(await letterReader.locator("tbody tr").count(), 10);
+      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }).click();
+      assert.equal(await letterReader.locator("tbody tr").count(), 12);
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
+      for (const pdfPage of [37, 38]) assert.equal(await letterReader.getByRole("button", { name: `המקור המלא · PDF ${pdfPage}`, exact: true }).count(), 1);
+      await letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "ויצא 609", exact: true }).click();
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
+      await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "וישלח", exact: true }) }).getByRole("button", { name: "PDF 38", exact: true }).click();
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
+      assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות למד/);
+      await letterReader.locator("details summary").click();
+      assert.match(await letterReader.locator("details").textContent(), /פער קריאה: -1/);
+      await letterReader.locator("details summary").click();
+      await letterReader.getByRole("button", { name: "מם", exact: true }).click();
+      assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /14,465/);
+      assert.equal(await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "וישב", exact: true }) }).locator("td:nth-child(4)").textContent(), "271");
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
+      assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות מם/);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, `Lamed/Mem reader overflows at ${width}px`);
       const fullReader = page.locator(".ahavat29-depth");
       for (const pdfPage of [26, 42, 45, 99]) {
         await fullReader.locator(".ahavat29-page-atlas").getByRole("button", { name: String(pdfPage), exact: true }).click();
