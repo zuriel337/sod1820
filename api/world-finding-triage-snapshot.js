@@ -6,6 +6,10 @@ import {
   WORLD_FINDING_STRONG_CONTINUATION_META,
   getWorldFindingStrongContinuation,
 } from "./world-finding-triage-continuation.js";
+import {
+  WORLD_FINDING_MEDIUM_MATCH_CONTINUATION_META,
+  getWorldFindingMediumMatchContinuation,
+} from "./world-finding-medium-match-continuation.js";
 
 const STRENGTH_LABELS = Object.freeze(["חזק","בינוני","חלש"]);
 const RECOMMENDATION_LABELS = Object.freeze(["מתאים לעץ","דורש בדיקה","כפילות","דורש מקור","שיוך זהות לא פתור","דורש OCR או תמלול","לא מתאים"]);
@@ -95,13 +99,15 @@ export const WORLD_FINDING_TRIAGE_META = Object.freeze({
   recommendationCounts: Object.freeze({ ...recommendationCounts }),
   strengthBreakdown,
   strongContinuation: WORLD_FINDING_STRONG_CONTINUATION_META,
+  mediumMatchContinuation: WORLD_FINDING_MEDIUM_MATCH_CONTINUATION_META,
 });
 
 export function getWorldFindingTriageSnapshot(findingId) {
   const id = String(findingId || "").replace(/^research:/, "");
   const snapshot = SNAPSHOT_INDEX.get(id) || null;
   if (!snapshot) return null;
-  const continuation = getWorldFindingStrongContinuation(id);
+  const continuation = getWorldFindingStrongContinuation(id)
+    || getWorldFindingMediumMatchContinuation(id);
   if (!continuation) return snapshot;
   const historicalRecommendation = continuation.recommendation
     && continuation.recommendation !== snapshot.recommendation

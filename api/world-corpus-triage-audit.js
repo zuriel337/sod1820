@@ -17,8 +17,8 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       label: "כל הבינוניים",
       total: 4164,
       route: "/world?admin=1&view=admin&strength=בינוני",
-      state: "37 התאמות מפורשות · 4,076 אותות ישנים · 51 מצבים חלקיים או חריגים",
-      next: "ה־37 עוברים קודם בדיקת מקור ויעד; אות ישן נשאר תור replay ואינו אישור.",
+      state: "37 התאמות מפורשות נבדקו: 35 חסרות מקור, 1 זהות, 1 חיבור תמונה · 0 מוכנות לעץ",
+      next: "להשלים את שלושת החסמים; 4,076 אותות ישנים נשארים תור replay ואינם אישור.",
     }),
     Object.freeze({
       key: "weak",

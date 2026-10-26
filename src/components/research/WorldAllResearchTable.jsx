@@ -697,6 +697,14 @@ export default function WorldAllResearchTable({ state }) {
         <span><b>{projection.triageSnapshot.strongContinuation.setAside}</b> הושמו בצד</span>
       </div> : null}
 
+      {projection.triageSnapshot?.mediumMatchContinuation ? <div className="sod29-world-all-research-summary">
+        <span><b>{projection.triageSnapshot.mediumMatchContinuation.explicitMatchFindings}</b> בינוניים עם התאמה מפורשת שנבדקו</span>
+        <span><b>{projection.triageSnapshot.mediumMatchContinuation.readyForImplementation}</b> מוכנים לעץ במנה זו</span>
+        <span><b>{projection.triageSnapshot.mediumMatchContinuation.sourceRequired}</b> חסרי מקור תוכן עצמאי</span>
+        <span><b>{projection.triageSnapshot.mediumMatchContinuation.identityUnresolved}</b> שיוך זהות לא פתור</span>
+        <span><b>{projection.triageSnapshot.mediumMatchContinuation.ocrRequired}</b> דורש חיבור תמונה / OCR</span>
+      </div> : null}
+
       {projection.truncated ? <div className="sod29-world-all-research-state">המאגר גדול מגבול הקריאה הנוכחי; מוצג כל מה שנטען והמצב מסומן כחלקי.</div> : null}
       <div className="sod29-world-all-research-state">דוח המיון מ־22.10.2026 נשמר כנקודת ייחוס. החלטות ההמשך מ־26.10.2026 מוצגות מעליו בנפרד. הטקסט, ההרשאות, מצב הפרסום, המקורות והיעדים נקראים עכשיו מהמערכת; שכבת המיון אינה משנה אותם.</div>
 

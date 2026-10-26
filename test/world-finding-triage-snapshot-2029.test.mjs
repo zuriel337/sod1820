@@ -127,3 +127,28 @@ test("blocked and set-aside findings remain review annotations only", () => {
   assert.equal(setAside.continuationState, "set_aside");
   assert.equal(setAside.recommendation, "דורש בדיקה");
 });
+
+test("all 37 medium explicit matches stay blocked by their independent review gate", () => {
+  assert.deepEqual(WORLD_FINDING_TRIAGE_META.mediumMatchContinuation, {
+    reviewedAt: "2026-10-26",
+    baseCommit: "662a4d9fa73750ac14a93a0c96cd7cd4c5285b85",
+    explicitMatchFindings: 37,
+    readyForImplementation: 0,
+    sourceRequired: 35,
+    identityUnresolved: 1,
+    ocrRequired: 1,
+    mutatesLiveData: false,
+  });
+
+  const sourceBlocked = getWorldFindingTriageSnapshot("091694ce-d74d-456d-83d7-73f3016d5a0d");
+  assert.equal(sourceBlocked.strength, "בינוני");
+  assert.equal(sourceBlocked.continuationState, "needs_review");
+  assert.match(sourceBlocked.continuationReason, /work_log.*לא locator/u);
+
+  const identityBlocked = getWorldFindingTriageSnapshot("196288f6-8edd-40e5-8f6d-3235638a88da");
+  assert.match(identityBlocked.continuationLabel, /זהות לא פתור/u);
+
+  const ocrBlocked = getWorldFindingTriageSnapshot("69dddd29-3383-4891-8676-38936004e783");
+  assert.match(ocrBlocked.continuationReason, /Image 956/u);
+  assert.equal(ocrBlocked.recommendation, "דורש OCR או תמלול");
+});
