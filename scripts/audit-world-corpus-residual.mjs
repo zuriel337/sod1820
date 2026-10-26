@@ -210,16 +210,20 @@ const hash = text => createHash('md5').update(text).digest('hex');
 const requireEvidence = (condition, message) => { if (!condition) throw new Error(message); };
 export const readNumericResidualBatch = () => readReviewJson('world-numeric-residual-batch-20261026.json');
 export const readNumericResidualReceipt = () => readReviewJson('world-numeric-residual-receipt-20261026.json');
+export const readNumericResidualBatch2 = () => readReviewJson('world-numeric-residual-batch2-20261026.json');
+export const readNumericResidualReceipt2 = () => readReviewJson('world-numeric-residual-receipt2-20261026.json');
 
-export function selectNextNumericResidualIds() {
+export function selectNextNumericResidualIds(batch = 1) {
+  requireEvidence(batch === 1 || batch === 2, 'Unknown fixed numeric batch');
   const previous = readReviewJson('world-corpus-residual-evidence-20261026.json');
   const reviewed = new Set(previous.replays.map(r => r.id));
+  if (batch === 2) for (const row of readNumericResidualBatch().rows) reviewed.add(row.id);
   return previous.partitions.filter(p => p.lane === 'gematria').flatMap(p => p.ids)
     .filter(id => !reviewed.has(id)).sort().slice(0,40);
 }
 
-export function replayNumericResidualBatch(evidence = readNumericResidualBatch()) {
-  const ids = selectNextNumericResidualIds();
+export function replayNumericResidualBatch(evidence = readNumericResidualBatch(), batch = 1) {
+  const ids = selectNextNumericResidualIds(batch);
   requireEvidence(evidence.rows?.length === 40 && evidence.reviewPlan?.length === 40
     && ids.every(id => evidence.rows.filter(r => r.id === id).length === 1
       && evidence.reviewPlan.filter(r => r.id === id).length === 1), 'Wrong exact 40-case batch');
@@ -248,7 +252,12 @@ export function replayNumericResidualBatch(evidence = readNumericResidualBatch()
         && span.end > span.start && source.text.slice(span.start,span.end) === span.excerpt
         && span.excerpt.includes(c.expression) && Number.isSafeInteger(c.claimed), 'Calculation/source span drift');
       if (c.type === 'atomic') {
-        requireEvidence(c.method === 'רגיל' && !/[0-9+×÷=]/u.test(c.expression), 'Mixed input cannot be direct gematria');
+        requireEvidence((c.method === 'רגיל' || batch === 2 && c.method === 'מילוי' && /מילוי/u.test(span.excerpt))
+          && !/[0-9+×÷=]/u.test(c.expression), 'Mixed input cannot be direct gematria');
+        if (batch === 2) requireEvidence(typeof c.diagnosticOnly === 'boolean'
+          && (c.diagnosticOnly ? c.claimed === row.value && c.diagnosticReason?.length > 0
+            : new RegExp(`(^|[^0-9])${c.claimed}([^0-9]|$)`, 'u').test(span.excerpt)),
+        'Missing source claim value or diagnostic provenance');
         const replay = verifyCandidate({type:'explicit-claim',text:c.expression,method:c.method,value:c.claimed});
         return {...c,index,trace:replay.engine_detail,verification:replay.engine_verified === true ? 'match' : 'mismatch',
           engineInputs:[{role:`calculation_${index}`,phrase:c.expression,method:c.method,
@@ -269,16 +278,21 @@ export function replayNumericResidualBatch(evidence = readNumericResidualBatch()
           phrase:o.phrase,method:o.method,expected:o.value}))};
     });
     if (plan.recommendation === 'מתאים לעץ') requireEvidence(calculations.length > 0
-      && calculations.every(c => c.verification === 'match'
+      && calculations.every(c => !c.diagnosticOnly && c.verification === 'match'
         && (!c.extractionIntegrity || c.extractionIntegrity.fidelityStatus === 'complete'))
       && calculations.some(c => c.claimed === row.value) && row.targets?.length === 1
-      && !['hypothesis','question'].includes(row.kind), 'Unready finding cannot be recommended for the tree');
+      && !['hypothesis','question'].includes(row.kind)
+      // This fixed follow-up admits only its reviewed equation/family scopes.
+      // Matching isolated leaves cannot approve a prose derivation or overlap.
+      && (batch !== 2 || plan.kind === 'numeric_family' && calculations.every(c => c.type === 'atomic')
+        || plan.kind === 'derivation' && calculations.some(c => c.type === 'compound' && c.claimed === row.value)),
+    'Unready finding cannot be recommended for the tree');
     return {row,plan,source,calculations};
   });
 }
 
-export function buildNumericResidualReceiptSql(evidence = readNumericResidualBatch()) {
-  return buildSelectedReceiptSql(replayNumericResidualBatch(evidence));
+export function buildNumericResidualReceiptSql(evidence = readNumericResidualBatch(), batch = 1) {
+  return buildSelectedReceiptSql(replayNumericResidualBatch(evidence,batch));
 }
 
 // Same bounded source/identity/method SELECT for both text and image evidence.
@@ -330,11 +344,12 @@ function buildSelectedReceiptSql(selected) {
     SELECT now() checked_at,(SELECT jsonb_agg(c ORDER BY c.id) FROM checks c) claims,
       (SELECT jsonb_agg(r ORDER BY r.id,r.role) FROM replay r) engine_replays,
       md5(pg_get_functiondef('public.fn_method_value(text,text)'::regprocedure)) engine_definition_md5,
-      (SELECT jsonb_agg(to_jsonb(m)) FROM public.gematria_methods m WHERE m.method_key='רגיל') methods`);
+      (SELECT jsonb_agg(to_jsonb(m) ORDER BY m.method_key) FROM public.gematria_methods m
+        WHERE m.method_key IN (SELECT DISTINCT method FROM leaves)) methods`);
 }
 
-export function buildNumericResidualReview(evidence = readNumericResidualBatch(), receipt = readNumericResidualReceipt()) {
-  const selected = replayNumericResidualBatch(evidence);
+export function buildNumericResidualReview(evidence = readNumericResidualBatch(), receipt = readNumericResidualReceipt(), batch = 1) {
+  const selected = replayNumericResidualBatch(evidence,batch);
   const expected = validateSelectedReceipt(selected, receipt);
   const rows = selected.map(({row:r,plan:p,source:s,calculations}) => {
     const live = receipt.claims.find(c => c.id === r.id);
@@ -373,13 +388,14 @@ export function buildNumericResidualReview(evidence = readNumericResidualBatch()
 }
 
 function validateSelectedReceipt(selected, receipt) {
+  const expected = selected.flatMap(r => r.calculations.flatMap(c => c.engineInputs.map(i => ({id:r.row.id,...i}))));
+  const methods = [...new Set(expected.map(e => e.method))];
   requireEvidence(receipt && !Number.isNaN(Date.parse(receipt.checked_at))
     && /^[a-f0-9]{32}$/u.test(receipt.engine_definition_md5)
-    && receipt.methods?.length === 1 && receipt.methods[0].method_key === 'רגיל'
-    && receipt.methods[0].in_engine === true, 'Missing canonical receipt');
+    && receipt.methods?.length === methods.length && methods.every(key =>
+      receipt.methods.filter(m => m.method_key === key && m.in_engine === true).length === 1), 'Missing canonical receipt');
   requireEvidence(receipt.claims?.length === selected.length && new Set(receipt.claims.map(r => r.id)).size === selected.length,
     'Incomplete current claim receipt');
-  const expected = selected.flatMap(r => r.calculations.flatMap(c => c.engineInputs.map(i => ({id:r.row.id,...i}))));
   requireEvidence(receipt.engine_replays?.length === expected.length && expected.every(e =>
     receipt.engine_replays.filter(r => r.id === e.id && r.role === e.role && r.phrase === e.phrase
       && r.method === e.method && r.expected === e.expected && r.computed === e.expected
@@ -517,6 +533,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const mode = process.argv[2] || 'summary';
   if (mode === 'numeric-batch-sql') process.stdout.write(buildNumericResidualReceiptSql() + '\n');
   else if (mode === 'numeric-batch') process.stdout.write(JSON.stringify(buildNumericResidualReview(),null,2) + '\n');
+  else if (mode === 'numeric-batch2-sql') process.stdout.write(buildNumericResidualReceiptSql(readNumericResidualBatch2(),2) + '\n');
+  else if (mode === 'numeric-batch2') process.stdout.write(JSON.stringify(buildNumericResidualReview(readNumericResidualBatch2(),readNumericResidualReceipt2(),2),null,2) + '\n');
   else if (mode === 'image-review-sql') process.stdout.write(buildImageSourceReceiptSql() + '\n');
   else if (mode === 'image-review') process.stdout.write(JSON.stringify(buildImageSourceReport(),null,2) + '\n');
   else process.stdout.write(buildResidualAuditSql(mode) + '\n');
