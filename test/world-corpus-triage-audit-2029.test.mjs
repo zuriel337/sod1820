@@ -5,7 +5,7 @@ import { WORLD_CORPUS_TRIAGE_AUDIT } from "../api/world-corpus-triage-audit.js";
 test("manager corpus audit keeps publication, verification and catalog completeness separate", () => {
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.scope, "read_only_recommendations");
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.workstreams.length, 7);
-  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 32);
+  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 37);
   assert.deepEqual(["medium", "weak"].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [4164, 6362]);
   assert.match(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "duplicates").next, /בלי מחיקה/u);
   const zviReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_replay");
@@ -29,6 +29,13 @@ test("manager corpus audit keeps publication, verification and catalog completen
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_explicit_review").total, 20);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_explicit_conflict").total, 2);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_matrix_match").total, 2179);
+  assert.deepEqual([
+    "zvi_ready_source_repair",
+    "zvi_ready_connected",
+    "zvi_ready_single_target",
+    "zvi_ready_multiple_targets",
+    "zvi_ready_missing_target",
+  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [12, 102, 153, 1856, 486]);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_matrix_claim_unmatched").total, 393);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_incomplete_method").total, 1);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_source_metadata").total, 3);
@@ -85,5 +92,21 @@ test("audit routes only to existing canonical World views", () => {
   assert.equal(zvi.total, 7354);
   assert.equal(zvi.counts.find((item) => item.label === "ציבוריים מאושרים בעדשת העולם").value, 5649);
   assert.equal(zvi.counts.find((item) => item.label === "מועמדים בתור נפרד").value, 1705);
+  assert.equal(zvi.counts.find((item) => item.label === "בשלים טכנית לביקורת מקור ויעד").value, 2597);
+  assert.equal(zvi.counts.find((item) => item.label === "בשלים עם locator מדויק").value, 2585);
+  assert.equal(zvi.counts.find((item) => item.label === "בשלים הדורשים תיקון locator").value, 12);
+  assert.deepEqual([
+    "בשלים שכבר מחוברים לעץ",
+    "בשלים עם יעד מובנה יחיד",
+    "בשלים עם כמה יעדים להכרעה",
+    "בשלים ללא יעד מובנה",
+  ].map((label) => zvi.counts.find((item) => item.label === label).value), [102, 153, 1856, 486]);
+  assert.deepEqual([
+    "יעד יחיד מסוג מספר",
+    "ריבוי יעדים צר · 2–3",
+    "ריבוי יעדים בינוני · 4–7",
+    "ריבוי יעדים רחב · 8–19",
+    "ריבוי יעדים בתקרת 20",
+  ].map((label) => zvi.counts.find((item) => item.label === label).value), [153, 313, 389, 560, 594]);
   assert.match(zvi.route, /contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8/u);
 });

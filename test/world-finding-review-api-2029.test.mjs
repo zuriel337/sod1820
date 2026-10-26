@@ -265,6 +265,33 @@ test("missing-engine content routing is independently filterable", () => {
   assert.deepEqual(filterWorldFindingReviewRows([textual, spatial], { replayQueue: "spatial_or_constants" }), [spatial]);
 });
 
+test("technically-ready source and target axes are independently filterable", () => {
+  const exactSingle = reviewRow("10000000-0000-4000-8000-000000000014", {
+    legacyReplay: {
+      state: "deterministic_match",
+      decision: {
+        sourceLocatorStateCounts: { channel_uuid: 1 },
+        sourceRepairOccurrenceCount: 0,
+        targetStateCounts: { single_structured_target: 1 },
+      },
+    },
+  });
+  const repairMultiple = reviewRow("10000000-0000-4000-8000-000000000015", {
+    legacyReplay: {
+      state: "legacy_matrix_match",
+      decision: {
+        sourceLocatorStateCounts: { stored_ref_requires_resolution: 1 },
+        sourceRepairOccurrenceCount: 1,
+        targetStateCounts: { multiple_structured_targets: 1 },
+      },
+    },
+  });
+
+  assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replaySource: "exact_source" }), [exactSingle]);
+  assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replaySource: "source_locator_repair" }), [repairMultiple]);
+  assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replayTarget: "multiple_structured_targets" }), [repairMultiple]);
+});
+
 test("canonical contributor scope keeps stable identity and registered aliases without guessing", () => {
   const exact = reviewRow("10000000-0000-4000-8000-000000000001", {
     sourceContributorId: ZVI_ID,

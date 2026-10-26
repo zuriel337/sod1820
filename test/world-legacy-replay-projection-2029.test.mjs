@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   attachWorldLegacyReplay,
   buildWorldLegacyReplayIndex,
+  classifyWorldLegacyReplayDecision,
   classifyWorldMissingEngineStatement,
   projectWorldLegacyReplayOccurrence,
   replayWorldArithmeticExpression,
@@ -238,4 +239,53 @@ test("cluster attachment preserves every occurrence and never mutates live truth
   assert.equal(projected.legacyReplay.occurrenceCount, 2);
   assert.equal(projected.legacyReplay.stateCounts.deterministic_match, 2);
   assert.equal(projected.legacyReplay.mutatesLiveData, false);
+});
+
+test("technically-ready replay keeps source and target decisions separate", () => {
+  const singleTarget = row({
+    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "topic", key: "topic-a", label: "נושא א" }] } } },
+  });
+  const projected = attachWorldLegacyReplay({
+    id: `research:${singleTarget.id}`,
+    sourceId: singleTarget.id,
+    verification: "legacy_signal",
+    occurrences: [{ id: `research:${singleTarget.id}`, sourceId: singleTarget.id }],
+  }, buildWorldLegacyReplayIndex([singleTarget]));
+
+  assert.equal(projected.legacyReplay.decision.sourceReadiness, "exact_source");
+  assert.equal(projected.legacyReplay.decision.targetReadiness, "single_structured_target");
+  assert.equal(projected.legacyReplay.decision.readyOccurrenceCount, 1);
+  assert.deepEqual(projected.legacyReplay.decision.targets.map((target) => target.key), ["topic-a"]);
+  assert.equal(projected.legacyReplay.decision.mutatesLiveData, false);
+});
+
+test("source repair blocks automatic target handling and target counts preserve every occurrence", () => {
+  const decision = classifyWorldLegacyReplayDecision([
+    {
+      state: "explicit_match",
+      sourceLocatorState: "stored_ref_requires_resolution",
+      targetReview: { state: "already_connected", targets: [] },
+    },
+    {
+      state: "legacy_matrix_match",
+      sourceLocatorState: "channel_uuid",
+      targetReview: {
+        state: "multiple_structured_targets",
+        targets: [{ type: "topic", key: "a" }, { type: "topic", key: "b" }],
+      },
+    },
+  ]);
+
+  assert.equal(decision.decisionState, "source_locator_repair");
+  assert.equal(decision.sourceRepairOccurrenceCount, 1);
+  assert.equal(decision.targetReadiness, "mixed_target_states");
+  assert.deepEqual(decision.targetStateCounts, { already_connected: 1, multiple_structured_targets: 1 });
+  assert.equal(decision.targetCount, 2);
+});
+
+test("source-target adjudication is absent when any clustered occurrence is not technically ready", () => {
+  assert.equal(classifyWorldLegacyReplayDecision([
+    { state: "deterministic_match", sourceLocatorState: "channel_uuid" },
+    { state: "mixed_input_match", sourceLocatorState: "channel_uuid" },
+  ]), null);
 });

@@ -28,6 +28,13 @@ const LEGACY_MATRIX_METHODS = Object.freeze({
   "הכפלה_גדול": "הכפלה גדולה",
   "ריבוע_גדול": "ריבוע גדול",
 });
+const REVIEW_READY_STATES = new Set([
+  "deterministic_match",
+  "arithmetic_match",
+  "compound_match",
+  "explicit_match",
+  "legacy_matrix_match",
+]);
 
 if (!REGULAR_METHOD?.fn) throw new Error("World legacy replay requires the canonical regular gematria method");
 
@@ -394,9 +401,109 @@ export function buildWorldLegacyReplayIndex(rows = []) {
   const index = new Map();
   for (const row of Array.isArray(rows) ? rows : []) {
     const replay = projectWorldLegacyReplayOccurrence(row);
-    if (replay?.id) index.set(replay.id, replay);
+    if (replay?.id) index.set(replay.id, Object.freeze({
+      ...replay,
+      targetReview: projectStructuredTargetReview(row),
+    }));
   }
   return index;
+}
+
+function structuredTreeTargets(row) {
+  const matches = row?.meta?.ext?.wa_channel_intake?.tree_matches;
+  if (!Array.isArray(matches)) return [];
+  const seen = new Set();
+  const targets = [];
+  for (const match of matches) {
+    if (!match || typeof match !== "object" || Array.isArray(match)) continue;
+    const type = clean(match.type).toLowerCase();
+    const key = clean(match.key);
+    if (!type || !key) continue;
+    const identity = `${type}:${key}`;
+    if (seen.has(identity)) continue;
+    seen.add(identity);
+    targets.push(Object.freeze({
+      type,
+      key,
+      label: clean(match.label) || null,
+      match: clean(match.match) || null,
+    }));
+  }
+  return targets;
+}
+
+function projectStructuredTargetReview(row) {
+  const promotedNodeId = clean(row?.promoted_node_id) || null;
+  const targets = structuredTreeTargets(row);
+  let state = "missing_structured_target";
+  if (promotedNodeId) state = "already_connected";
+  else if (targets.length === 1) state = "single_structured_target";
+  else if (targets.length > 1) state = "multiple_structured_targets";
+  return Object.freeze({
+    state,
+    promotedNodeId,
+    targetCount: targets.length,
+    targets: Object.freeze(targets),
+  });
+}
+
+function incrementCount(counts, value) {
+  const key = clean(value) || "unknown";
+  counts[key] = (counts[key] || 0) + 1;
+}
+
+function decisionReason(sourceReadiness, targetReadiness, repairCount, targetCount) {
+  if (sourceReadiness === "source_locator_repair") {
+    return `${repairCount} הופעות דורשות תיקון locator לפני הכרעת יעד; אין להשלים מקור לפי הטקסט.`;
+  }
+  if (targetReadiness === "already_connected") return "קיים חיבור חי ליעד; ה־replay אינו משנה אותו.";
+  if (targetReadiness === "single_structured_target") return "קיים יעד מובנה יחיד לבדיקה אנושית; זו אינה הוראת קידום אוטומטית.";
+  if (targetReadiness === "multiple_structured_targets") return `${targetCount} יעדים מובנים דורשים בחירה אנושית; אין לבחור יעד לפי דירוג או ניחוש.`;
+  if (targetReadiness === "mixed_target_states") return "הופעות האשכול אינן מסכימות על מצב היעד; יש לבדוק כל הופעת מקור בנפרד.";
+  return "לא קיים יעד מובנה; יש למפות יעד על בסיס מקור מפורש לפני חיבור לעץ.";
+}
+
+/**
+ * Separates technical replay readiness from source and tree-target decisions.
+ * It is manager-only projection metadata and never writes, promotes or changes truth.
+ */
+export function classifyWorldLegacyReplayDecision(occurrences = []) {
+  const items = Array.isArray(occurrences) ? occurrences.filter(Boolean) : [];
+  if (!items.length || items.some((item) => !REVIEW_READY_STATES.has(item.state))) return null;
+
+  const sourceLocatorStateCounts = {};
+  const targetStateCounts = {};
+  const targets = new Map();
+  let repairCount = 0;
+  for (const item of items) {
+    incrementCount(sourceLocatorStateCounts, item.sourceLocatorState);
+    if (item.sourceLocatorState !== "channel_uuid") repairCount += 1;
+    const targetReview = item.targetReview || { state: "missing_structured_target", targets: [] };
+    incrementCount(targetStateCounts, targetReview.state);
+    for (const target of targetReview.targets || []) {
+      const identity = `${clean(target.type)}:${clean(target.key)}`;
+      if (identity !== ":" && !targets.has(identity)) targets.set(identity, target);
+    }
+  }
+
+  const targetStates = Object.keys(targetStateCounts);
+  const targetReadiness = targetStates.length === 1 ? targetStates[0] : "mixed_target_states";
+  const sourceReadiness = repairCount ? "source_locator_repair" : "exact_source";
+  const decisionState = sourceReadiness === "source_locator_repair" ? sourceReadiness : targetReadiness;
+  const structuredTargets = Object.freeze([...targets.values()]);
+  return Object.freeze({
+    decisionState,
+    sourceReadiness,
+    targetReadiness,
+    readyOccurrenceCount: items.length,
+    sourceRepairOccurrenceCount: repairCount,
+    sourceLocatorStateCounts: Object.freeze(sourceLocatorStateCounts),
+    targetStateCounts: Object.freeze(targetStateCounts),
+    targetCount: structuredTargets.length,
+    targets: structuredTargets,
+    reason: decisionReason(sourceReadiness, targetReadiness, repairCount, structuredTargets.length),
+    mutatesLiveData: false,
+  });
 }
 
 function sourceId(value) {
@@ -420,6 +527,7 @@ export function attachWorldLegacyReplay(row, replayIndex) {
   const states = Object.keys(stateCounts);
   const state = states.length === 1 ? states[0] : "mixed_replay_states";
   const representative = occurrences.find((item) => item.id === sourceId(row.sourceId)) || occurrences[0];
+  const decision = classifyWorldLegacyReplayDecision(occurrences);
   return {
     ...row,
     legacyReplay: Object.freeze({
@@ -427,6 +535,7 @@ export function attachWorldLegacyReplay(row, replayIndex) {
       state,
       stateCounts: Object.freeze(stateCounts),
       occurrenceCount: occurrences.length,
+      decision,
       mutatesLiveData: false,
     }),
   };

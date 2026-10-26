@@ -185,6 +185,8 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const source = clean(filters.source) || "all";
   const replay = clean(filters.replay) || "all";
   const replayQueue = clean(filters.replayQueue) || "all";
+  const replaySource = clean(filters.replaySource) || "all";
+  const replayTarget = clean(filters.replayTarget) || "all";
   return base.filter((row) => {
     if (finding && clean(row.sourceId) !== finding) return false;
     if (strength !== "all" && row?.triage?.strength !== strength) return false;
@@ -197,6 +199,10 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (source !== "all" && row?.sourceFilterKey !== source) return false;
     if (replay !== "all" && row?.legacyReplay?.state !== replay) return false;
     if (replayQueue !== "all" && row?.legacyReplay?.routingQueue !== replayQueue) return false;
+    const decision = row?.legacyReplay?.decision;
+    if (replaySource === "exact_source" && !(Number(decision?.sourceLocatorStateCounts?.channel_uuid) > 0)) return false;
+    if (replaySource === "source_locator_repair" && !(Number(decision?.sourceRepairOccurrenceCount) > 0)) return false;
+    if (replayTarget !== "all" && !(Number(decision?.targetStateCounts?.[replayTarget]) > 0)) return false;
     return !query || reviewSearchHaystack(row).includes(query);
   });
 }
@@ -469,6 +475,25 @@ function countContributors(rows) {
   return result;
 }
 
+function countLegacyReplayDecisionOccurrences(rows) {
+  const source = { exact_source: 0, source_locator_repair: 0 };
+  const target = {};
+  let technicallyReady = 0;
+  for (const row of rows) {
+    const decision = row?.legacyReplay?.decision;
+    if (!decision) continue;
+    const occurrenceCount = Number(decision.readyOccurrenceCount) || 0;
+    const repairCount = Number(decision.sourceRepairOccurrenceCount) || 0;
+    technicallyReady += occurrenceCount;
+    source.exact_source += Math.max(0, occurrenceCount - repairCount);
+    source.source_locator_repair += repairCount;
+    for (const [state, count] of Object.entries(decision.targetStateCounts || {})) {
+      target[state] = (target[state] || 0) + (Number(count) || 0);
+    }
+  }
+  return Object.freeze({ technicallyReady, source: Object.freeze(source), target: Object.freeze(target) });
+}
+
 async function buildAuthorizedProjection(token) {
   const [excludedChannelRows, research, topics] = await Promise.all([
     fetchAllAuthorizedRows({
@@ -515,6 +540,7 @@ async function buildAuthorizedProjection(token) {
     .map(enrichWorldFindingReviewRow)
     .map((row) => attachWorldLegacyReplay(row, legacyReplayIndex));
   const orderedFindings = sortWorldFindingReviewRows(findings, "strength");
+  const replayDecisionCounts = countLegacyReplayDecisionOccurrences(orderedFindings);
   const matchedSnapshotCards = orderedFindings.filter((row) => row.triage).length;
   return {
     ...projection,
@@ -532,6 +558,9 @@ async function buildAuthorizedProjection(token) {
         .map((row) => ({ legacyReplayState: row.legacyReplay.state })),
       "legacyReplayState",
     ),
+    technicallyReadyReplayOccurrences: replayDecisionCounts.technicallyReady,
+    byLegacyReplaySourceReadiness: replayDecisionCounts.source,
+    byLegacyReplayTargetReadiness: replayDecisionCounts.target,
     byContributor: countContributors(orderedFindings),
     byTriageStrength: countBy(
       orderedFindings.filter((row) => row.triage).map((row) => ({ strength: row.triage.strength })),
@@ -593,6 +622,8 @@ function pageResponse(projection, req, contributorScope = null) {
     source: queryValue(req, "source"),
     replay: queryValue(req, "replay"),
     replayQueue: queryValue(req, "replay_queue"),
+    replaySource: queryValue(req, "replay_source"),
+    replayTarget: queryValue(req, "replay_target"),
   };
   const filtered = filterWorldFindingReviewRows(projection.rows, filters);
   const ordered = sortWorldFindingReviewRows(filtered, queryValue(req, "sort", "strength"));
@@ -600,6 +631,7 @@ function pageResponse(projection, req, contributorScope = null) {
   const { rows: _allRows, convergenceCandidates: _candidates, ...summary } = projection;
   if (contributorScope) {
     const triaged = filtered.filter((row) => row.triage);
+    const replayDecisionCounts = countLegacyReplayDecisionOccurrences(filtered);
     summary.corpusTriageSnapshot = summary.triageSnapshot;
     summary.triageSnapshot = {
       snapshotDate: WORLD_FINDING_TRIAGE_META.snapshotDate,
@@ -623,6 +655,9 @@ function pageResponse(projection, req, contributorScope = null) {
       occurrencesCombined: filtered.reduce((sum, row) => sum + Number(row.duplicateOccurrenceCount || 0), 0),
       clusteredResearchRows: filtered.length,
     };
+    summary.technicallyReadyReplayOccurrences = replayDecisionCounts.technicallyReady;
+    summary.byLegacyReplaySourceReadiness = replayDecisionCounts.source;
+    summary.byLegacyReplayTargetReadiness = replayDecisionCounts.target;
     summary.reviewScope = contributorScope;
   }
   return {
