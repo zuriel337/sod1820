@@ -16,7 +16,7 @@ from urllib.parse import parse_qs, urlparse
 from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "work/evidence/writer-personal"
+OUT = ROOT / "docs/reviews/personal-area-balanced-rtl-evidence-20261026"
 OUT.mkdir(parents=True, exist_ok=True)
 HTML = (ROOT / "dist/2029.html").read_text()
 ACCOUNT = "22222222-2222-4222-8222-222222222222"
@@ -169,7 +169,8 @@ def install(page, *, guest=False, writer_state="ready", fail_self=False, fail_se
 
 
 def open_context(browser, theme="dark", width=390, guest=False):
-    context = browser.new_context(viewport={"width": width, "height": 1000}, reduced_motion="reduce")
+    context = browser.new_context(viewport={"width": width, "height": 1000}, reduced_motion="reduce",
+                                  has_touch=width <= 390, is_mobile=width <= 390)
     context.add_init_script("localStorage.setItem('sod-theme'," + json.dumps(theme) + ")")
     if not guest:
         context.add_init_script("localStorage.setItem('sb-linswmnnkjxvweumprav-auth-token'," + json.dumps(json.dumps(session())) + ")")
@@ -179,7 +180,7 @@ def open_context(browser, theme="dark", width=390, guest=False):
 try:
     with sync_playwright() as p:
         browser = p.chromium.launch(executable_path="/usr/bin/chromium", headless=True, args=["--no-sandbox"])
-        for width in ([] if os.environ.get("WRITER_SKIP_CAPTURES") else [320, 390, 1440]):
+        for width in ([] if os.environ.get("WRITER_SKIP_CAPTURES") else [320, 390, 768, 1440]):
             for theme in ["light", "parchment", "dark"]:
                 context = open_context(browser, theme, width)
                 page = context.new_page()
@@ -202,8 +203,53 @@ try:
                     assert page.locator("meta[name=robots]").get_attribute("content").startswith("noindex")
                     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), (width, theme, module)
                     assert page.locator(".wp-head a").first.get_attribute("href") == PUBLIC
+                    geometry = page.locator(".wp-layout").evaluate("""node => {
+                      const box=node.getBoundingClientRect(), host=node.closest('.sod29-content').getBoundingClientRect();
+                      const targets=[...node.querySelectorAll('a,button,input:not([type=checkbox]):not([type=radio]),textarea,select')]
+                        .filter(el=>{const r=el.getBoundingClientRect();const s=getComputedStyle(el);return r.width&&r.height&&s.visibility!=='hidden'&&s.display!=='none';})
+                        .map(el=>({tag:el.tagName,w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,label:(el.getAttribute('aria-label')||el.textContent||'').trim().slice(0,40)}));
+                      return {left:box.left-host.left,right:host.right-box.right,width:box.width,host:host.width,targets};
+                    }""")
+                    assert abs(geometry["left"] - geometry["right"]) <= 2.5, (width, theme, module, geometry)
+                    assert geometry["width"] <= min(982, geometry["host"] + 1), geometry
+                    too_small = [target for target in geometry["targets"] if target["h"] < 43.5 or target["w"] < 43.5]
+                    assert not too_small, (width, theme, module, too_small[:8])
+                    assert page.locator(".wp-nav").evaluate("n=>n.scrollWidth<=n.clientWidth"), (width, theme, module, "nav")
                     page.screenshot(path=str(OUT / f"{width}-{theme}-{module}.png"))
-                    report["captures"].append({"width": width, "theme": theme, "module": module, "overflow": False})
+                    report["captures"].append({"width": width, "theme": theme, "module": module, "overflow": False,
+                                               "balanced_gutters": [geometry["left"], geometry["right"]], "layout_width": geometry["width"]})
+                page.goto(BASE + "/2029/me/notifications?returnTo=" + PUBLIC)
+                page.locator(".wp-layout[data-state=ready]").wait_for()
+                before_models = len([c for c in state["calls"] if c["name"] in ["ai-analyze", "research-run"]])
+                page.get_by_role("button", name="האזור האישי", exact=True).click()
+                workspace = page.locator('.sod29-frame-panel[data-panel-kind="workspace"]')
+                workspace.wait_for()
+                panel_box = workspace.evaluate("""node=>{const r=node.getBoundingClientRect();return {left:r.left,right:innerWidth-r.right,width:r.width,overflow:node.scrollWidth>node.clientWidth}}""")
+                assert not panel_box["overflow"], (width, theme, panel_box)
+                assert abs(panel_box["left"] - panel_box["right"]) <= 2.5, (width, theme, panel_box)
+                expect(workspace.get_by_role("button", name="המחקר שלי", exact=False)).to_be_visible()
+                conversations = workspace.get_by_role("button", name="השיחות שלי", exact=False)
+                expect(conversations).to_be_visible()
+                conversations.click()
+                expect(workspace.get_by_role("heading", name="השיחות שלי", exact=True)).to_be_visible()
+                assert len([c for c in state["calls"] if c["name"] in ["ai-analyze", "research-run"]]) == before_models
+                page.screenshot(path=str(OUT / f"{width}-{theme}-workspace-conversations.png"))
+                page.get_by_role("button", name="סגור", exact=True).click()
+                if width in [320, 390]:
+                    page.evaluate("document.body.tabIndex=-1;document.body.focus()")
+                    page.keyboard.press("End")
+                    page.wait_for_timeout(220)
+                    assert page.evaluate("scrollY > 0 || document.documentElement.scrollHeight <= innerHeight"), (width, theme, "keyboard-scroll")
+                    page.keyboard.press("Home")
+                    page.evaluate("scrollTo(0,0)")
+                    client = context.new_cdp_session(page)
+                    client.send("Input.dispatchTouchEvent", {"type":"touchStart","touchPoints":[{"x":width/2,"y":820}]})
+                    for y in [700, 560, 420, 280, 140]:
+                        client.send("Input.dispatchTouchEvent", {"type":"touchMove","touchPoints":[{"x":width/2,"y":y}]})
+                        page.wait_for_timeout(35)
+                    client.send("Input.dispatchTouchEvent", {"type":"touchEnd","touchPoints":[]})
+                    page.wait_for_timeout(120)
+                    assert page.evaluate("scrollY > 0 || document.documentElement.scrollHeight <= innerHeight"), (width, theme, "touch-scroll")
                 assert not any(c["name"] in ["update_my_page_config", "update_my_dossier", "dm_send", "watch_toggle"] for c in state["calls"])
                 context.close()
         # Hold the overview refresh after a confirmed save: the editor and next draft must survive.

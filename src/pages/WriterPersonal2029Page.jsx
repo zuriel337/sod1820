@@ -93,8 +93,8 @@ function WriterPersonalController2029({ module, user, authLoading }) {
   }
   const nav = WRITER_PERSONAL_MODULES.map(([id, label]) => ({ id, label, href: writerPersonalHref(id, { returnTo: returnHref }), active: id === selected }));
   return <WriterPersonalLayout2029 title={WRITER_PERSONAL_MODULES.find(([id]) => id === selected)?.[1]} description="אותו חשבון, אותם תכנים ואותם כלים אישיים."
-    state={state} onRetry={reload} publicHref={writer.publicVisible ? writer.href : null} returnHref={returnHref} nav={nav}>
-    {!user && !authLoading ? <button className="pc-more" type="button" onClick={shell.openWorkspace}>התחברות לאזור האישי</button> : null}
+    state={state} module={selected} onRetry={reload} onOpenWorkspace={shell.openWorkspace} publicHref={writer.publicVisible ? writer.href : null} returnHref={returnHref} nav={nav}>
+    {!user && !authLoading ? <section className="wp-card wp-login" aria-labelledby="wp-login-title"><h2 id="wp-login-title" className="wp-h">צריך להתחבר כדי לראות את האזור האישי</h2><p className="wp-muted">הפרופיל, ההודעות, המעקב וההתקדמות מוצגים רק לחשבון שלהם הם שייכים.</p><button className="wp-btn wp-primary" type="button" onClick={shell.openWorkspace}>התחברות לאזור האישי</button></section> : null}
     {state === "ready" ? <>
       {selected === "public-page" ? <WriterPersonalHome2029 principalKey={user.id} writer={writer} state="ready" onRetry={reload}
         onCreate={(values) => mutate("create", values)} onEdit={() => setActive("page-editor")} /> : null}

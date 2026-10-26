@@ -1,0 +1,843 @@
+{
+  "runtime": "built App2029 + existing Auth/Research/frame + shared editors/inbox",
+  "data": "synthetic HTTP fixtures; no live writes",
+  "captures": [
+    {
+      "width": 320,
+      "theme": "light",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 296
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 366
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "parchment",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "parchment",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "parchment",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "parchment",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "parchment",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "parchment",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        12,
+        12
+      ],
+      "layout_width": 744
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "module": "public-page",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "module": "page-editor",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "module": "profile",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "module": "messages",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "module": "notifications",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "module": "progress",
+      "overflow": false,
+      "balanced_gutters": [
+        100,
+        100
+      ],
+      "layout_width": 980
+    }
+  ],
+  "flows": [
+    "self resolves canonical URL and strips private query; viewing never creates",
+    "shared page editor preserves existing highlights/links",
+    "explicit photo consent -> actual public avatar -> revoke; visitor preview hides owner tools",
+    "existing inbox exact conversation/writer return, failed send retains draft, confirmed retry, native replies",
+    "failed unfollow does not remove row; confirmed unfollow; DM notification opens native conversation",
+    "profile missing acknowledgment retains draft; account switch masks old draft while new profile is pending",
+    "guard: unlinked",
+    "guard: ambiguous",
+    "guard: failure",
+    "guard: guest"
+  ],
+  "errors": [],
+  "editor_refresh_checks": [
+    {
+      "width": 390,
+      "editor_retained": true,
+      "layout_state": "ready",
+      "new_draft_preserved": true
+    },
+    {
+      "width": 1440,
+      "editor_retained": true,
+      "layout_state": "ready",
+      "new_draft_preserved": true
+    },
+    {
+      "refresh_status": 503,
+      "transient_draft_preserved_or_session_masked": true
+    },
+    {
+      "refresh_status": 401,
+      "transient_draft_preserved_or_session_masked": true
+    },
+    {
+      "unconfirmed_ack": null,
+      "draft_preserved_no_refresh": true
+    },
+    {
+      "unconfirmed_ack": {
+        "ok": "false"
+      },
+      "draft_preserved_no_refresh": true
+    }
+  ]
+}

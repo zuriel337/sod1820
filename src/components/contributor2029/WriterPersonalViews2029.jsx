@@ -28,18 +28,21 @@ const useScope = () => {
 };
 
 // Page-local wrapper (no shell): title, honest state, six-module nav and the visitor link.
-export function WriterPersonalLayout2029({ title = "", description = "", state = "ready", onRetry, publicHref = "", returnHref = "", nav = [], children }) {
+export function WriterPersonalLayout2029({ title = "", description = "", state = "ready", onRetry, onOpenWorkspace, publicHref = "", returnHref = "", nav = [], module = "", children }) {
   const scope = useScope();
   const headingId = useId();
   const visitor = withPublicView(publicHref);
   const back = safeHref(returnHref);
   const items = Array.isArray(nav) ? nav.filter((item) => item && safeHref(item.href) && text(item.label)) : [];
-  return <section className="wp-layout" dir="rtl" style={scope} aria-labelledby={headingId} data-state={state}>
+  return <section className="wp-layout" dir="rtl" style={scope} aria-labelledby={headingId} data-state={state} data-personal-module={text(module) || undefined}>
     <header className="wp-head">
-      {back ? <a className="wp-link" href={back}>חזרה</a> : null}
       <h1 id={headingId} className="wp-title">{text(title)}</h1>
       {text(description) ? <p className="wp-muted">{text(description)}</p> : null}
-      {visitor ? <a className="wp-link" href={visitor}>איך זה נראה לאורחים</a> : null}
+      <div className="wp-head-actions">
+        {back ? <a className="wp-link" href={back}>חזרה מדויקת</a> : null}
+        {typeof onOpenWorkspace === "function" ? <button className="wp-btn" type="button" onClick={onOpenWorkspace}>האזור האישי</button> : null}
+        {visitor ? <a className="wp-link" href={visitor}>איך זה נראה לאורחים</a> : null}
+      </div>
     </header>
     {items.length ? <nav className="wp-nav" aria-label="האזור האישי">
       {items.map((item) => <a key={item.id || item.href} className="wp-nav-link" href={item.href} aria-current={item.active ? "page" : undefined}>{item.label}</a>)}

@@ -10,7 +10,9 @@ const provider = read("src/lib/research/RazielSessionProvider2029.jsx");
 
 test("My Workspace opens the Raziel conversation center before the existing chat", () => {
   assert.match(frame, /import RazielCenter2029 from "\.\/RazielCenter2029\.jsx"/);
-  assert.match(frame, /onClick: razielLocked \? null : \(\) => setWorkspaceSection\("raziel"\)/);
+  assert.match(frame, /id: "raziel"[\s\S]*state: "live", onClick: \(\) => setWorkspaceSection\("raziel"\)/);
+  assert.match(frame, /razielLocked \? "השיחות השמורות זמינות; המשך עם רזיאל עדיין נעול"/);
+  assert.doesNotMatch(frame, /onClick: razielLocked \? null : \(\) => setWorkspaceSection\("raziel"\)/);
   assert.match(frame, /workspaceSection === "raziel"/);
   assert.match(frame, /<RazielCenter2029[\s\S]*onOpenConversation=\{onRaziel\}/);
   assert.doesNotMatch(center, /RazielSessionProvider2029|createContext|useReducer|askRaziel|transport|fetch\(|supabase|\.rpc\(/);
