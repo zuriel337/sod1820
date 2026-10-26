@@ -31,6 +31,14 @@ const PATH_STATE_LABEL = Object.freeze({
   available: "זמין לפתיחה",
 });
 
+const SYNTHESIS_LAYER_STATE_LABEL = Object.freeze({
+  ready: "ראיה זמינה",
+  empty: "נבדק · ללא תוצאה",
+  auxiliary: "עדשת עזר פנימית",
+  internal: "בדיקה פנימית",
+  waiting: "ממתין",
+});
+
 const EVIDENCE_BAND_LABEL = Object.freeze({
   three_plus_groups: "3+ קבוצות שיטה עצמאיות",
   two_groups: "2 קבוצות שיטה עצמאיות",
@@ -293,11 +301,19 @@ function CoverageMap({ rows, ready }) {
 
 function SummaryMap({ data }) {
   if (data.state === "loading") return <div className="person-journey-map-summary" role="status"><strong>מנסח מסר מהממצאים המנורמלים…</strong><p>המפות נשארות זמינות בזמן שהסיכום נבנה.</p></div>;
-  if (!data.message) return <EmptyMap>הסיכום יופיע לאחר הפעלת המחקר המשפחתי המפורש.</EmptyMap>;
+  const hasActiveLayer = data.synthesisPack?.coverage?.layers?.some(layer => layer.state !== "waiting");
+  if (!data.message && !hasActiveLayer) return <EmptyMap>הסיכום יופיע לאחר הפעלת המחקר המשפחתי המפורש.</EmptyMap>;
   return <article className="person-journey-map-summary" data-experience-capability="life-journey-combined-summary">
     <header><div><small>{data.normalized ? "מסר מנורמל שכבר נוצר" : "סיכום חישובי לפני ניסוח"}</small><h4>הסיכום המשפחתי</h4></div><span>{data.connectionCount} חיבורים · {data.searchedPairCount} זוגות נבדקו</span></header>
-    <p>{data.message}</p>
+    <p>{data.message || "המסר יופיע לאחר הפעלת המחקר המשפחתי המפורש. עד אז מוצג רק מצב שכבות המחקר שכבר הופעלו."}</p>
     <div><span>{data.verseCount} פסוקים</span><span>{data.normalized ? "ניסוח מאומת פנימית" : "ממתין לניסוח המלא"}</span></div>
+    {data.synthesisPack?.coverage?.layers?.length ? <section aria-label="שכבות חבילת הסינתזה">
+      <h5>חבילת המחקר המאוחדת</h5>
+      <div className="person-journey-map-chips">{data.synthesisPack.coverage.layers.map(layer => <span key={layer.id} data-state={layer.state}>
+        {layer.label} · {SYNTHESIS_LAYER_STATE_LABEL[layer.state] || layer.state}
+      </span>)}</div>
+      <small>גימטריה, תאריך, משפחה ומקורות מזינים את המסר. Human Design, מפת שמיים והקלפים נשארים בדיקות השתקפות פנימיות במשקל ראיה אפס ואינם משנים אותו.</small>
+    </section> : null}
     {data.claims.length ? <details><summary>על מה הסיכום נשען?</summary><ul>{data.claims.map((claim, index) => <li key={`${index}:${claim}`}>{claim}</li>)}</ul></details> : null}
     {data.error ? <small role="alert">{data.error}</small> : null}
     <footer>הסיכום משתמש רק במחקר השמור. הוא אינו מפעיל ELS ואינו יוצר אמת על המשפחה.</footer>
@@ -315,7 +331,7 @@ function PathMap({ data }) {
   </div>;
 }
 
-function MapPanel({ active, projection, onSelect }) {
+function MapPanel({ active, projection, onSelect, onBirthCalculationChange }) {
   if (active === "matrix") return <MatrixMap rows={projection.matrix} />;
   if (active === "generations") return <GenerationsMap data={projection.generations} />;
   if (active === "relationships") return <RelationshipsMap rows={projection.relationships} ready={projection.overview.researchReady} />;
@@ -326,6 +342,7 @@ function MapPanel({ active, projection, onSelect }) {
   if (active === "creation") return <BirthMapStudio2029
     data={projection.birthMap}
     seferContent={<CreationMap data={projection.creation} />}
+    onCalculationChange={onBirthCalculationChange}
   />;
   if (active === "sources") return <SourcesMap data={projection.sources} ready={projection.overview.researchReady} />;
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
@@ -334,10 +351,10 @@ function MapPanel({ active, projection, onSelect }) {
   return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} />;
 }
 
-export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, context, birthTimeline }) {
+export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline }) {
   const [active, setActive] = useState("overview");
   const id = useId();
-  const projection = useMemo(() => buildLifeJourneyMaps({ members, relations, selectedRefs, research, analysis, context, birthTimeline }), [members, relations, selectedRefs, research, analysis, context, birthTimeline]);
+  const projection = useMemo(() => buildLifeJourneyMaps({ members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline }), [members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline]);
   if (!projection.overview.selectedPeople) return null;
 
   return <section className="person-journey-maps" data-experience-capability="life-journey-maps" aria-labelledby={`${id}-title`}>
@@ -363,7 +380,7 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
     </div>
     <div className="person-journey-map-panel" id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${active}-tab`}>
       <Suspense fallback={<LazyMapLoading />}>
-        <MapPanel active={active} projection={projection} onSelect={setActive} />
+        <MapPanel active={active} projection={projection} onSelect={setActive} onBirthCalculationChange={onBirthCalculationChange} />
       </Suspense>
     </div>
     <footer>תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש</footer>

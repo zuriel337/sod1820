@@ -154,7 +154,7 @@ function SpatialDetails({ mode, data, focusIndex, onFocus }) {
   </div>;
 }
 
-export default function BirthMapStudio2029({ data, seferContent }) {
+export default function BirthMapStudio2029({ data, seferContent, onCalculationChange = null }) {
   const [lens, setLens] = useState("spatial");
   const [spatialMode, setSpatialMode] = useState("letters");
   const [focusIndex, setFocusIndex] = useState(-1);
@@ -185,6 +185,7 @@ export default function BirthMapStudio2029({ data, seferContent }) {
   };
   const updateCalculationInput = (setter, value) => {
     setter(value);
+    onCalculationChange?.(selectedRef, null);
     setCalculation(null);
     setCalculationError("");
     setCalculationState("idle");
@@ -203,8 +204,10 @@ export default function BirthMapStudio2029({ data, seferContent }) {
         longitude,
       });
       setCalculation(result);
+      onCalculationChange?.(person.memberRef, result);
       setCalculationState("ready");
     } catch (error) {
+      onCalculationChange?.(person.memberRef, null);
       setCalculation(null);
       setCalculationError(error?.message || "calculation_failed");
       setCalculationState("error");

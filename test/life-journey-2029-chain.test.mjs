@@ -22,6 +22,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
   const lifeJourneyMaps = read("src/components/experience2029/LifeJourneyMaps2029.jsx");
   const lifeJourneyMapProjection = read("src/lib/research/lifeJourneyMaps.js");
+  const synthesisPack = read("src/lib/research/lifeJourneySynthesisPack.js");
   const seferYetzirahMapProjection = read("src/lib/research/lifeJourneySeferYetzirahMap.js");
   const birthMapProjection = read("src/lib/research/lifeJourneyBirthMap.js");
   const birthMapAdapter = read("src/lib/research/lifeJourneyBirthAdapters.js");
@@ -91,6 +92,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /Promise\.all\(selectedMembers\.map/);
   assert.match(journey, /צור מחקר ומסר ל־\$\{selectedFamilyRefs\.length\} אנשים/);
   assert.match(journey, /LifeJourneyMaps2029/);
+  assert.match(journey, /birthReflections/);
+  assert.match(journey, /onBirthCalculationChange=\{rememberBirthReflection\}/);
   assert.match(journey, /תוצאות המחקר המשפחתי/);
   assert.match(journey, /runLifeJourneyFamilyAnalysis/);
   assert.match(journey, /runLifeJourneyFamilySourceResearch/);
@@ -140,6 +143,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMaps, /מקורות/);
   assert.match(lifeJourneyMaps, /כיסוי/);
   assert.match(lifeJourneyMaps, /סיכום/);
+  assert.match(lifeJourneyMaps, /חבילת המחקר המאוחדת/);
+  assert.match(lifeJourneyMaps, /Human Design, מפת שמיים והקלפים/);
+  assert.match(lifeJourneyMaps, /onBirthCalculationChange/);
   assert.match(lifeJourneyMaps, /מסלול/);
   assert.match(lifeJourneyMaps, /לא נוצר Event store חדש/);
   assert.match(lifeJourneyMapProjection, /read_only_projection: true/);
@@ -152,6 +158,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMapProjection, /nextStep/);
   assert.match(lifeJourneyMapProjection, /buildLifeJourneySeferYetzirahMap/);
   assert.match(lifeJourneyMapProjection, /buildLifeJourneyBirthMap/);
+  assert.match(lifeJourneyMapProjection, /buildLifeJourneySynthesisPack/);
+  assert.match(synthesisPack, /auxiliaryCanModifyMessage: false/);
+  assert.match(synthesisPack, /auxiliary_zero_evidence_weight: true/);
+  assert.match(synthesisPack, /cards_internal_only: true/);
+  assert.doesNotMatch(synthesisPack, /fetch\(|supabase|localStorage|sessionStorage|URLSearchParams|track\(|console\./i);
   assert.match(birthMapProjection, /no_external_birth_api: true/);
   assert.match(birthMapProjection, /no_fabricated_traits: true/);
   assert.match(birthMapProjection, /no_telemetry_payload: true/);
@@ -164,6 +175,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(birthMapStudio, /calculateLifeJourneyBirthMap/);
   assert.match(birthMapStudio, /חשב מפה מקומית/);
   assert.match(birthMapStudio, /אין בקשת רשת ואין שמירה נוספת/);
+  assert.match(birthMapStudio, /onCalculationChange/);
   assert.match(birthMapStudio, /התכנסויות/);
   assert.match(birthMapStudio, /חיבור מחקרי שכבר נמצא/);
   assert.equal(packageJson.dependencies.natalengine, "1.6.0");
@@ -261,9 +273,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(familySourceResearch, /equality_is_not_meaning: true/);
   assert.doesNotMatch(familySourceResearch, /\.insert\(|\.update\(|localStorage|sessionStorage|fn_els_search\(/i);
   assert.match(familyAnalysis, /composeNormalizedMessageReflection/);
+  assert.match(familyAnalysis, /buildLifeJourneySynthesisPack/);
   assert.match(familyAnalysis, /persistAnalysis: false/);
   assert.match(familyAnalysis, /names_not_sent_to_interpreter: true/);
   assert.match(familyAnalysis, /internal_reflection_not_exposed: true/);
+  assert.match(familyAnalysis, /birth_lenses_evidence_weight: 0/);
   assert.doesNotMatch(familyAnalysis, /NameLab|Raziel|LifeJourneyEls|runEls|els2029|localStorage|sessionStorage|URLSearchParams|console\./i);
   assert.match(supabaseClient, /export async function getNameMultiWithoutEls/);
   assert.match(supabaseClient, /p_opts:\s*\{ skip_els: '1' \}/);
@@ -305,7 +319,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(removalMigration, /grant execute on function public\.fn_remove_family_member\(uuid, text\) to authenticated/);
   assert.doesNotMatch(removalMigration, /create table|create policy|grant .* on (?:table )?public\.research_objects/i);
 
-  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familySourceResearch, familyAnalysis, lifeJourneyMaps, lifeJourneyMapProjection, dateAdapter, elsSurface, hints].join("\n");
+  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familySourceResearch, familyAnalysis, lifeJourneyMaps, lifeJourneyMapProjection, synthesisPack, dateAdapter, elsSurface, hints].join("\n");
   assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);
   assert.doesNotMatch(privateFlow, /channel_updates|community_hints|news/i);
   assert.doesNotMatch(privateFlow, /Raziel|רזיאל/);

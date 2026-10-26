@@ -1,8 +1,9 @@
 import { buildLifeJourneySeferYetzirahMap } from "./lifeJourneySeferYetzirahMap.js";
 import { buildLifeJourneyBirthMap } from "./lifeJourneyBirthMap.js";
 import { buildLifeJourneyTimeMap } from "./lifeJourneyTimeMap.js";
+import { buildLifeJourneySynthesisPack } from "./lifeJourneySynthesisPack.js";
 
-export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v6";
+export const LIFE_JOURNEY_MAPS_VERSION = "life-journey-maps-v7";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
@@ -38,6 +39,7 @@ export function buildLifeJourneyMaps({
   selectedRefs = [],
   research = null,
   analysis = null,
+  birthReflections = null,
   context = null,
   birthTimeline = [],
 } = {}) {
@@ -194,6 +196,12 @@ export function buildLifeJourneyMaps({
     });
   });
   const analysisData = analysis?.state === "ready" && analysis?.data ? analysis.data : null;
+  const synthesisPack = buildLifeJourneySynthesisPack({
+    research,
+    analysis,
+    birthReflections,
+    selectedRefs,
+  });
   const combinedSummary = Object.freeze({
     state: analysis?.state === "loading" ? "loading" : analysisData ? "ready" : researchReady ? "research_ready" : "waiting",
     message: clean(analysisData?.message) || clean(research?.message),
@@ -203,6 +211,7 @@ export function buildLifeJourneyMaps({
     verseCount: integer(analysisData?.coverage?.verseCount) ?? integer(research?.sourceResearch?.coverage?.verseCount) ?? 0,
     normalized: Boolean(analysisData),
     error: analysis?.state === "error" ? clean(analysis?.error) : "",
+    synthesisPack,
   });
   const creation = buildLifeJourneySeferYetzirahMap({ members, relations, selectedRefs, birthTimeline });
   const pathSteps = [
@@ -237,6 +246,7 @@ export function buildLifeJourneyMaps({
     evidence: Object.freeze({ signals: Object.freeze(evidenceSignals), gaps: Object.freeze(evidenceGaps) }),
     coverage: Object.freeze(coverage),
     summary: combinedSummary,
+    synthesisPack,
     timeline: Object.freeze(list(birthTimeline)),
     timelineMissing: Object.freeze(timelineMissing),
     timeMap: buildLifeJourneyTimeMap({ birthTimeline, methodFindings, researchReady }),

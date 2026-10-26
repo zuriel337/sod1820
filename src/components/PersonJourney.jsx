@@ -265,6 +265,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
   const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], sharedExpressions: [], error: null });
   const [familyAnalysis, setFamilyAnalysis] = useState({ state: "idle", data: null, error: null });
+  const [birthReflections, setBirthReflections] = useState(() => new Map());
   const [familyClaims, setFamilyClaims] = useState({ state: "idle", rows: [], error: null });
   const [familyClaimBusy, setFamilyClaimBusy] = useState(null);
   const [familyClaimNotice, setFamilyClaimNotice] = useState(null);
@@ -513,6 +514,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       setFamilyAnalysis({ state: "idle", data: null, error: null });
+      setBirthReflections(new Map());
       track("journey_person", null, "save_self");
       if (variant === "2029") {
         setAnalysis({ state: "idle", data: null, error: null });
@@ -582,6 +584,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       setFamilyAnalysis({ state: "idle", data: null, error: null });
+      setBirthReflections(new Map());
       track("journey_person", null, editingMemberRef ? "edit_member" : "add_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
@@ -818,6 +821,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     }
     setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
     setFamilyAnalysis({ state: "idle", data: null, error: null });
+    setBirthReflections(new Map());
   }, [research, selfRef]);
 
   const updateFamilySelection = useCallback((memberRef, included) => {
@@ -842,6 +846,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refreshFamilyClaims();
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       setFamilyAnalysis({ state: "idle", data: null, error: null });
+      setBirthReflections(new Map());
       track("journey_person", null, "remove_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
@@ -861,6 +866,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       const providers = createLifeJourneyFamilyAnalysisProviders({ getAiAnalysis, supabase });
       const data = await runLifeJourneyFamilyAnalysis({
         research: completedResearch,
+        birthReflections,
         ...providers,
       });
       const completedAnalysis = { state: "ready", data, error: null };
@@ -878,7 +884,18 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       setFamilyAnalysis({ state: "error", data: null, error: personJourneyErrorMessage(error) });
       return null;
     }
-  }, [familyResearchSignature, research, selfRef]);
+  }, [birthReflections, familyResearchSignature, research, selfRef]);
+
+  const rememberBirthReflection = useCallback((memberRef, result) => {
+    const targetRef = clean(memberRef);
+    if (!targetRef || !selectedFamilyRefSet.has(targetRef)) return;
+    setBirthReflections(previous => {
+      const next = new Map(previous);
+      if (result && typeof result === "object" && !Array.isArray(result)) next.set(targetRef, result);
+      else next.delete(targetRef);
+      return next;
+    });
+  }, [selectedFamilyRefSet]);
 
   const runSelectedFamilyResearch = useCallback(async () => {
     if (!user) return;
@@ -1359,6 +1376,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           selectedRefs={selectedFamilyRefs}
           research={familyResearch}
           analysis={familyAnalysis}
+          birthReflections={birthReflections}
+          onBirthCalculationChange={rememberBirthReflection}
           context={research.context}
           birthTimeline={birthTimeline}
         />

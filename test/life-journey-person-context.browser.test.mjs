@@ -453,6 +453,10 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await lifeMaps.getByRole("tab", { name: "סיכום" }).click();
     await lifeMaps.getByRole("heading", { name: "הסיכום המשפחתי" }).waitFor();
     await lifeMaps.getByText("מסר בדיקה מבוסס ממצאים.", { exact: true }).waitFor();
+    await lifeMaps.getByRole("heading", { name: "חבילת המחקר המאוחדת" }).waitFor();
+    await lifeMaps.getByText("Human Design · עדשת עזר פנימית", { exact: true }).waitFor();
+    await lifeMaps.getByText("מפת שמיים · עדשת עזר פנימית", { exact: true }).waitFor();
+    await lifeMaps.getByText(/במשקל ראיה אפס ואינם משנים אותו/).waitFor();
     await lifeMaps.getByRole("tab", { name: "מפת יצירה" }).click();
     await birthStudio.getByRole("tab", { name: "תלת־ממד" }).click();
     await birthStudio.getByRole("tab", { name: "התכנסויות" }).click();

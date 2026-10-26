@@ -13,6 +13,22 @@ function fixture() {
       { source_ref: "person:owner:p:other", name: "לא נבחר" },
     ],
     selectedRefs: [SELF, CHILD],
+    birthReflections: new Map([[SELF, {
+      humanDesign: {
+        type: "Generator",
+        authority: "Sacral Authority",
+        profile: "3/5",
+        definedCenters: [{ key: "sacral" }],
+        definedChannels: [],
+        activatedGates: [5],
+      },
+      sky: {
+        angles: { ascendant: { sign: "Aries" }, midheaven: { sign: "Capricorn" } },
+        bodies: [{ key: "sun" }],
+        aspects: [],
+      },
+      trace: { engine: "natalengine", engineVersion: "1.6.0" },
+    }]]),
     relations: [{ source_ref: "rel:1", parent_ref: SELF, child_ref: CHILD }],
     birthTimeline: [{ id: `${SELF}:birth`, memberRef: SELF, name: "הורה בדיקה", dateIso: "1990-02-15", dateDisplay: "15.02.1990", hebrewDate: "כ׳ בשבט תש״ן", birthTime: "05:30", birthPlace: "עיר בדיקה" }],
     context: { journey: { id: "path:1", position: 3 } },
@@ -75,6 +91,11 @@ test("life maps project the existing private family state without inventing stor
   assert.equal(out.coverage[1].hasBirthdate, false);
   assert.equal(out.summary.message, "מסר מנורמל מתוך הממצאים.");
   assert.equal(out.summary.normalized, true);
+  assert.equal(out.summary.synthesisPack, out.synthesisPack);
+  assert.equal(out.synthesisPack.auxiliary.humanDesignCount, 1);
+  assert.equal(out.synthesisPack.auxiliary.skyCount, 1);
+  assert.equal(out.synthesisPack.coverage.layers.find(layer => layer.id === "human_design").state, "auxiliary");
+  assert.equal(JSON.stringify(out.synthesisPack).includes(SELF), false);
   assert.equal(out.sources.members[0].verses[0].verseIdentity, "verse:tehilim:1:1");
   assert.deepEqual(out.sources.numbers[0].phrases, ["אור", "מאור"]);
   assert.equal(out.creation.people.length, 2);
