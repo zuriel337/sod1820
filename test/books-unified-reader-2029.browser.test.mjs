@@ -42,7 +42,7 @@ function bookRow(slug) {
   };
 }
 
-test("all seven unified readers remain source-first and fit 320/390/1440", { skip: !available, timeout: 120_000 }, async () => {
+test("all eight unified readers remain source-first and fit 320/390/1440", { skip: !available, timeout: 120_000 }, async () => {
   process.env.SOD_BUILD_TARGET = "2029";
   process.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW = "true";
   process.env.VITE_INTEGRATED_PREVIEW = "true";
@@ -155,7 +155,7 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
           await result.waitFor();
           await result.click();
           assert.equal(new URL(page.url()).searchParams.get("page"), "99");
-          await page.getByRole("heading", { name: "חטיבות הסיום ולוח התיקונים", exact: true }).waitFor();
+          await page.getByRole("heading", { name: "לוח ההשמטות והתיקונים", exact: true }).waitFor();
         }
         if (manifest.slug === "daat-tevunot" && width === 390) {
           await page.getByText("פרטי המקור", { exact: true }).click();
@@ -178,6 +178,17 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
           await result.click();
           assert.equal(new URL(page.url()).searchParams.get("page"), "61");
           await page.getByRole("heading", { name: "פרק ראשון · עשר ספירות", exact: true }).waitFor();
+        }
+        if (manifest.slug === "maamar-esther" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("84/84 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          assert.equal(await page.getByText("עמודים ללא טקסט לחיפוש", { exact: true }).count(), 0);
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("וישם המלך אחשורוש מס");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 83" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "83");
+          await page.getByRole("heading", { name: /פרק י׳ · חתימת המגילה/ }).waitFor();
         }
         if (manifest.slug === "bentov-brief-tour-higher-consciousness" && width === 390) {
           await page.getByText("פרטי המקור", { exact: true }).click();

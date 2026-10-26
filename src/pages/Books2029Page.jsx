@@ -72,6 +72,27 @@ function primaryCoverage(coverage) {
   return null;
 }
 
+function previewBookForManifest(manifest) {
+  if (!manifest) return null;
+  return {
+    id: `preview-book-${manifest.slug}`,
+    type: "book",
+    label: manifest.title,
+    description: manifest.introduction,
+    identity_key: `book:${manifest.slug}`,
+    metadata: {
+      slug: manifest.slug,
+      coverage_2029: { structural: `${manifest.pdfPages}/${manifest.pdfPages} COMPLETE`, research_map: "PREVIEW READER" },
+      identity_tiers: {
+        witness: { provider: "מקור PDF קנוני", identity: `witness:${manifest.slug}` },
+        edition: { status: "מיפוי מהדורה בפריוויו" },
+        locator: { kind: "pdf_page" },
+      },
+    },
+    is_active: true,
+  };
+}
+
 function SaveBookItemAction({ item, research }) {
   const palette = use2029Palette();
   const [failed, setFailed] = useState(false);
@@ -186,9 +207,10 @@ function LibraryView() {
   </>;
 }
 
-function BookDetail({ slug }) {
+function BookDetail({ slug, previewOnly = false }) {
   const research = useResearch();
   const shell = use2029Shell();
+  const readerManifest = useMemo(() => getBookReaderManifest(slug), [slug]);
   const [state, setState] = useState({ loading: true, book: null, research: null, error: null });
   const currentContext = research.context || null;
 
@@ -197,6 +219,9 @@ function BookDetail({ slug }) {
     setState({ loading: true, book: null, research: null, error: null });
     fetchBookEntityBySlug(slug)
       .then(async book => {
+        if (!book && previewOnly && readerManifest) {
+          return { book: previewBookForManifest(readerManifest), pack: { rows: [], restricted: false, truncated: false } };
+        }
         if (!book) return { book: null, pack: null };
         const pack = await fetchBookResearch(book, { limit: 80 });
         return { book, pack };
@@ -211,11 +236,10 @@ function BookDetail({ slug }) {
       })
       .catch(error => alive && setState({ loading: false, book: null, research: null, error }));
     return () => { alive = false; };
-  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [slug, previewOnly, readerManifest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const book = state.book;
   const pack = state.research;
-  const readerManifest = useMemo(() => getBookReaderManifest(slug), [slug]);
   const tiers = book?.metadata?.identity_tiers || {};
   const coverage = useMemo(() => ({
     ...(book?.metadata?.coverage || {}),
@@ -297,5 +321,5 @@ export default function Books2029Page({ previewSlug = "" }) {
   const { slug: routeSlug } = useParams();
   const slug = routeSlug || previewSlug;
   useEffect(() => { applySeo({ title: slug ? "ספר · SOD1820" : "ספרים ומקורות · SOD1820", description: "ספרים, מקורות, עדים ומחקר ב־SOD1820", path: slug ? `/book/${slug}` : "/books" }); }, [slug]);
-  return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות ולמראה־מקום.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
+  return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות ולמראה־מקום.">{slug ? <BookDetail slug={slug} previewOnly={Boolean(previewSlug)} /> : <LibraryView />}</Sod2029Shell>;
 }

@@ -7,9 +7,9 @@ import {
   getBookReaderManifest,
 } from "./bookReader2029.js";
 
-test("unified reader exposes the complete seven-book active collection", () => {
+test("unified reader exposes the complete eight-book Preview collection", () => {
   const manifests = getAllBookReaderManifests();
-  assert.equal(manifests.length, 7);
+  assert.equal(manifests.length, 8);
   assert.deepEqual(new Set(manifests.map(item => item.slug)), new Set([
     "ahavat-torah",
     "daat-tevunot",
@@ -17,6 +17,7 @@ test("unified reader exposes the complete seven-book active collection", () => {
     "sefer-raziel-hamalach",
     "sefer-hapliah",
     "sefer-habahir",
+    "maamar-esther",
     "bentov-brief-tour-higher-consciousness",
   ]));
 });

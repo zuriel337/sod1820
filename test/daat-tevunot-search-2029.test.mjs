@@ -24,5 +24,5 @@ test("Daat Tevunot search covers all 99 source pages", async () => {
 test("the canonical reader lazily connects Daat Tevunot search", () => {
   const manifest = getBookReaderManifest("daat-tevunot");
   assert.equal(manifest.pageTextUrl, "/book-data/daat-tevunot.page-text.json");
-  assert.equal(manifest.commentaryUrl, undefined);
+  assert.equal(manifest.commentaryUrl, "/book-data/daat-tevunot.commentary.json");
 });
