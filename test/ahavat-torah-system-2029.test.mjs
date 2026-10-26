@@ -77,7 +77,14 @@ test("first findings remain typed and agree with the bounded source bundle", () 
   }
   assert.equal(byDataset.get("DS-01").total, "1,820");
   assert.equal(byDataset.get("DS-03").total, "79,976");
-  assert.equal(AHAVAT_TORAH_FINDINGS.find(finding => finding.dataset === "DS-04").status, "candidate");
+  const letterTotal = AHAVAT_TORAH_FINDINGS.find(finding => finding.dataset === "DS-04");
+  assert.equal(letterTotal.status, "source_verified");
+  assert.equal(letterTotal.value, "304,812");
+  assert.equal(letterTotal.page, 42);
+  assert.match(letterTotal.formula, /ש״ד אלף תתי״ב/);
+  assert.match(letterTotal.sourceNote, /לא בוצעה ספירת קורפוס/);
+  assert.equal(AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === "DS-04").state, "partial", "total reading does not complete all parasha cells");
+  assert.match(byDataset.get("DS-04").total, /candidate/, "historical source dossier remains provenance");
   assert.equal(AHAVAT_TORAH_FINDINGS.find(finding => finding.dataset === "DS-09").status, "source_located");
 });
 
@@ -96,7 +103,8 @@ test("all bounded datasets and deep-read pages are represented without upgrading
   }
   assert.match(page, /כל 13 מאגרי הבדיקה/);
   assert.match(page, /99 עמודים · קורא מלא וחיפוש/);
-  assert.match(page, /קריאת עומק בהמשך/);
+  assert.match(page, /ahavatCompanionPage\(companion, page\)/);
+  assert.doesNotMatch(page, /קריאת עומק בהמשך/);
   assert.match(page, /עוד שש שכבות מתוך הספר/);
   for (const block of bundle.content_blocks.filter(item => !item.text_he)) {
     assert.ok(AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id], `missing Hebrew AI explanation for ${block.block_id}`);
@@ -119,7 +127,8 @@ test("the full-book machine layer covers all pages without pretending to be veri
   assert.match(page, /AHAVAT_TORAH_SOURCE\.pageTextBundleUrl/);
   assert.match(page, /חיפוש בכל הספר/);
   assert.match(page, /תעתיק מלא לעמוד/);
-  assert.match(page, /הסבר נלווה · מפת קריאה/);
+  assert.match(page, /הסבר נלווה ·/);
+  assert.match(page, /pageGuide\?\.companion_explanation \|\| readingArc\.explanation/);
 });
 
 test("the reader keeps source, explanation, finding and publication axes separate", () => {

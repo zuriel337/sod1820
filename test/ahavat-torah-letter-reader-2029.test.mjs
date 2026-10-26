@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { AHAVAT_LETTER_FORMS, AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS, AHAVAT_GIMEL_BOOKS, AHAVAT_DALET_BOOKS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatAlephRows, ahavatLetterRows, ahavatLetterBalance, ahavatLetterCsv, ahavatLetterSourcePage } from "../src/data/ahavatTorahLetters2029.js";
+import { readFile } from "node:fs/promises";
+import { AHAVAT_LETTER_FORMS, AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS, AHAVAT_GIMEL_BOOKS, AHAVAT_DALET_BOOKS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatAlephRows, ahavatLetterRows, ahavatLetterBalance, ahavatLetterCsv, ahavatLetterSourcePage, ahavatLetterSourceFragments } from "../src/data/ahavatTorahLetters2029.js";
+import { LETTER_SOURCE_REGIONS } from "../scripts/build-ahavat-letter-sections-2029.mjs";
 
 test("the printed letter sequence preserves finals, shin/sin and exact page boundaries", () => {
   assert.equal(AHAVAT_LETTER_FORMS.length, 28);
@@ -56,7 +58,7 @@ test("Bet closes all five source checkpoints and switching letters cannot reuse 
 });
 
 test("Gimel retains all source rows and printed totals without concealing or balancing reading gaps", () => {
-  assert.equal(Object.values(AHAVAT_LETTER_READINGS).flatMap(books => books.flatMap(book => book.rows)).length, 216);
+  assert.equal(Object.values(AHAVAT_LETTER_READINGS).flatMap(books => books.flatMap(book => book.rows)).length, 324);
   assert.equal(ahavatLetterRows("ג").length, 54);
   assert.equal(new Set(ahavatLetterRows("ג").map(row => row.parasha)).size, 54);
   assert.equal(AHAVAT_LETTER_READING_LOCATIONS["ג"], "הטור השמאלי");
@@ -71,6 +73,18 @@ test("Gimel retains all source rows and printed totals without concealing or bal
   assert.equal(ahavatLetterRows("ג").reduce((sum, row) => sum + row.count, 0), 2090);
   assert.deepEqual(ahavatLetterRows("ג", "all", "ויקהל").map(row => [row.count, row.printed, row.page]), [[26, "כ״ו", 35]]);
   for (const books of [AHAVAT_ALEPH_BOOKS, AHAVAT_BET_BOOKS]) assert.ok(books.every(book => ahavatLetterBalance(book).delta === 0));
+});
+
+test("Heh and Vav preserve 108 explicit source numerals and close ten cumulative checkpoints", () => {
+  for (const [form, totals] of [["ה", [6283, 12403, 17069, 22757, 28055]], ["ו", [8449, 14630, 19138, 25133, 30516]]]) {
+    const books = AHAVAT_LETTER_READINGS[form];
+    assert.equal(ahavatLetterRows(form).length, 54);
+    assert.deepEqual(books.map(book => book.cumulative), totals);
+    assert.ok(books.every(book => ahavatLetterBalance(book).delta === 0));
+    assert.ok(books.flatMap(book => book.rows).every(row => row.page === 36 && row.printed.length > 0 && Number.isSafeInteger(row.count)));
+    assert.equal(ahavatLetterSourcePage(form, "devarim"), 36);
+    assert.match(ahavatLetterCsv(form, "shemot", "", "https://example.test/source.pdf"), /#page=36&view=FitH/);
+  }
 });
 
 test("research CSV exports the selected source rows with Hebrew encoding, exact PDF anchors and both sides of a gap", () => {
@@ -116,4 +130,35 @@ test("Dalet book checkpoints, row actions and exports resolve their own source p
   assert.match(csv, /"ד","ויקרא","ויקרא","קי״ב","112","35","https:\/\/example.test\/book.pdf#page=35&view=FitH"/);
   assert.match(csv, /"ד","צו","ויקרא","ק״ט","109","36","https:\/\/example.test\/book.pdf#page=36&view=FitH"/);
   assert.match(csv, /"4228","916","916","0"/);
+});
+
+test("all 28 printed forms have source material, without treating OCR sections as verified numerical rows", async () => {
+  const bundle = JSON.parse(await readFile(new URL("../public/book-data/ahavat-torah.letter-sections.json", import.meta.url), "utf8"));
+  assert.equal(bundle.sections.length, 22);
+  assert.equal(bundle.sections.reduce((sum, section) => sum + section.fragments.length, 0), 32);
+  const materialForms = [...Object.keys(AHAVAT_LETTER_READINGS), ...bundle.sections.map(section => section.form)];
+  assert.equal(new Set(materialForms).size, 28);
+  assert.equal(materialForms.length, 28);
+  for (const section of bundle.sections) {
+    const fragments = ahavatLetterSourceFragments(bundle, section.form);
+    assert.deepEqual(fragments.map(item => item.pdf_page), LETTER_SOURCE_REGIONS[section.form].map(item => item[0]));
+    assert.equal(ahavatLetterRows(section.form).length, 0, "OCR must not invent structured numbers");
+    for (const fragment of fragments) {
+      assert.ok(fragment.text.length > 25);
+      assert.ok(fragment.region.y + fragment.region.height <= 473, "exclude catchwords/page footers");
+      assert.equal(fragment.source_anchor, `#page=${fragment.pdf_page}&view=FitH`);
+      assert.equal("count" in fragment, false);
+      assert.equal("engine_verified" in fragment, false);
+    }
+  }
+  assert.deepEqual(ahavatLetterSourceFragments(bundle, "י").map(item => [item.pdf_page, item.column]), [[37, "right"], [37, "left"]]);
+  assert.deepEqual(ahavatLetterSourceFragments(bundle, "שׂ").map(item => [item.pdf_page, item.column]), [[41, "right"], [41, "left"]]);
+  for (const key of ["שׂ", "ת"]) assert.ok(ahavatLetterSourceFragments(bundle, key).every(fragment => !fragment.text.includes("תיבות התורה")));
+  assert.deepEqual(ahavatLetterSourceFragments({ ...bundle, source_identity: "foreign" }, "ח"), []);
+  assert.deepEqual(ahavatLetterSourceFragments({ ...bundle, source_pdf_sha256: "wrong" }, "ח"), []);
+  assert.deepEqual(ahavatLetterSourceFragments({ ...bundle, fidelity_status: "verified" }, "ח"), []);
+  assert.deepEqual(ahavatLetterSourceFragments(bundle, "unknown"), []);
+  const invalidAnchor = structuredClone(bundle);
+  invalidAnchor.sections[0].fragments[0].source_anchor = "#page=99&view=FitH";
+  assert.deepEqual(ahavatLetterSourceFragments(invalidAnchor, "ז"), []);
 });

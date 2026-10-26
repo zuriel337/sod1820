@@ -12,13 +12,14 @@ import {
   AHAVAT_TORAH_SECTIONS,
   AHAVAT_TORAH_SOURCE,
   AHAVAT_TORAH_TRUTH_STATES,
+  ahavatCompanionPage,
   hebrewBlockKind,
   readingArcForPage,
   sectionForPage,
 } from "../data/ahavatTorahSystem2029.js";
 import { applySeo } from "../lib/seo.js";
 import { AHAVAT_DS01_BOOKS, AHAVAT_DS01_SOURCE_PAGE, AHAVAT_DS01_TOTAL, ahavatDs01RowSum } from "../data/ahavatTorahDs01Source2029.js";
-import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatLetterRows, ahavatLetterBalance, ahavatLetterCsv, ahavatLetterSourcePage } from "../data/ahavatTorahLetters2029.js";
+import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatLetterRows, ahavatLetterBalance, ahavatLetterCsv, ahavatLetterSourcePage, ahavatLetterSourceFragments } from "../data/ahavatTorahLetters2029.js";
 import "./ahavatTorahSystem2029.css";
 
 const AhavatTorahSpatialScene2029 = lazy(() => import("../components/books2029/AhavatTorahSpatialScene2029.jsx"));
@@ -349,6 +350,31 @@ function DivineNameSourceModel({ onPage }) {
   </section>;
 }
 
+function LetterSectionTranscript({ source, onPage }) {
+  const [bundle, setBundle] = useState(null);
+  const [state, setState] = useState("loading");
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/book-data/ahavat-torah.letter-sections.json", { signal: controller.signal })
+      .then(response => { if (!response.ok) throw new Error("letter_source_unavailable"); return response.json(); })
+      .then(value => { setBundle(value); setState("ready"); })
+      .catch(error => { if (error.name !== "AbortError") setState("error"); });
+    return () => controller.abort();
+  }, []);
+  const fragments = ahavatLetterSourceFragments(bundle, source.form);
+  return <div className="ahavat29-letter-transcript">
+    <p>קריאת סעיף {source.name} לצד המקור</p>
+    {state === "loading" ? <p role="status">טוען את סעיף האות…</p> : null}
+    {state === "error" || (state === "ready" && !fragments.length) ? <p role="alert">התעתיק לא נטען. סעיף המקור נשאר פתוח לקריאה ב־PDF.</p> : null}
+    {fragments.map((fragment, index) => <details className="ahavat29-machine-text" open key={`${source.form}-${index}`}>
+      <summary>תעתיק לקריאה · PDF {fragment.pdf_page} · {fragment.column === "right" ? "הטור הימני" : "הטור השמאלי"}</summary>
+      <pre dir="rtl">{fragment.text}</pre>
+      <div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(fragment.pdf_page)}>פתח מקור הקטע · PDF {fragment.pdf_page}</button></div>
+    </details>)}
+    <details className="ahavat29-source-details"><summary>פרטי התעתיק</summary><p>התעתיק חולץ מאזור הסעיף בדפוס ונועד לסייע בקריאה ואיתור. הוא אינו ציטוט מאומת, אינו חילוץ מספרי של תאי הטבלה ואינו תוצאת מנוע. אותיות עמומות, סימני הדפוס וספרות נשארו כפי שחולצו ולא תוקנו לפי סכום משוער. חלוקת הטורים ועמודי המעבר נבדקה מול הצילום; מילות שומר־דף מתחת לגוף הטור אינן חלק מן הקטע. ה־PDF נשאר המקור המחייב.</p></details>
+  </div>;
+}
+
 function LetterSourceReader({ onPage }) {
   const [form, setForm] = useState(() => ahavatLetterForm(new URLSearchParams(window.location.search).get("letter")).form);
   const [bookId, setBookId] = useState(() => {
@@ -415,7 +441,7 @@ function LetterSourceReader({ onPage }) {
         const balance = ahavatLetterBalance(book);
         return <li key={book.id}>{book.title}: {book.printed} = {book.cumulative.toLocaleString("en-US")} מצטבר. חלק החומש לפי הסיכומים: {book.count.toLocaleString("en-US")}; קריאת השורות: {balance.rowTotal.toLocaleString("en-US")}. {balance.delta ? `פער קריאה: ${balance.delta}.` : "סכום השורות תואם."}</li>;
       })}</ul></details>
-    </> : <div className="ahavat29-letter-reading"><p><b>הסבר נלווה:</b> בסעיף {source.name} כל פרשה מקבלת מניין משלה, והמחבר ממשיך בסיכום מצטבר מחומש לחומש. {/[ךםןףץ]/.test(form) ? "הצורה הסופית נכתבת בסעיף עצמאי, ולכן אין לצרף אותה אוטומטית למניין הצורה הרגילה." : form === "שׁ" || form === "שׂ" ? "הדפוס מבחין בין שׁין לשׂין; לכל אחת יש סעיף ומניין משלה." : "אפשר לקרוא את רצף הפרשות ואת סיכום האות במלואם בעמוד המקור."}</p><button type="button" onClick={() => onPage(source.pages[0])}>קרא את סעיף {source.name} בספר · PDF {source.pages[0]}</button><details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>מפת המיקום נבדקה מול PDF 35–41. התעתיק המובנה של כל פרשות האות הזו עדיין אינו מלא; סעיף המקור עצמו נגיש במלואו בקורא. הכותרת והעוגן אינם אישור של תאים מספריים שלא נקראו.</p></details></div>}
+    </> : <div className="ahavat29-letter-reading"><p><b>הסבר נלווה:</b> בסעיף {source.name} כל פרשה מקבלת מניין משלה, והמחבר ממשיך בסיכום מצטבר מחומש לחומש. {/[ךםןףץ]/.test(form) ? "הצורה הסופית נכתבת בסעיף עצמאי, ולכן אין לצרף אותה אוטומטית למניין הצורה הרגילה." : form === "שׁ" || form === "שׂ" ? "הדפוס מבחין בין שׁין לשׂין; לכל אחת יש סעיף ומניין משלה." : "אפשר לקרוא את רצף הפרשות ואת סיכום האות במלואם בעמוד המקור."}</p><button type="button" onClick={() => onPage(source.pages[0])}>קרא את סעיף {source.name} בספר · PDF {source.pages[0]}</button><LetterSectionTranscript source={source} onPage={onPage} /></div>}
   </section>;
 }
 
@@ -482,6 +508,17 @@ function normalizeSearch(value = "") {
 
 function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextState, onPage }) {
   const [query, setQuery] = useState("");
+  const [companion, setCompanion] = useState(null);
+  const [companionState, setCompanionState] = useState("loading");
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(AHAVAT_TORAH_SOURCE.commentaryBundleUrl, { signal: controller.signal, credentials: "same-origin" })
+      .then(response => { if (!response.ok) throw new Error("companion_unavailable"); return response.json(); })
+      .then(value => { setCompanion(value); setCompanionState("ready"); })
+      .catch(error => { if (error.name !== "AbortError") setCompanionState("error"); });
+    return () => controller.abort();
+  }, []);
+  const pageGuide = ahavatCompanionPage(companion, page);
   const record = AHAVAT_TORAH_DEEP_PAGES.find(item => item.page === page) || null;
   const machinePage = pageTextBundle?.pages?.find(item => Number(item.pdf_page) === page) || null;
   const readingArc = readingArcForPage(page);
@@ -529,11 +566,14 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
     <div className="ahavat29-page-atlas-legend"><span className="is-deep">קריאת עומק</span><span className="is-machine">תעתיק מכונה</span><span className="is-source">מקור בלבד</span></div>
 
     <article className="ahavat29-depth-reader">
-      <header><div><span>PDF {page}{record?.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{readingArc.title}</h3></div><StatusPill status={record ? "source_verified" : "machine_candidate"} /></header>
+      <header><div><span>PDF {page}{record?.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{pageGuide?.title || readingArc.title}</h3></div><StatusPill status={record ? "source_verified" : "machine_candidate"} /></header>
       <section className="ahavat29-ai-guide">
-        <span>הסבר נלווה · מפת קריאה</span>
-        <p>{readingArc.explanation}</p>
-        <small>הסבר נלווה לעמודים {readingArc.range[0]}–{readingArc.range[1]} · המקור פתוח לצדו.</small>
+        <span>הסבר נלווה · {pageGuide ? `עמוד ${page}` : "מפת קריאה"}</span>
+        <p>{pageGuide?.companion_explanation || readingArc.explanation}</p>
+        {pageGuide?.reading_points?.length ? <ul>{pageGuide.reading_points.map(point => <li key={point}>{point}</li>)}</ul> : null}
+        {pageGuide ? <div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(page)}>פתח מקור ההסבר · PDF {page}</button></div> : <small>הסבר נלווה לעמודים {readingArc.range[0]}–{readingArc.range[1]} · המקור פתוח לצדו.</small>}
+        {companionState === "loading" ? <p role="status">טוען את ההסבר לעמוד…</p> : null}
+        {companionState === "error" ? <p role="alert">ההסבר המפורט לא נטען. מפת הקריאה ועמוד המקור נשארים זמינים.</p> : null}
       </section>
 
       {record ? <>
@@ -553,7 +593,7 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
           </section>)}
           {!pageBlocks.length ? <p>אין יחידות טקסט להצגה בעמוד זה בשכבה הנוכחית.</p> : null}
         </div> : null}
-      </> : <div className="ahavat29-depth-empty"><span>קריאת עומק בהמשך</span><h3>העמוד נגיש במלואו כמקור וכתעתיק</h3><p>אפשר לקרוא ולחפש עכשיו, כשה־PDF המקורי נשאר צמוד לעמוד.</p></div>}
+      </> : !pageGuide ? <div className="ahavat29-depth-empty"><h3>העמוד נגיש במלואו כמקור וכתעתיק</h3><p>אפשר לקרוא ולחפש עכשיו, כשה־PDF המקורי נשאר צמוד לעמוד.</p></div> : null}
 
       {(pageDatasets.length || pageSources.length) ? <section className="ahavat29-page-links" aria-label="קשרי מחקר לעמוד">
         <span>קשרים שכבר אותרו בעמוד</span>

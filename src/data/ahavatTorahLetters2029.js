@@ -147,16 +147,59 @@ export const AHAVAT_DALET_BOOKS = Object.freeze([
   rows: Object.freeze(book.rows.map(([parasha, printed, count, page = book.page]) => Object.freeze({ parasha, printed, count, page }))),
 })));
 
-export const AHAVAT_LETTER_READINGS = Object.freeze({ "א": AHAVAT_ALEPH_BOOKS, "ב": AHAVAT_BET_BOOKS, "ג": AHAVAT_GIMEL_BOOKS, "ד": AHAVAT_DALET_BOOKS });
+// Compact source transcription, not a numeral calculator. Both the printed
+// string and its visually read decimal are explicit; no engine result is derived.
+function sourceBooks(page, readings) {
+  return Object.freeze(readings.map(([cumulative, printed, cells], index) => {
+    const template = AHAVAT_ALEPH_BOOKS[index];
+    const values = cells.split("|").map(cell => cell.split("="));
+    if (values.length !== template.rows.length) throw new Error(`Incomplete letter transcription: ${template.id}`);
+    return Object.freeze({ id: template.id, title: template.title, page, pages: Object.freeze([page]), cumulative, printed,
+      count: cumulative - (readings[index - 1]?.[0] || 0),
+      rows: Object.freeze(values.map(([numeral, decimal], row) => Object.freeze({ parasha: template.rows[row].parasha, printed: numeral, count: Number(decimal), page }))),
+    });
+  }));
+}
+
+export const AHAVAT_HEH_BOOKS = sourceBooks(36, [
+  [6283, "ו׳ אלף רפ״ג", "תשכ״ח=728|תרמ״ה=645|תקל״א=531|תשל״ה=735|תנ״ב=452|ש״ע=370|תר״כ=620|תצ״ט=499|תקמ״ה=545|תקע״ו=576|שכ״ג=323|רנ״ט=259"],
+  [12403, "י״ב אלף ת״ג", "תרנ״ח=658|תרע״ג=673|תקצ״ג=593|תקפ״ט=589|תכ״ה=425|תל״ט=439|ת״ע=470|תצ״ג=493|תשל״ט=739|תקצ״ה=595|תמ״ו=446"],
+  [17069, "י״ז אלף ס״ט", "תשכ״ט=729|תקע״ג=573|תקי״ד=514|תקל״ו=536|תקמ״ד=544|שפ״ב=382|ר״ע=270|תקע״ה=575|ר״א=201|שמ״ב=342"],
+  [22757, "כ״ב אלף תשנ״ז", "תק״מ=540|תשס״ז=767|תשי״ט=719|תרט״ז=616|תק״ח=508|תל״ז=437|ש״צ=390|תר״ס=660|תק״נ=550|תק״א=501"],
+  [28055, "כ״ח אלף נ״ה", "תק״כ=520|תרצ״ו=696|תשל״ו=736|תשכ״ב=722|תקע״ט=579|תקפ״ד=584|תרכ״ד=624|שי״ד=314|רמ״ט=249|קמ״ד=144|ק״ל=130"],
+]);
+
+export const AHAVAT_VAV_BOOKS = sourceBooks(36, [
+  [8449, "ח׳ אלף תמ״ט", "תתל״ג=833|תשפ״ה=785|תרכ״ז=627|תשפ״ג=783|תצ״ט=499|תר״ד=604|תשט״ו=715|תתע״ט=879|תשנ״ג=753|תתע״ז=877|תרמ״ה=645|תמ״ט=449"],
+  [14630, "י״ד אלף תר״ל", "תרפ״ט=689|תר״ט=609|תר״א=601|תרצ״ט=699|שס״ח=368|תקמ״ג=543|שמ״ז=347|תקס״ב=562|תשמ״א=741|תקנ״ז=557|תס״ה=465"],
+  [19138, "י״ט אלף קל״ח", "תקצ״ח=598|תקכ״ה=525|תנ״ד=454|תל״ו=436|תפ״ז=487|תי״א=411|של״ד=334|תר״ה=605|רפ״ה=285|שע״ג=373"],
+  [25133, "כ״ה אלף קל״ג", "תשל״ו=736|תר״ג=603|תשכ״ב=722|תק״פ=580|תקל״ט=539|תפ״ט=489|תקס״ו=566|תקפ״ג=583|תקס״א=561|תרט״ז=616"],
+  [30516, "למ״ד אלף תקט״ז", "תקצ״ד=594|תש״ז=707|תרט״ז=616|תרפ״ג=683|תקל״ז=537|תקס״ב=562|תשי״ח=718|רע״א=271|רי״ד=214|רל״ט=239|רמ״ב=242"],
+]);
+
+export const AHAVAT_LETTER_READINGS = Object.freeze({ "א": AHAVAT_ALEPH_BOOKS, "ב": AHAVAT_BET_BOOKS, "ג": AHAVAT_GIMEL_BOOKS, "ד": AHAVAT_DALET_BOOKS, "ה": AHAVAT_HEH_BOOKS, "ו": AHAVAT_VAV_BOOKS });
 
 export const AHAVAT_LETTER_READING_LOCATIONS = Object.freeze({
   "א": "הטור הימני", "ב": "הטור הימני והמשכו בראש הטור השמאלי", "ג": "הטור השמאלי",
   "ד": "סוף הטור השמאלי ב־PDF 35 והמשך בראש הטור הימני ב־PDF 36",
+  "ה": "הטור הימני ב־PDF 36", "ו": "סוף הטור הימני והמשך בראש הטור השמאלי ב־PDF 36",
 });
 
 export function ahavatLetterSourcePage(form, bookId = "all", parasha) {
   const book = AHAVAT_LETTER_READINGS[form]?.find(item => item.id === bookId);
   return book?.rows.find(row => row.parasha === parasha)?.page || book?.page || ahavatLetterForm(form).pages[0];
+}
+
+export function ahavatLetterSourceFragments(bundle, form) {
+  if (!AHAVAT_LETTER_FORMS.some(item => item.form === form)
+    || bundle?.source_identity !== "book:hebrewbooks:5635" || bundle?.schema_version !== "1.0" || bundle?.fidelity_status !== "machine_candidate"
+    || bundle?.source_pdf_sha256 !== "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b") return [];
+  const section = bundle.sections?.find(item => item.form === form);
+  if (section?.fidelity_status !== "machine_candidate") return [];
+  const pages = ahavatLetterForm(form).pages;
+  return (section.fragments || []).filter(fragment => pages.includes(fragment.pdf_page)
+    && ["left", "right"].includes(fragment.column) && typeof fragment.text === "string" && fragment.text.trim()
+    && fragment.source_anchor === `#page=${fragment.pdf_page}&view=FitH`);
 }
 
 export function ahavatLetterBalance(book) {
