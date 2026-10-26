@@ -16,7 +16,7 @@ try {
 const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromium";
 const available = Boolean(pw && vite && react && existsSync(executablePath));
 
-test("advanced page verifies a bounded hit before loading the shared matrix; Classic hides the controls", { skip: !available, timeout: 60000 }, async () => {
+test("Guided starts explicitly in one window; advanced page still verifies before loading the shared matrix", { skip: !available, timeout: 60000 }, async () => {
   const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
   let browser;
   try {
@@ -26,9 +26,28 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
-    await page.getByRole("heading", { name: "הצופן הקלאסי" }).waitFor();
-    assert.equal(await page.getByRole("button", { name: "מחקר", exact: true }).count(), 0);
+    await page.getByRole("heading", { name: /כותבים סיפור אחד/ }).waitFor();
+    assert.equal(await page.getByRole("button", { name: "גילוי מודרך", exact: true }).count(), 1);
+    assert.equal(await page.getByRole("button", { name: "מחקר", exact: true }).count(), 1);
+    assert.equal(await page.getByRole("button", { name: "קלאסי", exact: true }).count(), 1);
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
+    assert.equal(await page.getByLabel("סביבת המחקר של הצופן").isVisible(), false);
+    const story = "מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש";
+    await page.getByLabel("הסיפור לגילוי מודרך").fill(story);
+    assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "typing or opening Guided does not invoke a function");
+    await page.getByRole("button", { name: "התחל גילוי מודרך" }).click();
+    await page.waitForFunction(() => window.__advancedLoad?.contract === "els_anchor_context_request_v1");
+    const guidedLoad = await page.evaluate(() => window.__advancedLoad);
+    assert.equal(guidedLoad.term, "קולומביה");
+    assert.ok(guidedLoad.contextTerms.length <= 6);
+    assert.equal(JSON.stringify(guidedLoad).includes(story), false, "the raw story stays in the screen state");
+    assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "Guided delegates to the mounted engine without an AI/page transport");
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await page.getByRole("button", { name: "קלאסי", exact: true }).click();
+    assert.equal(await page.getByLabel("הסיפור לגילוי מודרך").isVisible(), false);
+    assert.equal(await page.evaluate(() => window.__advancedLoad?.term), "קולומביה");
+    await page.getByRole("button", { name: "גילוי מודרך", exact: true }).click();
+    assert.equal(await page.getByLabel("הסיפור לגילוי מודרך").inputValue(), story);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?testAdvanced`);
     await page.getByLabel("מונח לחיפוש מתקדם").fill("תורתאמת");
     assert.equal(await page.getByRole("button", { name: /קרוב|בינוני|רחוק/ }).count(), 0);

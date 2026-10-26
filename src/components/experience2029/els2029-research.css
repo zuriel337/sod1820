@@ -1,6 +1,36 @@
 /* ELS Research composition — presentation only. Scoped to [data-els-research-composition];
    Classic never receives these rules. Colors come from the shared --s29-* palette tokens. */
 [data-els-research-composition]{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+.els29-mode-selector{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-block:0 14px;padding:10px 12px;border:1px solid var(--s29-line);border-radius:18px;background:color-mix(in srgb,var(--s29-panel) 91%,transparent);backdrop-filter:blur(16px)}
+.els29-mode-selector>div:first-child{display:grid;gap:2px;min-width:120px}
+.els29-mode-selector>div:first-child small{color:var(--s29-muted);font-size:var(--s29-type-micro,12px)}
+.els29-mode-selector>div:first-child strong{color:var(--s29-ink);font-size:var(--s29-type-body,16px)}
+.els29-mode-selector [data-els-matrix-profile-switch]{justify-content:center;flex:1 1 auto}
+[data-els-cipher-discovery]{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(circle at 84% 4%,color-mix(in srgb,var(--s29-accent) 14%,transparent),transparent 34%),linear-gradient(145deg,color-mix(in srgb,var(--s29-panel) 96%,var(--s29-accent) 4%),var(--s29-panel))}
+[data-els-cipher-discovery]::before{content:"";position:absolute;z-index:-1;inset:-35% 58% 48% -12%;border:1px solid color-mix(in srgb,var(--s29-accent) 22%,transparent);border-radius:50%;transform:rotate(-14deg);pointer-events:none}
+[data-els-cipher-discovery] .els29-cipher-discovery{display:grid;gap:12px;max-width:920px;margin-inline:auto;padding:clamp(16px,3vw,28px)}
+[data-els-cipher-discovery] .els29-cipher-discovery>label{font-weight:700;font-size:var(--s29-type-body,16px)}
+[data-els-cipher-discovery] .els29-cipher-discovery>textarea{width:100%;min-height:clamp(150px,24vh,240px);padding:16px;border:1px solid color-mix(in srgb,var(--s29-accent) 36%,var(--s29-line));border-radius:16px;background:color-mix(in srgb,var(--s29-panel) 92%,transparent);color:var(--s29-ink);line-height:1.65;resize:vertical;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--s29-ink) 7%,transparent),0 18px 45px color-mix(in srgb,var(--s29-panel) 55%,transparent)}
+[data-els-cipher-discovery] .els29-cipher-discovery>textarea:focus{outline:2px solid color-mix(in srgb,var(--s29-accent) 72%,transparent);outline-offset:2px}
+[data-els-cipher-discovery] .els29-discovery-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+[data-els-cipher-discovery] .els29-discovery-flow span{display:flex;align-items:center;gap:8px;min-width:0;padding:10px 12px;border:1px solid var(--s29-line);border-radius:12px;background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);font-size:var(--s29-type-small,14px)}
+[data-els-cipher-discovery] .els29-discovery-flow b{display:grid;place-items:center;width:25px;height:25px;flex:none;border-radius:50%;background:color-mix(in srgb,var(--s29-accent) 18%,var(--s29-panel));color:var(--s29-accent)}
+[data-els-cipher-discovery] .els29-discovery-refine,[data-els-cipher-discovery] .els29-discovery-targets{border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel)}
+[data-els-cipher-discovery] .els29-discovery-refine>summary,[data-els-cipher-discovery] .els29-discovery-targets>summary{padding:11px 13px;cursor:pointer;font-weight:700}
+[data-els-cipher-discovery] .els29-discovery-refine-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;padding:0 13px 13px}
+[data-els-cipher-discovery] .els29-discovery-refine-grid label{display:grid;gap:6px;align-content:start}
+[data-els-cipher-discovery] .els29-discovery-refine-grid select{width:100%;min-height:44px}
+[data-els-cipher-discovery] .els29-guided-submit{width:100%;min-height:52px;justify-content:center}
+[data-els-cipher-discovery] .els29-guided-boundary{color:var(--s29-muted);line-height:1.55;text-align:center}
+[data-els-cipher-discovery] .els29-guided-notice{margin:0;padding:11px 13px;border-inline-start:3px solid var(--s29-accent);border-radius:8px;background:color-mix(in srgb,var(--s29-accent) 8%,var(--s29-panel));line-height:1.55}
+[data-els-cipher-discovery] .els29-guided-plan{display:grid;gap:10px;padding:14px;border:1px solid color-mix(in srgb,var(--s29-accent) 42%,var(--s29-line));border-radius:16px;background:color-mix(in srgb,var(--s29-panel) 91%,var(--s29-accent) 9%)}
+[data-els-cipher-discovery] .els29-guided-plan>header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+[data-els-cipher-discovery] .els29-guided-plan>header>div{display:grid;gap:3px}
+[data-els-cipher-discovery] .els29-guided-plan>header small,[data-els-cipher-discovery] .els29-guided-plan>small{color:var(--s29-muted);line-height:1.5}
+[data-els-cipher-discovery] .els29-guided-plan>header strong{font-size:clamp(20px,3vw,28px)}
+[data-els-cipher-discovery] .els29-guided-plan>p{margin:0;line-height:1.65}
+[data-els-cipher-discovery] .els29-discovery-targets>p{margin:0;padding:0 13px 10px}
+[data-els-cipher-discovery] .els29-guided-axis-options{display:flex;gap:8px;flex-wrap:wrap;padding:0 13px 13px}
 [data-els-advanced-search] .els29-advanced-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end;gap:12px;margin-block:12px}
 [data-els-advanced-search] .els29-advanced-form label{display:grid;gap:6px;min-width:0;color:var(--s29-ink);font-size:var(--s29-type-small,14px)}
 [data-els-advanced-search] .els29-advanced-form input,[data-els-advanced-search] .els29-advanced-form select,[data-els-advanced-search] .els29-advanced-form textarea{width:100%;min-height:44px}
@@ -31,5 +61,11 @@
   .els29-rbar-verify{font-size:11px;flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .els29-rbar-state .sod29-action{min-height:44px;padding-inline:10px;font-size:13px;flex:none}
   [data-els-research-composition]{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+  .els29-mode-selector{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:8px}
+  .els29-mode-selector>div:first-child{display:none}
+  .els29-mode-selector [data-els-matrix-profile-switch]{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:5px!important}
+  .els29-mode-selector [data-els-matrix-profile-switch] .sod29-action{min-width:0;min-height:44px;padding-inline:6px;font-size:13px;white-space:nowrap}
+  [data-els-cipher-discovery] .els29-discovery-flow{grid-template-columns:1fr}
+  [data-els-cipher-discovery] .els29-cipher-discovery{padding:12px 0 4px}
 }
 @media(max-width:380px){.els29-rbar-state>.els29-rbar-btn{display:none}}

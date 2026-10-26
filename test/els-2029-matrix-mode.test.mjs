@@ -8,10 +8,16 @@ import {
   getElsMatrixProfileCapabilities,
 } from "../src/lib/research/els2029MatrixMode.js";
 
-test("Research is the 2029 default but entry itself is low-cost", () => {
+test("Guided Discovery is the 2029 default and entry itself is low-cost", () => {
   const out = projectElsMatrixProfile({});
-  assert.equal(out.profile, ELS_MATRIX_PROFILE.RESEARCH);
+  assert.equal(out.profile, ELS_MATRIX_PROFILE.GUIDED);
   assert.equal(out.representation.primary, "2D");
+  assert.equal(out.representation.layeredAllowed, false);
+  assert.equal(out.representation.matrixVolumeAllowed, false);
+  assert.equal(out.interaction.storyEntry, true);
+  assert.equal(out.interaction.advancedWorkspace, false);
+  assert.equal(out.compute.deepResearchEligible, false);
+  assert.equal(out.compute.deepResearchPolicy, "BOUNDED_GUIDED_PLAN_ONLY");
   assert.equal(out.compute.heavyIoOnEntry, false);
   assert.equal(out.compute.modeSwitchTriggersSearch, false);
   assert.equal(out.ai.required, false);
@@ -57,6 +63,15 @@ test("Research progressively enables deeper capabilities without forcing 3D or A
   assert.equal(hot.ai.required, false);
 });
 
+test("Guided Discovery can expose Raziel only for an available verified surface", () => {
+  const waiting = projectElsMatrixProfile({ profile: "guided", razielAvailable: false, researchSignal: "HOT" });
+  const ready = projectElsMatrixProfile({ profile: "guided", razielAvailable: true, researchSignal: "HOT" });
+  assert.equal(waiting.ai.razielSurfaceAction, false);
+  assert.equal(ready.ai.razielSurfaceAction, true);
+  assert.equal(ready.compute.deepResearchEligible, false);
+  assert.equal(ready.representation.matrixVolumeAllowed, false);
+});
+
 test("Classic -> Research -> Classic preserves the exact same state object", () => {
   const state = {
     corpusId: "torah-v1",
@@ -98,16 +113,19 @@ test("AI availability never changes the profile identity", () => {
 
 test("capability sets preserve Classic baseline and extend it in Research", () => {
   const classic = getElsMatrixProfileCapabilities("CLASSIC");
+  const guided = getElsMatrixProfileCapabilities("GUIDED");
   const research = getElsMatrixProfileCapabilities("RESEARCH");
 
   for (const capability of classic) {
     assert.ok(research.includes(capability));
   }
   assert.ok(!classic.includes("MATRIX_VOLUME"));
+  assert.ok(guided.includes("STORY_FIRST_BOUNDED_PLAN"));
+  assert.ok(!guided.includes("MATRIX_VOLUME"));
   assert.ok(research.includes("MATRIX_VOLUME"));
   assert.ok(research.includes("OPTIONAL_RAZIEL"));
 });
 
-test("unknown profile normalizes to Research", () => {
-  assert.equal(normalizeElsMatrixProfile("something"), ELS_MATRIX_PROFILE.RESEARCH);
+test("unknown profile normalizes to Guided Discovery", () => {
+  assert.equal(normalizeElsMatrixProfile("something"), ELS_MATRIX_PROFILE.GUIDED);
 });

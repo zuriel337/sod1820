@@ -12,6 +12,21 @@ import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js
 import "./elsNativeClassic2029.css";
 
 const clean = (value) => String(value ?? "").trim();
+const canonicalHebrew = (value) => clean(value).replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
+const safeGuidedAxis = (value) => {
+  const term = clean(value), length = canonicalHebrew(term).length;
+  return length >= 3 && length <= 12 ? term : "";
+};
+const safeGuidedContextTerms = (rows) => {
+  const terms = [], seen = new Set();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const term = clean(row?.term), key = canonicalHebrew(term);
+    if (key.length < 2 || key.length > 24 || seen.has(key)) continue;
+    seen.add(key);terms.push(term);
+    if (terms.length >= 6) break;
+  }
+  return terms;
+};
 const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה";
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -606,7 +621,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -693,13 +708,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const dockProjection = useMemo(() => ({
     surface: "els",
     actions: [
-      { id: "search", label: "חיפוש בצופן", shortLabel: "חיפוש", icon: "search", controls: "els29-query", onSelect: () => toolActionsRef.current.search() },
-      ...[["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]].map(([id, label, shortLabel, icon]) => ({
+      ...(!guidedProfile ? [{ id: "search", label: "חיפוש בצופן", shortLabel: "חיפוש", icon: "search", controls: "els29-query", onSelect: () => toolActionsRef.current.search() }] : []),
+      ...(guidedProfile
+        ? [["results", "הגילוי", "גילוי", "posts"], ["findings", "מקור וממצאים", "מקור", "els"], ["research", "שמירת הגילוי", "שמירה", "books"]]
+        : [["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]]).map(([id, label, shortLabel, icon]) => ({
         id, label, shortLabel, icon, expanded: !classicOpen && activeTool === id,
         controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select(id, trigger),
       })),
     ],
-  }), [activeTool, classicOpen]);
+  }), [activeTool, classicOpen, guidedProfile]);
   const hasSystemDock = useSystemToolDock2029(active ? dockProjection : null);
   useEffect(() => {
     if (!active || !activeTool || classicOpen) return;
@@ -742,6 +759,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [workspaceRequest, setWorkspaceRequest] = useState(null);
   const actionSeqRef = useRef(0);
   const [crossOpen, setCrossOpen] = useState(false);
+  const crossSearchOpen = researchProfile && crossOpen;
   const [crossTerm, setCrossTerm] = useState("");
   const [crossRadius, setCrossRadius] = useState(18);
   const [windowSize, setWindowSize] = useState("small");
@@ -752,6 +770,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [lensPending, setLensPending] = useState(false);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
   const [selectedFinding, setSelectedFinding] = useState(null);
+  const guidedContextRef = useRef(null);
   useEffect(() => {
     if (!matrix) return;
     setQuery(matrix.search_term || "");setClassicOpen(false);setLoadError(null);
@@ -791,6 +810,22 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setSearchRequest({ kind, windowSize, ...payload, seq });
   };
 
+  useEffect(() => {
+    if (researchLoad?.researchCommand !== true || researchLoad.contract !== "els_anchor_context_request_v1") return;
+    if (guidedContextRef.current?.nonce === researchLoad.researchNonce) return;
+    const term = safeGuidedAxis(researchLoad.term);
+    if (!term) return;
+    guidedContextRef.current = {
+      nonce: researchLoad.researchNonce,
+      anchorKey: canonicalHebrew(term),
+      terms: safeGuidedContextTerms(researchLoad.contextTerms),
+      appliedAxis: null,
+    };
+    setQuery(term);
+    setCrossOpen(false);
+    requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah" });
+  }, [researchLoad?.researchNonce]);
+
   const requestFindingsChange = (findings, { preserveRead = false } = {}) => {
     if (!Array.isArray(findings)) return;
     const previousTerms = (engineStateRef.current?.findings || []).map((finding) => finding.t);
@@ -819,7 +854,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const submit = (event) => {
     event?.preventDefault?.();
-    if (crossOpen) { submitCross(); return; }
+    if (crossSearchOpen) { submitCross(); return; }
     const term = clean(query);
     if (term.length < 2) {
       setNotice("כתבו לפחות שתי אותיות.");
@@ -829,7 +864,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const switchScope = (scope) => {
-    if (crossOpen) { submitCross(scope); return; }
+    if (crossSearchOpen) { submitCross(scope); return; }
     const term = clean(query) || clean(engineState?.termRaw || engineState?.term);
     if (term.length < 2) {
       setNotice("בחרו מונח ואז עברו בין תורה לכל התנ״ך.");
@@ -876,6 +911,19 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     }
     engineStateRef.current = next;
     setEngineState(next);
+    const guided = guidedContextRef.current;
+    const exactGuidedAxis = next?.status === "ok" && next?.verification?.state === "MATCH"
+      && next?.axis?.hitId && canonicalHebrew(next?.termRaw || next?.term) === guided?.anchorKey;
+    if (guided && exactGuidedAxis && guided.appliedAxis !== next.axis.hitId) {
+      guided.appliedAxis = next.axis.hitId;
+      const existing = new Set((next.findings || []).map((finding) => canonicalHebrew(finding.t)));
+      const additions = guided.terms.filter((term) => !existing.has(canonicalHebrew(term)));
+      if (additions.length) requestAnimationFrame(() => {
+        const findings = (next.findings || []).map((finding) => ({ t: finding.t, color: finding.color }));
+        for (const term of additions) findings.push({ t: term, color: nextFindingColor(findings, palette) });
+        requestFindingsChange(findings.slice(0, 12));
+      });
+    }
   };
 
   const requestControl = (action, value) => {
@@ -973,15 +1021,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4"
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
-    <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
+    <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
-        <button type="button" aria-pressed={!crossOpen} onClick={() => { if (crossOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
-        <button className="els29-native-cross-toggle" type="button" aria-pressed={crossOpen} aria-expanded={crossOpen}
-          onClick={() => { if (crossOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button>
+        <span><strong>חיפוש חדש</strong>{researchProfile ? " · ציר יחיד או הצלבה" : ""}</span>
+        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
+        <button className="els29-native-cross-toggle" type="button" aria-pressed={crossSearchOpen} aria-expanded={crossSearchOpen}
+          onClick={() => { if (crossSearchOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button></> : null}
       </div>
       <div className="els29-native-query-terms">
       <label>
-        <span>{crossOpen ? "מונח ראשון" : "מונח"}</span>
+        <span>{crossSearchOpen ? "מונח ראשון" : "מונח"}</span>
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -990,7 +1039,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           autoComplete="off"
         />
       </label>
-      {crossOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
+      {crossSearchOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
         <label>
           <span>מונח שני</span>
           <input
@@ -1002,7 +1051,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           />
         </label>
       </div> : null}
-      {!crossOpen && (clean(query).split(/\s+/).length > 1 || clean(query).replace(/[^א-ת]/g, "").length >= 7) ? <div className="els29-native-search-coach" role="note">
+      {researchProfile && !crossSearchOpen && (clean(query).split(/\s+/).length > 1 || clean(query).replace(/[^א-ת]/g, "").length >= 7) ? <div className="els29-native-search-coach" role="note">
         <span>אפשר לחפש את הביטוי בשלמותו, או לבדוק מפגש בין שתי מילים קצרות.</span>
         <button type="button" onClick={() => {
           const [first, ...rest] = clean(query).split(/\s+/);
@@ -1026,7 +1075,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onClick={() => switchScope("tanakh")}
         >כל התנ״ך</button>
       </div>
-      {crossOpen ? <>
+      {crossSearchOpen ? <>
         <label className="els29-native-cross-distance">
           <span>מרחק מרבי מהציר בהצלבה <output>{crossRadius} תאים</output></span>
           <input type="range" min="2" max="20" step="1" value={crossRadius}
@@ -1039,7 +1088,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         </label>
       </> : null}
       <div className="els29-native-query-actions">
-        <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossOpen ? "חפש הצלבה" : "חפש"}</button>
+        <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossSearchOpen ? "חפש הצלבה" : "חפש"}</button>
         <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>{classicOpen ? "חזור למטריצה" : "כל הכלים"}</button>
       </div>
       </div>
@@ -1169,7 +1218,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <TzofenEmbed
           seed={engineSeed || undefined}
           matrix={matrix}
-          journeyLoad={researchLoad}
+          journeyLoad={researchLoad?.researchCommand === true ? null : researchLoad}
           exactSkipProbe={researchProbe}
           onExactSkipProbeResult={onResearchProbeResult}
           formsPreviewRequest={formsPreviewRequest}

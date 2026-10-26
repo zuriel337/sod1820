@@ -1,8 +1,45 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prepareElsAutomaticResearchPlan, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
+import {
+  prepareElsAutomaticResearchPlan,
+  prepareElsCipherDiscoveryPlan,
+  runElsAutomaticResearchSlice,
+  summarizeElsAutomaticPlan,
+  summarizeElsGuidedDiscoveryPlan,
+} from "./elsAutomaticResearchPlan.js";
 
 const base = { expressions: "סוד החשמל\nאמת", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "2" };
+
+test("guided story compiles locally into one bounded axis plus context proposals", () => {
+  const story = "מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש";
+  const plan = prepareElsCipherDiscoveryPlan({ text: story, scope: "torah" });
+  assert.equal(plan.contract, "els_cipher_discovery_plan_v1");
+  assert.equal(plan.anchorCandidates[0].term, "קולומביה");
+  assert.equal(plan.goal.primaryAxes, 1);
+  assert.equal(plan.goal.connectedSupports, 2);
+  assert.equal(plan.limits.fullAxisOccurrences, 4);
+  assert.equal(plan.limits.maximumOccurrenceBatches, 2);
+  assert.ok(plan.contextCandidates.filter(row => row.selected).length <= 6);
+  assert.equal(plan.aiUsed, false);
+  assert.equal(plan.persisted, false);
+  assert.equal(plan.truthPromotion, false);
+  assert.equal("text" in plan, false);
+
+  const summary = summarizeElsGuidedDiscoveryPlan(plan);
+  assert.equal(summary.status, "PROPOSED_SEARCH_PLAN");
+  assert.equal(summary.modelCallsTriggered, 0);
+  assert.equal(summary.rawStoryIncluded, false);
+  assert.equal(summary.targetTerms.length <= 8, true);
+  assert.equal(JSON.stringify(summary).includes(story), false);
+});
+
+test("a quoted or explicit axis wins without a cipher-specific rule", () => {
+  const quoted = prepareElsCipherDiscoveryPlan({ text: "בדקו את ״ד טראמפ״ ליד באש אטמין" });
+  assert.equal(quoted.anchorCandidates[0].term, "ד טראמפ");
+  const explicit = prepareElsCipherDiscoveryPlan({ text: "הקשר ארוך", anchorTerm: "אורניום", requiredTerms: "איראן; ארהב" });
+  assert.equal(explicit.anchorCandidates[0].term, "אורניום");
+  assert.deepEqual(explicit.contextCandidates.filter(row => row.required).map(row => row.term), ["איראן", "ארהב"]);
+});
 
 test("automatic plan derives each expression once, explains every form and deduplicates canonical terms", () => {
   const plan = prepareElsAutomaticResearchPlan(base);

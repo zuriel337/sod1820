@@ -2,9 +2,22 @@ import { buildElsAdvancedPageRequest, elsSearchSpelling, projectElsAdvancedPage 
 import { runElsAdaptiveScan } from "./els2029AdaptiveScanner.js";
 
 export const ELS_AUTOMATIC_PLAN_CONTRACT = "els_automatic_research_plan_v1";
+export const ELS_RESEARCH_BRIEF_CONTRACT = "els_research_brief_v1";
+export const ELS_CIPHER_DISCOVERY_PLAN_CONTRACT = "els_cipher_discovery_plan_v1";
+export const ELS_GUIDED_PLAN_SUMMARY_CONTRACT = "els_guided_discovery_plan_summary_v1";
 export const ELS_AUTOMATIC_SLICE_SIZE = 8;
+export const ELS_GUIDED_OCCURRENCE_BATCH_SIZE = 4;
+export const ELS_GUIDED_OCCURRENCE_MAX_BATCHES = 2;
 const MAX_INPUT_LENGTH = 4000;
 const MAX_EXPRESSIONS = 40;
+const MAX_BRIEF_LENGTH = 6000;
+const MAX_BRIEF_TARGETS = 24;
+const MAX_BASIC_AXIS_LENGTH = 12;
+const MAX_BRIEF_CONTEXTS = 18;
+const MAX_DISCOVERY_TARGETS = 12;
+const DEFAULT_DISCOVERY_SUPPORTS = 2;
+const HEBREW_MARKS = /[\u0591-\u05C7]/g;
+const BRIEF_STOP_WORDS = new Set(["אבל", "אשר", "את", "בין", "גם", "הוא", "היא", "היו", "היה", "הזה", "הזאת", "וכל", "זה", "זאת", "כי", "כל", "לא", "לו", "מה", "מי", "מן", "עם", "על", "של", "שם", "או", "אם", "אל", "בו", "בה", "הם", "הן", "יש", "עוד", "כמו", "כדי", "אחרי", "לפני", "מתוך", "בתוך"]);
 const RULES = Object.freeze([
   ["original", "הביטוי שהוזן", "regular"],
   ["reverse_all", "היפוך כל הביטוי", "reverse_all"],
@@ -13,6 +26,145 @@ const RULES = Object.freeze([
 ]);
 
 const canonicalKey = value => String(value || "").replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
+const briefPhrase = value => String(value || "").normalize("NFKD").replace(HEBREW_MARKS, "").replace(/[^א-ת\s]/g, " ").trim().replace(/\s+/g, " ");
+const briefWords = value => briefPhrase(value).split(" ").filter(Boolean);
+const meaningfulBriefWord = word => canonicalKey(word).length >= 3 && !BRIEF_STOP_WORDS.has(word);
+
+/**
+ * A deterministic, local-only compiler from free context to bounded proposed terms.
+ * It neither scans nor persists and it never promotes vocabulary into evidence.
+ */
+export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
+  const input = String(text || "");
+  if (input.length > MAX_BRIEF_LENGTH) return { error: "הסיפור ארוך מדי. חלקו אותו לשני הקשרים קצרים יותר." };
+  const explicitAnchor = briefPhrase(anchorTerm);
+  if (String(anchorTerm || "").length > 200) return { error: "הציר הראשי ארוך מדי. במצב הבסיסי בוחרים מילה או ביטוי קצר." };
+  if (explicitAnchor && canonicalKey(explicitAnchor).length < 3) return { error: "במצב הבסיסי הציר הראשי צריך לכלול לפחות שלוש אותיות." };
+  if (canonicalKey(explicitAnchor).length > MAX_BASIC_AXIS_LENGTH) return { error: "הציר הראשי ארוך מ־12 אותיות. חיפוש ביטוי ארוך ומדויק זמין בהגדרות המתקדמות." };
+  const requiredInput = String(requiredTerms || "");
+  if (requiredInput.length > 1000) return { error: "רשימת המונחים המחייבים ארוכה מדי." };
+  if (!input.trim() && !explicitAnchor && !requiredInput.trim()) return { error: "כתבו סיפור קצר שממנו אפשר להציע ציר." };
+
+  const anchorRows = new Map(), contextRows = new Map();
+  const addAnchor = (term, kind, reason, priority, explicit = false) => {
+    const label = briefPhrase(term), key = canonicalKey(label);
+    if (key.length < 3 || key.length > MAX_BASIC_AXIS_LENGTH) return;
+    const prior = anchorRows.get(key);
+    const next = { id: `axis:${key}`, term: label, canonicalTerm: key, role: "axis", kind, reason, priority, explicit };
+    if (!prior || explicit && !prior.explicit || priority > prior.priority) anchorRows.set(key, next);
+  };
+  const addContext = (term, kind, reason, priority, required = false) => {
+    const label = briefPhrase(term), key = canonicalKey(label), words = briefWords(label);
+    if (key.length < 2 || key.length > 24) return;
+    const prior = contextRows.get(key);
+    const next = { id: `context:${key}`, term: label, canonicalTerm: key, role: "context", kind, reason, priority, required,
+      mode: words.length > 1 ? "exact_phrase" : "term", splitAllowed: words.length > 1 };
+    if (!prior || required && !prior.required || priority > prior.priority) contextRows.set(key, next);
+  };
+
+  if (explicitAnchor) addAnchor(explicitAnchor, "explicit-axis", "הציר הראשי שנבחר במפורש", 1000, true);
+  for (const term of [...new Set(requiredInput.split(/[,;\n]+/).map(briefPhrase).filter(Boolean))]) {
+    addContext(term, "required", "מונח הקשר שסומן במפורש", 140, true);
+  }
+  for (const match of input.matchAll(/["״]([^"״\n]{3,80})["״]/g)) {
+    addAnchor(match[1], "quote", "ביטוי קצר שצוטט במפורש", 130);
+    addContext(match[1], "quote", "ביטוי שצוטט במפורש בתוך ההקשר", 115);
+  }
+
+  const sentenceTexts = input.normalize("NFKD").replace(HEBREW_MARKS, "").split(/[.!?։;:\n]+/).map(value => value.trim()).filter(Boolean);
+  const tokenFrequency = new Map(), phraseFrequency = new Map();
+  for (const sentence of sentenceTexts) {
+    const words = briefWords(sentence);
+    const content = words.filter(meaningfulBriefWord);
+    for (const word of content) tokenFrequency.set(word, (tokenFrequency.get(word) || 0) + 1);
+    for (let size = 2; size <= 3; size += 1) for (let index = 0; index + size <= words.length; index += 1) {
+      const parts = words.slice(index, index + size), meaningful = parts.filter(meaningfulBriefWord);
+      if (meaningful.length < 2 || canonicalKey(parts.join(" ")).length > 32) continue;
+      const phrase = parts.join(" ");
+      phraseFrequency.set(phrase, (phraseFrequency.get(phrase) || 0) + 1);
+    }
+  }
+  for (const [phrase, count] of phraseFrequency) {
+    const compactPairBonus = briefWords(phrase).length === 2 ? 6 : 0;
+    addAnchor(phrase, count > 1 ? "repeated-phrase" : "local-phrase", count > 1 ? `ביטוי קצר שחוזר ${count} פעמים בהקשר` : "צירוף קצר מתוך ההקשר", 44 + Math.min(22, count * 10) + compactPairBonus);
+    addContext(phrase, count > 1 ? "repeated-phrase" : "local-phrase", count > 1 ? `ביטוי שחוזר ${count} פעמים בהקשר` : "צירוף מקומי מתוך ההקשר", 58 + Math.min(24, count * 12) + compactPairBonus);
+  }
+  for (const [word, count] of tokenFrequency) {
+    const length = canonicalKey(word).length;
+    if (length < 4 && count < 2) continue;
+    addAnchor(word, count > 1 ? "repeated-term" : "context-term", count > 1 ? `מונח שחוזר ${count} פעמים` : "מילה קצרה ומובחנת מתוך ההקשר", 48 + Math.min(25, count * 8) + Math.min(18, length * 2));
+    addContext(word, count > 1 ? "repeated-term" : "context-term", count > 1 ? `מונח שחוזר ${count} פעמים` : "מונח מתוך ההקשר", 50 + Math.min(25, count * 8) + Math.min(12, length));
+  }
+
+  const anchorCandidates = [...anchorRows.values()].sort((a, b) => Number(b.explicit) - Number(a.explicit) || b.priority - a.priority || b.canonicalTerm.length - a.canonicalTerm.length || a.term.localeCompare(b.term, "he")).slice(0, 6)
+    .map((row, index) => Object.freeze({ ...row, rank: index + 1, selected: index === 0 }));
+  if (!anchorCandidates.length) return { error: "לא זוהה ציר ראשי קצר. נסו לציין שם או מילה עברית מובחנת." };
+  const recommendedAnchorId = anchorCandidates[0].id;
+  const recommendedAnchorKey = anchorCandidates[0].canonicalTerm;
+  const contextCandidates = [...contextRows.values()].filter(row => row.canonicalTerm !== recommendedAnchorKey)
+    .sort((a, b) => Number(b.required) - Number(a.required) || b.priority - a.priority || b.canonicalTerm.length - a.canonicalTerm.length || a.term.localeCompare(b.term, "he"))
+    .slice(0, MAX_BRIEF_CONTEXTS).map((row, index) => Object.freeze({ ...row, rank: index + 1, selected: row.required || index < 6 }));
+  return Object.freeze({
+    contract: ELS_RESEARCH_BRIEF_CONTRACT,
+    status: "READY",
+    mode: "anchor-context",
+    scope: scope === "tanakh" ? "tanakh" : "torah",
+    anchorCandidates: Object.freeze(anchorCandidates),
+    recommendedAnchorId,
+    contextCandidates: Object.freeze(contextCandidates),
+    candidates: Object.freeze([...new Map([...anchorCandidates, ...contextCandidates].map(row => [row.canonicalTerm, row])).values()].slice(0, MAX_BRIEF_TARGETS)),
+    inputLength: input.length,
+    storyIsContextOnly: true,
+    persisted: false,
+    aiUsed: false,
+    truthPromotion: false,
+  });
+}
+
+export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
+  const brief = prepareElsResearchBrief({ text, anchorTerm, requiredTerms, scope });
+  if (brief.error) return brief;
+  const selectedAxis = brief.anchorCandidates.find(candidate => candidate.id === brief.recommendedAnchorId);
+  const axisKey = selectedAxis?.canonicalTerm || "";
+  const orderedTargets = [...brief.contextCandidates]
+    .filter(candidate => candidate.required || (candidate.canonicalTerm !== axisKey && !candidate.canonicalTerm.includes(axisKey) && !axisKey.includes(candidate.canonicalTerm)))
+    .sort((a, b) => Number(b.required) - Number(a.required) || Number(a.mode !== "term") - Number(b.mode !== "term") || b.priority - a.priority || a.term.localeCompare(b.term, "he"))
+    .slice(0, MAX_DISCOVERY_TARGETS)
+    .map((candidate, index) => Object.freeze({ ...candidate, selected: candidate.required || index < 6, supportPriority: index + 1 }));
+  return Object.freeze({
+    ...brief,
+    contract: ELS_CIPHER_DISCOVERY_PLAN_CONTRACT,
+    mode: "story-first-pair",
+    contextCandidates: Object.freeze(orderedTargets),
+    candidates: Object.freeze([...(selectedAxis ? [selectedAxis] : []), ...orderedTargets]),
+    goal: Object.freeze({ primaryAxes: 1, connectedSupports: DEFAULT_DISCOVERY_SUPPORTS, sourceSequence: "WHEN_AVAILABLE", resultPolicy: "ONE_BEST_STRUCTURE" }),
+    limits: Object.freeze({ targetTerms: MAX_DISCOVERY_TARGETS, fullAxisOccurrences: ELS_GUIDED_OCCURRENCE_BATCH_SIZE, maximumOccurrenceBatches: ELS_GUIDED_OCCURRENCE_MAX_BATCHES }),
+    raziel: Object.freeze({ role: "VERIFIED_OCCURRENCE_CONSUMER", connected: false, maySuggestVocabulary: false, maySearchOrVerify: false, mayPromoteTruth: false, maxCallsBeforeSearch: 0 }),
+    aiUsed: false,
+    persisted: false,
+    truthPromotion: false,
+  });
+}
+
+/** Bounded proposed terms for the existing Raziel seam; never the raw story. */
+export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
+  if (plan?.contract !== ELS_CIPHER_DISCOVERY_PLAN_CONTRACT) return null;
+  const anchor = plan.anchorCandidates.find(candidate => candidate.id === selectedAnchorId)
+    || plan.anchorCandidates.find(candidate => candidate.id === plan.recommendedAnchorId) || null;
+  if (!anchor) return null;
+  return Object.freeze({
+    contract: ELS_GUIDED_PLAN_SUMMARY_CONTRACT,
+    status: "PROPOSED_SEARCH_PLAN",
+    scope: plan.scope,
+    anchorTerm: anchor.term,
+    targetTerms: Object.freeze(plan.contextCandidates.filter(candidate => candidate.selected).map(candidate => candidate.term).filter(Boolean).slice(0, 8)),
+    occurrenceBatchSize: plan.limits.fullAxisOccurrences,
+    maximumOccurrenceBatches: plan.limits.maximumOccurrenceBatches,
+    modelCallsTriggered: 0,
+    rawStoryIncluded: false,
+    evidencePromotion: false,
+  });
+}
 
 /** A read-only plan. FORMS rows must come from the already mounted canonical engine. */
 export function prepareElsAutomaticResearchPlan({ expressions, scope = "torah", skipMin = "2", skipMax = "", pageSize = "20", canonicalForms = [] } = {}) {

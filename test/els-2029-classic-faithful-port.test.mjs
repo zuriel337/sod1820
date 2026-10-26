@@ -12,7 +12,8 @@ const template = readFileSync(new URL("../tools/els/els-code.template.html", imp
 test("Classic 2029 mounts a native workspace instead of exposing the old full iframe by default", () => {
   assert.match(page, /import ElsNativeClassic2029 from/);
   assert.match(page, /data-els-classic-2029="native-v1"/);
-  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\} active=\{!library\}/);
+  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\}/);
+  assert.match(page, /active=\{!library && \(!guidedProfile \|\| researchLoad\?\.guidedDiscovery === true \|\| directSavedOpen\)\}/);
   assert.doesNotMatch(page, /<TzofenEmbed/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
 
@@ -209,7 +210,7 @@ test("Classic engine stays mounted across Classic/Research profile switches so w
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
   assert.doesNotMatch(page, /aria-hidden=\{researchProfile\}/);
   assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf("<details className=\"sod29-els-research-details\""));
-  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\} active=\{!library\}/);
+  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\}/);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });
 

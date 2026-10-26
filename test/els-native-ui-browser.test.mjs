@@ -92,7 +92,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:true,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -100,7 +100,7 @@ if(window.__fixtureFullFrame){
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
   return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},React.createElement(PaletteProbe),
-   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native):React.createElement('p',null,'Library fixture'))));
+   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native,{researchProfile:true}):React.createElement('p',null,'Library fixture'))));
  }
  createRoot(document.getElementById('root')).render(React.createElement(FullFrameFixture));
 }else createRoot(document.getElementById('root')).render(React.createElement(Fixture));
@@ -1697,7 +1697,7 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
  try{
   await server.listen();browser=await pw.chromium.launch({headless:true,executablePath});
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
+  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?mode=classic`);
   await page.waitForFunction(()=>window.__libraryEngineMounts===1);
   const folder=page.getByRole('region',{name:'תיקיית הצפנים'});
   const toggle=folder.getByRole('button',{name:/תיקיית הצפנים/});
