@@ -54,6 +54,7 @@ export function classifyWorldMissingEngineStatement(value) {
     language: /(אנגלית|לטינית|ערבית|שפה|תרגום|תעתיק)/u.test(statement),
     formula: /[=+×*÷]/u.test(statement),
     number: /[0-9]/u.test(statement),
+    ocrDerived: /^OCR מהמדיה\s*:/u.test(statement),
   });
   let queue = "textual_statement";
   if (signals.spatialOrConstants) queue = "spatial_or_constants";
@@ -435,6 +436,9 @@ export function projectWorldLegacyReplayOccurrence(row) {
     const constantCheck = routing.queue === "constants_or_sequences"
       ? verifyWorldConstantStatement(row?.statement)
       : null;
+    const spatialTextOrigin = routing.queue === "spatial_or_constants"
+      ? routing.signals.ocrDerived ? "ocr_derived" : "not_marked_ocr"
+      : null;
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -452,6 +456,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       contentSignals: routing.signals,
       spatialResearchContext,
       spatialCalculation,
+      spatialTextOrigin,
       constantCheck,
     });
   }

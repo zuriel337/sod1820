@@ -29,6 +29,7 @@ export async function fetchWorldFindingReviewPage({ filters = {}, offset = 0, si
     replay_subtype: clean(filters.replaySubtype) || "all",
     replay_spatial_metadata: clean(filters.replaySpatialMetadata) || "all",
     replay_spatial_calculation: clean(filters.replaySpatialCalculation) || "all",
+    replay_spatial_text_origin: clean(filters.replaySpatialTextOrigin) || "all",
     replay_source: clean(filters.replaySource) || "all",
     replay_target: clean(filters.replayTarget) || "all",
     replay_target_evidence: clean(filters.replayTargetEvidence) || "all",

@@ -5,7 +5,7 @@ import { WORLD_CORPUS_TRIAGE_AUDIT } from "../api/world-corpus-triage-audit.js";
 test("manager corpus audit keeps publication, verification and catalog completeness separate", () => {
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.scope, "read_only_recommendations");
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.workstreams.length, 7);
-  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 46);
+  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 52);
   assert.deepEqual(["medium", "weak"].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [4164, 6362]);
   assert.match(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "duplicates").next, /בלי מחיקה/u);
   const zviReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_replay");
@@ -59,6 +59,10 @@ test("manager corpus audit keeps publication, verification and catalog completen
     "zvi_missing_engine_textual", "zvi_missing_engine_numeric", "zvi_missing_engine_formula",
     "zvi_missing_engine_spatial", "zvi_missing_engine_constants", "zvi_missing_engine_els", "zvi_missing_engine_language",
   ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [1491, 593, 325, 179, 5, 27, 3]);
+  assert.deepEqual([
+    "zvi_spatial_calculation_verified", "zvi_spatial_calculation_unresolved", "zvi_spatial_calculation_mismatch",
+    "zvi_spatial_ocr", "zvi_spatial_metadata_complete", "zvi_spatial_metadata_partial",
+  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [10, 9, 4, 29, 1, 18]);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_match").total, 734);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_claim_unmatched").total, 112);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_missing_engine_unverified").total, 173);

@@ -188,6 +188,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const replaySubtype = clean(filters.replaySubtype) || "all";
   const replaySpatialMetadata = clean(filters.replaySpatialMetadata) || "all";
   const replaySpatialCalculation = clean(filters.replaySpatialCalculation) || "all";
+  const replaySpatialTextOrigin = clean(filters.replaySpatialTextOrigin) || "all";
   const replaySource = clean(filters.replaySource) || "all";
   const replayTarget = clean(filters.replayTarget) || "all";
   const replayTargetEvidence = clean(filters.replayTargetEvidence) || "all";
@@ -208,6 +209,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (replaySubtype !== "all" && row?.legacyReplay?.routingSubtype !== replaySubtype) return false;
     if (replaySpatialMetadata !== "all" && row?.legacyReplay?.spatialResearchContext?.state !== replaySpatialMetadata) return false;
     if (replaySpatialCalculation !== "all" && row?.legacyReplay?.spatialCalculation?.state !== replaySpatialCalculation) return false;
+    if (replaySpatialTextOrigin !== "all" && row?.legacyReplay?.spatialTextOrigin !== replaySpatialTextOrigin) return false;
     const decision = row?.legacyReplay?.decision;
     const exactSourceCount = (Number(decision?.sourceLocatorStateCounts?.channel_uuid) || 0)
       + (Number(decision?.sourceLocatorStateCounts?.channel_uuid_available) || 0);
@@ -621,6 +623,11 @@ async function buildAuthorizedProjection(token) {
         .map((row) => ({ spatialCalculationState: row.legacyReplay.spatialCalculation.state })),
       "spatialCalculationState",
     ),
+    bySpatialTextOrigin: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.spatialTextOrigin)
+        .map((row) => ({ spatialTextOrigin: row.legacyReplay.spatialTextOrigin })),
+      "spatialTextOrigin",
+    ),
     technicallyReadyReplayOccurrences: replayDecisionCounts.technicallyReady,
     byLegacyReplaySourceReadiness: replayDecisionCounts.source,
     byLegacyReplayTargetReadiness: replayDecisionCounts.target,
@@ -693,6 +700,7 @@ function pageResponse(projection, req, contributorScope = null) {
     replaySubtype: queryValue(req, "replay_subtype"),
     replaySpatialMetadata: queryValue(req, "replay_spatial_metadata"),
     replaySpatialCalculation: queryValue(req, "replay_spatial_calculation"),
+    replaySpatialTextOrigin: queryValue(req, "replay_spatial_text_origin"),
     replaySource: queryValue(req, "replay_source"),
     replayTarget: queryValue(req, "replay_target"),
     replayTargetEvidence: queryValue(req, "replay_target_evidence"),

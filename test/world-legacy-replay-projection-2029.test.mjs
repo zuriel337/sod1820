@@ -283,6 +283,16 @@ test("spatial routing reuses the canonical compound parser without promoting the
   }));
   assert.equal(descriptive.spatialCalculation.state, "not_detected");
   assert.equal(descriptive.spatialCalculation.claimCount, 0);
+
+  const ocr = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "OCR מהמדיה:\nקובייה בעלת שש פאות",
+    meta: {},
+  }));
+  assert.equal(ocr.contentSignals.ocrDerived, true);
+  assert.equal(ocr.spatialTextOrigin, "ocr_derived");
+  assert.equal(descriptive.spatialTextOrigin, "not_marked_ocr");
 });
 
 test("constant replay distinguishes exact sums, rounded constants and unsupported source claims", () => {
