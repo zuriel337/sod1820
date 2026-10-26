@@ -67,6 +67,79 @@ const FINDING_KIND_PUBLIC_LABELS = Object.freeze({
   verse: "פסוק",
 });
 
+// Shared public interface language. This extends the existing Experience/Design
+// presentation owner; it is not a new content, truth or activity contract.
+export const CANONICAL_PUBLIC_UI_COPY = Object.freeze({
+  search: Object.freeze({
+    subjectSourceNumber: "חיפוש לפי נושא, מקור או מספר",
+    personTitleNumber: "חיפוש לפי אדם, כותרת או מספר",
+  }),
+  action: Object.freeze({
+    source: "למקור",
+    writer: "לדף הכתב",
+    topic: "לנושא",
+    finding: "לממצא",
+    world: "לעולם",
+    more: "עוד",
+  }),
+});
+
+export const PUBLIC_ACTIVITY_KIND = Object.freeze({
+  SOURCE_PUBLISHED: "source_published",
+  SOURCE_UPDATED: "source_updated",
+  SOURCE_RECEIVED: "source_received",
+  WRITER_UPDATED: "writer_updated",
+  TOPIC_APPROVED: "topic_approved",
+  FINDING_ADDED: "finding_added",
+});
+
+const PUBLIC_ACTIVITY_PRESENTATION = Object.freeze({
+  [PUBLIC_ACTIVITY_KIND.SOURCE_PUBLISHED]: Object.freeze({ label: "מקור פורסם", dateLabel: "פורסם", tone: "new" }),
+  [PUBLIC_ACTIVITY_KIND.SOURCE_UPDATED]: Object.freeze({ label: "מקור עודכן", dateLabel: "עודכן", tone: "updated" }),
+  [PUBLIC_ACTIVITY_KIND.SOURCE_RECEIVED]: Object.freeze({ label: "מקור נקלט", dateLabel: "נקלט", tone: "new" }),
+  [PUBLIC_ACTIVITY_KIND.WRITER_UPDATED]: Object.freeze({ label: "דף כתב עודכן", dateLabel: "עודכן", tone: "updated" }),
+  [PUBLIC_ACTIVITY_KIND.TOPIC_APPROVED]: Object.freeze({ label: "נושא אושר", dateLabel: "אושר", tone: "approved" }),
+  [PUBLIC_ACTIVITY_KIND.FINDING_ADDED]: Object.freeze({ label: "ממצא נוסף", dateLabel: "נוסף", tone: "finding" }),
+});
+
+function validIsoTime(value) {
+  if (!value) return null;
+  const time = Date.parse(value);
+  return Number.isFinite(time) ? new Date(time).toISOString() : null;
+}
+
+/**
+ * Canonical public status for activity already admitted by an authorized reader.
+ * This helper only names the visible state and chooses its record time. It never
+ * publishes, verifies, ranks or converts a source occurrence into a Finding.
+ */
+export function canonicalPublicActivityPresentation(input = {}) {
+  const publishedAt = validIsoTime(input.sourcePublishedAt || input.publishedAt);
+  const updatedAt = validIsoTime(input.sourceUpdatedAt || input.updatedAt);
+  const approvedAt = validIsoTime(input.approvedAt);
+  const createdAt = validIsoTime(input.createdAt);
+  const arrivalAt = validIsoTime(input.arrivalAt || input.at);
+  let key = clean(input.activityKind).toLowerCase();
+
+  if (!PUBLIC_ACTIVITY_PRESENTATION[key]) {
+    if (clean(input.kind).toLowerCase() === "writer") key = PUBLIC_ACTIVITY_KIND.WRITER_UPDATED;
+    else if (["topic", "convergence"].includes(clean(input.kind).toLowerCase())) key = PUBLIC_ACTIVITY_KIND.TOPIC_APPROVED;
+    else if (["finding", "research"].includes(clean(input.kind).toLowerCase())) key = PUBLIC_ACTIVITY_KIND.FINDING_ADDED;
+    else if (clean(input.sourceKind).toLowerCase() === "group_message") key = PUBLIC_ACTIVITY_KIND.SOURCE_RECEIVED;
+    else if (updatedAt && (!publishedAt || Date.parse(updatedAt) > Date.parse(publishedAt))) key = PUBLIC_ACTIVITY_KIND.SOURCE_UPDATED;
+    else key = PUBLIC_ACTIVITY_KIND.SOURCE_PUBLISHED;
+  }
+
+  const at = key === PUBLIC_ACTIVITY_KIND.SOURCE_UPDATED || key === PUBLIC_ACTIVITY_KIND.WRITER_UPDATED
+    ? updatedAt || arrivalAt || publishedAt || createdAt
+    : key === PUBLIC_ACTIVITY_KIND.TOPIC_APPROVED
+      ? approvedAt || createdAt || arrivalAt
+      : key === PUBLIC_ACTIVITY_KIND.FINDING_ADDED
+        ? createdAt || arrivalAt
+        : arrivalAt || publishedAt || createdAt;
+  return Object.freeze({ key, ...PUBLIC_ACTIVITY_PRESENTATION[key], at: at || null });
+}
+
 export function canonicalEntityPublicLabel(type, { plural = false } = {}) {
   const key = clean(type).toLowerCase();
   const labels = ENTITY_PUBLIC_LABELS[key];

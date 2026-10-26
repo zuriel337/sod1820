@@ -4,6 +4,7 @@ import {
   fetchPublicSourceSubjectIndex,
   filterPublicSourceSubjects,
 } from "../../lib/research/worldPublicSourceSubjects2029.js";
+import { CANONICAL_PUBLIC_UI_COPY } from "../../lib/presentation/canonicalPresentation.js";
 import "./worldPublicSourceSubjects2029.css";
 
 // One World reader stage. Source works are shown AFTER approved Topic identities,
@@ -70,7 +71,7 @@ export default function WorldPublicSourceSubjects2029() {
     {item.type === "approved_topic" ? <span className="sod29-world-source-subject-meta">
       חוזק תצוגה: {item.meterScore ?? "טרם דורג"} · אינו ציון אמת
     </span> : null}
-    <small>פתח {item.type === "approved_topic" ? "נושא" : "מקור"} ←</small>
+    <small>{item.type === "approved_topic" ? CANONICAL_PUBLIC_UI_COPY.action.topic : CANONICAL_PUBLIC_UI_COPY.action.source} ←</small>
   </Link>;
 
   return <div ref={anchor} className="sod29-world-source-subject-index"
@@ -102,7 +103,7 @@ export default function WorldPublicSourceSubjects2029() {
       <span>חיפוש לפי נושא, מקור או מספר</span>
       <input type="search" value={query} onChange={(e) => {
         setQuery(e.target.value); setVisibleTopics(CHUNK); setVisibleSources(CHUNK);
-      }} placeholder="מה מעניין אותך לגלות?" />
+      }} placeholder={CANONICAL_PUBLIC_UI_COPY.search.subjectSourceNumber} />
     </label>
 
     {state.loading || !armed ? <p role="status">טוען נושאים ומקורות ציבוריים…</p> : null}

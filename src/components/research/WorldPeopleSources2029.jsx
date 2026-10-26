@@ -11,6 +11,7 @@ import { WORLD_PEOPLE_PAGE_SIZE } from "../../lib/research/worldPublicPeopleInde
 import { WORLD_SOURCE_CORPORA } from "../../lib/research/worldSourceCorpus.js";
 import WorldSourceCorpus from "./WorldSourceCorpus.jsx";
 import { worldFocusedMaterialWindow } from "../../lib/research/worldFocusedMaterial2029.js";
+import { CANONICAL_PUBLIC_UI_COPY } from "../../lib/presentation/canonicalPresentation.js";
 
 function MaterialLink({ href, children }) {
   if (!href) return <span>{children}</span>;
@@ -106,7 +107,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
       <header><div className="sod29-kicker">דפי כותבים שהתעדכנו לאחרונה</div><h2>העדכניים ביותר תחילה</h2>
         <p>מוצגים תחילה עד 20 דפים ציבוריים לפי מועד העדכון. רשומות פרטיות, נעולות או בבנייה אינן נכנסות לאינדקס.</p></header>
       <div className="sod29-world-source-controls">
-        <label><span>חיפוש לפי אדם, כותרת או מספר</span>
+        <label><span>{CANONICAL_PUBLIC_UI_COPY.search.personTitleNumber}</span>
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="שם, כותרת או מספר…" /></label>
         <div role="group" aria-label="סינון אנשים ומקורות">
           {WORLD_SOURCE_FILTERS.map(([key, label]) => <button type="button" key={key} aria-pressed={filter === key}
@@ -125,7 +126,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             <small>{person.updatedAt ? <>עודכן · <time dateTime={person.updatedAt}>{bilingualDateLabel(person.updatedAt)}</time></> : "תאריך עדכון לא צוין"}</small>
             <div className="sod29-actions">
               <button type="button" aria-pressed={selected?.slug === person.slug} onClick={() => chooseSource(person.slug)}>החומר בעולם</button>
-              <Link to={person.href}>דף הכתב</Link>
+              <Link to={person.href}>{CANONICAL_PUBLIC_UI_COPY.action.writer}</Link>
             </div>
           </article>)}
         </div>
@@ -153,7 +154,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
     {selected ? <section className="sod29-section sod29-world-selected-source" aria-label={`החומר הציבורי של ${selected.displayName}`}>
       <header className="sod29-section-head"><div><div className="sod29-kicker">החומר הציבורי שנבחר</div>
         <h2>{selected.displayName}</h2><p>הקטלוג נטען רק לאחר הבחירה. ממצא מחקר נשאר מחובר ל־source_ref שלו ואינו נספר כמקור נוסף.</p></div>
-        <Link className="sod29-action" to={writerHref}>לדף הכתב המלא</Link></header>
+        <Link className="sod29-action" to={writerHref}>{CANONICAL_PUBLIC_UI_COPY.action.writer}</Link></header>
       {selectedMaterial.loading ? <p role="status">פותח כתבים, מקורות, צפנים ונושאים…</p> : null}
       {selectedMaterial.error ? <div role="status"><strong>חלק מהחומר אינו זמין כרגע.</strong><p>לא מוצג 0 במקום נתון שלא התקבל.</p></div> : null}
       {selectedMaterial.data?.partial ? <p role="status">חלק מן הקוראים לא השלימו טעינה; נתון חסר מוצג כ״אין נתון״.</p> : null}
@@ -175,7 +176,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             {row.number != null ? <strong className="sod29-world-material-number">{row.number}</strong> : null}
             <code dir="ltr">{row.sourceRef}</code>
             {row.meta?.sourceRecordCount > 1 ? <small>{row.meta.sourceRecordCount} הופעות מקור נשמרו ללא כפילות מקור.</small> : null}
-            <MaterialLink href={row.href}>{row.href ? "פתיחה מדויקת ←" : "אין קישור ציבורי מאומת"}</MaterialLink>
+            <MaterialLink href={row.href}>{row.href ? `${CANONICAL_PUBLIC_UI_COPY.action.source} ←` : "אין קישור ציבורי מאומת"}</MaterialLink>
           </article>)}
         </div>
         {materialWindow.hasMore ? <button className="sod29-action" type="button"

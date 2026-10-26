@@ -112,7 +112,8 @@ assert.match(world, /status="עולם · גילוי"/);
 // The composed public World is the only landing. The legacy control/admin landing is retired;
 // an authenticated owner gets one bounded findings-review section inside that same World.
 assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\} \/>/);
-assert.match(world, /<SourceArrivalList2029/);
+assert.match(world, /<WorldPublicUpdates2029/);
+assert.equal(world.includes("<SourceArrivalList2029"), false, "World uses the neutral public activity projection instead of personal seen-state copy");
 assert.match(world, /<WorldSourceStory research=\{research\} shell=\{shell\} compact \/>/);
 assert.match(world, /<WorldDiscoveryDoors \/>/);
 assert.match(world, /<WorldPeopleSources2029/);
@@ -152,7 +153,7 @@ assert.equal(world.includes("מפגש"), false, "2029 World public convergence v
 assert.match(worldPeopleSourcesComponent, /אנשים ציבוריים/);
 assert.match(worldPeopleSourcesComponent, /החומר הציבורי שנבחר/);
 assert.equal(world.includes('className="sod29-orbit-map"'), false, "World landing must not keep the old decorative-only orbit map");
-assert.match(world, /מתחילים ממה שמסקרן אותך/);
+assert.match(world, /מפת הידע של SOD1820/);
 assert.match(world, /sod29-world-overview/);
 assert.match(worldPeopleSourcesComponent, /sod29-world-source-homes/);
 assert.equal(world.includes("sod29-world-spatial-gateway"), false, "the retired legacy control landing is removed");
@@ -901,7 +902,7 @@ assert.equal(
 
 // 2029 World owns orientation, not the legacy Number UI. Number remains a separate product home.
 assert.match(world, /WORLD_LANES/);
-assert.match(world, /מה אתה רוצה לראות עכשיו\?/);
+assert.match(world, /שכבות המידע/);
 assert.match(world, /פרופיל עוגן · אוצרות מחקרית מתפתחת/);
 assert.match(world, /דף המספר נשאר הבית הייעודי לחישוב ולביטוי/);
 assert.match(world, /לדף המספר ←/);
@@ -911,7 +912,7 @@ assert.equal(world.includes("מרכז העולם"), false, "anchored World must 
 assert.equal(world.includes("sod29-world-stage"), false, "legacy-looking duplicate anchor stage must stay removed from the 2029 hierarchy");
 assert.equal(world.includes("sod29-anchor-core"), false, "anchor identity must not be rendered twice before the profile");
 assert.equal(world.includes("sod29-orbit-metrics"), false, "availability counts belong to orientation lanes, not a competing metrics block");
-assert.match(world, /מתחילים במהות, ואז בוחרים את השכבה/);
+assert.match(world, /החומר סביב העוגן מסודר לפי שכבות/);
 for (const lane of ["overview", "media", "calculations", "sources", "relations", "research", "timeline"]) {
   assert.match(world, new RegExp(`activeLane === ["']${lane}["']|key: ["']${lane}["']`), `World orientation lane missing: ${lane}`);
 }
@@ -1127,7 +1128,7 @@ for (const oldCopy of [
   "קורא רק דרך ה־2029 read models הפעילים", "אין fallback שקט ל־Legacy", "World הוא projection",
   "מגיעים מאותו System Frame", "אין projection זמין לעוגן הזה", "המציאות המחקרית פתוחה", "מפת המחקר של המציאות",
 ]) assert.equal(world.includes(oldCopy), false, `debug/research-default copy leaked: ${oldCopy}`);
-assert.match(world, /מתחילים ממה שמסקרן אותך/);
+assert.match(world, /מפת הידע של SOD1820/);
 assert.equal(world.includes("DISCOVERY WORLD"), false, "public World must not expose the old internal English surface label");
 assert.match(world, /עולם · גילוי/, "public World keeps the clean reader-facing status");
 

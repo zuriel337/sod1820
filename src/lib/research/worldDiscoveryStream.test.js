@@ -172,7 +172,8 @@ test("new public World uses the composed story and sources without a feature tog
   assert.doesNotMatch(world, /VITE_WORLD_2029_ENABLED/);
   assert.doesNotMatch(world, /import\.meta\.env\.VITE_INTEGRATED_PREVIEW\s*===\s*["']true["']\)\s*&&\s*!controlMode/);
   assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\}/);
-  assert.match(world, /<SourceArrivalList2029 loading=\{landing\.discoveryLoading\}/);
+  assert.match(world, /<WorldPublicUpdates2029 loading=\{landing\.discoveryLoading\}/);
+  assert.doesNotMatch(world, /<SourceArrivalList2029/);
   assert.match(world, /!\[WORLD_LANDING_VIEW\.START, WORLD_LANDING_VIEW\.LIVE\]\.includes\(activeView\)/,
     "the discovery stream must load only in the two views that render it");
   assert.match(reader, /\.order\("modified", \{ ascending: false, nullsFirst: false \}\)/);

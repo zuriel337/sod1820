@@ -124,12 +124,12 @@ with sync_playwright() as p:
             page.wait_for_url('**/world?**')
             world_path = page.url.removeprefix(BASE)
             target = assert_target(page)
-            assert target.get_by_role('link', name='פתיחה מדויקת ←').get_attribute('href') == '/fixture-article-0'
-            target.get_by_role('link', name='פתיחה מדויקת ←').click()
+            assert target.get_by_role('link', name='למקור ←').get_attribute('href') == '/fixture-article-0'
+            target.get_by_role('link', name='למקור ←').click()
             page.get_by_role('heading', name='מקור המאמר המקורי · נתוני בדיקה').wait_for()
             page.go_back()
             assert_target(page)
-            page.get_by_role('link', name='לדף הכתב המלא', exact=True).click()
+            page.locator('.sod29-world-selected-source').get_by_role('link', name='לדף הכתב', exact=True).click()
             back = page.locator('.pc-return')
             expect(back).to_be_visible()
             assert back.get_attribute('href') == world_path
