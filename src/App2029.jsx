@@ -60,6 +60,22 @@ const Kingdom2029Page = kingdomPreviewEnabled
 const integratedPreviewEnabled = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
 const IntegratedPreview2029Page = integratedPreviewEnabled
   ? lazy(() => import("./pages/IntegratedPreview2029Page.jsx")) : null;
+// Isolated, unlinked Books governance-review surface. Ordinary builds neither
+// register nor import it; the existing /2029/control document route keeps the
+// preview out of public navigation and avoids creating a production route.
+const bookPublicationReviewPreviewEnabled = import.meta.env.VITE_BOOK_PUBLICATION_REVIEW_PREVIEW === "true";
+const BookPublicationReview2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/BookPublicationReview2029Page.jsx")) : null;
+const BentovFindingsProduct2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/BentovFindingsProduct2029Page.jsx")) : null;
+const BooksLibraryJourney2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/BooksLibraryJourney2029Page.jsx")) : null;
+const DaatTevunotTree2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/DaatTevunotTree2029Page.jsx")) : null;
+const AhavatTorahSystem2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/AhavatTorahSystem2029Page.jsx")) : null;
+const SeferYetzirahWorld2029Page = bookPublicationReviewPreviewEnabled
+  ? lazy(() => import("./pages/SeferYetzirahWorld2029Page.jsx")) : null;
 
 function Loading2029() {
   const palette = use2029Palette();
@@ -126,6 +142,41 @@ function GematriaEntry2029() {
     : <CalculatorPro2029Page />;
 }
 
+function ControlEntry2029() {
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  const reviewRequested = params.get("surface") === "books-publication-review";
+  const findingsProductRequested = params.get("surface") === "bentov-findings-product";
+  const libraryJourneyRequested = params.get("surface") === "books-library-journey";
+  const daatTevunotTreeRequested = params.get("surface") === "daat-tevunot-tree";
+  const ahavatTorahSystemRequested = params.get("surface") === "ahavat-torah-system";
+  const seferYetzirahWorldRequested = params.get("surface") === "sefer-yetzirah-world";
+  const unifiedBooksReaderRequested = params.get("surface") === "books-unified-reader";
+  const slug = params.get("book") || "";
+  if (bookPublicationReviewPreviewEnabled && unifiedBooksReaderRequested) {
+    return <Books2029Page previewSlug={slug} />;
+  }
+  if (bookPublicationReviewPreviewEnabled && seferYetzirahWorldRequested && SeferYetzirahWorld2029Page) {
+    return <SeferYetzirahWorld2029Page />;
+  }
+  if (bookPublicationReviewPreviewEnabled && ahavatTorahSystemRequested && AhavatTorahSystem2029Page) {
+    return <AhavatTorahSystem2029Page />;
+  }
+  if (bookPublicationReviewPreviewEnabled && daatTevunotTreeRequested && DaatTevunotTree2029Page) {
+    return <DaatTevunotTree2029Page />;
+  }
+  if (bookPublicationReviewPreviewEnabled && libraryJourneyRequested && BooksLibraryJourney2029Page) {
+    return <BooksLibraryJourney2029Page />;
+  }
+  if (bookPublicationReviewPreviewEnabled && findingsProductRequested && BentovFindingsProduct2029Page) {
+    return <BentovFindingsProduct2029Page />;
+  }
+  if (bookPublicationReviewPreviewEnabled && reviewRequested && BookPublicationReview2029Page) {
+    return <BookPublicationReview2029Page key={slug} slug={slug} />;
+  }
+  return <ControlPlane2029Page />;
+}
+
 export default function App2029() {
   return (
     <AuthProvider>
@@ -173,7 +224,7 @@ export default function App2029() {
               <Route path="/researcher/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Researcher2029Page /></Locked>} />
               <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><Number2029Page /></Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
-              <Route path="/2029/control" element={<ControlPlane2029Page />} />
+              <Route path="/2029/control" element={<ControlEntry2029 />} />
               <Route path="*" element={<LegacyDocumentHandoff />} />
               </Routes>
             </Suspense>
