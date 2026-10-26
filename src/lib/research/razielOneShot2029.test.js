@@ -142,7 +142,7 @@ test("weight: gate, spec, copy and panel are lazy-only; the report normaliser mo
 
 test("UI: both actions sit beside 'בדוק לעומק' on the latest answer, never in the composer; the full picture is a native collapsible; no mode switch", () => {
   assert.match(frame, /import RazielOneShotActions2029 from "\.\/RazielOneShotActions2029\.jsx"/);
-  assert.match(frame, /\{m === lastRaziel && status === "ready" \? <RazielOneShotActions2029 session=\{session\} disabled=\{quotaEnded\} onRun=\{\(kind\) => runSessionAction\(\(\) => session\.submitOneShot\(kind, \{ projection \}\)\)\} \/> : null\}/);
+  assert.match(frame, /\{m === lastRaziel && status === "ready" \? <RazielOneShotActions2029 session=\{session\} onRun=\{\(kind\) => session\.submitOneShot\(kind, \{ projection \}\)\} \/> : null\}/);
   assert.ok(frame.indexOf("data-raziel-deepen-preview") < frame.indexOf("<RazielOneShotActions2029"), "next to the deepen action");
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
   const composer = chat.slice(chat.indexOf('<form className="sod29-raziel-composer"'));
@@ -152,10 +152,10 @@ test("UI: both actions sit beside 'בדוק לעומק' on the latest answer, ne
 });
 
 test("component: same action class as deepen, explains first (lazy panel), activates only from the explicit button, blocks without a valid Bundle", () => {
-  assert.match(actions, /className="sod29-action" type="button" disabled=\{session\.busy \|\| disabled\} aria-expanded=\{open === kind\}/);
+  assert.match(actions, /className="sod29-action" type="button" disabled=\{session\.busy\} aria-expanded=\{open === kind\}/);
   assert.match(actions, /onClick=\{\(\) => toggle\(kind\)\}/, "the first click only opens the explanation");
   assert.equal((actions.match(/onRun\(open\)/g) || []).length, 1);
-  assert.match(actions, /\{open && Offer \? <Offer kind=\{open\} session=\{session\} busy=\{session\.busy \|\| disabled\} onRun=\{\(\) => \{ close\(\); onRun\(open\); \}\} onClose=\{close\} \/> : null\}/);
+  assert.match(actions, /\{open && Offer \? <Offer kind=\{open\} session=\{session\} busy=\{session\.busy\} onRun=\{\(\) => \{ close\(\); onRun\(open\); \}\} onClose=\{close\} \/> : null\}/);
   assert.match(offer, /selectRazielOneShot\(session\)\.ok/);
   const noMaterial = offer.slice(offer.indexOf(") : ("), offer.indexOf("</div>\n  );"));
   assert.match(noMaterial, /copy\.noMaterial/);

@@ -18,17 +18,24 @@ test("conversation-first copy keeps internal contracts stable and technical lang
   assert.match(chat, />▤ השיחות שלי/);
   assert.match(chat, />＋ שיחה חדשה<\/button>/);
   assert.match(chat, />בדוק לעומק<\/button>/);
-  assert.match(chat, /נהנית מהשיחה\? הירשם בחינם כדי לשמור אותה ולהמשיך בדיוק מאותה נקודה, גם ממכשיר אחר\./);
-  assert.match(chat, /שיחות הניסיון להיום הסתיימו\. הרשמה חינמית תאפשר לך להמשיך לדבר עם רזיאל ולשמור את השיחות שלך\./);
   assert.doesNotMatch(chat, />♡ שמור מחקר<\/button>|<summary>מפת מחקר<\/summary>/);
   assert.doesNotMatch(chat, /credit_ledger|spendCredits|CREDIT_COST|Result Bundle/);
+});
 
-  assert.match(chat, /!user\?\.id && lastRaziel \? quotaEnded \?/,
-    "registration and quota copy appear only after a Raziel answer exists");
-  assert.match(chat, /window\.addEventListener\("sod:ai-quota", onQuota\)/,
-    "the UI reacts to the existing server-owned quota event instead of counting locally");
-  assert.doesNotMatch(chat, /quota\s*[-+]=|setQuota.*\+|localStorage.*quota/i,
-    "the conversation does not invent a quota counter or durable quota store");
+test("slice 1 boundary excludes registration, quota accounting, AI-answer counting and credits", () => {
+  const frame = read("src/components/experience2029/SystemFrame2029.jsx");
+  const actions = read("src/components/experience2029/RazielOneShotActions2029.jsx");
+  const chatStart = frame.indexOf("function RazielNativeChat");
+  const chatEnd = frame.indexOf("const RESEARCH_SECTIONS", chatStart);
+  const slice = `${frame.slice(chatStart, chatEnd)}\n${actions}`;
+
+  assert.doesNotMatch(slice, /data-raziel-registration-nudge|registration[-_ ]nudge|onSignup/);
+  assert.doesNotMatch(slice, /data-raziel-quota-ended|quotaEnded|sod:ai-quota|quota listener/i);
+  assert.doesNotMatch(slice, /completedAiAnswers|aiAnswerCount|answerCount|two.*answers|2.*answers/i);
+  assert.doesNotMatch(slice, /credit_ledger|spendCredits|CREDIT_COST|creditsCharged/i);
+  assert.doesNotMatch(slice, /quota\s*[-+]=|setQuota|quotaLimit|limitOverride/i);
+  assert.match(slice, /session\.submit\(\{ question: q/);
+  assert.match(slice, /session\.submitOneShot\(kind, \{ projection \}\)/);
 });
 
 test("the full-picture action changes representation labels without renaming internal modes or saved-session types", () => {
