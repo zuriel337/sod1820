@@ -7,10 +7,10 @@ import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 // unconfirmed follow change is never a success.
 
 export const READ_STATES = Object.freeze(["loading", "ready", "unavailable"]);
-const KIND_ORDER = ["כתב", "מספר", "קטגוריה", "ערוץ", "נושא", ""];
-const KIND_HEADINGS = { "כתב": "כותבים", "מספר": "מספרים", "קטגוריה": "קטגוריות", "ערוץ": "ערוצים", "נושא": "נושאים", "": "אחר" };
+const KIND_ORDER = ["כתב", "מספר", "קטגוריה", "סדרה", "ערוץ", "נושא", ""];
+const KIND_HEADINGS = { "כתב": "כותבים", "מספר": "מספרים", "קטגוריה": "קטגוריות", "סדרה": "סדרות", "ערוץ": "ערוצים", "נושא": "נושאים", "": "אחר" };
 // 2029 icon names (NavigationIcon2029 catalog) per subject kind and channel. The legacy emoji from topicLabel are not used.
-const KIND_ICON = { "כתב": "personal", "מספר": "number", "קטגוריה": "layers", "ערוץ": "signal", "נושא": "discovery", "": "help" };
+const KIND_ICON = { "כתב": "personal", "מספר": "number", "קטגוריה": "layers", "סדרה": "layers", "ערוץ": "signal", "נושא": "discovery", "": "help" };
 const CHANNEL_ICON = { email: "posts", push: "signal", whatsapp: "conversation" };
 const readState = (value) => READ_STATES.includes(value) ? value : "unavailable";
 const safeInternal = (href) => {
@@ -22,6 +22,14 @@ const safeInternal = (href) => {
     return url.pathname + url.search + url.hash;
   } catch { return null; }
 };
+
+// The existing post_new producer stores /<slug>. Interpret that known producer
+// contract inside 2029; do not change stored notifications or other event links.
+function updateHref2029(item) {
+  const href = safeInternal(item.link);
+  if (href && item.kind === "post_new" && /^\/[^/?#]+$/.test(href)) return `/post/${href.slice(1)}`;
+  return href;
+}
 
 // Follow v19: follow, identity, channel choice and delivery are four separate states.
 export function followLifecycle({ principal, followCount, channels, followReadState = "ready", channelReadState = "ready" }) {
@@ -43,10 +51,10 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
   const nState = readState(notifications.state), fState = readState(follows.state);
   const items = nState === "ready" && Array.isArray(notifications.items) ? notifications.items : [];
   const updates = items.map((item) => {
-    const why = topicLabel(item.source_topic);
+    const why = topicLabel(item.source_topic, { experience: "2029" });
     return {
       id: item.id, title: item.title || "", body: item.body || "", unread: !item.read_at,
-      time: bilingualDateLabel(item.created_at), href: safeInternal(item.link),
+      time: bilingualDateLabel(item.created_at), href: updateHref2029(item),
       why: why ? { icon: KIND_ICON[why.kind] || "help", label: why.label, kind: why.kind } : null,
     };
   });
@@ -54,7 +62,7 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
   const links = follows.links || {}, pending = follows.pending || {};
   const groups = new Map();
   for (const topic of topics) {
-    const label = topicLabel(topic); if (!label) continue;
+    const label = topicLabel(topic, { experience: "2029" }); if (!label) continue;
     const key = KIND_ORDER.includes(label.kind) ? label.kind : "";
     const href = key === "כתב" ? safeInternal(links[topic]) : safeInternal(label.link);
     if (!groups.has(key)) groups.set(key, []);
