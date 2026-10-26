@@ -831,6 +831,36 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     }
   }, [commitFamilySelection, editingMemberRef, personId, refresh, refreshFamilyClaims, resetMemberForm, selectedFamilyRefs]);
 
+  const analyzeCompletedFamilyResearch = useCallback(async (completedResearch) => {
+    if (!completedResearch || completedResearch.state !== "ready") return null;
+    setFamilyAnalysis({ state: "loading", data: null, error: null });
+    try {
+      const {
+        createLifeJourneyFamilyAnalysisProviders,
+        runLifeJourneyFamilyAnalysis,
+      } = await import("../lib/research/lifeJourneyFamilyAnalysis.js");
+      const providers = createLifeJourneyFamilyAnalysisProviders({ getAiAnalysis, supabase });
+      const data = await runLifeJourneyFamilyAnalysis({
+        research: completedResearch,
+        ...providers,
+      });
+      const completedAnalysis = { state: "ready", data, error: null };
+      setFamilyAnalysis(completedAnalysis);
+      const snapshot = serializeLifeJourneyFamilySnapshot({
+        personRef: selfRef,
+        signature: familyResearchSignature,
+        research: completedResearch,
+        analysis: completedAnalysis,
+      });
+      if (snapshot) research.updateResearchContext?.(lifeJourneyFamilySnapshotPatch(snapshot));
+      track("journey_person", null, "family_normalized_analysis_explicit");
+      return data;
+    } catch (error) {
+      setFamilyAnalysis({ state: "error", data: null, error: personJourneyErrorMessage(error) });
+      return null;
+    }
+  }, [familyResearchSignature, research, selfRef]);
+
   const runSelectedFamilyResearch = useCallback(async () => {
     if (!user) return;
     const selectedSet = new Set(selectedFamilyRefs);
@@ -927,38 +957,16 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       });
       if (snapshot) research.updateResearchContext?.(lifeJourneyFamilySnapshotPatch(snapshot));
       track("journey_person", null, "family_research_explicit");
+      await analyzeCompletedFamilyResearch(completedResearch);
     } catch (error) {
       setFamilyResearch({ state: "error", rows: [], sharedValues: [], error: personJourneyErrorMessage(error) });
     }
-  }, [familyResearchSignature, members, research, selectedFamilyRefs, selfRef, user, variant]);
+  }, [analyzeCompletedFamilyResearch, familyResearchSignature, members, research, selectedFamilyRefs, selfRef, user, variant]);
 
   const runFamilyAnalysis = useCallback(async () => {
     if (familyResearch.state !== "ready") return;
-    setFamilyAnalysis({ state: "loading", data: null, error: null });
-    try {
-      const {
-        createLifeJourneyFamilyAnalysisProviders,
-        runLifeJourneyFamilyAnalysis,
-      } = await import("../lib/research/lifeJourneyFamilyAnalysis.js");
-      const providers = createLifeJourneyFamilyAnalysisProviders({ getAiAnalysis, supabase });
-      const data = await runLifeJourneyFamilyAnalysis({
-        research: familyResearch,
-        ...providers,
-      });
-      const completedAnalysis = { state: "ready", data, error: null };
-      setFamilyAnalysis(completedAnalysis);
-      const snapshot = serializeLifeJourneyFamilySnapshot({
-        personRef: selfRef,
-        signature: familyResearchSignature,
-        research: familyResearch,
-        analysis: completedAnalysis,
-      });
-      if (snapshot) research.updateResearchContext?.(lifeJourneyFamilySnapshotPatch(snapshot));
-      track("journey_person", null, "family_normalized_analysis_explicit");
-    } catch (error) {
-      setFamilyAnalysis({ state: "error", data: null, error: personJourneyErrorMessage(error) });
-    }
-  }, [familyResearch, familyResearchSignature, research, selfRef]);
+    await analyzeCompletedFamilyResearch(familyResearch);
+  }, [analyzeCompletedFamilyResearch, familyResearch]);
 
   if (authLoading || loading) {
     return <div className="person-journey"><div className="person-journey-state" aria-busy="true">טוען את מסע החיים…</div></div>;
@@ -1342,16 +1350,18 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         <button
           type="button"
           className="person-journey-primary"
-          disabled={!selectedFamilyRefs.length || selectedFamilyRefs.length > MAX_FAMILY_RESEARCH_MEMBERS || familyResearch.state === "loading"}
+          disabled={!selectedFamilyRefs.length || selectedFamilyRefs.length > MAX_FAMILY_RESEARCH_MEMBERS || familyResearch.state === "loading" || familyAnalysis.state === "loading"}
           onClick={runSelectedFamilyResearch}
         >
           {familyResearch.state === "loading"
-            ? "מחבר את המחקר המשפחתי…"
+            ? "בונה את מפת המחקר…"
+            : familyAnalysis.state === "loading"
+              ? "מנסח את המסר מהממצאים…"
             : selectedFamilyRefs.length === 1
-              ? "חקור אדם אחד"
-              : `חקור ${selectedFamilyRefs.length} אנשים יחד`}
+              ? "צור מחקר ומסר לאדם שנבחר"
+              : `צור מחקר ומסר ל־${selectedFamilyRefs.length} אנשים`}
         </button>
-        <small>הפעלה מפורשת של שכבות השם והתאריך בלבד. ELS אינו משתתף בשלב הזה.</small>
+        <small>לחיצה אחת בונה את המפה ומנסחת ממנה מסר. ELS אינו משתתף בשלב הזה.</small>
       </div> : null}
 
       {familyResearch.state === "loading" ? <CanonicalProgress
@@ -1366,12 +1376,44 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <div><small>מחקר מפורש</small><h3>מפת המחקר המשפחתית</h3></div>
           <span>{familyResearch.rows.filter(row => row.state === "ready").length} מתוך {familyResearch.rows.length} הושלמו</span>
         </div>
-        <article className="person-journey-research-message" aria-label="מסר המחקר המשפחתי המאוחד">
+        {familyAnalysis.state === "loading" ? <CanonicalProgress
+          title="מנסח מסר מהמפה המנורמלת"
+          detail="המסר נבנה רק מהממצאים שכבר חושבו; בדיקת ההשתקפות נשארת פנימית."
+          phase="נרמול → סינתזה → אימות פנימי"
+          compact
+        /> : null}
+        {familyAnalysis.state === "ready" && familyAnalysis.data ? <article
+          className="person-journey-family-analysis"
+          data-experience-capability="life-journey-family-normalized-analysis"
+          aria-labelledby="life-journey-family-analysis-title"
+        >
+          <header>
+            <div><small>מסר מתוך הממצאים המנורמלים</small><h3 id="life-journey-family-analysis-title">המסר המשפחתי</h3></div>
+            <span>{familyAnalysis.data.coverage.connectionCount} חיבורים · {familyAnalysis.data.coverage.searchedPairCount} זוגות נבדקו</span>
+          </header>
+          <p>{familyAnalysis.data.message}</p>
+          <details>
+            <summary>על מה המסר נשען?</summary>
+            <ul>{familyAnalysis.data.claims.map(claim => <li key={claim.id}>{claim.text}</li>)}</ul>
+          </details>
+          <footer>המסר נוסח רק מתוצאות המנוע שכבר חושבו. בדיקות פנימיות אינן מוצגות, אינן ראיה ואינן משנות את הממצאים.</footer>
+        </article> : null}
+        {familyAnalysis.state === "error" || familyAnalysis.state === "idle" ? <>
+          <article className="person-journey-research-message" aria-label="מסר המחקר המשפחתי המאוחד">
           <small>מחקר משפחתי מאוחד · מנורמל</small>
           <h3>המשפחה כמטריצה אחת</h3>
           <p>{familyResearch.message}</p>
           <span>{familyResearch.coverage?.expressionCount || 0} ביטויי שם ותאריך יצרו {familyResearch.coverage?.searchedPairCount || 0} זוגות מועמדים שנבדקו. נשמר עותק עבודה פרטי ב־Research Context; הוא אינו אמת על המשפחה.</span>
-        </article>
+          </article>
+          <div className="person-journey-family-analysis-actions">
+            <button
+              type="button"
+              className="person-journey-primary"
+              onClick={runFamilyAnalysis}
+            >{familyAnalysis.state === "error" ? "נסה שוב לנסח את המסר" : "נסח מסר מהמפה השמורה"}</button>
+            <small role={familyAnalysis.state === "error" ? "alert" : undefined}>{familyAnalysis.state === "error" ? familyAnalysis.error : "המפה שוחזרה מהזיכרון הפרטי בלי להפעיל מחדש את מנוע הניסוח."}</small>
+          </div>
+        </> : null}
         {familyResearch.coverage?.truncated ? <p className="person-journey-note">מספר זוגות הביטויים עבר את גבול ההפעלה הבטוח. מוצג חתך מפורש ומדווח; לא הומצאה השלמה לזוגות שלא נבדקו.</p> : null}
         {familyResearch.connections?.length ? <section className="person-journey-relation-list" aria-label="חיבורים מנורמלים בין בני המשפחה">
           <header><div><small>הצלבות בין אנשים</small><h3>חיבורים שנמצאו</h3></div><span>{familyResearch.connections.length} חיבורים</span></header>
@@ -1429,38 +1471,6 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             </> : <p>{row.error}</p>}
           </article>)}
         </div>
-        <div className="person-journey-family-analysis-actions">
-          <button
-            type="button"
-            className="person-journey-primary"
-            disabled={familyAnalysis.state === "loading"}
-            onClick={runFamilyAnalysis}
-          >{familyAnalysis.state === "loading" ? "מנסח ניתוח מנורמל…" : "נתח את המפה המשפחתית"}</button>
-          <small>הניתוח מופעל רק בלחיצה. ELS אינו משתתף, ושמות בני המשפחה אינם נשלחים למפרש.</small>
-        </div>
-        {familyAnalysis.state === "loading" ? <CanonicalProgress
-          title="מנסח ניתוח משפחתי מנורמל"
-          detail="מאחד את ממצאי המנוע שכבר חושבו ומקפיא מסר לפני בדיקת עקביות פנימית."
-          phase="נרמול → סינתזה → אימות פנימי"
-          compact
-        /> : null}
-        {familyAnalysis.state === "error" ? <div className="person-journey-error" role="alert">{familyAnalysis.error}</div> : null}
-        {familyAnalysis.state === "ready" && familyAnalysis.data ? <article
-          className="person-journey-family-analysis"
-          data-experience-capability="life-journey-family-normalized-analysis"
-          aria-labelledby="life-journey-family-analysis-title"
-        >
-          <header>
-            <div><small>מסר שהוקפא מתוך הממצאים</small><h3 id="life-journey-family-analysis-title">הניתוח המשפחתי המנורמל</h3></div>
-            <span>{familyAnalysis.data.coverage.connectionCount} חיבורים · {familyAnalysis.data.coverage.searchedPairCount} זוגות נבדקו</span>
-          </header>
-          <p>{familyAnalysis.data.message}</p>
-          <div>
-            <small>על מה הניתוח נשען</small>
-            <ul>{familyAnalysis.data.claims.map(claim => <li key={claim.id}>{claim.text}</li>)}</ul>
-          </div>
-          <footer>הקלפים שימשו בדיקת השתקפות פנימית בלבד, אחרי הקפאת המסר. הם אינם מוצגים, אינם ראיה ולא שינו את הניתוח.</footer>
-        </article> : null}
       </section> : null}
 
       {!familyMembers.length ? <div className="person-journey-empty">עוד לא הוספת בני משפחה. אפשר להוסיף שם ותאריך, ולקשור כהורה או ילד/ה כשזה ידוע.</div> : null}

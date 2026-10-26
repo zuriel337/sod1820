@@ -411,6 +411,8 @@
 .person-journey-family-analysis h3{margin:0;font-size:20px}
 .person-journey-family-analysis>header small,.person-journey-family-analysis>header>span,.person-journey-family-analysis>div>small,.person-journey-family-analysis>footer{color:var(--pj-soft);font-size:12px}
 .person-journey-family-analysis>p{margin:0;line-height:1.85;font-size:16px}
+.person-journey-family-analysis>details{border-top:1px solid var(--pj-line);padding-top:11px}
+.person-journey-family-analysis>details summary{cursor:pointer;color:var(--pj-ink);font-size:12px;font-weight:800}
 .person-journey-family-analysis ul{display:grid;gap:7px;margin:8px 0 0;padding-inline-start:22px;line-height:1.65}
 .person-journey-family-analysis>footer{border-top:1px solid var(--pj-line);padding-top:11px;line-height:1.65}
 .person-journey-family-form{align-items:end}

@@ -68,10 +68,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(journey, /runLifeJourneyFamilyResearch/);
   assert.match(journey, /המשפחה כמטריצה אחת/);
   assert.match(journey, /Promise\.all\(selectedMembers\.map/);
-  assert.match(journey, /חקור \$\{selectedFamilyRefs\.length\} אנשים יחד/);
+  assert.match(journey, /צור מחקר ומסר ל־\$\{selectedFamilyRefs\.length\} אנשים/);
   assert.match(journey, /מפת המחקר המשפחתית/);
   assert.match(journey, /runLifeJourneyFamilyAnalysis/);
-  assert.match(journey, /נתח את המפה המשפחתית/);
+  assert.match(journey, /await analyzeCompletedFamilyResearch\(completedResearch\)/);
+  assert.match(journey, /המסר המשפחתי/);
   assert.match(journey, /data-experience-capability="life-journey-family-normalized-analysis"/);
   assert.doesNotMatch(journey, /person-journey-family-list/);
   assert.doesNotMatch(journey, /person-journey-reflection-cards/);
