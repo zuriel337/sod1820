@@ -13,9 +13,9 @@ local_docker run --rm -d --network none --name "$TASK_SQL_CONTAINER" \
   postgres:17-bookworm >/dev/null
 trap 'local_docker rm -f "$TASK_SQL_CONTAINER" >/dev/null 2>&1 || true' EXIT
 for _ in $(seq 1 30); do
-  if local_docker exec "$TASK_SQL_CONTAINER" pg_isready -U postgres >/dev/null 2>&1; then break; fi
+  if local_docker exec "$TASK_SQL_CONTAINER" pg_isready -h 127.0.0.1 -U postgres >/dev/null 2>&1; then break; fi
   sleep 1
 done
-local_docker exec "$TASK_SQL_CONTAINER" pg_isready -U postgres >/dev/null
+local_docker exec "$TASK_SQL_CONTAINER" pg_isready -h 127.0.0.1 -U postgres >/dev/null
 local_docker exec -w /repo "$TASK_SQL_CONTAINER" psql -X -U postgres -d postgres \
   -v ON_ERROR_STOP=1 -q -f tests/sql/personal_replies_community_context_v1.sql
