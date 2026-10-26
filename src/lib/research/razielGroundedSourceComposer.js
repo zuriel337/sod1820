@@ -251,7 +251,7 @@ function findingFallbackLine(finding, subjectLabel) {
   const prefix = {
     verified_calculation: "חישוב מאומת",
     source_claim: "טענת המאגר",
-    engine_finding: "ממצא מנוע",
+    engine_finding: "ממצא מחושב",
     explicit_interpretation: "פרשנות מתועדת",
     unverified_finding: "ממצא שטרם אומת",
   }[lane];

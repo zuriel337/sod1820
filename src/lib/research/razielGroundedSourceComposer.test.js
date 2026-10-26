@@ -141,7 +141,7 @@ test("engine convergence is not promoted to verified or independent evidence", (
 
   assert.deepEqual(prompt.bundles[0].evidence_lanes.engine_findings, ["uf:crossing"]);
   assert.deepEqual(prompt.bundles[0].evidence_lanes.verified_calculations, []);
-  assert.match(out.fallback, /ממצא מנוע: משיח ↔ שלום/);
+  assert.match(out.fallback, /ממצא מחושב: משיח ↔ שלום/);
   assert.match(out.fallback, /אתבש=112/);
   assert.match(out.fallback, /עצמאות בין משפחות החישוב לא נטענה/);
   assert.match(out.guidance, /gematria-method-semantic הוא פרשנות מאושרת/);
