@@ -460,6 +460,30 @@ export default function WorldAllResearchTable({ state }) {
     {projection ? <>
       {projection.corpusAudit?.workstreams?.length ? <section className="sod29-world-kind-section" aria-label="מפת תורי המיון בקורפוס">
         <header><div><h3>מפת תורי המיון בקורפוס</h3><p>צילום מצב מ־26.10.2026. כל שורה מצביעה למאגר הקנוני; הספירות הן צירים נפרדים וחלקן חופפות.</p></div><span>{projection.corpusAudit.workstreams.length} תחומי עבודה</span></header>
+        {projection.triageSnapshot?.strengthBreakdown ? <>
+          <h4>כל דוח הממצאים · לפי חוזק</h4>
+          <div className="sod29-world-kind-card-grid">{Object.entries(projection.triageSnapshot.strengthBreakdown).map(([strengthLabel, breakdown]) => <article className="sod29-world-kind-card" key={strengthLabel}>
+            <small>{breakdown.cards.toLocaleString("he-IL")} כרטיסים · {breakdown.occurrences.toLocaleString("he-IL")} הופעות</small>
+            <strong>{strengthLabel}</strong>
+            <div className="sod29-world-spatial-status" aria-label={`פירוט ${strengthLabel}`}>
+              {Object.entries(breakdown.recommendations || {}).map(([label, count]) => <span key={label}>{label}: {count.toLocaleString("he-IL")}</span>)}
+              <span>אשכולות טקסט זהה: {breakdown.exactDuplicateClusters.toLocaleString("he-IL")}</span>
+              <span>הופעות עודפות שנשמרו: {breakdown.duplicateOccurrencesCombined.toLocaleString("he-IL")}</span>
+              <span>הצעות יעד בדוח: {breakdown.proposedTreeTargets.toLocaleString("he-IL")}</span>
+            </div>
+            <small>הצעת יעד אינה חיבור חי; הופעה חוזרת אינה מקור עצמאי.</small>
+          </article>)}</div>
+        </> : null}
+        {projection.corpusAudit.findingBatches?.length ? <>
+          <h4>מנות ההמשך הגדולות</h4>
+          <div className="sod29-world-kind-card-grid">{projection.corpusAudit.findingBatches.map((batch) => <article className="sod29-world-kind-card" key={batch.key}>
+            <small>{batch.total.toLocaleString("he-IL")} כרטיסים בדוח</small>
+            <strong>{batch.label}</strong>
+            <p>{batch.state}</p>
+            <p><b>סדר טיפול:</b> {batch.next}</p>
+            <a className="sod29-action" href={batch.route}>פתח מנה מסוננת ←</a>
+          </article>)}</div>
+        </> : null}
         <div className="sod29-world-kind-card-grid">{projection.corpusAudit.workstreams.map((stream) => <article className="sod29-world-kind-card" key={stream.key}>
           <small>{stream.total.toLocaleString("he-IL")} רשומות בתחום</small>
           <strong>{stream.label}</strong>

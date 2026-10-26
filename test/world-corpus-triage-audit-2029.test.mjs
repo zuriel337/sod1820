@@ -5,6 +5,9 @@ import { WORLD_CORPUS_TRIAGE_AUDIT } from "../api/world-corpus-triage-audit.js";
 test("manager corpus audit keeps publication, verification and catalog completeness separate", () => {
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.scope, "read_only_recommendations");
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.workstreams.length, 7);
+  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 7);
+  assert.deepEqual(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.slice(0, 2).map((row) => row.total), [4164, 6362]);
+  assert.match(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "duplicates").next, /בלי מחיקה/u);
 
   const els = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "els");
   assert.equal(els.total, 135);
@@ -18,7 +21,9 @@ test("manager corpus audit keeps publication, verification and catalog completen
 });
 
 test("audit routes only to existing canonical World views", () => {
-  for (const stream of WORLD_CORPUS_TRIAGE_AUDIT.workstreams) {
+  for (const stream of [...WORLD_CORPUS_TRIAGE_AUDIT.workstreams, ...WORLD_CORPUS_TRIAGE_AUDIT.findingBatches]) {
     assert.match(stream.route, /^\/world(?:\?|$)/u);
   }
+  const zvi = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "zvi_findings");
+  assert.match(zvi.route, /contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8/u);
 });

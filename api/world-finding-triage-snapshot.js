@@ -17,6 +17,7 @@ const SNAPSHOT_ROWS = "01ab7adc-92f0-4c76-92fb-3ee43411d32e,0,0,0\n01fe92d4-7747
 const SNAPSHOT_INDEX = new Map();
 const strengthCounts = {};
 const recommendationCounts = {};
+const strengthRecommendationCounts = {};
 for (const [index, line] of SNAPSHOT_ROWS.trim().split("\n").entries()) {
   const [id, strengthCode, recommendationCode, reasonCode] = line.split(",");
   if (!id || SNAPSHOT_INDEX.has(id)) throw new Error("invalid World triage snapshot row: " + (id || index));
@@ -31,9 +32,56 @@ for (const [index, line] of SNAPSHOT_ROWS.trim().split("\n").entries()) {
   }));
   strengthCounts[strength] = (strengthCounts[strength] || 0) + 1;
   recommendationCounts[recommendation] = (recommendationCounts[recommendation] || 0) + 1;
+  strengthRecommendationCounts[strength] ||= {};
+  strengthRecommendationCounts[strength][recommendation]
+    = (strengthRecommendationCounts[strength][recommendation] || 0) + 1;
 }
 
 if (SNAPSHOT_INDEX.size !== 10709) throw new Error("World triage snapshot expected 10709 rows, got " + SNAPSHOT_INDEX.size);
+
+// These bounded aggregates were generated from the same source CSV as SNAPSHOT_ROWS.
+// They intentionally describe separate axes: an occurrence is not an independent
+// source, a proposed target is not a live tree connection, and a verification state
+// is not a publication or truth decision.
+const STRENGTH_OPERATIONAL_COUNTS = Object.freeze({
+  "חזק": Object.freeze({ occurrences: 192, exactDuplicateClusters: 9, duplicateOccurrencesCombined: 9, proposedTreeTargets: 174 }),
+  "בינוני": Object.freeze({ occurrences: 4429, exactDuplicateClusters: 211, duplicateOccurrencesCombined: 265, proposedTreeTargets: 4133 }),
+  "חלש": Object.freeze({ occurrences: 6575, exactDuplicateClusters: 110, duplicateOccurrencesCombined: 213, proposedTreeTargets: 5139 }),
+});
+
+const VERIFICATION_COHORTS = Object.freeze({
+  "בינוני": Object.freeze({
+    explicitMatch: 37,
+    legacySignal: 4076,
+    notApplicable: 9,
+    partialOrExceptional: 42,
+  }),
+  "חלש": Object.freeze({
+    notTested: 6347,
+    methodUnknown: 9,
+    mismatch: 6,
+  }),
+});
+
+const strengthBreakdown = Object.freeze(Object.fromEntries(STRENGTH_LABELS.map((strength) => [
+  strength,
+  Object.freeze({
+    cards: strengthCounts[strength] || 0,
+    recommendations: Object.freeze({ ...(strengthRecommendationCounts[strength] || {}) }),
+    verificationCohorts: VERIFICATION_COHORTS[strength] || null,
+    ...STRENGTH_OPERATIONAL_COUNTS[strength],
+  }),
+])));
+
+if (Object.values(VERIFICATION_COHORTS["בינוני"]).reduce((sum, count) => sum + count, 0) !== strengthCounts["בינוני"]) {
+  throw new Error("World medium verification cohorts do not cover the full snapshot");
+}
+if (Object.values(VERIFICATION_COHORTS["חלש"]).reduce((sum, count) => sum + count, 0) !== strengthCounts["חלש"]) {
+  throw new Error("World weak verification cohorts do not cover the full snapshot");
+}
+if (Object.values(STRENGTH_OPERATIONAL_COUNTS).reduce((sum, row) => sum + row.exactDuplicateClusters, 0) !== 330) {
+  throw new Error("World duplicate cohorts do not match the snapshot total");
+}
 
 export const WORLD_FINDING_TRIAGE_META = Object.freeze({
   snapshotDate: "2026-10-22",
@@ -45,6 +93,7 @@ export const WORLD_FINDING_TRIAGE_META = Object.freeze({
   duplicateOccurrencesCombined: 487,
   strengthCounts: Object.freeze({ ...strengthCounts }),
   recommendationCounts: Object.freeze({ ...recommendationCounts }),
+  strengthBreakdown,
   strongContinuation: WORLD_FINDING_STRONG_CONTINUATION_META,
 });
 

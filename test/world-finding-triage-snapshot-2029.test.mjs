@@ -25,6 +25,30 @@ test("the complete 2026-10-22 World triage report is present as a server-only sn
     "דורש OCR או תמלול": 1356,
     "לא מתאים": 6,
   });
+  assert.deepEqual(WORLD_FINDING_TRIAGE_META.strengthBreakdown["בינוני"], {
+    cards: 4164,
+    recommendations: {
+      "דורש בדיקה": 4122,
+      "דורש מקור": 35,
+      "שיוך זהות לא פתור": 1,
+      "דורש OCR או תמלול": 6,
+    },
+    verificationCohorts: {
+      explicitMatch: 37,
+      legacySignal: 4076,
+      notApplicable: 9,
+      partialOrExceptional: 42,
+    },
+    occurrences: 4429,
+    exactDuplicateClusters: 211,
+    duplicateOccurrencesCombined: 265,
+    proposedTreeTargets: 4133,
+  });
+  assert.deepEqual(WORLD_FINDING_TRIAGE_META.strengthBreakdown["חלש"].verificationCohorts, {
+    notTested: 6347,
+    methodUnknown: 9,
+    mismatch: 6,
+  });
 });
 
 test("snapshot preserves exact rank, recommendation, target and semantic duplicate keep decision", () => {
