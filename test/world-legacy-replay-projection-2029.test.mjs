@@ -6,6 +6,7 @@ import {
   projectWorldLegacyReplayOccurrence,
   replayWorldArithmeticExpression,
   replayWorldCompoundEnvelope,
+  replayWorldLegacyMethodMatrix,
 } from "../src/lib/research/worldLegacyReplayProjection.js";
 
 const id = (digit) => `${digit.repeat(8)}-${digit.repeat(4)}-4${digit.repeat(3)}-8${digit.repeat(3)}-${digit.repeat(12)}`;
@@ -43,7 +44,7 @@ test("mixed input and incomplete envelopes fail into separate review queues", ()
     engine_detail: { verification: { kind: "arithmetic", text: "37 × 73 = 2701", ok: true } },
   })).state, "arithmetic_unsupported");
   assert.equal(projectWorldLegacyReplayOccurrence(row({ engine_detail: { compound: { status: "ENGINE_VERIFIED_COMPOSITE" } } })).state, "compound_unsupported");
-  assert.equal(projectWorldLegacyReplayOccurrence(row({ engine_detail: { "חיים": 68 } })).state, "missing_replay_envelope");
+  assert.equal(projectWorldLegacyReplayOccurrence(row({ engine_detail: { "חיים": 68 } })).state, "legacy_matrix_unsupported");
 });
 
 test("addition replay verifies both arithmetic and explicit Hebrew operands", () => {
@@ -151,6 +152,53 @@ test("explicit verification attaches outside the legacy-signal queue without cha
   }, buildWorldLegacyReplayIndex([explicit]));
   assert.equal(projected.legacyReplay.state, "explicit_match");
   assert.equal(projected.legacyReplay.mutatesLiveData, false);
+});
+
+test("legacy method matrices replay canonical methods without treating parity as claim truth", () => {
+  const matrix = {
+    "חיים": {
+      "רגיל": 68,
+      "מילוי": 538,
+      "מסתתר": 32,
+      "קדמי": 291,
+      "אלבם": 702,
+      "מהמאגר": true,
+      "כל_הערכים": [32, 68, 291, 538, 702],
+    },
+  };
+  const matched = replayWorldLegacyMethodMatrix(matrix, true);
+  assert.equal(matched.state, "legacy_matrix_match");
+  assert.equal(matched.phraseCount, 1);
+  assert.equal(matched.checkedMethodCount, 5);
+  assert.equal(matched.mismatchCount, 0);
+
+  const unmatchedClaim = replayWorldLegacyMethodMatrix(matrix, false);
+  assert.equal(unmatchedClaim.state, "legacy_matrix_claim_unmatched");
+  assert.equal(unmatchedClaim.engineVerified, false);
+  assert.equal(projectWorldLegacyReplayOccurrence(row({ engine_verified: false, engine_detail: matrix })).state, "legacy_matrix_claim_unmatched");
+
+  const mismatch = replayWorldLegacyMethodMatrix({ "חיים": { "רגיל": 69 } }, true);
+  assert.equal(mismatch.state, "legacy_matrix_mismatch");
+  assert.equal(mismatch.mismatchCount, 1);
+  assert.equal(mismatch.mismatches[0].replayComputed, 68);
+
+  const fullMatrix = replayWorldLegacyMethodMatrix({
+    "מקל": {
+      "אלבם": 11, "אתבש": 34, "גדול": 170, "קדמי": 845, "רגיל": 170,
+      "הכפלה": 12500, "מילוי": 340, "מסתתר": 130, "ריבוע": 350, "סידורי": 44,
+      "קדמי_גדול": 845, "הכפלה_גדול": 12500, "ריבוע_גדול": 350,
+      "אותיות_אחרי": 290, "אותיות_לפני": 140, "מילוי_דמילוי": 1037,
+      "מהמאגר": true,
+    },
+  }, true);
+  assert.equal(fullMatrix.state, "legacy_matrix_match");
+  assert.equal(fullMatrix.checkedMethodCount, 16);
+});
+
+test("legacy non-matrix payloads remain blocked by their precise reason", () => {
+  assert.equal(replayWorldLegacyMethodMatrix({ method: "רגיל", computed: 1020 }, true).state, "legacy_incomplete_method_envelope");
+  assert.equal(replayWorldLegacyMethodMatrix({ channel: "source", saved_from: "pipeline" }, false).state, "legacy_source_metadata_only");
+  assert.equal(replayWorldLegacyMethodMatrix({ note: "unknown" }, false).state, "legacy_matrix_unsupported");
 });
 
 test("cluster attachment preserves every occurrence and never mutates live truth", () => {

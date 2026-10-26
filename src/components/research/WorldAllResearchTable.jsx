@@ -126,11 +126,18 @@ const LEGACY_REPLAY_LABELS = Object.freeze({
   explicit_numeric_match: "מעטפת אימות מפורשת · התאמה מספרית בלבד",
   explicit_state_conflict: "סתירה בין דגל המנוע למצב הבדיקה",
   explicit_review_required: "מעטפת אימות מפורשת · דורשת בדיקה",
+  legacy_matrix_match: "מטריצת שיטות שוחזרה במלואה",
+  legacy_matrix_claim_unmatched: "המטריצה תקינה · טענת המקור לא אומתה",
+  legacy_matrix_mismatch: "ערכי המטריצה אינם משתחזרים",
+  legacy_matrix_partial: "מטריצת שיטות חלקית",
+  legacy_matrix_unsupported: "מבנה מטריצה לא נתמך",
+  legacy_incomplete_method_envelope: "מעטפת שיטה חסרה",
+  legacy_source_metadata_only: "מטא־דאטה של מקור · ללא חישוב",
   missing_replay_envelope: "חסרה מעטפת replay",
   mixed_replay_states: "אשכול עם מצבי replay שונים",
 });
 
-const LEGACY_REPLAY_READY = new Set(["deterministic_match", "arithmetic_match", "compound_match", "explicit_match"]);
+const LEGACY_REPLAY_READY = new Set(["deterministic_match", "arithmetic_match", "compound_match", "explicit_match", "legacy_matrix_match"]);
 const LEGACY_REPLAY_BLOCKED = new Set([
   "deterministic_mismatch",
   "arithmetic_mismatch",
@@ -139,6 +146,8 @@ const LEGACY_REPLAY_BLOCKED = new Set([
   "compound_envelope_mismatch",
   "compound_method_unresolved",
   "explicit_state_conflict",
+  "legacy_matrix_claim_unmatched",
+  "legacy_matrix_mismatch",
 ]);
 
 function legacyReplayClass(state) {
@@ -163,6 +172,12 @@ function legacyReplayDescription(replay) {
   if (replay?.state === "explicit_numeric_match") return "המספרים תואמים, אך זו אינה הוכחת קורפוס, ייחודיות או משמעות.";
   if (replay?.state === "explicit_state_conflict") return "דגל המנוע ומצב הבדיקה סותרים זה את זה; ההופעה חסומה עד תיקון המעטפת.";
   if (replay?.state === "explicit_review_required") return "המעטפת מתעדת אי־התאמה, בדיקה חלקית או שיטה שאינה רשומה; אין לקדם.";
+  if (replay?.state === "legacy_matrix_match") return `${replay.checkedMethodCount || 0} ערכי שיטה שוחזרו; זו תקינות חישובית בלבד ועדיין נדרשת הכרעת מקור ויעד.`;
+  if (replay?.state === "legacy_matrix_claim_unmatched") return "ערכי המנוע משתחזרים, אך טענת המקור עצמה אינה מסומנת כמותאמת ולכן נשארת חסומה.";
+  if (replay?.state === "legacy_matrix_mismatch") return "לפחות ערך שיטה אחד שונה מתוצאת המנוע הקנוני; הרשומה חסומה.";
+  if (replay?.state === "legacy_matrix_partial") return "חלק מן הביטויים במטריצה אינם כוללים שיטה קנונית שניתנת לשחזור.";
+  if (replay?.state === "legacy_incomplete_method_envelope") return "נשמרו שיטה ותוצאה בלי ביטוי מלא; אין אפשרות לשחזר את החישוב.";
+  if (replay?.state === "legacy_source_metadata_only") return "השדה מכיל פרטי קליטה של המקור ואינו מעטפת חישוב.";
   if (replay?.state === "missing_replay_envelope") return "הסימון הישן אינו כולל קלט ושיטה מובנים שאפשר להריץ מחדש.";
   if (replay?.state?.endsWith("_unsupported")) return "המבנה אינו עומד בדקדוק הדטרמיניסטי המצומצם ונשאר לבדיקה.";
   return "נדרשת השלמת מעטפת או הכרעת מפעיל לפני אישור.";

@@ -1,4 +1,4 @@
-import { METHODS } from "../gematria.js";
+import { DEPTH_METHODS, METHODS } from "../gematria.js";
 import { extractCompoundClaims } from "../triage.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -9,6 +9,25 @@ const finite = (value) => {
 };
 const asObject = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
 const REGULAR_METHOD = METHODS.find((method) => method.key === "רגיל");
+const METHOD_BY_KEY = new Map([...METHODS, ...DEPTH_METHODS].map((method) => [method.key, method]));
+const LEGACY_MATRIX_METHODS = Object.freeze({
+  "רגיל": "רגיל",
+  "מילוי": "מילוי",
+  "מסתתר": "מסתתר",
+  "קדמי": "קדמי",
+  "ריבוע": "ריבוע",
+  "גדול": "גדול",
+  "סידורי": "סידורי",
+  "אתבש": "אתבש",
+  "אלבם": "אלבם",
+  "אותיות_אחרי": "אותיות אחרי",
+  "אותיות_לפני": "אותיות לפני",
+  "הכפלה": "הכפלה",
+  "קדמי_גדול": "משולש גדול",
+  "מילוי_דמילוי": "מילוי דמילוי",
+  "הכפלה_גדול": "הכפלה גדולה",
+  "ריבוע_גדול": "ריבוע גדול",
+});
 
 if (!REGULAR_METHOD?.fn) throw new Error("World legacy replay requires the canonical regular gematria method");
 
@@ -164,6 +183,61 @@ export function replayWorldCompoundEnvelope(value) {
   });
 }
 
+// Old Zvi intake rows store a phrase -> method matrix rather than a claim envelope. The matrix is
+// a deterministic computation cache, not proof that the surrounding source claim matched it.
+// Replay every known numeric method and preserve engine_verified as a separate claim-level axis.
+export function replayWorldLegacyMethodMatrix(value, engineVerified = null) {
+  const detail = asObject(value);
+  const phraseEntries = Object.entries(detail).filter(([, methods]) => Object.keys(asObject(methods)).length);
+  if (!phraseEntries.length) {
+    if (clean(detail.method) && finite(detail.computed) != null) {
+      return Object.freeze({ state: "legacy_incomplete_method_envelope", phraseCount: 0, checkedMethodCount: 0, mismatchCount: 0 });
+    }
+    if (clean(detail.saved_from || detail.channel)) {
+      return Object.freeze({ state: "legacy_source_metadata_only", phraseCount: 0, checkedMethodCount: 0, mismatchCount: 0 });
+    }
+    return Object.freeze({ state: "legacy_matrix_unsupported", phraseCount: 0, checkedMethodCount: 0, mismatchCount: 0 });
+  }
+
+  let checkedMethodCount = 0;
+  let unsupportedPhraseCount = 0;
+  let mismatchCount = 0;
+  const mismatches = [];
+  for (const [phrase, rawMethods] of phraseEntries) {
+    const methods = asObject(rawMethods);
+    let checkedForPhrase = 0;
+    for (const [storedKey, methodKey] of Object.entries(LEGACY_MATRIX_METHODS)) {
+      const claimed = finite(methods[storedKey]);
+      if (claimed == null) continue;
+      const method = METHOD_BY_KEY.get(methodKey);
+      if (!method?.fn) continue;
+      const replayComputed = method.fn(phrase);
+      checkedMethodCount += 1;
+      checkedForPhrase += 1;
+      if (replayComputed !== claimed) {
+        mismatchCount += 1;
+        if (mismatches.length < 8) mismatches.push(Object.freeze({ phrase, storedKey, method: methodKey, claimed, replayComputed }));
+      }
+    }
+    if (!checkedForPhrase) unsupportedPhraseCount += 1;
+  }
+
+  let state;
+  if (!checkedMethodCount) state = "legacy_matrix_unsupported";
+  else if (mismatchCount) state = "legacy_matrix_mismatch";
+  else if (unsupportedPhraseCount) state = "legacy_matrix_partial";
+  else state = engineVerified === true ? "legacy_matrix_match" : "legacy_matrix_claim_unmatched";
+  return Object.freeze({
+    state,
+    phraseCount: phraseEntries.length,
+    checkedMethodCount,
+    mismatchCount,
+    unsupportedPhraseCount,
+    mismatches: Object.freeze(mismatches),
+    engineVerified: engineVerified === true,
+  });
+}
+
 export function projectWorldLegacyReplayOccurrence(row) {
   const detail = asObject(row?.engine_detail);
   const explicitVerificationState = clean(detail.verification_state);
@@ -190,12 +264,25 @@ export function projectWorldLegacyReplayOccurrence(row) {
       sourceLocatorState: sourceLocatorState(sourceRef),
     });
   }
-  if (row?.engine_verified !== true) return null;
-
   const verification = asObject(detail.verification);
   const method = clean(verification.method);
   const expression = clean(verification.phrase || verification.text);
   const sourceRef = clean(row?.source_ref) || null;
+  const compound = asObject(detail.compound);
+  const isLegacyMatrixCandidate = Object.keys(detail).length
+    && !method
+    && clean(verification.kind) !== "arithmetic"
+    && !Object.keys(compound).length;
+  if (row?.engine_verified !== true) {
+    if (!isLegacyMatrixCandidate) return null;
+    const replay = replayWorldLegacyMethodMatrix(detail, false);
+    return Object.freeze({
+      id: clean(row?.id), method: "legacy_method_matrix",
+      expression: null, claimed: null, storedComputed: null, replayComputed: null,
+      ...replay,
+      sourceRef, sourceLocatorState: sourceLocatorState(sourceRef),
+    });
+  }
 
   if (method === "רגיל") {
     const claimed = finite(verification.claimed);
@@ -232,12 +319,21 @@ export function projectWorldLegacyReplayOccurrence(row) {
     });
   }
 
-  const compound = asObject(detail.compound);
   if (Object.keys(compound).length) {
     const replay = replayWorldCompoundEnvelope(compound);
     return Object.freeze({
       id: clean(row?.id), method: replay.compoundKind ? `compound:${replay.compoundKind}` : "compound",
       claimed: null, storedComputed: null, replayComputed: null,
+      ...replay,
+      sourceRef, sourceLocatorState: sourceLocatorState(sourceRef),
+    });
+  }
+
+  if (Object.keys(detail).length) {
+    const replay = replayWorldLegacyMethodMatrix(detail, row?.engine_verified);
+    return Object.freeze({
+      id: clean(row?.id), method: "legacy_method_matrix",
+      expression: null, claimed: null, storedComputed: null, replayComputed: null,
       ...replay,
       sourceRef, sourceLocatorState: sourceLocatorState(sourceRef),
     });
@@ -270,8 +366,9 @@ export function attachWorldLegacyReplay(row, replayIndex) {
     : [sourceId(row.sourceId || row.id)];
   const occurrences = ids.map((id) => replayIndex.get(id)).filter(Boolean);
   if (!occurrences.length) return row;
-  const hasExplicitVerification = occurrences.some((occurrence) => occurrence.state.startsWith("explicit_"));
-  if (row.verification !== "legacy_signal" && !hasExplicitVerification) return row;
+  const hasIndependentReviewProjection = occurrences.some((occurrence) =>
+    occurrence.state.startsWith("explicit_") || occurrence.state.startsWith("legacy_"));
+  if (row.verification !== "legacy_signal" && !hasIndependentReviewProjection) return row;
   const stateCounts = {};
   for (const occurrence of occurrences) stateCounts[occurrence.state] = (stateCounts[occurrence.state] || 0) + 1;
   const states = Object.keys(stateCounts);
