@@ -9,9 +9,31 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
 import { useSystemToolDock2029 } from "./SystemToolDock2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
+import {
+  ELS_CIPHER_DISCOVERY_PLAN_CONTRACT,
+  projectElsGuidedOccurrenceCoverage,
+  projectElsGuidedSourceContext,
+} from "../../lib/research/elsAutomaticResearchPlan.js";
 import "./elsNativeClassic2029.css";
 
+const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
+
 const clean = (value) => String(value ?? "").trim();
+const canonicalHebrew = (value) => clean(value).replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
+const safeGuidedAxis = (value) => {
+  const term = clean(value), length = canonicalHebrew(term).length;
+  return length >= 3 && length <= 12 ? term : "";
+};
+const safeGuidedContextTerms = (rows) => {
+  const terms = [], seen = new Set();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const term = clean(row?.term), key = canonicalHebrew(term);
+    if (key.length < 2 || key.length > 24 || seen.has(key)) continue;
+    seen.add(key);terms.push(term);
+    if (terms.length >= 6) break;
+  }
+  return terms;
+};
 const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה";
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -381,31 +403,129 @@ function SearchProgress({ operation, onCancel }) {
   </div>;
 }
 
-function RegularResultsRail({ state, pending, operation, visible, onSelect, onRetry, onContinue }) {
+const guidedFailureLabel = category => ({
+  vocabulary: "אוצר המילים המצומצם לא זיהה עדיין שתי מילים מחברות",
+  recognition_normalization: "נמצאו מועמדים, אך הם לא עברו זיהוי ואימות מלא",
+  geometry: "לא נמצאה גיאומטריה חזקה בין שני ממצאים",
+  ranking: "לא נוצר זוג שאפשר לדרג בבטחה",
+  matrix_bounds: "לא נמצא זוג בחלון המקומי המוגבל",
+  ui_projection: "בדיקת המופע לא הושלמה במסך",
+  UNRESOLVED: "הסיבה עדיין לא סווגה",
+})[category] || "הסיבה עדיין לא סווגה";
+
+const guidedReadingLabel = relation => ({
+  "exact-lexicon-match": "התאמה לאוצר הלשון",
+  "defective-spelling": "כתיב חסר/מלא",
+  "prefixed-form": "צורה עם תחילית",
+  "suffixed-form": "צורה עם סופית",
+  "prefixed-suffixed-form": "צורה עם תחילית וסופית",
+  "construct-form": "סמיכות/צורת נסמך אפשרית",
+  "mater-omission": "קריאה אפשרית בלי אם־קריאה",
+  "bounded-word-split": "חלוקה תחומה לשתי מילים",
+})[relation] || "קריאה לשונית אפשרית";
+
+const guidedLexiconSourceLabel = source => ({
+  "tanakh-lexicon": "לשון התנ״ך",
+  "maftech-core": "מילון הליבה",
+  "tanakh-core-lexicon": "לשון התנ״ך + מילון הליבה",
+  story: "מונח מהסיפור",
+  "bounded-dictionary": "מילון המחקר המצומצם",
+})[source] || "מקור לשוני תחום";
+
+function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOpen, onContinue, onAddSupports,
+  onOpenSource, onCloseSource, sourceContext, sourcePendingItemId, onHighlightVerse, verseHighlight }) {
+  if (!coverage) return pending ? <section className="els29-guided-coverage" aria-label="בדיקת מופעי הציר"><p role="status">ממתין לאימות הציר והמופעים…</p></section> : null;
+  const recommendation = coverage.recommendation;
+  const rawPatterns = [...new Map(coverage.inspections.flatMap(inspection => inspection.rawPatterns || []).map(pattern => [pattern.term, pattern])).values()];
+  const failures = [...new Set(coverage.inspections.map(inspection => inspection.failure?.category).filter(Boolean))];
+  const languageInspections = coverage.inspections.map(inspection => inspection.languageInspection).filter(Boolean);
+  const languageReadings = languageInspections.flatMap(inspection => inspection.readings || []).slice(0, 8);
+  const languageSegmentations = languageInspections.flatMap(inspection => inspection.segmentations || []).slice(0, 4);
+  const languageBoundaries = languageInspections.flatMap(inspection => inspection.boundaries || []).sort((first, second) =>
+    first.focusDistance - second.focusDistance || second.profileScore - first.profileScore
+    || first.rayId.localeCompare(second.rayId) || first.boundaryOffset - second.boundaryOffset).slice(0, 8);
+  const languageRayCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.returnedRays || 0), 0);
+  const dynamicLanguageProfile = languageInspections.find(inspection => inspection.dynamicLexicon)?.dynamicLexicon || null;
+  const languageWindowCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.candidatesExamined || 0), 0);
+  const languageLookupCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.lexiconLookups || 0), 0);
+  const snapshotReady = coverage.matrixSnapshot?.items?.length > 0;
+  return <section className="els29-guided-coverage" data-els-guided-occurrence-coverage="v1" aria-label="חבילת הגילוי המודרך">
+    <header>
+      <div><small>הציר המדויק</small><strong>{exactTotal || 0} מופעים מאומתים</strong></div>
+      <span className={`els29-guided-state is-${coverage.status.toLowerCase()}`}>{coverage.status === "INSPECTING" ? "בודק סביב המופעים" : recommendation ? "נמצא חיבור חזק" : snapshotReady ? "תמונת המטריצה מוכנה" : coverage.status === "AWAITING_CONTINUATION" ? "הבדיקה הראשונה הושלמה" : "הבדיקה המוגבלת הושלמה"}</span>
+    </header>
+    <div className="els29-guided-progress" role="status" aria-live="polite">
+      <progress max={Math.max(1, coverage.coverage.scheduledCount)} value={coverage.coverage.inspectedCount} aria-label="מופעי ציר שנבדקו" />
+      <small>נבדקו {coverage.coverage.inspectedCount} מתוך {coverage.coverage.scheduledCount} המופעים שאושרו לגל הזה. מופע שלא נבדק אינו ראיה שלילית.</small>
+    </div>
+    <React.Suspense fallback={null}><ElsGuidedMatrixSnapshot2029 snapshot={coverage.matrixSnapshot} currentHitId={currentHitId}
+      onOpen={onOpen} onAddSupports={onAddSupports} onOpenSource={onOpenSource} sourceContext={sourceContext}
+      onCloseSource={onCloseSource} sourcePendingItemId={sourcePendingItemId} onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} /></React.Suspense>
+    {!recommendation && coverage.status === "AWAITING_CONTINUATION" ? <div className="els29-guided-next-wave">
+      <p>בארבעת המופעים הראשונים לא נמצא עדיין זוג חזק שעבר אימות. אפשר לבדוק עוד ארבעה—לא מעבר לכך בחתך הזה.</p>
+      <button type="button" onClick={onContinue}>בדוק עוד עד 4 מופעים</button>
+    </div> : null}
+    {!recommendation && coverage.status === "BOUNDED_EMPTY" ? <div className="els29-guided-empty">
+      <strong>{snapshotReady ? "לא נמצא זוג נוסף שעבר את סף החיבור החזק." : "לא נמצא חיבור חזק בגבול שנבדק."}</strong>
+      {failures.length ? <ul>{failures.map(category => <li key={category}>{guidedFailureLabel(category)}</li>)}</ul> : <p>נדרשת אבחנה לפני הרחבת החיפוש.</p>}
+    </div> : null}
+    {rawPatterns.length ? <details className="els29-guided-raw"><summary>מתקדם · דפוסים גולמיים ({rawPatterns.length})</summary>
+      <p>אלה רצפי אותיות שחזרו בחלון. הם אינם מילים מזוהות ואינם מוצגים כממצא.</p>
+      <ul>{rawPatterns.slice(0, 12).map(pattern => <li key={pattern.term}><bdi>{pattern.term}</bdi> · חזר {pattern.occurrenceCount} פעמים · {pattern.matrixStage === "A" ? "ללא פער במטריצה" : "מבנה עם פער"}</li>)}</ul>
+    </details> : null}
+    {languageInspections.length ? <details className="els29-guided-raw" data-els-language-inspection="candidate-only"><summary>מתקדם · מפת לשון מקומית ({languageRayCount} קווים)</summary>
+      <p>האותיות נלקחו מהמטריצה הקנונית. חלוקה למילים, כתיב ומשמעות הם קריאות מועמדות בלבד—לא ממצא ולא עובדה.</p>
+      {dynamicLanguageProfile ? <section data-els-dynamic-lexicon="lazy-bounded">
+        <strong>אוצר לשון רחב, סריקה מקומית בלבד</strong>
+        <p>האוצר נטען רק אחרי שנבחר ציר מאומת. לא נסרקו {dynamicLanguageProfile.entryCount.toLocaleString("he-IL")} מילים מול המטריצה; נבדקו {languageWindowCount.toLocaleString("he-IL")} חלונות מתוך 24 קרניים מקומיות באמצעות {languageLookupCount.toLocaleString("he-IL")} בדיקות אינדקס ישירות.</p>
+        <small>מקורות: לשון התנ״ך ומילון הליבה · ללא קריאת AI · ללא קידום אוטומטי לממצא.</small>
+      </section> : null}
+      {languageBoundaries.length ? <section data-els-language-boundaries="unverified"><strong>גבולות חלוקה אפשריים</strong>
+        <p>פרופיל קטן של לשון התורה מדרג רק היכן עשוי לעבור רווח. הוא אינו מחזיק מילון ואינו קובע שאלה מילים.</p>
+        <ul>{languageBoundaries.map(boundary => <li key={`${boundary.rayId}:${boundary.readingDirection}:${boundary.boundaryOffset}`}>
+          <bdi>{boundary.leftContext}</bdi> <b aria-hidden="true">|</b> <bdi>{boundary.rightContext}</bdi>
+          <small> · {boundary.focusDistance} אותיות ממוקד הקרן · לא מאומת</small>
+        </li>)}</ul>
+      </section> : null}
+      {languageSegmentations.length ? <ul>{languageSegmentations.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}`}><bdi>{reading.exactLetters}</bdi> → {reading.tokens.map(token => token.label || token.baseTerm).join(" · ")} · {guidedReadingLabel(reading.relation)}</li>)}</ul> : null}
+      {languageReadings.length ? <ul>{languageReadings.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}:${reading.baseTerm}`}><bdi>{reading.exactLetters}</bdi> → {reading.label || reading.baseTerm} · {guidedReadingLabel(reading.relation)} · {guidedLexiconSourceLabel(reading.source)} · לא מאומת</li>)}</ul> : <p>לא נמצאה עדיין חלוקה לשונית חזקה. הקווים נשמרו כקלט תחום להמשך מחקר.</p>}
+      <small>AI: אפס קריאות · אין הוספה אוטומטית למטריצה · גם לאחר replay של האותיות, קריאה ומשמעות נשארות פרשנות לא מאומתת.</small>
+    </details> : null}
+  </section>;
+}
+
+function RegularResultsRail({ state, pending, operation, visible, guided = false, guidedCoverage = null, onGuidedContinue, onGuidedAddSupports,
+  onGuidedOpenSource, onGuidedCloseSource, guidedSourceContext, guidedSourcePendingItemId, onHighlightVerse, verseHighlight, onSelect, onRetry, onContinue }) {
   const results = state?.search?.occurrences;
   const blocked = pending || ["empty", "error", "cancelled"].includes(operation?.status);
   const items = blocked ? [] : results?.items || [];
+  const resultButtons = items.map((item) => <button type="button" key={item.hitId} className="els29-native-result" aria-label={`פתח מופע ${item.ordinal}`} aria-pressed={state.axis?.hitId === item.hitId}
+    onClick={() => onSelect("occurrence-select", { setId: results.id, index: item.index, hitId: item.hitId })}>
+    <b>{item.ordinal}. דילוג <bdi>{item.direction === "back" ? "−" : ""}{item.skip}</bdi></b>
+    <span>{item.ref || item.book}</span><small>{directionLabel(item.direction)}</small>
+  </button>);
   return <div className="els29-native-workrail els29-native-results" hidden={!visible} aria-label="רשימת תוצאות החיפוש" aria-busy={pending}>
     <strong>{pending ? "מחפש מופעים…" : items.length ? `${results.total} מופעים מאומתים` : "תוצאות החיפוש"}</strong>
     <p className="els29-native-muted">{items.length ? state?.termRaw || state?.term : operation?.payload?.term || state?.termRaw || state?.term} · {scopeLabel(items.length ? state?.scope : operation?.payload?.scope || state?.scope)}</p>
     {items.length ? <>
       <small>בחרו מופע לפתיחת המטריצה שלו. מוצגים רק מופעים שעברו אימות.</small>
+      {guided ? <GuidedCoveragePanel coverage={guidedCoverage} exactTotal={results.total} pending={pending} currentHitId={state.axis?.hitId}
+        onOpen={(occurrence) => onSelect("occurrence-select", { setId: results.id, index: occurrence.index, hitId: occurrence.hitId })}
+        onContinue={onGuidedContinue} onAddSupports={onGuidedAddSupports} onOpenSource={onGuidedOpenSource} onCloseSource={onGuidedCloseSource}
+        sourceContext={guidedSourceContext} sourcePendingItemId={guidedSourcePendingItemId}
+        onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} /> : null}
       {results.capped ? <small>הסריקה מוגבלת; זאת רשימת המופעים שנמצאו בסריקה הזאת, ולא כל המופעים האפשריים.</small> : null}
       {results.ordered?.completeThrough >= 2 ? <small>הושלמה סריקה בשני הכיוונים בדילוגים 2–{results.ordered.completeThrough}. הדילוגים שמעבר לכך עדיין חלקיים.</small> : null}
       {results.ordered?.error ? <small role="status">סריקת הדילוגים הקטנים לא הושלמה. אפשר להמשיך אותה כאן.</small> : null}
-      {!results.ordered || results.ordered.error || results.ordered.hasMore || results.ordered.max < 500 ? <button type="button" disabled={pending} onClick={() => onContinue(results.id)}>
+      {!guided && (!results.ordered || results.ordered.error || results.ordered.hasMore || results.ordered.max < 500) ? <button type="button" disabled={pending} onClick={() => onContinue(results.id)}>
         {results.ordered?.hasMore ? `המשך מופעים בדילוגים ${results.ordered.min}–${results.ordered.max}` : results.ordered?.error ? "נסה שוב סריקת דילוגים" : `המשך סריקה מסודרת עד דילוג ${Math.min(500,(results.ordered?.max || 0)+50)}`}
-      </button> : <small>הסריקה המסודרת הושלמה עד דילוג 500. מעבר לכך מוצגים ממצאי הסריקה המוגבלת.</small>}
+      </button> : !guided ? <small>הסריקה המסודרת הושלמה עד דילוג 500. מעבר לכך מוצגים ממצאי הסריקה המוגבלת.</small> : null}
       <div className="els29-native-results-pages" role="group" aria-label="עמודי תוצאות">
         <button type="button" disabled={results.page === 0} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page - 1 })}>עמוד קודם</button>
         <span>עמוד <bdi>{results.page + 1} / {Math.ceil(results.total / results.pageSize)}</bdi></span>
         <button type="button" disabled={(results.page + 1) * results.pageSize >= results.total} onClick={() => onSelect("occurrence-page", { setId: results.id, page: results.page + 1 })}>עמוד הבא</button>
       </div>
-      {items.map((item) => <button type="button" key={item.hitId} className="els29-native-result" aria-label={`פתח מופע ${item.ordinal}`} aria-pressed={state.axis?.hitId === item.hitId}
-        onClick={() => onSelect("occurrence-select", { setId: results.id, index: item.index, hitId: item.hitId })}>
-        <b>{item.ordinal}. דילוג <bdi>{item.direction === "back" ? "−" : ""}{item.skip}</bdi></b>
-        <span>{item.ref || item.book}</span><small>{directionLabel(item.direction)}</small>
-      </button>)}
+      {guided ? <details className="els29-guided-occurrences"><summary>כל מופעי הציר ({results.total})</summary>{resultButtons}</details> : resultButtons}
     </> : <p role="status">{pending ? "התוצאות יופיעו כאן בסיום החיפוש והאימות." : operation?.status === "error" ? operation.message || "החיפוש או האימות לא הושלמו. נסו שוב." : operation?.status === "cancelled" ? "החיפוש בוטל." : operation?.status === "empty" ? "לא נמצאו מופעים מאומתים בסריקה הזאת. אפשר לשנות מונח או היקף ולנסות שוב." : "חפשו מונח כדי לראות כאן את המופעים שלו."}</p>}
     {["error", "empty", "cancelled"].includes(operation?.status) ? <button type="button" onClick={onRetry}>נסה שוב</button> : null}
   </div>;
@@ -606,7 +726,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -626,6 +746,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [presentation, setPresentation] = useState(null);
   const cameraStageRef = useRef(null);
   const [cameraFullscreen, setCameraFullscreen] = useState(false);
+  const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
   useEffect(() => {
     const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);
     document.addEventListener("fullscreenchange", sync);
@@ -655,6 +776,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const highlightVerse = (verse) => {
     const projected = projectVerseWords(verse);
     if (!projected) { setVerseHighlight(null); setNotice("אין כרגע התאמה מלאה בין מילות הפסוק לאותיות המטריצה."); return; }
+    if (guidedProfile) setGuidedMatrixOpen(true);
     verseReadRef.current = true;setVerseRead(true);setVerseHighlight(projected);
   };
   const toggleVerseRead = () => {
@@ -693,13 +815,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const dockProjection = useMemo(() => ({
     surface: "els",
     actions: [
-      { id: "search", label: "חיפוש בצופן", shortLabel: "חיפוש", icon: "search", controls: "els29-query", onSelect: () => toolActionsRef.current.search() },
-      ...[["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]].map(([id, label, shortLabel, icon]) => ({
+      ...(!guidedProfile ? [{ id: "search", label: "חיפוש בצופן", shortLabel: "חיפוש", icon: "search", controls: "els29-query", onSelect: () => toolActionsRef.current.search() }] : []),
+      ...(guidedProfile
+        ? [["results", "הגילוי", "גילוי", "posts"], ["findings", "מקור וממצאים", "מקור", "els"], ["research", "שמירת הגילוי", "שמירה", "books"]]
+        : [["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]]).map(([id, label, shortLabel, icon]) => ({
         id, label, shortLabel, icon, expanded: !classicOpen && activeTool === id,
         controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select(id, trigger),
       })),
     ],
-  }), [activeTool, classicOpen]);
+  }), [activeTool, classicOpen, guidedProfile]);
   const hasSystemDock = useSystemToolDock2029(active ? dockProjection : null);
   useEffect(() => {
     if (!active || !activeTool || classicOpen) return;
@@ -742,6 +866,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [workspaceRequest, setWorkspaceRequest] = useState(null);
   const actionSeqRef = useRef(0);
   const [crossOpen, setCrossOpen] = useState(false);
+  const crossSearchOpen = researchProfile && crossOpen;
   const [crossTerm, setCrossTerm] = useState("");
   const [crossRadius, setCrossRadius] = useState(18);
   const [windowSize, setWindowSize] = useState("small");
@@ -752,6 +877,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [lensPending, setLensPending] = useState(false);
   const [selectedLetterIndex, setSelectedLetterIndex] = useState(null);
   const [selectedFinding, setSelectedFinding] = useState(null);
+  const guidedContextRef = useRef(null);
+  const guidedLensSeqRef = useRef(0);
+  const guidedSourceQueueRef = useRef(null);
+  const guidedSourceActiveRef = useRef(false);
+  const guidedDeferredInspectionRef = useRef(null);
+  const [guidedSourceActive, setGuidedSourceActive] = useState(false);
+  const [guidedRun, setGuidedRun] = useState({ key: "", inspections: [], approvedBatches: 1, pendingHitId: null });
   useEffect(() => {
     if (!matrix) return;
     setQuery(matrix.search_term || "");setClassicOpen(false);setLoadError(null);
@@ -764,13 +896,20 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const activeScope = engineState?.scope === "tanakh" ? "tanakh" : "torah";
 
-  const resetReadContext = () => {
+  const resetReadContext = ({ preserveGuidedSource = false } = {}) => {
+    if (!preserveGuidedSource) {
+      guidedSourceQueueRef.current = null;guidedSourceActiveRef.current = false;guidedDeferredInspectionRef.current = null;setGuidedSourceActive(false);
+    }
     ++lensSeqRef.current;
     setLensRequest(null);
     setLensResult(null);
     setLensPending(false);
     setSelectedLetterIndex(null);
     setVerseHighlight(null);setPresentation(null);
+  };
+  const resetGuidedRun = () => {
+    ++guidedLensSeqRef.current;
+    setGuidedRun({ key: "", inspections: [], approvedBatches: 1, pendingHitId: null });
   };
   const selectFinding = (selection) => {
     setSelectedFinding(selection);
@@ -784,12 +923,34 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setNotice("");
     setAccountRequired(false);
     setClassicOpen(false);
+    resetGuidedRun();
     ++findingsSeqRef.current;
     const seq = ++searchSeqRef.current;
     setOperations({ search: { kind: "search", searchKind: kind, requestId: seq, status: "searching", startedAt: Date.now(), previousAxis: engineStateRef.current?.axis?.hitId, payload }, findings: null });
     setActiveTool("results");
     setSearchRequest({ kind, windowSize, ...payload, seq });
   };
+
+  useEffect(() => {
+    if (researchLoad?.researchCommand !== true || researchLoad.contract !== "els_anchor_context_request_v1") return;
+    if (guidedContextRef.current?.nonce === researchLoad.researchNonce) return;
+    const term = safeGuidedAxis(researchLoad.term);
+    if (!term) return;
+    guidedContextRef.current = {
+      nonce: researchLoad.researchNonce,
+      anchorTerm: term,
+      anchorKey: canonicalHebrew(term),
+      scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah",
+      terms: safeGuidedContextTerms(researchLoad.contextTerms),
+      goal: researchLoad.discoveryGoal || null,
+    };
+    setQuery(term);
+    setCrossOpen(false);
+    requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah" });
+  }, [researchLoad?.researchNonce]);
+  useEffect(() => {
+    if (researchLoad?.guidedDiscovery === true) setGuidedMatrixOpen(false);
+  }, [researchLoad?.researchNonce]);
 
   const requestFindingsChange = (findings, { preserveRead = false } = {}) => {
     if (!Array.isArray(findings)) return;
@@ -819,7 +980,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const submit = (event) => {
     event?.preventDefault?.();
-    if (crossOpen) { submitCross(); return; }
+    if (crossSearchOpen) { submitCross(); return; }
     const term = clean(query);
     if (term.length < 2) {
       setNotice("כתבו לפחות שתי אותיות.");
@@ -829,7 +990,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const switchScope = (scope) => {
-    if (crossOpen) { submitCross(scope); return; }
+    if (crossSearchOpen) { submitCross(scope); return; }
     const term = clean(query) || clean(engineState?.termRaw || engineState?.term);
     if (term.length < 2) {
       setNotice("בחרו מונח ואז עברו בין תורה לכל התנ״ך.");
@@ -852,7 +1013,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const handleEngineState = (next) => {
     const previous = engineStateRef.current;
     if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term || next?.status !== "ok") {
-      resetReadContext();
+      resetReadContext({ preserveGuidedSource: Boolean(guidedSourceQueueRef.current) });
       if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term) {
         ++findingsSeqRef.current;
         setOperations((current) => ({ ...current, findings: null }));
@@ -878,24 +1039,25 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setEngineState(next);
   };
 
-  const requestControl = (action, value) => {
+  const requestControl = (action, value, { suppressScroll = false, preserveGuidedSource = false, revealGuidedMatrix = true } = {}) => {
     if (!action) return;
+    if (guidedProfile && revealGuidedMatrix && ["occurrence-select", "meeting-select"].includes(action)) setGuidedMatrixOpen(true);
     if (action === "occurrence-prev" || action === "occurrence-next" || action === "meeting-select" || action === "occurrence-select") {
-      resetReadContext();
+      resetReadContext({ preserveGuidedSource });
       ++findingsSeqRef.current;
       setOperations((current) => ({ ...current, findings: null }));
     }
     if (action === "finding-radius" || action === "finding-count") resetReadContext();
     setControlRequest({ action, ...(value === undefined ? {} : { value }), seq: ++controlSeqRef.current });
-    if (["occurrence-select", "meeting-select"].includes(action)) requestAnimationFrame(() => {
+    if (!suppressScroll && ["occurrence-select", "meeting-select"].includes(action)) requestAnimationFrame(() => {
       if (window.matchMedia("(max-width:980px)").matches) cameraStageRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
     });
   };
 
-  const requestLens = (lens, target = {}) => {
-    // A native reading/scan action always reveals its native result, even after compatibility tools.
+  const requestLens = (lens, target = {}, { revealTool = true } = {}) => {
+    // The existing inspector remains the default; Guided may project the same exact lens inline.
     setClassicOpen(false);
-    openTool("findings");
+    if (revealTool) openTool("findings");
     const seq = ++lensSeqRef.current;
     setLensResult(null);
     setLensPending(true);
@@ -903,6 +1065,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const handleLens = (result) => {
+    if (result?.target?.guidedOccurrenceCoverage === true) {
+      if (result.target.guidedSeq !== guidedLensSeqRef.current) return;
+      if (guidedSourceActiveRef.current) { guidedDeferredInspectionRef.current = result;return; }
+      setGuidedRun((current) => current.key === result.target.guidedKey && current.pendingHitId === result.target.hitId
+        ? { ...current, pendingHitId: null, inspections: [...current.inspections, result] }
+        : current);
+      return;
+    }
     if (result?.target?.nativeSeq !== lensSeqRef.current) return;
     setLensResult(result);
     setLensPending(false);
@@ -932,13 +1102,106 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestFindingsChange([...findings.map((finding) => ({ t: finding.t, color: finding.color })), { t: term, color: nextFindingColor(findings, palette) }], { preserveRead: true });
   };
 
+  const searchPending = ["searching", "verifying"].includes(operations.search?.status);
+  const guidedResults = guidedProfile && engineState?.status === "ok" && engineState?.verification?.state === "MATCH"
+    && canonicalHebrew(engineState?.termRaw || engineState?.term) === guidedContextRef.current?.anchorKey
+    ? engineState.search?.occurrences : null;
+  const guidedKey = guidedResults ? `${guidedContextRef.current?.nonce || ""}:${guidedResults.id}:${guidedContextRef.current?.anchorKey || ""}` : "";
+  const guidedCoverage = useMemo(() => {
+    if (!guidedResults) return null;
+    const activeRun = guidedRun.key === guidedKey ? guidedRun : { inspections: [], approvedBatches: 1 };
+    return projectElsGuidedOccurrenceCoverage({
+      plan: { contract: ELS_CIPHER_DISCOVERY_PLAN_CONTRACT, scope: guidedContextRef.current?.scope, anchorTerm: guidedContextRef.current?.anchorTerm },
+      occurrences: guidedResults.items || [],
+      inspections: activeRun.inspections,
+      approvedBatches: activeRun.approvedBatches,
+      resultSetId: guidedResults.id,
+    });
+  }, [guidedResults, guidedKey, guidedRun]);
+  const guidedSourceContext = useMemo(() => projectElsGuidedSourceContext({
+    snapshot: guidedCoverage?.matrixSnapshot,
+    lensResult,
+  }), [guidedCoverage?.matrixSnapshot, lensResult]);
+  const guidedSourcePendingItemId = lensPending && lensRequest?.target?.guidedSnapshotSource === true
+    ? String(lensRequest.target.guidedSnapshotItemId || "")
+    : String(guidedSourceQueueRef.current?.guidedSnapshotItemId || "");
+  const openGuidedSource = (item) => {
+    const occurrence = item?.occurrence;
+    if (!item?.id || !occurrence?.hitId || !occurrence.resultSetId || !Number.isSafeInteger(occurrence.index)) return;
+    const target = {
+      guidedSnapshotSource: true, guidedSnapshotItemId: item.id, hitId: occurrence.hitId,
+      resultSetId: occurrence.resultSetId, setId: occurrence.resultSetId, index: occurrence.index,
+      occurrenceRef: occurrence.ref,
+    };
+    guidedSourceActiveRef.current = true;setGuidedSourceActive(true);
+    if (engineStateRef.current?.axis?.hitId === occurrence.hitId) {
+      guidedSourceQueueRef.current = null;
+      requestLens("verse-context", target, { revealTool: false });
+      return;
+    }
+    requestControl("occurrence-select", { setId: occurrence.resultSetId, index: occurrence.index, hitId: occurrence.hitId },
+      { suppressScroll: true, preserveGuidedSource: true, revealGuidedMatrix: false });
+    guidedSourceQueueRef.current = target;
+  };
+  const closeGuidedSource = () => {
+    const deferred = guidedDeferredInspectionRef.current;
+    guidedDeferredInspectionRef.current = null;
+    resetReadContext();
+    if (deferred) setGuidedRun((current) => current.key === deferred.target.guidedKey && current.pendingHitId === deferred.target.hitId
+      ? { ...current, pendingHitId: null, inspections: [...current.inspections, deferred] }
+      : current);
+  };
+  useEffect(() => {
+    const target = guidedSourceQueueRef.current;
+    if (!target || engineState?.verification?.state !== "MATCH" || engineState?.axis?.hitId !== target.hitId) return;
+    guidedSourceQueueRef.current = null;
+    requestLens("verse-context", target, { revealTool: false });
+  }, [engineState?.axis?.hitId, engineState?.verification?.state]);
+  useEffect(() => {
+    if (!guidedCoverage || searchPending || !guidedKey || guidedSourceActive) return;
+    if (guidedRun.key !== guidedKey) {
+      setGuidedRun({ key: guidedKey, inspections: [], approvedBatches: 1, pendingHitId: null });
+      return;
+    }
+    const next = guidedCoverage.nextOccurrence;
+    if (!next || guidedRun.pendingHitId) return;
+    const guidedSeq = ++guidedLensSeqRef.current;
+    setGuidedRun((current) => current.key === guidedKey ? { ...current, pendingHitId: next.hitId } : current);
+    setLensRequest({
+      lens: "matrix-discovery",
+      target: {
+        guidedOccurrenceCoverage: true,
+        guidedSeq,
+        guidedKey,
+        setId: guidedResults.id,
+        resultSetId: guidedResults.id,
+        page: guidedResults.page,
+        hitId: next.hitId,
+        contextTerms: guidedContextRef.current?.terms || [],
+        discoveryGoal: guidedContextRef.current?.goal || null,
+      },
+    });
+  }, [guidedCoverage?.nextOccurrence?.hitId, guidedKey, guidedRun.key, guidedRun.pendingHitId, searchPending, guidedSourceActive]);
+  const continueGuidedCoverage = () => setGuidedRun((current) => current.key === guidedKey
+    ? { ...current, approvedBatches: 2 } : current);
+  const addGuidedSupports = (supports) => {
+    const findings = engineStateRef.current?.findings || [], existing = new Set(findings.map(finding => canonicalHebrew(finding.t)));
+    const next = findings.map(finding => ({ t: finding.t, color: finding.color }));
+    for (const support of Array.isArray(supports) ? supports : []) {
+      const term = clean(support?.label || support?.term), key = canonicalHebrew(term);
+      if (!key || existing.has(key) || next.length >= 12) continue;
+      existing.add(key);next.push({ t: term, color: nextFindingColor(next, palette) });
+    }
+    if (next.length === findings.length) return;
+    requestFindingsChange(next);openTool("findings");
+  };
+
   const handleLetterClick = ({ index }) => {
     setSelectedLetterIndex(index);
     requestLens("letter-context", { i: index });
   };
 
   const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
-  const searchPending = ["searching", "verifying"].includes(operations.search?.status);
   // Reading layout is only available for a complete, contiguous short-skip window.
   // CSS wraps the existing indexed cells; canonical geometry and crossing scans stay unchanged.
   const shortSkip = matrixActive && engineState.search?.mode === "regular" && engineState.matrix?.S >= 2
@@ -971,17 +1234,19 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     else requestSearch("regular", { term: current.termRaw || current.term, scope: current.scope, windowSize: size });
   };
 
-  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4"
+  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
+    data-els-native-classic="v4" {...(guidedProfile ? { "data-els-guided-result-surface": "results-first-v1" } : {})}
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
-    <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS">
+    <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
-        <button type="button" aria-pressed={!crossOpen} onClick={() => { if (crossOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
-        <button className="els29-native-cross-toggle" type="button" aria-pressed={crossOpen} aria-expanded={crossOpen}
-          onClick={() => { if (crossOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button>
+        <span><strong>חיפוש חדש</strong>{researchProfile ? " · ציר יחיד או הצלבה" : ""}</span>
+        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
+        <button className="els29-native-cross-toggle" type="button" aria-pressed={crossSearchOpen} aria-expanded={crossSearchOpen}
+          onClick={() => { if (crossSearchOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button></> : null}
       </div>
       <div className="els29-native-query-terms">
       <label>
-        <span>{crossOpen ? "מונח ראשון" : "מונח"}</span>
+        <span>{crossSearchOpen ? "מונח ראשון" : "מונח"}</span>
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -990,7 +1255,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           autoComplete="off"
         />
       </label>
-      {crossOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
+      {crossSearchOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
         <label>
           <span>מונח שני</span>
           <input
@@ -1002,7 +1267,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           />
         </label>
       </div> : null}
-      {!crossOpen && (clean(query).split(/\s+/).length > 1 || clean(query).replace(/[^א-ת]/g, "").length >= 7) ? <div className="els29-native-search-coach" role="note">
+      {researchProfile && !crossSearchOpen && (clean(query).split(/\s+/).length > 1 || clean(query).replace(/[^א-ת]/g, "").length >= 7) ? <div className="els29-native-search-coach" role="note">
         <span>אפשר לחפש את הביטוי בשלמותו, או לבדוק מפגש בין שתי מילים קצרות.</span>
         <button type="button" onClick={() => {
           const [first, ...rest] = clean(query).split(/\s+/);
@@ -1026,7 +1291,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onClick={() => switchScope("tanakh")}
         >כל התנ״ך</button>
       </div>
-      {crossOpen ? <>
+      {crossSearchOpen ? <>
         <label className="els29-native-cross-distance">
           <span>מרחק מרבי מהציר בהצלבה <output>{crossRadius} תאים</output></span>
           <input type="range" min="2" max="20" step="1" value={crossRadius}
@@ -1039,7 +1304,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         </label>
       </> : null}
       <div className="els29-native-query-actions">
-        <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossOpen ? "חפש הצלבה" : "חפש"}</button>
+        <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossSearchOpen ? "חפש הצלבה" : "חפש"}</button>
         <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>{classicOpen ? "חזור למטריצה" : "כל הכלים"}</button>
       </div>
       </div>
@@ -1048,9 +1313,26 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
     {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
 
+    {guidedProfile ? <section className="els29-guided-result-overview" aria-label="מצב חבילת הגילוי">
+      <div className="els29-guided-result-title">
+        <small>חבילת הגילוי</small>
+        <strong>{engineState?.termRaw || engineState?.term || researchLoad?.term || "ממתינה לציר"}</strong>
+        <span>{searchPending ? "מאמת מופעים…" : guidedCoverage?.recommendation ? "נמצא חיבור חזק" : guidedCoverage ? "בודק את הסביבה הקרובה" : "בונה תוצאה מאומתת"}</span>
+      </div>
+      <div className="els29-guided-result-route" aria-label="התקדמות המחקר">
+        <span data-state="done"><b>1</b> סיפור</span>
+        <span data-state={matrixActive ? "done" : "active"}><b>2</b> ציר מאומת</span>
+        <span data-state={guidedCoverage?.matrixSnapshot?.items?.length ? "done" : "active"}><b>3</b> חיבורים</span>
+      </div>
+      <button type="button" className="els29-guided-matrix-toggle" data-els-guided-matrix-toggle="v1"
+        aria-expanded={guidedMatrixOpen} disabled={!matrixActive}
+        onClick={() => setGuidedMatrixOpen(value => !value)}>{guidedMatrixOpen ? "סגור מטריצה" : "פתח מטריצה מדויקת"}</button>
+      <small className="els29-guided-result-note">המטריצה היא כלי אימות. היא נפתחת רק כשמבקשים לראות את המיקום המדויק.</small>
+    </section> : null}
+
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}${hasSystemDock ? " has-system-dock" : ""}`}>
       <>
-        <div ref={cameraStageRef} className="els29-native-stage-column" hidden={classicOpen}>
+        <div ref={cameraStageRef} className="els29-native-stage-column" data-els-guided-matrix="exact-v1" hidden={classicOpen || (guidedProfile && !guidedMatrixOpen)}>
         <main className="els29-native-stage" hidden={classicOpen} aria-busy={searchPending}>
           <div className="els29-native-stage-head">
             <div>
@@ -1131,13 +1413,17 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
-            <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
-            <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
+            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (guidedProfile ? "חבילת הגילוי" : resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
+            <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
+            <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>
         <CrossResultsRail onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={activeTool === "results" && !resultsAreCross}
+          guided={guidedProfile} guidedCoverage={guidedCoverage} onGuidedContinue={continueGuidedCoverage} onGuidedAddSupports={addGuidedSupports}
+          onGuidedOpenSource={openGuidedSource} onGuidedCloseSource={closeGuidedSource}
+          guidedSourceContext={guidedSourceContext} guidedSourcePendingItemId={guidedSourcePendingItemId}
+          onHighlightVerse={highlightVerse} verseHighlight={verseHighlight}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
         <ElsSavePanel2029 visible={activeTool === "research"} state={engineState} matrix={matrix} user={user}
           pending={savePending} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
@@ -1169,7 +1455,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <TzofenEmbed
           seed={engineSeed || undefined}
           matrix={matrix}
-          journeyLoad={researchLoad}
+          journeyLoad={researchLoad?.researchCommand === true ? null : researchLoad}
           exactSkipProbe={researchProbe}
           onExactSkipProbeResult={onResearchProbeResult}
           formsPreviewRequest={formsPreviewRequest}

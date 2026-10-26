@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { libraryFixturePlugin } from "./fixtures/els-library-browser-fixture.mjs";
 
@@ -16,7 +17,7 @@ try {
 const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromium";
 const available = Boolean(pw && vite && react && existsSync(executablePath));
 
-test("advanced page verifies a bounded hit before loading the shared matrix; Classic hides the controls", { skip: !available, timeout: 60000 }, async () => {
+test("Guided starts explicitly in one window; advanced page still verifies before loading the shared matrix", { skip: !available, timeout: 60000 }, async () => {
   const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
   let browser;
   try {
@@ -26,9 +27,48 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
-    await page.getByRole("heading", { name: "הצופן הקלאסי" }).waitFor();
-    assert.equal(await page.getByRole("button", { name: "מחקר", exact: true }).count(), 0);
+    await page.getByRole("heading", { name: /סיפור אחד נכנס/ }).waitFor();
+    assert.equal(await page.getByRole("button", { name: "גילוי מודרך", exact: true }).count(), 1);
+    assert.equal(await page.getByRole("button", { name: "מחקר", exact: true }).count(), 1);
+    assert.equal(await page.getByRole("button", { name: "קלאסי", exact: true }).count(), 1);
+    assert.equal(await page.locator('[data-els-guided-workspace="separate-v1"]').isVisible(), true);
+    assert.match(await page.locator('[data-els-guided-workspace="separate-v1"]').innerText(), /סביבת עבודה נפרדת/);
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
+    assert.equal(await page.getByLabel("תוצאות הגילוי המודרך").isVisible(), false);
+    if (process.env.ELS_SCREENSHOT_DIR) {
+      mkdirSync(process.env.ELS_SCREENSHOT_DIR, { recursive: true });
+      await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, "guided-entry-390.png"), fullPage: true });
+    }
+    const story = "מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש";
+    await page.getByLabel("הסיפור לגילוי מודרך").fill(story);
+    assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "typing or opening Guided does not invoke a function");
+    await page.getByRole("button", { name: "התחל גילוי מודרך" }).click();
+    await page.waitForFunction(() => window.__advancedLoad?.contract === "els_anchor_context_request_v1");
+    const guidedLoad = await page.evaluate(() => window.__advancedLoad);
+    assert.equal(guidedLoad.term, "קולומביה");
+    assert.ok(guidedLoad.contextTerms.length <= 6);
+    assert.equal(JSON.stringify(guidedLoad).includes(story), false, "the raw story stays in the screen state");
+    assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "Guided delegates to the mounted engine without an AI/page transport");
+    assert.equal(await page.getByLabel("תוצאות הגילוי המודרך").isVisible(), true, "Guided owns a separate result region after explicit submit");
+    assert.match(await page.locator(".els29-guided-result-stage").innerText(), /חבילת הגילוי/);
+    const strategy = page.getByLabel("סדר החיפוש המודרך");
+    assert.equal(await strategy.isVisible(), true);
+    assert.deepEqual(await strategy.locator("article").evaluateAll(nodes => nodes.map(node => node.getAttribute("data-lane"))),
+      ["exact-axis", "story-context", "local-language"]);
+    assert.match(await strategy.innerText(), /אין סריקה של כל האוצר/);
+    if (process.env.ELS_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, "guided-run-390.png"), fullPage: true });
+    for (const width of [320, 1440]) {
+      await page.setViewportSize({ width, height: width === 320 ? 720 : 900 });
+      assert.equal(await strategy.isVisible(), true);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true,
+        `Guided search strategy must not overflow at ${width}px`);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByRole("button", { name: "קלאסי", exact: true }).click();
+    assert.equal(await page.getByLabel("הסיפור לגילוי מודרך").isVisible(), false);
+    assert.equal(await page.evaluate(() => window.__advancedLoad?.term), "קולומביה");
+    await page.getByRole("button", { name: "גילוי מודרך", exact: true }).click();
+    assert.equal(await page.getByLabel("הסיפור לגילוי מודרך").inputValue(), story);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?testAdvanced`);
     await page.getByLabel("מונח לחיפוש מתקדם").fill("תורתאמת");
     assert.equal(await page.getByRole("button", { name: /קרוב|בינוני|רחוק/ }).count(), 0);

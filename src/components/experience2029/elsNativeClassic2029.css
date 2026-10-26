@@ -31,6 +31,7 @@
   backdrop-filter:blur(18px) saturate(130%);
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--s29-ink) 6%,transparent);
 }
+.els29-native-query[hidden]{display:none!important}
 .els29-native-query label{display:grid;gap:5px;min-width:0}
 .els29-native-query label>span{font-size:var(--s29-type-micro);font-weight:800;color:var(--s29-muted)}
 .els29-native-query input{
@@ -693,6 +694,37 @@
 
 .els29-native-results-pages{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px}
 .els29-native-results-pages button,.els29-native-results>button:not(.els29-native-result),.els29-native-search-coach button{min-height:44px;min-width:44px;padding:6px 10px;border:1px solid var(--s29-line);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;cursor:pointer}
+
+/* Guided discovery: one ranked research package; exact occurrences and raw runs stay secondary. */
+.els29-guided-coverage{display:grid;gap:12px;min-width:0;margin-block:10px;padding:14px;border:1px solid color-mix(in srgb,var(--s29-accent) 45%,var(--s29-line));border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel)),var(--s29-panel))}
+.els29-guided-coverage>header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-width:0}
+.els29-guided-coverage>header>div{display:grid;gap:3px;min-width:0}
+.els29-guided-coverage>header small{color:var(--s29-muted)}
+.els29-guided-coverage>header strong{font-size:clamp(18px,3vw,24px);overflow-wrap:anywhere}
+.els29-guided-state{flex:none;padding:5px 9px;border:1px solid color-mix(in srgb,var(--s29-accent) 45%,var(--s29-line));border-radius:999px;background:var(--s29-panel);color:var(--s29-accent-text);font-size:var(--s29-type-micro);font-weight:800}
+.els29-guided-progress{display:grid;gap:6px}.els29-guided-progress progress{width:100%;height:8px;accent-color:var(--s29-accent)}.els29-guided-progress small{color:var(--s29-muted);line-height:1.5}
+.els29-guided-next-wave p,.els29-guided-empty p{margin:0;overflow-wrap:anywhere}.els29-guided-next-wave button{flex:1;min-width:min(100%,170px);min-height:44px;padding:8px 12px;border:1px solid var(--s29-accent);border-radius:12px;background:var(--s29-accent-btn);color:var(--s29-on-accent);font:inherit;font-weight:800;cursor:pointer}
+.els29-guided-next-wave,.els29-guided-empty{display:grid;gap:10px;padding:12px;border:1px solid var(--s29-line);border-radius:13px;background:var(--s29-panel-soft);line-height:1.55}.els29-guided-empty ul,.els29-guided-raw ul{margin:0;padding-inline-start:20px}
+.els29-guided-coverage details,.els29-guided-occurrences{min-width:0;border-top:1px solid var(--s29-line);padding-top:8px}.els29-guided-coverage summary,.els29-guided-occurrences>summary{min-height:44px;padding-block:10px;color:var(--s29-ink);font-weight:800;cursor:pointer;overflow-wrap:anywhere}.els29-guided-coverage details p{overflow-wrap:anywhere}
+.els29-guided-raw p,.els29-guided-raw li{color:var(--s29-muted);line-height:1.55;overflow-wrap:anywhere}.els29-guided-occurrences[open]{display:grid;gap:7px}.els29-guided-occurrences .els29-native-result{width:100%}
+@media(max-width:420px){.els29-guided-coverage{padding:11px}.els29-guided-coverage>header{align-items:stretch;flex-direction:column}.els29-guided-state{align-self:flex-start}}
+
+/* Guided is a results-first product surface. The canonical matrix stays mounted but remains
+   behind an explicit inspection action; Classic and Research never receive these rules. */
+.els29-guided-result-overview{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:13px 18px;align-items:center;min-width:0;padding:clamp(14px,2vw,22px);border:1px solid color-mix(in srgb,var(--s29-accent) 38%,var(--s29-line));border-radius:22px;background:radial-gradient(circle at 90% 0%,color-mix(in srgb,var(--s29-accent) 16%,transparent),transparent 42%),linear-gradient(145deg,color-mix(in srgb,var(--s29-panel) 92%,transparent),var(--s29-panel-soft));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--s29-ink) 8%,transparent)}
+.els29-guided-result-title{display:grid;gap:3px;min-width:0}.els29-guided-result-title small{color:var(--s29-accent);font-size:var(--s29-type-micro);font-weight:900}.els29-guided-result-title strong{font-family:var(--s29-font-display);font-size:clamp(23px,3vw,34px);overflow-wrap:anywhere}.els29-guided-result-title span{color:var(--s29-muted);font-size:var(--s29-type-small)}
+.els29-guided-result-route{display:flex;grid-column:1/-1;gap:6px;min-width:0}.els29-guided-result-route span{display:flex;align-items:center;gap:7px;flex:1 1 0;min-width:0;padding:8px 10px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel);color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:800}.els29-guided-result-route b{display:grid;width:24px;height:24px;flex:none;place-items:center;border-radius:50%;background:var(--s29-panel-soft);color:var(--s29-muted)}.els29-guided-result-route span[data-state="done"]{border-color:color-mix(in srgb,var(--s29-accent) 42%,var(--s29-line));color:var(--s29-ink)}.els29-guided-result-route span[data-state="done"] b{background:color-mix(in srgb,var(--s29-accent) 20%,var(--s29-panel));color:var(--s29-accent)}
+.els29-guided-matrix-toggle{grid-column:2;grid-row:1;min-width:180px;min-height:48px;padding:9px 14px;border:1px solid color-mix(in srgb,var(--s29-accent) 55%,var(--s29-line));border-radius:14px;background:var(--s29-accent-btn);color:var(--s29-on-accent);font:inherit;font-weight:900;cursor:pointer}.els29-guided-matrix-toggle:disabled{opacity:.42;cursor:not-allowed}.els29-guided-matrix-toggle[aria-expanded="true"]{background:var(--s29-panel);color:var(--s29-accent-text)}
+.els29-guided-result-note{grid-column:1/-1;color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.5}
+.els29-native-classic.is-guided-surface .els29-native-layout,.els29-native-classic.is-guided-surface .els29-native-layout.is-panel-pinned,.els29-native-classic.is-guided-surface .els29-native-layout.has-system-dock.is-panel-pinned{grid-template-columns:minmax(0,1fr)}
+.els29-native-classic.is-guided-surface .els29-native-toolstrip{display:none!important}
+.els29-native-classic.is-guided-surface .els29-native-panel-wrap,.els29-native-classic.is-guided-surface .els29-native-layout.is-panel-pinned .els29-native-panel-wrap{position:relative;inset:auto;top:auto;grid-column:1;grid-row:1;width:auto;z-index:auto}
+.els29-native-classic.is-guided-surface .els29-native-context-panel,.els29-native-classic.is-guided-surface .els29-native-layout.is-panel-pinned .els29-native-context-panel{height:auto;max-height:none;min-height:180px;overflow:visible;border-color:color-mix(in srgb,var(--s29-accent) 30%,var(--s29-line-strong));box-shadow:0 14px 34px color-mix(in srgb,var(--s29-page) 35%,transparent)}
+.els29-native-classic.is-guided-surface .els29-native-context-panel .els29-native-workrail{overflow:visible;max-height:none}
+.els29-native-classic.is-guided-surface .els29-native-stage-column{grid-column:1;grid-row:2;margin-top:6px}
+.els29-native-classic.is-guided-surface:not(.is-guided-matrix-open) .els29-native-stage-column{display:none!important}
+.els29-native-classic.is-guided-surface .els29-native-panel-head{background:linear-gradient(90deg,color-mix(in srgb,var(--s29-accent) 9%,var(--s29-panel)),var(--s29-panel))}.els29-native-classic.is-guided-surface .els29-native-panel-head strong{font-size:var(--s29-type-body);color:var(--s29-ink)}
+@media(max-width:620px){.els29-guided-result-overview{grid-template-columns:minmax(0,1fr);padding:12px}.els29-guided-matrix-toggle{grid-column:1;grid-row:auto;width:100%;min-width:0}.els29-guided-result-route{display:grid;grid-template-columns:1fr}.els29-guided-result-route span{min-height:42px}.els29-native-classic.is-guided-surface .els29-native-context-panel{min-height:140px;border-radius:16px}}
 
 /* One form: adjacent terms, then shared scope/radius and one submit action. */
 .els29-native-search-mode{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;font-family:var(--s29-font-ui)}

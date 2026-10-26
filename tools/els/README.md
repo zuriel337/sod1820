@@ -3,9 +3,10 @@
 מקור-האמת של הכלי **«הצופן התנכי»** שרץ ב-`sod1820.co.il/code` וגם בהיכל (`/research?tool=els`).
 
 ## מה זה
-כלי **עצמאי (vanilla-JS, קובץ יחיד)** לחיפוש דילוגי-אותיות בכל התנ״ך. הפלט הבנוי הוא
-`public/tzofen.html` (~2.2MB) — קובץ מלא ללא תלות-רשת. כל התנ״ך (1,204,583 אותיות, 24 ספרים)
-דחוס gzip+base64 ומפוענח בדפדפן ע״י `DecompressionStream` (בלי ספרייה, תואם-CSP).
+כלי **עצמאי (vanilla-JS)** לחיפוש דילוגי-אותיות בכל התנ״ך. הפלט הראשי הוא
+`public/tzofen.html`; כל התנ״ך (1,204,583 אותיות, 24 ספרים) דחוס בתוכו כ־gzip+base64
+ומפוענח בדפדפן ע״י `DecompressionStream` (בלי ספרייה, תואם-CSP). אוצר הלשון הרחב של
+Guided נבנה בנפרד כ־`public/els-dynamic-lexicon-v1.gz64.txt`, כדי שהקלאסי לא יוריד אותו.
 
 ## איך זה מוטמע באתר
 `public/tzofen.html` מוצג כ-**iframe** דרך הרכיב `src/components/TzofenEmbed.jsx`
@@ -30,14 +31,16 @@
 ### מקור-הקורפוס — יחיד
 `tools/els/data/tk-letters.txt` הוא **הקורפוס הגולמי היחיד** והקלט של `build.py`.
 העותק הכפול `public/tanakh-letters.txt` (בייט-בבייט זהה) **הוסר** כדי שלא ייראה כמקור-אמת שני.
-**הכלי הבנוי מוטמע-עצמאית ואינו מושך שום קובץ מ-`public/` בזמן-ריצה** (כל התנ״ך דחוס בתוכו).
+**הקורפוס הקנוני נשאר מוטמע בתוך הכלי ואינו נמשך בזמן ריצה.** הנכס היחיד שנטען בנפרד הוא
+אוצר הלשון החתום של Guided: רק אחרי מופע מאומת והפעלת `matrix-discovery`, פעם אחת לסבב.
+פתיחה וחיפוש בקלאסי, וכן פתיחת Guided ללא גילוי פעיל, מבצעים אפס בקשות לנכס הזה.
 `public/torah-verses.json` ו-`public/tanakh-verses.json` נשארו — הם משרתים כלים חיים שאינם ELS
 (VerseSearch · NotarikonTool · NameStory · VerseGematriaPage).
 
 ## בנייה / עריכה
 ```bash
 cd tools/els
-python3 build.py            # → כותב ../../public/tzofen.html (דטרמיניסטי)
+python3 build.py            # → tzofen.html + els-dynamic-lexicon-v1.gz64.txt (דטרמיניסטי)
 ```
 - **לערוך את הכלי:** משנים את `els-code.template.html` (זה המקור — ~190KB, כל ה-HTML/CSS/JS),
   ואז `python3 build.py`. **לא לערוך את `public/tzofen.html` ישירות** (בנוי + דחוס).

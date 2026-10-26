@@ -30,9 +30,10 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.match(frame, /result\?\.presentationPolicy === "exact_replay_v1"/);
   assert.match(frame, /Context בלבד · הצגה\/קרבה חזותית אינה חוזק ראיה/);
   assert.equal((frame.match(/function RazielProjection\(/g) || []).length, 1);
-  // RAZIEL_2029_NATIVE_CHAT_FAST_DEEP_V1: the single native chat uses the existing askRaziel transport (one call site).
+  // The frame submits through the one shared session. Transport remains behind the lazy session request seam.
   assert.doesNotMatch(frame, /askRazielAdvanced|functions\.invoke\(['"]ai-analyze/);
-  assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 1);
+  assert.equal((frame.match(/session\.submit\s*\(/g) || []).length, 1);
+  assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 0);
 });
 
 test("ELS Raziel panel stays context-only; native chat is user-initiated (no call on open) and sends no ELS text", () => {

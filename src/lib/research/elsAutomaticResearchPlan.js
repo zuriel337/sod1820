@@ -2,9 +2,28 @@ import { buildElsAdvancedPageRequest, elsSearchSpelling, projectElsAdvancedPage 
 import { runElsAdaptiveScan } from "./els2029AdaptiveScanner.js";
 
 export const ELS_AUTOMATIC_PLAN_CONTRACT = "els_automatic_research_plan_v1";
+export const ELS_RESEARCH_BRIEF_CONTRACT = "els_research_brief_v1";
+export const ELS_CIPHER_DISCOVERY_PLAN_CONTRACT = "els_cipher_discovery_plan_v1";
+export const ELS_GUIDED_PLAN_SUMMARY_CONTRACT = "els_guided_discovery_plan_summary_v1";
+export const ELS_GUIDED_SEARCH_STRATEGY_CONTRACT = "els_guided_search_strategy_v1";
+export const ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT = "els_guided_occurrence_coverage_v1";
+export const ELS_GUIDED_MATRIX_SNAPSHOT_CONTRACT = "els_guided_matrix_snapshot_v1";
+export const ELS_GUIDED_SOURCE_CONTEXT_CONTRACT = "els_guided_source_context_v1";
 export const ELS_AUTOMATIC_SLICE_SIZE = 8;
+export const ELS_GUIDED_OCCURRENCE_BATCH_SIZE = 4;
+export const ELS_GUIDED_OCCURRENCE_MAX_BATCHES = 2;
+export const ELS_GUIDED_MATRIX_SNAPSHOT_MAX_ITEMS = 5;
+export const ELS_GUIDED_SOURCE_VISIBLE_VERSE_LIMIT = 3;
 const MAX_INPUT_LENGTH = 4000;
 const MAX_EXPRESSIONS = 40;
+const MAX_BRIEF_LENGTH = 6000;
+const MAX_BRIEF_TARGETS = 24;
+const MAX_BASIC_AXIS_LENGTH = 12;
+const MAX_BRIEF_CONTEXTS = 18;
+const MAX_DISCOVERY_TARGETS = 12;
+const DEFAULT_DISCOVERY_SUPPORTS = 2;
+const HEBREW_MARKS = /[\u0591-\u05C7]/g;
+const BRIEF_STOP_WORDS = new Set(["אבל", "אשר", "את", "בין", "גם", "הוא", "היא", "היו", "היה", "הזה", "הזאת", "וכל", "זה", "זאת", "כי", "כל", "לא", "לו", "מה", "מי", "מן", "עם", "על", "של", "שם", "או", "אם", "אל", "בו", "בה", "הם", "הן", "יש", "עוד", "כמו", "כדי", "אחרי", "לפני", "מתוך", "בתוך"]);
 const RULES = Object.freeze([
   ["original", "הביטוי שהוזן", "regular"],
   ["reverse_all", "היפוך כל הביטוי", "reverse_all"],
@@ -13,6 +32,812 @@ const RULES = Object.freeze([
 ]);
 
 const canonicalKey = value => String(value || "").replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
+const briefPhrase = value => String(value || "").normalize("NFKD").replace(HEBREW_MARKS, "").replace(/[^א-ת\s]/g, " ").trim().replace(/\s+/g, " ");
+const briefWords = value => briefPhrase(value).split(" ").filter(Boolean);
+const meaningfulBriefWord = word => canonicalKey(word).length >= 3 && !BRIEF_STOP_WORDS.has(word);
+
+/**
+ * A deterministic, local-only compiler from free context to bounded proposed terms.
+ * It neither scans nor persists and it never promotes vocabulary into evidence.
+ */
+export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
+  const input = String(text || "");
+  if (input.length > MAX_BRIEF_LENGTH) return { error: "הסיפור ארוך מדי. חלקו אותו לשני הקשרים קצרים יותר." };
+  const explicitAnchor = briefPhrase(anchorTerm);
+  if (String(anchorTerm || "").length > 200) return { error: "הציר הראשי ארוך מדי. במצב הבסיסי בוחרים מילה או ביטוי קצר." };
+  if (explicitAnchor && canonicalKey(explicitAnchor).length < 3) return { error: "במצב הבסיסי הציר הראשי צריך לכלול לפחות שלוש אותיות." };
+  if (canonicalKey(explicitAnchor).length > MAX_BASIC_AXIS_LENGTH) return { error: "הציר הראשי ארוך מ־12 אותיות. חיפוש ביטוי ארוך ומדויק זמין בהגדרות המתקדמות." };
+  const requiredInput = String(requiredTerms || "");
+  if (requiredInput.length > 1000) return { error: "רשימת המונחים המחייבים ארוכה מדי." };
+  if (!input.trim() && !explicitAnchor && !requiredInput.trim()) return { error: "כתבו סיפור קצר שממנו אפשר להציע ציר." };
+
+  const anchorRows = new Map(), contextRows = new Map();
+  const addAnchor = (term, kind, reason, priority, explicit = false) => {
+    const label = briefPhrase(term), key = canonicalKey(label);
+    if (key.length < 3 || key.length > MAX_BASIC_AXIS_LENGTH) return;
+    const prior = anchorRows.get(key);
+    const next = { id: `axis:${key}`, term: label, canonicalTerm: key, role: "axis", kind, reason, priority, explicit };
+    if (!prior || explicit && !prior.explicit || priority > prior.priority) anchorRows.set(key, next);
+  };
+  const addContext = (term, kind, reason, priority, required = false) => {
+    const label = briefPhrase(term), key = canonicalKey(label), words = briefWords(label);
+    if (key.length < 2 || key.length > 24) return;
+    const prior = contextRows.get(key);
+    const next = { id: `context:${key}`, term: label, canonicalTerm: key, role: "context", kind, reason, priority, required,
+      mode: words.length > 1 ? "exact_phrase" : "term", splitAllowed: words.length > 1 };
+    if (!prior || required && !prior.required || priority > prior.priority) contextRows.set(key, next);
+  };
+
+  if (explicitAnchor) addAnchor(explicitAnchor, "explicit-axis", "הציר הראשי שנבחר במפורש", 1000, true);
+  for (const term of [...new Set(requiredInput.split(/[,;\n]+/).map(briefPhrase).filter(Boolean))]) {
+    addContext(term, "required", "מונח הקשר שסומן במפורש", 140, true);
+  }
+  for (const match of input.matchAll(/["״]([^"״\n]{3,80})["״]/g)) {
+    addAnchor(match[1], "quote", "ביטוי קצר שצוטט במפורש", 190);
+    addContext(match[1], "quote", "ביטוי שצוטט במפורש בתוך ההקשר", 150);
+  }
+
+  // Two-token input is usually a deliberate search expression rather than a narrative. Keep the
+  // component words as alternatives, but let the intact expression lead without knowing any name,
+  // cipher or vocabulary item. Longer input still follows the ordinary narrative ranking below.
+  const compactInput = briefPhrase(input), compactWords = briefWords(compactInput), compactLength = canonicalKey(compactInput).length;
+  if (compactWords.length === 2 && compactLength >= 3 && compactLength <= MAX_BASIC_AXIS_LENGTH
+    && compactWords.some(meaningfulBriefWord)) {
+    addAnchor(compactInput, "compact-expression", "ביטוי קצר שנכתב כיחידת חיפוש אחת", 165);
+    addContext(compactInput, "compact-expression", "הביטוי הקצר בשלמותו", 125);
+  }
+
+  const sentenceTexts = input.normalize("NFKD").replace(HEBREW_MARKS, "").split(/[.!?։;:\n]+/).map(value => value.trim()).filter(Boolean);
+  const tokenFrequency = new Map(), phraseFrequency = new Map();
+  for (const sentence of sentenceTexts) {
+    const words = briefWords(sentence);
+    const content = words.filter(meaningfulBriefWord);
+    for (const word of content) tokenFrequency.set(word, (tokenFrequency.get(word) || 0) + 1);
+    for (let size = 2; size <= 3; size += 1) for (let index = 0; index + size <= words.length; index += 1) {
+      const parts = words.slice(index, index + size), meaningful = parts.filter(meaningfulBriefWord);
+      if (meaningful.length < 2 || canonicalKey(parts.join(" ")).length > 32) continue;
+      const phrase = parts.join(" ");
+      phraseFrequency.set(phrase, (phraseFrequency.get(phrase) || 0) + 1);
+    }
+  }
+  for (const [phrase, count] of phraseFrequency) {
+    const compactPairBonus = briefWords(phrase).length === 2 ? 6 : 0;
+    addAnchor(phrase, count > 1 ? "repeated-phrase" : "local-phrase", count > 1 ? `ביטוי קצר שחוזר ${count} פעמים בהקשר` : "צירוף קצר מתוך ההקשר", 44 + Math.min(22, count * 10) + compactPairBonus);
+    addContext(phrase, count > 1 ? "repeated-phrase" : "local-phrase", count > 1 ? `ביטוי שחוזר ${count} פעמים בהקשר` : "צירוף מקומי מתוך ההקשר", 58 + Math.min(24, count * 12) + compactPairBonus);
+  }
+  for (const [word, count] of tokenFrequency) {
+    const length = canonicalKey(word).length;
+    if (length < 4 && count < 2) continue;
+    addAnchor(word, count > 1 ? "repeated-term" : "context-term", count > 1 ? `מונח שחוזר ${count} פעמים` : "מילה קצרה ומובחנת מתוך ההקשר", 48 + Math.min(25, count * 8) + Math.min(18, length * 2));
+    addContext(word, count > 1 ? "repeated-term" : "context-term", count > 1 ? `מונח שחוזר ${count} פעמים` : "מונח מתוך ההקשר", 50 + Math.min(25, count * 8) + Math.min(12, length));
+  }
+
+  const anchorCandidates = [...anchorRows.values()].sort((a, b) => Number(b.explicit) - Number(a.explicit) || b.priority - a.priority || b.canonicalTerm.length - a.canonicalTerm.length || a.term.localeCompare(b.term, "he")).slice(0, 6)
+    .map((row, index) => Object.freeze({ ...row, rank: index + 1, selected: index === 0 }));
+  if (!anchorCandidates.length) return { error: "לא זוהה ציר ראשי קצר. נסו לציין שם או מילה עברית מובחנת." };
+  const recommendedAnchorId = anchorCandidates[0].id;
+  const recommendedAnchorKey = anchorCandidates[0].canonicalTerm;
+  const contextCandidates = [...contextRows.values()].filter(row => row.canonicalTerm !== recommendedAnchorKey)
+    .sort((a, b) => Number(b.required) - Number(a.required) || b.priority - a.priority || b.canonicalTerm.length - a.canonicalTerm.length || a.term.localeCompare(b.term, "he"))
+    .slice(0, MAX_BRIEF_CONTEXTS).map((row, index) => Object.freeze({ ...row, rank: index + 1, selected: row.required || index < 6 }));
+  return Object.freeze({
+    contract: ELS_RESEARCH_BRIEF_CONTRACT,
+    status: "READY",
+    mode: "anchor-context",
+    scope: scope === "tanakh" ? "tanakh" : "torah",
+    anchorCandidates: Object.freeze(anchorCandidates),
+    recommendedAnchorId,
+    contextCandidates: Object.freeze(contextCandidates),
+    candidates: Object.freeze([...new Map([...anchorCandidates, ...contextCandidates].map(row => [row.canonicalTerm, row])).values()].slice(0, MAX_BRIEF_TARGETS)),
+    inputLength: input.length,
+    storyIsContextOnly: true,
+    persisted: false,
+    aiUsed: false,
+    truthPromotion: false,
+  });
+}
+
+const buildGuidedSearchStrategy = (plan, selectedAnchorId = null) => {
+  const anchor = plan?.anchorCandidates?.find(candidate => candidate.id === selectedAnchorId)
+    || plan?.anchorCandidates?.find(candidate => candidate.id === plan?.recommendedAnchorId) || null;
+  if (!anchor) return null;
+  const storyTerms = plan.contextCandidates.filter(candidate => candidate.selected && candidate.canonicalTerm !== anchor.canonicalTerm)
+    .slice(0, 6).map(candidate => candidate.term);
+  return Object.freeze({
+    contract: ELS_GUIDED_SEARCH_STRATEGY_CONTRACT,
+    status: "PROPOSED",
+    selectedAxis: Object.freeze({ id: anchor.id, term: anchor.term, canonicalTerm: anchor.canonicalTerm,
+      basis: anchor.kind, reason: anchor.reason, authority: "PROPOSED_UNTIL_CANONICAL_MATCH" }),
+    lanes: Object.freeze([
+      Object.freeze({ id: "exact-axis", order: 1, label: "ציר מדויק", trigger: "EXPLICIT_SUBMIT",
+        source: "story_plan", terms: Object.freeze([anchor.term]), maximumTerms: 1, verificationRequired: true }),
+      Object.freeze({ id: "story-context", order: 2, label: "מילות הסיפור", trigger: "VERIFIED_AXIS",
+        source: "bounded_story_terms", terms: Object.freeze(storyTerms), maximumTerms: 6, verificationRequired: true }),
+      Object.freeze({ id: "local-language", order: 3, label: "לשון מקומית", trigger: "VERIFIED_OCCURRENCE",
+        source: "canonical_matrix_letters_and_lazy_index", terms: Object.freeze([]), maximumTerms: null,
+        matrixLocalOnly: true, vocabularyScanned: false, lazyIndexAllowed: true, verificationRequired: true }),
+    ]),
+    stopPolicy: Object.freeze({ firstOccurrenceBatch: ELS_GUIDED_OCCURRENCE_BATCH_SIZE,
+      maximumOccurrenceBatches: ELS_GUIDED_OCCURRENCE_MAX_BATCHES, automaticFallbackToAnotherAxis: false,
+      stopOnStrongVerifiedStructure: true }),
+    advanced: Object.freeze({ reverseForms: false, widerMatrix: false, extraOccurrenceBatch: false,
+      broadVocabularyScan: false, requiresExplicitAction: true }),
+    modelCallsBeforeSearch: 0,
+    modelCallsTriggered: 0,
+    rawStoryIncluded: false,
+    truthPromotion: false,
+  });
+};
+
+export function projectElsGuidedSearchStrategy(plan, selectedAnchorId = null) {
+  if (plan?.contract !== ELS_CIPHER_DISCOVERY_PLAN_CONTRACT || !Array.isArray(plan.anchorCandidates)
+    || !Array.isArray(plan.contextCandidates)) return null;
+  return buildGuidedSearchStrategy(plan, selectedAnchorId);
+}
+
+export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
+  const brief = prepareElsResearchBrief({ text, anchorTerm, requiredTerms, scope });
+  if (brief.error) return brief;
+  const selectedAxis = brief.anchorCandidates.find(candidate => candidate.id === brief.recommendedAnchorId);
+  const axisKey = selectedAxis?.canonicalTerm || "";
+  const orderedTargets = [...brief.contextCandidates]
+    .filter(candidate => candidate.required || (candidate.canonicalTerm !== axisKey && !candidate.canonicalTerm.includes(axisKey) && !axisKey.includes(candidate.canonicalTerm)))
+    .sort((a, b) => Number(b.required) - Number(a.required) || Number(a.mode !== "term") - Number(b.mode !== "term") || b.priority - a.priority || a.term.localeCompare(b.term, "he"))
+    .slice(0, MAX_DISCOVERY_TARGETS)
+    .map((candidate, index) => Object.freeze({ ...candidate, selected: candidate.required || index < 6, supportPriority: index + 1 }));
+  const discoveryPlan = {
+    ...brief,
+    contract: ELS_CIPHER_DISCOVERY_PLAN_CONTRACT,
+    mode: "story-first-pair",
+    contextCandidates: Object.freeze(orderedTargets),
+    candidates: Object.freeze([...(selectedAxis ? [selectedAxis] : []), ...orderedTargets]),
+    goal: Object.freeze({ primaryAxes: 1, connectedSupports: DEFAULT_DISCOVERY_SUPPORTS, sourceSequence: "WHEN_AVAILABLE", resultPolicy: "ONE_BEST_STRUCTURE" }),
+    limits: Object.freeze({ targetTerms: MAX_DISCOVERY_TARGETS, fullAxisOccurrences: ELS_GUIDED_OCCURRENCE_BATCH_SIZE, maximumOccurrenceBatches: ELS_GUIDED_OCCURRENCE_MAX_BATCHES }),
+    raziel: Object.freeze({ role: "VERIFIED_OCCURRENCE_CONSUMER", connected: false, maySuggestVocabulary: false, maySearchOrVerify: false, mayPromoteTruth: false, maxCallsBeforeSearch: 0 }),
+    aiUsed: false,
+    persisted: false,
+    truthPromotion: false,
+  };
+  return Object.freeze({ ...discoveryPlan, strategy: buildGuidedSearchStrategy(discoveryPlan) });
+}
+
+/** Bounded proposed terms for the existing Raziel seam; never the raw story. */
+export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
+  if (plan?.contract !== ELS_CIPHER_DISCOVERY_PLAN_CONTRACT) return null;
+  const anchor = plan.anchorCandidates.find(candidate => candidate.id === selectedAnchorId)
+    || plan.anchorCandidates.find(candidate => candidate.id === plan.recommendedAnchorId) || null;
+  if (!anchor) return null;
+  const strategy = projectElsGuidedSearchStrategy(plan, anchor.id);
+  return Object.freeze({
+    contract: ELS_GUIDED_PLAN_SUMMARY_CONTRACT,
+    status: "PROPOSED_SEARCH_PLAN",
+    scope: plan.scope,
+    anchorTerm: anchor.term,
+    targetTerms: Object.freeze(plan.contextCandidates.filter(candidate => candidate.selected).map(candidate => candidate.term).filter(Boolean).slice(0, 8)),
+    occurrenceBatchSize: plan.limits.fullAxisOccurrences,
+    maximumOccurrenceBatches: plan.limits.maximumOccurrenceBatches,
+    strategy: strategy ? Object.freeze({ contract: strategy.contract,
+      laneOrder: Object.freeze(strategy.lanes.map(lane => lane.id)),
+      localLanguageTrigger: strategy.lanes.find(lane => lane.id === "local-language")?.trigger || null,
+      broadVocabularyScan: strategy.advanced.broadVocabularyScan }) : null,
+    modelCallsTriggered: 0,
+    rawStoryIncluded: false,
+    evidencePromotion: false,
+  });
+}
+
+const MATRIX_DISCOVERY_CONTRACT = "els_matrix_discovery_v1";
+const MATRIX_LANGUAGE_INSPECTION_CONTRACT = "els_matrix_language_inspection_v1";
+const TORAH_LANGUAGE_READING_CONTRACT = "els_torah_language_reading_v1";
+const TORAH_LANGUAGE_RELATION_CONTRACT = "els_torah_language_relation_v1";
+const LANGUAGE_RELATION_REPLAY_CONTRACT = "els_language_relation_replay_v1";
+const TORAH_LANGUAGE_BOUNDARY_CONTRACT = "els_torah_language_boundary_v1";
+const TORAH_LANGUAGE_BOUNDARY_PROFILE_CONTRACT = "torah_language_boundary_profile_v1";
+const DYNAMIC_LANGUAGE_LEXICON_CONTRACT = "els_dynamic_lexicon_profile_v1";
+const LANGUAGE_ORIENTATIONS = new Set(["horizontal", "vertical", "diagonal-right", "diagonal-left"]);
+const LANGUAGE_RELATIONS = new Set(["exact-lexicon-match", "defective-spelling", "prefixed-form", "suffixed-form", "prefixed-suffixed-form", "construct-form", "mater-omission"]);
+const LANGUAGE_SOURCES = new Set(["story", "bounded-dictionary", "tanakh-lexicon", "maftech-core", "tanakh-core-lexicon"]);
+const DYNAMIC_LANGUAGE_SOURCES = Object.freeze({
+  "tanakh-lexicon": Object.freeze(["canonical_tanakh_words"]),
+  "maftech-core": Object.freeze(["maftech_core_snapshot"]),
+  "tanakh-core-lexicon": Object.freeze(["canonical_tanakh_words", "maftech_core_snapshot"]),
+});
+const LANGUAGE_GEOMETRIES = new Set(["PARALLEL_AXIS_RAY", "AXIS_INTERSECTING_RAY", "LOCAL_SAME_RAY"]);
+const GUIDED_FAILURE_CATEGORIES = Object.freeze({
+  VOCABULARY: "vocabulary",
+  VOCABULARY_MISS: "vocabulary",
+  LEXICON: "vocabulary",
+  RECOGNITION: "recognition_normalization",
+  NORMALIZATION: "recognition_normalization",
+  RECOGNITION_NORMALIZATION: "recognition_normalization",
+  GEOMETRY: "geometry",
+  NO_STRONG_GEOMETRY: "geometry",
+  RANKING: "ranking",
+  NO_RANKED_PAIR: "ranking",
+  MATRIX_BOUNDS: "matrix_bounds",
+  UI: "ui_projection",
+  UI_PROJECTION: "ui_projection",
+  CANONICAL_VERIFICATION: "recognition_normalization",
+});
+const occurrenceIdentity = row => {
+  const value = row?.hitId ?? row?.key ?? row?.occurrenceId;
+  return value == null ? "" : String(value);
+};
+const finiteNumber = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+const finiteRank = value => Number.isFinite(Number(value)) ? Number(value) : Number.MAX_SAFE_INTEGER;
+const safeInteger = value => Number.isSafeInteger(Number(value)) ? Number(value) : null;
+const languageSkeleton = value => {
+  const term = canonicalKey(value);
+  return term.length < 3 ? term : `${term[0]}${term.slice(1, -1).replace(/[וי]/g, "")}${term.at(-1)}`;
+};
+const validLanguageMorphology = (surface, baseTerm, relation, prefix, suffix) => {
+  if (relation === "exact-lexicon-match") return surface === baseTerm;
+  if (relation === "construct-form") return surface.length >= 4 && surface.endsWith("ת") && `${surface.slice(0, -1)}ה` === baseTerm;
+  if (relation === "mater-omission") return surface !== baseTerm && baseTerm.length <= surface.length + 2 && languageSkeleton(surface) === languageSkeleton(baseTerm);
+  if (relation === "defective-spelling") return surface.length >= 3 && Math.abs(surface.length - baseTerm.length) <= 2;
+  if (!["prefixed-form", "suffixed-form", "prefixed-suffixed-form"].includes(relation)) return false;
+  const expectedPrefix = relation.includes("prefixed") ? prefix : "", expectedSuffix = relation.includes("suffixed") ? suffix : "";
+  return Boolean(relation.includes("prefixed") ? expectedPrefix : relation.includes("suffixed") ? expectedSuffix : false)
+    && surface === `${expectedPrefix}${baseTerm}${expectedSuffix}`;
+};
+
+/** Maps only an explicit engine failure to the research taxonomy. */
+export function diagnoseElsGuidedFailure(failureCause) {
+  const code = String(failureCause || "").trim().toUpperCase();
+  const category = GUIDED_FAILURE_CATEGORIES[code] || "UNRESOLVED";
+  return Object.freeze({ code: code || null, category, diagnosisRequired: category === "UNRESOLVED" });
+}
+
+const projectOccurrence = (row, inputOrder, triage, resultSetId = "") => Object.freeze({
+  hitId: occurrenceIdentity(row),
+  index: Number.isSafeInteger(Number(row?.index)) ? Number(row.index) : null,
+  ordinal: Number.isSafeInteger(Number(row?.ordinal)) ? Number(row.ordinal) : inputOrder + 1,
+  skip: Number.isFinite(Number(row?.skip)) ? Number(row.skip) : null,
+  direction: row?.direction ?? row?.dir ?? null,
+  start: Number.isSafeInteger(Number(row?.start)) ? Number(row.start) : null,
+  ref: String(row?.ref || ""),
+  resultSetId: String(row?.resultSetId || row?.setId || resultSetId || ""),
+  inputOrder,
+  triage: triage ? Object.freeze({
+    rank: finiteRank(triage.rank),
+    globalRank: finiteRank(triage.globalRank),
+    inspectionPriority: finiteNumber(triage.inspectionPriority),
+    compactEvidence: triage.compactEvidence === true,
+  }) : null,
+});
+const compareOccurrencesForInspection = (first, second) =>
+  Number(second.triage?.compactEvidence === true) - Number(first.triage?.compactEvidence === true)
+  || finiteNumber(second.triage?.inspectionPriority) - finiteNumber(first.triage?.inspectionPriority)
+  || finiteRank(first.triage?.rank) - finiteRank(second.triage?.rank)
+  || finiteRank(first.triage?.globalRank) - finiteRank(second.triage?.globalRank)
+  || first.ordinal - second.ordinal || first.inputOrder - second.inputOrder;
+const projectVerifiedSupport = support => Object.freeze({
+  term: String(support?.term || ""), label: String(support?.label || support?.term || ""),
+  readingLabel: support?.readingLabel ? String(support.readingLabel) : null,
+  readingRelation: support?.readingRelation ? String(support.readingRelation) : null,
+  status: String(support?.status || ""), skip: Number.isFinite(Number(support?.skip)) ? Number(support.skip) : null,
+  direction: support?.direction ?? null, occurrenceCount: Math.max(0, finiteNumber(support?.occurrenceCount)),
+  matrixStage: String(support?.matrixStage || ""), distance: Math.max(0, finiteNumber(support?.distance)),
+  source: String(support?.source || ""), ref: String(support?.ref || ""), book: String(support?.book || ""),
+});
+const projectLanguageInspection = (value, occurrence) => {
+  if (!value || value.contract !== MATRIX_LANGUAGE_INSPECTION_CONTRACT || value.status !== "CANDIDATE_INPUT"
+    || value.source !== "canonical_matrix_letters" || value.stage !== "S3_OPEN_SEQUENCE_SEGMENTATION"
+    || value.modelCallsTriggered !== 0 || value.findingMutation !== false || value.truthPromotion !== false) return null;
+  const axis = value.axis || {}, axisDirection = Number(axis.dir) === -1 ? "back" : Number(axis.dir) === 1 ? "fwd" : null;
+  if (String(axis.hitId || "") !== occurrence.hitId || safeInteger(axis.skip) !== safeInteger(occurrence.skip)
+    || (axisDirection !== occurrence.direction && safeInteger(axis.dir) !== safeInteger(occurrence.direction))
+    || occurrence.start != null && safeInteger(axis.start) !== occurrence.start) return null;
+  const rawLexicon = value.dynamicLexicon, rawLexiconAsset = rawLexicon?.asset,
+    lexiconSources = Array.isArray(rawLexicon?.sources) ? rawLexicon.sources.map(String) : [],
+    lexiconDownloadMs = finiteNumber(rawLexiconAsset?.downloadMs, -1), lexiconTotalLoadMs = finiteNumber(rawLexiconAsset?.totalLoadMs, -1);
+  const dynamicLexiconValid = rawLexicon?.contract === DYNAMIC_LANGUAGE_LEXICON_CONTRACT
+    && rawLexicon?.matchingAlgorithm === "bounded_window_lookup_v1" && rawLexicon?.lazyLoaded === true
+    && rawLexicon?.vocabularyScanned === false && rawLexicon?.modelCallsTriggered === 0
+    && lexiconSources.length === 2 && lexiconSources[0] === "canonical_tanakh_words" && lexiconSources[1] === "maftech_core_snapshot"
+    && safeInteger(rawLexicon?.entryCount) >= 40000 && safeInteger(rawLexicon?.entryCount) <= 50000
+    && safeInteger(rawLexicon?.tanakhEntryCount) >= 35000 && safeInteger(rawLexicon?.tanakhEntryCount) <= safeInteger(rawLexicon?.entryCount)
+    && safeInteger(rawLexicon?.coreEntryCount) >= 4000 && safeInteger(rawLexicon?.coreEntryCount) <= safeInteger(rawLexicon?.entryCount)
+    && /^[a-f0-9]{64}$/.test(String(rawLexicon?.coreFingerprint || ""))
+    && rawLexiconAsset?.path === "els-dynamic-lexicon-v1.gz64.txt"
+    && safeInteger(rawLexiconAsset?.encodedBytes) >= 300000 && safeInteger(rawLexiconAsset?.encodedBytes) <= 400000
+    && /^[a-f0-9]{64}$/.test(String(rawLexiconAsset?.sha256 || ""))
+    && rawLexiconAsset?.loadTrigger === "VERIFIED_MATRIX_DISCOVERY" && rawLexiconAsset?.cachePolicy === "force-cache"
+    && safeInteger(rawLexiconAsset?.requestCount) === 1 && lexiconDownloadMs >= 0 && lexiconDownloadMs <= 60000
+    && lexiconTotalLoadMs >= lexiconDownloadMs && lexiconTotalLoadMs <= 60000;
+  if (rawLexicon != null && !dynamicLexiconValid) return null;
+  const projectLexicalReading = (raw, canonicalLetters, { allowShort = false } = {}) => {
+    const relation = String(raw?.relation || ""), source = String(raw?.source || ""), baseTerm = canonicalKey(raw?.baseTerm);
+    const prefix = canonicalKey(raw?.prefix), suffix = canonicalKey(raw?.suffix), dynamicSources = DYNAMIC_LANGUAGE_SOURCES[source] || null;
+    if (!LANGUAGE_RELATIONS.has(relation) || !LANGUAGE_SOURCES.has(source) || baseTerm.length < (allowShort ? 2 : 3)
+      || baseTerm.length === 2 && (!allowShort || relation !== "exact-lexicon-match" && canonicalLetters.length < 3)
+      || !validLanguageMorphology(canonicalLetters, baseTerm, relation, prefix, suffix)) return null;
+    if (dynamicSources) {
+      const reportedSources = Array.isArray(raw?.lexiconSources) ? raw.lexiconSources.map(String) : [];
+      const frequency = safeInteger(raw?.lexiconFrequency), confidence = safeInteger(raw?.lexicalConfidence), priority = safeInteger(raw?.lexicalPriority);
+      if (!dynamicLexiconValid || raw?.selectionProtocol !== "DYNAMIC_LEXICON_LOOKUP_V1"
+        || reportedSources.length !== dynamicSources.length || reportedSources.some((entry, index) => entry !== dynamicSources[index])
+        || frequency == null || frequency < 0 || confidence == null || confidence < 0 || confidence > 100
+        || priority == null || priority < 0 || priority > 120) return null;
+      return { relation, source, baseTerm, prefix: prefix || null, suffix: suffix || null,
+        selectionProtocol: "DYNAMIC_LEXICON_LOOKUP_V1", lexiconSources: Object.freeze(reportedSources),
+        lexiconFrequency: frequency, lexicalConfidence: confidence, lexicalPriority: priority };
+    }
+    const selectionProtocol = source === "story" ? "CONTEXT_PRE_REGISTERED" : "GOVERNED_CORE";
+    if (raw?.selectionProtocol != null && raw.selectionProtocol !== selectionProtocol) return null;
+    return { relation, source, baseTerm, prefix: prefix || null, suffix: suffix || null, selectionProtocol,
+      lexiconSources: Object.freeze([]), lexiconFrequency: 0, lexicalConfidence: null, lexicalPriority: null };
+  };
+  const rays = [], rayById = new Map();let letterCount = 0;
+  for (const raw of Array.isArray(value.rays) ? value.rays.slice(0, 24) : []) {
+    const orientation = String(raw?.orientation || ""), text = canonicalKey(raw?.text), reverseText = canonicalKey(raw?.reverseText);
+    const start = safeInteger(raw?.start), step = safeInteger(raw?.step), distance = safeInteger(raw?.distance);
+    if (!LANGUAGE_ORIENTATIONS.has(orientation) || text.length < 4 || text.length > 24
+      || reverseText !== [...text].reverse().join("") || start == null || start < 0 || step == null || step === 0
+      || distance == null || distance < 0 || distance > 80 || letterCount + text.length > 576) continue;
+    const id = `${orientation}:${start}:${step}:${text.length}`;
+    const rawFocusOffset = safeInteger(raw?.focusOffset), focusOffset = rawFocusOffset != null && rawFocusOffset >= 0 && rawFocusOffset < text.length
+      ? rawFocusOffset : Math.floor((text.length - 1) / 2);
+    const ray = Object.freeze({ id, orientation, text, reverseText, start, step, length: text.length, distance, intersectsAxis: distance === 0, focusOffset });
+    rays.push(ray);rayById.set(id, ray);letterCount += text.length;
+  }
+  if (!rays.length) return null;
+  const validReadingLocus = (raw, minLength, maxLength) => {
+    const ray = rayById.get(String(raw?.rayId || "")), start = safeInteger(raw?.start), step = safeInteger(raw?.step), length = safeInteger(raw?.length);
+    if (!ray || start == null || step == null || length == null || length < minLength || length > maxLength || ![ray.step, -ray.step].includes(step)) return null;
+    const traversalStart = step === ray.step ? ray.start : ray.start + (ray.length - 1) * ray.step;
+    const offset = (start - traversalStart) / step;
+    if (!Number.isSafeInteger(offset) || offset < 0 || offset + length > ray.length) return null;
+    const traversalText = step === ray.step ? ray.text : ray.reverseText;
+    return { ray, start, step, length, offset, canonicalLetters: traversalText.slice(offset, offset + length) };
+  };
+  const readings = [], readingByKey = new Map();
+  for (const raw of Array.isArray(value.readings) ? value.readings.slice(0, 24) : []) {
+    const locus = validReadingLocus(raw, 3, 10), canonicalLetters = canonicalKey(raw?.canonicalLetters), exactLetters = canonicalKey(raw?.exactLetters);
+    const lexical = projectLexicalReading(raw, canonicalLetters);
+    if (!locus || raw?.contract !== TORAH_LANGUAGE_READING_CONTRACT || raw?.status !== "UNVERIFIED_READING"
+      || raw?.canonicalReplayRequired !== true || raw?.truthPromotion !== false || !lexical || canonicalLetters.length !== locus.length
+      || canonicalLetters !== locus.canonicalLetters || exactLetters !== canonicalLetters) continue;
+    const reading = Object.freeze({
+      contract: TORAH_LANGUAGE_READING_CONTRACT, status: "UNVERIFIED_READING", exactLetters, baseTerm: lexical.baseTerm,
+      label: String(raw?.label || "").slice(0, 60), relation: lexical.relation, prefix: lexical.prefix,
+      suffix: lexical.suffix, source: lexical.source, selectionProtocol: lexical.selectionProtocol,
+      lexiconSources: lexical.lexiconSources, lexiconFrequency: lexical.lexiconFrequency,
+      lexicalConfidence: lexical.lexicalConfidence, lexicalPriority: lexical.lexicalPriority,
+      rayId: locus.ray.id, orientation: locus.ray.orientation, readingDirection: locus.step === locus.ray.step ? "forward" : "reverse",
+      start: locus.start, step: locus.step, length: locus.length, offset: locus.offset, distance: locus.ray.distance,
+      canonicalReplayRequired: true, truthPromotion: false,
+    });
+    const readingKey = `${reading.start}:${reading.step}:${reading.length}:${reading.baseTerm}:${reading.relation}`;
+    if (!readingByKey.has(readingKey)) { readings.push(reading);readingByKey.set(readingKey, reading); }
+  }
+  const segmentations = [];
+  for (const raw of Array.isArray(value.segmentations) ? value.segmentations.slice(0, 24) : []) {
+    const locus = validReadingLocus(raw, 5, 16), canonicalLetters = canonicalKey(raw?.canonicalLetters), exactLetters = canonicalKey(raw?.exactLetters);
+    const rawTokens = Array.isArray(raw?.tokens) ? raw.tokens.slice(0, 2) : [], tokens = rawTokens.map(token => {
+      const tokenLetters = canonicalKey(token?.exactLetters), lexical = projectLexicalReading(token, tokenLetters, { allowShort: true });
+      return lexical ? Object.freeze({ exactLetters: tokenLetters, baseTerm: lexical.baseTerm, label: String(token?.label || "").slice(0, 60),
+        relation: lexical.relation, source: lexical.source, selectionProtocol: lexical.selectionProtocol,
+        lexiconSources: lexical.lexiconSources, lexiconFrequency: lexical.lexiconFrequency,
+        lexicalConfidence: lexical.lexicalConfidence, lexicalPriority: lexical.lexicalPriority }) : null;
+    });
+    const shortTokens = tokens.filter(token => token?.baseTerm.length === 2);
+    if (!locus || raw?.contract !== TORAH_LANGUAGE_READING_CONTRACT || raw?.status !== "UNVERIFIED_READING"
+      || raw?.relation !== "bounded-word-split" || raw?.canonicalReplayRequired !== true || raw?.truthPromotion !== false
+      || tokens.length !== 2 || tokens.some(token => !token) || shortTokens.length > 1
+      || shortTokens.length === 1 && tokens.every(token => token.baseTerm.length < 3)
+      || canonicalLetters.length !== locus.length || canonicalLetters !== locus.canonicalLetters || exactLetters !== canonicalLetters
+      || tokens.map(token => token.exactLetters).join("") !== exactLetters) continue;
+    segmentations.push(Object.freeze({
+      contract: TORAH_LANGUAGE_READING_CONTRACT, status: "UNVERIFIED_READING", relation: "bounded-word-split",
+      exactLetters, tokens: Object.freeze(tokens), rayId: locus.ray.id, orientation: locus.ray.orientation,
+      readingDirection: locus.step === locus.ray.step ? "forward" : "reverse", start: locus.start, step: locus.step,
+      length: locus.length, distance: locus.ray.distance, canonicalReplayRequired: true, truthPromotion: false,
+    }));
+  }
+  const boundaryProfile = value?.boundaryProfile;
+  const boundaryProfileValid = boundaryProfile?.contract === TORAH_LANGUAGE_BOUNDARY_PROFILE_CONTRACT
+    && boundaryProfile?.source === "canonical_torah_word_boundaries" && boundaryProfile?.vocabularyRetained === false
+    && boundaryProfile?.modelCallsTriggered === 0;
+  const boundaries = [];
+  if (boundaryProfileValid) for (const raw of Array.isArray(value.boundaries) ? value.boundaries.slice(0, 480) : []) {
+    const ray = rayById.get(String(raw?.rayId || "")), readingDirection = String(raw?.readingDirection || "");
+    const boundaryOffset = safeInteger(raw?.boundaryOffset), reportedStep = safeInteger(raw?.step);
+    if (!ray || raw?.contract !== TORAH_LANGUAGE_BOUNDARY_CONTRACT || raw?.status !== "UNVERIFIED_BOUNDARY"
+      || raw?.selectionProtocol !== "TORAH_BOUNDARY_PROFILE_V1" || !["forward", "reverse"].includes(readingDirection)
+      || boundaryOffset == null || boundaryOffset <= 0 || boundaryOffset >= ray.length || raw?.interpretationRequired !== true
+      || raw?.truthPromotion !== false) continue;
+    const text = readingDirection === "forward" ? ray.text : ray.reverseText;
+    const start = readingDirection === "forward" ? ray.start : ray.start + (ray.length - 1) * ray.step;
+    const step = readingDirection === "forward" ? ray.step : -ray.step;
+    const focusOffset = readingDirection === "forward" ? ray.focusOffset : ray.length - 1 - ray.focusOffset;
+    const leftContext = text.slice(Math.max(0, boundaryOffset - 6), boundaryOffset);
+    const rightContext = text.slice(boundaryOffset, boundaryOffset + 6);
+    const leftEnd = start + (boundaryOffset - 1) * step, rightStart = start + boundaryOffset * step;
+    const profileScore = safeInteger(raw?.profileScore), focusDistance = Math.abs(boundaryOffset - focusOffset);
+    if (canonicalKey(raw?.leftContext) !== leftContext || canonicalKey(raw?.rightContext) !== rightContext
+      || safeInteger(raw?.leftEnd) !== leftEnd || safeInteger(raw?.rightStart) !== rightStart || reportedStep !== step
+      || safeInteger(raw?.focusDistance) !== focusDistance || focusDistance > 8 || profileScore == null || Math.abs(profileScore) > 800) continue;
+    boundaries.push(Object.freeze({ contract: TORAH_LANGUAGE_BOUNDARY_CONTRACT, status: "UNVERIFIED_BOUNDARY",
+      selectionProtocol: "TORAH_BOUNDARY_PROFILE_V1", rayId: ray.id, orientation: ray.orientation, readingDirection,
+      boundaryOffset, leftContext, rightContext, leftEnd, rightStart, step, focusDistance, profileScore,
+      interpretationRequired: true, truthPromotion: false }));
+  }
+  const reportedBoundaryComparisons = safeInteger(value?.coverage?.boundaryProfileComparisons);
+  if (boundaryProfileValid && (safeInteger(value?.coverage?.boundaryCap) !== 480
+    || safeInteger(value?.coverage?.boundaryPerTraversalCap) !== 10 || safeInteger(value?.coverage?.boundaryFocusRadius) !== 8
+    || reportedBoundaryComparisons == null || reportedBoundaryComparisons < 0 || reportedBoundaryComparisons > 816
+    || safeInteger(value?.coverage?.returnedBoundaries) !== boundaries.length)) return null;
+  const candidatesExamined = safeInteger(value?.coverage?.candidatesExamined), lexiconLookups = safeInteger(value?.coverage?.lexiconLookups);
+  if (safeInteger(value?.coverage?.rayCap) !== 24 || safeInteger(value?.coverage?.maxLetters) !== 24
+    || safeInteger(value?.coverage?.maxCandidateWindows) !== 9216 || candidatesExamined == null || candidatesExamined < 0 || candidatesExamined > 9216
+    || safeInteger(value?.coverage?.maxLexiconLookups) !== 196608 || lexiconLookups == null || lexiconLookups < 0 || lexiconLookups > 196608
+    || safeInteger(value?.coverage?.perTraversalReadingCap) !== 16
+    || safeInteger(value?.coverage?.returnedRays) !== rays.length || safeInteger(value?.coverage?.returnedReadings) > 24
+    || safeInteger(value?.coverage?.returnedSegmentations) > 24 || safeInteger(value?.coverage?.returnedRelations) > 3) return null;
+  const relations = [], relationKeys = new Set();
+  for (const raw of Array.isArray(value.relations) ? value.relations.slice(0, 3) : []) {
+    const relationStatus = String(raw?.status || ""), relationVerified = relationStatus === "VERIFIED_RELATION";
+    if (raw?.contract !== TORAH_LANGUAGE_RELATION_CONTRACT || !["UNVERIFIED_RELATION", "VERIFIED_RELATION"].includes(relationStatus)
+      || raw?.canonicalReplayRequired !== !relationVerified || raw?.truthPromotion !== false
+      || !LANGUAGE_GEOMETRIES.has(String(raw?.geometry || ""))) continue;
+    const rawTokens = Array.isArray(raw?.tokens) ? raw.tokens.slice(0, 2) : [];
+    if (rawTokens.length !== 2) continue;
+    const tokens = rawTokens.map(token => {
+      const key = `${safeInteger(token?.start)}:${safeInteger(token?.step)}:${safeInteger(token?.length)}:${canonicalKey(token?.baseTerm)}:${String(token?.relation || "")}`;
+      const reading = readingByKey.get(key);
+      return reading && canonicalKey(token?.exactLetters) === reading.exactLetters ? reading : null;
+    });
+    if (tokens.some(token => !token) || tokens[0].baseTerm === tokens[1].baseTerm || tokens[0].rayId !== tokens[1].rayId
+      || tokens[0].readingDirection !== tokens[1].readingDirection || tokens[0].step !== tokens[1].step) continue;
+    tokens.sort((first, second) => first.offset - second.offset);
+    const gap = tokens[1].offset - (tokens[0].offset + tokens[0].length), ray = rayById.get(tokens[0].rayId);
+    if (!ray || gap < 0 || gap > 8 || safeInteger(raw?.gap) !== gap || String(raw?.rayId || "") !== ray.id) continue;
+    const geometry = ray.orientation === "vertical" ? "PARALLEL_AXIS_RAY" : ray.distance === 0 ? "AXIS_INTERSECTING_RAY" : "LOCAL_SAME_RAY";
+    if (raw.geometry !== geometry) continue;
+    const rawVerification = raw?.verification;
+    let verification = null;
+    if (rawVerification != null) {
+      const receiptStatuses = new Set(["MATCH", "MISMATCH", "UNAVAILABLE", "SOURCE_SEQUENCE", "BUDGET_STOP"]);
+      const verificationStatuses = new Set(["MATCH", "MISMATCH", "UNAVAILABLE", "SOURCE_SEQUENCE", "INCOMPLETE", "NOT_RUN"]);
+      const receipts = Array.isArray(rawVerification?.receipts) ? rawVerification.receipts : [];
+      const callsTriggered = safeInteger(rawVerification?.callsTriggered);
+      const notRun = rawVerification?.status === "NOT_RUN";
+      if (rawVerification?.contract !== LANGUAGE_RELATION_REPLAY_CONTRACT || rawVerification?.truthPromotion !== false
+        || !verificationStatuses.has(String(rawVerification?.status || "")) || callsTriggered == null || callsTriggered < 0 || callsTriggered > 2
+        || notRun && (relationVerified || callsTriggered !== 0 || receipts.length !== 0) || !notRun && receipts.length !== 2
+        || relationVerified && (rawVerification?.status !== "MATCH" || callsTriggered !== 2)
+        || !relationVerified && rawVerification?.status === "MATCH") continue;
+      const projectedReceipts = [], usedTokens = new Set();
+      for (const receipt of receipts) {
+        const term = canonicalKey(receipt?.term), start = safeInteger(receipt?.start), step = safeInteger(receipt?.step);
+        const skip = safeInteger(receipt?.skip), dir = safeInteger(receipt?.dir), status = String(receipt?.status || "");
+        const tokenIndex = tokens.findIndex((token, index) => !usedTokens.has(index) && token.exactLetters === term
+          && token.start === start && token.step === step && Math.abs(token.step) === skip && (token.step < 0 ? -1 : 1) === dir);
+        if (!receiptStatuses.has(status) || tokenIndex < 0 || skip < 2 && status !== "SOURCE_SEQUENCE"
+          || skip >= 2 && status === "SOURCE_SEQUENCE" || relationVerified && status !== "MATCH") { projectedReceipts.length = 0;break; }
+        usedTokens.add(tokenIndex);
+        projectedReceipts.push(Object.freeze({ status, term, start, step, skip, dir,
+          corpusId: receipt?.corpusId == null ? null : String(receipt.corpusId).slice(0, 100),
+          traceIds: Object.freeze((Array.isArray(receipt?.traceIds) ? receipt.traceIds : []).map(String).slice(0, 2).map(trace => trace.slice(0, 160))),
+        }));
+      }
+      if (!notRun && projectedReceipts.length !== 2 || relationVerified && !projectedReceipts.every(receipt => receipt.status === "MATCH")) continue;
+      if (!notRun) {
+        const projectedCalls = projectedReceipts.filter(receipt => ["MATCH", "MISMATCH", "UNAVAILABLE"].includes(receipt.status)).length;
+        const projectedStatus = projectedReceipts.every(receipt => receipt.status === "MATCH") ? "MATCH"
+          : projectedReceipts.some(receipt => receipt.status === "UNAVAILABLE") ? "UNAVAILABLE"
+            : projectedReceipts.some(receipt => receipt.status === "MISMATCH") ? "MISMATCH"
+              : projectedReceipts.some(receipt => receipt.status === "SOURCE_SEQUENCE") ? "SOURCE_SEQUENCE" : "INCOMPLETE";
+        if (callsTriggered !== projectedCalls || rawVerification.status !== projectedStatus) continue;
+      }
+      verification = Object.freeze({ contract: LANGUAGE_RELATION_REPLAY_CONTRACT, status: String(rawVerification.status || ""),
+        callsTriggered, receipts: Object.freeze(projectedReceipts), truthPromotion: false });
+    } else if (relationVerified) continue;
+    const key = `${ray.id}:${tokens.map(token => `${token.start}:${token.step}:${token.length}:${token.baseTerm}`).join("|")}`;
+    if (relationKeys.has(key)) continue;relationKeys.add(key);
+    relations.push(Object.freeze({
+      contract: TORAH_LANGUAGE_RELATION_CONTRACT, status: relationStatus, geometry, rank: relations.length + 1,
+      rayId: ray.id, orientation: ray.orientation, readingDirection: tokens[0].readingDirection, gap, distance: ray.distance,
+      contextMatches: tokens.filter(token => token.source === "story").length,
+      exactMatches: tokens.filter(token => token.relation === "exact-lexicon-match").length,
+      tokens: Object.freeze(tokens.map(token => Object.freeze({ exactLetters: token.exactLetters, baseTerm: token.baseTerm,
+        label: token.label, relation: token.relation, source: token.source, start: token.start, step: token.step, length: token.length }))),
+      canonicalReplayRequired: !relationVerified, verification, truthPromotion: false,
+    }));
+  }
+  const relationReplayCap = safeInteger(value?.coverage?.relationReplayCap);
+  const relationReplayCalls = safeInteger(value?.coverage?.relationReplayCalls);
+  const canonicalReplayCalls = safeInteger(value?.canonicalReplayCalls);
+  if (relationReplayCap != null && relationReplayCap !== 2 || relationReplayCalls != null && (relationReplayCalls < 0 || relationReplayCalls > 2)
+    || canonicalReplayCalls != null && (canonicalReplayCalls < 0 || canonicalReplayCalls > 2 || relationReplayCalls != null && canonicalReplayCalls !== relationReplayCalls)
+    || relations.some(relation => relation.status === "VERIFIED_RELATION") && (relationReplayCalls !== 2 || canonicalReplayCalls !== 2)) return null;
+  return Object.freeze({
+    contract: MATRIX_LANGUAGE_INSPECTION_CONTRACT, status: "CANDIDATE_INPUT", source: "canonical_matrix_letters",
+    stage: "S3_OPEN_SEQUENCE_SEGMENTATION", axis: Object.freeze({ hitId: occurrence.hitId, skip: occurrence.skip, direction: occurrence.direction, start: occurrence.start }),
+    authority: Object.freeze({ letters: "CANONICAL", segmentation: segmentations.length ? "DETERMINISTIC_CANDIDATE" : "UNRESOLVED",
+      boundarySegmentation: boundaries.length ? "DETERMINISTIC_CANDIDATE" : "UNRESOLVED",
+      lexicalRecognition: dynamicLexiconValid && readings.length ? "DETERMINISTIC_CANDIDATE" : "UNRESOLVED",
+      meaning: "UNVERIFIED", canonicalReplayRequired: true }),
+    coverage: Object.freeze({ rayCap: 24, maxLetters: 24, maxCandidateWindows: 9216, maxLexiconLookups: 196608,
+      perTraversalReadingCap: 16, returnedRays: rays.length, letterCount, lexiconLookups, candidatesExamined, returnedReadings: readings.length,
+      returnedSegmentations: segmentations.length, returnedRelations: relations.length, relationReplayCap: relationReplayCap ?? 0,
+      relationReplayCalls: relationReplayCalls ?? 0, boundaryCap: 480, boundaryPerTraversalCap: 10, boundaryFocusRadius: 8,
+      boundaryProfileComparisons: Math.max(0, Math.min(816, reportedBoundaryComparisons || 0)),
+      returnedBoundaries: boundaries.length, truncated: value?.coverage?.truncated === true }),
+    canonicalReplayCalls: canonicalReplayCalls ?? 0,
+    boundaryProfile: boundaryProfileValid ? Object.freeze({ contract: TORAH_LANGUAGE_BOUNDARY_PROFILE_CONTRACT,
+      source: "canonical_torah_word_boundaries", vocabularyRetained: false, modelCallsTriggered: 0 }) : null,
+    dynamicLexicon: dynamicLexiconValid ? Object.freeze({ contract: DYNAMIC_LANGUAGE_LEXICON_CONTRACT,
+      sources: Object.freeze(lexiconSources), matchingAlgorithm: "bounded_window_lookup_v1", entryCount: safeInteger(rawLexicon.entryCount),
+      tanakhEntryCount: safeInteger(rawLexicon.tanakhEntryCount), coreEntryCount: safeInteger(rawLexicon.coreEntryCount),
+      coreFingerprint: String(rawLexicon.coreFingerprint), lazyLoaded: true, vocabularyScanned: false, modelCallsTriggered: 0,
+      asset: Object.freeze({ path: rawLexiconAsset.path, encodedBytes: safeInteger(rawLexiconAsset.encodedBytes),
+        sha256: String(rawLexiconAsset.sha256), loadTrigger: "VERIFIED_MATRIX_DISCOVERY", cachePolicy: "force-cache",
+        requestCount: 1, downloadMs: lexiconDownloadMs, totalLoadMs: lexiconTotalLoadMs }) }) : null,
+    modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
+    rays: Object.freeze(rays), readings: Object.freeze(readings), segmentations: Object.freeze(segmentations),
+    boundaries: Object.freeze(boundaries), relations: Object.freeze(relations),
+  });
+};
+const projectInspection = (inspection, occurrence, inputOrder) => {
+  const bundle = inspection.discoveryBundle || (inspection?.ok === false ? {
+    status: "LENS_FAILED", failureCause: "UI_PROJECTION", selected: null,
+  } : null);
+  const selected = bundle?.selected;
+  const supports = (Array.isArray(selected?.supports) ? selected.supports : []).map(projectVerifiedSupport);
+  const verifiedFindings = (Array.isArray(bundle?.verifiedFindings) ? bundle.verifiedFindings : []).map(projectVerifiedSupport)
+    .filter(support => support.status === "VERIFIED").slice(0, 4);
+  const pairVerified = bundle?.status === "VERIFIED_PAIR" && supports.length === DEFAULT_DISCOVERY_SUPPORTS
+    && supports.every(support => support.status === "VERIFIED") && selected?.independentSupport !== false;
+  const relation = Object.freeze({
+    code: String(selected?.relation?.code || ""), label: String(selected?.relation?.label || ""),
+    priority: finiteNumber(selected?.relation?.priority), stage: String(selected?.relation?.stage || ""),
+  });
+  const strongGeometry = pairVerified && relation.stage === "A" && relation.priority >= 400;
+  const languageInspection = projectLanguageInspection(inspection?.languageInspection, occurrence);
+  return Object.freeze({
+    hitId: occurrence.hitId, occurrence, status: String(bundle?.status || ""), pairVerified, strongGeometry, relation,
+    storyMatches: Math.max(0, finiteNumber(selected?.storyMatches)),
+    recurrence: supports.reduce((sum, support) => sum + support.occurrenceCount, 0),
+    sourceCount: new Set(supports.map(support => `${support.book}:${support.ref}`).filter(value => value !== ":")).size,
+    supports: Object.freeze(supports),
+    verifiedFindings: Object.freeze(verifiedFindings),
+    languageInspection,
+    rawPatterns: Object.freeze((Array.isArray(inspection?.rawPatterns) ? inspection.rawPatterns : []).map(pattern => Object.freeze({
+      term: String(pattern?.term || ""), occurrenceCount: Math.max(0, finiteNumber(pattern?.occurrenceCount)),
+      matrixStage: String(pattern?.matrixStage || ""), status: String(pattern?.status || "UNVERIFIED_PATTERN"),
+    })).filter(pattern => pattern.term).slice(0, 24)),
+    reasons: Object.freeze((Array.isArray(selected?.reasons) ? selected.reasons : []).map(String).slice(0, 8)),
+    failure: pairVerified || verifiedFindings.length ? null : diagnoseElsGuidedFailure(bundle?.failureCause), inputOrder,
+  });
+};
+const compareInspections = (first, second) => Number(second.pairVerified) - Number(first.pairVerified)
+  || Number(second.strongGeometry) - Number(first.strongGeometry) || second.storyMatches - first.storyMatches
+  || second.relation.priority - first.relation.priority || second.recurrence - first.recurrence
+  || second.sourceCount - first.sourceCount
+  || finiteNumber(second.occurrence.triage?.inspectionPriority) - finiteNumber(first.occurrence.triage?.inspectionPriority)
+  || first.occurrence.ordinal - second.occurrence.ordinal || first.inputOrder - second.inputOrder;
+
+const snapshotGeometryPriority = geometry => ({
+  EXACT_INTERSECTION: 5, PARALLEL_CLUSTER: 5, EXACT_PARALLEL_FAMILY: 5,
+  PARALLEL_AXIS_RAY: 5, AXIS_INTERSECTING_RAY: 4, LOCAL_SAME_RAY: 3,
+  A: 4, B: 2,
+})[geometry] || 1;
+const snapshotTermKey = terms => [...new Set(terms.map(canonicalKey).filter(Boolean))].sort().join("|");
+const snapshotRefs = values => Object.freeze([...new Set(values.map(value => String(value || "").trim()).filter(Boolean))].slice(0, 4));
+const compareSnapshotCandidates = (first, second) => Number(second.strongGeometry) - Number(first.strongGeometry)
+  || second.geometryPriority - first.geometryPriority || second.storyMatches - first.storyMatches
+  || second.recurrence - first.recurrence || second.sourceCount - first.sourceCount
+  || second.kindPriority - first.kindPriority || second.letterCount - first.letterCount
+  || first.occurrence.ordinal - second.occurrence.ordinal || first.id.localeCompare(second.id, "he");
+
+/**
+ * A quiet attention projection over already-projected canonical evidence. It does not trust an
+ * engine score, search, verify or call AI. Unverified readings remain in Advanced and can never
+ * become one of the five visible snapshot items.
+ */
+const projectGuidedMatrixSnapshot = (plan, inspections) => {
+  const candidates = [];
+  for (const inspection of inspections) {
+    if (inspection.pairVerified && inspection.supports.length === DEFAULT_DISCOVERY_SUPPORTS) {
+      const terms = inspection.supports.map(support => support.term), labels = inspection.supports.map(support => support.label || support.term);
+      const geometry = inspection.relation.code || inspection.relation.stage;
+      candidates.push({
+        id: `pair:${inspection.hitId}:${snapshotTermKey(terms)}`, kind: "verified-pair", kindPriority: 3,
+        status: "VERIFIED_STRUCTURE", title: labels.join(" × "), exactTerms: Object.freeze(terms), labels: Object.freeze(labels),
+        occurrence: inspection.occurrence, supports: inspection.supports, tokens: Object.freeze([]), geometry,
+        geometryLabel: inspection.relation.label || "מבנה מקומי מאומת", geometryPriority: snapshotGeometryPriority(geometry),
+        strongGeometry: inspection.strongGeometry, storyMatches: inspection.storyMatches, recurrence: inspection.recurrence,
+        sourceCount: inspection.sourceCount, sourceRefs: snapshotRefs(inspection.supports.map(support => support.ref || support.book)),
+        letterCount: terms.reduce((sum, term) => sum + canonicalKey(term).length, 0), meaningVerified: false,
+        reasons: Object.freeze(["שני הממצאים עברו אימות קנוני", inspection.relation.label,
+          inspection.storyMatches ? `כולל ${inspection.storyMatches} התאמות להקשר שנכתב` : "דורג לפי הגיאומטריה המקומית",
+          inspection.recurrence > 2 ? `${inspection.recurrence} מופעים מצטברים בחלון` : null].filter(Boolean)),
+      });
+    }
+    for (const relation of inspection.languageInspection?.relations || []) {
+      if (relation.status !== "VERIFIED_RELATION" || relation.verification?.status !== "MATCH") continue;
+      const terms = relation.tokens.map(token => token.exactLetters), labels = relation.tokens.map(token => token.label || token.baseTerm);
+      const sourceRefs = snapshotRefs([inspection.occurrence.ref]);
+      candidates.push({
+        id: `language:${inspection.hitId}:${snapshotTermKey(terms)}`, kind: "verified-language-relation", kindPriority: 2,
+        status: "VERIFIED_STRUCTURE_MEANING_UNVERIFIED", title: labels.join(" × "), exactTerms: Object.freeze(terms), labels: Object.freeze(labels),
+        occurrence: inspection.occurrence, supports: Object.freeze([]), tokens: relation.tokens, geometry: relation.geometry,
+        geometryLabel: relation.geometry, geometryPriority: snapshotGeometryPriority(relation.geometry),
+        strongGeometry: ["PARALLEL_AXIS_RAY", "AXIS_INTERSECTING_RAY"].includes(relation.geometry),
+        storyMatches: relation.contextMatches, recurrence: 2, sourceCount: sourceRefs.length, sourceRefs,
+        letterCount: terms.reduce((sum, term) => sum + canonicalKey(term).length, 0), meaningVerified: false,
+        reasons: Object.freeze(["שתי הקריאות עברו replay קנוני", relation.contextMatches ? "כולל מונח מן ההקשר שנכתב" : "דורג לפי הגיאומטריה המקומית", "המשמעות נשארת פרשנות לא מאומתת"]),
+      });
+    }
+    for (const finding of inspection.verifiedFindings) {
+      if (finding.status !== "VERIFIED" || !finding.term) continue;
+      const terms = [finding.term], labels = [finding.label || finding.term], sourceRefs = snapshotRefs([finding.ref || finding.book]);
+      candidates.push({
+        id: `finding:${inspection.hitId}:${snapshotTermKey(terms)}`, kind: "verified-finding", kindPriority: 1,
+        status: "VERIFIED_OCCURRENCE", title: labels[0], exactTerms: Object.freeze(terms), labels: Object.freeze(labels),
+        occurrence: inspection.occurrence, supports: Object.freeze([finding]), tokens: Object.freeze([]), geometry: finding.matrixStage,
+        geometryLabel: finding.matrixStage === "A" ? "מבנה מקומי צפוף" : "מבנה מקומי", geometryPriority: snapshotGeometryPriority(finding.matrixStage),
+        strongGeometry: finding.matrixStage === "A", storyMatches: Number(finding.source === "story"), recurrence: finding.occurrenceCount,
+        sourceCount: sourceRefs.length, sourceRefs, letterCount: canonicalKey(finding.term).length, meaningVerified: false,
+        reasons: Object.freeze(["המופע עבר אימות קנוני", finding.matrixStage === "A" ? "גיאומטריה מקומית צפופה" : "נמצא בחלון המקומי",
+          finding.occurrenceCount > 1 ? `חזר ${finding.occurrenceCount} פעמים באזור` : null].filter(Boolean)),
+      });
+    }
+  }
+  candidates.sort(compareSnapshotCandidates);
+  const selected = [], seenSignatures = new Set(), structuralTerms = new Set(candidates
+    .filter(candidate => candidate.kind !== "verified-finding").flatMap(candidate => candidate.exactTerms.map(canonicalKey)));
+  for (const candidate of candidates) {
+    const signature = snapshotTermKey(candidate.exactTerms);
+    if (!signature || seenSignatures.has(signature) || candidate.kind === "verified-finding" && structuralTerms.has(signature)) continue;
+    seenSignatures.add(signature);
+    selected.push(Object.freeze({ ...candidate, rank: selected.length + 1 }));
+    if (selected.length >= ELS_GUIDED_MATRIX_SNAPSHOT_MAX_ITEMS) break;
+  }
+  const anchors = Array.isArray(plan.anchorCandidates) ? plan.anchorCandidates : [];
+  const anchor = anchors.find(candidate => candidate.id === plan.recommendedAnchorId) || anchors[0]
+    || (plan.anchorTerm ? { term: String(plan.anchorTerm), canonicalTerm: canonicalKey(plan.anchorTerm) } : null);
+  const candidateOnlyCount = inspections.reduce((sum, inspection) => sum
+    + (inspection.rawPatterns?.length || 0)
+    + (inspection.languageInspection?.relations || []).filter(relation => relation.status !== "VERIFIED_RELATION").length, 0);
+  return Object.freeze({
+    contract: ELS_GUIDED_MATRIX_SNAPSHOT_CONTRACT, status: selected.length ? "READY" : inspections.length ? "VERIFIED_EMPTY" : "BUILDING",
+    scope: plan.scope, anchor: anchor ? Object.freeze({ term: anchor.term, canonicalTerm: anchor.canonicalTerm }) : null,
+    items: Object.freeze(selected), returnedCount: selected.length, attentionLimit: ELS_GUIDED_MATRIX_SNAPSHOT_MAX_ITEMS,
+    inspectedOccurrences: inspections.length, candidateOnlyCount, verifiedOnly: true, meaningAuthority: "UNVERIFIED",
+    selectionLaw: Object.freeze({ order: Object.freeze(["canonical-verification", "strong-geometry", "story-relevance", "recurrence-and-source", "stable-identity"]), numericSkipPromoted: false }),
+    modelCallsTriggered: 0, findingMutation: false, persisted: false, truthPromotion: false,
+  });
+};
+
+/**
+ * Projects the existing canonical verse-context lens for one ranked snapshot item. The exact
+ * occurrence identity must agree at every seam; a late response for another item is rejected.
+ * This is presentation-only and never searches, verifies, persists or invokes a model.
+ */
+export function projectElsGuidedSourceContext({ snapshot, lensResult } = {}) {
+  if (snapshot?.contract !== ELS_GUIDED_MATRIX_SNAPSHOT_CONTRACT || !Array.isArray(snapshot.items)
+    || lensResult?.lens !== "verse-context" || lensResult?.target?.guidedSnapshotSource !== true) return null;
+  const itemId = String(lensResult.target.guidedSnapshotItemId || "");
+  const item = snapshot.items.find(candidate => candidate.id === itemId);
+  const occurrence = item?.occurrence;
+  if (!item || !occurrence?.hitId || String(lensResult.target.hitId || "") !== occurrence.hitId
+    || String(lensResult.target.resultSetId || "") !== occurrence.resultSetId
+    || Number(lensResult.target.index) !== occurrence.index
+    || String(lensResult.target.occurrenceRef || "") !== occurrence.ref) return null;
+  const exactReturn = Object.freeze({
+    resultSetId: occurrence.resultSetId, index: occurrence.index, hitId: occurrence.hitId,
+    ordinal: occurrence.ordinal, ref: occurrence.ref,
+  });
+  const base = {
+    contract: ELS_GUIDED_SOURCE_CONTEXT_CONTRACT, itemId, hitId: occurrence.hitId,
+    occurrenceRef: occurrence.ref, exactReturn, source: "canonical_verse_context_lens",
+    modelCallsTriggered: 0, findingMutation: false, persisted: false, truthPromotion: false,
+  };
+  if (lensResult.ok !== true || String(lensResult.hitId || "") !== occurrence.hitId) {
+    return Object.freeze({ ...base, status: "UNAVAILABLE", span: null, verses: Object.freeze([]),
+      engineReturnedCount: 0, visibleLimit: ELS_GUIDED_SOURCE_VISIBLE_VERSE_LIMIT, hasMore: false,
+      verification: Object.freeze({ occurrence: "MATCH", sourceText: "UNAVAILABLE", meaning: "UNVERIFIED" }) });
+  }
+  const rawSpan = lensResult.span || {}, spanFrom = safeInteger(rawSpan.from), spanTo = safeInteger(rawSpan.to);
+  if (spanFrom == null || spanTo == null || spanFrom < 0 || spanTo < spanFrom) return null;
+  const span = Object.freeze({
+    from: spanFrom, to: spanTo, fromRef: String(rawSpan.fromRef || ""), toRef: String(rawSpan.toRef || ""),
+    count: Math.max(1, finiteNumber(rawSpan.count, spanTo - spanFrom + 1)),
+  });
+  const seen = new Set(), verses = [];
+  for (const raw of Array.isArray(lensResult.verses) ? lensResult.verses.slice(0, 60) : []) {
+    const verseIndex = safeInteger(raw?.verseIndex), from = safeInteger(raw?.from), to = safeInteger(raw?.to);
+    const ref = String(raw?.ref || "").trim(), text = String(raw?.text || "").trim().slice(0, 1200);
+    if (verseIndex == null || verseIndex < spanFrom || verseIndex > spanTo || from == null || to == null || to < from
+      || !ref || !text || seen.has(verseIndex)) continue;
+    seen.add(verseIndex);verses.push(Object.freeze({ verseIndex, ref, text, from, to }));
+  }
+  const visible = Object.freeze(verses.slice(0, ELS_GUIDED_SOURCE_VISIBLE_VERSE_LIMIT));
+  return Object.freeze({
+    ...base, status: visible.length ? "OK" : "UNAVAILABLE", span, verses: visible,
+    engineReturnedCount: verses.length, visibleLimit: ELS_GUIDED_SOURCE_VISIBLE_VERSE_LIMIT,
+    hasMore: lensResult.truncated === true || verses.length > visible.length, engineTruncated: lensResult.truncated === true,
+    verification: Object.freeze({ occurrence: "MATCH", sourceText: visible.length ? "CANONICAL" : "UNAVAILABLE", meaning: "UNVERIFIED" }),
+  });
+}
+
+/**
+ * Breadth-before-depth projection over canonical reports. It schedules exact occurrence identities;
+ * it does not search, verify, persist, mutate findings or call AI. Numeric skip patterns never rank.
+ */
+export function projectElsGuidedOccurrenceCoverage({
+  plan, occurrences = [], triageItems = [], inspections = [], approvedBatches = 1, resultSetId = "",
+} = {}) {
+  if (plan?.contract !== ELS_CIPHER_DISCOVERY_PLAN_CONTRACT || !Array.isArray(occurrences)
+    || !Array.isArray(triageItems) || !Array.isArray(inspections)) {
+    return Object.freeze({ error: "תוכנית הגילוי או תוצאות המנוע אינן תקינות." });
+  }
+  const approved = Math.max(1, Math.min(ELS_GUIDED_OCCURRENCE_MAX_BATCHES, Math.trunc(Number(approvedBatches)) || 1));
+  const triageById = new Map();
+  for (const item of triageItems) {
+    const hitId = occurrenceIdentity(item), prior = triageById.get(hitId);
+    if (hitId && (!prior || finiteNumber(item.inspectionPriority) > finiteNumber(prior.inspectionPriority)
+      || finiteNumber(item.inspectionPriority) === finiteNumber(prior.inspectionPriority) && finiteRank(item.rank) < finiteRank(prior.rank))) triageById.set(hitId, item);
+  }
+  const seenOccurrences = new Set(), uniqueOccurrences = [];
+  for (const [inputOrder, occurrence] of occurrences.entries()) {
+    const hitId = occurrenceIdentity(occurrence);
+    if (!hitId || seenOccurrences.has(hitId)) continue;
+    seenOccurrences.add(hitId);uniqueOccurrences.push(projectOccurrence(occurrence, inputOrder, triageById.get(hitId), resultSetId));
+  }
+  uniqueOccurrences.sort(compareOccurrencesForInspection);
+  const schedule = Object.freeze(uniqueOccurrences.slice(0, approved * ELS_GUIDED_OCCURRENCE_BATCH_SIZE));
+  const scheduledById = new Map(schedule.map(occurrence => [occurrence.hitId, occurrence]));
+  const expectedResultSetId = String(resultSetId || ""), acceptedById = new Map(), rejectedInspections = [];
+  for (const [inputOrder, inspection] of inspections.entries()) {
+    const targetHitId = inspection?.target?.hitId == null ? "" : String(inspection.target.hitId);
+    const occurrence = scheduledById.get(targetHitId);
+    const targetSetId = String(inspection?.target?.resultSetId || inspection?.target?.setId || "");
+    let reason = null;
+    if (!targetHitId) reason = "MISSING_EXACT_OCCURRENCE_ID";
+    else if (!seenOccurrences.has(targetHitId)) reason = "UNKNOWN_OCCURRENCE";
+    else if (!occurrence) reason = "OUTSIDE_APPROVED_BATCH";
+    else if (expectedResultSetId && targetSetId && targetSetId !== expectedResultSetId) reason = "STALE_RESULT_SET";
+    else if (inspection?.lens !== "matrix-discovery"
+      || inspection?.ok === true && (inspection?.contract !== MATRIX_DISCOVERY_CONTRACT
+        || inspection?.discoveryBundle?.contract !== ELS_CIPHER_DISCOVERY_PLAN_CONTRACT)
+      || inspection?.ok !== true && inspection?.ok !== false) reason = "INVALID_CANONICAL_REPORT";
+    else if (acceptedById.has(targetHitId)) reason = "DUPLICATE_REPORT";
+    if (reason) { rejectedInspections.push(Object.freeze({ hitId: targetHitId || null, reason }));continue; }
+    acceptedById.set(targetHitId, projectInspection(inspection, occurrence, inputOrder));
+  }
+  const rankedInspections = [...acceptedById.values()].sort(compareInspections);
+  const recommendation = rankedInspections.find(inspection => inspection.pairVerified && inspection.strongGeometry) || null;
+  const alternatives = Object.freeze(rankedInspections.filter(inspection => inspection !== recommendation && inspection.pairVerified).slice(0, 2));
+  const matrixSnapshot = projectGuidedMatrixSnapshot(plan, rankedInspections);
+  const nextOccurrence = schedule.find(occurrence => !acceptedById.has(occurrence.hitId)) || null;
+  const remainingUnscheduledCount = Math.max(0, uniqueOccurrences.length - schedule.length);
+  let status, stopReason;
+  if (nextOccurrence) { status = "INSPECTING";stopReason = "NEXT_APPROVED_OCCURRENCE"; }
+  else if (recommendation) { status = "RECOMMENDED";stopReason = "STRONG_VERIFIED_PAIR"; }
+  else if (remainingUnscheduledCount > 0 && approved < ELS_GUIDED_OCCURRENCE_MAX_BATCHES) { status = "AWAITING_CONTINUATION";stopReason = "APPROVED_BATCH_EXHAUSTED"; }
+  else { status = "BOUNDED_EMPTY";stopReason = remainingUnscheduledCount > 0 ? "OCCURRENCE_LIMIT_REACHED" : "NO_STRONG_VERIFIED_PAIR"; }
+  return Object.freeze({
+    contract: ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT, sourceContract: plan.contract, status, stopReason,
+    schedule, nextOccurrence, recommendation, alternatives, matrixSnapshot, inspections: Object.freeze(rankedInspections),
+    rejectedInspections: Object.freeze(rejectedInspections),
+    coverage: Object.freeze({
+      batchSize: ELS_GUIDED_OCCURRENCE_BATCH_SIZE, maximumBatches: ELS_GUIDED_OCCURRENCE_MAX_BATCHES,
+      approvedBatches: approved, totalOccurrences: uniqueOccurrences.length, scheduledCount: schedule.length,
+      inspectedCount: acceptedById.size, uninspectedScheduledCount: schedule.length - acceptedById.size,
+      remainingUnscheduledCount, complete: schedule.length === uniqueOccurrences.length && acceptedById.size === schedule.length,
+      uninspectedAreNotNegativeEvidence: true,
+    }),
+    selectionLaw: Object.freeze({
+      order: Object.freeze(["canonical-verification", "strong-geometry", "story-relevance", "recurrence-and-source", "triage-evidence", "stable-ordinal"]),
+      numericSkipPromoted: false,
+    }),
+    aiUsed: false, findingMutation: false, persisted: false, truthPromotion: false,
+  });
+}
 
 /** A read-only plan. FORMS rows must come from the already mounted canonical engine. */
 export function prepareElsAutomaticResearchPlan({ expressions, scope = "torah", skipMin = "2", skipMax = "", pageSize = "20", canonicalForms = [] } = {}) {

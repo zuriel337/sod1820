@@ -92,7 +92,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:true,guidedProfile:!!window.__fixtureGuided,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -100,7 +100,7 @@ if(window.__fixtureFullFrame){
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
   return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},React.createElement(PaletteProbe),
-   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native):React.createElement('p',null,'Library fixture'))));
+   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native,{researchProfile:true}):React.createElement('p',null,'Library fixture'))));
  }
  createRoot(document.getElementById('root')).render(React.createElement(FullFrameFixture));
 }else createRoot(document.getElementById('root')).render(React.createElement(Fixture));
@@ -213,7 +213,7 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
@@ -258,10 +258,20 @@ async function withNative(viewport, run, options = {}) {
     browser = await pw.chromium.launch({ headless: true, executablePath });
     const page = await browser.newPage({ viewport, isMobile: mobile, hasTouch: mobile });
     const errors = [];
+    page.__elsDynamicLexiconRequests = [];
+    page.__elsGuidedSnapshotRequests = [];
+    page.on('request', request => {
+      const pathname=new URL(request.url()).pathname;
+      if (pathname.endsWith('/els-dynamic-lexicon-v1.gz64.txt')) {
+        page.__elsDynamicLexiconRequests.push(request.url());
+      }
+      if(pathname.includes('ElsGuidedMatrixSnapshot2029'))page.__elsGuidedSnapshotRequests.push(request.url());
+    });
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
-    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender }) => {
+    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided }) => {
       window.__fixtureFullFrame=fullFrame;
+      window.__fixtureGuided=guided;
       if (onboarded) localStorage.setItem('tzofen_onboarded_v1', '1');
       window.__fixtureLoadGolden = loadGolden;
       window.__fixtureTier = tier;
@@ -288,7 +298,7 @@ async function withNative(viewport, run, options = {}) {
       if (window !== window.parent) addEventListener('message', (event) => {
         if (event.source === window.parent && event.data?.source === 'sod-host') (window.parent.__hostLog ||= []).push(event.data);
       });
-    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender });
+    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided });
     if (realHost && loadGolden) await page.addInitScript((item) => { window.__fixtureGolden = item; }, golden);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     if (loadGolden) {
@@ -426,6 +436,14 @@ test('Classic opens on unmarked Genesis letters, right aligned, with no sample c
     const first=await page.locator('.els29-native-cell').first().boundingBox();
     assert.ok(first.x+first.width<=region.x+region.width+2&&first.x+first.width>=region.x+region.width-55,'בראשית starts at the visible right edge');
     assert.equal(await page.locator('.els29-native-stage-head h3').textContent(),'הצופן הקלאסי');
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening Classic never downloads the guided language asset');
+    const requestId=await page.evaluate(()=>window.__operation?.requestId||0);
+    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משה');
+    await activate(page,'חפש');
+    await page.waitForFunction(id=>window.__operation?.kind==='search'&&window.__operation.requestId>id&&window.__operation.status==='done',requestId,{timeout:90000});
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'a regular Classic search never downloads the guided language asset');
+    assert.equal(page.__elsGuidedSnapshotRequests.length,0,'Classic never downloads the Guided snapshot component');
+    assert.equal(await page.locator('[data-els-smart-matrix-snapshot="v1"]').count(),0,'Classic never renders the Guided snapshot');
   },{realHost:true,loadGolden:false,mobile:width===390});
 });
 
@@ -1557,6 +1575,137 @@ test('native presentation: verse words alternate from either entry and camera re
  });
 });
 
+test('guided discovery inspects at most four exact occurrences, keeps raw runs advanced and fits 320px',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+  for(const width of [320,1440])await withNative({width,height:900},async page=>{
+    assert.equal(page.__elsDynamicLexiconRequests.length,0,'opening Guided does not download the language asset before explicit discovery');
+    assert.equal(page.__elsGuidedSnapshotRequests.length,0,'opening Guided does not download snapshot presentation before explicit discovery');
+    await page.evaluate(()=>window.__loadResearch({
+      contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,researchNonce:1,
+      term:'יהוה',scope:'torah',contextTerms:[{term:'משה'},{term:'תורה'},{term:'ישראל'}],
+      discoveryGoal:{primaryAxes:1,connectedSupports:2,sourceSequence:'WHEN_AVAILABLE',resultPolicy:'ONE_BEST_STRUCTURE'},
+    }));
+    await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation.status==='done',null,{timeout:90000});
+    const coverage=page.locator('[data-els-guided-occurrence-coverage="v1"]');
+    await coverage.waitFor({timeout:120000});
+    await page.waitForFunction(()=>{
+      const node=document.querySelector('[data-els-guided-occurrence-coverage="v1"]');
+      return node&&(/נבדקו [1-4] מתוך/.test(node.textContent)||node.textContent.includes('הבדיקה הראשונה הושלמה')||node.textContent.includes('נמצא חיבור חזק'));
+    },null,{timeout:120000});
+    const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-discovery'));
+    assert.ok(requests.length>=1&&requests.length<=4,'the automatic first wave stays within four occurrences');
+    assert.ok(requests.every(message=>message.target.guidedOccurrenceCoverage===true&&message.target.setId&&message.target.hitId));
+    const reports=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok));
+    assert.equal(page.__elsDynamicLexiconRequests.length,1,'one lazy language asset request serves every inspected occurrence');
+    assert.ok(reports.length>=1&&reports.every(report=>report.languageInspection?.contract==='els_matrix_language_inspection_v1'));
+    assert.ok(reports.every(report=>report.searchRule==='lazy-bounded-dynamic-lexicon'&&report.defaultLexiconLoaded===false&&report.dynamicLexiconLoaded===true));
+    assert.ok(reports.every(report=>report.languageInspection.modelCallsTriggered===0&&report.languageInspection.coverage.returnedRays<=24&&report.languageInspection.coverage.maxLetters===24&&report.languageInspection.coverage.maxCandidateWindows===9216&&report.languageInspection.coverage.candidatesExamined<=9216&&report.languageInspection.coverage.maxLexiconLookups===196608&&report.languageInspection.coverage.lexiconLookups<=196608&&report.languageInspection.coverage.returnedReadings<=24&&report.languageInspection.coverage.returnedSegmentations<=24&&report.languageInspection.coverage.returnedRelations<=3&&Number(report.languageInspection.coverage.relationReplayCalls||0)<=2&&Number(report.languageInspection.canonicalReplayCalls||0)<=2));
+    assert.ok(reports.every(report=>report.languageInspection.dynamicLexicon?.contract==='els_dynamic_lexicon_profile_v1'&&report.languageInspection.dynamicLexicon.entryCount>40000&&report.languageInspection.dynamicLexicon.coreEntryCount>4000&&report.languageInspection.dynamicLexicon.lazyLoaded===true&&report.languageInspection.dynamicLexicon.vocabularyScanned===false&&report.languageInspection.dynamicLexicon.modelCallsTriggered===0));
+    assert.ok(reports.every(report=>report.languageInspection.dynamicLexicon.asset?.path==='els-dynamic-lexicon-v1.gz64.txt'&&report.languageInspection.dynamicLexicon.asset.loadTrigger==='VERIFIED_MATRIX_DISCOVERY'&&report.languageInspection.dynamicLexicon.asset.cachePolicy==='force-cache'&&report.languageInspection.dynamicLexicon.asset.requestCount===1));
+    assert.ok(reports.every(report=>(report.languageInspection.readings||[]).every(reading=>reading.status==='UNVERIFIED_READING'&&reading.truthPromotion===false)));
+    assert.ok(reports.every(report=>(report.languageInspection.relations||[]).every(relation=>['UNVERIFIED_RELATION','VERIFIED_RELATION'].includes(relation.status)&&relation.truthPromotion===false)));
+    assert.ok(reports.every(report=>report.languageInspection.boundaryProfile?.contract==='torah_language_boundary_profile_v1'&&report.languageInspection.boundaryProfile.vocabularyRetained===false&&report.languageInspection.boundaryProfile.modelCallsTriggered===0));
+    assert.ok(reports.every(report=>report.languageInspection.coverage.returnedBoundaries<=480&&report.languageInspection.coverage.boundaryProfileComparisons<=816));
+    assert.ok(reports.every(report=>(report.languageInspection.boundaries||[]).every(boundary=>boundary.status==='UNVERIFIED_BOUNDARY'&&boundary.interpretationRequired===true&&boundary.truthPromotion===false)));
+    assert.equal(await page.evaluate(()=>window.__hostLog.some(message=>message.type==='update-findings')),false,'inspection never adds findings without the explicit button');
+    const guidedMatrix=page.locator('[data-els-guided-matrix="exact-v1"]');
+    assert.equal(await page.locator('[data-els-guided-result-surface="results-first-v1"]').count(),1,'Guided owns a distinct results-first surface');
+    assert.equal(await page.locator('.els29-native-query').isVisible(),false,'Classic search and cross controls never appear inside Guided');
+    assert.equal(await guidedMatrix.isVisible(),false,'the exact matrix does not dominate the Guided result surface');
+    const searchRequestCount=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='native-search').length);
+    await page.getByRole('button',{name:'פתח מטריצה מדויקת',exact:true}).dispatchEvent('click');
+    assert.equal(await guidedMatrix.isVisible(),true,'the matrix opens only after an explicit inspection action');
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='native-search').length),searchRequestCount,'opening the matrix does not start another search');
+    await page.getByRole('button',{name:'סגור מטריצה',exact:true}).dispatchEvent('click');
+    assert.equal(await guidedMatrix.isVisible(),false);
+    assert.ok((await coverage.innerText()).includes('מופעים מאומתים'),'exact axis count is separate from local discoveries');
+    assert.equal(await coverage.getByText(/דפוסים גולמיים/).count()<=1,true,'raw patterns have one advanced disclosure only');
+    assert.equal(await coverage.locator('[data-els-language-inspection="candidate-only"]').count(),1,'language candidates stay in one Advanced disclosure');
+    const dynamicLexicon=coverage.locator('[data-els-dynamic-lexicon="lazy-bounded"]');
+    assert.equal(await dynamicLexicon.count(),1,'the lazy broad lexicon is disclosed once under Advanced');
+    const dynamicCopy=await dynamicLexicon.textContent();assert.match(dynamicCopy,/לא נסרקו/);assert.match(dynamicCopy,/בדיקות אינדקס ישירות/);assert.match(dynamicCopy,/ללא קריאת AI/);
+    const boundaryPanel=coverage.locator('[data-els-language-boundaries="unverified"]');
+    assert.ok(await boundaryPanel.count()<=1,'unverified boundary candidates have one Advanced section only');
+    if(await boundaryPanel.count()){
+      const boundaryCopy=await boundaryPanel.textContent();
+      assert.match(boundaryCopy,/אינו מחזיק מילון/);assert.match(boundaryCopy,/אינו קובע שאלה מילים/);assert.match(boundaryCopy,/לא מאומת/);
+    }
+    const smartSnapshot=coverage.locator('[data-els-smart-matrix-snapshot="v1"]');
+    assert.ok(await smartSnapshot.count()<=1,'one quiet matrix snapshot owns the verified visible findings');
+    assert.ok(page.__elsGuidedSnapshotRequests.length>=1,'the snapshot presentation is loaded only after Guided has verified material');
+    if(await smartSnapshot.count()){
+      const cards=smartSnapshot.locator('[data-snapshot-kind]'),copy=await smartSnapshot.innerText(),count=await cards.count();
+      assert.ok(count>=1&&count<=5,'the attention budget exposes at most five verified items');
+      assert.ok((await cards.evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-snapshot-kind')))).every(kind=>['verified-pair','verified-language-relation','verified-finding'].includes(kind)));
+      assert.match(copy,/אימות קנוני/);assert.match(copy,/מספר דילוג לבדו/);assert.match(copy,/הקשר ומשמעות נשארים פרשנות לבדיקה/);
+      assert.ok(await smartSnapshot.getByRole('button',{name:'פתח את מופע הציר'}).count()>=1);
+      assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotSource===true).length),0,
+        'source context stays on-demand after the snapshot appears');
+      const firstCard=cards.first(),itemId=await firstCard.getAttribute('data-snapshot-item-id');
+      await firstCard.getByRole('button',{name:'מקור ופסוקים',exact:true}).dispatchEvent('click');
+      if(process.env.ELS_SAVE_DIAGNOSTICS){await page.waitForTimeout(600);console.error('GUIDED-SOURCE-DIAG',width,JSON.stringify(await page.evaluate(()=>({state:window.__state?.axis,requests:window.__hostLog.filter(message=>message.type==='request-lens').slice(-4).map(message=>({lens:message.lens,target:message.target})),responses:window.__log.filter(message=>message.type==='lens').slice(-4).map(message=>({lens:message.lens,ok:message.ok,target:message.target})),sourceNodes:[...document.querySelectorAll('[data-els-guided-source-context]')].map(node=>node.getAttribute('data-els-guided-source-context'))}))));}
+      await page.waitForFunction(id=>window.__log.some(message=>message.type==='lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotItemId===id),itemId,{timeout:30000});
+      const source=smartSnapshot.locator('[data-els-guided-source-context="ready"]');await source.waitFor({timeout:30000});
+      const sourceCard=source.locator('xpath=ancestor::article[@data-snapshot-item-id][1]');
+      assert.equal(await sourceCard.getAttribute('data-snapshot-item-id'),itemId,'background ranking may move but never mix the opened source item');
+      assert.ok(await source.locator('.els29-smart-source-verses>article').count()<=3,'source attention stays bounded');
+      assert.equal(await source.getAttribute('data-source-hit-id'),await page.evaluate(()=>window.__state.axis.hitId));
+      assert.equal(await guidedMatrix.isVisible(),false,'opening canonical source does not reveal the matrix implicitly');
+      if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await source.scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`guided-source-context-${width}.png`),fullPage:true});}
+      await source.getByRole('button',{name:'חזור לממצא המדורג',exact:true}).dispatchEvent('click');
+      assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-snapshot-item-id')),itemId,'exact return restores the ranked item');
+    }
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'guided package has no horizontal page overflow');
+    if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`guided-smart-snapshot-${width}.png`),fullPage:true});}
+  },{realHost:true,loadGolden:false,mobile:width===320,guided:true});
+ });
+
+test('guided golden: מקדש ירד keeps two exact axes and recognizes the general defective spelling ירושלם',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+    await page.evaluate(()=>window.__loadResearch({
+      contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,researchNonce:2,
+      term:'מקדש ירד',scope:'torah',contextTerms:[],
+      discoveryGoal:{primaryAxes:1,connectedSupports:2,sourceSequence:'WHEN_AVAILABLE',resultPolicy:'ONE_BEST_STRUCTURE'},
+    }));
+    await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation.status==='done',null,{timeout:90000});
+    assert.equal(await page.evaluate(()=>window.__state.search.occurrences.total),2,'the exact axis count remains two');
+    await page.waitForFunction(()=>window.__log?.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok).length===2,null,{timeout:90000});
+    const reports=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok));
+    const recognized=reports.flatMap(report=>report.items||[]).find(item=>item.term==='ירושלמ');
+    assert.ok(recognized,`the general plene/defective recognizer sees the exact matrix letters; reports=${JSON.stringify(reports.map(report=>({axis:report.axis,items:report.items,raw:report.rawPatterns?.slice(0,8),failure:report.discoveryBundle?.failureCause,budget:report.budget})))}`);
+    assert.ok(recognized.occurrenceCount>=2,'the recognized form repeats twice in the bounded matrix');
+    assert.equal(recognized.readingLabel,'ירושלים','the fuller reading stays annotation, not replacement text');
+    const packageNode=page.locator('[data-els-guided-occurrence-coverage="v1"]'),packageText=await packageNode.innerText();
+    assert.match(packageText,/ירושלם/,'the recognized exact form is visible in the guided research package');
+    const snapshot=packageNode.locator('[data-els-smart-matrix-snapshot="v1"]');
+    assert.equal(await snapshot.count(),1,'the verified local finding is consolidated into one smart snapshot');
+    assert.ok(await snapshot.locator('[data-snapshot-kind]').count()<=5);
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotSource===true).length),0,
+      'Guided does not load source text before an explicit source action');
+    const rankedItem=snapshot.locator('[data-snapshot-item-id]').first(),rankedItemId=await rankedItem.getAttribute('data-snapshot-item-id');
+    await rankedItem.getByRole('button',{name:'מקור ופסוקים',exact:true}).dispatchEvent('click');
+    if(process.env.ELS_SAVE_DIAGNOSTICS){await page.waitForTimeout(600);console.error('GUIDED-SOURCE-DIAG',JSON.stringify(await page.evaluate(()=>({state:window.__state?.axis,requests:window.__hostLog.filter(message=>message.type==='request-lens').slice(-4).map(message=>({lens:message.lens,target:message.target})),responses:window.__log.filter(message=>message.type==='lens').slice(-4).map(message=>({lens:message.lens,ok:message.ok,target:message.target})),sourceNodes:[...document.querySelectorAll('[data-els-guided-source-context]')].map(node=>node.getAttribute('data-els-guided-source-context'))}))));}
+    await page.waitForFunction(id=>window.__log.some(message=>message.type==='lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotItemId===id),rankedItemId,{timeout:30000});
+    const sourceContext=rankedItem.locator('[data-els-guided-source-context="ready"]');
+    await sourceContext.waitFor({timeout:30000});
+    const sourceRequests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='verse-context'&&message.target?.guidedSnapshotSource===true));
+    assert.equal(sourceRequests.length,1,'one explicit action uses the existing canonical verse lens once');
+    assert.equal(sourceRequests[0].target.guidedSnapshotItemId,rankedItemId);
+    assert.ok(sourceRequests[0].target.resultSetId&&Number.isInteger(sourceRequests[0].target.index)&&sourceRequests[0].target.hitId&&sourceRequests[0].target.occurrenceRef);
+    assert.equal(await sourceContext.getAttribute('data-source-hit-id'),await page.evaluate(()=>window.__state.axis.hitId),'source text belongs to the exact active occurrence');
+    const visibleVerses=sourceContext.locator('.els29-smart-source-verses>article');
+    assert.ok(await visibleVerses.count()>=1&&await visibleVerses.count()<=3,'the quiet source package shows at most three canonical verses');
+    assert.match(await sourceContext.innerText(),/עדשת המקור הקנונית/);
+    await sourceContext.getByRole('button',{name:'הדגש פסוק במטריצה'}).first().dispatchEvent('click');
+    assert.equal(await page.locator('[data-els-guided-matrix="exact-v1"]').isVisible(),true,'verse inspection reveals the exact matrix explicitly');
+    assert.ok(await page.locator('.is-verse-word').count()>0,'the package reuses the existing exact verse highlight');
+    await sourceContext.getByRole('button',{name:'חזור לממצא המדורג',exact:true}).dispatchEvent('click');
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-snapshot-item-id')),rankedItemId,'return focuses the exact ranked item');
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'source package keeps the 390px page within bounds');
+  },{realHost:true,loadGolden:false,mobile:true,guided:true});
+ });
+
 test('native results: regular and crossed searches expose selectable results in Torah and Tanakh, with terminal recovery',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
  await withNative({width:390,height:844},async page=>{
@@ -1697,7 +1846,7 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
  try{
   await server.listen();browser=await pw.chromium.launch({headless:true,executablePath});
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
+  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?mode=classic`);
   await page.waitForFunction(()=>window.__libraryEngineMounts===1);
   const folder=page.getByRole('region',{name:'תיקיית הצפנים'});
   const toggle=folder.getByRole('button',{name:/תיקיית הצפנים/});
