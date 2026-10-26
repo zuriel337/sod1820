@@ -117,13 +117,13 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.equal(new URL(page.url()).searchParams.get("page"), "35");
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
 
-      await page.getByRole("button", { name: /טבלת האותיות/ }).click();
+      await page.locator(".ahavat29-table-tabs").getByRole("button", { name: /טבלת האותיות/ }).click();
       const search = page.getByRole("searchbox", { name: "חיפוש בתוך הטבלה" });
       await search.fill("שמיני");
       await page.getByRole("cell", { name: "שמיני", exact: true }).first().waitFor();
       assert.equal(await page.locator(".ahavat29-data-table tbody tr").count() > 0, true);
 
-      const letterReader = page.locator(".ahavat29-letters");
+      const letterReader = page.locator("#ahavat29-letters");
       assert.equal(await letterReader.locator(".ahavat29-letter-alphabet button").count(), 28);
       for (const [name, form, pdfPage] of [["כף סופית", "ך", 37], ["מם סופית", "ם", 38], ["שין שמאלית", "שׂ", 41]]) {
         await letterReader.getByRole("button", { name, exact: true }).click();
