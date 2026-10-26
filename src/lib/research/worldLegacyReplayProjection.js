@@ -456,11 +456,14 @@ function projectStructuredTargetReview(row) {
   else if (targets.length === 1 && singleNumberValue != null && rowValue === singleNumberValue) evidenceState = "exact_row_value_match";
   else if (targets.length === 1 && singleNumberValue != null) evidenceState = "row_value_conflict";
   else if (targets.length === 1) evidenceState = "structured_target_only";
+  else if (rowValue != null) evidenceState = "structured_value_without_target";
+  else evidenceState = "missing_value_and_target";
   return Object.freeze({
     state,
     evidenceState,
     promotedNodeId,
     targetCount: targets.length,
+    proposedNumberTarget: !promotedNodeId && !targets.length && rowValue != null ? rowValue : null,
     targets: Object.freeze(targets),
   });
 }
@@ -487,6 +490,10 @@ function decisionReason(sourceReadiness, targetReadiness, repairCount, targetCou
   }
   if (targetReadiness === "multiple_structured_targets") return `${targetCount} יעדים מובנים דורשים בחירה אנושית; אין לבחור יעד לפי דירוג או ניחוש.`;
   if (targetReadiness === "mixed_target_states") return "הופעות האשכול אינן מסכימות על מצב היעד; יש לבדוק כל הופעת מקור בנפרד.";
+  if (evidenceStateCounts.structured_value_without_target) {
+    return "אין חיבור מתועד, אך קיים value מובנה שמבסס הצעת יעד מספר מדויקת; נדרשת הכרעת חיבור אנושית.";
+  }
+  if (evidenceStateCounts.missing_value_and_target) return "אין יעד מובנה וגם אין value שממנו אפשר להציע יעד מספר; נדרש מיפוי מן המקור.";
   return "לא קיים יעד מובנה; יש למפות יעד על בסיס מקור מפורש לפני חיבור לעץ.";
 }
 
@@ -502,6 +509,7 @@ export function classifyWorldLegacyReplayDecision(occurrences = []) {
   const targetStateCounts = {};
   const targetEvidenceStateCounts = {};
   const targets = new Map();
+  const proposedNumberTargets = new Set();
   let repairCount = 0;
   for (const item of items) {
     incrementCount(sourceLocatorStateCounts, item.sourceLocatorState);
@@ -509,6 +517,7 @@ export function classifyWorldLegacyReplayDecision(occurrences = []) {
     const targetReview = item.targetReview || { state: "missing_structured_target", targets: [] };
     incrementCount(targetStateCounts, targetReview.state);
     incrementCount(targetEvidenceStateCounts, targetReview.evidenceState);
+    if (finite(targetReview.proposedNumberTarget) != null) proposedNumberTargets.add(finite(targetReview.proposedNumberTarget));
     for (const target of targetReview.targets || []) {
       const identity = `${clean(target.type)}:${clean(target.key)}`;
       if (identity !== ":" && !targets.has(identity)) targets.set(identity, target);
@@ -531,6 +540,7 @@ export function classifyWorldLegacyReplayDecision(occurrences = []) {
     targetEvidenceStateCounts: Object.freeze(targetEvidenceStateCounts),
     targetCount: structuredTargets.length,
     targets: structuredTargets,
+    proposedNumberTargets: Object.freeze([...proposedNumberTargets]),
     reason: decisionReason(sourceReadiness, targetReadiness, repairCount, structuredTargets.length, targetEvidenceStateCounts),
     mutatesLiveData: false,
   });

@@ -291,6 +291,25 @@ test("multiple targets preserve an exact primary number separately from contextu
   assert.equal(additionalNumberDecision.targetReadiness, "multiple_structured_targets");
 });
 
+test("a structured value can propose a number target without inventing a live tree connection", () => {
+  const withValue = row({ value: 68 });
+  const withoutValue = row({ id: id("2"), value: null });
+  const index = buildWorldLegacyReplayIndex([withValue, withoutValue]);
+  const withValueDecision = attachWorldLegacyReplay({
+    id: `research:${withValue.id}`, sourceId: withValue.id, verification: "legacy_signal",
+  }, index).legacyReplay.decision;
+  const withoutValueDecision = attachWorldLegacyReplay({
+    id: `research:${withoutValue.id}`, sourceId: withoutValue.id, verification: "legacy_signal",
+  }, index).legacyReplay.decision;
+
+  assert.deepEqual(withValueDecision.proposedNumberTargets, [68]);
+  assert.equal(withValueDecision.targetEvidenceStateCounts.structured_value_without_target, 1);
+  assert.equal(withValueDecision.targetReadiness, "missing_structured_target");
+  assert.equal(withValueDecision.mutatesLiveData, false);
+  assert.equal(withoutValueDecision.targetEvidenceStateCounts.missing_value_and_target, 1);
+  assert.deepEqual(withoutValueDecision.proposedNumberTargets, []);
+});
+
 test("source repair blocks automatic target handling and target counts preserve every occurrence", () => {
   const decision = classifyWorldLegacyReplayDecision([
     {

@@ -5,7 +5,7 @@ import { WORLD_CORPUS_TRIAGE_AUDIT } from "../api/world-corpus-triage-audit.js";
 test("manager corpus audit keeps publication, verification and catalog completeness separate", () => {
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.scope, "read_only_recommendations");
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.workstreams.length, 7);
-  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 39);
+  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 41);
   assert.deepEqual(["medium", "weak"].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [4164, 6362]);
   assert.match(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "duplicates").next, /בלי מחיקה/u);
   const zviReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_replay");
@@ -40,6 +40,10 @@ test("manager corpus audit keeps publication, verification and catalog completen
     "zvi_ready_primary_number_context",
     "zvi_ready_additional_numbers",
   ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [533, 1323]);
+  assert.deepEqual([
+    "zvi_ready_value_without_target",
+    "zvi_ready_missing_value_target",
+  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [481, 5]);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_matrix_claim_unmatched").total, 393);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_incomplete_method").total, 1);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_source_metadata").total, 3);
@@ -105,6 +109,13 @@ test("audit routes only to existing canonical World views", () => {
     "בשלים עם כמה יעדים להכרעה",
     "בשלים ללא יעד מובנה",
   ].map((label) => zvi.counts.find((item) => item.label === label).value), [102, 153, 1856, 486]);
+  assert.deepEqual([
+    "חסרי יעד עם value להצעה",
+    "חסרי יעד וללא value",
+    "חסרי יעד עם מקור מדויק",
+    "חסרי יעד הדורשים תיקון locator",
+    "חסרי יעד עם תמונה",
+  ].map((label) => zvi.counts.find((item) => item.label === label).value), [481, 5, 476, 10, 46]);
   assert.deepEqual([
     "יעד יחיד מסוג מספר",
     "ריבוי יעדים צר · 2–3",

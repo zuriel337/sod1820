@@ -188,6 +188,8 @@ const REPLAY_TARGET_EVIDENCE_LABELS = Object.freeze({
   missing_row_value: "יעד מספר בלי ערך מובנה",
   structured_target_only: "יעד מובנה ללא התאמת ערך",
   multiple_structured_targets_only: "כמה יעדים ללא התאמת ערך",
+  structured_value_without_target: "ערך מובנה בלי יעד מתועד",
+  missing_value_and_target: "חסרים יעד וערך מובנה",
 });
 
 const LEGACY_REPLAY_READY = new Set(["deterministic_match", "arithmetic_match", "compound_match", "explicit_match", "legacy_matrix_match"]);
@@ -882,6 +884,8 @@ export default function WorldAllResearchTable({ state }) {
         <span><b>{projection.byLegacyReplayTargetEvidence?.exact_row_value_match || 0}</b> יעדי מספר יחידים שתואמים לערך המובנה</span>
         <span><b>{projection.byLegacyReplayTargetEvidence?.exact_value_primary_with_context || 0}</b> מספר ראשי תואם עם הקשרים נוספים</span>
         <span><b>{projection.byLegacyReplayTargetEvidence?.exact_value_among_multiple_numbers || 0}</b> מספר תואם לצד מספרים נוספים</span>
+        <span><b>{projection.byLegacyReplayTargetEvidence?.structured_value_without_target || 0}</b> עם ערך מובנה להצעת יעד מספר</span>
+        <span><b>{projection.byLegacyReplayTargetEvidence?.missing_value_and_target || 0}</b> בלי יעד ובלי ערך מובנה</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.multiple_structured_targets || 0}</b> עם כמה יעדים</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.missing_structured_target || 0}</b> בלי יעד מובנה</span>
       </div> : null}
@@ -981,6 +985,7 @@ export default function WorldAllResearchTable({ state }) {
               <summary>היעדים המובנים שנשמרו · {row.legacyReplay.decision.targets.length}</summary>
               <ul>{row.legacyReplay.decision.targets.map((target) => <li key={`${target.type}:${target.key}`}>{treeTargetLabel(target)}</li>)}</ul>
             </details> : null}
+            {row.legacyReplay.decision.proposedNumberTargets?.length ? <small>הצעת יעד מספר מן ה־value המובנה בלבד: {row.legacyReplay.decision.proposedNumberTargets.join(" · ")}. ההצעה אינה חיבור חי.</small> : null}
           </div> : null}
 
           {row.mediaUrl ? <img className="sod29-world-all-research-media" src={row.mediaUrl} loading="lazy" alt="" /> : null}
