@@ -85,6 +85,71 @@ export function classifyWorldMissingEngineStatement(value) {
   return Object.freeze({ queue, subtype, reason: reasons[queue], signals });
 }
 
+function decimalClaim(value) {
+  const normalized = clean(value).replace(",", ".");
+  const claimed = Number(normalized);
+  if (!Number.isFinite(claimed)) return null;
+  const decimal = normalized.split(".")[1] || "";
+  return Object.freeze({ claimed, precision: decimal.length });
+}
+
+function approximateConstantCheck(key, rawClaim, computed, expression) {
+  const claim = decimalClaim(rawClaim);
+  if (!claim) return null;
+  const roundedComputed = Number(computed.toFixed(claim.precision));
+  const matches = roundedComputed === claim.claimed;
+  return Object.freeze({
+    key,
+    state: matches ? "rounded_match" : "rounded_mismatch",
+    expression,
+    claimed: claim.claimed,
+    computed,
+    roundedComputed,
+    precision: claim.precision,
+    isApproximation: true,
+    mutatesLiveData: false,
+  });
+}
+
+export function verifyWorldConstantStatement(value) {
+  const statement = clean(value);
+  let match = statement.match(/e\s+בחזקת\s+e[^0-9]*([0-9]+(?:[.,][0-9]+)?)/iu);
+  if (match) return approximateConstantCheck("e_pow_e", match[1], Math.E ** Math.E, "e^e");
+  match = statement.match(/e\s*\^\s*π[^0-9]*([0-9]+(?:[.,][0-9]+)?)/iu);
+  if (match) return approximateConstantCheck("e_pow_pi", match[1], Math.E ** Math.PI, "e^π");
+  match = statement.match(/π\s+בחזקת\s+π[^0-9]*([0-9]+(?:[.,][0-9]+)?)/iu);
+  if (match) return approximateConstantCheck("pi_pow_pi", match[1], Math.PI ** Math.PI, "π^π");
+  match = statement.match(/רצף המספרים\s+([0-9]+(?:\s*[-–־]\s*[0-9]+)+).*?סכומם\s+([0-9]+)/u);
+  if (match) {
+    const operands = match[1].split(/\s*[-–־]\s*/u).map(Number);
+    const claimed = Number(match[2]);
+    const computed = operands.reduce((sum, operand) => sum + operand, 0);
+    return Object.freeze({
+      key: "finite_numeric_sequence_sum",
+      state: computed === claimed ? "exact_match" : "exact_mismatch",
+      expression: operands.join(" + "),
+      operands: Object.freeze(operands),
+      claimed,
+      computed,
+      roundedComputed: null,
+      precision: 0,
+      isApproximation: false,
+      mutatesLiveData: false,
+    });
+  }
+  return Object.freeze({
+    key: null,
+    state: "unsupported_expression",
+    expression: null,
+    claimed: finite(statement.match(/(?:ל|ערך)\s*[-־]?\s*([0-9]+(?:[.,][0-9]+)?)/u)?.[1]),
+    computed: null,
+    roundedComputed: null,
+    precision: null,
+    isApproximation: null,
+    mutatesLiveData: false,
+  });
+}
+
 function projectSpatialResearchContext(row, routing) {
   if (routing?.queue !== "spatial_or_constants") return null;
   const spatial = asObject(asObject(asObject(row?.meta).ext).spatial_research);
@@ -340,6 +405,9 @@ export function projectWorldLegacyReplayOccurrence(row) {
   if (!Object.keys(detail).length && row?.engine_verified !== true) {
     const routing = classifyWorldMissingEngineStatement(row?.statement);
     const spatialResearchContext = projectSpatialResearchContext(row, routing);
+    const constantCheck = routing.queue === "constants_or_sequences"
+      ? verifyWorldConstantStatement(row?.statement)
+      : null;
     return Object.freeze({
       id: clean(row?.id),
       state: row?.engine_verified === false ? "missing_engine_detail_unverified" : "missing_engine_assessment",
@@ -356,6 +424,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       routingReason: routing.reason,
       contentSignals: routing.signals,
       spatialResearchContext,
+      constantCheck,
     });
   }
   const isLegacyMatrixCandidate = Object.keys(detail).length

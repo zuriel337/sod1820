@@ -257,8 +257,8 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       label: "צבי · קבועים ורצפים ללא מעטפת",
       total: 5,
       route: "/world?admin=1&view=admin&contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8&contributorLabel=צבי%20(OPOC)&status=approved&replayQueue=constants_or_sequences",
-      state: "5 רשומות · כולן טרם הוערכו · 4 כוללות ערך ו־4 כוללות תמונה · 3 ממצאי π · ממצא e אחד · רצף מספרי אחד",
-      next: "לאמת את הביטוי והקירוב במנוע דטרמיניסטי; לקשר למרחבים רק כאשר המקור מתעד קשר גיאומטרי ממשי.",
+      state: "5 רשומות · כולן טרם הוערכו · 4 כוללות ערך ו־4 כוללות תמונה · 3 ממצאי π · ממצא e אחד · רצף מספרי אחד · 3 קירובים וסכום אחד שוחזרו דטרמיניסטית",
+      next: "מקרה אחד מציין תוצאה 20 בלי משוואה מלאה ונשאר דורש מקור/OCR. ארבע ההתאמות מוכיחות את החישוב בלבד; משמעות וקשר למרחבים דורשים ראיה גיאומטרית נפרדת.",
     }),
     Object.freeze({
       key: "zvi_missing_engine_formula",

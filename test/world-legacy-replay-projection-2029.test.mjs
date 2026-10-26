@@ -10,6 +10,7 @@ import {
   replayWorldArithmeticExpression,
   replayWorldCompoundEnvelope,
   replayWorldLegacyMethodMatrix,
+  verifyWorldConstantStatement,
 } from "../src/lib/research/worldLegacyReplayProjection.js";
 
 const id = (digit) => `${digit.repeat(8)}-${digit.repeat(4)}-4${digit.repeat(3)}-8${digit.repeat(3)}-${digit.repeat(12)}`;
@@ -258,6 +259,32 @@ test("spatial routing exposes only stored spatial identity fields and marks inco
   }));
   assert.equal(missing.spatialResearchContext.state, "missing");
   assert.equal(missing.spatialResearchContext.cluster, null);
+});
+
+test("constant replay distinguishes exact sums, rounded constants and unsupported source claims", () => {
+  const ePower = verifyWorldConstantStatement("הערך המספרי e בחזקת e מתקרב ל־15.15");
+  assert.equal(ePower.state, "rounded_match");
+  assert.equal(ePower.expression, "e^e");
+  assert.equal(ePower.roundedComputed, 15.15);
+  assert.equal(ePower.isApproximation, true);
+
+  const ePi = verifyWorldConstantStatement("נטען כי e^π ≈ 23.14");
+  assert.equal(ePi.state, "rounded_match");
+  assert.equal(ePi.roundedComputed, 23.14);
+
+  const piPower = verifyWorldConstantStatement("הערך המספרי π בחזקת π מתקרב ל-36.46");
+  assert.equal(piPower.state, "rounded_match");
+  assert.equal(piPower.roundedComputed, 36.46);
+
+  const sequence = verifyWorldConstantStatement("רצף המספרים 1-2-3-4 (שסכומם 10)");
+  assert.equal(sequence.state, "exact_match");
+  assert.equal(sequence.computed, 10);
+  assert.equal(sequence.isApproximation, false);
+
+  const unsupported = verifyWorldConstantStatement("משוואה של e ו-π שואפת לערך 20");
+  assert.equal(unsupported.state, "unsupported_expression");
+  assert.equal(unsupported.computed, null);
+  assert.equal(unsupported.mutatesLiveData, false);
 });
 
 test("missing-engine source and target context stays separate from technical readiness", () => {

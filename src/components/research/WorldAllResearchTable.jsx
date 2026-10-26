@@ -184,6 +184,14 @@ const SPATIAL_METADATA_LABELS = Object.freeze({
   missing: "חסר מטא־דאטה מרחבי",
 });
 
+const CONSTANT_CHECK_LABELS = Object.freeze({
+  rounded_match: "הקירוב שוחזר",
+  rounded_mismatch: "הקירוב אינו משתחזר",
+  exact_match: "החישוב המדויק שוחזר",
+  exact_mismatch: "החישוב המדויק אינו משתחזר",
+  unsupported_expression: "חסר ביטוי שניתן לשחזר",
+});
+
 const REPLAY_SOURCE_LABELS = Object.freeze({
   exact_source: "מקור מדויק",
   source_locator_repair: "דורש תיקון locator",
@@ -1035,6 +1043,12 @@ export default function WorldAllResearchTable({ state }) {
             </ul>
             <small>השדות מוצגים כפי שנשמרו במקור; המערכת אינה משלימה אותם לפי שם או טקסט.</small>
           </details> : null}
+
+          {row.legacyReplay?.constantCheck ? <div className={`sod29-world-triage-recommendation ${["rounded_mismatch", "exact_mismatch"].includes(row.legacyReplay.constantCheck.state) ? "is-blocked" : "is-review"}`}>
+            <span><small>בדיקת קבוע או רצף · חישוב בלבד</small><strong>{humanLabel(CONSTANT_CHECK_LABELS, row.legacyReplay.constantCheck.state, "דורש בדיקה")}</strong></span>
+            {row.legacyReplay.constantCheck.expression ? <small><code dir="ltr">{row.legacyReplay.constantCheck.expression}</code> · נטען: {row.legacyReplay.constantCheck.claimed ?? "אין נתון"} · חושב: {row.legacyReplay.constantCheck.isApproximation ? row.legacyReplay.constantCheck.roundedComputed : row.legacyReplay.constantCheck.computed}</small> : <small>המקור מזכיר תוצאה אך אינו מוסר את המשוואה המלאה, ולכן לא בוצע ניחוש.</small>}
+            <small>{row.legacyReplay.constantCheck.isApproximation ? "ההשוואה היא לפי מספר הספרות העשרוניות שנכתב במקור; קירוב אינו שוויון מדויק." : "בדיקת הסכום אינה מאמתת את המשמעות או הפרשנות שנקשרה אליו."}</small>
+          </div> : null}
 
           {row.legacyReplay?.pendingEngineContext ? <div className="sod29-world-triage-recommendation is-review">
             <span>
