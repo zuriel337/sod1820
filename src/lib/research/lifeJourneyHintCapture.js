@@ -111,4 +111,3 @@ export function lifeJourneyHintCaptureErrorMessage(error) {
   if (code === "writer_unavailable" || code === "hint_writer_unavailable") return "שמירה פרטית אינה זמינה כרגע בסביבה הזאת.";
   return "לא ניתן לשמור כרגע את הרמז הפרטי.";
 }
-

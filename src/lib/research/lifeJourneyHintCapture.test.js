@@ -71,4 +71,3 @@ test("validation fails before the writer is called", async () => {
   assert.equal(result.error, "missing_observation");
   assert.equal(calls, 0);
 });
-

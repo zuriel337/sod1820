@@ -20,6 +20,8 @@ The supplied route page accepted its sanitized exact return only when the path s
 
 Regression coverage mounts the actual LifeJourney2029Page and PersonJourney with synthetic boundary adapters. World/Post query and hash survive the Router-state handoff and reload, while the hints destination remains exactly `/2029/journey?focus=hints`. Opening, navigating and returning execute zero AI, Raziel, ELS, name/date or matrix operations. Existing hints continue to use `research_items`, bucket `hint`, owner-scoped reads and explicit capture/investigation/explanation actions.
 
+The final cumulative whitespace check also found two trailing blank lines inherited from the source capture module/test. They were removed without a logical change; the capture tests and full base-to-result whitespace check were rerun.
+
 ## Fresh verification
 
 - Focused private-hint entry, return sanitizer and two Chromium stories: 18/18 passed, no skips. The 320px private-hint view passed light/parchment/dark; the actual route-page story covers World/Post return, reload and rejected targets.
