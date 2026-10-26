@@ -47,3 +47,6 @@
 @media(prefers-reduced-motion:reduce){.person-journey-guide li button{transition:none}}
 @media(max-width:520px){.person-journey-maps{padding:12px}.person-journey-maps>header,.person-journey-map-summary>header,.person-journey-creation-map>header{flex-direction:column}.person-journey-map-overview{grid-template-columns:1fr 1fr}.person-journey-map-panel{padding:9px}.person-journey-map-timeline li{grid-template-columns:72px 10px minmax(0,1fr)}.person-journey-creation-groups,.person-journey-creation-cosmos,.person-journey-creation-triad{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.person-journey-map-tabs button{scroll-behavior:auto}}
+.person-journey-map-panel-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--pj-line)}
+.person-journey-map-panel-bar strong{font-size:var(--s29-type-lead,21px)}
+.person-journey-atlas-anchor{display:grid;min-width:0}.person-journey-atlas-anchor:focus{outline:none}

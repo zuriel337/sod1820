@@ -1,10 +1,8 @@
-import React, { useId, useMemo, useState } from "react";
+import React, { forwardRef, useMemo } from "react";
 import "./life-journey-tree-2029.css";
 
-// Display-only projection of the existing maps projection: one research tree for the person and family.
-// It never starts research; every branch only moves the existing map position (tab + focused person + lens).
-const BRANCH_STATE = Object.freeze({ checked: "נבדק", waiting: "ממתין", ready: "זמין", missing: "חסר", manual: "מופעל ידנית", not_connected: "ממתין לחיבור" });
-
+// Display-only person + family tree. Selecting a person only moves the existing map focus
+// (Research Context position); it never starts research, ELS, Raziel or a calculation.
 function buildForest({ generations, coverage }) {
   const byRef = new Map(coverage.map(row => [row.memberRef, { ...row, children: [] }]));
   const hasParent = new Set();
@@ -18,54 +16,46 @@ function buildForest({ generations, coverage }) {
   return coverage.map(row => byRef.get(row.memberRef)).filter(node => node && !hasParent.has(node.memberRef));
 }
 
-function branchesFor(node, onSelect) {
-  return [
-    { id: "name", label: "שם", state: node.researchReady ? "checked" : "waiting", go: () => onSelect("matrix", { memberRef: node.memberRef }) },
-    { id: "date", label: "תאריך", state: node.hasBirthdate ? "ready" : "missing", go: () => onSelect("time", { memberRef: node.memberRef }), disabled: !node.hasBirthdate },
-    { id: "family", label: "משפחה", state: node.relationshipCount ? "ready" : "waiting", go: () => onSelect("generations", { memberRef: node.memberRef }) },
-    { id: "human", label: "Human Design", state: "manual", go: () => onSelect("creation", { memberRef: node.memberRef, lens: "human" }), disabled: !node.hasBirthdate },
-    { id: "sky", label: "שמיים", state: "manual", go: () => onSelect("creation", { memberRef: node.memberRef, lens: "sky" }), disabled: !node.hasBirthdate },
-    { id: "els", label: "ELS", state: "not_connected", go: null, disabled: true },
-  ];
+function Medallion() {
+  return <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" className="life-tree__medallion">
+    <circle cx="24" cy="24" r="22" fill="currentColor" opacity="0.12" />
+    <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="1.8" />
+    <circle cx="24" cy="18" r="7" fill="currentColor" opacity="0.38" />
+    <path d="M10 40c3-9 8-12 14-12s11 3 14 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>;
 }
 
-function TreeNode({ node, level, expandedRef, onToggle, onSelect, focusedMemberRef }) {
-  const panelId = useId();
-  const open = expandedRef === node.memberRef;
-  const branches = useMemo(() => branchesFor(node, onSelect), [node, onSelect]);
+function TreeNode({ node, level, focusedMemberRef, onFocus }) {
+  const focused = focusedMemberRef === node.memberRef;
   return <li className="life-tree__item" data-level={level}>
-    <div className="life-tree__node" data-focused={focusedMemberRef === node.memberRef ? "true" : "false"} data-open={open ? "true" : "false"}>
-      <button type="button" className="life-tree__toggle" aria-expanded={open} aria-controls={panelId} onClick={() => onToggle(open ? "" : node.memberRef)}>
-        <span className="life-tree__name">{node.name}</span>
-        <span className="life-tree__state" data-state={node.researchReady ? "checked" : "waiting"}>{node.researchReady ? "נבדק" : "ממתין למחקר"}</span>
-      </button>
-      <div id={panelId} className="life-tree__branches" hidden={!open} role="group" aria-label={`ענפי המסע של ${node.name}`}>
-        {branches.map(branch => <button
-          type="button"
-          key={branch.id}
-          className="life-tree__branch"
-          data-branch={branch.id}
-          data-state={branch.state}
-          disabled={branch.disabled}
-          onClick={branch.go || undefined}
-        ><span>{branch.label}</span><small>{BRANCH_STATE[branch.state]}</small></button>)}
-      </div>
-    </div>
+    <button type="button" className="life-tree__node" aria-pressed={focused} data-focused={focused ? "true" : "false"} onClick={() => onFocus(node.memberRef)}>
+      <Medallion />
+      <span className="life-tree__name">{node.name}</span>
+      <span className="life-tree__chips">
+        <span className="life-tree__chip" data-state={node.researchReady ? "checked" : "waiting"}>{node.researchReady ? "נבדק" : "ממתין למחקר"}</span>
+        <span className="life-tree__chip" data-state={node.hasBirthdate ? "available" : "waiting"}>{node.hasBirthdate ? "תאריך קיים" : "תאריך חסר"}</span>
+      </span>
+    </button>
     {node.children.length ? <ul className="life-tree__list" aria-label={`ילדים של ${node.name}`}>
-      {node.children.map(child => <TreeNode key={child.memberRef} node={child} level={level + 1} expandedRef={expandedRef} onToggle={onToggle} onSelect={onSelect} focusedMemberRef={focusedMemberRef} />)}
+      {node.children.map(child => <TreeNode key={child.memberRef} node={child} level={level + 1} focusedMemberRef={focusedMemberRef} onFocus={onFocus} />)}
     </ul> : null}
   </li>;
 }
 
-export default function LifeJourneyTree2029({ generations, coverage, onSelect, focusedMemberRef }) {
+const LifeJourneyTree2029 = forwardRef(function LifeJourneyTree2029({ generations, coverage, focusedMemberRef, onFocus }, headingRef) {
   const forest = useMemo(() => buildForest({ generations, coverage }), [generations, coverage]);
-  const [expandedRef, setExpandedRef] = useState(() => focusedMemberRef || forest[0]?.memberRef || "");
   if (!forest.length) return null;
   return <section className="life-tree" data-experience-capability="life-journey-research-tree" aria-label="עץ המחקר של האדם והמשפחה">
-    <header><small>עץ המחקר</small><h4>אדם ומשפחה, מסע אחד</h4></header>
-    <ul className="life-tree__list life-tree__list--root">
-      {forest.map(node => <TreeNode key={node.memberRef} node={node} level={0} expandedRef={expandedRef} onToggle={setExpandedRef} onSelect={onSelect} focusedMemberRef={focusedMemberRef} />)}
-    </ul>
-    <p>פתיחת ענף מעבירה לתצוגה הקיימת בלבד, ואינה מפעילה חיפוש, ELS או מנוע. החזרה לעץ שומרת את האדם והמפה שנבחרו.</p>
+    <header><small>עץ המחקר</small><h4 ref={headingRef} tabIndex={-1}>אדם ומשפחה, מסע אחד</h4></header>
+    <div className="life-tree__stage">
+      <div className="life-tree__plane">
+        <ul className="life-tree__list life-tree__list--root">
+          {forest.map(node => <TreeNode key={node.memberRef} node={node} level={0} focusedMemberRef={focusedMemberRef} onFocus={onFocus} />)}
+        </ul>
+      </div>
+    </div>
+    <p>בחירת אדם בעץ קובעת עבור מי נפתחות היכולות שמתחת. היא אינה מפעילה חיפוש, ELS, מנוע או AI.</p>
   </section>;
-}
+});
+
+export default LifeJourneyTree2029;

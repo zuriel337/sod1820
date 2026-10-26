@@ -154,12 +154,16 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await familyScope.getByRole("button", { name: "בחר את כולם" }).click();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneySelectedMemberRefs?.length), 2);
     assert.equal(await childSelection.isChecked(), true);
-    const lifeMaps = family.locator('[data-experience-capability="life-journey-maps"]');
+    const lifeMaps = page.locator('[data-experience-capability="life-journey-maps"]');
+    const openMap = id => lifeMaps.locator(`[data-map-card="${id}"] [data-atlas-action]`).click();
+    const mapCurrent = id => lifeMaps.locator(`[data-map-card="${id}"] [data-atlas-action]`).getAttribute("aria-current");
     await lifeMaps.getByRole("heading", { name: "מפות החיים" }).waitFor();
+    assert.equal(await lifeMaps.locator(".person-journey-map-panel").count(), 0, "the atlas is shown first; no map is forced open");
+    await openMap("summary");
     const picture = lifeMaps.locator('[data-experience-capability="life-journey-personal-picture"]');
     await picture.getByRole("heading", { name: "התמונה שלי", exact: true }).waitFor();
-    assert.equal(await lifeMaps.getByRole("tab", { name: "התמונה שלי", exact: true }).getAttribute("aria-selected"), "true");
-    const guidedFlow = family.locator('[data-experience-capability="life-journey-guided-map-flow"]');
+    assert.equal(await mapCurrent("summary"), "true");
+    const guidedFlow = page.locator('[data-experience-capability="life-journey-guided-map-flow"]');
     await guidedFlow.getByRole("heading", { name: "המסלול המודרך" }).waitFor();
     await guidedFlow.getByLabel("4 מתוך 10 תחנות הושלמו").waitFor();
     assert.equal(await guidedFlow.getByRole("button", { name: /ELS/ }).isDisabled(), true);
@@ -186,9 +190,9 @@ test("Life Journey keeps Person and explicit family selection through Name and D
       dates: window.__dateCalls.length,
       els: window.__elsCalls.length,
     })), callsBeforeGuidedNavigation, "guided navigation never starts research");
-    await lifeMaps.getByRole("tab", { name: "מפת־על" }).click();
-    await lifeMaps.getByRole("tab", { name: "ציר זמן" }).click();
-    const birthTimeline = family.locator('[data-experience-capability="life-journey-birth-timeline"]');
+    await openMap("guide");
+    await openMap("timeline");
+    const birthTimeline = page.locator('[data-experience-capability="life-journey-birth-timeline"]');
     await birthTimeline.getByRole("heading", { name: "ציר אירועי היסוד" }).waitFor();
     assert.deepEqual(await birthTimeline.locator("time").allTextContents(), ["15.02.1990", "04.03.2020"]);
     assert.deepEqual(await birthTimeline.locator("li strong").allTextContents(), ["הורה בדיקה משפחה", "ילד בדיקה"]);
@@ -197,8 +201,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await birthTimeline.getByText("שעת לידה · 14:45").count(), 1);
     assert.equal(await birthTimeline.getByText("מקום לידה · עיר בדיקה").count(), 1);
     assert.equal(await birthTimeline.getByText("מקום לידה · יישוב מעודכן").count(), 1);
-    await lifeMaps.getByRole("tab", { name: "שערי זמן" }).click();
-    const timeMap = family.locator('[data-experience-capability="life-journey-time-gates-map"]');
+    await openMap("time");
+    const timeMap = page.locator('[data-experience-capability="life-journey-time-gates-map"]');
     await timeMap.getByRole("heading", { name: "מפת שערי הזמן" }).waitFor();
     await timeMap.getByRole("button", { name: /ילד בדיקה/ }).click();
     await timeMap.getByRole("heading", { name: "י״א בתשרי תשפ״ז" }).waitFor();
@@ -207,8 +211,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await timeMap.getByText(/בחירת אנשים לבדה אינה מפעילה חיפוש/).waitFor();
     await timeMap.getByRole("tab", { name: "מרווחי לידה" }).click();
     await timeMap.getByText("ימים בדיוק", { exact: true }).waitFor();
-    await lifeMaps.getByRole("tab", { name: "מפת יצירה" }).click();
-    const birthStudio = family.locator('[data-experience-capability="life-journey-birth-map-studio"]');
+    await openMap("creation");
+    const birthStudio = page.locator('[data-experience-capability="life-journey-birth-map-studio"]');
     await birthStudio.getByRole("heading", { name: "סטודיו מפת החיים" }).waitFor();
     const activateThree = birthStudio.getByRole("button", { name: "הפעל תלת־ממד חי" });
     await activateThree.waitFor();
@@ -325,7 +329,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const pictureChildRef = await picturePerson.inputValue();
     await picture.getByRole("button", { name: "לתאריך ולמילים", exact: true }).click();
     assert.equal(await timeMap.getByRole("button", { name: /ילד בדיקה/ }).getAttribute("data-active"), "true", "the date link opens the focused person's date");
-    await lifeMaps.getByRole("tab", { name: "התמונה שלי", exact: true }).click();
+    await openMap("summary");
     await picture.getByRole("button", { name: "הכן את המפה האישית", exact: true }).click();
     assert.equal(await birthStudio.getByLabel("עבור מי לחשב?").inputValue(), pictureChildRef);
     assert.equal(await birthStudio.locator('[data-result="human-design"]').count(), 0, "a child does not inherit the owner's computed chart");
@@ -337,9 +341,9 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await birthStudio.getByLabel("עבור מי לחשב?").inputValue(), firstRef);
     await birthStudio.getByRole("button", { name: "חזרה לתמונה שלי", exact: true }).click();
     assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]), pictureNavigationCalls, "picture and exact chart reopening never start a research action");
-    await lifeMaps.getByRole("tab", { name: "מפת יצירה", exact: true }).click();
+    await openMap("creation");
     await birthStudio.getByRole("tab", { name: "ספר יצירה" }).click();
-    const creationMap = family.locator('[data-experience-capability="life-journey-sefer-yetzirah-map"]');
+    const creationMap = page.locator('[data-experience-capability="life-journey-sefer-yetzirah-map"]');
     await creationMap.getByRole("heading", { name: "מפת האותיות והמערכות" }).waitFor();
     assert.equal(await creationMap.locator(".person-journey-creation-people>article").count(), 2);
     await creationMap.getByText("7 כוכבים · 7 ימים · 7 שערים", { exact: true }).waitFor();
@@ -352,23 +356,23 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await page.evaluate(() => window.__reflectionCalls.length), 0, "the normalized message engine waits for the explicit research action");
     await family.getByRole("button", { name: "בנה מפת חיבורים ל־2 אנשים" }).click();
     await family.getByRole("heading", { name: "מפת החיבורים המשפחתית" }).waitFor();
-    await lifeMaps.getByRole("tab", { name: "מטריצה" }).click();
+    await openMap("matrix");
     assert.equal(await lifeMaps.locator("tbody tr").count(), 2, "one matrix row is shown per selected person");
-    await lifeMaps.getByRole("tab", { name: "דורות" }).click();
+    await openMap("generations");
     await lifeMaps.getByText("הורה של", { exact: true }).waitFor();
-    await lifeMaps.getByRole("tab", { name: "קשרים" }).click();
+    await openMap("relationships");
     await lifeMaps.getByText(/הורה בדיקה משפחה · הורה של · ילד בדיקה/).waitFor();
-    await lifeMaps.getByRole("tab", { name: "התכנסויות" }).click();
+    await openMap("convergences");
     await lifeMaps.getByText("73", { exact: true }).first().waitFor();
-    await lifeMaps.getByRole("tab", { name: "עוצמות/פערים" }).click();
+    await openMap("evidence");
     await lifeMaps.getByRole("heading", { name: "ראיה חישובית שנמצאה" }).waitFor();
     await lifeMaps.getByText("קבוצת שיטה עצמאית אחת", { exact: true }).waitFor();
-    await lifeMaps.getByRole("tab", { name: "מקורות" }).click();
+    await openMap("sources");
     await lifeMaps.getByText("תהלים א׳, א׳", { exact: true }).first().waitFor();
-    await lifeMaps.getByRole("tab", { name: "כיסוי" }).click();
+    await openMap("coverage");
     assert.equal(await lifeMaps.locator(".person-journey-coverage-map article").count(), 2);
     await lifeMaps.getByText("זוגות עם חיבור", { exact: true }).first().waitFor();
-    await lifeMaps.getByRole("tab", { name: "התמונה שלי", exact: true }).click();
+    await openMap("summary");
     await lifeMaps.getByRole("heading", { name: "התמונה המשפחתית" }).waitFor();
     await lifeMaps.getByText("מסר בדיקה מבוסס ממצאים.", { exact: true }).waitFor();
     await picture.getByText("איך הורכבה התמונה?", { exact: true }).click();
@@ -411,21 +415,22 @@ test("Life Journey keeps Person and explicit family selection through Name and D
       }
     }
     await page.setViewportSize({ width: 390, height: 900 });
-    await lifeMaps.getByRole("tab", { name: "מפת יצירה" }).click();
+    await openMap("creation");
     await birthStudio.getByRole("tab", { name: "תלת־ממד" }).click();
     await birthStudio.getByRole("tab", { name: "התכנסויות" }).click();
     await birthStudio.locator(".birth-map-spatial-details.is-convergences article").first().waitFor();
     await birthStudio.locator(".birth-map-spatial-details.is-convergences").getByText("73", { exact: true }).first().waitFor();
-    await lifeMaps.getByRole("tab", { name: "שערי זמן" }).click();
+    await openMap("time");
     await timeMap.getByRole("tab", { name: "התכנסויות זמן" }).click();
     await timeMap.locator(".life-time-convergences").getByText("73", { exact: true }).first().waitFor();
     await timeMap.getByText(/ביטויי תאריך בלבד/).first().waitFor();
-    await lifeMaps.getByRole("tab", { name: "מפת־על" }).click();
+    await openMap("guide");
     await guidedFlow.getByLabel("8 מתוך 10 תחנות הושלמו").waitFor();
     await guidedFlow.getByText("הבדיקות הזמינות הושלמו. ELS ופענוח הרמזים עדיין ממתינים לחיבור.", { exact: true }).waitFor();
     await guidedFlow.getByText("המסע ממשיך — השכבות הבאות טרם נבדקו", { exact: true }).waitFor();
-    await lifeMaps.getByRole("tab", { name: "מסלול" }).click();
-    await lifeMaps.getByText("זהות", { exact: true }).waitFor();
+    await openMap("guide");
+    await lifeMaps.getByText("רשימת התחנות המלאה", { exact: true }).click();
+    await lifeMaps.locator(".person-journey-path-map").getByText("זהות", { exact: true }).waitFor();
     assert.equal(await lifeMaps.locator(".person-journey-path-map li").count(), 10);
     await family.getByText("פתח פירוט מלא של הממצאים והמקורות", { exact: true }).click();
     assert.equal(await family.locator('.person-journey-relation-list article').count(), 1, "two selected people produce one normalized cross-person pair");
@@ -460,8 +465,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await normalizedFamilyAnalysis.getByText("הקוסם", { exact: true }).count(), 0, "card identities remain internal");
     await page.reload();
     await family.getByRole("heading", { name: "מפת החיבורים המשפחתית" }).waitFor();
-    assert.equal(await lifeMaps.getByRole("tab", { name: "מסלול", exact: true }).getAttribute("aria-selected"), "true", "refresh restores the open map");
-    await lifeMaps.getByRole("tab", { name: "התמונה שלי", exact: true }).click();
+    assert.equal(await mapCurrent("guide"), "true", "refresh restores the open map");
+    await openMap("summary");
     await picture.getByRole("button", { name: "הכן את המפה האישית", exact: true }).waitFor();
     await family.getByText("פירוט הסיכום המשפחתי", { exact: true }).click();
     await normalizedFamilyAnalysis.getByRole("heading", { name: "התמונה המשפחתית" }).waitFor();
@@ -474,7 +479,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     })), { matrix: 0, reflection: 0, sources: 0, names: 0, els: 0 }, "refresh restores the private family snapshot without automatically researching names, sources or ELS again");
 
     // The transport is a synthetic backend; production save/resume adapters are real.
-    await lifeMaps.getByRole("tab", { name: "התמונה שלי", exact: true }).click();
+    await openMap("summary");
     await picture.getByLabel("של מי להציג את התמונה?").selectOption({ label: "ילד בדיקה" });
     await picture.getByRole("button", { name: "לתאריך ולמילים", exact: true }).click();
     await page.evaluate(() => { window.__nextPathResponse = "failure"; });
@@ -496,13 +501,13 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     for (const privateValue of ["הורה בדיקה", "ילד בדיקה", "1990-02-15", "05:30", "עיר בדיקה", "Asia/Jerusalem", "31.76904", "35.21633"]) {
       assert.equal(JSON.stringify(savedPath).includes(privateValue), false, `saved Path excludes private input ${privateValue}`);
     }
-    await lifeMaps.getByRole("tab", { name: "מקורות", exact: true }).click();
+    await openMap("sources");
     await resumeControls.getByRole("button", { name: "שמור נקודת המשך", exact: true }).click();
     await resumeControls.getByRole("status").filter({ hasText: "נקודת ההמשך נשמרה לחשבון" }).waitFor();
     const updatedPath = await page.evaluate(() => JSON.parse(localStorage.getItem("life-journey-path-backend-fixture:owner")));
     assert.equal(updatedPath.revision_no, 2, "an explicit second checkpoint saves the changed representation");
     assert.equal(updatedPath.representation.context.dimensions.lifeJourneyMapTab, "sources");
-    await lifeMaps.getByRole("tab", { name: "שערי זמן", exact: true }).click();
+    await openMap("time");
     await resumeControls.getByRole("button", { name: "שמור נקודת המשך", exact: true }).click();
     await resumeControls.getByRole("status").filter({ hasText: "נקודת ההמשך נשמרה לחשבון" }).waitFor();
     // Simulate a new session without the existing Context; only the owned backend Path remains.
@@ -512,7 +517,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await resumeControls.getByRole("button", { name: "המשך מהמסע השמור", exact: true }).click();
     await timeMap.getByRole("button", { name: /ילד בדיקה/ }).waitFor();
     assert.equal(await timeMap.getByRole("button", { name: /ילד בדיקה/ }).getAttribute("data-active"), "true");
-    assert.equal(await lifeMaps.getByRole("tab", { name: "שערי זמן", exact: true }).getAttribute("aria-selected"), "true");
+    assert.equal(await mapCurrent("time"), "true");
     assert.equal(await page.evaluate(() => typeof window.__lifeJourneyContext?.dimensions?.lifeJourneyFamilyResearchSnapshot), "string", "resume retains the existing family findings snapshot");
     assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__sourceCalls.length, window.__nameCalls.length, window.__elsCalls.length]), [0,0,0,0,0], "explicit resume restores references and findings without restarting research");
     await family.getByText("פירוט הסיכום המשפחתי", { exact: true }).click();
@@ -704,7 +709,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await hintPanel.getByText("הרמזים אינם זמינים כרגע.", { exact: true }).waitFor();
     assert.equal(await hintPanel.getByText("רמז קיים", { exact: true }).count(), 0);
     assert.equal(await hintPanel.getByText("אין כרגע רמזים שמורים ב־research_items / hint.", { exact: true }).count(), 0, "a denied read is not an empty result");
-    await lifeMaps.getByRole("tab", { name: "התמונה שלי", exact: true }).click();
+    await openMap("summary");
     await picture.getByText("איך הורכבה התמונה?", { exact: true }).click();
     await picture.getByText("רמזים ואירועי חיים · קריאת הרמזים לא הושלמה", { exact: true }).waitFor();
     assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__elsCalls.length]), [0,0,0]);

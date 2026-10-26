@@ -1,7 +1,8 @@
-import React, { lazy, Suspense, useId, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useId, useMemo, useRef, useState } from "react";
 import { formatTanakhRef } from "../../lib/presentation/canonicalPresentation.js";
 import { buildLifeJourneyMaps } from "../../lib/research/lifeJourneyMaps.js";
 import LifeJourneyTree2029 from "./LifeJourneyTree2029.jsx";
+import LifeJourneyAtlas2029 from "./LifeJourneyAtlas2029.jsx";
 import "./life-journey-maps-2029.css";
 
 const loadBirthMapStudio2029 = () => import("./BirthMapStudio2029.jsx");
@@ -77,7 +78,7 @@ function JourneyGuide({ data, onSelect }) {
   </section>;
 }
 
-function OverviewMap({ data, path, tree, onSelect, focusedMemberRef }) {
+function OverviewMap({ data, path, onSelect, showStations }) {
   const cards = [
     ["אנשים שנבחרו", data.selectedPeople],
     ["תאריכים על הציר", data.datedPeople],
@@ -87,7 +88,6 @@ function OverviewMap({ data, path, tree, onSelect, focusedMemberRef }) {
     ["קבוצות מקור", data.sourceCount],
   ];
   return <div className="person-journey-map-overview-shell">
-    <LifeJourneyTree2029 generations={tree.generations} coverage={tree.coverage} onSelect={onSelect} focusedMemberRef={focusedMemberRef} />
     <JourneyGuide data={path} onSelect={onSelect} />
     <div className="person-journey-map-overview">
       {cards.map(([label, value]) => <article key={label}><strong>{value}</strong><span>{label}</span></article>)}
@@ -95,6 +95,10 @@ function OverviewMap({ data, path, tree, onSelect, focusedMemberRef }) {
         ? "המפות נגזרות מאותו מחקר משפחתי שמור. מעבר בין מפות אינו מפעיל מנוע מחדש."
         : "מפת הדורות וציר הזמן כבר זמינים. המטריצה, ההתכנסויות והמקורות יתמלאו רק בלחיצה על יצירת המחקר."}</p>
     </div>
+    {showStations ? <details className="person-journey-engine-layer">
+      <summary>רשימת התחנות המלאה</summary>
+      <PathMap data={path} />
+    </details> : null}
   </div>;
 }
 
@@ -307,7 +311,7 @@ function PathMap({ data }) {
   </div>;
 }
 
-function MapPanel({ active, projection, onSelect, onBirthCalculationChange, birthReflections, birthFocus, focusedMemberRef, onPersonFocus }) {
+function MapPanel({ active, atlasMode, projection, onSelect, onBirthCalculationChange, birthReflections, birthFocus, focusedMemberRef, onPersonFocus }) {
   if (active === "matrix") return <MatrixMap rows={projection.matrix} />;
   if (active === "generations") return <GenerationsMap data={projection.generations} />;
   if (active === "relationships") return <RelationshipsMap rows={projection.relationships} ready={projection.overview.researchReady} />;
@@ -331,23 +335,48 @@ function MapPanel({ active, projection, onSelect, onBirthCalculationChange, birt
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
   if (active === "summary") return <LifeJourneyPicture2029 data={projection.picture} summary={projection.summary} onSelect={onSelect} focusedMemberRef={focusedMemberRef} onPersonFocus={onPersonFocus}><JourneyGuide data={projection.path} onSelect={onSelect} /></LifeJourneyPicture2029>;
   if (active === "path") return <PathMap data={projection.path} />;
-  return <OverviewMap data={projection.overview} path={projection.path} tree={{ generations: projection.generations, coverage: projection.coverage }} onSelect={onSelect} focusedMemberRef={focusedMemberRef} />;
+  return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} showStations={atlasMode} />;
 }
 
-export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange, hintState, includeProgramBranches = false }) {
+export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange, hintState, includeProgramBranches = false, onOpenCapability }) {
   const [localPosition, setLocalPosition] = useState({ tab: "summary", memberRef: "", lens: "spatial" });
   const currentPosition = position || localPosition;
   const active = currentPosition.tab;
   const focusedMemberRef = currentPosition.memberRef;
   const birthFocus = { memberRef: focusedMemberRef, lens: currentPosition.lens };
+  const atlasMode = Boolean(includeProgramBranches && onOpenCapability);
+  const [panelOpen, setPanelOpen] = useState(() => !atlasMode || active !== "summary");
+  const panelRef = useRef(null);
+  const atlasRef = useRef(null);
+  const treeRef = useRef(null);
+  const focusTarget = useRef(null);
   const commitPosition = next => { setLocalPosition(next); onPositionChange?.(next); };
   const focusPerson = memberRef => commitPosition({ ...currentPosition, memberRef });
   const selectMap = (tab, options) => {
     commitPosition({ ...currentPosition, tab, ...(tab === "creation" ? { lens: "spatial" } : {}), ...options });
+    setPanelOpen(true);
   };
+  // Atlas cards open the existing view in place and move focus there (no research starts).
+  const openFromAtlas = (tab, options) => { focusTarget.current = "panel"; selectMap(tab, options); };
+  const closePanel = () => { focusTarget.current = "atlas"; setPanelOpen(false); };
+  const [focusTick, setFocusTick] = useState(0);
+  const showTree = () => { focusTarget.current = "tree"; setFocusTick(value => value + 1); };
+  useEffect(() => {
+    const target = focusTarget.current;
+    if (!target) return;
+    focusTarget.current = null;
+    const node = target === "panel" ? panelRef.current : target === "tree" ? treeRef.current : atlasRef.current;
+    if (!node) return;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    node.scrollIntoView?.({ block: "start", behavior: reduced ? "auto" : "smooth" });
+    node.focus?.({ preventScroll: true });
+  }, [panelOpen, active, focusTick]);
   const id = useId();
   const projection = useMemo(() => buildLifeJourneyMaps({ members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline, hintState, includeProgramBranches }), [members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline, hintState, includeProgramBranches]);
   if (!projection.overview.selectedPeople) return null;
+  const selfRef = members.map(member => String(member?.source_ref || "")).find(ref => /:self$/.test(ref) && projection.coverage.some(row => row.memberRef === ref));
+  const effectiveFocus = projection.coverage.some(row => row.memberRef === focusedMemberRef) ? focusedMemberRef : (selfRef || projection.coverage[0]?.memberRef || "");
+  const panelLabel = MAP_TABS.find(tab => tab.id === active)?.label || "";
 
   return <section className="person-journey-maps" data-experience-capability="life-journey-maps" aria-labelledby={`${id}-title`}>
     <header>
@@ -355,7 +384,21 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
       <span>{projection.overview.selectedPeople} אנשים נבחרו</span>
     </header>
     <p>כל מפה היא תצוגה של ה־Ledger וה־Research Context הקיימים. מעבר בין מפות אינו מחפש שמות ואינו משנה את הממצאים.</p>
-    <div className="person-journey-map-tabs" role="tablist" aria-label="סוג מפת חיים">
+    {atlasMode ? <>
+      <LifeJourneyTree2029 ref={treeRef} generations={projection.generations} coverage={projection.coverage} focusedMemberRef={effectiveFocus} onFocus={focusPerson} />
+      <div ref={atlasRef} tabIndex={-1} className="person-journey-atlas-anchor">
+        <LifeJourneyAtlas2029
+          projection={projection}
+          members={members}
+          focusedMemberRef={effectiveFocus}
+          position={currentPosition}
+          panelOpen={panelOpen}
+          onOpenMap={openFromAtlas}
+          onOpenCapability={onOpenCapability}
+          onShowTree={showTree}
+        />
+      </div>
+    </> : <div className="person-journey-map-tabs" role="tablist" aria-label="סוג מפת חיים">
       {MAP_TABS.map(tab => <button
         type="button"
         role="tab"
@@ -369,12 +412,24 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
         onPointerDown={tab.preload}
         onClick={() => selectMap(tab.id)}
       >{tab.label}</button>)}
-    </div>
-    <div className="person-journey-map-panel" id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${active}-tab`}>
+    </div>}
+    {panelOpen ? <div
+      className="person-journey-map-panel"
+      id={`${id}-panel`}
+      ref={panelRef}
+      tabIndex={atlasMode ? -1 : undefined}
+      role={atlasMode ? "region" : "tabpanel"}
+      aria-label={atlasMode ? `התצוגה הפתוחה: ${panelLabel}` : undefined}
+      aria-labelledby={atlasMode ? undefined : `${id}-${active}-tab`}
+    >
+      {atlasMode ? <div className="person-journey-map-panel-bar">
+        <strong>{panelLabel}</strong>
+        <button type="button" onClick={closePanel}>חזרה לאטלס</button>
+      </div> : null}
       <Suspense fallback={<LazyMapLoading />}>
-        <MapPanel active={active} projection={projection} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
+        <MapPanel active={active} atlasMode={atlasMode} projection={projection} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
       </Suspense>
-    </div>
+    </div> : null}
     <footer>{includeProgramBranches ? "תצוגה פרטית בלבד · ELS ממתין לחיבור · ללא Graph או store חדש" : "תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש"}</footer>
   </section>;
 }

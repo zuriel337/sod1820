@@ -811,6 +811,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     openCapability(member, view);
   }, [members, openCapability, research.context?.dimensions?.lifeJourneyMemberRef]);
 
+  const openMemberCapability = useCallback((memberRef, view) => {
+    const member = members.find(item => clean(item.source_ref) === clean(memberRef));
+    if (!member) {
+      setErr("האדם שנבחר אינו זמין כרגע במסע החיים.");
+      return;
+    }
+    openCapability(member, view);
+  }, [members, openCapability]);
+
   const returnToPerson = useCallback(() => {
     const patch = buildLifeJourneyExactReturnPatch(research.context);
     if (!patch || !research.updateResearchContext?.(patch)) {
@@ -1123,6 +1132,26 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
 
   const analysisData = analysis.data;
 
+  const mapsBlock = selectedFamilyRefs.length ? <Suspense fallback={<LifeJourneyMapsLoading />}>
+        <LifeJourneyMaps2029
+          members={members}
+          relations={relations}
+          selectedRefs={selectedFamilyRefs}
+          research={familyResearch}
+          analysis={familyAnalysis}
+          birthReflections={birthReflections}
+          onBirthCalculationChange={rememberBirthReflection}
+          context={research.context}
+          position={variant === "2029" ? lifeJourneyMapPosition(research.context, selfRef, members.map(member => member.source_ref)) : undefined}
+          onPositionChange={variant === "2029" ? updateMapPosition : undefined}
+          birthTimeline={birthTimeline}
+          hintState={variant === "2029" ? hintState : null}
+          includeProgramBranches={variant === "2029"}
+          onOpenCapability={variant === "2029" ? openMemberCapability : undefined}
+        />
+      </Suspense> : null;
+
+
   return <div
     className={`person-journey ${variant === "2029" ? "is-2029" : ""}`}
     data-experience-surface="life-journey"
@@ -1156,6 +1185,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     </section>
 
     {err ? <div className="person-journey-error" role="alert">{err}</div> : null}
+
+    {variant === "2029" ? mapsBlock : null}
 
     <section className="person-journey-panel" data-experience-capability="life-journey-intake">
       <div className="person-journey-section-head">
@@ -1194,7 +1225,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       </div>
     </section>
 
-    <section className="person-journey-panel" data-experience-capability="life-journey-first-findings">
+    {variant !== "2029" ? <section className="person-journey-panel" data-experience-capability="life-journey-first-findings">
       <div className="person-journey-section-head">
         <div><small>02</small><h2>החיבורים הראשונים</h2></div>
         <span>{variant === "2029" ? (persistedSelf ? "מוכן למחקר השם" : "ממתין לשם") : analysis.state === "ready" ? "מנועים חיים" : "ממתין לקלט"}</span>
@@ -1260,11 +1291,11 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           <p>כל מספר פותח במפורש את דף המספר הקיים. נקודת מפגש היא עובדה מחושבת; המשמעות שלה נשארת שאלה למחקר.</p>
         </div> : null}
       </div> : null}
-    </section>
+    </section> : null}
 
     <section className="person-journey-panel" data-experience-capability="life-journey-family">
       <div className="person-journey-section-head">
-        <div><small>03</small><h2>המשפחה שלי</h2></div>
+        <div><small>{variant === "2029" ? "02" : "03"}</small><h2>המשפחה שלי</h2></div>
         <span>{familyMembers.length ? `${familyMembers.length} אנשים` : "אפשר להתחיל מאדם אחד"}</span>
       </div>
 
@@ -1445,23 +1476,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         </section>
       </details> : null}
 
-      {selectedFamilyRefs.length ? <Suspense fallback={<LifeJourneyMapsLoading />}>
-        <LifeJourneyMaps2029
-          members={members}
-          relations={relations}
-          selectedRefs={selectedFamilyRefs}
-          research={familyResearch}
-          analysis={familyAnalysis}
-          birthReflections={birthReflections}
-          onBirthCalculationChange={rememberBirthReflection}
-          context={research.context}
-          position={variant === "2029" ? lifeJourneyMapPosition(research.context, selfRef, members.map(member => member.source_ref)) : undefined}
-          onPositionChange={variant === "2029" ? updateMapPosition : undefined}
-          birthTimeline={birthTimeline}
-          hintState={variant === "2029" ? hintState : null}
-          includeProgramBranches={variant === "2029"}
-        />
-      </Suspense> : null}
+      {variant !== "2029" ? mapsBlock : null}
 
       {variant === "2029" && selfRef ? <LifeJourneyResume2029 research={research} personRef={selfRef} readOnly={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} onResume={resumeLifeJourney} /> : null}
 

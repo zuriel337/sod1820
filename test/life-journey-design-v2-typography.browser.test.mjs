@@ -89,39 +89,86 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
     await family.getByRole("checkbox", { name: /ילד בדיקה/ }).check();
     await audit("family");
 
-    const lifeMaps = family.locator('[data-experience-capability="life-journey-maps"]');
+    const lifeMaps = page.locator('[data-experience-capability="life-journey-maps"]');
     await lifeMaps.getByRole("heading", { name: "מפות החיים" }).waitFor();
-    const mapTabs = await lifeMaps.getByRole("tablist").first().getByRole("tab").allTextContents();
-    assert.ok(mapTabs.length >= 5, "map tabs are present");
-    for (const name of mapTabs) {
-      await lifeMaps.getByRole("tablist").first().getByRole("tab", { name, exact: true }).click();
-      await audit(`map-tab:${name}`);
-    }
-
-    // Interactive research tree: one tree for person + family; branches only move the existing map position.
-    await lifeMaps.getByRole("tab", { name: "מפת־על", exact: true }).click();
+    const atlas = lifeMaps.locator('[data-experience-capability="life-journey-capability-atlas"]');
     const tree = lifeMaps.locator('[data-experience-capability="life-journey-research-tree"]');
+    const card = id => lifeMaps.locator(`[data-map-card="${id}"]`);
+    const openCard = id => card(id).locator("[data-atlas-action]").click();
+    const counters = () => page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]);
+
+    // The whole atlas is visible from the outside: no accordion, no tab row, nothing behind a general click.
+    const GROUPS = {
+      personal: ["name", "date", "time", "summary"],
+      family: ["family-tree", "generations", "relationships", "convergences", "timeline"],
+      deep: ["human", "sky", "creation", "sefer"],
+      evidence: ["matrix", "evidence", "sources", "coverage", "guide"],
+      soon: ["els", "hints", "raziel"],
+    };
+    await atlas.waitFor();
+    for (const [group, ids] of Object.entries(GROUPS)) {
+      assert.equal(await atlas.locator(`[data-group="${group}"]`).isVisible(), true, `${group} group is visible`);
+      for (const id of ids) assert.equal(await card(id).isVisible(), true, `${id} card is visible without any click`);
+    }
+    assert.equal(await lifeMaps.getByRole("tablist").count(), 0, "the 13-tab row is gone from the face of the screen");
+    assert.equal(await atlas.locator("details").count(), 0, "the atlas is not an accordion");
+    assert.equal(await lifeMaps.locator(".person-journey-map-panel").count(), 0, "no map is open until a card is chosen");
+    for (const id of ["els", "hints", "raziel"]) {
+      assert.equal(await card(id).locator("[data-atlas-action]").count(), 0, `${id} has no action: it is future-only`);
+      assert.equal(await card(id).getAttribute("data-kind"), "future");
+    }
+    assert.equal(await card("els").getAttribute("data-state"), "not_connected");
+    assert.equal(await card("els").locator(".life-atlas__state").innerText(), "ממתין לחיבור");
+    assert.equal(await card("hints").getAttribute("data-state"), "building");
+    assert.equal(await card("raziel").getAttribute("data-state"), "building");
+    assert.equal(await card("raziel").locator("button").count(), 0, "Raziel preview is display-only");
+    for (const id of ["name", "date", "time", "generations", "matrix", "human"]) assert.equal(await card(id).locator("svg").count(), 1, `${id} has its own illustration`);
+    await audit("atlas");
+
+    // One research tree for person + family, with real states and an accessible nested-list disclosure.
     await tree.waitFor();
-    assert.equal(await tree.locator(".life-tree__toggle").count(), 2, "person and family appear once in one tree");
-    assert.equal(await tree.locator(".life-tree__item .life-tree__item .life-tree__toggle").count(), 1, "the child hangs under the parent");
-    const callsBeforeTree = await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]);
-    const childToggle = tree.getByRole("button", { name: /ילד בדיקה/ });
-    assert.equal(await childToggle.getAttribute("aria-expanded"), "false");
-    await childToggle.click();
-    assert.equal(await childToggle.getAttribute("aria-expanded"), "true");
-    assert.equal(await tree.locator('.life-tree__branch[data-branch="els"]').first().isDisabled(), true, "ELS is a visible, not-connected branch");
-    assert.equal(await tree.locator('.life-tree__branch[data-branch="els"] small').first().innerText(), "ממתין לחיבור");
+    const order = await page.evaluate(() => ["life-journey-profile", "life-journey-research-tree", "life-journey-capability-atlas", "life-journey-intake", "life-journey-family"].map(name => document.querySelector(`[data-experience-capability="${name}"]`)?.getBoundingClientRect().top + scrollY));
+    assert.deepEqual([...order].sort((x, y) => x - y), order, "hero → tree → atlas come before the intake and family forms");
+    assert.equal(await tree.locator(".life-tree__node").count(), 2, "person and family appear once in one tree");
+    assert.equal(await tree.locator(".life-tree__item .life-tree__item .life-tree__node").count(), 1, "the child hangs under the parent");
+    assert.equal(await tree.locator('[role="tree"],[role="treeitem"]').count(), 0, "no tree role is claimed without tree keyboard support");
+    assert.equal(await tree.locator("ul[aria-label]").count(), 1, "nested list is labelled");
+    const callsBeforeTree = await counters();
+    const childNode = tree.getByRole("button", { name: /ילד בדיקה/ });
+    await childNode.click();
+    assert.equal(await childNode.getAttribute("aria-pressed"), "true", "selecting a person marks it in the tree");
+    assert.match(await atlas.locator(".life-atlas__for").innerText(), /ילד בדיקה/, "the atlas acts on the selected person");
+    assert.deepEqual(await counters(), callsBeforeTree, "selecting a person in the tree starts no research, Raziel or ELS call");
     await audit("tree");
-    await tree.locator(".life-tree__node", { hasText: "ילד בדיקה" }).locator('.life-tree__branch[data-branch="date"]').click();
-    assert.equal(await lifeMaps.getByRole("tab", { name: "שערי זמן", exact: true }).getAttribute("aria-selected"), "true", "date branch opens the time map");
-    assert.equal(await page.locator('[data-experience-capability="life-journey-time-gates-map"]').getByRole("button", { name: /ילד בדיקה/ }).getAttribute("data-active"), "true", "the focused child is kept");
-    await lifeMaps.getByRole("tab", { name: "מפת־על", exact: true }).click();
-    assert.equal(await childToggle.getAttribute("aria-expanded"), "true", "returning to the tree keeps the focused person open");
-    await tree.locator(".life-tree__node", { hasText: "ילד בדיקה" }).locator('.life-tree__branch[data-branch="sky"]').click();
-    assert.equal(await lifeMaps.getByRole("tab", { name: "מפת יצירה", exact: true }).getAttribute("aria-selected"), "true", "sky branch opens the birth studio");
-    assert.equal(await page.locator('[data-result="sky-map"]').count(), 0, "opening a branch never calculates a chart");
-    await lifeMaps.getByRole("tab", { name: "מפת־על", exact: true }).click();
-    assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]), callsBeforeTree, "tree navigation starts no research, Raziel or ELS call");
+
+    // "Name" and "Date" open the existing capabilities for the selected memberRef and return exactly.
+    await openCard("name");
+    await page.getByRole("heading", { name: "מסע השם" }).waitFor();
+    await page.getByRole("heading", { name: "ילד בדיקה", exact: true }).waitFor();
+    await page.getByRole("button", { name: "חזרה מדויקת למסע החיים" }).click();
+    await childNode.waitFor();
+    assert.equal(await childNode.getAttribute("aria-pressed"), "true", "exact return keeps the selected person and open node");
+    await openCard("date");
+    await page.getByRole("heading", { name: "השם והתאריך שלי" }).waitFor();
+    await page.getByRole("button", { name: "סיים וחזור למסע החיים" }).click();
+    await childNode.waitFor();
+    assert.equal(await childNode.getAttribute("aria-pressed"), "true", "date return also keeps the selected person");
+    await openCard("family-tree");
+    assert.equal(await page.evaluate(() => document.activeElement?.closest('[data-experience-capability="life-journey-research-tree"]') !== null), true, "the family-tree card moves focus to the tree");
+
+    // Every existing map is reachable from its card; none starts research.
+    const callsBeforeMaps = await counters();
+    const mapCards = await lifeMaps.locator('[data-map-card][data-kind="map"]').evaluateAll(nodes => nodes.map(node => node.dataset.mapCard));
+    assert.equal(mapCards.length, 15, "every map view has a card");
+    for (const id of mapCards) {
+      await openCard(id);
+      await lifeMaps.locator(".person-journey-map-panel").waitFor();
+      assert.equal(await card(id).locator("[data-atlas-action]").getAttribute("aria-current"), "true", `${id} card marks the open view`);
+      await audit(`map-card:${id}`);
+    }
+    assert.deepEqual(await counters(), callsBeforeMaps, "map cards open existing views and start no research, Raziel or ELS call");
+    await lifeMaps.getByRole("button", { name: "חזרה לאטלס" }).click();
+    assert.equal(await lifeMaps.locator(".person-journey-map-panel").count(), 0);
 
     // Button alignment: primary actions are centered inside their panel on mobile.
     await page.setViewportSize({ width: 390, height: 900 });
@@ -136,15 +183,15 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
     assert.ok(alignment.count >= 2 && alignment.max <= 2, `primary action buttons are centered (${JSON.stringify(alignment)})`);
 
     // Nested lenses: time gates and the birth-map studio (3D stays inactive; no calculation is started).
-    await lifeMaps.getByRole("tab", { name: "שערי זמן", exact: true }).click();
-    const timeMap = family.locator('[data-experience-capability="life-journey-time-gates-map"]');
+    await openCard("time");
+    const timeMap = page.locator('[data-experience-capability="life-journey-time-gates-map"]');
     await timeMap.getByRole("heading", { name: "מפת שערי הזמן" }).waitFor();
     for (const name of await timeMap.getByRole("tablist").first().getByRole("tab").allTextContents()) {
       await timeMap.getByRole("tablist").first().getByRole("tab", { name, exact: true }).click();
       await audit(`time-lens:${name}`);
     }
-    await lifeMaps.getByRole("tab", { name: "מפת יצירה", exact: true }).click();
-    const birthStudio = family.locator('[data-experience-capability="life-journey-birth-map-studio"]');
+    await openCard("creation");
+    const birthStudio = page.locator('[data-experience-capability="life-journey-birth-map-studio"]');
     await birthStudio.getByRole("heading", { name: "סטודיו מפת החיים" }).waitFor();
     for (const name of await birthStudio.getByRole("tablist").first().getByRole("tab").allTextContents()) {
       if (name === "תלת־ממד") continue;
