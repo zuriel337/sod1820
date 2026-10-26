@@ -42,6 +42,8 @@ export function buildLifeJourneyMaps({
   birthReflections = null,
   context = null,
   birthTimeline = [],
+  hintState = null,
+  includeProgramBranches = false,
 } = {}) {
   const selected = new Set(list(selectedRefs).map(clean).filter(Boolean));
   const selectedMembers = list(members).filter(member => selected.has(clean(member?.source_ref)));
@@ -201,6 +203,8 @@ export function buildLifeJourneyMaps({
     analysis,
     birthReflections,
     selectedRefs,
+    hintState,
+    includeProgramBranches,
   });
   const combinedSummary = Object.freeze({
     state: analysis?.state === "loading" ? "loading" : analysisData ? "ready" : researchReady ? "research_ready" : "waiting",
@@ -222,10 +226,14 @@ export function buildLifeJourneyMaps({
     { id: "research", label: "חיבורים", tab: "matrix", state: researchReady ? "ready" : "available" },
     { id: "convergence", label: "התכנסויות", tab: "convergences", state: convergences.length ? "ready" : researchReady ? "empty" : "waiting" },
     { id: "sources", label: "מקורות", tab: "sources", state: memberSources.length || numberSources.length ? "ready" : researchReady ? "empty" : "waiting" },
+    ...(includeProgramBranches ? [
+      { id: "els", label: "ELS", tab: null, state: "not_connected" },
+      { id: "hints", label: "בדיקת רמזים ותאריכים", tab: null, state: "not_connected" },
+    ] : []),
     { id: "summary", label: "סיכום", tab: "summary", state: combinedSummary.message ? "ready" : researchReady ? "available" : "waiting" },
   ].map(step => Object.freeze(step));
   const completedPathSteps = pathSteps.filter(step => step.state === "ready" || step.state === "empty");
-  const nextPathStep = pathSteps.find(step => step.state !== "ready" && step.state !== "empty") || null;
+  const nextPathStep = pathSteps.find(step => step.tab && step.state !== "ready" && step.state !== "empty") || null;
   const reflections = birthReflections instanceof Map ? birthReflections : new Map(Object.entries(birthReflections || {}));
   // Private view projection only. Never serialize this into the anonymized synthesis pack.
   const picturePeople = selectedMembers.map(member => {
@@ -297,10 +305,11 @@ export function buildLifeJourneyMaps({
       completedCount: completedPathSteps.length,
       progressPercent: Math.round((completedPathSteps.length / pathSteps.length) * 100),
       nextStep: nextPathStep,
+      complete: completedPathSteps.length === pathSteps.length,
       saved: Boolean(context?.journey?.id),
       position: integer(context?.journey?.position),
     }),
-    boundaries: Object.freeze({ read_only_projection: true, no_els: true, no_new_store: true, no_graph_write: true }),
+    boundaries: Object.freeze({ read_only_projection: true, no_els_execution: true, no_new_store: true, no_graph_write: true }),
   });
 }
 

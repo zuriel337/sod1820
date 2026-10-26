@@ -30,6 +30,7 @@ const PATH_STATE_LABEL = Object.freeze({
   empty: "נבדק · אין תוצאה",
   waiting: "ממתין למחקר מפורש",
   available: "זמין לפתיחה",
+  not_connected: "ממתין לחיבור · טרם נבדק",
 });
 
 const EVIDENCE_BAND_LABEL = Object.freeze({
@@ -51,16 +52,16 @@ function LazyMapLoading() {
 }
 
 function JourneyGuide({ data, onSelect }) {
-  const complete = !data.nextStep;
+  const complete = data.complete;
   return <section className="person-journey-guide" data-experience-capability="life-journey-guided-map-flow" aria-label="המסלול המודרך">
     <header>
-      <div><small>זהות ← זמן ← אותיות ← משפחה ← חיבורים ← התכנסויות ← מקורות ← סיכום</small><h4>המסלול המודרך</h4></div>
+      <div><small>{data.steps.map(step => step.label).join(" ← ")}</small><h4>המסלול המודרך</h4></div>
       <div className="person-journey-guide-progress" style={{ "--guide-progress": `${data.progressPercent}%` }} aria-label={`${data.completedCount} מתוך ${data.steps.length} תחנות הושלמו`}>
         <strong>{data.progressPercent}%</strong><span>{data.completedCount}/{data.steps.length}</span>
       </div>
     </header>
     <ol>{data.steps.map((step, index) => <li key={step.id} data-state={step.state}>
-      <button type="button" onClick={() => onSelect(step.tab)} aria-current={data.nextStep?.id === step.id ? "step" : undefined}>
+      <button type="button" disabled={!step.tab} onClick={() => { if (step.tab) onSelect(step.tab); }} aria-current={data.nextStep?.id === step.id ? "step" : undefined}>
         <i aria-hidden="true">{step.state === "ready" || step.state === "empty" ? "✓" : index + 1}</i>
         <span><strong>{step.label}</strong><small>{PATH_STATE_LABEL[step.state]}</small></span>
       </button>
@@ -68,8 +69,9 @@ function JourneyGuide({ data, onSelect }) {
     <footer>
       <p>{complete
         ? "השרשרת המחקרית מלאה. אפשר לחזור לכל תחנה בלי להפעיל את המנוע מחדש."
-        : "ההמשך פותח את התצוגה המתאימה בלבד. מחקר חדש יתחיל רק בלחיצה המפורשת באזור המחקר המשפחתי."}</p>
-      {data.nextStep ? <button type="button" onClick={() => onSelect(data.nextStep.tab)}>המשך ל־{data.nextStep.label}</button> : <span>המסלול הושלם</span>}
+        : data.nextStep ? "ההמשך פותח את התצוגה המתאימה בלבד. מחקר חדש יתחיל רק בלחיצה המפורשת באזור המחקר המשפחתי."
+          : "הבדיקות הזמינות הושלמו. ELS ופענוח הרמזים עדיין ממתינים לחיבור."}</p>
+      {data.nextStep ? <button type="button" onClick={() => onSelect(data.nextStep.tab)}>המשך ל־{data.nextStep.label}</button> : <span>{complete ? "המסלול הושלם" : "המסע ממשיך — השכבות הבאות טרם נבדקו"}</span>}
     </footer>
   </section>;
 }
@@ -330,7 +332,7 @@ function MapPanel({ active, projection, onSelect, onBirthCalculationChange, birt
   return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} />;
 }
 
-export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange }) {
+export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange, hintState, includeProgramBranches = false }) {
   const [localPosition, setLocalPosition] = useState({ tab: "summary", memberRef: "", lens: "spatial" });
   const currentPosition = position || localPosition;
   const active = currentPosition.tab;
@@ -342,7 +344,7 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
     commitPosition({ ...currentPosition, tab, ...(tab === "creation" ? { lens: "spatial" } : {}), ...options });
   };
   const id = useId();
-  const projection = useMemo(() => buildLifeJourneyMaps({ members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline }), [members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline]);
+  const projection = useMemo(() => buildLifeJourneyMaps({ members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline, hintState, includeProgramBranches }), [members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline, hintState, includeProgramBranches]);
   if (!projection.overview.selectedPeople) return null;
 
   return <section className="person-journey-maps" data-experience-capability="life-journey-maps" aria-labelledby={`${id}-title`}>
@@ -371,6 +373,6 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
         <MapPanel active={active} projection={projection} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
       </Suspense>
     </div>
-    <footer>תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש</footer>
+    <footer>{includeProgramBranches ? "תצוגה פרטית בלבד · ELS ממתין לחיבור · ללא Graph או store חדש" : "תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש"}</footer>
   </section>;
 }

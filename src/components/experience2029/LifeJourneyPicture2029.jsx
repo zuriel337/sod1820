@@ -1,7 +1,7 @@
 import React, { useId } from "react";
 import "./life-journey-picture-2029.css";
 
-const LAYER_STATE = { ready: "זמין", empty: "נבדק · ללא תוצאה", auxiliary: "עדשת עזר פנימית", internal: "בדיקה פנימית", waiting: "ממתין" };
+const LAYER_STATE = { ready: "זמין", empty: "נבדק · ללא תוצאה", auxiliary: "עדשת עזר פנימית", internal: "בדיקה פנימית", waiting: "ממתין", not_connected: "ממתין לחיבור · טרם נבדק", references: "רמזים שמורים · טרם נבדקו", no_references: "אין רמזים שמורים", loading: "טוען הפניות", error: "קריאת הרמזים לא הושלמה" };
 
 export default function LifeJourneyPicture2029({ data, summary, onSelect, focusedMemberRef, onPersonFocus, children }) {
   const id = useId();
@@ -43,6 +43,7 @@ export default function LifeJourneyPicture2029({ data, summary, onSelect, focuse
     <details className="life-picture__details"><summary>איך הורכבה התמונה?</summary>
       <h5>חבילת המחקר המאוחדת</h5>
       <ul>{summary.synthesisPack?.coverage?.layers?.map(layer => <li key={layer.id}>{layer.label} · {LAYER_STATE[layer.state] || layer.state}</li>)}</ul>
+      {summary.synthesisPack?.observations?.hints?.referenceCount ? <p>{summary.synthesisPack.observations.hints.referenceCount} רמזים שמורים; {summary.synthesisPack.observations.hints.datedCount} עם תאריך יום מפורש. הם עדיין לא שויכו לאנשים ולא נכללו בסיכום המשפחתי.</p> : null}
       <p>Human Design, מפת שמיים והקלפים נשארים בדיקות השתקפות פנימיות במשקל ראיה אפס ואינם משנים אותו.</p>
       {summary.claims.length ? <><h5>על מה הסיכום נשען?</h5><ul>{summary.claims.map((claim, index) => <li key={index}>{claim}</li>)}</ul></> : null}
       <p>המפות שחושבו כאן זמינות בזיכרון המסך עד רענון. אין הפעלה מחדש במעבר בין התצוגות.</p>

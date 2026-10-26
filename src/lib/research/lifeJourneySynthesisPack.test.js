@@ -63,7 +63,31 @@ test("one synthesis pack separates verified evidence from zero-weight birth and 
   assert.equal(out.synthesis.auxiliaryCanModifyMessage, false);
   assert.equal(out.interpreter.facts, "עובדות מנוע אנונימיות בלבד");
   assert.equal(out.interpreter.birthLensDetailsIncluded, false);
-  assert.equal(out.boundaries.no_els, true);
+  assert.equal(out.boundaries.no_els_execution, true);
+});
+
+test("central ELS readiness and dated hints are coverage, never fabricated evidence or private prompt input", () => {
+  const baseline = buildLifeJourneySynthesisPack({ research });
+  const out = buildLifeJourneySynthesisPack({ research, hintState: { loading: false, rows: [
+    { id: "secret-hint-id", occurred_at: "2024-02-29", title: "שם פרטי סודי", note: "אירוע פרטי", source_url: "https://private.test/secret" },
+    { id: "unknown-date-hint", created_at: "2030-01-01" },
+  ] } });
+  assert.equal(out.els.planContract, "els_automatic_research_plan_v1");
+  assert.equal(out.els.central, true);
+  assert.equal(out.els.runnable, false);
+  assert.equal(out.els.includedAsEvidence, false);
+  assert.equal(out.coverage.layers.find(layer => layer.id === "els").state, "not_connected");
+  assert.equal(out.coverage.layers.find(layer => layer.id === "hints").state, "references");
+  assert.equal(out.observations.hints.referenceCount, 2);
+  assert.equal(out.observations.hints.datedCount, 1);
+  assert.equal(out.observations.hints.unknownDateCount, 1);
+  assert.equal(out.observations.hints.analysisState, "not_connected");
+  assert.deepEqual(out.evidence, baseline.evidence);
+  assert.deepEqual(out.synthesis, baseline.synthesis);
+  for (const raw of ["secret-hint-id", "2024-02-29", "שם פרטי סודי", "אירוע פרטי", "https://private.test/secret", "2030-01-01"]) {
+    assert.equal(JSON.stringify(out).includes(raw), false, "raw hint data stays out of the shared anonymous pack");
+  }
+  assert.equal(out.interpreter.hintNarrativesIncluded, false);
 });
 
 test("the pack emits no raw private identity, birth input, place or coordinates", () => {

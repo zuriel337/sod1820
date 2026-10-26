@@ -15,6 +15,7 @@ import {
   upsertSelfProfile,
 } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
+import { getMyHints } from "../lib/hints.js";
 import {
   createSupabasePersonalDateCrossProvider,
   gregorianToHebrewDateRepresentation,
@@ -274,6 +275,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], sharedExpressions: [], error: null });
   const [familyAnalysis, setFamilyAnalysis] = useState({ state: "idle", data: null, error: null });
   const [birthReflections, setBirthReflections] = useState(() => new Map());
+  const [ownedHints, setOwnedHints] = useState({ principal: userId, loading: true, rows: [], error: null });
+  const hintState = ownedHints.principal === userId ? ownedHints : { loading: true, rows: [], error: null };
   const [familyClaims, setFamilyClaims] = useState({ state: "idle", rows: [], error: null });
   const [familyClaimBusy, setFamilyClaimBusy] = useState(null);
   const [familyClaimNotice, setFamilyClaimNotice] = useState(null);
@@ -329,6 +332,18 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const currentLifeJourneyView = research.context?.dimensions?.lifeJourneyView || null;
   const currentLifeJourneyPersonRef = research.context?.dimensions?.lifeJourneyPersonRef || null;
   const currentReturnPersonRef = research.context?.returnTo?.subject?.id || null;
+
+  useEffect(() => {
+    if (variant !== "2029" || !userId) return;
+    let alive = true;
+    setOwnedHints({ principal: userId, loading: true, rows: [], error: null });
+    getMyHints({ id: userId }, { fallbackLocal: false }).then(rows => {
+      if (alive) setOwnedHints({ principal: userId, loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
+    }).catch(() => {
+      if (alive) setOwnedHints({ principal: userId, loading: false, rows: [], error: "הרמזים אינם זמינים כרגע." });
+    });
+    return () => { alive = false; };
+  }, [userId, variant]);
 
   const refresh = useCallback(async (pid) => {
     const data = await listFamily(pid);
@@ -1409,6 +1424,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           position={variant === "2029" ? lifeJourneyMapPosition(research.context, selfRef, members.map(member => member.source_ref)) : undefined}
           onPositionChange={variant === "2029" ? updateMapPosition : undefined}
           birthTimeline={birthTimeline}
+          hintState={variant === "2029" ? hintState : null}
+          includeProgramBranches={variant === "2029"}
         />
       </Suspense> : null}
 
@@ -1616,7 +1633,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       </div> : null}
     </section>
 
-    {variant === "2029" && CapabilitySurface ? <CapabilitySurface view="hints" user={user} /> : null}
+    {variant === "2029" && CapabilitySurface ? <CapabilitySurface view="hints" user={user} hintState={hintState} /> : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">
       <div>

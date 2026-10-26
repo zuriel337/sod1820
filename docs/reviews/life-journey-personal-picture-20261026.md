@@ -48,7 +48,7 @@ No new engine, graph, Provider, Person/Journey/Research Context store, DB/RLS ch
 
 Task: LIFE_JOURNEY_ELS_HINTS_PROGRAM_RECONCILIATION_20261026
 
-Status: **REVIEWED + PLANNED; additions below are NOT IMPLEMENTED.** This is an implementation handoff appended to the existing review, not a new product contract, owner, roadmap or canonical store. The implementation/verification claims above describe the earlier personal-picture slice only.
+Status: **REVIEWED + PLANNED; implementation is PARTIAL.** The first composition slice is recorded below; remaining requested connections are not implemented. This is an implementation handoff appended to the existing review, not a new product contract, owner, roadmap or canonical store. The implementation/verification claims above describe the earlier personal-picture slice only.
 
 ZURIEL's new direction supersedes the scheduling assumption that ELS should be omitted from the Life Journey design until its engine work ends. **ELS is a central research branch from the outset; execution/integration remains gated independently.** ZURIEL also requested purposeful private hint submission, date-aware investigation and AI interpretation as part of the same program. Neither request authorizes automatic family searches, public submission of private material, or weakening the current Preview boundary.
 
@@ -76,7 +76,7 @@ ZURIEL's new direction supersedes the scheduling assumption that ELS should be o
 | Birth lenses | Local Human Design, sky and source-anchored letter views | Keep them reachable from the same person/family picture, labeled as auxiliary interpretive lenses rather than independent confirmation |
 | Continuity | Existing Context and Research Path save/resume consumer | Complete live save/resume acceptance only under separate runtime-write authorization; current Preview remains blocked |
 
-The current synthesis pack explicitly has `no_els=true` and no hint-analysis layer. Its mere existence is **not** proof that these new layers are already included. The existing ELS component also is not reachable through the active Life Journey capability router. A prepared adapter must never be presented as an end-to-end connected experience.
+On the reviewed baseline, the synthesis pack explicitly had `no_els=true` and no hint-analysis layer. The first delivery below extends coverage without enabling execution. The existing ELS component remains unreachable through the active Life Journey capability router. A prepared adapter must never be presented as an end-to-end connected experience.
 
 ### One inquiry, not one compulsory mega-scan
 
@@ -145,3 +145,37 @@ An existing private bucket, `submission-inbox`, was found; its existence alone d
 6. **End-to-end acceptance:** private hint → confirmed event/date → canonical checks → optional ELS verification → explanation → number/source/ELS → exact Life Journey return. Cover same-person refresh, family focus without losing prior research, empty/partial/failure/cancel, unknown dates, unauthorized refs, linked-account isolation, receipt/retry/idempotence, no duplicate hints, no raw private URL/log/telemetry leakage and no automatic family/AI/ELS work. Normal + Preview builds, guards, lazy graph/weight and mobile/desktop in all three presets remain release gates.
 
 This reconciliation changes the intended scope/order, not current runtime availability. No live product write, model call, Preview update, main merge, Production change or ELS branch import was performed. Existing baseline adapter/privacy tests run during this review: **11/11 PASS**; these verify existing seams, not completion of the newly requested features. Passive handoff is to ZURIEL; no work-log write or agent activation was performed.
+
+## Delivery: shared ELS/hint coverage — first composition slice
+
+Task: LIFE_JOURNEY_ELS_HINTS_COMPOSITION_SLICE1_20261026
+
+Base: `74ad4dc556323fb41bd720e25a7dbfe6229b41a3` · same isolated branch.
+
+Implemented without a visual redesign or changes to engines, Provider, hint writer or the Preview guard:
+
+- The existing private synthesis projection now explicitly includes central ELS readiness and owned-hint coverage. ELS names the existing `els_automatic_research_plan_v1` contract and remains non-runnable/not connected. Neither readiness nor an observation can become verified evidence.
+- The 2029 guide includes those two pending branches and no longer declares the whole journey complete after the original eight steps. It can continue into available branches without routing a disabled ELS/hint stage to a fake destination. Legacy retains its existing eight-step guide.
+- The existing authenticated, `fallbackLocal:false` hint read is lifted from the list to its keyed Person parent and shared with the picture. There is one read per mounted principal, no second hint store, no persistence and no duplicate `research_items` creation. Account changes/unmount discard old and late results; errors remain errors rather than becoming empty observations.
+- A bounded pure hint-reference projection deduplicates existing IDs and separates absent, invalid/ambiguous and explicit civil-day dates. Only `occurred_at` may supply event time; `created_at` is never a substitute. Explicit ISO civil dates reuse the existing canonical Gregorian/Hebrew representation. Instants/partial dates require clarification; no timezone/sunset assumption is invented.
+- The hint list explains its private observational purpose and displays the known date or the missing/review status. No person association is inferred. The anonymous synthesis pack receives counts/status only, never hint IDs, titles, narratives, URLs or dates. Hints do not modify the current family evidence or explanation.
+
+Not implemented by this slice: new hint capture/saves, per-person hint association, private attachment uploads, hint AI interpretation, temporal comparison research, ELS execution/result ingestion, reuse of individual Name/Date result payloads, or the final entry/tree visual rearrangement. Existing ELS/Raziel work is not imported. Live account writes/models remain blocked in Preview.
+
+Verification commands:
+
+```sh
+node --test src/lib/research/lifeJourney*.test.js src/lib/research/researchPathContinuity.test.js test/life-journey-2029-chain.test.mjs test/life-journey-hint-reference.test.mjs
+LIFE_JOURNEY_CHART_SCREENSHOT_DIR=/tmp/life-journey-layers-20261026 node --test test/life-journey-person-context.browser.test.mjs
+npm run build
+node scripts/build-integrated-preview.mjs
+node scripts/test-integrated-preview-auth-guard.mjs
+node scripts/test-2029-isolation.mjs
+node scripts/test-legacy-production-lock.mjs
+node scripts/test-2029-built-graph.mjs
+git diff --check
+```
+
+Results: **77/77** targeted tests and **1/1** expanded browser chain PASS; both builds, auth/read-only guard **5/5**, isolation, Legacy lock, built graph and diff check PASS. Eager gzip recovery **75,515 bytes** exceeds the required 12,288; ELS execution and Raziel submit/Plan remain unactivated/lazy. Browser verification uses synthetic hint/backend transports, covers 320/390/1440px in all three presets, shared-read count, explicit/unknown/ambiguous dates, principal switch, denied read, refresh, save/finding exact return and no new model/family/ELS work. No real user hint content or live account save was used. Existing chunk/deprecation warnings remain.
+
+Status for this bounded slice only: **IMPLEMENTED + TESTED + branch-only PR_READY**. No DB/RLS/site-flag write, engine/Provider/store addition, main merge or Production release. Next program work remains the gated private hint/date capture and individual-result continuity, before final visual arrangement.

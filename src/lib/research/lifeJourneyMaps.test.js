@@ -7,6 +7,7 @@ const CHILD = "person:owner:p:child";
 
 function fixture() {
   return buildLifeJourneyMaps({
+    includeProgramBranches: true,
     members: [
       { source_ref: SELF, name: "הורה בדיקה" },
       { source_ref: CHILD, name: "ילד בדיקה" },
@@ -115,11 +116,19 @@ test("life maps project the existing private family state without inventing stor
   assert.equal(out.creation.cosmicFrames[0].items.includes("שבתאי"), true);
   assert.equal(out.creation.boundaries.no_personal_astrology, true);
   assert.equal(out.path.saved, true);
-  assert.equal(out.path.steps.length, 8);
+  assert.equal(out.path.steps.length, 10);
   assert.equal(out.path.completedCount, 8);
-  assert.equal(out.path.progressPercent, 100);
+  assert.equal(out.path.progressPercent, 80);
+  assert.equal(out.path.complete, false);
+  assert.ok(out.path.steps.filter(step => ["els", "hints"].includes(step.id)).every(step => step.state === "not_connected" && step.tab === null));
   assert.equal(out.path.nextStep, null);
-  assert.deepEqual(out.boundaries, { read_only_projection: true, no_els: true, no_new_store: true, no_graph_write: true });
+  assert.deepEqual(out.boundaries, { read_only_projection: true, no_els_execution: true, no_new_store: true, no_graph_write: true });
+});
+
+test("Legacy projection keeps its existing eight-step flow without the 2029 branches", () => {
+  const out = buildLifeJourneyMaps({ members: [{ source_ref: SELF, name: "הורה בדיקה" }], selectedRefs: [SELF] });
+  assert.equal(out.path.steps.length, 8);
+  assert.equal(out.synthesisPack.coverage.layers.some(layer => layer.id === "els" || layer.id === "hints"), false);
 });
 
 test("life maps stay useful before research and never include unselected people", () => {

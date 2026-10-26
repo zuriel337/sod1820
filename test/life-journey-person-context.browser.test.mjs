@@ -38,7 +38,11 @@ function lifeJourneyFixturePlugin() {
     `],
     ["virtual:life-journey-hints.js", `
       window.__hintReads=window.__hintReads||[];
-      export async function getMyHints(user,options){window.__hintReads.push({user,options});return [{id:"hint-1",hint_type:"idea",number:73,title:"רמז קיים",source_url:"https://example.test/source"}];}
+      export async function getMyHints(user,options){window.__hintReads.push({user,options});if(localStorage.getItem("life-journey-deny-hints-fixture")==="1")throw new Error("denied");return user?.id==="fixture-owner"?[
+        {id:"hint-1",hint_type:"idea",number:73,title:"רמז קיים",source_url:"https://example.test/source",occurred_at:"2024-02-29",created_at:"2035-11-03",note:"תוכן רמז פרטי"},
+        {id:"hint-2",hint_type:"idea",title:"רמז ללא מועד",created_at:"2035-11-03"},
+        {id:"hint-3",hint_type:"idea",title:"רמז עם שעה",occurred_at:"2024-02-29T21:30:00+02:00"},
+      ]:[];}
     `],
     ["virtual:life-journey-canonical-gematria.js", `
       window.__nameCalls=window.__nameCalls||[];
@@ -345,7 +349,14 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await lifeMaps.getByRole("tab", { name: "התמונה שלי", exact: true }).getAttribute("aria-selected"), "true");
     const guidedFlow = family.locator('[data-experience-capability="life-journey-guided-map-flow"]');
     await guidedFlow.getByRole("heading", { name: "המסלול המודרך" }).waitFor();
-    await guidedFlow.getByLabel("4 מתוך 8 תחנות הושלמו").waitFor();
+    await guidedFlow.getByLabel("4 מתוך 10 תחנות הושלמו").waitFor();
+    assert.equal(await guidedFlow.getByRole("button", { name: /ELS/ }).isDisabled(), true);
+    const hintPanel = page.locator('[data-experience-capability="life-journey-hint-references"]');
+    await hintPanel.getByText(/2024-02-29/).waitFor();
+    await hintPanel.getByText("מועד האירוע לא צוין", { exact: true }).waitFor();
+    await hintPanel.getByText("מועד האירוע דורש הבהרה לפני בדיקה", { exact: true }).waitFor();
+    assert.equal(await hintPanel.getByText(/2035-11-03/).count(), 0, "submission date is not displayed as the event date");
+    assert.equal(await page.evaluate(() => window.__hintReads.length), 1, "picture and hint list share one owned read");
     assert.equal(await guidedFlow.locator('button[aria-current="step"]').innerText().then(text => text.includes("חיבורים")), true);
     const callsBeforeGuidedNavigation = await page.evaluate(() => ({
       matrix: window.__matrixCalls.length,
@@ -550,6 +561,9 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await lifeMaps.getByText("מסר בדיקה מבוסס ממצאים.", { exact: true }).waitFor();
     await picture.getByText("איך הורכבה התמונה?", { exact: true }).click();
     await lifeMaps.getByRole("heading", { name: "חבילת המחקר המאוחדת" }).waitFor();
+    await picture.getByText("ELS · ממתין לחיבור · טרם נבדק", { exact: true }).waitFor();
+    await picture.getByText("רמזים ואירועי חיים · רמזים שמורים · טרם נבדקו", { exact: true }).waitFor();
+    await picture.getByText(/3 רמזים שמורים; 1 עם תאריך יום מפורש/).waitFor();
     await lifeMaps.getByText("Human Design · עדשת עזר פנימית", { exact: true }).waitFor();
     await lifeMaps.getByText("מפת שמיים · עדשת עזר פנימית", { exact: true }).waitFor();
     await lifeMaps.getByText(/במשקל ראיה אפס ואינם משנים אותו/).waitFor();
@@ -573,6 +587,13 @@ test("Life Journey keeps Person and explicit family selection through Name and D
         }));
         assert.equal(resumeMetrics.overflow, false, `save/resume fits ${theme} ${width}px`);
         assert.equal(resumeMetrics.smallTargets, 0);
+        const hintMetrics = await hintPanel.evaluate(element => ({
+          overflow: element.scrollWidth > element.clientWidth + 1,
+          smallTargets: [...element.querySelectorAll("button")].filter(button => button.getBoundingClientRect().width < 43.5 || button.getBoundingClientRect().height < 43.5).length,
+        }));
+        assert.equal(hintMetrics.overflow, false, `dated hints fit ${theme} ${width}px`);
+        assert.equal(hintMetrics.smallTargets, 0);
+        if (process.env.LIFE_JOURNEY_CHART_SCREENSHOT_DIR) await hintPanel.screenshot({ path: `${process.env.LIFE_JOURNEY_CHART_SCREENSHOT_DIR}/hints-${theme}-${width}.png` });
         if (process.env.LIFE_JOURNEY_CHART_SCREENSHOT_DIR) await resumeControls.screenshot({ path: `${process.env.LIFE_JOURNEY_CHART_SCREENSHOT_DIR}/resume-${theme}-${width}.png` });
         if (process.env.LIFE_JOURNEY_CHART_SCREENSHOT_DIR) await picture.screenshot({ path: `${process.env.LIFE_JOURNEY_CHART_SCREENSHOT_DIR}/picture-${theme}-${width}.png` });
       }
@@ -588,12 +609,12 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await timeMap.locator(".life-time-convergences").getByText("73", { exact: true }).first().waitFor();
     await timeMap.getByText(/ביטויי תאריך בלבד/).first().waitFor();
     await lifeMaps.getByRole("tab", { name: "מפת־על" }).click();
-    await guidedFlow.getByLabel("8 מתוך 8 תחנות הושלמו").waitFor();
-    await guidedFlow.getByText("השרשרת המחקרית מלאה. אפשר לחזור לכל תחנה בלי להפעיל את המנוע מחדש.", { exact: true }).waitFor();
-    await guidedFlow.getByText("המסלול הושלם", { exact: true }).waitFor();
+    await guidedFlow.getByLabel("8 מתוך 10 תחנות הושלמו").waitFor();
+    await guidedFlow.getByText("הבדיקות הזמינות הושלמו. ELS ופענוח הרמזים עדיין ממתינים לחיבור.", { exact: true }).waitFor();
+    await guidedFlow.getByText("המסע ממשיך — השכבות הבאות טרם נבדקו", { exact: true }).waitFor();
     await lifeMaps.getByRole("tab", { name: "מסלול" }).click();
     await lifeMaps.getByText("זהות", { exact: true }).waitFor();
-    assert.equal(await lifeMaps.locator(".person-journey-path-map li").count(), 8);
+    assert.equal(await lifeMaps.locator(".person-journey-path-map li").count(), 10);
     await family.getByText("פתח פירוט מלא של הממצאים והמקורות", { exact: true }).click();
     assert.equal(await family.locator('.person-journey-relation-list article').count(), 1, "two selected people produce one normalized cross-person pair");
     await family.locator('.person-journey-family-shared[data-kind="cross-expression"]', { hasText: "2 אנשים" }).waitFor();
@@ -808,6 +829,9 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.evaluate(() => localStorage.setItem("life-journey-account-fixture", "claimant"));
     await page.reload();
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
+    await hintPanel.getByText("אין כרגע רמזים שמורים ב־research_items / hint.", { exact: true }).waitFor();
+    assert.equal(await hintPanel.getByText("רמז קיים", { exact: true }).count(), 0, "another account never inherits the owner's hint projection");
+    assert.deepEqual(await page.evaluate(() => window.__hintReads.map(call => call.user.id)), ["fixture-claimant"]);
     await page.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     const claimantContinuity = page.locator('[data-experience-capability="life-journey-account-continuity"]');
     await claimantContinuity.getByLabel("קוד הזמנה").fill(invitationToken);
@@ -852,7 +876,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(privacy.ledger.members.find(member => member.source_ref.includes(":p:"))?.meta?.profile_source, "journey_owner_entered");
     assert.ok(privacy.hintReads.every(call => call.options?.fallbackLocal === false));
     assert.equal(privacy.storageValues.some(value => String(value).includes(invitationToken)), false);
-    for (const privateValue of ["הורה בדיקה", "ילד בדיקה", "1990-02-15", "2020-03-04", "05:30", "14:45", "עיר בדיקה", "יישוב בדיקה", "יישוב מעודכן"]) {
+    for (const privateValue of ["הורה בדיקה", "ילד בדיקה", "1990-02-15", "2020-03-04", "05:30", "14:45", "עיר בדיקה", "יישוב בדיקה", "יישוב מעודכן", "2024-02-29", "תוכן רמז פרטי"]) {
       assert.equal(JSON.stringify(privacy.context).includes(privateValue), false, `Research Context excludes ${privateValue}`);
       assert.equal(JSON.stringify(privacy.contextStorage).includes(privateValue), false, `stored Research Context excludes ${privateValue}`);
     }
@@ -862,6 +886,15 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(requestUrls.some(url => /Asia%2FJerusalem|31\.7683|35\.2137/.test(url)), false);
     assert.equal(requestBodies.some(body => /1990-02-15|05:30|Asia\/Jerusalem|31\.7683|35\.2137/.test(body)), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes(invitationToken)), false);
+    await page.evaluate(() => localStorage.setItem("life-journey-deny-hints-fixture", "1"));
+    await page.reload();
+    await hintPanel.getByText("הרמזים אינם זמינים כרגע.", { exact: true }).waitFor();
+    assert.equal(await hintPanel.getByText("רמז קיים", { exact: true }).count(), 0);
+    assert.equal(await hintPanel.getByText("אין כרגע רמזים שמורים ב־research_items / hint.", { exact: true }).count(), 0, "a denied read is not an empty result");
+    await lifeMaps.getByRole("tab", { name: "התמונה שלי", exact: true }).click();
+    await picture.getByText("איך הורכבה התמונה?", { exact: true }).click();
+    await picture.getByText("רמזים ואירועי חיים · קריאת הרמזים לא הושלמה", { exact: true }).waitFor();
+    assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__elsCalls.length]), [0,0,0]);
     assert.deepEqual(browserErrors, []);
   } finally {
     await browser?.close();

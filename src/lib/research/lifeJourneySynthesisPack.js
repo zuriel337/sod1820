@@ -1,4 +1,6 @@
-export const LIFE_JOURNEY_SYNTHESIS_PACK_VERSION = "life-journey-synthesis-pack-v1";
+import { projectLifeJourneyHintReferences } from "./lifeJourneyHintProjection.js";
+
+export const LIFE_JOURNEY_SYNTHESIS_PACK_VERSION = "life-journey-synthesis-pack-v2";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
@@ -60,12 +62,15 @@ export function buildLifeJourneySynthesisPack({
   birthReflections = null,
   selectedRefs = [],
   interpreterFacts = null,
+  hintState = null,
+  includeProgramBranches = true,
 } = {}) {
   const researchReady = research?.state === "ready";
   const analysisData = analysis?.state === "ready" && analysis?.data ? analysis.data : null;
   const birthRows = reflectionEntries(birthReflections, selectedRefs);
   const humanCount = birthRows.filter(row => row.humanDesign).length;
   const skyCount = birthRows.filter(row => row.sky).length;
+  const hints = projectLifeJourneyHintReferences(hintState);
   const verseCount = integer(research?.sourceResearch?.coverage?.verseCount) ?? 0;
   const equalPhraseCount = integer(research?.sourceResearch?.coverage?.equalPhraseCount) ?? 0;
   const methodValueCount = integer(research?.coverage?.methodValueCount)
@@ -84,6 +89,10 @@ export function buildLifeJourneySynthesisPack({
     { id: "date", label: "שם ותאריך", state: integer(research?.coverage?.expressionCount) ? "ready" : researchReady ? "empty" : "waiting", evidenceWeight: 1 },
     { id: "family", label: "התכנסות משפחתית", state: connectionCount || sharedValueCount ? "ready" : researchReady ? "empty" : "waiting", evidenceWeight: 1 },
     { id: "sources", label: "מקורות", state: verseCount || equalPhraseCount ? "ready" : researchReady ? "empty" : "waiting", evidenceWeight: 1 },
+    ...(includeProgramBranches ? [
+      { id: "els", label: "ELS", state: "not_connected", evidenceWeight: 1 },
+      { id: "hints", label: "רמזים ואירועי חיים", state: hints.state, evidenceWeight: 0 },
+    ] : []),
     { id: "human_design", label: "Human Design", state: humanCount ? "auxiliary" : "waiting", evidenceWeight: 0 },
     { id: "sky", label: "מפת שמיים", state: skyCount ? "auxiliary" : "waiting", evidenceWeight: 0 },
     { id: "tarot", label: "בדיקת השתקפות פנימית", state: analysisData ? "internal" : "waiting", evidenceWeight: 0 },
@@ -104,6 +113,17 @@ export function buildLifeJourneySynthesisPack({
         noNormalizedConnection: researchReady && connectionCount === 0,
         noCanonicalSource: researchReady && verseCount === 0 && equalPhraseCount === 0,
       }),
+    }),
+    // Coverage is not execution or evidence. No term, hint ID/narrative or event
+    // date enters this anonymized pack or the current family interpreter facts.
+    els: Object.freeze({
+      state: "not_connected", central: true, runnable: false,
+      planContract: "els_automatic_research_plan_v1",
+      canonicalOccurrenceRequired: true,
+      includedAsEvidence: false,
+    }),
+    observations: Object.freeze({
+      hints: Object.freeze({ ...hints.coverage, state: hints.state, analysisState: "not_connected", evidenceWeight: 0 }),
     }),
     auxiliary: Object.freeze({
       birthLenses: freezeRows(birthRows),
@@ -128,6 +148,7 @@ export function buildLifeJourneySynthesisPack({
       privateIdentityIncluded: false,
       birthLensDetailsIncluded: false,
       auxiliaryIncludedAsEvidence: false,
+      hintNarrativesIncluded: false,
     }),
     coverage: Object.freeze({
       layers: freezeRows(layers),
@@ -143,7 +164,8 @@ export function buildLifeJourneySynthesisPack({
       no_url_or_telemetry: true,
       no_new_store: true,
       no_graph_write: true,
-      no_els: true,
+      no_els_execution: true,
+      no_hint_investigation: true,
       auxiliary_zero_evidence_weight: true,
       cards_internal_only: true,
       message_from_verified_evidence_only: true,
