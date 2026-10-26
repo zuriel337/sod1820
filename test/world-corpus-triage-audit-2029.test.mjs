@@ -63,6 +63,12 @@ test("manager corpus audit keeps publication, verification and catalog completen
   assert.equal(insights.counts.find((item) => item.label === "מסומנות מאומתות בלי locator מדויק").value, 118);
   assert.match(insights.next, /2 השלמות מבנית/u);
 
+  const posts = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "posts");
+  assert.equal(posts.counts.find((item) => item.label === "מטא־דאטה קטלוגי שלם").value, 337);
+  assert.equal(posts.counts.find((item) => item.label === "דורשים השלמת מטא־דאטה").value, 974);
+  assert.equal(posts.counts.find((item) => item.label === "כפילויות slug").value, 0);
+  assert.match(posts.next, /אין לאחד אנשים לפי שם/u);
+
   const gematria = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "gematria");
   assert.equal(gematria.counts.find((item) => item.label === "טרם אומתו").value, 2894);
   assert.deepEqual([
