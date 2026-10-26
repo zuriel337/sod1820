@@ -16,6 +16,10 @@ function nonEmptyObject(value) {
   return Boolean(value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length);
 }
 
+function legacyEnvelopeCapped(detail) {
+  return detail?.sampling?.capped === true || detail?.occurrence?.capped === true;
+}
+
 function integerOrNull(value) {
   if (value == null || value === "") return null;
   const number = Number(value);
@@ -32,6 +36,7 @@ export function projectWorldElsTriageRows(rows = []) {
     const engineDetail = nonEmptyObject(row?.engine_detail) ? row.engine_detail : null;
     const replayState = explicitReplayState(engineDetail);
     const hasReplayMatch = replayState ? MATCH.has(replayState) : false;
+    const envelopeCapped = legacyEnvelopeCapped(engineDetail);
     const corpusId = clean(row?.corpus_id) || null;
     const termNorm = clean(row?.term_norm) || null;
     const startIndex = integerOrNull(row?.start_index);
@@ -51,7 +56,9 @@ export function projectWorldElsTriageRows(rows = []) {
         ? "missing_engine_envelope"
         : hasReplayMatch
           ? "replay_evidence_available"
-          : "envelope_not_verified";
+          : envelopeCapped
+            ? "legacy_envelope_capped"
+            : "legacy_envelope_unreplayed";
     const id = clean(row?.id);
     const slug = clean(row?.slug);
     return Object.freeze({
@@ -76,6 +83,7 @@ export function projectWorldElsTriageRows(rows = []) {
       engineVersion: clean(engineDetail?.engineVersion || engineDetail?.engine_version || engineDetail?.engine) || null,
       replayState,
       hasReplayMatch,
+      envelopeCapped,
       qualityVerified: engineDetail?.ranking?.quality?.verified === true,
     });
   });
@@ -94,8 +102,9 @@ export function projectWorldElsTriageRows(rows = []) {
   const priority = {
     identity_incomplete: 0,
     missing_engine_envelope: 1,
-    envelope_not_verified: 2,
-    replay_evidence_available: 3,
+    legacy_envelope_capped: 2,
+    legacy_envelope_unreplayed: 3,
+    replay_evidence_available: 4,
   };
   unique.sort((left, right) => (priority[left.state] - priority[right.state])
     || clean(right.createdAt).localeCompare(clean(left.createdAt))
@@ -115,6 +124,8 @@ export function projectWorldElsTriageRows(rows = []) {
       missingTermNorm: unique.filter((row) => !row.termNorm).length,
       missingStartIndex: unique.filter((row) => row.startIndex == null).length,
       replayEvidenceAvailable: unique.filter((row) => row.hasReplayMatch).length,
+      legacyEnvelopeCapped: unique.filter((row) => row.state === "legacy_envelope_capped").length,
+      legacyEnvelopeUnreplayed: unique.filter((row) => row.state === "legacy_envelope_unreplayed").length,
       envelopeNotVerified: unique.filter((row) => row.hasEngineEnvelope && !row.hasReplayMatch).length,
       duplicateIdentityGroups: duplicateGroups.length,
       duplicateIdentityRows: duplicateGroups.reduce((sum, group) => sum + group.length - 1, 0),
@@ -122,6 +133,8 @@ export function projectWorldElsTriageRows(rows = []) {
     duplicateGroups: Object.freeze(duplicateGroups.map((group) => Object.freeze(group))),
     rules: Object.freeze({
       replayEvidenceIsNotTruth: true,
+      historicalReplayIsNotFreshVerification: true,
+      cappedSearchRequiresFreshReplay: true,
       publishedIsNotVerified: true,
       noAutomaticPromotion: true,
       noSourceDeletion: true,

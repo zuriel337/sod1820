@@ -15,6 +15,7 @@ test("ELS triage separates identity, engine envelope, replay evidence and public
   const projection = projectWorldElsTriageRows([
     complete,
     { ...complete, id: "b", slug: "b", engine_detail: { ranking: { quality: { verified: false } } } },
+    { ...complete, id: "cap", slug: "cap", engine_detail: { sampling: { capped: true }, ranking: { quality: { verified: false } } } },
     { ...complete, id: "c", slug: "c", engine_detail: { golden_scan_v1: { axis: { verification_state: "MATCH" } } } },
     { ...complete, id: "d", slug: "d", start_index: null, status: "draft", visibility: "unlisted" },
   ]);
@@ -22,14 +23,18 @@ test("ELS triage separates identity, engine envelope, replay evidence and public
   assert.deepEqual(projection.rows.map((row) => row.state), [
     "identity_incomplete",
     "missing_engine_envelope",
-    "envelope_not_verified",
+    "legacy_envelope_capped",
+    "legacy_envelope_unreplayed",
     "replay_evidence_available",
   ]);
-  assert.equal(projection.counts.publicPublished, 3);
+  assert.equal(projection.counts.publicPublished, 4);
   assert.equal(projection.counts.outsidePublicReader, 1);
   assert.equal(projection.counts.missingEngineEnvelope, 2);
   assert.equal(projection.counts.replayEvidenceAvailable, 1);
+  assert.equal(projection.counts.legacyEnvelopeCapped, 1);
+  assert.equal(projection.counts.legacyEnvelopeUnreplayed, 1);
   assert.equal(projection.rules.replayEvidenceIsNotTruth, true);
+  assert.equal(projection.rules.historicalReplayIsNotFreshVerification, true);
 });
 
 test("ELS triage detects only complete canonical identity duplicates and keeps every row", () => {

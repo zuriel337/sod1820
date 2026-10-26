@@ -42,8 +42,9 @@ test("manager corpus audit keeps publication, verification and catalog completen
   const els = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "els");
   assert.equal(els.total, 135);
   assert.deepEqual(els.counts.slice(0, 4).map((item) => item.value), [112, 104, 8, 23]);
-  assert.deepEqual(els.counts.slice(-3).map((item) => item.value), [15, 2, 0]);
-  assert.match(els.next, /פרסום קיים אינו תחליף לאימות/u);
+  assert.deepEqual(els.counts.slice(-5).map((item) => item.value), [14, 1, 2, 0, 0]);
+  assert.match(els.next, /אינם אימות חי/u);
+  assert.match(els.state, /els_search_v1/u);
 
   const gematria = WORLD_CORPUS_TRIAGE_AUDIT.workstreams.find((row) => row.key === "gematria");
   assert.equal(gematria.counts.find((item) => item.label === "טרם אומתו").value, 2894);

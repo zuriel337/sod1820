@@ -87,8 +87,9 @@ const CONTINUATION_LABELS = Object.freeze({
 const ELS_QUEUE_LABELS = Object.freeze({
   identity_incomplete: "זהות שחזור חסרה",
   missing_engine_envelope: "חסרה מעטפת מנוע",
-  envelope_not_verified: "מעטפת קיימת · טרם אומת replay",
-  replay_evidence_available: "ראיית replay קיימת",
+  legacy_envelope_capped: "מעטפה ישנה · החיפוש נקטע בתקרה",
+  legacy_envelope_unreplayed: "מעטפה ישנה · טרם שוחזרה",
+  replay_evidence_available: "ראיית replay היסטורית קיימת",
 });
 
 const GEMATRIA_QUEUE_LABELS = Object.freeze({
@@ -588,15 +589,16 @@ export default function WorldAllResearchTable({ state }) {
       </section> : null}
 
       {elsQueue.open ? <section className="sod29-world-kind-section" aria-label="תור אימות צפני ELS">
-        <header><div><h3>תור אימות צפני ELS</h3><p>נטען רק לפי בקשה דרך הקורא הקיים ובהרשאת החשבון. פרסום, מעטפת מנוע וראיית replay מוצגים בנפרד.</p></div>{elsQueue.data ? <span>{elsQueue.data.counts.total} רשומות</span> : null}</header>
+        <header><div><h3>תור אימות צפני ELS</h3><p>נטען רק לפי בקשה דרך הקורא הקיים ובהרשאת החשבון. פרסום, מעטפת מנוע וראיית replay היסטורית מוצגים בנפרד; אף אחד מהם אינו אימות חי.</p></div>{elsQueue.data ? <span>{elsQueue.data.counts.total} רשומות</span> : null}</header>
         {elsQueue.loading ? <p role="status">טוען את קטלוג הצפנים המורשה…</p> : null}
         {elsQueue.error ? <p role="status">תור הצפנים אינו זמין כרגע. לא הומצאו נתונים חלופיים.</p> : null}
         {elsQueue.data ? <>
           <div className="sod29-world-all-research-summary">
             <span><b>{elsQueue.data.counts.publicPublished}</b> מפורסמים וציבוריים</span>
             <span><b>{elsQueue.data.counts.missingEngineEnvelope}</b> ללא מעטפת מנוע</span>
-            <span><b>{elsQueue.data.counts.envelopeNotVerified}</b> מעטפת ללא replay מפורש</span>
-            <span><b>{elsQueue.data.counts.replayEvidenceAvailable}</b> עם ראיית replay</span>
+            <span><b>{elsQueue.data.counts.legacyEnvelopeUnreplayed}</b> מעטפות ישנות שלא שוחזרו</span>
+            <span><b>{elsQueue.data.counts.legacyEnvelopeCapped}</b> חיפוש ישן שנקטע בתקרה</span>
+            <span><b>{elsQueue.data.counts.replayEvidenceAvailable}</b> עם ראיית replay היסטורית</span>
             <span><b>{elsQueue.data.counts.missingStartIndex}</b> ללא נקודת התחלה</span>
             <span><b>{elsQueue.data.counts.duplicateIdentityGroups}</b> קבוצות זהות שחזור כפולה</span>
           </div>
@@ -615,7 +617,7 @@ export default function WorldAllResearchTable({ state }) {
               <div><small>מונח מנורמל</small><strong>{row.termNorm || "חסר"}</strong></div>
               <div><small>נקודת התחלה</small><strong>{row.startIndex ?? "חסרה"}</strong></div>
               <div><small>מעטפת מנוע</small><strong>{row.hasEngineEnvelope ? "קיימת" : "חסרה"}</strong></div>
-              <div><small>Replay מפורש</small><strong>{row.hasReplayMatch ? "MATCH" : "טרם אומת"}</strong></div>
+              <div><small>Replay מפורש</small><strong>{row.hasReplayMatch ? "MATCH היסטורי" : row.envelopeCapped ? "נקטע בתקרה" : "טרם שוחזר"}</strong></div>
             </div>
             <p className="sod29-world-all-research-secondary">{row.term || "מונח לא צוין"}{row.skip != null ? ` · דילוג ${row.skip}` : " · דילוג חסר"}{row.direction ? ` · ${row.direction}` : " · כיוון חסר"}{row.scope ? ` · ${row.scope}` : ""}</p>
             {row.identityMissing.length ? <p><b>חסר לשחזור:</b> <code dir="ltr">{row.identityMissing.join(" · ")}</code></p> : null}
