@@ -1,7 +1,7 @@
 # Life Journey 2029 — local birth adapters v1
 
-Date: 2026-10-26  
-Base: `7b0502709737beb70cfdae8726f7805154462aa8`  
+Date: 2026-10-26
+Base: `7b0502709737beb70cfdae8726f7805154462aa8`
 Branch: `gpt/life-journey-local-birth-adapters-v1-20261026`
 
 ## Scope
