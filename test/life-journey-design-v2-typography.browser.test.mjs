@@ -98,6 +98,43 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
       await audit(`map-tab:${name}`);
     }
 
+    // Interactive research tree: one tree for person + family; branches only move the existing map position.
+    await lifeMaps.getByRole("tab", { name: "מפת־על", exact: true }).click();
+    const tree = lifeMaps.locator('[data-experience-capability="life-journey-research-tree"]');
+    await tree.waitFor();
+    assert.equal(await tree.locator(".life-tree__toggle").count(), 2, "person and family appear once in one tree");
+    assert.equal(await tree.locator(".life-tree__item .life-tree__item .life-tree__toggle").count(), 1, "the child hangs under the parent");
+    const callsBeforeTree = await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]);
+    const childToggle = tree.getByRole("button", { name: /ילד בדיקה/ });
+    assert.equal(await childToggle.getAttribute("aria-expanded"), "false");
+    await childToggle.click();
+    assert.equal(await childToggle.getAttribute("aria-expanded"), "true");
+    assert.equal(await tree.locator('.life-tree__branch[data-branch="els"]').first().isDisabled(), true, "ELS is a visible, not-connected branch");
+    assert.equal(await tree.locator('.life-tree__branch[data-branch="els"] small').first().innerText(), "ממתין לחיבור");
+    await audit("tree");
+    await tree.locator(".life-tree__node", { hasText: "ילד בדיקה" }).locator('.life-tree__branch[data-branch="date"]').click();
+    assert.equal(await lifeMaps.getByRole("tab", { name: "שערי זמן", exact: true }).getAttribute("aria-selected"), "true", "date branch opens the time map");
+    assert.equal(await page.locator('[data-experience-capability="life-journey-time-gates-map"]').getByRole("button", { name: /ילד בדיקה/ }).getAttribute("data-active"), "true", "the focused child is kept");
+    await lifeMaps.getByRole("tab", { name: "מפת־על", exact: true }).click();
+    assert.equal(await childToggle.getAttribute("aria-expanded"), "true", "returning to the tree keeps the focused person open");
+    await tree.locator(".life-tree__node", { hasText: "ילד בדיקה" }).locator('.life-tree__branch[data-branch="sky"]').click();
+    assert.equal(await lifeMaps.getByRole("tab", { name: "מפת יצירה", exact: true }).getAttribute("aria-selected"), "true", "sky branch opens the birth studio");
+    assert.equal(await page.locator('[data-result="sky-map"]').count(), 0, "opening a branch never calculates a chart");
+    await lifeMaps.getByRole("tab", { name: "מפת־על", exact: true }).click();
+    assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]), callsBeforeTree, "tree navigation starts no research, Raziel or ELS call");
+
+    // Button alignment: primary actions are centered inside their panel on mobile.
+    await page.setViewportSize({ width: 390, height: 900 });
+    const alignment = await page.evaluate(() => {
+      const offsets = [...document.querySelectorAll(".person-journey-actions>button,.person-journey-family-research-actions>button,.person-journey-hero-status>.person-journey-primary")].filter(el => el.getBoundingClientRect().width > 0).map(el => {
+        const box = el.getBoundingClientRect();
+        const parent = el.parentElement.getBoundingClientRect();
+        return Math.abs((box.left + box.right) / 2 - (parent.left + parent.right) / 2);
+      });
+      return { count: offsets.length, max: Math.max(0, ...offsets) };
+    });
+    assert.ok(alignment.count >= 2 && alignment.max <= 2, `primary action buttons are centered (${JSON.stringify(alignment)})`);
+
     // Nested lenses: time gates and the birth-map studio (3D stays inactive; no calculation is started).
     await lifeMaps.getByRole("tab", { name: "שערי זמן", exact: true }).click();
     const timeMap = family.locator('[data-experience-capability="life-journey-time-gates-map"]');

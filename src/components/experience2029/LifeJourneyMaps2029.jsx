@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useId, useMemo, useState } from "react";
 import { formatTanakhRef } from "../../lib/presentation/canonicalPresentation.js";
 import { buildLifeJourneyMaps } from "../../lib/research/lifeJourneyMaps.js";
+import LifeJourneyTree2029 from "./LifeJourneyTree2029.jsx";
 import "./life-journey-maps-2029.css";
 
 const loadBirthMapStudio2029 = () => import("./BirthMapStudio2029.jsx");
@@ -76,7 +77,7 @@ function JourneyGuide({ data, onSelect }) {
   </section>;
 }
 
-function OverviewMap({ data, path, onSelect }) {
+function OverviewMap({ data, path, tree, onSelect, focusedMemberRef }) {
   const cards = [
     ["אנשים שנבחרו", data.selectedPeople],
     ["תאריכים על הציר", data.datedPeople],
@@ -86,6 +87,7 @@ function OverviewMap({ data, path, onSelect }) {
     ["קבוצות מקור", data.sourceCount],
   ];
   return <div className="person-journey-map-overview-shell">
+    <LifeJourneyTree2029 generations={tree.generations} coverage={tree.coverage} onSelect={onSelect} focusedMemberRef={focusedMemberRef} />
     <JourneyGuide data={path} onSelect={onSelect} />
     <div className="person-journey-map-overview">
       {cards.map(([label, value]) => <article key={label}><strong>{value}</strong><span>{label}</span></article>)}
@@ -329,7 +331,7 @@ function MapPanel({ active, projection, onSelect, onBirthCalculationChange, birt
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
   if (active === "summary") return <LifeJourneyPicture2029 data={projection.picture} summary={projection.summary} onSelect={onSelect} focusedMemberRef={focusedMemberRef} onPersonFocus={onPersonFocus}><JourneyGuide data={projection.path} onSelect={onSelect} /></LifeJourneyPicture2029>;
   if (active === "path") return <PathMap data={projection.path} />;
-  return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} />;
+  return <OverviewMap data={projection.overview} path={projection.path} tree={{ generations: projection.generations, coverage: projection.coverage }} onSelect={onSelect} focusedMemberRef={focusedMemberRef} />;
 }
 
 export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange, hintState, includeProgramBranches = false }) {

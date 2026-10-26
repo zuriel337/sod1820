@@ -56,3 +56,14 @@ Fonts: Noto Sans Hebrew and Rubik are the repo's self-hosted files and are verif
 No hosted Preview, merge, Production, DB, RLS, grant or site-flag action. Legacy Production remains pinned.
 
 Status: IMPLEMENTED + TESTED + branch-only PR_READY.
+
+## Addendum — interactive research tree and centered actions (branch `claude/2029-life-journey-tree-20261026`, stacked on `15a6a43`)
+
+Review of `15a6a43` found no structural blocker (display-only diff; no provider/transport/System Frame/engine file touched), so the tree followed immediately.
+
+- `LifeJourneyTree2029.jsx` + `life-journey-tree-2029.css`: the "מפת־על" panel opens with one research tree. People come from the existing `generations` and `coverage` projections (parent → child, each person once). A node expands to branches: שם → matrix, תאריך → time gates, משפחה → generations, Human Design / שמיים → birth studio lens, ELS → a visible, disabled "ממתין לחיבור". A branch only calls the existing `selectMap(tab, {memberRef, lens})`. No new store, graph or engine; no research, Raziel, ELS or chart calculation is started.
+- Action alignment (`person-journey.css` §11–12): primary actions are centered at a shared width; member and selection actions are equal-width grids; the hero action is full width and centered on mobile.
+- Tests added to the typography browser test: one tree for person + family, child under parent, ELS disabled, date/sky branches keep the focused person, return keeps the open node, call counters unchanged across tree navigation, primary buttons centered within 2px. The typography audit also scans the tree.
+- Results: both browser tests PASS; Life Journey 77/77; Raziel/session 51/51; normal and integrated Preview builds, auth guard, isolation, Legacy lock, cheap hardening, built graph (73,263 gzip bytes recovered ≥ 12,288) and `diff --check` PASS.
+
+Status: IMPLEMENTED + TESTED + branch-only PR_READY. No Preview, merge, Production, DB/RLS or site-flag action.

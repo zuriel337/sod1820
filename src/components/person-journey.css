@@ -1104,3 +1104,26 @@
 .person-journey.is-2029:not(#pj-v2) .person-journey-maps-loading small {
     font-size: var(--s29-type-small,15px)
 }.person-journey.is-2029:not(#pj-v2) .person-journey-member-verified{color:var(--s29-success,var(--pj-accent-text));font-weight:650}
+
+/* 11. Action alignment: buttons share one centered, equal-width rhythm.
+   Primary actions are centered; button rows are equal-width grids; secondary notes center under them. */
+.person-journey.is-2029:not(#pj-v2) :is(button,.person-journey-primary,.person-journey-login a){display:inline-flex;align-items:center;justify-content:center;text-align:center}
+.person-journey.is-2029:not(#pj-v2) :is(.person-journey-actions,.person-journey-family-research-actions,.person-journey-family-analysis-actions){display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:10px;text-align:center}
+.person-journey.is-2029:not(#pj-v2) :is(.person-journey-actions,.person-journey-family-research-actions,.person-journey-family-analysis-actions)>:is(button,.person-journey-primary){width:min(100%,360px)}
+.person-journey.is-2029:not(#pj-v2) .person-journey-hero-status{justify-content:space-between}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;width:100%}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-actions>button{width:100%}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-scope footer{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:10px}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-scope footer>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:min(100%,420px)}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-form{align-items:end}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-form>button{justify-self:center;width:min(100%,360px)}
+@media (max-width:640px){
+  .person-journey.is-2029:not(#pj-v2) .person-journey-hero-status{display:grid;justify-items:center;text-align:center}
+  .person-journey.is-2029:not(#pj-v2) .person-journey-hero-status>.person-journey-primary{width:100%}
+  .person-journey.is-2029:not(#pj-v2) .person-journey-identity{justify-content:center}
+}
+
+/* 12. Research tree: nodes are full-width rows and branches are a grid, not Legacy pills. */
+.person-journey.is-2029:not(#pj-v2) button.life-tree__toggle{display:flex;flex-wrap:wrap;justify-content:space-between;width:100%;border:0;border-radius:0;background:transparent;padding:8px 14px;text-align:start}
+.person-journey.is-2029:not(#pj-v2) button.life-tree__branch{display:grid;justify-items:center;align-content:center;border-radius:14px;padding:6px 10px;background:var(--pj-panel)}
+.person-journey.is-2029:not(#pj-v2) .life-tree__name{flex:1 1 9ch}
