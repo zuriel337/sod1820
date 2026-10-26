@@ -1,3 +1,5 @@
+import { AHAVAT_LETTER_COVERAGE } from "./ahavatTorahLetters2029.js";
+
 export const AHAVAT_TORAH_SOURCE = Object.freeze({
   identity: "book:hebrewbooks:5635",
   title: "ספר אהבת תורה",
@@ -10,6 +12,7 @@ export const AHAVAT_TORAH_SOURCE = Object.freeze({
   datasetCount: 13,
   researchBundleUrl: "/book-data/ahavat-torah.tables.json",
   pageTextBundleUrl: "/book-data/ahavat-torah.page-text.json",
+  commentaryBundleUrl: "/book-data/ahavat-torah.commentary.json",
   pdfUrl: "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_5635.pdf",
   catalogUrl: "https://hebrewbooks.org/5635",
 });
@@ -97,20 +100,36 @@ export const AHAVAT_TORAH_EXTRACTION_LAYERS = Object.freeze([
 ]);
 
 export const AHAVAT_TORAH_DATASETS = Object.freeze([
-  Object.freeze({ id: "DS-01", title: "מופעי שם ה׳ בתורה", total: "1,820", pages: [6], state: "closed", truthState: "source_verified", summary: "ספירה לפי פרשה וסיכומי חומשים; סכום חמשת החומשים נסגר חשבונית.", nextStep: "אימות שיטתי של כל תאי הפרשות מול מקור מוגדר." }),
-  Object.freeze({ id: "DS-02", title: "מופעי כל אחת מכ״ב האותיות", total: "סכומים לכל אות", pages: [36, 37, 38, 39, 40, 41], state: "partial", truthState: "source_located", summary: "טבלה נפרדת לכל אות, לפי פרשה וחומש; קיימות קריאות תא לא מוכרעות.", nextStep: "הכרעת האותיות והספרות העמומות וסגירת סכומי הביניים." }),
+  Object.freeze({ id: "DS-01", title: "מופעי שם ה׳ בתורה", total: "1,820", pages: [6], state: "closed", truthState: "source_verified", summary: "כל 54 שורות הפרשות נסגרות לחמשת סיכומי החומשים ול־1,820 בדברי הספר.", nextStep: "הרחבת ההסבר על שיטת המחבר וקישור למבנים המקבילים בספר." }),
+  Object.freeze({ id: "DS-02", title: "אותיות התורה וצורותיהן", total: "28 צורות בדפוס", pages: [35, 36, 37, 38, 39, 40, 41], state: "partial", truthState: "source_located", summary: `כל ${AHAVAT_LETTER_COVERAGE.forms} צורות האותיות נפתחות כטבלאות של 54 פרשות — ${AHAVAT_LETTER_COVERAGE.rows.toLocaleString("en-US")} שורות לצד המקור. אפשר לחפש, לייצא ולהציג את המבנה בתלת־ממד.`, nextStep: `בפרטי המקור: ${AHAVAT_LETTER_COVERAGE.unresolvedRows} תאי פרשות ו־${AHAVAT_LETTER_COVERAGE.unresolvedCheckpoints} סיכומים מצטברים טרם הוכרעו, ופערי קריאה נשמרים בלי התאמה מלאכותית לסכום.` }),
   Object.freeze({ id: "DS-03", title: "מספר תיבות התורה", total: "79,976", pages: [25, 26, 27, 28, 29, 30, 31, 41, 42], state: "closed", truthState: "source_verified", summary: "סך המחבר מופיע בשני מוקדי מקור נפרדים בתוך הספר.", nextStep: "השוואה לקורפוס מוגדר בלי לשנות את מעמד טענת המקור." }),
-  Object.freeze({ id: "DS-04", title: "מספר אותיות התורה", total: "≈304,812", pages: [41, 42], state: "partial", truthState: "candidate", summary: "סך כולל מועמד; הקריאה הכללית נתמכת אך הספרה האחרונה עדיין דורשת הכרעה.", nextStep: "בדיקת התיבה המסכמת בהגדלה וסגירת הפער החד־ספרתי." }),
+  Object.freeze({ id: "DS-04", title: "מספר אותיות התורה", total: "304,812", pages: [41, 42], state: "partial", truthState: "source_verified", summary: "סיכום המחבר נקרא ישירות בצילום: ש״ד אלף תתי״ב — 304,812. הסך הוכרע; חילוץ כל שורות הפרשות עדיין חלקי.", nextStep: "השלמת שורות הפרשות והסיכומים המצטברים, לצד צילום המקור בעמוד 42." }),
   Object.freeze({ id: "DS-05", title: "אוריין תליתאי · אנשים וייחוסים", total: "79,976 תיבות", pages: [25, 26, 27, 28, 29, 30, 31], state: "open", truthState: "open", summary: "טבלת ייחוס כפולה: מספר הופעות ומספר תיבות לכל אדם או קבוצה.", nextStep: "השלמת כל השורות והפרדת שני המדדים לאורך הטבלה." }),
-  Object.freeze({ id: "DS-06", title: "מופעי מילה או שורש לאורך פרשות", total: "טרם נקבע", pages: [70, 71], state: "partial", truthState: "source_located", summary: "טבלת מופעים רחבה שנצפתה מתרומה ועד האזינו; גבולותיה עדיין אינם סגורים.", nextStep: "זיהוי מדויק של מילת הספירה וקריאת סוף הטבלה." }),
-  Object.freeze({ id: "DS-07", title: "שרשרת מסירת טהרת פרה אדומה", total: "37", pages: [78], state: "open", truthState: "open", summary: "ספירת ל״ז שורות או דורות במסורת מסירה המיוחסת לסנהדרין.", nextStep: "הכרעת יחידת הספירה והיקף הרשימה במקור." }),
-  Object.freeze({ id: "DS-08", title: "השוואת תיבות התוכחה", total: "טרם הושלם", pages: [90], state: "open", truthState: "open", summary: "השוואה מספרית בין ברכות וקללות בפרשת כי תבוא.", nextStep: "קריאת כל הערכים והגדרת גבולות הקטעים המושווים." }),
+  Object.freeze({ id: "DS-06", title: "מופעי השם משה בתורה", total: "647 · בדברי הספר", pages: [70], state: "partial", truthState: "source_located", summary: "סיכום המחבר הוא 647 מופעי משה. עשר פרשות ספר שמות נקראו מחדש ונסגרות ל־290; סיכומי ארבעת החומשים נגישים לצד המקור.", nextStep: "קריאה מחודשת של יתר שורות הפרשות וצורות השם, תוך שימור התעתיק הקודם בנפרד." }),
+  Object.freeze({ id: "DS-07", title: "שרשרת מסירת טהרת פרה אדומה", total: "איתור להמשך", pages: [], state: "unknown", truthState: "open", summary: "נושא ממפת המחקר ההיסטורית שמראה־המקום שלו עדיין בבירור. הדיון במסורת המסירה נשמר להמשך קריאה, בלי לייחסו לעמוד שלא אומת.", nextStep: "איתור מחדש של הקטע, ורק לאחריו הכרעת יחידת הספירה והיקף הרשימה.", locatorReview: Object.freeze({ previousEstimate: 78, reviewedRange: [71, 80], note: "ההערכה הישנה הייתה עמוד 78; בדיקת הטווח המאוחרת לא איתרה את השרשרת. אין עמוד מקור מדויק מוכרע." }) }),
+  Object.freeze({ id: "DS-08", title: "השוואת תיבות התוכחה", total: "איתור להמשך", pages: [], state: "unknown", truthState: "open", summary: "נושא ממפת המחקר ההיסטורית שמקומו טרם הוכרע. נבדיל בין דיון בתוכחה לבין טבלת מניינים, ונציג את הטבלה רק כשתאותר במקור.", nextStep: "יישוב דוחות החיפוש ואיתור קטע מספרי תחום לפני שיוך עמוד או תאים למאגר.", locatorReview: Object.freeze({ previousEstimate: 90, reviewedRange: [81, 99], note: "האיתור המשוער בעמוד 90 לא אושר. דוחות החיפוש המאוחרים לא מצאו את הטבלה המספרית בטווח 81–99; אין זו טענה שהנושא נעדר מכל הספר." }) }),
   Object.freeze({ id: "DS-09", title: "אותיות חמש המגילות", total: "חמש מגילות", pages: [42, 43], state: "open", truthState: "source_located", summary: "מטריצת אותיות לאסתר, שיר השירים, רות, איכה וקהלת.", nextStep: "תעתוק התאים, סכומי המגילות וסכום־העל." }),
   Object.freeze({ id: "DS-10", title: "תיבות חמש המגילות", total: "טרם נקבע", pages: [43], state: "open", truthState: "open", summary: "טבלת תיבות מקבילה לחמש המגילות, שסכומיה עדיין לא נקראו במלואם.", nextStep: "קריאה מלאה והצלבה עם טבלת האותיות הסמוכה." }),
   Object.freeze({ id: "DS-11", title: "רשימת השרשים בתורה", total: "1,820", pages: [30, 31, 32, 33, 34, 35], state: "open", truthState: "source_located", summary: "רשימת שרשים שהמחבר מונה; המספר הוא טענת מחבר ולא תוצאת מנוע.", nextStep: "תעתוק הרשימה והכרעת כללי ההכללה והצורות." }),
   Object.freeze({ id: "DS-12", title: "לוח השמטות ותיקונים", total: "רשימה איכותנית", pages: [99], state: "closed", truthState: "source_verified", summary: "תיקוני מהדורת תשמ״ג ושאלות עריכה; זהו מאגר טקסטואלי, לא מספרי.", nextStep: "קישור כל תיקון אל העמוד והנוסח שאליהם הוא מתייחס." }),
-  Object.freeze({ id: "DS-13", title: "מופעי הפועל ״עשה״ לפי פרשה", total: "248 · טענת מקור", pages: [69, 70], state: "unknown", truthState: "candidate", summary: "ספירה שטרם נחקרה לעומק; הזיקה לרמ״ח מצוות נשארת טענת מקור בלבד.", nextStep: "איתור תחילת הטבלה, הגדרת השורש וסגירת כל השורות." }),
+  Object.freeze({ id: "DS-13", title: "מופעי הפועל ״עשה״ לפי פרשה", total: "248 · בדברי הספר", pages: [70], state: "partial", truthState: "source_located", summary: "חמש פרשות המשכן נקראו בעמוד 70, ולאחריהן דיון בצורות הפועל ובהשמטות. סיום המחבר הוא רמ״ח — 248; מנייני הפרשות מוצגים בנפרד.", nextStep: "תעתוק כל צורות הפועל וההשמטות וקישורן למנייני הפרשות, בלי לערבב בין שלבי הספירה." }),
 ]);
+
+// An unresolved locator must not navigate to an old estimate or invent a page.
+export function ahavatDatasetSourcePage(dataset, currentPage = 6) {
+  const valid = value => Number.isInteger(value) && value >= 1 && value <= AHAVAT_TORAH_SOURCE.pdfPages;
+  return dataset?.pages?.find(valid) || (valid(currentPage) ? currentPage : 6);
+}
+
+export function ahavatCurrentOccurrenceReading(table) {
+  const reading = table?.current_reading;
+  if (reading?.source_identity !== AHAVAT_TORAH_SOURCE.identity
+    || reading?.source_pdf_sha256 !== "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b"
+    || reading?.pdf_page !== 70 || reading?.source_anchor !== "#page=70&view=FitH"
+    || !Array.isArray(reading?.rows) || !reading.rows.length || !reading.rows.every(row => row.pdf_page === 70 && Number.isSafeInteger(row.decimal) && row.decimal >= 0 && typeof row.printed === "string" && row.printed)
+    || !Array.isArray(reading.book_totals) || !reading.book_totals.every(book => book.pdf_page === 70 && Number.isSafeInteger(book.decimal) && book.decimal >= 0)) return null;
+  return reading;
+}
 
 export const AHAVAT_TORAH_DEEP_PAGES = Object.freeze([
   { page: 1, printed: null, section: "שער הספר", blocks: 5, tables: 0, unresolved: 0, depth: "זהות ביבליוגרפית" },
@@ -135,7 +154,7 @@ export const AHAVAT_TORAH_AI_EXPLANATIONS_HE = Object.freeze({
   copy_corner_ad: "מודעת בית דפוס מן ההדפסה המאוחרת. זהו חומר ביבליוגרפי, לא טקסט מן המהדורה המקורית של תרס״ה.",
   biegeleisen_ad: "פרטי מכירה והפצה של ההדפסה המאוחרת. המערכת מפרידה אותם מתוכן הספר ומזהות המחבר.",
   opening_declaration: "המחבר פותח בדברי הרמב״ם על אזכורי השם בתפילין ובדברי מגלה עמוקות על חשיבות מניין השם. מכאן הוא מסביר מדוע יצא לספור את מופעי שם ה׳ בכל התורה.",
-  per_parasha_tetragrammaton_table: "טבלה צפופה המונה את מופעי שם ה׳ בכל פרשה ומסכמת כל חומש. סכומי החומשים נסגרים ל־1,820, אך כמה תאי פרשות עדיין דורשים הכרעת ספרות מדויקת.",
+  per_parasha_tetragrammaton_table: "טבלה צפופה המונה את מופעי שם ה׳ בכל פרשה ומסכמת כל חומש. קריאת כל 54 השורות נסגרת לחמשת סיכומי החומשים ול־1,820 המודפס בספר.",
   beha_bram_hey_discourse: "דיון בדרשת ״בהבראם — בה׳ בראם״ ובקשרים בין בריאה, חכמה וכתר. המחבר בונה שרשרת של פסוקים וגימטריות; ההסבר כאן מתאר את מהלך הטיעון ואינו מאשר את מסקנותיו.",
   man_90_letters_section: "יחידה חדשה שכותרתה ״מן״ וקושרת מניין אותיות למוטיב של הדורות שקדמו למתן תורה. המספר המרכזי אינו נקרא בוודאות בשכבה הנוכחית.",
   hateivah_section: "דיון ארוך על המילה ״תיבה״, שמות ה׳ ומידות התיבה, ובהמשך הקבלות בין מבנה הגוף, התפילה וארבעת העולמות. זוהי פרפרזה מסייעת לקריאה לצד המקור.",
@@ -192,10 +211,10 @@ export const AHAVAT_TORAH_FINDINGS = Object.freeze([
     explanation: "החזרה על אותו סך בשתי יחידות טקסטואליות מחזקת את הקריאה של נתון המחבר. היא אינה מבטלת את הצורך לתעד את גבול המילה ואת נוסח הקורפוס.",
   }),
   Object.freeze({
-    id: "torah-letters-candidate", dataset: "DS-04", title: "אותיות התורה · קריאה מועמדת", value: "≈304,812", page: 41, pages: [41, 42], status: "candidate", calculation: "not_closed",
-    formula: "קריאת מקור מועמדת · הספרות האחרונות דורשות הכרעה",
-    sourceNote: "העוגן אותר, אך בשכבת החומר הזו הסך אינו מסומן כסגור.",
-    explanation: "המערכת משאירה את סימן הקירוב בכותרת ולא הופכת התאמה כמעט־מלאה לאימות. השלב הבא הוא הכרעת עדות מדויקת ואז השוואה לקורפוס מוגדר.",
+    id: "torah-letters-candidate", dataset: "DS-04", title: "אותיות התורה · סיכום המחבר", value: "304,812", page: 42, pages: [41, 42], status: "source_verified", calculation: "קריאת סיכום בדפוס",
+    formula: "ש״ד אלף תתי״ב · PDF 42, סוף הטור השמאלי",
+    sourceNote: "הסך נקרא בצילום המוגדל של אותו PDF. הקריאה הקודמת בסימן קירוב נשמרת בדוסייה ההיסטורי; זהות הפריט לא שונתה. לא בוצעה ספירת קורפוס עצמאית.",
+    explanation: "המחבר מסכם כאן את מניין אותיות התורה, לאחר רצף הפרשות וחמשת החומשים. בדפוס ש״ד מציין 304 אלפים, ותתי״ב מציין 812: הסיכום הנקרא הוא 304,812. זו הצגת דברי הספר; השלמת שורות הפרשות היא שכבת חילוץ נפרדת.",
   }),
   Object.freeze({
     id: "five-megillot", dataset: "DS-09", title: "אותיות חמש המגילות", value: "5", page: 42, pages: [42, 43], status: "source_located", calculation: "open",
@@ -217,4 +236,12 @@ export function sectionForPage(page) {
   return AHAVAT_TORAH_SECTIONS.find(section => section.page === page)
     || AHAVAT_TORAH_SECTIONS.find(section => page >= section.range[0] && page <= section.range[1])
     || AHAVAT_TORAH_SECTIONS[0];
+}
+
+export function ahavatCompanionPage(bundle, page) {
+  if (!Number.isInteger(page) || page < 1 || page > AHAVAT_TORAH_SOURCE.pdfPages
+    || bundle?.schema_version !== "ahavat-torah-commentary.v1"
+    || bundle?.source_identity !== AHAVAT_TORAH_SOURCE.identity || bundle?.display_label !== "הסבר נלווה") return null;
+  const item = bundle.pages?.find(record => record.pdf_page === page);
+  return item?.source_anchor === `#page=${page}&view=FitH` && typeof item.companion_explanation === "string" && item.companion_explanation.trim() ? item : null;
 }

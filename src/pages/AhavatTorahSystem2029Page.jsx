@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
@@ -12,12 +12,19 @@ import {
   AHAVAT_TORAH_SECTIONS,
   AHAVAT_TORAH_SOURCE,
   AHAVAT_TORAH_TRUTH_STATES,
+  ahavatCompanionPage,
+  ahavatCurrentOccurrenceReading,
+  ahavatDatasetSourcePage,
   hebrewBlockKind,
   readingArcForPage,
   sectionForPage,
 } from "../data/ahavatTorahSystem2029.js";
 import { applySeo } from "../lib/seo.js";
+import { AHAVAT_DS01_BOOKS, AHAVAT_DS01_SOURCE_PAGE, AHAVAT_DS01_TOTAL, ahavatDs01RowSum } from "../data/ahavatTorahDs01Source2029.js";
+import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterForm, ahavatLetterRows, ahavatLetterBalance, ahavatLetterNumber, ahavatLetterBars, ahavatLetterCsv, ahavatLetterSourcePage, ahavatLetterSourceFragments } from "../data/ahavatTorahLetters2029.js";
 import "./ahavatTorahSystem2029.css";
+
+const AhavatTorahSpatialScene2029 = lazy(() => import("../components/books2029/AhavatTorahSpatialScene2029.jsx"));
 
 function requestedPage() {
   if (typeof window === "undefined") return 6;
@@ -165,14 +172,344 @@ function DatasetCatalog({ selectedId, onSelect }) {
         <strong>{dataset.title}</strong>
         <b>{dataset.total}</b>
         <p>{dataset.summary}</p>
-        <footer><span>PDF {dataset.pages.join(" · ")}</span><em>פתח מקור ופרטים ←</em></footer>
+        <footer><span>{dataset.pages.length ? `PDF ${dataset.pages.join(" · ")}` : "מראה־המקום בבירור"}</span><em>{dataset.pages.length ? "פתח מקור ופרטים ←" : "פרטי האיתור ←"}</em></footer>
       </button>)}
     </div>
     {selected ? <article className="ahavat29-dataset-detail" aria-live="polite">
-      <div><span>{selected.id} · {selected.pages.length} עמודי מקור</span><h3>{selected.title}</h3><p>{selected.summary}</p></div>
+      <div><span>{selected.id} · {selected.pages.length ? `${selected.pages.length} עמודי מקור` : "מראה־המקום בבירור"}</span><h3>{selected.title}</h3><p>{selected.summary}</p></div>
       <section><span>השלב הבא למאגר הזה</span><p>{selected.nextStep}</p></section>
-      <button type="button" onClick={() => onSelect(selected)}>פתח PDF בעמוד {selected.pages[0]}</button>
+      {selected.pages.length ? <button type="button" onClick={() => onSelect(selected)}>פתח PDF בעמוד {selected.pages[0]}</button> : <details className="ahavat29-source-details"><summary>פרטי המקור והאיתור</summary><p>{selected.locatorReview?.note}</p><p>ה־PDF נשאר פתוח בעמוד הנוכחי.</p></details>}
     </article> : null}
+  </section>;
+}
+
+const SPATIAL_TABS = Object.freeze([
+  { id: "datasets", label: "מאגרי הספר", count: 13 },
+  { id: "letters", label: "טבלת האותיות", count: 187 },
+  { id: "moses", label: "מופעי משה", count: 10 },
+  { id: "aseh", label: "מופעי עשה", count: 5 },
+  { id: "calculations", label: "חישובים", count: 7 },
+  { id: "families", label: "משפחות 1,820", count: 9 },
+  { id: "contradictions", label: "פערים במקור", count: 10 },
+]);
+
+const DATASET_STATE_LABELS = Object.freeze({
+  closed: "סגור במקור",
+  partial: "חלקי",
+  open: "פתוח לקריאה",
+  unknown: "טרם הוכרע",
+});
+
+function sourceStateLabel(value = "") {
+  if (/^CLOSED/.test(value)) return "סגור בשכבת המקור";
+  if (/^PARTIAL/.test(value)) return "שכבה חלקית";
+  if (/^OPEN/.test(value)) return "פתוח לקריאה";
+  if (/SOURCE_VERIFIED|VISUALLY_VERIFIED/.test(value)) return "נבדק מול המקור";
+  if (/UNCERTAIN/.test(value)) return "קריאה לא מוכרעת";
+  if (/UNKNOWN|UNRESOLVED/.test(value)) return "טרם הוכרע";
+  if (/SUBSTANTIALLY RESOLVED/.test(value)) return "נפתר ברובו";
+  if (/ARITHMETIC_VERIFIED/.test(value)) return "החשבון נבדק";
+  if (/SOURCE CLAIM|AUTHOR_COUNT/.test(value)) return "דברי הספר";
+  return value || "לא צוין";
+}
+
+function visibleBook(value = "") {
+  if (value === "unclear") return "לא ברור במקור";
+  if (value === "-") return "לא משויך לחומש";
+  return value || "—";
+}
+
+function exactPage(value, fallback = 6) {
+  const page = Number(value);
+  return Number.isInteger(page) && page >= 1 && page <= AHAVAT_TORAH_SOURCE.pdfPages ? page : fallback;
+}
+
+function visibleLetter(value = "") {
+  const hebrew = value.match(/[א-ת][א-ת״׳]?/u)?.[0];
+  if (!hebrew) return "—";
+  return /candidate|SUSPECT|uncertainty/i.test(value) ? `${hebrew} · קריאה מועמדת` : hebrew;
+}
+
+function SpatialDatasetLegend({ selectedId, onSelect }) {
+  return <div className="ahavat29-spatial-legend" role="list" aria-label="שלושה עשר מאגרי הספר">
+    {AHAVAT_TORAH_DATASETS.map(dataset => <button
+      type="button"
+      role="listitem"
+      key={dataset.id}
+      className={`is-${dataset.state} ${selectedId === dataset.id ? "is-active" : ""}`}
+      aria-pressed={selectedId === dataset.id}
+      onClick={() => onSelect(dataset)}
+    >
+      <span>{dataset.id}</span>
+      <strong>{dataset.title}</strong>
+      <small>{dataset.pages.length ? `${dataset.pages.length} עמודי מקור` : "מראה־המקום בבירור"} · {DATASET_STATE_LABELS[dataset.state]}</small>
+    </button>)}
+  </div>;
+}
+
+function DatasetTable({ selectedId, onSelect }) {
+  return <div className="ahavat29-data-table-wrap">
+    <table className="ahavat29-data-table">
+      <thead><tr><th>מאגר</th><th>נושא</th><th>תוצאה בדברי הספר</th><th>עמודי מקור</th><th>מצב</th><th><span className="sr-only">פעולה</span></th></tr></thead>
+      <tbody>{AHAVAT_TORAH_DATASETS.map(dataset => <tr key={dataset.id} className={selectedId === dataset.id ? "is-active" : ""}>
+        <td><b>{dataset.id}</b></td><td>{dataset.title}</td><td>{dataset.total}</td><td>{dataset.pages.length ? dataset.pages.join(" · ") : "מראה־המקום בבירור"}</td><td>{DATASET_STATE_LABELS[dataset.state]}</td>
+        <td><button type="button" onClick={() => onSelect(dataset)}>{dataset.pages.length ? `פתח PDF ${dataset.pages[0]}` : "פרטי האיתור"}</button></td>
+      </tr>)}</tbody>
+    </table>
+  </div>;
+}
+
+function OccurrenceTable({ table, kind, onPage }) {
+  const [query, setQuery] = useState("");
+  const [limit, setLimit] = useState(36);
+  const currentReading = ahavatCurrentOccurrenceReading(table);
+  const rows = table?.current_reading ? currentReading?.rows || [] : table?.rows || [];
+  const normalized = normalizeSearch(query);
+  const filtered = useMemo(() => rows.filter(row => !normalized || normalizeSearch(Object.values(row).filter(value => typeof value === "string" || typeof value === "number").join(" ")).includes(normalized)), [normalized, rows]);
+  const visibleRows = filtered.slice(0, limit);
+  const letters = kind === "letters";
+
+  useEffect(() => setLimit(36), [kind, query]);
+
+  return <div className="ahavat29-occurrence">
+    {table?.current_reading && !currentReading ? <p role="alert">הקריאה המעודכנת אינה תואמת לעד המקור. ה־PDF נשאר זמין.</p> : null}
+    {(currentReading?.summary_he || table?.summary_he) ? <div className="ahavat29-ds01-guide"><strong>{currentReading?.title_he || table.title}</strong><p>{currentReading?.summary_he || table.summary_he}</p><div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(70)}>פתח מקור הקריאה · PDF 70</button></div></div> : null}
+    <div className="ahavat29-table-tools">
+      <label><span>חיפוש בתוך הטבלה</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={letters ? "אות, פרשה, חומש או מספר" : "פרשה, חומש או מספר"} /></label>
+      <strong>{filtered.length} שורות</strong>
+    </div>
+    <div className="ahavat29-data-table-wrap">
+      <table className="ahavat29-data-table">
+        <thead>{letters
+          ? <tr><th>אות</th><th>פרשה</th><th>חומש</th><th>ערך</th><th>מצב קריאה</th><th>מקור</th></tr>
+          : <tr><th>חומש</th><th>פרשה</th><th>בדברי הספר</th><th>ערך</th><th>מצב קריאה</th><th>מקור</th></tr>}
+        </thead>
+        <tbody>{visibleRows.map((row, index) => {
+          const page = exactPage(row.pdf_page, table?.pdf_pages?.[0] || 6);
+          return letters ? <tr key={`${row.pdf_page}-${row.letter}-${row.parasha}-${index}`}>
+            <td><b>{visibleLetter(row.letter)}</b></td><td>{row.parasha || "—"}</td><td>{visibleBook(row.book)}</td><td>{row.normalized_integer || row.source_value || "—"}</td><td>{sourceStateLabel(row.verification_state)}</td>
+            <td><button type="button" onClick={() => onPage(page)}>PDF {page}</button></td>
+          </tr> : <tr key={`${row.sefer}-${row.parasha}-${index}`}>
+            <td>{row.sefer || "—"}</td><td>{row.parasha || "—"}</td><td>{row.printed || "—"}</td><td>{row.decimal ?? "—"}</td><td>{sourceStateLabel(row.confidence)}</td>
+            <td><button type="button" onClick={() => onPage(exactPage(table?.pdf_pages?.[0], 70))}>PDF {table?.pdf_pages?.[0] || 70}</button></td>
+          </tr>;
+        })}</tbody>
+      </table>
+    </div>
+    {limit < filtered.length ? <button className="ahavat29-show-more" type="button" onClick={() => setLimit(value => value + 36)}>הצג עוד 36 שורות</button> : null}
+    {!filtered.length ? <p className="ahavat29-table-empty">לא נמצאה התאמה בטבלה.</p> : null}
+    <details className="ahavat29-source-details"><summary>פרטי המקור</summary><p>{table?.title}</p><p>עמודי PDF: {(table?.pdf_pages || []).join(" · ")}</p><p>מצב השכבה: {sourceStateLabel(table?.status)}</p>
+      {(currentReading?.source_note_he || table?.source_note_he) ? <p>{currentReading?.source_note_he || table.source_note_he}</p> : null}
+      {currentReading?.book_totals ? <ul>{currentReading.book_totals.map(book => <li key={book.sefer}>{book.sefer}: {book.printed} = {book.decimal}</li>)}</ul> : null}
+      {currentReading ? <details className="ahavat29-machine-text"><summary>תעתיק קודם · {table.rows.length} שורות</summary><p>קריאות מוקדמות נשמרות לתיעוד; אינן מחליפות את הקריאה המחודשת מול ה־PDF.</p><pre>{table.rows.map(row => `${row.sefer} · ${row.parasha} · ${row.printed || "לא מודפס"} · ${row.decimal}`).join("\n")}</pre></details> : null}
+    </details>
+  </div>;
+}
+
+function ResearchCards({ kind, records = [], onPage }) {
+  return <div className={`ahavat29-research-cards is-${kind}`}>
+    {records.map((record, index) => {
+      const pages = record.pdf_pages || [];
+      const page = exactPage(pages[0]);
+      if (kind === "calculations") return <article key={record.calculation_id}>
+        <header><span>{record.calculation_id}</span><b>{sourceStateLabel(record.confidence)}</b></header>
+        <strong>{record.output}</strong>
+        <p>{(record.intermediate_values || []).join(" · ")}</p>
+        <footer><small>{sourceStateLabel(record.truth_class)}</small><button type="button" onClick={() => onPage(page)}>פתח PDF {page}</button></footer>
+      </article>;
+      if (kind === "families") return <article key={`family-${record.n}`}>
+        <header><span>{String(record.n).padStart(2, "0")}</span><b>מבנה מתוך הספר</b></header>
+        <strong>{record.construction}</strong>
+        <p>{sourceStateLabel(record.truth_class)}</p>
+        <footer><small>עמודי מקור {pages.join(" · ")}</small><button type="button" onClick={() => onPage(page)}>פתח PDF {page}</button></footer>
+      </article>;
+      return <article key={record.id || index}>
+        <header><span>{record.id}</span><b>{sourceStateLabel(record.status)}</b></header>
+        <strong>{record.conflict}</strong>
+        <p>פער מתועד: {record.delta}</p>
+        <footer><small>הפער נשמר כפי שנמצא ואינו מתוקן אוטומטית.</small><button type="button" onClick={() => onPage(page)}>פתח PDF {page}</button></footer>
+      </article>;
+    })}
+  </div>;
+}
+
+function DivineNameSourceModel({ onPage }) {
+  const [activeId, setActiveId] = useState("bereshit");
+  const [showScene, setShowScene] = useState(false);
+  const active = AHAVAT_DS01_BOOKS.find(book => book.id === activeId) || AHAVAT_DS01_BOOKS[0];
+  const selectBook = id => {
+    setActiveId(id);
+    onPage(AHAVAT_DS01_SOURCE_PAGE);
+  };
+
+  return <section className="ahavat29-ds01" aria-labelledby="ahavat29-ds01-title">
+    <header>
+      <div><span>מגדל עוז · דברי הספר · PDF 6</span><h3 id="ahavat29-ds01-title">מניין שם ה׳ בחמשת החומשים</h3></div>
+      <strong>{AHAVAT_DS01_TOTAL.toLocaleString("en-US")}</strong>
+    </header>
+    <p className="ahavat29-ds01-guide"><b>הסבר נלווה:</b> המחבר פותח בשאלה כמה פעמים נזכר השם בתורה, מונה לפי פרשות ומסכם כל חומש. חמשת הסיכומים המודפסים נותנים יחד 1,820. זהו המניין המובא בספר; ההמחשה מציגה אותו כפי שנדפס.</p>
+    <div className="ahavat29-ds01-equation" aria-label="סכום חמשת החומשים">
+      {AHAVAT_DS01_BOOKS.map((book, index) => <React.Fragment key={book.id}>{index > 0 ? <span aria-hidden="true">+</span> : null}<button type="button" className={activeId === book.id ? "is-active" : ""} onClick={() => selectBook(book.id)}><small>{book.title}</small><strong>{book.count}</strong></button></React.Fragment>)}
+      <span aria-hidden="true">=</span><b>1,820</b>
+    </div>
+    <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מבנה תלת־ממדי" : "פתח מבנה תלת־ממדי"}</button><button type="button" onClick={() => onPage(AHAVAT_DS01_SOURCE_PAGE)}>פתח את דברי הספר · PDF 6</button></div>
+    {showScene ? <div className="ahavat29-ds01-scene"><Suspense fallback={<p role="status">טוען את מבנה חמשת החומשים…</p>}><AhavatTorahSpatialScene2029 mode="ds01" activeId={activeId} onSelect={selectBook} /></Suspense><small>גובה = המניין המודפס לכל חומש · לחיצה פותחת את עמוד המקור</small></div> : null}
+    <div className="ahavat29-ds01-detail" aria-live="polite"><div><span>{active.title} · {active.printed} בדברי הספר</span><strong>{active.count} מופעים בסיכום המודפס</strong><p>{active.reading === "closed" ? `קריאת הפרשות נסגרת לסיכום החומש: ${ahavatDs01RowSum(active)}.` : `תעתיק מועמד של הפרשות: ${ahavatDs01RowSum(active)}. הסיכום המודפס: ${active.count}. הפרש: ${ahavatDs01RowSum(active) - active.count}. ${active.note}`}</p></div><button type="button" onClick={() => onPage(AHAVAT_DS01_SOURCE_PAGE)}>ראה PDF 6</button></div>
+    <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><thead><tr><th>פרשה</th><th>{active.reading === "closed" ? "המניין שנקרא בספר" : "תעתיק מועמד של המניין"}</th><th>מקור</th></tr></thead><tbody>{active.rows.map(([name, count]) => <tr key={name}><td>{name}</td><td><b>{count}</b></td><td><button type="button" onClick={() => onPage(AHAVAT_DS01_SOURCE_PAGE)}>PDF 6</button></td></tr>)}</tbody></table></div>
+    <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>אהבת תורה, חלק א׳, עמוד מודפס א׳, PDF 6. המניין הוא טענת המחבר. לאחר תיקון שלוש קריאות מספריות מול צילום העמוד, 54 שורות הפרשות נסגרות חשבונית לחמשת הסיכומים המודפסים; לא בוצעה כאן ספירת קורפוס עצמאית.</p></details>
+  </section>;
+}
+
+function LetterSectionTranscript({ source, onPage }) {
+  const [bundle, setBundle] = useState(null);
+  const [state, setState] = useState("loading");
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/book-data/ahavat-torah.letter-sections.json", { signal: controller.signal })
+      .then(response => { if (!response.ok) throw new Error("letter_source_unavailable"); return response.json(); })
+      .then(value => { setBundle(value); setState("ready"); })
+      .catch(error => { if (error.name !== "AbortError") setState("error"); });
+    return () => controller.abort();
+  }, []);
+  const fragments = ahavatLetterSourceFragments(bundle, source.form);
+  return <div className="ahavat29-letter-transcript">
+    <p>קריאת סעיף {source.name} לצד המקור</p>
+    {state === "loading" ? <p role="status">טוען את סעיף האות…</p> : null}
+    {state === "error" || (state === "ready" && !fragments.length) ? <p role="alert">התעתיק לא נטען. סעיף המקור נשאר פתוח לקריאה ב־PDF.</p> : null}
+    {fragments.map((fragment, index) => <details className="ahavat29-machine-text" open key={`${source.form}-${index}`}>
+      <summary>תעתיק לקריאה · PDF {fragment.pdf_page} · {fragment.column === "right" ? "הטור הימני" : "הטור השמאלי"}</summary>
+      <pre dir="rtl">{fragment.text}</pre>
+      <div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(fragment.pdf_page)}>פתח מקור הקטע · PDF {fragment.pdf_page}</button></div>
+    </details>)}
+    <details className="ahavat29-source-details"><summary>פרטי התעתיק</summary><p>התעתיק חולץ מאזור הסעיף בדפוס ונועד לסייע בקריאה ואיתור. הוא אינו ציטוט מאומת, אינו חילוץ מספרי של תאי הטבלה ואינו תוצאת מנוע. אותיות עמומות, סימני הדפוס וספרות נשארו כפי שחולצו ולא תוקנו לפי סכום משוער. חלוקת הטורים ועמודי המעבר נבדקה מול הצילום; מילות שומר־דף מתחת לגוף הטור אינן חלק מן הקטע. ה־PDF נשאר המקור המחייב.</p></details>
+  </div>;
+}
+
+function LetterSourceReader({ onPage }) {
+  const [form, setForm] = useState(() => ahavatLetterForm(new URLSearchParams(window.location.search).get("letter")).form);
+  const [bookId, setBookId] = useState(() => {
+    const id = new URLSearchParams(window.location.search).get("letterBook");
+    return Object.values(AHAVAT_LETTER_READINGS).some(books => books.some(book => book.id === id)) ? id : "all";
+  });
+  const [query, setQuery] = useState("");
+  const [showScene, setShowScene] = useState(false);
+  const [selectedBar, setSelectedBar] = useState("");
+  const source = ahavatLetterForm(form);
+  const books = AHAVAT_LETTER_READINGS[form];
+  const hasReadingGap = books?.some(book => { const delta = ahavatLetterBalance(book).delta; return delta !== null && delta !== 0; });
+  const unresolvedRows = books?.flatMap(book => book.rows).filter(row => row.count === null).length || 0;
+  const unresolvedCheckpoints = books?.some(book => book.count === null || book.cumulative === null);
+  const rows = useMemo(() => ahavatLetterRows(form, bookId, query), [form, bookId, query]);
+  const activeBook = books?.find(book => book.id === bookId);
+  const readingPages = activeBook?.pages || source.pages;
+  const bars = useMemo(() => ahavatLetterBars(form, bookId), [form, bookId]);
+
+  const select = (nextForm, nextBook = bookId) => {
+    setForm(nextForm);
+    setBookId(nextBook);
+    setSelectedBar("");
+    setQuery("");
+    const url = new URL(window.location.href);
+    url.searchParams.set("letter", nextForm);
+    url.searchParams.set("letterBook", nextBook);
+    window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+    onPage(ahavatLetterSourcePage(nextForm, nextBook));
+  };
+
+  const selectBar = id => {
+    if (!activeBook) select(form, id);
+    else { setSelectedBar(id); onPage(ahavatLetterSourcePage(form, bookId, id)); }
+  };
+
+  const downloadRows = () => {
+    const csv = ahavatLetterCsv(form, bookId, query, AHAVAT_TORAH_SOURCE.pdfUrl);
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `ahavat-torah-${form}-${bookId}.csv`;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  return <section className="ahavat29-letters" id="ahavat29-letters" aria-labelledby="ahavat29-letters-title">
+    <header><div><span>סופר ומונה אותיות התורה · דברי הספר</span><h3 id="ahavat29-letters-title">נכנסים אל האותיות</h3></div><strong>28<small>צורות בדפוס</small></strong></header>
+    <p className="ahavat29-ds01-guide"><b>הסבר נלווה:</b> המחבר עובר אות אחר אות, ומונה אותה בכל פרשה. כ״ב האותיות מתפרטות כאן גם לחמש אותיות סופיות ולשׁין ושׂין בנפרד. בחירת צורה פותחת את מקומה המדויק בספר.</p>
+    <nav className="ahavat29-letter-alphabet" aria-label="צורות האותיות בדפוס">{AHAVAT_LETTER_FORMS.map(item => <button type="button" key={item.form} aria-label={item.name} aria-pressed={item.form === form} onClick={() => select(item.form)}><b>{item.form}</b><small>{item.name}</small></button>)}</nav>
+    <div className="ahavat29-letter-location" aria-live="polite"><div><strong>{source.form}</strong><span>{source.name} · {source.pages.length === 1 ? "עמוד מקור אחד" : "הסעיף נמשך לעמוד הבא"}</span></div><div>{source.pages.map(page => <button type="button" key={page} onClick={() => onPage(page)}>פתח PDF {page}</button>)}</div></div>
+    {books ? <>
+      <p className="ahavat29-ds01-guide">לאות {form}׳ מוצגת כאן קריאה של פרשות הספר: <b>{ahavatLetterNumber(books.at(-1).cumulative)}</b> בסיכום הספר. המספר של כל חומש הוא חלקו לפי הסיכומים המודפסים; השורה שמתחתיו מראה עד היכן הגיע הסכום המצטבר.</p>
+      <div className="ahavat29-letter-checkpoints" aria-label={`מניין ${source.name} לפי חומש`}>{books.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}><span>{book.title}</span><strong>{ahavatLetterNumber(book.count)}</strong><small>מצטבר {ahavatLetterNumber(book.cumulative)}</small></button>)}</div>
+      <nav className="ahavat29-letter-books" aria-label={`בחירת חומש באות ${source.name}`}><button type="button" aria-pressed={bookId === "all"} onClick={() => select(form, "all")}>כל התורה</button>{books.map(book => <button type="button" key={book.id} aria-pressed={bookId === book.id} onClick={() => select(form, book.id)}>{book.title}</button>)}</nav>
+      <div className="ahavat29-table-tools"><label><span>חיפוש בפרשות האות</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="פרשה, חומש, מספר או אותיות המניין" /></label><strong aria-live="polite">{rows.length} פרשות</strong></div>
+      <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מבנה האות בתלת־ממד" : "פתח מבנה האות בתלת־ממד"}</button>{readingPages.map(page => <button type="button" key={page} onClick={() => onPage(page)}>המקור המלא · PDF {page}</button>)}<button type="button" disabled={!rows.length} onClick={downloadRows}>הורד טבלה למחקר · {rows.length} שורות</button></div>
+      {showScene ? <div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה האות…</p>}><AhavatTorahSpatialScene2029 mode="letter" letterLabel={source.name} bars={bars} activeId={selectedBar || bookId} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = מספר מופעי {form}׳ {activeBook ? "בכל פרשה" : "בכל חומש"} · לחיצה פותחת את המקור</p></div> : null}
+      <div className="ahavat29-letter-bars" aria-label={`מופעי ${source.name} ${activeBook ? "בפרשות החומש" : "בחומשים"}`}>{bars.map(bar => <button type="button" key={bar.id} aria-pressed={selectedBar === bar.id} onClick={() => selectBar(bar.id)}><span>{bar.label}</span><i style={{ "--letter-share": `${bar.count / Math.max(1, ...bars.map(item => item.count)) * 100}%` }} /><b>{ahavatLetterNumber(bar.count)}</b></button>)}</div>
+      {rows.length ? <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><caption>אות {form}׳ · {activeBook?.title || "כל התורה"} · קריאת דברי הספר</caption><thead><tr><th>פרשה</th><th>חומש</th><th>המניין בדפוס</th><th>מספר</th><th>מקור</th></tr></thead><tbody>{rows.map(row => <tr key={row.parasha}><td>{row.parasha}</td><td>{row.book}</td><td>{row.printed === "?" ? "לא הוכרע" : row.printed}</td><td><b>{ahavatLetterNumber(row.count)}</b></td><td><button type="button" onClick={() => onPage(row.page)}>PDF {row.page}</button></td></tr>)}</tbody></table></div> : <p role="status">לא נמצאה פרשה מתאימה לחיפוש.</p>}
+      <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>PDF {source.pages.join(" · ")}, {AHAVAT_LETTER_READING_LOCATIONS[form]}. השורות נבדקו מול צילום הסעיף. {unresolvedRows || unresolvedCheckpoints ? `${unresolvedRows} תאי פרשות טרם הוכרעו; ערך לא מוכרע אינו אפס ואינו מוצג כעמודה בגרף. סיכום הכולל תא כזה נשאר פתוח.` : "כל 54 תאי הפרשות פוענחו מספרית."} {hasReadingGap ? "נותרו פערים בין קריאת השורות לבין חלק מסיכומי הדפוס; שתי הקריאות נשמרות להכרעה בלי לשנות מספר כדי להתאים לסכום." : !unresolvedRows && !unresolvedCheckpoints ? "חמשת סיכומי הפרשות נסגרים לסיכומים המצטברים המודפסים." : ""} חלקו של חומש מתקבל בהפרש בין שני סיכומים עוקבים. עמודות החומשים מייצגות את סיכומי הספר; עמודות הפרשות מייצגות את קריאת השורות. זו קריאת המניין של המחבר; לא בוצעה ספירת קורפוס עצמאית במנוע.</p><ul>{books.map(book => {
+        const balance = ahavatLetterBalance(book);
+        return <li key={book.id}>{book.title}: {book.printed} = {ahavatLetterNumber(book.cumulative)} מצטבר. חלק החומש לפי הסיכומים: {ahavatLetterNumber(book.count)}; קריאת השורות: {ahavatLetterNumber(balance.rowTotal)}. {balance.delta === null ? "הקריאה המספרית טרם הושלמה." : balance.delta ? `פער קריאה: ${balance.delta}.` : "סכום השורות תואם."}</li>;
+      })}</ul></details>
+    </> : <div className="ahavat29-letter-reading"><p><b>הסבר נלווה:</b> בסעיף {source.name} כל פרשה מקבלת מניין משלה, והמחבר ממשיך בסיכום מצטבר מחומש לחומש. {/[ךםןףץ]/.test(form) ? "הצורה הסופית נכתבת בסעיף עצמאי, ולכן אין לצרף אותה אוטומטית למניין הצורה הרגילה." : form === "שׁ" || form === "שׂ" ? "הדפוס מבחין בין שׁין לשׂין; לכל אחת יש סעיף ומניין משלה." : "אפשר לקרוא את רצף הפרשות ואת סיכום האות במלואם בעמוד המקור."}</p><button type="button" onClick={() => onPage(source.pages[0])}>קרא את סעיף {source.name} בספר · PDF {source.pages[0]}</button><LetterSectionTranscript source={source} onPage={onPage} /></div>}
+  </section>;
+}
+
+function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage }) {
+  const [tab, setTab] = useState("datasets");
+  const [showScene, setShowScene] = useState(false);
+  const selected = AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === selectedId) || AHAVAT_TORAH_DATASETS[0];
+  const occurrenceTables = bundle?.occurrence_tables || [];
+
+  const selectById = id => {
+    const dataset = AHAVAT_TORAH_DATASETS.find(item => item.id === id);
+    if (dataset) onSelect(dataset);
+  };
+
+  return <section className="ahavat29-spatial" aria-labelledby="ahavat29-spatial-title">
+    <header>
+      <div><span>מצפה הנתונים של הספר</span><h2 id="ahavat29-spatial-title">טבלאות שאפשר להיכנס לתוכן</h2></div>
+      <p>התלת־ממד מציג מבנה אמיתי: גובה הוא מספר עמודי המקור, צבע הוא מצב הקריאה, ומאגר שאותר פותח את ה־PDF המדויק.</p>
+    </header>
+
+    <DivineNameSourceModel onPage={onPage} />
+    <LetterSourceReader onPage={onPage} />
+
+    <div className="ahavat29-spatial-key" aria-label="מקרא המצפה">
+      <span><i className="is-height" />גובה = מספר עמודי מקור</span>
+      <span><i className="is-color" />צבע = מצב קריאה</span>
+      <span><i className="is-order" />מיקום = סדר המאגר</span>
+    </div>
+
+    <div className="ahavat29-spatial-stage">
+      <div className="ahavat29-spatial-stage-head">
+        <div><span>המאגר הנבחר</span><strong>{selected.id} · {selected.title}</strong><small>{selected.pages.length ? `${selected.pages.length} עמודי מקור · PDF ${selected.pages.join(" · ")}` : "מראה־המקום בבירור; ה־PDF נשאר פתוח"}</small></div>
+        <button type="button" aria-expanded={showScene} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מצפה תלת־ממדי" : "פתח מצפה תלת־ממדי"}</button>
+      </div>
+      {showScene ? <div className="ahavat29-spatial-scene">
+        <Suspense fallback={<p role="status">טוען את המצפה התלת־ממדי…</p>}>
+          <AhavatTorahSpatialScene2029 datasets={AHAVAT_TORAH_DATASETS} activeId={selected.id} onSelect={selectById} />
+        </Suspense>
+        <span className="ahavat29-spatial-hint">גרירה לסיבוב · גלילה להתקרבות · לחיצה לבחירת מאגר</span>
+      </div> : <div className="ahavat29-spatial-poster"><strong>13</strong><span>מגדלי מקור מוכנים לפתיחה</span><small>המודל נטען רק בלחיצה כדי שהספר וה־PDF יישארו מהירים.</small></div>}
+      <SpatialDatasetLegend selectedId={selected.id} onSelect={onSelect} />
+    </div>
+
+    <nav className="ahavat29-table-tabs" aria-label="טבלאות אהבת תורה">
+      {SPATIAL_TABS.map(item => <button type="button" key={item.id} className={tab === item.id ? "is-active" : ""} aria-pressed={tab === item.id} onClick={() => setTab(item.id)}><span>{item.label}</span><b>{item.count}</b></button>)}
+    </nav>
+
+    <div className="ahavat29-table-panel">
+      {bundleState === "loading" ? <p role="status">טוען את טבלאות הספר…</p> : null}
+      {bundleState === "error" ? <p role="alert">שכבת הטבלאות לא נטענה. ה־PDF המלא נשאר זמין.</p> : null}
+      {bundleState === "ready" && tab === "datasets" ? <DatasetTable selectedId={selected.id} onSelect={onSelect} /> : null}
+      {bundleState === "ready" && tab === "letters" ? <OccurrenceTable table={occurrenceTables[0]} kind="letters" onPage={onPage} /> : null}
+      {bundleState === "ready" && tab === "moses" ? <OccurrenceTable table={occurrenceTables[1]} kind="moses" onPage={onPage} /> : null}
+      {bundleState === "ready" && tab === "aseh" ? <OccurrenceTable table={occurrenceTables[2]} kind="aseh" onPage={onPage} /> : null}
+      {bundleState === "ready" && tab === "calculations" ? <ResearchCards kind="calculations" records={bundle?.calculations} onPage={onPage} /> : null}
+      {bundleState === "ready" && tab === "families" ? <ResearchCards kind="families" records={bundle?.number_families} onPage={onPage} /> : null}
+      {bundleState === "ready" && tab === "contradictions" ? <ResearchCards kind="contradictions" records={bundle?.contradictions} onPage={onPage} /> : null}
+    </div>
   </section>;
 }
 
@@ -182,6 +519,17 @@ function normalizeSearch(value = "") {
 
 function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextState, onPage }) {
   const [query, setQuery] = useState("");
+  const [companion, setCompanion] = useState(null);
+  const [companionState, setCompanionState] = useState("loading");
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(AHAVAT_TORAH_SOURCE.commentaryBundleUrl, { signal: controller.signal, credentials: "same-origin" })
+      .then(response => { if (!response.ok) throw new Error("companion_unavailable"); return response.json(); })
+      .then(value => { setCompanion(value); setCompanionState("ready"); })
+      .catch(error => { if (error.name !== "AbortError") setCompanionState("error"); });
+    return () => controller.abort();
+  }, []);
+  const pageGuide = ahavatCompanionPage(companion, page);
   const record = AHAVAT_TORAH_DEEP_PAGES.find(item => item.page === page) || null;
   const machinePage = pageTextBundle?.pages?.find(item => Number(item.pdf_page) === page) || null;
   const readingArc = readingArcForPage(page);
@@ -229,11 +577,14 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
     <div className="ahavat29-page-atlas-legend"><span className="is-deep">קריאת עומק</span><span className="is-machine">תעתיק מכונה</span><span className="is-source">מקור בלבד</span></div>
 
     <article className="ahavat29-depth-reader">
-      <header><div><span>PDF {page}{record?.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{readingArc.title}</h3></div><StatusPill status={record ? "source_verified" : "machine_candidate"} /></header>
+      <header><div><span>PDF {page}{record?.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{pageGuide?.title || readingArc.title}</h3></div><StatusPill status={record ? "source_verified" : "machine_candidate"} /></header>
       <section className="ahavat29-ai-guide">
-        <span>הסבר נלווה · מפת קריאה</span>
-        <p>{readingArc.explanation}</p>
-        <small>הסבר נלווה לעמודים {readingArc.range[0]}–{readingArc.range[1]} · המקור פתוח לצדו.</small>
+        <span>הסבר נלווה · {pageGuide ? `עמוד ${page}` : "מפת קריאה"}</span>
+        <p>{pageGuide?.companion_explanation || readingArc.explanation}</p>
+        {pageGuide?.reading_points?.length ? <ul>{pageGuide.reading_points.map(point => <li key={point}>{point}</li>)}</ul> : null}
+        {pageGuide ? <div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(page)}>פתח מקור ההסבר · PDF {page}</button></div> : <small>הסבר נלווה לעמודים {readingArc.range[0]}–{readingArc.range[1]} · המקור פתוח לצדו.</small>}
+        {companionState === "loading" ? <p role="status">טוען את ההסבר לעמוד…</p> : null}
+        {companionState === "error" ? <p role="alert">ההסבר המפורט לא נטען. מפת הקריאה ועמוד המקור נשארים זמינים.</p> : null}
       </section>
 
       {record ? <>
@@ -253,7 +604,7 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
           </section>)}
           {!pageBlocks.length ? <p>אין יחידות טקסט להצגה בעמוד זה בשכבה הנוכחית.</p> : null}
         </div> : null}
-      </> : <div className="ahavat29-depth-empty"><span>קריאת עומק בהמשך</span><h3>העמוד נגיש במלואו כמקור וכתעתיק</h3><p>אפשר לקרוא ולחפש עכשיו, כשה־PDF המקורי נשאר צמוד לעמוד.</p></div>}
+      </> : !pageGuide ? <div className="ahavat29-depth-empty"><h3>העמוד נגיש במלואו כמקור וכתעתיק</h3><p>אפשר לקרוא ולחפש עכשיו, כשה־PDF המקורי נשאר צמוד לעמוד.</p></div> : null}
 
       {(pageDatasets.length || pageSources.length) ? <section className="ahavat29-page-links" aria-label="קשרי מחקר לעמוד">
         <span>קשרים שכבר אותרו בעמוד</span>
@@ -292,6 +643,7 @@ export default function AhavatTorahSystem2029Page() {
   const [pageTextState, setPageTextState] = useState("loading");
   const selectedSection = useMemo(() => sectionForPage(page), [page]);
   const selectedFinding = AHAVAT_TORAH_FINDINGS.find(finding => finding.id === findingId) || null;
+  const locatedDataset = AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === datasetId && dataset.pages.includes(page));
 
   useEffect(() => {
     let active = true;
@@ -361,11 +713,15 @@ export default function AhavatTorahSystem2029Page() {
   };
 
   const selectDataset = dataset => {
-    setPage(dataset.pages[0]);
+    const nextPage = ahavatDatasetSourcePage(dataset, page);
+    setPage(nextPage);
     setFindingId("");
     setDatasetId(dataset.id);
-    replaceSelectionInUrl(dataset.pages[0], "", dataset.id);
-    window.requestAnimationFrame(() => document.getElementById("ahavat29-source")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    replaceSelectionInUrl(nextPage, "", dataset.id);
+    if (dataset.pages.length) {
+      const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+      window.requestAnimationFrame(() => document.getElementById("ahavat29-source")?.scrollIntoView({ behavior, block: "start" }));
+    }
   };
 
   const openPage = nextPage => {
@@ -373,7 +729,8 @@ export default function AhavatTorahSystem2029Page() {
     setFindingId("");
     setDatasetId("");
     replaceSelectionInUrl(nextPage, "", "");
-    document.getElementById("ahavat29-source")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+    document.getElementById("ahavat29-source")?.scrollIntoView({ behavior, block: "start" });
   };
 
   return <Sod2029Shell
@@ -423,6 +780,8 @@ export default function AhavatTorahSystem2029Page() {
 
           <DatasetCatalog selectedId={datasetId} onSelect={selectDataset} />
 
+          <SpatialTables bundle={bundle} bundleState={bundleState} selectedId={datasetId} onSelect={selectDataset} onPage={openPage} />
+
           <ExtractionLayers onPage={openPage} />
 
           <FullBookReader page={page} bundle={bundle} bundleState={bundleState} pageTextBundle={pageTextBundle} pageTextState={pageTextState} onPage={openPage} />
@@ -438,7 +797,7 @@ export default function AhavatTorahSystem2029Page() {
           </footer>
         </div>
 
-        <SourcePanel page={page} contextLabel={selectedFinding?.dataset || datasetId || selectedSection.shortTitle} onPage={openPage} />
+        <SourcePanel page={page} contextLabel={selectedFinding?.dataset || locatedDataset?.id || selectedSection.shortTitle} onPage={openPage} />
       </div>
     </main>
   </Sod2029Shell>;

@@ -48,6 +48,7 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     pdfUrl: `${GALLERY_ROOT}/daat-tevunot-site-edition.pdf`,
     pageTextUrl: "/book-data/daat-tevunot.page-text.json",
     commentaryUrl: "/book-data/daat-tevunot.commentary.json",
+    internalMapUrl: "/book-data/daat-tevunot.internal-map.json",
     introduction: "דיאלוג שיטתי בין הנשמה לשכל על תכלית האדם, הנהגת הייחוד, גוף ונשמה, הסתר וגילוי, הנהגת המשפט ונבואה. הדרך הקלה לקרוא היא לעקוב אחרי תשעת ענפי השיחה ולא לנסות לפתור את כל 195 הסעיפים בבת אחת.",
     readingKeys: ["מי מדבר עכשיו — הנשמה או השכל", "לאיזה ענף הנהגה שייך הסעיף", "מהו הכלל שהסעיף מוסיף למהלך הכולל"],
     chapters: [
@@ -159,6 +160,7 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     pdfUrl: `${GALLERY_ROOT}/Hebrewbooks_org_33050.pdf`,
     pageTextUrl: "/book-data/maamar-esther.page-text.json",
     commentaryUrl: "/book-data/maamar-esther.commentary.json",
+    internalMapUrl: "/book-data/maamar-esther.internal-map.json",
     introduction: "פירוש רציף למגילת אסתר מאת רבי שלמה קלוגר, הערוך לפי סדר עשרת פרקי המגילה. המחבר פותח בקושיה על פסוק או מאמר חז״ל, משווה מקורות ומפתח מהלך למדני שמחבר בין פשט, מדרש והלכה.",
     readingKeys: ["לזהות תחילה את הפסוק או מאמר חז״ל שעליו נפתח הדיון", "לעקוב אחר הקושיה, המקורות והתשובה כשלבים נפרדים", "לשמור את מהלך הפירוש בתוך פרק המגילה והעמוד המדויק"],
     chapters: [

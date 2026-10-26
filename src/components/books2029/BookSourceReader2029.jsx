@@ -1,10 +1,14 @@
-import React, { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import BookFullscreenButton2029 from "./BookFullscreenButton2029.jsx";
 import {
   chapterForBookPage,
   clampBookPage,
 } from "../../data/bookReader2029.js";
 import "./bookSourceReader2029.css";
+
+const BookInternalMap2029 = lazy(
+  () => import("./MaamarEstherInternalMap2029.jsx"),
+);
 
 function pageFromUrl(manifest) {
   if (typeof window === "undefined") return 1;
@@ -51,6 +55,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
   const [draftPage, setDraftPage] = useState(String(page));
   const [searchQuery, setSearchQuery] = useState("");
   const [deepReading, setDeepReading] = useState({ loading: false, pageText: null, commentary: null });
+  const [showInternalMap, setShowInternalMap] = useState(false);
   const fullscreenRef = useRef(null);
   const chapter = chapterForBookPage(manifest, page);
   const deferredQuery = useDeferredValue(searchQuery);
@@ -60,6 +65,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
     setPage(requested);
     setDraftPage(String(requested));
     setSearchQuery("");
+    setShowInternalMap(false);
   }, [manifest]);
 
   useEffect(() => {
@@ -169,6 +175,17 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
       </aside>
 
       <div className="book-reader29-guide">
+        {manifest.internalMapUrl ? <article className="book-reader29-internal-map-entry">
+          <span>מפה פנימית · נטענת לפי בקשה</span>
+          <h3>לקרוא את הספר מהלך אחר מהלך</h3>
+          <p>פסוק או מאמר חז״ל, קושיה, מקורות, שלבי המהלך ומסקנה — כולם נשארים מחוברים לעמוד ה־PDF המדויק.</p>
+          <button type="button" aria-expanded={showInternalMap} onClick={() => setShowInternalMap(value => !value)}>
+            {showInternalMap ? "סגור את המפה הפנימית" : "פתח את המפה הפנימית"}
+          </button>
+        </article> : null}
+        {manifest.internalMapUrl && showInternalMap ? <Suspense fallback={<article className="book-reader29-internal-map-loading" role="status">מכין את המפה הפנימית…</article>}>
+          <BookInternalMap2029 mapUrl={manifest.internalMapUrl} currentPage={page} onOpenPage={openPage} />
+        </Suspense> : null}
         {pageCommentary?.hebrew_translation ? <article className="book-reader29-current book-reader29-translation">
           <span>תרגום עברי · PDF {page}</span>
           <h3>{pageCommentary.title || manifest.title}</h3>
