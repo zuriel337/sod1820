@@ -1,8 +1,9 @@
 """Built-App Chromium acceptance for Raziel's guest value journey.
 
-The first explicit submit receives a bounded fake Raziel answer. The second receives the
-existing server quota contract. All other external traffic is intercepted; no product write,
-real model call, account creation or quota mutation occurs. Run after npm run build:2029.
+Explicit submits receive a bounded fake answer, a non-anonymous quota response and then
+the existing anonymous quota contract. All external traffic is intercepted; no product
+write, real model call, account creation or quota mutation occurs. Synthetic auth changes
+use the existing client's cross-tab event, never a real account or credential.
 """
 import functools
 import json
@@ -26,7 +27,8 @@ class StaticFiles(SimpleHTTPRequestHandler):
 server = ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(StaticFiles, directory=str(DIST)))
 threading.Thread(target=server.serve_forever, daemon=True).start()
 BASE = f"http://127.0.0.1:{server.server_port}"
-report = {"cases": [], "model_calls": 0, "intercepted_writes": [], "unexpected_writes": [], "errors": []}
+report = {"cases": [], "mock_transport_requests": 0, "real_model_calls": 0,
+          "intercepted_writes": [], "unexpected_writes": [], "errors": []}
 READ_RPC_POSTS = {
     "/rest/v1/rpc/fn_method_value",
     "/rest/v1/rpc/world_group_source_arrivals_v2",
@@ -37,6 +39,12 @@ EXPECTED_TELEMETRY_POSTS = {
     "/rest/v1/rpc/track_visit",
     "/rest/v1/rpc/ingest_event",
     "/rest/v1/rpc/ai_log_analysis",
+    "/rest/v1/rpc/claim_research_lead",
+    "/rest/v1/rpc/link_visitor_identity",
+    "/rest/v1/rpc/claim_my_founding_grants",
+    "/rest/v1/rpc/claim_daily_credit",
+    "/rest/v1/rpc/claim_wa_activity_credits",
+    "/rest/v1/rpc/fn_research_path_resume_v1",
 }
 
 
@@ -61,7 +69,7 @@ def wire(page, request_state):
             return handler.fulfill(status=204, headers=headers)
         if url.path.endswith("/functions/v1/ai-analyze"):
             request_state["ai"] += 1
-            report["model_calls"] += 1
+            report["mock_transport_requests"] += 1
             if request_state["ai"] == 1:
                 body = {"analysis": "תשובת ערך ראשונה מרזיאל.", "intelligence_level": "fast"}
             else:
@@ -69,10 +77,7 @@ def wire(page, request_state):
                     "analysis": None,
                     "error": "quota",
                     "surface": "raziel",
-                    "tier": "anon",
-                    "used": 30,
-                    "limit": 30,
-                    "message": "הגעת למכסת השיחות המהירות עם רזיאל להיום.",
+                    "tier": request_state.get("quota_tier", "anon"),
                 }
             return handler.fulfill(status=200, content_type="application/json", headers=headers,
                                    body=json.dumps(body, ensure_ascii=False))
@@ -123,6 +128,11 @@ try:
             expect(chat.locator('[data-raziel-quota-ended="guest"]')).to_have_count(0)
             assert state["ai"] == 0
 
+            # An unrelated event outside an explicit submit cannot close this composer.
+            page.evaluate("window.dispatchEvent(new CustomEvent('sod:ai-quota', {detail:{tier:'anon'}}))")
+            expect(chat.get_by_role("textbox", name="שאלה לרזיאל", exact=True)).to_be_enabled()
+            expect(chat.locator('[data-raziel-quota-ended="guest"]')).to_have_count(0)
+
             question = chat.get_by_role("textbox", name="שאלה לרזיאל", exact=True)
             question.fill("מה אפשר ללמוד מהמספר 1820?")
             chat.get_by_role("button", name="שלח", exact=True).click()
@@ -139,6 +149,15 @@ try:
 
             chat = open_chat(page, width)
             question = chat.get_by_role("textbox", name="שאלה לרזיאל", exact=True)
+            state["quota_tier"] = "member"
+            question.fill("בדיקת אירוע שאינו של אורח")
+            chat.get_by_role("button", name="שלח", exact=True).click()
+            expect(chat.locator('[data-raziel-state="error"]')).to_be_visible()
+            expect(question).to_be_enabled()
+            expect(chat.locator('[data-raziel-quota-ended="guest"]')).to_have_count(0)
+            assert state["ai"] == 2
+
+            state["quota_tier"] = "anon"
             question.fill("אפשר עוד תשובה?")
             chat.get_by_role("button", name="שלח", exact=True).click()
             ended = chat.locator('[data-raziel-quota-ended="guest"]')
@@ -147,10 +166,40 @@ try:
             expect(chat.locator('[data-raziel-registration-nudge="after-value"]')).to_have_count(0)
             expect(question).to_be_disabled()
             expect(chat.get_by_role("button", name="שלח", exact=True)).to_be_disabled()
-            assert state["ai"] == 2
+            assert state["ai"] == 3
+            # Quota limits AI, not the existing local saving operation.
+            save = chat.locator('[data-raziel-save-session="true"]')
+            expect(save).to_be_enabled()
+            save.click()
+            expect(chat.locator('.sod29-raziel-save-notice')).to_contain_text("מקומית")
+            assert state["ai"] == 3
             assert not page.evaluate("Object.keys(localStorage).some((key) => /quota/i.test(key))")
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
             page.screenshot(path=f"/tmp/raziel-guest-value-journey-{width}.png", full_page=True)
+
+            # Exercise real AuthProvider -> ResearchProvider -> session remount.
+            # These are deliberately invalid credentials, confined to intercepted I/O.
+            page.evaluate("""() => {
+              const channel = new BroadcastChannel('sb-linswmnnkjxvweumprav-auth-token');
+              channel.postMessage({event:'SIGNED_IN', session:{
+                access_token:'synthetic-invalid-access', refresh_token:'synthetic-invalid-refresh',
+                expires_at:4102444800, token_type:'bearer',
+                user:{id:'00000000-0000-4000-8000-000000000001', app_metadata:{}, user_metadata:{}}
+              }});
+              window.guestAcceptanceAuthChannel = channel;
+            }""")
+            expect(page.locator('.sod29-header-workspace')).to_have_attribute("aria-label", "האזור האישי שלי")
+            expect(page.locator('[data-raziel-quota-ended="guest"]')).to_have_count(0)
+            current_chat = open_chat(page, width)
+            expect(current_chat.get_by_role("textbox", name="שאלה לרזיאל", exact=True)).to_be_enabled()
+            expect(current_chat.get_by_role("log")).not_to_contain_text("תשובת ערך ראשונה")
+            page.evaluate("window.guestAcceptanceAuthChannel.postMessage({event:'SIGNED_OUT',session:null})")
+            expect(page.locator('.sod29-header-workspace')).to_have_attribute("aria-label", "התחברות לאזור האישי")
+            expect(page.locator('[data-raziel-quota-ended="guest"]')).to_have_count(0)
+            current_chat = open_chat(page, width)
+            expect(current_chat.get_by_role("textbox", name="שאלה לרזיאל", exact=True)).to_be_enabled()
+            assert state["ai"] == 3
+            page.evaluate("window.guestAcceptanceAuthChannel.close()")
             report["cases"].append({
                 "width": width,
                 "opens_without_model": True,
@@ -158,15 +207,19 @@ try:
                 "signup_opens_workspace_without_model": True,
                 "server_quota_blocks_guest": True,
                 "local_quota_storage": False,
+                "unrelated_quota_ignored": True,
+                "non_anon_quota_ignored": True,
+                "save_after_quota_without_model": True,
+                "principal_change_resets_guest_denial": True,
                 "horizontal_overflow": False,
-                "model_requests": state["ai"],
+                "mock_transport_requests": state["ai"],
             })
             context.close()
 
         browser.close()
     assert not report["errors"], report["errors"]
     assert not report["unexpected_writes"], report["unexpected_writes"]
-    assert report["model_calls"] == 4
+    assert report["mock_transport_requests"] == 6
     Path("/tmp/raziel-guest-value-journey-2029-results.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2)
     )

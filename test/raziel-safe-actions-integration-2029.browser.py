@@ -20,6 +20,7 @@ WORKER = (DIST / 'preview-readonly-sw.js').read_text()
 READ_RPCS = set(json.loads(re.search(r'const reads = new Set\((\[.*?\])\);', WORKER).group(1)))
 KEY = 'sod_research_v2:guest'
 report = {'cases': [], 'page_errors': [], 'unmocked_model_requests': 0, 'forwarded_backend_requests': 0}
+stage = 'initializing'
 
 class Files(SimpleHTTPRequestHandler):
     def log_message(self, *_args):
@@ -49,6 +50,7 @@ try:
         browser = pw.chromium.launch(executable_path='/usr/bin/chromium', headless=True, args=['--no-sandbox', '--disable-dev-shm-usage'])
         for width in WIDTHS:
             for theme in THEMES:
+                stage = f'{width}/{theme}: opening'
                 context = browser.new_context(viewport={'width': width, 'height': 1000}, reduced_motion='reduce',
                     user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36')
                 context.add_init_script("localStorage.setItem('sod-theme', %s);" % json.dumps(theme))
@@ -99,6 +101,8 @@ try:
                 chat = page.locator('[data-raziel-native-chat="true"]:visible')
                 expect(chat).to_have_count(1)
                 assert page.evaluate('fixtureCalls.length') == 0, 'opening is not a model invocation'
+                expect(chat.locator('[data-raziel-registration-nudge]')).to_have_count(0)
+                stage = f'{width}/{theme}: first answer'
                 chat.get_by_label('שאלה לרזיאל', exact=True).fill('מה זה משיח?')
                 chat.get_by_role('button', name='שלח', exact=True).click()
                 methods = chat.locator('[data-raziel-suggested-action="all_methods"]')
@@ -108,9 +112,22 @@ try:
                 assert chat.locator('[data-raziel-suggested-action]').count() == 2
                 assert page.evaluate('fixtureCalls.length') == 1
                 assert page.evaluate('fixtureCalls.every(x=>x.mock==="mock-only")')
+                nudge = chat.locator('[data-raziel-registration-nudge="after-value"]')
+                expect(nudge).to_be_visible()
+                stage = f'{width}/{theme}: signup entry'
+                nudge.get_by_role('button', name='הרשמה בחינם', exact=True).click()
+                page.locator('.sod29-frame-panel').get_by_role('heading', name='המרחב האישי שלי', exact=True).wait_for()
+                assert page.evaluate('fixtureCalls.length') == 1, 'signup entry uses zero model calls'
+                page.keyboard.press('Escape')
+                if width < 1000:
+                    page.locator('.sod29-command-island .sod29-raziel-orb').click()
+                chat = page.locator('[data-raziel-native-chat="true"]:visible')
+                methods = chat.locator('[data-raziel-suggested-action="all_methods"]')
+                number = chat.locator('[data-raziel-suggested-action="open_number"]')
                 assert not page.evaluate("localStorage.getItem('" + KEY + "') && JSON.parse(localStorage.getItem('" + KEY + "')).state?.saved?.length")
                 for button in [methods, number]:
                     assert button.bounding_box()['height'] >= 44, 'suggestion target must be at least 44px'
+                stage = f'{width}/{theme}: all methods'
                 methods.click()
                 save = chat.locator('[data-raziel-suggested-action="save_conversation"]')
                 expect(save).to_be_visible()
@@ -129,6 +146,7 @@ try:
                 page.screenshot(path=str(OUT / ('safe-actions-' + str(width) + '-' + theme + '.png')), full_page=True)
 
                 # This third turn is deliberately NOT saved before navigation.
+                stage = f'{width}/{theme}: unsaved third turn'
                 chat.get_by_label('שאלה לרזיאל', exact=True).fill('מה עוד קשור למשיח?')
                 chat.get_by_role('button', name='שלח', exact=True).click()
                 expect(chat.locator('[data-raziel-suggested-action="all_methods"]')).to_be_visible()
@@ -137,8 +155,14 @@ try:
                 # Navigation inside the same 2029 router must not destroy the
                 # unsaved in-memory conversation or create a second provider.
                 page.evaluate("window.sameRazielDocument='preserve-this-session'")
+                stage = f'{width}/{theme}: number navigation'
                 chat.locator('[data-raziel-suggested-action="open_number"]').click()
                 page.wait_for_url('**/2029/number/358')
+                # URL mutation precedes the lazy surface mount and Frame's route-close
+                # effect. Public data stays mocked; wait for the destination Frame,
+                # not the previous surface's still-visible chat or a live dossier.
+                page.locator('.sod29-root.surface-number').wait_for()
+                expect(page.locator('.sod29-frame-backdrop')).to_have_count(0)
                 assert page.evaluate('window.sameRazielDocument') == 'preserve-this-session', 'open_number reloaded the document and destroyed the shared Raziel session'
                 chat = page.locator('[data-raziel-native-chat="true"]:visible')
                 if not chat.count():
@@ -149,9 +173,23 @@ try:
                 expect(chat.get_by_role('log')).to_contain_text('מה עוד קשור למשיח?')
                 assert page.evaluate('fixtureCalls.length') == 3
                 assert page.evaluate(saved_count) == 1
+                stage = f'{width}/{theme}: explicit guest quota'
+                chat.get_by_label('שאלה לרזיאל', exact=True).fill('בדיקת מכסת אורח')
+                chat.get_by_role('button', name='שלח', exact=True).click()
+                expect(chat.locator('[data-raziel-quota-ended="guest"]')).to_be_visible()
+                expect(chat.get_by_label('שאלה לרזיאל', exact=True)).to_be_disabled()
+                expect(chat.locator('[data-raziel-registration-nudge]')).to_have_count(0)
+                local_save = chat.locator('[data-raziel-save-session="true"]')
+                expect(local_save).to_be_enabled()
+                local_save.click()
+                expect(chat.locator('.sod29-raziel-save-notice')).to_contain_text('מקומית')
+                assert page.evaluate(saved_count) == 1
+                assert page.evaluate('fixtureCalls.length') == 4
+                assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+                page.screenshot(path=str(OUT / ('guest-quota-' + str(width) + '-' + theme + '.png')), full_page=True)
                 assert report['unmocked_model_requests'] == 0
                 assert not report['page_errors'], report['page_errors']
-                report['cases'].append({'width':width,'theme':theme,'fixture_requests':3,'model_calls':0,'repeat_save_count':1,'router_preserved_unsaved_turn':True,'overflow':False})
+                report['cases'].append({'width':width,'theme':theme,'fixture_requests':4,'model_calls':0,'repeat_save_count':1,'router_preserved_unsaved_turn':True,'signup_after_value':True,'signup_entry_model_calls':0,'server_shaped_quota_denial':True,'save_after_quota_model_calls':0,'overflow':False})
                 context.close()
         browser.close()
     (OUT / 'browser.json').write_text(json.dumps(report, ensure_ascii=False, indent=2))
@@ -162,7 +200,7 @@ except Exception as error:
     detail = re.sub(r'(_vercel_share=)[^&\s\"\'<>]+', r'\1[redacted]', detail)
     detail = re.sub(r'(?im)(cookie|set-cookie|authorization):[^\r\n]*', r'\1: [redacted]', detail)
     detail = re.sub(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', '[redacted token]', detail)
-    print(type(error).__name__ + ': ' + detail, file=sys.stderr)
+    print(stage + '\n' + type(error).__name__ + ': ' + detail, file=sys.stderr)
     print(json.dumps(report, ensure_ascii=False), file=sys.stderr)
     sys.exit(1)
 finally:

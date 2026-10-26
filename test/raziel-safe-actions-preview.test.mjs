@@ -57,6 +57,24 @@ test("explicit all-method continuation and save suggestion still use the existin
   }
 });
 
+test("guest denial fixture is explicit, server-shaped and never counts requests or invents limits", async () => {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { response, forwarded } = await request("/functions/v1/ai-analyze", { body: {
+      persona: "raziel", subject: "בדיקת מכסת אורח",
+    } });
+    assert.equal(forwarded, 0);
+    assert.equal(response.headers.get("X-Raziel-Preview-Transport"), "mock-only");
+    assert.deepEqual(await response.json(), {
+      error: "quota", tier: "anon", surface: "raziel", model: "preview:mock-only",
+    });
+  }
+  // A different explicit question still works; the fixture has no quota state.
+  const { response } = await request("/functions/v1/ai-analyze", { body: {
+    persona: "raziel", subject: "מה זה משיח?",
+  } });
+  assert.ok((await response.json()).raziel.answer);
+});
+
 test("mock configuration cannot admit real product writes, new Person creation or a different AI persona", async () => {
   for (const [path, body] of [
     ["/functions/v1/ai-analyze", { persona: "other" }],

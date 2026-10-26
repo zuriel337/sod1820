@@ -41,7 +41,12 @@ export function buildRazielSafeActionsPreviewFixture() {
       } } }),
     },
   });
-  return { version: "raziel-safe-actions-preview-v1", expression: response("expression"), methods: response("methods"), save: response("save") };
+  return {
+    version: "raziel-safe-actions-preview-v1",
+    expression: response("expression"), methods: response("methods"), save: response("save"),
+    // Explicit test input only, not a local quota counter or an invented limit.
+    quota: { error: "quota", tier: "anon", surface: "raziel", model: "preview:mock-only" },
+  };
 }
 
 export function buildRazielSafeActionsPreviewWorker(baseWorker) {
@@ -55,9 +60,9 @@ export function buildRazielSafeActionsPreviewWorker(baseWorker) {
     const body=await req.clone().json();
     if(body.persona!=='raziel')throw new Error('unsupported_fixture');
     const subject=String(body.subject||'');
-    const key=/בכל\\s+השיטות/u.test(subject)?'methods':subject.includes('משיח')?'expression':'save';
+    const key=subject==='בדיקת מכסת אורח'?'quota':/בכל\\s+השיטות/u.test(subject)?'methods':subject.includes('משיח')?'expression':'save';
     const data=JSON.parse(JSON.stringify(razielPreviewFixture[key]));
-    if(['landscape','exploratory'].includes(body.view_mode)&&key!=='save')data.raziel.view_mode={requested:body.view_mode,applied:true,reason:'synthetic-preview-fixture'};
+    if(data.raziel&&['landscape','exploratory'].includes(body.view_mode)&&key!=='save')data.raziel.view_mode={requested:body.view_mode,applied:true,reason:'synthetic-preview-fixture'};
     return new Response(JSON.stringify(data),{status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store','X-Raziel-Preview-Transport':'mock-only'}});
    }catch{
     return new Response(JSON.stringify({error:'preview_fixture_unavailable'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});
