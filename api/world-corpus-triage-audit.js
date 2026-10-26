@@ -29,6 +29,14 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
       next: "להריץ replay לפי שיטה ומקור. 84 הודעות כבר כוללות טקסט ותמונה באותה רשומת מקור; אין צורך לנחש התאמה סמוכה.",
     }),
     Object.freeze({
+      key: "zvi_regular_replay_match",
+      label: "צבי · replay רגיל תואם",
+      total: 227,
+      route: "/world?admin=1&view=admin&contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8&contributorLabel=צבי%20(OPOC)&strength=בינוני&verification=legacy_signal&replay=deterministic_match",
+      state: "232/232 חישובים תאמו · 227 קלטים נקיים · 221 עם מקור UUID קיים · 0 אי־התאמות",
+      next: "לתקן 6 locators ואז להכריע יעד. 5 קלטים מעורבים נשארים בתור נפרד; replay תואם אינו קידום לעץ.",
+    }),
+    Object.freeze({
       key: "weak",
       label: "כל החלשים",
       total: 6362,

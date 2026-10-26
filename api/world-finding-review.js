@@ -24,6 +24,10 @@ import {
   WORLD_INSIGHT_REVIEW_SUMMARY,
   projectWorldInsightReviewRows,
 } from "../src/lib/research/worldInsightTriageProjection.js";
+import {
+  attachWorldLegacyReplay,
+  buildWorldLegacyReplayIndex,
+} from "../src/lib/research/worldLegacyReplayProjection.js";
 
 const SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
@@ -179,6 +183,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const quality = clean(filters.quality) || "all";
   const topic = clean(filters.topic) || "all";
   const source = clean(filters.source) || "all";
+  const replay = clean(filters.replay) || "all";
   return base.filter((row) => {
     if (finding && clean(row.sourceId) !== finding) return false;
     if (strength !== "all" && row?.triage?.strength !== strength) return false;
@@ -189,6 +194,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     }
     if (topic !== "all" && !rowTopicKeys(row).includes(topic)) return false;
     if (source !== "all" && row?.sourceFilterKey !== source) return false;
+    if (replay !== "all" && row?.legacyReplay?.state !== replay) return false;
     return !query || reviewSearchHaystack(row).includes(query);
   });
 }
@@ -501,9 +507,11 @@ async function buildAuthorizedProjection(token) {
   });
   // This endpoint is a findings queue. Topic rows are lookup material for meters,
   // not a second family in the response.
+  const legacyReplayIndex = buildWorldLegacyReplayIndex(scoped.researchObjects);
   const findings = projection.rows
     .filter((row) => row.family === "research_object")
-    .map(enrichWorldFindingReviewRow);
+    .map(enrichWorldFindingReviewRow)
+    .map((row) => attachWorldLegacyReplay(row, legacyReplayIndex));
   const orderedFindings = sortWorldFindingReviewRows(findings, "strength");
   const matchedSnapshotCards = orderedFindings.filter((row) => row.triage).length;
   return {
@@ -517,6 +525,11 @@ async function buildAuthorizedProjection(token) {
     byAccess: countBy(orderedFindings, "access"),
     byStatus: countBy(orderedFindings, "status"),
     byVerification: countBy(orderedFindings, "verification"),
+    byLegacyReplayState: countBy(
+      orderedFindings.filter((row) => row.legacyReplay)
+        .map((row) => ({ legacyReplayState: row.legacyReplay.state })),
+      "legacyReplayState",
+    ),
     byContributor: countContributors(orderedFindings),
     byTriageStrength: countBy(
       orderedFindings.filter((row) => row.triage).map((row) => ({ strength: row.triage.strength })),
@@ -576,6 +589,7 @@ function pageResponse(projection, req, contributorScope = null) {
     quality: queryValue(req, "quality"),
     topic: queryValue(req, "topic"),
     source: queryValue(req, "source"),
+    replay: queryValue(req, "replay"),
   };
   const filtered = filterWorldFindingReviewRows(projection.rows, filters);
   const ordered = sortWorldFindingReviewRows(filtered, queryValue(req, "sort", "strength"));

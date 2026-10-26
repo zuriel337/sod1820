@@ -241,6 +241,20 @@ test("continuation decisions are manager-only filterable annotations and live pr
   assert.deepEqual(filterWorldFindingReviewRows([blocked, promoted, ready], { continuation: "ready" }), [ready]);
 });
 
+test("legacy replay is a separate manager filter and never replaces verification", () => {
+  const replayed = reviewRow("10000000-0000-4000-8000-000000000010", {
+    verification: "legacy_signal",
+    legacyReplay: { state: "deterministic_match", replayComputed: 204, mutatesLiveData: false },
+  });
+  const missing = reviewRow("10000000-0000-4000-8000-000000000011", {
+    verification: "legacy_signal",
+    legacyReplay: { state: "missing_replay_envelope", mutatesLiveData: false },
+  });
+  assert.deepEqual(filterWorldFindingReviewRows([missing, replayed], { replay: "deterministic_match" }), [replayed]);
+  assert.equal(replayed.verification, "legacy_signal");
+  assert.equal(replayed.legacyReplay.mutatesLiveData, false);
+});
+
 test("canonical contributor scope keeps stable identity and registered aliases without guessing", () => {
   const exact = reviewRow("10000000-0000-4000-8000-000000000001", {
     sourceContributorId: ZVI_ID,

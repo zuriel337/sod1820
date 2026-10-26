@@ -108,6 +108,17 @@ const INSIGHT_QUEUE_LABELS = Object.freeze({
   inactive: "מחוץ לעדשה הפעילה",
 });
 
+const LEGACY_REPLAY_LABELS = Object.freeze({
+  deterministic_match: "Replay תואם · קלט נקי",
+  mixed_input_match: "Replay תואם · קלט מעורב לבדיקה",
+  deterministic_mismatch: "Replay מצא אי־התאמה",
+  incomplete_regular_envelope: "מעטפת רגיל חסרה",
+  arithmetic_executor_required: "נדרש executor אריתמטי",
+  compound_mapping_required: "נדרש מיפוי פעולה מורכבת",
+  missing_replay_envelope: "חסרה מעטפת replay",
+  mixed_replay_states: "אשכול עם מצבי replay שונים",
+});
+
 function humanLabel(map, value, fallback = "אחר") {
   return map[clean(value)] || fallback;
 }
@@ -152,13 +163,14 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
   const strength = clean(params.get("strength"));
   const recommendation = clean(params.get("recommendation"));
   const verification = clean(params.get("verification"));
+  const replay = clean(params.get("replay"));
   return {
     finding: clean(params.get("finding")),
     contributorId: clean(params.get("contributorId")),
@@ -168,6 +180,7 @@ function initialReviewFilters() {
     recommendation: ["מתאים לעץ", "דורש בדיקה", "כפילות", "דורש מקור", "שיוך זהות לא פתור", "דורש OCR או תמלול", "לא מתאים"].includes(recommendation)
       ? recommendation : "all",
     verification: Object.hasOwn(VERIFICATION_LABELS, verification) ? verification : "all",
+    replay: Object.hasOwn(LEGACY_REPLAY_LABELS, replay) ? replay : "all",
   };
 }
 
@@ -242,6 +255,7 @@ export default function WorldAllResearchTable({ state }) {
   const [quality, setQuality] = useState("all");
   const [topic, setTopic] = useState("all");
   const [source, setSource] = useState("all");
+  const [replay, setReplay] = useState(initial.replay);
   const [retryKey, setRetryKey] = useState(0);
   const [review, setReview] = useState({ loading: false, loadingMore: false, error: null, projection: null, page: null });
   const [elsQueue, setElsQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
@@ -253,8 +267,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, continuation, quality, topic, source,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source]);
+    sort, strength, recommendation, continuation, quality, topic, source, replay,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay]);
 
   const resetFilters = () => {
     setQuery("");
@@ -273,6 +287,7 @@ export default function WorldAllResearchTable({ state }) {
     setQuality("all");
     setTopic("all");
     setSource("all");
+    setReplay("all");
   };
 
   useEffect(() => {
@@ -723,6 +738,7 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>גישה · מנהל</span><select value={access} onChange={(e) => setAccess(e.target.value)}><option value="all">הכול · בלי הסתרה בתוך הרשאת החשבון</option>{Object.keys(projection.byAccess).sort().map((v) => <option value={v} key={v}>{humanLabel(ACCESS_LABELS, v, "היקף גישה נוסף")} · {projection.byAccess[v]}</option>)}</select></label>
         <label><span>מצב פרסום / ממשל</span><select value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">כל המצבים</option>{Object.keys(projection.byStatus).sort().map((v) => <option value={v} key={v}>{humanLabel(STATUS_LABELS, v, "מצב פנימי")} · {projection.byStatus[v]}</option>)}</select></label>
         <label><span>אימות</span><select value={verification} onChange={(e) => setVerification(e.target.value)}><option value="all">כל מצבי האימות</option>{Object.keys(projection.byVerification).sort().map((v) => <option value={v} key={v}>{humanLabel(VERIFICATION_LABELS, v, "מצב אימות נוסף")} · {projection.byVerification[v]}</option>)}</select></label>
+        <label><span>Replay לאות ישן</span><select value={replay} onChange={(e) => setReplay(e.target.value)}><option value="all">כל מצבי ה־replay</option>{Object.entries(projection.byLegacyReplayState || {}).map(([value, count]) => <option value={value} key={value}>{humanLabel(LEGACY_REPLAY_LABELS, value, "מצב replay נוסף")} · {count}</option>)}</select></label>
         <label><span>ייחוס / תורם</span><select value={contributor} onChange={(e) => setContributor(e.target.value)}><option value="all">כל הייחוסים</option>{Object.entries(projection.byContributor).sort((a,b) => b[1]-a[1]).map(([v,count]) => <option value={v} key={v}>{contributorLabel(v)} · {count}</option>)}</select></label>
         <label><span>חיבור לעץ · מנהל</span><select value={tree} onChange={(e) => setTree(e.target.value)}>
           <option value="all">הכול</option><option value="matched">מחוברים ליעד קיים</option><option value="unmatched">ממתין לשיוך · מנהל בלבד</option>
@@ -780,6 +796,17 @@ export default function WorldAllResearchTable({ state }) {
           {triage?.continuationState ? <div className={`sod29-world-triage-recommendation ${continuationClass(triage.continuationState)}`}>
             <span><small>החלטת המשך · 26.10.2026</small><strong>{triage.continuationLabel || humanLabel(CONTINUATION_LABELS, triage.continuationState, "מצב המשך")}</strong></span>
             <small>{triage.continuationReason}</small>
+          </div> : null}
+
+          {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${row.legacyReplay.state === "deterministic_match" ? "is-ready" : row.legacyReplay.state === "deterministic_mismatch" ? "is-blocked" : "is-review"}`}>
+            <span><small>Replay מנהלי · אינו משנה סטטוס אמת</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
+            <small>{row.legacyReplay.state === "deterministic_match"
+              ? `המנוע הקנוני החזיר ${row.legacyReplay.replayComputed}; עדיין נדרשת הכרעת מקור ויעד.`
+              : row.legacyReplay.state === "mixed_input_match"
+                ? "החישוב תואם, אך הביטוי כולל ספרות או לטינית ולכן נשאר לבדיקה."
+                : row.legacyReplay.state === "missing_replay_envelope"
+                  ? "הסימון הישן אינו כולל קלט ושיטה מובנים שאפשר להריץ מחדש."
+                  : "נדרשת השלמת מעטפת או הכרעת מפעיל לפני אישור."}</small>
           </div> : null}
 
           {row.mediaUrl ? <img className="sod29-world-all-research-media" src={row.mediaUrl} loading="lazy" alt="" /> : null}
