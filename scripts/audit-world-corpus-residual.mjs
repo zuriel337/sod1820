@@ -2,6 +2,8 @@
 // Reuse the exact staged cohort SELECTs; never execute migration bodies.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
+import { extractCompoundClaims, verifyCandidate, computeExtractionIntegrity } from '../src/lib/triage.js';
 
 export const COHORT_FILES = [
   ['20261026121500_zvi_safe_auto_tree_promotion_v2.sql', '_zvi_safe_auto_promotion_v2'],
@@ -202,6 +204,187 @@ export function buildResidualAuditSql(mode = 'summary') {
   return assertReadOnly(`${ctes}\n${select}`);
 }
 
+const readReviewJson = name => JSON.parse(readFileSync(new URL(`../docs/reviews/${name}`, import.meta.url), 'utf8'));
+const hash = text => createHash('md5').update(text).digest('hex');
+const requireEvidence = (condition, message) => { if (!condition) throw new Error(message); };
+export const readNumericResidualBatch = () => readReviewJson('world-numeric-residual-batch-20261026.json');
+export const readNumericResidualReceipt = () => readReviewJson('world-numeric-residual-receipt-20261026.json');
+
+export function selectNextNumericResidualIds() {
+  const previous = readReviewJson('world-corpus-residual-evidence-20261026.json');
+  const reviewed = new Set(previous.replays.map(r => r.id));
+  return previous.partitions.filter(p => p.lane === 'gematria').flatMap(p => p.ids)
+    .filter(id => !reviewed.has(id)).sort().slice(0,40);
+}
+
+export function replayNumericResidualBatch(evidence = readNumericResidualBatch()) {
+  const ids = selectNextNumericResidualIds();
+  requireEvidence(evidence.rows?.length === 40 && evidence.reviewPlan?.length === 40
+    && ids.every(id => evidence.rows.filter(r => r.id === id).length === 1
+      && evidence.reviewPlan.filter(r => r.id === id).length === 1), 'Wrong exact 40-case batch');
+  requireEvidence(Array.isArray(evidence.sources)
+    && new Set(evidence.sources.map(s => s.id)).size === evidence.sources.length, 'Duplicate source record');
+  for (const source of evidence.sources) {
+    requireEvidence(hash(source.text) === source.md5 && source.status === 'live'
+      && source.channel === 'torat-haremez' && source.page_only === false
+      && source.contributor_id === 'c66f0464-0928-490e-be9b-66d8a87e7fc8'
+      && source.has_image === Boolean(source.image_url?.trim()), 'Source drift/access mismatch');
+  }
+  return ids.map(id => {
+    const row = evidence.rows.find(r => r.id === id), plan = evidence.reviewPlan.find(p => p.id === id);
+    const source = evidence.sources.find(s => s.id === row.source_id);
+    requireEvidence(source && row.admitted && row.status === 'approved' && row.privacy_scope === 'public'
+      && row.promoted_node_id === null && row.revision === null
+      && row.source_ref.split('#')[0] === `channel_updates:${source.id}`, 'Row admission drift');
+    requireEvidence(plan.automaticPromotion === false && plan.strength === null && plan.score === null
+      && plan.scoreTargetId === null && plan.sourceCount === null && plan.independentSourcesAdded === 0,
+    'Invented score, independence or automatic admission');
+    requireEvidence(['מתאים לעץ','דורש בדיקה','דורש מקור','דורש OCR או תמלול'].includes(plan.recommendation)
+      && typeof plan.reason === 'string' && plan.reason.length > 0, 'Missing reviewed disposition');
+    const calculations = plan.calculations.map((c,index) => {
+      const span = c.sourceSpan;
+      requireEvidence(span && Number.isInteger(span.start) && Number.isInteger(span.end) && span.start >= 0
+        && span.end > span.start && source.text.slice(span.start,span.end) === span.excerpt
+        && span.excerpt.includes(c.expression) && Number.isSafeInteger(c.claimed), 'Calculation/source span drift');
+      if (c.type === 'atomic') {
+        requireEvidence(c.method === 'רגיל' && !/[0-9+×÷=]/u.test(c.expression), 'Mixed input cannot be direct gematria');
+        const replay = verifyCandidate({type:'explicit-claim',text:c.expression,method:c.method,value:c.claimed});
+        return {...c,index,trace:replay.engine_detail,verification:replay.engine_verified === true ? 'match' : 'mismatch',
+          engineInputs:[{role:`calculation_${index}`,phrase:c.expression,method:c.method,
+            expected:replay.engine_detail.computed}]};
+      }
+      requireEvidence(c.type === 'compound' && c.method === null, 'Unknown typed calculation');
+      const claims = extractCompoundClaims(c.expression);
+      requireEvidence(claims.length === 1, 'Ambiguous/missing shared extraction');
+      const claim = claims[0];
+      const operands = claim.operands || (claim.operand ? [claim.operand] : []);
+      requireEvidence(operands.every(o => o.ok && o.method === 'רגיל')
+        && (claim.skipUsed === undefined || claim.skipUsed === 0), 'Unresolved operand/skip');
+      const match = claim.status === 'ENGINE_VERIFIED_COMPOSITE' && claim.result === c.claimed;
+      return {...c,index,trace:claim,verification:match ? 'match' : 'mismatch',
+        extractionIntegrity:computeExtractionIntegrity([claim],[]),
+        extractionScope:'source_span_only',
+        engineInputs:operands.map((o,i) => ({role:`calculation_${index}_operand_${i}`,
+          phrase:o.phrase,method:o.method,expected:o.value}))};
+    });
+    if (plan.recommendation === 'מתאים לעץ') requireEvidence(calculations.length > 0
+      && calculations.every(c => c.verification === 'match'
+        && (!c.extractionIntegrity || c.extractionIntegrity.fidelityStatus === 'complete'))
+      && calculations.some(c => c.claimed === row.value) && row.targets?.length === 1
+      && !['hypothesis','question'].includes(row.kind), 'Unready finding cannot be recommended for the tree');
+    return {row,plan,source,calculations};
+  });
+}
+
+export function buildNumericResidualReceiptSql(evidence = readNumericResidualBatch()) {
+  const selected = replayNumericResidualBatch(evidence);
+  const quote = value => `'${String(value).replaceAll("'", "''")}'`;
+  const values = selected.map(({row:r,source:s}) => `(${quote(r.id)}::uuid,${quote(r.source_ref)},`
+    + `${quote(s.id)}::uuid,${quote(s.md5)},${quote(r.source_uid)},${quote(hash(r.claim_uid))},${quote(hash(r.statement))},`
+    + `${quote(JSON.stringify(r.terms))}::jsonb,${r.value}::integer,${quote(r.kind)},`
+    + `${s.image_url === null ? 'NULL::text' : quote(s.image_url)})`).join(',\n');
+  const inputs = selected.flatMap(r => r.calculations.flatMap(c => c.engineInputs.map(i => ({id:r.row.id,...i}))));
+  requireEvidence(inputs.length > 0 && inputs.every(i => Number.isSafeInteger(i.expected)), 'Missing engine inputs');
+  const leaves = inputs.map(i => `(${quote(i.id)}::uuid,${quote(i.role)},${quote(i.phrase)},`
+    + `${quote(i.method)},${i.expected}::integer)`).join(',\n');
+  return assertReadOnly(`WITH selected(id,source_ref,source_id,source_md5,source_uid,claim_uid_md5,
+      statement_md5,terms,value,kind,image_url) AS (VALUES ${values}),
+    leaves(id,role,phrase,method,expected) AS (VALUES ${leaves}),
+    checks AS (SELECT s.id,s.source_ref,s.source_md5,s.source_uid,
+      public.fn_research_claim_uid(ro.statement) claim_uid,s.statement_md5,
+      coalesce(ro.status='approved' AND ro.privacy_scope='public' AND ro.promoted_node_id IS NULL
+        AND ro.meta#>'{ext,revision}' IS NULL,false) admitted,
+      coalesce(lower(btrim(ro.meta#>>'{ext,personal_scope,scope}')),'')<>'person_only'
+        AND coalesce(lower(btrim(ro.source)),'') NOT IN ('old_chat','openweb_legacy','or-geula')
+        AND coalesce(btrim(ro.contributor),'')<>'אור הגאולה' general_scope,
+      coalesce(ro.source_ref=s.source_ref AND md5(ro.statement)=s.statement_md5 AND ro.kind=s.kind
+        AND ro.value=s.value AND to_jsonb(ro.terms)=s.terms
+        AND public.fn_research_source_uid(ro.source_ref)=s.source_uid
+        AND md5(public.fn_research_claim_uid(ro.statement))=s.claim_uid_md5,false) exact_claim,
+      coalesce(cu.status='live' AND cu.page_only IS FALSE AND cu.channel='torat-haremez'
+        AND cu.contributor_id='c66f0464-0928-490e-be9b-66d8a87e7fc8'::uuid
+        AND md5(cu.text)=s.source_md5 AND cu.image_url IS NOT DISTINCT FROM s.image_url,false) exact_source,
+      (SELECT coalesce(jsonb_agg(jsonb_build_object('id',n.id,'label',n.label) ORDER BY n.id),'[]'::jsonb)
+        FROM public.nodes n WHERE n.type='number' AND n.label=s.value::text AND n.is_active IS TRUE
+          AND coalesce(n.metadata->>'space','core')='core') targets,
+      (SELECT coalesce(jsonb_agg(jsonb_build_object('id',other.id,'statement',other.statement,
+        'kind',other.kind,'terms',other.terms,'value',other.value,'source_ref',other.source_ref,
+        'source_uid',public.fn_research_source_uid(other.source_ref),
+        'claim_uid',public.fn_research_claim_uid(other.statement)) ORDER BY length(other.statement) DESC,other.id),'[]'::jsonb)
+        FROM public.research_objects other WHERE other.id<>s.id AND other.status IN ('approved','canonical')
+          AND other.privacy_scope='public' AND public.fn_research_source_uid(other.source_ref)=s.source_uid
+          AND public.fn_research_claim_uid(other.statement)=public.fn_research_claim_uid(ro.statement)
+          AND coalesce(lower(btrim(other.meta#>>'{ext,personal_scope,scope}')),'')<>'person_only'
+          AND coalesce(lower(btrim(other.source)),'') NOT IN ('old_chat','openweb_legacy','or-geula')
+          AND coalesce(btrim(other.contributor),'')<>'אור הגאולה') identity_overlaps
+      FROM selected s LEFT JOIN public.research_objects ro ON ro.id=s.id
+        LEFT JOIN public.channel_updates cu ON cu.id=s.source_id),
+    replay AS (SELECT i.*,public.fn_method_value(i.method,i.phrase) computed,
+      EXISTS(SELECT 1 FROM public.gematria_methods m WHERE m.method_key=i.method AND m.in_engine IS TRUE) method_in_engine
+      FROM leaves i)
+    SELECT now() checked_at,(SELECT jsonb_agg(c ORDER BY c.id) FROM checks c) claims,
+      (SELECT jsonb_agg(r ORDER BY r.id,r.role) FROM replay r) engine_replays,
+      md5(pg_get_functiondef('public.fn_method_value(text,text)'::regprocedure)) engine_definition_md5,
+      (SELECT jsonb_agg(to_jsonb(m)) FROM public.gematria_methods m WHERE m.method_key='רגיל') methods`);
+}
+
+export function buildNumericResidualReview(evidence = readNumericResidualBatch(), receipt = readNumericResidualReceipt()) {
+  const selected = replayNumericResidualBatch(evidence);
+  requireEvidence(receipt && !Number.isNaN(Date.parse(receipt.checked_at))
+    && /^[a-f0-9]{32}$/u.test(receipt.engine_definition_md5)
+    && receipt.methods?.length === 1 && receipt.methods[0].method_key === 'רגיל'
+    && receipt.methods[0].in_engine === true, 'Missing canonical receipt');
+  requireEvidence(receipt.claims?.length === 40 && new Set(receipt.claims.map(r => r.id)).size === 40,
+    'Incomplete current claim receipt');
+  const expected = selected.flatMap(r => r.calculations.flatMap(c => c.engineInputs.map(i => ({id:r.row.id,...i}))));
+  requireEvidence(receipt.engine_replays?.length === expected.length && expected.every(e =>
+    receipt.engine_replays.filter(r => r.id === e.id && r.role === e.role && r.phrase === e.phrase
+      && r.method === e.method && r.expected === e.expected && r.computed === e.expected
+      && r.method_in_engine === true).length === 1), 'Canonical engine parity drift');
+  const rows = selected.map(({row:r,plan:p,source:s,calculations}) => {
+    const live = receipt.claims.find(c => c.id === r.id);
+    requireEvidence(live && ['admitted','general_scope','exact_claim','exact_source'].every(k => live[k] === true)
+      && live.source_ref === r.source_ref && live.source_md5 === s.md5 && live.source_uid === r.source_uid
+      && live.claim_uid === r.claim_uid && live.statement_md5 === hash(r.statement)
+      && JSON.stringify(live.targets) === JSON.stringify(r.targets || []), 'Live source/identity/target drift');
+    requireEvidence(Array.isArray(live.identity_overlaps) && live.identity_overlaps.every(o =>
+      o.id !== r.id && o.source_uid === r.source_uid && o.claim_uid === r.claim_uid), 'Unproven identity overlap');
+    // Identity overlap is not proof that all content is interchangeable. Never suppress.
+    const overlaps = live.identity_overlaps;
+    const interchangeable = overlaps.length > 0 && overlaps.every(o => o.kind === r.kind && o.value === r.value
+      && JSON.stringify(o.terms) === JSON.stringify(r.terms));
+    const fullest = interchangeable ? [r,...overlaps].sort((a,b) =>
+      b.statement.length-a.statement.length || a.id.localeCompare(b.id))[0].id : null;
+    return {id:r.id,title:r.statement,kind:p.kind,recommendation:p.recommendation,reason:p.reason,
+      strength:null,score:null,scoreTargetId:null,target:p.recommendation === 'מתאים לעץ' ? live.targets[0] : null,
+      sourceRef:r.source_ref,sourceId:s.id,sourceMd5:s.md5,sourceImage:s.image_url,
+      sourceCount:null,independentSourcesAdded:0,
+      calculations,canonicalChecks:receipt.engine_replays.filter(c => c.id === r.id),
+      media:{...r.media,inspected:false,markers:s.text.match(/\[Image [^\]]+\]/gu) || []},
+      identityOverlapIds:overlaps.map(o => o.id),recommendedFullestIdentityVersion:fullest,
+      identityOverlapNeedsReview:overlaps.length > 0,retainIds:[r.id,...overlaps.map(o=>o.id)],
+      interpretationVerified:false,corpusCountVerified:false,suppress:false,automaticPromotion:false,
+      publicationChanged:false,execute:false};
+  });
+  const textGroups = new Map();
+  for (const s of evidence.sources) {
+    if (s.text === '📷 עדכון') continue; // A shared placeholder is not duplicate source content.
+    const group = textGroups.get(s.text) || []; group.push(s.id); textGroups.set(s.text,group);
+  }
+  const repeatedSourceTexts = [...textGroups.values()].filter(ids => ids.length > 1)
+    .map(ids => ({sourceIds:ids.sort(),findingIds:rows.filter(r=>ids.includes(r.sourceId)).map(r=>r.id),
+      sourceTextOnly:true,independentSourcesAdded:0,merge:false}));
+  return {base:evidence.base,checkedAt:receipt.checked_at,rows,repeatedSourceTexts,
+    counts:{reviewed:rows.length,sourceMessages:evidence.sources.length,
+      withCalculationReplay:rows.filter(r=>r.calculations.length).length,
+      calculations:rows.reduce((n,r)=>n+r.calculations.length,0),canonicalChecks:expected.length,
+      byRecommendation:rows.reduce((a,r)=>(a[r.recommendation]=(a[r.recommendation]||0)+1,a),{}),
+      newFindings:0,promoted:0,deleted:0},execute:false};
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  process.stdout.write(buildResidualAuditSql(process.argv[2] || 'summary') + '\n');
+  const mode = process.argv[2] || 'summary';
+  if (mode === 'numeric-batch-sql') process.stdout.write(buildNumericResidualReceiptSql() + '\n');
+  else if (mode === 'numeric-batch') process.stdout.write(JSON.stringify(buildNumericResidualReview(),null,2) + '\n');
+  else process.stdout.write(buildResidualAuditSql(mode) + '\n');
 }
