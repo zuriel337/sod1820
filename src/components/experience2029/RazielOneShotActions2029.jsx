@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { RAZIEL_ONE_SHOT_LABEL } from "../../lib/research/razielViewMode2029.js";
 
 // "✨ הפתע אותי" and "🗺️ פתח מפת מחקר" sit next to "בדוק לעומק" with the same weight. Each is a ONE-SHOT
@@ -9,6 +10,7 @@ import { RAZIEL_ONE_SHOT_LABEL } from "../../lib/research/razielViewMode2029.js"
 // Provider refuses it again if the last answer has no valid Bundle. The caller renders it only on the latest visible answer
 // when the session is ready; the Bundle check itself lives in the lazy gate.
 export default function RazielOneShotActions2029({ session, onRun }) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(null);
   const [Offer, setOffer] = useState(null);
   const [actionState, setActionState] = useState(null);
@@ -26,7 +28,7 @@ export default function RazielOneShotActions2029({ session, onRun }) {
   const runSuggestedAction = async (action) => {
     if (!action?.id || session.busy || actionState?.status === "pending") return;
     if (action.id === "open_number") {
-      if (/^\/2029\/number\/[1-9]\d{0,5}$/.test(action.href || "")) globalThis.location?.assign?.(action.href);
+      if (/^\/2029\/number\/[1-9]\d{0,5}$/.test(action.href || "")) navigate(action.href);
       return;
     }
     setActionState({ id: action.id, status: "pending" });

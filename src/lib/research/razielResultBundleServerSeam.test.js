@@ -456,7 +456,11 @@ test("2029 expression crossing joins its canonical regular-value neighborhood wi
         agent: "raziel",
         answer: "פירוש קנוני למשיח",
         facts: [],
-        suggested_paths: [{ id: "delete_everything", label: "מחק הכול", href: "https://evil.example" }],
+        suggested_paths: [
+          { id: "delete_everything", label: "מחק הכול", href: "https://evil.example" },
+          { id: "open_number", label: "מודל שינה יעד", href: "/2029/number/999999" },
+          { id: "all_methods", subject: "מודל שינה ביטוי" },
+        ],
       }),
       usage: { input_tokens: 20, output_tokens: 10 }, attempts: 1, degraded: false,
     },
@@ -503,7 +507,7 @@ test("2029 expression crossing joins its canonical regular-value neighborhood wi
       href: "/2029/number/358",
     },
   ]);
-  assert.doesNotMatch(JSON.stringify(run.result.raziel.suggested_paths), /delete_everything|evil|מחק הכול/);
+  assert.doesNotMatch(JSON.stringify(run.result.raziel.suggested_paths), /delete_everything|evil|מחק הכול|999999|מודל שינה/);
   assert.equal(JSON.stringify(run.traces).includes(expression), false, "expression must not enter operational trace");
 });
 

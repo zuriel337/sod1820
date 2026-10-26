@@ -54,11 +54,28 @@ self.addEventListener('fetch',event=>{
 await writeFile(resolve(output, "preview-readonly-sw.js"), worker);
 // A push opt-in must never replace the Preview guard with the production push worker.
 await writeFile(resolve(output, "sw.js"), worker);
+const razielSafeActionsMock = process.env.SOD_RAZIEL_SAFE_ACTIONS_PREVIEW === "true";
+if (razielSafeActionsMock) {
+  if (process.env.VERCEL_ENV === "production") throw new Error("mock_preview_is_never_production");
+  const expectedBranch = "gpt/2029-central-raziel-safe-actions-integration-20261026";
+  if (process.env.VERCEL_GIT_COMMIT_REF && process.env.VERCEL_GIT_COMMIT_REF !== expectedBranch) throw new Error("mock_preview_branch_mismatch");
+  const { buildRazielSafeActionsPreviewWorker } = await import("../test/helpers/raziel-safe-actions-preview-fixture.mjs");
+  const outputWorker = buildRazielSafeActionsPreviewWorker(worker);
+  await writeFile(resolve(output, "preview-readonly-sw.js"), outputWorker);
+  await writeFile(resolve(output, "sw.js"), outputWorker);
+  const { execFileSync } = await import("node:child_process");
+  const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({ sha, branch: expectedBranch, transport: "mock-only", product_writes: false, edge_deploy: false }));
+}
 const bootstrap = `<script type="module">if(!('serviceWorker' in navigator)){document.body.textContent='פריוויו זה דורש דפדפן התומך בתצוגה לקריאה בלבד.';}else{await navigator.serviceWorker.register('/preview-readonly-sw.js',{scope:'/'});await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise(r=>navigator.serviceWorker.addEventListener('controllerchange',r,{once:true}));await import('__ENTRY__');}</script>`;
 let html = await readFile(resolve(output, "2029.html"), "utf8");
 const entry = html.match(/<script\b[^>]*type="module"[^>]*src="([^"]+)"[^>]*><\/script>/);
 if (!entry) throw new Error("missing2029Entry");
 html = html.replace(entry[0], bootstrap.replace("__ENTRY__", entry[1]));
+if (razielSafeActionsMock) {
+  const notice = '<aside data-raziel-preview-transport="mock-only" role="note" dir="rtl" style="position:fixed;z-index:2147483000;inset-inline:8px;bottom:82px;padding:6px 10px;border:1px solid #98783e;border-radius:8px;background:#fff5de;color:#231b12;font:14px/1.4 Arial;text-align:center;pointer-events:none">פריוויו בדיקה · תשובות דמה בלבד · אין קריאות מודל או כתיבה חיה. אפשר לשאול על משיח, או לכתוב „שמור שיחה”.</aside>';
+  html = html.replace("</body>", notice + "</body>");
+}
 await writeFile(resolve(output, "2029.html"), html);
 await writeFile(resolve(output, "index.html"), html);
 await mkdir(resolve(output, "preview-evidence"), { recursive: true });
