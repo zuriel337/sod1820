@@ -168,6 +168,10 @@ export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
 }
 
 const MATRIX_DISCOVERY_CONTRACT = "els_matrix_discovery_v1";
+const MATRIX_LANGUAGE_INSPECTION_CONTRACT = "els_matrix_language_inspection_v1";
+const TORAH_LANGUAGE_READING_CONTRACT = "els_torah_language_reading_v1";
+const LANGUAGE_ORIENTATIONS = new Set(["horizontal", "vertical", "diagonal-right", "diagonal-left"]);
+const LANGUAGE_RELATIONS = new Set(["exact-lexicon-match", "defective-spelling", "prefixed-form", "suffixed-form", "prefixed-suffixed-form"]);
 const GUIDED_FAILURE_CATEGORIES = Object.freeze({
   VOCABULARY: "vocabulary",
   VOCABULARY_MISS: "vocabulary",
@@ -190,6 +194,7 @@ const occurrenceIdentity = row => {
 };
 const finiteNumber = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
 const finiteRank = value => Number.isFinite(Number(value)) ? Number(value) : Number.MAX_SAFE_INTEGER;
+const safeInteger = value => Number.isSafeInteger(Number(value)) ? Number(value) : null;
 
 /** Maps only an explicit engine failure to the research taxonomy. */
 export function diagnoseElsGuidedFailure(failureCause) {
@@ -230,6 +235,81 @@ const projectVerifiedSupport = support => Object.freeze({
   matrixStage: String(support?.matrixStage || ""), distance: Math.max(0, finiteNumber(support?.distance)),
   source: String(support?.source || ""), ref: String(support?.ref || ""), book: String(support?.book || ""),
 });
+const projectLanguageInspection = (value, occurrence) => {
+  if (!value || value.contract !== MATRIX_LANGUAGE_INSPECTION_CONTRACT || value.status !== "CANDIDATE_INPUT"
+    || value.source !== "canonical_matrix_letters" || value.stage !== "S3_OPEN_SEQUENCE_SEGMENTATION"
+    || value.modelCallsTriggered !== 0 || value.findingMutation !== false || value.truthPromotion !== false) return null;
+  const axis = value.axis || {}, axisDirection = Number(axis.dir) === -1 ? "back" : Number(axis.dir) === 1 ? "fwd" : null;
+  if (String(axis.hitId || "") !== occurrence.hitId || safeInteger(axis.skip) !== safeInteger(occurrence.skip)
+    || (axisDirection !== occurrence.direction && safeInteger(axis.dir) !== safeInteger(occurrence.direction))
+    || occurrence.start != null && safeInteger(axis.start) !== occurrence.start) return null;
+  const rays = [], rayById = new Map();let letterCount = 0;
+  for (const raw of Array.isArray(value.rays) ? value.rays.slice(0, 24) : []) {
+    const orientation = String(raw?.orientation || ""), text = canonicalKey(raw?.text), reverseText = canonicalKey(raw?.reverseText);
+    const start = safeInteger(raw?.start), step = safeInteger(raw?.step), distance = safeInteger(raw?.distance);
+    if (!LANGUAGE_ORIENTATIONS.has(orientation) || text.length < 4 || text.length > 24
+      || reverseText !== [...text].reverse().join("") || start == null || start < 0 || step == null || step === 0
+      || distance == null || distance < 0 || distance > 80 || letterCount + text.length > 576) continue;
+    const id = `${orientation}:${start}:${step}:${text.length}`;
+    const ray = Object.freeze({ id, orientation, text, reverseText, start, step, length: text.length, distance, intersectsAxis: distance === 0 });
+    rays.push(ray);rayById.set(id, ray);letterCount += text.length;
+  }
+  if (!rays.length) return null;
+  const validReadingLocus = (raw, minLength, maxLength) => {
+    const ray = rayById.get(String(raw?.rayId || "")), start = safeInteger(raw?.start), step = safeInteger(raw?.step), length = safeInteger(raw?.length);
+    if (!ray || start == null || step == null || length == null || length < minLength || length > maxLength || ![ray.step, -ray.step].includes(step)) return null;
+    const traversalStart = step === ray.step ? ray.start : ray.start + (ray.length - 1) * ray.step;
+    const offset = (start - traversalStart) / step;
+    if (!Number.isSafeInteger(offset) || offset < 0 || offset + length > ray.length) return null;
+    const traversalText = step === ray.step ? ray.text : ray.reverseText;
+    return { ray, start, step, length, offset, canonicalLetters: traversalText.slice(offset, offset + length) };
+  };
+  const readings = [];
+  for (const raw of Array.isArray(value.readings) ? value.readings.slice(0, 12) : []) {
+    const locus = validReadingLocus(raw, 3, 10), canonicalLetters = canonicalKey(raw?.canonicalLetters), exactLetters = canonicalKey(raw?.exactLetters);
+    const relation = String(raw?.relation || ""), source = String(raw?.source || ""), baseTerm = canonicalKey(raw?.baseTerm);
+    if (!locus || raw?.contract !== TORAH_LANGUAGE_READING_CONTRACT || raw?.status !== "UNVERIFIED_READING"
+      || raw?.canonicalReplayRequired !== true || raw?.truthPromotion !== false || !LANGUAGE_RELATIONS.has(relation)
+      || !["story", "bounded-dictionary"].includes(source) || baseTerm.length < 3 || canonicalLetters.length !== locus.length
+      || canonicalLetters !== locus.canonicalLetters || exactLetters !== canonicalLetters) continue;
+    readings.push(Object.freeze({
+      contract: TORAH_LANGUAGE_READING_CONTRACT, status: "UNVERIFIED_READING", exactLetters, baseTerm,
+      label: String(raw?.label || "").slice(0, 60), relation, prefix: canonicalKey(raw?.prefix) || null,
+      suffix: canonicalKey(raw?.suffix) || null, source, selectionProtocol: source === "story" ? "CONTEXT_PRE_REGISTERED" : "GOVERNED_CORE",
+      rayId: locus.ray.id, orientation: locus.ray.orientation, readingDirection: locus.step === locus.ray.step ? "forward" : "reverse",
+      start: locus.start, step: locus.step, length: locus.length, distance: locus.ray.distance,
+      canonicalReplayRequired: true, truthPromotion: false,
+    }));
+  }
+  const segmentations = [];
+  for (const raw of Array.isArray(value.segmentations) ? value.segmentations.slice(0, 6) : []) {
+    const locus = validReadingLocus(raw, 6, 16), canonicalLetters = canonicalKey(raw?.canonicalLetters), exactLetters = canonicalKey(raw?.exactLetters);
+    const tokens = Array.isArray(raw?.tokens) ? raw.tokens.slice(0, 2).map(token => Object.freeze({
+      exactLetters: canonicalKey(token?.exactLetters), baseTerm: canonicalKey(token?.baseTerm), label: String(token?.label || "").slice(0, 60), relation: String(token?.relation || ""),
+    })) : [];
+    if (!locus || raw?.contract !== TORAH_LANGUAGE_READING_CONTRACT || raw?.status !== "UNVERIFIED_READING"
+      || raw?.relation !== "bounded-word-split" || raw?.canonicalReplayRequired !== true || raw?.truthPromotion !== false
+      || tokens.length !== 2 || tokens.some(token => token.baseTerm.length < 3 || !LANGUAGE_RELATIONS.has(token.relation))
+      || canonicalLetters.length !== locus.length || canonicalLetters !== locus.canonicalLetters || exactLetters !== canonicalLetters
+      || tokens.map(token => token.exactLetters).join("") !== exactLetters) continue;
+    segmentations.push(Object.freeze({
+      contract: TORAH_LANGUAGE_READING_CONTRACT, status: "UNVERIFIED_READING", relation: "bounded-word-split",
+      exactLetters, tokens: Object.freeze(tokens), rayId: locus.ray.id, orientation: locus.ray.orientation,
+      readingDirection: locus.step === locus.ray.step ? "forward" : "reverse", start: locus.start, step: locus.step,
+      length: locus.length, distance: locus.ray.distance, canonicalReplayRequired: true, truthPromotion: false,
+    }));
+  }
+  return Object.freeze({
+    contract: MATRIX_LANGUAGE_INSPECTION_CONTRACT, status: "CANDIDATE_INPUT", source: "canonical_matrix_letters",
+    stage: "S3_OPEN_SEQUENCE_SEGMENTATION", axis: Object.freeze({ hitId: occurrence.hitId, skip: occurrence.skip, direction: occurrence.direction, start: occurrence.start }),
+    authority: Object.freeze({ letters: "CANONICAL", segmentation: segmentations.length ? "DETERMINISTIC_CANDIDATE" : "UNRESOLVED", meaning: "UNVERIFIED", canonicalReplayRequired: true }),
+    coverage: Object.freeze({ rayCap: 24, maxLetters: 24, maxCandidateWindows: 8192, returnedRays: rays.length, letterCount,
+      candidatesExamined: Math.max(0, Math.min(8192, safeInteger(value?.coverage?.candidatesExamined) || 0)), returnedReadings: readings.length,
+      returnedSegmentations: segmentations.length, truncated: value?.coverage?.truncated === true }),
+    modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
+    rays: Object.freeze(rays), readings: Object.freeze(readings), segmentations: Object.freeze(segmentations),
+  });
+};
 const projectInspection = (inspection, occurrence, inputOrder) => {
   const bundle = inspection.discoveryBundle || (inspection?.ok === false ? {
     status: "LENS_FAILED", failureCause: "UI_PROJECTION", selected: null,
@@ -245,6 +325,7 @@ const projectInspection = (inspection, occurrence, inputOrder) => {
     priority: finiteNumber(selected?.relation?.priority), stage: String(selected?.relation?.stage || ""),
   });
   const strongGeometry = pairVerified && relation.stage === "A" && relation.priority >= 400;
+  const languageInspection = projectLanguageInspection(inspection?.languageInspection, occurrence);
   return Object.freeze({
     hitId: occurrence.hitId, occurrence, status: String(bundle?.status || ""), pairVerified, strongGeometry, relation,
     storyMatches: Math.max(0, finiteNumber(selected?.storyMatches)),
@@ -252,6 +333,7 @@ const projectInspection = (inspection, occurrence, inputOrder) => {
     sourceCount: new Set(supports.map(support => `${support.book}:${support.ref}`).filter(value => value !== ":")).size,
     supports: Object.freeze(supports),
     verifiedFindings: Object.freeze(verifiedFindings),
+    languageInspection,
     rawPatterns: Object.freeze((Array.isArray(inspection?.rawPatterns) ? inspection.rawPatterns : []).map(pattern => Object.freeze({
       term: String(pattern?.term || ""), occurrenceCount: Math.max(0, finiteNumber(pattern?.occurrenceCount)),
       matrixStage: String(pattern?.matrixStage || ""), status: String(pattern?.status || "UNVERIFIED_PATTERN"),

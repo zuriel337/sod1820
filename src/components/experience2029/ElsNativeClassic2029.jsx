@@ -410,11 +410,24 @@ const guidedFailureLabel = category => ({
   UNRESOLVED: "הסיבה עדיין לא סווגה",
 })[category] || "הסיבה עדיין לא סווגה";
 
+const guidedReadingLabel = relation => ({
+  "exact-lexicon-match": "התאמה לאוצר המצומצם",
+  "defective-spelling": "כתיב חסר/מלא",
+  "prefixed-form": "צורה עם תחילית",
+  "suffixed-form": "צורה עם סופית",
+  "prefixed-suffixed-form": "צורה עם תחילית וסופית",
+  "bounded-word-split": "חלוקה תחומה לשתי מילים",
+})[relation] || "קריאה לשונית אפשרית";
+
 function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOpen, onContinue, onAddSupports }) {
   if (!coverage) return pending ? <section className="els29-guided-coverage" aria-label="בדיקת מופעי הציר"><p role="status">ממתין לאימות הציר והמופעים…</p></section> : null;
   const recommendation = coverage.recommendation;
   const rawPatterns = [...new Map(coverage.inspections.flatMap(inspection => inspection.rawPatterns || []).map(pattern => [pattern.term, pattern])).values()];
   const failures = [...new Set(coverage.inspections.map(inspection => inspection.failure?.category).filter(Boolean))];
+  const languageInspections = coverage.inspections.map(inspection => inspection.languageInspection).filter(Boolean);
+  const languageReadings = languageInspections.flatMap(inspection => inspection.readings || []).slice(0, 8);
+  const languageSegmentations = languageInspections.flatMap(inspection => inspection.segmentations || []).slice(0, 4);
+  const languageRayCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.returnedRays || 0), 0);
   const recommendationTerms = new Set((recommendation?.supports || []).map(support => support.term));
   const localByTerm = new Map();
   for (const finding of coverage.inspections.flatMap(inspection => inspection.verifiedFindings || [])) {
@@ -468,6 +481,12 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
     {rawPatterns.length ? <details className="els29-guided-raw"><summary>מתקדם · דפוסים גולמיים ({rawPatterns.length})</summary>
       <p>אלה רצפי אותיות שחזרו בחלון. הם אינם מילים מזוהות ואינם מוצגים כממצא.</p>
       <ul>{rawPatterns.slice(0, 12).map(pattern => <li key={pattern.term}><bdi>{pattern.term}</bdi> · חזר {pattern.occurrenceCount} פעמים · {pattern.matrixStage === "A" ? "ללא פער במטריצה" : "מבנה עם פער"}</li>)}</ul>
+    </details> : null}
+    {languageInspections.length ? <details className="els29-guided-raw" data-els-language-inspection="candidate-only"><summary>מתקדם · מפת לשון מקומית ({languageRayCount} קווים)</summary>
+      <p>האותיות נלקחו מהמטריצה הקנונית. חלוקה למילים, כתיב ומשמעות הם קריאות מועמדות בלבד—לא ממצא ולא עובדה.</p>
+      {languageSegmentations.length ? <ul>{languageSegmentations.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}`}><bdi>{reading.exactLetters}</bdi> → {reading.tokens.map(token => token.label || token.baseTerm).join(" · ")} · {guidedReadingLabel(reading.relation)}</li>)}</ul> : null}
+      {languageReadings.length ? <ul>{languageReadings.map(reading => <li key={`${reading.rayId}:${reading.start}:${reading.step}:${reading.length}:${reading.baseTerm}`}><bdi>{reading.exactLetters}</bdi> → {reading.label || reading.baseTerm} · {guidedReadingLabel(reading.relation)}</li>)}</ul> : <p>לא נמצאה עדיין חלוקה בטוחה באוצר המצומצם. הקווים נשמרו כקלט תחום להמשך מחקר.</p>}
+      <small>AI: אפס קריאות · אין הוספה אוטומטית למטריצה · כל קריאה דורשת replay קנוני לפני שימוש כממצא.</small>
     </details> : null}
   </section>;
 }

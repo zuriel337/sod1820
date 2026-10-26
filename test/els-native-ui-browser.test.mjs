@@ -1576,9 +1576,13 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
     const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-discovery'));
     assert.ok(requests.length>=1&&requests.length<=4,'the automatic first wave stays within four occurrences');
     assert.ok(requests.every(message=>message.target.guidedOccurrenceCoverage===true&&message.target.setId&&message.target.hitId));
+    const reports=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok));
+    assert.ok(reports.length>=1&&reports.every(report=>report.languageInspection?.contract==='els_matrix_language_inspection_v1'));
+    assert.ok(reports.every(report=>report.languageInspection.modelCallsTriggered===0&&report.languageInspection.coverage.returnedRays<=24&&report.languageInspection.coverage.maxLetters===24));
     assert.equal(await page.evaluate(()=>window.__hostLog.some(message=>message.type==='update-findings')),false,'inspection never adds findings without the explicit button');
     assert.ok((await coverage.innerText()).includes('מופעים מאומתים'),'exact axis count is separate from local discoveries');
     assert.equal(await coverage.getByText(/דפוסים גולמיים/).count()<=1,true,'raw patterns have one advanced disclosure only');
+    assert.equal(await coverage.locator('[data-els-language-inspection="candidate-only"]').count(),1,'language candidates stay in one Advanced disclosure');
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'guided package has no horizontal page overflow');
   },{realHost:true,loadGolden:false,mobile:width===320,guided:true});
  });

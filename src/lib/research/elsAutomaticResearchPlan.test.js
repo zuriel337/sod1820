@@ -55,7 +55,7 @@ const guidedOccurrences = count => Array.from({ length: count }, (_, index) => (
 const guidedInspection = (hitId, {
   status = "VERIFIED_PAIR",
   relation = { code: "EXACT_INTERSECTION", label: "חצייה", priority: 600, stage: "A" },
-  terms = ["ממצאא", "ממצאבח"], storyMatches = 0, failureCause = null, setId = "set-current",
+  terms = ["ממצאא", "ממצאבח"], storyMatches = 0, failureCause = null, setId = "set-current", languageInspection = null,
 } = {}) => ({
   lens: "matrix-discovery", ok: true, contract: "els_matrix_discovery_v1", target: { hitId, setId },
   discoveryBundle: {
@@ -68,6 +68,22 @@ const guidedInspection = (hitId, {
       })),
     } : null,
   },
+  ...(languageInspection ? { languageInspection } : {}),
+});
+
+const guidedLanguageInspection = ({ hitId = "hit-1", skip = 31, dir = 1, axisStart = 1000 } = {}) => ({
+  contract: "els_matrix_language_inspection_v1", status: "CANDIDATE_INPUT", source: "canonical_matrix_letters",
+  stage: "S3_OPEN_SEQUENCE_SEGMENTATION", axis: { term: "ציר", scope: "torah", skip, dir, start: axisStart, hitId },
+  authority: { letters: "CANONICAL", segmentation: "DETERMINISTIC_CANDIDATE", meaning: "UNVERIFIED", canonicalReplayRequired: true },
+  coverage: { candidatesExamined: 160, truncated: false }, modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
+  rays: [{ id: "horizontal:500:1:7", orientation: "horizontal", text: "אבמלכימ", reverseText: "מיכלמבא", start: 500, step: 1, length: 7, distance: 0, intersectsAxis: true }],
+  readings: [{
+    contract: "els_torah_language_reading_v1", status: "UNVERIFIED_READING", exactLetters: "במלכים", canonicalLetters: "במלכימ",
+    baseTerm: "מלכ", label: "מלך", relation: "prefixed-suffixed-form", prefix: "ב", suffix: "ים", source: "bounded-dictionary",
+    selectionProtocol: "GOVERNED_CORE", rayId: "horizontal:500:1:7", orientation: "horizontal", readingDirection: "forward",
+    offset: 1, start: 501, step: 1, length: 6, distance: 0, canonicalReplayRequired: true, truthPromotion: false,
+  }],
+  segmentations: [],
 });
 
 test("guided coverage inspects exactly four canonical occurrences before explicit continuation", () => {
@@ -130,6 +146,41 @@ test("guided failure categories stay explicit and unknown causes fail closed", (
   assert.equal(diagnoseElsGuidedFailure("MATRIX_BOUNDS").category, "matrix_bounds");
   assert.equal(diagnoseElsGuidedFailure("UI_PROJECTION").category, "ui_projection");
   assert.equal(diagnoseElsGuidedFailure("unexpected").diagnosisRequired, true);
+});
+
+test("bounded Torah-language readings preserve exact letters and never become findings", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { languageInspection: guidedLanguageInspection() });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  const language = coverage.inspections[0].languageInspection;
+  assert.equal(language.contract, "els_matrix_language_inspection_v1");
+  assert.equal(language.authority.letters, "CANONICAL");
+  assert.equal(language.authority.meaning, "UNVERIFIED");
+  assert.equal(language.readings[0].exactLetters, "במלכימ");
+  assert.equal(language.readings[0].label, "מלך");
+  assert.equal(language.readings[0].relation, "prefixed-suffixed-form");
+  assert.equal(language.readings[0].canonicalReplayRequired, true);
+  assert.equal(language.truthPromotion, false);
+  assert.equal(language.findingMutation, false);
+  assert.equal(language.modelCallsTriggered, 0);
+  assert.equal(coverage.recommendation.supports.some(support => support.term === "במלכימ"), false);
+});
+
+test("language input with a foreign occurrence identity fails closed", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { languageInspection: guidedLanguageInspection({ hitId: "hit-other" }) });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection, null);
+});
+
+test("language input cannot substitute different letters at a valid ray locus", () => {
+  const occurrences = guidedOccurrences(1);
+  const languageInspection = guidedLanguageInspection();
+  languageInspection.readings[0].canonicalLetters = "במלחימ";
+  languageInspection.readings[0].exactLetters = "במלחים";
+  const inspection = guidedInspection("hit-1", { languageInspection });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection.readings.length, 0);
 });
 
 test("automatic plan derives each expression once, explains every form and deduplicates canonical terms", () => {

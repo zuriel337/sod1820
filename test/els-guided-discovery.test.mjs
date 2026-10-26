@@ -48,6 +48,13 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.match(source, /maxGapScale:3/);
   assert.match(source, /for\(const term of DICT\)addHint/);
   assert.match(source, /readingRelation:"defective-spelling"/);
+  assert.match(source, /guidedMatrixLanguageInspection/);
+  assert.match(source, /els_matrix_language_inspection_v1/);
+  assert.match(source, /S3_OPEN_SEQUENCE_SEGMENTATION/);
+  assert.match(source, /maxCandidateWindows=8192/);
+  assert.match(source, /rayCap=24,maxLetters=24/);
+  assert.match(source, /status:"UNVERIFIED_READING"/);
+  assert.match(source, /modelCallsTriggered:0,findingMutation:false,truthPromotion:false/);
   assert.match(source, /guidedMatrixDisplayTerm/);
   assert.match(source, /searchRule:"no-default-broad-lexicon"/);
   assert.match(source, /rawPatterns/);
@@ -55,6 +62,16 @@ test("Guided matrix discovery is a bounded lens in the existing engine and keeps
   assert.match(source, /promoteVerified/);
   assert.match(source, /numericSkipPromoted:false/);
   assert.doesNotMatch(source, /matrix-discovery"[\s\S]{0,1200}dynamicCandidateLexicon/);
+  assert.doesNotMatch(source, /guidedMatrixLanguageInspection[\s\S]{0,12000}(?:fetch\s*\(|ai-analyze|Math\.random|dynamicCandidateLexicon)/);
+});
+
+test("Torah-language readings stay in Advanced and preserve the exact-letter authority", async () => {
+  const source = await readFile(NATIVE, "utf8");
+  assert.match(source, /data-els-language-inspection="candidate-only"/);
+  assert.match(source, /האותיות נלקחו מהמטריצה הקנונית/);
+  assert.match(source, /קריאות מועמדות בלבד/);
+  assert.match(source, /AI: אפס קריאות/);
+  assert.doesNotMatch(source, /languageInspection[\s\S]{0,1200}requestFindingsChange/);
 });
 
 test("Classic stays clean while Research alone owns manual cross-search controls", async () => {
