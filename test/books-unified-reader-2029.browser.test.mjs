@@ -126,6 +126,16 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
             await page.getByRole("heading", { name: "מדרגות החיים וקע״ד הקולות", exact: true }).waitFor();
           }
         }
+        if (manifest.slug === "sefer-habahir" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("פירוש מודפס במהדורה", { exact: true }).waitFor();
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("דבר אל הקורא");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 44" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "44");
+          await page.getByRole("heading", { name: "דבר אל הקורא ומלאכת המהדיר", exact: true }).waitFor();
+        }
       }
       await context.close();
     }

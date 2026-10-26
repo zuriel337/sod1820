@@ -10,6 +10,7 @@
 .book-reader29-source-details dl>div{display:grid;grid-template-columns:minmax(88px,.36fr) minmax(0,1fr);gap:10px;border-top:1px solid var(--s29-line);padding-top:8px}
 .book-reader29-source-details dt{color:var(--s29-muted);font:500 11px/1.45 var(--s29-font-ui)}
 .book-reader29-source-details dd{margin:0;color:var(--s29-text);font:520 12px/1.5 var(--s29-font-ui);overflow-wrap:anywhere}
+.book-reader29-source-note{margin:0;border-top:1px solid var(--s29-line);padding:10px 0 13px;color:var(--s29-muted);font:450 11px/1.55 var(--s29-font-ui)}
 .book-reader29-layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(330px,.75fr);gap:18px;align-items:start}
 .book-reader29-source{position:sticky;top:18px;min-width:0;border:1px solid var(--s29-line-strong);border-radius:24px;background:color-mix(in srgb,var(--s29-page) 93%,var(--s29-panel));padding:12px;box-shadow:0 18px 48px color-mix(in srgb,var(--s29-panel) 30%,transparent)}
 .book-reader29-source>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 3px 12px}

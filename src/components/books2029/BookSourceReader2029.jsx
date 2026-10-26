@@ -139,8 +139,10 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
           <div><dt>היקף</dt><dd>{manifest.pdfPages} עמודי PDF · {manifest.chapters.length} חטיבות קריאה</dd></div>
           {deepReading.pageText ? <div><dt>חיפוש טקסט</dt><dd>{searchablePages}/{manifest.pdfPages} עמודים · שכבת איתור בלבד</dd></div> : null}
           {imageOnlyPages.length ? <div><dt>עמודים חזותיים</dt><dd>{imageOnlyPages.join(", ")} · נקראים ישירות מן ה־PDF</dd></div> : null}
+          {deepReading.commentary?.source_layers?.printed_commentary ? <div><dt>פירוש מודפס במהדורה</dt><dd>{deepReading.commentary.source_layers.printed_commentary}</dd></div> : null}
           {pageCommentary?.technical_note ? <div><dt>הבחנת קריאה</dt><dd>{pageCommentary.technical_note}</dd></div> : null}
         </dl>
+        {deepReading.commentary?.source_note ? <p className="book-reader29-source-note">{deepReading.commentary.source_note}</p> : null}
       </details>
     </header>
 

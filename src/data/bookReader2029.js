@@ -125,6 +125,8 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     language: "עברית",
     pdfPages: 48,
     pdfUrl: `${GALLERY_ROOT}/Sefer_HaBahir_1883.pdf`,
+    pageTextUrl: "/book-data/sefer-habahir.page-text.json",
+    commentaryUrl: "/book-data/sefer-habahir.commentary.json",
     introduction: "ספר קצר ודחוס הבנוי ממאמרים ומשלים, ולצדו פירוש אור הגנוז במהדורה הזאת. הדרך הקלה לקריאה היא להתקדם ביחידות קצרות, לזהות את המשל ואת הנמשל, ולשמור בנפרד את לשון הבהיר ואת דברי הפירוש.",
     readingKeys: ["לקרוא מאמר אחד בכל פעם", "להפריד בין גוף הבהיר לפירוש אור הגנוז", "לזהות מתי מספר, אות או דמות משמשים כמבנה רעיוני"],
     chapters: [
