@@ -1,5 +1,6 @@
 import { supabase } from "./supabase.js";
 import { canonicalFollowTopic } from "./followIdentity.js";
+import { contentSeriesByKey } from "./research/contentSeries2029Identity.js";
 
 // ===== מרכז התראות — נושאים וערוצים (תשתית, ערוץ-אגנוסטי) =====
 // מקור אחד לכל ההתראות: Follow נשמר ככוונת-מעקב, וה-Dispatcher החי שולח כרגע In-App.
@@ -103,10 +104,14 @@ export async function getMyNotifications(limit = 30, { strict = false } = {}) {
 // ===== שכבת-הייצוג (label resolution) — ההופכי של resolve_topics שב-DB =====
 // canonicalFollowTopic מאחד aliases קיימים לצורך תצוגה בלבד. ה-DB נשאר authority לזהות/dispatch.
 // cat:/author: עדיין compatibility label keys עד stable-ID migration; Number כבר stable.
-export function topicLabel(topic) {
+export function topicLabel(topic, { experience = null } = {}) {
   if (!topic) return null;
   const t = canonicalFollowTopic(topic);
-  if (t.startsWith("cat:"))    { const v = t.slice(4);  return { icon: "📁", label: v, link: `/category/${encodeURIComponent(v)}`, kind: "קטגוריה" }; }
+  if (t.startsWith("cat:"))    { const v = t.slice(4);  return { icon: "📁", label: v, link: experience === "2029" ? `/2029/posts?category=${encodeURIComponent(v)}` : `/category/${encodeURIComponent(v)}`, kind: "קטגוריה" }; }
+  if (experience === "2029" && t.startsWith("series:")) {
+    const spec = contentSeriesByKey(t.slice(7));
+    if (spec) return { icon: "📚", label: spec.label, link: `/2029/posts?series=${encodeURIComponent(spec.key)}`, kind: "סדרה" };
+  }
   if (t.startsWith("author:")) { const v = t.slice(7);  return { icon: "✍️", label: v, link: `/community/researcher/${encodeURIComponent(v)}`, kind: "כתב" }; }
   if (t.startsWith("number:")) { const v = t.slice(7);  return { icon: "🔢", label: v, link: `/number/${v}`, kind: "מספר" }; }
   if (t === "stream:reality")  return { icon: "🌊", label: "זרם המציאות", link: "/archive", kind: "ערוץ" };

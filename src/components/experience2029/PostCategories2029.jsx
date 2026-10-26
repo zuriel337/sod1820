@@ -7,7 +7,7 @@ import { STRONG_HINT_CATEGORY } from "../StrongHintBadge.jsx";
 import { canonicalPostCategories } from "../../lib/postCategoryIdentity.js";
 import "./postCategories2029.css";
 
-const categoryHref = (name) => `/category/${encodeURIComponent(name)}`;
+const categoryHref = (name) => `/2029/posts?category=${encodeURIComponent(name)}`;
 
 function Chip({ name, nested }) {
   const strong = name === STRONG_HINT_CATEGORY;
