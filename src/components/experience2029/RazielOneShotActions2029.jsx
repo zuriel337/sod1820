@@ -9,7 +9,7 @@ import { RAZIEL_ONE_SHOT_LABEL } from "../../lib/research/razielViewMode2029.js"
 // The first click loads and shows the explanation (lazy chunk); the request is sent only from its explicit button, and the
 // Provider refuses it again if the last answer has no valid Bundle. The caller renders it only on the latest visible answer
 // when the session is ready; the Bundle check itself lives in the lazy gate.
-export default function RazielOneShotActions2029({ session, onRun }) {
+export default function RazielOneShotActions2029({ session, onRun, disabled = false }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(null);
   const [Offer, setOffer] = useState(null);
@@ -26,7 +26,7 @@ export default function RazielOneShotActions2029({ session, onRun }) {
     if (open !== kind && !Offer) import("./RazielOneShotOffer2029.jsx").then((module) => setOffer(() => module.default), close);
   };
   const runSuggestedAction = async (action) => {
-    if (!action?.id || session.busy || actionState?.status === "pending") return;
+    if (!action?.id || session.busy || disabled || actionState?.status === "pending") return;
     if (action.id === "open_number") {
       if (/^\/2029\/number\/[1-9]\d{0,5}$/.test(action.href || "")) navigate(action.href);
       return;
@@ -45,14 +45,14 @@ export default function RazielOneShotActions2029({ session, onRun }) {
   return (
     <>
       {Object.keys(RAZIEL_ONE_SHOT_LABEL).map((kind) => (
-        <button key={kind} className="sod29-action" type="button" disabled={session.busy} aria-expanded={open === kind} data-raziel-oneshot={kind} onClick={() => toggle(kind)}>{RAZIEL_ONE_SHOT_LABEL[kind]}</button>
+        <button key={kind} className="sod29-action" type="button" disabled={session.busy || disabled} aria-expanded={open === kind} data-raziel-oneshot={kind} onClick={() => toggle(kind)}>{RAZIEL_ONE_SHOT_LABEL[kind]}</button>
       ))}
       {suggestedActions.map((action) => (
         <button
           key={action.id}
           className="sod29-action"
           type="button"
-          disabled={session.busy || actionState?.status === "pending"}
+          disabled={session.busy || disabled || actionState?.status === "pending"}
           data-raziel-suggested-action={action.id}
           onClick={() => runSuggestedAction(action)}
         >
@@ -61,7 +61,7 @@ export default function RazielOneShotActions2029({ session, onRun }) {
       ))}
       {actionState?.status === "done" && actionState.id === "save_conversation" ? <span role="status">השיחה נשמרה.</span> : null}
       {actionState?.status === "error" ? <span role="status">הפעולה לא הושלמה. אפשר לנסות שוב.</span> : null}
-      {open && Offer ? <Offer kind={open} session={session} busy={session.busy} onRun={() => { close(); onRun(open); }} onClose={close} /> : null}
+      {open && Offer ? <Offer kind={open} session={session} busy={session.busy || disabled} onRun={() => { close(); onRun(open); }} onClose={close} /> : null}
     </>
   );
 }

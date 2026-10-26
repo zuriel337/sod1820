@@ -203,7 +203,9 @@ test("M: global routing stays OFF; model/provider calls only on explicit send, n
   assert.doesNotMatch(edge, /routing_enabled\s*=\s*true/);
   assert.doesNotMatch(razielReq.slice(razielReq.indexOf('persona || "").toLowerCase() === "raziel"')), /fn_raziel_model|routing_enabled/);
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
-  assert.doesNotMatch(chat, /useEffect/);                         // no effect ⇒ nothing fires on mount/open
+  assert.equal((chat.match(/useEffect\(/g) || []).length, 1);
+  assert.match(chat, /useEffect\(\(\) => \{ setGuestQuotaEnded\(false\); \}, \[user\?\.id\]\)/);
+  assert.doesNotMatch(chat.slice(chat.indexOf("useEffect("), chat.indexOf("if (!session)")), /submit|transport|fetch|askRaziel/);
   assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
   assert.match(chat, /const send = async[\s\S]*session\.submit\(\{ question: q,/);
   assert.match(provider, /const submit = useCallback[\s\S]*const rawResponse = await transport\(request\)/);

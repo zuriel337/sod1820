@@ -49,6 +49,8 @@ test("one conversation: desktop Companion and mobile sheet consume the same sess
   assert.equal((frame.match(/<RazielNativeChat /g) || []).length, 2);
   assert.match(frame, /<RazielNativeChat[^>]*projection="desktop"/);
   assert.match(frame, /<RazielNativeChat[^>]*projection="mobile"/);
+  assert.equal((frame.match(/<RazielNativeChat[^>]*onSignup=\{onSignup\}/g) || []).length, 1);
+  assert.equal((frame.match(/<RazielNativeChat[^>]*onSignup=\{openWorkspace\}/g) || []).length, 1);
   assert.match(chat, /const session = useOptionalRazielSession2029\(\);/);
   assert.doesNotMatch(chat, /useState\(\[\]\)|setThread|await askRaziel\s*\(/);
   assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 0);
@@ -152,9 +154,11 @@ test("deep continuation is not rebound to a newly opened surface", () => {
 });
 
 test("zero AI on open/navigation: the only transport boundary is an explicit submit", () => {
-  assert.doesNotMatch(chat, /useEffect|useLayoutEffect/);
+  const principalReset = chat.slice(chat.indexOf("useEffect(() => { setGuestQuotaEnded"), chat.indexOf("if (!session)"));
+  assert.match(principalReset, /setGuestQuotaEnded\(false\)/);
+  assert.doesNotMatch(principalReset, /submit|transport|askRaziel|fetch|invoke/);
   assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
-  assert.match(chat, /if \(!q \|\| busy\) return;/);
+  assert.match(chat, /if \(!q \|\| busy \|\| guestQuotaEnded\) return;/);
   assert.match(chat, /send\(text, "fast"\)/);
   const reset = mount.slice(mount.indexOf("function RazielSessionOwnerReset2029"), mount.indexOf("export default"));
   assert.doesNotMatch(reset, /submit|transport|askRaziel/);
