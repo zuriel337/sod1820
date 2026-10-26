@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import {
   buildRazielSavedSessionEntity,
   normalizeRazielSavedSessionEntity,
+  normalizeRazielSavedSessionTitle,
   RAZIEL_SAVED_SESSION_SCHEMA,
   RAZIEL_SAVED_SESSION_TYPE,
   razielSavedSessionState,
@@ -78,6 +79,25 @@ test("saving an already saved conversation updates the same stable library ident
   assert.equal(second.entity.turn_count, 2);
 });
 
+test("renaming keeps the saved conversation identity and payload unchanged", () => {
+  const original = buildRazielSavedSessionEntity(completedState(), { now: () => "2026-10-26T12:00:00Z" }).entity;
+  const title = normalizeRazielSavedSessionTitle("  <b>השיחה של שאול</b>\u0000  ");
+  assert.equal(title, "השיחה של שאול");
+  assert.equal(normalizeRazielSavedSessionTitle("   "), null);
+  assert.equal(normalizeRazielSavedSessionTitle("א".repeat(120)).length, 96);
+  const renamed = { ...original, title };
+  const state = applyResearchOps(emptyResearchState(), [
+    { kind: "item_upsert", bucket: "library", entity: original },
+    { kind: "item_upsert", bucket: "library", entity: renamed },
+  ]);
+  assert.equal(state.saved.length, 1);
+  assert.equal(state.saved[0].id, original.id);
+  assert.equal(state.saved[0].type, original.type);
+  assert.equal(state.saved[0].ref, original.ref);
+  assert.deepEqual(state.saved[0].thread, original.thread);
+  assert.equal(state.saved[0].title, "השיחה של שאול");
+});
+
 test("invalid, pending and oversized conversations fail closed instead of silently truncating", () => {
   assert.deepEqual(buildRazielSavedSessionEntity({ ...completedState(), busy: true }), { ok: false, error: "session_pending" });
   assert.deepEqual(buildRazielSavedSessionEntity(createInitialRazielSessionState()), { ok: false, error: "session_empty" });
@@ -143,6 +163,9 @@ test("provider and chat use the existing ResearchProvider explicitly and keep se
   assert.match(providerSource, /await import\("\.\/razielSavedSession2029\.js"\)/);
   assert.match(providerSource, /research\.saveItem\?\.\(built\.entity\)/);
   assert.match(providerSource, /research\.removeSaved\?\.\(selected\.id\)/);
+  assert.match(providerSource, /const renameSavedSession = useCallback/);
+  assert.match(providerSource, /research\.saveItem\?\.\(entity\)/);
+  assert.match(providerSource, /if \(previous\?\.title\) built\.entity\.title = previous\.title/);
   assert.doesNotMatch(providerSource.split("const RazielSessionContext2029")[0], /razielSavedSession2029/);
   assert.doesNotMatch(providerSource, /localStorage|sessionStorage|supabase\.from|fetch\(/);
   assert.match(frameSource, /data-raziel-save-session="true"/);

@@ -31,6 +31,10 @@ function cleanInline(value, limit = 160) {
   return text || null;
 }
 
+export function normalizeRazielSavedSessionTitle(value) {
+  return cleanInline(value, LIMITS.title);
+}
+
 function cleanMessageText(value, limit) {
   if (value == null) return null;
   const text = String(value).replace(/\u0000/g, "").replace(/\r\n?/g, "\n").trim();

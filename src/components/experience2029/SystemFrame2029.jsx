@@ -39,6 +39,7 @@ import ContactGateway from "../ContactGateway.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
+import RazielCenter2029 from "./RazielCenter2029.jsx";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
 import { razielContextParts, razielStatusLabel } from "./razielSessionSeam2029.js";
@@ -1235,6 +1236,8 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
   const [follows, setFollows] = useState({ status: "loading", topics: [] });
   const [inbox, setInbox] = useState({ status: "loading", items: [], unread: 0 });
   const [stats, setStats] = useState(null);
+  const razielSession = useOptionalRazielSession2029();
+  const [workspaceSection, setWorkspaceSection] = useState("home");
 
   // Follow = canonical notification_prefs seam (user or approved guest getter); no new store.
   useEffect(() => {
@@ -1322,6 +1325,14 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
     go(`/profile?module=${encodeURIComponent(module)}&returnTo=${encodeURIComponent(returnTo)}`, { preserve: false });
   };
 
+  if (workspaceSection === "raziel") {
+    return <RazielCenter2029
+      session={razielSession}
+      onBack={() => setWorkspaceSection("home")}
+      onOpenConversation={onRaziel}
+    />;
+  }
+
   const core = [
     { id: "account", icon: "👤", title: "החשבון שלי", sub: userId ? (displayName || "מחובר") : "כניסה / הרשמה ושמירה בין מכשירים", state: "live", onClick: openAccount },
     { id: "profile", icon: "⚙", title: "הפרופיל וההגדרות", sub: "שם, תמונה ופרטים אישיים", state: "live", onClick: () => openExistingModule("profile") },
@@ -1337,7 +1348,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
     { id: "messages", icon: "📨", title: "ההודעות שלי", sub: "הודעות פרטיות ותגובות אליי", state: "live", onClick: () => openExistingModule("messages") },
     { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits} · פירוט` : "יתרה והיסטוריה", state: "live", onClick: () => openExistingModule("credits") },
     { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "live", onClick: () => go("/els?library=mine") },
-    { id: "raziel", icon: "✦", title: "השיחות שלי", sub: razielLocked ? "נעול עד השלמת האימות" : "המשך מאיפה שעצרת", state: razielLocked ? "building" : "live", locked: razielLocked, onClick: razielLocked ? null : onRaziel },
+    { id: "raziel", icon: "✦", title: "השיחות שלי", sub: razielLocked ? "נעול עד השלמת האימות" : "המשך מאיפה שעצרת", state: razielLocked ? "building" : "live", locked: razielLocked, onClick: razielLocked ? null : () => setWorkspaceSection("raziel") },
   ];
 
   return (

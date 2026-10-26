@@ -145,6 +145,10 @@ export function RazielSessionProvider2029({
     const { buildRazielSavedSessionEntity } = await import("./razielSavedSession2029.js");
     const built = buildRazielSavedSessionEntity(stateRef.current, { now: clock });
     if (!built.ok) return built;
+    const previous = (Array.isArray(research.saved) ? research.saved : []).find((item) => (
+      item?.type === "raziel_session" && item.ref === built.entity.ref
+    ));
+    if (previous?.title) built.entity.title = previous.title;
     if (!research.saveItem?.(built.entity)) return { ok: false, error: "research_save_unavailable" };
     dispatch({ type: "session_saved", sessionRef: built.entity.ref, savedAt: built.entity.saved_at });
     return { ok: true, session: built.entity };
@@ -168,6 +172,28 @@ export function RazielSessionProvider2029({
       item?.type === "raziel_session" && (item.id === sessionId || item.ref === sessionId)
     ));
     return selected ? Boolean(research.removeSaved?.(selected.id)) : false;
+  }, [research]);
+
+  const renameSavedSession = useCallback(async (sessionId, requestedTitle) => {
+    if (inFlightRef.current || stateRef.current.busy) return { ok: false, error: "turn_pending" };
+    const selected = (Array.isArray(research.saved) ? research.saved : []).find((item) => (
+      item?.type === "raziel_session" && (item.id === sessionId || item.ref === sessionId)
+    ));
+    if (!selected) return { ok: false, error: "saved_session_not_found" };
+    const { normalizeRazielSavedSessionEntity, normalizeRazielSavedSessionTitle } = await import("./razielSavedSession2029.js");
+    const normalized = normalizeRazielSavedSessionEntity(selected);
+    if (!normalized) return { ok: false, error: "saved_session_invalid" };
+    const title = normalizeRazielSavedSessionTitle(requestedTitle);
+    if (!title) return { ok: false, error: "title_required" };
+    const entity = {
+      ...selected,
+      id: normalized.id,
+      ref: normalized.ref,
+      type: normalized.type,
+      title,
+    };
+    if (!research.saveItem?.(entity)) return { ok: false, error: "research_save_unavailable" };
+    return { ok: true, session: entity };
   }, [research]);
 
   const resetTemporarySession = useCallback(() => {
@@ -196,11 +222,12 @@ export function RazielSessionProvider2029({
     saveCurrentSession,
     restoreSavedSession,
     removeSavedSession,
+    renameSavedSession,
     savedSessions,
     savedSessionsSyncStatus: research.syncStatus || "local_only",
     resetTemporarySession,
   }), [state, submit, setViewMode, submitOneShot, saveCurrentSession, restoreSavedSession,
-    removeSavedSession, savedSessions, research.syncStatus, resetTemporarySession]);
+    removeSavedSession, renameSavedSession, savedSessions, research.syncStatus, resetTemporarySession]);
 
   return (
     <RazielSessionContext2029.Provider value={value}>
