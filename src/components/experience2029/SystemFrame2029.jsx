@@ -1348,7 +1348,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
     { id: "messages", icon: "📨", title: "ההודעות שלי", sub: "הודעות פרטיות ותגובות אליי", state: "live", onClick: () => openExistingModule("messages") },
     { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits} · פירוט` : "יתרה והיסטוריה", state: "live", onClick: () => openExistingModule("credits") },
     { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "live", onClick: () => go("/els?library=mine") },
-    { id: "raziel", icon: "✦", title: "השיחות שלי", sub: razielLocked ? "נעול עד השלמת האימות" : "המשך מאיפה שעצרת", state: razielLocked ? "building" : "live", locked: razielLocked, onClick: razielLocked ? null : () => setWorkspaceSection("raziel") },
+    { id: "raziel", icon: "✦", title: "השיחות שלי", sub: razielLocked ? "השיחות השמורות זמינות; המשך עם רזיאל עדיין נעול" : "המשך מאיפה שעצרת", state: "live", onClick: () => setWorkspaceSection("raziel") },
   ];
 
   return (
@@ -2142,7 +2142,7 @@ function SystemFrame2029Body({
       locale={locale}
       onDone={closeTransient}
     /></PanelShell>;
-    return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
+    return <PanelShell {...common} panelKind="workspace" icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
       context={context}
       go={go}
       onRaziel={openRaziel}

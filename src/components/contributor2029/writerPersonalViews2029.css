@@ -1,19 +1,21 @@
 .wp-layout,.wp-home,.wp-portrait,.wp-progress{box-sizing:border-box;min-width:0;max-width:100%;color:var(--wp-ink);font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif);font-size:16px;line-height:1.6}
-.wp-layout{display:grid;gap:16px}
-.wp-head{display:grid;gap:8px}
+.wp-layout{display:grid;gap:18px;width:min(100%,980px);margin-inline:auto;padding-inline:clamp(0px,1vw,10px)}
+.wp-head{display:grid;gap:8px;justify-items:center;text-align:center}
 .wp-title{margin:0;font-size:clamp(20px,5vw,28px);line-height:1.3}
-.wp-body,.wp-home{display:grid;gap:16px}
+.wp-head-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px}
+.wp-body,.wp-home{display:grid;gap:16px;width:100%;min-width:0;text-align:start}
 .wp-card{display:grid;gap:10px;padding:16px;border:1px solid var(--wp-border);border-radius:12px;background:var(--wp-card)}
 .wp-h{margin:0;font-size:18px;font-weight:600}
 .wp-muted{margin:0;color:var(--wp-muted);font-size:16px}
 .wp-link,.wp-nav-link{display:inline-flex;align-items:center;min-height:44px;color:var(--wp-accent);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
-.wp-nav{display:flex;flex-wrap:wrap;gap:8px}
+.wp-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;width:100%;margin-inline:auto}
 .wp-nav-link{padding:0 14px;border:1px solid var(--wp-border);border-radius:999px;text-decoration:none;background:var(--wp-soft);color:var(--wp-ink)}
 .wp-nav-link[aria-current=page]{border-color:var(--wp-gold);font-weight:600}
 .wp-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:0 16px;border:1px solid var(--wp-border);border-radius:10px;background:var(--wp-soft);color:var(--wp-ink);font:inherit;text-decoration:none;cursor:pointer}
 .wp-primary{background:var(--wp-accent);border-color:var(--wp-accent);color:var(--wp-card)}
 .wp-btn:disabled{opacity:.6;cursor:not-allowed}
 .wp-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.wp-login{justify-items:center;text-align:center;padding-block:clamp(24px,5vw,42px)}
 .wp-field{font-weight:600}
 .wp-input{width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid var(--wp-border);border-radius:10px;background:var(--wp-soft);color:var(--wp-ink);font:inherit;font-size:max(16px,1em)}
 .wp-area{min-height:120px;resize:vertical}
@@ -31,11 +33,20 @@
 /* Reused legacy inline modules inside the wrapper: enforce 16px text and 44px targets. Inline styles need !important;
    decorative (aria-hidden) glyphs and the rank medallion keep their own sizing. */
 .wp-body :is(p,li,label,small,button,a,input,select,textarea,span:not([aria-hidden]),div):not(.wp-medallion,.wp-medallion *){font-size:max(16px,1em)!important}
-.wp-body :is(button,select,textarea,a[role=button],input:not([type=checkbox],[type=radio])):not(.wp-medallion *){min-height:44px!important;min-width:44px}
+.wp-body :is(button,select,textarea,a,input:not([type=checkbox],[type=radio])):not(.wp-medallion *){min-height:44px!important;min-width:44px}
+.wp-body a:not(.wp-medallion *){display:inline-flex;align-items:center}
 .wp-body [role=checkbox]{min-height:44px!important}
 .wp-body input:is([type=checkbox],[type=radio]){width:24px;height:24px}
 .wp-body :is(button,[role=checkbox]){white-space:normal!important}
 .wp-layout .sod29-frame-state button{min-height:44px;min-width:44px}
 :is(.wp-layout,.wp-home,.wp-portrait,.wp-progress) :is(a,button,input,textarea):focus-visible{outline:2px solid var(--wp-focus);outline-offset:3px}
+@media(max-width:620px){
+  .wp-layout{gap:14px;padding-inline:0}
+  .wp-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .wp-nav-link{justify-content:center;text-align:center;padding-inline:10px}
+  .wp-head-actions{width:100%}
+  .wp-head-actions>*{flex:1 1 140px;justify-content:center}
+}
 @media(max-width:390px){.wp-btn{flex:1 1 100%}.wp-card{padding:12px}}
+@media(max-width:330px){.wp-nav{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){:is(.wp-layout,.wp-home,.wp-portrait,.wp-progress) *{transition:none!important;animation:none!important}}

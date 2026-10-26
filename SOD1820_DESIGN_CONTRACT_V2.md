@@ -1,6 +1,6 @@
 # SOD1820 DESIGN CONTRACT V2
 
-**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026
+**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026; balanced RTL composition approved 26.10.2026
 **Owner:** experience_governance_foundation_v1_law v9 → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
@@ -188,6 +188,19 @@ Global Chrome placement and mobile projection are locked in §11. Desktop Adapti
 
 **Owner routing:** project_codex.publishing_conventions for authored Post/source, Research Intake + research_object_identity_invariant_law for occurrence/fragment provenance, reality_graph_law for relations, and Experience/System Frame for these **presentation projections**. Tests/rollout under the existing G4 Posts-first + cross-surface Golden, not a new Golden or independent editor.
 
+### 8.2 Balanced RTL composition · Human Gate ZURIEL · 26.10.2026
+
+RTL controls reading direction, logical order and the start edge of Hebrew copy. It does **not** authorize pinning the whole page, its primary content plane, cards or module navigation to the physical right side of the viewport.
+
+- Every ordinary 2029 content surface uses the existing centered, bounded content plane with balanced logical gutters. Implementations consume the shared System Frame/layout owner and logical CSS properties; they do not create a page-local shell merely to obtain centering.
+- Hebrew prose, labels and scan-heavy lists remain `text-align:start` inside that plane. The outer wrapper, card grid and module composition remain visually centered and width-balanced. Applying `text-align:start`, `justify-items:start` or `direction:rtl` to an outer layout in a way that leaves an unexplained dead field on the opposite side is a contract violation.
+- Surface identity headings, module switchers and primary action groups may be centered or symmetrically distributed when they orient the whole view. Long prose and ordinary link lists are not centered for decoration.
+- Personal Area, My Page, profile/settings, Messages, My Research, saved Raziel conversations and progress surfaces are one explicit acceptance family for this rule. Message/thread rows may align by sender semantics, but their containing reading plane remains centered and usable.
+- At 320px and 390px the composition becomes a near-full-width stack with balanced inline padding. It must not collapse into a narrow right-hand column, require horizontal panning or hide controls behind the logical start edge.
+- Intentional asymmetric product chrome is exempt only where this contract defines it explicitly (for example the global navigation rail and contextual Companion). Such chrome must not displace the primary content plane into an accidental right-pinned layout.
+
+This is a composition rule, not a command to center every Hebrew sentence. Page centering and text alignment are separate decisions and must be tested separately.
+
 ## 9. Migration
 - 2029 migrates through shared tokens/components first.
 - Legacy remains Legacy until its own redesign pass.
@@ -356,6 +369,8 @@ A 2029 visual-foundation change must prove:
 5. no truth/status meaning encoded only by decoration;
 6. Legacy routes are not mass-restyled accidentally;
 7. no new palette/theme store or page-local color owner.
+8. the primary content plane is centered with balanced inline gutters; RTL text alignment has not pinned the whole composition to the right;
+9. Personal Area, My Page, Messages and My Research are checked as a shared visual family at 320px, 390px, 768px and 1440px, with screenshots or browser geometry proving no unexplained opposite-side dead field or narrow right-hand column.
 
 ## Navigation icon family — approved 8.10.2026
 
