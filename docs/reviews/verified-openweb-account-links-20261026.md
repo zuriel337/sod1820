@@ -63,6 +63,10 @@ The initial four-profile operation was applied through the authorized Supabase S
 
 No claims of deployed frontend behavior follow from this data operation. No schema, RPC, RLS, Auth/provider values, merged_into, main or deployment changed.
 
-The two-profile follow-up is prepared and tested at this commit; final application results will be appended after execution. PostgreSQL has 20 passing assertions (including seven rejection cases and replay from the four-profile baseline). Sixteen Node tests and 19 built-browser cases pass; the browser includes both correct self-editor links and both cross-account denials. Build 2029, dependency graph, hard isolation, cheap hardening, Legacy Production Lock and diff check pass.
+The two-profile follow-up was committed as `1ab0723a6632bfb7a553b4acd3b17605ad6233c6`, then applied. Read-only verification confirms Sod1820 → zyz997 and Yosi Viner → כי לה׳ המלוכה through their existing account Persons. Each account retains exactly one primary dossier and its private visibility. Yosi's valid same-account merged_into pointer is unchanged.
+
+Final batch totals: six distinct account Persons, 12 historical edges, six applied decision_ledger records, two primary claim events (unchanged from the first four) and all 283 imported messages. All eight edge IDs from the first four-profile batch remain intact. No identity conflict remains among these six approved email matches.
+
+PostgreSQL has 20 passing assertions (including seven rejection cases and replay from the four-profile baseline). Sixteen Node tests and 19 built-browser cases pass; the browser includes both correct self-editor links and both cross-account denials. Build 2029, dependency graph, hard isolation, cheap hardening, Legacy Production Lock and diff check pass. Browser tests use synthetic HTTP fixtures with zero unplanned writes; live post-apply checks validate database links, not a deployed frontend.
 
 The replies RPC migration in PR #1169 remains a separate central/DB-owner integration dependency. Identity links alone do not claim the new inbox reader or all frontend consumers are already deployed.
