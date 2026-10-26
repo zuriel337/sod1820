@@ -17,7 +17,7 @@
   "mapping_note": "המפה מסדרת סימני מהלך שנקלטו בשכבת החילוץ ומקשרת אותם לעמוד המקור. ציטוט מוצג רק בשלוש נקודות שנקראו חזותית; בכל יתר היחידות ה־PDF הוא המקור המחייב.",
   "coverage": {
     "requested_pdf_pages": 84,
-    "mapped_pdf_pages": 8,
+    "mapped_pdf_pages": 42,
     "mapped_pages": [
       1,
       2,
@@ -26,10 +26,44 @@
       5,
       6,
       7,
-      8
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42
     ],
-    "internal_units": 10,
-    "chapters": 2,
+    "internal_units": 68,
+    "chapters": 5,
     "status": "checkpoint_in_progress"
   },
   "chapters": [
@@ -59,6 +93,91 @@
         "maamar-esther-opening-p06-u02",
         "maamar-esther-opening-p07-u01",
         "maamar-esther-opening-p08-u01"
+      ]
+    },
+    {
+      "id": "chapter-1",
+      "title": "פרק א׳",
+      "from": 9,
+      "to": 24,
+      "megillahChapter": "א׳",
+      "unit_ids": [
+        "maamar-esther-chapter-1-p09-u01",
+        "maamar-esther-chapter-1-p10-u01",
+        "maamar-esther-chapter-1-p10-u02",
+        "maamar-esther-chapter-1-p10-u03",
+        "maamar-esther-chapter-1-p11-u01",
+        "maamar-esther-chapter-1-p11-u02",
+        "maamar-esther-chapter-1-p12-u01",
+        "maamar-esther-chapter-1-p13-u01",
+        "maamar-esther-chapter-1-p14-u01",
+        "maamar-esther-chapter-1-p14-u02",
+        "maamar-esther-chapter-1-p15-u01",
+        "maamar-esther-chapter-1-p16-u01",
+        "maamar-esther-chapter-1-p16-u02",
+        "maamar-esther-chapter-1-p17-u01",
+        "maamar-esther-chapter-1-p17-u02",
+        "maamar-esther-chapter-1-p18-u01",
+        "maamar-esther-chapter-1-p19-u01",
+        "maamar-esther-chapter-1-p20-u01",
+        "maamar-esther-chapter-1-p21-u01",
+        "maamar-esther-chapter-1-p21-u02",
+        "maamar-esther-chapter-1-p22-u01",
+        "maamar-esther-chapter-1-p22-u02",
+        "maamar-esther-chapter-1-p23-u01",
+        "maamar-esther-chapter-1-p23-u02",
+        "maamar-esther-chapter-1-p24-u01",
+        "maamar-esther-chapter-1-p24-u02"
+      ]
+    },
+    {
+      "id": "chapter-2",
+      "title": "פרק ב׳",
+      "from": 25,
+      "to": 36,
+      "megillahChapter": "ב׳",
+      "unit_ids": [
+        "maamar-esther-chapter-2-p25-u01",
+        "maamar-esther-chapter-2-p26-u01",
+        "maamar-esther-chapter-2-p26-u02",
+        "maamar-esther-chapter-2-p26-u03",
+        "maamar-esther-chapter-2-p26-u04",
+        "maamar-esther-chapter-2-p26-u05",
+        "maamar-esther-chapter-2-p27-u01",
+        "maamar-esther-chapter-2-p28-u01",
+        "maamar-esther-chapter-2-p29-u01",
+        "maamar-esther-chapter-2-p29-u02",
+        "maamar-esther-chapter-2-p30-u01",
+        "maamar-esther-chapter-2-p31-u01",
+        "maamar-esther-chapter-2-p31-u02",
+        "maamar-esther-chapter-2-p32-u01",
+        "maamar-esther-chapter-2-p33-u01",
+        "maamar-esther-chapter-2-p33-u02",
+        "maamar-esther-chapter-2-p34-u01",
+        "maamar-esther-chapter-2-p35-u01",
+        "maamar-esther-chapter-2-p35-u02",
+        "maamar-esther-chapter-2-p35-u03",
+        "maamar-esther-chapter-2-p36-u01",
+        "maamar-esther-chapter-2-p36-u02"
+      ]
+    },
+    {
+      "id": "chapter-3",
+      "title": "פרק ג׳",
+      "from": 37,
+      "to": 42,
+      "megillahChapter": "ג׳",
+      "unit_ids": [
+        "maamar-esther-chapter-3-p37-u01",
+        "maamar-esther-chapter-3-p37-u02",
+        "maamar-esther-chapter-3-p38-u01",
+        "maamar-esther-chapter-3-p38-u02",
+        "maamar-esther-chapter-3-p38-u03",
+        "maamar-esther-chapter-3-p39-u01",
+        "maamar-esther-chapter-3-p40-u01",
+        "maamar-esther-chapter-3-p40-u02",
+        "maamar-esther-chapter-3-p41-u01",
+        "maamar-esther-chapter-3-p42-u01"
       ]
     }
   ],
@@ -481,6 +600,2369 @@
       "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=8&view=FitH",
       "related_unit_ids": [
         "maamar-esther-opening-p07-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p09-u01",
+      "pdf_page": 9,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "verse_discussion",
+      "source_focus": "א1 מאמר אסתר הפיטיל א׳ ב פ ס ר ה ויהי בימי אחשורוש הוא אחשורוש וכף במדרש הוא אחשורוש עד שלא נכנסה אסהר אצלו הוא אחשורוש משנכנסה אסהר אצלו לא הי׳ בועל",
+      "source_quote": "ויהי בימי אחשורוש הוא אחשורוש המולך מהודו ועד כוש שבע ועשרים ומאה מדינה",
+      "quote_status": "visually_readable_in_source_page",
+      "question": "א1 מאמר אסתר הפיטיל א׳ ב פ ס ר ה ויהי בימי אחשורוש הוא אחשורוש וכף במדרש הוא אחשורוש עד שלא נכנסה אסהר אצלו הוא אחשורוש משנכנסה אסהר אצלו לא הי׳ בועל נדוה המלך ועדיין לא מלך כוי׳ והנה המדרש הזה צווח דרשוני וחיו כי אינו מובן כלל מה מודיע לנו הכתוב בזה וגס",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש",
+        "עקידה"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 9 ומאתרים את א1 מאמר אסתר הפיטיל א׳ ב פ ס ר ה ויהי בימי אחשורוש הוא אחשורוש וכף במדרש הוא אחשורוש עד שלא נכנסה אסהר אצלו הוא אחשורוש משנכנסה אסהר אצלו לא הי׳ בועל.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 9; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 9: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · משה · מלכות · שבת. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "משה",
+        "ישראל",
+        "עשו"
+      ],
+      "concepts": [
+        "מלכות",
+        "שבת",
+        "תורה",
+        "בחירה",
+        "נס",
+        "כבוד"
+      ],
+      "extraction_anchor": "א1 מאמר אסתר הפיטיל א׳ ב פ ס ר ה ויהי בימי אחשורוש הוא אחשורוש וכף במדרש הוא אחשורוש עד שלא נכנסה אסהר אצלו הוא אחשורוש משנכנסה אסהר אצלו לא הי׳ בועל נדוה המלך ועדיין לא מלך כוי׳ והנה המדרש הזה צווח דרשוני וחיו כי אינו מובן כלל מה מודיע לנו הכתוב בזה וגס המדרש שהי׳ אחשורוש עד שלא נכנסה אסתר אצלווכו׳ .וגס מה מודיע",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=9&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=9&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p10-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p10-u01",
+      "pdf_page": 10,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "וטטס שהודיע לנו הכתוב זה הוא כמו שיתבאר לקמן וט״כ שאל המדרש באמת מדוט זה הרי להלן כתיב כי לד׳ המלוכה ומושל בגויס דוקא והמלך רק כמטה וכאן את אמר טל",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 10?",
+      "cited_sources": [
+        "מדרש",
+        "ש״ס"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 10 ומאתרים את וטטס שהודיע לנו הכתוב זה הוא כמו שיתבאר לקמן וט״כ שאל המדרש באמת מדוט זה הרי להלן כתיב כי לד׳ המלוכה ומושל בגויס דוקא והמלך רק כמטה וכאן את אמר טל.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 10; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 10: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · המן · מלכות · מגילה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "המן",
+        "ישראל"
+      ],
+      "concepts": [
+        "מלכות",
+        "מגילה",
+        "שבת",
+        "בחירה",
+        "נס"
+      ],
+      "extraction_anchor": "אין היכולה בידם ואין הס משחמשין כשבט המלך רק ה ק ס ה הוא המולך והוא משתמש בהס כגרזן ביד החוצב בו; וכמ״ש הוי אשור שבט אפי ואין נקראין לשון מלך רק בדרך השאלה לפי ראות טיני האדם אין מושל טליהם ט״כ קוראין אוחו מלך אבל באמת מושאל ואין שם הטצם גופו .ולפי״ז א״ש המדרש שהי׳ קשה להמדיש דיוק לשון מלכותו דהו״ל לכתוב כשבת המלך טל",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=10&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=10&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p09-u01",
+        "maamar-esther-chapter-1-p10-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p10-u02",
+      "pdf_page": 10,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 2 בעמוד 10",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 10?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 10 ומאתרים את מהלך 2 בעמוד 10.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 10; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 10: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש"
+      ],
+      "concepts": [],
+      "extraction_anchor": "ב פ ס ו ה ויהי בימי אחשורוש הוא אחשורוש המולך מהודי ועד כוש וכו׳ הנה להבין זה נראה לומר דהנה אמרו חז״ל",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=10&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=10&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p10-u01",
+        "maamar-esther-chapter-1-p10-u03"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p10-u03",
+      "pdf_page": 10,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 3,
+      "kind": "verse_discussion",
+      "source_focus": "בפסוק דאה קראתי בשם בצלאל דנמל הקב״ה ספרו של אדה״ר והראה למשה דור דור ודורשיו והראה בצלאל עומד ובונה ביהמ״ק",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 10?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 10 ומאתרים את בפסוק דאה קראתי בשם בצלאל דנמל הקב״ה ספרו של אדה״ר והראה למשה דור דור ודורשיו והראה בצלאל עומד ובונה ביהמ״ק.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 10; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 10: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: משה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "משה"
+      ],
+      "concepts": [],
+      "extraction_anchor": "בפסוק דאה קראתי בשם בצלאל דנמל הקב״ה ספרו של אדה״ר והראה למשה דור דור ודורשיו והראה בצלאל עומד ובונה ביהמ״ק",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=10&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=10&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p10-u02",
+        "maamar-esther-chapter-1-p11-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p11-u01",
+      "pdf_page": 11,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 11",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 11?",
+      "cited_sources": [],
+      "argument_steps": [
+        "ב3 מאמר אסתר א כיהמ״ק ייע״ש .ולסי״ז י״ל דה״כ מה שאחשורוש ימלוך מ הו ד ועד כוש נמי נעשה כן מששה ימי בראשיס מאז נקבע אחשורוש להיוח מולך מהודו ועד כוש .וז״ש ויהי בימי אחשורוש דהנה אלו המלכים שמלכו ולא נבחרו לכך מששה ימי בראשיח ואח״כ מלכו אין הימים והזמן שלהם רק",
+        "ולכך אמר ויהי בימי אחשורוש דהימים הי׳ של אחשורוש והיינו מכח דהוא אחשורוש המולך מתחילה מששת ימי בראשית הוי הוא אחשורוש הנאמר בספרו של אדה״ר המולך מהודו ועד כוש שבע ועשרים ומאה מדינה .והנה בזה נבין משחז״ל"
+      ],
+      "conclusion": "ולכך אמר ויהי בימי אחשורוש דהימים הי׳ של אחשורוש והיינו מכח דהוא אחשורוש המולך מתחילה מששת ימי בראשית הוי הוא אחשורוש הנאמר בספרו של אדה״ר המולך מהודו ועד כוש שבע ועשרים ומאה מדינה .והנה בזה נבין משחז״ל",
+      "companion_explanation": "פרק א׳, עמוד 11: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר"
+      ],
+      "concepts": [],
+      "extraction_anchor": "ב3 מאמר אסתר א כיהמ״ק ייע״ש .ולסי״ז י״ל דה״כ מה שאחשורוש ימלוך מ הו ד ועד כוש נמי נעשה כן מששה ימי בראשיס מאז נקבע אחשורוש להיוח מולך מהודו ועד כוש .וז״ש ויהי בימי אחשורוש דהנה אלו המלכים שמלכו ולא נבחרו לכך מששה ימי בראשיח ואח״כ מלכו אין הימים והזמן שלהם רק שאול הוא בידם אבל במי שנקבע מששת ימי בראשית למלוכה א״כ",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=11&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=11&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p10-u03",
+        "maamar-esther-chapter-1-p11-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p11-u02",
+      "pdf_page": 11,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "בפסוק ותכתוב אסתר את כל תוקך לקיים את אגרת הפורים הזאת השנית ואיכא חדמ״ד דחייב לקרות המגילה מייהי בימי אמשורוש דמ״ש כל הוקך היינו תקפו של אחשורושוהכי",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "בפסוק ותכתוב אסתר את כל תוקך לקיים את אגרת הפורים הזאת השנית ואיכא חדמ״ד דחייב לקרות המגילה מייהי בימי אמשורוש דמ״ש כל הוקך היינו תקפו של אחשורושוהכי קיימ״ל ובאמת לא נודע מה ענין תקפו של אחשורוש להנס וגס מה שייכות זה לקיים את כאגרת הזאת השנית .אך נראה הכוונה",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "ש״ס"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 11 ומאתרים את בפסוק ותכתוב אסתר את כל תוקך לקיים את אגרת הפורים הזאת השנית ואיכא חדמ״ד דחייב לקרות המגילה מייהי בימי אמשורוש דמ״ש כל הוקך היינו תקפו של אחשורושוהכי.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 11; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 11: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · משתה · מגילה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ושתי",
+        "ישראל",
+        "עשו"
+      ],
+      "concepts": [
+        "משתה",
+        "מגילה",
+        "פורים",
+        "גזירה",
+        "פסח",
+        "תורה",
+        "נס",
+        "הלל"
+      ],
+      "extraction_anchor": "בפסוק ותכתוב אסתר את כל תוקך לקיים את אגרת הפורים הזאת השנית ואיכא חדמ״ד דחייב לקרות המגילה מייהי בימי אמשורוש דמ״ש כל הוקך היינו תקפו של אחשורושוהכי קיימ״ל ובאמת לא נודע מה ענין תקפו של אחשורוש להנס וגס מה שייכות זה לקיים את כאגרת הזאת השנית .אך נראה הכוונה דהיינו באלו הרשעים שהי׳ משעבדין לישראל בתורת עונש וצרה זה לא",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=11&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=11&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p11-u01",
+        "maamar-esther-chapter-1-p12-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p12-u01",
+      "pdf_page": 12,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "verse_discussion",
+      "source_focus": "מאמר אסתר א מ״ט אין אומרים הלל בפורים מפורש בש״ס דהוא מכח ר!״ו דמעבדוס לחירות אומרים הלל ממיתה לחיים לא כ״ש אך באמת לפי מ״ש הוי ק״ו פריכא דהתם הוי",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 12?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש",
+        "ש״ס"
+      ],
+      "argument_steps": [
+        "מאמר אסתר א מ״ט אין אומרים הלל בפורים מפורש בש״ס דהוא מכח ר!״ו דמעבדוס לחירות אומרים הלל ממיתה לחיים לא כ״ש אך באמת לפי מ״ש הוי ק״ו פריכא דהתם הוי הגזירה ממם 'לרטה וחל טליהם שם טבדות לכך כשיצאו לחירות שייך הלל אך בפורים מתחילה לא חל הגזירה ולא בא הגזירה רק",
+        "דנתמנה לכך מששת ימי בראשית זה הוי הילולא דזה מורהדלא הוי כאן גזירה מתחילה רק לטובה ולא שייך כאן הלל יותר רק דהקריאה הוי הלולא וז״ש ר׳ יונתן דהנה טיקר קריאת המגילה היי פרסומי ניסא ולכך אמר דתחת הנטציץ יטלה ברוש.",
+        "וא״ש הדיוק דלפי פשיטו הו״ל לומר טלה בלשון טתיד מה יטלה אך לפמ״ש א״ש דקאי טל התחלת הגזירה דמתחילה לא הוי רצה השי״ת ח״ו להרט רק מתחילה רצה להיות תחת הנטציץ יטלה ברום ותחת הסרפד יטלה הדס ולפ״ז אין כאן חיוב הלל רק פרסימי ניסא לכך והי׳ לה׳ לשם זה מקרא מגילה דמקרא",
+        "ב פ ס ו ל ,שבט ומשרים ומאה מדינה וכו׳ בגמ׳ איכא פלוגתא דרב ושמואל חד אמר מלך חכם הי׳ דבני מתא כל אימת דבטי מפייס להו וחד אמר מלך טיפש הוה דהוי להו לאזמוכי בכי מתא ברישא .דאימרדו בהו הנך הני הוי קיימי בהדי׳ במה פליגי הני המ״ד .והאיך מיישב כ״א סברת חבירו .ונראה"
+      ],
+      "conclusion": "וא״ש הדיוק דלפי פשיטו הו״ל לומר טלה בלשון טתיד מה יטלה אך לפמ״ש א״ש דקאי טל התחלת הגזירה דמתחילה לא הוי רצה השי״ת ח״ו להרט רק מתחילה רצה להיות תחת הנטציץ יטלה ברום ותחת הסרפד יטלה הדס ולפ״ז אין כאן חיוב הלל רק פרסימי ניסא לכך והי׳ לה׳ לשם זה מקרא מגילה דמקרא",
+      "companion_explanation": "פרק א׳, עמוד 12: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מגילה · פורים. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר"
+      ],
+      "concepts": [
+        "מגילה",
+        "פורים",
+        "גזירה",
+        "נס",
+        "הלל"
+      ],
+      "extraction_anchor": "מאמר אסתר א מ״ט אין אומרים הלל בפורים מפורש בש״ס דהוא מכח ר!״ו דמעבדוס לחירות אומרים הלל ממיתה לחיים לא כ״ש אך באמת לפי מ״ש הוי ק״ו פריכא דהתם הוי הגזירה ממם 'לרטה וחל טליהם שם טבדות לכך כשיצאו לחירות שייך הלל אך בפורים מתחילה לא חל הגזירה ולא בא הגזירה רק כדי שיצליחו וא״כ בזה לא חל טליהס שם מיתה לא שייך הלל .אך טיקר",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=12&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=12&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p11-u02",
+        "maamar-esther-chapter-1-p13-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p13-u01",
+      "pdf_page": 13,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "verse_discussion",
+      "source_focus": "כ פ ס ו ל ,ימים רבים שמוניס ומאת יום וכו׳ יש לדייק חדא דהו״ל ימים מה יום לשון יחיד ועוד כיון דנזכר המנין מפורש ממילא נדע דהם רבים למה נצרך לפרש רבים",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ב פ ס ו ה בשנה שלש למלכו .הנה לכאורה המקראין סוהרין זא״ז דמחחילה אמר כשבה המלך משמע בשעה ההחלה מלכוהו .ואח״כ אמר בשנה שלש למלכו וחז״ל נראה שהרגישו בזה ופרשו כשבה לאחר שנהיישבה מלכוהו״ אך נראה לסרש דיש לדייק עור מ״ש בימים ההם כשבה המלך הך בימים ההם הוי למוהר",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש",
+        "ש״ס",
+        "רש״י",
+        "מהרש״א"
+      ],
+      "argument_steps": [
+        "ב פ ס ו ה בשנה שלש למלכו .הנה לכאורה המקראין סוהרין זא״ז דמחחילה אמר כשבה המלך משמע בשעה ההחלה מלכוהו .ואח״כ אמר בשנה שלש למלכו וחז״ל נראה שהרגישו בזה ופרשו כשבה לאחר שנהיישבה מלכוהו״ אך נראה לסרש דיש לדייק עור מ״ש בימים ההם כשבה המלך הך בימים ההם הוי למוהר",
+        "כ פ ס ו ל ,ימים רבים שמוניס ומאת יום וכו׳ יש לדייק חדא דהו״ל ימים מה יום לשון יחיד ועוד כיון דנזכר המנין מפורש ממילא נדע דהם רבים למה נצרך לפרש רבים אך נראה דהנה במדרש ס׳ שמות איתא דע״י שהי׳ ימים של צער לכך קורא אותן רבים וכן אמר הכא דע״י •שהי׳ בהראותו את",
+        "ו ג ר ס י ק בש״ס פ״ק דמגילה שאלו תלמידיו את רשב״י מפני מה נתחייבו כוי ייע״ש כל המפורשים תמהו פה אחד דמפני מה אמר להן אמרו אתם כיון שידע הטעם בעצמו .ונראה כי הנה באמת הס הי׳ אנוסים בהשתחוות לצלם שבלא״ה הי׳ הורגם .אך בע״ז קיי״ל דיהרוג ואל יעבור ומשחז״ל שחנני׳",
+        "קיי״ל כל היכא דיהרוג ואל יעבור אס עבר אין הב״ד עונשין אותו וכו׳ ונראה הטעם אך דבהנך ג׳ עבירות כיון דלא מהני בסו אונס מיתה והרי כאלו כתיב הלאו של ע״ז ודומיהן בהדיא גס אם יהי׳ אונס ומ״ע אין ב״ד עונשין וצריך לומר דבאמה כיון דבצנעה יעבור ואל יהרוג א״כ הדרוש דוחי"
+      ],
+      "conclusion": "כ פ ס ו ל ,ימים רבים שמוניס ומאת יום וכו׳ יש לדייק חדא דהו״ל ימים מה יום לשון יחיד ועוד כיון דנזכר המנין מפורש ממילא נדע דהם רבים למה נצרך לפרש רבים אך נראה דהנה במדרש ס׳ שמות איתא דע״י שהי׳ ימים של צער לכך קורא אותן רבים וכן אמר הכא דע״י •שהי׳ בהראותו את",
+      "companion_explanation": "פרק א׳, עמוד 13: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · מרדכי · ישראל · מלכות · מגילה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "מרדכי",
+        "ישראל",
+        "עשו"
+      ],
+      "concepts": [
+        "מלכות",
+        "מגילה",
+        "שבת",
+        "נס",
+        "כבוד"
+      ],
+      "extraction_anchor": "ב פ ס ו ה בשנה שלש למלכו .הנה לכאורה המקראין סוהרין זא״ז דמחחילה אמר כשבה המלך משמע בשעה ההחלה מלכוהו .ואח״כ אמר בשנה שלש למלכו וחז״ל נראה שהרגישו בזה ופרשו כשבה לאחר שנהיישבה מלכוהו״ אך נראה לסרש דיש לדייק עור מ״ש בימים ההם כשבה המלך הך בימים ההם הוי למוהר דפשימא דהי׳ הסעודה בימים ההם שנעשו והל״ל בקיצור כשבה המלך",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=13&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=13&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p12-u01",
+        "maamar-esther-chapter-1-p14-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p14-u01",
+      "pdf_page": 14,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 14",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 14?",
+      "cited_sources": [
+        "רש״י"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 14 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 14.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 14; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 14: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר"
+      ],
+      "concepts": [],
+      "extraction_anchor": "מאמר אסתר א 6 שיהרוג בפרהסיא ובהנך הלמודים לא נכסב שום טונש ב״ד אס טבר כו׳ והנה בט״ז שיהרוג וטל יטבור כלמוד במס׳ סנהדרין מואהבת אח ר כו׳ בכל נפשך כו׳ וא״כ לפ״ז נראה דהוי מ״ט בפ״ט להרוג ואל יטבור אבל ל״ח לא מצינו טל זה ואן דהרמב״ם בה׳ י סו ד החורה נקמ נמי לאו .מ״מ בסמ״ג הובא בפר״ד דרך מצוחיך חלק ס כחב בשם סמ״ג דהוי רק",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=14&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=14&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p13-u01",
+        "maamar-esther-chapter-1-p14-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p14-u02",
+      "pdf_page": 14,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "בפסוק ולא חחללו אח שם קדשו טיי״ש וטיין בחבורי ליו״ד מהדורא ה׳ סימן קנ״ז מ״ש בזה .והנה בגמרא מכחוח פרק החכלת גבי מלאכא דאשכח לרב קטינא אמר לי׳ טכשיחו",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "א ו פ ן ב״ במאמר הנ״ל שאלו תלמידיו את רשב״י מפני מה נחחייבו ישראל שבאותו הדור כלי׳ וכו׳ טד סוןג המאמר .הכה במאמר הזה טמדו כולם חדא כיון שרשב״י ידט הממס מפני שהשתחוו לצלם .למה אמר להם אמרו אתם .ושנית הס ששאלו וכי משא פנים יש בדבר גס לנפשם תקשה שאמרו מפני שנהנו",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "גמרא",
+        "מהרש״א"
+      ],
+      "argument_steps": [
+        "בפסוק ולא חחללו אח שם קדשו טיי״ש וטיין בחבורי ליו״ד מהדורא ה׳ סימן קנ״ז מ״ש בזה .והנה בגמרא מכחוח פרק החכלת גבי מלאכא דאשכח לרב קטינא אמר לי׳ טכשיחו אטשה כו׳ אמר ני׳ אין בטיק רוחחא כו׳ ייט״ש דאן למ״ד חובח גברא דהוי ציציח חובח גברא מ״מ אין טונשין אטשה כי אס",
+        "דבאמח חייב לקכוח לו מליח כו׳ ולפי דבריו אטפ״כ אין טונשין רק בטידן רוחחא ובאמח שדברי החגס׳ שם מהשמביאין ראי׳ ב״ד מכין וטוכשין טד שחצא נפשו כו׳ אין ראי׳ כלל דהב״ד מכין טל להבא כדי שיקיים טוד אבל לשטבר אין ב״ד מכין טל לשטבר וא״כ אן טוכש בידי שמיס דהוי טל לשטבר"
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 14; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 14: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · המן · גזירה · תשובה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ישראל"
+      ],
+      "concepts": [
+        "גזירה",
+        "תשובה"
+      ],
+      "extraction_anchor": "בפסוק ולא חחללו אח שם קדשו טיי״ש וטיין בחבורי ליו״ד מהדורא ה׳ סימן קנ״ז מ״ש בזה .והנה בגמרא מכחוח פרק החכלת גבי מלאכא דאשכח לרב קטינא אמר לי׳ טכשיחו אטשה כו׳ אמר ני׳ אין בטיק רוחחא כו׳ ייט״ש דאן למ״ד חובח גברא דהוי ציציח חובח גברא מ״מ אין טונשין אטשה כי אס בטיק רוחחא ומ״ש החוס׳ שם דהיינו דוקא משוס דאינו חייב לקנוח לו",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=14&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=14&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p14-u01",
+        "maamar-esther-chapter-1-p15-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p15-u01",
+      "pdf_page": 15,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 15",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 15?",
+      "cited_sources": [],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 15 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 15.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 15; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 15: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · ישראל · משתה · פורים. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "ישראל"
+      ],
+      "concepts": [
+        "משתה",
+        "פורים",
+        "תשובה",
+        "פסח",
+        "נס",
+        "כבוד",
+        "הלל"
+      ],
+      "extraction_anchor": "ד י מאמר אסתר א רק חמא אחד לבד אף שנחחייבו כלי׳ מ״מ לא הי׳ הדבר נגזר בסומביא טדיין רק הי׳ נכהב בהוך האגרה אבל בסתשגן הכהב הי' נכחכ סהס להיוה הטמיס טחידיס ולא יודטין אס להרוג וכו׳ רק שמטצמן הרגישו ישראל כי לב יודט מרח נפשו אבל בשושן שחטאו יותר נגזר טליהס להדיא גס בפתשגן .הכחב להשמידם ואח״כ כשחזרו בתשובה וקיי״ל דבתשובה",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=15&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=15&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p14-u02",
+        "maamar-esther-chapter-1-p16-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p16-u01",
+      "pdf_page": 16,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 16",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 16?",
+      "cited_sources": [
+        "ספרי"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 16 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 16.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 16; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 16: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · משה · ישראל · גזירה · תשובה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "משה",
+        "ישראל",
+        "עשו"
+      ],
+      "concepts": [
+        "גזירה",
+        "תשובה"
+      ],
+      "extraction_anchor": "מאמר אסתר א 8 ובשאר ספרים שהיכא שכיהן רשוה למלאך המשחיח לאבד צדיק או צדיקים ואח״כ נהבגילה הגזירה אעפ״כ המשחיס אינו חוזר ריקם רק הקב״ה מוכרח ליחן לו בעד .צדיק אחד הרבה רשעים החהיו ייע״ש וטעם הדבר שבוודאי יש יכולה ביד הקב״ה לעשוה בו כרצונו אף שלא כיהן לו כלום רק שהוא נראה כגזל וכעול לפני הקב״ה כיון שכבר ניחן לו רשוה",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=16&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=16&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p15-u01",
+        "maamar-esther-chapter-1-p16-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p16-u02",
+      "pdf_page": 16,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 2 בעמוד 16",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 16?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 16 ומאתרים את מהלך 2 בעמוד 16.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 16; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 16: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: מגילה · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [],
+      "concepts": [
+        "מגילה",
+        "נס"
+      ],
+      "extraction_anchor": "ב פ ס ו ה והשתי׳ כדת אין אונס וכו׳ הנה חז״ל אמרו כדת של הורה ולמה רימז זה כותב המגילה אך הנה מדכתיב והשתי׳ כדת אין אונס משמע הא האכילה ־ י",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=16&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=16&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p16-u01",
+        "maamar-esther-chapter-1-p17-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p17-u01",
+      "pdf_page": 17,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "והקשה בתוס׳ דהרי אמרו נטשה ונשמט ובמדרש תנחומא פ׳ נח מפרש הטטס דתורס שבכתב קבלו ברצון רק תורה שבט״ס כוי באונס .והנה כתיב לכו לחמו בלחמי ושתו ביין",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "והקשה בתוס׳ דהרי אמרו נטשה ונשמט ובמדרש תנחומא פ׳ נח מפרש הטטס דתורס שבכתב קבלו ברצון רק תורה שבט״ס כוי באונס .והנה כתיב לכו לחמו בלחמי ושתו ביין מסכתי .והכוונה דתורה שבכתב נקראת לחם ותורה שבטיפ נקראת יין דיין בגי׳ סוד ותורה שבכתב כוי גלוי לכל הטמיס .אבל",
+      "cited_sources": [
+        "מדרש",
+        "תוספות"
+      ],
+      "argument_steps": [
+        "והקשה בתוס׳ דהרי אמרו נטשה ונשמט ובמדרש תנחומא פ׳ נח מפרש הטטס דתורס שבכתב קבלו ברצון רק תורה שבט״ס כוי באונס .והנה כתיב לכו לחמו בלחמי ושתו ביין מסכתי .והכוונה דתורה שבכתב נקראת לחם ותורה שבטיפ נקראת יין דיין בגי׳ סוד ותורה שבכתב כוי גלוי לכל הטמיס .אבל",
+        "כ מ ד ר ע tלטשותכרצון איש ואיש מי הוא זה שטישה רצון יראיו זה הקב״ה דלכתוב בו רצוןיראיו יטשה ואת שוטתם ישמט ויושיטם .והוא תמוה אך ׳ י״ל דהנה קיי״ל אונס רחמנא פטריה וא״כ לכאורה אם הוי אחשורוש גוזר טליהס להיות מוכרחין לאכול הוי טפי טדיף לישראל כי אז הי׳ ישראל"
+      ],
+      "conclusion": "ה9 טאמר אסתר א ; -האכילה הוי באונס ולמה הוי כן ולזה יש לומר כך בעזה״י ויובן בזה נמי מ״ש :כי כן יסד המלך טל כל רב ביתו לטשוה כרצון איש ואיש ואחז״ל ׳ ה מרדכי והמן .-ולהבין הכוונה וגס להבין לסמשחז״ל דכל מקום שנאמר המלך סתם במלכו של טולס הכתיב מדבר איך יפרשו .כאן",
+      "companion_explanation": "פרק א׳, עמוד 17: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · גזירה · תורה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ישראל"
+      ],
+      "concepts": [
+        "גזירה",
+        "תורה",
+        "נס"
+      ],
+      "extraction_anchor": "ה9 טאמר אסתר א ; -האכילה הוי באונס ולמה הוי כן ולזה יש לומר כך בעזה״י ויובן בזה נמי מ״ש :כי כן יסד המלך טל כל רב ביתו לטשוה כרצון איש ואיש ואחז״ל ׳ ה מרדכי והמן .-ולהבין הכוונה וגס להבין לסמשחז״ל דכל מקום שנאמר המלך סתם במלכו של טולס הכתיב מדבר איך יפרשו .כאן לשון המלך טליו ית׳ אך נראה דכוונה גדולה יש בזה דהנה אחז״ל",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=17&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=17&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p16-u02",
+        "maamar-esther-chapter-1-p17-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p17-u02",
+      "pdf_page": 17,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 2 בעמוד 17",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ב פ ס ו ה גם ושתי המלכה טשתה משתה נשים בית המלכות אשר למלך אחשורוש הנה תיבת אשר למלך אחשורוש הוא מיותר הי׳ די לומר בית המלכות י וממילא יובן כי המלך הוא אז אחשורוש .וטוד יש לדייק מ״ש משתהנשים והו״ל משתה לנשים כפין שאמר תחלה טשה משתה לכל שריו וכו׳ לכך נראה לומר",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 17 ומאתרים את מהלך 2 בעמוד 17.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "ב פ ס ו ה גם ושתי המלכה טשתה משתה נשים בית המלכות אשר למלך אחשורוש הנה תיבת אשר למלך אחשורוש הוא מיותר הי׳ די לומר בית המלכות י וממילא יובן כי המלך הוא אז אחשורוש .וטוד יש לדייק מ״ש משתהנשים והו״ל משתה לנשים כפין שאמר תחלה טשה משתה לכל שריו וכו׳ לכך נראה לומר",
+      "companion_explanation": "פרק א׳, עמוד 17: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · ושתי · מלכות · משתה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "ושתי"
+      ],
+      "concepts": [
+        "מלכות",
+        "משתה"
+      ],
+      "extraction_anchor": "ב פ ס ו ה גם ושתי המלכה טשתה משתה נשים בית המלכות אשר למלך אחשורוש הנה תיבת אשר למלך אחשורוש הוא מיותר הי׳ די לומר בית המלכות י וממילא יובן כי המלך הוא אז אחשורוש .וטוד יש לדייק מ״ש משתהנשים והו״ל משתה לנשים כפין שאמר תחלה טשה משתה לכל שריו וכו׳ לכך נראה לומר דהנה חז״ל אמרו בהם .וקשה",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=17&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=17&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p17-u01",
+        "maamar-esther-chapter-1-p18-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p18-u01",
+      "pdf_page": 18,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 18",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 18?",
+      "cited_sources": [],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 18 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 18.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 18; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 18: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · מלכות · משתה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ושתי",
+        "משה"
+      ],
+      "concepts": [
+        "מלכות",
+        "משתה",
+        "גזירה",
+        "השגחה",
+        "תורה",
+        "נס",
+        "הלל"
+      ],
+      "extraction_anchor": "מאמר אסתר א 10 א״כ מה זה באמה למה לא נמנש אחשורוש אז כמו שנטנש בלעשצר ולמה כמנשה ושהי ולא כוא שהי׳ טיקר החוטא ומשמש בכלים ונראה מממו דהנה מכח זה הי׳ התחכמות אחשורוש מ״ש והשתי׳ כדה אין אונס כי כן יסד המלך טל כל רב ביתו למשות כרצון איש ואיש דהכה אחז״ל ברב הונא דהוי חולה ואזיל ר״פ לשיולו בי׳ אמר צוותא לי׳ זוודתא לסוןן",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=18&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=18&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p17-u02",
+        "maamar-esther-chapter-1-p19-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p19-u01",
+      "pdf_page": 19,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 19",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ב פ ס ר ה ותמאן המלכה ושתי לבא בדבר המלך אשר ביד השרישים .הנה מאמר בדבר המלך לכאורה הוא מיותר לגמרי דהרי כבר נודט תחלה ט״י מי הי׳ דבר המלך והי׳ די לומר ותמאן המלכה ושתי לבא אך נראה ,ט״פ משחז״ל בפ׳ ושמתי כסאי בטולם והאבדחי משם מלך ושרים מלך זו ושתי ופריס זה",
+      "cited_sources": [
+        "מדרש",
+        "ילקוט"
+      ],
+      "argument_steps": [
+        "ו 11 מאמר אסתר א גלב אחשורוש לגזור לטשות כרצון איש ואיש כדי להנצל מן הטוכש הכלים וושתי לא לא תרגיש בכך רק תטשה כפשוטו ותקח את שלה .וז״ש גס ושחי המלכה טשהה משתה נשים היינו משתה של שמות כדרך הנשים ומה הוי השטות שלה היינו מה שטשתה אותו ביה המלכות מקום המרמז אל",
+        "ב פ ס ר ה ותמאן המלכה ושתי לבא בדבר המלך אשר ביד השרישים .הנה מאמר בדבר המלך לכאורה הוא מיותר לגמרי דהרי כבר נודט תחלה ט״י מי הי׳ דבר המלך והי׳ די לומר ותמאן המלכה ושתי לבא אך נראה ,ט״פ משחז״ל בפ׳ ושמתי כסאי בטולם והאבדחי משם מלך ושרים מלך זו ושתי ופריס זה"
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 19; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 19: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · המן · מלכות · משתה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "המן",
+        "ושתי",
+        "ישראל"
+      ],
+      "concepts": [
+        "מלכות",
+        "משתה",
+        "מגילה",
+        "תשובה",
+        "שבת",
+        "תורה",
+        "הלל"
+      ],
+      "extraction_anchor": "ו 11 מאמר אסתר א גלב אחשורוש לגזור לטשות כרצון איש ואיש כדי להנצל מן הטוכש הכלים וושתי לא לא תרגיש בכך רק תטשה כפשוטו ותקח את שלה .וז״ש גס ושחי המלכה טשהה משתה נשים היינו משתה של שמות כדרך הנשים ומה הוי השטות שלה היינו מה שטשתה אותו ביה המלכות מקום המרמז אל קבלת טול מלכוה ולא טשחה אותו במקום חפשי בחצר כאחשורוש ובאמת",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=19&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=19&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p18-u01",
+        "maamar-esther-chapter-1-p20-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p20-u01",
+      "pdf_page": 20,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "verse_discussion",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 20",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 20?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש"
+      ],
+      "argument_steps": [
+        "מאמר אסתר א 12 שלא ט״י נביא הוא חוזר .וא״כ אם הי׳ נבואה זו של ושמתי כסאי בטולס לא כא טל ידי נביא הי׳ החטא מבטל ההבטחה אבל כיון ונאמר ט״י נביא שוב אין החטא יכול לבטלו .וז״ש ותמאן המלכה ושהי לבא והיינו בדבר המלך הקב״ה ביד הסריסים היינו הנביאים שהם משרתים לו ית׳",
+        "ע ו ף באוסן אחר דהנה אחז״ל דיום הזה שבת הי׳ טל שהיתה טושות מלאכה ביום, השבח בבנות ישראל .והנה הנביא אמר כה אמר ד׳ לסריסים אשר ישמרו את שבתותי וכו׳ ונתחי להם בביתי ובחומותי יד ושם טוב שם טולם אשר לא יכרת סרי אס שומר שבת זוכה לשם והיא שבטלה השבת הוצרכה להיות",
+        "כ פ ס ו ל ,ויקצון המלך מאוד וחמתי בערה בו הנה כפל הלשון וחמתו בערה בו הוא מיותר כיון דבר אמר ויקצוף המלך מאוד גס עכ״ס הי׳ די לומר וימלא חימה למה דייק לומר וחמתו בערה בו אך י״ל דהנה יש שני עניני חימם יש חימה שהאדם עצמו בעל חימה וכעס וזה על דבר קטן יכעוס הרבה"
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 20; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 20: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · ושתי · שבת. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "ושתי",
+        "משה",
+        "ישראל"
+      ],
+      "concepts": [
+        "שבת"
+      ],
+      "extraction_anchor": "מאמר אסתר א 12 שלא ט״י נביא הוא חוזר .וא״כ אם הי׳ נבואה זו של ושמתי כסאי בטולס לא כא טל ידי נביא הי׳ החטא מבטל ההבטחה אבל כיון ונאמר ט״י נביא שוב אין החטא יכול לבטלו .וז״ש ותמאן המלכה ושהי לבא והיינו בדבר המלך הקב״ה ביד הסריסים היינו הנביאים שהם משרתים לו ית׳ וכמ״ש כה אמר ד׳ לסריסים אשר ישמרו את שבתותי וכו׳ וא״ש",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=20&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=20&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p19-u01",
+        "maamar-esther-chapter-1-p21-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p21-u01",
+      "pdf_page": 21,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 21",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 21?",
+      "cited_sources": [],
+      "argument_steps": [
+        "ז 13 מאמר אסתר א כ פ ס ו כ ן ויאמר המלך לחכמים יורמי העחים כנה חז״ל אמרו שיודעים לעבר שנים ולקבוע חדשים והנה להבין מה טובן של מעברי שנים וחדשים לכאן וכל דברי המפורשים בזה דחוקים לומר דאחשורוש היי הולך כדיני ישראל ובסדר שנים שלהם .אך לדעתי נראה הכונה בעזה״י",
+        "אך הכונה דהוא ע״ד משחז״ל •במגילה פ״ב דלכך אומרים על הצדיקים אחר ולמלשינים דקרא כתיב וכל קרני רשעים אגדע תרוממנה קרנות צדיק הרי מוכח דאי אפשר להיות מתרומם קרן הצדיקים עד שיכלו הרשעים תחלה וכן ה״נ לא הוי אפשר להיות נבנה ביהמ״ק עד שיהי׳ כלה זרע נבוכדנצר המחריב"
+      ],
+      "conclusion": "אך הכונה דהוא ע״ד משחז״ל •במגילה פ״ב דלכך אומרים על הצדיקים אחר ולמלשינים דקרא כתיב וכל קרני רשעים אגדע תרוממנה קרנות צדיק הרי מוכח דאי אפשר להיות מתרומם קרן הצדיקים עד שיכלו הרשעים תחלה וכן ה״נ לא הוי אפשר להיות נבנה ביהמ״ק עד שיהי׳ כלה זרע נבוכדנצר המחריב",
+      "companion_explanation": "פרק א׳, עמוד 21: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · מלכות · מגילה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "ושתי",
+        "ישראל"
+      ],
+      "concepts": [
+        "מלכות",
+        "מגילה",
+        "גאולה",
+        "נס"
+      ],
+      "extraction_anchor": "ז 13 מאמר אסתר א כ פ ס ו כ ן ויאמר המלך לחכמים יורמי העחים כנה חז״ל אמרו שיודעים לעבר שנים ולקבוע חדשים והנה להבין מה טובן של מעברי שנים וחדשים לכאן וכל דברי המפורשים בזה דחוקים לומר דאחשורוש היי הולך כדיני ישראל ובסדר שנים שלהם .אך לדעתי נראה הכונה בעזה״י דהנה אחז״ל דהסעורה שעשה אחשורוש סוי דאמר השתא ודאי לא מפררך",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=21&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=21&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p20-u01",
+        "maamar-esther-chapter-1-p21-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p21-u02",
+      "pdf_page": 21,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "כ פ ס ו ה והקרוב אליו במדרש הן הקריבו הפרעניות לעצמן ולכאורה הוא תמוה ואינו מובן מסל• כן אך נראה דהי׳ קשה להמדרש דלשון זה והקרוב אליו משמע שהם כי׳",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "כ פ ס ו ה והקרוב אליו במדרש הן הקריבו הפרעניות לעצמן ולכאורה הוא תמוה ואינו מובן מסל• כן אך נראה דהי׳ קשה להמדרש דלשון זה והקרוב אליו משמע שהם כי׳ קרובין יותר אליו מחכמים ידעי העיתים ובאמת אין זה דרך ארץ כיון שנאמר תחלה כי כן דבר המלך לפני כל ידעי דת ודין",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש",
+        "ש״ס"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 21 ומאתרים את כ פ ס ו ה והקרוב אליו במדרש הן הקריבו הפרעניות לעצמן ולכאורה הוא תמוה ואינו מובן מסל• כן אך נראה דהי׳ קשה להמדרש דלשון זה והקרוב אליו משמע שהם כי׳.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 21; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 21: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש"
+      ],
+      "concepts": [],
+      "extraction_anchor": "כ פ ס ו ה והקרוב אליו במדרש הן הקריבו הפרעניות לעצמן ולכאורה הוא תמוה ואינו מובן מסל• כן אך נראה דהי׳ קשה להמדרש דלשון זה והקרוב אליו משמע שהם כי׳ קרובין יותר אליו מחכמים ידעי העיתים ובאמת אין זה דרך ארץ כיון שנאמר תחלה כי כן דבר המלך לפני כל ידעי דת ודין משמע שכל דבריו׳ הי׳ עמהס והרי מבואר בש״ס ברכות דקאמר לי׳ ר״ג",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=21&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=21&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p21-u01",
+        "maamar-esther-chapter-1-p22-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p22-u01",
+      "pdf_page": 22,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 1 בעמוד 22",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 22?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 22 ומאתרים את מהלך 1 בעמוד 22.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 22; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 22: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר"
+      ],
+      "concepts": [],
+      "extraction_anchor": "מאמר אסתר א 14 מל ריב לא להם וקבלו על עצמן להיוח שוסטין משסע זה הס עצמן אבדו אח טצמן לדמס א״כ הי' קרובי; לאחשורוש בעת הזאח שהוא הכניס א״ע ביד ם והס ג״כ ק וזה כוונת הפסיק והקרוב אליו שהם הי״ קרובין לאחשורוש במה שהן הקריבו כילם הקריבו הסרעניות לעצמן וקאי הסרעניוח-לעצמן כלומר אחשורוש ואותן השרים שכולן קרבו הסרעניוח לעצמן",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=22&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=22&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p21-u02",
+        "maamar-esther-chapter-1-p22-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p22-u02",
+      "pdf_page": 22,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "ב פ ס ו ה ויאמר ממוכן וכו׳ לא על המלך לבדו מותה ושתי המלכה .במדרש אר״ש בלא דדין הווית צריכה והוא תמוה ונראה הכונה דהנה הי׳ קשה לו .",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ב פ ס ו ה ויאמר ממוכן וכו׳ לא על המלך לבדו מותה ושתי המלכה .במדרש אר״ש בלא דדין הווית צריכה והוא תמוה ונראה הכונה דהנה הי׳ קשה לו .",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש"
+      ],
+      "argument_steps": [
+        "ב פ ס ו ה ויאמר ממוכן וכו׳ לא על המלך לבדו מותה ושתי המלכה .במדרש אר״ש בלא דדין הווית צריכה והוא תמוה ונראה הכונה דהנה הי׳ קשה לו .",
+        "מ״ש לא על המלך לבדו עותה ושתי המלכה איך היקל בכבוד המלך לומר דנגעה בכבוד אחרים הרי כבוד המלך חמור מכולם .ובע״כ הכוונה שראה ממוכן שרצון המלך למחול לה ולכך אמר כדת מה לעשות והדת הוי אס הוא מוחל מהני .ואך דמלך שמחל על כבודו אין כבודו מחול נראה דהיינו במלך ישראל",
+        "ע ר ד יש לומר הכונה דהמן רצה שהמלך בעצמו ידין דין זה כדי שאח״כ לא יכעוס עליהם ולכך אמר אם על טוב יצא דבר מלכות מלפניו כי הוא ידין דין זה והנה דרך המלך דין של כל האדם אז המלך דן אותו אבל דין הנוגע לו אינו דן בעצמו כי אין אדם רואה חוב לעצמו ולכך הוא דן לפני",
+        "כפסול ,כי יצא.דבר המלכה על כל הנשים להבזות בעליהם בעיניהן כו׳ תיבת בעיניהן הוא מיותר ונראה כי הנה לכאורה אין מקום לטענת סמן להרוג ' אה ושתי שהרי יכולת ביד אמשורוש לגזור להיות כל איש שורר בביתו וכו׳ ולעשות יקר לבעליהן וכל מי שיעבור אחת דתו להמית ואין צורך"
+      ],
+      "conclusion": "ע ר ד יש לומר הכונה דהמן רצה שהמלך בעצמו ידין דין זה כדי שאח״כ לא יכעוס עליהם ולכך אמר אם על טוב יצא דבר מלכות מלפניו כי הוא ידין דין זה והנה דרך המלך דין של כל האדם אז המלך דן אותו אבל דין הנוגע לו אינו דן בעצמו כי אין אדם רואה חוב לעצמו ולכך הוא דן לפני",
+      "companion_explanation": "פרק א׳, עמוד 22: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · המן · ושתי · מלכות · כבוד. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "המן",
+        "ושתי",
+        "ממוכן",
+        "ישראל",
+        "עשו"
+      ],
+      "concepts": [
+        "מלכות",
+        "כבוד"
+      ],
+      "extraction_anchor": "ב פ ס ו ה ויאמר ממוכן וכו׳ לא על המלך לבדו מותה ושתי המלכה .במדרש אר״ש בלא דדין הווית צריכה והוא תמוה ונראה הכונה דהנה הי׳ קשה לו . מ״ש לא על המלך לבדו עותה ושתי המלכה איך היקל בכבוד המלך לומר דנגעה בכבוד אחרים הרי כבוד המלך חמור מכולם .ובע״כ הכוונה שראה ממוכן שרצון המלך למחול לה ולכך אמר כדת מה לעשות והדת הוי אס הוא",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=22&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=22&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p22-u01",
+        "maamar-esther-chapter-1-p23-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p23-u01",
+      "pdf_page": 23,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 23",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 23?",
+      "cited_sources": [
+        "מדרש"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 23 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 23.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 23; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 23: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · ושתי. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "ושתי"
+      ],
+      "concepts": [],
+      "extraction_anchor": "ח 15 מאמר אסתר א זה בלב הנשים יהי׳ הבטלים מבוזין שישמטו שושתי כל כך חטאה נגד המלך ולא הי׳ נטשה לה דבר וטל כל זה מחל לה יהי׳ הבטלים בטיני הנשים מבוזין וכל מה •שיטשה להם יהי׳ בט״כ מחמת ההכרח אך כשיטשה לושתי משסט חרו׳ן אז יצאו הבזיון מלבם וט״כ אמר להבזות בטליהן בטיניהן היינו בטיני הנשים ולא בפוטל כו׳ כ פ ס ו ל והיום הזה",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=23&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=23&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p22-u02",
+        "maamar-esther-chapter-1-p23-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p23-u02",
+      "pdf_page": 23,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "בפסוק ובמלואת הימים האלה רב אמר חוץ ממאה ושמונים ושמואל אמר שבט טס מאה ושמונים .והוא כי הנה הרב האלשי״ך פירוש ב׳ פירושים טל פסוק והיום הזה תאמרנה כו׳",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 23?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "אלשיך"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 23 ומאתרים את בפסוק ובמלואת הימים האלה רב אמר חוץ ממאה ושמונים ושמואל אמר שבט טס מאה ושמונים .והוא כי הנה הרב האלשי״ך פירוש ב׳ פירושים טל פסוק והיום הזה תאמרנה כו׳.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 23; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק א׳, עמוד 23: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · ושתי · מלכות · משתה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "ושתי"
+      ],
+      "concepts": [
+        "מלכות",
+        "משתה",
+        "הלל"
+      ],
+      "extraction_anchor": "בפסוק ובמלואת הימים האלה רב אמר חוץ ממאה ושמונים ושמואל אמר שבט טס מאה ושמונים .והוא כי הנה הרב האלשי״ך פירוש ב׳ פירושים טל פסוק והיום הזה תאמרנה כו׳ שיש מי שפירוש כי בזיון השרים לא הי׳ גדול כמו בזיון הטמים של הטמים יאמרו הנשים לא גדול אתה מהמלך אחשורוש שאמר להביא את ושתי המלכה לפניו ולא באה אבל להשרים לא יאמרו הנשים",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=23&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=23&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p23-u01",
+        "maamar-esther-chapter-1-p24-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p24-u01",
+      "pdf_page": 24,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 24",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 24?",
+      "cited_sources": [],
+      "argument_steps": [
+        "מאמר אסתר א 16 העמים של השרים לא יאמרו הנשים בפירוש המעשה רק דרך רמז שיאמרו להס שיזכירו היום הזה לבד וממילא יזכירו השרים המעשה זה אי אפשר לומר דהרי גם השרים אינם יודעים מעצמן המעשה הנעשה ביום ההוא שהרי לא הי׳ שס ואינם יודעים רק ע״י סיפור הנשים וא״כ הם והמון",
+        "ב פ ס ו ל .אשר לא תבא ושתי וכו׳ הנה מה שלא כזכר מיתת ושתי להדי׳ במגילה כמו הריגת המן נראה דהוא ע״ד כמו שמצינו גבי לוע שאמר לו המלאך אל חבמ אחריך ומבואר בדברי חז״ל שכיון שלוע לא הי׳ ניצול בזכות עצמו אין ראוי להביע בפרעניות שלהן וכבר בארתי בזה ת״ל כמה מאמרים"
+      ],
+      "conclusion": "מאמר אסתר א 16 העמים של השרים לא יאמרו הנשים בפירוש המעשה רק דרך רמז שיאמרו להס שיזכירו היום הזה לבד וממילא יזכירו השרים המעשה זה אי אפשר לומר דהרי גם השרים אינם יודעים מעצמן המעשה הנעשה ביום ההוא שהרי לא הי׳ שס ואינם יודעים רק ע״י סיפור הנשים וא״כ הם והמון",
+      "companion_explanation": "פרק א׳, עמוד 24: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · המן · ושתי · מגילה · גאולה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "המן",
+        "ושתי",
+        "ממוכן",
+        "ישראל",
+        "עשו"
+      ],
+      "concepts": [
+        "מגילה",
+        "גאולה"
+      ],
+      "extraction_anchor": "מאמר אסתר א 16 העמים של השרים לא יאמרו הנשים בפירוש המעשה רק דרך רמז שיאמרו להס שיזכירו היום הזה לבד וממילא יזכירו השרים המעשה זה אי אפשר לומר דהרי גם השרים אינם יודעים מעצמן המעשה הנעשה ביום ההוא שהרי לא הי׳ שס ואינם יודעים רק ע״י סיפור הנשים וא״כ הם והמון עם שוין וע״כ צריך לפרש כפירוש שני שבזיון השרים יהי׳ יוחר גדול",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=24&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=24&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p23-u02",
+        "maamar-esther-chapter-1-p24-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-1-p24-u02",
+      "pdf_page": 24,
+      "chapter_id": "chapter-1",
+      "chapter_title": "פרק א׳",
+      "megillah_chapter": "א׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "בפסוק כי יצא דבר המלכה וז״ל בלא דדין הוויה צריכה כלומר דבשביל עון זה כדאי יהי׳ לפרש משפעה ומה דסתס אשר לא תבא ושתי וכו׳ מוכח דבלא דדין הווית צריכה",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ב פ ס ו כ ן הכ״ל ומלכותה יתן המלך לרעותה העובה ממנה .נראה כי הנה לכאורה הי׳ מקום לאחשורוש לומר כי מי יודע כשיהרוג את ושתי ויקח אחרת ממ״כ אם לא יקח רק ממשפחה בזויה אין זה כבוד של מלך וכו׳ ואס יקח ממשפחה רום לבבה יודע אס גס הוא לא תבזה למלך מחמת גדולה כמו שהיתה",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "בפסוק כי יצא דבר המלכה וז״ל בלא דדין הוויה צריכה כלומר דבשביל עון זה כדאי יהי׳ לפרש משפעה ומה דסתס אשר לא תבא ושתי וכו׳ מוכח דבלא דדין הווית צריכה להעינש הזה רק כדי שלא יהי׳ נגלה ממש לישראל תלה בדבר רק אחר והבן .ולכך סתם עכשה להודיע שלא עבור זה נענשה רק בדבר",
+        "ב פ ס ו כ ן הכ״ל ומלכותה יתן המלך לרעותה העובה ממנה .נראה כי הנה לכאורה הי׳ מקום לאחשורוש לומר כי מי יודע כשיהרוג את ושתי ויקח אחרת ממ״כ אם לא יקח רק ממשפחה בזויה אין זה כבוד של מלך וכו׳ ואס יקח ממשפחה רום לבבה יודע אס גס הוא לא תבזה למלך מחמת גדולה כמו שהיתה"
+      ],
+      "conclusion": "בפסוק כי יצא דבר המלכה וז״ל בלא דדין הוויה צריכה כלומר דבשביל עון זה כדאי יהי׳ לפרש משפעה ומה דסתס אשר לא תבא ושתי וכו׳ מוכח דבלא דדין הווית צריכה להעינש הזה רק כדי שלא יהי׳ נגלה ממש לישראל תלה בדבר רק אחר והבן .ולכך סתם עכשה להודיע שלא עבור זה נענשה רק בדבר",
+      "companion_explanation": "פרק א׳, עמוד 24: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · המן · ושתי · מלכות · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "המן",
+        "ושתי",
+        "ישראל"
+      ],
+      "concepts": [
+        "מלכות",
+        "נס",
+        "כבוד"
+      ],
+      "extraction_anchor": "בפסוק כי יצא דבר המלכה וז״ל בלא דדין הוויה צריכה כלומר דבשביל עון זה כדאי יהי׳ לפרש משפעה ומה דסתס אשר לא תבא ושתי וכו׳ מוכח דבלא דדין הווית צריכה להעינש הזה רק כדי שלא יהי׳ נגלה ממש לישראל תלה בדבר רק אחר והבן .ולכך סתם עכשה להודיע שלא עבור זה נענשה רק בדבר אחר להסתירה מן העון תלה בזה כי יצא דבר המלכה וא״ש והבין כי",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=24&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=24&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-1-p24-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p25-u01",
+      "pdf_page": 25,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "verse_discussion",
+      "source_focus": "כ פ ס ו ל ,וישלח ספרים וכו׳ להיות כל איש שורר בביתו ומדבר כלשון טמו .הנה מה שגזר כן ומה טנין זה להמטשה שנטשה לו נראה ט״פ מ״ש בחידושי בילדותי בביאור",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ט 17 מאמר אסתר א ב טהידין לשמוט מזו שנמסה למלכוה ששון ושמחה ליהודים .יש לדייק 5נמאי סליגי הרי שניהם מבוארין בכתוב החלה האכל ואח״ה השמחה למה זה דרשו טל השמחה וזה דרשו טל האבל .אך נראה דהנה אחז״ל כל המברך את יהודא שאמר מה בצט מנאץ להקב״ה שנאמר ובוצט ברך כאץ ד׳",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "גמרא",
+        "ש״ס",
+        "ספרי"
+      ],
+      "argument_steps": [
+        "ט 17 מאמר אסתר א ב טהידין לשמוט מזו שנמסה למלכוה ששון ושמחה ליהודים .יש לדייק 5נמאי סליגי הרי שניהם מבוארין בכתוב החלה האכל ואח״ה השמחה למה זה דרשו טל השמחה וזה דרשו טל האבל .אך נראה דהנה אחז״ל כל המברך את יהודא שאמר מה בצט מנאץ להקב״ה שנאמר ובוצט ברך כאץ ד׳",
+        "כ פ ס ו ל ,וישלח ספרים וכו׳ להיות כל איש שורר בביתו ומדבר כלשון טמו .הנה מה שגזר כן ומה טנין זה להמטשה שנטשה לו נראה ט״פ מ״ש בחידושי בילדותי בביאור הפסוק והיום הזה תאמרנה שרות פרס ומדי אשר שמטו את דבר המלכה לכל שרי־ כמלך .הייצו דוודאי הסריסים שהשיבו למלך"
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 25; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 25: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · גזירה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ושתי",
+        "ישראל"
+      ],
+      "concepts": [
+        "גזירה"
+      ],
+      "extraction_anchor": "ט 17 מאמר אסתר א ב טהידין לשמוט מזו שנמסה למלכוה ששון ושמחה ליהודים .יש לדייק 5נמאי סליגי הרי שניהם מבוארין בכתוב החלה האכל ואח״ה השמחה למה זה דרשו טל השמחה וזה דרשו טל האבל .אך נראה דהנה אחז״ל כל המברך את יהודא שאמר מה בצט מנאץ להקב״ה שנאמר ובוצט ברך כאץ ד׳ .ובארנו הכונה בכמה דוכתא שבוודאי גזירה שהוא .מן השמים וצדיק",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=25&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=25&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p26-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p26-u01",
+      "pdf_page": 26,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 26",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 26?",
+      "cited_sources": [
+        "ש״ס",
+        "מהרש״א"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 26 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 26.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 26; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 26: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · ושתי · עשו. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "ושתי",
+        "עשו"
+      ],
+      "concepts": [],
+      "extraction_anchor": "מאמר אסתר ב 18 אס נפרש כסשומו אח אשר טשחה היינו שלא רצחה'לבא כו׳ וימ'י״ש במהרש״א ןשנדחק בזה ולפי דטחי יש לפרש דהנה לטיל אמר המלך כדח מה לעשוח במלכה ושתי נל אשר לא טשחה כו׳ דהיינו שושחי היחה שב ואל חטשה שהמלך צוה לה בקוס וטשה והיא לא רצחה לבא וכן אח״כ אמר דבר המלכה כמה פטמים כו׳ היינו שרק דיבור הי׳ ולא מטשה בפוטל והאיך",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=26&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=26&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p25-u01",
+        "maamar-esther-chapter-2-p26-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p26-u02",
+      "pdf_page": 26,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 2 בעמוד 26",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 26?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "ב פ ס ו ה איש יהודי וכו׳ איש ימיני .הנה חז״ל אמרו דאביו מיהודא ואמו מבנימין.",
+        "והנה מה דנקט כאן משפחוח האס נראה דהנה ישראל נחחייבו כלי׳ על • שהכחחוו לצלס ואך דהוי באונס מ״מ בט״ז יהרג ואל יעבור אך הרי מודטא רבא לאורייתא וב״נ אינו מצוה על קידוש השס .אך י׳ל הרי מרדכי הי׳ לו חטא שאול במלחמוח עמלק ובזה לא שייך מודעא כיון דהוה דינא דמלכוחא"
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 26; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 26: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · ישראל · מצוה · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "ישראל",
+        "עמלק"
+      ],
+      "concepts": [
+        "מצוה",
+        "נס"
+      ],
+      "extraction_anchor": "ב פ ס ו ה איש יהודי וכו׳ איש ימיני .הנה חז״ל אמרו דאביו מיהודא ואמו מבנימין. והנה מה דנקט כאן משפחוח האס נראה דהנה ישראל נחחייבו כלי׳ על • שהכחחוו לצלס ואך דהוי באונס מ״מ בט״ז יהרג ואל יעבור אך הרי מודטא רבא לאורייתא וב״נ אינו מצוה על קידוש השס .אך י׳ל הרי מרדכי הי׳ לו חטא שאול במלחמוח עמלק ובזה לא שייך מודעא כיון",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=26&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=26&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p26-u01",
+        "maamar-esther-chapter-2-p26-u03"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p26-u03",
+      "pdf_page": 26,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 3,
+      "kind": "verse_discussion",
+      "source_focus": "בפסוק והי' אס מעיני העדה אשה בזמן שעיניה יפוח אין כל גופה צריך בדיקה אין עיני׳ יפות כל גופה צריך בדיקה הרי דאס ראש הדור אין בו חטא אין בודקין אח הדור",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 26?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 26 ומאתרים את בפסוק והי' אס מעיני העדה אשה בזמן שעיניה יפוח אין כל גופה צריך בדיקה אין עיני׳ יפות כל גופה צריך בדיקה הרי דאס ראש הדור אין בו חטא אין בודקין אח הדור.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "וז״ש אח״כ מרדכי לאסתר אם החריש תחרישי בעת הזאת ריוח והצלה יעמוד ליהודים ממקום אחר שלהם יש טענות מודעא ויהי׳ נעשה ראש אחר להדור וז״ש ממקום•' אחר שיהי׳ נעשה ראש אחר ולא יצטרכו עוד בדיקה ואת ובית אביך תאבדו דלכו' יש טענת ממ״נ וא״ש בעזה״י.",
+      "companion_explanation": "פרק ב׳, עמוד 26: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · ישראל · מגילה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "ישראל"
+      ],
+      "concepts": [
+        "מגילה"
+      ],
+      "extraction_anchor": "בפסוק והי' אס מעיני העדה אשה בזמן שעיניה יפוח אין כל גופה צריך בדיקה אין עיני׳ יפות כל גופה צריך בדיקה הרי דאס ראש הדור אין בו חטא אין בודקין אח הדור מס הס אבל אס אין ראש הדור נקי מחטא כל הדור צריך בדיקה כן ה״נ אמר הכותב המגילה דבימי מרדכי ואסחר הי׳ להס ממ״נ חטא דאם נאמר דהי׳ להס, דין ישראל וליכא מודעא הרי השתחוו לצלם",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=26&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=26&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p26-u02",
+        "maamar-esther-chapter-2-p26-u04"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p26-u04",
+      "pdf_page": 26,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 4,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 4 בעמוד 26",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 26?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "רש״י"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 26 ומאתרים את מהלך 4 בעמוד 26.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "ב פ ס ו ה ובמוח אבי׳ ואמה וכו׳ .הנה חז״ל אמרו בפ״ק דמגילה )דך י״ג( כי אין לה אב ואם ובמות אבי׳ ואמה למ״ל א״ר אחא עיברתה מת אבי׳ ילדתה מתה אמה וכו׳ ופירש״י ד״ה בשעה־ שנתעברה אמה מת אבי׳ נמצא שלא הי׳ לה אב משעה שנראה להקרות לה אב וכשילדה אמה מתה ולא נראית לקרות",
+      "companion_explanation": "פרק ב׳, עמוד 26: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: מגילה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [],
+      "concepts": [
+        "מגילה"
+      ],
+      "extraction_anchor": "ב פ ס ו ה ובמוח אבי׳ ואמה וכו׳ .הנה חז״ל אמרו בפ״ק דמגילה )דך י״ג( כי אין לה אב ואם ובמות אבי׳ ואמה למ״ל א״ר אחא עיברתה מת אבי׳ ילדתה מתה אמה וכו׳ ופירש״י ד״ה בשעה־ שנתעברה אמה מת אבי׳ נמצא שלא הי׳ לה אב משעה שנראה להקרות לה אב וכשילדה אמה מתה ולא נראית לקרות אס עכ״ל , וקשה לי מה דחקו לחלק דאבי׳ מת כשעיברתה ואמו מתה",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=26&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=26&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p26-u03",
+        "maamar-esther-chapter-2-p26-u05"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p26-u05",
+      "pdf_page": 26,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 5,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 5 בעמוד 26",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 26?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 26 ומאתרים את מהלך 5 בעמוד 26.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 26; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 26: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · שבת. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש"
+      ],
+      "concepts": [
+        "שבת"
+      ],
+      "extraction_anchor": "ב פ ס ו ה ׳ויהי בהשמט דבר המלך וכו׳ הנה אח״כ אמר כאשר היתה באמנה אתו ודרשו חז״ל שהיתה עומדת מחיקו של אחשורוש וטובלת והיתט יושבת בחיקו",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=26&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=26&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p26-u04",
+        "maamar-esther-chapter-2-p27-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p27-u01",
+      "pdf_page": 27,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 27",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "י 19 מאמר אסתר ב בחיקו של מרדכי והיינו מכח דהיתה אנוסה .אך הרי אחז״ל בס״ד דכחובוח דשבויי מלכוס אינו כשבויי ליספים ויש חשש דזיכסה ברצון ועיין באה״ע סי* ע״ח בח״מ שם וא״כ לכאורה היתה אסחר אסורה דיש חשש דזינהה ברצון ]א״ה ועיין בחום׳ כחובוח )דן נ״א( שהקשו כן",
+      "cited_sources": [
+        "תוספות",
+        "עקידה"
+      ],
+      "argument_steps": [
+        "י 19 מאמר אסתר ב בחיקו של מרדכי והיינו מכח דהיתה אנוסה .אך הרי אחז״ל בס״ד דכחובוח דשבויי מלכוס אינו כשבויי ליספים ויש חשש דזיכסה ברצון ועיין באה״ע סי* ע״ח בח״מ שם וא״כ לכאורה היתה אסחר אסורה דיש חשש דזינהה ברצון ]א״ה ועיין בחום׳ כחובוח )דן נ״א( שהקשו כן",
+        "ו ב ז ה נבין מ״ש אח״כ וכאשר אבדתי אבדתי ודרשו חז״ל עד עתה באונס ועכשיו ברצון ולכאורה קשה מה רצון הי׳ שם הרי הוי ידוע שהלכה עבור הצלת כל ישראל ואין לך אונס גדול מזה ואיך כוי ברצון אך לסמ״ש א״ש כיון דהוא אמרה כל איש ואשה יודעין כל אשר יבא אל המלך אל החצר",
+        "נערותי׳ לטוב בית הנשים .הנה חז״ל אמרו דהאכילה קדלי ב פ ס ו ס ויפני׳ ואת דחזירי והנה להבין מנ״ל זה ובפרט לפמ״ש התוס׳ דלא היחה אוכלת והנה בפשיטות י״ל דאכלה פחות פחות מכשיעור ואכ״מ להאריך בזה .אך להבין מנ״ל כן נראה לומר יותר כדברי התוס׳ דלא אכלה כלל ובזה יובן",
+        "אך הענץ הוא ע״ד אמרם ז״ל אל יאמר אדם אי אפשי בבשר חזיר אלא אפשי והקב״ה גזר עלי והנה הרמב״ס בשמונה פרקים ביאור הענין דזה הוי דוקא בבשר חזיר וכדומה דבמה שהשכל מחייבו הוי להיפוך שחלילה להתאוות לו כלל דנפש רשע אותה רע .רק בבשר חזיר •דהוי חוקה בלי טעם בזה צריך"
+      ],
+      "conclusion": "נערותי׳ לטוב בית הנשים .הנה חז״ל אמרו דהאכילה קדלי ב פ ס ו ס ויפני׳ ואת דחזירי והנה להבין מנ״ל זה ובפרט לפמ״ש התוס׳ דלא היחה אוכלת והנה בפשיטות י״ל דאכלה פחות פחות מכשיעור ואכ״מ להאריך בזה .אך להבין מנ״ל כן נראה לומר יותר כדברי התוס׳ דלא אכלה כלל ובזה יובן",
+      "companion_explanation": "פרק ב׳, עמוד 27: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · ישראל · מלכות · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "ישראל"
+      ],
+      "concepts": [
+        "מלכות",
+        "נס",
+        "צדקה"
+      ],
+      "extraction_anchor": "י 19 מאמר אסתר ב בחיקו של מרדכי והיינו מכח דהיתה אנוסה .אך הרי אחז״ל בס״ד דכחובוח דשבויי מלכוס אינו כשבויי ליספים ויש חשש דזיכסה ברצון ועיין באה״ע סי* ע״ח בח״מ שם וא״כ לכאורה היתה אסחר אסורה דיש חשש דזינהה ברצון ]א״ה ועיין בחום׳ כחובוח )דן נ״א( שהקשו כן ויעיי״ש במה שחרצו[ אך ז״א דאס לא הי׳ אחשירוש עושה מעשה -זו של",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=27&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=27&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p26-u05",
+        "maamar-esther-chapter-2-p28-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p28-u01",
+      "pdf_page": 28,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 28",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 28?",
+      "cited_sources": [],
+      "argument_steps": [
+        "מאמר אסתר ב 20 טלי אצל נשים דדטחן קלוה אס יורגלו לומר אסשי יבואו לטשוה כן להם טוכ יותר להרגיל טצמן בקצה השני לומר אי אפשי לכך באמצטות זה יטמדו טל המיצוט וא״כ ,לנשים טוב יותר לומר אי חפשי בכשר חזיר ולכך שסיר אמר וישני׳ ואת נטרותי׳ לטוב בית הנשים.דלביה הנשים",
+        "ב פ ס ו ס לא הגיוה אסתר וכו׳ כי מרוכי צוה טלי׳ אשר לא תגיו הנה תיבת אשר וראי מיותר והי׳ וי לומר כי מרוכי צוה טלי׳ שלא תגיו וגס כל מאמר ; לא תגיר הוא מיותר והי׳ וי לומר כאשר צוה טלי׳ מרוכי ואח״כ נאמר באמת ק ובהקבץ בתולות שנית וכו׳ אין •אסתר מגרת מולותה וטמה",
+        "כפ סי ר ,ובכל יום ויום מרדכי מתהלך לפני חצר בית הנשים לדעת את שלום אסתר ומה יעשה בה .הנה יש לוייק חרא והוא אריכות והי׳ וי לומר X את שלום אסתר ולשתוק ובזה הכל בכלל וטור הו״ל לומר ומה נעשה בה ומה לשון יעשה ועוד יטשה לה הו״ל ולא בה .אך נראה הכוכה ומרוכי ירע שלא",
+        "ב פ ס ו ל ,ובהגיע חור נערה ונערה וכו׳ ,ובזה הנערה באה אל המלך וכו׳ הנה אומרו מקץ היות לה דהו״ל לומר כקץ היות לה כדת הנשים וכו׳ אך fi נראה ו הנ ה בס׳ מקץ יש שם במורש הה״ו בכל •עצב יהי׳ מותר ודבר שפתים אך למססור' שע״י שאמר כ״א זכרתני והזכרתני כיתוסף לו ב׳ שכיס"
+      ],
+      "conclusion": "מאמר אסתר ב 20 טלי אצל נשים דדטחן קלוה אס יורגלו לומר אסשי יבואו לטשוה כן להם טוכ יותר להרגיל טצמן בקצה השני לומר אי אפשי לכך באמצטות זה יטמדו טל המיצוט וא״כ ,לנשים טוב יותר לומר אי חפשי בכשר חזיר ולכך שסיר אמר וישני׳ ואת נטרותי׳ לטוב בית הנשים.דלביה הנשים",
+      "companion_explanation": "פרק ב׳, עמוד 28: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי"
+      ],
+      "concepts": [
+        "נס"
+      ],
+      "extraction_anchor": "מאמר אסתר ב 20 טלי אצל נשים דדטחן קלוה אס יורגלו לומר אסשי יבואו לטשוה כן להם טוכ יותר להרגיל טצמן בקצה השני לומר אי אפשי לכך באמצטות זה יטמדו טל המיצוט וא״כ ,לנשים טוב יותר לומר אי חפשי בכשר חזיר ולכך שסיר אמר וישני׳ ואת נטרותי׳ לטוב בית הנשים.דלביה הנשים ׳הוי זה טוב שהרגלה לומר אי אפשי בבשר חזיר ,אבל לאנשים לא הוי",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=28&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=28&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p27-u01",
+        "maamar-esther-chapter-2-p29-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p29-u01",
+      "pdf_page": 29,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 29",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "אך הכוונה הוי לסרסם מעלת אסתר כי אין המעשה ניכר רק מתוך ההעדר כמ״ש ויתרון האור מן החושך ולכך ה״נ לא הי׳ ניכר מעלות אסתר וענוות שלה אם לא הי׳ אחרות\" שעושין להיפוך ולכך באו אחרות תחלה וראו הכל איך מה שבקשה זו לא בקשה זו וראו הכל גודל גאוותן ותאות לבם וראו אח״כ",
+      "cited_sources": [],
+      "argument_steps": [
+        "יא מאמר אסתר ב ב פ ס ו ס ובזה הנערה באה אלהמלך וכו׳ נראה דהנה לא הי׳ ראוין שאר הנערות לכא כלל אל המלך כיון דכל ענין זה נעשה רק עבור אסתר א״כ הי׳ ראוי ' שיהי׳ ההתחלה ג״כ באסתר ובה התחיל ובה מסיים ולא יבואו האחרות לידי כך.",
+        "אך הכוונה הוי לסרסם מעלת אסתר כי אין המעשה ניכר רק מתוך ההעדר כמ״ש ויתרון האור מן החושך ולכך ה״נ לא הי׳ ניכר מעלות אסתר וענוות שלה אם לא הי׳ אחרות\" שעושין להיפוך ולכך באו אחרות תחלה וראו הכל איך מה שבקשה זו לא בקשה זו וראו הכל גודל גאוותן ותאות לבם וראו אח״כ",
+        "בפסוס בערב היא באה ובבוקר היא שבה יכו׳ .והנה מ״ש ובבוקר היא שבה למה הודיע לנו כל זה במגילה ומה לנו בסיפור זה .אך הכוונה דבא דהנה אסתר כשמצאה חן בעיניו לא זזה עוד לרמז על הנס שנעשה לאסתר.",
+        "מהפלמץ כלל רק תיכן{ בחר בה והמליכה תחת ושתי ולכאורה הי׳ אפשר לימר שזה הי׳ אולי מחמת שעד הנה כל הבתולות שעברו לפניו לא 1מצאה חן בעיניו לכך לא בחר בהם המלך רק בה לכך אמר שלא כן הי׳ רק בהראשוניס ג״כ הי׳ כמה בתולות שמצאו חן בעיני המלך והי׳ חפץ בהם ליקחנה ואעפ״כ"
+      ],
+      "conclusion": "מהפלמץ כלל רק תיכן{ בחר בה והמליכה תחת ושתי ולכאורה הי׳ אפשר לימר שזה הי׳ אולי מחמת שעד הנה כל הבתולות שעברו לפניו לא 1מצאה חן בעיניו לכך לא בחר בהם המלך רק בה לכך אמר שלא כן הי׳ רק בהראשוניס ג״כ הי׳ כמה בתולות שמצאו חן בעיני המלך והי׳ חפץ בהם ליקחנה ואעפ״כ",
+      "companion_explanation": "פרק ב׳, עמוד 29: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · ושתי · מגילה · השגחה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "ושתי"
+      ],
+      "concepts": [
+        "מגילה",
+        "השגחה",
+        "נס"
+      ],
+      "extraction_anchor": "יא מאמר אסתר ב ב פ ס ו ס ובזה הנערה באה אלהמלך וכו׳ נראה דהנה לא הי׳ ראוין שאר הנערות לכא כלל אל המלך כיון דכל ענין זה נעשה רק עבור אסתר א״כ הי׳ ראוי ' שיהי׳ ההתחלה ג״כ באסתר ובה התחיל ובה מסיים ולא יבואו האחרות לידי כך. אך הכוונה הוי לסרסם מעלת אסתר כי אין המעשה ניכר רק מתוך ההעדר כמ״ש ויתרון האור מן החושך ולכך ה״נ",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=29&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=29&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p28-u01",
+        "maamar-esther-chapter-2-p29-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p29-u02",
+      "pdf_page": 29,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "ב פ ס ו ה ותהי אסתר נושאות חן בעיני כל רואי׳ .בגמרא ר״ע אומר אסתר ברוה״ק נאמר שנאמר ותהי אסתר נושאת חן כו׳ ודחי דלמא כר״א דכל אחד נדמה לו כאומתו כו׳",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 29?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "גמרא",
+        "ש״ס",
+        "רש״י"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 29 ומאתרים את ב פ ס ו ה ותהי אסתר נושאות חן בעיני כל רואי׳ .בגמרא ר״ע אומר אסתר ברוה״ק נאמר שנאמר ותהי אסתר נושאת חן כו׳ ודחי דלמא כר״א דכל אחד נדמה לו כאומתו כו׳.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 29; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 29: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · מגילה · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי"
+      ],
+      "concepts": [
+        "מגילה",
+        "נס"
+      ],
+      "extraction_anchor": "ב פ ס ו ה ותהי אסתר נושאות חן בעיני כל רואי׳ .בגמרא ר״ע אומר אסתר ברוה״ק נאמר שנאמר ותהי אסתר נושאת חן כו׳ ודחי דלמא כר״א דכל אחד נדמה לו כאומתו כו׳ ופירש״י שהי׳ אומרים בפיהם זו משלנו היא .יש לדקדק דא״כ מי הכריח כלל הש״ס להביא דברי ר״א הלא בלא זה יכול לתרץ ששמענו מהם שמוצאת חן בעיניהם כו׳ .והנה כי הנה לכאורה קשה על",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=29&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=29&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p29-u01",
+        "maamar-esther-chapter-2-p30-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p30-u01",
+      "pdf_page": 30,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "בפסוס ותלקח אסתר אל המלך וכו׳ הנה במדרש פ׳ ויחי איחא וז״ל בנימין זאב יערוך זה אסתר שחמפה לה המלוכה כדכתיב ותלקח אסתר וכו׳ בבוקר יאכל עד שנאמר ביום",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מאמר אסתר ב 22 וא״כ ע״כ מצד הכס השי״ה היחה מוצאס חן וא״כ חקשה לכאורה מ ם הקב״ה אין טושה נס בחנם שלא לצורך וא״כ בשלמא מה שמצאת חן בטיכי המלך הצריכה שפיר לצורך הנס שיבא לישראל תשוטה טל ידה אבל מציאת חן בטיני הכל מה נ״מ יש אך דלכל הטולם אינה יס״ת בודאי לא יוכלו",
+      "cited_sources": [
+        "מדרש",
+        "ש״ס"
+      ],
+      "argument_steps": [
+        "מאמר אסתר ב 22 וא״כ ע״כ מצד הכס השי״ה היחה מוצאס חן וא״כ חקשה לכאורה מ ם הקב״ה אין טושה נס בחנם שלא לצורך וא״כ בשלמא מה שמצאת חן בטיכי המלך הצריכה שפיר לצורך הנס שיבא לישראל תשוטה טל ידה אבל מציאת חן בטיני הכל מה נ״מ יש אך דלכל הטולם אינה יס״ת בודאי לא יוכלו",
+        "בפסוס ותלקח אסתר אל המלך וכו׳ הנה במדרש פ׳ ויחי איחא וז״ל בנימין זאב יערוך זה אסתר שחמפה לה המלוכה כדכתיב ותלקח אסתר וכו׳ בבוקר יאכל עד שנאמר ביום ההוא נתן המלך וכו' ולערב יחלק שלל שנאמר ותשס אסתר את מרדכי על ביס המן .הנה להבין כונת המדרש בפרע מה שהביא ראי׳"
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 30; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 30: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · שבת · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ישראל",
+        "עשו"
+      ],
+      "concepts": [
+        "שבת",
+        "נס",
+        "כבוד"
+      ],
+      "extraction_anchor": "מאמר אסתר ב 22 וא״כ ע״כ מצד הכס השי״ה היחה מוצאס חן וא״כ חקשה לכאורה מ ם הקב״ה אין טושה נס בחנם שלא לצורך וא״כ בשלמא מה שמצאת חן בטיכי המלך הצריכה שפיר לצורך הנס שיבא לישראל תשוטה טל ידה אבל מציאת חן בטיני הכל מה נ״מ יש אך דלכל הטולם אינה יס״ת בודאי לא יוכלו להכחיש חוש הראות של מלך ולא יוטיל דבורם אל המלך שאינה יפ״ת",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=30&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=30&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p29-u02",
+        "maamar-esther-chapter-2-p31-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p31-u01",
+      "pdf_page": 31,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 31",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 31?",
+      "cited_sources": [],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 31 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 31.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 31; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 31: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר"
+      ],
+      "concepts": [],
+      "extraction_anchor": "יב 23 מאמר אסתר ב נ״מ אס יבוז השלל אס לא אחר שיהרגו ויאכדו מה נ״מ להם כממון או לא הוי רמה יוסר .אך נראה דמשמט שזה החלה אחר• המיסה שהזכיר בפרמ דכל זה מיוסד מפ״י דברי במל המקרה שביאר",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=31&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=31&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p30-u01",
+        "maamar-esther-chapter-2-p31-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p31-u02",
+      "pdf_page": 31,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "בפסוק לכן זונה שממו וכו׳ דהכל נקרא מל שס ההכליה דהגנב רק למלאוה רמבון נפשו לזה לא יסכן לקרוא גנב רק רמבסן ומל זה נהכוון שלמה באמרו אל יבוזו ,לגנב כי",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 31?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 31 ומאתרים את בפסוק לכן זונה שממו וכו׳ דהכל נקרא מל שס ההכליה דהגנב רק למלאוה רמבון נפשו לזה לא יסכן לקרוא גנב רק רמבסן ומל זה נהכוון שלמה באמרו אל יבוזו ,לגנב כי.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 31; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 31: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · מרדכי · המן · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "מרדכי",
+        "המן",
+        "משה",
+        "ישראל"
+      ],
+      "concepts": [
+        "נס"
+      ],
+      "extraction_anchor": "בפסוק לכן זונה שממו וכו׳ דהכל נקרא מל שס ההכליה דהגנב רק למלאוה רמבון נפשו לזה לא יסכן לקרוא גנב רק רמבסן ומל זה נהכוון שלמה באמרו אל יבוזו ,לגנב כי יגנב כי ירמב וכו׳ כלומר אם הוא באופן זה שהוא כי ירמב אין לבוזו לגנב רק לרמבהן וכן בזונה אס כוונהה רק הממון לאיסואר מלי׳ שס זונה רק חמדה ממון אך הזונה שאינה בטבור אהבס בשס",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=31&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=31&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p31-u01",
+        "maamar-esther-chapter-2-p32-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p32-u01",
+      "pdf_page": 32,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 32",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 32?",
+      "cited_sources": [],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 32 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 32.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "רי ש י להמתיק עוד הדבר דלכך אמר ‘ ו א ת ה ברחמיך ה ר ?י ם'ד אס הכוונה דע״י '.רחמיו הרבים הציל אתי ישראל אין זה סברא דמשמע דלולי רחמיו הרבים ,הי׳ ח״ו כלי׳ צישראל ובאמת כבר כשבע הקב״ה לישראל שלא יכלה אותם לעולם ואדרבא אחז״ל שראדן הי׳ ישראל להתחייב כלי׳ על",
+      "companion_explanation": "פרק ב׳, עמוד 32: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · תורה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ישראל"
+      ],
+      "concepts": [
+        "תורה"
+      ],
+      "extraction_anchor": "מאמר אסתר ב 24 מפורש• כתורה גכי עין תחת עין וכו״ ולא צותה התורה להיות מסמין אותו ממפ אי ליעול שיכו ממש כמו שהוא עושה כן רק הקילה עליו התורה ליתן רק דמיס ׳'הריי שהקב״ה הי׳ קל בעונש הגמול ממה שהוא עושהדהעושה יתכן שעשה ככעס ושלא בהשפל וישוב הדעת אבל־ העושה משפע בפרע הקב״ה המכריע המשפע במאזני צדק והכל בישוב הדעת ומתון",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=32&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=32&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p31-u02",
+        "maamar-esther-chapter-2-p33-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p33-u01",
+      "pdf_page": 33,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 33",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ב פ ס ו מ ותשא חן וחסד לפניו מכל הבתולות .הנה הוגד לי בשם האלשיך הקדוש שהקשה למה גבי יוסך נאמר וימצא יוסך חן בעיניו וכאן אמר ותשא חן וכו׳ ולסיע״ד א״ש בעזה״י דגבי יוסך הי׳ לו חן חדש מן השמים ולא שנטל הוא יק׳ מזה ונתן לזה לכך אמר וימצא יוסך חן .וכו׳ אבל כאן הי׳",
+      "cited_sources": [
+        "מדרש",
+        "אלשיך"
+      ],
+      "argument_steps": [
+        "יג 25 מאמר אסתר ב דמשמע בע״כ והן אמה דחז״ל דרשו מכאן שהיחה מחבאס עצמה אך לדרכנו י״ל באופן אחר דהנה אם הי׳ מזל אסהר מורה לטובה לא הי׳־ יקרא מה שנכנסה למלוכה שהי׳ בחזקה ותקופוח וכדומה כיון שמצד המז הי׳ מורה עליו כך אך כיון שהמזל של אסתר הי׳ מורה לרעה שהרי היתה",
+        "נראה הכוונה דאותן שכבר באו קודם אסתר המה נקראו נשים ונגדם לא שייך'לומר דאסתר מצאה חן יותר מהם כיון דהכיר אותם ו ה כ ל אותה וראה מעלתה רב על מעלתם א״כ אין זה חן וחסד רק מדינא והיושר ראוי לאהוב אותה מאותם אבל מן הבתולות שעדיין לא הי׳ אצל אחשורוש שפיר קוי לחוש",
+        "ב פ ס ו מ ותשא חן וחסד לפניו מכל הבתולות .הנה הוגד לי בשם האלשיך הקדוש שהקשה למה גבי יוסך נאמר וימצא יוסך חן בעיניו וכאן אמר ותשא חן וכו׳ ולסיע״ד א״ש בעזה״י דגבי יוסך הי׳ לו חן חדש מן השמים ולא שנטל הוא יק׳ מזה ונתן לזה לכך אמר וימצא יוסך חן .וכו׳ אבל כאן הי׳"
+      ],
+      "conclusion": "ב פ ס ו מ ותשא חן וחסד לפניו מכל הבתולות .הנה הוגד לי בשם האלשיך הקדוש שהקשה למה גבי יוסך נאמר וימצא יוסך חן בעיניו וכאן אמר ותשא חן וכו׳ ולסיע״ד א״ש בעזה״י דגבי יוסך הי׳ לו חן חדש מן השמים ולא שנטל הוא יק׳ מזה ונתן לזה לכך אמר וימצא יוסך חן .וכו׳ אבל כאן הי׳",
+      "companion_explanation": "פרק ב׳, עמוד 33: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · שבת · תורה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "עשו"
+      ],
+      "concepts": [
+        "שבת",
+        "תורה",
+        "נס"
+      ],
+      "extraction_anchor": "יג 25 מאמר אסתר ב דמשמע בע״כ והן אמה דחז״ל דרשו מכאן שהיחה מחבאס עצמה אך לדרכנו י״ל באופן אחר דהנה אם הי׳ מזל אסהר מורה לטובה לא הי׳־ יקרא מה שנכנסה למלוכה שהי׳ בחזקה ותקופוח וכדומה כיון שמצד המז הי׳ מורה עליו כך אך כיון שהמזל של אסתר הי׳ מורה לרעה שהרי היתה יתומה ועברחה מה אבי׳ וכו׳ א״כ הי׳ המזל שלה לרעה וכשהכניסה",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=33&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=33&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p32-u01",
+        "maamar-esther-chapter-2-p33-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p33-u02",
+      "pdf_page": 33,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 2 בעמוד 33",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 33?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 33 ומאתרים את מהלך 2 בעמוד 33.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "ב פ ס ו ה ויעש המלך משתה גדול לכל ישרי׳ וכו׳ את משתה אסתר הנה את משתה אסתר מיותר הרי ידוע הוא דלכך טשה משתה עבור הנשואין גס אס איש הנושא אשה ועושה סעודה הוי הנשואין רק עבור אשתו הרי גם לו הוי השמחה כמו לה והו״ל לומר את משתה הנשואין ונראה שמזה למדו חז״ל pאמרו",
+      "companion_explanation": "פרק ב׳, עמוד 33: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · משתה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר"
+      ],
+      "concepts": [
+        "משתה"
+      ],
+      "extraction_anchor": "ב פ ס ו ה ויעש המלך משתה גדול לכל ישרי׳ וכו׳ את משתה אסתר הנה את משתה אסתר מיותר הרי ידוע הוא דלכך טשה משתה עבור הנשואין גס אס איש הנושא אשה ועושה סעודה הוי הנשואין רק עבור אשתו הרי גם לו הוי השמחה כמו לה והו״ל לומר את משתה הנשואין ונראה שמזה למדו חז״ל pאמרו",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=33&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=33&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p33-u01",
+        "maamar-esther-chapter-2-p34-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p34-u01",
+      "pdf_page": 34,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "ובהקבץ בתולות שנית ומרדכי יושב בשער המלך .ואחז״ל שנתן עצה למלך ב פ ס ו ל, כי בכך תגיד לו אסתר .והקשו המסורשיס דמה ראה מרדכי על כך כי לאסתר צוה שלא",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מאט אסתר ב 26 שאמרו טשה משחה ולא מגליא לי׳ דלה כרגא ולא מגליא וכו׳ והיינו דהוי קשה .להס זה מ״ש אח משחה אסתר והוא מיוחר ולכך מסרש דהסטודה לא באה טל שמחחו כדרך שמחת נשואין רק הוי הכונה שתגלה לו א״כ משתה זה הוי רק טבורה דאס הוי דרך סטודת נשואין הוי השמחה לשניהם",
+      "cited_sources": [
+        "מדרש",
+        "תוספות"
+      ],
+      "argument_steps": [
+        "מאט אסתר ב 26 שאמרו טשה משחה ולא מגליא לי׳ דלה כרגא ולא מגליא וכו׳ והיינו דהוי קשה .להס זה מ״ש אח משחה אסתר והוא מיוחר ולכך מסרש דהסטודה לא באה טל שמחחו כדרך שמחת נשואין רק הוי הכונה שתגלה לו א״כ משתה זה הוי רק טבורה דאס הוי דרך סטודת נשואין הוי השמחה לשניהם",
+        "ובהקבץ בתולות שנית ומרדכי יושב בשער המלך .ואחז״ל שנתן עצה למלך ב פ ס ו ל, כי בכך תגיד לו אסתר .והקשו המסורשיס דמה ראה מרדכי על כך כי לאסתר צוה שלא תגיד ולמלך נתן עצה להיפוך .נראה המעס דידוע מ״ש במדרש פ׳ בהעלותך וכמה דוכתא שאין הקב״ה מעלה את האדם לגדולה עד"
+      ],
+      "conclusion": "מאט אסתר ב 26 שאמרו טשה משחה ולא מגליא לי׳ דלה כרגא ולא מגליא וכו׳ והיינו דהוי קשה .להס זה מ״ש אח משחה אסתר והוא מיוחר ולכך מסרש דהסטודה לא באה טל שמחחו כדרך שמחת נשואין רק הוי הכונה שתגלה לו א״כ משתה זה הוי רק טבורה דאס הוי דרך סטודת נשואין הוי השמחה לשניהם",
+      "companion_explanation": "פרק ב׳, עמוד 34: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · מלכות · משתה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "ושתי",
+        "ישראל"
+      ],
+      "concepts": [
+        "מלכות",
+        "משתה",
+        "שבת",
+        "נס",
+        "כבוד",
+        "הלל"
+      ],
+      "extraction_anchor": "מאט אסתר ב 26 שאמרו טשה משחה ולא מגליא לי׳ דלה כרגא ולא מגליא וכו׳ והיינו דהוי קשה .להס זה מ״ש אח משחה אסתר והוא מיוחר ולכך מסרש דהסטודה לא באה טל שמחחו כדרך שמחת נשואין רק הוי הכונה שתגלה לו א״כ משתה זה הוי רק טבורה דאס הוי דרך סטודת נשואין הוי השמחה לשניהם והוי טבור שניהם אבל אס הוי הכונה כדי שתגלה לו אס כן הוי רר",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=34&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=34&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p33-u02",
+        "maamar-esther-chapter-2-p35-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p35-u01",
+      "pdf_page": 35,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 35",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 35?",
+      "cited_sources": [],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 35 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 35.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 35; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 35: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · שבת. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "משה",
+        "ישראל"
+      ],
+      "concepts": [
+        "שבת"
+      ],
+      "extraction_anchor": "יד 27 מאמר אסתר ב כי טצה של כהוס׳ ששמשה במוך י״ל דחששה שמא ירגיש אחשורוש בזה אבל בזה שחרחץ אח״כ בחמין זה לא ידט וכיון שאחשורוש הי׳ נכרי ורחמנא אסקרא לזרטו ואן דנכרי הבא טל בה ישראל הולד כשר מ״מ בטי גרוה כמ״ש בסשובתי מהדורא ויו ה׳ ס״ו ובמהדורא ד ייט״ש וא״כ כל זמן שלא נהגייר הוי הולד נמי נכרי לכך מוהר להשחית זרטה ולכך",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=35&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=35&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p34-u01",
+        "maamar-esther-chapter-2-p35-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p35-u02",
+      "pdf_page": 35,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "בפסוק כאשר אבדתי אבדתי וכו׳ וא״כ אס רצתה לילך כפי הדין הרי טריות יהרוג ואל יטבור ובט״כ כתירוץ הש״ס דקרקט טולם היא והיינו דהיא לא טבדה מטשה וא״כ לא",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 35?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש",
+        "ש״ס",
+        "ילקוט",
+        "רש״י"
+      ],
+      "argument_steps": [
+        "בפסוק כאשר אבדתי אבדתי וכו׳ וא״כ אס רצתה לילך כפי הדין הרי טריות יהרוג ואל יטבור ובט״כ כתירוץ הש״ס דקרקט טולם היא והיינו דהיא לא טבדה מטשה וא״כ לא היתה צריכה להראות דם נדה' לנגד אחשורוש דהרי היא אנוסה לכך אמר האן t דאין אסתר מגדת מ״מ ואת מאמר מרדכי אסתר טושה",
+        "כ פ ס ו ס ביטים ההס קצן £בגתן ותרש וכו׳ במדרש זה שאמר הכתוב לכו חזו מפטלות אלקיס הקצין{ הקב״ה אדון טל טבדיו כדי לטשות נס לצדיק הקצין{ הקב״ה טבדיס טל אדוניהם כדי לטשות כס לצדיקים וכו׳ הנה מה שהביא בזה הך קרא דלכו חזו מפטלות אלקיס .נראה לומר ט״פ הידוט דהוא ית׳"
+      ],
+      "conclusion": "אבל בשביל ב׳ צדיקים הקצין{ טבדיס טל אדוניהם אן שהם בטלי בחירה וטשה נס יותר ,מן הצורך לכך אמר המדרש לכו חזו מפטלות אלקים איך שיש חילוק בין רבים ליחיד דברבים טושה נס יותר מן הצורך והקציף טבדיס טל אדוניהם ולצדיק אחד הקציף רק אדון טל טבדיו.",
+      "companion_explanation": "פרק ב׳, עמוד 35: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · תורה · מצוה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "בגתן",
+        "תרש",
+        "משה"
+      ],
+      "concepts": [
+        "תורה",
+        "מצוה",
+        "בחירה",
+        "נס"
+      ],
+      "extraction_anchor": "בפסוק כאשר אבדתי אבדתי וכו׳ וא״כ אס רצתה לילך כפי הדין הרי טריות יהרוג ואל יטבור ובט״כ כתירוץ הש״ס דקרקט טולם היא והיינו דהיא לא טבדה מטשה וא״כ לא היתה צריכה להראות דם נדה' לנגד אחשורוש דהרי היא אנוסה לכך אמר האן t דאין אסתר מגדת מ״מ ואת מאמר מרדכי אסתר טושה והיתה מראות דם נדה לחכמים אפילו מה דהוי לצורך אחשורוש כאשר",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=35&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=35&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p35-u01",
+        "maamar-esther-chapter-2-p35-u03"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p35-u03",
+      "pdf_page": 35,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 3,
+      "kind": "verse_discussion",
+      "source_focus": "ב פ ס ו ה ויבקש הדבר וימצא .במדרש ר׳ לוי בשם ר״א בר שילא איש ־כפר תמרתא אמר ומה אס ספרו של ב״ו כך כשיבא ספרו של הקב״ה דכתיב ויקשב ד׳ וישמט וכו׳ טאכ״ו",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ב פ ס ו ה ויבקש הדבר וימצא .במדרש ר׳ לוי בשם ר״א בר שילא איש ־כפר תמרתא אמר ומה אס ספרו של ב״ו כך כשיבא ספרו של הקב״ה דכתיב ויקשב ד׳ וישמט וכו׳ טאכ״ו הנה לכאורה לא נודט מה בטי המדרש בזה הן אמת שודאי אמת הוא כך אבל מ״מ כיון שציין זה טל הפסוק מוכח שבא ליישב",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 35 ומאתרים את ב פ ס ו ה ויבקש הדבר וימצא .במדרש ר׳ לוי בשם ר״א בר שילא איש ־כפר תמרתא אמר ומה אס ספרו של ב״ו כך כשיבא ספרו של הקב״ה דכתיב ויקשב ד׳ וישמט וכו׳ טאכ״ו.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "ב פ ס ו ה ויבקש הדבר וימצא .במדרש ר׳ לוי בשם ר״א בר שילא איש ־כפר תמרתא אמר ומה אס ספרו של ב״ו כך כשיבא ספרו של הקב״ה דכתיב ויקשב ד׳ וישמט וכו׳ טאכ״ו הנה לכאורה לא נודט מה בטי המדרש בזה הן אמת שודאי אמת הוא כך אבל מ״מ כיון שציין זה טל הפסוק מוכח שבא ליישב",
+      "companion_explanation": "פרק ב׳, עמוד 35: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · מרדכי. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "מרדכי"
+      ],
+      "concepts": [],
+      "extraction_anchor": "ב פ ס ו ה ויבקש הדבר וימצא .במדרש ר׳ לוי בשם ר״א בר שילא איש ־כפר תמרתא אמר ומה אס ספרו של ב״ו כך כשיבא ספרו של הקב״ה דכתיב ויקשב ד׳ וישמט וכו׳ טאכ״ו הנה לכאורה לא נודט מה בטי המדרש בזה הן אמת שודאי אמת הוא כך אבל מ״מ כיון שציין זה טל הפסוק מוכח שבא ליישב איזה דקדוק בזה וטוד דאל״כ הרי כאן לא נתברר השכר רק אח״כ כששילם",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=35&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=35&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p35-u02",
+        "maamar-esther-chapter-2-p36-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p36-u01",
+      "pdf_page": 36,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 36",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מאמר אסתר ב 28 הדבר לפניו לדקדק שיכחבו האמח ולא יקפחו שכרו לכך אמר לפני המלך .אך לפ״ז קשה מי ביקש זה מכוהב המגילה בפרט שנאמרה ברוה״ק לספר ממלח אחשורוש הרשע אך הכוונה ללמוד ממנו דעה והבטחה לשכרו יח׳ שאס אחשורוש שהוא רשע דקדק לכחוב כל המעשה לפניו שלא יקפח שכד",
+      "cited_sources": [],
+      "argument_steps": [
+        "מאמר אסתר ב 28 הדבר לפניו לדקדק שיכחבו האמח ולא יקפחו שכרו לכך אמר לפני המלך .אך לפ״ז קשה מי ביקש זה מכוהב המגילה בפרט שנאמרה ברוה״ק לספר ממלח אחשורוש הרשע אך הכוונה ללמוד ממנו דעה והבטחה לשכרו יח׳ שאס אחשורוש שהוא רשע דקדק לכחוב כל המעשה לפניו שלא יקפח שכד",
+        "בפסול ,הנ״ל ויתלו שניהם על עץ .הנה מה שהזכיר במה נתלו והוא למותר אך נראה דהנה במרדכי נגזר עליו להיות נתלה תחלה רק שאח״כ היפך הקב״ה הגזירה והנה כתיב ואתן אדם תחתיך דאין המה״ד חוזר ריקם ואס מנטל הקב״ה הגזירה מהאדם צריך ליתן איזה אחר תחת זה ולכך הנה כשרצה הקב״ה",
+        "אומרת באס מרדכי נמי הוי גאוצה באופן אחר כי היד ד׳ תקצר .אך נראה לפרש בעזה״י דלכאורה קשה איך אמרה אסתר כן הריאח״כ"
+      ],
+      "conclusion": "בפסול ,הנ״ל ויתלו שניהם על עץ .הנה מה שהזכיר במה נתלו והוא למותר אך נראה דהנה במרדכי נגזר עליו להיות נתלה תחלה רק שאח״כ היפך הקב״ה הגזירה והנה כתיב ואתן אדם תחתיך דאין המה״ד חוזר ריקם ואס מנטל הקב״ה הגזירה מהאדם צריך ליתן איזה אחר תחת זה ולכך הנה כשרצה הקב״ה",
+      "companion_explanation": "פרק ב׳, עמוד 36: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · מגילה · גזירה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "בגתן",
+        "תרש"
+      ],
+      "concepts": [
+        "מגילה",
+        "גזירה",
+        "גאולה"
+      ],
+      "extraction_anchor": "מאמר אסתר ב 28 הדבר לפניו לדקדק שיכחבו האמח ולא יקפחו שכרו לכך אמר לפני המלך .אך לפ״ז קשה מי ביקש זה מכוהב המגילה בפרט שנאמרה ברוה״ק לספר ממלח אחשורוש הרשע אך הכוונה ללמוד ממנו דעה והבטחה לשכרו יח׳ שאס אחשורוש שהוא רשע דקדק לכחוב כל המעשה לפניו שלא יקפח שכד כל בריה מכ״ש הקב״ה דכחיב בי׳ ויכחב בספר זכרון לפניו שג״כ",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=36&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=36&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p35-u03",
+        "maamar-esther-chapter-2-p36-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-2-p36-u02",
+      "pdf_page": 36,
+      "chapter_id": "chapter-2",
+      "chapter_title": "פרק ב׳",
+      "megillah_chapter": "ב׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "בפסוק כאשר אבדתי אבדתי ,ו; י אחז״ל כשם שאבדתי מבית אבא כן אבדתי ממך דעד עתה באונס ועכשיו ברצון.",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 36?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "וא״כ תמי׳ לי הרי תחלה הוי ברצון מה שגלתה לו להצילו ממות הוי ברצון ואם ר ; לא היתה מגלה לו הי׳ 'מת והיתה נפטרה ממנו והיא גלתה להחיותו א׳־כ הוי.",
+        "ברצון .ואין לומר דהוי רצונה רק להחיותו ולא להיות נבעל לו א״כ הלא גס שהלכה אליו לבקש עבור ישראל נמי לא הי׳ כוונתה להיות נבעל לק לבקש רחמים על ישראל רק כיון דידעה שאס תלך אליו יהי׳ בועלה ונחשב רצין א״כ ה״נ כיון שתחי׳ אותו ודאי יהי׳ בועלה .אך נראה דהנה המהרי״ק"
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 36; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ב׳, עמוד 36: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · ישראל · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "ישראל"
+      ],
+      "concepts": [
+        "נס"
+      ],
+      "extraction_anchor": "בפסוק כאשר אבדתי אבדתי ,ו; י אחז״ל כשם שאבדתי מבית אבא כן אבדתי ממך דעד עתה באונס ועכשיו ברצון. וא״כ תמי׳ לי הרי תחלה הוי ברצון מה שגלתה לו להצילו ממות הוי ברצון ואם ר ; לא היתה מגלה לו הי׳ 'מת והיתה נפטרה ממנו והיא גלתה להחיותו א׳־כ הוי. ברצון .ואין לומר דהוי רצונה רק להחיותו ולא להיות נבעל לו א״כ הלא גס שהלכה אליו",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=36&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=36&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-2-p36-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p37-u01",
+      "pdf_page": 37,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 1,
+      "kind": "continued_argument",
+      "source_focus": "המשך המהלך מן העמוד הקודם · עמוד 37",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 37?",
+      "cited_sources": [],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 37 ומאתרים את המשך המהלך מן העמוד הקודם · עמוד 37.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 37; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ג׳, עמוד 37: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · ישראל · גאולה · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "ישראל",
+        "יעקב"
+      ],
+      "concepts": [
+        "גאולה",
+        "נס"
+      ],
+      "extraction_anchor": "טו 29 מאמר אסתר ב ג צוה לה לילך א״כ כיון דהבעל נחן לה רשוה ודאי לא כיונה למעול מעל כאישה ולמה תמסור כיון דהוי פוגנת .אך נראה דמהחס אין ראי׳ די״ל דודאי אס הי׳ ידוע שתציל את ישראל ודאי הי׳ מותר לזכות רק דבאסתר הוי ' ספק .דהרי נתייראה ואמרה ואני לא נקראתי לבא אל המלך וכו׳ וא״כ כיון דהצלה הוי ספק והזנות הוי ודאי אין ספק",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=37&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=37&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p37-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p37-u02",
+      "pdf_page": 37,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 2,
+      "kind": "alternative_explanation",
+      "source_focus": "בפסוק ויהי בהשמע וכו׳ ודו״ק(.",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "בפסול ,הנ״ל נשאלתי לבאר הילקוע בזה וז״ל אחר הדבריס האלה גדל בשלשה בניסן כתב המן להשמידוכו׳ ובי״ז בניסן נתלה עכ״ל והוא תמוה והשבתי דט״ס הוי בו וצריך להיות בשלשה עשר בניסן כתב המן וכפורש בכתוב דבי״ג בניסן כחבו האגרת ובמ״ז בניסן נתלה וכמ״ש רש״י במגילה דך י״ח",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש",
+        "ילקוט",
+        "רש״י"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 37 ומאתרים את בפסוק ויהי בהשמע וכו׳ ודו״ק(..",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "מפיטיל ג׳ בפסול ,אחר הדבריס האלה גדל המלך וכו׳ נראה המשך ,המאמר בעזה״י דהנה המן נתן עצה להרוג את ושתי ואח״כ הי׳ המלך מסופק אם כיון המן לעובתו וכבודו או לרעתו לאבר את ושתי לכך נאמר כשוך חמת המלך בכ״ך •הדמיון שככה ואינו שככה אבל אח״כ כשלקח את אסתר והיתה אהובה",
+      "companion_explanation": "פרק ג׳, עמוד 37: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · המן · מגילה · תענית. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ושתי",
+        "ישראל"
+      ],
+      "concepts": [
+        "מגילה",
+        "תענית",
+        "שבת",
+        "עומר",
+        "כבוד"
+      ],
+      "extraction_anchor": "בפסוק ויהי בהשמע וכו׳ ודו״ק(. מפיטיל ג׳ בפסול ,אחר הדבריס האלה גדל המלך וכו׳ נראה המשך ,המאמר בעזה״י דהנה המן נתן עצה להרוג את ושתי ואח״כ הי׳ המלך מסופק אם כיון המן לעובתו וכבודו או לרעתו לאבר את ושתי לכך נאמר כשוך חמת המלך בכ״ך •הדמיון שככה ואינו שככה אבל אח״כ כשלקח את אסתר והיתה אהובה לו יותר מושתי ראה כי עצת המן",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=37&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=37&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p37-u01",
+        "maamar-esther-chapter-3-p38-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p38-u01",
+      "pdf_page": 38,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 1,
+      "kind": "verse_discussion",
+      "source_focus": "לכך התחיל להחניף לו ולגדלו טל הכל והתחיל לרוממו ולגדלו וזה הוי הסמיכות אחר הדברים האלה שראה שיש טליו מורדים במלכותו לכך התחיל לגדל את המן ו 5ט״כ המטס",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מאמר אסתר ג 30 וגדלו ורוממו הד״ד אחר הדברים האלה וכו׳ והוא המוה מאוד דמנ״ל כן מאחר הדברים האלה .אך נראה דהי׳ קשה לו מכין הסמיכוה זה לזה דכל מקום שנאמר .",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "מאמר אסתר ג 30 וגדלו ורוממו הד״ד אחר הדברים האלה וכו׳ והוא המוה מאוד דמנ״ל כן מאחר הדברים האלה .אך נראה דהי׳ קשה לו מכין הסמיכוה זה לזה דכל מקום שנאמר .",
+        "אחר הדברים האלה־ משמט דיש לו שייכוח זה לזה וס״ל כמ״ד לטיל דכל מקום שנאמר אחר הוי סמוך וכיון דסמכו הכהוב משמט שיש לו שייכוח זה לזה ולכך נמשך ממעשה בגתן וחרש ומרדכי שיגדל אח המן אדרבא אה מרדכי הי׳ לו לגדל אך הטנין הוא דכל זמן שלא ראה אחשורוש שיש שונא לו במלכוהו",
+        "לכך התחיל להחניף לו ולגדלו טל הכל והתחיל לרוממו ולגדלו וזה הוי הסמיכות אחר הדברים האלה שראה שיש טליו מורדים במלכותו לכך התחיל לגדל את המן ו 5ט״כ המטס למה דוקא את המן מפני שהוא טשיר מכולם והי׳ לו בניס שרים ' וא״ש .וזה נראה כוונת הפסוק מ״ש אח״כ ויספר להם המן את"
+      ],
+      "conclusion": "גדול עשרו ורוב בניו נמשך לו כל הכבוד הזה וא״ש.",
+      "companion_explanation": "פרק ג׳, עמוד 38: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אחשורוש · אסתר · מרדכי · מלכות · כבוד. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אחשורוש",
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "בגתן"
+      ],
+      "concepts": [
+        "מלכות",
+        "כבוד"
+      ],
+      "extraction_anchor": "מאמר אסתר ג 30 וגדלו ורוממו הד״ד אחר הדברים האלה וכו׳ והוא המוה מאוד דמנ״ל כן מאחר הדברים האלה .אך נראה דהי׳ קשה לו מכין הסמיכוה זה לזה דכל מקום שנאמר . אחר הדברים האלה־ משמט דיש לו שייכוח זה לזה וס״ל כמ״ד לטיל דכל מקום שנאמר אחר הוי סמוך וכיון דסמכו הכהוב משמט שיש לו שייכוח זה לזה ולכך נמשך ממעשה בגתן וחרש ומרדכי",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=38&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=38&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p37-u02",
+        "maamar-esther-chapter-3-p38-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p38-u02",
+      "pdf_page": 38,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 2 בעמוד 38",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 38?",
+      "cited_sources": [
+        "מגילת אסתר / מקרא"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 38 ומאתרים את מהלך 2 בעמוד 38.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "את חתימת המהלך יש לקרוא בדברי הספר בעמוד 38; שכבת המיפוי אינה מחליפה אותה.",
+      "companion_explanation": "פרק ג׳, עמוד 38: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: מרדכי · המן · כבוד. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "מרדכי",
+        "המן"
+      ],
+      "concepts": [
+        "כבוד"
+      ],
+      "extraction_anchor": "כ פ ס ו ה ויגידו להמן לראות היעמדו דברי מרדכי וכו׳ נראה הכוונה דנחזי אנן ׳ אם ילך מלך ושר לפני איש אחד ־ולא יחלוק לו האיש כבוד אז בודאי יקצון £המלך והשר מאוד אבל אם יאמרו לו אחרים שאל יכעוס כי הוא איש י משוגע אז לא יכעוס עוד עליו כן ה״נ המן הרשע כבר ראה שאין מרדכי משתחווס - לו אך אמר כי הוא איש מטורך ואינו משתחוה לשום",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=38&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=38&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p38-u01",
+        "maamar-esther-chapter-3-p38-u03"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p38-u03",
+      "pdf_page": 38,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 3,
+      "kind": "alternative_explanation",
+      "source_focus": "מהלך 3 בעמוד 38",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 38?",
+      "cited_sources": [],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 38 ומאתרים את מהלך 3 בעמוד 38.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "או י״ל דהוי שונא להמן מצד עצמו ולכך תחלה נאמר רק ומרדכי לא יכרע ולא ישהחוה א״כ עכ״פ הי׳ קם מפניו לכך דומה המן שהוא עבור ע״ז שעל לבו א״ע זה הדח גורם ולענין הדת למה לו לשנוא למרדכי יותר מכל ישראל לכך ויבז בעיניו לשלוח יד במרדכי לבדו אבל אח״כ שנאמר ,ולא קם ולא",
+      "companion_explanation": "פרק ג׳, עמוד 38: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: מרדכי · המן · ישראל. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "מרדכי",
+        "המן",
+        "ישראל"
+      ],
+      "concepts": [],
+      "extraction_anchor": "או י״ל דהוי שונא להמן מצד עצמו ולכך תחלה נאמר רק ומרדכי לא יכרע ולא ישהחוה א״כ עכ״פ הי׳ קם מפניו לכך דומה המן שהוא עבור ע״ז שעל לבו א״ע זה הדח גורם ולענין הדת למה לו לשנוא למרדכי יותר מכל ישראל לכך ויבז בעיניו לשלוח יד במרדכי לבדו אבל אח״כ שנאמר ,ולא קם ולא זע ממנו א״כ בשביל נג״ז הי׳ מותר לו עכ״ס לקום מפניו בזה הוכיח",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=38&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=38&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p38-u02",
+        "maamar-esther-chapter-3-p39-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p39-u01",
+      "pdf_page": 39,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 1,
+      "kind": "verse_discussion",
+      "source_focus": "ב פ ס ו ס וירא המן וכו׳ וימלא המן חימה במדרש הובא בס׳ קול יעקב וז״ל אמר הקב״ה ישראל שלי דכתיב כי לי בניי ישראל עבדים והחימה שלי 'דכתיב נוקם ד׳ ובעל",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ב פ ס ו ה הנ״ל לראות היעמדו דברי מרדכי אינו מובן מה יש להס לעמוד או לא.",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "מדרש"
+      ],
+      "argument_steps": [
+        "אך נראה דהנה מה דבכיח מרדכי ולא נתיירא מעונש המלך היינו כיון שהוא הציל את המלך מן המיתה וזה נכתב בדברי הימים ולכך על זה שמך שלא יענשנו המלך אס יעבור על רצונו .אבל עבדי המלך אמרו דודאי יראה המן למוחקה מנין זה מה שכתוב על מרדכי שהוא דבר מוב על המלך יראה המן",
+        "ב פ ס ו ס וירא המן וכו׳ וימלא המן חימה במדרש הובא בס׳ קול יעקב וז״ל אמר הקב״ה ישראל שלי דכתיב כי לי בניי ישראל עבדים והחימה שלי 'דכתיב נוקם ד׳ ובעל חימה ואתם מתמצאים משלי על שלי וכו׳ נראה הכונה בדרך משל במלך אושר שגזר שלא יעשו בעיר כך וכך ומינה שומרים שישגיחו",
+        "רק בזה הוי טענה עליהס ולכך דייקו חז״ל ואמרו על זקן הכבדת עולך דודאי אס לא הי׳ עושין לצדיקיס יותר מלהרשעיס הוי תירוץ להס כיון דנוחן רשות למשחית אינו מבחין בין טוב לרע אבל אס עושין יסורין לצדיקיס יותר מרשעיס א״כ לא שייך לומר הטעס כיון דנותן רשות למשחית אינו"
+      ],
+      "conclusion": "רק בזה הוי טענה עליהס ולכך דייקו חז״ל ואמרו על זקן הכבדת עולך דודאי אס לא הי׳ עושין לצדיקיס יותר מלהרשעיס הוי תירוץ להס כיון דנוחן רשות למשחית אינו מבחין בין טוב לרע אבל אס עושין יסורין לצדיקיס יותר מרשעיס א״כ לא שייך לומר הטעס כיון דנותן רשות למשחית אינו",
+      "companion_explanation": "פרק ג׳, עמוד 39: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: מרדכי · המן · ישראל · תורה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "מרדכי",
+        "המן",
+        "ישראל",
+        "יעקב",
+        "עשו"
+      ],
+      "concepts": [
+        "תורה"
+      ],
+      "extraction_anchor": "ב פ ס ו ה הנ״ל לראות היעמדו דברי מרדכי אינו מובן מה יש להס לעמוד או לא. אך נראה דהנה מה דבכיח מרדכי ולא נתיירא מעונש המלך היינו כיון שהוא הציל את המלך מן המיתה וזה נכתב בדברי הימים ולכך על זה שמך שלא יענשנו המלך אס יעבור על רצונו .אבל עבדי המלך אמרו דודאי יראה המן למוחקה מנין זה מה שכתוב על מרדכי שהוא דבר מוב על המלך",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=39&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=39&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p38-u03",
+        "maamar-esther-chapter-3-p40-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p40-u01",
+      "pdf_page": 40,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "מהלך 1 בעמוד 40",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "מהו הקושי שהמחבר מברר במהלך המסומן בעמוד 40?",
+      "cited_sources": [
+        "מדרש"
+      ],
+      "argument_steps": [
+        "פותחים את דברי הספר בעמוד 40 ומאתרים את מהלך 1 בעמוד 40.",
+        "מפרידים בין הקושיה, המקורות שהמחבר מביא ושלבי התשובה.",
+        "קוראים את המסקנה בדף המצולם לפני מעבר ליחידה הבאה."
+      ],
+      "conclusion": "־“5• V י׳ מאמר אסתר ג 32 מחחיל רק מן הצדיקים והוי זה למיבוסא כי עי״כ יטכשי האומוס .ולכך ה״נ במרדכי אס לא הי׳ מחחיל במרדכי רק בשאר ישראל אז גס למרדכי הי׳ יכול ולא סי׳ המן נחלה כי הי׳ לו מפנה אתה מסרה בידינו אך כיון דרצה להחחיל במרדכי אז בזה אין לו מענה כמ״ש",
+      "companion_explanation": "פרק ג׳, עמוד 40: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · המן. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ישראל"
+      ],
+      "concepts": [],
+      "extraction_anchor": "־“5• V י׳ מאמר אסתר ג 32 מחחיל רק מן הצדיקים והוי זה למיבוסא כי עי״כ יטכשי האומוס .ולכך ה״נ במרדכי אס לא הי׳ מחחיל במרדכי רק בשאר ישראל אז גס למרדכי הי׳ יכול ולא סי׳ המן נחלה כי הי׳ לו מפנה אתה מסרה בידינו אך כיון דרצה להחחיל במרדכי אז בזה אין לו מענה כמ״ש במדרש הכ״ל דישראל שלי והחימה שלי לכך כיון דרצה להתחיל במרדכי",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=40&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=40&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p39-u01",
+        "maamar-esther-chapter-3-p40-u02"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p40-u02",
+      "pdf_page": 40,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 2,
+      "kind": "verse_discussion",
+      "source_focus": "מהלך 2 בעמוד 40",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ב פ ס ו ה הכ״ל עד ויבז בעיניו לשלוח יד במרדכי לבדו וכו׳ והנה הדקדוקים ידועיס גס מה שפירוש הרב אלשיך שאמרו להמן להשיר הצלס גס זה אינו מובן חדא דלשון היעמדו לא משמע כדבריו דלדבריו שהי׳ הבירור אם מרדכי דיבר אמח או שקר א״כ הוי הבירור על לשעבר ולא שייך לשון היעמדו",
+      "cited_sources": [
+        "מגילת אסתר / מקרא",
+        "אלשיך"
+      ],
+      "argument_steps": [
+        "ב פ ס ו ה הכ״ל עד ויבז בעיניו לשלוח יד במרדכי לבדו וכו׳ והנה הדקדוקים ידועיס גס מה שפירוש הרב אלשיך שאמרו להמן להשיר הצלס גס זה אינו מובן חדא דלשון היעמדו לא משמע כדבריו דלדבריו שהי׳ הבירור אם מרדכי דיבר אמח או שקר א״כ הוי הבירור על לשעבר ולא שייך לשון היעמדו",
+        "ב פ ס ו ל ,ויבז בעיניו לשלוח יד במרדכי לבדו כי הגידו לו את עם מרדכי וכס והנה י״ל מה דאמר כי הגידו לו את עם מרדכי דהנהג אחז״ל במס׳ ברכוה פ״ק ונוקמא' ר׳ יוחנן לנפשי׳ ומשני אין חבוש מתיר עצמו מבית האסורין ולכך ה״נ תחלה הי׳' רו׳צה המן להרוג את מרדכי .ולא הי׳"
+      ],
+      "conclusion": "ב פ ס ו ל ,ויבז בעיניו לשלוח יד במרדכי לבדו כי הגידו לו את עם מרדכי וכס והנה י״ל מה דאמר כי הגידו לו את עם מרדכי דהנהג אחז״ל במס׳ ברכוה פ״ק ונוקמא' ר׳ יוחנן לנפשי׳ ומשני אין חבוש מתיר עצמו מבית האסורין ולכך ה״נ תחלה הי׳' רו׳צה המן להרוג את מרדכי .ולא הי׳",
+      "companion_explanation": "פרק ג׳, עמוד 40: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: מרדכי · המן · ישראל · מצוה · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "מרדכי",
+        "המן",
+        "ישראל",
+        "עמלק"
+      ],
+      "concepts": [
+        "מצוה",
+        "נס",
+        "כבוד"
+      ],
+      "extraction_anchor": "ב פ ס ו ה הכ״ל עד ויבז בעיניו לשלוח יד במרדכי לבדו וכו׳ והנה הדקדוקים ידועיס גס מה שפירוש הרב אלשיך שאמרו להמן להשיר הצלס גס זה אינו מובן חדא דלשון היעמדו לא משמע כדבריו דלדבריו שהי׳ הבירור אם מרדכי דיבר אמח או שקר א״כ הוי הבירור על לשעבר ולא שייך לשון היעמדו ע״ז רק האמת כדברי מרדכי כו׳ .ועוד דא״כ המקרא קצר מאוד שלא",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=40&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=40&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p40-u01",
+        "maamar-esther-chapter-3-p41-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p41-u01",
+      "pdf_page": 41,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "י בחודש הראשון הוא חדש ניסן הפיל פור הוא הגורל לפגי המן וכו׳ ב פ סו ר, במדרש בא למזל דגים שהוא משמש בחדש אדר ולא נמצא לו זכות ושמח מיד ואמר אדר אין",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "ו מ ה י״ל גס ראיות ונהפוך הוא ייתר נכון והוא דקשה לו על שינוי הלשון דמתחלה זכר לשון אויב יום אשר שברו אויבי היהודים וכו׳ ונהפוך הוא אשר ישלטו היהודים המה בשונאיהם נקע לשון שונא .אך הקונה דאויב נקרא מי שבלבו לעשות רעה י",
+      "cited_sources": [
+        "מדרש"
+      ],
+      "argument_steps": [
+        "מ 33 מאמר אסתר נ אוהבין זל״ז והס יססללו עליו ולא יהי׳ יכול לו .וז״ש ויבז במיניו לשלוח יד במרדכי לבדו כי הגידו לו את עס מרדכי שהס יחפללו עליו ויהי׳ נענין• לכך ויבקש המן י להשמיד את כל היהודים וכו׳ עם מרדכי ואם הכל יהי׳ בצרה אז לא יועילו בתפלתן כי אין חבוש מתיר",
+        "לכך זכיתם שלא הברית כיוצא בכס והנה בזה נבין דבריהמדרש הנ״ל שבא להוכיח דלא נטעה שמתחלה דיבר ד׳ למחות את ישראל רק שאח״כ נתבטל הגזירה ע״י תשובתם רק מעולם מתחלה לא דיבר ה׳ למחית את ישראל ולא הוי התחלה לגדרה זו כלל והיינו דאס הי׳ כמכרין לאחר הי׳ אפשר לומר דמתחלה",
+        "ו מ ה י״ל גס ראיות ונהפוך הוא ייתר נכון והוא דקשה לו על שינוי הלשון דמתחלה זכר לשון אויב יום אשר שברו אויבי היהודים וכו׳ ונהפוך הוא אשר ישלטו היהודים המה בשונאיהם נקע לשון שונא .אך הקונה דאויב נקרא מי שבלבו לעשות רעה י"
+      ],
+      "conclusion": "לכך זכיתם שלא הברית כיוצא בכס והנה בזה נבין דבריהמדרש הנ״ל שבא להוכיח דלא נטעה שמתחלה דיבר ד׳ למחות את ישראל רק שאח״כ נתבטל הגזירה ע״י תשובתם רק מעולם מתחלה לא דיבר ה׳ למחית את ישראל ולא הוי התחלה לגדרה זו כלל והיינו דאס הי׳ כמכרין לאחר הי׳ אפשר לומר דמתחלה",
+      "companion_explanation": "פרק ג׳, עמוד 41: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · מרדכי · המן · מגילה · גזירה. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "מרדכי",
+        "המן",
+        "ישראל",
+        "עמלק",
+        "עשו"
+      ],
+      "concepts": [
+        "מגילה",
+        "גזירה"
+      ],
+      "extraction_anchor": "מ 33 מאמר אסתר נ אוהבין זל״ז והס יססללו עליו ולא יהי׳ יכול לו .וז״ש ויבז במיניו לשלוח יד במרדכי לבדו כי הגידו לו את עס מרדכי שהס יחפללו עליו ויהי׳ נענין• לכך ויבקש המן י להשמיד את כל היהודים וכו׳ עם מרדכי ואם הכל יהי׳ בצרה אז לא יועילו בתפלתן כי אין חבוש מתיר א״ע מבית האסורין. י בחודש הראשון הוא חדש ניסן הפיל פור הוא",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=41&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=41&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p40-u02",
+        "maamar-esther-chapter-3-p42-u01"
+      ]
+    },
+    {
+      "id": "maamar-esther-chapter-3-p42-u01",
+      "pdf_page": 42,
+      "chapter_id": "chapter-3",
+      "chapter_title": "פרק ג׳",
+      "megillah_chapter": "ג׳",
+      "sequence_on_page": 1,
+      "kind": "rabbinic_discussion",
+      "source_focus": "בפסוך־ ,ויאמר המן וכו׳ ישנו עם אחד .במדרש ישנו עם אחד זה שכתב בו ד׳ אחד• ישן לו מעמו אמר הקב״ה אני ׳ אין לפני שינה .ואתה אמרת שאני ישן חייך שמתוך",
+      "source_quote": null,
+      "quote_status": "not_asserted",
+      "question": "הנה לכאורה' אינו מובן מה נ״מ יהי׳ להמן אם יפרע לו הקב״ה מתוך שינה או לא אך הכוכה עפמ״ש בחידושים שלי מכבר לפרש בסתחא שפתח רבא לולי ד׳ שהי׳ לנו בקום עלינו אדם ולא מלך וכתבנו הכונה שבא ליתן מעם על מה ,נשתנה נס פוריס מכל הניסים שהי׳ בדרך המבע והוא ע״ד שאחז״ל גבי",
+      "cited_sources": [
+        "מדרש"
+      ],
+      "argument_steps": [
+        "מאמר אסתר ג 34 רעה להבא ושונא נקרא מי שכבר עשה רעה בפועל נקרא שונא והנה שאר אומ״ה ־ נקראים אויבים דעחה הוי בלבם לעשוה רעה ועדיין לא עשו אבל זרע עמלק נקראו שונאים דהם כבר עשו .וז״ש הכחוב דיום אשר שברו היהודים לשלוע בהס ״ ונהפוך הוא דמעיקרא נהפוך הדבר ולא הוי",
+        "הנה לכאורה' אינו מובן מה נ״מ יהי׳ להמן אם יפרע לו הקב״ה מתוך שינה או לא אך הכוכה עפמ״ש בחידושים שלי מכבר לפרש בסתחא שפתח רבא לולי ד׳ שהי׳ לנו בקום עלינו אדם ולא מלך וכתבנו הכונה שבא ליתן מעם על מה ,נשתנה נס פוריס מכל הניסים שהי׳ בדרך המבע והוא ע״ד שאחז״ל גבי",
+        "שליח ,שהוא דרך בזיון ייע״ש .עד״ז נראה שסנחרב שעכ״פ הי׳ מלך אדיר וחזק לכך עכ״פ זכה שיהי׳ נענש .ע״י שליח מן השמים שהוא היפוך דרך המבע שג״כד לכבוד יחשב לו שלא נענש ע״י אדם כמותו רק מן השמים ומי יעמוד נגד צבא השמים אבל המן שלא הי׳ מלך כלל לא הי׳ כבודו ית׳ לצאת",
+        "כ פ ס ו ל ,,אם על המלך סוב יכתב לאבדם ועשרת אלפים ככר,כסך וכו׳ הנה אחז״ל דגלוי ׳ י •"
+      ],
+      "conclusion": "שליח ,שהוא דרך בזיון ייע״ש .עד״ז נראה שסנחרב שעכ״פ הי׳ מלך אדיר וחזק לכך עכ״פ זכה שיהי׳ נענש .ע״י שליח מן השמים שהוא היפוך דרך המבע שג״כד לכבוד יחשב לו שלא נענש ע״י אדם כמותו רק מן השמים ומי יעמוד נגד צבא השמים אבל המן שלא הי׳ מלך כלל לא הי׳ כבודו ית׳ לצאת",
+      "companion_explanation": "פרק ג׳, עמוד 42: היחידה מסדרת את הקריאה מן המקור אל הקושיה, המקורות, שלבי המהלך והמסקנה. מוקדי האיתור הבולטים כאן: אסתר · המן · ישראל · גזירה · נס. זהו הסבר נלווה לניווט; דברי הספר נקראים מן ה־PDF הצמוד.",
+      "people": [
+        "אסתר",
+        "המן",
+        "ישראל",
+        "עמלק",
+        "עשו"
+      ],
+      "concepts": [
+        "גזירה",
+        "נס",
+        "כבוד"
+      ],
+      "extraction_anchor": "מאמר אסתר ג 34 רעה להבא ושונא נקרא מי שכבר עשה רעה בפועל נקרא שונא והנה שאר אומ״ה ־ נקראים אויבים דעחה הוי בלבם לעשוה רעה ועדיין לא עשו אבל זרע עמלק נקראו שונאים דהם כבר עשו .וז״ש הכחוב דיום אשר שברו היהודים לשלוע בהס ״ ונהפוך הוא דמעיקרא נהפוך הדבר ולא הוי החמלה לגזירה זו כצל רק להיפוך , הוי הכונה דאשר ישלמו היהודים",
+      "extraction_status": "machine_candidate_for_search_and_navigation",
+      "source_anchor": "#page=42&view=FitH",
+      "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_33050.pdf#page=42&view=FitH",
+      "related_unit_ids": [
+        "maamar-esther-chapter-3-p41-u01"
       ]
     }
   ]
