@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { extractCompoundClaims, verifyCandidate, computeExtractionIntegrity } from '../src/lib/triage.js';
+import { METHODS } from '../src/lib/gematria.js';
 
 export const COHORT_FILES = [
   ['20261026121500_zvi_safe_auto_tree_promotion_v2.sql', '_zvi_safe_auto_promotion_v2'],
@@ -277,7 +278,11 @@ export function replayNumericResidualBatch(evidence = readNumericResidualBatch()
 }
 
 export function buildNumericResidualReceiptSql(evidence = readNumericResidualBatch()) {
-  const selected = replayNumericResidualBatch(evidence);
+  return buildSelectedReceiptSql(replayNumericResidualBatch(evidence));
+}
+
+// Same bounded source/identity/method SELECT for both text and image evidence.
+function buildSelectedReceiptSql(selected) {
   const quote = value => `'${String(value).replaceAll("'", "''")}'`;
   const values = selected.map(({row:r,source:s}) => `(${quote(r.id)}::uuid,${quote(r.source_ref)},`
     + `${quote(s.id)}::uuid,${quote(s.md5)},${quote(r.source_uid)},${quote(hash(r.claim_uid))},${quote(hash(r.statement))},`
@@ -330,25 +335,10 @@ export function buildNumericResidualReceiptSql(evidence = readNumericResidualBat
 
 export function buildNumericResidualReview(evidence = readNumericResidualBatch(), receipt = readNumericResidualReceipt()) {
   const selected = replayNumericResidualBatch(evidence);
-  requireEvidence(receipt && !Number.isNaN(Date.parse(receipt.checked_at))
-    && /^[a-f0-9]{32}$/u.test(receipt.engine_definition_md5)
-    && receipt.methods?.length === 1 && receipt.methods[0].method_key === 'רגיל'
-    && receipt.methods[0].in_engine === true, 'Missing canonical receipt');
-  requireEvidence(receipt.claims?.length === 40 && new Set(receipt.claims.map(r => r.id)).size === 40,
-    'Incomplete current claim receipt');
-  const expected = selected.flatMap(r => r.calculations.flatMap(c => c.engineInputs.map(i => ({id:r.row.id,...i}))));
-  requireEvidence(receipt.engine_replays?.length === expected.length && expected.every(e =>
-    receipt.engine_replays.filter(r => r.id === e.id && r.role === e.role && r.phrase === e.phrase
-      && r.method === e.method && r.expected === e.expected && r.computed === e.expected
-      && r.method_in_engine === true).length === 1), 'Canonical engine parity drift');
+  const expected = validateSelectedReceipt(selected, receipt);
   const rows = selected.map(({row:r,plan:p,source:s,calculations}) => {
     const live = receipt.claims.find(c => c.id === r.id);
-    requireEvidence(live && ['admitted','general_scope','exact_claim','exact_source'].every(k => live[k] === true)
-      && live.source_ref === r.source_ref && live.source_md5 === s.md5 && live.source_uid === r.source_uid
-      && live.claim_uid === r.claim_uid && live.statement_md5 === hash(r.statement)
-      && JSON.stringify(live.targets) === JSON.stringify(r.targets || []), 'Live source/identity/target drift');
-    requireEvidence(Array.isArray(live.identity_overlaps) && live.identity_overlaps.every(o =>
-      o.id !== r.id && o.source_uid === r.source_uid && o.claim_uid === r.claim_uid), 'Unproven identity overlap');
+    validateLiveClaim(r,s,live);
     // Identity overlap is not proof that all content is interchangeable. Never suppress.
     const overlaps = live.identity_overlaps;
     const interchangeable = overlaps.length > 0 && overlaps.every(o => o.kind === r.kind && o.value === r.value
@@ -382,9 +372,152 @@ export function buildNumericResidualReview(evidence = readNumericResidualBatch()
       newFindings:0,promoted:0,deleted:0},execute:false};
 }
 
+function validateSelectedReceipt(selected, receipt) {
+  requireEvidence(receipt && !Number.isNaN(Date.parse(receipt.checked_at))
+    && /^[a-f0-9]{32}$/u.test(receipt.engine_definition_md5)
+    && receipt.methods?.length === 1 && receipt.methods[0].method_key === 'רגיל'
+    && receipt.methods[0].in_engine === true, 'Missing canonical receipt');
+  requireEvidence(receipt.claims?.length === selected.length && new Set(receipt.claims.map(r => r.id)).size === selected.length,
+    'Incomplete current claim receipt');
+  const expected = selected.flatMap(r => r.calculations.flatMap(c => c.engineInputs.map(i => ({id:r.row.id,...i}))));
+  requireEvidence(receipt.engine_replays?.length === expected.length && expected.every(e =>
+    receipt.engine_replays.filter(r => r.id === e.id && r.role === e.role && r.phrase === e.phrase
+      && r.method === e.method && r.expected === e.expected && r.computed === e.expected
+      && r.method_in_engine === true).length === 1), 'Canonical engine parity drift');
+  return expected;
+}
+
+function validateLiveClaim(r,s,live) {
+  requireEvidence(live && ['admitted','general_scope','exact_claim','exact_source'].every(k => live[k] === true)
+    && live.source_ref === r.source_ref && live.source_md5 === s.md5 && live.source_uid === r.source_uid
+    && live.claim_uid === r.claim_uid && live.statement_md5 === hash(r.statement)
+    && JSON.stringify(live.targets) === JSON.stringify(r.targets || []), 'Live source/identity/target drift');
+  requireEvidence(Array.isArray(live.identity_overlaps) && live.identity_overlaps.every(o =>
+    o.id !== r.id && o.source_uid === r.source_uid && o.claim_uid === r.claim_uid), 'Unproven identity overlap');
+}
+
+export const readImageSourceReview = () => readReviewJson('world-image-source-review-20261026.json');
+export const readImageSourceReceipt = () => readReviewJson('world-image-source-receipt-20261026.json');
+
+// Offline review of a fixed seven-case follow-up, not an OCR/parser/runtime service.
+export function replayImageSourceReview(evidence = readImageSourceReview()) {
+  const prior = replayNumericResidualBatch().filter(r => r.plan.kind === 'media');
+  requireEvidence(prior.length === 7 && evidence.rows?.length === 7 && evidence.reviewPlan?.length === 7
+    && evidence.sources?.length === 7, 'Wrong seven-image follow-up');
+  return prior.map(({row,source}) => {
+    const snapshot = evidence.rows.filter(r => r.id === row.id);
+    const sources = evidence.sources.filter(s => s.id === source.id);
+    const plans = evidence.reviewPlan.filter(p => p.id === row.id), plan = plans[0];
+    requireEvidence(snapshot.length === 1 && sources.length === 1 && plans.length === 1
+      && JSON.stringify(snapshot[0]) === JSON.stringify(row)
+      && JSON.stringify(sources[0]) === JSON.stringify(source), 'Prior source/claim snapshot drift');
+    requireEvidence(plan.strength === null && plan.score === null && plan.scoreTargetId === null
+      && plan.sourceCount === null && plan.independentSourcesAdded === 0 && plan.automaticPromotion === false,
+    'Invented score or authority');
+    requireEvidence(plan.media.sourceLocator === source.image_url
+      && plan.transcription.fullImage === false && plan.transcription.humanApproved === false
+      && plan.transcription.method === 'assistant_visual_inspection', 'Media/transcription provenance drift');
+    if (plan.media.inspected) {
+      requireEvidence(source.image_url.startsWith('https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/')
+        && plan.media.access === 'public_url' && plan.media.downloadAttempted === true
+        && /^[0-9a-f]{64}$/u.test(plan.media.sha256) && plan.media.bytes > 0
+        && plan.media.width > 0 && plan.media.height > 0
+        && plan.transcription.status === 'candidate_region_transcription' && plan.regions.length > 0,
+      'Image access/fingerprint unavailable');
+    } else {
+      const objectId = source.image_url.replace(/^storage-object:/u,'');
+      const access = evidence.storageChecks?.find(s => s.objectId === objectId);
+      requireEvidence(source.image_url === `storage-object:${objectId}` && access?.public === false
+        && access.downloadAttempted === false && plan.media.downloadAttempted === false
+        && plan.media.access === 'nonpublic_storage_object'
+        && plan.media.sha256 === null && plan.media.bytes === null && plan.regions.length === 0
+        && plan.transcription.status === 'unavailable' && plan.recommendation === 'דורש OCR או תמלול',
+      'Blocked image must remain unavailable');
+    }
+    const regions = new Map(plan.regions.map(r => [r.key,r]));
+    requireEvidence(regions.size === plan.regions.length && plan.regions.every(r =>
+      r.text?.length && r.note?.length && r.box?.length === 4 && r.box.every(n => Number.isFinite(n) && n >= 0 && n <= 1)
+      && r.box[2] > 0 && r.box[3] > 0 && r.box[0]+r.box[2] <= 1 && r.box[1]+r.box[3] <= 1),
+    'Invalid visual region');
+    requireEvidence(new Set(plan.calculations.map(c => c.key)).size === plan.calculations.length, 'Duplicate calculation key');
+    const calculations = plan.calculations.map((c,index) => {
+      requireEvidence(c.claimed === null || Number.isSafeInteger(c.claimed), 'Invalid claimed value');
+      requireEvidence(typeof c.diagnosticOnly === 'boolean' && Array.isArray(c.regions)
+        && c.regions.every(k => regions.has(k)), 'Missing image-region binding');
+      const regionText = c.regions.map(k => regions.get(k).text).join('\n');
+      if (!c.diagnosticOnly) requireEvidence(plan.media.inspected && c.regions.length > 0,
+        'Uninspected image cannot support a source claim');
+      else requireEvidence(c.regions.length === 0, 'Historical diagnostic cannot pretend to be a visual quote');
+      if (c.type === 'atomic') {
+        requireEvidence(c.method === 'רגיל' && !/[0-9+×÷=]/u.test(c.expression)
+          && (c.diagnosticOnly ? row.terms.includes(c.expression) : regionText.includes(c.expression)),
+        'Unbound atomic transcription');
+        const replay = c.claimed === null
+          ? {engine_detail:{phrase:c.expression,method:c.method,claimed:null,computed:METHODS.find(m=>m.key===c.method).fn(c.expression)}}
+          : verifyCandidate({type:'explicit-claim',text:c.expression,method:c.method,value:c.claimed});
+        requireEvidence(Number.isSafeInteger(replay.engine_detail?.computed), 'Missing canonical local result');
+        return {...c,index,trace:replay.engine_detail,
+          verification:c.claimed === null ? 'engine_result' : replay.engine_verified === true ? 'match' : 'mismatch',
+          engineInputs:[{role:`image_${c.key}`,phrase:c.expression,method:c.method,expected:replay.engine_detail.computed}]};
+      }
+      requireEvidence(c.type === 'compound' && c.constructed === true && c.constructionReason?.length
+        && c.method === null && Number.isSafeInteger(c.claimed), 'Missing typed derivation provenance');
+      const claims = extractCompoundClaims(c.expression), claim = claims[0];
+      requireEvidence(claims.length === 1 && (claim.skipUsed === undefined || claim.skipUsed === 0)
+        && claim.result === c.claimed, 'Ambiguous shared extraction');
+      const operands = claim.operands || (claim.operand ? [claim.operand] : []);
+      requireEvidence(operands.length > 0 && operands.every(o => o.ok && o.method === 'רגיל'
+        && (c.diagnosticOnly ? row.terms.includes(o.phrase) : regionText.includes(o.phrase))),
+      'Unbound compound operand');
+      return {...c,index,trace:claim,verification:claim.status === 'ENGINE_VERIFIED_COMPOSITE' ? 'match' : 'mismatch',
+        extractionIntegrity:computeExtractionIntegrity([claim],[]),extractionScope:'constructed_from_visual_regions',
+        engineInputs:operands.map((o,i) => ({role:`image_${c.key}_${i}`,phrase:o.phrase,method:o.method,expected:o.value}))};
+    });
+    requireEvidence(['מתאים לעץ','דורש בדיקה','דורש OCR או תמלול'].includes(plan.recommendation)
+      && plan.reason?.length && plan.gaps?.length && plan.geometry.verified === false, 'Missing bounded disposition');
+    if (plan.recommendation === 'מתאים לעץ') requireEvidence(plan.media.inspected && row.targets.length === 1
+      && calculations.length > 0 && calculations.every(c => !c.diagnosticOnly && c.verification !== 'mismatch')
+      && calculations.some(c => c.claimed === row.value && c.verification === 'match'), 'Unready image recommendation');
+    return {row,source,plan,calculations};
+  });
+}
+
+export function buildImageSourceReceiptSql(evidence = readImageSourceReview()) {
+  return buildSelectedReceiptSql(replayImageSourceReview(evidence));
+}
+
+export function buildImageSourceReport(evidence = readImageSourceReview(), receipt = readImageSourceReceipt()) {
+  const selected = replayImageSourceReview(evidence), checks = validateSelectedReceipt(selected,receipt);
+  const rows = selected.map(({row:r,source:s,plan:p,calculations}) => {
+    const live = receipt.claims.find(c => c.id === r.id); validateLiveClaim(r,s,live);
+    return {id:r.id,title:p.title,originalStatement:r.statement,sourceRef:r.source_ref,sourceId:s.id,
+      sourceImage:p.media.inspected ? s.image_url : null,media:p.media,transcription:p.transcription,
+      regions:p.regions,recommendation:p.recommendation,reason:p.reason,gaps:p.gaps,calculations,
+      target:p.recommendation === 'מתאים לעץ' ? live.targets[0] : null,
+      strength:null,score:null,scoreTargetId:null,sourceCount:null,independentSourcesAdded:0,
+      interpretationVerified:false,geometry:p.geometry,identityOverlapIds:live.identity_overlaps.map(o=>o.id),
+      retainIds:[r.id,...live.identity_overlaps.map(o=>o.id)],fullerFindingVersion:null,
+      execute:false,suppress:false,automaticPromotion:false,publicationChanged:false};
+  });
+  requireEvidence(evidence.visualReuse?.length === 1 && evidence.visualReuse.every(g =>
+    g.findingIds.length === 2 && new Set(g.findingIds).size === 2
+    && g.findingIds.every(id => rows.some(r => r.id === id && r.media.inspected))
+    && JSON.stringify(g.sourceIds) === JSON.stringify(g.findingIds.map(id => rows.find(r => r.id === id).sourceId))
+    && g.findingIds.includes(g.fullerContextFindingId) && g.findingIds.includes(g.retainOriginalDetailFindingId)
+    && g.sameFinding === false && g.byteIdentical === false && g.merge === false && g.suppress === false
+    && g.independentSourcesAdded === 0), 'Visual reuse is not finding dedup authority');
+  return {base:evidence.base,checkedAt:receipt.checked_at,rows,visualReuse:evidence.visualReuse,
+    counts:{reviewed:rows.length,newCorpusRecords:0,imagesInspected:rows.filter(r=>r.media.inspected).length,
+      imageAccessHeld:rows.filter(r=>!r.media.inspected).length,calculations:rows.flatMap(r=>r.calculations).length,
+      canonicalChecks:checks.length,byRecommendation:rows.reduce((a,r)=>(a[r.recommendation]=(a[r.recommendation]||0)+1,a),{}),
+      newFindings:0,promoted:0,deleted:0},execute:false};
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const mode = process.argv[2] || 'summary';
   if (mode === 'numeric-batch-sql') process.stdout.write(buildNumericResidualReceiptSql() + '\n');
   else if (mode === 'numeric-batch') process.stdout.write(JSON.stringify(buildNumericResidualReview(),null,2) + '\n');
+  else if (mode === 'image-review-sql') process.stdout.write(buildImageSourceReceiptSql() + '\n');
+  else if (mode === 'image-review') process.stdout.write(JSON.stringify(buildImageSourceReport(),null,2) + '\n');
   else process.stdout.write(buildResidualAuditSql(mode) + '\n');
 }
