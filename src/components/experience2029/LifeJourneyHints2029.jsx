@@ -6,6 +6,7 @@ import {
   LIFE_JOURNEY_HINT_CAPTURE_MAX_QUESTION,
 } from "../../lib/research/lifeJourneyHintCapture.js";
 import { projectLifeJourneyHintReferences } from "../../lib/research/lifeJourneyHintProjection.js";
+import { lifeJourneyHintInvestigationErrorMessage } from "../../lib/research/lifeJourneyHintInvestigation.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { buildLifeJourneyHintReferencePatch } from "../../lib/research/lifeJourneyPersonContext.js";
 
@@ -34,7 +35,37 @@ function normalizeMembers(members) {
   });
 }
 
-export default function LifeJourneyHints2029({ state = { loading: true, rows: [], error: null }, members = [], onSave, onOpenTimeline }) {
+function comparisonLabel(row) {
+  if (row.sameCivilDay) return "אותו יום אזרחי בדיוק";
+  if (row.sameMonthAndDay) return `${row.daysBetween} ימים · אותו יום וחודש בשנה אחרת`;
+  return row.direction === "after_anchor"
+    ? `${row.daysBetween} ימים אחרי תאריך הלידה`
+    : `${row.daysBetween} ימים לפני תאריך הלידה`;
+}
+
+function HintInvestigationResult({ state }) {
+  if (!state) return null;
+  if (state.state === "loading") return <div className="person-journey-hint-check-state" role="status" aria-busy="true">בודק תאריך ומספר מול המקורות הקיימים…</div>;
+  if (state.state === "error") return <div className="person-journey-error" role="alert">{lifeJourneyHintInvestigationErrorMessage(state.error)}</div>;
+  const result = state.result;
+  if (!result) return null;
+  const comparisons = result.date.comparisons || [];
+  const matches = result.number.existingMatches || [];
+  const phrases = result.number.source?.phrases || [];
+  const empty = !comparisons.length && !matches.length && !phrases.length;
+  return <section className="person-journey-hint-check" data-experience-capability="life-journey-hint-bounded-checks">
+    <header><div><small>בדיקה קנונית מוגבלת</small><h4>{result.status === "partial" ? "תוצאות חלקיות" : result.status === "error" ? "המקור לא היה זמין" : "מה נמצא בבדיקה"}</h4></div><span>ללא AI · ללא ELS</span></header>
+    {result.date.representation ? <div className="person-journey-hint-check-date"><strong>ייצוג התאריך</strong><span><bdi>{result.date.representation.dateIso}</bdi> · {result.date.representation.hebrewDate}</span></div> : null}
+    {comparisons.length ? <section><h5>מרחק מתאריכי הלידה שנבחרו</h5><ul>{comparisons.map(row => <li key={row.id}><strong>{row.memberName}</strong><span>{comparisonLabel(row)}</span></li>)}</ul></section> : null}
+    {matches.length ? <section><h5>תוצאות קיימות במסע באותו מספר</h5><ul>{matches.map(row => <li key={row.id}><strong>{row.memberName}</strong><span>{row.expressionLabel} · {row.methodLabel} · {row.value}</span></li>)}</ul></section> : null}
+    {phrases.length ? <section><h5>ביטויים ממקור המספר הקנוני</h5><ul>{phrases.map(row => <li key={row.id}><strong>{row.phrase}</strong><span>{row.methods.join(" · ")} · התאמת ערך בלבד</span></li>)}</ul></section> : null}
+    {result.number.sourceState === "error" ? <p className="person-journey-hint-check-warning">מקור המספר לא היה זמין; לא הומצאה תוצאה חלופית.</p> : null}
+    {empty ? <p>לא נמצאה כרגע התאמה בשדות שנבדקו. זו תוצאת בדיקה תקינה, לא הוכחה שאין קשר.</p> : null}
+    <footer>הבדיקה לא קראה את סיפור הרמז, לא חיפשה שמות, ואינה מוכיחה סיבתיות, גורל או משמעות.</footer>
+  </section>;
+}
+
+export default function LifeJourneyHints2029({ state = { loading: true, rows: [], error: null }, members = [], onSave, investigationState = null, onInvestigate, onOpenTimeline }) {
   const navigate = useNavigate();
   const research = useResearch();
   const [mode, setMode] = useState("list");
@@ -91,7 +122,7 @@ export default function LifeJourneyHints2029({ state = { loading: true, rows: []
 
   return <section className="person-journey-panel" data-experience-capability="life-journey-hint-references">
     <div className="person-journey-section-head"><div><small>04</small><h2>הרמזים האישיים שלי</h2></div><span>פרטי · באותו עץ</span></div>
-    <p className="person-journey-note">כאן שומרים תצפית ואת השאלה שבגללה היא חשובה. תאריך ושיוך לאדם נשמרים רק אחרי אישור מפורש. אין חיפוש, AI או ELS בזמן השמירה.</p>
+    <p className="person-journey-note">כאן שומרים תצפית ואת השאלה שבגללה היא חשובה. תאריך ושיוך לאדם נשמרים רק אחרי אישור מפורש. בדיקת תאריך ומספר מתחילה רק בלחיצה נפרדת; AI ו־ELS אינם מופעלים.</p>
 
     {mode === "list" ? <div className="person-journey-hint-capture-entry"><div><strong>ראיתם משהו ששווה לזכור?</strong><span>שמרו אותו עם מטרה ברורה; הבדיקה תופעל בנפרד בעתיד.</span></div><button type="button" disabled={state.loading || Boolean(state.error) || typeof onSave !== "function"} onClick={() => { setNotice(null); setMode("edit"); }}>הוסף תצפית פרטית</button></div> : null}
 
@@ -126,8 +157,10 @@ export default function LifeJourneyHints2029({ state = { loading: true, rows: []
       const number = Number(hint.number);
       const hasNumberReference = hint.number != null && hint.number !== "" && Number.isSafeInteger(number) && number >= 0;
       const associatedName = reference.personRef ? memberNames.get(reference.personRef) : null;
-      return <article key={hint.id}><div><strong>{hint.title || "רמז שמור"}</strong><small>{hint.number != null ? `מספר ${hint.number}` : hint.hint_type}</small><small>{date.state === "dated" ? <>מועד האירוע: <bdi>{date.dateIso}</bdi> · {date.hebrewDate} · ייצוג יום אזרחי, ללא קביעת שעת שקיעה</> : date.state === "unknown" ? "מועד האירוע לא צוין" : "מועד האירוע דורש הבהרה לפני בדיקה"}</small><small>{associatedName ? `משויך במפורש אל ${associatedName}` : "ללא שיוך אישי מאושר"}</small>{hint.note || hint.research_question ? <details><summary>פתח את התצפית הפרטית</summary>{hint.note ? <p>{hint.note}</p> : null}{hint.research_question ? <p><b>מה רציתי להבין:</b> {hint.research_question}</p> : null}</details> : null}</div><div className="person-journey-hint-actions">{hasNumberReference ? <button type="button" onClick={() => openNumberReference(number)}>פתח במספר {number}</button> : null}{href ? <a href={href} target="_blank" rel="noreferrer">פתח מקור קיים</a> : null}{date.state === "dated" && onOpenTimeline ? <button type="button" onClick={onOpenTimeline}>הצג בציר החיים</button> : null}{!hasNumberReference && !href && !(date.state === "dated" && onOpenTimeline) ? <span>הפניה פרטית ללא יעד פתיחה</span> : null}</div></article>;
+      const check = investigationState instanceof Map ? investigationState.get(hint.id) : investigationState?.[hint.id];
+      const canInvestigate = date.state === "dated" || hasNumberReference;
+      return <article key={hint.id}><div><strong>{hint.title || "רמז שמור"}</strong><small>{hint.number != null ? `מספר ${hint.number}` : hint.hint_type}</small><small>{date.state === "dated" ? <>מועד האירוע: <bdi>{date.dateIso}</bdi> · {date.hebrewDate} · ייצוג יום אזרחי, ללא קביעת שעת שקיעה</> : date.state === "unknown" ? "מועד האירוע לא צוין" : "מועד האירוע דורש הבהרה לפני בדיקה"}</small><small>{associatedName ? `משויך במפורש אל ${associatedName}` : "ללא שיוך אישי מאושר"}</small>{hint.note || hint.research_question ? <details><summary>פתח את התצפית הפרטית</summary>{hint.note ? <p>{hint.note}</p> : null}{hint.research_question ? <p><b>מה רציתי להבין:</b> {hint.research_question}</p> : null}</details> : null}</div><div className="person-journey-hint-actions">{canInvestigate && onInvestigate ? <button type="button" disabled={check?.state === "loading"} onClick={() => onInvestigate(hint.id)}>{check?.state === "loading" ? "בודק…" : check?.state === "ready" ? "בדוק שוב" : "בדוק תאריך ומספר"}</button> : <span>נדרש תאריך מדויק או מספר לבדיקה</span>}{hasNumberReference ? <button type="button" onClick={() => openNumberReference(number)}>פתח במספר {number}</button> : null}{href ? <a href={href} target="_blank" rel="noreferrer">פתח מקור קיים</a> : null}{date.state === "dated" && onOpenTimeline ? <button type="button" onClick={onOpenTimeline}>הצג בציר החיים</button> : null}</div><HintInvestigationResult state={check} /></article>;
     })}</div> : null}
-    <p className="person-journey-note">פענוח AI, הצלבות ו־ELS יופעלו רק בפעולה נפרדת ומפורשת לאחר חיבור החוזים המתאימים.</p>
+    <p className="person-journey-note">תוצאות הבדיקה נשמרות בזיכרון המסך בלבד ואינן משנות את הרמז. פענוח AI ו־ELS יופעלו רק בפעולה נפרדת לאחר חיבור החוזים המתאימים.</p>
   </section>;
 }

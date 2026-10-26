@@ -201,10 +201,40 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(decodeURIComponent(page.url()).includes(privateObservation), false, "private observation is never placed in the URL");
     assert.equal(JSON.stringify(await page.evaluate(() => window.__lifeJourneyContext)).includes(privateObservation), false, "private observation is not copied into Research Context");
     assert.equal(JSON.stringify(await page.evaluate(() => window.__telemetry)).includes(privateObservation), false, "private observation is not copied into telemetry");
+    const boundedCallsBefore = await page.evaluate(() => ({
+      sources: window.__sourceCalls.length,
+      matrix: window.__matrixCalls.length,
+      reflection: window.__reflectionCalls.length,
+      names: window.__nameCalls.length,
+      dates: window.__dateCalls.length,
+      els: window.__elsCalls.length,
+    }));
+    await savedHint.getByRole("button", { name: "בדוק תאריך ומספר" }).click();
+    const boundedCheck = savedHint.locator('[data-experience-capability="life-journey-hint-bounded-checks"]');
+    await boundedCheck.getByRole("heading", { name: "מה נמצא בבדיקה" }).waitFor();
+    await boundedCheck.getByText(/2026-10-26/).waitFor();
+    await boundedCheck.getByText("ילד בדיקה", { exact: true }).waitFor();
+    await boundedCheck.getByText("אור", { exact: true }).waitFor();
+    await boundedCheck.getByText("דרך", { exact: true }).waitFor();
+    const boundedCallsAfter = await page.evaluate(() => ({
+      sources: window.__sourceCalls.length,
+      matrix: window.__matrixCalls.length,
+      reflection: window.__reflectionCalls.length,
+      names: window.__nameCalls.length,
+      dates: window.__dateCalls.length,
+      els: window.__elsCalls.length,
+    }));
+    assert.deepEqual(boundedCallsAfter, { ...boundedCallsBefore, sources: boundedCallsBefore.sources + 1 }, "explicit hint check performs exactly one canonical number read and starts no AI, ELS, name or family research");
+    assert.deepEqual(await page.evaluate(() => window.__sourceCalls.at(-1)), { kind: "number_lookup", value: 337 });
+    assert.equal(JSON.stringify(await page.evaluate(() => window.__sourceCalls)).includes(privateObservation), false, "private hint narrative is not sent to the canonical number reader");
+    assert.equal(JSON.stringify(await page.evaluate(() => window.__sourceCalls)).includes(privateQuestion), false, "private hint question is not sent to the canonical number reader");
     await savedHint.getByRole("button", { name: "הצג בציר החיים" }).click();
     const hintTimeline = page.getByRole("region", { name: "תצפיות פרטיות מתוארכות" });
     await hintTimeline.getByText("תצפית פרטית · ילד בדיקה", { exact: true }).waitFor();
     assert.equal(await hintTimeline.getByText(privateObservation, { exact: true }).count(), 0, "timeline receives a generic private event, not hint content");
+    await hintBranch.getByRole("button", { name: /הרמזים הפרטיים שלי/ }).click();
+    await savedHint.locator('[data-experience-capability="life-journey-hint-bounded-checks"]').waitFor();
+    assert.equal(await page.evaluate(() => window.__sourceCalls.length), boundedCallsAfter.sources, "screen switching preserves the bounded result without rerunning it");
     await openMap("summary");
     await guidedFlow.getByRole("heading", { name: "המסלול המודרך" }).waitFor();
     assert.equal(await guidedFlow.locator('button[aria-current="step"]').innerText().then(text => text.includes("חיבורים")), true);

@@ -30,7 +30,7 @@ function dateWords(pretty) {
   });
 }
 
-function exactDaysBetween(left, right) {
+export function exactLifeJourneyDaysBetween(left, right) {
   const start = Date.parse(`${left}T00:00:00Z`);
   const end = Date.parse(`${right}T00:00:00Z`);
   if (!Number.isFinite(start) || !Number.isFinite(end)) return null;
@@ -83,7 +83,7 @@ export function buildLifeJourneyTimeMap({ birthTimeline = [], methodFindings = [
   const intervals = [];
   for (let left = 0; left < people.length; left += 1) {
     for (let right = left + 1; right < people.length; right += 1) {
-      const daysBetween = exactDaysBetween(people[left].dateIso, people[right].dateIso);
+      const daysBetween = exactLifeJourneyDaysBetween(people[left].dateIso, people[right].dateIso);
       if (daysBetween == null) continue;
       intervals.push(Object.freeze({
         id: `${people[left].memberRef}:${people[right].memberRef}`,

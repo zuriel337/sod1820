@@ -45,6 +45,7 @@ import {
 } from "../lib/research/lifeJourneyPersonContext.js";
 import { runLifeJourneyNameResearch } from "../lib/research/lifeJourneyNameResearch.js";
 import { saveLifeJourneyHintCapture } from "../lib/research/lifeJourneyHintCapture.js";
+import { runLifeJourneyHintInvestigation } from "../lib/research/lifeJourneyHintInvestigation.js";
 import {
   createSupabaseLifeJourneyFamilyProviders,
   runLifeJourneyFamilyResearch,
@@ -84,6 +85,7 @@ const familyMemberRawRef = (ownerId, sourceRef) => {
 };
 const MAX_FAMILY_RESEARCH_MEMBERS = 12;
 const MAX_VISIBLE_FAMILY_CONVERGENCES = 10;
+const EMPTY_HINT_INVESTIGATIONS = new Map();
 const FAMILY_CLAIM_STATUS = Object.freeze({
   pending: "ממתין לחיבור",
   approved: "זהות אומתה",
@@ -287,6 +289,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [familyAnalysis, setFamilyAnalysis] = useState({ state: "idle", data: null, error: null });
   const [birthReflections, setBirthReflections] = useState(() => new Map());
   const [ownedHints, setOwnedHints] = useState({ principal: userId, loading: true, rows: [], error: null });
+  const [ownedHintInvestigations, setOwnedHintInvestigations] = useState(() => ({ principal: userId, rows: new Map() }));
+  const hintInvestigations = ownedHintInvestigations.principal === userId ? ownedHintInvestigations.rows : EMPTY_HINT_INVESTIGATIONS;
   const hintState = ownedHints.principal === userId ? ownedHints : { loading: true, rows: [], error: null };
   const [familyClaims, setFamilyClaims] = useState({ state: "idle", rows: [], error: null });
   const [familyClaimBusy, setFamilyClaimBusy] = useState(null);
@@ -978,6 +982,39 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     return result;
   }, [members, selfRef, user, userId, variant]);
 
+  const investigatePrivateHint = useCallback(async hintId => {
+    const targetId = clean(hintId);
+    const setHintInvestigation = value => setOwnedHintInvestigations(previous => {
+      const rows = new Map(previous.principal === userId ? previous.rows : []);
+      rows.set(targetId, value);
+      return { principal: userId, rows };
+    });
+    const hint = hintState.rows.find(row => clean(row?.id) === targetId);
+    if (variant !== "2029" || !targetId || !hint || hintState.loading || hintState.error) {
+      const outcome = { state: "error", result: null, error: "הרמז הפרטי אינו זמין כרגע לבדיקה." };
+      if (targetId) setHintInvestigation(outcome);
+      return outcome;
+    }
+    setHintInvestigation({ state: "loading", result: null, error: null });
+    let next;
+    try {
+      const outcome = await runLifeJourneyHintInvestigation({
+        hint,
+        members,
+        selectedRefs: selectedFamilyRefs,
+        birthTimeline,
+        research: familyResearch,
+      });
+      next = outcome.ok
+        ? { state: "ready", result: outcome.result, error: null }
+        : { state: "error", result: null, error: outcome.error };
+    } catch {
+      next = { state: "error", result: null, error: "hint_investigation_failed" };
+    }
+    setHintInvestigation(next);
+    return next;
+  }, [birthTimeline, familyResearch, hintState.error, hintState.loading, hintState.rows, members, selectedFamilyRefs, userId, variant]);
+
   const resumeLifeJourney = useCallback(result => {
     const materialized = materializeFamilyContext(result.context || result.representation?.context);
     setBirthReflections(new Map());
@@ -1170,6 +1207,8 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           birthTimeline={birthTimeline}
           hintState={variant === "2029" ? hintState : null}
           onSaveHint={variant === "2029" ? savePrivateHint : undefined}
+          hintInvestigations={variant === "2029" ? hintInvestigations : undefined}
+          onInvestigateHint={variant === "2029" ? investigatePrivateHint : undefined}
           includeProgramBranches={variant === "2029"}
           onOpenCapability={variant === "2029" ? openMemberCapability : undefined}
         />
@@ -1707,7 +1746,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     </section>
 
     {variant === "2029" && CapabilitySurface && !selectedFamilyRefs.length
-      ? <CapabilitySurface view="hints" user={user} hintState={hintState} hintMembers={members} onSaveHint={savePrivateHint} />
+      ? <CapabilitySurface view="hints" user={user} hintState={hintState} hintMembers={members} onSaveHint={savePrivateHint} hintInvestigations={hintInvestigations} onInvestigateHint={investigatePrivateHint} />
       : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">
