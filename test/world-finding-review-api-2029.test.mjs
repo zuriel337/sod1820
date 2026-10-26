@@ -114,6 +114,10 @@ test("owner review validates admin, ranks server-side, and returns only 40 findi
     assert.equal(response.body.projection.rows.every((row) => row.family === "research_object"), true);
     assert.equal(response.headers.get("cache-control"), "private, no-store, max-age=0");
     assert.equal(response.body.projection.triageSnapshot.totalCards, 10709);
+    assert.equal(response.body.projection.corpusAudit.scope, "read_only_recommendations");
+    assert.equal(response.body.projection.corpusAudit.workstreams.length, 7);
+    assert.equal(response.body.projection.corpusAudit.workstreams.find((row) => row.key === "els").total, 135);
+    assert.equal(response.body.projection.corpusAudit.workstreams.find((row) => row.key === "languages").counts.at(-1).value, 1);
 
     const secondPageResponse = mockResponse();
     await handler({

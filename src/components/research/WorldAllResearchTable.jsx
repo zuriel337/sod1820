@@ -84,6 +84,13 @@ const CONTINUATION_LABELS = Object.freeze({
   set_aside: "הושם בצד",
 });
 
+const ELS_QUEUE_LABELS = Object.freeze({
+  identity_incomplete: "זהות שחזור חסרה",
+  missing_engine_envelope: "חסרה מעטפת מנוע",
+  envelope_not_verified: "מעטפת קיימת · טרם אומת replay",
+  replay_evidence_available: "ראיית replay קיימת",
+});
+
 function humanLabel(map, value, fallback = "אחר") {
   return map[clean(value)] || fallback;
 }
@@ -218,6 +225,7 @@ export default function WorldAllResearchTable({ state }) {
   const [source, setSource] = useState("all");
   const [retryKey, setRetryKey] = useState(0);
   const [review, setReview] = useState({ loading: false, loadingMore: false, error: null, projection: null, page: null });
+  const [elsQueue, setElsQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
   const requestRef = useRef(0);
 
   const filters = useMemo(() => ({
@@ -298,6 +306,25 @@ export default function WorldAllResearchTable({ state }) {
 
   const projection = review.projection;
   const rows = projection?.rows || [];
+  const filteredElsRows = useMemo(() => {
+    const all = elsQueue.data?.rows || [];
+    return elsQueue.filter === "all" ? all : all.filter((row) => row.state === elsQueue.filter);
+  }, [elsQueue.data, elsQueue.filter]);
+
+  const openElsQueue = async () => {
+    if (elsQueue.data) {
+      setElsQueue((current) => ({ ...current, open: !current.open, limit: 40 }));
+      return;
+    }
+    setElsQueue((current) => ({ ...current, open: true, loading: true, error: null }));
+    try {
+      const { fetchWorldElsTriageProjection } = await import("../../lib/research/worldElsTriageProjection.js");
+      const data = await fetchWorldElsTriageProjection();
+      setElsQueue((current) => ({ ...current, open: true, loading: false, data, error: null, limit: 40 }));
+    } catch (error) {
+      setElsQueue((current) => ({ ...current, open: true, loading: false, error }));
+    }
+  };
 
   if (!state?.enabled) return null;
 
@@ -315,6 +342,58 @@ export default function WorldAllResearchTable({ state }) {
     {review.error ? <div className="sod29-world-all-research-state">הממצאים לא נטענו כרגע. <button className="sod29-action" type="button" onClick={() => setRetryKey((value) => value + 1)}>נסה שוב</button></div> : null}
 
     {projection ? <>
+      {projection.corpusAudit?.workstreams?.length ? <section className="sod29-world-kind-section" aria-label="מפת תורי המיון בקורפוס">
+        <header><div><h3>מפת תורי המיון בקורפוס</h3><p>צילום מצב מ־26.10.2026. כל שורה מצביעה למאגר הקנוני; הספירות הן צירים נפרדים וחלקן חופפות.</p></div><span>{projection.corpusAudit.workstreams.length} תחומי עבודה</span></header>
+        <div className="sod29-world-kind-card-grid">{projection.corpusAudit.workstreams.map((stream) => <article className="sod29-world-kind-card" key={stream.key}>
+          <small>{stream.total.toLocaleString("he-IL")} רשומות בתחום</small>
+          <strong>{stream.label}</strong>
+          <p>{stream.state}</p>
+          <div className="sod29-world-spatial-status" aria-label={`מצב ${stream.label}`}>{stream.counts.map((item) => <span key={item.label}>{item.label}: {item.value.toLocaleString("he-IL")}</span>)}</div>
+          <p><b>השלב הבא:</b> {stream.next}</p>
+          <a className="sod29-action" href={stream.route}>פתח את המקור הקנוני ←</a>
+        </article>)}</div>
+        <details className="sod29-world-all-research-duplicates"><summary>כללי הקריאה של המפה</summary><ul>{projection.corpusAudit.rules.map((rule) => <li key={rule}>{rule}</li>)}</ul></details>
+        <div className="sod29-actions"><button className="sod29-action primary" type="button" onClick={openElsQueue} aria-expanded={elsQueue.open}>{elsQueue.open ? "סגור את תור ELS" : "פתח תור ELS מפורט"}</button></div>
+      </section> : null}
+
+      {elsQueue.open ? <section className="sod29-world-kind-section" aria-label="תור אימות צפני ELS">
+        <header><div><h3>תור אימות צפני ELS</h3><p>נטען רק לפי בקשה דרך הקורא הקיים ובהרשאת החשבון. פרסום, מעטפת מנוע וראיית replay מוצגים בנפרד.</p></div>{elsQueue.data ? <span>{elsQueue.data.counts.total} רשומות</span> : null}</header>
+        {elsQueue.loading ? <p role="status">טוען את קטלוג הצפנים המורשה…</p> : null}
+        {elsQueue.error ? <p role="status">תור הצפנים אינו זמין כרגע. לא הומצאו נתונים חלופיים.</p> : null}
+        {elsQueue.data ? <>
+          <div className="sod29-world-all-research-summary">
+            <span><b>{elsQueue.data.counts.publicPublished}</b> מפורסמים וציבוריים</span>
+            <span><b>{elsQueue.data.counts.missingEngineEnvelope}</b> ללא מעטפת מנוע</span>
+            <span><b>{elsQueue.data.counts.envelopeNotVerified}</b> מעטפת ללא replay מפורש</span>
+            <span><b>{elsQueue.data.counts.replayEvidenceAvailable}</b> עם ראיית replay</span>
+            <span><b>{elsQueue.data.counts.missingStartIndex}</b> ללא נקודת התחלה</span>
+            <span><b>{elsQueue.data.counts.duplicateIdentityGroups}</b> קבוצות זהות שחזור כפולה</span>
+          </div>
+          <div className="sod29-world-all-research-filters">
+            <label><span>מצב אימות ELS</span><select value={elsQueue.filter} onChange={(event) => setElsQueue((current) => ({ ...current, filter: event.target.value, limit: 40 }))}>
+              <option value="all">כל הרשומות · {elsQueue.data.counts.total}</option>
+              {Object.entries(ELS_QUEUE_LABELS).map(([value, label]) => <option key={value} value={value}>{label} · {elsQueue.data.rows.filter((row) => row.state === value).length}</option>)}
+            </select></label>
+          </div>
+          <div className="sod29-world-all-research-count">מוצגים {Math.min(elsQueue.limit, filteredElsRows.length)} מתוך {filteredElsRows.length} במסנן ELS.</div>
+          <div className="sod29-world-all-research-list">{filteredElsRows.slice(0, elsQueue.limit).map((row) => <article className="sod29-world-all-research-row" key={row.id}>
+            <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>ELS</span><span>{row.status === "published" ? "פורסם" : "מחוץ לעדשה הציבורית"}</span><span>{row.visibility === "public" ? "ציבורי" : "נראות אחרת"}</span></div><span>{ELS_QUEUE_LABELS[row.state]}</span></div>
+            <strong>{row.title}</strong>
+            <div className="sod29-world-finding-measures" aria-label="צירי אימות ELS נפרדים">
+              <div><small>זהות קורפוס</small><strong>{row.corpusId ? "קיימת" : "חסרה"}</strong></div>
+              <div><small>מונח מנורמל</small><strong>{row.termNorm || "חסר"}</strong></div>
+              <div><small>נקודת התחלה</small><strong>{row.startIndex ?? "חסרה"}</strong></div>
+              <div><small>מעטפת מנוע</small><strong>{row.hasEngineEnvelope ? "קיימת" : "חסרה"}</strong></div>
+              <div><small>Replay מפורש</small><strong>{row.hasReplayMatch ? "MATCH" : "טרם אומת"}</strong></div>
+            </div>
+            <p className="sod29-world-all-research-secondary">{row.term || "מונח לא צוין"}{row.skip != null ? ` · דילוג ${row.skip}` : " · דילוג חסר"}{row.direction ? ` · ${row.direction}` : " · כיוון חסר"}{row.scope ? ` · ${row.scope}` : ""}</p>
+            {row.identityMissing.length ? <p><b>חסר לשחזור:</b> <code dir="ltr">{row.identityMissing.join(" · ")}</code></p> : null}
+            <div className="sod29-world-source-locator"><strong>מזהה ומקור קנוני</strong><code dir="ltr">els_records:{row.id}</code><div className="sod29-actions">{row.href ? <a className="sod29-action" href={row.href}>פתח את הצופן ←</a> : null}</div><small>ראיית replay מאמתת את ההופעה הטכנית בלבד; היא אינה ציון אמת, איכות או משמעות.</small></div>
+          </article>)}</div>
+          {elsQueue.limit < filteredElsRows.length ? <div className="sod29-actions"><button className="sod29-action" type="button" onClick={() => setElsQueue((current) => ({ ...current, limit: current.limit + 40 }))}>הצג עוד 40</button></div> : null}
+        </> : null}
+      </section> : null}
+
       <div className="sod29-world-all-research-summary">
         <span><b>{projection.triageSnapshot?.matchedCards || 0}</b> כרטיסים מדוח המיון</span>
         <span><b>{projection.triageSnapshot?.recommendationCounts?.["מתאים לעץ"] || 0}</b> המלצות עץ בדוח 22.10</span>

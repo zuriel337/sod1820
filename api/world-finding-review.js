@@ -14,6 +14,7 @@ import {
   WORLD_FINDING_TRIAGE_META,
   getWorldFindingTriageSnapshot,
 } from "./world-finding-triage-snapshot.js";
+import { WORLD_CORPUS_TRIAGE_AUDIT } from "./world-corpus-triage-audit.js";
 
 const SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
@@ -435,6 +436,7 @@ async function buildAuthorizedProjection(token) {
       matchedCards: matchedSnapshotCards,
       untriagedLiveCards: orderedFindings.length - matchedSnapshotCards,
     },
+    corpusAudit: WORLD_CORPUS_TRIAGE_AUDIT,
   };
 }
 
