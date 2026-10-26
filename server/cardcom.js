@@ -42,6 +42,21 @@ export async function verifySupabaseUser(token) {
   return user?.id ? user : null;
 }
 
+export async function verifySupabaseAdmin(token, userId) {
+  const { url, anon } = supabaseConfig();
+  if (!token || !userId) return false;
+  const response = await fetch(
+    `${url}/rest/v1/users?id=eq.${encodeURIComponent(userId)}&select=role&limit=1`,
+    {
+      headers: { apikey: anon, Authorization: `Bearer ${token}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(12_000),
+    },
+  );
+  if (!response.ok) return false;
+  const rows = await response.json().catch(() => []);
+  return Array.isArray(rows) && rows[0]?.role === "admin";
+}
+
 export async function supabaseRpc(name, args, token = null) {
   const { url, anon } = supabaseConfig();
   const bearer = token || anon;

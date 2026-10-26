@@ -73,6 +73,7 @@ export const ROUTE_META = {
   "/profile":       { title: "האזור האישי שלי", description: "האזור האישי של SOD1820 — המחקר השמור שלך, הפעילות וההגדרות.", noindex: true },
   "/credits":       { title: "רכישת קרדיטים", description: "רכישת קרדיטים לשימוש בכלי SOD1820.", noindex: true },
   "/buy":           { title: "רכישת קרדיטים", description: "רכישת קרדיטים לשימוש בכלי SOD1820.", noindex: true },
+  "/membership-pilot": { title: "בדיקת מנוי", description: "בדיקת מנוי סגורה למנהל.", noindex: true },
   // /gallery = עדשה כפולה על אותו gallery_images שכבר מוצג ב-/archive?tab=galleries (ה-NAV הקנוני);
   // noindex כדי לא ליצור תוכן-כפול מול הכתובת הקנונית, לא כי הדף עצמו בעייתי.
   "/gallery":       { title: "גלריה", description: "כל התמונות והממצאים של SOD1820 בתצוגת גלריה.", noindex: true },

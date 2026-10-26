@@ -1046,6 +1046,12 @@
       ]
     }
   ],
+  "crons": [
+    {
+      "path": "/api/cardcom-subscription-renew",
+      "schedule": "17 3 * * *"
+    }
+  ],
   "git": {
     "deploymentEnabled": {
       "gpt/g3-topic-golden-slug-rank-foundation-v1": true,
