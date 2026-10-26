@@ -2,7 +2,7 @@ import { getPublicResearchClient } from "./researchViewMode.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_READ_SIZE = 100;
-export const WORLD_PEOPLE_PAGE_SIZE = 8;
+export const WORLD_PEOPLE_PAGE_SIZE = 20;
 
 function safePublicUrl(value) {
   const text = clean(value);
@@ -49,16 +49,14 @@ export function buildWorldPublicPeopleIndex(rows = []) {
       displayName: clean(row.display_name),
       role: clean(row.role) || "חוקר וכותב",
       avatar: publicAvatar(row),
+      updatedAt: row.updated_at || row.created_at || null,
       href: `/community/researcher/${encodeURIComponent(clean(row.slug))}`,
       sourceHref: `/world?view=sources&source=${encodeURIComponent(clean(row.slug))}`,
       trusted: row.trusted === true,
     }))
-    .sort((left, right) => {
-      const prominent = (person) => person.slug === "tzvi-opoc" ? 0 : 1;
-      return prominent(left) - prominent(right)
-        || left.displayName.localeCompare(right.displayName, "he")
-        || left.slug.localeCompare(right.slug);
-    });
+    .sort((left, right) => clean(right.updatedAt).localeCompare(clean(left.updatedAt))
+      || left.displayName.localeCompare(right.displayName, "he")
+      || left.slug.localeCompare(right.slug));
   return Object.freeze({
     people,
     bySlug: Object.freeze(Object.fromEntries(people.map((person) => [person.slug, person]))),
@@ -73,7 +71,7 @@ export async function fetchWorldPublicPeopleIndex({ client = getPublicResearchCl
   const rows = [];
   for (let offset = 0; ; offset += PAGE_READ_SIZE) {
     const { data, error } = await client.from("contributors")
-      .select("id,slug,code,display_name,avatar_url,role,active,locked,building,trusted,public_visibility:dossier_settings->>visibility,public_avatar:dossier_settings->public_avatar")
+      .select("id,slug,code,display_name,avatar_url,role,active,locked,building,trusted,created_at,updated_at,public_visibility:dossier_settings->>visibility,public_avatar:dossier_settings->public_avatar")
       .eq("active", true)
       .or("locked.is.null,locked.eq.false")
       .or("building.is.null,building.eq.false")

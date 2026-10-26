@@ -82,13 +82,16 @@ test("Tzvi loader calls the canonical SOURCE_LIBRARY wrapper; never queries rese
   assert.equal(calls.filter(table=>table==="channel_updates").length,3);
 });
 
-test("five native articles join the full catalogue once, preserving the exact twenty recent sources",()=>{
+test("five native articles join once and the recent twenty are recomputed by update/publication time",()=>{
   const base=sourceCatalogFixtureView(1054);
-  const rows=Array.from({length:5},(_,i)=>({id:5000+i,slug:`article-${i}`,title:`Article ${i}`,date:"2026-08-01T12:00:00Z"}));
+  const rows=Array.from({length:5},(_,i)=>({id:5000+i,slug:`article-${i}`,title:`Article ${i}`,date:"2026-08-01T12:00:00Z",
+    ...(i===0?{modified:"2035-12-01T12:00:00Z"}:{})}));
   const view=appendSourceCatalogWritings2029(base,{rows:[...rows,rows[0]],complete:true,availability:"ok"},{slug:"tzvi-opoc"});
   assert.equal(view.catalog.items.length,base.catalog.items.length+5);
-  assert.strictEqual(view.catalog.recentItems,base.catalog.recentItems);
-  assert.deepEqual(selectSourceCatalog2029(view,"").rows,base.catalog.recentItems);
+  assert.equal(view.catalog.recentItems.length,20);
+  assert.equal(view.catalog.recentItems[0].id,"post:5000");
+  assert.equal(view.catalog.recentItems[0].dateKind,"updated");
+  assert.deepEqual(selectSourceCatalog2029(view,"").rows,view.catalog.recentItems);
   for(const row of rows){
     const selection=selectSourceCatalog2029(view,`section=all&item=post%3A${row.id}`);
     const item=selection.rows.find(item=>item.id===`post:${row.id}`);
