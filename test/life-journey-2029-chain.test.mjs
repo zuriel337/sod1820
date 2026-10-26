@@ -209,6 +209,13 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(elsAdapter, /runElsAutomaticResearchSlice/);
   assert.match(elsAdapter, /verifyEls2029Selection/);
   assert.match(elsAdapter, /buildElsAdvancedLoadItem/);
+  assert.match(elsAdapter, /buildElsRazielSurfaceContext/);
+  assert.match(elsAdapter, /LIFE_JOURNEY_ELS_VERIFIED_RETURN_HREF = "\/code\?els_return=verified-v1"/);
+  assert.match(elsAdapter, /canonical_verified_occurrence_only: true/);
+  assert.match(elsAdapter, /existing_els_surface_context_only: true/);
+  assert.match(elsAdapter, /new_els_engine: false/);
+  assert.match(elsAdapter, /new_raziel_memory: false/);
+  assert.doesNotMatch(elsAdapter, /localStorage|sessionStorage|create.*Engine|new .*Engine|memoryStore|RazielMemory/i);
   assert.match(elsSurface, /els-search-bridge/);
   assert.match(hints, /getMyHints/);
   assert.match(hints, /fallbackLocal:\s*false/);
@@ -223,7 +230,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(removalMigration, /grant execute on function public\.fn_remove_family_member\(uuid, text\) to authenticated/);
   assert.doesNotMatch(removalMigration, /create table|create policy|grant .* on (?:table )?public\.research_objects/i);
 
-  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familySourceResearch, familyAnalysis, lifeJourneyMaps, lifeJourneyMapProjection, dateAdapter, elsAdapter, elsSurface, hints].join("\n");
+  const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familySourceResearch, familyAnalysis, lifeJourneyMaps, lifeJourneyMapProjection, dateAdapter, elsSurface, hints].join("\n");
   assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);
   assert.doesNotMatch(privateFlow, /channel_updates|community_hints|news/i);
   assert.doesNotMatch(privateFlow, /Raziel|רזיאל/);
