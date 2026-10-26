@@ -43,6 +43,7 @@ import CompanionPanel2029 from "./CompanionPanel2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 import RazielCenter2029 from "./RazielCenter2029.jsx";
 import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
+import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";
 import RazielViewModeSelector2029 from "./RazielViewModeSelector2029.jsx";
 import RazielOneShotActions2029 from "./RazielOneShotActions2029.jsx";
 import { razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
@@ -1385,6 +1386,17 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
     { id: "raziel", icon: "✦", title: "השיחות שלי", sub: razielLocked ? "השיחות השמורות זמינות; המשך עם רזיאל עדיין נעול" : "המשך מאיפה שעצרת", state: "live", onClick: () => setWorkspaceSection("raziel") },
   ];
 
+  const razielPresence = projectWorkspaceRazielPresence2029({
+    subjectLabel: subject?.label,
+    savedResearchCount: Array.isArray(research?.saved) ? research.saved.filter((item) => item?.type !== "raziel_session").length : null,
+    activeResearchCount: Array.isArray(research?.cart) ? research.cart.length : null,
+    savedConversationCount: Array.isArray(razielSession?.savedSessions) ? razielSession.savedSessions.length : null,
+    activeQuestionCount: Array.isArray(razielSession?.thread) ? razielSession.thread.filter((message) => message?.role === "user").length : null,
+    followCount: follows.status === "ready" ? follows.topics.length : null,
+    hintsAvailable: !journeyLocked,
+    razielLocked,
+  });
+
   return (
     <>
       <div className="sod29-panel-lead">
@@ -1392,6 +1404,33 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
         <h3>המרחב האישי שלי</h3>
         <p>לא עוד לוח־בקרה נפרד: מקום אחד שמחזיר אותך למה ששמרת, למסע שלך, למחקר שלך ולדברים שדורשים את תשומת הלב שלך.</p>
       </div>
+
+      <section
+        className="sod29-workspace-raziel-presence"
+        aria-label="רזיאל באזור האישי"
+        data-workspace-raziel-presence="deterministic"
+        data-raziel-session-source="RazielSessionProvider2029"
+      >
+        <div className="sod29-workspace-raziel-mark" aria-hidden="true">✦</div>
+        <div className="sod29-workspace-raziel-copy">
+          <span>רזיאל איתך באזור האישי</span>
+          <strong>{razielPresence.location}</strong>
+          <p>{razielPresence.existingCopy}</p>
+          <small>{razielPresence.nextStep}</small>
+        </div>
+        <div className="sod29-workspace-raziel-actions">
+          <button
+            className="sod29-action primary"
+            type="button"
+            onClick={onRaziel}
+            disabled={!razielPresence.canAsk}
+            data-raziel-explicit-action="open-existing-conversation"
+          >
+            {razielPresence.canAsk ? "שאל את רזיאל" : "רזיאל נעול זמנית"}
+          </button>
+          <button className="sod29-action" type="button" onClick={() => setWorkspaceSection("raziel")}>השיחות שלי</button>
+        </div>
+      </section>
 
       <section className="sod29-workspace-pulse" aria-label="תמונת מצב אישית" data-workspace-section="pulse">
         <UserAvatar2029 user={user} profile={profile} size="header" />
