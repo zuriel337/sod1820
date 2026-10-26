@@ -92,7 +92,7 @@ export const AHAVAT_TORAH_SECTIONS = Object.freeze([
 
 export const AHAVAT_TORAH_EXTRACTION_LAYERS = Object.freeze([
   Object.freeze({ id: "tables", title: "טבלאות מלאות", detail: "תאי אותיות, תיבות וסיכומי פרשות וחומשים כשורות נתונים שאפשר לסנן ולהשוות.", pages: "6 · 25–43 · 69–71", openingPage: 6 }),
-  Object.freeze({ id: "roots", title: "מילון שורשים", detail: "רשימת השורשים, צורות הלשון וכללי ההכללה של המחבר כאינדקס חיפוש אחד.", pages: "30–35 · 70–71", openingPage: 30 }),
+  Object.freeze({ id: "roots", title: "רשימת השרשים", detail: "עשרת טורי הרשימה בסדר הדפוס, עם תעתיק עזר, חיפוש וקפיצה לכל עמוד מקור.", pages: "31–35", openingPage: 31 }),
   Object.freeze({ id: "people", title: "שמות, אנשים וייחוסים", detail: "אברהם, משה, דוד ואישים נוספים יחד עם ההקשר, הפרשה והספירה שבה הופיעו.", pages: "לאורך הספר", openingPage: 25 }),
   Object.freeze({ id: "time", title: "מועדים ומבני זמן", detail: "ימים, חודשים, שנים ומחזורי זמן המחוברים לקטע המקור ולמבנה המספרי שלהם.", pages: "9–24 · 46–92", openingPage: 9 }),
   Object.freeze({ id: "references", title: "מפת מקורות וקישורים", detail: "פסוקים, מסכתות, מדרשים וחיבורים אחרים כרשת מראי־מקום שנפתחת חזרה לעמוד.", pages: "לאורך הספר", openingPage: 46 }),

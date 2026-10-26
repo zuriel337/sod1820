@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { AHAVAT_ROOT_SECTIONS as sections, ahavatRootFragments } from "../src/data/ahavatTorahRoots2029.js";
-import { AHAVAT_TORAH_DATASETS } from "../src/data/ahavatTorahSystem2029.js";
+import { AHAVAT_TORAH_DATASETS, AHAVAT_TORAH_EXTRACTION_LAYERS } from "../src/data/ahavatTorahSystem2029.js";
 const bundle = JSON.parse(await readFile(new URL("../public/book-data/ahavat-torah.roots.json", import.meta.url), "utf8"));
 
 test("roots have ten source-native columns on the five actual source pages", () => {
@@ -26,6 +26,9 @@ test("section boundaries exclude attribution, alphabet tables and repeated catch
   const ds = AHAVAT_TORAH_DATASETS.find(item => item.id === "DS-11");
   assert.deepEqual(ds.pages, [31, 32, 33, 34, 35]);
   assert.equal(ds.state, "partial");
+  const layer = AHAVAT_TORAH_EXTRACTION_LAYERS.find(item => item.id === "roots");
+  assert.equal(layer.openingPage, 31);
+  assert.equal(layer.pages, "31–35");
 });
 test("search is navigation over source columns, not a fabricated 1820-root dictionary", () => {
   assert.deepEqual(ahavatRootFragments(null), []);

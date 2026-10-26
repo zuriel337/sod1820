@@ -37,6 +37,10 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
         return route.continue();
       });
       const page = await context.newPage();
+      const click = async locator => {
+        await locator.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+        await locator.click();
+      };
       const errors = [];
       page.on("pageerror", error => errors.push(error.message));
       await page.goto(`${base}/2029/control?surface=ahavat-torah-system&dataset=DS-03&countKind=words&countBook=all&page=41`, { waitUntil: "domcontentloaded" });
@@ -46,7 +50,7 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
       assert.equal(await reader.locator("tbody tr").count(), 54);
       assert.match(await reader.locator(".ahavat29-ds01-guide").last().textContent(), /79,976/);
       const chooseBook = title => reader.getByRole("navigation", { name: /בחירת חומש במניין/ }).getByRole("button", { name: title, exact: true });
-      await chooseBook("שמות").click();
+      await click(chooseBook("שמות"));
       assert.equal(await reader.locator("tbody tr").count(), 11);
       assert.match(await pdf.getAttribute("src"), /#page=41&view=FitH$/);
       const search = reader.getByRole("searchbox", { name: "חיפוש במנייני הפרשות" });
@@ -54,22 +58,22 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
       assert.equal(await reader.locator("tbody tr").count(), 1);
       assert.equal(await reader.locator("tbody td:nth-child(4)").textContent(), "2,002");
       await search.fill("");
-      await reader.getByRole("button", { name: "אותיות התורה", exact: true }).click();
+      await click(reader.getByRole("button", { name: "אותיות התורה", exact: true }));
       assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-04");
       assert.equal(new URL(page.url()).searchParams.get("countKind"), "letters");
       assert.match(await reader.locator(".ahavat29-ds01-guide").last().textContent(), /304,812/);
       assert.match(await pdf.getAttribute("src"), /#page=42&view=FitH$/);
-      await chooseBook("בראשית").click();
+      await click(chooseBook("בראשית"));
       assert.equal(await reader.locator("tbody tr").count(), 12);
       for (const [parasha, pdfPage] of [["חיי שרה", 41], ["תולדות", 42]]) {
-        await reader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: parasha, exact: true }) }).getByRole("button", { name: `PDF ${pdfPage}`, exact: true }).click();
+        await click(reader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: parasha, exact: true }) }).getByRole("button", { name: `PDF ${pdfPage}`, exact: true }));
         assert.match(await pdf.getAttribute("src"), new RegExp(`#page=${pdfPage}&view=FitH$`));
       }
       assert.equal(await reader.locator(".ahavat29-letter-bars button").count(), 11);
       await search.fill("מקץ");
       assert.equal(await reader.locator("tbody td:nth-child(4)").textContent(), "—");
       const downloading = page.waitForEvent("download");
-      await reader.getByRole("button", { name: "הורד טבלה למחקר · 1 שורות", exact: true }).click();
+      await click(reader.getByRole("button", { name: "הורד טבלה למחקר · 1 שורות", exact: true }));
       const download = await downloading;
       assert.equal(download.suggestedFilename(), "ahavat-torah-letters-bereshit.csv");
       const chunks = [];
@@ -79,11 +83,11 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
       assert.doesNotMatch(csv, /null|undefined|NaN/);
       await search.fill("");
       if (width === 1440) {
-        await reader.getByRole("button", { name: "פתח מבנה המניינים בתלת־ממד", exact: true }).click();
+        await click(reader.getByRole("button", { name: "פתח מבנה המניינים בתלת־ממד", exact: true }));
         await reader.locator("canvas").waitFor();
         assert.match(await reader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /מניין אותיות התורה/);
         assert.doesNotMatch(await reader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /מניין האות אותיות/);
-        await reader.locator(".ahavat29-letter-bars").getByRole("button", { name: "בראשית 7,235", exact: true }).click();
+        await click(reader.locator(".ahavat29-letter-bars").getByRole("button", { name: "בראשית 7,235", exact: true }));
         assert.match(await pdf.getAttribute("src"), /#page=41&view=FitH$/);
         await page.reload({ waitUntil: "domcontentloaded" });
         await reader.locator("tbody tr").first().waitFor();
@@ -91,7 +95,9 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
         assert.equal(await reader.locator("tbody tr").count(), 12);
       }
       // An external dataset selection must switch this same reader, not create a stale second projection.
-      await page.locator(".ahavat29-spatial-legend button").filter({ hasText: "DS-03" }).click();
+      const externalDataset = page.locator(".ahavat29-spatial-legend button").filter({ hasText: "DS-03" });
+      await externalDataset.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+      await click(externalDataset);
       await reader.getByRole("button", { name: "תיבות התורה", exact: true, pressed: true }).waitFor();
       assert.match(await pdf.getAttribute("src"), /#page=41&view=FitH$/);
       assert.equal(new URL(page.url()).searchParams.get("countKind"), "words");
