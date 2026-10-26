@@ -17,6 +17,11 @@ export const WORLD_INSIGHT_REVIEW_SUMMARY = Object.freeze({
   verified: 122,
   notVerified: 193,
   structurallyReady: 2,
+  activeMissingSource: 214,
+  activeDescriptiveSource: 63,
+  activeMissingEvidence: 2,
+  activeNotVerified: 12,
+  markedVerifiedMissingExactSource: 118,
   duplicateGroups: 1,
   duplicateRows: 2,
 });

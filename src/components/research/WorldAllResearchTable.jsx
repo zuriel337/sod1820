@@ -92,6 +92,13 @@ const ELS_QUEUE_LABELS = Object.freeze({
   replay_evidence_available: "ראיית replay היסטורית קיימת",
 });
 
+const LANGUAGE_QUEUE_LABELS = Object.freeze({
+  verified_with_source: "אומת עם מקור תרגום",
+  verified_missing_source: "אומת אנושית · חסר מקור תרגום",
+  needs_human_review_and_source: "דורש אימות ומקור תרגום",
+  needs_human_review: "דורש אימות אנושי",
+});
+
 const GEMATRIA_QUEUE_LABELS = Object.freeze({
   engine_parity_ready: "התאמת מנוע מלאה · מוכן להכרעה",
   outside_clean_hebrew: "דורש בדיקת כתיב ומקור",
@@ -647,10 +654,13 @@ export default function WorldAllResearchTable({ state }) {
             <span><b>{languageQueue.data.counts.approved}</b> מאושרים</span>
             <span><b>{languageQueue.data.counts.humanVerified}</b> מאומתים אנושית</span>
             <span><b>{languageQueue.data.counts.needsHumanReview}</b> דורשים הכרעה</span>
+            <span><b>{languageQueue.data.counts.verifiedWithSource}</b> אומתו עם מקור תרגום</span>
+            <span><b>{languageQueue.data.counts.verifiedMissingSource}</b> אומתו אך חסר מקור תרגום</span>
+            <span><b>{languageQueue.data.counts.needsHumanReviewAndSource}</b> חסרים אימות ומקור</span>
             <span><b>{languageQueue.data.counts.duplicateGroups}</b> קבוצות זהות</span>
           </div>
           <div className="sod29-world-all-research-list">{languageQueue.data.rows.map((row) => <article className="sod29-world-all-research-row" key={row.id}>
-            <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>{row.language}</span><span>{row.relationshipType}</span><span>{row.status === "approved" ? "מאושר" : row.status}</span></div><span>{row.humanVerified ? "אומת אנושית" : "דורש אימות אנושי"}</span></div>
+            <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>{row.language}</span><span>{row.relationshipType}</span><span>{row.status === "approved" ? "מאושר" : row.status}</span></div><span>{LANGUAGE_QUEUE_LABELS[row.state]}</span></div>
             <strong>{row.hebrew} ↔ <span dir="ltr">{row.foreignWord}</span></strong>
             <div className="sod29-world-finding-measures" aria-label="צירי גשר שפה נפרדים">
               <div><small>ערך עברי</small><strong>{row.gematriaHebrew ?? "אין נתון"}</strong></div>
@@ -660,7 +670,7 @@ export default function WorldAllResearchTable({ state }) {
               <div><small>אימות אנושי</small><strong>{row.humanVerified ? "כן" : "טרם"}</strong></div>
             </div>
             {row.note ? <p className="sod29-world-all-research-secondary">{row.note}</p> : null}
-            <div className={`sod29-world-triage-recommendation ${row.humanVerified ? "is-ready" : "is-review"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
+            <div className={`sod29-world-triage-recommendation ${row.state === "verified_with_source" ? "is-ready" : "is-review"}`}><small>המלצה</small><strong>{row.recommendation}</strong></div>
             <div className="sod29-world-source-locator"><strong>מזהה מקור</strong><code dir="ltr">{row.sourceRef}</code><small>אימות של תרגום או תעתיק אינו הופך את הפרשנות לאמת, ושוויון מספרי אינו מוכיח משמעות.</small></div>
           </article>)}</div>
         </> : null}
@@ -764,6 +774,9 @@ export default function WorldAllResearchTable({ state }) {
             <span><b>{insightQueue.projection.summary.descriptiveSourceRef}</b> מקור תיאורי בלבד</span>
             <span><b>{insightQueue.projection.summary.missingEvidence}</b> ללא רמת ראיות</span>
             <span><b>{insightQueue.projection.summary.structurallyReady}</b> שלמות מבנית</span>
+            <span><b>{insightQueue.projection.summary.activeMissingSource}</b> פעילות בלי מקור</span>
+            <span><b>{insightQueue.projection.summary.activeDescriptiveSource}</b> פעילות עם מקור תיאורי</span>
+            <span><b>{insightQueue.projection.summary.markedVerifiedMissingExactSource}</b> מסומנות מאומתות בלי locator מדויק</span>
           </div>
           <div className="sod29-world-all-research-list">{insightQueue.projection.rows.map((row) => <article className="sod29-world-all-research-row" key={row.id}>
             <div className="sod29-world-all-research-row-head"><div className="sod29-world-all-research-tags"><span>תובנה</span><span>{row.active ? "פעילה" : "מחוץ לעדשה הפעילה"}</span><span>{row.verified ? "מסומנת מאומתת" : "טרם סומנה מאומתת"}</span>{row.duplicateOccurrenceCount ? <span>{row.duplicateGroupIds.length} הופעות טקסט זהה</span> : null}</div><span>{INSIGHT_QUEUE_LABELS[row.state]}</span></div>

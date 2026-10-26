@@ -19,9 +19,16 @@ test("language triage keeps approval, human verification, method and evidence se
   assert.equal(projection.counts.approved, 2);
   assert.equal(projection.counts.humanVerified, 1);
   assert.equal(projection.counts.needsHumanReview, 1);
-  assert.equal(projection.rows[0].state, "needs_human_review");
-  assert.match(projection.rows[0].recommendation, /דורש אימות אנושי/u);
+  assert.equal(projection.rows[0].state, "needs_human_review_and_source");
+  assert.match(projection.rows[0].recommendation, /מקור תרגום מדויק/u);
   assert.equal(projection.rules.translationIsSeparateFromNumericEquality, true);
+});
+
+test("human verification without a translation source remains source-blocked", () => {
+  const projection = projectWorldLanguageTriageRows([{ ...verified, translation_source: null }]);
+  assert.equal(projection.rows[0].state, "verified_missing_source");
+  assert.equal(projection.counts.verifiedMissingSource, 1);
+  assert.equal(projection.counts.verifiedWithSource, 0);
 });
 
 test("language duplicate detection does not delete either source row", () => {
