@@ -882,6 +882,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/membership-pilot",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/entity-hub-preview/(.*)/(.*)",
       "destination": "/2029.html"
     },
@@ -990,6 +994,14 @@
       ]
     },
     {
+      "source": "/2029/membership-pilot",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
+      ]
+    },
+    {
       "source": "/melech-hamisparim/718",
       "headers": [
         {
@@ -1044,12 +1056,6 @@
           "value": "camera=(), microphone=(), geolocation=()"
         }
       ]
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/cardcom-subscription-renew",
-      "schedule": "17 3 * * *"
     }
   ],
   "git": {

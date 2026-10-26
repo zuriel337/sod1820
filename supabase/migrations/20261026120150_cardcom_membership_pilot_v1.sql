@@ -5,8 +5,15 @@
 
 begin;
 
-create schema if not exists private;
-revoke all on schema private from public, anon, authenticated;
+-- The canonical private schema already exists. Do not alter its shared ACLs.
+do $$
+begin
+  if to_regnamespace('private') is null then raise exception 'private_schema_required'; end if;
+  if has_schema_privilege('anon','private','usage')
+     or has_schema_privilege('authenticated','private','usage') then
+    raise exception 'private_schema_must_already_be_restricted';
+  end if;
+end $$;
 
 create table public.membership_subscription_pilots (
   id uuid primary key default gen_random_uuid(),
@@ -62,6 +69,11 @@ create table public.membership_subscription_pilot_charges (
 create index membership_subscription_pilots_user_created_idx
   on public.membership_subscription_pilots (user_id, created_at desc);
 
+-- Concurrent checkout attempts must not create two payable subscriptions.
+create unique index membership_subscription_pilots_one_open_per_user_idx
+  on public.membership_subscription_pilots (user_id)
+  where status in ('pending','active','renewing','past_due');
+
 create index membership_subscription_pilots_due_idx
   on public.membership_subscription_pilots (next_charge_at, created_at)
   where status in ('active','renewing');
@@ -71,6 +83,8 @@ create index membership_subscription_pilot_charges_subscription_idx
 
 alter table public.membership_subscription_pilots enable row level security;
 alter table public.membership_subscription_pilot_charges enable row level security;
+alter table private.cardcom_subscription_credentials enable row level security;
+revoke all on private.cardcom_subscription_credentials from public, anon, authenticated;
 
 create policy membership_subscription_pilots_select_own
 on public.membership_subscription_pilots for select
@@ -129,10 +143,7 @@ begin
   select * into v_existing
   from public.membership_subscription_pilots
   where user_id = p_user_id
-    and (
-      status in ('active','renewing','past_due')
-      or (status = 'pending' and created_at > now() - interval '10 minutes')
-    )
+    and status in ('pending','active','renewing','past_due')
   order by created_at desc
   limit 1;
 
@@ -212,7 +223,6 @@ as $$
 declare
   v_hash constant text := 'b9b2b927e7c1337b8cc9ef33693eb1d9f58da14cd9ac21bc8ab8ad70dc1264ea';
   v_row public.membership_subscription_pilots%rowtype;
-  v_charge public.membership_subscription_pilot_charges%rowtype;
 begin
   if encode(extensions.digest(convert_to(coalesce(p_bridge_secret,''), 'UTF8'), 'sha256'), 'hex') <> v_hash then
     raise exception 'forbidden';
@@ -254,6 +264,7 @@ begin
     raise exception 'forbidden';
   end if;
   if p_expiration_mmyy !~ '^[0-9]{4}$' then raise exception 'bad_expiration'; end if;
+  if nullif(btrim(p_transaction_id),'') is null then raise exception 'transaction_id_required'; end if;
   if coalesce(p_token_ciphertext,'') = '' or coalesce(p_token_iv,'') = '' or coalesce(p_token_tag,'') = '' then
     raise exception 'bad_token_envelope';
   end if;
@@ -317,6 +328,9 @@ begin
   return jsonb_build_object(
     'provider_ref', v_row.provider_ref,
     'status', v_row.status,
+    -- Owner-scoped opaque checkout ID permits GetLpResult reconciliation after
+    -- returning to a protected Preview, whose external webhook may be blocked.
+    'low_profile_id', case when v_row.status = 'pending' then v_row.cardcom_low_profile_id else null end,
     'amount_ils', v_row.amount_ils,
     'current_period_end', v_row.current_period_end,
     'next_charge_at', v_row.next_charge_at,
@@ -407,6 +421,7 @@ as $$
 declare
   v_hash constant text := 'b9b2b927e7c1337b8cc9ef33693eb1d9f58da14cd9ac21bc8ab8ad70dc1264ea';
   v_row public.membership_subscription_pilots%rowtype;
+  v_charge public.membership_subscription_pilot_charges%rowtype;
 begin
   if encode(extensions.digest(convert_to(coalesce(p_bridge_secret,''), 'UTF8'), 'sha256'), 'hex') <> v_hash then
     raise exception 'forbidden';
@@ -429,6 +444,9 @@ begin
     );
   end if;
   if v_row.status <> 'renewing' then raise exception 'invalid_status'; end if;
+  if p_success and (p_response_code is distinct from 0 or nullif(btrim(p_transaction_id),'') is null) then
+    raise exception 'verified_transaction_required';
+  end if;
 
   update public.membership_subscription_pilot_charges
   set status = case when p_success then 'approved' else 'failed' end,

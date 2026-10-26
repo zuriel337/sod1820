@@ -28,6 +28,7 @@ const LifeJourney2029Page = lazy(() => import("./pages/LifeJourney2029Page.jsx")
 const Post2029Page = lazy(() => import("./pages/Post2029Page.jsx"));
 const Video2029Page = lazy(() => import("./pages/Video2029Page.jsx"));
 const ControlPlane2029Page = lazy(() => import("./pages/ControlPlane2029Page.jsx"));
+const MembershipPilotPage = lazy(() => import("./pages/MembershipPilotPage.jsx"));
 const EntityHubPreviewPage = lazy(() => import("./pages/EntityHubPreviewPage.jsx"));
 const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx"));
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
@@ -65,7 +66,7 @@ function RouteEffects2029() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
+    if (integratedPreviewEnabled || pathname === "/2029/membership-pilot" || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     initGA();
     initMarketing();
     ensureIdentity();
@@ -76,7 +77,7 @@ function RouteEffects2029() {
   useEffect(() => {
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
-    if (pathname.startsWith("/2029/control")) return undefined;
+    if (pathname.startsWith("/2029/control") || pathname === "/2029/membership-pilot") return undefined;
     const timer = setTimeout(() => {
       trackPageview(pathname);
       trackMarketingPageview();
@@ -153,6 +154,7 @@ export default function App2029() {
               <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><Number2029Page /></Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlPlane2029Page />} />
+              <Route path="/2029/membership-pilot" element={<MembershipPilotPage />} />
               <Route path="*" element={<LegacyDocumentHandoff />} />
             </Routes>
           </Suspense>

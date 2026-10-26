@@ -28,10 +28,18 @@ export default async function handler(req, res) {
     res.status(401).json({ error: "unauthorized" });
     return;
   }
+  // A Preview must never run real renewals, even with the correct cron secret.
+  // Production scheduling requires a separate exact-SHA Human Gate.
+  if (process.env.VERCEL_ENV !== "production" ||
+      process.env.CARDCOM_PILOT_TOKEN_BILLING_APPROVED !== "true" ||
+      process.env.CARDCOM_PILOT_RENEWALS_ENABLED !== "true") {
+    res.status(403).json({ error: "renewals_disabled" });
+    return;
+  }
 
-  const secret = bridgeSecret();
   let processed = 0;
   try {
+    const secret = bridgeSecret();
     for (let index = 0; index < 5; index += 1) {
       const due = await supabaseRpc("membership_pilot_claim_due", { p_bridge_secret: secret });
       if (!due?.found) break;
@@ -50,7 +58,7 @@ export default async function handler(req, res) {
         billingEmail: due.billing_email,
       });
       const responseCode = Number(data?.ResponseCode);
-      const success = responseCode === 0 && !!exactTransactionId;
+      const success = [0, "0"].includes(data?.ResponseCode) && !!exactTransactionId;
       const documentUrl = safeDocumentUrl(data?.DocumentUrl || data?.DocumentInfo?.DocumentUrl || "");
       await supabaseRpc("membership_pilot_settle_renewal", {
         p_bridge_secret: secret,
@@ -64,8 +72,8 @@ export default async function handler(req, res) {
       processed += 1;
     }
     res.status(200).json({ ok: true, processed });
-  } catch (error) {
-    console.error("cardcom-subscription-renew", String(error?.message || error).slice(0, 360));
+  } catch {
+    console.error("cardcom-subscription-renew: failed");
     res.status(503).json({ error: "renewal_temporarily_failed", processed });
   }
 }

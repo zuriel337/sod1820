@@ -1,138 +1,205 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
-import { C, F } from "../theme.js";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { supabase } from "../lib/supabase.js";
 
-const REF_PATTERN = /^SODM-[0-9a-f-]{36}$/;
+const PILOT_PATH = "/2029/membership-pilot";
+const REF_PATTERN = /^SODM-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const STATUS_LABELS = {
+  none: "אין מנוי פעיל", pending: "ממתין לאימות העסקה", active: "פעיל",
+  renewing: "חיוב נמצא בעיבוד", past_due: "נדרשת בדיקת חיוב", cancelled: "בוטל",
+};
+
+function recordDate(value) {
+  const date = new Date(value);
+  if (!value || !Number.isFinite(date.getTime())) return "—";
+  const options = { dateStyle: "medium", timeZone: "Asia/Jerusalem" };
+  return new Intl.DateTimeFormat("he-IL-u-ca-hebrew", options).format(date) + " · " +
+    new Intl.DateTimeFormat("he-IL", { ...options, timeStyle: "short" }).format(date);
+}
 
 export default function MembershipPilotPage() {
-  const { user, isAdmin } = useAuth();
-  const [status, setStatus] = useState(null);
+  const { user, isAdmin, loading: authLoading } = useAuth();
+  const principal = useRef(null);
+  principal.current = isAdmin && !authLoading ? user?.id : null;
+  const [snapshot, setSnapshot] = useState(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [loadFailed, setLoadFailed] = useState(false);
+  const status = snapshot?.userId === principal.current ? snapshot.data : null;
 
   const loadStatus = useCallback(async (providerRef = null) => {
-    if (!supabase || !user) return null;
+    const userId = user?.id;
+    if (!supabase || !isAdmin || !userId || principal.current !== userId) return null;
     const { data, error } = await supabase.rpc("membership_pilot_status", { p_provider_ref: providerRef });
     if (error) throw error;
-    setStatus(data || null);
+    if (principal.current !== userId) return null;
+    setSnapshot({ userId, data: data || null });
     return data;
-  }, [user]);
+  }, [isAdmin, user?.id]);
+
+  // Cardcom's redirect is not proof of payment. On a protected Preview the
+  // external webhook may be denied by Vercel; the returning owner's browser can
+  // invoke the same GetLpResult verifier without exposing any token or card data.
+  const reconcile = useCallback(async (current) => {
+    const userId = user?.id;
+    if (!current?.low_profile_id || current.status !== "pending" || principal.current !== userId) return;
+    const { data } = await supabase.auth.getSession();
+    if (principal.current !== userId || !data?.session?.access_token) return;
+    await fetch("/api/cardcom-subscription-webhook", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + data.session.access_token, "Content-Type": "application/json" },
+      body: JSON.stringify({ LowProfileId: current.low_profile_id }),
+    });
+  }, [user?.id]);
 
   useEffect(() => {
-    if (!user || !isAdmin || !supabase || typeof window === "undefined") return;
+    setSnapshot(null);
+    setMessage("");
+    setBusy(false);
+    setLoadFailed(false);
+    if (authLoading || !isAdmin || !user?.id) return;
+    const userId = user.id;
+    let stopped = false;
     const params = new URLSearchParams(window.location.search);
+    const providerRef = params.get("ref");
     const payment = params.get("payment");
-    const providerRef = params.get("ref") || "";
-    if (payment === "failed") {
-      setMessage("התשלום לא הושלם ולא נוצר מנוי.");
-      window.history.replaceState({}, "", "/membership-pilot");
-      loadStatus().catch(() => {});
-      return;
-    }
-    if (payment !== "success" || !REF_PATTERN.test(providerRef)) {
-      loadStatus().catch(() => {});
-      return;
-    }
-
-    let cancelled = false;
-    setMessage("התשלום חזר בהצלחה. מאמתים את העסקה ואת ה־Token מול Cardcom…");
     (async () => {
-      for (let index = 0; index < 12 && !cancelled; index += 1) {
-        const current = await loadStatus(providerRef).catch(() => null);
-        if (current?.status === "active") {
-          setMessage("המנוי הופעל בהצלחה.");
-          window.history.replaceState({}, "", "/membership-pilot");
-          return;
+      try {
+        let current = await loadStatus(REF_PATTERN.test(providerRef || "") ? providerRef : null);
+        if (stopped || principal.current !== userId) return;
+        if (payment === "success" && REF_PATTERN.test(providerRef || "")) {
+          setMessage("מאמתים את העסקה מול Cardcom. החזרה לאתר לבדה אינה אישור תשלום.");
+          await reconcile(current);
+          for (let index = 0; index < 12 && !stopped && principal.current === userId; index += 1) {
+            current = await loadStatus(providerRef);
+            if (stopped || principal.current !== userId) return;
+            if (current?.status === "active") {
+              setMessage("העסקה אומתה והמנוי הופעל.");
+              window.history.replaceState({}, "", PILOT_PATH);
+              return;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1250));
+          }
+          if (!stopped && principal.current === userId) setMessage("האימות טרם הושלם. אפשר לבדוק שוב; לא נפתח תשלום נוסף.");
+        } else if (payment === "failed") {
+          setMessage("דף התשלום דיווח שלא הושלם. מצב המנוי נקבע רק לפי אימות השרת.");
+          window.history.replaceState({}, "", PILOT_PATH);
         }
-        await new Promise(resolve => setTimeout(resolve, 1250));
+      } catch {
+        if (!stopped && principal.current === userId) {
+          setLoadFailed(true);
+          setMessage("נתוני הפיילוט אינם זמינים עדיין. לא נפתח דף תשלום.");
+        }
       }
-      if (!cancelled) setMessage("האימות עדיין בעיבוד. אפשר לרענן בעוד רגע.");
     })();
-    return () => { cancelled = true; };
-  }, [isAdmin, loadStatus, user]);
-
-  if (!user) return <Navigate to="/login" replace />;
-  if (!isAdmin) return <Navigate to="/" replace />;
+    return () => { stopped = true; };
+  }, [authLoading, isAdmin, user?.id, loadStatus, reconcile]);
 
   async function start() {
-    if (busy) return;
+    if (busy || status?.status !== "none" || !principal.current) return;
+    const userId = principal.current;
     setBusy(true);
     setMessage("");
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
-      if (!token) throw new Error("no_session");
+      if (!token || principal.current !== userId) return;
       const response = await fetch("/api/cardcom-subscription-start", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
       });
       const data = await response.json().catch(() => ({}));
+      if (principal.current !== userId) return;
       if (response.status === 409) {
         await loadStatus(data?.ref || null);
-        setMessage("כבר קיימת בדיקת מנוי בחשבון הזה.");
+        setMessage("כבר קיימת בדיקת מנוי בחשבון הזה. לא ייפתח תשלום נוסף.");
         return;
       }
-      if (!response.ok || !data?.url) throw new Error(data?.error || "start_failed");
-      window.location.assign(data.url);
+      if (data?.error === "pilot_not_ready") {
+        setMessage("הפיילוט סגור עד להשלמת אישור המסוף והגדרות הבטיחות.");
+        return;
+      }
+      if (!response.ok || !data?.url) throw new Error("start_failed");
+      const target = new URL(data.url);
+      if (target.origin !== "https://secure.cardcom.solutions" || target.username || target.password) throw new Error("unsafe_payment_url");
+      window.location.assign(target.href);
     } catch {
-      setMessage("לא הצלחנו לפתוח את דף Cardcom. לא בוצע חיוב.");
+      if (principal.current === userId) setMessage("לא ניתן לפתוח כעת את דף Cardcom. אפשר לבדוק שוב את מצב הפיילוט.");
     } finally {
-      setBusy(false);
+      if (principal.current === userId) setBusy(false);
+    }
+  }
+
+  async function refresh() {
+    if (busy || !principal.current) return;
+    const userId = principal.current;
+    setBusy(true);
+    try {
+      const current = await loadStatus();
+      await reconcile(current);
+      await loadStatus();
+      if (principal.current === userId) {
+        setLoadFailed(false);
+        setMessage("מצב המנוי נקרא מחדש מהשרת.");
+      }
+    } catch {
+      if (principal.current === userId) setMessage("לא ניתן לאמת כעת את מצב המנוי.");
+    } finally {
+      if (principal.current === userId) setBusy(false);
     }
   }
 
   async function cancel() {
-    if (busy) return;
+    if (busy || !principal.current || !window.confirm("לבטל את החידוש הבא של מנוי הבדיקה?")) return;
+    const userId = principal.current;
     setBusy(true);
     try {
-      const { data, error } = await supabase.rpc("membership_pilot_cancel");
+      const { error } = await supabase.rpc("membership_pilot_cancel");
       if (error) throw error;
-      setStatus(current => ({ ...(current || {}), ...data }));
-      setMessage("הביטול נרשם. לא יתבצע חיוב נוסף לאחר סוף התקופה הנוכחית.");
+      await loadStatus();
+      if (principal.current === userId) setMessage("הביטול נשמר. החידוש הבא לא יחויב.");
     } catch {
-      setMessage("הביטול לא נשמר. לא בוצע שינוי.");
+      if (principal.current === userId) setMessage("הביטול לא אושר. יש לבדוק שוב את מצב המנוי.");
     } finally {
-      setBusy(false);
+      if (principal.current === userId) setBusy(false);
     }
   }
 
-  const active = status?.status === "active" || status?.status === "past_due";
-  const box = { background: "linear-gradient(170deg,#141021,#0b0814)", border: `1px solid ${C.border}`, borderRadius: 18, padding: "24px" };
-  return (
-    <main dir="rtl" style={{ maxWidth: 620, margin: "0 auto", padding: "40px 16px 100px", color: C.goldLight }}>
-      <section style={box}>
-        <div style={{ color: C.gold, fontFamily: F.heading, fontSize: 12, letterSpacing: 2 }}>בדיקת מנהל סגורה</div>
-        <h1 style={{ color: C.goldBright, fontFamily: F.regal, marginBottom: 8 }}>מנוי בדיקה · ₪2 לחודש</h1>
-        <p style={{ fontFamily: F.body, lineHeight: 1.8, color: C.muted }}>
-          ₪2 יחויבו היום. לאחר מכן ₪2 יחויבו אוטומטית מדי חודש, עד לביטול. הכרטיס מוזן רק בדף המאובטח של Cardcom ואינו נשמר ב־SOD1820.
-        </p>
-        <p style={{ fontFamily: F.body, lineHeight: 1.7, color: "#e8c98c" }}>
-          לצורך הבדיקה יש להזין כרטיס אשראי רגיל. אין לבחור Bit, Apple Pay או Google Pay, מפני שהפיילוט דורש יצירת Token לחידוש.
-        </p>
+  if (authLoading) return <div dir="rtl" role="status">בודקים את הרשאת הכניסה…</div>;
+  if (!user || !isAdmin) return <Sod2029Shell title="פיילוט סגור למנהל בלבד" eyebrow="2029 · גישה מוגבלת" surface="home">
+    <section className="sod29-section" data-membership-pilot-access="denied">
+      <p>הפיילוט אינו פתוח להרשמה ציבורית.</p>
+      {!user ? <p>אפשר להתחבר לחשבון מנהל דרך האזור האישי שבסרגל, ולהישאר במסך הזה.</p> : null}
+    </section>
+  </Sod2029Shell>;
 
-        {status?.status && status.status !== "none" ? (
-          <div style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: 14, margin: "18px 0" }}>
-            <div>מצב: <b>{status.status}</b></div>
-            {status.current_period_end ? <div>סוף התקופה: {new Date(status.current_period_end).toLocaleString("he-IL")}</div> : null}
-            {status.next_charge_at && !status.cancel_at_period_end ? <div>חיוב הבא: {new Date(status.next_charge_at).toLocaleString("he-IL")}</div> : null}
-            {status.cancel_at_period_end ? <div>החידוש בוטל לסוף התקופה.</div> : null}
-          </div>
-        ) : null}
-
-        {!active && status?.status !== "pending" ? (
-          <button onClick={start} disabled={busy} style={{ width: "100%", border: 0, borderRadius: 14, padding: 15, cursor: busy ? "wait" : "pointer", background: `linear-gradient(135deg,${C.gold},${C.goldLight})`, color: "#1a0e00", fontFamily: F.ui, fontSize: 17, fontWeight: 900 }}>
-            {busy ? "פותח Cardcom…" : "פתיחת מנוי בדיקה ב־₪2"}
-          </button>
-        ) : null}
-        {active && !status?.cancel_at_period_end ? (
-          <button onClick={cancel} disabled={busy} style={{ width: "100%", border: `1px solid ${C.border}`, borderRadius: 14, padding: 13, cursor: busy ? "wait" : "pointer", background: "transparent", color: "#e7b0b0", fontFamily: F.ui, fontWeight: 800 }}>
-            ביטול החידוש הבא
-          </button>
-        ) : null}
-        {message ? <div role="status" style={{ marginTop: 14, fontFamily: F.body, lineHeight: 1.7 }}>{message}</div> : null}
-      </section>
-    </main>
-  );
+  const active = ["active", "past_due"].includes(status?.status);
+  return <Sod2029Shell title="מנוי בדיקה · ₪2 לחודש" eyebrow="2029 · פיילוט מנהל סגור"
+    description="בדיקת הצטרפות מאובטחת. אין שינוי במחירי המוצר או פתיחה לציבור."
+    surface="home" status="PREVIEW · CLOSED">
+    <section className="sod29-section" data-membership-pilot="2029">
+      <div className="sod29-card">
+        <h2>₪2 היום, ולאחר מכן ₪2 מדי חודש עד לביטול</h2>
+        <p>את פרטי הכרטיס מזינים רק בדף המאובטח של Cardcom. מספר הכרטיס וקוד האבטחה אינם נשמרים ב־SOD1820.</p>
+        <p>יש להשתמש בכרטיס אשראי רגיל. Bit, Apple Pay ו־Google Pay אינם מסלולי הפיילוט.</p>
+        <p>זהו Preview סגור: חידושים אוטומטיים חסומים בו. הפעלתם מחייבת אישור נפרד; תאריך החיוב מוצג מתכנון התקופה בשרת.</p>
+        {!status ? <FrameState kind={loadFailed ? "error" : "loading"} title={loadFailed ? "הפיילוט עדיין אינו זמין" : "ממתינים לנתוני הפיילוט"}>פתיחת התשלום חסומה עד שהשרת יאשר את המצב.</FrameState> :
+          <dl aria-label="מצב המנוי">
+            <dt>מצב</dt><dd>{STATUS_LABELS[status.status] || "נדרשת בדיקה"}</dd>
+            {status.current_period_end ? <><dt>סוף התקופה</dt><dd>{recordDate(status.current_period_end)}</dd></> : null}
+            {status.next_charge_at && !status.cancel_at_period_end ? <><dt>מועד החיוב הבא המתוכנן</dt><dd>{recordDate(status.next_charge_at)}</dd></> : null}
+            {status.cancel_at_period_end ? <><dt>חידוש</dt><dd>בוטל; לא יתבצע חיוב נוסף.</dd></> : null}
+          </dl>}
+        <div className="sod29-actions">
+          {status?.status === "none" ? <button type="button" className="sod29-action" onClick={start} disabled={busy}>
+            {busy ? "פותחים דף מאובטח…" : "פתיחת מנוי בדיקה ב־₪2"}
+          </button> : null}
+          {active && !status?.cancel_at_period_end ? <button type="button" className="sod29-action" onClick={cancel} disabled={busy}>ביטול החידוש הבא</button> : null}
+          <button type="button" className="sod29-action" onClick={refresh} disabled={busy}>בדיקת מצב ואימות עסקה</button>
+        </div>
+        {message ? <p role="status">{message}</p> : null}
+      </div>
+    </section>
+  </Sod2029Shell>;
 }

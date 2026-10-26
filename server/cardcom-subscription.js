@@ -73,13 +73,14 @@ export async function chargeCardcomSubscription({
   billingEmail,
 }) {
   const { terminal, apiName } = cardcomConfig();
+  if (Number(amount) !== 2) throw new Error("pilot_amount_must_be_two");
   if (!/^[A-Za-z0-9_-]{1,25}$/.test(String(externalId || ""))) {
     throw new Error("bad_external_transaction_id");
   }
   const payload = {
     TerminalNumber: terminal,
     ApiName: apiName,
-    Amount: Number(amount),
+    Amount: 2,
     Token: String(token),
     CardExpirationMMYY: String(expirationMMYY),
     ExternalUniqTranId: String(externalId),
@@ -90,7 +91,7 @@ export async function chargeCardcomSubscription({
       DocumentTypeToCreate: "Auto",
       Name: String(billingName || "SOD1820 member").slice(0, 120),
       ...(billingEmail ? { Email: String(billingEmail).slice(0, 254), IsSendByEmail: true } : {}),
-      Products: [{ Description: "SOD1820 · מנוי בדיקה חודשי", Quantity: 1, UnitCost: Number(amount) }],
+      Products: [{ Description: "SOD1820 · מנוי בדיקה חודשי", Quantity: 1, UnitCost: 2 }],
     },
   };
   const response = await fetch(TRANSACTION_URL, {

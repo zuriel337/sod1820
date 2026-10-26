@@ -90,15 +90,12 @@ export default async function handler(req, res) {
     const coinId = Number(tx?.CoinId ?? data?.CoinId);
 
     if (
-      responseCode !== 0 || txCode !== 0 || returnedTerminal !== terminal || txTerminal !== terminal ||
+      ![0, "0"].includes(data?.ResponseCode) || ![0, "0"].includes(tx?.ResponseCode) ||
+      returnedTerminal !== terminal || txTerminal !== terminal ||
       returnedLowProfile !== lowProfileId || returnedRef !== String(lookup.provider_ref || "") ||
       operation !== "ChargeAndCreateToken" || amount !== 2 || coinId !== 1 || !exactTransactionId
     ) {
-      console.warn("cardcom subscription verification mismatch", {
-        responseCode, txCode, terminalMatch: returnedTerminal === terminal && txTerminal === terminal,
-        lowProfileMatch: returnedLowProfile === lowProfileId, refMatch: returnedRef === lookup?.provider_ref,
-        operation, amount, coinId, hasTransactionId: !!exactTransactionId,
-      });
+      console.warn("cardcom subscription verification mismatch");
       res.status(200).json({ ok: true, active: false, issue: true });
       return;
     }
@@ -106,7 +103,7 @@ export default async function handler(req, res) {
     const tokenInfo = data?.TokenInfo || tx?.TokenInfo || null;
     const providerToken = String(tokenInfo?.Token || tx?.Token || "").trim();
     if (!providerToken) {
-      console.warn("cardcom subscription token missing", { paymentVector: data?.ExternalPaymentVector || null });
+      console.warn("cardcom subscription token missing");
       res.status(200).json({ ok: true, active: false, issue: true, reason: "token_missing" });
       return;
     }
@@ -127,8 +124,8 @@ export default async function handler(req, res) {
       p_expiration_mmyy: expirationMMYY,
     });
     res.status(200).json({ ok: true, active: activated?.status === "active", already: !!activated?.already });
-  } catch (error) {
-    console.error("cardcom-subscription-webhook", String(error?.message || error).slice(0, 360));
+  } catch {
+    console.error("cardcom-subscription-webhook: failed");
     res.status(503).json({ error: "subscription_verification_temporarily_failed" });
   }
 }
