@@ -87,6 +87,12 @@ For hosted acceptance, set `RAZIEL_SAFE_PREVIEW_ORIGIN` and
 temporary protected-access URL into a hidden prompt. It is not recorded in
 artifacts, arguments or Git. The test does not persist authentication state.
 
+Protected hosted Chromium also passed the complete same-document, explicit-save
+and suggestion flow at 320px and 1440px (dark), using the deployed mock worker and
+checking its SHA receipt. The harness uses the browser's configured network path
+and does not interrupt the protected first navigation with a redundant reload.
+Diagnostic errors redact cookies, authorization headers and temporary tokens.
+
 Deployment identity and post-deployment evidence belong in the passive AFTER
 record; do not mistake a local screenshot or source-head Preview for final-SHA
 hosted acceptance.

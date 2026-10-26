@@ -82,12 +82,15 @@ try:
                 context.route('**/*', intercept)
                 if ACCESS_URL:
                     page.goto(ACCESS_URL)
-                page.goto(BASE + '/2029')
+                else:
+                    page.goto(BASE + '/2029')
                 page.locator('.sod29-root').wait_for()
                 expect(page.locator('[data-raziel-preview-transport="mock-only"]')).to_be_visible()
                 expected_sha = os.environ.get('RAZIEL_SAFE_EXPECTED_SHA')
                 if expected_sha:
-                    receipt = context.request.get(BASE + '/preview-identity.json').json()
+                    # Use Chromium's configured network path, not a separate
+                    # Node HTTP client that may ignore the environment proxy.
+                    receipt = page.evaluate("async()=>await(await fetch('/preview-identity.json')).json()")
                     assert receipt['sha'] == expected_sha
                     assert receipt['transport'] == 'mock-only' and receipt['product_writes'] is False
                 assert page.evaluate('!!navigator.serviceWorker.controller')
@@ -157,6 +160,8 @@ except Exception as error:
     # Protected access is held in memory only, never in artifacts or tracebacks.
     detail = str(error).replace(ACCESS_URL, '[protected access]') if ACCESS_URL else str(error)
     detail = re.sub(r'(_vercel_share=)[^&\s\"\'<>]+', r'\1[redacted]', detail)
+    detail = re.sub(r'(?im)(cookie|set-cookie|authorization):[^\r\n]*', r'\1: [redacted]', detail)
+    detail = re.sub(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', '[redacted token]', detail)
     print(type(error).__name__ + ': ' + detail, file=sys.stderr)
     print(json.dumps(report, ensure_ascii=False), file=sys.stderr)
     sys.exit(1)
