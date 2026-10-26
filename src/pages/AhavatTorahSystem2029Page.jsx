@@ -273,7 +273,7 @@ function OccurrenceTable({ table, kind, onPage }) {
 
   return <div className="ahavat29-occurrence">
     {table?.current_reading && !currentReading ? <p role="alert">הקריאה המעודכנת אינה תואמת לעד המקור. ה־PDF נשאר זמין.</p> : null}
-    {(currentReading?.summary_he || table?.summary_he) ? <div className="ahavat29-ds01-guide"><strong>{currentReading?.title_he || table.title}</strong><p>{currentReading?.summary_he || table.summary_he}</p><button type="button" onClick={() => onPage(70)}>פתח מקור הקריאה · PDF 70</button></div> : null}
+    {(currentReading?.summary_he || table?.summary_he) ? <div className="ahavat29-ds01-guide"><strong>{currentReading?.title_he || table.title}</strong><p>{currentReading?.summary_he || table.summary_he}</p><div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(70)}>פתח מקור הקריאה · PDF 70</button></div></div> : null}
     <div className="ahavat29-table-tools">
       <label><span>חיפוש בתוך הטבלה</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={letters ? "אות, פרשה, חומש או מספר" : "פרשה, חומש או מספר"} /></label>
       <strong>{filtered.length} שורות</strong>

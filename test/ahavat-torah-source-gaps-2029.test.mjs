@@ -41,6 +41,7 @@ test("all 37 historical Moshe rows remain byte-equivalent data but no longer ove
   const page = read("src/pages/AhavatTorahSystem2029Page.jsx");
   assert.match(page, /const rows = table\?\.current_reading \? currentReading\?\.rows \|\| \[\] : table\?\.rows \|\| \[\]/);
   assert.match(page, /תעתיק קודם · \{table\.rows\.length\} שורות/);
+  assert.match(page, /<div className="ahavat29-ds01-controls"><button type="button" onClick=\{\(\) => onPage\(70\)\}>פתח מקור הקריאה/);
 });
 
 test("Aseh exposes five exact-source rows while retaining both pre-exclusion sum and author conclusion", () => {
