@@ -4,8 +4,11 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { extractCandidates } from '../src/lib/analysisFlow.js';
-import { extractCompoundClaims, verifyCandidate } from '../src/lib/triage.js';
+import { extractCompoundClaims, verifyCandidate, computeExtractionIntegrity, buildIntakeMeta } from '../src/lib/triage.js';
 import { normalizeForCalc } from '../src/lib/gematria.js';
+import { makeUniversalFinding } from '../src/lib/research/universalFinding.js';
+import { capabilityResult, composeResearchResultBundle, ACCESS_CLASS,
+  EVIDENCE_RELATION } from '../src/lib/research/researchResultBundle.js';
 import { assertReadOnly } from './audit-world-corpus-residual.mjs';
 
 const evidenceUrl = new URL('../docs/reviews/world-claim-coverage-evidence-20261026.json', import.meta.url);
@@ -185,6 +188,156 @@ export function summarizeReview(rows) {
   return { rows: rows.length, sources: new Set(rows.map(r => r.sourceId)).size, counts,
     canonicalDuplicatePairs: rows.reduce((n,r) => n+r.canonicalDuplicateIds.length, 0),
     livePromotions: 0, hiddenRecords: 0 };
+}
+
+// The fixed, previously inspected 27 cases, NOT a new admission rule or parser.
+// Their calculation status cannot confer completeness, publication or tree membership.
+export function selectTypedClaims(evidence) {
+  const rows = buildReview(evidence).filter(r => ['composite', 'letter_decomposition',
+    'atomic_extraction', 'atomic_punctuation'].includes(r.kind));
+  check(rows.length === 27 && rows.every(r => r.databaseConfirmed && r.replay.calculation === 'match'),
+    'Typed review needs the exact 27 verified cases');
+  return rows.map(r => {
+    const stored = evidence.rows.find(s => s.id === r.id);
+    return { ...r, stored, sourceMd5:evidence.sources.find(s => s.id === r.sourceId).md5,
+      proposedStatement:r.kind === 'atomic_extraction' ? `${r.replay.operand} = ${r.value}` : stored.statement };
+  });
+}
+
+export function buildTypedClaimReceiptSql(evidence) {
+  const quote = value => `'${String(value).replaceAll("'", "''")}'`;
+  const selected = selectTypedClaims(evidence);
+  const ids = new Set(selected.map(r => r.id));
+  const inputs = collectReplayInputs(evidence).filter(r => ids.has(r.id));
+  const rows = selected.map(r => `(${quote(r.id)}::uuid,${quote(r.sourceId)}::uuid,`
+    + `${quote(r.sourceRef)},${quote(r.sourceMd5)},${quote(r.stored.source_uid)},`
+    + `${quote(r.stored.claim_uid)},${quote(md5(r.stored.statement))},`
+    + `${quote(JSON.stringify(r.stored.terms))}::jsonb,${r.value}::integer,`
+    + `${quote(r.proposedStatement)},${quote(r.targetId)}::uuid)`).join(',\n');
+  const leaves = inputs.map(r => `(${quote(r.id)}::uuid,${quote(r.role)},${quote(r.method)},`
+    + `${quote(r.phrase)},${r.expected}::integer)`).join(',\n');
+  return assertReadOnly(`WITH selected(id,source_id,source_ref,source_md5,source_uid,claim_uid,
+      statement_md5,terms,value,proposed_statement,target_id) AS (VALUES ${rows}),
+    leaves(id,role,method,phrase,expected) AS (VALUES ${leaves}),
+    identities AS (SELECT s.*,public.fn_research_claim_uid(s.proposed_statement) proposed_claim_uid FROM selected s),
+    checks AS (SELECT s.id,s.source_id,s.source_ref,s.source_md5,s.source_uid,s.claim_uid,s.statement_md5,
+      s.proposed_statement,s.proposed_claim_uid,
+      coalesce(ro.status='approved' AND ro.privacy_scope='public' AND ro.promoted_node_id IS NULL,false) public_unattached,
+      coalesce(lower(btrim(ro.meta#>>'{ext,personal_scope,scope}')),'')<>'person_only'
+        AND coalesce(lower(btrim(ro.source)),'') NOT IN ('openweb_legacy','old_chat','or-geula')
+        AND coalesce(btrim(ro.contributor),'')<>'אור הגאולה' general_world_scope,
+      coalesce(ro.source_ref=s.source_ref AND public.fn_research_source_uid(ro.source_ref)=s.source_uid
+        AND public.fn_research_claim_uid(ro.statement)=s.claim_uid AND md5(ro.statement)=s.statement_md5
+        AND to_jsonb(ro.terms)=s.terms AND ro.value=s.value,false) exact_claim,
+      coalesce(cu.id=s.source_id AND cu.status='live' AND cu.page_only IS FALSE
+        AND cu.channel='torat-haremez' AND cu.contributor_id='c66f0464-0928-490e-be9b-66d8a87e7fc8'::uuid
+        AND md5(cu.text)=s.source_md5,false) exact_public_source,
+      coalesce(n.id=s.target_id AND n.type='number' AND n.label=s.value::text AND n.is_active IS TRUE
+        AND coalesce(n.metadata->>'space','core')='core',false) exact_target,
+      (SELECT count(*)=1 FROM public.nodes nn WHERE nn.type='number' AND nn.label=s.value::text
+        AND nn.is_active IS TRUE AND coalesce(nn.metadata->>'space','core')='core') unique_target,
+      (SELECT count(*) FROM public.research_objects other WHERE other.id<>s.id
+        AND public.fn_research_source_uid(other.source_ref)=s.source_uid
+        AND public.fn_research_claim_uid(other.statement)=s.proposed_claim_uid) proposed_identity_conflicts,
+      ro.meta#>'{ext,revision}' IS NULL no_existing_revision,
+      ro.meta#>>'{ext,extraction_integrity,fidelity_status}' stored_fidelity
+    FROM identities s LEFT JOIN public.research_objects ro ON ro.id=s.id
+      LEFT JOIN public.channel_updates cu ON cu.id=s.source_id LEFT JOIN public.nodes n ON n.id=s.target_id),
+    replay AS (SELECT i.*,public.fn_method_value(i.method,i.phrase) computed,
+      EXISTS(SELECT 1 FROM public.gematria_methods m WHERE m.method_key=i.method AND m.in_engine IS TRUE) method_in_engine
+      FROM leaves i)
+    SELECT now() checked_at,
+      (SELECT jsonb_agg(c ORDER BY c.id) FROM checks c) claims,
+      (SELECT jsonb_agg(r ORDER BY r.id,r.role) FROM replay r) engine_replays,
+      md5(pg_get_functiondef('public.fn_method_value(text,text)'::regprocedure)) engine_definition_md5,
+      md5(pg_get_functiondef('public.fn_research_claim_uid(text)'::regprocedure)) claim_identity_definition_md5,
+      md5(pg_get_functiondef('public.fn_research_object_correct(uuid,text,text,integer,text[],text[])'::regprocedure)) correction_definition_md5`);
+}
+
+export const readTypedClaimReceipt = () => JSON.parse(readFileSync(new URL(
+  '../docs/reviews/world-typed-claim-receipt-20261026.json', import.meta.url), 'utf8'));
+
+export function buildTypedClaimReview(evidence, receipt) {
+  const selected = selectTypedClaims(evidence);
+  check(receipt && !Number.isNaN(Date.parse(receipt.checked_at)), 'Missing receipt date');
+  check(receipt.claims?.length === selected.length
+    && new Set(receipt.claims.map(r => r.id)).size === selected.length, 'Incomplete live claim receipt');
+  const ids = new Set(selected.map(r => r.id));
+  const expected = collectReplayInputs(evidence).filter(r => ids.has(r.id));
+  check(receipt.engine_replays?.length === expected.length && expected.every(e =>
+    receipt.engine_replays.filter(r => r.id === e.id && r.role === e.role && r.phrase === e.phrase
+      && r.method === e.method && r.expected === e.expected && r.computed === e.expected
+      && r.method_in_engine === true).length === 1), 'Live canonical replay mismatch');
+  for (const key of ['engine_definition_md5','claim_identity_definition_md5','correction_definition_md5']) {
+    check(/^[a-f0-9]{32}$/u.test(receipt[key]), 'Missing canonical function fingerprint');
+  }
+  return selected.map(r => {
+    const live = receipt.claims.find(c => c.id === r.id);
+    check(live && ['public_unattached','general_world_scope','exact_claim','exact_public_source',
+      'exact_target','unique_target','no_existing_revision'].every(k => live[k] === true), 'Live claim scope drift');
+    check(live.source_id === r.sourceId && live.source_ref === r.sourceRef && live.source_md5 === r.sourceMd5
+      && live.source_uid === r.stored.source_uid && live.claim_uid === r.stored.claim_uid
+      && live.statement_md5 === md5(r.stored.statement) && live.proposed_statement === r.proposedStatement
+      && typeof live.proposed_claim_uid === 'string' && live.proposed_claim_uid.length > 0
+      && Number.isSafeInteger(live.proposed_identity_conflicts) && live.proposed_identity_conflicts >= 0,
+    'Live identity receipt drift');
+    const derivation = r.replay.type === 'derivation';
+    const integrity = derivation ? computeExtractionIntegrity([r.replay.claim], []) : null;
+    const intakeMeta = derivation ? buildIntakeMeta({ compoundClaims:[r.replay.claim],
+      sourceMediaRefs:[], extractionIntegrity:integrity }) : {};
+    const correction = r.kind === 'atomic_extraction';
+    const route = derivation ? 'derivation_fidelity_review'
+      : !correction ? 'preserve_claim_add_calculation_trace'
+      : live.proposed_identity_conflicts > 0 ? 'existing_identity_requires_review'
+      : live.proposed_claim_uid !== r.stored.claim_uid ? 'governed_successor_required'
+      : 'correction_identity_unchanged_requires_review';
+    const operand = derivation ? null : r.replay.operand;
+    const calculation = { type:derivation ? 'derivation' : 'atomic', method:derivation ? null : 'רגיל',
+      operandMethod:'רגיל', value:r.value,
+      sourceExpression:r.sourceSpan.excerpt, operand, normalizedOperand:operand ? normalizeForCalc(operand) : null,
+      trace:derivation ? r.replay.claim : r.replay.atomic.engine_detail,
+      canonicalChecks:receipt.engine_replays.filter(c => c.id === r.id),
+      arithmeticVerified:true, extractionIntegrity:integrity, intakeMeta,
+      mediaInspected:false, interpretationVerified:false };
+    const finding = makeUniversalFinding({
+      id:`world-typed-review:${r.id}`, kind:derivation ? 'derivation' : 'gematria', stage:'claim', status:null,
+      subject:{ type:'number',key:String(r.value),value:r.value,label:r.stored.statement,lang:'he' },
+      source:{ engine:derivation ? 'extractCompoundClaims' : 'verifyCandidate',
+        adapter:'world-offline-typed-review',sourceRef:r.sourceRef,method:derivation ? null : 'רגיל',lang:'he' },
+      identity:{ sourceIdentity:{source_uid:r.stored.source_uid,claim_uid:r.stored.claim_uid},
+        occurrence:{sourceId:r.sourceId,sourceMd5:r.sourceMd5,...r.sourceSpan} },
+      verification:{ claimed_expression:derivation ? r.sourceSpan.excerpt : operand,
+        claimed_method:derivation ? null : 'רגיל',claimed_value:r.value,
+        engine_method_tested:derivation ? null : 'רגיל',
+        engine_result:r.value,verification_state:'match',statement_lang:'he',scope:'calculation_only' },
+      evidence:{ refs:[{sourceRef:r.sourceRef,sourceMd5:r.sourceMd5,...r.sourceSpan}],facts:[calculation] },
+      // Restricts the offline proposal; does NOT change the original public row's access.
+      access:{tier:'public_candidate',reason:'Unapplied typed representation; review only'},
+      provenance:{createdBy:'world-offline-review',createdAt:receipt.checked_at,inputRef:r.id,parentFindingIds:[r.id]},
+    });
+    return { id:r.id,kind:r.kind,sourceRef:r.sourceRef,sourceId:r.sourceId,sourceSpan:r.sourceSpan,
+      original:{statement:r.stored.statement,terms:r.stored.terms,value:r.value,
+        sourceUid:r.stored.source_uid,claimUid:r.stored.claim_uid,status:r.stored.status,privacyScope:r.stored.privacy_scope},
+      calculation,finding,route,
+      correction:correction ? {proposedStatement:r.proposedStatement,proposedTerms:[operand],
+        proposedClaimUid:live.proposed_claim_uid,identityConflicts:live.proposed_identity_conflicts,
+        canonicalWriter:'fn_research_object_correct',execute:false} : null,
+      targetId:r.targetId,retainIds:[r.id,...r.retainedIds],sourceCount:null,independentSourcesAdded:0,
+      strength:null,evidenceQuality:null,publicationChanged:false,promoted:false,suppress:false,
+      automaticPromotion:false,note:r.note };
+  });
+}
+
+// Offline contract demonstration ONLY. Never fabricates an auth descriptor. All
+// review details stay inside Findings, where the existing Bundle boundary filters them.
+export function composeTypedReviewBundle(rows, accessDescriptor = null) {
+  return composeResearchResultBundle({ accessDescriptor,
+    capabilities:[capabilityResult({key:'world-typed-offline-review',owner:'World',
+      accessClass:ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
+      findings:rows.map(r => r.finding),
+      findingOutcomes:rows.filter(r => r.calculation.type === 'derivation').map(r => ({
+        findingId:r.finding.id,evidenceRelation:EVIDENCE_RELATION.DERIVATION,dependsOn:[r.id] })),
+    })] });
 }
 
 // Review selection only, never a writer or a standing admission rule. Reuse the
@@ -384,7 +537,10 @@ ROLLBACK;
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const evidence = readEvidence();
-  if (process.argv[2] === 'rehearsal-sql') process.stdout.write(buildAtomicReplacementRehearsalSql(evidence));
+  if (process.argv[2] === 'typed-sql') process.stdout.write(buildTypedClaimReceiptSql(evidence) + '\n');
+  else if (process.argv[2] === 'typed') process.stdout.write(JSON.stringify(
+    buildTypedClaimReview(evidence, readTypedClaimReceipt()), null, 2) + '\n');
+  else if (process.argv[2] === 'rehearsal-sql') process.stdout.write(buildAtomicReplacementRehearsalSql(evidence));
   else if (process.argv[2] === 'preflight-sql') process.stdout.write(buildPendingAtomicPreflightSql(evidence) + '\n');
   else if (process.argv[2] === 'selection') process.stdout.write(JSON.stringify(selectPendingAtomicClaims(evidence), null, 2) + '\n');
   else if (process.argv[2] === 'sql') process.stdout.write(buildReplaySql(evidence) + '\n');
