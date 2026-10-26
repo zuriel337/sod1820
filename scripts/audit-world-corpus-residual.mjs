@@ -438,16 +438,39 @@ export function buildSourceFamilyReadSql(page) {
 export const readSourceFamilyReview = () => readReviewJson('world-source-family-review-20261026.json');
 export const readSourceFamilyReceipt = () => readReviewJson('world-source-family-receipt-20261026.json');
 
+// Bounded next cohort: shortest complete text sources first is a work-order,
+// never a strength score. All their remaining records are included, not cherry-picked matches.
+export function selectCompactSourceRows() {
+  const prior=readContinuationEvidence(),screen=validateContinuationReceipt();
+  const done=new Set([...prior.manualReviews,...readSourceTextReview().rows,...readSourceFamilyReview().rows].map(r=>r.id));
+  const remaining=screen.rows.filter(r=>!done.has(r.id));
+  const numericSources=new Set(remaining.filter(r=>r.lane==='gematria' && !['hypothesis','question'].includes(r.kind)
+    && r.value!==null && r.reason!=='uninspected_media_source').map(r=>r.sourceId));
+  const sources=prior.sources.filter(s=>numericSources.has(s.id) && !s.image_url && !/\[Image |OCR מהמדיה|📷/u.test(s.text))
+    .sort((a,b)=>a.text.length-b.text.length || a.id.localeCompare(b.id)).slice(0,40);
+  return remaining.filter(r=>sources.some(s=>s.id===r.sourceId));
+}
+export function buildCompactSourceReadSql(page) {
+  requireEvidence(Number.isInteger(page) && page>=0, 'Invalid compact source page');
+  return buildBoundedPublicSourceReadSql(selectCompactSourceRows().slice(page*40,(page+1)*40).map(r=>r.id),page);
+}
+export const readCompactSourceReview = () => readReviewJson('world-compact-source-review-20261026.json');
+export const readCompactSourceReceipt = () => readReviewJson('world-compact-source-receipt-20261026.json');
+
 // Fixed manual classification, not a runtime triage/ranking/dedup system.
 export function replaySourceFamilyReview(evidence = readSourceFamilyReview()) {
-  const ids=selectSourceFamilyRows().map(r=>r.id),prior=readSourceTextReview();
+  requireEvidence(['source_family_review_only','compact_source_review_only'].includes(evidence.scope), 'Unknown family cohort');
+  const compact=evidence.scope==='compact_source_review_only';
+  const selection=compact?selectCompactSourceRows():selectSourceFamilyRows();
+  const ids=selection.map(r=>r.id),prior=compact?readContinuationEvidence():readSourceTextReview();
+  const priorReviewed=compact?prior.rows.filter(r=>prior.manualReviews.some(p=>p.id===r.id)):prior.rows;
   requireEvidence(JSON.stringify(evidence.rows?.map(r=>r.id))===JSON.stringify(ids)
     && JSON.stringify(evidence.reviews?.map(r=>r.id))===JSON.stringify(ids)
     && evidence.pages?.length===Math.ceil(ids.length/40), 'Family coverage drift');
   for(const [i,p] of evidence.pages.entries()) requireEvidence(p.page===i
     && !Number.isNaN(Date.parse(p.checkedAt))
     && JSON.stringify(p.ids)===JSON.stringify(ids.slice(i*40,(i+1)*40)), 'Family page drift');
-  requireEvidence(evidence.sources?.length===prior.sources.length
+  requireEvidence(evidence.sources?.length===new Set(selection.map(r=>r.sourceId)).size
     && new Set(evidence.sources.map(s=>s.id)).size===evidence.sources.length
     && evidence.families?.length===evidence.sources.length, 'Family source coverage drift');
   for(const [i,s] of evidence.sources.entries()) {
@@ -456,7 +479,7 @@ export function replaySourceFamilyReview(evidence = readSourceFamilyReview()) {
       && s.status==='live' && s.page_only===false && s.channel==='torat-haremez'
       && s.contributor_id==='c66f0464-0928-490e-be9b-66d8a87e7fc8'
       && family.sourceId===s.id && family.reviewNote?.length
-      && JSON.stringify(family.priorReviewIds)===JSON.stringify(prior.rows.filter(r=>r.finding.source_id===s.id).map(r=>r.id)),
+      && JSON.stringify(family.priorReviewIds)===JSON.stringify(priorReviewed.filter(r=>r.finding.source_id===s.id).map(r=>r.id)),
     'Family source/previous review drift');
   }
   return evidence.rows.map(({id,finding:row},index)=>{
@@ -472,7 +495,8 @@ export function replaySourceFamilyReview(evidence = readSourceFamilyReview()) {
       const p=c.operandSpan;
       requireEvidence(p?.start>=0 && Number.isInteger(p.start) && p.end===p.start+c.expression.length
         && source.text.slice(p.start,p.end)===c.expression && /[א-ת]/u.test(c.expression)
-        && /^[א-ת\u0591-\u05c7\s"'׳״,_־\-]+$/u.test(c.expression) && c.method==='רגיל'
+        && /^[א-ת\u0591-\u05c7\s"'׳״,_־\-]+$/u.test(c.expression)
+        && (c.method==='רגיל' || compact && c.method==='מילוי' && /מילוי/u.test(source.text))
         && c.sourceContext?.start===0 && c.sourceContext.end===source.text.length, 'Family operand drift');
       requireEvidence(c.claimed===null ? c.claimBasis==='source_operand_calculation'
         : c.claimBasis==='manual_full_source_context' && Number.isSafeInteger(c.claimed)
@@ -504,6 +528,7 @@ export function replaySourceFamilyReview(evidence = readSourceFamilyReview()) {
     if(plan.category==='source_representation') requireEvidence(plan.recommendation==='כפילות'
       && row.statement.length>0 && source.text.startsWith(row.statement), 'Unproven source copy');
     if(plan.category==='numeric_scope_overlap') {
+      requireEvidence(!compact, 'Compact source overlap requires separate proof');
       const other=prior.reviews.find(p=>p.id===plan.overlapPriorId),old=prior.rows.find(r=>r.id===plan.overlapPriorId)?.finding;
       requireEvidence(plan.recommendation==='כפילות' && other?.recommendation==='מתאים לעץ'
         && old?.source_id===source.id && old.value===row.value && plan.compoundSlices.length>0
@@ -963,7 +988,10 @@ export function buildImageSourceReport(evidence = readImageSourceReview(), recei
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const mode = process.argv[2] || 'summary';
-  if (mode === 'source-family') process.stdout.write(JSON.stringify(buildSourceFamilyReport(),null,2)+'\n');
+  if (mode === 'compact-source') process.stdout.write(JSON.stringify(buildSourceFamilyReport(readCompactSourceReview(),readCompactSourceReceipt()),null,2)+'\n');
+  else if (mode === 'compact-source-read-sql') process.stdout.write(buildCompactSourceReadSql(Number(process.argv[3]))+'\n');
+  else if (mode === 'compact-source-receipt-sql') process.stdout.write(buildSourceFamilyReceiptSql(readCompactSourceReview())+'\n');
+  else if (mode === 'source-family') process.stdout.write(JSON.stringify(buildSourceFamilyReport(),null,2)+'\n');
   else if (mode === 'source-family-read-sql') process.stdout.write(buildSourceFamilyReadSql(Number(process.argv[3]))+'\n');
   else if (mode === 'source-family-receipt-sql') process.stdout.write(buildSourceFamilyReceiptSql()+'\n');
   else if (mode === 'source-text') process.stdout.write(JSON.stringify(buildSourceTextReport(),null,2)+'\n');
