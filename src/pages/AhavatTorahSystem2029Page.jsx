@@ -231,7 +231,7 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
     <article className="ahavat29-depth-reader">
       <header><div><span>PDF {page}{record?.printed ? ` · עמוד מודפס ${record.printed}` : ""}</span><h3>{readingArc.title}</h3></div><StatusPill status={record ? "source_verified" : "machine_candidate"} /></header>
       <section className="ahavat29-ai-guide">
-        <span>הסבר AI בעברית · מפת קריאה</span>
+        <span>הסבר נלווה · מפת קריאה</span>
         <p>{readingArc.explanation}</p>
         <small>הסבר נלווה לעמודים {readingArc.range[0]}–{readingArc.range[1]} · המקור פתוח לצדו.</small>
       </section>
@@ -248,7 +248,7 @@ function FullBookReader({ page, bundle, bundleState, pageTextBundle, pageTextSta
           {pageBlocks.map((block, index) => <section key={block.block_id || `${page}-${index}`}>
             <span>{String(index + 1).padStart(2, "0")} · {hebrewBlockKind(block.block_id)}</span>
             {block.text_he ? <p>{block.text_he}</p> : null}
-            {AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id] ? <small><b>הסבר AI בעברית:</b> {AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id]}</small> : null}
+            {AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id] ? <small><b>הסבר נלווה:</b> {AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id]}</small> : null}
             <a href={`${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`} target="_blank" rel="noreferrer">ראה מקור בעמוד {page} ↗</a>
           </section>)}
           {!pageBlocks.length ? <p>אין יחידות טקסט להצגה בעמוד זה בשכבה הנוכחית.</p> : null}

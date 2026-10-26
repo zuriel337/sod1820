@@ -31,9 +31,9 @@ test("focused final-finding mode renders every requested reader product instead 
   assert.match(page, /33 ממצאים במסלול קריאה אחד/);
   assert.match(page, /const FINAL_PRODUCT_COPY/);
   assert.match(page, /פתח את הממצא מזווית אחרת/);
-  assert.match(page, /ניסוח מוצר והסבר AI בפריוויו — אינם ציטוט ואינם חושפים את נוסח הממצא הקנוני/);
+  assert.match(page, /<summary>פרטי המקור<\/summary>/);
   assert.match(page, /למקור · PDF · עמוד \{activePage\}/);
-  assert.match(page, /Preview בלבד · 0 חומר ציבורי · אין כתיבה או שינוי הרשאות/);
+  assert.match(page, /Preview בלבד · אין כתיבה או שינוי הרשאות/);
   assert.match(page, /const FINAL_FINDING_LENSES/);
   assert.match(page, /useState\("body"\)/);
 });
@@ -55,7 +55,7 @@ test("book source law keeps a large authorized PDF surface beside every finding"
   assert.match(page, /access: "approved-display"/);
   assert.match(page, /קובץ המקור עצמו מוגן בפריוויו/);
   assert.match(page, /לא נמצא בענף נכס PDF שאושר לתצוגה/);
-  assert.match(page, /המקור באנגלית נשאר פתוח לצד ההסבר העברי/);
+  assert.match(page, /דברי הספר באנגלית נשארים פתוחים לצד ההסבר הנלווה/);
   assert.match(page, /href="#bentov29-final-source"/);
   assert.match(page, /pagesFromVerifiedLocator/);
   assert.match(page, /sourcePages\.length/);
@@ -77,10 +77,10 @@ test("non-Hebrew books keep the witness and add a separate reusable Hebrew AI ex
   assert.match(page, /surfaceNamesContract: false/);
   assert.match(page, /data-translation-presentation=\{BOOK_READER_SYSTEM_CONTRACT\.nonHebrewPresentation\.mode\}/);
   assert.match(page, /const BOOK_CHAPTER_COMPANION/);
-  assert.match(page, /הסבר AI בעברית/);
+  assert.match(page, /הסבר נלווה/);
   assert.match(page, /הספר, פרק אחר פרק/);
-  assert.match(page, /זהו סיכום והסבר לקריאה, לא תרגום מילה במילה/);
-  assert.match(page, /הטקסט האנגלי נשמר פתוח כמקור הסמכות ואינו מוחלף או מועתק/);
+  assert.match(page, /ההסבר אינו ציטוט ואינו תרגום מילולי/);
+  assert.match(page, /דברי הספר באנגלית נשארים פתוחים כמקור הסמכות לצד ההסבר הנלווה/);
   assert.doesNotMatch(page, /חוק ספרים:|חוק המקור|חובת תצוגה/);
   assert.match(css, /\.bentov29-ai-context/);
   assert.match(css, /\.bentov29-book-guide/);
@@ -109,7 +109,7 @@ test("the Hebrew companion covers the whole book chapter by chapter and controls
   assert.match(page, /BOOK_CHAPTER_COMPANION\.map\(\(chapter, index\)/);
   assert.match(page, /onClick=\{\(\) => setActivePage\(chapter\.fromPdf\)\}/);
   assert.match(page, /chapterCompanionForPage\(activePage\)/);
-  assert.match(page, /סיכום ופרשנות, לא תרגום מילולי/);
+  assert.match(page, /הסבר נלווה · סיכום ופרשנות/);
   assert.match(css, /\.bentov29-chapter-index/);
   assert.match(css, /\.bentov29-chapter-detail/);
 });

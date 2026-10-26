@@ -60,21 +60,25 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
   return <section className="book-reader29" aria-labelledby="book-reader29-title">
     <header className="book-reader29-heading">
       <div>
-        <span>הספר המלא · המקור פתוח תמיד</span>
+        <span>דברי הספר · המקור פתוח תמיד</span>
         <h2 id="book-reader29-title">קוראים ומבינים באותו מסך</h2>
         <p>{manifest.introduction}</p>
       </div>
-      <div className="book-reader29-heading-stats" aria-label="פרטי הספר">
-        <span><strong>{manifest.pdfPages}</strong> עמודי PDF</span>
-        <span><strong>{manifest.chapters.length}</strong> תחנות קריאה</span>
-        <span><strong>{manifest.language}</strong> שפת המקור</span>
-      </div>
+      <details className="book-reader29-source-details">
+        <summary>פרטי המקור</summary>
+        <dl>
+          <div><dt>שם הספר</dt><dd>{manifest.title}</dd></div>
+          <div><dt>מחבר / ייחוס</dt><dd>{manifest.author}</dd></div>
+          <div><dt>שפת המקור</dt><dd>{manifest.language}</dd></div>
+          <div><dt>היקף</dt><dd>{manifest.pdfPages} עמודי PDF · {manifest.chapters.length} חטיבות קריאה</dd></div>
+        </dl>
+      </details>
     </header>
 
     <div className="book-reader29-layout">
       <aside ref={fullscreenRef} id="book-reader29-source" className="book-reader29-source book-fullscreen29-target" aria-label={`המקור המלא של ${manifest.title}`}>
         <header>
-          <div><span>PDF · עמוד {page} מתוך {manifest.pdfPages}</span><h3>{manifest.title}</h3></div>
+          <div><span>דברי הספר · PDF · עמוד {page} מתוך {manifest.pdfPages}</span><h3>{manifest.title}</h3></div>
           <BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfPageUrl} controls="book-reader29-source" />
         </header>
 
@@ -94,7 +98,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
 
       <div className="book-reader29-guide">
         <article className="book-reader29-current" aria-live="polite">
-          <span>מפת קריאה בעברית · PDF {chapter?.from}–{chapter?.to}</span>
+          <span>הסבר נלווה · PDF {chapter?.from}–{chapter?.to}</span>
           <h3>{chapter?.title || manifest.title}</h3>
           <p>{chapter?.guide || manifest.introduction}</p>
           {chapter?.points?.length ? <ul>{chapter.points.map(point => <li key={point}>{point}</li>)}</ul> : null}
@@ -126,7 +130,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
         </article> : null}
 
         {manifest.experience ? <a className="book-reader29-experience" href={manifest.experience.href}>
-          <span>שכבת עומק נוספת</span>
+          <span>ייצוג של מבנה הספר</span>
           <strong>{manifest.experience.label}</strong>
           <small>המפה, המחקר או המרחב המיוחד של הספר ←</small>
         </a> : null}

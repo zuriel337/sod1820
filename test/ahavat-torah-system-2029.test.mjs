@@ -95,7 +95,7 @@ test("all bounded datasets and deep-read pages are represented without upgrading
   for (const block of bundle.content_blocks.filter(item => !item.text_he)) {
     assert.ok(AHAVAT_TORAH_AI_EXPLANATIONS_HE[block.block_id], `missing Hebrew AI explanation for ${block.block_id}`);
   }
-  assert.match(page, /הסבר AI בעברית:/);
+  assert.match(page, /הסבר נלווה:/);
   assert.doesNotMatch(page, /block\.text_note/);
 });
 
@@ -113,7 +113,7 @@ test("the full-book machine layer covers all pages without pretending to be veri
   assert.match(page, /AHAVAT_TORAH_SOURCE\.pageTextBundleUrl/);
   assert.match(page, /חיפוש בכל הספר/);
   assert.match(page, /תעתיק מלא לעמוד/);
-  assert.match(page, /הסבר AI בעברית · מפת קריאה/);
+  assert.match(page, /הסבר נלווה · מפת קריאה/);
 });
 
 test("the reader keeps source, explanation, finding and publication axes separate", () => {

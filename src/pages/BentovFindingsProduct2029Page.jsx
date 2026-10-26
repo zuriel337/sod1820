@@ -833,7 +833,7 @@ function FindingSourcePanel({ source, pages, activePage, onPageSelect }) {
   >
     <header>
       <div>
-        <span>המקור · PDF</span>
+        <span>דברי הספר · PDF</span>
         <h2 id="bentov29-final-source-title">עמוד {activePage}</h2>
       </div>
       <div className="bentov29-final-source-actions"><b>מקור באנגלית</b>{approvedPdfUrl ? <BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pagePdfUrl} controls="bentov29-final-source" /> : null}</div>
@@ -869,13 +869,16 @@ function FindingSourcePanel({ source, pages, activePage, onPageSelect }) {
       </div>}
     </div>
 
-    <dl data-book-reader-secondary>
-      <div><dt>ספר</dt><dd>{source.title}</dd></div>
-      <div><dt>מחבר</dt><dd>{source.author}</dd></div>
-      <div><dt>עוגן</dt><dd>PDF · עמוד {activePage}</dd></div>
-      <div><dt>בדיקה</dt><dd>{source.fidelity}</dd></div>
-    </dl>
-    <p data-book-reader-secondary>המקור באנגלית נשאר פתוח לצד ההסבר העברי.</p>
+    <details className="bentov29-source-details" data-book-reader-secondary>
+      <summary>פרטי המקור</summary>
+      <dl>
+        <div><dt>ספר</dt><dd>{source.title}</dd></div>
+        <div><dt>מחבר</dt><dd>{source.author}</dd></div>
+        <div><dt>עוגן</dt><dd>PDF · עמוד {activePage}</dd></div>
+        <div><dt>בדיקה</dt><dd>{source.fidelity}</dd></div>
+      </dl>
+      <p>דברי הספר באנגלית נשארים פתוחים לצד ההסבר הנלווה. ההסבר אינו ציטוט ואינו תרגום מילולי.</p>
+    </details>
   </aside>;
 }
 
@@ -935,12 +938,11 @@ function FinalFindingExperience({ finding }) {
         <h1 id="bentov29-final-title">{productCopy.title}</h1>
         <p>{productCopy.summary}</p>
         <div className="bentov29-final-trust" aria-label="מצב אמון">
-          <span>מקור נבדק</span><span>{source.fidelity}</span><span>הסבר AI בעברית</span>
+          <span>דברי הספר</span><span>{source.fidelity}</span><span>הסבר נלווה</span>
         </div>
         <a className="bentov29-final-source-jump" href="#bentov29-final-source">למקור · PDF · עמוד {activePage} ↓</a>
-        <small className="bentov29-final-disclaimer">ניסוח מוצר והסבר AI בפריוויו — אינם ציטוט ואינם חושפים את נוסח הממצא הקנוני.</small>
       </div>
-      <div className="bentov29-final-visual" aria-label={`המחשה מרחבית: ${finding.theme}`}>
+      <div className="bentov29-final-visual" aria-label={`ייצוג של מבנה הספר: ${finding.theme}`}>
         <img src="/2029/books/bentov/bentov-consciousness-map.webp" alt="דמות אנושית מוקפת גלים ומעגלי קצב" />
         <span className="pulse pulse-a">מקור</span>
         <span className="pulse pulse-b">רעיון</span>
@@ -975,14 +977,13 @@ function FinalFindingExperience({ finding }) {
     <section className="bentov29-ai-context" aria-labelledby="bentov29-ai-context-title">
       <header>
         <div>
-          <div className="bentov29-section-label">הסבר AI בעברית · {activeChapter.part}</div>
+          <div className="bentov29-section-label">הסבר נלווה · {activeChapter.part}</div>
           <h2 id="bentov29-ai-context-title">{activeChapter.title}</h2>
         </div>
-        <span>מקור: אנגלית · הסבר: עברית</span>
+        <span>דברי הספר: אנגלית · הסבר נלווה: עברית</span>
       </header>
       <p>{activeChapter.summary}</p>
       <ul>{activeChapter.points.map(point => <li key={point}>{point}</li>)}</ul>
-      <small>זהו סיכום והסבר לקריאה, לא תרגום מילה במילה ולא תחליף לעד המקור המוצג לצד הממצא.</small>
     </section>
 
     <section className="bentov29-final-lenses" aria-labelledby="bentov29-final-lenses-title">
@@ -1032,7 +1033,7 @@ function FinalFindingExperience({ finding }) {
     <section className="bentov29-book-guide" aria-labelledby="bentov29-book-guide-title">
       <header>
         <div>
-          <div className="bentov29-section-label">מלווה קריאה עברי מלא</div>
+          <div className="bentov29-section-label">הסבר נלווה בעברית</div>
           <h2 id="bentov29-book-guide-title">הספר, פרק אחר פרק</h2>
         </div>
         <span>25 תחנות · כל 127 עמודי ה־PDF</span>
@@ -1062,10 +1063,10 @@ function FinalFindingExperience({ finding }) {
           <button type="button" onClick={() => setActivePage(activeChapter.fromPdf)}>
             פתח את תחילת הפרק במקור · עמוד {activeChapter.fromPdf}
           </button>
-          <small>הסבר AI בעברית · סיכום ופרשנות, לא תרגום מילולי</small>
+          <small>הסבר נלווה · סיכום ופרשנות</small>
         </article>
       </div>
-      <p>כל עמוד בספר משויך לתחנת קריאה. ההסברים הם שכבת הבנה עברית מקורית; הטקסט האנגלי נשמר פתוח כמקור הסמכות ואינו מוחלף או מועתק.</p>
+      <p>כל עמוד בספר משויך לתחנת קריאה. דברי הספר באנגלית נשארים פתוחים כמקור הסמכות לצד ההסבר הנלווה.</p>
     </section>
 
     <section className="bentov29-final-related" aria-labelledby="bentov29-final-related-title">
@@ -1087,7 +1088,7 @@ function FinalFindingExperience({ finding }) {
 
     <footer className="bentov29-final-footer">
       <strong>33 ממצאים במסלול קריאה אחד.</strong>
-      <span>מקור אנגלי, הסבר AI בעברית ומעבר רציף בין הממצאים. Preview בלבד · 0 חומר ציבורי · אין כתיבה או שינוי הרשאות.</span>
+      <span>דברי הספר באנגלית, הסבר נלווה בעברית ומעבר רציף בין הממצאים. Preview בלבד · אין כתיבה או שינוי הרשאות.</span>
     </footer>
   </main>;
 }
@@ -1293,7 +1294,7 @@ export default function BentovFindingsProduct2029Page() {
     applySeo({
       title: finalFindingMode ? `${FINAL_PRODUCT_COPY[(finalFinding.number - 1) % FINAL_PRODUCT_COPY.length].title} · ממצא בנטוב` : "מפת הממצאים · בנטוב · הדמיית מוצר",
       description: finalFindingMode
-        ? `תצוגת מוצר לממצא ${finalFinding.number} מתוך 33, עם מקור PDF והסבר AI בעברית.`
+        ? `תצוגת מוצר לממצא ${finalFinding.number} מתוך 33, עם דברי הספר ב־PDF והסבר נלווה בעברית.`
         : "הדמיית מוצר אינטראקטיבית לקריאה, חקירה וביקורת של ממצאי ספר.",
       path: "/2029/control",
       noindex: true,
@@ -1318,7 +1319,7 @@ export default function BentovFindingsProduct2029Page() {
   if (finalFindingMode) return <Sod2029Shell
     title={`ממצא ${String(finalFinding.number).padStart(2, "0")}`}
     eyebrow="ספרים 2029 · 33 ממצאים"
-    description="מקור אנגלי, הסבר AI בעברית ומסלול חקירה רציף."
+    description="דברי הספר באנגלית, הסבר נלווה בעברית ומסלול חקירה רציף."
     status="Preview · קריאה בלבד"
     surface="books"
     symbol={<NavigationIcon2029 name="books" />}

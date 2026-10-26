@@ -8,7 +8,10 @@ test("unified books reader keeps source, fullscreen and Hebrew guide in one capa
   const source = await readFile(new URL("src/components/books2029/BookSourceReader2029.jsx", ROOT), "utf8");
   assert.match(source, /<iframe/);
   assert.match(source, /BookFullscreenButton2029/);
-  assert.match(source, /מפת קריאה בעברית/);
+  assert.match(source, /דברי הספר · המקור פתוח תמיד/);
+  assert.match(source, /הסבר נלווה · PDF/);
+  assert.match(source, /ייצוג של מבנה הספר/);
+  assert.match(source, /<summary>פרטי המקור<\/summary>/);
   assert.match(source, /replacePageInUrl/);
   assert.match(source, /פתח את עמוד/);
 });
