@@ -168,6 +168,11 @@ function sourceBooks(page, readings) {
   }));
 }
 
+// The adjacent word/letter totals use the same printed parasha/book grammar.
+export function ahavatSourceCountBooks(page, readings) {
+  return sourceBooks(page, readings);
+}
+
 export const AHAVAT_HEH_BOOKS = sourceBooks(36, [
   [6283, "ו׳ אלף רפ״ג", "תשכ״ח=728|תרמ״ה=645|תקל״א=531|תשל״ה=735|תנ״ב=452|ש״ע=370|תר״כ=620|תצ״ט=499|תקמ״ה=545|תקע״ו=576|שכ״ג=323|רנ״ט=259"],
   [12403, "י״ב אלף ת״ג", "תרנ״ח=658|תרע״ג=673|תקצ״ג=593|תקפ״ט=589|תכ״ה=425|תל״ט=439|ת״ע=470|תצ״ג=493|תשל״ט=739|תקצ״ה=595|תמ״ו=446"],
@@ -402,8 +407,12 @@ export const AHAVAT_LETTER_READING_LOCATIONS = Object.freeze({
 });
 
 export function ahavatLetterSourcePage(form, bookId = "all", parasha) {
-  const book = AHAVAT_LETTER_READINGS[form]?.find(item => item.id === bookId);
-  return book?.rows.find(row => row.parasha === parasha)?.page || book?.page || ahavatLetterForm(form).pages[0];
+  return ahavatSourceCountPage(AHAVAT_LETTER_READINGS[form], ahavatLetterForm(form).pages, bookId, parasha);
+}
+
+export function ahavatSourceCountPage(books = [], pages = [], bookId = "all", parasha) {
+  const book = books.find(item => item.id === bookId);
+  return book?.rows.find(row => row.parasha === parasha)?.page || book?.page || pages[0];
 }
 
 export function ahavatLetterSourceFragments(bundle, form) {
@@ -428,7 +437,10 @@ export function ahavatLetterNumber(value) {
 }
 
 export function ahavatLetterBars(form, bookId = "all") {
-  const books = AHAVAT_LETTER_READINGS[form] || [];
+  return ahavatSourceCountBars(AHAVAT_LETTER_READINGS[form], bookId);
+}
+
+export function ahavatSourceCountBars(books = [], bookId = "all") {
   const book = books.find(item => item.id === bookId);
   return (book ? book.rows.map(row => ({ id: row.parasha, label: row.parasha, count: row.count }))
     : books.map(item => ({ id: item.id, label: item.title, count: item.count })))
@@ -436,8 +448,12 @@ export function ahavatLetterBars(form, bookId = "all") {
 }
 
 export function ahavatLetterRows(form, bookId = "all", query = "") {
+  return ahavatSourceCountRows(AHAVAT_LETTER_READINGS[form], bookId, query);
+}
+
+export function ahavatSourceCountRows(books = [], bookId = "all", query = "") {
   const needle = query.normalize("NFKD").replace(/[\u0591-\u05c7]/g, "").replace(/\s/g, "");
-  return (AHAVAT_LETTER_READINGS[form] || []).filter(book => bookId === "all" || book.id === bookId)
+  return books.filter(book => bookId === "all" || book.id === bookId)
     .flatMap(book => book.rows.map(row => ({ ...row, book: book.title })))
     .filter(row => !needle || `${row.parasha}${row.book}${row.printed}${row.count ?? ""}`.normalize("NFKD").replace(/[\u0591-\u05c7\s]/g, "").includes(needle));
 }
@@ -447,12 +463,15 @@ export function ahavatAlephRows(bookId = "all", query = "") {
 }
 
 export function ahavatLetterCsv(form, bookId = "all", query = "", pdfUrl = "") {
-  const books = AHAVAT_LETTER_READINGS[form] || [];
-  const header = ["זהות מקור", "אות", "פרשה", "חומש", "המניין בדפוס", "קריאת המספר", "עמוד PDF", "קישור למקור", "סיכום מצטבר בדפוס", "חלק החומש לפי הסיכומים", "סכום קריאת שורות החומש", "פער קריאה בחומש"];
-  const rows = ahavatLetterRows(form, bookId, query).map(row => {
+  return ahavatSourceCountCsv(AHAVAT_LETTER_READINGS[form], form, bookId, query, pdfUrl);
+}
+
+export function ahavatSourceCountCsv(books = [], subject, bookId = "all", query = "", pdfUrl = "", subjectHeading = "אות") {
+  const header = ["זהות מקור", subjectHeading, "פרשה", "חומש", "המניין בדפוס", "קריאת המספר", "עמוד PDF", "קישור למקור", "סיכום מצטבר בדפוס", "חלק החומש לפי הסיכומים", "סכום קריאת שורות החומש", "פער קריאה בחומש"];
+  const rows = ahavatSourceCountRows(books, bookId, query).map(row => {
     const book = books.find(item => item.title === row.book);
     const balance = ahavatLetterBalance(book);
-    return ["book:hebrewbooks:5635", form, row.parasha, row.book, row.printed, row.count, row.page,
+    return ["book:hebrewbooks:5635", subject, row.parasha, row.book, row.printed, row.count, row.page,
       pdfUrl ? `${pdfUrl}#page=${row.page}&view=FitH` : "", book.cumulative, book.count, balance.rowTotal, balance.delta];
   });
   const escapeCell = value => `"${String(value ?? "").replaceAll('"', '""')}"`;

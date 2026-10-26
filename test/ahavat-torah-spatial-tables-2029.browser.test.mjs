@@ -55,17 +55,21 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       });
 
       const page = await context.newPage();
+      const click = async locator => {
+        await locator.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+        await locator.click();
+      };
       const errors = [];
       page.on("pageerror", error => errors.push(error.message));
       await page.goto(`${base}/2029/control?surface=ahavat-torah-system`, { waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: "טבלאות שאפשר להיכנס לתוכן", exact: true }).waitFor();
       await page.locator("#ahavat29-source iframe").waitFor();
 
-      await page.locator(".ahavat29-ds01-equation button").filter({ hasText: "שמות" }).click();
+      await click(page.locator(".ahavat29-ds01-equation button").filter({ hasText: "שמות" }));
       assert.match(await page.locator(".ahavat29-ds01-detail p").textContent(), /398/);
       assert.equal(await page.locator(".ahavat29-ds01 .ahavat29-data-table tbody tr").filter({ hasText: "משפטים" }).locator("td:nth-child(2)").textContent(), "16");
       assert.equal(await page.locator(".ahavat29-ds01 .ahavat29-data-table tbody tr").filter({ hasText: "פקודי" }).locator("td:nth-child(2)").textContent(), "26");
-      await page.locator(".ahavat29-ds01-equation button").filter({ hasText: "במדבר" }).click();
+      await click(page.locator(".ahavat29-ds01-equation button").filter({ hasText: "במדבר" }));
       assert.match(await page.locator(".ahavat29-ds01-detail p").textContent(), /396/);
       assert.equal(await page.locator(".ahavat29-ds01 .ahavat29-data-table tbody tr").filter({ hasText: "במדבר" }).locator("td:nth-child(2)").textContent(), "25");
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=6&view=FitH$/);
@@ -82,78 +86,78 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
         assert.ok(sourceBox && storyBox && sourceBox.y < storyBox.y, `PDF source is not first at ${width}px`);
       }
 
-      await page.getByRole("button", { name: "פתח מצפה תלת־ממדי", exact: true }).click();
+      await click(page.getByRole("button", { name: "פתח מצפה תלת־ממדי", exact: true }));
       await page.locator(".ahavat29-spatial-canvas canvas").waitFor();
       assert.equal(await page.locator(".ahavat29-spatial-canvas canvas").count(), 1);
 
       for (const id of ["DS-07", "DS-08"]) {
-        await page.locator(".ahavat29-spatial-legend button").filter({ hasText: id }).click();
+        await click(page.locator(".ahavat29-spatial-legend button").filter({ hasText: id }));
         assert.equal(new URL(page.url()).searchParams.get("dataset"), id);
         assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=6&view=FitH$/);
         assert.match(await page.locator(".ahavat29-dataset-detail").textContent(), /מראה־המקום בבירור/);
         assert.equal(await page.locator(".ahavat29-dataset-detail").getByRole("button", { name: /פתח PDF/ }).count(), 0);
       }
-      await page.locator(".ahavat29-table-tabs").getByRole("button", { name: /מופעי משה/ }).click();
+      await click(page.locator(".ahavat29-table-tabs").getByRole("button", { name: /מופעי משה/ }));
       const occurrence = page.locator(".ahavat29-occurrence");
       assert.equal(await occurrence.locator("tbody tr").count(), 10);
       assert.equal(await occurrence.locator("tbody tr").filter({ hasText: "כי תשא" }).locator("td:nth-child(4)").textContent(), "49");
       assert.equal(await occurrence.locator("tbody tr").filter({ hasText: "ויקהל" }).locator("td:nth-child(4)").textContent(), "9");
-      await occurrence.getByRole("button", { name: "פתח מקור הקריאה · PDF 70", exact: true }).click();
+      await click(occurrence.getByRole("button", { name: "פתח מקור הקריאה · PDF 70", exact: true }));
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=70&view=FitH$/);
-      await occurrence.locator(":scope > details > summary").click();
-      await occurrence.getByText("תעתיק קודם · 37 שורות", { exact: true }).click();
+      await click(occurrence.locator(":scope > details > summary"));
+      await click(occurrence.getByText("תעתיק קודם · 37 שורות", { exact: true }));
       assert.match(await occurrence.locator("pre").textContent(), /כי תשא · מ"ם · 40/);
       assert.equal(await occurrence.locator("pre").evaluate(element => getComputedStyle(element).whiteSpace), "pre-wrap");
       assert.equal(await occurrence.locator("pre").evaluate(element => element.scrollWidth <= element.clientWidth + 1), true, `historical source transcript overflows at ${width}px`);
-      await page.locator(".ahavat29-table-tabs").getByRole("button", { name: /מופעי עשה/ }).click();
+      await click(page.locator(".ahavat29-table-tabs").getByRole("button", { name: /מופעי עשה/ }));
       assert.equal(await occurrence.locator("tbody tr").count(), 5);
       assert.equal(await occurrence.locator("tbody tr").filter({ hasText: "ויקהל" }).locator("td:nth-child(4)").textContent(), "84");
-      await occurrence.getByRole("button", { name: "פתח מקור הקריאה · PDF 70", exact: true }).click();
+      await click(occurrence.getByRole("button", { name: "פתח מקור הקריאה · PDF 70", exact: true }));
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=70&view=FitH$/);
 
       const datasetButton = page.locator(".ahavat29-spatial-legend button").filter({ hasText: "DS-02" });
-      await datasetButton.click();
+      await click(datasetButton);
       assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-02");
       assert.equal(new URL(page.url()).searchParams.get("page"), "35");
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
 
-      await page.getByRole("button", { name: /טבלת האותיות/ }).click();
+      await click(page.locator(".ahavat29-table-tabs").getByRole("button", { name: /טבלת האותיות/ }));
       const search = page.getByRole("searchbox", { name: "חיפוש בתוך הטבלה" });
       await search.fill("שמיני");
       await page.getByRole("cell", { name: "שמיני", exact: true }).first().waitFor();
       assert.equal(await page.locator(".ahavat29-data-table tbody tr").count() > 0, true);
 
-      const letterReader = page.locator(".ahavat29-letters");
+      const letterReader = page.locator("#ahavat29-letters");
       assert.equal(await letterReader.locator(".ahavat29-letter-alphabet button").count(), 28);
       for (const [name, form, pdfPage] of [["כף סופית", "ך", 37], ["מם סופית", "ם", 38], ["שין שמאלית", "שׂ", 41]]) {
-        await letterReader.getByRole("button", { name, exact: true }).click();
+        await click(letterReader.getByRole("button", { name, exact: true }));
         assert.equal(new URL(page.url()).searchParams.get("letter"), form);
         assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), new RegExp(`#page=${pdfPage}&view=FitH$`));
         assert.equal(await letterReader.locator("tbody tr").count(), 54);
         assert.equal(await letterReader.locator(".ahavat29-letter-transcript").count(), 0);
         if (form === "ם") {
           assert.equal(await letterReader.locator("tbody td:nth-child(4)").filter({ hasText: "—" }).count(), 5);
-          await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }).click();
+          await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }));
           assert.equal(await letterReader.locator(".ahavat29-letter-bars button").count(), 10, "unknown cells have no numeric bar");
           const unknownRow = letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "ויצא", exact: true }) });
           assert.equal(await unknownRow.locator("td:nth-child(4)").textContent(), "—");
-          await unknownRow.getByRole("button", { name: "PDF 38", exact: true }).click();
+          await click(unknownRow.getByRole("button", { name: "PDF 38", exact: true }));
           assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
-          await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }).click();
+          await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }));
         }
       }
-      await letterReader.getByRole("button", { name: "נון סופית", exact: true }).click();
-      await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "תזריע", exact: true }) }).getByRole("button", { name: "PDF 39", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "נון סופית", exact: true }));
+      await click(letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "תזריע", exact: true }) }).getByRole("button", { name: "PDF 39", exact: true }));
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=39&view=FitH$/);
-      await letterReader.getByRole("button", { name: "אלף", exact: true }).click();
-      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "שמות", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "אלף", exact: true }));
+      await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "שמות", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 11);
       assert.equal(await letterReader.locator("tbody tr").filter({ hasText: "ויקהל" }).locator("td:nth-child(4)").textContent(), "485");
       const letterSearch = letterReader.getByRole("searchbox", { name: "חיפוש בפרשות האות" });
       await letterSearch.fill("תפ״ה");
       assert.equal(await letterReader.locator("tbody tr").count(), 1);
       await letterSearch.fill("");
-      await letterReader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }));
       await letterReader.locator("canvas").waitFor();
       assert.equal(await letterReader.locator("canvas").count(), 1);
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
@@ -163,34 +167,34 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
         const readerBounds = await letterReader.boundingBox();
         assert.ok(sourceBounds && readerBounds && sourceBounds.x + sourceBounds.width <= readerBounds.x + 1, "PDF overlaps the letter reader on desktop");
       }
-      await letterReader.getByRole("button", { name: "בית", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "בית", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 11);
       assert.equal(await letterReader.locator("tbody tr").filter({ hasText: "שמות" }).first().locator("td:nth-child(4)").textContent(), "315");
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות בית/);
       await letterSearch.fill("שט״ו");
       assert.equal(await letterReader.locator("tbody tr").count(), 1);
       await letterSearch.fill("");
-      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }).click();
+      await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 54);
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /16,345/);
-      await letterReader.getByRole("button", { name: "גימל", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "גימל", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 54);
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /2,109/);
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות גימל/);
       const sourceDetails = letterReader.locator("details");
       assert.equal(await sourceDetails.getAttribute("open"), null);
-      await sourceDetails.locator("summary").click();
+      await click(sourceDetails.locator("summary"));
       assert.match(await sourceDetails.textContent(), /פער קריאה: -10/);
       assert.match(await sourceDetails.textContent(), /פער קריאה: -9/);
       assert.match(await sourceDetails.textContent(), /הטור השמאלי/);
-      await sourceDetails.locator("summary").click();
+      await click(sourceDetails.locator("summary"));
       await letterSearch.fill("ויקהל");
       assert.equal(await letterReader.locator("tbody tr").count(), 1);
       assert.equal(await letterReader.locator("tbody tr td:nth-child(4)").textContent(), "26");
       await letterSearch.fill("");
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
       const downloadPromise = page.waitForEvent("download");
-      await letterReader.getByRole("button", { name: "הורד טבלה למחקר · 54 שורות", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "הורד טבלה למחקר · 54 שורות", exact: true }));
       const download = await downloadPromise;
       assert.equal(download.suggestedFilename(), "ahavat-torah-ג-all.csv");
       const csvStream = await download.createReadStream();
@@ -200,20 +204,20 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       assert.equal(csv.trimEnd().split("\r\n").length, 55);
       assert.match(csv, /"ג","ויקהל","שמות","כ״ו","26","35"/);
       assert.match(csv, /"1332","387","377","-10"/);
-      await letterReader.getByRole("button", { name: "דלת", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "דלת", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 54);
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /7,036/);
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות דלת/);
-      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "ויקרא", exact: true }).click();
+      await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "ויקרא", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 10);
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
       for (const pdfPage of [35, 36]) assert.equal(await letterReader.getByRole("button", { name: `המקור המלא · PDF ${pdfPage}`, exact: true }).count(), 1);
-      await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "ויקרא", exact: true }) }).getByRole("button", { name: "PDF 35", exact: true }).click();
+      await click(letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "ויקרא", exact: true }) }).getByRole("button", { name: "PDF 35", exact: true }));
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
-      await letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "צו 109", exact: true }).click();
+      await click(letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "צו 109", exact: true }));
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
       const daletDownloadPromise = page.waitForEvent("download");
-      await letterReader.getByRole("button", { name: "הורד טבלה למחקר · 10 שורות", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "הורד טבלה למחקר · 10 שורות", exact: true }));
       const daletDownload = await daletDownloadPromise;
       assert.equal(daletDownload.suggestedFilename(), "ahavat-torah-ד-vayikra.csv");
       const daletChunks = [];
@@ -230,85 +234,85 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
         assert.equal(await letterReader.getByRole("button", { name: "דלת", exact: true }).getAttribute("aria-pressed"), "true");
         assert.equal(await letterReader.locator("tbody tr").count(), 10);
         assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
-        await letterReader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }).click();
+        await click(letterReader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }));
         await letterReader.locator("canvas").waitFor();
       }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, `split-page letter reader overflows at ${width}px`);
       for (const [name, total, ammor] of [["הא", "28,055", "575"], ["וו", "30,516", "605"]]) {
-        await letterReader.getByRole("button", { name, exact: true }).click();
+        await click(letterReader.getByRole("button", { name, exact: true }));
         assert.equal(await letterReader.locator("tbody tr").count(), 10);
         assert.equal(await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "אמור", exact: true }) }).locator("td:nth-child(4)").textContent(), ammor);
         assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), new RegExp(total));
         assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
       }
-      await letterReader.getByRole("button", { name: "חית", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "חית", exact: true }));
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /7,189/);
-      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "במדבר", exact: true }).click();
+      await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "במדבר", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 10);
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
-      await letterReader.locator("tbody tr").first().getByRole("button", { name: "PDF 36", exact: true }).click();
+      await click(letterReader.locator("tbody tr").first().getByRole("button", { name: "PDF 36", exact: true }));
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
-      await letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "מסעי 173", exact: true }).click();
+      await click(letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "מסעי 173", exact: true }));
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות חית/);
-      await letterReader.getByRole("button", { name: "טית", exact: true }).click();
-      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "ויקרא", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "טית", exact: true }));
+      await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "ויקרא", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "תזריע", exact: true }) }).locator("td:nth-child(4)").textContent(), "56");
       const tetDownloadPromise = page.waitForEvent("download");
-      await letterReader.getByRole("button", { name: "הורד טבלה למחקר · 10 שורות", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "הורד טבלה למחקר · 10 שורות", exact: true }));
       const tetDownload = await tetDownloadPromise;
       const tetChunks = [];
       for await (const chunk of await tetDownload.createReadStream()) tetChunks.push(chunk);
       assert.match(Buffer.concat(tetChunks).toString("utf8"), /"1148","492","491","-1"/);
-      await letterReader.getByRole("button", { name: "כף", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "כף", exact: true }));
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /8,612/);
       assert.equal(await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "אחרי מות", exact: true }) }).locator("td:nth-child(4)").textContent(), "146");
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות כף/);
-      await letterReader.getByRole("button", { name: "למד", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "למד", exact: true }));
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /21,570/);
       assert.equal(await letterReader.locator("tbody tr").count(), 10);
-      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }).click();
+      await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 12);
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
       for (const pdfPage of [37, 38]) assert.equal(await letterReader.getByRole("button", { name: `המקור המלא · PDF ${pdfPage}`, exact: true }).count(), 1);
-      await letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "ויצא 609", exact: true }).click();
+      await click(letterReader.locator(".ahavat29-letter-bars").getByRole("button", { name: "ויצא 609", exact: true }));
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
-      await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "וישלח", exact: true }) }).getByRole("button", { name: "PDF 38", exact: true }).click();
+      await click(letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "וישלח", exact: true }) }).getByRole("button", { name: "PDF 38", exact: true }));
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות למד/);
-      await letterReader.locator("details summary").click();
+      await click(letterReader.locator("details summary"));
       assert.match(await letterReader.locator("details").textContent(), /פער קריאה: -1/);
-      await letterReader.locator("details summary").click();
-      await letterReader.getByRole("button", { name: "מם", exact: true }).click();
+      await click(letterReader.locator("details summary"));
+      await click(letterReader.getByRole("button", { name: "מם", exact: true }));
       assert.match(await letterReader.locator(".ahavat29-ds01-guide").last().textContent(), /14,465/);
       assert.equal(await letterReader.locator("tbody tr").filter({ has: page.getByRole("cell", { name: "וישב", exact: true }) }).locator("td:nth-child(4)").textContent(), "271");
       assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=38&view=FitH$/);
       assert.match(await letterReader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /האות מם/);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, `Lamed/Mem reader overflows at ${width}px`);
       console.info(`Ahavat Torah browser: preceding source/3D/CSV flows passed at ${width}px`);
-      await letterReader.getByRole("button", { name: "יוד", exact: true }).click();
-      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "יוד", exact: true }));
+      await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }));
       assert.equal(await letterReader.locator(".ahavat29-letter-bars button").count(), 3, "unknown checkpoint contributions are not plotted");
       assert.equal(await letterReader.locator(".ahavat29-letter-checkpoints button").filter({ hasText: "—" }).count(), 2);
-      await letterReader.getByRole("button", { name: "תו", exact: true }).click();
+      await click(letterReader.getByRole("button", { name: "תו", exact: true }));
       assert.equal(await letterReader.locator("tbody tr").count(), 54);
       assert.equal(await letterReader.locator(".ahavat29-letter-bars button").count(), 4);
       assert.doesNotMatch(await letterReader.textContent(), /null|undefined|NaN/);
-      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }).click();
+      await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }));
       if (width === 1440) {
-        await letterReader.getByRole("button", { name: "סגור מבנה האות בתלת־ממד", exact: true }).click();
-        await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }).click();
+        await click(letterReader.getByRole("button", { name: "סגור מבנה האות בתלת־ממד", exact: true }));
+        await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "כל התורה", exact: true }));
         for (const name of ["אלף", "בית", "גימל", "דלת", "הא", "וו", "זין", "חית", "טית", "יוד", "כף", "כף סופית", "למד", "מם", "מם סופית", "נון", "נון סופית", "סמך", "עין", "פא", "פא סופית", "צדי", "צדי סופית", "קוף", "ריש", "שין", "שין שמאלית", "תו"]) {
-          await letterReader.getByRole("button", { name, exact: true }).click();
+          await click(letterReader.getByRole("button", { name, exact: true }));
           assert.equal(await letterReader.locator("tbody tr").count(), 54, name);
         }
-        await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }).click();
+        await click(letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "בראשית", exact: true }));
       }
       const fullReader = page.locator(".ahavat29-depth");
       for (const pdfPage of [26, 42, 45, 99]) {
-        await fullReader.locator(".ahavat29-page-atlas").getByRole("button", { name: String(pdfPage), exact: true }).click();
+        await click(fullReader.locator(".ahavat29-page-atlas").getByRole("button", { name: String(pdfPage), exact: true }));
         assert.equal(await fullReader.locator(".ahavat29-ai-guide>p").first().textContent(), companionPages[pdfPage - 1].companion_explanation);
-        await fullReader.getByRole("button", { name: `פתח מקור ההסבר · PDF ${pdfPage}`, exact: true }).click();
+        await click(fullReader.getByRole("button", { name: `פתח מקור ההסבר · PDF ${pdfPage}`, exact: true }));
         assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), new RegExp(`#page=${pdfPage}&view=FitH$`));
         if (pdfPage === 45) assert.match(await fullReader.locator(".ahavat29-machine-text").textContent(), /לא חולץ טקסט/);
       }

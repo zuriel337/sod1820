@@ -123,14 +123,14 @@ function LetterCountBars({ bars, activeId, onSelect }) {
 
 export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], letterLabel = "", activeId = "", onSelect, mode = "datasets" }) {
   const stableDatasets = useMemo(() => datasets.slice(0, 13), [datasets]);
-  return <div className="ahavat29-spatial-canvas" role="img" aria-label={mode === "letter" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין האות ${letterLabel} בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו"}>
+  return <div className="ahavat29-spatial-canvas" role="img" aria-label={mode === "source-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${letterLabel} בשורת המקור; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "letter" || mode === "parasha-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${mode === "letter" ? "האות " : ""}${letterLabel} בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו"}>
     <Canvas camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#0d0b09"]} />
       <fog attach="fog" args={["#0d0b09", 10, 19]} />
       <ambientLight intensity={1.2} />
       <directionalLight position={[4, 8, 5]} intensity={2.25} color="#f3d68f" />
       <pointLight position={[-5, 3, -3]} intensity={19} distance={14} color="#668ec4" />
-      {mode === "letter" ? <LetterCountBars bars={bars} activeId={activeId} onSelect={onSelect} /> : mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} />}
+      {mode === "letter" || mode === "parasha-count" || mode === "source-count" ? <LetterCountBars bars={bars} activeId={activeId} onSelect={onSelect} /> : mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} />}
       <SceneControls />
     </Canvas>
   </div>;
