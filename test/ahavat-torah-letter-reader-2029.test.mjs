@@ -253,7 +253,7 @@ test("Mem reproduces all 54 source rows and five closed checkpoints without inhe
 });
 
 test("all 28 source forms have 54 distinct source positions, not 1512 claims of settled numerals", () => {
-  assert.deepEqual(AHAVAT_LETTER_COVERAGE, { forms: 28, rows: 1512, numericRows: 1492, unresolvedRows: 20, unresolvedCheckpoints: 2 });
+  assert.deepEqual(AHAVAT_LETTER_COVERAGE, { forms: 28, rows: 1512, numericRows: 1488, unresolvedRows: 24, unresolvedCheckpoints: 2 });
   for (const { form, pages } of AHAVAT_LETTER_FORMS) {
     const books = AHAVAT_LETTER_READINGS[form];
     const rows = ahavatLetterRows(form);
@@ -322,4 +322,8 @@ test("newly structured source boundaries and final-form checkpoints retain their
   }
   assert.deepEqual(AHAVAT_LETTER_READINGS["ן"].map(book => ahavatLetterBalance(book).delta), [0, 0, 0, -50, 0]);
   assert.deepEqual(AHAVAT_LETTER_READINGS["פ"].map(book => ahavatLetterBalance(book).delta), [0, -1, 0, 0, -1]);
+  assert.equal(AHAVAT_LETTER_READINGS["ר"][3].cumulative, 14695);
+  assert.equal(AHAVAT_LETTER_READINGS["ר"][3].printed, "י״ד אלף תרצ״ה");
+  assert.equal(ahavatLetterRows("ר").filter(row => row.count === null).length, 3);
+  assert.equal(ahavatLetterRows("צ", "bamidbar", "מסעי")[0].count, null);
 });
