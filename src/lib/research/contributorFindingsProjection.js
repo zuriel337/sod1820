@@ -672,11 +672,18 @@ async function fetchContributorContributions(client, contributorId) {
   );
 }
 
-async function fetchSourceMessages(client, contributor, aliases, sourceRef = null) {
+function boundedSourceLimit(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric) || numeric <= 0) return null;
+  return Math.min(MAX, Math.max(1, Math.floor(numeric)));
+}
+
+async function fetchSourceMessages(client, contributor, aliases, sourceRef = null, sourceLimit = null) {
   const byId = new Map();
   let truncated = false;
   const fields = "id,created_at,text,image_url,thumb_url,source,status,credit,channel,link_url,speaker,contributor_id,topics";
   const occurrenceId = channelUpdateOccurrenceId(sourceRef);
+  const limit = boundedSourceLimit(sourceLimit);
 
   if (occurrenceId) {
     const { data, error } = await client
@@ -688,12 +695,27 @@ async function fetchSourceMessages(client, contributor, aliases, sourceRef = nul
       clean(row?.contributor_id) === clean(contributor.id)
       || (!clean(row?.contributor_id) && aliases.some((alias) => [clean(row?.credit), clean(row?.speaker)].includes(alias)))
     ));
-    return { rows, total: rows.length, truncated: false };
+    return { rows, total: rows.length, truncated: false, hasMore: false };
   }
+
+  const read = async (loader, options = {}) => {
+    if (!limit) return paged(loader, options);
+    // One extra row proves that another page exists. Each exact attribution
+    // lane stays bounded; the merged prefix is sorted and sliced below.
+    const result = await loader(0, limit, true);
+    if (result?.error) throw result.error;
+    const rows = Array.isArray(result?.data) ? result.data : [];
+    const total = result?.count == null ? null : Number(result.count);
+    return {
+      rows,
+      total: Number.isFinite(total) ? total : null,
+      truncated: rows.length > limit || (Number.isFinite(total) && total > limit),
+    };
+  };
 
   // Stable identity is authoritative. Registered aliases are a legacy fallback only when the row
   // has not yet been bound to any contributor; an alias can never override another stable identity.
-  const canonical = await paged((start, end, first) => client
+  const canonical = await read((start, end, first) => client
     .from("channel_updates")
     .select(fields, first ? { count: "exact" } : undefined)
     .eq("contributor_id", contributor.id)
@@ -703,7 +725,7 @@ async function fetchSourceMessages(client, contributor, aliases, sourceRef = nul
   for (const row of canonical.rows) byId.set(String(row.id), row);
 
   for (const column of ["credit", "speaker"]) {
-    const result = await paged((start, end, first) => client
+    const result = await read((start, end, first) => client
       .from("channel_updates")
       .select(fields, first ? { count: "exact" } : undefined)
       .in(column, aliases)
@@ -715,9 +737,11 @@ async function fetchSourceMessages(client, contributor, aliases, sourceRef = nul
     for (const row of result.rows) byId.set(String(row.id), row);
   }
   // Separate reader proof from the original source's nullable contributor_id.
-  const rows = [...byId.values()].map((row) => ({ ...row, resolved_contributor_id: contributor.id }))
+  const merged = [...byId.values()].map((row) => ({ ...row, resolved_contributor_id: contributor.id }))
     .sort((a, b) => clean(b.created_at).localeCompare(clean(a.created_at)));
-  return { rows, total: rows.length, truncated };
+  truncated = truncated || Boolean(limit && merged.length > limit);
+  const rows = limit ? merged.slice(0, limit) : merged;
+  return { rows, total: truncated ? null : rows.length, truncated, hasMore: truncated };
 }
 
 async function fetchContributorTopics(aliases) {
@@ -771,6 +795,7 @@ export async function fetchContributorFindingsProjection(slug, {
   sessionClient = supabase,
   topicsReader = fetchContributorTopics,
   sourceRef = null,
+  sourceLimit = null,
   loadProfile = CONTRIBUTOR_LOAD_PROFILE.FULL,
 } = {}) {
   const client = mode === PROJECTOR_MODE.ADMIN_ALL ? sessionClient : publicClient();
@@ -790,7 +815,7 @@ export async function fetchContributorFindingsProjection(slug, {
     deferResearch
       ? Promise.resolve({ rows: [], total: null, truncated: false, deferred: true })
       : fetchResearchObjects(client, contributor.id, aliases, focusedSourceRef),
-    fetchSourceMessages(client, contributor, aliases, focusedSourceRef),
+    fetchSourceMessages(client, contributor, aliases, focusedSourceRef, sourceLimit),
     focusedSourceRef ? Promise.resolve({ rows: [], total: 0, truncated: false }) : fetchContributorContributions(client, contributor.id),
     focusedSourceRef ? Promise.resolve([]) : topicsReader(aliases),
   ]);
@@ -835,7 +860,9 @@ export async function fetchContributorFindingsProjection(slug, {
       contributionsTotal: contributionValue.total,
       contributionsTruncated: contributionValue.truncated,
       sourceMessagesLoaded: sourceValue.rows.length,
+      sourceMessagesTotal: sourceValue.total,
       sourceMessagesTruncated: sourceValue.truncated,
+      sourceMessagesHasMore: sourceValue.hasMore === true,
       topicsLoaded: topicRows.length,
     },
   };

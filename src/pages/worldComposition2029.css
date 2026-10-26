@@ -308,6 +308,8 @@
 .sod29-root.surface-world .sod29-world-public-material-grid p { margin: 0; color: var(--s29-ink-soft); font: 400 14px/1.55 var(--s29-font-body); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .sod29-root.surface-world .sod29-world-public-material-grid code { overflow-wrap: anywhere; color: var(--s29-ink-soft); font-size: 11px; }
 .sod29-root.surface-world .sod29-world-public-material-grid > article > :is(a,span):last-child { margin-top: auto; color: var(--s29-accent-text); font: 650 13px/1.4 var(--s29-font-ui); text-decoration: none; }
+.sod29-root.surface-world .sod29-world-catalog-media { width: 100%; aspect-ratio: 16/10; border-radius: 10px; object-fit: cover; background: var(--s29-panel-soft); }
+.sod29-root.surface-world .sod29-world-catalog-open { min-height: 40px; margin-top: auto; border: 0; padding: 0; background: transparent; color: var(--s29-accent-text); text-align: start; font: 650 13px/1.4 var(--s29-font-ui); cursor: pointer; }
 .sod29-root.surface-world .sod29-world-material-number { align-self: flex-start; border-radius: 999px; padding: 4px 8px; background: var(--s29-panel-strong); color: var(--s29-accent-text); font-family: var(--s29-font-numeric); }
 
 /* Doors: media cards */

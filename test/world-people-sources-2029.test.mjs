@@ -3,9 +3,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import {
+  WORLD_SOURCE_ITEMS_PAGE_SIZE,
   buildWorldContributorPublicMaterial,
   fetchWorldContributorPublicMaterial,
   filterWorldPeopleAndSources,
+  worldCatalogFilterForSourceRef,
 } from "../src/lib/research/worldPeopleSourcesProjection.js";
 import {
   WORLD_PEOPLE_PAGE_SIZE,
@@ -101,16 +103,62 @@ test("selected contributor reuses all three public readers without N+1", async (
   const findings = { mode: "public_view", availability: { sources: "ok" }, sourceGroups: [] };
   const result = await fetchWorldContributorPublicMaterial(identity, {
     client: {},
-    findingsReader: async (slug, options) => { calls.push(["findings", slug, options.mode]); return findings; },
+    findingsReader: async (slug, options) => { calls.push(["findings", slug, options.mode, options.sourceLimit]); return findings; },
     sourceCatalogReader: async (slug, options) => { calls.push(["sources", slug]); assert.equal(await options.findingsReader(), findings); return { items: [] }; },
     publicationReader: async (person) => { calls.push(["publications", person.slug]); return {}; },
   });
   assert.deepEqual(calls, [
-    ["findings", "writer", "public_view"],
+    ["findings", "writer", "public_view", WORLD_SOURCE_ITEMS_PAGE_SIZE + 1],
     ["publications", "writer"],
     ["sources", "writer"],
   ]);
   assert.equal(result.total, 0);
+});
+
+test("selected contributor loads only the catalog family chosen by the visitor", async () => {
+  const identity = { id: "writer", slug: "writer", displayName: "כותב", code: "101", active: true };
+  const sourceCalls = [];
+  const publicationCalls = [];
+  const readers = {
+    client: {},
+    findingsReader: async (_slug, options) => {
+      sourceCalls.push(["findings", options.sourceLimit, options.sourceRef]);
+      return { mode: "public_view", availability: { sources: "ok" }, sourceGroups: [] };
+    },
+    sourceCatalogReader: async (_slug, options) => {
+      sourceCalls.push(["catalog"]);
+      return { items: [], loadState: {}, projection: await options.findingsReader() };
+    },
+    publicationReader: async (_person, options) => {
+      publicationCalls.push(options.families);
+      return Object.fromEntries(options.families.map((family) => [family, {
+        rows: [], complete: true, availability: "ok",
+      }]));
+    },
+  };
+
+  await fetchWorldContributorPublicMaterial(identity, {
+    ...readers,
+    filter: "sources",
+    sourceLimit: 21,
+    sourceRef: "channel_updates:exact-source",
+  });
+  assert.deepEqual(sourceCalls, [["findings", 21, "channel_updates:exact-source"], ["catalog"]]);
+  assert.deepEqual(publicationCalls, [], "source view must not preload posts, ciphers or topics");
+
+  sourceCalls.length = 0;
+  await fetchWorldContributorPublicMaterial(identity, { ...readers, filter: "writings" });
+  assert.deepEqual(sourceCalls, [], "writings view must not preload the source-message library");
+  assert.deepEqual(publicationCalls, [["posts", "insights"]]);
+});
+
+test("exact writer links select their canonical catalog family without fuzzy guessing", () => {
+  assert.equal(worldCatalogFilterForSourceRef("channel_updates:one"), "sources");
+  assert.equal(worldCatalogFilterForSourceRef("posts:one"), "writings");
+  assert.equal(worldCatalogFilterForSourceRef("insights:one"), "writings");
+  assert.equal(worldCatalogFilterForSourceRef("els_records:one"), "ciphers");
+  assert.equal(worldCatalogFilterForSourceRef("topic_cards:one"), "topics");
+  assert.equal(worldCatalogFilterForSourceRef("unknown:one"), "sources");
 });
 
 test("search and filters cover people, titles and numbers with stable pagination inputs", () => {

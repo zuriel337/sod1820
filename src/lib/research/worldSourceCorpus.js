@@ -6,7 +6,7 @@ import { stripHtml } from "../format.js";
 // "Recent updates" (the discovery feed) are the last N items and are NOT the library; this reader is the library.
 
 const clean = (value) => value == null ? "" : String(value).trim();
-export const CORPUS_PAGE_SIZE = 24;
+export const CORPUS_PAGE_SIZE = 20;
 const DRAFT_TAGS = ["טיוטה", "פורום"];
 
 export const WORLD_SOURCE_CORPORA = Object.freeze([
@@ -49,10 +49,17 @@ export function classifyCorpusRows(rows = []) {
     const excerpt = stripHtml(clean(row.excerpt));
     items.push({
       id: String(row.id),
+      sourceRef: `posts:${row.id}`,
+      type: "writings",
+      label: "כתב מקור",
       slug: clean(row.slug),
       title,
       excerpt: excerpt || null,
-      date: row.date || null,
+      summary: excerpt || null,
+      date: row.modified || row.date || row.created_at || null,
+      dateKind: row.modified ? "updated" : row.date ? "published" : "created",
+      mediaUrl: clean(row.thumb_url || row.image_url) || null,
+      mediaType: clean(row.thumb_url || row.image_url) ? "image" : null,
       homeHidden: row.home_hidden === true,
       href: `/post/${encodeURIComponent(clean(row.slug))}`,
     });
@@ -66,9 +73,10 @@ export async function fetchCorpusPage(spec, page = 0, { client = getPublicResear
   const from = page * CORPUS_PAGE_SIZE;
   const { data, error, count } = await client
     .from("posts")
-    .select("id,slug,title,excerpt,date,home_hidden,tags", { count: "exact" })
+    .select("id,slug,title,excerpt,date,modified,created_at,image_url,thumb_url,home_hidden,tags", { count: "exact" })
     .or(filter)
     .or(publicOnlyFilter())
+    .order("modified", { ascending: false, nullsFirst: false })
     .order("date", { ascending: false, nullsFirst: false })
     .order("id", { ascending: true })
     .range(from, from + CORPUS_PAGE_SIZE - 1);

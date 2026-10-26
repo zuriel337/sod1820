@@ -49,8 +49,8 @@ test("draft/forum suppression happens in the SERVER query; count and hasMore are
   assert.ok(ors.some((f) => f.includes("tags.not.ov.{טיוטה,פורום}") && f.includes("tags.is.null")), "server filter excludes draft/forum, keeps null tags");
   assert.equal(page.total, 131, "public count, not raw 132");
   assert.equal(page.hasMore, true);
-  const last = await fetchCorpusPage(HASHMAL, 5, { client: { from: () => { const b = { select: () => b, or: () => b, order: () => b, range: () => Promise.resolve({ data: rows.slice(0, 11), count: 131 }) }; return b; } } });
-  assert.equal(last.hasMore, false, "5*24+11 = 131 -> no more pages");
+  const last = await fetchCorpusPage(HASHMAL, Math.floor(130 / CORPUS_PAGE_SIZE), { client: { from: () => { const b = { select: () => b, or: () => b, order: () => b, range: () => Promise.resolve({ data: rows.slice(0, 11), count: 131 }) }; return b; } } });
+  assert.equal(last.hasMore, false, "the final 20-item page reaches the exact public total");
 });
 
 

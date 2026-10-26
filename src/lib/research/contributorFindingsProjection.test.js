@@ -15,7 +15,7 @@ function fakeClient(label, tables, calls) {
       return Promise.resolve(tables[name] ?? tables.gematria_words ?? { data: [] });
     },
     from(table) {
-      const call = { label, table, filters: [] };
+      const call = { label, table, filters: [], ranges: [] };
       calls.push(call);
       const result = tables[table]
         ?? (table === "world_contributor_research_v1" ? tables.research_objects : null)
@@ -28,7 +28,7 @@ function fakeClient(label, tables, calls) {
         like: (column, value) => { call.filters.push(["like", column, value]); return b; },
         is: (column, value) => { call.filters.push(["is", column, value]); return b; },
         order: () => b, contains: () => b,
-        range: () => Promise.resolve(result),
+        range: (...args) => { call.ranges.push(args); return Promise.resolve(result); },
         maybeSingle: () => Promise.resolve(result),
         then: (res, rej) => Promise.resolve(result).then(res, rej),
       };
@@ -274,6 +274,36 @@ test("the public source library opens every readable source without loading the 
   assert.equal(projection.loadState.researchObjectsDeferred, true);
   assert.equal(calls.some((call) => call.table === "world_contributor_research_v1"), false);
   assert.equal(calls.some((call) => call.table === "rpc:world_gematria_lexical_lookup_v1"), false);
+});
+
+test("the World catalogue reads one bounded source prefix and reports that more rows exist", async () => {
+  const calls = [];
+  const sources = Array.from({ length: 50 }, (_, index) => ({
+    ...SOURCE,
+    id: `source-${index}`,
+    created_at: `2026-10-${String((index % 28) + 1).padStart(2, "0")}T10:00:00Z`,
+    text: `מקור ${index}`,
+  }));
+  const anon = fakeClient("anon", {
+    contributors: { data: CONTRIBUTOR },
+    channel_updates: { data: sources, count: 50 },
+    research_contributions: { data: [], count: 0 },
+  }, calls);
+
+  const projection = await fetchContributorFindingsProjection("yaniv", {
+    publicClient: () => anon,
+    topicsReader: noTopics,
+    loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
+    sourceLimit: 21,
+  });
+
+  assert.equal(projection.loadState.sourceMessagesLoaded, 21);
+  assert.equal(projection.loadState.sourceMessagesTotal, null);
+  assert.equal(projection.loadState.sourceMessagesHasMore, true);
+  assert.equal(projection.loadState.sourceMessagesTruncated, true);
+  const sourceCalls = calls.filter((call) => call.table === "channel_updates");
+  assert.equal(sourceCalls.length, 3);
+  assert.ok(sourceCalls.every((call) => call.ranges.some(([from, to]) => from === 0 && to === 21)));
 });
 
 test("an exact occurrence overrides source-first deferral and loads only its research slice", async () => {

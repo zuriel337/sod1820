@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchCorpusPage, fetchCorpusSource } from "../../lib/research/worldSourceCorpus.js";
+import WorldCatalogCards2029 from "./WorldCatalogCards2029.jsx";
 
 // Public corpus with one selected full-text source; excerpts never stand in for full source.
 // Counts come from the read, never assumed; load failure is shown as failure, never as an empty library.
-const yearOf = (d) => { const y = String(d || "").slice(0, 4); return /^\d{4}$/.test(y) ? y : ""; };
 const EMPTY = { items: [], excludedCount: 0, total: null, page: 0, hasMore: false, loading: true, error: false };
 
 export default function WorldSourceCorpus({ spec, recentCount = null }) {
@@ -27,7 +27,6 @@ export default function WorldSourceCorpus({ spec, recentCount = null }) {
     fetchCorpusPage(spec, page)
       .then((res) => {
         if (mine !== token.current) return; // late response for a previous corpus/page
-        if (!page) setSelected(res.items[0] || null);
         setSt((s) => ({
           items: page ? [...s.items, ...res.items] : res.items,
           excludedCount: (page ? s.excludedCount : 0) + res.excluded.length,
@@ -49,14 +48,10 @@ export default function WorldSourceCorpus({ spec, recentCount = null }) {
         {recentCount != null ? ` · ${recentCount} מהם בין העדכונים האחרונים (זרם העדכונים האחרונים אינו הספרייה המלאה)` : ""}
       </div>
     </div></div>
-    {st.items.length ? <label>בחירת מקור לקריאה
-      <select aria-label="בחירת מקור בסוד החשמל" value={selected?.id || ""} onChange={(event) => setSelected(st.items.find((item) => item.id === event.target.value))} style={{ display: "block", width: "100%", minHeight: 44, fontSize: 16, marginBlock: 12 }}>
-        {st.items.map((item) => <option key={item.id} value={item.id}>{item.title}{yearOf(item.date) ? ` · ${yearOf(item.date)}` : ""}</option>)}
-      </select>
-    </label> : null}
+    {st.items.length ? <WorldCatalogCards2029 items={st.items} onOpen={setSelected} /> : null}
     {selected ? <article className="sod29-world-corpus-reading" style={{ maxWidth: 780, marginInline: "auto", overflowWrap: "anywhere" }}>
       <h3>{selected.title}</h3>
-      <p style={{ fontSize: 14 }}>{yearOf(selected.date)}{selected.homeHidden ? " · לא מוצג בדף הבית" : ""} · מקור: סוד החשמל</p>
+      <p style={{ fontSize: 14 }}>{selected.homeHidden ? "לא מוצג בדף הבית · " : ""}מקור: {spec.label}</p>
       {source.loading || source.id !== selected.id ? <p role="status">טוען את המקור המלא…</p> : source.error ? <p role="status">המקור המלא לא נטען. אפשר לנסות לפתוח את עמוד המקור.</p> : <div data-experience-capability="corpus-full-source" style={{ whiteSpace: "pre-wrap", fontFamily: "'Noto Sans Hebrew',sans-serif", fontSize: 18, lineHeight: 1.8 }}>{source.text}</div>}
       <p style={{ fontSize: 14 }}><Link to={selected.href}>לעמוד המקור עם העיצוב והמדיה המקוריים</Link></p>
       <p style={{ fontSize: 14 }}>פרסום מקור אינו אימות מחקרי. אין כאן טענה לקיומו או להיעדרו של מחקר קשור.</p>

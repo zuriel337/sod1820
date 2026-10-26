@@ -10,7 +10,7 @@ import { getPublicResearchClient, PROJECTOR_MODE } from "./researchViewMode.js";
 import { isWorldPublicContributor } from "./worldPublicPeopleIndex.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
-export const WORLD_SOURCE_ITEMS_PAGE_SIZE = 12;
+export const WORLD_SOURCE_ITEMS_PAGE_SIZE = 20;
 export const WORLD_SOURCE_FILTERS = Object.freeze([
   ["all", "הכול"],
   ["people", "אנשים"],
@@ -19,6 +19,14 @@ export const WORLD_SOURCE_FILTERS = Object.freeze([
   ["ciphers", "צפנים"],
   ["topics", "נושאים"],
 ]);
+
+export function worldCatalogFilterForSourceRef(sourceRef) {
+  const family = clean(sourceRef).split(":", 1)[0];
+  if (["posts", "insights"].includes(family)) return "writings";
+  if (family === "els_records") return "ciphers";
+  if (family === "topic_cards") return "topics";
+  return "sources";
+}
 
 function safePublicUrl(value) {
   const text = clean(value);
@@ -31,7 +39,7 @@ function safePublicUrl(value) {
     return null;
   }
 }
-function item({ id, sourceRef, type, label, title, summary = null, date = null, dateKind = null, href = null, number = null, mediaUrl = null, meta = null }) {
+function item({ id, sourceRef, type, label, title, summary = null, date = null, dateKind = null, href = null, number = null, mediaUrl = null, mediaType = null, meta = null }) {
   const safeId = clean(id || sourceRef);
   const safeSourceRef = clean(sourceRef);
   const numericValue = clean(number) && Number.isFinite(Number(number)) ? Number(number) : null;
@@ -48,6 +56,7 @@ function item({ id, sourceRef, type, label, title, summary = null, date = null, 
     href: safePublicUrl(href),
     number: numericValue,
     mediaUrl: safePublicUrl(mediaUrl),
+    mediaType: clean(mediaType) || null,
     meta,
   });
 }
@@ -63,7 +72,8 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
   for (const row of sourceCatalog?.items || []) put(item({
     id: `source:${row.id}`, sourceRef: row.sourceRef, type: "sources", label: "מקור ועדכון",
     title: row.title, summary: row.text, date: row.createdAt, href: row.href,
-    mediaUrl: row.media?.url, meta: { sourceRecordCount: row.sourceRecordCount, researchFacets: row.researchFacets },
+    mediaUrl: row.media?.url, mediaType: row.media?.type,
+    meta: { sourceRecordCount: row.sourceRecordCount, researchFacets: row.researchFacets },
   }));
 
   const projectedInsights = new Set();
@@ -124,6 +134,8 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
     sourceCatalog,
     items: Object.freeze(rows),
     total: rows.length,
+    hasMoreSources: sourceCatalog?.loadState?.sourceMessagesHasMore === true
+      || sourceCatalog?.loadState?.sourceMessagesTruncated === true,
     availability: Object.freeze(availability),
     partial: Object.values(availability).some((value) => !value.complete)
       || Object.values(findings.availability || {}).some((value) => value === "unavailable"),
@@ -136,6 +148,9 @@ export async function fetchWorldContributorPublicMaterial(identity, {
   findingsReader = fetchContributorFindingsProjection,
   sourceCatalogReader = fetchContributorSourceCatalogProjection,
   publicationReader = fetchContributorPublicationCatalog,
+  sourceLimit = WORLD_SOURCE_ITEMS_PAGE_SIZE + 1,
+  filter = "all",
+  sourceRef = null,
 } = {}) {
   if (!isWorldPublicContributor({
     ...identity,
@@ -151,22 +166,37 @@ export async function fetchWorldContributorPublicMaterial(identity, {
     code: identity.code,
     display_name: identity.displayName,
   };
-  const findingsPromise = findingsReader(identity.slug, {
-    mode: PROJECTOR_MODE.PUBLIC_VIEW,
-    publicClient: () => client,
-    loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
-    topicsReader: async () => [],
-  });
+  const includeSources = filter === "all" || filter === "sources";
+  const familyByFilter = {
+    writings: ["posts", "insights"],
+    ciphers: ["ciphers"],
+    topics: ["topics"],
+  };
+  const publicationFamilies = filter === "all"
+    ? ["posts", "ciphers", "insights", "events", "topics", "contributions"]
+    : familyByFilter[filter] || [];
+  const findingsPromise = includeSources
+    ? findingsReader(identity.slug, {
+      mode: PROJECTOR_MODE.PUBLIC_VIEW,
+      publicClient: () => client,
+      loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
+      sourceLimit,
+      sourceRef,
+      topicsReader: async () => [],
+    })
+    : Promise.resolve({ mode: PROJECTOR_MODE.PUBLIC_VIEW, availability: {}, sourceGroups: [] });
   const [findings, publications] = await Promise.all([
     findingsPromise,
-    publicationReader(canonicalIdentity, { client }),
+    publicationFamilies.length
+      ? publicationReader(canonicalIdentity, { client, families: publicationFamilies })
+      : Promise.resolve({}),
   ]);
-  const sourceCatalog = await sourceCatalogReader(identity.slug, {
+  const sourceCatalog = includeSources ? await sourceCatalogReader(identity.slug, {
     mode: PROJECTOR_MODE.PUBLIC_VIEW,
     publicClient: () => client,
     findingsReader: async () => findings,
     recentLimit: 20,
-  });
+  }) : { items: [], loadState: null };
   return buildWorldContributorPublicMaterial({ identity, findings, sourceCatalog, publications });
 }
 
