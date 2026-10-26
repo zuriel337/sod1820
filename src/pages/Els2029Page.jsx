@@ -262,6 +262,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
   const guidedProfile = profileModel.profile === ELS_MATRIX_PROFILE.GUIDED;
   const advancedResearchProfile = profileModel.profile === ELS_MATRIX_PROFILE.RESEARCH;
   const researchProfile = profileModel.profile !== ELS_MATRIX_PROFILE.CLASSIC;
+  const guidedRunActive = guidedProfile && researchLoad?.guidedDiscovery === true;
 
   useEffect(() => {
     applySeo({ title: "ELS · SOD1820", description: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים", path: "/code" });
@@ -309,11 +310,19 @@ export default function Els2029Page({ previewAdvanced = false }) {
       </> : null}
     </section> : null}
     {!guidedProfile ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
-    <div data-els-guided-tools="single-window-v1" hidden={!guidedProfile || directSavedOpen}>
-      <ElsGuidedDiscovery2029 onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />
+    <div className="els29-guided-workspace" data-els-guided-workspace="separate-v1" data-run-state={guidedRunActive ? "active" : "entry"}
+      data-els-guided-tools="single-window-v1" hidden={!guidedProfile || directSavedOpen}>
+      <ElsGuidedDiscovery2029 onPlanSummary={setAutomaticSummary}
+        onReset={() => setResearchLoad(current => current?.guidedDiscovery === true ? null : current)}
+        onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />
+      <aside className="els29-guided-promise" aria-label="מה יחזור מהגילוי" hidden={guidedRunActive}>
+        <article><span>א</span><div><strong>ציר מדויק</strong><small>מופעים שאומתו — לא השערה.</small></div></article>
+        <article><span>ב</span><div><strong>חיבורים חזקים</strong><small>קרבה, הקבלה וחזרה לפני רעש.</small></div></article>
+        <article><span>ג</span><div><strong>מקור ופסוקים</strong><small>פתיחה וחזרה לאותו ממצא בדיוק.</small></div></article>
+      </aside>
     </div>
     <div data-els-research-tools="brief-visible-v1" hidden={!advancedResearchProfile || directSavedOpen}><ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
-    <section className="sod29-focus-stage" data-els-2029-surface="v1"
+    <section className={`sod29-focus-stage${guidedProfile ? " els29-guided-result-stage" : ""}`} data-els-2029-surface="v1"
       hidden={guidedProfile && !directSavedOpen && researchLoad?.guidedDiscovery !== true}
       {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}
       {...(guidedProfile ? { "data-els-guided-composition": "v1" } : {})}>
@@ -321,11 +330,11 @@ export default function Els2029Page({ previewAdvanced = false }) {
         <div>
           <div className="sod29-kicker">{guidedProfile ? "גילוי מודרך" : advancedResearchProfile ? "סביבת המחקר" : "כלי המחקר הקלאסי"}</div>
           <h2>{researchProfile
-            ? guidedProfile ? "המטריצה של הגילוי" : (subject?.label ? "מחקר ELS סביב " + subject.label : "מחקר דילוגי אותיות")
+            ? guidedProfile ? "חבילת הגילוי" : (subject?.label ? "מחקר ELS סביב " + subject.label : "מחקר דילוגי אותיות")
             : "הצופן הקלאסי"}</h2>
           <div className="sod29-muted">
             {guidedProfile
-              ? "לאחר השליחה הציר, המופעים ומילות ההקשר המאומתות יופיעו כאן דרך אותו מנוע קנוני."
+              ? "הציר, המופעים והחיבורים המאומתים נאספים כאן. המטריצה נשארת כלי בדיקה שנפתח רק לפי בקשה."
               : advancedResearchProfile ? (subject
                 ? "חפשו מונח או הצלבה, עיינו במקור ושמרו את הממצאים להמשך."
                 : "התחילו בחיפוש. המטריצה, הצבעים והבחירות נשמרים במעבר בין מחקר לקלאסי.")
@@ -336,10 +345,9 @@ export default function Els2029Page({ previewAdvanced = false }) {
       </div>
 
       <section
-        className="sod29-section"
-        aria-label="סביבת המחקר של הצופן"
+        className="sod29-section els29-engine-surface"
+        aria-label={guidedProfile ? "תוצאות הגילוי המודרך" : "סביבת המחקר של הצופן"}
         data-els-classic-2029="native-v1"
-        style={{ marginTop: 18, overflow: "hidden" }}
       >
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed

@@ -746,6 +746,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [presentation, setPresentation] = useState(null);
   const cameraStageRef = useRef(null);
   const [cameraFullscreen, setCameraFullscreen] = useState(false);
+  const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
   useEffect(() => {
     const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);
     document.addEventListener("fullscreenchange", sync);
@@ -775,6 +776,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const highlightVerse = (verse) => {
     const projected = projectVerseWords(verse);
     if (!projected) { setVerseHighlight(null); setNotice("אין כרגע התאמה מלאה בין מילות הפסוק לאותיות המטריצה."); return; }
+    if (guidedProfile) setGuidedMatrixOpen(true);
     verseReadRef.current = true;setVerseRead(true);setVerseHighlight(projected);
   };
   const toggleVerseRead = () => {
@@ -946,6 +948,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setCrossOpen(false);
     requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah" });
   }, [researchLoad?.researchNonce]);
+  useEffect(() => {
+    if (researchLoad?.guidedDiscovery === true) setGuidedMatrixOpen(false);
+  }, [researchLoad?.researchNonce]);
 
   const requestFindingsChange = (findings, { preserveRead = false } = {}) => {
     if (!Array.isArray(findings)) return;
@@ -1008,7 +1013,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const handleEngineState = (next) => {
     const previous = engineStateRef.current;
     if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term || next?.status !== "ok") {
-      resetReadContext();
+      resetReadContext({ preserveGuidedSource: Boolean(guidedSourceQueueRef.current) });
       if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term) {
         ++findingsSeqRef.current;
         setOperations((current) => ({ ...current, findings: null }));
@@ -1034,8 +1039,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setEngineState(next);
   };
 
-  const requestControl = (action, value, { suppressScroll = false, preserveGuidedSource = false } = {}) => {
+  const requestControl = (action, value, { suppressScroll = false, preserveGuidedSource = false, revealGuidedMatrix = true } = {}) => {
     if (!action) return;
+    if (guidedProfile && revealGuidedMatrix && ["occurrence-select", "meeting-select"].includes(action)) setGuidedMatrixOpen(true);
     if (action === "occurrence-prev" || action === "occurrence-next" || action === "meeting-select" || action === "occurrence-select") {
       resetReadContext({ preserveGuidedSource });
       ++findingsSeqRef.current;
@@ -1134,7 +1140,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       return;
     }
     requestControl("occurrence-select", { setId: occurrence.resultSetId, index: occurrence.index, hitId: occurrence.hitId },
-      { suppressScroll: true, preserveGuidedSource: true });
+      { suppressScroll: true, preserveGuidedSource: true, revealGuidedMatrix: false });
     guidedSourceQueueRef.current = target;
   };
   const closeGuidedSource = () => {
@@ -1228,7 +1234,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     else requestSearch("regular", { term: current.termRaw || current.term, scope: current.scope, windowSize: size });
   };
 
-  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}`} data-els-native-classic="v4"
+  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
+    data-els-native-classic="v4" {...(guidedProfile ? { "data-els-guided-result-surface": "results-first-v1" } : {})}
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
     <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
@@ -1306,9 +1313,26 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
     {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
 
+    {guidedProfile ? <section className="els29-guided-result-overview" aria-label="מצב חבילת הגילוי">
+      <div className="els29-guided-result-title">
+        <small>חבילת הגילוי</small>
+        <strong>{engineState?.termRaw || engineState?.term || researchLoad?.term || "ממתינה לציר"}</strong>
+        <span>{searchPending ? "מאמת מופעים…" : guidedCoverage?.recommendation ? "נמצא חיבור חזק" : guidedCoverage ? "בודק את הסביבה הקרובה" : "בונה תוצאה מאומתת"}</span>
+      </div>
+      <div className="els29-guided-result-route" aria-label="התקדמות המחקר">
+        <span data-state="done"><b>1</b> סיפור</span>
+        <span data-state={matrixActive ? "done" : "active"}><b>2</b> ציר מאומת</span>
+        <span data-state={guidedCoverage?.matrixSnapshot?.items?.length ? "done" : "active"}><b>3</b> חיבורים</span>
+      </div>
+      <button type="button" className="els29-guided-matrix-toggle" data-els-guided-matrix-toggle="v1"
+        aria-expanded={guidedMatrixOpen} disabled={!matrixActive}
+        onClick={() => setGuidedMatrixOpen(value => !value)}>{guidedMatrixOpen ? "סגור מטריצה" : "פתח מטריצה מדויקת"}</button>
+      <small className="els29-guided-result-note">המטריצה היא כלי אימות. היא נפתחת רק כשמבקשים לראות את המיקום המדויק.</small>
+    </section> : null}
+
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}${hasSystemDock ? " has-system-dock" : ""}`}>
       <>
-        <div ref={cameraStageRef} className="els29-native-stage-column" hidden={classicOpen}>
+        <div ref={cameraStageRef} className="els29-native-stage-column" data-els-guided-matrix="exact-v1" hidden={classicOpen || (guidedProfile && !guidedMatrixOpen)}>
         <main className="els29-native-stage" hidden={classicOpen} aria-busy={searchPending}>
           <div className="els29-native-stage-head">
             <div>
@@ -1389,9 +1413,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
-            <button type="button" className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
-            <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
+            <strong>{activeTool === "research" ? "שמירה והמשך מחקר" : activeTool === "results" ? (guidedProfile ? "חבילת הגילוי" : resultsAreCross ? "תוצאות הצלבה" : "תוצאות החיפוש") : "סריקה וממצאים"}</strong>
+            <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
+            <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>
         <CrossResultsRail onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />

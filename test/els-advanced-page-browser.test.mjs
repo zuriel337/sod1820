@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { libraryFixturePlugin } from "./fixtures/els-library-browser-fixture.mjs";
 
@@ -26,12 +27,18 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
-    await page.getByRole("heading", { name: /כותבים סיפור אחד/ }).waitFor();
+    await page.getByRole("heading", { name: /סיפור אחד נכנס/ }).waitFor();
     assert.equal(await page.getByRole("button", { name: "גילוי מודרך", exact: true }).count(), 1);
     assert.equal(await page.getByRole("button", { name: "מחקר", exact: true }).count(), 1);
     assert.equal(await page.getByRole("button", { name: "קלאסי", exact: true }).count(), 1);
+    assert.equal(await page.locator('[data-els-guided-workspace="separate-v1"]').isVisible(), true);
+    assert.match(await page.locator('[data-els-guided-workspace="separate-v1"]').innerText(), /סביבת עבודה נפרדת/);
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
-    assert.equal(await page.getByLabel("סביבת המחקר של הצופן").isVisible(), false);
+    assert.equal(await page.getByLabel("תוצאות הגילוי המודרך").isVisible(), false);
+    if (process.env.ELS_SCREENSHOT_DIR) {
+      mkdirSync(process.env.ELS_SCREENSHOT_DIR, { recursive: true });
+      await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, "guided-entry-390.png"), fullPage: true });
+    }
     const story = "מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש";
     await page.getByLabel("הסיפור לגילוי מודרך").fill(story);
     assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "typing or opening Guided does not invoke a function");
@@ -42,6 +49,9 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     assert.ok(guidedLoad.contextTerms.length <= 6);
     assert.equal(JSON.stringify(guidedLoad).includes(story), false, "the raw story stays in the screen state");
     assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "Guided delegates to the mounted engine without an AI/page transport");
+    assert.equal(await page.getByLabel("תוצאות הגילוי המודרך").isVisible(), true, "Guided owns a separate result region after explicit submit");
+    assert.match(await page.locator(".els29-guided-result-stage").innerText(), /חבילת הגילוי/);
+    if (process.env.ELS_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, "guided-run-390.png"), fullPage: true });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await page.getByRole("button", { name: "קלאסי", exact: true }).click();
     assert.equal(await page.getByLabel("הסיפור לגילוי מודרך").isVisible(), false);

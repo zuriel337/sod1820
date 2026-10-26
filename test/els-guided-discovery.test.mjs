@@ -11,6 +11,8 @@ const ENGINE = new URL("../tools/els/els-code.template.html", import.meta.url);
 test("Guided Discovery is one explicit story window with no AI, persistence or transport", async () => {
   const source = await readFile(COMPONENT, "utf8");
   assert.match(source, /data-els-cipher-discovery="v1"/);
+  assert.match(source, /סביבת עבודה נפרדת/);
+  assert.match(source, /בלי ערבוב עם קלאסי/);
   assert.equal((source.match(/<textarea/g) || []).length, 1);
   assert.match(source, /onSubmit=\{submit\}/);
   assert.match(source, /els_anchor_context_request_v1/);
@@ -36,6 +38,11 @@ test("Guided delegates one axis and bounded occurrence inspection to the canonic
   assert.match(source, /guidedOccurrenceCoverage: true/);
   assert.match(source, /approvedBatches: 2/);
   assert.match(source, /onGuidedAddSupports/);
+  assert.match(source, /data-els-guided-result-surface/);
+  assert.match(source, /data-els-guided-matrix-toggle="v1"/);
+  assert.match(source, /פתח מטריצה מדויקת/);
+  assert.match(source, /hidden=\{classicOpen \|\| \(guidedProfile && !guidedMatrixOpen\)\}/);
+  assert.match(source, /guidedProfile \? "חבילת הגילוי"/);
   assert.doesNotMatch(source, /guided\.terms\.filter[\s\S]{0,500}requestFindingsChange/);
   assert.match(source, /journeyLoad=\{researchLoad\?\.researchCommand === true \? null : researchLoad\}/);
   assert.doesNotMatch(source, /askRaziel|ai-analyze|functions\.invoke/);
@@ -138,6 +145,9 @@ test("page keeps Guided, Research and Classic as projections over one native wor
   assert.match(source, /active=\{!library && \(!guidedProfile \|\| researchLoad\?\.guidedDiscovery === true \|\| directSavedOpen\)\}/);
   assert.match(source, /hidden=\{!advancedResearchProfile \|\| directSavedOpen\}/);
   assert.match(source, /hidden=\{!guidedProfile \|\| directSavedOpen\}/);
+  assert.match(source, /data-els-guided-workspace="separate-v1"/);
+  assert.match(source, /aria-label=\{guidedProfile \? "תוצאות הגילוי המודרך"/);
+  assert.match(source, /המטריצה נשארת כלי בדיקה שנפתח רק לפי בקשה/);
   assert.doesNotMatch(source, /RazielSessionProvider2029|<ResearchProvider|functions\.invoke\("ai-analyze"/);
 });
 

@@ -34,10 +34,11 @@ test("ELS 2029 opens in Guided Discovery and mode changes do not own replay or s
 
   assert.match(page, /advancedResearchProfile \?\s*<aside className="sod29-inspector"/);
   assert.match(page, /aria-label="ELS adaptive action slots"/);
-  assert.match(page, /aria-label="סביבת המחקר של הצופן"/);
+  assert.match(page, /aria-label=\{guidedProfile \? "תוצאות הגילוי המודרך" : "סביבת המחקר של הצופן"\}/);
   assert.match(page, /data-els-classic-2029="native-v1"/);
   assert.match(page, /active=\{!library && \(!guidedProfile \|\| researchLoad\?\.guidedDiscovery === true \|\| directSavedOpen\)\}/);
   assert.match(page, /data-els-guided-tools="single-window-v1"/);
+  assert.match(page, /data-els-guided-workspace="separate-v1"/);
   assert.match(page, /hidden=\{guidedProfile && !directSavedOpen && researchLoad\?\.guidedDiscovery !== true\}/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
   assert.match(page, /one canonical Tzofen engine/);

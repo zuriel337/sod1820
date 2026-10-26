@@ -10,7 +10,7 @@ function selectedAxis(plan, axisId) {
   return plan?.anchorCandidates?.find((candidate) => candidate.id === axisId) || null;
 }
 
-export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPlanSummary }) {
+export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPlanSummary, onReset }) {
   const [story, setStory] = useState("");
   const [scope, setScope] = useState("torah");
   const [plan, setPlan] = useState(null);
@@ -64,34 +64,40 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
     setAxisId(null);
     setNotice("");
     onPlanSummary?.(null);
+    onReset?.();
   };
 
-  return <section className="sod29-section" data-els-cipher-discovery="v1" aria-labelledby="els-guided-title">
-    <div className="sod29-section-head">
-      <div>
-        <div className="sod29-kicker">גילוי מודרך</div>
-        <h2 id="els-guided-title">כותבים סיפור אחד. המערכת מציעה ציר ראשון לבדיקה.</h2>
-        <p className="sod29-muted">תחילה מוצע ציר קצר, אחר כך המנוע מאמת את מופעיו ובודק סביבם רק מילות הקשר מוגבלות.</p>
+  return <section className="els29-guided-studio" data-els-cipher-discovery="v1" aria-labelledby="els-guided-title">
+    <div className="els29-guided-studio-head">
+      <div className="els29-guided-studio-mark" aria-hidden="true"><span>✦</span><i /><i /><i /></div>
+      <div className="els29-guided-studio-copy">
+        <div className="sod29-kicker">גילוי מודרך · סביבת עבודה נפרדת</div>
+        <h2 id="els-guided-title">סיפור אחד נכנס. רק החיבורים החזקים נשארים.</h2>
+        <p>המערכת בונה תוכנית קצרה, מאמתת ציר במנוע הקנוני ורק אז בודקת את הסביבה הקרובה שלו.</p>
       </div>
-      <span className="sod29-chip">מנוע ELS קנוני אחד</span>
+      <div className="els29-guided-studio-boundaries" aria-label="גבולות הגילוי המודרך">
+        <span><b>01</b> בלי סריקה לפני שליחה</span>
+        <span><b>02</b> בלי ערבוב עם קלאסי</span>
+        <span><b>03</b> בלי ניחוש של AI</span>
+      </div>
     </div>
 
     <form className="els29-cipher-discovery" onSubmit={submit}>
-      <label htmlFor="els-guided-story">מה הסיפור או הנושא שתרצו לבדוק?</label>
+      <label htmlFor="els-guided-story"><span>מה תרצו לגלות?</span><small>אפשר לכתוב אירוע, אדם, מקום או סיפור שלם.</small></label>
       <textarea
         id="els-guided-story"
         aria-label="הסיפור לגילוי מודרך"
         value={story}
         onChange={(event) => { setStory(event.target.value);resetProposal(); }}
-        rows={7}
+        rows={6}
         maxLength={6000}
         placeholder="לדוגמה: מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש…"
       />
 
       <div className="els29-discovery-flow" aria-label="שלבי הגילוי">
-        <span><b>1</b> מבין את הנושא</span>
-        <span><b>2</b> מאמת ציר ומופעים</span>
-        <span><b>3</b> בודק קשרים מקומיים</span>
+        <span><b>1</b><i>הבנה</i><small>נושא ומילים מרכזיות</small></span>
+        <span><b>2</b><i>אימות</i><small>ציר ומופעים מדויקים</small></span>
+        <span><b>3</b><i>גילוי</i><small>קשרים מקומיים מדורגים</small></span>
       </div>
 
       <details className="els29-discovery-refine">
@@ -107,7 +113,7 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
         </div>
       </details>
 
-      <button type="submit" className="sod29-action primary els29-guided-submit" disabled={disabled || !clean(story)}>התחל גילוי מודרך</button>
+      <button type="submit" className="sod29-action primary els29-guided-submit" disabled={disabled || !clean(story)}><span aria-hidden="true">✦</span> התחל גילוי מודרך</button>
       <small className="els29-guided-boundary">החיפוש מתחיל רק בלחיצה. רזיאל יצטרף רק אחרי שהמנוע ימצא ויאמת מופע.</small>
       {notice ? <p className="els29-guided-notice" role="status">{notice}</p> : null}
 

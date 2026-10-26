@@ -1608,6 +1608,16 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
     assert.ok(reports.every(report=>report.languageInspection.coverage.returnedBoundaries<=480&&report.languageInspection.coverage.boundaryProfileComparisons<=816));
     assert.ok(reports.every(report=>(report.languageInspection.boundaries||[]).every(boundary=>boundary.status==='UNVERIFIED_BOUNDARY'&&boundary.interpretationRequired===true&&boundary.truthPromotion===false)));
     assert.equal(await page.evaluate(()=>window.__hostLog.some(message=>message.type==='update-findings')),false,'inspection never adds findings without the explicit button');
+    const guidedMatrix=page.locator('[data-els-guided-matrix="exact-v1"]');
+    assert.equal(await page.locator('[data-els-guided-result-surface="results-first-v1"]').count(),1,'Guided owns a distinct results-first surface');
+    assert.equal(await page.locator('.els29-native-query').isVisible(),false,'Classic search and cross controls never appear inside Guided');
+    assert.equal(await guidedMatrix.isVisible(),false,'the exact matrix does not dominate the Guided result surface');
+    const searchRequestCount=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='native-search').length);
+    await page.getByRole('button',{name:'פתח מטריצה מדויקת',exact:true}).dispatchEvent('click');
+    assert.equal(await guidedMatrix.isVisible(),true,'the matrix opens only after an explicit inspection action');
+    assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='native-search').length),searchRequestCount,'opening the matrix does not start another search');
+    await page.getByRole('button',{name:'סגור מטריצה',exact:true}).dispatchEvent('click');
+    assert.equal(await guidedMatrix.isVisible(),false);
     assert.ok((await coverage.innerText()).includes('מופעים מאומתים'),'exact axis count is separate from local discoveries');
     assert.equal(await coverage.getByText(/דפוסים גולמיים/).count()<=1,true,'raw patterns have one advanced disclosure only');
     assert.equal(await coverage.locator('[data-els-language-inspection="candidate-only"]').count(),1,'language candidates stay in one Advanced disclosure');
@@ -1640,6 +1650,7 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
       assert.equal(await sourceCard.getAttribute('data-snapshot-item-id'),itemId,'background ranking may move but never mix the opened source item');
       assert.ok(await source.locator('.els29-smart-source-verses>article').count()<=3,'source attention stays bounded');
       assert.equal(await source.getAttribute('data-source-hit-id'),await page.evaluate(()=>window.__state.axis.hitId));
+      assert.equal(await guidedMatrix.isVisible(),false,'opening canonical source does not reveal the matrix implicitly');
       if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await source.scrollIntoViewIfNeeded();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`guided-source-context-${width}.png`),fullPage:true});}
       await source.getByRole('button',{name:'חזור לממצא המדורג',exact:true}).dispatchEvent('click');
       assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-snapshot-item-id')),itemId,'exact return restores the ranked item');
@@ -1687,6 +1698,7 @@ test('guided golden: מקדש ירד keeps two exact axes and recognizes the gen
     assert.ok(await visibleVerses.count()>=1&&await visibleVerses.count()<=3,'the quiet source package shows at most three canonical verses');
     assert.match(await sourceContext.innerText(),/עדשת המקור הקנונית/);
     await sourceContext.getByRole('button',{name:'הדגש פסוק במטריצה'}).first().dispatchEvent('click');
+    assert.equal(await page.locator('[data-els-guided-matrix="exact-v1"]').isVisible(),true,'verse inspection reveals the exact matrix explicitly');
     assert.ok(await page.locator('.is-verse-word').count()>0,'the package reuses the existing exact verse highlight');
     await sourceContext.getByRole('button',{name:'חזור לממצא המדורג',exact:true}).dispatchEvent('click');
     assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-snapshot-item-id')),rankedItemId,'return focuses the exact ranked item');
