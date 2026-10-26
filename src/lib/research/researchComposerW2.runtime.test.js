@@ -83,3 +83,45 @@ test("missing executors disclose missing_adapter instead of fabricating a negati
   assert.equal(bundle.invariants.missing_adapter_is_not_negative_evidence, true);
   assert.equal(bundle.invariants.no_ai_arithmetic_fallback, true);
 });
+
+test("an injected presentation authority ranks only admitted Finding IDs after execution", async () => {
+  const lead = syntheticFinding("lead", "gematria", "ביאת המשיח");
+  const sourceFirst = syntheticFinding("source-first", "gematria", "אותיות אחרי");
+  let seenIds = [];
+  const bundle = await composeResearchW2({
+    question: "776",
+    requestedCapabilities: ["numeric"],
+    capabilityAllowlist: ["numeric"],
+    executors: {
+      numeric: async () => ({ findings: [sourceFirst, lead] }),
+    },
+    rankingResolver: ({ capabilityResults }) => {
+      seenIds = capabilityResults.flatMap((capability) => capability.findings.map((finding) => finding.id));
+      return [{
+        finding_id: lead.id,
+        rank: 1,
+        axes: { authority: "public.gematria_words.lead_rank" },
+        reasons: ["manual number-page order"],
+      }];
+    },
+  });
+
+  assert.deepEqual(seenIds, [sourceFirst.id, lead.id]);
+  assert.deepEqual(bundle.findings.map((finding) => finding.id), [sourceFirst.id, lead.id], "ranking never mutates source evidence order");
+  assert.deepEqual(bundle.ranking.map((entry) => [entry.finding_id, entry.rank]), [[lead.id, 1]]);
+});
+
+test("a failed presentation resolver falls back without suppressing canonical evidence", async () => {
+  const finding = syntheticFinding("still-present", "gematria", "1820");
+  const bundle = await composeResearchW2({
+    question: "1820",
+    requestedCapabilities: ["numeric"],
+    capabilityAllowlist: ["numeric"],
+    executors: { numeric: async () => ({ findings: [finding] }) },
+    ranking: [{ finding_id: finding.id, rank: 7 }],
+    rankingResolver: () => { throw new Error("presentation unavailable"); },
+  });
+
+  assert.equal(bundle.findings[0].id, finding.id);
+  assert.deepEqual(bundle.ranking.map((entry) => entry.rank), [7]);
+});

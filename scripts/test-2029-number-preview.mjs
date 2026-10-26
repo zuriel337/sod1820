@@ -181,7 +181,7 @@ assert.match(page, /GOLDEN_878_JOURNEY_OPEN\s*=\s*GOLDEN_WORLD_JOURNEY_878\.lock
 assert.match(page, /if \(GOLDEN_878_JOURNEY_OPEN && root === GOLDEN_WORLD_JOURNEY_878\.rootValue/, "locked Golden 878 must not be preset from Number");
 assert.match(fs.readFileSync("src/lib/research/worldJourneyProjection.js", "utf8"), /id: "golden:878:v1"[\s\S]*locked: true/);
 assert.match(page, /journeySemanticId:\s*GOLDEN_878_JOURNEY_ID/);
-assert.match(page, /navigate\("\/world"\)/);
+assert.match(page, /navigate\("\/world\?focus=context"\)/);
 assert.match(app, /path="\/2029\/number\/:value"/);
 assert.match(app, /Number2029Page/);
 

@@ -6,6 +6,9 @@ import { selectRazielIntelligence, razielEscalationTrigger } from "../../../supa
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const frame = read("../../components/experience2029/SystemFrame2029.jsx");
+const session = read("./razielSession2029.js");
+const request = read("./razielSessionRequest2029.js");
+const provider = read("./RazielSessionProvider2029.jsx");
 const sel = read("../../../supabase/functions/_shared/razielIntelligence.js");
 const razielBlock = edge.slice(edge.indexOf('persona || "").toLowerCase() === "raziel"'), edge.indexOf('const isCollection = kind === "research"'));
 
@@ -114,7 +117,9 @@ test("Golden: wiring — selector decides after deterministic path, before quota
 test("Golden: smart routing stays OFF — no fn_raziel_model / routing_enabled / L4-L5 execution in the request path", () => {
   assert.doesNotMatch(razielBlock, /fn_raziel_model|routing_enabled|L4|L5|sandalphon|research_intel/i);
   assert.doesNotMatch(edge, /routing_enabled\s*=\s*true/);
-  assert.equal((edge.match(/callClaudeReliable\(/g) || []).length, 1);
+  const synthesis = razielBlock.slice(razielBlock.indexOf("const razielModelSpanId"), razielBlock.indexOf("// 📊 Telemetry"));
+  assert.equal((synthesis.match(/callClaudeReliable\(/g) || []).length, 1);
+  assert.match(synthesis, /model: rModel/);
   assert.equal((razielBlock.match(/fetchRazielPersona\(/g) || []).length, 1);
   assert.equal((razielBlock.match(/fetchMetatronContext\(/g) || []).length, 1);
   assert.ok(razielBlock.indexOf("checkQuota(") > 0);
@@ -124,7 +129,11 @@ test("Golden: smart routing stays OFF — no fn_raziel_model / routing_enabled /
 test("Golden: no model/tool call on chat open; bounded semantic surface context; model only on send", () => {
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
   assert.doesNotMatch(chat, /useEffect/);
-  assert.match(chat, /surfaceSemantic: buildSurfaceSemantic\(\)/);
+  assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
+  assert.match(chat, /const send = async[\s\S]*session\.submit\(\{ question: q,/);
+  assert.match(provider, /const submit = useCallback[\s\S]*const rawResponse = await transport\(request\)/);
+  assert.equal((provider.match(/transport\(request\)/g) || []).length, 1);
+  assert.match(request, /const surfaceSemantic = snapshotSurfaceSemantic\(contextSnapshot\)/);
   const fn = edge.slice(edge.indexOf("function razielSemanticSurfaceText"), edge.indexOf("function razielPlanMeta"));
   assert.match(fn, /\.slice\(0, 1000\)/);
   assert.doesNotMatch(fn, /innerHTML|pageText/);

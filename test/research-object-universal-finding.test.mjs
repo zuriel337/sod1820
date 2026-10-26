@@ -312,6 +312,24 @@ assert.equal(registryResolvedFinding.projection.dimensions.researchFacets.canoni
 assert.equal(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods[0].displayLabel, "רגיל");
 assert.deepEqual(registryResolvedFinding.projection.dimensions.researchFacets.canonicalMethods[0].refs.map((row) => row.token), ["ragil"]);
 
+const verificationAndTraceMethods = researchObjectFacetDimensions({
+  ...base,
+  source_ref: null,
+  engine_detail: {
+    verification: { method: "רגיל" },
+    trace: { method_key: "atbash" },
+  },
+  meta: {},
+}, { registryRows: [
+  { method_key: "רגיל", db_column: "ragil", display_label: "רגיל" },
+  { method_key: "אתבש", db_column: "atbash", display_label: "אתב״ש" },
+] });
+assert.deepEqual(verificationAndTraceMethods.methods.map((row) => row.basis), [
+  "engine_detail.verification.method",
+  "engine_detail.trace.method_key",
+]);
+assert.deepEqual(verificationAndTraceMethods.canonicalMethods.map((row) => row.methodKey), ["רגיל", "אתבש"]);
+
 const noTextGuess = researchObjectFacetDimensions({
   ...base,
   source_ref: null,

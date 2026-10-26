@@ -78,9 +78,12 @@ export default function WorldPublicSourceSubjects2029() {
         <p>נושאים מאושרים וקשריהם מצד אחד, מקורות מלאים מהצד השני. אותו עולם — בלי קטגוריות ישנות.</p>
       </div>
       {!state.loading && !state.error ? <span className="sod29-world-source-subject-count">
-        {state.totals.zvi ?? "—"} נושאים מאושרים · {state.totals.hashmal ?? "—"} פרסומי מקור
+        {state.totals.zvi ?? "—"} נושאי צבי מאושרים · {state.totals.hashmal ?? "—"} פרסומי סוד החשמל
       </span> : null}
     </div>
+    {!state.loading && !state.error ? <p className="sod29-world-source-subject-inventory-note">
+      זו ספירת שתי ספריות התוכן בלבד; ממצאי המחקר של צבי נספרים וממוינים בנפרד בעדשת המקור.
+    </p> : null}
     <div className="sod29-world-source-subject-filters" role="group" aria-label="בחירה לפי מקור">
       {[["all", "הכול"], ["zvi", "צבי"], ["hashmal", "סוד החשמל"]].map(([key, label]) =>
         <button key={key} type="button" aria-pressed={origin === key}

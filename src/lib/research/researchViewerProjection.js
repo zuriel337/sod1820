@@ -154,15 +154,35 @@ export async function reviewResearchObjectFinding(
 ) {
   if (finding?.kind !== "research-object") throw new Error("Judgment is available only for research-object findings");
   const researchObjectId = String(finding?.identity?.sourceIdentity?.researchObjectId || "").trim();
-  if (!researchObjectId) throw new Error("Missing research_object source identity");
+  return reviewResearchObjectById(researchObjectId, {
+    decision,
+    verificationState,
+    acknowledgeExtractionIncomplete,
+  });
+}
+
+export function buildResearchObjectJudgmentRpcArgs(
+  researchObjectId,
+  { decision, verificationState = null, acknowledgeExtractionIncomplete = false } = {},
+) {
+  const safeId = String(researchObjectId || "").trim();
+  if (!safeId) throw new Error("Missing research_object source identity");
   if (!JUDGMENT_DECISIONS.has(decision)) throw new Error("Invalid Judgment decision");
 
-  const { data, error } = await supabase.rpc("admin_research_review", {
-    p_id: researchObjectId,
+  return {
+    p_id: safeId,
     p_decision: decision,
     p_verification_state: verificationState || null,
     p_ack_extraction_incomplete: Boolean(acknowledgeExtractionIncomplete),
-  });
+  };
+}
+
+// ID bridge for bounded domain review surfaces. The canonical RPC still owns
+// authorization and transition legality; this helper adds no publication action.
+export async function reviewResearchObjectById(researchObjectId, options = {}) {
+  const args = buildResearchObjectJudgmentRpcArgs(researchObjectId, options);
+
+  const { data, error } = await supabase.rpc("admin_research_review", args);
   if (error) throw error;
   return data || null;
 }

@@ -11,45 +11,46 @@ const vercel = JSON.parse(read("vercel.json"));
 const migration = read("supabase/migrations/20260922211700_g3_journey_saves_least_privilege_v1.sql");
 
 function routePattern(route) {
-  return String(route).replace(/\/:[^/]+/g, "/(.*)");
+  return String(route)
+    .replace(/\/:[^/]+/g, "/(.*)")
+    .replace(/\/\(\.\*\)/g, "/(.*)");
 }
 
-// Conditional review routes are absent from the production build. Verify their
-// explicit guards, then compare every production route with document rewrites.
+// Conditional review routes remain build-flag gated. Kingdom additionally has
+// an approved document rewrite so a direct protected-Preview request reaches
+// the 2029 document; the integrated review route remains client-navigation only.
 for (const [flag, route] of [['integratedPreviewEnabled', '/2029/preview'], ['kingdomPreviewEnabled', '/2029/kingdom']]) {
   assert.ok(app2029.includes(`{${flag} && <Route path="${route}"`), `${route} must remain flag-gated`);
 }
-const productionApp = app2029.replace(/\{(?:integratedPreviewEnabled|kingdomPreviewEnabled) && <Route[^\n]+\/>\}/g, '');
-const appRoutes = [...productionApp.matchAll(/<Route\s+path="([^"]+)"/g)]
+const appRoutes = [...app2029.matchAll(/<Route\s+path="([^"]+)"/g)]
   .map((match) => match[1])
   .filter((route) => route !== "*")
   .map(routePattern)
   .sort();
 
-// These branch-only surfaces are registered only behind Vite preview flags.
-// Their absence from public document rewrites is intentional; the parity gate
-// applies to routes that are present in the default public build.
-const previewRoutes = ["/2029/kingdom", "/2029/preview"];
+const hostedPreviewRoutes = ["/2029/kingdom"];
+const clientOnlyPreviewRoutes = ["/2029/preview"];
 assert.match(app2029, /kingdomPreviewEnabled && <Route path="\/2029\/kingdom"/);
 assert.match(app2029, /integratedPreviewEnabled && <Route path="\/2029\/preview"/);
 // During the Legacy Production lock these two canonical URLs intentionally
 // enter index.html. They remain usable through client-side navigation inside a
 // 2029 Preview, but a direct request/refresh must return to Legacy.
 const legacyLockedRoutes = ["/code", "/community/chat"];
-const publicAppRoutes = appRoutes.filter((route) => !previewRoutes.includes(route) && !legacyLockedRoutes.includes(route));
+const documentBackedAppRoutes = appRoutes.filter((route) => !clientOnlyPreviewRoutes.includes(route) && !legacyLockedRoutes.includes(route));
 
 const documentRoutes = (vercel.rewrites || [])
   .filter((row) => row.destination === "/2029.html")
-  .map((row) => row.source)
+  .map((row) => routePattern(row.source))
   .sort();
 
 assert.deepEqual(
   documentRoutes,
-  publicAppRoutes,
+  documentBackedAppRoutes,
   "every explicit App2029 route must have exactly one isolated /2029.html document rewrite and vice versa",
 );
-assert.ok(publicAppRoutes.includes("/topic/(.*)"), "Topic deep links must be protected by the route/document parity gate");
-for (const route of previewRoutes) assert.ok(!documentRoutes.includes(route), `${route} must stay outside the public document rewrites`);
+assert.ok(documentBackedAppRoutes.includes("/topic/(.*)"), "Topic deep links must be protected by the route/document parity gate");
+for (const route of hostedPreviewRoutes) assert.ok(documentRoutes.includes(route), `${route} must keep its approved protected-Preview document rewrite`);
+for (const route of clientOnlyPreviewRoutes) assert.ok(!documentRoutes.includes(route), `${route} must stay outside the document rewrites`);
 for (const route of legacyLockedRoutes) assert.ok(!documentRoutes.includes(route), `${route} must stay in Legacy while the Production lock is active`);
 
 // Legacy Journey telemetry: direct table reads are not a browser capability.

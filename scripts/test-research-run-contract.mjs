@@ -15,8 +15,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
+  PERSONAL_GEMATRIA_PAIR_CAPABILITY,
+  PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,
   PUBLIC_NUMBER_RESEARCH_CAPABILITIES,
+  normalizePersonalGematriaPairResearchRunRequest,
   normalizePublicNumberResearchRunRequest,
+  normalizeResearchRunRequest,
 } from "../src/lib/research/researchRunRequest.js";
 import { composeResearchW2 } from "../src/lib/research/researchComposerW2.js";
 
@@ -65,6 +69,39 @@ assert.throws(() => normalizePublicNumberResearchRunRequest(null), /object body 
 assert.throws(() => normalizePublicNumberResearchRunRequest([1, 2]), /object body required/);
 
 console.log("PASS: researchRunRequest.js contract validation");
+
+// Additive personal pair contract: explicit opt-in only, exactly two private Intake representations,
+// fixed capability, and no caller-declared authority or publication state in the normalized shape.
+const pair = normalizeResearchRunRequest({
+  contract: PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,
+  expressions: ["משיח", "מלך ישראל"],
+  requested_capabilities: ["els", "graph"],
+  admin: true,
+  access_tier: "public",
+  owner: "caller",
+  surface: "raziel",
+});
+assert.equal(pair.contract, "personal-gematria-pair-run-v1");
+assert.deepEqual(pair.requested_capabilities, [PERSONAL_GEMATRIA_PAIR_CAPABILITY]);
+assert.equal(pair.intake.representations.length, 2);
+assert.ok(pair.intake.representations.every(x => x.access.tier === "personal"));
+assert.equal(Object.hasOwn(pair, "admin"), false);
+assert.equal(Object.hasOwn(pair, "access_tier"), false);
+assert.equal(Object.hasOwn(pair, "owner"), false);
+assert.throws(
+  () => normalizePersonalGematriaPairResearchRunRequest({ expressions: ["משיח"] }),
+  /exactly two/,
+);
+assert.throws(
+  () => normalizePersonalGematriaPairResearchRunRequest({ expressions: ["משיח", "מָשִיח"] }),
+  /distinct after canonical normalization/,
+);
+assert.throws(
+  () => normalizeResearchRunRequest({ contract: "untrusted-contract-v9", expressions: ["א", "ב"] }),
+  /unsupported contract/,
+);
+
+console.log("PASS: personal Gematria pair request validation");
 
 // ── 2. researchComposerW2.js executionObserver seam ───────────────────────────────────────────
 const events = [];
@@ -194,12 +231,23 @@ assert.match(edge, /trace_incomplete/);
 assert.match(edge, /gate_unavailable/);
 assert.doesNotMatch(edge, /catch\s*{\s*\/\*\s*trace fail-open/, "research-run must not reuse the fail-open trace pattern; it fails closed");
 
-// The canonical executors receive caller credentials, never service-role credentials.
+// Public Number remains on the exact base tree; pair adds only the bounded canonical relation adapter.
 assert.match(edge, /researchW2ExecutorsBase\.js/);
 assert.doesNotMatch(edge, /from ["']\.\.\/\.\.\/\.\.\/src\/lib\/research\/researchW2Executors\.js["']/);
+assert.match(edge, /const baseExecutors = createPublicNumberW2Executors/);
+assert.match(edge, /PERSONAL_GEMATRIA_PAIR_CAPABILITY\]: createGematriaRelationW2Executor/);
 assert.match(edge, /const callerRpc = rpcTransport\(ANON_KEY, authHeader\)/);
-assert.match(edge, /createCanonicalW2Executors\(\{[\s\S]{0,80}supabase: callerRpc,[\s\S]{0,80}serverContext: false/);
-assert.doesNotMatch(edge, /createCanonicalW2Executors\(\{[\s\S]{0,300}SERVICE_KEY/);
+assert.match(edge, /createPublicNumberW2Executors\(\{[\s\S]{0,100}supabase: callerRpc,[\s\S]{0,100}serverContext: false/);
+assert.match(edge, /createGematriaRelationW2Executor\(\{[\s\S]{0,100}supabase: callerRpc/);
+assert.doesNotMatch(edge, /create(?:PublicNumberW2Executors|GematriaRelationW2Executor)\(\{[\s\S]{0,300}SERVICE_KEY/);
+
+// Personal pair is authenticated-only, direct-pair bounded and rejected before trace/gate/research I/O.
+assert.match(edge, /personalPair\s*&&\s*!userId/);
+assert.match(edge, /authenticated_user_required/);
+assert.equal(edge.indexOf("authenticated_user_required") < edge.indexOf("op_trace_begin_v1"), true);
+assert.match(edge, /research-w2:gematria-relations/);
+assert.match(edge, /GEMATRIA_RELATION_PAIR_MODE\.INTAKE_DIRECT_PAIR/);
+assert.match(edge, /maxPairs:\s*1/);
 
 // User identity is verified by Supabase Auth, never trusted from request JSON.
 assert.match(edge, /\/auth\/v1\/user/);
@@ -211,6 +259,7 @@ assert.doesNotMatch(edge, /ANTHROPIC|GEMINI|OPENAI|runClaude|runGemini/);
 // Packaging: verify_jwt must stay true, and packaging must refuse an uncommitted/untracked source.
 assert.match(packager, /verify_jwt:\s*true/);
 assert.match(packager, /clean committed tree/);
+assert.match(packager, /personal-gematria-pair-run-v1/);
 assert.doesNotMatch(packager, /ANTHROPIC|GEMINI|OPENAI/);
 
 console.log("PASS: research-run Edge transport static acceptance");

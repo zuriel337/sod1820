@@ -3,6 +3,10 @@ import { expandResearchTextRepresentations, stableIdentityDigest } from './resea
 import { ACCESS_CLASS, CAPABILITY_STATUS, EVIDENCE_RELATION, SEMANTIC_CLASS } from './researchResultBundle.js';
 
 const ADAPTER_VERSION = 'gematria-relation-w2-v1';
+export const GEMATRIA_RELATION_PAIR_MODE = Object.freeze({
+  REPRESENTATION_PAIRS: 'representation_pairs',
+  INTAKE_DIRECT_PAIR: 'intake_direct_pair',
+});
 
 function clean(value) {
   if (value == null) return null;
@@ -26,7 +30,31 @@ function moreRestrictiveTier(a, b) {
   return aRank >= bRank ? aa : bb;
 }
 
-function candidateSummary(candidate = {}) {
+function independentEvidenceCounts(candidate = {}) {
+  const evidence = candidate?.independent_evidence && typeof candidate.independent_evidence === 'object'
+    ? candidate.independent_evidence
+    : {};
+  return {
+    edges: Array.isArray(evidence.edges) ? evidence.edges.length : 0,
+    topic_cards: Array.isArray(evidence.topic_cards) ? evidence.topic_cards.length : 0,
+    research_objects: Array.isArray(evidence.research_objects) ? evidence.research_objects.length : 0,
+  };
+}
+
+function hasSubstantiveEvidence(candidate = {}) {
+  if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) return false;
+  if (Array.isArray(candidate.engine_evidence) && candidate.engine_evidence.length > 0) return true;
+  if (Array.isArray(candidate.composite_evidence) && candidate.composite_evidence.length > 0) return true;
+  const independent = independentEvidenceCounts(candidate);
+  if (Object.values(independent).some(count => count > 0)) return true;
+  const signal = Number(candidate.engine_signal);
+  return Number.isFinite(signal) && signal > 0;
+}
+
+// Shared, allowlisted projection of the canonical relation candidate. Public crossing adapters use
+// the same projector so pair normalization has one representation at every Result-Bundle edge.
+// Independent source payloads remain excluded here; only their bounded counts may cross.
+export function projectGematriaRelationCandidateSummary(candidate = {}) {
   const components = candidate?.engine_signal_components && typeof candidate.engine_signal_components === 'object'
     ? candidate.engine_signal_components
     : {};
@@ -53,7 +81,36 @@ function candidateSummary(candidate = {}) {
     // independent_evidence may include access-controlled source objects. V1 intentionally does not
     // transport that payload through this generic adapter; source-native adapters remain owners.
     independent_evidence_transport: 'excluded_v1_access_boundary',
+    independent_evidence_counts: independentEvidenceCounts(candidate),
   };
+}
+
+function directPairRepresentations(intake) {
+  const source = Array.isArray(intake?.representations) ? intake.representations : [];
+  if (source.length !== 2) return [];
+  const out = source.map((representation, index) => {
+    const text = clean(representation?.content);
+    if (!text) return null;
+    const accessTier = clean(representation?.access?.tier) || 'unclassified';
+    const sourceRef = clean(representation?.ref) || `intake-representation:${index + 1}:${stableIdentityDigest(text)}`;
+    // A personal/private intake ref may itself have been caller supplied. Hash it once more before
+    // it reaches source_refs/Finding identity; this is a stable correlation token, never a secret.
+    const safeRef = accessTier === 'public'
+      ? sourceRef
+      : `repr:anon:${stableIdentityDigest(sourceRef)}`;
+    return {
+      ref: safeRef,
+      parent_identity_key: safeRef,
+      parent_identity_type: 'expression',
+      kind: clean(representation?.kind) || 'expression',
+      role: clean(representation?.role) || (index === 0 ? 'pair_left' : 'pair_right'),
+      text,
+      access_tier: accessTier,
+      primary_for_identity: true,
+    };
+  });
+  if (out.some(value => !value) || out[0].text === out[1].text) return [];
+  return out;
 }
 
 function pairRepresentations(representations, maxPairs) {
@@ -81,7 +138,7 @@ function pairRepresentations(representations, maxPairs) {
 
 function relationFinding(a, b, candidate) {
   const pairTier = moreRestrictiveTier(a.access_tier, b.access_tier);
-  const summary = candidateSummary(candidate);
+  const summary = projectGematriaRelationCandidateSummary(candidate);
   const aRef = clean(a.ref) || `text:${stableIdentityDigest(a.text)}`;
   const bRef = clean(b.ref) || `text:${stableIdentityDigest(b.text)}`;
   const pairKey = [aRef, bRef].sort().join('|');
@@ -158,27 +215,40 @@ export function createGematriaRelationW2Executor({
   supabase,
   maxRepresentations = 8,
   maxPairs = 12,
+  pairMode = GEMATRIA_RELATION_PAIR_MODE.REPRESENTATION_PAIRS,
 } = {}) {
   if (typeof supabase?.rpc !== 'function') throw new Error('canonical Supabase RPC client required');
   const pairBudget = Math.max(1, Math.min(Number(maxPairs) || 12, 32));
+  const directPair = pairMode === GEMATRIA_RELATION_PAIR_MODE.INTAKE_DIRECT_PAIR;
 
-  return async ({ identityResolution }) => {
-    const representations = expandResearchTextRepresentations(identityResolution, {
-      maxRepresentations: Math.max(2, Math.min(Number(maxRepresentations) || 8, 16)),
-    });
-    const pairSet = pairRepresentations(representations, pairBudget);
+  return async ({ identityResolution, intake }) => {
+    const representations = directPair
+      ? directPairRepresentations(intake)
+      : expandResearchTextRepresentations(identityResolution, {
+          maxRepresentations: Math.max(2, Math.min(Number(maxRepresentations) || 8, 16)),
+        });
+    const pairSet = directPair
+      ? {
+          pairs: representations.length === 2 ? [[representations[0], representations[1]]] : [],
+          available: representations.length === 2 ? 1 : 0,
+          truncated: false,
+        }
+      : pairRepresentations(representations, pairBudget);
     const pairs = pairSet.pairs;
 
     if (!pairs.length) {
       return {
         owner: 'research_strategy_layer_law',
         status: CAPABILITY_STATUS.SKIPPED,
-        reason: 'gematria_relations requires at least two distinct bounded text/name representations',
+        reason: directPair
+          ? 'gematria_relations direct pair requires exactly two distinct personal intake representations'
+          : 'gematria_relations requires at least two distinct bounded text/name representations',
         findings: [],
         accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
         semanticClass: SEMANTIC_CLASS.DERIVATION,
         versionRefs: [ADAPTER_VERSION, 'rpc:fn_relation_candidate'],
-        trace: { pair_count: 0, pair_budget: pairBudget },
+        cost: { certainty: 'not_billable', ai_calls: 0, rpc_calls: 0, retry_count: 0 },
+        trace: { pair_mode: pairMode, pair_count: 0, pair_budget: directPair ? 1 : pairBudget },
       };
     }
 
@@ -198,6 +268,12 @@ export function createGematriaRelationW2Executor({
           : out;
         if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
           statuses.push({ status: 'executed_empty' });
+          continue;
+        }
+        // fn_relation_candidate always returns a candidate-shaped JSON object, including for a pair
+        // with zero engine/composite/independent evidence. Shape alone is not a positive Finding.
+        if (!hasSubstantiveEvidence(candidate)) {
+          statuses.push({ status: 'executed_empty', reason: 'no_substantive_evidence' });
           continue;
         }
         const finding = relationFinding(a, b, candidate);
@@ -220,18 +296,41 @@ export function createGematriaRelationW2Executor({
 
     const restricted = representations.some(rep => clean(rep?.access_tier) && clean(rep.access_tier) !== 'public');
     const executed = pairs.length - failed;
+    const status = findings.length > 0
+      ? CAPABILITY_STATUS.EXECUTED
+      : failed === 0 && executed === pairs.length
+        ? CAPABILITY_STATUS.NEGATIVE_RESULT
+        : CAPABILITY_STATUS.FAILED;
+    const reason = findings.length > 0
+      ? failed > 0
+        ? `relation engine returned findings for ${executed}/${pairs.length} bounded pairs; ${failed} failed`
+        : null
+      : status === CAPABILITY_STATUS.NEGATIVE_RESULT
+        ? 'canonical relation engine found no substantive evidence in the completed bounded pair search'
+        : `relation engine completed ${executed}/${pairs.length} bounded pairs; ${failed} failed, so absence was not established`;
     return {
       owner: 'research_strategy_layer_law',
-      status: executed > 0 ? CAPABILITY_STATUS.EXECUTED : CAPABILITY_STATUS.FAILED,
-      reason: failed
-        ? `relation engine executed for ${executed}/${pairs.length} bounded pairs; ${failed} failed`
-        : findings.length ? null : 'canonical relation engine returned no candidate for the bounded pairs',
+      status,
+      reason,
       findings,
       findingOutcomes: outcomes,
       accessClass: restricted ? ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED : ACCESS_CLASS.PUBLIC_SOURCE,
       semanticClass: SEMANTIC_CLASS.DERIVATION,
+      negativeScope: status === CAPABILITY_STATUS.NEGATIVE_RESULT ? {
+        operation: directPair ? 'direct_pair' : 'bounded_representation_pairs',
+        searched_pair_count: executed,
+        requested_pair_count: pairs.length,
+        pair_budget: directPair ? 1 : pairBudget,
+        truncated: pairSet.truncated,
+      } : null,
       sourceRefs: uniq(representations.map(rep => rep.ref)),
       versionRefs: [ADAPTER_VERSION, 'rpc:fn_relation_candidate'],
+      cost: {
+        certainty: 'not_billable',
+        ai_calls: 0,
+        rpc_calls: pairs.length,
+        retry_count: 0,
+      },
       bounded: {
         total_count: pairSet.available,
         returned_count: pairs.length,
@@ -240,16 +339,17 @@ export function createGematriaRelationW2Executor({
         continuation: pairSet.truncated
           ? {
               kind: 'increase_pair_budget',
-              current_max_pairs: pairBudget,
+              current_max_pairs: directPair ? 1 : pairBudget,
               next_max_pairs: Math.min(32, pairSet.available),
             }
           : null,
       },
       trace: {
         adapter: ADAPTER_VERSION,
+        pair_mode: pairMode,
         pair_count: pairs.length,
         available_pair_count: pairSet.available,
-        pair_budget: pairBudget,
+        pair_budget: directPair ? 1 : pairBudget,
         pair_budget_truncated: pairSet.truncated,
         failed_pair_count: failed,
         // No raw endpoint text in capability trace: private text remains only inside access-filtered Findings.

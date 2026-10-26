@@ -108,7 +108,7 @@ test.beforeEach(async ({ context }) => {
     body: JSON.stringify(POSITIVE_ACCEPTANCE_FLAGS
       .map((key) => ({ key, enabled: false, mode: 'all', message: '' }))),
   }));
-  await context.route('**/rest/v1/rpc/world_group_source_arrivals_v3', async (route) => route.fulfill({
+  await context.route('**/rest/v1/rpc/world_group_source_arrivals_v2', async (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
     headers: { 'x-sod-acceptance-fixture': 'pre-cutover' },
@@ -120,7 +120,6 @@ test.beforeEach(async ({ context }) => {
       contributor_name: 'צבי',
       group_proof: true,
       proof_basis: 'verified_phone_unique',
-      occurrences: [{ id: '00000000-0000-4000-8000-000000000001', created_at: '2026-10-12T12:00:00Z' }],
     }]),
   }));
 });
@@ -169,7 +168,7 @@ async function seedWorldAnchor(page, value) {
 async function openWorldAnchor(page, value, width = 390) {
   await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
   await seedWorldAnchor(page, value);
-  await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}${WORLD}?focus=context`, { waitUntil: 'domcontentloaded' });
   const projection = page.locator('.sod29-world-native-projection');
   await expect(projection).toBeVisible({ timeout: 30_000 });
   await expect(page.locator('.sod29-world-anchor-intro h2')).toContainText(String(value));
@@ -216,21 +215,38 @@ async function selectWorldLane(page, label) {
   await expect(lane).toHaveAttribute('aria-pressed', 'true');
 }
 
+async function selectWorldLandingView(page, label) {
+  const entries = page.getByRole('navigation', { name: 'דרכים לגלות את העולם' });
+  const entry = entries.getByRole('button', { name: new RegExp(`^${label}`) });
+  await expect(entry).toBeVisible();
+  await entry.click();
+}
+
 test('direct /world opens public composed World with aircraft story, real arrivals and source navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'העולם', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'סיפור חדש. עומק של שנים.' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'לאן סיפור המטוס מוביל?' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('[data-source-interpretation="zuriel-787"]')).toContainText('787');
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'מה מגיע עכשיו' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'קולות ומקורות בעולם' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('#world-all-convergences')).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('#world-journey-entry')).toBeVisible({ timeout: 30_000 });
   const postsFilter = page.getByRole('button', { name: 'פוסטים אחרונים' });
   await postsFilter.click();
   await expect(page.locator('.sod29-source-arrivals [data-source-arrival^="posts:"]').first()).toBeVisible({ timeout: 30_000 });
+
+  await selectWorldLandingView(page, 'נושאים וחיבורים');
+  await expect(page).toHaveURL(`${BASE}/world?view=connections`);
+  await expect(page.getByRole('heading', { name: 'לאן סיפור המטוס מוביל?' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('[data-source-interpretation="zuriel-787"]')).toContainText('787');
+  await expect(page.locator('#world-all-convergences')).toBeVisible({ timeout: 30_000 });
+
+  await selectWorldLandingView(page, 'אנשים ומקורות');
+  await expect(page).toHaveURL(`${BASE}/world?view=sources`);
+  await expect(page.getByRole('region', { name: 'כל האנשים הציבוריים בעולם' })).toBeVisible({ timeout: 30_000 });
+
+  await selectWorldLandingView(page, 'מסעות');
+  await expect(page).toHaveURL(`${BASE}/world?view=journey`);
+  await expect(page.locator('#world-journey-entry')).toBeVisible({ timeout: 30_000 });
   await assertNoHorizontalOverflow(page);
   await page.screenshot({ path: 'test-results/release-visual/world-landing-390.png', fullPage: true });
 });
@@ -238,17 +254,19 @@ test('direct /world opens public composed World with aircraft story, real arriva
 test('public World catalog remains searchable and paginated inside the new composed presentation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await selectWorldLandingView(page, 'נושאים וחיבורים');
+  await expect(page).toHaveURL(`${BASE}/world?view=connections`);
   const catalog = page.locator('#world-all-convergences');
   await expect(catalog).toBeVisible({ timeout: 30_000 });
-  await expect(catalog.getByRole('heading', { name: 'כל חיבור פותח עוד עולם.' })).toBeVisible();
-  await expect(catalog.getByText(/התכנסויות ציבוריות/)).toBeVisible({ timeout: 30_000 });
+  await expect(catalog.getByRole('heading', { name: 'לראות מה נפגש סביב רעיון.' })).toBeVisible();
+  await expect(catalog.getByText(/כרטיסים ציבוריים/)).toBeVisible({ timeout: 30_000 });
   const cards = catalog.locator('.sod29-world-catalog-card');
   expect(await cards.count()).toBeGreaterThan(0);
-  const search = catalog.getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' });
+  const search = catalog.getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' });
   await search.fill('888');
   await expect(catalog.locator('a[href="/topic/888-yeshua"]')).toBeVisible({ timeout: 30_000 });
   await search.fill('');
-  const expand = catalog.getByRole('button', { name: 'עוד נושאים בעולם' });
+  const expand = catalog.getByRole('button', { name: 'עוד נושאים וחיבורים' });
   if (await expand.count()) {
     await expand.click();
     await expect(expand).toHaveAttribute('aria-expanded', 'true');
@@ -296,7 +314,7 @@ test('Topic expression focus opens Number 2029 and survives World + Heichal tran
   const worldButton = numberPage.getByRole('button', { name: /עולם/ }).first();
   await expect(worldButton).toBeVisible();
   await worldButton.click();
-  await expect(page).toHaveURL(`${BASE}/world`, { timeout: 20_000 });
+  await expect(page).toHaveURL(`${BASE}/world?focus=context`, { timeout: 20_000 });
   const worldFocus = page.locator('.sod29-world-focus-ribbon');
   await expect(worldFocus).toBeVisible({ timeout: 30_000 });
   await expect(worldFocus).toContainText('חנם');
@@ -617,6 +635,7 @@ test('Number 2029 golden visual calibration covers 878, 358 and the 1326 visual 
 test('Golden World 878 journey stays closed while the public Number 878 and full images remain readable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await selectWorldLandingView(page, 'מסעות');
   const locked = page.locator('[data-world-journey-locked="878"]');
   await expect(locked).toBeVisible({ timeout: 30_000 });
   await expect(locked).toContainText('מסע 878 · נעול');
@@ -653,8 +672,9 @@ for (const width of MOBILE_WIDTHS) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('.sod29-world-overview')).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByRole('heading', { name: 'סיפור חדש. עומק של שנים.' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'מתחילים ממה שמסקרן אותך.' })).toBeVisible();
     await expect(page.locator('#world-sources')).toBeVisible({ timeout: 30_000 });
+    await selectWorldLandingView(page, 'נושאים וחיבורים');
     await expect(page.locator('#world-all-convergences')).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await page.screenshot({ path: `test-results/release-visual/world-core-${width}.png`, fullPage: true });
@@ -866,7 +886,7 @@ test('loading and error states are honest and native', async ({ page }) => {
     }
     await route.continue();
   });
-  await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}${WORLD}?focus=context`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('אוסף את מה שמתחבר לכאן')).toBeVisible({ timeout: 1000 });
   await page.screenshot({ path: 'test-results/release-visual/world-loading-390.png', fullPage: true });
   await expect(page.locator('.sod29-world-native-projection')).toBeVisible({ timeout: 30_000 });
@@ -881,7 +901,7 @@ test('loading and error states are honest and native', async ({ page }) => {
 test('unavailable identity is not silently replaced by another anchor', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await seedWorldAnchor(page, 999999999);
-  await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}${WORLD}?focus=context`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole('heading', { name: '999999999', exact: true })).toBeVisible();
   await page.screenshot({ path: 'test-results/release-visual/world-unavailable-390.png', fullPage: true });
@@ -927,7 +947,7 @@ for (const preset of ['light', 'parchment', 'dark']) {
     test(`source projector ${preset} ${width}: source-first writer and full Hashmal reading`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.addInitScript((value) => localStorage.setItem('sod-theme', value), preset);
-      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'), { timeout: 30_000 });
+      const groupResponse = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'), { timeout: 30_000 });
       await page.goto(`${BASE}${WORLD}`, { waitUntil: 'domcontentloaded' });
       const response = await groupResponse;
       expect(response.ok(), 'sanitized group reader is reachable').toBe(true);
@@ -937,32 +957,28 @@ for (const preset of ['light', 'parchment', 'dark']) {
       for (const row of groupRows) {
         expect(row.group_proof).toBe(true);
         expect(row.proof_basis).toBe('verified_phone_unique');
-        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'occurrences', 'proof_basis']);
-        expect(Array.isArray(row.occurrences)).toBe(true);
-        expect(row.occurrences.length).toBeGreaterThan(0);
-        expect(row.occurrences.some((event) => event.id === row.id)).toBe(true);
-        for (const event of row.occurrences) {
-          expect(Object.keys(event).sort()).toEqual(['created_at', 'id']);
-          expect(Number.isFinite(Date.parse(event.created_at))).toBe(true);
-        }
+        expect(Object.keys(row).sort()).toEqual(['body', 'contributor_name', 'contributor_slug', 'created_at', 'group_proof', 'id', 'proof_basis']);
       }
-      const writer = page.locator('#world-source-homes button').filter({ hasText: 'יניב לוי' }).first();
+      await selectWorldLandingView(page, 'אנשים ומקורות');
+      const people = page.getByRole('region', { name: 'כל האנשים הציבוריים בעולם' });
+      await expect(people).toBeVisible({ timeout: 30_000 });
+      await people.getByRole('textbox', { name: 'חיפוש לפי אדם, כותרת או מספר' }).fill('יניב לוי');
+      const writer = people.locator('article').filter({ hasText: 'יניב לוי' }).getByRole('button', { name: 'החומר בעולם' });
       await expect(writer).toBeVisible({ timeout: 30_000 });
       await writer.click();
-      const lens = page.locator('[data-experience-surface="contributor-findings-lens"]');
-      await expect(lens.getByRole('heading', { name: /המקורות של/ })).toBeVisible({ timeout: 20_000 });
-      await expect(lens.locator('[data-experience-capability="contributor-source-finding-group"]')).toHaveCount(1);
-      await expect(lens).not.toContainText('CONTRIBUTOR FINDINGS');
-      await expect(lens.locator('details[open]')).toHaveCount(0);
+      const lens = page.getByRole('region', { name: 'החומר הציבורי של יניב לוי' });
+      await expect(lens.getByRole('heading', { name: 'יניב לוי' })).toBeVisible({ timeout: 20_000 });
+      await expect(lens).not.toContainText(/private|candidate|CONTRIBUTOR FINDINGS/i);
       await assertNoHorizontalOverflow(page);
       await lens.screenshot({ path: `test-results/release-visual/writer-projector-${preset}-${width}.png` });
-      await page.locator('#world-source-homes button').filter({ hasText: 'סוד החשמל' }).first().click();
+      await page.getByRole('region', { name: 'ספריות ומקורות בולטים' }).getByRole('button', { name: /סוד החשמל/ }).click();
       const corpus = page.locator('[data-experience-capability="world-source-corpus"]');
       await expect(corpus.getByRole('combobox')).toBeVisible();
       await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).toBeVisible({ timeout: 20_000 });
       await expect(corpus.locator('[data-experience-capability="corpus-full-source"]')).not.toBeEmpty();
       await assertNoHorizontalOverflow(page);
       await corpus.screenshot({ path: `test-results/release-visual/hashmal-projector-${preset}-${width}.png` });
+      await selectWorldLandingView(page, 'מה חדש');
       await page.getByRole('button', { name: 'הודעות מקור' }).click();
       if (groupRows.length) await expect(page.locator('#world-sources details.sod29-world-group-source').first()).toBeVisible({ timeout: 20_000 });
       await expect(page.getByText(/עדכוני תורת הרמז והגילוי היומי טרם חוברו/)).toHaveCount(0);

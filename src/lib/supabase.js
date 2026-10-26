@@ -1351,16 +1351,52 @@ export async function searchPostFacts(query) {
 
 // 🤖 askRaziel — קורא למוח (ai-analyze persona=raziel) ומחזיר את חוזה raziel_response_contract (v1).
 //    תאימות-לאחור: כל עוד המוח מחזיר מחרוזת בלבד (data.analysis) — עוטף כ-{v:1, answer}. quota → null.
+//    viewMode='landscape'|'exploratory' (RAZIEL_VIEW_MODE_V1) is independent from intelligenceLevel;
+//    it is emitted only by the bounded canonical 2029 research contract.
 //    path = מסלול-מחקר שהמשתמש בחר (המוח מחליט אילו מסלולים קיימים; ה-UI רק מציג). context = הקשר-המשתמש.
-export async function askRaziel({ subject, facts, context = null, path = null, again = false, metatron = false, intelligenceLevel = null, surfaceSemantic = null }) {
+// The nested Raziel contract may be model-authored. Operational provenance is authoritative only
+// when it comes from the Edge response envelope, so nested lookalike fields are always removed.
+const RAZIEL_TRANSPORT_METADATA_KEYS = new Set(['trace_id', 'engine', 'model', 'usage', 'evidence_summary']);
+
+function razielContractWithoutTransportMetadata(contract) {
+  if (!contract || typeof contract !== 'object' || Array.isArray(contract)) return {};
+  return Object.fromEntries(Object.entries(contract).filter(([key]) => !RAZIEL_TRANSPORT_METADATA_KEYS.has(key)));
+}
+
+function razielTransportMetadata(data) {
+  const top = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+  const out = {};
+  const addText = (key, limit) => {
+    if (typeof top[key] !== 'string') return;
+    const value = top[key].trim().slice(0, limit);
+    if (value) out[key] = value;
+  };
+  addText('trace_id', 160);
+  addText('engine', 80);
+  addText('model', 160);
+  if (top.usage && typeof top.usage === 'object' && !Array.isArray(top.usage)) {
+    const inputTokens = top.usage.input_tokens ?? top.usage.inputTokens;
+    const outputTokens = top.usage.output_tokens ?? top.usage.outputTokens;
+    const usage = {};
+    if (Number.isSafeInteger(inputTokens) && inputTokens >= 0) usage.input_tokens = inputTokens;
+    if (Number.isSafeInteger(outputTokens) && outputTokens >= 0) usage.output_tokens = outputTokens;
+    if (Object.keys(usage).length) out.usage = usage;
+  }
+  return out;
+}
+
+export async function askRaziel({ subject, facts, context = null, path = null, again = false, metatron = false, intelligenceLevel = null, surfaceSemantic = null, conversationResolution = null, researchContract = null, viewMode = null }) {
   if (!supabase) return null;
   try {
     // intelligenceLevel='fast'|'deep' — בחירה מפורשת של הקורא בלבד. נשלח (intelligence_level) רק כשהתבקש;
     // קוראים קיימים לא מציינים → גוף-הבקשה זהה ל-before והשרת מתנהג עמוק כברירת-מחדל.
     const level = intelligenceLevel === 'fast' || intelligenceLevel === 'deep' ? intelligenceLevel : null;
+    // This correlation id is non-authoritative. The server remains the owner of trace/root identities.
+    // Legacy callers preserve their previous body shape by not opting into the canonical contract.
+    const interactionId = researchContract === 'public-number-research-run-v1' ? aiInteractionId() : null;
     const { data, error } = await supabase.functions.invoke('ai-analyze', {
       // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
-      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}) },
+      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}), ...(conversationResolution && typeof conversationResolution === 'object' ? { conversation_resolution: conversationResolution } : {}), ...(researchContract === 'public-number-research-run-v1' ? { research_contract: researchContract, ...(interactionId ? { interaction_id: interactionId } : {}) } : {}), ...(researchContract === 'public-number-research-run-v1' && (viewMode === 'landscape' || viewMode === 'exploratory') ? { view_mode: viewMode } : {}) },
     });
     if (error) return null;
     if (data?.error === 'quota') {
@@ -1369,10 +1405,10 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     }
     const c = data?.raziel || data?.contract;   // המוח מחזיר את החוזה כשמוכן
     // intelligence_level = תווית-מצב כנה מאותו transport (deterministic|fast|deep) — additive, לא API שני.
-    if (c && typeof c === 'object') return { v: 1, ...c, ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
+    if (c && typeof c === 'object') return { v: 1, ...razielContractWithoutTransportMetadata(c), ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data), ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
     if (data?.analysis) {   // fallback — עוטף את המחרוזת הנוכחית כחוזה מינימלי
       try { logAiAnalysis({ kind: 'research', subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis }); } catch { /* noop */ }
-      return { v: 1, answer: data.analysis };
+      return { v: 1, answer: data.analysis, ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data) };
     }
     return null;
   } catch { return null; }

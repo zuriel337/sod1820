@@ -794,12 +794,12 @@
 .sod29-contact-choice-grid>button:hover,.sod29-contact-suggest:hover{border-color:var(--s29-line-strong)}
 .sod29-contact-choice-grid strong,.sod29-contact-choice-grid small{display:block}
 .sod29-contact-choice-grid small{margin-top:3px;color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.35}
-.sod29-contact-choice-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:999px;border:1px solid var(--s29-line-strong);color:var(--s29-accent);font-weight:900}
+.sod29-contact-choice-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:999px;border:1px solid var(--s29-line-strong);color:var(--s29-accent-text);font-weight:900}
 .sod29-contact-suggest{justify-content:space-between;border-color:var(--s29-line-strong)}
 .sod29-contact-suggest>span:first-child{color:var(--s29-muted);font-size:var(--s29-type-micro)}
 .sod29-contact-suggest strong{margin-inline:auto 8px}
 .sod29-contact-privacy{margin:0;color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.6}
-.sod29-contact-back{justify-self:start;border:0;background:transparent;color:var(--s29-accent);font:inherit;font-weight:800;cursor:pointer;padding:4px 0}
+.sod29-contact-back{justify-self:start;border:0;background:transparent;color:var(--s29-accent-text);font:inherit;font-weight:800;cursor:pointer;padding:4px 0}
 .sod29-contact-error{color:var(--s29-danger,var(--s29-accent));font-size:var(--s29-type-micro);font-weight:800}
 @media(max-width:640px){.sod29-contact-choice-grid,.sod29-contact-row{grid-template-columns:1fr}}
 
@@ -807,14 +807,14 @@
 /* Contact Gateway status loop — truthful owner-backed lifecycle only */
 .sod29-contact-status-loop{display:grid;gap:8px;border-top:1px solid var(--s29-line);padding-top:10px}
 .sod29-contact-status-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;border:0;background:transparent;color:var(--s29-ink);padding:6px 0;cursor:pointer;font:inherit;text-align:start}
-.sod29-contact-status-trigger strong{color:var(--s29-accent);font-size:var(--s29-type-micro)}
+.sod29-contact-status-trigger strong{color:var(--s29-accent-text);font-size:var(--s29-type-micro)}
 .sod29-contact-status-list{display:grid;gap:8px}
 .sod29-contact-status-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:start;border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel-soft);padding:11px 12px}
 .sod29-contact-status-row>div:first-child{min-width:0}
 .sod29-contact-status-row strong,.sod29-contact-status-row small{display:block}
 .sod29-contact-status-row>div:first-child small{margin-top:3px;color:var(--s29-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sod29-contact-status-state{text-align:end}
-.sod29-contact-status-state b{color:var(--s29-accent)}
+.sod29-contact-status-state b{color:var(--s29-accent-text)}
 .sod29-contact-status-state small{margin-top:3px;color:var(--s29-muted);font-size:var(--s29-type-micro)}
 .sod29-contact-status-row>p{grid-column:1/-1;margin:0;padding-top:7px;border-top:1px solid var(--s29-line);color:var(--s29-muted);font-size:var(--s29-type-micro);line-height:1.5}
 .sod29-contact-status-empty{color:var(--s29-muted);font-size:var(--s29-type-micro);padding:8px 0}
@@ -1193,12 +1193,33 @@
   .sod29-glass-locator-step:not(:disabled):active{transform:none}
 }
 
-.sod29-raziel-chat { display: grid; gap: 8px; }
+.sod29-raziel-chat { display: grid; gap: 10px; min-inline-size: 0; }
+.sod29-raziel-context { padding: 8px 10px; border: 1px solid var(--s29-line); border-radius: 12px; background: var(--s29-panel-soft); }
+.sod29-raziel-context p { margin: 0; line-height: 1.55; color: var(--s29-muted); }
+.sod29-raziel-thread { display: grid; gap: 8px; min-inline-size: 0; }
+.sod29-raziel-chat-user,
+.sod29-raziel-chat-raziel { display: grid; gap: 4px; min-inline-size: 0; padding: 8px 10px; border-radius: 12px; }
+.sod29-raziel-chat-user { border: 1px solid var(--s29-line); }
+.sod29-raziel-chat-raziel { background: var(--s29-panel-soft); border: 1px solid var(--s29-line-strong); }
+.sod29-raziel-chat-user > span,
+.sod29-raziel-chat-raziel > span { overflow-wrap: anywhere; white-space: pre-wrap; line-height: 1.65; }
+.sod29-raziel-answer-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.sod29-raziel-answer-meta small { color: var(--s29-muted); }
+.sod29-raziel-grounding { flex-basis: 100%; }
+.sod29-raziel-deep-offer { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--s29-line-strong); border-radius: 12px; background: var(--s29-panel-soft); }
+.sod29-raziel-deep-offer ul { margin: 0; padding-inline-start: 20px; line-height: 1.6; }
+.sod29-raziel-status { min-block-size: 1.4em; color: var(--s29-muted); }
 .sod29-raziel-chat form { display: flex; flex-wrap: wrap; gap: 6px; }
-.sod29-raziel-chat input { flex: 1 1 140px; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid currentColor; background: transparent; color: inherit; font: inherit; }
-.sod29-raziel-chat-user { opacity: .8; }
-.sod29-raziel-chat-raziel { display: grid; gap: 2px; }
-.sod29-raziel-chat-raziel small { opacity: .65; }
+.sod29-raziel-chat input { flex: 1 1 140px; min-width: 0; min-height: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid currentColor; background: var(--s29-panel); color: inherit; font: inherit; }
+@media (max-width: 980px) {
+  .sod29-frame-panel[data-panel-kind="raziel"] .sod29-raziel-composer {
+    position: sticky;
+    inset-block-end: 0;
+    z-index: 1;
+    padding-block: 8px max(8px, env(safe-area-inset-bottom, 0px));
+    background: var(--s29-panel);
+  }
+}
 
 /* One-tree research facets inside Golden Projector admin mode. */
 .sod29-golden-facet-filters{

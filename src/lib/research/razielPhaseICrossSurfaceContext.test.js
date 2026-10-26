@@ -8,6 +8,9 @@ const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const frame = read("../../components/experience2029/SystemFrame2029.jsx");
 const mod = read("./razielSurfaceContext.js");
+const session = read("./razielSession2029.js");
+const request = read("./razielSessionRequest2029.js");
+const provider = read("./RazielSessionProvider2029.jsx");
 const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
 const semFn = edge.slice(edge.indexOf("function razielSemanticSurfaceText"), edge.indexOf("function razielPlanMeta"));
 
@@ -53,13 +56,23 @@ test("I: never forwards body/html/raw discovery/private workspace keys", () => {
 });
 
 test("I: SystemFrame wires it into existing surface_semantic only; no new read/provider call on open; Number/ELS/transcript intact", () => {
-  assert.match(chat, /buildRazielSurfaceContext\(context\)/);
-  assert.match(chat, /out\.context = surfaceContext/);
+  assert.match(chat, /session\.submit\(\{ question: q,[\s\S]*view: \{ numberFocus, readingFocus, elsFocus \}/);
   assert.doesNotMatch(chat, /useEffect/);
-  assert.match(chat, /out\.number = /);
-  assert.match(chat, /out\.els = /);
-  assert.match(chat, /turns\.slice\(-2\)/);
-  assert.match(chat, /slice\(0, 600\)/);
+  assert.match(provider, /prepareSubmission\(\{/);
+  assert.match(request, /createRazielRequestContextSnapshot\(researchContext, view, startedAt\)/);
+  const semantic = request.slice(request.indexOf("function snapshotSurfaceSemantic"), request.indexOf("export function buildRazielSessionRequest"));
+  assert.match(semantic, /subject: snapshot\.subject/);
+  assert.match(semantic, /number: snapshot\.focus\?\.number/);
+  assert.match(semantic, /reading: snapshot\.focus\?\.reading/);
+  assert.match(semantic, /els: snapshot\.focus\?\.els/);
+  assert.match(request, /messages\.slice\(-2\)/);
+  assert.match(request, /context: 600/);
+  assert.doesNotMatch(semantic, /supabase|fetch\(|innerHTML|outerHTML/);
+  const beforeSubmit = provider.slice(0, provider.indexOf("const submit = useCallback"));
+  const submit = provider.slice(provider.indexOf("const submit = useCallback"), provider.indexOf("const setViewMode = useCallback"));
+  assert.doesNotMatch(beforeSubmit, /transport\(request\)|fetch\(/);
+  assert.equal((submit.match(/transport\(request\)/g) || []).length, 1);
+  assert.doesNotMatch(submit, /fetch\(|innerHTML|outerHTML/);
 });
 
 test("I: edge renders the context block inside the existing capped semantic text; no new route or DB read", () => {

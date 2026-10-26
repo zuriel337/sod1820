@@ -9,7 +9,7 @@ const out=process.env.FLIGHT_PREVIEW_ARTIFACTS || '/workspace/artifacts/unified-
 const share=process.env.FLIGHT_SHARE_FILE ? (await fs.readFile(process.env.FLIGHT_SHARE_FILE,'utf8')).trim() : null;
 const widths=(process.env.FLIGHT_WIDTHS || '1440,390').split(',').map(Number);
 const themes=(process.env.FLIGHT_THEMES || 'dark').split(',');
-const reads=new Set(['gematria_api','fn_method_value','fn_method_profile','gematria_method_trace','fn_zero_scale','posts_by_number_strict','fn_number_lookup','fn_number_dossier','fn_number_journey','number_neighbors','fn_all_methods','world_group_source_arrivals_v3']);
+const reads=new Set(['gematria_api','fn_method_value','fn_method_profile','gematria_method_trace','fn_zero_scale','posts_by_number_strict','fn_number_lookup','fn_number_dossier','fn_number_journey','number_neighbors','fn_all_methods','world_group_source_arrivals_v2']);
 const receipt={head:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),base,at:new Date().toISOString(),cases:[],errors:[],ownerGaps:[]};
 await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH || '/usr/bin/chromium',args:['--no-sandbox']});

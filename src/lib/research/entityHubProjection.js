@@ -22,6 +22,7 @@ const CHANNEL_UPDATE_SOURCE_FIELDS = "id,text,created_at,credit,speaker,channel,
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
 const WORLD_MEDIA_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values";
+const PUBLIC_WORLD_MEDIA_LIST_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,primary_value,all_values,related_values,min_tier";
 const TOPIC_MEDIA_FIELDS = `${WORLD_MEDIA_FIELDS},min_tier,wp_image_id`;
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
@@ -51,6 +52,63 @@ function dedupeRows(rows) {
     if (row?.id) byId.set(String(row.id), row);
   }
   return [...byId.values()].sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
+}
+
+export function buildPublicWorldMediaListQuery({ limit = 12, offset = 0 } = {}) {
+  const cap = normalizeLimit(limit, 12, 24);
+  const start = normalizeNonNegativeInt(offset, 0);
+  return {
+    limit: cap,
+    rangeStart: start,
+    rangeEnd: start + cap,
+    order: [["occurred_at", false], ["created_at", false], ["id", true]],
+  };
+}
+
+// Public World media shelf: a bounded representation of the existing Gallery source.
+// It does not imply a graph relation or promote OCR/source claims to findings.
+export async function fetchPublicWorldMediaPage(params = {}) {
+  const shape = buildPublicWorldMediaListQuery(params);
+  try {
+    let query = supabase
+      .from("gallery_images")
+      .select(PUBLIC_WORLD_MEDIA_LIST_FIELDS)
+      .eq("published", 1)
+      .eq("min_tier", 0)
+      .or("curator_hidden.is.null,curator_hidden.eq.false")
+      .not("image_url", "is", null);
+    for (const [column, ascending] of shape.order) {
+      query = query.order(column, { ascending, nullsFirst: false });
+    }
+    const { data, error } = await query.range(shape.rangeStart, shape.rangeEnd);
+    if (error) throw error;
+    const rows = (Array.isArray(data) ? data : []).filter((row) => (
+      row?.published === 1
+      && row?.min_tier === 0
+      && row?.curator_hidden !== true
+      && Boolean(row?.image_url)
+    ));
+    const items = rows.slice(0, shape.limit).flatMap((row) => {
+      const item = buildMediaEnvelope({
+        row,
+        relationType: "gallery_listing",
+        relationKind: MEDIA_RELATION_KIND.PUBLIC_CATALOG,
+        label: canonicalMediaPublicLabel({ name: row.name, description: row.description }),
+      });
+      return item ? [item] : [];
+    });
+    return {
+      items,
+      hasMore: rows.length > shape.limit,
+      access: { available: true, reason: null },
+      note: "Public Gallery visibility supplies the representation only; no graph relation, OCR verification or research status is inferred.",
+    };
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return { items: [], hasMore: false, access: { available: false, reason: "gallery_media_not_readable_for_current_session" } };
+    }
+    throw error;
+  }
 }
 
 export async function fetchEntityTypeDefinition(type) {

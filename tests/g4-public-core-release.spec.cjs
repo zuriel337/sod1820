@@ -188,22 +188,26 @@ test('existing gematria share links still open the shared result', async ({ page
 test('World opens from Home and requests its grouped source reader', async ({ page }) => {
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.route('**/rest/v1/rpc/world_group_source_arrivals_v3', async (route) => route.fulfill({
+  await page.route('**/rest/v1/rpc/world_group_source_arrivals_v2', async (route) => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify([{
       id: '00000000-0000-4000-8000-000000000001', body: 'הודעת מקור לבדיקה',
       created_at: '2026-10-12T12:00:00Z', contributor_slug: 'tzvi-opoc', contributor_name: 'צבי',
       group_proof: true, proof_basis: 'verified_phone_unique',
-      occurrences: [{ id: '00000000-0000-4000-8000-000000000001', created_at: '2026-10-12T12:00:00Z' }],
     }]),
   }));
   await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
-  const groupedRead = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'));
+  const groupedRead = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'));
   await page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first().click();
   await expect(page).toHaveURL(`${BASE}/world`);
-  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText('הודעת מקור לבדיקה').first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
   expect((await groupedRead).ok()).toBe(true);
-  await page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' }).fill('888');
+  const worldEntries = page.getByRole('navigation', { name: 'דרכים לגלות את העולם' });
+  await worldEntries.getByRole('button', { name: /^מה חדש/ }).click();
+  await expect(page).toHaveURL(`${BASE}/world?view=live`);
+  await expect(page.getByText('הודעת מקור לבדיקה').first()).toBeVisible({ timeout: 30_000 });
+  await worldEntries.getByRole('button', { name: /^נושאים וחיבורים/ }).click();
+  await expect(page).toHaveURL(`${BASE}/world?view=connections`);
+  await page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' }).fill('888');
   await page.locator('a[href="/topic/888-yeshua"]').first().click();
   await expect(page.locator('article[data-entity-type="convergence"]')).toBeVisible({ timeout: 30_000 });
   const numberReadFailures = [];
@@ -229,9 +233,9 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
   await expect(page).toHaveURL(`${BASE}/topic/888-yeshua`);
   await expect(page.locator('article[data-entity-type="convergence"]')).toBeVisible({ timeout: 30_000 });
   await page.goBack();
-  await expect(page).toHaveURL(`${BASE}/world`);
-  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' })).toBeVisible();
+  await expect(page).toHaveURL(`${BASE}/world?view=connections`);
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' })).toBeVisible();
   await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toHaveCount(0);
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
@@ -275,5 +279,5 @@ test('the existing public World stays open when no lock flag has been installed'
   }));
   await page.goto(`${BASE}/world`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.mlock')).toHaveCount(0);
-  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible();
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { usePalette } from "../../lib/palette.js";
@@ -16,6 +16,8 @@ import { getMyNotifications, getUnreadCount, markNotificationRead, markAllRead, 
 import { getMyMatrices, selfPublishMatrix } from "../../lib/elsMatrices.js";
 import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCredits, getNextActions, getAgentRoster, getAgentStats, getMyWaMemory, getMyCreditLedger, getMyLinkedPhones, requestWaLinkCode, verifyWaLinkCode, unlinkMyWa, getMyReferralStats, getMyResearchLevel, dmInbox, dmThread, dmSend, dmUnreadCount, repliesToMe, myContributions, watchToggle } from "../../lib/commandCenter.js";
 import { useWaLink, WaDot } from "../../lib/userCenter/useWaLink.jsx";
+import { loadOwnWriterIdentity, publicWriterFollowLinks } from "../../lib/userCenter/writerPersonal2029.js";
+import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 
 // 🟢 צ'יפ סטטוס-וואטסאפ בכותרת המגירה — גלוי מיד: מנותק = CTA לחיבור (+100 קרדיט),
 //    מחובר = «מחובר ✓» + ניהול. לחיצה פותחת את מודול «הוואטסאפ שלי» (setActive('whatsapp')).
@@ -712,8 +714,8 @@ function PublicPageCard({ T, goto, setActive }) {
   useEffect(() => {
     let a = true;
     if (!user?.id) { setDossier({}); return; }
-    supabase.from("contributors").select("display_name,bio,accent,emblem").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => { if (a) setDossier(data || {}); })
+    loadOwnWriterIdentity(user.id)
+      .then((data) => { if (a) setDossier({ ...data, display_name: data.name }); })
       .catch(() => { if (a) setDossier({}); });
     return () => { a = false; };
   }, [user?.id]);
@@ -740,14 +742,14 @@ function PublicPageCard({ T, goto, setActive }) {
       <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.75, marginBottom: 15 }}>
         המודל פשוט: <b style={{ color: T.ink }}>אני → האזור האישי → הדף שלי → צפה / ערוך</b>.<br />הדף הפומבי הוא בדיוק מה שכל מבקר רואה — לא גרסה מיוחדת.
       </div>
-      <button onClick={() => goto("/community/researcher/me?view=public")} style={{ ...bBase, background: T.acc, color: "#fff", border: "none" }}>
+      <button disabled={!dossier?.publicVisible} onClick={() => dossier?.href && window.location.assign(`${dossier.href}?view=public`)} style={{ ...bBase, background: T.acc, color: "#fff", border: "none" }}>
         👁 צפה בדף כפי שהציבור רואה
       </button>
       <button onClick={() => setActive ? setActive("page-editor") : goto("/community/researcher/me")} style={{ ...bBase, background: "transparent", color: T.ink, border: `1px solid ${T.line}` }}>
         ✍️ ערוך את הדף שלי
       </button>
       <div style={{ fontSize: 11.5, color: T.sub, marginTop: 4, lineHeight: 1.65 }}>
-        «צפה» = תצוגה ציבורית מדויקת (בלי כלי-עריכה). «ערוך» = הדף שלך עם כלי-הבעלים; עורך-הדף המלא בדרך.
+        {!dossier?.publicVisible ? "אין כרגע דף ציבורי זמין; אפשר להכין אותו בעורך הדף." : "«צפה» פותח את הכתובת הציבורית הקנונית בלי כלי הבעלים."}
       </div>
     </div>
   );
@@ -778,7 +780,7 @@ const PE_SECTIONS = [
   { id: 'dossier',          label: '📁 תיק החוקר' },
   { id: 'links',            label: '🔗 קישורים חיצוניים' },
 ];
-function PageEditor({ T, goto }) {
+export function PageEditor({ T, goto, onSaved, refreshUnavailable = false }) {
   const { user } = useAuth();
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -791,13 +793,17 @@ function PageEditor({ T, goto }) {
   const [sections, setSections] = useState(PE_SECTIONS.map(s => ({ id: s.id, visible: true })));
   const [links, setLinks] = useState([]);
   const [highlights, setHighlights] = useState([]); // נשמר כפי-שהוא (עריכת-מובחרים בגרסה נפרדת)
+  const [publicHref, setPublicHref] = useState(null);
+  const [readFailed, setReadFailed] = useState(false);
 
   useEffect(() => {
     let a = true;
     if (!user?.id) { setLoaded(true); return; }
+    loadOwnWriterIdentity(user.id).then((value) => { if (a) setPublicHref(value.publicVisible ? value.href : null); });
     supabase.from("contributors").select("page_config,accent,emblem,bio,display_name").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (!a) return;
+        if (error) { setReadFailed(true); setLoaded(true); return; }
         const pc = data?.page_config || {};
         setDisplayName(data?.display_name || "");
         setOrigName(data?.display_name || "");
@@ -816,7 +822,7 @@ function PageEditor({ T, goto }) {
         setSections(ordered);
         setLoaded(true);
       })
-      .catch(() => { if (a) setLoaded(true); });
+      .catch(() => { if (a) { setReadFailed(true); setLoaded(true); } });
     return () => { a = false; };
   }, [user?.id]);
 
@@ -831,6 +837,7 @@ function PageEditor({ T, goto }) {
   const rmLink = i => setLinks(prev => prev.filter((_, idx) => idx !== i));
 
   async function save() {
+    if (busy || readFailed) return;
     setBusy(true); setMsg(null);
     const nameTrim = displayName.trim();
     const p_config = {
@@ -845,29 +852,33 @@ function PageEditor({ T, goto }) {
     };
     try {
       const { data, error } = await supabase.rpc("update_my_page_config", { p_config });
-      if (error || !data?.ok) {
+      if (error || data?.ok !== true) {
         const e = data?.error || "";
         const msgs = { bio_too_long: "הביו ארוך מדי (עד 600 תווים).", display_name_required: "השם לא יכול להישאר ריק.", display_name_too_long: "השם ארוך מדי (עד 60 תווים).", display_name_no_email: "השם לא יכול להיות כתובת מייל." };
-        setMsg({ kind: "err", text: msgs[e] || (e.startsWith("bad_link") ? "קישור לא תקין — בדקו כותרת (עד 40) וכתובת (https:// או /)." : "שמירה נכשלה. נסו שוב.") });
+        setMsg({ kind: "err", text: msgs[e] || (e.startsWith("bad_link") ? "קישור לא תקין — בדקו כותרת (עד 40) וכתובת (https:// או /)." : "לא התקבל אישור שמירה. מה שהקלדת נשאר כאן.") });
       } else {
         if (nameTrim) setOrigName(nameTrim);
         setMsg({ kind: "ok", text: "נשמר! הדף שלך עודכן ✓" });
+        const current = await loadOwnWriterIdentity(user.id);
+        setPublicHref(current.publicVisible ? current.href : null);
+        onSaved?.();
       }
     } catch { setMsg({ kind: "err", text: "שגיאת רשת, נסו שוב." }); }
     setBusy(false);
   }
 
   if (!loaded) return <div style={{ color: T.sub, fontSize: 13, padding: "10px 0" }}>טוען…</div>;
+  if (readFailed) return <p role="alert">לא ניתן לקרוא את הגדרות הדף כרגע. השמירה חסומה כדי לשמור על ההגדרות הקיימות.</p>;
 
   const chip = { border: `1px solid ${T.line}`, borderRadius: 999, padding: "7px 13px", fontSize: 12.5, fontWeight: 800, cursor: "pointer", background: T.bg, color: T.ink, fontFamily: "inherit" };
   const H = ({ children }) => <div style={{ fontSize: 13, fontWeight: 800, color: T.ink, margin: "16px 0 8px" }}>{children}</div>;
   const input = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, background: T.bg, border: `1px solid ${T.line}`, color: T.ink, fontFamily: "inherit", fontSize: 16, outline: "none" };
 
   return (
-    <div>
+    <fieldset disabled={busy} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
       <div style={{ fontSize: 12.5, color: T.sub, lineHeight: 1.7, marginBottom: 6 }}>
         עצב את הדף הפומבי שלך. השינויים נשמרים ומופיעים לכל מבקר.{" "}
-        <button onClick={() => goto("/community/researcher/me?view=public")} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>👁 תצוגה מקדימה ←</button>
+        {publicHref ? <button onClick={() => window.location.assign(`${publicHref}?view=public`)} style={{ background: "none", border: "none", color: T.acc, fontWeight: 800, cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 12.5 }}>👁 תצוגה מקדימה ←</button> : null}
       </div>
 
       {/* 💡 נאדג' עדין — שם-תצוגה שנראה טכני (username/מייל גולמי, או "חוקר" הגנרי) */}
@@ -928,15 +939,15 @@ function PageEditor({ T, goto }) {
       </div>
 
       {msg && (
-        <div style={{ marginTop: 14, fontSize: 12.5, fontWeight: 700, lineHeight: 1.6, borderRadius: 10, padding: "9px 12px",
+        <div role={msg.kind === "ok" ? "status" : "alert"} style={{ marginTop: 14, fontSize: 12.5, fontWeight: 700, lineHeight: 1.6, borderRadius: 10, padding: "9px 12px",
           background: msg.kind === "ok" ? "#e9f9ef" : "#fdecea", color: msg.kind === "ok" ? "#1a7f37" : "#b3261e", border: `1px solid ${msg.kind === "ok" ? "#bfe9cd" : "#f5c6c0"}` }}>
-          {msg.text}
+          {msg.kind === "ok" && refreshUnavailable ? "הדף נשמר. רענון הפרטים לא הושלם; אפשר להמשיך לערוך." : msg.text}
         </div>
       )}
       <button onClick={save} disabled={busy} style={{ width: "100%", marginTop: 14, background: T.acc, color: "#fff", border: "none", borderRadius: 11, padding: "13px 16px", minHeight: 48, fontFamily: "inherit", fontSize: 14, fontWeight: 800, cursor: busy ? "default" : "pointer", opacity: busy ? .7 : 1 }}>
         {busy ? "שומר…" : "💾 שמור את הדף שלי"}
       </button>
-    </div>
+    </fieldset>
   );
 }
 
@@ -990,7 +1001,7 @@ function MyInfoPanel({ T }) {
 }
 
 // 🔔 התראות Push (הועבר מ-/profile) — מצב המכשיר + הפעלה/ביטול. סך-מנויים לאדמין בלבד.
-function PushPanel({ T, user, isAdmin }) {
+export function PushPanel({ T, user, isAdmin }) {
   const [status, setStatus] = useState(null); const [total, setTotal] = useState(null);
   const [busy, setBusy] = useState(false); const [note, setNote] = useState("");
   const refreshCount = useCallback(async () => { if (!isAdmin) return; try { const { data } = await supabase.rpc("push_sub_count"); if (data && typeof data.total === "number") setTotal(data.total); } catch { /* noop */ } }, [isAdmin]);
@@ -1081,7 +1092,7 @@ function AdminOnlinePanel({ T }) {
 }
 
 // 📨 ההודעות שלי — שני טאבים: 💬 הודעות פרטיות (DM) · 🗣 תגובות אליי (על התרומות שלי).
-function MessagesHub({ T, goto, initialDm = null }) {
+export function MessagesHub({ T, goto, initialDm = null, resolveWriterHref }) {
   const [tab, setTab] = useState("dm");   // deep-link ל-DM → תמיד טאב ההודעות
   const tabBtn = (active) => ({ flex: 1, padding: "9px", borderRadius: 9, border: `1px solid ${active ? T.acc : T.line}`, background: active ? T.accSoft : T.card, color: active ? T.acc : T.sub, fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit" });
   return (
@@ -1090,7 +1101,7 @@ function MessagesHub({ T, goto, initialDm = null }) {
         <button onClick={() => setTab("dm")} style={tabBtn(tab === "dm")}>💬 הודעות</button>
         <button onClick={() => setTab("replies")} style={tabBtn(tab === "replies")}>🗣 תגובות אליי</button>
       </div>
-      {tab === "dm" ? <InboxPanel T={T} initialDm={initialDm} /> : <RepliesPanel T={T} goto={goto} />}
+      {tab === "dm" ? <InboxPanel T={T} initialDm={initialDm} resolveWriterHref={resolveWriterHref} /> : <RepliesPanel T={T} goto={goto} />}
     </div>
   );
 }
@@ -1104,20 +1115,28 @@ function RepliesPanel({ T, goto }) {
   const [rows, setRows] = useState(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [done, setDone] = useState(false);   // עמוד אחרון החזיר פחות מ-REPLIES_PAGE → אין עוד
-  useEffect(() => { repliesToMe(REPLIES_PAGE).then(r => { setRows(r); setDone((r || []).length < REPLIES_PAGE); }).catch(() => { setRows([]); setDone(true); }); }, []);
+  const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let alive = true; setError(""); setRows(null);
+    repliesToMe(REPLIES_PAGE, null, { strict: true }).then(r => { if (alive) { setRows(r); setDone((r || []).length < REPLIES_PAGE); } })
+      .catch(() => { if (alive) { setRows([]); setError("לא ניתן לטעון את התגובות כרגע."); } });
+    return () => { alive = false; };
+  }, [attempt]);
   const loadMore = async () => {
     if (loadingMore || done || !rows?.length) return;
     setLoadingMore(true);
     try {
       const cursor = rows[rows.length - 1]?.created_at;
-      const more = await repliesToMe(REPLIES_PAGE, cursor);
+      const more = await repliesToMe(REPLIES_PAGE, cursor, { strict: true });
       setRows(prev => [...(prev || []), ...(more || [])]);
       if ((more || []).length < REPLIES_PAGE) setDone(true);
-    } finally { setLoadingMore(false); }
+    } catch { setError("לא ניתן לטעון תגובות נוספות כרגע."); } finally { setLoadingMore(false); }
   };
-  const fmt = t => { try { return new Date(t).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
+  const fmt = t => bilingualDateLabel(t) || "תאריך לא זמין";
   const linkFor = r => (r.target_type === "number" && r.target_id) ? `/number/${r.target_id}` : (r.convergence_slug ? `/topic/${r.convergence_slug}` : null);
   if (rows === null) return <div style={{ color: T.sub, fontSize: 13, padding: "8px 0" }}>טוען…</div>;
+  if (error && !rows.length) return <p role="alert">{error} <button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון נוסף</button></p>;
   if (!rows.length) return (
     <div style={{ textAlign: "center", padding: "26px 14px", color: T.sub }}>
       <div style={{ fontSize: 30, marginBottom: 8 }}>🗣</div>
@@ -1142,6 +1161,7 @@ function RepliesPanel({ T, goto }) {
           ? <button key={r.id} onClick={() => goto(link)} style={style}>{inner}</button>
           : <div key={r.id} style={style}>{inner}</div>;
       })}
+      {error ? <p role="alert">{error}</p> : null}
       {!done && (
         <button onClick={loadMore} disabled={loadingMore}
           style={{ background: "transparent", border: `1px solid ${T.line}`, color: T.sub, borderRadius: 10, padding: "9px 14px", fontFamily: "inherit", fontSize: 12.5, cursor: loadingMore ? "default" : "pointer", opacity: loadingMore ? 0.6 : 1 }}>
@@ -1156,7 +1176,7 @@ function RepliesPanel({ T, goto }) {
 function MyContributionsList({ T, goto }) {
   const [rows, setRows] = useState(null);
   useEffect(() => { myContributions(50).then(setRows).catch(() => setRows([])); }, []);
-  const fmt = t => { try { return new Date(t).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
+  const fmt = t => bilingualDateLabel(t) || "תאריך לא זמין";
   // תגובה → עמוד-השרשור (/forum/<אב>); תרומת-שורש → דף-המספר/הישות אם יש יעד, אחרת עמוד-התרומה.
   const linkFor = r => r.is_reply
     ? (r.parent_id ? `/forum/${r.parent_id}` : `/forum/${r.id}`)
@@ -1193,7 +1213,7 @@ function MyContributionsList({ T, goto }) {
 }
 
 // 📨 ההודעות שלי — הודעות פרטיות (DM). רשימת-שיחות → שרשור → תשובה. RPCs: dm_inbox/thread/send.
-function InboxPanel({ T, initialDm = null }) {
+function InboxPanel({ T, initialDm = null, resolveWriterHref }) {
   const { user } = useAuth();
   const [list, setList] = useState(null);       // שיחות (dm_inbox)
   const [active, setActive] = useState(null);   // {counterpart, name, avatar} בשיחה פתוחה
@@ -1201,15 +1221,29 @@ function InboxPanel({ T, initialDm = null }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [autoDone, setAutoDone] = useState(false);   // deep-link נפתח פעם אחת בלבד
-  const fmt = t => { try { return new Date(t).toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
+  const [writerHref, setWriterHref] = useState(null), [sendError, setSendError] = useState("");
+  const [readError, setReadError] = useState("");
+  const scope = useRef(user?.id); scope.current = user?.id;
+  const threadVersion = useRef(0), pendingSend = useRef(false);
+  const fmt = t => bilingualDateLabel(t) || "תאריך לא זמין";
 
-  const loadList = useCallback(() => { dmInbox().then(setList).catch(() => setList([])); }, []);
+  const loadList = useCallback(() => {
+    const actor = scope.current;
+    dmInbox({ strict: true }).then((rows) => { if (actor === scope.current) { setList(rows); setReadError(""); } })
+      .catch(() => { if (actor === scope.current) { setList([]); setReadError("לא ניתן לטעון את התיבה כרגע."); } });
+  }, []);
   useEffect(() => { loadList(); }, [loadList]);
   const openThread = useCallback(async (conv) => {
-    setActive(conv); setMsgs(null);
-    const m = await dmThread(conv.counterpart, 80); setMsgs(Array.isArray(m) ? m : []);
+    const version = ++threadVersion.current, actor = scope.current;
+    setActive(conv); setMsgs(null); setWriterHref(null); setSendError("");
+    if (resolveWriterHref) Promise.resolve(resolveWriterHref(conv.counterpart)).then((href) => { if (version === threadVersion.current && actor === scope.current) setWriterHref(href); }).catch(() => {});
+    let m;
+    try { m = await dmThread(conv.counterpart, 80, { strict: true }); }
+    catch { if (version === threadVersion.current && actor === scope.current) { setReadError("לא ניתן לטעון את השיחה כרגע."); setMsgs([]); } return; }
+    if (version !== threadVersion.current || actor !== scope.current) return;
+    setReadError(""); setMsgs(Array.isArray(m) ? m : []);
     loadList(); // רענון מונה לא-נקראו אחרי שסומן כנקרא
-  }, [loadList]);
+  }, [loadList, resolveWriterHref]);
   // 🔗 deep-link מהתראת-DM (?dm=<uid>) — פותחים ישר את השיחה עם השולח (פעם אחת, כשהרשימה מוכנה).
   useEffect(() => {
     if (!initialDm || autoDone || !Array.isArray(list)) return;
@@ -1218,24 +1252,28 @@ function InboxPanel({ T, initialDm = null }) {
     openThread(conv);
   }, [initialDm, autoDone, list, openThread]);
   async function send() {
-    const body = text.trim(); if (!body || !active || busy) return;
-    setBusy(true);
+    const body = text.trim(); if (!body || !active || pendingSend.current) return;
+    const actor = scope.current, version = threadVersion.current;
+    pendingSend.current = true; setBusy(true); setSendError("");
     const r = await dmSend(active.counterpart, body);
-    if (r?.ok) { setText(""); const m = await dmThread(active.counterpart, 80); setMsgs(Array.isArray(m) ? m : []); loadList(); }
-    setBusy(false);
+    if (actor !== scope.current || version !== threadVersion.current) { pendingSend.current = false; setBusy(false); return; }
+    if (r?.ok) { setText(""); try { const m = await dmThread(active.counterpart, 80, { strict: true }); if (actor === scope.current && version === threadVersion.current) setMsgs(Array.isArray(m) ? m : []); } catch { if (actor === scope.current) setReadError("ההודעה נשלחה, אך לא ניתן לרענן את השיחה כרגע."); } loadList(); }
+    else setSendError("לא התקבל אישור שליחה. הטקסט נשאר כאן; בדקו את השיחה לפני ניסיון נוסף.");
+    pendingSend.current = false; setBusy(false);
   }
 
   // ── שרשור פתוח ──
   if (active) {
     return (
       <div>
-        <button onClick={() => { setActive(null); setMsgs(null); }} style={{ background: "none", border: "none", color: T.acc, fontWeight: 700, fontSize: 13, cursor: "pointer", padding: "0 0 10px" }}>→ לכל השיחות</button>
+        <button onClick={() => { threadVersion.current++; setActive(null); setMsgs(null); setText(""); setSendError(""); }} style={{ background: "none", border: "none", color: T.acc, fontWeight: 700, fontSize: 13, cursor: "pointer", padding: "0 0 10px" }}>→ לכל השיחות</button>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
           <img src={active.avatar || genAvatar(active.name)} alt="" style={{ width: 30, height: 30, borderRadius: "50%", objectFit: "cover" }} />
           <span style={{ fontWeight: 800, fontSize: 14.5, color: T.ink }}>{active.name}</span>
+          {writerHref ? <a href={writerHref} style={{ color: T.acc }}>לדף הכותב</a> : null}
         </div>
         <div style={{ maxHeight: 360, overflowY: "auto", WebkitOverflowScrolling: "touch", display: "flex", flexDirection: "column", gap: 7, padding: "4px 2px", marginBottom: 10 }}>
-          {msgs === null ? <div style={{ color: T.sub, fontSize: 12.5 }}>טוען…</div>
+          {readError ? <p role="alert">{readError}</p> : msgs === null ? <div style={{ color: T.sub, fontSize: 12.5 }}>טוען…</div>
             : msgs.length === 0 ? <div style={{ color: T.sub, fontSize: 12.5 }}>אין הודעות עדיין — כתוב הודעה ראשונה.</div>
             : msgs.map(m => {
               const mine = m.from_user === user?.id;
@@ -1248,16 +1286,18 @@ function InboxPanel({ T, initialDm = null }) {
             })}
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <textarea value={text} onChange={e => setText(e.target.value.slice(0, 4000))} rows={1} placeholder="כתוב הודעה…" onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+          <textarea aria-label="ההודעה שלך" disabled={busy} value={text} onChange={e => setText(e.target.value.slice(0, 4000))} rows={1} placeholder="כתוב הודעה…" onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
             style={{ flex: 1, boxSizing: "border-box", background: T.card, border: `1px solid ${T.line}`, borderRadius: 10, padding: "10px 12px", color: T.ink, fontFamily: "inherit", fontSize: 16, resize: "none", outline: "none" }} />
           <button onClick={send} disabled={busy || !text.trim()} style={{ background: T.acc, color: "#fff", border: "none", borderRadius: 10, padding: "0 16px", fontWeight: 800, fontSize: 14, cursor: busy || !text.trim() ? "default" : "pointer", opacity: busy || !text.trim() ? .6 : 1, fontFamily: "inherit" }}>שלח</button>
         </div>
+        {sendError ? <p role="alert">{sendError}</p> : null}
       </div>
     );
   }
 
   // ── רשימת שיחות ──
   if (list === null) return <div style={{ color: T.sub, fontSize: 13, padding: "8px 0" }}>טוען…</div>;
+  if (readError) return <p role="alert">{readError} <button type="button" onClick={loadList}>ניסיון נוסף</button></p>;
   if (!list.length) return (
     <div style={{ textAlign: "center", padding: "26px 14px", color: T.sub }}>
       <div style={{ fontSize: 30, marginBottom: 8 }}>📨</div>
@@ -1398,11 +1438,11 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         <div style={{ display: "grid", gap: 22 }}>
           <section>
             <div style={{ color: T.acc, fontWeight: 800, fontSize: 13, letterSpacing: 0.5, marginBottom: 10 }}>🔔 מה חדש בשבילי</div>
-            <NotificationsPanel T={T} onUnread={onUnread} goto={goto} setActive={setActive} />
+            <NotificationsPanel key={user?.id || "guest"} T={T} onUnread={onUnread} goto={goto} setActive={setActive} />
           </section>
           <section>
             <div style={{ color: T.acc, fontWeight: 800, fontSize: 13, letterSpacing: 0.5, marginBottom: 10 }}>🔔 אחרי מה אני עוקב</div>
-            <FollowingPanel T={T} goto={goto} />
+            <FollowingPanel key={user?.id || "guest"} T={T} goto={goto} />
           </section>
           <section>
             <div style={{ color: T.acc, fontWeight: 800, fontSize: 13, letterSpacing: 0.5, marginBottom: 10 }}>⚙️ ערוצים והעדפות</div>
@@ -1412,18 +1452,18 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
         </div>
       ) },
     // 👑 הגשר לפנים הפומביות — «הדף הפומבי שלי» (צפה / ערוך). פתוח לכל משתמש מחובר (hasPage=true).
-    { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard T={T} goto={goto} setActive={setActive} /> },
+    { id: "public-page", world: "me", icon: "👑", title: "הדף הפומבי שלי", status: "live", hidden: !hasPage, render: () => <PublicPageCard key={user?.id || "guest"} T={T} goto={goto} setActive={setActive} /> },
     // 🎨 עורך-הדף — «ערוך את הדף שלי» (update_my_page_config, יוצר-דוסייה אוטומטית בשמירה ראשונה).
     //    world="me" ולא "create" בכוונה: "create" מוצג רק בתוך מדור «בפיתוח» שרק אדמין יכול לפתוח —
     //    זה היה חוסם את עורך-הדף מכולם חוץ מאדמין גם אחרי ש-hasPage נפתח. פתוח לכל משתמש מחובר.
-    { id: "page-editor", world: "me", icon: "🎨", title: "ערוך את הדף שלי", status: "live", hidden: !hasPage, render: () => <PageEditor T={T} goto={goto} /> },
+    { id: "page-editor", world: "me", icon: "🎨", title: "ערוך את הדף שלי", status: "live", hidden: !hasPage, render: () => <PageEditor key={user?.id || "guest"} T={T} goto={goto} /> },
     // 👤 הפרופיל שלי = זהות/חשבון בלבד (איחד את «הגדרות» לתוכו):
     //    סטטוס · תמונה+שם-תצוגה+שם-משתמש+התנתקות (ProfileSettings) · שם-מלא+תאריך-לידה.
     //    דרגה/עץ/מספרים גרים במודול אחד «📈 ההתקדמות שלי» — בלי כפילות (איחוד #1).
     { id: "profile", world: "me", icon: "👤", title: "הפרופיל שלי", status: "live", render: () => (
       <div>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: T.accSoft, color: T.acc, border: `1px solid ${T.line}`, borderRadius: 999, padding: "4px 12px", fontSize: 12.5, fontWeight: 800, marginBottom: 14 }}>{identityOf(c, isAdmin)}</div>
-        <ProfileSettings t={{ fieldBg: T.card, ink: T.ink, line: T.line, sub: T.sub, acc: T.acc, btnText: "#fff" }} showSignOut onSignOut={() => goto("/")} />
+        <ProfileSettings key={user?.id || "guest"} t={{ fieldBg: T.card, ink: T.ink, line: T.line, sub: T.sub, acc: T.acc, btnText: "#fff" }} showSignOut onSignOut={() => goto("/")} />
         <MyInfoPanel T={T} />
       </div>
     ) },
@@ -1448,7 +1488,7 @@ export function buildModules({ T, user, profile, isAdmin, center, signOut, unrea
     { id: "research", world: "lab", icon: "🧠", title: "המחקר שלי", status: "live", badge: c.research_items || undefined,
       render: () => <ResearchGateway T={T} count={c.research_items} goto={goto} setActive={setActive} /> },
     // 📨 הודעות — כניסה אחת מאוחדת (DM פרטי בין חוקרים · תגובות-לכתב אליי). בנוי ופעיל.
-    { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <MessagesHub T={T} goto={goto} initialDm={activeParam?.dm} /> },
+    { id: "messages", world: "community", icon: "📨", title: "ההודעות שלי", status: "live", badge: dmUnread || undefined, render: () => <MessagesHub key={user?.id || "guest"} T={T} goto={goto} initialDm={activeParam?.dm} /> },
     { id: "contrib", world: "community", icon: "🤝", title: "התרומות שלי", status: "live", badge: c.contributions || undefined, render: () => (
       <div>
         {/* ➕ דווח רמז — תרומה חדשה לזרם המציאות (community_hints → אישור אדמין). רכיב קנוני יחיד. */}
@@ -1572,16 +1612,7 @@ function MyCodesPanel({ T, user, goto }) {
 }
 
 // ── 🔔 פאנל ההתראות — אותה עדשה כמו הפעמון בסרגל, בתוך האזור-האישי (מקור-אמת אחד) ──
-function relTime(ts) {
-  try {
-    const diff = (Date.now() - new Date(ts)) / 1000;
-    if (diff < 60) return "עכשיו";
-    if (diff < 3600) return `לפני ${Math.floor(diff / 60)} דק׳`;
-    if (diff < 86400) return `לפני ${Math.floor(diff / 3600)} שע׳`;
-    if (diff < 604800) return `לפני ${Math.floor(diff / 86400)} ימים`;
-    return new Date(ts).toLocaleDateString("he-IL", { day: "numeric", month: "numeric" });
-  } catch { return ""; }
-}
+function relTime(ts) { return bilingualDateLabel(ts) || "תאריך לא זמין"; }
 // 🔗 פתיחת יעד-התראה: קישור-/me פותח מודול-בתוך-המגירה (למשל הודעות + שיחה), שאר הקישורים = ניווט.
 function openNotifTarget(link, { goto, setActive }) {
   if (link && link.startsWith("/me")) {
@@ -1591,9 +1622,10 @@ function openNotifTarget(link, { goto, setActive }) {
   } else if (link) { goto?.(link); }
 }
 
-function NotificationsPanel({ T, onUnread, goto, setActive }) {
+export function NotificationsPanel({ T, onUnread, goto, setActive }) {
   const [items, setItems] = useState(null);
-  useEffect(() => { getMyNotifications().then(setItems).catch(() => setItems([])); }, []);
+  const [readError, setReadError] = useState(false);
+  useEffect(() => { let alive = true; getMyNotifications(30, { strict: true }).then((value) => { if (alive) setItems(value); }).catch(() => { if (alive) { setReadError(true); setItems([]); } }); return () => { alive = false; }; }, []);
 
   async function pick(n) {
     if (!n.read_at) { await markNotificationRead(n.id); onUnread?.(u => Math.max(0, (u || 1) - 1)); }
@@ -1606,6 +1638,7 @@ function NotificationsPanel({ T, onUnread, goto, setActive }) {
   }
 
   if (items === null) return <div style={{ color: T.sub, fontSize: 13, padding: 14 }}>טוען…</div>;
+  if (readError) return <p role="alert">לא ניתן לקרוא את העדכונים כרגע.</p>;
   if (!items.length) return (
     <div style={{ textAlign: "center", padding: "28px 16px", color: T.sub, fontSize: 13.5, lineHeight: 1.7 }}>
       <div style={{ fontSize: 28, marginBottom: 6, opacity: 0.7 }}>🌱</div>
@@ -1648,22 +1681,30 @@ function NotificationsPanel({ T, onUnread, goto, setActive }) {
 // ── 🔔 אחרי מה אני עוקב — רשימת ה-topics שהמשתמש בחר במפורש (notification_prefs.topics),
 //    עם שם ידידותי (topicLabel), קישור, וביטול-מעקב דרך אותו מנוע (watch_toggle). ──
 //    שלושת המצבים לא מתערבבים: כאן רק «🔔 אני עוקב». 🟢 רלוונטי / ✨ רזיאל = בקרוב.
-function FollowingPanel({ T, goto }) {
+export function FollowingPanel({ T, goto }) {
   const { user } = useAuth();
   const [topics, setTopics] = useState(null);
   const [busy, setBusy] = useState("");
+  const [links, setLinks] = useState({}), [error, setError] = useState("");
+  const principal = useRef(user?.id); principal.current = user?.id;
+  const pendingFollow = useRef(false);
 
   useEffect(() => {
+    let alive = true; setTopics(null); setError(""); setLinks({});
     if (!user?.id) { setTopics([]); return; }
     getNotificationPrefs({ userId: user.id })
-      .then(p => setTopics(Array.isArray(p?.topics) ? p.topics : []))
-      .catch(() => setTopics([]));
+      .then(async p => { const next = Array.isArray(p?.topics) ? p.topics : []; const resolved = await publicWriterFollowLinks(next); if (alive) { setTopics(next); setLinks(resolved); } })
+      .catch(() => { if (alive) { setTopics([]); setError("רשימת המעקב אינה זמינה כרגע."); } });
+    return () => { alive = false; };
   }, [user?.id]);
 
   async function unfollow(topic) {
-    setBusy(topic);
-    try { await watchToggle(topic, "center", false, null); setTopics(list => (list || []).filter(t => t !== topic)); }
-    catch { /* noop */ } finally { setBusy(""); }
+    if (pendingFollow.current) return;
+    pendingFollow.current = true;
+    const actor = principal.current;
+    setBusy(topic); setError("");
+    try { const result = await watchToggle(topic, "center", false, null); if (!result) throw new Error("unconfirmed"); if (actor === principal.current) setTopics(list => (list || []).filter(t => t !== topic)); }
+    catch { if (actor === principal.current) setError("לא התקבל אישור ביטול מעקב. רעננו לפני ניסיון נוסף."); } finally { pendingFollow.current = false; if (actor === principal.current) setBusy(""); }
   }
 
   const legend = (
@@ -1680,7 +1721,8 @@ function FollowingPanel({ T, goto }) {
   return (
     <div>
       {legend}
-      {!topics.length ? (
+      {error ? <p role="alert">{error}</p> : null}
+      {!topics.length && !error ? (
         <div style={{ textAlign: "center", padding: "20px 16px", color: T.sub, fontSize: 13.5, lineHeight: 1.7 }}>
           <div style={{ fontSize: 26, marginBottom: 6, opacity: 0.7 }}>🔔</div>
           עדיין לא בחרת לעקוב אחרי משהו.<br />בכל קטגוריה, כתב, מספר או בזרם המציאות — לחצו «עקוב» ונעדכן אתכם כאן.
@@ -1688,7 +1730,8 @@ function FollowingPanel({ T, goto }) {
       ) : (
         <div style={{ display: "grid", gap: 8 }}>
           {topics.map(t => {
-            const w = topicLabel(t); if (!w) return null;
+            const base = topicLabel(t); if (!base) return null;
+            const w = t.startsWith("author:") ? { ...base, link: links[t] || null } : base;
             return (
               <div key={t} style={{ display: "flex", alignItems: "center", gap: 10, background: T.card, border: `1px solid ${T.line}`, borderRadius: 12, padding: "10px 12px" }}>
                 <span style={{ fontSize: 18 }}>{w.icon}</span>

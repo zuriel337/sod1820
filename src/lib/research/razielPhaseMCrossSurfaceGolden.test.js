@@ -12,6 +12,9 @@ const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const sqlGolden = read("../../../tests/sql/raziel_phase_m_cross_surface_golden_v1.sql");
 const frame = read("../../components/experience2029/SystemFrame2029.jsx");
+const session = read("./razielSession2029.js");
+const request = read("./razielSessionRequest2029.js");
+const provider = read("./RazielSessionProvider2029.jsx");
 const region = edge.slice(edge.indexOf("const rzClean = "), edge.indexOf("Deno.serve(async"));
 const razielReq = edge.slice(edge.indexOf("Deno.serve(async"));
 
@@ -201,7 +204,11 @@ test("M: global routing stays OFF; model/provider calls only on explicit send, n
   assert.doesNotMatch(razielReq.slice(razielReq.indexOf('persona || "").toLowerCase() === "raziel"')), /fn_raziel_model|routing_enabled/);
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
   assert.doesNotMatch(chat, /useEffect/);                         // no effect ⇒ nothing fires on mount/open
-  assert.match(chat, /surfaceSemantic: buildSurfaceSemantic\(\)/);
+  assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
+  assert.match(chat, /const send = async[\s\S]*session\.submit\(\{ question: q,/);
+  assert.match(provider, /const submit = useCallback[\s\S]*const rawResponse = await transport\(request\)/);
+  assert.equal((provider.match(/transport\(request\)/g) || []).length, 1);
+  assert.match(request, /const surfaceSemantic = snapshotSurfaceSemantic\(contextSnapshot\)/);
   const mig = (f) => read("../../../supabase/migrations/" + f);
   const lineage = ["20261005050000_raziel_route_token_boundary_match_v1.sql", "20261005130000_raziel_intelligence_core_v1_phase_a_plan_first.sql", "20261005140000_raziel_intelligence_core_v1_phase_c_operator_read.sql",
     "20261005150000_raziel_intelligence_core_v1_phase_d2_plan_signals.sql", "20261005160000_raziel_intelligence_core_v1_phase_e_l4_tool_research.sql", "20261005170000_raziel_intelligence_core_v1_phase_f_sandalphon_source.sql",
@@ -271,7 +278,7 @@ test("M personal: provenance stays separate — personal answer carries only PER
   assert.equal(m.razielPersonalDescriptor(admin, "admin", UID), null);          // an operator plan is never a personal descriptor
   assert.equal(m.razielOperatorDescriptor(pdet("personal_saved"), "admin"), null); assert.equal(m.razielCoordDescriptor(pdet("personal_saved"), "admin"), null);
   const adapters = edge.slice(edge.indexOf("// Phase L — personal research continuity READ"), edge.indexOf("// Phase E — one operational db_rpc/tool span"));
-  assert.match(adapters, /if \(!rOpDesc && !rCoordDesc && rPersDesc && rVerifiedRef\)/);   // operator/coordination/external win; personal never co-executes
+  assert.match(adapters, /if \(q\.allowed && !rOpDesc && !rCoordDesc && rPersDesc && rVerifiedRef\)/);   // quota + operator/coordination/external win; personal never co-executes
   const sp = []; const l2 = load([]);   // spans for personal carry no uid/jwt/items
   void sp; void l2;
 });

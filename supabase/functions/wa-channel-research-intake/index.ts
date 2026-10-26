@@ -5,6 +5,11 @@
 // Every resulting Research Object stays candidate/private by default.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { isTrustedAuthor } from "../_shared/waWriterIdentity.js";
+import {
+  buildResearchScanCursor,
+  parseResearchScanRequest,
+  truncateUnicode,
+} from "../_shared/waResearchScanWindow.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
@@ -204,7 +209,10 @@ async function fallbackObservation(
     media_ocr_pending: mediaKind === "image" && !ocrUsed,
     ocr_used: ocrUsed,
   };
-  const statement = (content || String(row.text || "") || "מקור WhatsApp ללא טקסט קריא").slice(0, 500);
+  const statement = truncateUnicode(
+    content || String(row.text || "") || "מקור WhatsApp ללא טקסט קריא",
+    500,
+  );
   const { error } = await sb.from("research_objects").insert({
     kind: "observation",
     statement,
@@ -213,7 +221,7 @@ async function fallbackObservation(
     contributor: row.credit || null,
     engine_verified: false,
     engine_detail: null,
-    evidence: (content || "").slice(0, 600) || null,
+    evidence: truncateUnicode(content, 600) || null,
     status: "candidate",
     privacy_scope: "private",
     meta: { ext: { wa_channel_intake: intake } },
@@ -241,7 +249,7 @@ async function mediaForAnalysis(row: any): Promise<{ url: string; kind: "image" 
   return { url: data.signedUrl, kind };
 }
 
-async function processRow(row: any) {
+async function processRow(row: any, repair: string | null = null) {
   const ref = sourceRef(row.id);
   let ocrUsed = false;
   let ocrText = "";
@@ -286,6 +294,7 @@ async function processRow(row: any) {
       source_ref: ref,
       contributor: row.credit || null,
       content,
+      extraction_profile: repair === "engine_output_v2" ? "engine_output_v2" : null,
     });
 
     if (result?.error) {
@@ -364,9 +373,9 @@ Deno.serve(async (req) => {
   if (req.headers.get("x-fb-admin-key") !== ADMIN_KEY) return new Response("forbidden", { status: 403 });
 
   const u = new URL(req.url);
-  const hours = Math.max(1, Math.min(Number(u.searchParams.get("hours") || 168), 720));
-  const limit = Math.max(1, Math.min(Number(u.searchParams.get("limit") || 4), 8));
-  const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+  const scan = parseResearchScanRequest(u);
+  if (!scan.ok) return json({ error: scan.error }, 400);
+  const since = new Date(Date.now() - scan.hours * 3600 * 1000).toISOString();
 
   const { data: sourceRows, error: sourceError } = await sb.from("channel_ingest_sources")
     .select("channel,intake_mode,outgoing_contributor,priority,enabled,admin_only,admin_ids")
@@ -374,20 +383,50 @@ Deno.serve(async (req) => {
     .neq("intake_mode", "off");
   if (sourceError) return json({ error: "source_policy_read_failed" }, 500);
 
-  const policies = new Map((sourceRows || []).map((row: any) => [row.channel, row]));
+  const included = new Set(scan.includedChannels);
+  const excluded = new Set(scan.excludedChannels);
+  const policies = new Map((sourceRows || [])
+    .filter((row: any) => (!included.size || included.has(row.channel)) && !excluded.has(row.channel))
+    .map((row: any) => [row.channel, row]));
   const channels = [...policies.keys()];
-  if (!channels.length) return json({ ok: true, hours, scanned: 0, eligible: 0, pending: 0, processed: 0, results: [] });
+  if (!channels.length) return json({
+    ok: true,
+    mode: scan.mode,
+    hours: scan.hours,
+    scanned: 0,
+    eligible: 0,
+    pending: 0,
+    processed: 0,
+    source_scope: "channel_updates",
+    excluded_channels: scan.excludedChannels,
+    cursor: buildResearchScanCursor({ mode: scan.mode, offset: scan.offset, rawCount: 0, windowSize: scan.windowSize }),
+    results: [],
+  });
 
   const { data: vipRows } = await sb.from("wa_vip_senders")
     .select("name_match")
     .eq("active", true);
 
-  const { data: rawRows, error } = await sb.from("channel_updates")
+  let sourceQuery = sb.from("channel_updates")
     .select("id,text,image_url,credit,contributor_id,channel,created_at,status,priority")
-    .in("channel", channels)
-    .gte("created_at", since)
-    .order("created_at", { ascending: false })
-    .limit(500);
+    .in("channel", channels);
+  if (scan.mode === "incremental") {
+    sourceQuery = sourceQuery
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(scan.windowSize);
+  } else {
+    if (scan.after) sourceQuery = sourceQuery.gte("created_at", scan.after);
+    if (scan.through) sourceQuery = sourceQuery.lte("created_at", scan.through);
+    if (scan.contributorId) sourceQuery = sourceQuery.eq("contributor_id", scan.contributorId);
+    if (scan.sourceIds.length) sourceQuery = sourceQuery.in("id", scan.sourceIds);
+    sourceQuery = sourceQuery
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
+      .range(scan.offset, scan.offset + scan.windowSize - 1);
+  }
+  const { data: rawRows, error } = await sourceQuery;
   if (error) return json({ error: "source_read_failed" }, 500);
 
   const contributorIds = [...new Set((rawRows || []).map((r: any) => r.contributor_id).filter(Boolean))];
@@ -427,27 +466,112 @@ Deno.serve(async (req) => {
   }
 
   const now = Date.now();
+  const repairTruncatedJson = scan.repair === "truncated_json_v1";
+  const repairEngineOutput = scan.repair === "engine_output_v2";
+  const eligibilityState = new Map<string, string>();
   const pending = eligible.filter((r: any) => {
     const rows = existing.get(sourceRef(r.id));
-    if (!rows?.length) return true;
+    if (!rows?.length) {
+      eligibilityState.set(r.id, "pending_new");
+      return !repairTruncatedJson && !repairEngineOutput;
+    }
 
     let maxAttempts = 0;
     let latestFailure = 0;
     for (const ro of rows) {
       const intake = (ro as any)?.meta?.ext?.wa_channel_intake;
       // Pre-adapter/legacy Research Objects already prove this source entered Research.
-      if (!intake?.analysis_state) return false;
-      if (intake.analysis_state !== "analysis_failed_source_preserved") return false;
+      if (!intake?.analysis_state) {
+        eligibilityState.set(r.id, "complete_legacy");
+        return false;
+      }
+      if (intake.analysis_state !== "analysis_failed_source_preserved") {
+        eligibilityState.set(r.id, "complete");
+        return false;
+      }
       maxAttempts = Math.max(maxAttempts, Number(intake.attempt_count || 1));
       latestFailure = Math.max(latestFailure, Date.parse(String(intake.analyzed_at || "")) || 0);
     }
-    return maxAttempts < 3 && latestFailure > 0 && now - latestFailure >= 30 * 60 * 1000;
+    if (repairTruncatedJson) {
+      if (maxAttempts === 3) {
+        eligibilityState.set(r.id, "retry_exhausted_repair_ready");
+        return true;
+      }
+      eligibilityState.set(r.id, "retry_exhausted");
+      return false;
+    }
+    if (repairEngineOutput) {
+      const plainTextOnly = !r.image_url && String(r.text || "").trim().length >= 8;
+      if (plainTextOnly && (maxAttempts === 2 || maxAttempts === 4)) {
+        eligibilityState.set(r.id, "retry_engine_output_v2_ready");
+        return true;
+      }
+      eligibilityState.set(r.id, "retry_exhausted");
+      return false;
+    }
+    if (maxAttempts >= 3) {
+      eligibilityState.set(r.id, "retry_exhausted");
+      return false;
+    }
+    if (!(latestFailure > 0 && now - latestFailure >= 30 * 60 * 1000)) {
+      eligibilityState.set(r.id, "retry_cooldown");
+      return false;
+    }
+    eligibilityState.set(r.id, "retry_ready");
+    return true;
   });
-  const selected = selectFair(pending, limit);
+  const stateCounts: Record<string, number> = {};
+  const channelCounts: Record<string, Record<string, number>> = {};
+  for (const row of eligible) {
+    const state = eligibilityState.get(row.id) || "unknown";
+    stateCounts[state] = (stateCounts[state] || 0) + 1;
+    const byState = channelCounts[row.channel] || {};
+    byState[state] = (byState[state] || 0) + 1;
+    channelCounts[row.channel] = byState;
+  }
+  const baseReport = {
+    ok: true,
+    mode: scan.mode,
+    repair: scan.repair,
+    hours: scan.hours,
+    source_scope: "channel_updates",
+    excluded_channels: scan.excludedChannels,
+    included_channels: channels,
+    window: {
+      offset: scan.offset,
+      size: scan.windowSize,
+      after: scan.after,
+      through: scan.through,
+      first_created_at: rawRows?.[0]?.created_at || null,
+      last_created_at: rawRows?.[(rawRows?.length || 1) - 1]?.created_at || null,
+    },
+    scanned: rawRows?.length || 0,
+    eligible: eligible.length,
+    pending: pending.length,
+    states: stateCounts,
+    by_channel: channelCounts,
+  };
+  if (scan.mode === "inventory") {
+    return json({
+      ...baseReport,
+      dry_run: true,
+      processed: 0,
+      cursor: buildResearchScanCursor({
+        mode: scan.mode,
+        offset: scan.offset,
+        rawCount: rawRows?.length || 0,
+        windowSize: scan.windowSize,
+        remainingPending: pending.length,
+      }),
+      results: [],
+    });
+  }
+
+  const selected = selectFair(pending, scan.limit);
   const results = [];
   for (const row of selected) {
     try {
-      results.push(await processRow(row));
+      results.push(await processRow(row, scan.repair));
     } catch {
       // One malformed/transient source must not abort the remaining bounded batch.
       // With no terminal Research Object recorded, this source remains eligible for a later retry.
@@ -455,13 +579,19 @@ Deno.serve(async (req) => {
     }
   }
 
+  const retryPending = results.filter((row: any) => row.state === "processing_error_retry_pending").length;
+  const remainingPending = Math.max(0, pending.length - selected.length) + retryPending;
   return json({
-    ok: true,
-    hours,
-    scanned: rawRows?.length || 0,
-    eligible: eligible.length,
-    pending: pending.length,
+    ...baseReport,
     processed: results.length,
+    remaining_pending: remainingPending,
+    cursor: buildResearchScanCursor({
+      mode: scan.mode,
+      offset: scan.offset,
+      rawCount: rawRows?.length || 0,
+      windowSize: scan.windowSize,
+      remainingPending,
+    }),
     results,
   });
 });

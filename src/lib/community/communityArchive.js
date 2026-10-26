@@ -17,7 +17,13 @@ export const PROFILE_BASELINES = Object.freeze({
 // A screenshot/name alone never grants account ownership.
 export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   "f499536a-e993-4a7d-8706-a2e69337c320": { sourceUserId: "u_zawiGiUO", name: "שינשין", ...PROFILE_BASELINES["שינשין"] },
-  "e7581ab5-8c15-4832-b602-f361e41ff373": { sourceUserId: "u_r6fetXIK", name: "אמילי", ...PROFILE_BASELINES["אמילי"] },
+  // ZURIEL explicitly approved this public historical bio on 2026-10-25.
+  // It grants no account binding or platform permission; the source dossier remains private.
+  "e7581ab5-8c15-4832-b602-f361e41ff373": { sourceUserId: "u_r6fetXIK", name: "אמילי", ...PROFILE_BASELINES["אמילי"],
+    publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
+  // ZURIEL explicitly identified Esther26; this is distinct from the source named אסתר.
+  "99bcfb38-85be-4f38-89f0-7886f2f179e6": {
+    publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   "27c10d9a-14a6-4493-980b-2f5eda105ad7": { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"] },
   "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "b6ce542a-2b07-4749-8aba-532c886f6de7" },
   "19936860-6b35-4386-bc44-113289858ff0": { sourceUserId: "u_3kuB1woMg6wz", name: "Yosi Viner", handle: "YosiViner559", accountUserId: "36f5cb84-71c3-4977-a2c7-d6413e973443" },
@@ -46,15 +52,15 @@ function filterByAuthor(query, identity) {
   return identity.contributorIds.length === 1 ? query.eq("author_contributor_id", identity.contributorIds[0]) : query.in("author_contributor_id", identity.contributorIds);
 }
 
-async function resolveCommunityAuthorIdentity(authorKey) {
+export async function resolveCommunityAuthorIdentity(authorKey, client = supabase) {
   const identity = communityAuthorIdentity(authorKey);
   if (identity.verifiedOwner) return identity;
   if (authorKey.startsWith("user:")) {
-    const { data, error } = await supabase.from("contributors").select("id").eq("user_id", identity.accountIds[0]).limit(100);
+    const { data, error } = await client.from("contributors").select("id").eq("user_id", identity.accountIds[0]).limit(100);
     if (error) throw error;
     return { ...identity, contributorIds: (data || []).map((row) => row.id) };
   }
-  const { data, error } = await supabase.from("contributors").select("user_id").eq("id", identity.contributorIds[0]).maybeSingle();
+  const { data, error } = await client.from("contributors").select("user_id").eq("id", identity.contributorIds[0]).maybeSingle();
   if (error) throw error;
   return { ...identity, accountIds: data?.user_id ? [data.user_id] : [] };
 }
@@ -159,11 +165,11 @@ export async function fetchCommunityAuthorPage(authorKey, { offset = 0, limit = 
   return fetchPublicAuthorActivityPage(authorKey, { offset, limit, filter: "chat", sort });
 }
 
-export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, limit = COMMUNITY_PAGE_SIZE, filter = "all", sort = "newest" } = {}) {
-  const identity = await resolveCommunityAuthorIdentity(authorKey);
+export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, limit = COMMUNITY_PAGE_SIZE, filter = "all", sort = "newest", client = supabase } = {}) {
+  const identity = await resolveCommunityAuthorIdentity(authorKey, client);
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
-  let base = supabase
+  let base = client
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,target_type,target_id,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: "exact" })
     .eq("status", "approved")
@@ -176,12 +182,13 @@ export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, lim
     .order("id", { ascending: sort === "oldest" })
     .range(safeOffset, safeOffset + safeLimit - 1);
   if (error) throw error;
-  return { rows: (data || []).map(normalizeCommunityRow).filter((row) => row.body), count: count ?? 0, nextOffset: safeOffset + (data || []).length };
+  return { rows: (data || []).map(normalizeCommunityRow).filter((row) => row.body),
+    count: Number.isSafeInteger(count) && count >= 0 ? count : null, nextOffset: safeOffset + (data || []).length };
 }
 
-export async function fetchCommunityAuthorSummary(authorKey) {
-  const identity = await resolveCommunityAuthorIdentity(authorKey);
-  const base = () => filterByAuthor(supabase.from("research_contributions")
+export async function fetchCommunityAuthorSummary(authorKey, { client = supabase } = {}) {
+  const identity = await resolveCommunityAuthorIdentity(authorKey, client);
+  const base = () => filterByAuthor(client.from("research_contributions")
     .select("created_at,reactions")
     .eq("status", "approved")
     .in("origin", ["openweb", "community_2029"]), identity);

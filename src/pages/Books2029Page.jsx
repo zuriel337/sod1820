@@ -1,4 +1,5 @@
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
+import BookSourceReader2029 from "../components/books2029/BookSourceReader2029.jsx";
 import { use2029Palette } from "../lib/palette.js";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -15,6 +16,7 @@ import {
   buildBookResearchPresentation,
 } from "../lib/research/bookResearchProjection.js";
 import { applySeo } from "../lib/seo.js";
+import { getBookReaderManifest } from "../data/bookReader2029.js";
 
 const COVERAGE_LABELS = {
   structural: "מיפוי מבני",
@@ -119,6 +121,7 @@ function ResearchFamily({ group, book, research, defaultOpen = false }) {
 
 function BookCard({ book }) {
   const slug = book?.metadata?.slug;
+  const reader = getBookReaderManifest(slug);
   const coverage = { ...(book?.metadata?.coverage || {}), ...(book?.metadata?.coverage_2029 || {}) };
   const primary = primaryCoverage(coverage);
   return <Link className="sod29-book-tile" to={slug ? `/book/${slug}` : "/books"}>
@@ -127,6 +130,7 @@ function BookCard({ book }) {
     <h3>{book.label}</h3>
     <p className="sod29-muted">{primary ? `${coverageLabel(primary.key)} · ${String(primary.value)}` : "ספר חי במערכת המחקר"}</p>
     <div className="sod29-actions">
+      {reader ? <span className="sod29-chip">PDF מלא · {reader.pdfPages} עמודים</span> : null}
       <span className="sod29-chip">{book.is_active ? "פעיל" : "לא פעיל"}</span>
       {coverage.unresolved_total != null ? <span className="sod29-chip">{coverage.unresolved_total} נקודות פתוחות</span> : null}
     </div>
@@ -211,6 +215,7 @@ function BookDetail({ slug }) {
 
   const book = state.book;
   const pack = state.research;
+  const readerManifest = useMemo(() => getBookReaderManifest(slug), [slug]);
   const tiers = book?.metadata?.identity_tiers || {};
   const coverage = useMemo(() => ({
     ...(book?.metadata?.coverage || {}),
@@ -239,10 +244,12 @@ function BookDetail({ slug }) {
           <div className="sod29-kicker">ספר · מקור · מחקר</div>
           <h2>{book.label}</h2>
           <p className="sod29-muted">מתחילים מהעיקר: מה כבר מופה, מה נמצא במחקר, מאיזה מקור זה מגיע ומה עדיין דורש המשך בדיקה. שכבות העדות נשמרות בנפרד מאחורי התצוגה האנושית.</p>
-          <div className="sod29-actions"><SaveBookItemAction key={book.id} item={bookToWorkspaceItem(book)} research={research} /><button type="button" className="sod29-action" data-action="research" onClick={addBook}><NavigationIcon2029 name="add" /> הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()} disabled={shell.razielLocked}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל"}</button></div>
+          <div className="sod29-actions">{readerManifest ? <a className="sod29-action" href="#book-reader29-source"><span aria-hidden="true">▤</span> קרא את ה־PDF</a> : null}<SaveBookItemAction key={book.id} item={bookToWorkspaceItem(book)} research={research} /><button type="button" className="sod29-action" data-action="research" onClick={addBook}><NavigationIcon2029 name="add" /> הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()} disabled={shell.razielLocked}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל"}</button></div>
         </div>
       </div>
     </section>
+
+    {readerManifest ? <BookSourceReader2029 manifest={readerManifest} researchRows={rows} /> : null}
 
     <section className="sod29-section sod29-book-overview">
       <div className="sod29-section-head"><div><div className="sod29-kicker">העיקר</div><h2>מצב הספר עכשיו</h2><div className="sod29-muted">תמונת פתיחה אחת לפני שנכנסים לפרטים, למטריצות או לכלי עומק.</div></div></div>
@@ -286,8 +293,9 @@ function BookDetail({ slug }) {
   </>;
 }
 
-export default function Books2029Page() {
-  const { slug } = useParams();
+export default function Books2029Page({ previewSlug = "" }) {
+  const { slug: routeSlug } = useParams();
+  const slug = routeSlug || previewSlug;
   useEffect(() => { applySeo({ title: slug ? "ספר · SOD1820" : "ספרים ומקורות · SOD1820", description: "ספרים, מקורות, עדים ומחקר ב־SOD1820", path: slug ? `/book/${slug}` : "/books" }); }, [slug]);
   return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות ולמראה־מקום.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
 }

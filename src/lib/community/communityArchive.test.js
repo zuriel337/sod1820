@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReplies, fetchCommunityReplyCounts, legacyLikeCount, normalizeCommunityRow } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReplies, fetchCommunityReplyCounts, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityRow } from "./communityArchive.js";
 
 test("preserves the five user-authorized profile like baselines", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(PROFILE_BASELINES).map(([name, value]) => [name, value.likesLabel])), {
@@ -14,6 +14,7 @@ test("preserves the five user-authorized profile like baselines", () => {
   assert.equal(PROFILE_BASELINES["שינשין"].isPrivate, true);
   assert.equal(VERIFIED_ARCHIVE_PROFILES["f499536a-e993-4a7d-8706-a2e69337c320"].sourceUserId, "u_zawiGiUO");
   assert.equal(VERIFIED_ARCHIVE_PROFILES["e7581ab5-8c15-4832-b602-f361e41ff373"].likesLabel, "22.9K");
+  assert.match(VERIFIED_ARCHIVE_PROFILES["e7581ab5-8c15-4832-b602-f361e41ff373"].publicBio, /מנהלת.*כעשור/);
   assert.equal(VERIFIED_ARCHIVE_PROFILES["19936860-6b35-4386-bc44-113289858ff0"].accountUserId, "36f5cb84-71c3-4977-a2c7-d6413e973443");
   assert.equal(VERIFIED_ARCHIVE_PROFILES["4cd9c034-0464-4600-a35d-7156f0584d9b"].accountUserId, "b6ce542a-2b07-4749-8aba-532c886f6de7");
 });
@@ -97,5 +98,25 @@ test("the chat pages roots and fetches approved direct replies in reading order"
     assert.match(requests[1].searchParams.get("order"), /created_at\.asc,id\.asc/);
     assert.ok(requests[1].searchParams.getAll("body").includes("neq."));
     assert.ok(requests.every((url) => url.searchParams.get("status") === "eq.approved"));
+  } finally { globalThis.fetch = previousFetch; }
+});
+
+test("a public author page with no count header keeps its messages and an unknown total", async () => {
+  const previousFetch = globalThis.fetch;
+  const requests = [];
+  let unknownRange = false;
+  globalThis.fetch = async (input) => {
+    const url = new URL(input.url || input); requests.push(url);
+    const rows = url.pathname.endsWith("/contributors") ? { user_id: null }
+      : [{ id: "message-ref", author_name: "שם ציבורי", body: "הודעה", origin: "openweb" }];
+    return new Response(JSON.stringify(rows), { headers: { "content-type": "application/json", ...(unknownRange ? { "content-range": "0-0/*" } : {}) } });
+  };
+  try {
+    const page = await fetchPublicAuthorActivityPage("e7581ab5-8c15-4832-b602-f361e41ff373", { filter: "chat", limit: 20 });
+    assert.equal(page.count, null); assert.equal(page.rows[0].id, "message-ref"); assert.equal(page.nextOffset, 1);
+    assert.equal(requests[1].searchParams.get("status"), "eq.approved");
+    assert.equal(requests[1].searchParams.get("origin"), "in.(openweb,community_2029)");
+    unknownRange = true;
+    assert.equal((await fetchPublicAuthorActivityPage("e7581ab5-8c15-4832-b602-f361e41ff373", { filter: "chat", limit: 20 })).count, null);
   } finally { globalThis.fetch = previousFetch; }
 });
