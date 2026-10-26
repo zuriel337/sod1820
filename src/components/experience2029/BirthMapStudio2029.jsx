@@ -148,7 +148,7 @@ function HumanDesignResult({ result }) {
     <section className="birth-map-result__headline">
       <article><small>הטיפוס שלך</small><strong>{result.typeLabel}</strong></article>
       <article><small>דרך ההכרעה</small><strong>{result.authorityLabel}</strong></article>
-      <article><small>הפרופיל שלך</small><strong dir="ltr">{result.profile}</strong></article>
+      <article><small>הפרופיל שלך</small><strong>{result.profileLabel || result.profile}</strong></article>
     </section>
     <section className="birth-map-result__group"><h6>דרך פעולה · מבנה החיבור</h6><div><span>{result.strategyLabel || result.strategy}</span><span>{result.definitionLabel || result.definition}</span></div></section>
     <section className="birth-map-result__group"><h6>מרכזים מוגדרים</h6><div>{result.definedCenters.map(center => <span key={center.key}>{center.label}</span>)}</div></section>

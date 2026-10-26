@@ -34,6 +34,8 @@ test("computes the published golden Human Design and sky fixture locally", async
   assert.equal(result.humanDesign.type, "Manifesting Generator");
   assert.equal(result.humanDesign.authority, "Sacral Authority");
   assert.equal(result.humanDesign.profile, "3/5");
+  assert.equal(result.humanDesign.typeLabel, "מחולל יוזם (Manifesting Generator)");
+  assert.equal(result.humanDesign.profileLabel, "3/5 · מתנסה / פותר בעיות");
   assert.equal(result.humanDesign.definition, "Single Definition");
   assert.equal(result.humanDesign.strategyLabel, "להמתין לתגובה ואז ליידע");
   assert.equal(result.humanDesign.definitionLabel, "הגדרה אחידה");
@@ -114,7 +116,8 @@ test("keeps the engine behind an injectable narrow adapter", async () => {
   assert.equal("name" in received, false);
   assert.equal("memberRef" in received, false);
   assert.equal("birthPlace" in received, false);
-  assert.equal(result.humanDesign.typeLabel, "Reflector · משקף");
+  assert.equal(result.humanDesign.typeLabel, "משקף (Reflector)");
+  assert.equal(result.humanDesign.profileLabel, "1/3 · חוקר / מתנסה");
   assert.equal(result.humanDesign.strategyLabel, "להמתין");
   assert.equal(result.humanDesign.definitionLabel, "ללא הגדרה קבועה");
 });

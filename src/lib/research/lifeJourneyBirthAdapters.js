@@ -42,11 +42,11 @@ const SIGN_LABELS = Object.freeze({
 });
 
 const TYPE_LABELS = Object.freeze({
-  Generator: "Generator · מחולל",
-  "Manifesting Generator": "Manifesting Generator · מחולל יוזם",
-  Projector: "Projector · מקרין",
-  Manifestor: "Manifestor · יוזם",
-  Reflector: "Reflector · משקף",
+  Generator: "מחולל (Generator)",
+  "Manifesting Generator": "מחולל יוזם (Manifesting Generator)",
+  Projector: "מקרין (Projector)",
+  Manifestor: "יוזם (Manifestor)",
+  Reflector: "משקף (Reflector)",
 });
 
 const AUTHORITY_LABELS = Object.freeze({
@@ -76,6 +76,15 @@ const DEFINITION_LABELS = Object.freeze({
   "Triple Split": "הגדרה מפוצלת לשלושה",
   "Quadruple Split Definition": "הגדרה מפוצלת לארבעה",
   "Quadruple Split": "הגדרה מפוצלת לארבעה",
+});
+
+const PROFILE_LINE_LABELS = Object.freeze({
+  1: "חוקר",
+  2: "טבעי",
+  3: "מתנסה",
+  4: "מקשר",
+  5: "פותר בעיות",
+  6: "מודל לחיקוי",
 });
 
 const CENTER_LABELS = Object.freeze({
@@ -195,6 +204,8 @@ function sanitizePoint(point = {}) {
 function sanitizeHumanDesign(humanDesign = {}) {
   const strategy = clean(humanDesign.type?.strategy);
   const definition = clean(humanDesign.definition);
+  const profile = clean(humanDesign.profile?.numbers);
+  const profileLines = profile.split("/").map(line => PROFILE_LINE_LABELS[line]).filter(Boolean);
   return Object.freeze({
     type: clean(humanDesign.type?.name),
     typeLabel: TYPE_LABELS[humanDesign.type?.name] || clean(humanDesign.type?.name),
@@ -202,7 +213,8 @@ function sanitizeHumanDesign(humanDesign = {}) {
     strategyLabel: STRATEGY_LABELS[strategy] || strategy,
     authority: clean(humanDesign.authority?.name),
     authorityLabel: AUTHORITY_LABELS[clean(humanDesign.authority?.name)] || clean(humanDesign.authority?.name),
-    profile: clean(humanDesign.profile?.numbers),
+    profile,
+    profileLabel: profileLines.length === 2 ? `${profile} · ${profileLines.join(" / ")}` : profile,
     definition,
     definitionLabel: DEFINITION_LABELS[definition] || definition,
     activatedGates: Object.freeze((humanDesign.gates?.all || []).map(Number).filter(Number.isSafeInteger)),
