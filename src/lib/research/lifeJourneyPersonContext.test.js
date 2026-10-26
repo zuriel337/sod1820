@@ -13,6 +13,11 @@ import {
   buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyFindingTraversalPatch,
   buildLifeJourneyPersonContext,
+  buildLifeJourneyMapPositionPatch,
+  buildLifeJourneySaveCheckpointPatch,
+  lifeJourneyMapPosition,
+  isLifeJourneyPathReceipt,
+  canSaveLifeJourneyContext,
   lifeJourneyPrivateFindingRef,
   lifeJourneyViewFromContext,
 } from "./lifeJourneyPersonContext.js";
@@ -20,6 +25,55 @@ import { LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION } from "./lifeJourneyFamilyResea
 
 const PERSON_REF = "person:11111111-1111-4111-8111-111111111111:self";
 const MEMBER_REF = "person:11111111-1111-4111-8111-111111111111:p:child-1";
+
+test("map position survives Context and Path round trips using only allowed references", () => {
+  const initial = buildLifeJourneyPersonContext(PERSON_REF);
+  const selected = buildLifeJourneyFamilySelectionPatch(initial, { personRef: PERSON_REF, memberRefs: [PERSON_REF, MEMBER_REF] });
+  const patch = buildLifeJourneyMapPositionPatch(selected, { personRef: PERSON_REF, memberRef: MEMBER_REF, tab: "creation", lens: "sky" });
+  const positioned = mergeResearchContext(selected, patch);
+  const representation = buildResearchPathRepresentation(positioned);
+  const receipt = { ok: true, path_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", revision_id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", revision_no: 1, access_scope: "private", representation, steps: [] };
+  assert.equal(isLifeJourneyPathReceipt(receipt, PERSON_REF), true);
+  const restored = contextFromResearchPathSnapshot(receipt);
+  assert.deepEqual(lifeJourneyMapPosition(restored, PERSON_REF), { tab: "creation", lens: "sky", memberRef: MEMBER_REF });
+  assert.deepEqual(lifeJourneyMapPosition(buildLifeJourneyPersonContext(PERSON_REF, restored), PERSON_REF), lifeJourneyMapPosition(restored, PERSON_REF));
+  assert.deepEqual(Object.keys(patch.dimensions).sort(), ["lifeJourneyMapLens", "lifeJourneyMapMemberRef", "lifeJourneyMapTab"]);
+});
+
+test("map position rejects foreign/deselected people and unknown views", () => {
+  const context = buildLifeJourneyPersonContext(PERSON_REF);
+  assert.equal(buildLifeJourneyMapPositionPatch(context, { personRef: PERSON_REF, memberRef: MEMBER_REF }), null);
+  assert.equal(buildLifeJourneyMapPositionPatch(context, { personRef: PERSON_REF, memberRef: "person:other:self" }), null);
+  assert.equal(buildLifeJourneyMapPositionPatch(context, { personRef: PERSON_REF, tab: "els" }), null);
+  assert.equal(buildLifeJourneyMapPositionPatch(context, { personRef: PERSON_REF, lens: "private name" }), null);
+  assert.equal(lifeJourneyMapPosition(context, PERSON_REF, []).memberRef, null);
+});
+
+test("save success requires an exact private Path receipt for this person", () => {
+  const context = buildLifeJourneyPersonContext(PERSON_REF);
+  const receipt = { ok: true, path_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", revision_id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", revision_no: 1, representation: buildResearchPathRepresentation(context) };
+  assert.equal(isLifeJourneyPathReceipt({ ok: true }, PERSON_REF), false);
+  assert.equal(isLifeJourneyPathReceipt({ ...receipt, revision_id: null }, PERSON_REF), false);
+  assert.equal(isLifeJourneyPathReceipt({ ...receipt, revision_no: 0 }, PERSON_REF), false);
+  assert.equal(isLifeJourneyPathReceipt({ ...receipt, access_scope: "public" }, PERSON_REF), false);
+  assert.equal(isLifeJourneyPathReceipt(receipt, "person:other:self"), false);
+  assert.equal(isLifeJourneyPathReceipt({ ...receipt, representation: { ...receipt.representation, href: "https://example.test" } }, PERSON_REF), false);
+  assert.equal(canSaveLifeJourneyContext(context, PERSON_REF), true);
+  assert.equal(canSaveLifeJourneyContext(normalizeResearchContext({ ...context, journey: { root: { type: "number", id: "73" } } }), PERSON_REF), false);
+  const moved = mergeResearchContext(context, buildLifeJourneyMapPositionPatch(context, { personRef: PERSON_REF, tab: "time" }));
+  assert.equal(isLifeJourneyPathReceipt(receipt, PERSON_REF, moved), false, "a stale receipt does not confirm a different map checkpoint");
+});
+
+test("a repeated explicit save queues a bounded checkpoint through the existing Path draft", () => {
+  const started = continueResearchPathContext(buildLifeJourneyPersonContext(PERSON_REF), { kind: "person_life" }).context;
+  assert.equal(buildLifeJourneySaveCheckpointPatch(started, PERSON_REF), null, "an existing pending step is not duplicated");
+  const saved = normalizeResearchContext({ ...started, journey: { ...started.journey, pendingSteps: [], lastSavedStep: { ...started.journey.pendingSteps[0], step_index: 3 } } });
+  const patch = buildLifeJourneySaveCheckpointPatch(saved, PERSON_REF);
+  assert.equal(patch.journey.pendingSteps.length, 1);
+  assert.equal(patch.journey.pendingSteps[0].step_index, 4);
+  assert.equal(patch.journey.pendingSteps[0].reason, "explicit_person_checkpoint");
+  assert.equal(patch.journey.pendingSteps[0].href, LIFE_JOURNEY_2029_HREF);
+});
 
 test("person context preserves one opaque person-ref through a refresh round trip", () => {
   const context = buildLifeJourneyPersonContext(PERSON_REF);

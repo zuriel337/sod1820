@@ -1,11 +1,15 @@
 import { buildExactReturnPatch, normalizeResearchContext } from "./researchContext.js";
 import { stableIdentityDigest } from "./researchRepresentations.js";
+import { buildResearchPathStep } from "./researchPathRuntime.js";
 import { LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION } from "./lifeJourneyFamilyResearchSnapshot.js";
 
 export const LIFE_JOURNEY_2029_HREF = "/2029/journey";
 export const LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT = "life_journey_person_context_v1";
 
 const VIEWS = new Set(["person", "name", "date", "finding"]);
+const MAP_TABS = new Set(["summary", "overview", "matrix", "generations", "relationships", "convergences", "evidence", "timeline", "time", "creation", "sources", "coverage", "path"]);
+const MAP_LENSES = new Set(["spatial", "human", "sky", "sefer"]);
+const PATH_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const clean = value => String(value || "").trim();
 
 export function lifeJourneyPrivateFindingRef(findingId) {
@@ -29,6 +33,80 @@ export function lifeJourneySelectedMemberRefs(context, personRef) {
   return [...new Set(raw.map(clean).filter(ref => isLifeJourneyMemberRef(rootRef, ref)))];
 }
 
+export function lifeJourneyMapPosition(context, personRef, availableRefs = null) {
+  const dimensions = context?.dimensions || {};
+  const selected = lifeJourneySelectedMemberRefs(context, personRef)
+    .filter(ref => !Array.isArray(availableRefs) || availableRefs.includes(ref));
+  return {
+    tab: MAP_TABS.has(dimensions.lifeJourneyMapTab) ? dimensions.lifeJourneyMapTab : "summary",
+    lens: MAP_LENSES.has(dimensions.lifeJourneyMapLens) ? dimensions.lifeJourneyMapLens : "spatial",
+    memberRef: selected.includes(dimensions.lifeJourneyMapMemberRef) ? dimensions.lifeJourneyMapMemberRef : selected[0] || null,
+  };
+}
+
+export function buildLifeJourneyMapPositionPatch(context, { personRef, tab, lens, memberRef } = {}) {
+  const safe = normalizeResearchContext(context);
+  if (lifeJourneyViewFromContext(safe, personRef) !== "person") return null;
+  const current = lifeJourneyMapPosition(safe, personRef);
+  const next = { ...current, ...(tab != null ? { tab } : {}), ...(lens != null ? { lens } : {}), ...(memberRef != null ? { memberRef } : {}) };
+  if (!MAP_TABS.has(next.tab) || !MAP_LENSES.has(next.lens)
+    || (next.memberRef && !lifeJourneySelectedMemberRefs(safe, personRef).includes(next.memberRef))) return null;
+  return { dimensions: {
+    lifeJourneyMapTab: next.tab,
+    lifeJourneyMapLens: next.lens,
+    lifeJourneyMapMemberRef: next.memberRef,
+  } };
+}
+
+// Server authorization and destination reads remain mandatory; this only validates
+// the receipt's identity/scope before the consumer announces a successful save.
+export function isLifeJourneyPathReceipt(snapshot, personRef, expectedContext = null) {
+  const context = normalizeResearchContext(snapshot?.representation?.context);
+  const href = snapshot?.representation?.href;
+  const view = lifeJourneyViewFromContext(context, personRef);
+  return Boolean(snapshot?.ok && PATH_UUID.test(snapshot.path_id) && PATH_UUID.test(snapshot.revision_id)
+    && Number.isSafeInteger(snapshot.revision_no) && snapshot.revision_no >= 1
+    && (!snapshot.access_scope || snapshot.access_scope === "private")
+    && context?.dimensions?.lifeJourneyPersonRef === personRef && view
+    && context.subject?.href === href
+    && (!context.dimensions.lifeJourneyMemberRef || isLifeJourneyMemberRef(personRef, context.dimensions.lifeJourneyMemberRef))
+    && (!Array.isArray(context.dimensions.lifeJourneySelectedMemberRefs) || context.dimensions.lifeJourneySelectedMemberRefs.every(ref => isLifeJourneyMemberRef(personRef, ref)))
+    && (href === LIFE_JOURNEY_2029_HREF || (view === "finding" && /^\/2029\/number\/\d+$/.test(href)))
+    && (!expectedContext || JSON.stringify(lifeJourneyCheckpointState(context, personRef))
+      === JSON.stringify(lifeJourneyCheckpointState(expectedContext, personRef))));
+}
+
+function lifeJourneyCheckpointState(context, personRef) {
+  return {
+    selectedRefs: lifeJourneySelectedMemberRefs(context, personRef),
+    position: lifeJourneyMapPosition(context, personRef),
+    findings: context?.dimensions?.[LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION] || null,
+  };
+}
+
+export function canSaveLifeJourneyContext(context, personRef) {
+  const safe = normalizeResearchContext(context);
+  const root = safe?.journey?.root;
+  return lifeJourneyViewFromContext(safe, personRef) === "person"
+    && (!root || (root.type === "person" && root.id === personRef));
+}
+
+// A deliberate checkpoint can change the representation without changing the
+// navigation-step identity. Queue one bounded step in the existing Path draft
+// so the canonical saver does not return the previous, unchanged revision.
+export function buildLifeJourneySaveCheckpointPatch(context, personRef) {
+  const safe = normalizeResearchContext(context);
+  if (!canSaveLifeJourneyContext(safe, personRef) || safe.journey?.kind !== "research_path"
+    || safe.journey.pendingSteps?.length) return null;
+  const step = buildResearchPathStep(safe, {
+    href: LIFE_JOURNEY_2029_HREF, label: "מסע חיים פרטי",
+    surface: "life_journey_2029", reason: "explicit_person_checkpoint",
+  });
+  if (!step) return null;
+  step.step_index = (safe.journey.lastSavedStep?.step_index ?? -1) + 1;
+  return { journey: { ...safe.journey, position: step.step_index, pendingSteps: [step] } };
+}
+
 function personDimensions(context, personRef) {
   const familySnapshot = context?.dimensions?.[LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION];
   const dimensions = Object.fromEntries(
@@ -40,6 +118,9 @@ function personDimensions(context, personRef) {
     lifeJourneyView: "person",
     lifeJourneyPersonRef: personRef,
     lifeJourneySelectedMemberRefs: lifeJourneySelectedMemberRefs(context, personRef),
+    lifeJourneyMapTab: lifeJourneyMapPosition(context, personRef).tab,
+    lifeJourneyMapLens: lifeJourneyMapPosition(context, personRef).lens,
+    lifeJourneyMapMemberRef: lifeJourneyMapPosition(context, personRef).memberRef,
     ...(typeof familySnapshot === "string" && familySnapshot
       ? { [LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION]: familySnapshot }
       : {}),
@@ -142,6 +223,7 @@ export function buildLifeJourneyFamilySelectionPatch(context, { personRef, membe
   const selectionChanged = selectedRefs.length !== currentRefs.length
     || selectedRefs.some((ref, index) => ref !== currentRefs[index]);
   const dimensions = { ...safe.dimensions, lifeJourneySelectedMemberRefs: selectedRefs };
+  if (!selectedRefs.includes(dimensions.lifeJourneyMapMemberRef)) dimensions.lifeJourneyMapMemberRef = selectedRefs[0] || null;
   if (selectionChanged) delete dimensions[LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION];
   return normalizeResearchContext({
     ...safe,

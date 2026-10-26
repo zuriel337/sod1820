@@ -214,7 +214,7 @@ function SpatialDetails({ mode, data, focusIndex, onFocus }) {
   </div>;
 }
 
-export default function BirthMapStudio2029({ data, seferContent, onCalculationChange = null, initialMemberRef = "", initialLens = "spatial", birthReflections = null, onReturnToPicture = null, onPersonFocus = null }) {
+export default function BirthMapStudio2029({ data, seferContent, onCalculationChange = null, initialMemberRef = "", initialLens = "spatial", birthReflections = null, onReturnToPicture = null, onPersonFocus = null, onLensChange = null }) {
   const firstPerson = data.people.find(person => person.memberRef === initialMemberRef) || data.people[0] || null;
   const firstPlace = resolveLifeJourneyBirthPlace(firstPerson?.birthPlace);
   const rememberedCalculation = memberRef => birthReflections instanceof Map ? birthReflections.get(memberRef) : birthReflections?.[memberRef];
@@ -356,7 +356,7 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
     {calculation && (lens === "human" || lens === "sky") ? <p className="birth-map-session-note">מוצגת המפה מהחישוב האחרון במסך הזה. שינוי פרטים יכין בדיקה חדשה.</p> : null}
 
     <div className="birth-map-studio__tabs" role="tablist" aria-label="עדשות מפת הלידה">
-      {LENSES.map(item => <button key={item.id} type="button" role="tab" aria-selected={lens === item.id} onClick={() => setLens(item.id)}>{item.label}</button>)}
+      {LENSES.map(item => <button key={item.id} type="button" role="tab" aria-selected={lens === item.id} onClick={() => { setLens(item.id); onLensChange?.(item.id); }}>{item.label}</button>)}
     </div>
 
     {lens === "spatial" ? <div className="birth-map-spatial-panel" role="tabpanel">

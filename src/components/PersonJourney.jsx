@@ -37,6 +37,8 @@ import {
   buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyFindingTraversalPatch,
   buildLifeJourneyPersonContext,
+  buildLifeJourneyMapPositionPatch,
+  lifeJourneyMapPosition,
   lifeJourneySelectedMemberRefs,
   lifeJourneyViewFromContext,
 } from "../lib/research/lifeJourneyPersonContext.js";
@@ -60,6 +62,7 @@ import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import CanonicalVerseCards2029 from "./experience2029/CanonicalVerseCards2029.jsx";
 import "./person-journey.css";
+import LifeJourneyResume2029 from "./experience2029/LifeJourneyResume2029.jsx";
 
 const LifeJourneyMaps2029 = lazy(() => import("./experience2029/LifeJourneyMaps2029.jsx"));
 
@@ -430,14 +433,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   }, [currentLifeJourneyPersonRef, currentLifeJourneyView, currentResearchSubjectId,
     currentReturnPersonRef, pathname, persistedSelf?.name, research.syncStatus, selfRef, user?.id, variant]);
 
-  useEffect(() => {
-    if (variant !== "2029" || !selfRef || !familyResearchSignature || familyResearch.state !== "idle") return;
-    const snapshot = readLifeJourneyFamilySnapshot(research.context, {
+  const materializeFamilyContext = useCallback(context => {
+    const availableRefs = new Set(members.map(member => clean(member.source_ref)));
+    const selectedRefs = lifeJourneySelectedMemberRefs(context, selfRef).filter(ref => availableRefs.has(ref));
+    const snapshot = readLifeJourneyFamilySnapshot(context, {
       personRef: selfRef,
-      signature: familyResearchSignature,
+      signature: lifeJourneyFamilySelectionSignature(members, selectedRefs),
     });
-    if (!snapshot) return;
-    const materialized = materializeLifeJourneyFamilySnapshot(snapshot, members, {
+    if (!snapshot) return null;
+    return materializeLifeJourneyFamilySnapshot(snapshot, members, {
       hebrewDateForMember: member => {
         const date = memberResearchProfile(member).birthdate;
         if (!date) return null;
@@ -445,10 +449,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         catch { return null; }
       },
     });
+  }, [members, selfRef]);
+
+  useEffect(() => {
+    if (variant !== "2029" || !selfRef || !familyResearchSignature || familyResearch.state !== "idle") return;
+    const materialized = materializeFamilyContext(research.context);
     if (!materialized) return;
     setFamilyResearch(materialized.research);
     setFamilyAnalysis(materialized.analysis || { state: "idle", data: null, error: null });
-  }, [familyResearch.state, familyResearchSignature, members, research.context, selfRef, variant]);
+  }, [familyResearch.state, familyResearchSignature, materializeFamilyContext, research.context, selfRef, variant]);
 
   const runInitialResearch = useCallback(async ({ first, last, date }) => {
     if (!user || !clean(first)) return null;
@@ -901,6 +910,19 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       return next;
     });
   }, [selectedFamilyRefSet]);
+
+  const updateMapPosition = useCallback(position => {
+    const patch = buildLifeJourneyMapPositionPatch(research.context, { personRef: selfRef, ...position });
+    if (patch) research.updateResearchContext?.(patch);
+  }, [research, selfRef]);
+
+  const resumeLifeJourney = useCallback(result => {
+    const materialized = materializeFamilyContext(result.context || result.representation?.context);
+    setBirthReflections(new Map());
+    setFamilyResearch(materialized?.research || { state: "idle", rows: [], sharedValues: [], error: null });
+    setFamilyAnalysis(materialized?.analysis || { state: "idle", data: null, error: null });
+    if (result.href && result.href !== "/2029/journey") navigate(result.href);
+  }, [materializeFamilyContext, navigate]);
 
   const runSelectedFamilyResearch = useCallback(async () => {
     if (!user) return;
@@ -1384,9 +1406,13 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           birthReflections={birthReflections}
           onBirthCalculationChange={rememberBirthReflection}
           context={research.context}
+          position={variant === "2029" ? lifeJourneyMapPosition(research.context, selfRef, members.map(member => member.source_ref)) : undefined}
+          onPositionChange={variant === "2029" ? updateMapPosition : undefined}
           birthTimeline={birthTimeline}
         />
       </Suspense> : null}
+
+      {variant === "2029" && selfRef ? <LifeJourneyResume2029 research={research} personRef={selfRef} readOnly={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} onResume={resumeLifeJourney} /> : null}
 
       {members.length ? <div className="person-journey-family-research-actions">
         <button

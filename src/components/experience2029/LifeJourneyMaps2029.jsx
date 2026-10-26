@@ -310,15 +310,16 @@ function MapPanel({ active, projection, onSelect, onBirthCalculationChange, birt
   if (active === "convergences") return <ConvergencesMap rows={projection.convergences} ready={projection.overview.researchReady} />;
   if (active === "evidence") return <EvidenceMap data={projection.evidence} ready={projection.overview.researchReady} />;
   if (active === "timeline") return <TimelineMap rows={projection.timeline} missing={projection.timelineMissing} />;
-  if (active === "time") return <LifeJourneyTimeMap2029 key={focusedMemberRef} data={projection.timeMap} initialMemberRef={focusedMemberRef} />;
+  if (active === "time") return <LifeJourneyTimeMap2029 key={focusedMemberRef} data={projection.timeMap} initialMemberRef={focusedMemberRef} onPersonFocus={onPersonFocus} />;
   if (active === "creation") return <BirthMapStudio2029
-    key={`${birthFocus.memberRef}:${birthFocus.lens}`}
+    key={birthFocus.memberRef}
     data={projection.birthMap}
     initialMemberRef={birthFocus.memberRef}
     initialLens={birthFocus.lens}
     birthReflections={birthReflections}
     onReturnToPicture={() => onSelect("summary")}
     onPersonFocus={onPersonFocus}
+    onLensChange={lens => onSelect("creation", { memberRef: focusedMemberRef, lens })}
     seferContent={<CreationMap data={projection.creation} />}
     onCalculationChange={onBirthCalculationChange}
   />;
@@ -329,14 +330,16 @@ function MapPanel({ active, projection, onSelect, onBirthCalculationChange, birt
   return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} />;
 }
 
-export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline }) {
-  const [active, setActive] = useState("summary");
-  const [birthFocus, setBirthFocus] = useState({ memberRef: "", lens: "spatial" });
-  const [focusedMemberRef, setFocusedMemberRef] = useState("");
+export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange }) {
+  const [localPosition, setLocalPosition] = useState({ tab: "summary", memberRef: "", lens: "spatial" });
+  const currentPosition = position || localPosition;
+  const active = currentPosition.tab;
+  const focusedMemberRef = currentPosition.memberRef;
+  const birthFocus = { memberRef: focusedMemberRef, lens: currentPosition.lens };
+  const commitPosition = next => { setLocalPosition(next); onPositionChange?.(next); };
+  const focusPerson = memberRef => commitPosition({ ...currentPosition, memberRef });
   const selectMap = (tab, options) => {
-    if (tab === "creation") setBirthFocus(options || { memberRef: "", lens: "spatial" });
-    if (options?.memberRef) setFocusedMemberRef(options.memberRef);
-    setActive(tab);
+    commitPosition({ ...currentPosition, tab, ...(tab === "creation" ? { lens: "spatial" } : {}), ...options });
   };
   const id = useId();
   const projection = useMemo(() => buildLifeJourneyMaps({ members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline }), [members, relations, selectedRefs, research, analysis, birthReflections, context, birthTimeline]);
@@ -365,7 +368,7 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
     </div>
     <div className="person-journey-map-panel" id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${active}-tab`}>
       <Suspense fallback={<LazyMapLoading />}>
-        <MapPanel active={active} projection={projection} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={setFocusedMemberRef} />
+        <MapPanel active={active} projection={projection} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
       </Suspense>
     </div>
     <footer>תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש</footer>
