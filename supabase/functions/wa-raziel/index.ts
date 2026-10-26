@@ -613,7 +613,7 @@ async function ingestInboundSource(media, phone, idn, msgId, ts) {
 // canonical page link Raziel itself sent. An unrelated message ends the topic; Raziel's own prose is never a source.
 const NAV_FOCUS_WINDOW_SEC = 6 * 3600;
 const NAV_FOCUS_MESSAGES = 12;
-async function recentChatNewestFirst(chatId, skipMsgId) {
+async function recentChatNewestFirst(chatId, skipMsgId, { keepEmpty = false } = {}) {
   try {
     const hist = await waAdmin("getChatHistory", { chatId, count: NAV_FOCUS_MESSAGES + 4 });
     const floor = Math.floor(Date.now() / 1000) - NAV_FOCUS_WINDOW_SEC;
@@ -621,9 +621,24 @@ async function recentChatNewestFirst(chatId, skipMsgId) {
       .filter((m) => m.idMessage !== skipMsgId && Number(m.timestamp || 0) >= floor)
       .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
       .map((m) => ({ outgoing: m.type === "outgoing", text: String(m.textMessage || m.extendedTextMessage?.text || m.caption || "") }))
-      .filter((m) => m.text)
+      .filter((m) => keepEmpty || m.text)
       .slice(0, NAV_FOCUS_MESSAGES);
   } catch { return []; }
+}
+// A numeral may answer Raziel's own "לאיזה מספר תרצה שאפתח דף?" — and only that. The newest message before this one must be
+// the canonical clarification (so it is also Raziel's last message and no user message, including a captionless media message,
+// sits between). Fails closed: no history, a stale window or any other message ⇒ false.
+async function lastRazielMessageIsClarification(chatId, skipMsgId) {
+  const [previous] = await recentChatNewestFirst(chatId, skipMsgId, { keepEmpty: true });
+  return Boolean(previous && previous.outgoing && razielNavigationIsClarification(previous.text));
+}
+// Entry gate for a numeral-only DM. Such a message is otherwise dropped by the text gate (it has no Hebrew letters); it is admitted
+// only when it is a canonical 1–999999 numeral without a leading zero (the shared follow-up resolver decides) AND answers the clarification.
+const NUMERAL_ONLY = /^\s*\d{1,12}\s*$/;
+async function numeralAnswersClarification(chatId, msgId, text) {
+  if (!NUMERAL_ONLY.test(String(text || ""))) return false;
+  if (resolveRazielNavigationFollowUp({ text })?.type !== "navigate") return false;
+  return await lastRazielMessageIsClarification(chatId, msgId);
 }
 async function verifiedNavigationFocus(chatId, skipMsgId) {
   const subject = razielWhatsappVerifiedFocus(await recentChatNewestFirst(chatId, skipMsgId), SITE);
@@ -640,9 +655,8 @@ async function respondWithNavigation(cleanText, chatId, quotedId) {
     const focus = razielNavigationNeedsFocus(request) ? await verifiedNavigationFocus(chatId, quotedId) : null;
     action = resolveRazielNavigationAction({ request, focus });
   } else if (/^\s*(?:(?:ה)?מספר\s+)?\d{1,12}\s*$/.test(cleanText)) {
-    // A bare numeral answers Raziel's own "לאיזה מספר תרצה שאפתח דף?" — only when that was the last thing Raziel said.
-    const lastOutgoing = (await recentChatNewestFirst(chatId, quotedId)).find((m) => m.outgoing);
-    if (lastOutgoing && razielNavigationIsClarification(lastOutgoing.text)) action = resolveRazielNavigationFollowUp({ text: cleanText });
+    // A numeral answers Raziel's own "לאיזה מספר תרצה שאפתח דף?" — only when that question is the message right before it.
+    if (await lastRazielMessageIsClarification(chatId, quotedId)) action = resolveRazielNavigationFollowUp({ text: cleanText });
   }
   if (!action) return null;
   const reply = razielNavigationWhatsappText(action, SITE);
@@ -662,6 +676,9 @@ async function razielCoreRespond(text, chatId, quotedId, opts = {}) {
   if (!hasSource) {
     const navigated = await respondWithNavigation(cleanText, chatId, quotedId);
     if (navigated) return navigated;
+    // A numeral-only message was admitted solely to answer the clarification. If that no longer resolves, it is dropped
+    // like any other numeral-only message: no Raziel core, no model.
+    if (opts.numeralAnswerOnly) return { status: "permanent_error" };
   }
   const opTrace = await beginRazielTrace(chatId, cleanText || "[source]");
   const sender = String(chatId).replace("@c.us", "");
@@ -926,7 +943,9 @@ async function handleAllDMs(nowSec, policy) {
     const msgId = m.idMessage; if (!msgId || await alreadyDone(msgId, "raziel_dm")) continue;
     const media = inboundMedia(m);
     const text = m.textMessage || m.extendedTextMessageData?.text || (media ? media.caption : "") || "";
-    if (clean(text).length < 1 && !media) continue;
+    // A message with no Hebrew letters is dropped here as before — except a numeral that answers Raziel's clarification question.
+    const numeralOnlyAdmission = clean(text).length < 1 && !media;
+    if (numeralOnlyAdmission && !(await numeralAnswersClarification(chatId, msgId, text))) continue;
     const phone = chatId.replace("@c.us","");
     if (owned.has(phone)) continue;
     const claimKey = "raziel:dm:" + msgId;
@@ -1063,7 +1082,7 @@ async function handleAllDMs(nowSec, policy) {
     // ACK UX (transport only): source ingested+bound, expensive core call next. Deterministic text, no model/token use,
     // one per msg_id (claim + log guard) so retries of the same message never repeat it.
     if (source) await sendSourceAck(chatId, phone, msgId, media.kind);
-    const res = await razielCoreRespond(text, chatId, msgId, { welcome: source ? "" : welcome, lastAttempt: priorRetries + 1 >= MAX_AI_RETRIES, allowDegradedRetry: priorRetries < 1, source });
+    const res = await razielCoreRespond(text, chatId, msgId, { welcome: source ? "" : welcome, lastAttempt: priorRetries + 1 >= MAX_AI_RETRIES, allowDegradedRetry: priorRetries < 1, source, numeralAnswerOnly: numeralOnlyAdmission });
     const nm = linked ? "DM" : "DM-anon";
     if (res.status === "retryable_error") {
       await releaseClaim();

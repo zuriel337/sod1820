@@ -78,17 +78,75 @@ test("no number: the short question, never a guessed or wrong page", async () =>
   }
 });
 
-test("a numeral answers Raziel's own question, and only then", async () => {
-  let run = await runWaRaziel({ incoming: { id: "in", text: "המספר 73" }, history: [u("פתח לי את דף המספר", 120), r(ASK, 110)] });
-  assert.equal(only(run).split("\n").at(-1), link(73));
-  assert.equal(run.aiCalls.length, 0);
-  // not after some other Raziel message: it is an ordinary turn for the model
-  run = await runWaRaziel({ incoming: { id: "in", text: "המספר 73" }, history: [r("שלום, אני רזיאל", 110)] });
-  assert.equal(run.aiCalls.length, 1);
-  assert.doesNotMatch(only(run), /sod1820\.co\.il/);
-  // Pre-existing handler gate (unchanged here): a message with no Hebrew letters at all, such as a bare "73", is not processed.
-  run = await runWaRaziel({ incoming: { id: "in", text: "73" }, history: [u("פתח לי את דף המספר", 120), r(ASK, 110)] });
-  assert.deepEqual([run.sent.length, run.aiCalls.length, run.body.replied], [0, 0, 0]);
+const silent = (run, label) => {
+  assert.deepEqual([run.sent.length, run.aiCalls.length, run.body.replied, run.methodLookups.length], [0, 0, 0, 0], label);
+  assert.deepEqual(run.otherFetches, [], label);
+};
+
+test("numeral-only entry gate: page request without a number → clarification → \"73\" → canonical link, 0 model calls", async () => {
+  const ask = await runWaRaziel({ incoming: { id: "q1", text: "פתח לי את דף המספר" } });
+  assert.equal(only(ask), ASK);
+  assert.equal(ask.aiCalls.length, 0);
+  const answer = await runWaRaziel({ incoming: { id: "q2", text: "73" }, history: [u("פתח לי את דף המספר", 120), r(ask.sent[0].message, 110)] });
+  const message = only(answer);
+  assert.match(message, /^בשמחה/u);
+  assert.equal(message.split("\n").at(-1), link(73));
+  assert.equal(answer.sent[0].quotedMessageId, "q2");
+  assert.equal(answer.aiCalls.length, 0);
+  assert.deepEqual(answer.otherFetches, []);
+  assert.equal(answer.body.trace[0].model_calls, 0);
+  // surrounding whitespace and the range edges are canonical numerals too
+  for (const [text, n] of [[" 73 ", 73], ["1", 1], ["999999", 999999]]) {
+    const run = await runWaRaziel({ incoming: { id: "q", text }, history: [r(ASK, 60)] });
+    assert.equal(only(run).split("\n").at(-1), link(n), text);
+    assert.equal(run.aiCalls.length, 0, text);
+  }
+});
+
+test("numeral-only entry gate: leading zero, zero and out-of-range values are dropped exactly as before — no link, no Raziel, no model", async () => {
+  for (const text of ["00073", "073", "0", "000", "1000000", "999999999999", "1234567"]) {
+    silent(await runWaRaziel({ incoming: { id: "q", text }, history: [u("פתח לי את דף המספר", 120), r(ASK, 110)] }), text);
+  }
+});
+
+test("numeral-only entry gate: \"73\" without a clarification right before it never starts anything", async () => {
+  const cases = {
+    "no history": [],
+    "another Raziel message": [r("שלום, אני רזיאל", 110)],
+    "clarification older than the window": [r(ASK, 8 * 3600)],
+    "the page link itself": [r(`בשמחה — הנה דף המספר 5. 🌳\n${link(5)}`, 110)],
+    "other Raziel message after the clarification": [r(ASK, 200), r("עוד משהו מרזיאל", 100)],
+  };
+  for (const [label, history] of Object.entries(cases)) silent(await runWaRaziel({ incoming: { id: "q", text: "73" }, history }), label);
+});
+
+test("numeral-only entry gate: any user message between the clarification and the numeral cancels the context", async () => {
+  const between = {
+    "unrelated Hebrew message": u("מה שלומך היום", 60),
+    "another page request": u("פתח לי את דף המספר", 60),
+    "captionless media": { outgoing: false, text: "", ageSec: 60 },
+    "a numeral": u("5", 60),
+  };
+  for (const [label, message] of Object.entries(between)) {
+    silent(await runWaRaziel({ incoming: { id: "q", text: "73" }, history: [u("פתח לי את דף המספר", 120), r(ASK, 110), message] }), label);
+  }
+});
+
+test("ordinary Hebrew messages behave as before (model once, no link) — the numeral rule does not touch them", async () => {
+  for (const [text, history] of [
+    ["מה זה 73", []],
+    ["המספר 73", [r("שלום, אני רזיאל", 110)]],
+    ["המספר 73", [r(ASK, 110), u("מה שלומך היום", 60)]],     // unrelated message cancels the clarification for Hebrew wording too
+    ["תודה רבה על העזרה", [r(ASK, 110)]],
+  ]) {
+    const run = await runWaRaziel({ incoming: { id: "q", text }, history });
+    assert.equal(run.aiCalls.length, 1, `${text} / ${history.length}`);
+    assert.doesNotMatch(only(run), /sod1820\.co\.il/, text);
+  }
+  // Hebrew wording of the answer still resolves while the question is the message right before it
+  const answer = await runWaRaziel({ incoming: { id: "q", text: "המספר 73" }, history: [u("פתח לי את דף המספר", 120), r(ASK, 110)] });
+  assert.equal(only(answer).split("\n").at(-1), link(73));
+  assert.equal(answer.aiCalls.length, 0);
 });
 
 test("everything that is not an explicit navigation request still reaches the model exactly once", async () => {
