@@ -159,6 +159,7 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     pdfUrl: `${GALLERY_ROOT}/Hebrewbooks_org_33050.pdf`,
     pageTextUrl: "/book-data/maamar-esther.page-text.json",
     commentaryUrl: "/book-data/maamar-esther.commentary.json",
+    internalMapUrl: "/book-data/maamar-esther.internal-map.json",
     introduction: "פירוש רציף למגילת אסתר מאת רבי שלמה קלוגר, הערוך לפי סדר עשרת פרקי המגילה. המחבר פותח בקושיה על פסוק או מאמר חז״ל, משווה מקורות ומפתח מהלך למדני שמחבר בין פשט, מדרש והלכה.",
     readingKeys: ["לזהות תחילה את הפסוק או מאמר חז״ל שעליו נפתח הדיון", "לעקוב אחר הקושיה, המקורות והתשובה כשלבים נפרדים", "לשמור את מהלך הפירוש בתוך פרק המגילה והעמוד המדויק"],
     chapters: [
