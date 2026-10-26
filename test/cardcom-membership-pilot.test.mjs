@@ -220,6 +220,7 @@ test("2029-only routing, lazy loading, no scheduled renewals and Legacy lock sta
   assert.match(app2029, /path="\/2029\/membership-pilot"/);
   assert.equal(config.rewrites.find(r => r.source === "/2029/membership-pilot").destination, "/2029.html");
   assert.ok(config.headers.find(r => r.source === "/2029/membership-pilot").headers.some(h => h.key === "X-Robots-Tag" && h.value.includes("noindex")));
+  assert.ok(config.headers.findIndex(r => r.source === "/2029/membership-pilot") > config.headers.findIndex(r => r.source === "/(.*)"), "pilot no-store/no-referrer must override general headers");
   assert.ok(!config.crons?.some(r => r.path === "/api/cardcom-subscription-renew"));
   assert.match(page, /loading: authLoading/);
   assert.match(page, /principal.current !== userId/);

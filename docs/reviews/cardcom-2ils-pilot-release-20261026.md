@@ -19,6 +19,7 @@ Other bounded safety corrections:
 
 - Require terminal-specific token billing approval (`CARDCOM_PILOT_TOKEN_BILLING_APPROVED=true`) before even creating a checkout; default is closed.
 - Require authenticated server-verified admin and DB `allowed === true`; no client amount/role is authoritative.
+- Pilot no-store/no-referrer headers are declared after general headers: the first hosted check showed the global rule otherwise overwrote them. The hosted candidate is replaced, not silently accepted with misleading source-only assertions.
 - Initial and renewal payloads are fixed at ILS2; `ChargeAndCreateToken` is used for enrollment.
 - Only exact canonical/deployment hosts are accepted for return URLs; unrelated `*.vercel.app` hosts are rejected. Server and client accept payment navigation only to `https://secure.cardcom.solutions` without embedded credentials.
 - Do not coerce null/false/missing provider result codes into success. GetLpResult must prove terminal, transaction, low-profile ID, provider reference, operation, amount and currency before activation.
