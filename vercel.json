@@ -642,6 +642,10 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/2029/preview/follow-center",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/world",
       "has": [
         {
@@ -960,15 +964,6 @@
       ]
     },
     {
-      "source": "/2029/journey",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
-        }
-      ]
-    },
-    {
       "source": "/2029/gematria",
       "headers": [
         {
@@ -1015,6 +1010,15 @@
     },
     {
       "source": "/2029/home-preview",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/2029/preview/follow-center",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -1084,6 +1088,19 @@
         {
           "key": "Permissions-Policy",
           "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    },
+    {
+      "source": "/2029/journey",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store, max-age=0, must-revalidate"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
         }
       ]
     }

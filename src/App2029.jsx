@@ -41,6 +41,7 @@ const Campaign718Page2029 = lazy(() => import("./pages/Campaign718Page2029.jsx")
 const EarlyAccess2029Page = lazy(() => import("./pages/EarlyAccess2029Page.jsx"));
 const Community2029Page = lazy(() => import("./pages/Community2029Page.jsx"));
 const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
+const AuthPage = lazy(() => import("./pages/AuthPage.jsx"));
 
 // Design review on an existing document route; does not open public Community
 // navigation or require a competing edit to the deployment rewrite configuration.
@@ -57,6 +58,9 @@ const HomePreview2029Page = lazy(() => import("./pages/HomePreview2029Page.jsx")
 const kingdomPreviewEnabled = import.meta.env.VITE_KINGDOM_PREVIEW === "true";
 const Kingdom2029Page = kingdomPreviewEnabled
   ? lazy(() => import("./pages/Kingdom2029Page.jsx")) : null;
+const followCenterPreviewEnabled = import.meta.env.VITE_FOLLOW_CENTER_PREVIEW === "true";
+const FollowCenterPreview2029Page = followCenterPreviewEnabled
+  ? lazy(() => import("./pages/FollowCenterPreview2029Page.jsx")) : null;
 const integratedPreviewEnabled = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
 const IntegratedPreview2029Page = integratedPreviewEnabled
   ? lazy(() => import("./pages/IntegratedPreview2029Page.jsx")) : null;
@@ -189,6 +193,7 @@ export default function App2029() {
               <Routes>
               <Route path="/2029" element={<HomeEntry2029 />} />
               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
+              {followCenterPreviewEnabled && <Route path="/2029/preview/follow-center" element={<PublicContributorFrame2029 surface="community" title="מרכז עדכונים" introVariant="none"><FollowCenterPreview2029Page /></PublicContributorFrame2029>} />}
               <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
               <Route path="/melech-hamisparim/718" element={<Campaign718Page2029 />} />
               <Route path="/early-access" element={<EarlyAccess2029Page />} />
@@ -207,6 +212,7 @@ export default function App2029() {
               <Route path="/world" element={<Locked flag="lock_world" homeHref="/2029"><World2029Page /></Locked>} />
               <Route path="/topic/:slug" element={<Locked flag="lock_world" homeHref="/2029"><Topic2029Page /></Locked>} />
               <Route path="/2029/posts" element={<Posts2029Page />} />
+              <Route path="/login" element={<AuthPage />} />
               <Route path="/community/chat" element={<CommunityChatTransition2029Page />} />
               <Route path="/2029/journey" element={<Locked flag="lock_life_journey" requireFlag homeHref="/2029"><LifeJourney2029Page /></Locked>} />
               <Route path="/post/:slug" element={<Post2029Page />} />

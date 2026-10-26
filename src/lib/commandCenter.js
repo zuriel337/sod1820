@@ -43,12 +43,27 @@ export async function watchToggle(topic, source, on, visitorId = null) {
 }
 
 // 💰 הפרופיל+יתרת-הקרדיטים של המשתמש (RLS: כל אחד רואה רק את שלו). null אם אין עדיין רשומה.
-export async function getMyProfile() {
-  if (!supabase) return null;
+export async function getMyProfile({ strict = false, userId = null } = {}) {
+  if (!supabase) { if (strict) throw new Error("Profile reader unavailable"); return null; }
   try {
-    const { data } = await supabase.from("profiles").select("credits,xp,level,tier,streak").maybeSingle();
+    const checkAccount = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !userId || data?.session?.user?.id !== userId) throw new Error("Profile account changed");
+    };
+    if (strict) await checkAccount();
+    let query = supabase.from("profiles").select(strict ? "credits,xp,level,streak" : "credits,xp,level,tier,streak");
+    if (strict) query = query.eq("user_id", userId);
+    const { data, error } = await query.maybeSingle();
+    if (strict) {
+      if (error) throw error;
+      if (data !== null && (typeof data !== "object" || Array.isArray(data)
+        || ["credits", "xp", "level", "streak"].some(key => data[key] != null && !Number.isSafeInteger(data[key])))) {
+        throw new Error("Profile data unavailable");
+      }
+      await checkAccount();
+    }
     return data || null;
-  } catch { return null; }
+  } catch (error) { if (strict) throw error; return null; }
 }
 
 // 🎁 תביעת מענקי-מייסד ממתינים לפי המייל המאומת (idempotent). מחזיר את הסכום שנוסף (0 אם אין).

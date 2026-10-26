@@ -6,8 +6,8 @@ import { applySeo } from "../lib/seo.js";
 import { WRITER_PERSONAL_MODULES, personalReturnHref, writerPersonalHref, writerSelfRequest } from "../lib/userCenter/writerPersonal2029.js";
 import { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ProfileSettings from "../components/ProfileSettings.jsx";
-import { PageEditor, MessagesHub, FollowingPanel, NotificationsPanel, PushPanel } from "../components/userCenter/UserCenter.jsx";
-import { ContributorRankSeal2029 } from "../components/contributor2029/ContributorRankSeal2029.jsx";
+import { PageEditor, MessagesHub } from "../components/userCenter/UserCenter.jsx";
+import FollowCenterController2029 from "../components/followCenter2029/FollowCenterController2029.jsx";
 import { WriterPersonalLayout2029, WriterPersonalHome2029, WriterPublicPortrait2029, WriterPrivateProgress2029 } from "../components/contributor2029/WriterPersonalViews2029.jsx";
 
 function useSelf(userId) {
@@ -53,14 +53,14 @@ export default function WriterPersonal2029Page() {
 
 function WriterPersonalController2029({ module, user, authLoading }) {
   const auth = useAuth(), shell = use2029Shell(), P = use2029Palette(), location = useLocation(), navigate = useNavigate();
-  const { data, reload } = useSelf(authLoading ? null : user?.id);
+  const { data, reload } = useSelf(authLoading || module === "notifications" ? null : user?.id);
   const [mutation, setMutation] = useState("idle"), [conversation, setConversation] = useState(null);
   const pending = useRef(false), mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const params = new URLSearchParams(location.search);
   const selected = WRITER_PERSONAL_MODULES.some(([id]) => id === module) ? module : "public-page";
   const returnHref = personalReturnHref(params.get("returnTo"));
-  const state = authLoading || user && data.state === "loading" ? "loading" : !user ? "login_required" : data.state === "ready" ? "ready" : "error";
+  const state = authLoading ? "loading" : !user ? "login_required" : selected === "notifications" ? "ready" : data.state === "loading" ? "loading" : data.state === "ready" ? "ready" : "error";
   const writer = data.writer || { state: "unavailable" };
   const T = { bg: P.pageBg, card: P.card, ink: P.ink, sub: P.inkSoft, line: P.border, acc: P.accentText,
     accSoft: P.cardSoft, gold: P.brandGold, goldSoft: P.cardSoft };
@@ -112,14 +112,10 @@ function WriterPersonalController2029({ module, user, authLoading }) {
         {conversation?.state === "not_found" || conversation?.state === "unavailable" ? <p role="status">לא נמצאה שיחה זמינה בכתובת הזאת. מוצגת התיבה האישית.</p> : null}
         {(sourceWriter || dm) && !conversation ? <p role="status">בודק את השיחה בתיבה שלך…</p> : <MessagesHub key={`${user.id}:${conversation?.counterpart || "inbox"}`} T={T} goto={goto} initialDm={conversation?.counterpart || null} resolveWriterHref={resolveWriterHref} />}
       </> : null}
-      {selected === "notifications" ? <>
-        <h2>העדכונים שלי</h2><NotificationsPanel T={T} goto={goto} setActive={setActive} />
-        <h2>אחרי מי ומה אני עוקב</h2><FollowingPanel T={T} goto={goto} />
-        <h2>ערוצי עדכון</h2><PushPanel T={T} user={user} isAdmin={auth.isAdmin} />
-      </> : null}
-      {selected === "progress" ? <WriterPrivateProgress2029 rank={data.rank} stats={data.stats}>
-        <ContributorRankSeal2029 rank={data.rank} name={writer.name || (auth.profile?.id === user.id ? auth.profile.display_name : "")} avatar={writer.avatar} />
-      </WriterPrivateProgress2029> : null}
+      {selected === "notifications" ? <FollowCenterController2029 returnHref={`${location.pathname}${location.search}`} onSignIn={shell.openWorkspace} /> : null}
+      {/* Activity stats are not a research standing. The approved 2029 standing
+          adapter is not connected; never reuse the Legacy five-level result. */}
+      {selected === "progress" ? <WriterPrivateProgress2029 rank={null} stats={{ ...data.stats, tier: null }} /> : null}
     </> : null}
   </WriterPersonalLayout2029>;
 }

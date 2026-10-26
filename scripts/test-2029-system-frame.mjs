@@ -26,13 +26,19 @@ assert.equal(compat.includes("<aside"), false, "compatibility shell must not ren
 
 // G3-A isolation remains intact: prose may name retired prototypes, but the native
 // frame may not import or render those presentation owners/assets.
+// Match the Legacy component filename, not the native lib/userCenter/*2029
+// adapter directory. Keep both extensionless and explicit component imports denied.
+const legacyUserCenterImport = /from\s+["'][^"']*\/UserCenter[^/"']*["']/i;
+assert.equal(legacyUserCenterImport.test('import UserCenter from "../UserCenter.jsx"'), true);
+assert.equal(legacyUserCenterImport.test('import UserCenter from "../UserCenter"'), true);
+assert.equal(legacyUserCenterImport.test('import { followTopics } from "../../lib/userCenter/followCenter2029.js"'), false);
 const forbiddenImportPatterns = [
   /from\s+["\'][^"\']*\/NumberDrawer\.jsx["\']/i,
   /from\s+["\'][^"\']*\/numberDrawer\.js["\']/i,
   /from\s+["'][^"']*BottomBar/i,
   /from\s+["'][^"']*siteUpdates/i,
   /from\s+["'][^"']*AskRaziel/i,
-  /from\s+["'][^"']*UserCenter/i,
+  legacyUserCenterImport,
   /from\s+["'][^"']*SpaceBackground/i,
   /<AskRaziel\b/,
   /<UserCenter\b/,

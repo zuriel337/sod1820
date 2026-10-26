@@ -90,7 +90,7 @@ export default function LifeJourneyDate2029({ user, profile, personRef, memberRe
     ? result?.relationRows || []
     : result?.relationRows?.slice(0, VISIBLE_RELATIONS) || [];
 
-  return <div className="person-journey" data-experience-surface="life-journey-date-2029">
+  return <div className="person-journey is-2029" data-experience-surface="life-journey-date-2029">
     <section className="person-journey-panel person-journey-capability person-journey-matrix" data-experience-capability="life-journey-name-date-matrix">
       <div className="person-journey-section-head">
         <div><small>מסע החיים</small><h2>השם והתאריך שלי</h2></div>
@@ -126,6 +126,8 @@ export default function LifeJourneyDate2029({ user, profile, personRef, memberRe
           <span>המסר נגזר מתוצאות המנוע לאחר נרמול תלות. הוא אינו נבואה ולא נשען על חישוב מקומי.</span>
         </article>
 
+        <details className="person-journey-engine-layer">
+        <summary>שכבת המנוע · מה בדיוק נבדק</summary>
         <section className="person-journey-expression-matrix" aria-labelledby="life-journey-expression-matrix-title">
           <header>
             <div><small>מטריצת ביטויים</small><h3 id="life-journey-expression-matrix-title">מה בדיוק נבדק</h3></div>
@@ -137,6 +139,7 @@ export default function LifeJourneyDate2029({ user, profile, personRef, memberRe
             <span>{item.methods.length} שיטות</span>
           </article>)}</div>
         </section>
+        </details>
 
         <section className="person-journey-relation-list" aria-labelledby="life-journey-relation-list-title">
           <header>

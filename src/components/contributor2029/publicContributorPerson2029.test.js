@@ -11,6 +11,25 @@ const axis = (result, key) => result.axes.find((item) => item.key === key);
 const generic = () => ({ canonicalHref: "/community/researcher/2042", profile: { name: "שם ציבורי", avatar: null, role: "חוקר" },
   items: [{ type: "findings", id: "candidate" }], publicationCoverage: { posts: coverage(7), ciphers: coverage(6), contributions: coverage(32) } });
 
+test("bounded public posting activity is measured without a Person binding, private last-seen or standing", () => {
+  const view = { ...generic(), communityAuthorKey: "source-key" };
+  const summary = { publicActivity: { version: "public-chat-summary-v1", scope: "public_chat_only", complete: true, activeDays: 2,
+    lastPublicActivityAt: "2026-10-26T22:30:00Z" } };
+  const community = { authorKey: "source-key", filter: "chat", page: { count: 2, rows: [{}, {}] }, summary };
+  const result = publicContributorPerson2029(view, { kind: "author", community });
+  assert.equal(axis(result, "activity").measures.activeDays.value, 2);
+  assert.equal(axis(result, "activity").lastPublicActivityAt, summary.publicActivity.lastPublicActivityAt);
+  assert.equal(result.profile.person.lastSeen, null); assert.equal(result.profile.person.personRef, null);
+  assert.equal(axis(result, "researchStanding").level, null);
+  assert.equal(axis(result, "tenure").measures.tenureDays.value, null, "posting history is not overall membership tenure");
+  for (const patch of [{ scope: "private_activity" }, { complete: false }, { version: "unknown" }, { activeDays: null }]) {
+    const invalid = publicContributorPerson2029(view, { community: { ...community, summary: { publicActivity: { ...summary.publicActivity, ...patch } } } });
+    assert.equal(axis(invalid, "activity").measures.activeDays.value, null);
+  }
+  const wrong = publicContributorPerson2029(view, { community: { ...community, authorKey: "other" } });
+  assert.equal(axis(wrong, "activity").measures.activeDays.value, null);
+});
+
 test("writer uses the existing public Person projection and seven separate axes, without fabricating a Person binding", () => {
   const view = generic(), result = publicContributorPerson2029(view, { kind: "author", entryContext: "post" });
   assert.equal(result.profile.version, "person-profile-2029-v1");

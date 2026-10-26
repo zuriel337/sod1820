@@ -265,3 +265,41 @@ export function use2029Palette(environmentRole = null) {
   const resolved = resolve2029Palette(preset, environmentRole);
   return override ? { ...resolved, ...override, preset: resolved.preset } : resolved;
 }
+
+// ── Shared icon / tile / surface treatment (Design V2 "Shared icon and surface color resolution", 25.10.2026) ──
+// A caller supplies the authorized semantic PURPOSE and STATE; this one resolver returns the preset's
+// foreground, surface, border and line roles. Glyph geometry (NavigationIcon2029) never decides colour, and a
+// subject kind (writer, category, number…) is not a purpose. Unavailable/disabled always wins over an active accent.
+export const TREATMENT_PURPOSES = Object.freeze(["ordinary", "action", "discovery", "secondary", "identity"]);
+export const TREATMENT_STATES = Object.freeze(["active", "unavailable", "disabled", "loading", "unknown"]);
+const MUTED_STATES = new Set(["unavailable", "disabled", "loading", "unknown"]);
+// The only place the reusable tint/mix scale lives.
+export const TREATMENT_MIX = Object.freeze({ tile: 12, selected: 11, border: 62, glow: 28 });
+const mix = (color, percent, into = "transparent") => `color-mix(in srgb, ${color} ${percent}%, ${into})`;
+
+export function resolveTreatment(palette, { purpose = "ordinary", state = "active" } = {}) {
+  const p = TREATMENT_PURPOSES.includes(purpose) ? purpose : "ordinary";
+  const s = TREATMENT_STATES.includes(state) ? state : "unknown";
+  if (MUTED_STATES.has(s)) {
+    return { purpose: p, state: s, muted: true, fg: palette.inkSoft, bg: "transparent", border: palette.border, line: palette.borderStrong,
+      selected: "transparent", glow: "none" };
+  }
+  const role = {
+    ordinary: { fg: palette.ink, accent: palette.borderStrong },
+    action: { fg: palette.accentText, accent: palette.accent },
+    discovery: { fg: palette.accentDiscovery, accent: palette.accentDiscovery },
+    secondary: { fg: palette.accentSecondary, accent: palette.accentSecondary },
+    identity: { fg: palette.accentText, accent: palette.brandGold },
+  }[p];
+  const bg = p === "identity"
+    ? `linear-gradient(135deg, ${mix(palette.brandSapphire, TREATMENT_MIX.tile * 2, palette.cardSoft)}, ${mix(palette.brandGold, TREATMENT_MIX.tile * 1.6, palette.cardSoft)})`
+    : p === "ordinary" ? "transparent" : mix(role.accent, TREATMENT_MIX.tile);
+  return { purpose: p, state: s, muted: false, fg: role.fg, bg, border: mix(role.accent, TREATMENT_MIX.border), line: role.accent,
+    selected: mix(role.accent, TREATMENT_MIX.selected, palette.cardSoft), glow: p === "identity" ? `0 0 22px ${mix(palette.brandSapphire, TREATMENT_MIX.glow)}` : "none" };
+}
+
+// CSS custom properties for a consumer to spread on an element; surface CSS only reads these.
+export function treatmentVars(palette, spec) {
+  const t = resolveTreatment(palette, spec);
+  return { "--tr-fg": t.fg, "--tr-bg": t.bg, "--tr-border": t.border, "--tr-line": t.line, "--tr-selected": t.selected, "--tr-glow": t.glow };
+}

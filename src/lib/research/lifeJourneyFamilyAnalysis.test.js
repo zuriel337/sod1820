@@ -45,6 +45,22 @@ test("family analysis sends only anonymized normalized facts and never exposes i
   let received;
   const out = await runLifeJourneyFamilyAnalysis({
     research,
+    birthReflections: new Map([["person:private:1", {
+      humanDesign: {
+        type: "Generator",
+        authority: "Sacral Authority",
+        profile: "3/5",
+        definedCenters: [{ key: "sacral" }],
+        definedChannels: [],
+        activatedGates: [5, 15],
+      },
+      sky: {
+        angles: { ascendant: { sign: "Aries" }, midheaven: { sign: "Capricorn" } },
+        bodies: [{ key: "sun" }],
+        aspects: [],
+      },
+      trace: { engine: "natalengine", engineVersion: "1.6.0" },
+    }]]),
     now: () => "2026-10-26T00:00:00Z",
     aiAnalysisProvider: async input => {
       events.push("analysis");
@@ -61,6 +77,7 @@ test("family analysis sends only anonymized normalized facts and never exposes i
   assert.deepEqual(events, ["analysis", "internal-reflection"]);
   assert.equal(received.subject, "מפת מחקר משפחתית");
   assert.doesNotMatch(received.facts, /שם פרטי|person:private/);
+  assert.doesNotMatch(received.facts, /Generator|Sacral Authority|Aries|Capricorn/);
   assert.match(received.facts, /חיבור מספרי 73/);
   assert.match(received.facts, /2 ביטויים שונים/);
   assert.match(received.facts, /אור/);
@@ -73,6 +90,11 @@ test("family analysis sends only anonymized normalized facts and never exposes i
   assert.equal(out.boundaries.public_source_text_sanitized_before_interpreter, true);
   assert.equal(out.coverage.verseCount, 1);
   assert.equal(out.coverage.equalPhraseCount, 2);
+  assert.equal(out.synthesisPack.auxiliary.humanDesignCount, 1);
+  assert.equal(out.synthesisPack.auxiliary.skyCount, 1);
+  assert.equal(out.synthesisPack.interpreter.birthLensDetailsIncluded, false);
+  assert.equal(out.boundaries.one_private_synthesis_pack, true);
+  assert.equal(out.boundaries.birth_lenses_evidence_weight, 0);
   assert.equal("cards" in out, false);
   assert.equal("reflection" in out, false);
   assert.equal("reflection_check" in out, false);

@@ -133,7 +133,7 @@
 }
 .person-journey label{display:grid;gap:7px;text-align:start}
 .person-journey label>span{font-size:13px;color:var(--pj-soft);font-weight:700}
-.person-journey input,.person-journey select{
+.person-journey input,.person-journey select,.person-journey textarea{
   width:100%;
   min-height:48px;
   border:1px solid var(--pj-line);
@@ -145,7 +145,7 @@
   outline:none;
   transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
 }
-.person-journey input:focus,.person-journey select:focus{
+.person-journey input:focus,.person-journey select:focus,.person-journey textarea:focus{
   border-color:color-mix(in srgb,var(--pj-accent) 65%,transparent);
   box-shadow:0 0 0 3px color-mix(in srgb,var(--pj-accent) 10%,transparent);
   background:color-mix(in srgb,var(--pj-panel-soft) 96%,transparent);
@@ -668,8 +668,8 @@
 .person-journey-verified small{color:var(--pj-soft);line-height:1.6}
 .person-journey-hint-list{display:grid;gap:8px}
 .person-journey-hint-list article{
-  display:flex;
-  justify-content:space-between;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
   align-items:center;
   gap:12px;
   border:1px solid var(--pj-line);
@@ -685,6 +685,27 @@
 .person-journey-hint-list button{
   appearance:none;background:transparent;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline
 }
+.person-journey-hint-capture-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--pj-line);border-radius:16px;padding:14px;background:color-mix(in srgb,var(--pj-accent) 5%,var(--pj-panel-soft))}
+.person-journey-hint-capture-entry>div{display:grid;gap:4px}.person-journey-hint-capture-entry span{color:var(--pj-soft);font-size:var(--s29-type-small,15px);line-height:1.55}
+.person-journey-hint-capture,.person-journey-hint-review{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;border:1px solid color-mix(in srgb,var(--pj-accent) 34%,var(--pj-line));border-radius:18px;padding:15px;background:var(--pj-panel-soft)}
+.person-journey-hint-capture>header,.person-journey-hint-review>header{grid-column:1/-1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.person-journey-hint-capture header>div,.person-journey-hint-review header>div{display:grid;gap:3px}.person-journey-hint-capture h3,.person-journey-hint-review h3{margin:0}.person-journey-hint-capture header small,.person-journey-hint-capture header>span,.person-journey-hint-review header small,.person-journey-hint-review header>span{color:var(--pj-soft);font-size:var(--s29-type-small,15px)}
+.person-journey-hint-capture label.is-wide{grid-column:1/-1}.person-journey-hint-capture textarea{resize:vertical;line-height:1.65}
+.person-journey-hint-capture>footer,.person-journey-hint-review>footer{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,240px));justify-content:center;gap:9px;border-top:1px solid var(--pj-line);padding-top:12px}.person-journey-hint-capture>footer button,.person-journey-hint-review>footer button{width:100%}
+.person-journey-hint-review>dl{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0}.person-journey-hint-review dl>div{display:grid;gap:3px;border:1px solid var(--pj-line);border-radius:13px;padding:10px;background:var(--pj-panel)}.person-journey-hint-review dt{color:var(--pj-soft);font-size:var(--s29-type-small,15px)}.person-journey-hint-review dd{overflow-wrap:anywhere;margin:0;white-space:pre-wrap}.person-journey-hint-review>p{grid-column:1/-1;margin:0;color:var(--pj-soft);font-size:var(--s29-type-small,15px);line-height:1.6}
+.person-journey-hint-notice{border:1px solid color-mix(in srgb,var(--pj-accent) 45%,var(--pj-line));border-radius:14px;padding:12px;color:var(--pj-ink);background:color-mix(in srgb,var(--pj-accent) 8%,var(--pj-panel-soft))}
+.person-journey-hint-list details{margin-top:5px;border-top:1px solid var(--pj-line);padding-top:6px}.person-journey-hint-list details summary{cursor:pointer}.person-journey-hint-list details p{margin:6px 0 0;color:var(--pj-ink);line-height:1.65;white-space:pre-wrap}
+.person-journey-hint-actions{display:flex!important;flex:0 0 auto;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px}.person-journey-hint-list .person-journey-hint-actions button,.person-journey-hint-actions a{display:inline-flex;min-height:44px;align-items:center;border:1px solid var(--pj-line);border-radius:999px;padding:8px 12px;background:var(--pj-panel);text-decoration:none}
+.person-journey-hint-check,.person-journey-hint-check-state,.person-journey-hint-list article>.person-journey-error{grid-column:1/-1;width:100%}
+.person-journey-hint-check{display:grid;gap:12px;border-top:1px solid var(--pj-line);padding-top:14px}
+.person-journey-hint-check>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.person-journey-hint-check>header>div{display:grid;gap:2px}.person-journey-hint-check h4,.person-journey-hint-check h5{margin:0}.person-journey-hint-check h4{font-size:var(--s29-type-body,18px)}.person-journey-hint-check h5{font-size:var(--s29-type-small,15px)}
+.person-journey-hint-check>header small,.person-journey-hint-check>header>span,.person-journey-hint-check footer{color:var(--pj-soft);font-size:var(--s29-type-small,15px);line-height:1.55}
+.person-journey-hint-check-date{display:flex!important;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--pj-line);border-radius:13px;padding:10px;background:var(--pj-panel)}
+.person-journey-hint-check>section{display:grid;gap:7px}.person-journey-hint-check ul{display:grid;gap:6px;margin:0;padding:0;list-style:none}.person-journey-hint-check li{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border:1px solid var(--pj-line);border-radius:12px;padding:9px 10px;background:var(--pj-panel)}.person-journey-hint-check li span{color:var(--pj-soft);text-align:end}.person-journey-hint-check-warning{margin:0;color:var(--pj-ink)}
+.person-journey-hint-check footer{border-top:1px solid var(--pj-line);padding-top:9px}
+.person-journey-hint-check-state{border-top:1px solid var(--pj-line);padding-top:12px;color:var(--pj-soft)}
+.person-journey-hint-explanation{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;border:1px solid color-mix(in srgb,var(--pj-accent) 32%,var(--pj-line));border-radius:14px;padding:12px;background:color-mix(in srgb,var(--pj-accent) 6%,var(--pj-panel))}
+.person-journey-hint-explanation>div{display:grid;gap:3px}.person-journey-hint-explanation small{color:var(--pj-soft);line-height:1.55}.person-journey-hint-explanation button{display:inline-flex;min-height:44px;align-items:center;justify-content:center;border:1px solid var(--pj-accent-btn);border-radius:999px;padding:8px 14px;background:var(--pj-accent-btn);color:var(--pj-on-accent);text-decoration:none}.person-journey-hint-explanation button:disabled{cursor:not-allowed;opacity:.58}.person-journey-hint-explanation>p{grid-column:1/-1;margin:0}
 .person-journey-empty,.person-journey-state,.person-journey-error{
   border:1px dashed var(--pj-line);
   border-radius:16px;
@@ -762,7 +783,8 @@
   .person-journey-capability-summary,.person-journey-step-list,.person-journey-layer-list,.person-journey-reflection-motifs,.person-journey-reflection-cards{grid-template-columns:1fr}
   .person-journey-name-summary,.person-journey-expression-matrix>div,.person-journey-relation-list>div,.person-journey-family-sources>div{grid-template-columns:1fr}
   .person-journey-research-entry,.person-journey-expression-matrix>header,.person-journey-relation-list>header,.person-journey-family-sources>header{align-items:stretch;flex-direction:column}
-  .person-journey-capability-nav,.person-journey-hint-list article{align-items:stretch;flex-direction:column}
+  .person-journey-capability-nav{align-items:stretch;flex-direction:column}.person-journey-hint-list article{grid-template-columns:1fr;align-items:stretch}.person-journey-hint-check,.person-journey-hint-check-state,.person-journey-hint-list article>.person-journey-error{grid-column:auto}.person-journey-hint-check>header,.person-journey-hint-check-date,.person-journey-hint-check li{align-items:stretch;flex-direction:column}.person-journey-hint-check li span{text-align:start}.person-journey-hint-explanation{grid-template-columns:1fr}.person-journey-hint-explanation>p{grid-column:auto}
+  .person-journey-hint-capture-entry{align-items:stretch;flex-direction:column}.person-journey-hint-capture,.person-journey-hint-review{grid-template-columns:1fr}.person-journey-hint-capture>header,.person-journey-hint-review>header,.person-journey-hint-capture label.is-wide,.person-journey-hint-capture>footer,.person-journey-hint-review>footer,.person-journey-hint-review>dl,.person-journey-hint-review>p{grid-column:auto}.person-journey-hint-review>dl{grid-template-columns:1fr}.person-journey-hint-actions{justify-content:stretch}.person-journey-hint-list .person-journey-hint-actions>*{width:100%}
   .person-journey-family-scope footer{align-items:stretch;flex-direction:column}
   .person-journey-family-research-head,.person-journey-family-research-actions,.person-journey-family-analysis-actions,.person-journey-family-analysis>header{align-items:stretch;flex-direction:column}
   .person-journey-account-continuity>header{align-items:stretch;flex-direction:column}
@@ -775,3 +797,355 @@
   .person-journey-maps-loading>div:last-child{grid-template-columns:1fr 1fr}
   .person-journey-next>span{display:none}
 }
+
+
+/* =====================================================================
+   Design V2 · 2029 Life Journey layer
+   Scope: only `.person-journey.is-2029` (Legacy keeps the rules above).
+   Display layer only — structure, hierarchy, typography, targets.
+   The :not(#pj-v2) term lifts specificity above the shared Legacy rules
+   without !important, so this layer owns every 2029 visual decision.
+   Tokens come from the System Frame (--s29-type-*, --s29-font-*).
+   ===================================================================== */
+
+/* 1. Base: Noto Sans Hebrew for reading, token sizes, no Legacy inheritance. */
+.person-journey.is-2029:not(#pj-v2){
+  font-family:var(--s29-font-body,"Noto Sans Hebrew",Rubik,Arial,sans-serif);
+  font-size:var(--s29-type-body,18px);
+  font-weight:400;
+  line-height:1.7;
+  gap:20px;
+  min-width:0;
+}
+.person-journey.is-2029:not(#pj-v2) :is(p,li,dd,dt,small,figcaption,blockquote){font-family:var(--s29-font-body,"Noto Sans Hebrew",Rubik,Arial,sans-serif);font-weight:400;line-height:1.7}
+.person-journey.is-2029:not(#pj-v2) small{font-size:var(--s29-type-small,15px)}
+
+/* 2. Rubik: navigation, buttons, tabs, controls, headings, UI labels. */
+.person-journey.is-2029:not(#pj-v2) :is(button,summary,select,input,textarea,legend,label>span,[role="tab"],[role="button"],a.person-journey-primary,.person-journey-finding-link,.person-journey-kicker,.person-journey-section-head small,.person-journey-section-head>span,.person-journey-state-chip,h1,h2,h3,h4,h5){
+  font-family:var(--s29-font-ui,Rubik,"Noto Sans Hebrew",Arial,sans-serif);
+}
+.person-journey.is-2029:not(#pj-v2) :is(strong,b,legend,summary,button,[role="tab"]){font-weight:650}
+.person-journey.is-2029:not(#pj-v2) :is(h1,h2,h3,h4,h5){font-weight:650;line-height:1.2;letter-spacing:0}
+.person-journey.is-2029:not(#pj-v2) h1{font-size:clamp(32px,7vw,var(--s29-type-display,46px));line-height:1.12}
+.person-journey.is-2029:not(#pj-v2) h2{font-size:var(--s29-type-title,28px)}
+.person-journey.is-2029:not(#pj-v2) h3{font-size:var(--s29-type-lead,21px)}
+.person-journey.is-2029:not(#pj-v2) h4,.person-journey.is-2029:not(#pj-v2) h5{font-size:var(--s29-type-ui,16px)}
+.person-journey.is-2029:not(#pj-v2) :is(input,select,textarea){font-size:var(--s29-type-ui,16px);font-weight:500}
+.person-journey.is-2029:not(#pj-v2) :is(button,summary,[role="tab"]){font-size:var(--s29-type-ui,16px)}
+.person-journey.is-2029:not(#pj-v2) label>span{font-size:var(--s29-type-small,15px);font-weight:600}
+
+/* 3. IBM Plex Mono: numeric sequences, calculation values and progress only. */
+.person-journey.is-2029:not(#pj-v2) :is(.person-journey-numeric,time,bdi,.person-journey-focal strong,.person-journey-fact-grid strong:not(.is-text),.person-journey-capability-summary strong:not(.is-text),.person-journey-section-head small,.person-journey-family-research-grid dd,.person-journey-family-scope footer strong,.person-journey-family-sources article>strong){
+  font-family:var(--s29-font-numeric,"IBM Plex Mono","Roboto Mono","Courier New",monospace);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:0;
+}
+
+/* 4. Targets: every control is at least 44x44. */
+.person-journey.is-2029:not(#pj-v2) :is(button,select,[role="tab"],.person-journey-finding-link,input:not([type="checkbox"],[type="radio"])){min-height:44px;min-width:44px}
+.person-journey.is-2029:not(#pj-v2) summary{display:flex;align-items:center;min-height:44px;min-width:44px;cursor:pointer}
+.person-journey.is-2029:not(#pj-v2) input[type="checkbox"],.person-journey.is-2029:not(#pj-v2) input[type="radio"]{width:24px;height:24px;margin:0;flex:none}
+.person-journey.is-2029:not(#pj-v2) :is(button,summary,select,input,[role="tab"]):focus-visible{outline:3px solid var(--s29-focus-ring,var(--pj-accent-btn));outline-offset:3px}
+
+/* 5. Top of the screen: identity, state and one primary action. */
+.person-journey.is-2029:not(#pj-v2) .person-journey-hero-status{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:18px}
+.person-journey.is-2029:not(#pj-v2) .person-journey-identity{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-width:0}
+.person-journey.is-2029:not(#pj-v2) .person-journey-identity-name{font-family:var(--s29-font-display,Rubik,sans-serif);font-size:var(--s29-type-lead,21px);font-weight:650;overflow-wrap:anywhere}
+.person-journey.is-2029:not(#pj-v2) .person-journey-state-chip{display:inline-flex;align-items:center;min-height:32px;padding:2px 12px;border:1px solid var(--pj-line-strong);border-radius:999px;font-size:var(--s29-type-small,15px);font-weight:600;color:var(--pj-accent-text)}
+.person-journey.is-2029:not(#pj-v2) .person-journey-state-chip[data-state="ready"]{border-color:var(--pj-accent);background:color-mix(in srgb,var(--pj-accent) 10%,transparent)}
+.person-journey.is-2029:not(#pj-v2) .person-journey-hero{min-height:0}
+.person-journey.is-2029:not(#pj-v2) .person-journey-hero-copy p{font-size:var(--s29-type-body,18px);max-width:62ch}
+
+/* 6. Progressive disclosure: personal details, member details and engine layers. */
+.person-journey.is-2029:not(#pj-v2) :is(.person-journey-personal-details,.person-journey-member-more,.person-journey-engine-layer){border:1px solid var(--pj-line);border-radius:14px;background:var(--pj-panel-soft)}
+.person-journey.is-2029:not(#pj-v2) :is(.person-journey-personal-details,.person-journey-member-more,.person-journey-engine-layer)>summary{padding:8px 14px;color:var(--pj-ink);font-size:var(--s29-type-ui,16px)}
+.person-journey.is-2029:not(#pj-v2) :is(.person-journey-personal-details,.person-journey-engine-layer)[open]>summary{border-bottom:1px solid var(--pj-line)}
+.person-journey.is-2029:not(#pj-v2) .person-journey-personal-details>.person-journey-fields,.person-journey.is-2029:not(#pj-v2) .person-journey-engine-layer>:not(summary){margin:14px}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-more>div{display:grid;gap:4px;padding:2px 14px 12px}
+.person-journey.is-2029:not(#pj-v2) .person-journey-personal-details{margin-bottom:14px}
+.person-journey.is-2029:not(#pj-v2) .person-journey-engine-layer{margin-top:6px}
+
+/* 7. Secondary zone: invitations, sharing and delivery live at the bottom of the family section. */
+.person-journey.is-2029:not(#pj-v2) [data-experience-capability="life-journey-family"]{display:flex;flex-direction:column;gap:18px}
+.person-journey.is-2029:not(#pj-v2) [data-experience-capability="life-journey-family"]>.person-journey-secondary-tools{order:90}
+.person-journey.is-2029:not(#pj-v2) .person-journey-secondary-tools{margin-top:6px}
+
+/* 8. Map tabs wrap instead of shrinking; no text is reduced to fit. */
+.person-journey.is-2029:not(#pj-v2) [role="tablist"]{display:flex;flex-wrap:wrap;gap:8px}
+.person-journey.is-2029:not(#pj-v2) [role="tablist"]>[role="tab"]{flex:0 1 auto;padding:8px 14px;white-space:normal;line-height:1.35}
+
+/* 9. Reduced motion: nothing animates or transitions. */
+@media (prefers-reduced-motion:reduce){
+  .person-journey.is-2029:not(#pj-v2),.person-journey.is-2029:not(#pj-v2) *,.person-journey.is-2029:not(#pj-v2) *::before,.person-journey.is-2029:not(#pj-v2) *::after{animation:none;transition:none;scroll-behavior:auto}
+}
+
+/* 9b. Numeric structural slots (counters, dates, progress, ordinals) use the numeric face. */
+.person-journey.is-2029:not(#pj-v2) :is(.person-journey-maps>header>span,.person-journey-expression-matrix>header>span,.person-journey-relation-list>header>span,.life-time-map>header>span,.life-time-words>header>span,.life-time-words>header>div>small,.birth-map-spatial-details>article>b,.person-journey-guide-progress>span,.person-journey-guide-progress>strong,.person-journey-map-overview>article>strong,dl>div>dd,.person-journey-path-map li>i,.person-journey-expression-matrix>div>article>span,.person-journey-creation-triad>article>strong,.person-journey-creation-counts>span>b,.person-journey-creation-map>header>span,.life-time-intervals>div>article>b){
+  font-family:var(--s29-font-numeric,"IBM Plex Mono","Roboto Mono","Courier New",monospace);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:0;
+}
+.person-journey.is-2029:not(#pj-v2) :is(button,summary,[role="tab"]) *{font-family:var(--s29-font-ui,Rubik,"Noto Sans Hebrew",Arial,sans-serif)}
+.person-journey.is-2029:not(#pj-v2) a{font-family:var(--s29-font-ui,Rubik,"Noto Sans Hebrew",Arial,sans-serif)}
+.person-journey.is-2029:not(#pj-v2) label>span{font-weight:650}
+.person-journey.is-2029:not(#pj-v2) .person-journey-primary{background:var(--pj-accent-btn);color:var(--pj-on-accent);border-color:var(--pj-line-strong);padding-inline:22px}
+.person-journey.is-2029:not(#pj-v2) .person-journey-primary:disabled{opacity:.55}
+@media (max-width:640px){
+  .person-journey.is-2029:not(#pj-v2) .person-journey-orbit{display:none}
+  .person-journey.is-2029:not(#pj-v2) .person-journey-hero{grid-template-columns:minmax(0,1fr);padding:22px}
+}
+
+/* 10. Per-selector floor corrections generated from the Legacy rules above
+   (sizes below 14px, weights 800+, sub-44px controls) — 2029 only. */
+.person-journey.is-2029:not(#pj-v2) .person-journey-kicker,
+.person-journey.is-2029:not(#pj-v2) .person-journey-section-head small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-next small {
+    font-size: var(--s29-type-small,15px);
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-orbit span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-section-head>span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) label>span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) button,
+.person-journey.is-2029:not(#pj-v2) .person-journey-primary,
+.person-journey.is-2029:not(#pj-v2) .person-journey-login a {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-crosses span,
+.person-journey.is-2029:not(#pj-v2) .person-journey-finding-link {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-finding-link {
+    min-height: 44px
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-crosses p {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-scope legend {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-scope>p {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-scope input[type="checkbox"] {
+    width: 44px;
+    min-height: 44px
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-source {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-scope footer {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-scope footer button {
+    min-height: 44px;
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-account-continuity small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-account-continuity>header>span,
+.person-journey.is-2029:not(#pj-v2) .person-journey-account-continuity p,
+.person-journey.is-2029:not(#pj-v2) .person-journey-account-continuity li {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-claim-state,
+.person-journey.is-2029:not(#pj-v2) .person-journey-claim-notice {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-claim-list header small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-claim-list>article>p {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-claim-list header>span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-claim-list footer button {
+    min-height: 44px;
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-invitation-token small {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-invitation-token code {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-invitation-token button {
+    min-height: 44px;
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-invitation-delivery summary {
+    font-size: var(--s29-type-small,15px);
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-invitation-delivery p {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-invitation-delivery label {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-invitation-delivery input {
+    min-height: 44px
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-claim-redeem small {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-claim-tools button {
+    min-height: 44px;
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-claim-tools small {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-research-head small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-research-head>span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-shared>div span em {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-shared-more summary {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-shared-more span em {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-normalization-note summary {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-normalization-note p {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-shared p {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-research-grid dt {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-research-grid dd {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-sources>header strong {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-sources>header small {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-sources summary {
+    font-size: var(--s29-type-small,15px);
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-deep-results>summary {
+    font-size: var(--s29-type-small,15px);
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-sources>header small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-sources>header>span,
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-sources>p {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-sources article span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-analysis>header small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-analysis>header>span,
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-analysis>div>small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-analysis>footer {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-source-summary span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-analysis>details summary {
+    font-size: var(--s29-type-small,15px);
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-relations>div {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-actions button {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-capability-nav p,
+.person-journey.is-2029:not(#pj-v2) .person-journey-note,
+.person-journey.is-2029:not(#pj-v2) .person-journey-els-results>p {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-research-entry small {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-secondary-tools>summary {
+    font-size: var(--s29-type-small,15px);
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-research-message small {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-research-message span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-expression-matrix>header small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-relation-list>header small {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-expression-matrix>header>span,
+.person-journey.is-2029:not(#pj-v2) .person-journey-relation-list>header>span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-expression-matrix article small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-expression-matrix article span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-method-ledger>summary {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-method-ledger>p {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-reflection>header small,
+.person-journey.is-2029:not(#pj-v2) .person-journey-reflection-message>small {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-reflection>header>span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-reflection-cards article>div span {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-reflection-cards footer span {
+    font-size: var(--s29-type-small,15px)
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-hint-list a,
+.person-journey.is-2029:not(#pj-v2) .person-journey-hint-list button {
+    font-weight: 700
+}
+.person-journey.is-2029:not(#pj-v2) .person-journey-maps-loading small {
+    font-size: var(--s29-type-small,15px)
+}.person-journey.is-2029:not(#pj-v2) .person-journey-member-verified{color:var(--s29-success,var(--pj-accent-text));font-weight:650}
+
+/* 11. Action alignment: buttons share one centered, equal-width rhythm.
+   Primary actions are centered; button rows are equal-width grids; secondary notes center under them. */
+.person-journey.is-2029:not(#pj-v2) :is(button,.person-journey-primary,.person-journey-login a){display:inline-flex;align-items:center;justify-content:center;text-align:center}
+.person-journey.is-2029:not(#pj-v2) :is(.person-journey-actions,.person-journey-family-research-actions,.person-journey-family-analysis-actions){display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:10px;text-align:center}
+.person-journey.is-2029:not(#pj-v2) :is(.person-journey-actions,.person-journey-family-research-actions,.person-journey-family-analysis-actions)>:is(button,.person-journey-primary){width:min(100%,360px)}
+.person-journey.is-2029:not(#pj-v2) .person-journey-hero-status{justify-content:space-between}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;width:100%}
+.person-journey.is-2029:not(#pj-v2) .person-journey-member-actions>button{width:100%}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-scope footer{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:10px}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-scope footer>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:min(100%,420px)}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-form{align-items:end}
+.person-journey.is-2029:not(#pj-v2) .person-journey-family-form>button{justify-self:center;width:min(100%,360px)}
+@media (max-width:640px){
+  .person-journey.is-2029:not(#pj-v2) .person-journey-hero-status{display:grid;justify-items:center;text-align:center}
+  .person-journey.is-2029:not(#pj-v2) .person-journey-hero-status>.person-journey-primary{width:100%}
+  .person-journey.is-2029:not(#pj-v2) .person-journey-identity{justify-content:center}
+}
+
+/* 12. Research tree: nodes are full-width rows and branches are a grid, not Legacy pills. */
+.person-journey.is-2029:not(#pj-v2) button.life-tree__toggle{display:flex;flex-wrap:wrap;justify-content:space-between;width:100%;border:0;border-radius:0;background:transparent;padding:8px 14px;text-align:start}
+.person-journey.is-2029:not(#pj-v2) button.life-tree__branch{display:grid;justify-items:center;align-content:center;border-radius:14px;padding:6px 10px;background:var(--pj-panel)}
+.person-journey.is-2029:not(#pj-v2) .life-tree__name{flex:1 1 9ch}

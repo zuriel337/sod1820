@@ -42,6 +42,9 @@ export function publicContributorPerson2029(view, { kind = null, overview = null
     && chat.page.count >= chat.page.rows.length), "public_community_author_reader", "public chat messages and replies; not research contributions");
   const likesReceived = measurement(chat?.likes, ["verified_archive_profile_baseline", "public_community_author_summary"].includes(chat?.likesSource),
     chat?.likesSource || null, "existing public community summary or reported source-profile lifetime likes; not research standing");
+  const publicActivity = chat?.summary?.publicActivity;
+  const activityComplete = publicActivity?.version === "public-chat-summary-v1" && publicActivity.scope === "public_chat_only" && publicActivity.complete === true;
+  const activeDays = measurement(publicActivity?.activeDays, activityComplete, "public_community_author_summary", "distinct public chat posting dates in Asia/Jerusalem; excludes private visits/searches");
   const registered = publicContributorOverview(overview);
   const joinedAt = registered.state === "ready" ? registered.joinedAt : null;
   // Only the existing canonical kind may supply a capability. Role text, item
@@ -62,7 +65,9 @@ export function publicContributorPerson2029(view, { kind = null, overview = null
     personBinding: "unresolved", canonicalHref: view.canonicalHref,
     profile,
     axes: [
-      axis("activity", "פעילות ותנופה", { activeDays: unknown("meaningful public active days") }, "public_activity_reader_not_connected"),
+      { ...axis("activity", "פעילות ותנופה", { activeDays }, "public_activity_reader_not_connected"),
+        lastPublicActivityAt: activityComplete && typeof publicActivity.lastPublicActivityAt === "string"
+          && Number.isFinite(Date.parse(publicActivity.lastPublicActivityAt)) ? publicActivity.lastPublicActivityAt : null },
       { ...axis("tenure", "ותק והמשכיות", { tenureDays: unknown("verified historical community tenure") }, "account_age_is_not_community_tenure"),
         registeredAt: joinedAt, registeredAtBasis: joinedAt ? "account_registration" : null,
         firstPublicActivityAt: chat?.summary?.firstAt || null, lastSeenAt: null },

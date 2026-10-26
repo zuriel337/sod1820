@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, fetchCommunityAuthorSummary, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus } from "./communityArchive.js";
 
 test("preserves the five user-authorized profile like baselines", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(PROFILE_BASELINES).map(([name, value]) => [name, value.likesLabel])), {
@@ -202,4 +202,35 @@ test("canonical exact context matches the requested root/child and never falls b
   assert.equal(await fetchCommunityThread(root, { client }), null);
   error = { code: "42501", message: "denied" };
   await assert.rejects(fetchCommunityThread(root, { client }), value => value.code === "42501");
+});
+
+test("public activity reuses the bounded likes scan, counts Israel posting days and excludes private activity", async () => {
+  const calls = [], rows = [{ id: "one", created_at: "2026-10-26T19:00:00Z", reactions: { likes: 2 } },
+    { id: "two", created_at: "2026-10-26T22:30:00Z", reactions: { likes: 3 } }];
+  const client = { from(table) { assert.equal(table, "research_contributions"); const b = {};
+    for (const method of ["select", "eq", "in", "not", "neq", "or", "order"]) b[method] = (...args) => { calls.push([method, ...args]); return b; };
+    b.limit = async () => ({ data: rows.slice(0, 1), error: null });
+    b.range = async () => { calls.push(["range"]); return { data: rows, error: null }; }; return b; } };
+  const result = await fetchCommunityAuthorSummary("4cd9c034-0464-4600-a35d-7156f0584d9b", { client });
+  assert.equal(result.archiveLikes, 5);
+  assert.deepEqual(result.publicActivity, { version: "public-chat-summary-v1", scope: "public_chat_only", complete: true,
+    activeDays: 2, lastPublicActivityAt: rows[1].created_at });
+  assert.equal(calls.filter(c => c[0] === "range").length, 1, "no extra activity query or per-message request");
+  assert.ok(calls.some(c => c[0] === "eq" && c[1] === "status" && c[2] === "approved"));
+  assert.ok(calls.some(c => c[0] === "not" && c[1] === "body"));
+  assert.ok(calls.some(c => c[0] === "in" && c[1] === "origin" && c[2].includes("openweb")));
+});
+
+test("empty public history is measured zero; invalid or truncated activity never manufactures a complete total", async () => {
+  for (const kind of ["empty", "invalid", "truncated"]) {
+    let pages = 0;
+    const client = { from() { const b = {}; for (const method of ["select", "eq", "in", "not", "neq", "or", "order"]) b[method] = () => b;
+      b.limit = async () => ({ data: [], error: null });
+      b.range = async () => { pages++; return { data: kind === "empty" ? [] : kind === "invalid" ? [{ created_at: "bad", reactions: {} }]
+        : Array.from({ length: 500 }, () => ({ created_at: "2026-10-26T19:00:00Z", reactions: {} })), error: null }; }; return b; } };
+    const result = await fetchCommunityAuthorSummary("4cd9c034-0464-4600-a35d-7156f0584d9b", { client });
+    if (kind === "empty") { assert.equal(result.publicActivity.activeDays, 0); assert.equal(result.publicActivity.complete, true); }
+    if (kind === "invalid") { assert.equal(result.publicActivity.activeDays, null); assert.equal(result.publicActivity.complete, false); }
+    if (kind === "truncated") { assert.equal(result.archiveLikes, null); assert.equal(result.publicActivity, undefined); assert.equal(pages, 10); }
+  }
 });
