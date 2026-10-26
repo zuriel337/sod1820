@@ -450,6 +450,16 @@ test("2029 expression crossing joins its canonical regular-value neighborhood wi
     answer: noMatchAnswer(),
     allowed: true,
     bearer: "synthetic-anon-key",
+    modelResult: {
+      text: JSON.stringify({
+        v: 1,
+        agent: "raziel",
+        answer: "פירוש קנוני למשיח",
+        facts: [],
+        suggested_paths: [{ id: "delete_everything", label: "מחק הכול", href: "https://evil.example" }],
+      }),
+      usage: { input_tokens: 20, output_tokens: 10 }, attempts: 1, degraded: false,
+    },
     body: {
       subject: `מצא לי הצלבות למילה ${expression}`,
       visitor_id: "vexpressioncrossing123",
@@ -477,6 +487,23 @@ test("2029 expression crossing joins its canonical regular-value neighborhood wi
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.contract, EXPRESSION_CONTRACT);
   assert.equal(run.result.raziel.plan_meta.canonical_result_bundle.status, "ready");
   assert.ok(run.result.raziel.sources.some((source) => source.original_name === "מאגר הביטויים"));
+  assert.deepEqual(run.result.raziel.suggested_paths, [
+    {
+      id: "all_methods",
+      label: "בדוק בכל השיטות",
+      icon: "methods",
+      hint: "פתח חישוב קנוני של אותו ביטוי בכל השיטות.",
+      subject: "משיח",
+    },
+    {
+      id: "open_number",
+      label: "פתח את המספר 358",
+      icon: "number",
+      hint: "עבור לדף המספר הקנוני והמשך משם.",
+      href: "/2029/number/358",
+    },
+  ]);
+  assert.doesNotMatch(JSON.stringify(run.result.raziel.suggested_paths), /delete_everything|evil|מחק הכול/);
   assert.equal(JSON.stringify(run.traces).includes(expression), false, "expression must not enter operational trace");
 });
 

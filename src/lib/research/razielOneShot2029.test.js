@@ -163,3 +163,14 @@ test("component: same action class as deepen, explains first (lazy panel), activ
   for (const source of [actions, offer, gateSource]) assert.doesNotMatch(source, /localStorage|sessionStorage|indexedDB|fetch\(|askRaziel|transport/);
   for (const source of [actions, offer]) assert.doesNotMatch(source, /useEffect|useLayoutEffect/, "opening the chat runs no effect, so no model or network call");
 });
+
+test("safe suggestions reuse the one session: explicit submit, safe number navigation, and explicit save only", () => {
+  assert.match(actions, /latestRaziel\.suggestedActions/);
+  assert.match(actions, /data-raziel-suggested-action=\{action\.id\}/);
+  assert.match(actions, /session\.submit\(\{ question: `בדוק את \$\{action\.subject\} בכל השיטות`, intelligenceLevel: "fast" \}\)/);
+  assert.match(actions, /session\.saveCurrentSession\(\)/);
+  assert.match(actions, /session\.submit\(\{ question: latestRaziel\.question, intelligenceLevel: "deep", again: true, continuationTurnId: latestRaziel\.turnId \}\)/);
+  assert.ok(actions.includes('if (/^\\/2029\\/number\\/[1-9]\\d{0,5}$/.test(action.href || ""))'));
+  assert.match(actions, /globalThis\.location\?\.assign\?\.\(action\.href\)/);
+  assert.doesNotMatch(actions, /fetch\(|askRaziel|transport|saveItem|removeSaved|localStorage|sessionStorage|indexedDB/);
+});

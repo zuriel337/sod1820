@@ -537,6 +537,96 @@ const RAZIEL_SITE_FALLBACK =
   "(7) סיים בשאלה מזמינה שממשיכה את המחקר. (8) גדול=רגיל כשאין סופיות — לא ממצא. (9) עובדה≠רמז, ענווה, בלי נבואות.\n" +
   "החזר אך ורק JSON תקין אחד: {\"v\":1,\"agent\":\"raziel\",\"context\":null,\"greeting\":null,\"answer\":\"...\",\"facts\":[{\"label\":\"...\",\"value\":\"...\"}],\"suggested_paths\":[{\"id\":\"...\",\"label\":\"...\",\"icon\":\"...\",\"hint\":\"...\"}],\"follow_up_question\":null,\"continue_wa\":true} — בלי טקסט לפני/אחרי, בלי Markdown.";
 
+// Shared voice invariant for every Raziel surface. This is a small guard layer over the one
+// canonical persona, not a second persona: site and WhatsApp get the same warmth and accuracy;
+// their surface profiles may change only length, layout and interaction affordances.
+const RAZIEL_SHARED_WARM_ACCURACY_LAYER =
+  "\n\nכללי קול ודיוק משותפים לכל מופעי רזיאל:\n" +
+  "• שמור על הקול החם, הרוחני, הסקרן והשיחתי של רזיאל. הדיוק פועל בשקט מאחורי הקלעים: אל תהפוך את התשובה לדוח טכני ואל תעמיס הסתייגויות.\n" +
+  "• כשאין מקור מפורש בחומר שסופק, אפשר להסביר מושג רוחני בעדינות, אבל אל תציג ניסוח בשם הקבלה או המסורת כעובדה מוסמכת. הצג חיבור רוחני כקריאה אפשרית ולא כעובדה מוחלטת.\n" +
+  "• אל תקבע ששני מושגים קרובים הם אותו דבר בלי בסיס מפורש בחומר. אם הם קרובים אך שונים, אמור בקצרה שיש ביניהם קשר וגם הבדל, והמשך בשפה אנושית.\n" +
+  "• אם לא ידועה צורת הפנייה של האדם, נסח בלשון ניטרלית (למשל: ‘אפשר להעמיק’ או ‘מה מסקרן בנושא?’) ואל תנחש מגדר.\n" +
+  "• לפני ההחזרה בצע הגהה שקטה: תקן שגיאות כתיב, מילה כפולה והטיה שבורה, בלי לספר למשתמש על ההגהה.\n" +
+  "• פעולות ההמשך נבחרות בשרת מרשימה סגורה. השאר תמיד את suggested_paths ריק ואל תמציא כפתור, קישור או פעולה.\n";
+
+type RazielSafeSuggestedPath = {
+  id: "all_methods" | "open_number" | "save_conversation" | "deepen";
+  label: string;
+  icon: string;
+  hint: string;
+  subject?: string;
+  href?: string;
+};
+
+// The model never owns executable suggestions. This deterministic registry is the only place that
+// turns already-authorized context into a bounded action. Personal state is never changed here:
+// save_conversation is merely offered and still requires an explicit click in the existing session.
+function razielSafeSuggestedPaths({
+  trusted,
+  expression,
+  navigation,
+  canonicalReady,
+  question,
+}: {
+  trusted: boolean;
+  expression?: unknown;
+  navigation?: unknown;
+  canonicalReady: boolean;
+  question?: unknown;
+}): RazielSafeSuggestedPath[] {
+  if (trusted) {
+    return [{
+      id: "deepen",
+      label: "להעמיק בתשובה",
+      icon: "depth",
+      hint: "אפשר לבקש מרזיאל להרחיב מאותה נקודה.",
+    }];
+  }
+
+  const actions: RazielSafeSuggestedPath[] = [];
+  const cleanExpression = typeof expression === "string"
+    ? expression.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, 120)
+    : "";
+  const asksForAllMethods = /(?:^|\s)(?:כל|בכל)\s+השיטות(?:\s|$)/u.test(String(question || ""));
+  if (canonicalReady && cleanExpression && !asksForAllMethods) {
+    actions.push({
+      id: "all_methods",
+      label: "בדוק בכל השיטות",
+      icon: "methods",
+      hint: "פתח חישוב קנוני של אותו ביטוי בכל השיטות.",
+      subject: cleanExpression,
+    });
+  }
+
+  const entries = Array.isArray(navigation) ? navigation : [];
+  for (const entry of entries) {
+    const href = entry && typeof entry === "object" && typeof (entry as any).href === "string"
+      ? (entry as any).href.trim()
+      : "";
+    const match = href.match(/^\/2029\/number\/([1-9]\d{0,5})$/);
+    const value = match ? Number(match[1]) : 0;
+    if (!Number.isSafeInteger(value) || value < 1 || value > 999999) continue;
+    actions.push({
+      id: "open_number",
+      label: `פתח את המספר ${value}`,
+      icon: "number",
+      hint: "עבור לדף המספר הקנוני והמשך משם.",
+      href: `/2029/number/${value}`,
+    });
+    break;
+  }
+
+  if (actions.length < 2) {
+    actions.push({
+      id: "save_conversation",
+      label: "שמור את השיחה",
+      icon: "save",
+      hint: "השמירה תתבצע רק אחרי לחיצה מפורשת.",
+    });
+  }
+  return actions.slice(0, 2);
+}
+
 const svcHeaders = () => supabaseServiceHeaders(SB_SVC, { "Content-Type": "application/json" });
 
 // פרסונת-רזיאל ממקור-האמת היחיד (fn_raziel_persona) — משותפת עם wa-christina.
@@ -3102,6 +3192,14 @@ Deno.serve(async (req: Request) => {
         }
       }
 
+      const rSafeSuggestedPaths = razielSafeSuggestedPaths({
+        trusted: !!rTrusted,
+        expression: rExpressionCrossingHint?.expression,
+        navigation: rCanonicalBundleNavigation,
+        canonicalReady: !!rCanonicalBundlePack,
+        question: rSubject,
+      });
+
       // RAZIEL_VIEW_MODE_V1 gate. A non-general mode runs ONE synthesis over the SAME canonical Result Bundle that
       // general would have used. No valid Bundle ⇒ a grounded deterministic fallback (no model, no guess). When AI quota
       // is exhausted the existing zero-cost direct answer is returned instead, so no mode ever hides evidence.
@@ -3139,7 +3237,7 @@ Deno.serve(async (req: Request) => {
             greeting: null,
             answer: rCanonicalDirectAnswer.answer,
             facts: Array.isArray(rCanonicalDirectAnswer.facts) ? rCanonicalDirectAnswer.facts : [],
-            suggested_paths: [],
+            suggested_paths: rSafeSuggestedPaths,
             follow_up_question: null,
             continue_wa: true,
             deterministic: true,
@@ -3223,13 +3321,13 @@ Deno.serve(async (req: Request) => {
 
       // 🌳 מטטרון בתוך רזיאל — Single-Mind Trunk Closure (30.8.2026): מנדטורי, לא opt-in. חוקי-המערכת
       //    החיים נכנסים לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות, בכל תשובת-רזיאל (אתר=וואטסאפ,
-      //    אותו דפוס). fail-open מלא: כשל/ריק ב-metatron_context → rzSys=persona בדיוק כמו קודם.
-      let rzSys = persona;
+      //    אותו דפוס). fail-open מלא: כשל/ריק ב-metatron_context משאיר את הפרסונה עם שכבת הקול המשותפת בלבד.
+      let rzSys = persona + RAZIEL_SHARED_WARM_ACCURACY_LAYER;
       let rzMtxFacts = "";
       let rzMtxVersion: unknown = null;
       if (rSubject) {
         const mtx = await fetchMetatronContext(rSubject, rSubject, "site-raziel");
-        if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
+        if (mtx) { rzSys += metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
       }
       // RAZIEL_VIEW_MODE_V1: one small layer on the existing persona — never a second persona or prompt.
       if (rViewSynthesis && rViewMode !== "general") {
@@ -3463,6 +3561,9 @@ Deno.serve(async (req: Request) => {
       const contract = parseContract(out.text || "");
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
+        // Executable suggestions are server-owned. Discard anything the model attempted to emit;
+        // a degraded answer gets no action because its result was not accepted as a successful turn.
+        contract.suggested_paths = responseDegraded ? [] : rSafeSuggestedPaths;
         if (rCanonicalResearchOptIn) {
           // Only the canonical consumer may attest source names for this path. Model-authored source
           // labels and navigation are not evidence and must never enter the response surface.
