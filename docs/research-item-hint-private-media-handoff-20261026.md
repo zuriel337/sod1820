@@ -43,7 +43,7 @@ The validation helper is pure and executable by `authenticated` and `service_rol
 ## Privacy and failure semantics
 
 - The JWT is resolved server-side on every request. Request-body actor/admin claims are never used.
-- The application response exposes the physical path only during the already-required signed TUS upload issue. It is absent from hint persistence, read/bind/detach/delete responses, URLs, logs and telemetry.
+- The signed TUS upload issue necessarily exposes its server-generated physical path for the transient upload transport. HMAC issue/binding/cleanup receipts are signed base64 JSON, not encrypted or opaque capabilities; their payload includes that path. They must remain transient and must not be persisted in hint records, metadata or browser storage, or written to logs or telemetry. Persisted `research_items.media` contains only opaque object/intent ids and bounded semantic fields; signed read URLs are also transient.
 - Signed read URLs are returned transiently with a 60-second lifetime and `Cache-Control: private, no-store`.
 - An issued signed URL remains a bearer capability until its short expiry; detach does not falsely claim retroactive revocation.
 - A failed binary deletion leaves the binding unreadable and produces a signed retry receipt. Deleting a hint is finalized only when every referenced Storage object is absent.
@@ -53,7 +53,7 @@ The validation helper is pure and executable by `authenticated` and `service_rol
 ## Test evidence
 
 - `node scripts/test-media-upload-runtime.mjs` — receipt tamper/expiry/principal/phase tests, existing upload and TUS retry compatibility, no-store and no AI/ELS/Raziel/public-gallery route assertions.
-- `scripts/run-research-item-hint-private-media-sql-test.sh` — disposable PostgreSQL 15 apply/rollback, grants/RLS, owner/foreign owner/non-owning admin, forged JSON/metadata, cross-source binding, read, detach, delete, retry and dry-run retention cases.
+- `scripts/run-research-item-hint-private-media-sql-test.sh` — disposable cached PostgreSQL 17 apply/rollback, grants/RLS, owner/foreign owner/non-owning admin, forged JSON/metadata, cross-source binding, read, detach, delete, retry and dry-run retention cases. The runner explicitly selects the local Docker socket, refuses image pulls, uses `--network none`, exposes no host ports and mounts the repository read-only.
 - `scripts/test-research-sync.sql` in disposable PostgreSQL — existing Research Sync acceptance remains green.
 - `node scripts/test-research-sync-provider.mjs` — existing provider/principal behavior remains green.
 - Edge source parse/bundle check using esbuild with the `jsr:` dependency externalized.
@@ -65,6 +65,21 @@ The validation helper is pure and executable by `authenticated` and `service_rol
 ## Rollback
 
 The focused SQL suite applies the migration inside a transaction, exercises it, rolls back, and proves both `research_items.media` and the new RPC signatures are absent afterward. No live rollback was needed because there was no live apply.
+
+## Central acceptance correction and fresh isolated checks
+
+The media JSON validator now explicitly rejects missing and JSON-null `state` instead of allowing SQL's unknown value through its invalid-row filter. Six added SQL assertions cover missing/null/unknown rejection, all four valid lifecycle states, and actual table-constraint rejection of missing/null state. The latter run as the fixture table owner, so they prove the check constraint itself works independently of the server-managed trigger. No function grants, RLS policies or media action semantics were changed by this correction.
+
+Fresh acceptance after this correction:
+
+- Existing media upload/TUS/receipt runtime acceptance passed.
+- The expanded private-media SQL apply/rollback suite passed all 50 assertions on cached PostgreSQL 17.11.
+- The complete existing Research Sync SQL fixture passed all 36 assertions with the media migration installed before its first user write. Fixture prerequisites were composed outside the repository; the original synchronization assertions were unchanged.
+- Both existing ELS suites passed with the media schema/guards installed: public-save/private-draft isolation (F3 S1/S2), and private-save/ownership/publication compatibility.
+- The existing mounted ResearchProvider suite passed 10/10 with one consistent React 19.3.0 test installation. Test-only helpers used an isolated temporary npm prefix and resolver; application dependencies and lockfiles were untouched.
+- The Edge source bundled successfully with esbuild 0.28.2 and the `jsr:` dependency externalized. This is a parse/bundle check, not a deployed Edge or live authorization claim.
+
+All SQL checks used disposable containers selected through the local Docker socket, `--pull=never`, `--network none`, no host ports and read-only source/evidence mounts. The containers were stopped and removed. Logs and generated compatibility fixtures are under `/workspace/artifacts/central-els-hint-media-world-20261026/media/`. No live Supabase call executed these migrations, SQL fixtures or media actions.
 
 ## Release state
 

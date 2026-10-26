@@ -94,6 +94,45 @@ begin;
 \ir ../../supabase/migrations/20261026212450_research_item_hint_private_media_v1.sql
 
 select pg_temp.ok(
+  public.private_research_item_hint_media_valid(
+    '[{"storage_object_id":"d1000000-0000-4000-8000-000000000002","intent_id":"f1000000-0000-4000-8000-000000000002","kind":"image","role":"evidence_image","visibility":"private"}]'::jsonb
+  ) is false,
+  'media validator rejects a missing state rather than accepting SQL unknown'
+);
+select pg_temp.ok(
+  public.private_research_item_hint_media_valid(
+    '[{"storage_object_id":"d1000000-0000-4000-8000-000000000002","intent_id":"f1000000-0000-4000-8000-000000000002","kind":"image","role":"evidence_image","visibility":"private","state":null}]'::jsonb
+  ) is false,
+  'media validator rejects a JSON null state'
+);
+select pg_temp.ok(
+  public.private_research_item_hint_media_valid(
+    '[{"storage_object_id":"d1000000-0000-4000-8000-000000000002","intent_id":"f1000000-0000-4000-8000-000000000002","kind":"image","role":"evidence_image","visibility":"private","state":"unknown"}]'::jsonb
+  ) is false,
+  'media validator rejects a noncanonical state'
+);
+select pg_temp.ok(
+  (select bool_and(public.private_research_item_hint_media_valid(jsonb_build_array(jsonb_build_object(
+    'storage_object_id','d1000000-0000-4000-8000-000000000002',
+    'intent_id','f1000000-0000-4000-8000-000000000002',
+    'kind','image','role','evidence_image','visibility','private','state',allowed_state
+  )))) from unnest(array['bound','cleanup_pending','delete_pending','detached']) as states(allowed_state)),
+  'media validator accepts every canonical lifecycle state'
+);
+-- Execute as the fixture table owner: the server-managed trigger permits this role,
+-- so these failures prove that the table constraint itself rejects unsafe shapes.
+select pg_temp.fails($q$
+  update public.research_items
+  set media='[{"storage_object_id":"d1000000-0000-4000-8000-000000000002","intent_id":"f1000000-0000-4000-8000-000000000002","kind":"image","role":"evidence_image","visibility":"private"}]'
+  where id='a1000000-0000-4000-8000-000000000002'
+$q$,'research_items_media_array_ck','table constraint rejects a missing state');
+select pg_temp.fails($q$
+  update public.research_items
+  set media='[{"storage_object_id":"d1000000-0000-4000-8000-000000000002","intent_id":"f1000000-0000-4000-8000-000000000002","kind":"image","role":"evidence_image","visibility":"private","state":null}]'
+  where id='a1000000-0000-4000-8000-000000000002'
+$q$,'research_items_media_array_ck','table constraint rejects a JSON null state');
+
+select pg_temp.ok(
   has_function_privilege('service_role','public.private_research_item_hint_media_bind(uuid,text,text,bigint,text,uuid)','EXECUTE'),
   'service role can call the narrow binder'
 );

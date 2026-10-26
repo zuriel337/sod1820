@@ -23,7 +23,7 @@ as $function$
          or item.value->>'kind' is distinct from 'image'
          or item.value->>'role' is distinct from 'evidence_image'
          or item.value->>'visibility' is distinct from 'private'
-         or item.value->>'state' not in ('bound','cleanup_pending','delete_pending','detached')
+         or coalesce(item.value->>'state','') not in ('bound','cleanup_pending','delete_pending','detached')
          or exists (
            select 1 from jsonb_object_keys(item.value) as key(name)
            where key.name not in ('storage_object_id','intent_id','kind','role','visibility','state')
