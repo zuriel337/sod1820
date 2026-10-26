@@ -26,6 +26,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const seferYetzirahMapProjection = read("src/lib/research/lifeJourneySeferYetzirahMap.js");
   const birthMapProjection = read("src/lib/research/lifeJourneyBirthMap.js");
   const birthMapAdapter = read("src/lib/research/lifeJourneyBirthAdapters.js");
+  const birthPlaceCatalog = read("src/lib/research/lifeJourneyBirthPlaces.js");
   const birthMapStudio = read("src/components/experience2029/BirthMapStudio2029.jsx");
   const birthMapScene = read("src/components/experience2029/BirthMapScene3D2029.jsx");
   const timeMapProjection = read("src/lib/research/lifeJourneyTimeMap.js");
@@ -179,6 +180,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(birthMapStudio, /תאריך לידה לבדיקה/);
   assert.match(birthMapStudio, /שעת לידה לבדיקה/);
   assert.match(birthMapStudio, /type="time"/);
+  assert.match(birthMapStudio, /עיר לידה לחיפוש מקומי/);
+  assert.match(birthMapStudio, /resolveLifeJourneyBirthPlace/);
+  assert.match(birthPlaceCatalog, /GeoNames/);
+  assert.match(birthPlaceCatalog, /CC BY 4\.0/);
+  assert.doesNotMatch(birthPlaceCatalog, /fetch\(|supabase|localStorage|sessionStorage|URLSearchParams|track\(|console\./i);
   assert.match(birthMapStudio, /onCalculationChange/);
   assert.match(birthMapStudio, /התכנסויות/);
   assert.match(birthMapStudio, /חיבור מחקרי שכבר נמצא/);

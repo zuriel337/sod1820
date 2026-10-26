@@ -395,9 +395,12 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await temporaryBirthtime.fill("");
     assert.equal(await birthStudio.getByRole("button", { name: "חשב מפה מקומית" }).isDisabled(), true, "a missing exact time stays explicit");
     await temporaryBirthtime.fill("05:30");
-    await birthStudio.getByLabel("אזור זמן בלידה").fill("Asia/Jerusalem");
-    await birthStudio.getByLabel(/קו רוחב/).fill("31.7683");
-    await birthStudio.getByLabel(/קו אורך/).fill("35.2137");
+    await birthStudio.getByLabel("עיר לידה לחיפוש מקומי").fill("ירושלים");
+    await birthStudio.getByRole("option", { name: /ירושלים/ }).click();
+    await birthStudio.getByText("ירושלים · ישראל", { exact: true }).waitFor();
+    assert.equal(await birthStudio.getByLabel("אזור זמן בלידה").inputValue(), "Asia/Jerusalem");
+    assert.equal(await birthStudio.getByLabel(/קו רוחב/).inputValue(), "31.76904");
+    assert.equal(await birthStudio.getByLabel(/קו אורך/).inputValue(), "35.21633");
     const birthCalculationRequestIndex = requestUrls.length;
     await birthStudio.getByRole("button", { name: "חשב מפה מקומית" }).click();
     const humanDesignResult = birthStudio.locator('[data-result="human-design"]');
@@ -423,7 +426,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.setViewportSize({ width: 390, height: 900 });
     const calculationRequests = requestUrls.slice(birthCalculationRequestIndex).map(url => decodeURIComponent(url)).join("\n");
     const calculationBodies = requestBodies.join("\n");
-    for (const privateValue of ["1990-02-15", "05:30", "Asia/Jerusalem", "31.7683", "35.2137", "הורה בדיקה", "עיר בדיקה"]) {
+    for (const privateValue of ["1990-02-15", "05:30", "Asia/Jerusalem", "31.76904", "35.21633", "ירושלים", "הורה בדיקה", "עיר בדיקה"]) {
       assert.equal(calculationRequests.includes(privateValue), false, `local calculation keeps ${privateValue} out of request URLs`);
       assert.equal(calculationBodies.includes(privateValue), false, `local calculation keeps ${privateValue} out of request bodies`);
     }

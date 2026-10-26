@@ -1,6 +1,11 @@
 import React, { lazy, Suspense, useState } from "react";
 import { evaluateS4Capability, prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
 import { calculateLifeJourneyBirthMap } from "../../lib/research/lifeJourneyBirthAdapters.js";
+import {
+  LIFE_JOURNEY_BIRTH_PLACE_SOURCE,
+  resolveLifeJourneyBirthPlace,
+  searchLifeJourneyBirthPlaces,
+} from "../../lib/research/lifeJourneyBirthPlaces.js";
 import "./birth-map-studio-2029.css";
 
 const BirthMapScene3D = lazy(() => import("./BirthMapScene3D2029.jsx"));
@@ -57,7 +62,7 @@ class BirthSceneBoundary extends React.Component {
   render() { return this.state.failed ? null : this.props.children; }
 }
 
-function BirthCalculationControls({ people, selectedRef, birthdate, birthtime, timezone, latitude, longitude, state, error, onSelect, onBirthdate, onBirthtime, onTimezone, onLatitude, onLongitude, onCalculate }) {
+function BirthCalculationControls({ people, selectedRef, birthdate, birthtime, placeQuery, placeOptions, selectedPlace, timezone, latitude, longitude, state, error, onSelect, onBirthdate, onBirthtime, onPlaceQuery, onPlaceSelect, onTimezone, onLatitude, onLongitude, onCalculate }) {
   const selected = people.find(person => person.memberRef === selectedRef) || people[0] || null;
   const hasDate = Boolean(birthdate);
   const hasExactTime = Boolean(birthtime);
@@ -78,17 +83,48 @@ function BirthCalculationControls({ people, selectedRef, birthdate, birthtime, t
     <div className="birth-map-calculator__fields">
       <label><span>תאריך לידה לבדיקה <small>זמני</small></span><input dir="ltr" type="date" value={birthdate} onChange={event => onBirthdate(event.target.value)} autoComplete="off" /></label>
       <label><span>שעת לידה לבדיקה <small>זמנית</small></span><input dir="ltr" type="time" step="60" value={birthtime} onChange={event => onBirthtime(event.target.value)} autoComplete="off" /></label>
-      <label><span>אזור זמן בלידה</span><input dir="ltr" type="text" value={timezone} onChange={event => onTimezone(event.target.value)} placeholder="Asia/Jerusalem" autoComplete="off" inputMode="text" /></label>
-      <label><span>קו רוחב <small>למפת שמיים</small></span><input dir="ltr" type="number" min="-90" max="90" step="any" value={latitude} onChange={event => onLatitude(event.target.value)} placeholder="31.7683" autoComplete="off" /></label>
-      <label><span>קו אורך <small>למפת שמיים</small></span><input dir="ltr" type="number" min="-180" max="180" step="any" value={longitude} onChange={event => onLongitude(event.target.value)} placeholder="35.2137" autoComplete="off" /></label>
     </div>
+    <div className="birth-map-place-picker">
+      <label htmlFor="birth-map-place-query">עיר לידה לחיפוש מקומי</label>
+      <input
+        id="birth-map-place-query"
+        type="search"
+        value={placeQuery}
+        onChange={event => onPlaceQuery(event.target.value)}
+        placeholder="למשל ירושלים או ניו יורק"
+        autoComplete="off"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={placeOptions.length > 0}
+        aria-controls="birth-map-place-options"
+      />
+      {placeOptions.length ? <div id="birth-map-place-options" className="birth-map-place-options" role="listbox" aria-label="התאמות עיר לידה">
+        {placeOptions.map(place => <button key={place.id} type="button" role="option" aria-selected="false" onClick={() => onPlaceSelect(place)}>
+          <strong>{place.label}</strong><span>{place.country}</span>
+        </button>)}
+      </div> : null}
+      {selectedPlace ? <div className="birth-map-place-selected" role="status">
+        <span>נבחר מרכז העיר</span><strong>{selectedPlace.label} · {selectedPlace.country}</strong><small>{selectedPlace.timezone}</small>
+      </div> : null}
+      {!selectedPlace && placeQuery.trim().length >= 2 && !placeOptions.length ? <small>העיר אינה במאגר המקומי. אפשר להזין מיקום ידנית באזור המתקדם.</small> : null}
+      <small>החיפוש מתבצע במכשיר בלבד. אין צורך בכתובת מדויקת; מרכז העיר מספיק לחישוב.</small>
+    </div>
+    <details className="birth-map-location-advanced">
+      <summary>מיקום מתקדם · הזנה ידנית</summary>
+      <div className="birth-map-calculator__fields is-location">
+        <label><span>אזור זמן בלידה</span><input dir="ltr" type="text" value={timezone} onChange={event => onTimezone(event.target.value)} placeholder="Asia/Jerusalem" autoComplete="off" inputMode="text" /></label>
+        <label><span>קו רוחב <small>למפת שמיים</small></span><input dir="ltr" type="number" min="-90" max="90" step="any" value={latitude} onChange={event => onLatitude(event.target.value)} placeholder="31.7683" autoComplete="off" /></label>
+        <label><span>קו אורך <small>למפת שמיים</small></span><input dir="ltr" type="number" min="-180" max="180" step="any" value={longitude} onChange={event => onLongitude(event.target.value)} placeholder="35.2137" autoComplete="off" /></label>
+      </div>
+    </details>
     <div className="birth-map-calculator__action">
       <button type="button" disabled={!ready || state === "loading"} onClick={onCalculate}>{state === "loading" ? "מחשב במכשיר…" : "חשב מפה מקומית"}</button>
-      <small>התאריך, השעה, אזור הזמן והקואורדינטות נשארים בזיכרון המסך ונמחקים ברענון. אין בקשת רשת ואין שמירה נוספת בדפדפן או במסד.</small>
+      <small>התאריך, השעה והמיקום נשארים בזיכרון המסך ונמחקים ברענון. אין בקשת רשת ואין שמירה נוספת בדפדפן או במסד.</small>
     </div>
     {!hasDate && selected ? <p role="status">{STATE_LABEL.needs_date}</p> : null}
     {hasDate && !hasExactTime && selected ? <p role="status">{STATE_LABEL.needs_time}</p> : null}
     {error ? <p className="birth-map-calculator__error" role="alert">{CALCULATION_ERROR[error] || "החישוב לא הושלם. בדקו את הפרטים ונסו שוב."}</p> : null}
+    <small className="birth-map-place-attribution">מאגר ערים מקומי · <a href={LIFE_JOURNEY_BIRTH_PLACE_SOURCE.url} target="_blank" rel="noreferrer">{LIFE_JOURNEY_BIRTH_PLACE_SOURCE.label}</a> · {LIFE_JOURNEY_BIRTH_PLACE_SOURCE.license} · נתונים מעובדים</small>
   </div>;
 }
 
@@ -161,20 +197,25 @@ function SpatialDetails({ mode, data, focusIndex, onFocus }) {
 }
 
 export default function BirthMapStudio2029({ data, seferContent, onCalculationChange = null }) {
+  const firstPerson = data.people[0] || null;
+  const firstPlace = resolveLifeJourneyBirthPlace(firstPerson?.birthPlace);
   const [lens, setLens] = useState("spatial");
   const [spatialMode, setSpatialMode] = useState("letters");
   const [focusIndex, setFocusIndex] = useState(-1);
   const [spatialState, setSpatialState] = useState("idle");
   const [fallback, setFallback] = useState("");
-  const [selectedRef, setSelectedRef] = useState(data.people[0]?.memberRef || "");
-  const [birthdate, setBirthdate] = useState(data.people[0]?.dateIso || "");
-  const [birthtime, setBirthtime] = useState(data.people[0]?.birthTime || "");
-  const [timezone, setTimezone] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
+  const [selectedRef, setSelectedRef] = useState(firstPerson?.memberRef || "");
+  const [birthdate, setBirthdate] = useState(firstPerson?.dateIso || "");
+  const [birthtime, setBirthtime] = useState(firstPerson?.birthTime || "");
+  const [placeQuery, setPlaceQuery] = useState(firstPerson?.birthPlace || "");
+  const [selectedPlace, setSelectedPlace] = useState(firstPlace);
+  const [timezone, setTimezone] = useState(firstPlace?.timezone || "");
+  const [latitude, setLatitude] = useState(firstPlace ? String(firstPlace.latitude) : "");
+  const [longitude, setLongitude] = useState(firstPlace ? String(firstPlace.longitude) : "");
   const [calculationState, setCalculationState] = useState("idle");
   const [calculationError, setCalculationError] = useState("");
   const [calculation, setCalculation] = useState(null);
+  const placeOptions = selectedPlace ? [] : searchLifeJourneyBirthPlaces(placeQuery);
   const enableSpatial = () => {
     const capability = evaluateS4Capability();
     if (!capability.ok) { setFallback(capability.reason); setSpatialState("fallback"); return; }
@@ -184,15 +225,44 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
   const onFallback = reason => { setFallback(reason); setSpatialState("fallback"); };
   const selectPerson = memberRef => {
     const person = data.people.find(item => item.memberRef === memberRef);
+    const matchedPlace = resolveLifeJourneyBirthPlace(person?.birthPlace);
     setSelectedRef(memberRef);
     setBirthdate(person?.dateIso || "");
     setBirthtime(person?.birthTime || "");
-    setTimezone("");
-    setLatitude("");
-    setLongitude("");
+    setPlaceQuery(person?.birthPlace || "");
+    setSelectedPlace(matchedPlace);
+    setTimezone(matchedPlace?.timezone || "");
+    setLatitude(matchedPlace ? String(matchedPlace.latitude) : "");
+    setLongitude(matchedPlace ? String(matchedPlace.longitude) : "");
     setCalculation(null);
     setCalculationError("");
     setCalculationState("idle");
+  };
+  const updatePlaceQuery = value => {
+    setPlaceQuery(value);
+    setSelectedPlace(null);
+    setTimezone("");
+    setLatitude("");
+    setLongitude("");
+    onCalculationChange?.(selectedRef, null);
+    setCalculation(null);
+    setCalculationError("");
+    setCalculationState("idle");
+  };
+  const choosePlace = place => {
+    setPlaceQuery(place.label);
+    setSelectedPlace(place);
+    setTimezone(place.timezone);
+    setLatitude(String(place.latitude));
+    setLongitude(String(place.longitude));
+    onCalculationChange?.(selectedRef, null);
+    setCalculation(null);
+    setCalculationError("");
+    setCalculationState("idle");
+  };
+  const updateManualLocationInput = (setter, value) => {
+    setSelectedPlace(null);
+    updateCalculationInput(setter, value);
   };
   const updateCalculationInput = (setter, value) => {
     setter(value);
@@ -229,6 +299,9 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
     selectedRef={selectedRef}
     birthdate={birthdate}
     birthtime={birthtime}
+    placeQuery={placeQuery}
+    placeOptions={placeOptions}
+    selectedPlace={selectedPlace}
     timezone={timezone}
     latitude={latitude}
     longitude={longitude}
@@ -237,9 +310,11 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
     onSelect={selectPerson}
     onBirthdate={value => updateCalculationInput(setBirthdate, value)}
     onBirthtime={value => updateCalculationInput(setBirthtime, value)}
-    onTimezone={value => updateCalculationInput(setTimezone, value)}
-    onLatitude={value => updateCalculationInput(setLatitude, value)}
-    onLongitude={value => updateCalculationInput(setLongitude, value)}
+    onPlaceQuery={updatePlaceQuery}
+    onPlaceSelect={choosePlace}
+    onTimezone={value => updateManualLocationInput(setTimezone, value)}
+    onLatitude={value => updateManualLocationInput(setLatitude, value)}
+    onLongitude={value => updateManualLocationInput(setLongitude, value)}
     onCalculate={calculateBirthMap}
   />;
 

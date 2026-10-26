@@ -10,6 +10,8 @@ This slice replaces the Human Design and sky-map placeholders inside the existin
 
 The user explicitly selects one existing private Ledger person and starts the calculation. Birth date and time come from the existing read-only projection. IANA timezone and latitude/longitude are session-only inputs and are cleared when the page is refreshed or the selected person changes.
 
+A later Preview-usability extension permits a temporary date/time override and a bounded local city lookup. A matched city supplies its city-centre coordinates and IANA timezone without contacting a location service. Manual coordinates remain available under an advanced disclosure; neither path writes back to the profile.
+
 ## Adapter and provenance
 
 - Narrow adapter: `src/lib/research/lifeJourneyBirthAdapters.js`
@@ -19,13 +21,14 @@ The user explicitly selects one existing private Ledger person and starts the ca
 - License: MIT
 - Upstream exact-release suite: 208/208 passed
 - Independent Human Design cross-check: five third-party reference charts; 127/130 exact gate-line activations, with the three differences at a one-line/reference-timezone boundary
+- Local city catalogue source: GeoNames geographical database, CC BY 4.0, retrieved 2026-10-26; the UI attributes the processed data
 
 The UI exposes calculated coordinates and bounded Human Design structure only. Interpretive source prose from the dependency is discarded. Human Design is labeled as an interpretive framework, not scientific or medical diagnosis. Sky signs are labeled as coordinate sectors, not predictions or personality claims.
 
 ## Privacy boundary
 
 - Calculation runs in the browser only after the explicit `חשב מפה מקומית` action.
-- No geocoding or birth-data API is called.
+- No external geocoding or birth-data API is called; city matching is a pure lookup against the bundled catalogue.
 - Person name, person-ref and free-text birth place are not passed to the adapter.
 - Date, time, timezone and coordinates are not put in URL, telemetry, network request bodies, localStorage, sessionStorage or a new store.
 - Returned results do not echo the birth input.
