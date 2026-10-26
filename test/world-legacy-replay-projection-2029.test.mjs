@@ -218,9 +218,16 @@ test("missing engine detail separates an explicit negative from no assessment", 
 
 test("missing-engine routing uses explicit text markers without claiming verification", () => {
   assert.equal(classifyWorldMissingEngineStatement("קובייה תלת ממדית 1820").queue, "spatial_or_constants");
+  assert.equal(classifyWorldMissingEngineStatement("קובייה תלת ממדית 1820").subtype, "cubes");
   assert.equal(classifyWorldMissingEngineStatement("הערך e בחזקת e מתקרב ל־15.15").queue, "constants_or_sequences");
+  assert.equal(classifyWorldMissingEngineStatement("הערך e בחזקת e מתקרב ל־15.15").subtype, "euler_e");
   assert.equal(classifyWorldMissingEngineStatement("רצף המספרים 1-2-3-4").queue, "constants_or_sequences");
+  assert.equal(classifyWorldMissingEngineStatement("π קרוב ל־3.14").subtype, "pi");
+  assert.equal(classifyWorldMissingEngineStatement("עשרימון בעל עשרים פאות").subtype, "polyhedra_and_pyramids");
+  assert.equal(classifyWorldMissingEngineStatement("מעגל סביב המספר").subtype, "circles_and_spheres");
+  assert.equal(classifyWorldMissingEngineStatement("ציר במרחב תלת ממדי").subtype, "space_and_axes");
   assert.equal(classifyWorldMissingEngineStatement("שלוש מילים מופיעות ברצף").queue, "textual_statement");
+  assert.equal(classifyWorldMissingEngineStatement("שלוש מילים מופיעות ברצף").subtype, null);
   assert.equal(classifyWorldMissingEngineStatement("צופן בדילוג 1820").queue, "els_or_cipher");
   assert.equal(classifyWorldMissingEngineStatement("תרגום לאנגלית").queue, "language");
   assert.equal(classifyWorldMissingEngineStatement("המספר 1820 מופיע כאן").queue, "numeric_statement");

@@ -48,7 +48,7 @@ function sourceLocatorState(sourceRef) {
 export function classifyWorldMissingEngineStatement(value) {
   const statement = clean(value);
   const signals = Object.freeze({
-    spatialOrConstants: /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה|קובייה|פירמיד|פאון|ציר|גאומטר|גיאומטר|מעגל|עיגול|כדור)/iu.test(statement),
+    spatialOrConstants: /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה|קובייה|פירמיד|פאון|עשרימון|טטרה|אוקטה|איקוס|דודקה|ציר|גאומטר|גיאומטר|מעגל|עיגול|כדור)/iu.test(statement),
     constantsOrSequences: /(π|פאי|(?:^|[^A-Za-z0-9א-ת])e(?:$|[^A-Za-z0-9א-ת])|אוילר|2[.,]718|רצף (?:ה)?מספרים|סדרת (?:ה)?מספרים|פיבונאצ|numeric sequence)/iu.test(statement),
     elsOrCipher: /(צופן|דילוג|אותיות בדילוג|\bELS\b)/iu.test(statement),
     language: /(אנגלית|לטינית|ערבית|שפה|תרגום|תעתיק)/u.test(statement),
@@ -62,6 +62,17 @@ export function classifyWorldMissingEngineStatement(value) {
   else if (signals.language) queue = "language";
   else if (signals.formula) queue = "formula";
   else if (signals.number) queue = "numeric_statement";
+  let subtype = null;
+  if (queue === "spatial_or_constants") {
+    if (/(קובי|קוביה|קובייה)/iu.test(statement)) subtype = "cubes";
+    else if (/(פירמיד|פאון|עשרימון|טטרה|אוקטה|איקוס|דודקה)/iu.test(statement)) subtype = "polyhedra_and_pyramids";
+    else if (/(מעגל|עיגול|כדור)/iu.test(statement)) subtype = "circles_and_spheres";
+    else subtype = "space_and_axes";
+  } else if (queue === "constants_or_sequences") {
+    if (/(π|פאי)/iu.test(statement)) subtype = "pi";
+    else if (/(?:^|[^A-Za-z0-9א-ת])e(?:$|[^A-Za-z0-9א-ת])|אוילר|2[.,]718/iu.test(statement)) subtype = "euler_e";
+    else subtype = "numeric_sequence";
+  }
   const reasons = {
     spatial_or_constants: "הטקסט כולל מונח של צורה או מרחב; להעביר למיון מבנים לפני בחירת מנוע.",
     constants_or_sequences: "הטקסט כולל π, e או רצף מספרי; להעביר לסדרת קבועים ורצפים, ולקשר למרחבים רק אם קיים קשר גיאומטרי מפורש.",
@@ -71,7 +82,7 @@ export function classifyWorldMissingEngineStatement(value) {
     numeric_statement: "הטקסט כולל מספר אך לא אופרטור מפורש; למיין טענה מספרית מול אזכור בלבד.",
     textual_statement: "לא נמצא סימן חישובי מפורש; לבדוק מקור, נושא וסוג ידע לפני הפעלת מנוע.",
   };
-  return Object.freeze({ queue, reason: reasons[queue], signals });
+  return Object.freeze({ queue, subtype, reason: reasons[queue], signals });
 }
 
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
@@ -319,6 +330,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       sourceRef,
       sourceLocatorState: sourceLocatorState(sourceRef),
       routingQueue: routing.queue,
+      routingSubtype: routing.subtype,
       routingReason: routing.reason,
       contentSignals: routing.signals,
     });

@@ -58,7 +58,7 @@ test("manager corpus audit keeps publication, verification and catalog completen
   assert.deepEqual([
     "zvi_missing_engine_textual", "zvi_missing_engine_numeric", "zvi_missing_engine_formula",
     "zvi_missing_engine_spatial", "zvi_missing_engine_constants", "zvi_missing_engine_els", "zvi_missing_engine_language",
-  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [1492, 593, 335, 168, 5, 27, 3]);
+  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [1491, 593, 325, 179, 5, 27, 3]);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_match").total, 734);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_matrix_claim_unmatched").total, 112);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_candidate_missing_engine_unverified").total, 173);

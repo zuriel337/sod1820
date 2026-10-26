@@ -168,6 +168,16 @@ const MISSING_ENGINE_QUEUE_LABELS = Object.freeze({
   textual_statement: "טענה טקסטואלית",
 });
 
+const MISSING_ENGINE_SUBTYPE_LABELS = Object.freeze({
+  cubes: "קוביות",
+  polyhedra_and_pyramids: "פאונים ופירמידות",
+  circles_and_spheres: "מעגלים וכדורים",
+  space_and_axes: "מרחב, תלת־ממד וצירים",
+  pi: "π / פאי",
+  euler_e: "e / קבוע אוילר",
+  numeric_sequence: "רצף מספרי",
+});
+
 const REPLAY_SOURCE_LABELS = Object.freeze({
   exact_source: "מקור מדויק",
   source_locator_repair: "דורש תיקון locator",
@@ -286,7 +296,7 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySubtype: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all", pendingEngineTarget: "all", pendingEngineTargetEvidence: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
@@ -295,6 +305,7 @@ function initialReviewFilters() {
   const verification = clean(params.get("verification"));
   const replay = clean(params.get("replay"));
   const replayQueue = clean(params.get("replayQueue"));
+  const replaySubtype = clean(params.get("replaySubtype"));
   const replaySource = clean(params.get("replaySource"));
   const replayTarget = clean(params.get("replayTarget"));
   const replayTargetEvidence = clean(params.get("replayTargetEvidence"));
@@ -311,6 +322,7 @@ function initialReviewFilters() {
     verification: Object.hasOwn(VERIFICATION_LABELS, verification) ? verification : "all",
     replay: Object.hasOwn(LEGACY_REPLAY_LABELS, replay) ? replay : "all",
     replayQueue: Object.hasOwn(MISSING_ENGINE_QUEUE_LABELS, replayQueue) ? replayQueue : "all",
+    replaySubtype: Object.hasOwn(MISSING_ENGINE_SUBTYPE_LABELS, replaySubtype) ? replaySubtype : "all",
     replaySource: Object.hasOwn(REPLAY_SOURCE_LABELS, replaySource) ? replaySource : "all",
     replayTarget: Object.hasOwn(REPLAY_TARGET_LABELS, replayTarget) ? replayTarget : "all",
     replayTargetEvidence: Object.hasOwn(REPLAY_TARGET_EVIDENCE_LABELS, replayTargetEvidence) ? replayTargetEvidence : "all",
@@ -392,6 +404,7 @@ export default function WorldAllResearchTable({ state }) {
   const [source, setSource] = useState("all");
   const [replay, setReplay] = useState(initial.replay);
   const [replayQueue, setReplayQueue] = useState(initial.replayQueue);
+  const [replaySubtype, setReplaySubtype] = useState(initial.replaySubtype);
   const [replaySource, setReplaySource] = useState(initial.replaySource);
   const [replayTarget, setReplayTarget] = useState(initial.replayTarget);
   const [replayTargetEvidence, setReplayTargetEvidence] = useState(initial.replayTargetEvidence);
@@ -408,8 +421,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
+    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySubtype, replaySource, replayTarget, replayTargetEvidence, pendingEngineTarget, pendingEngineTargetEvidence]);
 
   const resetFilters = () => {
     setQuery("");
@@ -430,6 +443,7 @@ export default function WorldAllResearchTable({ state }) {
     setSource("all");
     setReplay("all");
     setReplayQueue("all");
+    setReplaySubtype("all");
     setReplaySource("all");
     setReplayTarget("all");
     setReplayTargetEvidence("all");
@@ -929,6 +943,7 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>אימות</span><select value={verification} onChange={(e) => setVerification(e.target.value)}><option value="all">כל מצבי האימות</option>{Object.keys(projection.byVerification).sort().map((v) => <option value={v} key={v}>{humanLabel(VERIFICATION_LABELS, v, "מצב אימות נוסף")} · {projection.byVerification[v]}</option>)}</select></label>
         <label><span>Replay לאות ישן</span><select value={replay} onChange={(e) => setReplay(e.target.value)}><option value="all">כל מצבי ה־replay</option>{Object.entries(projection.byLegacyReplayState || {}).map(([value, count]) => <option value={value} key={value}>{humanLabel(LEGACY_REPLAY_LABELS, value, "מצב replay נוסף")} · {count}</option>)}</select></label>
         <label><span>ניתוב ללא מעטפת מנוע</span><select value={replayQueue} onChange={(e) => setReplayQueue(e.target.value)}><option value="all">כל סוגי התוכן</option>{Object.entries(MISSING_ENGINE_QUEUE_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+        <label><span>תת־סוג מרחב או קבוע</span><select value={replaySubtype} onChange={(e) => setReplaySubtype(e.target.value)}><option value="all">כל תתי־הסוג</option>{Object.entries(MISSING_ENGINE_SUBTYPE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplaySubtype?.[value] || 0}</option>)}</select></label>
         <label><span>שלמות מקור · בשל טכנית</span><select value={replaySource} onChange={(e) => setReplaySource(e.target.value)}><option value="all">מקור מדויק ותיקונים</option>{Object.entries(REPLAY_SOURCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplaySourceReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>מצב יעד · בשל טכנית</span><select value={replayTarget} onChange={(e) => setReplayTarget(e.target.value)}><option value="all">כל מצבי היעד</option>{Object.entries(REPLAY_TARGET_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>ראיית יעד · בשל טכנית</span><select value={replayTargetEvidence} onChange={(e) => setReplayTargetEvidence(e.target.value)}><option value="all">כל ראיות היעד</option>{Object.entries(REPLAY_TARGET_EVIDENCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetEvidence?.[value] || 0}</option>)}</select></label>
@@ -994,7 +1009,7 @@ export default function WorldAllResearchTable({ state }) {
           </div> : null}
 
           {row.legacyReplay ? <div className={`sod29-world-triage-recommendation ${legacyReplayClass(row.legacyReplay.state)}`}>
-            <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
+            <span><small>Replay מנהלי · אינו משנה סטטוס אמת{row.legacyReplay.routingQueue ? ` · ${humanLabel(MISSING_ENGINE_QUEUE_LABELS, row.legacyReplay.routingQueue, "תור תוכן")}` : ""}{row.legacyReplay.routingSubtype ? ` · ${humanLabel(MISSING_ENGINE_SUBTYPE_LABELS, row.legacyReplay.routingSubtype, "תת־סוג")}` : ""}</small><strong>{humanLabel(LEGACY_REPLAY_LABELS, row.legacyReplay.state, "מצב replay")}</strong></span>
             <small>{legacyReplayDescription(row.legacyReplay)}</small>
           </div> : null}
 

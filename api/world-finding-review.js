@@ -185,6 +185,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const source = clean(filters.source) || "all";
   const replay = clean(filters.replay) || "all";
   const replayQueue = clean(filters.replayQueue) || "all";
+  const replaySubtype = clean(filters.replaySubtype) || "all";
   const replaySource = clean(filters.replaySource) || "all";
   const replayTarget = clean(filters.replayTarget) || "all";
   const replayTargetEvidence = clean(filters.replayTargetEvidence) || "all";
@@ -202,6 +203,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (source !== "all" && row?.sourceFilterKey !== source) return false;
     if (replay !== "all" && row?.legacyReplay?.state !== replay) return false;
     if (replayQueue !== "all" && row?.legacyReplay?.routingQueue !== replayQueue) return false;
+    if (replaySubtype !== "all" && row?.legacyReplay?.routingSubtype !== replaySubtype) return false;
     const decision = row?.legacyReplay?.decision;
     const exactSourceCount = (Number(decision?.sourceLocatorStateCounts?.channel_uuid) || 0)
       + (Number(decision?.sourceLocatorStateCounts?.channel_uuid_available) || 0);
@@ -600,6 +602,11 @@ async function buildAuthorizedProjection(token) {
         .map((row) => ({ legacyReplayState: row.legacyReplay.state })),
       "legacyReplayState",
     ),
+    byLegacyReplaySubtype: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.routingSubtype)
+        .map((row) => ({ replaySubtype: row.legacyReplay.routingSubtype })),
+      "replaySubtype",
+    ),
     technicallyReadyReplayOccurrences: replayDecisionCounts.technicallyReady,
     byLegacyReplaySourceReadiness: replayDecisionCounts.source,
     byLegacyReplayTargetReadiness: replayDecisionCounts.target,
@@ -669,6 +676,7 @@ function pageResponse(projection, req, contributorScope = null) {
     source: queryValue(req, "source"),
     replay: queryValue(req, "replay"),
     replayQueue: queryValue(req, "replay_queue"),
+    replaySubtype: queryValue(req, "replay_subtype"),
     replaySource: queryValue(req, "replay_source"),
     replayTarget: queryValue(req, "replay_target"),
     replayTargetEvidence: queryValue(req, "replay_target_evidence"),
