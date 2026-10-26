@@ -25,6 +25,7 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     pdfPages: 99,
     pdfUrl: `${GALLERY_ROOT}/Hebrewbooks_org_5635.pdf`,
     pageTextUrl: "/book-data/ahavat-torah.page-text.json",
+    commentaryUrl: "/book-data/ahavat-torah.commentary.json",
     introduction: "ספר מחקרי־מספרי רחב הבוחן את התורה דרך ספירות אותיות ותיבות, משפחות מספרים, מסורות מניין וטבלאות. כדאי לקרוא אותו כמפת מאגרים: כל טבלה היא יחידה בפני עצמה, ולא כל תוצאה זהה נוצרת באותה שיטה.",
     readingKeys: ["לזהות בכל עמוד מה נספר ומהי יחידת הספירה", "להפריד בין טבלת מקור לבין חישוב או פרשנות", "להשתמש במפת המאגרים כדי לחזור לעמוד המדויק"],
     chapters: [

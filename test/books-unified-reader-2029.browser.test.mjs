@@ -155,7 +155,7 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
           await result.waitFor();
           await result.click();
           assert.equal(new URL(page.url()).searchParams.get("page"), "99");
-          await page.getByRole("heading", { name: "חטיבות הסיום ולוח התיקונים", exact: true }).waitFor();
+          await page.getByRole("heading", { name: "לוח ההשמטות והתיקונים", exact: true }).waitFor();
         }
         if (manifest.slug === "daat-tevunot" && width === 390) {
           await page.getByText("פרטי המקור", { exact: true }).click();

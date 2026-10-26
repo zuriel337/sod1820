@@ -29,5 +29,5 @@ test("Ahavat Torah search covers every textual PDF page and preserves the blank 
 test("the canonical reader lazily connects Ahavat Torah search", () => {
   const manifest = getBookReaderManifest("ahavat-torah");
   assert.equal(manifest.pageTextUrl, "/book-data/ahavat-torah.page-text.json");
-  assert.equal(manifest.commentaryUrl, undefined);
+  assert.equal(manifest.commentaryUrl, "/book-data/ahavat-torah.commentary.json");
 });
