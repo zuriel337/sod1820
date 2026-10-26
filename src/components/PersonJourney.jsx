@@ -37,8 +37,10 @@ import {
   buildLifeJourneyExactReturnPatch,
   buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyFindingTraversalPatch,
+  buildLifeJourneyEntryContext,
   buildLifeJourneyPersonContext,
   buildLifeJourneyMapPositionPatch,
+  lifeJourneyEntryFocus,
   lifeJourneyMapPosition,
   lifeJourneySelectedMemberRefs,
   lifeJourneyViewFromContext,
@@ -274,7 +276,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const { user, loading: authLoading } = auth;
   const userId = user?.id || null;
   const research = useResearch();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const [personId, setPersonId] = useState(null);
   const [members, setMembers] = useState([]);
@@ -352,6 +354,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const currentLifeJourneyView = research.context?.dimensions?.lifeJourneyView || null;
   const currentLifeJourneyPersonRef = research.context?.dimensions?.lifeJourneyPersonRef || null;
   const currentReturnPersonRef = research.context?.returnTo?.subject?.id || null;
+  const entryFocus = useMemo(() => lifeJourneyEntryFocus(search), [search]);
 
   useEffect(() => {
     if (variant !== "2029" || !userId) return;
@@ -436,6 +439,13 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     if (research.syncStatus === "loading") return;
     if (variant === "2029") {
       const contextView = lifeJourneyViewFromContext(research.context, selfRef);
+      if (entryFocus === "hints") {
+        const mapPosition = lifeJourneyMapPosition(research.context, selfRef);
+        if (contextView !== "person" || mapPosition.tab !== "hints") {
+          research.setResearchContext?.(buildLifeJourneyEntryContext(selfRef, research.context, entryFocus));
+        }
+        return;
+      }
       if (contextView === "finding" && !pathname.startsWith("/2029/number/")) {
         const timer = window.setTimeout(() => {
           if (!window.location.pathname.startsWith("/2029/number/")) {
@@ -466,7 +476,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     // Research Context is navigation state only; Person data remains in the private Ledger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLifeJourneyPersonRef, currentLifeJourneyView, currentResearchSubjectId,
-    currentReturnPersonRef, pathname, persistedSelf?.name, research.syncStatus, selfRef, user?.id, variant]);
+    currentReturnPersonRef, entryFocus, pathname, persistedSelf?.name, research.syncStatus, selfRef, user?.id, variant]);
 
   const materializeFamilyContext = useCallback(context => {
     const availableRefs = new Set(members.map(member => clean(member.source_ref)));

@@ -1257,7 +1257,7 @@ function AccountConnection2029({ user, profile, signOut }) {
   );
 }
 
-function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocked, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
+function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journeyLocked, razielLocked, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
   const subject = normalizeTarget(context?.subject, "research-context");
   const savedContext = pathResume?.latest?.representation?.context || null;
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
@@ -1337,6 +1337,11 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
     go(writerPersonalHref(module, { returnTo }), { preserve: false });
   };
 
+  const openPrivateHints = () => {
+    if (!userId || authLoading) { openAccount(); return; }
+    onOpenPrivateHints?.();
+  };
+
   const openSavedConversation = async id => {
     try {
       const result = await razielSession?.restoreSavedSession?.(id);
@@ -1371,7 +1376,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
 
   const personal = [
     { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "שם, תאריך ומשפחה — פרטי", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : () => go("/2029/journey") },
-    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "הכניסה האישית תיפתח בהמשך", state: "building" },
+    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "רמזים פרטיים, בדיקה ופענוח במסע החיים", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : openPrivateHints },
     { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "הכניסה האישית תיפתח בהמשך; הכתבים זמינים בדף שלי", state: "building" },
     { id: "messages", icon: "📨", title: "ההודעות שלי", sub: "הודעות פרטיות ותגובות אליי", state: "live", onClick: () => openExistingModule("messages") },
     { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits} · הפירוט יוצג בהמשך` : "היתרה אינה זמינה כרגע", state: "building" },
@@ -1737,12 +1742,12 @@ function SystemFrame2029Body({
     });
   }, [surface, arrival, orientation]);
 
-  const go = useCallback((to, { preserve = true } = {}) => {
+  const go = useCallback((to, { preserve = true, state = null } = {}) => {
     if (!to) return;
     if (preserve) preserveReturnFor(to);
     completeSurfaceEntry("route");
     setTransient(null);
-    navigate(to, { state: { sodEntryArrival: "internal" } });
+    navigate(to, { state: { sodEntryArrival: "internal", ...(state || {}) } });
   }, [navigate, preserveReturnFor, completeSurfaceEntry]);
 
   const returnExact = useCallback(() => {
@@ -1841,6 +1846,15 @@ function SystemFrame2029Body({
     openTransient(TRANSIENT.RAZIEL, boundedPayload);
   }, [openTransient, razielLocked]);
   const openWorkspace = useCallback(() => openTransient(TRANSIENT.WORKSPACE), [openTransient]);
+  const openPrivateHints = useCallback(() => {
+    if (!user) { openWorkspace(); return; }
+    if (journeyLocked) return;
+    const params = new URLSearchParams({ focus: "hints" });
+    go(`/2029/journey?${params.toString()}`, {
+      preserve: false,
+      state: { sodReturnTo2029: currentHref },
+    });
+  }, [currentHref, go, journeyLocked, openWorkspace, user]);
   const openIssueReport = useCallback((payload = null) => openTransient(TRANSIENT.ISSUE, payload), [openTransient]);
   const closeRaziel = useCallback(() => { if ([TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(transient?.kind)) closeTransient(); }, [transient?.kind, closeTransient]);
   const closeWorkspace = useCallback(() => { if (transient?.kind === TRANSIENT.WORKSPACE) closeTransient(); }, [transient?.kind, closeTransient]);
@@ -2151,11 +2165,13 @@ function SystemFrame2029Body({
       initialText={transient?.payload?.initialText || ""}
       locale={locale}
       onDone={closeTransient}
+      onOpenPrivateHints={journeyLocked ? null : openPrivateHints}
     /></PanelShell>;
     return <PanelShell {...common} panelKind="workspace" icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection key={authLoading ? "auth-loading" : user?.id || "guest"}
       context={context}
       go={go}
       onRaziel={openRaziel}
+      onOpenPrivateHints={openPrivateHints}
       journeyLocked={journeyLocked}
       razielLocked={razielLocked}
       research={research}

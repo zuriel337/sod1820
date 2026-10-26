@@ -12,6 +12,7 @@ import {
   buildLifeJourneyExactReturnPatch,
   buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyFindingTraversalPatch,
+  buildLifeJourneyEntryContext,
   buildLifeJourneyPersonContext,
   buildLifeJourneyMapPositionPatch,
   buildLifeJourneySaveCheckpointPatch,
@@ -19,6 +20,7 @@ import {
   isLifeJourneyPathReceipt,
   canSaveLifeJourneyContext,
   lifeJourneyPrivateFindingRef,
+  lifeJourneyEntryFocus,
   lifeJourneyViewFromContext,
 } from "./lifeJourneyPersonContext.js";
 import { LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION } from "./lifeJourneyFamilyResearchSnapshot.js";
@@ -47,6 +49,15 @@ test("the private-hint branch is an allowed map position and carries no hint pay
   assert.deepEqual(lifeJourneyMapPosition(positioned, PERSON_REF), { tab: "hints", lens: "spatial", memberRef: PERSON_REF });
   assert.equal(JSON.stringify(positioned).includes("occurred_at"), false);
   assert.equal(JSON.stringify(positioned).includes("hint-"), false);
+});
+
+test("the 2029 hints entry accepts only a fixed focus and carries no private payload", () => {
+  assert.equal(lifeJourneyEntryFocus("?focus=hints&hint=private-value"), "hints");
+  assert.equal(lifeJourneyEntryFocus("?focus=research"), null);
+  assert.equal(lifeJourneyEntryFocus(`?focus=hints&x=${"a".repeat(600)}`), null);
+  const entered = buildLifeJourneyEntryContext(PERSON_REF, null, lifeJourneyEntryFocus("?focus=hints"));
+  assert.equal(lifeJourneyMapPosition(entered, PERSON_REF).tab, "hints");
+  assert.equal(JSON.stringify(entered).includes("private-value"), false);
 });
 
 test("map position rejects foreign/deselected people and unknown views", () => {

@@ -161,6 +161,7 @@ export default function ContactGateway({
   initialText = "",
   locale = null,
   onDone,
+  onOpenPrivateHints = null,
 }) {
   const { user } = useAuth() || {};
   const [text, setText] = useState(() => normalize(initialText));
@@ -178,7 +179,7 @@ export default function ContactGateway({
 
   const choose = (id) => {
     setMode(id);
-    if (id === "hint") setHintMounted(true);
+    if (id !== "hint") setHintMounted(false);
   };
 
   if (mode === "issue") {
@@ -203,10 +204,19 @@ export default function ContactGateway({
       <button className="sod29-contact-back" type="button" onClick={() => { setMode(null); setHintMounted(false); }}>← חזרה</button>
       <div className="sod29-panel-lead">
         <div className="sod29-kicker">מצאתי רמז</div>
-        <h3>שלחו אותו לבדיקה.</h3>
-        <p>זה נשאר מסלול תרומה נפרד — לא תקלה ולא מחקר אוטומטי.</p>
+        <h3>איפה הרמז צריך להישמר?</h3>
+        <p>רמז פרטי נשמר רק במסע החיים שלך. הגשה לצוות מיועדת לבדיקה ואפשרות לפרסום.</p>
       </div>
-      <ReportHint label="פתחו דיווח רמז" initialDescription={text} autoOpen={hintMounted} />
+      {!hintMounted ? <div className="sod29-contact-choice-grid" aria-label="בחירת מסלול לרמז">
+        {onOpenPrivateHints ? <button type="button" onClick={onOpenPrivateHints}>
+          <span className="sod29-contact-choice-icon" aria-hidden="true">◇</span>
+          <span><strong>{user ? "שמור במסע הפרטי שלי" : "התחבר ושמור במסע הפרטי"}</strong><small>אותו ענף רמזים פרטי באזור האישי ובמסע החיים</small></span>
+        </button> : null}
+        <button type="button" onClick={() => setHintMounted(true)}>
+          <span className="sod29-contact-choice-icon" aria-hidden="true">↗</span>
+          <span><strong>שלח לבדיקה ולפרסום</strong><small>מסלול תרומה ציבורי נפרד, בכפוף לבדיקה</small></span>
+        </button>
+      </div> : <ReportHint label="פתחו דיווח רמז" initialDescription={text} autoOpen />}
     </div>;
   }
 

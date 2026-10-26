@@ -5,12 +5,22 @@ import { LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION } from "./lifeJourneyFamilyResea
 
 export const LIFE_JOURNEY_2029_HREF = "/2029/journey";
 export const LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT = "life_journey_person_context_v1";
+export const LIFE_JOURNEY_ENTRY_FOCUS_HINTS = "hints";
 
 const VIEWS = new Set(["person", "name", "date", "finding"]);
 const MAP_TABS = new Set(["summary", "overview", "matrix", "generations", "relationships", "convergences", "evidence", "timeline", "time", "creation", "sources", "coverage", "hints", "path"]);
 const MAP_LENSES = new Set(["spatial", "human", "sky", "sefer"]);
 const PATH_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const clean = value => String(value || "").trim();
+
+export function lifeJourneyEntryFocus(search = "") {
+  if (typeof search !== "string" || search.length > 512) return null;
+  try {
+    return new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get("focus") === LIFE_JOURNEY_ENTRY_FOCUS_HINTS
+      ? LIFE_JOURNEY_ENTRY_FOCUS_HINTS
+      : null;
+  } catch { return null; }
+}
 
 export function lifeJourneyPrivateFindingRef(findingId) {
   const id = clean(findingId);
@@ -147,6 +157,17 @@ export function buildLifeJourneyPersonContext(personRef, current = null) {
     journey: current?.journey || null,
     access: { tier: "authenticated", scope: "private" },
     returnTo: null,
+  });
+}
+
+export function buildLifeJourneyEntryContext(personRef, current = null, focus = null) {
+  const context = buildLifeJourneyPersonContext(personRef, current);
+  if (!context || focus !== LIFE_JOURNEY_ENTRY_FOCUS_HINTS) return context;
+  const patch = buildLifeJourneyMapPositionPatch(context, { personRef, tab: "hints" });
+  if (!patch) return context;
+  return normalizeResearchContext({
+    ...context,
+    dimensions: { ...context.dimensions, ...patch.dimensions },
   });
 }
 
