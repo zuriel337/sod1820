@@ -1,0 +1,229 @@
+{
+  "schema_version": "sefer-raziel-commentary.v1",
+  "book_slug": "sefer-raziel-hamalach",
+  "source_identity": "book:hebrewbooks:23968",
+  "display_label": "הסבר נלווה",
+  "generated_at": "2026-10-26",
+  "coverage": {
+    "from_pdf_page": 1,
+    "to_pdf_page": 23,
+    "status": "first_pass_source_anchored"
+  },
+  "source_note": "כל הסבר מקושר לעמוד PDF מדויק. ה־PDF הוא דברי הספר; שכבת הטקסט משמשת לחיפוש ולאיתור בלבד.",
+  "pages": [
+    {
+      "pdf_page": 1,
+      "work_id": "digital-wrapper",
+      "title": "שער העותק הדיגיטלי",
+      "companion_explanation": "העמוד מציג את שער הכרך ואת סימני ההעתקה של HebrewBooks. זו מעטפת העדות הדיגיטלית: היא מזהה את העותק שממנו קוראים, אך אינה עדיין גוף החיבור עצמו.",
+      "reading_points": ["זהות העותק והמאגר", "הפרדה בין מעטפת הסריקה לגוף הספר"],
+      "source_anchor": "#page=1&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 2,
+      "work_id": "proofreader-preface",
+      "title": "פתיחת הקדמת בעל ההגהה",
+      "companion_explanation": "המגיה מסביר מדוע החליט להדפיס ספר שהיה שמור אצלו ומדגיש את הצורך בהשוואת עותקים כדי לצמצם טעויות. העמוד מלמד לקרוא את הכרך גם כתוצר של מסירה, העתקה וביקורת נוסח.",
+      "reading_points": ["מניעי ההדפסה", "השוואת עותקים", "אחריות המגיה"],
+      "source_anchor": "#page=2&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 3,
+      "work_id": "proofreader-preface",
+      "title": "ייחוס הספר ומטרת הלימוד",
+      "companion_explanation": "ההקדמה ממשיכה בדיון על לימוד הנסתר, הכנה רוחנית וייחוס הספר לאדם הראשון באמצעות רזיאל. זהו סיפור המסירה שהמהדורה מספרת על עצמה, והוא מסביר את המקום שהכרך מבקש לתפוס בשרשרת החכמה.",
+      "reading_points": ["סיפור המסירה", "לימוד כהכנה", "ייחוס פנימי של החיבור"],
+      "source_anchor": "#page=3&view=FitH",
+      "source_basis": "visual_and_embedded_text",
+      "technical_note": "ייחוס פנימי של המהדורה; לא בוצעה בחבילה זו הכרעה היסטורית חיצונית."
+    },
+    {
+      "pdf_page": 4,
+      "work_id": "sefer-hamalbush",
+      "title": "פתיחת ספר המלבוש",
+      "companion_explanation": "כאן מתחיל החיבור הפנימי הנקרא „ספר המלבוש”. הפתיחה משבחת את החכמה שבספר ומתארת אותה כאוצר של יראה, דעת וסדרי בריאה; מכאן ואילך חשוב לשמור את זהות החיבור הפנימי ולא לייחס אוטומטית כל יחידה לכל הכרך.",
+      "reading_points": ["כותרת פנימית חדשה", "שבח החכמה", "הכרך כאוסף רב־שכבתי"],
+      "source_anchor": "#page=4&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 5,
+      "work_id": "sefer-hamalbush",
+      "title": "תפילת אדם וסיפור קבלת הספר",
+      "companion_explanation": "העמוד מציב תפילה בפי אדם הראשון לאחר הגירוש ומספר על הופעת רזיאל עם הספר. התפילה והסיפור יוצרים מסגרת: אובדן הדעת מוביל לבקשת הבנה, והספר מוצג כמענה של הדרכה וחכמה.",
+      "reading_points": ["תפילת אדם הראשון", "אובדן ובקשת דעת", "רזיאל כמוסר הספר"],
+      "source_anchor": "#page=5&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 6,
+      "work_id": "sefer-hamalbush",
+      "title": "שרשרת המסירה והכנת המקבל",
+      "companion_explanation": "הסיפור עובר מאדם לדמויות נוספות, ובהן חנוך ונח, ומדגיש טהרה, תפילה והכנה לפני שימוש בספר. המוקד לקריאה הוא לא ביצוע ההוראות אלא הדרך שבה המקור קושר סמכות רוחנית למשמעת ולהעברה בין דורות.",
+      "reading_points": ["חנוך ונח בשרשרת המסירה", "טהרה כהכנה", "ספר העובר בין דורות"],
+      "source_anchor": "#page=6&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 7,
+      "work_id": "sefer-hamalbush",
+      "title": "כללי שמירה וגבולות השימוש",
+      "companion_explanation": "העמוד מציב מערכת חריפה של טהרה, יראה והצנעה סביב אותיות השם והספר. מבחינה מבנית זהו שער ממשל פנימי: הוא מגדיר מי ראוי בעיני המקור, באילו תנאים, ומה נתפס בו כחילול או שימוש קל־ראש.",
+      "reading_points": ["טהרה והצנעה", "גבול בין לימוד לחילול", "כללי ממשל פנימיים"],
+      "source_anchor": "#page=7&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 8,
+      "work_id": "sefer-hamalbush",
+      "title": "תקופות, מזלות ושמות מלווים",
+      "companion_explanation": "מתחילה טבלת התאמות בין תקופות השנה, מזלות, רוחות ושמות מלאכים. כדי לקרוא את המטריצה נכון יש להחזיק כל שדה בנפרד — זמן, מזל, כיוון ושם — ורק אחר כך לראות את הקשר שהעמוד יוצר ביניהם.",
+      "reading_points": ["ארבע תקופות", "מזל, רוח ומלאך", "רשימה כמבנה מקור"],
+      "source_anchor": "#page=8&view=FitH",
+      "source_basis": "visual_and_embedded_text",
+      "technical_note": "המערכים מוצגים לפי המקור ואינם רישום ישויות קנוני או טענה מדעית."
+    },
+    {
+      "pdf_page": 9,
+      "work_id": "sefer-hamalbush",
+      "title": "ימים, לילות ותנאי הזמן",
+      "companion_explanation": "ההתאמות מתרחבות לימות השבוע, יום ולילה ושמות המשתנים לפי התקופה. כדי להבין את העמוד יש לקרוא כל שם בתוך ציר הזמן שלו, ולא לאחד מופעים דומים בלי ההקשר הסמוך.",
+      "reading_points": ["יום לעומת לילה", "שמות לפי תקופה", "שמירת ההקשר המקומי"],
+      "source_anchor": "#page=9&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 10,
+      "work_id": "sefer-hamalbush",
+      "title": "רקיעים, כוכבי לכת ומלאכים",
+      "companion_explanation": "העמוד מסדר כוכבי לכת ומלאכים בתוך מדרגות רקיע ותקופות. זוהי ארכיטקטורה קוסמולוגית טקסטואלית: הרקיע, הכוכב, התקופה והשם הם שדות נפרדים שמתחברים בשורה אחת.",
+      "reading_points": ["מדרגות רקיע", "כוכב ומלאך", "קוסמולוגיה כמטריצה"],
+      "source_anchor": "#page=10&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 11,
+      "work_id": "sefer-hamalbush",
+      "title": "מפת מזלות, ימים ורוחות הארץ",
+      "companion_explanation": "המקור ממשיך במערכי שמות למזלות, לימים, לארץ ולרוחות לפי ארבע התקופות. זהו עמוד צפוף של מפתחות הצלבה; הקריאה הבטוחה היא לנוע לאורך כל שורה ולשמור את כותרת הקבוצה.",
+      "reading_points": ["שמות המזלות", "שמות הימים", "ארץ ורוחות לפי תקופה"],
+      "source_anchor": "#page=11&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 12,
+      "work_id": "sefer-hamalbush",
+      "title": "מלאכים, יסודות ותיאורי פעולה",
+      "companion_explanation": "העמוד מקשר קבוצות מלאכים לאש, לים, לגשם, לחיות ולמצבי דרך. מפת הקריאה מארגנת את הקטעים לפי תחום הפעולה שהספר מייחס להם ומאפשרת לעבור מן הקבוצה בחזרה אל הנוסח המדויק.",
+      "reading_points": ["אש, ים וגשם", "חיות ודרך", "תיאור מקור אינו הוראת שימוש"],
+      "source_anchor": "#page=12&view=FitH",
+      "source_basis": "visual_and_embedded_text",
+      "technical_note": "תיאור של תוכן המקור ההיסטורי; אינו הוראת שימוש מעשית של המערכת."
+    },
+    {
+      "pdf_page": 13,
+      "work_id": "sefer-hamalbush",
+      "title": "סידור חזותי של אותיות ושם",
+      "companion_explanation": "העמוד משלב טקסט עם תרשים וסידורי אותיות התלויים במיקום, במסגרת ובכיוון. כאן הצורה היא חלק מן העדות: אין להמיר את התרשים לרשימת מילים בלבד, ויש לשוב אל התמונה המקורית כדי להבין יחסי פנים, חוץ, מעלה ומטה.",
+      "reading_points": ["תרשים כחלק מן המקור", "מיקום וכיוון", "אותיות בתוך מסגרת"],
+      "source_anchor": "#page=13&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 14,
+      "work_id": "sefer-raziel-hagadol",
+      "title": "פתיחת ספר רזיאל הגדול",
+      "companion_explanation": "כותרת חדשה פותחת את „ספר רזיאל הגדול” ומציבה תנאי אופי ללימוד הסוד: הצנעה, מתינות, יראת שמים והתרחקות מכעס וגאווה. העמוד מבחין בין עבודה מאהבה, בקשה ויראה ומדרג ביניהן.",
+      "reading_points": ["מעבר לחיבור פנימי חדש", "תנאי אופי ללימוד", "אהבה, בקשה ויראה"],
+      "source_anchor": "#page=14&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 15,
+      "work_id": "sefer-raziel-hagadol",
+      "title": "שם שדי, חילופים ומבני מספר",
+      "companion_explanation": "הדיון נע בין פירושי השם שדי, חילופי אותיות, מזוזה ותפילין לבין קשרים מספריים של ת״ק ושמות האבות. העמוד מלמד לעקוב בנפרד אחר האותיות הגלויות, החילוף שבו משתמש המחבר והמניין שמתקבל.",
+      "reading_points": ["שם שדי והקשרי מצווה", "חילופי אותיות", "טענות מספריות של המקור"],
+      "source_anchor": "#page=15&view=FitH",
+      "source_basis": "visual_and_embedded_text",
+      "technical_note": "החישובים מוצגים כדברי הספר; טרם בוצע להם שחזור במנוע הקנוני."
+    },
+    {
+      "pdf_page": 16,
+      "work_id": "sefer-raziel-hagadol",
+      "title": "עשר ספירות, עשרה כיוונים ודרכי יראה",
+      "companion_explanation": "העמוד קושר עשר ספירות למניינים ולכיוונים וממשיך בהבחנה בין יראת ה׳, יראת שדי ויראת אלהים. המספר, המרחב והעמדה הדתית מופיעים כאן יחד, אך הם שלושה רבדים שיש לקרוא בנפרד לפני שמחברים ביניהם.",
+      "reading_points": ["עשר ספירות בלימה", "ראשית, אחרית וכיוונים", "שלוש לשונות של יראה"],
+      "source_anchor": "#page=16&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 17,
+      "work_id": "sefer-raziel-hagadol",
+      "title": "שמונת האיברים כמשטר מוסרי",
+      "companion_explanation": "המקור ממפה עיניים, אוזניים, פה, ידיים, רגליים ושאר איברים אל מצוות ואיסורים, ומעמיד את הלב כמחשבה המלווה כל פעולה. הגוף נעשה כאן מפת אחריות: כל איבר הוא נקודת בחירה ולא רק פרט אנטומי.",
+      "reading_points": ["איברים ומצוות", "הלב כמוקד הכוונה", "יראה כפעולה ולא רק רגש"],
+      "source_anchor": "#page=17&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 18,
+      "work_id": "sod-maaseh-bereshit",
+      "title": "מן ההדרכה המוסרית אל סוד מעשה בראשית",
+      "companion_explanation": "ראש העמוד חותם את ההדרכה על מצוות, הצנעה וכוונה, ובהמשך מופיעה פתיחה מפורשת ל„סוד מעשה בראשית”. האות אל״ף משמשת להסביר אחדות, ראשית ואחרית, והמעבר מסמן שינוי מן המשטר המוסרי אל קוסמולוגיה של אותיות.",
+      "reading_points": ["חתימת יחידת היראה", "פתיחת סוד מעשה בראשית", "אל״ף כסמל לאחדות"],
+      "source_anchor": "#page=18&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 19,
+      "work_id": "sod-maaseh-bereshit",
+      "title": "קול, דיבור ורוח",
+      "companion_explanation": "הדיון עובר מניקוד ואותיות אל שלושה עולמות, דיבור ורוח. הקול מוצג כפעולה של רוח, והדיבור כמבנה שמחבר נשימה, מים ואש; דוגמאות של הד וקול נועדו להסביר כיצד קול נשמע בלי גוף נראה.",
+      "reading_points": ["ניקוד וקול", "דיבור ורוח", "הד כדגם לשמיעת קול"],
+      "source_anchor": "#page=19&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 20,
+      "work_id": "sod-maaseh-bereshit",
+      "title": "מדרגות החיים וקע״ד הקולות",
+      "companion_explanation": "העמוד מבחין בין קול, דיבור ורוח ובין אדם, בעלי חיים וצמחים, ואז מונה קולות לאותיות: חמש־עשרה אותיות פשוטות בשישה קולות ושבע כפולות בשנים־עשר. הסיכום שהספר נותן לשני המניינים הוא קע״ד — 174 קולות.",
+      "reading_points": ["קול אינו תמיד דיבור", "מדרגות אדם, חי וצומח", "90 ועוד 84 שווה 174 לפי המקור"],
+      "source_anchor": "#page=20&view=FitH",
+      "source_basis": "visual_and_embedded_text",
+      "technical_note": "174 הוא חשבון המופיע במקור; לא הוצמדה לו חותמת אימות מנוע."
+    },
+    {
+      "pdf_page": 21,
+      "work_id": "sod-maaseh-bereshit",
+      "title": "האדם כעולם קטן והאות אל״ף",
+      "companion_explanation": "המקור מציג את האדם כעולם קטן ומקשר בין לב, דיבור, רוח ועשרה מרכיבי גוף ומתנות. בהמשך האל״ף נמשלת לרוח ונצרפת עם מ״ם ושי״ן במסגרת אמש, תוך הקבלה בין עולם, שנה ונפש.",
+      "reading_points": ["האדם כמיקרוקוסמוס", "לב ודיבור", "אמש: אוויר, מים ואש"],
+      "source_anchor": "#page=21&view=FitH",
+      "source_basis": "visual_and_embedded_text"
+    },
+    {
+      "pdf_page": 22,
+      "work_id": "sod-maaseh-bereshit",
+      "title": "רוח, מים ואש כמערכת יצירה",
+      "companion_explanation": "העמוד מונה סוגי רוח וממשיך מתנועת הרוח אל מים ואש, תוך שימוש באותיות אמש ובדוגמאות מן העולם. המים נקשרים למ״ם, למקווה ולקרירות; האש לשי״ן, לחום ולשמיים — מערכת לשונית־סמלית הבנויה מצירוף אות, יסוד ותכונה.",
+      "reading_points": ["סוגי רוח", "מ״ם ומים", "שי״ן ואש"],
+      "source_anchor": "#page=22&view=FitH",
+      "source_basis": "visual_and_embedded_text",
+      "technical_note": "ההצגה משקפת את הקוסמולוגיה של הספר ואינה מסווגת כמודל פיזיקלי."
+    },
+    {
+      "pdf_page": 23,
+      "work_id": "sod-maaseh-bereshit",
+      "title": "התורה ככלי אומנות ומבני חשבון",
+      "companion_explanation": "הדיון באמש נחתם בתמונה של רוח, מים ואש, ואז התורה מוצגת ככלי האומנות של הבריאה. העמוד משלב מילויי אותיות, מניינים וגימטריות סביב תורה, זמן ובראשית וממשיך אל פירוש צורני של האות בי״ת.",
+      "reading_points": ["אמש ומבנה הבריאה", "התורה ככלי אומנות", "מילויים ומניינים בדברי הספר"],
+      "source_anchor": "#page=23&view=FitH",
+      "source_basis": "visual_and_embedded_text",
+      "technical_note": "המניינים משויכים לדברי הספר; בדיקות חישוביות יתווספו רק לאחר שחזור נפרד."
+    }
+  ]
+}

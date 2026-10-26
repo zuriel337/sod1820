@@ -86,6 +86,8 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     language: "עברית",
     pdfPages: 90,
     pdfUrl: `${GALLERY_ROOT}/Hebrewbooks_org_23968.pdf`,
+    pageTextUrl: "/book-data/sefer-raziel-hamalach.page-text.json",
+    commentaryUrl: "/book-data/sefer-raziel-hamalach.commentary.json",
     introduction: "אוסף רב־שכבתי העוסק בשמות, אותיות וקולות, מלאכים, זמן, כיוונים, מזלות, קוסמולוגיה וחומר מעשי. המפתח להבנה הוא לאחד את המפה — אך לא להשטיח את היחידות השונות לקול מחבר אחד.",
     readingKeys: ["לזהות באיזה חיבור פנימי נמצאים", "להבדיל בין רשימת שמות לבין הליך הפקה", "לקרוא תרשים או קמע כייצוג חזותי המחובר לעמודו"],
     chapters: [

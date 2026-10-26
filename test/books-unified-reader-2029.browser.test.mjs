@@ -117,6 +117,14 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
           await page.getByRole("button", { name: "הבא ←", exact: true }).click();
           assert.match(await page.locator("#book-reader29-source iframe").getAttribute("src"), /#page=2&view=FitH$/);
           assert.equal(new URL(page.url()).searchParams.get("page"), "2");
+          if (width === 390) {
+            await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("קולות");
+            const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 20" });
+            await result.waitFor();
+            await result.click();
+            assert.equal(new URL(page.url()).searchParams.get("page"), "20");
+            await page.getByRole("heading", { name: "מדרגות החיים וקע״ד הקולות", exact: true }).waitFor();
+          }
         }
       }
       await context.close();
