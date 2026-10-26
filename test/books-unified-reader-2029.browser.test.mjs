@@ -146,6 +146,52 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
           assert.equal(new URL(page.url()).searchParams.get("page"), "283");
           await page.getByRole("heading", { name: "״והנחש היה ערום״", exact: true }).waitFor();
         }
+        if (manifest.slug === "ahavat-torah" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("98/99 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          await page.getByText("45 · נקראים ישירות מן ה־PDF", { exact: true }).waitFor();
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("הערות שהעיר");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 99" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "99");
+          await page.getByRole("heading", { name: "חטיבות הסיום ולוח התיקונים", exact: true }).waitFor();
+        }
+        if (manifest.slug === "daat-tevunot" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("99/99 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          assert.equal(await page.getByText("עמודים ללא טקסט לחיפוש", { exact: true }).count(), 0);
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("יום הדין הגדול");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 89" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "89");
+          await page.getByRole("heading", { name: "הנהגת המשפט", exact: true }).waitFor();
+        }
+        if (manifest.slug === "sefer-yetzirah" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("207/220 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          await page.getByText("1, 2, 3, 27, 33, 110, 114, 115, 202, 217, 218, 219, 220 · נקראים ישירות מן ה־PDF", { exact: true }).waitFor();
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("ספירות בלימה");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 61" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "61");
+          await page.getByRole("heading", { name: "פרק ראשון · עשר ספירות", exact: true }).waitFor();
+        }
+        if (manifest.slug === "bentov-brief-tour-higher-consciousness" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("125/127 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          await page.getByText("1, 2 · נקראים ישירות מן ה־PDF", { exact: true }).waitFor();
+          await page.getByText("תרגום עברי · מועמד מכונה", { exact: true }).waitFor();
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("pure awareness");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 99" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "99");
+          await page.getByText("תרגום עברי · PDF 99", { exact: true }).waitFor();
+          await page.getByRole("heading", { name: "חלק חמישי · העצמי הגבוה · עמוד 99", exact: true }).first().waitFor();
+        }
       }
       await context.close();
     }

@@ -24,6 +24,7 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     language: "עברית",
     pdfPages: 99,
     pdfUrl: `${GALLERY_ROOT}/Hebrewbooks_org_5635.pdf`,
+    pageTextUrl: "/book-data/ahavat-torah.page-text.json",
     introduction: "ספר מחקרי־מספרי רחב הבוחן את התורה דרך ספירות אותיות ותיבות, משפחות מספרים, מסורות מניין וטבלאות. כדאי לקרוא אותו כמפת מאגרים: כל טבלה היא יחידה בפני עצמה, ולא כל תוצאה זהה נוצרת באותה שיטה.",
     readingKeys: ["לזהות בכל עמוד מה נספר ומהי יחידת הספירה", "להפריד בין טבלת מקור לבין חישוב או פרשנות", "להשתמש במפת המאגרים כדי לחזור לעמוד המדויק"],
     chapters: [
@@ -44,6 +45,7 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     language: "עברית",
     pdfPages: 99,
     pdfUrl: `${GALLERY_ROOT}/daat-tevunot-site-edition.pdf`,
+    pageTextUrl: "/book-data/daat-tevunot.page-text.json",
     introduction: "דיאלוג שיטתי בין הנשמה לשכל על תכלית האדם, הנהגת הייחוד, גוף ונשמה, הסתר וגילוי, הנהגת המשפט ונבואה. הדרך הקלה לקרוא היא לעקוב אחרי תשעת ענפי השיחה ולא לנסות לפתור את כל 195 הסעיפים בבת אחת.",
     readingKeys: ["מי מדבר עכשיו — הנשמה או השכל", "לאיזה ענף הנהגה שייך הסעיף", "מהו הכלל שהסעיף מוסיף למהלך הכולל"],
     chapters: [
@@ -66,6 +68,7 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     language: "עברית",
     pdfPages: 220,
     pdfUrl: `${GALLERY_ROOT}/Sefer%20Yetsirah.pdf`,
+    pageTextUrl: "/book-data/sefer-yetzirah.page-text.json",
     introduction: "כרך משולב של ספר יצירה עם תשעה קולות פרשניים, ספר חכמוני, פירושי הגר״א ופרי יצחק, לוחות שערים ונספחים. המקור אינו טקסט יחיד רציף בלבד; בכל טווח צריך לזהות איזה חיבור ואיזה מפרש נמצאים מול העיניים.",
     readingKeys: ["עשר ספירות וכ״ב אותיות הן שני צירים משלימים", "שלוש אמות, שבע כפולות ושתים־עשרה פשוטות בונות את מפת האותיות", "יש להבחין בין נוסח הספר לבין כל אחד מן הפירושים"],
     chapters: [
@@ -151,6 +154,8 @@ const BOOK_READER_MANIFESTS = Object.freeze({
     language: "אנגלית",
     pdfPages: 127,
     pdfUrl: "https://avalonlibrary.net/ebooks/Itzhak%20Bentov%20-%20Brief%20Tour%20of%20Higher%20Consciousness.pdf",
+    pageTextUrl: "/book-data/bentov-brief-tour-higher-consciousness.page-text.json",
+    commentaryUrl: "/book-data/bentov-brief-tour-higher-consciousness.commentary.json",
     introduction: "מסע רעיוני וחזותי מן היקום והגלים אל מערכות מקוננות, התפתחות, חוויות תודעה ושאלת העצמי. דברי הספר באנגלית נשארים פתוחים, ולצדם הסבר נלווה בעברית.",
     readingKeys: ["להבחין בין דימוי חזותי, מודל וטענה", "לעקוב אחר הגדלת קנה המידה מן הגוף אל הקוסמוס", "לשאול בכל פרק מי הוא המתבונן בתוך המודל"],
     chapters: [
