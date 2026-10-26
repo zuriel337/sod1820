@@ -63,6 +63,10 @@ test("people, roots and megillot retain their source through search/export/3D/re
         return { filename: download.suggestedFilename(), text: Buffer.concat(chunks).toString("utf8") };
       };
       await people.locator("tbody tr").first().waitFor();
+      await page.waitForFunction(() => {
+        const top = document.getElementById("ahavat29-people")?.getBoundingClientRect().top;
+        return top >= 0 && top < 200;
+      });
       assert.equal(rootRequests, 0, "root OCR is not requested at page load");
       const peopleSearch = people.getByRole("searchbox", { name: "חיפוש באנשים ובייחוסים" });
       await peopleSearch.fill("יַעֲקֹב");

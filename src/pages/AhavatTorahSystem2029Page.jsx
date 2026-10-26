@@ -722,6 +722,29 @@ export default function AhavatTorahSystem2029Page() {
     });
   }, [page]);
 
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters"].includes(id)) return;
+    let cancelled = false;
+    let frame;
+    const cancel = () => { cancelled = true; };
+    const interactions = ["pointerdown", "wheel", "keydown", "touchstart"];
+    interactions.forEach(event => window.addEventListener(event, cancel, { once: true, passive: true }));
+    // The surface is lazy-mounted: native fragment navigation runs before these
+    // readers exist. Wait for typography so the long tables do not shift entry.
+    Promise.resolve(document.fonts?.ready).then(() => {
+      if (cancelled) return;
+      frame = window.requestAnimationFrame(() => {
+        if (!cancelled) document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "instant" });
+      });
+    });
+    return () => {
+      cancel();
+      window.cancelAnimationFrame(frame);
+      interactions.forEach(event => window.removeEventListener(event, cancel));
+    };
+  }, []);
+
   const selectSection = section => {
     setPage(section.page);
     setFindingId("");
