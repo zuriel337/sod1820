@@ -9,6 +9,7 @@ import {
   createRazielRequestContextSnapshot as createRazielContextSnapshot,
   createRazielTurnSucceededAction,
   normalizeRazielResponse,
+  normalizeRazielSuggestedActions,
   prepareRazielSessionSubmission,
   selectRazielContinuation,
 } from "./razielSessionRequest2029.js";
@@ -411,6 +412,42 @@ test("provenance is explicit, bounded and preserves source names in their origin
   assert.equal(provenance.traceId, "trace-1");
   assert.deepEqual(provenance.usage, { inputTokens: 120, outputTokens: 40 });
   assert.doesNotMatch(JSON.stringify(provenance), /private_prompt|DO-NOT-COPY/);
+});
+
+test("suggested actions are a bounded closed registry and survive only on the active Raziel message", () => {
+  const actions = normalizeRazielSuggestedActions([
+    { id: "all_methods", label: "מודל ניסה לשנות", subject: "שאול" },
+    { id: "open_number", label: "קישור זר", href: "/2029/number/337" },
+    { id: "save_conversation", label: "שלישי ולכן לא נכנס" },
+    { id: "open_number", href: "https://evil.example/337" },
+    { id: "invented_tool", href: "/2029/number/358" },
+  ]);
+  assert.deepEqual(actions, [
+    { id: "all_methods", label: "בדוק בכל השיטות", subject: "שאול" },
+    { id: "open_number", label: "פתח את המספר 337", href: "/2029/number/337" },
+  ]);
+  assert.deepEqual(normalizeRazielSuggestedActions([
+    { id: "open_number", href: "//evil.example/337" },
+    { id: "all_methods", subject: "" },
+    { id: "save_conversation" },
+    { id: "deepen" },
+  ]), [
+    { id: "save_conversation", label: "שמור את השיחה" },
+    { id: "deepen", label: "להעמיק בתשובה" },
+  ]);
+
+  const response = normalizeRazielResponse({ answer: "תשובה", suggested_paths: [
+    { id: "all_methods", subject: "שאול" },
+    { id: "save_conversation" },
+  ] }, "fast");
+  let state = createInitialRazielSessionState();
+  state = razielSessionReducer(state, {
+    type: "turn_started",
+    contextSnapshot: null,
+    turn: { id: "suggested-1", question: "בדוק את שאול", intelligenceLevel: "fast", again: false, startedAt: "start" },
+  });
+  state = razielSessionReducer(state, createRazielTurnSucceededAction({ state, response, provenance: null, completedAt: "end" }));
+  assert.deepEqual(state.thread.at(-1).suggestedActions, response.suggestedActions);
 });
 
 test("askRaziel transports only allowlisted top-level provenance through contract and fallback responses", async () => {

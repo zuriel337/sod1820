@@ -131,6 +131,17 @@ function isPlainProse(s: string): boolean {
   return true;
 }
 
+function whatsappSuggestedActionCue(data: any): string {
+  const paths = data?.raziel && typeof data.raziel === "object" && Array.isArray(data.raziel.suggested_paths)
+    ? data.raziel.suggested_paths
+    : [];
+  // WhatsApp has no site button or invented deep-link. The only surface capability currently
+  // exposed there is a natural continuation cue selected by ai-analyze's closed registry.
+  return paths.some((path: any) => path && typeof path === "object" && path.id === "deepen")
+    ? "אם תרצה, אפשר להעמיק בתשובה."
+    : "";
+}
+
 // ai-analyze response body → text to send, or "" when it cannot be safely normalized (caller sends a short human fallback).
 export function renderWhatsappReply(data: any): string {
   if (!data || typeof data !== "object") return "";
@@ -139,7 +150,9 @@ export function renderWhatsappReply(data: any): string {
   else if (data.raziel != null) out = fromValue(data.raziel, 0) || fromValue(data.analysis, 0);
   else out = fromValue(data.analysis, 0);
   out = out.trim();
-  return isPlainProse(out) ? out : "";
+  if (!isPlainProse(out)) return "";
+  const cue = whatsappSuggestedActionCue(data);
+  return cue && !/(?:להעמיק|תעמיק|תרחיב|עוד פרטים)/u.test(out) ? `${out}\n\n${cue}` : out;
 }
 
 // ── WhatsApp Surface Profile v1 (RAZIEL_WHATSAPP_SURFACE_PROFILE_RUNTIME_V1) ─────────────────────────────────────────

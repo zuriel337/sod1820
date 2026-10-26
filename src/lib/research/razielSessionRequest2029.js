@@ -499,6 +499,41 @@ export function formatRazielEvidenceSummary(value = null, { expanded = false } =
   return [`🔎 ${summary.title}`, ...lines, "כך הגענו לתשובה; הטקסט שמעל הוא ההסבר של רזיאל.", ...(summary.mapAvailable ? ["כדי לראות את כל הקשרים, אפשר לבחור „🗺️ פתח מפת מחקר” שמתחת."] : [])].join("\n");
 }
 
+const RAZIEL_SUGGESTED_ACTION_LABELS = Object.freeze({
+  all_methods: "בדוק בכל השיטות",
+  save_conversation: "שמור את השיחה",
+  deepen: "להעמיק בתשובה",
+});
+
+// suggested_paths is an executable surface, not prose. Accept only the closed server registry,
+// derive labels locally, and cap it at two actions even if an older or malformed response sends more.
+export function normalizeRazielSuggestedActions(value = null) {
+  if (!Array.isArray(value)) return [];
+  const actions = [];
+  const seen = new Set();
+  for (const item of value) {
+    if (!isObject(item) || seen.has(item.id)) continue;
+    if (item.id === "all_methods") {
+      const subject = cleanInline(item.subject, 120);
+      if (!subject) continue;
+      actions.push({ id: item.id, label: RAZIEL_SUGGESTED_ACTION_LABELS[item.id], subject });
+    } else if (item.id === "open_number") {
+      const href = typeof item.href === "string" ? item.href.trim() : "";
+      const match = href.match(/^\/2029\/number\/([1-9]\d{0,5})$/);
+      const number = match ? Number(match[1]) : 0;
+      if (!Number.isSafeInteger(number) || number < 1 || number > 999999) continue;
+      actions.push({ id: item.id, label: `פתח את המספר ${number}`, href: `/2029/number/${number}` });
+    } else if (item.id === "save_conversation" || item.id === "deepen") {
+      actions.push({ id: item.id, label: RAZIEL_SUGGESTED_ACTION_LABELS[item.id] });
+    } else {
+      continue;
+    }
+    seen.add(item.id);
+    if (actions.length === 2) break;
+  }
+  return actions;
+}
+
 export function normalizeRazielResponse(response, requestedLevel = "fast") {
   if (!isObject(response)) return null;
   const answer = cleanAnswer(response.answer);
@@ -508,6 +543,7 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
     : cleanInline(response.intelligence_level, 30) || (requestedLevel === "deep" ? "deep" : "fast");
   const viewModeReport = normalizeRazielViewModeReport(response);
   const evidenceSummary = normalizeRazielEvidenceSummary(response.evidence_summary);
+  const suggestedActions = normalizeRazielSuggestedActions(response.suggested_paths);
   // The conversation stays readable.  The full calculation/source appendix belongs to the
   // explicit Research Map action; ordinary and exploratory answers retain only a compact,
   // auditable pointer while keeping the structured evidence on the message object.
@@ -521,6 +557,7 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
     intelligenceLevel,
     sourceNames: extractRazielSourceNames(response),
     ...(evidenceSummary ? { evidenceSummary } : {}),
+    ...(suggestedActions.length ? { suggestedActions } : {}),
     ...(viewModeReport ? { viewMode: viewModeReport } : {}),
   };
 }
@@ -590,6 +627,7 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
     sourceNames,
     grounding,
     ...(response.evidenceSummary ? { evidenceSummary: response.evidenceSummary } : {}),
+    ...(response.suggestedActions?.length ? { suggestedActions: response.suggestedActions } : {}),
     ...(response.viewMode ? { viewMode: response.viewMode.requested, viewModeApplied: response.viewMode.applied } : {}),
   };
   return {

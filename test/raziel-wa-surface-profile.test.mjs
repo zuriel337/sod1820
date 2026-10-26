@@ -40,6 +40,12 @@ assert.match(concise, /אל תמציא קישורים/);
 const rendered = renderWhatsappReply({ raziel: { answer: "תשובה קצרה", continue_wa: true } });
 assert.equal(rendered, "תשובה קצרה");
 assert.doesNotMatch(rendered, /https?:\/\/|sod1820/);
+assert.equal(renderWhatsappReply({
+  raziel: { answer: "תשובה קצרה", suggested_paths: [{ id: "deepen", label: "טקסט לא סמכותי" }] },
+}), "תשובה קצרה\n\nאם תרצה, אפשר להעמיק בתשובה.");
+assert.equal(renderWhatsappReply({
+  raziel: { answer: "תשובה קצרה", suggested_paths: [{ id: "invented_link", href: "https://evil.example" }] },
+}), "תשובה קצרה", "unknown/model-authored actions never become WhatsApp prose or links");
 
 // (6) invisible actions explained humanly, never internals
 assert.match(concise, /בגובה אנושי/);
@@ -76,6 +82,16 @@ const runIbbur = (body, bearer) => runAiAnalyze({
   allowed: true,
   bearer,
   body: { subject: "עיבור נשמות", ...body },
+  modelResult: {
+    text: JSON.stringify({
+      v: 1,
+      agent: "raziel",
+      answer: "תשובה חמה ומדויקת",
+      facts: [],
+      suggested_paths: [{ id: "invented_link", label: "קישור שהמודל המציא", href: "https://evil.example" }],
+    }),
+    usage: { input_tokens: 12, output_tokens: 6 }, attempts: 1, degraded: false,
+  },
 });
 const [siteIbbur, waIbbur] = await Promise.all([
   runIbbur({}, "synthetic-anon-key"),
@@ -91,8 +107,12 @@ for (const run of [siteIbbur, waIbbur]) {
   assert.match(synthesis.system, /אל תקבע ששני מושגים קרובים הם אותו דבר/);
   assert.match(synthesis.system, /בלשון ניטרלית/);
   assert.match(synthesis.system, /הגהה שקטה/);
+  assert.match(synthesis.system, /השאר תמיד את suggested_paths ריק/);
   assert.match(synthesis.user, /הנושא הנוכחי: עיבור נשמות/);
 }
+assert.deepEqual(siteIbbur.result.raziel.suggested_paths.map((path) => path.id), ["save_conversation"]);
+assert.deepEqual(waIbbur.result.raziel.suggested_paths.map((path) => path.id), ["deepen"]);
+assert.doesNotMatch(JSON.stringify([siteIbbur.result.raziel.suggested_paths, waIbbur.result.raziel.suggested_paths]), /invented_link|evil|המודל המציא/);
 assert.doesNotMatch(siteIbbur.models.at(-1).user, /פרופיל משטח וואטסאפ/);
 assert.match(waIbbur.models.at(-1).user, /פרופיל משטח וואטסאפ/);
 assert.equal(waIbbur.calls.filter((call) => call.name === "fn_raziel_identity").length, 1);
