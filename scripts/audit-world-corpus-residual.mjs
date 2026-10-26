@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { extractCompoundClaims, verifyCandidate, computeExtractionIntegrity } from '../src/lib/triage.js';
 import { METHODS } from '../src/lib/gematria.js';
+import { extractCandidates } from '../src/lib/analysisFlow.js';
+import { verifyWorldConstantStatement } from '../src/lib/research/worldLegacyReplayProjection.js';
 
 export const COHORT_FILES = [
   ['20261026121500_zvi_safe_auto_tree_promotion_v2.sql', '_zvi_safe_auto_promotion_v2'],
@@ -212,6 +214,197 @@ export const readNumericResidualBatch = () => readReviewJson('world-numeric-resi
 export const readNumericResidualReceipt = () => readReviewJson('world-numeric-residual-receipt-20261026.json');
 export const readNumericResidualBatch2 = () => readReviewJson('world-numeric-residual-batch2-20261026.json');
 export const readNumericResidualReceipt2 = () => readReviewJson('world-numeric-residual-receipt2-20261026.json');
+
+// Continuous, read-only inventory pass. Screening is NOT the manual 40-case review
+// and never grants tree/publication eligibility. Reuses the same frozen universe.
+export function selectContinuationRows() {
+  const previous = readReviewJson('world-corpus-residual-evidence-20261026.json');
+  const done = new Set([...previous.replays,...readNumericResidualBatch().rows,...readNumericResidualBatch2().rows].map(r=>r.id));
+  return previous.partitions.flatMap(p=>p.ids.filter(id=>!done.has(id)).map(id=>({id,lane:p.lane,nextStep:p.next_step})))
+    .sort((a,b)=>a.id.localeCompare(b.id));
+}
+
+export function buildContinuationReadSql(page) {
+  requireEvidence(Number.isInteger(page) && page >= 0, 'Invalid continuation page');
+  const ids=selectContinuationRows().slice(page*40,(page+1)*40).map(r=>r.id);
+  requireEvidence(ids.length>0 && ids.every(id=>/^[a-f0-9-]{36}$/u.test(id)), 'Empty continuation page');
+  return assertReadOnly(`WITH selected(id) AS (VALUES ${ids.map(id=>`('${id}'::uuid)`).join(',')}),
+    admitted AS (
+      SELECT ro.id,ro.kind,ro.statement,ro.terms,ro.value,ro.source_ref,ro.status,ro.privacy_scope,
+        ro.promoted_node_id,ro.meta#>'{ext,revision}' revision,
+        public.fn_research_source_uid(ro.source_ref) source_uid,
+        public.fn_research_claim_uid(ro.statement) claim_uid,
+        cu.id source_id,ro.meta#>>'{ext,wa_channel_intake,media_ocr_pending}' ocr_pending,
+        ro.meta#>>'{ext,wa_channel_intake,media_transcription_pending}' transcription_pending,
+        (SELECT coalesce(jsonb_agg(jsonb_build_object('id',n.id,'label',n.label) ORDER BY n.id),'[]'::jsonb)
+          FROM public.nodes n WHERE n.type='number' AND n.label=ro.value::text AND n.is_active IS TRUE
+            AND coalesce(n.metadata->>'space','core')='core') targets
+      FROM selected s JOIN public.research_objects ro ON ro.id=s.id
+      JOIN public.channel_updates cu ON split_part(ro.source_ref,'#',1)='channel_updates:'||cu.id::text
+      WHERE ro.status='approved' AND ro.privacy_scope='public' AND ro.promoted_node_id IS NULL
+        AND ro.meta#>'{ext,revision}' IS NULL
+        AND ro.source_ref ~ '^channel_updates:[0-9a-f-]{36}(#.*)?$'
+        AND coalesce(lower(btrim(ro.meta#>>'{ext,personal_scope,scope}')),'')<>'person_only'
+        AND coalesce(lower(btrim(ro.source)),'') NOT IN ('old_chat','openweb_legacy','or-geula')
+        AND coalesce(btrim(ro.contributor),'')<>'אור הגאולה'
+        AND cu.status='live' AND cu.page_only IS FALSE AND cu.channel='torat-haremez'
+        AND cu.contributor_id='c66f0464-0928-490e-be9b-66d8a87e7fc8'::uuid),
+    sources AS (SELECT cu.id,cu.text,md5(cu.text) md5,cu.image_url,cu.created_at,
+        cu.status,cu.page_only,cu.channel,cu.contributor_id
+      FROM public.channel_updates cu WHERE cu.id IN (SELECT source_id FROM admitted))
+    SELECT now() checked_at,${page} page,
+      (SELECT jsonb_agg(jsonb_build_object('id',s.id,'finding',to_jsonb(a)) ORDER BY s.id)
+        FROM selected s LEFT JOIN admitted a ON a.id=s.id) rows,
+      (SELECT coalesce(jsonb_agg(to_jsonb(c) ORDER BY c.id),'[]'::jsonb) FROM sources c) sources`);
+}
+
+export const readContinuationEvidence = () => readReviewJson('world-corpus-continuation-evidence-20261026.json');
+export const readContinuationReceipt = () => readReviewJson('world-corpus-continuation-receipt-20261026.json');
+export const continuationFingerprint = e => createHash('sha256')
+  .update(JSON.stringify({pages:e.pages,rows:e.rows,sources:e.sources})).digest('hex');
+
+export function screenContinuation(evidence = readContinuationEvidence()) {
+  const selection=selectContinuationRows();
+  requireEvidence(evidence.rows?.length===selection.length && evidence.pages?.length===Math.ceil(selection.length/40)
+    && evidence.rows.every((r,i)=>r.id===selection[i].id), 'Continuation coverage drift');
+  for(const [index,p] of evidence.pages.entries()) requireEvidence(p.page===index
+    && !Number.isNaN(Date.parse(p.checkedAt))
+    && JSON.stringify(p.ids)===JSON.stringify(selection.slice(index*40,(index+1)*40).map(r=>r.id)), 'Continuation page drift');
+  const sources=new Map(evidence.sources.map(s=>[s.id,s]));
+  requireEvidence(sources.size===evidence.sources.length, 'Duplicate continuation source');
+  for(const s of sources.values()) requireEvidence(s.md5===hash(s.text) && s.status==='live'
+    && s.page_only===false && s.channel==='torat-haremez'
+    && s.contributor_id==='c66f0464-0928-490e-be9b-66d8a87e7fc8', 'Continuation source drift/access');
+
+  // Existing extraction proposes bounded source-line candidates. A calculation
+  // match is NOT approval of that extraction, a linked finding, or its story.
+  const checks=[], unsupported=[];
+  for(const source of sources.values()) {
+    let start=0;
+    for(const line of source.text.split('\n')) {
+      const sourceSpan={start,end:start+line.length,excerpt:line}; start+=line.length+1;
+      for(const c of extractCandidates(line).filter(c=>c.type==='explicit-claim')) {
+        const phrase=c.norm || c.text, method=c.method || 'רגיל';
+        const exact=phrase.length>0 && /^[א-ת\s"'׳״\-]+$/u.test(phrase) && line.includes(phrase)
+          && Number.isSafeInteger(c.value) && new RegExp(`(^|[^0-9])${c.value}([^0-9]|$)`,'u').test(line);
+        const supported=['רגיל','מילוי'].includes(method)
+          && (c.method || !/מילוי|מסתתר|סידורי|משולש|גדול|ריבוע|אלבם|את.?בש/u.test(line));
+        if(!exact || !supported) {
+          unsupported.push({sourceId:source.id,sourceSpan,expression:c.text,claimed:c.value,
+            method:c.method || null,reason:!exact?'exact_source_binding_unresolved':'method_context_unresolved'});
+          continue;
+        }
+        const engine=METHODS.find(m=>m.key===method);
+        const computed=engine?.fn(phrase);
+        if(!Number.isSafeInteger(computed)) {
+          unsupported.push({sourceId:source.id,sourceSpan,expression:c.text,claimed:c.value,method,reason:'engine_result_unavailable'});
+          continue;
+        }
+        checks.push({sourceId:source.id,sourceMd5:source.md5,sourceSpan,expression:phrase,claimed:c.value,
+          method,methodBasis:c.method?'extracted_label':'existing_regular_default',computed,
+          calculation:computed===c.value?'match':'mismatch',extractionVerified:false,
+          engineKey:hash(JSON.stringify([method,phrase])),sourceClaimVerified:false});
+      }
+    }
+  }
+  const rows=evidence.rows.map((entry,i)=>{
+    const r=entry.finding, selected=selection[i];
+    if(!r) return {...selected,admitted:false,recommendation:'דורש בדיקה',reason:'current_public_admission_unavailable',
+      strength:null,score:null,sourceCount:null,target:null,automaticPromotion:false,execute:false};
+    const s=sources.get(r.source_id);
+    requireEvidence(r.id===entry.id && s && r.status==='approved' && r.privacy_scope==='public'
+      && r.promoted_node_id===null && r.revision===null
+      && r.source_ref.split('#')[0]===`channel_updates:${s.id}`
+      && r.source_uid?.startsWith(`channel_updates:${s.id}`) && r.claim_uid?.length, 'Continuation admission drift');
+    const linked=checks.filter(c=>c.sourceId===s.id && c.claimed===r.value
+      && (r.terms || []).includes(c.expression));
+    const mediaOnly=s.text.trim()==='📷 עדכון' || /^\[Image [^\]]+\]$/u.test(s.text.trim());
+    const reason=mediaOnly?'uninspected_media_source':selected.lane==='els'?'canonical_els_replay_required'
+      :selected.lane==='constants'?'exact_formula_precision_required':selected.lane==='spatial'?'geometry_source_review_required'
+      :selected.lane==='language'?'language_source_review_required'
+      :['hypothesis','question'].includes(r.kind)?'interpretation_or_question_not_verified'
+      :linked.some(c=>c.calculation==='mismatch')?'source_candidate_mismatch_requires_review'
+      :linked.length?'matched_operand_is_not_full_claim_verification':'source_claim_review_required';
+    return {...selected,id:r.id,admitted:true,title:r.statement,kind:r.kind,value:r.value,sourceRef:r.source_ref,
+      sourceId:s.id,sourceMd5:s.md5,sourceUid:r.source_uid,claimUid:r.claim_uid,
+      recommendation:mediaOnly?'דורש OCR או תמלול':'דורש בדיקה',reason,
+      candidateChecks:linked.map(c=>({engineKey:c.engineKey,sourceSpan:c.sourceSpan,calculation:c.calculation,expression:c.expression,claimed:c.claimed})),
+      sourceImage:s.image_url,mediaInspected:false,sourceClaimVerified:false,
+      strength:null,score:null,scoreTargetId:null,sourceCount:null,independentSourcesAdded:0,target:null,
+      retainIds:[r.id],automaticPromotion:false,execute:false,suppress:false,publicationChanged:false};
+  });
+  const manualReviews=evidence.manualReviews || [];
+  requireEvidence(new Set(manualReviews.map(r=>r.id)).size===manualReviews.length, 'Duplicate manual review');
+  for(const review of manualReviews) {
+    const row=rows.find(r=>r.id===review.id), original=evidence.rows.find(r=>r.id===review.id)?.finding;
+    requireEvidence(row?.admitted && review.scope==='literal_numeric_claim_only'
+      && review.reason?.length && review.publicationChanged===false
+      && review.geometryVerified===false && review.interpretationVerified===false
+      && !['hypothesis','question'].includes(original.kind)
+      && original.targets.length===1 && original.terms.length>0
+      && JSON.stringify(review.expressions)===JSON.stringify(original.terms)
+      && original.terms.every(phrase=>row.candidateChecks.some(c=>c.expression===phrase
+        && c.claimed===original.value && c.calculation==='match')),
+    'Unready manual numeric recommendation');
+    row.recommendation='מתאים לעץ';row.reason='manually_reviewed_numeric_scope';row.target=original.targets[0];
+    row.manualReview={...review,calculationScopeVerified:true};
+  }
+  const constantDiagnostics=rows.filter(r=>r.admitted && r.lane==='constants').map(r=>({
+    id:r.id,scope:'imported_statement_only',sourceVerified:false,mediaInspected:false,
+    diagnostic:verifyWorldConstantStatement(r.title),automaticPromotion:false,execute:false}));
+  const groups=(values,key)=>{
+    const map=new Map(); for(const value of values){const k=key(value);if(k===null)continue;
+      const list=map.get(k)||[];list.push(value);map.set(k,list);}
+    return [...map.values()].filter(g=>g.length>1);
+  };
+  const repeatedSourceTexts=groups([...sources.values()],s=>s.text.trim()==='📷 עדכון'?null:s.text)
+    .map(g=>({sourceIds:g.map(s=>s.id),textMd5:g[0].md5,identicalText:true,fullerVersion:null,
+      imageLocators:g.map(s=>s.image_url),independentSourcesAdded:0,merge:false}));
+  const identityGroups=groups(rows.filter(r=>r.admitted),r=>JSON.stringify([r.sourceUid,r.claimUid]))
+    .map(g=>({findingIds:g.map(r=>r.id),sameCanonicalIdentity:true,
+      // Identity collision still needs payload/context review before suppression.
+      longestStatementId:[...g].sort((a,b)=>b.title.length-a.title.length||a.id.localeCompare(b.id))[0].id,
+      fullContentInterchangeable:false,merge:false,suppress:false}));
+  const inputs=[...new Map(checks.map(c=>[c.engineKey,{key:c.engineKey,phrase:c.expression,method:c.method,expected:c.computed}])).values()]
+    .sort((a,b)=>a.key.localeCompare(b.key));
+  return {base:evidence.base,screeningOnly:true,manualReviewCompleted:false,rows,checks,unsupported,inputs,
+    repeatedSourceTexts,identityGroups,constantDiagnostics,counts:{screened:rows.length,sources:sources.size,
+      admitted:rows.filter(r=>r.admitted).length,accessHeld:rows.filter(r=>!r.admitted).length,
+      byLane:rows.reduce((a,r)=>(a[r.lane]=(a[r.lane]||0)+1,a),{}),
+      byReason:rows.reduce((a,r)=>(a[r.reason]=(a[r.reason]||0)+1,a),{}),
+      candidateCalculations:checks.length,uniqueEngineInputs:inputs.length,
+      matchingCandidates:checks.filter(c=>c.calculation==='match').length,
+      mismatchingCandidates:checks.filter(c=>c.calculation==='mismatch').length,
+      manuallyReviewedNumericScopes:manualReviews.length,newTreeRecommendations:manualReviews.length,promoted:0,deleted:0},execute:false};
+}
+
+export function buildContinuationReplaySql(page, evidence = readContinuationEvidence()) {
+  const inputs=screenContinuation(evidence).inputs.slice(page*40,(page+1)*40);
+  requireEvidence(Number.isInteger(page) && page>=0 && inputs.length>0, 'Invalid continuation engine page');
+  const quote=s=>`'${String(s).replaceAll("'","''")}'`;
+  return assertReadOnly(`WITH inputs(key,phrase,method,expected) AS (VALUES ${inputs.map(i=>
+    `(${quote(i.key)},${quote(i.phrase)},${quote(i.method)},${i.expected}::bigint)`).join(',')})
+    SELECT now() checked_at,${page} page,
+      md5(pg_get_functiondef('public.fn_method_value(text,text)'::regprocedure)) engine_definition_md5,
+      (SELECT jsonb_agg(jsonb_build_object('key',i.key,'phrase',i.phrase,'method',i.method,'expected',i.expected,
+        'computed',public.fn_method_value(i.method,i.phrase),'in_engine',EXISTS(
+          SELECT 1 FROM public.gematria_methods m WHERE m.method_key=i.method AND m.in_engine IS TRUE)) ORDER BY i.key)
+        FROM inputs i) checks`);
+}
+
+export function validateContinuationReceipt(evidence = readContinuationEvidence(), receipt = readContinuationReceipt()) {
+  requireEvidence(receipt.inventoryFingerprint===continuationFingerprint(evidence), 'Continuation inventory fingerprint drift');
+  const screen=screenContinuation(evidence), checks=receipt.pages?.flatMap(p=>p.checks)||[];
+  requireEvidence(receipt.pages?.length===Math.ceil(screen.inputs.length/40)
+    && new Set(receipt.pages.map(p=>p.engine_definition_md5)).size===1
+    && receipt.pages.every((p,i)=>p.page===i && /^[a-f0-9]{32}$/u.test(p.engine_definition_md5)
+      && !Number.isNaN(Date.parse(p.checked_at))
+      && JSON.stringify(p.checks?.map(c=>c.key))===JSON.stringify(screen.inputs.slice(i*40,(i+1)*40).map(c=>c.key)))
+    && checks.length===screen.inputs.length && screen.inputs.every(i=>checks.filter(c=>
+      c.key===i.key && c.phrase===i.phrase && c.method===i.method && c.expected===i.expected
+      && c.computed===i.expected && c.in_engine===true).length===1), 'Continuation canonical receipt drift');
+  return screen;
+}
 
 export function selectNextNumericResidualIds(batch = 1) {
   requireEvidence(batch === 1 || batch === 2, 'Unknown fixed numeric batch');
@@ -531,7 +724,10 @@ export function buildImageSourceReport(evidence = readImageSourceReview(), recei
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const mode = process.argv[2] || 'summary';
-  if (mode === 'numeric-batch-sql') process.stdout.write(buildNumericResidualReceiptSql() + '\n');
+  if (mode === 'continuation') process.stdout.write(JSON.stringify(validateContinuationReceipt(),null,2)+'\n');
+  else if (mode === 'continuation-read-sql') process.stdout.write(buildContinuationReadSql(Number(process.argv[3]))+'\n');
+  else if (mode === 'continuation-replay-sql') process.stdout.write(buildContinuationReplaySql(Number(process.argv[3]))+'\n');
+  else if (mode === 'numeric-batch-sql') process.stdout.write(buildNumericResidualReceiptSql() + '\n');
   else if (mode === 'numeric-batch') process.stdout.write(JSON.stringify(buildNumericResidualReview(),null,2) + '\n');
   else if (mode === 'numeric-batch2-sql') process.stdout.write(buildNumericResidualReceiptSql(readNumericResidualBatch2(),2) + '\n');
   else if (mode === 'numeric-batch2') process.stdout.write(JSON.stringify(buildNumericResidualReview(readNumericResidualBatch2(),readNumericResidualReceipt2(),2),null,2) + '\n');

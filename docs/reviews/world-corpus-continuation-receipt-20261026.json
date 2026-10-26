@@ -1,0 +1,3229 @@
+{
+  "inventoryFingerprint": "f8a85a7f0289aceac011b767a3c4003f8cc0e88691d6983fe4f52e06b238a57a",
+  "inventoryFingerprintScope": "Local checksum of the exact read-only page captures; not a signed server attestation.",
+  "storageChecks": [{"checked_at":"2026-10-26 19:32:46.987579+00","object_id":"22883e78-7d1f-43f0-8273-3fc2ff994812","bucket_id":"submission-inbox","public":false,"downloadAttempted":false},{"checked_at":"2026-10-26 19:32:46.987579+00","object_id":"68c94dad-64a4-4b4f-9d39-e88bdcdc406e","bucket_id":"submission-inbox","public":false,"downloadAttempted":false},{"checked_at":"2026-10-26 19:32:46.987579+00","object_id":"b782ab70-d984-4fb3-8eb0-0df31c2d075b","bucket_id":"submission-inbox","public":false,"downloadAttempted":false}],
+  "pages": [
+    {
+      "checked_at": "2026-10-26 19:28:09.964972+00",
+      "page": 0,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "00021f5ef2992539a45d23d7682e1421",
+          "method": "רגיל",
+          "phrase": "תנחומתיכם",
+          "computed": 974,
+          "expected": 974,
+          "in_engine": true
+        },
+        {
+          "key": "0005d7dd520721f58948c2e496ca58d7",
+          "method": "רגיל",
+          "phrase": "אחישנה",
+          "computed": 374,
+          "expected": 374,
+          "in_engine": true
+        },
+        {
+          "key": "00450ae04687b84f92b5921d27d4f254",
+          "method": "רגיל",
+          "phrase": "על אשר עשו את העגל",
+          "computed": 1486,
+          "expected": 1486,
+          "in_engine": true
+        },
+        {
+          "key": "01e7e8bf09ec16957e3fcd19c2095efc",
+          "method": "רגיל",
+          "phrase": "עמינדב",
+          "computed": 176,
+          "expected": 176,
+          "in_engine": true
+        },
+        {
+          "key": "02ce25aaf377d30b65f60ef342efd10e",
+          "method": "רגיל",
+          "phrase": "פעם הבאה אתם באים",
+          "computed": 697,
+          "expected": 697,
+          "in_engine": true
+        },
+        {
+          "key": "03f25f7c5a5840f85c72db5a7d9e6e9e",
+          "method": "רגיל",
+          "phrase": "לול",
+          "computed": 66,
+          "expected": 66,
+          "in_engine": true
+        },
+        {
+          "key": "03ffd3f274a17db8916a0311312e3752",
+          "method": "רגיל",
+          "phrase": "תחת",
+          "computed": 808,
+          "expected": 808,
+          "in_engine": true
+        },
+        {
+          "key": "04972d33659034bda4f02a04bf085095",
+          "method": "רגיל",
+          "phrase": "השם ירמיהו רומז לגאולה",
+          "computed": 944,
+          "expected": 944,
+          "in_engine": true
+        },
+        {
+          "key": "05ab00ee01f7194b708209dda6ac5790",
+          "method": "רגיל",
+          "phrase": "ושם העצרת",
+          "computed": 1111,
+          "expected": 1111,
+          "in_engine": true
+        },
+        {
+          "key": "05cce9ab10c3cd5a26d3182c152129ab",
+          "method": "רגיל",
+          "phrase": "כוכבים",
+          "computed": 98,
+          "expected": 98,
+          "in_engine": true
+        },
+        {
+          "key": "06e2b10770cd5683ece362663ebf8c44",
+          "method": "רגיל",
+          "phrase": "מצא",
+          "computed": 131,
+          "expected": 131,
+          "in_engine": true
+        },
+        {
+          "key": "0858b89fb68eb46fbe79ea9591ef22c4",
+          "method": "רגיל",
+          "phrase": "הן אצעק חמס",
+          "computed": 424,
+          "expected": 424,
+          "in_engine": true
+        },
+        {
+          "key": "08ba99339cb96db5d4433276adc6131c",
+          "method": "רגיל",
+          "phrase": "השבת אבידה",
+          "computed": 729,
+          "expected": 729,
+          "in_engine": true
+        },
+        {
+          "key": "09a626fcf96e2ecd64dafc9cbc6a9203",
+          "method": "רגיל",
+          "phrase": "אל",
+          "computed": 31,
+          "expected": 31,
+          "in_engine": true
+        },
+        {
+          "key": "0afe5a6140aa64669e65e0c4a88b445d",
+          "method": "רגיל",
+          "phrase": "לשמד",
+          "computed": 374,
+          "expected": 374,
+          "in_engine": true
+        },
+        {
+          "key": "0b3eb5902065fd22a707a255016a4514",
+          "method": "רגיל",
+          "phrase": "חוח",
+          "computed": 22,
+          "expected": 22,
+          "in_engine": true
+        },
+        {
+          "key": "0b5a74d5c856a94d76e99aa435e979f6",
+          "method": "רגיל",
+          "phrase": "אברך",
+          "computed": 223,
+          "expected": 223,
+          "in_engine": true
+        },
+        {
+          "key": "0b96e3130740b042fe94da552f418af1",
+          "method": "רגיל",
+          "phrase": "תפוח בדבש",
+          "computed": 802,
+          "expected": 802,
+          "in_engine": true
+        },
+        {
+          "key": "0ba61c9089211e8d797cc2c71089faf9",
+          "method": "רגיל",
+          "phrase": "צבאה",
+          "computed": 98,
+          "expected": 98,
+          "in_engine": true
+        },
+        {
+          "key": "0c0db200f7e0a5615514404fe820e9cc",
+          "method": "רגיל",
+          "phrase": "תראה",
+          "computed": 606,
+          "expected": 606,
+          "in_engine": true
+        },
+        {
+          "key": "0ca246231d6dca1f729f364a53021221",
+          "method": "רגיל",
+          "phrase": "חברון",
+          "computed": 266,
+          "expected": 266,
+          "in_engine": true
+        },
+        {
+          "key": "0cd1064f55f3a5f5ebafee56a2d4a4a2",
+          "method": "רגיל",
+          "phrase": "שנאת חנם",
+          "computed": 849,
+          "expected": 849,
+          "in_engine": true
+        },
+        {
+          "key": "0cfa109dbeb6a2c2f15db2005902e3e4",
+          "method": "רגיל",
+          "phrase": "וב",
+          "computed": 8,
+          "expected": 8,
+          "in_engine": true
+        },
+        {
+          "key": "0d40d32b203f9094615aac827eb7c73d",
+          "method": "רגיל",
+          "phrase": "וחיה",
+          "computed": 29,
+          "expected": 29,
+          "in_engine": true
+        },
+        {
+          "key": "0dc95d4cdf4f279a4e2f8da1a0af9d70",
+          "method": "רגיל",
+          "phrase": "להיות לאות",
+          "computed": 888,
+          "expected": 888,
+          "in_engine": true
+        },
+        {
+          "key": "0ec58356aa470927f0f5463d2f4dec76",
+          "method": "רגיל",
+          "phrase": "ושפט בצדק דלים",
+          "computed": 675,
+          "expected": 675,
+          "in_engine": true
+        },
+        {
+          "key": "102d40870ddcfb1f04e68d922118c444",
+          "method": "רגיל",
+          "phrase": "חיים",
+          "computed": 68,
+          "expected": 68,
+          "in_engine": true
+        },
+        {
+          "key": "105f8b688b4bb43f9d85143dedacc900",
+          "method": "רגיל",
+          "phrase": "וינסו משנאיך",
+          "computed": 553,
+          "expected": 553,
+          "in_engine": true
+        },
+        {
+          "key": "107fdf6a6445159697b3a04472cfef02",
+          "method": "רגיל",
+          "phrase": "ארון עצי שטים",
+          "computed": 786,
+          "expected": 786,
+          "in_engine": true
+        },
+        {
+          "key": "113971b53b41b98531556715fc144ee3",
+          "method": "רגיל",
+          "phrase": "ראש השנה",
+          "computed": 861,
+          "expected": 861,
+          "in_engine": true
+        },
+        {
+          "key": "11d6a4fa0db05cf7137205696c22b5ff",
+          "method": "רגיל",
+          "phrase": "נחם",
+          "computed": 98,
+          "expected": 98,
+          "in_engine": true
+        },
+        {
+          "key": "123a5a0e39f1565ba91b2d884c97510f",
+          "method": "רגיל",
+          "phrase": "מורא",
+          "computed": 247,
+          "expected": 247,
+          "in_engine": true
+        },
+        {
+          "key": "12b1821fc48984caf36e291bcb06bf15",
+          "method": "רגיל",
+          "phrase": "בתי",
+          "computed": 412,
+          "expected": 412,
+          "in_engine": true
+        },
+        {
+          "key": "133aeea68537c9bea0cc851766b37985",
+          "method": "רגיל",
+          "phrase": "הקטן יהיה לאלף",
+          "computed": 335,
+          "expected": 335,
+          "in_engine": true
+        },
+        {
+          "key": "13a0412d9732babb351cac6e4094ec00",
+          "method": "רגיל",
+          "phrase": "שוש",
+          "computed": 606,
+          "expected": 606,
+          "in_engine": true
+        },
+        {
+          "key": "13db9e753915262e3c72fa133c72433b",
+          "method": "רגיל",
+          "phrase": "יוסף",
+          "computed": 156,
+          "expected": 156,
+          "in_engine": true
+        },
+        {
+          "key": "141c36c831918d695d50c12468841938",
+          "method": "רגיל",
+          "phrase": "נביא עוד צרופים של שמירה",
+          "computed": 1454,
+          "expected": 1454,
+          "in_engine": true
+        },
+        {
+          "key": "145d1cdab75a7fa59c53b2fc17dac502",
+          "method": "רגיל",
+          "phrase": "לכאן",
+          "computed": 101,
+          "expected": 101,
+          "in_engine": true
+        },
+        {
+          "key": "14fe5a5e8a417c30ec2ddedd24eb6dae",
+          "method": "רגיל",
+          "phrase": "ועשית פרכת",
+          "computed": 1486,
+          "expected": 1486,
+          "in_engine": true
+        },
+        {
+          "key": "156d2d09fcff74c61f831bff825c7880",
+          "method": "רגיל",
+          "phrase": "יקיר",
+          "computed": 320,
+          "expected": 320,
+          "in_engine": true
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-10-26 19:28:09.927895+00",
+      "page": 1,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "161e618760d1cb04405a82d0e5fa9424",
+          "method": "רגיל",
+          "phrase": "הריון",
+          "computed": 271,
+          "expected": 271,
+          "in_engine": true
+        },
+        {
+          "key": "164978974427bacc518f92d54c6bac46",
+          "method": "רגיל",
+          "phrase": "והייתם לי קדשים",
+          "computed": 965,
+          "expected": 965,
+          "in_engine": true
+        },
+        {
+          "key": "16540985d8241cc4a1d19a6b87805076",
+          "method": "רגיל",
+          "phrase": "פסוקים עם",
+          "computed": 406,
+          "expected": 406,
+          "in_engine": true
+        },
+        {
+          "key": "16e3f9a3f9c2fee86822fff773ae6bd0",
+          "method": "רגיל",
+          "phrase": "וייטב",
+          "computed": 37,
+          "expected": 37,
+          "in_engine": true
+        },
+        {
+          "key": "17a135a85d8c727c01f80a44fd49bd25",
+          "method": "רגיל",
+          "phrase": "תשרי",
+          "computed": 910,
+          "expected": 910,
+          "in_engine": true
+        },
+        {
+          "key": "17b3ecb1420a8de0ec51637f5ba458ad",
+          "method": "רגיל",
+          "phrase": "היום אם בקולו תשמעו",
+          "computed": 1062,
+          "expected": 1062,
+          "in_engine": true
+        },
+        {
+          "key": "17e45ad43df6baf87416a625bde66fed",
+          "method": "רגיל",
+          "phrase": "בינוני",
+          "computed": 128,
+          "expected": 128,
+          "in_engine": true
+        },
+        {
+          "key": "18184cc9c206accccdc6d49839efb2f1",
+          "method": "רגיל",
+          "phrase": "כי אמרו",
+          "computed": 277,
+          "expected": 277,
+          "in_engine": true
+        },
+        {
+          "key": "183cf2fc448225e90dda9e1e54b5114e",
+          "method": "רגיל",
+          "phrase": "ונשמחה בו",
+          "computed": 417,
+          "expected": 417,
+          "in_engine": true
+        },
+        {
+          "key": "187eb9418637485714ceb75b234055d8",
+          "method": "רגיל",
+          "phrase": "הממוצע החשבוני בין חסד",
+          "computed": 766,
+          "expected": 766,
+          "in_engine": true
+        },
+        {
+          "key": "19d5f77948974784717104887e0cc537",
+          "method": "רגיל",
+          "phrase": "וכל חכם לב",
+          "computed": 156,
+          "expected": 156,
+          "in_engine": true
+        },
+        {
+          "key": "1a2c2f60729276d0772132100577125b",
+          "method": "רגיל",
+          "phrase": "כרמים",
+          "computed": 310,
+          "expected": 310,
+          "in_engine": true
+        },
+        {
+          "key": "1a8bc346a880a3f5ea914fa2e043bf1c",
+          "method": "רגיל",
+          "phrase": "מן העולם עד העולם",
+          "computed": 466,
+          "expected": 466,
+          "in_engine": true
+        },
+        {
+          "key": "1ab0cc18963d4355e8b35db5fd51d742",
+          "method": "רגיל",
+          "phrase": "תחנונים",
+          "computed": 564,
+          "expected": 564,
+          "in_engine": true
+        },
+        {
+          "key": "1bbcd4aba255f25c59464a313a53506d",
+          "method": "רגיל",
+          "phrase": "ויעמד בארץ הצבי",
+          "computed": 530,
+          "expected": 530,
+          "in_engine": true
+        },
+        {
+          "key": "1d7d0f1b47b4c5bb43e97ed8efa86c22",
+          "method": "רגיל",
+          "phrase": "יפול צדיק וקם",
+          "computed": 476,
+          "expected": 476,
+          "in_engine": true
+        },
+        {
+          "key": "1d9aa0a83130e3fd3323422de0884d77",
+          "method": "רגיל",
+          "phrase": "תמים",
+          "computed": 490,
+          "expected": 490,
+          "in_engine": true
+        },
+        {
+          "key": "1ef6e677c4875d5b6a2c49f5a4babda7",
+          "method": "רגיל",
+          "phrase": "ביחד",
+          "computed": 24,
+          "expected": 24,
+          "in_engine": true
+        },
+        {
+          "key": "2083be2afc51828b0bc29646f4d3acd5",
+          "method": "רגיל",
+          "phrase": "יסוד",
+          "computed": 80,
+          "expected": 80,
+          "in_engine": true
+        },
+        {
+          "key": "2134957e534682d01280fb0bb920ee52",
+          "method": "רגיל",
+          "phrase": "עכוב",
+          "computed": 98,
+          "expected": 98,
+          "in_engine": true
+        },
+        {
+          "key": "21386912ff7d5f1b2c6498b58c9d8709",
+          "method": "רגיל",
+          "phrase": "גיהנם",
+          "computed": 108,
+          "expected": 108,
+          "in_engine": true
+        },
+        {
+          "key": "2171a8ccfeda0feb63d3f6a83e5a432d",
+          "method": "רגיל",
+          "phrase": "על מקום הארון",
+          "computed": 548,
+          "expected": 548,
+          "in_engine": true
+        },
+        {
+          "key": "2405258e482c88f3b59ebb4f8bc0d676",
+          "method": "רגיל",
+          "phrase": "הנה בנך יוסף בא אליך",
+          "computed": 352,
+          "expected": 352,
+          "in_engine": true
+        },
+        {
+          "key": "25386430da95cf6a05c4c94555739629",
+          "method": "רגיל",
+          "phrase": "אליך ישברו",
+          "computed": 579,
+          "expected": 579,
+          "in_engine": true
+        },
+        {
+          "key": "259ac74d2296db5e0792fa85959e40ac",
+          "method": "רגיל",
+          "phrase": "למות",
+          "computed": 476,
+          "expected": 476,
+          "in_engine": true
+        },
+        {
+          "key": "26b198f42f915b9b32be24c17f96c2c3",
+          "method": "רגיל",
+          "phrase": "טוב",
+          "computed": 17,
+          "expected": 17,
+          "in_engine": true
+        },
+        {
+          "key": "28e869f6fd6572267eef24edf106d558",
+          "method": "רגיל",
+          "phrase": "משלם גמול לאיביו",
+          "computed": 548,
+          "expected": 548,
+          "in_engine": true
+        },
+        {
+          "key": "29e55ceb8f50aa9c5fedd9f216c50cb6",
+          "method": "רגיל",
+          "phrase": "זהו פסוק שלם יחיד עם",
+          "computed": 776,
+          "expected": 776,
+          "in_engine": true
+        },
+        {
+          "key": "29e989e62939a1a325c4fcdacea615ae",
+          "method": "רגיל",
+          "phrase": "הדעת טוב ורע לא תאכל",
+          "computed": 1254,
+          "expected": 1254,
+          "in_engine": true
+        },
+        {
+          "key": "2a2dee0126a1d5d730354de51ce68608",
+          "method": "רגיל",
+          "phrase": "לקץ הימין",
+          "computed": 335,
+          "expected": 335,
+          "in_engine": true
+        },
+        {
+          "key": "2a58f3ade839b8fbc48633e9634b7641",
+          "method": "רגיל",
+          "phrase": "דמעה",
+          "computed": 119,
+          "expected": 119,
+          "in_engine": true
+        },
+        {
+          "key": "2b4fc79957be0fceede6290b0a78857c",
+          "method": "רגיל",
+          "phrase": "חולין",
+          "computed": 104,
+          "expected": 104,
+          "in_engine": true
+        },
+        {
+          "key": "2bcb4f7687d1da54a4f352ede361ee69",
+          "method": "רגיל",
+          "phrase": "קץ",
+          "computed": 190,
+          "expected": 190,
+          "in_engine": true
+        },
+        {
+          "key": "2c05a7bdd0653a3d511ad829651dc3e8",
+          "method": "רגיל",
+          "phrase": "גם כן",
+          "computed": 113,
+          "expected": 113,
+          "in_engine": true
+        },
+        {
+          "key": "2c89463bb1acf4e2b8693ef33c38b08f",
+          "method": "רגיל",
+          "phrase": "אם נצרף א",
+          "computed": 462,
+          "expected": 462,
+          "in_engine": true
+        },
+        {
+          "key": "2d0cad3f67feb4769076851d0778a5e7",
+          "method": "רגיל",
+          "phrase": "אלו הפסוקים היחידים השלמים עם",
+          "computed": 960,
+          "expected": 960,
+          "in_engine": true
+        },
+        {
+          "key": "2dd4a4b26f68e3c6b80ab44db2cf3169",
+          "method": "רגיל",
+          "phrase": "אשר הוא יהודי",
+          "computed": 548,
+          "expected": 548,
+          "in_engine": true
+        },
+        {
+          "key": "2fde5c3d6837e42451de1eeda286461f",
+          "method": "רגיל",
+          "phrase": "האספו ואגידה לכם",
+          "computed": 271,
+          "expected": 271,
+          "in_engine": true
+        },
+        {
+          "key": "2fe28b757504fb16f48c171f4d3803de",
+          "method": "רגיל",
+          "phrase": "אשה",
+          "computed": 306,
+          "expected": 306,
+          "in_engine": true
+        },
+        {
+          "key": "306b2b2f7b6cb66a0862ccee8beaf113",
+          "method": "רגיל",
+          "phrase": "ישראל בעל שם טוב",
+          "computed": 1000,
+          "expected": 1000,
+          "in_engine": true
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-10-26 19:28:11.919008+00",
+      "page": 2,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "30d8befb3367dc1a693ecb982243c3ff",
+          "method": "רגיל",
+          "phrase": "שופר",
+          "computed": 586,
+          "expected": 586,
+          "in_engine": true
+        },
+        {
+          "key": "317b55122f272cc2589904d6cc10005f",
+          "method": "רגיל",
+          "phrase": "אבות העולם",
+          "computed": 560,
+          "expected": 560,
+          "in_engine": true
+        },
+        {
+          "key": "317f8f42ecb28b7607ce3605cfa73b33",
+          "method": "רגיל",
+          "phrase": "בדוד עבדו",
+          "computed": 98,
+          "expected": 98,
+          "in_engine": true
+        },
+        {
+          "key": "31ca55a9a8e34cc57a93b898552dea58",
+          "method": "רגיל",
+          "phrase": "מה זאת עשית",
+          "computed": 1233,
+          "expected": 1233,
+          "in_engine": true
+        },
+        {
+          "key": "31e0e5cb0d241df5fa9684856841197a",
+          "method": "רגיל",
+          "phrase": "דגול מרבבה",
+          "computed": 292,
+          "expected": 292,
+          "in_engine": true
+        },
+        {
+          "key": "326073b7a5c1e708fe4e1e674184a8fa",
+          "method": "רגיל",
+          "phrase": "לשבורי לב",
+          "computed": 580,
+          "expected": 580,
+          "in_engine": true
+        },
+        {
+          "key": "33c8dfe0348e352bb6a761099ff5f586",
+          "method": "רגיל",
+          "phrase": "כנרת",
+          "computed": 670,
+          "expected": 670,
+          "in_engine": true
+        },
+        {
+          "key": "361b319397caa791e3092a799709df18",
+          "method": "רגיל",
+          "phrase": "ואין מבלעדי",
+          "computed": 223,
+          "expected": 223,
+          "in_engine": true
+        },
+        {
+          "key": "3764f262090f7b256824fbea20ec3250",
+          "method": "רגיל",
+          "phrase": "היא פלינדרום עם",
+          "computed": 546,
+          "expected": 546,
+          "in_engine": true
+        },
+        {
+          "key": "37edf6dd22605229f09ca6a53f0be78b",
+          "method": "רגיל",
+          "phrase": "מדי חדש בחדשו",
+          "computed": 686,
+          "expected": 686,
+          "in_engine": true
+        },
+        {
+          "key": "38e45ff2f9ffb38540ad89223cf8ecce",
+          "method": "רגיל",
+          "phrase": "עם חכמה",
+          "computed": 183,
+          "expected": 183,
+          "in_engine": true
+        },
+        {
+          "key": "39189e7c73c815518d50ab4b6795a9ec",
+          "method": "רגיל",
+          "phrase": "הגימטריא של תכלת",
+          "computed": 1458,
+          "expected": 1458,
+          "in_engine": true
+        },
+        {
+          "key": "396b56d2d48ac8ee803fdace4c83ff2b",
+          "method": "רגיל",
+          "phrase": "יום תבר מגל",
+          "computed": 731,
+          "expected": 731,
+          "in_engine": true
+        },
+        {
+          "key": "39f3b2f84949772e3eda14c9d04d3faf",
+          "method": "רגיל",
+          "phrase": "קשתו דרך",
+          "computed": 1030,
+          "expected": 1030,
+          "in_engine": true
+        },
+        {
+          "key": "3bc83309daf043519c6038c5854e7496",
+          "method": "רגיל",
+          "phrase": "מי",
+          "computed": 50,
+          "expected": 50,
+          "in_engine": true
+        },
+        {
+          "key": "3cfbe328fd6ecff2c8db9002bfd64db9",
+          "method": "רגיל",
+          "phrase": "בית שלישי",
+          "computed": 1062,
+          "expected": 1062,
+          "in_engine": true
+        },
+        {
+          "key": "3d43dc3a2b892f2173ca496a30e60866",
+          "method": "רגיל",
+          "phrase": "עפר האילים",
+          "computed": 446,
+          "expected": 446,
+          "in_engine": true
+        },
+        {
+          "key": "3d627e31d795defc51d5af2697ec0a5f",
+          "method": "רגיל",
+          "phrase": "גם כן בדיוק אותה",
+          "computed": 647,
+          "expected": 647,
+          "in_engine": true
+        },
+        {
+          "key": "3e12301e945895ae8e8780be1ef1c8f2",
+          "method": "רגיל",
+          "phrase": "מנעי או נעמי",
+          "computed": 347,
+          "expected": 347,
+          "in_engine": true
+        },
+        {
+          "key": "3e96ece52c55c51d946df224277b4709",
+          "method": "רגיל",
+          "phrase": "ישעות",
+          "computed": 786,
+          "expected": 786,
+          "in_engine": true
+        },
+        {
+          "key": "3ed680f75cf215e3b4e52d8f73c7a8d4",
+          "method": "רגיל",
+          "phrase": "פלינדרום עם",
+          "computed": 530,
+          "expected": 530,
+          "in_engine": true
+        },
+        {
+          "key": "3f32bd5cb7bde52daab99fea69445acb",
+          "method": "רגיל",
+          "phrase": "בגדי פשתים",
+          "computed": 849,
+          "expected": 849,
+          "in_engine": true
+        },
+        {
+          "key": "3f5be383f21957bdf8be4eee0678e2f7",
+          "method": "רגיל",
+          "phrase": "כפול אחד",
+          "computed": 149,
+          "expected": 149,
+          "in_engine": true
+        },
+        {
+          "key": "3fd0f9fc63d5d797bfd4ba447ef26fa1",
+          "method": "רגיל",
+          "phrase": "הפסוקים הבאים עם",
+          "computed": 469,
+          "expected": 469,
+          "in_engine": true
+        },
+        {
+          "key": "4106a56532e72192d5c46cd7f0c14bab",
+          "method": "רגיל",
+          "phrase": "משה",
+          "computed": 345,
+          "expected": 345,
+          "in_engine": true
+        },
+        {
+          "key": "42d05988a931025c53955985e9837b10",
+          "method": "רגיל",
+          "phrase": "גימטריא גבריאל",
+          "computed": 519,
+          "expected": 519,
+          "in_engine": true
+        },
+        {
+          "key": "4358d3911b08ffb15925cd433729dd49",
+          "method": "רגיל",
+          "phrase": "ולא יהיה בהם נגף",
+          "computed": 247,
+          "expected": 247,
+          "in_engine": true
+        },
+        {
+          "key": "43754f7443df284d0a5a0935525300b4",
+          "method": "רגיל",
+          "phrase": "פני הכרבים",
+          "computed": 417,
+          "expected": 417,
+          "in_engine": true
+        },
+        {
+          "key": "43ce9842e02dae3a104f6d4a9899a767",
+          "method": "רגיל",
+          "phrase": "משיח הגיע",
+          "computed": 446,
+          "expected": 446,
+          "in_engine": true
+        },
+        {
+          "key": "4547b2944e950a1582c05a2a3ce8242f",
+          "method": "רגיל",
+          "phrase": "ויענם וישב קדם",
+          "computed": 638,
+          "expected": 638,
+          "in_engine": true
+        },
+        {
+          "key": "456746088e968365c73e09a65884c273",
+          "method": "רגיל",
+          "phrase": "מה רבו צרי",
+          "computed": 553,
+          "expected": 553,
+          "in_engine": true
+        },
+        {
+          "key": "4709ee97337e047934ea7978519ca8e1",
+          "method": "רגיל",
+          "phrase": "כל הימים",
+          "computed": 155,
+          "expected": 155,
+          "in_engine": true
+        },
+        {
+          "key": "4717b042acb835099065b00b3abcd57b",
+          "method": "רגיל",
+          "phrase": "ישמחו וירננו",
+          "computed": 686,
+          "expected": 686,
+          "in_engine": true
+        },
+        {
+          "key": "486636c947d69c2186f5061ca0606dbc",
+          "method": "רגיל",
+          "phrase": "נשבר",
+          "computed": 552,
+          "expected": 552,
+          "in_engine": true
+        },
+        {
+          "key": "486b7e819a4f207e6d31b7ddcfc67c7a",
+          "method": "רגיל",
+          "phrase": "עתודים",
+          "computed": 530,
+          "expected": 530,
+          "in_engine": true
+        },
+        {
+          "key": "49042a184da2fb7569b7c8cdea78c009",
+          "method": "רגיל",
+          "phrase": "למה מיכאל",
+          "computed": 176,
+          "expected": 176,
+          "in_engine": true
+        },
+        {
+          "key": "49b3307a9e4e1b08faa977e0823efbdf",
+          "method": "רגיל",
+          "phrase": "להיות עמה",
+          "computed": 566,
+          "expected": 566,
+          "in_engine": true
+        },
+        {
+          "key": "49b8c7259fd68c69a82b1280da30d42f",
+          "method": "רגיל",
+          "phrase": "יניב",
+          "computed": 72,
+          "expected": 72,
+          "in_engine": true
+        },
+        {
+          "key": "4a2f73d547d08f380489440681d3f718",
+          "method": "רגיל",
+          "phrase": "שבע ברכות",
+          "computed": 1000,
+          "expected": 1000,
+          "in_engine": true
+        },
+        {
+          "key": "4ae2439702ade9ce6c91153810d93317",
+          "method": "רגיל",
+          "phrase": "הגידה נא לי",
+          "computed": 118,
+          "expected": 118,
+          "in_engine": true
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-10-26 19:28:11.913963+00",
+      "page": 3,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "4b2c85dac74f93063d651cb0e99a3f47",
+          "method": "רגיל",
+          "phrase": "יש פסוק אחד שלם עם",
+          "computed": 1049,
+          "expected": 1049,
+          "in_engine": true
+        },
+        {
+          "key": "4c8c30400cdfd62ecaab825b76afe3b9",
+          "method": "רגיל",
+          "phrase": "בן פרת יוסף",
+          "computed": 888,
+          "expected": 888,
+          "in_engine": true
+        },
+        {
+          "key": "4d7f58b64be8e3bca81334fcece875a9",
+          "method": "רגיל",
+          "phrase": "זהו",
+          "computed": 18,
+          "expected": 18,
+          "in_engine": true
+        },
+        {
+          "key": "4dc5eb39caf4dcdf8c96997e61401323",
+          "method": "רגיל",
+          "phrase": "ושם השנית",
+          "computed": 1111,
+          "expected": 1111,
+          "in_engine": true
+        },
+        {
+          "key": "4e8a8e21295b87e37bea99ce22a572a4",
+          "method": "רגיל",
+          "phrase": "השטן",
+          "computed": 364,
+          "expected": 364,
+          "in_engine": true
+        },
+        {
+          "key": "4ed7537b2186f8bc16ce727a9e401970",
+          "method": "רגיל",
+          "phrase": "נאות מדבר",
+          "computed": 703,
+          "expected": 703,
+          "in_engine": true
+        },
+        {
+          "key": "4fbdc848b852d6e44d81132b893f7a82",
+          "method": "רגיל",
+          "phrase": "אני קהלת",
+          "computed": 596,
+          "expected": 596,
+          "in_engine": true
+        },
+        {
+          "key": "51501c339a6aa317e9766e81f49666ac",
+          "method": "רגיל",
+          "phrase": "נשיא להם לעולם",
+          "computed": 612,
+          "expected": 612,
+          "in_engine": true
+        },
+        {
+          "key": "523604ae57bffe51b534a40280d964db",
+          "method": "רגיל",
+          "phrase": "כמניין",
+          "computed": 180,
+          "expected": 180,
+          "in_engine": true
+        },
+        {
+          "key": "53c3755b38bef0752cb83aef89eea510",
+          "method": "רגיל",
+          "phrase": "חידת בינה",
+          "computed": 489,
+          "expected": 489,
+          "in_engine": true
+        },
+        {
+          "key": "560342230bf6fa8c659986ad1d76c25d",
+          "method": "רגיל",
+          "phrase": "יום הגשמים",
+          "computed": 454,
+          "expected": 454,
+          "in_engine": true
+        },
+        {
+          "key": "566d990cef33760f509cab0dce1af9ad",
+          "method": "רגיל",
+          "phrase": "עשרים",
+          "computed": 620,
+          "expected": 620,
+          "in_engine": true
+        },
+        {
+          "key": "5706e54a7b55e063ae034b9060ebd40a",
+          "method": "רגיל",
+          "phrase": "פדך ממות",
+          "computed": 590,
+          "expected": 590,
+          "in_engine": true
+        },
+        {
+          "key": "572b055ec2df36e980d1b080db786c5f",
+          "method": "רגיל",
+          "phrase": "של נעליך מעל רגליך",
+          "computed": 913,
+          "expected": 913,
+          "in_engine": true
+        },
+        {
+          "key": "5803d07acb1288e000a41138ba74aff1",
+          "method": "רגיל",
+          "phrase": "כתר",
+          "computed": 620,
+          "expected": 620,
+          "in_engine": true
+        },
+        {
+          "key": "59172a340cf985bf84ae416aa89dd237",
+          "method": "רגיל",
+          "phrase": "קודם כל תשובה",
+          "computed": 913,
+          "expected": 913,
+          "in_engine": true
+        },
+        {
+          "key": "59575c1c062258762985ca667b46bf52",
+          "method": "רגיל",
+          "phrase": "קולך",
+          "computed": 156,
+          "expected": 156,
+          "in_engine": true
+        },
+        {
+          "key": "5ad6d40f7dec42d9601b028dc46a88ba",
+          "method": "רגיל",
+          "phrase": "פעמיים חיים",
+          "computed": 318,
+          "expected": 318,
+          "in_engine": true
+        },
+        {
+          "key": "5b6cf8533f0c97aa51b9bf77685a589a",
+          "method": "רגיל",
+          "phrase": "רחמנא",
+          "computed": 299,
+          "expected": 299,
+          "in_engine": true
+        },
+        {
+          "key": "5deab64e4a6489da7a6f393d91359073",
+          "method": "רגיל",
+          "phrase": "אל פתח אהל מועד",
+          "computed": 675,
+          "expected": 675,
+          "in_engine": true
+        },
+        {
+          "key": "5ded9c22d81f707ee9d64113127eac3a",
+          "method": "רגיל",
+          "phrase": "יקיר אפרים",
+          "computed": 651,
+          "expected": 651,
+          "in_engine": true
+        },
+        {
+          "key": "5dff05a0a4a4be9a20f0bf5091cb9632",
+          "method": "רגיל",
+          "phrase": "גלה צדקתו",
+          "computed": 638,
+          "expected": 638,
+          "in_engine": true
+        },
+        {
+          "key": "5e4d2d058f34d11c4823d184e054ca7d",
+          "method": "רגיל",
+          "phrase": "פסוקים שלמים בספר תהילים עם",
+          "computed": 1663,
+          "expected": 1663,
+          "in_engine": true
+        },
+        {
+          "key": "603d4a6d93f75902a42e39cbc2238767",
+          "method": "רגיל",
+          "phrase": "ובחרת בחיים",
+          "computed": 686,
+          "expected": 686,
+          "in_engine": true
+        },
+        {
+          "key": "606426ca29a25e61c5166ef2552c727f",
+          "method": "רגיל",
+          "phrase": "זה פסוק שלם עם",
+          "computed": 738,
+          "expected": 738,
+          "in_engine": true
+        },
+        {
+          "key": "60721939ee61a3455c5f8e174a611f67",
+          "method": "רגיל",
+          "phrase": "מטוס בגימטריא",
+          "computed": 390,
+          "expected": 390,
+          "in_engine": true
+        },
+        {
+          "key": "60f3d391f041d88766a2ba43859ee8b5",
+          "method": "רגיל",
+          "phrase": "ארבעה שלבים בעולמנו וכולם רמוזים",
+          "computed": 1269,
+          "expected": 1269,
+          "in_engine": true
+        },
+        {
+          "key": "619032e87c2f8105f3a9cf7f7dc7db3a",
+          "method": "רגיל",
+          "phrase": "גילוי משיח",
+          "computed": 417,
+          "expected": 417,
+          "in_engine": true
+        },
+        {
+          "key": "619d2dbe2d64d639f750f5771b41fae5",
+          "method": "רגיל",
+          "phrase": "אור קדמוני",
+          "computed": 417,
+          "expected": 417,
+          "in_engine": true
+        },
+        {
+          "key": "61b101287dea8618d3e12db7c2f8f03f",
+          "method": "רגיל",
+          "phrase": "בית ישראל חי אני",
+          "computed": 1032,
+          "expected": 1032,
+          "in_engine": true
+        },
+        {
+          "key": "61f060e6e50b346d0d6ce9b77a388d4d",
+          "method": "רגיל",
+          "phrase": "כי השמד תשמדון",
+          "computed": 1179,
+          "expected": 1179,
+          "in_engine": true
+        },
+        {
+          "key": "62b61a4b429758052102f5b7ae658206",
+          "method": "רגיל",
+          "phrase": "שבת קודש",
+          "computed": 1112,
+          "expected": 1112,
+          "in_engine": true
+        },
+        {
+          "key": "62c6fe063cdb5ff7de0cf26cf7c26123",
+          "method": "רגיל",
+          "phrase": "שוב מקבלים",
+          "computed": 530,
+          "expected": 530,
+          "in_engine": true
+        },
+        {
+          "key": "63bfa5f78a8c1d177d072320273190ab",
+          "method": "רגיל",
+          "phrase": "קוביית האמונה",
+          "computed": 635,
+          "expected": 635,
+          "in_engine": true
+        },
+        {
+          "key": "63f32f6c568c9ff7d6fbfbf02097a473",
+          "method": "רגיל",
+          "phrase": "רמז",
+          "computed": 247,
+          "expected": 247,
+          "in_engine": true
+        },
+        {
+          "key": "642ad9627d2f43e87670f57da5788db9",
+          "method": "רגיל",
+          "phrase": "צפרדע",
+          "computed": 444,
+          "expected": 444,
+          "in_engine": true
+        },
+        {
+          "key": "6462073527c686f80424965f1fbce3c4",
+          "method": "רגיל",
+          "phrase": "אני דניאל",
+          "computed": 156,
+          "expected": 156,
+          "in_engine": true
+        },
+        {
+          "key": "6528dad7370656db6c5b80838926995f",
+          "method": "רגיל",
+          "phrase": "נא",
+          "computed": 51,
+          "expected": 51,
+          "in_engine": true
+        },
+        {
+          "key": "66676a942637b3b8cb952cc7069954ed",
+          "method": "רגיל",
+          "phrase": "שבי בתי",
+          "computed": 724,
+          "expected": 724,
+          "in_engine": true
+        },
+        {
+          "key": "66d6ef3be6aaa0c1cd7220e6dd258597",
+          "method": "רגיל",
+          "phrase": "עלה זית טרף בפיה",
+          "computed": 908,
+          "expected": 908,
+          "in_engine": true
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-10-26 19:28:13.803358+00",
+      "page": 4,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "6749f9b8aa36e0bfd33a6e91c03d34db",
+          "method": "רגיל",
+          "phrase": "כפור",
+          "computed": 306,
+          "expected": 306,
+          "in_engine": true
+        },
+        {
+          "key": "68ef1d813dfe829886cd4e703f2c9db7",
+          "method": "רגיל",
+          "phrase": "לפניו",
+          "computed": 176,
+          "expected": 176,
+          "in_engine": true
+        },
+        {
+          "key": "6948be1aa2f62ba2e5ecc79f7b2e6b3a",
+          "method": "רגיל",
+          "phrase": "השגחה פרטית",
+          "computed": 1020,
+          "expected": 1020,
+          "in_engine": true
+        },
+        {
+          "key": "69f1d6da4ccf0744b5e5badc1502b88b",
+          "method": "רגיל",
+          "phrase": "קדם ידעתי",
+          "computed": 638,
+          "expected": 638,
+          "in_engine": true
+        },
+        {
+          "key": "69f7c78fc06fabf00a2a300df9cffda0",
+          "method": "רגיל",
+          "phrase": "מקבלים עכוב",
+          "computed": 320,
+          "expected": 320,
+          "in_engine": true
+        },
+        {
+          "key": "6a104728eadcf7a207c85ebbeddfae3b",
+          "method": "רגיל",
+          "phrase": "לך עמי בא בחדריך",
+          "computed": 417,
+          "expected": 417,
+          "in_engine": true
+        },
+        {
+          "key": "6ada8d58edcf2e94985e11e4621edb88",
+          "method": "רגיל",
+          "phrase": "תפלטני",
+          "computed": 579,
+          "expected": 579,
+          "in_engine": true
+        },
+        {
+          "key": "6db80c0aceb81ec923768997784a907e",
+          "method": "רגיל",
+          "phrase": "גימטריא",
+          "computed": 273,
+          "expected": 273,
+          "in_engine": true
+        },
+        {
+          "key": "6dd113707fdd976b56d1c79b9f33a9be",
+          "method": "רגיל",
+          "phrase": "הספרות האחרונות על השטר",
+          "computed": 2041,
+          "expected": 2041,
+          "in_engine": true
+        },
+        {
+          "key": "6e7eddb2dbd88c4997eda27130c12dfe",
+          "method": "רגיל",
+          "phrase": "חילזון",
+          "computed": 111,
+          "expected": 111,
+          "in_engine": true
+        },
+        {
+          "key": "6edde0074102ea60bd1d6030964cc968",
+          "method": "רגיל",
+          "phrase": "הביאני אל בית היין",
+          "computed": 596,
+          "expected": 596,
+          "in_engine": true
+        },
+        {
+          "key": "6ef7f64db41d285f162952632fc4a1b8",
+          "method": "רגיל",
+          "phrase": "שהוא חיים",
+          "computed": 380,
+          "expected": 380,
+          "in_engine": true
+        },
+        {
+          "key": "6f49b1296c8bccce41bb01f7eeb07343",
+          "method": "רגיל",
+          "phrase": "משיח",
+          "computed": 358,
+          "expected": 358,
+          "in_engine": true
+        },
+        {
+          "key": "6fe7310dd35c83f24f3970652ffd82e2",
+          "method": "רגיל",
+          "phrase": "מי שמע כזאת",
+          "computed": 888,
+          "expected": 888,
+          "in_engine": true
+        },
+        {
+          "key": "6ffe835e351aa2d0e735ab0df22dae6a",
+          "method": "רגיל",
+          "phrase": "עכוב בגימטריא",
+          "computed": 373,
+          "expected": 373,
+          "in_engine": true
+        },
+        {
+          "key": "70f2042dfac1993a4aadd14cd9d3be3c",
+          "method": "רגיל",
+          "phrase": "אשר בשמים ממעל",
+          "computed": 1073,
+          "expected": 1073,
+          "in_engine": true
+        },
+        {
+          "key": "71534c278219c37485780fe908887995",
+          "method": "רגיל",
+          "phrase": "חיה",
+          "computed": 23,
+          "expected": 23,
+          "in_engine": true
+        },
+        {
+          "key": "71b0590c9141e80de5187f65a65ab947",
+          "method": "רגיל",
+          "phrase": "יש לי כל",
+          "computed": 400,
+          "expected": 400,
+          "in_engine": true
+        },
+        {
+          "key": "721eb14718d6f6a25b72f0df280e8fb8",
+          "method": "רגיל",
+          "phrase": "ויקרם עליהם עור",
+          "computed": 787,
+          "expected": 787,
+          "in_engine": true
+        },
+        {
+          "key": "725735a9c4d62af63c1e99152f3f9031",
+          "method": "רגיל",
+          "phrase": "זכר אדני",
+          "computed": 292,
+          "expected": 292,
+          "in_engine": true
+        },
+        {
+          "key": "72b7800b7769e5330abcc068c81564ca",
+          "method": "רגיל",
+          "phrase": "והנה עלה זית טרף בפיה",
+          "computed": 974,
+          "expected": 974,
+          "in_engine": true
+        },
+        {
+          "key": "74b66f460c15311dbe960fd49e9b9c9d",
+          "method": "רגיל",
+          "phrase": "חכם",
+          "computed": 68,
+          "expected": 68,
+          "in_engine": true
+        },
+        {
+          "key": "74f89004a0721059cf81d91a74edb5e6",
+          "method": "רגיל",
+          "phrase": "רחל וחברון",
+          "computed": 510,
+          "expected": 510,
+          "in_engine": true
+        },
+        {
+          "key": "76811cbf1e0a18080f887f5e10393464",
+          "method": "רגיל",
+          "phrase": "פעמים מיכאל",
+          "computed": 341,
+          "expected": 341,
+          "in_engine": true
+        },
+        {
+          "key": "771fd536c306b113c2b851d7e8032929",
+          "method": "רגיל",
+          "phrase": "סר",
+          "computed": 260,
+          "expected": 260,
+          "in_engine": true
+        },
+        {
+          "key": "7b1f3e34394c9679a97cc0c02dbaa81d",
+          "method": "רגיל",
+          "phrase": "ותשועה",
+          "computed": 787,
+          "expected": 787,
+          "in_engine": true
+        },
+        {
+          "key": "7b73685966b857a3bb87b35b3142c21e",
+          "method": "רגיל",
+          "phrase": "מקוה",
+          "computed": 151,
+          "expected": 151,
+          "in_engine": true
+        },
+        {
+          "key": "7b9aedfd706b2cffdd507e9ae2276663",
+          "method": "רגיל",
+          "phrase": "מתן תורה",
+          "computed": 1101,
+          "expected": 1101,
+          "in_engine": true
+        },
+        {
+          "key": "7ef267f3db3fe7c8dca8134ae66a0c70",
+          "method": "רגיל",
+          "phrase": "פעמים חיים",
+          "computed": 308,
+          "expected": 308,
+          "in_engine": true
+        },
+        {
+          "key": "7f9ce5d9aa1633f1a77c90e0154a1ecd",
+          "method": "רגיל",
+          "phrase": "יצחק",
+          "computed": 208,
+          "expected": 208,
+          "in_engine": true
+        },
+        {
+          "key": "805c878acf637222bc2a1d386c6febd6",
+          "method": "רגיל",
+          "phrase": "ברית",
+          "computed": 612,
+          "expected": 612,
+          "in_engine": true
+        },
+        {
+          "key": "80c39cf2d8abaed3942759b71ec6c2e1",
+          "method": "רגיל",
+          "phrase": "רחל",
+          "computed": 238,
+          "expected": 238,
+          "in_engine": true
+        },
+        {
+          "key": "81cef1c43e7b0a7d346365a09067d4ad",
+          "method": "רגיל",
+          "phrase": "אלול",
+          "computed": 67,
+          "expected": 67,
+          "in_engine": true
+        },
+        {
+          "key": "82f92592edb5ab4ff2ea46bb9bec9990",
+          "method": "רגיל",
+          "phrase": "ולהפך",
+          "computed": 141,
+          "expected": 141,
+          "in_engine": true
+        },
+        {
+          "key": "830e64ae9f684fcf8313d766c23029fe",
+          "method": "רגיל",
+          "phrase": "איש את רעהו אמת ומשפט שלום",
+          "computed": 2245,
+          "expected": 2245,
+          "in_engine": true
+        },
+        {
+          "key": "8410723f6fa5647cbb2c9e9f0f880791",
+          "method": "רגיל",
+          "phrase": "גם להם",
+          "computed": 118,
+          "expected": 118,
+          "in_engine": true
+        },
+        {
+          "key": "846fd9f926eba451008bae8b9ffbefa9",
+          "method": "רגיל",
+          "phrase": "יבא שילה",
+          "computed": 358,
+          "expected": 358,
+          "in_engine": true
+        },
+        {
+          "key": "851b64268751fce8f9ced6614e2937fa",
+          "method": "רגיל",
+          "phrase": "צפת",
+          "computed": 570,
+          "expected": 570,
+          "in_engine": true
+        },
+        {
+          "key": "86279d710ef1f5cac19afce02b201d17",
+          "method": "רגיל",
+          "phrase": "כלומר הבינה קודמת לממוצע בין חסד",
+          "computed": 1328,
+          "expected": 1328,
+          "in_engine": true
+        },
+        {
+          "key": "866e54e566d82b87ad5a6ef403ae288f",
+          "method": "רגיל",
+          "phrase": "פדיון נפש",
+          "computed": 580,
+          "expected": 580,
+          "in_engine": true
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-10-26 19:28:13.848716+00",
+      "page": 5,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "86f783f64d2674702b2290f81c790b5e",
+          "method": "רגיל",
+          "phrase": "וביום השביעי תשבת",
+          "computed": 1563,
+          "expected": 1563,
+          "in_engine": true
+        },
+        {
+          "key": "875bf21a472e70417c0c8b5f4d9e04f0",
+          "method": "רגיל",
+          "phrase": "רמזי פסוקים שיש להם",
+          "computed": 1238,
+          "expected": 1238,
+          "in_engine": true
+        },
+        {
+          "key": "87fea87acd8a249d8412a8d92063986e",
+          "method": "רגיל",
+          "phrase": "וגם הוא יגדל",
+          "computed": 108,
+          "expected": 108,
+          "in_engine": true
+        },
+        {
+          "key": "8802dba7bfad390889bb6a9c9c880f8b",
+          "method": "רגיל",
+          "phrase": "נתנני",
+          "computed": 560,
+          "expected": 560,
+          "in_engine": true
+        },
+        {
+          "key": "88295d8a31eec5bb73999f1236125695",
+          "method": "רגיל",
+          "phrase": "רחל מבכה",
+          "computed": 305,
+          "expected": 305,
+          "in_engine": true
+        },
+        {
+          "key": "88827ca11b398b327791eda1bbfd1024",
+          "method": "רגיל",
+          "phrase": "שק",
+          "computed": 400,
+          "expected": 400,
+          "in_engine": true
+        },
+        {
+          "key": "8919704b849219f9df385d44caf3b472",
+          "method": "רגיל",
+          "phrase": "קדם",
+          "computed": 144,
+          "expected": 144,
+          "in_engine": true
+        },
+        {
+          "key": "89b7b4781050ecfa590516437f201d26",
+          "method": "רגיל",
+          "phrase": "בטויים וגם חלקי פסוקים שהם",
+          "computed": 915,
+          "expected": 915,
+          "in_engine": true
+        },
+        {
+          "key": "89e5066ce5ba6e20e0c981e8d36fc92a",
+          "method": "רגיל",
+          "phrase": "כבוד ועז",
+          "computed": 115,
+          "expected": 115,
+          "in_engine": true
+        },
+        {
+          "key": "8a8aaaa69c7e832f4f4cce9efaebd18d",
+          "method": "רגיל",
+          "phrase": "ששזפתני",
+          "computed": 1147,
+          "expected": 1147,
+          "in_engine": true
+        },
+        {
+          "key": "8ab07b47f26f904acde99865d7c0c083",
+          "method": "רגיל",
+          "phrase": "ברעה",
+          "computed": 277,
+          "expected": 277,
+          "in_engine": true
+        },
+        {
+          "key": "8ab7f091237b6bdbac1d05a659e03f67",
+          "method": "רגיל",
+          "phrase": "יש קונה עולמו בשעה אחת",
+          "computed": 1409,
+          "expected": 1409,
+          "in_engine": true
+        },
+        {
+          "key": "8ba34e6675dd593b04294b229431a444",
+          "method": "רגיל",
+          "phrase": "לבין דין",
+          "computed": 156,
+          "expected": 156,
+          "in_engine": true
+        },
+        {
+          "key": "8c538606e8490a1555b759d8b8084684",
+          "method": "רגיל",
+          "phrase": "גם זו לטובה",
+          "computed": 108,
+          "expected": 108,
+          "in_engine": true
+        },
+        {
+          "key": "8d4dadfc39f8d808a54452b7bab2fcd3",
+          "method": "רגיל",
+          "phrase": "סוד",
+          "computed": 70,
+          "expected": 70,
+          "in_engine": true
+        },
+        {
+          "key": "8d6c4718af63ba96144b0497a44fc76d",
+          "method": "רגיל",
+          "phrase": "הדס",
+          "computed": 69,
+          "expected": 69,
+          "in_engine": true
+        },
+        {
+          "key": "8da0248c984586eba5556ca246c35ed7",
+          "method": "רגיל",
+          "phrase": "כי תבוא",
+          "computed": 439,
+          "expected": 439,
+          "in_engine": true
+        },
+        {
+          "key": "8de35fc1329bd400b32821e902fc128b",
+          "method": "רגיל",
+          "phrase": "אבוא אליך וברכתיך",
+          "computed": 729,
+          "expected": 729,
+          "in_engine": true
+        },
+        {
+          "key": "8ea826c250eea40c9b4ae22af25e2a3f",
+          "method": "רגיל",
+          "phrase": "בשורה",
+          "computed": 513,
+          "expected": 513,
+          "in_engine": true
+        },
+        {
+          "key": "8fa8235cdc33275aedb1b39c342502d2",
+          "method": "רגיל",
+          "phrase": "שמעו נא",
+          "computed": 467,
+          "expected": 467,
+          "in_engine": true
+        },
+        {
+          "key": "90bfff318845a30d601ff6ad6b900725",
+          "method": "רגיל",
+          "phrase": "ויש עוד פסוק עם",
+          "computed": 752,
+          "expected": 752,
+          "in_engine": true
+        },
+        {
+          "key": "915ca1cffd963de8983c2a094a828956",
+          "method": "רגיל",
+          "phrase": "בכי",
+          "computed": 32,
+          "expected": 32,
+          "in_engine": true
+        },
+        {
+          "key": "91bdf7808a9dba965eac538593ed79b7",
+          "method": "רגיל",
+          "phrase": "ך עם",
+          "computed": 130,
+          "expected": 130,
+          "in_engine": true
+        },
+        {
+          "key": "92d496ebf35d5d98e4b9d5b0c7f44c19",
+          "method": "רגיל",
+          "phrase": "רוממו",
+          "computed": 292,
+          "expected": 292,
+          "in_engine": true
+        },
+        {
+          "key": "92d8d6bd8a600ddb9d5b96a47eb692be",
+          "method": "רגיל",
+          "phrase": "מופיע העיכוב",
+          "computed": 319,
+          "expected": 319,
+          "in_engine": true
+        },
+        {
+          "key": "933fb1ae343b6628aecea3000af946ba",
+          "method": "רגיל",
+          "phrase": "והנה אנכי עמך",
+          "computed": 277,
+          "expected": 277,
+          "in_engine": true
+        },
+        {
+          "key": "93668f823f90d85cc4c68918dca855da",
+          "method": "רגיל",
+          "phrase": "התשועה",
+          "computed": 786,
+          "expected": 786,
+          "in_engine": true
+        },
+        {
+          "key": "93e2e77a333ae6eb250f68c0047f7818",
+          "method": "רגיל",
+          "phrase": "משיח בן יוסף",
+          "computed": 566,
+          "expected": 566,
+          "in_engine": true
+        },
+        {
+          "key": "93ff42ddd80f8e62c8f45432d4007a20",
+          "method": "רגיל",
+          "phrase": "זאת",
+          "computed": 408,
+          "expected": 408,
+          "in_engine": true
+        },
+        {
+          "key": "942f10586a5fde514e4fc7bd0ff648b7",
+          "method": "רגיל",
+          "phrase": "שבת",
+          "computed": 702,
+          "expected": 702,
+          "in_engine": true
+        },
+        {
+          "key": "947b217f563b7463d17bb08a389a5b5f",
+          "method": "רגיל",
+          "phrase": "כשמוסיפים לזמן",
+          "computed": 693,
+          "expected": 693,
+          "in_engine": true
+        },
+        {
+          "key": "9522d4b064af4dd610e6bbfe95a09140",
+          "method": "רגיל",
+          "phrase": "ולו יקהת עמים",
+          "computed": 717,
+          "expected": 717,
+          "in_engine": true
+        },
+        {
+          "key": "95ae418b58ac59540caeb1078ebccb5a",
+          "method": "רגיל",
+          "phrase": "פשרה",
+          "computed": 585,
+          "expected": 585,
+          "in_engine": true
+        },
+        {
+          "key": "95cf9c9ce4d5581e3443262f347939d1",
+          "method": "רגיל",
+          "phrase": "ויעשו להם חגרת",
+          "computed": 1078,
+          "expected": 1078,
+          "in_engine": true
+        },
+        {
+          "key": "95e24563cb476f187734f6310f33c2d7",
+          "method": "רגיל",
+          "phrase": "יום כפורים",
+          "computed": 412,
+          "expected": 412,
+          "in_engine": true
+        },
+        {
+          "key": "965c6c6009c3904b062470ca2a5d9ec1",
+          "method": "רגיל",
+          "phrase": "הוא משה",
+          "computed": 357,
+          "expected": 357,
+          "in_engine": true
+        },
+        {
+          "key": "973ab795a351d83ebb2863c172f8eb73",
+          "method": "רגיל",
+          "phrase": "יום משיח בא",
+          "computed": 417,
+          "expected": 417,
+          "in_engine": true
+        },
+        {
+          "key": "97580343044346058663888f1a84e350",
+          "method": "רגיל",
+          "phrase": "שפר",
+          "computed": 580,
+          "expected": 580,
+          "in_engine": true
+        },
+        {
+          "key": "987a601d25c582d7e3f83ca736464d1b",
+          "method": "רגיל",
+          "phrase": "ולדבקה בו",
+          "computed": 155,
+          "expected": 155,
+          "in_engine": true
+        },
+        {
+          "key": "991ec5d1bd6634582f4c4ba745dcdd84",
+          "method": "רגיל",
+          "phrase": "לאות ולמופת",
+          "computed": 999,
+          "expected": 999,
+          "in_engine": true
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-10-26 19:28:15.685661+00",
+      "page": 6,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "9b59a253a7ef8f61d2388250be67fae0",
+          "method": "רגיל",
+          "phrase": "וימאן",
+          "computed": 107,
+          "expected": 107,
+          "in_engine": true
+        },
+        {
+          "key": "9c43f2a92e33a37865d2114d936b0efc",
+          "method": "רגיל",
+          "phrase": "במילים אחרות אלול",
+          "computed": 814,
+          "expected": 814,
+          "in_engine": true
+        },
+        {
+          "key": "9c4aded383a7c7f7721f702cdc9aed86",
+          "method": "רגיל",
+          "phrase": "כי אם ברוחי",
+          "computed": 297,
+          "expected": 297,
+          "in_engine": true
+        },
+        {
+          "key": "9c8ca4a558337c6efbd8eb97c713a207",
+          "method": "רגיל",
+          "phrase": "סגלה",
+          "computed": 98,
+          "expected": 98,
+          "in_engine": true
+        },
+        {
+          "key": "9c97f8ee22162ac7efc8d5a68f16c1aa",
+          "method": "רגיל",
+          "phrase": "כרם",
+          "computed": 260,
+          "expected": 260,
+          "in_engine": true
+        },
+        {
+          "key": "9cf145d948ab6aa6ada945f82f9d8c1e",
+          "method": "רגיל",
+          "phrase": "עמכם",
+          "computed": 170,
+          "expected": 170,
+          "in_engine": true
+        },
+        {
+          "key": "9dbaa3f26107cd3d5609218c91f95cff",
+          "method": "רגיל",
+          "phrase": "ותאמינו",
+          "computed": 513,
+          "expected": 513,
+          "in_engine": true
+        },
+        {
+          "key": "9e6c3f0e59a1a752c1766474a0c779b5",
+          "method": "רגיל",
+          "phrase": "שילה",
+          "computed": 345,
+          "expected": 345,
+          "in_engine": true
+        },
+        {
+          "key": "9f06292b210b36f95d266a20be93b9b6",
+          "method": "רגיל",
+          "phrase": "למספר הטיסה",
+          "computed": 499,
+          "expected": 499,
+          "in_engine": true
+        },
+        {
+          "key": "9fa5c7b1a2fc7e645ba5ee04149bcf3b",
+          "method": "רגיל",
+          "phrase": "בזאת תדעון",
+          "computed": 940,
+          "expected": 940,
+          "in_engine": true
+        },
+        {
+          "key": "9fe75e4a84a9eaf59d121152d91c6391",
+          "method": "רגיל",
+          "phrase": "נתתי בענן",
+          "computed": 1032,
+          "expected": 1032,
+          "in_engine": true
+        },
+        {
+          "key": "a03c608c174801435b9e12a87b0539dc",
+          "method": "רגיל",
+          "phrase": "בטרם יבוא חבל לה",
+          "computed": 345,
+          "expected": 345,
+          "in_engine": true
+        },
+        {
+          "key": "a09e7c465d4e6dc277aef54adfc891d2",
+          "method": "רגיל",
+          "phrase": "ויש עוד פסוק עם גימטריא",
+          "computed": 1025,
+          "expected": 1025,
+          "in_engine": true
+        },
+        {
+          "key": "a0d222ddf15b25583b4e75280a93b242",
+          "method": "רגיל",
+          "phrase": "ורחם כרב חסדיו",
+          "computed": 564,
+          "expected": 564,
+          "in_engine": true
+        },
+        {
+          "key": "a1fb34084242601b8fc7966767eebd61",
+          "method": "רגיל",
+          "phrase": "נחמתי",
+          "computed": 508,
+          "expected": 508,
+          "in_engine": true
+        },
+        {
+          "key": "a448ae432804c35edf4be1c512e0fee3",
+          "method": "רגיל",
+          "phrase": "והייתם לי לעם ואנכי אהיה לכם לאלהים",
+          "computed": 965,
+          "expected": 965,
+          "in_engine": true
+        },
+        {
+          "key": "a4571dbbc045025cb023aaec6d91e822",
+          "method": "רגיל",
+          "phrase": "זכות אבות",
+          "computed": 842,
+          "expected": 842,
+          "in_engine": true
+        },
+        {
+          "key": "a4623614e5ed1f61688238974e0b5a54",
+          "method": "רגיל",
+          "phrase": "בקול שופר",
+          "computed": 724,
+          "expected": 724,
+          "in_engine": true
+        },
+        {
+          "key": "a493700cc5136dfa89e49b2dc9866110",
+          "method": "רגיל",
+          "phrase": "יוצר את המבנה השלם של הכפור",
+          "computed": 1825,
+          "expected": 1825,
+          "in_engine": true
+        },
+        {
+          "key": "a5197a02b764389511de0d5da15fef7a",
+          "method": "רגיל",
+          "phrase": "שופר בגימטריא",
+          "computed": 861,
+          "expected": 861,
+          "in_engine": true
+        },
+        {
+          "key": "a561d0591ef061a148f74846bf9d70d7",
+          "method": "רגיל",
+          "phrase": "אפרים",
+          "computed": 331,
+          "expected": 331,
+          "in_engine": true
+        },
+        {
+          "key": "a75bd2790b9d9293d6ac3b9b6438ffca",
+          "method": "רגיל",
+          "phrase": "הבן יקיר לי",
+          "computed": 417,
+          "expected": 417,
+          "in_engine": true
+        },
+        {
+          "key": "a80e2a37e0331d87056b31d72d26f603",
+          "method": "רגיל",
+          "phrase": "נגהם",
+          "computed": 98,
+          "expected": 98,
+          "in_engine": true
+        },
+        {
+          "key": "a8594e389915c6bbc5502d7a2b257d41",
+          "method": "רגיל",
+          "phrase": "אלף",
+          "computed": 111,
+          "expected": 111,
+          "in_engine": true
+        },
+        {
+          "key": "a86e61de50b62df91b168657b0a5f407",
+          "method": "רגיל",
+          "phrase": "צבי בגימטריא",
+          "computed": 377,
+          "expected": 377,
+          "in_engine": true
+        },
+        {
+          "key": "aa77132b49cb23b59af601afd7dbfb2f",
+          "method": "רגיל",
+          "phrase": "שמרם",
+          "computed": 580,
+          "expected": 580,
+          "in_engine": true
+        },
+        {
+          "key": "aa9ae7000349e773dfe28a3500d76451",
+          "method": "רגיל",
+          "phrase": "ויצא המן ביום ההוא",
+          "computed": 277,
+          "expected": 277,
+          "in_engine": true
+        },
+        {
+          "key": "aad079508f6f89b039ddb2120ba2da23",
+          "method": "רגיל",
+          "phrase": "והלבונה",
+          "computed": 104,
+          "expected": 104,
+          "in_engine": true
+        },
+        {
+          "key": "aaf6797c4507237a594b4a452fe46a5f",
+          "method": "רגיל",
+          "phrase": "אל מלא רחמים",
+          "computed": 400,
+          "expected": 400,
+          "in_engine": true
+        },
+        {
+          "key": "ab6b45bc1bf89b2b05e647f3e6960e35",
+          "method": "רגיל",
+          "phrase": "שבת ראש השנה",
+          "computed": 1563,
+          "expected": 1563,
+          "in_engine": true
+        },
+        {
+          "key": "ac3f4b6b6c5faf842303a0142f49685c",
+          "method": "רגיל",
+          "phrase": "ימי חייך",
+          "computed": 108,
+          "expected": 108,
+          "in_engine": true
+        },
+        {
+          "key": "acbf18c117f09188c042ecee4c9f281d",
+          "method": "רגיל",
+          "phrase": "מטוס",
+          "computed": 115,
+          "expected": 115,
+          "in_engine": true
+        },
+        {
+          "key": "ad10bb1b94b8088269ab1479dd78fa31",
+          "method": "רגיל",
+          "phrase": "זמן",
+          "computed": 97,
+          "expected": 97,
+          "in_engine": true
+        },
+        {
+          "key": "ad37dc9929ce66dda2e22d5203970df9",
+          "method": "רגיל",
+          "phrase": "ונתן אליך אות",
+          "computed": 974,
+          "expected": 974,
+          "in_engine": true
+        },
+        {
+          "key": "ada31a562082611f863d101b31e34040",
+          "method": "רגיל",
+          "phrase": "בפתיל תכלת",
+          "computed": 1372,
+          "expected": 1372,
+          "in_engine": true
+        },
+        {
+          "key": "adc512cd80d62cc971b516e1faaff56c",
+          "method": "רגיל",
+          "phrase": "לא",
+          "computed": 31,
+          "expected": 31,
+          "in_engine": true
+        },
+        {
+          "key": "afaac106750107a4c0a16252f632494f",
+          "method": "רגיל",
+          "phrase": "נקהלו היהודים",
+          "computed": 271,
+          "expected": 271,
+          "in_engine": true
+        },
+        {
+          "key": "b027d6a4ee4009e48dd8d47115ef1f04",
+          "method": "רגיל",
+          "phrase": "ותשקט הארץ",
+          "computed": 1111,
+          "expected": 1111,
+          "in_engine": true
+        },
+        {
+          "key": "b0ba0eb14e7f704fe92b73742506c0af",
+          "method": "רגיל",
+          "phrase": "כל",
+          "computed": 50,
+          "expected": 50,
+          "in_engine": true
+        },
+        {
+          "key": "b12ba71f0ef17831f6d5fe4c2e966140",
+          "method": "רגיל",
+          "phrase": "הנערה הזאת",
+          "computed": 743,
+          "expected": 743,
+          "in_engine": true
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-10-26 19:28:15.817136+00",
+      "page": 7,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "b1630f0d86cfbdc56ae8870a30a2377b",
+          "method": "רגיל",
+          "phrase": "והיה לך למשיב נפש",
+          "computed": 888,
+          "expected": 888,
+          "in_engine": true
+        },
+        {
+          "key": "b1d69928d91903af3cd23f8fb408737d",
+          "method": "רגיל",
+          "phrase": "וישע יהוה ביום ההוא",
+          "computed": 487,
+          "expected": 487,
+          "in_engine": true
+        },
+        {
+          "key": "b1ff9f38d172f2b4670072759745694a",
+          "method": "רגיל",
+          "phrase": "אעלה לדרגת",
+          "computed": 743,
+          "expected": 743,
+          "in_engine": true
+        },
+        {
+          "key": "b21d717c95451e2a01bbf3d0188772e4",
+          "method": "רגיל",
+          "phrase": "אני יהוה אלהיהם ואענם",
+          "computed": 345,
+          "expected": 345,
+          "in_engine": true
+        },
+        {
+          "key": "b256ae9d13aff1803c3f2bee75e9b54a",
+          "method": "רגיל",
+          "phrase": "עם",
+          "computed": 110,
+          "expected": 110,
+          "in_engine": true
+        },
+        {
+          "key": "b2b0bd34379e614c985b06da0333aad1",
+          "method": "רגיל",
+          "phrase": "אותה",
+          "computed": 412,
+          "expected": 412,
+          "in_engine": true
+        },
+        {
+          "key": "b3eeebd97180fa4ea7196ff155a5a279",
+          "method": "רגיל",
+          "phrase": "אמונתך",
+          "computed": 517,
+          "expected": 517,
+          "in_engine": true
+        },
+        {
+          "key": "b499703e1320e2267286c9df8c23a030",
+          "method": "רגיל",
+          "phrase": "סלחתי כדברך",
+          "computed": 754,
+          "expected": 754,
+          "in_engine": true
+        },
+        {
+          "key": "b4e2a73ad2c582860e4b27073aced0c7",
+          "method": "רגיל",
+          "phrase": "תשובה",
+          "computed": 713,
+          "expected": 713,
+          "in_engine": true
+        },
+        {
+          "key": "b55d5107b76e5f15f80bd43a63b621fc",
+          "method": "רגיל",
+          "phrase": "קפאו תהמת",
+          "computed": 1032,
+          "expected": 1032,
+          "in_engine": true
+        },
+        {
+          "key": "b577d7c7e489f45396836aecd6fe9ae8",
+          "method": "רגיל",
+          "phrase": "והנה רכב וסוסי אש",
+          "computed": 731,
+          "expected": 731,
+          "in_engine": true
+        },
+        {
+          "key": "b760fd4161ac6be7dc235c16a6c504b4",
+          "method": "רגיל",
+          "phrase": "ושכנתי בתוכם",
+          "computed": 1254,
+          "expected": 1254,
+          "in_engine": true
+        },
+        {
+          "key": "b8362b15de77c12ea82f6bf47432f5e5",
+          "method": "רגיל",
+          "phrase": "עד שקרים לא ינקה ויפיח כזבים לא ימלט",
+          "computed": 1233,
+          "expected": 1233,
+          "in_engine": true
+        },
+        {
+          "key": "b85405d0515970c7e60e0fc3a6dc8b32",
+          "method": "רגיל",
+          "phrase": "ישועת",
+          "computed": 786,
+          "expected": 786,
+          "in_engine": true
+        },
+        {
+          "key": "b88f60bde5ce2e20a13113822c0da46e",
+          "method": "רגיל",
+          "phrase": "מושיעך",
+          "computed": 446,
+          "expected": 446,
+          "in_engine": true
+        },
+        {
+          "key": "b95454a0dd76b2d18613fae7ca535d53",
+          "method": "רגיל",
+          "phrase": "זה ינחמנו",
+          "computed": 176,
+          "expected": 176,
+          "in_engine": true
+        },
+        {
+          "key": "ba662fcd5709fe632163e354342d675e",
+          "method": "רגיל",
+          "phrase": "קטנתי מכל החסדים",
+          "computed": 786,
+          "expected": 786,
+          "in_engine": true
+        },
+        {
+          "key": "bbd1677a5d2d721906135a452023a75c",
+          "method": "רגיל",
+          "phrase": "תפארה",
+          "computed": 686,
+          "expected": 686,
+          "in_engine": true
+        },
+        {
+          "key": "bc0c2867a1a0c77f3369d91872e82aeb",
+          "method": "רגיל",
+          "phrase": "בכל דרכיו",
+          "computed": 292,
+          "expected": 292,
+          "in_engine": true
+        },
+        {
+          "key": "bc85e0097574ee8da508c2462bd5ed19",
+          "method": "רגיל",
+          "phrase": "מסכת חולין",
+          "computed": 624,
+          "expected": 624,
+          "in_engine": true
+        },
+        {
+          "key": "bd0d69809e4f61a4fd88a15f9fe60c11",
+          "method": "רגיל",
+          "phrase": "מאיש",
+          "computed": 351,
+          "expected": 351,
+          "in_engine": true
+        },
+        {
+          "key": "bdc79330f0e39ac766c0a68ad880d3b9",
+          "method": "רגיל",
+          "phrase": "ועשית כפרת",
+          "computed": 1486,
+          "expected": 1486,
+          "in_engine": true
+        },
+        {
+          "key": "bf723aca1cc48d18173832d0c58ca57b",
+          "method": "רגיל",
+          "phrase": "קשת",
+          "computed": 800,
+          "expected": 800,
+          "in_engine": true
+        },
+        {
+          "key": "c08bbd35f9f748152fa6eede46d2174e",
+          "method": "רגיל",
+          "phrase": "מאין",
+          "computed": 101,
+          "expected": 101,
+          "in_engine": true
+        },
+        {
+          "key": "c13c5d250892606e1b869cc24f42c30c",
+          "method": "רגיל",
+          "phrase": "מה לי ולך",
+          "computed": 141,
+          "expected": 141,
+          "in_engine": true
+        },
+        {
+          "key": "c25641d7b6061c84eebc4c896760d917",
+          "method": "רגיל",
+          "phrase": "סוכה",
+          "computed": 91,
+          "expected": 91,
+          "in_engine": true
+        },
+        {
+          "key": "c2dda671bd7c6e3abf75a6751a1a8691",
+          "method": "רגיל",
+          "phrase": "בקדושה",
+          "computed": 417,
+          "expected": 417,
+          "in_engine": true
+        },
+        {
+          "key": "c2fa4240b411ed300866bd2f08d935e9",
+          "method": "רגיל",
+          "phrase": "וכפר בעדו ובעד ביתו",
+          "computed": 888,
+          "expected": 888,
+          "in_engine": true
+        },
+        {
+          "key": "c42fcdd7db026c927ba881ad7e1f1557",
+          "method": "רגיל",
+          "phrase": "פתח תקוה",
+          "computed": 999,
+          "expected": 999,
+          "in_engine": true
+        },
+        {
+          "key": "c4f23eeb04bf0b27d7d0d779063d31b7",
+          "method": "רגיל",
+          "phrase": "ענן",
+          "computed": 170,
+          "expected": 170,
+          "in_engine": true
+        },
+        {
+          "key": "c58dc1cf19a28d74ed232af2d0d3fab8",
+          "method": "רגיל",
+          "phrase": "עבודה זרה",
+          "computed": 299,
+          "expected": 299,
+          "in_engine": true
+        },
+        {
+          "key": "c5961f7488a33c21069f384076699af4",
+          "method": "רגיל",
+          "phrase": "תשדהר",
+          "computed": 909,
+          "expected": 909,
+          "in_engine": true
+        },
+        {
+          "key": "c5b5a2e4b88e549c48776f651e201325",
+          "method": "רגיל",
+          "phrase": "ישר",
+          "computed": 510,
+          "expected": 510,
+          "in_engine": true
+        },
+        {
+          "key": "c733e2f2ddb7d0bec8b1042707c57cb3",
+          "method": "רגיל",
+          "phrase": "בהר שפר",
+          "computed": 787,
+          "expected": 787,
+          "in_engine": true
+        },
+        {
+          "key": "c76c15be51216ccfc5efbb9477ef2af2",
+          "method": "רגיל",
+          "phrase": "רוח",
+          "computed": 214,
+          "expected": 214,
+          "in_engine": true
+        },
+        {
+          "key": "c7a571c86102c44fc8503538d857c5ce",
+          "method": "רגיל",
+          "phrase": "אין עוד מלבדו",
+          "computed": 223,
+          "expected": 223,
+          "in_engine": true
+        },
+        {
+          "key": "c7f290d1485fe40e145da48773b0dc83",
+          "method": "רגיל",
+          "phrase": "וגם רות",
+          "computed": 655,
+          "expected": 655,
+          "in_engine": true
+        },
+        {
+          "key": "c927348bd0ba011667396cc0c0deb107",
+          "method": "רגיל",
+          "phrase": "הממוצע בין רצון",
+          "computed": 659,
+          "expected": 659,
+          "in_engine": true
+        },
+        {
+          "key": "c9f66d28eae2af6337f16abf97283715",
+          "method": "רגיל",
+          "phrase": "ומחקק מבין רגליו",
+          "computed": 605,
+          "expected": 605,
+          "in_engine": true
+        },
+        {
+          "key": "caa16a52feb20d2d85153d341e6faf49",
+          "method": "רגיל",
+          "phrase": "מאביהן",
+          "computed": 108,
+          "expected": 108,
+          "in_engine": true
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-10-26 19:28:17.5794+00",
+      "page": 8,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "cb311358648a0f88e80093c3bf5073bf",
+          "method": "רגיל",
+          "phrase": "פדות שלח לעמו",
+          "computed": 974,
+          "expected": 974,
+          "in_engine": true
+        },
+        {
+          "key": "cb740e5ea22c4add7721238867e04057",
+          "method": "רגיל",
+          "phrase": "עולה",
+          "computed": 111,
+          "expected": 111,
+          "in_engine": true
+        },
+        {
+          "key": "cb96f5bb90bde0e7770c6723aac5b85f",
+          "method": "רגיל",
+          "phrase": "וענוים יירשו ארץ",
+          "computed": 999,
+          "expected": 999,
+          "in_engine": true
+        },
+        {
+          "key": "cc0cf36ba274b8cbae772522331d8a72",
+          "method": "רגיל",
+          "phrase": "זיתים",
+          "computed": 467,
+          "expected": 467,
+          "in_engine": true
+        },
+        {
+          "key": "cd44416257d7bf1c994611d105162f2c",
+          "method": "רגיל",
+          "phrase": "רזא",
+          "computed": 208,
+          "expected": 208,
+          "in_engine": true
+        },
+        {
+          "key": "cd5a8fb281349998b96502d7c63004f2",
+          "method": "רגיל",
+          "phrase": "תובנות",
+          "computed": 864,
+          "expected": 864,
+          "in_engine": true
+        },
+        {
+          "key": "cea8c173789ea7c52f476008cb70f397",
+          "method": "רגיל",
+          "phrase": "ושלחתי את ידי",
+          "computed": 1179,
+          "expected": 1179,
+          "in_engine": true
+        },
+        {
+          "key": "d0ad6cfa0ffd3ce5addb2ae3f7d7ad84",
+          "method": "רגיל",
+          "phrase": "תשליך",
+          "computed": 760,
+          "expected": 760,
+          "in_engine": true
+        },
+        {
+          "key": "d1b244fbe62ae7f232df8b7cc37ce724",
+          "method": "רגיל",
+          "phrase": "ואהיה תמים",
+          "computed": 517,
+          "expected": 517,
+          "in_engine": true
+        },
+        {
+          "key": "d1c8f477a77a7c640122361153a6e0e1",
+          "method": "רגיל",
+          "phrase": "ככוכבים",
+          "computed": 118,
+          "expected": 118,
+          "in_engine": true
+        },
+        {
+          "key": "d1e90dd2b79c9760ef84f6cc91cb646e",
+          "method": "רגיל",
+          "phrase": "ועת צרה היא ליעקב",
+          "computed": 999,
+          "expected": 999,
+          "in_engine": true
+        },
+        {
+          "key": "d2d4477ed76e1a66c586362370ae0e6c",
+          "method": "רגיל",
+          "phrase": "שמעון",
+          "computed": 466,
+          "expected": 466,
+          "in_engine": true
+        },
+        {
+          "key": "d489851fbf073f28de5d8444d8d52b95",
+          "method": "רגיל",
+          "phrase": "פרה אדמה",
+          "computed": 335,
+          "expected": 335,
+          "in_engine": true
+        },
+        {
+          "key": "d49a228beb45aab9c1f5c0933f2e19b1",
+          "method": "רגיל",
+          "phrase": "זהו פסוק שלם עם",
+          "computed": 744,
+          "expected": 744,
+          "in_engine": true
+        },
+        {
+          "key": "d68ef4d98e289440f8acf71717fcecc6",
+          "method": "רגיל",
+          "phrase": "אחות קטנה",
+          "computed": 579,
+          "expected": 579,
+          "in_engine": true
+        },
+        {
+          "key": "d7bd257fd80b78cfe38836eb0d04dc79",
+          "method": "רגיל",
+          "phrase": "אלהי אברהם אלהי יצחק",
+          "computed": 548,
+          "expected": 548,
+          "in_engine": true
+        },
+        {
+          "key": "d9c2274375edd1dcfcd3ef404e75262e",
+          "method": "רגיל",
+          "phrase": "אמונה",
+          "computed": 102,
+          "expected": 102,
+          "in_engine": true
+        },
+        {
+          "key": "d9e359a3e876dbdf562ef0c0b211c4a7",
+          "method": "רגיל",
+          "phrase": "אהיה לכם לאלהים",
+          "computed": 227,
+          "expected": 227,
+          "in_engine": true
+        },
+        {
+          "key": "da57e075b5efdf8f837c953d51205a29",
+          "method": "רגיל",
+          "phrase": "השוויון המדויק",
+          "computed": 548,
+          "expected": 548,
+          "in_engine": true
+        },
+        {
+          "key": "dbb5f3f955f521e3d43fb5b697c851b0",
+          "method": "רגיל",
+          "phrase": "בגימטריא",
+          "computed": 275,
+          "expected": 275,
+          "in_engine": true
+        },
+        {
+          "key": "dbd2acf9409662b2da388bf78d7a89a1",
+          "method": "רגיל",
+          "phrase": "ישועת אלהינו",
+          "computed": 888,
+          "expected": 888,
+          "in_engine": true
+        },
+        {
+          "key": "dbd37bd29d312065c2ca1247a8b73e2a",
+          "method": "רגיל",
+          "phrase": "בלכתך עמנו",
+          "computed": 638,
+          "expected": 638,
+          "in_engine": true
+        },
+        {
+          "key": "dc2e46891adc8b3ea0c25219b3ce7f89",
+          "method": "רגיל",
+          "phrase": "לדר ודר",
+          "computed": 444,
+          "expected": 444,
+          "in_engine": true
+        },
+        {
+          "key": "dc6e528599fe3117d73ec81f136f93ca",
+          "method": "רגיל",
+          "phrase": "את חקיך אשמר",
+          "computed": 1080,
+          "expected": 1080,
+          "in_engine": true
+        },
+        {
+          "key": "dccfdcf5dc17fd6f9342efba4f5005fd",
+          "method": "רגיל",
+          "phrase": "ושכנתי",
+          "computed": 786,
+          "expected": 786,
+          "in_engine": true
+        },
+        {
+          "key": "dd655e7ad145ff3de63c4edd466ffd46",
+          "method": "רגיל",
+          "phrase": "אשר אני נתן",
+          "computed": 1062,
+          "expected": 1062,
+          "in_engine": true
+        },
+        {
+          "key": "ddbf8631a9c7155bf62e618b45d37b34",
+          "method": "רגיל",
+          "phrase": "שהוא התיקון",
+          "computed": 883,
+          "expected": 883,
+          "in_engine": true
+        },
+        {
+          "key": "dde59f083962187c35c7720451a00475",
+          "method": "רגיל",
+          "phrase": "רחם ארחמנו",
+          "computed": 553,
+          "expected": 553,
+          "in_engine": true
+        },
+        {
+          "key": "de2b9473fcc934e717f67628f830c4a8",
+          "method": "רגיל",
+          "phrase": "שא נא",
+          "computed": 352,
+          "expected": 352,
+          "in_engine": true
+        },
+        {
+          "key": "df308038eeb7bdfc6283d3a285c8419c",
+          "method": "רגיל",
+          "phrase": "ותשועה ברב יועץ",
+          "computed": 1167,
+          "expected": 1167,
+          "in_engine": true
+        },
+        {
+          "key": "dfd1792babfd4e8da25c2125659a7292",
+          "method": "רגיל",
+          "phrase": "נקבל אשה",
+          "computed": 488,
+          "expected": 488,
+          "in_engine": true
+        },
+        {
+          "key": "e0340cac8a7659d54ce12c6c8605bfe1",
+          "method": "רגיל",
+          "phrase": "כ עולה",
+          "computed": 131,
+          "expected": 131,
+          "in_engine": true
+        },
+        {
+          "key": "e068d54f01ea3d46b9e693fa8e5236c5",
+          "method": "רגיל",
+          "phrase": "אצמיח לדוד צמח צדקה",
+          "computed": 530,
+          "expected": 530,
+          "in_engine": true
+        },
+        {
+          "key": "e0a447affa819e8085fd6c4497b6a3d0",
+          "method": "רגיל",
+          "phrase": "ויאמר צדקה ממני",
+          "computed": 596,
+          "expected": 596,
+          "in_engine": true
+        },
+        {
+          "key": "e0cbde2fa1b955940ae165f3f4957ed4",
+          "method": "רגיל",
+          "phrase": "נקבל",
+          "computed": 182,
+          "expected": 182,
+          "in_engine": true
+        },
+        {
+          "key": "e2aa30394a5f29ecbac8ac513d86eab9",
+          "method": "רגיל",
+          "phrase": "שלח אורך ואמיתך",
+          "computed": 1042,
+          "expected": 1042,
+          "in_engine": true
+        },
+        {
+          "key": "e3ea414087c857b2f5a52670d484e7fb",
+          "method": "רגיל",
+          "phrase": "משמרתך חכמה",
+          "computed": 1073,
+          "expected": 1073,
+          "in_engine": true
+        },
+        {
+          "key": "e4c740231ac754bf14c977942e52bb31",
+          "method": "רגיל",
+          "phrase": "כח",
+          "computed": 28,
+          "expected": 28,
+          "in_engine": true
+        },
+        {
+          "key": "e8010476320e3e9be290f5de514d8b1b",
+          "method": "רגיל",
+          "phrase": "אליך",
+          "computed": 61,
+          "expected": 61,
+          "in_engine": true
+        },
+        {
+          "key": "e99c5bff0afc209ca2163e0dcf5b2789",
+          "method": "רגיל",
+          "phrase": "אסרה נא ואראה",
+          "computed": 530,
+          "expected": 530,
+          "in_engine": true
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-10-26 19:28:18.1266+00",
+      "page": 9,
+      "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+      "checks": [
+        {
+          "key": "e9c1000a38d8660eb5932415f0a67e72",
+          "method": "רגיל",
+          "phrase": "אמת",
+          "computed": 441,
+          "expected": 441,
+          "in_engine": true
+        },
+        {
+          "key": "e9d2a4af8d7c3974940db14bec422a87",
+          "method": "רגיל",
+          "phrase": "בדיוק כאשר רצה",
+          "computed": 938,
+          "expected": 938,
+          "in_engine": true
+        },
+        {
+          "key": "e9f269a9137b1ce23b65c70796e61cc6",
+          "method": "רגיל",
+          "phrase": "אור בינה דעתיק יומין",
+          "computed": 974,
+          "expected": 974,
+          "in_engine": true
+        },
+        {
+          "key": "ec142d2b22cc129a8be36dab1938356f",
+          "method": "רגיל",
+          "phrase": "מאשר המית בחייו",
+          "computed": 1032,
+          "expected": 1032,
+          "in_engine": true
+        },
+        {
+          "key": "ecd1e49981ec9a79438f43dd6e682e40",
+          "method": "רגיל",
+          "phrase": "ערוב תבשילין",
+          "computed": 1080,
+          "expected": 1080,
+          "in_engine": true
+        },
+        {
+          "key": "ecee10e51dbff1d4f157f164c22eb67c",
+          "method": "רגיל",
+          "phrase": "שבעים ואחד",
+          "computed": 441,
+          "expected": 441,
+          "in_engine": true
+        },
+        {
+          "key": "ed08192c287b6a686fdd259f7e85c853",
+          "method": "רגיל",
+          "phrase": "חנניה בן עקשיא",
+          "computed": 656,
+          "expected": 656,
+          "in_engine": true
+        },
+        {
+          "key": "ed8ee8060e9a48e3ede5432b4d2fd654",
+          "method": "רגיל",
+          "phrase": "כל אחת משלושת המילים האלה",
+          "computed": 1711,
+          "expected": 1711,
+          "in_engine": true
+        },
+        {
+          "key": "edeb7b57d3fe2e6fcccb5e412c95b25a",
+          "method": "רגיל",
+          "phrase": "בינה",
+          "computed": 67,
+          "expected": 67,
+          "in_engine": true
+        },
+        {
+          "key": "ef098b8107372d8b80a8c880d3426c6f",
+          "method": "רגיל",
+          "phrase": "אצפה",
+          "computed": 176,
+          "expected": 176,
+          "in_engine": true
+        },
+        {
+          "key": "ef54b577f87eebe980f61fe48bbadfe4",
+          "method": "רגיל",
+          "phrase": "כי ידעתיו",
+          "computed": 530,
+          "expected": 530,
+          "in_engine": true
+        },
+        {
+          "key": "ef91beb3e8ce76b5d4c39f7f951d5c61",
+          "method": "רגיל",
+          "phrase": "וגר זאב עם כבש",
+          "computed": 651,
+          "expected": 651,
+          "in_engine": true
+        },
+        {
+          "key": "f05ac419a84d00dbbe2898379e2a3372",
+          "method": "רגיל",
+          "phrase": "ישועות מלכו",
+          "computed": 888,
+          "expected": 888,
+          "in_engine": true
+        },
+        {
+          "key": "f0ca68b6602987bd4f2d20a5466ea842",
+          "method": "רגיל",
+          "phrase": "פקח",
+          "computed": 188,
+          "expected": 188,
+          "in_engine": true
+        },
+        {
+          "key": "f14fdc5a2d50ad93f71327fea8409577",
+          "method": "רגיל",
+          "phrase": "תערובת",
+          "computed": 1078,
+          "expected": 1078,
+          "in_engine": true
+        },
+        {
+          "key": "f2087e34b19c23b246a348b249fb5256",
+          "method": "רגיל",
+          "phrase": "לאט",
+          "computed": 40,
+          "expected": 40,
+          "in_engine": true
+        },
+        {
+          "key": "f27e94164bc7184ea9430fc2de57cbd1",
+          "method": "רגיל",
+          "phrase": "תנחילנה",
+          "computed": 553,
+          "expected": 553,
+          "in_engine": true
+        },
+        {
+          "key": "f3dbfc62b6b22859d72dfe52de8807a9",
+          "method": "רגיל",
+          "phrase": "ביצוע",
+          "computed": 178,
+          "expected": 178,
+          "in_engine": true
+        },
+        {
+          "key": "f3e0456f11777b0573ed63eb25a9f16b",
+          "method": "רגיל",
+          "phrase": "ואנכי אהיה להם לאלהים",
+          "computed": 299,
+          "expected": 299,
+          "in_engine": true
+        },
+        {
+          "key": "f54fbcc89d79cd6f342a766c4d4b647a",
+          "method": "רגיל",
+          "phrase": "חנניה",
+          "computed": 123,
+          "expected": 123,
+          "in_engine": true
+        },
+        {
+          "key": "f553837bf759567344e0bc7cc95033fd",
+          "method": "רגיל",
+          "phrase": "חסד עליון",
+          "computed": 238,
+          "expected": 238,
+          "in_engine": true
+        },
+        {
+          "key": "f5f0499453f8eda903fe842777b14217",
+          "method": "רגיל",
+          "phrase": "וישלחנו יהוה לשחתה",
+          "computed": 1179,
+          "expected": 1179,
+          "in_engine": true
+        },
+        {
+          "key": "f69cfc1c734950a08fa1ecdcbf3ee8d8",
+          "method": "רגיל",
+          "phrase": "זכר עמלק",
+          "computed": 467,
+          "expected": 467,
+          "in_engine": true
+        },
+        {
+          "key": "f8e7b7d657070160a11f5c162763e6dc",
+          "method": "רגיל",
+          "phrase": "עצם",
+          "computed": 200,
+          "expected": 200,
+          "in_engine": true
+        },
+        {
+          "key": "f9be62b84f95f9265b732a5f9bcc8e02",
+          "method": "רגיל",
+          "phrase": "הוא בדיוק חיים",
+          "computed": 202,
+          "expected": 202,
+          "in_engine": true
+        },
+        {
+          "key": "fa2752cb3d1979688f4040bce67fd07d",
+          "method": "רגיל",
+          "phrase": "כפרה",
+          "computed": 305,
+          "expected": 305,
+          "in_engine": true
+        },
+        {
+          "key": "fa596359e5a11a665c504c5b5770fce6",
+          "method": "רגיל",
+          "phrase": "סלחתי",
+          "computed": 508,
+          "expected": 508,
+          "in_engine": true
+        },
+        {
+          "key": "fb6a4fc72141b3f4d119115b1ce779e5",
+          "method": "רגיל",
+          "phrase": "בטל רצונך",
+          "computed": 407,
+          "expected": 407,
+          "in_engine": true
+        },
+        {
+          "key": "fc8b24425a06051fd5a843b4fe71f0e1",
+          "method": "רגיל",
+          "phrase": "כי עבד היית במצרים",
+          "computed": 913,
+          "expected": 913,
+          "in_engine": true
+        },
+        {
+          "key": "fc9d1d0ae127490ae75ad5efe9938750",
+          "method": "רגיל",
+          "phrase": "ויהרגו בשושן",
+          "computed": 888,
+          "expected": 888,
+          "in_engine": true
+        },
+        {
+          "key": "fe6bdeec3b6a7a6a4d4ac41ee9c15edd",
+          "method": "רגיל",
+          "phrase": "לב אמיץ",
+          "computed": 173,
+          "expected": 173,
+          "in_engine": true
+        },
+        {
+          "key": "fee6a7f048f6dbf2f9ad78b18e2980fe",
+          "method": "רגיל",
+          "phrase": "אתה אלהים לבדך",
+          "computed": 548,
+          "expected": 548,
+          "in_engine": true
+        },
+        {
+          "key": "ff2cf572807b6be1cef774c14898bebf",
+          "method": "רגיל",
+          "phrase": "כמשפטם",
+          "computed": 489,
+          "expected": 489,
+          "in_engine": true
+        },
+        {
+          "key": "ffe69b14fdb437abb199835888624eee",
+          "method": "רגיל",
+          "phrase": "מלאך",
+          "computed": 91,
+          "expected": 91,
+          "in_engine": true
+        }
+      ]
+    }
+  ]
+}
