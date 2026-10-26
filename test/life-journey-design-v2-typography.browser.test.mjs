@@ -102,8 +102,8 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
       personal: ["name", "date", "time", "summary"],
       family: ["family-tree", "generations", "relationships", "convergences", "timeline"],
       deep: ["human", "sky", "creation", "sefer"],
-      evidence: ["matrix", "evidence", "sources", "coverage", "private-hints", "guide"],
-      soon: ["els", "hint-analysis", "raziel"],
+      evidence: ["matrix", "evidence", "sources", "coverage", "private-hints", "hint-analysis", "guide"],
+      soon: ["els", "raziel"],
     };
     await atlas.waitFor();
     for (const [group, ids] of Object.entries(GROUPS)) {
@@ -113,14 +113,16 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
     assert.equal(await lifeMaps.getByRole("tablist").count(), 0, "the 13-tab row is gone from the face of the screen");
     assert.equal(await atlas.locator("details").count(), 0, "the atlas is not an accordion");
     assert.equal(await lifeMaps.locator(".person-journey-map-panel").count(), 0, "no map is open until a card is chosen");
-    for (const id of ["els", "hint-analysis", "raziel"]) {
+    for (const id of ["els", "raziel"]) {
       assert.equal(await card(id).locator("[data-atlas-action]").count(), 0, `${id} has no action: it is future-only`);
       assert.equal(await card(id).getAttribute("data-kind"), "future");
     }
     assert.equal(await card("els").getAttribute("data-state"), "not_connected");
     assert.equal(await card("els").locator(".life-atlas__state").innerText(), "ממתין לחיבור");
     assert.equal(await card("private-hints").getAttribute("data-state"), "references");
-    assert.equal(await card("hint-analysis").getAttribute("data-state"), "building");
+    assert.equal(await card("hint-analysis").getAttribute("data-state"), "references");
+    assert.equal(await card("hint-analysis").getAttribute("data-kind"), "map");
+    assert.equal(await card("hint-analysis").locator("[data-atlas-action]").count(), 1, "hint analysis is now visibly available through the private hint branch");
     assert.equal(await card("raziel").getAttribute("data-state"), "building");
     assert.equal(await card("raziel").locator("button").count(), 0, "Raziel preview is display-only");
     for (const id of ["name", "date", "time", "generations", "matrix", "human"]) assert.equal(await card(id).locator("svg").count(), 1, `${id} has its own illustration`);
@@ -161,7 +163,7 @@ test("Life Journey 2029 obeys Design V2 typography, fonts and 44px targets with 
     // Every existing map is reachable from its card; none starts research.
     const callsBeforeMaps = await counters();
     const mapCards = await lifeMaps.locator('[data-map-card][data-kind="map"]').evaluateAll(nodes => nodes.map(node => node.dataset.mapCard));
-    assert.equal(mapCards.length, 16, "every map view, including private hints, has a card");
+    assert.equal(mapCards.length, 17, "every map view, including private hints and its explicit analysis entry, has a card");
     for (const id of mapCards) {
       await openCard(id);
       await lifeMaps.locator(".person-journey-map-panel").waitFor();

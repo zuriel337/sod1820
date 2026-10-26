@@ -74,7 +74,7 @@ function JourneyGuide({ data, onSelect }) {
       <p>{complete
         ? "השרשרת המחקרית מלאה. אפשר לחזור לכל תחנה בלי להפעיל את המנוע מחדש."
         : data.nextStep ? "ההמשך פותח את התצוגה המתאימה בלבד. מחקר חדש יתחיל רק בלחיצה המפורשת באזור המחקר המשפחתי."
-          : "הבדיקות הזמינות הושלמו. ELS ופענוח הרמזים עדיין ממתינים לחיבור."}</p>
+          : "הבדיקות הזמינות הושלמו. בדיקת רמזים ופענוח רזיאל זמינים בענף הפרטי; ELS עדיין ממתין לחיבור."}</p>
       {data.nextStep ? <button type="button" onClick={() => onSelect(data.nextStep.tab)}>המשך ל־{data.nextStep.label}</button> : <span>{complete ? "המסלול הושלם" : "המסע ממשיך — השכבות הבאות טרם נבדקו"}</span>}
     </footer>
   </section>;
@@ -322,7 +322,7 @@ function PathMap({ data }) {
   </div>;
 }
 
-function MapPanel({ active, atlasMode, projection, hintState, onSaveHint, hintInvestigations, onInvestigateHint, onSelect, onBirthCalculationChange, birthReflections, birthFocus, focusedMemberRef, onPersonFocus }) {
+function MapPanel({ active, atlasMode, projection, hintState, onSaveHint, hintInvestigations, onInvestigateHint, onExplainHint, onSelect, onBirthCalculationChange, birthReflections, birthFocus, focusedMemberRef, onPersonFocus }) {
   if (active === "matrix") return <MatrixMap rows={projection.matrix} />;
   if (active === "generations") return <GenerationsMap data={projection.generations} />;
   if (active === "relationships") return <RelationshipsMap rows={projection.relationships} ready={projection.overview.researchReady} />;
@@ -344,13 +344,13 @@ function MapPanel({ active, atlasMode, projection, hintState, onSaveHint, hintIn
   />;
   if (active === "sources") return <SourcesMap data={projection.sources} ready={projection.overview.researchReady} />;
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
-  if (active === "hints") return <LifeJourneyHints2029 state={hintState} members={projection.coverage} onSave={onSaveHint} investigationState={hintInvestigations} onInvestigate={onInvestigateHint} onOpenTimeline={() => onSelect("timeline")} />;
+  if (active === "hints") return <LifeJourneyHints2029 state={hintState} members={projection.coverage} onSave={onSaveHint} investigationState={hintInvestigations} onInvestigate={onInvestigateHint} onExplain={onExplainHint} onOpenTimeline={() => onSelect("timeline")} />;
   if (active === "summary") return <LifeJourneyPicture2029 data={projection.picture} summary={projection.summary} onSelect={onSelect} focusedMemberRef={focusedMemberRef} onPersonFocus={onPersonFocus}><JourneyGuide data={projection.path} onSelect={onSelect} /></LifeJourneyPicture2029>;
   if (active === "path") return <PathMap data={projection.path} />;
   return <OverviewMap data={projection.overview} path={projection.path} onSelect={onSelect} showStations={atlasMode} />;
 }
 
-export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange, hintState, onSaveHint, hintInvestigations, onInvestigateHint, includeProgramBranches = false, onOpenCapability }) {
+export default function LifeJourneyMaps2029({ members, relations, selectedRefs, research, analysis, birthReflections, onBirthCalculationChange, context, birthTimeline, position, onPositionChange, hintState, onSaveHint, hintInvestigations, onInvestigateHint, onExplainHint, includeProgramBranches = false, onOpenCapability }) {
   const [localPosition, setLocalPosition] = useState({ tab: "summary", memberRef: "", lens: "spatial" });
   const currentPosition = position || localPosition;
   const active = currentPosition.tab;
@@ -448,7 +448,7 @@ export default function LifeJourneyMaps2029({ members, relations, selectedRefs, 
         <button type="button" onClick={closePanel}>חזרה לאטלס</button>
       </div> : null}
       <Suspense fallback={<LazyMapLoading />}>
-        <MapPanel active={active} atlasMode={atlasMode} projection={projection} hintState={hintState} onSaveHint={onSaveHint} hintInvestigations={hintInvestigations} onInvestigateHint={onInvestigateHint} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
+        <MapPanel active={active} atlasMode={atlasMode} projection={projection} hintState={hintState} onSaveHint={onSaveHint} hintInvestigations={hintInvestigations} onInvestigateHint={onInvestigateHint} onExplainHint={onExplainHint} onSelect={selectMap} onBirthCalculationChange={onBirthCalculationChange} birthReflections={birthReflections} birthFocus={birthFocus} focusedMemberRef={focusedMemberRef} onPersonFocus={focusPerson} />
       </Suspense>
     </div> : null}
     <footer>{includeProgramBranches ? "תצוגה פרטית בלבד · הרמזים הקיימים מחוברים בהפניה · ELS ממתין לחיבור · ללא Graph או store חדש" : "תצוגה פרטית בלבד · ללא ELS · ללא Graph או store חדש"}</footer>

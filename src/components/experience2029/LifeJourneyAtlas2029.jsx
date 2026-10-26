@@ -59,6 +59,7 @@ const GROUPS = Object.freeze([
       { id: "sources", title: "מקורות ופסוקים", blurb: "פסוקים וביטויים בעלי אותו ערך, ממאגר מאומת.", art: "sources", kind: "map", tab: "sources", action: "פתח את המקורות" },
       { id: "coverage", title: "כיסוי המחקר", blurb: "מה נבדק לכל אדם ומה עדיין חסר, לא ציון איכות.", art: "coverage", kind: "map", tab: "coverage", action: "פתח את הכיסוי" },
       { id: "private-hints", title: "הרמזים הפרטיים שלי", blurb: "הפניות ותאריכי תצפית שכבר שמורים במסע הפרטי, ללא שכפול.", art: "hints", kind: "map", tab: "hints", action: "פתח את הרמזים" },
+      { id: "hint-analysis", title: "בדיקה ופענוח רמזים", blurb: "בדיקה קנונית ופענוח רזיאל מחבילת ראיות מוגבלת, ורק בשתי לחיצות מפורשות.", art: "raziel", kind: "map", tab: "hints", action: "פתח בדיקה ופענוח" },
       { id: "guide", title: "המסלול המודרך", blurb: "התחנות של המסע והצעד הבא, בלי להפעיל מנוע.", art: "guide", kind: "map", tab: "overview", action: "פתח את המסלול" },
     ],
   },
@@ -68,8 +69,7 @@ const GROUPS = Object.freeze([
     note: "מוצגים כדי שתראו את הכיוון. אינם פעילים.",
     cards: [
       { id: "els", title: "ELS", blurb: "חיפוש רצפי אותיות במרווחים, כענף מרכזי של המסע.", art: "els", kind: "future", future: "not_connected", featured: true },
-      { id: "hint-analysis", title: "פענוח רמזים ב־AI", blurb: "בדיקת הקשרים לתאריכים ולאנשים תופעל רק בעתיד ובלחיצה מפורשת.", art: "hints", kind: "future", future: "building" },
-      { id: "raziel", title: "חיבור רזיאל לתמונה המחקרית", blurb: "תצוגת עתיד בלבד: אין בה שיחה, זיכרון או קריאה.", art: "raziel", kind: "future", future: "building" },
+      { id: "raziel", title: "רזיאל על התמונה המחקרית המלאה", blurb: "פענוח הרמזים כבר מחובר; חיבור כל שכבות התמונה לפענוח אחד עדיין אינו פעיל.", art: "raziel", kind: "future", future: "building" },
     ],
   },
 ]);
@@ -124,7 +124,7 @@ function stateFor(card, ctx) {
     case "evidence": return researchReady ? has("checked") : { key: "waiting", enabled: true };
     case "sources": return sourceCount ? has("checked") : { key: "waiting", enabled: true };
     case "coverage": return selectedPeople ? has("available") : { key: "waiting", enabled: false };
-    case "private-hints": return has(["references", "no_references", "error"].includes(ctx.hintState) ? ctx.hintState : "waiting");
+    case "private-hints": case "hint-analysis": return has(["references", "no_references", "error"].includes(ctx.hintState) ? ctx.hintState : "waiting");
     case "guide": return has("available");
     default: return has("available");
   }
@@ -163,7 +163,7 @@ export default function LifeJourneyAtlas2029({ projection, members, focusedMembe
           const state = stateFor(card, ctx);
           const active = Boolean(panelOpen && card.kind === "map" && position.tab === card.tab && (!card.lens || position.lens === card.lens));
           const disabled = !state.enabled;
-          const hintCoverage = card.id === "private-hints" ? projection.synthesisPack.observations.hints : null;
+          const hintCoverage = ["private-hints", "hint-analysis"].includes(card.id) ? projection.synthesisPack.observations.hints : null;
           const hintDetail = hintCoverage?.state === "references"
             ? `${hintCoverage.referenceCount} הפניות פרטיות · ${hintCoverage.datedCount} עם תאריך מפורש`
             : hintCoverage?.state === "error" ? "הקריאה הפרטית לא הושלמה; לא מוצג מצב ריק מטעה."

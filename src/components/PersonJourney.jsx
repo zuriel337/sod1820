@@ -270,7 +270,7 @@ function FamilyAnalysisDisclosure({ variant, children }) {
   return <details className="person-journey-summary-disclosure"><summary>פירוט הסיכום המשפחתי</summary>{children}</details>;
 }
 
-function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, auth }) {
+function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, auth, onRequestHintExplanation }) {
   const { user, loading: authLoading } = auth;
   const userId = user?.id || null;
   const research = useResearch();
@@ -1209,6 +1209,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           onSaveHint={variant === "2029" ? savePrivateHint : undefined}
           hintInvestigations={variant === "2029" ? hintInvestigations : undefined}
           onInvestigateHint={variant === "2029" ? investigatePrivateHint : undefined}
+          onExplainHint={variant === "2029" ? onRequestHintExplanation : undefined}
           includeProgramBranches={variant === "2029"}
           onOpenCapability={variant === "2029" ? openMemberCapability : undefined}
         />
@@ -1746,7 +1747,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     </section>
 
     {variant === "2029" && CapabilitySurface && !selectedFamilyRefs.length
-      ? <CapabilitySurface view="hints" user={user} hintState={hintState} hintMembers={members} onSaveHint={savePrivateHint} hintInvestigations={hintInvestigations} onInvestigateHint={investigatePrivateHint} />
+      ? <CapabilitySurface view="hints" user={user} hintState={hintState} hintMembers={members} onSaveHint={savePrivateHint} hintInvestigations={hintInvestigations} onInvestigateHint={investigatePrivateHint} onExplainHint={onRequestHintExplanation} />
       : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">

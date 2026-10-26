@@ -39,6 +39,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const elsAdapter = read("src/lib/research/lifeJourneyElsAdapter.js");
   const elsSurface = read("src/components/experience2029/LifeJourneyEls2029.jsx");
   const hints = read("src/components/experience2029/LifeJourneyHints2029.jsx");
+  const hintExplanation = read("src/lib/research/lifeJourneyHintEvidenceExplanation.js");
   const home = read("src/pages/Home2029Page.jsx");
   const maintenanceLock = read("src/components/MaintenanceLock.jsx");
   const css = read("src/components/person-journey.css");
@@ -323,7 +324,15 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.doesNotMatch(hints, /getMyHints/);
   assert.match(hints, /buildLifeJourneyHintReferencePatch/);
   assert.match(hints, /פתח במספר/);
+  assert.match(hints, /buildLifeJourneyHintEvidenceExplanation/);
+  assert.match(hints, /בקש פענוח מרזיאל/);
   assert.doesNotMatch(hints, /addHint|removeHint|\.insert\(|\.update\(/);
+  assert.match(page, /useOptionalRazielSession2029/);
+  assert.match(page, /requestLifeJourneyHintEvidenceExplanation/);
+  assert.match(hintExplanation, /no_raw_hint_text_sent/);
+  assert.match(hintExplanation, /openRaziel\(\{ readingFocus:/);
+  assert.match(hintExplanation, /await submit\(submission\)/);
+  assert.doesNotMatch(hintExplanation, /new RazielSessionProvider|create.*Provider|localStorage|sessionStorage/);
 
   assert.match(supabaseClient, /fn_remove_family_member/);
   assert.match(removalMigration, /approved family claim must be reversed before member removal/);
@@ -333,9 +342,11 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.doesNotMatch(removalMigration, /create table|create policy|grant .* on (?:table )?public\.research_objects/i);
 
   const privateFlow = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familySourceResearch, familyAnalysis, lifeJourneyMaps, lifeJourneyMapProjection, synthesisPack, dateAdapter, elsSurface, hints].join("\n");
+  const privateCore = [journey, personContext, familyClaimAdapter, nameAdapter, nameResearch, familyResearch, familySourceResearch, familyAnalysis, lifeJourneyMapProjection, synthesisPack, dateAdapter, elsSurface].join("\n");
   assert.doesNotMatch(privateFlow, /\/2029\/journey\?/);
   assert.doesNotMatch(privateFlow, /channel_updates|community_hints|news/i);
-  assert.doesNotMatch(privateFlow, /Raziel|רזיאל/);
+  assert.doesNotMatch(privateCore, /Raziel|רזיאל/);
+  assert.doesNotMatch(lifeJourneyMaps, /useOptionalRazielSession2029|askRaziel|\.submit\(/);
   assert.doesNotMatch(privateFlow, /console\.(?:log|info|debug)/);
   assert.doesNotMatch(elsSurface, /Els2029Page|ElsAdvancedSearch2029|TzofenEmbed|ResearchProvider/);
 

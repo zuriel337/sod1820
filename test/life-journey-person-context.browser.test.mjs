@@ -228,6 +228,21 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.deepEqual(await page.evaluate(() => window.__sourceCalls.at(-1)), { kind: "number_lookup", value: 337 });
     assert.equal(JSON.stringify(await page.evaluate(() => window.__sourceCalls)).includes(privateObservation), false, "private hint narrative is not sent to the canonical number reader");
     assert.equal(JSON.stringify(await page.evaluate(() => window.__sourceCalls)).includes(privateQuestion), false, "private hint question is not sent to the canonical number reader");
+    assert.equal(await page.evaluate(() => (window.__razielCalls || []).length), 0, "bounded checks never start Raziel automatically");
+    const engineCountsBeforeExplanation = await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length, window.__sourceCalls.length]);
+    await boundedCheck.getByRole("button", { name: "בקש פענוח מרזיאל" }).click();
+    await boundedCheck.getByText("החבילה נשלחה בפעולה מפורשת והתשובה נפתחה ברזיאל.", { exact: true }).waitFor();
+    const explanationSubmission = await page.evaluate(() => window.__razielCalls[0]);
+    assert.equal(explanationSubmission.contract, "life_journey_hint_evidence_explanation_v1");
+    assert.match(explanationSubmission.facts, /confirmed_number=337/);
+    assert.match(explanationSubmission.facts, /canonical_source_match_1=.*אור/);
+    for (const privateValue of [privateObservation, privateQuestion, "ילד בדיקה", "הורה בדיקה", "2026-10-26", "2020-03-04", "person:"]) {
+      assert.equal(JSON.stringify(explanationSubmission).includes(privateValue), false, `${privateValue} stays outside the Raziel evidence request`);
+    }
+    assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length, window.__sourceCalls.length]), engineCountsBeforeExplanation, "requested explanation reuses checked evidence without rerunning any engine or ELS");
+    assert.equal(decodeURIComponent(page.url()).includes(privateObservation), false);
+    assert.equal(JSON.stringify(await page.evaluate(() => window.__lifeJourneyContext)).includes(privateQuestion), false);
+    assert.equal(JSON.stringify(await page.evaluate(() => window.__telemetry)).includes(privateObservation), false);
     await savedHint.getByRole("button", { name: "הצג בציר החיים" }).click();
     const hintTimeline = page.getByRole("region", { name: "תצפיות פרטיות מתוארכות" });
     await hintTimeline.getByText("תצפית פרטית · ילד בדיקה", { exact: true }).waitFor();

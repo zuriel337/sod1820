@@ -15,6 +15,11 @@ function FixtureBody() {
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
+  const requestHintExplanation = React.useCallback(async submission => {
+    window.__razielCalls = window.__razielCalls || [];
+    window.__razielCalls.push(submission);
+    return { ok: true, response: { answer: "פענוח בדיקה" } };
+  }, []);
   if (location.pathname.startsWith("/2029/number/")) {
     const value = location.pathname.split("/").filter(Boolean).at(-1);
     return <main data-experience-surface="number-2029-fixture">
@@ -28,7 +33,7 @@ function FixtureBody() {
       }}>חזרה מדויקת למסע החיים</button>
     </main>;
   }
-  return <PersonJourney variant="2029" CapabilitySurface={LifeJourneyCapabilities2029} />;
+  return <PersonJourney variant="2029" CapabilitySurface={LifeJourneyCapabilities2029} onRequestHintExplanation={requestHintExplanation} />;
 }
 
 // Same token projection as SystemFrame2029.shellStyle: real Design V2 palettes, type scale and typefaces.

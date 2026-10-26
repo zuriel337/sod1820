@@ -7,6 +7,10 @@ import {
 } from "../../lib/research/lifeJourneyHintCapture.js";
 import { projectLifeJourneyHintReferences } from "../../lib/research/lifeJourneyHintProjection.js";
 import { lifeJourneyHintInvestigationErrorMessage } from "../../lib/research/lifeJourneyHintInvestigation.js";
+import {
+  buildLifeJourneyHintEvidenceExplanation,
+  lifeJourneyHintExplanationErrorMessage,
+} from "../../lib/research/lifeJourneyHintEvidenceExplanation.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { buildLifeJourneyHintReferencePatch } from "../../lib/research/lifeJourneyPersonContext.js";
 
@@ -43,7 +47,7 @@ function comparisonLabel(row) {
     : `${row.daysBetween} ימים לפני תאריך הלידה`;
 }
 
-function HintInvestigationResult({ state }) {
+function HintInvestigationResult({ state, explanation, onExplain }) {
   if (!state) return null;
   if (state.state === "loading") return <div className="person-journey-hint-check-state" role="status" aria-busy="true">בודק תאריך ומספר מול המקורות הקיימים…</div>;
   if (state.state === "error") return <div className="person-journey-error" role="alert">{lifeJourneyHintInvestigationErrorMessage(state.error)}</div>;
@@ -62,10 +66,16 @@ function HintInvestigationResult({ state }) {
     {result.number.sourceState === "error" ? <p className="person-journey-hint-check-warning">מקור המספר לא היה זמין; לא הומצאה תוצאה חלופית.</p> : null}
     {empty ? <p>לא נמצאה כרגע התאמה בשדות שנבדקו. זו תוצאת בדיקה תקינה, לא הוכחה שאין קשר.</p> : null}
     <footer>הבדיקה לא קראה את סיפור הרמז, לא חיפשה שמות, ואינה מוכיחה סיבתיות, גורל או משמעות.</footer>
+    <div className="person-journey-hint-explanation">
+      <div><strong>פענוח רזיאל</strong><small>רזיאל יקבל רק את חבילת הראיות שלמעלה, בלי הסיפור, השאלה, שמות או תאריכים מדויקים.</small></div>
+      <button type="button" disabled={explanation?.state === "loading" || typeof onExplain !== "function"} onClick={onExplain}>{explanation?.state === "loading" ? "פותח את רזיאל…" : "בקש פענוח מרזיאל"}</button>
+      {explanation?.state === "ready" ? <p role="status">החבילה נשלחה בפעולה מפורשת והתשובה נפתחה ברזיאל.</p> : null}
+      {explanation?.state === "error" ? <p className="person-journey-hint-check-warning" role="alert">{lifeJourneyHintExplanationErrorMessage(explanation.error)}</p> : null}
+    </div>
   </section>;
 }
 
-export default function LifeJourneyHints2029({ state = { loading: true, rows: [], error: null }, members = [], onSave, investigationState = null, onInvestigate, onOpenTimeline }) {
+export default function LifeJourneyHints2029({ state = { loading: true, rows: [], error: null }, members = [], onSave, investigationState = null, onInvestigate, onExplain, onOpenTimeline }) {
   const navigate = useNavigate();
   const research = useResearch();
   const [mode, setMode] = useState("list");
@@ -73,6 +83,7 @@ export default function LifeJourneyHints2029({ state = { loading: true, rows: []
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState(null);
   const [openingError, setOpeningError] = useState(null);
+  const [explanation, setExplanation] = useState(null);
   const memberRows = useMemo(() => normalizeMembers(members), [members]);
   const memberNames = useMemo(() => new Map(memberRows.map(member => [member.memberRef, member.name])), [memberRows]);
   const authorizedMemberRefs = useMemo(() => memberRows.map(member => member.memberRef), [memberRows]);
@@ -119,6 +130,23 @@ export default function LifeJourneyHints2029({ state = { loading: true, rows: []
     if (!patch || !research.setResearchContext?.(patch)) return setOpeningError("לא ניתן לפתוח כרגע את ההפניה השמורה.");
     navigate(patch.subject.href);
   };
+  const requestExplanation = async (hintId, checkedResult) => {
+    if (explanation?.state === "loading" || typeof onExplain !== "function") return;
+    const built = buildLifeJourneyHintEvidenceExplanation(checkedResult);
+    if (!built.ok) {
+      setExplanation({ hintId, state: "error", error: built.error });
+      return;
+    }
+    setExplanation({ hintId, state: "loading", error: null });
+    try {
+      const result = await onExplain(built.submission);
+      setExplanation(result?.ok
+        ? { hintId, state: "ready", error: null }
+        : { hintId, state: "error", error: result?.error || "raziel_unavailable" });
+    } catch {
+      setExplanation({ hintId, state: "error", error: "transport_failed" });
+    }
+  };
 
   return <section className="person-journey-panel" data-experience-capability="life-journey-hint-references">
     <div className="person-journey-section-head"><div><small>04</small><h2>הרמזים האישיים שלי</h2></div><span>פרטי · באותו עץ</span></div>
@@ -159,8 +187,9 @@ export default function LifeJourneyHints2029({ state = { loading: true, rows: []
       const associatedName = reference.personRef ? memberNames.get(reference.personRef) : null;
       const check = investigationState instanceof Map ? investigationState.get(hint.id) : investigationState?.[hint.id];
       const canInvestigate = date.state === "dated" || hasNumberReference;
-      return <article key={hint.id}><div><strong>{hint.title || "רמז שמור"}</strong><small>{hint.number != null ? `מספר ${hint.number}` : hint.hint_type}</small><small>{date.state === "dated" ? <>מועד האירוע: <bdi>{date.dateIso}</bdi> · {date.hebrewDate} · ייצוג יום אזרחי, ללא קביעת שעת שקיעה</> : date.state === "unknown" ? "מועד האירוע לא צוין" : "מועד האירוע דורש הבהרה לפני בדיקה"}</small><small>{associatedName ? `משויך במפורש אל ${associatedName}` : "ללא שיוך אישי מאושר"}</small>{hint.note || hint.research_question ? <details><summary>פתח את התצפית הפרטית</summary>{hint.note ? <p>{hint.note}</p> : null}{hint.research_question ? <p><b>מה רציתי להבין:</b> {hint.research_question}</p> : null}</details> : null}</div><div className="person-journey-hint-actions">{canInvestigate && onInvestigate ? <button type="button" disabled={check?.state === "loading"} onClick={() => onInvestigate(hint.id)}>{check?.state === "loading" ? "בודק…" : check?.state === "ready" ? "בדוק שוב" : "בדוק תאריך ומספר"}</button> : <span>נדרש תאריך מדויק או מספר לבדיקה</span>}{hasNumberReference ? <button type="button" onClick={() => openNumberReference(number)}>פתח במספר {number}</button> : null}{href ? <a href={href} target="_blank" rel="noreferrer">פתח מקור קיים</a> : null}{date.state === "dated" && onOpenTimeline ? <button type="button" onClick={onOpenTimeline}>הצג בציר החיים</button> : null}</div><HintInvestigationResult state={check} /></article>;
+      const hintExplanation = explanation?.hintId === hint.id ? explanation : null;
+      return <article key={hint.id}><div><strong>{hint.title || "רמז שמור"}</strong><small>{hint.number != null ? `מספר ${hint.number}` : hint.hint_type}</small><small>{date.state === "dated" ? <>מועד האירוע: <bdi>{date.dateIso}</bdi> · {date.hebrewDate} · ייצוג יום אזרחי, ללא קביעת שעת שקיעה</> : date.state === "unknown" ? "מועד האירוע לא צוין" : "מועד האירוע דורש הבהרה לפני בדיקה"}</small><small>{associatedName ? `משויך במפורש אל ${associatedName}` : "ללא שיוך אישי מאושר"}</small>{hint.note || hint.research_question ? <details><summary>פתח את התצפית הפרטית</summary>{hint.note ? <p>{hint.note}</p> : null}{hint.research_question ? <p><b>מה רציתי להבין:</b> {hint.research_question}</p> : null}</details> : null}</div><div className="person-journey-hint-actions">{canInvestigate && onInvestigate ? <button type="button" disabled={check?.state === "loading"} onClick={() => { if (explanation?.hintId === hint.id) setExplanation(null); onInvestigate(hint.id); }}>{check?.state === "loading" ? "בודק…" : check?.state === "ready" ? "בדוק שוב" : "בדוק תאריך ומספר"}</button> : <span>נדרש תאריך מדויק או מספר לבדיקה</span>}{hasNumberReference ? <button type="button" onClick={() => openNumberReference(number)}>פתח במספר {number}</button> : null}{href ? <a href={href} target="_blank" rel="noreferrer">פתח מקור קיים</a> : null}{date.state === "dated" && onOpenTimeline ? <button type="button" onClick={onOpenTimeline}>הצג בציר החיים</button> : null}</div><HintInvestigationResult state={check} explanation={hintExplanation} onExplain={check?.state === "ready" && onExplain ? () => requestExplanation(hint.id, check.result) : null} /></article>;
     })}</div> : null}
-    <p className="person-journey-note">תוצאות הבדיקה נשמרות בזיכרון המסך בלבד ואינן משנות את הרמז. פענוח AI ו־ELS יופעלו רק בפעולה נפרדת לאחר חיבור החוזים המתאימים.</p>
+    <p className="person-journey-note">תוצאות הבדיקה נשמרות בזיכרון המסך בלבד ואינן משנות את הרמז. פענוח רזיאל מופעל רק בכפתור נפרד; ELS עדיין ממתין לחיבור.</p>
   </section>;
 }
