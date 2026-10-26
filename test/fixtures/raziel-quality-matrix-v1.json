@@ -1,0 +1,43 @@
+{
+  "version": "raziel-quality-matrix-v1",
+  "description": "Deterministic local acceptance corpus for Raziel routing and conversation continuity. No live model or network is required.",
+  "cases": [
+    { "id": "expression-plain-1", "group": "expression", "question": "בדוק לי גימטריה של שאול", "expect": { "label": "שאול", "action": "research" } },
+    { "id": "expression-plain-2", "group": "expression", "question": "תן לי את הגימטריות של השם שאול", "expect": { "label": "שאול", "action": "research" } },
+    { "id": "expression-plain-3", "group": "expression", "question": "המילה שאול", "expect": { "label": "שאול", "action": "research" } },
+    { "id": "expression-plain-4", "group": "expression", "question": "הביטוי אור הגאולה", "expect": { "label": "אור הגאולה", "action": "research" } },
+    { "id": "expression-connect-1", "group": "expression", "question": "חשב את צוריאל ומצא הצלבות", "expect": { "label": "צוריאל", "action": "connect" } },
+    { "id": "expression-connect-2", "group": "expression", "question": "תן לי את הגימטריה של ראיתי דבר מתוך דבר ובדוק הצלבות", "expect": { "label": "ראיתי דבר מתוך דבר", "action": "connect" } },
+    { "id": "expression-order-1", "group": "expression", "question": "שאול בגימטריה כמה זה", "expect": { "label": "שאול", "action": "research" } },
+    { "id": "expression-order-2", "group": "expression", "question": "כמה זה שאול בגימטריה תחשב", "expect": { "label": "שאול", "action": "research" } },
+
+    { "id": "method-hidden", "group": "method", "question": "חשב את שאול בשיטת מסתתר ומצא הצלבות", "expect": { "label": "שאול", "action": "connect", "method": "מסתתר" } },
+    { "id": "method-triangle-1", "group": "method", "question": "תחשב לי את חכמה בשיטת משולש", "expect": { "label": "חכמה", "action": "research", "method": "קדמי" } },
+    { "id": "method-triangle-2", "group": "method", "question": "כמה זה משיח במשולש", "expect": { "label": "משיח", "action": "research", "method": "קדמי" } },
+    { "id": "method-triangle-3", "group": "method", "question": "מה הגימטריה של משיח במשולש", "expect": { "label": "משיח", "action": "research", "method": "קדמי" } },
+    { "id": "method-triangle-4", "group": "method", "question": "משיח במשולש כמה זה", "expect": { "label": "משיח", "action": "research", "method": "קדמי" } },
+    { "id": "method-hidden-natural", "group": "method", "question": "כמה שווה משיח בשיטת מסתתר", "expect": { "label": "משיח", "action": "research", "method": "מסתתר" } },
+    { "id": "method-word-triangle", "group": "method", "question": "תחשב לי את משיח בשיטת משולש מילה", "expect": { "label": "משיח", "action": "research", "method": "משולש מילה" } },
+    { "id": "method-milui-demilui", "group": "method", "question": "מה שווה אור הגאולה בשיטת מילוי דמילוי", "expect": { "label": "אור הגאולה", "action": "research", "method": "מילוי דמילוי" } },
+
+    { "id": "number-777", "group": "number", "question": "מה יש לך על המספר 777", "expect": { "value": 777, "action": "understand" } },
+    { "id": "number-878", "group": "number", "question": "תן לי מידע על המספר 878", "expect": { "value": 878, "action": "understand" } },
+    { "id": "number-776", "group": "number", "question": "מה אומר לי המספר 776", "expect": { "value": 776, "action": "understand" } },
+    { "id": "number-bare-label", "group": "number", "question": "מספר 337", "expect": { "value": 337, "action": "understand" } },
+
+    { "id": "number-pair-compare", "group": "number_pair", "question": "השווה בין 776 ל־1820", "expect": { "values": [776, 1820], "action": "connect" } },
+    { "id": "number-pair-research", "group": "number_pair", "question": "חקור את 776 מול 1820", "expect": { "values": [776, 1820], "action": "research" } },
+    { "id": "number-pair-connect", "group": "number_pair", "question": "מצא קשר בין 776 ל־1820", "expect": { "values": [776, 1820], "action": "connect" } },
+    { "id": "expression-pair", "group": "expression_pair", "question": "מה הקשר בין חכמה לבינה", "expect": { "labels": ["חכמה", "בינה"], "action": "connect" } },
+
+    { "id": "continuation-all-methods", "group": "continuation", "question": "בכל השיטות", "prior": { "type": "phrase", "label": "שאול" }, "expect": { "label": "שאול", "action": "research", "allMethods": true } },
+    { "id": "continuation-triangle", "group": "continuation", "question": "התכוונתי בשיטת המשולש תבדוק לי", "prior": { "type": "phrase", "label": "משיח" }, "expect": { "label": "משיח", "action": "research", "method": "קדמי" } },
+    { "id": "continuation-connect", "group": "continuation", "question": "תחשב את זה בכל השיטות ומצא הצלבות", "prior": { "type": "phrase", "label": "שאול" }, "expect": { "label": "שאול", "action": "connect", "allMethods": true } },
+
+    { "id": "guidance-missing-name", "group": "guidance", "question": "תחשב לי את השם שלי", "expect": { "kind": "missing_name_expression" } },
+    { "id": "act-thanks", "group": "act", "question": "תודה רבה", "expect": { "act": "acknowledgement" } },
+    { "id": "reject-placeholder", "group": "reject", "question": "המילה הזאת" },
+    { "id": "reject-gibberish", "group": "reject", "question": "nv ha kl gk vdhnyrhv ak atuk" },
+    { "id": "reject-year", "group": "reject", "question": "בדוק את שנת 2024" }
+  ]
+}
