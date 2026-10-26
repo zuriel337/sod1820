@@ -639,18 +639,19 @@ export default function ContributorPage() {
   }, [c?.user_id, c?.display_name]);
 
   // נעול / בבנייה / לא-רשום/פרטי / תיק-ריק → לא נכנס לאינדקס.
-  // שומר-איכות רך (researcher_dossier_law): תיק בלי צפנים/מדיה/מחקרים = noindex עד שיש תוכן —
+  // שומר-איכות רך (researcher_dossier_law): תיק בלי תוכן ציבורי = noindex עד שיש תוכן —
   // פתיחות לכולם בלי להציף את גוגל באלפי דפים-דלים. (אין סף-דרגה — «חוקר»=תג-כבוד בלבד.)
   useEffect(() => {
     const vis = c?.dossier_settings?.visibility || "public";
     const mediaCount = Array.isArray(c?.media) ? c.media.length : 0;
-    const hasContent = (dossierCount || 0) > 0 || mediaCount > 0 || posts.length > 0;
-    if (!c?.locked && !c?.building && vis === "public" && hasContent) return;
+    // ההתכנסויות מגיעות מ-topic_cards_public, ולא מעדשת private/candidate של המנהל.
+    const hasContent = (dossierCount || 0) > 0 || mediaCount > 0 || posts.length > 0 || convergences.length > 0;
+    if (c && !c.locked && !c.building && vis === "public" && hasContent) return;
     const m = document.createElement("meta");
     m.name = "robots"; m.content = "noindex";
     document.head.appendChild(m);
     return () => { try { document.head.removeChild(m); } catch { /* noop */ } };
-  }, [c?.locked, c?.building, c?.dossier_settings?.visibility, c?.media, dossierCount, posts.length]);
+  }, [c, dossierCount, posts.length, convergences.length]);
 
   // 📝 הפוסטים על שמו — עדשה על posts. כולל פוסטים שכתב (author) וגם שהשתתף בהם (authors[]).
   // «participated» = הכתב הראשי הוא מישהו אחר → מסומן «בהשתתפות».
