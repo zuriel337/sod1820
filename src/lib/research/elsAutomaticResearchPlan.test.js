@@ -1,8 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  diagnoseElsGuidedFailure,
   prepareElsAutomaticResearchPlan,
   prepareElsCipherDiscoveryPlan,
+  projectElsGuidedOccurrenceCoverage,
   runElsAutomaticResearchSlice,
   summarizeElsAutomaticPlan,
   summarizeElsGuidedDiscoveryPlan,
@@ -39,6 +41,95 @@ test("a quoted or explicit axis wins without a cipher-specific rule", () => {
   const explicit = prepareElsCipherDiscoveryPlan({ text: "הקשר ארוך", anchorTerm: "אורניום", requiredTerms: "איראן; ארהב" });
   assert.equal(explicit.anchorCandidates[0].term, "אורניום");
   assert.deepEqual(explicit.contextCandidates.filter(row => row.required).map(row => row.term), ["איראן", "ארהב"]);
+});
+
+const guidedPlan = () => prepareElsCipherDiscoveryPlan({
+  text: "מעבורת החלל קולומביה התפרקה ועלתה באש",
+  anchorTerm: "קולומביה",
+  requiredTerms: "ספינת\nיכל אש",
+});
+const guidedOccurrences = count => Array.from({ length: count }, (_, index) => ({
+  hitId: `hit-${index + 1}`, ordinal: index + 1, skip: index === 1 ? 4545 : 31 + index,
+  dir: index % 2 ? -1 : 1, start: 1000 + index * 100, ref: `מקור ${index + 1}`, setId: "set-current",
+}));
+const guidedInspection = (hitId, {
+  status = "VERIFIED_PAIR",
+  relation = { code: "EXACT_INTERSECTION", label: "חצייה", priority: 600, stage: "A" },
+  terms = ["ממצאא", "ממצאבח"], storyMatches = 0, failureCause = null, setId = "set-current",
+} = {}) => ({
+  lens: "matrix-discovery", ok: true, contract: "els_matrix_discovery_v1", target: { hitId, setId },
+  discoveryBundle: {
+    contract: "els_cipher_discovery_plan_v1", status, failureCause,
+    selected: status === "VERIFIED_PAIR" ? {
+      relation, storyMatches, reasons: ["זוג שעבר אימות קנוני"],
+      supports: terms.map((term, index) => ({
+        term, label: term, status: "VERIFIED", skip: 17 + index, direction: index ? "back" : "fwd",
+        occurrenceCount: 1, matrixStage: relation.stage, ref: `מקור ${index + 1}`, book: "בראשית",
+      })),
+    } : null,
+  },
+});
+
+test("guided coverage inspects exactly four canonical occurrences before explicit continuation", () => {
+  const occurrences = guidedOccurrences(9);
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences });
+  assert.equal(coverage.contract, "els_guided_occurrence_coverage_v1");
+  assert.equal(coverage.status, "INSPECTING");
+  assert.equal(coverage.coverage.scheduledCount, 4);
+  assert.equal(coverage.coverage.remainingUnscheduledCount, 5);
+  assert.equal(coverage.coverage.uninspectedAreNotNegativeEvidence, true);
+  assert.equal(coverage.selectionLaw.numericSkipPromoted, false);
+  assert.equal(coverage.aiUsed, false);
+  assert.equal(coverage.findingMutation, false);
+});
+
+test("strong verified geometry outranks a memorable numeric skip", () => {
+  const occurrences = guidedOccurrences(4);
+  const numeric = guidedInspection("hit-2", {
+    relation: { code: "SAME_OR_NEAR_SKIP", label: "דילוג סמוך", priority: 380, stage: "B" }, storyMatches: 2,
+  });
+  const geometric = guidedInspection("hit-1");
+  const misses = ["hit-3", "hit-4"].map(hitId => guidedInspection(hitId, { status: "NO_CANDIDATE_PAIR", failureCause: "MATRIX_BOUNDS" }));
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [numeric, geometric, ...misses] });
+  assert.equal(occurrences[1].skip, 4545);
+  assert.equal(coverage.recommendation.hitId, "hit-1");
+  assert.equal(coverage.stopReason, "STRONG_VERIFIED_PAIR");
+});
+
+test("guided coverage waits after four misses and admits only four more after continuation", () => {
+  const occurrences = guidedOccurrences(10);
+  const misses = occurrences.slice(0, 4).map(row => guidedInspection(row.hitId, { status: "NO_CANDIDATE_PAIR", failureCause: "MATRIX_BOUNDS" }));
+  const first = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: misses });
+  assert.equal(first.status, "AWAITING_CONTINUATION");
+  assert.equal(first.coverage.scheduledCount, 4);
+  assert.ok(first.inspections.every(row => row.failure.category === "matrix_bounds"));
+  const second = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: misses, approvedBatches: 2 });
+  assert.equal(second.status, "INSPECTING");
+  assert.equal(second.coverage.scheduledCount, 8);
+  assert.equal(second.nextOccurrence.hitId, "hit-5");
+});
+
+test("stale and out-of-batch reports never become guided evidence", () => {
+  const occurrences = guidedOccurrences(6);
+  const coverage = projectElsGuidedOccurrenceCoverage({
+    plan: guidedPlan(), occurrences, resultSetId: "set-current",
+    inspections: [
+      { ...guidedInspection("hit-2"), target: { hitId: "hit-2", setId: "set-old" } },
+      guidedInspection("hit-5"), guidedInspection("hit-1"), guidedInspection("hit-1"),
+    ],
+  });
+  assert.equal(coverage.recommendation.hitId, "hit-1");
+  assert.deepEqual(coverage.rejectedInspections.map(row => row.reason), ["STALE_RESULT_SET", "OUTSIDE_APPROVED_BATCH", "DUPLICATE_REPORT"]);
+});
+
+test("guided failure categories stay explicit and unknown causes fail closed", () => {
+  assert.equal(diagnoseElsGuidedFailure("VOCABULARY_MISS").category, "vocabulary");
+  assert.equal(diagnoseElsGuidedFailure("NORMALIZATION").category, "recognition_normalization");
+  assert.equal(diagnoseElsGuidedFailure("NO_STRONG_GEOMETRY").category, "geometry");
+  assert.equal(diagnoseElsGuidedFailure("RANKING").category, "ranking");
+  assert.equal(diagnoseElsGuidedFailure("MATRIX_BOUNDS").category, "matrix_bounds");
+  assert.equal(diagnoseElsGuidedFailure("UI_PROJECTION").category, "ui_projection");
+  assert.equal(diagnoseElsGuidedFailure("unexpected").diagnosisRequired, true);
 });
 
 test("automatic plan derives each expression once, explains every form and deduplicates canonical terms", () => {

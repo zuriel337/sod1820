@@ -92,7 +92,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:true,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:true,guidedProfile:!!window.__fixtureGuided,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -213,7 +213,7 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
@@ -260,8 +260,9 @@ async function withNative(viewport, run, options = {}) {
     const errors = [];
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
-    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender }) => {
+    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided }) => {
       window.__fixtureFullFrame=fullFrame;
+      window.__fixtureGuided=guided;
       if (onboarded) localStorage.setItem('tzofen_onboarded_v1', '1');
       window.__fixtureLoadGolden = loadGolden;
       window.__fixtureTier = tier;
@@ -288,7 +289,7 @@ async function withNative(viewport, run, options = {}) {
       if (window !== window.parent) addEventListener('message', (event) => {
         if (event.source === window.parent && event.data?.source === 'sod-host') (window.parent.__hostLog ||= []).push(event.data);
       });
-    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender });
+    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided });
     if (realHost && loadGolden) await page.addInitScript((item) => { window.__fixtureGolden = item; }, golden);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     if (loadGolden) {
@@ -1556,6 +1557,52 @@ test('native presentation: verse words alternate from either entry and camera re
   assert.equal(await page.locator('.is-verse-word').count(),0);assert.equal(await presenter.count(),0,'new search clears presentation and its timer');
  });
 });
+
+test('guided discovery inspects at most four exact occurrences, keeps raw runs advanced and fits 320px',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+  for(const width of [320,1440])await withNative({width,height:900},async page=>{
+    await page.evaluate(()=>window.__loadResearch({
+      contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,researchNonce:1,
+      term:'יהוה',scope:'torah',contextTerms:[{term:'משה'},{term:'תורה'},{term:'ישראל'}],
+      discoveryGoal:{primaryAxes:1,connectedSupports:2,sourceSequence:'WHEN_AVAILABLE',resultPolicy:'ONE_BEST_STRUCTURE'},
+    }));
+    await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation.status==='done',null,{timeout:90000});
+    const coverage=page.locator('[data-els-guided-occurrence-coverage="v1"]');
+    await coverage.waitFor({timeout:120000});
+    await page.waitForFunction(()=>{
+      const node=document.querySelector('[data-els-guided-occurrence-coverage="v1"]');
+      return node&&(/נבדקו [1-4] מתוך/.test(node.textContent)||node.textContent.includes('הבדיקה הראשונה הושלמה')||node.textContent.includes('נמצא חיבור חזק'));
+    },null,{timeout:120000});
+    const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-discovery'));
+    assert.ok(requests.length>=1&&requests.length<=4,'the automatic first wave stays within four occurrences');
+    assert.ok(requests.every(message=>message.target.guidedOccurrenceCoverage===true&&message.target.setId&&message.target.hitId));
+    assert.equal(await page.evaluate(()=>window.__hostLog.some(message=>message.type==='update-findings')),false,'inspection never adds findings without the explicit button');
+    assert.ok((await coverage.innerText()).includes('מופעים מאומתים'),'exact axis count is separate from local discoveries');
+    assert.equal(await coverage.getByText(/דפוסים גולמיים/).count()<=1,true,'raw patterns have one advanced disclosure only');
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'guided package has no horizontal page overflow');
+  },{realHost:true,loadGolden:false,mobile:width===320,guided:true});
+ });
+
+test('guided golden: מקדש ירד keeps two exact axes and recognizes the general defective spelling ירושלם',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+    await page.evaluate(()=>window.__loadResearch({
+      contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,researchNonce:2,
+      term:'מקדש ירד',scope:'torah',contextTerms:[],
+      discoveryGoal:{primaryAxes:1,connectedSupports:2,sourceSequence:'WHEN_AVAILABLE',resultPolicy:'ONE_BEST_STRUCTURE'},
+    }));
+    await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation.status==='done',null,{timeout:90000});
+    assert.equal(await page.evaluate(()=>window.__state.search.occurrences.total),2,'the exact axis count remains two');
+    await page.waitForFunction(()=>window.__log?.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok).length===2,null,{timeout:90000});
+    const reports=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok));
+    const recognized=reports.flatMap(report=>report.items||[]).find(item=>item.term==='ירושלמ');
+    assert.ok(recognized,`the general plene/defective recognizer sees the exact matrix letters; reports=${JSON.stringify(reports.map(report=>({axis:report.axis,items:report.items,raw:report.rawPatterns?.slice(0,8),failure:report.discoveryBundle?.failureCause,budget:report.budget})))}`);
+    assert.ok(recognized.occurrenceCount>=2,'the recognized form repeats twice in the bounded matrix');
+    assert.equal(recognized.readingLabel,'ירושלים','the fuller reading stays annotation, not replacement text');
+    const packageText=await page.locator('[data-els-guided-occurrence-coverage="v1"]').innerText();
+    assert.match(packageText,/ירושלם/,'the recognized exact form is visible in the guided research package');
+  },{realHost:true,loadGolden:false,mobile:true,guided:true});
+ });
 
 test('native results: regular and crossed searches expose selectable results in Torah and Tanakh, with terminal recovery',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{

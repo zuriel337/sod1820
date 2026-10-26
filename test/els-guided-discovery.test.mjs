@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 const COMPONENT = new URL("../src/components/experience2029/ElsGuidedDiscovery2029.jsx", import.meta.url);
 const NATIVE = new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url);
 const PAGE = new URL("../src/pages/Els2029Page.jsx", import.meta.url);
+const ENGINE = new URL("../tools/els/els-code.template.html", import.meta.url);
 
 test("Guided Discovery is one explicit story window with no AI, persistence or transport", async () => {
   const source = await readFile(COMPONENT, "utf8");
@@ -20,18 +21,40 @@ test("Guided Discovery is one explicit story window with no AI, persistence or t
   assert.doesNotMatch(source, /save|insert|upsert/i);
 });
 
-test("Guided delegates axis and bounded findings to the one canonical mounted engine", async () => {
+test("Guided delegates one axis and bounded occurrence inspection to the canonical mounted engine", async () => {
   const source = await readFile(NATIVE, "utf8");
   assert.equal((source.match(/<TzofenEmbed/g) || []).length, 1);
   assert.match(source, /researchLoad\?\.researchCommand !== true/);
   assert.match(source, /researchLoad\.contract !== "els_anchor_context_request_v1"/);
   assert.match(source, /requestSearch\("regular", \{ term, scope:/);
-  assert.match(source, /next\?\.verification\?\.state === "MATCH"/);
+  assert.match(source, /engineState\?\.verification\?\.state === "MATCH"/);
   assert.match(source, /safeGuidedContextTerms/);
   assert.match(source, /if \(terms\.length >= 6\) break/);
-  assert.match(source, /requestFindingsChange\(findings\.slice\(0, 12\)\)/);
+  assert.match(source, /projectElsGuidedOccurrenceCoverage/);
+  assert.match(source, /lens: "matrix-discovery"/);
+  assert.match(source, /guidedOccurrenceCoverage: true/);
+  assert.match(source, /approvedBatches: 2/);
+  assert.match(source, /onGuidedAddSupports/);
+  assert.doesNotMatch(source, /guided\.terms\.filter[\s\S]{0,500}requestFindingsChange/);
   assert.match(source, /journeyLoad=\{researchLoad\?\.researchCommand === true \? null : researchLoad\}/);
   assert.doesNotMatch(source, /askRaziel|ai-analyze|functions\.invoke/);
+});
+
+test("Guided matrix discovery is a bounded lens in the existing engine and keeps raw runs advanced", async () => {
+  const source = await readFile(ENGINE, "utf8");
+  assert.match(source, /d\.lens==="matrix-discovery"/);
+  assert.match(source, /guidedMatrixDiscoveryLens/);
+  assert.match(source, /rowPad=20,colRadius=20/);
+  assert.match(source, /maxGapScale:3/);
+  assert.match(source, /for\(const term of DICT\)addHint/);
+  assert.match(source, /readingRelation:"defective-spelling"/);
+  assert.match(source, /guidedMatrixDisplayTerm/);
+  assert.match(source, /searchRule:"no-default-broad-lexicon"/);
+  assert.match(source, /rawPatterns/);
+  assert.match(source, /status:"UNVERIFIED_PATTERN"/);
+  assert.match(source, /promoteVerified/);
+  assert.match(source, /numericSkipPromoted:false/);
+  assert.doesNotMatch(source, /matrix-discovery"[\s\S]{0,1200}dynamicCandidateLexicon/);
 });
 
 test("Classic stays clean while Research alone owns manual cross-search controls", async () => {

@@ -2240,6 +2240,86 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     if(st._renderNativeList)st._renderNativeList();emitState();
   }
 
+  // Guided discovery is a bounded lens over the same verified result set. It never changes st.res,
+  // st.occ or st.words, never loads a broad lexicon and never promotes raw letter runs to findings.
+  const GUIDED_MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1",GUIDED_MATRIX_BUDGET_CONTRACT="els_matrix_discovery_budget_v1";
+  let _guidedMatrixLensSeq=0;
+  function guidedMatrixBox(axis){
+    const S=Math.abs(Number(axis?.skip)||0),positions=axis?.positions||[];if(S<2||!positions.length)return null;
+    const rows=positions.map(position=>Math.floor(position/S)),mainCol=((positions[0]%S)+S)%S,rowPad=20,colRadius=20;
+    const c0=Math.max(0,mainCol-colRadius),c1=Math.min(S-1,mainCol+colRadius),r0=Math.max(0,Math.min(...rows)-rowPad),r1=Math.min(Math.ceil(scopeN()/S)-1,Math.max(...rows)+rowPad);
+    return {S,c0,c1,r0,r1,rowPad,colRadius,cells:(c1-c0+1)*(r1-r0+1),maxGapScale:3,maxVocabularyTerms:100,defaultLexiconLoaded:false};
+  }
+  function guidedMatrixPlausible(term){return term.length>=3&&new Set(term).size>=3;}
+  function guidedMatrixDisplayTerm(term){const value=norm(term),final={"כ":"ך","מ":"ם","נ":"ן","פ":"ף","צ":"ץ"};return value.slice(0,-1)+(final[value.at(-1)]||value.at(-1)||"");}
+  function guidedMatrixStage(hit,axis){
+    const S=Math.abs(Number(axis?.skip)||0),skip=Math.abs(Number(hit?.skip)||0),step=gridStep(skip,S);
+    return {stage:step===1?"A":"B",gridStep:step,compact:step===1};
+  }
+  function guidedMatrixDistance(positions,axis,box){
+    const anchors=(axis.positions||[]).map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]);
+    return distanceToAnchors(positions,anchors,box.S);
+  }
+  async function guidedMatrixCandidates(axis,target,isCancelled){
+    const box=guidedMatrixBox(axis);if(!box)return null;
+    const context=new Map(),hints=new Map(),addHint=(raw,source)=>{const term=norm(raw),label=String(raw||term).trim()||term;if(term.length<3||term.length>10)return;if(!hints.has(term)&&hints.size<100)hints.set(term,{term,label,source});
+      // General defective/plene spelling relation: remove one internal mater lectionis. The exact
+      // matrix letters remain the finding; the fuller spelling is annotation only.
+      for(let index=1;index<term.length-1&&hints.size<100;index++)if("וי".includes(term[index])){const variant=term.slice(0,index)+term.slice(index+1);if(variant.length>=3&&!hints.has(variant))hints.set(variant,{term:variant,label:guidedMatrixDisplayTerm(variant),source,readingLabel:label,readingRelation:"defective-spelling"});}};
+    for(const row of (Array.isArray(target.contextTerms)?target.contextTerms:[]).slice(0,12)){const term=norm(row?.term||row);if(term.length>=3&&!context.has(term))context.set(term,{term,label:String(row?.term||row).trim()||term});addHint(row?.term||row,"story");}
+    for(const term of DICT)addHint(term,"bounded-dictionary");
+    const directions=[];for(let scale=1;scale<=box.maxGapScale;scale++)for(const base of [{dr:0,dc:1,name:"horizontal"},{dr:1,dc:0,name:"vertical"},{dr:1,dc:1,name:"diagonal-right"},{dr:1,dc:-1,name:"diagonal-left"}])directions.push({...base,dr:base.dr*scale,dc:base.dc*scale,scale});
+    const found=new Map(),axisTerm=norm(st.raw),remember=(word,positions,direction)=>{const term=norm(word);if(term===axisTerm||!guidedMatrixPlausible(term))return;let row=found.get(term);if(!row){row={term,occurrences:[],keys:new Set(),total:0};found.set(term,row);}const key=positions.join("_");if(row.keys.has(key))return;row.keys.add(key);row.total++;if(row.occurrences.length<8){const step=positions.length>1?positions[1]-positions[0]:1;row.occurrences.push({skip:Math.abs(step),dir:Math.sign(step)||1,start:positions[0],positions:[...positions],distance:guidedMatrixDistance(positions,axis,box),matrixDirection:direction.name,matrixScale:direction.scale});}};
+    let pathsChecked=0;
+    for(let r=box.r0;r<=box.r1;r++){
+      for(let c=box.c0;c<=box.c1;c++)for(const direction of directions){pathsChecked++;const chars=[],positions=[];
+        for(let length=1;length<=10;length++){const rr=r+direction.dr*(length-1),cc=c+direction.dc*(length-1);if(rr<box.r0||rr>box.r1||cc<box.c0||cc>box.c1)break;const position=rr*box.S+cc;if(position<0||position>=scopeN())break;chars.push(T[position]);positions.push(position);if(length<3)continue;
+          const word=chars.join("");remember(word,positions,direction);const reversed=[...word].reverse().join("");if(reversed!==word)remember(reversed,[...positions].reverse(),{...direction,name:direction.name+"-reverse"});}
+      }
+      if((r-box.r0+1)%4===0||r===box.r1){if(isCancelled())return null;await paintOperation();}
+    }
+    const project=row=>{row.occurrences.sort((a,b)=>Number(guidedMatrixStage(a,axis).stage==="B")-Number(guidedMatrixStage(b,axis).stage==="B")||a.distance-b.distance||a.skip-b.skip||a.start-b.start);const best=row.occurrences[0],meta=guidedMatrixStage(best,axis),hint=hints.get(row.term);return {...best,term:row.term,label:hint?.label||guidedMatrixDisplayTerm(row.term),readingLabel:hint?.readingLabel||null,readingRelation:hint?.readingRelation||null,occurrenceCount:row.total,occurrences:row.occurrences,matrixStage:meta.stage,gapScale:best.matrixScale,source:hint?.source||"raw-pattern"};};
+    const recognized=[...found.values()].filter(row=>hints.has(row.term)&&row.occurrences.length&&(row.term.length>=4||hints.get(row.term)?.source==="story")&&!axisTerm.includes(row.term)&&!row.term.includes(axisTerm)).map(project).sort((a,b)=>Number(b.source==="story")-Number(a.source==="story")||Number(b.matrixStage==="A")-Number(a.matrixStage==="A")||a.distance-b.distance||b.term.length-a.term.length||b.occurrenceCount-a.occurrenceCount||a.term.localeCompare(b.term,"he")).slice(0,24);
+    const raw=[...found.values()].filter(row=>row.term.length>=4&&!hints.has(row.term)&&row.total>=2&&row.occurrences.length>=2).map(project).sort((a,b)=>Number(b.matrixStage==="A")-Number(a.matrixStage==="A")||b.occurrenceCount-a.occurrenceCount||b.term.length-a.term.length||a.distance-b.distance||a.term.localeCompare(b.term,"he")).slice(0,24);
+    return {box,pathsChecked,recognized,raw,context,hintCount:hints.size};
+  }
+  function guidedPairRelation(first,second,axis){
+    const firstCells=new Set(first.positions||[]),secondPositions=second.positions||[],S=Math.max(1,Math.abs(Number(axis?.skip)||1));
+    if(secondPositions.some(position=>firstCells.has(position)))return {code:"EXACT_INTERSECTION",label:"שני הממצאים נחתכים באות משותפת",priority:600,stage:"A"};
+    let adjacent=false;for(const a of first.positions||[]){const ar=Math.floor(a/S),ac=((a%S)+S)%S;for(const b of secondPositions){const br=Math.floor(b/S),bc=((b%S)+S)%S;if(Math.max(Math.abs(ar-br),Math.abs(ac-bc))<=1){adjacent=true;break;}}if(adjacent)break;}
+    if(adjacent)return {code:"TOUCH_OR_ADJACENCY",label:"שני הממצאים נוגעים או צמודים במטריצה",priority:500,stage:"A"};
+    if(first.matrixStage==="A"&&second.matrixStage==="A")return {code:"COMPACT_PAIR",label:"שני הממצאים בנויים ללא פער באזור הציר",priority:480,stage:"A"};
+    if(Math.abs(Math.abs(Number(first.skip)||0)-Math.abs(Number(second.skip)||0))<=2)return {code:"SAME_OR_NEAR_SKIP",label:"שני הממצאים חולקים דילוג זהה או סמוך",priority:380,stage:"B"};
+    return {code:"BOUNDED_LOCAL_GAP",label:"שני הממצאים נמצאו באותו אזור תחום",priority:100,stage:"B"};
+  }
+  function guidedPairCandidates(candidates,axis,context){
+    const pairs=[];for(let i=0;i<candidates.length;i++)for(let j=i+1;j<candidates.length;j++){const first=candidates[i],second=candidates[j],relation=guidedPairRelation(first,second,axis),storyMatches=Number(context.has(first.term))+Number(context.has(second.term)),recurrence=first.occurrenceCount+second.occurrenceCount,distance=first.distance+second.distance;
+      const independentSupport=storyMatches>0||Math.min(first.occurrenceCount,second.occurrenceCount)>=2&&Math.max(first.term.length,second.term.length)>=5&&first.term.length+second.term.length>=9,
+        band=!independentSupport?9:storyMatches===2&&relation.stage==="A"?0:storyMatches>=1&&relation.stage==="A"?1:storyMatches===2?2:relation.stage==="A"?3:storyMatches===1?4:5;
+      pairs.push({supports:[first,second],relation,storyMatches,independentSupport,reasons:[storyMatches===2?"שני הממצאים נלקחו מן ההקשר שנכתב":storyMatches===1?"ממצא אחד נלקח מן ההקשר שנכתב":"שני הממצאים חזרו באופן עצמאי בחלון המקומי",relation.label],order:[band,-relation.priority,-recurrence,distance,first.term+"|"+second.term]});}
+    return pairs.sort((a,b)=>{for(let i=0;i<a.order.length;i++){if(a.order[i]===b.order[i])continue;return typeof a.order[i]==="number"?a.order[i]-b.order[i]:String(a.order[i]).localeCompare(String(b.order[i]),"he");}return 0;}).slice(0,24);
+  }
+  async function guidedVerifyBundle(scan,axis,isCancelled){
+    const ranked=guidedPairCandidates(scan.recognized,axis,scan.context),cache=new Map(),verifiedPairs=[],verifiedFindings=[];let attempts=0,failed=0,processed=0;
+    const verify=async candidate=>{for(const occurrence of candidate.occurrences){const key=candidate.term+":"+hitKey(occurrence);if(cache.has(key)){const cached=cache.get(key);if(cached)return cached;continue;}if(attempts>=12)return null;attempts++;
+        let admitted=null;try{const result=await promoteVerified({t:candidate.term,hits:[{skip:occurrence.skip,dir:occurrence.dir,start:occurrence.start,positions:[...occurrence.positions]}],capped:false,strategy:{policy:"GUIDED_MATRIX_DISCOVERY_V1"}},st.scope,null);admitted=result.hits.find(isGov)||null;}catch(_){admitted=null;}if(isCancelled())return null;
+        const support=admitted?{term:candidate.term,label:candidate.label,readingLabel:candidate.readingLabel,readingRelation:candidate.readingRelation,status:"VERIFIED",skip:Math.abs(admitted.skip),direction:admitted.dir===1?"fwd":"back",occurrenceCount:candidate.occurrenceCount,matrixStage:candidate.matrixStage,distance:candidate.distance,source:candidate.source,ref:refStr(verseAt(admitted.start)),book:bookOf(admitted.start)}:null;cache.set(key,support);if(support)return support;failed++;}return null;};
+    const localCandidates=[...scan.recognized].filter(candidate=>candidate.occurrenceCount>=2).sort((a,b)=>Number(b.source==="story")-Number(a.source==="story")||b.term.length-a.term.length||b.occurrenceCount-a.occurrenceCount||Number(b.matrixStage==="A")-Number(a.matrixStage==="A")||a.distance-b.distance||a.term.localeCompare(b.term,"he")).slice(0,4);
+    for(const candidate of localCandidates){if(isCancelled()||attempts>=12)break;const support=await verify(candidate);if(isCancelled())return null;if(support)verifiedFindings.push(support);}
+    for(const pair of ranked){if(isCancelled()||verifiedPairs.length>=3||attempts>=12)break;processed++;if(!pair.independentSupport)continue;const supports=[];for(const candidate of pair.supports){const support=await verify(candidate);if(isCancelled())return null;if(!support)break;supports.push(support);}if(supports.length===2)verifiedPairs.push({rank:verifiedPairs.length+1,supports,relation:pair.relation,storyMatches:pair.storyMatches,independentSupport:true,reasons:[...pair.reasons,"שני הממצאים עברו אימות קנוני"]});}
+    const rawCount=scan.raw.length,recognizedCount=scan.recognized.length;let failureCause=null;if(!verifiedPairs.length&&!verifiedFindings.length)failureCause=recognizedCount<2?(rawCount?"VOCABULARY_MISS":"MATRIX_BOUNDS"):(ranked.length?"RECOGNITION_NORMALIZATION":"GEOMETRY");
+    return {contract:"els_cipher_discovery_plan_v1",projection:"verified-pair",status:verifiedPairs.length?"VERIFIED_PAIR":verifiedFindings.length?"VERIFIED_LOCAL":ranked.length?"NO_VERIFIED_PAIR":"NO_CANDIDATE_PAIR",failureCause,selected:verifiedPairs[0]||null,alternatives:verifiedPairs.slice(1,3),verifiedFindings,consideredPairs:ranked.length,verification:{attempted:attempts,failed,maxAttempts:12,complete:verifiedPairs.length>=3||attempts>=12||processed>=ranked.length},selectionLaw:{order:["canonical-verification","strong-geometry","story-relevance","recurrence-and-source","distance","stable-label"],numericSkipPromoted:false},findingMutation:false};
+  }
+  async function guidedMatrixDiscoveryLens(target){
+    const seq=++_guidedMatrixLensSeq,sourceResult=st.res,occurrences=nativeOccurrenceResults(),item=occurrences&&target.setId===occurrences.id&&Number(target.page)===Number(occurrences.page)?occurrences.items.find(row=>row.hitId===target.hitId):null,axis=item&&isGov(sourceResult?.hits?.[item.index])?sourceResult.hits[item.index]:null;
+    if(!axis){postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"results-changed"});return;}
+    const cancelled=()=>seq!==_guidedMatrixLensSeq||st.res!==sourceResult||!isGov(axis)||!nativeOccurrenceResults()?.items.some(row=>row.hitId===target.hitId&&row.index===item.index);
+    try{const scan=await guidedMatrixCandidates(axis,target,cancelled);if(!scan||cancelled())return;const discoveryBundle=await guidedVerifyBundle(scan,axis,cancelled);if(!discoveryBundle||cancelled())return;
+      const rawPatterns=scan.raw.map(row=>({kind:"raw-pattern",term:guidedMatrixDisplayTerm(row.term),length:row.term.length,occurrenceCount:row.occurrenceCount,matrixStage:row.matrixStage,gapScale:row.gapScale,distance:row.distance,status:"UNVERIFIED_PATTERN"}));
+      postHost({type:"lens",lens:"matrix-discovery",ok:true,target,contract:GUIDED_MATRIX_DISCOVERY_CONTRACT,status:discoveryBundle.status,scope:st.scope,strategy:"matrix-first",searchRule:"no-default-broad-lexicon",defaultLexiconLoaded:false,vocabularyTermsChecked:scan.hintCount,budget:{contract:GUIDED_MATRIX_BUDGET_CONTRACT,cells:scan.box.cells,matrixPathsChecked:scan.pathsChecked,maxVocabularyTerms:scan.box.maxVocabularyTerms,maxGapScale:scan.box.maxGapScale,rowPad:scan.box.rowPad,colRadius:scan.box.colRadius},axis:{term:norm(st.raw),skip:Math.abs(axis.skip),direction:axis.dir===1?"fwd":"back",hitId:hitKey(axis)},items:scan.recognized.map(row=>({term:row.term,label:row.label,readingLabel:row.readingLabel,readingRelation:row.readingRelation,occurrenceCount:row.occurrenceCount,matrixStage:row.matrixStage,status:"CANDIDATE"})),rawPatterns,discoveryBundle,truthPromotion:false});
+    }catch(_){if(!cancelled())postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"scan-failed"});}
+  }
+
   const isAnon=()=>st.tier==="anon"&&!st.admin;   // מנהל (מקומי או מהאתר) לעולם לא נחשב אנונימי → אין שער
   // 🔀 הצלבה = «החיפוש המוצלח» → לרשומים בלבד. זו הצורה החזקה (שתי מילים קצרות שנפגשות),
   //    ולכן היא-היא מה שדורש רישום (החלטת צוריאל 21.7.2026: «לקרוא את ההסבר ולהירשם כדי לחפש מוצלח»).
@@ -2338,6 +2418,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       }
       else postHost({type:"lens",lens:"line-context",ok:false,target});
     }
+    if(d.type==="request-lens"&&d.lens==="matrix-discovery")guidedMatrixDiscoveryLens(d.target||{});
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
     if(d.type==="native-control"&&typeof d.action==="string"){
       if(searchUncommitted())return;   // 🎛️ 2029 Native Classic — allowlist presentation בלבד
