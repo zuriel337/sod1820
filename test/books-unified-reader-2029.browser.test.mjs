@@ -168,6 +168,17 @@ test("all seven unified readers remain source-first and fit 320/390/1440", { ski
           assert.equal(new URL(page.url()).searchParams.get("page"), "89");
           await page.getByRole("heading", { name: "הנהגת המשפט", exact: true }).waitFor();
         }
+        if (manifest.slug === "sefer-yetzirah" && width === 390) {
+          await page.getByText("פרטי המקור", { exact: true }).click();
+          await page.getByText("207/220 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
+          await page.getByText("1, 2, 3, 27, 33, 110, 114, 115, 202, 217, 218, 219, 220 · נקראים ישירות מן ה־PDF", { exact: true }).waitFor();
+          await page.getByRole("searchbox", { name: "מילה או צירוף" }).fill("ספירות בלימה");
+          const result = page.locator(".book-reader29-search-results button").filter({ hasText: "PDF 61" });
+          await result.waitFor();
+          await result.click();
+          assert.equal(new URL(page.url()).searchParams.get("page"), "61");
+          await page.getByRole("heading", { name: "פרק ראשון · עשר ספירות", exact: true }).waitFor();
+        }
       }
       await context.close();
     }
