@@ -108,5 +108,7 @@ test("audit routes only to existing canonical World views", () => {
     "ריבוי יעדים רחב · 8–19",
     "ריבוי יעדים בתקרת 20",
   ].map((label) => zvi.counts.find((item) => item.label === label).value), [153, 313, 389, 560, 594]);
+  assert.equal(zvi.counts.find((item) => item.label === "יעד יחיד תואם במדויק ל־value").value, 153);
+  assert.equal(zvi.counts.find((item) => item.label === "סתירות בין יעד יחיד ל־value").value, 0);
   assert.match(zvi.route, /contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8/u);
 });

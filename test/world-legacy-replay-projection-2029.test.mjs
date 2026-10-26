@@ -243,7 +243,8 @@ test("cluster attachment preserves every occurrence and never mutates live truth
 
 test("technically-ready replay keeps source and target decisions separate", () => {
   const singleTarget = row({
-    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "topic", key: "topic-a", label: "נושא א" }] } } },
+    value: 68,
+    meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "number", key: "68", label: "68" }] } } },
   });
   const projected = attachWorldLegacyReplay({
     id: `research:${singleTarget.id}`,
@@ -255,7 +256,8 @@ test("technically-ready replay keeps source and target decisions separate", () =
   assert.equal(projected.legacyReplay.decision.sourceReadiness, "exact_source");
   assert.equal(projected.legacyReplay.decision.targetReadiness, "single_structured_target");
   assert.equal(projected.legacyReplay.decision.readyOccurrenceCount, 1);
-  assert.deepEqual(projected.legacyReplay.decision.targets.map((target) => target.key), ["topic-a"]);
+  assert.equal(projected.legacyReplay.decision.targetEvidenceStateCounts.exact_row_value_match, 1);
+  assert.deepEqual(projected.legacyReplay.decision.targets.map((target) => target.key), ["68"]);
   assert.equal(projected.legacyReplay.decision.mutatesLiveData, false);
 });
 

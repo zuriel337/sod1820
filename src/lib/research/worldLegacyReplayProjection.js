@@ -435,12 +435,24 @@ function structuredTreeTargets(row) {
 function projectStructuredTargetReview(row) {
   const promotedNodeId = clean(row?.promoted_node_id) || null;
   const targets = structuredTreeTargets(row);
+  const rowValue = finite(row?.value);
+  const singleNumberValue = targets.length === 1 && targets[0].type === "number"
+    ? finite(targets[0].key)
+    : null;
   let state = "missing_structured_target";
   if (promotedNodeId) state = "already_connected";
   else if (targets.length === 1) state = "single_structured_target";
   else if (targets.length > 1) state = "multiple_structured_targets";
+  let evidenceState = "no_structured_target";
+  if (promotedNodeId) evidenceState = "existing_promotion";
+  else if (targets.length > 1) evidenceState = "multiple_structured_targets_only";
+  else if (targets.length === 1 && singleNumberValue != null && rowValue == null) evidenceState = "missing_row_value";
+  else if (targets.length === 1 && singleNumberValue != null && rowValue === singleNumberValue) evidenceState = "exact_row_value_match";
+  else if (targets.length === 1 && singleNumberValue != null) evidenceState = "row_value_conflict";
+  else if (targets.length === 1) evidenceState = "structured_target_only";
   return Object.freeze({
     state,
+    evidenceState,
     promotedNodeId,
     targetCount: targets.length,
     targets: Object.freeze(targets),
@@ -452,11 +464,14 @@ function incrementCount(counts, value) {
   counts[key] = (counts[key] || 0) + 1;
 }
 
-function decisionReason(sourceReadiness, targetReadiness, repairCount, targetCount) {
+function decisionReason(sourceReadiness, targetReadiness, repairCount, targetCount, evidenceStateCounts) {
   if (sourceReadiness === "source_locator_repair") {
     return `${repairCount} הופעות דורשות תיקון locator לפני הכרעת יעד; אין להשלים מקור לפי הטקסט.`;
   }
   if (targetReadiness === "already_connected") return "קיים חיבור חי ליעד; ה־replay אינו משנה אותו.";
+  if (targetReadiness === "single_structured_target" && evidenceStateCounts.exact_row_value_match) {
+    return "יעד המספר היחיד תואם במדויק לשדה הערך המובנה; עדיין נדרשת הכרעת חיבור אנושית.";
+  }
   if (targetReadiness === "single_structured_target") return "קיים יעד מובנה יחיד לבדיקה אנושית; זו אינה הוראת קידום אוטומטית.";
   if (targetReadiness === "multiple_structured_targets") return `${targetCount} יעדים מובנים דורשים בחירה אנושית; אין לבחור יעד לפי דירוג או ניחוש.`;
   if (targetReadiness === "mixed_target_states") return "הופעות האשכול אינן מסכימות על מצב היעד; יש לבדוק כל הופעת מקור בנפרד.";
@@ -473,6 +488,7 @@ export function classifyWorldLegacyReplayDecision(occurrences = []) {
 
   const sourceLocatorStateCounts = {};
   const targetStateCounts = {};
+  const targetEvidenceStateCounts = {};
   const targets = new Map();
   let repairCount = 0;
   for (const item of items) {
@@ -480,6 +496,7 @@ export function classifyWorldLegacyReplayDecision(occurrences = []) {
     if (item.sourceLocatorState !== "channel_uuid") repairCount += 1;
     const targetReview = item.targetReview || { state: "missing_structured_target", targets: [] };
     incrementCount(targetStateCounts, targetReview.state);
+    incrementCount(targetEvidenceStateCounts, targetReview.evidenceState);
     for (const target of targetReview.targets || []) {
       const identity = `${clean(target.type)}:${clean(target.key)}`;
       if (identity !== ":" && !targets.has(identity)) targets.set(identity, target);
@@ -499,9 +516,10 @@ export function classifyWorldLegacyReplayDecision(occurrences = []) {
     sourceRepairOccurrenceCount: repairCount,
     sourceLocatorStateCounts: Object.freeze(sourceLocatorStateCounts),
     targetStateCounts: Object.freeze(targetStateCounts),
+    targetEvidenceStateCounts: Object.freeze(targetEvidenceStateCounts),
     targetCount: structuredTargets.length,
     targets: structuredTargets,
-    reason: decisionReason(sourceReadiness, targetReadiness, repairCount, structuredTargets.length),
+    reason: decisionReason(sourceReadiness, targetReadiness, repairCount, structuredTargets.length, targetEvidenceStateCounts),
     mutatesLiveData: false,
   });
 }

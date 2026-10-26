@@ -865,6 +865,7 @@ export default function WorldAllResearchTable({ state }) {
         <span><b>{projection.byLegacyReplaySourceReadiness?.source_locator_repair || 0}</b> דורשות תיקון locator</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.already_connected || 0}</b> כבר מחוברות</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.single_structured_target || 0}</b> עם יעד יחיד לבדיקה</span>
+        <span><b>{projection.byLegacyReplayTargetEvidence?.exact_row_value_match || 0}</b> יעדי מספר יחידים שתואמים לערך המובנה</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.multiple_structured_targets || 0}</b> עם כמה יעדים</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.missing_structured_target || 0}</b> בלי יעד מובנה</span>
       </div> : null}

@@ -478,6 +478,7 @@ function countContributors(rows) {
 function countLegacyReplayDecisionOccurrences(rows) {
   const source = { exact_source: 0, source_locator_repair: 0 };
   const target = {};
+  const targetEvidence = {};
   let technicallyReady = 0;
   for (const row of rows) {
     const decision = row?.legacyReplay?.decision;
@@ -490,8 +491,16 @@ function countLegacyReplayDecisionOccurrences(rows) {
     for (const [state, count] of Object.entries(decision.targetStateCounts || {})) {
       target[state] = (target[state] || 0) + (Number(count) || 0);
     }
+    for (const [state, count] of Object.entries(decision.targetEvidenceStateCounts || {})) {
+      targetEvidence[state] = (targetEvidence[state] || 0) + (Number(count) || 0);
+    }
   }
-  return Object.freeze({ technicallyReady, source: Object.freeze(source), target: Object.freeze(target) });
+  return Object.freeze({
+    technicallyReady,
+    source: Object.freeze(source),
+    target: Object.freeze(target),
+    targetEvidence: Object.freeze(targetEvidence),
+  });
 }
 
 async function buildAuthorizedProjection(token) {
@@ -561,6 +570,7 @@ async function buildAuthorizedProjection(token) {
     technicallyReadyReplayOccurrences: replayDecisionCounts.technicallyReady,
     byLegacyReplaySourceReadiness: replayDecisionCounts.source,
     byLegacyReplayTargetReadiness: replayDecisionCounts.target,
+    byLegacyReplayTargetEvidence: replayDecisionCounts.targetEvidence,
     byContributor: countContributors(orderedFindings),
     byTriageStrength: countBy(
       orderedFindings.filter((row) => row.triage).map((row) => ({ strength: row.triage.strength })),
@@ -658,6 +668,7 @@ function pageResponse(projection, req, contributorScope = null) {
     summary.technicallyReadyReplayOccurrences = replayDecisionCounts.technicallyReady;
     summary.byLegacyReplaySourceReadiness = replayDecisionCounts.source;
     summary.byLegacyReplayTargetReadiness = replayDecisionCounts.target;
+    summary.byLegacyReplayTargetEvidence = replayDecisionCounts.targetEvidence;
     summary.reviewScope = contributorScope;
   }
   return {

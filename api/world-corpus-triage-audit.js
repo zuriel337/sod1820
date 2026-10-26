@@ -344,6 +344,8 @@ export const WORLD_CORPUS_TRIAGE_AUDIT = Object.freeze({
         Object.freeze({ label: "בשלים עם כמה יעדים להכרעה", value: 1856 }),
         Object.freeze({ label: "בשלים ללא יעד מובנה", value: 486 }),
         Object.freeze({ label: "יעד יחיד מסוג מספר", value: 153 }),
+        Object.freeze({ label: "יעד יחיד תואם במדויק ל־value", value: 153 }),
+        Object.freeze({ label: "סתירות בין יעד יחיד ל־value", value: 0 }),
         Object.freeze({ label: "ריבוי יעדים צר · 2–3", value: 313 }),
         Object.freeze({ label: "ריבוי יעדים בינוני · 4–7", value: 389 }),
         Object.freeze({ label: "ריבוי יעדים רחב · 8–19", value: 560 }),
