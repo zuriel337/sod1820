@@ -11,6 +11,7 @@ import {
   replayWorldCompoundEnvelope,
   replayWorldLegacyMethodMatrix,
   verifyWorldConstantStatement,
+  verifyWorldSpatialQuantityProduct,
 } from "../src/lib/research/worldLegacyReplayProjection.js";
 
 const id = (digit) => `${digit.repeat(8)}-${digit.repeat(4)}-4${digit.repeat(3)}-8${digit.repeat(3)}-${digit.repeat(12)}`;
@@ -227,6 +228,8 @@ test("missing-engine routing uses explicit text markers without claiming verific
   assert.equal(classifyWorldMissingEngineStatement("עשרימון בעל עשרים פאות").subtype, "polyhedra_and_pyramids");
   assert.equal(classifyWorldMissingEngineStatement("מעגל סביב המספר").subtype, "circles_and_spheres");
   assert.equal(classifyWorldMissingEngineStatement("ציר במרחב תלת ממדי").subtype, "space_and_axes");
+  assert.equal(classifyWorldMissingEngineStatement("שלושה צירים במבנה").queue, "spatial_or_constants");
+  assert.equal(classifyWorldMissingEngineStatement("הצירוף המשותף בין ארבע מילים").queue, "textual_statement");
   assert.equal(classifyWorldMissingEngineStatement("שלוש מילים מופיעות ברצף").queue, "textual_statement");
   assert.equal(classifyWorldMissingEngineStatement("שלוש מילים מופיעות ברצף").subtype, null);
   assert.equal(classifyWorldMissingEngineStatement("צופן בדילוג 1820").queue, "els_or_cipher");
@@ -316,6 +319,43 @@ test("spatial routing reports curated coverage only from an exact stored source 
   assert.equal(unrepresented.spatialCuratedCoverage.state, "not_represented");
   assert.equal(unrepresented.spatialCuratedCoverage.matchBasis, "none");
   assert.deepEqual(unrepresented.spatialCuratedCoverage.modelSlugs, []);
+});
+
+test("spatial quantity products verify arithmetic without treating a shape count as gematria", () => {
+  const statement = "בתצורת עשרימון: עשרים(20) × \"אל\"(31)=כתר[620]";
+  const check = verifyWorldSpatialQuantityProduct(statement);
+  assert.equal(check.state, "exact_match");
+  assert.equal(check.quantityLabel, "עשרים");
+  assert.equal(check.quantity, 20);
+  assert.equal(check.operandPhrase, "אל");
+  assert.equal(check.computed, 620);
+  assert.equal(check.verifiesGeometry, false);
+  assert.equal(check.verifiesQuantitySource, false);
+
+  const replay = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: `עשרימון ${statement}`,
+  }));
+  assert.equal(replay.spatialCalculation.state, "verified_quantity");
+  assert.equal(replay.spatialCalculation.quantityCheck.computed, 620);
+  assert.equal(replay.engineVerified, false);
+
+  const mismatch = verifyWorldSpatialQuantityProduct("עשרימון: עשרים(20) × אל(31)=כתר[621]");
+  assert.equal(mismatch.state, "exact_mismatch");
+  assert.equal(mismatch.computed, 620);
+
+  const wordCount = verifyWorldSpatialQuantityProduct("קובייה: 180× שש פאות=1080");
+  assert.equal(wordCount.kind, "hebrew_count_product");
+  assert.equal(wordCount.state, "exact_match");
+  assert.equal(wordCount.quantity, 6);
+  assert.equal(wordCount.operandValue, 180);
+  const wordReplay = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קובייה: 180× שש פאות=1080",
+  }));
+  assert.equal(wordReplay.spatialCalculation.state, "verified_quantity");
 });
 
 test("constant replay distinguishes exact sums, rounded constants and unsupported source claims", () => {

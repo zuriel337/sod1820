@@ -194,6 +194,7 @@ const CONSTANT_CHECK_LABELS = Object.freeze({
 
 const SPATIAL_CALCULATION_LABELS = Object.freeze({
   verified: "החישוב שוחזר",
+  verified_quantity: "חישוב כמות × ערך שוחזר",
   unresolved: "שיטת חישוב לא פתורה",
   mismatch: "החישוב אינו משתחזר",
   not_detected: "אין נוסחה מפורשת",
@@ -1085,6 +1086,7 @@ export default function WorldAllResearchTable({ state }) {
           {row.legacyReplay?.spatialCalculation?.state !== "not_detected" && row.legacyReplay?.spatialCalculation ? <div className={`sod29-world-triage-recommendation ${row.legacyReplay.spatialCalculation.state === "mismatch" ? "is-blocked" : "is-review"}`}>
             <span><small>בדיקה דטרמיניסטית של הנוסחה · לא של הפרשנות</small><strong>{humanLabel(SPATIAL_CALCULATION_LABELS, row.legacyReplay.spatialCalculation.state, "דורש בדיקה")}</strong></span>
             <details className="sod29-world-all-research-duplicates"><summary>טענות חישוב שנמצאו · {row.legacyReplay.spatialCalculation.claimCount}</summary><ul>{row.legacyReplay.spatialCalculation.claims.map((claim, index) => <li key={`${claim.expression}:${index}`}><code dir="ltr">{claim.expression || "ביטוי חסר"}</code> · נטען {claim.claimed ?? "אין נתון"} · חושב {claim.computed ?? "אין נתון"}</li>)}</ul></details>
+            {row.legacyReplay.spatialCalculation.quantityCheck ? <small>כמות מפורשת: {row.legacyReplay.spatialCalculation.quantityCheck.quantityLabel} ({row.legacyReplay.spatialCalculation.quantityCheck.quantity}) × {row.legacyReplay.spatialCalculation.quantityCheck.operandPhrase || "ערך מפורש"} ({row.legacyReplay.spatialCalculation.quantityCheck.operandValue}) = {row.legacyReplay.spatialCalculation.quantityCheck.computed}. מקור הכמות והצורה עדיין דורשים ראיה.</small> : null}
             <small>גם התאמה מלאה מוכיחה רק את האופרנדים והפעולה. הצורה הגיאומטרית, מקור הכמות והמשמעות נשארים לבדיקה נפרדת.</small>
           </div> : null}
           {row.legacyReplay?.spatialCuratedCoverage ? <div className={`sod29-world-triage-recommendation ${row.legacyReplay.spatialCuratedCoverage.state === "represented" ? "is-duplicate" : "is-review"}`}>

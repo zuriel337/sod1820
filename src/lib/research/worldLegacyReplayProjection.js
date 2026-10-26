@@ -36,6 +36,7 @@ const REVIEW_READY_STATES = new Set([
   "explicit_match",
   "legacy_matrix_match",
 ]);
+const SPATIAL_STATEMENT_RE = /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה|קובייה|פירמיד|פאון|עשרימון|טטרה|אוקטה|איקוס|דודקה|ציר(?:ים|י)?(?![א-ת])|גאומטר|גיאומטר|מעגל|עיגול|כדור)/iu;
 
 if (!REGULAR_METHOD?.fn) throw new Error("World legacy replay requires the canonical regular gematria method");
 
@@ -49,7 +50,7 @@ function sourceLocatorState(sourceRef) {
 export function classifyWorldMissingEngineStatement(value) {
   const statement = clean(value);
   const signals = Object.freeze({
-    spatialOrConstants: /(מרחב|מרחבי|תלת.?ממד|קובי|קוביה|קובייה|פירמיד|פאון|עשרימון|טטרה|אוקטה|איקוס|דודקה|ציר|גאומטר|גיאומטר|מעגל|עיגול|כדור)/iu.test(statement),
+    spatialOrConstants: SPATIAL_STATEMENT_RE.test(statement),
     constantsOrSequences: /(π|פאי|(?:^|[^A-Za-z0-9א-ת])e(?:$|[^A-Za-z0-9א-ת])|אוילר|2[.,]718|רצף (?:ה)?מספרים|סדרת (?:ה)?מספרים|פיבונאצ|numeric sequence)/iu.test(statement),
     elsOrCipher: /(צופן|דילוג|אותיות בדילוג|\bELS\b)/iu.test(statement),
     language: /(אנגלית|לטינית|ערבית|שפה|תרגום|תעתיק)/u.test(statement),
@@ -173,12 +174,53 @@ function projectSpatialResearchContext(row, routing) {
   });
 }
 
+export function verifyWorldSpatialQuantityProduct(value) {
+  const statement = clean(value);
+  const match = statement.match(/([א-ת][א-ת\u05F3\u05F4"' \t־-]{0,30}?)\s*\(\s*([0-9]{1,6})\s*\)\s*[×*]\s*["“״]?([א-ת][א-ת\u05F3\u05F4"' \t־-]{0,30}?)["”״]?\s*\(\s*([0-9]{1,9})\s*\)\s*=\s*["“״]?([א-ת][א-ת\u05F3\u05F4"' \t־-]{0,30}?)["”״]?\s*[\[({]\s*([0-9]{1,12})\s*[\])}]/u);
+  const wordQuantityMatch = match ? null : statement.match(/([0-9]{1,12})\s*[×*]\s*((?:אחת|אחד|שתיים|שתי|שניים|שני|שלוש|שלושה|ארבע|ארבעה|חמש|חמישה|שש|ששה|שישה|שבע|שבעה|שמונה|תשע|תשעה|עשר|עשרה)\s+(?:פאות|כיוונים|צלעות|קודקודים|קדקודים|חלקים))\s*=\s*([0-9]{1,12})/u);
+  if (!match && !wordQuantityMatch) return null;
+  const hebrewCount = Object.freeze({
+    אחת: 1, אחד: 1, שתיים: 2, שתי: 2, שניים: 2, שני: 2, שלוש: 3, שלושה: 3,
+    ארבע: 4, ארבעה: 4, חמש: 5, חמישה: 5, שש: 6, ששה: 6, שישה: 6,
+    שבע: 7, שבעה: 7, שמונה: 8, תשע: 9, תשעה: 9, עשר: 10, עשרה: 10,
+  });
+  const quantityWord = wordQuantityMatch ? clean(wordQuantityMatch[2]).split(/\s+/u)[0] : null;
+  const quantity = match ? Number(match[2]) : hebrewCount[quantityWord];
+  const operandValue = match ? Number(match[4]) : Number(wordQuantityMatch[1]);
+  const claimed = match ? Number(match[6]) : Number(wordQuantityMatch[3]);
+  const computed = quantity * operandValue;
+  return Object.freeze({
+    kind: match ? "annotated_quantity_product" : "hebrew_count_product",
+    state: computed === claimed ? "exact_match" : "exact_mismatch",
+    expression: clean((match || wordQuantityMatch)[0]),
+    quantityLabel: match ? clean(match[1]) : clean(wordQuantityMatch[2]),
+    quantity,
+    operandPhrase: match ? clean(match[3]).replace(/^["“״]+|["”״]+$/gu, "") : null,
+    operandValue,
+    targetPhrase: match ? clean(match[5]).replace(/^["“״]+|["”״]+$/gu, "") : null,
+    claimed,
+    computed,
+    verifiesArithmeticOnly: true,
+    verifiesGeometry: false,
+    verifiesQuantitySource: false,
+    mutatesLiveData: false,
+  });
+}
+
 function projectSpatialCalculation(row, routing) {
   if (routing?.queue !== "spatial_or_constants") return null;
   const claims = extractCompoundClaims(clean(row?.statement));
+  const quantityCheck = verifyWorldSpatialQuantityProduct(row?.statement);
+  const unresolvedClaims = claims.filter((claim) => claim?.status === "METHOD_UNRESOLVED");
+  const quantityProblemClaims = claims.filter((claim) => ["METHOD_UNRESOLVED", "ENGINE_MISMATCH"].includes(claim?.status));
+  const quantityResolvedClaims = quantityCheck ? quantityProblemClaims.filter((claim) => {
+    const expression = clean(claim?.text || claim?.raw);
+    return expression && (quantityCheck.expression.includes(expression) || expression.includes(quantityCheck.expression));
+  }) : [];
   let state = "not_detected";
-  if (claims.some((claim) => claim?.status === "ENGINE_MISMATCH")) state = "mismatch";
-  else if (claims.some((claim) => claim?.status === "METHOD_UNRESOLVED")) state = "unresolved";
+  if (quantityCheck?.state === "exact_match" && quantityProblemClaims.length > 0 && quantityResolvedClaims.length === quantityProblemClaims.length) state = "verified_quantity";
+  else if (claims.some((claim) => claim?.status === "ENGINE_MISMATCH") || quantityCheck?.state === "exact_mismatch") state = "mismatch";
+  else if (unresolvedClaims.length) state = "unresolved";
   else if (claims.length && claims.every((claim) => claim?.status === "ENGINE_VERIFIED_COMPOSITE")) state = "verified";
   const projectedClaims = claims.map((claim) => Object.freeze({
     kind: clean(claim?.kind) || null,
@@ -194,6 +236,7 @@ function projectSpatialCalculation(row, routing) {
     state,
     claimCount: projectedClaims.length,
     claims: Object.freeze(projectedClaims),
+    quantityCheck,
     verifiesCalculationOnly: true,
     mutatesLiveData: false,
   });
