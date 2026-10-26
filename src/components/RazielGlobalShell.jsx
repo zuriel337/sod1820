@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getAiAnalysis } from "../lib/supabase.js";
-import { BUILD_PROGRESS } from "../lib/knowledgeMap.js";
+import { BUILD_PUBLIC_PROGRESS } from "../lib/knowledgeMap.js";
 
 function pageContext(pathname, search) {
   const p = new URLSearchParams(search || "");
@@ -29,7 +29,7 @@ export default function RazielGlobalShell() {
   const [busy, setBusy] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const ctx = useMemo(() => pageContext(pathname, search), [pathname, search]);
-  const buildProgress = BUILD_PROGRESS;
+  const buildProgress = BUILD_PUBLIC_PROGRESS.percent;
   if (!isAdmin) return null;
 
   async function ask() {

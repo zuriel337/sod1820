@@ -19,7 +19,7 @@ import { supportsLight as routeSupportsLight } from "../../lib/lightRoutes.js";
 import StreamSwitch from "../StreamSwitch.jsx";
 import NotificationBell from "../NotificationBell.jsx";
 import { getUnreadCount } from "../../lib/notifications.js";
-import { QUICK_NAV_GROUPS, BUILD_PROGRESS } from "../../lib/knowledgeMap.js";
+import { QUICK_NAV_GROUPS, BUILD_PUBLIC_PROGRESS } from "../../lib/knowledgeMap.js";
 
 // 🧩 hook נגיש לתפריטים-נפתחים: נפתח בריחוף (עכבר) *וגם* בקליק (מקלדת/מגע), נסגר
 // בקליק-בחוץ ובמקש Escape. פותר את הבעיה שכל ה-dropdowns היו hover-only (לא נגישים
@@ -566,8 +566,8 @@ function GridIcon() {
 
 function BuildProgressBadge({ cc }) {
   return (
-    <Link to="/map" className="sod-nav-build" aria-label={`מפת המערכת — האתר בבנייה ${BUILD_PROGRESS} אחוז`}
-      title="מפת המערכת · מצב הבנייה" style={{
+    <Link to="/map" className="sod-nav-build" aria-label={`מפת המערכת — הערכת התקדמות הבנייה ${BUILD_PUBLIC_PROGRESS.percent} אחוז`}
+      title="מפת המערכת · הערכת התקדמות הפיתוח" style={{
         position:"relative", display:"inline-flex", alignItems:"center", gap:7, flex:"none",
         border:`1px solid ${cc.borderGold}`, background:"rgba(212,175,55,.08)", color:cc.goldBright,
         borderRadius:999, padding:"6px 11px", cursor:"pointer", fontFamily:F.ui, fontWeight:800,
@@ -576,7 +576,7 @@ function BuildProgressBadge({ cc }) {
       <style>{`
         @keyframes navBuildPulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.15)}50%{box-shadow:0 0 0 5px rgba(212,175,55,.08)}}
         .sod-nav-build{animation:navBuildPulse 2.4s ease-in-out infinite}
-        .sod-nav-build:after{content:"";position:absolute;inset-inline-start:0;bottom:0;height:2px;width:${BUILD_PROGRESS}%;background:linear-gradient(90deg,#8f6fd6,#d4af37)}
+        .sod-nav-build:after{content:"";position:absolute;inset-inline-start:0;bottom:0;height:2px;width:${BUILD_PUBLIC_PROGRESS.percent}%;background:linear-gradient(90deg,#8f6fd6,#d4af37)}
         .sod-nav-build .nb-mobile{display:none}
         @media(max-width:1040px){
           .sod-nav-build{padding:5px 8px;gap:4px;font-size:11.5px;min-width:0}
@@ -590,8 +590,8 @@ function BuildProgressBadge({ cc }) {
         @media(prefers-reduced-motion:reduce){.sod-nav-build{animation:none}}
       `}</style>
       <span aria-hidden>◈</span>
-      <span className="nb-desktop">העולם החדש נבנה</span>
-      <span className="nb-mobile">בבנייה</span>
+      <span className="nb-desktop">הבנייה מתקדמת · {BUILD_PUBLIC_PROGRESS.percent}%</span>
+      <span className="nb-mobile">{BUILD_PUBLIC_PROGRESS.percent}% <span className="nb-mobile-label">בפיתוח</span></span>
     </Link>
   );
 }
