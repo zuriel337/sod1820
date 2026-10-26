@@ -27,15 +27,16 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   "99bcfb38-85be-4f38-89f0-7886f2f179e6": {
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   "27c10d9a-14a6-4493-980b-2f5eda105ad7": { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"] },
-  "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "b6ce542a-2b07-4749-8aba-532c886f6de7" },
-  "19936860-6b35-4386-bc44-113289858ff0": { sourceUserId: "u_3kuB1woMg6wz", name: "Yosi Viner", handle: "YosiViner559", accountUserId: "36f5cb84-71c3-4977-a2c7-d6413e973443" },
+  "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "02a0d207-0136-4beb-a34d-8ff57d10cd85" },
+  "19936860-6b35-4386-bc44-113289858ff0": { sourceUserId: "u_3kuB1woMg6wz", name: "Yosi Viner", handle: "YosiViner559", accountUserId: "b6ce542a-2b07-4749-8aba-532c886f6de7" },
 });
 
-// These are two separately owned accounts. Each public reader joins only its
-// exact account and source contributor; ownership of both never merges them.
+// ZURIEL confirmed on 2026-10-26: each source follows its own verified email.
+// These display bridges mirror the reviewed server Person edges; they grant no
+// account authority. Each reader keeps the two accounts and their activity separate.
 const VERIFIED_OWNER_PAIRS = Object.freeze([
-  { accountId: "b6ce542a-2b07-4749-8aba-532c886f6de7", contributorId: "4cd9c034-0464-4600-a35d-7156f0584d9b" }, // yosiviner7 ↔ Sod1820
-  { accountId: "36f5cb84-71c3-4977-a2c7-d6413e973443", contributorId: "19936860-6b35-4386-bc44-113289858ff0" }, // 444861 ↔ YosiViner559
+  { accountId: "02a0d207-0136-4beb-a34d-8ff57d10cd85", contributorId: "4cd9c034-0464-4600-a35d-7156f0584d9b" }, // zyz997 ↔ Sod1820
+  { accountId: "b6ce542a-2b07-4749-8aba-532c886f6de7", contributorId: "19936860-6b35-4386-bc44-113289858ff0" }, // כי לה׳ המלוכה ↔ YosiViner559
 ]);
 
 export function communityAuthorIdentity(authorKey) {

@@ -15,8 +15,8 @@ test("preserves the five user-authorized profile like baselines", () => {
   assert.equal(VERIFIED_ARCHIVE_PROFILES["f499536a-e993-4a7d-8706-a2e69337c320"].sourceUserId, "u_zawiGiUO");
   assert.equal(VERIFIED_ARCHIVE_PROFILES["e7581ab5-8c15-4832-b602-f361e41ff373"].likesLabel, "22.9K");
   assert.match(VERIFIED_ARCHIVE_PROFILES["e7581ab5-8c15-4832-b602-f361e41ff373"].publicBio, /מנהלת.*כעשור/);
-  assert.equal(VERIFIED_ARCHIVE_PROFILES["19936860-6b35-4386-bc44-113289858ff0"].accountUserId, "36f5cb84-71c3-4977-a2c7-d6413e973443");
-  assert.equal(VERIFIED_ARCHIVE_PROFILES["4cd9c034-0464-4600-a35d-7156f0584d9b"].accountUserId, "b6ce542a-2b07-4749-8aba-532c886f6de7");
+  assert.equal(VERIFIED_ARCHIVE_PROFILES["19936860-6b35-4386-bc44-113289858ff0"].accountUserId, "b6ce542a-2b07-4749-8aba-532c886f6de7");
+  assert.equal(VERIFIED_ARCHIVE_PROFILES["4cd9c034-0464-4600-a35d-7156f0584d9b"].accountUserId, "02a0d207-0136-4beb-a34d-8ff57d10cd85");
 });
 
 test("adds the immutable imported likes baseline to new canonical reactions", () => {
@@ -46,18 +46,20 @@ test("normalizes an archive message without exposing identity fields", () => {
 
 test("a signed-in message uses the account identity even when a new contributor row exists", () => {
   const row = normalizeCommunityRow({
-    id: "new-message", author_name: "sod1820", author_user_id: "b6ce542a-2b07-4749-8aba-532c886f6de7",
+    id: "new-message", author_name: "sod1820", author_user_id: "02a0d207-0136-4beb-a34d-8ff57d10cd85",
     author_contributor_id: "fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf", body: "בדיקה", origin: "community_2029",
   });
-  assert.equal(row.authorKey, "user:b6ce542a-2b07-4749-8aba-532c886f6de7");
+  assert.equal(row.authorKey, "user:02a0d207-0136-4beb-a34d-8ff57d10cd85");
   const identity = communityAuthorIdentity(row.authorKey);
-  assert.deepEqual(identity.accountIds, ["b6ce542a-2b07-4749-8aba-532c886f6de7"]);
+  assert.deepEqual(identity.accountIds, ["02a0d207-0136-4beb-a34d-8ff57d10cd85"]);
   assert.deepEqual(identity.contributorIds, ["4cd9c034-0464-4600-a35d-7156f0584d9b"]);
   const other = communityAuthorIdentity("4cd9c034-0464-4600-a35d-7156f0584d9b");
-  assert.deepEqual(other.accountIds, ["b6ce542a-2b07-4749-8aba-532c886f6de7"]);
+  assert.deepEqual(other.accountIds, ["02a0d207-0136-4beb-a34d-8ff57d10cd85"]);
   assert.deepEqual(other.contributorIds, ["4cd9c034-0464-4600-a35d-7156f0584d9b"]);
   const second = communityAuthorIdentity("19936860-6b35-4386-bc44-113289858ff0");
-  assert.deepEqual(second.accountIds, ["36f5cb84-71c3-4977-a2c7-d6413e973443"]);
+  assert.deepEqual(second.accountIds, ["b6ce542a-2b07-4749-8aba-532c886f6de7"]);
+  assert.deepEqual(communityAuthorIdentity("user:b6ce542a-2b07-4749-8aba-532c886f6de7").contributorIds, ["19936860-6b35-4386-bc44-113289858ff0"]);
+  assert.equal(communityAuthorIdentity("user:36f5cb84-71c3-4977-a2c7-d6413e973443").verifiedOwner, false, "former presentation pair is no longer ownership evidence");
   assert.equal(communityAuthorIdentity("e7581ab5-8c15-4832-b602-f361e41ff373").verifiedOwner, false);
 });
 

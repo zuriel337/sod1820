@@ -14,8 +14,10 @@ EMILY = 'e7581ab5-8c15-4832-b602-f361e41ff373'
 YANIV = '66666666-6666-4666-8666-666666666666'
 YANIV_ACCOUNT = '22222222-2222-4222-8222-222222222222'
 PRIVATE = '44444444-4444-4444-8444-444444444444'
-SELF_ACCOUNT = 'b6ce542a-2b07-4749-8aba-532c886f6de7'
+SELF_ACCOUNT = '02a0d207-0136-4beb-a34d-8ff57d10cd85'
 SELF_SOURCE = '4cd9c034-0464-4600-a35d-7156f0584d9b'
+OTHER_ACCOUNT = 'b6ce542a-2b07-4749-8aba-532c886f6de7'
+OTHER_SOURCE = '19936860-6b35-4386-bc44-113289858ff0'
 fixture = json.loads(subprocess.check_output(['node', '--input-type=module', '-e',
     "import*as m from'./src/components/contributor2029/publicSourceCatalog2029Fixtures.js';console.log(JSON.stringify({identity:m.catalogFixtureIdentity,sources:m.catalogFixtureSources()}))"], cwd=ROOT, text=True))
 TZVI = {**fixture['identity'], 'kind': 'contributor', 'public_visibility': 'public', 'visibility': 'public', 'wa_names': ['צבי']}
@@ -40,6 +42,9 @@ ROWS += [{'id': '20000000-0000-4000-8000-' + str(i + 1).zfill(12), 'parent_id': 
 ROWS += [{'id': '30000000-0000-4000-8000-000000000001', 'parent_id': None, 'status': 'approved',
     'author_name': 'Sod1820', 'author_contributor_id': SELF_SOURCE, 'author_user_id': None, 'origin': 'openweb',
     'body': 'הודעה ציבורית מהחשבון המקושר במפורש', 'created_at': '2024-01-01T00:00:00Z', 'reactions': {}}]
+ROWS += [{'id': '30000000-0000-4000-8000-000000000002', 'parent_id': None, 'status': 'approved',
+    'author_name': 'Yosi Viner', 'author_contributor_id': OTHER_SOURCE, 'author_user_id': None, 'origin': 'openweb',
+    'body': 'הודעה ציבורית מהחשבון השני', 'created_at': '2024-01-02T00:00:00Z', 'reactions': {}}]
 POSTS = [{'id': 5038 + i, 'slug': f'fixture-post-{i}', 'title': f'מאמר מקור {i}', 'author': 'צבי', 'date': '2020-01-01T00:00:00Z'} for i in range(5)]
 
 class Files(SimpleHTTPRequestHandler):
@@ -164,18 +169,24 @@ try:
             expect(page.locator('.public-contributor-2029 .sod29-community-thread')).to_have_count(count)
         expect(page.get_by_role('button', name='עוד הודעות', exact=True)).to_have_count(0)
         REPORT['cases'].append({'unknown_total_is_not_zero': True, 'pagination_until_exhaustion': True}); context.close()
-        # Known owner bridge reuses the existing 2029 personal editor; no claim or identity write runs.
-        context = browser.new_context(); page = context.new_page(); install(page, self_uid=SELF_ACCOUNT)
+        # Each email-confirmed display bridge edits only its own profile.
         def part(value): return base64.urlsafe_b64encode(json.dumps(value).encode()).decode().rstrip('=')
-        token = part({'alg': 'HS256'}) + '.' + part({'sub': SELF_ACCOUNT, 'role': 'authenticated', 'exp': int(time.time()) + 3600}) + '.synthetic'
-        session = {'access_token': token, 'refresh_token': 'synthetic', 'expires_at': int(time.time()) + 3600,
-                   'expires_in': 3600, 'token_type': 'bearer', 'user': {'id': SELF_ACCOUNT}}
-        context.add_init_script('localStorage.setItem("sb-linswmnnkjxvweumprav-auth-token",' + json.dumps(json.dumps(session)) + ');localStorage.setItem("ua_visit_' + SELF_ACCOUNT + '_' + time.strftime('%Y-%m-%d') + '","1")')
-        page.goto(member_url(SELF_SOURCE)); page.locator('.pc-person').wait_for(); page.locator('.pc-person-toggle').click()
-        edit = page.get_by_role('link', name='עריכת הפרופיל שלי', exact=True)
-        expect(edit).to_be_visible(); assert edit.get_attribute('href').startswith('/2029/me/profile?returnTo=')
-        assert page.get_by_role('link', name='זה החשבון הישן שלי', exact=True).count() == 0
-        REPORT['cases'].append({'known_self_bridge': True, 'existing_personal_editor': True}); context.close()
+        for self_uid, source_id, is_owner in [(SELF_ACCOUNT, SELF_SOURCE, True), (OTHER_ACCOUNT, OTHER_SOURCE, True),
+                                               (OTHER_ACCOUNT, SELF_SOURCE, False), (SELF_ACCOUNT, OTHER_SOURCE, False)]:
+            context = browser.new_context(); page = context.new_page(); install(page, self_uid=self_uid)
+            token = part({'alg': 'HS256'}) + '.' + part({'sub': self_uid, 'role': 'authenticated', 'exp': int(time.time()) + 3600}) + '.synthetic'
+            session = {'access_token': token, 'refresh_token': 'synthetic', 'expires_at': int(time.time()) + 3600,
+                       'expires_in': 3600, 'token_type': 'bearer', 'user': {'id': self_uid}}
+            context.add_init_script('localStorage.setItem("sb-linswmnnkjxvweumprav-auth-token",' + json.dumps(json.dumps(session)) + ');localStorage.setItem("ua_visit_' + self_uid + '_' + time.strftime('%Y-%m-%d') + '","1")')
+            page.goto(member_url(source_id)); page.locator('.pc-person').wait_for(); page.locator('.pc-person-toggle').click()
+            edit = page.get_by_role('link', name='עריכת הפרופיל שלי', exact=True)
+            if is_owner:
+                expect(edit).to_be_visible(); assert edit.get_attribute('href').startswith('/2029/me/profile?returnTo=')
+                assert page.get_by_role('link', name='זה החשבון הישן שלי', exact=True).count() == 0
+            else:
+                expect(edit).to_have_count(0)
+                expect(page.get_by_role('link', name='זה החשבון הישן שלי', exact=True)).to_be_visible()
+            REPORT['cases'].append({'source_id': source_id, 'own_editor': is_owner, 'account_isolation': True}); context.close()
         # Canonical public writer/account and special Tzvi catalogue use the same family and context.
         for key, name in [(YANIV, 'יניב לוי'), ('user:' + YANIV_ACCOUNT, 'יניב לוי'), (TZVI['id'], TZVI['display_name'])]:
             context = browser.new_context(viewport={'width': 390, 'height': 1000}); page = context.new_page(); install(page)
