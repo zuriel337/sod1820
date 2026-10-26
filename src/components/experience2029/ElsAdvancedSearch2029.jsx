@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { verifyEls2029Selection } from "../../lib/research/els2029ReplayClient.js";
 import { buildElsAdvancedLoadItem, buildElsAdvancedPageRequest, buildElsAdvancedSelection, buildElsExactSkipProbe, elsSearchSpelling, projectElsAdvancedPage } from "../../lib/research/elsAdvancedPage.js";
-import { prepareElsAutomaticResearchPlan, prepareElsResearchBrief, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
+import { prepareElsAutomaticResearchPlan, prepareElsCipherDiscoveryPlan, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "../../lib/research/elsAutomaticResearchPlan.js";
 
 const initialForm = { term: "", scope: "torah", spelling: "regular", skipMin: "2", skipMax: "80", pageSize: "20" };
 
@@ -168,7 +168,7 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     }
   };
   const buildBrief = () => {
-    const next = prepareElsResearchBrief({ text: briefText, anchorTerm: briefAnchor, requiredTerms: briefRequired, scope: form.scope });
+    const next = prepareElsCipherDiscoveryPlan({ text: briefText, anchorTerm: briefAnchor, requiredTerms: briefRequired, scope: form.scope });
     if (next.error) { setBriefPlan(null); setBriefAnchorId(null); setBriefSelected(new Set()); setBriefSplit(new Set()); setNotice(next.error); return; }
     setBriefPlan(next);
     setBriefAnchorId(next.recommendedAnchorId);
@@ -204,10 +204,11 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
       term: anchor.term,
       scope: briefPlan.scope,
       contextTerms,
+      discoveryGoal: briefPlan.goal,
       researchNonce: ++briefRequestId.current,
-      returnLabel: "תוכנית המחקר",
+      returnLabel: "גילוי צופן",
     });
-    setNotice(`הציר ${anchor.term} נשלח לחיפוש. המנוע ממיין את כל מופעיו לפי ההקשר שנבחר.`);
+    setNotice(`הציר ${anchor.term} נשלח לחיפוש. המנוע מחפש סביב כל מופע זוג ממצאים מתחבר.`);
   };
   const continueAutomatic = async () => {
     const offset = automaticSlices.at(-1)?.nextOffset ?? 0;
@@ -308,59 +309,72 @@ export default function ElsAdvancedSearch2029({ onLoad, onExactSkip, deriveCanon
     setQuery(null); setPages([]); setCursor(null); setAutomaticPlan(null); setAutomaticSlices([]); setAutomaticPages({}); setLiveRows({}); onPlanSummary?.(null);
     setNotice(reduction.type === "scope" ? "הסריקה נעצרה וההיקף הוקטן לתורה. לחצו שוב כדי להתחיל." : "הסריקה נעצרה וטווח הדילוגים הוקטן. לחצו שוב כדי להתחיל.");
   };
-  return <section className="sod29-section" aria-label="חיפוש דילוגים מתקדם" data-els-advanced-search="v1">
-    <div className="sod29-section-head"><div><div className="sod29-kicker">מחקר דילוגים</div><h3>הקשר למחקר</h3></div></div>
-    <div className="els29-research-brief" data-els-research-brief="v1">
-      <p className="els29-advanced-note">בחרו ציר ראשי קצר. הסיפור עוזר לבחור מה לבדוק סביבו ואינו נשלח כחיפוש של משפט שלם.</p>
-      <label>ציר ראשי — מילה או ביטוי קצר
-        <input aria-label="ציר ראשי למחקר" value={briefAnchor} onChange={event => {
-          setBriefAnchor(event.target.value); setBriefPlan(null); setBriefAnchorId(null); setBriefSelected(new Set()); setBriefSplit(new Set()); setNotice("");
-        }} maxLength={200} placeholder="לדוגמה: קולומביה" />
-        <small className="sod29-muted">במצב הבסיסי: 3–12 אותיות. ביטוי ארוך ומדויק נשאר בחיפוש המתקדם.</small>
-      </label>
-      <label>הסיפור או ההקשר
+  return <section className="sod29-section" aria-label="גילוי צופן" data-els-advanced-search="v1" data-els-cipher-discovery="v1">
+    <div className="sod29-section-head"><div><div className="sod29-kicker">גילוי צופן</div><h3>ספרו מה אתם רוצים למצוא</h3></div></div>
+    <div className="els29-research-brief els29-cipher-discovery" data-els-research-brief="v1">
+      <p className="els29-advanced-note">כתבו את הסיפור במילים שלכם. המערכת תבחר ציר ראשי ותכין חיפוש מוגבל שמטרתו למצוא שני ממצאים מתחברים סביבו.</p>
+      <label>הסיפור
         <textarea aria-label="סיפור או הקשר למחקר" value={briefText} onChange={event => {
           setBriefText(event.target.value); setBriefPlan(null); setBriefAnchorId(null); setBriefSelected(new Set()); setBriefSplit(new Set()); setNotice("");
-        }} rows={5} maxLength={6000} placeholder="לדוגמה: הספינה קולומביה עלתה באש…" />
+        }} rows={6} maxLength={6000} placeholder="לדוגמה: מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש…" />
       </label>
-      <label>מה חייבים לחפש סביב הציר
-        <textarea aria-label="מונחים שחייבים לבדוק" value={briefRequired} onChange={event => {
-          setBriefRequired(event.target.value); setBriefPlan(null); setBriefAnchorId(null); setBriefSelected(new Set()); setBriefSplit(new Set()); setNotice("");
-        }} rows={2} maxLength={1000} placeholder="מונח אחד בכל שורה, למשל: יכל אש" />
-      </label>
+      <details className="els29-discovery-refine">
+        <summary>דיוק ידני · רשות</summary>
+        <div className="els29-discovery-refine-grid">
+          <label>ציר ראשי, אם כבר ידוע
+            <input aria-label="ציר ראשי למחקר" value={briefAnchor} onChange={event => {
+              setBriefAnchor(event.target.value); setBriefPlan(null); setBriefAnchorId(null); setBriefSelected(new Set()); setBriefSplit(new Set()); setNotice("");
+            }} maxLength={200} placeholder="לדוגמה: קולומביה" />
+            <small className="sod29-muted">מילה או ביטוי קצר של 3–12 אותיות.</small>
+          </label>
+          <label>מילים שחייבים לבדוק
+            <textarea aria-label="מונחים שחייבים לבדוק" value={briefRequired} onChange={event => {
+              setBriefRequired(event.target.value); setBriefPlan(null); setBriefAnchorId(null); setBriefSelected(new Set()); setBriefSplit(new Set()); setNotice("");
+            }} rows={2} maxLength={1000} placeholder="מונח אחד בכל שורה, למשל: יכל אש" />
+          </label>
+          <label>היקף החיפוש
+            <select aria-label="היקף גילוי הצופן" value={form.scope} onChange={event => {
+              setForm(current => ({ ...current, scope: event.target.value })); setBriefPlan(null); setBriefAnchorId(null); setBriefSelected(new Set()); setBriefSplit(new Set()); setNotice("");
+            }}><option value="torah">תורה</option><option value="tanakh">כל התנ״ך</option></select>
+          </label>
+        </div>
+      </details>
       <div className="sod29-actions els29-brief-actions">
-        <button type="button" className="sod29-action primary" disabled={busy || !!selecting} onClick={buildBrief}>בנה תוכנית ציר והקשר</button>
+        <button type="button" className="sod29-action primary" disabled={busy || !!selecting} onClick={buildBrief}>הבן את הסיפור</button>
         <button type="button" className="sod29-action" disabled={busy || !!selecting || (!briefAnchor && !briefText && !briefRequired && !briefPlan)} onClick={clearBrief}>נקה</button>
       </div>
-      <p className="sod29-muted els29-brief-privacy">הסיפור נשאר בזיכרון המסך בלבד: הוא לא נשמר, לא נכנס לכתובת ואינו נשלח למנוע. רק הציר ומונחי ההקשר שבחרתם נשלחים בלחיצה מפורשת.</p>
-      {briefPlan ? <section className="els29-brief-plan" aria-label="תוכנית הציר וההקשר">
+      <p className="sod29-muted els29-brief-privacy">הסיפור נשאר בזיכרון המסך בלבד. בשלב הזה התכנון מקומי ודטרמיניסטי; רזיאל עדיין אינו מופעל. רק הציר ומילות החיפוש שנבחרו נשלחים למנוע הקנוני.</p>
+      {briefPlan ? <section className="els29-brief-plan" aria-label="תוכנית גילוי הצופן">
         <div className="els29-brief-plan-head">
-          <div><strong>ציר ראשי אחד · {briefPlan.contextCandidates.length} מונחי הקשר מוצעים</strong><small>{briefSelected.size} מונחי הקשר נבחרו</small></div>
-          <span className="sod29-chip">טיוטה · לא ראיה</span>
+          <div><strong>מה המערכת הבינה</strong><small>המנוע יחפש זוג מתחבר מתוך {briefSelected.size} יעדי הקשר נבחרים.</small></div>
+          <span className="sod29-chip">ציר אחד + שני ממצאים</span>
         </div>
         <fieldset className="els29-brief-axis">
-          <legend>1. בחרו ציר ראשי אחד</legend>
+          <legend>הציר הראשי</legend>
           {briefPlan.anchorCandidates.map(candidate => <label key={candidate.id} className="els29-brief-candidate">
             <input type="radio" name="els-brief-axis" checked={briefAnchorId === candidate.id} onChange={() => setBriefAnchorId(candidate.id)} />
             <span><bdi>{candidate.term}</bdi><small>{candidate.reason}</small></span>
           </label>)}
         </fieldset>
-        <div><strong>2. בחרו מה לחפש סביב כל מופע של הציר</strong><p className="sod29-muted">ביטוי בן כמה מילים נשאר רצף מדויק. המערכת לא מפרקת אותו בשקט.</p></div>
-        <div className="els29-brief-candidates">
-          {briefPlan.contextCandidates.map(candidate => <div key={candidate.id} className="els29-brief-context-row">
-            <label className="els29-brief-candidate">
-              <input type="checkbox" checked={briefSelected.has(candidate.id)} onChange={() => toggleBriefCandidate(candidate.id)} />
-              <span><bdi>{candidate.term}</bdi><small>{candidate.reason}{candidate.required ? " · מונח מחייב" : ""}{candidate.mode === "exact_phrase" ? " · רצף מדויק" : ""}</small></span>
-            </label>
-            {candidate.splitAllowed && briefSelected.has(candidate.id) ? <button type="button" className="sod29-action els29-brief-split" aria-pressed={briefSplit.has(candidate.id)} onClick={() => toggleBriefSplit(candidate.id)}>
-              {briefSplit.has(candidate.id) ? "✓ חפש גם כל מילה בנפרד" : "גם כל מילה בנפרד"}
-            </button> : null}
-          </div>)}
-        </div>
+        <details className="els29-discovery-targets">
+          <summary>מה המערכת תבדוק סביב הציר · {briefPlan.contextCandidates.length} הצעות</summary>
+          <p className="sod29-muted">אלו מועמדים לחיפוש בלבד. ביטוי בן כמה מילים נשאר רצף מדויק ואינו הופך לראיה לפני אימות.</p>
+          <div className="els29-brief-candidates">
+            {briefPlan.contextCandidates.map(candidate => <div key={candidate.id} className="els29-brief-context-row">
+              <label className="els29-brief-candidate">
+                <input type="checkbox" checked={briefSelected.has(candidate.id)} onChange={() => toggleBriefCandidate(candidate.id)} />
+                <span><bdi>{candidate.term}</bdi><small>{candidate.reason}{candidate.required ? " · מונח מחייב" : ""}{candidate.mode === "exact_phrase" ? " · רצף מדויק" : ""}</small></span>
+              </label>
+              {candidate.splitAllowed && briefSelected.has(candidate.id) ? <button type="button" className="sod29-action els29-brief-split" aria-pressed={briefSplit.has(candidate.id)} onClick={() => toggleBriefSplit(candidate.id)}>
+                {briefSplit.has(candidate.id) ? "✓ חפש גם כל מילה בנפרד" : "גם כל מילה בנפרד"}
+              </button> : null}
+            </div>)}
+          </div>
+        </details>
         {!briefPlan.contextCandidates.length ? <p className="sod29-muted">לא נבחרו מונחי הקשר. עדיין אפשר למצוא את הציר ולבנות סביבו חבילה מהמילון הקנוני.</p> : null}
         {briefPlan.references.length ? <p className="sod29-muted">תאריכים ומספרים שנשמרו כהקשר בלבד, לא כמילת ELS: <bdi>{briefPlan.references.join(" · ")}</bdi></p> : null}
         <button type="button" className="sod29-action primary els29-brief-start" disabled={busy || !!selecting || !briefAnchorId} onClick={startBriefResearch}>
-          מצא את הציר ובנה סביבו חבילת מחקר
+          מצא ציר ושני ממצאים מתחברים
         </button>
       </section> : null}
     </div>

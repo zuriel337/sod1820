@@ -6,6 +6,16 @@
 [data-els-advanced-search] .els29-research-brief>label>input{width:100%;min-height:44px}
 [data-els-advanced-search] .els29-research-brief textarea{width:100%;min-height:88px;resize:vertical}
 [data-els-advanced-search] .els29-research-brief>label+label textarea{min-height:64px}
+[data-els-cipher-discovery] .els29-cipher-discovery{max-width:920px;margin-inline:auto;padding:clamp(16px,3vw,28px)}
+[data-els-cipher-discovery] .els29-cipher-discovery>label{font-weight:700;font-size:var(--s29-type-body,16px)}
+[data-els-cipher-discovery] .els29-cipher-discovery>label textarea{min-height:clamp(150px,24vh,240px);padding:14px;line-height:1.65;font-weight:400}
+[data-els-cipher-discovery] .els29-discovery-refine,[data-els-cipher-discovery] .els29-discovery-targets{border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel)}
+[data-els-cipher-discovery] .els29-discovery-refine>summary,[data-els-cipher-discovery] .els29-discovery-targets>summary{padding:11px 13px;cursor:pointer;font-weight:700}
+[data-els-cipher-discovery] .els29-discovery-refine-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;padding:0 13px 13px}
+[data-els-cipher-discovery] .els29-discovery-refine-grid label{display:grid;gap:6px;align-content:start}
+[data-els-cipher-discovery] .els29-discovery-refine-grid input,[data-els-cipher-discovery] .els29-discovery-refine-grid select,[data-els-cipher-discovery] .els29-discovery-refine-grid textarea{width:100%;min-height:44px}
+[data-els-cipher-discovery] .els29-discovery-targets>p{margin:0;padding:0 13px 10px}
+[data-els-cipher-discovery] .els29-discovery-targets .els29-brief-candidates{padding:0 13px 13px}
 [data-els-advanced-search] .els29-brief-actions{margin:0;flex-wrap:wrap}
 [data-els-advanced-search] .els29-brief-privacy{margin:0;font-size:var(--s29-type-micro,12px);line-height:1.6}
 [data-els-advanced-search] .els29-brief-plan{display:grid;gap:12px;padding-block-start:12px;border-block-start:1px solid var(--s29-line)}

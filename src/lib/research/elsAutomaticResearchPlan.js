@@ -3,6 +3,7 @@ import { runElsAdaptiveScan } from "./els2029AdaptiveScanner.js";
 
 export const ELS_AUTOMATIC_PLAN_CONTRACT = "els_automatic_research_plan_v1";
 export const ELS_RESEARCH_BRIEF_CONTRACT = "els_research_brief_v1";
+export const ELS_CIPHER_DISCOVERY_PLAN_CONTRACT = "els_cipher_discovery_plan_v1";
 export const ELS_RELATIONSHIP_PLAN_CONTRACT = "els_relationship_research_plan_v1";
 export const ELS_AUTOMATIC_SLICE_SIZE = 8;
 const MAX_INPUT_LENGTH = 4000;
@@ -11,6 +12,8 @@ const MAX_BRIEF_LENGTH = 6000;
 const MAX_BRIEF_TARGETS = 24;
 const MAX_BASIC_AXIS_LENGTH = 12;
 const MAX_BRIEF_CONTEXTS = 18;
+const MAX_DISCOVERY_TARGETS = 12;
+const DEFAULT_DISCOVERY_SUPPORTS = 2;
 const MAX_RELATIONSHIP_TERM_LENGTH = 16;
 const MAX_RELATIONSHIP_ADDITIONAL_TERMS = 6;
 const HEBREW_MARKS = /[\u0591-\u05C7]/g;
@@ -198,6 +201,81 @@ export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms =
     exactPhrasesStayWhole: true,
     persisted: false,
     aiUsed: false,
+    truthPromotion: false,
+  });
+}
+
+/**
+ * Story-first projection for the clean Cipher Discovery surface.
+ *
+ * This is deliberately only a bounded search plan. Raziel may later propose
+ * semantic families through the same fields, but neither this projection nor
+ * Raziel owns ELS search, verification, geometry or truth. The canonical
+ * engine still has to discover and verify every displayed path.
+ */
+export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
+  const brief = prepareElsResearchBrief({ text, anchorTerm, requiredTerms, scope });
+  if (brief.error) return brief;
+
+  const selectedAxis = brief.anchorCandidates.find(candidate => candidate.id === brief.recommendedAnchorId);
+  const axisKey = selectedAxis?.canonicalTerm || "";
+  const orderedTargets = [...brief.contextCandidates]
+    .filter(candidate => candidate.required || (
+      candidate.canonicalTerm !== axisKey
+      && !candidate.canonicalTerm.includes(axisKey)
+      && !axisKey.includes(candidate.canonicalTerm)
+    ))
+    .sort((a, b) => Number(b.required) - Number(a.required)
+      || Number(a.mode !== "term") - Number(b.mode !== "term")
+      || b.priority - a.priority
+      || a.term.localeCompare(b.term, "he"))
+    .slice(0, MAX_DISCOVERY_TARGETS)
+    .map((candidate, index) => Object.freeze({
+      ...candidate,
+      selected: candidate.required || index < 6,
+      supportPriority: index + 1,
+    }));
+
+  return Object.freeze({
+    ...brief,
+    contract: ELS_CIPHER_DISCOVERY_PLAN_CONTRACT,
+    mode: "story-first-pair",
+    contextCandidates: Object.freeze(orderedTargets),
+    candidates: Object.freeze([
+      ...(selectedAxis ? [selectedAxis] : []),
+      ...orderedTargets,
+    ]),
+    goal: Object.freeze({
+      primaryAxes: 1,
+      connectedSupports: DEFAULT_DISCOVERY_SUPPORTS,
+      sourceSequence: "WHEN_AVAILABLE",
+      resultPolicy: "ONE_BEST_STRUCTURE",
+    }),
+    limits: Object.freeze({
+      semanticFamilies: 4,
+      targetTerms: MAX_DISCOVERY_TARGETS,
+      fullAxisOccurrences: 5,
+      verificationAttemptsPerOccurrence: 12,
+      visibleStructures: 1,
+      alternateStructures: 2,
+    }),
+    geometryOrder: Object.freeze([
+      "EXACT_INTERSECTION",
+      "TOUCH_OR_ADJACENCY",
+      "SAME_OR_NEAR_SKIP",
+      "SHARED_SOURCE_SEQUENCE",
+      "BOUNDED_LOCAL_GAP",
+    ]),
+    raziel: Object.freeze({
+      role: "OPTIONAL_PRE_SEARCH_PLANNER",
+      connected: false,
+      maySuggestVocabulary: true,
+      maySearchOrVerify: false,
+      mayPromoteTruth: false,
+      maxCallsBeforeSearch: 1,
+    }),
+    aiUsed: false,
+    persisted: false,
     truthPromotion: false,
   });
 }

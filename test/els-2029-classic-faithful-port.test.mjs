@@ -27,7 +27,7 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
 test("saved ciphers open directly through an on-screen canonical replay state", () => {
   assert.match(page, /const directSavedOpen = Boolean\(cipherSlug \|\| recordId\)/);
   assert.match(page, /introVariant=\{library \|\| directSavedOpen \? "none" : "compact"\}/);
-  assert.match(page, /!directSavedOpen \? <ElsRecentCiphers2029/);
+  assert.match(page, /!directSavedOpen && !researchProfile \? <ElsRecentCiphers2029/);
   assert.match(page, /directSavedOpen \? <ElsRecentCiphers2029/);
   assert.match(page, /data-els-research-tools="brief-visible-v1" hidden=\{!researchProfile \|\| directSavedOpen\}/);
   assert.ok(page.indexOf("<ElsNativeClassic2029") < page.lastIndexOf("<ElsRecentCiphers2029"), "the saved-cipher folder follows the matrix on a direct saved open");
@@ -51,7 +51,8 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(nativeClassic, /onGate=\{\(\) => \{ setClassicOpen\(false\);[\s\S]*?setAccountRequired\(true\)/);
   assert.match(embed, /const gateOverlay = !experience2029 && gate && !verified/);
   assert.match(embed, /\(experience2029 \? "&experience=2029" : ""\)/);
-  assert.match(nativeClassic, /classicOpen \? "חזור למסך המחקר" : "מצב קלאסי"/);
+  assert.match(nativeClassic, /researchProfile \? "חזור לגילוי צופן" : "חזור למטריצה"/);
+  assert.match(nativeClassic, /researchProfile \? "מצב קלאסי" : "כל הכלים"/);
   assert.doesNotMatch(nativeClassic, /\(engineSeed \|\| classicOpen\) \?/);
 
   assert.match(embed, /engineOnly = false/);

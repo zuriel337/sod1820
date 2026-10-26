@@ -1588,6 +1588,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   // still comes exclusively from the mounted engine and is re-verified server-side.
   const [savedAxisReplacement, setSavedAxisReplacement] = useState(null);
   const [crossOpen, setCrossOpen] = useState(false);
+  const crossSearchOpen = researchProfile && crossOpen;
   const [crossTerm, setCrossTerm] = useState("");
   const [crossRadius, setCrossRadius] = useState(18);
   const [windowSize, setWindowSize] = useState("small");
@@ -1721,7 +1722,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const submit = (event) => {
     event?.preventDefault?.();
-    if (crossOpen) { submitCross(); return; }
+    if (crossSearchOpen) { submitCross(); return; }
     const term = clean(query);
     if (term.length < 2) {
       setNotice("כתבו לפחות שתי אותיות.");
@@ -1731,7 +1732,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const switchScope = (scope) => {
-    if (crossOpen) { submitCross(scope); return; }
+    if (crossSearchOpen) { submitCross(scope); return; }
     const term = clean(query) || clean(engineState?.termRaw || engineState?.term);
     if (term.length < 2) {
       setNotice("בחרו מונח ואז עברו בין תורה לכל התנ״ך.");
@@ -2272,14 +2273,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     {savedLoadPending ? <SavedMatrixLoadProgress matrix={matrix} state={engineState} /> : null}
     <form id="els29-query" className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS" hidden={savedLoadPending}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
-        <span><strong>חיפוש חדש</strong> · בחרו ציר יחיד או הצלבה</span>
-        <button type="button" aria-pressed={!crossOpen} onClick={() => { if (crossOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
-        <button className="els29-native-cross-toggle" type="button" aria-pressed={crossOpen} aria-expanded={crossOpen}
-          onClick={() => { if (crossOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button>
+        <span><strong>חיפוש חדש</strong>{researchProfile ? " · בחרו ציר יחיד או הצלבה" : ""}</span>
+        {researchProfile ? <>
+          <button type="button" aria-pressed={!crossSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
+          <button className="els29-native-cross-toggle" type="button" aria-pressed={crossSearchOpen} aria-expanded={crossSearchOpen}
+            onClick={() => { if (crossSearchOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button>
+        </> : null}
       </div>
       <div className="els29-native-query-terms">
       <label>
-        <span>{crossOpen ? "מונח ראשון" : "מונח"}</span>
+        <span>{crossSearchOpen ? "מונח ראשון" : "מונח"}</span>
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -2288,7 +2291,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           autoComplete="off"
         />
       </label>
-      {crossOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
+      {crossSearchOpen ? <div className="els29-native-cross-row" data-els-native-cross="simple">
         <label>
           <span>מונח שני</span>
           <input
@@ -2300,7 +2303,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           />
         </label>
       </div> : null}
-      {!crossOpen && (clean(query).split(/\s+/).length > 1 || clean(query).replace(/[^א-ת]/g, "").length >= 7) ? <div className="els29-native-search-coach" role="note">
+      {researchProfile && !crossSearchOpen && (clean(query).split(/\s+/).length > 1 || clean(query).replace(/[^א-ת]/g, "").length >= 7) ? <div className="els29-native-search-coach" role="note">
         <span>אפשר לחפש את הביטוי בשלמותו, או לבדוק מפגש בין שתי מילים קצרות.</span>
         <button type="button" onClick={() => {
           const [first, ...rest] = clean(query).split(/\s+/);
@@ -2324,7 +2327,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           onClick={() => switchScope("tanakh")}
         >כל התנ״ך</button>
       </div>
-      {crossOpen ? <>
+      {crossSearchOpen ? <>
         <label className="els29-native-cross-distance">
           <span>מרחק מרבי מהציר בהצלבה <output>{crossRadius} תאים</output></span>
           <input type="range" min="2" max="20" step="1" value={crossRadius}
@@ -2337,8 +2340,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         </label>
       </> : null}
       <div className="els29-native-query-actions">
-        <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossOpen ? "חפש הצלבה" : "חפש"}</button>
-        <button className="els29-native-more" type="button" aria-label={classicOpen ? "חזור למסך המחקר" : "מצב קלאסי"} onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>{classicOpen ? "חזור למסך המחקר" : "מצב קלאסי"}</button>
+        <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossSearchOpen ? "חפש הצלבה" : "חפש"}</button>
+        <button className="els29-native-more" type="button"
+          aria-label={classicOpen ? (researchProfile ? "חזור לגילוי צופן" : "חזור למטריצה") : (researchProfile ? "מצב קלאסי" : "כל הכלים")}
+          onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>
+          {classicOpen ? (researchProfile ? "חזור לגילוי צופן" : "חזור למטריצה") : (researchProfile ? "מצב קלאסי" : "כל הכלים")}
+        </button>
       </div>
       </div>
     </form>
@@ -2441,7 +2448,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         </section> : null}
         </div>
         {!compactMobile ? <div className="els29-native-toolstrip" hidden={classicOpen || savedLoadPending} role="group" aria-label="כלי המטריצה">
-          {[["results", "ציר ומופעים", "posts"], ["findings", "חבילת מחקר", "els"], ...(researchProfile ? [["structures", "מתקדם", "dna"]] : []), ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
+          {(researchProfile
+            ? [["results", "ציר ומופעים", "posts"], ["findings", "חבילת מחקר", "els"], ["structures", "מתקדם", "dna"], ["research", "שמירה", "books"]]
+            : [["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]]
+          ).map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={visibleTool === tool} aria-controls="els29-context-panel"
             onClick={(event) => visibleTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
@@ -2453,12 +2463,14 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           hidden={classicOpen || savedLoadPending || !visibleTool}>
         <ContextualInspector2029 id="els29-context-panel" className="els29-native-context-panel" ariaLabel="כלי ELS והקשר המטריצה">
           <header className="els29-native-panel-head">
-            <strong>{compactMobile && matrixActive ? "סביבת המחקר" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "structures" ? "כלים מתקדמים" : visibleTool === "results" ? (resultsAreCross ? "צירים ומפגשי הצלבה" : "חבילת המחקר · ציר ומופעים") : "חבילת המחקר · ממצאים ומקור"}</strong>
+            <strong>{researchProfile
+              ? compactMobile && matrixActive ? "גילוי צופן" : visibleTool === "research" ? "שמירה והמשך מחקר" : visibleTool === "structures" ? "כלים מתקדמים" : visibleTool === "results" ? (resultsAreCross ? "צירים ומפגשי הצלבה" : "חבילת המחקר · ציר ומופעים") : "חבילת המחקר · ממצאים ומקור"
+              : visibleTool === "research" ? "שמירה" : visibleTool === "results" ? "תוצאות החיפוש" : "סריקה וממצאים"}</strong>
             {!compactMobile ? <button type="button" onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את החלונית">×</button> : null}
           </header>
-          {compactMobile ? <nav className="els29-native-context-nav" aria-label="תצוגות סביבת המחקר">
-            <button type="button" aria-label="ציר ומופעים" aria-pressed={visibleTool === "results"} onClick={() => openTool("results")}>ציר ומופעים</button>
-            <button type="button" aria-label="חבילת מחקר" aria-pressed={visibleTool === "findings"} onClick={() => openTool("findings")}>מחקר</button>
+          {compactMobile ? <nav className="els29-native-context-nav" aria-label={researchProfile ? "תצוגות גילוי צופן" : "כלי המטריצה הקלאסית"}>
+            <button type="button" aria-label={researchProfile ? "ציר ומופעים" : "תוצאות"} aria-pressed={visibleTool === "results"} onClick={() => openTool("results")}>{researchProfile ? "ציר ומופעים" : "תוצאות"}</button>
+            <button type="button" aria-label={researchProfile ? "חבילת מחקר" : "סריקה וממצאים"} aria-pressed={visibleTool === "findings"} onClick={() => openTool("findings")}>{researchProfile ? "מחקר" : "ממצאים"}</button>
             {researchProfile ? <button type="button" aria-label="מתקדם" aria-pressed={visibleTool === "structures"} onClick={() => openTool("structures")}>מתקדם</button> : null}
             <button type="button" className="is-action" aria-label="שמירה" aria-pressed={visibleTool === "research"} onClick={() => openTool("research")}>שמור</button>
           </nav> : null}

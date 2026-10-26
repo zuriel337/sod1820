@@ -210,6 +210,33 @@ on profile entry. The slice adds no engine, store, graph, Provider, Journey, dat
 permission or RLS change. B12/B13, numeric interpretation, Raziel and semantic explanation remain
 separate consumers after this structural base.
 
+## Cipher Discovery Plan v1 — 25.10.2026
+
+The public Research entry is named **גילוי צופן**. Its empty state is story-first and keeps the
+matrix, recent-public folder and Research rails out of view until the researcher explicitly starts
+a bounded plan. Manual axis, required-term and scope controls remain available under an optional
+disclosure. Classic retains its original `תוצאות`, `תוצאות החיפוש`, `סריקה וממצאים` and
+`כל הכלים` language and exposes no cross-search entry.
+
+`els_cipher_discovery_plan_v1` compiles the private in-memory story through the existing local brief
+compiler. The story is never persisted, placed in the URL or sent to the ELS engine. Only one
+selected axis and at most twelve editable context targets may cross the host bridge. The plan's
+default result goal is one primary axis, two geometrically connected verified supports and one
+exact source sequence when available. It asks for one best structure and at most two alternates;
+raw candidates remain Advanced material.
+
+The bounded policy permits at most four future semantic families, five primary-axis occurrences
+for full inspection and twelve canonical verification attempts per occurrence. Geometry remains
+engine-owned and is considered in the declared order: exact intersection, touching/adjacency,
+same or neighboring skip, shared source sequence and bounded local gap. Numeric skip resonance may
+later be projected as an explanation signal but can never promote a weak structure or create
+evidence.
+
+Raziel is declared only as an optional pre-search planner. It is not connected in v1. A later
+Raziel consumer may suggest bounded vocabulary through this same contract, with at most one call
+before search, but may not search letters, verify paths, rank truth or own engine/state/store/graph.
+The saved Goldens remain tests only and never feed the runtime plan.
+
 ## Saved Evidence Replay and Local Gap Stage B — 25.10.2026
 
 A saved matrix is replay evidence, not a request to rediscover its primary term across the complete

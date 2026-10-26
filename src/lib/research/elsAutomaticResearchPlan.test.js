@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prepareElsAutomaticResearchPlan, prepareElsRelationshipResearchPlan, prepareElsResearchBrief, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
+import { prepareElsAutomaticResearchPlan, prepareElsCipherDiscoveryPlan, prepareElsRelationshipResearchPlan, prepareElsResearchBrief, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
 
 const base = { expressions: "סוד החשמל\nאמת", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "2" };
 
@@ -77,6 +77,33 @@ test("a story can suggest an axis but never becomes a full-sentence search targe
   assert.ok(brief.anchorCandidates.some(row => row.canonicalTerm === "קולומביה"));
   assert.ok(brief.anchorCandidates.every(row => row.canonicalTerm.length <= 12));
   assert.ok(brief.candidates.every(row => row.canonicalTerm !== "הספינהקולומביהעלתהבאשונשארהבלבימ"));
+});
+
+test("cipher discovery compiles one story into one axis and a bounded pair-first goal", () => {
+  const plan = prepareElsCipherDiscoveryPlan({
+    text: "מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש",
+    anchorTerm: "קולומביה",
+    requiredTerms: "ספינת\nיכל אש\nאש אכלה",
+  });
+  assert.equal(plan.contract, "els_cipher_discovery_plan_v1");
+  assert.equal(plan.mode, "story-first-pair");
+  assert.equal(plan.goal.primaryAxes, 1);
+  assert.equal(plan.goal.connectedSupports, 2);
+  assert.equal(plan.goal.resultPolicy, "ONE_BEST_STRUCTURE");
+  assert.equal(plan.limits.targetTerms, 12);
+  assert.equal(plan.limits.fullAxisOccurrences, 5);
+  assert.equal(plan.limits.verificationAttemptsPerOccurrence, 12);
+  assert.equal(plan.raziel.role, "OPTIONAL_PRE_SEARCH_PLANNER");
+  assert.equal(plan.raziel.connected, false);
+  assert.equal(plan.raziel.maySearchOrVerify, false);
+  assert.equal(plan.aiUsed, false);
+  assert.equal(plan.truthPromotion, false);
+  assert.ok(plan.contextCandidates.length <= 12);
+  assert.deepEqual(new Set(plan.contextCandidates.slice(0, 3).map(row => row.canonicalTerm)), new Set(["ספינת", "יכלאש", "אשאכלה"]));
+  assert.deepEqual(plan.candidates.filter(row => row.role === "axis").map(row => row.canonicalTerm), ["קולומביה"]);
+  assert.ok(Object.isFrozen(plan));
+  assert.ok(Object.isFrozen(plan.goal));
+  assert.ok(Object.isFrozen(plan.limits));
 });
 
 test("automatic plan derives each expression once, explains every form and deduplicates canonical terms", () => {
