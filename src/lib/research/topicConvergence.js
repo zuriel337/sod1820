@@ -54,6 +54,14 @@ export const TOPIC_CARD_SELECT_FIELDS =
   "id,slug,title,subtitle,numbers,highlight_numbers,status,quality,meter_score,created_at,approved_at,node_id," +
   "findings,created_by,search_terms,image_ids,occurred_at";
 
+const PERSONAL_TOPIC_RPC = "my_personal_topic_cards_2029";
+
+function isPersonalTopicAccessDenied(error) {
+  const code = String(error?.code ?? "");
+  const status = Number(error?.status ?? error?.statusCode ?? 0);
+  return code === "42501" || code === "PGRST202" || status === 401 || status === 403;
+}
+
 const ATTRIBUTION_KEYS = Object.freeze(["source", "writer", "credit", "curator"]);
 const FLAG_KEYS = Object.freeze(["auto", "writer_convergence", "curated"]);
 
@@ -433,10 +441,12 @@ export function topicConvergenceToUniversalFinding(
       confidence: null,
     },
     access: {
-      tier: null,
+      tier: card?.access_scope === "person_only" ? "personal" : null,
       // Represents a SOURCE-OWNED marker only (truth_axes PR1): the author flagged the body
       // "do not publish". It is not a publication decision and does not change access truth.
-      reason: content?.flags?.doNotPublish ? "source-flag:_do_not_publish" : null,
+      reason: card?.access_scope === "person_only"
+        ? "owner-authorized:person_only"
+        : content?.flags?.doNotPublish ? "source-flag:_do_not_publish" : null,
     },
     provenance: {
       createdBy: "ADAPTER:topic-convergence-v1",
@@ -464,8 +474,11 @@ export function topicConvergenceToUniversalFinding(
   });
 }
 
-// Read-only canonical fetch path. Approved topic_cards are the edited source; the linked
-// convergence node/edges are the graph projection. No writes occur in this function.
+// Read-only canonical fetch path. The public projection is always attempted first. Only when it
+// has no row do we ask the owner-bound, sanitized 2029 RPC for an authenticated personal row.
+// Authorization is resolved in Postgres from auth.uid()→persons; this client never sends an owner
+// id and never embeds personal content in the bundle. The linked node/edges are still the canonical
+// Reality Graph projection. No writes occur in this function.
 export async function fetchCanonicalTopicConvergenceFinding(slug) {
   const requestedSlug = nonEmpty(slug);
   if (!requestedSlug) return null;
@@ -482,8 +495,18 @@ export async function fetchCanonicalTopicConvergenceFinding(slug) {
     .in("slug", candidates)
     .limit(candidates.length);
   if (cardError) throw cardError;
-  const sourceCard = (Array.isArray(cardRows) ? cardRows : []).find((row) => row?.slug === canonicalSlug)
-    || (Array.isArray(cardRows) ? cardRows[0] : null);
+  let availableCards = Array.isArray(cardRows) ? cardRows : [];
+  if (!availableCards.length) {
+    const { data: personalRows, error: personalError } = await supabase.rpc(PERSONAL_TOPIC_RPC, {
+      p_slugs: candidates,
+    });
+    if (personalError && !isPersonalTopicAccessDenied(personalError)) throw personalError;
+    availableCards = personalError ? [] : (Array.isArray(personalRows) ? personalRows : []);
+  }
+
+  const sourceCard = availableCards.find((row) => row?.slug === canonicalSlug)
+    || availableCards[0]
+    || null;
   if (!sourceCard) return null;
   const card = sourceCard.slug === canonicalSlug ? sourceCard : { ...sourceCard, slug: canonicalSlug };
 

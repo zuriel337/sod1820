@@ -2,7 +2,7 @@
 
 Date: 2026-10-26
 
-Status: `BRANCH_ONLY · CONTRACT COMPILER + TESTS · NO UI · NO DB WRITE · NO MERGE · NO DEPLOY`
+Status: `BRANCH_ONLY · CONTRACT + OWNER-BOUND TOPIC ADAPTER · NO LIVE DB WRITE · NO MERGE · NO DEPLOY`
 
 Branch: `gpt/system-self-model-contract-20261026`
 Owner verdict: `EXTEND_EXISTING`
@@ -108,9 +108,13 @@ on 2026-10-26. The initial slice added only:
 - this review
 
 The next isolated slice added the generic branch contract, its tests/reconciliation and the
-elections profile/seed without entering any active session-owned path.
+elections profile/seed without entering any active session-owned path. A later isolated slice added
+an unapplied owner-bound migration candidate and canonical Topic read fallback for the existing
+`888-yeshua` branch; it did not enter World, Raziel, Personal Area, System Frame or visual files.
 
-It does not edit `App2029.jsx`, `SystemFrame2029.jsx`, World, Topic, Raziel, Personal Area, CSS, database objects, migrations, flags, routes or production.
+It does not edit `App2029.jsx`, `SystemFrame2029.jsx`, World, Raziel, Personal Area, CSS, flags,
+routes or production. The SQL migration is branch-only and was validated against an isolated local
+PostgreSQL 17 instance; it was not applied to Supabase.
 
 ## 8. Acceptance for this slice
 

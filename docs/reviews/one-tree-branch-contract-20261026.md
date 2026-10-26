@@ -4,7 +4,8 @@ Date: 2026-10-26
 
 Branch: `gpt/system-self-model-contract-20261026`
 
-State: branch-only contract implementation; no canonical write, publication, flag change or deploy
+State: branch-only contract + owner-bound Topic adapter; migration candidate not applied live; no
+merge, publication, flag change or deploy
 
 ## Decision
 
@@ -119,6 +120,37 @@ Important behavior:
 The branch compiler grants nothing. It only respects an access descriptor already established by a
 trusted boundary.
 
+## First owner-bound Topic adaptation — 888 / Yeshua
+
+The existing `888-yeshua` Topic is the first concrete `personal` branch adaptation. The user
+identified the Jesus material as coming from writer Amit Bliz and directed that it remain in One
+Tree while being visible only to the account owner.
+
+The branch-only migration candidate
+`supabase/migrations/20261026130000_personal_one_tree_topic_branch_v1.sql` extends the existing
+owners rather than creating a private store:
+
+- `topic_cards` gains a separate `public | person_only` access axis and canonical
+  `persons.person_id` owner;
+- the public view and raw-table policy require both public access and the existing publication
+  gates;
+- an authenticated RPC derives ownership from `auth.uid() → persons` and returns a sanitized row
+  without owner ids or underscore-prefixed internal fields;
+- the Reality Graph reuses `metadata.space='private'` plus an owner-bound access receipt on the
+  existing convergence node and its edges;
+- `sync_convergence` preserves that private/inactive state on every later Topic→Graph sync;
+- the public SECURITY DEFINER `number_map` now enforces graph space explicitly, and the internal
+  `fn_number_dossier` applies the owner gate before returning raw Topic cards to an admin;
+- four existing Amit research objects become `person_only`, retain their existing candidate and
+  engine-verification states, and remain in Research OS;
+- the visible private attribution is `עמית בליז`; the existing canonical contributor identity
+  `amit-mike-rob` / `עמית מייק רוב` is preserved as provenance and is not globally renamed;
+- attribution is explicitly not verification, canonicalization or publication.
+
+The 2029 Topic reader remains public-first. Only when the public view has no row does it call the
+owner RPC. Anonymous callers, other account owners and other admins receive no personal row. The
+personal material is not embedded in client code or a static branch bundle.
+
 ## Consumer contract
 
 One function projects the same branch identity and evidence ids to:
@@ -202,11 +234,18 @@ note and personal moment in one branch. Tests prove:
 - fail-closed dangling refs, dependency cycles, canonical states and visual payloads;
 - deep immutability;
 - unchanged elections results and evidence separation after profile migration.
+- PostgreSQL 17 integration proof that anon and a second admin cannot read the personal Topic,
+  graph branch, number dossier card or linked research, while the owner can;
+- repeat Topic→Graph synchronization keeps the personal node inactive and all recreated edges
+  private;
+- the 2029 production build succeeds with the owner-only fallback wired.
 
 ## Deliberately not changed
 
-- no product database or migration;
-- no canonical `nodes`/`edges` write;
+- no live product-database write; the owner-bound SQL exists only as an unapplied migration
+  candidate on this branch;
+- no live canonical `nodes`/`edges` write; the exact owner-bound update remains inside the
+  unapplied migration candidate;
 - no route, site flag, sitemap or launch-state change;
 - no active World, Topic, Raziel, Workspace or Personal component;
 - no CSS, visual design or 3D implementation;

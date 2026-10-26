@@ -183,6 +183,23 @@ test("unknown keys are explicit unsupported facts; _-prefixed keys are names onl
   assert.equal(serialized.includes("curated_by"), false);
 });
 
+test("an owner-authorized person_only card carries personal access without promoting truth", () => {
+  const finding = topicConvergenceToUniversalFinding({
+    card: {
+      ...PHRASES_CARD,
+      status: "draft",
+      access_scope: "person_only",
+      findings: { ...PHRASES_CARD.findings, _do_not_publish: true },
+    },
+  });
+
+  assert.equal(finding.access.tier, "personal");
+  assert.equal(finding.access.reason, "owner-authorized:person_only");
+  assert.equal(finding.stage, null);
+  assert.equal(finding.status, null);
+  assert.equal(finding.verification.verification_state, null);
+});
+
 // ── Identity stability + no mutation ───────────────────────────────────────────────────────────
 test("Finding id is unchanged by authored content; card input is not mutated", () => {
   const bare = topicConvergenceToUniversalFinding({ card: { id: PHRASES_CARD.id, slug: PHRASES_CARD.slug, title: PHRASES_CARD.title, status: "approved" } });
