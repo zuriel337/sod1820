@@ -261,6 +261,36 @@ test("technically-ready replay keeps source and target decisions separate", () =
   assert.equal(projected.legacyReplay.decision.mutatesLiveData, false);
 });
 
+test("multiple targets preserve an exact primary number separately from contextual and numeric candidates", () => {
+  const contextual = row({
+    value: 68,
+    meta: { ext: { wa_channel_intake: { tree_matches: [
+      { type: "number", key: "68" },
+      { type: "topic", key: "life" },
+    ] } } },
+  });
+  const additionalNumber = row({
+    id: id("2"),
+    value: 68,
+    meta: { ext: { wa_channel_intake: { tree_matches: [
+      { type: "number", key: "68" },
+      { type: "number", key: "7" },
+    ] } } },
+  });
+  const index = buildWorldLegacyReplayIndex([contextual, additionalNumber]);
+  const contextualDecision = attachWorldLegacyReplay({
+    id: `research:${contextual.id}`, sourceId: contextual.id, verification: "legacy_signal",
+  }, index).legacyReplay.decision;
+  const additionalNumberDecision = attachWorldLegacyReplay({
+    id: `research:${additionalNumber.id}`, sourceId: additionalNumber.id, verification: "legacy_signal",
+  }, index).legacyReplay.decision;
+
+  assert.equal(contextualDecision.targetEvidenceStateCounts.exact_value_primary_with_context, 1);
+  assert.equal(additionalNumberDecision.targetEvidenceStateCounts.exact_value_among_multiple_numbers, 1);
+  assert.equal(contextualDecision.targetReadiness, "multiple_structured_targets");
+  assert.equal(additionalNumberDecision.targetReadiness, "multiple_structured_targets");
+});
+
 test("source repair blocks automatic target handling and target counts preserve every occurrence", () => {
   const decision = classifyWorldLegacyReplayDecision([
     {

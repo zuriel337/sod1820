@@ -5,7 +5,7 @@ import { WORLD_CORPUS_TRIAGE_AUDIT } from "../api/world-corpus-triage-audit.js";
 test("manager corpus audit keeps publication, verification and catalog completeness separate", () => {
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.scope, "read_only_recommendations");
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.workstreams.length, 7);
-  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 37);
+  assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.length, 39);
   assert.deepEqual(["medium", "weak"].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [4164, 6362]);
   assert.match(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "duplicates").next, /בלי מחיקה/u);
   const zviReplay = WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_replay");
@@ -36,6 +36,10 @@ test("manager corpus audit keeps publication, verification and catalog completen
     "zvi_ready_multiple_targets",
     "zvi_ready_missing_target",
   ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [12, 102, 153, 1856, 486]);
+  assert.deepEqual([
+    "zvi_ready_primary_number_context",
+    "zvi_ready_additional_numbers",
+  ].map((key) => WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === key).total), [533, 1323]);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_matrix_claim_unmatched").total, 393);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_incomplete_method").total, 1);
   assert.equal(WORLD_CORPUS_TRIAGE_AUDIT.findingBatches.find((row) => row.key === "zvi_legacy_source_metadata").total, 3);
@@ -110,5 +114,11 @@ test("audit routes only to existing canonical World views", () => {
   ].map((label) => zvi.counts.find((item) => item.label === label).value), [153, 313, 389, 560, 594]);
   assert.equal(zvi.counts.find((item) => item.label === "יעד יחיד תואם במדויק ל־value").value, 153);
   assert.equal(zvi.counts.find((item) => item.label === "סתירות בין יעד יחיד ל־value").value, 0);
+  assert.equal(zvi.counts.find((item) => item.label === "מרובי יעדים עם מספר תואם ל־value").value, 1856);
+  assert.deepEqual([
+    "מספר תואם יחיד ועוד הקשרים",
+    "מספר תואם לצד מספרים נוספים",
+    "בשלים עם יעד מספר מדויק",
+  ].map((label) => zvi.counts.find((item) => item.label === label).value), [533, 1323, 2009]);
   assert.match(zvi.route, /contributorId=c66f0464-0928-490e-be9b-66d8a87e7fc8/u);
 });

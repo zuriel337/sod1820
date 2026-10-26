@@ -180,6 +180,16 @@ const REPLAY_TARGET_LABELS = Object.freeze({
   mixed_target_states: "מצבי יעד שונים באשכול",
 });
 
+const REPLAY_TARGET_EVIDENCE_LABELS = Object.freeze({
+  exact_row_value_match: "יעד מספר יחיד תואם לערך",
+  exact_value_primary_with_context: "מספר ראשי תואם + הקשרים",
+  exact_value_among_multiple_numbers: "מספר תואם + מספרים נוספים",
+  row_value_conflict: "סתירה בין יעד מספר לערך",
+  missing_row_value: "יעד מספר בלי ערך מובנה",
+  structured_target_only: "יעד מובנה ללא התאמת ערך",
+  multiple_structured_targets_only: "כמה יעדים ללא התאמת ערך",
+});
+
 const LEGACY_REPLAY_READY = new Set(["deterministic_match", "arithmetic_match", "compound_match", "explicit_match", "legacy_matrix_match"]);
 const LEGACY_REPLAY_BLOCKED = new Set([
   "deterministic_mismatch",
@@ -272,7 +282,7 @@ function occurrenceSourceKey(occurrence) {
 
 function initialReviewFilters() {
   if (typeof window === "undefined") return {
-    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySource: "all", replayTarget: "all",
+    finding: "", contributorId: "", contributorLabel: "", sort: "strength", strength: "all", recommendation: "all", verification: "all", replay: "all", replayQueue: "all", replaySource: "all", replayTarget: "all", replayTargetEvidence: "all",
   };
   const params = new URLSearchParams(window.location.search);
   const sort = clean(params.get("sort"));
@@ -283,6 +293,7 @@ function initialReviewFilters() {
   const replayQueue = clean(params.get("replayQueue"));
   const replaySource = clean(params.get("replaySource"));
   const replayTarget = clean(params.get("replayTarget"));
+  const replayTargetEvidence = clean(params.get("replayTargetEvidence"));
   return {
     finding: clean(params.get("finding")),
     contributorId: clean(params.get("contributorId")),
@@ -296,6 +307,7 @@ function initialReviewFilters() {
     replayQueue: Object.hasOwn(MISSING_ENGINE_QUEUE_LABELS, replayQueue) ? replayQueue : "all",
     replaySource: Object.hasOwn(REPLAY_SOURCE_LABELS, replaySource) ? replaySource : "all",
     replayTarget: Object.hasOwn(REPLAY_TARGET_LABELS, replayTarget) ? replayTarget : "all",
+    replayTargetEvidence: Object.hasOwn(REPLAY_TARGET_EVIDENCE_LABELS, replayTargetEvidence) ? replayTargetEvidence : "all",
   };
 }
 
@@ -374,6 +386,7 @@ export default function WorldAllResearchTable({ state }) {
   const [replayQueue, setReplayQueue] = useState(initial.replayQueue);
   const [replaySource, setReplaySource] = useState(initial.replaySource);
   const [replayTarget, setReplayTarget] = useState(initial.replayTarget);
+  const [replayTargetEvidence, setReplayTargetEvidence] = useState(initial.replayTargetEvidence);
   const [retryKey, setRetryKey] = useState(0);
   const [review, setReview] = useState({ loading: false, loadingMore: false, error: null, projection: null, page: null });
   const [elsQueue, setElsQueue] = useState({ open: false, loading: false, error: null, data: null, filter: "all", limit: 40 });
@@ -385,8 +398,8 @@ export default function WorldAllResearchTable({ state }) {
 
   const filters = useMemo(() => ({
     query, finding, kind, access, status, verification, contributor, contributorId, tree, meter,
-    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget,
-  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget]);
+    sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget, replayTargetEvidence,
+  }), [query, finding, kind, access, status, verification, contributor, contributorId, tree, meter, sort, strength, recommendation, continuation, quality, topic, source, replay, replayQueue, replaySource, replayTarget, replayTargetEvidence]);
 
   const resetFilters = () => {
     setQuery("");
@@ -409,6 +422,7 @@ export default function WorldAllResearchTable({ state }) {
     setReplayQueue("all");
     setReplaySource("all");
     setReplayTarget("all");
+    setReplayTargetEvidence("all");
   };
 
   useEffect(() => {
@@ -866,6 +880,8 @@ export default function WorldAllResearchTable({ state }) {
         <span><b>{projection.byLegacyReplayTargetReadiness?.already_connected || 0}</b> כבר מחוברות</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.single_structured_target || 0}</b> עם יעד יחיד לבדיקה</span>
         <span><b>{projection.byLegacyReplayTargetEvidence?.exact_row_value_match || 0}</b> יעדי מספר יחידים שתואמים לערך המובנה</span>
+        <span><b>{projection.byLegacyReplayTargetEvidence?.exact_value_primary_with_context || 0}</b> מספר ראשי תואם עם הקשרים נוספים</span>
+        <span><b>{projection.byLegacyReplayTargetEvidence?.exact_value_among_multiple_numbers || 0}</b> מספר תואם לצד מספרים נוספים</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.multiple_structured_targets || 0}</b> עם כמה יעדים</span>
         <span><b>{projection.byLegacyReplayTargetReadiness?.missing_structured_target || 0}</b> בלי יעד מובנה</span>
       </div> : null}
@@ -890,6 +906,7 @@ export default function WorldAllResearchTable({ state }) {
         <label><span>ניתוב ללא מעטפת מנוע</span><select value={replayQueue} onChange={(e) => setReplayQueue(e.target.value)}><option value="all">כל סוגי התוכן</option>{Object.entries(MISSING_ENGINE_QUEUE_LABELS).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
         <label><span>שלמות מקור · בשל טכנית</span><select value={replaySource} onChange={(e) => setReplaySource(e.target.value)}><option value="all">מקור מדויק ותיקונים</option>{Object.entries(REPLAY_SOURCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplaySourceReadiness?.[value] || 0}</option>)}</select></label>
         <label><span>מצב יעד · בשל טכנית</span><select value={replayTarget} onChange={(e) => setReplayTarget(e.target.value)}><option value="all">כל מצבי היעד</option>{Object.entries(REPLAY_TARGET_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetReadiness?.[value] || 0}</option>)}</select></label>
+        <label><span>ראיית יעד · בשל טכנית</span><select value={replayTargetEvidence} onChange={(e) => setReplayTargetEvidence(e.target.value)}><option value="all">כל ראיות היעד</option>{Object.entries(REPLAY_TARGET_EVIDENCE_LABELS).map(([value, label]) => <option value={value} key={value}>{label} · {projection.byLegacyReplayTargetEvidence?.[value] || 0}</option>)}</select></label>
         <label><span>ייחוס / תורם</span><select value={contributor} onChange={(e) => setContributor(e.target.value)}><option value="all">כל הייחוסים</option>{Object.entries(projection.byContributor).sort((a,b) => b[1]-a[1]).map(([v,count]) => <option value={v} key={v}>{contributorLabel(v)} · {count}</option>)}</select></label>
         <label><span>חיבור לעץ · מנהל</span><select value={tree} onChange={(e) => setTree(e.target.value)}>
           <option value="all">הכול</option><option value="matched">מחוברים ליעד קיים</option><option value="unmatched">ממתין לשיוך · מנהל בלבד</option>

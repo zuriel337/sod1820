@@ -273,6 +273,7 @@ test("technically-ready source and target axes are independently filterable", ()
         sourceLocatorStateCounts: { channel_uuid: 1 },
         sourceRepairOccurrenceCount: 0,
         targetStateCounts: { single_structured_target: 1 },
+        targetEvidenceStateCounts: { exact_row_value_match: 1 },
       },
     },
   });
@@ -283,6 +284,7 @@ test("technically-ready source and target axes are independently filterable", ()
         sourceLocatorStateCounts: { stored_ref_requires_resolution: 1 },
         sourceRepairOccurrenceCount: 1,
         targetStateCounts: { multiple_structured_targets: 1 },
+        targetEvidenceStateCounts: { exact_value_among_multiple_numbers: 1 },
       },
     },
   });
@@ -290,6 +292,7 @@ test("technically-ready source and target axes are independently filterable", ()
   assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replaySource: "exact_source" }), [exactSingle]);
   assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replaySource: "source_locator_repair" }), [repairMultiple]);
   assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replayTarget: "multiple_structured_targets" }), [repairMultiple]);
+  assert.deepEqual(filterWorldFindingReviewRows([repairMultiple, exactSingle], { replayTargetEvidence: "exact_value_among_multiple_numbers" }), [repairMultiple]);
 });
 
 test("canonical contributor scope keeps stable identity and registered aliases without guessing", () => {

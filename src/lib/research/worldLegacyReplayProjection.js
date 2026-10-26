@@ -439,12 +439,18 @@ function projectStructuredTargetReview(row) {
   const singleNumberValue = targets.length === 1 && targets[0].type === "number"
     ? finite(targets[0].key)
     : null;
+  const numberTargets = targets.filter((target) => target.type === "number");
+  const exactValueNumberTargets = rowValue == null
+    ? []
+    : numberTargets.filter((target) => finite(target.key) === rowValue);
   let state = "missing_structured_target";
   if (promotedNodeId) state = "already_connected";
   else if (targets.length === 1) state = "single_structured_target";
   else if (targets.length > 1) state = "multiple_structured_targets";
   let evidenceState = "no_structured_target";
   if (promotedNodeId) evidenceState = "existing_promotion";
+  else if (targets.length > 1 && exactValueNumberTargets.length && numberTargets.length === 1) evidenceState = "exact_value_primary_with_context";
+  else if (targets.length > 1 && exactValueNumberTargets.length) evidenceState = "exact_value_among_multiple_numbers";
   else if (targets.length > 1) evidenceState = "multiple_structured_targets_only";
   else if (targets.length === 1 && singleNumberValue != null && rowValue == null) evidenceState = "missing_row_value";
   else if (targets.length === 1 && singleNumberValue != null && rowValue === singleNumberValue) evidenceState = "exact_row_value_match";
@@ -473,6 +479,12 @@ function decisionReason(sourceReadiness, targetReadiness, repairCount, targetCou
     return "יעד המספר היחיד תואם במדויק לשדה הערך המובנה; עדיין נדרשת הכרעת חיבור אנושית.";
   }
   if (targetReadiness === "single_structured_target") return "קיים יעד מובנה יחיד לבדיקה אנושית; זו אינה הוראת קידום אוטומטית.";
+  if (targetReadiness === "multiple_structured_targets" && evidenceStateCounts.exact_value_primary_with_context) {
+    return "יעד מספר ראשי אחד תואם ל־value; יתר היעדים הם הקשרים מובנים שעדיין דורשים הכרעה אנושית.";
+  }
+  if (targetReadiness === "multiple_structured_targets" && evidenceStateCounts.exact_value_among_multiple_numbers) {
+    return "קיים יעד מספר התואם ל־value, אך קיימים גם יעדי מספר נוספים; יש להכריע אילו מהם הקשר ואילו יעד.";
+  }
   if (targetReadiness === "multiple_structured_targets") return `${targetCount} יעדים מובנים דורשים בחירה אנושית; אין לבחור יעד לפי דירוג או ניחוש.`;
   if (targetReadiness === "mixed_target_states") return "הופעות האשכול אינן מסכימות על מצב היעד; יש לבדוק כל הופעת מקור בנפרד.";
   return "לא קיים יעד מובנה; יש למפות יעד על בסיס מקור מפורש לפני חיבור לעץ.";

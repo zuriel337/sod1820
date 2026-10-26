@@ -187,6 +187,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const replayQueue = clean(filters.replayQueue) || "all";
   const replaySource = clean(filters.replaySource) || "all";
   const replayTarget = clean(filters.replayTarget) || "all";
+  const replayTargetEvidence = clean(filters.replayTargetEvidence) || "all";
   return base.filter((row) => {
     if (finding && clean(row.sourceId) !== finding) return false;
     if (strength !== "all" && row?.triage?.strength !== strength) return false;
@@ -203,6 +204,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (replaySource === "exact_source" && !(Number(decision?.sourceLocatorStateCounts?.channel_uuid) > 0)) return false;
     if (replaySource === "source_locator_repair" && !(Number(decision?.sourceRepairOccurrenceCount) > 0)) return false;
     if (replayTarget !== "all" && !(Number(decision?.targetStateCounts?.[replayTarget]) > 0)) return false;
+    if (replayTargetEvidence !== "all" && !(Number(decision?.targetEvidenceStateCounts?.[replayTargetEvidence]) > 0)) return false;
     return !query || reviewSearchHaystack(row).includes(query);
   });
 }
@@ -634,6 +636,7 @@ function pageResponse(projection, req, contributorScope = null) {
     replayQueue: queryValue(req, "replay_queue"),
     replaySource: queryValue(req, "replay_source"),
     replayTarget: queryValue(req, "replay_target"),
+    replayTargetEvidence: queryValue(req, "replay_target_evidence"),
   };
   const filtered = filterWorldFindingReviewRows(projection.rows, filters);
   const ordered = sortWorldFindingReviewRows(filtered, queryValue(req, "sort", "strength"));
