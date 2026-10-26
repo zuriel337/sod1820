@@ -75,6 +75,10 @@ export default async function handler(req, res) {
     const meta = user.user_metadata || {};
     const customerName = String(meta.full_name || meta.name || email || "לקוח SOD1820").slice(0, 120);
 
+    const previewHost = String(process.env.VERCEL_URL || "").trim();
+    const isolatedTest = process.env.VERCEL_ENV === "preview" && previewHost.endsWith(".vercel.app") && packageId === 5;
+    const returnOrigin = isolatedTest ? `https://${previewHost}` : SITE_ORIGIN;
+    const returnPath = isolatedTest ? "/cardcom-test-1ils" : "/credits";
     const payload = {
       TerminalNumber: terminal,
       ApiName: apiName,
@@ -84,8 +88,8 @@ export default async function handler(req, res) {
       Language: "he",
       ISOCoinId: 1,
       ProductName: `SOD1820 · ${credits} קרדיטים`.slice(0, 50),
-      SuccessRedirectUrl: `${SITE_ORIGIN}/credits?payment=success&ref=${encodeURIComponent(providerRef)}`,
-      FailedRedirectUrl: `${SITE_ORIGIN}/credits?payment=failed&ref=${encodeURIComponent(providerRef)}`,
+      SuccessRedirectUrl: `${returnOrigin}${returnPath}?payment=success&ref=${encodeURIComponent(providerRef)}`,
+      FailedRedirectUrl: `${returnOrigin}${returnPath}?payment=failed&ref=${encodeURIComponent(providerRef)}`,
       WebHookUrl: `${SITE_ORIGIN}/api/cardcom-webhook`,
       Document: {
         DocumentTypeToCreate: "Auto",
