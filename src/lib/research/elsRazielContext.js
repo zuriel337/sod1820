@@ -6,10 +6,66 @@ const clean = (value) => {
   return text || null;
 };
 
+const boundedClean = (value, limit) => {
+  const text = clean(value);
+  return text && text.length <= limit ? text : null;
+};
+
 function safeInt(value) {
   if (value == null || value === "") return null;
   const n = Number(value);
-  return Number.isInteger(n) ? n : null;
+  return Number.isSafeInteger(n) ? n : null;
+}
+
+const EXACT_CONTRACT = "els_2029_projection_v1";
+const EXACT_STATUS = "OK";
+const EXACT_POLICY = "exact_replay_v1";
+const EXACT_RETURN = "verified-v1";
+
+function cleanScope(value) {
+  const scope = clean(value);
+  return ["torah", "tanakh"].includes(scope) ? scope : null;
+}
+
+function exactProjectionOccurrence(projection) {
+  const selected = projection?.selectedOccurrence || null;
+  const term = boundedClean(selected?.term || projection?.term, 80);
+  const occurrenceId = clean(selected?.occurrenceId);
+  const corpusId = boundedClean(selected?.corpusId || projection?.corpusId, 160);
+  const skip = safeInt(selected?.skip);
+  const dir = safeInt(selected?.dir);
+  const start = safeInt(selected?.start);
+  if (
+    projection?.contract !== EXACT_CONTRACT
+    || projection?.status !== EXACT_STATUS
+    || projection?.presentation?.policy !== EXACT_POLICY
+    || !term
+    || !occurrenceId
+    || !corpusId
+    || skip == null
+    || skip < 2
+    || ![-1, 1].includes(dir)
+    || start == null
+    || start < 0
+  ) return null;
+  return selected;
+}
+
+function exactReturnFields(value) {
+  const occurrence = value?.occurrence && typeof value.occurrence === "object"
+    ? value.occurrence
+    : value;
+  const result = value?.result && typeof value.result === "object" ? value.result : null;
+  const term = boundedClean(occurrence?.term || value?.term, 80);
+  const scope = cleanScope(occurrence?.corpus || occurrence?.scope || value?.scope || value?.corpus);
+  const corpusId = boundedClean(result?.corpusId || occurrence?.corpusId || value?.corpusId, 160);
+  const skip = safeInt(occurrence?.skip);
+  const dir = safeInt(occurrence?.dir);
+  const start = safeInt(occurrence?.start);
+  const end = safeInt(occurrence?.end);
+  const occurrenceRef = boundedClean(occurrence?.occurrenceRef || occurrence?.occurrence || value?.occurrenceRef, 160);
+  if (!term || term.length < 2 || !scope || skip == null || skip < 2 || ![-1, 1].includes(dir) || start == null || start < 0) return null;
+  return { term, scope, corpusId, skip, dir, start, end, occurrenceRef };
 }
 
 export function buildElsRazielSurfaceContext({
@@ -20,7 +76,9 @@ export function buildElsRazielSurfaceContext({
   includeText = false,
 } = {}) {
   const subject = researchContext?.subject || null;
-  const selected = projection?.selectedOccurrence || null;
+  const selected = exactProjectionOccurrence(projection);
+  const scope = cleanScope(researchContext?.selection?.corpus || planSummary?.scope);
+  if (!selected || !scope) return null;
   const selectedLayer = Array.isArray(layers?.layers)
     ? layers.layers.find((layer) => layer?.occurrenceId === selected?.occurrenceId) || null
     : null;
@@ -40,7 +98,8 @@ export function buildElsRazielSurfaceContext({
           occurrenceRef: clean(selected.occurrenceId)
             ? `anon:${stableIdentityDigest(selected.occurrenceId)}`
             : null,
-          corpusId: clean(selected.corpusId || projection?.corpusId),
+          term: boundedClean(selected.term || projection?.term, 80),
+          corpus: scope,
           skip: safeInt(selected.skip),
           dir: [-1, 1].includes(safeInt(selected.dir)) ? safeInt(selected.dir) : null,
           start: safeInt(selected.start),
@@ -58,6 +117,7 @@ export function buildElsRazielSurfaceContext({
       ? {
           status: clean(projection.status),
           contract: clean(projection.contract),
+          corpusId: clean(selected.corpusId || projection?.corpusId),
           totalHits: safeInt(projection?.completion?.totalHits),
           returnedHits: safeInt(projection?.completion?.returnedHits),
           truncated: projection?.completion?.truncated === true,
@@ -93,6 +153,11 @@ export function buildElsRazielSurfaceContext({
       includeText: includeText === true,
       rawPrivatePayloadLogged: false,
     },
+    verification: {
+      state: "MATCH",
+      source: "canonical_els_engine",
+      interpretation: false,
+    },
   };
 
   if (includeText === true) {
@@ -118,6 +183,7 @@ export function buildElsRazielGuidance(surfaceContext) {
   );
   if (!exactReplay) return null;
 
+  const term = clean(occurrence.term) || "הביטוי שנבחר";
   const direction = occurrence.dir === -1 ? "לאחור" : occurrence.dir === 1 ? "קדימה" : "בכיוון שמור";
   const skip = safeInt(occurrence.skip);
   const start = safeInt(occurrence.start);
@@ -129,12 +195,12 @@ export function buildElsRazielGuidance(surfaceContext) {
     : "על פני המיקומים המאומתים";
   const pointsText = positionCount === 1 ? "נקודה אחת בטקסט" : `${positionCount} נקודות בטקסט`;
 
-  const lead = `אתה מסתכל על מופע ELS שאומת מול המנוע הקנוני. הוא עובר ${skipText} ${direction}, ${spanText}, דרך ${pointsText}.`;
-  const boundary = "הציר שמודגש כאן עוזר לראות את המופע שבחרת; ההדגשה והקרבה על המסך אינן מוסיפות לו חוזק ראייתי.";
+  const lead = `המופע „${term}” אומת מול מנוע ה־ELS הקנוני. הוא עובר ${skipText} ${direction}, ${spanText}, דרך ${pointsText}.`;
+  const boundary = "מאומתים כאן הביטוי, ההיקף והקואורדינטות של המופע בלבד. כל משמעות או קשר שרזיאל מציע הם פרשנות נפרדת; ההדגשה והקרבה על המסך אינן מוסיפות חוזק ראייתי.";
   const plan = surfaceContext?.plan;
   const planLine = plan ? `בתוכנית שהזנת יש ${plan.sourceCount} ביטויים ו־${plan.variantCount} צורות; ${plan.scannedCount} צורות נסרקו${plan.hasPending ? ", ועוד צורות או דפים ממתינים להמשך" : ""}. אלו בדיקות תלויות של אותם ביטויים, לא ראיות עצמאיות.` : null;
-  const inactive = "כרגע אני מסביר רק את מה שאומת ואת צורת ההצגה. בדיקת הסביבה, המשך הציר והמשמעות המחקרית עדיין אינן פעילות בשכבה הזאת.";
-  const question = "מה מסקרן אותך להבין מכאן — איך הדילוג בנוי, מה משמעות הכיוון, או מה עדיין חסר כדי להעמיק?";
+  const inactive = "הפעולה המחקרית הבאה האפשרית היא לחזור למופע המדויק, לקרוא את המקור סביבו או להשוות אליו ממצא מאומת נוסף. שום פעולה אינה מופעלת אוטומטית.";
+  const question = "מה תרצה לבדוק במופע הזה — את מבנה הדילוג, את המקור סביבו או את גבולות הפרשנות?";
   const spokenScript = [lead, planLine, boundary, inactive, question].filter(Boolean).join(" ");
 
   return Object.freeze({
@@ -148,7 +214,7 @@ export function buildElsRazielGuidance(surfaceContext) {
       projectionContract: clean(result.contract),
       presentationPolicy: clean(result.presentationPolicy),
     }),
-    title: "מה אתה רואה כאן?",
+    title: `המופע שנבחר · ${term}`,
     lead: planLine ? `${lead} ${planLine}` : lead,
     planLine,
     boundary,
@@ -158,6 +224,53 @@ export function buildElsRazielGuidance(surfaceContext) {
     interpretation: false,
     evidencePromotion: false,
     audioExecuted: false,
+  });
+}
+
+export function buildElsRazielExactHref(value) {
+  const fields = exactReturnFields(value);
+  if (!fields) return null;
+  const params = new URLSearchParams({
+    els_return: EXACT_RETURN,
+    term: fields.term,
+    scope: fields.scope,
+    skip: String(fields.skip),
+    dir: String(fields.dir),
+    start: String(fields.start),
+  });
+  if (fields.corpusId) params.set("corpus", fields.corpusId);
+  if (fields.end != null) params.set("end", String(fields.end));
+  if (fields.occurrenceRef) params.set("occurrence", fields.occurrenceRef);
+  return `/code?${params.toString()}`;
+}
+
+export function readElsRazielExactReturn(value) {
+  const params = value instanceof URLSearchParams
+    ? value
+    : new URLSearchParams(typeof value === "string" ? value.replace(/^\?/, "") : "");
+  if (params.get("els_return") !== EXACT_RETURN) return null;
+  const fields = exactReturnFields({
+    term: params.get("term"),
+    scope: params.get("scope"),
+    corpusId: params.get("corpus"),
+    skip: params.get("skip"),
+    dir: params.get("dir"),
+    start: params.get("start"),
+    end: params.get("end"),
+    occurrenceRef: params.get("occurrence"),
+  });
+  if (!fields) return null;
+  return Object.freeze({
+    term: fields.term,
+    scope: fields.scope,
+    skip: fields.skip,
+    dir: fields.dir,
+    start: fields.start,
+    hitId: `${fields.skip}_${fields.dir}_${fields.start}`,
+    ...(fields.corpusId ? { corpusId: fields.corpusId } : {}),
+    words: [],
+    researchNonce: `raziel-return:${fields.scope}:${fields.skip}:${fields.dir}:${fields.start}`,
+    occurrenceRef: fields.occurrenceRef,
   });
 }
 

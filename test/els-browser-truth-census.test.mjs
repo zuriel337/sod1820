@@ -42,8 +42,9 @@ test('every st.res assignment is census-classified (verified-eager, cache-verifi
   assert.equal(found.length, 15, 'st.res assignment census changed - classify the new site');
   const regular=code.slice(code.indexOf('const [sample,page]=await Promise.all([discoverVerified(w'),code.indexOf('logSearch("regular",w)'));
   assert.match(regular,/if\(requestSeq!==_matrixRequestSeq\)return;\s*const discovered=mergeOrderedHits\(sample,page\);/);
-  const restore=code.slice(code.indexOf('const discovered=await discoverVerified(item.term'),code.indexOf('let idx=-1;',code.indexOf('const discovered=await discoverVerified(item.term')));
-  assert.match(restore,/await promoteVerified\(/,'targeted legacy skip still uses canonical admission');
+  const restoreStart=code.indexOf('async function loadMatrix(item,filmTimes)');
+  const restore=code.slice(restoreStart,code.indexOf('let idx=-1;',restoreStart));
+  assert.match(restore,/fixedReplay=await promoteVerified\(/,'saved-skip replay still uses canonical admission');
   const guarded=restore.slice(restore.lastIndexOf('if(requestSeq!==_matrixRequestSeq)return;'));
   assert.ok(guarded.includes('st.res=discovered;'));
   assert.doesNotMatch(guarded,/\bawait\b/,'no async gap after final restore epoch check');
@@ -91,7 +92,7 @@ test('every host message type is classified (coordinate-bearing ones are gated a
   const carrying = new Set(['save', 'lens', 'search', 'exact-skip-probe-result']);
   const nonCoord = new Set(['delete', 'navigate', 'gate', 'ready', 'load-error', 'contribute', 'quality', 'engine-request', 'engine-cancel']);
   const termOnly = new Set(['forms-preview-result']); // deterministic FORMS labels only; no occurrence coordinates or search claim
-  const uiAccessOnly = new Set(['onboarding-required', 'operation', 'native-save-result']);
+  const uiAccessOnly = new Set(['onboarding-required', 'operation', 'lens-progress', 'native-save-result']);
   for (const t of types) assert.ok(carrying.has(t) || nonCoord.has(t) || termOnly.has(t) || uiAccessOnly.has(t), `unclassified host message type: ${t}`);
   const formsPreview = code.slice(code.indexOf('if(d.type==="preview-forms-batch")'), code.indexOf('if(d.type==="probe-exact-skip")'));
   assert.match(formsPreview, /formsOf\("splitjoin",source\)/);
@@ -105,6 +106,16 @@ test('every host message type is classified (coordinate-bearing ones are gated a
   assert.match(operation, /postHost\(\{type:"operation",kind:operation\.kind,requestId:operation\.requestId,status,\.\.\.\(message\?\{message\}:\{\} \),\s*elapsedMs:Math.max\(0,Date.now\(\)-operation.startedAt\),progress:progress\|\|null\}\)/,
     'operation acknowledges a request and its status without transmitting candidate coordinates');
   assert.doesNotMatch(operation, /positions|hitId|start_index|start:|skip:/);
+  const lensProgress = [...code.matchAll(/postHost\(\{type:"lens-progress"[^\n]+/g)].map((match) => match[0]);
+  const progressLenses = new Set(lensProgress.map((message) => message.match(/lens:"([^"]+)"/)?.[1]).filter(Boolean));
+  for (const lens of ['result-triage', 'research-target', 'research-target-compare', 'neighborhood-target', 'matrix-candidates', 'structure-priority']) {
+    assert.ok(progressLenses.has(lens), `${lens} reports bounded UI-only progress`);
+  }
+  for (const message of lensProgress) {
+    assert.match(message, /target:\{nativeSeq:target\.nativeSeq\}/,
+      'lens progress correlates only the active UI request and does not repeat the selected occurrence identity');
+    assert.doesNotMatch(message, /positions|hitId|start_index|start:|skip:/);
+  }
   assert.ok(code.includes('function emitState()') && /postHost\(s\)/.test(code));
 });
 
@@ -134,10 +145,19 @@ test('corpus identity is injected by build.py from the exact tk-letters source',
   assert.doesNotMatch(out, /__CORPUS_ID_|__TORAH_DATA__|__ELS_LOGO__/);
 });
 
-test('deterministic template -> public/tzofen.html build sync', () => {
+test('deterministic template -> hosted and Legacy public artifacts build sync', () => {
   const before = readFileSync(root + 'public/tzofen.html');
+  const legacyBefore = readFileSync(root + 'public/tzofen-standalone.html');
   const r = spawnSync('python3', ['tools/els/build.py'], { cwd: root, encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
   const after = readFileSync(root + 'public/tzofen.html');
+  const legacyAfter = readFileSync(root + 'public/tzofen-standalone.html');
   assert.ok(before.equals(after), 'public/tzofen.html is stale vs tools/els/els-code.template.html - run tools/els/build.py');
+  assert.ok(legacyBefore.equals(legacyAfter), 'public/tzofen-standalone.html is stale vs the canonical hardened generator');
+  const legacy = legacyAfter.toString('utf8');
+  assert.match(legacy, /id="lgBanner"/, 'Legacy surface keeps its public read-only banner');
+  assert.match(legacy, /Storage\.prototype\.setItem=function\(\)\{\}/, 'Legacy surface disables client persistence');
+  assert.match(legacy, /function standaloneVerifyBatch\(payload\)/, 'Legacy surface reuses the bounded verifier adapter');
+  assert.match(legacy, /const isAnon=\(\)=>false;/, 'Legacy search remains available without an account gate');
+  assert.doesNotMatch(legacy, /__[A-Z0-9_]+__/, 'Legacy artifact has no unresolved generator markers');
 });

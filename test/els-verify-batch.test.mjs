@@ -4,7 +4,7 @@ import { readFileSync, mkdtempSync, writeFileSync, existsSync, rmSync, chmodSync
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { hasExactSavedMatrix, savedMatrixMatchesAxis, savedMatrixToItem } from '../src/lib/elsSavedMatrix.js';
+import { hasExactSavedMatrix, savedMatrixCanReanchor, savedMatrixMatchesAxis, savedMatrixReplayProfile, savedMatrixToItem } from '../src/lib/elsSavedMatrix.js';
 
 const root = new URL('..', import.meta.url).pathname;
 const read = (p) => readFileSync(join(root, p), 'utf8');
@@ -55,11 +55,25 @@ test('saved record projection preserves zero/backward anchors and marks historic
   assert.equal(hasExactSavedMatrix(row),true);
   const item=savedMatrixToItem(row);
   assert.equal(item.start,0);assert.equal(item.dir,-1);assert.equal(item.corpusId,'corpus');
+  assert.equal(item.savedReplayWindow,'compact-v1');
   assert.deepEqual(item.words,row.positions.findings);assert.deepEqual(item.view,row.positions.view);
   assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH'},axis:{hitId:'2_-1_0'}}),true);
   assert.equal(savedMatrixMatchesAxis(row,{term:'תורה',scope:'torah',verification:{state:'MATCH'},axis:{hitId:'2_-1_1'}}),false);
   const historical={...row,start_index:null,direction:'down'};
   assert.equal(hasExactSavedMatrix(historical),false);assert.equal(savedMatrixToItem(historical).start,null);assert.equal(savedMatrixToItem(historical).dir,null);
+});
+
+test('historical saved findings recover the smallest corpus that can contain their explicit coordinates', () => {
+  const historical={id:'legacy-scope',search_term:'תורת הרמז',scope:'torah',skip_distance:21940,direction:'down',start_index:null,corpus_id:null,
+    positions:{findings:[{t:'נשמהללוט',sh:['21941_1_196825']},{t:'חשמל',sh:['2_-1_87133']}]}};
+  assert.deepEqual(savedMatrixReplayProfile(historical),{scope:'tanakh',storedScope:'torah',legacyScopeRecovered:true});
+  const item=savedMatrixToItem(historical);
+  assert.equal(item.scope,'tanakh');assert.equal(item.storedScope,'torah');assert.equal(item.legacyScopeRecovered,true);
+  assert.equal(savedMatrixCanReanchor(historical,{term:'תורתהרמז',scope:'tanakh',verification:{state:'MATCH'},axis:{skip:21940}}),true);
+  assert.equal(savedMatrixCanReanchor(historical,{term:'תורתהרמז',scope:'tanakh',verification:{state:'MATCH'},axis:{skip:21941}}),false);
+
+  const withinTorah={...historical,positions:{findings:[{t:'חשמל',sh:['2_-1_87133','not-a-hit'],sourceShown:['1_1_196825']}]}};
+  assert.deepEqual(savedMatrixReplayProfile(withinTorah),{scope:'torah',storedScope:'torah',legacyScopeRecovered:false});
 });
 
 test('executable: native private saves preserve ownership, RLS, updates and existing publication gates', {skip:!canRun&&'local PostgreSQL not available'},()=>{
@@ -287,6 +301,7 @@ test('executable: batch verifier parity with single verifier + tk-letters oracle
     // batch verifier ACL still service-role-only after the gate migration
     r = db(`select concat(has_function_privilege('anon','public.els_verify_batch_v1(text,text,text,jsonb,jsonb)','execute'),has_function_privilege('authenticated','public.els_verify_batch_v1(text,text,text,jsonb,jsonb)','execute'))`);
     assert.equal(r.stdout.trim(), 'ff');
+
   } finally {
     run(join(PG, 'pg_ctl'), ['-D', data, '-m', 'immediate', 'stop']);
     rmSync(dir, { recursive: true, force: true });

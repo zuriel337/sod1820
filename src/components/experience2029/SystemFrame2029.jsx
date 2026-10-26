@@ -63,7 +63,7 @@ import {
   markSurfaceFamiliarity,
   resolveEntryOrientation,
 } from "../../lib/entryLearn2029.js";
-import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
+import { buildElsRazielExactHref, buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
 import { SystemToolDockContext2029, SystemToolDockActions2029 } from "./SystemToolDock2029.jsx";
 import "./sod2029.css";
 import "./sod2029-closed.css";
@@ -684,6 +684,10 @@ function savedRazielDate(value) {
   return recordTimeLabel(value, "bilingual", "");
 }
 
+function elsDirectionLabel(value) {
+  return value === -1 ? "לאחור" : value === 1 ? "קדימה" : "—";
+}
+
 // One temporary Raziel conversation is shared by the desktop Companion and the mobile sheet.
 // Opening, navigating and changing view mode make no AI call; only an explicit submit crosses the transport.
 function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false, projection = "mobile" }) {
@@ -697,10 +701,16 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
   if (!session) return <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="unavailable"><b>רזיאל</b><small role="status">השיחה עם רזיאל אינה זמינה כאן כרגע.</small></section>;
   const { thread, busy, status, announcement } = session;
   const subjectLabel = context?.subject?.label || "";
+  const savedElsFocus = !elsFocus ? session.contextSnapshot?.focus?.els || null : null;
+  const savedElsHref = buildElsRazielExactHref(savedElsFocus);
   const buildFacts = () => [
     numberFocus?.root != null ? `שורש עמוד: ${numberFocus.root}` : "",
     numberFocus ? `מוקד מספר: ${numberFocus.expression || numberFocus.root}${numberFocus.method ? ` · ${numberFocus.method}` : ""}${numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}` : "",
     readingFocus ? `קוראים עכשיו: ${readingFocus.label || ""} ${readingFocus.primary || ""}`.trim() : "",
+    elsFocus ? `מופע ELS מאומת: ${elsFocus.occurrence.term}` : "",
+    elsFocus ? `זהות אימות ELS: contract=${elsFocus.result.contract}; status=${elsFocus.result.status}; presentation=${elsFocus.result.presentationPolicy}; occurrenceRef=${elsFocus.occurrence.occurrenceRef}` : "",
+    elsFocus ? `מיקום ELS: scope=${elsFocus.occurrence.corpus}; corpusId=${elsFocus.result.corpusId}; skip=${elsFocus.occurrence.skip}; direction=${elsFocus.occurrence.dir}; start=${elsFocus.occurrence.start}; end=${elsFocus.occurrence.end ?? "לא נמסר"}` : "",
+    elsFocus ? "גבול ELS: המנוע הקנוני אימת את הביטוי והמיקום בלבד. משמעות וקשרים הם פרשנות; אין לחשב או להשלים נתוני ELS חסרים." : "",
     label && label !== subjectLabel ? `מוקד נבחר: ${label}` : "",
   ].filter(Boolean).join("\n").slice(0, 1200);
   const send = async (question, level, again = false, continuationTurnId = null) => {
@@ -751,6 +761,13 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
       <div className="sod29-raziel-context" data-raziel-context-strip="true" aria-label="מה רזיאל רואה עכשיו">
         <p>{contextParts.length ? contextParts.map((part, index) => <React.Fragment key={part.key}>{index ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "שאלה חופשית — או בחר מספר, ביטוי או קטע"}</p>
       </div>
+      {savedElsFocus ? <div className="sod29-panel-context-card" data-raziel-saved-els-context="true">
+        <b>הקשר ELS של השיחה</b>
+        <span dir="auto">המופע שנשמר · {savedElsFocus.term || "ביטוי לא זמין"}</span>
+        <small>היקף {savedElsFocus.corpus || "—"} · דילוג {savedElsFocus.skip ?? "—"} · {elsDirectionLabel(savedElsFocus.dir)} · מיקום {savedElsFocus.start ?? "—"}{savedElsFocus.end != null ? `–${savedElsFocus.end}` : ""}</small>
+        <small>זהו snapshot של המופע שעליו התנהלה השיחה, לא טענה חדשה על הדף הנוכחי.</small>
+        {savedElsHref ? <Link className="sod29-action" to={savedElsHref} data-raziel-return-to-els="true">חזור למופע המדויק</Link> : null}
+      </div> : null}
       <RazielViewModeSelector2029 />
       <div className="sod29-raziel-thread" role="log" aria-label="השיחה עם רזיאל">
         {thread.map((m, i) => (
@@ -826,6 +843,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     ? elsSurfaceContext
     : null;
   const elsGuide = elsFocus ? buildElsRazielGuidance(elsFocus) : null;
+  const elsReturnHref = elsFocus ? buildElsRazielExactHref(elsFocus) : null;
   const microIntent = transientMicroIntent || context?.dimensions?.razielMicroIntent || null;
   const intentLabel = {
     explain_crossing: "הסבר את ההצלבה",
@@ -895,11 +913,12 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         {readingFocus.signals?.length ? <small>{readingFocus.signals.slice(0, 3).join(" · ")}</small> : null}
       </section> : null}
       {elsFocus ? <section className="sod29-panel-context-card" data-raziel-els-context="true">
-        <b>{intentLabel || "ELS · occurrence context"}</b>
-        <span>מופע מאומת · {elsFocus.occurrence.corpusId || "corpus"} · skip {elsFocus.occurrence.skip ?? "—"} · dir {elsFocus.occurrence.dir ?? "—"}</span>
-        <small>start {elsFocus.occurrence.start ?? "—"} → end {elsFocus.occurrence.end ?? "—"} · {elsFocus.occurrence.positions?.length ?? 0} positions</small>
-        {elsFocus.occurrence.dependencyRef ? <small>dependency ref · {elsFocus.occurrence.dependencyRef}</small> : null}
-        <small>Context בלבד · הצגה/קרבה חזותית אינה חוזק ראיה.</small>
+        <b>{intentLabel || "מופע ELS שנבחר"}</b>
+        <span dir="auto">הביטוי · {elsFocus.occurrence.term}</span>
+        <small>מיקום · {elsFocus.occurrence.corpus || "—"} · דילוג {elsFocus.occurrence.skip ?? "—"} · {elsDirectionLabel(elsFocus.occurrence.dir)} · {elsFocus.occurrence.start ?? "—"} → {elsFocus.occurrence.end ?? "—"}</small>
+        <small>מאומת · {elsFocus.result.contract} · {elsFocus.result.status} · {elsFocus.result.presentationPolicy}</small>
+        <small>מאומתים הביטוי והמיקום; משמעות וקשרים הם פרשנות של רזיאל.</small>
+        {elsReturnHref ? <Link className="sod29-action" to={elsReturnHref} data-raziel-return-to-els="true">חזור למופע המדויק</Link> : null}
       </section> : null}
       {elsGuide ? <section className="sod29-panel-context-card sod29-raziel-els-guide" data-raziel-els-guide={elsGuide.contract}>
         <b>{elsGuide.title}</b>

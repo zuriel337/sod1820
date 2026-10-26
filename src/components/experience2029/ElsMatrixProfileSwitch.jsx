@@ -7,8 +7,8 @@ import {
 const OPTIONS = Object.freeze([
   Object.freeze({
     key: ELS_MATRIX_PROFILE.RESEARCH,
-    label: "מחקר",
-    title: "אותה מטריצה עם שכבות מחקר מתקדמות לפי הצורך",
+    label: "גילוי צופן",
+    title: "סיפור קצר הופך לתוכנית מוגבלת לגילוי ציר ושני ממצאים מתחברים",
   }),
   Object.freeze({
     key: ELS_MATRIX_PROFILE.CLASSIC,

@@ -8,15 +8,15 @@ import ElsResearchBar2029 from "../components/experience2029/ElsResearchBar2029.
 import ElsAdvancedSearch2029 from "../components/experience2029/ElsAdvancedSearch2029.jsx";
 import "../components/experience2029/els2029-research.css";
 import ElsSavedLibrary2029, { ElsRecentCiphers2029 } from "../components/experience2029/ElsSavedLibrary2029.jsx";
-import { getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
+import { deleteMatrix, getMatrixBySlug, getMatrixById } from "../lib/elsMatrices.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../lib/elsSavedMatrix.js";
+import { hasExactSavedMatrix, savedMatrixReplayProfile, savedMatrixWorkspaceHref } from "../lib/elsSavedMatrix.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { supabase } from "../lib/supabase.js";
 import { buildEls2029ReplayRequest, els2029ReplaySelectionKey, verifyEls2029Selection } from "../lib/research/els2029ReplayClient.js";
 import { projectEls2029Result } from "../lib/research/els2029Projection.js";
 import { projectEls2029Layers } from "../lib/research/els2029Layers.js";
-import { buildElsRazielSurfaceContext } from "../lib/research/elsRazielContext.js";
+import { buildElsRazielSurfaceContext, readElsRazielExactReturn } from "../lib/research/elsRazielContext.js";
 import { ELS_MATRIX_PROFILE, projectElsMatrixProfile } from "../lib/research/els2029MatrixMode.js";
 import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
@@ -83,10 +83,16 @@ function ElsResearchBarConnected({ researchContext, projection, layers, planSumm
   />;
 }
 
-export default function Els2029Page({ previewAdvanced = false }) {
+export default function Els2029Page() {
   const research = useResearch();
-  const { user, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
+  const paramsKey = params.toString();
+  const hasRazielReturnMarker = params.has("els_return");
+  const exactRazielReturn = useMemo(
+    () => readElsRazielExactReturn(new URLSearchParams(paramsKey)),
+    [paramsKey]
+  );
   const library = params.get("library");
   const [workspaceVisited, setWorkspaceVisited] = useState(!library);
   const [searchRevision, setSearchRevision] = useState(0);
@@ -95,9 +101,17 @@ export default function Els2029Page({ previewAdvanced = false }) {
   useEffect(() => { if (!library) setWorkspaceVisited(true); }, [library]);
   const showLibrary = view => setParams(current => { const next = new URLSearchParams(current);next.set("library", view);return next; });
   const closeLibrary = () => setParams(current => { const next = new URLSearchParams(current);next.delete("library");return next; });
-  const openCipher = row => { setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
+  const openCipher = row => { setWorkspaceVisited(true);setOpenRevision(value => value + 1);setParams(new URLSearchParams(savedMatrixWorkspaceHref(row).split("?")[1])); };
+  const deleteSavedCipher = async row => {
+    if (!isAdmin || !row?.id) throw new Error("delete_not_allowed");
+    await deleteMatrix(row.id);
+    setSavedRevision(value => value + 1);
+    setSavedRecord(current => ({ ...current, row: null }));
+    setParams(new URLSearchParams());
+  };
   const cipherSlug = params.get("cipher");
   const recordId = params.get("record");
+  const directSavedOpen = Boolean(cipherSlug || recordId);
   const findingId = params.get("finding") || "";
   const { journeyLoad: findingJourneyLoad, status: findingStatus } = useElsJourneyReopen(findingId);
   const [findingNotice, setFindingNotice] = useState("");
@@ -140,15 +154,16 @@ export default function Els2029Page({ previewAdvanced = false }) {
     traceId: null,
     error: null,
   });
-  // Public launch opens the fast Classic workspace. Research remains implemented but
-  // has no public mode switch until the advanced flow is explicitly released.
-  const [previewProfile, setPreviewProfile] = useState(previewAdvanced ? ELS_MATRIX_PROFILE.RESEARCH : ELS_MATRIX_PROFILE.CLASSIC);
-  const matrixProfile = previewAdvanced ? previewProfile : ELS_MATRIX_PROFILE.CLASSIC;
+  // Research v1 is the public default, but profile selection is presentation only:
+  // the same mounted engine/state remains in place and neither entry nor switching runs a scan.
+  const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
   const [researchLoad, setResearchLoad] = useState(null);
   const [researchProbe, setResearchProbe] = useState(null);
   const [exactStatus, setExactStatus] = useState("idle");
   const [automaticSummary, setAutomaticSummary] = useState(null);
+  const researchPlanRef = useRef(null);
   const pendingProbeRef = useRef(null);
+  const exactReturnLoadRef = useRef(null);
   const [formsPreviewRequest, setFormsPreviewRequest] = useState(null);
   const formsRequestSeq = useRef(0);
   const pendingFormsRef = useRef(new Map());
@@ -175,6 +190,26 @@ export default function Els2029Page({ previewAdvanced = false }) {
     pending.resolve(Array.isArray(result.rows) ? result.rows : []);
   };
   useEffect(() => { setResearchLoad(null); setResearchProbe(null); setExactStatus("idle"); setAutomaticSummary(null); pendingProbeRef.current = null; }, [cipherSlug, recordId]);
+  useEffect(() => {
+    if (!exactRazielReturn) {
+      exactReturnLoadRef.current = null;
+      return;
+    }
+    const loadKey = [
+      exactRazielReturn.term,
+      exactRazielReturn.scope,
+      exactRazielReturn.corpusId || "",
+      exactRazielReturn.skip,
+      exactRazielReturn.dir,
+      exactRazielReturn.start,
+    ].join("|");
+    if (exactReturnLoadRef.current === loadKey) return;
+    exactReturnLoadRef.current = loadKey;
+    pendingProbeRef.current = null;
+    setResearchProbe(null);
+    setExactStatus("idle");
+    setResearchLoad(exactRazielReturn);
+  }, [exactRazielReturn]);
   const requestExactSkip = request => {
     pendingProbeRef.current = request.requestId;
     setExactStatus("probing");
@@ -195,7 +230,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
   // and becomes the replayable 2029 selection; do not remount the tool on every context update.
   const [classicSeed] = useState(() => clean(params.get("term") || params.get("q") || selection?.term || subject?.label || ""));
   const legacySkip = Number(params.get("skip"));
-  const legacyMatrix = classicSeed && Number.isSafeInteger(legacySkip) && Math.abs(legacySkip) >= 2
+  const legacyMatrix = !hasRazielReturnMarker && classicSeed && Number.isSafeInteger(legacySkip) && Math.abs(legacySkip) >= 2
     ? { search_term: classicSeed, skip_distance: legacySkip, scope: params.get("scope") === "tanakh" ? "tanakh" : "torah", positions: null }
     : null;
 
@@ -251,6 +286,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
     razielAvailable: replayMatched && layeredReady,
   }), [matrixProfile, replayMatched, layeredReady]);
   const researchProfile = profileModel.profile === ELS_MATRIX_PROFILE.RESEARCH;
+  const discoveryWorkspaceReady = !researchProfile || directSavedOpen || Boolean(researchLoad || classicSeed || replayRequest || legacyMatrix);
 
   useEffect(() => {
     applySeo({ title: "ELS · SOD1820", description: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים", path: "/code" });
@@ -270,7 +306,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
   }
 
   return <Sod2029Shell
-    introVariant={library ? "none" : "compact"}
+    introVariant={library || directSavedOpen ? "none" : "compact"}
     wide
     surface="els"
     symbol="✦"
@@ -280,61 +316,71 @@ export default function Els2029Page({ previewAdvanced = false }) {
   >
     {library ? <ElsSavedLibrary2029 view={library === "mine" ? "mine" : "public"}
       onView={showLibrary} onClose={closeLibrary} onOpen={openCipher} /> : null}
-    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="טוען את הצופן השמור">הממצאים והגדרות המטריצה נטענים.</FrameState>
-      : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
+    {workspaceVisited && (!library || !savedRecord.error) ? savedRecord.loading ? <FrameState kind="loading" title="פותח את הצופן השמור" progress={{ phase: "טוען את הממצא, העוגנים והמטריצה", compact: true }}>המטריצה תיפתח כאן מיד כשהשחזור הקנוני יושלם.</FrameState>
+      : savedRecord.error ? <FrameState kind="error" title="הצופן אינו זמין">ייתכן שהקישור אינו נכון או שנדרשת התחברות לחשבון ששמר אותו. <button type="button" className="sod29-action" onClick={() => showLibrary("public")}>כל הממצאים הציבוריים</button> <button type="button" className="sod29-action" onClick={() => showLibrary("mine")}>הצפנים שלי</button></FrameState>
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
-    {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => setParams({})}>חיפוש חדש</button> : null}
-    {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
-      <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
-      {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}
-      {!hasExactSavedMatrix(savedRecord.row) ? <>
-        <p role="status">צופן ותיק: המיקום המקורי לא נשמר במלואו. המטריצה מחפשת מחדש לפי המונח והדילוג; היא אינה שחזור מדויק של התמונה הישנה.</p>
-        {savedRecord.row.image_url ? <details><summary>התמונה המקורית שנשמרה</summary><img src={savedRecord.row.image_url} alt="התמונה המקורית של הצופן השמור" /></details> : null}
-      </> : null}
-    </section> : null}
-    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
-    <div hidden={!researchProfile}><ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} /></div>
+    {!directSavedOpen && !researchProfile ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
+    <div ref={researchPlanRef} data-els-research-tools="brief-visible-v1" hidden={!researchProfile || directSavedOpen}>
+      <ElsAdvancedSearch2029 exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary} onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />
+    </div>
     <section className="sod29-focus-stage" data-els-2029-surface="v1" {...(researchProfile ? { "data-els-research-composition": "v1" } : {})}>
       <div className="sod29-section-head">
         <div>
-          <div className="sod29-kicker">{researchProfile ? "סביבת המחקר" : "כלי המחקר הקלאסי"}</div>
-          <h2>{researchProfile
-            ? (subject?.label ? "מחקר ELS סביב " + subject.label : "מחקר דילוגי אותיות")
-            : "הצופן הקלאסי"}</h2>
+          <div className="sod29-kicker">{researchProfile ? "גילוי צופן" : "הצופן הקלאסי"}</div>
+          <h2>{savedRecord.row?.title || (researchProfile
+            ? (subject?.label ? "גילוי צופן סביב " + subject.label : "מסיפור לצופן")
+            : "הצופן הקלאסי")}</h2>
           <div className="sod29-muted">
-            {researchProfile
+            {savedRecord.row
+              ? "משחזר את הציר, הממצאים והמקור מאותה רשומה שמורה."
+              : researchProfile
               ? (subject
-                ? "חפשו מונח או הצלבה, עיינו במקור ושמרו את הממצאים להמשך."
-                : "התחילו בחיפוש. המטריצה, הצבעים והבחירות נשמרים במעבר בין מחקר לקלאסי.")
-              : "חיפוש, הצלבות וסימוני צבע על טקסט התורה. הממצאים נשמרים להמשך עבודה."}
+                ? "הסיפור מכוון את החיפוש; המנוע הקנוני מאמת את הציר, הגיאומטריה והמקור."
+                : "כתבו את הסיפור למעלה. המטריצה תיפתח רק לאחר שתאשרו ציר ותוכנית חיפוש מוגבלת.")
+              : "חיפוש ישיר, מטריצה ומופעי הציר — בלי שכבות גילוי אוטומטיות."}
           </div>
         </div>
-        {researchProfile ? <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
-        : <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
-          {previewAdvanced ? <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setPreviewProfile} /> : null}
+        <div style={{ display: "grid", gap: 8, justifyItems: "end" }}>
+          <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
+          {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => setParams({})}>חיפוש חדש</button> : null}
           <span className="sod29-chip">{subject ? "הקשר מחקר פעיל" : "מוכן לחיפוש"}</span>
-        </div>}
+        </div>
       </div>
 
       <section
         className="sod29-section"
         aria-label="סביבת המחקר של הצופן"
         data-els-classic-2029="native-v1"
+        hidden={!discoveryWorkspaceReady}
         style={{ marginTop: 18, overflow: "hidden" }}
       >
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix} active={!library} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+        <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix || hasRazielReturnMarker ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix} active={!library} researchProfile={researchProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
+          onReturnToResearchPlan={() => researchPlanRef.current?.scrollIntoView({ block: "start", behavior: "smooth" })}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
             setSavedRevision(value => value + 1);
             if (row?.id === savedRecord.row?.id) setSavedRecord(current => ({ ...current, row }));
-          }} />
+          }} onDeleteSaved={deleteSavedCipher} />
       </section>
 
-      {researchProfile ? <ElsResearchBarConnected
+      {directSavedOpen ? <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} /> : null}
+
+      {savedRecord.row ? <details className="els29-saved-record" aria-label="פרטי הצופן השמור">
+        <summary>פרטי הצופן השמור</summary>
+        <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
+        {savedRecord.row.description ? <p>{savedRecord.row.description}</p> : null}
+        {savedMatrixReplayProfile(savedRecord.row).legacyScopeRecovered ? <p role="status">השחזור נפתח בכל התנ״ך מפני שממצאים שנשמרו ברשומה חוצים את גבול התורה. נתוני המקור לא שונו.</p> : null}
+        {!hasExactSavedMatrix(savedRecord.row) ? <>
+          <p role="status">צופן ותיק: המיקום המקורי לא נשמר במלואו. המטריצה מחפשת מחדש לפי המונח והדילוג; היא אינה שחזור מדויק של התמונה הישנה.</p>
+          {savedRecord.row.image_url ? <details><summary>התמונה המקורית שנשמרה</summary><img src={savedRecord.row.image_url} alt="התמונה המקורית של הצופן השמור" /></details> : null}
+        </> : null}
+      </details> : null}
+
+      {researchProfile && discoveryWorkspaceReady ? <ElsResearchBarConnected
         researchContext={context}
         projection={replayProjection}
         layers={replayLayers}
@@ -344,7 +390,7 @@ export default function Els2029Page({ previewAdvanced = false }) {
         subject={subject}
         locator={locator}
         onLibrary={showLibrary}
-        profileSwitch={previewAdvanced ? <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setPreviewProfile} /> : null}
+        profileSwitch={<ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />}
       /> : null}
 
 

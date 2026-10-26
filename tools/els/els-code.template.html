@@ -72,6 +72,10 @@
   body.embed .hero .eye{font-size:10.5px;letter-spacing:3.5px}
   body.embed .topbar{margin-bottom:8px}
   body.embed .wrap{padding-top:12px}
+  /* Experience 2029 owns cross-axis research in its native Research surface. The same
+     canonical engine remains mounted for Classic, but Classic exposes only its clean
+     single-axis workspace instead of duplicating cross/research controls. */
+  body.exp2029-clean :is(#htStep2,#qb,#alwaystip,.crossrow,#crosspanel,#labpanel,.crosschip,.crossbanner,.xres,.cross-act){display:none!important}
   .hero h1{margin:8px 0 6px;font-family:var(--serif);font-size:clamp(26px,6vw,42px);font-weight:800;color:var(--goldBright);
      text-shadow:0 0 40px rgba(232,200,74,.25);line-height:1.05}
   .hero p{margin:0 auto;max-width:58ch;color:var(--ink2);font-size:13.5px;line-height:1.7}
@@ -1059,7 +1063,6 @@
 <script id="niqqud-data" type="text/plain">__NIQQUD_DATA__</script>
 <script id="verse-lens" type="text/plain">__VERSE_LENS__</script>
 <script id="verse-chap" type="text/plain">__VERSE_CHAP__</script>
-<script id="verse-text" type="text/plain">__VERSE_TEXT__</script>
 <script id="book-names" type="text/plain">__BOOK_NAMES__</script>
 <script>
 (async function(){
@@ -1075,10 +1078,10 @@
   // 2029 delegates account access to the platform; only the archived local search/demo gates retire here.
   // This flag never changes tier/admin, canonical verification, server access or request budgets.
   let EXPR2029=false;try{EXPR2029=new URLSearchParams(location.search).get("experience")==="2029";}catch(e){}
+  if(EXPR2029)document.body.classList.add("exp2029-clean");
   const FIN={"ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"};
   const norm=s=>{let o="";for(const c of s||"")if(c>="א"&&c<="ת")o+=(FIN[c]||c);return o;};
-  // 🗜️ פענוח הנתונים הדחוסים (gzip→base64) בעזרת DecompressionStream המובנה — בלי רשת, תואם-CSP.
-  //    מקטין את הקובץ מ-~6MB ל-~2MB ⇒ טעינה מהירה כאילו אין תנ״ך; הפענוח קורה פעם אחת (~0.1ש׳).
+  // 🗜️ פענוח נתוני-המנוע המוטמעים (gzip→base64) בעזרת DecompressionStream המובנה, תואם-CSP.
   async function inflate(b64){
     try{const bin=atob((b64||"").trim());const u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
       const ds=new DecompressionStream("gzip");const buf=await new Response(new Blob([u8]).stream().pipeThrough(ds)).arrayBuffer();
@@ -1108,8 +1111,32 @@
     if(x===15)m+="טו";else if(x===16)m+="טז";else{m+=TN[Math.floor(x/10)]+U[x%10];}
     s=m; if(s.length>1)s=s.slice(0,-1)+'״'+s.slice(-1); else if(s.length===1)s=s+"׳"; return s;};
   __TANAKH_REFERENCE_FORMATTER__
-  let VTEXT=null;   // טקסט מלא לכל פסוק — מפוענח בעצלתיים (נדרש רק בהקשה על אות); נטען-מראש ברקע אחרי הרינדור
-  async function ensureVerseText(){if(!VTEXT)VTEXT=(await inflate(document.getElementById("verse-text").textContent)).split("\n");return VTEXT;}
+  // טקסט-הפסוקים הוא נתון-תצוגה בלבד. אותיות הקורפוס, גבולות הפסוקים והחיפוש נשארים מוטמעים
+  // במנוע; הנכס הזה נטען מאותו origin רק כשפעולת מקור/פסוק/אות זקוקה לטקסט המלא.
+  const VERSE_TEXT_ASSET="__VERSE_TEXT_ASSET__",VERSE_TEXT_SHA256="__VERSE_TEXT_SHA256__",VERSE_TEXT_BYTES=__VERSE_TEXT_BYTES__;
+  let VTEXT=null;
+  let _vtextPending=null,_vtextAttempt=0;
+  async function loadVerseText(){
+    const attempt=_vtextAttempt++,embedded=VERSE_TEXT_ASSET.startsWith("data:");
+    const url=VERSE_TEXT_ASSET+(!embedded&&attempt?"?retry="+attempt:"");
+    const response=await fetch(url,{credentials:embedded?"omit":"same-origin",cache:!embedded&&attempt?"reload":"default"});
+    if(!response.ok)throw new Error("verse_text_http_"+response.status);
+    const compressed=await response.arrayBuffer(),ds=new DecompressionStream("gzip");
+    const raw=await new Response(new Blob([compressed]).stream().pipeThrough(ds)).arrayBuffer();
+    if(raw.byteLength!==VERSE_TEXT_BYTES)throw new Error("verse_text_size_mismatch");
+    if(!globalThis.crypto?.subtle)throw new Error("verse_text_digest_unavailable");
+    const digest=Array.from(new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256",raw)),b=>b.toString(16).padStart(2,"0")).join("");
+    if(digest!==VERSE_TEXT_SHA256)throw new Error("verse_text_digest_mismatch");
+    const rows=new TextDecoder("utf-8",{fatal:true}).decode(raw).split("\n");
+    if(rows.length!==VLENS.length+1||rows[rows.length-1]!=="")throw new Error("verse_text_alignment_mismatch");
+    return rows;
+  }
+  async function ensureVerseText(){
+    if(VTEXT)return VTEXT;if(_vtextPending)return _vtextPending;
+    _vtextPending=loadVerseText().then(rows=>(VTEXT=rows)).catch(e=>{console.error("verse text unavailable",e);throw e;})
+      .finally(()=>{if(!VTEXT)_vtextPending=null;});
+    return _vtextPending;
+  }
   const refStr=vi=>{const r=VREF[vi]||[0,0,0];return formatTanakhReferenceParts(BOOKNM[r[0]],HEBNUM(r[1]),HEBNUM(r[2]));};
   function verseAt(pos){   // אינדקס-הפסוק המכיל את המיקום
     if(pos<0||pos>=N)return -1;let lo=0,hi=VLENS.length-1;while(lo<hi){const m=(lo+hi+1)>>1;if(VCUM[m]<=pos)lo=m;else hi=m-1;}return lo;}
@@ -1300,8 +1327,10 @@
   const CORPUS_ID={torah:"__CORPUS_ID_TORAH__",tanakh:"__CORPUS_ID_TANAKH__"};
   const VB_MAX_CANDIDATES=4000,VB_MAX_LETTER_CHECKS=64000;
   const AD_POLICY="ADAPTIVE_CAPPED_V1",AD_BANDS=8,AD_PROBE_PAIRS=500000,AD_PROBE_PAIRS_EXT=2000000;
+__STANDALONE_VERIFIER__
   const _engPending=new Map();let _engSeq=0;
   function engineCall(op,payload,timeoutMs,operation){
+__STANDALONE_ENGINE_DISPATCH__
     return new Promise(res=>{
       if(!EMBED||!window.parent||window.parent===window){res({ok:false,error:"no_host"});return;}
       const requestId="e"+(++_engSeq)+"_"+Math.random().toString(36).slice(2,8);
@@ -1417,15 +1446,17 @@
     const per=Math.max(1,Math.min(VB_MAX_CANDIDATES,Math.floor(VB_MAX_LETTER_CHECKS/Math.max(2,L))));
     const uniq=[],seen=new Set();
     for(const h of hits){const k=hitKey(h);if(seen.has(k))continue;seen.add(k);uniq.push(h);}
-    const verified=new Set(),traces=[];
+    const verified=new Set(),traces=[],phaseStartedAt=Date.now();
     for(let i=0;i<uniq.length;i+=per){
       if(operation?.status==="cancelled")return {ok:false,error:"cancelled"};
       const chunk=uniq.slice(i,i+per);
+      operationStatus(operation,"verifying",null,{phase:"verify",completed:i,total:uniq.length,phaseElapsedMs:Date.now()-phaseStartedAt});
       const r=await engineCall("verify_batch",{term:t,scope,corpus_id:cid,strategy:strategy||null,
         candidates:chunk.map(h=>({skip:Math.abs(h.skip),dir:h.dir,start:h.start}))},undefined,operation);
       if(!r||!r.ok||!r.result||r.result.status!=="OK"||r.result.corpus_id!==cid)return {ok:false,error:(r&&r.error)||(r&&r.result&&r.result.status)||"verify_failed"};
       for(const o of r.result.verified||[])verified.add(o.skip+"_"+o.dir+"_"+o.start);
       if(r.trace_id)traces.push(r.trace_id);
+      operationStatus(operation,"verifying",null,{phase:"verify",completed:i+chunk.length,total:uniq.length,phaseElapsedMs:Date.now()-phaseStartedAt});
     }
     return {ok:true,verified,traces,corpus_id:cid};
   }
@@ -1495,6 +1526,8 @@
     const cancelled=()=>({hits:[],capped:0,t:norm(raw),vstate:"CANCELLED"});
     let candidates;
     try{
+      operationStatus(operation,"searching",null,{phase:"discover",completed:0,total:0,phaseElapsedMs:0});
+      if(operation)await paintOperation();
       const pool=operation&&EXPR2029?await ensureXfInit():null;
       if(epoch!==_matrixRequestSeq||operation?.status==="cancelled")return cancelled();
       candidates=pool?(await xfCall(pool,{type:"routed-discover",reqId:++_xfReqId,raw,cap,scope})).result:await routedDiscover(raw,cap);
@@ -1542,8 +1575,322 @@
   const SYSTEM_MATRICES=[
     {name:"תורה קדשה", term:"תורה קדשה", skip:10065, words:["התורה","אמיתית"], sys:true},
   ];
-  // 🤖 מאגר-מונחים ל«הצע אשכול» (בכלי העצמאי — באתר יוזרם מ-ai-analyze דינמית)
+  // 🤖 ליבת-מונחים היסטורית. היא נשארת seed יציב ותואם-לאחור, אך פעולות-הגילוי
+  // המפורשות של Research משתמשות ב-dynamicCandidateLexicon() שמתחתיה: אותה ליבה +
+  // שפת-הקורפוס הקנוני + מונחים שכבר נראים במחקר/בצפנים הציבוריים. זהו cache נגזר,
+  // לא מנוע, store או אמת נוספים; כל מופע עדיין עובר אימות ELS קנוני לפני שהוא Finding.
   const DICT=["משיח","גאולה","גואל","בן דוד","דוד","מלך","ציון","ירושלים","מקדש","בית המקדש","הר הבית","תורה","משה","אהרן","אליהו","קץ","נחמה","ישועה","אמת","אמונה","תשובה","קדוש","שכינה","אברהם","יצחק","יעקב","יוסף","שרה","רבקה","רחל","לאה","נצח","הוד","חסד","גבורה","תפארת","מלכות","כתר","חכמה","בינה","יסוד","אור","נשמה","שלום","ברית","עולם הבא","תחית המתים","אחרית הימים","גלות","עמלק","המן","פרעה","נחש","ישראל","יהודה","לוי","כהן","נביא","צדיק","בלעם","טבת","ניסן","תשרי","אלול","שבת","פסח","סוכות","שבועות","חנוכה","פורים","קרבן","עבודה","חיים","דעת","יראה","אהבה","רחמים","צדק","משפט","ברכה","עדות","סוד","רמז","מזל","גורל"];
+  const DYNAMIC_LEXICON_CONTRACT="els_dynamic_candidate_lexicon_v1",CANDIDATE_RANKING_CONTRACT="els_research_candidate_ranking_v1",
+    AXIS_NEIGHBORHOOD_CONTRACT="els_axis_neighborhood_bundle_v1",FOCUSED_CORE_CONTRACT="els_focused_core_bundle_v1",FOCUSED_CORE_CANDIDATE_CAP=32768,FOCUSED_CORE_PROBE_CAP=16384,
+    RESULT_TRIAGE_CONTRACT="els_result_triage_v1",RESEARCH_BUNDLE_CONTRACT="els_research_bundle_v1",
+    RESEARCH_CONTEXT_COVERAGE_CONTRACT="els_research_context_coverage_v1",
+    RESEARCH_BUNDLE_COMPARISON_CONTRACT="els_research_bundle_comparison_v1",
+    COMPACT_GEOMETRY_CONTRACT="els_compact_geometry_priority_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",
+    MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1",MATRIX_DISCOVERY_BUDGET_CONTRACT="els_matrix_discovery_budget_v1",CROSS_THIRD_AXIS_CONTRACT="els_cross_third_axis_v1",
+    _corpusLexiconCache={torah:null,tanakh:null},_corpusAxisWordCache={torah:null,tanakh:null},_corpusPhraseCache={torah:null,tanakh:null},_lineExtensionIndexCache=new WeakMap();
+  function addCandidateLexiconTerm(map,raw,source,support=1,minLength=3,classification=null){
+    const label=String(raw||"").trim().replace(/\s+/g," "),term=norm(label);
+    if(term.length<minLength||term.length>24)return;
+    const classifications=(Array.isArray(classification)?classification:classification?[classification]:[]).filter(Boolean),prior=map.get(term);
+    if(prior){prior.support+=Math.max(1,support||1);prior.sources.add(source);
+      for(const item of classifications)if(!prior.classifications.some(current=>current.kind===item.kind&&current.value===item.value))prior.classifications.push(item);return;}
+    map.set(term,{term,label,support:Math.max(1,support||1),sources:new Set([source]),classifications:[...classifications]});
+  }
+  function normalizeResearchContextTerms(input){
+    const map=new Map(),requested=[],seenRequested=new Set(),add=(label,kind,parent,mode,required)=>{
+      const term=norm(label);if(term.length<2||term.length>24)return;
+      addCandidateLexiconTerm(map,label,kind==="component"?"explicit_research_context_component":"explicit_research_context",kind==="component"?90:180,2,
+        {kind:kind==="component"?"research-context-component":"research-context-exact",value:parent||term,label:kind==="component"?"רכיב שחיפושו אושר במפורש":"מונח הקשר מדויק שביקש החוקר"});
+      if(!seenRequested.has(term)){seenRequested.add(term);requested.push({term,label:String(label).trim().replace(/\s+/g," "),mode,required:required===true,component:kind==="component",parentTerm:parent||null});}
+    };
+    for(const item of Array.isArray(input)?input.slice(0,12):[]){
+      const label=String(item?.term||"").normalize("NFKD").replace(/[\u0591-\u05C7]/g,"").replace(/[^א-ת\s]/g," ").trim().replace(/\s+/g," "),term=norm(label);
+      if(term.length<2||term.length>24)continue;
+      add(label,"exact",null,item?.mode==="exact_phrase"?"exact_phrase":"term",item?.required===true);
+      if(item?.split===true&&label.includes(" "))for(const part of label.split(/\s+/))if(norm(part).length>=2)add(part,"component",term,"term",item?.required===true);
+    }
+    return {rows:[...map.values()].map(row=>({...row,sources:[...row.sources],classifications:[...row.classifications]})),requested};
+  }
+  function researchContextCoverage(requested,items,complete=false,verifiedOnly=true){
+    const available=new Set((items||[]).filter(item=>!verifiedOnly||["VERIFIED","SOURCE_EXACT"].includes(item.status)).map(item=>norm(item.term||item.label))),found=(requested||[]).filter(item=>available.has(item.term)),foundKeys=new Set(found.map(item=>item.term));
+    return {contract:RESEARCH_CONTEXT_COVERAGE_CONTRACT,complete:complete===true,verified:verifiedOnly===true,requested:[...(requested||[])],found,notSeenInFocusedRange:complete?(requested||[]).filter(item=>!foundKeys.has(item.term)):[],truthPromotion:false};
+  }
+  function addCorpusMorphology(map,raw){
+    const original=norm(raw),variants=[];
+    const addEndingForms=(stem,source)=>{
+      if(stem.length<4||!stem.endsWith("ה"))return;
+      variants.push({term:stem.slice(0,-1)+"ת",kind:"construct",label:"צורת סמיכות אפשרית מלשון המקור",source});
+      variants.push({term:stem.slice(0,-1)+"י",kind:"construct-yod",label:"צורת נטייה אפשרית מלשון המקור",source});
+    };
+    const stems=new Set([original]);
+    if(original.length>=5&&/^[והבכלמש]/.test(original)){
+      const bare=original.slice(1);stems.add(bare);variants.push({term:bare,kind:"prefix-removal",label:"צורת בסיס אפשרית ללא אות יחס",source:original});
+    }
+    for(const stem of stems){
+      addEndingForms(stem,original);
+      // A bounded spelling projection for Biblical plene/defective orthography. It removes one
+      // internal mater lectionis only; this is vocabulary generation, never occurrence proof.
+      for(let index=1;index<stem.length-1;index++)if("וי".includes(stem[index]))variants.push({term:stem.slice(0,index)+stem.slice(index+1),kind:"defective-spelling",label:"כתיב חסר אפשרי מלשון המקור",source:original});
+    }
+    for(const variant of variants)addCandidateLexiconTerm(map,variant.term,"corpus_morphology",1,3,{kind:"corpus-morphology",value:variant.kind,label:variant.label,source:variant.source});
+  }
+  function corpusCandidateLexiconBuild(rows){
+    return (function*(){
+    const torah=new Map(),tanakh=new Map(),torahAxisWords=new Map(),tanakhAxisWords=new Map(),torahPhrases=new Map(),tanakhPhrases=new Map(),torahVerseCount=VCHAP.slice(0,TORAH_BOOKS).reduce((n,book)=>n+book.reduce((a,b)=>a+b,0),0);let sliceStarted=Date.now();
+    for(let vi=0;vi<rows.length;vi++){
+      const words=String(rows[vi]||"").split(/[\s־ֽ–\-]+/).map(word=>word.replace(/[^א-ת]/g,"")).filter(Boolean);
+      for(const word of words){const length=norm(word).length;if(length<2)continue;
+        if(length<4){addCandidateLexiconTerm(tanakhAxisWords,word,"corpus_native_adjacent",1,2);if(vi<torahVerseCount)addCandidateLexiconTerm(torahAxisWords,word,"corpus_native_adjacent",1,2);continue;}
+        addCandidateLexiconTerm(tanakh,word,"corpus_native");addCorpusMorphology(tanakh,word);
+        if(vi<torahVerseCount){addCandidateLexiconTerm(torah,word,"corpus_native");addCorpusMorphology(torah,word);}}
+      // Keep canonical two-/three-word language as a compact normalized phrase index, not as
+      // 100k+ full candidate objects. A value encodes word count and the first two word lengths;
+      // the local matrix scan materializes a candidate only after its exact letters are present.
+      for(let at=0;at<words.length;at++)for(let size=2;size<=3&&at+size<=words.length;size++){
+        const parts=words.slice(at,at+size).map(norm),phrase=parts.join(""),length=phrase.length;if(length<4||length>24||parts.some(part=>part.length>31))continue;
+        const code=(size<<10)|(parts[1].length<<5)|parts[0].length;
+        if(!tanakhPhrases.has(phrase))tanakhPhrases.set(phrase,code);
+        if(vi<torahVerseCount&&!torahPhrases.has(phrase))torahPhrases.set(phrase,code);
+      }
+      if(vi+1===rows.length||Date.now()-sliceStarted>=32){yield {phase:"language",completed:vi+1,total:rows.length};sliceStarted=Date.now();}
+    }
+    function* freezeMap(map,phase){const values=[...map.values()],frozen=[];
+      let freezeStarted=Date.now();for(let index=0;index<values.length;index++){const row=values[index];frozen.push(Object.freeze({...row,sources:Object.freeze([...row.sources]),classifications:Object.freeze([...(row.classifications||[])])}));if(index+1===values.length||Date.now()-freezeStarted>=32){yield {phase,completed:index+1,total:values.length};freezeStarted=Date.now();}}
+      return Object.freeze(frozen);
+    }
+    const frozenTorah=yield* freezeMap(torah,"freeze-torah"),frozenTanakh=yield* freezeMap(tanakh,"freeze-tanakh"),frozenTorahAxis=yield* freezeMap(torahAxisWords,"freeze-torah-axis"),frozenTanakhAxis=yield* freezeMap(tanakhAxisWords,"freeze-tanakh-axis");
+    _corpusLexiconCache.torah=frozenTorah;_corpusLexiconCache.tanakh=frozenTanakh;
+    _corpusAxisWordCache.torah=frozenTorahAxis;_corpusAxisWordCache.tanakh=frozenTanakhAxis;
+    _corpusPhraseCache.torah=torahPhrases;_corpusPhraseCache.tanakh=tanakhPhrases;
+    return true;})();
+  }
+  function buildCorpusCandidateLexicons(rows){
+    const build=corpusCandidateLexiconBuild(rows);for(;;){const next=build.next();if(next.done)return next.value;}
+  }
+  async function buildCorpusCandidateLexiconsBatched(rows,onProgress,isCancelled){
+    const build=corpusCandidateLexiconBuild(rows);for(;;){if(isCancelled?.())return null;const next=build.next();if(next.done)return next.value;onProgress?.(next.value);await paintOperation();}
+  }
+  function addBasicHebrewYears(map,minLength){
+    // Hebrew year forms are generated, not curated. The omitted thousands are projected as
+    // 5001..5999 and labelled as a possible year pattern, never as an asserted date or meaning.
+    for(let year=5001;year<=5999;year++){
+      const label=HEBNUM(year-5000),term=norm(label);if(term.length<minLength)continue;
+      addCandidateLexiconTerm(map,label,"basic_hebrew_year",1,minLength,{kind:"hebrew-year",value:year,label:`תבנית שנה אפשרית · ה׳${label}`});
+    }
+  }
+  function researchCandidateLexiconBuild(includeShortAxisWords=false,options=null,progressPhase="materialize"){
+    return (function*(){
+    const map=new Map(),minLength=includeShortAxisWords?2:3,languageScope=options?.languageScope||st.scope,includeMorphology=options?.includeMorphology===true,
+      corpusRows=_corpusLexiconCache[languageScope]||[],axisRows=includeShortAxisWords?(_corpusAxisWordCache[languageScope]||[]):[],cloudRows=CLOUD_MATRICES||[],
+      collectTotal=DICT.length+corpusRows.length+axisRows.length+1+(st.words||[]).length+cloudRows.reduce((sum,item)=>sum+1+(item.words||[]).length,0)+999;
+    let completed=0,lastReported=0,sliceStarted=Date.now();
+    const report=force=>{if(completed===lastReported||!force&&Date.now()-sliceStarted<96)return null;lastReported=completed;sliceStarted=Date.now();return {phase:`${progressPhase}-collect`,completed,total:collectTotal};};
+    for(const term of DICT){addCandidateLexiconTerm(map,term,"governed_core",4,minLength);completed++;const update=report(false);if(update)yield update;}
+    for(const row of corpusRows){for(const source of row.sources)if(includeMorphology||source!=="corpus_morphology")addCandidateLexiconTerm(map,row.label,source,row.support,minLength,row.classifications);completed++;const update=report(false);if(update)yield update;}
+    for(const row of axisRows){for(const source of row.sources)addCandidateLexiconTerm(map,row.label,source,row.support,2,row.classifications);completed++;const update=report(false);if(update)yield update;}
+    addCandidateLexiconTerm(map,st.raw,"active_axis",8,minLength);completed++;{const update=report(false);if(update)yield update;}
+    for(const word of st.words||[]){addCandidateLexiconTerm(map,word.t,"verified_research",8,minLength);completed++;const update=report(false);if(update)yield update;}
+    for(const item of cloudRows){addCandidateLexiconTerm(map,item.term,"visible_saved_research",3,minLength);completed++;let update=report(false);if(update)yield update;
+      for(const word of item.words||[]){addCandidateLexiconTerm(map,word.t,"visible_saved_research",2,minLength);completed++;update=report(false);if(update)yield update;}}
+    for(let year=5001;year<=5999;year++){const label=HEBNUM(year-5000),term=norm(label);if(term.length>=minLength)addCandidateLexiconTerm(map,label,"basic_hebrew_year",1,minLength,{kind:"hebrew-year",value:year,label:`תבנית שנה אפשרית · ה׳${label}`});completed++;const update=report(false);if(update)yield update;}
+    {const update=report(true);if(update)yield update;}
+    const values=[...map.values()],rows=[];let projectStarted=Date.now();
+    for(let index=0;index<values.length;index++){const row=values[index];rows.push({...row,sources:[...row.sources],classifications:[...(row.classifications||[])]});
+      if(index+1===values.length||Date.now()-projectStarted>=96){yield {phase:`${progressPhase}-project`,completed:index+1,total:values.length};projectStarted=Date.now();}}
+    const compare=(a,b)=>b.support-a.support||b.term.length-a.term.length||a.term.localeCompare(b.term,"he"),passes=rows.length>1?Math.ceil(Math.log2(rows.length)):0,sortTotal=rows.length*passes;
+    let source=rows,target=new Array(rows.length),sorted=0,lastSortReported=0,sortStarted=Date.now();
+    for(let width=1;width<rows.length;width*=2){for(let left=0;left<rows.length;left+=width*2){let first=left,second=Math.min(left+width,rows.length),firstEnd=second,secondEnd=Math.min(left+width*2,rows.length),cursor=left;
+      while(first<firstEnd||second<secondEnd){target[cursor++]=second>=secondEnd||first<firstEnd&&compare(source[first],source[second])<=0?source[first++]:source[second++];sorted++;
+        if(Date.now()-sortStarted>=96){lastSortReported=sorted;yield {phase:`${progressPhase}-sort`,completed:sorted,total:sortTotal};sortStarted=Date.now();}}}
+      [source,target]=[target,source];}
+    if(sorted!==lastSortReported)yield {phase:`${progressPhase}-sort`,completed:sorted,total:sortTotal};
+    return source;})();
+  }
+  function researchCandidateLexicon(includeShortAxisWords=false,options=null){
+    const build=researchCandidateLexiconBuild(includeShortAxisWords,options);for(;;){const next=build.next();if(next.done)return next.value;}
+  }
+  async function researchCandidateLexiconBatched(includeShortAxisWords,options,progressPhase,onProgress,isCancelled){
+    const build=researchCandidateLexiconBuild(includeShortAxisWords,options,progressPhase);for(;;){if(isCancelled?.())return null;const next=build.next();if(next.done)return next.value;onProgress?.(next.value);await paintOperation();}
+  }
+  async function dynamicCandidateLexicon(onProgress=null,isCancelled=null){
+    let fallback=false;
+    if(!_corpusLexiconCache[st.scope])try{const built=await buildCorpusCandidateLexiconsBatched(await ensureVerseText(),onProgress,isCancelled);if(!built)return null;}catch(_){fallback=true;}
+    const entries=await researchCandidateLexiconBatched(false,null,"materialize-base",onProgress,isCancelled);if(!entries)return null;
+    const axisEntries=await researchCandidateLexiconBatched(true,null,"materialize-axis",onProgress,isCancelled);if(!axisEntries)return null;
+    const focusedOptions={languageScope:_corpusLexiconCache.tanakh?"tanakh":st.scope,includeMorphology:true};
+    const focusedEntries=await researchCandidateLexiconBatched(false,focusedOptions,"materialize-focused",onProgress,isCancelled);if(!focusedEntries)return null;
+    const focusedAxisEntries=await researchCandidateLexiconBatched(true,focusedOptions,"materialize-focused-axis",onProgress,isCancelled);if(!focusedAxisEntries)return null;
+    const phraseIndex=_corpusPhraseCache[st.scope]||new Map(),focusedPhraseIndex=_corpusPhraseCache.tanakh||phraseIndex;
+    return {contract:DYNAMIC_LEXICON_CONTRACT,entries,phraseIndex,fallback,counts:{total:entries.length+phraseIndex.size,corpus:entries.filter(row=>row.sources.includes("corpus_native")).length,
+      phrases:phraseIndex.size,years:entries.filter(row=>row.sources.includes("basic_hebrew_year")).length,
+      research:entries.filter(row=>row.sources.includes("verified_research")||row.sources.includes("visible_saved_research")).length,
+      axisWords:axisEntries.length},axisEntries,focusedEntries,focusedAxisEntries,focusedPhraseIndex,
+      focusedCounts:{total:focusedEntries.length+focusedPhraseIndex.size,corpus:focusedEntries.filter(row=>row.sources.includes("corpus_native")).length,phrases:focusedPhraseIndex.size,years:focusedEntries.filter(row=>row.sources.includes("basic_hebrew_year")).length,research:focusedEntries.filter(row=>row.sources.includes("verified_research")||row.sources.includes("visible_saved_research")).length,axisWords:focusedAxisEntries.length}};
+  }
+  function candidateLexiconPriority(item){
+    const sources=new Set(item.lexiconSources||[]);
+    return (sources.has("verified_research")?3:0)+(sources.has("visible_saved_research")?2:0)+(sources.has("governed_core")?1:0);
+  }
+  // One presentation law for every Research projection. "Compact" means that consecutive
+  // letters occupy neighbouring matrix cells; the corpus skip may still be large (S/S±1).
+  // This is ranking metadata only. It neither verifies a candidate nor changes historical scores.
+  function compactGeometryMeta(candidate,axis){
+    const S=Math.abs(Number(axis?.skip)||0),skip=Math.abs(Number(candidate?.skip)||0);
+    if(S<1||skip<1)return null;
+    const step=gridStep(skip,S),compact=step===1,axisCells=axis?._structuralCells||new Set(axis?.positions||[]),positions=candidate?.positions||[];
+    const sameAxis=skip===S&&positions.length&&(axis?.positions||[]).length===positions.length&&positions.every((position,index)=>position===axis.positions[index]);
+    const intersects=!sameAxis&&positions.some(position=>axisCells.has(position));
+    let relation="spaced",relationLabel="מבנה עם פערים";
+    if(sameAxis){relation="same-axis";relationLabel="אותו ציר רציף";}
+    else if(compact&&skip===1){relation="horizontal";relationLabel="רצף אופקי ללא פער";}
+    else if(compact&&skip===S){relation="vertical";relationLabel="מקבילה אנכית ללא פער";}
+    else if(compact&&Math.abs(skip-S)===1){relation="diagonal";relationLabel="אלכסון ללא פער";}
+    else if(compact){relation="adjacent";relationLabel="אותיות צמודות במטריצה";}
+    return {contract:COMPACT_GEOMETRY_CONTRACT,stage:compact?"A":"B",compact,gridStep:step,relation,relationLabel,intersects};
+  }
+  function axisNeighborhoodMeta(candidate,axis){
+    const geometry=compactGeometryMeta(candidate,axis);
+    let band="spaced",label="שלב ב׳ · מבנים עם פערים",priority=100;
+    if(geometry?.compact&&["vertical","diagonal"].includes(geometry.relation)){band="parallel";label="מקבילות צמודות לציר";priority=500;}
+    else if(geometry?.compact&&geometry.intersects){band="intersection";label="חציות הנוגעות בציר";priority=400;}
+    else if(geometry?.compact){band="compact-nearby";label="רצפים סמוכים ללא פער";priority=300;}
+    return {contract:AXIS_NEIGHBORHOOD_CONTRACT,band,label,priority};
+  }
+  function rankResearchCandidateItems(items){
+    return items.map(item=>{
+      const sources=new Set(item.lexiconSources||[]),continuationCount=(item.continuations||[]).length,classifications=item.classifications||[];
+      const researchEvidence=candidateLexiconPriority(item),reasons=[];
+      if(item.sourceContext?.axisTopic)reasons.push(item.sourceContext.label||"פסוק מקור באותו הקשר");
+      if(item.geometry?.compact)reasons.push(`שלב א׳ · ${item.geometry.relationLabel}`);
+      else if(item.geometry)reasons.push(`שלב ב׳ · ${item.geometry.relationLabel}`);
+      const year=classifications.find(entry=>entry.kind==="hebrew-year"),phrase=classifications.find(entry=>entry.kind==="corpus-phrase");
+      if(year)reasons.push(year.label||`תבנית שנה אפשרית · ${year.value}`);
+      else if(phrase)reasons.push(phrase.label||"ביטוי מלשון המקור");
+      if(sources.has("verified_research"))reasons.push("נתמך בממצא מאומת");
+      else if(sources.has("visible_saved_research"))reasons.push("מופיע במחקר גלוי");
+      else if(sources.has("governed_core"))reasons.push("מונח יסוד מבוקר");
+      if(continuationCount>1)reasons.push(`${continuationCount} המשכים על הציר`);
+      return {...item,ranking:{contract:CANDIDATE_RANKING_CONTRACT,researchEvidence,continuationCount,reasons}};
+    }).sort((a,b)=>Number(b.neighborhood?.priority)-Number(a.neighborhood?.priority)||a.distance-b.distance||b.ranking.researchEvidence-a.ranking.researchEvidence||b.ranking.continuationCount-a.ranking.continuationCount||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
+  }
+  // Research-only structural projection over the SAME displayed-window candidates. This does not
+  // run registered skip-family research (B12/B13), change the normal distance ranking, or verify a
+  // Finding. It only explains already-active geometry and the existing notable() classification.
+  function classifyStructuralCandidate(candidate,axis){
+    const axisSkip=Math.abs(Number(axis?.skip)||0),skip=Math.abs(Number(candidate?.skip)||0);
+    if(axisSkip<1||skip<1)return null;
+    const multiple=Math.round(skip/axisSkip),delta=multiple>=1?skip-multiple*axisSkip:null,absDelta=delta===null?Infinity:Math.abs(delta);
+    const exactParallel=multiple>=1&&delta===0,diagonalParallel=multiple>=1&&absDelta>0&&absDelta<=2;
+    const axisCells=axis._structuralCells||new Set(axis.positions||[]),intersection=(candidate.positions||[]).some(position=>axisCells.has(position));
+    const geometry=compactGeometryMeta(candidate,axis),ordered=notable(skip),relations=[];
+    if(geometry?.compact){
+      const kind=geometry.relation==="horizontal"?"parallel-horizontal":geometry.relation==="diagonal"?"parallel-diagonal":"parallel-exact";
+      relations.push({kind,label:geometry.relationLabel,priority:600});
+    }else if(exactParallel||diagonalParallel)relations.push({kind:"parallel-spaced",label:`שלב ב׳ · מקבילה עם פערים · ×${multiple}${delta?`${delta>0?"+":""}${delta}`:""}`,priority:180});
+    if(intersection)relations.push({kind:"intersection",label:geometry?.compact?"חצייה צמודה באות משותפת":"שלב ב׳ · חצייה עם פערים",priority:geometry?.compact?550:170});
+    if(ordered)relations.push({kind:"ordered-skip",label:`דילוג מסודר · ${ordered.tag}`,priority:geometry?.compact?450:150-ordered.rank});
+    if(!relations.length)return null;
+    relations.sort((a,b)=>b.priority-a.priority||a.kind.localeCompare(b.kind));
+    return {...candidate,structuralPriority:relations[0].priority,relation:relations[0].kind,relationLabel:relations[0].label,
+      relationTags:relations.map(item=>item.label),geometry,multiple:multiple>=1?multiple:null,delta,notable:ordered?{rank:ordered.rank,tag:ordered.tag}:null};
+  }
+  function rankStructuralCandidates(candidates,axis){
+    return candidates.map(candidate=>classifyStructuralCandidate(candidate,axis)).filter(Boolean)
+      .sort((a,b)=>Number(b.geometry?.compact)-Number(a.geometry?.compact)||b.structuralPriority-a.structuralPriority||candidateLexiconPriority(b)-candidateLexiconPriority(a)||a.distance-b.distance||
+        Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
+  }
+  function preferStructuralCandidate(candidate,best,axis){
+    const next=classifyStructuralCandidate(candidate,axis),previous=classifyStructuralCandidate(best,axis);
+    if(Boolean(next)!==Boolean(previous))return Boolean(next);
+    if(next&&previous&&next.structuralPriority!==previous.structuralPriority)return next.structuralPriority>previous.structuralPriority;
+    return candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip;
+  }
+  const STRUCTURE_PLAN_CONTRACT="els_structure_scan_plan_v1",REPEATED_MOTIF_CONTRACT="els_repeated_motif_projection_v1",
+    STRUCTURE_TYPES=["parallel","motif","corridor","intersection","cluster"];
+  function normalizeStructurePlan(raw){
+    raw=raw||{};
+    const n=(value,fallback,min,max)=>Math.max(min,Math.min(max,Number.isFinite(Number(value))?Math.round(Number(value)):fallback));
+    const minLength=n(raw.minLength,4,3,12),maxLength=n(raw.maxLength,8,minLength,16);
+    const requested=Array.isArray(raw.types)?raw.types.filter(type=>STRUCTURE_TYPES.includes(type)):STRUCTURE_TYPES;
+    return {contract:STRUCTURE_PLAN_CONTRACT,types:[...new Set(requested.length?requested:STRUCTURE_TYPES)],minLength,maxLength,
+      maxDistance:n(raw.maxDistance,30,4,120),minMembers:n(raw.minMembers,2,2,6),maxGroups:n(raw.maxGroups,12,4,20),maxMembers:n(raw.maxMembers,10,3,12)};
+  }
+  function structuralCandidateCenter(candidate,axis){
+    const S=Math.max(1,Math.abs(Number(axis?.skip)||1)),axisPositions=axis?.positions||[],axisCol=axisPositions.length?((axisPositions[Math.floor(axisPositions.length/2)]%S)+S)%S:0;
+    const points=(candidate?.positions||[]).map(position=>{const col=((position%S)+S)%S;let offset=col-axisCol;if(offset>S/2)offset-=S;if(offset<-S/2)offset+=S;return {row:Math.floor(position/S),offset};});
+    if(!points.length)return {row:0,offset:0};
+    return {row:points.reduce((sum,point)=>sum+point.row,0)/points.length,offset:points.reduce((sum,point)=>sum+point.offset,0)/points.length};
+  }
+  function structuralMember(candidate,role,occurrence=null,occurrenceOrdinal=null,axis=null){
+    const classified=candidate._structural||null;
+    const source=occurrence||candidate;
+    const geometry=axis?compactGeometryMeta(source,axis):classified?.geometry||null;
+    return {term:norm(candidate.term),label:candidate.term,skip:source.skip,direction:source.dir===1?"fwd":"back",distance:source.distance,
+      role:role||"member",relation:classified?.relation||null,relationLabel:classified?.relationLabel||null,
+      occurrenceOrdinal:Number.isInteger(occurrenceOrdinal)?occurrenceOrdinal:null,
+      geometry,lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport};
+  }
+  // Groups are a bounded projection of candidates already found by scanCandidates. They introduce
+  // no skip-family search: parallel/corridor/intersection/cluster are S1 geometry over the active
+  // window, while word length and distance are declared S2 candidate caps.
+  function buildStructuralGroups(candidates,axis,rawPlan){
+    const plan=normalizeStructurePlan(rawPlan),axisCells=axis._structuralCells||new Set(axis.positions||[]),S=Math.max(1,Math.abs(Number(axis.skip)||1));
+    const axisRows=(axis.positions||[]).map(position=>Math.floor(position/S)),axisMin=axisRows.length?Math.min(...axisRows):-Infinity,axisMax=axisRows.length?Math.max(...axisRows):Infinity;
+    const eligible=candidates.filter(candidate=>{const length=norm(candidate.term).length;return length>=plan.minLength&&length<=plan.maxLength;}),
+      motifCandidates=eligible.filter(candidate=>(candidate.occurrences||[]).filter(occurrence=>candidate.sourceContext?.axisVerse||occurrence.distance<=plan.maxDistance).length>=plan.minMembers);
+    const prepared=eligible.filter(candidate=>candidate.sourceContext?.axisVerse||candidate.distance<=plan.maxDistance)
+      .map(candidate=>({...candidate,_structural:classifyStructuralCandidate(candidate,axis),_center:structuralCandidateCenter(candidate,axis),
+        _intersection:(candidate.positions||[]).some(position=>axisCells.has(position))}))
+      .sort((a,b)=>candidateLexiconPriority(b)-candidateLexiconPriority(a)||a.distance-b.distance||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he"));
+    const groups=[],add=(kind,label,description,members,priority,{preserveOccurrences=false,contract=STRUCTURE_PLAN_CONTRACT}={})=>{
+      const key=row=>preserveOccurrences&&row.occurrence?`${norm(row.candidate.term)}:${row.occurrence.skip}:${row.occurrence.dir}:${row.occurrence.start}`:norm(row.candidate.term);
+      const unique=[...new Map(members.map(row=>[key(row),row])).values()].slice(0,plan.maxMembers);if(unique.length<plan.minMembers)return;
+      const projected=unique.map((row,index)=>structuralMember(row.candidate,row.role,row.occurrence,preserveOccurrences?index+1:null,axis)),compactMembers=projected.filter(member=>member.geometry?.compact).length;
+      groups.push({kind,label,description,priority,contract,geometryContract:COMPACT_GEOMETRY_CONTRACT,stage:compactMembers===projected.length?"A":"B",compactMembers,memberCount:unique.length,members:projected});};
+    const parallels=prepared.filter(candidate=>candidate._structural?.geometry?.compact&&candidate._structural?.relation?.startsWith("parallel-"));
+    if(plan.types.includes("parallel"))add("parallel","משפחת מקבילות",`ממצאים הנעים במקביל לציר ${norm(st.raw)}.`,parallels.map(candidate=>({candidate,role:"parallel"})),400);
+    if(plan.types.includes("motif"))for(const candidate of motifCandidates){
+      const occurrences=(candidate.occurrences||[]).filter(occurrence=>candidate.sourceContext?.axisVerse||occurrence.distance<=plan.maxDistance);
+      if(occurrences.length>=plan.minMembers)add("motif",`מוטיב חוזר: ${norm(candidate.term)}`,
+        `אותו רצף מופיע ${occurrences.length} פעמים נפרדות בחלון המוצג.`,occurrences.map(occurrence=>({candidate,occurrence,role:"motif"})),375,
+        {preserveOccurrences:true,contract:REPEATED_MOTIF_CONTRACT});
+    }
+    if(plan.types.includes("corridor"))for(const boundary of parallels){
+      const edge=boundary._center.offset;if(Math.abs(edge)<1.5)continue;const lo=Math.min(0,edge),hi=Math.max(0,edge);
+      const inside=prepared.filter(candidate=>candidate!==boundary&&candidate._center.offset>lo&&candidate._center.offset<hi&&candidate._center.row>=axisMin-2&&candidate._center.row<=axisMax+2);
+      if(inside.length)add("corridor",`מסדרון אל ${norm(boundary.term)}`,`המקבילה ${norm(boundary.term)} ומה שנמצא בינה לבין הציר הראשי.`,
+        [{candidate:boundary,role:"boundary"},...inside.map(candidate=>({candidate,role:"inside"}))],350);
+    }
+    if(plan.types.includes("intersection")){const intersections=prepared.filter(candidate=>candidate._intersection);
+      add("intersection","חציות על הציר",`ממצאים החולקים לפחות אות אחת עם ${norm(st.raw)}.`,intersections.map(candidate=>({candidate,role:"intersection"})),300);}
+    if(plan.types.includes("cluster")){
+      const radius=Math.max(4,Math.min(12,Math.round(plan.maxDistance/4))),remaining=new Set(prepared);
+      for(const seed of prepared){if(!remaining.has(seed))continue;const members=prepared.filter(candidate=>remaining.has(candidate)&&Math.abs(candidate._center.row-seed._center.row)+Math.abs(candidate._center.offset-seed._center.offset)<=radius);
+        if(members.length>=plan.minMembers){members.forEach(candidate=>remaining.delete(candidate));add("cluster",`אשכול סביב ${norm(seed.term)}`,`ממצאים המרוכזים באותו אזור בתוך רדיוס מבני ${radius}.`,members.map(candidate=>({candidate,role:"cluster"})),200);}
+        else remaining.delete(seed);
+      }
+    }
+    groups.sort((a,b)=>Number(b.stage==="A")-Number(a.stage==="A")||b.priority-a.priority||b.memberCount-a.memberCount||a.label.localeCompare(b.label,"he"));
+    return {plan,groups:groups.slice(0,plan.maxGroups),availableGroups:groups.length,considered:prepared.length,truncated:groups.length>plan.maxGroups};
+  }
+  function chooseAxisNeighborhoodSuggestion(candidates,axis){
+    const prepared=candidates.filter(candidate=>Math.abs(Number(candidate.skip))>=2&&candidate.distance>0&&candidate.distance<=30&&compactGeometryMeta(candidate,axis)?.compact&&norm(candidate.term).length>=4)
+      .map(candidate=>({...candidate,_center:structuralCandidateCenter(candidate,axis),_neighborhood:axisNeighborhoodMeta(candidate,axis)}));
+    let best=null;
+    for(const seed of prepared){
+      const members=prepared.filter(candidate=>Math.abs(candidate._center.row-seed._center.row)+Math.abs(candidate._center.offset-seed._center.offset)<=6),
+        researchMembers=members.filter(candidate=>candidateLexiconPriority(candidate)>0||(candidate.classifications||[]).some(item=>item.kind==="corpus-phrase")),
+        unique=new Set(members.map(candidate=>norm(candidate.term))).size,researchSignals=new Set(researchMembers.map(candidate=>norm(candidate.term))).size,
+        seedSignal=candidateLexiconPriority(seed)>0||(seed.classifications||[]).some(item=>item.kind==="corpus-phrase");
+      if(unique<3||researchSignals<3||!seedSignal)continue;
+      const score=researchSignals*200+unique*20+seed._neighborhood.priority+Math.min(12,norm(seed.term).length)*3+candidateLexiconPriority(seed)*5-seed.distance;
+      if(!best||score>best.score)best={seed,score,memberCount:unique,researchSignals};
+    }
+    if(!best)return null;
+    const geometry=compactGeometryMeta(best.seed,axis),neighborhood=axisNeighborhoodMeta(best.seed,axis);
+    return {contract:AXIS_NEIGHBORHOOD_CONTRACT,term:norm(best.seed.term),label:best.seed.term,distance:best.seed.distance,memberCount:best.memberCount,
+      geometry,neighborhood,classifications:[...(best.seed.classifications||[])],reason:`מרכז סמוך של ${best.memberCount} ממצאים ללא פער, ובהם ${best.researchSignals} אותות מחקריים`};
+  }
   const st={raw:"",res:null,occ:0,ctxR:3,words:[],swOpen:-1,showN:2,zoom:1,occOpen:false,occNotable:true,occMin:"",occMax:"",niqqud:false,theme:"royal",focus:null,expand:-1,selMode:false,selCells:[],suggest:null,qualityOpen:false,lineFor:-1,crossMeetings:null,crossIdx:0,crossB:"",crossTerms:[],crossPure:8,crossTotal:0,crossMode:"simple",crossSimple:false,crossFree:false,crossBridge:false,crossPairA:"",crossPairB:"",crossResCache:null,sidesTerms:[],crossFilter:null,crossScanned:false,crossCollapsed:false,crossMcRun:false,zoneStars:null,zoneSig:"",lensActive:new Set(),lensRadius:12,lensPat:"",admin:false,lineMain:false,expandMain:false,hideMain:false,heat:false,mc:null,fit:true,nameMode:false,filmSpeed:1,postUrl:"",postTitle:"",desc:"",cipherSlug:"",cipherTerm:"",scope:"torah",tier:"unlimited"};
   // 📖 קריאת-פסוק: מצב שבו לחיצה על אות מדליקה את כל הפסוק שלה, מילה-מילה בגוונים מתחלפים.
   st.verseRead=false;st.verseHL=-1;
@@ -1560,6 +1907,27 @@
     return {...NATIVE_WINDOWS[actual],ctxR,windowSize:actual,windowRequested:requested};
   }
   function searchWindowSnapshot(){return {ctxR:st.ctxR,windowColumns:st.windowColumns,windowSize:st.windowSize,windowRequested:st.windowRequested};}
+  // Saved records replay in the smallest canonical window that still contains every explicitly
+  // saved finding. This changes presentation only: the stored row, exact axis and finding hitIds
+  // remain untouched. Journey restores without this marker retain their exact captured geometry.
+  function compactSavedReplayWindow(item,axis){
+    const saved=[];
+    (item.words||[]).forEach(w=>{
+      if(!w||typeof w!=="object")return;
+      const term=norm(w.t),ids=[...(Array.isArray(w.sh)?w.sh:[]),...(Array.isArray(w.sourceShown)?w.sourceShown:[])];
+      ids.forEach(id=>{const m=/^(\d+)_(-?1)_(\d+)$/.exec(String(id||""));if(!m||!term.length)return;
+        const skip=Number(m[1]),dir=Number(m[2]),start=Number(m[3]);
+        if(Number.isSafeInteger(skip)&&skip>=1&&Number.isSafeInteger(start)&&start>=0)saved.push(Array.from(term,(_,k)=>start+k*skip*dir));
+      });
+    });
+    const S=Math.abs(axis.skip),mainCol=((axis.positions[0]%S)+S)%S,rows=axis.positions.map(p=>Math.floor(p/S)),mr=Math.round((Math.min(...rows)+Math.max(...rows))/2);
+    for(const size of ["small","medium","large"]){
+      const candidate={...NATIVE_WINDOWS[size],windowSize:size,windowRequested:"small",scopeLength:scopeN()};
+      const g=researchGeometry(S,mainCol,mr,candidate),inside=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=g.r0&&r<=g.r1&&c>=g.c0&&c<g.c0+g.cw;};
+      if(saved.every(positions=>positions.every(inside)))return candidate;
+    }
+    return {...NATIVE_WINDOWS.large,windowSize:"large",windowRequested:"small"};
+  }
   // Selected occurrences retain showN and explicit choices; radius is a reversible display filter only.
   function selectedHitsOf(w){
     if(!w.hits||!w.hits.length)return [];
@@ -1615,6 +1983,47 @@
     CLOUD_MATRICES.forEach(m=>{if(!m||!m.term)return;const k=keyOf(m);
       if(seen.has(k))return;seen.add(k);byKey.set(k,{...m,cloud:true});});
     return [...byKey.values()];
+  }
+  function parseSavedHitKey(value,term){
+    const match=/^(\d+)_(-?1)_(\d+)$/.exec(String(value||""));if(!match)return null;
+    const skip=Number(match[1]),dir=Number(match[2]),start=Number(match[3]),length=norm(term).length;
+    if(skip<1||start<0||length<2)return null;
+    return {skip,dir,start,positions:Array.from({length},(_,index)=>start+dir*skip*index)};
+  }
+  // Public saved rows are already projected into CLOUD_MATRICES by the existing RLS-backed
+  // gallery read. This lens derives a bounded, coordinate-free quality summary from their saved
+  // selections so a prepared cipher can precede raw occurrences without a second data source.
+  function visibleSavedResearchBundles(rawTerm){
+    const query=norm(rawTerm),rows=[];if(query.length<2)return rows;
+    for(const item of CLOUD_MATRICES||[]){
+      const term=norm(item?.term),S=Math.abs(Number(item?.skip)||0),scope=item?.scope==="tanakh"?"tanakh":"torah";
+      if(S<1||scope!==st.scope||!term||!term.includes(query)&&!query.includes(term))continue;
+      const relationCounts={},findings=[];
+      for(const word of item.words||[]){
+        const hits=[...(Array.isArray(word?.sh)?word.sh:[]),...(Array.isArray(word?.sourceShown)?word.sourceShown:[])]
+          .map(value=>parseSavedHitKey(value,word?.t)).filter(Boolean);
+        if(!hits.length)continue;
+        const metas=hits.map(hit=>compactGeometryMeta(hit,{skip:S,positions:[]})).filter(Boolean),best=metas.find(meta=>meta.compact)||metas[0];
+        if(!best)continue;
+        relationCounts[best.relation]=(relationCounts[best.relation]||0)+1;
+        findings.push({term:norm(word.t),stage:best.stage,relation:best.relation});
+      }
+      const compactFindings=findings.filter(finding=>finding.stage==="A").length,spacedFindings=findings.length-compactFindings;
+      if(!findings.length||!compactFindings)continue;
+      const exactTerm=term===query,exactContinuation=!exactTerm&&term.includes(query),relationKinds=Object.keys(relationCounts).length;
+      const reasons=[];
+      if(exactContinuation)reasons.push(`המשך מדויק של החיפוש · +${term.length-query.length} אותיות`);
+      else if(exactTerm)reasons.push("צופן שמור לאותו מונח");
+      reasons.push(`${compactFindings}/${findings.length} ממצאים ללא פער בתצוגה`);
+      if(relationKinds>1)reasons.push(`${relationKinds} כיווני מבנה צמודים`);
+      const href=item.slug?`/code?cipher=${encodeURIComponent(item.slug)}`:item.id?`/code?record=${encodeURIComponent(item.id)}`:null;
+      rows.push({contract:RESEARCH_BUNDLE_CONTRACT,title:String(item.name||item.term||"צופן מחקר"),term,scope,skip:S,href,
+        stage:"A",compactFindings,spacedFindings,selectedFindings:findings.length,relationCounts,reasons,
+        researchReady:compactFindings>=2&&relationKinds>=1||exactContinuation&&compactFindings>=1,
+        score:(exactContinuation?1200:exactTerm?1000:600)+compactFindings*40+relationKinds*12-spacedFindings*2});
+    }
+    return rows.sort((a,b)=>Number(b.researchReady)-Number(a.researchReady)||b.score-a.score||b.compactFindings-a.compactFindings||a.title.localeCompare(b.title,"he"))
+      .slice(0,3).map((row,index)=>({...row,rank:index+1}));
   }
   // sh = מפתחות ההופעות שהמשתמש בחר להציג (skip_dir_start). נשמר כדי שהסתרת הופעה רחוקה
   //      תשוחזר בפתיחה (אחרת הכלי מוצא מחדש את *כל* ההופעות והרחוקה חוזרת). הבאג המדובר.
@@ -2154,7 +2563,7 @@
     if(membershipChanged)recomputeWords();
     recolorOnly();if(st._renderNativeList)st._renderNativeList();emitState();
   }
-  let _nativeFindingsOperation=null,_nativeSearchOperation=null,_nativeFindingsSeq=0;
+  let _nativeFindingsOperation=null,_nativeSearchOperation=null,_nativeFindingsSeq=0,_nativeLensSeq=0,_nativeFocusedCheckpoint=null;
   function searchUncommitted(){return !!(_nativeSearchOperation&&!_nativeSearchOperation.terminal&&!_nativeSearchOperation.committed);}
   function operationStatus(operation,status,message,progress){
     if(!operation||(operation.kind==="findings"?operation!==_nativeFindingsOperation:operation!==_nativeSearchOperation))return;
@@ -2303,6 +2712,8 @@
       if(!d.item.researchNonce){st.editId=d.item.id||null; st.editTerm=norm(d.item.term||"");}
       try{loadMatrix(d.item,0);}catch(e){}
     }
+    const lensEpoch=d.type==="request-lens"?++_nativeLensSeq:null;
+    if(d.type==="request-lens"&&d.lens==="cancel")return;
     if(d.type==="request-lens"&&searchUncommitted()){
       postHost({type:"lens",lens:d.lens,ok:false,target:d.target||{},reason:"search-pending"});return;
     }
@@ -2325,13 +2736,330 @@
     }
     if(d.type==="request-lens"&&d.lens==="verse-context"){verseContextLens(d.target||{});}   // 📜 on-demand בלבד — ראו verseContextLens()
     if(d.type==="request-lens"&&d.lens==="line-context"){
-      const target=d.target||{},hit=findLensHit(target);
-      if(hit&&isInspectableHit(hit,target)&&(!target.hitId||hitKey(hit)===target.hitId)){
-        const cells=lineContextCells(hit),word=target.term||st.raw;
-        const scan=target.scan===true?scanLineWords(cells,word,64,256):null;
-        postHost({type:"lens",lens:"line-context",ok:true,target,hitId:hitKey(hit),word,skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back",cells,scan});
+      const target=d.target||{},publish=lexicon=>{
+        const hit=findLensHit(target);
+        if(hit&&isInspectableHit(hit,target)&&(!target.hitId||hitKey(hit)===target.hitId)){
+          const cells=lineContextCells(hit),word=target.term||st.raw;
+          const scan=target.scan===true?scanLineWords(cells,word,64,256,lexicon?.entries||DICT):null;
+          postHost({type:"lens",lens:"line-context",ok:true,target,hitId:hitKey(hit),word,skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back",cells,scan,
+            lexicon:lexicon?{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback}:null});
+        }else postHost({type:"lens",lens:"line-context",ok:false,target});
+      };
+      if(target.scan===true)dynamicCandidateLexicon().then(publish);else publish(null);
+    }
+    if(d.type==="request-lens"&&d.lens==="matrix-discovery"){
+      const target=d.target||{},hit=hasGov(st.res)?occ():null;
+      if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"axis-changed"});return;}
+      (async()=>{
+        const cancelled=()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,structuralAxis={...hit,_structuralCells:new Set(hit.positions||[])},researchContext=matrixDiscoveryContext(target.contextTerms),discoveryGoal=normalizedCipherDiscoveryGoal(target.discoveryGoal);
+        const discovery=await discoverMatrixRepeats(structuralAxis,{...target,preferredTerms:researchContext.rows.map(row=>row.term)},
+          progress=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress}),cancelled);
+        if(!discovery||cancelled())return;
+        const contextTotal=researchContext.rows.length;
+        postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress:{phase:"context",completed:0,total:contextTotal,found:0}});
+        const contextRaw=contextTotal?await scanCandidatesBatched(researchContext.rows,(candidate,best)=>{
+          const next=compactGeometryMeta(candidate,structuralAxis),previous=compactGeometryMeta(best,structuralAxis);
+          return Number(next?.compact)-Number(previous?.compact)>0||next?.compact===previous?.compact&&(candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip);
+        },{includeOccurrences:true,maxOccurrences:8,box:discovery.box},(completed,total)=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress:{phase:"context",completed,total}}),cancelled):[];
+        if(contextRaw===null||cancelled())return;
+        const contextCandidates=compactContextDiscoveryCandidates(contextRaw,structuralAxis).filter(candidate=>norm(candidate.term)!==norm(st.raw)),motifTerms=new Set(discovery.items.map(item=>norm(item.term))),
+          motifItems=discovery.items.map(item=>matrixDiscoveryProjection(item,structuralAxis,"motif")),rawPatternItems=(discovery.rawItems||[]).map(item=>matrixDiscoveryProjection(item,structuralAxis,"raw-pattern")),
+          contextItems=contextCandidates.map(item=>matrixDiscoveryProjection(item,structuralAxis,motifTerms.has(norm(item.term))?"context-motif":"context")),
+          groupCandidates=[...discovery.items,...contextCandidates.filter(item=>!motifTerms.has(norm(item.term)))],grouped=buildStructuralGroups(groupCandidates,structuralAxis,{minLength:discovery.minLength,maxLength:discovery.maxLength,maxDistance:40,minMembers:2,maxGroups:8,maxMembers:8});
+        postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress:{phase:"groups",completed:groupCandidates.length,total:groupCandidates.length,found:motifItems.length+contextItems.length}});
+        if(cancelled())return;
+        const discoveryBundle=discoveryGoal?await verifyDiscoveryPairBundle(groupCandidates,grouped.groups,structuralAxis,researchContext,discoveryGoal,
+          progress=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress}),cancelled):null;
+        if(cancelled()||discoveryGoal&&!discoveryBundle)return;
+        postHost({type:"lens",lens:"matrix-discovery",ok:true,target,status:motifItems.length||contextItems.length||rawPatternItems.length?"CANDIDATE":"EMPTY",contract:MATRIX_DISCOVERY_CONTRACT,
+          strategy:"matrix-first",searchRule:"no-default-broad-lexicon",coverage:"axis-focused-window",scope:st.scope,defaultLexiconLoaded:false,vocabularyTermsChecked:contextTotal,
+          budget:{contract:MATRIX_DISCOVERY_BUDGET_CONTRACT,cells:discovery.box.cells,matrixPathsChecked:discovery.pathsChecked,maxVocabularyTerms:discovery.box.maxVocabularyTerms,maxGapScale:discovery.box.maxGapScale,rowPad:discovery.box.rowPad,colRadius:discovery.box.colRadius},
+          axis:{term:norm(st.raw),skip:Math.abs(hit.skip),direction:hit.dir===1?"fwd":"back"},minLength:discovery.minLength,maxLength:discovery.maxLength,
+          motifs:[...motifItems,...rawPatternItems],languageMatches:motifItems,rawPatterns:rawPatternItems,contextMatches:contextItems,
+          items:[...contextItems,...motifItems.filter(item=>!contextItems.some(context=>context.term===item.term))].slice(0,24),
+          contextCoverage:researchContextCoverage(researchContext.requested,contextCandidates,false,false),groups:grouped.groups,availableGroups:grouped.availableGroups,
+          ...(discoveryBundle?{discoveryBundle}:{}),
+          stageCounts:{A:motifItems.filter(item=>item.matrixStage==="A").length+contextItems.filter(item=>item.matrixStage==="A").length,B:motifItems.filter(item=>item.matrixStage==="B").length+contextItems.filter(item=>item.matrixStage==="B").length},
+          rawStageCounts:{A:rawPatternItems.filter(item=>item.matrixStage==="A").length,B:rawPatternItems.filter(item=>item.matrixStage==="B").length},
+          availableMotifs:discovery.available,availableLanguageMatches:discovery.availableMeaningful,availableRawPatterns:discovery.availableRaw,
+          truncated:discovery.truncated||motifItems.length+contextItems.length>24,geometryContract:COMPACT_GEOMETRY_CONTRACT,truthPromotion:false});
+      })().catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"scan-failed"});});
+    }
+    if(d.type==="request-lens"&&d.lens==="cross-third-axis"){
+      const target=d.target||{},results=nativeCrossResults(),term=norm(target.term),meetingScope=target.meetingScope==="all"?"all":"selected",maxDistance=Math.max(3,Math.min(80,Number(target.maxDistance)||18));
+      if(!results||target.setId!==results.id){postHost({type:"lens",lens:"cross-third-axis",ok:false,target,reason:"results-changed"});return;}
+      if(term.length<2||term.length>24){postHost({type:"lens",lens:"cross-third-axis",ok:false,target,reason:"invalid-term"});return;}
+      const requestedIndex=Number.isInteger(Number(target.meetingIndex))?Number(target.meetingIndex):st.crossIdx,
+        indexes=meetingScope==="all"?results.items.filter(item=>item.available).map(item=>item.index):results.items.filter(item=>item.available&&item.index===requestedIndex).map(item=>item.index);
+      if(!indexes.length){postHost({type:"lens",lens:"cross-third-axis",ok:false,target,reason:"meeting-changed"});return;}
+      postHost({type:"lens-progress",lens:"cross-third-axis",target:{nativeSeq:target.nativeSeq},progress:{phase:"third-axis-scan",completed:0,total:indexes.length}});
+      (async()=>{
+        const rawRows=[],window=st.crossScan?.window||st;
+        for(let offset=0;offset<indexes.length;offset++){
+          if(lensEpoch!==_nativeLensSeq)return;const meetingIndex=indexes[offset],zone=st.crossMeetings?.[meetingIndex];
+          for(const candidate of crossThirdAxisCandidates(zone,target.term,maxDistance,window,2))rawRows.push({meetingIndex,zone,candidate});
+          postHost({type:"lens-progress",lens:"cross-third-axis",target:{nativeSeq:target.nativeSeq},progress:{phase:"third-axis-scan",completed:offset+1,total:indexes.length,found:rawRows.length}});await paintOperation();
+        }
+        if(lensEpoch!==_nativeLensSeq)return;
+        const uniqueCandidates=[...new Map(rawRows.filter(row=>Math.abs(row.candidate.skip)>=2).map(row=>[hitKey(row.candidate),row.candidate])).values()];
+        postHost({type:"lens-progress",lens:"cross-third-axis",target:{nativeSeq:target.nativeSeq},progress:{phase:"third-axis-verify",completed:0,total:uniqueCandidates.length}});
+        const verified=uniqueCandidates.length?await promoteVerified({t:term,hits:uniqueCandidates,capped:false,strategy:{policy:"CROSS_THIRD_AXIS_V1"}},st.scope,null):{hits:[]};
+        if(lensEpoch!==_nativeLensSeq)return;const verifiedKeys=new Set((verified.hits||[]).filter(isGov).map(hitKey));
+        postHost({type:"lens-progress",lens:"cross-third-axis",target:{nativeSeq:target.nativeSeq},progress:{phase:"third-axis-verify",completed:uniqueCandidates.length,total:uniqueCandidates.length,verified:verifiedKeys.size}});
+        const seen=new Set(),items=[];
+        for(const row of rawRows){const {meetingIndex,zone,candidate}=row,sourceExact=Math.abs(candidate.skip)===1&&isSourceHit(candidate,term),key=`${meetingIndex}:${hitKey(candidate)}`;
+          if(seen.has(key)||!sourceExact&&!verifiedKeys.has(hitKey(candidate)))continue;seen.add(key);
+          items.push({key,meetingIndex,axis:zone.axis||st.raw,terms:(zone.detail||[]).map(detail=>detail.t),thirdTerm:term,label:String(target.term||term).trim()||term,status:sourceExact?"SOURCE_EXACT":"VERIFIED",
+            skip:Math.abs(candidate.skip),direction:candidate.dir===1?"fwd":"back",axisDistance:candidate.axisDistance,meetingDistance:candidate.meetingDistance,maxDistance:Math.max(candidate.axisDistance,candidate.meetingDistance),
+            companions:candidate.companionDistances,geometry:candidate.geometry,ref:refStr(verseAt(candidate.start)),book:bookOf(candidate.start),hitId:hitKey(candidate),source:focusedSourceProjection(candidate)});
+        }
+        items.sort((a,b)=>a.maxDistance-b.maxDistance||Number(a.status!=="SOURCE_EXACT")-Number(b.status!=="SOURCE_EXACT")||a.skip-b.skip||a.meetingIndex-b.meetingIndex);
+        postHost({type:"lens",lens:"cross-third-axis",ok:true,target,status:items.length?"VERIFIED":"EMPTY",contract:CROSS_THIRD_AXIS_CONTRACT,scope:st.scope,meetingScope,maxDistance,searchedMeetings:indexes.length,
+          items,total:items.length,verification:{verified:items.filter(item=>item.status==="VERIFIED").length,sourceExact:items.filter(item=>item.status==="SOURCE_EXACT").length},geometryContract:COMPACT_GEOMETRY_CONTRACT});
+      })().catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"cross-third-axis",ok:false,target,reason:"scan-failed"});});
+    }
+    if(d.type==="request-lens"&&d.lens==="result-triage"){
+      const target=d.target||{},kind=target.kind==="cross"?"cross":"regular",researchContext=normalizeResearchContextTerms(target.contextTerms);
+      const initial=kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
+      if(!initial||target.setId!==initial.id||kind==="regular"&&Number(target.page)!==Number(initial.page)){
+        postHost({type:"lens",lens:"result-triage",ok:false,target,reason:"results-changed"});return;
       }
-      else postHost({type:"lens",lens:"line-context",ok:false,target});
+      const allRegularItems=()=>st.res?.hits?.map((hit,index)=>({hit,index})).filter(row=>isGov(row.hit)).map((row,offset)=>({index:row.index,ordinal:offset+1,available:true,hitId:hitKey(row.hit),skip:Math.abs(row.hit.skip),direction:row.hit.dir===1?"fwd":"back",ref:refStr(verseAt(row.hit.start))}))||[];
+      const initialItems=kind==="regular"?allRegularItems():initial.items.filter(item=>item.available!==false);
+      postHost({type:"lens-progress",lens:"result-triage",target:{nativeSeq:target.nativeSeq},progress:{phase:"triage",completed:0,total:initialItems.length}});
+      dynamicCandidateLexicon().then(async lexicon=>{
+        const current=kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
+        if(lensEpoch!==_nativeLensSeq||!current||target.setId!==current.id||kind==="regular"&&Number(target.page)!==Number(current.page))return;
+        const sourceItems=kind==="regular"?allRegularItems():current.items.filter(item=>item.available!==false),visibleKeys=new Set(current.items.map(item=>kind==="regular"?item.hitId:String(item.index))),rows=[];
+        for(let offset=0;offset<sourceItems.length;offset++){
+          if(lensEpoch!==_nativeLensSeq)return;
+          const item=sourceItems[offset];
+          if(kind==="regular"){
+            const hit=st.res?.hits?.[item.index];
+            if(isGov(hit)&&hitKey(hit)===item.hitId)rows.push({key:item.hitId,order:item.ordinal,index:item.index,ordinal:item.ordinal,skip:item.skip,direction:item.direction,ref:item.ref,
+              signals:[triageHitSignals(hit,st.raw,lexicon.axisEntries||lexicon.entries,hit,visibleKeys.has(item.hitId),researchContext)]});
+          }else{
+            const zone=st.crossMeetings?.[item.index],result=zone?.axis&&st.crossResCache?st.crossResCache[zone.axis]:st.res,axisHit=result?.hits?.[zone?.occ],signals=[];
+            if(isGov(axisHit))signals.push(triageHitSignals(axisHit,zone.axis||st.raw,lexicon.axisEntries||lexicon.entries,axisHit,true,researchContext));
+            for(const detail of zone?.detail||[]){
+              const term=norm(detail.t),skip=Math.abs(Number(detail.skip)),dir=Number(detail.dir),start=Number(detail.p0);
+              if(term.length<2||skip<1||![1,-1].includes(dir)||!Number.isInteger(start))continue;
+              const positions=Array.from(term,(_,index)=>start+dir*skip*index);
+              if(positions.some(position=>position<0||position>=scopeN()))continue;
+              signals.push(triageHitSignals({skip,dir,start,positions},detail.t,lexicon.axisEntries||lexicon.entries,axisHit,true,researchContext));
+            }
+            rows.push({key:String(item.index),order:item.index,index:item.index,axis:item.axis,terms:item.terms,skip:item.skip,distance:item.distance,stars:item.stars,signals});
+          }
+          if(researchContext.rows.length||(offset+1)%16===0||offset+1===sourceItems.length)postHost({type:"lens-progress",lens:"result-triage",target:{nativeSeq:target.nativeSeq},progress:{phase:researchContext.rows.length?"context":"triage",completed:offset+1,total:sourceItems.length}});
+          if(researchContext.rows.length||(offset+1)%32===0)await paintOperation();
+        }
+        if(lensEpoch!==_nativeLensSeq)return;
+        const latest=kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
+        if(!latest||latest.id!==target.setId||kind==="regular"&&Number(latest.page)!==Number(target.page))return;
+        const ranked=rankResultTriageItems(rows,kind),latestKeys=new Set(latest.items.map(item=>kind==="regular"?item.hitId:String(item.index))),visibleRanked=ranked.filter(row=>latestKeys.has(String(row.key)))
+          .map((row,index)=>({...row,globalRank:row.rank,rank:index+1,tier:index<3&&row.inspectionPriority>0?"recommended":row.inspectionPriority>0?"inspect":"available"})),researchTargets=[];
+        // One card is one exact primary-axis occurrence. Alternative exact extensions stay inside
+        // that package instead of consuming the next research-card slots as duplicate ciphers.
+        const targetRows=[...visibleRanked,...ranked.filter(row=>!latestKeys.has(String(row.key)))];
+        for(const row of targetRows){
+          const findings=[],seenFindings=new Set();
+          for(const signal of row.signals||[]){if(signal.targetable===false)continue;for(const extension of signal.extensions||[]){
+            if(seenFindings.has(extension.term))continue;seenFindings.add(extension.term);findings.push({baseTerm:signal.term,term:extension.term,label:extension.label||extension.term,
+              gain:extension.gain,direction:extension.direction,extensionKind:extension.extensionKind,lexiconSources:extension.lexiconSources||[]});
+          }}
+          const preferred=findings[0];if(!preferred)continue;
+          researchTargets.push({key:row.key,rank:row.rank,baseTerm:preferred.baseTerm,term:preferred.term,label:preferred.label,gain:preferred.gain,
+            skip:Number(row.skip),direction:row.direction||null,ref:row.ref||null,findings:findings.slice(0,6),findingCount:findings.length,reasons:row.reasons||[]});
+          if(researchTargets.length>=8)break;
+        }
+        const contextSeen=[...new Map(ranked.flatMap(row=>row.contextCoverage?.found||[]).map(item=>[item.term,item])).values()];
+        postHost({type:"lens",lens:"result-triage",ok:true,target,status:"CANDIDATE",contract:RESULT_TRIAGE_CONTRACT,kind,setId:latest.id,
+          ...(kind==="regular"?{page:latest.page}:{}),provenanceSource:lexicon.contract,coverage:kind==="regular"?"admitted-search-results":"current-result-set",scanned:rows.length,available:sourceItems.length,
+          items:visibleRanked,researchTargets,savedBundles:visibleSavedResearchBundles(st.raw),bundleContract:RESEARCH_BUNDLE_CONTRACT,
+          contextCoverage:researchContextCoverage(researchContext.requested,contextSeen,true,false),geometryContract:COMPACT_GEOMETRY_CONTRACT,lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback}});
+      });
+    }
+    if(d.type==="request-lens"&&d.lens==="research-target"){
+      const target=d.target||{};
+      postHost({type:"lens-progress",lens:"research-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"resolve",completed:0,total:1}});
+      dynamicCandidateLexicon().then(async lexicon=>{
+        if(lensEpoch!==_nativeLensSeq)return;
+        const resolved=resolveResultResearchTarget(target,lexicon.axisEntries||lexicon.entries);
+        if(!resolved){postHost({type:"lens",lens:"research-target",ok:false,target,reason:"target-changed"});return;}
+        postHost({type:"lens-progress",lens:"research-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:0,total:1}});
+        const verified=await promoteVerified({t:resolved.term,hits:[resolved.hit],capped:false,strategy:{policy:"RESULT_EXTENSION_EXACT_V1"}},st.scope,null);
+        if(lensEpoch!==_nativeLensSeq)return;
+        const hit=verified.hits.find(isGov);
+        if(!hit){postHost({type:"lens",lens:"research-target",ok:false,target,reason:verified.verr||"verification-failed"});return;}
+        postHost({type:"lens-progress",lens:"research-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:1,total:1}});
+        postHost({type:"lens",lens:"research-target",ok:true,target,status:"VERIFIED",contract:RESEARCH_BUNDLE_CONTRACT,
+          term:resolved.term,label:resolved.label,scope:st.scope,hitId:hitKey(hit),corpusId:verified.corpus_id||CORPUS_ID[st.scope]});
+      }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"research-target",ok:false,target,reason:"verification-failed"});});
+    }
+    if(d.type==="request-lens"&&d.lens==="research-target-compare"){
+      const target=d.target||{},requested=Array.isArray(target.targets)?target.targets.slice(0,4):[];
+      if(requested.length<2){postHost({type:"lens",lens:"research-target-compare",ok:false,target,reason:"two-targets-required"});return;}
+      postHost({type:"lens-progress",lens:"research-target-compare",target:{nativeSeq:target.nativeSeq},progress:{phase:"resolve",completed:0,total:requested.length}});
+      dynamicCandidateLexicon().then(async lexicon=>{
+        const rows=[];
+        for(let index=0;index<requested.length;index++){
+          if(lensEpoch!==_nativeLensSeq)return;
+          const descriptor={...requested[index],kind:target.kind,setId:target.setId,...(target.kind==="regular"?{page:target.page}:{})};
+          const resolved=resolveResultResearchTarget(descriptor,lexicon.axisEntries||lexicon.entries);
+          if(!resolved){rows.push({status:"FAILED",reason:"target-changed",term:norm(descriptor.term),label:descriptor.label||descriptor.term,kind:descriptor.kind,setId:descriptor.setId,
+            ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,skip:descriptor.skip,direction:descriptor.direction||null,ref:descriptor.ref||null,
+            findings:Array.isArray(descriptor.findings)?descriptor.findings.slice(0,6):[],reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
+          }else{
+            postHost({type:"lens-progress",lens:"research-target-compare",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:index,total:requested.length,current:resolved.label}});
+            const verified=await promoteVerified({t:resolved.term,hits:[resolved.hit],capped:false,strategy:{policy:"RESULT_EXTENSION_COMPARISON_V1"}},st.scope,null),hit=verified.hits.find(isGov);
+            rows.push({status:hit?"VERIFIED":"FAILED",reason:hit?null:verified.verr||"verification-failed",term:resolved.term,label:resolved.label,scope:st.scope,
+              ...(hit?{hitId:hitKey(hit),corpusId:verified.corpus_id||CORPUS_ID[st.scope]}:{}),kind:descriptor.kind,setId:descriptor.setId,
+              ...(descriptor.kind==="regular"?{page:descriptor.page}:{}),key:descriptor.key,rank:descriptor.rank,gain:descriptor.gain,skip:descriptor.skip,direction:descriptor.direction||null,ref:descriptor.ref||null,
+              findings:Array.isArray(descriptor.findings)?descriptor.findings.slice(0,6):[],reasons:Array.isArray(descriptor.reasons)?descriptor.reasons.slice(0,3):[]});
+          }
+          postHost({type:"lens-progress",lens:"research-target-compare",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:index+1,total:requested.length}});
+          await paintOperation();
+        }
+        if(lensEpoch!==_nativeLensSeq)return;
+        const current=target.kind==="cross"?nativeCrossResults():nativeOccurrenceResults();
+        if(!current||current.id!==target.setId||target.kind==="regular"&&Number(current.page)!==Number(target.page)){
+          postHost({type:"lens",lens:"research-target-compare",ok:false,target,reason:"results-changed"});return;
+        }
+        rows.sort((a,b)=>Number(b.status==="VERIFIED")-Number(a.status==="VERIFIED")||Number(a.rank)-Number(b.rank)||Number(b.gain)-Number(a.gain)||String(a.label).localeCompare(String(b.label),"he"));
+        postHost({type:"lens",lens:"research-target-compare",ok:true,target,status:"COMPARISON",contract:RESEARCH_BUNDLE_COMPARISON_CONTRACT,
+          bundleContract:RESEARCH_BUNDLE_CONTRACT,selectionProvenance:"POST_HOC_EXPLORATORY",scope:st.scope,rows,verified:rows.filter(row=>row.status==="VERIFIED").length,
+          failed:rows.filter(row=>row.status!=="VERIFIED").length,geometryContract:COMPACT_GEOMETRY_CONTRACT});
+      }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"research-target-compare",ok:false,target,reason:"verification-failed"});});
+    }
+    if(d.type==="request-lens"&&d.lens==="neighborhood-target"){
+      const target=d.target||{};
+      postHost({type:"lens-progress",lens:"neighborhood-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"resolve",completed:0,total:1}});
+      dynamicCandidateLexicon().then(async lexicon=>{
+        if(lensEpoch!==_nativeLensSeq)return;
+        const resolved=resolveAxisNeighborhoodTarget(target,lexicon.entries);
+        if(!resolved){postHost({type:"lens",lens:"neighborhood-target",ok:false,target,reason:"target-changed"});return;}
+        postHost({type:"lens-progress",lens:"neighborhood-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:0,total:1}});
+        const verified=await promoteVerified({t:resolved.term,hits:[resolved.hit],capped:false,strategy:{policy:"AXIS_NEIGHBORHOOD_TARGET_V1"}},st.scope,null),hit=verified.hits.find(isGov);
+        if(lensEpoch!==_nativeLensSeq)return;
+        if(!hit){postHost({type:"lens",lens:"neighborhood-target",ok:false,target,reason:verified.verr||"verification-failed"});return;}
+        postHost({type:"lens-progress",lens:"neighborhood-target",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed:1,total:1}});
+        postHost({type:"lens",lens:"neighborhood-target",ok:true,target,status:"VERIFIED",contract:AXIS_NEIGHBORHOOD_CONTRACT,
+          term:resolved.term,label:resolved.label,scope:st.scope,hitId:hitKey(hit),corpusId:verified.corpus_id||CORPUS_ID[st.scope],neighborhood:resolved.neighborhood});
+      }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"neighborhood-target",ok:false,target,reason:"verification-failed"});});
+    }
+    if(d.type==="request-lens"&&d.lens==="matrix-candidates"){
+      const target=d.target||{},hit=hasGov(st.res)?occ():null;
+      if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
+      // Compose the existing window candidate generator with the existing literal line reader,
+      // only after an explicit click. A compact local finding no longer needs a second word on its
+      // own path merely to enter the neighborhood package. Coordinates never cross the bridge and
+      // adding a term still runs the normal canonical verification before it becomes a Finding.
+      postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"lexicon-load",completed:0,total:0}});
+      dynamicCandidateLexicon(
+        progress=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:`lexicon-${progress.phase}`,completed:progress.completed,total:progress.total}}),
+        ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId
+      ).then(async lexicon=>{
+        if(!lexicon)return;
+        const current=hasGov(st.res)?occ():null;
+        if(lensEpoch!==_nativeLensSeq||!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"matrix-candidates",ok:false,target});return;}
+        const structuralAxis={...current,_structuralCells:new Set(current.positions||[])},researchContext=normalizeResearchContextTerms(target.contextTerms),contextRows=researchContext.rows;
+        const discoveryEntries=[...contextRows,...lexicon.entries],expanded=target.depth==="expanded";
+        if(!expanded){
+          const focusedEntries=[...contextRows,...(lexicon.focusedEntries||lexicon.entries)],focusedAxisEntries=[...contextRows,...(lexicon.focusedAxisEntries||lexicon.axisEntries)],focused=await scanFocusedCoreCandidatesBatched(focusedEntries,focusedAxisEntries,lexicon.focusedPhraseIndex||lexicon.phraseIndex,structuralAxis,
+            progress=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"core",...progress}}),
+            ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,{contextRows});
+          if(!focused)return;
+          if(lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
+          if(focused.candidateCapped||focused.probeCapped){postHost({type:"lens",lens:"matrix-candidates",ok:false,target,reason:focused.probeCapped?"focused-core-probe-limit":"focused-core-candidate-limit",scanMode:"focused",scanned:focused.probes});return;}
+          postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify-prepare",completed:0,total:0}});
+          const checkpointKey=[st.scope,hitKey(structuralAxis),"focused-core-v1",researchContext.requested.map(item=>item.term).join(",")].join(":"),resumeCheckpoint=target.resume===true&&_nativeFocusedCheckpoint?.key===checkpointKey?_nativeFocusedCheckpoint:null;
+          if(!resumeCheckpoint)_nativeFocusedCheckpoint=null;
+          const admitted=await verifyFocusedCoreCandidates(focused.candidates,structuralAxis,(completed,total,checkpoint)=>{
+            _nativeFocusedCheckpoint={key:checkpointKey,...checkpoint};
+            const partialItems=projectFocusedCoreItems(checkpoint.items,focusedEntries),partialStructural=buildStructuralGroups(checkpoint.items,structuralAxis,{maxDistance:15,minLength:3,maxLength:16,minMembers:2,maxGroups:6,maxMembers:8});
+            postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"verify",completed,total,verified:partialItems.length,resumed:checkpoint.resumed===true,
+              draft:{type:"lens",lens:"matrix-candidates",ok:true,partial:true,target,status:"PARTIAL_VERIFIED",contract:FOCUSED_CORE_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"focused",provenanceSource:lexicon.contract,coverage:"focused-axis-core",
+                focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||15,directions:["1","S−1","S","S+1"],secondStage:{skips:"2–8",rowPad:2,colRadius:8}},verification:{attempted:completed,verified:checkpoint.items.filter(item=>item.status==="VERIFIED").length,sourceExact:checkpoint.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:checkpoint.failed},
+                lexicon:{contract:lexicon.contract,counts:lexicon.focusedCounts||lexicon.counts,fallback:lexicon.fallback,independentOfSavedResearch:true},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"focused_compact_band_then_distance_then_language_evidence"},
+                items:partialItems,total:partialItems.length,scanned:focused.probes,available:focused.candidates.length,truncated:true,resume:{available:completed<total,completed,total},contextCoverage:researchContextCoverage(researchContext.requested,partialItems,false),
+                structurePlan:partialStructural.plan,groups:partialStructural.groups,groupTotal:partialStructural.groups.length,availableGroups:partialStructural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
+                axisSuggestion:chooseAxisNeighborhoodSuggestion(checkpoint.items,structuralAxis),geometryContract:COMPACT_GEOMETRY_CONTRACT}}});
+          },()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId,12,resumeCheckpoint);
+          if(!admitted||lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
+          _nativeFocusedCheckpoint=null;
+          postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"sources",completed:admitted.items.length,total:admitted.items.length}});
+          const items=projectFocusedCoreItems(admitted.items,focusedEntries);
+          const structural=buildStructuralGroups(admitted.items,structuralAxis,{maxDistance:15,minLength:3,maxLength:16,minMembers:2,maxGroups:6,maxMembers:8}),axisSuggestion=chooseAxisNeighborhoodSuggestion(admitted.items,structuralAxis);
+          postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"VERIFIED",contract:FOCUSED_CORE_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"focused",provenanceSource:lexicon.contract,coverage:"focused-axis-core",
+            focus:{rowPad:focused.box?.rowPad||12,colRadius:focused.box?.colRadius||15,directions:["1","S−1","S","S+1"],secondStage:{skips:"2–8",rowPad:2,colRadius:8}},verification:{attempted:admitted.attempted,verified:admitted.items.filter(item=>item.status==="VERIFIED").length,sourceExact:admitted.items.filter(item=>item.status==="SOURCE_EXACT").length,failed:admitted.failed},
+            lexicon:{contract:lexicon.contract,counts:lexicon.focusedCounts||lexicon.counts,fallback:lexicon.fallback,independentOfSavedResearch:true},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"focused_compact_band_then_distance_then_language_evidence"},
+            items,total:items.length,scanned:focused.probes,available:admitted.available,truncated:admitted.truncated||focused.candidateCapped,contextCoverage:researchContextCoverage(researchContext.requested,items,true),
+            structurePlan:structural.plan,groups:structural.groups,groupTotal:structural.groups.length,availableGroups:structural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
+            axisSuggestion,geometryContract:COMPACT_GEOMETRY_CONTRACT});return;
+        }
+        const availableBaseRaw=await scanCandidatesBatched(discoveryEntries,(candidate,best)=>{
+          const next=compactGeometryMeta(candidate,structuralAxis),previous=compactGeometryMeta(best,structuralAxis);
+          if(Boolean(next?.compact)!==Boolean(previous?.compact))return Boolean(next?.compact);
+          return candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip;
+        },{includeOccurrences:true,maxOccurrences:10},(completed,total)=>postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"candidates",completed,total}}),
+        ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId);
+        if(!availableBaseRaw)return;
+        postHost({type:"lens-progress",lens:"matrix-candidates",target:{nativeSeq:target.nativeSeq},progress:{phase:"phrases",completed:0,total:availableBaseRaw.length}});
+        const phraseRaw=deriveLocalPhraseCandidates(availableBaseRaw,structuralAxis,lexicon.phraseIndex),availableRaw=[...availableBaseRaw,...phraseRaw];
+        const available=availableRaw.map(candidate=>({...candidate,geometry:compactGeometryMeta(candidate,structuralAxis),neighborhood:axisNeighborhoodMeta(candidate,structuralAxis)}))
+          .sort((a,b)=>b.neighborhood.priority-a.neighborhood.priority||a.distance-b.distance||candidateLexiconPriority(b)-candidateLexiconPriority(a)||Number(b.lexiconSupport)-Number(a.lexiconSupport)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")),
+          compactPool=available.filter(candidate=>candidate.geometry?.compact).slice(0,96),spacedPool=available.filter(candidate=>!candidate.geometry?.compact).slice(0,12),candidatePool=[...compactPool,...spacedPool];
+        const items=rankResearchCandidateItems(candidatePool.map(candidate=>{
+          const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,discoveryEntries);
+          return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,
+            geometry:candidate.geometry,neighborhood:candidate.neighborhood,classifications:[...(candidate.classifications||[])],
+            continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
+        }));
+        if(lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
+        const structural=buildStructuralGroups(available,structuralAxis,{maxDistance:30,minLength:4,maxLength:16,minMembers:2,maxGroups:8,maxMembers:8}),axisSuggestion=chooseAxisNeighborhoodSuggestion(compactPool,structuralAxis);
+        postHost({type:"lens",lens:"matrix-candidates",ok:true,target,status:"CANDIDATE",contract:AXIS_NEIGHBORHOOD_CONTRACT,bundleContract:AXIS_NEIGHBORHOOD_CONTRACT,scanMode:"expanded",provenanceSource:lexicon.contract,coverage:"displayed-window",
+          lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},ranking:{contract:CANDIDATE_RANKING_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"axis_neighborhood_band_then_distance_then_governed_research_evidence_then_continuation"},
+          items,total:items.length,scanned:candidatePool.length,available:available.length,truncated:available.length>candidatePool.length,contextCoverage:researchContextCoverage(researchContext.requested,[],false),
+          structurePlan:structural.plan,groups:structural.groups,groupTotal:structural.groups.length,availableGroups:structural.availableGroups,structureContract:STRUCTURAL_PRIORITY_CONTRACT,
+          axisSuggestion,geometryContract:COMPACT_GEOMETRY_CONTRACT});
+      }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"matrix-candidates",ok:false,target,reason:"scan-failed"});});
+    }
+    if(d.type==="request-lens"&&d.lens==="structure-priority"){
+      const target=d.target||{},hit=hasGov(st.res)?occ():null;
+      if(!hit||(target.hitId&&target.hitId!==hitKey(hit))){postHost({type:"lens",lens:"structure-priority",ok:false,target});return;}
+      // Explicit Research action only: classify the same displayed-window candidates by existing
+      // geometry/notable rules. No automatic entry scan, no B12/B13 family search and no Truth claim.
+      dynamicCandidateLexicon().then(async lexicon=>{
+        const current=hasGov(st.res)?occ():null;
+        if(lensEpoch!==_nativeLensSeq)return;
+        if(!current||target.hitId&&target.hitId!==hitKey(current)){postHost({type:"lens",lens:"structure-priority",ok:false,target});return;}
+        const plan=normalizeStructurePlan(target.structurePlan),structuralAxis={...current,_structuralCells:new Set(current.positions||[])};
+        const eligibleLexicon=lexicon.entries.filter(entry=>{const length=norm(entry.term||entry.label||entry).length;return length>=plan.minLength&&length<=plan.maxLength;});
+        const candidatesBaseRaw=await scanCandidatesBatched(eligibleLexicon,(candidate,best)=>preferStructuralCandidate(candidate,best,structuralAxis),
+          {includeOccurrences:plan.types.includes("motif"),maxOccurrences:plan.maxMembers},
+          (completed,total)=>postHost({type:"lens-progress",lens:"structure-priority",target:{nativeSeq:target.nativeSeq},progress:{phase:"candidates",completed,total}}),
+          ()=>lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId);
+        if(!candidatesBaseRaw)return;
+        const phraseRaw=deriveLocalPhraseCandidates(candidatesBaseRaw,structuralAxis,lexicon.phraseIndex).filter(candidate=>{const length=norm(candidate.term).length;return length>=plan.minLength&&length<=plan.maxLength;}),
+          candidatesRaw=[...candidatesBaseRaw,...phraseRaw];
+        postHost({type:"lens-progress",lens:"structure-priority",target:{nativeSeq:target.nativeSeq},progress:{phase:"groups",completed:eligibleLexicon.length,total:eligibleLexicon.length}});
+        const candidates=candidatesRaw.filter(candidate=>candidate.distance<=plan.maxDistance||
+            (candidate.occurrences||[]).filter(occurrence=>occurrence.distance<=plan.maxDistance).length>=plan.minMembers);
+        const grouped=buildStructuralGroups(candidates,structuralAxis,plan),available=rankStructuralCandidates(candidates,structuralAxis),compactCap=64,spacedCap=32,
+          selected=[...available.filter(candidate=>candidate.geometry?.compact).slice(0,compactCap),...available.filter(candidate=>!candidate.geometry?.compact).slice(0,spacedCap)];
+        const items=selected.map(candidate=>({term:norm(candidate.term),label:candidate.term,skip:candidate.skip,
+          direction:candidate.dir===1?"fwd":"back",distance:candidate.distance,relation:candidate.relation,relationLabel:candidate.relationLabel,
+          relationTags:candidate.relationTags,geometry:candidate.geometry,multiple:candidate.multiple,delta:candidate.delta,notable:candidate.notable,
+          lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport}));
+        const axisNotable=notable(Math.abs(current.skip));
+        if(lensEpoch!==_nativeLensSeq||!hasGov(st.res)||hitKey(occ())!==target.hitId)return;
+        postHost({type:"lens",lens:"structure-priority",ok:true,target,status:"CANDIDATE",provenanceSource:lexicon.contract,coverage:"displayed-window",
+          lexicon:{contract:lexicon.contract,counts:lexicon.counts,fallback:lexicon.fallback},
+          ranking:{contract:STRUCTURAL_PRIORITY_CONTRACT,geometryContract:COMPACT_GEOMETRY_CONTRACT,order:"compact_stage_then_relation_then_research_evidence_then_distance"},
+          structurePlan:grouped.plan,groups:grouped.groups,groupTotal:grouped.groups.length,availableGroups:grouped.availableGroups,considered:grouped.considered,
+          axis:{term:norm(st.raw),skip:Math.abs(current.skip),direction:current.dir===1?"fwd":"back",notable:axisNotable?{rank:axisNotable.rank,tag:axisNotable.tag}:null},
+          items,total:items.length,available:available.length,truncated:available.length>selected.length||grouped.truncated});
+      }).catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"structure-priority",ok:false,target,reason:"scan-failed"});});
     }
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
     if(d.type==="native-control"&&typeof d.action==="string"){
@@ -2343,6 +3071,7 @@
       else if(d.action==="occurrence-select"||d.action==="occurrence-page")controlNativeOccurrence(d.action,d.value);
       else if(d.action==="zoom-out")adjustZoom(-0.2);
       else if(d.action==="zoom-in")adjustZoom(0.2);
+      else if(d.action==="zoom-set"&&Number.isFinite(d.value)){st.fit=false;setZoom(d.value);}
       else if(d.action==="fit-toggle")toggleFit();
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
       else if(d.action==="heat-toggle"){st.heat=!st.heat;recolorOnly();emitState();}
@@ -2576,6 +3305,42 @@
       return {occ:ai,nFound:detail.length,score:Math.round(score*10)/10,tq:Math.round(tqZ*100)/100,stars,skip:S,detail,book:bookOf(ah.positions[0])};
     }
     return null;
+  }
+  // A third term is inspected only inside already verified A×B meetings. The search is an
+  // explicit, bounded refinement of the same canonical geometry: it does not start another
+  // corpus search and it requires the candidate to be close to both the axis and its companion.
+  function crossThirdAxisCandidates(zone,requested,radius,window=st,limit=4){
+    const term=norm(requested),result=zone?.axis&&st.crossResCache?st.crossResCache[zone.axis]:st.res,axisHit=result?.hits?.[zone?.occ];
+    if(!isGov(axisHit)||term.length<2||term===norm(zone.axis||st.raw)||(zone.detail||[]).some(detail=>norm(detail.t)===term))return[];
+    const S=Math.abs(Number(axisHit.skip));if(S<2)return[];
+    const mainCol=((axisHit.positions[0]%S)+S)%S,axisRows=axisHit.positions.map(position=>Math.floor(position/S)),middleRow=Math.round((Math.min(...axisRows)+Math.max(...axisRows))/2),
+      geometry=researchGeometry(S,mainCol,middleRow,{...window,scopeLength:window?.scopeLength||scopeN()}),c1=geometry.c0+geometry.cw,
+      inWindow=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return row>=geometry.r0&&row<=geometry.r1&&column>=geometry.c0&&column<c1;},
+      rc=position=>[Math.floor(position/S),((position%S)+S)%S],axisAnchors=axisHit.positions.map(rc),companionAnchors=[];
+    for(const detail of zone.detail||[]){
+      const companion=norm(detail.t),skip=Math.abs(Number(detail.skip)),direction=Number(detail.dir),start=Number(detail.p0);
+      if(companion.length<2||skip<1||![1,-1].includes(direction)||!Number.isInteger(start))continue;
+      const positions=Array.from(companion,(_,index)=>start+direction*skip*index);
+      if(positions.every(position=>position>=0&&position<scopeN()))companionAnchors.push({term:companion,anchors:positions.map(rc)});
+    }
+    if(!companionAnchors.length)return[];
+    const byChar=new Map();
+    for(let row=geometry.r0;row<=geometry.r1;row++)for(let column=geometry.c0;column<c1;column++){
+      const index=row*S+column;if(index<0||index>=scopeN())continue;const letter=T[index],list=byChar.get(letter)||[];list.push(index);byChar.set(letter,list);
+    }
+    const starts=byChar.get(term[0])||[],ends=byChar.get(term.at(-1))||[],found=new Map(),span=term.length-1,bound=Math.max(1,Math.min(80,Number(radius)||18));
+    for(const start of starts)for(const end of ends){
+      const delta=end-start;if(!delta||delta%span)continue;const step=delta/span,skip=Math.abs(step),direction=Math.sign(step);if(skip<1||![1,-1].includes(direction))continue;
+      const positions=Array.from(term,(_,index)=>start+step*index);
+      if(!positions.every((position,index)=>position>=0&&position<scopeN()&&inWindow(position)&&T[position]===term[index]))continue;
+      const axisDistance=distanceToAnchors(positions,axisAnchors,S),companionDistances=companionAnchors.map(companion=>({term:companion.term,distance:distanceToAnchors(positions,companion.anchors,S)}));
+      if(axisDistance>bound||companionDistances.some(companion=>companion.distance>bound))continue;
+      const meetingDistance=Math.max(...companionDistances.map(companion=>companion.distance)),candidate={term:requested,skip,dir:direction,start,positions,
+        distance:axisDistance,axisDistance,meetingDistance,companionDistances,geometry:compactGeometryMeta({skip,dir:direction,start,positions},axisHit)};
+      const key=hitKey(candidate),prior=found.get(key);if(!prior||Math.max(axisDistance,meetingDistance)<Math.max(prior.axisDistance,prior.meetingDistance))found.set(key,candidate);
+    }
+    return [...found.values()].sort((a,b)=>Math.max(a.axisDistance,a.meetingDistance)-Math.max(b.axisDistance,b.meetingDistance)||Number(Math.abs(a.skip)!==1)-Number(Math.abs(b.skip)!==1)||a.skip-b.skip||a.start-b.start)
+      .slice(0,Math.max(1,Math.min(8,Number(limit)||4)));
   }
   function crossFindMulti(A,terms,pure,maxOcc,preRes){
     pure=pure||8;maxOcc=maxOcc||150;
@@ -3493,20 +4258,439 @@
     };
   }
   // 🧭 עדשת מסלול-גילוי — מסע מממצא לממצא בתוך החלון, עם **סיבה על כל חץ** (מראה/גימטריה/עוגן/קרבה).
-  function scanCandidates(){
+  function scanCandidates(lexicon=DICT,prefer=null,options=null){
     if(!hasGov(st.res))return [];
-    const b=blockOf(),S=b.S,c1=b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
+    const includeOccurrences=options?.includeOccurrences===true,maxOccurrences=Math.max(2,Math.min(12,Number(options?.maxOccurrences)||10));
+    const b=options?.box||blockOf(),S=b.S,c1=Number.isInteger(b.c1)?b.c1+1:b.c0+b.cw,rc=p=>[Math.floor(p/S),((p%S)+S)%S];
     const inWin=p=>{const r=Math.floor(p/S),c=((p%S)+S)%S;return r>=b.r0&&r<=b.r1&&c>=b.c0&&c<c1;};
-    const mainSet=new Set(occ().positions),byChar=new Map();
+    const mainSet=new Set(occ().positions),axisAnchors=occ().positions.map(rc),byChar=new Map();
     for(let r=b.r0;r<=b.r1;r++)for(let c=b.c0;c<c1;c++){const idx=r*S+c;if(idx<0||idx>=N)continue;const ch=T[idx];let a=byChar.get(ch);if(!a){a=[];byChar.set(ch,a);}a.push(idx);}
     const out=new Map();
-    for(const raw of DICT){const t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]);if(!starts)continue;const skips=searchSpace(b,L);
-      for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=N)continue;let ok=1;const pos=[s0];
-        for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
+    // Enumerate only visible first/last-letter pairs. This is equivalent to trying every
+    // legal skip/direction in the window, but avoids walking a huge numeric skip range when
+    // the primary axis itself is wide (for example, skip 21,940).
+    for(const entry of lexicon){const raw=typeof entry==="string"?entry:entry.label||entry.term,t=norm(raw),L=t.length;if(L<2)continue;const starts=byChar.get(t[0]),ends=byChar.get(t[L-1]);if(!starts||!ends)continue;let best=null;const occurrences=[],occurrenceCells=new Set();
+      for(const s0 of starts)for(const end of ends){const delta=end-s0,span=L-1;if(!delta||delta%span)continue;const step=delta/span,sk=Math.abs(step);let ok=1;const pos=[s0];
+        for(let k=1;k<L;k++){const p=s0+step*k;if(p<0||p>=N||T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok||pos.every(p=>mainSet.has(p)))continue;
-        if(!out.has(t))out.set(t,{term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,gem:gem(raw)});
-      }}
+        const distance=distanceToAnchors(pos,axisAnchors,S),candidate={term:raw,rc:rc(pos[Math.floor(L/2)]),skip:sk,dir:Math.sign(step),start:s0,positions:pos,gem:gem(raw),distance,
+          lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1,
+          classifications:typeof entry==="string"?[]:entry.classifications||[]};
+        if(includeOccurrences){const cellKey=[...pos].sort((a,b)=>a-b).join("_");if(!occurrenceCells.has(cellKey)){occurrenceCells.add(cellKey);occurrences.push(candidate);
+          occurrences.sort((a,b)=>a.distance-b.distance||a.skip-b.skip||a.start-b.start||b.dir-a.dir);if(occurrences.length>maxOccurrences)occurrences.pop();}}
+        if(!best||(typeof prefer==="function"?prefer(candidate,best):distance<best.distance||distance===best.distance&&sk<best.skip))best=candidate;
+      }
+      if(best)out.set(t,includeOccurrences?{...best,occurrences}:best);
+    }
     return [...out.values()];
+  }
+  // Same bounded displayed-window scanner, yielded in chunks so the host progress meter, touch
+  // controls and cancellation messages remain responsive during a large dynamic-lexicon pass.
+  async function scanCandidatesBatched(lexicon,prefer,options,onProgress,isCancelled){
+    const rows=[],total=lexicon.length,chunkSize=512;
+    for(let offset=0;offset<total;offset+=chunkSize){
+      if(isCancelled?.())return null;
+      rows.push(...scanCandidates(lexicon.slice(offset,offset+chunkSize),prefer,options));
+      onProgress?.(Math.min(total,offset+chunkSize),total);
+      await paintOperation();
+    }
+    return isCancelled?.()?null:rows;
+  }
+  // Matrix discovery is deliberately matrix-first. The normal action reads a finite grid around
+  // the verified axis and checks only the small context pack explicitly supplied by Research.
+  // It must never materialize dynamicCandidateLexicon(); the broad lexicon remains an explicit
+  // advanced action (`structure-priority`) and can therefore never be an entry/default cost.
+  function matrixDiscoveryContext(input){
+    const source=(Array.isArray(input)?input:[]).slice(0,12).map(item=>typeof item==="string"?{term:item}:item),normalized=normalizeResearchContextTerms(source),rows=new Map();
+    const add=row=>{const term=norm(row?.term||row?.label);if(term.length>=2&&!rows.has(term)&&rows.size<32)rows.set(term,{...row,term,label:row.label||term,sources:[...(row.sources||[])],classifications:[...(row.classifications||[])]});};
+    normalized.rows.forEach(add);
+    // Biblical plene/defective spelling stays bounded to one removed internal ו/י per requested
+    // term. These are candidate spellings only; occurrence proof still goes through the one engine.
+    for(const row of normalized.rows){const original=norm(row.term);if(original.length<5)continue;
+      for(let index=1;index<original.length-1&&rows.size<32;index++)if("וי".includes(original[index])){
+        const term=original.slice(0,index)+original.slice(index+1);if(term.length<3||rows.has(term))continue;
+        add({term,label:matrixDiscoveryDisplayLabel(term),sources:["bounded_research_context_variant"],support:Math.max(1,Number(row.support)||1),classifications:[...(row.classifications||[]),
+          {kind:"research-context-spelling-variant",value:term,source:row.label||original,label:"כתיב חסר תחום ממונח ההקשר"}]});
+      }
+    }
+    return {rows:[...rows.values()],requested:normalized.requested};
+  }
+  function matrixDiscoveryBox(axis){
+    const box=focusedCoreBox(axis,{rowPad:20,colRadius:20});if(!box)return null;
+    const cw=box.c1-box.c0+1,rows=box.r1-box.r0+1,cells=cw*rows;
+    return {...box,cw,cells,rayCount:cells*12,contract:MATRIX_DISCOVERY_BUDGET_CONTRACT,maxVocabularyTerms:32,maxGapScale:3,defaultLexiconLoaded:false};
+  }
+  function plausibleMatrixSequence(term){
+    const letters=[...norm(term)],finals=new Set(["ך","ם","ן","ף","ץ"]);return letters.length>=4&&new Set(letters).size>=3&&!letters.slice(0,-1).some(letter=>finals.has(letter));
+  }
+  function matrixDiscoveryDisplayLabel(term){const value=norm(term),final={"כ":"ך","מ":"ם","נ":"ן","פ":"ף","צ":"ץ"};return value.slice(0,-1)+(final[value.at(-1)]||value.at(-1)||"");}
+  function matrixPathMeta(candidate,axis){
+    const S=Math.abs(Number(axis?.skip)||0),skip=Math.abs(Number(candidate?.skip)||0);if(S<2||skip<1)return null;
+    for(let scale=1;scale<=3;scale++)for(const row of [[scale,"horizontal"],[S*scale,"vertical"],[(S+1)*scale,"diagonal-right"],[(S-1)*scale,"diagonal-left"]])if(skip===Math.abs(row[0]))return {stage:scale===1?"A":"B",gapScale:scale,direction:row[1]};
+    return null;
+  }
+  async function discoverMatrixRepeats(axis,rawOptions,onProgress,isCancelled){
+    const minLength=Math.max(4,Math.min(8,Number(rawOptions?.minLength)||4)),maxLength=Math.max(minLength,Math.min(12,Number(rawOptions?.maxLength)||10)),box=matrixDiscoveryBox(axis);
+    if(!box)return null;
+    const directions=[];for(let scale=1;scale<=box.maxGapScale;scale++)for(const base of [{dr:0,dc:1,name:"horizontal"},{dr:1,dc:0,name:"vertical"},{dr:1,dc:1,name:"diagonal-right"},{dr:1,dc:-1,name:"diagonal-left"}])directions.push({...base,dr:base.dr*scale,dc:base.dc*scale,scale,stage:scale===1?"A":"B"});
+    const hints=new Map(),addHint=(raw,strength)=>{const term=norm(raw);if(term.length<3)return;hints.set(term,Math.max(Number(hints.get(term))||0,strength));for(let index=1;index<term.length-1;index++)if("וי".includes(term[index])){const variant=term.slice(0,index)+term.slice(index+1);hints.set(variant,Math.max(Number(hints.get(variant))||0,strength-1));}};
+    for(const term of typeof DICT==="undefined"?[]:DICT)addHint(term,2);for(const term of Array.isArray(rawOptions?.preferredTerms)?rawOptions.preferredTerms.slice(0,32):[])addHint(term,3);
+    const axisTerm=norm(st.raw),axisAnchors=(axis.positions||[]).map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]),found=new Map();let repeatTerms=0;
+    const remember=(raw,positions,direction)=>{const term=norm(raw);if(term===axisTerm||!plausibleMatrixSequence(term))return;const occurrenceKey=[...positions].sort((a,b)=>a-b).join("_");let row=found.get(term);
+      if(!row){row={term,label:matrixDiscoveryDisplayLabel(term),occurrenceCount:0,occurrences:[],_keys:new Set(),lexiconSources:["matrix_derived_repeat"],lexiconSupport:1,classifications:[{kind:"matrix-repeat",value:term,label:"רצף שחזר באזור המטריצה"}]};found.set(term,row);}
+      if(row._keys.has(occurrenceKey))return;row._keys.add(occurrenceKey);row.occurrenceCount++;if(row.occurrenceCount===2)repeatTerms++;
+      if(row.occurrences.length<8){const step=positions.length>1?positions[1]-positions[0]:1,distance=distanceToAnchors(positions,axisAnchors,box.S);row.occurrences.push({term,label:term,skip:Math.abs(step),dir:Math.sign(step)||1,start:positions[0],positions:[...positions],distance,_matrixDirection:direction.name,_matrixScale:direction.scale,_matrixStage:direction.stage});}
+    };
+    const total=box.rayCount;let completed=0;
+    for(let r=box.r0;r<=box.r1;r++){
+      for(let c=box.c0;c<=box.c1;c++)for(const direction of directions){completed++;const chars=[],positions=[];
+        for(let length=1;length<=maxLength;length++){const rr=r+direction.dr*(length-1),cc=c+direction.dc*(length-1);if(rr<box.r0||rr>box.r1||cc<box.c0||cc>box.c1)break;const position=rr*box.S+cc;if(position<0||position>=scopeN())break;chars.push(T[position]);positions.push(position);
+          if(length<minLength)continue;const word=chars.join("");remember(word,positions,direction);const reversed=[...word].reverse().join("");if(reversed!==word)remember(reversed,[...positions].reverse(),{...direction,name:`${direction.name}-reverse`});}
+      }
+      if((r-box.r0+1)%3===0||r===box.r1){onProgress?.({phase:"matrix",completed,total,found:repeatTerms});if(isCancelled?.())return null;await paintOperation();}
+    }
+    const nonOverlapping=occurrences=>{const independent=[];for(const occurrence of occurrences){const cells=new Set(occurrence.positions);if(independent.some(prior=>prior.positions.some(position=>cells.has(position))))continue;independent.push(occurrence);}return independent;};
+    const ranked=[...found.values()].filter(row=>row.occurrenceCount>=2).map(row=>{row.occurrences.sort((a,b)=>Number(a._matrixStage==="B")-Number(b._matrixStage==="B")||a._matrixScale-b._matrixScale||a.distance-b.distance||a.skip-b.skip||a.start-b.start);
+      const compact=nonOverlapping(row.occurrences.filter(occurrence=>occurrence._matrixStage==="A")),independent=compact.length>=2?compact:nonOverlapping(row.occurrences);if(independent.length<2)return null;
+      const best=independent[0],matrixStage=compact.length>=2?"A":"B",gapScale=Math.max(...independent.map(occurrence=>occurrence._matrixScale||1)),orientationCount=new Set(independent.map(occurrence=>String(occurrence._matrixDirection||"").replace(/-reverse$/,"")).filter(Boolean)).size,languageHint=Number(hints.get(row.term))||0;
+      return {...best,term:row.term,label:row.label,occurrenceCount:independent.length,occurrences:independent,matrixStage,gapScale,orientationCount,languageHint,lexiconSources:[...row.lexiconSources,...(languageHint?["bounded_language_hint"]:[])],lexiconSupport:independent.length,classifications:row.classifications};}).filter(Boolean)
+      // A supported Biblical/context term belongs in the primary research list even when its
+      // geometry is bounded Stage B. Unknown letter runs keep their geometry order, but they may
+      // not hide supported language merely because they are gapless.
+      .sort((a,b)=>Number(b.languageHint>0)-Number(a.languageHint>0)||b.languageHint-a.languageHint||Number(a.matrixStage==="B")-Number(b.matrixStage==="B")||b.orientationCount-a.orientationCount||norm(b.term).length-norm(a.term).length||b.occurrenceCount-a.occurrenceCount||a.gapScale-b.gapScale||a.distance-b.distance||a.skip-b.skip||norm(a.term).localeCompare(norm(b.term),"he"));
+    // Keep maximal repeated paths separately for supported language and raw geometry. A shorter
+    // row is suppressed only when every stored occurrence is contained in a longer repeat with
+    // the same repetition count. Raw patterns remain available in the explicit advanced section.
+    const maximalRows=(rows,limit=24)=>{const selected=[];for(const candidate of rows){const nested=selected.some(parent=>parent.gapScale===candidate.gapScale&&parent.occurrenceCount===candidate.occurrenceCount&&norm(parent.term).includes(norm(candidate.term))&&candidate.occurrences.every(occurrence=>parent.occurrences.some(parentOccurrence=>occurrence.positions.every(position=>parentOccurrence.positions.includes(position)))));if(!nested)selected.push(candidate);if(selected.length>=limit)break;}return selected;},
+      meaningfulRanked=ranked.filter(candidate=>candidate.languageHint>0),rawRanked=ranked.filter(candidate=>candidate.languageHint<=0),
+      meaningful=maximalRows(meaningfulRanked),raw=maximalRows(rawRanked);
+    return {items:meaningful,rawItems:raw,available:ranked.length,availableMeaningful:meaningfulRanked.length,availableRaw:rawRanked.length,
+      truncated:meaningfulRanked.length>meaningful.length||rawRanked.length>raw.length,box,minLength,maxLength,pathsChecked:completed};
+  }
+  function compactContextDiscoveryCandidates(candidates,axis){
+    const rows=[];
+    for(const candidate of candidates||[]){const occurrences=(candidate.occurrences||[]).map(occurrence=>{const path=matrixPathMeta(occurrence,axis);return path?{...occurrence,_matrixStage:path.stage,_matrixScale:path.gapScale,_matrixDirection:path.direction}:null;}).filter(Boolean)
+        .sort((a,b)=>Number(a._matrixStage==="B")-Number(b._matrixStage==="B")||a._matrixScale-b._matrixScale||a.distance-b.distance||a.skip-b.skip||a.start-b.start);if(!occurrences.length)continue;const best=occurrences[0];rows.push({...best,term:norm(candidate.term),label:candidate.term,occurrenceCount:occurrences.length,occurrences,matrixStage:best._matrixStage,gapScale:best._matrixScale,lexiconSources:candidate.lexiconSources||[],lexiconSupport:candidate.lexiconSupport||1,classifications:candidate.classifications||[]});}
+    return rows.sort((a,b)=>Number(a.matrixStage==="B")-Number(b.matrixStage==="B")||norm(b.term).length-norm(a.term).length||a.gapScale-b.gapScale||a.distance-b.distance||a.skip-b.skip||norm(a.term).localeCompare(norm(b.term),"he"));
+  }
+  function matrixDiscoveryProjection(candidate,axis,kind){
+    const geometry=compactGeometryMeta(candidate,axis),variant=(candidate.classifications||[]).find(item=>item.kind==="research-context-spelling-variant");
+    return {kind,term:norm(candidate.term),label:candidate.label||candidate.term,length:norm(candidate.term).length,occurrenceCount:Number(candidate.occurrenceCount)||1,matrixStage:candidate.matrixStage||candidate._matrixStage||geometry?.stage||"B",gapScale:Number(candidate.gapScale||candidate._matrixScale)||1,
+      skip:Math.abs(Number(candidate.skip)),direction:Number(candidate.dir)===1?"fwd":"back",distance:Number(candidate.distance)||0,geometry,
+      contextVariant:variant?{source:variant.source,label:variant.label}:null,lexiconSources:[...(candidate.lexiconSources||[])],
+      evidenceTier:kind==="raw-pattern"?"raw-pattern":kind.startsWith("context")?"research-context":"language-supported",status:"CANDIDATE"};
+  }
+  function normalizedCipherDiscoveryGoal(raw){
+    return raw?.primaryAxes===1&&raw?.connectedSupports===2&&raw?.sourceSequence==="WHEN_AVAILABLE"&&raw?.resultPolicy==="ONE_BEST_STRUCTURE"
+      ?{primaryAxes:1,connectedSupports:2,sourceSequence:"WHEN_AVAILABLE",resultPolicy:"ONE_BEST_STRUCTURE"}:null;
+  }
+  function discoveryPairRelation(first,second,axis,groups){
+    const firstCells=new Set(first?.positions||[]),secondPositions=second?.positions||[],S=Math.max(1,Math.abs(Number(axis?.skip)||1));
+    if(secondPositions.some(position=>firstCells.has(position)))return {code:"EXACT_INTERSECTION",label:"שני הממצאים נחתכים באות משותפת",priority:600,stage:"A"};
+    const shared=(groups||[]).filter(group=>group?.kind!=="motif"&&[first,second].every(candidate=>(group.members||[]).some(member=>norm(member.term)===norm(candidate.term))))
+      .sort((a,b)=>({parallel:550,intersection:520,corridor:430,cluster:280}[b.kind]||0)-({parallel:550,intersection:520,corridor:430,cluster:280}[a.kind]||0)||Number(b.stage==="A")-Number(a.stage==="A"));
+    if(shared.length){const group=shared[0],labels={parallel:"שני הממצאים מקבילים לציר",intersection:"שני הממצאים חוצים את הציר",corridor:"שני הממצאים שייכים לאותו מסדרון",cluster:"שני הממצאים מרוכזים באותו אשכול"};
+      return {code:`SHARED_${group.kind.toUpperCase()}`,label:labels[group.kind]||group.label,priority:{parallel:550,intersection:520,corridor:430,cluster:280}[group.kind]||250,stage:group.stage||"B",group:group.label};}
+    let adjacent=false;
+    for(const a of first?.positions||[]){const ar=Math.floor(a/S),ac=((a%S)+S)%S;for(const b of secondPositions){const br=Math.floor(b/S),bc=((b%S)+S)%S;if(Math.max(Math.abs(ar-br),Math.abs(ac-bc))<=1){adjacent=true;break;}}if(adjacent)break;}
+    if(adjacent)return {code:"TOUCH_OR_ADJACENCY",label:"שני הממצאים נוגעים או צמודים במטריצה",priority:500,stage:"A"};
+    const firstGeometry=compactGeometryMeta(first,axis),secondGeometry=compactGeometryMeta(second,axis),bothCompact=firstGeometry?.compact&&secondGeometry?.compact;
+    if(bothCompact&&[firstGeometry.relation,secondGeometry.relation].every(relation=>["vertical","diagonal","horizontal","adjacent"].includes(relation)))
+      return {code:"PARALLEL_TO_AXIS",label:"שני הממצאים בנויים ללא פער סביב אותו ציר",priority:480,stage:"A"};
+    if(Math.abs(Math.abs(Number(first?.skip)||0)-Math.abs(Number(second?.skip)||0))<=2)
+      return {code:"SAME_OR_NEAR_SKIP",label:"שני הממצאים חולקים דילוג זהה או סמוך",priority:380,stage:bothCompact?"A":"B"};
+    if(first?.sourceContext?.axisVerse&&second?.sourceContext?.axisVerse)
+      return {code:"SHARED_SOURCE_SEQUENCE",label:"שני הממצאים נתמכים באותו הקשר מקור",priority:360,stage:"B"};
+    return {code:"BOUNDED_LOCAL_GAP",label:"שני הממצאים נמצאו באותו אזור תחום",priority:100,stage:"B"};
+  }
+  // One bounded selector over candidates already found by matrix-discovery. Raw patterns never
+  // enter it. The ordering is categorical and inspectable: story agreement and strong geometry
+  // precede recurrence/distance tie-breakers; a notable numeric skip is deliberately irrelevant.
+  function discoveryPairCandidates(candidates,groups,axis,requested,limit=24){
+    const contextTerms=new Set((requested||[]).map(item=>norm(item.term))),byTerm=new Map();
+    for(const candidate of candidates||[]){const term=norm(candidate?.term);if(!term||term===norm(st.raw))continue;const prior=byTerm.get(term),stage=candidate.matrixStage||candidate._matrixStage||compactGeometryMeta(candidate,axis)?.stage||"B";
+      if(!prior||Number(stage==="A")>Number((prior.matrixStage||prior._matrixStage)==="A")||stage===(prior.matrixStage||prior._matrixStage)&&(Number(candidate.distance)||0)<(Number(prior.distance)||0))byTerm.set(term,candidate);}
+    const rows=[...byTerm.values()].sort((a,b)=>Number(contextTerms.has(norm(b.term)))-Number(contextTerms.has(norm(a.term)))||Number((b.matrixStage||b._matrixStage)==="A")-Number((a.matrixStage||a._matrixStage)==="A")||(Number(a.distance)||0)-(Number(b.distance)||0)||norm(a.term).localeCompare(norm(b.term),"he")).slice(0,24),pairs=[];
+    for(let firstIndex=0;firstIndex<rows.length;firstIndex++)for(let secondIndex=firstIndex+1;secondIndex<rows.length;secondIndex++){
+      const first=rows[firstIndex],second=rows[secondIndex],storyMatches=Number(contextTerms.has(norm(first.term)))+Number(contextTerms.has(norm(second.term))),relation=discoveryPairRelation(first,second,axis,groups),strong=relation.stage==="A"&&relation.priority>=400,
+        band=storyMatches===2&&strong?0:storyMatches>=1&&strong?1:storyMatches===2?2:strong?3:storyMatches===1?4:5,
+        recurrence=(Number(first.occurrenceCount)||1)+(Number(second.occurrenceCount)||1),distance=(Number(first.distance)||0)+(Number(second.distance)||0),
+        labels=[first.label||first.term,second.label||second.term],reasons=[];
+      if(storyMatches===2)reasons.push("שני הממצאים נלקחו מן ההקשר שביקשתם");else if(storyMatches===1)reasons.push("ממצא אחד נלקח מן ההקשר שביקשתם");
+      reasons.push(relation.label);if(recurrence>2)reasons.push(`לזוג יש ${recurrence} מופעים מקומיים יחד`);
+      pairs.push({supports:[first,second],terms:[norm(first.term),norm(second.term)],relation,storyMatches,reasons,_order:[band,-relation.priority,-recurrence,distance,labels.join("|")]});
+    }
+    return pairs.sort((a,b)=>{for(let index=0;index<a._order.length;index++){if(a._order[index]===b._order[index])continue;return typeof a._order[index]==="number"?a._order[index]-b._order[index]:String(a._order[index]).localeCompare(String(b._order[index]),"he");}return 0;}).slice(0,Math.max(1,Math.min(24,Number(limit)||24)));
+  }
+  function verifiedDiscoverySupport(candidate,hit,axis){
+    return {term:norm(candidate.term),label:candidate.label||candidate.term,status:"VERIFIED",skip:Math.abs(Number(hit.skip)),direction:Number(hit.dir)===1?"fwd":"back",distance:Number(candidate.distance)||0,
+      occurrenceCount:Number(candidate.occurrenceCount)||1,matrixStage:candidate.matrixStage||candidate._matrixStage||compactGeometryMeta(hit,axis)?.stage||"B",geometry:compactGeometryMeta(hit,axis),ref:refStr(verseAt(hit.start)),book:bookOf(hit.start)};
+  }
+  async function verifyDiscoveryPairBundle(candidates,groups,axis,researchContext,goal,onProgress,isCancelled){
+    const maxAttempts=12,ranked=discoveryPairCandidates(candidates,groups,axis,researchContext.requested,24),cache=new Map(),verifiedPairs=[];let attempts=0,failed=0,processedPairs=0;
+    const verify=async candidate=>{const key=`${norm(candidate.term)}:${hitKey(candidate)}`;if(cache.has(key))return cache.get(key);if(attempts>=maxAttempts)return null;attempts++;onProgress?.({phase:"verify-pair",completed:attempts,total:maxAttempts,found:verifiedPairs.length});
+      const probe={skip:Math.abs(Number(candidate.skip)),dir:Number(candidate.dir)===-1?-1:1,start:Number(candidate.start),positions:[...(candidate.positions||[])]};
+      let admitted=null;try{const result=await promoteVerified({t:norm(candidate.term),hits:[probe],capped:false,strategy:{policy:"MATRIX_DISCOVERY_PAIR_V1"}},st.scope,null);admitted=result.hits.find(isGov)||null;}catch(_){admitted=null;}
+      if(!admitted)failed++;const projected=admitted?verifiedDiscoverySupport(candidate,admitted,axis):null;cache.set(key,projected);return projected;};
+    for(const pair of ranked){if(isCancelled?.()||verifiedPairs.length>=3||attempts>=maxAttempts)break;processedPairs++;const supports=[];for(const candidate of pair.supports){const support=await verify(candidate);if(isCancelled?.())return null;if(!support)break;supports.push(support);}if(supports.length!==2)continue;
+      verifiedPairs.push({rank:verifiedPairs.length+1,supports,relation:pair.relation,storyMatches:pair.storyMatches,reasons:[...pair.reasons,"שני הממצאים עברו אימות קנוני"]});}
+    return {contract:"els_cipher_discovery_plan_v1",projection:"verified-pair",goal,status:verifiedPairs.length?"VERIFIED_PAIR":ranked.length?"NO_VERIFIED_PAIR":"NO_CANDIDATE_PAIR",
+      failureCause:verifiedPairs.length?null:ranked.length?"CANONICAL_VERIFICATION":"MATRIX_BOUNDS",selected:verifiedPairs[0]||null,alternatives:verifiedPairs.slice(1,3),consideredPairs:ranked.length,
+      verification:{attempted:attempts,failed,maxAttempts,complete:verifiedPairs.length>=3||attempts>=maxAttempts||processedPairs>=ranked.length},
+      selectionLaw:{order:["canonical-verification","strong-geometry","story-relevance","recurrence-and-source","distance","stable-label"],numericSkipPromoted:false},findingMutation:false};
+  }
+  function independentCandidateRows(entries){
+    const blocked=new Set(["visible_saved_research","verified_research"]),rows=[];
+    for(const entry of entries||[]){
+      if(typeof entry==="string"){rows.push({term:norm(entry),label:entry,sources:["governed_core"],support:1,classifications:[]});continue;}
+      const sources=(entry.sources||[]).filter(source=>!blocked.has(source));if(!sources.length)continue;
+      rows.push({...entry,sources,classifications:[...(entry.classifications||[])]});
+    }
+    return rows;
+  }
+  function focusedPhraseRow(term,code){
+    const size=(code>>10)&3,first=code&31,second=(code>>5)&31,lengths=size===2?[first,term.length-first]:[first,second,term.length-first-second];
+    if(![2,3].includes(size)||lengths.some(length=>length<1)||lengths.reduce((sum,length)=>sum+length,0)!==term.length)return null;
+    const finalLetter=part=>part.slice(0,-1)+({"כ":"ך","מ":"ם","נ":"ן","פ":"ף","צ":"ץ"}[part.at(-1)]||part.at(-1));
+    let offset=0;const parts=lengths.map(length=>{const part=term.slice(offset,offset+length);offset+=length;return part;}),labels=parts.map(finalLetter);
+    return {term,label:labels.join(" "),sources:["corpus_native_phrase"],support:2,classifications:[{kind:"corpus-phrase",value:size,label:`ביטוי בן ${size} מילים מלשון המקור`,parts:labels}]};
+  }
+  function focusedCoreBox(axis,limits=null){
+    const S=Math.abs(Number(axis?.skip)||0),positions=axis?.positions||[];if(S<2||!positions.length)return null;
+    const rows=positions.map(position=>Math.floor(position/S)),mainCol=((positions[0]%S)+S)%S,rowPad=Math.max(4,Math.min(24,Number(limits?.rowPad)||12)),colRadius=Math.max(3,Math.min(20,Number(limits?.colRadius)||15));
+    return {S,mainCol,c0:Math.max(0,mainCol-colRadius),c1:Math.min(S-1,mainCol+colRadius),r0:Math.max(0,Math.min(...rows)-rowPad),r1:Math.min(Math.ceil(scopeN()/S)-1,Math.max(...rows)+rowPad),rowPad,colRadius};
+  }
+  function focusedCoreSkipMeta(candidate,axis){
+    const S=Math.abs(Number(axis?.skip)||0),skip=Math.abs(Number(candidate?.skip)||0),delta=skip-S;
+    if(skip===1)return {code:"SOURCE_CONTIGUOUS",label:"רצף מקור ללא פער",axisDelta:null};
+    if(skip===S)return {code:"AXIS_PARALLEL",label:"מקביל לציר · S",axisDelta:0};
+    if(delta===-1)return {code:"AXIS_DIAGONAL_MINUS",label:"אלכסון צמוד · S−1",axisDelta:-1};
+    if(delta===1)return {code:"AXIS_DIAGONAL_PLUS",label:"אלכסון צמוד · S+1",axisDelta:1};
+    if(skip>=2&&skip<=8)return {code:"LOCAL_GAP",label:`פער מקומי · דילוג ${heb(skip)}`,axisDelta:null};
+    return {code:"OTHER",label:`דילוג ${heb(skip)}`,axisDelta:delta};
+  }
+  function focusedCandidateStrength(candidate){
+    const kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),sources=new Set(candidate.lexiconSources||[]),length=norm(candidate.term).length;
+    return (kinds.has("research-context-exact")?1400:0)+(kinds.has("research-context-component")?900:0)+(kinds.has("corpus-phrase")?90:0)+(kinds.has("local-exact-compound")?45:0)+(kinds.has("corpus-morphology")?55:0)+(kinds.has("hebrew-year")?70:0)+(sources.has("governed_core")?55:0)+(sources.has("corpus_native")?25:0)+Math.min(36,length*3)+Math.min(20,Number(candidate.lexiconSupport)||0);
+  }
+  function focusedCompoundPartsScore(candidate){
+    const parts=(candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[];
+    return parts.reduce((score,part)=>{const sources=new Set(part.sources||[]),kinds=new Set((part.classifications||[]).map(item=>item.kind));
+      return score+(sources.has("governed_core")?80:0)+(sources.has("corpus_native")?55:0)+(kinds.has("hebrew-year")?90:0)+(kinds.has("corpus-morphology")?25:0)+Math.min(30,Number(part.support)||0)+Math.min(18,norm(part.term).length*3);},0);
+  }
+  function focusedCoreRankScore(candidate,axis,preferIntersection=true){
+    const kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),parts=(candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[],partKinds=new Set(parts.flatMap(part=>(part.classifications||[]).map(item=>item.kind))),partSources=new Set(parts.flatMap(part=>part.sources||[])),sourceExact=Math.abs(candidate.skip)===1&&kinds.has("corpus-phrase"),axisCells=axis?._structuralCells||new Set(axis?.positions||[]),intersects=(candidate.positions||[]).some(position=>axisCells.has(position));
+    let score=focusedCandidateStrength(candidate)+Number(candidate.neighborhood?.priority||0)*.16-Math.min(60,Number(candidate.distance||0)*4)+(intersects?(preferIntersection?28:0):(preferIntersection?0:28));
+    if(candidate.discoveryKind==="source-context")score+=900;
+    else if(sourceExact)score+=650;
+    else if(candidate.discoveryKind==="direct")score+=220;
+    else if(candidate.discoveryKind==="compound")score+=(partKinds.has("hebrew-year")?360:partKinds.has("corpus-morphology")?300:partSources.has("governed_core")?250:135)+focusedCompoundPartsScore(candidate)*.35;
+    else if(candidate.discoveryKind==="phrase")score+=120;
+    return score;
+  }
+  // A topic word already named by the active axis is not an arbitrary dictionary hit when it
+  // appears in a canonical source verse traversed by that axis. Keep this source-context probe
+  // deterministic and tiny: explicit axis words (plus governed words contained in a compact
+  // spelling) are checked only inside the finite set of verses touched by the verified axis.
+  // It does not widen ELS skip search, infer meaning or consume saved-cipher vocabulary.
+  function focusedAxisTopicRows(entries,axisEntries,rawAxis=st.raw,contextRows=[]){
+    const axisTerm=norm(rawAxis),governed=new Map();
+    for(const raw of DICT||[]){const term=norm(typeof raw==="string"?raw:raw.term||raw.label);if(term)governed.set(term,{term,label:typeof raw==="string"?raw:raw.label||raw.term,sources:["governed_core"],support:4,classifications:[]});}
+    const selected=new Map(),add=(raw,explicit=false,provided=null)=>{const term=norm(raw),row=provided||governed.get(term),requested=Boolean(provided);
+      if(term.length<(requested?2:3)||term===axisTerm||term.length===3&&!row)return;
+      if(!row&&!explicit||!row&&term.length<4)return;
+      const next=row||{term,label:String(raw||term).trim()||term,sources:["active_axis_context"],support:1,classifications:[]},prior=selected.get(term);
+      if(!prior||Number(next.support)>Number(prior.support))selected.set(term,next);
+    };
+    String(rawAxis||"").split(/[^א-ת]+/).filter(Boolean).forEach(part=>add(part,true));
+    for(const[term]of governed)if(term.length>=3&&term!==axisTerm&&axisTerm.includes(term))add(term);
+    for(const row of contextRows||[])add(row.term||row.label,true,row);
+    return [...selected.values()].sort((a,b)=>Number(b.support)-Number(a.support)||norm(b.term).length-norm(a.term).length||norm(a.term).localeCompare(norm(b.term),"he")).slice(0,16);
+  }
+  function axisSourceContextMatches(axis,topicRows,limit=24){
+    const S=Math.abs(Number(axis?.skip)||0);if(S<1)return[];
+    const anchors=(axis?.positions||[]).map(position=>[Math.floor(position/S),((position%S)+S)%S]),verses=[...new Set((axis?.positions||[]).map(verseAt).filter(index=>index>=0))],matches=[];
+    for(const topic of topicRows||[]){const term=norm(topic.term||topic.label);if(!term)continue;
+      for(const verseIndex of verses){const from=VCUM[verseIndex],to=Math.min(VCUM[verseIndex+1],scopeN()),sequence=T.slice(from,to);let offset=-1;
+        while((offset=sequence.indexOf(term,offset+1))>=0){const start=from+offset,positions=Array.from(term,(_,index)=>start+index);
+          matches.push({topic,term,verseIndex,start,positions,distance:distanceToAnchors(positions,anchors,S)});
+          if(matches.length>=Math.max(1,Math.min(48,Number(limit)||24)))return matches;
+        }
+      }
+    }
+    return matches;
+  }
+  function focusedCoreCandidateScan(entries,axisEntries,phraseIndex,axis,limits=null){
+    return (function*(){const box=focusedCoreBox(axis,limits);if(!box)return {box:null,candidates:[],probes:0,candidateCapped:false,probeCapped:false,budgetExceeded:null};
+    const maxCandidates=Math.max(1,Math.min(FOCUSED_CORE_CANDIDATE_CAP,Number(limits?.maxCandidates)||FOCUSED_CORE_CANDIDATE_CAP)),maxProbes=Math.max(1,Math.min(FOCUSED_CORE_PROBE_CAP,Number(limits?.maxProbes)||FOCUSED_CORE_PROBE_CAP));
+    const {S,c0,c1,r0,r1}=box,axisTerm=norm(st.raw),mainSet=new Set(axis.positions||[]),anchors=(axis.positions||[]).map(position=>[Math.floor(position/S),((position%S)+S)%S]),termMap=new Map(),wordMap=new Map(),sourceContextOccurrences=new Map();
+    const add=(map,row,min,max)=>{const term=norm(row.term||row.label);if(term.length<min||term.length>max||term===axisTerm)return;const current=map.get(term);if(!current||Number(row.support)>Number(current.support))map.set(term,{...row,term,label:row.label||row.term||term});};
+    independentCandidateRows(entries).forEach(row=>add(termMap,row,(row.classifications||[]).some(item=>["research-context-exact","research-context-component"].includes(item.kind))?2:3,24));
+    independentCandidateRows(axisEntries).forEach(row=>add(wordMap,row,2,12));
+    const termLengths=[...new Set([...termMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),wordLengths=[...new Set([...wordMap.keys()].map(term=>term.length))].sort((a,b)=>a-b),
+      coreSteps=[...new Set([1,S-1,S,S+1].filter(step=>step>0))],coreStepSet=new Set(coreSteps),localGapSteps=[2,3,4,5,6,7,8].filter(step=>!coreStepSet.has(step)),axisTopicRows=focusedAxisTopicRows(entries,axisEntries,st.raw,limits?.contextRows||[]),
+      axisRows=(axis.positions||[]).map(position=>Math.floor(position/S)),localR0=Math.max(r0,Math.min(...axisRows)-2),localR1=Math.min(r1,Math.max(...axisRows)+2),
+      localC0=Math.max(c0,mainSet.size?box.mainCol-8:c0),localC1=Math.min(c1,mainSet.size?box.mainCol+8:c1),found=new Map();let probes=0,candidateCapped=false,probeCapped=false,completedOrigins=0,lastCoreReported=0,scanSliceStarted=Date.now();
+    const inBox=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return position>=0&&position<scopeN()&&row>=r0&&row<=r1&&column>=c0&&column<=c1;};
+    const consider=(row,positions,step,discoveryKind="direct",focusStage="A")=>{
+      const term=norm(row.term||row.label);if(!term||term===axisTerm||positions.every(position=>mainSet.has(position)))return;
+      const candidate={term:row.label||row.term||term,skip:Math.abs(step),dir:Math.sign(step),start:positions[0],positions,distance:distanceToAnchors(positions,anchors,S),lexiconSources:[...(row.sources||[])],lexiconSupport:Number(row.support)||1,classifications:[...(row.classifications||[])],discoveryKind},key=term,prior=found.get(key);
+      candidate.focusStage=focusStage;
+      candidate.geometry=compactGeometryMeta(candidate,axis);candidate.neighborhood=axisNeighborhoodMeta(candidate,axis);
+      const sourceContext=discoveryKind==="source-context";
+      if(sourceContext?!candidate.geometry?.compact:(!(candidate.geometry?.compact||candidate.focusStage==="B")||candidate.distance>15))return;
+      const stagePriority={A:2,B:1},kindPriority={"source-context":4,direct:3,phrase:2,compound:1};
+      if(sourceContext){const rows=sourceContextOccurrences.get(term)||[],key=positions.join("_");if(!rows.some(row=>row.positions.join("_")===key))rows.push({...candidate});sourceContextOccurrences.set(term,rows);}
+      if(!prior&&found.size>=maxCandidates){candidateCapped=true;return;}
+      if(!prior||stagePriority[focusStage]>stagePriority[prior.focusStage]||stagePriority[focusStage]===stagePriority[prior.focusStage]&&(kindPriority[discoveryKind]>kindPriority[prior.discoveryKind]||kindPriority[discoveryKind]===kindPriority[prior.discoveryKind]&&(focusedCoreRankScore(candidate,axis,false)>focusedCoreRankScore(prior,axis,false)||focusedCoreRankScore(candidate,axis,false)===focusedCoreRankScore(prior,axis,false)&&candidate.distance<prior.distance)))found.set(key,candidate);
+    };
+    const totalRows=r1-r0+1,totalOrigins=totalRows*(c1-c0+1);
+    scanRows:for(let row=r0;row<=r1;row++){
+      for(let column=c0;column<=c1;column++){
+        const origin=row*S+column;if(origin<0||origin>=scopeN()){completedOrigins++;if(completedOrigins===totalOrigins||Date.now()-scanSliceStarted>=32){lastCoreReported=completedOrigins;yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size};scanSliceStarted=Date.now();}continue;}
+        const steps=row>=localR0&&row<=localR1&&column>=localC0&&column<=localC1?[...coreSteps,...localGapSteps]:coreSteps;
+        for(const magnitude of steps)for(const direction of [1,-1]){
+          const step=magnitude*direction,positions=[],letters=[];
+          for(let index=0;index<24;index++){const position=origin+index*step;if(!inBox(position))break;positions.push(position);letters.push(T[position]);}
+          const sequence=letters.join("");if(sequence.length<2)continue;if(probes>=maxProbes){probeCapped=true;break scanRows;}probes++;
+          const focusStage=localGapSteps.includes(magnitude)?"B":"A";
+          for(const length of termLengths){if(length>sequence.length)break;const term=sequence.slice(0,length),rowEntry=termMap.get(term);if(rowEntry)consider(rowEntry,positions.slice(0,length),step,"direct",focusStage);}
+          for(let length=4;length<=sequence.length;length++){const term=sequence.slice(0,length),code=phraseIndex instanceof Map?phraseIndex.get(term):undefined;if(code===undefined)continue;const phrase=focusedPhraseRow(term,code);if(phrase)consider(phrase,positions.slice(0,length),step,"phrase",focusStage);}
+          for(const firstLength of wordLengths){if(firstLength>=sequence.length)break;const first=wordMap.get(sequence.slice(0,firstLength));if(!first)continue;
+            for(const secondLength of wordLengths){const total=firstLength+secondLength;if(total>16||total>sequence.length)break;const second=wordMap.get(sequence.slice(firstLength,total));if(!second)continue;
+              const term=sequence.slice(0,total),sources=[...new Set([...(first.sources||[]),...(second.sources||[]),"local_exact_compound"])],support=(Number(first.support)||1)+(Number(second.support)||1);
+              const parts=[first,second].map(part=>({term:part.term,label:part.label,sources:[...(part.sources||[])],support:Number(part.support)||1,classifications:[...(part.classifications||[])]}));
+              consider({term,label:`${first.label||first.term} ${second.label||second.term}`,sources,support,classifications:[{kind:"local-exact-compound",value:2,label:"שתי מילים צמודות שנמצאו על אותו נתיב",parts}]},positions.slice(0,total),step,"compound",focusStage);
+            }
+          }
+        }
+        completedOrigins++;if(completedOrigins===totalOrigins||candidateCapped||Date.now()-scanSliceStarted>=32){lastCoreReported=completedOrigins;yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size};scanSliceStarted=Date.now();}
+        if(candidateCapped)return {box,candidates:[],probes,candidateCapped:true,probeCapped:false,budgetExceeded:"candidates"};
+      }
+    }
+    // Source-context is bounded by the exact verses touched by the primary axis, not by the
+    // 15-column geometry box. This is what lets an axis such as "יום שבת תשמור" surface שבת and
+    // the complete canonical verse even when the topical word sits farther along that same verse.
+    const sourceMatches=axisSourceContextMatches(axis,axisTopicRows,24);
+    sourceContextScan:for(const match of sourceMatches){if(probes>=maxProbes){probeCapped=true;break sourceContextScan;}probes++;
+      consider({...match.topic,classifications:[...(match.topic.classifications||[]),{kind:"axis-source-context",value:match.term,label:"מילת נושא מן הציר נמצאה בפסוק שהציר עובר בו"}]},match.positions,1,"source-context","A");
+      if(candidateCapped)break sourceContextScan;
+    }
+    if(candidateCapped)return {box,candidates:[],probes,candidateCapped:true,probeCapped:false,budgetExceeded:"candidates"};
+    if(probeCapped){yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size,budgetExceeded:true};return {box,candidates:[],probes,candidateCapped:false,probeCapped:true,budgetExceeded:"probes"};}
+    if(completedOrigins!==lastCoreReported)yield {phase:"core",completed:completedOrigins,total:totalOrigins,probes,candidates:found.size};
+    const values=[...found.values()],ranked=[];let projectSliceStarted=Date.now();
+    for(let index=0;index<values.length;index++){
+      const candidate=values[index],term=norm(candidate.term),score=focusedCoreRankScore(candidate,axis),kinds=new Set((candidate.classifications||[]).map(item=>item.kind)),compoundKinds=new Set(((candidate.classifications||[]).find(item=>item.kind==="local-exact-compound")?.parts||[]).flatMap(part=>(part.classifications||[]).map(item=>item.kind))),contextOccurrences=sourceContextOccurrences.get(term)||[],sourceContext=candidate.discoveryKind==="source-context"?{axisTopic:true,label:"פסוק מקור באותו הקשר",matchedTerms:[term],axisVerse:true,occurrenceCount:contextOccurrences.length}:null,flags=(candidate.discoveryKind==="phrase"&&Math.abs(candidate.skip)===1?1:0)|(candidate.geometry?.intersects?2:0)|(candidate.discoveryKind==="direct"?4:0)|(candidate.geometry?.compact?8:0)|((candidate.lexiconSources||[]).includes("governed_core")?16:0)|(kinds.has("hebrew-year")?32:0)|(candidate.focusStage==="B"?64:0)|(candidate.discoveryKind==="compound"&&compoundKinds.has("hebrew-year")?128:0)|(candidate.discoveryKind==="compound"?256:0)|(sourceContext?512:0)|(kinds.has("corpus-morphology")?1024:0)|(kinds.has("research-context-exact")?2048:0)|(kinds.has("research-context-component")?4096:0);
+      ranked.push({candidate:{...candidate,...(contextOccurrences.length?{occurrences:contextOccurrences}:{}),sourceContext,skipMeta:focusedCoreSkipMeta(candidate,axis),focusScore:score,focusTerm:term,focusFlags:flags},score,distance:candidate.distance,priority:Number(candidate.neighborhood?.priority)||0,stage:candidate.focusStage==="B"?1:0,term});
+      if(index+1===values.length||Date.now()-projectSliceStarted>=32){yield {phase:"collect",completed:index+1,total:values.length,probes,candidates:ranked.length};projectSliceStarted=Date.now();}
+    }
+    const compare=(a,b)=>a.stage-b.stage||a.distance-b.distance||b.priority-a.priority||b.score-a.score||a.term.localeCompare(b.term,"he");
+    let source=ranked,target=new Array(ranked.length);const passes=ranked.length>1?Math.ceil(Math.log2(ranked.length)):0,sortTotal=ranked.length*passes;let sorted=0,lastYield=0,sortSliceStarted=Date.now();
+    for(let width=1;width<ranked.length;width*=2){
+      for(let left=0;left<ranked.length;left+=width*2){let first=left,second=Math.min(left+width,ranked.length),firstEnd=second,secondEnd=Math.min(left+width*2,ranked.length),cursor=left;
+        while(first<firstEnd||second<secondEnd){target[cursor++]=second>=secondEnd||first<firstEnd&&compare(source[first],source[second])<=0?source[first++]:source[second++];sorted++;
+          if(Date.now()-sortSliceStarted>=32){lastYield=sorted;yield {phase:"rank",completed:sorted,total:sortTotal,probes,candidates:ranked.length};sortSliceStarted=Date.now();}
+        }
+      }
+      [source,target]=[target,source];
+    }
+    if(sorted!==lastYield)yield {phase:"rank",completed:sorted,total:sortTotal,probes,candidates:ranked.length};
+    const candidates=source.map(row=>row.candidate);
+    return {box,candidates,probes,candidateCapped:false,probeCapped:false,budgetExceeded:null};})();
+  }
+  function scanFocusedCoreCandidates(entries,axisEntries,phraseIndex,axis,limits=null){
+    const scan=focusedCoreCandidateScan(entries,axisEntries,phraseIndex,axis,limits);
+    for(;;){const next=scan.next();if(next.done)return next.value;}
+  }
+  async function scanFocusedCoreCandidatesBatched(entries,axisEntries,phraseIndex,axis,onProgress,isCancelled,limits=null){
+    const scan=focusedCoreCandidateScan(entries,axisEntries,phraseIndex,axis,limits);
+    for(;;){if(isCancelled?.())return null;const next=scan.next();if(next.done)return next.value;onProgress?.(next.value);await paintOperation();}
+  }
+  function focusedSourceProjection(candidate){
+    const indexes=[...new Set((candidate.positions||[]).map(verseAt).filter(index=>index>=0))],selected=indexes.length<=3?indexes:[indexes[0],indexes[Math.floor(indexes.length/2)],indexes.at(-1)],span=verseSpan(candidate.positions||[]);
+    return {span:span?{fromRef:span.fromRef,toRef:span.toRef,count:span.count}:null,verses:selected.map(index=>({ref:refStr(index),text:(VTEXT&&VTEXT[index])||""}))};
+  }
+  function selectFocusedCoreCandidates(candidates,limit=12){
+    const cap=Math.max(1,Math.min(16,Number(limit)||12)),selected=[],seen=new Set(),rows=candidates||[],positionSets=new WeakMap(),positionSet=candidate=>{let value=positionSets.get(candidate);if(!value){value=new Set(candidate.positions||[]);positionSets.set(candidate,value);}return value;},samePathOverlap=(candidate,prior)=>{
+      if(Math.abs(candidate.skip)!==Math.abs(prior.skip))return false;
+      const priorPositions=positionSet(prior);let shared=0;
+      for(const position of candidate.positions||[])if(priorPositions.has(position)&&++shared>=2)return true;
+      return false;
+    },add=(predicate,count)=>{
+      for(const candidate of rows){if(count<=0||selected.length>=cap)break;const key=candidate.focusTerm||norm(candidate.term),flags=Number(candidate.focusFlags)||0;if(seen.has(key)||!predicate(flags,candidate)||selected.some(prior=>samePathOverlap(candidate,prior)))continue;seen.add(key);selected.push(candidate);count--;}
+    };
+    // The first package is bounded and path-diverse. Literal source context receives first
+    // admission, followed by a small mix of exact source, year, morphology and geometry lanes.
+    // Selection stays linear in the already-ranked pool; no second scan or semantic engine runs.
+    add(flags=>(flags&2048)===2048,6);
+    add(flags=>(flags&4096)===4096,2);
+    add(flags=>(flags&512)===512,2);
+    add(flags=>(flags&3)===3,2);
+    add((flags,candidate)=>{const sources=new Set(candidate.lexiconSources||[]);return Math.abs(Number(candidate.skip))>1&&norm(candidate.term).length>=4&&(flags&32)===32&&(flags&256)===0&&sources.has("basic_hebrew_year")&&!sources.has("corpus_native")&&!sources.has("corpus_morphology")&&!sources.has("governed_core");},1);
+    add((flags,candidate)=>Math.abs(Number(candidate.skip))>1&&(flags&1024)===1024&&norm(candidate.term).length>=4,2);
+    add(flags=>(flags&256)===256,1);
+    add((flags,candidate)=>(flags&12)===12&&norm(candidate.term).length>=4,2);
+    add((flags,candidate)=>Math.abs(Number(candidate.skip))>1&&(flags&20)===20&&(flags&256)===0&&norm(candidate.term).length>=4,1);
+    add(flags=>(flags&64)===64,1);
+    add(()=>true,cap-selected.length);
+    return selected;
+  }
+  function focusedCheckpointSignature(selected){
+    return (selected||[]).map(candidate=>[candidate.focusTerm||norm(candidate.term),candidate.start,candidate.skip,candidate.dir].join(":")).join("|");
+  }
+  async function verifyFocusedCoreCandidates(candidates,axis,onProgress,isCancelled,limit=12,resumeCheckpoint=null){
+    const selected=selectFocusedCoreCandidates(candidates,limit),signature=focusedCheckpointSignature(selected),canResume=resumeCheckpoint?.signature===signature,
+      verified=canResume?[...(resumeCheckpoint.items||[])]:[];let failed=canResume?Number(resumeCheckpoint.failed)||0:0,startIndex=canResume?Math.min(selected.length,Math.max(0,Number(resumeCheckpoint.completed)||0)):0;
+    if(startIndex)onProgress?.(startIndex,selected.length,{signature,completed:startIndex,items:[...verified],failed,resumed:true});
+    for(let index=startIndex;index<selected.length;index++){
+      if(isCancelled?.())return null;const candidate=selected[index],term=norm(candidate.term),plain=Math.abs(candidate.skip)===1&&isSourceHit(candidate,term);let admitted=plain?candidate:null,status=plain?"SOURCE_EXACT":"VERIFIED";
+      if(!plain){const result=await promoteVerified({t:term,hits:[candidate],capped:false,strategy:{policy:"FOCUSED_CORE_BUNDLE_V1"}},st.scope,null);if(isCancelled?.())return null;admitted=result.hits.find(isGov);if(!admitted)failed++;}
+      if(admitted)verified.push({...candidate,status,skip:Math.abs(candidate.skip),direction:candidate.dir===1?"fwd":"back",source:focusedSourceProjection(candidate),classifications:[...(candidate.classifications||[])]});
+      onProgress?.(index+1,selected.length,{signature,completed:index+1,items:[...verified],failed,resumed:false});await paintOperation();
+    }
+    return {items:verified,attempted:selected.length,failed,available:candidates.length,truncated:candidates.length>selected.length};
+  }
+  function projectFocusedCoreItems(candidates,focusedEntries){
+    return rankResearchCandidateItems((candidates||[]).map(candidate=>{
+      const continuation=scanLineWords(lineContextCells(candidate),candidate.term,6,48,focusedEntries);
+      return {term:norm(candidate.term),label:candidate.term,distance:candidate.distance,skip:candidate.skip,direction:candidate.direction,skipMeta:candidate.skipMeta,focusStage:candidate.focusStage,status:candidate.status,source:candidate.source,sourceContext:candidate.sourceContext,
+        lexiconSources:candidate.lexiconSources,lexiconSupport:candidate.lexiconSupport,geometry:candidate.geometry,neighborhood:candidate.neighborhood,classifications:[...(candidate.classifications||[])],
+        continuations:continuation.words.map(word=>({term:word.term,label:word.label,lexiconSources:word.lexiconSources})),continuationTruncated:continuation.truncated};
+    }));
+  }
+  // Canonical multi-word phrases are not brute-forced as a second global matrix scan. Instead,
+  // start from words already found in the displayed window and extend their exact path only when
+  // that word is a component of a canonical two-/three-word source phrase. This preserves phrase
+  // discovery while keeping mobile work proportional to the local package.
+  function deriveLocalPhraseCandidates(candidates,axis,phraseIndex,limit=64){
+    if(!(phraseIndex instanceof Map)||!phraseIndex.size)return[];
+    const b=blockOf(),S=b.S,c1=b.c0+b.cw,inWin=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return row>=b.r0&&row<=b.r1&&column>=b.c0&&column<c1;},
+      anchors=(axis.positions||[]).map(position=>[Math.floor(position/S),((position%S)+S)%S]),mainSet=axis._structuralCells||new Set(axis.positions||[]),found=new Map();
+    const consider=candidate=>{
+      const key=norm(candidate.term),prior=found.get(key),nextBand=axisNeighborhoodMeta(candidate,axis);
+      if(!prior||nextBand.priority>axisNeighborhoodMeta(prior,axis).priority||nextBand.priority===axisNeighborhoodMeta(prior,axis).priority&&(candidate.distance<prior.distance||candidate.distance===prior.distance&&candidate.skip<prior.skip))found.set(key,candidate);
+    };
+    for(const candidate of candidates||[]){
+      const base=norm(candidate.term);if(base.length<3||base.length>24)continue;
+      const occurrences=candidate.occurrences?.length?candidate.occurrences:[candidate];
+      for(const occurrence of occurrences){
+        const skip=Math.abs(Number(occurrence.skip)),dir=Number(occurrence.dir),step=skip*dir;if(skip<1||![1,-1].includes(dir)||!Number.isInteger(occurrence.positions?.[0]))continue;
+        for(let length=Math.max(4,base.length);length<=24;length++)for(let before=0;before<=length-base.length;before++){
+          const start=occurrence.positions[0]-before*step,positions=Array.from({length},(_,index)=>start+index*step);
+          if(!positions.every(position=>position>=0&&position<scopeN()&&inWin(position))||positions.every(position=>mainSet.has(position)))continue;
+          const requested=norm(positions.map(position=>T[position]).join("")),code=phraseIndex.get(requested);if(code===undefined)continue;
+          const size=(code>>10)&3,first=code&31,second=(code>>5)&31,lengths=size===2?[first,length-first]:[first,second,length-first-second];
+          if(lengths.length!==size||lengths.some(value=>value<1))continue;
+          const boundaries=[0];for(const value of lengths)boundaries.push(boundaries.at(-1)+value);
+          const partIndex=boundaries.indexOf(before);if(partIndex<0||boundaries[partIndex+1]!==before+base.length)continue;
+          const parts=lengths.map((value,index)=>requested.slice(boundaries[index],boundaries[index]+value)),label=parts.join(" ");
+          consider({term:label,skip,dir,start,positions,distance:distanceToAnchors(positions,anchors,S),lexiconSources:["corpus_native_phrase"],lexiconSupport:1,
+            classifications:[{kind:"corpus-phrase",value:size,label:`ביטוי בן ${size} מילים מלשון המקור`,parts}],occurrences:[]});
+        }
+      }
+    }
+    return [...found.values()].sort((a,b)=>axisNeighborhoodMeta(b,axis).priority-axisNeighborhoodMeta(a,axis).priority||a.distance-b.distance||b.lexiconSupport-a.lexiconSupport||norm(b.term).length-norm(a.term).length).slice(0,Math.max(1,Math.min(64,Number(limit)||64)));
   }
   function lensPath(box){
     if(!hasGov(st.res)){box.innerHTML='<div class="lens-empty">חפש מילה קודם — המסלול נבנה על התוצאה.</div>';return;}
@@ -3736,20 +4920,34 @@
     //    אם-צריך) בדיוק כמו run() — לא עוד sync-Tanakh נקודתי שעוקף את ה-Worker pool. תורה נשארת
     //    סינכרונית (מהירה ממילא). אותו findAll קנוני, אותו D4/Pass-1, אין מנוע שני.
     const exact=Number.isInteger(item.start)&&item.start>=0&&[1,-1].includes(item.dir)&&Number.isInteger(item.skip)&&item.skip>=2;
-    // Exact saved occurrences use the SAME canonical verifier. A capped
-    // discovery list must never substitute a different occurrence of the word.
-    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]){if(failResearch("corpus-mismatch"))return;st.res=null;postHost({type:"load-error",term:item.term,reason:"corpus-mismatch"});render();return;}
+    // Historical Torah rows can contain explicit saved finding coordinates that continue into
+    // Joshua/Judges. The host has already selected the smallest containing replay scope (Tanakh),
+    // while corpusId still truthfully names the stored Torah-axis corpus. This one compatibility
+    // case is admitted only after the same axis is verified again in the containing corpus; every
+    // other corpus mismatch remains fail-closed.
+    const recoveredCorpus=!!(item.legacyScopeRecovered&&item.storedScope==="torah"&&st.scope==="tanakh"&&item.corpusId===CORPUS_ID.torah);
+    if(item.corpusId&&item.corpusId!==CORPUS_ID[st.scope]&&!recoveredCorpus){if(failResearch("corpus-mismatch"))return;st.res=null;postHost({type:"load-error",term:item.term,reason:"corpus-mismatch"});render();return;}
     const t=norm(item.term);
     const anchor=exact?{skip:item.skip,dir:item.dir,start:item.start,positions:Array.from(t,(_,k)=>item.start+k*item.skip*item.dir)}:null;
-    const discovered=await discoverVerified(item.term,4000,null,anchor);
+    let discovered=null,fixedReplay=null;
+    // S0 REPLAY_AND_SOURCE: a saved coordinate or saved skip is evidence to replay, not a reason
+    // to rediscover the term over the complete corpus. Exact rows verify one anchor. Legacy rows
+    // first enumerate only their recorded skip; a unique governed result is the exact replay.
+    // Ambiguous/missing legacy skips retain the historical broad-discovery fallback below.
+    if(anchor)discovered=await promoteVerified({t,hits:[anchor],capped:false,strategy:{policy:"SAVED_EXACT_REPLAY_V1"}},st.scope,null);
+    else if(Number.isInteger(item.skip)&&item.skip>=2){
+      const fixed=fixedSkipCandidates(item.term,item.skip),directed=[1,-1].includes(item.dir)?fixed.filter(hit=>hit.dir===item.dir):fixed;
+      if(directed.length){fixedReplay=await promoteVerified({t,hits:directed,capped:false,strategy:{policy:"SAVED_SKIP_REPLAY_V1"}},st.scope,null);
+        const governed=fixedReplay.hits.filter(isGov);if(fixedReplay.verr||governed.length===1)discovered=fixedReplay;}
+    }
+    if(!discovered)discovered=await discoverVerified(item.term,4000,null,anchor);
     if(requestSeq!==_matrixRequestSeq)return;
     if(prior&&!discovered.hits.some(h=>isGov(h)&&h.skip===item.skip&&h.dir===item.dir&&h.start===item.start)){
       failResearch("anchor-not-found");return;
     }
     if(prior){st.editId=null;st.editTerm="";}
     if(!exact&&Number.isInteger(item.skip)&&item.skip>=2&&!discovered.hits.some(h=>isGov(h)&&Math.abs(h.skip)===item.skip)){
-      const candidates=fixedSkipCandidates(item.term,item.skip);
-      const targeted=await promoteVerified({t,hits:candidates,capped:false,strategy:{policy:"SAVED_SKIP_REPLAY_V1"}},st.scope,null);
+      const targeted=fixedReplay||await promoteVerified({t,hits:fixedSkipCandidates(item.term,item.skip),capped:false,strategy:{policy:"SAVED_SKIP_REPLAY_V1"}},st.scope,null);
       if(requestSeq!==_matrixRequestSeq)return;
       const found=targeted.hits.filter(isGov);
       if(!found.length){st.res=null;postHost({type:"load-error",term:item.term,reason:"saved-skip-not-found"});render();return;}
@@ -3778,6 +4976,7 @@
       const g2=st.res.hits.findIndex(h=>Math.abs(h.skip)>=2);idx=g2>=0?g2:0;
     }
     st.occ=idx;st.expand=-1;st.selCells=[];st.suggest=null;st.lineFor=-1;st.lineMain=false;st.expandMain=false;
+    if(item.savedReplayWindow==="compact-v1")Object.assign(st,compactSavedReplayWindow(item,occ()));
     st.hideMain=!!item.hideMain;   // 📌 צופן שנשמר עם «ציר מוסתר» נטען עם הציר מוסתר — רק הממצאים מוצגים
     const view=item.view||{};
     st.showN=Number.isInteger(view.showN)&&view.showN>=1&&view.showN<=15?view.showN:2;
@@ -4292,33 +5491,171 @@
     for(let k=1;k<=EXT;k++){const p=last+k*step;if(p>=0&&p<scopeN())positions.push(p);}
     return positions.map(i=>({i,letter:T[i],main:main.has(i)}));
   }
-  // The legacy strip and native inspector share the SAME literal, on-line dictionary scan.
-  // Offsets are display offsets only, not verified ELS occurrences or new Finding identities.
-  function scanLineWords(cells,word,maxWords=Infinity,maxMatches=Infinity){
-    const lineStr=cells.map(c=>c.letter).join(""),axisN=norm(word),seen=new Set(),words=[];
-    let count=0,truncated=false;
-    for(const raw of DICT){
-      const t=norm(raw);if(t.length<3||t===axisN||seen.has(t))continue;
-      const matches=[],spans=new Set();
-      for(const direction of [1,-1]){
-        const needle=direction===1?t:t.split("").reverse().join("");
-        let at=lineStr.indexOf(needle);
-        while(at>=0){
-          if(!spans.has(at)){
-            if(count>=maxMatches){truncated=true;break;}
-            spans.add(at);matches.push({at,length:t.length,direction});count++;
-          }
-          at=lineStr.indexOf(needle,at+1);
-        }
-        if(truncated)break;
+  // The legacy strip and native inspector share the SAME literal on-line matcher. A caller may
+  // supply the lazy dynamic lexicon; offsets remain display evidence, never verified occurrences.
+  function scanLineWords(cells,word,maxWords=Infinity,maxMatches=Infinity,lexicon=DICT){
+    const lineStr=cells.map(c=>c.letter).join(""),axisN=norm(word),lexiconIndex=lineExtensionLexiconIndex(lexicon),lookup=lexiconIndex.byTerm,maxLength=Math.max(3,lexiconIndex.maxLength||3);
+    const found=new Map(),spans=new Set();let count=0,truncated=false;
+    scan:for(const direction of [1,-1]){
+      const sequence=direction===1?lineStr:lineStr.split("").reverse().join("");
+      for(let at=0;at<sequence.length;at++)for(let length=3;length<=maxLength&&at+length<=sequence.length;length++){
+        const row=lookup.get(sequence.slice(at,at+length));if(!row||row.term===axisN)continue;
+        const shownAt=direction===1?at:lineStr.length-at-length,span=row.term+":"+shownAt+":"+length;
+        if(spans.has(span))continue;
+        if(count>=maxMatches){truncated=true;break scan;}
+        spans.add(span);count++;const current=found.get(row.term)||{...row,matches:[],firstAt:shownAt};
+        current.matches.push({at:shownAt,length,direction});current.firstAt=Math.min(current.firstAt,shownAt);found.set(row.term,current);
       }
-      if(matches.length){
-        if(words.length>=maxWords){truncated=true;break;}
-        seen.add(t);words.push({term:t,label:raw,matches});
-      }
-      if(truncated)break;
     }
-    return {status:"CANDIDATE",source:"legacy_els_dict",minLength:3,words,truncated};
+    const all=[...found.values()].sort((a,b)=>a.firstAt-b.firstAt||b.lexiconSupport-a.lexiconSupport||b.term.length-a.term.length);
+    if(all.length>maxWords)truncated=true;
+    const words=all.slice(0,maxWords).map(({firstAt,...row})=>row);
+    return {status:"CANDIDATE",source:lexicon===DICT?"legacy_els_dict":DYNAMIC_LEXICON_CONTRACT,minLength:3,words,truncated};
+  }
+  function lineExtensionLexiconIndex(lexicon){
+    if(_lineExtensionIndexCache.has(lexicon))return _lineExtensionIndexCache.get(lexicon);
+    const byTerm=new Map();
+    for(const entry of lexicon){
+      const label=typeof entry==="string"?entry:entry.label||entry.term,term=norm(label),row={term,label,lexiconSources:typeof entry==="string"?["governed_core"]:entry.sources||[],lexiconSupport:typeof entry==="string"?1:entry.support||1};
+      if(term.length<2||term.length>24)continue;const prior=byTerm.get(term);
+      if(!prior||row.lexiconSupport>prior.lexiconSupport)byTerm.set(term,row);
+    }
+    const rows=[...byTerm.values()],index={byTerm,lengths:[...new Set(rows.filter(row=>row.term.length<=12).map(row=>row.term.length))].sort((a,b)=>a-b),maxLength:rows.reduce((max,row)=>Math.max(max,row.term.length),0),rows,formsByAxis:new Map()};
+    _lineExtensionIndexCache.set(lexicon,index);return index;
+  }
+  // Exact seed expansion on one already-found path. A longer lexical candidate must contain the
+  // selected word at the selected cells and match the immediately adjacent cells on that SAME
+  // skip/direction. It is inspection evidence only; no extension is admitted as a Finding here.
+  function lineExtensionCandidates(hit,word,lexicon=DICT,limit=5){
+    if(!hit||!Array.isArray(hit.positions)||!hit.positions.length)return[];
+    const cells=lineContextCells(hit),line=cells.map(cell=>cell.letter).join(""),main=[];
+    cells.forEach((cell,index)=>{if(cell.main)main.push(index);});
+    const axis=norm(word);if(!axis||main.length!==axis.length)return[];
+    const first=main[0],last=main[main.length-1],axisLabel=String(word||axis).trim().replace(/\s+/g," ")||axis,found=new Map(),before=[],after=[],index=lineExtensionLexiconIndex(lexicon);
+    const add=row=>{const prior=found.get(row.term);if(!prior||row.lexiconSupport>prior.lexiconSupport)found.set(row.term,row);};
+    let registered=index.formsByAxis.get(axis);
+    if(!registered){registered=index.rows.filter(row=>row.term.length>axis.length&&row.term.includes(axis));index.formsByAxis.set(axis,registered);}
+    for(const row of registered){
+      const {term,label,lexiconSources,lexiconSupport}=row;
+      if(term.length>axis.length&&term.length<=24){let offset=term.indexOf(axis);
+        while(offset>=0){
+          const at=first-offset;
+          if(at>=0&&at+term.length<=line.length&&line.slice(at,at+term.length)===term){
+            const direction=offset===0?"forward":offset+axis.length===term.length?"backward":"both";
+            add({term,label,gain:term.length-axis.length,direction,extensionKind:"registered-form",lexiconSources,lexiconSupport});break;
+          }
+          offset=term.indexOf(axis,offset+1);
+        }
+      }
+    }
+    // A two- or three-letter Torah word is too noisy for global matrix discovery, but when it
+    // touches an already-verified axis with no skipped cell it is a bounded exact extension.
+    for(const length of index.lengths){
+      if(first>=length){const row=index.byTerm.get(line.slice(first-length,first));if(row&&row.term!==axis)before.push({...row,label:String(row.label).trim()});}
+      if(last+length<line.length){const row=index.byTerm.get(line.slice(last+1,last+1+length));if(row&&row.term!==axis)after.push({...row,label:String(row.label).trim()});}
+    }
+    const bestSide=rows=>[...new Map(rows.sort((a,b)=>b.lexiconSupport-a.lexiconSupport||b.term.length-a.term.length||a.term.localeCompare(b.term,"he")).map(row=>[row.term,row])).values()].slice(0,4);
+    const beforeBest=bestSide(before),afterBest=bestSide(after);
+    for(const side of beforeBest)add({term:side.term+axis,label:`${side.label} ${axisLabel}`,gain:side.term.length,direction:"backward",extensionKind:"adjacent-word",addedTerm:side.term,lexiconSources:side.lexiconSources,lexiconSupport:side.lexiconSupport});
+    for(const side of afterBest)add({term:axis+side.term,label:`${axisLabel} ${side.label}`,gain:side.term.length,direction:"forward",extensionKind:"adjacent-word",addedTerm:side.term,lexiconSources:side.lexiconSources,lexiconSupport:side.lexiconSupport});
+    for(const left of beforeBest.slice(0,2))for(const right of afterBest.slice(0,2)){
+      const sources=[...new Set([...(left.lexiconSources||[]),...(right.lexiconSources||[])])];
+      add({term:left.term+axis+right.term,label:`${left.label} ${axisLabel} ${right.label}`,gain:left.term.length+right.term.length,direction:"both",extensionKind:"adjacent-words",addedTerms:[left.term,right.term],lexiconSources:sources,lexiconSupport:left.lexiconSupport+right.lexiconSupport});
+    }
+    const kindPriority={"adjacent-word":3,"registered-form":2,"adjacent-words":1},functionWords=new Set(["אל","לי","לו","לה","לך","בו","בה","בי","כי","אם","גם","כל","עם","על","מן","מי","מה","או","אך","רק","זה","זו","הוא","היא","הם","את","של","כה","כן","לא","פי"]),contentPriority=row=>row.extensionKind==="adjacent-word"&&!functionWords.has(row.addedTerm)?1:0;
+    return[...found.values()].sort((a,b)=>(kindPriority[b.extensionKind]||0)-(kindPriority[a.extensionKind]||0)||
+      contentPriority(b)-contentPriority(a)||b.lexiconSupport-a.lexiconSupport||a.gain-b.gain||a.term.localeCompare(b.term,"he")).slice(0,Math.max(1,Math.min(8,Number(limit)||5)));
+  }
+  // Resolve a coordinate-free triage choice back to an exact candidate inside the engine.
+  // The host sends only result identity + terms; positions are reconstructed here and the
+  // resulting longer axis still has to pass the canonical verifier before it can be opened.
+  function resolveResultResearchTarget(target,lexicon){
+    const kind=target?.kind==="cross"?"cross":"regular",setId=target?.setId,key=String(target?.key||""),baseTerm=norm(target?.baseTerm),requested=norm(target?.term),sources=[];
+    if(!setId||!key||baseTerm.length<2||requested.length<=baseTerm.length)return null;
+    if(kind==="regular"){
+      const results=nativeOccurrenceResults();if(!results||results.id!==setId)return null;
+      const hit=st.res?.hits?.find(row=>isGov(row)&&hitKey(row)===key);
+      if(isGov(hit)&&norm(st.raw)===baseTerm)sources.push({hit,word:st.raw});
+    }else{
+      const results=nativeCrossResults(),item=results?.items?.find(row=>String(row.index)===key),zone=item?st.crossMeetings?.[item.index]:null;
+      if(!results||results.id!==setId||!zone)return null;
+      const result=zone.axis&&st.crossResCache?st.crossResCache[zone.axis]:st.res,axisHit=result?.hits?.[zone.occ];
+      if(isGov(axisHit)&&norm(zone.axis||st.raw)===baseTerm)sources.push({hit:axisHit,word:zone.axis||st.raw});
+      for(const detail of zone.detail||[]){
+        const term=norm(detail.t),skip=Math.abs(Number(detail.skip)),dir=Number(detail.dir),start=Number(detail.p0);
+        if(term!==baseTerm||skip<2||![1,-1].includes(dir)||!Number.isInteger(start))continue;
+        const positions=Array.from(term,(_,index)=>start+dir*skip*index);
+        if(positions.every(position=>position>=0&&position<scopeN()))sources.push({hit:{skip,dir,start,positions},word:detail.t});
+      }
+    }
+    for(const source of sources){
+      const extension=lineExtensionCandidates(source.hit,source.word,lexicon,8).find(row=>row.term===requested);if(!extension)continue;
+      const axis=norm(source.word),skip=Math.abs(source.hit.skip),dir=source.hit.dir;
+      let offset=requested.indexOf(axis);
+      while(offset>=0){
+        const start=source.hit.positions[0]-offset*skip*dir,positions=Array.from(requested,(_,index)=>start+index*skip*dir);
+        const aligned=source.hit.positions.every((position,index)=>positions[offset+index]===position);
+        if(aligned&&positions.every((position,index)=>position>=0&&position<scopeN()&&T[position]===requested[index]))return {term:requested,label:extension.label||target.label||requested,hit:{skip,dir,start,positions}};
+        offset=requested.indexOf(axis,offset+1);
+      }
+    }
+    return null;
+  }
+  function resolveAxisNeighborhoodTarget(target,lexicon){
+    const current=hasGov(st.res)?occ():null,requested=norm(target?.term);
+    if(!current||!requested||target?.axisHitId!==hitKey(current))return null;
+    const entry=lexicon.find(item=>norm(typeof item==="string"?item:item.term||item.label)===requested);if(!entry)return null;
+    const axis={...current,_structuralCells:new Set(current.positions||[])},rows=scanCandidates([entry],(candidate,best)=>{
+      const next=axisNeighborhoodMeta(candidate,axis),previous=axisNeighborhoodMeta(best,axis);
+      return next.priority>previous.priority||next.priority===previous.priority&&(candidate.distance<best.distance||candidate.distance===best.distance&&candidate.skip<best.skip);
+    },{includeOccurrences:true,maxOccurrences:10}),candidate=rows[0];
+    if(!candidate||Math.abs(Number(candidate.skip))<2)return null;
+    const neighborhood=axisNeighborhoodMeta(candidate,axis);
+    if(target?.band&&target.band!==neighborhood.band)return null;
+    return {term:requested,label:typeof entry==="string"?entry:entry.label||entry.term||requested,hit:candidate,neighborhood};
+  }
+  function triageHitSignals(hit,word,lexicon,axis=hit,includeNearby=true,researchContext={rows:[],requested:[]}){
+    const extensions=lineExtensionCandidates(hit,word,lexicon,8),extensionTerms=new Set(extensions.map(row=>row.term));
+    const scan=includeNearby?scanLineWords(lineContextCells(hit),word,8,32,lexicon):{words:[],truncated:false};
+    const nearby=scan.words.filter(row=>!extensionTerms.has(row.term)).slice(0,3).map(row=>({term:row.term,label:row.label,lexiconSources:row.lexiconSources}));
+    const topicRows=focusedAxisTopicRows(lexicon,lexicon,word,researchContext.rows),sourceMatches=axisSourceContextMatches(hit,topicRows,24),sourceContexts=[...new Map(sourceMatches.map(match=>[match.term,{term:match.term,label:match.topic.label||match.topic.term||match.term,occurrenceCount:sourceMatches.filter(row=>row.term===match.term).length}])).values()];
+    const contextAxis={...hit,_structuralCells:new Set(hit.positions||[])},contextScan=researchContext.rows?.length
+      ?scanFocusedCoreCandidates(researchContext.rows,researchContext.rows,new Map(),contextAxis,{contextRows:researchContext.rows,maxCandidates:512,maxProbes:FOCUSED_CORE_PROBE_CAP})
+      :{candidates:[]},contextCoverage=researchContextCoverage(researchContext.requested,contextScan.candidates||[],true,false);
+    const ordered=notable(Math.abs(hit.skip));
+    return {term:norm(word),targetable:Math.abs(Number(hit?.skip))>=2,extensions,nearby,sourceContexts,contextCoverage,notable:ordered?ordered.tag:null,geometry:compactGeometryMeta(hit,axis),scanTruncated:scan.truncated};
+  }
+  function rankResultTriageItems(rows,kind){
+    const functionWords=new Set(["אל","לי","לו","לה","לך","בו","בה","בי","כי","אם","גם","כל","עם","על","מן","מי","מה","או","אך","רק","זה","זו","הוא","היא","הם","את","של","כה","כן","לא","פי"]);
+    const extensionFrequency=new Map();
+    rows.forEach(row=>(row.signals||[]).forEach(signal=>(signal.extensions||[]).forEach(extension=>extensionFrequency.set(extension.term,(extensionFrequency.get(extension.term)||0)+1))));
+    const sourceContextFrequency=new Map();
+    rows.forEach(row=>{const terms=new Set((row.signals||[]).flatMap(signal=>(signal.sourceContexts||[]).map(context=>context.term)));for(const term of terms)sourceContextFrequency.set(term,(sourceContextFrequency.get(term)||0)+1);});
+    const ranked=rows.map(row=>{
+      const signals=row.signals||[],extensions=signals.flatMap(signal=>signal.extensions||[]),nearby=signals.flatMap(signal=>signal.nearby||[]);
+      const sourceContexts=[...new Map(signals.flatMap(signal=>signal.sourceContexts||[]).map(context=>[context.term,context])).values()],sourceContextRepeat=Math.max(0,...sourceContexts.map(context=>sourceContextFrequency.get(context.term)||0)),preferredExtension=extensions[0]||null,repeat=Math.max(0,...extensions.map(item=>extensionFrequency.get(item.term)||0));
+      const requestedContexts=[...new Map(signals.flatMap(signal=>signal.contextCoverage?.requested||[]).map(context=>[context.term,context])).values()],foundContexts=[...new Map(signals.flatMap(signal=>signal.contextCoverage?.found||[]).map(context=>[context.term,context])).values()],foundContextKeys=new Set(foundContexts.map(context=>context.term)),contextCoverage={contract:RESEARCH_CONTEXT_COVERAGE_CONTRACT,complete:true,verified:false,requested:requestedContexts,found:foundContexts,notSeenInFocusedRange:requestedContexts.filter(context=>!foundContextKeys.has(context.term)),truthPromotion:false};
+      const notableSignals=signals.filter(signal=>signal.notable),compactSecondary=signals.slice(1).filter(signal=>signal.geometry?.compact),reasons=[];
+      if(foundContexts.length)reasons.push(`הקשר מבוקש שנראה בטווח: ${foundContexts.slice(0,4).map(context=>context.label||context.term).join(" · ")}`);
+      if(requestedContexts.length&&foundContexts.length===requestedContexts.length)reasons.push("כל מונחי ההקשר שנבחרו נראו בטווח הממוקד");
+      if(sourceContexts.length)reasons.push(`פסוק מקור באותו הקשר: ${sourceContexts.slice(0,3).map(context=>context.label||context.term).join(" · ")}`);
+      if(sourceContextRepeat>1)reasons.push(`אותו הקשר מופיע ב־${sourceContextRepeat} תוצאות`);
+      if(preferredExtension)reasons.push(`המשך מדויק: ${preferredExtension.label||preferredExtension.term} · +${preferredExtension.gain} אותיות`);
+      if(repeat>1)reasons.push(`אותו המשך מופיע ב־${repeat} תוצאות`);
+      if(compactSecondary.length)reasons.push(`${compactSecondary.length} ממצאים בשלב א׳ · ללא פער בתצוגה`);
+      if(kind==="cross"&&Number(row.distance)===0)reasons.push("חצייה מדויקת באות משותפת");
+      else if(kind==="cross"&&Number.isFinite(Number(row.distance)))reasons.push(`מפגש במרחק ${row.distance} תאים`);
+      if(notableSignals.length)reasons.push(`דילוג ${notableSignals[0].notable}`);
+      if(nearby.length)reasons.push(`${nearby.length} מילים נוספות על הציר`);
+      if(!reasons.length)reasons.push("לא זוהה המשך מילוני בחלון; התוצאה נשארת זמינה");
+      const extensionKindWeight=preferredExtension?.extensionKind==="adjacent-word"?300:preferredExtension?.extensionKind==="registered-form"?200:preferredExtension?.extensionKind==="adjacent-words"?100:0,
+        contentWordWeight=preferredExtension?.extensionKind==="adjacent-word"&&!functionWords.has(preferredExtension.addedTerm)?120:0,
+        extensionQuality=extensionKindWeight+contentWordWeight+Math.min(20,Number(preferredExtension?.lexiconSupport)||0),contextWeight=foundContexts.reduce((score,context)=>score+(context.required?2:1)+(context.mode==="exact_phrase"?1:0),0),compactEvidence=foundContexts.length>0||sourceContexts.length>0||Boolean(preferredExtension)||compactSecondary.length>0,inspectionPriority=contextWeight*5000+(requestedContexts.length&&foundContexts.length===requestedContexts.length?1500:0)+sourceContexts.length*1500+sourceContextRepeat*120+(compactEvidence?1000:0)+extensionQuality*4+compactSecondary.length*12+Math.min(nearby.length,3)*2+notableSignals.length*3+
+        (kind==="cross"?(Number(row.stars)||0)*2+(Number(row.distance)===0?8:0):0);
+      return {...row,inspectionPriority,reasons,extensionCount:extensions.length,sourceContexts,contextCoverage,compactEvidence,stage:compactEvidence?"A":"B"};
+    }).sort((a,b)=>Number(b.compactEvidence)-Number(a.compactEvidence)||b.inspectionPriority-a.inspectionPriority||
+      (kind==="cross"?(Number(b.stars)-Number(a.stars)||Number(a.distance)-Number(b.distance)):Number(a.skip)-Number(b.skip))||Number(a.order)-Number(b.order));
+    return ranked.map((row,index)=>({...row,rank:index+1,tier:index<3&&row.inspectionPriority>0?"recommended":row.inspectionPriority>0?"inspect":"available"}));
   }
   function buildLineStrip(hit,color,word){
     const S=Math.abs(hit.skip),step=S*hit.dir,EXT=80;
@@ -4379,7 +5716,7 @@
     const head=document.createElement("div");head.className="rhead";
     head.innerHTML=
       '<span class="found">נמצא <b>'+st.raw+'</b></span>'+
-      (st.crossMeetings&&!st.crossSimple?'<span class="chip crosschip">🔀 התכנסות <b>'+(st.crossMeetings[st.crossIdx].nFound)+'</b> מונחים · <button class="mprev">‹</button> אזור '+(st.crossIdx+1)+'/'+heb(st.crossMeetings.length)+' <button class="mnext">›</button></span>':"")+
+      (!EXPR2029&&st.crossMeetings&&!st.crossSimple?'<span class="chip crosschip">🔀 התכנסות <b>'+(st.crossMeetings[st.crossIdx].nFound)+'</b> מונחים · <button class="mprev">‹</button> אזור '+(st.crossIdx+1)+'/'+heb(st.crossMeetings.length)+' <button class="mnext">›</button></span>':"")+
       '<button class="chip occbtn">מופעים <b>'+heb(n)+(r.capped?"+":"")+'</b> '+(st.occOpen?"▴":"▾")+'</button>'+
       '<span class="chip">דילוג <b>'+heb(S)+'</b> · '+(h.dir===1?"↓ קדימה":"↑ אחורה")+'</span>'+
       '<span class="chip">גימטריה <b>'+heb(gem(r.t))+'</b></span>'+
@@ -4387,7 +5724,7 @@
       '<span class="spacer"></span>'+
       '<span class="nav"><button class="pv" '+(n<2?"disabled":"")+'>‹</button><span class="pos">מופע '+(st.occ+1)+' / '+heb(n)+'</span><button class="nx" '+(n<2?"disabled":"")+'>›</button></span>';
     // 🔀 באנר-מפגש בולט מעל התוצאה (מחליף את שבב-המספר הקטן שהיה «לא ברור») — רק במוצלב-פשוט
-    if(st.crossSimple&&st.crossMeetings&&st.crossMeetings.length){
+    if(!EXPR2029&&st.crossSimple&&st.crossMeetings&&st.crossMeetings.length){
       const nM=st.crossMeetings.length,banner=document.createElement("div");banner.className="crossbanner";
       // 🧾 מציגים את שני המונחים **כפי שהמשתמש הזין** (st.crossPairA/B), ומסמנים מי נבחר כציר.
       //    הציר נבחר אוטומטית לפי מספר אזורי-המפגש, ולכן הוא עשוי להיות דווקא המונח השני —
@@ -4401,7 +5738,7 @@
     }
     wrap.appendChild(head);
     wrap.appendChild(buildOccPanel());
-    if(st.crossMeetings&&!st.crossSimple)wrap.appendChild(buildCrossResults());
+    if(!EXPR2029&&st.crossMeetings&&!st.crossSimple)wrap.appendChild(buildCrossResults());
     const work=document.createElement("div");work.className="work";
     const mbWrap=document.createElement("div");
     const mb=document.createElement("div");mb.className="matrix-box";
@@ -4418,7 +5755,7 @@
     const isEdit=!!(st.editId&&st.editTerm&&norm(st.raw)===st.editTerm);   // ✏️ עורכים ממצא קיים → «עדכן ממצא» במקום «שמור»
     acts.innerHTML=(st.postUrl?'<button class="mact post-act">📖 לקריאת הפוסט על «'+(st.raw||"הצופן")+'»</button>':'')+
       // 🔀 «הצלב את התוצאה» — רק אחרי חיפוש רגיל (לא כשכבר מציגים מפגש). מנוע-התגלית של המוצלב.
-      (st.crossMeetings?'':'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>')+
+      (!EXPR2029&&!st.crossMeetings?'<button class="mact cross-act" title="מצא איפה המונח הזה נפגש עם מונח נוסף בתורה">🔀 הצלב את התוצאה</button>':'')+
       ((st.cipherSlug&&norm(st.raw)===norm(st.cipherTerm))?'<button class="mact contrib-act" title="שתף את המילים שסימנת כתגובת-מחקר על הצופן הזה">➕ שתף כממצא</button>':'')+
       '<button class="mact save-act">'+(isEdit?'✏️ עדכן ממצא':'💾 שמור לתיק המחקר')+'</button><button class="mact d3-act'+(st3d.on?" on":"")+'">🧊 תלת-מימד</button><button class="mact play-act">🎬 סרט-הצופן</button><button class="mact present-act" title="חשיפה ידנית/מתוזמנת של חלקי-הצופן — לקריינות והקלטה">🎥 מצב הצגה</button><button class="mact vread-act'+(st.verseRead?" on":"")+'" title="לחיצה על אות מדליקה את כל הפסוק — מילה-מילה בגוונים מתחלפים (קוראים את הפסוק בתוך המטריצה)">📖 קריאת פסוק</button><button class="mact img-act">🖼️ שמור תמונה</button><button class="mact share-act">🔗 שתף</button>'+
       (st.admin?'<button class="mact link-act" title="קשר מטריצה לפוסט באתר">🔗 קשר לפוסט</button>':'');
@@ -4449,7 +5786,7 @@
     // 📖 קריאת-פסוק: הפעלה/כיבוי. דלוק → לחיצה על אות מדליקה את כל הפסוק מילה-מילה בגוונים; כבוי → מנקה וחוזר להקשה=מיקום.
     const vrAct=acts.querySelector(".vread-act");
     if(vrAct)vrAct.onclick=()=>{st.verseRead=!st.verseRead;vrAct.classList.toggle("on",st.verseRead);
-      if(st.verseRead){ensureVerseText();toast("📖 קריאת-פסוק דלוקה — הקש על אות והפסוק כולו יידלק, מילה-מילה בכחול/כתום. הקש על פסוק אחר למעבר.");}
+      if(st.verseRead){ensureVerseText().catch(()=>{});toast("📖 קריאת-פסוק דלוקה — הקש על אות והפסוק כולו יידלק, מילה-מילה בכחול/כתום. הקש על פסוק אחר למעבר.");}
       else{st.verseHL=-1;clearVerseWords();toast("קריאת-פסוק כבויה");}};
     filmbar.querySelector(".fb-play").onclick=()=>playReveal();
     filmbar.querySelectorAll(".fb-s").forEach(bt=>bt.onclick=()=>{st.filmSpeed=+bt.dataset.s;syncSpeed();playReveal();});
@@ -4467,7 +5804,7 @@
     hb.querySelector(".selbtn").onclick=()=>{st.selMode=!st.selMode;hb.querySelector(".selbtn").classList.toggle("on",st.selMode);selbar.style.display=st.selMode?"flex":"none";updateSelBar();};
     updateSelBar();
     head.querySelector(".occbtn").onclick=()=>{st.occOpen=!st.occOpen;const p=wrap.querySelector(".occpanel");if(p)p.style.display=st.occOpen?"block":"none";head.querySelector(".occbtn").lastChild.textContent=st.occOpen?" ▴":" ▾";};
-    if(st.crossMeetings&&!st.crossSimple){head.querySelector(".mprev").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx-1);};head.querySelector(".mnext").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx+1);};}
+    if(!EXPR2029&&st.crossMeetings&&!st.crossSimple){head.querySelector(".mprev").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx-1);};head.querySelector(".mnext").onclick=e=>{e.stopPropagation();openMeeting(st.crossIdx+1);};}
     // מעבר בין מופעים = מטריצה חדשה → מאפס את החיפושים שהוספת (לא גוררים ממצא קודם)
     head.querySelector(".pv").onclick=()=>shiftOccurrence(-1);
     head.querySelector(".nx").onclick=()=>shiftOccurrence(1);
@@ -4622,7 +5959,7 @@
       const tx=(VTEXT&&VTEXT[vi])||"";
       toast(n?("📖 "+refStr(vi)+" · «"+tx.slice(0,44)+(tx.length>44?"…":"")+"»"):("📖 "+refStr(vi)+" — אין מאותיות הפסוק בחלון הנראה"));
     };
-    if(VTEXT)apply();else ensureVerseText().then(apply);
+    if(VTEXT)apply();else ensureVerseText().then(apply).catch(()=>{});
   }
   function reapplyVerseWords(){if(st.verseRead&&st.verseHL>=0)highlightVerseWords(st.verseHL);}
   // 🎯 לאיזה ממצא שייכת האות שנגעו בה (הציר הראשי או אחת המילים הצבועות)
@@ -4642,7 +5979,7 @@
       '<div class="lp-actions"><span class="lp-off">אות '+heb(loc.offset+1)+' בפסוק</span><button class="lp-hl">✨ הדגש פסוק</button></div></div>';
     document.body.appendChild(pop);
     // הפסוק המלא מפוענח בעצלתיים בהקשה הראשונה — משלימים אותו לתוך החלונית כשמוכן
-    if(!loc.text)ensureVerseText().then(()=>{const cur=document.getElementById("locpop");if(cur&&cur===pop){const w=cur.querySelector(".lp-vwait");const tx=(VTEXT&&VTEXT[loc.verseIndex])||"";if(w){if(tx){w.textContent="«"+tx+"»";w.classList.remove("lp-vwait");}else w.remove();}}});
+    if(!loc.text)ensureVerseText().then(()=>{const cur=document.getElementById("locpop");if(cur&&cur===pop){const w=cur.querySelector(".lp-vwait");const tx=(VTEXT&&VTEXT[loc.verseIndex])||"";if(w){if(tx){w.textContent="«"+tx+"»";w.classList.remove("lp-vwait");}else w.remove();}}}).catch(()=>{const cur=document.getElementById("locpop");if(cur&&cur===pop)cur.querySelector(".lp-vwait")?.remove();});
     const r=cell.getBoundingClientRect();
     let top=window.scrollY+r.top-pop.offsetHeight-8;
     if(top<window.scrollY+4)top=window.scrollY+r.bottom+8;
@@ -5314,10 +6651,6 @@
   if(_shared){loadMatrix(_shared);toast("🔗 נטען צופן משותף: «"+_shared.name+"»");}
   else if(_seed.length>=2){q.value=_seed;run();}   // הגיע מונח מהאתר — מחפש אותו מיד
   else render();   // פתיחה נקייה: בראשית ללא ציר או ממצא; דוגמה תיטען רק מבחירה מפורשת
-  // 🔮 טעינה-מראש שקטה ברקע: אחרי שהמסך מוכן, מפענחים את טקסט-הפסוקים כדי שההקשה תהיה מיידית
-  const _idle=window.requestIdleCallback||(fn=>setTimeout(fn,800));
-  _idle(()=>{ensureVerseText();});
-
   // ── 🎓 הדרכה — חלון-פתיחה נעים, צעד-אחר-צעד (מוצג פעם ראשונה · נפתח שוב ב-«❓ הדרכה») ──
   // 📚 מדריך מקיף — כל יכולות הכלי, מדור-אחר-מדור, נגלל עם ניווט. t=כותרת · e=אימוג׳י · h=תוכן-HTML.
   const GUIDE=[

@@ -11,6 +11,7 @@ function exactContext() {
     researchContext: {
       lens: "els",
       subject: { id: "משיח", type: "phrase", label: "משיח", href: "/research?tool=els&q=משיח" },
+      selection: { entityType: "els", corpus: "torah" },
     },
     projection: {
       contract: "els_2029_projection_v1",
@@ -51,14 +52,14 @@ test("guided explanation is deterministic structural projection of exact replay 
   assert.equal(guide.audioExecuted, false);
 });
 
-test("guided/spoken representation does not leak raw ELS text when includeText is false", () => {
+test("guided/spoken representation exposes the selected expression but not the private subject href", () => {
   const context = exactContext();
   const guide = buildElsRazielGuidance(context);
   const contextJson = JSON.stringify(context);
   const guideJson = JSON.stringify(guide);
-  assert.equal(contextJson.includes("משיח"), false);
+  assert.equal(contextJson.includes("משיח"), true);
   assert.equal(contextJson.includes("q=משיח"), false);
-  assert.equal(guideJson.includes("משיח"), false);
+  assert.equal(guideJson.includes("משיח"), true);
   assert.match(context.subject.ref, /^anon:/);
   assert.match(context.occurrence.occurrenceRef, /^anon:/);
   assert.match(context.occurrence.dependencyRef, /^anon:/);
@@ -84,8 +85,8 @@ test("guide refuses non-exact or non-OK projection context", () => {
 
 test("Raziel voice shape stays calm/bounded and prepares spoken reuse without executing TTS", () => {
   const guide = buildElsRazielGuidance(exactContext());
-  assert.match(guide.boundary, /אינן מוסיפות לו חוזק ראייתי/);
-  assert.match(guide.inactive, /עדיין אינן פעילות/);
+  assert.match(guide.boundary, /אינן מוסיפות חוזק ראייתי/);
+  assert.match(guide.inactive, /שום פעולה אינה מופעלת אוטומטית/);
   assert.equal((guide.question.match(/\?/g) || []).length, 1);
   assert.equal(guide.spokenScript, [guide.lead, guide.boundary, guide.inactive, guide.question].join(" "));
 

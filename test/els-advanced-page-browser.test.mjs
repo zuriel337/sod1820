@@ -16,7 +16,7 @@ try {
 const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || "/usr/bin/chromium";
 const available = Boolean(pw && vite && react && existsSync(executablePath));
 
-test("advanced page verifies a bounded hit before loading the shared matrix; Classic hides the controls", { skip: !available, timeout: 60000 }, async () => {
+test("light Research entry exposes an idle brief while advanced controls stay closed; exact load survives Classic round-trip", { skip: !available, timeout: 60000 }, async () => {
   const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
   let browser;
   try {
@@ -26,10 +26,13 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
-    await page.getByRole("heading", { name: "הצופן הקלאסי" }).waitFor();
-    assert.equal(await page.getByRole("button", { name: "מחקר", exact: true }).count(), 0);
+    await page.getByRole("heading", { name: "ספרו מה אתם רוצים למצוא" }).waitFor();
+    assert.ok(await page.getByRole("button", { name: "גילוי צופן", exact: true }).count() >= 1);
+    assert.equal(await page.getByLabel("סיפור או הקשר למחקר").isVisible(), true);
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
-    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?testAdvanced`);
+    assert.deepEqual(await page.evaluate(() => window.__advancedCalls), []);
+    await page.locator('[data-els-advanced-options="explicit-open-v1"] > summary').click();
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), true);
     await page.getByLabel("מונח לחיפוש מתקדם").fill("תורתאמת");
     assert.equal(await page.getByRole("button", { name: /קרוב|בינוני|רחוק/ }).count(), 0);
     await page.getByLabel("דילוג מינימלי").fill("81");
@@ -44,13 +47,15 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     await page.getByRole("button", { name: /קלאסי/ }).first().click();
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
     assert.equal(await page.evaluate(() => window.__advancedLoad?.hitId), "86_1_1200");
-    await page.getByRole("button", { name: /מחקר/ }).first().click();
+    await page.getByRole("button", { name: /גילוי צופן/ }).first().click();
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), true);
     assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").inputValue(), "תורתאמת");
     await page.getByLabel("מילות המשך למחקר").fill("אמת");
     await page.getByRole("button", { name: "חקור את כל הצורות אוטומטית" }).click();
     await page.getByText(/ביטויים · .*צורות שונות/).waitFor();
     await page.getByLabel("תוצאות אמת").getByRole("button", { name: /דילוג 86/ }).click();
     await page.waitForFunction(() => window.__advancedLoad?.term === "אמת");
+    assert.equal(await page.evaluate(() => window.__advancedLoad?.researchBundle), true);
     const batchCalls = await page.evaluate(() => window.__advancedCalls.slice(2));
     assert.equal(batchCalls.at(-1).body.op, "verify");
     assert.ok(batchCalls.filter(call => call.body.op === "page").some(call => call.body.term === "תורתאמת"));
@@ -98,6 +103,180 @@ test("advanced page verifies a bounded hit before loading the shared matrix; Cla
     assert.equal(await page.getByLabel("תוצאות חשפד").getByText(/לא נמצאו מופעים/).count(), 0);
     assert.equal(await page.getByText(/הטווח פתוח גם מעל 500/).count(), 0);
     assert.deepEqual(errors, []);
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
+test("a private research brief sends one axis and selected exact context without sending the story", { skip: !available, timeout: 60000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    browser = await pw.chromium.launch({ headless: true, executablePath });
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    const errors = [];
+    page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
+    await page.getByText("דיוק ידני · רשות", { exact: true }).click();
+    await page.getByLabel("ציר ראשי למחקר").fill("קולומביה");
+    await page.getByLabel("סיפור או הקשר למחקר").fill("הספינה קולומביה עלתה באש. האש אכלה.");
+    await page.getByLabel("מונחים שחייבים לבדוק").fill("יכל אש");
+    await page.getByRole("button", { name: "הבן את הסיפור" }).click();
+    const plan = page.getByLabel("תוכנית גילוי הצופן");
+    await plan.getByText("ציר אחד + שני ממצאים").waitFor();
+    assert.ok(await plan.getByText("קולומביה", { exact: true }).count() >= 1);
+    await plan.getByText(/מה המערכת תבדוק סביב הציר/).click();
+    assert.ok(await plan.getByText("יכל אש", { exact: true }).count() >= 1);
+    assert.equal(await plan.locator(".els29-brief-context-row").filter({ hasText: "יכל אש" }).getByRole("button", { name: "גם כל מילה בנפרד" }).getAttribute("aria-pressed"), "false");
+    assert.deepEqual(await page.evaluate(() => window.__advancedCalls), []);
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
+    await plan.getByRole("button", { name: "מצא ציר ושני ממצאים מתחברים" }).click();
+    await page.waitForFunction(() => window.__advancedLoad?.researchCommand === true);
+    const state = await page.evaluate(() => ({
+      calls: window.__advancedCalls,
+      load: window.__advancedLoad,
+      url: location.href,
+      local: Object.values(localStorage),
+      session: Object.values(sessionStorage),
+    }));
+    assert.deepEqual(state.calls, [], "the mounted canonical engine owns the search; the brief does not call a second page scanner");
+    assert.equal(state.load.term, "קולומביה");
+    assert.equal(state.load.discoveryGoal.connectedSupports, 2);
+    const exactContext = state.load.contextTerms.find(row => row.term === "יכל אש");
+    assert.deepEqual({ mode: exactContext?.mode, split: exactContext?.split }, { mode: "exact_phrase", split: false });
+    assert.equal(state.load.contextTerms.some(row => row.term === "יכל" || row.term === "אש"), false, "exact context is not silently split");
+    assert.ok(!JSON.stringify(state.load).includes("הספינה קולומביה עלתה באש"));
+    assert.ok(!state.url.includes("הספינה"));
+    assert.ok(!JSON.stringify([...state.local, ...state.session]).includes("הספינה"));
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
+test("Raziel exact-return URL loads the saved ELS coordinates through the existing canonical matrix input", { skip: !available, timeout: 60000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    browser = await pw.chromium.launch({ headless: true, executablePath });
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+    const errors = [];
+    page.on("pageerror", error => errors.push(error.message));
+    await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
+    await page.getByText("דיוק ידני · רשות", { exact: true }).click();
+    await page.getByLabel("ציר ראשי למחקר").fill("קולומביה");
+    await page.getByLabel("סיפור או הקשר למחקר").fill("הספינה קולומביה עלתה באש. האש אכלה.");
+    await page.getByLabel("מונחים שחייבים לבדוק").fill("יכל אש");
+    await page.getByRole("button", { name: "הבן את הסיפור" }).click();
+    const plan = page.getByLabel("תוכנית גילוי הצופן");
+    await plan.getByText("ציר אחד + שני ממצאים").waitFor();
+    assert.ok(await plan.getByText("קולומביה", { exact: true }).count() >= 1);
+    await plan.getByText(/מה המערכת תבדוק סביב הציר/).click();
+    assert.ok(await plan.getByText("יכל אש", { exact: true }).count() >= 1);
+    assert.equal(await plan.locator(".els29-brief-context-row").filter({ hasText: "יכל אש" }).getByRole("button", { name: "גם כל מילה בנפרד" }).getAttribute("aria-pressed"), "false");
+    assert.deepEqual(await page.evaluate(() => window.__advancedCalls), []);
+    assert.equal(await page.getByLabel("מונח לחיפוש מתקדם").isVisible(), false);
+    await plan.getByRole("button", { name: "מצא ציר ושני ממצאים מתחברים" }).click();
+    await page.waitForFunction(() => window.__advancedLoad?.researchCommand === true);
+    const state = await page.evaluate(() => ({
+      calls: window.__advancedCalls,
+      load: window.__advancedLoad,
+      url: location.href,
+      local: Object.values(localStorage),
+      session: Object.values(sessionStorage),
+    }));
+    assert.deepEqual(state.calls, [], "the mounted canonical engine owns the search; the brief does not call a second page scanner");
+    assert.equal(state.load.term, "קולומביה");
+    assert.equal(state.load.discoveryGoal.connectedSupports, 2);
+    const exactContext = state.load.contextTerms.find(row => row.term === "יכל אש");
+    assert.deepEqual({ mode: exactContext?.mode, split: exactContext?.split }, { mode: "exact_phrase", split: false });
+    assert.equal(state.load.contextTerms.some(row => row.term === "יכל" || row.term === "אש"), false, "exact context is not silently split");
+    assert.ok(!JSON.stringify(state.load).includes("הספינה קולומביה עלתה באש"));
+    assert.ok(!state.url.includes("הספינה"));
+    assert.ok(!JSON.stringify([...state.local, ...state.session]).includes("הספינה"));
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
+test("Cipher Discovery stays clean and opens the same workspace after one bounded plan on mobile and desktop", { skip: !available, timeout: 90000 }, async () => {
+  const server = await vite.createServer({ root, configFile: false, plugins: [libraryFixturePlugin(), react()], server: { host: "127.0.0.1", port: 0 } });
+  let browser;
+  try {
+    await server.listen();
+    browser = await pw.chromium.launch({ headless: true, executablePath });
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) {
+      const page = await browser.newPage({ viewport });
+      const errors = [];
+      page.on("pageerror", error => errors.push(error.message));
+      await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
+      await page.getByRole("heading", { name: "ספרו מה אתם רוצים למצוא" }).waitFor();
+      assert.equal(await page.getByRole("button", { name: "ממצאי ELS ציבוריים" }).count(), 0);
+      assert.equal(await page.locator('[data-els-classic-2029="native-v1"]').isVisible(), false);
+      await page.getByLabel("סיפור או הקשר למחקר").fill("הספינה קולומביה עלתה באש ונשארה בלב ים");
+      await page.getByRole("button", { name: "הבן את הסיפור" }).click();
+      const plan = page.getByLabel("תוכנית גילוי הצופן");
+      await plan.getByText("ציר אחד + שני ממצאים").waitFor();
+      assert.ok(await plan.getByText("קולומביה", { exact: true }).count() >= 1);
+      await plan.getByRole("button", { name: "מצא ציר ושני ממצאים מתחברים" }).click();
+      await page.waitForFunction(() => window.__advancedLoad?.discoveryGoal?.connectedSupports === 2);
+      assert.equal(await page.locator('[data-els-classic-2029="native-v1"]').isVisible(), true);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      await page.getByRole("button", { name: "קלאסי", exact: true }).first().click();
+      assert.equal(await page.getByLabel("סיפור או הקשר למחקר").isVisible(), false);
+      assert.equal(await page.locator('[data-els-classic-2029="native-v1"]').isVisible(), true);
+      await page.getByRole("button", { name: "גילוי צופן", exact: true }).first().click();
+      assert.equal(await page.getByLabel("סיפור או הקשר למחקר").inputValue(), "הספינה קולומביה עלתה באש ונשארה בלב ים");
+      assert.deepEqual(errors, []);
+      await page.close();
+    }
+    for (const width of [320, 1440]) {
+      const page = await browser.newPage({ viewport: { width, height: 900 } });
+      const query = new URLSearchParams({
+        els_return: "verified-v1",
+        term: "משיח",
+        scope: "torah",
+        corpus: "fixture-torah",
+        skip: "17",
+        dir: "1",
+        start: "100",
+        occurrence: "anon:fixture-occurrence",
+      });
+      await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?${query}`);
+      await page.waitForFunction(() => window.__advancedLoad?.hitId === "17_1_100");
+      const loaded = await page.evaluate(() => window.__advancedLoad);
+      assert.deepEqual({
+        term: loaded.term,
+        scope: loaded.scope,
+        corpusId: loaded.corpusId,
+        skip: loaded.skip,
+        dir: loaded.dir,
+        start: loaded.start,
+        occurrenceRef: loaded.occurrenceRef,
+      }, {
+        term: "משיח",
+        scope: "torah",
+        corpusId: "fixture-torah",
+        skip: 17,
+        dir: 1,
+        start: 100,
+        occurrenceRef: "anon:fixture-occurrence",
+      });
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${width}: exact return has no horizontal overflow`);
+      await page.close();
+    }
+    const invalid = await browser.newPage({ viewport: { width: 320, height: 900 } });
+    await invalid.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?els_return=verified-v1&term=${encodeURIComponent("משיח")}&scope=torah&skip=17&dir=1`);
+    await invalid.getByRole("heading", { name: "ספרו מה אתם רוצים למצוא" }).waitFor();
+    assert.equal(await invalid.evaluate(() => window.__advancedLoad), null);
+    assert.equal(await invalid.evaluate(() => window.__libraryMatrix), null, "an incomplete exact return never degrades to legacy skip-only loading");
+    await invalid.close();
   } finally {
     await browser?.close();
     await server.close();

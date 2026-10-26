@@ -1,0 +1,206 @@
+{
+  "measurement": "deterministic local bytes; comparison gzip level 9; no network timing claim",
+  "base": "6124db8d7ddac82654a09c49abf8ed60fe999d47",
+  "reviewed_split_commit": "4e8dcebbc496a2f1da208f4312c2d085b3ab8a55",
+  "implementation_commit": "a3b09f01b237534bb621b57230e411278999107f",
+  "predecessor_evidence_commit": "ba3bb64e0b440dc5682a3fb42f1ef4ce707fd9f1",
+  "previous_hardening_implementation_commit": "2119ad495cc28a2693e33aa9d084b1ccd4d2b4ee",
+  "previous_evidence_commit": "7c512b1101a65334bd2986fd1c7c251f35ff1d21",
+  "initial_hardening_implementation_commit": "693892c18c4ebb1e90eff700420122e2d02ff654",
+  "branch": "gpt/perf-els-verse-payload-hardening-20261018",
+  "app_source_changed": false,
+  "app_static_els_route": {
+    "files": 23,
+    "raw_bytes": 1313187,
+    "gzip_bytes": 363087
+  },
+  "app_static_entry": {
+    "files": 9,
+    "raw_bytes": 630324,
+    "gzip_bytes": 191697
+  },
+  "engine_before": {
+    "path": "public/tzofen.html",
+    "raw_bytes": 2489355,
+    "gzip_bytes": 1625009,
+    "sha256": "a2e1afb7d2a4d68bc0ec71e5b72eb65de3326ac4d338244f9e743bf3d84cdb44"
+  },
+  "reviewed_split": {
+    "commit": "4e8dcebbc496a2f1da208f4312c2d085b3ab8a55",
+    "raw_bytes": 1587081,
+    "gzip_bytes": 944183,
+    "sha256": "7f2f89657f0f4cea5cdde11a349dcf359532576b9084db101acc72407317bd36"
+  },
+  "engine_after": {
+    "path": "public/tzofen.html",
+    "raw_bytes": 1587178,
+    "gzip_bytes": 944225,
+    "sha256": "16b44c5b40939fbb5e4b028f2878086d22010c2b4ee75ca9386d15736677aa9a"
+  },
+  "hardening_cost_against_reviewed_split": {
+    "raw_bytes": 97,
+    "gzip_bytes": 42
+  },
+  "initial_transfer_savings": {
+    "raw_bytes": 902177,
+    "gzip_bytes": 680784,
+    "engine_gzip_percent": 41.89,
+    "fresh_els_route_gzip_percent": 34.24
+  },
+  "fresh_static_route_plus_engine_before": {
+    "raw_bytes": 3802542,
+    "gzip_bytes": 1988096
+  },
+  "fresh_static_route_plus_engine_after": {
+    "raw_bytes": 2900365,
+    "gzip_bytes": 1307312
+  },
+  "deferred_asset": {
+    "path": "public/els-data/tk-vtext.134189ee3c5f9cb8.gzdata",
+    "stored_and_requested_bytes": 677655,
+    "sha256": "13d1719130ec3dac9c46bd2740b8fd4d1dcbdcc54f7f6af9f699775e8bd1165e",
+    "decompressed_bytes": 2722983,
+    "decompressed_sha256": "134189ee3c5f9cb8d960bc14d958bccd598b280c7a861adc02b17728c6070093",
+    "source": "tools/els/data/tk-vtext.txt"
+  },
+  "hosted_asset_retention": {
+    "automatic_stale_cleanup": false,
+    "stale_asset_directory_scan": false,
+    "stale_entry_deletion": false,
+    "same_source_rebuild_adds_asset": false,
+    "different_source_old_asset_retained": true,
+    "preserved_fixture_types": [
+      "current regular asset",
+      "old content-addressed regular asset",
+      "invalid matching regular file",
+      "near-pattern file",
+      "unrelated file",
+      "directory",
+      "internal symlink",
+      "external symlink",
+      "FIFO",
+      "Unix socket"
+    ],
+    "former_cleanup_boundary_race": "stale regular replaced by symlink after HTML publication; symlink and target preserved",
+    "canonical_worktree_assets": [
+      "tk-vtext.134189ee3c5f9cb8.gzdata"
+    ],
+    "mutation_fixtures_isolated_from_worktree_public": true
+  },
+  "standalone_artifact": {
+    "command": "cd tools/els && python3 build.py --standalone-out /tmp/tzofen-offline.html # destination must not exist",
+    "committed_public_artifact": false,
+    "raw_bytes": 2492175,
+    "gzip_bytes": 1626805,
+    "sha256": "66570187aaf1083fd2dc6b2b4247e9b48b74a22be8e164c3a9c729c555abfde8",
+    "embedded_gzip_sha256": "13d1719130ec3dac9c46bd2740b8fd4d1dcbdcc54f7f6af9f699775e8bd1165e",
+    "embedded_source_sha256": "134189ee3c5f9cb8d960bc14d958bccd598b280c7a861adc02b17728c6070093",
+    "strict_offline_browser_requests_beyond_in_process_document": 0,
+    "direct_file_url_test": "blocked by managed Chromium policy: ERR_BLOCKED_BY_ADMINISTRATOR",
+    "output_contract": "create-new basename outside the entire repository under one bound existing parent directory opened without following symlinks",
+    "rejected_path_classes": [
+      "absolute repository path",
+      "relative repository path",
+      "dot-dot spelling binding inside repository",
+      "exact hosted HTML",
+      "exact hosted asset",
+      "new path under public",
+      "new path under dist",
+      "new path under inputs",
+      "symlink parent",
+      "existing regular output",
+      "output symlink",
+      "directory",
+      "FIFO",
+      "missing parent"
+    ],
+    "path_rejection_before_input_load_or_render": true,
+    "normal_external_path_deterministic": "two distinct create-new paths produce identical bytes",
+    "hosted_snapshot_unchanged_by_rejections_and_success": true,
+    "csp_condition": "embedded data URL requires data: in an externally imposed connect-src policy",
+    "create_new_only": true,
+    "overwrite_supported": false,
+    "bound_parent_dirfd_held_through_verify": true,
+    "repository_ancestry_check": "bound directory descriptors and device/inode identities",
+    "parent_path_reused_after_binding": false,
+    "temporary_file_fsync_before_publish": true,
+    "publication": "dirfd-relative hard link; atomic no-clobber",
+    "parent_path_swap_test": "replacement symlink to fixture public cannot redirect publication",
+    "final_basename_symlink_race_test": "fails explicitly; raced symlink and target preserved; own temp removed"
+  },
+  "hosted_publication": {
+    "lock": "cross-process exclusive flock",
+    "lock_scope": "SHA-256 of canonical hosted output directory",
+    "lock_artifact": "per-user system temp directory outside deployed public tree",
+    "transaction": [
+      "asset replace",
+      "HTML replace"
+    ],
+    "exception_release": true,
+    "abrupt_process_exit_release_tested_with_sigkill": true,
+    "failure_injection_phases": [
+      "before_asset_replace",
+      "between_asset_and_html",
+      "after_html_publish"
+    ],
+    "different_input_concurrency": "2 processes passed; both valid content-addressed assets retained in isolated copied repository",
+    "same_input_concurrency": "4 processes passed; asset set unchanged in isolated copied repository",
+    "historical_fixture_source_sha256": "8efa6670cdf792b8df390dc5f16a64bd504b4ec962de31b6434f9773b0ce17a8",
+    "process_failure_safety": true,
+    "power_loss_durability_claimed": false,
+    "former_cleanup_boundary_race_tested": true,
+    "automatic_stale_cleanup": false,
+    "hosted_fsync_added": false
+  },
+  "source_validation": {
+    "before_render_or_write": true,
+    "letters": 1204583,
+    "verses": 23204,
+    "strict_utf8": true,
+    "trailing_lf": true,
+    "vlens_positive_and_sum_aligned": true,
+    "vchap_books_and_verse_count_aligned": true,
+    "verse_rows_not_shorter_than_letter_alignment": true
+  },
+  "acceptance": {
+    "payload_defer": {
+      "pass": 4,
+      "fail": 0
+    },
+    "browser_cutover": {
+      "pass": 26,
+      "fail": 0
+    },
+    "native_ui_browser": {
+      "pass": 34,
+      "fail": 0
+    },
+    "broad_static": {
+      "pass": 172,
+      "skip": 3,
+      "fail": 0,
+      "skip_reason": "local PostgreSQL unavailable"
+    },
+    "legacy_advanced_forms_browser": {
+      "pass": 5,
+      "fail": 0
+    },
+    "full_build": "Legacy and 2029 PASS",
+    "bundle_budget": {
+      "pass": 5,
+      "fail": 0,
+      "entry": "9 chunks / 187.2 KiB gzip"
+    },
+    "public_dist_html_byte_identical": true,
+    "public_dist_asset_byte_identical": true
+  },
+  "remaining_limits": {
+    "direct_file_url": "managed Chromium blocked navigation with ERR_BLOCKED_BY_ADMINISTRATOR",
+    "hosted_response_headers_measured": false,
+    "hosted_content_encoding_header_verified": false,
+    "firefox_run": false,
+    "safari_run": false,
+    "deployed_csp_run": false,
+    "power_loss_durability": false
+  }
+}

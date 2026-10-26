@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
 const nativeClassic = readFileSync(new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url), "utf8");
+const advanced = readFileSync(new URL("../src/components/experience2029/ElsAdvancedSearch2029.jsx", import.meta.url), "utf8");
 const embed = readFileSync(new URL("../src/components/TzofenEmbed.jsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/components/experience2029/elsNativeClassic2029.css", import.meta.url), "utf8");
 const provider = readFileSync(new URL("../src/lib/research/ResearchProvider.jsx", import.meta.url), "utf8");
@@ -23,6 +24,23 @@ test("Classic 2029 mounts a native workspace instead of exposing the old full if
   assert.match(nativeClassic, /<FindingsRail/);
 });
 
+test("saved ciphers open directly through an on-screen canonical replay state", () => {
+  assert.match(page, /const directSavedOpen = Boolean\(cipherSlug \|\| recordId\)/);
+  assert.match(page, /introVariant=\{library \|\| directSavedOpen \? "none" : "compact"\}/);
+  assert.match(page, /!directSavedOpen && !researchProfile \? <ElsRecentCiphers2029/);
+  assert.match(page, /directSavedOpen \? <ElsRecentCiphers2029/);
+  assert.match(page, /data-els-research-tools="brief-visible-v1" hidden=\{!researchProfile \|\| directSavedOpen\}/);
+  assert.ok(page.indexOf("<ElsNativeClassic2029") < page.lastIndexOf("<ElsRecentCiphers2029"), "the saved-cipher folder follows the matrix on a direct saved open");
+  assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf('className="els29-saved-record"'), "saved metadata follows the matrix workspace");
+  assert.doesNotMatch(nativeClassic, /עובדים על צופן שמור/);
+  assert.match(nativeClassic, /data-els-saved-loading="true"/);
+  assert.match(nativeClassic, /<progress aria-label="טעינת הצופן השמור"/);
+  assert.match(nativeClassic, /savedLoadPending \? <SavedMatrixLoadProgress/);
+  assert.match(nativeClassic, /hidden=\{classicOpen \|\| savedLoadPending\}/);
+  assert.match(nativeClassic, /provenance\?\.editId === matrix\.id/);
+  assert.match(css, /\.els29-native-saved-loading\{/);
+});
+
 test("Native Classic is projection-only and keeps one canonical Tzofen engine instance as parity fallback", () => {
   assert.match(nativeClassic, /import TzofenEmbed from "..\/TzofenEmbed.jsx"/);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
@@ -33,7 +51,8 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(nativeClassic, /onGate=\{\(\) => \{ setClassicOpen\(false\);[\s\S]*?setAccountRequired\(true\)/);
   assert.match(embed, /const gateOverlay = !experience2029 && gate && !verified/);
   assert.match(embed, /\(experience2029 \? "&experience=2029" : ""\)/);
-  assert.match(nativeClassic, /classicOpen \? "חזור למטריצה" : "כל הכלים"/);
+  assert.match(nativeClassic, /researchProfile \? "חזור לגילוי צופן" : "חזור למטריצה"/);
+  assert.match(nativeClassic, /researchProfile \? "מצב קלאסי" : "כל הכלים"/);
   assert.doesNotMatch(nativeClassic, /\(engineSeed \|\| classicOpen\) \?/);
 
   assert.match(embed, /engineOnly = false/);
@@ -42,7 +61,10 @@ test("Native Classic is projection-only and keeps one canonical Tzofen engine in
   assert.match(embed, /clipPath: "inset\(50%\)"/);
   assert.match(embed, /onGate\?\.\(d\)/);
   assert.match(embed, /\(!hiddenBridge \|\| \(showResearchBusWhenHiddenBridge && !engineOnly\)\) && hasAxisFinding && !gate/);
-  assert.match(nativeClassic, /showResearchBusWhenHiddenBridge/);
+  assert.doesNotMatch(nativeClassic, /showResearchBusWhenHiddenBridge/);
+  assert.match(template, /body\.exp2029-clean :is\(#htStep2,#qb,#alwaystip,\.crossrow,#crosspanel,#labpanel,\.crosschip,\.crossbanner,\.xres,\.cross-act\)/);
+  assert.match(template, /if\(EXPR2029\)document\.body\.classList\.add\("exp2029-clean"\)/);
+  assert.match(template, /if\(!EXPR2029&&st\.crossSimple&&st\.crossMeetings&&st\.crossMeetings\.length\)/);
   assert.doesNotMatch(nativeClassic, /findAll\(|verifyBatch\(|crossFindMulti\(|els_search|fn_els/);
 });
 
@@ -123,6 +145,10 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
   assert.match(nativeClassic, /onSource=\{\(target\) => requestLens\("verse-context", target\)\}/);
   assert.match(nativeClassic, /lensRequest=\{lensRequest\}/);
   assert.match(nativeClassic, /onLens=\{handleLens\}/);
+  assert.match(nativeClassic, /result\?\.type === "lens-progress"/);
+  assert.match(embed, /d\.type === "lens" \|\| d\.type === "lens-progress"/);
+  assert.match(template, /function scanCandidatesBatched/);
+  assert.match(template, /type:"lens-progress",lens:"structure-priority"/);
 
   assert.match(template, /async function letterContextLens\(target\)/);
   assert.match(template, /const b=blockOf\(\),r=Math\.floor\(i\/b\.S\)/);
@@ -135,9 +161,15 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
 });
 
 test("one unified scan action uses the exact selected, visible and verified occurrence", () => {
-  assert.equal((nativeClassic.match(/aria-label="סרוק לאורך הציר הנבחר"/g) || []).length, 1);
+  assert.match(nativeClassic, /aria-label=\{researchProfile \? "סרוק לאורך הציר הנבחר" : "קרא את המשך הציר הנבחר"\}/);
   assert.equal((nativeClassic.match(/onClick=\{\(\) => onScan\(target\)\}/g) || []).length, 1);
-  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 1);
+  // The matrix action menu and findings rail remain the two profile-aware entrances. Research's
+  // explicit Structures panel adds only axis continuation through that same canonical line-context
+  // lens; grouped findings are sent through the existing canonical findings verification instead.
+  assert.equal((nativeClassic.match(/requestLens\("line-context"/g) || []).length, 3);
+  assert.equal((nativeClassic.match(/requestLens\("line-context", \{ \.\.\.target, scan: researchProfile \}\)/g) || []).length, 2);
+  assert.match(nativeClassic, /onAddGroup=\{addStructureGroup\}/);
+  assert.match(nativeClassic, /requestFindingsChange\(next, \{ preserveRead: true \}\)/);
   assert.doesNotMatch(nativeClassic, /רצף ומילים לאורך הציר|סרוק ציר ראשי/);
   assert.match(nativeClassic, /\(hit\.verified \|\| hit\.kind === "source-sequence"\) && hit\.shown && hit\.withinRadius !== false/);
   assert.match(nativeClassic, /eligible\(selectedFinding\)\.find\(\(hit\) => hit\.hitId === selected\?\.hitId\)/);
@@ -145,11 +177,11 @@ test("one unified scan action uses the exact selected, visible and verified occu
   assert.match(nativeClassic, /const target = selectionValid \? \{ term: selected\.term, hitId: selected\.hitId, \.\.\.\(selectedHit\?\.kind === "source-sequence" \? \{ kind: "source-sequence" \} : \{\}\) \} : \{ hitId: state\?\.axis\?\.hitId \}/);
   // Reverification preserves selection identity, while both the main and secondary operations block scanning.
   assert.match(nativeClassic, /const pending = searchPending \|\| findingPending/);
-  assert.match(nativeClassic, /aria-label="סרוק לאורך הציר הנבחר" disabled=\{!targetReady \|\| lensPending \|\| pending\}/);
+  assert.match(nativeClassic, /aria-label=\{researchProfile \? "סרוק לאורך הציר הנבחר" : "קרא את המשך הציר הנבחר"\} disabled=\{!targetReady \|\| lensPending \|\| pending\}/);
   assert.match(nativeClassic, /chosen && selectedHit && hits\.length > 1/);
   assert.match(nativeClassic, /const targetReady = verified && !!target\.hitId/);
-  assert.match(nativeClassic, /onScan=\{\(target\) => requestLens\("line-context", \{ \.\.\.target, scan: true \}\)\}/);
-  assert.match(nativeClassic, /lensResult\?\.lens === "line-context" \? "תוצאות סריקת הציר"/);
+  assert.match(nativeClassic, /onScan=\{\(target\) => requestLens\("line-context", \{ \.\.\.target, scan: researchProfile \}\)\}/);
+  assert.match(nativeClassic, /lensResult\?\.lens === "line-context" \? \(lensResult\.scan \? "תוצאות סריקת הציר" : "המשך הציר"\)/);
   assert.match(nativeClassic, /result\?\.target\?\.nativeSeq !== lensSeqRef\.current/);
 });
 
@@ -165,6 +197,15 @@ test("native search progress follows request-correlated canonical operation ackn
   assert.match(template, /status==="done"\|\|status==="empty"\|\|status==="error"\|\|status==="cancelled"\)operation\.terminal=true/);
   assert.match(template, /function invalidateSearchOperation\(\)\{[\s\S]*?stopXfWorkers\(\);\s*operationStatus\(_nativeSearchOperation,"cancelled"\);_nativeSearchOperation=null;clearSearchLoad\(\);/);
   assert.match(template, /function invalidateFindingsOperation\(\)\{[\s\S]*?cancelEngineCalls\(_nativeFindingsOperation\);\s*operationStatus\(_nativeFindingsOperation,"cancelled"\);\+\+_nativeFindingsSeq;_nativeFindingsOperation=null;/);
+  assert.match(nativeClassic, /progress\?\.phase === "discover"/);
+  assert.match(nativeClassic, /<progress aria-label=\{phaseLabel\} \/>/);
+  assert.match(nativeClassic, /הסריקה עדיין פעילה והמונה ממשיך להתעדכן/);
+  assert.match(template, /phase:"discover",completed:0,total:0/);
+  assert.match(template, /phase:"verify",completed:i,total:uniq\.length/);
+  assert.match(advanced, /function AdvancedLiveProgress/);
+  assert.match(advanced, /צורות מחקר שהושלמו/);
+  assert.match(advanced, /signal: controller\.signal/);
+  assert.match(advanced, /עצור סריקה/);
 });
 
 test("Native matrix keeps governed rows/marks, RTL parity, pan and fit without ELS calculation", () => {
@@ -183,6 +224,10 @@ test("Native matrix keeps governed rows/marks, RTL parity, pan and fit without E
   assert.match(css, /\.els29-native-cell\.is-axis/);
   assert.match(css, /\.els29-native-cell\.is-finding/);
   assert.match(css, /\.els29-native-cell\.is-selected/);
+  assert.match(nativeClassic, /addEventListener\("touchstart", startPinch, \{ passive: false \}\)/);
+  assert.match(nativeClassic, /onZoomChange=\{\(value\) => requestControl\("zoom-set", value\)\}/);
+  assert.match(template, /d\.action==="zoom-set"&&Number\.isFinite\(d\.value\)/);
+  assert.match(template, /st\.fit=false;setZoom\(d\.value\)/);
 });
 
 test("Native empty and candidate states remain truth-safe", () => {
@@ -208,8 +253,9 @@ test("Classic engine stays mounted across Classic/Research profile switches so w
   assert.match(page, /const \[classicSeed\] = useState\(\(\) => clean\(/);
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
   assert.doesNotMatch(page, /aria-hidden=\{researchProfile\}/);
-  assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf("<details className=\"sod29-els-research-details\""));
   assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\} active=\{!library\}/);
+  assert.match(page, /data-els-research-tools="brief-visible-v1" hidden=\{!researchProfile \|\| directSavedOpen\}/);
+  assert.equal((page.match(/<ElsNativeClassic2029/g) || []).length, 1);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });
 

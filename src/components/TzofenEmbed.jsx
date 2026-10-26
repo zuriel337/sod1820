@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { track, getVisitorId } from "../lib/tracking.js";
 import { saveMatrix, saveMatrixAnon, getSavedMatrices, getMatrixById, moderateMatrix } from "../lib/elsMatrices.js";
-import { savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
+import { savedMatrixCanReanchor, savedMatrixToItem, savedMatrixMatchesAxis } from "../lib/elsSavedMatrix.js";
 import { addContribution } from "../lib/contributions.js";
 import { supabase } from "../lib/supabase.js";
 import { thumb } from "../lib/img.js";
@@ -26,6 +26,9 @@ import { makeJourneySnapshot } from "../lib/elsJourney.js";
 //    start_index, נגזרים בשרת). בונה מ-lastStateRef.current (elsState() האחרון, כבר-נעקב מ-Pass 1)
 //    + מהודעת-השמירה עצמה (d). form=null: לא ניתן-לגזירה כרגע במעבר מלוח-FORMS לחיפוש-רגיל (פער מתועד).
 const ENGINE_PROFILE_VERSION = "els-tzofen-2026-08-24-pass2";
+const elsTermNorm = value => String(value || "")
+  .replace(/[^א-ת]/g, "")
+  .replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
 function buildEngineDetail(d, s) {
   if (!s || s.status !== "ok") return null;
   return {
@@ -63,7 +66,8 @@ function rowToItem(m) {
 // onOperation receives request-scoped progress from that same engine (never inferred from a generic state tick).
 // 📜 lensRequest/onLens — חוזה on-demand ל-Verse/Context Lens (וכל עדשה עתידית דומה): לא חלק מ-state.
 //    lensRequest={lens,target} משודר לכלי כ-{type:"request-lens",...}; התשובה חוזרת דרך onLens (הודעת
-//    {type:"lens",...} מהכלי) — קריאה בלבד, לא נוגעת ב-Finding/search/ranking. ⛔ אין Lens בכל state-tick.
+//    {type:"lens",...} או {type:"lens-progress",...}) — קריאה בלבד, לא נוגעת ב-Finding/search/ranking.
+//    ⛔ אין Lens בכל state-tick.
 // 🧭 journeyLoad/onLoadError — שחזור-מדויק (Pass 2, elsJourney.js): journeyLoad הוא ה-loadItem שמייצר
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
@@ -236,9 +240,17 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       // An explicitly opened, owned private record must update its exact id. The
       // native draft upsert remains for a newly created record that has no route id.
       const nativeOpenedEditId = native && matrix?.id && savedMatrixMatchesAxis(matrix, savedState)
-        && matrix.owner_user_id === user?.id && matrix.visibility === "private"
-        && !matrix.self_published && matrix.status !== "published" ? matrix.id : null;
-      const editId = native ? nativeOpenedEditId : (d.editId || (isReSave ? contextMatrix.id : null));
+        && ((matrix.owner_user_id === user?.id && matrix.visibility === "private"
+          && !matrix.self_published && matrix.status !== "published")
+          || (isAdmin && matrix.status === "published")) ? matrix.id : null;
+      const nativeReanchorId = native && matrix?.id && savedMatrixCanReanchor(matrix, savedState)
+        && (isAdmin || matrix.owner_user_id === user?.id) ? matrix.id : null;
+      const replacement = native ? saveRequest?.replaceSavedAxis : null;
+      const nativeReplaceId = native && matrix?.id && replacement?.recordId === matrix.id
+        && replacement.targetHitId === savedState?.axis?.hitId
+        && elsTermNorm(replacement.targetTerm) === elsTermNorm(savedState?.term)
+        && (isAdmin || matrix.owner_user_id === user?.id) ? matrix.id : null;
+      const editId = native ? nativeReplaceId || nativeOpenedEditId || nativeReanchorId : (d.editId || (isReSave ? contextMatrix.id : null));
       let editMatrix = null;
       if (editId) {
         editMatrix = editId === contextMatrix?.id ? contextMatrix : await getMatrixById(editId);
@@ -258,23 +270,54 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       if (messageContextRef.current.user?.id !== user?.id
         || lastStateRef.current?.axis?.hitId !== savedState.axis?.hitId
         || lastStateRef.current?.scope !== savedState.scope) throw new Error("save_context_changed");
-      const canUpdateNative = privateNative && contextMatrix?.owner_user_id === user?.id
-        && contextMatrix?.visibility === "private" && !contextMatrix?.self_published
-        && contextMatrix?.status !== "published" && savedMatrixMatchesAxis(contextMatrix, savedState);
+      const reanchoringNative = Boolean(nativeReanchorId) && editId === nativeReanchorId;
+      const replacingNative = Boolean(nativeReplaceId) && editId === nativeReplaceId;
+      const canUpdateNative = privateNative && (savedMatrixMatchesAxis(contextMatrix, savedState) || reanchoringNative || replacingNative)
+        && ((contextMatrix?.owner_user_id === user?.id && (contextMatrix?.visibility === "private" || reanchoringNative)
+          && !contextMatrix?.self_published && contextMatrix?.status !== "published")
+          || reanchoringNative || replacingNative || (isAdmin && contextMatrix?.status === "published"));
       const shapeUrl = !privateSave && d.shape ? await uploadCipherCard(d.shape) : null;
       const imageUrl = (!privateSave && d.image ? await uploadCipherCard(d.image) : null) || shapeUrl;
-      const positions = { ...(canUpdateNative ? (editMatrix || contextMatrix).positions : privateClassic ? editMatrix?.positions : {}), findings: d.findings || [], postUrl: d.postUrl || "", postTitle: d.postTitle || "",
+      const persistedFindings = replacingNative
+        ? (d.findings || []).filter(finding => elsTermNorm(finding?.t) !== elsTermNorm(replacement.previousTerm))
+        : d.findings || [];
+      const positions = { ...(canUpdateNative ? (editMatrix || contextMatrix).positions : privateClassic ? editMatrix?.positions : {}), findings: persistedFindings, postUrl: d.postUrl || "", postTitle: d.postTitle || "",
         quality: d.quality || null, shapeUrl: shapeUrl || null, hideMain: !!d.hideMain, searchWindow: d.searchWindow || null, view: d.view || null };
       const engineDetail = buildEngineDetail(d, savedState);
       // Native private saves retain the existing exact-identity upsert. Classic
       // updates retain server ownership/publication checks and never downgrade
       // a failed private update into a new public submission.
       if (editId) {
-        const { error } = await supabase.rpc("update_els_matrix", {
+        const reanchoring = editId === nativeReanchorId;
+        const replacing = editId === nativeReplaceId;
+        const rpcName = replacing ? "replace_els_matrix_axis_v1" : reanchoring ? "reanchor_els_matrix_v1" : "update_els_matrix";
+        const rpcPayload = replacing ? {
+          p_id: editId,
+          p_expected_term: replacement.expected.term,
+          p_expected_scope: replacement.expected.scope,
+          p_expected_skip: replacement.expected.skip,
+          p_expected_direction: replacement.expected.direction,
+          p_expected_start_index: replacement.expected.startIndex,
+          p_term: d.term,
+          p_scope: d.scope || savedState.scope,
+          p_skip: Math.abs(d.skip),
+          p_direction: d.direction,
+          p_start_index: d.start,
+          p_positions: positions,
+          p_image_url: imageUrl || null,
+          p_description: d.desc || null,
+          p_engine_detail: engineDetail,
+        } : reanchoring ? {
+          p_id: editId, p_scope: d.scope || savedState.scope, p_skip: Math.abs(d.skip),
+          p_direction: d.direction, p_start_index: d.start,
+          p_positions: positions, p_image_url: imageUrl || null,
+          p_description: d.desc || null, p_engine_detail: engineDetail,
+        } : {
           p_id: editId, p_positions: positions,
           p_image_url: imageUrl || null, p_description: d.desc || null,
           p_engine_detail: engineDetail,
-        });
+        };
+        const { error } = await supabase.rpc(rpcName, rpcPayload);
         if (!error) {
           postToTool({ type: "saved", ok: true, status: "updated" });
           if (native) {
@@ -419,8 +462,8 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         setHasAxisFinding(d?.status === "ok" && d?.verification?.state === "MATCH" && !!d?.axis?.hitId);
         return;
       }
-      if (d.type === "lens") {
-        // 📜 תשובת-Lens on-demand (למשל verse-context) — קריאה בלבד, לא נוגעת ב-state/Finding.
+      if (d.type === "lens" || d.type === "lens-progress") {
+        // 📜 תשובת/התקדמות Lens on-demand — קריאה בלבד, לא נוגעת ב-state/Finding.
         onLens?.(d);
         return;
       }

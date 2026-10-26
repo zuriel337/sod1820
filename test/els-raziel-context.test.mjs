@@ -1,10 +1,16 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildElsRazielSurfaceContext, buildElsRazielGuidance } from "../src/lib/research/elsRazielContext.js";
+import {
+  buildElsRazielExactHref,
+  buildElsRazielSurfaceContext,
+  buildElsRazielGuidance,
+  readElsRazielExactReturn,
+} from "../src/lib/research/elsRazielContext.js";
 
 const researchContext = {
   lens: "els",
   subject: { id: "subject:private", type: "phrase", label: "טקסט פרטי", href: "/els" },
+  selection: { entityType: "els", corpus: "torah" },
   journey: { id: "path-1", kind: "research_path", position: 2, revisionId: "rev-1", revisionNo: 4 },
 };
 
@@ -14,7 +20,7 @@ const projection = {
   corpusId: "torah-v1",
   term: "משיח",
   completion: { totalHits: 12, returnedHits: 4, truncated: true },
-  presentation: { policy: "ordered_prefix_v1", representative: false },
+  presentation: { policy: "exact_replay_v1", representative: true },
   selectedOccurrence: {
     occurrenceId: "els:torah-v1:משיח:17:1:100",
     corpusId: "torah-v1",
@@ -28,13 +34,17 @@ const projection = {
   },
 };
 
-test("Raziel ELS context defaults to refs/coordinates without raw term or subject label", () => {
+test("Raziel ELS context carries the selected expression and exact coordinates without the private subject label", () => {
   const out = buildElsRazielSurfaceContext({ researchContext, projection });
   assert.equal(out.surface, "els");
   assert.match(out.subject.ref, /^anon:/);
   assert.match(out.occurrence.occurrenceRef, /^anon:/);
   assert.equal(out.occurrence.occurrenceRef.includes("משיח"), false);
-  assert.equal(out.result.presentationPolicy, "ordered_prefix_v1");
+  assert.equal(out.occurrence.term, "משיח");
+  assert.equal(out.occurrence.corpus, "torah");
+  assert.equal(out.result.corpusId, "torah-v1");
+  assert.equal(out.result.presentationPolicy, "exact_replay_v1");
+  assert.deepEqual(out.verification, { state: "MATCH", source: "canonical_els_engine", interpretation: false });
   assert.equal(out.privacy.includeText, false);
   assert.equal(out.privacy.rawPrivatePayloadLogged, false);
   assert.equal("text" in out, false);
@@ -63,10 +73,12 @@ test("Raziel context preserves Journey and exact locus without creating evidence
 
 test("Raziel adapter keeps absent exact fields null instead of inventing zero", () => {
   const out = buildElsRazielSurfaceContext({
-    researchContext: { lens: "els", journey: { id: "path-2", kind: "research_path", position: null } },
+    researchContext: { lens: "els", selection: { entityType: "els", corpus: "torah" }, journey: { id: "path-2", kind: "research_path", position: null } },
     projection: {
       contract: "els_2029_projection_v1",
       status: "OK",
+      term: "משיח",
+      presentation: { policy: "exact_replay_v1", representative: true },
       completion: { totalHits: null, returnedHits: null, truncated: false },
       selectedOccurrence: {
         occurrenceId: "occ-null",
@@ -88,8 +100,7 @@ test("Raziel adapter keeps absent exact fields null instead of inventing zero", 
 });
 
 test("Raziel receives only bounded automatic-plan coverage beside an exact verified occurrence", () => {
-  const exact = { ...projection, presentation: { policy: "exact_replay_v1", representative: true } };
-  const out = buildElsRazielSurfaceContext({ researchContext, projection: exact, planSummary: {
+  const out = buildElsRazielSurfaceContext({ researchContext, projection, planSummary: {
     contract: "els_automatic_plan_summary_v1", sourceCount: 2, variantCount: 9,
     scannedCount: 4, partialCount: 1, failedCount: 0, hasPending: true, scope: "torah",
     privateTerm: "טקסט פרטי",
@@ -100,6 +111,43 @@ test("Raziel receives only bounded automatic-plan coverage beside an exact verif
   assert.match(guidance.lead, /9 צורות/);
   assert.match(guidance.lead, /לא ראיות עצמאיות/);
   assert.equal(guidance.evidencePromotion, false);
+  assert.match(guidance.title, /משיח/);
+  assert.match(guidance.boundary, /פרשנות נפרדת/);
+  assert.match(guidance.inactive, /לחזור למופע המדויק/);
+});
+
+test("unverified, ordinary-search and incomplete occurrences never cross the ELS to Raziel seam", () => {
+  assert.equal(buildElsRazielSurfaceContext({ researchContext, projection: { ...projection, status: "UNVERIFIED" } }), null);
+  assert.equal(buildElsRazielSurfaceContext({ researchContext, projection: { ...projection, presentation: { policy: "ordered_prefix_v1" } } }), null);
+  assert.equal(buildElsRazielSurfaceContext({ researchContext, projection: { ...projection, selectedOccurrence: { ...projection.selectedOccurrence, start: null } } }), null);
+  assert.equal(buildElsRazielSurfaceContext({ researchContext: { ...researchContext, selection: null }, projection }), null);
+});
+
+test("exact return round-trips through the existing canonical research-load coordinates", () => {
+  const out = buildElsRazielSurfaceContext({ researchContext, projection });
+  const href = buildElsRazielExactHref(out);
+  assert.match(href, /^\/code\?els_return=verified-v1&/);
+  const loaded = readElsRazielExactReturn(href.split("?")[1]);
+  assert.deepEqual({
+    term: loaded.term,
+    scope: loaded.scope,
+    corpusId: loaded.corpusId,
+    skip: loaded.skip,
+    dir: loaded.dir,
+    start: loaded.start,
+    hitId: loaded.hitId,
+  }, {
+    term: "משיח",
+    scope: "torah",
+    corpusId: "torah-v1",
+    skip: 17,
+    dir: 1,
+    start: 100,
+    hitId: "17_1_100",
+  });
+  assert.equal(readElsRazielExactReturn("els_return=verified-v1&term=משיח&scope=torah&skip=17&dir=1"), null);
+  assert.equal(readElsRazielExactReturn("els_return=unverified&term=משיח&scope=torah&skip=17&dir=1&start=100"), null);
+  assert.equal(readElsRazielExactReturn(`els_return=verified-v1&term=${"א".repeat(81)}&scope=torah&skip=17&dir=1&start=100`), null);
 });
 
 console.log("ELS Raziel surface context adapter: PASS");

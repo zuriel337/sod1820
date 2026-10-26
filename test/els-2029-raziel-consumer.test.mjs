@@ -17,6 +17,8 @@ test("ELS opens the existing 2029 Raziel panel only from canonical MATCH-derived
   assert.match(page, /disabled=\{!available \|\| shell\.razielLocked\}/);
   assert.doesNotMatch(page, /includeText:\s*true/);
   assert.doesNotMatch(page, /askRazielAdvanced|askRaziel\s*\(/);
+  assert.match(page, /const hasRazielReturnMarker = params\.has\("els_return"\)/);
+  assert.match(page, /!hasRazielReturnMarker && classicSeed/);
 });
 
 test("canonical System Frame Raziel consumer accepts bounded ELS context without creating a second Raziel component", () => {
@@ -28,26 +30,30 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.match(frame, /result\?\.contract === "els_2029_projection_v1"/);
   assert.match(frame, /result\?\.status === "OK"/);
   assert.match(frame, /result\?\.presentationPolicy === "exact_replay_v1"/);
-  assert.match(frame, /Context בלבד · הצגה\/קרבה חזותית אינה חוזק ראיה/);
+  assert.match(frame, /מאומתים הביטוי והמיקום; משמעות וקשרים הם פרשנות של רזיאל/);
+  assert.match(frame, /data-raziel-return-to-els="true"/);
   assert.equal((frame.match(/function RazielProjection\(/g) || []).length, 1);
-  // RAZIEL_2029_NATIVE_CHAT_FAST_DEEP_V1: the single native chat uses the existing askRaziel transport (one call site).
+  // The central session mount owns the one askRaziel transport; the frame is a consumer only.
   assert.doesNotMatch(frame, /askRazielAdvanced|functions\.invoke\(['"]ai-analyze/);
-  assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 1);
+  assert.equal((frame.match(/askRaziel\s*\(/g) || []).length, 0);
 });
 
-test("ELS Raziel panel stays context-only; native chat is user-initiated (no call on open) and sends no ELS text", () => {
+test("ELS Raziel panel stays context-only; only an explicit chat submit sends the verified ELS facts", () => {
   assert.match(frame, /data-raziel-native-chat="true"/);
   assert.doesNotMatch(frame, /השיחה המלאה עם רזיאל תחובר בהמשך/);
   assert.doesNotMatch(frame, /onClick=\{[^}]*askRaziel/);
   assert.doesNotMatch(frame, /elsFocus[^\n]*askRaziel/);
+  assert.match(frame, /מופע ELS מאומת:/);
+  assert.match(frame, /אין לחשב או להשלים נתוני ELS חסרים/);
   assert.doesNotMatch(page, /synthesisPreview|razielRouteAction|local_message/);
 });
 
-test("ELS Raziel surface context remains text-private by default and carries no truth/evidence score", () => {
+test("ELS Raziel surface context exposes only the selected expression, not the private subject label or a truth score", () => {
   const out = buildElsRazielSurfaceContext({
     researchContext: {
       lens: "els",
       subject: { id: "subject:private", type: "phrase", label: "טקסט פרטי", href: "/els" },
+      selection: { entityType: "els", corpus: "torah" },
     },
     projection: {
       contract: "els_2029_projection_v1",
@@ -72,6 +78,8 @@ test("ELS Raziel surface context remains text-private by default and carries no 
   assert.equal(out.surface, "els");
   assert.equal(out.privacy.includeText, false);
   assert.equal("text" in out, false);
+  assert.equal(out.occurrence.term, "משיח");
+  assert.equal(JSON.stringify(out).includes("טקסט פרטי"), false);
   assert.match(out.subject.ref, /^anon:/);
   assert.equal("id" in out.subject, false);
   assert.equal("href" in out.subject, false);

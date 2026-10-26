@@ -39,7 +39,7 @@ export default function ElsResearchBar2029({
   >
     <div className="els29-rbar-ctx">
       <button type="button" className="sod29-action primary els29-rbar-btn" onClick={onLibrary}>
-        הצפנים הציבוריים
+        כל הממצאים הציבוריים
       </button>
       <button type="button" className="sod29-action els29-rbar-btn els29-rbar-secondary" onClick={onMine}>
         הצפנים שלי

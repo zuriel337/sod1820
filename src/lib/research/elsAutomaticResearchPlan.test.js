@@ -1,8 +1,110 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prepareElsAutomaticResearchPlan, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
+import { prepareElsAutomaticResearchPlan, prepareElsCipherDiscoveryPlan, prepareElsRelationshipResearchPlan, prepareElsResearchBrief, projectElsAutomaticResearchTargets, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
 
 const base = { expressions: "סוד החשמל\nאמת", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "2" };
+
+test("relationship research builds only bounded primary-to-explicit-target pairs", () => {
+  const plan = prepareElsRelationshipResearchPlan({
+    primaryTerm: "ראובן",
+    secondTerm: "כהן",
+    additionalTerms: "דוד\nמרים\nכהן\nראובן",
+    scope: "tanakh",
+  });
+  assert.equal(plan.contract, "els_relationship_research_plan_v1");
+  assert.equal(plan.mode, "primary-to-explicit-targets");
+  assert.equal(plan.scope, "tanakh");
+  assert.equal(plan.radius, 18);
+  assert.deepEqual(plan.pairs.map(row => [row.axis, row.term]), [["ראובן", "כהן"], ["ראובן", "דוד"], ["ראובן", "מרים"]]);
+  assert.ok(plan.pairs.every(row => row.searchKind === "cross"));
+  assert.equal(plan.pairs.filter(row => row.selected).length, 1);
+  assert.equal(plan.allPairsGenerated, false);
+  assert.equal(plan.explicitExecutionRequired, true);
+  assert.equal(plan.identityMerged, false);
+  assert.equal(plan.persisted, false);
+  assert.equal(plan.aiUsed, false);
+  assert.equal(plan.truthPromotion, false);
+  assert.ok(Object.isFrozen(plan));
+  assert.ok(Object.isFrozen(plan.pairs));
+});
+
+test("relationship research rejects missing, duplicate-only, oversized and unbounded targets", () => {
+  assert.match(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד" }).error, /הוסיפו/);
+  assert.match(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד", secondTerm: "דוד" }).error, /זהים/);
+  assert.match(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד", secondTerm: "מילהעבריתארוכהמאוד" }).error, /ארוך מדי/);
+  assert.match(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד", additionalTerms: "אחד\nשתים\nשלש\nארבע\nחמש\nשש\nשבע" }).error, /עד שישה/);
+  assert.equal(prepareElsRelationshipResearchPlan({ primaryTerm: "דוד", secondTerm: "כהן", radius: 200 }).radius, 20);
+});
+
+test("research brief separates one primary axis from exact local context without persistence or AI", () => {
+  const brief = prepareElsResearchBrief({
+    text: "הספינה קולומביה עלתה באש. האש אכלה חלק מן הספינה בשנת תשעו. \"יום קולומביה\" הוזכר פעמיים. יום קולומביה חזר.",
+    anchorTerm: "קולומביה",
+    requiredTerms: "יכל אש\nיוסף כהן",
+    scope: "tanakh",
+  });
+  assert.equal(brief.contract, "els_research_brief_v1");
+  assert.equal(brief.mode, "anchor-context");
+  assert.equal(brief.scope, "tanakh");
+  assert.equal(brief.persisted, false);
+  assert.equal(brief.aiUsed, false);
+  assert.equal(brief.truthPromotion, false);
+  assert.equal(brief.storyIsContextOnly, true);
+  assert.equal(brief.anchorCandidates.find(row => row.id === brief.recommendedAnchorId)?.canonicalTerm, "קולומביה");
+  const terms = new Map(brief.contextCandidates.map(row => [row.canonicalTerm, row]));
+  assert.equal(terms.get("יכלאש").required, true);
+  assert.equal(terms.get("יכלאש").mode, "exact_phrase");
+  assert.equal(terms.get("יכלאש").splitAllowed, true);
+  assert.ok(terms.has("יוספכהנ"));
+  assert.ok(!terms.has("יכל"), "a required phrase is not silently split into an independent search term");
+  assert.ok(!terms.has("אש"), "a required phrase keeps its exact identity until the user opts into splitting");
+  assert.ok(!terms.has("כהניוספ"), "reverse word order is an Advanced choice, not an automatic basic target");
+  assert.ok(terms.has("האשאכלה"), "local story phrases remain editable context without becoming an axis search");
+  assert.ok(terms.has("תשעו"), "Hebrew year-shaped vocabulary stays explicit");
+  assert.ok(brief.candidates.length <= 24);
+  assert.equal(new Set(brief.candidates.map(row => row.canonicalTerm)).size, brief.candidates.length);
+});
+
+test("research brief fails visibly on empty, oversized or non-Hebrew context", () => {
+  assert.ok(prepareElsResearchBrief({ text: "" }).error);
+  assert.ok(prepareElsResearchBrief({ text: "x".repeat(6001) }).error);
+  assert.ok(prepareElsResearchBrief({ text: "only latin words and 2026" }).error);
+  assert.match(prepareElsResearchBrief({ anchorTerm: "זהו ביטוי ארוך מאוד שאינו מתאים לציר בסיסי" }).error, /מתקדמות/);
+});
+
+test("a story can suggest an axis but never becomes a full-sentence search target", () => {
+  const brief = prepareElsResearchBrief({ text: "הספינה קולומביה עלתה באש ונשארה בלב ים" });
+  assert.ok(brief.anchorCandidates.some(row => row.canonicalTerm === "קולומביה"));
+  assert.ok(brief.anchorCandidates.every(row => row.canonicalTerm.length <= 12));
+  assert.ok(brief.candidates.every(row => row.canonicalTerm !== "הספינהקולומביהעלתהבאשונשארהבלבימ"));
+});
+
+test("cipher discovery compiles one story into one axis and a bounded pair-first goal", () => {
+  const plan = prepareElsCipherDiscoveryPlan({
+    text: "מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש",
+    anchorTerm: "קולומביה",
+    requiredTerms: "ספינת\nיכל אש\nאש אכלה",
+  });
+  assert.equal(plan.contract, "els_cipher_discovery_plan_v1");
+  assert.equal(plan.mode, "story-first-pair");
+  assert.equal(plan.goal.primaryAxes, 1);
+  assert.equal(plan.goal.connectedSupports, 2);
+  assert.equal(plan.goal.resultPolicy, "ONE_BEST_STRUCTURE");
+  assert.equal(plan.limits.targetTerms, 12);
+  assert.equal(plan.limits.fullAxisOccurrences, 5);
+  assert.equal(plan.limits.verificationAttemptsPerOccurrence, 12);
+  assert.equal(plan.raziel.role, "OPTIONAL_PRE_SEARCH_PLANNER");
+  assert.equal(plan.raziel.connected, false);
+  assert.equal(plan.raziel.maySearchOrVerify, false);
+  assert.equal(plan.aiUsed, false);
+  assert.equal(plan.truthPromotion, false);
+  assert.ok(plan.contextCandidates.length <= 12);
+  assert.deepEqual(new Set(plan.contextCandidates.slice(0, 3).map(row => row.canonicalTerm)), new Set(["ספינת", "יכלאש", "אשאכלה"]));
+  assert.deepEqual(plan.candidates.filter(row => row.role === "axis").map(row => row.canonicalTerm), ["קולומביה"]);
+  assert.ok(Object.isFrozen(plan));
+  assert.ok(Object.isFrozen(plan.goal));
+  assert.ok(Object.isFrozen(plan.limits));
+});
 
 test("automatic plan derives each expression once, explains every form and deduplicates canonical terms", () => {
   const plan = prepareElsAutomaticResearchPlan(base);
@@ -89,6 +191,20 @@ test("a series longer than one slice continues through the same plan without a s
   assert.equal(first.rows.length + second.rows.length, plan.candidates.length);
   assert.equal(new Set(calls).size, plan.candidates.length);
   assert.equal(summarizeElsAutomaticPlan(plan, [first, second]).hasPending, false);
+});
+
+test("automatic research targets prefer found original expressions in plan order without a meaning score", () => {
+  const plan = prepareElsAutomaticResearchPlan({ ...base, expressions: "יום משיח בא\nקולומביה\nשבת" });
+  const bySource = source => plan.candidates.find(row => row.derivations.some(item => item.source === source && item.ruleId === "original"));
+  const found = (candidate, count = 1) => ({ ...candidate, state: "OK", count, projection: { occurrences: [{ occurrenceId: `${candidate.canonicalTerm}:1` }] } });
+  const derived = plan.candidates.find(row => row.derivations.some(item => item.source === "יום משיח בא" && item.ruleId !== "original"));
+  const targets = projectElsAutomaticResearchTargets(plan, [
+    found(bySource("קולומביה"), 20), found(derived, 30), found(bySource("שבת"), 4), found(bySource("יום משיח בא"), 1),
+    { ...plan.candidates[0], state: "EXECUTED_EMPTY", count: 0, projection: { occurrences: [] } },
+  ]);
+  assert.deepEqual(targets.map(row => row.derivations.find(item => item.ruleId === "original")?.source), ["יום משיח בא", "קולומביה", "שבת"]);
+  assert.deepEqual(targets.map(row => row.researchRank), [1, 2, 3]);
+  assert.ok(targets.every(row => row.primaryOccurrence && !Object.hasOwn(row, "meaningScore")));
 });
 
 test("automatic scan reports each active form and keeps a failed form distinct from no matches", async () => {

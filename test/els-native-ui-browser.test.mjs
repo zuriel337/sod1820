@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ELS_GOLDENS, ELS_GOLDEN_CORPUS_ID } from './fixtures/els-runtime-goldens.mjs';
 import { libraryFixturePlugin } from './fixtures/els-library-browser-fixture.mjs';
+import { buildJourneyRestore } from '../src/lib/elsJourney.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const req = createRequire(import.meta.url);
@@ -42,12 +43,15 @@ export default function Host(props){
    window.__log.push(message);
    if(message.type==='ready'){ready.current=true;send({type:'tier',tier:'admin'});if(window.__fixtureLoadGolden)send({type:'load-matrix',item:${JSON.stringify(golden)}});}
    if(message.type==='engine-request'){
-    if(window.__fixtureHoldVerification)await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());});
+    window.__fixtureVerificationRequests=(window.__fixtureVerificationRequests||0)+1;
+    const holdAfter=Number(window.__fixtureHoldVerificationAfter)||0;
+    if(window.__fixtureHoldVerification&&(!holdAfter||window.__fixtureVerificationRequests>holdAfter))await new Promise(resolve=>{(window.__fixtureHeld||=[]).push(resolve);window.__fixtureReleaseVerification=()=>window.__fixtureHeld.splice(0).forEach(done=>done());});
     const result=await fetch('/oracle',{method:'POST',body:JSON.stringify({op:message.op,payload:message.payload,denied:window.__fixtureVerificationDenied})}).then(response=>response.json());
     send({type:'engine-result',requestId:message.requestId,...result});
    }
    if(message.type==='state'){window.__state=message;latest.current.onState?.(message);}
-   if(message.type==='lens'){window.__lens=message;latest.current.onLens?.(message);}
+   if(message.type==='lens')window.__lens=message;
+   if(message.type==='lens'||message.type==='lens-progress')latest.current.onLens?.(message);
    if(message.type==='gate')latest.current.onGate?.(message);
    if(message.type==='onboarding-required')latest.current.onOnboardingRequired?.(message);
    if(message.type==='operation'){window.__operation=message;latest.current.onOperation?.(message);}
@@ -92,15 +96,21 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:window.__fixtureResearchProfile!==false,
+      onDeleteSaved:async row=>{(window.__deleteCalls||=[]).push(row.id);if(window.__deleteFails)throw new Error('fixture delete failure');setMatrix(null);},
+      onReturnToResearchPlan:()=>{window.__returnedToResearchPlan=(window.__returnedToResearchPlan||0)+1;},
+      onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
- const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
+ const [{default:Frame,use2029Shell},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
  function PaletteProbe(){const p=usePalette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
+ function VerifiedElsRazielFixture(){const shell=use2029Shell();return React.createElement('button',{type:'button','data-open-verified-els':'true',onClick:()=>shell.openRaziel({razielMicroIntent:'explain_els_occurrence',elsSurfaceContext:{v:1,surface:'els',occurrence:{occurrenceRef:'anon:fixture-occurrence',term:'משיח',corpus:'torah',skip:17,dir:1,start:100,end:151,positions:[100,117,134,151]},result:{contract:'els_2029_projection_v1',status:'OK',corpusId:'fixture-torah',presentationPolicy:'exact_replay_v1'},verification:{state:'MATCH',source:'canonical_els_engine',interpretation:false}}})},'פתח מופע ELS מאומת');}
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
+  const [researchLoad,setResearchLoad]=React.useState(null);window.__loadResearch=setResearchLoad;
   return React.createElement(BrowserRouter,null,React.createElement(Frame,{surface:'els',title:'צופן התנ״ך',wide:true,introVariant:'compact'},React.createElement(PaletteProbe),
-   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native):React.createElement('p',null,'Library fixture'))));
+   React.createElement(VerifiedElsRazielFixture),
+   React.createElement('section',{'data-els-classic-2029':'native-v1',className:'sod29-section'},visible?React.createElement(Native,{researchLoad}):React.createElement('p',null,'Library fixture'))));
  }
  createRoot(document.getElementById('root')).render(React.createElement(FullFrameFixture));
 }else createRoot(document.getElementById('root')).render(React.createElement(Fixture));
@@ -186,7 +196,19 @@ const realHostStubs = {
     rpc:async(name,payload)=>{
       (window.__updateCalls||=[]).push({name,...structuredClone(payload)});
       const row=(window.__savedRows||[]).find(row=>row.id===payload.p_id);
-      if(name!=='update_els_matrix'||window.__updateFails||!row||window.__fixtureTier==='anon'||(window.__fixtureTier!=='admin'&&(row.owner_user_id!=='fixture-owner'||row.status==='published')))return {error:{message:'update denied'}};
+      const reanchor=name==='reanchor_els_matrix_v1';
+      const replace=name==='replace_els_matrix_axis_v1';
+      if(!['update_els_matrix','reanchor_els_matrix_v1','replace_els_matrix_axis_v1'].includes(name)||window.__updateFails||!row||window.__fixtureTier==='anon'||(window.__fixtureTier!=='admin'&&(row.owner_user_id!=='fixture-owner'||row.status==='published'&&!reanchor&&!replace)))return {error:{message:'update denied'}};
+      if(reanchor){row.scope=payload.p_scope;row.skip_distance=payload.p_skip;row.direction=payload.p_direction;row.start_index=payload.p_start_index;
+        row.corpus_id=payload.p_scope==='tanakh'?'0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b':'${ELS_GOLDEN_CORPUS_ID}';
+        if(window.__fixtureTier!=='admin'&&row.status==='published'){row.status='pending';row.visibility='private';}}
+      if(replace){
+        const stale=row.search_term!==payload.p_expected_term||row.scope!==payload.p_expected_scope||row.skip_distance!==payload.p_expected_skip||row.direction!==payload.p_expected_direction||row.start_index!==payload.p_expected_start_index;
+        if(stale)return {error:{message:'saved_axis_changed'}};
+        row.search_term=payload.p_term;row.scope=payload.p_scope;row.skip_distance=payload.p_skip;row.direction=payload.p_direction;row.start_index=payload.p_start_index;
+        row.corpus_id=payload.p_scope==='tanakh'?'0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b':'${ELS_GOLDEN_CORPUS_ID}';
+        if(window.__fixtureTier!=='admin'&&row.status==='published'){row.status='pending';row.visibility='private';}
+      }
       row.positions=payload.p_positions;if(payload.p_image_url!=null)row.image_url=payload.p_image_url;
       row.description=payload.p_description;row.engine_detail=payload.p_engine_detail;return {error:null};
     },functions:{invoke:async(name,{body,signal})=>{const {op,...payload}=body;
@@ -194,7 +216,7 @@ const realHostStubs = {
     if(signal?.aborted)return {data:null,error:{message:'aborted'}};
     const response=await fetch('/oracle',{method:'POST',body:JSON.stringify({op,payload,denied:window.__fixtureVerificationDenied})}).then(result=>result.json());return response.ok?{data:response,error:null}:{data:null,error:{message:response.error}};}}};`,
   '../lib/img.js': `export const thumb=(value)=>value;`,
-  '../lib/research/useUniversalWorkspace.js': `const workspace={upsertFinding:()=>{}};export const useUniversalWorkspace=()=>workspace;`,
+  '../lib/research/useUniversalWorkspace.js': `const workspace={upsertFinding:finding=>{(window.__workspaceFindings||=[]).push(structuredClone(finding));}};export const useUniversalWorkspace=()=>workspace;`,
   './SubscribeGate.jsx': `import React from 'react';export default function Gate(){return React.createElement('div',{'data-fixture-subscribe-gate':'true'},'Test registration gate');}`,
   'react-router-dom': `export const useNavigate=()=>()=>{};`,
 };
@@ -202,7 +224,7 @@ const realHostStubs = {
 // Use the actual SystemFrame/Command Island for integration acceptance. Only unrelated
 // domain projections and external reads are isolated; no dock/registration test double.
 const frameStubs = {
- '../../lib/supabase.js': `export const askRaziel=async()=>({});export const getNotificationPrefs=async()=>({});`,
+ '../../lib/supabase.js': `export const askRaziel=async(...args)=>{(window.__razielCalls||=[]).push(args);(window.__razielAiCalls||=[]).push(structuredClone(args[0]));return {answer:'תשובת fixture',intelligence_level:'fast'};};export const getNotificationPrefs=async()=>({});`,
  '../../lib/notifications.js': `export const getMyNotifications=async()=>[];export const getUnreadCount=async()=>0;export const markNotificationRead=async()=>{};export const topicLabel=x=>x;`,
  '../../lib/commandCenter.js': `export const getMyProfile=async()=>null;export const watchToggle=async()=>{};`,
  '../../lib/tracking.js': `export const getVisitorId=()=>'frame-fixture';`,
@@ -213,14 +235,16 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, researchProfile = true } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
       if (id === 'els-native-fixture') return '\0els-native-fixture';
       if (fullFrame && id.endsWith('/ResearchProvider.jsx')) return '\0els-frame-research';
       if (fullFrame && id.endsWith('/MaintenanceLock.jsx')) return '\0els-frame-open-flags';
-      if (fullFrame && importer?.endsWith('/SystemFrame2029.jsx') && Object.hasOwn(frameStubs,id)) return '\0els-frame-stub:'+Object.keys(frameStubs).indexOf(id);
+      const frameImporter = importer?.endsWith('/SystemFrame2029.jsx')
+        || (id === '../../lib/supabase.js' && importer?.endsWith('/RazielSessionMount2029.jsx'));
+      if (fullFrame && frameImporter && Object.hasOwn(frameStubs,id)) return '\0els-frame-stub:'+Object.keys(frameStubs).indexOf(id);
       if (id.endsWith('/AuthContext.jsx')) return '\0els-host-stub:../lib/AuthContext.jsx';
       if (!realHost && id === '../TzofenEmbed.jsx' && importer?.endsWith('/ElsNativeClassic2029.jsx')) return '\0els-native-host';
       if (realHost && importer?.endsWith('/TzofenEmbed.jsx') && Object.hasOwn(realHostStubs, id)) return '\0els-host-stub:' + id;
@@ -260,8 +284,9 @@ async function withNative(viewport, run, options = {}) {
     const errors = [];
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
-    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender }) => {
+    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, researchProfile }) => {
       window.__fixtureFullFrame=fullFrame;
+      window.__fixtureResearchProfile=researchProfile;
       if (onboarded) localStorage.setItem('tzofen_onboarded_v1', '1');
       window.__fixtureLoadGolden = loadGolden;
       window.__fixtureTier = tier;
@@ -288,7 +313,7 @@ async function withNative(viewport, run, options = {}) {
       if (window !== window.parent) addEventListener('message', (event) => {
         if (event.source === window.parent && event.data?.source === 'sod-host') (window.parent.__hostLog ||= []).push(event.data);
       });
-    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender });
+    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, researchProfile });
     if (realHost && loadGolden) await page.addInitScript((item) => { window.__fixtureGolden = item; }, golden);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     if (loadGolden) {
@@ -313,14 +338,23 @@ async function activate(page, name) {
   await button(page, name).dispatchEvent('click');
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }
+async function waitForLoggedLens(page, lens, match = {}, timeout = 90000) {
+  await page.waitForFunction(({ lensName, expected }) => window.__log?.some((message) => message.type === 'lens' && message.lens === lensName
+    && message.ok === true && Object.entries(expected).every(([key, value]) => message[key] === value)), { lensName: lens, expected: match }, { timeout });
+  return page.evaluate(({ lensName, expected }) => [...window.__log].reverse().find((message) => message.type === 'lens' && message.lens === lensName
+    && message.ok === true && Object.entries(expected).every(([key, value]) => message[key] === value)), { lensName: lens, expected: match });
+}
 const capture = (page) => page.evaluate(() => {
   const matrix = document.querySelector('.els29-native-matrix-scroll');
   const rect = matrix.getBoundingClientRect();
   return { x: rect.x, width: rect.width, left: matrix.scrollLeft, top: matrix.scrollTop, pageX: scrollX, pageY: scrollY };
 });
-async function expectStable(page, before, label) {
+async function expectStable(page, before, label, { ignorePageScroll = false } = {}) {
   const after = await capture(page);
-  for (const key of Object.keys(before)) assert.ok(Math.abs(after[key] - before[key]) <= 1, `${label}: ${key} changed ${before[key]} → ${after[key]}`);
+  for (const key of Object.keys(before)) {
+    if (ignorePageScroll && key === 'pageY') continue;
+    assert.ok(Math.abs(after[key] - before[key]) <= 1, `${label}: ${key} changed ${before[key]} → ${after[key]}`);
+  }
 }
 async function pan(page) {
   await page.locator('.els29-native-matrix-scroll').evaluate((matrix) => { matrix.scrollLeft = 120; matrix.scrollTop = 90; });
@@ -334,21 +368,25 @@ async function changeRange(page, label, value) {
   }, value);
 }
 async function inspectAndScanPrimary(page, before) {
-  await openPanel(page);
+  const inlineFindings = await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings') === 'true';
+  if (!inlineFindings) await openPanel(page);
   await selectAxis(page, golden.term);
   assert.equal(await button(page, 'סרוק לאורך הציר הנבחר').count(), 1, 'one shared scan action');
   const requests = await page.evaluate(() => window.__hostLog.filter((message) => message.type === 'request-lens').length);
   await button(page, 'סרוק לאורך הציר הנבחר').evaluate((element) => { element.click(); element.click(); element.click(); });
   await button(page, 'סמן את תורה ברצף').waitFor();
   assert.equal(await page.evaluate(() => window.__hostLog.filter((message) => message.type === 'request-lens').length), requests + 1, 'scan spam produces one pending lens request');
-  await expectStable(page, before, 'scan primary line');
+  await expectStable(page, before, 'scan primary line', { ignorePageScroll: true });
   await activate(page, 'סמן את תורה ברצף');
   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"] .is-word').count(), 4);
-  await expectStable(page, before, 'highlight line word');
+  await expectStable(page, before, 'highlight line word', { ignorePageScroll: true });
 }
 
 async function openPanel(page) {
-  if (await button(page, 'סריקה וממצאים').getAttribute('aria-expanded') !== 'true') await activate(page, 'סריקה וממצאים');
+  const research = button(page, 'חבילת מחקר');
+  const classic = button(page, 'סריקה וממצאים');
+  const opener = await research.count() ? research : classic;
+  if (await opener.count() && await opener.getAttribute('aria-expanded') !== 'true') await opener.dispatchEvent('click');
 }
 async function selectAxis(page, term) {
   await openPanel(page);
@@ -368,11 +406,23 @@ async function radius(page, value) {
     await control.dispatchEvent('change');
   }
 }
-async function alignedPanel(page, label) {
+async function naturalDesktopInspector(page, label) {
   const stage = await page.locator('.els29-native-stage').boundingBox();
   const panel = await page.locator('.els29-native-context-panel').boundingBox();
   assert.ok(Math.abs(stage.y - panel.y) <= 1, `${label}: panel top matches the matrix`);
-  assert.ok(Math.abs(stage.y + stage.height - panel.y - panel.height) <= 1, `${label}: panel bottom matches the matrix`);
+  const layout = await page.evaluate(() => ({
+    panelPosition: getComputedStyle(document.querySelector('.els29-native-panel-wrap')).position,
+    panelHeight: getComputedStyle(document.querySelector('.els29-native-context-panel')).height,
+    panelOverflow: getComputedStyle(document.querySelector('.els29-native-context-panel')).overflowY,
+    bodyOverflows: [...document.querySelectorAll('.els29-native-workrail:not([hidden]),.els29-native-rail-scroll:not([hidden])')].map((element) => getComputedStyle(element).overflowY),
+    workspacePosition: document.querySelector('.els29-native-finding-workspace') ? getComputedStyle(document.querySelector('.els29-native-finding-workspace')).position : null,
+  }));
+  assert.equal(layout.panelPosition, 'relative', `${label}: inspector participates in desktop page flow`);
+  assert.equal(layout.panelOverflow, 'visible', `${label}: inspector has no nested vertical scrollbar`);
+  assert.ok(layout.bodyOverflows.every((value) => value === 'visible'), `${label}: active tool body scrolls with the page`);
+  if (layout.workspacePosition) assert.equal(layout.workspacePosition, 'static', `${label}: finding workspace is not pinned`);
+  assert.equal(await button(page, 'הצמד').count(), 0, `${label}: obsolete pin action is absent`);
+  assert.equal(await button(page, 'בטל הצמדה').count(), 0, `${label}: obsolete unpin action is absent`);
 }
 async function injectToolMessage(page, message) {
   const frame = page.frames().find((item) => item.parentFrame());
@@ -432,10 +482,10 @@ test('Classic opens on unmarked Genesis letters, right aligned, with no sample c
 test('native UI: one unified rail scans exact primary and secondary targets without moving the matrix',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
-   const url=page.url(),initial=await identity(page),before=await pan(page);
-   await alignedPanel(page,'initial pinned rail');
-   await activate(page,'סגור כלי מטריצה');await expectStable(page,before,'close unified rail');
-   await openPanel(page);await expectStable(page,before,'reopen unified rail');
+   const url=page.url(),initial=await identity(page);let before=await pan(page);
+   await naturalDesktopInspector(page,'initial desktop inspector');
+   await activate(page,'סגור כלי מטריצה');assert.deepEqual(await identity(page),initial,'closing the inspector changes layout only');
+   await openPanel(page);before=await pan(page);
    await inspectAndScanPrimary(page,before);
    assert.deepEqual(await identity(page),initial,'primary scan preserves verified identity');
    const primary=await page.evaluate(()=>window.__lens);
@@ -446,7 +496,7 @@ test('native UI: one unified rail scans exact primary and secondary targets with
    await input.fill('דוד');const draft=await input.inputValue(),secondaryPan=await pan(page);
    await selectAxis(page,'התורה');await activate(page,'סרוק לאורך הציר הנבחר');
    await page.waitForFunction(id=>window.__lens?.lens==='line-context'&&window.__lens?.hitId===id&&window.__lens?.target?.term==='התורה'&&window.__lens?.scan,hit.hitId);
-   await expectStable(page,secondaryPan,'secondary scan');await expectNative(page,url,'secondary scan');
+   await expectStable(page,secondaryPan,'secondary scan',{ignorePageScroll:true});await expectNative(page,url,'secondary scan');
    assert.equal(await input.inputValue(),draft,'scan retains the secondary input');
    assert.equal(await button(page,'בחר ציר לסריקה: התורה').isVisible(),true,'scan retains the finding list');
    assert.equal(await button(page,'סרוק לאורך הציר הנבחר').count(),1,'still one shared scan action');
@@ -470,23 +520,359 @@ test('native UI: one unified rail scans exact primary and secondary targets with
    assert.equal(await page.locator('.els29-native-line-cells').textContent(),retained);
    assert.equal(await page.locator('.els29-native-line-cells .is-word').count(),4);
    assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').innerText().then(text=>text.includes('לאורך הציר · התורה')),true);
+   const sourceBefore=await capture(page);
    await activate(page,'מקור הממצא הנבחר');
    await page.waitForFunction(id=>window.__lens?.lens==='verse-context'&&window.__lens?.hitId===id&&window.__lens?.target?.term==='התורה',hit.hitId);
-   await expectStable(page,secondaryPan,'inline source');assert.equal(await input.isVisible(),true);
+   await expectStable(page,sourceBefore,'inline source');assert.equal(await input.isVisible(),true);
+   assert.equal(await page.locator('.els29-native-inline-inspection').evaluate(node=>Boolean(node.compareDocumentPosition(document.querySelector('.els29-native-rail-head'))&Node.DOCUMENT_POSITION_FOLLOWING)),true,'source and scan results stay beside the selected workspace, before the findings list');
    assert.equal(await button(page,'בחר ציר לסריקה: התורה').isVisible(),true);
    // A delayed old primary completion must not replace the selected secondary result.
    await injectToolMessage(page,primary);
    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
    assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').count(),0,'stale primary scan cannot replace the newer inline source');
-   const body=page.locator('.els29-native-rail-scroll').filter({visible:true});
-   await body.evaluate(element=>element.scrollTop=element.scrollHeight);
-   await alignedPanel(page,'scrolled rail');
+   await naturalDesktopInspector(page,'expanded finding content');
    for(const label of ['סרוק לאורך הציר הנבחר','מקור הממצא הנבחר']){
     const action=await button(page,label).boundingBox(),panel=await page.locator('.els29-native-context-panel').boundingBox();
-    assert.ok(action.height>=44&&action.y>=panel.y&&action.y+action.height<=panel.y+panel.height+1,label+' stays reachable in the persistent footer');
+    assert.ok(action.height>=44&&action.y>=panel.y&&action.y+action.height<=panel.y+panel.height+1,label+' stays reachable in the page-flow finding workspace');
    }
-   await expectStable(page,secondaryPan,'internal rail scroll');
+   await expectStable(page,secondaryPan,'page-flow inspector',{ignorePageScroll:true});
   });
+ });
+
+test('clicking a matrix Finding opens an instant profile-aware action menu',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   await addSecondary(page,'התורה');
+   const target=await page.evaluate(()=>{
+    const finding=window.__state.findings.find(item=>item.t==='התורה');
+    const hit=finding.hits.find(item=>item.shown&&item.verified);
+    const [skip,dir,start]=hit.hitId.split('_').map(Number);
+    return {hitId:hit.hitId,indices:Array.from(finding.t,(_,offset)=>start+dir*skip*offset)};
+   });
+   const cell=page.locator(target.indices.map(index=>`.els29-native-cell.is-finding[data-els-index="${index}"]`).join(',')).first();
+   assert.equal(await cell.count(),1,'the verified Finding has a clickable projected cell');
+   const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length);
+   await cell.dispatchEvent('click');
+   const menu=page.getByRole('dialog',{name:'פעולות על התורה',exact:true});
+   await menu.waitFor();
+   assert.equal(await menu.getAttribute('data-els-finding-menu-profile'),'research');
+   for(const label of ['המשך הציר','מקור ופסוק','הפוך לציר ראשי','פרטים ועריכה'])assert.equal(await menu.getByRole('button',{name:label,exact:true}).count(),1);
+   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,'opening the menu performs no scan or source request');
+   await menu.getByRole('button',{name:'המשך הציר',exact:true}).click();
+   await page.waitForFunction(hitId=>window.__lens?.lens==='line-context'&&window.__lens?.target?.hitId===hitId&&window.__lens?.scan,target.hitId);
+   assert.equal(await menu.count(),0,'choosing an action closes the transient menu');
+   await cell.dispatchEvent('click');
+   await page.getByRole('dialog',{name:'פעולות על התורה',exact:true}).getByRole('button',{name:'פרטים ועריכה',exact:true}).click();
+   await page.waitForFunction(()=>document.querySelector('[aria-label="מופעים וצבע של התורה"]')?.getAttribute('aria-expanded')==='true');
+  });
+
+  await withNative({width:390,height:844},async page=>{
+   await addSecondary(page,'התורה');
+   const index=await page.evaluate(()=>{
+    const finding=window.__state.findings.find(item=>item.t==='התורה');
+    const hit=finding.hits.find(item=>item.shown&&item.verified);
+    return Number(hit.hitId.split('_')[2]);
+   });
+   await page.locator(`.els29-native-cell.is-finding[data-els-index="${index}"]`).first().dispatchEvent('click');
+   const menu=page.getByRole('dialog',{name:'פעולות על התורה',exact:true});
+   await menu.waitFor();
+   assert.equal(await menu.getAttribute('data-els-finding-menu-profile'),'classic');
+   assert.equal(await menu.getByRole('button',{name:'הפוך לציר ראשי',exact:true}).count(),0,'Classic keeps the action set compact');
+   for(const label of ['המשך הציר','מקור ופסוק','פרטים ועריכה'])assert.equal(await menu.getByRole('button',{name:label,exact:true}).count(),1);
+   assert.equal(await button(page,'בנה חבילת סביבת הציר').count(),0,'Classic does not expose bulk dynamic discovery');
+   const box=await menu.boundingBox(),viewport=page.viewportSize();
+   assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,'mobile sheet stays inside the viewport');
+   await menu.getByRole('button',{name:'המשך הציר',exact:true}).click();
+   await page.waitForFunction(()=>window.__lens?.lens==='line-context'&&window.__lens?.ok===true);
+   assert.equal(await page.evaluate(()=>window.__lens.scan??null),null,'Classic reads exact axis letters without starting dynamic vocabulary discovery');
+   assert.equal(await page.evaluate(()=>window.__lens.lexicon??null),null,'Classic does not load the corpus lexicon');
+  },{researchProfile:false,mobile:true});
+ });
+
+test('every viewer can inspect unsaved matrix candidates and verify one without changing the saved record',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const before=await identity(page);
+   const activityStart=await page.evaluate(()=>{
+    window.__elsFocusedHeartbeat=0;
+    window.__elsFocusedTicks=[performance.now()];
+    window.__elsFocusedTickPhases=[null];
+    window.__elsFocusedHeartbeatTimer=setInterval(()=>{window.__elsFocusedHeartbeat+=1;window.__elsFocusedTicks.push(performance.now());window.__elsFocusedTickPhases.push(window.__log.at(-1)?.progress?.phase||null);},20);
+    return {log:window.__log.length,requests:window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-candidates').length};
+   });
+   await activate(page,'בנה חבילת סביבת הציר');
+   await page.waitForFunction(start=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-candidates').length>start,activityStart.requests);
+   const cancelledSeq=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-candidates').at(-1).target.nativeSeq);
+   await page.waitForFunction(({start,seq})=>{
+    const rows=window.__log.slice(start),progress=rows.filter(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq);
+    return window.__elsFocusedHeartbeat>=3&&progress.some(message=>['core','collect','rank'].includes(message.progress?.phase))
+      &&!rows.some(message=>message.type==='lens'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq);
+   },{start:activityStart.log,seq:cancelledSeq},{timeout:120000});
+   const liveProgress=await page.evaluate(({start,seq})=>window.__log.slice(start)
+    .filter(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq)
+    .map(message=>message.progress),{start:activityStart.log,seq:cancelledSeq});
+   assert.ok(liveProgress.some(progress=>progress.phase?.startsWith('lexicon-'))&&liveProgress.some(progress=>['core','collect','rank'].includes(progress.phase)),'cold language loading and focused work both report live progress');
+   assert.ok(liveProgress.every(progress=>!['term','text','hitId','positions','start','dir','rc','p0','p1'].some(key=>Object.hasOwn(progress,key))),'focused progress crosses the bridge as counts only');
+   const phaseProgress=new Map();
+   for(const progress of liveProgress){
+    const rows=phaseProgress.get(progress.phase)||[];rows.push(progress);phaseProgress.set(progress.phase,rows);
+   }
+   for(const [phase,rows] of phaseProgress){
+    const measured=rows.filter(progress=>progress.total>0);
+    assert.ok(measured.every((progress,index)=>index===0||progress.completed>=measured[index-1].completed),`${phase} progress never moves backward`);
+    assert.ok(new Set(measured.map(progress=>progress.total)).size<=1,`${phase} keeps one stable total`);
+   }
+   assert.ok(await page.evaluate(()=>window.__elsFocusedHeartbeat)>=3,'the browser heartbeat advances while the real focused scan is running');
+   await button(page,'עצור בדיקה').dispatchEvent('click');
+   await page.waitForFunction(seq=>window.__hostLog.some(message=>message.type==='request-lens'&&message.lens==='cancel'&&message.target.nativeSeq>seq),cancelledSeq);
+   await page.waitForTimeout(250);
+   assert.equal(await page.evaluate(({start,seq})=>window.__log.slice(start).some(message=>message.type==='lens'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq),{start:activityStart.log,seq:cancelledSeq}),false,'cancelling a yielded focused scan suppresses its stale final package');
+   const coldMaxGap=await page.evaluate(()=>{
+    const gaps=window.__elsFocusedTicks.slice(1).map((tick,index)=>tick-window.__elsFocusedTicks[index]);
+    window.__elsFocusedTicks=[performance.now()];window.__elsFocusedTickPhases=[null];return Math.max(0,...gaps);
+   });
+   assert.ok(coldMaxGap<1000,`cold language construction keeps the event loop alive (max heartbeat gap ${coldMaxGap.toFixed(1)}ms)`);
+   assert.deepEqual(await identity(page),before,'cancelling focused discovery preserves the exact matrix identity');
+
+   await activate(page,'בנה חבילת סביבת הציר');
+   await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true);
+   const completedProgress=await page.evaluate(()=>{const seq=window.__lens.target.nativeSeq;return window.__log
+    .filter(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'&&message.target?.nativeSeq===seq)
+    .map(message=>message.progress);});
+   assert.ok(completedProgress.some(progress=>progress.phase==='verify')&&completedProgress.some(progress=>progress.phase==='sources'),'the completed package reports canonical admission and source projection');
+   assert.ok(completedProgress.every(progress=>!['term','text','hitId','positions','start','dir','rc','p0','p1'].some(key=>Object.hasOwn(progress,key))),'completed progress remains count-only');
+   const completedByPhase=new Map();
+   for(const progress of completedProgress){const rows=completedByPhase.get(progress.phase)||[];rows.push(progress);completedByPhase.set(progress.phase,rows);}
+   for(const [phase,rows] of completedByPhase){const measured=rows.filter(progress=>progress.total>0);
+    assert.ok(measured.every((progress,index)=>index===0||progress.completed>=measured[index-1].completed),`${phase} completed progress never moves backward`);
+    assert.ok(new Set(measured.map(progress=>progress.total)).size<=1,`${phase} completed progress keeps one stable total`);}
+   const scanHeartbeat=await page.evaluate(()=>{const gaps=window.__elsFocusedTicks.slice(1).map((tick,index)=>tick-window.__elsFocusedTicks[index]),max=Math.max(0,...gaps),index=gaps.indexOf(max);clearInterval(window.__elsFocusedHeartbeatTimer);delete window.__elsFocusedHeartbeatTimer;return {max,phase:window.__elsFocusedTickPhases[index]||'unknown'};});
+   assert.ok(scanHeartbeat.max<1000,`focused scan, selection and verification stay responsive (max heartbeat gap ${scanHeartbeat.max.toFixed(1)}ms after ${scanHeartbeat.phase})`);
+   const items=await page.evaluate(()=>window.__lens.items);
+   const lexicon=await page.evaluate(()=>window.__lens.lexicon);
+   const ranking=await page.evaluate(()=>window.__lens.ranking);
+   assert.equal(lexicon.contract,'els_dynamic_candidate_lexicon_v1');
+   assert.equal(await page.evaluate(()=>window.__lens.contract),'els_focused_core_bundle_v1');
+   assert.equal(await page.evaluate(()=>window.__lens.scanMode),'focused');
+   assert.equal(await page.evaluate(()=>window.__lens.bundleContract),'els_axis_neighborhood_bundle_v1');
+   assert.deepEqual(ranking,{contract:'els_research_candidate_ranking_v1',geometryContract:'els_compact_geometry_priority_v1',order:'focused_compact_band_then_distance_then_language_evidence'});
+   assert.equal(lexicon.fallback,false,'the explicit scan loaded the canonical verse vocabulary');
+   assert.equal(lexicon.independentOfSavedResearch,true,'saved cipher terms do not feed focused discovery');
+   assert.ok(lexicon.counts.corpus>1000,'the scan is not limited to the historical 85-term seed');
+   assert.ok(lexicon.counts.phrases>0,'canonical two- and three-word source phrases participate without a curated phrase store');
+   assert.ok(lexicon.counts.years>0,'Basic recognises generated Hebrew-year forms');
+   assert.ok(items.length>0&&items.length<=12,'the focused core verifies a bounded first package');
+   assert.ok(items.every(item=>Array.isArray(item.continuations)&&Number.isFinite(item.distance)&&item.distance>=0&&['A','B'].includes(item.geometry?.stage)
+     &&item.neighborhood?.contract==='els_axis_neighborhood_bundle_v1'),'a local candidate does not depend on another continuation and declares one shared neighborhood band');
+   assert.ok(items.every(item=>Number.isFinite(item.skip)&&['fwd','back'].includes(item.direction)&&item.skipMeta?.code&&['VERIFIED','SOURCE_EXACT'].includes(item.status)),'each focused row exposes verified skip structure without coordinates');
+   assert.ok(items.every(item=>!Object.keys(item).some(key=>['positions','start','dir','rc'].includes(key))),'candidate coordinates never leave the canonical engine');
+   assert.ok(items.every(item=>Array.isArray(item.source?.verses)&&item.source.verses.every(verse=>verse.ref&&typeof verse.text==='string')),'each row carries its bounded source projection');
+   assert.ok(items.every(item=>item.continuations.every(word=>Object.keys(word).sort().join(',')==='label,lexiconSources,term')),'continuations expose terms and bounded lexical provenance only');
+   assert.ok(items.every(item=>item.ranking?.contract==='els_research_candidate_ranking_v1'&&Array.isArray(item.ranking.reasons)),'each candidate carries bounded explainable ranking evidence');
+   const priorities=items.map(item=>item.neighborhood.priority);
+   assert.deepEqual(priorities,priorities.toSorted((a,b)=>b-a),'parallel, intersection, compact-nearby and spaced bands keep their declared order');
+   for(const band of ['parallel','intersection','compact-nearby','spaced']){
+    const distances=items.filter(item=>item.neighborhood.band===band).map(item=>item.distance);
+    assert.deepEqual(distances,distances.toSorted((a,b)=>a-b),`distance remains primary inside ${band}`);
+   }
+   assert.equal(await page.locator('[data-experience-capability="els-all-matrix-findings"]').isVisible(),true);
+   const candidateText=await page.locator('[data-experience-capability="els-all-matrix-findings"]').innerText();
+   assert.match(candidateText,/ליבת הציר[\s\S]*S−1, S, S\+1/);
+   assert.match(candidateText,/שפת התנ״ך הקנונית[\s\S]*צפנים שמורים אינם מזינים/);
+   assert.match(candidateText,/דילוג[\s\S]*(?:מופע ELS מאומת|רצף מקור מדויק)/);
+   assert.equal(await button(page,'הרחב עוד טבעת').count(),1,'the broad historical scan is an explicit second action');
+   const candidateList=page.getByRole('region',{name:'חבילת סביבת הציר לפי סדר עדיפות'});
+   const bounded=await candidateList.evaluate(node=>({clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
+   assert.ok(bounded.clientHeight<=360&&bounded.scrollHeight>bounded.clientHeight,'the long scan list is bounded and internally scrollable on mobile');
+   const existing=new Set(before.findings.map(finding=>finding.t));
+   const candidate=items.find(item=>item.status==='VERIFIED'&&!existing.has(item.term));
+   assert.ok(candidate,'fixture exposes an unsaved candidate');
+   await activate(page,`הוסף את ${candidate.label||candidate.term} מהמטריצה לממצאים`);
+   await page.waitForFunction(term=>window.__state?.findings?.some(finding=>finding.t===term&&finding.hits?.some(hit=>hit.verified)),candidate.term);
+   await page.getByRole('button',{name:`הצג את המשך הציר של ${candidate.label||candidate.term}`}).waitFor();
+   await activate(page,`הצג את המשך הציר של ${candidate.label||candidate.term}`);
+   await page.waitForFunction(term=>window.__lens?.lens==='line-context'&&window.__lens?.target?.term===term,candidate.term);
+   assert.match(await page.locator('[data-experience-capability="els-line-inspection"]').innerText(),new RegExp(`לאורך הציר · ${candidate.term}`));
+   assert.equal((await identity(page)).axis.hitId,before.axis.hitId,'candidate verification keeps the saved primary axis');
+   assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'inspection and verification do not persist or edit the saved row');
+  },{tier:'anon'});
+ });
+
+test('focused activity meter retains verified admissions on stop and resumes the same canonical package',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const before=await identity(page);
+   await page.evaluate(()=>{
+    window.__fixtureVerificationRequests=0;
+    window.__fixtureHoldVerification=true;
+    window.__fixtureHoldVerificationAfter=2;
+    window.__fixtureHeld=[];
+   });
+   await activate(page,'בנה חבילת סביבת הציר');
+   await page.waitForFunction(()=>window.__log.some(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'
+    &&message.progress?.phase==='verify'&&message.progress?.draft?.items?.length>=1),null,{timeout:120000});
+   const meter=page.locator('.els29-native-progress').first();
+   await meter.waitFor({state:'visible'});
+   assert.equal(await meter.evaluate(node=>getComputedStyle(node).position),'sticky','the active meter remains pinned inside the ELS work area');
+   assert.match(await meter.innerText(),/תוצאות כבר אומתו ונשמרו בטיוטת החבילה/);
+   await button(page,'עצור בדיקה').click();
+   const partial=page.locator('[data-package-state="partial-verified"]');
+   await partial.waitFor({state:'visible'});
+   assert.match(await partial.innerText(),/טיוטה מאומתת[\s\S]*מועמדים שלא אומתו אינם מוצגים/);
+   const retained=await page.evaluate(()=>{
+    const progress=[...window.__log].reverse().find(message=>message.type==='lens-progress'&&message.lens==='matrix-candidates'&&message.progress?.draft?.items?.length);
+    return {count:progress?.progress?.draft?.items?.length||0,completed:progress?.progress?.completed||0,total:progress?.progress?.total||0};
+   });
+   assert.ok(retained.count>=1&&retained.completed<retained.total,'only completed canonical admissions are retained before the held verification');
+   assert.deepEqual(await identity(page),before,'stopping the package never changes the primary matrix or Findings');
+   await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification?.();});
+   await activate(page,'המשך מאותה נקודה');
+   await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.partial!==true,null,{timeout:120000});
+   const resumed=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-candidates').at(-1));
+   assert.equal(resumed.target.resume,true,'resume is an explicit request on the same engine lens');
+   const items=await page.evaluate(()=>window.__lens.items);
+   assert.equal(new Set(items.map(item=>item.term)).size,items.length,'resuming does not duplicate verified admissions');
+   assert.deepEqual(await identity(page),before,'completion after resume still preserves exact matrix identity');
+  },{tier:'anon'});
+ });
+
+test('public saved research is offered before raw occurrences and uses the compact geometry contract',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const saved={id:'public-yom-mashiach',slug:'יום-משיח-בא-583',name:'יום משיח בא',term:'יום משיח בא',scope:'torah',skip:583,words:[
+    {t:'ישלח',sh:['583_-1_233650']},{t:'מלכ',sh:['1_1_232483']},{t:'מחכיתשפו',sh:['583_1_233063']},
+    {t:'לכפרעליכמ',sh:['1_1_236559']},{t:'הארחשכ',sh:['584_1_232474']},{t:'שופר',sh:['583_-1_235391']},
+   ]};
+   await page.locator('iframe').evaluate((frame,item)=>frame.contentWindow.postMessage({source:'sod-host',type:'saved-matrices',items:[item]},location.origin),saved);
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יום משיח');
+   await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='יוממשיח',{timeout:90000});
+   const setId=await page.evaluate(()=>window.__state.search.occurrences.id);
+   const triage=await waitForLoggedLens(page,'result-triage',{setId});
+   assert.equal(triage.bundleContract,'els_research_bundle_v1');
+   assert.equal(triage.geometryContract,'els_compact_geometry_priority_v1');
+   assert.equal(triage.savedBundles[0].compactFindings,6);
+   assert.equal(triage.savedBundles[0].spacedFindings,0);
+   assert.deepEqual(triage.savedBundles[0].relationCounts,{vertical:3,horizontal:2,diagonal:1});
+   const bundle=page.getByRole('link',{name:'פתח חבילת מחקר יום משיח בא'});
+   await bundle.waitFor({state:'visible'});
+   assert.match(await bundle.innerText(),/6\/6 ממצאים ללא פער/);
+   assert.equal(await bundle.getAttribute('href'),'/code?cipher=%D7%99%D7%95%D7%9D-%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%90-583');
+  },{loadGolden:false,tier:'anon'});
+ });
+
+test('regular results distinguish exact מקדש ירד axes and automatically expose ירושלם from the open matrix',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('מקדש ירד');
+   await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='מקדשירד',null,{timeout:90000});
+   const search=await page.evaluate(()=>({results:window.__state.search.occurrences,hitId:window.__state.axis.hitId}));
+   assert.equal(search.results.total,2,'the two exact axes remain distinct from their surrounding findings');
+   await waitForLoggedLens(page,'result-triage',{setId:search.results.id});
+   await page.waitForFunction(hitId=>window.__log?.some(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok===true
+    &&message.target?.surface==='results'&&message.target?.hitId===hitId),search.hitId,{timeout:90000});
+   const rail=page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible');
+   const discovery=rail.locator('[data-els-matrix-discovery="els_matrix_discovery_v1"]');
+   await discovery.waitFor({state:'visible'});
+   assert.match(await rail.innerText(),/2 מופעים מדויקים של הציר/);
+   assert.match(await discovery.innerText(),/מילים והקשרים סביב המופע הנבחר[\s\S]*ירושלם[\s\S]*חזר 2 פעמים באזור/);
+   assert.doesNotMatch(await rail.innerText(),/דילוגים 2–50|הושלמה סריקה בשני הכיוונים בדילוגים/);
+   const request=await page.evaluate(()=>[...window.__hostLog].reverse().find(message=>message.type==='request-lens'&&message.lens==='matrix-discovery'&&message.target?.surface==='results'));
+   assert.equal(request.target.hitId,search.hitId);
+   const progress=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='matrix-discovery'&&message.target?.nativeSeq===window.__lens?.target?.nativeSeq));
+   assert.equal(progress.some(message=>String(message.progress?.phase||'').startsWith('lexicon-')),false,'automatic Results discovery never starts the broad vocabulary scan');
+  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+ });
+
+test('Research matrix discovery is bounded by default; broad structures stay explicit and Classic stays clean',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   await page.evaluate(()=>window.__fixtureLoadGolden=false);
+   await addSecondary(page,'התורה');
+   await page.waitForFunction(()=>window.__operation?.kind==='findings'&&window.__operation?.status==='done');
+   await addSecondary(page,'אמיתית');
+   await page.waitForFunction(()=>window.__operation?.kind==='findings'&&window.__operation?.status==='done');
+   assert.deepEqual(await page.evaluate(()=>window.__state.findings.map(finding=>finding.t)),['התורה','אמיתית']);
+   const before=await identity(page);
+   const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length);
+   await activate(page,'מתקדם');
+   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,'opening the structures panel performs no scan');
+   const panel=page.locator('[data-experience-capability="els-structural-priority"]');
+   await panel.waitFor({state:'visible'});
+   assert.match(await panel.innerText(),/הגילוי המקומי והמהיר כבר מופיע בחבילת המחקר/);
+   assert.doesNotMatch(await panel.innerText(),/גלה מה יש כאן/);
+   const requestsAfterOpen=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length);
+   await panel.getByText('סריקה מילונית רחבה · מתקדם ואיטי',{exact:true}).click();
+   await panel.getByRole('button',{name:'רחב',exact:true}).click();
+   await panel.getByLabel('מקסימום אותיות',{exact:true}).selectOption('10');
+   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requestsAfterOpen,'editing the declared advanced plan performs no scan');
+   await activate(page,'סרוק מבנים בעדיפות');
+   await page.waitForFunction(()=>window.__lens?.lens==='structure-priority'&&window.__lens?.ok===true);
+   const result=await page.evaluate(()=>window.__lens);
+   const liveProgress=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='structure-priority').map(message=>message.progress));
+   assert.ok(liveProgress.length>=2,'the long structure pass yields live progress instead of freezing the page');
+   assert.ok(liveProgress.some(progress=>progress.phase==='candidates'&&progress.total>0&&progress.completed>0),'candidate progress reports bounded completed/total work');
+   assert.equal(liveProgress.at(-1).phase,'groups');
+   const knownFindings=await page.evaluate(()=>window.__state.findings.filter(finding=>['התורה','אמיתית'].includes(finding.t)));
+   assert.deepEqual(result.ranking,{contract:'els_structural_priority_scan_v1',geometryContract:'els_compact_geometry_priority_v1',order:'compact_stage_then_relation_then_research_evidence_then_distance'});
+   assert.deepEqual(result.structurePlan,{contract:'els_structure_scan_plan_v1',types:['parallel','motif','corridor','intersection','cluster'],minLength:4,maxLength:10,maxDistance:40,minMembers:2,maxGroups:12,maxMembers:10});
+   assert.equal(result.coverage,'displayed-window');
+   assert.ok(result.items.length>0,'the displayed golden window exposes structural candidates');
+   assert.ok(result.items.every(item=>['parallel-horizontal','parallel-exact','parallel-diagonal','parallel-spaced','intersection','ordered-skip'].includes(item.relation)));
+   for(const term of ['התורה','אמיתית']){
+    const parallel=result.items.find(item=>item.term===term);
+    assert.ok(parallel,`Torah Kedosha exposes ${term} in the structural panel; findings ${JSON.stringify(knownFindings)}; got ${result.items.map(item=>item.term).join(', ')}`);
+    assert.match(parallel.relation,/^parallel-/);
+   }
+   assert.equal(result.items.find(item=>item.term==='אמיתית').geometry.stage,'A','S+1 is a gapless diagonal');
+   assert.equal(result.items.find(item=>item.term==='התורה').geometry.stage,'B','2S+2 remains available only after the compact stage');
+   assert.ok(result.items.every(item=>!Object.keys(item).some(key=>['positions','start','rc'].includes(key))),'structural candidates do not expose matrix coordinates');
+   assert.ok(result.groups.some(group=>group.kind==='parallel'&&group.members.some(member=>member.term==='אמיתית')&&!group.members.some(member=>member.term==='התורה')),'actionable parallel groups contain compact members and keep spaced findings in stage B');
+   const motif=result.groups.find(group=>group.kind==='motif');
+   assert.ok(motif,`the canonical golden window exposes at least one repeated motif: ${JSON.stringify(result.groups.map(group=>[group.kind,group.label,group.memberCount]))}`);
+   assert.equal(motif.contract,'els_repeated_motif_projection_v1');
+   assert.ok(new Set(motif.members.map(member=>member.term)).size===1&&motif.members.length>=2,'one repeated term retains separate occurrences');
+   assert.deepEqual(motif.members.map(member=>member.occurrenceOrdinal),motif.members.map((_,index)=>index+1));
+   assert.ok(result.groups.every(group=>['parallel','motif','corridor','intersection','cluster'].includes(group.kind)));
+   assert.ok(result.groups.flatMap(group=>group.members).every(item=>!Object.keys(item).some(key=>['positions','start','rc','_center'].includes(key))),'grouped candidates keep geometry inside the canonical engine');
+   assert.deepEqual(result.items.map(item=>item.geometry.stage),result.items.map(item=>item.geometry.stage).toSorted(),'all gapless structures precede every spaced structure');
+   assert.equal(await page.getByRole('region',{name:'קבוצות מבניות לפי סדר עדיפות',exact:true}).isVisible(),true);
+   assert.match(await panel.innerText(),/למה לבדוק:/);
+   assert.match(await panel.innerText(),/הצעד הבא:/);
+   assert.match(await panel.innerText(),/אמת והצג קבוצה|הקבוצה כבר במטריצה/);
+   const motifTerm=motif.members[0].term;
+   const motifCard=panel.locator(`[data-structure-kind="motif"]`).filter({hasText:motif.label}).first();
+   if(!knownFindings.some(finding=>finding.t===motifTerm)){
+    await motifCard.getByRole('button',{name:`אמת והצג את קבוצת ${motif.label}`,exact:true}).click();
+    await page.waitForFunction(term=>window.__state?.findings?.some(finding=>finding.t===term&&(finding.hits?.some(hit=>hit.verified)||finding.sourceHits?.some(hit=>hit.kind==='source-sequence'))),motifTerm);
+   }
+   await motifCard.getByRole('button',{name:`פתח את הממצא החוזר ${motifTerm}`,exact:true}).click();
+   const motifIndex=await page.evaluate(term=>window.__state.findings.findIndex(finding=>finding.t===term),motifTerm);
+   await page.locator(`#els29-finding-extra-${motifIndex}`).waitFor({state:'visible'});
+   assert.deepEqual((await identity(page)).axis,before.axis,'structural inspection preserves the exact axis');
+   assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0,'structural inspection does not save or edit the cipher');
+
+   await activate(page,'מתקדם');
+   const cancellationStart=await page.evaluate(()=>({
+    log:window.__log.length,
+    progress:window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='structure-priority').length,
+   }));
+   await button(page,'סרוק את התוכנית מחדש').dispatchEvent('click');
+   await page.waitForFunction(start=>window.__log.filter(message=>message.type==='lens-progress'&&message.lens==='structure-priority').length>start,cancellationStart.progress);
+   const cancelledSeq=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='structure-priority').at(-1).target.nativeSeq);
+   await button(page,'עצור בדיקה').dispatchEvent('click');
+   await page.waitForFunction(seq=>window.__hostLog.some(message=>message.type==='request-lens'&&message.lens==='cancel'&&message.target.nativeSeq>seq),cancelledSeq);
+   await page.waitForTimeout(250);
+   const staleResult=await page.evaluate(({start,seq})=>window.__log.slice(start).some(message=>message.type==='lens'&&message.lens==='structure-priority'&&message.target?.nativeSeq===seq),{start:cancellationStart.log,seq:cancelledSeq});
+   assert.equal(staleResult,false,'cancelling a yielded structure scan suppresses its stale final result');
+   assert.match(await page.locator('.els29-native-notice').innerText(),/הבדיקה נעצרה.*המטריצה והממצאים נשמרו/);
+   assert.deepEqual((await identity(page)).axis,before.axis,'cancelling the scan preserves the exact axis');
+  },{tier:'anon'});
+
+  await withNative({width:390,height:844},async page=>{
+   assert.equal(await button(page,'מתקדם').count(),0,'Classic profile exposes no advanced Research control');
+  },{researchProfile:false,mobile:true});
  });
 
 test('native UI: selected targets are invalidated by radius, hiding, removal and a new main axis',
@@ -544,24 +930,166 @@ test('native UI: selected targets are invalidated by radius, hiding, removal and
   });
  });
 
-test('native UI: inline mobile tools and wide 90% panels preserve geometry, pan and reachable height controls',
+test('Research v1 C02 promotes the exact Finding occurrence and returns to the exact prior axis',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   await openPanel(page);
+   await addSecondary(page,'התורה');
+   const before=await page.evaluate(()=>structuredClone(window.__state));
+   const finding=before.findings.find(item=>item.t==='התורה');
+   const target=finding.hits.find(hit=>hit.shown&&hit.verified&&hit.withinRadius!==false);
+   assert.ok(target?.hitId,'C02 starts only from an engine-verified visible Finding occurrence');
+   await activate(page,'בחר ציר לסריקה: התורה');
+   await activate(page,'הפוך לציר ראשי');
+   await page.waitForFunction(hitId=>window.__state?.status==='ok'&&window.__state?.axis?.hitId===hitId,target.hitId);
+   const promoted=await page.evaluate(()=>structuredClone(window.__state));
+   assert.equal(promoted.term,'התורה');
+   assert.ok(promoted.findings.some(item=>item.t===before.term),'the previous axis term is carried as a Finding while its exact return anchor remains in the breadcrumb');
+   assert.match(await page.locator('[data-els-c02-journey="v1"]').textContent(),/1 צעדי חזרה שמורים/);
+   await page.getByRole('button',{name:new RegExp(`חזור בדיוק ל־${before.term}`)}).click();
+   await page.waitForFunction(expected=>window.__state?.status==='ok'
+     &&window.__state?.axis?.hitId===expected.axis
+     &&JSON.stringify(window.__state.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})))===JSON.stringify(expected.findings),{
+       axis:before.axis.hitId,
+       findings:before.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})),
+     });
+   await page.locator('[data-els-c02-journey="v1"]').waitFor({state:'detached'});
+   const restored=await page.evaluate(()=>structuredClone(window.__state));
+   assert.equal(restored.term,before.term);
+   assert.deepEqual(restored.geometry,before.geometry);
+   assert.deepEqual(restored.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})),before.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})));
+   assert.equal(await page.locator('[data-els-c02-journey="v1"]').count(),0,'the completed return consumes only its local breadcrumb');
+  },{realHost:true});
+ });
+
+test('an owned saved cipher replaces its promoted primary axis in the same row and removes the old axis from persisted findings',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const row=await privacyRecord(page,{title:'בית ירד',description:'הצופן השמור לפני החלפת הציר הראשי'});
+   await page.evaluate(value=>window.__openSavedMatrix(value),row);
+   await page.waitForFunction(()=>window.__state?.provenance?.editId==='privacy-record'&&window.__state?.verification?.state==='MATCH');
+   const oldAxis=await page.evaluate(()=>({term:window.__state.term,hitId:window.__state.axis.hitId}));
+   await activate(page,'סימון הציר הראשי');
+   await page.waitForFunction(()=>window.__state?.ui?.hideMain===true);
+   assert.equal(await page.locator('.els29-native-cell.is-axis').count(),0,'the fixture starts with the saved old axis hidden');
+   await addSecondary(page,'תורה');
+   const carriedBefore=await page.evaluate(()=>window.__state.findings.find(item=>item.t==='תורה').shown);
+   assert.ok(carriedBefore.length>0,'the saved axis has a visible secondary Finding before replacement');
+   await addSecondary(page,'התורה');
+   const target=await page.evaluate(()=>window.__state.findings.find(item=>item.t==='התורה').hits.find(hit=>hit.shown&&hit.verified).hitId);
+   await activate(page,`פעולות הציר הראשי ${oldAxis.term}`);
+   assert.match(await page.locator('#els29-primary-axis-actions').textContent(),new RegExp(`כדי למחוק את „${oldAxis.term}”`));
+   await activate(page,`החלף את הציר הראשי ${oldAxis.term} ב־התורה`);
+   await page.waitForFunction(hitId=>window.__state?.axis?.hitId===hitId,target);
+   await page.waitForFunction(()=>window.__state?.findings?.find(item=>item.t==='תורה')?.hits?.some(hit=>hit.shown&&hit.verified));
+   assert.equal(await page.evaluate(()=>window.__state.ui.hideMain),false,'a newly promoted primary axis is never inherited as hidden');
+   assert.ok(await page.locator('.els29-native-cell.is-axis').count()>0,'the replacement axis is visible in the matrix');
+   assert.ok(await page.evaluate(()=>window.__state.findings.find(item=>item.t==='תורה').shown.length>0),'other Findings automatically display their first verified occurrence in the replacement geometry');
+   assert.ok((await page.evaluate(term=>window.__state.findings.some(finding=>finding.t===term),oldAxis.term)),'Journey retains the old axis until the replacement is saved');
+   await page.getByText('החלפת הציר הראשי',{exact:true}).waitFor();
+   assert.equal(await page.getByText('החלפת הציר הראשי',{exact:true}).count(),1);
+   assert.match(await page.locator('.els29-native-save').textContent(),/שם הצופן „בית ירד” יישאר/);
+   assert.equal(await page.getByRole('textbox',{name:'שם הצופן',exact:true}).inputValue(),'בית ירד');
+   assert.equal(await page.getByRole('textbox',{name:'שם הצופן',exact:true}).isDisabled(),true);
+   await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('המילה התורה מחליפה את הציר הישן באותה רשומה.');
+   await activate(page,'החלף ציר ושמור');
+   await page.waitForFunction(()=>window.__updateCalls?.at(-1)?.name==='replace_els_matrix_axis_v1');
+   const update=await page.evaluate(()=>structuredClone(window.__updateCalls.at(-1)));
+   assert.equal(update.p_id,'privacy-record');
+   assert.equal(update.p_expected_term,oldAxis.term);
+   assert.equal(update.p_term,'התורה');
+   assert.equal(update.p_start_index,Number(target.split('_')[2]));
+   const saved=await page.evaluate(()=>structuredClone(window.__savedRows[0]));
+   assert.equal(saved.id,'privacy-record');
+   assert.equal(saved.title,'בית ירד');
+   assert.equal(saved.search_term,'התורה');
+   assert.equal(saved.positions.hideMain,false,'the replacement persists with its primary axis visible');
+   assert.equal(await page.evaluate(()=>window.__savedRows.length),1,'axis replacement never creates a copy');
+   assert.equal(saved.positions.findings.some(finding=>finding.t===oldAxis.term),false,'old primary is deleted from persisted findings');
+   assert.ok(saved.positions.findings.find(finding=>finding.t==='תורה')?.sh?.length>0,'reprojected Findings persist without requiring manual show-first actions');
+   assert.equal(await page.evaluate(()=>window.__publicUploads||0),0,'private replacement does not publish a card image');
+   assert.equal(await page.locator('[data-els-saved-loading="true"]').count(),0,'same-row readback does not restart the saved-cipher loader');
+   assert.equal(await page.locator('.els29-native-matrix').isVisible(),true);
+  },{realHost:true,mobile:true,tier:'registered'});
+ });
+
+test('Research v1 acceptance: verify → matrix → Finding → source → save → workspace → exact reopen/return → Raziel',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורהקדשה');
+   await activate(page,'חפש');
+   await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__state?.verification?.state==='MATCH'
+     &&window.__operation?.kind==='search'&&window.__operation?.status==='done');
+   assert.ok(await page.locator('.els29-native-cell.is-axis').count()>0,'verified search projects a matrix');
+
+   await addSecondary(page,'התורה');
+   await selectAxis(page,'התורה');
+   await activate(page,'מקור הממצא הנבחר');
+   await page.waitForFunction(()=>window.__lens?.lens==='verse-context'&&window.__lens?.target?.term==='התורה');
+   assert.ok((await page.evaluate(()=>window.__lens.verses.length))>0,'Finding source is readable before persistence');
+
+   await activate(page,'שמירה');
+   await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('קבלת Research v1 שומרת ציר, ממצא ומקור מאומתים.');
+   await activate(page,'שמור אצלי');
+   await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('נשמר אצלך'));
+   await activate(page,'הוסף למחקר');
+   await page.waitForFunction(()=>window.__workspaceFindings?.length===1);
+   const workspaceFinding=await page.evaluate(()=>structuredClone(window.__workspaceFindings[0]));
+   const snapshot=workspaceFinding.projection?.journeySnapshot;
+   const reopen=buildJourneyRestore(snapshot);
+   assert.equal(reopen.ok,true,'workspace Finding carries an exact reopen snapshot');
+
+   await activate(page,'חבילת מחקר');
+   await activate(page,'בחר ציר לסריקה: התורה');
+   if(await button(page,'מופעים וצבע של התורה').getAttribute('aria-expanded')!=='true')await activate(page,'מופעים וצבע של התורה');
+   await activate(page,'הפוך לציר ראשי');
+   await page.waitForFunction(axis=>window.__state?.axis?.hitId!==axis,snapshot.axis.hitId);
+   await page.evaluate(item=>window.__loadResearch(item),reopen.loadItem);
+   await page.waitForFunction(expected=>window.__state?.axis?.hitId===expected.axis
+     &&JSON.stringify(window.__state.findings.map(item=>({t:item.t,color:item.color,shown:item.shown})))===JSON.stringify(expected.findings),{
+       axis:snapshot.axis.hitId,
+       findings:snapshot.findings,
+     });
+
+   await activate(page,'בחר ציר לסריקה: התורה');
+   if(await button(page,'מופעים וצבע של התורה').getAttribute('aria-expanded')!=='true')await activate(page,'מופעים וצבע של התורה');
+   await activate(page,'הפוך לציר ראשי');
+   await page.getByRole('button',{name:new RegExp(`חזור בדיוק ל־${snapshot.term}`)}).waitFor();
+   await page.getByRole('button',{name:new RegExp(`חזור בדיוק ל־${snapshot.term}`)}).click();
+   await page.waitForFunction(axis=>window.__state?.axis?.hitId===axis,snapshot.axis.hitId);
+   await page.locator('[data-els-c02-journey="v1"]').waitFor({state:'detached'});
+
+   assert.equal(await page.evaluate(()=>window.__razielCalls?.length||0),0,'matrix actions perform no automatic AI call; the page-level Raziel entry remains the explicit handoff');
+  },{realHost:true,fullFrame:true});
+ });
+
+test('native UI: desktop tools use one natural page-flow column and mobile tools remain inline',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:2560,height:1000},async page=>{
    const margins=await page.evaluate(()=>{const frame=document.querySelector('.sod29-main').getBoundingClientRect(),content=document.querySelector('.sod29-content').getBoundingClientRect();return{ratio:content.width/frame.width,left:content.left-frame.left,right:frame.right-content.right}});
-   assert.ok(Math.abs(margins.ratio-.9)<=.001&&Math.abs(margins.left-margins.right)<=1);
-   assert.ok((await capture(page)).width>1450);await alignedPanel(page,'wide pinned rail');
-   const pinned=await pan(page);await activate(page,'בטל הצמדה');const overlay=await pan(page);assert.ok(overlay.width>pinned.width);
-   await activate(page,'סגור כלי מטריצה');await expectStable(page,overlay,'overlay close');await openPanel(page);await expectStable(page,overlay,'overlay reopen');
-   await activate(page,'הצמד');const repinned=await pan(page);assert.ok(Math.abs(repinned.width-pinned.width)<=1);
-   const baseline=await stageHeight(page);await activate(page,'הגדל גובה ב־50%');assert.ok(Math.abs(await stageHeight(page)-baseline*1.5)<=1);await alignedPanel(page,'expanded pinned rail');
-   await activate(page,'חזור לגובה הרגיל');await alignedPanel(page,'restored pinned rail');
+   assert.ok(Math.abs(margins.ratio-.9)<=.001&&margins.right<=1&&margins.left>margins.right,'desktop ELS anchors toward the navigation rail instead of centering its outer wrapper');
+   assert.ok((await capture(page)).width>1300);await naturalDesktopInspector(page,'wide findings inspector');
+   const lane=await page.evaluate(()=>{const main=document.querySelector('.sod29-main').getBoundingClientRect(),stage=document.querySelector('.els29-native-stage-column').getBoundingClientRect(),panel=document.querySelector('.els29-native-context-panel').getBoundingClientRect();return{stageCenter:stage.left+stage.width/2,laneCenter:(panel.right+main.right)/2}});
+   assert.ok(Math.abs(lane.stageCenter-lane.laneCenter)<=16,'the matrix is centered between the scan rail and the navigation rail');
+   const withInspector=await pan(page);
+   for(const tool of ['ציר ומופעים','שמירה','חבילת מחקר']){
+    await activate(page,tool);await naturalDesktopInspector(page,`${tool} inspector`);
+    const width=await page.locator('.els29-native-context-panel').evaluate(element=>element.getBoundingClientRect().width);
+    assert.ok(width>=420&&width<=501,`${tool}: desktop column is wide enough without taking over the matrix`);
+   }
+   const desktopIdentity=await identity(page);
+   await activate(page,'סגור כלי מטריצה');const withoutInspector=await pan(page);assert.ok(withoutInspector.width>withInspector.width);assert.deepEqual(await identity(page),desktopIdentity,'closing a desktop tool preserves the ELS research state');
+   await openPanel(page);const reopened=await pan(page);assert.ok(Math.abs(reopened.width-withInspector.width)<=1);assert.deepEqual(await identity(page),desktopIdentity,'reopening a desktop tool preserves the ELS research state');
+   const baseline=await stageHeight(page);await activate(page,'הגדל גובה ב־50%');assert.ok(Math.abs(await stageHeight(page)-baseline*1.5)<=1);await naturalDesktopInspector(page,'expanded desktop inspector');
+   await activate(page,'חזור לגובה הרגיל');await naturalDesktopInspector(page,'restored desktop inspector');
    await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
-   await page.setViewportSize({width:390,height:844});await openPanel(page);
+   await page.setViewportSize({width:390,height:844});
+   await page.waitForFunction(()=>document.querySelector('.els29-native-panel-wrap')?.dataset.mobileInlineFindings==='true');
    const before=await pan(page),sheet=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
-   const bounds=await sheet.boundingBox();assert.ok(bounds.height<=844-200&&bounds.x>=0&&bounds.x+bounds.width<=390);
+   const bounds=await sheet.boundingBox();assert.ok(bounds.x>=0&&bounds.x+bounds.width<=390);
    assert.equal(await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).position),'relative');
    await inspectAndScanPrimary(page,before);
-   await activate(page,'סגור כלי מטריצה');await expectHeightControl(page);
+   assert.equal(await sheet.isVisible(),true,'verified mobile findings remain directly below the matrix');await expectHeightControl(page);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   });
  });
@@ -570,29 +1098,34 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,360,390])await withNative({width,height:844},async page=>{
    const panel=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
-   const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
-   await button(page,'סריקה וממצאים').tap();
+   const dock=page.locator('.sod29-command-island');
+   await panel.waitFor({state:'visible'});
+   assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-workspace'),'true',`${width}: one research workspace follows the verified matrix`);
+   assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'),'true',`${width}: verified matrix exposes findings without a menu action`);
+   assert.equal(await panel.locator('.els29-native-panel-head>strong').innerText(),'גילוי צופן');
+   assert.equal(await button(page,'סגור כלי מטריצה').count(),0,'the permanent findings window has no misleading close action');
    const before=await identity(page);
-   const unobscured=async(label)=>{
-    const bounds=await panel.boundingBox(),bar=await dock.boundingBox();
-    assert.ok(bounds.y>=0&&bounds.y+bounds.height<=bar.y-1,`${width} ${label}: inline panel ${JSON.stringify(bounds)} clears dock ${JSON.stringify(bar)}`);
+   const inlineLayout=async(label)=>{
     const layout=await page.evaluate(()=>({
       position:getComputedStyle(document.querySelector('.els29-native-panel-wrap')).position,
       matrixEnd:document.querySelector('.els29-native-stage-column').getBoundingClientRect().bottom,
       panelStart:document.querySelector('.els29-native-panel-wrap').getBoundingClientRect().top,
+      panelHeight:getComputedStyle(document.querySelector('.els29-native-context-panel')).height,
+      railOverflow:getComputedStyle(document.querySelector('.els29-native-rail-scroll')).overflowY,
       overflow:document.documentElement.scrollWidth>innerWidth,
     }));
     assert.equal(layout.position,'relative');assert.ok(layout.panelStart>=layout.matrixEnd);
+    assert.notEqual(layout.panelHeight,'620px',`${width} ${label}: findings use page height, not the old capped sheet`);
+    assert.equal(layout.railOverflow,'visible',`${width} ${label}: every finding stays in the page flow`);
     assert.equal(layout.overflow,false,`${width} ${label}: no horizontal overflow`);
     assert.equal(await button(page,'בטל הצמדה').count(),0,'mobile region is always in the page flow');
-    for(const name of ['סגור כלי מטריצה','סרוק לאורך הציר הנבחר']){
+    for(const name of ['חפש במטריצה','סרוק לאורך הציר הנבחר']){
      const target=button(page,name),rect=await target.boundingBox();
      assert.ok(rect.width>=44&&rect.height>=44,`${width} ${name}: touch target`);
-     assert.ok(await target.evaluate(element=>{const r=element.getBoundingClientRect();return element.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}),`${width} ${name}: no overlay intercepts the control`);
     }
    };
-   await unobscured('open');
-   await page.setViewportSize({width,height:568});await unobscured('short viewport');
+   await inlineLayout('automatic');
+   await page.setViewportSize({width,height:568});await inlineLayout('short viewport');
    await page.setViewportSize({width,height:844});
    await page.context().grantPermissions(['clipboard-read','clipboard-write']);
    await page.evaluate(()=>navigator.clipboard.writeText('תורה'));
@@ -603,78 +1136,126 @@ test('native UI: mobile scan is inline below the matrix and supports native clip
    await page.waitForFunction(()=>window.__state?.findings?.some(f=>f.t==='תורה'));
    // Inline content follows page scroll; it is not pinned to viewport coordinates.
    await panel.evaluate(el=>el.scrollIntoView({block:'start'}));
-   await unobscured('after pasted search');
-   await dock.getByRole('button',{name:'רזיאל',exact:true}).tap();
-   assert.equal(await page.evaluate(()=>window.__dockAction),'רזיאל');
-   assert.equal(await panel.isVisible(),true,'an inline region does not compete with the global dock');
+   await inlineLayout('after pasted search');
+   assert.equal(await panel.getByText('תורה',{exact:true}).count()>0,true,`${width}: every added finding is listed directly below the matrix`);
+   assert.equal(await dock.isVisible(),false,'the confusing shared bottom bar stays out of the ELS mobile workspace');
+   assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),0,'mobile has no second launcher strip above the matrix');
+   assert.equal(await page.getByRole('navigation',{name:'תצוגות גילוי צופן',exact:true}).isVisible(),true,'the workspace owns its views directly');
+   const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length);
+   await activate(page,'בחר ציר לסריקה: תורה');
+   assert.equal(await page.locator('.els29-native-finding-workspace header strong').innerText(),'תורה',`${width}: selecting a finding opens its workspace immediately`);
+   assert.equal(await button(page,'הפוך לציר ראשי').isVisible(),true,`${width}: the selected finding exposes its research continuation without another menu`);
+   assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens').length),requests,`${width}: opening the finding workspace performs no automatic scan`);
    await button(page,'סרוק לאורך הציר הנבחר').tap();
-   await button(page,'סמן את תורה ברצף').waitFor();
-   await unobscured('after scan');
+   await page.waitForFunction(()=>window.__lens?.lens==='line-context'&&window.__lens?.target?.term==='תורה'&&window.__lens?.scan);
+   assert.equal(await page.locator('[data-experience-capability="els-line-inspection"]').isVisible(),true,`${width}: selected finding scan opens inline in the same workspace`);
+   await inlineLayout('after scan');
    assert.deepEqual((await identity(page)).axis,before.axis,`${width}: tools preserve the axis`);
-   await button(page,'סגור כלי מטריצה').tap();
-   assert.equal(await panel.isVisible(),false);
+   await button(page,'ציר ומופעים').tap();
+   assert.equal(await panel.locator('.els29-native-panel-head>strong').innerText(),'גילוי צופן');
+   assert.equal(await button(page,'ציר ומופעים').getAttribute('aria-pressed'),'true','results replace content inside the same workspace');
+   await button(page,'חבילת מחקר').tap();
+   assert.equal(await panel.isVisible(),true,'findings remain one tap away inside the permanent workspace');
+   assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'),'true');
   },{mobile:true});
  });
 
-test('native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup',
+test('native UI: a touch phone in desktop-site viewport still scrolls the research workspace with the page',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
+  await withNative({width:1024,height:844},async page=>{
+   const panelWrap=page.locator('.els29-native-panel-wrap');
+   const panel=page.getByRole('complementary',{name:'כלי ELS והקשר המטריצה',exact:true});
+   await panel.waitFor({state:'visible'});
+   const layout=await page.evaluate(()=>({
+    coarse:matchMedia('(pointer:coarse) and (hover:none)').matches,
+    position:getComputedStyle(document.querySelector('.els29-native-panel-wrap')).position,
+    panelHeight:getComputedStyle(document.querySelector('.els29-native-context-panel')).height,
+    railOverflow:getComputedStyle(document.querySelector('.els29-native-rail-scroll')).overflowY,
+    matrixEnd:document.querySelector('.els29-native-stage-column').getBoundingClientRect().bottom,
+    panelStart:document.querySelector('.els29-native-panel-wrap').getBoundingClientRect().top,
+   }));
+   assert.equal(layout.coarse,true,'fixture reproduces a touch phone requesting a desktop-sized viewport');
+   assert.equal(await panelWrap.getAttribute('data-mobile-inline-workspace'),'true');
+   assert.equal(layout.position,'relative');
+   assert.ok(layout.panelStart>=layout.matrixEnd,'research workspace follows the matrix instead of overlaying it');
+   assert.notEqual(layout.panelHeight,'620px','workspace height is owned by the page, not a capped inner sheet');
+   assert.equal(layout.railOverflow,'visible','findings do not create a second vertical scrollbar');
+   assert.equal(await button(page,'הצמד').count(),0,'desktop-site mode does not expose desktop pinning on a touch phone');
+   assert.equal(await button(page,'סגור כלי מטריצה').count(),0);
+   const movement=await panelWrap.evaluate(async element=>{
+    const before=element.getBoundingClientRect().top;
+    scrollTo(0,Math.min(500,document.documentElement.scrollHeight-innerHeight));
+    await new Promise(resolve=>requestAnimationFrame(resolve));
+    return {before,after:element.getBoundingClientRect().top,scrollY};
+   });
+   assert.ok(movement.scrollY>0&&movement.after<movement.before,'the whole workspace continues with normal page scrolling');
+  },{mobile:true});
+ });
+
+test('native UI: desktop local rail and mobile contextual workspace own ELS tools while the shared bottom bar stays out',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
-   const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
-   await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
-   assert.equal(await dock.count(),1);assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),0);
+   const dock=page.locator('.sod29-command-island');
+   const local=page.getByRole('group',{name:'כלי המטריצה',exact:true});
+   const frameState=await page.evaluate(()=>({root:document.querySelector('.sod29-root')?.className,hasNative:!!document.querySelector('.sod29-root:has([data-els-native-classic])'),dockDisplay:getComputedStyle(document.querySelector('.sod29-command-island')).display}));
+   assert.equal(await dock.count(),1);assert.equal(await dock.isVisible(),false,`ELS suppresses only the shared bottom bar: ${JSON.stringify(frameState)}`);
+   assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),width<981?0:1);
+   assert.equal(await dock.getAttribute('data-tool-owner'),null,'ELS no longer registers its tools in the shared bar');
    const before=await identity(page),commands=await page.evaluate(()=>window.__hostLog.length);
-   const orb=()=>dock.locator('.sod29-raziel-orb');
-   const orbX=(await orb().boundingBox()).x;
-   for(const item of await dock.locator('button').all()){
+   const owner=width<981?page.getByRole('navigation',{name:'תצוגות גילוי צופן',exact:true}):local;
+   await owner.waitFor({state:'visible'});
+   for(const item of await owner.locator('button').all()){
     const box=await item.boundingBox();assert.ok(box.width>=44&&box.height>=44,`${width}: dock target ${JSON.stringify(box)}`);
     const label=item.locator('small');if(await label.count())assert.ok(await label.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=14),'dock labels remain readable');
    }
-   await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
-   assert.equal(await page.getByRole('dialog').count(),0,'local Search focuses the inline form');
-   assert.equal(await page.locator('#els29-query input').first().evaluate(el=>el===document.activeElement),true);
+   assert.equal(await page.locator('#els29-query').count(),1,'search remains directly available above the workspace');
    const panel=page.locator('#els29-context-panel');
-   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים','סריקה וממצאים']]){
-    await dock.getByRole('button',{name:label,exact:true}).click();
-    assert.equal(await panel.locator('header strong').innerText(),title);
+   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['ציר ומופעים','חבילת המחקר · ציר ומופעים'],['חבילת מחקר','חבילת המחקר · ממצאים ומקור']]){
+    await owner.getByRole('button',{name:label,exact:true}).click();
+    assert.equal(await panel.locator('.els29-native-panel-head>strong').innerText(),width<981?'גילוי צופן':title);
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
     assert.equal(await page.getByRole('dialog').count(),0,'native tool stays in its page region');
    }
    if(width<981){
     const position=await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).position);assert.equal(position,'relative');
-    const bounds=await panel.boundingBox(),bar=await dock.boundingBox();assert.ok(bounds.y+bounds.height<bar.y,'inline tools clear the one dock');
+    const layout=await page.evaluate(()=>({matrixEnd:document.querySelector('.els29-native-stage-column').getBoundingClientRect().bottom,panelStart:document.querySelector('.els29-native-panel-wrap').getBoundingClientRect().top,overflow:document.documentElement.scrollWidth>innerWidth}));
+    assert.ok(layout.panelStart>=layout.matrixEnd,'inline findings follow the matrix in page flow');assert.equal(layout.overflow,false);
    }
-   await orb().click();
-   if(width<981){
-    await page.getByRole('dialog',{name:'רזיאל',exact:true}).waitFor();
-    assert.equal(await page.getByRole('dialog').count(),1);
-   }else{
-    const raziel=page.locator('.sod29-companion-raziel');
-    await raziel.waitFor({state:'visible'});
-    await page.waitForFunction(()=>document.querySelector('.sod29-companion-raziel input')===document.activeElement);
-    assert.equal(await page.getByRole('dialog').count(),0,'desktop Raziel uses the existing companion without a second dialog');
-   }
-   assert.ok(await dock.evaluate(el=>{const b=el.getBoundingClientRect();return el.contains(document.elementFromPoint(b.x+b.width/2,b.y+b.height/2));}),'Raziel keeps the dock reachable');
-   await dock.getByRole('button',{name:'שמירה',exact:true}).click();
-   assert.equal(await page.getByRole('dialog').count(),0,'a native action dismisses the shared transient');
-   await dock.getByRole('button',{name:'פעולות המערכת',exact:true}).click();
-   assert.equal(await dock.getAttribute('data-command-mode'),'global');
-   assert.ok(Math.abs((await orb().boundingBox()).x-orbX)<1,'Raziel keeps its stable slot');
-   await dock.getByRole('button',{name:/חיפוש/}).click();
-   await page.getByRole('dialog',{name:'חיפוש',exact:true}).waitFor();
-   await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
-   await dock.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
-   assert.equal(await dock.getAttribute('data-command-mode'),'tool');
    assert.deepEqual((await identity(page)).axis,before.axis);
    assert.equal(await page.evaluate(()=>window.__hostLog.length),commands,'changing panels never executes an engine search');
    assert.equal(await page.locator('iframe').count(),1);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-   if(process.env.ELS_SCREENSHOT_DIR){await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`dock-frame-${width}.png`)});}
+   if(process.env.ELS_SCREENSHOT_DIR){const findingsButton=owner.getByRole('button',{name:'חבילת מחקר',exact:true});if((await findingsButton.getAttribute(width<981?'aria-pressed':'aria-expanded'))!=='true')await findingsButton.click();await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`local-rail-${width}.png`),fullPage:true});}
    await page.evaluate(()=>window.__setNativeVisible(false));
-   await page.waitForFunction(()=>!document.querySelector('.sod29-command-island')?.dataset.toolOwner);
+   await dock.waitFor({state:'visible'});
    assert.equal(await dock.getAttribute('data-command-mode'),'global');
    assert.equal(await dock.locator('[data-tool-action]').count(),0,'leaving the matrix removes its tool registration');
    assert.equal(await dock.getByRole('button',{name:'עכשיו · בשבילי',exact:true}).count(),1);
   },{fullFrame:true,leavesMatrix:true,mobile:width<981});
+ });
+
+test('native UI: verified ELS context reaches the one global Raziel session at 320px and desktop only after explicit submit',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,1440])await withNative({width,height:900},async page=>{
+   await page.locator('[data-open-verified-els="true"]').click();
+   const card=page.locator('[data-raziel-els-context="true"]:visible');
+   await card.waitFor();
+   assert.match(await card.innerText(),/הביטוי · משיח/);
+   assert.match(await card.innerText(),/דילוג 17 · קדימה · 100 → 151/);
+   assert.match(await card.innerText(),/els_2029_projection_v1 · OK · exact_replay_v1/);
+   assert.equal(await page.locator('[data-raziel-return-to-els="true"]:visible').count(),1);
+   assert.equal(await page.evaluate(()=>window.__razielAiCalls?.length||0),0,'opening verified context makes no AI request');
+   const chat=page.locator('[data-raziel-native-chat="true"]:visible');
+   await chat.getByLabel('שאלה לרזיאל').fill('מה מאומת במופע הזה?');
+   await chat.getByRole('button',{name:'שלח',exact:true}).click();
+   await page.waitForFunction(()=>window.__razielAiCalls?.length===1);
+   const request=await page.evaluate(()=>window.__razielAiCalls[0]);
+   assert.equal(request.surfaceSemantic.els.term,'משיח');
+   assert.equal(request.surfaceSemantic.els.start,100);
+   assert.equal(request.surfaceSemantic.els.skip,17);
+   assert.match(request.facts,/אין לחשב או להשלים נתוני ELS חסרים/);
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${width}: ELS Raziel has no horizontal overflow`);
+  },{fullFrame:true,mobile:width<981});
  });
 
 test('native UI: vivid colors and exact finding focus stay readable in every theme without changing research',
@@ -737,9 +1318,9 @@ test('native UI: vivid colors and exact finding focus stay readable in every the
      await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`matrix-${preset}-desktop.png`),fullPage:true});
     }
     await page.setViewportSize({width:390,height:844});
-    await activate(page,'סגור כלי מטריצה');
+    assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'),'true');
     await page.locator('.els29-native-matrix-scroll').evaluate(el=>el.scrollIntoView({block:'start'}));
-    assert.deepEqual(await activeIndices(),sourceIndices,`${preset}: closing mobile panel retains the selected finding`);
+    assert.deepEqual(await activeIndices(),sourceIndices,`${preset}: permanent mobile findings retain the selected finding`);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`matrix-${preset}-mobile.png`)});
     await page.setViewportSize({width:1440,height:1000});
@@ -753,7 +1334,7 @@ test('native UI: vivid colors and exact finding focus stay readable in every the
 test('native UI: unified scan recovers from Classic; heat paints only unmarked cells without changing research state',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
-   const url=page.url();await selectAxis(page,golden.term);await activate(page,'כל הכלים');
+   const url=page.url();await selectAxis(page,golden.term);await activate(page,'מצב קלאסי');
    assert.equal(await page.locator('.els29-classic-fallback.is-open').count(),1);
    await page.getByRole('button',{name:'סרוק לאורך הציר הנבחר',exact:true,includeHidden:true}).dispatchEvent('click');
    await button(page,'סמן את תורה ברצף').waitFor();await expectNative(page,url,'scan after Classic');
@@ -811,6 +1392,43 @@ test('native UI: fresh anonymous 2029 searches bypass legacy demo gates while ca
   },{realHost:true,loadGolden:false,onboarded:false,tier:'anon'});
  });
 
+test('native UI: two-finger pinch changes the canonical matrix zoom without opening a letter action',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+   const matrix=page.locator('.els29-native-matrix-scroll');
+   const bounds=await matrix.boundingBox();
+   assert.ok(bounds?.width>160&&bounds?.height>120,'matrix has a touchable viewport');
+   const before=await page.evaluate(()=>({zoom:window.__state.ui.zoom,fit:window.__state.ui.fit,lenses:window.__hostLog.filter(message=>message.type==='request-lens').length}));
+   await matrix.evaluate(element=>{
+    const touch=(id,x,y)=>new Touch({identifier:id,target:element,clientX:x,clientY:y,pageX:x,pageY:y,screenX:x,screenY:y,radiusX:2,radiusY:2,force:1});
+    const rect=element.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+Math.min(rect.height/2,160);
+    const start=[touch(1,x-24,y),touch(2,x+24,y)];
+    const moved=[touch(1,x-70,y),touch(2,x+70,y)];
+    element.dispatchEvent(new TouchEvent('touchstart',{touches:start,targetTouches:start,changedTouches:start,bubbles:true,cancelable:true}));
+    element.dispatchEvent(new TouchEvent('touchmove',{touches:moved,targetTouches:moved,changedTouches:moved,bubbles:true,cancelable:true}));
+    element.dispatchEvent(new TouchEvent('touchend',{touches:[],targetTouches:[],changedTouches:moved,bubbles:true,cancelable:true}));
+   });
+   await page.waitForFunction(value=>window.__state?.ui?.zoom>value+0.1,before.zoom);
+   const after=await page.evaluate(()=>({zoom:window.__state.ui.zoom,fit:window.__state.ui.fit,lenses:window.__hostLog.filter(message=>message.type==='request-lens').length}));
+   assert.ok(after.zoom>before.zoom,'pinch-out enlarges the canonical zoom');
+   assert.equal(after.fit,false,'manual pinch leaves fit mode so the selected zoom is visible');
+   assert.equal(after.lenses,before.lenses,'pinch never becomes a letter click');
+   await matrix.evaluate(element=>{
+    const touch=(id,x,y)=>new Touch({identifier:id,target:element,clientX:x,clientY:y,pageX:x,pageY:y,screenX:x,screenY:y,radiusX:2,radiusY:2,force:1});
+    const rect=element.getBoundingClientRect(),x=rect.left+rect.width/2,y=rect.top+Math.min(rect.height/2,160);
+    const start=[touch(1,x-70,y),touch(2,x+70,y)];
+    const moved=[touch(1,x-30,y),touch(2,x+30,y)];
+    element.dispatchEvent(new TouchEvent('touchstart',{touches:start,targetTouches:start,changedTouches:start,bubbles:true,cancelable:true}));
+    element.dispatchEvent(new TouchEvent('touchmove',{touches:moved,targetTouches:moved,changedTouches:moved,bubbles:true,cancelable:true}));
+    element.dispatchEvent(new TouchEvent('touchend',{touches:[],targetTouches:[],changedTouches:moved,bubbles:true,cancelable:true}));
+   });
+   await page.waitForFunction(value=>window.__state?.ui?.zoom<value-0.1,after.zoom);
+   const reduced=await page.evaluate(()=>({zoom:window.__state.ui.zoom,lenses:window.__hostLog.filter(message=>message.type==='request-lens').length}));
+   assert.ok(reduced.zoom<after.zoom,'pinch-in reduces the canonical zoom');
+   assert.equal(reduced.lenses,before.lenses,'pinch-in also remains a presentation gesture only');
+  },{mobile:true});
+ });
+
 test('native UI: compact findings, vowels and classic letters retain exact base letters and source indices',
   { skip: !canRun && 'Native browser tooling unavailable', timeout: 180000 }, async () => {
     await withNative({ width: 1440, height: 1000 }, async (page) => {
@@ -847,7 +1465,8 @@ test('native UI: compact findings, vowels and classic letters retain exact base 
         await page.waitForFunction((index) => window.__lens?.lens === 'letter-context' && window.__lens?.index === index, mainIndex);
         assert.equal(await page.evaluate(() => window.__lens.letter), original.find((cell) => Number(cell.index) === mainIndex).text, `${label}: exact base letter source`);
         await expectNative(page, url, label);
-        await activate(page, 'סגור כלי מטריצה');
+        if (await button(page, 'סגור כלי מטריצה').count()) await activate(page, 'סגור כלי מטריצה');
+        else assert.equal(await page.locator('.els29-native-panel-wrap').getAttribute('data-mobile-inline-findings'), 'true');
       };
 
       await activate(page, 'ניקוד');
@@ -939,6 +1558,7 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await searchCross('משיח','גאולה',18);
    const multi=await page.evaluate(()=>window.__state);
    assert.ok(multi.search.zones>1,'fixture has multiple canonical meetings');
+   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.kind==='cross'&&window.__lens?.setId===id,multi.search.results.id,{timeout:90000});
    await activate(page,'מפגש הבא');await page.waitForFunction(()=>window.__state.search.zoneIndex===1);
    assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,multi.search.results.items[1].hitId);
    assert.ok((await page.evaluate(()=>window.__state)).findings.length>0,'meeting navigation retains the secondary terms');
@@ -946,6 +1566,7 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await page.waitForFunction(setId=>window.__hostLog.some(message=>message.action==='meeting-select'&&message.value?.setId===setId),oldSet);
    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
    assert.equal((await page.evaluate(()=>window.__state)).search.zoneIndex,1,'stale result-list selection cannot open a different meeting in the current list');
+   await activate(page,'ציר ומופעים');
    await page.locator('.els29-native-results summary').click();
    await page.getByLabel('מיון מפגשי ההצלבה',{exact:true}).selectOption('skip');
    const skips=await page.locator('.els29-native-result b').allTextContents();
@@ -955,7 +1576,9 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    const third=multi.search.results.items.find(item=>item.available&&item.index===sortedIndex);
    assert.ok(third);await activate(page,visibleLabel);await page.waitForFunction(index=>window.__state.search.zoneIndex===index,sortedIndex);
    assert.equal((await page.evaluate(()=>window.__state)).axis.hitId,third.hitId,'sorting retains original exact meeting identity');
-   const panBefore=await capture(page);await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('999999');
+   await activate(page,'ציר ומופעים');
+   const minSkipFilter=page.getByLabel('דילוג מינימלי בתוצאות',{exact:true});await minSkipFilter.scrollIntoViewIfNeeded();
+   const panBefore=await capture(page);await minSkipFilter.fill('999999');
    assert.equal(await page.locator('.els29-native-result').count(),0);await expectStable(page,panBefore,'local results filter');
    await page.getByLabel('דילוג מינימלי בתוצאות',{exact:true}).fill('');
    // A saved compact matrix restores its search geometry, and cannot retain the previous cross list.
@@ -966,6 +1589,15 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),{...item,searchWindow:{ctxR:8,windowColumns:80,windowSize:'large',windowRequested:'large'}});
    await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='large');
    assert.equal(await page.getByLabel('גודל חלון החיפוש',{exact:true}).inputValue(),'large','saved search size is reflected by the native control');
+   await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),{...item,savedReplayWindow:'compact-v1',searchWindow:{ctxR:8,windowColumns:80,windowSize:'large',windowRequested:'large'}});
+   await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='small'&&window.__state?.geometry?.cw===40);
+   assert.equal(await page.getByLabel('גודל חלון החיפוש',{exact:true}).inputValue(),'small','saved replay starts with the smallest sufficient window');
+   const farStart=[compact.axis.start+compact.axis.skip*40,compact.axis.start-compact.axis.skip*40].find(position=>position>=0&&position<letters.length);
+   assert.ok(Number.isInteger(farStart),'fixture has a real source cell forty rows from the saved axis');
+   const farFinding={t:letters[farStart],sourceShown:[`1_1_${farStart}`]};
+   await page.evaluate(({item,farFinding})=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item:{...item,words:[farFinding],savedReplayWindow:'compact-v1'}},location.origin),{item,farFinding});
+   await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='small'&&window.__state?.ui?.windowSize==='large');
+   assert.equal((await page.evaluate(()=>window.__state)).geometry.cw,80,'saved replay expands only when an explicit finding lies outside smaller windows');
    await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item},location.origin),{...item,searchWindow:null});
    await page.waitForFunction(()=>window.__state?.ui?.windowRequested==='legacy');
    assert.equal((await page.evaluate(()=>window.__state)).geometry.cw,80,'older saves retain their original window');
@@ -974,6 +1606,34 @@ test('native UI: cross meetings have exact numbered navigation, real compact bou
    await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורהקדשה');await activate(page,'חפש');
    await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation?.status==='done');
    assert.equal((await page.evaluate(()=>window.__state)).search.mode,'regular','fresh regular search clears cross identity');
+  },{realHost:true,loadGolden:false,tier:'anon'});
+ });
+
+test('Classic keeps cross-meeting controls in Research while preserving the exact meeting on return',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  await withNative({width:1440,height:1000},async page=>{
+   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משיח');
+   await activate(page,'הצלבה בין צירים');
+   await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('גאולה');
+   await activate(page,'חפש הצלבה');
+   await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation?.status==='done'&&window.__state?.search?.zones>0,null,{timeout:90000});
+   const before=await page.evaluate(()=>({setId:window.__state.search.results.id,zoneIndex:window.__state.search.zoneIndex,hitId:window.__state.axis.hitId}));
+   await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').waitFor({state:'visible'});
+
+   await activate(page,'מצב קלאסי');
+   await page.locator('.els29-classic-fallback.is-open').waitFor({state:'visible'});
+   const frame=page.frames().find(candidate=>candidate.parentFrame());
+   await frame.locator('body.exp2029-clean').waitFor({state:'attached'});
+   assert.equal(await frame.locator('.matrix-box').isVisible(),true,'Classic still projects the selected axis through the canonical engine');
+   for(const selector of ['#htStep2','#qb','#alwaystip','.crossrow','#crosspanel','#labpanel','.crosschip','.crossbanner','.xres','.cross-act']){
+    const visible=await frame.locator(selector).evaluateAll(elements=>elements.filter(element=>element.getClientRects().length>0).length);
+    assert.equal(visible,0,`${selector} stays out of clean Classic`);
+   }
+   assert.equal(await page.locator('[data-tzofen-projection="classic-visible"] > button').filter({hasText:'הוסף למחקר'}).count(),0,'Classic has no host Research overlay');
+
+   await activate(page,'חזור לגילוי צופן');
+   await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').waitFor({state:'visible'});
+   assert.deepEqual(await page.evaluate(()=>({setId:window.__state.search.results.id,zoneIndex:window.__state.search.zoneIndex,hitId:window.__state.axis.hitId})),before,'returning to Research preserves the exact cross meeting');
   },{realHost:true,loadGolden:false,tier:'anon'});
  });
 
@@ -1028,6 +1688,7 @@ test('native transition: minus-two reading layout preserves exact cells and open
     const names=await page.evaluate(()=>window.__state);
     assert.equal(names.axis.hitId,'14870_-1_251278');assert.equal(names.search.zones,3);
     assert.equal(names.geometry.cw,40);assert.equal(names.ui.windowSize,'small');
+    await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.setId===id,names.search.results.id,{timeout:90000});
     assert.equal(await page.locator('.els29-native-stage h3').textContent(),'פולייס');
     assert.equal(await page.locator('.els29-native-matrix.is-reading').count(),0,'cross displays its canonical matrix geometry');
     assert.equal(await page.locator('.els29-native-matrix-status').textContent(),'מטריצה פעילה');
@@ -1129,7 +1790,7 @@ test('native reliability: cancel aborts verification, rolls back secondary edits
     await page.waitForFunction(()=>window.__state?.term==='תורהקדשה'&&window.__operation.status==='done');
     await injectToolMessage(page,{source:'tzofen',type:'operation',kind:'search',requestId:old.requestId,status:'verifying'});
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
-    assert.equal(await page.locator('.els29-native-progress').count(),0,'late progress cannot reopen loading UI');
+    assert.equal(await page.locator('.els29-native-progress[aria-label="התקדמות החיפוש"]').count(),0,'late search progress cannot reopen its loading UI while the new read-only result triage may run');
     const after=await identity(page), aborts=await page.evaluate(()=>window.__fixtureAborts);
     await page.evaluate(()=>{window.__fixtureHoldVerification=true;window.__fixtureReleaseVerification=null;});
     await openPanel(page);await page.getByRole('textbox',{name:'חיפוש משני במטריצה',exact:true}).fill('התורה');await activate(page,'חפש במטריצה');
@@ -1155,7 +1816,7 @@ test('native save: private retry, same-record update and exact restore preserve 
     await page.getByRole('textbox',{name:'שם הצופן',exact:true}).fill('מחקר שמור לבדיקה');
     const note='מצאתי הצטלבות מעניינת, ואחזור לבדוק את הפסוקים בהמשך.';
     await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill(note);
-    await activate(page,'סריקה וממצאים');await activate(page,'שמירה');
+    await activate(page,'חבילת מחקר');await activate(page,'שמירה');
     assert.equal(await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).inputValue(),note,'switching tabs preserves the unsaved explanation');
     await page.evaluate(()=>window.__saveFails=true);await activate(page,'שמור אצלי');
     await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('לא הושלמה'));
@@ -1183,7 +1844,10 @@ test('native save: private retry, same-record update and exact restore preserve 
     await page.evaluate(row=>window.__openSavedMatrix(row),saved);
     await page.waitForFunction(id=>window.__state?.axis?.hitId===id&&window.__state?.findings?.[0]?.hits?.some(hit=>hit.verified),state.axis.hitId);
     const restored=await page.evaluate(()=>window.__state);
-    assert.deepEqual(restored.geometry,state.geometry);
+    assert.equal(restored.geometry.S,state.geometry.S,'compact replay keeps the exact axis stride');
+    assert.equal(restored.geometry.mainCol,state.geometry.mainCol,'compact replay keeps the exact axis column');
+    assert.equal(restored.ui.windowRequested,'small','a saved matrix reopens with the smallest requested window');
+    assert.ok(restored.geometry.cw<=state.geometry.cw,'replay presentation may shrink without changing saved evidence');
     assert.equal(restored.ui.findingRadius,5);
     assert.deepEqual(restored.findings.map(f=>({t:f.t,color:f.color,shown:f.shown})),state.findings.map(f=>({t:f.t,color:f.color,shown:f.shown})));
     assert.equal(restored.provenance.desc,note);
@@ -1210,15 +1874,20 @@ async function privacyRecord(page, overrides = {}) {
   },overrides);
 }
 async function unsavedPrivacyAxis(page) {
+  // The real-host fixture intentionally has both the bootstrap and React host replay the initial
+  // Golden. Let both canonical requests settle before replacing that saved identity with an
+  // unsaved axis; otherwise a late bootstrap message can win the test race after the replacement.
+  await page.waitForFunction(()=>window.__log.filter(message=>message.type==='engine-request').length>=2
+    &&window.__hostLog.filter(message=>message.type==='engine-result').length>=2);
   await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item:{...item,id:null}},location.origin),golden);
-  await page.waitForFunction(()=>window.__state?.verification?.state==='MATCH'&&!window.__state?.provenance?.editId);
+  await page.waitForFunction(()=>window.__state?.verification?.state==='MATCH'&&!window.__state?.provenance?.editId,null,{polling:100,timeout:60000});
 }
 async function classicPrivacySave(page, overrides = null) {
   const before=await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='saved').length);
   const frame=page.frames().find(f=>f.parentFrame());
   if(overrides===null){
     // Real Classic UI -> description dialog -> canonical engine -> real host save handler.
-    if(await button(page,'כל הכלים').count())await activate(page,'כל הכלים');
+    if(await button(page,'מצב קלאסי').count())await activate(page,'מצב קלאסי');
     await frame.locator('.save-act').first().dispatchEvent('click');
     await frame.locator('.sh-desc').fill('בדיקת שמירה פרטית במסלול הקלאסי ללא פרסום תמונות');
     await frame.locator('.sh-save').dispatchEvent('click');
@@ -1246,25 +1915,74 @@ test('an opened personal cipher updates its exact saved record after findings ch
   await activate(page,'חפש במטריצה');
   await page.waitForFunction(()=>window.__state?.findings?.some(item=>item.t==='התורה'&&item.shown.length));
   await activate(page,'שמירה');
-  assert.equal(await button(page,'עדכן ממצא').count(),1);
+  assert.equal(await button(page,'שמור שינויים').count(),1);
   assert.equal(await page.getByRole('textbox',{name:'שם הצופן',exact:true}).isDisabled(),true);
   await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('הוספתי את התורה כממצא נוסף על הציר השמור.');
-  await activate(page,'עדכן ממצא');
+  await activate(page,'שמור שינויים');
   await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('עודכן'));
   assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'privacy-record');
   assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
   assert.equal(await page.evaluate(()=>window.__savedRows[0].positions.findings[0].t),'התורה');
-  await activate(page,'סריקה וממצאים');
+  await activate(page,'חבילת מחקר');
   await activate(page,'מופעים וצבע של התורה');
   await activate(page,'מחק את המילה התורה וכל מופעיה');
   await page.waitForFunction(()=>window.__state?.findings?.length===0);
   await activate(page,'שמירה');
-  await activate(page,'עדכן ממצא');
+  await activate(page,'שמור שינויים');
   await page.waitForFunction(()=>window.__savedRows[0].positions.findings.length===0);
   assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'privacy-record');
   assert.equal(await page.evaluate(()=>window.__savedRows.length),1);
   assert.equal(await page.evaluate(()=>window.__publicUploads||0),0);
  },{realHost:true,mobile:true});
+});
+
+test('a historical Torah-labelled record replays cross-boundary findings in Tanakh and exposes direct saved-record controls',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const row={id:'legacy-hint',slug:'legacy-hint',title:'תורת הרמז',search_term:'תורת הרמז',scope:'torah',skip_distance:21940,direction:'down',start_index:null,corpus_id:ELS_GOLDEN_CORPUS_ID,
+    owner_user_id:'fixture-owner',visibility:'public',status:'published',self_published:true,description:'רשומת עבר',positions:{findings:[
+      {t:'חשמל',color:'#2F9E5A',sh:['2_-1_87133']},
+      {t:'נשמהללוט',color:'#3B82D6',sh:['21941_1_196825']},
+      {t:'זרע',color:'#8B5CF6',sh:['1_1_196830','1_1_196826']},
+    ]}};
+  await page.evaluate(value=>{window.__fixtureHoldVerification=true;window.__savedRows=[structuredClone(value)];window.__openSavedMatrix(value);},row);
+  await page.waitForFunction(()=>typeof window.__fixtureReleaseVerification==='function');
+  const savedLoader=page.locator('[data-els-saved-loading="true"]');
+  assert.equal(await savedLoader.isVisible(),true,'the saved-cipher loader stays on screen while canonical replay is pending');
+  assert.equal(await savedLoader.getByRole('progressbar',{name:'טעינת הצופן השמור'}).isVisible(),true);
+  assert.equal(await page.getByText('אין כרגע מופע מאומת להצגה',{exact:true}).count(),0,'loading is never presented as an empty verified result');
+  assert.equal(await page.getByRole('form',{name:'חיפוש ELS'}).isVisible(),false,'the search form does not push loading below the mobile fold');
+  assert.equal((await page.locator('body').textContent()).includes('עובדים על צופן שמור'),false);
+  await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification();});
+  await page.waitForFunction(()=>window.__state?.term==='תורתהרמז'&&window.__state?.scope==='tanakh'&&window.__state?.verification?.state==='MATCH',{timeout:60000});
+  await page.waitForFunction(()=>['חשמל','נשמהללוט','זרע'].every(term=>{const finding=window.__state?.findings?.find(item=>item.t===term);return finding?.shown?.length>0||finding?.sourceHits?.some(hit=>hit.shown);}),{timeout:60000});
+  const axisVerification=await page.evaluate(()=>window.__log.find(message=>message.type==='engine-request'&&message.op==='verify_batch'&&message.payload?.term==='תורתהרמז'));
+  assert.equal(axisVerification.payload.scope,'tanakh','the recovered evidence envelope is verified in its containing corpus');
+  assert.deepEqual(axisVerification.payload.candidates,[{skip:21940,dir:1,start:43250}],
+    'legacy saved replay verifies the known skip directly instead of discovering the term across Tanakh');
+  await savedLoader.waitFor({state:'detached'});
+  assert.equal(await page.locator('.els29-native-matrix').isVisible(),true);
+  assert.equal(await button(page,'פתח שמירת שינויים').count(),1);
+  await activate(page,'פתח שמירת שינויים');
+  assert.match(await page.locator('.els29-native-save').textContent(),/תשלים את נתוני הצופן הוותיק/);
+  await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('עדכון הממצא הוותיק באותה רשומה שמורה.');
+  await activate(page,'שמור שינויים');
+  await page.waitForFunction(()=>window.__updateCalls?.at(-1)?.name==='reanchor_els_matrix_v1');
+  assert.equal(await page.evaluate(()=>window.__updateCalls.at(-1).p_id),'legacy-hint');
+  assert.equal(await page.evaluate(()=>window.__savedRows.length),1,'legacy save updates the same row instead of creating a copy');
+  assert.deepEqual(await page.evaluate(()=>{const row=window.__savedRows[0];return [row.scope,row.direction,row.start_index,row.status];}),['tanakh','fwd',43250,'published']);
+  assert.equal(await page.evaluate(()=>window.__saveCalls?.length||0),0);
+
+  await activate(page,'מחק צופן');
+  assert.deepEqual(await page.evaluate(()=>window.__deleteCalls||[]),[],'delete is not executed before explicit confirmation');
+  assert.equal(await button(page,'כן, מחק לצמיתות').count(),1);
+  await activate(page,'ביטול');
+  assert.equal(await button(page,'כן, מחק לצמיתות').count(),0);
+  await activate(page,'מחק צופן');
+  await activate(page,'כן, מחק לצמיתות');
+  await page.waitForFunction(()=>window.__fixtureMatrix===null);
+  assert.deepEqual(await page.evaluate(()=>window.__deleteCalls),['legacy-hint']);
+ },{realHost:true,mobile:true,loadGolden:false});
 });
 
 test('privacy F4: real Classic save of opened private row and native-to-Classic keep images private; failed update never publishes',
@@ -1432,7 +2150,7 @@ test('native library: paginated existing records, legacy disclosure and account 
         row('research','owner-b',{status:'published',visibility:'public',source:'research'}),
       ];
     }, ELS_GOLDEN_CORPUS_ID);
-    await button(page,'צפנים שפורסמו').click();
+    await button(page,'כל הממצאים הציבוריים').click();
     await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
     assert.match(await page.locator('.els29-library-card').textContent(), /צופן public/);
     await button(page,'הצפנים שלי').click();
@@ -1442,15 +2160,16 @@ test('native library: paginated existing records, legacy disclosure and account 
     assert.deepEqual(await page.evaluate(()=>window.__libraryCalls.filter(c=>c.eq.some(([key])=>key==='owner_user_id')).slice(-2).map(c=>c.range)),[[0,24],[24,48]]);
     assert.equal(await button(page,'טען צפנים נוספים').count(),0);
     assert.equal(await page.locator('.els29-library-card').filter({hasText:'צופן other'}).count(),0);
-    await page.getByLabel('חיפוש בצפנים').fill('legacy');await button(page,'חפש בספרייה').click();
+    await page.getByLabel('חיפוש בצפנים שלי').fill('legacy');await button(page,'חפש בספרייה').click();
     await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
     await page.locator('.els29-library-card a').click();
     await page.waitForFunction(()=>window.__libraryMatrix?.id==='legacy');
     assert.match(await page.locator('.els29-saved-record').textContent(),/אינה שחזור מדויק/);
     assert.equal(await page.evaluate(()=>window.__libraryMatrix.start_index),null,'old anchors are never synthesized by the library');
-    await page.getByText('התמונה המקורית שנשמרה',{exact:true}).click();
+    await page.locator('.els29-saved-record').evaluate(node=>node.open=true);
+    await page.getByText('התמונה המקורית שנשמרה',{exact:true}).evaluate(node=>node.parentElement.open=true);
     assert.equal(await page.locator('.els29-saved-record img').isVisible(),true);
-    await button(page,'לכל הצפנים').click();
+    await page.evaluate(()=>{history.pushState({},'',location.pathname+'?library=mine');dispatchEvent(new PopStateEvent('popstate'));});
     await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===24);
     await page.locator('.els29-library-card a').first().click();
     await page.waitForFunction(()=>window.__libraryMatrix?.id==='mine-0');
@@ -1459,6 +2178,9 @@ test('native library: paginated existing records, legacy disclosure and account 
     await page.evaluate(()=>window.__switchLibraryUser(null));
     await page.getByRole('heading',{name:'הצופן אינו זמין'}).waitFor();
     assert.equal(await page.locator('[data-fixture-matrix="mine-0"]').count(),0,'sign-out removes the private matrix');
+    await button(page,'כל הממצאים הציבוריים').click();
+    await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
+    assert.match(await page.locator('.els29-library-card').textContent(),/צופן public/,'anonymous visitors see the complete approved public collection');
     await button(page,'הצפנים שלי').click();
     await page.getByText('כדי לראות את הצפנים שלך,',{exact:false}).waitFor();
     await page.evaluate(()=>{window.__libraryHold=true;window.__switchLibraryUser('owner-a');});
@@ -1469,7 +2191,7 @@ test('native library: paginated existing records, legacy disclosure and account 
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     assert.equal(await page.locator('.els29-library-card').filter({hasText:'mine-0'}).count(),0,'late old-account responses are discarded');
     await page.evaluate(()=>window.__libraryFailure=true);
-    await button(page,'צפנים שפורסמו').click();
+    await button(page,'כל הממצאים הציבוריים').click();
     await page.getByRole('alert').waitFor();
     await page.evaluate(()=>window.__libraryFailure=false);await button(page,'נסה שוב').click();
     await page.waitForFunction(()=>document.querySelectorAll('.els29-library-card').length===1);
@@ -1557,8 +2279,8 @@ test('native presentation: verse words alternate from either entry and camera re
  });
 });
 
-test('native results: regular and crossed searches expose selectable results in Torah and Tanakh, with terminal recovery',
- {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+test('native results: regular and crossed searches expose selectable results in Torah and Tanakh',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:360000},async()=>{
  await withNative({width:390,height:844},async page=>{
   let stale;
   for(const [scope,label] of [['torah','תורה'],['tanakh','כל התנ״ך']]){
@@ -1570,9 +2292,18 @@ test('native results: regular and crossed searches expose selectable results in 
    const state=await page.evaluate(()=>window.__state),results=state.search.occurrences;
    assert.equal(state.term,'יהוה');assert.equal(state.verification.state,'MATCH');assert.ok(results.total>80);
    assert.equal(results.items.length,80);assert.equal(results.total,state.verification.verified_hits);
-   assert.equal(await page.locator('.els29-native-panel-head strong').innerText(),'תוצאות החיפוש');
+   assert.equal(await page.locator('.els29-native-panel-head>strong').innerText(),'גילוי צופן');
    const list=page.locator('[aria-label="רשימת תוצאות החיפוש"]');
    assert.equal(await list.isVisible(),true);assert.equal(await list.locator('.els29-native-result').count(),80);
+   const triage=await waitForLoggedLens(page,'result-triage',{setId:results.id});
+   assert.equal(triage.contract,'els_result_triage_v1');assert.equal(triage.kind,'regular');assert.equal(triage.items.length,80);
+   assert.deepEqual(triage.items.map(item=>item.rank),Array.from({length:80},(_,index)=>index+1));
+   assert.ok(triage.items.every(item=>item.reasons.length&&['recommended','inspect','available'].includes(item.tier)));
+   assert.ok(triage.items.every(item=>!['positions','start','p0','p1'].some(key=>Object.hasOwn(item,key))
+     &&item.signals.every(signal=>!['positions','start','p0','p1'].some(key=>Object.hasOwn(signal,key)))),'triage returns ranking metadata without exporting corpus coordinates');
+   assert.equal(await list.locator('[data-triage-tier="recommended"]').count(),3);
+   const resultScroll=await list.locator('.els29-native-result-list').evaluate(node=>({clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
+   assert.ok(resultScroll.clientHeight<=390&&resultScroll.scrollHeight>resultScroll.clientHeight,'ranked results stay in a bounded internal scroller on mobile');
    const bounds=await page.locator('.els29-native-panel-wrap').boundingBox();assert.ok(bounds.y>=0&&bounds.y<844,'completed mobile results come into view');
    assert.equal(await page.getByRole('dialog').count(),0);
    assert.ok(results.items.every(item=>item.skip>=2&&item.ref&&['fwd','back'].includes(item.direction)));
@@ -1581,10 +2312,16 @@ test('native results: regular and crossed searches expose selectable results in 
    assert.equal(await page.evaluate(()=>window.__state.status),'ok','previous wraps across verified ELS only, never literal hits');
    await activate(page,'מופע הבא');await page.waitForFunction(()=>window.__state.search.occurrences.selectedOrdinal===1);
    await activate(page,'עמוד הבא');await page.waitForFunction(()=>window.__state.search.occurrences.page===1);
+   await waitForLoggedLens(page,'result-triage',{setId:results.id,page:1});
    const next=await page.evaluate(()=>window.__state.search.occurrences.items[0]);
    assert.equal(next.ordinal,81);
    await activate(page,'פתח מופע 81');await page.waitForFunction(id=>window.__state.axis.hitId===id,next.hitId);
    assert.ok((await page.locator('.els29-native-stage-column').boundingBox()).y<844,'choosing a mobile result reveals the matrix');
+   const activeBundle=page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible');
+   await activeBundle.waitFor({state:'visible'});
+   assert.match(await activeBundle.innerText(),/חבילת מחקר[\s\S]*מופע 81/,'one click keeps the ranked context beside the opened matrix');
+   await page.waitForFunction(id=>window.__hostLog.some(message=>message.type==='request-lens'&&message.lens==='matrix-candidates'&&message.target?.researchBundle===true&&message.target?.hitId===id),next.hitId);
+   assert.equal(await activeBundle.getByRole('button',{name:'חזור להמלצות ולכל התוצאות'}).count(),1);
    const selected=await identity(page);
    if(stale){await page.locator('iframe').evaluate((frame,value)=>frame.contentWindow.postMessage({source:'sod-host',type:'native-control',action:'occurrence-select',value},location.origin),stale);await page.waitForTimeout(100);assert.deepEqual(await identity(page),selected,'stale set cannot change the active corpus/result');}
    stale={setId:results.id,index:results.items[0].index,hitId:results.items[0].hitId};
@@ -1592,19 +2329,46 @@ test('native results: regular and crossed searches expose selectable results in 
    const crossed=await reliabilityCross(page,'צוריאל','פולייס');
    assert.equal(crossed.scope,scope);assert.ok(crossed.search.results.items.some(item=>item.available));
    assert.equal(crossed.search.occurrences,null);
-   assert.equal(await page.locator('.els29-native-panel-head strong').innerText(),'תוצאות הצלבה');
+   assert.equal(await page.locator('.els29-native-panel-head>strong').innerText(),'גילוי צופן');
    assert.ok(await page.locator('.els29-native-results:visible .els29-native-result').count()>0);
+   await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.kind==='cross'&&window.__lens?.setId===id,crossed.search.results.id,{timeout:90000});
+   const crossTriage=await page.evaluate(()=>window.__lens);
+   assert.equal(crossTriage.items.length,crossed.search.results.items.filter(item=>item.available).length);
+   assert.ok(crossTriage.items.every(item=>item.signals.length>=2&&item.reasons.length),'a crossed result is triaged as the whole meeting');
    const meeting=crossed.search.results.items.find(item=>item.available&&item.index!==crossed.search.zoneIndex);
    if(meeting){await activate(page,`פתח מפגש ${meeting.index+1}`);await page.waitForFunction(id=>window.__state.axis.hitId===id,meeting.hitId);}
   }
-  await activate(page,'הצלבה בין צירים');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('literal topic context ranks both verified בלעם הרשע occurrences and exposes canonical source evidence',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('בלעם הרשע');
+  await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state?.term==='בלעמהרשע',null,{timeout:90000});
+  const results=await page.evaluate(()=>window.__state.search.occurrences);
+  assert.ok(results?.total>=2,'the canonical search retains both verified occurrences');
+  const triage=await waitForLoggedLens(page,'result-triage',{setId:results.id});
+  const contextual=triage.items.filter(item=>item.sourceContexts?.some(context=>context.term==='בלעמ'));
+  assert.ok(contextual.length>=2,'both occurrences carry the literal בלעם source context');
+  assert.ok(contextual.slice(0,2).every(item=>item.reasons.some(reason=>reason.includes('אותו הקשר מופיע ב־'))),'the repeated literal context is explained in the recommendations');
+  assert.ok(contextual.slice(0,2).every(item=>item.tier==='recommended'),'the two exact context rows lead the research package');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('native search verification failure, retry and cancellation recover in one clean session',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יהוה');await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
   await page.evaluate(()=>window.__fixtureVerificationDenied=true);
   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('תורה');await activate(page,'חפש');
   await page.waitForFunction(()=>window.__operation?.status==='error');
   assert.equal(await page.locator('.els29-native-results:visible .els29-native-result').count(),0,'failure never displays the previous list as a new result');
   assert.ok((await page.locator('.els29-native-results:visible').innerText()).includes('האימות'));
   await page.evaluate(()=>window.__fixtureVerificationDenied=false);
-  await activate(page,'נסה שוב');await page.waitForFunction(()=>window.__operation?.status==='done');
+  await activate(page,'נסה שוב');await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
   assert.ok(await page.locator('.els29-native-results:visible .els29-native-result').count()>0);
   await page.evaluate(()=>window.__fixtureHoldVerification=true);
   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('משה');await activate(page,'חפש');
@@ -1614,6 +2378,169 @@ test('native results: regular and crossed searches expose selectable results in 
   await page.evaluate(()=>{window.__fixtureHoldVerification=false;window.__fixtureReleaseVerification();});
   await page.waitForTimeout(200);
   assert.equal(await page.locator('.els29-native-results:visible .els29-native-result').count(),0);
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('a crossed meeting opens the same axis-neighborhood research package and ranking as a regular result',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const crossed=await reliabilityCross(page,'צוריאל','פולייס');
+  await page.waitForFunction(id=>window.__lens?.lens==='result-triage'&&window.__lens?.ok===true&&window.__lens?.kind==='cross'&&window.__lens?.setId===id,crossed.search.results.id,{timeout:90000});
+  const meeting=crossed.search.results.items.find(item=>item.available&&item.index!==crossed.search.zoneIndex);
+  assert.ok(meeting,'the cross fixture exposes another available meeting');
+  await activate(page,`פתח מפגש ${meeting.index+1}`);
+  await page.waitForFunction(id=>window.__state.axis.hitId===id,meeting.hitId);
+  await page.waitForFunction(id=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.target?.researchBundle===true&&window.__lens?.target?.hitId===id,meeting.hitId,{timeout:90000});
+  const crossPackage=await page.evaluate(()=>window.__lens);
+  assert.equal(crossPackage.bundleContract,'els_axis_neighborhood_bundle_v1');
+  assert.equal(crossPackage.ranking.order,'focused_compact_band_then_distance_then_language_evidence');
+  assert.ok(crossPackage.items.length>0);
+  assert.ok(crossPackage.items.every(item=>item.neighborhood?.contract==='els_axis_neighborhood_bundle_v1'),'cross findings use the shared neighborhood bands, not a second ranking engine');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('Research bundle opens a verified exact continuation and returns exactly to its result context',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יום משיח');
+  await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
+  const resultSetId=await page.evaluate(()=>window.__state.search.occurrences.id);
+  const triage=await waitForLoggedLens(page,'result-triage',{setId:resultSetId});
+  const before=await page.evaluate(()=>structuredClone(window.__state));
+  const targetRows=triage.researchTargets||[];
+  assert.ok(targetRows.length>0,'the verified result set exposes at least one exact continuation target');
+  const chosen=targetRows[0],target=page.locator('.els29-native-research-targets button').filter({hasText:chosen.label}).first();
+  await target.waitFor({state:'visible'});
+  await target.dispatchEvent('click');
+  await page.waitForFunction(term=>window.__hostLog.some(message=>message.type==='request-lens'&&message.lens==='research-target'&&message.target?.term===term),chosen.term);
+  await page.waitForFunction(term=>window.__state?.status==='ok'&&window.__state?.term===term,chosen.term,{timeout:90000});
+  const bundle=page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible');
+  await bundle.waitFor({state:'visible'});
+  await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.target?.researchBundle===true,null,{timeout:90000});
+  const packageResult=await page.evaluate(()=>window.__lens);
+  assert.ok(Array.isArray(packageResult.items),'the same bundle receives nearby candidates');
+  assert.ok(Array.isArray(packageResult.groups),'the same explicit scan also receives structural groups');
+  assert.match(await bundle.innerText(),new RegExp(`חבילת מחקר[\\s\\S]*${chosen.label}[\\s\\S]*קבוצות מבנה`));
+  await bundle.getByRole('button',{name:'חזור בדיוק לתוצאות'}).click();
+  await page.waitForFunction(expected=>window.__state?.status==='ok'&&window.__state?.term===expected.term&&window.__state?.axis?.hitId===expected.hitId,
+    {term:before.term,hitId:before.axis.hitId},{timeout:90000});
+  await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').waitFor({state:'visible'});
+  assert.equal(await page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible').count(),0);
+  assert.match(await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').innerText(),/מופעים מדויקים של הציר/);
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('an externally verified automatic-plan target opens the shared focused package and returns to its mounted plan',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const load={term:golden.term,scope:golden.scope,skip:golden.skip,dir:golden.dir,start:golden.start,
+   hitId:`${golden.skip}_${golden.dir}_${golden.start}`,corpusId:golden.corpus_id,words:[],researchBundle:true};
+  await page.evaluate(item=>window.__loadResearch(item),load);
+  await page.waitForFunction(id=>window.__state?.status==='ok'&&window.__state?.axis?.hitId===id,load.hitId,{timeout:90000});
+  await page.waitForFunction(id=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true
+   &&window.__lens?.target?.researchBundle===true&&window.__lens?.target?.hitId===id,load.hitId,{timeout:90000});
+  const bundle=page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible');
+  await bundle.waitFor({state:'visible'});
+  assert.match(await bundle.innerText(),/חבילת מחקר[\s\S]*תורהקדשה[\s\S]*ליבת החבילה מוכנה/);
+  await bundle.getByRole('button',{name:'חזור לתוכנית המטרות'}).click();
+  assert.equal(await page.evaluate(()=>window.__returnedToResearchPlan),1);
+  assert.equal(await page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible').count(),0);
+  assert.equal(await page.evaluate(()=>window.__state.axis.hitId),load.hitId,'return keeps the exact opened matrix while the plan remains mounted');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('an anchor-context command starts one canonical native search without sending the private story',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+ for(const environment of [{width:390,height:844,mobile:true},{width:1366,height:900,mobile:false}])await withNative({width:environment.width,height:environment.height},async page=>{
+  const command={contract:'els_anchor_context_request_v1',researchCommand:true,term:'קולומביה',scope:'torah',
+   contextTerms:[{term:'ספינת',mode:'term',required:true,split:false},{term:'יכל אש',mode:'exact_phrase',required:true,split:false}],
+   discoveryGoal:{primaryAxes:1,connectedSupports:2,sourceSequence:'WHEN_AVAILABLE',resultPolicy:'ONE_BEST_STRUCTURE'},researchNonce:101};
+  await page.evaluate(item=>window.__loadResearch(item),command);
+  await page.waitForFunction(()=>window.__hostLog.some(message=>message.type==='native-search'&&message.request?.term==='קולומביה'));
+  const request=await page.evaluate(()=>window.__hostLog.find(message=>message.type==='native-search'&&message.request?.term==='קולומביה'));
+  assert.equal(request.request.kind,'regular');
+  assert.equal(request.request.scope,'torah');
+  assert.equal(Object.hasOwn(request.request,'contextTerms'),false,'context vocabulary is reserved for ranking/package lenses, not a second global search');
+  assert.equal(Object.hasOwn(request.request,'discoveryGoal'),false,'the pair goal configures the bounded lens, not canonical axis search');
+  assert.equal(JSON.stringify(request).includes('הספינה'),false,'raw story text never crosses into the canonical search request');
+  assert.equal(await page.evaluate(()=>window.__mounts),1,'the command reuses the already mounted canonical engine');
+  await page.waitForFunction(()=>window.__log.some(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.discoveryBundle?.status==='VERIFIED_PAIR'),null,{timeout:120000});
+  const discovery=await page.evaluate(()=>[...window.__log].reverse().find(message=>message.type==='lens'&&message.lens==='matrix-discovery'));
+  assert.equal(discovery.target.discoveryGoal.connectedSupports,2);
+  assert.equal(discovery.discoveryBundle.selected.relation.code,'SHARED_PARALLEL');
+  assert.deepEqual(new Set(discovery.discoveryBundle.selected.supports.map(item=>item.term)),new Set(['ספינת','יכלאש']));
+  assert.equal(discovery.discoveryBundle.selectionLaw.numericSkipPromoted,false);
+  const card=page.locator('[data-els-discovery-bundle="verified-pair"]:visible');
+  await card.waitFor({state:'visible'});
+  const cardText=await card.innerText();
+  assert.match(cardText,/הצופן המוביל לבדיקה/);assert.match(cardText,/ספינת/);assert.match(cardText,/יכל אש/);assert.match(cardText,/מקבילים לציר/);
+  assert.equal(await page.locator('[data-els-discovery-evidence="advanced"]:visible').getAttribute('open'),null,'the remaining local findings stay collapsed under Advanced');
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:environment.mobile});
+});
+
+test('a focused Colombia package verifies the requested exact phrase without silently splitting it',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  const load={term:'קולומביה',scope:'torah',skip:4545,dir:1,start:248765,hitId:'4545_1_248765',corpusId:'0b022e8eef6f9c16',words:[],researchBundle:true,
+   contextTerms:[{term:'יכל אש',mode:'exact_phrase',required:true,split:false}]};
+  await page.evaluate(item=>window.__loadResearch(item),load);
+  await page.waitForFunction(id=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.target?.hitId===id,load.hitId,{timeout:120000});
+  const result=await page.evaluate(()=>window.__lens);
+  assert.equal(result.contextCoverage.contract,'els_research_context_coverage_v1');
+  assert.equal(result.contextCoverage.complete,true);
+  assert.deepEqual(result.contextCoverage.requested.map(item=>item.term),['יכלאש']);
+  assert.deepEqual(result.contextCoverage.found.map(item=>item.term),['יכלאש']);
+  assert.equal(result.contextCoverage.requested.some(item=>item.term==='יכל'||item.term==='אש'),false);
+  assert.match(await page.getByLabel('כיסוי מונחי ההקשר').innerText(),/יכל אש/);
+ },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
+});
+
+test('Research compares three verified continuation targets before opening one exact package',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+  await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('יום משיח');
+  await activate(page,'חפש');
+  await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
+  const resultSetId=await page.evaluate(()=>window.__state.search.occurrences.id);
+  const triage=await waitForLoggedLens(page,'result-triage',{setId:resultSetId});
+  const before=await page.evaluate(()=>structuredClone(window.__state));
+  const targets=triage.researchTargets||[];
+  const expectedContinuationRow=triage.items?.find(row=>String(row.key).startsWith('583_-1_239480'))||null;
+  assert.ok(targets.length>=3,'the example exposes enough exact continuations for a bounded comparison');
+  assert.equal(new Set(targets.map(target=>String(target.key))).size,targets.length,`each research card represents one distinct primary-axis occurrence: ${JSON.stringify(targets)}`);
+  assert.ok(targets.every(target=>Number.isInteger(target.skip)&&target.skip>=2),'every research card exposes its primary-axis skip');
+  assert.ok(targets.every(target=>Array.isArray(target.findings)&&target.findings.length),'each occurrence carries several local findings as one package');
+  assert.ok(targets.some(target=>(target.findings||[]).some(finding=>String(finding.term||'').replace(/\s/g,'')==='יוממשיחבא')),
+   `the real corpus continuation יום משיח בא must survive package grouping: ${JSON.stringify({targets,expectedContinuationRow})}`);
+  const packageList=page.getByRole('list',{name:'מופעי ציר שונים'});
+  assert.equal(await packageList.getByRole('listitem').count(),new Set(targets.map(target=>String(target.key))).size);
+  assert.match(await packageList.innerText(),/יום משיח בא[\s\S]*דילוג −583/);
+  const packageScroll=await packageList.evaluate(node=>({clientHeight:node.clientHeight,scrollHeight:node.scrollHeight}));
+  assert.ok(packageScroll.clientHeight<=460&&packageScroll.scrollHeight>packageScroll.clientHeight,'distinct research packages stay in a bounded internal scroller');
+  await activate(page,'השווה את 3 חבילות המחקר');
+  await page.waitForFunction(()=>window.__lens?.lens==='research-target-compare'&&window.__lens?.ok===true,null,{timeout:90000});
+  const comparison=await page.evaluate(()=>window.__lens);
+  assert.equal(comparison.contract,'els_research_bundle_comparison_v1');
+  assert.equal(comparison.rows.length,3);assert.ok(comparison.verified>=1);
+  assert.equal(comparison.selectionProvenance,'POST_HOC_EXPLORATORY');
+  assert.ok(comparison.rows.every(row=>!['positions','start','p0','p1'].some(key=>Object.hasOwn(row,key))));
+  const panel=page.locator('[data-els-research-comparison="els_research_bundle_comparison_v1"]');
+  await panel.waitFor({state:'visible'});
+  assert.match(await panel.innerText(),/חבילות מחקר אומתו יחד[\s\S]*לא ציון אמת/);
+  const chosen=comparison.rows.find(row=>row.status==='VERIFIED');
+  const priorSingleRequests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='research-target').length);
+  await panel.getByRole('button',{name:`פתח חבילת מחקר ${chosen.label}`,exact:true}).click();
+  await page.waitForFunction(term=>window.__state?.status==='ok'&&window.__state?.term===term,chosen.term,{timeout:90000});
+  assert.equal(await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='research-target').length),priorSingleRequests,
+    'opening a comparison row reuses its completed canonical verification');
+  await page.waitForFunction(()=>window.__lens?.lens==='matrix-candidates'&&window.__lens?.ok===true&&window.__lens?.target?.researchBundle===true,null,{timeout:90000});
+  const bundle=page.locator('[data-els-research-bundle="els_research_bundle_v1"]:visible');
+  assert.match(await bundle.innerText(),new RegExp(`חבילת מחקר[\\s\\S]*${chosen.label}`));
+  await bundle.getByRole('button',{name:'חזור בדיוק לתוצאות'}).click();
+  await page.waitForFunction(expected=>window.__state?.status==='ok'&&window.__state?.term===expected.term&&window.__state?.axis?.hitId===expected.hitId,
+    {term:before.term,hitId:before.axis.hitId},{timeout:90000});
+  await page.locator('[aria-label="רשימת תוצאות החיפוש"]:visible').waitFor({state:'visible'});
  },{realHost:true,loadGolden:false,onboarded:false,tier:'anon',mobile:true});
 });
 
@@ -1699,11 +2626,12 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
   await page.waitForFunction(()=>window.__libraryEngineMounts===1);
+  await button(page,'קלאסי').click();
   const folder=page.getByRole('region',{name:'תיקיית הצפנים'});
-  const toggle=folder.getByRole('button',{name:/תיקיית הצפנים/});
+  const toggle=folder.getByRole('button',{name:/ממצאי ELS ציבוריים/});
   assert.equal(await toggle.getAttribute('aria-expanded'),'false','mobile starts with a compact folder');
   assert.equal(await page.evaluate(()=>window.__libraryCalls.length),0,'collapsed folder does not fetch');
-  await page.evaluate(corpus=>{window.__libraryRows=Array.from({length:7},(_,i)=>({id:'recent-'+i,owner_user_id:'owner-a',title:'צופן שמור '+i,search_term:'תורה',scope:'torah',skip_distance:50,direction:i?'fwd':null,start_index:5,corpus_id:corpus,status:'draft',visibility:'private',created_at:'2026-10-09T12:00:00Z',positions:{findings:[]}}));},ELS_GOLDEN_CORPUS_ID);
+  await page.evaluate(corpus=>{window.__libraryRows=Array.from({length:7},(_,i)=>({id:'recent-'+i,owner_user_id:'owner-a',title:'ממצא ציבורי '+i,search_term:'תורה',scope:'torah',skip_distance:50,direction:i?'fwd':null,start_index:5,corpus_id:corpus,status:'published',visibility:'public',created_at:'2026-10-09T12:00:00Z',positions:{findings:[]}}));},ELS_GOLDEN_CORPUS_ID);
   await toggle.click();await folder.locator('.els29-library-card').nth(3).waitFor();
   assert.equal(await folder.locator('.els29-library-card').count(),4);
   const call=await page.evaluate(()=>window.__libraryCalls.at(-1));assert.deepEqual(call.range,[0,4]);
@@ -1713,7 +2641,7 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   await page.getByLabel('טיוטת חיפוש').fill('צוריאל');
   await button(page,'חיפוש לדוגמה').click();await page.waitForFunction(()=>document.querySelector('.els29-recent-toggle')?.getAttribute('aria-expanded')==='false');
   await toggle.click();await folder.locator('.els29-library-card').nth(3).waitFor();
-  await button(page,'לכל הצפנים').click();
+  await button(page,'לכל הממצאים הציבוריים').click();
   await page.getByRole('region',{name:'ספריית הצפנים'}).locator('.els29-library-card').nth(6).waitFor();
   await button(page,'חזור לחיפוש').click();
   assert.equal(await page.getByLabel('טיוטת חיפוש').inputValue(),'צוריאל');
@@ -1721,13 +2649,13 @@ test('native folder: bounded recent cards, collapse, save refresh and library re
   await page.evaluate(()=>window.__libraryRows.unshift({...window.__libraryRows[0],id:'new-save',title:'שמירה חדשה'}));
   await button(page,'שמירה לדוגמה').click();await folder.getByRole('heading',{name:'שמירה חדשה'}).waitFor();
   await page.evaluate(()=>window.__switchLibraryUser(null));
-  await page.waitForFunction(()=>!document.body.textContent.includes('שמירה חדשה'));
-  assert.equal(await folder.locator('.els29-library-card').count(),0,'private recent cards leave immediately on sign-out');
+  await folder.getByRole('heading',{name:'שמירה חדשה'}).waitFor();
+  assert.equal(await folder.locator('.els29-library-card').count(),4,'public recent findings remain visible after sign-out');
   assert.deepEqual(errors,[]);
  }finally{await browser?.close();await server.close();}
 });
 
-test('historical search repairs: pending identity, saved skip, ordered continuation and finding pages',
+test('historical search repairs: pending identity, saved skip, bounded results and finding pages',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  await withNative({width:1440,height:1000},async page=>{
   const send=message=>page.locator('iframe').evaluate((frame,message)=>frame.contentWindow.postMessage({source:'sod-host',...message},location.origin),message);
@@ -1755,9 +2683,8 @@ test('historical search repairs: pending identity, saved skip, ordered continuat
   assert.equal(first.ordered.completeThrough,50);
   assert.equal(first.items.filter(h=>h.skip===2).length,31,'every skip-2 occurrence is exposed, not only the sampled two');
   const axis=await identity(page);
-  await activate(page,'המשך סריקה מסודרת עד דילוג 100');
-  await page.waitForFunction(()=>window.__operation?.status==='done'&&window.__state.search.occurrences.ordered.completeThrough===100);
-  const continued=await identity(page);assert.deepEqual([continued.axis,continued.scope,continued.geometry],[axis.axis,axis.scope,axis.geometry],'continuation preserves the selected occurrence');
+  assert.equal(await page.getByRole('button',{name:/המשך סריקה מסודרת עד דילוג/}).count(),0,'the retired open-ended ordered-scan control stays out of regular results');
+  assert.deepEqual(await identity(page),axis,'bounded result presentation preserves the selected occurrence');
 
   await send({type:'load-matrix',item:{term:'תורה',scope:'torah',skip:50,start:5,dir:1,words:['משה']}});
   await page.waitForFunction(()=>window.__state?.axis?.hitId==='50_1_5'&&window.__state.findings[0]?.hits.some(h=>h.verified));
@@ -1804,11 +2731,12 @@ test('design integration: royal controls preserve matrix identity and stable tou
  {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
   for(const width of [320,390,1440]) await withNative({width,height:1000},async page=>{
    const baseline=await identity(page);
-   const dock=page.locator('.sod29-command-island');
-   await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
+   const local=page.getByRole('group',{name:'כלי המטריצה',exact:true});
+   const owner=width<981?page.getByRole('navigation',{name:'תצוגות גילוי צופן',exact:true}):local;
+   await owner.waitFor({state:'visible'});
+   assert.equal(await page.locator('.sod29-command-island').isVisible(),false);
    for(const preset of ['light','parchment','dark']){
     await page.evaluate(preset=>window.__setThemePreset(preset),preset);
-    await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
     const submit=page.locator('.els29-native-search');
     const primary=await submit.evaluate(el=>({background:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).color,font:getComputedStyle(el).fontFamily}));
     // The primary action role is royal blue in every preset (Design V2 section 4); Night keeps the approved
@@ -1834,7 +2762,8 @@ test('design integration: royal controls preserve matrix identity and stable tou
     }
     await page.waitForFunction(()=>document.querySelector('.els29-native-search-mode button:last-child')?.getAttribute('aria-pressed')==='true');
     await page.locator('.els29-native-search-mode button').first().click();
-    if(await page.locator('#els29-context-panel').isVisible())await page.getByRole('button',{name:'סגור כלי מטריצה',exact:true}).click();
+    const closePanel=page.getByRole('button',{name:'סגור כלי מטריצה',exact:true});
+    if(await closePanel.count())await closePanel.click();
     await page.evaluate(()=>{
       window.__elsIconPressObserved=0;
       window.__elsOriginalAnimate=Element.prototype.animate;
@@ -1843,9 +2772,10 @@ test('design integration: royal controls preserve matrix identity and stable tou
         return window.__elsOriginalAnimate.call(this,frames,options);
       };
     });
-    await dock.getByRole('button',{name:'סריקה וממצאים',exact:true}).focus();
+    await owner.getByRole('button',{name:'חבילת מחקר',exact:true}).focus();
     await page.keyboard.press('Enter');
-    assert.ok(await page.evaluate(()=>window.__elsIconPressObserved>0),'shared SVG reacts to keyboard activation');
+    if(width<981)assert.equal(await page.evaluate(()=>window.__elsIconPressObserved),0,'mobile contextual tabs add no duplicate decorative launcher');
+    else assert.ok(await page.evaluate(()=>window.__elsIconPressObserved>0),'shared SVG reacts to keyboard activation');
     await page.evaluate(()=>{Element.prototype.animate=window.__elsOriginalAnimate;});
     await page.locator('#els29-context-panel').waitFor();
     const controls=await page.locator('.els29-native-query button,.els29-native-context-panel button,.els29-native-context-panel select').evaluateAll(els=>els.filter(el=>el.getClientRects().length).map(el=>({name:el.textContent.trim().slice(0,50),width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,font:parseFloat(getComputedStyle(el).fontSize)})));
@@ -1859,13 +2789,28 @@ test('design integration: royal controls preserve matrix identity and stable tou
    for(const setting of ['os','frame']){
     if(setting==='os')await page.emulateMedia({reducedMotion:'reduce'});
     else{await page.emulateMedia({reducedMotion:'no-preference'});await page.locator('.sod29-root').evaluate(el=>el.dataset.frameReducedMotion='true');}
-    const action=dock.getByRole('button',{name:'שמירה',exact:true});
-    if(await page.locator('#els29-context-panel').isVisible())await activate(page,'סגור כלי מטריצה');
+    const action=owner.getByRole('button',{name:'שמירה',exact:true});
+    if(await button(page,'סגור כלי מטריצה').count())await activate(page,'סגור כלי מטריצה');
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     await action.press('Enter');
-    await page.waitForFunction(()=>document.querySelector('#els29-context-panel header strong')?.textContent==='שמירה והמשך מחקר');
-    assert.equal(await page.locator('#els29-context-panel header strong').innerText(),'שמירה והמשך מחקר');
+    await page.waitForFunction(mobile=>document.querySelector('#els29-context-panel > .els29-native-panel-head > strong')?.textContent===(mobile?'גילוי צופן':'שמירה והמשך מחקר'),width<981);
+    assert.equal(await page.locator('#els29-context-panel > .els29-native-panel-head > strong').innerText(),width<981?'גילוי צופן':'שמירה והמשך מחקר');
     assert.equal(await action.evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.id==='sod29-icon-press').length),0,`${setting}: no decorative pulse`);
    }
   },{fullFrame:true,mobile:width<981});
+ });
+
+test('Classic profile stays clean: no cross search or Research package labels',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  for(const viewport of [{width:390,height:844},{width:1440,height:1000}])await withNative(viewport,async page=>{
+   assert.equal(await button(page,'הצלבה בין צירים').count(),0,'Classic exposes no cross-search action');
+   assert.equal(await button(page,'חבילת מחקר').count(),0,'Classic exposes no Research package label');
+   assert.equal(await button(page,'כל הכלים').count(),1,'Classic restores the original tools entry');
+   if(viewport.width>980){
+    const tools=page.getByRole('group',{name:'כלי המטריצה',exact:true});
+    assert.equal(await tools.getByRole('button',{name:'תוצאות',exact:true}).count(),1);
+    assert.equal(await tools.getByRole('button',{name:'סריקה וממצאים',exact:true}).count(),1);
+   }
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Classic has no horizontal overflow');
+  },{researchProfile:false,mobile:viewport.width<981});
  });
