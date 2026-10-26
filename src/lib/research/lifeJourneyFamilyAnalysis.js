@@ -3,8 +3,9 @@ import {
   createSupabaseThreeCardProvider,
 } from "./normalizedMessageReflection.js";
 import { SYNTHESIS_STATUS } from "./researchSynthesis.js";
+import { buildLifeJourneySynthesisPack } from "./lifeJourneySynthesisPack.js";
 
-export const LIFE_JOURNEY_FAMILY_ANALYSIS_VERSION = "life-journey-family-analysis-v2";
+export const LIFE_JOURNEY_FAMILY_ANALYSIS_VERSION = "life-journey-family-analysis-v3";
 const MAX_CONNECTIONS = 8;
 const MAX_SHARED_VALUES = 8;
 
@@ -220,6 +221,7 @@ function normalizeAiMessage(raw) {
 
 export async function runLifeJourneyFamilyAnalysis({
   research,
+  birthReflections = null,
   aiAnalysisProvider,
   tarotProvider,
   now = () => new Date().toISOString(),
@@ -241,10 +243,17 @@ export async function runLifeJourneyFamilyAnalysis({
     findings: evidence.findings,
   });
   const facts = buildLifeJourneyFamilyAnalysisFacts(research);
+  const selectedRefs = list(research.rows).map(row => clean(row?.memberRef)).filter(Boolean);
+  const inputPack = buildLifeJourneySynthesisPack({
+    research,
+    birthReflections,
+    selectedRefs,
+    interpreterFacts: facts,
+  });
   const rawMessage = await aiAnalysisProvider({
     kind: "life_journey_family",
     subject: "מפת מחקר משפחתית",
-    facts,
+    facts: inputPack.interpreter.facts,
     operation: "normalized_reflection",
   });
   const message = normalizeAiMessage(rawMessage)
@@ -271,6 +280,19 @@ export async function runLifeJourneyFamilyAnalysis({
       },
     }),
     tarotProvider,
+  });
+  const synthesisPack = buildLifeJourneySynthesisPack({
+    research,
+    analysis: {
+      state: "ready",
+      data: {
+        message: result.message,
+        claims: result.synthesis.claims,
+      },
+    },
+    birthReflections,
+    selectedRefs,
+    interpreterFacts: inputPack.interpreter.facts,
   });
 
   return Object.freeze({
@@ -301,10 +323,15 @@ export async function runLifeJourneyFamilyAnalysis({
       verseCount: finiteInteger(research?.sourceResearch?.coverage?.verseCount) ?? 0,
       equalPhraseCount: finiteInteger(research?.sourceResearch?.coverage?.equalPhraseCount) ?? 0,
     }),
+    synthesisPack,
     boundaries: Object.freeze({
+      one_private_synthesis_pack: true,
       message_frozen_before_internal_reflection: true,
       internal_reflection_not_exposed: true,
       internal_reflection_evidence_weight: 0,
+      birth_lenses_internal_only: true,
+      birth_lenses_excluded_from_interpreter: true,
+      birth_lenses_evidence_weight: 0,
       names_not_sent_to_interpreter: true,
       public_source_text_sanitized_before_interpreter: true,
       no_els: true,

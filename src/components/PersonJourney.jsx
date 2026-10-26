@@ -15,6 +15,7 @@ import {
   upsertSelfProfile,
 } from "../lib/supabase.js";
 import { track } from "../lib/tracking.js";
+import { getMyHints } from "../lib/hints.js";
 import {
   createSupabasePersonalDateCrossProvider,
   gregorianToHebrewDateRepresentation,
@@ -37,6 +38,8 @@ import {
   buildLifeJourneyFamilySelectionPatch,
   buildLifeJourneyFindingTraversalPatch,
   buildLifeJourneyPersonContext,
+  buildLifeJourneyMapPositionPatch,
+  lifeJourneyMapPosition,
   lifeJourneySelectedMemberRefs,
   lifeJourneyViewFromContext,
 } from "../lib/research/lifeJourneyPersonContext.js";
@@ -60,6 +63,7 @@ import CanonicalProgress from "./CanonicalProgress.jsx";
 import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import CanonicalVerseCards2029 from "./experience2029/CanonicalVerseCards2029.jsx";
 import "./person-journey.css";
+import LifeJourneyResume2029 from "./experience2029/LifeJourneyResume2029.jsx";
 
 const LifeJourneyMaps2029 = lazy(() => import("./experience2029/LifeJourneyMaps2029.jsx"));
 
@@ -250,6 +254,11 @@ export default function PersonJourney(props) {
   return <PrincipalPersonJourney key={principal} {...props} auth={auth} />;
 }
 
+function FamilyAnalysisDisclosure({ variant, children }) {
+  if (variant !== "2029") return <>{children}</>;
+  return <details className="person-journey-summary-disclosure"><summary>פירוט הסיכום המשפחתי</summary>{children}</details>;
+}
+
 function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, auth }) {
   const { user, loading: authLoading } = auth;
   const userId = user?.id || null;
@@ -265,6 +274,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [analysis, setAnalysis] = useState({ state: "idle", data: null, error: null });
   const [familyResearch, setFamilyResearch] = useState({ state: "idle", rows: [], sharedValues: [], sharedExpressions: [], error: null });
   const [familyAnalysis, setFamilyAnalysis] = useState({ state: "idle", data: null, error: null });
+  const [birthReflections, setBirthReflections] = useState(() => new Map());
+  const [ownedHints, setOwnedHints] = useState({ principal: userId, loading: true, rows: [], error: null });
+  const hintState = ownedHints.principal === userId ? ownedHints : { loading: true, rows: [], error: null };
   const [familyClaims, setFamilyClaims] = useState({ state: "idle", rows: [], error: null });
   const [familyClaimBusy, setFamilyClaimBusy] = useState(null);
   const [familyClaimNotice, setFamilyClaimNotice] = useState(null);
@@ -320,6 +332,18 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const currentLifeJourneyView = research.context?.dimensions?.lifeJourneyView || null;
   const currentLifeJourneyPersonRef = research.context?.dimensions?.lifeJourneyPersonRef || null;
   const currentReturnPersonRef = research.context?.returnTo?.subject?.id || null;
+
+  useEffect(() => {
+    if (variant !== "2029" || !userId) return;
+    let alive = true;
+    setOwnedHints({ principal: userId, loading: true, rows: [], error: null });
+    getMyHints({ id: userId }, { fallbackLocal: false }).then(rows => {
+      if (alive) setOwnedHints({ principal: userId, loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
+    }).catch(() => {
+      if (alive) setOwnedHints({ principal: userId, loading: false, rows: [], error: "הרמזים אינם זמינים כרגע." });
+    });
+    return () => { alive = false; };
+  }, [userId, variant]);
 
   const refresh = useCallback(async (pid) => {
     const data = await listFamily(pid);
@@ -424,14 +448,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   }, [currentLifeJourneyPersonRef, currentLifeJourneyView, currentResearchSubjectId,
     currentReturnPersonRef, pathname, persistedSelf?.name, research.syncStatus, selfRef, user?.id, variant]);
 
-  useEffect(() => {
-    if (variant !== "2029" || !selfRef || !familyResearchSignature || familyResearch.state !== "idle") return;
-    const snapshot = readLifeJourneyFamilySnapshot(research.context, {
+  const materializeFamilyContext = useCallback(context => {
+    const availableRefs = new Set(members.map(member => clean(member.source_ref)));
+    const selectedRefs = lifeJourneySelectedMemberRefs(context, selfRef).filter(ref => availableRefs.has(ref));
+    const snapshot = readLifeJourneyFamilySnapshot(context, {
       personRef: selfRef,
-      signature: familyResearchSignature,
+      signature: lifeJourneyFamilySelectionSignature(members, selectedRefs),
     });
-    if (!snapshot) return;
-    const materialized = materializeLifeJourneyFamilySnapshot(snapshot, members, {
+    if (!snapshot) return null;
+    return materializeLifeJourneyFamilySnapshot(snapshot, members, {
       hebrewDateForMember: member => {
         const date = memberResearchProfile(member).birthdate;
         if (!date) return null;
@@ -439,10 +464,15 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         catch { return null; }
       },
     });
+  }, [members, selfRef]);
+
+  useEffect(() => {
+    if (variant !== "2029" || !selfRef || !familyResearchSignature || familyResearch.state !== "idle") return;
+    const materialized = materializeFamilyContext(research.context);
     if (!materialized) return;
     setFamilyResearch(materialized.research);
     setFamilyAnalysis(materialized.analysis || { state: "idle", data: null, error: null });
-  }, [familyResearch.state, familyResearchSignature, members, research.context, selfRef, variant]);
+  }, [familyResearch.state, familyResearchSignature, materializeFamilyContext, research.context, selfRef, variant]);
 
   const runInitialResearch = useCallback(async ({ first, last, date }) => {
     if (!user || !clean(first)) return null;
@@ -513,6 +543,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       setFamilyAnalysis({ state: "idle", data: null, error: null });
+      setBirthReflections(new Map());
       track("journey_person", null, "save_self");
       if (variant === "2029") {
         setAnalysis({ state: "idle", data: null, error: null });
@@ -582,6 +613,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refresh(personId);
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       setFamilyAnalysis({ state: "idle", data: null, error: null });
+      setBirthReflections(new Map());
       track("journey_person", null, editingMemberRef ? "edit_member" : "add_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
@@ -818,6 +850,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     }
     setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
     setFamilyAnalysis({ state: "idle", data: null, error: null });
+    setBirthReflections(new Map());
   }, [research, selfRef]);
 
   const updateFamilySelection = useCallback((memberRef, included) => {
@@ -842,6 +875,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       await refreshFamilyClaims();
       setFamilyResearch({ state: "idle", rows: [], sharedValues: [], error: null });
       setFamilyAnalysis({ state: "idle", data: null, error: null });
+      setBirthReflections(new Map());
       track("journey_person", null, "remove_member");
     } catch (error) {
       setErr(personJourneyErrorMessage(error));
@@ -861,6 +895,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       const providers = createLifeJourneyFamilyAnalysisProviders({ getAiAnalysis, supabase });
       const data = await runLifeJourneyFamilyAnalysis({
         research: completedResearch,
+        birthReflections,
         ...providers,
       });
       const completedAnalysis = { state: "ready", data, error: null };
@@ -878,7 +913,31 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       setFamilyAnalysis({ state: "error", data: null, error: personJourneyErrorMessage(error) });
       return null;
     }
-  }, [familyResearchSignature, research, selfRef]);
+  }, [birthReflections, familyResearchSignature, research, selfRef]);
+
+  const rememberBirthReflection = useCallback((memberRef, result) => {
+    const targetRef = clean(memberRef);
+    if (!targetRef || !selectedFamilyRefSet.has(targetRef)) return;
+    setBirthReflections(previous => {
+      const next = new Map(previous);
+      if (result && typeof result === "object" && !Array.isArray(result)) next.set(targetRef, result);
+      else next.delete(targetRef);
+      return next;
+    });
+  }, [selectedFamilyRefSet]);
+
+  const updateMapPosition = useCallback(position => {
+    const patch = buildLifeJourneyMapPositionPatch(research.context, { personRef: selfRef, ...position });
+    if (patch) research.updateResearchContext?.(patch);
+  }, [research, selfRef]);
+
+  const resumeLifeJourney = useCallback(result => {
+    const materialized = materializeFamilyContext(result.context || result.representation?.context);
+    setBirthReflections(new Map());
+    setFamilyResearch(materialized?.research || { state: "idle", rows: [], sharedValues: [], error: null });
+    setFamilyAnalysis(materialized?.analysis || { state: "idle", data: null, error: null });
+    if (result.href && result.href !== "/2029/journey") navigate(result.href);
+  }, [materializeFamilyContext, navigate]);
 
   const runSelectedFamilyResearch = useCallback(async () => {
     if (!user) return;
@@ -1007,7 +1066,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       </div> : <span className="person-journey-symbol" aria-hidden="true">✦</span>}
       <h2>מסע החיים הוא מרחב פרטי</h2>
       <p>שם, תאריך ומשפחה נשמרים רק בהקשר האישי שלך. יש להתחבר כדי לפתוח מסע.</p>
-      <a href="/login">התחברות</a>
+      <a href={variant === "2029" ? "/login?returnTo=%2F2029%2Fjourney" : "/login"}>התחברות</a>
     </section>;
   }
 
@@ -1359,10 +1418,18 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           selectedRefs={selectedFamilyRefs}
           research={familyResearch}
           analysis={familyAnalysis}
+          birthReflections={birthReflections}
+          onBirthCalculationChange={rememberBirthReflection}
           context={research.context}
+          position={variant === "2029" ? lifeJourneyMapPosition(research.context, selfRef, members.map(member => member.source_ref)) : undefined}
+          onPositionChange={variant === "2029" ? updateMapPosition : undefined}
           birthTimeline={birthTimeline}
+          hintState={variant === "2029" ? hintState : null}
+          includeProgramBranches={variant === "2029"}
         />
       </Suspense> : null}
+
+      {variant === "2029" && selfRef ? <LifeJourneyResume2029 research={research} personRef={selfRef} readOnly={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} onResume={resumeLifeJourney} /> : null}
 
       {members.length ? <div className="person-journey-family-research-actions">
         <button
@@ -1372,14 +1439,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           onClick={runSelectedFamilyResearch}
         >
           {familyResearch.state === "loading"
-            ? "בונה מפה, מקורות ומסר…"
+            ? "בונה את מפת החיבורים…"
             : familyAnalysis.state === "loading"
-              ? "מנסח את המסר מהממצאים…"
+              ? "מסכם את הממצאים…"
             : selectedFamilyRefs.length === 1
-              ? "צור מחקר ומסר לאדם שנבחר"
-              : `צור מחקר ומסר ל־${selectedFamilyRefs.length} אנשים`}
+              ? "בנה מפה לאדם שנבחר"
+              : `בנה מפת חיבורים ל־${selectedFamilyRefs.length} אנשים`}
         </button>
-        <small>לחיצה אחת בונה מפה, ביטויים שווי־ערך, מקורות תנ״ך ומסר. ELS אינו משתתף בשלב הזה.</small>
+        <small>לחיצה אחת בודקת ביטויים שווי־ערך, חיבורים ומקורות תנ״ך, ומציגה סיכום ברור. ELS אינו משתתף בשלב הזה.</small>
       </div> : null}
 
       {familyResearch.state === "loading" ? <CanonicalProgress
@@ -1389,24 +1456,24 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         compact
       /> : null}
       {familyResearch.state === "error" ? <div className="person-journey-error" role="alert">{familyResearch.error}</div> : null}
-      {familyResearch.state === "ready" ? <section className="person-journey-family-research" aria-label="תוצאות המחקר המשפחתי">
+      {familyResearch.state === "ready" ? <section className="person-journey-family-research" aria-label="מפת החיבורים המשפחתית">
         <div className="person-journey-family-research-head">
-          <div><small>מחקר מפורש</small><h3>תוצאות המחקר המשפחתי</h3></div>
+          <div><small>בדיקה שביקשת</small><h3>מפת החיבורים המשפחתית</h3></div>
           <span>{familyResearch.rows.filter(row => row.state === "ready").length} מתוך {familyResearch.rows.length} הושלמו</span>
         </div>
         {familyAnalysis.state === "loading" ? <CanonicalProgress
-          title="מנסח מסר מהמפה המנורמלת"
-          detail="המסר נבנה רק מהממצאים שכבר חושבו; בדיקת ההשתקפות נשארת פנימית."
+          title="מסכם את מפת החיבורים"
+          detail="הסיכום נבנה רק מהממצאים שכבר חושבו; בדיקת ההשתקפות נשארת פנימית."
           phase="נרמול → סינתזה → אימות פנימי"
           compact
         /> : null}
-        {familyAnalysis.state === "ready" && familyAnalysis.data ? <article
+        {familyAnalysis.state === "ready" && familyAnalysis.data ? <FamilyAnalysisDisclosure variant={variant}><article
           className="person-journey-family-analysis"
           data-experience-capability="life-journey-family-normalized-analysis"
           aria-labelledby="life-journey-family-analysis-title"
         >
           <header>
-            <div><small>מסר מתוך הממצאים המנורמלים</small><h3 id="life-journey-family-analysis-title">המסר המשפחתי</h3></div>
+            <div><small>סיכום מתוך הממצאים המנורמלים</small><h3 id="life-journey-family-analysis-title">התמונה המשפחתית</h3></div>
             <span>{familyAnalysis.data.coverage.connectionCount} חיבורים · {familyAnalysis.data.coverage.searchedPairCount} זוגות נבדקו</span>
           </header>
           <p>{familyAnalysis.data.message}</p>
@@ -1416,14 +1483,14 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
             <span>{familyResearch.sourceResearch.coverage.returnedMemberCount} אנשים עם שכבת מקור</span>
           </div> : null}
           <details>
-            <summary>על מה המסר נשען?</summary>
+            <summary>על מה הסיכום נשען?</summary>
             <ul>{familyAnalysis.data.claims.map(claim => <li key={claim.id}>{claim.text}</li>)}</ul>
           </details>
-          <footer>המסר נוסח רק מתוצאות המנוע שכבר חושבו. בדיקות פנימיות אינן מוצגות, אינן ראיה ואינן משנות את הממצאים.</footer>
-        </article> : null}
+          <footer>הסיכום נוסח רק מתוצאות המנוע שכבר חושבו. בדיקות פנימיות אינן מוצגות, אינן ראיה ואינן משנות את הממצאים.</footer>
+        </article></FamilyAnalysisDisclosure> : null}
         {familyAnalysis.state === "error" || familyAnalysis.state === "idle" ? <>
-          <article className="person-journey-research-message" aria-label="מסר המחקר המשפחתי המאוחד">
-          <small>מחקר משפחתי מאוחד · מנורמל</small>
+          <article className="person-journey-research-message" aria-label="סיכום מפת החיבורים המשפחתית">
+          <small>מפה משפחתית מאוחדת · מנורמלת</small>
           <h3>המשפחה כמטריצה אחת</h3>
           <p>{familyResearch.message}</p>
           <span>{familyResearch.coverage?.expressionCount || 0} ביטויי שם ותאריך יצרו {familyResearch.coverage?.searchedPairCount || 0} זוגות מועמדים שנבדקו. נשמר עותק עבודה פרטי ב־Research Context; הוא אינו אמת על המשפחה.</span>
@@ -1433,7 +1500,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
               type="button"
               className="person-journey-primary"
               onClick={runFamilyAnalysis}
-            >{familyAnalysis.state === "error" ? "נסה שוב לנסח את המסר" : "נסח מסר מהמפה השמורה"}</button>
+            >{familyAnalysis.state === "error" ? "נסה שוב ליצור סיכום" : "הצג סיכום מהמפה השמורה"}</button>
             <small role={familyAnalysis.state === "error" ? "alert" : undefined}>{familyAnalysis.state === "error" ? familyAnalysis.error : "המפה שוחזרה מהזיכרון הפרטי בלי להפעיל מחדש את מנוע הניסוח."}</small>
           </div>
         </> : null}
@@ -1566,7 +1633,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
       </div> : null}
     </section>
 
-    {variant === "2029" && CapabilitySurface ? <CapabilitySurface view="hints" user={user} /> : null}
+    {variant === "2029" && CapabilitySurface ? <CapabilitySurface view="hints" user={user} hintState={hintState} /> : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">
       <div>
