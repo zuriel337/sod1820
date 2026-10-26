@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { AHAVAT_DS01_BOOKS } from "../../data/ahavatTorahDs01Source2029.js";
 
 const STATUS_COLORS = Object.freeze({
   closed: "#d9b65d",
@@ -64,6 +65,26 @@ function DatasetTowers({ datasets, activeId, onSelect }) {
   </group>;
 }
 
+function SourceBookTowers({ activeId, onSelect }) {
+  return <group>
+    {AHAVAT_DS01_BOOKS.map((book, index) => {
+      const height = .62 + book.count / 165;
+      const color = book.reading === "closed" ? STATUS_COLORS.closed : STATUS_COLORS.partial;
+      return <group key={book.id} position={[(index - 2) * 1.38, 0, 0]}>
+        <mesh position={[0, height / 2, 0]} onClick={event => { event.stopPropagation(); onSelect?.(book.id); }}>
+          <boxGeometry args={[.94, height, .94]} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={activeId === book.id ? .56 : .12} roughness={.34} metalness={.2} />
+        </mesh>
+        <mesh position={[0, .03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[.68, 32]} />
+          <meshBasicMaterial color={color} transparent opacity={activeId === book.id ? .55 : .18} />
+        </mesh>
+      </group>;
+    })}
+    <gridHelper args={[9, 18, "#5c5140", "#27241f"]} />
+  </group>;
+}
+
 function SceneControls() {
   const { camera, gl } = useThree();
   const controlsRef = useRef(null);
@@ -88,16 +109,16 @@ function SceneControls() {
   return null;
 }
 
-export default function AhavatTorahSpatialScene2029({ datasets = [], activeId = "", onSelect }) {
+export default function AhavatTorahSpatialScene2029({ datasets = [], activeId = "", onSelect, mode = "datasets" }) {
   const stableDatasets = useMemo(() => datasets.slice(0, 13), [datasets]);
-  return <div className="ahavat29-spatial-canvas" role="img" aria-label="מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו">
+  return <div className="ahavat29-spatial-canvas" role="img" aria-label={mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו"}>
     <Canvas camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#0d0b09"]} />
       <fog attach="fog" args={["#0d0b09", 10, 19]} />
       <ambientLight intensity={1.2} />
       <directionalLight position={[4, 8, 5]} intensity={2.25} color="#f3d68f" />
       <pointLight position={[-5, 3, -3]} intensity={19} distance={14} color="#668ec4" />
-      <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} />
+      {mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} />}
       <SceneControls />
     </Canvas>
   </div>;

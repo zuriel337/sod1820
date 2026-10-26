@@ -17,6 +17,7 @@ import {
   sectionForPage,
 } from "../data/ahavatTorahSystem2029.js";
 import { applySeo } from "../lib/seo.js";
+import { AHAVAT_DS01_BOOKS, AHAVAT_DS01_SOURCE_PAGE, AHAVAT_DS01_TOTAL, ahavatDs01RowSum } from "../data/ahavatTorahDs01Source2029.js";
 import "./ahavatTorahSystem2029.css";
 
 const AhavatTorahSpatialScene2029 = lazy(() => import("../components/books2029/AhavatTorahSpatialScene2029.jsx"));
@@ -320,6 +321,33 @@ function ResearchCards({ kind, records = [], onPage }) {
   </div>;
 }
 
+function DivineNameSourceModel({ onPage }) {
+  const [activeId, setActiveId] = useState("bereshit");
+  const [showScene, setShowScene] = useState(false);
+  const active = AHAVAT_DS01_BOOKS.find(book => book.id === activeId) || AHAVAT_DS01_BOOKS[0];
+  const selectBook = id => {
+    setActiveId(id);
+    onPage(AHAVAT_DS01_SOURCE_PAGE);
+  };
+
+  return <section className="ahavat29-ds01" aria-labelledby="ahavat29-ds01-title">
+    <header>
+      <div><span>מגדל עוז · דברי הספר · PDF 6</span><h3 id="ahavat29-ds01-title">מניין שם ה׳ בחמשת החומשים</h3></div>
+      <strong>{AHAVAT_DS01_TOTAL.toLocaleString("en-US")}</strong>
+    </header>
+    <p className="ahavat29-ds01-guide"><b>הסבר נלווה:</b> המחבר פותח בשאלה כמה פעמים נזכר השם בתורה, מונה לפי פרשות ומסכם כל חומש. חמשת הסיכומים המודפסים נותנים יחד 1,820. זהו המניין המובא בספר; ההמחשה מציגה אותו כפי שנדפס.</p>
+    <div className="ahavat29-ds01-equation" aria-label="סכום חמשת החומשים">
+      {AHAVAT_DS01_BOOKS.map((book, index) => <React.Fragment key={book.id}>{index > 0 ? <span aria-hidden="true">+</span> : null}<button type="button" className={activeId === book.id ? "is-active" : ""} onClick={() => selectBook(book.id)}><small>{book.title}</small><strong>{book.count}</strong></button></React.Fragment>)}
+      <span aria-hidden="true">=</span><b>1,820</b>
+    </div>
+    <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מבנה תלת־ממדי" : "פתח מבנה תלת־ממדי"}</button><button type="button" onClick={() => onPage(AHAVAT_DS01_SOURCE_PAGE)}>פתח את דברי הספר · PDF 6</button></div>
+    {showScene ? <div className="ahavat29-ds01-scene"><Suspense fallback={<p role="status">טוען את מבנה חמשת החומשים…</p>}><AhavatTorahSpatialScene2029 mode="ds01" activeId={activeId} onSelect={selectBook} /></Suspense><small>גובה = המניין המודפס לכל חומש · לחיצה פותחת את עמוד המקור</small></div> : null}
+    <div className="ahavat29-ds01-detail" aria-live="polite"><div><span>{active.title} · {active.printed} בדברי הספר</span><strong>{active.count} מופעים במניין המחבר</strong><p>{active.reading === "closed" ? `תאי הפרשות שנקראו נסגרים לסכום החומש: ${ahavatDs01RowSum(active)}.` : "סכום החומש נקרא בעמוד; תאי הפרשות דורשים הכרעה נוספת ולכן אינם מוצגים כמניין סגור."}</p></div><button type="button" onClick={() => onPage(AHAVAT_DS01_SOURCE_PAGE)}>ראה PDF 6</button></div>
+    {active.rows.length ? <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><thead><tr><th>פרשה</th><th>מופעי השם בדברי הספר</th><th>מקור</th></tr></thead><tbody>{active.rows.map(([name, count]) => <tr key={name}><td>{name}</td><td><b>{count}</b></td><td><button type="button" onClick={() => onPage(AHAVAT_DS01_SOURCE_PAGE)}>PDF 6</button></td></tr>)}</tbody></table></div> : null}
+    <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>אהבת תורה, חלק א׳, עמוד מודפס א׳, PDF 6. המניין הוא טענת המחבר. חיבור חמשת הסיכומים נבדק חשבונית; לא בוצעה כאן ספירת קורפוס עצמאית. בשמות ובבמדבר נותרה אי־התאמה בקריאת תאי הפרשות ולכן מוצג רק הסכום המודפס.</p></details>
+  </section>;
+}
+
 function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage }) {
   const [tab, setTab] = useState("datasets");
   const [showScene, setShowScene] = useState(false);
@@ -336,6 +364,8 @@ function SpatialTables({ bundle, bundleState, selectedId, onSelect, onPage }) {
       <div><span>מצפה הנתונים של הספר</span><h2 id="ahavat29-spatial-title">טבלאות שאפשר להיכנס לתוכן</h2></div>
       <p>התלת־ממד מציג מבנה אמיתי: גובה הוא מספר עמודי המקור, צבע הוא מצב הקריאה, וכל מגדל פותח את ה־PDF המדויק.</p>
     </header>
+
+    <DivineNameSourceModel onPage={onPage} />
 
     <div className="ahavat29-spatial-key" aria-label="מקרא המצפה">
       <span><i className="is-height" />גובה = מספר עמודי מקור</span>
