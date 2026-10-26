@@ -751,6 +751,8 @@ function MatrixDiscoveryResults({ result, pending = false, findings = [], onAddG
   const groups = Array.isArray(result.groups) ? result.groups.filter((group) => group.kind !== "motif").slice(0, 4) : [];
   const existing = new Set(findings.map((finding) => finding.t));
   const discoveryBundle = result.discoveryBundle?.contract === "els_cipher_discovery_plan_v1" ? result.discoveryBundle : null;
+  const languageInspection = result.languageInspection?.contract === "els_matrix_language_inspection_v1"
+    && result.languageInspection?.status === "CANDIDATE_INPUT" ? result.languageInspection : null;
   const selectedPair = discoveryBundle?.status === "VERIFIED_PAIR" ? discoveryBundle.selected : null;
   const selectedTerms = (selectedPair?.supports || []).map((support) => support.term);
   const addableSelectedTerms = selectedTerms.filter((term) => !existing.has(term)).slice(0, Math.max(0, 12 - findings.length));
@@ -795,7 +797,8 @@ function MatrixDiscoveryResults({ result, pending = false, findings = [], onAddG
       {description ? <small>{description}</small> : null}
       <small>{result.languageMatches?.length || 0} מילים נתמכות בשפת המחקר · {result.contextMatches?.length || 0} התאמות להקשר · שלב א׳ {result.stageCounts?.A || 0} · שלב ב׳ {result.stageCounts?.B || 0}.</small>
       <small>{result.vocabularyTermsChecked || 0} מונחי הקשר נבדקו.</small>
-      <small>נסרקו {result.budget?.matrixPathsChecked || 0} קווי מפה באזור תחום; אוצר המילים הגדול לא נטען.</small></header>
+      <small>נסרקו {result.budget?.matrixPathsChecked || 0} קווי מפה באזור תחום; אוצר המילים הגדול לא נטען.</small>
+      {languageInspection ? <small data-els-language-inspection="candidate-ready">מפת שפה תחומה מוכנה · {languageInspection.coverage?.returnedRays || 0} קווים קרובים · לא בוצעה קריאת AI. האותיות קנוניות; החלוקה למילים והמשמעות עדיין אינן מאומתות.</small> : null}</header>
     {selectedPair ? <article className="els29-native-discovery-bundle" data-els-discovery-bundle="verified-pair">
       <header><span>הצופן המוביל לבדיקה</span><strong><bdi>{result.axis?.term}</bdi> + {(selectedPair.supports || []).map((support) => <bdi key={support.term}>{support.label || support.term}</bdi>)}</strong></header>
       <p>{selectedPair.relation?.label}</p>
@@ -1531,7 +1534,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onReturnToResearchPlan, onSearchStart, onSaved, onDeleteSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = true, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onReturnToResearchPlan, onSearchStart, onSaved, onDeleteSaved, formsPreviewRequest = null, onFormsPreviewResult, onLanguageInspection }) {
   const palette = use2029Palette("research_lab");
   const { user, isAdmin } = useAuth();
   const compactMobile = useMediaQuery(MOBILE_WORKSPACE_QUERY);
@@ -2278,6 +2281,18 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     ? `${resultView.id}:${engineState.axis.hitId}:${activeContextKey}` : null;
   const resultDiscoveryPending = lensPending && lensRequest?.lens === "matrix-discovery" && lensRequest?.target?.surface === "results"
     && lensRequest?.target?.hitId === engineState?.axis?.hitId;
+  useEffect(() => {
+    const inspection = researchProfile
+      && resultDiscovery?.ok
+      && resultDiscovery?.target?.surface === "results"
+      && resultDiscovery?.target?.hitId === engineState?.axis?.hitId
+      && (resultDiscovery?.target?.contextKey || "") === activeContextKey
+      && resultDiscovery?.languageInspection?.contract === "els_matrix_language_inspection_v1"
+      && resultDiscovery?.languageInspection?.status === "CANDIDATE_INPUT"
+      ? resultDiscovery.languageInspection
+      : null;
+    onLanguageInspection?.(inspection);
+  }, [researchProfile, resultDiscovery, activeContextKey, engineState?.axis?.hitId, onLanguageInspection]);
   useEffect(() => {
     if (!researchProfile || visibleTool !== "results" || operations.search?.status !== "done" || !matrixActive || !resultTriageKey || lensPending) return;
     const matches = resultTriage?.ok && resultTriage.kind === (resultsAreCross ? "cross" : "regular") && resultTriage.setId === resultView.id

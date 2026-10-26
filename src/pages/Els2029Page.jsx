@@ -34,13 +34,13 @@ function StateRow({ label, value, state = "ready" }) {
 }
 
 
-function ElsRazielEntry({ researchContext, projection, layers, planSummary, ready }) {
+function ElsRazielEntry({ researchContext, projection, layers, planSummary, languageInspection, ready }) {
   const shell = use2029Shell();
   const surfaceContext = useMemo(
     () => ready
-      ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary })
+      ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary, languageInspection })
       : null,
-    [ready, researchContext, projection, layers, planSummary]
+    [ready, researchContext, projection, layers, planSummary, languageInspection]
   );
   const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
 
@@ -64,11 +64,11 @@ function ElsRazielEntry({ researchContext, projection, layers, planSummary, read
   </button>;
 }
 
-function ElsResearchBarConnected({ researchContext, projection, layers, planSummary, replay, ready, subject, locator, onLibrary }) {
+function ElsResearchBarConnected({ researchContext, projection, layers, planSummary, languageInspection, replay, ready, subject, locator, onLibrary }) {
   const shell = use2029Shell();
   const surfaceContext = useMemo(
-    () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary }) : null,
-    [ready, researchContext, projection, layers, planSummary]
+    () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary, languageInspection }) : null,
+    [ready, researchContext, projection, layers, planSummary, languageInspection]
   );
   const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
   return <ElsResearchBar2029
@@ -158,6 +158,7 @@ export default function Els2029Page() {
   const [matrixProfile, setMatrixProfile] = useState(ELS_MATRIX_PROFILE.RESEARCH);
   const [researchLoad, setResearchLoad] = useState(null);
   const [researchProbe, setResearchProbe] = useState(null);
+  const [languageInspection, setLanguageInspection] = useState(null);
   const [exactStatus, setExactStatus] = useState("idle");
   const [automaticSummary, setAutomaticSummary] = useState(null);
   const researchPlanRef = useRef(null);
@@ -358,6 +359,7 @@ export default function Els2029Page() {
         <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix || hasRazielReturnMarker ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix} active={!library} researchProfile={researchProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           onReturnToResearchPlan={() => researchPlanRef.current?.scrollIntoView({ block: "start", behavior: "smooth" })}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}
+          onLanguageInspection={setLanguageInspection}
           onSearchStart={() => setSearchRevision(value => value + 1)} onSaved={row => {
             setSavedRevision(value => value + 1);
             if (row?.id === savedRecord.row?.id) setSavedRecord(current => ({ ...current, row }));
@@ -382,6 +384,7 @@ export default function Els2029Page() {
         projection={replayProjection}
         layers={replayLayers}
         planSummary={automaticSummary}
+        languageInspection={languageInspection}
         replay={replay}
         ready={replayMatched && layeredReady}
         subject={subject}
@@ -469,6 +472,7 @@ export default function Els2029Page() {
             projection={replayProjection}
             layers={replayLayers}
             planSummary={automaticSummary}
+            languageInspection={languageInspection}
             ready={replayMatched && layeredReady}
           />
           <span className="sod29-chip">Neighborhood · BUILDING</span>

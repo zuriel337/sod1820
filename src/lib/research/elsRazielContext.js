@@ -21,6 +21,17 @@ const EXACT_CONTRACT = "els_2029_projection_v1";
 const EXACT_STATUS = "OK";
 const EXACT_POLICY = "exact_replay_v1";
 const EXACT_RETURN = "verified-v1";
+const LANGUAGE_INSPECTION_CONTRACT = "els_matrix_language_inspection_v1";
+const LANGUAGE_INSPECTION_STATUS = "CANDIDATE_INPUT";
+const LANGUAGE_ORIENTATIONS = new Set(["horizontal", "vertical", "diagonal-right", "diagonal-left"]);
+
+function canonicalHebrewLetters(value) {
+  const finals = { ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" };
+  return [...String(value ?? "")]
+    .filter((letter) => letter >= "א" && letter <= "ת")
+    .map((letter) => finals[letter] || letter)
+    .join("");
+}
 
 function cleanScope(value) {
   const scope = clean(value);
@@ -51,6 +62,93 @@ function exactProjectionOccurrence(projection) {
   return selected;
 }
 
+function boundedLanguageInspection(value, selected, projection, scope) {
+  if (
+    !value
+    || value.contract !== LANGUAGE_INSPECTION_CONTRACT
+    || value.status !== LANGUAGE_INSPECTION_STATUS
+    || value.source !== "canonical_matrix_letters"
+    || value.modelCallsTriggered !== 0
+  ) return null;
+  const axis = value.axis || {};
+  const selectedTerm = canonicalHebrewLetters(selected?.term || projection?.term);
+  const axisTerm = canonicalHebrewLetters(axis.term);
+  const axisScope = cleanScope(axis.scope);
+  const axisSkip = safeInt(axis.skip);
+  const axisDir = safeInt(axis.dir);
+  const axisStart = safeInt(axis.start);
+  if (
+    !selectedTerm
+    || axisTerm !== selectedTerm
+    || axisScope !== scope
+    || axisSkip !== safeInt(selected?.skip)
+    || axisDir !== safeInt(selected?.dir)
+    || axisStart !== safeInt(selected?.start)
+  ) return null;
+
+  const rays = [];
+  let letterCount = 0;
+  for (const raw of Array.isArray(value.rays) ? value.rays.slice(0, 24) : []) {
+    const orientation = clean(raw?.orientation);
+    const text = canonicalHebrewLetters(raw?.text);
+    const reverseText = canonicalHebrewLetters(raw?.reverseText);
+    const start = safeInt(raw?.start);
+    const step = safeInt(raw?.step);
+    const distance = safeInt(raw?.distance);
+    if (
+      !LANGUAGE_ORIENTATIONS.has(orientation)
+      || text.length < 4
+      || text.length > 24
+      || reverseText !== [...text].reverse().join("")
+      || start == null
+      || start < 0
+      || step == null
+      || step === 0
+      || distance == null
+      || distance < 0
+      || distance > 80
+      || letterCount + text.length > 576
+    ) continue;
+    letterCount += text.length;
+    rays.push(Object.freeze({
+      id: `${orientation}:${start}:${step}:${text.length}`,
+      orientation,
+      text,
+      reverseText,
+      start,
+      step,
+      length: text.length,
+      distance,
+      intersectsAxis: distance === 0,
+    }));
+  }
+  if (!rays.length) return null;
+  const coverage = value.coverage || {};
+  return Object.freeze({
+    contract: LANGUAGE_INSPECTION_CONTRACT,
+    status: LANGUAGE_INSPECTION_STATUS,
+    source: "canonical_matrix_letters",
+    axis: Object.freeze({ term: axisTerm, scope, skip: axisSkip, dir: axisDir, start: axisStart }),
+    authority: Object.freeze({
+      letters: "CANONICAL",
+      segmentation: "UNVERIFIED",
+      meaning: "UNVERIFIED",
+      canonicalReplayRequired: true,
+    }),
+    coverage: Object.freeze({
+      stage: "A",
+      rayCap: 24,
+      maxLetters: 24,
+      totalRays: safeInt(coverage.totalRays),
+      returnedRays: rays.length,
+      truncated: coverage.truncated === true,
+      letterCount,
+    }),
+    modelCallsTriggered: 0,
+    rays: Object.freeze(rays),
+  });
+}
+
 function exactReturnFields(value) {
   const occurrence = value?.occurrence && typeof value.occurrence === "object"
     ? value.occurrence
@@ -73,6 +171,7 @@ export function buildElsRazielSurfaceContext({
   projection = null,
   layers = null,
   planSummary = null,
+  languageInspection = null,
   includeText = false,
 } = {}) {
   const subject = researchContext?.subject || null;
@@ -82,6 +181,7 @@ export function buildElsRazielSurfaceContext({
   const selectedLayer = Array.isArray(layers?.layers)
     ? layers.layers.find((layer) => layer?.occurrenceId === selected?.occurrenceId) || null
     : null;
+  const boundedInspection = boundedLanguageInspection(languageInspection, selected, projection, scope);
 
   const surfaceContext = {
     v: 1,
@@ -158,6 +258,7 @@ export function buildElsRazielSurfaceContext({
       source: "canonical_els_engine",
       interpretation: false,
     },
+    ...(boundedInspection ? { languageInspection: boundedInspection } : {}),
   };
 
   if (includeText === true) {

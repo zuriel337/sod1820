@@ -9,6 +9,8 @@ const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame
 test("ELS opens the existing 2029 Raziel panel only from canonical MATCH-derived layers", () => {
   assert.match(page, /use2029Shell/);
   assert.match(page, /buildElsRazielSurfaceContext/);
+  assert.match(page, /onLanguageInspection=\{setLanguageInspection\}/);
+  assert.match(page, /planSummary, languageInspection/);
   assert.match(page, /ready=\{replayMatched && layeredReady\}/);
   assert.match(page, /razielMicroIntent: "explain_els_occurrence"/);
   assert.match(page, /elsSurfaceContext: surfaceContext/);

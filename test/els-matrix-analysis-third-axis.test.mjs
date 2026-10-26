@@ -80,6 +80,41 @@ test("matrix-first Stage B rediscovers the two ירושלם paths around מקד�
   assert.doesNotMatch(engine, /if\s*\([^)]*מקדש ירד|מקדש ירד[^\n]*(?:return|push|unshift)/, "the runtime contains no saved-cipher special case");
 });
 
+test("the bounded language map preserves nearby canonical rays for later interpretation without segmenting them", async () => {
+  const [engine, corpus] = await Promise.all([readFile(ENGINE, "utf8"), readFile(CORPUS, "utf8")]);
+  const context = vm.createContext({
+    T: corpus.trim(),
+    st: { raw: "ד. טראמפ", scope: "tanakh" },
+    MATRIX_DISCOVERY_BUDGET_CONTRACT: "els_matrix_discovery_budget_v1",
+    MATRIX_LANGUAGE_INSPECTION_CONTRACT: "els_matrix_language_inspection_v1",
+  });
+  context.scopeN = () => context.T.length;
+  vm.runInContext([
+    `const FIN={"ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"};const norm=s=>{let out="";for(const ch of s||"")if(ch>="א"&&ch<="ת")out+=FIN[ch]||ch;return out;};`,
+    functionSource(engine, "focusedCoreBox"),
+    functionSource(engine, "matrixDiscoveryBox"),
+    functionSource(engine, "matrixLanguageInspection"),
+  ].join("\n"), context);
+  const axis = {
+    skip: 41865,
+    dir: -1,
+    start: 244509,
+    positions: [244509, 202644, 160779, 118914, 77049, 35184],
+  };
+  context.axis = axis;
+  const result = JSON.parse(JSON.stringify(vm.runInContext("matrixLanguageInspection(axis,matrixDiscoveryBox(axis))", context)));
+  assert.equal(result.contract, "els_matrix_language_inspection_v1");
+  assert.equal(result.status, "CANDIDATE_INPUT");
+  assert.equal(result.modelCallsTriggered, 0);
+  assert.equal(result.coverage.rayCap, 24);
+  assert.ok(result.rays.length <= 24);
+  assert.ok(result.rays.every((ray) => ray.text.length <= 24 && [...ray.text].reverse().join("") === ray.reverseText));
+  assert.ok(result.rays.some((ray) => ray.text.includes("באשאטמינ") || ray.reverseText.includes("באשאטמינ")), "the intersecting phrase remains in the bounded exact-letter map");
+  assert.ok(result.rays.some((ray) => ray.text.includes("שבררומי") || ray.reverseText.includes("שבררומי")), "the nearest parallel reverse phrase remains in the same bounded map");
+  assert.deepEqual(result.authority, { letters: "CANONICAL", segmentation: "UNVERIFIED", meaning: "UNVERIFIED", canonicalReplayRequired: true });
+  assert.doesNotMatch(functionSource(engine, "matrixLanguageInspection"), /באשאטמינ|שבררומי|ד\. טראמפ/, "the runtime receives no Golden phrase or cipher special case");
+});
+
 test("pair-first discovery ranks verified story geometry without numeric-skip favoritism", async () => {
   const engine = await readFile(ENGINE, "utf8");
   const context = vm.createContext({ st: { raw: "אורניום" }, COMPACT_GEOMETRY_CONTRACT: "els_compact_geometry_priority_v1" });

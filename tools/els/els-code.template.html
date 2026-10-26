@@ -1586,7 +1586,7 @@ __STANDALONE_ENGINE_DISPATCH__
     RESEARCH_CONTEXT_COVERAGE_CONTRACT="els_research_context_coverage_v1",
     RESEARCH_BUNDLE_COMPARISON_CONTRACT="els_research_bundle_comparison_v1",
     COMPACT_GEOMETRY_CONTRACT="els_compact_geometry_priority_v1",STRUCTURAL_PRIORITY_CONTRACT="els_structural_priority_scan_v1",
-    MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1",MATRIX_DISCOVERY_BUDGET_CONTRACT="els_matrix_discovery_budget_v1",CROSS_THIRD_AXIS_CONTRACT="els_cross_third_axis_v1",
+    MATRIX_DISCOVERY_CONTRACT="els_matrix_discovery_v1",MATRIX_DISCOVERY_BUDGET_CONTRACT="els_matrix_discovery_budget_v1",MATRIX_LANGUAGE_INSPECTION_CONTRACT="els_matrix_language_inspection_v1",CROSS_THIRD_AXIS_CONTRACT="els_cross_third_axis_v1",
     _corpusLexiconCache={torah:null,tanakh:null},_corpusAxisWordCache={torah:null,tanakh:null},_corpusPhraseCache={torah:null,tanakh:null},_lineExtensionIndexCache=new WeakMap();
   function addCandidateLexiconTerm(map,raw,source,support=1,minLength=3,classification=null){
     const label=String(raw||"").trim().replace(/\s+/g," "),term=norm(label);
@@ -2776,6 +2776,7 @@ __STANDALONE_ENGINE_DISPATCH__
         const discoveryBundle=discoveryGoal?await verifyDiscoveryPairBundle(groupCandidates,grouped.groups,structuralAxis,researchContext,discoveryGoal,
           progress=>postHost({type:"lens-progress",lens:"matrix-discovery",target:{nativeSeq:target.nativeSeq},progress}),cancelled):null;
         if(cancelled()||discoveryGoal&&!discoveryBundle)return;
+        const languageInspection=matrixLanguageInspection(structuralAxis,discovery.box);
         postHost({type:"lens",lens:"matrix-discovery",ok:true,target,status:motifItems.length||contextItems.length||rawPatternItems.length?"CANDIDATE":"EMPTY",contract:MATRIX_DISCOVERY_CONTRACT,
           strategy:"matrix-first",searchRule:"no-default-broad-lexicon",coverage:"axis-focused-window",scope:st.scope,defaultLexiconLoaded:false,vocabularyTermsChecked:contextTotal,
           budget:{contract:MATRIX_DISCOVERY_BUDGET_CONTRACT,cells:discovery.box.cells,matrixPathsChecked:discovery.pathsChecked,maxVocabularyTerms:discovery.box.maxVocabularyTerms,maxGapScale:discovery.box.maxGapScale,rowPad:discovery.box.rowPad,colRadius:discovery.box.colRadius},
@@ -2786,7 +2787,7 @@ __STANDALONE_ENGINE_DISPATCH__
           ...(discoveryBundle?{discoveryBundle}:{}),
           stageCounts:{A:motifItems.filter(item=>item.matrixStage==="A").length+contextItems.filter(item=>item.matrixStage==="A").length,B:motifItems.filter(item=>item.matrixStage==="B").length+contextItems.filter(item=>item.matrixStage==="B").length},
           rawStageCounts:{A:rawPatternItems.filter(item=>item.matrixStage==="A").length,B:rawPatternItems.filter(item=>item.matrixStage==="B").length},
-          availableMotifs:discovery.available,availableLanguageMatches:discovery.availableMeaningful,availableRawPatterns:discovery.availableRaw,
+          availableMotifs:discovery.available,availableLanguageMatches:discovery.availableMeaningful,availableRawPatterns:discovery.availableRaw,languageInspection,
           truncated:discovery.truncated||motifItems.length+contextItems.length>24,geometryContract:COMPACT_GEOMETRY_CONTRACT,truthPromotion:false});
       })().catch(()=>{if(lensEpoch===_nativeLensSeq)postHost({type:"lens",lens:"matrix-discovery",ok:false,target,reason:"scan-failed"});});
     }
@@ -4324,6 +4325,31 @@ __STANDALONE_ENGINE_DISPATCH__
     const box=focusedCoreBox(axis,{rowPad:20,colRadius:20});if(!box)return null;
     const cw=box.c1-box.c0+1,rows=box.r1-box.r0+1,cells=cw*rows;
     return {...box,cw,cells,rayCount:cells*12,contract:MATRIX_DISCOVERY_BUDGET_CONTRACT,maxVocabularyTerms:32,maxGapScale:3,defaultLexiconLoaded:false};
+  }
+  // A compact, deterministic reading map for the verified occurrence. It contains canonical
+  // letters only: no segmentation, vocabulary score or interpretation is promoted here. The
+  // map is deliberately limited to the 24 closest gapless rays so an explicit Raziel question
+  // can inspect strong local language without receiving the whole matrix or triggering a scan.
+  function matrixLanguageInspection(axis,box){
+    if(!box||!Array.isArray(axis?.positions)||!axis.positions.length)return null;
+    const rayCap=24,maxLetters=24,anchors=axis.positions.map(position=>[Math.floor(position/box.S),((position%box.S)+box.S)%box.S]),rays=[],priorities={"diagonal-left":0,"diagonal-right":1,vertical:2,horizontal:3},directions=[
+      {name:"horizontal",dr:0,dc:1},{name:"vertical",dr:1,dc:0},{name:"diagonal-right",dr:1,dc:1},{name:"diagonal-left",dr:1,dc:-1}];
+    for(const direction of directions)for(let row=box.r0;row<=box.r1;row++)for(let col=box.c0;col<=box.c1;col++){
+      const priorRow=row-direction.dr,priorCol=col-direction.dc;
+      if(priorRow>=box.r0&&priorRow<=box.r1&&priorCol>=box.c0&&priorCol<=box.c1)continue;
+      const full=[];for(let offset=0;;offset++){const nextRow=row+direction.dr*offset,nextCol=col+direction.dc*offset;
+        if(nextRow<box.r0||nextRow>box.r1||nextCol<box.c0||nextCol>box.c1)break;const position=nextRow*box.S+nextCol;if(position<0||position>=scopeN())break;full.push({position,row:nextRow,col:nextCol});}
+      if(full.length<4)continue;let distance=1e9,focus=0;
+      for(let index=0;index<full.length;index++)for(const anchor of anchors){const current=Math.abs(full[index].row-anchor[0])+Math.abs(full[index].col-anchor[1]);if(current<distance){distance=current;focus=index;}}
+      const sliceStart=Math.max(0,Math.min(Math.max(0,full.length-maxLetters),focus-Math.floor(maxLetters/2))),cells=full.slice(sliceStart,sliceStart+maxLetters),text=cells.map(cell=>T[cell.position]).join("");
+      if(text.length<4)continue;const step=direction.dr*box.S+direction.dc,start=cells[0].position;
+      rays.push({id:`${direction.name}:${start}:${step}:${text.length}`,orientation:direction.name,text,reverseText:[...text].reverse().join(""),start,step,length:text.length,distance,intersectsAxis:distance===0});
+    }
+    rays.sort((a,b)=>a.distance-b.distance||(priorities[a.orientation]??9)-(priorities[b.orientation]??9)||Math.abs(a.step)-Math.abs(b.step)||a.start-b.start);
+    const selected=rays.slice(0,rayCap);
+    return {contract:MATRIX_LANGUAGE_INSPECTION_CONTRACT,status:"CANDIDATE_INPUT",source:"canonical_matrix_letters",axis:{term:norm(st.raw),scope:st.scope,skip:Math.abs(Number(axis.skip)),dir:Number(axis.dir)===-1?-1:1,start:Number(axis.start)},
+      authority:{letters:"CANONICAL",segmentation:"UNVERIFIED",meaning:"UNVERIFIED",canonicalReplayRequired:true},
+      coverage:{stage:"A",rayCap,maxLetters,totalRays:rays.length,returnedRays:selected.length,truncated:rays.length>selected.length,rowPad:box.rowPad,colRadius:box.colRadius},modelCallsTriggered:0,rays:selected};
   }
   function plausibleMatrixSequence(term){
     const letters=[...norm(term)],finals=new Set(["ך","ם","ן","ף","ץ"]);return letters.length>=4&&new Set(letters).size>=3&&!letters.slice(0,-1).some(letter=>finals.has(letter));

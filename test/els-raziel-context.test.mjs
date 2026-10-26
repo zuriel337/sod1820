@@ -34,6 +34,20 @@ const projection = {
   },
 };
 
+const languageInspection = {
+  contract: "els_matrix_language_inspection_v1",
+  status: "CANDIDATE_INPUT",
+  source: "canonical_matrix_letters",
+  axis: { term: "משיח", scope: "torah", skip: 17, dir: 1, start: 100 },
+  authority: { letters: "CANONICAL", segmentation: "UNVERIFIED", meaning: "UNVERIFIED", canonicalReplayRequired: true },
+  coverage: { stage: "A", rayCap: 24, maxLetters: 24, totalRays: 61, returnedRays: 2, truncated: true },
+  modelCallsTriggered: 0,
+  rays: [
+    { id: "ignored", orientation: "diagonal-left", text: "באשאטמינ", reverseText: "נימטאשאב", start: 80, step: 16, length: 8, distance: 0, intersectsAxis: true },
+    { id: "ignored-too", orientation: "vertical", text: "שבררומי", reverseText: "ימוררבש", start: 101, step: 17, length: 7, distance: 1, intersectsAxis: false },
+  ],
+};
+
 test("Raziel ELS context carries the selected expression and exact coordinates without the private subject label", () => {
   const out = buildElsRazielSurfaceContext({ researchContext, projection });
   assert.equal(out.surface, "els");
@@ -114,6 +128,36 @@ test("Raziel receives only bounded automatic-plan coverage beside an exact verif
   assert.match(guidance.title, /משיח/);
   assert.match(guidance.boundary, /פרשנות נפרדת/);
   assert.match(guidance.inactive, /לחזור למופע המדויק/);
+});
+
+test("Raziel receives a bounded exact-letter language map only when it belongs to the selected occurrence", () => {
+  const out = buildElsRazielSurfaceContext({ researchContext, projection, languageInspection });
+  assert.equal(out.languageInspection.contract, "els_matrix_language_inspection_v1");
+  assert.equal(out.languageInspection.status, "CANDIDATE_INPUT");
+  assert.equal(out.languageInspection.modelCallsTriggered, 0);
+  assert.equal(out.languageInspection.rays.length, 2);
+  assert.equal(out.languageInspection.rays[0].id, "diagonal-left:80:16:8");
+  assert.deepEqual(out.languageInspection.authority, {
+    letters: "CANONICAL",
+    segmentation: "UNVERIFIED",
+    meaning: "UNVERIFIED",
+    canonicalReplayRequired: true,
+  });
+  assert.equal("label" in out.languageInspection.rays[0], false);
+
+  const differentOccurrence = buildElsRazielSurfaceContext({
+    researchContext,
+    projection: { ...projection, selectedOccurrence: { ...projection.selectedOccurrence, start: 101 } },
+    languageInspection,
+  });
+  assert.equal("languageInspection" in differentOccurrence, false, "a stale map cannot leak into a newly selected occurrence");
+
+  const interpreted = buildElsRazielSurfaceContext({
+    researchContext,
+    projection,
+    languageInspection: { ...languageInspection, status: "VERIFIED_LANGUAGE" },
+  });
+  assert.equal("languageInspection" in interpreted, false, "the seam never accepts an engine-external truth promotion");
 });
 
 test("unverified, ordinary-search and incomplete occurrences never cross the ELS to Raziel seam", () => {

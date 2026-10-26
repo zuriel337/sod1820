@@ -34,8 +34,15 @@ ranking, matrix bounds or UI projection before proposing a change.
   prediction.
 - **Pass:** no AI required for discovery; exact replay passes; `41865`/`41864` proximity is visible;
   exact, segmented and interpretive layers are distinct; no broad scan runs.
-- **Failure diagnosis:** ____
-- **Run evidence:** ____
+- **Failure diagnosis:** `UI/AI projection` remains for the language reading: the canonical local
+  map now contains both exact rays, but the existing Raziel fact pack does not yet consume those
+  candidate-only lines. Vocabulary is not the primary failure for this occurrence.
+- **Run evidence:** 2026-10-26, `gpt/els-local-language-recognition-v1-20261026` worktree: the
+  general `matrixLanguageInspection` returned 24 of the closest Stage-A rays (24 letters maximum
+  per ray), including unsupplied `באשאטמינ` on an intersecting ray and unsupplied `שבררומי` on the
+  nearest reverse ray. The runtime received neither expected term. `modelCallsTriggered=0`;
+  letters=`CANONICAL`, segmentation/meaning=`UNVERIFIED`. Full GD-01 remains `SPECIFIED` until a
+  language reading is proposed on explicit submit and canonically replayed.
 
 ## GD-02 — Colombia holdout: a story does not name the answer
 
