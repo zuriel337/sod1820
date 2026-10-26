@@ -22,6 +22,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
   const lifeJourneyMaps = read("src/components/experience2029/LifeJourneyMaps2029.jsx");
   const lifeJourneyMapProjection = read("src/lib/research/lifeJourneyMaps.js");
+  const seferYetzirahMapProjection = read("src/lib/research/lifeJourneySeferYetzirahMap.js");
   const removalMigration = read("supabase/migrations/20261025035531_life_journey_remove_family_member_v1.sql");
   const supabaseClient = read("src/lib/supabase.js");
   const dateAdapter = read("src/components/experience2029/LifeJourneyDate2029.jsx");
@@ -46,8 +47,8 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.doesNotMatch(home, /const numeric = \/\^\\d\+\$\//);
   assert.match(maintenanceLock, /VITE_LIFE_JOURNEY_PREVIEW_OPEN === "true"/);
   assert.match(maintenanceLock, /flag !== "lock_life_journey"/);
-  assert.match(maintenanceLock, /viewerState: "open"/);
-  assert.match(maintenanceLock, /blocked: false/);
+  assert.match(maintenanceLock, /return resolveFeatureState\(null\)/);
+  assert.match(maintenanceLock, /const publicState = !enabled \? "open"/);
 
   assert.match(journey, /upsertSelfProfile/);
   assert.match(journey, /upsertFamilyMember/);
@@ -109,6 +110,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMaps, /התכנסויות/);
   assert.match(lifeJourneyMaps, /עוצמות\/פערים/);
   assert.match(lifeJourneyMaps, /ציר זמן/);
+  assert.match(lifeJourneyMaps, /מפת יצירה/);
+  assert.match(lifeJourneyMaps, /life-journey-sefer-yetzirah-map/);
+  assert.match(lifeJourneyMaps, /אינה הורוסקופ/);
   assert.match(lifeJourneyMaps, /מקורות/);
   assert.match(lifeJourneyMaps, /כיסוי/);
   assert.match(lifeJourneyMaps, /סיכום/);
@@ -120,6 +124,12 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(lifeJourneyMapProjection, /relationshipPairCount/);
   assert.match(lifeJourneyMapProjection, /evidenceGapCount/);
   assert.match(lifeJourneyMapProjection, /combinedSummary/);
+  assert.match(lifeJourneyMapProjection, /buildLifeJourneySeferYetzirahMap/);
+  assert.match(seferYetzirahMapProjection, /p183:gra_commentary:gra:mishnah5_planets/);
+  assert.match(seferYetzirahMapProjection, /p187:gra_commentary:gra:twelve_correspondences/);
+  assert.match(seferYetzirahMapProjection, /no_personal_astrology: true/);
+  assert.match(seferYetzirahMapProjection, /no_geocoding: true/);
+  assert.doesNotMatch(seferYetzirahMapProjection, /mapbox|google\.maps|localStorage|sessionStorage|\.insert\(|\.update\(/i);
   assert.doesNotMatch(lifeJourneyMapProjection, /\.insert\(|\.update\(|localStorage|sessionStorage|fn_els_search|nodes|edges/i);
   assert.doesNotMatch(journey, /upsertLifeEvent|insertLifeEvent|life_event_store/);
   assert.doesNotMatch(journey, /geocod|mapbox|google\.maps/i);

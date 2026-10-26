@@ -11,6 +11,7 @@ const MAP_TABS = Object.freeze([
   { id: "convergences", label: "התכנסויות" },
   { id: "evidence", label: "עוצמות/פערים" },
   { id: "timeline", label: "ציר זמן" },
+  { id: "creation", label: "מפת יצירה" },
   { id: "sources", label: "מקורות" },
   { id: "coverage", label: "כיסוי" },
   { id: "summary", label: "סיכום" },
@@ -31,6 +32,8 @@ const EVIDENCE_BAND_LABEL = Object.freeze({
   engine_connection: "חיבור מנוע ללא ספירת קבוצות",
   not_found: "טרם נמצא חיבור מנורמל",
 });
+
+const CREATION_GROUP_LABEL = Object.freeze({ mothers: "אמות", doubles: "כפולות", simples: "פשוטות" });
 
 function EmptyMap({ children }) {
   return <div className="person-journey-map-empty">{children}</div>;
@@ -153,6 +156,67 @@ function TimelineMap({ rows, missing }) {
   </section>;
 }
 
+function CreationMap({ data }) {
+  const pageLabel = sourceRef => sourceRef.match(/#p(\d+):/)?.[1];
+  return <div className="person-journey-creation-map" data-experience-capability="life-journey-sefer-yetzirah-map">
+    <header>
+      <div><small>ספר יצירה · הקרנה פרטית</small><h4>מפת האותיות והמערכות</h4></div>
+      <span>3 · 7 · 12</span>
+    </header>
+    <p>המפה מסדרת את הנתונים שכבר שמורים במסע מול מסגרת מקורית מספר יצירה. היא אינה הורוסקופ ואינה קובעת אופי, גורל או “מזל אישי”.</p>
+
+    <section className="person-journey-creation-groups" aria-label="שלוש קבוצות האותיות">
+      {data.letterGroups.map(group => <article key={group.id}>
+        <strong>{group.label}</strong>
+        <div>{group.letters.map(letter => <span key={letter}>{letter}</span>)}</div>
+        <small>ספר יצירה · עמ׳ {pageLabel(group.sourceRef)}</small>
+      </article>)}
+    </section>
+
+    <section className="person-journey-creation-people" aria-label="מפת אותיות השמות">
+      <h4>אותיות השמות במסע</h4>
+      {data.people.map(person => <article key={person.memberRef}>
+        <header><strong>{person.name}</strong><small>{person.sequence.length} אותיות</small></header>
+        <div className="person-journey-creation-sequence">{person.sequence.map(item => <span key={item.id} data-group={item.group} title={CREATION_GROUP_LABEL[item.group]}>{item.letter}</span>)}</div>
+        <div className="person-journey-creation-counts">
+          <span>אמות <b>{person.counts.mothers}</b></span>
+          <span>כפולות <b>{person.counts.doubles}</b></span>
+          <span>פשוטות <b>{person.counts.simples}</b></span>
+        </div>
+      </article>)}
+      {data.sharedLetters.length ? <div className="person-journey-creation-shared">
+        <small>אותיות שמופיעות אצל לפחות שני אנשים שנבחרו</small>
+        <div>{data.sharedLetters.map(item => <span key={item.letter} data-group={item.group}><b>{item.letter}</b> · {item.personCount} אנשים</span>)}</div>
+      </div> : <small>לא נמצאה כרגע אות משותפת בין לפחות שני שמות שנבחרו.</small>}
+    </section>
+
+    <section className="person-journey-creation-cosmos" aria-label="מסגרות הכוכבים והחודשים בספר יצירה">
+      {data.cosmicFrames.map(frame => <article key={frame.id}>
+        <strong>{frame.label}</strong>
+        {frame.items.length ? <div>{frame.items.map(item => <span key={item}>{item}</span>)}</div> : <p>הקשר בין הקבוצות מאומת במקור; התאמה אישית לא חושבה.</p>}
+        <small>ספר יצירה · עמ׳ {pageLabel(frame.sourceRef)}</small>
+      </article>)}
+    </section>
+
+    <section className="person-journey-creation-triad" aria-label="עולם שנה נפש במסע החיים">
+      <article><small>עולם</small><strong>{data.triad.olam.people}</strong><span>אנשים · {data.triad.olam.relations} קשרים</span></article>
+      <article><small>שנה</small><strong>{data.triad.shana.datedPeople}</strong><span>תאריכים שמורים</span></article>
+      <article><small>נפש</small><strong>{data.triad.nefesh.namedPeople}</strong><span>שמות שמופו לאותיות</span></article>
+    </section>
+
+    <section className="person-journey-creation-births" aria-label="עוגני לידה שמורים">
+      <h4>עוגני הלידה</h4>
+      {data.birthAnchors.map(item => <article key={item.memberRef}>
+        <strong>{item.name}</strong>
+        <span>{item.hebrewDate || "תאריך עברי חסר"}</span>
+        <small>{item.birthPlace ? `מקום לידה · ${item.birthPlace}` : "מקום לידה חסר"}</small>
+      </article>)}
+    </section>
+
+    <footer>כדי לחשב בעתיד מפת שמיים אמיתית יידרשו שעת לידה, מקום מדויק ומנוע אסטרונומי מאומת. אף אחד מהם אינו מוסק כאן.</footer>
+  </div>;
+}
+
 function SourcesMap({ data, ready }) {
   if (!data.members.length && !data.numbers.length) return <EmptyMap>{ready
     ? "שכבת המקורות לא החזירה כרגע פסוק או ביטוי להצגה."
@@ -220,6 +284,7 @@ function MapPanel({ active, projection }) {
   if (active === "convergences") return <ConvergencesMap rows={projection.convergences} ready={projection.overview.researchReady} />;
   if (active === "evidence") return <EvidenceMap data={projection.evidence} ready={projection.overview.researchReady} />;
   if (active === "timeline") return <TimelineMap rows={projection.timeline} missing={projection.timelineMissing} />;
+  if (active === "creation") return <CreationMap data={projection.creation} />;
   if (active === "sources") return <SourcesMap data={projection.sources} ready={projection.overview.researchReady} />;
   if (active === "coverage") return <CoverageMap rows={projection.coverage} ready={projection.overview.researchReady} />;
   if (active === "summary") return <SummaryMap data={projection.summary} />;

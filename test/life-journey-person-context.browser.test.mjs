@@ -325,6 +325,14 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await birthTimeline.getByText("י״א בתשרי").count(), 2);
     assert.equal(await birthTimeline.getByText("מקום לידה · עיר בדיקה").count(), 1);
     assert.equal(await birthTimeline.getByText("מקום לידה · יישוב מעודכן").count(), 1);
+    await lifeMaps.getByRole("tab", { name: "מפת יצירה" }).click();
+    const creationMap = family.locator('[data-experience-capability="life-journey-sefer-yetzirah-map"]');
+    await creationMap.getByRole("heading", { name: "מפת האותיות והמערכות" }).waitFor();
+    assert.equal(await creationMap.locator(".person-journey-creation-people>article").count(), 2);
+    await creationMap.getByText("7 כוכבים · 7 ימים · 7 שערים", { exact: true }).waitFor();
+    await creationMap.getByText("שבתאי", { exact: true }).waitFor();
+    await creationMap.getByText("מקום לידה · עיר בדיקה", { exact: true }).waitFor();
+    await creationMap.getByText("הקשר בין הקבוצות מאומת במקור; התאמה אישית לא חושבה.", { exact: true }).waitFor();
     assert.equal(await page.evaluate(() => window.__elsCalls.length), 0, "select-all remains navigation context only");
     assert.equal(await page.evaluate(() => window.__nameCalls.some(call => call.kind === "name_lab" && call.name === "ילד בדיקה")), false, "family names are not researched by selection");
     assert.equal(await page.evaluate(() => window.__dateCalls.some(call => call.name === "ילד")), false, "family dates are not researched by selection");

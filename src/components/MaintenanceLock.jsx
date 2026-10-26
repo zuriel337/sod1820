@@ -14,18 +14,7 @@ const LIFE_JOURNEY_PREVIEW_OPEN = import.meta.env?.VITE_LIFE_JOURNEY_PREVIEW_OPE
 
 function applyPreviewFeatureState(flag, state) {
   if (flag !== "lock_life_journey" || !LIFE_JOURNEY_PREVIEW_OPEN) return state;
-  return {
-    ...state,
-    enabled: false,
-    blocked: false,
-    allowed: true,
-    adminBypass: false,
-    registeredBypass: false,
-    publicState: "open",
-    viewerState: "open",
-    showLogin: false,
-    status: "active",
-  };
+  return resolveFeatureState(null);
 }
 
 export function MaintenanceLock({ message, showLogin = false, alternatives = false, homeHref = "/" }) {
