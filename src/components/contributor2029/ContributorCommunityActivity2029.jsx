@@ -12,6 +12,7 @@ export default function ContributorCommunityActivity2029({ authorKey, enabled = 
   const [state, setState] = useState({ key: null, loading: true, rows: [], offset: 0 });
   const [summary, setSummary] = useState({ key: null });
   const pending = useRef(false);
+  const retainAfterMutation = useRef(false);
   const valid = validCommunityAuthorKey(authorKey);
   const requestKey = `${authorKey || ""}:${enabled}:${filter}:${sort}:${attempt}`;
   const request = useRef(requestKey); request.current = requestKey;
@@ -24,7 +25,8 @@ export default function ContributorCommunityActivity2029({ authorKey, enabled = 
       setSummary({ key: authorKey, ...initial.summary });
       return () => { alive = false; };
     }
-    setState({ key: authorKey, loading: true, rows: [], offset: 0 });
+    const retain = retainAfterMutation.current; retainAfterMutation.current = false;
+    setState(previous => retain && previous.key === authorKey ? { ...previous, loading: true, error: false } : { key: authorKey, loading: true, rows: [], offset: 0 });
     const client = getPublicResearchClient();
     fetchPublicAuthorActivityPage(authorKey, { limit: 20, filter, sort, client }).then(page => {
       if (alive) setState({ key: authorKey, loading: false, rows: page.rows, count: page.count, offset: page.nextOffset, lastPageSize: page.rows.length });
@@ -50,6 +52,7 @@ export default function ContributorCommunityActivity2029({ authorKey, enabled = 
   const baseline = VERIFIED_ARCHIVE_PROFILES[authorKey];
   const fullHref = valid && !initial ? communityPersonHref(authorKey) : null;
   return <PublicCommunityActivity2029 rows={data.rows} count={data.count} loading={valid && data.loading} error={!valid || data.error ? "לא הצלחנו לטעון את פעילות הכותב בקהילה." : ""}
+    onMessagesChanged={() => { retainAfterMutation.current = true; setAttempt(value => value + 1); }}
     onRetry={() => setAttempt(value => value + 1)} hasMore={data.count == null ? data.lastPageSize === 20 : data.offset < data.count} onLoadMore={loadMore} loadingMore={data.loadingMore}
     fullHref={fullHref} firstAt={detail.firstAt} likesTotal={detail.archiveLikes ?? (baseline?.isPrivate === false ? baseline.likes : null)}
     likesSource={detail.archiveLikes != null ? "public_community_author_summary" : "verified_archive_profile_baseline"}
