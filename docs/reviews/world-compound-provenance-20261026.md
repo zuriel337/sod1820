@@ -106,9 +106,13 @@ Public Language עבר 3/3; build:2029 ו־git diff --check עברו.
 ובאותו hash; אזהרות הבנייה הקיימות נותרו.
 
 אריזת expression-extract דורשת מקור committed. הניסיון לפני commit
-נעצר כראוי בשער provenance; לא שונה השער. לאחר commit יש להריץ
-package:expression-extract ובדיקת bundle parity, ללא פריסת Edge.
-קבלת האריזה הסופית נרשמת במסירה לאחר הרצתה.
+נעצר כראוי בשער provenance; לא שונה השער. לאחר commit המימוש
+`f591395f20d1f076956bbfecfcc5b09dbb7e071b`, האריזה עברה;
+bundle parity הקיים עבר 13/13. בנוסף אומתה זהות מלאה בין פלט
+המקור לבין ה־handler הארוז בכל 20 הביטויים המורכבים של המנה.
+בדיקת packaging guard עברה מחדש לאחר commit. לא בוצעה פריסת Edge.
+גודל החבילה: 80,641 bytes בקידוד UTF-8; SHA-256:
+`fdc07f6f069b4ed8fac17443b33da5064ff83f2046251647b561d76ff723760a`.
 
 ## מגבלות ומסירה
 
