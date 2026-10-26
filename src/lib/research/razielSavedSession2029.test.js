@@ -12,6 +12,11 @@ import {
 } from "./razielSavedSession2029.js";
 import { createInitialRazielSessionState, razielSessionReducer } from "./razielSession2029.js";
 import { applyResearchOps, emptyResearchState } from "./researchSyncState.js";
+import {
+  createRazielNavigationTurnSucceededAction,
+  prepareRazielSessionSubmission,
+} from "./razielSessionRequest2029.js";
+import { razielNavigationButton } from "../../components/experience2029/razielSessionSeam2029.js";
 
 const providerSource = readFileSync(new URL("./RazielSessionProvider2029.jsx", import.meta.url), "utf8");
 const frameSource = readFileSync(new URL("../../components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
@@ -172,4 +177,71 @@ test("provider and chat use the existing ResearchProvider explicitly and keep se
   assert.match(frameSource, /data-raziel-saved-sessions="true"/);
   assert.match(frameSource, /data-raziel-new-session="true"/);
   assert.match(frameSource, /השיחה השמורה נפתחה ואפשר להמשיך ממנה/);
+});
+
+function navigationState(question) {
+  const initial = { ...createInitialRazielSessionState(), viewMode: "exploratory" };
+  const prepared = prepareRazielSessionSubmission({ question, state: initial, researchContext: null,
+    startedAt: "2026-10-26T12:00:00Z", createTurnId: () => "navigation-turn" });
+  assert.ok(prepared.navigation);
+  assert.equal(prepared.request, null);
+  const started = razielSessionReducer(initial, { type: "turn_started", turn: prepared.turn, contextSnapshot: prepared.contextSnapshot });
+  return razielSessionReducer(started, createRazielNavigationTurnSucceededAction({ state: started,
+    navigation: prepared.navigation, completedAt: "2026-10-26T12:00:01Z" }));
+}
+
+test("explicit save and restore retain every canonical navigation action without changing the conversation mode", () => {
+  for (const question of ["פתח את דף המספר 73", "קח אותי לביטויים של המספר 337", "פתח את מפת המחקר"]) {
+    const state = navigationState(question);
+    const built = buildRazielSavedSessionEntity(state, { now: () => "2026-10-26T12:00:02Z" });
+    assert.equal(built.ok, true, question);
+    const restored = razielSavedSessionState(JSON.parse(JSON.stringify(built.entity)));
+    assert.deepEqual(restored.thread.at(-1).navigationAction, state.thread.at(-1).navigationAction, question);
+    assert.deepEqual(razielNavigationButton(restored.thread.at(-1)), razielNavigationButton(state.thread.at(-1)), question);
+    assert.equal(restored.viewMode, "exploratory");
+    assert.equal(restored.thread.length, 2);
+    assert.equal(restored.thread.at(-1).level, "deterministic");
+  }
+});
+
+test("a saved pending navigation clarification resumes through the existing deterministic follow-up", () => {
+  const state = navigationState("פתח את דף המספר");
+  const built = buildRazielSavedSessionEntity(state, { now: () => "2026-10-26T12:00:02Z" });
+  const restored = razielSavedSessionState(JSON.parse(JSON.stringify(built.entity)));
+  assert.deepEqual(restored.thread.at(-1).navigationClarify, { intent: "number_page", reason: "missing_number" });
+  const prepared = prepareRazielSessionSubmission({ question: "337", state: restored, researchContext: null,
+    startedAt: "2026-10-26T12:01:00Z", createTurnId: () => "navigation-follow-up" });
+  assert.equal(prepared.request, null);
+  assert.equal(prepared.navigation.href, "/2029/number/337");
+  assert.equal(prepared.navigation.model_calls, 0);
+  assert.equal(restored.thread.length, 2);
+});
+
+test("restored navigation is a bounded exact projection and rejects forged versions, routes, numbers and pending intents", () => {
+  const built = buildRazielSavedSessionEntity(navigationState("פתח את דף המספר 73"), { now: () => "2026-10-26T12:00:02Z" }).entity;
+  const valid = built.thread.at(-1).navigationAction;
+  const restoredAnswer = (patch) => razielSavedSessionState({ ...built,
+    thread: [built.thread[0], { ...built.thread[1], ...patch }] }).thread.at(-1);
+  const projected = restoredAnswer({ navigationAction: { ...valid, label: "<b>פתח את 73</b>", token: "never-save-this" } });
+  assert.equal(projected.navigationAction.label, "פתח את 73");
+  assert.deepEqual(Object.keys(projected.navigationAction).sort(), ["href", "intent", "label", "number", "version"]);
+  assert.doesNotMatch(JSON.stringify(projected), /never-save-this/);
+  for (const action of [
+    { ...valid, version: "future" }, { ...valid, version: undefined }, { ...valid, intent: "admin" },
+    { ...valid, href: "https://evil.invalid/2029/number/73" }, { ...valid, href: "/2029/number/0", number: 0 },
+    { ...valid, href: "/2029/number/073" }, { ...valid, href: "/2029/number/73?source=private" },
+    { ...valid, href: "/2029/number/1000000", number: 1000000 }, { ...valid, number: 337 },
+    { ...valid, number: "73" }, { ...valid, href: "/world", number: null },
+    { ...valid, label: { href: "https://evil.invalid" } }, { ...valid, label: " " },
+  ]) assert.equal(restoredAnswer({ navigationAction: action }).navigationAction, undefined, JSON.stringify(action));
+  for (const clarification of [{ intent: "admin", reason: "missing_number" }, { intent: "number_page", reason: "private-payload" }]) {
+    assert.equal(restoredAnswer({ navigationAction: null, navigationClarify: clarification }).navigationClarify, undefined);
+  }
+  const conflicting = restoredAnswer({ navigationClarify: { intent: "number_page", reason: "missing_number" } });
+  assert.equal(conflicting.navigationAction, undefined);
+  assert.equal(conflicting.navigationClarify, undefined);
+  const injectedUser = razielSavedSessionState({ ...built, thread: [{ ...built.thread[0], navigationAction: valid,
+    navigationClarify: { intent: "number_page", reason: "missing_number" } }, built.thread[1]] }).thread[0];
+  assert.equal(injectedUser.navigationAction, undefined);
+  assert.equal(injectedUser.navigationClarify, undefined);
 });

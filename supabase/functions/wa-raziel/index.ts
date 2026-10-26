@@ -618,9 +618,9 @@ async function recentChatNewestFirst(chatId, skipMsgId) {
     const floor = Math.floor(Date.now() / 1000) - NAV_FOCUS_WINDOW_SEC;
     return pick(hist)
       .filter((m) => m.idMessage !== skipMsgId && Number(m.timestamp || 0) >= floor)
+      .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
       .map((m) => ({ outgoing: m.type === "outgoing", text: String(m.textMessage || m.extendedTextMessage?.text || m.caption || "") }))
       .filter((m) => m.text)
-      .reverse()
       .slice(0, NAV_FOCUS_MESSAGES);
   } catch { return []; }
 }

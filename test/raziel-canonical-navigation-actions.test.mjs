@@ -3,6 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import vm from "node:vm";
 import {
   RAZIEL_NAVIGATION_ASK_NUMBER,
   RAZIEL_NAVIGATION_INTENT,
@@ -345,6 +346,42 @@ test("WhatsApp focus comes from typed numerals, short gematria questions or a ca
   assert.equal(razielFocusNumberFromCanonicalLink(`${SITE}/2029/number/73`, "http://sod1820.co.il"), null);
   assert.equal(razielNavigationNeedsFocus(parseRazielNavigationRequest("פתח את דף המספר 73")), false);
   assert.equal(razielNavigationNeedsFocus(parseRazielNavigationRequest("פתח לי את דף המספר")), true);
+});
+
+test("WhatsApp focus rejects nested foreign URLs and non-canonical number paths", () => {
+  for (const text of [
+    `${SITE}/2029/number/73/extra`,
+    `${SITE}.evil.invalid/2029/number/73`,
+    `https://evil.invalid/redirect?next=${SITE}/2029/number/73`,
+    `${SITE}/2029/number/073`, `${SITE}/2029/number/1000000`,
+  ]) assert.equal(razielFocusNumberFromCanonicalLink(text, SITE), null, text);
+  assert.equal(razielFocusNumberFromCanonicalLink(`${SITE}/2029/number/337?source=chat#result`, SITE), 337);
+});
+
+test("the actual WhatsApp history adapter selects the newest focus regardless of API ordering", async () => {
+  const source = read("supabase/functions/wa-raziel/index.ts");
+  const historyAdapter = source.slice(source.indexOf("async function recentChatNewestFirst"), source.indexOf("async function respondWithNavigation"));
+  const now = Math.floor(Date.now() / 1000);
+  const rows = [
+    { idMessage: "old", timestamp: now - 30, type: "incoming", textMessage: "73" },
+    { idMessage: "new", timestamp: now - 10, type: "incoming", textMessage: "337" },
+    { idMessage: "expired", timestamp: now - 7 * 3600, type: "incoming", textMessage: "999" },
+    { idMessage: "current", timestamp: now, type: "incoming", textMessage: "פתח את דף המספר" },
+  ];
+  for (const history of [rows, [...rows].reverse(), [rows[1], rows[3], rows[0], rows[2]]]) {
+    let modelOrEngineCalls = 0;
+    const adapter = vm.runInNewContext(`${historyAdapter}\n({recentChatNewestFirst,verifiedNavigationFocus});`, {
+      waAdmin: async () => history, pick: value => value, Date,
+      NAV_FOCUS_WINDOW_SEC: 6 * 3600, NAV_FOCUS_MESSAGES: 12, SITE,
+      razielFocusNumberFromCanonicalLink, razielFocusSubjectFromUserText,
+      allMethods: async () => { modelOrEngineCalls += 1; throw new Error("unexpected engine call"); },
+    });
+    const messages = await adapter.recentChatNewestFirst("fixture-chat", "current");
+    assert.deepEqual(Array.from(messages, item => item.text), ["337", "73"]);
+    const selected = await adapter.verifiedNavigationFocus("fixture-chat", "current");
+    assert.equal(selected.number, 337);
+    assert.equal(modelOrEngineCalls, 0);
+  }
 });
 
 test("the thread renders the button from the validated seam helper and offers no research one-shots on a navigation answer", () => {

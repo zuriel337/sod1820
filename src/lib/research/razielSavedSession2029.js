@@ -2,6 +2,8 @@
 // This module owns only the bounded serialization projection. It creates no memory,
 // truth, conversation or database owner of its own.
 
+import { razielNavigationButton } from "../../components/experience2029/razielSessionSeam2029.js";
+
 export const RAZIEL_SAVED_SESSION_TYPE = "raziel_session";
 export const RAZIEL_SAVED_SESSION_SCHEMA = "raziel-saved-session-v1";
 
@@ -77,6 +79,30 @@ function normalizeSources(value) {
   return result;
 }
 
+// Only project the already accepted navigation envelope. The tiny frame seam
+// rechecks the existing href shapes without loading the lazy navigation grammar.
+// Saved data is untrusted; neither a URL nor a focus number is recovered from prose.
+const NAVIGATION_VERSION = "raziel-canonical-navigation-actions-v1";
+const NAVIGATION_INTENTS = new Set(["number_page", "number_expressions", "research_map"]);
+const NAVIGATION_REASONS = new Set(["missing_number", "invalid_number", "ambiguous_number"]);
+
+function normalizeSavedNavigationAction(value) {
+  if (!isObject(value) || value.version !== NAVIGATION_VERSION || !NAVIGATION_INTENTS.has(value.intent)
+    || typeof value.label !== "string") return null;
+  const button = razielNavigationButton({ role: "raziel", navigationAction: value });
+  if (!button) return null;
+  const number = button.href === "/world" ? null : Number(button.href.split("/").at(-1));
+  if (value.number !== number || (number === null && value.intent !== "research_map")) return null;
+  const label = cleanInline(value.label, 80);
+  return label ? { version: NAVIGATION_VERSION, intent: value.intent, href: button.href, label, number } : null;
+}
+
+function normalizeSavedNavigationClarify(value) {
+  return isObject(value) && NAVIGATION_INTENTS.has(value.intent) && NAVIGATION_REASONS.has(value.reason)
+    ? { intent: value.intent, reason: value.reason }
+    : null;
+}
+
 function normalizeMessage(message) {
   if (!isObject(message) || !["user", "raziel"].includes(message.role)) return null;
   const text = cleanMessageText(message.text, message.role === "user" ? LIMITS.question : LIMITS.answer);
@@ -92,6 +118,9 @@ function normalizeMessage(message) {
   }
   const continuation = boundedObject(message.continuation, 30000);
   const evidenceSummary = boundedObject(message.evidenceSummary, 70000);
+  // An answer cannot simultaneously carry a link and await a number clarification.
+  const navigationAction = !message.navigationClarify ? normalizeSavedNavigationAction(message.navigationAction) : null;
+  const navigationClarify = !message.navigationAction ? normalizeSavedNavigationClarify(message.navigationClarify) : null;
   return {
     role: "raziel",
     text,
@@ -102,6 +131,8 @@ function normalizeMessage(message) {
     sourceNames: normalizeSources(message.sourceNames),
     grounding: ["deterministic", "sourced", "interpretation"].includes(message.grounding) ? message.grounding : null,
     ...(evidenceSummary ? { evidenceSummary } : {}),
+    ...(navigationAction ? { navigationAction } : {}),
+    ...(navigationClarify ? { navigationClarify } : {}),
     viewMode: ["general", "landscape", "exploratory"].includes(message.viewMode) ? message.viewMode : null,
     viewModeApplied: message.viewModeApplied === true,
   };

@@ -341,9 +341,16 @@ export function razielFocusNumberFromCanonicalLink(text, origin) {
   } catch {
     return null;
   }
-  const escaped = base.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = text.match(new RegExp(`${escaped}/2029/number/([1-9]\\d{0,5})(?![\\d])`));
-  return match ? Number(match[1]) : null;
+  // Parse the whole URL token: a canonical-looking string nested inside another
+  // site's query or followed by an extra path is not a page Raziel opened.
+  for (const token of text.match(/https:\/\/[^\s<>"'`]+/gu) || []) {
+    try {
+      const url = new URL(token);
+      const match = url.pathname.match(NUMBER_HREF);
+      if (url.origin === base && match) return Number(match[1]);
+    } catch { /* Malformed tokens cannot establish a verified focus. */ }
+  }
+  return null;
 }
 
 // WhatsApp wording: the warm sentence, then one tappable https link on its own line.
