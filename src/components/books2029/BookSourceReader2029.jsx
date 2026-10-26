@@ -6,7 +6,7 @@ import {
 } from "../../data/bookReader2029.js";
 import "./bookSourceReader2029.css";
 
-const MaamarEstherInternalMap2029 = lazy(
+const BookInternalMap2029 = lazy(
   () => import("./MaamarEstherInternalMap2029.jsx"),
 );
 
@@ -184,7 +184,7 @@ export default function BookSourceReader2029({ manifest, researchRows = [] }) {
           </button>
         </article> : null}
         {manifest.internalMapUrl && showInternalMap ? <Suspense fallback={<article className="book-reader29-internal-map-loading" role="status">מכין את המפה הפנימית…</article>}>
-          <MaamarEstherInternalMap2029 mapUrl={manifest.internalMapUrl} currentPage={page} onOpenPage={openPage} />
+          <BookInternalMap2029 mapUrl={manifest.internalMapUrl} currentPage={page} onOpenPage={openPage} />
         </Suspense> : null}
         {pageCommentary?.hebrew_translation ? <article className="book-reader29-current book-reader29-translation">
           <span>תרגום עברי · PDF {page}</span>

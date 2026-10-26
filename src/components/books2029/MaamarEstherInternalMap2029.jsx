@@ -19,6 +19,8 @@ async function loadInternalMap(url, signal) {
 
 function searchableUnit(unit) {
   return normalizeSearch([
+    unit.section_marker,
+    unit.speaker,
     unit.source_focus,
     unit.source_quote,
     unit.question,
@@ -27,6 +29,8 @@ function searchableUnit(unit) {
     ...(unit.cited_sources || []),
     ...(unit.people || []),
     ...(unit.concepts || []),
+    ...(unit.governance_axes || []),
+    ...(unit.world_lenses || []),
   ].filter(Boolean).join(" "));
 }
 
@@ -99,25 +103,29 @@ export default function MaamarEstherInternalMap2029({ mapUrl, currentPage, onOpe
   if (state.error) return <section className="maamar-map29" role="alert"><p>{state.error}</p></section>;
   if (!state.data || !currentUnit) return null;
 
+  const copy = state.data.reader_copy || {};
+  const pdfPages = state.data.coverage.pdf_pages || state.data.coverage.mapped_pdf_pages;
+  const unitLocator = currentUnit.display_locator || `PDF ${currentUnit.pdf_page} · ${currentUnit.sequence_on_page}`;
+
   return <section className="maamar-map29" aria-labelledby="maamar-map29-title">
     <header className="maamar-map29-heading">
       <div>
         <span>הסבר נלווה · מיפוי פנימי</span>
-        <h3 id="maamar-map29-title">מהלך אחר מהלך בתוך „מאמר אסתר”</h3>
+        <h3 id="maamar-map29-title">{copy.title || "מהלך אחר מהלך בתוך „מאמר אסתר”"}</h3>
         <p>{state.data.mapping_note}</p>
       </div>
       <div className="maamar-map29-coverage" aria-label="כיסוי המפה">
         <strong>{state.data.coverage.internal_units}</strong><span>יחידות</span>
-        <strong>{state.data.coverage.mapped_pdf_pages}/84</strong><span>עמודי מקור</span>
+        <strong>{state.data.coverage.mapped_pdf_pages}/{pdfPages}</strong><span>עמודי מקור</span>
       </div>
     </header>
 
     <label className="maamar-map29-search" htmlFor="maamar-map29-search-input">
-      <span>חיפוש לפי פסוק, דמות, מקור או מושג</span>
-      <input id="maamar-map29-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="למשל: מרדכי, מדרש, תענית" />
+      <span>{copy.search_label || "חיפוש לפי פסוק, דמות, מקור או מושג"}</span>
+      <input id="maamar-map29-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={copy.search_placeholder || "למשל: מרדכי, מדרש, תענית"} />
     </label>
 
-    <nav className="maamar-map29-chapters" aria-label="פרקי מאמר אסתר">
+    <nav className="maamar-map29-chapters" aria-label={copy.chapters_label || "פרקי מאמר אסתר"}>
       {chapters.map(chapter => <button
         type="button"
         key={chapter.id}
@@ -144,33 +152,35 @@ export default function MaamarEstherInternalMap2029({ mapUrl, currentPage, onOpe
           aria-pressed={unit.id === currentUnit.id}
           onClick={() => selectUnit(unit)}
         >
-          <span>PDF {unit.pdf_page} · {unit.sequence_on_page}</span>
+          <span>{unit.display_locator || `PDF ${unit.pdf_page} · ${unit.sequence_on_page}`}</span>
           <strong>{unit.source_focus}</strong>
         </button>)}</div>
       </aside>
 
       <article className="maamar-map29-unit" aria-live="polite">
         <header>
-          <span>הסבר נלווה · {currentUnit.chapter_title} · PDF {currentUnit.pdf_page}</span>
+          <span>הסבר נלווה · {currentUnit.chapter_title} · {unitLocator}</span>
           <h4>{currentUnit.source_focus}</h4>
           <button type="button" onClick={() => onOpenPage(currentUnit.pdf_page)}>פתח את עמוד {currentUnit.pdf_page} בדברי הספר</button>
         </header>
 
         {currentUnit.source_quote ? <blockquote><span>דברי הספר</span>{currentUnit.source_quote}</blockquote> : null}
 
-        <section><h5>הפסוק או מאמר חז״ל</h5><p>{currentUnit.source_focus}</p></section>
-        <section><h5>הקושיה</h5><p>{currentUnit.question}</p></section>
+        <section><h5>{copy.focus_label || "הפסוק או מאמר חז״ל"}</h5><p>{currentUnit.source_focus}</p></section>
+        <section><h5>{copy.question_label || "הקושיה"}</h5><p>{currentUnit.question}</p></section>
         <UnitTags label="המקורות שהמחבר מביא" items={currentUnit.cited_sources} />
-        <section><h5>שלבי המהלך</h5><ol>{currentUnit.argument_steps.map((step, index) => <li key={`${currentUnit.id}-step-${index}`}>{step}</li>)}</ol></section>
-        <section><h5>התשובה או המסקנה</h5><p>{currentUnit.conclusion}</p></section>
+        <section><h5>{copy.argument_label || "שלבי המהלך"}</h5><ol>{currentUnit.argument_steps.map((step, index) => <li key={`${currentUnit.id}-step-${index}`}>{step}</li>)}</ol></section>
+        <section><h5>{copy.conclusion_label || "התשובה או המסקנה"}</h5><p>{currentUnit.conclusion}</p></section>
         <section className="maamar-map29-simple"><h5>הסבר עברי פשוט</h5><p>{currentUnit.companion_explanation}</p></section>
         <UnitTags label="דמויות" items={currentUnit.people} />
         <UnitTags label="מושגים" items={currentUnit.concepts} />
+        <UnitTags label="צירי הנהגה" items={currentUnit.governance_axes} />
+        <UnitTags label="עדשות ארבעת העולמות" items={currentUnit.world_lenses} />
 
         <details className="maamar-map29-extraction">
           <summary>פרטי המקור</summary>
           <p><strong>עוגן:</strong> PDF {currentUnit.pdf_page} · <code>{currentUnit.source_anchor}</code></p>
-          <p><strong>טקסט חילוץ · לא תחליף ל־PDF:</strong> {currentUnit.extraction_anchor}</p>
+          <p><strong>{state.data.display_contract.source_detail_label || "טקסט חילוץ · לא תחליף ל־PDF"}:</strong> {currentUnit.extraction_anchor}</p>
           <p>לא סומן „מאומת במנוע”. ה־PDF הצמוד הוא המקור המחייב.</p>
         </details>
 

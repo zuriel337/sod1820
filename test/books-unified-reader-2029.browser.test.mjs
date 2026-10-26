@@ -168,6 +168,23 @@ test("all eight unified readers remain source-first and fit 320/390/1440", { ski
           assert.equal(new URL(page.url()).searchParams.get("page"), "89");
           await page.getByRole("heading", { name: "הנהגת המשפט", exact: true }).waitFor();
         }
+        if (manifest.slug === "daat-tevunot") {
+          await page.getByRole("button", { name: "פתח את המפה הפנימית", exact: true }).click();
+          await page.getByRole("heading", { name: "סעיף אחר סעיף בתוך „דעת תבונות”", exact: true }).waitFor();
+          assert.deepEqual(await page.locator(".maamar-map29-coverage strong").allTextContents(), ["229", "99/99"]);
+          assert.equal(await page.evaluate(() => (
+            document.documentElement.scrollWidth <= window.innerWidth + 1
+            && document.querySelector(".maamar-map29").getBoundingClientRect().right <= window.innerWidth + 1
+          )), true, `Daat Tevunot internal map overflows at ${width}px`);
+          if (width === 390) {
+            await page.getByRole("searchbox", { name: "חיפוש לפי סעיף, דובר, מקור, מושג או ציר הנהגה" }).fill("שתים שהם שלש יסודות");
+            const mappedUnit = page.locator(".maamar-map29-units button").filter({ hasText: "סעיף קלח · PDF 61" });
+            await mappedUnit.waitFor();
+            await mappedUnit.click();
+            assert.equal(new URL(page.url()).searchParams.get("page"), "61");
+            assert.match(await page.locator("#book-reader29-source iframe").getAttribute("src"), /#page=61&view=FitH$/);
+          }
+        }
         if (manifest.slug === "sefer-yetzirah" && width === 390) {
           await page.getByText("פרטי המקור", { exact: true }).click();
           await page.getByText("207/220 עמודים · שכבת איתור בלבד", { exact: true }).waitFor();
