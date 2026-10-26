@@ -24,13 +24,7 @@ const EXACT_RETURN = "verified-v1";
 const LANGUAGE_INSPECTION_CONTRACT = "els_matrix_language_inspection_v1";
 const LANGUAGE_INSPECTION_STATUS = "CANDIDATE_INPUT";
 const LANGUAGE_ORIENTATIONS = new Set(["horizontal", "vertical", "diagonal-right", "diagonal-left"]);
-const LANGUAGE_FACT_LIMIT = 2800;
-const LANGUAGE_ORIENTATION_CODE = Object.freeze({
-  horizontal: "H",
-  vertical: "V",
-  "diagonal-right": "D+",
-  "diagonal-left": "D-",
-});
+const LANGUAGE_CANDIDATE_CONTRACT = "els_language_candidate_material_v1";
 
 function canonicalHebrewLetters(value) {
   const finals = { ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" };
@@ -156,7 +150,7 @@ function boundedLanguageInspection(value, selected, projection, scope) {
   });
 }
 
-export function buildElsRazielLanguageFacts(surfaceContext) {
+export function buildElsRazielLanguageCandidateMaterial(surfaceContext) {
   const occurrence = surfaceContext?.occurrence || null;
   const result = surfaceContext?.result || null;
   const inspection = surfaceContext?.languageInspection || null;
@@ -183,7 +177,7 @@ export function buildElsRazielLanguageFacts(surfaceContext) {
     || safeInt(axis?.skip) !== safeInt(occurrence?.skip)
     || safeInt(axis?.dir) !== safeInt(occurrence?.dir)
     || safeInt(axis?.start) !== safeInt(occurrence?.start)
-  ) return "";
+  ) return null;
 
   const rays = [];
   for (const raw of Array.isArray(inspection.rays) ? inspection.rays.slice(0, 24) : []) {
@@ -208,25 +202,104 @@ export function buildElsRazielLanguageFacts(surfaceContext) {
     ) continue;
     rays.push({ orientation, text, reverseText, start, step, distance });
   }
-  if (!rays.length) return "";
+  if (!rays.length) return null;
 
-  const direction = occurrence.dir === -1 ? "לאחור" : "קדימה";
-  const header = [
-    "ELS_LANGUAGE_MAP_V1 — חומר מועמד בלבד, לא ממצאי ELS.",
-    `ציר מאומת: ${occurrence.term}; היקף=${scope}; דילוג=${occurrence.skip}; כיוון=${direction}; התחלה=${occurrence.start}.`,
-    "רק אותיות הקווים נגזרו מן המטריצה הקנונית. חלוקה למילים, קריאה ומשמעות אינן מאומתות.",
-    "אפשר להציע עד שלוש קריאות ולסמן כל אחת כהשערה בלבד. אין לחשב או להשלים מיקום, דילוג או התאמה.",
-    "כל הצעה חייבת exact replay במנוע ELS הקנוני לפני שתוצג כממצא.",
-    "קווים: f=קדימה, r=הפוך, d=מרחק מן הציר; s/k הם מטא־נתונים קנוניים לקריאה בלבד.",
-  ].join(" ");
-  let facts = header;
-  for (let index = 0; index < rays.length; index += 1) {
-    const ray = rays[index];
-    const row = ` R${index + 1}[${LANGUAGE_ORIENTATION_CODE[ray.orientation]};d=${ray.distance};s=${ray.start};k=${ray.step}] f=${ray.text};r=${ray.reverseText}.`;
-    if (facts.length + row.length > LANGUAGE_FACT_LIMIT) break;
-    facts += row;
+  return Object.freeze({
+    contract: LANGUAGE_CANDIDATE_CONTRACT,
+    status: LANGUAGE_INSPECTION_STATUS,
+    source: "canonical_matrix_letters",
+    occurrence: Object.freeze({
+      occurrenceRef: occurrence.occurrenceRef,
+      term: occurrenceTerm,
+      scope,
+      corpusId: clean(result.corpusId),
+      skip: safeInt(occurrence.skip),
+      dir: safeInt(occurrence.dir),
+      start: safeInt(occurrence.start),
+    }),
+    authority: Object.freeze({
+      letters: "CANONICAL",
+      segmentation: "UNVERIFIED",
+      meaning: "UNVERIFIED",
+      canonicalReplayRequired: true,
+    }),
+    limits: Object.freeze({ maxProposals: 3, maxRays: 24, maxLettersPerRay: 24 }),
+    rays: Object.freeze(rays.map((ray) => Object.freeze({
+      id: `${ray.orientation}:${ray.start}:${ray.step}:${ray.text.length}`,
+      ...ray,
+    }))),
+  });
+}
+
+export function normalizeElsRazielLanguageCandidateMaterial(value, expectedOccurrenceRef = null) {
+  const occurrence = value?.occurrence || null;
+  const scope = cleanScope(occurrence?.scope);
+  const occurrenceRef = boundedClean(occurrence?.occurrenceRef, 120);
+  const term = canonicalHebrewLetters(occurrence?.term);
+  const corpusId = boundedClean(occurrence?.corpusId, 160);
+  const skip = safeInt(occurrence?.skip);
+  const dir = safeInt(occurrence?.dir);
+  const start = safeInt(occurrence?.start);
+  if (
+    value?.contract !== LANGUAGE_CANDIDATE_CONTRACT
+    || value?.status !== LANGUAGE_INSPECTION_STATUS
+    || value?.source !== "canonical_matrix_letters"
+    || !occurrenceRef
+    || (expectedOccurrenceRef && occurrenceRef !== expectedOccurrenceRef)
+    || !term
+    || !scope
+    || !corpusId
+    || skip == null
+    || skip < 2
+    || ![-1, 1].includes(dir)
+    || start == null
+    || start < 0
+    || value?.authority?.letters !== "CANONICAL"
+    || value?.authority?.segmentation !== "UNVERIFIED"
+    || value?.authority?.meaning !== "UNVERIFIED"
+    || value?.authority?.canonicalReplayRequired !== true
+  ) return null;
+
+  const rays = [];
+  for (const raw of Array.isArray(value.rays) ? value.rays.slice(0, 24) : []) {
+    const orientation = clean(raw?.orientation);
+    const text = canonicalHebrewLetters(raw?.text);
+    const reverseText = canonicalHebrewLetters(raw?.reverseText);
+    const rayStart = safeInt(raw?.start);
+    const step = safeInt(raw?.step);
+    const distance = safeInt(raw?.distance);
+    const id = `${orientation}:${rayStart}:${step}:${text.length}`;
+    if (
+      !LANGUAGE_ORIENTATIONS.has(orientation)
+      || boundedClean(raw?.id, 120) !== id
+      || text.length < 4
+      || text.length > 24
+      || reverseText !== [...text].reverse().join("")
+      || rayStart == null
+      || rayStart < 0
+      || step == null
+      || step === 0
+      || distance == null
+      || distance < 0
+      || distance > 80
+    ) continue;
+    rays.push(Object.freeze({ id, orientation, text, reverseText, start: rayStart, step, distance }));
   }
-  return facts;
+  if (!rays.length) return null;
+  return Object.freeze({
+    contract: LANGUAGE_CANDIDATE_CONTRACT,
+    status: LANGUAGE_INSPECTION_STATUS,
+    source: "canonical_matrix_letters",
+    occurrence: Object.freeze({ occurrenceRef, term, scope, corpusId, skip, dir, start }),
+    authority: Object.freeze({
+      letters: "CANONICAL",
+      segmentation: "UNVERIFIED",
+      meaning: "UNVERIFIED",
+      canonicalReplayRequired: true,
+    }),
+    limits: Object.freeze({ maxProposals: 3, maxRays: 24, maxLettersPerRay: 24 }),
+    rays: Object.freeze(rays),
+  });
 }
 
 function exactReturnFields(value) {

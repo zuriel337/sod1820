@@ -2,6 +2,8 @@
 // This module owns only the bounded serialization projection. It creates no memory,
 // truth, conversation or database owner of its own.
 
+import { normalizeElsRazielLanguageReview } from "./razielSessionRequest2029.js";
+
 export const RAZIEL_SAVED_SESSION_TYPE = "raziel_session";
 export const RAZIEL_SAVED_SESSION_SCHEMA = "raziel-saved-session-v1";
 
@@ -88,6 +90,7 @@ function normalizeMessage(message) {
   }
   const continuation = boundedObject(message.continuation, 30000);
   const evidenceSummary = boundedObject(message.evidenceSummary, 70000);
+  const elsLanguageReview = normalizeElsRazielLanguageReview(message.elsLanguageReview);
   return {
     role: "raziel",
     text,
@@ -98,6 +101,7 @@ function normalizeMessage(message) {
     sourceNames: normalizeSources(message.sourceNames),
     grounding: ["deterministic", "sourced", "interpretation"].includes(message.grounding) ? message.grounding : null,
     ...(evidenceSummary ? { evidenceSummary } : {}),
+    ...(elsLanguageReview ? { elsLanguageReview } : {}),
     viewMode: ["general", "landscape", "exploratory"].includes(message.viewMode) ? message.viewMode : null,
     viewModeApplied: message.viewModeApplied === true,
   };

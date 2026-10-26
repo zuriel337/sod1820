@@ -19,7 +19,8 @@ test("native chat: no provider call on open/render; fast by default; deep only v
   assert.match(chat, /data-raziel-deepen[\s\S]*send\(deepCandidate\.question, "deep", true, deepCandidate\.turnId\)/);
   assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
   assert.match(provider, /const submit = useCallback[\s\S]*const rawResponse = await transport\(request\)/);
-  assert.equal((chat.match(/"deep"/g) || []).length, 1);
+  assert.equal((chat.match(/"deep"/g) || []).length, 2);
+  assert.match(chat, /intelligenceLevel: elsFocus\?\.languageInspection \? "deep" : level/);
   assert.doesNotMatch(chat, /tier|isSubscriber|admin/);
   assert.doesNotMatch(frame, /askRazielFast|askRazielAdvanced/);
   assert.doesNotMatch(frame, /תחובר בהמשך/);

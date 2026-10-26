@@ -42,6 +42,20 @@ function completedState() {
       viewModeApplied: true,
       continuation: { facts: "שאול = 337", viewMode: "exploratory" },
       evidenceSummary: { facts: [{ expression: "שאול", value: 337 }] },
+      elsLanguageReview: {
+        contract: "els_language_review_v1",
+        status: "VERIFIED",
+        source: "canonical_els_engine",
+        occurrenceRef: "anon:axis",
+        proposals: [{
+          rayRef: "R1",
+          exactText: "באשאטמינ",
+          reading: "באש אטמין",
+          interpretation: "קריאה מוצעת",
+          authority: { exactText: "CANONICAL", reading: "PROPOSED", meaning: "INTERPRETATION" },
+          verification: { contract: "els_occurrence_replay_v1", state: "MATCH", source: "canonical_els_engine", occurrenceRef: "els:language", corpusId: "torah-v1", scope: "torah", skip: 16, dir: 1, start: 80, end: 192, positions: [80,96,112,128,144,160,176,192] },
+        }],
+      },
       providerSecret: "never-save-me-either",
     }],
   };
@@ -64,6 +78,7 @@ test("explicit save projects the complete bounded conversation without inventing
   assert.deepEqual(result.entity.thread[1].sourceNames, ["מאגר הגימטריה המאומת"]);
   assert.equal(result.entity.thread[1].continuation.facts, "שאול = 337");
   assert.equal(result.entity.thread[1].evidenceSummary.facts[0].value, 337);
+  assert.equal(result.entity.thread[1].elsLanguageReview.proposals[0].exactText, "באשאטמינ");
   assert.doesNotMatch(JSON.stringify(result.entity), /never-save-me/);
 });
 
@@ -101,6 +116,7 @@ test("restore validates the schema and resumes the exact thread and continuation
   assert.equal(restored.sessionRef, "turn-1");
   assert.deepEqual(restored.contextSnapshot, completedState().contextSnapshot);
   assert.equal(restored.thread[1].continuation.facts, "שאול = 337");
+  assert.equal(restored.thread[1].elsLanguageReview.proposals[0].reading, "באש אטמין");
 });
 
 test("saved-session selector filters, validates and orders only Raziel sessions", () => {

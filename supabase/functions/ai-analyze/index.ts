@@ -2,6 +2,7 @@ import { callClaudeReliable } from "../_shared/raziel-reliability.ts";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../_shared/razielIntelligence.js";
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
+import { buildElsRazielLanguageCandidatePrompt, reviewElsRazielLanguageProposals, validateElsRazielLanguageCandidateMaterial } from "../_shared/elsRazielLanguage.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../../src/lib/research/razielGroundedSourceComposer.js";
 import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveRazielCanonicalRequest, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
@@ -535,7 +536,7 @@ const RAZIEL_SITE_FALLBACK =
   "(3) חם, מדויק, עברית — בלי חתימה (הממשק מציג את זהותך). (4) אם ניתן זיכרון-רקע על המשתמש — התייחס בטבעיות. " +
   "(5) יש התכנסות אמיתית → בנה תשובה שכבה על שכבה; אין → קצר וישר. (6) לעולם אל תבקש מהמשתמש להריץ מנוע. " +
   "(7) סיים בשאלה מזמינה שממשיכה את המחקר. (8) גדול=רגיל כשאין סופיות — לא ממצא. (9) עובדה≠רמז, ענווה, בלי נבואות.\n" +
-  "החזר אך ורק JSON תקין אחד: {\"v\":1,\"agent\":\"raziel\",\"context\":null,\"greeting\":null,\"answer\":\"...\",\"facts\":[{\"label\":\"...\",\"value\":\"...\"}],\"suggested_paths\":[{\"id\":\"...\",\"label\":\"...\",\"icon\":\"...\",\"hint\":\"...\"}],\"follow_up_question\":null,\"continue_wa\":true} — בלי טקסט לפני/אחרי, בלי Markdown.";
+  "החזר אך ורק JSON תקין אחד: {\"v\":1,\"agent\":\"raziel\",\"context\":null,\"greeting\":null,\"answer\":\"...\",\"facts\":[{\"label\":\"...\",\"value\":\"...\"}],\"suggested_paths\":[{\"id\":\"...\",\"label\":\"...\",\"icon\":\"...\",\"hint\":\"...\"}],\"follow_up_question\":null,\"continue_wa\":true} — בלי טקסט לפני/אחרי, בלי Markdown. בשאלת ELS בלבד ייתכן שתקבל חוזה אופציונלי נפרד ל-els_language_proposals; הוא חומר מועמד ואסור להכניסו ל-facts.";
 
 const svcHeaders = () => supabaseServiceHeaders(SB_SVC, { "Content-Type": "application/json" });
 
@@ -635,6 +636,26 @@ async function runGemini(user: string, maxTokens: number, system: string = SYSTE
 const SB_URL = Deno.env.get("SUPABASE_URL") || "";
 const SB_SVC = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const SB_ANON = (Deno.env.get("SUPABASE_ANON_KEY") || "").trim();
+
+async function replayElsRazielLanguageCandidate(req: Request, replay: Record<string, unknown>) {
+  if (!SB_URL || !SB_ANON) return null;
+  const authorization = req.headers.get("authorization") || `Bearer ${SB_ANON}`;
+  try {
+    const response = await fetch(`${SB_URL}/functions/v1/els-search-bridge`, {
+      method: "POST",
+      headers: {
+        apikey: SB_ANON,
+        authorization,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ ...replay, interaction_id: crypto.randomUUID() }),
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
 
 // מזהה תיר+זהות מהבקשה: מאמת את טוקן-המשתמש (אם יש), אחרת אורח לפי visitor_id/IP.
 async function resolveIdentity(req: Request, body: any): Promise<{ identity: string; tier: string }> {
@@ -2441,6 +2462,12 @@ Deno.serve(async (req: Request) => {
       // Requests without the contract (including Legacy and the existing WhatsApp adapter) stay unchanged.
       const rCanonicalResearchOptIn = !rTrusted && razielCanonicalBundleOptedIn(body);
       const rLegacyPersistentMemoryAllowed = !rCanonicalResearchOptIn;
+      // ELS_LANGUAGE_REVIEW_V1: candidate letters travel outside facts. They are accepted only for
+      // the canonical 2029 contract and only when their selected occurrence exactly matches the
+      // allowlisted semantic surface. The model may propose a reading; it never supplies replay coordinates.
+      const rElsLanguageMaterial = rCanonicalResearchOptIn
+        ? validateElsRazielLanguageCandidateMaterial(body?.candidate_material, body?.surface_semantic)
+        : null;
       // RAZIEL_VIEW_MODE_V1: only the 2029 canonical contract can select a non-general observation mode.
       const rViewMode: RazielViewMode = rCanonicalResearchOptIn ? normalizeRazielViewMode(body?.view_mode) : "general";
       const { identity, tier } = rTrusted ? { identity: rTrusted.identity, tier: rTrusted.tier } : await resolveIdentity(req, body);
@@ -3269,6 +3296,9 @@ Deno.serve(async (req: Request) => {
           ? "\n\nניתוח-מקור חזותי (נגזרת-מכונה מהמקור הפרטי ששלח המשתמש; המקור עצמו נשמר כ-provenance פרטי וממתין למודרציה — אינו עובדה, אינו קנוני ואינו פורסם; ייתכנו טעויות קריאה. אל תחשב גימטריה ואל תציג ערכים לטקסט הזה; אפשר להציע לבדוק מילה מסוימת אם המשתמש מעוניין. בתשובה הפרד בבהירות בין: מה שנקרא בבירור מהמקור, קריאה לא בטוחה, ופרשנות שלך; אל תציג כוודאי דבר שסומן [לא בטוח]/[לא קריא]. פנה למשתמש בלשון ניטרלית — אל תקרא לו בשם ואל תסיק שם מטקסט המקור או מזיכרון; התמקד במקור ובשאלה הנוכחית בלבד. ענה בטקסט טבעי קצר בתוך שדה answer):\n" + rSource.text + "\n"
           : "\n\nהמשתמש שלח מקור (תמונה/מסמך) ונשמר פרטית וממתין למודרציה, אך קריאתו החזותית לא זמינה כרגע — אמור זאת בקצרה, אל תמציא תוכן ואל תנחש מה כתוב.\n")
         : "";
+      const elsLanguageCandidateText = rElsLanguageMaterial
+        ? `\n\n${buildElsRazielLanguageCandidatePrompt(rElsLanguageMaterial)}\n`
+        : "";
       const user =
         (rSubject ? `הנושא הנוכחי: ${rSubject}\n` : "") +
         (rFacts ? `\nעובדות מאומתות מהמנוע (השתמש רק באלה, שבץ אותן ב-facts[]):\n${rFacts}\n` : "\n(לא סופקו עובדות-מנוע — אל תמציא ערכים; ענה על המשמעות והצע כיוון.)\n") +
@@ -3278,6 +3308,7 @@ Deno.serve(async (req: Request) => {
         planText +
         toolText +
         sourceText +
+        elsLanguageCandidateText +
         (rPath ? `\nהמשתמש בחר את מסלול-המחקר: "${rPath}". ענה עליו ב-answer, והצע 0-2 מסלולי-המשך חדשים.\n` : "") +
         (rCtxHint ? `\nהקשר-הגעה: ${rCtxHint}\n` : "") +
         (rAgain ? "\nזו בקשה לקריאה *נוספת* — הבא זווית/רובד אחר ממה שכבר נאמר.\n" : "") +
@@ -3305,6 +3336,7 @@ Deno.serve(async (req: Request) => {
         rCanonicalSurpriseGuidance, rCanonicalExploratoryBrief, rCanonicalSurpriseBrief, rOpPack, rPersPack,
         rCcPack === "UNAVAILABLE" ? "" : rCcPack,
         rSource?.ok ? rSource.text : "",
+        rElsLanguageMaterial ? JSON.stringify(rElsLanguageMaterial) : "",
         exactSurfaceNumber == null ? "" : String(exactSurfaceNumber),
       ];
       const razielTruth = rel.degraded ? { ok: true, invented: [] } : validateRazielNumericOutput(rel.text, permittedRazielNumericTexts);
@@ -3463,6 +3495,36 @@ Deno.serve(async (req: Request) => {
       const contract = parseContract(out.text || "");
       if (contract) {
         contract.v = 1; contract.agent = "raziel";
+        const elsLanguageReview = rElsLanguageMaterial
+          ? await reviewElsRazielLanguageProposals({
+            material: rElsLanguageMaterial,
+            proposals: contract.els_language_proposals,
+            invokeVerify: (replay: Record<string, unknown>) => replayElsRazielLanguageCandidate(req, replay),
+          })
+          : null;
+        // Model-authored proposals are never returned directly. Only the server projection of a
+        // canonical MATCH may cross the response boundary; segmentation and meaning remain labeled.
+        delete contract.els_language_proposals;
+        if (elsLanguageReview) {
+          contract.els_language_review = elsLanguageReview;
+          // Candidate prose never becomes a fact by repetition. The visible answer is projected
+          // from replay status; exact text/readings are rendered from the bounded review object.
+          contract.facts = [];
+          contract.answer = elsLanguageReview.proposals.length
+            ? "נמצאו קריאות לשוניות שהאותיות והמיקום שלהן שוחזרו במנוע הקנוני. חלוקת המילים והמשמעות עדיין מוצגות כהצעת פרשנות, לא כעובדה."
+            : "לא נמצאה כרגע קריאה לשונית שהצליחה לעבור שחזור מדויק במנוע. חומר האותיות נשאר מועמד בלבד ולא הוצג כממצא.";
+          contract.follow_up_question = elsLanguageReview.proposals.length
+            ? "איזו מן הקריאות המאומתות באותיות תרצה לבדוק מול המקור וההקשר?"
+            : "להרחיב את הבדיקה ברמת מחקר נוספת?";
+          rPlanMeta = {
+            ...(rPlanMeta || {}),
+            els_language_review: {
+              contract: elsLanguageReview.contract,
+              status: elsLanguageReview.status,
+              verified_proposals: elsLanguageReview.proposals.length,
+            },
+          };
+        }
         if (rCanonicalResearchOptIn) {
           // Only the canonical consumer may attest source names for this path. Model-authored source
           // labels and navigation are not evidence and must never enter the response surface.
@@ -3490,6 +3552,37 @@ Deno.serve(async (req: Request) => {
         }
         if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
         return rzJson({ raziel: contract, evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      }
+      if (rElsLanguageMaterial) {
+        if (!responseDegraded) {
+          await finishOperationalTrace(activeTrace, "failed_with_reason", "invalid_els_language_response_contract");
+        }
+        return rzJson({
+          raziel: {
+            v: 1,
+            agent: "raziel",
+            context: null,
+            greeting: null,
+            answer: "לא הצלחתי להחזיר קריאה לשונית במבנה שאפשר לאמת. חומר האותיות נשאר מועמד בלבד ולא הוצג כממצא.",
+            facts: [],
+            suggested_paths: [],
+            follow_up_question: "לנסות שוב קריאה זהירה של המפה המקומית?",
+            continue_wa: true,
+            degraded: true,
+            els_language_review: {
+              contract: "els_language_review_v1",
+              status: "NO_VERIFIED_PROPOSALS",
+              source: "canonical_els_engine",
+              occurrenceRef: rElsLanguageMaterial.occurrence.occurrenceRef,
+              proposals: [],
+            },
+          },
+          engine: "claude",
+          model: rModel,
+          intelligence_level: rLevel,
+          degraded: true,
+          trace_id: activeTrace?.traceId || null,
+        });
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
       if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");

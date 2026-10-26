@@ -63,7 +63,7 @@ import {
   markSurfaceFamiliarity,
   resolveEntryOrientation,
 } from "../../lib/entryLearn2029.js";
-import { buildElsRazielExactHref, buildElsRazielGuidance, buildElsRazielLanguageFacts } from "../../lib/research/elsRazielContext.js";
+import { buildElsRazielExactHref, buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";
 import { SystemToolDockContext2029, SystemToolDockActions2029 } from "./SystemToolDock2029.jsx";
 import "./sod2029.css";
 import "./sod2029-closed.css";
@@ -688,6 +688,35 @@ function elsDirectionLabel(value) {
   return value === -1 ? "לאחור" : value === 1 ? "קדימה" : "—";
 }
 
+function ElsRazielLanguageReview({ review }) {
+  if (review?.contract !== "els_language_review_v1") return null;
+  const proposals = Array.isArray(review.proposals) ? review.proposals : [];
+  return <section className="sod29-panel-context-card" data-raziel-els-language-review={review.status}>
+    <b>{proposals.length ? "קריאות שעברו אימות אותיות" : "לא קודמה קריאה לשונית"}</b>
+    {proposals.length ? proposals.map((proposal) => {
+      const verification = proposal.verification;
+      const href = buildElsRazielExactHref({
+        term: proposal.exactText,
+        scope: verification.scope,
+        corpusId: verification.corpusId,
+        skip: verification.skip,
+        dir: verification.dir,
+        start: verification.start,
+        end: verification.end,
+        occurrenceRef: verification.occurrenceRef,
+      });
+      return <article key={verification.occurrenceRef} data-raziel-els-language-proposal="verified">
+        <strong dir="auto">אותיות מאומתות · {proposal.exactText}</strong>
+        <span dir="auto">קריאה מוצעת · {proposal.reading}</span>
+        <small>מיקום מאומת · דילוג {verification.skip} · {elsDirectionLabel(verification.dir)} · {verification.start}{verification.end != null ? `–${verification.end}` : ""}</small>
+        {proposal.interpretation ? <small dir="auto">פרשנות מוצעת · {proposal.interpretation}</small> : null}
+        <small>האותיות והמיקום עברו MATCH במנוע; החלוקה למילים והמשמעות אינן עובדה.</small>
+        {href ? <Link className="sod29-action" to={href}>פתח את המופע המאומת</Link> : null}
+      </article>;
+    }) : <small>רזיאל לא החזיר קריאה שעברה exact replay, ולכן חומר המפה נשאר מועמד בלבד.</small>}
+  </section>;
+}
+
 // One temporary Raziel conversation is shared by the desktop Companion and the mobile sheet.
 // Opening, navigating and changing view mode make no AI call; only an explicit submit crosses the transport.
 function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false, projection = "mobile" }) {
@@ -711,14 +740,13 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
     elsFocus ? `זהות אימות ELS: contract=${elsFocus.result.contract}; status=${elsFocus.result.status}; presentation=${elsFocus.result.presentationPolicy}; occurrenceRef=${elsFocus.occurrence.occurrenceRef}` : "",
     elsFocus ? `מיקום ELS: scope=${elsFocus.occurrence.corpus}; corpusId=${elsFocus.result.corpusId}; skip=${elsFocus.occurrence.skip}; direction=${elsFocus.occurrence.dir}; start=${elsFocus.occurrence.start}; end=${elsFocus.occurrence.end ?? "לא נמסר"}` : "",
     elsFocus ? "גבול ELS: המנוע הקנוני אימת את הביטוי והמיקום בלבד. משמעות וקשרים הם פרשנות; אין לחשב או להשלים נתוני ELS חסרים." : "",
-    elsFocus ? buildElsRazielLanguageFacts(elsFocus) : "",
     label && label !== subjectLabel ? `מוקד נבחר: ${label}` : "",
-  ].filter(Boolean).join("\n").slice(0, 3500);
+  ].filter(Boolean).join("\n").slice(0, 1200);
   const send = async (question, level, again = false, continuationTurnId = null) => {
     const q = String(question || "").trim();
     if (!q || busy) return;
     setDeepOpen(false);
-    const result = await session.submit({ question: q, intelligenceLevel: level, again, continuationTurnId, facts: buildFacts(), view: { numberFocus, readingFocus, elsFocus }, projection });
+    const result = await session.submit({ question: q, intelligenceLevel: elsFocus?.languageInspection ? "deep" : level, again, continuationTurnId, facts: buildFacts(), view: { numberFocus, readingFocus, elsFocus }, projection });
     if (result?.ok && !again) setText("");
   };
   const saveConversation = async () => {
@@ -775,6 +803,7 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
           <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
             <small>{m.role === "user" ? "שאלת" : "רזיאל"}</small>
             {m.viewMode === "landscape" && m.viewModeApplied ? <details open><summary>מפת מחקר</summary><span dir="auto">{m.text}</span></details> : <span dir="auto">{m.text}</span>}
+            {m.role === "raziel" && m.elsLanguageReview ? <ElsRazielLanguageReview review={m.elsLanguageReview} /> : null}
             {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
               <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
               {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `${razielViewModeLabel(m.viewMode)} · ניסוי` : `${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}

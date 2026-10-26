@@ -34,22 +34,28 @@ ranking, matrix bounds or UI projection before proposing a change.
   prediction.
 - **Pass:** no AI required for discovery; exact replay passes; `41865`/`41864` proximity is visible;
   exact, segmented and interpretive layers are distinct; no broad scan runs.
-- **Failure diagnosis:** `UI/AI projection` remains for the language reading: the canonical local
-  map and the explicit-submit Raziel fact pack now contain both exact rays, but the response
-  contract does not yet return a structured language proposal that can be replayed by the
-  canonical ELS engine. Vocabulary is not the primary failure for this occurrence.
+- **Failure diagnosis:** no deterministic contract gap remains in the language replay seam.
+  Acceptance is still `SPECIFIED` because the withheld reading has not yet been exercised against
+  the live model/provider and reviewed in a protected browser run. Vocabulary is not the primary
+  failure for this occurrence.
 - **Run evidence:** 2026-10-26, `gpt/els-local-language-recognition-v1-20261026` worktree: the
   general `matrixLanguageInspection` returned 24 of the closest Stage-A rays (24 letters maximum
   per ray), including unsupplied `באשאטמינ` on an intersecting ray and unsupplied `שבררומי` on the
   nearest reverse ray. The runtime received neither expected term. `modelCallsTriggered=0`;
   letters=`CANONICAL`, segmentation/meaning=`UNVERIFIED`.
 - **Raziel projection evidence:** 2026-10-26,
-  `gpt/els-raziel-language-inspection-v1-20261026` worktree: only an explicit question appends the
-  bounded `ELS_LANGUAGE_MAP_V1` pack to the existing global Raziel submit. The pack preserves all
-  24 rays within the existing server ceiling, labels the letters canonical and every segmentation
-  or meaning unverified, and survives continuation with the selected occurrence snapshot. Opening
-  ELS, selecting the occurrence and opening Raziel still issue zero AI requests. Full GD-01 remains
-  `SPECIFIED` until a structured reading is canonically replayed and then projected as a finding.
+  `gpt/els-raziel-canonical-language-replay-v1-20261026` worktree: only an explicit question sends
+  the bounded `els_language_candidate_material_v1` beside — never inside — verified facts through
+  the existing global Raziel submit. The model may return a ray alias and a proposed reading, but
+  cannot supply replay coordinates. `ai-analyze` resolves the alias to engine-owned coordinates,
+  calls the existing canonical `els-search-bridge`, discards every non-`MATCH` proposal and returns
+  `els_language_review_v1`. The UI separates exact letters and coordinates from proposed
+  segmentation and interpretation, and provides an exact return link. Save/restore preserves the
+  normalized review and occurrence snapshot. Contract tests cover forward/reverse replay,
+  mismatches, invented substrings, model-supplied coordinates, two successive occurrences and
+  320px rendering. Opening ELS, selecting the occurrence and opening Raziel still issue zero AI
+  requests. Full GD-01 remains `SPECIFIED` until the withheld live-provider/browser acceptance is
+  run; no expected holdout reading was inserted into runtime code.
 
 ## GD-02 — Colombia holdout: a story does not name the answer
 

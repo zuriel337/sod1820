@@ -4,7 +4,8 @@ import {
   buildElsRazielExactHref,
   buildElsRazielSurfaceContext,
   buildElsRazielGuidance,
-  buildElsRazielLanguageFacts,
+  buildElsRazielLanguageCandidateMaterial,
+  normalizeElsRazielLanguageCandidateMaterial,
   readElsRazielExactReturn,
 } from "../src/lib/research/elsRazielContext.js";
 
@@ -161,19 +162,25 @@ test("Raziel receives a bounded exact-letter language map only when it belongs t
   assert.equal("languageInspection" in interpreted, false, "the seam never accepts an engine-external truth promotion");
 });
 
-test("the explicit-submit fact pack keeps canonical rays separate from unverified language readings", () => {
+test("the explicit-submit candidate material stays separate from verified facts", () => {
   const out = buildElsRazielSurfaceContext({ researchContext, projection, languageInspection });
-  const facts = buildElsRazielLanguageFacts(out);
-  assert.match(facts, /^ELS_LANGUAGE_MAP_V1/);
-  assert.match(facts, /חומר מועמד בלבד, לא ממצאי ELS/);
-  assert.match(facts, /חלוקה למילים, קריאה ומשמעות אינן מאומתות/);
-  assert.match(facts, /עד שלוש קריאות/);
-  assert.match(facts, /exact replay במנוע ELS הקנוני/);
-  assert.match(facts, /f=באשאטמינ;r=נימטאשאב/);
-  assert.match(facts, /f=שבררומי;r=ימוררבש/);
-  assert.ok(facts.length <= 2800);
-  assert.equal(buildElsRazielLanguageFacts({ ...out, result: { ...out.result, status: "UNVERIFIED" } }), "");
-  assert.equal(buildElsRazielLanguageFacts({ ...out, languageInspection: { ...out.languageInspection, axis: { ...out.languageInspection.axis, start: 101 } } }), "");
+  const material = buildElsRazielLanguageCandidateMaterial(out);
+  assert.equal(material.contract, "els_language_candidate_material_v1");
+  assert.equal(material.status, "CANDIDATE_INPUT");
+  assert.equal(material.occurrence.occurrenceRef, out.occurrence.occurrenceRef);
+  assert.deepEqual(material.authority, {
+    letters: "CANONICAL",
+    segmentation: "UNVERIFIED",
+    meaning: "UNVERIFIED",
+    canonicalReplayRequired: true,
+  });
+  assert.equal(material.rays[0].text, "באשאטמינ");
+  assert.equal(material.rays[0].reverseText, "נימטאשאב");
+  assert.equal(material.rays[1].text, "שבררומי");
+  assert.equal(normalizeElsRazielLanguageCandidateMaterial(material, out.occurrence.occurrenceRef)?.rays.length, 2);
+  assert.equal(normalizeElsRazielLanguageCandidateMaterial(material, "another-occurrence"), null);
+  assert.equal(buildElsRazielLanguageCandidateMaterial({ ...out, result: { ...out.result, status: "UNVERIFIED" } }), null);
+  assert.equal(buildElsRazielLanguageCandidateMaterial({ ...out, languageInspection: { ...out.languageInspection, axis: { ...out.languageInspection.axis, start: 101 } } }), null);
 });
 
 test("unverified, ordinary-search and incomplete occurrences never cross the ELS to Raziel seam", () => {

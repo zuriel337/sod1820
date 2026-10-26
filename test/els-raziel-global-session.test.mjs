@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   buildElsRazielExactHref,
-  buildElsRazielLanguageFacts,
+  buildElsRazielLanguageCandidateMaterial,
   buildElsRazielSurfaceContext,
   readElsRazielExactReturn,
 } from "../src/lib/research/elsRazielContext.js";
@@ -151,7 +151,7 @@ test("unverified ELS cannot become a Raziel fact and one-shots stay on the exist
   assert.doesNotMatch(provider, /submitOneShot[\s\S]*transport\(/);
 });
 
-test("one explicit ELS question carries the bounded language map through the existing request only", () => {
+test("one explicit ELS question carries candidate material outside facts through the existing request only", () => {
   const projection = exactProjection();
   const languageInspection = {
     contract: "els_matrix_language_inspection_v1",
@@ -167,25 +167,25 @@ test("one explicit ELS question carries the bounded language map through the exi
     }),
   };
   const els = buildElsRazielSurfaceContext({ researchContext, projection, languageInspection });
-  const languageFacts = buildElsRazielLanguageFacts(els);
-  assert.ok(languageFacts.length > 1200, "the quality map exercises the ELS-only larger envelope");
+  const candidateMaterial = buildElsRazielLanguageCandidateMaterial(els);
+  assert.equal(candidateMaterial.rays.length, 24);
   const prepared = prepareRazielSessionSubmission({
     question: "אילו קריאות לשוניות כדאי לאמת?",
     state: createInitialRazielSessionState(),
     researchContext,
-    facts: `מופע ELS מאומת: משיח\n${languageFacts}`,
+    facts: "מופע ELS מאומת: משיח",
     view: { elsFocus: els },
     startedAt: "2026-10-26T12:04:00Z",
     createTurnId: () => "language-turn",
   });
-  assert.match(prepared.request.facts, /ELS_LANGUAGE_MAP_V1/);
-  assert.match(prepared.request.facts, /באשאטמינ/);
-  assert.match(prepared.request.facts, /ימוררבש/);
-  assert.match(prepared.request.facts, /אינן מאומתות/);
-  assert.ok(prepared.request.facts.length > 1200);
-  assert.ok(prepared.request.facts.length <= 3500);
+  assert.doesNotMatch(prepared.request.facts, /ELS_LANGUAGE_MAP_V1|באשאטמינ|ימוררבש/);
+  assert.equal(prepared.request.candidateMaterial.contract, "els_language_candidate_material_v1");
+  assert.equal(prepared.request.candidateMaterial.rays.length, 24);
+  assert.equal(prepared.request.candidateMaterial.rays[4].text, "באשאטמינ");
+  assert.equal(prepared.request.candidateMaterial.rays[20].text, "ימוררבש");
   assert.equal(prepared.request.surfaceSemantic.els.occurrence, els.occurrence.occurrenceRef);
-  assert.match(prepared.turn.continuation.facts, /ELS_LANGUAGE_MAP_V1/);
+  assert.equal(prepared.turn.continuation.candidateMaterial.occurrence.occurrenceRef, els.occurrence.occurrenceRef);
+  assert.equal(prepared.turn.continuation.candidateMaterial.rays.length, 24);
 });
 
 test("the 320px-safe UI uses bounded cards and links without a second chat/provider", () => {

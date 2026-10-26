@@ -192,7 +192,7 @@ test("optional session hook is a direct non-throwing context read; the strict ho
 });
 
 test("askRaziel: view_mode is additive, sent only under the canonical 2029 contract and only when non-general; intelligence_level untouched", () => {
-  assert.match(supabase, /researchContract = null, viewMode = null \}\)/);
+  assert.match(supabase, /researchContract = null, candidateMaterial = null, viewMode = null \}\)/);
   assert.match(supabase, /\.\.\.\(researchContract === 'public-number-research-run-v1' && \(viewMode === 'landscape' \|\| viewMode === 'exploratory'\) \? \{ view_mode: viewMode \} : \{\}\)/);
   assert.match(supabase, /\.\.\.\(level \? \{ intelligence_level: level \} : \{\}\)/);
   // never reuses the legacy `mode` field (reserved for "advanced")
@@ -209,7 +209,8 @@ test("UI wiring: one shared selector inside the single RazielNativeChat, App2029
   assert.ok(chat.indexOf("<RazielViewModeSelector2029 />") < chat.indexOf('<form className="sod29-raziel-composer"'));
   // the selector never submits: it only sets the session mode; the send path is unchanged
   assert.match(chat, /send\(text, "fast"\)/);
-  assert.equal((chat.match(/"deep"/g) || []).length, 1);
+  assert.equal((chat.match(/"deep"/g) || []).length, 2);
+  assert.match(chat, /intelligenceLevel: elsFocus\?\.languageInspection \? "deep" : level/);
   assert.doesNotMatch(selector, /submit\(|askRaziel|fetch\(|localStorage/);
   assert.match(frame, /data-raziel-view-mode-answer/);
 });

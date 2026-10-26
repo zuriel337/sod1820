@@ -6,6 +6,11 @@ import { runInNewContext } from "node:vm";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../../supabase/functions/_shared/razielIntelligence.js";
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../supabase/functions/_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
+import {
+  buildElsRazielLanguageCandidatePrompt,
+  reviewElsRazielLanguageProposals,
+  validateElsRazielLanguageCandidateMaterial,
+} from "../../supabase/functions/_shared/elsRazielLanguage.js";
 import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../src/lib/research/razielGroundedSourceComposer.js";
 import {
@@ -55,6 +60,7 @@ export async function runAiAnalyze({
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
   modelResult = null, modelResults = null, numberContextByNumber = {}, researchBundleByNumber = {},
   researchBundleByExpression = {},
+  elsVerifyResult = null,
   researchRunFailure = null, legacyContext = null, genericProviderText = null,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
@@ -73,6 +79,9 @@ export async function runAiAnalyze({
       });
     }
     if (url.origin === "https://fixture.invalid") {
+      if (url.pathname === "/functions/v1/els-search-bridge" && elsVerifyResult) {
+        return response({ result: elsVerifyResult, trace_id: randomUUID() });
+      }
       if (url.pathname === "/functions/v1/research-run") {
         if (researchRunFailure) return response({ status: "error", error: researchRunFailure }, 200);
         const expressionContract = payload?.contract === "public-expression-crossing-run-v1";
@@ -139,19 +148,22 @@ export async function runAiAnalyze({
     SUPABASE_ANON_KEY: "synthetic-anon-key", ANTHROPIC_API_KEY: "synthetic-model-key",
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 7, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 8, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
   assert.ok(imports[3].includes('import { supabaseServiceHeaders }'));
-  assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
-  assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers }'));
-  assert.ok(imports[6].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
-  assert.ok(imports[6].includes('isRazielCurrentSurfaceQuestion'));
-  assert.ok(imports[6].includes('resolveRazielCanonicalRequest'));
-  assert.ok(imports[6].includes('resolveRazielConversationalAct'));
-  assert.ok(imports[6].includes('resolveRazielDeterministicGuidance'));
-  assert.ok(imports[6].includes('validateRazielSemanticIntent'));
+  assert.ok(imports[4].includes('buildElsRazielLanguageCandidatePrompt'));
+  assert.ok(imports[4].includes('reviewElsRazielLanguageProposals'));
+  assert.ok(imports[4].includes('validateElsRazielLanguageCandidateMaterial'));
+  assert.ok(imports[5].includes('import { buildRazielResultBundleConsumer }'));
+  assert.ok(imports[6].includes('import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers }'));
+  assert.ok(imports[7].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
+  assert.ok(imports[7].includes('isRazielCurrentSurfaceQuestion'));
+  assert.ok(imports[7].includes('resolveRazielCanonicalRequest'));
+  assert.ok(imports[7].includes('resolveRazielConversationalAct'));
+  assert.ok(imports[7].includes('resolveRazielDeterministicGuidance'));
+  assert.ok(imports[7].includes('validateRazielSemanticIntent'));
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -159,6 +171,9 @@ export async function runAiAnalyze({
     crypto: { randomUUID }, selectRazielIntelligence, RAZIEL_LEVELS,
     whatsappSurfaceProfileText, continuationHrefFromSurface,
     supabaseServiceHeaders,
+    buildElsRazielLanguageCandidatePrompt,
+    reviewElsRazielLanguageProposals,
+    validateElsRazielLanguageCandidateMaterial,
     buildRazielResultBundleConsumer,
     buildRazielGroundedSourceComposer,
     razielMethodLayerNumbers,

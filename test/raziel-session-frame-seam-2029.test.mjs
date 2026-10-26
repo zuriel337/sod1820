@@ -168,7 +168,8 @@ test("deep remains previewed and explicit; ungrounded synthesis is labelled as i
   assert.match(chat, /m === deepCandidate/);
   assert.match(chat, /deepCandidate && deepOpen/);
   assert.match(chat, /data-raziel-deepen="true"[\s\S]*send\(deepCandidate\.question, "deep", true, deepCandidate\.turnId\)/);
-  assert.equal((chat.match(/"deep"/g) || []).length, 1);
+  assert.equal((chat.match(/"deep"/g) || []).length, 2);
+  assert.match(chat, /intelligenceLevel: elsFocus\?\.languageInspection \? "deep" : level/);
   assert.match(chat, /data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל/);
 });
 

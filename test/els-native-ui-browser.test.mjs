@@ -226,7 +226,7 @@ const realHostStubs = {
 // Use the actual SystemFrame/Command Island for integration acceptance. Only unrelated
 // domain projections and external reads are isolated; no dock/registration test double.
 const frameStubs = {
- '../../lib/supabase.js': `export const askRaziel=async(...args)=>{(window.__razielCalls||=[]).push(args);(window.__razielAiCalls||=[]).push(structuredClone(args[0]));return {answer:'תשובת fixture',intelligence_level:'fast'};};export const getNotificationPrefs=async()=>({});`,
+ '../../lib/supabase.js': `export const askRaziel=async(...args)=>{const request=args[0];(window.__razielCalls||=[]).push(args);(window.__razielAiCalls||=[]).push(structuredClone(request));return {answer:'תשובת fixture',intelligence_level:request.intelligenceLevel,els_language_review:request.candidateMaterial?{contract:'els_language_review_v1',status:'VERIFIED',source:'canonical_els_engine',occurrenceRef:request.candidateMaterial.occurrence.occurrenceRef,proposals:[{rayRef:'R1',exactText:'באשאטמינ',reading:'באש אטמין',interpretation:'קריאה אפשרית בלבד',authority:{exactText:'CANONICAL',reading:'PROPOSED',meaning:'INTERPRETATION'},verification:{contract:'els_occurrence_replay_v1',state:'MATCH',source:'canonical_els_engine',occurrenceRef:'els:fixture-language',corpusId:'fixture-torah',scope:'torah',skip:16,dir:1,start:80,end:192,positions:[80,96,112,128,144,160,176,192],traceId:'fixture-trace'}}]}:undefined};};export const getNotificationPrefs=async()=>({});`,
  '../../lib/notifications.js': `export const getMyNotifications=async()=>[];export const getUnreadCount=async()=>0;export const markNotificationRead=async()=>{};export const topicLabel=x=>x;`,
  '../../lib/commandCenter.js': `export const getMyProfile=async()=>null;export const watchToggle=async()=>{};`,
  '../../lib/tracking.js': `export const getVisitorId=()=>'frame-fixture';`,
@@ -1256,11 +1256,17 @@ test('native UI: verified ELS context reaches the one global Raziel session at 3
    assert.equal(request.surfaceSemantic.els.term,'משיח');
    assert.equal(request.surfaceSemantic.els.start,100);
    assert.equal(request.surfaceSemantic.els.skip,17);
+   assert.equal(request.intelligenceLevel,'deep');
    assert.match(request.facts,/אין לחשב או להשלים נתוני ELS חסרים/);
-   assert.match(request.facts,/ELS_LANGUAGE_MAP_V1/);
-   assert.match(request.facts,/f=באשאטמינ;r=נימטאשאב/);
-   assert.match(request.facts,/f=שבררומי;r=ימוררבש/);
-   assert.match(request.facts,/חלוקה למילים, קריאה ומשמעות אינן מאומתות/);
+   assert.doesNotMatch(request.facts,/באשאטמינ|שבררומי|ELS_LANGUAGE_MAP_V1/);
+   assert.equal(request.candidateMaterial.contract,'els_language_candidate_material_v1');
+   assert.equal(request.candidateMaterial.rays[0].text,'באשאטמינ');
+   assert.equal(request.candidateMaterial.rays[1].text,'שבררומי');
+   const review=chat.locator('[data-raziel-els-language-review="VERIFIED"]');
+   await review.waitFor();
+   assert.match(await review.innerText(),/אותיות מאומתות · באשאטמינ/);
+   assert.match(await review.innerText(),/קריאה מוצעת · באש אטמין/);
+   assert.match(await review.innerText(),/החלוקה למילים והמשמעות אינן עובדה/);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${width}: ELS Raziel has no horizontal overflow`);
   },{fullFrame:true,mobile:width<981});
  });

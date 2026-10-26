@@ -34,8 +34,12 @@ test("canonical System Frame Raziel consumer accepts bounded ELS context without
   assert.match(frame, /result\?\.presentationPolicy === "exact_replay_v1"/);
   assert.match(frame, /מאומתים הביטוי והמיקום; משמעות וקשרים הם פרשנות של רזיאל/);
   assert.match(frame, /data-raziel-return-to-els="true"/);
-  assert.match(frame, /buildElsRazielLanguageFacts\(elsFocus\)/);
+  assert.doesNotMatch(frame, /buildElsRazielLanguageFacts/);
+  assert.match(frame, /elsFocus\?\.languageInspection \? "deep" : level/);
   assert.match(frame, /data-raziel-els-language-map="candidate-only"/);
+  assert.match(frame, /data-raziel-els-language-review=\{review\.status\}/);
+  assert.match(frame, /אותיות מאומתות/);
+  assert.match(frame, /החלוקה למילים והמשמעות אינן עובדה/);
   assert.equal((frame.match(/function RazielProjection\(/g) || []).length, 1);
   // The central session mount owns the one askRaziel transport; the frame is a consumer only.
   assert.doesNotMatch(frame, /askRazielAdvanced|functions\.invoke\(['"]ai-analyze/);

@@ -7,16 +7,16 @@ import {
   normalizeRazielViewMode,
 } from "./razielViewMode2029.js";
 import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
+import {
+  buildElsRazielLanguageCandidateMaterial,
+  normalizeElsRazielLanguageCandidateMaterial,
+} from "./elsRazielContext.js";
 
 const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
 
 const LIMITS = Object.freeze({
   question: 300,
   factPack: 1200,
-  // ai-analyze enforces the same 3,500-character server cap. Only a validated ELS snapshot with
-  // the bounded language-map marker may use the larger client envelope; every other surface keeps
-  // the existing 1,200-character budget.
-  elsLanguageFactPack: 3500,
   context: 600,
   transcript: 500,
   transcriptTurn: 200,
@@ -55,13 +55,6 @@ function cleanInteger(value) {
 
 function compactObject(value) {
   return Object.fromEntries(Object.entries(value).filter(([, item]) => item != null && item !== ""));
-}
-
-function factPackLimit(value, contextSnapshot) {
-  const facts = String(value ?? "");
-  return contextSnapshot?.focus?.els?.occurrence && facts.includes("ELS_LANGUAGE_MAP_V1")
-    ? LIMITS.elsLanguageFactPack
-    : LIMITS.factPack;
 }
 
 function sourceName(value) {
@@ -267,12 +260,17 @@ function normalizeContinuationContextSnapshot(value) {
   return { ...normalized, description };
 }
 
-export function createRazielContinuationSnapshot({ contextSnapshot, facts = "", viewMode = RAZIEL_DEFAULT_VIEW_MODE } = {}) {
+export function createRazielContinuationSnapshot({ contextSnapshot, facts = "", candidateMaterial = null, viewMode = RAZIEL_DEFAULT_VIEW_MODE } = {}) {
   const boundedContextSnapshot = normalizeContinuationContextSnapshot(contextSnapshot);
   if (!boundedContextSnapshot) return null;
+  const boundedCandidateMaterial = normalizeElsRazielLanguageCandidateMaterial(
+    candidateMaterial,
+    boundedContextSnapshot?.focus?.els?.occurrence || null,
+  );
   return Object.freeze({
     contextSnapshot: boundedContextSnapshot,
-    facts: cleanInline(facts, factPackLimit(facts, boundedContextSnapshot)) || "",
+    facts: cleanInline(facts, LIMITS.factPack) || "",
+    ...(boundedCandidateMaterial ? { candidateMaterial: boundedCandidateMaterial } : {}),
     viewMode: normalizeRazielViewMode(viewMode),
   });
 }
@@ -325,6 +323,7 @@ export function buildRazielSessionRequest({
   state,
   contextSnapshot,
   facts = "",
+  candidateMaterial = null,
   intelligenceLevel = "fast",
   again = false,
   viewMode = RAZIEL_DEFAULT_VIEW_MODE,
@@ -345,9 +344,14 @@ export function buildRazielSessionRequest({
     .filter(Boolean)
     .join("\n")
     .slice(0, LIMITS.context) || null;
+  const boundedCandidateMaterial = normalizeElsRazielLanguageCandidateMaterial(
+    candidateMaterial,
+    contextSnapshot?.focus?.els?.occurrence || null,
+  );
   return {
     subject,
-    facts: cleanInline(facts, factPackLimit(facts, contextSnapshot)) || "",
+    facts: cleanInline(facts, LIMITS.factPack) || "",
+    ...(boundedCandidateMaterial ? { candidateMaterial: boundedCandidateMaterial } : {}),
     context: boundedContext,
     again: Boolean(again),
     intelligenceLevel: intelligenceLevel === "deep" ? "deep" : "fast",
@@ -384,6 +388,8 @@ export function prepareRazielSessionSubmission({
   const contextSnapshot = continuation?.contextSnapshot
     || createRazielRequestContextSnapshot(researchContext, view, startedAt);
   const selectedFacts = continuation ? continuation.facts : facts;
+  const selectedCandidateMaterial = continuation?.candidateMaterial
+    || buildElsRazielLanguageCandidateMaterial(view?.elsFocus);
   // A plain continuation (deepen) keeps the mode of the answer it extends. A one-shot per-request mode (the surprise)
   // replaces it for this request only; the stored answer and the session's own mode are not modified.
   const oneShotViewMode = viewModeOverride == null ? null : normalizeRazielViewMode(viewModeOverride);
@@ -395,6 +401,7 @@ export function prepareRazielSessionSubmission({
     state,
     contextSnapshot,
     facts: selectedFacts,
+    candidateMaterial: selectedCandidateMaterial,
     intelligenceLevel: normalizeRazielViewMode(selectedViewMode) === "exploratory" ? "deep" : intelligenceLevel,
     again,
     viewMode: selectedViewMode,
@@ -414,6 +421,7 @@ export function prepareRazielSessionSubmission({
     continuation: createRazielContinuationSnapshot({
       contextSnapshot,
       facts: request.facts,
+      candidateMaterial: request.candidateMaterial,
       viewMode: selectedViewMode,
     }),
   };
@@ -510,6 +518,71 @@ export function formatRazielEvidenceSummary(value = null, { expanded = false } =
   return [`🔎 ${summary.title}`, ...lines, "אלה נתוני המנוע והמחקר; הטקסט שמעליהם הוא הפרשנות.", ...(summary.mapAvailable ? ["למפת הקשרים המלאה אפשר לבחור „🗺️ פתח מפת מחקר” שמתחת."] : [])].join("\n");
 }
 
+export function normalizeElsRazielLanguageReview(value = null) {
+  if (!isObject(value)
+    || value.contract !== "els_language_review_v1"
+    || !["VERIFIED", "NO_VERIFIED_PROPOSALS"].includes(value.status)
+    || value.source !== "canonical_els_engine") return null;
+  const occurrenceRef = cleanInline(value.occurrenceRef, 120);
+  if (!occurrenceRef) return null;
+  const proposals = [];
+  for (const item of Array.isArray(value.proposals) ? value.proposals.slice(0, 3) : []) {
+    const verification = isObject(item?.verification) ? item.verification : null;
+    const exactText = cleanInline(item?.exactText, 80);
+    const reading = cleanInline(item?.reading, 80);
+    const skip = cleanInteger(verification?.skip);
+    const dir = cleanInteger(verification?.dir);
+    const start = cleanInteger(verification?.start);
+    if (
+      !exactText
+      || !reading
+      || item?.authority?.exactText !== "CANONICAL"
+      || item?.authority?.reading !== "PROPOSED"
+      || item?.authority?.meaning !== "INTERPRETATION"
+      || verification?.contract !== "els_occurrence_replay_v1"
+      || verification?.state !== "MATCH"
+      || verification?.source !== "canonical_els_engine"
+      || !cleanInline(verification?.occurrenceRef, 220)
+      || !cleanInline(verification?.corpusId, 160)
+      || skip == null
+      || skip < 2
+      || ![-1, 1].includes(dir)
+      || start == null
+      || start < 0
+    ) continue;
+    proposals.push(Object.freeze({
+      rayRef: cleanInline(item.rayRef, 8),
+      exactText,
+      reading,
+      interpretation: cleanInline(item.interpretation, 240),
+      authority: Object.freeze({ exactText: "CANONICAL", reading: "PROPOSED", meaning: "INTERPRETATION" }),
+      verification: Object.freeze({
+        contract: "els_occurrence_replay_v1",
+        state: "MATCH",
+        source: "canonical_els_engine",
+        occurrenceRef: cleanInline(verification.occurrenceRef, 220),
+        corpusId: cleanInline(verification.corpusId, 160),
+        scope: verification.scope === "tanakh" ? "tanakh" : "torah",
+        skip,
+        dir,
+        start,
+        end: cleanInteger(verification.end),
+        positions: Object.freeze((Array.isArray(verification.positions) ? verification.positions : [])
+          .map(cleanInteger).filter((position) => position != null && position >= 0).slice(0, 24)),
+        traceId: cleanInline(verification.traceId, 160),
+      }),
+    }));
+  }
+  if (value.status === "VERIFIED" && !proposals.length) return null;
+  return Object.freeze({
+    contract: "els_language_review_v1",
+    status: proposals.length ? "VERIFIED" : "NO_VERIFIED_PROPOSALS",
+    source: "canonical_els_engine",
+    occurrenceRef,
+    proposals: Object.freeze(proposals),
+  });
+}
+
 export function normalizeRazielResponse(response, requestedLevel = "fast") {
   if (!isObject(response)) return null;
   const answer = cleanAnswer(response.answer);
@@ -519,6 +592,7 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
     : cleanInline(response.intelligence_level, 30) || (requestedLevel === "deep" ? "deep" : "fast");
   const viewModeReport = normalizeRazielViewModeReport(response);
   const evidenceSummary = normalizeRazielEvidenceSummary(response.evidence_summary);
+  const elsLanguageReview = normalizeElsRazielLanguageReview(response.els_language_review);
   // The conversation stays readable.  The full calculation/source appendix belongs to the
   // explicit Research Map action; ordinary and exploratory answers retain only a compact,
   // auditable pointer while keeping the structured evidence on the message object.
@@ -532,6 +606,7 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
     intelligenceLevel,
     sourceNames: extractRazielSourceNames(response),
     ...(evidenceSummary ? { evidenceSummary } : {}),
+    ...(elsLanguageReview ? { elsLanguageReview } : {}),
     ...(viewModeReport ? { viewMode: viewModeReport } : {}),
   };
 }
@@ -601,6 +676,7 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
     sourceNames,
     grounding,
     ...(response.evidenceSummary ? { evidenceSummary: response.evidenceSummary } : {}),
+    ...(response.elsLanguageReview ? { elsLanguageReview: response.elsLanguageReview } : {}),
     ...(response.viewMode ? { viewMode: response.viewMode.requested, viewModeApplied: response.viewMode.applied } : {}),
   };
   return {
