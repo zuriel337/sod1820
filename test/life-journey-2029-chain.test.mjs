@@ -24,6 +24,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const lifeJourneyMapProjection = read("src/lib/research/lifeJourneyMaps.js");
   const seferYetzirahMapProjection = read("src/lib/research/lifeJourneySeferYetzirahMap.js");
   const birthMapProjection = read("src/lib/research/lifeJourneyBirthMap.js");
+  const birthMapAdapter = read("src/lib/research/lifeJourneyBirthAdapters.js");
   const birthMapStudio = read("src/components/experience2029/BirthMapStudio2029.jsx");
   const birthMapScene = read("src/components/experience2029/BirthMapScene3D2029.jsx");
   const timeMapProjection = read("src/lib/research/lifeJourneyTimeMap.js");
@@ -39,6 +40,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const maintenanceLock = read("src/components/MaintenanceLock.jsx");
   const css = read("src/components/person-journey.css");
   const vercel = JSON.parse(read("vercel.json"));
+  const packageJson = JSON.parse(read("package.json"));
 
   assert.match(app, /path="\/2029\/journey" element=\{<Locked flag="lock_life_journey" requireFlag homeHref="\/2029"><LifeJourney2029Page \/><\/Locked>\}/);
   assert.match(page, /data-experience-surface="life-journey-2029"/);
@@ -154,13 +156,21 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(birthMapProjection, /no_fabricated_traits: true/);
   assert.match(birthMapProjection, /no_telemetry_payload: true/);
   assert.match(birthMapProjection, /webgl_identity_free: true/);
+  assert.match(birthMapProjection, /local_explicit_action/);
   assert.match(birthMapProjection, /spatialModel/);
   assert.match(birthMapStudio, /lazy\(\(\) => import\("\.\/BirthMapScene3D2029\.jsx"\)\)/);
   assert.match(birthMapStudio, /Human Design/);
   assert.match(birthMapStudio, /מפת שמיים/);
-  assert.match(birthMapStudio, /אינה מנחשת שעה/);
+  assert.match(birthMapStudio, /calculateLifeJourneyBirthMap/);
+  assert.match(birthMapStudio, /חשב מפה מקומית/);
+  assert.match(birthMapStudio, /אין בקשת רשת ואין שמירה נוספת/);
   assert.match(birthMapStudio, /התכנסויות/);
   assert.match(birthMapStudio, /חיבור מחקרי שכבר נמצא/);
+  assert.equal(packageJson.dependencies.natalengine, "1.6.0");
+  assert.match(birthMapAdapter, /local_browser_only/);
+  assert.match(birthMapAdapter, /import\("natalengine\/humandesign"\)/);
+  assert.match(birthMapAdapter, /import\("natalengine\/astrology"\)/);
+  assert.doesNotMatch(birthMapAdapter, /fetch\(|supabase|localStorage|sessionStorage|URLSearchParams|track\(|console\./i);
   assert.match(birthMapScene, /@react-three\/fiber/);
   assert.match(birthMapScene, /OrbitControls/);
   assert.match(birthMapScene, /FamilyCosmos/);

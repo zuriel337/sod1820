@@ -1,4 +1,4 @@
-export const LIFE_JOURNEY_BIRTH_MAP_VERSION = "life-journey-birth-map-v2";
+export const LIFE_JOURNEY_BIRTH_MAP_VERSION = "life-journey-birth-map-v3";
 
 const clean = value => value == null ? "" : String(value).trim();
 const list = value => Array.isArray(value) ? value : [];
@@ -7,7 +7,7 @@ function pendingState(anchor) {
   if (!anchor.dateIso) return "needs_date";
   if (!anchor.birthTime) return "needs_time";
   if (!anchor.birthPlace) return "needs_place";
-  return "adapter_required";
+  return "ready_for_explicit_calculation";
 }
 
 /**
@@ -44,7 +44,7 @@ export function buildLifeJourneyBirthMap({
         hasDate: Boolean(anchor.dateIso),
         hasExactTime: Boolean(anchor.birthTime),
         hasPlace: Boolean(anchor.birthPlace),
-        inputReady: state === "adapter_required",
+        inputReady: state === "ready_for_explicit_calculation",
       }),
       sky: Object.freeze({ state, output: null }),
       humanDesign: Object.freeze({ state, output: null }),
@@ -92,15 +92,15 @@ export function buildLifeJourneyBirthMap({
       convergencePoints: Object.freeze(convergencePoints),
     }),
     adapters: Object.freeze({
-      sky: Object.freeze({ state: "not_connected", output: null }),
-      humanDesign: Object.freeze({ state: "not_connected", output: null }),
+      sky: Object.freeze({ state: "local_explicit_action", engine: "natalengine@1.6.0", output: null }),
+      humanDesign: Object.freeze({ state: "local_explicit_action", engine: "natalengine@1.6.0", output: null }),
       seferYetzirah: Object.freeze({ state: "source_ready", sourceCount: list(creation?.sources).length }),
     }),
     boundaries: Object.freeze({
       read_only_projection: true,
       no_external_birth_api: true,
       no_fabricated_traits: true,
-      no_ephemeris_claim: true,
+      no_unverified_ephemeris_claim: true,
       no_new_store: true,
       no_telemetry_payload: true,
       webgl_identity_free: true,

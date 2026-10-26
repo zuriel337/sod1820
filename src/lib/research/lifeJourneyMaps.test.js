@@ -82,7 +82,7 @@ test("life maps project the existing private family state without inventing stor
   assert.equal(out.timeMap.people[0].expressions.find(item => item.role === "hebrew_day").text, "כ׳");
   assert.equal(out.timeMap.state, "ready");
   assert.equal(out.birthMap.people[0].birthTime, "05:30");
-  assert.equal(out.birthMap.people[0].humanDesign.state, "adapter_required");
+  assert.equal(out.birthMap.people[0].humanDesign.state, "ready_for_explicit_calculation");
   assert.equal(out.birthMap.people[0].humanDesign.output, null);
   assert.equal(out.creation.cosmicFrames[0].items.includes("שבתאי"), true);
   assert.equal(out.creation.boundaries.no_personal_astrology, true);

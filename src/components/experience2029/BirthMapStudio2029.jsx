@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useState } from "react";
 import { evaluateS4Capability, prefersReducedMotion } from "../../lib/spatial/gpuCapability.js";
+import { calculateLifeJourneyBirthMap } from "../../lib/research/lifeJourneyBirthAdapters.js";
 import "./birth-map-studio-2029.css";
 
 const BirthMapScene3D = lazy(() => import("./BirthMapScene3D2029.jsx"));
@@ -27,7 +28,18 @@ const STATE_LABEL = Object.freeze({
   needs_date: "חסר תאריך לידה",
   needs_time: "חסרה שעת לידה מדויקת",
   needs_place: "חסר מקום לידה",
-  adapter_required: "הקלט מוכן · המחשבון טרם חובר",
+  ready_for_explicit_calculation: "הקלט מוכן לחישוב מפורש",
+});
+
+const CALCULATION_ERROR = Object.freeze({
+  birthdate_required: "נדרש תאריך לידה מלא.",
+  birthdate_invalid: "תאריך הלידה אינו תקין.",
+  birthtime_required: "נדרשת שעת לידה מדויקת.",
+  timezone_invalid: "נדרש אזור זמן תקין בפורמט IANA, למשל Asia/Jerusalem.",
+  coordinates_incomplete: "למפת שמיים יש להזין גם קו רוחב וגם קו אורך.",
+  latitude_out_of_range: "קו הרוחב חייב להיות בין ‎-90 ל־90.",
+  longitude_out_of_range: "קו האורך חייב להיות בין ‎-180 ל־180.",
+  birth_engine_unavailable: "מנוע החישוב המקומי לא נטען. אפשר לנסות שוב.",
 });
 
 const FALLBACK_LABEL = Object.freeze({
@@ -45,19 +57,65 @@ class BirthSceneBoundary extends React.Component {
   render() { return this.state.failed ? null : this.props.children; }
 }
 
-function InputReadiness({ people, lens }) {
-  return <div className="birth-map-readiness">
-    {people.map(person => {
-      const state = lens === "human" ? person.humanDesign.state : person.sky.state;
-      return <article key={person.memberRef} data-state={state}>
-        <div><strong>{person.name}</strong><span>{STATE_LABEL[state]}</span></div>
-        <ul aria-label={`שלמות נתוני לידה עבור ${person.name}`}>
-          <li data-ready={person.readiness.hasDate}>תאריך</li>
-          <li data-ready={person.readiness.hasExactTime}>שעה</li>
-          <li data-ready={person.readiness.hasPlace}>מקום</li>
-        </ul>
-      </article>;
-    })}
+function BirthCalculationControls({ people, selectedRef, timezone, latitude, longitude, state, error, onSelect, onTimezone, onLatitude, onLongitude, onCalculate }) {
+  const selected = people.find(person => person.memberRef === selectedRef) || people[0] || null;
+  const ready = Boolean(selected?.readiness?.hasDate && selected?.readiness?.hasExactTime && selected?.readiness?.hasPlace);
+  return <div className="birth-map-calculator">
+    <div className="birth-map-calculator__person">
+      <label htmlFor="birth-map-person">עבור מי לחשב?</label>
+      <select id="birth-map-person" value={selected?.memberRef || ""} onChange={event => onSelect(event.target.value)}>
+        {people.map(person => <option key={person.memberRef} value={person.memberRef}>{person.name}</option>)}
+      </select>
+      {selected ? <ul aria-label={`שלמות נתוני לידה עבור ${selected.name}`}>
+        <li data-ready={selected.readiness.hasDate}>תאריך</li>
+        <li data-ready={selected.readiness.hasExactTime}>שעה</li>
+        <li data-ready={selected.readiness.hasPlace}>מקום</li>
+      </ul> : null}
+    </div>
+    <div className="birth-map-calculator__fields">
+      <label><span>אזור זמן בלידה</span><input dir="ltr" type="text" value={timezone} onChange={event => onTimezone(event.target.value)} placeholder="Asia/Jerusalem" autoComplete="off" inputMode="text" /></label>
+      <label><span>קו רוחב <small>למפת שמיים</small></span><input dir="ltr" type="number" min="-90" max="90" step="any" value={latitude} onChange={event => onLatitude(event.target.value)} placeholder="31.7683" autoComplete="off" /></label>
+      <label><span>קו אורך <small>למפת שמיים</small></span><input dir="ltr" type="number" min="-180" max="180" step="any" value={longitude} onChange={event => onLongitude(event.target.value)} placeholder="35.2137" autoComplete="off" /></label>
+    </div>
+    <div className="birth-map-calculator__action">
+      <button type="button" disabled={!ready || state === "loading"} onClick={onCalculate}>{state === "loading" ? "מחשב במכשיר…" : "חשב מפה מקומית"}</button>
+      <small>אזור הזמן והקואורדינטות נשארים בזיכרון המסך ונמחקים ברענון. אין בקשת רשת ואין שמירה נוספת.</small>
+    </div>
+    {!ready && selected ? <p role="status">{STATE_LABEL[selected.humanDesign.state]}</p> : null}
+    {error ? <p className="birth-map-calculator__error" role="alert">{CALCULATION_ERROR[error] || "החישוב לא הושלם. בדקו את הפרטים ונסו שוב."}</p> : null}
+  </div>;
+}
+
+function HumanDesignResult({ result }) {
+  if (!result) return <div className="birth-map-awaiting"><strong>המפה מחכה להפעלה שלך</strong><span>החישוב מתחיל רק בלחיצה ואינו מופעל בעת בחירת אדם.</span></div>;
+  return <div className="birth-map-result" data-result="human-design">
+    <section className="birth-map-result__headline">
+      <article><small>Type</small><strong>{result.typeLabel}</strong></article>
+      <article><small>Authority</small><strong>{result.authorityLabel}</strong></article>
+      <article><small>Profile</small><strong dir="ltr">{result.profile}</strong></article>
+    </section>
+    <section className="birth-map-result__group"><h6>Strategy · Definition</h6><div><span>{result.strategy}</span><span>{result.definition}</span></div></section>
+    <section className="birth-map-result__group"><h6>מרכזים מוגדרים</h6><div>{result.definedCenters.map(center => <span key={center.key}>{center.label}</span>)}</div></section>
+    <section className="birth-map-result__group"><h6>ערוצים מוגדרים</h6><div>{result.definedChannels.length ? result.definedChannels.map(channel => <span key={channel.key} dir="ltr">{channel.key}</span>) : <span>אין ערוץ מלא</span>}</div></section>
+    <section className="birth-map-result__group"><h6>שערים פעילים</h6><div>{result.activatedGates.map(gate => <span key={gate}>{gate}</span>)}</div></section>
+  </div>;
+}
+
+function SkyResult({ result, hasCalculation }) {
+  if (!hasCalculation) return <div className="birth-map-awaiting"><strong>המפה מחכה להפעלה שלך</strong><span>לחישוב בתים וזוויות דרושים אזור זמן וקואורדינטות מפורשות.</span></div>;
+  if (!result) return <div className="birth-map-awaiting is-missing"><strong>Human Design חושב; מפת השמיים ממתינה לקואורדינטות</strong><span>הוסיפו קו רוחב וקו אורך והפעילו שוב. המערכת אינה מנחשת מקום.</span></div>;
+  return <div className="birth-map-result" data-result="sky-map">
+    <section className="birth-map-result__headline is-sky">
+      <article><small>אופק עולה</small><strong>{result.angles.ascendant.signLabel} · {result.angles.ascendant.degree}°</strong></article>
+      <article><small>רום שמיים</small><strong>{result.angles.midheaven.signLabel} · {result.angles.midheaven.degree}°</strong></article>
+      <article><small>מסגרת</small><strong>טרופית · גאוצנטרית</strong></article>
+    </section>
+    <section className="birth-map-sky-wheel" aria-label="מיקומי גרמי השמיים">
+      {result.bodies.map((body, index) => <article key={body.key} style={{ "--body-index": index }}>
+        <i aria-hidden="true" /><small>{body.label}</small><strong>{body.signLabel}</strong><span>{body.degree}°</span>
+      </article>)}
+    </section>
+    <section className="birth-map-result__group"><h6>היבטים מרכזיים</h6><div>{result.aspects.length ? result.aspects.map((aspect, index) => <span key={`${aspect.left}-${aspect.right}-${aspect.kind}-${index}`}>{aspect.left} {aspect.symbol} {aspect.right} · {aspect.label} · orb {aspect.orb}°</span>) : <span>לא נמצא היבט מרכזי בטווח החישוב.</span>}</div></section>
   </div>;
 }
 
@@ -102,6 +160,13 @@ export default function BirthMapStudio2029({ data, seferContent }) {
   const [focusIndex, setFocusIndex] = useState(-1);
   const [spatialState, setSpatialState] = useState("idle");
   const [fallback, setFallback] = useState("");
+  const [selectedRef, setSelectedRef] = useState(data.people[0]?.memberRef || "");
+  const [timezone, setTimezone] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [calculationState, setCalculationState] = useState("idle");
+  const [calculationError, setCalculationError] = useState("");
+  const [calculation, setCalculation] = useState(null);
   const enableSpatial = () => {
     const capability = evaluateS4Capability();
     if (!capability.ok) { setFallback(capability.reason); setSpatialState("fallback"); return; }
@@ -109,6 +174,56 @@ export default function BirthMapStudio2029({ data, seferContent }) {
     setSpatialState("ready");
   };
   const onFallback = reason => { setFallback(reason); setSpatialState("fallback"); };
+  const selectPerson = memberRef => {
+    setSelectedRef(memberRef);
+    setTimezone("");
+    setLatitude("");
+    setLongitude("");
+    setCalculation(null);
+    setCalculationError("");
+    setCalculationState("idle");
+  };
+  const updateCalculationInput = (setter, value) => {
+    setter(value);
+    setCalculation(null);
+    setCalculationError("");
+    setCalculationState("idle");
+  };
+  const calculateBirthMap = async () => {
+    const person = data.people.find(item => item.memberRef === selectedRef) || data.people[0];
+    if (!person) return;
+    setCalculationState("loading");
+    setCalculationError("");
+    try {
+      const result = await calculateLifeJourneyBirthMap({
+        birthdate: person.dateIso,
+        birthtime: person.birthTime,
+        timezone,
+        latitude,
+        longitude,
+      });
+      setCalculation(result);
+      setCalculationState("ready");
+    } catch (error) {
+      setCalculation(null);
+      setCalculationError(error?.message || "calculation_failed");
+      setCalculationState("error");
+    }
+  };
+  const calculator = <BirthCalculationControls
+    people={data.people}
+    selectedRef={selectedRef}
+    timezone={timezone}
+    latitude={latitude}
+    longitude={longitude}
+    state={calculationState}
+    error={calculationError}
+    onSelect={selectPerson}
+    onTimezone={value => updateCalculationInput(setTimezone, value)}
+    onLatitude={value => updateCalculationInput(setLatitude, value)}
+    onLongitude={value => updateCalculationInput(setLongitude, value)}
+    onCalculate={calculateBirthMap}
+  />;
 
   return <section className="birth-map-studio" data-experience-capability="life-journey-birth-map-studio">
     <header className="birth-map-studio__hero">
@@ -142,17 +257,19 @@ export default function BirthMapStudio2029({ data, seferContent }) {
     </div> : null}
 
     {lens === "human" ? <div className="birth-map-lens" role="tabpanel">
-      <header><span>עדשה פרשנית</span><h5>Human Design</h5></header>
-      <p>כאשר יחובר מחשבון קנוני, יוצגו כאן Type, Strategy, Authority, Profile, Definition, Centers, Channels ו־Gates עם trace מלא. זו עדשה פרשנית — לא אבחון מדעי או רפואי.</p>
-      <InputReadiness people={data.people} lens="human" />
-      <footer>כרגע לא מוצג ערך כלשהו: המערכת אינה מנחשת שעה, אזור זמן או שערים.</footer>
+      <header><span>חישוב מקומי · עדשה פרשנית</span><h5>Human Design</h5></header>
+      <p>Type, Authority, Profile, Centers, Channels ו־Gates מחושבים במכשיר מנתוני הלידה שהזנת. זו מסגרת פרשנית — לא אבחון מדעי, רפואי או קביעה על האדם.</p>
+      {calculator}
+      <HumanDesignResult result={calculation?.humanDesign} />
+      <footer>trace · natalengine 1.6.0 · astronomy-engine VSOP87 · חישוב ידני בלבד · ללא API חיצוני</footer>
     </div> : null}
 
     {lens === "sky" ? <div className="birth-map-lens" role="tabpanel">
-      <header><span>מנוע אסטרונומי נדרש</span><h5>מפת שמיים אישית</h5></header>
-      <p>המפה תדרוש ephemeris קנוני, אזור זמן היסטורי וקואורדינטות מאומתות. עד אז נשמרים רק פרטי הלידה שהוזנו במפורש.</p>
-      <InputReadiness people={data.people} lens="sky" />
-      <footer>אין כרגע מיקום כוכב, מזל, בית או היבט שחושב עבור אדם.</footer>
+      <header><span>מיקום אסטרונומי · ללא ניבוי</span><h5>מפת שמיים אישית</h5></header>
+      <p>המנוע מחשב מקומית מיקומים טרופיים, אופק, רום שמיים והיבטים גאומטריים בעזרת אזור זמן היסטורי וקואורדינטות מפורשות. המזלות כאן הם חלוקת קואורדינטות — לא תחזית ולא קביעה על אופי.</p>
+      {calculator}
+      <SkyResult result={calculation?.sky} hasCalculation={Boolean(calculation)} />
+      <footer>trace · natalengine 1.6.0 · astronomy-engine VSOP87 · קואורדינטות סשן בלבד · ללא API חיצוני</footer>
     </div> : null}
 
     {lens === "sefer" ? <div role="tabpanel" className="birth-map-sefer">{seferContent}</div> : null}

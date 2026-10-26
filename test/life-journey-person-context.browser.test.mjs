@@ -206,10 +206,14 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
     const browserErrors = [];
     const requestUrls = [];
+    const requestBodies = [];
     let invitationToken = "";
     page.on("pageerror", error => browserErrors.push(error.message));
     page.on("console", message => { if (message.type() === "error" && !/Failed to load resource/.test(message.text())) browserErrors.push(message.text()); });
-    page.on("request", request => requestUrls.push(request.url()));
+    page.on("request", request => {
+      requestUrls.push(request.url());
+      if (request.postData()) requestBodies.push(request.postData());
+    });
 
     await page.goto(`${origin}/2029/journey`);
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
@@ -383,9 +387,39 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await spatialLegend.getByText(/עדיין אין התכנסות מנורמלת/).waitFor();
     await birthStudio.getByRole("tab", { name: "Human Design" }).click();
     await birthStudio.getByRole("heading", { name: "Human Design" }).waitFor();
-    assert.equal(await birthStudio.getByText("הקלט מוכן · המחשבון טרם חובר").count(), 2);
+    assert.equal(await birthStudio.locator('[data-result="human-design"]').count(), 0, "birth calculations never run on tab open");
+    await birthStudio.getByLabel("אזור זמן בלידה").fill("Asia/Jerusalem");
+    await birthStudio.getByLabel(/קו רוחב/).fill("31.7683");
+    await birthStudio.getByLabel(/קו אורך/).fill("35.2137");
+    const birthCalculationRequestIndex = requestUrls.length;
+    await birthStudio.getByRole("button", { name: "חשב מפה מקומית" }).click();
+    const humanDesignResult = birthStudio.locator('[data-result="human-design"]');
+    await humanDesignResult.waitFor();
+    await humanDesignResult.getByText("Strategy · Definition", { exact: true }).waitFor();
+    await birthStudio.getByText(/natalengine 1\.6\.0/).waitFor();
     await birthStudio.getByRole("tab", { name: "מפת שמיים" }).click();
-    await birthStudio.getByText("אין כרגע מיקום כוכב, מזל, בית או היבט שחושב עבור אדם.", { exact: true }).waitFor();
+    const skyResult = birthStudio.locator('[data-result="sky-map"]');
+    await skyResult.waitFor();
+    assert.equal(await skyResult.locator(".birth-map-sky-wheel article").count(), 12);
+    await skyResult.getByText("אופק עולה", { exact: true }).waitFor();
+    await skyResult.getByText("היבטים מרכזיים", { exact: true }).waitFor();
+    for (const theme of ["light", "parchment", "dark"]) {
+      for (const width of [390, 1280]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.evaluate(value => window.__setLifeJourneyTheme(value), theme);
+        await page.waitForFunction(value => document.querySelector("[data-fixture-theme]")?.dataset.fixtureTheme === value, theme);
+        const birthLayout = await birthStudio.evaluate(element => ({ scrollWidth: element.scrollWidth, clientWidth: element.clientWidth }));
+        assert.ok(birthLayout.scrollWidth <= birthLayout.clientWidth + 1, `birth studio ${theme} ${width}px must not overflow`);
+        assert.equal(await skyResult.isVisible(), true, `sky result remains visible in ${theme} at ${width}px`);
+      }
+    }
+    await page.setViewportSize({ width: 390, height: 900 });
+    const calculationRequests = requestUrls.slice(birthCalculationRequestIndex).map(url => decodeURIComponent(url)).join("\n");
+    const calculationBodies = requestBodies.join("\n");
+    for (const privateValue of ["1990-02-15", "05:30", "Asia/Jerusalem", "31.7683", "35.2137", "הורה בדיקה", "עיר בדיקה"]) {
+      assert.equal(calculationRequests.includes(privateValue), false, `local calculation keeps ${privateValue} out of request URLs`);
+      assert.equal(calculationBodies.includes(privateValue), false, `local calculation keeps ${privateValue} out of request bodies`);
+    }
     await birthStudio.getByRole("tab", { name: "ספר יצירה" }).click();
     const creationMap = family.locator('[data-experience-capability="life-journey-sefer-yetzirah-map"]');
     await creationMap.getByRole("heading", { name: "מפת האותיות והמערכות" }).waitFor();
@@ -650,6 +684,8 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("הורה בדיקה") || decodeURIComponent(url).includes("ילד בדיקה")), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes("עיר בדיקה") || decodeURIComponent(url).includes("יישוב בדיקה")), false);
     assert.equal(requestUrls.some(url => /1990-02-15|2020-03-04|05%3A30|14%3A45/.test(url)), false);
+    assert.equal(requestUrls.some(url => /Asia%2FJerusalem|31\.7683|35\.2137/.test(url)), false);
+    assert.equal(requestBodies.some(body => /1990-02-15|05:30|Asia\/Jerusalem|31\.7683|35\.2137/.test(body)), false);
     assert.equal(requestUrls.some(url => decodeURIComponent(url).includes(invitationToken)), false);
     assert.deepEqual(browserErrors, []);
   } finally {
