@@ -25,15 +25,10 @@ assert.match(concise, /הזמנה אחת להעמיק/);          // single invi
 assert.doesNotMatch(concise, /אפשר תשובה מורחבת/);
 assert.match(deep, /ביקש במפורש להעמיק/);
 assert.doesNotMatch(deep, /תשובה ראשונה קצרה/);
-// Warm accuracy is invisible scaffolding: preserve the conversational/spiritual voice while
-// preventing an unsourced definition from collapsing two neighboring concepts into one.
-assert.match(concise, /שמור על הקול החם, הרוחני, הסקרן והשיחתי/);
-assert.match(concise, /אל תהפוך את התשובה לדוח טכני/);
-assert.match(concise, /אל תקבע ששני מושגים קרובים הם אותו דבר/);
-assert.match(concise, /כשאין מקור מפורש בחומר שסופק/);
-assert.match(concise, /קריאה אפשרית ולא כעובדה מוחלטת/);
-assert.match(concise, /בלשון ניטרלית/);
-assert.match(concise, /הגהה שקטה/);
+// Warm accuracy belongs to the shared Raziel core, not to this surface-only profile.
+assert.doesNotMatch(concise, /אל תקבע ששני מושגים קרובים הם אותו דבר|הגהה שקטה/);
+assert.match(ai, /const RAZIEL_SHARED_WARM_ACCURACY_LAYER/);
+assert.match(ai, /persona \+ RAZIEL_SHARED_WARM_ACCURACY_LAYER/);
 assert.doesNotMatch(concise, /עיבור נשמות|גלגול נשמות/); // systemic rule, never a one-phrase patch
 assert.match(wa, /const depth = hasDepthCue\(cleanText\)/);
 assert.match(wa, /trusted_channel: \{ channel: "whatsapp", sender, depth,/);
@@ -74,27 +69,33 @@ assert.doesNotMatch(group, /razielCoreRespond|trusted_channel|whatsappSurfacePro
 assert.equal((wa.match(/async function sendProactive/g) || []).length, 1);   // pre-existing welcome only
 assert.doesNotMatch(wa, /cron\.schedule|\*\/1 \*/);
 
-// The real shared ai-analyze handler receives the warm-accuracy profile on a verified
-// WhatsApp DM. The adapter does not create another model path or a phrase-specific patch.
-const ibbur = await runAiAnalyze({
+// The real shared ai-analyze handler gives both the site and a verified WhatsApp DM the same
+// warm-accuracy system layer. WhatsApp alone receives its concise surface-format instruction.
+const runIbbur = (body, bearer) => runAiAnalyze({
   answer: { enabled: false },
   allowed: true,
-  bearer: SERVICE_KEY,
-  body: {
-    subject: "עיבור נשמות",
-    trusted_channel: { channel: "whatsapp", sender: "972555000111", depth: false },
-  },
+  bearer,
+  body: { subject: "עיבור נשמות", ...body },
 });
-assert.equal(ibbur.status, 200);
-assert.equal(ibbur.models.length, 1);
-assert.equal(ibbur.calls.filter((call) => call.name === "fn_raziel_identity").length, 1);
-assert.equal(ibbur.calls.filter((call) => call.name === "research-run").length, 0);
-const ibburPrompt = ibbur.models[0].user;
-assert.match(ibburPrompt, /הנושא הנוכחי: עיבור נשמות/);
-assert.match(ibburPrompt, /שמור על הקול החם, הרוחני, הסקרן והשיחתי/);
-assert.match(ibburPrompt, /אל תקבע ששני מושגים קרובים הם אותו דבר/);
-assert.match(ibburPrompt, /בלשון ניטרלית/);
-assert.match(ibburPrompt, /הגהה שקטה/);
+const [siteIbbur, waIbbur] = await Promise.all([
+  runIbbur({}, "synthetic-anon-key"),
+  runIbbur({ trusted_channel: { channel: "whatsapp", sender: "972555000111", depth: false } }, SERVICE_KEY),
+]);
+for (const run of [siteIbbur, waIbbur]) {
+  assert.equal(run.status, 200);
+  assert.ok(run.models.length >= 1);
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0);
+  const synthesis = run.models.findLast((model) => /כללי קול ודיוק משותפים לכל מופעי רזיאל/.test(model.system));
+  assert.ok(synthesis, "shared warm-accuracy layer must reach this Raziel surface");
+  assert.match(synthesis.system, /שמור על הקול החם, הרוחני, הסקרן והשיחתי/);
+  assert.match(synthesis.system, /אל תקבע ששני מושגים קרובים הם אותו דבר/);
+  assert.match(synthesis.system, /בלשון ניטרלית/);
+  assert.match(synthesis.system, /הגהה שקטה/);
+  assert.match(synthesis.user, /הנושא הנוכחי: עיבור נשמות/);
+}
+assert.doesNotMatch(siteIbbur.models.at(-1).user, /פרופיל משטח וואטסאפ/);
+assert.match(waIbbur.models.at(-1).user, /פרופיל משטח וואטסאפ/);
+assert.equal(waIbbur.calls.filter((call) => call.name === "fn_raziel_identity").length, 1);
 assert.doesNotMatch(wa, /עיבור נשמות|גלגול נשמות/);
 
 console.log("PASS raziel WhatsApp surface profile runtime contract");

@@ -537,6 +537,17 @@ const RAZIEL_SITE_FALLBACK =
   "(7) סיים בשאלה מזמינה שממשיכה את המחקר. (8) גדול=רגיל כשאין סופיות — לא ממצא. (9) עובדה≠רמז, ענווה, בלי נבואות.\n" +
   "החזר אך ורק JSON תקין אחד: {\"v\":1,\"agent\":\"raziel\",\"context\":null,\"greeting\":null,\"answer\":\"...\",\"facts\":[{\"label\":\"...\",\"value\":\"...\"}],\"suggested_paths\":[{\"id\":\"...\",\"label\":\"...\",\"icon\":\"...\",\"hint\":\"...\"}],\"follow_up_question\":null,\"continue_wa\":true} — בלי טקסט לפני/אחרי, בלי Markdown.";
 
+// Shared voice invariant for every Raziel surface. This is a small guard layer over the one
+// canonical persona, not a second persona: site and WhatsApp get the same warmth and accuracy;
+// their surface profiles may change only length, layout and interaction affordances.
+const RAZIEL_SHARED_WARM_ACCURACY_LAYER =
+  "\n\nכללי קול ודיוק משותפים לכל מופעי רזיאל:\n" +
+  "• שמור על הקול החם, הרוחני, הסקרן והשיחתי של רזיאל. הדיוק פועל בשקט מאחורי הקלעים: אל תהפוך את התשובה לדוח טכני ואל תעמיס הסתייגויות.\n" +
+  "• כשאין מקור מפורש בחומר שסופק, אפשר להסביר מושג רוחני בעדינות, אבל אל תציג ניסוח בשם הקבלה או המסורת כעובדה מוסמכת. הצג חיבור רוחני כקריאה אפשרית ולא כעובדה מוחלטת.\n" +
+  "• אל תקבע ששני מושגים קרובים הם אותו דבר בלי בסיס מפורש בחומר. אם הם קרובים אך שונים, אמור בקצרה שיש ביניהם קשר וגם הבדל, והמשך בשפה אנושית.\n" +
+  "• אם לא ידועה צורת הפנייה של האדם, נסח בלשון ניטרלית (למשל: ‘אפשר להעמיק’ או ‘מה מסקרן בנושא?’) ואל תנחש מגדר.\n" +
+  "• לפני ההחזרה בצע הגהה שקטה: תקן שגיאות כתיב, מילה כפולה והטיה שבורה, בלי לספר למשתמש על ההגהה.\n";
+
 const svcHeaders = () => supabaseServiceHeaders(SB_SVC, { "Content-Type": "application/json" });
 
 // פרסונת-רזיאל ממקור-האמת היחיד (fn_raziel_persona) — משותפת עם wa-christina.
@@ -3223,13 +3234,13 @@ Deno.serve(async (req: Request) => {
 
       // 🌳 מטטרון בתוך רזיאל — Single-Mind Trunk Closure (30.8.2026): מנדטורי, לא opt-in. חוקי-המערכת
       //    החיים נכנסים לפרסונה, והקשר-הגרף (הגדרות/התכנסויות/צמתים) לעובדות, בכל תשובת-רזיאל (אתר=וואטסאפ,
-      //    אותו דפוס). fail-open מלא: כשל/ריק ב-metatron_context → rzSys=persona בדיוק כמו קודם.
-      let rzSys = persona;
+      //    אותו דפוס). fail-open מלא: כשל/ריק ב-metatron_context משאיר את הפרסונה עם שכבת הקול המשותפת בלבד.
+      let rzSys = persona + RAZIEL_SHARED_WARM_ACCURACY_LAYER;
       let rzMtxFacts = "";
       let rzMtxVersion: unknown = null;
       if (rSubject) {
         const mtx = await fetchMetatronContext(rSubject, rSubject, "site-raziel");
-        if (mtx) { rzSys = persona + metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
+        if (mtx) { rzSys += metatronRulesBlock(mtx); rzMtxFacts = metatronFactsBlock(mtx); rzMtxVersion = mtx.context_version ?? null; }
       }
       // RAZIEL_VIEW_MODE_V1: one small layer on the existing persona — never a second persona or prompt.
       if (rViewSynthesis && rViewMode !== "general") {
