@@ -20,28 +20,33 @@ test("Raziel page-text inventory covers the complete PDF without treating the di
   assert.ok(bundle.pages.reduce((total, item) => total + item.character_count, 0) > 350_000);
 });
 
-test("the first Raziel companion slice maps every explanation to exact PDF pages 1 through 23", async () => {
+test("the complete Raziel companion maps every explanation to exact PDF pages 1 through 90", async () => {
   const commentary = await readJson("public/book-data/sefer-raziel-hamalach.commentary.json");
   assert.equal(commentary.schema_version, "sefer-raziel-commentary.v1");
   assert.equal(commentary.display_label, "הסבר נלווה");
   assert.deepEqual(commentary.coverage, {
     from_pdf_page: 1,
-    to_pdf_page: 23,
-    status: "first_pass_source_anchored",
+    to_pdf_page: 90,
+    status: "complete_first_pass_source_anchored",
   });
-  assert.deepEqual(commentary.pages.map(item => item.pdf_page), Array.from({ length: 23 }, (_, index) => index + 1));
+  assert.deepEqual(commentary.pages.map(item => item.pdf_page), Array.from({ length: 90 }, (_, index) => index + 1));
   for (const page of commentary.pages) {
     assert.ok(page.title.length > 8, `page ${page.pdf_page}`);
     assert.ok(page.companion_explanation.length > 90, `page ${page.pdf_page}`);
     assert.ok(page.reading_points.length >= 2, `page ${page.pdf_page}`);
     assert.equal(page.source_anchor, `#page=${page.pdf_page}&view=FitH`);
-    assert.equal(page.source_basis, "visual_and_embedded_text");
+    assert.ok(["visual_and_embedded_text", "visual_diagram_only"].includes(page.source_basis), `page ${page.pdf_page}`);
   }
+  const diagram = commentary.pages.find(item => item.pdf_page === 35);
+  assert.equal(diagram.source_basis, "visual_diagram_only");
+  assert.match(diagram.title, /ייצוג חזותי/);
+  assert.match(diagram.technical_note, /לא הופק לו OCR/);
   const voices = commentary.pages.find(item => item.pdf_page === 20);
   assert.match(voices.title, /קע״ד הקולות/);
   assert.match(voices.companion_explanation, /174/);
   assert.doesNotMatch(voices.companion_explanation, /מנוע|אימות/);
   assert.match(voices.technical_note, /אימות מנוע/);
+  assert.match(commentary.pages.at(-1).title, /חתימת הכרך/);
   assert.doesNotMatch(JSON.stringify(commentary), /מאומת במנוע/);
 });
 
