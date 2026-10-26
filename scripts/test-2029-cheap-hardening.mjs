@@ -32,10 +32,10 @@ const hostedPreviewRoutes = ["/2029/kingdom"];
 const clientOnlyPreviewRoutes = ["/2029/preview"];
 assert.match(app2029, /kingdomPreviewEnabled && <Route path="\/2029\/kingdom"/);
 assert.match(app2029, /integratedPreviewEnabled && <Route path="\/2029\/preview"/);
-// During the Legacy Production lock these two canonical URLs intentionally
+// During the Legacy Production lock these canonical URLs intentionally
 // enter index.html. They remain usable through client-side navigation inside a
 // 2029 Preview, but a direct request/refresh must return to Legacy.
-const legacyLockedRoutes = ["/code", "/community/chat"];
+const legacyLockedRoutes = ["/code", "/community/chat", "/login"];
 const documentBackedAppRoutes = appRoutes.filter((route) => !clientOnlyPreviewRoutes.includes(route) && !legacyLockedRoutes.includes(route));
 
 const documentRoutes = (vercel.rewrites || [])
