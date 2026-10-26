@@ -57,9 +57,12 @@ class BirthSceneBoundary extends React.Component {
   render() { return this.state.failed ? null : this.props.children; }
 }
 
-function BirthCalculationControls({ people, selectedRef, timezone, latitude, longitude, state, error, onSelect, onTimezone, onLatitude, onLongitude, onCalculate }) {
+function BirthCalculationControls({ people, selectedRef, birthdate, birthtime, timezone, latitude, longitude, state, error, onSelect, onBirthdate, onBirthtime, onTimezone, onLatitude, onLongitude, onCalculate }) {
   const selected = people.find(person => person.memberRef === selectedRef) || people[0] || null;
-  const ready = Boolean(selected?.readiness?.hasDate && selected?.readiness?.hasExactTime && selected?.readiness?.hasPlace);
+  const hasDate = Boolean(birthdate);
+  const hasExactTime = Boolean(birthtime);
+  const hasCoordinates = Boolean(latitude && longitude);
+  const ready = Boolean(selected && hasDate && hasExactTime);
   return <div className="birth-map-calculator">
     <div className="birth-map-calculator__person">
       <label htmlFor="birth-map-person">עבור מי לחשב?</label>
@@ -67,21 +70,24 @@ function BirthCalculationControls({ people, selectedRef, timezone, latitude, lon
         {people.map(person => <option key={person.memberRef} value={person.memberRef}>{person.name}</option>)}
       </select>
       {selected ? <ul aria-label={`שלמות נתוני לידה עבור ${selected.name}`}>
-        <li data-ready={selected.readiness.hasDate}>תאריך</li>
-        <li data-ready={selected.readiness.hasExactTime}>שעה</li>
-        <li data-ready={selected.readiness.hasPlace}>מקום</li>
+        <li data-ready={hasDate}>תאריך</li>
+        <li data-ready={hasExactTime}>שעה</li>
+        <li data-ready={selected.readiness.hasPlace || hasCoordinates}>מקום</li>
       </ul> : null}
     </div>
     <div className="birth-map-calculator__fields">
+      <label><span>תאריך לידה לבדיקה <small>זמני</small></span><input dir="ltr" type="date" value={birthdate} onChange={event => onBirthdate(event.target.value)} autoComplete="off" /></label>
+      <label><span>שעת לידה לבדיקה <small>זמנית</small></span><input dir="ltr" type="time" step="60" value={birthtime} onChange={event => onBirthtime(event.target.value)} autoComplete="off" /></label>
       <label><span>אזור זמן בלידה</span><input dir="ltr" type="text" value={timezone} onChange={event => onTimezone(event.target.value)} placeholder="Asia/Jerusalem" autoComplete="off" inputMode="text" /></label>
       <label><span>קו רוחב <small>למפת שמיים</small></span><input dir="ltr" type="number" min="-90" max="90" step="any" value={latitude} onChange={event => onLatitude(event.target.value)} placeholder="31.7683" autoComplete="off" /></label>
       <label><span>קו אורך <small>למפת שמיים</small></span><input dir="ltr" type="number" min="-180" max="180" step="any" value={longitude} onChange={event => onLongitude(event.target.value)} placeholder="35.2137" autoComplete="off" /></label>
     </div>
     <div className="birth-map-calculator__action">
       <button type="button" disabled={!ready || state === "loading"} onClick={onCalculate}>{state === "loading" ? "מחשב במכשיר…" : "חשב מפה מקומית"}</button>
-      <small>אזור הזמן והקואורדינטות נשארים בזיכרון המסך ונמחקים ברענון. אין בקשת רשת ואין שמירה נוספת.</small>
+      <small>התאריך, השעה, אזור הזמן והקואורדינטות נשארים בזיכרון המסך ונמחקים ברענון. אין בקשת רשת ואין שמירה נוספת בדפדפן או במסד.</small>
     </div>
-    {!ready && selected ? <p role="status">{STATE_LABEL[selected.humanDesign.state]}</p> : null}
+    {!hasDate && selected ? <p role="status">{STATE_LABEL.needs_date}</p> : null}
+    {hasDate && !hasExactTime && selected ? <p role="status">{STATE_LABEL.needs_time}</p> : null}
     {error ? <p className="birth-map-calculator__error" role="alert">{CALCULATION_ERROR[error] || "החישוב לא הושלם. בדקו את הפרטים ונסו שוב."}</p> : null}
   </div>;
 }
@@ -161,6 +167,8 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
   const [spatialState, setSpatialState] = useState("idle");
   const [fallback, setFallback] = useState("");
   const [selectedRef, setSelectedRef] = useState(data.people[0]?.memberRef || "");
+  const [birthdate, setBirthdate] = useState(data.people[0]?.dateIso || "");
+  const [birthtime, setBirthtime] = useState(data.people[0]?.birthTime || "");
   const [timezone, setTimezone] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
@@ -175,7 +183,10 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
   };
   const onFallback = reason => { setFallback(reason); setSpatialState("fallback"); };
   const selectPerson = memberRef => {
+    const person = data.people.find(item => item.memberRef === memberRef);
     setSelectedRef(memberRef);
+    setBirthdate(person?.dateIso || "");
+    setBirthtime(person?.birthTime || "");
     setTimezone("");
     setLatitude("");
     setLongitude("");
@@ -197,8 +208,8 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
     setCalculationError("");
     try {
       const result = await calculateLifeJourneyBirthMap({
-        birthdate: person.dateIso,
-        birthtime: person.birthTime,
+        birthdate,
+        birthtime,
         timezone,
         latitude,
         longitude,
@@ -216,12 +227,16 @@ export default function BirthMapStudio2029({ data, seferContent, onCalculationCh
   const calculator = <BirthCalculationControls
     people={data.people}
     selectedRef={selectedRef}
+    birthdate={birthdate}
+    birthtime={birthtime}
     timezone={timezone}
     latitude={latitude}
     longitude={longitude}
     state={calculationState}
     error={calculationError}
     onSelect={selectPerson}
+    onBirthdate={value => updateCalculationInput(setBirthdate, value)}
+    onBirthtime={value => updateCalculationInput(setBirthtime, value)}
     onTimezone={value => updateCalculationInput(setTimezone, value)}
     onLatitude={value => updateCalculationInput(setLatitude, value)}
     onLongitude={value => updateCalculationInput(setLongitude, value)}

@@ -388,6 +388,13 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await birthStudio.getByRole("tab", { name: "Human Design" }).click();
     await birthStudio.getByRole("heading", { name: "Human Design" }).waitFor();
     assert.equal(await birthStudio.locator('[data-result="human-design"]').count(), 0, "birth calculations never run on tab open");
+    const temporaryBirthdate = birthStudio.getByLabel(/תאריך לידה לבדיקה/);
+    const temporaryBirthtime = birthStudio.getByLabel(/שעת לידה לבדיקה/);
+    assert.equal(await temporaryBirthdate.inputValue(), "1990-02-15");
+    assert.equal(await temporaryBirthtime.inputValue(), "05:30");
+    await temporaryBirthtime.fill("");
+    assert.equal(await birthStudio.getByRole("button", { name: "חשב מפה מקומית" }).isDisabled(), true, "a missing exact time stays explicit");
+    await temporaryBirthtime.fill("05:30");
     await birthStudio.getByLabel("אזור זמן בלידה").fill("Asia/Jerusalem");
     await birthStudio.getByLabel(/קו רוחב/).fill("31.7683");
     await birthStudio.getByLabel(/קו אורך/).fill("35.2137");

@@ -176,6 +176,9 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(birthMapStudio, /calculateLifeJourneyBirthMap/);
   assert.match(birthMapStudio, /חשב מפה מקומית/);
   assert.match(birthMapStudio, /אין בקשת רשת ואין שמירה נוספת/);
+  assert.match(birthMapStudio, /תאריך לידה לבדיקה/);
+  assert.match(birthMapStudio, /שעת לידה לבדיקה/);
+  assert.match(birthMapStudio, /type="time"/);
   assert.match(birthMapStudio, /onCalculationChange/);
   assert.match(birthMapStudio, /התכנסויות/);
   assert.match(birthMapStudio, /חיבור מחקרי שכבר נמצא/);
