@@ -158,6 +158,7 @@ except Exception as error:
     detail = str(error).replace(ACCESS_URL, '[protected access]') if ACCESS_URL else str(error)
     detail = re.sub(r'(_vercel_share=)[^&\s\"\'<>]+', r'\1[redacted]', detail)
     print(type(error).__name__ + ': ' + detail, file=sys.stderr)
+    print(json.dumps(report, ensure_ascii=False), file=sys.stderr)
     sys.exit(1)
 finally:
     server.shutdown()

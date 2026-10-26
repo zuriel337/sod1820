@@ -54,10 +54,14 @@ self.addEventListener('fetch',event=>{
 await writeFile(resolve(output, "preview-readonly-sw.js"), worker);
 // A push opt-in must never replace the Preview guard with the production push worker.
 await writeFile(resolve(output, "sw.js"), worker);
-const razielSafeActionsMock = process.env.SOD_RAZIEL_SAFE_ACTIONS_PREVIEW === "true";
+// vercel.json's buildCommand takes precedence over a deployment-level override.
+// Only this explicitly isolated Git branch may select the hosted mock variant.
+const expectedMockBranch = "gpt/2029-central-raziel-safe-actions-integration-20261026";
+const razielSafeActionsMock = process.env.SOD_RAZIEL_SAFE_ACTIONS_PREVIEW === "true"
+  || (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_GIT_COMMIT_REF === expectedMockBranch);
 if (razielSafeActionsMock) {
   if (process.env.VERCEL_ENV === "production") throw new Error("mock_preview_is_never_production");
-  const expectedBranch = "gpt/2029-central-raziel-safe-actions-integration-20261026";
+  const expectedBranch = expectedMockBranch;
   if (process.env.VERCEL_GIT_COMMIT_REF && process.env.VERCEL_GIT_COMMIT_REF !== expectedBranch) throw new Error("mock_preview_branch_mismatch");
   const { buildRazielSafeActionsPreviewWorker } = await import("../test/helpers/raziel-safe-actions-preview-fixture.mjs");
   const outputWorker = buildRazielSafeActionsPreviewWorker(worker);

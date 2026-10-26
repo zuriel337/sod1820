@@ -55,8 +55,11 @@ retained; no public reader or provider boundary was widened to satisfy them.
 
 ## Frontend-only Preview contract
 
-The opt-in `SOD_RAZIEL_SAFE_ACTIONS_PREVIEW=true` variant is limited to this exact
-integration branch and rejects Vercel Production. It builds only `preview-deploy`
+The opt-in `SOD_RAZIEL_SAFE_ACTIONS_PREVIEW=true` variant, also selected by Vercel
+Preview on this exact isolated Git branch, rejects Vercel Production. Vercel's
+repository buildCommand overrides the deployment-level command, so exact Preview
+branch selection is necessary; an ordinary/default build is not mock acceptance.
+It builds only `preview-deploy`
 static assets, without root API handlers or Edge deployment. Production routing
 and domain aliases are untouched.
 

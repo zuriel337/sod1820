@@ -75,4 +75,5 @@ test("mock configuration cannot admit real product writes, new Person creation o
   assert.equal(response.status, 403);
   assert.match(builder, /mock_preview_is_never_production/);
   assert.match(builder, /mock_preview_branch_mismatch/);
+  assert.match(builder, /process\.env\.VERCEL_ENV === "preview" && process\.env\.VERCEL_GIT_COMMIT_REF === expectedMockBranch/);
 });
