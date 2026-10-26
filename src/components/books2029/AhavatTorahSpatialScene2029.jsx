@@ -109,16 +109,28 @@ function SceneControls() {
   return null;
 }
 
-export default function AhavatTorahSpatialScene2029({ datasets = [], activeId = "", onSelect, mode = "datasets" }) {
+function LetterCountBars({ bars, activeId, onSelect }) {
+  const maximum = Math.max(1, ...bars.map(bar => bar.count));
+  const spacing = Math.min(1.35, 8 / Math.max(bars.length, 1));
+  return <group>{bars.map((bar, index) => {
+    const height = bar.count / maximum * 4;
+    return <mesh key={bar.id} position={[(index - (bars.length - 1) / 2) * spacing, height / 2, 0]} onClick={event => { event.stopPropagation(); onSelect?.(bar.id); }}>
+      <boxGeometry args={[spacing * .68, height, .72]} />
+      <meshStandardMaterial color={STATUS_COLORS.closed} emissive={STATUS_COLORS.closed} emissiveIntensity={activeId === bar.id ? .6 : .12} metalness={.2} roughness={.34} />
+    </mesh>;
+  })}<gridHelper args={[9, 18, "#5c5140", "#27241f"]} /></group>;
+}
+
+export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], activeId = "", onSelect, mode = "datasets" }) {
   const stableDatasets = useMemo(() => datasets.slice(0, 13), [datasets]);
-  return <div className="ahavat29-spatial-canvas" role="img" aria-label={mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו"}>
+  return <div className="ahavat29-spatial-canvas" role="img" aria-label={mode === "letter" ? "ייצוג של מבנה הספר: גובה כל עמודה הוא מניין האות אלף בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים" : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו"}>
     <Canvas camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#0d0b09"]} />
       <fog attach="fog" args={["#0d0b09", 10, 19]} />
       <ambientLight intensity={1.2} />
       <directionalLight position={[4, 8, 5]} intensity={2.25} color="#f3d68f" />
       <pointLight position={[-5, 3, -3]} intensity={19} distance={14} color="#668ec4" />
-      {mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} />}
+      {mode === "letter" ? <LetterCountBars bars={bars} activeId={activeId} onSelect={onSelect} /> : mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} />}
       <SceneControls />
     </Canvas>
   </div>;

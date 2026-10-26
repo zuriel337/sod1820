@@ -87,14 +87,43 @@ test("Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/144
       const datasetButton = page.locator(".ahavat29-spatial-legend button").filter({ hasText: "DS-02" });
       await datasetButton.click();
       assert.equal(new URL(page.url()).searchParams.get("dataset"), "DS-02");
-      assert.equal(new URL(page.url()).searchParams.get("page"), "36");
-      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=36&view=FitH$/);
+      assert.equal(new URL(page.url()).searchParams.get("page"), "35");
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
 
       await page.getByRole("button", { name: /טבלת האותיות/ }).click();
       const search = page.getByRole("searchbox", { name: "חיפוש בתוך הטבלה" });
       await search.fill("שמיני");
       await page.getByRole("cell", { name: "שמיני", exact: true }).first().waitFor();
       assert.equal(await page.locator(".ahavat29-data-table tbody tr").count() > 0, true);
+
+      const letterReader = page.locator(".ahavat29-letters");
+      assert.equal(await letterReader.locator(".ahavat29-letter-alphabet button").count(), 28);
+      for (const [name, form, pdfPage] of [["כף סופית", "ך", 37], ["מם סופית", "ם", 38], ["שין שמאלית", "שׂ", 41]]) {
+        await letterReader.getByRole("button", { name, exact: true }).click();
+        assert.equal(new URL(page.url()).searchParams.get("letter"), form);
+        assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), new RegExp(`#page=${pdfPage}&view=FitH$`));
+      }
+      await letterReader.getByRole("button", { name: "אלף", exact: true }).click();
+      await letterReader.locator(".ahavat29-letter-books").getByRole("button", { name: "שמות", exact: true }).click();
+      assert.equal(await letterReader.locator("tbody tr").count(), 11);
+      assert.equal(await letterReader.locator("tbody tr").filter({ hasText: "ויקהל" }).locator("td:nth-child(4)").textContent(), "485");
+      const letterSearch = letterReader.getByRole("searchbox", { name: "חיפוש בפרשות האות" });
+      await letterSearch.fill("תפ״ה");
+      assert.equal(await letterReader.locator("tbody tr").count(), 1);
+      await letterSearch.fill("");
+      await letterReader.getByRole("button", { name: "פתח מבנה האות בתלת־ממד", exact: true }).click();
+      await letterReader.locator("canvas").waitFor();
+      assert.equal(await letterReader.locator("canvas").count(), 1);
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=35&view=FitH$/);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), true, `letter reader overflows at ${width}px`);
+      if (process.env.BOOKS_SCREENSHOT_DIR) await letterReader.screenshot({ path: `${process.env.BOOKS_SCREENSHOT_DIR}/ahavat-letter-reader-${width}.png` });
+      const finalKaf = letterReader.getByRole("button", { name: "כף סופית", exact: true });
+      await finalKaf.focus();
+      await finalKaf.press("Enter");
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.locator(".ahavat29-letter-alphabet").waitFor();
+      assert.equal(await page.locator(".ahavat29-letter-alphabet").getByRole("button", { name: "כף סופית", exact: true }).getAttribute("aria-pressed"), "true");
+      assert.match(await page.locator("#ahavat29-source iframe").getAttribute("src"), /#page=37&view=FitH$/);
       assert.deepEqual(errors, []);
       await context.close();
     }
