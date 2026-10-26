@@ -261,6 +261,30 @@ test("spatial routing exposes only stored spatial identity fields and marks inco
   assert.equal(missing.spatialResearchContext.cluster, null);
 });
 
+test("spatial routing reuses the canonical compound parser without promoting the finding", () => {
+  const verified = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "קוביית אמונה: 6 ×אמונה(102)=612",
+    meta: {},
+  }));
+  assert.equal(verified.spatialCalculation.state, "verified");
+  assert.equal(verified.spatialCalculation.claimCount, 1);
+  assert.equal(verified.spatialCalculation.claims[0].computed, 612);
+  assert.equal(verified.spatialCalculation.verifiesCalculationOnly, true);
+  assert.equal(verified.spatialCalculation.mutatesLiveData, false);
+  assert.equal(verified.engineVerified, false);
+
+  const descriptive = projectWorldLegacyReplayOccurrence(row({
+    engine_verified: null,
+    engine_detail: null,
+    statement: "הקובייה מתוארת כמבנה רוחני",
+    meta: {},
+  }));
+  assert.equal(descriptive.spatialCalculation.state, "not_detected");
+  assert.equal(descriptive.spatialCalculation.claimCount, 0);
+});
+
 test("constant replay distinguishes exact sums, rounded constants and unsupported source claims", () => {
   const ePower = verifyWorldConstantStatement("הערך המספרי e בחזקת e מתקרב ל־15.15");
   assert.equal(ePower.state, "rounded_match");

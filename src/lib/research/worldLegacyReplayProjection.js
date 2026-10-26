@@ -171,6 +171,32 @@ function projectSpatialResearchContext(row, routing) {
   });
 }
 
+function projectSpatialCalculation(row, routing) {
+  if (routing?.queue !== "spatial_or_constants") return null;
+  const claims = extractCompoundClaims(clean(row?.statement));
+  let state = "not_detected";
+  if (claims.some((claim) => claim?.status === "ENGINE_MISMATCH")) state = "mismatch";
+  else if (claims.some((claim) => claim?.status === "METHOD_UNRESOLVED")) state = "unresolved";
+  else if (claims.length && claims.every((claim) => claim?.status === "ENGINE_VERIFIED_COMPOSITE")) state = "verified";
+  const projectedClaims = claims.map((claim) => Object.freeze({
+    kind: clean(claim?.kind) || null,
+    expression: clean(claim?.text || claim?.raw) || null,
+    status: clean(claim?.status) || null,
+    claimed: finite(claim?.result),
+    computed: finite(claim?.computedTotal) ?? finite(claim?.sum) ?? finite(claim?.result),
+    operandCount: Array.isArray(claim?.operands)
+      ? claim.operands.length
+      : Object.keys(asObject(claim?.operand)).length ? 1 : 0,
+  }));
+  return Object.freeze({
+    state,
+    claimCount: projectedClaims.length,
+    claims: Object.freeze(projectedClaims),
+    verifiesCalculationOnly: true,
+    mutatesLiveData: false,
+  });
+}
+
 const ARITHMETIC_PHRASE_RE = /^([א-ת\u05F3\u05F4'"־\-\s]{1,80})\((\d{1,9})\)$/u;
 const ARITHMETIC_NUMBER_RE = /^\d{1,9}$/u;
 
@@ -405,6 +431,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
   if (!Object.keys(detail).length && row?.engine_verified !== true) {
     const routing = classifyWorldMissingEngineStatement(row?.statement);
     const spatialResearchContext = projectSpatialResearchContext(row, routing);
+    const spatialCalculation = projectSpatialCalculation(row, routing);
     const constantCheck = routing.queue === "constants_or_sequences"
       ? verifyWorldConstantStatement(row?.statement)
       : null;
@@ -424,6 +451,7 @@ export function projectWorldLegacyReplayOccurrence(row) {
       routingReason: routing.reason,
       contentSignals: routing.signals,
       spatialResearchContext,
+      spatialCalculation,
       constantCheck,
     });
   }

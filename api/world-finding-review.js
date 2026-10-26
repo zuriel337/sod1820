@@ -187,6 +187,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
   const replayQueue = clean(filters.replayQueue) || "all";
   const replaySubtype = clean(filters.replaySubtype) || "all";
   const replaySpatialMetadata = clean(filters.replaySpatialMetadata) || "all";
+  const replaySpatialCalculation = clean(filters.replaySpatialCalculation) || "all";
   const replaySource = clean(filters.replaySource) || "all";
   const replayTarget = clean(filters.replayTarget) || "all";
   const replayTargetEvidence = clean(filters.replayTargetEvidence) || "all";
@@ -206,6 +207,7 @@ export function filterWorldFindingReviewRows(rows = [], filters = {}) {
     if (replayQueue !== "all" && row?.legacyReplay?.routingQueue !== replayQueue) return false;
     if (replaySubtype !== "all" && row?.legacyReplay?.routingSubtype !== replaySubtype) return false;
     if (replaySpatialMetadata !== "all" && row?.legacyReplay?.spatialResearchContext?.state !== replaySpatialMetadata) return false;
+    if (replaySpatialCalculation !== "all" && row?.legacyReplay?.spatialCalculation?.state !== replaySpatialCalculation) return false;
     const decision = row?.legacyReplay?.decision;
     const exactSourceCount = (Number(decision?.sourceLocatorStateCounts?.channel_uuid) || 0)
       + (Number(decision?.sourceLocatorStateCounts?.channel_uuid_available) || 0);
@@ -614,6 +616,11 @@ async function buildAuthorizedProjection(token) {
         .map((row) => ({ spatialMetadataState: row.legacyReplay.spatialResearchContext.state })),
       "spatialMetadataState",
     ),
+    bySpatialCalculationState: countBy(
+      orderedFindings.filter((row) => row?.legacyReplay?.spatialCalculation?.state)
+        .map((row) => ({ spatialCalculationState: row.legacyReplay.spatialCalculation.state })),
+      "spatialCalculationState",
+    ),
     technicallyReadyReplayOccurrences: replayDecisionCounts.technicallyReady,
     byLegacyReplaySourceReadiness: replayDecisionCounts.source,
     byLegacyReplayTargetReadiness: replayDecisionCounts.target,
@@ -685,6 +692,7 @@ function pageResponse(projection, req, contributorScope = null) {
     replayQueue: queryValue(req, "replay_queue"),
     replaySubtype: queryValue(req, "replay_subtype"),
     replaySpatialMetadata: queryValue(req, "replay_spatial_metadata"),
+    replaySpatialCalculation: queryValue(req, "replay_spatial_calculation"),
     replaySource: queryValue(req, "replay_source"),
     replayTarget: queryValue(req, "replay_target"),
     replayTargetEvidence: queryValue(req, "replay_target_evidence"),
