@@ -39,7 +39,7 @@ test("normalizes an archive message without exposing identity fields", () => {
   assert.equal(row.authorKey, "c1");
   assert.equal(row.parentId, "p1");
   assert.equal(row.body, decodeCommunityText("שלום &#34;עולם&#34;"));
-  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "id", "linkedUserId", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
+  assert.deepEqual(Object.keys(row).sort(), ["authorKey", "authorName", "authorUserId", "avatarUrl", "body", "createdAt", "editedAt", "isDeleted", "id", "linkedUserId", "origin", "parentId", "reactions", "targetId", "targetType", "title"].sort());
   assert.equal(row.authorUserId, null);
   assert.equal(row.linkedUserId, null);
 });
@@ -78,6 +78,7 @@ test("the chat pages roots and fetches approved direct replies in reading order"
   const previousFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
     const url = new URL(input.url || input);
+    if (url.pathname.includes("/rpc/")) return new Response(JSON.stringify({ code: "PGRST202" }), { status: 404, headers: { "content-type": "application/json" } });
     requests.push(url);
     const isRoot = url.searchParams.get("parent_id") === "is.null";
     const isReply = url.searchParams.get("parent_id") === `eq.${parentId}`;
@@ -111,7 +112,9 @@ test("an exact personal reply link reads only an approved public root and its re
   const requests = [];
   const previousFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
-    const url = new URL(input.url || input); requests.push(url);
+    const url = new URL(input.url || input);
+    if (url.pathname.includes("/rpc/")) return new Response(JSON.stringify({ code: "PGRST202" }), { status: 404, headers: { "content-type": "application/json" } });
+    requests.push(url);
     const isReply = url.searchParams.get("parent_id") === `eq.${rootId}`;
     const row = isReply
       ? { id: replyId, parent_id: rootId, body: "תגובה ישנה", origin: "openweb", created_at: "2016-03-08T00:00:00Z" }
@@ -147,4 +150,56 @@ test("a public author page with no count header keeps its messages and an unknow
     unknownRange = true;
     assert.equal((await fetchPublicAuthorActivityPage("e7581ab5-8c15-4832-b602-f361e41ff373", { filter: "chat", limit: 20 })).count, null);
   } finally { globalThis.fetch = previousFetch; }
+});
+
+test("a tombstone retains only thread identity/time and strips author, text, media and reactions", () => {
+  const row = normalizeCommunityRow({ id: "removed", parent_id: "parent", origin: "openweb", is_deleted: true,
+    body: "PRIVATE-BODY", title: "PRIVATE-TITLE", author_name: "PRIVATE-NAME", author_user_id: "PRIVATE-ACCOUNT",
+    author_contributor_id: "PRIVATE-SOURCE", contributor: { id: "PRIVATE-SOURCE", user_id: "PRIVATE-ACCOUNT", avatar_url: "PRIVATE-IMAGE" },
+    reactions: { likes: 999 }, created_at: "2016-03-08", edited_at: "2026-10-26" });
+  assert.equal(row.id, "removed"); assert.equal(row.parentId, "parent"); assert.equal(row.isDeleted, true);
+  assert.equal(row.createdAt, "2016-03-08");
+  assert.doesNotMatch(JSON.stringify(row), /PRIVATE|999/);
+  assert.equal(normalizeCommunityRow({ id: "removed", deleted_at: "2026-10-26", body: "PRIVATE-BODY" }).body, "");
+});
+
+test("canonical feed/reply readers request only public message fields and preserve tombstones", async () => {
+  const previousFetch = globalThis.fetch, requests = [];
+  const id = "94970bb8-f12a-43b5-b1a8-5898e7e6cc57";
+  globalThis.fetch = async input => {
+    const url = new URL(input.url || input); requests.push(url);
+    const data = url.pathname.endsWith("community_reply_counts") ? [{ parent_id: id, reply_count: "2" }]
+      : [{ id, parent_id: null, origin: "openweb", is_deleted: true, created_at: "2016-03-08", total_count: "1",
+           contributor_user_id: "PRIVATE-ACCOUNT", contributor_avatar_url: "PRIVATE-AVATAR" }];
+    return new Response(JSON.stringify(data), { headers: { "content-type": "application/json" } });
+  };
+  try {
+    const feed = await fetchCommunityArchivePage();
+    const replies = await fetchCommunityReplies(id);
+    const counts = await fetchCommunityReplyCounts([id]);
+    assert.equal(feed.rows[0].isDeleted, true); assert.equal(feed.count, 1);
+    assert.equal(replies.rows[0].isDeleted, true); assert.equal(replies.count, 1);
+    assert.equal(counts[id], 2);
+    assert.equal(requests.length, 3, "one public RPC per operation; no fallback on a valid result");
+    for (const request of requests.slice(0, 2)) {
+      assert.doesNotMatch(request.searchParams.get("select"), /contributor_(user|avatar|display)/);
+      assert.match(request.searchParams.get("select"), /is_deleted/);
+    }
+    assert.doesNotMatch(JSON.stringify(feed), /PRIVATE/);
+  } finally { globalThis.fetch = previousFetch; }
+});
+
+test("canonical exact context matches the requested root/child and never falls back on absent or denied content", async () => {
+  const root = "94970bb8-f12a-43b5-b1a8-5898e7e6cc57", child = "d69c5c78-fc0c-4f2c-9da5-620d426d84ed";
+  let rows = [{ id: root, parent_id: null, origin: "openweb", is_deleted: true }, { id: child, parent_id: root, origin: "openweb", body: "visible child" }];
+  let error = null;
+  const client = { rpc() { return { select() { return Promise.resolve({ data: rows, error }); } }; },
+    from() { throw new Error("must not widen an authoritative RPC result"); } };
+  assert.equal((await fetchCommunityThread(root, { client })).isDeleted, true);
+  assert.equal((await fetchCommunityReply(root, child, { client })).body, "visible child");
+  assert.equal(await fetchCommunityReply(child, root, { client }), null);
+  rows = [];
+  assert.equal(await fetchCommunityThread(root, { client }), null);
+  error = { code: "42501", message: "denied" };
+  await assert.rejects(fetchCommunityThread(root, { client }), value => value.code === "42501");
 });

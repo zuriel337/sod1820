@@ -113,7 +113,8 @@ def install(page, case):
             return handler.abort()
         read_rpcs = {"replies_to_me", "dm_inbox", "dm_unread_count", "notification_prefs_guest_get_v1",
                      "notification_prefs_get_v1", "fn_method_value", "world_group_source_arrivals_v2",
-                     "research_state_snapshot_v1", "fn_research_path_resume_v1"}
+                     "research_state_snapshot_v1", "fn_research_path_resume_v1", "community_message_context",
+                     "community_feed_page", "community_replies_page", "community_reply_counts", "community_message_actions_v1"}
         if request.method not in ("GET", "HEAD") and ("/rest/v1/rpc/" not in url.path or name not in read_rpcs):
             state["writes"].append((url.path, request.method))
             return handler.fulfill(status=403, json={"message": "synthetic write blocked"})
@@ -125,6 +126,12 @@ def install(page, case):
             if account == state["hold_account"]:
                 state["held_reply"] = (handler, data)
                 return
+        elif name == "community_message_context":
+            args = request.post_data_json or {}
+            data = [row for row in (current or case)["messages"] if row['id'] == args.get('p_id')]
+        elif name == "community_reply_counts":
+            args = request.post_data_json or {}
+            data = [{"parent_id": parent, "reply_count": sum(row.get('parent_id') == parent for row in (current or case)["messages"])} for parent in args.get('p_ids', [])]
         elif name == "research_contributions":
             exact_id = query.get("id", [""])[0]
             row = next((row for row in (current or case)["messages"] if exact_id == f"eq.{row['id']}"), None)

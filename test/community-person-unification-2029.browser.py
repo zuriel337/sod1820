@@ -54,7 +54,7 @@ server = ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Files, director
 threading.Thread(target=server.serve_forever, daemon=True).start()
 BASE = f'http://127.0.0.1:{server.server_port}'
 REPORT = {'cases': [], 'errors': [], 'unexpected_writes': [], 'blocked_identity_telemetry': []}
-READ_RPCS = {'writer_public_contributions_page_v1', 'world_group_source_arrivals_v2', 'research_state_snapshot_v1', 'fn_research_path_resume_v1'}
+READ_RPCS = {'writer_public_contributions_page_v1', 'world_group_source_arrivals_v2', 'research_state_snapshot_v1', 'fn_research_path_resume_v1', 'community_feed_page', 'community_replies_page', 'community_message_context', 'community_reply_counts', 'community_message_actions_v1'}
 
 def install(page, unknown_count=False, self_uid=None):
     calls = []
@@ -85,6 +85,16 @@ def install(page, unknown_count=False, self_uid=None):
         assert table not in ['research_objects', 'person_public_profile_v1', 'people_public_rows_v1', 'researcher_reputation', 'research_level_of'], table
         calls.append((table, q))
         data = PEOPLE.copy() if table == 'contributors' else ROWS.copy() if table == 'research_contributions' else []
+        if table in {'community_feed_page', 'community_replies_page', 'community_message_context', 'community_reply_counts'}:
+            args = req.post_data_json or {}
+            eligible = [row for row in ROWS if row.get('status') == 'approved' and row.get('origin') in ('openweb', 'community_2029')]
+            if table == 'community_feed_page': data = [row for row in eligible if not row.get('parent_id')]
+            elif table == 'community_replies_page': data = [row for row in eligible if row.get('parent_id') == args.get('p_parent')]
+            elif table == 'community_message_context': data = [row for row in eligible if row['id'] == args.get('p_id')]
+            else: data = [{'parent_id': parent, 'reply_count': sum(row.get('parent_id') == parent for row in eligible)} for parent in args.get('p_ids', [])]
+            if table != 'community_reply_counts':
+                fields = q.get('select', [''])[0].split(',')
+                data = [{key: value for key, value in {**row, 'is_deleted': False, 'total_count': len(data)}.items() if key in fields} for row in data]
         if table == 'users' and self_uid:
             data = {'id': self_uid, 'display_name': 'חשבון בדיקה', 'username': 'fixture-self', 'role': 'member', 'avatar_url': None}
             return r.fulfill(json=data if 'vnd.pgrst.object' in req.headers.get('accept', '') else [data], headers={'access-control-allow-origin': '*'})

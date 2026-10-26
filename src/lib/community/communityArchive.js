@@ -6,6 +6,19 @@ export const COMMUNITY_REPLY_PAGE_SIZE = 20;
 export const COMMUNITY_ARCHIVE_TOTAL = 41080;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const COMMUNITY_ORIGINS = ["openweb", "community_2029"];
+// Project at the API boundary. Older Community RPCs also expose joined dossier
+// columns; this consumer requests only public message credit, never private
+// Contributor account/avatar fields.
+const COMMUNITY_RPC_FIELDS = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
+async function readCommunityRpc(name, args, client = supabase) {
+  if (typeof client?.rpc !== "function") return null;
+  const { data, error } = await client.rpc(name, args).select(COMMUNITY_RPC_FIELDS);
+  if (error?.code === "PGRST202" || error?.code === "42883") return null;
+  if (error) throw error;
+  if (!Array.isArray(data)) throw new Error("invalid public community response");
+  return data;
+}
+const knownCount = value => value != null && Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : null;
 
 export const PROFILE_BASELINES = Object.freeze({
   "תורה תמימה": { handle: "torahtamima", likes: 648, likesLabel: "648", isPrivate: true },
@@ -78,6 +91,12 @@ export function decodeCommunityText(value) {
 }
 
 export function normalizeCommunityRow(row) {
+  if (row.is_deleted === true || row.deleted_at) return {
+    id: row.id, parentId: row.parent_id || null, authorName: "", authorKey: null,
+    authorUserId: null, linkedUserId: null, avatarUrl: null, title: null, body: "",
+    reactions: {}, origin: row.origin || null, targetType: null, targetId: null,
+    createdAt: row.created_at, editedAt: null, isDeleted: true,
+  };
   const contributor = Array.isArray(row?.contributor) ? row.contributor[0] : row?.contributor;
   const contributorId = contributor?.id || row.author_contributor_id || null;
   const authorName = String(VERIFIED_ARCHIVE_PROFILES[contributorId]?.name || row?.author_name || contributor?.display_name || "חבר הקהילה").trim();
@@ -96,6 +115,8 @@ export function normalizeCommunityRow(row) {
     targetType: row.target_type || null,
     targetId: row.target_id || null,
     createdAt: row.created_at,
+    editedAt: row.edited_at || null,
+    isDeleted: false,
   };
 }
 
@@ -117,6 +138,8 @@ export function legacyLikeCount(reactions) {
 export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_PAGE_SIZE, sort = "newest" } = {}) {
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const projected = await readCommunityRpc("community_feed_page", { p_offset: safeOffset, p_limit: safeLimit, p_sort: sort === "oldest" ? "oldest" : "newest" });
+  if (projected) return { rows: projected.map(normalizeCommunityRow), count: safeOffset === 0 ? projected.length ? knownCount(projected[0].total_count) : 0 : null, nextOffset: safeOffset + projected.length };
   const { data, error, count } = await supabase
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: safeOffset === 0 ? "exact" : undefined })
@@ -135,6 +158,11 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
 // root from one of the two public community origins can be returned.
 export async function fetchCommunityThread(threadId, { client = supabase } = {}) {
   if (!UUID_PATTERN.test(threadId || "")) throw new Error("invalid thread id");
+  const projected = await readCommunityRpc("community_message_context", { p_id: threadId }, client);
+  if (projected) {
+    const root = projected.find(row => row.id === threadId && row.parent_id == null && COMMUNITY_ORIGINS.includes(row.origin));
+    return root ? normalizeCommunityRow(root) : null;
+  }
   const { data, error } = await client
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)")
@@ -149,6 +177,11 @@ export async function fetchCommunityThread(threadId, { client = supabase } = {})
 
 export async function fetchCommunityReply(parentId, replyId, { client = supabase } = {}) {
   if (!UUID_PATTERN.test(parentId || "") || !UUID_PATTERN.test(replyId || "")) throw new Error("invalid reply context");
+  const projected = await readCommunityRpc("community_message_context", { p_id: replyId }, client);
+  if (projected) {
+    const reply = projected.find(row => row.id === replyId && row.parent_id === parentId && COMMUNITY_ORIGINS.includes(row.origin));
+    return reply ? normalizeCommunityRow(reply) : null;
+  }
   const { data, error } = await client
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)")
@@ -167,6 +200,8 @@ export async function fetchCommunityReplies(parentId, { offset = 0, limit = COMM
   if (!UUID_PATTERN.test(parentId || "")) throw new Error("invalid parent id");
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const projected = await readCommunityRpc("community_replies_page", { p_parent: parentId, p_offset: safeOffset, p_limit: safeLimit });
+  if (projected) return { rows: projected.map(normalizeCommunityRow), count: projected.length ? knownCount(projected[0].total_count) : safeOffset, nextOffset: safeOffset + projected.length };
   const { data, error, count } = await supabase
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: "exact" })
@@ -186,6 +221,18 @@ export async function fetchCommunityReplyCounts(parentIds) {
   const ids = [...new Set(parentIds)].filter((id) => UUID_PATTERN.test(id || ""));
   if (!ids.length) return {};
   const counts = Object.fromEntries(ids.map((id) => [id, 0]));
+  const { data: projected, error: rpcError } = await supabase.rpc("community_reply_counts", { p_ids: ids.slice(0, 200) });
+  if (!rpcError) {
+    if (!Array.isArray(projected)) throw new Error("invalid reply counts");
+    for (const row of projected) if (ids.includes(row.parent_id)) {
+      const count = knownCount(row.reply_count);
+      if (count == null) throw new Error("unknown reply count");
+      counts[row.parent_id] = count;
+    }
+    if (ids.length > 200) Object.assign(counts, await fetchCommunityReplyCounts(ids.slice(200)));
+    return counts;
+  }
+  if (rpcError.code !== "PGRST202" && rpcError.code !== "42883") throw rpcError;
   for (let offset = 0; offset < 25000; offset += 1000) {
     const { data, error } = await supabase.from("research_contributions")
       .select("id,parent_id")
@@ -214,7 +261,7 @@ export async function fetchPublicAuthorActivityPage(authorKey, { offset = 0, lim
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
   let base = client
     .from("research_contributions")
-    .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,target_type,target_id,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: "exact" })
+    .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,target_type,target_id,created_at,edited_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: "exact" })
     .eq("status", "approved")
     .not("body", "is", null)
     .neq("body", "");
