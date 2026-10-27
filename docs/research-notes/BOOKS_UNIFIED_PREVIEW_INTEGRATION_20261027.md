@@ -1,0 +1,3 @@
+# Books 2029 — unified preview integration
+
+BEFORE · 2026-10-27 · base `40382ae21b9ca2d6ca38f58c387542b993d18f69`. The user authorized integrating the Books handoffs and a protected Preview, without main, Legacy, Production or product DB changes. Active ownership was checked read-only and released AFTER records were reconciled. This note is not a live work-log entry. Integrate exact Books branches in an isolated worktree, preserve source states and report unconnected content honestly. The separate contract integration branch has unrelated site ancestry and must not be merged wholesale into Books; read its contract for acceptance and preserve the source branch. Do not silently activate unreviewed source assertions or treat model specifications as implemented 3D.
