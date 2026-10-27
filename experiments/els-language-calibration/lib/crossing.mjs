@@ -70,7 +70,7 @@ export function crossingTable(windowBest) {
 export function crossingScore(candidate, table) {
   const bucket = bucketOf(candidate.readScore);
   if (bucket === 0 || !table[candidate.len]) return 0;
-  return -Math.log10(table[candidate.len][bucket]);
+  return Math.max(0, -Math.log10(table[candidate.len][bucket]));
 }
 
 /** S(w): the largest X among the window's crossing candidates. */

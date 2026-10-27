@@ -1,4 +1,5 @@
 {
+ "mode": "tile3",
  "cases": [
   {
    "id": "gd01",
@@ -22,8 +23,8 @@
    "S": 0,
    "p": 1,
    "timeMs": {
-    "crossing": 49,
-    "fullPoolForUnion": 848
+    "crossing": 48,
+    "fullPoolForUnion": 831
    },
    "targets": [
     {
@@ -65,6 +66,7 @@
       "exactNoiseBefore": 17,
       "of": 18,
       "blindShare": 1,
+      "chanceTopShare": 0.556,
       "lifted": true,
       "credible": false
      }
@@ -663,8 +665,8 @@
    "S": 0,
    "p": 1,
    "timeMs": {
-    "crossing": 79,
-    "fullPoolForUnion": 1083
+    "crossing": 64,
+    "fullPoolForUnion": 1103
    },
    "targets": [
     {
@@ -1310,8 +1312,8 @@
    "S": 0,
    "p": 1,
    "timeMs": {
-    "crossing": 54,
-    "fullPoolForUnion": 1049
+    "crossing": 59,
+    "fullPoolForUnion": 968
    },
    "targets": [
     {
@@ -1875,8 +1877,8 @@
    "S": 0,
    "p": 1,
    "timeMs": {
-    "crossing": 38,
-    "fullPoolForUnion": 1539
+    "crossing": 48,
+    "fullPoolForUnion": 1496
    },
    "targets": [
     {
@@ -2413,7 +2415,7 @@
    "crossingFindings": 18,
    "S": 0,
    "p": 1,
-   "ms": 46,
+   "ms": 60,
    "top3": [
     {
      "surface": "לפני",
@@ -2443,7 +2445,7 @@
    "crossingFindings": 18,
    "S": 0,
    "p": 1,
-   "ms": 46,
+   "ms": 58,
    "top3": [
     {
      "surface": "משמרת",
@@ -2473,7 +2475,7 @@
    "crossingFindings": 18,
    "S": 0,
    "p": 1,
-   "ms": 47,
+   "ms": 62,
    "top3": [
     {
      "surface": "לפני",
@@ -2503,7 +2505,7 @@
    "crossingFindings": 18,
    "S": 0,
    "p": 1,
-   "ms": 47,
+   "ms": 56,
    "top3": [
     {
      "surface": "במדבר",
@@ -2533,7 +2535,7 @@
    "crossingFindings": 18,
    "S": 0,
    "p": 1,
-   "ms": 35,
+   "ms": 33,
    "top3": [
     {
      "surface": "מאשר",
@@ -2563,7 +2565,7 @@
    "crossingFindings": 18,
    "S": 0,
    "p": 1,
-   "ms": 46,
+   "ms": 43,
    "top3": [
     {
      "surface": "הערפל",
@@ -2593,7 +2595,7 @@
    "crossingFindings": 18,
    "S": 0,
    "p": 1,
-   "ms": 41,
+   "ms": 42,
    "top3": [
     {
      "surface": "פרעה",
@@ -2623,7 +2625,7 @@
    "crossingFindings": 18,
    "S": 0,
    "p": 1,
-   "ms": 43,
+   "ms": 46,
    "top3": [
     {
      "surface": "אשרי",
@@ -3092,6 +3094,53 @@
    "max": 0,
    "meanCrossing": 1752,
    "meanMs": 50
+  }
+ },
+ "saturation": {
+  "torah-5": {
+   "4": 1,
+   "5": 1,
+   "6": 1,
+   "7": 1,
+   "8": 1,
+   "9": 1,
+   "10": 1
+  },
+  "torah-6": {
+   "4": 1,
+   "5": 1,
+   "6": 1,
+   "7": 1,
+   "8": 1,
+   "9": 1,
+   "10": 1
+  },
+  "torah-7": {
+   "4": 1,
+   "5": 1,
+   "6": 1,
+   "7": 1,
+   "8": 1,
+   "9": 1,
+   "10": 1
+  },
+  "torah-8": {
+   "4": 1,
+   "5": 1,
+   "6": 1,
+   "7": 1,
+   "8": 1,
+   "9": 1,
+   "10": 1
+  },
+  "tanakh-6": {
+   "4": 1,
+   "5": 1,
+   "6": 1,
+   "7": 1,
+   "8": 1,
+   "9": 1,
+   "10": 1
   }
  },
  "provenance": {

@@ -4,6 +4,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { cutFunction, loadProductReader } from "../experiments/els-language-calibration/lib/product-reader.mjs";
 import { PRIMARY_METRIC, axisOf, compare, metricsOf, shiftedAxes } from "../experiments/els-language-calibration/lib/calibrate.mjs";
+import { CROSS_MAX, CROSS_MIN, bestByLength, crossingScore, crossingTable, enumerateCrossing } from "../experiments/els-language-calibration/lib/crossing.mjs";
+import { READ_MODES, makeReadInfo } from "../experiments/els-language-calibration/lib/reading.mjs";
 import { annotate, axisGeometry, bucketOf, enumerateCandidates, noiseAbove, parseCoverage, positionOf, rankFindings, rarityOf, tailTable, unionRank, windowLetters } from "../experiments/els-language-calibration/lib/ranking.mjs";
 
 const HERE = fileURLToPath(new URL("../experiments/els-language-calibration/", import.meta.url));
@@ -52,6 +54,7 @@ test("EXP-09 harness: no Golden string in the library code (cases and look-ups a
   const libs = readdirSync(`${HERE}lib`).map((name) => readFileSync(`${HERE}lib/${name}`, "utf8").replace(/\/\/.*$/gm, ""));
   libs.push(readFileSync(`${HERE}run.mjs`, "utf8").replace(/\/\/.*$/gm, ""));
   libs.push(readFileSync(`${HERE}run-ranking.mjs`, "utf8").replace(/\/\/.*$/gm, ""));
+  libs.push(readFileSync(`${HERE}run-crossing.mjs`, "utf8").replace(/\/\/.*$/gm, ""));
   for (const source of libs) for (const word of ["ספינת", "יכלאש", "אשאכלה", "באשאטמינ", "שבררומי", "דטראמפ", "קולומביה", "אורניום"]) assert.equal(source.includes(word), false, word);
 });
 
@@ -166,4 +169,92 @@ test("EXP-11 recorded results: pre-registered rules are applied as written and t
   assert.equal(gd02.product.inReadings, 7, "the product itself lists the ship string seventh of 24 readings");
   assert.equal(surfaced / present, 0, "rule 1: no target is within the top 10 of the union");
   assert.ok(blind.medianA7 >= 10, "rule 2: the median blind window has >= 10 A-findings of 7+ letters, so the ranking is declared not useful");
+});
+
+// ---------------------------------------------------------------- EXP-13: the crossing measure
+test("EXP-13 crossing runs: only runs that share a cell with the axis, never on the axis' own line, both directions, each counted once", () => {
+  const rows = Array.from({ length: 7 }, (_, r) => Array.from({ length: 7 }, (_, c) => String.fromCharCode(97 + ((r * 7 + c) % 26))).join(""));
+  const axisCells = [[2, 3], [3, 3], [4, 3]];
+  const runs = enumerateCrossing({ letterAt: gridOf(rows), axisCells, axisLine: "down", minLen: 3, maxLen: 3 });
+  assert.equal(runs.length, 2 * 3 * 3 * 3, "3 axis cells x 3 other lines x 3 offsets x 2 directions");
+  const axisKeys = new Set(axisCells.map(([r, c]) => `${r}:${c}`));
+  for (const run of runs) {
+    assert.notEqual(run.line, "down");
+    assert.ok(run.cells.some(([r, c]) => axisKeys.has(`${r}:${c}`)), "shares a cell with the axis");
+    assert.equal(run.surface, run.cells.map(([r, c]) => rows[r][c]).join(""));
+    assert.equal(run.len, 3);
+  }
+  assert.equal(new Set(runs.map((run) => `${run.line}:${run.cells.map((cell) => cell.join(",")).join(";")}`)).size, runs.length, "no run twice");
+  const forward = runs.find((run) => run.line === "across" && !run.reverse && run.cells[0][0] === 3 && run.cells[0][1] === 1);
+  const back = runs.find((run) => run.line === "across" && run.reverse && run.cells[0][0] === 3 && run.cells[0][1] === 3 && run.cells[2][1] === 1);
+  assert.equal(back.surface, [...forward.surface].reverse().join(""));
+  assert.equal(enumerateCrossing({ letterAt: gridOf(["ab", "cd"]), axisCells: [[0, 0]], axisLine: "down", minLen: 4, maxLen: 4 }).length, 0, "runs that leave the window are dropped");
+  assert.deepEqual([CROSS_MIN, CROSS_MAX], [4, 10]);
+});
+
+test("EXP-13 measure: table of how often a window holds a crossing run at least this long reading at least this well; X is minus log10 of it; the table is floored", () => {
+  const best = bestByLength([{ len: 4, readScore: 1 }, { len: 4, readScore: 0.8 }, { len: 5, readScore: 0.5 }, { len: 6, readScore: 0.9 }]);
+  assert.deepEqual(best, { 4: 1, 6: 0.9 });
+  const table = crossingTable([{ 4: 1, 5: 1 }, { 4: 1 }, { 4: 0.9 }, {}]);
+  assert.equal(table[4][1], 2 / 4);
+  assert.equal(table[5][1], 1 / 4);
+  assert.equal(table[6][1], 1 / 5, "never observed: floored at 1/(n+1)");
+  assert.equal(table[4][0.75], 3 / 4);
+  assert.ok(Math.abs(crossingScore({ len: 5, readScore: 1 }, table) - Math.log10(4)) < 1e-12);
+  assert.equal(crossingScore({ len: 5, readScore: 0.5 }, table), 0, "a run that does not read does not score");
+  assert.equal(crossingScore({ len: 11, readScore: 1 }, table), 0, "outside the table");
+  const saturated = crossingTable([{ 10: 1 }, { 10: 1 }]);
+  for (let length = CROSS_MIN; length <= CROSS_MAX; length += 1) assert.equal(crossingScore({ len: length, readScore: 1 }, saturated), 0, "if every window holds such a run, the measure cannot tell windows apart");
+});
+
+test("EXP-13 amendment 1 readability modes: whole reading only, tiling by two tokens, tiling by three tokens; the page's reader is only asked once per surface", () => {
+  const known = new Set(["abc", "def", "ghi"]);
+  let calls = 0;
+  const reader = { readSurface: (surface) => { calls += 1; return known.has(surface) ? [{ lexicalConfidence: 80, baseTerm: surface }] : []; } };
+  const rawCache = new Map();
+  const make = (mode) => makeReadInfo({ reader, lexicon: null, hints: null, mode, rawCache });
+  const [tile3, tile2, whole] = [make("tile3"), make("tile2"), make("whole")];
+  assert.deepEqual(Object.keys(READ_MODES), ["tile3", "tile2", "whole"]);
+  assert.deepEqual([tile3("abc").readScore, tile2("abc").readScore, whole("abc").readScore], [1, 1, 1]);
+  assert.deepEqual([tile3("abcdefghi").readScore, tile2("abcdefghi").readScore, whole("abcdefghi").readScore], [1, 6 / 9, 0]);
+  assert.deepEqual([tile3("abcdef").readScore, tile2("abcdef").readScore, whole("abcdef").readScore], [1, 1, 0]);
+  assert.deepEqual([tile3("abcxe").readScore, tile2("abcxe").readScore, whole("abcxe").readScore], [0, 0, 0], "surfaces shorter than six letters are not tiled");
+  const before = calls;
+  tile2("abcdefghi"); whole("abcdefghi"); tile3("abcdefghi");
+  assert.equal(calls, before, "cached");
+  assert.throws(() => make("loose"), /unknown read mode/);
+});
+
+test("EXP-13 recorded results: the pre-registered measure and the two-token reading are saturated, the whole-reading definition is not at 8+ letters, no target is lifted and credible, and rule 3 leaves the result descriptive", () => {
+  const read = (name) => JSON.parse(readFileSync(`${HERE}results/${name}.json`, "utf8"));
+  const runs = { tile3: read("exp13-cases"), tile2: read("exp13-cases-tile2"), whole: read("exp13-cases-whole") };
+  for (const [mode, run] of Object.entries(runs)) {
+    assert.equal(run.mode, mode);
+    assert.equal(run.provenance.page.sha256.length, 64);
+    assert.deepEqual(Object.keys(run.tables).sort(), ["tanakh-6", "torah-5", "torah-6", "torah-7", "torah-8"]);
+    assert.equal(run.summary.siblingsUnusual, 0, "no sibling window is unusual");
+    assert.deepEqual(run.summary.devUnusual, [], "no development window is unusual");
+    assert.equal(run.summary.siblingWindows, 8);
+    let credible = 0;
+    let crossingTargets = 0;
+    for (const entry of run.cases) {
+      assert.ok(entry.box.cells >= 1000);
+      for (const target of entry.targets) {
+        if (target.crossingEligible) crossingTargets += 1;
+        if (target.D?.credible) credible += 1;
+        if (target.D) assert.ok(target.D.chanceTopShare >= 0.4, "top 10 of a list of 15-24 findings is a 40-67% base rate");
+      }
+    }
+    assert.equal(credible, 0, `${mode}: no target is lifted and credible`);
+    assert.ok(crossingTargets < 5, `${mode}: fewer than five crossing targets: rule 3 leaves the result descriptive`);
+  }
+  for (const mode of ["tile3", "tile2"]) for (const [key, shares] of Object.entries(runs[mode].saturation)) for (const [length, share] of Object.entries(shares)) assert.equal(share, 1, `${mode} ${key} ${length}: every control window holds a readable crossing run, so X is 0`);
+  for (const [key, shares] of Object.entries(runs.whole.saturation)) {
+    assert.ok(shares[8] < 0.5 && shares[9] < 0.15 && shares[10] < 0.05, `whole ${key}: 8+ letter crossing runs with a whole reading are not everywhere`);
+    assert.equal(shares[4], 1, "4-letter whole readings are in every window");
+  }
+  const target = (run, text) => run.cases.flatMap((entry) => entry.targets).find((item) => item.placements?.some((p) => p.len === text));
+  assert.equal(target(runs.whole, 8).crossingEligible, false, "an 8-letter string made of two words has no whole reading, so the strict measure cannot see it");
+  assert.equal(target(runs.tile2, 8).crossingEligible, true);
+  assert.equal(target(runs.tile3, 8).D.exactNoiseBefore, 17, "its rank among 18 findings is the tie-break order: X is 0 for all of them");
 });

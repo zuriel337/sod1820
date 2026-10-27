@@ -2,6 +2,7 @@
 // EXP-13 runner.
 //   node run-crossing.mjs --blind --out results/exp13-blind.json
 //   node run-crossing.mjs --run --blind-file results/exp13-blind.json --exp11-blind results/exp11-blind.json --out results/exp13-cases.json
+// Amendment 1 (stricter readability): add `--mode tile2` or `--mode whole` (default tile3 = the primary, pre-registered definition) to both commands.
 import { readFileSync, writeFileSync } from "node:fs";
 import { loadProductReader } from "./lib/product-reader.mjs";
 import { axisOf } from "./lib/calibrate.mjs";
@@ -15,7 +16,12 @@ const fold = (text) => text.replace(/[ךםןףץ]/g, (c) => ({ ך: "כ", ם: "מ
 const reader = loadProductReader({ htmlPath: args.html || "public/tzofen.html", lexiconPath: args.lexicon || "public/els-dynamic-lexicon-v1.gz64.txt" });
 const lexicon = await reader.loadLexicon();
 if (!lexicon) throw new Error("the dynamic lexicon did not load");
-const read = makeReadInfo({ reader, lexicon, hints: reader.newMap() });
+const hints = reader.newMap();
+const rawCache = new Map();
+const mode = args.mode && args.mode !== "true" ? args.mode : "tile3";
+const read = makeReadInfo({ reader, lexicon, hints, mode, rawCache });
+// A and B (EXP-11) keep their own tail table and therefore their own definition of readScore
+const readEleven = mode === "tile3" ? read : makeReadInfo({ reader, lexicon, hints, mode: "tile3", rawCache });
 const cmp = (a, b) => { for (let i = 0; i < Math.min(a.length, b.length); i += 1) if (a[i] !== b[i]) return a[i] - b[i]; return 0; };
 const streamOf = (scope) => (scope === "tanakh" ? reader.streamLetters : reader.torahLetters);
 
@@ -56,7 +62,7 @@ if (args.blind) {
     sets[`${scope}-${n}`] = { scope, axisLength: n, A: windows.slice(0, config.blind.setSize), B: windows.slice(config.blind.setSize), seconds: Math.round((performance.now() - t0) / 100) / 10 };
     process.stderr.write(`blind ${scope}-${n} done\n`);
   }
-  const out = JSON.stringify({ sets, provenance: reader.provenance }, null, 1);
+  const out = JSON.stringify({ mode, sets, provenance: reader.provenance }, null, 1);
   if (args.out) writeFileSync(args.out, out); else console.log(out);
 } else if (args.run) {
   const blind = JSON.parse(readFileSync(args["blind-file"], "utf8"));
@@ -75,10 +81,12 @@ if (args.blind) {
     const p = (1 + prep.null.filter((x) => x >= S).length) / (prep.null.length + 1);
     return { ctx, D, S: Number(S.toFixed(3)), p: Number(p.toFixed(4)) };
   };
-  const out = { cases: [], siblings: [], knownCrossings: null, tables: {}, nullSummary: {}, provenance: reader.provenance };
+  const out = { mode, cases: [], siblings: [], knownCrossings: null, tables: {}, nullSummary: {}, saturation: {}, provenance: reader.provenance };
   for (const key of Object.keys(blind.sets)) {
     const prep = prepare(blind.sets[key].scope, blind.sets[key].axisLength);
     out.tables[key] = prep.table;
+    const all = [...blind.sets[key].A, ...blind.sets[key].B];
+    out.saturation[key] = Object.fromEntries([4, 5, 6, 7, 8, 9, 10].map((L) => [L, Number((all.filter((w) => Object.entries(w.best).some(([len, bucket]) => Number(len) >= L && bucket >= 0.75)).length / all.length).toFixed(3))]));
     const sorted = prep.null.slice().sort((a, b) => a - b);
     out.nullSummary[key] = { windows: sorted.length, median: Number(sorted[sorted.length >> 1].toFixed(3)), p90: Number(sorted[Math.floor(sorted.length * 0.9)].toFixed(3)), max: Number(sorted.at(-1).toFixed(3)), meanCrossing: Math.round(blind.sets[key].B.reduce((s, w) => s + w.crossing, 0) / blind.sets[key].B.length), meanMs: Math.round(blind.sets[key].B.reduce((s, w) => s + w.ms, 0) / blind.sets[key].B.length) };
   }
@@ -89,7 +97,7 @@ if (args.blind) {
     // the full pool is needed only for the combined list and to locate targets that do not cross
     const tFull = performance.now();
     const full = enumerateCandidates({ letterAt: win.letterAt, box: win.box });
-    annotate(full, { geometry: win.geometry, read });
+    annotate(full, { geometry: win.geometry, read: readEleven });
     const ctx11 = { tail: exp11.tail, context: new Set() };
     const A = rankFindings(full, "A", ctx11);
     const B = rankFindings(full, "B", ctx11);
@@ -101,7 +109,8 @@ if (args.blind) {
       const placements = full.filter((x) => x.surface === target);
       const row = { target: raw, present: placements.length > 0, placements: placements.map(describe) };
       if (!placements.length) return row;
-      const crossing = placements.filter((x) => x.cross && x.line !== win.geometry.lineName && x.readScore >= 0.75);
+      // crossing placements as the window enumerated them (4-10 letters), read with the mode under test
+      const crossing = win.candidates.filter((x) => x.surface === target && x.readScore >= 0.75);
       row.crossing = placements.some((x) => x.cross && x.line !== win.geometry.lineName);
       row.crossingEligible = crossing.length > 0;
       const uo = positionOf(U2, placements);
@@ -112,7 +121,7 @@ if (args.blind) {
         const best = crossing.map((x) => ({ x, tuple: rankerD.tuple(x, wr.ctx) })).sort((a, b) => cmp(b.tuple, a.tuple))[0];
         const rank = positionOf(wr.D, crossing);
         const share = Number((prep.null.filter((s) => s >= best.tuple[0]).length / prep.null.length).toFixed(3));
-        row.D = { X: Number(best.tuple[0].toFixed(3)), regionRank: rank, exactNoiseBefore: noiseAbove(wr.D, crossing, best.tuple, cmp), of: wr.D.length, blindShare: share, lifted: rank !== null && rank <= TOP_K, credible: rank !== null && rank <= TOP_K && share <= 0.1 };
+        row.D = { X: Number(best.tuple[0].toFixed(3)), regionRank: rank, exactNoiseBefore: noiseAbove(wr.D, crossing, best.tuple, cmp), of: wr.D.length, blindShare: share, chanceTopShare: Number(Math.min(1, TOP_K / wr.D.length).toFixed(3)), lifted: rank !== null && rank <= TOP_K, credible: rank !== null && rank <= TOP_K && share <= 0.1 };
       }
       return row;
     });
