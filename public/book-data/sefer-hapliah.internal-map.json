@@ -52,7 +52,28 @@
       104,
       105,
       106,
-      107
+      107,
+      108,
+      109,
+      113,
+      115,
+      140,
+      166,
+      175,
+      176,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      189,
+      200,
+      208,
+      209,
+      214,
+      219
     ],
     "machine_text_role": "SEARCH_AND_NAVIGATION_ONLY_NOT_SOURCE_QUOTATION",
     "reading_status": "PARTIAL_SOURCE_LOCATORS_PENDING_PDF_VISUAL_ADJUDICATION",
@@ -1444,6 +1465,669 @@
         "conclusion": null
       },
       "companion_explanation": "הדיון פונה לבריאת בעלי החיים, התנינים והעופות ומשלב שמות מלאכים. מבחינים בשמות הברואים המופיעים בפסוק. ההסבר משלב זיקות למלאכים ולכוחות, שאין להציגם כזואולוגיה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.creation-108",
+      "gate_id": "human-image",
+      "title": "בריאת האדם: שיתוף המידות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 108,
+        "to_pdf_page": 108,
+        "entry_pdf_page": 108,
+        "entry_anchor": "#page=108&view=FitH",
+        "range_end_anchor": "#page=108&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=108&view=FitH"
+      },
+      "content": {
+        "subject": "הדף פותח דיון ברצון לברוא אדם ובזיקת הכוחות ליצירתו.",
+        "question": "מה משמעות ההצעה לברוא אדם בצלם ובדמות?",
+        "steps": [
+          "הדיון מתאר איסוף כוחות ומידות לקראת בריאת האדם.",
+          "האדם נדרש כהשתקפות סמלית של סדר עליון, לא כשרטוט אנטומי."
+        ],
+        "source_references": [
+          "נעשה אדם",
+          "צלם"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף פותח דיון ברצון לברוא אדם ובזיקת הכוחות ליצירתו. הדיון מתאר איסוף כוחות ומידות לקראת בריאת האדם. האדם נדרש כהשתקפות סמלית של סדר עליון, לא כשרטוט אנטומי.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.wisdom-109",
+      "gate_id": "human-image",
+      "title": "חכמה, נפש והצורך ללמוד",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 109,
+        "to_pdf_page": 109,
+        "entry_pdf_page": 109,
+        "entry_anchor": "#page=109&view=FitH",
+        "range_end_anchor": "#page=109&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=109&view=FitH"
+      },
+      "content": {
+        "subject": "הדף עוסק בחכמה ובהבחנת חיים גופניים מחיי הנפש.",
+        "question": "מה פירוש חיים הנקשרים לחכמה?",
+        "steps": [
+          "מבחינים בחיפוש חכמה מול מגבלות הגוף.",
+          "זהו פירוש בן זמנו של הספר ולא טענה רפואית."
+        ],
+        "source_references": [
+          "חכמה",
+          "נפש"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף עוסק בחכמה ובהבחנת חיים גופניים מחיי הנפש. מבחינים בחיפוש חכמה מול מגבלות הגוף. זהו פירוש בן זמנו של הספר ולא טענה רפואית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.alphabets-113",
+      "gate_id": "human-image",
+      "title": "חילופי אותיות וסדרי שמות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 113,
+        "to_pdf_page": 113,
+        "entry_pdf_page": 113,
+        "entry_anchor": "#page=113&view=FitH",
+        "range_end_anchor": "#page=113&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=113&view=FitH"
+      },
+      "content": {
+        "subject": "בטקסט מופיעות סדרות של אותיות ושמות בדרכי חילוף שונות.",
+        "question": "מהו כלל החילוף המשתנה בין שורות?",
+        "steps": [
+          "לכל אלפבית וסדרת שמות יש לשמור רצף נפרד.",
+          "בלי בדיקה חזותית אסור להשלים תא חסר או לנחש סדר."
+        ],
+        "source_references": [
+          "אלפא־ביתא",
+          "חילוף"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בטקסט מופיעות סדרות של אותיות ושמות בדרכי חילוף שונות. לכל אלפבית וסדרת שמות יש לשמור רצף נפרד. בלי בדיקה חזותית אסור להשלים תא חסר או לנחש סדר.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.names-115",
+      "gate_id": "human-image",
+      "title": "שם ה׳ ושמות צבאות בהקשר תפילה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 115,
+        "to_pdf_page": 115,
+        "entry_pdf_page": 115,
+        "entry_anchor": "#page=115&view=FitH",
+        "range_end_anchor": "#page=115&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=115&view=FitH"
+      },
+      "content": {
+        "subject": "הדף מתאר צירופים של שמות שונים בתוך ניסוח תפילה.",
+        "question": "מה משמעות חילוף סדר השמות?",
+        "steps": [
+          "נבחנת לשון המזמור החוזרת עם שמות שונים.",
+          "המיקום של השמות הוא חלק מהטיעון הלשוני."
+        ],
+        "source_references": [
+          "יהו״ה",
+          "אלהים",
+          "צבאות"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף מתאר צירופים של שמות שונים בתוך ניסוח תפילה. נבחנת לשון המזמור החוזרת עם שמות שונים. המיקום של השמות הוא חלק מהטיעון הלשוני.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.seasons-140",
+      "gate_id": "human-image",
+      "title": "ארבע תקופות השנה, העוף והנחש",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 140,
+        "to_pdf_page": 140,
+        "entry_pdf_page": 140,
+        "entry_anchor": "#page=140&view=FitH",
+        "range_end_anchor": "#page=140&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=140&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד משלב סיפור חזיוני על עוף ונחש בדיון על תקופות השנה.",
+        "question": "כיצד נדרש מעבר בין התקופות?",
+        "steps": [
+          "מבחינים בתיאור ארבע תקופות ובשעת חילופן.",
+          "העוף והנחש הם גם חלק מסיפור ואין לשרטט מסלול שמימי מחייב."
+        ],
+        "source_references": [
+          "תקופה",
+          "נחש"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד משלב סיפור חזיוני על עוף ונחש בדיון על תקופות השנה. מבחינים בתיאור ארבע תקופות ובשעת חילופן. העוף והנחש הם גם חלק מסיפור ואין לשרטט מסלול שמימי מחייב.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.chariot-166",
+      "gate_id": "human-image",
+      "title": "שמות ומניינים ליד מעשה המרכבה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 166,
+        "to_pdf_page": 166,
+        "entry_pdf_page": 166,
+        "entry_anchor": "#page=166&view=FitH",
+        "range_end_anchor": "#page=166&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=166&view=FitH"
+      },
+      "content": {
+        "subject": "מופיעים שמות, חילופים ומניינים בסמוך לעיון בכיסא ובמרכבה.",
+        "question": "מה חלקו של המניין בהסבר?",
+        "steps": [
+          "מבצעים הבחנה בין שם מודפס, מניין וטענה על מרכבה.",
+          "המספרים אינם מאומתים במנוע ללא פרופיל ושיטת חישוב."
+        ],
+        "source_references": [
+          "מעשה מרכבה",
+          "כיסא"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "מופיעים שמות, חילופים ומניינים בסמוך לעיון בכיסא ובמרכבה. מבצעים הבחנה בין שם מודפס, מניין וטענה על מרכבה. המספרים אינם מאומתים במנוע ללא פרופיל ושיטת חישוב.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.fruit-175",
+      "gate_id": "human-image",
+      "title": "זרע, פרי ועץ כמושגים לדרשה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 175,
+        "to_pdf_page": 175,
+        "entry_pdf_page": 175,
+        "entry_anchor": "#page=175&view=FitH",
+        "range_end_anchor": "#page=175&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=175&view=FitH"
+      },
+      "content": {
+        "subject": "הספר משתמש בלשון הזרע והפרי להסביר יחס של השפעה וקבלה.",
+        "question": null,
+        "steps": [
+          "מאתרים לשון עשב וזרע בפסוק.",
+          "מבדילים בין צמח ממשי לדימוי של מידות."
+        ],
+        "source_references": [
+          "עשב זורע זרע",
+          "עץ"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הספר משתמש בלשון הזרע והפרי להסביר יחס של השפעה וקבלה. מאתרים לשון עשב וזרע בפסוק. מבדילים בין צמח ממשי לדימוי של מידות.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.sixth-day-176",
+      "gate_id": "human-image",
+      "title": "היום השישי, הברואים וסיום המעשה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 176,
+        "to_pdf_page": 176,
+        "entry_pdf_page": 176,
+        "entry_anchor": "#page=176&view=FitH",
+        "range_end_anchor": "#page=176&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=176&view=FitH"
+      },
+      "content": {
+        "subject": "הדף מדגיש את סיום ששת ימי הבריאה ואת לשון ההשלמה.",
+        "question": "כיצד מוצג סיום היום השישי?",
+        "steps": [
+          "מזהים את הפסוק על הטוב ואת הערב והבוקר.",
+          "קושרים את סיום המעשה למעבר אל שבת."
+        ],
+        "source_references": [
+          "יום השישי"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף מדגיש את סיום ששת ימי הבריאה ואת לשון ההשלמה. מזהים את הפסוק על הטוב ואת הערב והבוקר. קושרים את סיום המעשה למעבר אל שבת.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.sabbath-179",
+      "gate_id": "human-image",
+      "title": "זכור את יום השבת ונפש יתרה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 179,
+        "to_pdf_page": 179,
+        "entry_pdf_page": 179,
+        "entry_anchor": "#page=179&view=FitH",
+        "range_end_anchor": "#page=179&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=179&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד דן בשבת ובנפש יתרה, לצד דימויי יחוד בין כוחות.",
+        "question": "איך נקשרת מנוחת השבת להמשכיות השפע?",
+        "steps": [
+          "מבקשים את לשון הציווי והנפש יתרה.",
+          "מפרידים פירוש רוחני מדיון נורמטיבי בהלכה."
+        ],
+        "source_references": [
+          "שבת",
+          "נפש יתרה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד דן בשבת ובנפש יתרה, לצד דימויי יחוד בין כוחות. מבקשים את לשון הציווי והנפש יתרה. מפרידים פירוש רוחני מדיון נורמטיבי בהלכה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.opening-180",
+      "gate_id": "generations-heaven-earth",
+      "title": "אלה תולדות השמים והארץ — פתיחת שער",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 180,
+        "to_pdf_page": 180,
+        "entry_pdf_page": 180,
+        "entry_anchor": "#page=180&view=FitH",
+        "range_end_anchor": "#page=180&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=180&view=FitH"
+      },
+      "content": {
+        "subject": "המחבר מתחיל את פרק התולדות ובוחן את צירוף שמות ה׳ אלהים.",
+        "question": "למה מופיע צירוף שמות כאן?",
+        "steps": [
+          "נעשה מעבר מימי הבריאה לתולדות שמים וארץ.",
+          "הדרשה עוסקת בבהבראם ובסדר המידות."
+        ],
+        "source_references": [
+          "אלה תולדות השמים והארץ",
+          "בהבראם"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "המחבר מתחיל את פרק התולדות ובוחן את צירוף שמות ה׳ אלהים. נעשה מעבר מימי הבריאה לתולדות שמים וארץ. הדרשה עוסקת בבהבראם ובסדר המידות.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.letters-181",
+      "gate_id": "generations-heaven-earth",
+      "title": "קו ונקודה: האות כדימוי לאדם",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 181,
+        "to_pdf_page": 183,
+        "entry_pdf_page": 181,
+        "entry_anchor": "#page=181&view=FitH",
+        "range_end_anchor": "#page=183&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=181&view=FitH"
+      },
+      "content": {
+        "subject": "רצף דפים דן בצורות אותיות, קווים ונקודות ובהקבלה לאדם.",
+        "question": "כיצד האות נעשית משל על יחס בין כוחות?",
+        "steps": [
+          "המחבר מתייחס לקווים ולנקודות בצורות אות.",
+          "המעבר לתיאור אדם הוא פרשנות; לא קובעים גאומטריה בלי עיון בדף המודפס."
+        ],
+        "source_references": [
+          "קו",
+          "נקודה",
+          "אדם"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "רצף דפים דן בצורות אותיות, קווים ונקודות ובהקבלה לאדם. המחבר מתייחס לקווים ולנקודות בצורות אות. המעבר לתיאור אדם הוא פרשנות; לא קובעים גאומטריה בלי עיון בדף המודפס.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "multi_page_sequence_machine_located"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.plants-184",
+      "gate_id": "generations-heaven-earth",
+      "title": "כל שיח השדה טרם יהיה בארץ",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 184,
+        "to_pdf_page": 184,
+        "entry_pdf_page": 184,
+        "entry_anchor": "#page=184&view=FitH",
+        "range_end_anchor": "#page=184&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=184&view=FitH"
+      },
+      "content": {
+        "subject": "הדרשה מפרשת את העשב והגשם כמצב של המתנה והופעה.",
+        "question": "מהו התנאי החסר לצמיחה?",
+        "steps": [
+          "מציינים את שיח השדה ואת היעדר ההמטרה.",
+          "מבחינים בין הטקסט המקראי לתיאור מידות ושפע."
+        ],
+        "source_references": [
+          "שיח השדה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדרשה מפרשת את העשב והגשם כמצב של המתנה והופעה. מציינים את שיח השדה ואת היעדר ההמטרה. מבחינים בין הטקסט המקראי לתיאור מידות ושפע.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.formation-185",
+      "gate_id": "generations-heaven-earth",
+      "title": "ואד יעלה מן הארץ — עפר ונפש",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 185,
+        "to_pdf_page": 185,
+        "entry_pdf_page": 185,
+        "entry_anchor": "#page=185&view=FitH",
+        "range_end_anchor": "#page=185&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=185&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד דן באד העולה מן הארץ וביצירת האדם.",
+        "question": "איך עוברים ממעשה השקיית הקרקע לבריאת אדם?",
+        "steps": [
+          "מצביעים אל האד והאדמה.",
+          "ממשיכים אל עפר והדיון בנפש."
+        ],
+        "source_references": [
+          "ואד יעלה מן הארץ",
+          "וייצר"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד דן באד העולה מן הארץ וביצירת האדם. מצביעים אל האד והאדמה. ממשיכים אל עפר והדיון בנפש.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.helpmeet-189",
+      "gate_id": "generations-heaven-earth",
+      "title": "לא טוב היות האדם לבדו — עזר כנגדו",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 189,
+        "to_pdf_page": 189,
+        "entry_pdf_page": 189,
+        "entry_anchor": "#page=189&view=FitH",
+        "range_end_anchor": "#page=189&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=189&view=FitH"
+      },
+      "content": {
+        "subject": "הדף דורש את העזר כנגדו ומדבר על חיבור של פרצופים לפני פירוד.",
+        "question": "מהו העזר המתואר בפסוק?",
+        "steps": [
+          "מובאת שאלת הדובר על משמעות העזר.",
+          "הפירוש מתאר יחס זוגי באמצעות חיבור ופירוד."
+        ],
+        "source_references": [
+          "עזר כנגדו"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף דורש את העזר כנגדו ומדבר על חיבור של פרצופים לפני פירוד. מובאת שאלת הדובר על משמעות העזר. הפירוש מתאר יחס זוגי באמצעות חיבור ופירוד.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.patriarch-200",
+      "gate_id": "generations-heaven-earth",
+      "title": "האבות, מנייני אותיות וסדרי חילוף",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 200,
+        "to_pdf_page": 200,
+        "entry_pdf_page": 200,
+        "entry_anchor": "#page=200&view=FitH",
+        "range_end_anchor": "#page=200&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=200&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד מערב פירוש על אברהם, יצחק ויעקב עם צירופי אותיות.",
+        "question": "איך עוברים משם האב לסדר אותיות?",
+        "steps": [
+          "ממיינים את שמות האבות ואת פעולות ההמרה.",
+          "אין להציג מניין OCR כתוצאה שנבדקה במנוע."
+        ],
+        "source_references": [
+          "אברהם",
+          "יצחק",
+          "יעקב"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד מערב פירוש על אברהם, יצחק ויעקב עם צירופי אותיות. ממיינים את שמות האבות ואת פעולות ההמרה. אין להציג מניין OCR כתוצאה שנבדקה במנוע.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.king-208",
+      "gate_id": "generations-heaven-earth",
+      "title": "דיני המלך, ריבויים ומניינים",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 208,
+        "to_pdf_page": 208,
+        "entry_pdf_page": 208,
+        "entry_anchor": "#page=208&view=FitH",
+        "range_end_anchor": "#page=208&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=208&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד עוסק בהרחבות דרשניות של פסוקים על המלך.",
+        "question": "מה מוסיפה מילת ריבוי?",
+        "steps": [
+          "נבחנת השאלה מה נכלל באיסור.",
+          "מספרים המופיעים בדברי הדובר הם טענות מקור."
+        ],
+        "source_references": [
+          "דיני המלך"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד עוסק בהרחבות דרשניות של פסוקים על המלך. נבחנת השאלה מה נכלל באיסור. מספרים המופיעים בדברי הדובר הם טענות מקור.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.king-209",
+      "gate_id": "generations-heaven-earth",
+      "title": "לא ירבה לו: סוסים ונשים",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 209,
+        "to_pdf_page": 209,
+        "entry_pdf_page": 209,
+        "entry_anchor": "#page=209&view=FitH",
+        "range_end_anchor": "#page=209&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=209&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד ממשיך בירור הלכתי על תחומי איסורי המלך.",
+        "question": "מה גבול האיסור ומה אינו כלול בו?",
+        "steps": [
+          "השאלות מבחינות בין מקרים שונים.",
+          "כאן נושא העמוד הוא הלכה ולא טבלת חילוף אותיות."
+        ],
+        "source_references": [
+          "לא ירבה לו"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד ממשיך בירור הלכתי על תחומי איסורי המלך. השאלות מבחינות בין מקרים שונים. כאן נושא העמוד הוא הלכה ולא טבלת חילוף אותיות.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.liquids-214",
+      "gate_id": "generations-heaven-earth",
+      "title": "הכשר וטומאת משקים",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 214,
+        "to_pdf_page": 214,
+        "entry_pdf_page": 214,
+        "entry_anchor": "#page=214&view=FitH",
+        "range_end_anchor": "#page=214&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=214&view=FitH"
+      },
+      "content": {
+        "subject": "הדף בוחן משקים, טומאה והכשר כקטע הלכתי עצמאי.",
+        "question": "האם הכשר לקבל טומאה שווה לטומאה?",
+        "steps": [
+          "נידונים מקרים של נגיעה ומשקה.",
+          "מציינים את ההבחנות בלי להסיק הנהגה מעשית מהספר."
+        ],
+        "source_references": [
+          "משקים",
+          "טומאה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף בוחן משקים, טומאה והכשר כקטע הלכתי עצמאי. נידונים מקרים של נגיעה ומשקה. מציינים את ההבחנות בלי להסיק הנהגה מעשית מהספר.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.mitzvot-219",
+      "gate_id": "generations-heaven-earth",
+      "title": "תפילין, מצוות ובניין אב",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 219,
+        "to_pdf_page": 219,
+        "entry_pdf_page": 219,
+        "entry_anchor": "#page=219&view=FitH",
+        "range_end_anchor": "#page=219&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=219&view=FitH"
+      },
+      "content": {
+        "subject": "לקראת סוף החטיבה עולות שאלות על חיובי מצוות ועל דרכי ההיקש ביניהן.",
+        "question": "מתי מותר ללמוד חיוב מדין של מצווה אחרת?",
+        "steps": [
+          "הדובר משווה מצוות לתפילין.",
+          "נזכרת דרך בניין אב; הדיון נמשך בעמוד 220."
+        ],
+        "source_references": [
+          "תפילין",
+          "בניין אב"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "לקראת סוף החטיבה עולות שאלות על חיובי מצוות ועל דרכי ההיקש ביניהן. הדובר משווה מצוות לתפילין. נזכרת דרך בניין אב; הדיון נמשך בעמוד 220.",
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
