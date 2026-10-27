@@ -1,0 +1,187 @@
+{
+  "shifts": 100,
+  "window": {
+    "c0": 192,
+    "c1": 232,
+    "r0": 0,
+    "r1": 29
+  },
+  "width": 10101,
+  "grid": "torah",
+  "byLength": [
+    {
+      "k": 6,
+      "windows": 2825,
+      "attested": 99,
+      "attestedTouching": 2,
+      "nullMean": 80.36,
+      "nullMax": 103,
+      "p": 0.039603960396039604,
+      "nullMeanTouching": 2.38,
+      "pTouching": 0.6336633663366337
+    },
+    {
+      "k": 7,
+      "windows": 2664,
+      "attested": 11,
+      "attestedTouching": 0,
+      "nullMean": 6.75,
+      "nullMax": 13,
+      "p": 0.09900990099009901,
+      "nullMeanTouching": 0.24,
+      "pTouching": 1
+    },
+    {
+      "k": 8,
+      "windows": 2507,
+      "attested": 1,
+      "attestedTouching": 0,
+      "nullMean": 0.63,
+      "nullMax": 3,
+      "p": 0.46534653465346537,
+      "nullMeanTouching": 0.01,
+      "pTouching": 1
+    },
+    {
+      "k": 9,
+      "windows": 2354,
+      "attested": 0,
+      "attestedTouching": 0,
+      "nullMean": 0.06,
+      "nullMax": 1,
+      "p": 1,
+      "nullMeanTouching": 0,
+      "pTouching": 1
+    }
+  ],
+  "runs": [
+    {
+      "k": 8,
+      "line": "down_left",
+      "row": 9,
+      "col": 199,
+      "run": "ילהזהיהי",
+      "touching": false,
+      "reading": "יהיהזהלי",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down",
+      "row": 2,
+      "col": 229,
+      "run": "עדאויני",
+      "touching": false,
+      "reading": "יניואדע",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_right",
+      "row": 5,
+      "col": 195,
+      "run": "כיולינב",
+      "touching": false,
+      "reading": "בנילויכ",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_right",
+      "row": 6,
+      "col": 196,
+      "run": "יולינבה",
+      "touching": false,
+      "reading": "הבנילוי",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_right",
+      "row": 8,
+      "col": 222,
+      "run": "לעהנהוא",
+      "touching": false,
+      "reading": "אוהנהעל",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_left",
+      "row": 9,
+      "col": 199,
+      "run": "ילהזהיה",
+      "touching": false,
+      "reading": "היהזהלי",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_left",
+      "row": 10,
+      "col": 198,
+      "run": "להזהיהי",
+      "touching": false,
+      "reading": "יהיהזהל",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down",
+      "row": 10,
+      "col": 223,
+      "run": "אבירשאי",
+      "touching": false,
+      "reading": "יאשריבא",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_left",
+      "row": 15,
+      "col": 223,
+      "run": "אמרמהתת",
+      "touching": false,
+      "reading": "אמרמהתת",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_left",
+      "row": 18,
+      "col": 202,
+      "run": "ואיהימי",
+      "touching": false,
+      "reading": "ימיהיאו",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_right",
+      "row": 23,
+      "col": 215,
+      "run": "אואוהינ",
+      "touching": false,
+      "reading": "ניהואוא",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_right",
+      "row": 23,
+      "col": 220,
+      "run": "לבבכמאל",
+      "touching": false,
+      "reading": "לבבכמאל",
+      "phrase": null
+    }
+  ],
+  "probes": [],
+  "windowHits": [],
+  "presentedLengths": [
+    8,
+    9
+  ],
+  "presented": 1,
+  "expectedFalsePositives": 0.69
+}

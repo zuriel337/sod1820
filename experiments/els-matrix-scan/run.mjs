@@ -22,6 +22,8 @@
 //   report/packet/markup ... --chance chance.json [--chance-local chance-local.json]   adds the chance baseline to a crossing report / packet
 //   sql --kind windows --term T --skip-min N --skip-max N [--window 300]    exhaustive search of one rare term in skip windows (canonical page function), <= 40 windows per statement
 //   windows-report --term T --skip-min N --skip-max N --parts a.json,b.json   merges the window outputs; coverage and completeness are checked
+//   sql --kind sequences --width W --total N --axis-start S --axis-skip K --axis-dir D --axis-length L [--margin 20 --shifts 100 --probes a,b --grid torah|tanakh]   EXP-07 dictionary-free sequence detector
+//   sequences-report --scan scan.json [--out f.json]
 //   sql --kind crawl (--state s.json --batches DIR | --seeds seeds.json) [--reach 5 --shifts 300 --min-total 4 --criterion forms|collocations]
 //        continuation crawler: seeds = engine occurrences (the crossing findings, or an explicit list [{id, word, start, skip, dir}])
 //   crawl-report --crawl crawl.json (--state s.json --batches DIR | --seeds seeds.json) [--out f.json]     calibrated summary (language learned from the Torah's own words)
@@ -35,6 +37,7 @@ import { fullRows, regionAroundAnchor, regionAroundPositions, tileGrid } from ".
 import { CROSSING_DIRECTION_COUNT, anchorSql, windowedOccurrencesSql, dictionaryCountSql, dictionaryMembershipSql, expectedCrossingSql, occurrencesSql, regionLettersSql, scanBatchSql, streamLengthSql } from "./lib/queries.mjs";
 import { describeChanceModel, regionLetterCounts } from "./lib/chance.mjs";
 import { summarizeWindowedSearch } from "./lib/exhaustive.mjs";
+import { describeSequenceMethod, sequenceScanSql, summarizeSequenceScan } from "./lib/sequences.mjs";
 import { crawlSql, describeCrawlMethod, parseVerifyLines, summarizeCrawl, verifyExtensionsSql } from "./lib/crawl.mjs";
 import { buildCrossingReport, buildRunReport } from "./lib/report.mjs";
 import { describeMethod } from "./lib/controls.mjs";
@@ -46,7 +49,7 @@ const args = Object.fromEntries(process.argv.slice(3).map((item, i, all) => (ite
 const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
 const config = readJson(new URL("./examples.json", import.meta.url));
 const exampleById = (id) => config.examples.find((entry) => entry.id === id) || (() => { throw new Error(`unknown --example ${id}`); })();
-const unwrap = (value) => { const first = Array.isArray(value) ? value[0] : value; return first?.result ?? first?.batch ?? first?.expectation ?? first?.crawl ?? first?.verify ?? first?.out ?? first; };
+const unwrap = (value) => { const first = Array.isArray(value) ? value[0] : value; return first?.result ?? first?.batch ?? first?.expectation ?? first?.crawl ?? first?.verify ?? first?.out ?? first?.scan ?? first; };
 const loadBatches = (dir) => readdirSync(dir).filter((name) => name.endsWith(".json")).sort().map((name) => readJson(join(dir, name))).map((entry) => ({ ...entry, result: unwrap(entry.result) }));
 const isCrossing = (state) => state.mode === "crossing";
 const termOf = () => (args.example ? exampleById(args.example).term : args.term || (() => { throw new Error("give --term or --example"); })());
@@ -82,6 +85,7 @@ if (command === "sql") {
   else if (kind === "occurrences") console.log(occurrencesSql({ term: termOf() }));
   else if (kind === "windows") console.log(windowedOccurrencesSql({ term: termOf(), skipMin: Number(args["skip-min"]), skipMax: Number(args["skip-max"]), windowSize: Number(args.window || 300) }));
   else if (kind === "crawl" && args.seeds) console.log(crawlSql({ seeds: loadSeeds(), reach: Number(args.reach || 5), shifts: Number(args.shifts || 300), minTotal: Number(args["min-total"] || 4), criterion: args.criterion || "forms" }));
+  else if (kind === "sequences") console.log(sequenceScanSql({ width: Number(args.width), totalLetters: Number(args.total), axis: { start: Number(args["axis-start"]), skip: Number(args["axis-skip"]), dir: Number(args["axis-dir"]), length: Number(args["axis-length"]) }, margin: Number(args.margin || 20), shifts: Number(args.shifts || 100), probes: args.probes ? args.probes.split(",") : [], grid: args.grid || "torah" }));
   else if (kind === "anchor") console.log(anchorSql({ term: exampleById(args.example).term, skip: exampleById(args.example).skip }));
   else {
     const state = stateOf();
@@ -176,6 +180,8 @@ if (command === "sql") {
 } else if (command === "windows-report") {
   const parts = args.parts.split(",").map((path) => unwrap(readJson(path)));
   writeOut(JSON.stringify(summarizeWindowedSearch({ term: termOf(), skipMin: Number(args["skip-min"]), skipMax: Number(args["skip-max"]), parts }), null, 2));
+} else if (command === "sequences-report") {
+  writeOut(JSON.stringify(summarizeSequenceScan({ scan: unwrap(readJson(args.scan)) }), null, 2));
 } else if (command === "crawl-report") {
   const seeds = loadSeeds();
   const { rows, method, ...summary } = summarizeCrawl({ crawl: unwrap(readJson(args.crawl)), seeds });
@@ -193,7 +199,7 @@ if (command === "sql") {
   });
   writeOut(JSON.stringify({ planned: planned.length, confirmed: confirmed.filter((entry) => entry.confirmedByEngine).length, details: confirmed }, null, 2));
 } else if (command === "method") {
-  console.log(args.mode === "crossing" ? describeChanceModel() : args.mode === "crawl" ? describeCrawlMethod() : describeMethod());
+  console.log(args.mode === "crossing" ? describeChanceModel() : args.mode === "crawl" ? describeCrawlMethod() : args.mode === "sequences" ? describeSequenceMethod() : describeMethod());
 } else if (command === "markup") {
   const state = stateOf();
   const letters = readJson(args.letters);

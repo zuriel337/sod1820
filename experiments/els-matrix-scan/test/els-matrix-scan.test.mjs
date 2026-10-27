@@ -15,6 +15,7 @@ import { baseLetters, buildMarkup, letterGridFromRows, renderMarkupHtml, verifyF
 import { buildCrossingReport, buildRunReport, evaluateWords, lengthRangeOfOffsets, verifyBatch } from "../lib/report.mjs";
 import { createHash } from "node:crypto";
 import { summarizeWindowedSearch } from "../lib/exhaustive.mjs";
+import { describeSequenceMethod, enumerateWindows, sequenceScanSql, sequenceWindow, summarizeSequenceScan, windowCount } from "../lib/sequences.mjs";
 import { CRAWL_BARS, checkedLines, continuationsOf, crawlSql, describeCrawlMethod, groupSeedsByLine, parseCrawlLines, parseVerifyLines, poissonBinomialUpperTail, summarizeCrawl, verifyExtensionsSql } from "../lib/crawl.mjs";
 
 const LIB = fileURLToPath(new URL("../lib/", import.meta.url));
@@ -771,4 +772,72 @@ test("committed crawl results: every line passes its checksum, every extended st
   assert.equal(bash.hits[0].start + bash.hits[0].dir * bash.hits[0].skip * 7, bash.hits[0].end, "start + dir * skip * (length - 1) = end");
   const seeds = read("bash-atmin/crawl-seeds.json");
   assert.deepEqual([seeds[0].start, seeds[0].skip, seeds[0].dir], [bash.hits[0].start, bash.hits[0].skip, bash.hits[0].dir], "the crawl seed is the engine occurrence");
+});
+
+// ---------------------------------------------------------------- EXP-07: dictionary-free sequence detector
+test("sequence window: the engine occurrence's cells plus 20 rows and columns, clipped; window counts equal the enumerated runs", () => {
+  const axis = { start: 248765, skip: 4545, dir: 1, length: 8 };
+  const { region, axisCells } = sequenceWindow({ width: 4545, totalLetters: 304805, axis });
+  assert.deepEqual([region.r0, region.r1, region.c0, region.cols], [34, 66, 3315, 41]);
+  assert.deepEqual([axisCells.length, axisCells[0], axisCells[7]], [8, { row: 54, col: 3335 }, { row: 61, col: 3335 }]);
+  const grid = ["abcde", "fghij", "klmno", "pqrst"];
+  for (const k of [3, 4]) assert.equal(enumerateWindows(grid, k).length, windowCount(4, 5, k), `k=${k}`);
+  assert.deepEqual(enumerateWindows(["abc", "def", "ghi"], 3).map((w) => `${w.line}:${w.text}`).sort(), ["down:adg", "down:beh", "down:cfi", "down_left:ceg", "down_right:aei"]);
+  assert.equal(windowCount(3, 41, 6), 0, "a window with fewer rows than k has no ELS runs");
+});
+
+test("sequence scan SQL: read-only, one stream relation per role, no engine call, grid whitelisted, probes validated and folded", () => {
+  const axis = { start: 248765, skip: 4545, dir: 1, length: 8 };
+  const sql = sequenceScanSql({ width: 4545, totalLetters: 304805, axis, probes: ["אשאכלה", "באשאטמין"] });
+  assert.equal(/els_search|gematria_words/.test(sql), false, "no engine call and no word registry");
+  assert.doesNotMatch(sql, /\b(insert|update|delete|drop|alter|create|truncate|grant|revoke|copy)\b/i);
+  assert.match(sql, /where l\.d <> 4 or a\.m = 0/, "the horizontal (plain text) line is read in the real window only");
+  assert.match(sql, /where ru\.len >= k\.k and ru\.d <> 4/, "the horizontal line never enters the counts");
+  assert.match(sql, /rows between current row and 8 following/);
+  assert.match(sql, /\('באשאטמינ'\)/, "probe letters are folded like the stream");
+  assert.match(sequenceScanSql({ width: 41865, totalLetters: 1204583, axis: { start: 244509, skip: 41865, dir: -1, length: 6 }, grid: "tanakh" }), /join public\.tanakh_stream t on t\.idx/);
+  assert.match(sql, /join public\.torah_stream t on t\.idx/);
+  assert.doesNotMatch(sql.replace(/from public\.torah_stream[^\n]*w as/, ""), /tanakh_stream/);
+  assert.throws(() => sequenceScanSql({ width: 4545, totalLetters: 304805, axis, grid: "everything" }), RangeError);
+  assert.throws(() => sequenceScanSql({ width: 4545, totalLetters: 304805, axis, probes: ["x'; drop table t; --"] }), TypeError);
+  assert.throws(() => sequenceScanSql({ width: 4545, totalLetters: 304805, axis, shifts: 5 }), RangeError);
+  assert.throws(() => sequenceScanSql({ width: 4545, totalLetters: 304805, axis, ks: [3] }), RangeError);
+});
+
+test("sequence scan results: checksummed, calibrated, presented candidates stay within twice the chance load, and a copy error is caught", () => {
+  const read = (path) => JSON.parse(readFileSync(fileURLToPath(new URL(`../results/exp07/${path}`, import.meta.url)), "utf8"))[0];
+  let presented = 0;
+  let expected = 0;
+  for (const [file, rows, cols, grid] of [["gd01-torah-grid", 7, 41, "torah"], ["gd01-tanakh-grid", 26, 41, "tanakh"], ["gd02", 33, 41, "torah"], ["gd03", 30, 41, "torah"]]) {
+    const scan = read(`${file}-scan.json`).scan;
+    const summary = summarizeSequenceScan({ scan });
+    assert.equal(summary.grid, grid, file);
+    for (const row of summary.byLength) assert.equal(row.windows, windowCount(rows, cols, row.k), `${file} k=${row.k}: the SQL enumerates exactly the windows the geometry predicts`);
+    presented += summary.presented;
+    expected += summary.expectedFalsePositives;
+  }
+  assert.ok(presented <= 2 * expected + 1, `presented ${presented} vs chance ${expected}`);
+  const gd02 = summarizeSequenceScan({ scan: read("gd02-scan.json").scan });
+  assert.deepEqual(gd02.presentedLengths, [8, 9]);
+  assert.equal(gd02.byLength.find((row) => row.k === 6).attested, 73);
+  assert.deepEqual(gd02.probes.map((p) => [p.text, p.forward, p.reverse]).sort(), [["אשאכלה", 2, 1], ["יכלאש", 3, 0], ["ספינת", 0, 0]].sort());
+  assert.equal(gd02.windowHits.every((hit) => hit.touching === false), true, "none of the three strings touches the axis column");
+  const tampered = structuredClone(read("gd02-scan.json").scan);
+  tampered.lines[0].s = tampered.lines[0].s.replace("|73|", "|74|");
+  assert.throws(() => summarizeSequenceScan({ scan: tampered }), /does not match its checksum/);
+  assert.match(describeSequenceMethod(), /text of the Torah is the language/);
+});
+
+test("GD-01 geometry: the 8-letter Tanakh occurrence crosses the axis at its second letter, and the engine records say so", () => {
+  const read = (path) => JSON.parse(readFileSync(fileURLToPath(new URL(`../results/exp07/${path}`, import.meta.url)), "utf8"));
+  const engine = read("engine-gd01-tanakh.json");
+  const axisHit = engine.axis.scope_tanakh.hits[0];
+  const termHit = engine.crossing_term.scope_tanakh.hits[0];
+  assert.equal(termHit.start + 4 * termHit.skip, axisHit.start - axisHit.skip, "5th letter of the term = 2nd letter of the axis (same stream position)");
+  assert.equal(termHit.start + 7 * termHit.skip, termHit.end);
+  assert.equal(engine.crossing_term.scope_torah.hits.length, 0);
+  const scan = summarizeSequenceScan({ scan: read("gd01-tanakh-grid-scan.json")[0].scan });
+  const hit = scan.windowHits.find((entry) => entry.text === "באשאטמינ");
+  assert.deepEqual([hit.line, hit.row, hit.col, hit.reading, hit.touching], ["down_left", 0, 35188, "forward", true]);
+  assert.deepEqual(scan.probes.find((p) => p.text === "באשאטמינ"), { text: "באשאטמינ", forward: 0, reverse: 0 }, "it is an ELS reading, not a sequence of the text");
 });

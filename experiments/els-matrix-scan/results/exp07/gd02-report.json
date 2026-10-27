@@ -1,0 +1,148 @@
+{
+  "shifts": 100,
+  "window": {
+    "c0": 3315,
+    "c1": 3355,
+    "r0": 34,
+    "r1": 66
+  },
+  "width": 4545,
+  "grid": "torah",
+  "byLength": [
+    {
+      "k": 6,
+      "windows": 3164,
+      "attested": 73,
+      "attestedTouching": 0,
+      "nullMean": 88.4,
+      "nullMax": 130,
+      "p": 0.900990099009901,
+      "nullMeanTouching": 2.98,
+      "pTouching": 1
+    },
+    {
+      "k": 7,
+      "windows": 2997,
+      "attested": 4,
+      "attestedTouching": 0,
+      "nullMean": 6.78,
+      "nullMax": 17,
+      "p": 0.8514851485148515,
+      "nullMeanTouching": 0.37,
+      "pTouching": 1
+    },
+    {
+      "k": 8,
+      "windows": 2834,
+      "attested": 0,
+      "attestedTouching": 0,
+      "nullMean": 0.47,
+      "nullMax": 3,
+      "p": 1,
+      "nullMeanTouching": 0.05,
+      "pTouching": 1
+    },
+    {
+      "k": 9,
+      "windows": 2675,
+      "attested": 0,
+      "attestedTouching": 0,
+      "nullMean": 0.01,
+      "nullMax": 1,
+      "p": 1,
+      "nullMeanTouching": 0,
+      "pTouching": 1
+    }
+  ],
+  "runs": [
+    {
+      "k": 7,
+      "line": "down",
+      "row": 41,
+      "col": 3344,
+      "run": "נאמתאמת",
+      "touching": false,
+      "reading": "תמאתמאנ",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down_right",
+      "row": 43,
+      "col": 3333,
+      "run": "שלמאתוב",
+      "touching": false,
+      "reading": "שלמאתוב",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down",
+      "row": 56,
+      "col": 3326,
+      "run": "שניויתי",
+      "touching": false,
+      "reading": "שניויתי",
+      "phrase": null
+    },
+    {
+      "k": 7,
+      "line": "down",
+      "row": 59,
+      "col": 3326,
+      "run": "ויתיארא",
+      "touching": false,
+      "reading": "אראיתיו",
+      "phrase": null
+    }
+  ],
+  "probes": [
+    {
+      "text": "אשאכלה",
+      "forward": 2,
+      "reverse": 1
+    },
+    {
+      "text": "יכלאש",
+      "forward": 3,
+      "reverse": 0
+    },
+    {
+      "text": "ספינת",
+      "forward": 0,
+      "reverse": 0
+    }
+  ],
+  "windowHits": [
+    {
+      "text": "אשאכלה",
+      "line": "across",
+      "row": 56,
+      "col": 3325,
+      "reading": "forward",
+      "touching": false
+    },
+    {
+      "text": "יכלאש",
+      "line": "down_right",
+      "row": 53,
+      "col": 3330,
+      "reading": "forward",
+      "touching": false
+    },
+    {
+      "text": "ספינת",
+      "line": "down_left",
+      "row": 53,
+      "col": 3340,
+      "reading": "forward",
+      "touching": false
+    }
+  ],
+  "presentedLengths": [
+    8,
+    9
+  ],
+  "presented": 0,
+  "expectedFalsePositives": 0.48
+}

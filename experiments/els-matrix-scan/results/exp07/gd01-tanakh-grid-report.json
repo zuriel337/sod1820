@@ -1,0 +1,105 @@
+{
+  "shifts": 100,
+  "window": {
+    "c0": 35164,
+    "c1": 35204,
+    "r0": 0,
+    "r1": 25
+  },
+  "width": 41865,
+  "grid": "tanakh",
+  "byLength": [
+    {
+      "k": 6,
+      "windows": 2373,
+      "attested": 75,
+      "attestedTouching": 1,
+      "nullMean": 67.07,
+      "nullMax": 97,
+      "p": 0.2376237623762376,
+      "nullMeanTouching": 1.22,
+      "pTouching": 0.693069306930693
+    },
+    {
+      "k": 7,
+      "windows": 2220,
+      "attested": 1,
+      "attestedTouching": 0,
+      "nullMean": 5.71,
+      "nullMax": 13,
+      "p": 1,
+      "nullMeanTouching": 0.11,
+      "pTouching": 1
+    },
+    {
+      "k": 8,
+      "windows": 2071,
+      "attested": 0,
+      "attestedTouching": 0,
+      "nullMean": 0.32,
+      "nullMax": 2,
+      "p": 1,
+      "nullMeanTouching": 0,
+      "pTouching": 1
+    },
+    {
+      "k": 9,
+      "windows": 1926,
+      "attested": 0,
+      "attestedTouching": 0,
+      "nullMean": 0,
+      "nullMax": 0,
+      "p": 1,
+      "nullMeanTouching": 0,
+      "pTouching": 1
+    }
+  ],
+  "runs": [
+    {
+      "k": 7,
+      "line": "down_left",
+      "row": 12,
+      "col": 35173,
+      "run": "אוהיהיו",
+      "touching": false,
+      "reading": "ויהיהוא",
+      "phrase": null
+    }
+  ],
+  "probes": [
+    {
+      "text": "באשאטמינ",
+      "forward": 0,
+      "reverse": 0
+    },
+    {
+      "text": "שבררומי",
+      "forward": 0,
+      "reverse": 0
+    }
+  ],
+  "windowHits": [
+    {
+      "text": "באשאטמינ",
+      "line": "down_left",
+      "row": 0,
+      "col": 35188,
+      "reading": "forward",
+      "touching": true
+    },
+    {
+      "text": "שבררומי",
+      "line": "down_left",
+      "row": 0,
+      "col": 35190,
+      "reading": "reverse",
+      "touching": false
+    }
+  ],
+  "presentedLengths": [
+    8,
+    9
+  ],
+  "presented": 0,
+  "expectedFalsePositives": 0.32
+}

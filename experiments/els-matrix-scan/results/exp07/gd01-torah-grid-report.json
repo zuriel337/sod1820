@@ -1,0 +1,63 @@
+{
+  "shifts": 100,
+  "window": {
+    "c0": 35164,
+    "c1": 35204,
+    "r0": 0,
+    "r1": 6
+  },
+  "width": 41865,
+  "grid": "torah",
+  "byLength": [
+    {
+      "k": 6,
+      "windows": 226,
+      "attested": 11,
+      "attestedTouching": 1,
+      "nullMean": 6.53,
+      "nullMax": 15,
+      "p": 0.1188118811881188,
+      "nullMeanTouching": 0.67,
+      "pTouching": 0.4158415841584158
+    },
+    {
+      "k": 7,
+      "windows": 111,
+      "attested": 0,
+      "attestedTouching": 0,
+      "nullMean": 0.33,
+      "nullMax": 2,
+      "p": 1,
+      "nullMeanTouching": 0.04,
+      "pTouching": 1
+    }
+  ],
+  "runs": [],
+  "probes": [
+    {
+      "text": "באשאטמינ",
+      "forward": 0,
+      "reverse": 0
+    },
+    {
+      "text": "שבררומי",
+      "forward": 0,
+      "reverse": 0
+    }
+  ],
+  "windowHits": [
+    {
+      "text": "שבררומי",
+      "line": "down_left",
+      "row": 0,
+      "col": 35190,
+      "reading": "reverse",
+      "touching": false
+    }
+  ],
+  "presentedLengths": [
+    7
+  ],
+  "presented": 0,
+  "expectedFalsePositives": 0.33
+}

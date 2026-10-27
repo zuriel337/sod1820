@@ -1,0 +1,6 @@
+{
+  "what": "Canonical engine (els_search_page_core_v1), single-skip windows, read-only; 2026-10-27",
+  "axis": { "term": "דטראמפ", "skip": 41865, "scope_tanakh": { "status": "OK", "hits": [{ "skip": 41865, "dir": -1, "start": 244509, "end": 35184 }] }, "scope_torah": { "status": "OK", "hits": [{ "skip": 41865, "dir": -1, "start": 244509, "end": 35184 }] } },
+  "crossing_term": { "term": "באשאטמין", "skip": 41864, "scope_tanakh": { "status": "OK", "corpus_id": "0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b", "hits": [{ "skip": 41864, "dir": 1, "start": 35188, "end": 328236 }] }, "scope_torah": { "status": "EXECUTED_EMPTY", "hits": [] } },
+  "reading": "Matrix width 41865: the Tanakh occurrence runs down-left from row 0, column 35188 and shares its 5th letter (row 4, column 35184) with the 2nd letter of the axis. In Torah scope there is no occurrence at this skip; the Torah-only exhaustive search (skips 2-43543) finds the term only at skip 23423."
+}
