@@ -1904,7 +1904,7 @@ test('research form: optional third axis uses the existing verified triple or th
   assert.ok(triple.requests.filter(request=>request.op==='verify_batch'&&request.payload?.strategy?.policy==='GUIDED_THREE_TERM_REPLAY_V1').length>=2);
   assert.equal(await first.inputValue(),'תורהקדשה');assert.equal(await second.inputValue(),'בחשרתע');assert.equal(await third.inputValue(),'כויזלת');
   assert.ok((await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').innerText()).includes('תורהקדשה × בחשרתע × כויזלת'));
-  assert.ok((await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').innerText()).includes('המשך גלים עדיין אינו זמין'));
+  assert.ok((await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').innerText()).includes('זו אינה סריקה מלאה של כל הטקסט'));
   await third.clear();await gap.fill('1');await form.getByRole('button',{name:'חפש הצלבה'}).click();
   await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),triple.operation.requestId,{timeout:120000});
   assert.equal((await page.evaluate(()=>window.__operation)).status,'done');
@@ -1915,6 +1915,40 @@ test('research form: optional third axis uses the existing verified triple or th
   assert.ok(await page.getByText('להצלבה משולשת נדרשים שלושה מונחים שונים, בני 2–12 אותיות כל אחד.').isVisible());
   assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').length),count,'invalid triple never starts a search');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ },{realHost:true,loadGolden:false});
+});
+
+test('three-term research can continue the available axes after a bounded first wave',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:300000},async t=>{
+ await withNative({width:320,height:900},async page=>{
+  const form=page.locator('#els29-query');await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+  await form.getByRole('textbox',{name:'מונח ראשון'}).fill('משיח');
+  await form.getByRole('textbox',{name:'מונח שני'}).fill('טבת');
+  await form.getByRole('textbox',{name:'מונח שלישי · לא חובה'}).fill('עשירי');
+  await form.getByRole('button',{name:'חפש הצלבה'}).click();
+  await page.waitForFunction(()=>['done','empty','error'].includes(window.__operation?.status),null,{timeout:180000});
+  const first=await page.evaluate(()=>window.__operation);
+  assert.equal(first.status,'empty','the no-hit first wave still offers continuation');
+  assert.equal(first.progress.phase,'cross-three-wave');
+  assert.ok(first.progress.canContinue,JSON.stringify(first.progress));
+  await page.getByRole('button',{name:'המשך לגל הבא'}).click();
+  await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),first.requestId,{timeout:180000});
+  const next=await page.evaluate(()=>window.__operation);
+  t.diagnostic(JSON.stringify({first:first.status,second:next.status,firstScanned:first.progress.scanned,secondScanned:next.progress.scanned,available:next.progress.available}));
+  assert.ok(['done','empty'].includes(next.status),JSON.stringify(next));
+  assert.equal(next.progress.token,first.progress.token);
+  assert.ok(next.progress.scanned>first.progress.scanned,JSON.stringify(next.progress));
+  assert.equal(next.progress.available,first.progress.available);
+  assert.ok((await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').innerText()).includes('זו אינה סריקה מלאה של כל הטקסט'));
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  await form.getByRole('button',{name:'חיפוש רגיל',exact:true}).click();
+  await form.getByRole('textbox',{name:'מונח',exact:true}).fill('מקדש ירד');
+  await form.getByRole('button',{name:'חפש',exact:true}).click();
+  await page.waitForFunction(id=>window.__operation?.requestId>id&&window.__operation.status==='done',next.requestId,{timeout:90000});
+  const current=await page.evaluate(()=>window.__state.axis.hitId);
+  await page.locator('iframe').evaluate((frame,token)=>frame.contentWindow.postMessage({source:'sod-host',type:'native-search',request:{kind:'cross-three-continue',token,scope:'torah'},requestId:999999},location.origin),first.progress.token);
+  await page.waitForFunction(()=>window.__operation?.requestId===999999&&window.__operation.status==='error',null,{timeout:15000});
+  assert.equal(await page.evaluate(()=>window.__state.axis.hitId),current,'stale continuation cannot replace the new axis');
  },{realHost:true,loadGolden:false});
 });
 

@@ -567,7 +567,7 @@ function RegularResultsRail({ state, pending, operation, visible, guided = false
   </div>;
 }
 
-function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry, searchTerms }) {
+function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onContinueTriple, onRetry, searchTerms, crossProgress }) {
   const [sort, setSort] = useState("rank");
   const [page, setPage] = useState(0);
   const [minSkip, setMinSkip] = useState("");
@@ -580,7 +580,11 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   shown.sort((a, b) => sort === "skip" ? a.skip - b.skip || a.index - b.index : sort === "distance" ? a.distance - b.distance || a.index - b.index : a.index - b.index);
   return <div className="els29-native-workrail els29-native-results" hidden={!visible} aria-label="רשימת מפגשי ההצלבה" aria-busy={pending}>
     <strong>{pending ? "מחפש מפגשים…" : items.length ? `${items.length} מפגשי הצלבה` : "תוצאות הצלבה"}</strong>
-    {searchTerms?.length === 3 && !pending && ["done", "empty"].includes(outcome) ? <p role="status">הצלבה משולשת נבדקה בגל מוגבל של עד 150 מופעים לכל מילה. ייתכן שיש מפגשים נוספים; המשך גלים עדיין אינו זמין.</p> : null}
+    {searchTerms?.length === 3 && !pending && ["done", "empty"].includes(outcome) ? <div role="status">
+      <p>נבדקו {crossProgress?.scanned ?? 0} מתוך {crossProgress?.available ?? 0} מופעים זמינים. מאגר המופעים ורשימת המפגשים עשויים להיות חלקיים; זו אינה סריקה מלאה של כל הטקסט.</p>
+      {crossProgress?.pendingCandidates > 0 ? <small>{crossProgress.pendingCandidates} מועמדי מפגש נוספים ממתינים לאימות.</small> : null}
+      {crossProgress?.canContinue ? <button type="button" onClick={() => onContinueTriple(crossProgress.token)}>המשך לגל הבא</button> : <small>הגלים על המופעים הזמינים הסתיימו; ייתכן שקיימים מופעים נוספים שלא נטענו.</small>}
+    </div> : null}
     {items.length ? <>
       <p className="els29-native-muted">{searchTerms?.length === 3 ? searchTerms.join(" × ") : <>{state.search.crossA} × {state.search.crossB}</>}</p>
       {state.search.coverage?.truncated ? <small>סריקה מוגבלת: נבדקו {state.search.coverage.scanned} מתוך {state.search.coverage.available} מיקומי הציר שנמצאו. רשימת הצירים עצמה עשויה להיות חלקית.</small> : null}
@@ -1098,7 +1102,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         setOperations((current) => ({ ...current, findings: null }));
       }
     }
-    if (next?.termRaw && !(lastSearchKindRef.current === "cross-three" && next?.search?.mode === "cross-free") && (next.termRaw !== previous?.termRaw || next?.search?.crossA !== previous?.search?.crossA)) setQuery(next.search?.mode === "cross-simple" ? next.search.crossA : next.termRaw);
+    if (next?.termRaw && !(["cross-three", "cross-three-continue"].includes(lastSearchKindRef.current) && next?.search?.mode === "cross-free") && (next.termRaw !== previous?.termRaw || next?.search?.crossA !== previous?.search?.crossA)) setQuery(next.search?.mode === "cross-simple" ? next.search.crossA : next.termRaw);
     if (next?.ui?.windowRequested !== previous?.ui?.windowRequested && ["small", "medium", "large"].includes(next?.ui?.windowRequested)) setWindowSize(next.ui.windowRequested);
     const canonicalRadius = Number(next?.search?.crossRadius);
     if (Number.isInteger(canonicalRadius) && canonicalRadius >= 2 && canonicalRadius <= 20) {
@@ -1305,7 +1309,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const shortSkip = matrixActive && engineState.search?.mode === "regular" && engineState.matrix?.S >= 2
     && engineState.matrix.S <= 8 && engineState.matrix.c0 === 0 && engineState.matrix.cw === engineState.matrix.S;
   const readingView = shortSkip && shortSkipView === "reading";
-  const resultsAreCross = operations.search ? ["cross", "cross-three", "cross-continue"].includes(operations.search.searchKind) : Boolean(engineState?.search?.zones);
+  const resultsAreCross = operations.search ? ["cross", "cross-three", "cross-three-continue", "cross-continue"].includes(operations.search.searchKind) : Boolean(engineState?.search?.zones);
   const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId
     && ["searching", "verifying", "empty", "error", "cancelled"].includes(operations.search?.status);
   const matrixStatus = engineState?.status === "ready" ? "בראשית · מוכן לחיפוש" : previousResult
@@ -1338,9 +1342,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <span><strong>חיפוש חדש</strong>{researchProfile ? " · ציר יחיד או הצלבה" : ""}</span>
-        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
+        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-three-continue", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
         <button className="els29-native-cross-toggle" type="button" aria-pressed={crossSearchOpen} aria-expanded={crossSearchOpen}
-          onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button></> : null}
+          onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-three-continue", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button></> : null}
       </div>
       <div className="els29-native-query-terms">
       <label>
@@ -1436,7 +1440,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       <button type="button" className="els29-guided-matrix-toggle" data-els-guided-matrix-toggle="v1"
         aria-expanded={guidedMatrixOpen} disabled={!matrixActive}
         onClick={() => setGuidedMatrixOpen(value => !value)}>{guidedMatrixOpen ? "סגור מטריצה" : "פתח מטריצה מדויקת"}</button>
-      <small className="els29-guided-result-note">{guidedContextRef.current?.searchMode === "crossed_three" ? "נבדק גל מוגבל של עד 150 מופעים לכל ציר ועד 24 מועמדים לאימות; חיפוש שלא הושלם אינו שולל ממצאים אחרים. " : ""}המטריצה היא כלי אימות. היא נפתחת רק כשמבקשים לראות את המיקום המדויק.</small>
+      <small className="els29-guided-result-note">{guidedContextRef.current?.searchMode === "crossed_three" ? "כל גל בודק עד 150 מופעים לכל ציר ועד 24 מועמדים לאימות; חיפוש שלא הושלם אינו שולל ממצאים אחרים. " : ""}המטריצה היא כלי אימות. היא נפתחת רק כשמבקשים לראות את המיקום המדויק.</small>
     </section> : null}
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}${hasSystemDock ? " has-system-dock" : ""}`}>
@@ -1526,7 +1530,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
             <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>
-        <CrossResultsRail searchTerms={operations.search?.searchKind === "cross-three" ? operations.search.payload?.terms : null} onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
+        <CrossResultsRail searchTerms={["cross-three", "cross-three-continue"].includes(operations.search?.searchKind) ? operations.search.payload?.terms : null} crossProgress={operations.search?.progress?.phase === "cross-three-wave" ? operations.search.progress : null}
+          onContinueTriple={token => requestSearch("cross-three-continue", {token, terms:operations.search?.payload?.terms, scope:operations.search?.payload?.scope || activeScope})}
+          onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={activeTool === "results" && !resultsAreCross}
           guided={guidedProfile} guidedCoverage={guidedCoverage} onGuidedContinue={continueGuidedCoverage} onGuidedAddSupports={addGuidedSupports}
