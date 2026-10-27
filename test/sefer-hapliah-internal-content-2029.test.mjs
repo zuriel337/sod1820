@@ -23,6 +23,7 @@ test("HaPeli'ah internal depth has stable IDs, legal and exact one-based PDF ran
   assert.equal(map.source_pdf_pages, PDF_PAGE_COUNT);
   assert.equal(map.gates.length, 11);
   assert.ok(map.units.length >= 75, "internal map requires more than generic 11 gates");
+  const visuallyInspected = new Set([10, 18, 60, 93, 94, 95, 102, 113, 130]);
   const gateIds = new Set(map.gates.map(gate => gate.id));
   const ids = new Set();
   for (const unit of map.units) {
@@ -42,7 +43,9 @@ test("HaPeli'ah internal depth has stable IDs, legal and exact one-based PDF ran
     assert.equal(source.entry_anchor, `#page=${source.entry_pdf_page}&view=FitH`);
     assert.equal(source.range_end_anchor, `#page=${source.to_pdf_page}&view=FitH`);
     assert.equal(source.entry_url, `${map.source_pdf_url}${source.entry_anchor}`);
-    assert.equal(unit.source_review_status, "machine_text_located_pending_visual_witness_check");
+    assert.equal(unit.source_review_status, visuallyInspected.has(source.entry_pdf_page)
+      ? "visual_page_layout_checked_text_unadjudicated"
+      : "machine_text_located_pending_visual_witness_check");
     assert.equal(unit.engine_verification, "not_tested");
     assert.equal(unit.witness_quote, null);
     assert.equal(unit.printed_commentary_quote, null);
@@ -54,8 +57,16 @@ test("HaPeli'ah internal depth has stable IDs, legal and exact one-based PDF ran
   for (const gate of map.gates) {
     assert.ok(map.units.some(unit => unit.gate_id === gate.id), `unmapped gate ${gate.id}`);
   }
-  assert.deepEqual(map.evidence_policy.direct_visual_pdf_pages_verified, []);
-  assert.ok(map.evidence_policy.machine_extracted_text_sampled_pages.length >= 80);
+  assert.deepEqual(map.evidence_policy.direct_visual_pdf_pages_verified, [...visuallyInspected]);
+  assert.equal(map.visual_witness_checks.length, visuallyInspected.size);
+  for (const check of map.visual_witness_checks) {
+    assert.ok(visuallyInspected.has(check.pdf_page));
+    assert.equal(check.source_anchor, `#page=${check.pdf_page}&view=FitH`);
+    assert.equal(check.exact_quote_verified, false);
+    assert.equal(check.engine_status, "not_tested");
+    assert.equal(check.scope, "page_layout_and_subject_not_line_by_line_transcription");
+  }
+  assert.ok(map.evidence_policy.machine_extracted_text_sampled_pages.length >= 97);
   assert.ok(map.evidence_policy.machine_extracted_text_sampled_pages.length < PDF_PAGE_COUNT);
   assert.equal(map.evidence_policy.engine_verification, "not_tested");
   assert.doesNotMatch(JSON.stringify(map), /מאומת במנוע/);
@@ -75,6 +86,7 @@ test("deep companion can render in existing Preview without erasing the 327-page
   });
   assert.equal(commentary.internal_depth.status, "partial_source_located");
   assert.equal(commentary.internal_depth.source_bound_units, map.units.length);
+  assert.equal(commentary.internal_depth.direct_pdf_visual_pages_verified, map.visual_witness_checks.length);
   assert.equal(commentary.internal_depth.engine_verification, "not_tested");
   assert.equal(commentary.internal_depth.interactive_map_ui, "unwired_shared_manifest_and_reader_intentionally_untouched");
   assert.equal(commentary.pages.length, PDF_PAGE_COUNT);
@@ -87,6 +99,9 @@ test("deep companion can render in existing Preview without erasing the 327-page
     assert.equal(page.source_anchor, `#page=${page.pdf_page}&view=FitH`);
     assert.ok(page.companion_explanation.length >= 120, page.pdf_page);
     assert.ok(page.reading_points.length >= 2, page.pdf_page);
+    if ([10, 18, 60, 93, 94, 95, 102, 113, 130].includes(page.pdf_page)) {
+      assert.equal(page.visual_witness_review, "page_layout_and_subject_only_no_exact_quote");
+    }
     if (!entryPages.has(page.pdf_page)) {
       assert.equal(page.first_pass_snapshot, undefined, `untouched page mutated: ${page.pdf_page}`);
       continue;
@@ -139,7 +154,8 @@ test("HaPeli'ah depiction specs have per-element and per-relation provenance wit
       assert.notEqual(relation.from, relation.to, relation.id);
       assert.ok(relation.source.pdf_page >= 1 && relation.source.pdf_page <= PDF_PAGE_COUNT);
       assert.equal(relation.source.url, `${map.source_pdf_url}#page=${relation.source.pdf_page}&view=FitH`);
-      assert.equal(relation.verification, "machine_located_pending_visual");
+      assert.equal(relation.confidence, "locatable_not_visually_adjudicated");
+      assert.equal(relation.source.review_status, "machine_locator_pending_visual_verification");
     }
   }
   assert.equal(map.structure_specs.find(s => s.id === "hapliah.struct.camp-banners").components.length, 6);
