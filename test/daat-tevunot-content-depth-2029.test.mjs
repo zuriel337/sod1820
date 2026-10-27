@@ -11,9 +11,9 @@ const source = map.units.filter(unit => unit.quote_status === "licensed_source_s
 const section = id => source.find(unit => unit.section_id === id);
 const explanation = id => section(id).companion_explanation;
 
-// Approved-base fixtures: 40382ae21b9ca2d6ca38f58c387542b993d18f69.
-// Only companion prose is excluded. This guards the full source text, citations,
-// identities, PDF anchors, existing related IDs and interpretive status together.
+// The first depth pass froze every field except companion prose. This continuation
+// deliberately adds source-bound relationship/specification data and makes two
+// witnessed transcription corrections below; the digest locks their reviewed state.
 function immutableDigest(data, collection, editable) {
   const copy = {
     ...data,
@@ -24,11 +24,76 @@ function immutableDigest(data, collection, editable) {
   return createHash("sha256").update(JSON.stringify(copy)).digest("hex");
 }
 
-test("Daat content depth preserves every non-companion field from the approved base", () => {
+test("Daat content depth preserves every reviewed non-companion field", () => {
   assert.equal(immutableDigest(map, "units", ["question", "argument_steps", "conclusion", "companion_explanation"]),
-    "78f87d809575b600645d3c205b51ca9e9b66126cd96147fe5454a53cd1bd7dfe");
+    "0ebc60e7bdf5fc7b29bedfa61dabf37cfd2128bc6ddd0f877eeef76970c78795");
   assert.equal(immutableDigest(commentary, "pages", ["companion_explanation", "reading_points"]),
     "693e65096de87c78b3997d0bbb4b1e2ab0fc31cc941813d7ab2786c07a4c8d07");
+});
+
+test("source relationships extend the existing map with exact unit and PDF witnesses", () => {
+  assert.equal(map.source_relationships.length, 12);
+  assert.equal(new Set(map.source_relationships.map(item => item.id)).size, map.source_relationships.length);
+  for (const relation of map.source_relationships) {
+    assert.ok(["source_explicit", "structural_map"].includes(relation.status), relation.id);
+    assert.ok(relation.explanation.length > 30, relation.id);
+    for (const endpoint of [relation.from, relation.to]) {
+      const unit = map.units.find(candidate => candidate.id === endpoint.unit_id);
+      assert.ok(unit, `${relation.id}: ${endpoint.id}`);
+      assert.equal(endpoint.pdf_page, unit.pdf_page, `${relation.id}: ${endpoint.id}`);
+      assert.equal(endpoint.source_anchor, unit.source_anchor, `${relation.id}: ${endpoint.id}`);
+      assert.ok(endpoint.explanation.length > 20, `${relation.id}: ${endpoint.id}`);
+    }
+  }
+  assert.ok(map.source_relationships.some(item => item.id === "daat-tevunot-relation:unity-to-two-governances"));
+  assert.ok(map.source_relationships.some(item => item.id === "daat-tevunot-relation:judgment-to-no-private-inference"));
+  assert.ok(map.source_relationships.some(item => item.id === "daat-tevunot-relation:prophetic-images-to-knowledge-boundary"));
+});
+
+test("structure specifications remain source-only illustrations with anchored components and links", () => {
+  assert.equal(map.structure_specifications.length, 6);
+  assert.equal(new Set(map.structure_specifications.map(item => item.id)).size, map.structure_specifications.length);
+  for (const structure of map.structure_specifications) {
+    assert.equal(structure.layer, "המחשה נלווית", structure.id);
+    assert.equal(structure.status, "source_specification_only", structure.id);
+    assert.equal(structure.engine_verification, "not_applicable", structure.id);
+    const components = new Map(structure.components.map(item => [item.id, item]));
+    assert.equal(components.size, structure.components.length, structure.id);
+    for (const component of components.values()) {
+      const unit = map.units.find(candidate => candidate.id === component.unit_id);
+      assert.ok(unit, `${structure.id}: ${component.id}`);
+      assert.equal(component.pdf_page, unit.pdf_page, `${structure.id}: ${component.id}`);
+      assert.equal(component.source_anchor, unit.source_anchor, `${structure.id}: ${component.id}`);
+      assert.ok(component.explanation.length > 20, `${structure.id}: ${component.id}`);
+    }
+    assert.equal(new Set(structure.relations.map(item => item.id)).size, structure.relations.length, structure.id);
+    for (const relation of structure.relations) {
+      assert.ok(components.has(relation.from_id), `${structure.id}: ${relation.id}`);
+      assert.ok(components.has(relation.to_id), `${structure.id}: ${relation.id}`);
+      const unit = map.units.find(candidate => candidate.id === relation.unit_id);
+      assert.ok(unit, `${structure.id}: ${relation.id}`);
+      assert.equal(relation.pdf_page, unit.pdf_page, `${structure.id}: ${relation.id}`);
+      assert.equal(relation.source_anchor, unit.source_anchor, `${structure.id}: ${relation.id}`);
+      assert.ok(relation.explanation.length > 20, `${structure.id}: ${relation.id}`);
+    }
+  }
+  assert.ok(map.structure_specifications.some(item => item.id === "daat-tevunot-structure:two-governances"));
+  assert.ok(map.structure_specifications.some(item => item.id === "daat-tevunot-structure:judgment-measure-and-disclosure"));
+});
+
+test("the two reported witness anomalies are corrected without inventing text", () => {
+  const fixes = map.source_witness_reconciliation;
+  assert.equal(fixes.id, "daat-tevunot-witness-reconciliation:20261027");
+  assert.equal(fixes.corrections.length, 2);
+  const section48 = section(48);
+  const section167 = section(167);
+  assert.doesNotMatch(section48.source_quote, /mw-parser-output|psuq2|font-family/);
+  assert.match(section48.source_quote, /תנו עוז לאלהים/);
+  assert.equal(section167.source_quote, "אמנם לפי הדרך הזה היה ראוי שכל הצדיקים לא יהיו אלא מיוסרים, והרי המציאות אינו כן.");
+  assert.equal(section167.source_focus, section167.source_quote);
+  assert.equal(section167.extraction_anchor, section167.source_quote);
+  assert.doesNotMatch(section167.source_quote, /השפעB|טעמי הנהגתו הנעלמים/);
+  assert.match(fixes.corrections[1].resolution, /לא הושלם|לא תוקן|לא יוחס/);
 });
 
 test("all 195 sections have differentiated reasoning rather than the mapping template", () => {

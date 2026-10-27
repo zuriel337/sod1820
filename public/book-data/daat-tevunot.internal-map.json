@@ -27,7 +27,611 @@
     "src/data/daatTevunotConnections2029.js",
     "public/book-data/daat-tevunot.page-text.json"
   ],
-  "mapping_note": "195 סעיפי הדיאלוג מוצגים במלואם ומחוברים לתשעת ענפי הספר, לצירי ההנהגה ולעמוד ה־PDF המדויק. שער המהדורה ועמוד החתימה נשמרים בנפרד מדברי הרמח״ל.",
+  "mapping_note": "195 סעיפי הדיאלוג מוצגים במלואם ומחוברים לתשעת ענפי הספר, לצירי ההנהגה ולעמוד ה־PDF המדויק. שער המהדורה ועמוד החתימה נשמרים בנפרד מדברי הרמח״ל. מפת הקשרים ומפרטי ההמחשה להלן הם שכבת הסבר נלווית בתוך אותה מפה, ואינם קורא, מנוע או מפה חלופית.",
+  "source_witness_reconciliation": {
+    "id": "daat-tevunot-witness-reconciliation:20261027",
+    "label": "בדיקת שני שיבושי נוסח מדווחים",
+    "method": "הושוו ה־PDF בעל ה־SHA המוצהר וגרסת המקור מוויקיטקסט; התיקון מוגבל לגבול הסעיף הברור ואינו משלים נוסח חסר.",
+    "witnesses": [
+      {
+        "id": "daat-tevunot-witness:site-pdf",
+        "kind": "pdf",
+        "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/daat-tevunot-site-edition.pdf",
+        "sha256": "3c0520d819875f62ace6bf5b55b5074cabbe62a5a9331ca64a1e58d2ac73935c"
+      },
+      {
+        "id": "daat-tevunot-witness:wikisource-wikitext",
+        "kind": "source_text",
+        "url": "https://he.wikisource.org/w/index.php?title=דעת_תבונות_שלם&action=raw"
+      }
+    ],
+    "corrections": [
+      {
+        "id": "daat-tevunot-witness-fix:section-048-markup",
+        "unit_id": "daat-tevunot-section-048",
+        "pdf_page": 19,
+        "source_anchor": "#page=19&view=FitH",
+        "issue": "תגיות CSS של ויקיטקסט נכללו באמצע ציטוט הפסוק, אף שאינן דברי הספר.",
+        "resolution": "הוסרה תגית העיצוב בלבד; נוסח הפסוק נשמר כפי שנראה ב־PDF ובמקור הטקסטואלי."
+      },
+      {
+        "id": "daat-tevunot-witness-fix:section-167-boundary",
+        "unit_id": "daat-tevunot-section-167",
+        "pdf_page": 85,
+        "source_anchor": "#page=85&view=FitH",
+        "issue": "אחרי שאלת הנשמה מופיע בעדות הדיגיטלית משפט מסביר המסומן B; הוא כבר נמצא גם ב־PDF וגם בוויקיטקסט ואינו חלק הכרחי משאלת קסז.",
+        "resolution": "הציטוט, המוקד ועוגן החילוץ נעצרו במשפט השאלה השלם. המשפט החריג לא הושלם, לא תוקן ולא יוחס לדברי המחבר; ההסבר לסוגיית ריבוי ומיעוט ההשפעה מעוגן בסעיף קסח."
+      }
+    ]
+  },
+  "source_relationships": [
+    {
+      "id": "daat-tevunot-relation:opening-to-unity",
+      "kind": "source_progression",
+      "status": "structural_map",
+      "explanation": "השאלה על יישוב עיקרי האמונה נפתחת בסעיף א, ובסעיף לד השכל מציב את הייחוד כדבר המתברר מן המעשים וההבטחות; זהו מעבר מן הבקשה אל מוקד הבירור.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-001",
+        "unit_id": "daat-tevunot-section-001",
+        "pdf_page": 3,
+        "source_anchor": "#page=3&view=FitH",
+        "explanation": "פתיחת בקשת הנשמה להבין וליישב את עיקרי האמונה."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-034",
+        "unit_id": "daat-tevunot-section-034",
+        "pdf_page": 8,
+        "source_anchor": "#page=8&view=FitH",
+        "explanation": "הגדרת גילוי הייחוד כתכלית העיון בהנהגה."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:unity-to-two-governances",
+      "kind": "source_explicit",
+      "status": "source_explicit",
+      "explanation": "סעיף מח קובע במפורש שתי מידות האוחזות בהנהגה: משפט הנראה לעין ועצת טוב המסבבת לתיקון הכללי. הוא מפרט את משמעות הייחוד שהוצגה קודם לכן.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-040",
+        "unit_id": "daat-tevunot-section-040",
+        "pdf_page": 12,
+        "source_anchor": "#page=12&view=FitH",
+        "explanation": "בירור הייחוד כמסגרת להבנת חסרון, עבודה וגילוי."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-048",
+        "unit_id": "daat-tevunot-section-048",
+        "pdf_page": 19,
+        "source_anchor": "#page=19&view=FitH",
+        "explanation": "ניסוח שתי ההנהגות בתוך זמן ההסתר."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:two-governances-to-judgment-exposition",
+      "kind": "source_explicit",
+      "status": "source_explicit",
+      "explanation": "הנהגת השכר והעונש נזכרת בסעיף מח, ובהגיע סעיף קלו השכל מודיע שהוא מתחיל לבאר אותה מפני שהיא גלויה יותר. המאוחר אינו הנהגה חדשה אלא עיון מפורט בממד שכבר הוגדר.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-048-judgment",
+        "unit_id": "daat-tevunot-section-048",
+        "pdf_page": 19,
+        "source_anchor": "#page=19&view=FitH",
+        "explanation": "הגדרת הנהגת המשפט כשכר ועונש לפי מעשים."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-136",
+        "unit_id": "daat-tevunot-section-136",
+        "pdf_page": 61,
+        "source_anchor": "#page=61&view=FitH",
+        "explanation": "פתיחת הביאור המפורט של הנהגת השכר והעונש."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:body-soul-to-temporal-states",
+      "kind": "source_progression",
+      "status": "structural_map",
+      "explanation": "סעיף נט פותח את בירור הגוף והנשמה, וסעיף פב הופך אותו לשאלת זמניהם ומצביהם. הקישור מבהיר שהמעבר אינו נושא זר אלא העמקה של אותה הבחנה.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-059",
+        "unit_id": "daat-tevunot-section-059",
+        "pdf_page": 25,
+        "source_anchor": "#page=25&view=FitH",
+        "explanation": "פתיחת עיון הגוף והנשמה לאחר בירור הייחוד."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-082",
+        "unit_id": "daat-tevunot-section-082",
+        "pdf_page": 34,
+        "source_anchor": "#page=34&view=FitH",
+        "explanation": "מעבר מפני האדם אל הדרגת הזמנים והמצבים."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:temporal-states-to-influence",
+      "kind": "source_progression",
+      "status": "structural_map",
+      "explanation": "לאחר תיאור מצבי האדם בזמן עבודתו, סעיף ק דורש לבאר את ההשפעה המקיימת כל הוויה וקיום. ההשפעה נעשית הכלי להסברת השתנות המצבים שנידונו קודם.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-096",
+        "unit_id": "daat-tevunot-section-096",
+        "pdf_page": 39,
+        "source_anchor": "#page=39&view=FitH",
+        "explanation": "הצבת העולם הזה כזמן עבודת האדם."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-100",
+        "unit_id": "daat-tevunot-section-100",
+        "pdf_page": 40,
+        "source_anchor": "#page=40&view=FitH",
+        "explanation": "הגדרת ההשפעה כסיבת התהוותו וקיומו של הנמצא."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:influence-to-repair",
+      "kind": "source_explicit",
+      "status": "source_explicit",
+      "explanation": "סעיף קל חוזר במפורש אל מיני ההשפעה והתולדות ומעביר את הבירור אל שורש ההנהגה והתיקון. כך נשמר ההבדל בין תיאור דרכי ההשפעה לבין הטעם הרחב שהספר מבקש לבאר.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-100-influence",
+        "unit_id": "daat-tevunot-section-100",
+        "pdf_page": 40,
+        "source_anchor": "#page=40&view=FitH",
+        "explanation": "הבחנה בין מיני השפעה ובין תולדותיהם בנבראים."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-130",
+        "unit_id": "daat-tevunot-section-130",
+        "pdf_page": 56,
+        "source_anchor": "#page=56&view=FitH",
+        "explanation": "מעבר מן התולדות המשתנות אל סיבתם הראשונה בהנהגה."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:repair-to-judgment",
+      "kind": "source_progression",
+      "status": "structural_map",
+      "explanation": "סעיף קלה חותם שני שורשים גדולים ומיד אחריו סעיף קלו פותח את הנהגת השכר והעונש. הקשר מסמן שהמשפט נלמד בתוך סדר התיקון שכבר הונח, בלי לזהותו עם כל הסדר.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-135",
+        "unit_id": "daat-tevunot-section-135",
+        "pdf_page": 61,
+        "source_anchor": "#page=61&view=FitH",
+        "explanation": "חתימת השורשים שהוסקו ממבנה הבריאה והתיקון."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-136-judgment",
+        "unit_id": "daat-tevunot-section-136",
+        "pdf_page": 61,
+        "source_anchor": "#page=61&view=FitH",
+        "explanation": "תחילת פירוט המשפט הגלוי יותר לעין."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:judgment-essence-to-variable-disclosure",
+      "kind": "source_explicit",
+      "status": "source_explicit",
+      "explanation": "סעיף קנ מבחין במפורש בין עניין המידה לבין כוח גילויה, ולכן הוא מונע להסיק שמאורע יחיד מגלה את כל חוק המשפט או את מדרגתו המלאה.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-142",
+        "unit_id": "daat-tevunot-section-142",
+        "pdf_page": 63,
+        "source_anchor": "#page=63&view=FitH",
+        "explanation": "העמדת מידת המשפט הישרה והמתוקנת כנושא הבירור."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-150",
+        "unit_id": "daat-tevunot-section-150",
+        "pdf_page": 68,
+        "source_anchor": "#page=68&view=FitH",
+        "explanation": "הבחנה בין עניין המידה ובין הכוח שבו היא מתגלה."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:judgment-to-no-private-inference",
+      "kind": "source_explicit",
+      "status": "source_explicit",
+      "explanation": "השאלה בסעיף קסז מפריכה הכללה מן הסבל אל כל הצדיקים, וסעיפים קסח–קע מעמידים ריבוי ומיעוט השפעה וסדרי מזל לצד שכר ועונש. הקשר שומר שהספר אינו נותן לקורא כלל לייחוס סיבה פרטית לאדם מסוים.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-167",
+        "unit_id": "daat-tevunot-section-167",
+        "pdf_page": 85,
+        "source_anchor": "#page=85&view=FitH",
+        "explanation": "קושיה על הסקת כלל אחד מייסורי הצדיקים."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-170",
+        "unit_id": "daat-tevunot-section-170",
+        "pdf_page": 86,
+        "source_anchor": "#page=86&view=FitH",
+        "explanation": "הבחנה בין שימוש בהנהגת שכר ועונש ובין סדר אחר שהטעמים המלאים לו נסתרים."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:judgment-to-prophecy",
+      "kind": "source_progression",
+      "status": "structural_map",
+      "explanation": "אחר שהספר חותם את בירור המשפט בסעיף קעד, הנשמה מבקשת בסעיף קעה לברר עניין אחר שאינו מן המבוכות הקודמות. הקשר מסמן מעבר נושאי, ולא טענה שהנבואה נובעת ממנגנון המשפט.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-174",
+        "unit_id": "daat-tevunot-section-174",
+        "pdf_page": 89,
+        "source_anchor": "#page=89&view=FitH",
+        "explanation": "חתימת הדיון בסדרים והשפעות בעולם השפל."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-175",
+        "unit_id": "daat-tevunot-section-175",
+        "pdf_page": 90,
+        "source_anchor": "#page=90&view=FitH",
+        "explanation": "פתיחת שאלת הנשמה על בירור הנבואה."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:prophetic-images-to-knowledge-boundary",
+      "kind": "source_explicit",
+      "status": "source_explicit",
+      "explanation": "סעיפי הנבואה מבדילים בין דמות הנראית לנביא ובין עצמות, וסעיף קצד מחזיר את גבול הידיעה: אין לדעת את דרך הפעולה. הקשר מונע להפוך דימוי נבואי להסבר מהותי או מנגנוני.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-180",
+        "unit_id": "daat-tevunot-section-180",
+        "pdf_page": 91,
+        "source_anchor": "#page=91&view=FitH",
+        "explanation": "פתיחת הביאור על אדמה ונבואת הדימוי."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-194",
+        "unit_id": "daat-tevunot-section-194",
+        "pdf_page": 97,
+        "source_anchor": "#page=97&view=FitH",
+        "explanation": "גבול הידיעה על דרך הפעולה האלוהית."
+      }
+    },
+    {
+      "id": "daat-tevunot-relation:knowledge-boundary-to-closing",
+      "kind": "source_explicit",
+      "status": "source_explicit",
+      "explanation": "בסעיף קצה הנשמה מסכמת שהתיישבה באמונה בתוך הידיעות שקיבלה. הקשר קושר את החתימה לגבולות הידע שהוצבו לפני כן, ולא לטענה שהספר פתר כל חקירה.",
+      "from": {
+        "id": "daat-tevunot-relation-node:section-194-boundary",
+        "unit_id": "daat-tevunot-section-194",
+        "pdf_page": 97,
+        "source_anchor": "#page=97&view=FitH",
+        "explanation": "העמדת גבול למה שניתן להשיג בדרך הפעולה."
+      },
+      "to": {
+        "id": "daat-tevunot-relation-node:section-195",
+        "unit_id": "daat-tevunot-section-195",
+        "pdf_page": 98,
+        "source_anchor": "#page=98&view=FitH",
+        "explanation": "חתימת הנשמה על יישוב האמונה בעקבות הדיאלוג."
+      }
+    }
+  ],
+  "structure_specifications": [
+    {
+      "id": "daat-tevunot-structure:two-governances",
+      "title": "שתי הנהגות בתוך זמן ההסתר",
+      "layer": "המחשה נלווית",
+      "status": "source_specification_only",
+      "engine_verification": "not_applicable",
+      "explanation": "המחשה אפשרית של ההבחנה שהשכל מציג בסעיף מח: משפט לפי מעשים מול עצת טוב המוליכה לתיקון כללי. היא אינה קובעת כיצד לייחס מאורע מסוים לאחת ההנהגות.",
+      "components": [
+        {
+          "id": "daat-tevunot-component:two-governances-judgment",
+          "label": "הנהגת המשפט",
+          "explanation": "שכר ועונש לפי המעשים, המתוארים כהנהגה גלויה יותר.",
+          "unit_id": "daat-tevunot-section-048",
+          "pdf_page": 19,
+          "source_anchor": "#page=19&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:two-governances-unity",
+          "label": "הנהגת הייחוד",
+          "explanation": "עצת טוב נסתרת המסבבת אל התיקון הכללי וגילוי הייחוד.",
+          "unit_id": "daat-tevunot-continuation-p20",
+          "pdf_page": 20,
+          "source_anchor": "#page=20&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:two-governances-exposition",
+          "label": "סדר הביאור",
+          "explanation": "הספר פותח תחילה בפירוט המשפט מפני שהוא נגלה יותר לעין.",
+          "unit_id": "daat-tevunot-section-136",
+          "pdf_page": 61,
+          "source_anchor": "#page=61&view=FitH"
+        }
+      ],
+      "relations": [
+        {
+          "id": "daat-tevunot-structure-relation:two-governances-distinction",
+          "from_id": "daat-tevunot-component:two-governances-judgment",
+          "to_id": "daat-tevunot-component:two-governances-unity",
+          "explanation": "שתי ההנהגות פועלות באותו עולם אך שונות במטרתן ובמידת גילוין.",
+          "unit_id": "daat-tevunot-continuation-p20",
+          "pdf_page": 20,
+          "source_anchor": "#page=20&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-structure-relation:two-governances-reading-order",
+          "from_id": "daat-tevunot-component:two-governances-exposition",
+          "to_id": "daat-tevunot-component:two-governances-judgment",
+          "explanation": "סדר ההסבר מתחיל במשפט הגלוי ואינו מבטל את ההנהגה האחרת.",
+          "unit_id": "daat-tevunot-section-136",
+          "pdf_page": 61,
+          "source_anchor": "#page=61&view=FitH"
+        }
+      ]
+    },
+    {
+      "id": "daat-tevunot-structure:concealment-work-revelation",
+      "title": "הסתר, עבודה ותיקון",
+      "layer": "המחשה נלווית",
+      "status": "source_specification_only",
+      "engine_verification": "not_applicable",
+      "explanation": "מפרט למסלול קריאה של החסרון בזמן ההסתר, מקום העבודה, והגילוי העתיד לבטל את החסרון. זהו רצף מושגי מן הספר, לא לוח זמנים מחושב ולא תחזית.",
+      "components": [
+        {
+          "id": "daat-tevunot-component:concealment-work-revelation-concealment",
+          "label": "הסתר וחסרון",
+          "explanation": "החסרון מתאפשר בהסתר הפנים ואינו תכלית קבועה.",
+          "unit_id": "daat-tevunot-section-040",
+          "pdf_page": 12,
+          "source_anchor": "#page=12&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:concealment-work-revelation-work",
+          "label": "עבודה ובחירה",
+          "explanation": "בתוך זמן הטוב והרע יש מקום למעשי אדם, לזכות ולשכר.",
+          "unit_id": "daat-tevunot-section-048",
+          "pdf_page": 19,
+          "source_anchor": "#page=19&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:concealment-work-revelation-repair",
+          "label": "תיקון כללי",
+          "explanation": "ההסתר מתואר כאמצעי שהמהלך כולו מסובב ממנו אל טוב שלם.",
+          "unit_id": "daat-tevunot-continuation-p20",
+          "pdf_page": 20,
+          "source_anchor": "#page=20&view=FitH"
+        }
+      ],
+      "relations": [
+        {
+          "id": "daat-tevunot-structure-relation:concealment-enables-work",
+          "from_id": "daat-tevunot-component:concealment-work-revelation-concealment",
+          "to_id": "daat-tevunot-component:concealment-work-revelation-work",
+          "explanation": "החסרון הוא התנאי למקום עבודה; אין הוא מוגדר כשלמות בפני עצמה.",
+          "unit_id": "daat-tevunot-section-040",
+          "pdf_page": 12,
+          "source_anchor": "#page=12&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-structure-relation:work-orients-repair",
+          "from_id": "daat-tevunot-component:concealment-work-revelation-work",
+          "to_id": "daat-tevunot-component:concealment-work-revelation-repair",
+          "explanation": "הספר קושר את זמן העבודה לסוף גילוי הטוב, בלי להסיק מכאן דרך פרטית לכל אדם.",
+          "unit_id": "daat-tevunot-continuation-p20",
+          "pdf_page": 20,
+          "source_anchor": "#page=20&view=FitH"
+        }
+      ]
+    },
+    {
+      "id": "daat-tevunot-structure:influence-and-consequence",
+      "title": "השפעה ותולדה",
+      "layer": "המחשה נלווית",
+      "status": "source_specification_only",
+      "engine_verification": "not_applicable",
+      "explanation": "מפרט להסבר ההבחנה בין מיני השפעה, תולדותיהם ושורש סידורם. הוא אינו מודל סיבתי פיזיקלי או מנוע לחיזוי מאורעות.",
+      "components": [
+        {
+          "id": "daat-tevunot-component:influence-and-consequence-source",
+          "label": "מין ההשפעה",
+          "explanation": "דרכי ההשפעה מחודשות ברצון ונבדלות לפי מה שהן מולידות.",
+          "unit_id": "daat-tevunot-section-100",
+          "pdf_page": 40,
+          "source_anchor": "#page=40&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:influence-and-consequence-effect",
+          "label": "התולדה בנבראים",
+          "explanation": "מציאות הנולד נידונה לפי ההשפעה שממנה הוא מתהווה ומתקיים.",
+          "unit_id": "daat-tevunot-section-100",
+          "pdf_page": 40,
+          "source_anchor": "#page=40&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:influence-and-consequence-root",
+          "label": "שורש הסידור",
+          "explanation": "הספר מעביר מן התולדות המשתנות אל הטעם והשורש של סדריהן.",
+          "unit_id": "daat-tevunot-section-130",
+          "pdf_page": 56,
+          "source_anchor": "#page=56&view=FitH"
+        }
+      ],
+      "relations": [
+        {
+          "id": "daat-tevunot-structure-relation:influence-produces-effect",
+          "from_id": "daat-tevunot-component:influence-and-consequence-source",
+          "to_id": "daat-tevunot-component:influence-and-consequence-effect",
+          "explanation": "הקשר מתאר סדר של השפעה ותולדה בלשון הספר, ולא זהות בין דרכי ההשפעה לעצמות.",
+          "unit_id": "daat-tevunot-section-100",
+          "pdf_page": 40,
+          "source_anchor": "#page=40&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-structure-relation:effects-invite-root-inquiry",
+          "from_id": "daat-tevunot-component:influence-and-consequence-effect",
+          "to_id": "daat-tevunot-component:influence-and-consequence-root",
+          "explanation": "השתנות התולדות פותחת את שאלת השורש; היא אינה מספקת לבדה טעם נסתר לכל מקרה.",
+          "unit_id": "daat-tevunot-section-130",
+          "pdf_page": 56,
+          "source_anchor": "#page=56&view=FitH"
+        }
+      ]
+    },
+    {
+      "id": "daat-tevunot-structure:judgment-measure-and-disclosure",
+      "title": "עניין המשפט וכוח גילויו",
+      "layer": "המחשה נלווית",
+      "status": "source_specification_only",
+      "engine_verification": "not_applicable",
+      "explanation": "המחשה למעבר מן משפט כחוק אל ריבוי או מיעוט גילויו. היא מיועדת למנוע את הטעות של זיהוי מידה קבועה עם עוצמת הופעתה בזמן מסוים.",
+      "components": [
+        {
+          "id": "daat-tevunot-component:judgment-measure-and-disclosure-measure",
+          "label": "מידת המשפט",
+          "explanation": "כלל דרכי השכר והעונש, בחסד, דין ורחמים.",
+          "unit_id": "daat-tevunot-section-150",
+          "pdf_page": 68,
+          "source_anchor": "#page=68&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:judgment-measure-and-disclosure-force",
+          "label": "כוח הגילוי",
+          "explanation": "עוצמת הופעת המידה משתנה מעת לעת בלי לשנות את עניינה.",
+          "unit_id": "daat-tevunot-section-150",
+          "pdf_page": 68,
+          "source_anchor": "#page=68&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:judgment-measure-and-disclosure-result",
+          "label": "תולדות משתנות",
+          "explanation": "הבדלי הגילוי מסבירים מדוע יש להשתכלל בסיבות לתולדות ולא להסתפק בשם המידה.",
+          "unit_id": "daat-tevunot-section-150",
+          "pdf_page": 68,
+          "source_anchor": "#page=68&view=FitH"
+        }
+      ],
+      "relations": [
+        {
+          "id": "daat-tevunot-structure-relation:measure-has-variable-force",
+          "from_id": "daat-tevunot-component:judgment-measure-and-disclosure-measure",
+          "to_id": "daat-tevunot-component:judgment-measure-and-disclosure-force",
+          "explanation": "הספר מבחין בין עצם עניין המידה לבין הכוח לגלותה.",
+          "unit_id": "daat-tevunot-section-150",
+          "pdf_page": 68,
+          "source_anchor": "#page=68&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-structure-relation:force-varies-results",
+          "from_id": "daat-tevunot-component:judgment-measure-and-disclosure-force",
+          "to_id": "daat-tevunot-component:judgment-measure-and-disclosure-result",
+          "explanation": "השתנות הגילוי מחייבת עיון בסיבות לתולדה ואינה מאפשרת לקבוע סיבה פרטית מן התוצאה לבדה.",
+          "unit_id": "daat-tevunot-section-150",
+          "pdf_page": 68,
+          "source_anchor": "#page=68&view=FitH"
+        }
+      ]
+    },
+    {
+      "id": "daat-tevunot-structure:repair-through-increase-and-decrease",
+      "title": "ריבוי ומיעוט בהשלמת הבריאה",
+      "layer": "המחשה נלווית",
+      "status": "source_specification_only",
+      "engine_verification": "not_applicable",
+      "explanation": "המפרט מרכז את תשובת סעיף קסח: יש תיקונים בריבוי הארה ויש בהעלמה ומיעוטה. הוא מציין את גבול הידע על טעמי הגזירות ואינו מסווג מאורעות פרטיים.",
+      "components": [
+        {
+          "id": "daat-tevunot-component:repair-increase-decrease-boundary",
+          "label": "טעמים נעלמים",
+          "explanation": "טעמי הגזירות ושורש העניינים אינם נמסרים לבריות במלואם.",
+          "unit_id": "daat-tevunot-section-168",
+          "pdf_page": 85,
+          "source_anchor": "#page=85&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:repair-increase-decrease-increase",
+          "label": "ריבוי הארה",
+          "explanation": "יש עניינים המתוקנים בהגברת ההשפעה וריבויה.",
+          "unit_id": "daat-tevunot-section-168",
+          "pdf_page": 85,
+          "source_anchor": "#page=85&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:repair-increase-decrease-decrease",
+          "label": "מיעוט והעלמה",
+          "explanation": "יש עניינים המתוקנים בהעלמה ומיעוט, כאשר הרע מתגבר לפי סדר ההנהגה.",
+          "unit_id": "daat-tevunot-section-168",
+          "pdf_page": 85,
+          "source_anchor": "#page=85&view=FitH"
+        }
+      ],
+      "relations": [
+        {
+          "id": "daat-tevunot-structure-relation:boundary-limits-classification",
+          "from_id": "daat-tevunot-component:repair-increase-decrease-boundary",
+          "to_id": "daat-tevunot-component:repair-increase-decrease-increase",
+          "explanation": "הידיעה שיש ריבוי אינה מוסרת את טעם הגזירה המסוים.",
+          "unit_id": "daat-tevunot-section-168",
+          "pdf_page": 85,
+          "source_anchor": "#page=85&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-structure-relation:increase-and-decrease-are-not-private-verdicts",
+          "from_id": "daat-tevunot-component:repair-increase-decrease-increase",
+          "to_id": "daat-tevunot-component:repair-increase-decrease-decrease",
+          "explanation": "שני האופנים מתוארים כצרכים בהשלמת הבריאה; אין כאן כלל לחרוץ דין על אדם או מאורע מסוים.",
+          "unit_id": "daat-tevunot-section-168",
+          "pdf_page": 85,
+          "source_anchor": "#page=85&view=FitH"
+        }
+      ]
+    },
+    {
+      "id": "daat-tevunot-structure:prophetic-image-and-boundary",
+      "title": "דמות נבואית וגבול הידיעה",
+      "layer": "המחשה נלווית",
+      "status": "source_specification_only",
+      "engine_verification": "not_applicable",
+      "explanation": "מפרט קריאה לנבואה: הדמות נבראת להבנה, אינה עצמות, והבירור אינו מתיר לנסח מנגנון של פעולה אלוהית. זו המחשה מושגית בלבד.",
+      "components": [
+        {
+          "id": "daat-tevunot-component:prophetic-image-and-boundary-image",
+          "label": "דמות נבואית",
+          "explanation": "דימוי הנראה לנביא כאופן מסירת מראה.",
+          "unit_id": "daat-tevunot-section-180",
+          "pdf_page": 91,
+          "source_anchor": "#page=91&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:prophetic-image-and-boundary-created",
+          "label": "בריאה לצורך הבנה",
+          "explanation": "הדמות אינה עצמות אלא נבראת לפי צורך ההשגה האנושית.",
+          "unit_id": "daat-tevunot-section-184",
+          "pdf_page": 92,
+          "source_anchor": "#page=92&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-component:prophetic-image-and-boundary-limit",
+          "label": "גבול דרך הפעולה",
+          "explanation": "אין השגה בדרך שבה פועל הבורא.",
+          "unit_id": "daat-tevunot-section-194",
+          "pdf_page": 97,
+          "source_anchor": "#page=97&view=FitH"
+        }
+      ],
+      "relations": [
+        {
+          "id": "daat-tevunot-structure-relation:image-is-created-for-understanding",
+          "from_id": "daat-tevunot-component:prophetic-image-and-boundary-image",
+          "to_id": "daat-tevunot-component:prophetic-image-and-boundary-created",
+          "explanation": "הדמות משרתת השגה נבואית ואינה מתארת מהות.",
+          "unit_id": "daat-tevunot-section-184",
+          "pdf_page": 92,
+          "source_anchor": "#page=92&view=FitH"
+        },
+        {
+          "id": "daat-tevunot-structure-relation:created-image-does-not-cross-limit",
+          "from_id": "daat-tevunot-component:prophetic-image-and-boundary-created",
+          "to_id": "daat-tevunot-component:prophetic-image-and-boundary-limit",
+          "explanation": "המחשה של דמות אינה נעשית היתר לטענה על מנגנון הפעולה או על עצמות.",
+          "unit_id": "daat-tevunot-section-194",
+          "pdf_page": 97,
+          "source_anchor": "#page=97&view=FitH"
+        }
+      ]
+    }
+  ],
   "coverage": {
     "pdf_pages": 99,
     "mapped_pdf_pages": 99,
@@ -3063,7 +3667,7 @@
       "display_locator": "סעיף מח · PDF 19",
       "kind": "dialogue_explanation",
       "source_focus": "הזמן הראשון שיש לנו לבאר עתה, הוא זמן התעלם יחודו ית' כיום הזה, הוא כלל זמן עבודת האדם, כמו שביארנו.",
-      "source_quote": "הזמן הראשון שיש לנו לבאר עתה, הוא זמן התעלם יחודו ית' כיום הזה, הוא כלל זמן עבודת האדם, כמו שביארנו. והנה מחוק שלמותו, כבר אמרנו, היה ודאי יכול לעשות את כל מעשיו שלמים, ולא יהיה במעשיו אלא טובה גמורה ושלמה, בלי שום חסרון ורעה כלל. אמנם ברצותו להתנהג עם נבראיו בהנהגה הזאת שכבר זכרנו, הנה המציא סדר חדש ממש, שלא כדת השלמות העליון ב\"ה, אלא מאי דצריכא לברייתא לתת להם זכות ושכר טוב באחריתם, והוא דרך הטוב והרע, השכר והעונש; שלפי הדרך הזה, הנה הטוב והרע שקולים הם ובאים שניהם בעוה\"ז, וכך מזומן הוא הטוב לטובים כמו הרע לרעים; ועל פי הדרך הזה נמצא הבריות מתקלקלות לפעמים, ונתקנות לפעמים, וניתנה הרשות לשטן להסטין, ולמשחית לחבל את אשר ירשיעון אלהים, ונמצאו אומות העולם ועובדי עבודה זרה, וכן כל שאר הרעות כולם אשר בעולם, שעליהם באו הבטחות הנביאים ע\"ה להעבירם מן העולם לעתיד לבא, כענין שנאמר (ישעיה ב, יח), \"והאלילים כליל יחלוף\"; (זכריה יג, ב), \"ואת רוח הטומאה אעביר מן הארץ\"; (ישעיה כה, ח), \"בלע המות לנצח\"; (ישעיהו יא, ט; סה, כה), \"לא ירעו ולא ישחיתו בכל הר קדשי\" וגו'. ועל פי הדרך (ברכות לג, ב), \"הכל בידי שמים חוץ מיראת שמים\" - שאין הקב\"ה רוצה לעכב כלום ביד בני האדם אם רוצים לקלקל מעשיהם. ומזה נולדו כל הקלקולים הגדולים אשר היו בעולם מני יום ברוא אלהים אדם, ואין מנוחה לצדיקים בעוה\"ז, כי רעת האדם רבה עליו, והשטן מקטרג בכל עת ובכל שעה, והקב\"ה מדקדק עם חסידיו כחוט השערה. זה כלל הדרך אשר חידש הרצון העליון לפי ענין התעלם שליטתו ויחודו, ואין דרך זה תלוי אלא בהסתר פני טובו ית', כי לולי היה רוצה להתגלות באמתת ממשלתו, היה מעביר כל הרעות האלה, ולא היה מניח אלא הטוב והתיקון לבדו, וכמה שיעשה לעתיד לבא. ודעי עוד., כי ודאי גם עתה אע\"פ שהעלים טובו ומנע חק שלמותו מן הנבראים, אף על פי כן ודאי הוא שהוא משפיע להם, כי מאין להם הויה ומציאות וקיום אם לא מהשפעתו. אם כן ודאי משפיע הוא, אך השפעתו זאת שהוא משפיע עתה - לגבי מה שהיה ראוי להשפיע אם כחק שלמותו היה רוצה להשפיע - אינה אלא כדמיון הצל לגבי אדם, או כרושם קטן הנשאר מן הכתב על הנייר אחר שסרו האותיות ממנו. ונקרא כלל מין ההשפעה הזאת - חשך ולא אור, לגבי ההשפעה השלמה שהיתה יכולה לבא אם כחק שלמותו היה משפיע. אמנם לגבי דידן על כל פנים זה כל חיינו, כי בהשפעה זאת אנחנו חיים וקיימים, לא זולתה. ונמצא, שכשנזכיר מין ההשפעה הזאת המחודשת בהסתר פני טובו ית', נקראהו בכלל אחד - כמו צל הכח העליון לבד, לא יותר; ובהתפרטו לפרטיו - נמצא בו כל החוקים והמשפטים אשר מבחינים אנחנו בהנהגה העליונה, כי כלם יחד דבר מועט עד מאד נחשבים הם לגבי הכח העליון אם היה פועל בשלמותו, וכמו שזכרתי. ואמנם בהיות הכונה התכליתית רק גילוי היחוד, ולא העלמו, וכמו שביארנו לעיל, כי אין ההעלם הזה אלא אמצעי כדי לבא אל הסוף הזה של הגילוי; על כן, אף על פי שהסתיר פניו לחדש בו דבר הנהגת הטוב ורע הזאת, שב על כל פנים והשקיף במדת טובו, ולפי חק ממשלתו, להשלים סיבוב כל ההנהגה הזאת בתיקון הכללי. וזה דבר פשוט, כי כבר שמעת איך קץ שם לחשך זה של הטוב ורע כל זמן השיתא אלפי שנין; וכבר גזר מראשית אחרית אשר תכלינה כל אלה, וישאר יחודו מגולה, וטובת העולם קבועה לנצח נצחים. אם כן, כל יום ויום שעובר, נמצא העולם קרב יותר אל שלמותו; ולא עוד, אלא שהקב\"ה מסיבות מתהפך בעומק עצתו, ומגלגל גלגולים תמיד, להביא העולם אל השלמות הזה. והוא מה שאמר הכתוב (תהלים מ, ו), \"רבות עשית אתה ה' אלהי נפלאותיך ומחשבותיך אלינו\"; וכן אמר הנביא (ישעיה כה, א), \"עצות מרחוק אמונה אומן\"; וכן נאמר (שמואל - ב יד, יד), \"וחשב מחשבות לבלתי ידח ממנו נדח\". כי ודאי אין הקב\"ה רוצה לאחוז בדרך הטוב ורע כל כך זמן, ואחר כך לעזבה ולתפוס בדרך הממשלה והיחוד ברגע אחד, כאדם המתחרט ומתנחם; אלא מעומק עצתו ית' הוא לגלגל מסיבותיו מעומק חכמה כל כך, עד שמתוך הטוב ורע עצמו נגיע סוף סוף לדבר זה, שיהיה הכל נשלם, ויהיה הוא ית\"ש מגלה יחודו. ועוד יתבאר מזה לקמן בס\"ד. ונמצא שבאמת בשתי מדות אלה אוחז האדון ב\"ה תמיד, ושתים אלה קבע בחוקו מוסדי ארץ, א' - מדת השכר ועונש, היא הנהגת הטוב והרע בשיקול אחד לזכות ולחובה, ונקראת הנהגה זאת, הנהגת המשפט, שהקב\"ה יושב ודן כל העולם כולו לפי מעשיהם הטובים והרעים. ואתיא תוך משפטו זה - מדת טובו אשר לפי חק שלמותו, לפי ענין ממשלתו, שבכחו הוא רוצה לתקן את כל נבראיו. והנה, לפי מדת השכר ועונש - הקב\"ה, כביכול, משעבד מעשיו למעשי בני אדם, שאם הם טובים גם הוא יטיב להם, ואם הם רעים יוכרח, כביכול, להענישם; וכענין הכתוב (תהלים סח, לה): .mw-parser-output .psuq2{font-family:David,Times,\"Times New Roman\",serif;font-style:normal;font-size:1.8em;color:#111155}.mw-parser-output .psuq{font-family:Narkisim,Times,\"Times New Roman\",serif;font-style:normal;font-size:1.4em;color:#111122}.mw-parser-output .mfrj{font-family:Times,\"Times New Roman\",serif;font-style:normal;font-size:1.15em;color:#002200}\"תנו עוז לאלהים\"; והפכו (דברים לב, יח): \"צור ילדך תשי\"; וכמאמרם ז\"ל (איכה רבה א, לג), \"בזמן שישראל עושים רצונו של מקום - מוסיפים כח בגבורה של מעלה, וכשאינן עושים רצונו של מקום - מתישין כח של מעלה\", ח\"ו, ולפי מדת ממשלתו ושליטתו אמר (זכריה ג, ט), \"ומשתי את עון הארץ ההיא ביום אחד\"; (ירמיה נ, כ), \"יבוקש את עון ישראל ואיננו ואת חטאת יהודה ולא תמצאנה\". והנה לפי מדת הטוב ורע - משפטי ה' אמת לתת לאיש כדרכיו מדה כנגד מדה, והרבה דרכים למקום לשלם לאדם כפעלו, וכאורח איש ימציאנו, אם לחסד אם לשבט. אך לפי עצת טובו בחק שלמותו ית' - הצד השוה שבהן, להחזיר את הכל - לטוב שלם, לתיקון הגמור שיהיה באחרונה. ועל דבר זה נאמר (מלאכי ג, ו), \"אני ה' לא שניתי\". ובמדרשו של רשב\"י אמרו (זוהר כי תצא רפא. וע\"ש), \"לא אשתני בכל אתר\". ואמנם הנהגת השכר ועונש היא המגולית ונראית תמיד לעיני הכל, אך הגלגול שהוא מגלגל הכל לטובה עמוק עמוק הוא, ולא עבידא לאיגלויי כי אם לבסוף, אבל מתגלגל הוא והולך בכל עת ובכל שעה ודאי, ואינו פוסק. ונמצא, שודאי כבש האדון ב\"ה, כביכול, את חק שלמותו בבריאת הנבראים האלה, ובראם חסרים ולא שלמים, ושם להם דרך הנהגה ומין השפעה שאינה אלא חשך סתרו ית', שממנו בא מציאות שיקול הטוב ורע, ויש מציאות לחטאים ופגמיהם ולעונשים וקלקולים. ואף על פי כן שב והביט בטוב חוקו אל הנבראים האלה לתקנם התיקון הכללי והגמור העתיד לבא, שעליו מסבב את כל הגלגל דבר יום ביומו, וממשיך דברי הטוב ורע עצמו, לגמור בתיקון שלם בכח יחוד שליטתו ית\"ש.",
+      "source_quote": "הזמן הראשון שיש לנו לבאר עתה, הוא זמן התעלם יחודו ית' כיום הזה, הוא כלל זמן עבודת האדם, כמו שביארנו. והנה מחוק שלמותו, כבר אמרנו, היה ודאי יכול לעשות את כל מעשיו שלמים, ולא יהיה במעשיו אלא טובה גמורה ושלמה, בלי שום חסרון ורעה כלל. אמנם ברצותו להתנהג עם נבראיו בהנהגה הזאת שכבר זכרנו, הנה המציא סדר חדש ממש, שלא כדת השלמות העליון ב\"ה, אלא מאי דצריכא לברייתא לתת להם זכות ושכר טוב באחריתם, והוא דרך הטוב והרע, השכר והעונש; שלפי הדרך הזה, הנה הטוב והרע שקולים הם ובאים שניהם בעוה\"ז, וכך מזומן הוא הטוב לטובים כמו הרע לרעים; ועל פי הדרך הזה נמצא הבריות מתקלקלות לפעמים, ונתקנות לפעמים, וניתנה הרשות לשטן להסטין, ולמשחית לחבל את אשר ירשיעון אלהים, ונמצאו אומות העולם ועובדי עבודה זרה, וכן כל שאר הרעות כולם אשר בעולם, שעליהם באו הבטחות הנביאים ע\"ה להעבירם מן העולם לעתיד לבא, כענין שנאמר (ישעיה ב, יח), \"והאלילים כליל יחלוף\"; (זכריה יג, ב), \"ואת רוח הטומאה אעביר מן הארץ\"; (ישעיה כה, ח), \"בלע המות לנצח\"; (ישעיהו יא, ט; סה, כה), \"לא ירעו ולא ישחיתו בכל הר קדשי\" וגו'. ועל פי הדרך (ברכות לג, ב), \"הכל בידי שמים חוץ מיראת שמים\" - שאין הקב\"ה רוצה לעכב כלום ביד בני האדם אם רוצים לקלקל מעשיהם. ומזה נולדו כל הקלקולים הגדולים אשר היו בעולם מני יום ברוא אלהים אדם, ואין מנוחה לצדיקים בעוה\"ז, כי רעת האדם רבה עליו, והשטן מקטרג בכל עת ובכל שעה, והקב\"ה מדקדק עם חסידיו כחוט השערה. זה כלל הדרך אשר חידש הרצון העליון לפי ענין התעלם שליטתו ויחודו, ואין דרך זה תלוי אלא בהסתר פני טובו ית', כי לולי היה רוצה להתגלות באמתת ממשלתו, היה מעביר כל הרעות האלה, ולא היה מניח אלא הטוב והתיקון לבדו, וכמה שיעשה לעתיד לבא. ודעי עוד., כי ודאי גם עתה אע\"פ שהעלים טובו ומנע חק שלמותו מן הנבראים, אף על פי כן ודאי הוא שהוא משפיע להם, כי מאין להם הויה ומציאות וקיום אם לא מהשפעתו. אם כן ודאי משפיע הוא, אך השפעתו זאת שהוא משפיע עתה - לגבי מה שהיה ראוי להשפיע אם כחק שלמותו היה רוצה להשפיע - אינה אלא כדמיון הצל לגבי אדם, או כרושם קטן הנשאר מן הכתב על הנייר אחר שסרו האותיות ממנו. ונקרא כלל מין ההשפעה הזאת - חשך ולא אור, לגבי ההשפעה השלמה שהיתה יכולה לבא אם כחק שלמותו היה משפיע. אמנם לגבי דידן על כל פנים זה כל חיינו, כי בהשפעה זאת אנחנו חיים וקיימים, לא זולתה. ונמצא, שכשנזכיר מין ההשפעה הזאת המחודשת בהסתר פני טובו ית', נקראהו בכלל אחד - כמו צל הכח העליון לבד, לא יותר; ובהתפרטו לפרטיו - נמצא בו כל החוקים והמשפטים אשר מבחינים אנחנו בהנהגה העליונה, כי כלם יחד דבר מועט עד מאד נחשבים הם לגבי הכח העליון אם היה פועל בשלמותו, וכמו שזכרתי. ואמנם בהיות הכונה התכליתית רק גילוי היחוד, ולא העלמו, וכמו שביארנו לעיל, כי אין ההעלם הזה אלא אמצעי כדי לבא אל הסוף הזה של הגילוי; על כן, אף על פי שהסתיר פניו לחדש בו דבר הנהגת הטוב ורע הזאת, שב על כל פנים והשקיף במדת טובו, ולפי חק ממשלתו, להשלים סיבוב כל ההנהגה הזאת בתיקון הכללי. וזה דבר פשוט, כי כבר שמעת איך קץ שם לחשך זה של הטוב ורע כל זמן השיתא אלפי שנין; וכבר גזר מראשית אחרית אשר תכלינה כל אלה, וישאר יחודו מגולה, וטובת העולם קבועה לנצח נצחים. אם כן, כל יום ויום שעובר, נמצא העולם קרב יותר אל שלמותו; ולא עוד, אלא שהקב\"ה מסיבות מתהפך בעומק עצתו, ומגלגל גלגולים תמיד, להביא העולם אל השלמות הזה. והוא מה שאמר הכתוב (תהלים מ, ו), \"רבות עשית אתה ה' אלהי נפלאותיך ומחשבותיך אלינו\"; וכן אמר הנביא (ישעיה כה, א), \"עצות מרחוק אמונה אומן\"; וכן נאמר (שמואל - ב יד, יד), \"וחשב מחשבות לבלתי ידח ממנו נדח\". כי ודאי אין הקב\"ה רוצה לאחוז בדרך הטוב ורע כל כך זמן, ואחר כך לעזבה ולתפוס בדרך הממשלה והיחוד ברגע אחד, כאדם המתחרט ומתנחם; אלא מעומק עצתו ית' הוא לגלגל מסיבותיו מעומק חכמה כל כך, עד שמתוך הטוב ורע עצמו נגיע סוף סוף לדבר זה, שיהיה הכל נשלם, ויהיה הוא ית\"ש מגלה יחודו. ועוד יתבאר מזה לקמן בס\"ד. ונמצא שבאמת בשתי מדות אלה אוחז האדון ב\"ה תמיד, ושתים אלה קבע בחוקו מוסדי ארץ, א' - מדת השכר ועונש, היא הנהגת הטוב והרע בשיקול אחד לזכות ולחובה, ונקראת הנהגה זאת, הנהגת המשפט, שהקב\"ה יושב ודן כל העולם כולו לפי מעשיהם הטובים והרעים. ואתיא תוך משפטו זה - מדת טובו אשר לפי חק שלמותו, לפי ענין ממשלתו, שבכחו הוא רוצה לתקן את כל נבראיו. והנה, לפי מדת השכר ועונש - הקב\"ה, כביכול, משעבד מעשיו למעשי בני אדם, שאם הם טובים גם הוא יטיב להם, ואם הם רעים יוכרח, כביכול, להענישם; וכענין הכתוב (תהלים סח, לה): \"תנו עוז לאלהים\"; והפכו (דברים לב, יח): \"צור ילדך תשי\"; וכמאמרם ז\"ל (איכה רבה א, לג), \"בזמן שישראל עושים רצונו של מקום - מוסיפים כח בגבורה של מעלה, וכשאינן עושים רצונו של מקום - מתישין כח של מעלה\", ח\"ו, ולפי מדת ממשלתו ושליטתו אמר (זכריה ג, ט), \"ומשתי את עון הארץ ההיא ביום אחד\"; (ירמיה נ, כ), \"יבוקש את עון ישראל ואיננו ואת חטאת יהודה ולא תמצאנה\". והנה לפי מדת הטוב ורע - משפטי ה' אמת לתת לאיש כדרכיו מדה כנגד מדה, והרבה דרכים למקום לשלם לאדם כפעלו, וכאורח איש ימציאנו, אם לחסד אם לשבט. אך לפי עצת טובו בחק שלמותו ית' - הצד השוה שבהן, להחזיר את הכל - לטוב שלם, לתיקון הגמור שיהיה באחרונה. ועל דבר זה נאמר (מלאכי ג, ו), \"אני ה' לא שניתי\". ובמדרשו של רשב\"י אמרו (זוהר כי תצא רפא. וע\"ש), \"לא אשתני בכל אתר\". ואמנם הנהגת השכר ועונש היא המגולית ונראית תמיד לעיני הכל, אך הגלגול שהוא מגלגל הכל לטובה עמוק עמוק הוא, ולא עבידא לאיגלויי כי אם לבסוף, אבל מתגלגל הוא והולך בכל עת ובכל שעה ודאי, ואינו פוסק. ונמצא, שודאי כבש האדון ב\"ה, כביכול, את חק שלמותו בבריאת הנבראים האלה, ובראם חסרים ולא שלמים, ושם להם דרך הנהגה ומין השפעה שאינה אלא חשך סתרו ית', שממנו בא מציאות שיקול הטוב ורע, ויש מציאות לחטאים ופגמיהם ולעונשים וקלקולים. ואף על פי כן שב והביט בטוב חוקו אל הנבראים האלה לתקנם התיקון הכללי והגמור העתיד לבא, שעליו מסבב את כל הגלגל דבר יום ביומו, וממשיך דברי הטוב ורע עצמו, לגמור בתיקון שלם בכח יחוד שליטתו ית\"ש.",
       "quote_status": "licensed_source_section",
       "question": "כיצד פועלים יחד המשפט הגלוי והתיקון הנסתר בזמן ההסתר?",
       "cited_sources": [
@@ -10552,8 +11156,8 @@
       "sequence_on_page": 1,
       "display_locator": "סעיף קסז · PDF 85",
       "kind": "dialogue_question_or_response",
-      "source_focus": "אמנם לפי הדרך הזה היה ראוי שכל הצדיקים לא יהיו אלא מיוסרים, והרי המציאות אינו כן.לפי טעמי הנהגתו הנעלמים יש תיקונים לקראת התכלית ע\"י ריבוי השפע ויש ע\"י מיעוט השפעB.",
-      "source_quote": "אמנם לפי הדרך הזה היה ראוי שכל הצדיקים לא יהיו אלא מיוסרים, והרי המציאות אינו כן.לפי טעמי הנהגתו הנעלמים יש תיקונים לקראת התכלית ע\"י ריבוי השפע ויש ע\"י מיעוט השפעB.",
+      "source_focus": "אמנם לפי הדרך הזה היה ראוי שכל הצדיקים לא יהיו אלא מיוסרים, והרי המציאות אינו כן.",
+      "source_quote": "אמנם לפי הדרך הזה היה ראוי שכל הצדיקים לא יהיו אלא מיוסרים, והרי המציאות אינו כן.",
       "quote_status": "licensed_source_section",
       "question": "מדוע לפי הנהגת התיקון אין כל הצדיקים מיוסרים?",
       "cited_sources": [],
@@ -10582,7 +11186,7 @@
         "עשייה"
       ],
       "world_lens_status": "interpretive_candidate",
-      "extraction_anchor": "אמנם לפי הדרך הזה היה ראוי שכל הצדיקים לא יהיו אלא מיוסרים, והרי המציאות אינו כן.לפי טעמי הנהגתו הנעלמים יש תיקונים לקראת התכלית ע\"י ריבוי השפע ויש ע\"י מיעוט השפעB.",
+      "extraction_anchor": "אמנם לפי הדרך הזה היה ראוי שכל הצדיקים לא יהיו אלא מיוסרים, והרי המציאות אינו כן.",
       "extraction_status": "licensed_source_text",
       "source_anchor": "#page=85&view=FitH",
       "source_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/daat-tevunot-site-edition.pdf#page=85&view=FitH",
