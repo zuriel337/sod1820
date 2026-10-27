@@ -1,7 +1,10 @@
 // Merges executed batches into one run report: time, counts, what was omitted because of scan limits, findings, and the optional
 // control comparison. Pure functions over batch results; nothing is executed here.
 import { compareToTiles, decodeVector, mergeTileVectors } from "./controls.mjs";
-import { joinAdjacentFindings, normalizeFindings } from "./findings.mjs";
+import { classifyCrossings, joinAdjacentFindings, normalizeFindings } from "./findings.mjs";
+import { baseLetters } from "./letters.mjs";
+import { compareToChance } from "./chance.mjs";
+import { DIRECTION_SETS } from "./queries.mjs";
 
 /** dictionaryTotals: [{len, words}] (any order). The scan order is longest word first, then alphabetical. */
 export function lengthRangeOfOffsets(dictionaryTotals, offset, count) {
@@ -15,6 +18,13 @@ export function lengthRangeOfOffsets(dictionaryTotals, offset, count) {
     cursor += words;
   }
   return covered;
+}
+
+/** Per length: how many dictionary words the covered slices contain, against how many exist. */
+function lengthsCoveredBy(dictionaryTotals, covered) {
+  const merged = new Map();
+  for (const slice of covered) for (const part of lengthRangeOfOffsets(dictionaryTotals, slice.offset, slice.words)) merged.set(part.len, (merged.get(part.len) || 0) + part.words);
+  return [...merged.entries()].sort((a, b) => b[0] - a[0]).map(([len, words]) => ({ len, scanned: words, of: dictionaryTotals.find((e) => e.len === len)?.words ?? null }));
 }
 
 /** With minLen >= 5 the len>=5 statistics are identical to the plain ones (derived, not transported). */
@@ -55,11 +65,7 @@ export function buildRunReport({ example, state, batches: rawBatches, evaluation
     for (const group of groups) coverage[group].push({ offset: descriptor.offset, words: result.words_in_batch });
   }
   const covered = (group) => coverage[group].reduce((n, c) => n + c.words, 0);
-  const lengthsCovered = (group) => {
-    const merged = new Map();
-    for (const c of coverage[group]) for (const part of lengthRangeOfOffsets(dictionaryTotals, c.offset, c.words)) merged.set(part.len, (merged.get(part.len) || 0) + part.words);
-    return [...merged.entries()].sort((a, b) => b[0] - a[0]).map(([len, words]) => ({ len, scanned: words, of: dictionaryTotals.find((e) => e.len === len)?.words ?? null }));
-  };
+  const lengthsCovered = (group) => lengthsCoveredBy(dictionaryTotals, coverage[group]);
 
   const targetRows = batches.flatMap(({ result }) => result.target);
   const matrixHits = Object.assign({}, ...batches.map(({ result }) => result.word_matrix_hits));
@@ -160,4 +166,68 @@ export function evaluateWords({ words, findings, phrases, grouping = null, scann
     }
     return entry;
   });
+}
+
+/**
+ * Report of a CROSSING run: the findings that share a stream position with the anchor, and what the scan did and did not cover.
+ * rarity (optional): result of a probe asking the same engine for the crossing words over the whole matrix (matrix-wide counts).
+ * chance (optional, a SEPARATE comparison): the read-only expectation query (expectedCrossingSql) — what an iid-letter null would put here.
+ */
+export function buildCrossingReport({ state, batches, rarity = null, chance = null, chanceLocal = null }) {
+  const dictionaryTotals = state.dictionaryTotals;
+  const dictionaryWords = dictionaryTotals.reduce((n, entry) => n + entry.words, 0);
+  const coverage = {};
+  for (const { descriptor, result } of batches) for (const group of DIRECTION_SETS[descriptor.directions]) (coverage[group] ||= []).push({ offset: descriptor.offset, words: result.words_in_batch });
+  const covered = (group) => (coverage[group] || []).reduce((n, slice) => n + slice.words, 0);
+  const groups = [...new Set(batches.flatMap(({ descriptor }) => DIRECTION_SETS[descriptor.directions]))];
+
+  const targetRows = batches.flatMap(({ result }) => result.target);
+  const base = normalizeFindings({ rows: targetRows, width: state.width, region: state.region, matrixHits: rarity?.word_matrix_hits ?? {}, idPrefix: "X" });
+  const anchor = { term: state.term, positions: state.anchor.positions, skip: state.anchor.skip, dir: state.anchor.dir };
+  const classified = classifyCrossings({ findings: base, anchor, width: state.width });
+  const findings = chance ? classified.map((finding) => Object.freeze({ ...finding, chanceExpectation: chance.per_word?.[finding.word] ?? null })) : classified;
+  const returned = batches.reduce((n, { result }) => n + result.target.length, 0);
+  const reportedTotal = batches.reduce((n, { result }) => n + Number(result.target_total), 0);
+
+  const integrity = [];
+  const anchorLetters = [...baseLetters(state.term)];
+  if (base.length !== findings.length) integrity.push(`${base.length - findings.length} engine rows do not share any stream position with the anchor (the crossing filter and the findings disagree)`);
+  for (const finding of findings) for (const shared of finding.crossing.shared) {
+    if ([...baseLetters(finding.word)][shared.wordIndex] !== anchorLetters[shared.anchorIndex]) integrity.push(`${finding.id}: shared position carries different letters in the word and in the anchor`);
+  }
+  if (state.anchor.positions.length !== [...state.term].length) integrity.push("anchor positions do not match the term length");
+
+  const statuses = {};
+  for (const { result } of batches) for (const [status, n] of Object.entries(result.engine_statuses || {})) statuses[status] = (statuses[status] || 0) + Number(n);
+  const els = findings.filter((finding) => finding.kind === "els_in_matrix");
+  const byLength = Object.fromEntries([...new Set(findings.map((finding) => finding.length))].sort((a, b) => b - a).map((len) => [len, findings.filter((finding) => finding.length === len).length]));
+
+  return {
+    mode: "crossing",
+    anchor: { term: state.term, skip: state.anchor.skip, dir: state.anchor.dir, length: [...state.term].length, positions: state.anchor.positions, occurrenceIndex: state.anchor.occurrenceIndex ?? null, occurrenceCount: state.anchor.occurrenceCount ?? null },
+    time: { dbMsTotal: batches.reduce((n, { result }) => n + Number(result.db_ms), 0), batches: batches.length },
+    scan: {
+      dictionaryWords,
+      wordsScanned: Object.fromEntries(groups.map((group) => [group, covered(group)])),
+      omitted: { ...Object.fromEntries(groups.map((group) => [group, Math.max(0, dictionaryWords - covered(group))])), reason: "scan budget (each dictionary word costs one canonical engine call per direction group)" },
+      lengthsScanned: Object.fromEntries(groups.map((group) => [group, lengthsCoveredBy(dictionaryTotals, coverage[group])])),
+      engineCalls: batches.reduce((n, { result }) => n + Number(result.calls), 0),
+      engineStatuses: statuses,
+      truncatedCalls: batches.flatMap(({ result }) => result.truncated_calls),
+      targetOutputTruncated: reportedTotal > returned ? { reported: reportedTotal, returned } : false,
+      regionOccurrences: batches.reduce((n, { result }) => n + Number(result.region_total ?? 0), 0),
+    },
+    crossing: {
+      total: findings.length,
+      elsCrossings: els.length,
+      plainTextCrossings: findings.length - els.length,
+      byLength,
+      byAnchorLetter: anchorLetters.map((letter, index) => ({ index: index + 1, letter, count: findings.filter((finding) => finding.crossing.shared.some((entry) => entry.anchorIndex === index)).length })),
+      byAngle: Object.fromEntries([...new Set(findings.map((finding) => finding.crossing.angle))].sort().map((angle) => [angle, findings.filter((finding) => finding.crossing.angle === angle).length])),
+      matrixWideCountsMeasured: Boolean(rarity),
+    },
+    chance: chance ? compareToChance({ expectation: chance, findings, local: chanceLocal }) : { requested: false, note: "chance baseline not requested (separate option: --chance)" },
+    integrity,
+    findingsList: findings,
+  };
 }

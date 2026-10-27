@@ -1,0 +1,1 @@
+{"descriptor": {"offset": 550, "limit": 200, "directions": "diag"}, "result": {"calls": 200, "db_ms": 39098, "target": [], "region_total": 0, "target_total": 0, "words_in_batch": 200, "engine_statuses": {"EXECUTED_EMPTY": 200}, "truncated_calls": [], "word_region_hits": {}}}

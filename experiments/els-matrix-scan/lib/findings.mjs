@@ -1,6 +1,7 @@
 // Turns the canonical engine's occurrences (as returned by scanBatchSql) into markable findings. Nothing here searches or computes
 // letters: it labels, de-duplicates and (optionally) joins findings that sit end-to-end on the same matrix line.
 import { DIRECTIONS, cellOf, directionOf, occurrenceCells } from "./geometry.mjs";
+import { baseLetters } from "./letters.mjs";
 
 const pad = (n, width = 3) => String(n).padStart(width, "0");
 const stepOf = (direction) => ({ dRow: direction.dRow, dCol: direction.dCol });
@@ -85,4 +86,37 @@ export function joinAdjacentFindings(findings, { maxParts = 3, width } = {}) {
 /** Marks for drawing on the matrix: local coordinates only, straight from the engine's positions. */
 export function markupFor(findings) {
   return findings.map((finding) => ({ id: finding.id, word: finding.word, direction: finding.direction, kind: finding.kind, cells: finding.cells }));
+}
+
+/** Angle between two matrix lines (0 parallel, 45 diagonal, 90 perpendicular), from their direction vectors. */
+export function lineAngle(a, b) {
+  const dot = a.dRow * b.dRow + a.dCol * b.dCol;
+  const cos = dot / (Math.hypot(a.dRow, a.dCol) * Math.hypot(b.dRow, b.dCol));
+  const degrees = Math.round((Math.acos(Math.max(-1, Math.min(1, cos))) * 180) / Math.PI);
+  return Math.min(degrees, 180 - degrees);
+}
+
+/**
+ * Which findings CROSS the anchor: a finding crosses when one of its letters is the SAME stream position as one of the anchor's letters.
+ * Works on engine-reported occurrences only (start, skip, dir, length); the positions are only used to test equality with the anchor's.
+ * anchor: { term, positions, skip, dir } (positions straight from the engine). Returns the findings that share at least one position,
+ * each with `crossing: { relation, angle, shared: [{ wordIndex, anchorIndex, letter, at }] }`.
+ */
+export function classifyCrossings({ findings, anchor, width }) {
+  const anchorAt = new Map(anchor.positions.map((position, index) => [position, index]));
+  const anchorLine = directionOf(anchor.skip, anchor.dir, width);
+  if (!anchorLine) throw new RangeError("the anchor is not a matrix-contiguous line at this width");
+  const anchorLetters = [...baseLetters(anchor.term)];
+  const out = [];
+  for (const finding of findings) {
+    const shared = [];
+    for (let wordIndex = 0; wordIndex < finding.length; wordIndex += 1) {
+      const anchorIndex = anchorAt.get(finding.start + finding.dir * finding.skip * wordIndex);
+      if (anchorIndex !== undefined) shared.push({ wordIndex, anchorIndex, letter: anchorLetters[anchorIndex], at: { row: finding.cells[wordIndex].row, col: finding.cells[wordIndex].col } });
+    }
+    if (!shared.length) continue;
+    const angle = lineAngle(anchorLine, DIRECTIONS.find((entry) => entry.id === finding.direction));
+    out.push(Object.freeze({ ...finding, crossing: Object.freeze({ relation: angle === 0 ? "collinear_overlap" : "crosses", angle, shared: Object.freeze(shared.map((entry) => Object.freeze(entry))) }) }));
+  }
+  return out;
 }

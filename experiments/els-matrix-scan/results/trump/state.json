@@ -1,0 +1,189 @@
+{
+  "mode": "crossing",
+  "example": null,
+  "term": "דטראמפ",
+  "width": 460,
+  "totalLetters": 304805,
+  "totalRows": 662,
+  "dictionary": {
+    "minLen": 2,
+    "maxLen": 9,
+    "sharesLettersWith": "דטראמפ"
+  },
+  "dictionaryTotals": [
+    {
+      "len": 9,
+      "words": 11
+    },
+    {
+      "len": 8,
+      "words": 35
+    },
+    {
+      "len": 7,
+      "words": 125
+    },
+    {
+      "len": 6,
+      "words": 389
+    },
+    {
+      "len": 5,
+      "words": 993
+    },
+    {
+      "len": 4,
+      "words": 1284
+    },
+    {
+      "len": 3,
+      "words": 735
+    },
+    {
+      "len": 2,
+      "words": 96
+    }
+  ],
+  "region": {
+    "width": 460,
+    "r0": 300,
+    "r1": 321,
+    "c0": 74,
+    "cw": 17,
+    "rows": 22,
+    "cols": 17
+  },
+  "anchor": {
+    "start": 144062,
+    "skip": 460,
+    "dir": -1,
+    "length": 6,
+    "positions": [
+      144062,
+      143602,
+      143142,
+      142682,
+      142222,
+      141762
+    ],
+    "occurrenceIndex": 0,
+    "occurrenceCount": 23
+  },
+  "occurrences": [
+    {
+      "skip": 460,
+      "dir": -1,
+      "start": 144062
+    },
+    {
+      "skip": 2608,
+      "dir": -1,
+      "start": 202401
+    },
+    {
+      "skip": 2830,
+      "dir": -1,
+      "start": 88875
+    },
+    {
+      "skip": 3847,
+      "dir": 1,
+      "start": 212606
+    },
+    {
+      "skip": 7344,
+      "dir": -1,
+      "start": 294765
+    },
+    {
+      "skip": 7509,
+      "dir": -1,
+      "start": 130891
+    },
+    {
+      "skip": 9798,
+      "dir": 1,
+      "start": 44078
+    },
+    {
+      "skip": 10815,
+      "dir": 1,
+      "start": 77153
+    },
+    {
+      "skip": 12011,
+      "dir": -1,
+      "start": 226535
+    },
+    {
+      "skip": 13846,
+      "dir": -1,
+      "start": 159164
+    },
+    {
+      "skip": 14504,
+      "dir": -1,
+      "start": 189377
+    },
+    {
+      "skip": 15098,
+      "dir": -1,
+      "start": 165501
+    },
+    {
+      "skip": 17282,
+      "dir": 1,
+      "start": 31596
+    },
+    {
+      "skip": 18587,
+      "dir": 1,
+      "start": 5171
+    },
+    {
+      "skip": 22838,
+      "dir": -1,
+      "start": 187388
+    },
+    {
+      "skip": 28634,
+      "dir": 1,
+      "start": 136820
+    },
+    {
+      "skip": 29642,
+      "dir": -1,
+      "start": 303817
+    },
+    {
+      "skip": 29790,
+      "dir": -1,
+      "start": 216051
+    },
+    {
+      "skip": 31433,
+      "dir": -1,
+      "start": 212739
+    },
+    {
+      "skip": 34763,
+      "dir": 1,
+      "start": 65294
+    },
+    {
+      "skip": 41865,
+      "dir": -1,
+      "start": 244509
+    },
+    {
+      "skip": 45763,
+      "dir": -1,
+      "start": 248717
+    },
+    {
+      "skip": 46194,
+      "dir": -1,
+      "start": 302479
+    }
+  ]
+}

@@ -1,0 +1,1169 @@
+{
+  "topic": "דטראמפ",
+  "coordinates": "local, 0-based; matrix row = region.firstMatrixRow + row, matrix column = region.firstMatrixCol + col; column 0 is the first letter of the text row",
+  "region": {
+    "rows": 22,
+    "cols": 17,
+    "width": 460,
+    "firstMatrixRow": 300,
+    "firstMatrixCol": 74
+  },
+  "rows": [
+    "רעליוממנוהואכמעשה",
+    "ועלהחשנשרשרתגבלתמ",
+    "שוליהמעילרמוניתכל",
+    "נאלמשהאתהאהלואתכל",
+    "אלאתכלהעבדהויראמש",
+    "חקדשקדשימומשחתאתה",
+    "ארנאלהמשכנוישמאתפ",
+    "המזבחירחצוכאשרצוה",
+    "תולרצנולפנייהוהוס",
+    "תמעלהעצימאשרעלהאש",
+    "תההמזבחהאשהריחניח",
+    "חלאיעלולריחניחחוכ",
+    "סירנהוהקטירואתובנ",
+    "ניאהרנאתדמועלהמזב",
+    "אתואלאהלמועדוטבלה",
+    "למדברמעיניהקהלועש",
+    "אאשרנשיאיחטאועשהא",
+    "ונתנעלקרנתמזבחהעל",
+    "בנבלתבהמהטמאהאובנ",
+    "ליסודהמזבחחטאתהוא",
+    "האשמונסלחלוואמנפש",
+    "יהוהאילתמיממנהצאנ"
+  ],
+  "marks": [
+    {
+      "id": "X001",
+      "source": "scan",
+      "word": "חשמל",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 11,
+        "col": 10
+      },
+      "to": {
+        "row": 8,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 11,
+          "col": 10,
+          "letter": "ח"
+        },
+        {
+          "row": 10,
+          "col": 9,
+          "letter": "ש"
+        },
+        {
+          "row": 9,
+          "col": 8,
+          "letter": "מ"
+        },
+        {
+          "row": 8,
+          "col": 7,
+          "letter": "ל"
+        }
+      ]
+    },
+    {
+      "id": "X002",
+      "source": "scan",
+      "word": "יאיר",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 9,
+        "col": 7
+      },
+      "to": {
+        "row": 12,
+        "col": 10
+      },
+      "cells": [
+        {
+          "row": 9,
+          "col": 7,
+          "letter": "י"
+        },
+        {
+          "row": 10,
+          "col": 8,
+          "letter": "א"
+        },
+        {
+          "row": 11,
+          "col": 9,
+          "letter": "י"
+        },
+        {
+          "row": 12,
+          "col": 10,
+          "letter": "ר"
+        }
+      ]
+    },
+    {
+      "id": "X003",
+      "source": "scan",
+      "word": "אלה",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 10,
+        "col": 8
+      },
+      "to": {
+        "row": 12,
+        "col": 6
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 8,
+          "letter": "א"
+        },
+        {
+          "row": 11,
+          "col": 7,
+          "letter": "ל"
+        },
+        {
+          "row": 12,
+          "col": 6,
+          "letter": "ה"
+        }
+      ]
+    },
+    {
+      "id": "X004",
+      "source": "scan",
+      "word": "דוה",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 13,
+        "col": 8
+      },
+      "to": {
+        "row": 15,
+        "col": 10
+      },
+      "cells": [
+        {
+          "row": 13,
+          "col": 8,
+          "letter": "ד"
+        },
+        {
+          "row": 14,
+          "col": 9,
+          "letter": "ו"
+        },
+        {
+          "row": 15,
+          "col": 10,
+          "letter": "ה"
+        }
+      ]
+    },
+    {
+      "id": "X005",
+      "source": "scan",
+      "word": "הוד",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 15,
+        "col": 10
+      },
+      "to": {
+        "row": 13,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 15,
+          "col": 10,
+          "letter": "ה"
+        },
+        {
+          "row": 14,
+          "col": 9,
+          "letter": "ו"
+        },
+        {
+          "row": 13,
+          "col": 8,
+          "letter": "ד"
+        }
+      ]
+    },
+    {
+      "id": "X006",
+      "source": "scan",
+      "word": "המן",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 10,
+        "col": 7
+      },
+      "to": {
+        "row": 8,
+        "col": 9
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 7,
+          "letter": "ה"
+        },
+        {
+          "row": 9,
+          "col": 8,
+          "letter": "מ"
+        },
+        {
+          "row": 8,
+          "col": 9,
+          "letter": "נ"
+        }
+      ]
+    },
+    {
+      "id": "X007",
+      "source": "scan",
+      "word": "יפו",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 9,
+        "col": 7
+      },
+      "to": {
+        "row": 7,
+        "col": 9
+      },
+      "cells": [
+        {
+          "row": 9,
+          "col": 7,
+          "letter": "י"
+        },
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        },
+        {
+          "row": 7,
+          "col": 9,
+          "letter": "ו"
+        }
+      ]
+    },
+    {
+      "id": "X008",
+      "source": "scan",
+      "word": "ירה",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 12,
+        "col": 9
+      },
+      "to": {
+        "row": 10,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 12,
+          "col": 9,
+          "letter": "י"
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "letter": "ר"
+        },
+        {
+          "row": 10,
+          "col": 7,
+          "letter": "ה"
+        }
+      ]
+    },
+    {
+      "id": "X009",
+      "source": "scan",
+      "word": "משח",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 9,
+        "col": 8
+      },
+      "to": {
+        "row": 11,
+        "col": 10
+      },
+      "cells": [
+        {
+          "row": 9,
+          "col": 8,
+          "letter": "מ"
+        },
+        {
+          "row": 10,
+          "col": 9,
+          "letter": "ש"
+        },
+        {
+          "row": 11,
+          "col": 10,
+          "letter": "ח"
+        }
+      ]
+    },
+    {
+      "id": "X010",
+      "source": "scan",
+      "word": "פאה",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 8,
+        "col": 8
+      },
+      "to": {
+        "row": 10,
+        "col": 10
+      },
+      "cells": [
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        },
+        {
+          "row": 9,
+          "col": 9,
+          "letter": "א"
+        },
+        {
+          "row": 10,
+          "col": 10,
+          "letter": "ה"
+        }
+      ]
+    },
+    {
+      "id": "X011",
+      "source": "scan",
+      "word": "פחם",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 8,
+        "col": 8
+      },
+      "to": {
+        "row": 6,
+        "col": 6
+      },
+      "cells": [
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        },
+        {
+          "row": 7,
+          "col": 7,
+          "letter": "ח"
+        },
+        {
+          "row": 6,
+          "col": 6,
+          "letter": "מ"
+        }
+      ]
+    },
+    {
+      "id": "X012",
+      "source": "scan",
+      "word": "פיח",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 8,
+        "col": 8
+      },
+      "to": {
+        "row": 10,
+        "col": 6
+      },
+      "cells": [
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        },
+        {
+          "row": 9,
+          "col": 7,
+          "letter": "י"
+        },
+        {
+          "row": 10,
+          "col": 6,
+          "letter": "ח"
+        }
+      ]
+    },
+    {
+      "id": "X013",
+      "source": "scan",
+      "word": "צהר",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 9,
+        "col": 6
+      },
+      "to": {
+        "row": 11,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 9,
+          "col": 6,
+          "letter": "צ"
+        },
+        {
+          "row": 10,
+          "col": 7,
+          "letter": "ה"
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "letter": "ר"
+        }
+      ]
+    },
+    {
+      "id": "X014",
+      "source": "scan",
+      "word": "קרש",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 12,
+        "col": 7
+      },
+      "to": {
+        "row": 10,
+        "col": 9
+      },
+      "cells": [
+        {
+          "row": 12,
+          "col": 7,
+          "letter": "ק"
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "letter": "ר"
+        },
+        {
+          "row": 10,
+          "col": 9,
+          "letter": "ש"
+        }
+      ]
+    },
+    {
+      "id": "X015",
+      "source": "scan",
+      "word": "שרק",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 10,
+        "col": 9
+      },
+      "to": {
+        "row": 12,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 9,
+          "letter": "ש"
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "letter": "ר"
+        },
+        {
+          "row": 12,
+          "col": 7,
+          "letter": "ק"
+        }
+      ]
+    },
+    {
+      "id": "X016",
+      "source": "scan",
+      "word": "אי",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 10,
+        "col": 8
+      },
+      "to": {
+        "row": 9,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 8,
+          "letter": "א"
+        },
+        {
+          "row": 9,
+          "col": 7,
+          "letter": "י"
+        }
+      ]
+    },
+    {
+      "id": "X017",
+      "source": "scan",
+      "word": "אי",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 10,
+        "col": 8
+      },
+      "to": {
+        "row": 11,
+        "col": 9
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 8,
+          "letter": "א"
+        },
+        {
+          "row": 11,
+          "col": 9,
+          "letter": "י"
+        }
+      ]
+    },
+    {
+      "id": "X018",
+      "source": "scan",
+      "word": "אל",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 10,
+        "col": 8
+      },
+      "to": {
+        "row": 11,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 8,
+          "letter": "א"
+        },
+        {
+          "row": 11,
+          "col": 7,
+          "letter": "ל"
+        }
+      ]
+    },
+    {
+      "id": "X019",
+      "source": "scan",
+      "word": "אף",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 9,
+        "col": 9
+      },
+      "to": {
+        "row": 8,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 9,
+          "col": 9,
+          "letter": "א"
+        },
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        }
+      ]
+    },
+    {
+      "id": "X020",
+      "source": "scan",
+      "word": "די",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 13,
+        "col": 8
+      },
+      "to": {
+        "row": 12,
+        "col": 9
+      },
+      "cells": [
+        {
+          "row": 13,
+          "col": 8,
+          "letter": "ד"
+        },
+        {
+          "row": 12,
+          "col": 9,
+          "letter": "י"
+        }
+      ]
+    },
+    {
+      "id": "X021",
+      "source": "scan",
+      "word": "דל",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 13,
+        "col": 8
+      },
+      "to": {
+        "row": 14,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 13,
+          "col": 8,
+          "letter": "ד"
+        },
+        {
+          "row": 14,
+          "col": 7,
+          "letter": "ל"
+        }
+      ]
+    },
+    {
+      "id": "X022",
+      "source": "scan",
+      "word": "דק",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 13,
+        "col": 8
+      },
+      "to": {
+        "row": 12,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 13,
+          "col": 8,
+          "letter": "ד"
+        },
+        {
+          "row": 12,
+          "col": 7,
+          "letter": "ק"
+        }
+      ]
+    },
+    {
+      "id": "X023",
+      "source": "scan",
+      "word": "הם",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 10,
+        "col": 7
+      },
+      "to": {
+        "row": 9,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 7,
+          "letter": "ה"
+        },
+        {
+          "row": 9,
+          "col": 8,
+          "letter": "מ"
+        }
+      ]
+    },
+    {
+      "id": "X024",
+      "source": "scan",
+      "word": "הר",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 10,
+        "col": 7
+      },
+      "to": {
+        "row": 11,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 7,
+          "letter": "ה"
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "letter": "ר"
+        }
+      ]
+    },
+    {
+      "id": "X025",
+      "source": "scan",
+      "word": "חף",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 7,
+        "col": 7
+      },
+      "to": {
+        "row": 8,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 7,
+          "col": 7,
+          "letter": "ח"
+        },
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        }
+      ]
+    },
+    {
+      "id": "X026",
+      "source": "scan",
+      "word": "טל",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 12,
+        "col": 8
+      },
+      "to": {
+        "row": 11,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 12,
+          "col": 8,
+          "letter": "ט"
+        },
+        {
+          "row": 11,
+          "col": 7,
+          "letter": "ל"
+        }
+      ]
+    },
+    {
+      "id": "X027",
+      "source": "scan",
+      "word": "יד",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 12,
+        "col": 9
+      },
+      "to": {
+        "row": 13,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 12,
+          "col": 9,
+          "letter": "י"
+        },
+        {
+          "row": 13,
+          "col": 8,
+          "letter": "ד"
+        }
+      ]
+    },
+    {
+      "id": "X028",
+      "source": "scan",
+      "word": "לא",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 11,
+        "col": 7
+      },
+      "to": {
+        "row": 10,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 11,
+          "col": 7,
+          "letter": "ל"
+        },
+        {
+          "row": 10,
+          "col": 8,
+          "letter": "א"
+        }
+      ]
+    },
+    {
+      "id": "X029",
+      "source": "scan",
+      "word": "מה",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 9,
+        "col": 8
+      },
+      "to": {
+        "row": 10,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 9,
+          "col": 8,
+          "letter": "מ"
+        },
+        {
+          "row": 10,
+          "col": 7,
+          "letter": "ה"
+        }
+      ]
+    },
+    {
+      "id": "X030",
+      "source": "scan",
+      "word": "מן",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 9,
+        "col": 8
+      },
+      "to": {
+        "row": 8,
+        "col": 9
+      },
+      "cells": [
+        {
+          "row": 9,
+          "col": 8,
+          "letter": "מ"
+        },
+        {
+          "row": 8,
+          "col": 9,
+          "letter": "נ"
+        }
+      ]
+    },
+    {
+      "id": "X031",
+      "source": "scan",
+      "word": "פו",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 8,
+        "col": 8
+      },
+      "to": {
+        "row": 7,
+        "col": 9
+      },
+      "cells": [
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        },
+        {
+          "row": 7,
+          "col": 9,
+          "letter": "ו"
+        }
+      ]
+    },
+    {
+      "id": "X032",
+      "source": "scan",
+      "word": "פח",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 8,
+        "col": 8
+      },
+      "to": {
+        "row": 7,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        },
+        {
+          "row": 7,
+          "col": 7,
+          "letter": "ח"
+        }
+      ]
+    },
+    {
+      "id": "X033",
+      "source": "scan",
+      "word": "פי",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 8,
+        "col": 8
+      },
+      "to": {
+        "row": 9,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        },
+        {
+          "row": 9,
+          "col": 7,
+          "letter": "י"
+        }
+      ]
+    },
+    {
+      "id": "X034",
+      "source": "scan",
+      "word": "קר",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 12,
+        "col": 7
+      },
+      "to": {
+        "row": 11,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 12,
+          "col": 7,
+          "letter": "ק"
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "letter": "ר"
+        }
+      ]
+    },
+    {
+      "id": "X035",
+      "source": "scan",
+      "word": "רק",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 11,
+        "col": 8
+      },
+      "to": {
+        "row": 12,
+        "col": 7
+      },
+      "cells": [
+        {
+          "row": 11,
+          "col": 8,
+          "letter": "ר"
+        },
+        {
+          "row": 12,
+          "col": 7,
+          "letter": "ק"
+        }
+      ]
+    },
+    {
+      "id": "X036",
+      "source": "scan",
+      "word": "שם",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 10,
+        "col": 9
+      },
+      "to": {
+        "row": 9,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 9,
+          "letter": "ש"
+        },
+        {
+          "row": 9,
+          "col": 8,
+          "letter": "מ"
+        }
+      ]
+    },
+    {
+      "id": "X037",
+      "source": "scan",
+      "word": "שר",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 10,
+        "col": 9
+      },
+      "to": {
+        "row": 11,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 9,
+          "letter": "ש"
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "letter": "ר"
+        }
+      ]
+    },
+    {
+      "id": "Q001",
+      "source": "probe",
+      "word": "דטראמפ",
+      "kind": "els_in_matrix",
+      "direction": "col_up",
+      "from": {
+        "row": 13,
+        "col": 8
+      },
+      "to": {
+        "row": 8,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 13,
+          "col": 8,
+          "letter": "ד"
+        },
+        {
+          "row": 12,
+          "col": 8,
+          "letter": "ט"
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "letter": "ר"
+        },
+        {
+          "row": 10,
+          "col": 8,
+          "letter": "א"
+        },
+        {
+          "row": 9,
+          "col": 8,
+          "letter": "מ"
+        },
+        {
+          "row": 8,
+          "col": 8,
+          "letter": "פ"
+        }
+      ]
+    }
+  ],
+  "phrases": []
+}

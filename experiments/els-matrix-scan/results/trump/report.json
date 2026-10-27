@@ -1,0 +1,1807 @@
+{
+  "mode": "crossing",
+  "anchor": {
+    "term": "דטראמפ",
+    "skip": 460,
+    "dir": -1,
+    "length": 6,
+    "positions": [
+      144062,
+      143602,
+      143142,
+      142682,
+      142222,
+      141762
+    ],
+    "occurrenceIndex": 0,
+    "occurrenceCount": 23
+  },
+  "time": {
+    "dbMsTotal": 678042,
+    "batches": 22
+  },
+  "scan": {
+    "dictionaryWords": 3668,
+    "wordsScanned": {
+      "diag": 3668
+    },
+    "omitted": {
+      "diag": 0,
+      "reason": "scan budget (each dictionary word costs one canonical engine call per direction group)"
+    },
+    "lengthsScanned": {
+      "diag": [
+        {
+          "len": 9,
+          "scanned": 11,
+          "of": 11
+        },
+        {
+          "len": 8,
+          "scanned": 35,
+          "of": 35
+        },
+        {
+          "len": 7,
+          "scanned": 125,
+          "of": 125
+        },
+        {
+          "len": 6,
+          "scanned": 389,
+          "of": 389
+        },
+        {
+          "len": 5,
+          "scanned": 993,
+          "of": 993
+        },
+        {
+          "len": 4,
+          "scanned": 1284,
+          "of": 1284
+        },
+        {
+          "len": 3,
+          "scanned": 735,
+          "of": 735
+        },
+        {
+          "len": 2,
+          "scanned": 96,
+          "of": 96
+        }
+      ]
+    },
+    "engineCalls": 3668,
+    "engineStatuses": {
+      "EXECUTED_EMPTY": 3494,
+      "OK": 174
+    },
+    "truncatedCalls": [],
+    "targetOutputTruncated": false,
+    "regionOccurrences": 412
+  },
+  "crossing": {
+    "total": 37,
+    "elsCrossings": 37,
+    "plainTextCrossings": 0,
+    "byLength": {
+      "2": 22,
+      "3": 13,
+      "4": 2
+    },
+    "byAnchorLetter": [
+      {
+        "index": 1,
+        "letter": "ד",
+        "count": 6
+      },
+      {
+        "index": 2,
+        "letter": "ט",
+        "count": 1
+      },
+      {
+        "index": 3,
+        "letter": "ר",
+        "count": 8
+      },
+      {
+        "index": 4,
+        "letter": "א",
+        "count": 6
+      },
+      {
+        "index": 5,
+        "letter": "מ",
+        "count": 7
+      },
+      {
+        "index": 6,
+        "letter": "פ",
+        "count": 9
+      }
+    ],
+    "byAngle": {
+      "45": 37
+    },
+    "matrixWideCountsMeasured": false
+  },
+  "chance": {
+    "model": "iid_letter_frequencies_v1",
+    "expectedTotal": 31.096413,
+    "observedTotal": 37,
+    "observedOverExpected": 1.19,
+    "upperTail": 0.16553173410317212,
+    "byLength": [
+      {
+        "len": 9,
+        "words": 11,
+        "expected": 0,
+        "observed": 0,
+        "upperTail": 1
+      },
+      {
+        "len": 8,
+        "words": 35,
+        "expected": 0.000001,
+        "observed": 0,
+        "upperTail": 1
+      },
+      {
+        "len": 7,
+        "words": 125,
+        "expected": 0.000071,
+        "observed": 0,
+        "upperTail": 1
+      },
+      {
+        "len": 6,
+        "words": 389,
+        "expected": 0.003039,
+        "observed": 0,
+        "upperTail": 1
+      },
+      {
+        "len": 5,
+        "words": 993,
+        "expected": 0.097391,
+        "observed": 0,
+        "upperTail": 1
+      },
+      {
+        "len": 4,
+        "words": 1284,
+        "expected": 1.52235,
+        "observed": 2,
+        "upperTail": 0.44962696947648706
+      },
+      {
+        "len": 3,
+        "words": 735,
+        "expected": 9.202239,
+        "observed": 13,
+        "upperTail": 0.13943441441823157
+      },
+      {
+        "len": 2,
+        "words": 96,
+        "expected": 20.271321,
+        "observed": 22,
+        "upperTail": 0.3793990656376981
+      }
+    ],
+    "perWord": {
+      "אי": 0.41378586,
+      "אל": 0.28306622,
+      "אף": 0.41815587,
+      "די": 0.41378586,
+      "דל": 0.28306622,
+      "דק": 0.06161316,
+      "הם": 0.36818294,
+      "הר": 0.36818294,
+      "חף": 0.09434228,
+      "טל": 0.28306622,
+      "יד": 0.41378586,
+      "לא": 0.28306622,
+      "מה": 0.36818294,
+      "מן": 0.18537754,
+      "פו": 0.4004265,
+      "פח": 0.09434228,
+      "פי": 0.41378586,
+      "קר": 0.06161316,
+      "רק": 0.06161316,
+      "שם": 0.20465544,
+      "שר": 0.20465544,
+      "אלה": 0.02605504,
+      "דוה": 0.03685755,
+      "הוד": 0.03685755,
+      "המן": 0.01706321,
+      "יפו": 0.04142271,
+      "ירה": 0.03808722,
+      "משח": 0.00482692,
+      "פאה": 0.03848946,
+      "פחם": 0.00925301,
+      "פיח": 0.00975938,
+      "צהר": 0.00478582,
+      "קרש": 0.00315237,
+      "שרק": 0.00315237,
+      "חשמל": 0.00034158,
+      "יאיר": 0.00634533
+    },
+    "sensitivity": {
+      "model": "iid_region_letter_frequencies_add_one_v1",
+      "expectedTotal": 30.92554,
+      "upperTail": 0.15779082215991735,
+      "byLength": {
+        "2": 20,
+        "3": 9.44799,
+        "4": 1.392522,
+        "5": 0.082876,
+        "6": 0.002107,
+        "7": 0.000045,
+        "8": 0.000001,
+        "9": 0
+      }
+    },
+    "method": "Chance baseline for crossing findings (declared null model: independent letters with the stream's own letter frequencies).\n1. p(x) = occurrences of letter x in the canonical stream / stream length (22 base letters; final forms are folded onto base letters).\n2. A dictionary word w crosses the anchor when one of its letters is the SAME stream position as one of the anchor's letters.\n3. For a crossing at word index i and anchor cell j (anchor letter a_j = w_i), in a fixed matrix direction, the other letters of w must match the stream letters at fixed positions: probability = product over k != i of p(w_k).\n4. Expected crossings of w = D x sum over i of m_i x product over k != i of p(w_k), where m_i = number of anchor cells carrying the letter w_i and D = number of crossing directions scanned (diag: 2 skips x 2 directions = 4).\n5. Expected total = sum over the scanned dictionary; per length likewise. Observed counts are compared with Poisson upper tails P(X >= observed | expected).\n6. Sensitivity: the same formula with the letter frequencies of the display region itself (add-one smoothed) — a text neighbourhood can use some letters more than the whole Torah does.\n7. Limits: letters in a text are not independent (local patterns exist, though at skip W the letters are far apart); dictionary words overlap and are not independent events; the anchor is one of several occurrences of the term (a post-hoc choice: every extra occurrence looked at is another comparison); the Poisson tail is a one-sided screening number, never a verdict. No significance label is produced."
+  },
+  "integrity": [],
+  "findings": [
+    {
+      "id": "X001",
+      "word": "חשמל",
+      "length": 4,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 143144,
+      "end": 141761,
+      "startCell": {
+        "row": 311,
+        "col": 84
+      },
+      "endCell": {
+        "row": 308,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 11,
+        "fromCol": 10,
+        "toRow": 8,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 2,
+            "anchorIndex": 4,
+            "letter": "מ",
+            "at": {
+              "row": 9,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.00034158
+    },
+    {
+      "id": "X002",
+      "word": "יאיר",
+      "length": 4,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "skip": 461,
+      "dir": 1,
+      "start": 142221,
+      "end": 143604,
+      "startCell": {
+        "row": 309,
+        "col": 81
+      },
+      "endCell": {
+        "row": 312,
+        "col": 84
+      },
+      "local": {
+        "fromRow": 9,
+        "fromCol": 7,
+        "toRow": 12,
+        "toCol": 10
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 3,
+            "letter": "א",
+            "at": {
+              "row": 10,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.00634533
+    },
+    {
+      "id": "X003",
+      "word": "אלה",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 142682,
+      "end": 143600,
+      "startCell": {
+        "row": 310,
+        "col": 82
+      },
+      "endCell": {
+        "row": 312,
+        "col": 80
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 8,
+        "toRow": 12,
+        "toCol": 6
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 3,
+            "letter": "א",
+            "at": {
+              "row": 10,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.02605504
+    },
+    {
+      "id": "X004",
+      "word": "דוה",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "skip": 461,
+      "dir": 1,
+      "start": 144062,
+      "end": 144984,
+      "startCell": {
+        "row": 313,
+        "col": 82
+      },
+      "endCell": {
+        "row": 315,
+        "col": 84
+      },
+      "local": {
+        "fromRow": 13,
+        "fromCol": 8,
+        "toRow": 15,
+        "toCol": 10
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 0,
+            "letter": "ד",
+            "at": {
+              "row": 13,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.03685755
+    },
+    {
+      "id": "X005",
+      "word": "הוד",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 144984,
+      "end": 144062,
+      "startCell": {
+        "row": 315,
+        "col": 84
+      },
+      "endCell": {
+        "row": 313,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 15,
+        "fromCol": 10,
+        "toRow": 13,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 2,
+            "anchorIndex": 0,
+            "letter": "ד",
+            "at": {
+              "row": 13,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.03685755
+    },
+    {
+      "id": "X006",
+      "word": "המן",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "skip": 459,
+      "dir": -1,
+      "start": 142681,
+      "end": 141763,
+      "startCell": {
+        "row": 310,
+        "col": 81
+      },
+      "endCell": {
+        "row": 308,
+        "col": 83
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 7,
+        "toRow": 8,
+        "toCol": 9
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 4,
+            "letter": "מ",
+            "at": {
+              "row": 9,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.01706321
+    },
+    {
+      "id": "X007",
+      "word": "יפו",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "skip": 459,
+      "dir": -1,
+      "start": 142221,
+      "end": 141303,
+      "startCell": {
+        "row": 309,
+        "col": 81
+      },
+      "endCell": {
+        "row": 307,
+        "col": 83
+      },
+      "local": {
+        "fromRow": 9,
+        "fromCol": 7,
+        "toRow": 7,
+        "toCol": 9
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 5,
+            "letter": "פ",
+            "at": {
+              "row": 8,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.04142271
+    },
+    {
+      "id": "X008",
+      "word": "ירה",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 143603,
+      "end": 142681,
+      "startCell": {
+        "row": 312,
+        "col": 83
+      },
+      "endCell": {
+        "row": 310,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 12,
+        "fromCol": 9,
+        "toRow": 10,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 2,
+            "letter": "ר",
+            "at": {
+              "row": 11,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.03808722
+    },
+    {
+      "id": "X009",
+      "word": "משח",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "skip": 461,
+      "dir": 1,
+      "start": 142222,
+      "end": 143144,
+      "startCell": {
+        "row": 309,
+        "col": 82
+      },
+      "endCell": {
+        "row": 311,
+        "col": 84
+      },
+      "local": {
+        "fromRow": 9,
+        "fromCol": 8,
+        "toRow": 11,
+        "toCol": 10
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 4,
+            "letter": "מ",
+            "at": {
+              "row": 9,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.00482692
+    },
+    {
+      "id": "X010",
+      "word": "פאה",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "skip": 461,
+      "dir": 1,
+      "start": 141762,
+      "end": 142684,
+      "startCell": {
+        "row": 308,
+        "col": 82
+      },
+      "endCell": {
+        "row": 310,
+        "col": 84
+      },
+      "local": {
+        "fromRow": 8,
+        "fromCol": 8,
+        "toRow": 10,
+        "toCol": 10
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 5,
+            "letter": "פ",
+            "at": {
+              "row": 8,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.03848946
+    },
+    {
+      "id": "X011",
+      "word": "פחם",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 141762,
+      "end": 140840,
+      "startCell": {
+        "row": 308,
+        "col": 82
+      },
+      "endCell": {
+        "row": 306,
+        "col": 80
+      },
+      "local": {
+        "fromRow": 8,
+        "fromCol": 8,
+        "toRow": 6,
+        "toCol": 6
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 5,
+            "letter": "פ",
+            "at": {
+              "row": 8,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.00925301
+    },
+    {
+      "id": "X012",
+      "word": "פיח",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 141762,
+      "end": 142680,
+      "startCell": {
+        "row": 308,
+        "col": 82
+      },
+      "endCell": {
+        "row": 310,
+        "col": 80
+      },
+      "local": {
+        "fromRow": 8,
+        "fromCol": 8,
+        "toRow": 10,
+        "toCol": 6
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 5,
+            "letter": "פ",
+            "at": {
+              "row": 8,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.00975938
+    },
+    {
+      "id": "X013",
+      "word": "צהר",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "skip": 461,
+      "dir": 1,
+      "start": 142220,
+      "end": 143142,
+      "startCell": {
+        "row": 309,
+        "col": 80
+      },
+      "endCell": {
+        "row": 311,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 9,
+        "fromCol": 6,
+        "toRow": 11,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 2,
+            "anchorIndex": 2,
+            "letter": "ר",
+            "at": {
+              "row": 11,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.00478582
+    },
+    {
+      "id": "X014",
+      "word": "קרש",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "skip": 459,
+      "dir": -1,
+      "start": 143601,
+      "end": 142683,
+      "startCell": {
+        "row": 312,
+        "col": 81
+      },
+      "endCell": {
+        "row": 310,
+        "col": 83
+      },
+      "local": {
+        "fromRow": 12,
+        "fromCol": 7,
+        "toRow": 10,
+        "toCol": 9
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 2,
+            "letter": "ר",
+            "at": {
+              "row": 11,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.00315237
+    },
+    {
+      "id": "X015",
+      "word": "שרק",
+      "length": 3,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 142683,
+      "end": 143601,
+      "startCell": {
+        "row": 310,
+        "col": 83
+      },
+      "endCell": {
+        "row": 312,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 9,
+        "toRow": 12,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 2,
+            "letter": "ר",
+            "at": {
+              "row": 11,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.00315237
+    },
+    {
+      "id": "X016",
+      "word": "אי",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 142682,
+      "end": 142221,
+      "startCell": {
+        "row": 310,
+        "col": 82
+      },
+      "endCell": {
+        "row": 309,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 8,
+        "toRow": 9,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 3,
+            "letter": "א",
+            "at": {
+              "row": 10,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.41378586
+    },
+    {
+      "id": "X017",
+      "word": "אי",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "skip": 461,
+      "dir": 1,
+      "start": 142682,
+      "end": 143143,
+      "startCell": {
+        "row": 310,
+        "col": 82
+      },
+      "endCell": {
+        "row": 311,
+        "col": 83
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 8,
+        "toRow": 11,
+        "toCol": 9
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 3,
+            "letter": "א",
+            "at": {
+              "row": 10,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.41378586
+    },
+    {
+      "id": "X018",
+      "word": "אל",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 142682,
+      "end": 143141,
+      "startCell": {
+        "row": 310,
+        "col": 82
+      },
+      "endCell": {
+        "row": 311,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 8,
+        "toRow": 11,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 3,
+            "letter": "א",
+            "at": {
+              "row": 10,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.28306622
+    },
+    {
+      "id": "X019",
+      "word": "אף",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 142223,
+      "end": 141762,
+      "startCell": {
+        "row": 309,
+        "col": 83
+      },
+      "endCell": {
+        "row": 308,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 9,
+        "fromCol": 9,
+        "toRow": 8,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 5,
+            "letter": "פ",
+            "at": {
+              "row": 8,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.41815587
+    },
+    {
+      "id": "X020",
+      "word": "די",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "skip": 459,
+      "dir": -1,
+      "start": 144062,
+      "end": 143603,
+      "startCell": {
+        "row": 313,
+        "col": 82
+      },
+      "endCell": {
+        "row": 312,
+        "col": 83
+      },
+      "local": {
+        "fromRow": 13,
+        "fromCol": 8,
+        "toRow": 12,
+        "toCol": 9
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 0,
+            "letter": "ד",
+            "at": {
+              "row": 13,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.41378586
+    },
+    {
+      "id": "X021",
+      "word": "דל",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 144062,
+      "end": 144521,
+      "startCell": {
+        "row": 313,
+        "col": 82
+      },
+      "endCell": {
+        "row": 314,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 13,
+        "fromCol": 8,
+        "toRow": 14,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 0,
+            "letter": "ד",
+            "at": {
+              "row": 13,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.28306622
+    },
+    {
+      "id": "X022",
+      "word": "דק",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 144062,
+      "end": 143601,
+      "startCell": {
+        "row": 313,
+        "col": 82
+      },
+      "endCell": {
+        "row": 312,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 13,
+        "fromCol": 8,
+        "toRow": 12,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 0,
+            "letter": "ד",
+            "at": {
+              "row": 13,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.06161316
+    },
+    {
+      "id": "X023",
+      "word": "הם",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "skip": 459,
+      "dir": -1,
+      "start": 142681,
+      "end": 142222,
+      "startCell": {
+        "row": 310,
+        "col": 81
+      },
+      "endCell": {
+        "row": 309,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 7,
+        "toRow": 9,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 4,
+            "letter": "מ",
+            "at": {
+              "row": 9,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.36818294
+    },
+    {
+      "id": "X024",
+      "word": "הר",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "skip": 461,
+      "dir": 1,
+      "start": 142681,
+      "end": 143142,
+      "startCell": {
+        "row": 310,
+        "col": 81
+      },
+      "endCell": {
+        "row": 311,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 7,
+        "toRow": 11,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 2,
+            "letter": "ר",
+            "at": {
+              "row": 11,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.36818294
+    },
+    {
+      "id": "X025",
+      "word": "חף",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "skip": 461,
+      "dir": 1,
+      "start": 141301,
+      "end": 141762,
+      "startCell": {
+        "row": 307,
+        "col": 81
+      },
+      "endCell": {
+        "row": 308,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 7,
+        "fromCol": 7,
+        "toRow": 8,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 5,
+            "letter": "פ",
+            "at": {
+              "row": 8,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.09434228
+    },
+    {
+      "id": "X026",
+      "word": "טל",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 143602,
+      "end": 143141,
+      "startCell": {
+        "row": 312,
+        "col": 82
+      },
+      "endCell": {
+        "row": 311,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 12,
+        "fromCol": 8,
+        "toRow": 11,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 1,
+            "letter": "ט",
+            "at": {
+              "row": 12,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.28306622
+    },
+    {
+      "id": "X027",
+      "word": "יד",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 143603,
+      "end": 144062,
+      "startCell": {
+        "row": 312,
+        "col": 83
+      },
+      "endCell": {
+        "row": 313,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 12,
+        "fromCol": 9,
+        "toRow": 13,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 0,
+            "letter": "ד",
+            "at": {
+              "row": 13,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.41378586
+    },
+    {
+      "id": "X028",
+      "word": "לא",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "skip": 459,
+      "dir": -1,
+      "start": 143141,
+      "end": 142682,
+      "startCell": {
+        "row": 311,
+        "col": 81
+      },
+      "endCell": {
+        "row": 310,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 11,
+        "fromCol": 7,
+        "toRow": 10,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 3,
+            "letter": "א",
+            "at": {
+              "row": 10,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.28306622
+    },
+    {
+      "id": "X029",
+      "word": "מה",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 142222,
+      "end": 142681,
+      "startCell": {
+        "row": 309,
+        "col": 82
+      },
+      "endCell": {
+        "row": 310,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 9,
+        "fromCol": 8,
+        "toRow": 10,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 4,
+            "letter": "מ",
+            "at": {
+              "row": 9,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.36818294
+    },
+    {
+      "id": "X030",
+      "word": "מן",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "skip": 459,
+      "dir": -1,
+      "start": 142222,
+      "end": 141763,
+      "startCell": {
+        "row": 309,
+        "col": 82
+      },
+      "endCell": {
+        "row": 308,
+        "col": 83
+      },
+      "local": {
+        "fromRow": 9,
+        "fromCol": 8,
+        "toRow": 8,
+        "toCol": 9
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 4,
+            "letter": "מ",
+            "at": {
+              "row": 9,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.18537754
+    },
+    {
+      "id": "X031",
+      "word": "פו",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "skip": 459,
+      "dir": -1,
+      "start": 141762,
+      "end": 141303,
+      "startCell": {
+        "row": 308,
+        "col": 82
+      },
+      "endCell": {
+        "row": 307,
+        "col": 83
+      },
+      "local": {
+        "fromRow": 8,
+        "fromCol": 8,
+        "toRow": 7,
+        "toCol": 9
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 5,
+            "letter": "פ",
+            "at": {
+              "row": 8,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.4004265
+    },
+    {
+      "id": "X032",
+      "word": "פח",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 141762,
+      "end": 141301,
+      "startCell": {
+        "row": 308,
+        "col": 82
+      },
+      "endCell": {
+        "row": 307,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 8,
+        "fromCol": 8,
+        "toRow": 7,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 5,
+            "letter": "פ",
+            "at": {
+              "row": 8,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.09434228
+    },
+    {
+      "id": "X033",
+      "word": "פי",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 141762,
+      "end": 142221,
+      "startCell": {
+        "row": 308,
+        "col": 82
+      },
+      "endCell": {
+        "row": 309,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 8,
+        "fromCol": 8,
+        "toRow": 9,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 5,
+            "letter": "פ",
+            "at": {
+              "row": 8,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.41378586
+    },
+    {
+      "id": "X034",
+      "word": "קר",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "skip": 459,
+      "dir": -1,
+      "start": 143601,
+      "end": 143142,
+      "startCell": {
+        "row": 312,
+        "col": 81
+      },
+      "endCell": {
+        "row": 311,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 12,
+        "fromCol": 7,
+        "toRow": 11,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 2,
+            "letter": "ר",
+            "at": {
+              "row": 11,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.06161316
+    },
+    {
+      "id": "X035",
+      "word": "רק",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 143142,
+      "end": 143601,
+      "startCell": {
+        "row": 311,
+        "col": 82
+      },
+      "endCell": {
+        "row": 312,
+        "col": 81
+      },
+      "local": {
+        "fromRow": 11,
+        "fromCol": 8,
+        "toRow": 12,
+        "toCol": 7
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 0,
+            "anchorIndex": 2,
+            "letter": "ר",
+            "at": {
+              "row": 11,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.06161316
+    },
+    {
+      "id": "X036",
+      "word": "שם",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "skip": 461,
+      "dir": -1,
+      "start": 142683,
+      "end": 142222,
+      "startCell": {
+        "row": 310,
+        "col": 83
+      },
+      "endCell": {
+        "row": 309,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 9,
+        "toRow": 9,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 4,
+            "letter": "מ",
+            "at": {
+              "row": 9,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.20465544
+    },
+    {
+      "id": "X037",
+      "word": "שר",
+      "length": 2,
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "skip": 459,
+      "dir": 1,
+      "start": 142683,
+      "end": 143142,
+      "startCell": {
+        "row": 310,
+        "col": 83
+      },
+      "endCell": {
+        "row": 311,
+        "col": 82
+      },
+      "local": {
+        "fromRow": 10,
+        "fromCol": 9,
+        "toRow": 11,
+        "toCol": 8
+      },
+      "matrixHits": 0,
+      "crossing": {
+        "relation": "crosses",
+        "angle": 45,
+        "shared": [
+          {
+            "wordIndex": 1,
+            "anchorIndex": 2,
+            "letter": "ר",
+            "at": {
+              "row": 11,
+              "col": 8
+            }
+          }
+        ]
+      },
+      "chanceExpectation": 0.20465544
+    }
+  ]
+}

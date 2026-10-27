@@ -29,10 +29,12 @@ export function skipValue(spec, width) {
   return spec === "1" ? 1 : spec === "W" ? width : spec === "W+1" ? width + 1 : width - 1;
 }
 
-/** The engine skip sets for a matrix: columns+diagonals ("cd") and rows ("row"). */
+/**
+ * The engine skip sets for a matrix: columns+diagonals ("cd"), only the two diagonal families ("diag" — what can CROSS a column), and rows ("row").
+ */
 export function skipGroups(width) {
   intIn(width, MIN_AXIS_WIDTH, 1_000_000, "width");
-  return Object.freeze({ cd: Object.freeze([width - 1, width, width + 1]), row: Object.freeze([1]) });
+  return Object.freeze({ cd: Object.freeze([width - 1, width, width + 1]), diag: Object.freeze([width - 1, width + 1]), row: Object.freeze([1]) });
 }
 
 export function cellOf(index, width) {
@@ -77,6 +79,25 @@ export function regionAroundAnchor({ anchorStart, anchorSkip, anchorDir, anchorL
   const r0 = Math.min(Math.max(0, centre.row - Math.floor(rows / 2)), R - rows);
   const c0 = Math.min(Math.max(0, centre.col - Math.floor(cols / 2)), width - cols);
   return Object.freeze({ width, r0, r1: r0 + rows - 1, c0, cw: cols, rows, cols });
+}
+
+/**
+ * Display/search neighbourhood of an occurrence: the bounding box of its cells grown by `margin` cells on every side, clamped to the matrix.
+ * With margin = (longest dictionary word - 1) every word that shares a cell with the occurrence lies entirely inside it.
+ */
+export function regionAroundPositions({ positions, width, totalLetters, margin }) {
+  const R = fullRows(totalLetters, width);
+  intIn(margin, 0, 64, "margin");
+  if (!Array.isArray(positions) || positions.length < 2) throw new RangeError("positions must list the occurrence's letters");
+  const cells = positions.map((position) => {
+    if (!Number.isSafeInteger(position) || position < 0 || position >= R * width) throw new RangeError(`position ${position} is outside the ${R}x${width} matrix`);
+    return cellOf(position, width);
+  });
+  const r0 = Math.max(0, Math.min(...cells.map((c) => c.row)) - margin);
+  const r1 = Math.min(R - 1, Math.max(...cells.map((c) => c.row)) + margin);
+  const c0 = Math.max(0, Math.min(...cells.map((c) => c.col)) - margin);
+  const c1 = Math.min(width - 1, Math.max(...cells.map((c) => c.col)) + margin);
+  return Object.freeze({ width, r0, r1, c0, cw: c1 - c0 + 1, rows: r1 - r0 + 1, cols: c1 - c0 + 1 });
 }
 
 export function inRegion(cell, region) {

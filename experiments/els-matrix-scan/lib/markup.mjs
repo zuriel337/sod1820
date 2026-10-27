@@ -3,9 +3,9 @@
 // positions (findings.cells, local coordinates) and letters from regionLettersSql (the canonical stream relation, display only).
 import { DIRECTION_LABEL } from "./grouping.mjs";
 
-// The stream stores base letters; the dictionary may hold final forms. This is a spelling normalisation, not a search.
-const FINAL_TO_BASE = Object.freeze({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" });
-export const baseLetters = (word) => [...word].map((ch) => FINAL_TO_BASE[ch] || ch).join("");
+import { baseLetters } from "./letters.mjs";
+
+export { baseLetters };
 
 /** rows: [{r, letters}] as returned by regionLettersSql → grid[localRow][localCol] (one letter per cell). */
 export function letterGridFromRows(rows, region) {
@@ -63,7 +63,7 @@ const HUES = [12, 48, 140, 200, 265, 320, 95, 175, 230, 345];
 const colorOf = (index) => `hsl(${HUES[index % HUES.length]} 75% 55% / 0.6)`;
 
 /** One self-contained right-to-left page (no scripts, no external resources): the matrix with every finding marked, and a legend. */
-export function renderMarkupHtml(markup, { title = "ניסוי מטריצת ELS" } = {}) {
+export function renderMarkupHtml(markup, { title = "ניסוי מטריצת ELS", scanTitle = "ממצאי הסריקה (מילון)", probeTitle = "בדיקת אמת — חיפוש ישיר של מילים שנתבקשו (מסגרת; לא מהסריקה)", note = null } = {}) {
   const { region } = markup;
   const owners = new Map(); // "row:col" -> indices of marks covering the cell
   markup.marks.forEach((mark, index) => mark.cells.forEach((cell) => {
@@ -102,7 +102,7 @@ export function renderMarkupHtml(markup, { title = "ניסוי מטריצת ELS"
   };
   const listOf = (source) => markup.marks.map((mark, index) => ({ mark, index })).filter(({ mark }) => (mark.source || "scan") === source).map(({ mark, index }) => legendItem(mark, index)).join("\n");
   const probeList = markup.marks.some((mark) => mark.source === "probe")
-    ? `<h2>בדיקת אמת — חיפוש ישיר של מילים שנתבקשו (מסגרת; לא מהסריקה)</h2>\n<ul>\n${listOf("probe")}\n</ul>`
+    ? `<h2>${escapeHtml(probeTitle)}</h2>\n<ul>\n${listOf("probe")}\n</ul>`
     : "";
   const phraseList = markup.phrases.length
     ? `<h2>צירופים ברצף</h2><ul>${markup.phrases.map((phrase) => `<li><b>${escapeHtml(phrase.id)}</b> ${escapeHtml(phrase.text)} · ${escapeHtml(DIRECTION_LABEL[phrase.direction] || phrase.direction)} · ${escapeHtml(phrase.components.join("+"))}</li>`).join("")}</ul>`
@@ -120,7 +120,7 @@ body { background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, "Sego
 h1 { font-size: 1.25rem; margin: 0 0 4px; }
 h2 { font-size: 1.05rem; margin: 20px 0 6px; }
 p.note { color: var(--muted); margin: 0 0 12px; max-width: 70ch; }
-.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--cell); }
+.scroll { display: inline-block; max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--cell); }
 table.m { border-collapse: collapse; margin: 6px; }
 table.m td, table.m th { width: 22px; min-width: 22px; height: 24px; text-align: center; padding: 0; font-family: "Frank Ruhl Libre", "David", "Times New Roman", serif; font-size: 17px; }
 table.m th { color: var(--muted); font: 10px/1 system-ui, sans-serif; }
@@ -132,12 +132,12 @@ li { margin: 3px 0; }
 </head>
 <body>
 <h1>${escapeHtml(title)}</h1>
-<p class="note">נושא: ${escapeHtml(markup.topic || "—")} · אזור ${region.rows}×${region.cols} מתוך מטריצה ברוחב ${region.width} (שורה ${region.firstMatrixRow + 1}, עמודה ${region.firstMatrixCol + 1} בפינה). עמודה 1 היא האות הראשונה בשורת הטקסט (בצד ימין). כל המיקומים הם פלט מנוע ה-ELS הקנוני; הצבע מסמן ממצא סריקה, קו תחתון מסמן מילה בטקסט רגיל (לא ELS), ומסגרת מסמנת מילה שנתבקשה ישירות בבדיקת אמת.</p>
+<p class="note">נושא: ${escapeHtml(markup.topic || "—")} · אזור ${region.rows}×${region.cols} מתוך מטריצה ברוחב ${region.width} (שורה ${region.firstMatrixRow + 1}, עמודה ${region.firstMatrixCol + 1} בפינה). עמודה 1 היא האות הראשונה בשורת הטקסט (בצד ימין). כל המיקומים הם פלט מנוע ה-ELS הקנוני; ${escapeHtml(note || "הצבע מסמן ממצא סריקה, קו תחתון מסמן מילה בטקסט רגיל (לא ELS), ומסגרת מסמנת מילה שנתבקשה ישירות בבדיקת אמת.")}</p>
 <div class="scroll"><table class="m" dir="rtl">
 ${header}
 ${body}
 </table></div>
-<h2>ממצאי הסריקה (מילון)</h2>
+<h2>${escapeHtml(scanTitle)}</h2>
 <ul>
 ${listOf("scan") || "<li>לא נמצאו ממצאים באזור.</li>"}
 </ul>
