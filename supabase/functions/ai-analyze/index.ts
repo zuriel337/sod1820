@@ -661,8 +661,37 @@ function razielPersonalAreaPrompt(action: RazielPersonalAreaCompanionAction): st
     `opaque_refs=${refs.length ? refs.join(",") : "none"}`,
     `evidence_checked=${action.evidence_pack ? "true" : "false"}`,
     "אלה מזהים אטומים בלבד. אל תציג אותם, אל תנחש את תוכנם ואל תטען שנחשפת למידע האישי שמאחוריהם.",
+    "גם חבילת ראיות שנבדקה מתארת קבלה צורנית בלבד: המזהים אינם הוכחת בעלות ואינם אימות של המנוע. אל תציג אותם כך.",
     "תן ליווי חם וקצר לצעד הבא בלבד. אל תחפש משפחה, אל תפעיל ELS, אל תחשב ואל תציג מידע שלא סופק.",
   ].join("\n");
+}
+
+function razielPersonalAreaModelOutputSafe(output: unknown): boolean {
+  const contract = parseContract(String(output || ""));
+  if (!contract || typeof contract.answer !== "string" || !contract.answer.trim()) return false;
+  const visibleText = [
+    contract.answer,
+    contract.follow_up_question,
+    ...(Array.isArray(contract.facts)
+      ? contract.facts.flatMap((fact: any) => [fact?.label, fact?.value])
+      : []),
+  ].filter(Boolean).join("\n");
+  return !/(?:https?:\/\/|www\.|\/2029\/)/iu.test(visibleText)
+    && !/(?:הוכחת?\s+בעלות|מוכיח(?:ה)?\s+(?:את\s+)?ה?בעלות|מאומת(?:ת|ים|ות)?\s+במנוע|אומת(?:ה)?\s+במנוע)/u.test(visibleText);
+}
+
+function projectRazielPersonalAreaModelContract(contract: any): any {
+  return {
+    v: 1,
+    agent: "raziel",
+    context: null,
+    greeting: null,
+    answer: typeof contract?.answer === "string" ? contract.answer : "",
+    facts: [],
+    suggested_paths: [],
+    follow_up_question: typeof contract?.follow_up_question === "string" ? contract.follow_up_question : null,
+    continue_wa: contract?.continue_wa !== false,
+  };
 }
 
 // The model never owns executable suggestions. This deterministic registry is the only place that
@@ -3698,6 +3727,17 @@ Deno.serve(async (req: Request) => {
           truthFallbackUsed = retryRel.degraded || retryRejected;
         }
       }
+      // The personal companion receives only opaque references and a shape-level evidence receipt.
+      // It may not turn either into ownership/engine attestation or an executable link. This guard
+      // deliberately fails closed without a second model attempt; the closed server registry below
+      // remains the sole owner of any suggested action.
+      const personalAreaContractRejected = !!rPersonalAreaCompanion
+        && !finalRel.degraded
+        && !razielPersonalAreaModelOutputSafe(finalRel.text);
+      if (personalAreaContractRejected) {
+        finalTruthRejected = true;
+        truthFallbackUsed = true;
+      }
       const truthFallback = JSON.stringify({
         v: 1, agent: "raziel", context: null, greeting: null,
         answer: rPersonalAreaCompanion
@@ -3711,12 +3751,17 @@ Deno.serve(async (req: Request) => {
       const responseDegraded = finalRel.degraded || truthFallbackUsed;
       const finalOutcome = finalRel.degraded ? "provider_error" : finalTruthRejected ? "failed_with_reason" : "success";
       if (responseDegraded) await finishOperationalTrace(activeTrace, finalOutcome,
-        finalRel.degraded ? (finalRel.reason || "degraded") : "numeric_truth_guard_untrusted_literal");
+        finalRel.degraded
+          ? (finalRel.reason || "degraded")
+          : personalAreaContractRejected
+            ? "personal_area_companion_output_contract_rejected"
+            : "numeric_truth_guard_untrusted_literal");
       // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
       if (userRef && rSubject && !rTrusted && rLegacyPersistentMemoryAllowed) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }   // WA adapter already remembers inbound DMs
 
-      const contract = parseContract(out.text || "");
+      let contract = parseContract(out.text || "");
       if (contract) {
+        if (rPersonalAreaCompanion) contract = projectRazielPersonalAreaModelContract(contract);
         contract.v = 1; contract.agent = "raziel";
         // Executable suggestions are server-owned. Discard anything the model attempted to emit;
         // a degraded answer gets no action because its result was not accepted as a successful turn.
