@@ -643,7 +643,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
   for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
    const dock=page.getByRole('toolbar',{name:'מסלול המחקר והפעולות הזמינות עכשיו',exact:true});
    await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
-   assert.equal(await dock.count(),1);assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),0);
+   assert.equal(await dock.count(),1);assert.equal(await page.locator('.els29-native-toolstrip:visible').count(),1);
    const before=await identity(page),commands=await page.evaluate(()=>window.__hostLog.length);
    const orb=()=>dock.locator('.sod29-raziel-orb');
    const orbX=(await orb().boundingBox()).x;
@@ -660,6 +660,12 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
     assert.equal(await panel.locator('header strong').innerText(),title);
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));
     assert.equal(await page.getByRole('dialog').count(),0,'native tool stays in its page region');
+   }
+   const localTools=page.getByRole('group',{name:'כלי המטריצה'});
+   for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים','סריקה וממצאים']]){
+    await localTools.getByRole('button',{name:label,exact:true}).click();
+    assert.equal(await panel.locator('header strong').innerText(),title,'the local launchers open the same panel as the dock');
+    assert.equal(await dock.getByRole('button',{name:label,exact:true}).getAttribute('aria-expanded'),'true');
    }
    if(width<981){
     const position=await page.locator('.els29-native-panel-wrap').evaluate(el=>getComputedStyle(el).position);assert.equal(position,'relative');

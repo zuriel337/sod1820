@@ -1440,7 +1440,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
         </div>
-        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen || hasSystemDock} role="group" aria-label="כלי המטריצה">
+        <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
           {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
