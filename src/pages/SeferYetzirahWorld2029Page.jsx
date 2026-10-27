@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
+import StructureCatalog from "../components/books2029/SeferYetzirahStructureCatalog2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
   SEFER_YETZIRAH_COMMENTATORS,
@@ -96,9 +97,12 @@ function SceneLegend({ mode, activeNode, onSelect }) {
   if (mode === "sefirot") return <div className="yetzirah29-scene-legend is-depths">
     {SEFER_YETZIRAH_DEPTHS.map(node => <button type="button" key={node.id} className={activeNode === node.id ? "is-active" : ""} style={{ "--node-color": node.color }} onClick={() => onSelect(node.id)}><span />{node.label}<small>{node.axis}</small></button>)}
   </div>;
-  if (mode === "letters" || mode === "gates") return <div className="yetzirah29-scene-legend is-letters">
-    {SEFER_YETZIRAH_LETTER_GROUPS.map(group => <article key={group.id} style={{ "--node-color": group.color }}><span>{group.count}</span><div><strong>{group.label}</strong><b>{group.letters}</b><small>{group.role}</small></div></article>)}
-  </div>;
+  if (mode === "letters" || mode === "gates") return <>
+    <div className="yetzirah29-scene-legend is-letters">
+      {SEFER_YETZIRAH_LETTER_GROUPS.map(group => <article key={group.id} style={{ "--node-color": group.color }}><span>{group.count}</span><div><strong>{group.label}</strong><b>{group.letters}</b><small>{group.role}</small></div></article>)}
+    </div>
+    <div className="yetzirah29-letter-picker" aria-label="בחרו אות ופתחו מקור">{SEFER_YETZIRAH_LETTERS.map(letter => <button type="button" key={letter.letter} aria-pressed={activeNode === letter.letter} onClick={() => onSelect(letter.letter)}>{letter.letter}</button>)}</div>
+  </>;
   if (mode === "commentaries") return <div className="yetzirah29-scene-legend is-commentaries">
     {SEFER_YETZIRAH_COMMENTATORS.map(commentator => <button type="button" key={commentator.id} className={activeNode === commentator.id ? "is-active" : ""} style={{ "--node-color": commentator.color }} onClick={() => onSelect(commentator.id)}><strong>{commentator.name}</strong><span>{commentator.author}</span><small>PDF {commentator.pages}</small></button>)}
   </div>;
@@ -109,19 +113,22 @@ function SceneLegend({ mode, activeNode, onSelect }) {
 
 function SpatialStage({ mode, onMode, activeNode, onNode }) {
   const meta = SEFER_YETZIRAH_SCENE_MODES.find(item => item.id === mode);
+  const [opened, setOpened] = useState(false);
   return <section className="yetzirah29-spatial" aria-labelledby="yetzirah29-spatial-title">
     <header>
       <div><span>הספר נעשה מרחב</span><h2 id="yetzirah29-spatial-title">{meta.label}</h2><p>{meta.description}</p></div>
       <nav aria-label="בחירת מבנה תלת־ממדי">{SEFER_YETZIRAH_SCENE_MODES.map(item => <button type="button" key={item.id} className={mode === item.id ? "is-active" : ""} aria-pressed={mode === item.id} onClick={() => onMode(item.id)}><b>{item.short}</b><span>{item.label}</span></button>)}</nav>
     </header>
-    <div className="yetzirah29-stage">
+    <button type="button" aria-expanded={opened} onClick={() => setOpened(value => !value)}>{opened ? "סגור את המבנה התלת־ממדי" : "פתח את המבנה התלת־ממדי"}</button>
+    <p>ייצוג של מבנה הספר: המיקום, הצבעים והתאורה הם בחירות המחשה. {mode === "sefirot" ? "כל קו מחבר זוג עומקים המופיע ברשימה; רק רום ותחת, מזרח ומערב, צפון ודרום הם כיווני מרחב." : "הקווים והצורות הם בחירות המחשה."} בחירת רכיב פותחת את המקור המתאים.</p>
+    {opened ? <div className="yetzirah29-stage">
       <SpatialErrorBoundary>
         <Suspense fallback={<div className="yetzirah29-stage-loading" role="status">בונה את המרחב…</div>}>
           <SeferYetzirahScene2029 mode={mode} activeId={activeNode} onSelect={onNode} />
         </Suspense>
       </SpatialErrorBoundary>
       <div className="yetzirah29-stage-hint">גררו לסיבוב · גלגלו להתקרבות · לחצו על נקודה</div>
-    </div>
+    </div> : null}
     <SceneLegend mode={mode} activeNode={activeNode} onSelect={onNode} />
   </section>;
 }
@@ -232,7 +239,13 @@ export default function SeferYetzirahWorld2029Page() {
 
   const chooseSceneNode = id => {
     setActiveNode(id);
-    if (mode === "commentaries") setActiveCommentatorId(id);
+    if (mode === "commentaries") {
+      const commentator = SEFER_YETZIRAH_COMMENTATORS.find(item => item.id === id);
+      if (commentator) { setActiveCommentatorId(id); openPage(commentator.start); }
+    } else if (mode === "sefirot") openPage(53);
+    else if (mode === "letters") openPage(65);
+    else if (mode === "gates") openPage(203);
+    else if (mode === "osn") openPage(190);
   };
 
   return <Sod2029Shell wide surface="books" symbol="✦" eyebrow="ספר יצירה · עולם קריאה" title="ספר יצירה" description="המקור, הפירושים והמבנים המרחביים בתוך קורא אחד.">
@@ -247,6 +260,7 @@ export default function SeferYetzirahWorld2029Page() {
       </section>
 
       <SpatialStage mode={mode} onMode={nextMode => { setMode(nextMode); setActiveNode(defaultNodeForMode(nextMode, activeCommentatorId)); }} activeNode={activeNode} onNode={chooseSceneNode} />
+      <StructureCatalog onPage={openPage} />
 
       <div className="yetzirah29-layout">
         <div className="yetzirah29-story">
