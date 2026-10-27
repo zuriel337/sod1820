@@ -1612,7 +1612,7 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
     assert.equal(page.__elsGuidedSnapshotRequests.length,0,'opening Guided does not download snapshot presentation before explicit discovery');
     await page.evaluate(()=>window.__loadResearch({
       contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,researchNonce:1,
-      term:'יהוה',scope:'torah',contextTerms:[{term:'משה'},{term:'תורה'},{term:'ישראל'}],
+      term:'יהוה',scope:'torah',contextTerms:[{term:'משה'},{term:'תורה'},{term:'ישראל'},{term:'אש'}],
       discoveryGoal:{primaryAxes:1,connectedSupports:2,sourceSequence:'WHEN_AVAILABLE',resultPolicy:'ONE_BEST_STRUCTURE'},
     }));
     await page.waitForFunction(()=>window.__operation?.kind==='search'&&window.__operation.status==='done',null,{timeout:90000});
@@ -1625,6 +1625,7 @@ test('guided discovery inspects at most four exact occurrences, keeps raw runs a
     const requests=await page.evaluate(()=>window.__hostLog.filter(message=>message.type==='request-lens'&&message.lens==='matrix-discovery'));
     assert.ok(requests.length>=1&&requests.length<=4,'the automatic first wave stays within four occurrences');
     assert.ok(requests.every(message=>message.target.guidedOccurrenceCoverage===true&&message.target.setId&&message.target.hitId));
+    assert.ok(requests.every(message=>message.target.contextTerms.includes('אש')),'short story context reaches the canonical local discovery lens');
     const reports=await page.evaluate(()=>window.__log.filter(message=>message.type==='lens'&&message.lens==='matrix-discovery'&&message.ok));
     assert.equal(page.__elsDynamicLexiconRequests.length,1,'one lazy language asset request serves every inspected occurrence');
     assert.ok(reports.length>=1&&reports.every(report=>report.languageInspection?.contract==='els_matrix_language_inspection_v1'));

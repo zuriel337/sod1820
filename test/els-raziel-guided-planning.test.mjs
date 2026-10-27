@@ -121,6 +121,15 @@ test("a user-locked two-letter axis reaches the canonical cross path without rel
   assert.equal(projected.searchMode, "crossed_pair");
 });
 
+test("a two-letter context proposal survives the existing Guided plan without becoming evidence", () => {
+  const story = "אירוע שבו ספינה עלתה באש";
+  const response = { elsSearchPlan: { contract: "els_search_plan_v1", status: "READY", scope: "torah",
+    mode: "anchor_context", axes: [{ term: "ספינה" }], context_terms: ["אש"], confidence: "medium", rationale: "הקשר" } };
+  const plan = prepareElsGuidedPlanFromRaziel({ story, scope: "torah", response });
+  assert.ok(plan.contextCandidates.some(candidate => candidate.term === "אש" && candidate.selected));
+  assert.equal(plan.truthPromotion, false);
+});
+
 test("a three-word request keeps all three distinct locked terms and rejects a partial pair", () => {
   const story = 'חפש את שלוש המילים "משיח טבת עשירי" בתורה';
   const a = normalizeElsRazielPlanningAction({ id: ELS_RAZIEL_PLANNING_ACTION, surface: "els", story, scope: "torah" });

@@ -141,15 +141,35 @@ test("Colombia: actual bounded router and local language inspection report the h
   const eligible = search.hits.filter(hit => hit.skip >= 2);
   const goldenIndex = eligible.findIndex(hit => hit.skip === 4545 && hit.dir === 1 && hit.start === 248765);
   assert.ok(goldenIndex >= 0, "the local router returns the exact test occurrence");
-  const result = inspectAxis(languageContext(engine, corpus, "קולומביה"), { ...eligible[goldenIndex], length: 8 });
+  const context = languageContext(engine, corpus, "קולומביה");
+  const result = inspectAxis(context, { ...eligible[goldenIndex], length: 8 });
   const readings = result.readings.filter(row => row.baseTerm === "ספינה");
   const segmentations = result.segmentations.filter(row => row.canonicalLetters.includes("יכלאש"));
   const relations = result.relations.filter(row => row.tokens.map(token => token.canonicalLetters).join("").includes("יכלאש"));
+  const withStory = inspectAxis(context, { ...eligible[goldenIndex], length: 8 }, [{ term: "אש" }]);
+  const contextualSplit = withStory.segmentations.find(row => row.canonicalLetters === "יכלאש" && row.tokens.some(token => token.source === "story"));
+  assert.ok(contextualSplit, "a short lexicon-backed term in the story can preserve a nearby split without supplying the other word");
+  assert.equal(contextualSplit.status, "UNVERIFIED_READING");
+  assert.equal(contextualSplit.truthPromotion, false);
+  assert.ok(withStory.coverage.returnedSegmentations <= 24);
   assert.ok(readings.some(row => row.relation === "construct-form"));
   assert.ok(result.boundaries.some(row => row.leftContext.endsWith("יכל") && row.rightContext.startsWith("אש")));
   t.diagnostic(JSON.stringify({ eligible: eligible.length, capped: search.capped, goldenIndex,
     candidateReadings: readings.length, matchingSegmentations: segmentations.length, matchingRelations: relations.length,
     limitations: "local router and unverified linguistic candidates; no server replay or live model" }));
+});
+
+test("short story hints require exact dictionary corroboration and remain unverified", async () => {
+  const [engine, corpus] = await Promise.all([readFile(ENGINE, "utf8"), readFile(CORPUS, "utf8")]);
+  const context = languageContext(engine, corpus, "בדיקה");
+  const storyReading = surface => {
+    context.surfaceInput = surface;
+    return JSON.parse(JSON.stringify(vm.runInContext('guidedLanguageReadings(norm(surfaceInput),new Map([[norm(surfaceInput),{term:norm(surfaceInput),source:"story"}]]),dynamicLexicon,{count:0,max:4096,exhausted:false})', context)));
+  };
+  assert.ok(storyReading("ים").some(row => row.source === "story" && row.relation === "exact-lexicon-match"));
+  const absent = vm.runInContext('[..."אבגדהוזחטיכלמנסעפצקרשת"].flatMap(a=>[..."אבגדהוזחטיכלמנסעפצקרשת"].map(b=>a+b)).find(term=>!dynamicLexicon.words.has(term))', context);
+  assert.ok(absent);
+  assert.equal(storyReading(absent).some(row => row.source === "story"), false);
 });
 
 test("Uranium geometry candidates survive independently of the memorable skip", async () => {
