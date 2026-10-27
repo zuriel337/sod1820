@@ -292,6 +292,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const [birthReflections, setBirthReflections] = useState(() => new Map());
   const [ownedHints, setOwnedHints] = useState({ principal: userId, loading: true, rows: [], error: null });
   const [ownedHintInvestigations, setOwnedHintInvestigations] = useState(() => ({ principal: userId, rows: new Map() }));
+  const hintReadVersion = useRef(0);
   const hintInvestigations = ownedHintInvestigations.principal === userId ? ownedHintInvestigations.rows : EMPTY_HINT_INVESTIGATIONS;
   const hintState = ownedHints.principal === userId ? ownedHints : { loading: true, rows: [], error: null };
   const [familyClaims, setFamilyClaims] = useState({ state: "idle", rows: [], error: null });
@@ -356,15 +357,35 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
   const currentReturnPersonRef = research.context?.returnTo?.subject?.id || null;
   const entryFocus = useMemo(() => lifeJourneyEntryFocus(search), [search]);
 
+  const refreshPrivateHints = useCallback(async () => {
+    if (variant !== "2029" || !userId) return [];
+    const readVersion = ++hintReadVersion.current;
+    setOwnedHints(previous => ({
+      principal: userId,
+      loading: true,
+      rows: previous.principal === userId && Array.isArray(previous.rows) ? previous.rows : [],
+      error: null,
+    }));
+    try {
+      const rows = await getMyHints({ id: userId }, { fallbackLocal: false });
+      if (hintReadVersion.current === readVersion) setOwnedHints({ principal: userId, loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
+      return Array.isArray(rows) ? rows : [];
+    } catch {
+      if (hintReadVersion.current === readVersion) setOwnedHints({ principal: userId, loading: false, rows: [], error: "הרמזים אינם זמינים כרגע." });
+      return [];
+    }
+  }, [userId, variant]);
+
   useEffect(() => {
-    if (variant !== "2029" || !userId) return;
     let alive = true;
-    setOwnedHints({ principal: userId, loading: true, rows: [], error: null });
-    getMyHints({ id: userId }, { fallbackLocal: false }).then(rows => {
-      if (alive) setOwnedHints({ principal: userId, loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
-    }).catch(() => {
-      if (alive) setOwnedHints({ principal: userId, loading: false, rows: [], error: "הרמזים אינם זמינים כרגע." });
-    });
+    const readVersion = ++hintReadVersion.current;
+    if (variant === "2029" && userId) {
+      getMyHints({ id: userId }, { fallbackLocal: false }).then(rows => {
+        if (alive && hintReadVersion.current === readVersion) setOwnedHints({ principal: userId, loading: false, rows: Array.isArray(rows) ? rows : [], error: null });
+      }).catch(() => {
+        if (alive && hintReadVersion.current === readVersion) setOwnedHints({ principal: userId, loading: false, rows: [], error: "הרמזים אינם זמינים כרגע." });
+      });
+    }
     return () => { alive = false; };
   }, [userId, variant]);
 
@@ -1216,7 +1237,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
           onPositionChange={variant === "2029" ? updateMapPosition : undefined}
           birthTimeline={birthTimeline}
           hintState={variant === "2029" ? hintState : null}
+          hintUserId={variant === "2029" ? userId : null}
           onSaveHint={variant === "2029" ? savePrivateHint : undefined}
+          onRefreshHints={variant === "2029" ? refreshPrivateHints : undefined}
           hintInvestigations={variant === "2029" ? hintInvestigations : undefined}
           onInvestigateHint={variant === "2029" ? investigatePrivateHint : undefined}
           onExplainHint={variant === "2029" ? onRequestHintExplanation : undefined}
@@ -1757,7 +1780,7 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
     </section>
 
     {variant === "2029" && CapabilitySurface && !selectedFamilyRefs.length
-      ? <CapabilitySurface view="hints" user={user} hintState={hintState} hintMembers={members} onSaveHint={savePrivateHint} hintInvestigations={hintInvestigations} onInvestigateHint={investigatePrivateHint} onExplainHint={onRequestHintExplanation} />
+      ? <CapabilitySurface view="hints" user={user} hintState={hintState} hintMembers={members} onSaveHint={savePrivateHint} onRefreshHints={refreshPrivateHints} hintInvestigations={hintInvestigations} onInvestigateHint={investigatePrivateHint} onExplainHint={onRequestHintExplanation} />
       : null}
 
     <section className="person-journey-next" data-experience-capability="life-journey-next">

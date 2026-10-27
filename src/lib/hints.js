@@ -14,6 +14,25 @@ function lsWrite(arr) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch { /* מלא/חסום */ }
 }
 
+function normalizePrivateMedia(value) {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap(item => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return [];
+    const storageObjectId = String(item.storage_object_id || "").trim();
+    const intentId = String(item.intent_id || "").trim();
+    const state = String(item.state || "").trim();
+    if (!storageObjectId || !intentId || !["bound", "cleanup_pending", "delete_pending", "detached"].includes(state)) return [];
+    return [{
+      storage_object_id: storageObjectId,
+      intent_id: intentId,
+      kind: item.kind === "image" ? "image" : null,
+      role: item.role === "evidence_image" ? "evidence_image" : null,
+      visibility: item.visibility === "private" ? "private" : null,
+      state,
+    }];
+  });
+}
+
 // שורת-רמז מנורמלת (אותו מבנה בענן ובמקומי). שדות Life Journey
 // נשארים metadata של אותה רשומת research_items/hint — אין store מקביל.
 function normalize(row) {
@@ -32,6 +51,7 @@ function normalize(row) {
     occurred_at: m.occurred_at || null,
     date_precision: m.date_precision || null,
     life_journey_member_ref: m.life_journey_member_ref || null,
+    media: normalizePrivateMedia(row.media),
     created_at: row.created_at || m.created_at || null,
   };
 }
@@ -53,7 +73,7 @@ export async function getMyHints(user, { fallbackLocal = true } = {}) {
   if (user && supabase) {
     const { data, error } = await supabase
       .from("research_items")
-      .select("id, entity_ref, title, link, metadata, created_at")
+      .select("id, entity_ref, title, link, metadata, media, created_at")
       .eq("user_id", user.id)
       .eq("bucket", BUCKET)
       .order("created_at", { ascending: false })
@@ -110,7 +130,7 @@ export async function addHint(user, h, { fallbackLocal = true } = {}) {
     const { data, error } = await supabase
       .from("research_items")
       .insert(values)
-      .select("id, entity_ref, title, link, metadata, created_at")
+      .select("id, entity_ref, title, link, metadata, media, created_at")
       .single();
     if (!error && data) return normalize(data);
     // Retrying a confirmed capture is idempotent. Read back only the exact owned
@@ -118,7 +138,7 @@ export async function addHint(user, h, { fallbackLocal = true } = {}) {
     if (error && captureId) {
       const { data: existing, error: readError } = await supabase
         .from("research_items")
-        .select("id, entity_ref, title, link, metadata, created_at")
+        .select("id, entity_ref, title, link, metadata, media, created_at")
         .eq("id", captureId)
         .eq("user_id", user.id)
         .eq("bucket", BUCKET)

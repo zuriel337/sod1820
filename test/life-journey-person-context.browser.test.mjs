@@ -179,6 +179,19 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     assert.equal(await hintBranch.getByRole("button").getAttribute("aria-pressed"), "true", "private hints are an active branch in the same research tree");
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.dimensions?.lifeJourneyMapTab), "hints");
     assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]), callsBeforeHints, "opening owned hint references starts no research, AI or ELS call");
+    const existingHint = hintPanel.locator(".person-journey-hint-list article", { hasText: "רמז קיים" });
+    await existingHint.getByLabel("צרף תמונה פרטית").setInputFiles({
+      name: "private-evidence.png",
+      mimeType: "image/png",
+      buffer: Buffer.from([137, 80, 78, 71]),
+    });
+    await existingHint.getByRole("img", { name: "תמונה פרטית המצורפת אל רמז קיים" }).waitFor();
+    const mediaCallsAfterAttach = await page.evaluate(() => window.__hintMediaCalls);
+    assert.equal(mediaCallsAfterAttach[0].action, "attach");
+    assert.equal(mediaCallsAfterAttach.some(call => call.action === "read"), true, "bound media is read through a fresh owner check");
+    assert.deepEqual(await page.evaluate(() => [window.__matrixCalls.length, window.__reflectionCalls.length, window.__nameCalls.length, window.__dateCalls.length, window.__elsCalls.length]), callsBeforeHints, "private upload starts no research, AI, Raziel or ELS call");
+    assert.equal(await page.evaluate(() => Object.values(localStorage).some(value => /data:image|signed_url|receipt|private-evidence\.png/i.test(String(value)))), false, "browser storage contains no file name, signed URL or receipt");
+    assert.equal(decodeURIComponent(page.url()).includes("private-evidence.png"), false, "private file name is never placed in the URL");
     const privateObservation = "מצאתי חזרה פרטית בבדיקה";
     const privateQuestion = "האם היא קשורה לתאריך האירוע?";
     await hintPanel.getByRole("button", { name: "הוסף תצפית פרטית" }).click();
@@ -557,6 +570,9 @@ test("Life Journey keeps Person and explicit family selection through Name and D
       names: window.__nameCalls.length,
       els: window.__elsCalls.length,
     })), { matrix: 0, reflection: 0, sources: 0, names: 0, els: 0 }, "refresh restores the private family snapshot without automatically researching names, sources or ELS again");
+    await hintBranch.getByRole("button", { name: /הרמזים הפרטיים שלי/ }).click();
+    await existingHint.getByRole("img", { name: "תמונה פרטית המצורפת אל רמז קיים" }).waitFor();
+    assert.equal(await page.evaluate(() => window.__hintMediaCalls.some(call => call.action === "read")), true, "reload resolves the same opaque attachment through a new signed read");
 
     // The transport is a synthetic backend; production save/resume adapters are real.
     await openMap("summary");
@@ -729,6 +745,7 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await page.getByRole("heading", { name: "מי אני" }).waitFor();
     await hintPanel.getByText("אין כרגע רמזים שמורים ב־research_items / hint.", { exact: true }).waitFor();
     assert.equal(await hintPanel.getByText("רמז קיים", { exact: true }).count(), 0, "another account never inherits the owner's hint projection");
+    assert.equal(await hintPanel.getByRole("img").count(), 0, "principal change clears the previous account's private image immediately");
     assert.deepEqual(await page.evaluate(() => window.__hintReads.map(call => call.user.id)), ["fixture-claimant"]);
     await page.getByText("חיבור חשבונות והזמנות", { exact: true }).click();
     const claimantContinuity = page.locator('[data-experience-capability="life-journey-account-continuity"]');
@@ -747,6 +764,13 @@ test("Life Journey keeps Person and explicit family selection through Name and D
     await ownerContinuity.locator("article", { hasText: "ילד בדיקה" }).getByRole("button", { name: "נתק אימות חשבון" }).waitFor();
     await page.locator(".person-journey-family-member", { hasText: "ילד בדיקה" }).getByText(/זהות החשבון אומתה/).waitFor();
     assert.equal(await page.evaluate(() => window.__lifeJourneyContext?.subject?.id), firstRef, "account-scoped Research Context returns only for the owner account");
+    await hintBranch.getByRole("button", { name: /הרמזים הפרטיים שלי/ }).click();
+    await existingHint.getByRole("img", { name: "תמונה פרטית המצורפת אל רמז קיים" }).waitFor();
+    page.once("dialog", dialog => dialog.accept());
+    await existingHint.getByRole("button", { name: "הסר תמונה" }).click();
+    await existingHint.getByRole("img", { name: "תמונה פרטית המצורפת אל רמז קיים" }).waitFor({ state: "detached" });
+    assert.equal(await page.evaluate(() => window.__hintMediaCalls.some(call => call.action === "detach")), true, "explicit removal uses the private detach path");
+    assert.equal(await page.evaluate(() => localStorage.getItem("life-journey-private-hint-media-fixture")), "{}", "detached media is absent from the synthetic private backend");
 
     const privacy = await page.evaluate(() => ({
       telemetry: window.__telemetry,

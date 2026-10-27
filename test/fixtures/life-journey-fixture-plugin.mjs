@@ -20,13 +20,35 @@ export function createLifeJourneyFixturePlugin() {
       window.__hintReads=window.__hintReads||[];
       window.__hintWrites=window.__hintWrites||[];
       const saved=[];
+      const mediaKey="life-journey-private-hint-media-fixture";
+      const media=()=>{try{return JSON.parse(localStorage.getItem(mediaKey)||"{}");}catch{return {};}};
+      const withMedia=row=>({...row,media:media()[row.id]||row.media||[]});
       const initial=[
-        {id:"hint-1",hint_type:"idea",number:73,title:"רמז קיים",source_url:"https://example.test/source",occurred_at:"2024-02-29",created_at:"2035-11-03",note:"תוכן רמז פרטי"},
-        {id:"hint-2",hint_type:"idea",title:"רמז ללא מועד",created_at:"2035-11-03"},
-        {id:"hint-3",hint_type:"idea",title:"רמז עם שעה",occurred_at:"2024-02-29T21:30:00+02:00"},
+        {id:"77777777-7777-4777-8777-777777777777",hint_type:"idea",number:73,title:"רמז קיים",source_url:"https://example.test/source",occurred_at:"2024-02-29",created_at:"2035-11-03",note:"תוכן רמז פרטי"},
+        {id:"88888888-8888-4888-8888-888888888888",hint_type:"idea",title:"רמז ללא מועד",created_at:"2035-11-03"},
+        {id:"99999999-9999-4999-8999-999999999999",hint_type:"idea",title:"רמז עם שעה",occurred_at:"2024-02-29T21:30:00+02:00"},
       ];
-      export async function getMyHints(user,options){window.__hintReads.push({user,options});if(localStorage.getItem("life-journey-deny-hints-fixture")==="1")throw new Error("denied");return user?.id==="fixture-owner"?[...saved,...initial]:[];}
-      export async function addHint(user,h,options){window.__hintWrites.push({user,h,options});const row={id:h.capture_ref,created_at:"2026-10-26T12:00:00Z",...h};saved.unshift(row);return row;}
+      export async function getMyHints(user,options){window.__hintReads.push({user,options});if(localStorage.getItem("life-journey-deny-hints-fixture")==="1")throw new Error("denied");return user?.id==="fixture-owner"?[...saved,...initial].map(withMedia):[];}
+      export async function addHint(user,h,options){window.__hintWrites.push({user,h,options});const row={id:h.capture_ref,created_at:"2026-10-26T12:00:00Z",media:[],...h};saved.unshift(row);return row;}
+    `],
+    ["virtual:life-journey-hint-media.js", `
+      export const LIFE_JOURNEY_HINT_IMAGE_ACCEPT="image/png,image/jpeg,image/webp,image/gif,image/avif";
+      const key="life-journey-private-hint-media-fixture";
+      const read=()=>{try{return JSON.parse(localStorage.getItem(key)||"{}");}catch{return {};}};
+      const write=value=>localStorage.setItem(key,JSON.stringify(value));
+      const account=()=>localStorage.getItem("life-journey-account-fixture")==="claimant"?"fixture-claimant":"fixture-owner";
+      const assertOwner=expected=>{if(expected!=="fixture-owner"||account()!==expected)throw new Error("principal_changed");};
+      window.__hintMediaCalls=window.__hintMediaCalls||[];
+      export function lifeJourneyHintMediaErrorMessage(error){return error?.message==="principal_changed"?"החשבון השתנה או שהחיבור פג. התחברו מחדש ונסו שוב.":"לא ניתן להשלים כרגע את פעולת התמונה הפרטית.";}
+      export async function attachLifeJourneyHintImage({hintId,file,expectedUserId,onPhase,onProgress,signal}){
+        assertOwner(expectedUserId);if(signal?.aborted)throw new DOMException("aborted","AbortError");
+        window.__hintMediaCalls.push({action:"attach",hintId,mime:file.type,size:file.size});
+        for(const phase of ["issuing","uploading","verifying","binding"]){onPhase?.(phase);if(phase==="uploading")onProgress?.({bytesUploaded:file.size,bytesTotal:file.size,percentage:100});await Promise.resolve();assertOwner(expectedUserId);}
+        const rows=read(),objectId="44444444-4444-4444-8444-"+hintId.replaceAll("-","").slice(0,12);rows[hintId]=[{storage_object_id:objectId,intent_id:"55555555-5555-4555-8555-555555555555",kind:"image",role:"evidence_image",visibility:"private",state:"bound"}];write(rows);onPhase?.("ready");return {hintId,storageObjectId:objectId,kind:"image",role:"evidence_image",visibility:"private",alreadyBound:false};
+      }
+      export async function readLifeJourneyHintImage({hintId,storageObjectId,expectedUserId,signal}){assertOwner(expectedUserId);if(signal?.aborted)throw new DOMException("aborted","AbortError");window.__hintMediaCalls.push({action:"read",hintId,storageObjectId});const svg=encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><rect width="320" height="180" fill="#d8c27a"/><text x="160" y="96" text-anchor="middle" font-size="24">PRIVATE HINT</text></svg>');return {hintId,storageObjectId,signedUrl:"data:image/svg+xml,"+svg,expiresInSeconds:60,mime:"image/png",size:4};}
+      export async function detachLifeJourneyHintImage({hintId,storageObjectId,expectedUserId,signal}){assertOwner(expectedUserId);if(signal?.aborted)throw new DOMException("aborted","AbortError");window.__hintMediaCalls.push({action:"detach",hintId,storageObjectId});const rows=read();delete rows[hintId];write(rows);return {ok:true,cleanupPending:false,cleanupReceipt:null};}
+      export async function retryLifeJourneyHintImageCleanup(){return {ok:true,cleanupPending:false,cleanupReceipt:null};}
     `],
     ["virtual:life-journey-canonical-gematria.js", `
       window.__nameCalls=window.__nameCalls||[];
@@ -170,6 +192,7 @@ export function createLifeJourneyFixturePlugin() {
     ["personalDateResearch.js", "virtual:life-journey-personal-date.js"],
     ["researchPlanV2.js", "virtual:life-journey-plan.js"],
     ["hints.js", "virtual:life-journey-hints.js"],
+    ["lifeJourneyHintMedia.js", "virtual:life-journey-hint-media.js"],
     ["familyClaimAdapter.js", "virtual:life-journey-family-claim.js"],
     ["canonicalGematria.js", "virtual:life-journey-canonical-gematria.js"],
   ]);
