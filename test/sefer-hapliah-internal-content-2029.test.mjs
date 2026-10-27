@@ -29,7 +29,7 @@ test("HaPeli'ah internal depth has stable IDs, legal and exact one-based PDF ran
     const source = unit.source;
     assert.ok(!ids.has(unit.id), `duplicate internal unit ${unit.id}`);
     ids.add(unit.id);
-    assert.match(unit.id, /^hapliah\\.[a-z-]+\\.[a-z0-9-]+$/);
+    assert.match(unit.id, /^hapliah\.[a-z-]+\.[a-z0-9-]+$/);
     assert.ok(gateIds.has(unit.gate_id), `unknown gate: ${unit.id}`);
     const gate = map.gates.find(item => item.id === unit.gate_id);
     assert.ok(source.from_pdf_page >= gate.from_pdf_page, unit.id);
