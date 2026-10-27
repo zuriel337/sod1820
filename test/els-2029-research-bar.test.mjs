@@ -8,7 +8,7 @@ const css = readFileSync(new URL("../src/components/experience2029/els2029-resea
 
 test("research bar renders only in the Research profile and keeps Classic mounted in place", () => {
   assert.match(page, /\{researchProfile && \(!guidedProfile \|\| researchLoad\?\.guidedDiscovery === true \|\| savedRecord\.row\) \? <ElsResearchBarConnected/);
-  assert.match(page, /<ElsNativeClassic2029 initialSeed=/);
+  assert.match(page, /<ElsNativeWithRaziel[^>]*initialSeed=/);
   assert.match(page, /data-els-research-composition/);
 });
 

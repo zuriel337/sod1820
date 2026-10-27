@@ -24,7 +24,8 @@ const functionSource = (source, name) => {
 test("Classic 2029 mounts a native workspace instead of exposing the old full iframe by default", () => {
   assert.match(page, /import ElsNativeClassic2029 from/);
   assert.match(page, /data-els-classic-2029="native-v1"/);
-  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\}/);
+  assert.match(page, /<ElsNativeWithRaziel[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\}/);
+  assert.match(page, /<ElsNativeClassic2029 \{\.\.\.props\} onRazielMatrix=\{analyze\} \/>/);
   assert.match(page, /active=\{!library && \(!guidedProfile \|\| researchLoad\?\.guidedDiscovery === true \|\| directSavedOpen\)\}/);
   assert.doesNotMatch(page, /<TzofenEmbed/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
@@ -63,7 +64,7 @@ test("Native scope and simple cross search delegate to the canonical search path
   assert.match(nativeClassic, /searchRequest=\{searchRequest\}/);
   assert.match(nativeClassic, /requestSearch\("regular", \{ term, scope: activeScope \}\)/);
   assert.match(nativeClassic, /submitCross = \(scope = activeScope\)/);
-  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope, radius: crossRadius \}\)/);
+  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope, radius: crossRadius, maxLetterGap: crossLetterGap \}\)/);
   assert.match(nativeClassic, /switchScope\("torah"\)/);
   assert.match(nativeClassic, /switchScope\("tanakh"\)/);
   assert.match(nativeClassic, /data-els-native-cross="simple"/);
@@ -222,7 +223,8 @@ test("Classic engine stays mounted across Classic/Research profile switches so w
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
   assert.doesNotMatch(page, /aria-hidden=\{researchProfile\}/);
   assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf("<details className=\"sod29-els-research-details\""));
-  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\}/);
+  assert.match(page, /<ElsNativeWithRaziel[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\}/);
+  assert.match(page, /<ElsNativeClassic2029 \{\.\.\.props\} onRazielMatrix=\{analyze\} \/>/);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });
 
