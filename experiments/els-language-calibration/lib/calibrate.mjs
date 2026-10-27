@@ -56,6 +56,7 @@ export function shiftedAxes({ axis, box, boxOf, streamLetters, count, multiplier
     if (moved.positions.some((position) => position < 0 || position >= streamLetters)) continue;
     const movedBox = boxOf(moved);
     if (!movedBox || movedBox.r1 - movedBox.r0 !== box.r1 - box.r0 || movedBox.c1 - movedBox.c0 !== box.c1 - box.c0) continue;
+    if (movedBox.S === box.S && movedBox.r0 <= box.r1 && movedBox.r1 >= box.r0 && movedBox.c0 <= box.c1 && movedBox.c1 >= box.c0) continue; // shares cells with the real window
     out.push({ axis: moved, box: movedBox, m });
   }
   if (out.length < count) throw new Error(`only ${out.length} of ${count} windows of the same shape were found`);

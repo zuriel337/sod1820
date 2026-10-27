@@ -21,3 +21,8 @@ marked saturated (the product's caps hide the difference) and carries no informa
 2. If the primary metric is saturated or p > 0.05 in all three cases, the conclusion is: the reader's ranking carries no calibrated signal on these pages.
 3. The strings seen in the ledger (`look` in cases.json) are used only AFTER the run, to ask whether the product's output contains them. They never enter a metric.
 4. Nothing in this experiment changes the product, the engine or any data; no AI is called.
+
+## Amendments (each made before the first recorded run)
+
+1. A moved window that shares at least one cell with the real window (same width, overlapping rows and columns) is skipped, so the real window is never compared
+   with itself. Found during a 20-window smoke run whose numbers were not recorded.
