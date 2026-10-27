@@ -42,6 +42,6 @@ test("OCR source asset loads only on request and source actions retain the exist
   const component = await readFile(new URL("../src/components/books2029/AhavatTorahSourceTables2029.jsx", import.meta.url), "utf8");
   assert.match(component, /if \(!expanded \|\| bundle\) return/);
   assert.match(component, /controller\.abort\(\)/);
-  assert.match(component, /onPage\(next, "DS-11"\)/);
+  assert.match(component, /onPage\(next, "DS-11", unitId\)/);
   assert.match(component, /התעתיק הוא כלי איתור בלבד ואינו ציטוט מאומת/);
 });
