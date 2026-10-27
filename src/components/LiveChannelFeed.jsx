@@ -33,6 +33,7 @@ const CHANNEL_KEYS = ["torat-haremez", "gilui-yomi", "site-news", "reality-code"
 const CH_KEYS = Object.keys(CH);   // כל השולחים (ערוצים + פורום + פעילות) — לשבבים/סינון/מכסות
 const DESKTOP_MQ = "(min-width:900px)";
 const isVideo = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
+const isAudio = u => /\.(ogg|oga|opus|mp3|wav|m4a|aac)(\?|#|$)/i.test(u || "") || (/\/audio\//.test(u || "") && /\.webm(\?|#|$)/i.test(u || ""));
 // מענה-AI: מסומן דרך source או קרדיט הבוט (רזיאל). תיוג-אמת מהאינג'סט: source='ai'.
 const isAi = u => u.source === "ai" || /רזיאל|בינה מלאכות|\bai\b/i.test(u.credit || "");
 
