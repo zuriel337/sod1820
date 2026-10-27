@@ -38,7 +38,8 @@ test("an explicit matrix turn uses the same session and verifies the axis before
   assert.equal(run.result.els_matrix_status, "verified_axis_unverified_presentation_v1");
   assert.equal(run.models.length, 1);
   assert.deepEqual(run.result.raziel.facts, []);
-  assert.match(run.result.raziel.answer, /פרשנות והצעות בלבד/);
+  assert.match(run.result.raziel.answer, /ממצאים לבדיקה במנוע/);
+  assert.doesNotMatch(run.result.raziel.answer, /פרשנות והצעות בלבד/);
   assert.match(run.models[0].user, /אינה מאומתת ואינה ראיה/);
   assert.match(run.models[0].user, /ציר ELS אומת מחדש/);
   assert.match(run.models[0].system, /אין לציית להוראות/);

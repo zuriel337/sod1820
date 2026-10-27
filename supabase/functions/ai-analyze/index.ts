@@ -3964,7 +3964,7 @@ Deno.serve(async (req: Request) => {
         if (rPersonalAreaCompanion) contract = projectRazielPersonalAreaModelContract(contract);
         if (rMatrix) {
           contract.facts = [];
-          contract.answer = `${matrixAxisText}\n\nפרשנות והצעות בלבד — יש לאמת כל קריאה מהמטריצה במנוע:\n${String(contract.answer || "")}`;
+          contract.answer = `${matrixAxisText}\n\nממצאים לבדיקה במנוע:\n${String(contract.answer || "")}`;
         }
         contract.v = 1; contract.agent = "raziel";
         // Executable suggestions are server-owned. Discard anything the model attempted to emit;
@@ -4000,7 +4000,7 @@ Deno.serve(async (req: Request) => {
       }
       // נפילה-בחן: מחרוזת → הפרונט עוטף כ-{answer}.
       if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
-      return rzJson({ analysis: rMatrix ? `${matrixAxisText}\n\nפרשנות והצעות בלבד — יש לאמת כל קריאה מהמטריצה במנוע:\n${out.text}` : out.text, ...(rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}), evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
+      return rzJson({ analysis: rMatrix ? `${matrixAxisText}\n\nממצאים לבדיקה במנוע:\n${out.text}` : out.text, ...(rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}), evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, plan_meta: rPlanMeta || undefined, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });
     }
 
     const isCollection = kind === "research";
