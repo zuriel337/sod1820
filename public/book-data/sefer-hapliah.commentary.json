@@ -13,8 +13,7 @@
   },
   "source_layers": {
     "book_text": "דברי הספר",
-    "companion": "הסבר נלווה",
-    "printed_commentary": "פירוש מודפס במהדורה: גבולותיו וקיומו לא הוכרעו חזותית; אין לשייך את ההסבר הנלווה לפירוש מודפס."
+    "companion": "הסבר נלווה"
   },
   "source_note": "ה־PDF הוא המקור. שערי הקריאה מעוגנים במעברי הפסוקים והנושאים הנראים בעד; הם מפת התמצאות ואינם מוצגים ככותרות מקור אם לא נדפסו כך. שכבת החיפוש היא חילוץ מכונה ואינה תחליף לקריאת הדף. מפת העומק מוסיפה יחידות פנימיות בעמודי כניסה נבחרים; 327 ההסברים הקודמים נשמרו, ובדפים ששודרגו הועברו לשדה first_pass_snapshot. מספר יחידות העומק אינו מייצג כיסוי תוכני מלא של 327 העמודים.",
   "gates": [
@@ -5557,5 +5556,6 @@
     "interactive_map_ui": "unwired_shared_manifest_and_reader_intentionally_untouched",
     "engine_verification": "not_tested",
     "original_first_pass": "preserved_in_first_pass_snapshot_for_each_updated_entry_page"
-  }
+  },
+  "printed_commentary_status": "פירוש מודפס במהדורה: גבולותיו וקיומו לא הוכרעו חזותית; אין לשייך את ההסבר הנלווה לפירוש מודפס."
 }
