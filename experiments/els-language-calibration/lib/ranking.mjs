@@ -152,7 +152,7 @@ export const overlapKey = (candidate) => candidate.cells.map(([r, c]) => `${cand
 
 /** Findings in order: a candidate that shares a cell on the same line with a kept one is the same finding and is dropped. */
 export function rankFindings(candidates, rankerName, ctx) {
-  const ranker = RANKERS[rankerName];
+  const ranker = typeof rankerName === "string" ? RANKERS[rankerName] : rankerName;
   const eligible = candidates.filter((c) => ranker.eligible(c, ctx)).map((c) => ({ c, tuple: ranker.tuple(c, ctx) }));
   eligible.sort((x, y) => compareTuples(x.tuple, y.tuple) || stable(x.c, y.c));
   const taken = new Set();
