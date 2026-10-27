@@ -41,6 +41,7 @@ const isAi = u => u.source === "ai" || /רזיאל|בינה מלאכות|\bai\b/
 const snip = t => stripHtml(t || "").replace(/\s+/g, " ").trim().slice(0, 40);
 function previewOf(u) {
   const cap = (u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו") ? snip(u.text) : "";
+  if (u.image_url && isAudio(u.image_url)) return cap ? `🎤 ${cap}` : "🎤 הודעה קולית";
   if (u.image_url && isVideo(u.image_url)) return cap ? `🎥 ${cap}` : "🎥 סרטון חדש";
   if (u.image_url) return cap ? `📷 ${cap}` : "📷 תמונה חדשה";
   return cap || "💬 עדכון חדש";
@@ -118,6 +119,8 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
   const { open } = useSiteUpdates();
   const [raw, setRaw] = useState([]);
   const [active, setActive] = useState(() => Object.fromEntries(CH_KEYS.map(k => [k, true])));
+  const [orGeulaOnly, setOrGeulaOnly] = useState(false);
+  const [orGeulaLimit, setOrGeulaLimit] = useState(30);
   const [unseen, setUnseen] = useState(0);
   const [zoom, setZoom] = useState(null);   // תמונה מוגדלת (לייטבוקס)
   const [vid, setVid] = useState(null);     // וידאו לניגון (מתנגן רק בהקשה — Egress)
@@ -149,7 +152,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
       try {
         // ערוצי-הוואטסאפ + «הדברים החדשים» מכל האתר (פורום · פעילות/זרם-המציאות), במקביל
         const [chanArr, forum, hints] = await Promise.all([
-          Promise.all(CHANNEL_KEYS.map(k => (k === "torat-haremez" ? getToratHaremezLiveFeed(60) : getChannelUpdates(12, k, true)).then(r => (r || []).map(x => ({ ...x, ch: k }))))),
+          Promise.all(CHANNEL_KEYS.map(k => (k === "torat-haremez" ? getToratHaremezLiveFeed(60) : getChannelUpdates(orGeulaOnly && k === "or-geula" ? orGeulaLimit : 12, k, true)).then(r => (r || []).map(x => ({ ...x, ch: k }))))),
           forumBlocked ? Promise.resolve([]) : getForumFeed({ limit: 15, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
           getRealityHints(10).catch(() => []),
         ]);
@@ -164,7 +167,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 90000);
     return () => { live = false; clearInterval(id); };
-  }, [forumBlocked]);
+  }, [forumBlocked, orGeulaOnly, orGeulaLimit]);
 
   const items = useMemo(() => applyCaps(raw.filter(u => active[u.ch] && !hidden.has(u.id))).slice(-60), [raw, active, hidden]);
   // שורת-העדכון האחרון לגלולה הצפה (מובייל) — מתחלפת בין ה-6 החדשים
