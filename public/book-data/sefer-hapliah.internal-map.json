@@ -3080,7 +3080,711 @@
       "range_review_status": "single_page_locator"
     }
   ],
-  "structure_specs": [],
+  "structure_specs": [
+    {
+      "id": "hapliah.struct.throne-palaces",
+      "title": "כיסאות, היכלות ומדרגות",
+      "label": "ייצוג של מבנה הספר",
+      "state": "CONTENT_SPEC_ONLY_NOT_IMPLEMENTED",
+      "source_unit_ids": [
+        "hapliah.palaces.throne-93",
+        "hapliah.palaces.palaces-94",
+        "hapliah.palaces.printed-schematic-95",
+        "hapliah.palaces.ranks-97"
+      ],
+      "source_layers": {
+        "book": "דברי הספר — דורש אימות דף חזותי",
+        "printed_commentary": "לא זוהה/הופרד במלואו",
+        "companion": "הסבר נלווה"
+      },
+      "components": [
+        {
+          "id": "hp.throne",
+          "label": "כיסא הכבוד",
+          "description": "כיסא ותאריו נשאלים בדף",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 93,
+            "anchor": "#page=93&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=93&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.royal-tools",
+          "label": "כתר, שרביט, כיסא",
+          "description": "שלושה דימויים של כלי מלכות",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 93,
+            "anchor": "#page=93&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=93&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.palaces",
+          "label": "היכלות",
+          "description": "היכלות עם תפקידים ושמות ממונים",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 94,
+            "anchor": "#page=94&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=94&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.diagram-page",
+          "label": "תרשים העד המודפס",
+          "description": "תמונה צפופה של שמות ודימויים; טרם פוענחה",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 95,
+            "anchor": "#page=95&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=95&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.creatures",
+          "label": "חיות הקודש",
+          "description": "מדרגות חיות וכיסא",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 97,
+            "anchor": "#page=97&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        }
+      ],
+      "relations": [
+        {
+          "id": "hp.throne.tools",
+          "from": "hp.throne",
+          "to": "hp.royal-tools",
+          "label": "דימוי מלכות לצד תיאור הכיסא",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 93,
+            "anchor": "#page=93&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=93&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.palaces.throne",
+          "from": "hp.palaces",
+          "to": "hp.throne",
+          "label": "ההיכלות נידונים בסביבת הכיסא, יחס פרשני טעון בדיקה",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 94,
+            "anchor": "#page=94&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=94&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.creatures.throne",
+          "from": "hp.creatures",
+          "to": "hp.throne",
+          "label": "דף הרקיע מזכיר את שניהם ברצף מדרגות",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 97,
+            "anchor": "#page=97&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        }
+      ],
+      "presentation": {
+        "type": "source_linked_semantic_outline_not_spatial_renderer",
+        "default": "רשימת קשרים בעברית וקישור לכל רכיב/קשר אל עמוד ה־PDF",
+        "geometry": null,
+        "scale": null,
+        "distance": null,
+        "color_encoding": null,
+        "height_encoding": null,
+        "coordinates": null,
+        "no_implicit_spatial_edges": true,
+        "zoom_beyond_source": false
+      },
+      "preview_access": "document-backed content can be shown without engine; no new reader or surface",
+      "engine_status": "not_tested",
+      "visual_adjudication": "required_before_any_graphical_layout_or_definitive_relation",
+      "open_questions": [
+        "אין להגדיר מספר כיסאות או קומות בלי קריאה חזותית",
+        "הקשרים בין תאי התרשים ב־PDF 95 אינם ניתנים לאימות בחילוץ הטקסט"
+      ]
+    },
+    {
+      "id": "hapliah.struct.angel-camps",
+      "title": "ארבעת המחנות סביב השכינה — יחסים יחסיים",
+      "label": "ייצוג של מבנה הספר",
+      "state": "CONTENT_SPEC_ONLY_NOT_IMPLEMENTED",
+      "source_unit_ids": [
+        "hapliah.palaces.four-camps-98"
+      ],
+      "source_layers": {
+        "book": "דברי הספר — דורש אימות דף חזותי",
+        "printed_commentary": "לא זוהה/הופרד במלואו",
+        "companion": "הסבר נלווה"
+      },
+      "components": [
+        {
+          "id": "hp.shechina",
+          "label": "השכינה",
+          "description": "נקודת הייחוס הלשונית",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 99,
+            "anchor": "#page=99&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.michael",
+          "label": "מיכאל",
+          "description": "נזכר ביחס צד ימין",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 99,
+            "anchor": "#page=99&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.gabriel",
+          "label": "גבריאל",
+          "description": "נזכר ביחס צד שמאל",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 99,
+            "anchor": "#page=99&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.uriel",
+          "label": "אוריאל",
+          "description": "נזכר ביחס לפניו",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 99,
+            "anchor": "#page=99&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.raphael",
+          "label": "רפאל",
+          "description": "נזכר ביחס מאחוריו",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 99,
+            "anchor": "#page=99&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        }
+      ],
+      "relations": [
+        {
+          "id": "hp.angel-michael",
+          "from": "hp.michael",
+          "to": "hp.shechina",
+          "label": "לימין לפי תיאור הדף",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 99,
+            "anchor": "#page=99&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.angel-gabriel",
+          "from": "hp.gabriel",
+          "to": "hp.shechina",
+          "label": "לשמאל לפי תיאור הדף",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 99,
+            "anchor": "#page=99&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.angel-uriel",
+          "from": "hp.uriel",
+          "to": "hp.shechina",
+          "label": "מלפניו, כפי שעולה ברצף",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 99,
+            "anchor": "#page=99&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.angel-raphael",
+          "from": "hp.raphael",
+          "to": "hp.shechina",
+          "label": "מאחוריו, כפי שעולה ברצף",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 99,
+            "anchor": "#page=99&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        }
+      ],
+      "presentation": {
+        "type": "source_linked_semantic_outline_not_spatial_renderer",
+        "default": "רשימת קשרים בעברית וקישור לכל רכיב/קשר אל עמוד ה־PDF",
+        "geometry": null,
+        "scale": null,
+        "distance": null,
+        "color_encoding": null,
+        "height_encoding": null,
+        "coordinates": null,
+        "no_implicit_spatial_edges": true,
+        "zoom_beyond_source": false
+      },
+      "preview_access": "document-backed content can be shown without engine; no new reader or surface",
+      "engine_status": "not_tested",
+      "visual_adjudication": "required_before_any_graphical_layout_or_definitive_relation",
+      "open_questions": [
+        "אין להפוך ימין ושמאל אוטומטית למזרח ומערב",
+        "כינויי היחס מחייבים אימות מיהו מושא כל כינוי"
+      ]
+    },
+    {
+      "id": "hapliah.struct.camp-banners",
+      "title": "ארבעה דגלים ורוחות העולם",
+      "label": "ייצוג של מבנה הספר",
+      "state": "CONTENT_SPEC_ONLY_NOT_IMPLEMENTED",
+      "source_unit_ids": [
+        "hapliah.palaces.banners-100"
+      ],
+      "source_layers": {
+        "book": "דברי הספר — דורש אימות דף חזותי",
+        "printed_commentary": "לא זוהה/הופרד במלואו",
+        "companion": "הסבר נלווה"
+      },
+      "components": [
+        {
+          "id": "hp.compass",
+          "label": "ארבע רוחות העולם",
+          "description": "ארגון לפי מזרח, דרום, צפון ומערב",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 101,
+            "anchor": "#page=101&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=101&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.judah",
+          "label": "דגל מחנה יהודה",
+          "description": "מזרח",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 100,
+            "anchor": "#page=100&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.reuben",
+          "label": "דגל מחנה ראובן",
+          "description": "דרום",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 100,
+            "anchor": "#page=100&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.dan",
+          "label": "דגל מחנה דן",
+          "description": "צפון",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 100,
+            "anchor": "#page=100&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.ephraim",
+          "label": "דגל מחנה אפרים",
+          "description": "מערב",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 100,
+            "anchor": "#page=100&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.tribes",
+          "label": "שנים־עשר שבטים",
+          "description": "תיאור קבוצות של שלושה לכל דגל",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 101,
+            "anchor": "#page=101&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=101&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        }
+      ],
+      "relations": [
+        {
+          "id": "hp.ban.judah",
+          "from": "hp.judah",
+          "to": "hp.compass",
+          "label": "מזרח",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 100,
+            "anchor": "#page=100&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.ban.reuben",
+          "from": "hp.reuben",
+          "to": "hp.compass",
+          "label": "דרום",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 100,
+            "anchor": "#page=100&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.ban.dan",
+          "from": "hp.dan",
+          "to": "hp.compass",
+          "label": "צפון",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 100,
+            "anchor": "#page=100&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.ban.ephraim",
+          "from": "hp.ephraim",
+          "to": "hp.compass",
+          "label": "מערב",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 100,
+            "anchor": "#page=100&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.ban.tribes",
+          "from": "hp.tribes",
+          "to": "hp.compass",
+          "label": "ארבע קבוצות של שלושה שבטים, ללא קואורדינטות מדודות",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 101,
+            "anchor": "#page=101&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=101&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        }
+      ],
+      "presentation": {
+        "type": "source_linked_semantic_outline_not_spatial_renderer",
+        "default": "רשימת קשרים בעברית וקישור לכל רכיב/קשר אל עמוד ה־PDF",
+        "geometry": null,
+        "scale": null,
+        "distance": null,
+        "color_encoding": null,
+        "height_encoding": null,
+        "coordinates": null,
+        "no_implicit_spatial_edges": true,
+        "zoom_beyond_source": false
+      },
+      "preview_access": "document-backed content can be shown without engine; no new reader or surface",
+      "engine_status": "not_tested",
+      "visual_adjudication": "required_before_any_graphical_layout_or_definitive_relation",
+      "open_questions": [
+        "אין לשייך שלושת השבטים של כל דגל לפני קריאה מלאה ומבוקרת",
+        "הכיוונים הם מקוריים; המרחקים וצורת המחנה אינם נתונים"
+      ]
+    },
+    {
+      "id": "hapliah.struct.heavenly-circles",
+      "title": "גלגלים, חיות ושערים",
+      "label": "ייצוג של מבנה הספר",
+      "state": "CONTENT_SPEC_ONLY_NOT_IMPLEMENTED",
+      "source_unit_ids": [
+        "hapliah.palaces.orbits-96",
+        "hapliah.palaces.ranks-97"
+      ],
+      "source_layers": {
+        "book": "דברי הספר — דורש אימות דף חזותי",
+        "printed_commentary": "לא זוהה/הופרד במלואו",
+        "companion": "הסבר נלווה"
+      },
+      "components": [
+        {
+          "id": "hp.galgalim",
+          "label": "רשימת גלגלים",
+          "description": "רצף שמות גלגלים מפורט",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 96,
+            "anchor": "#page=96&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=96&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.rakia",
+          "label": "רקיעים",
+          "description": "מדרגות ושערים",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 97,
+            "anchor": "#page=97&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.gates",
+          "label": "שערים",
+          "description": "תפקידי שמירה",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 97,
+            "anchor": "#page=97&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.hayyot",
+          "label": "חיות",
+          "description": "חיות הקודש בתוך רצף מדרגות",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 97,
+            "anchor": "#page=97&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        }
+      ],
+      "relations": [
+        {
+          "id": "hp.galgalim-rakia",
+          "from": "hp.galgalim",
+          "to": "hp.rakia",
+          "label": "נידונים זה לצד זה בדיון על הרקיע",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 96,
+            "anchor": "#page=96&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=96&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.gates-rakia",
+          "from": "hp.gates",
+          "to": "hp.rakia",
+          "label": "שערים מיוחסים לרקיעים",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 97,
+            "anchor": "#page=97&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.hayyot-rakia",
+          "from": "hp.hayyot",
+          "to": "hp.rakia",
+          "label": "החיות מופיעות בסדר המדרגות",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 97,
+            "anchor": "#page=97&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        }
+      ],
+      "presentation": {
+        "type": "source_linked_semantic_outline_not_spatial_renderer",
+        "default": "רשימת קשרים בעברית וקישור לכל רכיב/קשר אל עמוד ה־PDF",
+        "geometry": null,
+        "scale": null,
+        "distance": null,
+        "color_encoding": null,
+        "height_encoding": null,
+        "coordinates": null,
+        "no_implicit_spatial_edges": true,
+        "zoom_beyond_source": false
+      },
+      "preview_access": "document-backed content can be shown without engine; no new reader or surface",
+      "engine_status": "not_tested",
+      "visual_adjudication": "required_before_any_graphical_layout_or_definitive_relation",
+      "open_questions": [
+        "אין להסיק מסלולים פיזיים או גדלי גלגלים",
+        "הסדר המדויק של הגלגלים ראוי לאימות בעמוד הצפוף"
+      ]
+    },
+    {
+      "id": "hapliah.struct.letters-table",
+      "title": "טבלת חילופי אותיות בתוך דרשת השמות",
+      "label": "ייצוג של מבנה הספר",
+      "state": "CONTENT_SPEC_ONLY_NOT_IMPLEMENTED",
+      "source_unit_ids": [
+        "hapliah.human-image.alphabets-113"
+      ],
+      "source_layers": {
+        "book": "דברי הספר — דורש אימות דף חזותי",
+        "printed_commentary": "לא זוהה/הופרד במלואו",
+        "companion": "הסבר נלווה"
+      },
+      "components": [
+        {
+          "id": "hp.letters-original",
+          "label": "מחרוזות אותיות",
+          "description": "צורות מוצא בכתיבת המקור",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 113,
+            "anchor": "#page=113&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=113&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.letters-sub",
+          "label": "מחרוזות לאחר חילוף",
+          "description": "צורות חילוף או צירוף מודפסות",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 113,
+            "anchor": "#page=113&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=113&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        },
+        {
+          "id": "hp.letters-method",
+          "label": "סדרת אלפא־ביתא",
+          "description": "כותרת או סמן שיטה אם מופיע בעד",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 113,
+            "anchor": "#page=113&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=113&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          }
+        }
+      ],
+      "relations": [
+        {
+          "id": "hp.letters.mapping",
+          "from": "hp.letters-original",
+          "to": "hp.letters-sub",
+          "label": "יחס חילוף לפי הדף, ללא מיפוי אות בודדת מאומת",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 113,
+            "anchor": "#page=113&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=113&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        },
+        {
+          "id": "hp.letters.rule",
+          "from": "hp.letters-method",
+          "to": "hp.letters-sub",
+          "label": "בחירת סדרת חילוף משפיעה על תוצאה",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 113,
+            "anchor": "#page=113&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=113&view=FitH",
+            "review_status": "machine_locator_pending_visual_verification"
+          },
+          "confidence": "locatable_not_visually_adjudicated"
+        }
+      ],
+      "presentation": {
+        "type": "source_linked_semantic_outline_not_spatial_renderer",
+        "default": "רשימת קשרים בעברית וקישור לכל רכיב/קשר אל עמוד ה־PDF",
+        "geometry": null,
+        "scale": null,
+        "distance": null,
+        "color_encoding": null,
+        "height_encoding": null,
+        "coordinates": null,
+        "no_implicit_spatial_edges": true,
+        "zoom_beyond_source": false
+      },
+      "preview_access": "document-backed content can be shown without engine; no new reader or surface",
+      "engine_status": "not_tested",
+      "visual_adjudication": "required_before_any_graphical_layout_or_definitive_relation",
+      "open_questions": [
+        "העמוד כולל פריסה טבלאית; לא להפיק שורות אותיות מחילוץ טקסט מקולקל",
+        "אף מספר או שם מחושב אינם מסומנים מאומתים במנוע"
+      ]
+    }
+  ],
   "unresolved": [
     {
       "id": "hp-gap-visual-source",
