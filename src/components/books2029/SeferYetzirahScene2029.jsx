@@ -36,7 +36,7 @@ function Edges({ points, color = "#c89d46", opacity = .28, complete = false }) {
 
 function SefirotModel({ activeId, onSelect }) {
   return <group>
-    <Edges points={DEPTH_POSITIONS} />
+    {[0, 2, 4, 6, 8].map(index => <Edges key={index} points={[DEPTH_POSITIONS[index], DEPTH_POSITIONS[index + 1]]} />)}
     {SEFER_YETZIRAH_DEPTHS.map((node, index) => <mesh
       key={node.id}
       position={DEPTH_POSITIONS[index]}
@@ -46,7 +46,6 @@ function SefirotModel({ activeId, onSelect }) {
       <sphereGeometry args={[.34, 28, 28]} />
       <meshStandardMaterial color={node.color} emissive={node.color} emissiveIntensity={activeId === node.id ? .7 : .18} roughness={.32} metalness={.2} />
     </mesh>)}
-    <mesh><sphereGeometry args={[.68, 36, 36]} /><meshPhysicalMaterial color="#f5e7bd" transparent opacity={.2} transmission={.45} roughness={.2} /></mesh>
   </group>;
 }
 
