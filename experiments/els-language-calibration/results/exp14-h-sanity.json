@@ -1,0 +1,30 @@
+{
+  "windows": 6,
+  "share": 0.03717472118959108,
+  "lengths": {
+    "6": {
+      "words": 1360,
+      "nullRuns": 68712,
+      "medianPercentile": 0.714,
+      "p10": 0.274,
+      "p90": 0.933,
+      "shareAboveNullTop": 0.055
+    },
+    "7": {
+      "words": 506,
+      "nullRuns": 65976,
+      "medianPercentile": 0.774,
+      "p10": 0.425,
+      "p90": 0.953,
+      "shareAboveNullTop": 0.071
+    },
+    "8": {
+      "words": 113,
+      "nullRuns": 63288,
+      "medianPercentile": 0.838,
+      "p10": 0.451,
+      "p90": 0.949,
+      "shareAboveNullTop": 0.044
+    }
+  }
+}

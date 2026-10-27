@@ -369,3 +369,38 @@ test("EXP-14 planted hidden words: one word per class, no shared cell, the cross
   assert.equal(letterAt(cross.cells[0][0], cross.cells[0][1]), cross.word[0]);
   assert.equal(letterAt(0, 0), "0:0");
 });
+
+test("EXP-14 recorded results: nothing is credible on the development targets, the product-like reading finds planted words only near the axis, language and mirror signals find none, context finds what it is given, rules are applied as written", () => {
+  const read = (name) => JSON.parse(readFileSync(`${HERE}results/${name}.json`, "utf8"));
+  const nullRun = read("exp14-null");
+  assert.equal(nullRun.windows.torah.summary.windows, 40);
+  assert.equal(nullRun.windows.tanakh.summary.windows, 30);
+  assert.ok(nullRun.windows.torah.summary.medianContextFindings["gd02-context"] >= 40, "a two-letter context term keeps dozens of findings in a random window");
+  assert.ok(nullRun.windows.torah.summary.maxContextFindings["gd03-context"] <= 5, "two four-letter terms keep almost nothing by chance");
+  assert.match(nullRun.provenance.page.sha256, /^[0-9a-f]{64}$/);
+  const cases = read("exp14-cases").runs;
+  assert.equal(cases.length, 6);
+  const present = cases.flatMap((run) => run.targets.filter((t) => t.present).map((t) => ({ run, t })));
+  const plain = present.filter(({ run }) => !run.scenario);
+  assert.equal(plain.length, 6, "six targets lie in the product's windows");
+  const foundBy = (name) => plain.filter(({ t }) => (name === "U" ? t.signals.U.found : t.signals[name].found));
+  assert.deepEqual(["G", "H", "W", "M", "U"].map((name) => foundBy(name).length), [2, 0, 0, 0, 1]);
+  for (const { t } of present) for (const [name, row] of Object.entries(t.signals)) if (name !== "U" && row.credible !== undefined) assert.equal(row.credible, false, `${name}: not credible against the null windows`);
+  for (const { t } of plain) for (const [name, row] of Object.entries(t.signals)) if (name !== "U" && row.null) assert.equal(row.null.blindShare, 1, `${name}: every random window holds something at least as strong`);
+  for (const { t } of plain) for (const name of ["G", "H", "W", "M"]) assert.equal(t.signals[name].rank.exact === null || t.signals[name].rank.exact > 50, true, "no signal returns a target's own cells in its top 50 on the development cases");
+  const context = cases.find((run) => run.scenario === "gd02-context");
+  assert.equal(context.union.keptOnlyByContext, context.lists.K.findings, "the whole context block is kept only by context");
+  assert.ok(context.union.size > cases.find((run) => run.case === "gd02" && !run.scenario).union.size, "the protected block is added to the list");
+  const second = context.targets.find((t) => t.signals?.K?.rank.overlap === 1);
+  assert.equal(second.signals.K.found, false, "the context block keeps the region of a target as a short fragment, which is not the target");
+  const planted = read("exp14-planted");
+  assert.equal(planted.windows, 60);
+  const hidden = (cls) => planted.aggregate[`${cls}:hidden`];
+  for (const cls of ["cross", "adjacent"]) { assert.ok(hidden(cls).W.recall50 >= 0.5 && hidden(cls).U.recall50 >= 0.5, `${cls}: discovered by the product-like reading and by the union`); assert.ok(hidden(cls).G.recall50 < 0.5 && hidden(cls).H.recall50 < 0.5 && hidden(cls).M.recall50 < 0.5); }
+  for (const cls of ["parallel", "distant"]) for (const name of ["G", "H", "W", "M", "K", "U"]) assert.ok(hidden(cls)[name].recall50 < 0.5, `${cls}/${name}: not discovered`);
+  for (const name of ["G", "W", "M", "K"]) assert.equal(planted.aggregate["distant:hidden"][name].recall150, 0, `${name}: no word placed far from the axis is brought up, even within 150 findings`);
+  assert.ok(planted.aggregate["distant:hidden"].H.recall150 <= 0.1, "language alone is at chance level for a far word");
+  for (const cls of ["cross", "adjacent", "parallel", "distant"]) assert.equal(planted.aggregate[`${cls}:given`].K.recall50, 1, "the context signal finds what it is given");
+  assert.equal(planted.aggregate["cross:hidden"].G.recallExact50, 0, "the geometry list returns lines, never the word itself");
+  assert.ok(planted.aggregate["cross:hidden"].U.medianCoverage < 0.35, "the union covers a minority of the window");
+});
