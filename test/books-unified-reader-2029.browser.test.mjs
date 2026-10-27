@@ -144,7 +144,7 @@ test("all eight unified readers remain source-first and fit 320/390/1440", { ski
           await result.waitFor();
           await result.click();
           assert.equal(new URL(page.url()).searchParams.get("page"), "283");
-          await page.getByRole("heading", { name: "״והנחש היה ערום״", exact: true }).waitFor();
+          await page.getByRole("heading", { name: "והנחש היה ערום: הכינוי ודרשתו", exact: true }).waitFor();
         }
         if (manifest.slug === "ahavat-torah" && width === 390) {
           await page.getByText("פרטי המקור", { exact: true }).click();
