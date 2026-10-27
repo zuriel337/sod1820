@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "note": "Generic anchors only (term + skip [+ start]). No example has special code: the same functions run on each. The dictionary is public.gematria_words (single Hebrew words), never the anchor or any target.",
+  "region": { "rows": 21, "cols": 61 },
+  "dictionary": { "minLen": 5, "maxLen": 9 },
+  "examples": [
+    { "id": "columbia", "term": "קולומביה", "skip": 4545, "evaluationWords": ["ספינת", "יכלאש", "נפל"] },
+    { "id": "ten-tevet-cluster", "term": "עשירי", "skip": 193, "start": 136468, "evaluationWords": ["משיח", "טבת"] }
+  ]
+}
