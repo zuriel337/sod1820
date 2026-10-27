@@ -36,3 +36,23 @@ whose product box has >= 1100 cells (sibling windows; no targets, used for the w
 3. The measure is called useful on its own only if >= 50% of the crossing targets are lifted and credible AND there are at least 5 crossing targets; with fewer, the result is descriptive.
 4. The combined list U2 is judged against EXP-11's U: a target counts as helped only if its rank in U2 is within the top 10.
 5. No target string in library code (test). Read-only; no AI; the page, src/ and the lexicon asset untouched. Any change to this file after the first run goes under "Amendments" with its reason.
+
+## Amendments
+
+### Amendment 1 — stricter readability definitions, made after the primary run and before any amended run (reason: the primary table is saturated)
+
+*Observed in the primary run (control windows only, no amended run yet, no target ranked under an amended reading):* with the primary `readScore` every control window (400 of 400, in all five
+sets) contains a crossing run of every length 4..10 whose readScore is 1, so T is 1 everywhere, X = 0 for every candidate, S = 0 and p = 1 for every window. A run of 10 letters
+fully tiles into <= 3 recognized tokens of 3+ letters in about 24% of random runs, and a window holds 1,450-2,300 crossing runs. **The primary result stands as recorded
+(`results/exp13-cases.json`, committed before this amendment): by rule 3 the measure is not useful on its own; the "lifted" ranks in D are the tie-break order (lexicalConfidence, length), not the measure.**
+Also noted: findings merge on the same line and a shared cell, so a window has only 3 x n crossing findings (15-24 here); "top 10" is therefore a 40-67% base rate, not a selective bar.
+The runner reports the list size and the chance-level rank for every target.
+
+Two stricter definitions of `readScore` are added and evaluated side by side with the primary on the same windows and cases (blind sets regenerated per definition, same positions):
+
+* `whole`: readScore = 1 if the product's reader returns a reading for the whole run (no tiling), else 0.
+* `tile2`: readScore = 1 for a whole reading or a full tiling by at most 2 recognized tokens of 3+ letters; otherwise the covered share (as in the primary, with 2 tokens).
+
+Nothing else changes: candidates, windows, buckets, rules 1-5. The three definitions are reported together; none is chosen as "the" measure by looking at target results, and a definition
+that is still saturated is reported as saturated. The combined list U2 keeps A and B at the EXP-11 definition (their tail table was built with it); only D uses the stricter reading. A target is
+"crossing-eligible" under a definition if one of its crossing placements has readScore >= 0.75 under that definition.
