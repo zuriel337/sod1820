@@ -1864,6 +1864,25 @@ test('native form: crossing terms stay adjacent before the shared submit on mobi
  });
 });
 
+test('research form offers a unified axis through the existing regular engine',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ for(const width of [320,1440])await withNative({width,height:900},async page=>{
+  const form=page.locator('#els29-query');
+  await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+  await form.getByRole('textbox',{name:'מונח ראשון'}).fill('משיח');
+  await form.getByRole('textbox',{name:'מונח שני'}).fill('טבת');
+  await form.getByRole('textbox',{name:'מונח שלישי · לא חובה'}).fill('עשירי');
+  await form.getByRole('button',{name:'חפש את המילים כציר מאוחד'}).click();
+  await page.waitForFunction(()=>['done','empty','error'].includes(window.__operation?.status),null,{timeout:90000});
+  const result=await page.evaluate(()=>({request:window.__hostLog.filter(x=>x.type==='native-search').at(-1)?.request,operation:window.__operation,state:window.__state}));
+  assert.equal(result.request.kind,'regular');assert.equal(result.request.term,'משיח טבת עשירי');
+  assert.equal(result.operation.status,'done',JSON.stringify(result.operation));
+  assert.equal(result.state.verification.state,'MATCH');
+  assert.ok(result.state.search.occurrences.items.some(item=>item.skip===1820), 'verified 1820 occurrence appears');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ },{realHost:true,loadGolden:false});
+});
+
 test('research form: optional third axis uses the existing verified triple or the original pair path',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
  for(const width of [320,1440])await withNative({width,height:900},async page=>{
@@ -1885,6 +1904,7 @@ test('research form: optional third axis uses the existing verified triple or th
   assert.ok(triple.requests.filter(request=>request.op==='verify_batch'&&request.payload?.strategy?.policy==='GUIDED_THREE_TERM_REPLAY_V1').length>=2);
   assert.equal(await first.inputValue(),'תורהקדשה');assert.equal(await second.inputValue(),'בחשרתע');assert.equal(await third.inputValue(),'כויזלת');
   assert.ok((await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').innerText()).includes('תורהקדשה × בחשרתע × כויזלת'));
+  assert.ok((await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').innerText()).includes('המשך גלים עדיין אינו זמין'));
   await third.clear();await gap.fill('1');await form.getByRole('button',{name:'חפש הצלבה'}).click();
   await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),triple.operation.requestId,{timeout:120000});
   assert.equal((await page.evaluate(()=>window.__operation)).status,'done');

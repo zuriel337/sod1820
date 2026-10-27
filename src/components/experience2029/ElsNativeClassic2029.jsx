@@ -580,6 +580,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   shown.sort((a, b) => sort === "skip" ? a.skip - b.skip || a.index - b.index : sort === "distance" ? a.distance - b.distance || a.index - b.index : a.index - b.index);
   return <div className="els29-native-workrail els29-native-results" hidden={!visible} aria-label="רשימת מפגשי ההצלבה" aria-busy={pending}>
     <strong>{pending ? "מחפש מפגשים…" : items.length ? `${items.length} מפגשי הצלבה` : "תוצאות הצלבה"}</strong>
+    {searchTerms?.length === 3 && !pending && ["done", "empty"].includes(outcome) ? <p role="status">הצלבה משולשת נבדקה בגל מוגבל של עד 150 מופעים לכל מילה. ייתכן שיש מפגשים נוספים; המשך גלים עדיין אינו זמין.</p> : null}
     {items.length ? <>
       <p className="els29-native-muted">{searchTerms?.length === 3 ? searchTerms.join(" × ") : <>{state.search.crossA} × {state.search.crossB}</>}</p>
       {state.search.coverage?.truncated ? <small>סריקה מוגבלת: נבדקו {state.search.coverage.scanned} מתוך {state.search.coverage.available} מיקומי הציר שנמצאו. רשימת הצירים עצמה עשויה להיות חלקית.</small> : null}
@@ -609,7 +610,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
       </button>)}
       {!shown.length ? <p>אין מפגשים בטווח הדילוגים הזה.</p> : null}
       {items.length === 1 ? <p className="els29-native-muted">נמצא מפגש אחד בחלון הזה. אפשר להגדיל את חלון החיפוש ולחפש שוב.</p> : null}
-    </> : <p className="els29-native-muted">{outcome === "empty" ? "לא נמצא מפגש בחיפוש האחרון. אפשר להגדיל את החלון או לשנות מרחק ולחפש שוב." : outcome === "error" ? "ההצלבה או האימות לא הושלמו. נסו שוב." : outcome === "cancelled" ? "החיפוש בוטל." : pending ? "מפגשים מאומתים יופיעו כאן בסיום החיפוש." : "פתחו „הצלבה בין צירים” וחפשו שני מונחים כדי לקבל רשימה ממוספרת."}</p>}
+    </> : <p className="els29-native-muted">{outcome === "empty" ? "לא נמצא מפגש בגל שנבדק. אפשר להגדיל את החלון או לשנות מרחק ולחפש שוב." : outcome === "error" ? "ההצלבה או האימות לא הושלמו. נסו שוב." : outcome === "cancelled" ? "החיפוש בוטל." : pending ? "מפגשים מאומתים יופיעו כאן בסיום החיפוש." : "פתחו „הצלבה בין צירים” וחפשו שני מונחים כדי לקבל רשימה ממוספרת."}</p>}
     {["error", "cancelled"].includes(outcome) ? <button type="button" onClick={onRetry}>נסה שוב הצלבה</button> : null}
   </div>;
 }
@@ -1076,6 +1077,18 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     requestSearch("cross", { axis, term, scope, radius: crossRadius, maxLetterGap: crossLetterGap });
   };
 
+  const submitUnifiedAxis = () => {
+    const terms = [clean(query), clean(crossTerm), clean(crossThirdTerm)].filter(Boolean);
+    if (terms.length < 2 || terms.some(term => canonicalHebrew(term).length < 2)) {
+      setNotice("לציר מאוחד כתבו לפחות שני מונחים של שתי אותיות כל אחד.");
+      return;
+    }
+    const term = terms.join(" ");
+    setQuery(term);
+    setCrossOpen(false);
+    requestSearch("regular", { term, scope: activeScope });
+  };
+
   const handleEngineState = (next) => {
     const previous = engineStateRef.current;
     if (previous?.axis?.hitId !== next?.axis?.hitId || previous?.scope !== next?.scope || previous?.term !== next?.term || next?.status !== "ok") {
@@ -1400,6 +1413,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       </> : null}
       <div className="els29-native-query-actions">
         <button className="els29-native-search" type="submit" disabled={searchPending}>{searchPending ? "מחפש…" : crossSearchOpen ? "חפש הצלבה" : "חפש"}</button>
+        {crossSearchOpen ? <button className="els29-native-more" type="button" disabled={searchPending} onClick={submitUnifiedAxis}>חפש את המילים כציר מאוחד</button> : null}
         <button className="els29-native-more" type="button" onClick={() => { cancelOperation("search"); cancelOperation("findings"); setClassicOpen(value => !value); }}>{classicOpen ? "חזור למטריצה" : "כל הכלים"}</button>
       </div>
       </div>
