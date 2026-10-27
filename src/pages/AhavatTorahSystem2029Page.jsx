@@ -24,6 +24,7 @@ import { AHAVAT_DS01_BOOKS, AHAVAT_DS01_SOURCE_PAGE, AHAVAT_DS01_TOTAL, ahavatDs
 import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, AHAVAT_LETTER_READING_LOCATIONS, ahavatLetterBalance, ahavatLetterNumber, ahavatLetterSourceFragments, ahavatSourceCountRows, ahavatSourceCountPage, ahavatSourceCountBars, ahavatSourceCountCsv } from "../data/ahavatTorahLetters2029.js";
 import { AHAVAT_PARASHA_COUNT_FORMS, AHAVAT_PARASHA_COUNT_READINGS } from "../data/ahavatTorahParashaCounts2029.js";
 import { AhavatTorahPeopleReader2029, AhavatTorahRootsReader2029, AhavatTorahMegillotReader2029 } from "../components/books2029/AhavatTorahSourceTables2029.jsx";
+import { ahavatReaderUnit, ahavatReaderUnitDomId, ahavatReaderUnitHref } from "../data/ahavatTorahReaderUnits2029.js";
 import "./ahavatTorahSystem2029.css";
 
 const AhavatTorahSpatialScene2029 = lazy(() => import("../components/books2029/AhavatTorahSpatialScene2029.jsx"));
@@ -31,17 +32,22 @@ const AhavatTorahSpatialScene2029 = lazy(() => import("../components/books2029/A
 function requestedPage() {
   if (typeof window === "undefined") return 6;
   const value = Number(new URLSearchParams(window.location.search).get("page"));
-  return Number.isInteger(value) && value >= 1 && value <= AHAVAT_TORAH_SOURCE.pdfPages ? value : 6;
+  const unit = ahavatReaderUnit(new URLSearchParams(window.location.search).get("readerUnit"));
+  return Number.isInteger(value) && value >= 1 && value <= AHAVAT_TORAH_SOURCE.pdfPages ? value : unit?.page || 6;
 }
 
-function replaceSelectionInUrl(page, findingId, datasetId = "") {
+function replaceSelectionInUrl(page, findingId, datasetId = "", unitId = "") {
   const next = new URL(window.location.href);
   next.searchParams.set("page", String(page));
   if (findingId) next.searchParams.set("finding", findingId);
   else next.searchParams.delete("finding");
   if (datasetId) next.searchParams.set("dataset", datasetId);
   else next.searchParams.delete("dataset");
-  window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`);
+  if (ahavatReaderUnit(unitId)) {
+    next.searchParams.set("readerUnit", unitId);
+    next.hash = ahavatReaderUnitDomId(unitId);
+  } else next.searchParams.delete("readerUnit");
+  window.history.replaceState(window.history.state, "", `${next.pathname}${next.search}${next.hash}`);
 }
 
 function StatusPill({ status }) {
@@ -49,7 +55,13 @@ function StatusPill({ status }) {
   return <span className={`ahavat29-status-pill is-${state.tone}`} title={state.description}>{state.label}</span>;
 }
 
-function SourcePanel({ page, contextLabel, onPage }) {
+function scrollToReaderUnit(element) {
+  element.scrollIntoView({ block: "start", behavior: "instant" });
+  window.scrollBy({ top: -84, behavior: "instant" });
+  (element.matches("button") ? element : element.querySelector("button"))?.focus({ preventScroll: true });
+}
+
+function SourcePanel({ page, contextLabel, onPage, readerUnit, onReturnToUnit }) {
   const pdfUrl = `${AHAVAT_TORAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
   const [pageDraft, setPageDraft] = useState(String(page));
   const fullscreenRef = useRef(null);
@@ -65,7 +77,7 @@ function SourcePanel({ page, contextLabel, onPage }) {
   return <aside ref={fullscreenRef} id="ahavat29-source" className="ahavat29-source book-fullscreen29-target" aria-labelledby="ahavat29-source-title">
     <header>
       <div><span>המקור נשאר פתוח</span><h2 id="ahavat29-source-title">עמוד PDF {page}</h2></div>
-      <div className="ahavat29-source-actions"><b>{contextLabel}</b><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" /></div>
+      <div className="ahavat29-source-actions"><b>{contextLabel}</b><BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="ahavat29-source" />{readerUnit ? <a className="book-fullscreen29-button" title={readerUnit.title} href={ahavatReaderUnitHref(readerUnit.id, window.location.href)} onClick={onReturnToUnit}>חזור ליחידת הקריאה</a> : null}</div>
     </header>
     <div className="ahavat29-pdf-frame" data-book-pdf-frame>
       <iframe key={page} src={pdfUrl} title={`${AHAVAT_TORAH_SOURCE.title}, עמוד PDF ${page}`} loading="eager" />
@@ -84,7 +96,7 @@ function SourcePanel({ page, contextLabel, onPage }) {
       <div><dt>מעמד</dt><dd>עד מקור · לא פרסום ממצא</dd></div>
     </dl>
     <nav aria-label="קישורי מקור" data-book-reader-secondary>
-      <a href={pdfUrl} target="_blank" rel="noreferrer">פתח PDF בעמוד {page} ↗</a>
+      <a href={pdfUrl} target="_blank" rel="noreferrer">קרא את ה־PDF · עמוד {page} ↗</a>
       <a href={AHAVAT_TORAH_SOURCE.catalogUrl} target="_blank" rel="noreferrer">רשומת HebrewBooks ↗</a>
     </nav>
     <p data-book-reader-secondary>המקור קודם לכל שכבת הסבר; מספר העמוד נשמר כמראה־המקום הקבוע.</p>
@@ -667,6 +679,7 @@ export default function AhavatTorahSystem2029Page() {
   const initialDataset = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("dataset") || "";
   const [findingId, setFindingId] = useState(initialFinding);
   const [datasetId, setDatasetId] = useState(initialDataset);
+  const [readerUnit, setReaderUnit] = useState(() => ahavatReaderUnit(new URLSearchParams(window.location.search).get("readerUnit")));
   const [bundle, setBundle] = useState(null);
   const [bundleState, setBundleState] = useState("loading");
   const [pageTextBundle, setPageTextBundle] = useState(null);
@@ -723,20 +736,39 @@ export default function AhavatTorahSystem2029Page() {
   }, [page]);
 
   useEffect(() => {
-    const id = window.location.hash.slice(1);
-    if (!["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters"].includes(id)) return;
+    let id;
+    try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { return; }
+    const unit = ahavatReaderUnit(new URLSearchParams(window.location.search).get("readerUnit"));
+    const unitTarget = unit && id === ahavatReaderUnitDomId(unit.id);
+    if (!unitTarget && !["ahavat29-people", "ahavat29-roots", "ahavat29-scrolls", "ahavat29-counts", "ahavat29-letters"].includes(id)) return;
     let cancelled = false;
     let frame;
-    const cancel = () => { cancelled = true; };
+    let observer;
+    let timer;
+    const cancel = () => { cancelled = true; observer?.disconnect(); window.clearTimeout(timer); };
     const interactions = ["pointerdown", "wheel", "keydown", "touchstart"];
     interactions.forEach(event => window.addEventListener(event, cancel, { once: true, passive: true }));
     // The surface is lazy-mounted: native fragment navigation runs before these
     // readers exist. Wait for typography so the long tables do not shift entry.
     Promise.resolve(document.fonts?.ready).then(() => {
       if (cancelled) return;
-      frame = window.requestAnimationFrame(() => {
-        if (!cancelled) document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "instant" });
-      });
+      const locate = () => {
+        const element = document.getElementById(id);
+        if (!element || cancelled) return;
+        observer?.disconnect();
+        window.clearTimeout(timer);
+        frame = window.requestAnimationFrame(() => {
+          if (cancelled) return;
+          if (unitTarget) scrollToReaderUnit(element);
+          else element.scrollIntoView({ block: "start", behavior: "instant" });
+        });
+      };
+      // A column deep link explicitly requests the lazy OCR reader. Its target
+      // appears only after that asset loads; do not fall back to a different row.
+      observer = new MutationObserver(locate);
+      observer.observe(document.getElementById(unit?.sectionId || id), { childList: true, subtree: true });
+      timer = window.setTimeout(() => observer.disconnect(), 15000);
+      locate();
     });
     return () => {
       cancel();
@@ -749,6 +781,7 @@ export default function AhavatTorahSystem2029Page() {
     setPage(section.page);
     setFindingId("");
     setDatasetId("");
+    setReaderUnit(null);
     replaceSelectionInUrl(section.page, "", "");
     if (window.matchMedia("(max-width: 900px)").matches) {
       window.requestAnimationFrame(() => document.getElementById("ahavat29-reader")?.scrollIntoView({ behavior: "smooth", block: "start" }));
@@ -759,6 +792,7 @@ export default function AhavatTorahSystem2029Page() {
     setPage(finding.page);
     setFindingId(finding.id);
     setDatasetId("");
+    setReaderUnit(null);
     replaceSelectionInUrl(finding.page, finding.id, "");
     if (window.matchMedia("(max-width: 900px)").matches) {
       window.requestAnimationFrame(() => document.getElementById("ahavat29-finding-detail")?.scrollIntoView({ behavior: "smooth", block: "start" }));
@@ -770,6 +804,7 @@ export default function AhavatTorahSystem2029Page() {
     setPage(nextPage);
     setFindingId("");
     setDatasetId(dataset.id);
+    setReaderUnit(null);
     replaceSelectionInUrl(nextPage, "", dataset.id);
     if (dataset.pages.length) {
       const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
@@ -777,14 +812,33 @@ export default function AhavatTorahSystem2029Page() {
     }
   };
 
-  const openPage = (nextPage, contextDatasetId = "") => {
+  const openPage = (nextPage, contextDatasetId = "", unitId = "") => {
     const context = AHAVAT_TORAH_DATASETS.find(dataset => dataset.id === contextDatasetId && dataset.pages.includes(nextPage));
     setPage(nextPage);
     setFindingId("");
     setDatasetId(context?.id || "");
-    replaceSelectionInUrl(nextPage, "", context?.id || "");
+    const unit = ahavatReaderUnit(unitId);
+    setReaderUnit(unit ? { ...unit } : null);
+    replaceSelectionInUrl(nextPage, "", context?.id || "", unitId);
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
     document.getElementById("ahavat29-source")?.scrollIntoView({ behavior, block: "start" });
+  };
+
+  const returnToUnit = event => {
+    if (!readerUnit) return;
+    const href = ahavatReaderUnitHref(readerUnit.id, window.location.href);
+    event.currentTarget.setAttribute("href", href);
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const target = document.getElementById(ahavatReaderUnitDomId(readerUnit.id));
+    // A changed filter may hide the old unit: native navigation reopens the
+    // canonical unit link and restores its valid filter instead of guessing.
+    if (!target) return;
+    event.preventDefault();
+    setPage(readerUnit.page);
+    setFindingId("");
+    setDatasetId(readerUnit.datasetId);
+    window.history.replaceState(window.history.state, "", href);
+    window.requestAnimationFrame(() => scrollToReaderUnit(target));
   };
 
   return <Sod2029Shell
@@ -851,7 +905,7 @@ export default function AhavatTorahSystem2029Page() {
           </footer>
         </div>
 
-        <SourcePanel page={page} contextLabel={selectedFinding?.dataset || locatedDataset?.id || selectedSection.shortTitle} onPage={openPage} />
+        <SourcePanel page={page} contextLabel={selectedFinding?.dataset || locatedDataset?.id || selectedSection.shortTitle} readerUnit={readerUnit} onReturnToUnit={returnToUnit} onPage={next => openPage(next, "", readerUnit?.id || "")} />
       </div>
     </main>
   </Sod2029Shell>;

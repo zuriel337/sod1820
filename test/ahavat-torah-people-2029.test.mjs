@@ -61,7 +61,7 @@ test("research CSV keeps printed/decimal values, group identity and exact PDF bo
 test("reader reuses the adopted count geometry and keeps technical scope in source details", async () => {
   const component = await readFile(new URL("../src/components/books2029/AhavatTorahSourceTables2029.jsx", import.meta.url), "utf8");
   assert.match(component, /id="ahavat29-people"/);
-  assert.match(component, /onPage\(page, "DS-05"\)/);
+  assert.match(component, /onPage\(page, "DS-05", unitId\)/);
   assert.match(component, /mode="source-count"/);
   assert.match(component, /פרטי המקור והכיסוי/);
   assert.match(component, /טבלת כל פרשה וסיכום כלל התורה נשארים לקריאה במקור/);
