@@ -97,7 +97,7 @@ test('each structure component, relation and order points to its printed source'
   }
 });
 
-test('recension differences, seal directions and unknown correspondences stay explicit', () => {
+test('recension differences, seal directions and newly read source correspondences stay explicit', () => {
   assert.equal(structure('doubles-synoptic').components[0].world_planet, 'שבתאי');
   assert.equal(structure('doubles-gra-distinction').components[0].world_planet, 'לבנה');
   for (const key of ['six-seals-synoptic','six-seals-gra-edition']) {
@@ -106,9 +106,10 @@ test('recension differences, seal directions and unknown correspondences stay ex
     assert.deepEqual(seals.map(item => item.seal_letters.join('')), ['יהו','יוה','היו','הוי','ויה','והי']);
   }
   for (const item of structure('doubles-synoptic').components.filter(item => ['resh','tav'].includes(item.id))) {
-    assert.equal(item.world_planet, null);
-    assert.equal(item.week_day, null);
-    assert.equal(item.soul_gate, null);
+    const expected = item.id === 'resh' ? ['כוכב','שישי','נחיר שמאל'] : ['לבנה','שבת','פה'];
+    assert.deepEqual([item.world_planet,item.week_day,item.soul_gate], expected);
+    assert.ok(item.source_reading_id, 'newly filled source fields require direct gap-reading evidence');
+    assert.equal(item.source.pdf_page, 110);
   }
   assert.equal(structure('ten-depths').components.length, 10);
   assert.equal(structure('five-mouth-groups').components.length, 5);
