@@ -17,7 +17,10 @@
       95,
       102,
       113,
-      130
+      120,
+      130,
+      150,
+      160
     ],
     "machine_extracted_text_sampled_pages": [
       1,
@@ -33,12 +36,17 @@
       18,
       25,
       28,
+      30,
       40,
+      45,
       53,
+      55,
       60,
       65,
       67,
+      70,
       72,
+      75,
       80,
       83,
       84,
@@ -69,8 +77,11 @@
       109,
       113,
       115,
+      120,
       130,
       140,
+      150,
+      160,
       166,
       175,
       176,
@@ -82,17 +93,21 @@
       184,
       185,
       189,
+      190,
       200,
+      205,
       208,
       209,
       214,
       219,
       220,
       230,
+      235,
       240,
       245,
       250,
       260,
+      270,
       276,
       277,
       278,
@@ -657,6 +672,41 @@
       "range_review_status": "single_page_locator"
     },
     {
+      "id": "hapliah.bereshit.lights-30",
+      "gate_id": "bereshit",
+      "title": "אור ראשון שנגנז והאור הבא",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 30,
+        "to_pdf_page": 30,
+        "entry_pdf_page": 30,
+        "entry_anchor": "#page=30&view=FitH",
+        "range_end_anchor": "#page=30&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=30&view=FitH"
+      },
+      "content": {
+        "subject": "הדרשה מבדילה בין אור ראשון לבין אור שני ועוסקת במקום האור בסדר ההאצלה.",
+        "question": "מה היחס בין האור הראשון שנגנז לבין האור המתואר אחריו?",
+        "steps": [
+          "מאתרים את השאלה הישירה על האור הראשון והשני.",
+          "מסמנים את המעבר משאלת האור אל פירוש 'וירא אלהים את כל אשר עשה'."
+        ],
+        "source_references": [
+          "אור ראשון",
+          "וירא אלהים את כל אשר עשה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 30 פותח נושא ממוקד: הדרשה מבדילה בין אור ראשון לבין אור שני ועוסקת במקום האור בסדר ההאצלה. מאתרים את השאלה הישירה על האור הראשון והשני. מסמנים את המעבר משאלת האור אל פירוש 'וירא אלהים את כל אשר עשה'. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
       "id": "hapliah.bereshit.ten-measures-40",
       "gate_id": "bereshit",
       "title": "עשר מידות ושאלת ההתחלקות למניינים",
@@ -683,6 +733,41 @@
         "conclusion": "הבחנה בין תיאור יחסים לבין מספר יחידות עצמאי מחויבת כאן."
       },
       "companion_explanation": "הדובר משווה מנייני עשר ומאה ומרובה יותר כדי לשאול על דרך ההכללה של המידות. מוצעת ספירה פשוטה. מכפילים את יכולת ההכללה ומעמידים קושי של התרחבות בלתי מוגבלת. סיום המהלך בנקודת הקריאה: הבחנה בין תיאור יחסים לבין מספר יחידות עצמאי מחויבת כאן.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.binah-qaneh-45",
+      "gate_id": "bereshit",
+      "title": "כינוי הבינה קנה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 45,
+        "to_pdf_page": 45,
+        "entry_pdf_page": 45,
+        "entry_anchor": "#page=45&view=FitH",
+        "range_end_anchor": "#page=45&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=45&view=FitH"
+      },
+      "content": {
+        "subject": "דיון בלשון קנה משמש פתח לבירור קשרי בינה, חכמה ומידות.",
+        "question": "מדוע הדרשה מכנה את הבינה בשם 'קנה'?",
+        "steps": [
+          "מאתרים את השאלה על הכינוי קנה ואת התשובה הבנויה מצירוף אותיות.",
+          "מפרידים בין משמעות הכינוי לבין החשבון/הצירוף המדויק הממתין לבדיקה."
+        ],
+        "source_references": [
+          "קנה",
+          "בינה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 45 פותח נושא ממוקד: דיון בלשון קנה משמש פתח לבירור קשרי בינה, חכמה ומידות. מאתרים את השאלה על הכינוי קנה ואת התשובה הבנויה מצירוף אותיות. מפרידים בין משמעות הכינוי לבין החשבון/הצירוף המדויק הממתין לבדיקה. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
@@ -718,6 +803,44 @@
         "conclusion": null
       },
       "companion_explanation": "העמוד מציב הבחנה בין עד בהקשרים משפטיים ובין דרך הקריאה בתורה. נבחן ההבדל בין מופעי אותה מילה בהקשרים שונים. התשובות מבררות את תחום ההיקש.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.angel-names-55",
+      "gate_id": "bereshit",
+      "title": "שאלות על שמות מלאכים",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 55,
+        "to_pdf_page": 55,
+        "entry_pdf_page": 55,
+        "entry_anchor": "#page=55&view=FitH",
+        "range_end_anchor": "#page=55&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=55&view=FitH"
+      },
+      "content": {
+        "subject": "רצף שאלות ותשובות עוסק בשמות מיכאל, רפאל, אוריאל, רזיאל וגבריאל.",
+        "question": "מה מגלים פירושי שמות המלאכים על תפקידיהם בדרשה?",
+        "steps": [
+          "מאתרים את סדר השאלות על שמות המלאכים.",
+          "מפרידים בין השם המודפס לבין פירוק אותיות או מניין שעשוי להופיע בתשובה."
+        ],
+        "source_references": [
+          "מיכאל",
+          "רפאל",
+          "אוריאל",
+          "רזיאל",
+          "גבריאל"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 55 פותח נושא ממוקד: רצף שאלות ותשובות עוסק בשמות מיכאל, רפאל, אוריאל, רזיאל וגבריאל. מאתרים את סדר השאלות על שמות המלאכים. מפרידים בין השם המודפס לבין פירוק אותיות או מניין שעשוי להופיע בתשובה. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
@@ -834,6 +957,41 @@
       "range_review_status": "single_page_locator"
     },
     {
+      "id": "hapliah.bereshit.blessings-tzitzit-70",
+      "gate_id": "bereshit",
+      "title": "אשר יצר וציצית",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 70,
+        "to_pdf_page": 70,
+        "entry_pdf_page": 70,
+        "entry_anchor": "#page=70&view=FitH",
+        "range_end_anchor": "#page=70&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=70&view=FitH"
+      },
+      "content": {
+        "subject": "רצף הדרשה נוגע לברכת אשר יצר ולמנהגי הציצית, על רקע טהרת הגוף והכוונה.",
+        "question": "כיצד נקשר סדר קיום המצווה למשמעותו בדרשה?",
+        "steps": [
+          "מבחינים בין ברכה, ניקיון הגוף והתעטפות בציצית.",
+          "אין לגזור הלכה מעשית מן הניסוח המקוטע של חילוץ הטקסט; מפנים למקור המדויק."
+        ],
+        "source_references": [
+          "אשר יצר",
+          "ציצית"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 70 פותח נושא ממוקד: רצף הדרשה נוגע לברכת אשר יצר ולמנהגי הציצית, על רקע טהרת הגוף והכוונה. מבחינים בין ברכה, ניקיון הגוף והתעטפות בציצית. אין לגזור הלכה מעשית מן הניסוח המקוטע של חילוץ הטקסט; מפנים למקור המדויק. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
       "id": "hapliah.bereshit.prayer-ten-72",
       "gate_id": "bereshit",
       "title": "עשרה, ציבור וכוונה — חילוף לנושא מעשי",
@@ -861,6 +1019,41 @@
         "conclusion": null
       },
       "companion_explanation": "העמוד כולל שאלות על מניין עשרה, תפילה וכוונה לצד שיח שמות. מפרידים את הדיון ההלכתי מן המניין הקבלי שבאותו דף. אין להקיש ממספר המופיע כאן על מנוע חישובי.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.prayer-intention-75",
+      "gate_id": "bereshit",
+      "title": "כוונה בתפילה והימנעות מהיסח הדעת",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 75,
+        "to_pdf_page": 75,
+        "entry_pdf_page": 75,
+        "entry_anchor": "#page=75&view=FitH",
+        "range_end_anchor": "#page=75&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=75&view=FitH"
+      },
+      "content": {
+        "subject": "דברי הדרשה עוסקים במחשבה בתפילה ובזהירות מפני תפילה הנראית כמכוונת לאדם אחר.",
+        "question": "מה תפקידה של כוונה בתפילה לפי מהלך הדף?",
+        "steps": [
+          "מאתרים את הדיון בהיסח הדעת ובכוונה.",
+          "מפרידים בין ההוראה המעשית לנימוק הדרשני ומשאירים פענוח פרטים פתוח."
+        ],
+        "source_references": [
+          "תפילה",
+          "כוונה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 75 פותח נושא ממוקד: דברי הדרשה עוסקים במחשבה בתפילה ובזהירות מפני תפילה הנראית כמכוונת לאדם אחר. מאתרים את הדיון בהיסח הדעת ובכוונה. מפרידים בין ההוראה המעשית לנימוק הדרשני ומשאירים פענוח פרטים פתוח. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
@@ -1737,6 +1930,42 @@
       "range_review_status": "single_page_locator"
     },
     {
+      "id": "hapliah.human-image.seven-doubles-120",
+      "gate_id": "human-image",
+      "title": "שבע כפולות ומידות החיים",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 120,
+        "to_pdf_page": 120,
+        "entry_pdf_page": 120,
+        "entry_anchor": "#page=120&view=FitH",
+        "range_end_anchor": "#page=120&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=120&view=FitH"
+      },
+      "content": {
+        "subject": "שיחה על שבע הכפולות מונה סוגי השפעה כגון חיים, חכמה, חן וזרע.",
+        "question": "מה מוצא הספר בתוך שבע הכפולות?",
+        "steps": [
+          "מזהים את השאלה על יסודן של שבע הכפולות.",
+          "מבדילים בין רשימת התכונות המובאת בדף לבין מיפוי מדויק לאותיות שטרם אומת."
+        ],
+        "source_references": [
+          "שבע כפולות",
+          "חיים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 120 פותח נושא ממוקד: שיחה על שבע הכפולות מונה סוגי השפעה כגון חיים, חכמה, חן וזרע. מזהים את השאלה על יסודן של שבע הכפולות. מבדילים בין רשימת התכונות המובאת בדף לבין מיפוי מדויק לאותיות שטרם אומת. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+    },
+    {
       "id": "hapliah.human-image.tzelem-130",
       "gate_id": "human-image",
       "title": "צלם האדם ושמות המידות",
@@ -1806,6 +2035,78 @@
       "source_review_status": "machine_text_located_pending_visual_witness_check",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.spine-pathways-150",
+      "gate_id": "human-image",
+      "title": "חוט השדרה ול״ב נתיבות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 150,
+        "to_pdf_page": 150,
+        "entry_pdf_page": 150,
+        "entry_anchor": "#page=150&view=FitH",
+        "range_end_anchor": "#page=150&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=150&view=FitH"
+      },
+      "content": {
+        "subject": "דיון על איברי הגוף עובר לחוט השדרה ולנתיבות המתפשטים ממנו.",
+        "question": "כיצד מתוארת ההתפשטות מן המוח וחוט השדרה?",
+        "steps": [
+          "מאתרים מעבר מתיאור איברים לתיאור נתיבות בגוף.",
+          "מפרידים בין אנלוגיה קבלית לבין טענה אנטומית בת־זמננו, ואין מעתיקים מניינים כמנוע מאומת."
+        ],
+        "source_references": [
+          "חוט השדרה",
+          "ל״ב נתיבות"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 150 פותח נושא ממוקד: דיון על איברי הגוף עובר לחוט השדרה ולנתיבות המתפשטים ממנו. מאתרים מעבר מתיאור איברים לתיאור נתיבות בגוף. מפרידים בין אנלוגיה קבלית לבין טענה אנטומית בת־זמננו, ואין מעתיקים מניינים כמנוע מאומת. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+    },
+    {
+      "id": "hapliah.human-image.silver-gold-160",
+      "gate_id": "human-image",
+      "title": "חצי כסף וחצי זהב בדרשת זכר ונקבה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 160,
+        "to_pdf_page": 160,
+        "entry_pdf_page": 160,
+        "entry_anchor": "#page=160&view=FitH",
+        "range_end_anchor": "#page=160&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=160&view=FitH"
+      },
+      "content": {
+        "subject": "הדרשה מצרפת חצי כסף וחצי זהב למילים זכר ונקבה באמצעות פעולת אותיות ומניינים.",
+        "question": "כיצד שתי קריאות של 'חצי כסף וחצי זהב' יוצרות דרשה אחת?",
+        "steps": [
+          "מזהים את הביטוי ואת השוואתו לזכר ונקבה.",
+          "מסמנים את ההבחנה בין חלוקת מילים ובין חישוב, בלי לאשר תוצאה מספרית ללא מנוע."
+        ],
+        "source_references": [
+          "חצי כסף וחצי זהב",
+          "זכר ונקבה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 160 פותח נושא ממוקד: הדרשה מצרפת חצי כסף וחצי זהב למילים זכר ונקבה באמצעות פעולת אותיות ומניינים. מזהים את הביטוי ואת השוואתו לזכר ונקבה. מסמנים את ההבחנה בין חלוקת מילים ובין חישוב, בלי לאשר תוצאה מספרית ללא מנוע. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.human-image.chariot-166",
@@ -2121,6 +2422,41 @@
       "range_review_status": "single_page_locator"
     },
     {
+      "id": "hapliah.generations-heaven-earth.helper-190",
+      "gate_id": "generations-heaven-earth",
+      "title": "עזר כנגדו והדרשה על השפעה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 190,
+        "to_pdf_page": 190,
+        "entry_pdf_page": 190,
+        "entry_anchor": "#page=190&view=FitH",
+        "range_end_anchor": "#page=190&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=190&view=FitH"
+      },
+      "content": {
+        "subject": "דיון ב'עזר כנגדו' ממשיך לברר זיווג, השפעה ויחסי מידות.",
+        "question": "מה בין 'עזר' ל'כנגדו' בדרשה?",
+        "steps": [
+          "מאתרים את שאלת העזר ואת הפיכת האותיות הנזכרת בהמשך.",
+          "מפרידים בין דרשת מילה לבין המשמעות שהדובר מעניק למידות."
+        ],
+        "source_references": [
+          "עזר כנגדו",
+          "בראשית ב, יח"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 190 פותח נושא ממוקד: דיון ב'עזר כנגדו' ממשיך לברר זיווג, השפעה ויחסי מידות. מאתרים את שאלת העזר ואת הפיכת האותיות הנזכרת בהמשך. מפרידים בין דרשת מילה לבין המשמעות שהדובר מעניק למידות. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
       "id": "hapliah.generations-heaven-earth.patriarch-200",
       "gate_id": "generations-heaven-earth",
       "title": "האבות, מנייני אותיות וסדרי חילוף",
@@ -2149,6 +2485,41 @@
         "conclusion": null
       },
       "companion_explanation": "העמוד מערב פירוש על אברהם, יצחק ויעקב עם צירופי אותיות. ממיינים את שמות האבות ואת פעולות ההמרה. אין להציג מניין OCR כתוצאה שנבדקה במנוע.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.generations-heaven-earth.yibbum-205",
+      "gate_id": "generations-heaven-earth",
+      "title": "ייבום וחליצה כמשל לשפע",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 205,
+        "to_pdf_page": 205,
+        "entry_pdf_page": 205,
+        "entry_anchor": "#page=205&view=FitH",
+        "range_end_anchor": "#page=205&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=205&view=FitH"
+      },
+      "content": {
+        "subject": "המונחים ייבום וחליצה נדרשים כדימויים לריבוי שפע, מיעוטו ומניעתו.",
+        "question": "כיצד מתורגמים דיני ייבום וחליצה למונחי השפעה?",
+        "steps": [
+          "מזהים את המונחים ההלכתיים ואת תיאור ריבוי/מיעוט השפע.",
+          "מפרידים בין הדין ההלכתי המקורי לבין דרשת המידות; אין כאן פסיקה."
+        ],
+        "source_references": [
+          "ייבום",
+          "חליצה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 205 פותח נושא ממוקד: המונחים ייבום וחליצה נדרשים כדימויים לריבוי שפע, מיעוטו ומניעתו. מזהים את המונחים ההלכתיים ואת תיאור ריבוי/מיעוט השפע. מפרידים בין הדין ההלכתי המקורי לבין דרשת המידות; אין כאן פסיקה. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
@@ -2365,6 +2736,41 @@
       "range_review_status": "single_page_locator"
     },
     {
+      "id": "hapliah.torah-law.learning-wages-235",
+      "gate_id": "torah-law",
+      "title": "לימוד תורה, שכר ויחס לממון",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 235,
+        "to_pdf_page": 235,
+        "entry_pdf_page": 235,
+        "entry_anchor": "#page=235&view=FitH",
+        "range_end_anchor": "#page=235&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=235&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון משלב תורה, מלמדי תינוקות, שכר וביקורת על היחס לכסף וזהב.",
+        "question": "מהו סדר העדיפויות שמציג הספר בין לימוד תורה לבין ממון?",
+        "steps": [
+          "מאתרים את אזכור לומדי התינוקות ושכר הלימוד.",
+          "מזהים את המעבר לביקורת על הכסף והזהב ושומרים את גבולות ההקשר פתוחים."
+        ],
+        "source_references": [
+          "לימוד תורה",
+          "כסף וזהב"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 235 פותח נושא ממוקד: הדיון משלב תורה, מלמדי תינוקות, שכר וביקורת על היחס לכסף וזהב. מאתרים את אזכור לומדי התינוקות ושכר הלימוד. מזהים את המעבר לביקורת על הכסף והזהב ושומרים את גבולות ההקשר פתוחים. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
       "id": "hapliah.torah-law.pinchas-240",
       "gate_id": "torah-law",
       "title": "פינחס, דין ותורה שבעל פה",
@@ -2498,6 +2904,41 @@
         "conclusion": null
       },
       "companion_explanation": "הדף מקשה על גבולות דין לידה ובכורה. מתוארות חלופות של יציאת ראשו ורובו. אין להמיר בירור הלכתי לטענה רפואית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.torah-law.firstborn-270",
+      "gate_id": "torah-law",
+      "title": "בכור לכהן לעומת בכור לנחלה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 270,
+        "to_pdf_page": 270,
+        "entry_pdf_page": 270,
+        "entry_anchor": "#page=270&view=FitH",
+        "range_end_anchor": "#page=270&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=270&view=FitH"
+      },
+      "content": {
+        "subject": "דיון דיני מבדיל בין מעמד בכור לכהן לבין בכור לעניין ירושה, ובוחן מקרים שונים.",
+        "question": "מה משתנה בהגדרת בכור בין חובת פדיון לירושה?",
+        "steps": [
+          "מאתרים את שתי ההבחנות 'בכור לכהן' ו'בכור לנחלה'.",
+          "מפרידים בין מקרה פרטי המובא בדרשה לבין פירוש הלכתי; נדרש עיון מדויק בעד לפני שימוש מעשי."
+        ],
+        "source_references": [
+          "בכור לכהן",
+          "בכור לנחלה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 270 פותח נושא ממוקד: דיון דיני מבדיל בין מעמד בכור לכהן לבין בכור לעניין ירושה, ובוחן מקרים שונים. מאתרים את שתי ההבחנות 'בכור לכהן' ו'בכור לנחלה'. מפרידים בין מקרה פרטי המובא בדרשה לבין פירוש הלכתי; נדרש עיון מדויק בעד לפני שימוש מעשי. זהו הסבר נלווה מבוסס איתור בעד, לא ציטוט מן החיבור, ופירוש מודפס לא יוחס.",
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
@@ -4002,10 +4443,34 @@
       "engine_status": "not_tested"
     },
     {
+      "pdf_page": 120,
+      "source_anchor": "#page=120&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "נראה רצף של שאלות על אותיות כפולות ותכונות; לא אומתו כל ההקבלות",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
       "pdf_page": 130,
       "source_anchor": "#page=130&view=FitH",
       "scope": "page_layout_and_subject_not_line_by_line_transcription",
       "observation": "דף דו־טורי כולל בירור צלם האדם ושמות/מידות; אין לזהות טענת גימטריה מאומתת מתוך דפוס בלבד.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 150,
+      "source_anchor": "#page=150&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "נראה מעבר מפרטי איברים לנתיבות בגוף; לא הוכרע כל מניין",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 160,
+      "source_anchor": "#page=160&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "נראה דיון מספרי/לשוני בזכר ונקבה, כסף וזהב; המספרים לא נבדקו במנוע",
       "exact_quote_verified": false,
       "engine_status": "not_tested"
     }
