@@ -41,3 +41,15 @@ present?; features; rank in A, B, U (and C); noise before; the share of blind wi
 2. The ranking is called useful on these cases only if >= 60% of the present targets are surfaced AND the median blind window yields fewer than 10 candidates in A with length >= 7.
 3. No target string may appear in library code (test). Weights above are not changed after the first run; any later change is a new experiment with a new row.
 4. Read-only; no AI; the page, src/ and the lexicon asset are untouched.
+
+## Amendment 2 (made after the blind pass, before any target was ranked)
+
+The blind pass (30 windows, no targets) showed that the share of candidates with `readScore >= 0.75` is NOT monotone in length: 0.32 / 0.11 / 0.45 / 0.60 / 0.77 / 0.71 / 0.64 for lengths 4..10,
+because the gap-allowing parse coverage (3 tokens of 3+ letters over a 41.8k-form lexicon with affixes) is almost always >= 0.75 for a random long string. A rarity built from length alone would
+therefore rank 5-letter words as the rarest candidates. Corrections, derived only from the blind data and the stated principle (rarity must be the null share that reads at least as well for that length):
+
+* rarity(c) = -log10((N_L(>= bucket of readScore(c)) + 1) / (N_L + 1)) with N_L counted on the blind windows, readScore buckets 0.75, 0.80, ..., 1.00. (The old `p(L)` table is dropped.)
+* A: eligible if `readScore >= 0.75`; order by rarity, then lexicalConfidence.
+* B: eligible if (`cross` or `adjacent` or `parallel`) and `readScore >= 0.75` (the same readability bar as A, so unreadable strings do not flood the structure tier);
+  order: cross > adjacent > parallel, then rarity, then lexicalConfidence. (Replaces the `0.6` bar and the readScore/length order.)
+* C, U, findings, positions, blind windows, decision rules: unchanged. The decision rule 2 count "A with length >= 7" is kept as written.

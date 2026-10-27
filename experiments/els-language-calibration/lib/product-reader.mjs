@@ -73,6 +73,7 @@ export function loadProductReader({ htmlPath, lexiconPath }) {
     newMap: () => evaluate("new Map()"),
     loadLexicon: () => context.guidedLoadDynamicLexicon(),
     box: (axis) => context.guidedMatrixBox(axis),
+    readSurface: (surface, hints, lexicon) => context.guidedLanguageReadings(surface, hints, lexicon),
     inspect: (axis, box, hints, lexicon) => context.guidedMatrixLanguageInspection(axis, box, hints, lexicon),
   });
 }
