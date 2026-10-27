@@ -1,0 +1,4172 @@
+{
+  "book_slug": "sefer-yetzirah",
+  "source_identity": "book:sefer-yetzirah-9perushim",
+  "source_pdf_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf",
+  "source_pdf_sha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+  "generated_at": "2026-10-27",
+  "approved_base": "40382ae21b9ca2d6ca38f58c387542b993d18f69",
+  "delivery_state": "branch_only_data_no_integration",
+  "schema_version": "sefer-yetzirah-structures.v1",
+  "unit_asset": "/book-data/sefer-yetzirah.units.json",
+  "boundary": "Book-specific source structures and future illustration specifications; no global graph, renderer, engine or canonical research store.",
+  "structures": [
+    {
+      "id": "sy-structure:ten-depths",
+      "title": "עשרה עומקים בנוסח הגוף המשולב",
+      "source_form": "text_list",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch1:depths",
+          "pdf_page": 53,
+          "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "beginning",
+          "label": "עומק ראשית",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "end",
+          "label": "עומק אחרית",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "good",
+          "label": "עומק טוב",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "evil",
+          "label": "עומק רע",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "up",
+          "label": "עומק רום",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "down",
+          "label": "עומק תחת",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "east",
+          "label": "עומק מזרח",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "west",
+          "label": "עומק מערב",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "north",
+          "label": "עומק צפון",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "south",
+          "label": "עומק דרום",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        }
+      ],
+      "source_order": [
+        "beginning",
+        "end",
+        "good",
+        "evil",
+        "up",
+        "down",
+        "east",
+        "west",
+        "north",
+        "south"
+      ],
+      "source_relations": [
+        {
+          "from_id": "beginning",
+          "type": "paired_in_list",
+          "to_id": "end",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "good",
+          "type": "paired_in_list",
+          "to_id": "evil",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "up",
+          "type": "paired_in_list",
+          "to_id": "down",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "east",
+          "type": "paired_in_list",
+          "to_id": "west",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "north",
+          "type": "paired_in_list",
+          "to_id": "south",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:depths",
+            "pdf_page": 53,
+            "source_ref": "book:sefer-yetzirah-9perushim#p53:synoptic_body:text:synoptic:ch1:depths",
+            "page_region": "body"
+          }
+        }
+      ],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "להציג חמישה זוגות מובחנים; רק שלושת הזוגות המרחביים יתפקדו ככיווני נפח. המיקום הקיים של כל עשרת העומקים הוא ייצוג עריכתי.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": []
+    },
+    {
+      "id": "sy-structure:five-against-five",
+      "title": "חמש כנגד חמש וברית באמצע",
+      "source_form": "text_analogy",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch1:fingers",
+          "pdf_page": 45,
+          "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "five-a",
+          "label": "חמש",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "five-b",
+          "label": "חמש כנגדן",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "covenant",
+          "label": "ברית יחיד באמצע",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body"
+          }
+        }
+      ],
+      "source_order": [
+        "five-a",
+        "five-b",
+        "covenant"
+      ],
+      "source_relations": [
+        {
+          "from_id": "five-a",
+          "type": "opposed_to",
+          "to_id": "five-b",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "covenant",
+          "type": "between",
+          "to_id": "five-a",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "covenant",
+          "type": "between",
+          "to_id": "five-b",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:fingers",
+            "pdf_page": 45,
+            "source_ref": "book:sefer-yetzirah-9perushim#p45:synoptic_body:text:synoptic:ch1:fingers",
+            "page_region": "body"
+          }
+        }
+      ],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "שתי קבוצות של חמש ומוקד אמצעי; לא לזהות את המוקד כספירה אחת עשרה.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": []
+    },
+    {
+      "id": "sy-structure:letter-families",
+      "title": "שלוש משפחות כ״ב האותיות",
+      "source_form": "text_partition",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch1:letter-partition",
+          "pdf_page": 65,
+          "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "mothers",
+          "label": "אמ״ש",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body"
+          },
+          "letters": [
+            "א",
+            "מ",
+            "ש"
+          ],
+          "source_count": 3
+        },
+        {
+          "id": "doubles",
+          "label": "בג״ד כפר״ת",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body"
+          },
+          "letters": [
+            "ב",
+            "ג",
+            "ד",
+            "כ",
+            "פ",
+            "ר",
+            "ת"
+          ],
+          "source_count": 7
+        },
+        {
+          "id": "simples",
+          "label": "הו״ז חט״י לנ״ס עצ״ק",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body"
+          },
+          "letters": [
+            "ה",
+            "ו",
+            "ז",
+            "ח",
+            "ט",
+            "י",
+            "ל",
+            "נ",
+            "ס",
+            "ע",
+            "צ",
+            "ק"
+          ],
+          "source_count": 12
+        }
+      ],
+      "source_order": [
+        "mothers",
+        "doubles",
+        "simples"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "letters",
+        "proposal": "להשתמש במשפחות האותיות הקיימות, תוך שמירת עד מקור לכל חלוקה. סדר האלפבית של הרשת הוא החלטת תצוגה נפרדת מסדר המשפחות.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": []
+    },
+    {
+      "id": "sy-structure:five-mouth-groups",
+      "title": "חמש קבוצות מוצא",
+      "source_form": "text_partition",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch2:articulation",
+          "pdf_page": 80,
+          "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "throat",
+          "label": "אחה״ע",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body"
+          },
+          "letters": [
+            "א",
+            "ח",
+            "ה",
+            "ע"
+          ]
+        },
+        {
+          "id": "lips",
+          "label": "בומ״ף",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body"
+          },
+          "letters": [
+            "ב",
+            "ו",
+            "מ",
+            "פ"
+          ]
+        },
+        {
+          "id": "palate",
+          "label": "גיכ״ק",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body"
+          },
+          "letters": [
+            "ג",
+            "י",
+            "כ",
+            "ק"
+          ]
+        },
+        {
+          "id": "tongue",
+          "label": "דטלנ״ת",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body"
+          },
+          "letters": [
+            "ד",
+            "ט",
+            "ל",
+            "נ",
+            "ת"
+          ]
+        },
+        {
+          "id": "teeth",
+          "label": "זסשר״ץ",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body"
+          },
+          "letters": [
+            "ז",
+            "ס",
+            "ש",
+            "ר",
+            "צ"
+          ]
+        }
+      ],
+      "source_order": [
+        "throat",
+        "lips",
+        "palate",
+        "tongue",
+        "teeth"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "letters",
+        "proposal": "שכבת מיון נוספת לאותן 22 אותיות. שמות האיברים ומיקומם מחייבים בחירת עד מפורשת; כאן מזהי הקבוצות באנגלית הם תוויות עזר בלבד.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "נוסח הערת מנטובה ב־PDF 80 שונה בחלק מפרטי ההגייה; אות מסופקת בהערה אינה נתון תקין."
+      ]
+    },
+    {
+      "id": "sy-structure:six-seals-synoptic",
+      "title": "שש חותמות · גוף משולב",
+      "source_form": "text_ordered_direction_seals",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch1:six-seals",
+          "pdf_page": 73,
+          "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "up",
+          "label": "רום",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "י",
+            "ה",
+            "ו"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "down",
+          "label": "תחת",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "י",
+            "ו",
+            "ה"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "east",
+          "label": "מזרח",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "ה",
+            "י",
+            "ו"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "west",
+          "label": "מערב",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "ה",
+            "ו",
+            "י"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "south",
+          "label": "דרום",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "ו",
+            "י",
+            "ה"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "north",
+          "label": "צפון",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "ו",
+            "ה",
+            "י"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        }
+      ],
+      "source_order": [
+        "up",
+        "down",
+        "east",
+        "west",
+        "south",
+        "north"
+      ],
+      "source_relations": [
+        {
+          "from_id": "up",
+          "type": "opposite_direction",
+          "to_id": "down",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "east",
+          "type": "opposite_direction",
+          "to_id": "west",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "south",
+          "type": "opposite_direction",
+          "to_id": "north",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:six-seals",
+            "pdf_page": 73,
+            "source_ref": "book:sefer-yetzirah-9perushim#p73:synoptic_body:text:synoptic:ch1:six-seals",
+            "page_region": "body"
+          }
+        }
+      ],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "שישה קצוות ומרכז יחס ללא תווית ספירה נוספת. יה״ו נשמר בסדר אותיות מפורש, בלי מיון לקסיקלי או החלפת סדר עקב RTL.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": []
+    },
+    {
+      "id": "sy-structure:six-seals-gra-edition",
+      "title": "שש חותמות · נוסח הגר״א",
+      "source_form": "text_ordered_direction_seals",
+      "sources": [
+        {
+          "unit_id": "sy:gra-edition:text:ch1:six-seals",
+          "pdf_page": 175,
+          "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "up",
+          "label": "רום",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "י",
+            "ה",
+            "ו"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "down",
+          "label": "תחת",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "י",
+            "ו",
+            "ה"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "east",
+          "label": "מזרח",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "ה",
+            "י",
+            "ו"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "west",
+          "label": "מערב",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "ה",
+            "ו",
+            "י"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "south",
+          "label": "דרום",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "ו",
+            "י",
+            "ה"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        },
+        {
+          "id": "north",
+          "label": "צפון",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body"
+          },
+          "seal_letters": [
+            "ו",
+            "ה",
+            "י"
+          ],
+          "seal_reading": "direct_visual_short_reading"
+        }
+      ],
+      "source_order": [
+        "up",
+        "down",
+        "east",
+        "west",
+        "south",
+        "north"
+      ],
+      "source_relations": [
+        {
+          "from_id": "up",
+          "type": "opposite_direction",
+          "to_id": "down",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "east",
+          "type": "opposite_direction",
+          "to_id": "west",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "south",
+          "type": "opposite_direction",
+          "to_id": "north",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch1:six-seals",
+            "pdf_page": 175,
+            "source_ref": "book:sefer-yetzirah-9perushim#p175:gra_commentary:text:gra-edition:ch1:six-seals",
+            "page_region": "body"
+          }
+        }
+      ],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "שישה קצוות ומרכז יחס ללא תווית ספירה נוספת. יה״ו נשמר בסדר אותיות מפורש, בלי מיון לקסיקלי או החלפת סדר עקב RTL.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": []
+    },
+    {
+      "id": "sy-structure:mothers-world-year-soul",
+      "title": "אמ״ש והקבלות עולם שנה ונפש",
+      "source_form": "text_correspondences",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch3:world",
+          "pdf_page": 94,
+          "source_ref": "book:sefer-yetzirah-9perushim#p94:synoptic_body:text:synoptic:ch3:world",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:synoptic:text:ch3:year-soul",
+          "pdf_page": 95,
+          "source_ref": "book:sefer-yetzirah-9perushim#p95:synoptic_body:text:synoptic:ch3:year-soul",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:synoptic:text:ch3:alef",
+          "pdf_page": 97,
+          "source_ref": "book:sefer-yetzirah-9perushim#p97:synoptic_body:text:synoptic:ch3:alef",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:synoptic:text:ch3:mem",
+          "pdf_page": 98,
+          "source_ref": "book:sefer-yetzirah-9perushim#p98:synoptic_body:text:synoptic:ch3:mem",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:synoptic:text:ch3:shin",
+          "pdf_page": 99,
+          "source_ref": "book:sefer-yetzirah-9perushim#p99:synoptic_body:text:synoptic:ch3:shin",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "alef",
+          "label": "אל״ף",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:alef",
+            "pdf_page": 97,
+            "source_ref": "book:sefer-yetzirah-9perushim#p97:synoptic_body:text:synoptic:ch3:alef",
+            "page_region": "body"
+          },
+          "world": "אוויר",
+          "year": "רוויה",
+          "soul": "גוויה",
+          "element": "רוח"
+        },
+        {
+          "id": "mem",
+          "label": "מ״ם",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:mem",
+            "pdf_page": 98,
+            "source_ref": "book:sefer-yetzirah-9perushim#p98:synoptic_body:text:synoptic:ch3:mem",
+            "page_region": "body"
+          },
+          "world": "ארץ",
+          "year": "קור",
+          "soul": "בטן",
+          "element": "מים"
+        },
+        {
+          "id": "shin",
+          "label": "שי״ן",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:shin",
+            "pdf_page": 99,
+            "source_ref": "book:sefer-yetzirah-9perushim#p99:synoptic_body:text:synoptic:ch3:shin",
+            "page_region": "body"
+          },
+          "world": "שמיים",
+          "year": "חום",
+          "soul": "ראש",
+          "element": "אש"
+        }
+      ],
+      "source_order": [
+        "alef",
+        "mem",
+        "shin"
+      ],
+      "source_relations": [
+        {
+          "from_id": "alef",
+          "type": "mediates_between_mem_and_shin",
+          "to_id": "mem",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:world",
+            "pdf_page": 94,
+            "source_ref": "book:sefer-yetzirah-9perushim#p94:synoptic_body:text:synoptic:ch3:world",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "alef",
+          "type": "mediates_between_mem_and_shin",
+          "to_id": "shin",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:world",
+            "pdf_page": 94,
+            "source_ref": "book:sefer-yetzirah-9perushim#p94:synoptic_body:text:synoptic:ch3:world",
+            "page_region": "body"
+          }
+        }
+      ],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "osn",
+        "proposal": "שלושה תחומים מקבילים; כל אות מחברת את שלוש הקבלותיה באותו עד. הטבעות המצטלבות במודל הקיים הן בחירה עריכתית, לא ציור מקור.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": []
+    },
+    {
+      "id": "sy-structure:doubles-synoptic",
+      "title": "הקבלות שבע הכפולות בגוף המשולב",
+      "source_form": "text_correspondences",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch4:world-year-soul",
+          "pdf_page": 105,
+          "source_ref": "book:sefer-yetzirah-9perushim#p105:synoptic_body:text:synoptic:ch4:world-year-soul",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "bet",
+          "label": "ב",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:bet",
+            "pdf_page": 106,
+            "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:text:synoptic:ch4:bet",
+            "page_region": "body"
+          },
+          "world_planet": "שבתאי",
+          "week_day": "ראשון",
+          "soul_gate": "עין ימין",
+          "reading_status": "direct_visual_summary"
+        },
+        {
+          "id": "gimel",
+          "label": "ג",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:gimel",
+            "pdf_page": 107,
+            "source_ref": "book:sefer-yetzirah-9perushim#p107:synoptic_body:text:synoptic:ch4:gimel",
+            "page_region": "body"
+          },
+          "world_planet": "צדק",
+          "week_day": "שני",
+          "soul_gate": "עין שמאל",
+          "reading_status": "direct_visual_summary"
+        },
+        {
+          "id": "dalet",
+          "label": "ד",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:dalet",
+            "pdf_page": 108,
+            "source_ref": "book:sefer-yetzirah-9perushim#p108:synoptic_body:text:synoptic:ch4:dalet",
+            "page_region": "body"
+          },
+          "world_planet": "מאדים",
+          "week_day": "שלישי",
+          "soul_gate": "אוזן ימין",
+          "reading_status": "direct_visual_summary"
+        },
+        {
+          "id": "khaf",
+          "label": "כ",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:khaf",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:khaf",
+            "page_region": "body"
+          },
+          "world_planet": "חמה",
+          "week_day": "רביעי",
+          "soul_gate": "אוזן שמאל",
+          "reading_status": "direct_visual_summary"
+        },
+        {
+          "id": "pe",
+          "label": "פ",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:pe",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:pe",
+            "page_region": "body"
+          },
+          "world_planet": "נוגה",
+          "week_day": "חמישי",
+          "soul_gate": "נחיר ימין",
+          "reading_status": "direct_visual_summary"
+        },
+        {
+          "id": "resh",
+          "label": "ר",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:resh",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:resh",
+            "page_region": "body"
+          },
+          "world_planet": null,
+          "week_day": null,
+          "soul_gate": null,
+          "reading_status": "partial"
+        },
+        {
+          "id": "tav",
+          "label": "ת",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:tav",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:tav",
+            "page_region": "body"
+          },
+          "world_planet": null,
+          "week_day": null,
+          "soul_gate": null,
+          "reading_status": "partial"
+        }
+      ],
+      "source_order": [
+        "bet",
+        "gimel",
+        "dalet",
+        "khaf",
+        "pe",
+        "resh",
+        "tav"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "osn",
+        "proposal": "חיבור אות־כוכב־יום־שער לפי הנוסח הנבחר בלבד; להראות את שני החוסרים במקום להעתיק מהגר״א.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "רי״ש ותי״ו ב־PDF 110: מיפוי הקשר קיים; תעתיק שלושת השדות לא הוכנס כנתון סגור."
+      ]
+    },
+    {
+      "id": "sy-structure:doubles-gra-distinction",
+      "title": "הקבלות בי״ת וגימ״ל בנוסח הגר״א",
+      "source_form": "text_correspondences",
+      "sources": [
+        {
+          "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+          "pdf_page": 184,
+          "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "bet",
+          "label": "בי״ת",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body"
+          },
+          "quality": "חכמה",
+          "world_planet": "לבנה",
+          "week_day": "ראשון",
+          "soul_gate": "עין ימין"
+        },
+        {
+          "id": "gimel",
+          "label": "גימ״ל",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body"
+          },
+          "quality": "עושר",
+          "world_planet": "מאדים",
+          "week_day": "שני",
+          "soul_gate": "אוזן ימין"
+        }
+      ],
+      "source_order": [
+        "bet",
+        "gimel"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "osn",
+        "proposal": "בחירת נוסח משמרת את בי״ת־לבנה וגימ״ל־מאדים. אין להחליפן בבי״ת־שבתאי וגימ״ל־צדק מן הגוף המשולב.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "חמש ההמלכות ב־185 ממופות כיחידה; טרם הוזנו כל שדות ההקבלה ברמת רכיב."
+      ]
+    },
+    {
+      "id": "sy-structure:stones-houses",
+      "title": "אבנים ובתים — מניין סידורים",
+      "source_form": "text_numeric_sequence",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch4:stones-houses",
+          "pdf_page": 111,
+          "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "stones-2",
+          "label": "2 אבנים",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body"
+          },
+          "source_stones": 2,
+          "source_houses": 2
+        },
+        {
+          "id": "stones-3",
+          "label": "3 אבנים",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body"
+          },
+          "source_stones": 3,
+          "source_houses": 6
+        },
+        {
+          "id": "stones-4",
+          "label": "4 אבנים",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body"
+          },
+          "source_stones": 4,
+          "source_houses": 24
+        },
+        {
+          "id": "stones-5",
+          "label": "5 אבנים",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body"
+          },
+          "source_stones": 5,
+          "source_houses": 120
+        },
+        {
+          "id": "stones-6",
+          "label": "6 אבנים",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body"
+          },
+          "source_stones": 6,
+          "source_houses": 720
+        },
+        {
+          "id": "stones-7",
+          "label": "7 אבנים",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body"
+          },
+          "source_stones": 7,
+          "source_houses": 5040
+        }
+      ],
+      "source_order": [
+        "stones-2",
+        "stones-3",
+        "stones-4",
+        "stones-5",
+        "stones-6",
+        "stones-7"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "gates",
+        "proposal": "להמחיש סידורים של אותו אוסף אותיות. אין לערבב עם 231 זוגות בלתי חוזרים; המניינים הם טקסט מקור, לא תוצאה מאומתת במנוע.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": []
+    },
+    {
+      "id": "sy-structure:twelve-boundaries-gra",
+      "title": "י״ב גבולי אלכסון בנוסח הגר״א",
+      "source_form": "text_list",
+      "sources": [
+        {
+          "unit_id": "sy:gra-edition:text:ch5:boundaries",
+          "pdf_page": 187,
+          "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "east-up",
+          "label": "מזרחית רומית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "east",
+            "up"
+          ]
+        },
+        {
+          "id": "east-north",
+          "label": "מזרחית צפונית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "east",
+            "north"
+          ]
+        },
+        {
+          "id": "east-down",
+          "label": "מזרחית תחתית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "east",
+            "down"
+          ]
+        },
+        {
+          "id": "south-up",
+          "label": "דרומית רומית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "south",
+            "up"
+          ]
+        },
+        {
+          "id": "south-east",
+          "label": "דרומית מזרחית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "south",
+            "east"
+          ]
+        },
+        {
+          "id": "south-down",
+          "label": "דרומית תחתית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "south",
+            "down"
+          ]
+        },
+        {
+          "id": "west-up",
+          "label": "מערבית רומית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "west",
+            "up"
+          ]
+        },
+        {
+          "id": "west-south",
+          "label": "מערבית דרומית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "west",
+            "south"
+          ]
+        },
+        {
+          "id": "west-down",
+          "label": "מערבית תחתית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "west",
+            "down"
+          ]
+        },
+        {
+          "id": "north-up",
+          "label": "צפונית רומית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "north",
+            "up"
+          ]
+        },
+        {
+          "id": "north-west",
+          "label": "צפונית מערבית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "north",
+            "west"
+          ]
+        },
+        {
+          "id": "north-down",
+          "label": "צפונית תחתית",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch5:boundaries",
+            "pdf_page": 187,
+            "source_ref": "book:sefer-yetzirah-9perushim#p187:gra_commentary:text:gra-edition:ch5:boundaries",
+            "page_region": "body"
+          },
+          "directions": [
+            "north",
+            "down"
+          ]
+        }
+      ],
+      "source_order": [
+        "east-up",
+        "east-north",
+        "east-down",
+        "south-up",
+        "south-east",
+        "south-down",
+        "west-up",
+        "west-south",
+        "west-down",
+        "north-up",
+        "north-west",
+        "north-down"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "letters",
+        "proposal": "אפשר לייצג כל גבול כיחס בין שני כיוונים או כצלע בקובייה. הקובייה, קודקודיה ומידותיה הם בחירת המחשה. אין לשייך אות לכל צלע ללא משפט מקור.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "שמות הגבולות נשמרים בקריאה מנורמלת של סיומות בלבד; אין כאן התאמת אות־גבול פרטנית."
+      ]
+    },
+    {
+      "id": "sy-structure:three-kings",
+      "title": "תלי, גלגל ולב",
+      "source_form": "text_analogy",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+          "pdf_page": 122,
+          "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:chachmoni:chachmoni:ch6:teli-wheel-heart",
+          "pdf_page": 151,
+          "source_ref": "book:sefer-yetzirah-9perushim#p151:chachmoni_treatise:chachmoni:chachmoni:ch6:teli-wheel-heart",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:gra-edition:text:ch6:teli-wheel-heart",
+          "pdf_page": 192,
+          "source_ref": "book:sefer-yetzirah-9perushim#p192:gra_commentary:text:gra-edition:ch6:teli-wheel-heart",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "teli",
+          "label": "תלי בעולם",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+            "pdf_page": 122,
+            "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+            "page_region": "body"
+          },
+          "simile": "מלך על כסאו"
+        },
+        {
+          "id": "wheel",
+          "label": "גלגל בשנה",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+            "pdf_page": 122,
+            "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+            "page_region": "body"
+          },
+          "simile": "מלך במדינה"
+        },
+        {
+          "id": "heart",
+          "label": "לב בנפש",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+            "pdf_page": 122,
+            "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+            "page_region": "body"
+          },
+          "simile": "מלך במלחמה"
+        }
+      ],
+      "source_order": [
+        "teli",
+        "wheel",
+        "heart"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "osn",
+        "proposal": "שלושה מוקדי הנהגה בתחום שלהם; לא לחבר קשת בין שני מוקדים רק מפני ששני גלגלים נוגעים במודל. כל נוסח מציג את ניסוחו בנפרד.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": []
+    },
+    {
+      "id": "sy-structure:concentric-39",
+      "title": "עיגולים מקיפים ב־PDF 39",
+      "source_form": "printed_diagram",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:raavad:ch1:concentric-spheres",
+          "pdf_page": 39,
+          "source_ref": "book:sefer-yetzirah-9perushim#p39:synoptic_body:raavad:synoptic:ch1:concentric-spheres",
+          "page_region": "upper commentary"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "מרכז",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:concentric-spheres",
+            "pdf_page": 39,
+            "source_ref": "book:sefer-yetzirah-9perushim#p39:synoptic_body:raavad:synoptic:ch1:concentric-spheres",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "עיגולים מקיפים",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:concentric-spheres",
+            "pdf_page": 39,
+            "source_ref": "book:sefer-yetzirah-9perushim#p39:synoptic_body:raavad:synoptic:ch1:concentric-spheres",
+            "page_region": "upper commentary"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "להציג עיגולים קונצנטריים או חתך כדורי; אין כיוון חצים מודפס.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "מספר כל הטבעות וייחוס שם לכל טבעת לא נקבעו."
+      ]
+    },
+    {
+      "id": "sy-structure:element-rings-40",
+      "title": "מעגלי היסודות ב־PDF 40",
+      "source_form": "printed_diagram",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:raavad:ch1:elements-circles",
+          "pdf_page": 40,
+          "source_ref": "book:sefer-yetzirah-9perushim#p40:synoptic_body:raavad:synoptic:ch1:elements-circles",
+          "page_region": "upper commentary"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "אוויר",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:elements-circles",
+            "pdf_page": 40,
+            "source_ref": "book:sefer-yetzirah-9perushim#p40:synoptic_body:raavad:synoptic:ch1:elements-circles",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "מים",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:elements-circles",
+            "pdf_page": 40,
+            "source_ref": "book:sefer-yetzirah-9perushim#p40:synoptic_body:raavad:synoptic:ch1:elements-circles",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-3",
+          "label": "אש",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:elements-circles",
+            "pdf_page": 40,
+            "source_ref": "book:sefer-yetzirah-9perushim#p40:synoptic_body:raavad:synoptic:ch1:elements-circles",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-4",
+          "label": "קו אנכי",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:elements-circles",
+            "pdf_page": 40,
+            "source_ref": "book:sefer-yetzirah-9perushim#p40:synoptic_body:raavad:synoptic:ch1:elements-circles",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-5",
+          "label": "מעגלים",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:elements-circles",
+            "pdf_page": 40,
+            "source_ref": "book:sefer-yetzirah-9perushim#p40:synoptic_body:raavad:synoptic:ch1:elements-circles",
+            "page_region": "upper commentary"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2",
+        "part-3",
+        "part-4",
+        "part-5"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "לשמור את האמצע וההקפה שבתמונה; הוספת עומק היא החלטה עריכתית.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "אין לוח מזלות בעמוד זה; נוסח כל התוויות הקטנות אינו מתועתק."
+      ]
+    },
+    {
+      "id": "sy-structure:opposites-41",
+      "title": "דברים ותמורות ב־PDF 41",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:raavad:ch1:opposites-table",
+          "pdf_page": 41,
+          "source_ref": "book:sefer-yetzirah-9perushim#p41:synoptic_body:raavad:synoptic:ch1:opposites-table",
+          "page_region": "upper commentary"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "דברים",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:opposites-table",
+            "pdf_page": 41,
+            "source_ref": "book:sefer-yetzirah-9perushim#p41:synoptic_body:raavad:synoptic:ch1:opposites-table",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "תמורות",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:opposites-table",
+            "pdf_page": 41,
+            "source_ref": "book:sefer-yetzirah-9perushim#p41:synoptic_body:raavad:synoptic:ch1:opposites-table",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-3",
+          "label": "שורות מקבילות",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:opposites-table",
+            "pdf_page": 41,
+            "source_ref": "book:sefer-yetzirah-9perushim#p41:synoptic_body:raavad:synoptic:ch1:opposites-table",
+            "page_region": "upper commentary"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2",
+        "part-3"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "זוגות יופיעו בשתי עמודות סמוכות; אין סדר מחזורי שהמקור מחייב.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "תעתיק כל השורות אינו שלם."
+      ]
+    },
+    {
+      "id": "sy-structure:name-wheel-42",
+      "title": "גלגל צירופי השם ב־PDF 42",
+      "source_form": "printed_diagram",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:raavad:ch1:name-wheel",
+          "pdf_page": 42,
+          "source_ref": "book:sefer-yetzirah-9perushim#p42:synoptic_body:raavad:synoptic:ch1:name-wheel",
+          "page_region": "upper commentary"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "היקף עגול",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:name-wheel",
+            "pdf_page": 42,
+            "source_ref": "book:sefer-yetzirah-9perushim#p42:synoptic_body:raavad:synoptic:ch1:name-wheel",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "תאים היקפיים",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:name-wheel",
+            "pdf_page": 42,
+            "source_ref": "book:sefer-yetzirah-9perushim#p42:synoptic_body:raavad:synoptic:ch1:name-wheel",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-3",
+          "label": "כתובות צירוף",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:name-wheel",
+            "pdf_page": 42,
+            "source_ref": "book:sefer-yetzirah-9perushim#p42:synoptic_body:raavad:synoptic:ch1:name-wheel",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-4",
+          "label": "מרכז פנוי",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:name-wheel",
+            "pdf_page": 42,
+            "source_ref": "book:sefer-yetzirah-9perushim#p42:synoptic_body:raavad:synoptic:ch1:name-wheel",
+            "page_region": "upper commentary"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2",
+        "part-3",
+        "part-4"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "לשמור תאים על ההיקף; אין להסיק חץ סיבוב מתנוחת אותיות.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "תעתיק מלא של סדר התאים וכיוונם לא סגור; אין להמציא שנים־עשר תאים על סמך הכותרת הקודמת."
+      ]
+    },
+    {
+      "id": "sy-structure:name-grid-44",
+      "title": "לוח שמות ב־PDF 44",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:raavad:ch1:name-grid",
+          "pdf_page": 44,
+          "source_ref": "book:sefer-yetzirah-9perushim#p44:synoptic_body:raavad:synoptic:ch1:name-grid",
+          "page_region": "upper commentary"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "ארבע שורות",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:name-grid",
+            "pdf_page": 44,
+            "source_ref": "book:sefer-yetzirah-9perushim#p44:synoptic_body:raavad:synoptic:ch1:name-grid",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "שלוש מחלקות לרוחב",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:name-grid",
+            "pdf_page": 44,
+            "source_ref": "book:sefer-yetzirah-9perushim#p44:synoptic_body:raavad:synoptic:ch1:name-grid",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-3",
+          "label": "כתובות שמות",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:name-grid",
+            "pdf_page": 44,
+            "source_ref": "book:sefer-yetzirah-9perushim#p44:synoptic_body:raavad:synoptic:ch1:name-grid",
+            "page_region": "upper commentary"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2",
+        "part-3"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "לשמור את חלוקת הרשת כפי שנדפסה; גובה תלת־ממדי אינו ערך מקור.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "גוף כל התאים אינו מתועתק."
+      ]
+    },
+    {
+      "id": "sy-structure:botril-pairs-85",
+      "title": "לוח זוגות בוטריל ב־PDF 85",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:botril:ch2:table",
+          "pdf_page": 85,
+          "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:botril:synoptic:ch2:table",
+          "page_region": "lower block headed botril"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "כותרת בוטריל",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch2:table",
+            "pdf_page": 85,
+            "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:botril:synoptic:ch2:table",
+            "page_region": "lower block headed botril"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "שורות זוגות אותיות",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch2:table",
+            "pdf_page": 85,
+            "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:botril:synoptic:ch2:table",
+            "page_region": "lower block headed botril"
+          }
+        },
+        {
+          "id": "part-3",
+          "label": "הסבר מתחת ללוח",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch2:table",
+            "pdf_page": 85,
+            "source_ref": "book:sefer-yetzirah-9perushim#p85:synoptic_body:botril:synoptic:ch2:table",
+            "page_region": "lower block headed botril"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2",
+        "part-3"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "gates",
+        "proposal": "לוח עצמאי עם סדר שורות מקור; גרף זוגות הוא ייצוג נגזר.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "אין תעתיק כל 22 השורות ברמת ודאות תאית."
+      ]
+    },
+    {
+      "id": "sy-structure:botril-pairs-86",
+      "title": "המשך לוח בוטריל ב־PDF 86",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:botril:ch2:table-continuation",
+          "pdf_page": 86,
+          "source_ref": "book:sefer-yetzirah-9perushim#p86:synoptic_body:botril:synoptic:ch2:table-continuation",
+          "page_region": "lower block headed botril"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "לוח זוגות",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch2:table-continuation",
+            "pdf_page": 86,
+            "source_ref": "book:sefer-yetzirah-9perushim#p86:synoptic_body:botril:synoptic:ch2:table-continuation",
+            "page_region": "lower block headed botril"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "טקסט הסבר",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch2:table-continuation",
+            "pdf_page": 86,
+            "source_ref": "book:sefer-yetzirah-9perushim#p86:synoptic_body:botril:synoptic:ch2:table-continuation",
+            "page_region": "lower block headed botril"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "gates",
+        "proposal": "לשמור זהות לוח ועמוד נפרדים מן 85.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "לא להשלים תאים באמצעות לוח 203."
+      ]
+    },
+    {
+      "id": "sy-structure:botril-pairs-87",
+      "title": "שני לוחות בוטריל ב־PDF 87",
+      "source_form": "printed_tables",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:botril:ch2:further-tables",
+          "pdf_page": 87,
+          "source_ref": "book:sefer-yetzirah-9perushim#p87:synoptic_body:botril:synoptic:ch2:further-tables",
+          "page_region": "lower block headed botril"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "לוח עליון",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch2:further-tables",
+            "pdf_page": 87,
+            "source_ref": "book:sefer-yetzirah-9perushim#p87:synoptic_body:botril:synoptic:ch2:further-tables",
+            "page_region": "lower block headed botril"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "כותרת מפרידה",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch2:further-tables",
+            "pdf_page": 87,
+            "source_ref": "book:sefer-yetzirah-9perushim#p87:synoptic_body:botril:synoptic:ch2:further-tables",
+            "page_region": "lower block headed botril"
+          }
+        },
+        {
+          "id": "part-3",
+          "label": "לוח תחתון",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch2:further-tables",
+            "pdf_page": 87,
+            "source_ref": "book:sefer-yetzirah-9perushim#p87:synoptic_body:botril:synoptic:ch2:further-tables",
+            "page_region": "lower block headed botril"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2",
+        "part-3"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "gates",
+        "proposal": "כל לוח הוא רכיב נפרד; סימטריה בתצוגה לא תקבע שקילות תאים.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "קריאת כל הכותרות והתאים חלקית."
+      ]
+    },
+    {
+      "id": "sy-structure:circle-102",
+      "title": "המעגל בפרק הכפולות ב־PDF 102",
+      "source_form": "printed_diagram",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:raavad:ch4:opposites-circle",
+          "pdf_page": 102,
+          "source_ref": "book:sefer-yetzirah-9perushim#p102:synoptic_body:raavad:synoptic:ch4:opposites-circle",
+          "page_region": "upper commentary"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "עיגול",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch4:opposites-circle",
+            "pdf_page": 102,
+            "source_ref": "book:sefer-yetzirah-9perushim#p102:synoptic_body:raavad:synoptic:ch4:opposites-circle",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "כתובת על ההיקף",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch4:opposites-circle",
+            "pdf_page": 102,
+            "source_ref": "book:sefer-yetzirah-9perushim#p102:synoptic_body:raavad:synoptic:ch4:opposites-circle",
+            "page_region": "upper commentary"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "לשמור מעגל והיקף. אין חצים נראים ולכן אין להוסיף כיוון כנתון מקור.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "הכתובת ההיקפית לא פוענחה במלואה."
+      ]
+    },
+    {
+      "id": "sy-structure:otzar-seven-105",
+      "title": "לוח קצר בתוך אוצר ה׳ ב־PDF 105",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:otzar:ch4:correspondences",
+          "pdf_page": 105,
+          "source_ref": "book:sefer-yetzirah-9perushim#p105:synoptic_body:otzar:synoptic:ch4:correspondences",
+          "page_region": "lower block headed otzar"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "שורות קצרות",
+          "source": {
+            "unit_id": "sy:synoptic:otzar:ch4:correspondences",
+            "pdf_page": 105,
+            "source_ref": "book:sefer-yetzirah-9perushim#p105:synoptic_body:otzar:synoptic:ch4:correspondences",
+            "page_region": "lower block headed otzar"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "עמודות התאמה",
+          "source": {
+            "unit_id": "sy:synoptic:otzar:ch4:correspondences",
+            "pdf_page": 105,
+            "source_ref": "book:sefer-yetzirah-9perushim#p105:synoptic_body:otzar:synoptic:ch4:correspondences",
+            "page_region": "lower block headed otzar"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "ייצוג טבלאי לפני ניסיון להפוך את הנתונים לגרף.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "קריאת תאים מלאה לא הושלמה."
+      ]
+    },
+    {
+      "id": "sy-structure:botril-seven-105",
+      "title": "לוח קצר בתוך בוטריל ב־PDF 105",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:botril:ch4:seven",
+          "pdf_page": 105,
+          "source_ref": "book:sefer-yetzirah-9perushim#p105:synoptic_body:botril:synoptic:ch4:seven",
+          "page_region": "lower block headed botril"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "שורות מסודרות",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch4:seven",
+            "pdf_page": 105,
+            "source_ref": "book:sefer-yetzirah-9perushim#p105:synoptic_body:botril:synoptic:ch4:seven",
+            "page_region": "lower block headed botril"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "טקסט ביאור",
+          "source": {
+            "unit_id": "sy:synoptic:botril:ch4:seven",
+            "pdf_page": 105,
+            "source_ref": "book:sefer-yetzirah-9perushim#p105:synoptic_body:botril:synoptic:ch4:seven",
+            "page_region": "lower block headed botril"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "זהות המפרש קודמת להשוואת התאמות בין שני הלוחות באותו דף.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "קריאת תאים מלאה לא הושלמה."
+      ]
+    },
+    {
+      "id": "sy-structure:small-grid-106",
+      "title": "לוח קצר סמוך להמלכת בי״ת ב־PDF 106",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:raavad:ch4:planet-correspondences",
+          "pdf_page": 106,
+          "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:raavad:synoptic:ch4:planet-correspondences",
+          "page_region": "upper commentary"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "לוח קומפקטי",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch4:planet-correspondences",
+            "pdf_page": 106,
+            "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:raavad:synoptic:ch4:planet-correspondences",
+            "page_region": "upper commentary"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "שורות התאמות",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch4:planet-correspondences",
+            "pdf_page": 106,
+            "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:raavad:synoptic:ch4:planet-correspondences",
+            "page_region": "upper commentary"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "להציג כל תא רק לאחר קריאה, ללא גובה או מיקום מסיקים.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "אין שיוך פרטני בטוח של כל שורה לעמודה."
+      ]
+    },
+    {
+      "id": "sy-structure:small-grid-110",
+      "title": "לוח הכפולות ב־PDF 110",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:text:ch4:tav",
+          "pdf_page": 110,
+          "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:tav",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "שורות טבלה",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:tav",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:tav",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "טקסט פירוש מעליה ומתחתיה",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:tav",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:tav",
+            "page_region": "body"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "לשמור מקור תמונה ועוגן; לוח זה אינו תרשים כיוונים.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "דהיית הדפוס מונעת כאן תעתיק תאים מלא."
+      ]
+    },
+    {
+      "id": "sy-structure:relations-grid-123",
+      "title": "רשימות וקבוצות ב־PDF 123",
+      "source_form": "printed_table_in_commentary",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:wormser:ch6:relations-table",
+          "pdf_page": 123,
+          "source_ref": "book:sefer-yetzirah-9perushim#p123:synoptic_body:wormser:synoptic:ch6:relations-table",
+          "page_region": "inside Eleazar of Worms commentary"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "בלוק ר׳ אליעזר",
+          "source": {
+            "unit_id": "sy:synoptic:wormser:ch6:relations-table",
+            "pdf_page": 123,
+            "source_ref": "book:sefer-yetzirah-9perushim#p123:synoptic_body:wormser:synoptic:ch6:relations-table",
+            "page_region": "inside Eleazar of Worms commentary"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "קבוצות קצרות מסודרות",
+          "source": {
+            "unit_id": "sy:synoptic:wormser:ch6:relations-table",
+            "pdf_page": 123,
+            "source_ref": "book:sefer-yetzirah-9perushim#p123:synoptic_body:wormser:synoptic:ch6:relations-table",
+            "page_region": "inside Eleazar of Worms commentary"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "לשמור את הטבלה בפירוש שלה; אין להכליל ממנה את כל נוסח הסיום.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "כל התאים אינם נקראים בוודאות; עוגן הנוסח מעל הטבלה אינו מייחס אותה למחבר המשנה."
+      ]
+    },
+    {
+      "id": "sy-structure:chachmoni-pairs-139",
+      "title": "לוח הזוגות בחכמוני",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:chachmoni:chachmoni:ch2:gates-table",
+          "pdf_page": 139,
+          "source_ref": "book:sefer-yetzirah-9perushim#p139:chachmoni_treatise:chachmoni:chachmoni:ch2:gates-table",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "גוש ימני",
+          "source": {
+            "unit_id": "sy:chachmoni:chachmoni:ch2:gates-table",
+            "pdf_page": 139,
+            "source_ref": "book:sefer-yetzirah-9perushim#p139:chachmoni_treatise:chachmoni:chachmoni:ch2:gates-table",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "גוש שמאלי",
+          "source": {
+            "unit_id": "sy:chachmoni:chachmoni:ch2:gates-table",
+            "pdf_page": 139,
+            "source_ref": "book:sefer-yetzirah-9perushim#p139:chachmoni_treatise:chachmoni:chachmoni:ch2:gates-table",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "part-3",
+          "label": "זוגות אותיות",
+          "source": {
+            "unit_id": "sy:chachmoni:chachmoni:ch2:gates-table",
+            "pdf_page": 139,
+            "source_ref": "book:sefer-yetzirah-9perushim#p139:chachmoni_treatise:chachmoni:chachmoni:ch2:gates-table",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "part-4",
+          "label": "טקסט הסבר מעל ומתחת",
+          "source": {
+            "unit_id": "sy:chachmoni:chachmoni:ch2:gates-table",
+            "pdf_page": 139,
+            "source_ref": "book:sefer-yetzirah-9perushim#p139:chachmoni_treatise:chachmoni:chachmoni:ch2:gates-table",
+            "page_region": "body"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2",
+        "part-3",
+        "part-4"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "gates",
+        "proposal": "להציג לוח דו־גושי לפי המקור. רשת 22 קודקודים תשמש רק ייצוג זוגות לאחר בדיקתם.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "אין השוואת תאים מלאה ללוח הגר״א."
+      ]
+    },
+    {
+      "id": "sy-structure:chachmoni-arrangements-142",
+      "title": "רשימות סידורי בג״ד כפר״ת",
+      "source_form": "printed_list",
+      "sources": [
+        {
+          "unit_id": "sy:chachmoni:chachmoni:ch4:permutation-list",
+          "pdf_page": 142,
+          "source_ref": "book:sefer-yetzirah-9perushim#p142:chachmoni_treatise:chachmoni:chachmoni:ch4:permutation-list",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "מחרוזות רב־אותיות ב־142",
+          "source": {
+            "unit_id": "sy:chachmoni:chachmoni:ch4:permutation-list",
+            "pdf_page": 142,
+            "source_ref": "book:sefer-yetzirah-9perushim#p142:chachmoni_treatise:chachmoni:chachmoni:ch4:permutation-list",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "המשך בראש 143",
+          "source": {
+            "unit_id": "sy:chachmoni:chachmoni:ch4:permutation-list",
+            "pdf_page": 142,
+            "source_ref": "book:sefer-yetzirah-9perushim#p142:chachmoni_treatise:chachmoni:chachmoni:ch4:permutation-list",
+            "page_region": "body"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "gates",
+        "proposal": "לשמור את הרצף הלשוני; אין להפכו ללוח זוגות 231.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "כל המחרוזות ומניינן לא תועתקו."
+      ]
+    },
+    {
+      "id": "sy-structure:gra-gates-203",
+      "title": "לוח רל״א של הגר״א",
+      "source_form": "printed_table",
+      "sources": [
+        {
+          "unit_id": "sy:gra-gates:gra:body:title-grid",
+          "pdf_page": 203,
+          "source_ref": "book:sefer-yetzirah-9perushim#p203:minor_works:gra:gra-gates:body:title-grid",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "part-1",
+          "label": "כותרת רל״א",
+          "source": {
+            "unit_id": "sy:gra-gates:gra:body:title-grid",
+            "pdf_page": 203,
+            "source_ref": "book:sefer-yetzirah-9perushim#p203:minor_works:gra:gra-gates:body:title-grid",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "part-2",
+          "label": "גוש זוגות ימני",
+          "source": {
+            "unit_id": "sy:gra-gates:gra:body:title-grid",
+            "pdf_page": 203,
+            "source_ref": "book:sefer-yetzirah-9perushim#p203:minor_works:gra:gra-gates:body:title-grid",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "part-3",
+          "label": "גוש זוגות שמאלי",
+          "source": {
+            "unit_id": "sy:gra-gates:gra:body:title-grid",
+            "pdf_page": 203,
+            "source_ref": "book:sefer-yetzirah-9perushim#p203:minor_works:gra:gra-gates:body:title-grid",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "part-4",
+          "label": "הערה עליונה",
+          "source": {
+            "unit_id": "sy:gra-gates:gra:body:title-grid",
+            "pdf_page": 203,
+            "source_ref": "book:sefer-yetzirah-9perushim#p203:minor_works:gra:gra-gates:body:title-grid",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "part-5",
+          "label": "ביאור תחתון",
+          "source": {
+            "unit_id": "sy:gra-gates:gra:body:title-grid",
+            "pdf_page": 203,
+            "source_ref": "book:sefer-yetzirah-9perushim#p203:minor_works:gra:gra-gates:body:title-grid",
+            "page_region": "body"
+          }
+        }
+      ],
+      "source_order": [
+        "part-1",
+        "part-2",
+        "part-3",
+        "part-4",
+        "part-5"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "gates",
+        "proposal": "לשמור שני גושים וסדר דפוס; רשת מלאה באלפבית היא ייצוג אפשרי שאינו העתקת טבלת המקור.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "231 הוא מניין בכותרת; לא הושלמה ביקורת תאית של שני הגושים."
+      ]
+    },
+    {
+      "id": "sy-structure:letter-lines-204",
+      "title": "ציור קווי הספירות והאותיות",
+      "source_form": "printed_diagram",
+      "sources": [
+        {
+          "unit_id": "sy:gra-letter-diagram:editor:body:caption",
+          "pdf_page": 204,
+          "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:caption",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+          "pdf_page": 204,
+          "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "apex-top",
+          "label": "apex-top",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0.5,
+            0
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "left-top",
+          "label": "left-top",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0,
+            0.17
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "mid-top",
+          "label": "mid-top",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0.5,
+            0.17
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "right-top",
+          "label": "right-top",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            1,
+            0.17
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "cross-upper",
+          "label": "cross-upper",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0.5,
+            0.34
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "left-middle",
+          "label": "left-middle",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0,
+            0.51
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "mid-middle",
+          "label": "mid-middle",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0.5,
+            0.51
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "right-middle",
+          "label": "right-middle",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            1,
+            0.51
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "cross-lower",
+          "label": "cross-lower",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0.5,
+            0.68
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "left-bottom",
+          "label": "left-bottom",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0,
+            0.85
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "mid-bottom",
+          "label": "mid-bottom",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0.5,
+            0.85
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "right-bottom",
+          "label": "right-bottom",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            1,
+            0.85
+          ],
+          "semantic_name": null
+        },
+        {
+          "id": "apex-bottom",
+          "label": "apex-bottom",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          },
+          "normalized_drawing_position": [
+            0.5,
+            1
+          ],
+          "semantic_name": null
+        }
+      ],
+      "source_order": [
+        "apex-top",
+        "left-top",
+        "mid-top",
+        "right-top",
+        "cross-upper",
+        "left-middle",
+        "mid-middle",
+        "right-middle",
+        "cross-lower",
+        "left-bottom",
+        "mid-bottom",
+        "right-bottom",
+        "apex-bottom"
+      ],
+      "source_relations": [
+        {
+          "id": "segment-1",
+          "from_id": "apex-top",
+          "to_id": "left-top",
+          "type": "visible_line_segment",
+          "letter": null,
+          "letter_status": "unresolved",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-2",
+          "from_id": "apex-top",
+          "to_id": "right-top",
+          "type": "visible_line_segment",
+          "letter": "ה",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-3",
+          "from_id": "apex-top",
+          "to_id": "mid-top",
+          "type": "visible_line_segment",
+          "letter": "ב",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-4",
+          "from_id": "left-top",
+          "to_id": "mid-top",
+          "type": "visible_line_segment",
+          "letter": null,
+          "letter_status": "unresolved",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-5",
+          "from_id": "mid-top",
+          "to_id": "right-top",
+          "type": "visible_line_segment",
+          "letter": "ש",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-6",
+          "from_id": "left-top",
+          "to_id": "left-middle",
+          "type": "visible_line_segment",
+          "letter": null,
+          "letter_status": "unresolved",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-7",
+          "from_id": "right-top",
+          "to_id": "right-middle",
+          "type": "visible_line_segment",
+          "letter": "ג",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-8",
+          "from_id": "left-top",
+          "to_id": "cross-upper",
+          "type": "visible_line_segment",
+          "letter": null,
+          "letter_status": "unresolved",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-9",
+          "from_id": "right-top",
+          "to_id": "cross-upper",
+          "type": "visible_line_segment",
+          "letter": "ז",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-10",
+          "from_id": "cross-upper",
+          "to_id": "left-middle",
+          "type": "visible_line_segment",
+          "letter": "י",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-11",
+          "from_id": "cross-upper",
+          "to_id": "right-middle",
+          "type": "visible_line_segment",
+          "letter": "ט",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-12",
+          "from_id": "left-middle",
+          "to_id": "mid-middle",
+          "type": "visible_line_segment",
+          "letter": null,
+          "letter_status": "unresolved",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-13",
+          "from_id": "mid-middle",
+          "to_id": "right-middle",
+          "type": "visible_line_segment",
+          "letter": "א",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-14",
+          "from_id": "left-middle",
+          "to_id": "left-bottom",
+          "type": "visible_line_segment",
+          "letter": "פ",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-15",
+          "from_id": "right-middle",
+          "to_id": "right-bottom",
+          "type": "visible_line_segment",
+          "letter": "כ",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-16",
+          "from_id": "left-middle",
+          "to_id": "cross-lower",
+          "type": "visible_line_segment",
+          "letter": "נ",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-17",
+          "from_id": "right-middle",
+          "to_id": "cross-lower",
+          "type": "visible_line_segment",
+          "letter": "ל",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-18",
+          "from_id": "cross-lower",
+          "to_id": "left-bottom",
+          "type": "visible_line_segment",
+          "letter": "ע",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-19",
+          "from_id": "cross-lower",
+          "to_id": "right-bottom",
+          "type": "visible_line_segment",
+          "letter": "ס",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-20",
+          "from_id": "left-bottom",
+          "to_id": "mid-bottom",
+          "type": "visible_line_segment",
+          "letter": null,
+          "letter_status": "unresolved",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-21",
+          "from_id": "mid-bottom",
+          "to_id": "right-bottom",
+          "type": "visible_line_segment",
+          "letter": null,
+          "letter_status": "unresolved",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-22",
+          "from_id": "left-bottom",
+          "to_id": "apex-bottom",
+          "type": "visible_line_segment",
+          "letter": "ק",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-23",
+          "from_id": "right-bottom",
+          "to_id": "apex-bottom",
+          "type": "visible_line_segment",
+          "letter": "צ",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        },
+        {
+          "id": "segment-24",
+          "from_id": "mid-bottom",
+          "to_id": "apex-bottom",
+          "type": "visible_line_segment",
+          "letter": "מ",
+          "letter_status": "read",
+          "source": {
+            "unit_id": "sy:gra-letter-diagram:editor:body:figure",
+            "pdf_page": 204,
+            "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:editor:gra-letter-diagram:body:figure",
+            "page_region": "body"
+          }
+        }
+      ],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "letters",
+        "proposal": "לשמר את השלד המוארך ואת הקו האנכי במודל עתידי; נקודות החיתוך כאן הן תיוג תצפיתי בלבד. אין לייבא עץ ספירות סטנדרטי כדי להמציא שמות לנקודות.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "קטעי קו נראים במפה אינם מניין 22 נתיבות: מפגש קווים יכול לחלק קו סמנטי לכמה קטעים.",
+        "לא כל אות ולא כל שיוך אות־קו נסגרו; תוויות חסרות נשארות null.",
+        "הציר האנכי חוצה גם את שני המלבנים; קטעיו אינם מפוצלים כאן לרשת סמנטית מלאה.",
+        "סמלים עגולים וקווים מחוץ לשני הקודקודים הקיצוניים נראים במקור; תפקידם ושמותיהם לא הוכרעו."
+      ]
+    },
+    {
+      "id": "sy-structure:peri-eight-gate-tables",
+      "title": "שמונת לוחות פרי יצחק",
+      "source_form": "printed_tables",
+      "sources": [
+        {
+          "unit_id": "sy:peri-gates:peri-yitzchak:body:introduction",
+          "pdf_page": 204,
+          "source_ref": "book:sefer-yetzirah-9perushim#p204:minor_works:peri-yitzchak:peri-gates:body:introduction",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:peri-gates:peri-yitzchak:body:keter-front",
+          "pdf_page": 205,
+          "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:keter-front",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:peri-gates:peri-yitzchak:body:keter-back",
+          "pdf_page": 205,
+          "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:keter-back",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:peri-gates:peri-yitzchak:body:chochmah-front",
+          "pdf_page": 205,
+          "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:chochmah-front",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:peri-gates:peri-yitzchak:body:chochmah-back",
+          "pdf_page": 205,
+          "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:chochmah-back",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:peri-gates:peri-yitzchak:body:binah-front",
+          "pdf_page": 206,
+          "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:binah-front",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:peri-gates:peri-yitzchak:body:binah-back",
+          "pdf_page": 206,
+          "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:binah-back",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:peri-gates:peri-yitzchak:body:daat-front",
+          "pdf_page": 206,
+          "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:daat-front",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:peri-gates:peri-yitzchak:body:daat-back",
+          "pdf_page": 206,
+          "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:daat-back",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "keter-front",
+          "label": "כתר פנים",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:keter-front",
+            "pdf_page": 205,
+            "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:keter-front",
+            "page_region": "body"
+          },
+          "printed_region": "upper-right",
+          "partzuf": "כתר",
+          "face": "פנים",
+          "cells": null
+        },
+        {
+          "id": "keter-back",
+          "label": "כתר אחור",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:keter-back",
+            "pdf_page": 205,
+            "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:keter-back",
+            "page_region": "body"
+          },
+          "printed_region": "upper-left",
+          "partzuf": "כתר",
+          "face": "אחור",
+          "cells": null
+        },
+        {
+          "id": "chochmah-front",
+          "label": "חכמה פנים",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:chochmah-front",
+            "pdf_page": 205,
+            "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:chochmah-front",
+            "page_region": "body"
+          },
+          "printed_region": "lower-right",
+          "partzuf": "חכמה",
+          "face": "פנים",
+          "cells": null
+        },
+        {
+          "id": "chochmah-back",
+          "label": "חכמה אחור",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:chochmah-back",
+            "pdf_page": 205,
+            "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:chochmah-back",
+            "page_region": "body"
+          },
+          "printed_region": "lower-left",
+          "partzuf": "חכמה",
+          "face": "אחור",
+          "cells": null
+        },
+        {
+          "id": "binah-front",
+          "label": "בינה פנים",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:binah-front",
+            "pdf_page": 206,
+            "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:binah-front",
+            "page_region": "body"
+          },
+          "printed_region": "upper-right",
+          "partzuf": "בינה",
+          "face": "פנים",
+          "cells": null
+        },
+        {
+          "id": "binah-back",
+          "label": "בינה אחור",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:binah-back",
+            "pdf_page": 206,
+            "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:binah-back",
+            "page_region": "body"
+          },
+          "printed_region": "upper-left",
+          "partzuf": "בינה",
+          "face": "אחור",
+          "cells": null
+        },
+        {
+          "id": "daat-front",
+          "label": "דעת פנים",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:daat-front",
+            "pdf_page": 206,
+            "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:daat-front",
+            "page_region": "body"
+          },
+          "printed_region": "lower-right",
+          "partzuf": "דעת",
+          "face": "פנים",
+          "cells": null
+        },
+        {
+          "id": "daat-back",
+          "label": "דעת אחור",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:daat-back",
+            "pdf_page": 206,
+            "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:daat-back",
+            "page_region": "body"
+          },
+          "printed_region": "lower-left",
+          "partzuf": "דעת",
+          "face": "אחור",
+          "cells": null
+        }
+      ],
+      "source_order": [
+        "keter-front",
+        "keter-back",
+        "chochmah-front",
+        "chochmah-back",
+        "binah-front",
+        "binah-back",
+        "daat-front",
+        "daat-back"
+      ],
+      "source_relations": [
+        {
+          "from_id": "keter-front",
+          "type": "paired_front_back",
+          "to_id": "keter-back",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:keter-front",
+            "pdf_page": 205,
+            "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:keter-front",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "chochmah-front",
+          "type": "paired_front_back",
+          "to_id": "chochmah-back",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:chochmah-front",
+            "pdf_page": 205,
+            "source_ref": "book:sefer-yetzirah-9perushim#p205:minor_works:peri-yitzchak:peri-gates:body:chochmah-front",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "binah-front",
+          "type": "paired_front_back",
+          "to_id": "binah-back",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:binah-front",
+            "pdf_page": 206,
+            "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:binah-front",
+            "page_region": "body"
+          }
+        },
+        {
+          "from_id": "daat-front",
+          "type": "paired_front_back",
+          "to_id": "daat-back",
+          "source": {
+            "unit_id": "sy:peri-gates:peri-yitzchak:body:daat-front",
+            "pdf_page": 206,
+            "source_ref": "book:sefer-yetzirah-9perushim#p206:minor_works:peri-yitzchak:peri-gates:body:daat-front",
+            "page_region": "body"
+          }
+        }
+      ],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "gates",
+        "proposal": "ארבעה זוגות לוחות עם שמירת מיקום דפוס וכותרת. פנים/אחור הם מונחי מקור; אין להעמיד אחד מאחורי האחר בתלת־ממד כעובדת מקור.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "גוף כל שמונת הלוחות לא עבר תעתיק וביקורת תאים.",
+        "אין בחטיבה זו לוחות חסד עד מלכות; היא מסתיימת בדעת לפני ל״ב נתיבות."
+      ]
+    },
+    {
+      "id": "sy-structure:peri-thirtytwo-paths",
+      "title": "ל״ב נתיבות כרשימה פרשנית",
+      "source_form": "text_numbered_list",
+      "sources": [
+        {
+          "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+          "pdf_page": 207,
+          "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+          "page_region": "body"
+        },
+        {
+          "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+          "pdf_page": 208,
+          "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+          "page_region": "body"
+        }
+      ],
+      "components": [
+        {
+          "id": "path-1",
+          "label": "נתיב 1",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 1,
+          "definition": null
+        },
+        {
+          "id": "path-2",
+          "label": "נתיב 2",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 2,
+          "definition": null
+        },
+        {
+          "id": "path-3",
+          "label": "נתיב 3",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 3,
+          "definition": null
+        },
+        {
+          "id": "path-4",
+          "label": "נתיב 4",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 4,
+          "definition": null
+        },
+        {
+          "id": "path-5",
+          "label": "נתיב 5",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 5,
+          "definition": null
+        },
+        {
+          "id": "path-6",
+          "label": "נתיב 6",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 6,
+          "definition": null
+        },
+        {
+          "id": "path-7",
+          "label": "נתיב 7",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 7,
+          "definition": null
+        },
+        {
+          "id": "path-8",
+          "label": "נתיב 8",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 8,
+          "definition": null
+        },
+        {
+          "id": "path-9",
+          "label": "נתיב 9",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 9,
+          "definition": null
+        },
+        {
+          "id": "path-10",
+          "label": "נתיב 10",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 10,
+          "definition": null
+        },
+        {
+          "id": "path-11",
+          "label": "נתיב 11",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 11,
+          "definition": null
+        },
+        {
+          "id": "path-12",
+          "label": "נתיב 12",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 12,
+          "definition": null
+        },
+        {
+          "id": "path-13",
+          "label": "נתיב 13",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 13,
+          "definition": null
+        },
+        {
+          "id": "path-14",
+          "label": "נתיב 14",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 14,
+          "definition": null
+        },
+        {
+          "id": "path-15",
+          "label": "נתיב 15",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 15,
+          "definition": null
+        },
+        {
+          "id": "path-16",
+          "label": "נתיב 16",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 16,
+          "definition": null
+        },
+        {
+          "id": "path-17",
+          "label": "נתיב 17",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 17,
+          "definition": null
+        },
+        {
+          "id": "path-18",
+          "label": "נתיב 18",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 18,
+          "definition": null
+        },
+        {
+          "id": "path-19",
+          "label": "נתיב 19",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-1-19",
+            "pdf_page": 207,
+            "source_ref": "book:sefer-yetzirah-9perushim#p207:minor_works:peri-yitzchak:peri-paths:body:paths-1-19",
+            "page_region": "body"
+          },
+          "source_ordinal": 19,
+          "definition": null
+        },
+        {
+          "id": "path-20",
+          "label": "נתיב 20",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 20,
+          "definition": null
+        },
+        {
+          "id": "path-21",
+          "label": "נתיב 21",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 21,
+          "definition": null
+        },
+        {
+          "id": "path-22",
+          "label": "נתיב 22",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 22,
+          "definition": null
+        },
+        {
+          "id": "path-23",
+          "label": "נתיב 23",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 23,
+          "definition": null
+        },
+        {
+          "id": "path-24",
+          "label": "נתיב 24",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 24,
+          "definition": null
+        },
+        {
+          "id": "path-25",
+          "label": "נתיב 25",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 25,
+          "definition": null
+        },
+        {
+          "id": "path-26",
+          "label": "נתיב 26",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 26,
+          "definition": null
+        },
+        {
+          "id": "path-27",
+          "label": "נתיב 27",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 27,
+          "definition": null
+        },
+        {
+          "id": "path-28",
+          "label": "נתיב 28",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 28,
+          "definition": null
+        },
+        {
+          "id": "path-29",
+          "label": "נתיב 29",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 29,
+          "definition": null
+        },
+        {
+          "id": "path-30",
+          "label": "נתיב 30",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 30,
+          "definition": null
+        },
+        {
+          "id": "path-31",
+          "label": "נתיב 31",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 31,
+          "definition": null
+        },
+        {
+          "id": "path-32",
+          "label": "נתיב 32",
+          "source": {
+            "unit_id": "sy:peri-paths:peri-yitzchak:body:paths-20-32",
+            "pdf_page": 208,
+            "source_ref": "book:sefer-yetzirah-9perushim#p208:minor_works:peri-yitzchak:peri-paths:body:paths-20-32",
+            "page_region": "body"
+          },
+          "source_ordinal": 32,
+          "definition": null
+        }
+      ],
+      "source_order": [
+        "path-1",
+        "path-2",
+        "path-3",
+        "path-4",
+        "path-5",
+        "path-6",
+        "path-7",
+        "path-8",
+        "path-9",
+        "path-10",
+        "path-11",
+        "path-12",
+        "path-13",
+        "path-14",
+        "path-15",
+        "path-16",
+        "path-17",
+        "path-18",
+        "path-19",
+        "path-20",
+        "path-21",
+        "path-22",
+        "path-23",
+        "path-24",
+        "path-25",
+        "path-26",
+        "path-27",
+        "path-28",
+        "path-29",
+        "path-30",
+        "path-31",
+        "path-32"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "sefirot",
+        "proposal": "רשימה בעלת 32 זהויות לפי סדר הדפוס; אין להשוות את נתיב 1 אוטומטית לקו הראשון בציור 204.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "תוכן ההגדרות ומונחי שכל אינם מתועתקים ברמת נתיב; רק הסדר וגבול העמודים ממופים."
+      ]
+    },
+    {
+      "id": "sy-structure:inline-figures-31",
+      "title": "צורות בתוך הטור ב־PDF 31",
+      "source_form": "printed_inline_figure",
+      "sources": [
+        {
+          "unit_id": "sy:synoptic:raavad:ch1:inline-figures",
+          "pdf_page": 31,
+          "source_ref": "book:sefer-yetzirah-9perushim#p31:synoptic_body:raavad:synoptic:ch1:inline-figures",
+          "page_region": "upper commentary inline figures"
+        }
+      ],
+      "components": [
+        {
+          "id": "figures",
+          "label": "צורות קטנות בטור",
+          "source": {
+            "unit_id": "sy:synoptic:raavad:ch1:inline-figures",
+            "pdf_page": 31,
+            "source_ref": "book:sefer-yetzirah-9perushim#p31:synoptic_body:raavad:synoptic:ch1:inline-figures",
+            "page_region": "upper commentary inline figures"
+          }
+        }
+      ],
+      "source_order": [
+        "figures"
+      ],
+      "source_relations": [],
+      "engine_verification": "not_tested",
+      "illustration": {
+        "status": "specification_only_no_integration",
+        "existing_scene": "src/components/books2029/SeferYetzirahScene2029.jsx",
+        "suggested_mode": "letters",
+        "proposal": "לשמר עד חזותי לפני פענוח; אין לבנות מודל אות סמנטי מן הצורה הלא מפוענחת.",
+        "editorial_choices": [
+          "קואורדינטות תלת־ממד, מידות, צבעים, תאורה ומהירות תנועה אינן נתוני המקור.",
+          "בחירה או קשר במודל עתידי חייבים להחזיר ליחידת המקור ולמפרש המסוימים."
+        ],
+        "acceptance": [
+          "הצגת העד והנוסח הנבחרים לכל רכיב וקשר.",
+          "הפרדה בין יחסי מקור, מבנה הכרך ובחירות המחשה.",
+          "אין מילוי רכיב חסר מנוסח אחר ואין תג מאומת במנוע ללא תוצאת מנוע מתועדת."
+        ]
+      },
+      "open_readings": [
+        "לא זוהו כל האותיות או יחסי הצורות."
+      ]
+    }
+  ],
+  "scene_connection_specification": {
+    "status": "future_connection_only",
+    "modes": [
+      "sefirot",
+      "letters",
+      "gates",
+      "osn",
+      "commentaries"
+    ],
+    "reuse": [
+      "SEFER_YETZIRAH_SOURCE.identity",
+      "SEFER_YETZIRAH_COMMENTATORS.id",
+      "SEFER_YETZIRAH_LETTER_GROUPS.id",
+      "SEFER_YETZIRAH_DEPTHS.id"
+    ],
+    "current_representation_limits": [
+      "DEPTH_POSITIONS והקשת הסוגרת בין עשרת העומקים אינן צורת מקור.",
+      "letterPosition וסידור המעגל הם קואורדינטות המחשה.",
+      "Edges complete מציג את כל זוגות האותיות; אינו תעתיק של לוח 85, 139 או 203.",
+      "OsnModel ושלוש טבעותיו הם המחשה; המקור מציג הקבלות ומשלי מלכות.",
+      "CommentariesModel מציג תשעה קולות סביב מרכז; המקור אינו מדפיס תרשים תשעה מפרשים סביב צומת."
+    ],
+    "forbidden_in_this_cut": [
+      "אין שינוי renderer או קורא",
+      "אין manifest חדש או נתיב ניווט",
+      "אין משמעות מקור חדשה ממצלמה, צבע, גובה או קשת אוטומטית"
+    ]
+  },
+  "coverage": {
+    "structures": 33,
+    "all_components_source_anchored": true,
+    "all_relations_source_anchored": true,
+    "engine_runs": 0,
+    "integration_performed": false
+  }
+}
