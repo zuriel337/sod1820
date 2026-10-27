@@ -77,7 +77,8 @@ function Fixture(){
 const [,forceRender]=React.useState(0);window.__forceParentRender=()=>flushSync(()=>forceRender(n=>n+1));
 const [matrix,setMatrix]=React.useState(null);window.__openSavedMatrix=setMatrix;window.__fixtureMatrix=matrix;
 const [researchLoad,setResearchLoad]=React.useState(null);window.__loadResearch=setResearchLoad;
-const [researchProbe,setResearchProbe]=React.useState(null);window.__probeResearch=setResearchProbe;
+const [researchProbe,setResearchProbe]=React.useState(null),pendingProbe=React.useRef(null);
+window.__probeResearch=request=>{pendingProbe.current=request?.requestId??null;setResearchProbe(request);};
 const palette=resolve2029Palette(useThemePreset(),'research_lab');
 const fields={page:'pageBg',panel:'card','panel-soft':'cardSoft',line:'border','line-strong':'borderStrong',accent:'accent','accent-text':'accentText','accent-secondary':'accentSecondary',ink:'ink',muted:'inkSoft','focus-ring':'focusRing','on-accent':'onAccent','accent-btn':'accentBtn','warm-accent':'warmAccent'};
 const style={fontFamily:'Arial',color:palette.ink,background:palette.pageBg,minHeight:'100vh',padding:12};
@@ -92,7 +93,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:true,guidedProfile:!!window.__fixtureGuided,onResearchProbeResult:result=>{window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:true,guidedProfile:!!window.__fixtureGuided,onResearchProbeResult:result=>{(window.__probeHistory||=[]).push(result);if(result.requestId!==pendingProbe.current)return;pendingProbe.current=null;window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -292,7 +293,10 @@ async function withNative(viewport, run, options = {}) {
           if (message.type === 'state') { window.__state = message;if(reentrantRender){window.__reentrantCount=(window.__reentrantCount||0)+1;window.__forceParentRender?.();} }
           if (message.type === 'lens') window.__lens = message;
           if (message.type === 'operation') window.__operation = message;
-          if (message.type === 'ready' && loadGolden) frame.contentWindow.postMessage({ source: 'sod-host', type: 'load-matrix', item: window.__fixtureGolden }, location.origin);
+          if (message.type === 'ready' && loadGolden && !window.__fixtureGoldenInjected) {
+            window.__fixtureGoldenInjected = true;
+            frame.contentWindow.postMessage({ source: 'sod-host', type: 'load-matrix', item: window.__fixtureGolden }, location.origin);
+          }
         });
       }
       if (window !== window.parent) addEventListener('message', (event) => {
@@ -1231,6 +1235,26 @@ async function unsavedPrivacyAxis(page) {
   await page.evaluate(item=>document.querySelector('iframe').contentWindow.postMessage({source:'sod-host',type:'load-matrix',item:{...item,id:null}},location.origin),golden);
   await page.waitForFunction(()=>window.__state?.verification?.state==='MATCH'&&!window.__state?.provenance?.editId);
 }
+
+test('native fixture handshake loads its Golden once and never replays it over a user-selected axis',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:60000},async()=>{
+  await withNative({width:390,height:844},async page=>{
+    await unsavedPrivacyAxis(page);
+    const before=await page.evaluate(id=>({
+      ready:window.__log.filter(message=>message.type==='ready').length,
+      goldenLoads:window.__hostLog.filter(message=>message.type==='load-matrix'&&message.item?.id===id).length,
+    }),golden.id);
+    const frame=page.frames().find(candidate=>candidate.parentFrame());
+    await frame.evaluate(()=>parent.postMessage({source:'tzofen',type:'ready'},location.origin));
+    await page.waitForFunction(count=>window.__log.filter(message=>message.type==='ready').length>count,before.ready);
+    const after=await page.evaluate(id=>({
+      goldenLoads:window.__hostLog.filter(message=>message.type==='load-matrix'&&message.item?.id===id).length,
+      editId:window.__state?.provenance?.editId||null,
+    }),golden.id);
+    assert.equal(after.goldenLoads,before.goldenLoads,'a repeated ready handshake must not inject the fixture Golden again');
+    assert.equal(after.editId,null,'the user-selected unsaved axis remains active');
+  },{realHost:true,mobile:true});
+ });
 async function classicPrivacySave(page, overrides = null) {
   const before=await page.evaluate(()=>window.__hostLog.filter(m=>m.type==='saved').length);
   const frame=page.frames().find(f=>f.parentFrame());
@@ -1721,6 +1745,7 @@ test('native results: regular and crossed searches expose selectable results in 
    assert.equal(results.items.length,80);assert.equal(results.total,state.verification.verified_hits);
    assert.equal(await page.locator('.els29-native-panel-head strong').innerText(),'תוצאות החיפוש');
    const list=page.locator('[aria-label="רשימת תוצאות החיפוש"]');
+   await page.waitForFunction(()=>document.querySelectorAll('[aria-label="רשימת תוצאות החיפוש"] .els29-native-result').length===80);
    assert.equal(await list.isVisible(),true);assert.equal(await list.locator('.els29-native-result').count(),80);
    const bounds=await page.locator('.els29-native-panel-wrap').boundingBox();assert.ok(bounds.y>=0&&bounds.y<844,'completed mobile results come into view');
    assert.equal(await page.getByRole('dialog').count(),0);
@@ -1837,6 +1862,10 @@ test('Research exact skip above the page ceiling loads a canonical verified axis
   await page.evaluate(()=>window.__probeResearch({term:'תורה קדשה',scope:'torah',skip:400000,requestId:3}));
   await page.waitForFunction(()=>window.__probeResult?.requestId===3);
   assert.equal(await page.evaluate(()=>window.__probeResult.ok),false,'retry of same skip remains a new failed request');
+  const probeHistory=await page.evaluate(()=>window.__probeHistory.map(result=>({requestId:result.requestId,ok:result.ok})));
+  assert.ok(probeHistory.filter(result=>result.requestId===1).every(result=>result.ok===true),'verified probe responses remain attached to request 1');
+  assert.ok(probeHistory.filter(result=>result.requestId===2).every(result=>result.ok===false),'no-hit responses remain attached to request 2');
+  assert.ok(probeHistory.filter(result=>result.requestId===3).every(result=>result.ok===false),'no-hit retry responses remain attached to request 3');
  },{realHost:true,loadGolden:false});
 });
 
