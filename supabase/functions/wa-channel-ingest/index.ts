@@ -7,11 +7,12 @@
 // quotedMessage = תגובה/reply (למשל תגובה על תמונה) — נקלטת כעדכון (טקסט התגובה; אם צורפה תמונה חדשה — נקלטת גם היא).
 // 🔗 איחוד-זהות (20.7.2026): שם-שולח גולמי מוואטסאפ (למשל «אריאל ואצאפ») ממופה לשם התורם הקנוני לפי contributors.wa_names.
 // G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
-// 2029 media: new PUBLIC video only -> media/sod1820/2029/video/YYYY/MM/<asset-id>/original.*;
+// 2029 media: new PUBLIC video/audio -> media/sod1820/2029/{video|audio}/YYYY/MM/<asset-id>/original.*;
 // legacy URLs are never moved. Private media keeps submission-inbox semantics.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { buildWriterIndex, resolveWriterContributorId } from "../_shared/waWriterIdentity.js";
+import { detectChannelAudio, isChannelMessageType } from "./channelAudio.mjs";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
@@ -121,7 +122,7 @@ function normalizeProviderMediaUrl(raw: string): string {
 async function rehost(
   url: string,
   msgId: string,
-  kind: "image" | "video",
+  kind: "image" | "video" | "audio",
   privateMedia: boolean,
   sourceTs: number,
 ): Promise<string | null> {
@@ -133,10 +134,14 @@ async function rehost(
     }
     const res = await fetch(normalizedUrl);
     if (!res.ok) { trace.push({ msgId, step: "fetch", status: res.status }); return null; }
+    const declared = Number(res.headers.get("content-length") || "0");
+    if (declared > MAX_MEDIA) { trace.push({ msgId, step: "toobig", bytes: declared }); return null; }
     const buf = new Uint8Array(await res.arrayBuffer());
-    if (buf.byteLength > MAX_MEDIA) { trace.push({ msgId, step: "toobig", bytes: buf.byteLength }); return null; }
-    const ct = res.headers.get("content-type") || (kind === "video" ? "video/mp4" : "image/jpeg");
-    const ext = ct.includes("png") ? "png" : ct.includes("webp") ? "webp" : ct.includes("webm") ? "webm" : ct.includes("video") ? "mp4" : "jpg";
+    if (!buf.length || buf.byteLength > MAX_MEDIA) { trace.push({ msgId, step: "toobig", bytes: buf.byteLength }); return null; }
+    const audio = kind === "audio" ? detectChannelAudio(buf, res.headers.get("content-type") || "") : null;
+    if (kind === "audio" && !audio) { trace.push({ msgId, step: "audio-signature-invalid" }); return null; }
+    const ct = audio?.mime || res.headers.get("content-type") || (kind === "video" ? "video/mp4" : "image/jpeg");
+    const ext = audio?.ext || (ct.includes("png") ? "png" : ct.includes("webp") ? "webp" : ct.includes("webm") ? "webm" : ct.includes("video") ? "mp4" : "jpg");
 
     if (privateMedia) {
       const d = new Date(sourceTs * 1000);
@@ -154,15 +159,15 @@ async function rehost(
       return `storage-object:${up.data.id}`;
     }
 
-    // Forward-only 2029 rule: every NEW public video receives one immutable asset UUID.
+    // Forward-only 2029 rule: every NEW public video/voice message receives one immutable asset UUID.
     // Existing broadcasts stay on their legacy URLs; images retain the legacy public path until
     // the shared image derivative pipeline takes ownership. No migration/copy happens here.
-    if (kind === "video") {
+    if (kind === "video" || kind === "audio") {
       const d = new Date(sourceTs * 1000);
       const yyyy = String(d.getUTCFullYear());
       const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
       const assetId = crypto.randomUUID();
-      const path = `sod1820/2029/video/${yyyy}/${mm}/${assetId}/original.${ext}`;
+      const path = `sod1820/2029/${kind}/${yyyy}/${mm}/${assetId}/original.${ext}`;
       const up = await sb.storage.from(MEDIA_2029_BUCKET).upload(path, buf, { contentType: ct, upsert: false });
       if (up.error) { trace.push({ msgId, step: "video-2029-upload", error: String(up.error.message || up.error) }); return null; }
       trace.push({ msgId, step: "video-2029-uploaded", assetId });
@@ -198,6 +203,7 @@ async function ingestSource(
   const recovering = !lastRunSec || (nowSec - lastRunSec) > STALE_RECOVERY_AFTER;
   const historyCount = targeted ? RECOVERY_HISTORY_COUNT : (recovering ? RECOVERY_HISTORY_COUNT : NORMAL_HISTORY_COUNT);
   let n = 0, maxTs = minTs;
+  let earliestAudioFailure = Infinity;
   const history = await loadHistory(chatId, historyCount);
   if (!history.ok) {
     const raw = history.raw as any;
@@ -252,7 +258,7 @@ async function ingestSource(
 
     // Targeted repair is source-local and never advances checkpoints.
     if (!targeted && ts > maxTs) maxTs = ts;
-    if (!["textMessage", "extendedTextMessage", "imageMessage", "videoMessage", "quotedMessage"].includes(typ)) continue;
+    if (!isChannelMessageType(typ)) continue;
 
     if (outgoing) {
       if (!captureOutgoing) continue;
@@ -268,6 +274,7 @@ async function ingestSource(
     const mime = m.mimeType || m.fileMessageData?.mimeType || "";
     const isImg = typ === "imageMessage" || mime.startsWith("image");
     const isVid = typ === "videoMessage" || mime.startsWith("video");
+    const isAud = typ === "audioMessage" || mime.startsWith("audio");
     const caption = m.caption || m.fileMessageData?.caption || "";
     const bodyText = m.textMessage || m.extendedTextMessage?.text || caption || "";
 
@@ -277,8 +284,8 @@ async function ingestSource(
     }
 
     let imageUrl: string | null = null;
-    if (isImg || isVid) {
-      let dl = m.downloadUrl || m.fileMessageData?.downloadUrl || "";
+    if (isImg || isVid || isAud) {
+      let dl = m.downloadUrl || m.audioMessageData?.downloadUrl || m.fileMessageData?.downloadUrl || "";
       if (!dl) {
         try {
           const d = await waAdmin("downloadFile", { chatId, idMessage: msgId }, "POST");
@@ -288,7 +295,7 @@ async function ingestSource(
       if (dl) imageUrl = await rehost(
         dl,
         msgId,
-        isVid ? "video" : "image",
+        isAud ? "audio" : isVid ? "video" : "image",
         channelStatus(src.channel) === "private",
         ts,
       );
@@ -305,8 +312,14 @@ async function ingestSource(
       continue;
     }
 
+    // Do not silently advance the source checkpoint across an audio attachment that failed to persist.
+    if (isAud && !imageUrl) {
+      earliestAudioFailure = Math.min(earliestAudioFailure, ts);
+      trace.push({ msgId, step: "audio-upload-retry", channel: src.channel });
+      continue;
+    }
     if (!bodyText && !imageUrl) continue;
-    const text = bodyText || (isVid ? "🎬 עדכון וידאו" : "📷 עדכון");
+    const text = bodyText || (isAud ? "🎤 הודעה קולית" : isVid ? "🎬 עדכון וידאו" : "📷 עדכון");
     const isBotApi = outgoing && !!m.sendByApi;
     const rawCredit = isBotApi
       ? BOT_CREDIT
@@ -348,10 +361,14 @@ async function ingestSource(
 
   const upd: Record<string, unknown> = {};
   if (!targeted) {
-    if (maxTs > minTs) upd.min_ts = maxTs - 120;
-    // last_run_at means successful provider poll, including a valid empty history. During bounded
-    // recovery we intentionally keep it stale until the whole known gap has been consumed.
-    if (!recoveryPending) upd.last_run_at = new Date(nowSec * 1000).toISOString();
+    if (maxTs > minTs) {
+      // A failed voice download must remain eligible even when later text messages arrive.
+      upd.min_ts = Number.isFinite(earliestAudioFailure)
+        ? Math.max(minTs, Math.min(maxTs - 120, earliestAudioFailure - 1))
+        : maxTs - 120;
+    }
+    // Retry a failed voice media object instead of marking its source checkpoint complete.
+    if (!recoveryPending && !Number.isFinite(earliestAudioFailure)) upd.last_run_at = new Date(nowSec * 1000).toISOString();
     if (Object.keys(upd).length) await sb.from("channel_ingest_sources").update(upd).eq("id", src.id);
   }
   return { ingested: n, recoveryPending, recoveryBlocked: false, historyOk: true };

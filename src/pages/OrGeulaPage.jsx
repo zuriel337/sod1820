@@ -18,10 +18,13 @@ import { OR_GEULA_LOGO } from "../components/BrandTicker.jsx";
 // ⚠️ זה לא גימטריה — אוסף מדיה אהוב. עדשה על channel_updates where channel='or-geula'.
 // דף עצמאי מתויג + SEO (נכנס לסייטמאפ ול-og). עץ אחד: אותו מקור של הטיקר/מרכז-השידורים.
 const isVideo = (u) => !!u && /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i.test(u);
+const isAudio = (u) => !!u && (/\.(ogg|oga|opus|mp3|wav|m4a|aac)(\?|#|$)/i.test(u) || (/\/audio\//.test(u) && /\.webm(\?|#|$)/i.test(u)));
+const mediaKind = (u) => isAudio(u) ? "audio" : isVideo(u) ? "video" : u ? "image" : "text";
 
 export default function OrGeulaPage() {
   const P = usePalette();
   const [rows, setRows] = useState(null);
+  const [pageLimit, setPageLimit] = useState(40); // Bounded listing; older updates load on demand.
   const [open, setOpen] = useState(null);
   const [speakerFilter, setSpeakerFilter] = useState(null);   // סינון לפי דובר (רב) — תחת אור הגאולה בלבד
   const { hidden: ogHidden, restore: ogRestore } = useHiddenWidget("or_geula_story");   // מצב «הוסתר לגמרי» + החזרה
@@ -40,11 +43,11 @@ export default function OrGeulaPage() {
   const openItem = (r) => {
     setOpen(r);
     try { track("or-geula", String(r.id), "play"); } catch { /* noop */ }   // back-compat (existing)
-    beginStory(r, "grid");
+    if (r.image_url) beginStory(r, "grid");
     const n = new URLSearchParams(sp); n.set("v", String(r.id)); setSp(n);
   };
   const closeItem = () => {
-    if (open) storyEvent("or-geula", open.id, "story_close", { surface: "OR_GEULA_PAGE", entry: "grid", index: 0, reason: "close", session_ms: Date.now() - (openTimeRef.current || Date.now()) });
+    if (open?.image_url) storyEvent("or-geula", open.id, "story_close", { surface: "OR_GEULA_PAGE", entry: "grid", index: 0, reason: "close", session_ms: Date.now() - (openTimeRef.current || Date.now()) });
     setOpen(null);
     const n = new URLSearchParams(sp); n.delete("v"); setSp(n, { replace: true });
   };
@@ -52,7 +55,7 @@ export default function OrGeulaPage() {
   // 📲 שיתוף לסטורי — רכיב-שיתוף קנוני יחיד (lib/share). סופר כ-share_story (≡ story_share, מועשר ב-meta).
   async function shareToStory(item) {
     const r = await shareVideoToStory({
-      url: `${SITE_URL}/or-geula/video/${item.id}`,
+      url: isVideo(item.image_url) ? `${SITE_URL}/or-geula/video/${item.id}` : `${SITE_URL}/or-geula?v=${item.id}`,
       text: (item.seo_title || item.text || "").trim().slice(0, 140),
     });
     if (r) { storyEvent("or-geula", item.id, "share_story", { surface: "OR_GEULA_PAGE", entry: "grid", index: 0, channel: "link" }); }
@@ -64,16 +67,17 @@ export default function OrGeulaPage() {
     let alive = true;
     supabase.from("channel_updates")
       .select("id,text,seo_title,topics,enrichment_status,image_url,thumb_url,credit,link_url,created_at,speaker")
-      .eq("channel", "or-geula").not("image_url", "is", null)
-      .order("created_at", { ascending: false }).limit(200)
+      .eq("channel", "or-geula").eq("status", "live").eq("page_only", false)
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+      .order("created_at", { ascending: false }).limit(pageLimit)
       .then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); });
     return () => { alive = false; };
-  }, []);
+  }, [pageLimit]);
 
   // deep-link: הגעה ל-/or-geula/video/:id או עם ?v=<id> — לפתוח ישר את הסרטון הזה (הצגה בולטת בדף-צפייה)
   useEffect(() => {
     if (!rows || !rows.length) return;
-    if (activeVideoId) { const it = rows.find(r => String(r.id) === String(activeVideoId)); if (it && !open) { setOpen(it); beginStory(it, "deeplink"); } }
+    if (activeVideoId) { const it = rows.find(r => String(r.id) === String(activeVideoId)); if (it && !open) { setOpen(it); if (it.image_url) beginStory(it, "deeplink"); } }
   }, [rows, activeVideoId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -135,7 +139,7 @@ export default function OrGeulaPage() {
             style={{ width: 76, height: 76, borderRadius: "50%", objectFit: "cover", display: "inline-block", boxShadow: "0 4px 18px rgba(0,0,0,.35)" }} />
           <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(28px,5.5vw,44px)", fontWeight: 800, margin: "8px 0 0" }}>אור הגאולה</h1>
           <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.7, maxWidth: 540, margin: "10px auto 0" }}>
-            אוסף הסרטונים, הריבועים והרמזים החזותיים של הגאולה — תיעוד חי שמתעדכן.
+            כל העדכונים של אור הגאולה — הודעות, תמונות, סרטונים והודעות קוליות לפי זמן הפרסום.
           </p>
           {rows && <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginTop: 10 }}>{filteredRows.length} פריטים · לחיצה פותחת במסך מלא</div>}
           {/* 🔔 מעקב אחרי אור הגאולה — עדכון כשעולה סרטון/רמז חדש */}
@@ -178,11 +182,13 @@ export default function OrGeulaPage() {
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(230px,1fr))", gap: 14 }}>
             {filteredRows.map(r => {
-              const vid = isVideo(r.image_url);
+              const kind = mediaKind(r.image_url);
+              const vid = kind === "video";
+              const audio = kind === "audio";
               const displayText = r.seo_title || r.text || "";
               const showTxt = displayText && displayText !== "📷 עדכון" && displayText !== "🎬 עדכון וידאו";
               // תמונה-ממוזערת: thumb_url תמיד עדיף; לתמונה בלי thumb → galThumb; לוידאו בלי thumb → placeholder
-              const thumb = r.thumb_url || (vid ? null : galThumb(r, 460));
+              const thumb = r.thumb_url || (kind === "image" ? galThumb(r, 460) : null);
               return (
                 <button key={r.id} onClick={() => openItem(r)} title="פתחו במסך מלא"
                   style={{ cursor: "pointer", textAlign: "start", padding: 0, border: `1px solid ${P.border}`,
@@ -192,10 +198,10 @@ export default function OrGeulaPage() {
                     {thumb
                       ? <img src={thumb} alt={showTxt ? displayText.slice(0, 60) : "אור הגאולה"} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                       : <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}><img src={OR_GEULA_LOGO} alt="אור הגאולה" loading="lazy" style={{ width: "52%", height: "52%", objectFit: "contain", opacity: .92 }} /></div>}
-                    {vid && (
+                    {(vid || audio) && (
                       <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "rgba(0,0,0,.28)" }}>
                         <div style={{ width: 54, height: 54, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "grid", placeItems: "center", boxShadow: "0 4px 16px rgba(0,0,0,.4)" }}>
-                          <span style={{ color: "#111", fontSize: 22, marginInlineStart: 3 }}>▶</span>
+                          <span style={{ color: "#111", fontSize: 22, marginInlineStart: 3 }}>{audio ? "♫" : "▶"}</span>
                         </div>
                       </div>
                     )}
@@ -207,6 +213,14 @@ export default function OrGeulaPage() {
                 </button>
               );
             })}
+          </div>
+        )}
+        {rows && rows.length >= pageLimit && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 24 }}>
+            <button type="button" onClick={() => setPageLimit(n => n + 40)}
+              style={{ cursor: "pointer", background: P.card, color: P.ink, border: `1px solid ${P.border}`, borderRadius: 999, padding: "11px 24px", fontFamily: F.heading, fontWeight: 800 }}>
+              טען עוד עדכונים
+            </button>
           </div>
         )}
       </div>
@@ -221,8 +235,12 @@ export default function OrGeulaPage() {
               border: "none", borderRadius: 999, width: 40, height: 40, fontSize: 20, cursor: "pointer", zIndex: 2 }}>✕</button>
           <div onClick={e => e.stopPropagation()} style={{ maxWidth: 900, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, margin: "auto 0" }}>
             {isVideo(open.image_url)
-              ? <video src={open.image_url} controls autoPlay playsInline style={{ maxWidth: "100%", maxHeight: "64vh", borderRadius: 14, background: "#000" }} />
-              : <img src={open.image_url} alt={open.seo_title || open.text || "אור הגאולה"} style={{ maxWidth: "100%", maxHeight: "64vh", objectFit: "contain", borderRadius: 14 }} />}
+              ? <video src={open.image_url} controls playsInline preload="metadata" style={{ maxWidth: "100%", maxHeight: "64vh", borderRadius: 14, background: "#000" }} />
+              : isAudio(open.image_url)
+                ? <audio src={open.image_url} controls preload="none" aria-label="הודעה קולית מאור הגאולה" style={{ width: "min(92vw,520px)" }} />
+                : open.image_url
+                  ? <img src={open.image_url} alt={open.seo_title || open.text || "אור הגאולה"} style={{ maxWidth: "100%", maxHeight: "64vh", objectFit: "contain", borderRadius: 14 }} />
+                  : <span style={{ color: "#ffd98a", fontSize: 28 }} aria-hidden="true">✉</span>}
             {open.seo_title && (
               <div style={{ color: "#ffd98a", fontFamily: F.heading, fontSize: 17, fontWeight: 800, textAlign: "center", maxWidth: 700 }}>{open.seo_title}</div>
             )}
@@ -242,7 +260,7 @@ export default function OrGeulaPage() {
                 🔗 שתפו קישור לצפייה
               </button>
               <ShareActions type="video" compact force
-                url={`${SITE_URL}/or-geula/video/${open.id}`}
+                url={isVideo(open.image_url) ? `${SITE_URL}/or-geula/video/${open.id}` : `${SITE_URL}/or-geula?v=${open.id}`}
                 title={((open.seo_title || open.text || "").trim().slice(0, 90)) || "אור הגאולה · סוד 1820"}
                 image={open.thumb_url || undefined} />
             </div>

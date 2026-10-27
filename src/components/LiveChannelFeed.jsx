@@ -33,6 +33,7 @@ const CHANNEL_KEYS = ["torat-haremez", "gilui-yomi", "site-news", "reality-code"
 const CH_KEYS = Object.keys(CH);   // כל השולחים (ערוצים + פורום + פעילות) — לשבבים/סינון/מכסות
 const DESKTOP_MQ = "(min-width:900px)";
 const isVideo = u => /\.(mp4|webm|mov)(\?|$)/i.test(u || "");
+const isAudio = u => /\.(ogg|oga|opus|mp3|wav|m4a|aac)(\?|#|$)/i.test(u || "") || (/\/audio\//.test(u || "") && /\.webm(\?|#|$)/i.test(u || ""));
 // מענה-AI: מסומן דרך source או קרדיט הבוט (רזיאל). תיוג-אמת מהאינג'סט: source='ai'.
 const isAi = u => u.source === "ai" || /רזיאל|בינה מלאכות|\bai\b/i.test(u.credit || "");
 
@@ -40,6 +41,7 @@ const isAi = u => u.source === "ai" || /רזיאל|בינה מלאכות|\bai\b/
 const snip = t => stripHtml(t || "").replace(/\s+/g, " ").trim().slice(0, 40);
 function previewOf(u) {
   const cap = (u.text && u.text !== "📷 עדכון" && u.text !== "🎬 עדכון וידאו") ? snip(u.text) : "";
+  if (u.image_url && isAudio(u.image_url)) return cap ? `🎤 ${cap}` : "🎤 הודעה קולית";
   if (u.image_url && isVideo(u.image_url)) return cap ? `🎥 ${cap}` : "🎥 סרטון חדש";
   if (u.image_url) return cap ? `📷 ${cap}` : "📷 תמונה חדשה";
   return cap || "💬 עדכון חדש";
@@ -117,6 +119,8 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
   const { open } = useSiteUpdates();
   const [raw, setRaw] = useState([]);
   const [active, setActive] = useState(() => Object.fromEntries(CH_KEYS.map(k => [k, true])));
+  const [orGeulaOnly, setOrGeulaOnly] = useState(false);
+  const [orGeulaLimit, setOrGeulaLimit] = useState(30);
   const [unseen, setUnseen] = useState(0);
   const [zoom, setZoom] = useState(null);   // תמונה מוגדלת (לייטבוקס)
   const [vid, setVid] = useState(null);     // וידאו לניגון (מתנגן רק בהקשה — Egress)
@@ -148,7 +152,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
       try {
         // ערוצי-הוואטסאפ + «הדברים החדשים» מכל האתר (פורום · פעילות/זרם-המציאות), במקביל
         const [chanArr, forum, hints] = await Promise.all([
-          Promise.all(CHANNEL_KEYS.map(k => (k === "torat-haremez" ? getToratHaremezLiveFeed(60) : getChannelUpdates(12, k, true)).then(r => (r || []).map(x => ({ ...x, ch: k }))))),
+          Promise.all(CHANNEL_KEYS.map(k => (k === "torat-haremez" ? getToratHaremezLiveFeed(60) : getChannelUpdates(orGeulaOnly && k === "or-geula" ? orGeulaLimit : 12, k, true)).then(r => (r || []).map(x => ({ ...x, ch: k }))))),
           forumBlocked ? Promise.resolve([]) : getForumFeed({ limit: 15, includePosts: false }).catch(() => []),   // פורום = קהילה בלבד
           getRealityHints(10).catch(() => []),
         ]);
@@ -163,9 +167,14 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
     load();
     const id = setInterval(() => { if (!document.hidden) load(); }, 90000);
     return () => { live = false; clearInterval(id); };
-  }, [forumBlocked]);
+  }, [forumBlocked, orGeulaOnly, orGeulaLimit]);
 
-  const items = useMemo(() => applyCaps(raw.filter(u => active[u.ch] && !hidden.has(u.id))).slice(-60), [raw, active, hidden]);
+  const items = useMemo(() => {
+    const visible = raw.filter(u => active[u.ch] && !hidden.has(u.id));
+    return orGeulaOnly
+      ? visible.filter(u => u.ch === "or-geula").sort((a,b) => new Date(a.created_at || 0) - new Date(b.created_at || 0))
+      : applyCaps(visible).slice(-60);
+  }, [raw, active, hidden, orGeulaOnly]);
   // שורת-העדכון האחרון לגלולה הצפה (מובייל) — מתחלפת בין ה-6 החדשים
   const latest = useMemo(() => items.slice(-6).reverse(), [items]);
   const cur = latest.length ? latest[tick % latest.length] : null;
@@ -305,8 +314,15 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
               {CH_KEYS.map(k => (
                 <button key={k} className="lcf-chip" aria-pressed={active[k]}
                   style={active[k] ? { background: CH[k].c } : undefined}
-                  onClick={() => setActive(a => ({ ...a, [k]: !a[k] }))}>{CH[k].em} {CH[k].name}</button>
+                  onClick={() => { setOrGeulaOnly(false); setActive(a => ({ ...a, [k]: !a[k] })); }}>{CH[k].em} {CH[k].name}</button>
               ))}
+              <button type="button" className="lcf-chip" aria-pressed={orGeulaOnly}
+                onClick={() => {
+                  const next = !orGeulaOnly;
+                  setOrGeulaOnly(next);
+                  setOrGeulaLimit(30);
+                  setActive(Object.fromEntries(CHANNEL_KEYS.map(k => [k, !next || k === "or-geula"])));
+                }}>{orGeulaOnly ? "↩ כל הערוצים" : "✨ כל אור הגאולה"}</button>
             </div>
             <div className="lcf-body" ref={bodyRef}>
               {items.length === 0 ? <div className="lcf-empty">העדכונים בדרך — הערוצים יתעוררו בקרוב…</div> :
@@ -322,7 +338,7 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
                         {ai
                           ? <div className="lcf-ai"><span className="rb2">🤖</span>רזיאל · AI</div>
                           : <div className="lcf-snd" style={{ color: c.c }}><ReporterAvatar credit={u.credit} size={20} ring={c.c} fallback={BRANDS[u.ch]?.logo} /><span>{c.em} <ReporterLink credit={u.credit} canonical style={{ color: c.c, textDecoration: "underline", textUnderlineOffset: 2, fontWeight: 700 }}>{u.credit || c.name}</ReporterLink></span></div>}
-                        {u.image_url && !isVideo(u.image_url) && (
+                        {u.image_url && !isVideo(u.image_url) && !isAudio(u.image_url) && (
                           <button className="lcf-imgw" onClick={() => setZoom(u.image_url)} aria-label="הגדל תמונה">
                             <img src={galThumb(u, 360)} alt="" loading="lazy" />
                             <span className="lcf-tap">🔍 הקש להגדלה</span>
@@ -339,7 +355,10 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
                             </>
                           );
                         })()}
-                        {u.image_url && isVideo(u.image_url) && (
+                        {u.image_url && isAudio(u.image_url) && (
+                          <audio controls preload="none" src={u.image_url} aria-label="הודעה קולית" style={{ width: "100%", maxWidth: 305 }} />
+                        )}
+                        {u.image_url && isVideo(u.image_url) && !isAudio(u.image_url) && (
                           <button className="lcf-md" onClick={() => setVid(u.image_url)} style={{ cursor: "pointer", border: "none", font: "inherit", color: WA.recvInk, width: "100%", textAlign: "start" }}>🎬 וידאו · הקש לצפייה</button>
                         )}
                         {u.to && !u.capMore && <Link to={u.to} className="lcf-ptr" onClick={() => { if (!docked) closeSiteUpdates(); }}>← לצפייה</Link>}
@@ -349,6 +368,10 @@ export default function LiveChannelFeed({ hideFab = false, bottomClearance }) {
                     </div>
                   );
                 })}
+              {orGeulaOnly && raw.filter(u => u.ch === "or-geula").length >= orGeulaLimit && (
+                <button type="button" onClick={() => setOrGeulaLimit(n => n + 30)}
+                  className="lcf-more">טען עוד הודעות מאור הגאולה</button>
+              )}
               {items.length > 0 && (
                 <div className="lcf-foot">
                   <Link to="/broadcasts" onClick={() => { if (!docked) closeSiteUpdates(); }}>📡 כל העדכונים · מרכז השידורים ←</Link>
