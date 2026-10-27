@@ -94,7 +94,7 @@ function ElsNativeWithRaziel({ razielSession, researchContext, projection, layer
       && (selected?.corpusId || projection?.corpusId) === context.axis.corpusId;
     const surfaceContext = matching ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary }) : null;
     if (!surfaceContext?.occurrence?.occurrenceRef) return { ok: false, error: "replay_pending_or_changed" };
-    shell.openRaziel({ razielMicroIntent: "explain_els_occurrence", elsSurfaceContext: surfaceContext });
+    shell.openRaziel({ razielMicroIntent: "explain_els_occurrence", elsSurfaceContext: { ...surfaceContext, matrixAnalysisRequested: true } });
     return razielSession.submit({ question: "בדוק את המטריצה שבחרתי והצע כיוון מחקרי", intelligenceLevel: "deep",
       view: { surface: "els", elsFocus: { ...context.axis, occurrenceRef: context.axis.hitId }, elsMatrixContext: context } });
   };

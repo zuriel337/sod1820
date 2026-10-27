@@ -133,7 +133,9 @@ export function buildElsRazielGuidance(surfaceContext) {
   const boundary = "הציר שמודגש כאן עוזר לראות את המופע שבחרת; ההדגשה והקרבה על המסך אינן מוסיפות לו חוזק ראייתי.";
   const plan = surfaceContext?.plan;
   const planLine = plan ? `בתוכנית שהזנת יש ${plan.sourceCount} ביטויים ו־${plan.variantCount} צורות; ${plan.scannedCount} צורות נסרקו${plan.hasPending ? ", ועוד צורות או דפים ממתינים להמשך" : ""}. אלו בדיקות תלויות של אותם ביטויים, לא ראיות עצמאיות.` : null;
-  const inactive = "כרגע אני מסביר רק את מה שאומת ואת צורת ההצגה. בדיקת הסביבה, המשך הציר והמשמעות המחקרית עדיין אינן פעילות בשכבה הזאת.";
+  const inactive = surfaceContext?.matrixAnalysisRequested === true
+    ? "הסבר המבנה הזה מתייחס לציר בלבד. בקשת המפה נבדקת בנפרד; קריאות בסביבה הן הצעות עד לאימות במנוע."
+    : "כרגע אני מסביר רק את מה שאומת ואת צורת ההצגה. בדיקת הסביבה, המשך הציר והמשמעות המחקרית עדיין אינן פעילות בשכבה הזאת.";
   const question = "מה מסקרן אותך להבין מכאן — איך הדילוג בנוי, מה משמעות הכיוון, או מה עדיין חסר כדי להעמיק?";
   const spokenScript = [lead, planLine, boundary, inactive, question].filter(Boolean).join(" ");
 
