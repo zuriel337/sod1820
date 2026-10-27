@@ -16,6 +16,11 @@ import {
   resolveRazielNavigationAction,
   resolveRazielNavigationFollowUp,
 } from "../../../supabase/functions/_shared/razielNavigationActions.js";
+import {
+  ELS_RAZIEL_PLANNING_SUBJECT,
+  normalizeElsRazielPlanningAction,
+  normalizeElsRazielSearchPlan,
+} from "./elsRazielPlanning.js";
 
 const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
 export const RAZIEL_PERSONAL_AREA_COMPANION_ACTION = "personal_area_companion_v1";
@@ -148,6 +153,15 @@ function createPersonalAreaCompanionSnapshot(action, capturedAt) {
     capturedAt: cleanInline(capturedAt, 40),
     companionAction: action,
     description: "ליווי מפורש באזור האישי",
+  });
+}
+
+function createElsPlanningSnapshot(action, capturedAt) {
+  return Object.freeze({
+    v: 1,
+    surface: "els",
+    capturedAt: cleanInline(capturedAt, 40),
+    description: `תוכנית חיפוש ELS מוצעת · ${action.scope === "tanakh" ? "כל התנ״ך" : "תורה"}`,
   });
 }
 
@@ -416,10 +430,13 @@ export function buildRazielSessionRequest({
   again = false,
   viewMode = RAZIEL_DEFAULT_VIEW_MODE,
   companionAction = null,
+  elsPlanningAction = null,
 } = {}) {
   const subject = cleanInline(question, LIMITS.question);
   if (!subject) return null;
   const normalizedCompanionAction = normalizeRazielPersonalAreaCompanionAction(companionAction);
+  const normalizedElsPlanningAction = normalizeElsRazielPlanningAction(elsPlanningAction);
+  if (companionAction != null && elsPlanningAction != null) return null;
   if (companionAction != null) {
     if (!normalizedCompanionAction || subject !== RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT) return null;
     return {
@@ -432,6 +449,21 @@ export function buildRazielSessionRequest({
       conversationResolution: null,
       researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
       companionAction: normalizedCompanionAction,
+    };
+  }
+  if (elsPlanningAction != null) {
+    if (!normalizedElsPlanningAction || subject !== ELS_RAZIEL_PLANNING_SUBJECT) return null;
+    return {
+      subject: ELS_RAZIEL_PLANNING_SUBJECT,
+      facts: "",
+      context: null,
+      again: false,
+      intelligenceLevel: normalizedElsPlanningAction.locked_phrases.length
+        && normalizedElsPlanningAction.story.length <= 240 ? "fast" : "deep",
+      surfaceSemantic: { surface: "els" },
+      conversationResolution: null,
+      researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+      elsPlanningAction: normalizedElsPlanningAction,
     };
   }
   const surfaceSemantic = snapshotSurfaceSemantic(contextSnapshot);
@@ -590,20 +622,28 @@ export function prepareRazielSessionSubmission({
   viewModeOverride = null,
   continuationTurnId = null,
   companionAction = null,
+  elsPlanningAction = null,
   startedAt,
   createTurnId,
 } = {}) {
   const normalizedCompanionAction = normalizeRazielPersonalAreaCompanionAction(companionAction);
+  const normalizedElsPlanningAction = normalizeElsRazielPlanningAction(elsPlanningAction);
   const subject = cleanInline(
-    normalizedCompanionAction ? RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT : question,
+    normalizedCompanionAction
+      ? RAZIEL_PERSONAL_AREA_COMPANION_SUBJECT
+      : normalizedElsPlanningAction ? ELS_RAZIEL_PLANNING_SUBJECT : question,
     LIMITS.question,
   );
   if (!subject) return null;
   if (companionAction != null && !normalizedCompanionAction) return null;
+  if (elsPlanningAction != null && !normalizedElsPlanningAction) return null;
+  if (companionAction != null && elsPlanningAction != null) return null;
   // Navigation is checked ONLY for an ordinary explicit request. The personal-area companion action, continuations
   // (deepen / one-shot / again) and per-request view-mode overrides are decided above and never routed as navigation.
   const ordinaryExplicitRequest = !normalizedCompanionAction
+    && !normalizedElsPlanningAction
     && companionAction == null
+    && elsPlanningAction == null
     && !again
     && continuationTurnId == null
     && viewModeOverride == null;
@@ -637,6 +677,8 @@ export function prepareRazielSessionSubmission({
   const selectedFacts = continuation ? continuation.facts : facts;
   const selectedContextSnapshot = normalizedCompanionAction
     ? createPersonalAreaCompanionSnapshot(normalizedCompanionAction, startedAt)
+    : normalizedElsPlanningAction
+      ? createElsPlanningSnapshot(normalizedElsPlanningAction, startedAt)
     : contextSnapshot;
   // A plain continuation (deepen) keeps the mode of the answer it extends. A one-shot per-request mode (the surprise)
   // replaces it for this request only; the stored answer and the session's own mode are not modified.
@@ -648,16 +690,19 @@ export function prepareRazielSessionSubmission({
     question: subject,
     state,
     contextSnapshot: selectedContextSnapshot,
-    facts: normalizedCompanionAction ? "" : selectedFacts,
+    facts: normalizedCompanionAction || normalizedElsPlanningAction ? "" : selectedFacts,
     intelligenceLevel: normalizeRazielViewMode(selectedViewMode) === "exploratory" ? "deep" : intelligenceLevel,
     again,
     viewMode: selectedViewMode,
     companionAction: normalizedCompanionAction,
+    elsPlanningAction: normalizedElsPlanningAction,
   });
   if (!request) return null;
   const turn = {
     id: createTurnId(),
-    question: request.subject,
+    question: normalizedElsPlanningAction
+      ? cleanInline(normalizedElsPlanningAction.story, LIMITS.question)
+      : request.subject,
     identityResolution: request.conversationResolution ? {
       identities: request.conversationResolution.identities,
       explicit_text_computation: false,
@@ -808,7 +853,7 @@ export function normalizeRazielSuggestedActions(value = null) {
   return actions;
 }
 
-export function normalizeRazielResponse(response, requestedLevel = "fast") {
+export function normalizeRazielResponse(response, requestedLevel = "fast", request = null) {
   if (!isObject(response)) return null;
   const answer = cleanAnswer(response.answer);
   if (!answer) return null;
@@ -818,6 +863,9 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
   const viewModeReport = normalizeRazielViewModeReport(response);
   const evidenceSummary = normalizeRazielEvidenceSummary(response.evidence_summary);
   const suggestedActions = normalizeRazielSuggestedActions(response.suggested_paths);
+  const elsSearchPlan = request?.elsPlanningAction
+    ? normalizeElsRazielSearchPlan(response.els_search_plan, request.elsPlanningAction)
+    : null;
   // The conversation stays readable.  The full calculation/source appendix belongs to the
   // explicit Research Map action; ordinary and exploratory answers retain only a compact,
   // auditable pointer while keeping the structured evidence on the message object.
@@ -833,6 +881,7 @@ export function normalizeRazielResponse(response, requestedLevel = "fast") {
     ...(evidenceSummary ? { evidenceSummary } : {}),
     ...(suggestedActions.length ? { suggestedActions } : {}),
     ...(viewModeReport ? { viewMode: viewModeReport } : {}),
+    ...(elsSearchPlan ? { elsSearchPlan } : {}),
   };
 }
 
@@ -903,6 +952,7 @@ export function createRazielTurnSucceededAction({ state, response, provenance, c
     ...(response.evidenceSummary ? { evidenceSummary: response.evidenceSummary } : {}),
     ...(response.suggestedActions?.length ? { suggestedActions: response.suggestedActions } : {}),
     ...(response.viewMode ? { viewMode: response.viewMode.requested, viewModeApplied: response.viewMode.applied } : {}),
+    ...(response.elsSearchPlan ? { elsSearchPlan: response.elsSearchPlan } : {}),
   };
   return {
     type: "turn_succeeded",

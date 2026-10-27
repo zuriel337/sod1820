@@ -40,12 +40,13 @@ const meaningfulBriefWord = word => canonicalKey(word).length >= 3 && !BRIEF_STO
  * A deterministic, local-only compiler from free context to bounded proposed terms.
  * It neither scans nor persists and it never promotes vocabulary into evidence.
  */
-export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
+export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms = "", scope = "torah", minimumAnchorLetters = 3 } = {}) {
   const input = String(text || "");
+  const minimumAxisLetters = minimumAnchorLetters === 2 ? 2 : 3;
   if (input.length > MAX_BRIEF_LENGTH) return { error: "הסיפור ארוך מדי. חלקו אותו לשני הקשרים קצרים יותר." };
   const explicitAnchor = briefPhrase(anchorTerm);
   if (String(anchorTerm || "").length > 200) return { error: "הציר הראשי ארוך מדי. במצב הבסיסי בוחרים מילה או ביטוי קצר." };
-  if (explicitAnchor && canonicalKey(explicitAnchor).length < 3) return { error: "במצב הבסיסי הציר הראשי צריך לכלול לפחות שלוש אותיות." };
+  if (explicitAnchor && canonicalKey(explicitAnchor).length < minimumAxisLetters) return { error: `הציר הראשי צריך לכלול לפחות ${minimumAxisLetters === 2 ? "שתי" : "שלוש"} אותיות.` };
   if (canonicalKey(explicitAnchor).length > MAX_BASIC_AXIS_LENGTH) return { error: "הציר הראשי ארוך מ־12 אותיות. חיפוש ביטוי ארוך ומדויק זמין בהגדרות המתקדמות." };
   const requiredInput = String(requiredTerms || "");
   if (requiredInput.length > 1000) return { error: "רשימת המונחים המחייבים ארוכה מדי." };
@@ -54,7 +55,7 @@ export function prepareElsResearchBrief({ text, anchorTerm = "", requiredTerms =
   const anchorRows = new Map(), contextRows = new Map();
   const addAnchor = (term, kind, reason, priority, explicit = false) => {
     const label = briefPhrase(term), key = canonicalKey(label);
-    if (key.length < 3 || key.length > MAX_BASIC_AXIS_LENGTH) return;
+    if (key.length < minimumAxisLetters || key.length > MAX_BASIC_AXIS_LENGTH) return;
     const prior = anchorRows.get(key);
     const next = { id: `axis:${key}`, term: label, canonicalTerm: key, role: "axis", kind, reason, priority, explicit };
     if (!prior || explicit && !prior.explicit || priority > prior.priority) anchorRows.set(key, next);
@@ -162,8 +163,8 @@ const buildGuidedSearchStrategy = (plan, selectedAnchorId = null) => {
       stopOnStrongVerifiedStructure: true }),
     advanced: Object.freeze({ reverseForms: false, widerMatrix: false, extraOccurrenceBatch: false,
       broadVocabularyScan: false, requiresExplicitAction: true }),
-    modelCallsBeforeSearch: 0,
-    modelCallsTriggered: 0,
+    modelCallsBeforeSearch: Number.isSafeInteger(plan?.planningModelCalls) ? plan.planningModelCalls : 0,
+    modelCallsTriggered: Number.isSafeInteger(plan?.planningModelCalls) ? plan.planningModelCalls : 0,
     rawStoryIncluded: false,
     truthPromotion: false,
   });
@@ -175,8 +176,8 @@ export function projectElsGuidedSearchStrategy(plan, selectedAnchorId = null) {
   return buildGuidedSearchStrategy(plan, selectedAnchorId);
 }
 
-export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredTerms = "", scope = "torah" } = {}) {
-  const brief = prepareElsResearchBrief({ text, anchorTerm, requiredTerms, scope });
+export function prepareElsCipherDiscoveryPlan({ text, anchorTerm = "", requiredTerms = "", scope = "torah", minimumAnchorLetters = 3 } = {}) {
+  const brief = prepareElsResearchBrief({ text, anchorTerm, requiredTerms, scope, minimumAnchorLetters });
   if (brief.error) return brief;
   const selectedAxis = brief.anchorCandidates.find(candidate => candidate.id === brief.recommendedAnchorId);
   const axisKey = selectedAxis?.canonicalTerm || "";
@@ -213,6 +214,8 @@ export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
     status: "PROPOSED_SEARCH_PLAN",
     scope: plan.scope,
     anchorTerm: anchor.term,
+    searchMode: plan.searchMode || "anchor_context",
+    axes: Object.freeze(Array.isArray(plan.axes) && plan.axes.length ? plan.axes.slice(0, 2) : [anchor.term]),
     targetTerms: Object.freeze(plan.contextCandidates.filter(candidate => candidate.selected).map(candidate => candidate.term).filter(Boolean).slice(0, 8)),
     occurrenceBatchSize: plan.limits.fullAxisOccurrences,
     maximumOccurrenceBatches: plan.limits.maximumOccurrenceBatches,
@@ -220,7 +223,7 @@ export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
       laneOrder: Object.freeze(strategy.lanes.map(lane => lane.id)),
       localLanguageTrigger: strategy.lanes.find(lane => lane.id === "local-language")?.trigger || null,
       broadVocabularyScan: strategy.advanced.broadVocabularyScan }) : null,
-    modelCallsTriggered: 0,
+    modelCallsTriggered: Number.isSafeInteger(plan.planningModelCalls) ? plan.planningModelCalls : 0,
     rawStoryIncluded: false,
     evidencePromotion: false,
   });

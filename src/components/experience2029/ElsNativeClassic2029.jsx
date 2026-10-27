@@ -449,6 +449,10 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
   const languageWindowCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.candidatesExamined || 0), 0);
   const languageLookupCount = languageInspections.reduce((sum, inspection) => sum + (inspection.coverage?.lexiconLookups || 0), 0);
   const snapshotReady = coverage.matrixSnapshot?.items?.length > 0;
+  // Do not expose a moving ranked target while the bounded wave is still adding reports.
+  // The stable snapshot appears when the approved wave stops, so a user's click always keeps
+  // the exact item identity it showed at click time.
+  const displaySnapshot = coverage.status === "INSPECTING" ? null : coverage.matrixSnapshot;
   return <section className="els29-guided-coverage" data-els-guided-occurrence-coverage="v1" aria-label="חבילת הגילוי המודרך">
     <header>
       <div><small>הציר המדויק</small><strong>{exactTotal || 0} מופעים מאומתים</strong></div>
@@ -458,7 +462,7 @@ function GuidedCoveragePanel({ coverage, exactTotal, pending, currentHitId, onOp
       <progress max={Math.max(1, coverage.coverage.scheduledCount)} value={coverage.coverage.inspectedCount} aria-label="מופעי ציר שנבדקו" />
       <small>נבדקו {coverage.coverage.inspectedCount} מתוך {coverage.coverage.scheduledCount} המופעים שאושרו לגל הזה. מופע שלא נבדק אינו ראיה שלילית.</small>
     </div>
-    <React.Suspense fallback={null}><ElsGuidedMatrixSnapshot2029 snapshot={coverage.matrixSnapshot} currentHitId={currentHitId}
+    <React.Suspense fallback={null}><ElsGuidedMatrixSnapshot2029 snapshot={displaySnapshot} currentHitId={currentHitId}
       onOpen={onOpen} onAddSupports={onAddSupports} onOpenSource={onOpenSource} sourceContext={sourceContext}
       onCloseSource={onCloseSource} sourcePendingItemId={sourcePendingItemId} onHighlightVerse={onHighlightVerse} verseHighlight={verseHighlight} /></React.Suspense>
     {!recommendation && coverage.status === "AWAITING_CONTINUATION" ? <div className="els29-guided-next-wave">
@@ -936,17 +940,28 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (guidedContextRef.current?.nonce === researchLoad.researchNonce) return;
     const term = safeGuidedAxis(researchLoad.term);
     if (!term) return;
+    const searchMode = researchLoad.searchMode === "crossed_pair" ? "crossed_pair" : "anchor_context";
+    const requestedAxes = Array.isArray(researchLoad.axes) ? researchLoad.axes.map(safeGuidedAxis).filter(Boolean).slice(0, 2) : [term];
+    const secondaryAxis = searchMode === "crossed_pair" ? requestedAxes[1] : "";
+    if (searchMode === "crossed_pair" && !secondaryAxis) return;
     guidedContextRef.current = {
       nonce: researchLoad.researchNonce,
       anchorTerm: term,
       anchorKey: canonicalHebrew(term),
+      searchMode,
+      axes: requestedAxes,
       scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah",
       terms: safeGuidedContextTerms(researchLoad.contextTerms),
       goal: researchLoad.discoveryGoal || null,
     };
     setQuery(term);
-    setCrossOpen(false);
-    requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah" });
+    setCrossTerm(secondaryAxis);
+    setCrossOpen(searchMode === "crossed_pair");
+    if (searchMode === "crossed_pair") {
+      requestSearch("cross", { axis: term, term: secondaryAxis, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", radius: 18 });
+    } else {
+      requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah" });
+    }
   }, [researchLoad?.researchNonce]);
   useEffect(() => {
     if (researchLoad?.guidedDiscovery === true) setGuidedMatrixOpen(false);
@@ -1074,6 +1089,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       return;
     }
     if (result?.target?.nativeSeq !== lensSeqRef.current) return;
+    if (result?.lens === "verse-context" && result?.target?.guidedSnapshotSource === true
+      && guidedSourceQueueRef.current?.guidedSnapshotItemId === result.target.guidedSnapshotItemId) {
+      guidedSourceQueueRef.current = null;
+    }
     setLensResult(result);
     setLensPending(false);
     if (result?.ok && result.lens === "letter-context" && verseReadRef.current) highlightVerse(result.verse);
@@ -1103,7 +1122,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const searchPending = ["searching", "verifying"].includes(operations.search?.status);
-  const guidedResults = guidedProfile && engineState?.status === "ok" && engineState?.verification?.state === "MATCH"
+  const guidedResults = guidedProfile && guidedContextRef.current?.searchMode !== "crossed_pair"
+    && engineState?.status === "ok" && engineState?.verification?.state === "MATCH"
     && canonicalHebrew(engineState?.termRaw || engineState?.term) === guidedContextRef.current?.anchorKey
     ? engineState.search?.occurrences : null;
   const guidedKey = guidedResults ? `${guidedContextRef.current?.nonce || ""}:${guidedResults.id}:${guidedContextRef.current?.anchorKey || ""}` : "";
@@ -1131,17 +1151,21 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     const target = {
       guidedSnapshotSource: true, guidedSnapshotItemId: item.id, hitId: occurrence.hitId,
       resultSetId: occurrence.resultSetId, setId: occurrence.resultSetId, index: occurrence.index,
-      occurrenceRef: occurrence.ref,
+      occurrenceRef: occurrence.ref, lensRequested: false,
     };
     guidedSourceActiveRef.current = true;setGuidedSourceActive(true);
+    // A direct user action outranks the bounded background inspection. Invalidate any in-flight
+    // discovery lens and clear its pending marker so a late response cannot move or mix the source.
+    ++guidedLensSeqRef.current;
+    setGuidedRun((current) => current.pendingHitId ? { ...current, pendingHitId: null } : current);
+    guidedSourceQueueRef.current = target;
     if (engineStateRef.current?.axis?.hitId === occurrence.hitId) {
-      guidedSourceQueueRef.current = null;
+      target.lensRequested = true;
       requestLens("verse-context", target, { revealTool: false });
       return;
     }
     requestControl("occurrence-select", { setId: occurrence.resultSetId, index: occurrence.index, hitId: occurrence.hitId },
       { suppressScroll: true, preserveGuidedSource: true, revealGuidedMatrix: false });
-    guidedSourceQueueRef.current = target;
   };
   const closeGuidedSource = () => {
     const deferred = guidedDeferredInspectionRef.current;
@@ -1153,8 +1177,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
   useEffect(() => {
     const target = guidedSourceQueueRef.current;
-    if (!target || engineState?.verification?.state !== "MATCH" || engineState?.axis?.hitId !== target.hitId) return;
-    guidedSourceQueueRef.current = null;
+    if (!target || engineState?.verification?.state !== "MATCH") return;
+    if (engineState?.axis?.hitId !== target.hitId) {
+      target.lensRequested = false;
+      requestControl("occurrence-select", { setId: target.resultSetId, index: target.index, hitId: target.hitId },
+        { suppressScroll: true, preserveGuidedSource: true, revealGuidedMatrix: false });
+      return;
+    }
+    if (target.lensRequested) return;
+    target.lensRequested = true;
     requestLens("verse-context", target, { revealTool: false });
   }, [engineState?.axis?.hitId, engineState?.verification?.state]);
   useEffect(() => {
@@ -1202,6 +1233,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
+  const guidedCrossActive = guidedProfile && guidedContextRef.current?.searchMode === "crossed_pair";
+  const guidedCrossReady = guidedCrossActive && Array.isArray(engineState?.search?.results?.items)
+    && engineState.search.results.items.some((item) => item.available);
   // Reading layout is only available for a complete, contiguous short-skip window.
   // CSS wraps the existing indexed cells; canonical geometry and crossing scans stay unchanged.
   const shortSkip = matrixActive && engineState.search?.mode === "regular" && engineState.matrix?.S >= 2
@@ -1316,13 +1350,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     {guidedProfile ? <section className="els29-guided-result-overview" aria-label="מצב חבילת הגילוי">
       <div className="els29-guided-result-title">
         <small>חבילת הגילוי</small>
-        <strong>{engineState?.termRaw || engineState?.term || researchLoad?.term || "ממתינה לציר"}</strong>
-        <span>{searchPending ? "מאמת מופעים…" : guidedCoverage?.recommendation ? "נמצא חיבור חזק" : guidedCoverage ? "בודק את הסביבה הקרובה" : "בונה תוצאה מאומתת"}</span>
+        <strong>{guidedCrossActive ? (guidedContextRef.current?.axes || []).join(" × ") : engineState?.termRaw || engineState?.term || researchLoad?.term || "ממתינה לציר"}</strong>
+        <span>{searchPending ? (guidedCrossActive ? "מאמת מפגשי הצלבה…" : "מאמת מופעים…") : guidedCrossReady ? "נמצאו מפגשים מאומתים" : guidedCrossActive ? "לא נמצא עדיין מפגש מאומת" : guidedCoverage?.recommendation ? "נמצא חיבור חזק" : guidedCoverage ? "בודק את הסביבה הקרובה" : "בונה תוצאה מאומתת"}</span>
       </div>
       <div className="els29-guided-result-route" aria-label="התקדמות המחקר">
         <span data-state="done"><b>1</b> סיפור</span>
-        <span data-state={matrixActive ? "done" : "active"}><b>2</b> ציר מאומת</span>
-        <span data-state={guidedCoverage?.matrixSnapshot?.items?.length ? "done" : "active"}><b>3</b> חיבורים</span>
+        <span data-state={matrixActive ? "done" : "active"}><b>2</b> {guidedCrossActive ? "צירים מאומתים" : "ציר מאומת"}</span>
+        <span data-state={guidedCrossReady || guidedCoverage?.matrixSnapshot?.items?.length ? "done" : "active"}><b>3</b> חיבורים</span>
       </div>
       <button type="button" className="els29-guided-matrix-toggle" data-els-guided-matrix-toggle="v1"
         aria-expanded={guidedMatrixOpen} disabled={!matrixActive}

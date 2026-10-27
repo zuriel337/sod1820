@@ -39,16 +39,19 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
       mkdirSync(process.env.ELS_SCREENSHOT_DIR, { recursive: true });
       await page.screenshot({ path: join(process.env.ELS_SCREENSHOT_DIR, "guided-entry-390.png"), fullPage: true });
     }
-    const story = "מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש";
+    const story = 'חפש לי שני מילים "צוריאל פולייס" בתורה';
     await page.getByLabel("הסיפור לגילוי מודרך").fill(story);
-    assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "typing or opening Guided does not invoke a function");
+    assert.equal(await page.evaluate(() => window.__razielPlannerCalls.length), 0, "typing or opening Guided does not invoke Raziel");
     await page.getByRole("button", { name: "התחל גילוי מודרך" }).click();
     await page.waitForFunction(() => window.__advancedLoad?.contract === "els_anchor_context_request_v1");
     const guidedLoad = await page.evaluate(() => window.__advancedLoad);
-    assert.equal(guidedLoad.term, "קולומביה");
+    assert.equal(guidedLoad.term, "צוריאל");
+    assert.equal(guidedLoad.searchMode, "crossed_pair");
+    assert.deepEqual(guidedLoad.axes, ["צוריאל", "פולייס"]);
     assert.ok(guidedLoad.contextTerms.length <= 6);
     assert.equal(JSON.stringify(guidedLoad).includes(story), false, "the raw story stays in the screen state");
-    assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "Guided delegates to the mounted engine without an AI/page transport");
+    assert.equal(await page.evaluate(() => window.__razielPlannerCalls.length), 1, "one explicit submit makes one Raziel planning request");
+    assert.equal(await page.evaluate(() => window.__advancedCalls.length), 0, "the planning turn does not use the advanced ELS page transport");
     assert.equal(await page.getByLabel("תוצאות הגילוי המודרך").isVisible(), true, "Guided owns a separate result region after explicit submit");
     assert.match(await page.locator(".els29-guided-result-stage").innerText(), /חבילת הגילוי/);
     const strategy = page.getByLabel("סדר החיפוש המודרך");
@@ -66,7 +69,7 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByRole("button", { name: "קלאסי", exact: true }).click();
     assert.equal(await page.getByLabel("הסיפור לגילוי מודרך").isVisible(), false);
-    assert.equal(await page.evaluate(() => window.__advancedLoad?.term), "קולומביה");
+    assert.equal(await page.evaluate(() => window.__advancedLoad?.term), "צוריאל");
     await page.getByRole("button", { name: "גילוי מודרך", exact: true }).click();
     assert.equal(await page.getByLabel("הסיפור לגילוי מודרך").inputValue(), story);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?testAdvanced`);

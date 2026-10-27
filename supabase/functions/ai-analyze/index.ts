@@ -5,6 +5,7 @@ import { supabaseServiceHeaders } from "../_shared/supabaseServiceHeaders.js";
 import { buildRazielResultBundleConsumer } from "../../../src/lib/research/razielResultBundleConsumer.js";
 import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../../src/lib/research/razielGroundedSourceComposer.js";
 import { RAZIEL_SEMANTIC_INTENT_VERSION, isRazielCurrentSurfaceQuestion, resolveRazielCanonicalRequest, resolveRazielConversationalAct, resolveRazielDeterministicGuidance, validateRazielSemanticIntent } from "../../../src/lib/research/razielSemanticIntentGate.js";
+import { ELS_RAZIEL_PLANNING_ACTION, ELS_RAZIEL_PLANNING_SUBJECT, deriveLockedElsSearchPlan, elsPlanningPrompt, normalizeElsRazielPlanningAction, normalizeElsRazielSearchPlan } from "../../../src/lib/research/elsRazielPlanning.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -692,6 +693,32 @@ function projectRazielPersonalAreaModelContract(contract: any): any {
     follow_up_question: typeof contract?.follow_up_question === "string" ? contract.follow_up_question : null,
     continue_wa: contract?.continue_wa !== false,
   };
+}
+
+function razielElsPlanningEnvelopeSafe(body: any, action: any): boolean {
+  const surface = body?.surface_semantic;
+  return body?.subject === ELS_RAZIEL_PLANNING_SUBJECT
+    && String(body?.facts || "") === ""
+    && (body?.context == null || body.context === "")
+    && (body?.path == null || body.path === "")
+    && body?.again !== true
+    && body?.conversation_resolution == null
+    && body?.view_mode == null
+    && body?.mode == null
+    && body?.surface_context == null
+    && body?.companion_action == null
+    && exactObjectKeys(surface, ["surface"])
+    && surface?.surface === "els"
+    && action?.id === ELS_RAZIEL_PLANNING_ACTION;
+}
+
+function razielElsPlanningAnswer(plan: any): string {
+  if (!plan) return "לא הצלחתי לבנות תוכנית חיפוש בטוחה, ולכן לא הפעלתי את מנוע ה־ELS.";
+  const terms = Array.isArray(plan.axes) ? plan.axes.map((axis: any) => axis?.term).filter(Boolean) : [];
+  if (plan.mode === "crossed_pair") {
+    return `הבנתי: אחפש הצלבה בין ״${terms[0]}״ ל״${terms[1]}״. זו תוכנית בלבד; רק מנוע ה־ELS יקבע אם נמצא מפגש.`;
+  }
+  return `הבנתי: ״${terms[0]}״ יהיה הציר הראשון. זו תוכנית בלבד; רק מנוע ה־ELS יאמת מופעים וקשרים.`;
 }
 
 // The model never owns executable suggestions. This deterministic registry is the only place that
@@ -2682,11 +2709,21 @@ Deno.serve(async (req: Request) => {
       const rPersonalAreaCompanion = rCanonicalResearchOptIn
         ? normalizeRazielPersonalAreaCompanionAction(body?.companion_action)
         : null;
+      const rElsPlanningRequested = body?.els_planning_action != null;
+      const rElsPlanningAction = rCanonicalResearchOptIn
+        ? normalizeElsRazielPlanningAction(body?.els_planning_action)
+        : null;
       if (
         rPersonalAreaCompanionRequested
         && (!rPersonalAreaCompanion || !razielPersonalAreaEnvelopeSafe(body, rPersonalAreaCompanion))
       ) {
         return rzJson({ analysis: null, error: "invalid_personal_area_companion_contract" }, 400);
+      }
+      if (
+        rElsPlanningRequested
+        && (!rElsPlanningAction || !razielElsPlanningEnvelopeSafe(body, rElsPlanningAction) || rPersonalAreaCompanionRequested)
+      ) {
+        return rzJson({ analysis: null, error: "invalid_els_planning_contract" }, 400);
       }
       // RAZIEL_VIEW_MODE_V1: only the 2029 canonical contract can select a non-general observation mode.
       const rViewMode: RazielViewMode = rCanonicalResearchOptIn ? normalizeRazielViewMode(body?.view_mode) : "general";
@@ -2707,6 +2744,118 @@ Deno.serve(async (req: Request) => {
         if (availability?.allowed !== true) {
           return rzJson({ analysis: null, error: "availability", message: availability?.availability?.message || "רזיאל באתר נמצא בהכנה." });
         }
+      }
+      // One explicit Guided-ELS planning turn. It reuses this ai-analyze transport and quota,
+      // but exits before the ordinary Raziel planner, tools, memory, Metatron and research-run.
+      // The output is a bounded proposal only; no ELS position, skip or match is computed here.
+      if (rElsPlanningAction) {
+        const plannerFast = rElsPlanningAction.locked_phrases.length > 0 && rElsPlanningAction.story.length <= 240;
+        const plannerLevel = plannerFast ? "fast" : "deep";
+        const plannerModel = plannerFast ? FAST_MODEL : MODEL;
+        const budgetIdentity = plannerFast && (tier === "anon" || tier === "user") ? `${identity}:f` : identity;
+        const limitOverride = plannerFast ? (tier === "anon" ? 30 : tier === "user" ? 200 : null) : null;
+        const quota = await checkQuota(budgetIdentity, tier, limitOverride);
+        if (!quota.allowed) {
+          return rzJson({
+            analysis: null,
+            error: "quota",
+            surface: "raziel",
+            intelligence_level: plannerLevel,
+            tier: quota.tier,
+            used: quota.used,
+            limit: quota.limit,
+            message: plannerFast
+              ? "הגעת למכסת השיחות המהירות עם רזיאל להיום. המכסה מתחדשת מחר."
+              : "הגעת למכסת שיחות־רזיאל המעמיקות להיום. המכסה מתחדשת מחר.",
+          });
+        }
+        activeTrace = await beginOperationalTrace({
+          body,
+          identityClass: tier,
+          capability: "ai-analyze:raziel:els_guided_planning",
+          surface: "els",
+          ownerRef: "raziel_companion_layer_law + ai_analyze_contract v2",
+          subject: ELS_RAZIEL_PLANNING_ACTION,
+        });
+        const prompt = elsPlanningPrompt(rElsPlanningAction);
+        const spanId = crypto.randomUUID();
+        const startedAt = new Date().toISOString();
+        const rel = await callClaudeReliable({
+          apiKey: ANTHROPIC_KEY,
+          model: plannerModel,
+          system: "אתה רזיאל במצב תכנון ELS. החזר רק את חוזה התוכנית שהתבקש; אל תחפש, אל תחשב ואל תקבע שנמצא ממצא.",
+          user: prompt || "",
+          maxTokens: plannerFast ? 700 : 1000,
+          policy: { retries: 1, backoffMs: [] },
+          buildFallback: () => "{}",
+        });
+        const parsed = parseContract(rel.text || "");
+        const modelPlan = rel.degraded ? null : normalizeElsRazielSearchPlan(parsed, rElsPlanningAction);
+        const lockedFallback = modelPlan ? null : deriveLockedElsSearchPlan(rElsPlanningAction);
+        const plan = modelPlan || lockedFallback;
+        const endedAt = new Date().toISOString();
+        const outcome = plan ? (modelPlan ? "success" : "degraded_fallback") : "failed_with_reason";
+        await recordOperationalSpan(activeTrace, {
+          spanId,
+          kind: "model_call",
+          name: "ai-analyze:raziel:els-guided-planning",
+          startedAt,
+          endedAt,
+          outcome,
+          detail: {
+            capability: "ai-analyze:raziel:els_guided_planning",
+            owner_ref: "raziel_companion_layer_law + ai_analyze_contract v2",
+            intelligence_level: plannerLevel,
+            provider: "anthropic",
+            model: plannerModel,
+            routing_reason: plannerFast ? "explicit_locked_els_plan" : "explicit_narrative_els_plan",
+            output_use: modelPlan ? "used" : lockedFallback ? "fallback_guardian" : "rejected",
+            stop_reason: plan ? null : (rel.reason || "invalid_els_search_plan"),
+            resources: {
+              input_tokens: rel.usage?.input_tokens ?? null,
+              output_tokens: rel.usage?.output_tokens ?? null,
+              api_calls: rel.attempts,
+              latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)),
+            },
+            cost: { certainty: "unknown" },
+            replay: {
+              ownerRuleRefs: ["raziel_companion_layer_law", "ai_analyze_contract v2"],
+              parametersRef: `contract:${ELS_RAZIEL_PLANNING_ACTION};max_tokens:${plannerFast ? 700 : 1000};attempts:1;level:${plannerLevel}`,
+            },
+            privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
+          },
+        });
+        const tokenLogId = await logTokens("raziel_els_guided_planning", plannerModel, rel.usage, identity,
+          { traceId: activeTrace?.traceId, spanId });
+        await linkOperationalAiCost(activeTrace, spanId, tokenLogId);
+        await finishOperationalTrace(activeTrace, plan ? "success" : "failed_with_reason", plan ? null : "invalid_els_search_plan");
+        return rzJson({
+          raziel: {
+            v: 1,
+            agent: "raziel",
+            context: null,
+            greeting: null,
+            answer: razielElsPlanningAnswer(plan),
+            facts: [],
+            suggested_paths: [],
+            follow_up_question: null,
+            continue_wa: true,
+            ...(plan ? { els_search_plan: plan } : { degraded: true }),
+          },
+          engine: "claude",
+          model: plannerModel,
+          intelligence_level: plannerLevel,
+          plan_meta: {
+            els_planning: {
+              contract: ELS_RAZIEL_PLANNING_ACTION,
+              status: plan ? "ready" : "rejected",
+              model_calls: 1,
+              fallback: !modelPlan && !!lockedFallback,
+            },
+          },
+          degraded: !plan || !modelPlan || undefined,
+          trace_id: activeTrace?.traceId || null,
+        });
       }
       // A short whole-turn acknowledgement is conversation control, not a new research query.
       // 2029 only: answer deterministically before planner/quota/model work, keep the temporary

@@ -13,6 +13,7 @@ const systemClock = () => new Date().toISOString();
 const systemTurnId = () => globalThis.crypto?.randomUUID?.() || `raziel-${Date.now()}`;
 const PERSONAL_AREA_COMPANION_ACTION = "personal_area_companion_v1";
 const PERSONAL_AREA_COMPANION_SUBJECT = "לווה אותי בצעד הבא באזור האישי";
+const ELS_GUIDED_PLANNING_ACTION = "els_guided_planning_v1";
 
 // Non-throwing read for hosts that may need to install the provider themselves. This is a plain,
 // unconditional context read so it follows the Rules of Hooks and never relies on catch-as-control-flow.
@@ -63,6 +64,7 @@ export function RazielSessionProvider2029({
     viewModeOverride = null,
     continuationTurnId = null,
     companionAction = null,
+    elsPlanningAction = null,
   } = {}) => {
     if (inFlightRef.current || stateRef.current.busy) return { ok: false, error: "turn_pending" };
     const capturedQuestion = normalizeRazielQuestion(question);
@@ -94,6 +96,7 @@ export function RazielSessionProvider2029({
         viewModeOverride,
         continuationTurnId,
         companionAction,
+        elsPlanningAction,
         startedAt,
         createTurnId: () => draftTurn.id,
       });
@@ -127,7 +130,7 @@ export function RazielSessionProvider2029({
       const rawResponse = await transport(request);
       if (!mountedRef.current) return { ok: false, error: "session_unmounted" };
       const completedAt = clock();
-      const response = buildRazielSessionRequest.normalizeResponse(rawResponse, request.intelligenceLevel);
+      const response = buildRazielSessionRequest.normalizeResponse(rawResponse, request.intelligenceLevel, request);
       if (!response) {
         dispatch({ type: "turn_failed", completedAt, error: "unavailable" });
         return { ok: false, error: "unavailable" };
@@ -167,6 +170,19 @@ export function RazielSessionProvider2029({
       focus,
       opaqueRefs,
       evidencePack,
+    },
+  }), [submit]);
+
+  // Guided ELS planning is one explicit turn in this SAME session and through the SAME request boundary.
+  // It proposes bounded terms only; the canonical ELS engine remains the sole search/verifier.
+  const submitElsGuidedPlan = useCallback(({ story, scope = "torah" } = {}) => submit({
+    question: story,
+    intelligenceLevel: "fast",
+    elsPlanningAction: {
+      id: ELS_GUIDED_PLANNING_ACTION,
+      surface: "els",
+      story,
+      scope: scope === "tanakh" ? "tanakh" : "torah",
     },
   }), [submit]);
 
@@ -268,6 +284,7 @@ export function RazielSessionProvider2029({
     setViewMode,
     submitOneShot,
     submitPersonalAreaCompanion,
+    submitElsGuidedPlan,
     saveCurrentSession,
     restoreSavedSession,
     removeSavedSession,
@@ -275,7 +292,7 @@ export function RazielSessionProvider2029({
     savedSessions,
     savedSessionsSyncStatus: research.syncStatus || "local_only",
     resetTemporarySession,
-  }), [state, submit, setViewMode, submitOneShot, submitPersonalAreaCompanion, saveCurrentSession, restoreSavedSession,
+  }), [state, submit, setViewMode, submitOneShot, submitPersonalAreaCompanion, submitElsGuidedPlan, saveCurrentSession, restoreSavedSession,
     removeSavedSession, renameSavedSession, savedSessions, research.syncStatus, resetTemporarySession]);
 
   return (

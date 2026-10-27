@@ -128,6 +128,42 @@ test("restore validates the schema and resumes the exact thread and continuation
   assert.equal(restored.thread[1].continuation.facts, "שאול = 337");
 });
 
+test("save and restore preserve the bounded ELS search proposal without promoting it to evidence", () => {
+  const state = completedState();
+  state.thread[0] = {
+    role: "user",
+    text: 'חפש לי שני מילים "צוריאל פולייס" בתורה',
+    turnId: "els-plan-turn",
+  };
+  state.thread[1] = {
+    role: "raziel",
+    text: "הכנתי הצלבה מוצעת. מנוע ELS עדיין צריך לאמת אותה.",
+    question: state.thread[0].text,
+    turnId: "els-plan-turn",
+    level: "fast",
+    grounding: "interpretation",
+    elsSearchPlan: {
+      contract: "els_search_plan_v1",
+      status: "READY",
+      scope: "torah",
+      mode: "crossed_pair",
+      axes: [
+        { term: "צוריאל", role: "primary", source: "locked_quote" },
+        { term: "פולייס", role: "secondary", source: "locked_quote" },
+      ],
+      context_terms: [],
+      authority: "PROPOSED_UNTIL_CANONICAL_ELS_MATCH",
+      model_calls: 1,
+    },
+  };
+  const built = buildRazielSavedSessionEntity(state, { now: () => "2026-10-27T12:00:00Z" });
+  assert.equal(built.ok, true);
+  const restored = razielSavedSessionState(JSON.parse(JSON.stringify(built.entity)));
+  assert.deepEqual(restored.thread[1].elsSearchPlan, state.thread[1].elsSearchPlan);
+  assert.equal(restored.thread[1].elsSearchPlan.authority, "PROPOSED_UNTIL_CANONICAL_ELS_MATCH");
+  assert.equal(restored.thread[1].evidenceSummary, undefined);
+});
+
 test("saved-session selector filters, validates and orders only Raziel sessions", () => {
   const older = buildRazielSavedSessionEntity(completedState(), { now: () => "2026-10-25T12:00:00Z" }).entity;
   const newer = buildRazielSavedSessionEntity({ ...completedState(), sessionRef: "newer" }, { now: () => "2026-10-26T12:00:00Z" }).entity;

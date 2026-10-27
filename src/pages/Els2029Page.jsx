@@ -23,6 +23,7 @@ import { applySeo } from "../lib/seo.js";
 import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
+import { useOptionalRazielSession2029 } from "../components/experience2029/RazielSessionMount2029.jsx";
 
 const clean = (value) => String(value ?? "").trim();
 const ELS_DESCRIPTION = "חפשו דילוגי אותיות, קראו את המקור ושמרו ממצאים להמשך מחקר.";
@@ -86,6 +87,7 @@ function ElsResearchBarConnected({ researchContext, projection, layers, planSumm
 
 export default function Els2029Page({ previewAdvanced = false }) {
   const research = useResearch();
+  const razielSession = useOptionalRazielSession2029();
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
   const library = params.get("library");
@@ -313,6 +315,9 @@ export default function Els2029Page({ previewAdvanced = false }) {
     <div className="els29-guided-workspace" data-els-guided-workspace="separate-v1" data-run-state={guidedRunActive ? "active" : "entry"}
       data-els-guided-tools="single-window-v1" hidden={!guidedProfile || directSavedOpen}>
       <ElsGuidedDiscovery2029 onPlanSummary={setAutomaticSummary}
+        onPlan={({ story, scope }) => razielSession?.submitElsGuidedPlan
+          ? razielSession.submitElsGuidedPlan({ story, scope })
+          : Promise.resolve({ ok: false, error: "raziel_session_unavailable" })}
         onReset={() => setResearchLoad(current => current?.guidedDiscovery === true ? null : current)}
         onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />
       <aside className="els29-guided-promise" aria-label="מה יחזור מהגילוי" hidden={guidedRunActive}>

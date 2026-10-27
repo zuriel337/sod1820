@@ -57,6 +57,12 @@ export function libraryFixturePlugin() {
     'AuthContext.jsx': libraryAuth,
     'supabase.js': libraryDatabase,
     'ResearchProvider.jsx': `const research={context:null,updateResearchContext:()=>{}};export const useResearch=()=>research;`,
+    'RazielSessionMount2029.jsx': `import {normalizeElsRazielPlanningAction,deriveLockedElsSearchPlan} from '/src/lib/research/elsRazielPlanning.js';
+      window.__razielPlannerCalls=[];
+      const session={submitElsGuidedPlan:async({story,scope})=>{window.__razielPlannerCalls.push({story,scope});
+        const action=normalizeElsRazielPlanningAction({id:'els_guided_planning_v1',surface:'els',story,scope});
+        const plan=deriveLockedElsSearchPlan(action);return plan?{ok:true,response:{elsSearchPlan:plan}}:{ok:false,error:'invalid_plan'};}};
+      export const useOptionalRazielSession2029=()=>session;export default function Mount({children}){return children;}`,
     'Sod2029Shell.jsx': `import React from 'react';export default function Shell({children}){return React.createElement('main',{className:'sod29-root',style:{padding:16}},children);}
       export const FrameState=({title,children})=>React.createElement('section',null,React.createElement('h2',null,title),children);export const use2029Shell=()=>({});`,
     'ElsNativeClassic2029.jsx': `import React,{useState,useEffect} from 'react';export default function Engine({matrix,researchLoad,researchProbe,onResearchProbeResult,formsPreviewRequest,onFormsPreviewResult,onSearchStart,onSaved}){
