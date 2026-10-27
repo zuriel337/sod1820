@@ -57,7 +57,7 @@ class Files(SimpleHTTPRequestHandler):
 server = ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Files, directory=str(ROOT / "dist")))
 threading.Thread(target=server.serve_forever, daemon=True).start()
 BASE = f"http://127.0.0.1:{server.server_port}"
-REPORT = {"cases": [], "errors": [], "model_calls": [], "els_calls": [], "family_research_calls": [], "unexpected_writes": [], "private_telemetry": [], "live_requests": 0}
+REPORT = {"cases": [], "errors": [], "model_calls": [], "unexpected_model_calls": [], "els_calls": [], "family_research_calls": [], "unexpected_writes": [], "private_telemetry": [], "private_model_payload": [], "live_requests": 0}
 READS = {"research_state_snapshot_v1", "fn_research_path_resume_v1", "world_group_source_arrivals_v2",
          "notification_prefs_guest_get_v1", "notification_prefs_get_v1", "fn_method_value", "community_feed_page", "community_reply_counts"}
 TELEMETRY = {"track_visit", "link_identity", "ingest_event", "claim_research_lead", "user_activity", "behavior_signal"}
@@ -76,8 +76,20 @@ def wire(page):
             actor = json.loads(base64.urlsafe_b64decode(token[1] + "=" * (-len(token[1]) % 4)))["sub"]
         if name == "research-run" and "els" in request_body: REPORT["els_calls"].append(name)
         if name == "research-run" and any(marker in request_body for marker in ["family", "member_ref", "family_relation"]): REPORT["family_research_calls"].append(name)
-        if name in {"ai-analyze", "research-run", "raziel-submit"} or any(provider in (url.hostname or "") for provider in ["openai", "anthropic", "generativelanguage"]):
-            REPORT["model_calls"].append(name); return handler.abort()
+        if name == "ai-analyze":
+            payload = req.post_data_json or {}
+            action = payload.get("companion_action") if isinstance(payload, dict) else None
+            if action == {"id": "personal_area_companion_v1", "surface": "personal_area", "capability": "personal_overview", "focus": "current_step", "opaque_refs": []}:
+                serialized = json.dumps(payload, ensure_ascii=False)
+                forbidden = ["raw_hint", "family_names", "birth_date", "signed_url", "els_terms", "calculator_state", "ACCOUNT_A", "ACCOUNT_B", "GUEST_ONLY"]
+                leaked = [marker for marker in forbidden if marker.lower() in serialized.lower()]
+                if leaked: REPORT["private_model_payload"].extend(leaked)
+                REPORT["model_calls"].append({"capability": action["capability"], "focus": action["focus"], "opaque_ref_count": 0})
+                return handler.fulfill(json={"raziel": {"v": 1, "agent": "raziel", "answer": "בחרנו יחד צעד אחד ברור להמשך."}, "intelligence_level": "fast"}, headers={"access-control-allow-origin": "*"})
+            REPORT["unexpected_model_calls"].append(name)
+            return handler.abort()
+        if name in {"research-run", "raziel-submit"} or any(provider in (url.hostname or "") for provider in ["openai", "anthropic", "generativelanguage"]):
+            REPORT["unexpected_model_calls"].append(name); return handler.abort()
         if url.hostname == "127.0.0.1":
             if req.is_navigation_request(): return handler.fulfill(content_type="text/html", body=HTML)
             if url.path.startswith("/api/"):
@@ -175,6 +187,7 @@ try:
                 expect(presence).to_be_visible()
                 expect(presence).to_contain_text("רזיאל איתך באזור האישי")
                 expect(presence).to_contain_text("הרמזים מחוברים למסע החיים")
+                calls_before = len(REPORT["model_calls"])
                 ask = presence.get_by_role("button", name="שאל את רזיאל", exact=True)
                 box = ask.bounding_box(); assert box["width"] >= 44 and box["height"] >= 44
                 assert presence.evaluate("e=>e.scrollWidth<=e.clientWidth+1")
@@ -182,7 +195,19 @@ try:
                 page.screenshot(path=str(OUT / f"presence-{width}-{theme}.png"), full_page=False)
                 ask.click()
                 page.locator('.sod29-frame-panel [data-raziel-native-chat="true"]').wait_for()
-                assert not REPORT["model_calls"] and not REPORT["els_calls"] and not REPORT["family_research_calls"]
+                assert len(REPORT["model_calls"]) == calls_before
+                assert not REPORT["els_calls"] and not REPORT["family_research_calls"]
+                workspace = open_workspace(page)
+                presence = workspace.locator('[data-workspace-raziel-presence="deterministic"]')
+                companion = presence.get_by_role("button", name="עזור לי בצעד הבא", exact=True)
+                box = companion.bounding_box(); assert box["width"] >= 44 and box["height"] >= 44
+                companion.evaluate("button=>{button.click();button.click()}")
+                chat = page.locator('.sod29-frame-panel [data-raziel-native-chat="true"]')
+                expect(chat).to_contain_text("בחרנו יחד צעד אחד ברור להמשך.")
+                assert len(REPORT["model_calls"]) == calls_before + 1
+                assert REPORT["model_calls"][-1] == {"capability": "personal_overview", "focus": "current_step", "opaque_ref_count": 0}
+                page.screenshot(path=str(OUT / f"companion-{width}-{theme}.png"), full_page=False)
+                explicit_calls = len(REPORT["model_calls"])
                 center = open_center(page)
                 row = center.locator('[data-raziel-center-session="raziel-session:GUEST_ONLY"]')
                 expect(row).to_contain_text("מקומי בדפדפן הזה"); expect(row).to_contain_text("מתפרע")
@@ -226,8 +251,8 @@ try:
                 assert abs(geometry["x"] - (width - geometry["x"] - geometry["width"])) <= 2
                 search = center.get_by_role("searchbox", name="חיפוש בכותרות השיחות"); search.focus(); page.keyboard.press("Tab")
                 assert page.evaluate("document.activeElement!==document.body")
-                assert not REPORT["model_calls"]
-                REPORT["cases"].append({"width": width, "theme": theme, "current": True, "title_search": True, "landscape_lineage": True, "dossier_explicit_links": True, "resave_no_duplicate": True, "scroll": True, "no_ai": True})
+                assert len(REPORT["model_calls"]) == explicit_calls
+                REPORT["cases"].append({"width": width, "theme": theme, "current": True, "title_search": True, "landscape_lineage": True, "dossier_explicit_links": True, "resave_no_duplicate": True, "scroll": True, "open_model_calls": 0, "explicit_companion_calls": 1, "double_click_deduplicated": True})
                 ctx.close()
 
         # Real existing provider transitions, synthetic Auth and private cloud snapshots.
@@ -319,10 +344,11 @@ finally:
     server.shutdown(); server.server_close()
 
 assert not REPORT["errors"], REPORT["errors"]
-assert not REPORT["model_calls"], REPORT["model_calls"]
+assert not REPORT["unexpected_model_calls"], REPORT["unexpected_model_calls"]
 assert not REPORT["els_calls"], REPORT["els_calls"]
 assert not REPORT["family_research_calls"], REPORT["family_research_calls"]
 assert not REPORT["unexpected_writes"], REPORT["unexpected_writes"]
 assert not REPORT["private_telemetry"], REPORT["private_telemetry"]
+assert not REPORT["private_model_payload"], REPORT["private_model_payload"]
 (OUT/"results.json").write_text(json.dumps(REPORT, ensure_ascii=False, indent=2))
 print(json.dumps(REPORT, ensure_ascii=False))

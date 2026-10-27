@@ -1344,6 +1344,16 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
     onOpenPrivateHints?.();
   };
 
+  const requestPersonalAreaCompanion = () => {
+    if (razielLocked || razielSession?.busy || typeof razielSession?.submitPersonalAreaCompanion !== "function") return;
+    void razielSession.submitPersonalAreaCompanion({
+      capability: "personal_overview",
+      focus: "current_step",
+      opaqueRefs: [],
+    });
+    onRaziel();
+  };
+
   const openSavedConversation = async id => {
     try {
       const result = await razielSession?.restoreSavedSession?.(id);
@@ -1421,6 +1431,15 @@ function WorkspaceProjection({ context, go, onRaziel, onOpenPrivateHints, journe
         <div className="sod29-workspace-raziel-actions">
           <button
             className="sod29-action primary"
+            type="button"
+            onClick={requestPersonalAreaCompanion}
+            disabled={!razielPresence.canAsk || razielSession?.busy || typeof razielSession?.submitPersonalAreaCompanion !== "function"}
+            data-raziel-explicit-action="submit-personal-area-companion"
+          >
+            {razielSession?.busy ? "רזיאל בודק…" : "עזור לי בצעד הבא"}
+          </button>
+          <button
+            className="sod29-action"
             type="button"
             onClick={onRaziel}
             disabled={!razielPresence.canAsk}
