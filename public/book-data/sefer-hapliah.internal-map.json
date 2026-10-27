@@ -73,7 +73,37 @@
       208,
       209,
       214,
-      219
+      219,
+      220,
+      230,
+      240,
+      245,
+      250,
+      260,
+      276,
+      277,
+      278,
+      280,
+      282,
+      283,
+      284,
+      286,
+      290,
+      292,
+      293,
+      294,
+      295,
+      296,
+      297,
+      298,
+      304,
+      309,
+      310,
+      311,
+      312,
+      318,
+      320,
+      327
     ],
     "machine_text_role": "SEARCH_AND_NAVIGATION_ONLY_NOT_SOURCE_QUOTATION",
     "reading_status": "PARTIAL_SOURCE_LOCATORS_PENDING_PDF_VISUAL_ADJUDICATION",
@@ -2134,6 +2164,920 @@
       "source_review_status": "machine_text_located_pending_visual_witness_check",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.torah-law.tefillin-220",
+      "gate_id": "torah-law",
+      "title": "תפילין ומצוות התלויות בזמן",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 220,
+        "to_pdf_page": 220,
+        "entry_pdf_page": 220,
+        "entry_anchor": "#page=220&view=FitH",
+        "range_end_anchor": "#page=220&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=220&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד ממשיך בירור על חיובי מצוות ועוסק בהיקש מתפילין.",
+        "question": "מה נלמד מתפילין על קבוצות אחרות של מצוות?",
+        "steps": [
+          "הדובר בוחן את הכלל המבדיל בין מצוות עשה.",
+          "תוצאת הדיון היא טענה בתוך הספר ולא פסיקת הלכה עכשווית."
+        ],
+        "source_references": [
+          "תפילין",
+          "מצוות עשה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד ממשיך בירור על חיובי מצוות ועוסק בהיקש מתפילין. הדובר בוחן את הכלל המבדיל בין מצוות עשה. תוצאת הדיון היא טענה בתוך הספר ולא פסיקת הלכה עכשווית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.torah-law.thrones-calculation-230",
+      "gate_id": "torah-law",
+      "title": "כיסא דין, כיסא רחמים ומנייני אותיות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 230,
+        "to_pdf_page": 230,
+        "entry_pdf_page": 230,
+        "entry_anchor": "#page=230&view=FitH",
+        "range_end_anchor": "#page=230&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=230&view=FitH"
+      },
+      "content": {
+        "subject": "בתוך הדיון מופיע מניין אותיות הקשור לכינויי כיסאות.",
+        "question": "מהו התפקיד של מניין אותיות בהקשר כיסא?",
+        "steps": [
+          "מקשרים בין שמות הכיסאות ובין צורת האותיות.",
+          "מספרים הם טענות מקור ולא תוצאה של מנוע שטרם הופעל."
+        ],
+        "source_references": [
+          "כיסא דין",
+          "כיסא רחמים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בתוך הדיון מופיע מניין אותיות הקשור לכינויי כיסאות. מקשרים בין שמות הכיסאות ובין צורת האותיות. מספרים הם טענות מקור ולא תוצאה של מנוע שטרם הופעל.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.torah-law.pinchas-240",
+      "gate_id": "torah-law",
+      "title": "פינחס, דין ותורה שבעל פה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 240,
+        "to_pdf_page": 240,
+        "entry_pdf_page": 240,
+        "entry_anchor": "#page=240&view=FitH",
+        "range_end_anchor": "#page=240&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=240&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון מעלה קושיות סביב מעשה פינחס ואופן ידיעת הדין.",
+        "question": "מהם המקורות הנדרשים לביסוס טענה על המעשה?",
+        "steps": [
+          "עוקבים אחרי הצעת הוכחה מן הכתוב.",
+          "מבחינים בינה ובין ההסתמכות על מסורת פירוש."
+        ],
+        "source_references": [
+          "פינחס",
+          "תורה שבעל פה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדיון מעלה קושיות סביב מעשה פינחס ואופן ידיעת הדין. עוקבים אחרי הצעת הוכחה מן הכתוב. מבחינים בינה ובין ההסתמכות על מסורת פירוש.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.torah-law.milk-meat-245",
+      "gate_id": "torah-law",
+      "title": "בשר בחלב: איסור וסמליות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 245,
+        "to_pdf_page": 245,
+        "entry_pdf_page": 245,
+        "entry_anchor": "#page=245&view=FitH",
+        "range_end_anchor": "#page=245&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=245&view=FitH"
+      },
+      "content": {
+        "subject": "הספר מציע דרשה על חלב, בשר והמידות חסד ופחד.",
+        "question": "מה משתנה כשהאיסור ההלכתי נדרש במונחי מידות?",
+        "steps": [
+          "הדובר מבחין בין בישול ואכילה.",
+          "הפירוש הסמלי אינו מחליף את הדין."
+        ],
+        "source_references": [
+          "בשר בחלב",
+          "חסד",
+          "פחד"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הספר מציע דרשה על חלב, בשר והמידות חסד ופחד. הדובר מבחין בין בישול ואכילה. הפירוש הסמלי אינו מחליף את הדין.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.torah-law.david-inclusion-250",
+      "gate_id": "torah-law",
+      "title": "מילות ריבוי בדרשת דוד, הארי והדוב",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 250,
+        "to_pdf_page": 250,
+        "entry_pdf_page": 250,
+        "entry_anchor": "#page=250&view=FitH",
+        "range_end_anchor": "#page=250&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=250&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון מנתח מילות ריבוי בסיפור דוד וחיות הטרף.",
+        "question": "מה מרבה מילת הוספה בקטע?",
+        "steps": [
+          "הדובר מציג כמה אפשרויות להרחבת הלשון.",
+          "הנושא העיקרי אינו סדר אלפביתי, בניגוד לכותרת הכללית שניתנה בעבר."
+        ],
+        "source_references": [
+          "דוד",
+          "ריבוי"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדיון מנתח מילות ריבוי בסיפור דוד וחיות הטרף. הדובר מציג כמה אפשרויות להרחבת הלשון. הנושא העיקרי אינו סדר אלפביתי, בניגוד לכותרת הכללית שניתנה בעבר.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.torah-law.birth-260",
+      "gate_id": "torah-law",
+      "title": "ראשו, רובו ובכור לנחלה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 260,
+        "to_pdf_page": 260,
+        "entry_pdf_page": 260,
+        "entry_anchor": "#page=260&view=FitH",
+        "range_end_anchor": "#page=260&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=260&view=FitH"
+      },
+      "content": {
+        "subject": "הדף מקשה על גבולות דין לידה ובכורה.",
+        "question": "מתי נחשב הולד ילוד לצורך דיני בכור?",
+        "steps": [
+          "מתוארות חלופות של יציאת ראשו ורובו.",
+          "אין להמיר בירור הלכתי לטענה רפואית."
+        ],
+        "source_references": [
+          "בכור",
+          "נחלה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף מקשה על גבולות דין לידה ובכורה. מתוארות חלופות של יציאת ראשו ורובו. אין להמיר בירור הלכתי לטענה רפואית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.torah-law.scholar-marriage-276",
+      "gate_id": "torah-law",
+      "title": "תלמיד חכם, נישואין והקבלה רוחנית",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 276,
+        "to_pdf_page": 276,
+        "entry_pdf_page": 276,
+        "entry_anchor": "#page=276&view=FitH",
+        "range_end_anchor": "#page=276&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=276&view=FitH"
+      },
+      "content": {
+        "subject": "בסיום החטיבה נשקל היחס בין לימוד, נישואין ושמירה.",
+        "question": "באיזה סדר מציג הספר את תנאי חיי הלומד?",
+        "steps": [
+          "מבדילים את הנימוק המעשי מן המשל הרוחני.",
+          "נפתח מעבר לשיח על האדם והאשה."
+        ],
+        "source_references": [
+          "לימוד תורה",
+          "נישואין"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בסיום החטיבה נשקל היחס בין לימוד, נישואין ושמירה. מבדילים את הנימוק המעשי מן המשל הרוחני. נפתח מעבר לשיח על האדם והאשה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.serpent.naked-277",
+      "gate_id": "serpent",
+      "title": "ויהיו שניהם ערומים — חיבור קודם החטא",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 277,
+        "to_pdf_page": 277,
+        "entry_pdf_page": 277,
+        "entry_anchor": "#page=277&view=FitH",
+        "range_end_anchor": "#page=277&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=277&view=FitH"
+      },
+      "content": {
+        "subject": "הספר דורש את יחסי האדם והאשה לפני החטא.",
+        "question": "כיצד מתואר החיבור קודם גילוי הבושה?",
+        "steps": [
+          "מזוהים המונחים איש ואשתו, ערומים ובושה.",
+          "פירוש הדובר והדין המעשי אינם שכבה אחת."
+        ],
+        "source_references": [
+          "אדם",
+          "אשה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הספר דורש את יחסי האדם והאשה לפני החטא. מזוהים המונחים איש ואשתו, ערומים ובושה. פירוש הדובר והדין המעשי אינם שכבה אחת.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.serpent.temptation-278",
+      "gate_id": "serpent",
+      "title": "פיתוי הנחש והפרי",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 278,
+        "to_pdf_page": 278,
+        "entry_pdf_page": 278,
+        "entry_anchor": "#page=278&view=FitH",
+        "range_end_anchor": "#page=278&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=278&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון מפרש את פיתוי האשה דרך מערכת של כוחות וסמלים.",
+        "question": "כיצד מתואר המעבר מחיבור לפירוד?",
+        "steps": [
+          "הנחש פועל הן כדמות בסיפור והן כסמל.",
+          "התוצאה היא שינוי ביחסי הכוחות."
+        ],
+        "source_references": [
+          "נחש",
+          "עץ הדעת"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדיון מפרש את פיתוי האשה דרך מערכת של כוחות וסמלים. הנחש פועל הן כדמות בסיפור והן כסמל. התוצאה היא שינוי ביחסי הכוחות.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.serpent.wine-280",
+      "gate_id": "serpent",
+      "title": "גפן, יין ומסורות על העץ",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 280,
+        "to_pdf_page": 280,
+        "entry_pdf_page": 280,
+        "entry_anchor": "#page=280&view=FitH",
+        "range_end_anchor": "#page=280&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=280&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד מציג פירושים המקשרים את הפרי לגפן וליין.",
+        "question": "מה תורמת מסורת הזיהוי לדרשת החטא?",
+        "steps": [
+          "מזהים את הטענה בתוך הספר.",
+          "אין לקבוע מכאן זהות היסטורית ודאית של פרי עץ הדעת."
+        ],
+        "source_references": [
+          "יין",
+          "גפן"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד מציג פירושים המקשרים את הפרי לגפן וליין. מזהים את הטענה בתוך הספר. אין לקבוע מכאן זהות היסטורית ודאית של פרי עץ הדעת.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.serpent.responsibility-282",
+      "gate_id": "serpent",
+      "title": "האדם והאשה: קושיות על תשובת האדם",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 282,
+        "to_pdf_page": 282,
+        "entry_pdf_page": 282,
+        "entry_anchor": "#page=282&view=FitH",
+        "range_end_anchor": "#page=282&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=282&view=FitH"
+      },
+      "content": {
+        "subject": "בקטע מצויה סדרת שאלות על האחריות ועל אופן המענה לאחר החטא.",
+        "question": "מדוע תשובת האדם אינה מסיימת את הבירור?",
+        "steps": [
+          "הדובר מציע תשובות אפשריות ובוחן את הקשיים.",
+          "אין להציג כל קושיה כמסקנת הספר."
+        ],
+        "source_references": [
+          "אדם",
+          "אשה",
+          "חטא"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בקטע מצויה סדרת שאלות על האחריות ועל אופן המענה לאחר החטא. הדובר מציע תשובות אפשריות ובוחן את הקשיים. אין להציג כל קושיה כמסקנת הספר.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.serpent.serpent-title-283",
+      "gate_id": "serpent",
+      "title": "והנחש היה ערום: הכינוי ודרשתו",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 283,
+        "to_pdf_page": 284,
+        "entry_pdf_page": 283,
+        "entry_anchor": "#page=283&view=FitH",
+        "range_end_anchor": "#page=284&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=283&view=FitH"
+      },
+      "content": {
+        "subject": "דפי המעבר דנים בלשון ערום, ידיעה וטוב ורע.",
+        "question": "מה פירוש הכינוי ערום בהקשר המעשה?",
+        "steps": [
+          "נבחן ההבדל בין מובנו הלשוני לבין פירושו הסמלי.",
+          "ההקבלה בין כוחות נשארת בגדר דרשה."
+        ],
+        "source_references": [
+          "הנחש היה ערום"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "דפי המעבר דנים בלשון ערום, ידיעה וטוב ורע. נבחן ההבדל בין מובנו הלשוני לבין פירושו הסמלי. ההקבלה בין כוחות נשארת בגדר דרשה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "multi_page_sequence_machine_located"
+    },
+    {
+      "id": "hapliah.serpent.where-286",
+      "gate_id": "serpent",
+      "title": "איכה, אילן ושורש — דימוי של תלות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 286,
+        "to_pdf_page": 286,
+        "entry_pdf_page": 286,
+        "entry_anchor": "#page=286&view=FitH",
+        "range_end_anchor": "#page=286&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=286&view=FitH"
+      },
+      "content": {
+        "subject": "הספר דורש את איכה בעזרת משל ענפים המחוברים לשורש.",
+        "question": "מה קורה כאשר כוח מתואר כנפרד ממקורו?",
+        "steps": [
+          "דימוי האילן מציג תלות בין חלקים.",
+          "המחבר מבקר את תפיסת הכוח הנפרד."
+        ],
+        "source_references": [
+          "איכה",
+          "אילן"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הספר דורש את איכה בעזרת משל ענפים המחוברים לשורש. דימוי האילן מציג תלות בין חלקים. המחבר מבקר את תפיסת הכוח הנפרד.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.serpent.golden-calf-290",
+      "gate_id": "serpent",
+      "title": "השוואה בין חטא האדם לחטא העגל",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 290,
+        "to_pdf_page": 290,
+        "entry_pdf_page": 290,
+        "entry_anchor": "#page=290&view=FitH",
+        "range_end_anchor": "#page=290&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=290&view=FitH"
+      },
+      "content": {
+        "subject": "הדף מחבר פרשנויות על חטא אדם ותיאורי העגל.",
+        "question": "מהי נקודת ההשוואה בדרשת הדובר?",
+        "steps": [
+          "הספר מציג דמיון של קלקול ופירוד.",
+          "אין לאחד אירועים היסטוריים רק בגלל הקבלה פרשנית."
+        ],
+        "source_references": [
+          "חטא העגל",
+          "אדם"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף מחבר פרשנויות על חטא אדם ותיאורי העגל. הספר מציג דמיון של קלקול ופירוד. אין לאחד אירועים היסטוריים רק בגלל הקבלה פרשנית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.serpent.cain-transition-292",
+      "gate_id": "serpent",
+      "title": "המעבר לדין קין והבל",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 292,
+        "to_pdf_page": 292,
+        "entry_pdf_page": 292,
+        "entry_anchor": "#page=292&view=FitH",
+        "range_end_anchor": "#page=292&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=292&view=FitH"
+      },
+      "content": {
+        "subject": "לקראת סוף החטיבה כבר נזכרים קין, הבל ורצח האח.",
+        "question": null,
+        "steps": [
+          "סיום החטיבה הנושאית אינו גבול קשיח של הסיפור.",
+          "המשכו של הדיון מזוהה במעבר לעמוד 293."
+        ],
+        "source_references": [
+          "קין",
+          "הבל"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "לקראת סוף החטיבה כבר נזכרים קין, הבל ורצח האח. סיום החטיבה הנושאית אינו גבול קשיח של הסיפור. המשכו של הדיון מזוהה במעבר לעמוד 293.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.cain-abel.brothers-293",
+      "gate_id": "cain-abel",
+      "title": "קין והבל: קרבן ומדות שונות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 293,
+        "to_pdf_page": 293,
+        "entry_pdf_page": 293,
+        "entry_anchor": "#page=293&view=FitH",
+        "range_end_anchor": "#page=293&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=293&view=FitH"
+      },
+      "content": {
+        "subject": "הספר דורש את תולדות האחים ואת עיסוקם בעבודת אדמה וצאן.",
+        "question": "כיצד מיוחס לכל אח תפקיד אחר?",
+        "steps": [
+          "נבדלים מהלך הסיפור המקראי ומפת המידות שניתנת לו.",
+          "הקרבנות נעשים בסיס להמשך השאלה המוסרית."
+        ],
+        "source_references": [
+          "קין",
+          "הבל",
+          "קרבן"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הספר דורש את תולדות האחים ואת עיסוקם בעבודת אדמה וצאן. נבדלים מהלך הסיפור המקראי ומפת המידות שניתנת לו. הקרבנות נעשים בסיס להמשך השאלה המוסרית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.cain-abel.where-295",
+      "gate_id": "cain-abel",
+      "title": "אי הבל אחיך — מעבר לדין המעשה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 295,
+        "to_pdf_page": 295,
+        "entry_pdf_page": 295,
+        "entry_anchor": "#page=295&view=FitH",
+        "range_end_anchor": "#page=295&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=295&view=FitH"
+      },
+      "content": {
+        "subject": "הדף מציג את שאלת האל לקין וממשיך אל שאלות על דין ושבת.",
+        "question": "מה משמעות אחריותו של קין ואיך נדרש הדין?",
+        "steps": [
+          "הקושיה המקראית עוברת לדיון בשריפה ומשפט.",
+          "צריך לזהות את שינוי הנושא בתוך העמוד."
+        ],
+        "source_references": [
+          "אי הבל אחיך",
+          "שבת"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף מציג את שאלת האל לקין וממשיך אל שאלות על דין ושבת. הקושיה המקראית עוברת לדיון בשריפה ומשפט. צריך לזהות את שינוי הנושא בתוך העמוד.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.cain-abel.judgment-shabbat-297",
+      "gate_id": "cain-abel",
+      "title": "רציחה, מילה ועבודת המקדש בשבת",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 296,
+        "to_pdf_page": 298,
+        "entry_pdf_page": 296,
+        "entry_anchor": "#page=296&view=FitH",
+        "range_end_anchor": "#page=298&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=296&view=FitH"
+      },
+      "content": {
+        "subject": "בכמה עמודים נמשכת מחלוקת האם הענישה דוחה שבת מול עבודה ומילה.",
+        "question": "מהו גבול הקל וחומר בין מלאכות ודינים?",
+        "steps": [
+          "מוצעות השוואות בין מילה, עבודה ורציחה.",
+          "הספר מקשה על היקשים אלה בעזרת לשון איסור הבערת אש.",
+          "התשובות מבדילות מקרים של מצוה ממקרי ענישה."
+        ],
+        "source_references": [
+          "לא תבערו אש",
+          "מילה",
+          "קל וחומר"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בכמה עמודים נמשכת מחלוקת האם הענישה דוחה שבת מול עבודה ומילה. מוצעות השוואות בין מילה, עבודה ורציחה. הספר מקשה על היקשים אלה בעזרת לשון איסור הבערת אש. התשובות מבדילות מקרים של מצוה ממקרי ענישה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "multi_page_sequence_machine_located"
+    },
+    {
+      "id": "hapliah.cain-abel.seth-304",
+      "gate_id": "cain-abel",
+      "title": "שת לי אלהים זרע אחר — רצף הדורות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 304,
+        "to_pdf_page": 304,
+        "entry_pdf_page": 304,
+        "entry_anchor": "#page=304&view=FitH",
+        "range_end_anchor": "#page=304&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=304&view=FitH"
+      },
+      "content": {
+        "subject": "הספר שב לתולדות שת לאחר קין והבל.",
+        "question": "איך מתואר שיקום המשכיות הדורות?",
+        "steps": [
+          "מובא ציר תולדות שעובר דרך שת.",
+          "הדובר מפרש את השמות כסימנים להשפעה."
+        ],
+        "source_references": [
+          "שת",
+          "תולדות"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הספר שב לתולדות שת לאחר קין והבל. מובא ציר תולדות שעובר דרך שת. הדובר מפרש את השמות כסימנים להשפעה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.cain-abel.yom-kippur-309",
+      "gate_id": "cain-abel",
+      "title": "יום הכיפורים: עינוי וקבוצות חיוב",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 309,
+        "to_pdf_page": 309,
+        "entry_pdf_page": 309,
+        "entry_anchor": "#page=309&view=FitH",
+        "range_end_anchor": "#page=309&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=309&view=FitH"
+      },
+      "content": {
+        "subject": "לקראת סוף החטיבה מופיע דיון הלכתי על עינוי ביום הכיפורים.",
+        "question": "כיצד נגזר חיוב מן הכלל והפרט?",
+        "steps": [
+          "מובאות הבחנות בין קבוצות חייבים.",
+          "הדיון מוגש כדברי ספר בלבד."
+        ],
+        "source_references": [
+          "יום הכיפורים",
+          "עינוי"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "לקראת סוף החטיבה מופיע דיון הלכתי על עינוי ביום הכיפורים. מובאות הבחנות בין קבוצות חייבים. הדיון מוגש כדברי ספר בלבד.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.adam-noah.male-female-310",
+      "gate_id": "adam-noah",
+      "title": "זכר ונקבה בראם — תחילת תולדות האדם",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 310,
+        "to_pdf_page": 310,
+        "entry_pdf_page": 310,
+        "entry_anchor": "#page=310&view=FitH",
+        "range_end_anchor": "#page=310&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=310&view=FitH"
+      },
+      "content": {
+        "subject": "הדף דורש את שם האדם ואת זוגיותו כחיבור.",
+        "question": "מדוע נאמר על שניהם אדם?",
+        "steps": [
+          "מופיעה הגדרה משותפת של זכר ונקבה.",
+          "נעשה מעבר להמשכיות הדורות."
+        ],
+        "source_references": [
+          "זכר ונקבה בראם"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף דורש את שם האדם ואת זוגיותו כחיבור. מופיעה הגדרה משותפת של זכר ונקבה. נעשה מעבר להמשכיות הדורות.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.adam-noah.enoch-311",
+      "gate_id": "adam-noah",
+      "title": "חנוך ומטטרון: שם ותפקיד",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 311,
+        "to_pdf_page": 311,
+        "entry_pdf_page": 311,
+        "entry_anchor": "#page=311&view=FitH",
+        "range_end_anchor": "#page=311&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=311&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד מציג ייחוס בין חנוך למטטרון ודרשות על שמותיהם.",
+        "question": "איך מתאר הספר שינוי מעמדו של חנוך?",
+        "steps": [
+          "מופרד הסיפור המיסטי מדברי פרשנות האותיות.",
+          "ייחוסי הסיפור נשארים טענות המיוחסות למקור."
+        ],
+        "source_references": [
+          "חנוך",
+          "מטטרון"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד מציג ייחוס בין חנוך למטטרון ודרשות על שמותיהם. מופרד הסיפור המיסטי מדברי פרשנות האותיות. ייחוסי הסיפור נשארים טענות המיוחסות למקור.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.adam-noah.heavens-312",
+      "gate_id": "adam-noah",
+      "title": "רקיעים ומעיין — משל ההשפעה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 312,
+        "to_pdf_page": 312,
+        "entry_pdf_page": 312,
+        "entry_anchor": "#page=312&view=FitH",
+        "range_end_anchor": "#page=312&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=312&view=FitH"
+      },
+      "content": {
+        "subject": "הדובר משלב רקיעים וגלגלים עם משל של זרימת מים.",
+        "question": "איך משל המעיין מסביר המשכה?",
+        "steps": [
+          "נידונים שמות רקיעים ומדרגות.",
+          "זרימת המים היא משל, לא תשתית צינורות הניתנת לשחזור."
+        ],
+        "source_references": [
+          "ערבות",
+          "מעון",
+          "גלגלים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדובר משלב רקיעים וגלגלים עם משל של זרימת מים. נידונים שמות רקיעים ומדרגות. זרימת המים היא משל, לא תשתית צינורות הניתנת לשחזור.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.adam-noah.creation-book-318",
+      "gate_id": "adam-noah",
+      "title": "ספר יצירה, בראשית ועשר ספירות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 318,
+        "to_pdf_page": 318,
+        "entry_pdf_page": 318,
+        "entry_anchor": "#page=318&view=FitH",
+        "range_end_anchor": "#page=318&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=318&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד חוזר למניין הספירות וללשון בראשית.",
+        "question": "כיצד מניין עשר נקשר למילה בראשית?",
+        "steps": [
+          "מובאים קשרי לשון לספר יצירה.",
+          "הדובר מבדיל בין המידות הנמנות לבין מקורן."
+        ],
+        "source_references": [
+          "ספר יצירה",
+          "עשר ספירות"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד חוזר למניין הספירות וללשון בראשית. מובאים קשרי לשון לספר יצירה. הדובר מבדיל בין המידות הנמנות לבין מקורן.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.adam-noah.prayer-320",
+      "gate_id": "adam-noah",
+      "title": "תפילה וברכה בסיום החיבור",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 320,
+        "to_pdf_page": 320,
+        "entry_pdf_page": 320,
+        "entry_anchor": "#page=320&view=FitH",
+        "range_end_anchor": "#page=320&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=320&view=FitH"
+      },
+      "content": {
+        "subject": "דרשות על תפילה ושמות קשורות להמשכת ברכה וליחוד.",
+        "question": null,
+        "steps": [
+          "האותיות משמשות בסיס להסבר לשוני.",
+          "אין לייחס לכך פעולת מנוע אוטומטית."
+        ],
+        "source_references": [
+          "תפילה",
+          "ברכה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "דרשות על תפילה ושמות קשורות להמשכת ברכה וליחוד. האותיות משמשות בסיס להסבר לשוני. אין לייחס לכך פעולת מנוע אוטומטית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.adam-noah.closing-327",
+      "gate_id": "adam-noah",
+      "title": "תולדות נח וחתימת פרשת בראשית",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 327,
+        "to_pdf_page": 327,
+        "entry_pdf_page": 327,
+        "entry_anchor": "#page=327&view=FitH",
+        "range_end_anchor": "#page=327&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=327&view=FitH"
+      },
+      "content": {
+        "subject": "בדף האחרון מופיעה חתימה המשלימה את פירוש בראשית.",
+        "question": "כיצד נסגר רצף הדרשות?",
+        "steps": [
+          "מובאת התייחסות לנח ולשם הספר.",
+          "נוסח החתימה מעיד על סוף העותק, לא על שלמות המיפוי."
+        ],
+        "source_references": [
+          "תולדות נח",
+          "בראשית"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בדף האחרון מופיעה חתימה המשלימה את פירוש בראשית. מובאת התייחסות לנח ולשם הספר. נוסח החתימה מעיד על סוף העותק, לא על שלמות המיפוי.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
     }
   ],
   "structure_specs": [],
@@ -2150,8 +3094,8 @@
     },
     {
       "id": "hp-gap-remaining-gates",
-      "severity": "in_progress",
-      "description": "Gates human-image through adam-noah require next bounded content batch."
+      "severity": "partial_depth_coverage",
+      "description": "All 11 gates have selected internal loci; gaps between these loci and printed-source visual review remain. No complete page-by-page internal segmentation is asserted."
     },
     {
       "id": "hp-gap-reader-wiring",
