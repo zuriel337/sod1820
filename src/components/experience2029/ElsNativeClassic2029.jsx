@@ -535,7 +535,34 @@ function RegularResultsRail({ state, pending, operation, visible, guided = false
   </div>;
 }
 
-function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry, searchTerms }) {
+function CrossThirdAxisResearch({ state, results, busy, pending, result, onRun, onSelectMeeting }) {
+  const [term, setTerm] = useState("");
+  const [meetingScope, setMeetingScope] = useState("selected");
+  useEffect(() => { setMeetingScope("selected"); }, [results?.id]);
+  const selectedIndex = Number(state?.search?.zoneIndex) || 0;
+  const currentResult = result?.target?.setId === results?.id ? result : null;
+  return <section className="els29-native-third-axis" aria-label="חיפוש ציר שלישי בתוך מפגשי ההצלבה" data-els-third-axis="v1">
+    <header><strong>הוסף ציר שלישי למפגש</strong><small>החיפוש נשאר בתוך מפגש מאומת — לא מתחיל שוב סריקה של כל התורה.</small></header>
+    <form onSubmit={event => { event.preventDefault();if (!clean(term) || pending || busy) return;onRun({ setId: results.id, term: clean(term), meetingScope, meetingIndex: selectedIndex, maxDistance: 18 }); }}>
+      <label><span>המילה או השם השלישי</span><input value={term} onChange={event => setTerm(event.target.value)} maxLength={26} autoComplete="off" placeholder="לדוגמה: שם נוסף" /></label>
+      <fieldset><legend>איפה לבדוק</legend>
+        <label><input type="radio" name="els-third-axis-scope" checked={meetingScope === "selected"} onChange={() => setMeetingScope("selected")} />במפגש הפתוח · {selectedIndex + 1}</label>
+        <label><input type="radio" name="els-third-axis-scope" checked={meetingScope === "all"} onChange={() => setMeetingScope("all")} />בכל המפגשים המאומתים</label>
+      </fieldset>
+      <button type="submit" disabled={busy || pending || !clean(term)}>{pending ? "מחפש ציר שלישי…" : "מצא ציר שלישי"}</button>
+    </form>
+    {currentResult?.ok === false ? <p role="status">{currentResult.reason === "invalid-term" ? "כתבו לפחות שתי אותיות." : "חיפוש הציר השלישי לא הושלם. המפגשים הקיימים נשמרו."}</p> : null}
+    {currentResult?.ok ? <div data-els-third-axis-contract={currentResult.contract}>
+      <strong>{currentResult.items?.length ? `${currentResult.items.length} מפגשים משולשים מאומתים` : "לא נמצא ציר שלישי בטווח הזה"}</strong>
+      <small>נבדקו {currentResult.searchedMeetings} מפגשים, עד {currentResult.maxDistance} תאים מכל ציר. התוצאה אינה טענה מחוץ לחלונות האלה.</small>
+      {(currentResult.items || []).map(item => <article key={item.key}><div><b>{item.axis} × {(item.terms || []).join(" · ")} × {item.label || item.thirdTerm}</b>
+        <small>מפגש {item.meetingIndex + 1} · {item.status === "SOURCE_EXACT" ? "רצף מקור מדויק" : `דילוג ${item.skip}`} · מרחק מרבי {item.maxDistance} תאים</small><small>{item.ref} · {directionLabel(item.direction)}</small></div>
+        <button type="button" disabled={busy} onClick={() => onSelectMeeting("meeting-select", { setId: results.id, index: item.meetingIndex })}>פתח את המפגש</button></article>)}
+    </div> : null}
+  </section>;
+}
+
+function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry, searchTerms, researchProfile, thirdAxisResult, thirdAxisPending, onFindThirdAxis }) {
   const [sort, setSort] = useState("rank");
   const [page, setPage] = useState(0);
   const [minSkip, setMinSkip] = useState("");
@@ -550,6 +577,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
     <strong>{pending ? "מחפש מפגשים…" : items.length ? `${items.length} מפגשי הצלבה` : "תוצאות הצלבה"}</strong>
     {items.length ? <>
       <p className="els29-native-muted">{searchTerms?.length === 3 ? searchTerms.join(" × ") : <>{state.search.crossA} × {state.search.crossB}</>}</p>
+      {researchProfile && state.search.mode === "cross-simple" ? <CrossThirdAxisResearch state={state} results={results} busy={pending} pending={thirdAxisPending} result={thirdAxisResult} onRun={onFindThirdAxis} onSelectMeeting={onSelect} /> : null}
       {state.search.coverage?.truncated ? <small>סריקה מוגבלת: נבדקו {state.search.coverage.scanned} מתוך {state.search.coverage.available} מיקומי הציר שנמצאו. רשימת הצירים עצמה עשויה להיות חלקית.</small> : null}
       <details><summary>מיון וסינון</summary>
       <label>מיון <select aria-label="מיון מפגשי ההצלבה" value={sort} onChange={(event) => setSort(event.target.value)}>
@@ -1474,7 +1502,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
             <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>
-        <CrossResultsRail searchTerms={operations.search?.searchKind === "cross-three" ? operations.search.payload?.terms : null} onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
+        <CrossResultsRail researchProfile={researchProfile && !guidedProfile} thirdAxisResult={lensResult?.lens === "cross-third-axis" ? lensResult : null} thirdAxisPending={lensPending && lensRequest?.lens === "cross-third-axis"} onFindThirdAxis={target => requestLens("cross-third-axis", target, { revealTool: false })} searchTerms={operations.search?.searchKind === "cross-three" ? operations.search.payload?.terms : null} onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={activeTool === "results" && !resultsAreCross}
           guided={guidedProfile} guidedCoverage={guidedCoverage} onGuidedContinue={continueGuidedCoverage} onGuidedAddSupports={addGuidedSupports}

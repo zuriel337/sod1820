@@ -1891,6 +1891,31 @@ test('research form: optional third axis uses the existing verified triple or th
  },{realHost:true,loadGolden:false});
 });
 
+test('research can inspect a third term within existing verified pair meetings',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:320,height:900},async page=>{
+  const form=page.locator('#els29-query');await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+  await form.getByRole('textbox',{name:'מונח ראשון'}).fill('תורהקדשה');await form.getByRole('textbox',{name:'מונח שני'}).fill('בחשרתע');
+  await form.getByRole('button',{name:'חפש הצלבה'}).click();
+  await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
+  const original=await page.evaluate(()=>({id:window.__state.search.results.id,axis:window.__state.axis.hitId,count:window.__hostLog.filter(x=>x.type==='native-search').length}));
+  const tool=page.getByRole('region',{name:'חיפוש ציר שלישי בתוך מפגשי ההצלבה'});
+  await tool.getByRole('textbox',{name:'המילה או השם השלישי'}).fill('כויזלת');
+  await tool.getByRole('button',{name:'מצא ציר שלישי'}).click();
+  await page.waitForFunction(()=>window.__lens?.lens==='cross-third-axis',null,{timeout:90000});
+  const result=await page.evaluate(()=>({lens:window.__lens,state:window.__state,count:window.__hostLog.filter(x=>x.type==='native-search').length}));
+  assert.equal(result.lens.ok,true,JSON.stringify(result.lens));
+  assert.equal(result.lens.target.setId,original.id);assert.equal(result.state.axis.hitId,original.axis);assert.equal(result.count,original.count);
+  assert.ok(result.lens.items.length>0,'a known third axis is returned, not merely an empty successful response');
+  assert.ok(result.lens.items.every(item=>['VERIFIED','SOURCE_EXACT'].includes(item.status)));
+  await page.evaluate(()=>{window.__fixtureVerificationDenied=true;window.__lens=null;});
+  await tool.getByRole('button',{name:'מצא ציר שלישי'}).click();
+  await page.waitForFunction(()=>window.__lens?.lens==='cross-third-axis',null,{timeout:90000});
+  assert.equal((await page.evaluate(()=>window.__lens)).ok,false,'verification outage cannot be reported as no-hit or a verified third axis');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ },{realHost:true,loadGolden:false});
+});
+
 test('native form: a phrase and its split-and-cross action stay in one centered search bundle',
  {skip:!canRun,timeout:90000},async()=>{
  for(const width of [390,1440]) await withNative({width,height:1000},async page=>{

@@ -2548,6 +2548,7 @@
       else postHost({type:"lens",lens:"line-context",ok:false,target});
     }
     if(d.type==="request-lens"&&d.lens==="matrix-discovery")guidedMatrixDiscoveryLens(d.target||{});
+    if(d.type==="request-lens"&&d.lens==="cross-third-axis")crossThirdAxisLens(d.target||{});
     if(d.type==="request-lens"&&d.lens==="letter-context"){letterContextLens(d.target||{});}   // 📍 תא-מטריצה → מקור/פסוק; קריאה בלבד
     if(d.type==="native-control"&&typeof d.action==="string"){
       if(searchUncommitted())return;   // 🎛️ 2029 Native Classic — allowlist presentation בלבד
@@ -2863,6 +2864,58 @@
   }
   // Explicit Guided-only three-term request. Every displayed meeting is replayed through
   // the canonical verifier; bounded omissions are never a corpus-wide negative.
+  // Previous Research tool: search the already admitted meetings, never the full corpus.
+  function crossThirdAxisCandidates(zone,requested,radius,window=st,limit=4){
+    const term=norm(requested),result=zone?.axis&&st.crossResCache?st.crossResCache[zone.axis]:st.res,axisHit=result?.hits?.[zone?.occ];
+    if(!isGov(axisHit)||term.length<2||term===norm(zone.axis||st.raw)||(zone.detail||[]).some(detail=>norm(detail.t)===term))return[];
+    const S=Math.abs(Number(axisHit.skip));if(S<2)return[];
+    const mainCol=((axisHit.positions[0]%S)+S)%S,axisRows=axisHit.positions.map(position=>Math.floor(position/S)),middleRow=Math.round((Math.min(...axisRows)+Math.max(...axisRows))/2),
+      geometry=researchGeometry(S,mainCol,middleRow,{...window,scopeLength:window?.scopeLength||scopeN()}),c1=geometry.c0+geometry.cw,
+      inWindow=position=>{const row=Math.floor(position/S),column=((position%S)+S)%S;return row>=geometry.r0&&row<=geometry.r1&&column>=geometry.c0&&column<c1;},
+      rc=position=>[Math.floor(position/S),((position%S)+S)%S],axisAnchors=axisHit.positions.map(rc),companionAnchors=[];
+    for(const detail of zone.detail||[]){
+      const companion=norm(detail.t),skip=Math.abs(Number(detail.skip)),direction=Number(detail.dir),start=Number(detail.p0);
+      if(companion.length<2||skip<1||![1,-1].includes(direction)||!Number.isInteger(start))continue;
+      const positions=Array.from(companion,(_,index)=>start+direction*skip*index);
+      if(positions.every(position=>position>=0&&position<scopeN()))companionAnchors.push({term:companion,anchors:positions.map(rc)});
+    }
+    if(!companionAnchors.length)return[];
+    const byChar=new Map();for(let row=geometry.r0;row<=geometry.r1;row++)for(let column=geometry.c0;column<c1;column++){
+      const index=row*S+column;if(index<0||index>=scopeN())continue;const letter=T[index],list=byChar.get(letter)||[];list.push(index);byChar.set(letter,list);
+    }
+    const starts=byChar.get(term[0])||[],ends=byChar.get(term.at(-1))||[],found=new Map(),span=term.length-1,bound=Math.max(1,Math.min(80,Number(radius)||18));
+    for(const start of starts)for(const end of ends){
+      const delta=end-start;if(!delta||delta%span)continue;const step=delta/span,skip=Math.abs(step),direction=Math.sign(step);if(skip<1||![1,-1].includes(direction))continue;
+      const positions=Array.from(term,(_,index)=>start+step*index);if(!positions.every((position,index)=>position>=0&&position<scopeN()&&inWindow(position)&&T[position]===term[index]))continue;
+      const axisDistance=distanceToAnchors(positions,axisAnchors,S),companionDistances=companionAnchors.map(companion=>({term:companion.term,distance:distanceToAnchors(positions,companion.anchors,S)}));
+      if(axisDistance>bound||companionDistances.some(companion=>companion.distance>bound))continue;
+      const meetingDistance=Math.max(...companionDistances.map(companion=>companion.distance)),candidate={term:requested,skip,dir:direction,start,positions,distance:axisDistance,axisDistance,meetingDistance,companionDistances};
+      const key=hitKey(candidate),prior=found.get(key);if(!prior||Math.max(axisDistance,meetingDistance)<Math.max(prior.axisDistance,prior.meetingDistance))found.set(key,candidate);
+    }
+    return [...found.values()].sort((a,b)=>Math.max(a.axisDistance,a.meetingDistance)-Math.max(b.axisDistance,b.meetingDistance)||Number(Math.abs(a.skip)!==1)-Number(Math.abs(b.skip)!==1)||a.skip-b.skip||a.start-b.start).slice(0,Math.max(1,Math.min(8,Number(limit)||4)));
+  }
+  let _crossThirdLensSeq=0;
+  async function crossThirdAxisLens(target){
+    const seq=++_crossThirdLensSeq,epoch=_matrixRequestSeq,results=nativeCrossResults(),term=norm(target.term),meetingScope=target.meetingScope==="all"?"all":"selected",maxDistance=Math.max(3,Math.min(80,Number(target.maxDistance)||18));
+    const fail=reason=>postHost({type:"lens",lens:"cross-third-axis",ok:false,target,reason});
+    if(!results||target.setId!==results.id)return fail("results-changed");
+    if(term.length<2||term.length>24)return fail("invalid-term");
+    const index=Number.isInteger(Number(target.meetingIndex))?Number(target.meetingIndex):st.crossIdx,indexes=results.items.filter(item=>item.available&&(meetingScope==="all"||item.index===index)).map(item=>item.index);
+    if(!indexes.length)return fail("meeting-changed");
+    const stale=()=>seq!==_crossThirdLensSeq||epoch!==_matrixRequestSeq||nativeCrossResults()?.id!==results.id;
+    try{
+      const raw=[],window=st.crossScan?.window||st;
+      for(const meetingIndex of indexes){if(stale())return;const zone=st.crossMeetings?.[meetingIndex];for(const candidate of crossThirdAxisCandidates(zone,target.term,maxDistance,window,2))raw.push({meetingIndex,zone,candidate});await paintOperation();}
+      if(stale())return;
+      const candidates=[...new Map(raw.filter(row=>Math.abs(row.candidate.skip)>=2).map(row=>[hitKey(row.candidate),row.candidate])).values()];
+      const verified=candidates.length?await promoteVerified({t:term,hits:candidates,capped:false,strategy:{policy:"CROSS_THIRD_AXIS_V1"}},st.scope,null):{hits:[]};
+      if(stale())return;if(verified.verr)return fail("verification-unavailable");const keys=new Set((verified.hits||[]).filter(isGov).map(hitKey)),seen=new Set(),items=[];
+      for(const {meetingIndex,zone,candidate} of raw){const sourceExact=Math.abs(candidate.skip)===1&&isSourceHit(candidate,term),key=`${meetingIndex}:${hitKey(candidate)}`;if(seen.has(key)||!sourceExact&&!keys.has(hitKey(candidate)))continue;seen.add(key);
+        items.push({key,meetingIndex,axis:zone.axis||st.raw,terms:(zone.detail||[]).map(detail=>detail.t),thirdTerm:term,label:String(target.term||term).trim()||term,status:sourceExact?"SOURCE_EXACT":"VERIFIED",skip:Math.abs(candidate.skip),direction:candidate.dir===1?"fwd":"back",maxDistance:Math.max(candidate.axisDistance,candidate.meetingDistance),ref:refStr(verseAt(candidate.start)),hitId:hitKey(candidate)});}
+      items.sort((a,b)=>a.maxDistance-b.maxDistance||Number(a.status!=="SOURCE_EXACT")-Number(b.status!=="SOURCE_EXACT")||a.skip-b.skip||a.meetingIndex-b.meetingIndex);
+      postHost({type:"lens",lens:"cross-third-axis",ok:true,target,status:items.length?"VERIFIED":"EMPTY",contract:"els_cross_third_axis_v1",scope:st.scope,meetingScope,maxDistance,searchedMeetings:indexes.length,items,total:items.length});
+    }catch(_){if(!stale())fail("scan-failed");}
+  }
   async function runCrossThree(terms,pure,operation){
     const epoch=_matrixRequestSeq;
     try{
