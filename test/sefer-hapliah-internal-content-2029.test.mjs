@@ -23,7 +23,7 @@ test("HaPeli'ah internal depth has stable IDs, legal and exact one-based PDF ran
   assert.equal(map.source_pdf_pages, PDF_PAGE_COUNT);
   assert.equal(map.gates.length, 11);
   assert.ok(map.units.length >= 75, "internal map requires more than generic 11 gates");
-  const visuallyInspected = new Set([10, 18, 60, 93, 94, 95, 102, 113, 130]);
+  const visuallyInspected = new Set([10, 18, 60, 93, 94, 95, 102, 113, 120, 130, 150, 160]);
   const gateIds = new Set(map.gates.map(gate => gate.id));
   const ids = new Set();
   for (const unit of map.units) {
@@ -66,7 +66,7 @@ test("HaPeli'ah internal depth has stable IDs, legal and exact one-based PDF ran
     assert.equal(check.engine_status, "not_tested");
     assert.equal(check.scope, "page_layout_and_subject_not_line_by_line_transcription");
   }
-  assert.ok(map.evidence_policy.machine_extracted_text_sampled_pages.length >= 97);
+  assert.ok(map.evidence_policy.machine_extracted_text_sampled_pages.length >= 109);
   assert.ok(map.evidence_policy.machine_extracted_text_sampled_pages.length < PDF_PAGE_COUNT);
   assert.equal(map.evidence_policy.engine_verification, "not_tested");
   assert.doesNotMatch(JSON.stringify(map), /מאומת במנוע/);
@@ -99,7 +99,7 @@ test("deep companion can render in existing Preview without erasing the 327-page
     assert.equal(page.source_anchor, `#page=${page.pdf_page}&view=FitH`);
     assert.ok(page.companion_explanation.length >= 120, page.pdf_page);
     assert.ok(page.reading_points.length >= 2, page.pdf_page);
-    if ([10, 18, 60, 93, 94, 95, 102, 113, 130].includes(page.pdf_page)) {
+    if ([10, 18, 60, 93, 94, 95, 102, 113, 120, 130, 150, 160].includes(page.pdf_page)) {
       assert.equal(page.visual_witness_review, "page_layout_and_subject_only_no_exact_quote");
     }
     if (!entryPages.has(page.pdf_page)) {
