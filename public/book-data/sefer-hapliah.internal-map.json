@@ -8,7 +8,17 @@
   "created_date": "2026-10-27",
   "evidence_policy": {
     "baseline": "existing 11 reading gates and 327 page companions preserved separately; this is a partial internal depth overlay",
-    "direct_visual_pdf_pages_verified": [],
+    "direct_visual_pdf_pages_verified": [
+      10,
+      18,
+      60,
+      93,
+      94,
+      95,
+      102,
+      113,
+      130
+    ],
     "machine_extracted_text_sampled_pages": [
       1,
       4,
@@ -112,7 +122,9 @@
     "direct_quotes_in_this_map": 0,
     "engine_verification": "not_tested",
     "preview_policy": "Written approved source material may render without engine; no engine-verified claim",
-    "spatial_policy": "CONTENT_SPEC_ONLY_NO_3D_RENDERER_BINDING"
+    "spatial_policy": "CONTENT_SPEC_ONLY_NO_3D_RENDERER_BINDING",
+    "visual_page_review_scope": "הדף המקורי נפתח ונבדק חזותית לפריסה, כותרת, נושא או הופעת תרשים בלבד. אין מכאן אימות מלא של נוסח, מניין, ייחוס פירוש או גבולות יחידה.",
+    "visual_pdf_sha256_checked": "92cb911c36cb1b9c2b3e80607c36455178ae89e3831611bf31da042f5d54bf08"
   },
   "gates": [
     {
@@ -389,9 +401,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.bereshit.letters-11",
@@ -535,6 +548,42 @@
       "range_review_status": "single_page_locator"
     },
     {
+      "id": "hapliah.bereshit.alphabet-18",
+      "gate_id": "bereshit",
+      "title": "אותיות הא״ב, המילוי ומניין האותיות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 18,
+        "to_pdf_page": 18,
+        "entry_pdf_page": 18,
+        "entry_anchor": "#page=18&view=FitH",
+        "range_end_anchor": "#page=18&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=18&view=FitH"
+      },
+      "content": {
+        "subject": "עמוד זה עוסק באותיות האלפבית ובדרך שבה נלמדות צורותיהן ומילואיהן במסגרת הדרשה.",
+        "question": "מה מוסיף מילוי שם האות להבנת סדר האותיות?",
+        "steps": [
+          "העמוד מציג רצף של שמות אותיות ומשווה בין האות הכתובה לבין הנעלם/המילוי שלה.",
+          "ממשיכים מן אות בודדת אל חשבון וצירוף, אך אינם מאמתים שום מניין מתוך טקסט חיפוש לבדו."
+        ],
+        "source_references": [
+          "אלפא ביתא",
+          "מילוי אותיות"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בעמוד PDF 18 יש מהלך נפרד של עיון באותיות הא״ב ובמילוי שמותיהן. להבנתו, מתחילים מן צורת האות ורק אחר כך בוחנים את התוספת שהמילוי יוצר. האותיות והמספרים טעונים קריאה מדויקת; ההסבר הזה אינו תעתיק ואינו תוצאת מנוע.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
       "id": "hapliah.bereshit.torah-letters-25",
       "gate_id": "bereshit",
       "title": "התורה ואותיותיה בתוך שיח השמות",
@@ -670,6 +719,42 @@
       "witness_quote": null,
       "printed_commentary_quote": null,
       "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.seder-moed-60",
+      "gate_id": "bereshit",
+      "title": "סדר מועד בתוך דרשת סדרי המשנה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 60,
+        "to_pdf_page": 60,
+        "entry_pdf_page": 60,
+        "entry_anchor": "#page=60&view=FitH",
+        "range_end_anchor": "#page=60&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=60&view=FitH"
+      },
+      "content": {
+        "subject": "בעמוד מופיעה כותרת פנימית 'סדר מועד', לצד המשך דרשה על סדרי המשנה.",
+        "question": "כיצד סדרי המשנה משמשים כאן נקודות מעבר בדרשה?",
+        "steps": [
+          "מזהים את הסימון המודפס 'סדר מועד' כציון פנימי, ולא ככותרת כל החטיבה של הספר.",
+          "מבקשים להפריד בין ציטוטים/הסברים על המשנה לבין המהלך הפרשני שמחברם; גבולות ההמשך טעונים בדיקה."
+        ],
+        "source_references": [
+          "סדר מועד",
+          "סדרי משנה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בעמוד PDF 60 מתחלף מוקד הדיון לסדר מועד, כפי שמראה כותרת פנימית בעמוד המקורי. זהו סימן איתור משמעותי בתוך רצף דרשות בראשית הארוך; אין להפוך את ההופעה הזו לפרק רשמי חדש או לקבוע ללא בדיקה היכן נגמר הדיון.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator"
     },
@@ -1096,9 +1181,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.palaces.palaces-94",
@@ -1132,9 +1218,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.palaces.printed-schematic-95",
@@ -1169,9 +1256,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.palaces.orbits-96",
@@ -1355,9 +1443,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.creation-days.gathering-103",
@@ -1603,9 +1692,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.human-image.names-115",
@@ -1640,6 +1730,42 @@
       "witness_quote": null,
       "printed_commentary_quote": null,
       "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.human-image.tzelem-130",
+      "gate_id": "human-image",
+      "title": "צלם האדם ושמות המידות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 130,
+        "to_pdf_page": 130,
+        "entry_pdf_page": 130,
+        "entry_anchor": "#page=130&view=FitH",
+        "range_end_anchor": "#page=130&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=130&view=FitH"
+      },
+      "content": {
+        "subject": "המשך בירור צלם האדם משלב שאלות על שמות ומידות ולא רק תיאור של גוף האדם.",
+        "question": "באיזה מובן נקראת בריאת האדם 'בצלם' בתוך ההסבר שבספר?",
+        "steps": [
+          "מאתרים את לשון הפסוק והדרשה על צלם האדם, ואת המעבר לשמות המידות.",
+          "מפרידים בין תיאור פרשני של צלם לבין חשבון אותיות או שם קדוש שעדיין לא הוכרעו בקריאה."
+        ],
+        "source_references": [
+          "בראשית א, כו–כז",
+          "צלם אלהים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד PDF 130 ממקד את הדיון במושג צלם האדם ובהקבלות לשמות ולמידות. קוראים קודם את השאלה על לשון הפסוק, ורק אחר כך את דרשת השמות. היחידה היא הסבר נלווה מוגבל לעמוד שנבדק, לא שחזור ודאי של כל מהלך רב־עמודי.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
+      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator"
     },
@@ -3789,7 +3915,7 @@
     {
       "id": "hp-gap-visual-source",
       "severity": "blocking_exact_witness_claim",
-      "description": "No direct PDF visual review established; machine-extracted Hebrew is noisy and interleaved across printed columns."
+      "description": "Nine PDF pages visually inspected for layout and subject only; full exact witness reading of the remaining pages, boundaries, equations and diagram semantics is still unresolved."
     },
     {
       "id": "hp-gap-chart-95",
@@ -3805,6 +3931,80 @@
       "id": "hp-gap-reader-wiring",
       "severity": "out_of_scope",
       "description": "Existing shared BookSourceReader and book manifest not edited; independent internal-map UI remains unwired while page-level companion can render in Preview."
+    }
+  ],
+  "visual_witness_checks": [
+    {
+      "pdf_page": 10,
+      "source_anchor": "#page=10&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "גוף הספר מתחיל בכותרת בראשית ובשני טורי דפוס; יש מעבר ברור מן המעטפת המודפסת לדברי הספר.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 18,
+      "source_anchor": "#page=18&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "בעמוד נדונות אותיות הא״ב, מילויי אותיות ומניינים; אין להפוך את המספרים המודפסים לחישוב מאומת.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 60,
+      "source_anchor": "#page=60&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "מופיעה כותרת פנימית 'סדר מועד' בתוך רצף דיון בסדרי תורה/משנה; גבול הדרשה מעבר לעמוד לא הוכרע.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 93,
+      "source_anchor": "#page=93&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "עמוד טקסט דו־טורי סביב כיסא הכבוד וכינויי מלכות; אין כאן תרשים מרחבי מדיד.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 94,
+      "source_anchor": "#page=94&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "עמוד טקסט בשני טורים עם רצף היכלות, ממונים ותיאורי עלייה; תפקידים ויחסי מיקום דורשים קריאה מפורטת.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 95,
+      "source_anchor": "#page=95&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "בעד המודפס יש פריסה סכמתית רב־כיוונית עם קווים, תאים ושמות, ולא טקסט רציף. טקסט החילוץ משבש את הסדר; אין להסיק קשר מן הקרבה הגרפית.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 102,
+      "source_anchor": "#page=102&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "המעבר בין הפסוקים ובירור סדר הימים נראים בתוך שני טורי העמוד; קריאה מספרית/אותיות עדיין לא הוכרעה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 113,
+      "source_anchor": "#page=113&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "מופיעות סדרות חילופי אותיות מסודרות בחזרות ופסוקים משולבים; כל התאמה אות־מול־אות טעונה תעתוק מדויק.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 130,
+      "source_anchor": "#page=130&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "דף דו־טורי כולל בירור צלם האדם ושמות/מידות; אין לזהות טענת גימטריה מאומתת מתוך דפוס בלבד.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
     }
   ]
 }
