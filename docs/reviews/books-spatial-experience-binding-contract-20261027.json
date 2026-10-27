@@ -1,0 +1,776 @@
+{
+  "task": "BOOKS_2029_SPATIAL_EXPERIENCE_BINDING_CONTRACT",
+  "owner": "experience_governance_foundation_v1_law",
+  "active_owner_version": 10,
+  "extension_version": "Books source-bound learning addendum1.1, section20",
+  "binding": "EXPLICIT_ZURIEL_REQUIREMENTS_BINDING",
+  "artifact_status": "BRANCH_ONLY_CANONICAL_INTEGRATION_PENDING",
+  "base": "618cbe4fe31435696640a9d9a5f93df1da074864",
+  "main": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "historical_spatial_rule_active": false,
+  "spatial_gematria_v2_status": "IMPLEMENTATION_CONTRACT_CANDIDATE_NOT_UNIVERSAL_BOOK_AUTHORITY",
+  "models": [
+    {
+      "id": "existing-sy:sefirot",
+      "title": "עשרה עומקים",
+      "kind": "EXISTING_RENDERER_PARTIAL",
+      "source_head": "618cbe4fe31435696640a9d9a5f93df1da074864",
+      "source_pages": "per-component binding not mapped",
+      "meets": "Existing GPU renderer, Hebrew reading/source navigation, keyboard mode controls and non-WebGL reading fallback. Source page/refresh/fullscreen preserved in nine contexts.",
+      "gaps": "Explicit start/close absent; source-node selection has no exact component locator; editorial geometry/encoding needs explicit legend; bindings to the 33 source specifications are absent.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-sy:letters",
+      "title": "כ״ב אותיות",
+      "kind": "EXISTING_RENDERER_PARTIAL",
+      "source_head": "618cbe4fe31435696640a9d9a5f93df1da074864",
+      "source_pages": "per-component binding not mapped",
+      "meets": "Existing GPU renderer, Hebrew reading/source navigation, keyboard mode controls and non-WebGL reading fallback. Source page/refresh/fullscreen preserved in nine contexts.",
+      "gaps": "Explicit start/close absent; source-node selection has no exact component locator; editorial geometry/encoding needs explicit legend; bindings to the 33 source specifications are absent.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-sy:gates",
+      "title": "רל״א שערים",
+      "kind": "EXISTING_RENDERER_PARTIAL",
+      "source_head": "618cbe4fe31435696640a9d9a5f93df1da074864",
+      "source_pages": "per-component binding not mapped",
+      "meets": "Existing GPU renderer, Hebrew reading/source navigation, keyboard mode controls and non-WebGL reading fallback. Source page/refresh/fullscreen preserved in nine contexts.",
+      "gaps": "Explicit start/close absent; source-node selection has no exact component locator; editorial geometry/encoding needs explicit legend; bindings to the 33 source specifications are absent.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-sy:osn",
+      "title": "עולם שנה נפש",
+      "kind": "EXISTING_RENDERER_PARTIAL",
+      "source_head": "618cbe4fe31435696640a9d9a5f93df1da074864",
+      "source_pages": "per-component binding not mapped",
+      "meets": "Existing GPU renderer, Hebrew reading/source navigation, keyboard mode controls and non-WebGL reading fallback. Source page/refresh/fullscreen preserved in nine contexts.",
+      "gaps": "Explicit start/close absent; source-node selection has no exact component locator; editorial geometry/encoding needs explicit legend; bindings to the 33 source specifications are absent.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-sy:commentaries",
+      "title": "מפת המפרשים",
+      "kind": "EXISTING_RENDERER_PARTIAL",
+      "source_head": "618cbe4fe31435696640a9d9a5f93df1da074864",
+      "source_pages": "per-component binding not mapped",
+      "meets": "Existing GPU renderer, Hebrew reading/source navigation, keyboard mode controls and non-WebGL reading fallback. Source page/refresh/fullscreen preserved in nine contexts.",
+      "gaps": "Explicit start/close absent; source-node selection has no exact component locator; editorial geometry/encoding needs explicit legend; bindings to the 33 source specifications are absent.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-ahavat:1",
+      "title": "פתח מבנה תלת־ממדי",
+      "kind": "ISOLATED_RENDERER_PARTIAL",
+      "source_head": "40382ae21b9ca2d6ca38f58c387542b993d18f69",
+      "source_pages": "Existing source/table locators; per-component complete coverage not independently accepted",
+      "meets": "Explicit lazy start/close, keyboard activation, retained PDF page, alternate tables/legends and source-based labels.",
+      "gaps": "Need all component/source/return checks, complete geometry/editorial legend, dynamic reduced motion, focus restoration and actual native-PDF integration. Forced no-WebGL reading tested after reload, not after explicit start of every model.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-ahavat:2",
+      "title": "פתח מבנה האות בתלת־ממד",
+      "kind": "ISOLATED_RENDERER_PARTIAL",
+      "source_head": "40382ae21b9ca2d6ca38f58c387542b993d18f69",
+      "source_pages": "Existing source/table locators; per-component complete coverage not independently accepted",
+      "meets": "Explicit lazy start/close, keyboard activation, retained PDF page, alternate tables/legends and source-based labels.",
+      "gaps": "Need all component/source/return checks, complete geometry/editorial legend, dynamic reduced motion, focus restoration and actual native-PDF integration. Forced no-WebGL reading tested after reload, not after explicit start of every model.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-ahavat:3",
+      "title": "פתח מבנה המניינים בתלת־ממד",
+      "kind": "ISOLATED_RENDERER_PARTIAL",
+      "source_head": "40382ae21b9ca2d6ca38f58c387542b993d18f69",
+      "source_pages": "Existing source/table locators; per-component complete coverage not independently accepted",
+      "meets": "Explicit lazy start/close, keyboard activation, retained PDF page, alternate tables/legends and source-based labels.",
+      "gaps": "Need all component/source/return checks, complete geometry/editorial legend, dynamic reduced motion, focus restoration and actual native-PDF integration. Forced no-WebGL reading tested after reload, not after explicit start of every model.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-ahavat:4",
+      "title": "פתח מבנה ייחוסים בתלת־ממד",
+      "kind": "ISOLATED_RENDERER_PARTIAL",
+      "source_head": "40382ae21b9ca2d6ca38f58c387542b993d18f69",
+      "source_pages": "Existing source/table locators; per-component complete coverage not independently accepted",
+      "meets": "Explicit lazy start/close, keyboard activation, retained PDF page, alternate tables/legends and source-based labels.",
+      "gaps": "Need all component/source/return checks, complete geometry/editorial legend, dynamic reduced motion, focus restoration and actual native-PDF integration. Forced no-WebGL reading tested after reload, not after explicit start of every model.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-ahavat:5",
+      "title": "פתח מבנה מגילות בתלת־ממד",
+      "kind": "ISOLATED_RENDERER_PARTIAL",
+      "source_head": "40382ae21b9ca2d6ca38f58c387542b993d18f69",
+      "source_pages": "Existing source/table locators; per-component complete coverage not independently accepted",
+      "meets": "Explicit lazy start/close, keyboard activation, retained PDF page, alternate tables/legends and source-based labels.",
+      "gaps": "Need all component/source/return checks, complete geometry/editorial legend, dynamic reduced motion, focus restoration and actual native-PDF integration. Forced no-WebGL reading tested after reload, not after explicit start of every model.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "existing-ahavat:6",
+      "title": "פתח מצפה תלת־ממדי",
+      "kind": "ISOLATED_RENDERER_PARTIAL",
+      "source_head": "40382ae21b9ca2d6ca38f58c387542b993d18f69",
+      "source_pages": "Existing source/table locators; per-component complete coverage not independently accepted",
+      "meets": "Explicit lazy start/close, keyboard activation, retained PDF page, alternate tables/legends and source-based labels.",
+      "gaps": "Need all component/source/return checks, complete geometry/editorial legend, dynamic reduced motion, focus restoration and actual native-PDF integration. Forced no-WebGL reading tested after reload, not after explicit start of every model.",
+      "browser_cases": 9,
+      "compliance": "PARTIAL_NOT_ACCEPTED"
+    },
+    {
+      "id": "sy-structure:ten-depths",
+      "title": "עשרה עומקים בנוסח הגוף המשולב",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        53
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 10,
+      "relations": 5,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:five-against-five",
+      "title": "חמש כנגד חמש וברית באמצע",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        45
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 3,
+      "relations": 3,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:letter-families",
+      "title": "שלוש משפחות כ״ב האותיות",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        65
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 3,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:five-mouth-groups",
+      "title": "חמש קבוצות מוצא",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        80
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 5,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:six-seals-synoptic",
+      "title": "שש חותמות · גוף משולב",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        73
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 6,
+      "relations": 3,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:six-seals-gra-edition",
+      "title": "שש חותמות · נוסח הגר״א",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        175
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 6,
+      "relations": 3,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:mothers-world-year-soul",
+      "title": "אמ״ש והקבלות עולם שנה ונפש",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        94,
+        95,
+        97,
+        98,
+        99
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 3,
+      "relations": 2,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:doubles-synoptic",
+      "title": "הקבלות שבע הכפולות בגוף המשולב",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        105,
+        106,
+        107,
+        108,
+        109,
+        110
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 7,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:doubles-gra-distinction",
+      "title": "הקבלות בי״ת וגימ״ל בנוסח הגר״א",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        184
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:stones-houses",
+      "title": "אבנים ובתים — מניין סידורים",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        111
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 6,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:twelve-boundaries-gra",
+      "title": "י״ב גבולי אלכסון בנוסח הגר״א",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        187
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 12,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:three-kings",
+      "title": "תלי, גלגל ולב",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        122,
+        151,
+        192
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 3,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:concentric-39",
+      "title": "עיגולים מקיפים ב־PDF 39",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        39
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:element-rings-40",
+      "title": "מעגלי היסודות ב־PDF 40",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        40
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 5,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:opposites-41",
+      "title": "דברים ותמורות ב־PDF 41",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        41
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 3,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:name-wheel-42",
+      "title": "גלגל צירופי השם ב־PDF 42",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        42
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 4,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:name-grid-44",
+      "title": "לוח שמות ב־PDF 44",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        44
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 3,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:botril-pairs-85",
+      "title": "לוח זוגות בוטריל ב־PDF 85",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        85
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 3,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:botril-pairs-86",
+      "title": "המשך לוח בוטריל ב־PDF 86",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        86
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:botril-pairs-87",
+      "title": "שני לוחות בוטריל ב־PDF 87",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        87
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 3,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:circle-102",
+      "title": "המעגל בפרק הכפולות ב־PDF 102",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        102
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:otzar-seven-105",
+      "title": "לוח קצר בתוך אוצר ה׳ ב־PDF 105",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        105
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:botril-seven-105",
+      "title": "לוח קצר בתוך בוטריל ב־PDF 105",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        105
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:small-grid-106",
+      "title": "לוח קצר סמוך להמלכת בי״ת ב־PDF 106",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        106
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:small-grid-110",
+      "title": "לוח הכפולות ב־PDF 110",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        110
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:relations-grid-123",
+      "title": "רשימות וקבוצות ב־PDF 123",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        123
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:chachmoni-pairs-139",
+      "title": "לוח הזוגות בחכמוני",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        139
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 4,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:chachmoni-arrangements-142",
+      "title": "רשימות סידורי בג״ד כפר״ת",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        142
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 2,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:gra-gates-203",
+      "title": "לוח רל״א של הגר״א",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        203
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 5,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:letter-lines-204",
+      "title": "ציור קווי הספירות והאותיות",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        204
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 13,
+      "relations": 24,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:peri-eight-gate-tables",
+      "title": "שמונת לוחות פרי יצחק",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        204,
+        205,
+        206
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 8,
+      "relations": 4,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:peri-thirtytwo-paths",
+      "title": "ל״ב נתיבות כרשימה פרשנית",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        207,
+        208
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 32,
+      "relations": 0,
+      "source_locator_issues": []
+    },
+    {
+      "id": "sy-structure:inline-figures-31",
+      "title": "צורות בתוך הטור ב־PDF 31",
+      "kind": "SPECIFICATION_ONLY",
+      "source_head": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+      "source_pages": [
+        31
+      ],
+      "meets": "Stable source/component IDs and component/relation locators resolve to the delivered source units; engine remains not_tested.",
+      "gaps": "No binding of this exact structure to a renderer; implement explicit selection/source/return, encoding legend and non-GPU equivalent before per-model acceptance.",
+      "browser_cases": 0,
+      "compliance": "SPECIFICATION_ONLY",
+      "components": 1,
+      "relations": 0,
+      "source_locator_issues": []
+    }
+  ],
+  "source_units": 319,
+  "source_specs": 33,
+  "source_specs_bound_to_renderers": 0,
+  "browser_contexts": {
+    "central": 18,
+    "isolated_books403": 9
+  },
+  "browser_limit": "PDF requests deliberately aborted in matrix; exact iframe URL/interaction, not native PDF rendering. Backend/auth are fixtures; engine endpoints blocked. No live server/RLS acceptance. No claim of full visual acceptance.",
+  "pdf_receipts": [
+    {
+      "slug": "ahavat-torah",
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_5635.pdf",
+      "path": "/workspace/artifacts/books-spatial-contract-20261027/pdf/ahavat-torah.pdf",
+      "bytes": 2078469,
+      "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+      "expected_sha256": null,
+      "expected_hash_matches": null
+    },
+    {
+      "slug": "sefer-yetzirah",
+      "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf",
+      "path": "/workspace/artifacts/books-spatial-contract-20261027/pdf/sefer-yetzirah.pdf",
+      "bytes": 51714643,
+      "sha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "expected_sha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "expected_hash_matches": true
+    }
+  ],
+  "direct_pdf_visual_check": "Actual Ahavat p27 and Sefer p53 rendered from unchanged public PDF bytes and visually inspected locally; not a browser-native PDF test.",
+  "full_books_counts": {
+    "tests": 212,
+    "pass": 212,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "language_auth_counts": {
+    "tests": 8,
+    "pass": 8,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "gate_steps": [
+    {
+      "step": "source403-browser",
+      "exit_code": 0,
+      "log": "/workspace/artifacts/books-spatial-contract-20261027/source403-browser.log"
+    },
+    {
+      "step": "full-books",
+      "exit_code": 0,
+      "log": "/workspace/artifacts/books-spatial-contract-20261027/full-books.log"
+    },
+    {
+      "step": "build2029",
+      "exit_code": 0,
+      "log": "/workspace/artifacts/books-spatial-contract-20261027/build2029.log"
+    },
+    {
+      "step": "built-graph",
+      "exit_code": 0,
+      "log": "/workspace/artifacts/books-spatial-contract-20261027/built-graph.log"
+    },
+    {
+      "step": "isolation",
+      "exit_code": 0,
+      "log": "/workspace/artifacts/books-spatial-contract-20261027/isolation.log"
+    },
+    {
+      "step": "legacy-lock",
+      "exit_code": 0,
+      "log": "/workspace/artifacts/books-spatial-contract-20261027/legacy-lock.log"
+    },
+    {
+      "step": "cheap-hardening",
+      "exit_code": 0,
+      "log": "/workspace/artifacts/books-spatial-contract-20261027/cheap-hardening.log"
+    }
+  ],
+  "new_browser_counts": {
+    "tests": 2,
+    "pass": 2,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "source_browser_counts": {
+    "tests": 2,
+    "pass": 2,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "full_models_accepted": 0,
+  "before_id": "904ebddc-0896-4b34-af1f-090e534703f4",
+  "db_rls_rules_changed": false,
+  "merged_sources": false,
+  "deployed": false
+}
