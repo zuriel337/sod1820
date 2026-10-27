@@ -1,0 +1,746 @@
+{
+  "topic": "קולומביה",
+  "coordinates": "local, 0-based; matrix row = region.firstMatrixRow + row, matrix column = region.firstMatrixCol + col; column 0 is the first letter of the text row",
+  "region": {
+    "rows": 21,
+    "cols": 61,
+    "width": 4545,
+    "firstMatrixRow": 46,
+    "firstMatrixCol": 3305
+  },
+  "rows": [
+    "יאנינאמיהוהאמלאכאשרדברתמבאזניכנאעשהלכמבמדברהזהיפלופגריכמוכלפק",
+    "דבראתכלהדברימהאלהותבקעהאדמהאשרתחתיהמותפתחהארצאתפיהותבלעאתמואת",
+    "באובמתאובעצמאדמאובקבריטמאשבעתימימולקחולטמאמעפרשרפתהחטאתונתנעל",
+    "אואלבלקויאמרומאנבלעמהלכעמנוויספעודבלקשלחשרימרבימונכבדיממאלהוי",
+    "אתשניהמאתאישישראלואתהאשהאלקבתהותעצרהמגפהמעלבניישראלויהיוהמתימ",
+    "האתוויקחאתיהושעויעמדהולפניאלעזרהכהנולפניכלהעדהויסמכאתידיועליו",
+    "התרועהבידוויצבאועלמדינכאשרצוהיהוהאתמשהויהרגוכלזכרואתמלכימדינה",
+    "כתבמשהאתמוצאיהמלמסעיהמעלפייהוהואלהמסעיהמלמוצאיהמויסעומרעמססבח",
+    "ישובהרצחאלארצאחזתווהיואלהלכמלחקתמשפטלדרתיכמבכלמושבתיכמכלמכהנפ",
+    "המלחמהמקרבהמחנהכאשרנשבעיהוהלהמוגמידיהוההיתהבמלהמממקרבהמחנהעדת",
+    "יהוהאלהיככייהוהאלהיכאשאכלההואאלקנאכיתולידבנימובניבנימונושנתמב",
+    "ארצאשרנשבעלאבתינוויצונויהוהלעשותאתכלהחקימהאלהליראהאתיהוהאלהינ",
+    "לוולאשמעתמבקלוממרימהייתמעמיהוהמיומדעתיאתכמואתנפללפנייהוהאתארב",
+    "ימצוכרקבכלאותנפשכתזבחואכלתבשרכברכתיהוהאלהיכאשרנתנלכבכלשעריכהט",
+    "להיכתתנלווזכרתכיעבדהייתבארצמצרימויפדכיהוהאלהיכעלכנאנכימצוכאתה",
+    "אאתרעהוומתהואינוסאלאחתהערימהאלהוחיפנירדפגאלהדמאחריהרצחכייחמלב",
+    "בעמהאשהוהאשהובערתהרעמישראלכייהיהנערבתולהמארשהלאישומצאהאישבעיר",
+    "היכולביתכאתהוהלויוהגראשרבקרבככיתכלהלעשראתכלמעשרתבואתכבשנההשלי",
+    "רנתניהוהאלהיכלכואכלתפריבטנכבשרבניכובנתיכאשרנתנלכיהוהאלהיכבמצו",
+    "שעויאמראליולעיניכלישראלחזקואמצכיאתהתבואאתהעמהזהאלהארצאשרנשבעי",
+    "ורהבאפכוכלילעלמזבחכברכיהוהחילוופעלידיותרצהמחצמתנימקמיוומשנאיו"
+  ],
+  "marks": [
+    {
+      "id": "F001",
+      "source": "scan",
+      "word": "נתניהו",
+      "kind": "plain_text_row",
+      "direction": "row_fwd",
+      "from": {
+        "row": 18,
+        "col": 1
+      },
+      "to": {
+        "row": 18,
+        "col": 6
+      },
+      "cells": [
+        {
+          "row": 18,
+          "col": 1,
+          "letter": "נ"
+        },
+        {
+          "row": 18,
+          "col": 2,
+          "letter": "ת"
+        },
+        {
+          "row": 18,
+          "col": 3,
+          "letter": "נ"
+        },
+        {
+          "row": 18,
+          "col": 4,
+          "letter": "י"
+        },
+        {
+          "row": 18,
+          "col": 5,
+          "letter": "ה"
+        },
+        {
+          "row": 18,
+          "col": 6,
+          "letter": "ו"
+        }
+      ]
+    },
+    {
+      "id": "F002",
+      "source": "scan",
+      "word": "שבעתים",
+      "kind": "plain_text_row",
+      "direction": "row_fwd",
+      "from": {
+        "row": 2,
+        "col": 25
+      },
+      "to": {
+        "row": 2,
+        "col": 30
+      },
+      "cells": [
+        {
+          "row": 2,
+          "col": 25,
+          "letter": "ש"
+        },
+        {
+          "row": 2,
+          "col": 26,
+          "letter": "ב"
+        },
+        {
+          "row": 2,
+          "col": 27,
+          "letter": "ע"
+        },
+        {
+          "row": 2,
+          "col": 28,
+          "letter": "ת"
+        },
+        {
+          "row": 2,
+          "col": 29,
+          "letter": "י"
+        },
+        {
+          "row": 2,
+          "col": 30,
+          "letter": "מ"
+        }
+      ]
+    },
+    {
+      "id": "F003",
+      "source": "scan",
+      "word": "אלהיך",
+      "kind": "plain_text_row",
+      "direction": "row_fwd",
+      "from": {
+        "row": 10,
+        "col": 4
+      },
+      "to": {
+        "row": 10,
+        "col": 8
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 4,
+          "letter": "א"
+        },
+        {
+          "row": 10,
+          "col": 5,
+          "letter": "ל"
+        },
+        {
+          "row": 10,
+          "col": 6,
+          "letter": "ה"
+        },
+        {
+          "row": 10,
+          "col": 7,
+          "letter": "י"
+        },
+        {
+          "row": 10,
+          "col": 8,
+          "letter": "כ"
+        }
+      ]
+    },
+    {
+      "id": "F004",
+      "source": "scan",
+      "word": "אלהיך",
+      "kind": "plain_text_row",
+      "direction": "row_fwd",
+      "from": {
+        "row": 10,
+        "col": 15
+      },
+      "to": {
+        "row": 10,
+        "col": 19
+      },
+      "cells": [
+        {
+          "row": 10,
+          "col": 15,
+          "letter": "א"
+        },
+        {
+          "row": 10,
+          "col": 16,
+          "letter": "ל"
+        },
+        {
+          "row": 10,
+          "col": 17,
+          "letter": "ה"
+        },
+        {
+          "row": 10,
+          "col": 18,
+          "letter": "י"
+        },
+        {
+          "row": 10,
+          "col": 19,
+          "letter": "כ"
+        }
+      ]
+    },
+    {
+      "id": "F005",
+      "source": "scan",
+      "word": "אלהיך",
+      "kind": "plain_text_row",
+      "direction": "row_fwd",
+      "from": {
+        "row": 13,
+        "col": 38
+      },
+      "to": {
+        "row": 13,
+        "col": 42
+      },
+      "cells": [
+        {
+          "row": 13,
+          "col": 38,
+          "letter": "א"
+        },
+        {
+          "row": 13,
+          "col": 39,
+          "letter": "ל"
+        },
+        {
+          "row": 13,
+          "col": 40,
+          "letter": "ה"
+        },
+        {
+          "row": 13,
+          "col": 41,
+          "letter": "י"
+        },
+        {
+          "row": 13,
+          "col": 42,
+          "letter": "כ"
+        }
+      ]
+    },
+    {
+      "id": "F006",
+      "source": "scan",
+      "word": "אלהיך",
+      "kind": "plain_text_row",
+      "direction": "row_fwd",
+      "from": {
+        "row": 14,
+        "col": 41
+      },
+      "to": {
+        "row": 14,
+        "col": 45
+      },
+      "cells": [
+        {
+          "row": 14,
+          "col": 41,
+          "letter": "א"
+        },
+        {
+          "row": 14,
+          "col": 42,
+          "letter": "ל"
+        },
+        {
+          "row": 14,
+          "col": 43,
+          "letter": "ה"
+        },
+        {
+          "row": 14,
+          "col": 44,
+          "letter": "י"
+        },
+        {
+          "row": 14,
+          "col": 45,
+          "letter": "כ"
+        }
+      ]
+    },
+    {
+      "id": "F007",
+      "source": "scan",
+      "word": "אלהיך",
+      "kind": "plain_text_row",
+      "direction": "row_fwd",
+      "from": {
+        "row": 18,
+        "col": 8
+      },
+      "to": {
+        "row": 18,
+        "col": 12
+      },
+      "cells": [
+        {
+          "row": 18,
+          "col": 8,
+          "letter": "א"
+        },
+        {
+          "row": 18,
+          "col": 9,
+          "letter": "ל"
+        },
+        {
+          "row": 18,
+          "col": 10,
+          "letter": "ה"
+        },
+        {
+          "row": 18,
+          "col": 11,
+          "letter": "י"
+        },
+        {
+          "row": 18,
+          "col": 12,
+          "letter": "כ"
+        }
+      ]
+    },
+    {
+      "id": "F008",
+      "source": "scan",
+      "word": "אלהיך",
+      "kind": "plain_text_row",
+      "direction": "row_fwd",
+      "from": {
+        "row": 18,
+        "col": 52
+      },
+      "to": {
+        "row": 18,
+        "col": 56
+      },
+      "cells": [
+        {
+          "row": 18,
+          "col": 52,
+          "letter": "א"
+        },
+        {
+          "row": 18,
+          "col": 53,
+          "letter": "ל"
+        },
+        {
+          "row": 18,
+          "col": 54,
+          "letter": "ה"
+        },
+        {
+          "row": 18,
+          "col": 55,
+          "letter": "י"
+        },
+        {
+          "row": 18,
+          "col": 56,
+          "letter": "כ"
+        }
+      ]
+    },
+    {
+      "id": "F009",
+      "source": "scan",
+      "word": "בעיות",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 4,
+        "col": 27
+      },
+      "to": {
+        "row": 8,
+        "col": 31
+      },
+      "cells": [
+        {
+          "row": 4,
+          "col": 27,
+          "letter": "ב"
+        },
+        {
+          "row": 5,
+          "col": 28,
+          "letter": "ע"
+        },
+        {
+          "row": 6,
+          "col": 29,
+          "letter": "י"
+        },
+        {
+          "row": 7,
+          "col": 30,
+          "letter": "ו"
+        },
+        {
+          "row": 8,
+          "col": 31,
+          "letter": "ת"
+        }
+      ]
+    },
+    {
+      "id": "F010",
+      "source": "scan",
+      "word": "התחלה",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_fwd",
+      "from": {
+        "row": 13,
+        "col": 35
+      },
+      "to": {
+        "row": 9,
+        "col": 39
+      },
+      "cells": [
+        {
+          "row": 13,
+          "col": 35,
+          "letter": "ה"
+        },
+        {
+          "row": 12,
+          "col": 36,
+          "letter": "ת"
+        },
+        {
+          "row": 11,
+          "col": 37,
+          "letter": "ח"
+        },
+        {
+          "row": 10,
+          "col": 38,
+          "letter": "ל"
+        },
+        {
+          "row": 9,
+          "col": 39,
+          "letter": "ה"
+        }
+      ]
+    },
+    {
+      "id": "F011",
+      "source": "scan",
+      "word": "יכולה",
+      "kind": "els_in_matrix",
+      "direction": "diag_up_back",
+      "from": {
+        "row": 14,
+        "col": 30
+      },
+      "to": {
+        "row": 10,
+        "col": 26
+      },
+      "cells": [
+        {
+          "row": 14,
+          "col": 30,
+          "letter": "י"
+        },
+        {
+          "row": 13,
+          "col": 29,
+          "letter": "כ"
+        },
+        {
+          "row": 12,
+          "col": 28,
+          "letter": "ו"
+        },
+        {
+          "row": 11,
+          "col": 27,
+          "letter": "ל"
+        },
+        {
+          "row": 10,
+          "col": 26,
+          "letter": "ה"
+        }
+      ]
+    },
+    {
+      "id": "Q001",
+      "source": "probe",
+      "word": "קולומביה",
+      "kind": "els_in_matrix",
+      "direction": "col_down",
+      "from": {
+        "row": 8,
+        "col": 30
+      },
+      "to": {
+        "row": 15,
+        "col": 30
+      },
+      "cells": [
+        {
+          "row": 8,
+          "col": 30,
+          "letter": "ק"
+        },
+        {
+          "row": 9,
+          "col": 30,
+          "letter": "ו"
+        },
+        {
+          "row": 10,
+          "col": 30,
+          "letter": "ל"
+        },
+        {
+          "row": 11,
+          "col": 30,
+          "letter": "ו"
+        },
+        {
+          "row": 12,
+          "col": 30,
+          "letter": "מ"
+        },
+        {
+          "row": 13,
+          "col": 30,
+          "letter": "ב"
+        },
+        {
+          "row": 14,
+          "col": 30,
+          "letter": "י"
+        },
+        {
+          "row": 15,
+          "col": 30,
+          "letter": "ה"
+        }
+      ]
+    },
+    {
+      "id": "Q002",
+      "source": "probe",
+      "word": "יכלאש",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 7,
+        "col": 25
+      },
+      "to": {
+        "row": 11,
+        "col": 29
+      },
+      "cells": [
+        {
+          "row": 7,
+          "col": 25,
+          "letter": "י"
+        },
+        {
+          "row": 8,
+          "col": 26,
+          "letter": "כ"
+        },
+        {
+          "row": 9,
+          "col": 27,
+          "letter": "ל"
+        },
+        {
+          "row": 10,
+          "col": 28,
+          "letter": "א"
+        },
+        {
+          "row": 11,
+          "col": 29,
+          "letter": "ש"
+        }
+      ]
+    },
+    {
+      "id": "Q003",
+      "source": "probe",
+      "word": "ספינת",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_back",
+      "from": {
+        "row": 7,
+        "col": 35
+      },
+      "to": {
+        "row": 11,
+        "col": 31
+      },
+      "cells": [
+        {
+          "row": 7,
+          "col": 35,
+          "letter": "ס"
+        },
+        {
+          "row": 8,
+          "col": 34,
+          "letter": "פ"
+        },
+        {
+          "row": 9,
+          "col": 33,
+          "letter": "י"
+        },
+        {
+          "row": 10,
+          "col": 32,
+          "letter": "נ"
+        },
+        {
+          "row": 11,
+          "col": 31,
+          "letter": "ת"
+        }
+      ]
+    },
+    {
+      "id": "Q004",
+      "source": "probe",
+      "word": "יכל",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 7,
+        "col": 25
+      },
+      "to": {
+        "row": 9,
+        "col": 27
+      },
+      "cells": [
+        {
+          "row": 7,
+          "col": 25,
+          "letter": "י"
+        },
+        {
+          "row": 8,
+          "col": 26,
+          "letter": "כ"
+        },
+        {
+          "row": 9,
+          "col": 27,
+          "letter": "ל"
+        }
+      ]
+    },
+    {
+      "id": "Q005",
+      "source": "probe",
+      "word": "יכל",
+      "kind": "els_in_matrix",
+      "direction": "diag_down_fwd",
+      "from": {
+        "row": 9,
+        "col": 33
+      },
+      "to": {
+        "row": 11,
+        "col": 35
+      },
+      "cells": [
+        {
+          "row": 9,
+          "col": 33,
+          "letter": "י"
+        },
+        {
+          "row": 10,
+          "col": 34,
+          "letter": "כ"
+        },
+        {
+          "row": 11,
+          "col": 35,
+          "letter": "ל"
+        }
+      ]
+    },
+    {
+      "id": "Q006",
+      "source": "probe",
+      "word": "נפל",
+      "kind": "els_in_matrix",
+      "direction": "col_up",
+      "from": {
+        "row": 5,
+        "col": 38
+      },
+      "to": {
+        "row": 3,
+        "col": 38
+      },
+      "cells": [
+        {
+          "row": 5,
+          "col": 38,
+          "letter": "נ"
+        },
+        {
+          "row": 4,
+          "col": 38,
+          "letter": "פ"
+        },
+        {
+          "row": 3,
+          "col": 38,
+          "letter": "ל"
+        }
+      ]
+    }
+  ],
+  "phrases": []
+}

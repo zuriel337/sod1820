@@ -45,6 +45,19 @@ export function regionLettersSql(region) {
   return `select r, string_agg(ch, '' order by idx) as letters from (select idx, ch, (idx - 1) / ${width} as r, (idx - 1) % ${width} as c from public.torah_stream where idx between ${r0 * width + 1} and ${(r1 + 1) * width}) t where r between ${r0} and ${r1} and c between ${c0} and ${c0 + cw - 1} group by r order by r;`;
 }
 
+/** The word source of a batch: a slice of the project dictionary, or (probe) an explicit list of words to look up through the same engine call. */
+function wordSourceSql(dictionary) {
+  if (dictionary.words !== undefined) {
+    if (!Array.isArray(dictionary.words) || !dictionary.words.length || dictionary.words.length > 50) throw new RangeError("a probe takes 1-50 words");
+    const list = [...new Set(dictionary.words.map((word) => hebrew(word, "word")))].map((word) => `'${word}'`).join(", ");
+    return `select w from unnest(array[${list}]::text[]) as t(w)`;
+  }
+  const { minLen, maxLen, offset, limit } = dictionary;
+  int(minLen, 2, 12, "minLen"); int(maxLen, minLen, 12, "maxLen"); int(offset, 0, 100000, "offset"); int(limit, 1, 1000, "limit");
+  return `select w from (select distinct phrase as w from public.gematria_words where phrase ~ '^[א-ת]{${minLen},${maxLen}}$') d
+  order by length(w) desc, w offset ${offset} limit ${limit}`;
+}
+
 /**
  * Optional control-comparison bookkeeping (a separate option, off by default): the same occurrences the scan already received are tiled
  * with same-size tiles anchored at the target region, and counted per tile. It adds NO engine call; it only adds the tile CTEs and the
@@ -86,7 +99,8 @@ agg as (
  * directions: "cd" (columns + both diagonals = skips W-1, W, W+1), "row" (skip 1), or "both".
  * controls: false (default) = region findings only; true = also the tile counts used by the separate control comparison.
  * Dictionary = distinct single Hebrew words of public.gematria_words of length [minLen, maxLen], ordered longest first (stable), sliced
- * by offset/limit so a run can be split into batches and budgeted.
+ * by offset/limit so a run can be split into batches and budgeted. A probe (dictionary: { words: [...] }) looks up explicit words through the
+ * same engine call instead — ground truth for the evaluation, never part of what a model sees.
  */
 export function scanBatchSql({ width, totalRows, totalLetters, region, dictionary, directions = "both", controls = false, timeoutMs = 55000, targetLimit = 400 }) {
   int(width, MIN_AXIS_WIDTH, 1_000_000, "width");
@@ -94,13 +108,14 @@ export function scanBatchSql({ width, totalRows, totalLetters, region, dictionar
   const { r0, r1, c0, cw, rows, cols } = region;
   int(r0, 0, totalRows - 1, "r0"); int(r1, r0, totalRows - 1, "r1"); int(c0, 0, width - 1, "c0"); int(cw, 1, width - c0, "cw");
   int(rows, 1, totalRows, "rows"); int(cols, 1, width, "cols");
-  const { minLen, maxLen, offset, limit } = dictionary;
-  int(minLen, 2, 12, "minLen"); int(maxLen, minLen, 12, "maxLen"); int(offset, 0, 100000, "offset"); int(limit, 1, 1000, "limit");
+  const wordSource = wordSourceSql(dictionary);
+  const probe = dictionary.words !== undefined; // a probe reports matrix-wide counts for every word it was asked about, region or not
   if (!["cd", "row", "both"].includes(directions)) throw new RangeError("directions must be cd, row or both");
   if (typeof controls !== "boolean") throw new TypeError("controls must be true or false");
+  if (controls && dictionary.words !== undefined) throw new RangeError("the comparison to other regions applies to dictionary scans, not to probes");
   int(timeoutMs, 1000, 600000, "timeoutMs"); int(targetLimit, 1, 2000, "targetLimit");
   const letters = int(totalLetters, width, 100_000_000, "totalLetters");
-  const control = controls ? controlParts({ width, region, grid: tileGrid(region, letters), minLen }) : { ctes: "", entries: "" };
+  const control = controls ? controlParts({ width, region, grid: tileGrid(region, letters), minLen: dictionary.minLen }) : { ctes: "", entries: "" };
   const groups = skipGroups(width);
   const rowsOfValues = [
     ...(directions !== "row" ? [`('cd', array[${groups.cd.join(",")}])`] : []),
@@ -109,8 +124,7 @@ export function scanBatchSql({ width, totalRows, totalLetters, region, dictionar
   const rmax = totalRows - 1;
   return `set local statement_timeout = '${timeoutMs}ms';
 with dict as materialized (
-  select w from (select distinct phrase as w from public.gematria_words where phrase ~ '^[א-ת]{${minLen},${maxLen}}$') d
-  order by length(w) desc, w offset ${offset} limit ${limit}
+  ${wordSource}
 ),
 calls as materialized (
   select d.w, length(d.w) as len, g.grp, x.r
@@ -138,7 +152,7 @@ select jsonb_build_object(
   'truncated_calls', (select coalesce(jsonb_agg(jsonb_build_object('w', w, 'grp', grp)), '[]'::jsonb) from (select w, grp from calls where (r->'completion'->>'truncated')::boolean limit 50) t),
   'target_total', (select count(*) from tgt),
   'target', (select coalesce(jsonb_agg(to_jsonb(t) order by t.len desc, t.w, t.skip, t.dir), '[]'::jsonb) from (select w, len, grp, skip, dir, s, e from tgt order by len desc, w, skip, dir limit ${targetLimit}) t),
-  'word_matrix_hits', (select coalesce(jsonb_object_agg(w || '|' || grp, n), '{}'::jsonb) from (select w, grp, count(*) as n from ok where w in (select w from tgt) group by w, grp) q)${control.entries},
+  'word_matrix_hits', (select coalesce(jsonb_object_agg(w || '|' || grp, n), '{}'::jsonb) from (select w, grp, count(*) as n from ok${probe ? "" : " where w in (select w from tgt)"} group by w, grp) q)${control.entries},
   'db_ms', round(extract(epoch from clock_timestamp() - statement_timestamp()) * 1000)
 ) as batch;`;
 }

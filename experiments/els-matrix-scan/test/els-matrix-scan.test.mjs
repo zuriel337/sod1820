@@ -4,7 +4,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 
-import { DIRECTIONS, cellOf, directionOf, fullTiles, inRegion, isMatrixContiguous, occurrenceCells, regionAroundAnchor, renderRegion, skipGroups, tileGrid, tileOf } from "../lib/geometry.mjs";
+import { DIRECTIONS, cellOf, directionOf, fullTiles, inRegion, isMatrixContiguous, occurrenceCells, regionAroundAnchor, renderRegion, skipGroups, skipValue, tileGrid, tileOf } from "../lib/geometry.mjs";
+import { deriveElsLineGeometry } from "../../../src/lib/research/els2029VectorGeometry.js";
 import { anchorSql, dictionaryCountSql, dictionaryMembershipSql, regionLettersSql, scanBatchSql } from "../lib/queries.mjs";
 import { joinAdjacentFindings, markupFor, normalizeFindings } from "../lib/findings.mjs";
 import { compareStatistic, compareToTiles, describeMethod, mergeTileVectors, targetIndexOf } from "../lib/controls.mjs";
@@ -39,6 +40,28 @@ test("geometry: wrap-around across a row boundary is never matrix-contiguous", (
   assert.equal(isMatrixContiguous({ start: 298, skip: 101, dir: 1, length: 3 }, W), false, "diagonal leaves the right edge");
   assert.equal(isMatrixContiguous({ start: 205, skip: 99, dir: 1, length: 3 }, W), true);
   assert.equal(isMatrixContiguous({ start: 201, skip: 99, dir: 1, length: 3 }, W), false, "diagonal leaves the left edge");
+});
+
+test("geometry: agrees with the existing vector-geometry owner (els2029VectorGeometry) on the eight steps, the cells and the wrap rule", () => {
+  for (const width of [100, 4545]) {
+    for (const direction of DIRECTIONS) {
+      const skip = skipValue(direction.skip, width);
+      const length = 6;
+      // the test builds the letter positions itself (test-side arithmetic) and lets the existing owner decompose them
+      const positionsAt = (start) => Array.from({ length }, (_, k) => start + direction.dir * skip * k);
+      const interior = 20 * width + Math.floor(width / 2);
+      const line = deriveElsLineGeometry({ positions: positionsAt(interior), dir: direction.dir }, width);
+      assert.deepEqual(line.rawStep, [direction.dRow, direction.dCol], `${direction.id}@${width}: same step as the owner module`);
+      assert.deepEqual(line.coordinates.map((p) => [p.row, p.col]), occurrenceCells(interior, skip, direction.dir, length, width).map((c) => [c.row, c.col]), `${direction.id}@${width}: same cells`);
+      // wrap rule: my guard is true exactly when the owner's unwrapped column stays inside [0, width-1]
+      for (const col of [0, 1, 2, 5, 6, width - 7, width - 6, width - 5, width - 2, width - 1]) {
+        const start = 20 * width + col;
+        const owner = deriveElsLineGeometry({ positions: positionsAt(start), dir: direction.dir }, width);
+        const staysInside = owner.coordinates.every((p) => p.unwrappedCol >= 0 && p.unwrappedCol <= width - 1);
+        assert.equal(isMatrixContiguous({ start, skip, dir: direction.dir, length }, width), staysInside, `${direction.id}@${width} col ${col}`);
+      }
+    }
+  }
 });
 
 test("geometry: region is centred on the anchor and clamped; tiles tile the matrix and the target is tile (0,0)", () => {
@@ -297,4 +320,64 @@ test("markup: marks carry local cells with letters; the page is static, right-to
   assert.equal(/<script/i.test(escaped), false);
   assert.ok(escaped.includes("&lt;script&gt;alert(1)&lt;/script&gt;"));
   assert.ok(escaped.includes("&lt;b&gt;x&lt;/b&gt;"));
+});
+
+test("probe: explicit words go through the same single engine call; validated, capped, never combined with the comparison option", () => {
+  const dictionary = { words: ["שלום", "אש", "יכלאש"] };
+  const sql = scanBatchSql({ width: W, totalRows: 30, totalLetters: TOTAL, region, dictionary, directions: "both" });
+  assert.match(sql, /unnest\(array\['שלום', 'אש', 'יכלאש'\]::text\[\]\)/);
+  assert.equal((sql.match(/els_search_geometry_core_v1/g) || []).length, 1);
+  assert.equal(sql.includes("gematria_words"), false, "a probe asks for the given words, it does not read the dictionary");
+  assert.match(sql, /from ok group by w, grp/, "matrix-wide counts are reported for every probe word, in or out of the region");
+  assert.doesNotMatch(sql, /\b(insert|update|delete|drop|alter|create|truncate|grant|revoke|copy)\b/i);
+  assert.throws(() => scanBatchSql({ width: W, totalRows: 30, totalLetters: TOTAL, region, dictionary: { words: ["x'); drop table t; --"] } }), TypeError);
+  assert.throws(() => scanBatchSql({ width: W, totalRows: 30, totalLetters: TOTAL, region, dictionary: { words: [] } }), RangeError);
+  assert.throws(() => scanBatchSql({ width: W, totalRows: 30, totalLetters: TOTAL, region, dictionary: { words: Array.from({ length: 51 }, (_, i) => "אב" + "גדהוזחטיכלמנסעפצקרשת"[i % 20]) } }), RangeError);
+  assert.throws(() => scanBatchSql({ width: W, totalRows: 30, totalLetters: TOTAL, region, dictionary, controls: true }), /not to probes/);
+});
+
+test("evaluation with a probe: present-but-missed, plain-text-only, absent and truncated are told apart; matrix-wide counts split ELS from text rows", () => {
+  const at = (r, c) => (region.r0 + r) * W + region.c0 + c;
+  const probeRows = [
+    row("אורן", 100, 1, at(1, 4)), // ELS in the region, not reported by the scan
+    row("שלום", 100, 1, at(0, 3)), // ELS in the region AND reported by the scan
+    row("ויאמר", 1, 1, at(5, 2), "row"), // plain text only
+  ];
+  const groundTruth = {
+    findings: normalizeFindings({ rows: probeRows, width: W, region, matrixHits: {}, idPrefix: "Q" }),
+    matrixHits: { "אורן|cd": 9, "שלום|cd": 4, "שלום|row": 2 },
+    truncatedWords: ["חתול"],
+  };
+  const scanFindings = normalizeFindings({ rows: [row("שלום", 100, 1, at(0, 3))], width: W, region });
+  const out = evaluateWords({ words: ["שלום", "אורן", "ויאמר", "ירח", "חתול"], findings: scanFindings, phrases: [], scannedLengths: [4, 5], membership: ["שלום", "ירח"], groundTruth });
+  const verdicts = Object.fromEntries(out.map((entry) => [entry.word, entry.verdict]));
+  assert.deepEqual(verdicts, {
+    "שלום": "FOUND_BY_DICTIONARY_SCAN",
+    "אורן": "PRESENT_IN_REGION_BUT_MISSED:NOT_IN_DICTIONARY",
+    "ויאמר": "ONLY_AS_PLAIN_TEXT_IN_REGION",
+    "ירח": "ABSENT_FROM_REGION",
+    "חתול": "NOT_SEEN_BUT_ENGINE_OUTPUT_TRUNCATED",
+  });
+  assert.deepEqual(out.find((entry) => entry.word === "שלום").groundTruth.matrixWide, { els: 4, plainTextRows: 2 });
+  assert.equal(out.find((entry) => entry.word === "אורן").groundTruth.positions.length, 1);
+  assert.equal(groundTruth.findings.every((finding) => /^Q\d{3}$/.test(finding.id)), true);
+  assert.equal(evaluateWords({ words: ["שלום"], findings: scanFindings, phrases: [] })[0].verdict, undefined, "no probe, no verdict: the scan status stays as it was");
+  // a word can be missed for two reasons at once: both are kept, the first stays the status
+  const both = evaluateWords({ words: ["יכל"], findings: [], phrases: [], scannedLengths: [5], membership: [], groundTruth: { findings: normalizeFindings({ rows: [row("יכל", 100, 1, at(2, 2))], width: W, region, idPrefix: "Q" }), matrixHits: {}, truncatedWords: [] } })[0];
+  assert.deepEqual([both.status, both.missedBecause, both.verdict], ["NOT_FULLY_SCANNED_LENGTH", ["NOT_FULLY_SCANNED_LENGTH", "NOT_IN_DICTIONARY"], "PRESENT_IN_REGION_BUT_MISSED:NOT_FULLY_SCANNED_LENGTH+NOT_IN_DICTIONARY"]);
+});
+
+test("markup with a probe layer: probe findings keep their own ids and style and are verified against the letters like the scan findings", () => {
+  const grid = Array.from({ length: region.rows }, () => Array(region.cols).fill("ת"));
+  const base = region.r0 * W + region.c0;
+  const scan = normalizeFindings({ rows: [row("שלום", 100, 1, base + 3)], width: W, region });
+  const probe = normalizeFindings({ rows: [row("אור", 101, 1, base + 6 * W + 8)], width: W, region, idPrefix: "Q" });
+  [...scan, ...probe].forEach((finding) => finding.cells.forEach((cell, i) => { grid[cell.row][cell.col] = [...baseLetters(finding.word)][i]; })); // the stream stores base letters
+  assert.equal(verifyFindingsAgainstLetters({ findings: [...scan, ...probe], grid }).matched, 2);
+  const markup = buildMarkup({ findings: scan, grid, region, topic: "נושא", probeFindings: probe });
+  assert.deepEqual(markup.marks.map((mark) => [mark.id, mark.source]), [["F001", "scan"], ["Q001", "probe"]]);
+  const html = renderMarkupHtml(markup);
+  assert.match(html, /בדיקת אמת/);
+  assert.match(html, /inset 0 0 0 2px/, "probe cells are outlined, scan cells are filled");
+  assert.equal(/<script|https?:/i.test(html), false);
 });

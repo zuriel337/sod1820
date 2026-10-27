@@ -3,13 +3,15 @@
 // access) and ANALYSES the JSON the engine returned. Commands:
 //   sql   --kind anchor|total|count|letters|batch  [--example id] [--state s.json] [--offset N --limit N --directions cd|row|both] [--controls on]
 //   init  --example id --anchor anchor.json --total-letters N --dict counts.json --out state.json
-//   report --state s.json --batches DIR [--membership present.json] [--controls on] [--out report.json]
+//   report --state s.json --batches DIR [--membership present.json] [--probe probe.json] [--controls on] [--out report.json]
 //        (--controls on = the SEPARATE comparison to other regions; needs batches run with `sql --kind batch --controls on`)
 //   method                                        (prints the exact calculation method of the comparison)
 //   sql --kind membership --words a,b,c          (evaluation only: which words exist in the dictionary)
+//   sql --kind probe --state s.json --words a,b,c [--directions cd|row|both]   (ground truth: the same engine call for explicit words;
+//        save the result as probe.json and pass it to `report --probe probe.json`; never part of what a model sees)
 //   packet --state s.json --batches DIR            (grouping packet for a model; evaluation words are NOT included)
 //   validate --state s.json --batches DIR --answer answer.json
-//   markup --state s.json --batches DIR --letters letters.json [--out-json marks.json] [--out-html matrix.html]
+//   markup --state s.json --batches DIR --letters letters.json [--probe probe.json [--probe-min-len 3]] [--out-json marks.json] [--out-html matrix.html]
 //        (letters.json = rows of `sql --kind letters`; checks that every finding's cells spell its word, then writes the marks)
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -18,6 +20,7 @@ import { anchorSql, dictionaryCountSql, dictionaryMembershipSql, regionLettersSq
 import { buildRunReport } from "./lib/report.mjs";
 import { describeMethod } from "./lib/controls.mjs";
 import { buildGroupingPacket, validateGrouping } from "./lib/grouping.mjs";
+import { normalizeFindings } from "./lib/findings.mjs";
 import { buildMarkup, letterGridFromRows, renderMarkupHtml, verifyFindingsAgainstLetters } from "./lib/markup.mjs";
 
 const args = Object.fromEntries(process.argv.slice(3).map((item, i, all) => (item.startsWith("--") ? [item.slice(2), all[i + 1]?.startsWith("--") || all[i + 1] === undefined ? "true" : all[i + 1]] : null)).filter(Boolean));
@@ -37,6 +40,7 @@ if (command === "sql") {
   else {
     const state = readJson(args.state);
     if (kind === "letters") console.log(regionLettersSql(state.region));
+    else if (kind === "probe") console.log(scanBatchSql({ width: state.width, totalRows: state.totalRows, totalLetters: state.totalLetters, region: state.region, dictionary: { words: (args.words || "").split(",") }, directions: args.directions || "both" }));
     else if (kind === "batch") console.log(scanBatchSql({ width: state.width, totalRows: state.totalRows, totalLetters: state.totalLetters, region: state.region, dictionary: { ...state.dictionary, offset: Number(args.offset || 0), limit: Number(args.limit || 100) }, directions: args.directions || "both", controls: args.controls === "on" }));
     else throw new Error("unknown --kind");
   }
@@ -55,7 +59,7 @@ if (command === "sql") {
 } else if (command === "report" || command === "packet" || command === "validate") {
   const state = readJson(args.state);
   const ex = config.examples.find((entry) => entry.id === state.example);
-  const report = buildRunReport({ example: state.example, state, batches: loadBatches(args.batches), evaluationWords: command === "report" ? ex.evaluationWords : [], membership: args.membership ? readJson(args.membership).map((row) => row.phrase ?? row) : null, controls: command === "report" && args.controls === "on" });
+  const report = buildRunReport({ example: state.example, state, batches: loadBatches(args.batches), evaluationWords: command === "report" ? ex.evaluationWords : [], membership: args.membership ? readJson(args.membership).map((row) => row.phrase ?? row) : null, probe: command === "report" && args.probe ? unwrap(readJson(args.probe)) : null, controls: command === "report" && args.controls === "on" });
   if (command === "report") {
     const { findingsList, phrasesList, ...summary } = report;
     const out = JSON.stringify({ ...summary, findingsSample: findingsList.slice(0, 40).map(({ cells, ...rest }) => rest) }, null, 2);
@@ -72,8 +76,11 @@ if (command === "sql") {
   const report = buildRunReport({ example: state.example, state, batches: loadBatches(args.batches) });
   const letters = readJson(args.letters);
   const grid = letterGridFromRows(Array.isArray(letters) ? letters : letters.result, state.region);
-  const verification = verifyFindingsAgainstLetters({ findings: report.findingsList, grid });
-  const markup = buildMarkup({ findings: report.findingsList, phrases: report.phrasesList, grid, region: state.region, topic: state.term });
+  const probe = args.probe ? unwrap(readJson(args.probe)) : null;
+  const probeRows = probe ? probe.target.filter((row) => row.grp === "cd" && row.len >= Number(args["probe-min-len"] || 3)) : [];
+  const probeFindings = probe ? normalizeFindings({ rows: probeRows, width: state.width, region: state.region, matrixHits: probe.word_matrix_hits, idPrefix: "Q" }) : [];
+  const verification = verifyFindingsAgainstLetters({ findings: [...report.findingsList, ...probeFindings], grid });
+  const markup = buildMarkup({ findings: report.findingsList, phrases: report.phrasesList, grid, region: state.region, topic: state.term, probeFindings });
   if (args["out-json"]) writeFileSync(args["out-json"], JSON.stringify(markup, null, 2));
   if (args["out-html"]) writeFileSync(args["out-html"], renderMarkupHtml(markup, { title: `ניסוי מטריצת ELS — ${state.term}` }));
   console.log(JSON.stringify({ verification, marks: markup.marks.length, wrote: [args["out-json"], args["out-html"]].filter(Boolean) }, null, 2));

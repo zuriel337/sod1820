@@ -1,0 +1,146 @@
+{
+  "example": "ten-tevet-cluster",
+  "time": {
+    "dbMsTotal": 131723,
+    "batches": 4,
+    "wallMsTotal": null
+  },
+  "scan": {
+    "dictionaryWords": 646,
+    "wordsScanned": {
+      "columnsAndDiagonals": 646,
+      "rows": 0
+    },
+    "omitted": {
+      "columnsAndDiagonals": 0,
+      "rows": 646,
+      "reason": "scan budget (each dictionary word costs one canonical engine call per direction group over the whole matrix)"
+    },
+    "lengthsScanned": {
+      "columnsAndDiagonals": [
+        {
+          "len": 9,
+          "scanned": 11,
+          "of": 11
+        },
+        {
+          "len": 8,
+          "scanned": 37,
+          "of": 37
+        },
+        {
+          "len": 7,
+          "scanned": 144,
+          "of": 144
+        },
+        {
+          "len": 6,
+          "scanned": 454,
+          "of": 454
+        }
+      ],
+      "rows": []
+    },
+    "engineCalls": 646,
+    "engineStatuses": {
+      "OK": 50,
+      "EXECUTED_EMPTY": 596
+    },
+    "truncatedCalls": [],
+    "targetOutputTruncated": false
+  },
+  "findings": {
+    "total": 0,
+    "elsInMatrix": 0,
+    "plainTextRows": 0,
+    "byLength": {},
+    "phrases": 0
+  },
+  "control": {
+    "requested": true,
+    "method": "Tile-translation comparison (declared null model, not a random-text model).\n1. The matrix has the declared width W; the target region is rows r0..r1 x columns c0..c0+cols-1.\n2. The same-size tiling anchored at the target is laid over the whole matrix; only tiles that fit entirely inside it are used (partial edge tiles are dropped).\n3. In every tile we count engine-reported occurrences of dictionary words that lie ENTIRELY inside that tile and do not wrap around a row boundary.\n4. The target tile (rb=0, cb=0) is excluded from the control set. extreme = number of control tiles with count >= the target's count; n = number of control tiles.\n5. Empirical p = (extreme + 1) / (n + 1)  (add-one, never exactly 0 — the same convention as runSeededControls).\n6. Limits: tiles are neighbours in the same text, so they are not independent; the dictionary and region size are fixed before looking; a selected target is a post-hoc choice. p answers only 'is this region unusually dense in dictionary words compared with other places in this matrix', never 'is it meaningful'.\n7. Several statistics can be reported; they form one declared family and are corrected together with Benjamini-Hochberg (existing helper) before any label is shown.",
+    "nullModelId": "els_tile_translation_v1",
+    "familyId": "els_tile_translation_family_v1",
+    "alpha": 0.05,
+    "results": [
+      {
+        "statistic": "cd",
+        "observed": 0,
+        "controls": 224,
+        "extreme": 224,
+        "pValue": 1,
+        "controlMean": 0.165,
+        "controlSd": 0.427,
+        "controlMax": 2,
+        "rank": 33,
+        "qValue": 1,
+        "label": "NOT_SIGNIFICANT_UNDER_DECLARED_NULL"
+      }
+    ]
+  },
+  "evaluation": [
+    {
+      "word": "משיח",
+      "length": 4,
+      "scannedLength": false,
+      "inDictionary": true,
+      "missedBecause": [
+        "NOT_FULLY_SCANNED_LENGTH"
+      ],
+      "foundAsFinding": [],
+      "foundAsJoinedPhrase": null,
+      "status": "NOT_FULLY_SCANNED_LENGTH",
+      "groundTruth": {
+        "inRegion": 1,
+        "elsInRegion": 1,
+        "plainTextInRegion": 0,
+        "matrixWide": {
+          "els": 15,
+          "plainTextRows": 5
+        },
+        "engineOutputTruncated": false,
+        "positions": [
+          {
+            "kind": "els_in_matrix",
+            "direction": "col_up",
+            "from": [
+              6,
+              56
+            ],
+            "to": [
+              3,
+              56
+            ]
+          }
+        ]
+      },
+      "verdict": "PRESENT_IN_REGION_BUT_MISSED:NOT_FULLY_SCANNED_LENGTH"
+    },
+    {
+      "word": "טבת",
+      "length": 3,
+      "scannedLength": false,
+      "inDictionary": true,
+      "missedBecause": [
+        "NOT_FULLY_SCANNED_LENGTH"
+      ],
+      "foundAsFinding": [],
+      "foundAsJoinedPhrase": null,
+      "status": "NOT_FULLY_SCANNED_LENGTH",
+      "groundTruth": {
+        "inRegion": 0,
+        "elsInRegion": 0,
+        "plainTextInRegion": 0,
+        "matrixWide": {
+          "els": 41,
+          "plainTextRows": 13
+        },
+        "engineOutputTruncated": false,
+        "positions": []
+      },
+      "verdict": "ABSENT_FROM_REGION"
+    }
+  ],
+  "integrity": [],
+  "findingsSample": []
+}

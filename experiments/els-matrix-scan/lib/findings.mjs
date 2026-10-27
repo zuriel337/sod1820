@@ -7,7 +7,7 @@ const stepOf = (direction) => ({ dRow: direction.dRow, dCol: direction.dCol });
 const key = (cell) => `${cell.row}:${cell.col}`;
 
 /** rows: `target` items of one or more batches {w,len,grp,skip,dir,s,e}; matrixHits: merged `word_matrix_hits` ({"w|grp": n}). */
-export function normalizeFindings({ rows, width, region, matrixHits = {} }) {
+export function normalizeFindings({ rows, width, region, matrixHits = {}, idPrefix = "F" }) {
   const seen = new Map();
   for (const row of rows) {
     const direction = directionOf(row.skip, row.dir, width);
@@ -24,7 +24,7 @@ export function normalizeFindings({ rows, width, region, matrixHits = {} }) {
     const first = row.cells[0];
     const last = row.cells[row.cells.length - 1];
     return Object.freeze({
-      id: `F${pad(index + 1)}`,
+      id: `${idPrefix}${pad(index + 1)}`,
       word: row.w,
       length: row.len,
       kind: row.grp === "row" ? "plain_text_row" : "els_in_matrix",

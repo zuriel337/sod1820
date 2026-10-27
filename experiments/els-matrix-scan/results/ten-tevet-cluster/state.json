@@ -1,0 +1,51 @@
+{
+  "example": "ten-tevet-cluster",
+  "term": "עשירי",
+  "width": 193,
+  "totalLetters": 304805,
+  "totalRows": 1579,
+  "region": {
+    "width": 193,
+    "r0": 695,
+    "r1": 715,
+    "c0": 0,
+    "cw": 61,
+    "rows": 21,
+    "cols": 61
+  },
+  "tileGrid": {
+    "rbMin": -33,
+    "rbMax": 41,
+    "cbMin": 0,
+    "cbMax": 2,
+    "count": 225
+  },
+  "anchor": {
+    "start": 136468,
+    "skip": 193,
+    "dir": -1,
+    "length": 5
+  },
+  "dictionary": {
+    "minLen": 6,
+    "maxLen": 9
+  },
+  "dictionaryTotals": [
+    {
+      "len": 9,
+      "words": 11
+    },
+    {
+      "len": 8,
+      "words": 37
+    },
+    {
+      "len": 7,
+      "words": 144
+    },
+    {
+      "len": 6,
+      "words": 454
+    }
+  ]
+}

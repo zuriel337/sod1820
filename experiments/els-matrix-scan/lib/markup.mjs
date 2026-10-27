@@ -31,16 +31,22 @@ export function verifyFindingsAgainstLetters({ findings, grid }) {
   return { checked: findings.length, matched: findings.length - mismatches.length, mismatches };
 }
 
-/** Marks for drawing: local 0-based cells with their letters, plus the matrix offset to translate back to global coordinates. */
-export function buildMarkup({ findings, phrases = [], grid, region, topic = "" }) {
-  const cellMarks = findings.map((finding) => finding.cells.map((cell) => ({ row: cell.row, col: cell.col, letter: grid[cell.row]?.[cell.col] ?? null })));
+/**
+ * Marks for drawing: local 0-based cells with their letters, plus the matrix offset to translate back to global coordinates.
+ * probeFindings (optional, ids Q…): occurrences of explicitly asked-for words (ground truth) drawn as a separate layer; the dictionary scan
+ * findings (ids F…) are never mixed with them.
+ */
+export function buildMarkup({ findings, phrases = [], grid, region, topic = "", probeFindings = [] }) {
+  const all = [...findings.map((finding) => ({ finding, source: "scan" })), ...probeFindings.map((finding) => ({ finding, source: "probe" }))];
+  const cellMarks = all.map(({ finding }) => finding.cells.map((cell) => ({ row: cell.row, col: cell.col, letter: grid[cell.row]?.[cell.col] ?? null })));
   return {
     topic,
     coordinates: "local, 0-based; matrix row = region.firstMatrixRow + row, matrix column = region.firstMatrixCol + col; column 0 is the first letter of the text row",
     region: { rows: region.rows, cols: region.cols, width: region.width, firstMatrixRow: region.r0, firstMatrixCol: region.c0 },
     rows: grid.map((letters) => letters.join("")),
-    marks: findings.map((finding, index) => ({
+    marks: all.map(({ finding, source }, index) => ({
       id: finding.id,
+      source,
       word: finding.word,
       kind: finding.kind,
       direction: finding.direction,
@@ -64,13 +70,19 @@ export function renderMarkupHtml(markup, { title = "ניסוי מטריצת ELS"
     const key = `${cell.row}:${cell.col}`;
     owners.set(key, [...(owners.get(key) || []), index]);
   }));
+  const solid = (index) => colorOf(index).replace(" / 0.6", "");
   const styleOf = (indices) => {
-    const els = indices.filter((index) => markup.marks[index].kind === "els_in_matrix");
-    const text = indices.filter((index) => markup.marks[index].kind !== "els_in_matrix");
+    const marks = indices.map((index) => ({ index, ...markup.marks[index] }));
+    const els = marks.filter((mark) => mark.source !== "probe" && mark.kind === "els_in_matrix").map((mark) => mark.index);
+    const text = marks.filter((mark) => mark.source !== "probe" && mark.kind !== "els_in_matrix").map((mark) => mark.index);
+    const probes = marks.filter((mark) => mark.source === "probe").map((mark) => mark.index);
     const parts = [];
     if (els.length === 1) parts.push(`background:${colorOf(els[0])}`);
     else if (els.length > 1) parts.push(`background:linear-gradient(135deg,${els.map((index, i) => `${colorOf(index)} ${Math.round((100 * i) / els.length)}% ${Math.round((100 * (i + 1)) / els.length)}%`).join(",")})`);
-    if (text.length) parts.push(`box-shadow:inset 0 -3px 0 ${colorOf(text[text.length - 1]).replace("0.6", "1")}`);
+    const shadows = [];
+    if (text.length) shadows.push(`inset 0 -3px 0 ${solid(text[text.length - 1])}`);
+    if (probes.length) shadows.push(`inset 0 0 0 2px ${solid(probes[probes.length - 1])}`);
+    if (shadows.length) parts.push(`box-shadow:${shadows.join(",")}`);
     return parts.join(";");
   };
   const header = `<tr><th></th>${Array.from({ length: region.cols }, (_, col) => `<th>${(col + 1) % 10 === 0 || col === 0 ? col + 1 : ""}</th>`).join("")}</tr>`;
@@ -82,12 +94,16 @@ export function renderMarkupHtml(markup, { title = "ניסוי מטריצת ELS"
     }).join("");
     return `<tr><th>${row + 1}</th>${cells}</tr>`;
   }).join("\n");
-  const legend = markup.marks.map((mark, index) => {
-    const swatch = mark.kind === "els_in_matrix" ? `background:${colorOf(index)}` : `box-shadow:inset 0 -3px 0 ${colorOf(index).replace("0.6", "1")}`;
+  const legendItem = (mark, index) => {
+    const swatch = mark.source === "probe" ? `box-shadow:inset 0 0 0 2px ${solid(index)}` : mark.kind === "els_in_matrix" ? `background:${colorOf(index)}` : `box-shadow:inset 0 -3px 0 ${solid(index)}`;
     const from = `(${mark.from.row + 1},${mark.from.col + 1})`;
     const to = `(${mark.to.row + 1},${mark.to.col + 1})`;
     return `<li><span class="sw" style="${swatch}"></span><b>${escapeHtml(mark.id)}</b> ${escapeHtml(mark.word)} · ${escapeHtml(DIRECTION_LABEL[mark.direction] || mark.direction)}${mark.kind === "els_in_matrix" ? "" : " · טקסט רגיל, לא ELS"} · <bdi>${from} → ${to}</bdi></li>`;
-  }).join("\n");
+  };
+  const listOf = (source) => markup.marks.map((mark, index) => ({ mark, index })).filter(({ mark }) => (mark.source || "scan") === source).map(({ mark, index }) => legendItem(mark, index)).join("\n");
+  const probeList = markup.marks.some((mark) => mark.source === "probe")
+    ? `<h2>בדיקת אמת — חיפוש ישיר של מילים שנתבקשו (מסגרת; לא מהסריקה)</h2>\n<ul>\n${listOf("probe")}\n</ul>`
+    : "";
   const phraseList = markup.phrases.length
     ? `<h2>צירופים ברצף</h2><ul>${markup.phrases.map((phrase) => `<li><b>${escapeHtml(phrase.id)}</b> ${escapeHtml(phrase.text)} · ${escapeHtml(DIRECTION_LABEL[phrase.direction] || phrase.direction)} · ${escapeHtml(phrase.components.join("+"))}</li>`).join("")}</ul>`
     : "";
@@ -116,15 +132,16 @@ li { margin: 3px 0; }
 </head>
 <body>
 <h1>${escapeHtml(title)}</h1>
-<p class="note">נושא: ${escapeHtml(markup.topic || "—")} · אזור ${region.rows}×${region.cols} מתוך מטריצה ברוחב ${region.width} (שורה ${region.firstMatrixRow + 1}, עמודה ${region.firstMatrixCol + 1} בפינה). עמודה 1 היא האות הראשונה בשורת הטקסט (בצד ימין). כל המיקומים הם פלט מנוע ה-ELS הקנוני; הצבע מסמן ממצא, קו תחתון מסמן מילה בטקסט רגיל (לא ELS).</p>
+<p class="note">נושא: ${escapeHtml(markup.topic || "—")} · אזור ${region.rows}×${region.cols} מתוך מטריצה ברוחב ${region.width} (שורה ${region.firstMatrixRow + 1}, עמודה ${region.firstMatrixCol + 1} בפינה). עמודה 1 היא האות הראשונה בשורת הטקסט (בצד ימין). כל המיקומים הם פלט מנוע ה-ELS הקנוני; הצבע מסמן ממצא סריקה, קו תחתון מסמן מילה בטקסט רגיל (לא ELS), ומסגרת מסמנת מילה שנתבקשה ישירות בבדיקת אמת.</p>
 <div class="scroll"><table class="m" dir="rtl">
 ${header}
 ${body}
 </table></div>
-<h2>ממצאים</h2>
+<h2>ממצאי הסריקה (מילון)</h2>
 <ul>
-${legend}
+${listOf("scan") || "<li>לא נמצאו ממצאים באזור.</li>"}
 </ul>
+${probeList}
 ${phraseList}
 </body>
 </html>

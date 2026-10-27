@@ -43,7 +43,7 @@ export function verifyBatch(batch, size) {
  * controls: false (default) = region findings only; true = also the SEPARATE comparison to other regions (needs batches that were run with
  * controls on). The comparison is never mixed into the findings: it is its own `control` section with its method text.
  */
-export function buildRunReport({ example, state, batches: rawBatches, evaluationWords = [], membership = null, controls = false, statistics = ["cd", "cd5"] }) {
+export function buildRunReport({ example, state, batches: rawBatches, evaluationWords = [], membership = null, probe = null, controls = false, statistics = null }) {
   const batches = rawBatches.map(withDerivedStatistics);
   const dictionaryTotals = state.dictionaryTotals;
   const dictionaryWords = dictionaryTotals.reduce((n, entry) => n + entry.words, 0);
@@ -72,7 +72,9 @@ export function buildRunReport({ example, state, batches: rawBatches, evaluation
   if (controls) {
     if (batches.some(({ result }) => !result.tile_vectors)) throw new RangeError("controls requested but a batch was run without controls (no tile_vectors)");
     const merged = mergeTileVectors(batches.map(({ result }) => result.tile_vectors), state.tileGrid.count);
-    control = Object.freeze({ requested: true, ...compareToTiles({ merged, grid: state.tileGrid, statistics }) });
+    // With minLen >= 5 the "len >= 5" statistic is identical to the plain one: it would only duplicate a member of the declared family.
+    const declared = statistics || (state.dictionary?.minLen >= 5 ? ["cd"] : ["cd", "cd5"]);
+    control = Object.freeze({ requested: true, ...compareToTiles({ merged, grid: state.tileGrid, statistics: declared }) });
   }
 
   const statuses = {};
@@ -103,7 +105,11 @@ export function buildRunReport({ example, state, batches: rawBatches, evaluation
       phrases: phrases.length,
     },
     control,
-    evaluation: evaluationWords.length ? evaluateWords({ words: evaluationWords, findings, phrases, membership, scannedLengths: lengthsCovered("cd").filter((entry) => entry.scanned === entry.of).map((entry) => entry.len) }) : null,
+    evaluation: evaluationWords.length ? evaluateWords({
+      words: evaluationWords, findings, phrases, membership,
+      scannedLengths: lengthsCovered("cd").filter((entry) => entry.scanned === entry.of).map((entry) => entry.len),
+      groundTruth: probe ? { findings: normalizeFindings({ rows: probe.target, width: state.width, region: state.region, matrixHits: probe.word_matrix_hits }), matrixHits: probe.word_matrix_hits, truncatedWords: [...new Set((probe.truncated_calls || []).map((call) => call.w))] } : null,
+    }) : null,
     integrity,
     findingsList: findings,
     phrasesList: phrases,
@@ -113,8 +119,10 @@ export function buildRunReport({ example, state, batches: rawBatches, evaluation
 /**
  * Evaluation only (never part of the model packet): was each word found by the dictionary scan, and where.
  * scannedLengths: letter counts that were fully scanned (columns+diagonals); membership: words known to exist in the dictionary (optional).
+ * groundTruth (optional): findings of a PROBE — the same engine call asked for the evaluation words themselves — so that "the scan did not
+ * report it" can be told apart from "it is not in the region at all".
  */
-export function evaluateWords({ words, findings, phrases, grouping = null, scannedLengths = null, membership = null }) {
+export function evaluateWords({ words, findings, phrases, grouping = null, scannedLengths = null, membership = null, groundTruth = null }) {
   const labelOf = (id) => grouping?.groups.find((group) => group.finding_ids.includes(id))?.label ?? null;
   return words.map((word) => {
     const found = findings.filter((finding) => finding.word === word);
@@ -122,15 +130,34 @@ export function evaluateWords({ words, findings, phrases, grouping = null, scann
     const length = [...word].length;
     const scanned = scannedLengths ? scannedLengths.includes(length) : null;
     const inDictionary = membership ? membership.includes(word) : null;
-    let status = "FOUND_BY_DICTIONARY_SCAN";
-    if (!(found.length || phrase)) {
-      status = scanned === false ? "NOT_FULLY_SCANNED_LENGTH" : inDictionary === false ? "NOT_IN_DICTIONARY" : "NOT_FOUND_IN_SCANNED_DICTIONARY";
-    }
-    return {
-      word, length, scannedLength: scanned, inDictionary,
+    // Every reason that applies is kept (a word can be both outside the scanned lengths and outside the dictionary); `status` is the first.
+    const reasons = [scanned === false && "NOT_FULLY_SCANNED_LENGTH", inDictionary === false && "NOT_IN_DICTIONARY"].filter(Boolean);
+    const missed = !(found.length || phrase);
+    const status = missed ? reasons[0] ?? "NOT_FOUND_IN_SCANNED_DICTIONARY" : "FOUND_BY_DICTIONARY_SCAN";
+    const entry = {
+      word, length, scannedLength: scanned, inDictionary, missedBecause: missed ? (reasons.length ? reasons : ["NOT_FOUND_IN_SCANNED_DICTIONARY"]) : [],
       foundAsFinding: found.map((finding) => ({ id: finding.id, kind: finding.kind, direction: finding.direction, matrixHits: finding.matrixHits, group: labelOf(finding.id) })),
       foundAsJoinedPhrase: phrase ? { id: phrase.id, text: phrase.text, components: phrase.components } : null,
       status,
     };
+    if (groundTruth) {
+      const present = groundTruth.findings.filter((finding) => finding.word === word);
+      const elsPresent = present.filter((finding) => finding.kind === "els_in_matrix");
+      const truncated = groundTruth.truncatedWords.includes(word);
+      const matrixWide = (group) => Number(groundTruth.matrixHits?.[`${word}|${group}`] ?? 0);
+      entry.groundTruth = {
+        inRegion: present.length,
+        elsInRegion: elsPresent.length,
+        plainTextInRegion: present.length - elsPresent.length,
+        matrixWide: { els: matrixWide("cd"), plainTextRows: matrixWide("row") },
+        engineOutputTruncated: truncated,
+        positions: present.map((finding) => ({ kind: finding.kind, direction: finding.direction, from: [finding.local.fromRow + 1, finding.local.fromCol + 1], to: [finding.local.toRow + 1, finding.local.toCol + 1] })),
+      };
+      entry.verdict = status === "FOUND_BY_DICTIONARY_SCAN" ? "FOUND_BY_DICTIONARY_SCAN"
+        : elsPresent.length ? `PRESENT_IN_REGION_BUT_MISSED:${entry.missedBecause.join("+")}`
+          : present.length ? "ONLY_AS_PLAIN_TEXT_IN_REGION"
+            : truncated ? "NOT_SEEN_BUT_ENGINE_OUTPUT_TRUNCATED" : "ABSENT_FROM_REGION";
+    }
+    return entry;
   });
 }
