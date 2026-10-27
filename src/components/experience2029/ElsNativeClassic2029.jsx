@@ -535,7 +535,7 @@ function RegularResultsRail({ state, pending, operation, visible, guided = false
   </div>;
 }
 
-function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry }) {
+function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContinue, onRetry, searchTerms }) {
   const [sort, setSort] = useState("rank");
   const [page, setPage] = useState(0);
   const [minSkip, setMinSkip] = useState("");
@@ -549,7 +549,7 @@ function CrossResultsRail({ state, pending, outcome, visible, onSelect, onContin
   return <div className="els29-native-workrail els29-native-results" hidden={!visible} aria-label="רשימת מפגשי ההצלבה" aria-busy={pending}>
     <strong>{pending ? "מחפש מפגשים…" : items.length ? `${items.length} מפגשי הצלבה` : "תוצאות הצלבה"}</strong>
     {items.length ? <>
-      <p className="els29-native-muted">{state.search.crossA} × {state.search.crossB}</p>
+      <p className="els29-native-muted">{searchTerms?.length === 3 ? searchTerms.join(" × ") : <>{state.search.crossA} × {state.search.crossB}</>}</p>
       {state.search.coverage?.truncated ? <small>סריקה מוגבלת: נבדקו {state.search.coverage.scanned} מתוך {state.search.coverage.available} מיקומי הציר שנמצאו. רשימת הצירים עצמה עשויה להיות חלקית.</small> : null}
       <details><summary>מיון וסינון</summary>
       <label>מיון <select aria-label="מיון מפגשי ההצלבה" value={sort} onChange={(event) => setSort(event.target.value)}>
@@ -872,6 +872,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [crossOpen, setCrossOpen] = useState(false);
   const crossSearchOpen = researchProfile && crossOpen;
   const [crossTerm, setCrossTerm] = useState("");
+  const [crossThirdTerm, setCrossThirdTerm] = useState("");
+  const lastSearchKindRef = useRef(null);
+  useEffect(() => { if (matrix) lastSearchKindRef.current = null; }, [matrix]);
   const [crossRadius, setCrossRadius] = useState(18);
   const [windowSize, setWindowSize] = useState("small");
   const crossRadiusDraftRef = useRef({ edited: false, revision: 0, submitted: null });
@@ -921,6 +924,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const requestSearch = (kind, payload = {}) => {
+    lastSearchKindRef.current = kind;
     onSearchStart?.();
     resetReadContext();
     setLoadError(null);
@@ -957,6 +961,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     };
     setQuery(term);
     setCrossTerm(secondaryAxis);
+    setCrossThirdTerm("");
     setCrossOpen(searchMode === "crossed_pair");
     if (searchMode === "crossed_three") {
       requestSearch("cross-three", { terms: requestedAxes, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", radius: 18 });
@@ -1020,8 +1025,18 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const submitCross = (scope = activeScope) => {
     const axis = clean(query) || clean(engineState?.termRaw || engineState?.term);
     const term = clean(crossTerm);
+    const third = clean(crossThirdTerm);
     if (axis.length < 2 || term.length < 2) {
       setNotice("להצלבה צריך שני מונחים של לפחות שתי אותיות.");
+      return;
+    }
+    if (third) {
+      const terms = [axis, term, third], keys = terms.map(canonicalHebrew);
+      if (keys.some(key => key.length < 2 || key.length > 12) || new Set(keys).size !== 3) {
+        setNotice("להצלבה משולשת נדרשים שלושה מונחים שונים, בני 2–12 אותיות כל אחד.");
+        return;
+      }
+      requestSearch("cross-three", { terms, scope, radius: crossRadius });
       return;
     }
     crossRadiusDraftRef.current.submitted = { value: crossRadius, revision: crossRadiusDraftRef.current.revision };
@@ -1037,7 +1052,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         setOperations((current) => ({ ...current, findings: null }));
       }
     }
-    if (next?.termRaw && (next.termRaw !== previous?.termRaw || next?.search?.crossA !== previous?.search?.crossA)) setQuery(next.search?.mode === "cross-simple" ? next.search.crossA : next.termRaw);
+    if (next?.termRaw && !(lastSearchKindRef.current === "cross-three" && next?.search?.mode === "cross-free") && (next.termRaw !== previous?.termRaw || next?.search?.crossA !== previous?.search?.crossA)) setQuery(next.search?.mode === "cross-simple" ? next.search.crossA : next.termRaw);
     if (next?.ui?.windowRequested !== previous?.ui?.windowRequested && ["small", "medium", "large"].includes(next?.ui?.windowRequested)) setWindowSize(next.ui.windowRequested);
     const canonicalRadius = Number(next?.search?.crossRadius);
     if (Number.isInteger(canonicalRadius) && canonicalRadius >= 2 && canonicalRadius <= 20) {
@@ -1277,9 +1292,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     <form id="els29-query" ref={queryRef} className="els29-native-query" onSubmit={submit} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <span><strong>חיפוש חדש</strong>{researchProfile ? " · ציר יחיד או הצלבה" : ""}</span>
-        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
+        {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); }}>חיפוש רגיל</button>
         <button className="els29-native-cross-toggle" type="button" aria-pressed={crossSearchOpen} aria-expanded={crossSearchOpen}
-          onClick={() => { if (crossSearchOpen && ["cross", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button></> : null}
+          onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(value => !value); }}>הצלבה בין צירים</button></> : null}
       </div>
       <div className="els29-native-query-terms">
       <label>
@@ -1302,6 +1317,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             placeholder="למשל: דוד"
             autoComplete="off"
           />
+        </label>
+        <label>
+          <span>מונח שלישי · לא חובה</span>
+          <input value={crossThirdTerm} onChange={(event) => setCrossThirdTerm(event.target.value)} maxLength={40}
+            placeholder="להצלבה של שלושה מונחים" autoComplete="off" />
         </label>
       </div> : null}
       {researchProfile && !crossSearchOpen && (clean(query).split(/\s+/).length > 1 || clean(query).replace(/[^א-ת]/g, "").length >= 7) ? <div className="els29-native-search-coach" role="note">
@@ -1454,7 +1474,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <button type="button" hidden={guidedProfile} className="els29-native-pin" aria-pressed={panelPinned} onClick={() => setPanelPinned((value) => !value)}>{panelPinned ? "בטל הצמדה" : "הצמד"}</button>
             <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>
-        <CrossResultsRail onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
+        <CrossResultsRail searchTerms={operations.search?.searchKind === "cross-three" ? operations.search.payload?.terms : null} onContinue={setId => requestSearch("cross-continue", {setId, scope:activeScope})} onRetry={() => requestSearch(operations.search?.searchKind || "cross", operations.search?.payload || {})} state={engineState} pending={searchPending || ["searching", "verifying"].includes(operations.findings?.status)}
           outcome={operations.search?.status} visible={activeTool === "results" && resultsAreCross} onSelect={requestControl} />
         <RegularResultsRail onContinue={setId => requestSearch("continue", {setId, term:engineState?.termRaw || engineState?.term, scope:activeScope})} state={engineState} pending={searchPending} operation={operations.search} visible={activeTool === "results" && !resultsAreCross}
           guided={guidedProfile} guidedCoverage={guidedCoverage} onGuidedContinue={continueGuidedCoverage} onGuidedAddSupports={addGuidedSupports}

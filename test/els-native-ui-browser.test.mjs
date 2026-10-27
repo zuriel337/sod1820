@@ -1861,6 +1861,36 @@ test('native form: crossing terms stay adjacent before the shared submit on mobi
  });
 });
 
+test('research form: optional third axis uses the existing verified triple or the original pair path',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+ for(const width of [320,1440])await withNative({width,height:900},async page=>{
+  const form=page.locator('#els29-query');
+  await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+  const first=form.getByRole('textbox',{name:'מונח ראשון'}), second=form.getByRole('textbox',{name:'מונח שני'}), third=form.getByRole('textbox',{name:'מונח שלישי · לא חובה'});
+  await first.fill('תורהקדשה');await second.fill('בחשרתע');await third.fill('כויזלת');
+  const before=await page.evaluate(()=>window.__operation?.requestId||0);
+  await form.getByRole('button',{name:'חפש הצלבה'}).click();
+  await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),before,{timeout:120000});
+  const triple=await page.evaluate(()=>({operation:window.__operation,state:window.__state,requests:window.__log.filter(x=>x.type==='engine-request')}));
+  assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').at(-1)?.request?.kind),'cross-three');
+  assert.equal(triple.operation.status,'done',JSON.stringify(triple.operation));
+  assert.equal(triple.state.verification.state,'MATCH');
+  assert.ok(triple.state.search.results.items.every(item=>!item.available||item.terms.length===2));
+  assert.ok(triple.requests.filter(request=>request.op==='verify_batch'&&request.payload?.strategy?.policy==='GUIDED_THREE_TERM_REPLAY_V1').length>=2);
+  assert.equal(await first.inputValue(),'תורהקדשה');assert.equal(await second.inputValue(),'בחשרתע');assert.equal(await third.inputValue(),'כויזלת');
+  assert.ok((await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').innerText()).includes('תורהקדשה × בחשרתע × כויזלת'));
+  await third.clear();await form.getByRole('button',{name:'חפש הצלבה'}).click();
+  await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),triple.operation.requestId,{timeout:120000});
+  assert.equal((await page.evaluate(()=>window.__operation)).status,'done');
+  assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').at(-1)?.request?.kind),'cross');
+  const count=await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').length);
+  await third.fill('בחשרתע');await form.getByRole('button',{name:'חפש הצלבה'}).click();
+  assert.ok(await page.getByText('להצלבה משולשת נדרשים שלושה מונחים שונים, בני 2–12 אותיות כל אחד.').isVisible());
+  assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').length),count,'invalid triple never starts a search');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ },{realHost:true,loadGolden:false});
+});
+
 test('native form: a phrase and its split-and-cross action stay in one centered search bundle',
  {skip:!canRun,timeout:90000},async()=>{
  for(const width of [390,1440]) await withNative({width,height:1000},async page=>{
