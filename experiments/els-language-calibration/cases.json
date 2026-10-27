@@ -1,0 +1,8 @@
+{
+  "note": "Axes are the engine occurrences recorded in the guided discovery ledger (GD-01..03). They are data; no library code depends on them.",
+  "cases": [
+    { "id": "gd01", "scope": "tanakh", "start": 244509, "skip": 41865, "dir": -1, "length": 6, "look": ["באשאטמינ", "שבררומי"] },
+    { "id": "gd02", "scope": "torah", "start": 248765, "skip": 4545, "dir": 1, "length": 8, "look": ["ספינת", "יכלאש", "אשאכלה"] },
+    { "id": "gd03", "scope": "torah", "start": 81020, "skip": 10101, "dir": 1, "length": 7, "look": [] }
+  ]
+}
