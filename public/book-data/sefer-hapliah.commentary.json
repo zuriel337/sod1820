@@ -361,7 +361,8 @@
       "internal_content_unit_ids": [
         "hapliah.bereshit.opening-10"
       ],
-      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן."
+      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן.",
+      "visual_witness_review": "page_layout_and_subject_only_no_exact_quote"
     },
     {
       "pdf_page": 11,
@@ -512,15 +513,29 @@
     {
       "pdf_page": 18,
       "gate_id": "bereshit",
-      "title": "רקיעים, גלגלים ומזלות",
-      "companion_explanation": "עמוד זה נמצא ברצף שער הקריאה „״ברא אלהים״ — אותיות, שמות וספירות” (9 מתוך 74). מוקד הקריאה המקומי הוא רקיעים, גלגלים ומזלות: העמוד עוקב אחר מערך רקיעים, גלגלים או מזלות ויחסי ההשפעה ביניהם. קראו תחילה את דברי הספר בעמוד ה־PDF שממול, ואז עקבו אחר האופן שבו מילה מן הפסוק נעשית פתח למערכת של אותיות ומידות.",
+      "title": "אותיות הא״ב, מילוי האותיות ומנייניהן",
+      "companion_explanation": "עמוד PDF 18 עוסק בדרשת אותיות הא״ב ובמילוי שמות האותיות. יש להבחין בין האות הגלויה לבין אותיות המילוי ובין עצם הצירוף לבין חשבון המתיימר להיגזר ממנו. זהו הסבר נלווה למוקד הנקודתי; רצף ההוכחה וכל מניין מדויק עדיין צריכים קריאה של שורות המקור ובדיקת מנוע נפרדת.",
       "reading_points": [
-        "לשון הפסוק",
-        "אותיות ושמות",
-        "ספירות ויחסי השפעה"
+        "מזהים את רצף שמות האותיות ואת אזכורי המילוי.",
+        "עוקבים אחר מעבר מצורת האות אל צירופים ומניינים, בלי להציג אותם כאימות.",
+        "פותחים את עמוד PDF 18 לבדיקת הנוסח; אין ציטוט מן המקור בהסבר זה."
       ],
       "source_anchor": "#page=18&view=FitH",
-      "source_basis": "embedded_text_and_source_sequence"
+      "source_basis": "visually_inspected_page_layout_plus_extracted_text_not_exact_transcription",
+      "first_pass_snapshot": {
+        "title": "רקיעים, גלגלים ומזלות",
+        "companion_explanation": "עמוד זה נמצא ברצף שער הקריאה „״ברא אלהים״ — אותיות, שמות וספירות” (9 מתוך 74). מוקד הקריאה המקומי הוא רקיעים, גלגלים ומזלות: העמוד עוקב אחר מערך רקיעים, גלגלים או מזלות ויחסי ההשפעה ביניהם. קראו תחילה את דברי הספר בעמוד ה־PDF שממול, ואז עקבו אחר האופן שבו מילה מן הפסוק נעשית פתח למערכת של אותיות ומידות.",
+        "reading_points": [
+          "לשון הפסוק",
+          "אותיות ושמות",
+          "ספירות ויחסי השפעה"
+        ]
+      },
+      "internal_content_unit_ids": [
+        "hapliah.bereshit.alphabet-18"
+      ],
+      "technical_note": "ה־PDF המקורי אומת ב־SHA256 והעמוד נפתח חזותית; בוצעה בדיקת נושא/פריסה, לא תעתוק מלא או אימות מניין. פירוש מודפס לא הופרד במלואו.",
+      "visual_witness_review": "page_layout_and_subject_only_no_exact_quote"
     },
     {
       "pdf_page": 19,
@@ -1114,15 +1129,29 @@
     {
       "pdf_page": 60,
       "gate_id": "bereshit",
-      "title": "רקיעים, גלגלים ומזלות",
-      "companion_explanation": "עמוד זה נמצא ברצף שער הקריאה „״ברא אלהים״ — אותיות, שמות וספירות” (51 מתוך 74). מוקד הקריאה המקומי הוא רקיעים, גלגלים ומזלות: העמוד עוקב אחר מערך רקיעים, גלגלים או מזלות ויחסי ההשפעה ביניהם. קראו תחילה את דברי הספר בעמוד ה־PDF שממול, ואז עקבו אחר האופן שבו מילה מן הפסוק נעשית פתח למערכת של אותיות ומידות.",
+      "title": "סדר מועד בדרשת סדרי המשנה",
+      "companion_explanation": "בעמוד PDF 60 נראית כותרת פנימית 'סדר מועד' במסגרת דיון בסדרי המשנה. ההבחנה עוזרת לקורא לזהות מעבר ממשי בתוך חטיבת בראשית הרחבה, בלי לייחס לספר פרק רשמי חדש. גבולות הנושא מעבר לעמוד זה עדיין לא הוכרעו בבדיקה מדויקת של העדות המודפסת.",
       "reading_points": [
-        "לשון הפסוק",
-        "אותיות ושמות",
-        "ספירות ויחסי השפעה"
+        "מזהים תחילה את הכותרת הפנימית ולא הופכים אותה לשער חדש.",
+        "מפרידים בין סדרי המשנה הנזכרים לבין ההסבר הקבלי הנלווה להם.",
+        "פותחים את עמוד PDF 60; גבולות היחידה והייחוסים עדיין נבדקים."
       ],
       "source_anchor": "#page=60&view=FitH",
-      "source_basis": "embedded_text_and_source_sequence"
+      "source_basis": "visually_inspected_page_layout_plus_extracted_text_not_exact_transcription",
+      "first_pass_snapshot": {
+        "title": "רקיעים, גלגלים ומזלות",
+        "companion_explanation": "עמוד זה נמצא ברצף שער הקריאה „״ברא אלהים״ — אותיות, שמות וספירות” (51 מתוך 74). מוקד הקריאה המקומי הוא רקיעים, גלגלים ומזלות: העמוד עוקב אחר מערך רקיעים, גלגלים או מזלות ויחסי ההשפעה ביניהם. קראו תחילה את דברי הספר בעמוד ה־PDF שממול, ואז עקבו אחר האופן שבו מילה מן הפסוק נעשית פתח למערכת של אותיות ומידות.",
+        "reading_points": [
+          "לשון הפסוק",
+          "אותיות ושמות",
+          "ספירות ויחסי השפעה"
+        ]
+      },
+      "internal_content_unit_ids": [
+        "hapliah.bereshit.seder-moed-60"
+      ],
+      "technical_note": "ה־PDF המקורי אומת ב־SHA256 והעמוד נפתח חזותית; בוצעה בדיקת נושא/פריסה, לא תעתוק מלא או אימות מניין. פירוש מודפס לא הופרד במלואו.",
+      "visual_witness_review": "page_layout_and_subject_only_no_exact_quote"
     },
     {
       "pdf_page": 61,
@@ -1717,7 +1746,8 @@
       "internal_content_unit_ids": [
         "hapliah.palaces.throne-93"
       ],
-      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן."
+      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן.",
+      "visual_witness_review": "page_layout_and_subject_only_no_exact_quote"
     },
     {
       "pdf_page": 94,
@@ -1745,7 +1775,8 @@
       "internal_content_unit_ids": [
         "hapliah.palaces.palaces-94"
       ],
-      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן."
+      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן.",
+      "visual_witness_review": "page_layout_and_subject_only_no_exact_quote"
     },
     {
       "pdf_page": 95,
@@ -1772,7 +1803,9 @@
       "internal_content_unit_ids": [
         "hapliah.palaces.printed-schematic-95"
       ],
-      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן."
+      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן.",
+      "visual_witness_review": "page_layout_and_subject_only_no_exact_quote",
+      "diagram_warning": "תרשים רב־כיווני: כיווני כתיבה/קווים אינם יחסים מוכחים. עמוד המקור נשאר נגיש, ואין שיחזור של התרשים בטקסט."
     },
     {
       "pdf_page": 96,
@@ -1933,7 +1966,8 @@
       "internal_content_unit_ids": [
         "hapliah.creation-days.day-two-102"
       ],
-      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן."
+      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן.",
+      "visual_witness_review": "page_layout_and_subject_only_no_exact_quote"
     },
     {
       "pdf_page": 103,
@@ -2174,7 +2208,8 @@
       "internal_content_unit_ids": [
         "hapliah.human-image.alphabets-113"
       ],
-      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן."
+      "technical_note": "מפת עומק חלקית מבוססת על איתור בטקסט שהופק מן ה־PDF. בדיקה חזותית של דברי הספר וגבולות היחידה עדיין נדרשת. פירוש מודפס, אם קיים, לא יוחס כאן.",
+      "visual_witness_review": "page_layout_and_subject_only_no_exact_quote"
     },
     {
       "pdf_page": 114,
@@ -2401,15 +2436,29 @@
     {
       "pdf_page": 130,
       "gate_id": "human-image",
-      "title": "רקיעים, גלגלים ומזלות",
-      "companion_explanation": "עמוד זה נמצא ברצף שער הקריאה „בריאת האדם, צלם וגוף” (23 מתוך 72). מוקד הקריאה המקומי הוא רקיעים, גלגלים ומזלות: העמוד עוקב אחר מערך רקיעים, גלגלים או מזלות ויחסי ההשפעה ביניהם. קראו תחילה את דברי הספר בעמוד ה־PDF שממול, ואז עקבו אחר ההקבלה המקומית בין האדם לבין המידות והעולמות שעליהם מדבר הספר.",
+      "title": "צלם האדם, שמות ומידות",
+      "companion_explanation": "עמוד PDF 130 כולל בירור על צלם האדם ועל ההקבלה לשמות ולמידות. קראו את השאלה על לשון בריאת האדם לפני שניגשים לחשבונות ולצירופים; ההסבר הנלווה אינו טוען שיחסים מספריים אומתו במנוע. זו יחידה ממוקדת בעמוד, ולא קביעה על כל רצף בריאת האדם.",
       "reading_points": [
-        "צלם האדם",
-        "גוף, נפש ואיברים",
-        "אדם כעולם קטן"
+        "מתחילים בלשון 'בצלם' ובהקשרה בפרשת בראשית.",
+        "מסמנים את המעבר מדרשת הפסוק אל שמות ומידות.",
+        "פותחים את עמוד PDF 130 לבדיקת אותיות ושמות; לא הוצג ציטוט מאומת."
       ],
       "source_anchor": "#page=130&view=FitH",
-      "source_basis": "embedded_text_and_source_sequence"
+      "source_basis": "visually_inspected_page_layout_plus_extracted_text_not_exact_transcription",
+      "first_pass_snapshot": {
+        "title": "רקיעים, גלגלים ומזלות",
+        "companion_explanation": "עמוד זה נמצא ברצף שער הקריאה „בריאת האדם, צלם וגוף” (23 מתוך 72). מוקד הקריאה המקומי הוא רקיעים, גלגלים ומזלות: העמוד עוקב אחר מערך רקיעים, גלגלים או מזלות ויחסי ההשפעה ביניהם. קראו תחילה את דברי הספר בעמוד ה־PDF שממול, ואז עקבו אחר ההקבלה המקומית בין האדם לבין המידות והעולמות שעליהם מדבר הספר.",
+        "reading_points": [
+          "צלם האדם",
+          "גוף, נפש ואיברים",
+          "אדם כעולם קטן"
+        ]
+      },
+      "internal_content_unit_ids": [
+        "hapliah.human-image.tzelem-130"
+      ],
+      "technical_note": "ה־PDF המקורי אומת ב־SHA256 והעמוד נפתח חזותית; בוצעה בדיקת נושא/פריסה, לא תעתוק מלא או אימות מניין. פירוש מודפס לא הופרד במלואו.",
+      "visual_witness_review": "page_layout_and_subject_only_no_exact_quote"
     },
     {
       "pdf_page": 131,
@@ -5549,13 +5598,14 @@
     "schema_version": "sefer-hapliah-internal-map.v1",
     "map_asset_url": "/book-data/sefer-hapliah.internal-map.json",
     "status": "partial_source_located",
-    "source_bound_units": 82,
-    "source_sampled_machine_text_pages": 94,
-    "direct_pdf_visual_pages_verified": 0,
+    "source_bound_units": 85,
+    "source_sampled_machine_text_pages": 97,
+    "direct_pdf_visual_pages_verified": 9,
     "preview_mode": "companion_explanations_at_entry_pages_without_engine",
     "interactive_map_ui": "unwired_shared_manifest_and_reader_intentionally_untouched",
     "engine_verification": "not_tested",
-    "original_first_pass": "preserved_in_first_pass_snapshot_for_each_updated_entry_page"
+    "original_first_pass": "preserved_in_first_pass_snapshot_for_each_updated_entry_page",
+    "visual_verification_scope": "nine page-layout/topic checks only, 318 pages not visually assessed"
   },
   "printed_commentary_status": "פירוש מודפס במהדורה: גבולותיו וקיומו לא הוכרעו חזותית; אין לשייך את ההסבר הנלווה לפירוש מודפס."
 }
