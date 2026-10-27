@@ -1,0 +1,22 @@
+{
+  "note": "Axes are engine occurrences (ledger GD-01..03 and the earlier ten-tevet cluster). Targets are data and never enter code. Context scenarios are copied from the ledger and flagged post-hoc.",
+  "cases": [
+    { "id": "gd01", "origin": "ledger GD-01", "scope": "tanakh", "start": 244509, "skip": 41865, "dir": -1, "length": 6, "targets": ["באשאטמינ", "שבררומי"] },
+    { "id": "gd02", "origin": "ledger GD-02 and the user's Columbia message", "scope": "torah", "start": 248765, "skip": 4545, "dir": 1, "length": 8, "targets": ["ספינת", "יכלאש", "אשאכלה"] },
+    { "id": "gd03", "origin": "ledger GD-03", "scope": "torah", "start": 81020, "skip": 10101, "dir": 1, "length": 7, "targets": ["איראן", "ארהב"] },
+    { "id": "cluster", "origin": "the user's earlier message (not chosen by Claude)", "scope": "torah", "start": 136468, "skip": 193, "dir": -1, "length": 5, "targets": ["משיח"] }
+  ],
+  "scenarios": [
+    { "id": "gd02-context", "case": "gd02", "origin": "ledger GD-02 note (context word), post-hoc", "context": ["אש"] },
+    { "id": "gd03-context", "case": "gd03", "origin": "ledger GD-03 (context terms registered in advance), post-hoc; ארהב is itself a context term", "context": ["איראן", "ארהב"] }
+  ],
+  "budgets": { "foundTop": 50, "unionPerSignal": 25, "contextBlockCap": 50, "tops": [25, 50, 150] },
+  "null": { "minCells": 1100, "axisLength": 6, "skipBase": 50, "skipSpan": 4950, "skipMultiplier": "7919*104729", "startMultiplier": "104729*13", "windows": { "torah": 40, "tanakh": 30 } },
+  "planted": {
+    "windows": 60, "scope": "torah", "wordLengths": [6, 8], "wordIndex": "(i*7919 + k*104729 + 13) mod words",
+    "classes": ["cross", "adjacent", "parallel", "distant"],
+    "given": { "odd": ["cross", "parallel"], "even": ["adjacent", "distant"] },
+    "geometry": { "parallelColumnOffset": 4, "parallelRowOffset": 10, "distantColumnOffset": -14 }
+  },
+  "thresholds": { "credibleBlindShare": 0.2, "usefulFoundShare": 0.6, "discoverRecall": 0.5 }
+}
