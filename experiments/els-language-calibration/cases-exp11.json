@@ -1,0 +1,14 @@
+{
+  "note": "Axes are engine occurrences (ledger GD-01..03 and the earlier ten-tevet cluster). Targets are strings named by the user or the ledger; they are data and never enter code.",
+  "cases": [
+    { "id": "gd01", "origin": "ledger GD-01", "scope": "tanakh", "start": 244509, "skip": 41865, "dir": -1, "length": 6, "targets": ["באשאטמינ", "שבררומי"] },
+    { "id": "gd02", "origin": "ledger GD-02 and the user's Columbia message", "scope": "torah", "start": 248765, "skip": 4545, "dir": 1, "length": 8, "targets": ["ספינת", "יכלאש", "אשאכלה"] },
+    { "id": "gd03", "origin": "ledger GD-03", "scope": "torah", "start": 81020, "skip": 10101, "dir": 1, "length": 7, "targets": ["איראן", "ארהב"] },
+    { "id": "cluster", "origin": "the user's earlier message (not chosen by Claude)", "scope": "torah", "start": 136468, "skip": 193, "dir": -1, "length": 5, "targets": ["משיח"] }
+  ],
+  "scenarios": [
+    { "id": "gd02-context", "case": "gd02", "origin": "ledger GD-02 note (context word), post-hoc", "context": ["אש"] },
+    { "id": "gd03-context", "case": "gd03", "origin": "ledger GD-03 (context terms registered in advance), post-hoc", "context": ["איראן", "ארהב"] }
+  ],
+  "blind": { "windows": 30, "minCells": 1100, "axisLength": 6, "skipBase": 50, "skipSpan": 4950, "skipMultiplier": "7919*104729", "startMultiplier": "104729*13" }
+}
