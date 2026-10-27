@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { cutFunction, loadProductReader } from "../experiments/els-language-calibration/lib/product-reader.mjs";
 import { PRIMARY_METRIC, axisOf, compare, metricsOf, shiftedAxes } from "../experiments/els-language-calibration/lib/calibrate.mjs";
+import { annotate, axisGeometry, bucketOf, enumerateCandidates, noiseAbove, parseCoverage, positionOf, rankFindings, rarityOf, tailTable, unionRank, windowLetters } from "../experiments/els-language-calibration/lib/ranking.mjs";
 
 const HERE = fileURLToPath(new URL("../experiments/els-language-calibration/", import.meta.url));
 const PAGE = fileURLToPath(new URL("../public/tzofen.html", import.meta.url));
@@ -50,6 +51,7 @@ test("EXP-09 calibration library: axis from an engine occurrence, metrics read o
 test("EXP-09 harness: no Golden string in the library code (cases and look-ups are data)", () => {
   const libs = readdirSync(`${HERE}lib`).map((name) => readFileSync(`${HERE}lib/${name}`, "utf8").replace(/\/\/.*$/gm, ""));
   libs.push(readFileSync(`${HERE}run.mjs`, "utf8").replace(/\/\/.*$/gm, ""));
+  libs.push(readFileSync(`${HERE}run-ranking.mjs`, "utf8").replace(/\/\/.*$/gm, ""));
   for (const source of libs) for (const word of ["ספינת", "יכלאש", "אשאכלה", "באשאטמינ", "שבררומי", "דטראמפ", "קולומביה", "אורניום"]) assert.equal(source.includes(word), false, word);
 });
 
@@ -79,4 +81,89 @@ test("EXP-09 harness runs the product's reader unmodified (contract, lexicon siz
     unusual += run.unusual ? 1 : 0;
   }
   assert.equal(unusual, 0, "decision rule 2: no calibrated signal in the primary metric on these pages");
+});
+
+// ---------------------------------------------------------------- EXP-11: candidate pool and rankers
+const gridOf = (rows) => (row, col) => rows[row]?.[col];
+
+test("EXP-11 pool: every straight run of 4..10 letters on the four line types, both reading directions, counted exactly", () => {
+  const rows = ["abcdef", "ghijkl", "mnopqr", "stuvwx", "yzabcd"];
+  const box = { S: 6, r0: 0, r1: 4, c0: 0, c1: 5 };
+  const pool = enumerateCandidates({ letterAt: gridOf(rows), box, minLen: 4, maxLen: 5 });
+  const expected = (R, C, L) => (C * (R - L + 1)) + (R * (C - L + 1)) + 2 * ((R - L + 1) * (C - L + 1));
+  assert.equal(pool.length, 2 * (expected(5, 6, 4) + expected(5, 6, 5)));
+  const diag = pool.find((c) => c.line === "down_right" && c.len === 4 && c.cells[0][0] === 0 && c.cells[0][1] === 0 && !c.reverse);
+  assert.equal(diag.surface, "ahov");
+  const left = pool.find((c) => c.line === "down_left" && c.len === 4 && c.cells[0][0] === 0 && c.cells[0][1] === 5 && !c.reverse);
+  assert.equal(left.surface, "fkpu");
+  const back = pool.find((c) => c.line === "across" && c.surface === "fedc");
+  assert.deepEqual(back.cells, [[0, 5], [0, 4], [0, 3], [0, 2]]);
+  assert.equal(windowLetters({ letters: "abcdef", box: { S: 3, r0: 0, r1: 1, c0: 0, c1: 2 }, streamLetters: 5 })(1, 2), undefined, "beyond the end of the stream");
+});
+
+test("EXP-11 features and parse: word-free geometry against the axis, tiling by up to three recognized tokens", () => {
+  const box = { S: 10, r0: 0, r1: 9, c0: 0, c1: 9 };
+  const geometry = axisGeometry([14, 24, 34, 44], box); // column 4, rows 1..4
+  assert.equal(geometry.lineName, "down");
+  const make = (cells, line) => ({ surface: "x", cells, line, len: cells.length });
+  const candidates = [make([[2, 1], [2, 2], [2, 3], [2, 4], [2, 5]], "across"), make([[1, 5], [2, 5], [3, 5], [4, 5]], "down"), make([[7, 7], [8, 7], [9, 7], [9, 8]], "down"), make([[1, 6], [2, 6], [3, 6], [4, 6]], "down")];
+  annotate(candidates, { geometry, read: () => ({ readScore: 1, lexConf: 80, bases: [] }) });
+  assert.deepEqual(candidates.map((c) => [c.cross, c.adjacent, c.parallel]), [[true, false, false], [false, true, true], [false, false, true], [false, false, true]]);
+  const known = new Set(["abc", "defg", "hij"]);
+  const recognized = (s) => known.has(s);
+  assert.equal(parseCoverage("abcdefghij", recognized), 1);
+  assert.equal(parseCoverage("abcxdefg", recognized), 7 / 8);
+  assert.equal(parseCoverage("abcdefghijabc", recognized, 3), 10 / 13, "at most three tokens");
+  assert.equal(parseCoverage("xyzxyz", recognized), 0);
+});
+
+test("EXP-11 rankers: calibrated rarity, findings are not duplicated, union is round-robin, noise is counted without the target's own region", () => {
+  const cand = (surface, line, row, cols, extra = {}) => ({ surface, line, len: cols.length, cells: cols.map((c) => [row, c]), cross: false, adjacent: false, parallel: false, readScore: 1, lexConf: 80, bases: [], ...extra });
+  const tail = tailTable([[cand("aaaa", "down", 0, [0, 1, 2, 3], { readScore: 0 }), cand("bbbb", "down", 1, [0, 1, 2, 3]), cand("cccccc", "down", 2, [0, 1, 2, 3, 4, 5], { readScore: 0.8 })]]);
+  assert.equal(bucketOf(0.82), 0.8);
+  assert.equal(bucketOf(0.5), 0);
+  assert.ok(rarityOf({ len: 4, readScore: 1 }, tail) > 0);
+  assert.equal(rarityOf({ len: 4, readScore: 0.5 }, tail), 0);
+  const ctx = { tail, context: new Set(["כלב"]) };
+  const x = cand("xxxx", "down", 5, [0, 1, 2, 3], { cross: true });
+  const y = cand("yyyy", "down", 5, [2, 3, 4, 5], { cross: true }); // overlaps x on the same line
+  const z = cand("zzzz", "across", 5, [0, 1, 2, 3], { adjacent: true, readScore: 0.9, bases: ["כלב"] });
+  const pool = [x, y, z];
+  const A = rankFindings(pool, "A", ctx);
+  assert.equal(A.length, 2, "x and y are the same finding on the same line");
+  const B = rankFindings(pool, "B", ctx);
+  assert.equal(B[0].candidate, x, "crossing outranks adjacent");
+  const C = rankFindings(pool, "C", ctx);
+  assert.deepEqual(C.map((f) => f.candidate.surface), ["zzzz"]);
+  const union = unionRank({ A, B, C });
+  assert.ok(union.length >= 2 && union.length <= 3);
+  assert.equal(positionOf(B, [y]), 1, "a target that overlaps a kept finding takes its position");
+  const cmp = (a, b) => { for (let i = 0; i < a.length; i += 1) if (a[i] !== b[i]) return a[i] - b[i]; return 0; };
+  assert.equal(noiseAbove(B, [x], [0, 0], cmp), 1, "only z outranks a weak tuple; x's own region is not noise");
+});
+
+test("EXP-11 recorded results: pre-registered rules are applied as written and the flagship targets are located where the pool says", () => {
+  const read = (name) => JSON.parse(readFileSync(`${HERE}results/${name}.json`, "utf8"));
+  const blind = read("exp11-blind");
+  assert.equal(blind.windows.length, 30);
+  assert.ok(blind.windows.every((w) => w.cells >= 1100));
+  assert.ok(blind.tail[8].total > 100000 && blind.tail[8].atLeast["1"] / blind.tail[8].total > 0.1, "readability is common at every length: full tiling of a random 8-letter run is not rare");
+  let present = 0;
+  let surfaced = 0;
+  for (const id of ["gd01", "gd02", "gd03", "cluster"]) {
+    const run = read(`exp11-${id}`);
+    assert.equal(run.provenance.page.sha256.length, 64);
+    for (const target of run.targets) {
+      if (!target.present) continue;
+      present += 1;
+      assert.ok(target.placements.length >= 1);
+      if (target.union.surfaced) surfaced += 1;
+    }
+  }
+  const gd01 = read("exp11-gd01").targets.find((t) => t.placements[0]?.len === 8);
+  assert.deepEqual([gd01.placements[0].line, gd01.placements[0].cross, gd01.product.inBoundaries], ["down_left", true, 3], "the 8-letter string crosses the axis and sits third in the product's boundary list");
+  const gd02 = read("exp11-gd02").targets.find((t) => t.placements[0]?.len === 5 && t.placements[0].line === "down_left");
+  assert.equal(gd02.product.inReadings, 7, "the product itself lists the ship string seventh of 24 readings");
+  assert.equal(surfaced / present, 0, "rule 1: no target is within the top 10 of the union");
+  assert.ok(blind.medianA7 >= 10, "rule 2: the median blind window has >= 10 A-findings of 7+ letters, so the ranking is declared not useful");
 });

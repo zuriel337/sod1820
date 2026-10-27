@@ -1,0 +1,1195 @@
+{
+  "case": "gd02",
+  "scenario": null,
+  "scope": "torah",
+  "origin": "ledger GD-02 and the user's Columbia message",
+  "box": {
+    "S": 4545,
+    "c0": 3315,
+    "c1": 3355,
+    "r0": 34,
+    "r1": 67,
+    "rowPad": 20,
+    "colRadius": 20,
+    "cells": 1394,
+    "maxGapScale": 3,
+    "maxVocabularyTerms": 100,
+    "defaultLexiconLoaded": false
+  },
+  "candidates": 58240,
+  "timeMs": {
+    "pool": 1208,
+    "rank": 131,
+    "productReader": 148
+  },
+  "targets": [
+    {
+      "target": "ספינת",
+      "present": true,
+      "placements": [
+        {
+          "surface": "ספינת",
+          "line": "down_left",
+          "reverse": false,
+          "from": [
+            53,
+            3340
+          ],
+          "to": [
+            57,
+            3336
+          ],
+          "len": 5,
+          "cross": false,
+          "adjacent": true,
+          "parallel": false,
+          "readScore": 1
+        }
+      ],
+      "product": {
+        "inReadings": 7,
+        "readings": 24,
+        "inSegmentations": 13,
+        "segmentations": 24,
+        "inBoundaries": 27,
+        "boundaries": 425
+      },
+      "rankers": {
+        "A": {
+          "eligible": true,
+          "regionRank": 266,
+          "regionNoiseBefore": 265,
+          "exactNoiseBefore": 372,
+          "of": 761,
+          "tuple": [
+            0.9520625346166195,
+            77
+          ],
+          "blindShare": 1,
+          "matched": {
+            "surface": "כמתני",
+            "exact": false,
+            "len": 5
+          }
+        },
+        "B": {
+          "eligible": true,
+          "regionRank": 13,
+          "regionNoiseBefore": 12,
+          "exactNoiseBefore": 32,
+          "of": 230,
+          "tuple": [
+            2,
+            0.9520625346166195,
+            77
+          ],
+          "blindShare": 1,
+          "matched": {
+            "surface": "כמתני",
+            "exact": false,
+            "len": 5
+          }
+        }
+      },
+      "union": {
+        "regionRank": null,
+        "regionNoiseBefore": null,
+        "size": 20,
+        "surfaced": false,
+        "tiers": null,
+        "matched": null
+      },
+      "credible": false
+    },
+    {
+      "target": "יכלאש",
+      "present": true,
+      "placements": [
+        {
+          "surface": "יכלאש",
+          "line": "down_right",
+          "reverse": false,
+          "from": [
+            53,
+            3330
+          ],
+          "to": [
+            57,
+            3334
+          ],
+          "len": 5,
+          "cross": false,
+          "adjacent": true,
+          "parallel": false,
+          "readScore": 0
+        }
+      ],
+      "product": {
+        "inReadings": null,
+        "readings": 24,
+        "inSegmentations": null,
+        "segmentations": 24,
+        "inBoundaries": 95,
+        "boundaries": 425
+      },
+      "rankers": {
+        "A": {
+          "eligible": false,
+          "regionRank": 257,
+          "regionNoiseBefore": 256,
+          "exactNoiseBefore": null,
+          "of": 761,
+          "tuple": null,
+          "blindShare": null,
+          "matched": {
+            "surface": "משאלכ",
+            "exact": false,
+            "len": 5
+          }
+        },
+        "B": {
+          "eligible": false,
+          "regionRank": 11,
+          "regionNoiseBefore": 10,
+          "exactNoiseBefore": null,
+          "of": 230,
+          "tuple": null,
+          "blindShare": null,
+          "matched": {
+            "surface": "משאלכ",
+            "exact": false,
+            "len": 5
+          }
+        }
+      },
+      "union": {
+        "regionRank": null,
+        "regionNoiseBefore": null,
+        "size": 20,
+        "surfaced": false,
+        "tiers": null,
+        "matched": null
+      },
+      "credible": false
+    },
+    {
+      "target": "אשאכלה",
+      "present": true,
+      "placements": [
+        {
+          "surface": "אשאכלה",
+          "line": "across",
+          "reverse": false,
+          "from": [
+            56,
+            3325
+          ],
+          "to": [
+            56,
+            3330
+          ],
+          "len": 6,
+          "cross": false,
+          "adjacent": false,
+          "parallel": false,
+          "readScore": 1
+        }
+      ],
+      "product": {
+        "inReadings": null,
+        "readings": 24,
+        "inSegmentations": null,
+        "segmentations": 24,
+        "inBoundaries": 220,
+        "boundaries": 425
+      },
+      "rankers": {
+        "A": {
+          "eligible": true,
+          "regionRank": 244,
+          "regionNoiseBefore": 243,
+          "exactNoiseBefore": 742,
+          "of": 761,
+          "tuple": [
+            0.4725371991347337,
+            0
+          ],
+          "blindShare": 1,
+          "matched": {
+            "surface": "שאכלה",
+            "exact": false,
+            "len": 5
+          }
+        },
+        "B": {
+          "eligible": false,
+          "regionRank": 48,
+          "regionNoiseBefore": 47,
+          "exactNoiseBefore": null,
+          "of": 230,
+          "tuple": null,
+          "blindShare": null,
+          "matched": {
+            "surface": "שאכלההואא",
+            "exact": false,
+            "len": 9
+          }
+        }
+      },
+      "union": {
+        "regionRank": null,
+        "regionNoiseBefore": null,
+        "size": 20,
+        "surfaced": false,
+        "tiers": null,
+        "matched": null
+      },
+      "credible": false
+    }
+  ],
+  "top10": {
+    "A": [
+      {
+        "surface": "ועשית",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          38,
+          3332
+        ],
+        "to": [
+          38,
+          3336
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "ברכתי",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          39,
+          3331
+        ],
+        "to": [
+          39,
+          3335
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "בנימנ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          41,
+          3340
+        ],
+        "to": [
+          41,
+          3344
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "ישראל",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          44,
+          3330
+        ],
+        "to": [
+          44,
+          3334
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "ישראל",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          44,
+          3348
+        ],
+        "to": [
+          44,
+          3352
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "מצרימ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          45,
+          3325
+        ],
+        "to": [
+          45,
+          3329
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "ויאמר",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          45,
+          3330
+        ],
+        "to": [
+          45,
+          3334
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "במדבר",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          46,
+          3343
+        ],
+        "to": [
+          46,
+          3347
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "ישראל",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          50,
+          3317
+        ],
+        "to": [
+          50,
+          3321
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "ישראל",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          50,
+          3351
+        ],
+        "to": [
+          50,
+          3355
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          0.9520625346166195,
+          93
+        ]
+      }
+    ],
+    "B": [
+      {
+        "surface": "לעשות",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          57,
+          3332
+        ],
+        "to": [
+          57,
+          3336
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "ברכתי",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          59,
+          3335
+        ],
+        "to": [
+          59,
+          3339
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "מצרימ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          60,
+          3332
+        ],
+        "to": [
+          60,
+          3336
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          93
+        ]
+      },
+      {
+        "surface": "יכולה",
+        "line": "down_right",
+        "reverse": true,
+        "from": [
+          60,
+          3335
+        ],
+        "to": [
+          56,
+          3331
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          87
+        ]
+      },
+      {
+        "surface": "שמקוה",
+        "line": "down_left",
+        "reverse": false,
+        "from": [
+          54,
+          3338
+        ],
+        "to": [
+          58,
+          3334
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          84
+        ]
+      },
+      {
+        "surface": "לחקתמ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          54,
+          3333
+        ],
+        "to": [
+          54,
+          3337
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          83
+        ]
+      },
+      {
+        "surface": "הלהמו",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          55,
+          3331
+        ],
+        "to": [
+          55,
+          3335
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          83
+        ]
+      },
+      {
+        "surface": "לקנאכ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          56,
+          3335
+        ],
+        "to": [
+          56,
+          3339
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          83
+        ]
+      },
+      {
+        "surface": "ושלגמ",
+        "line": "down_left",
+        "reverse": true,
+        "from": [
+          58,
+          3333
+        ],
+        "to": [
+          54,
+          3337
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          83
+        ]
+      },
+      {
+        "surface": "מהוהי",
+        "line": "across",
+        "reverse": true,
+        "from": [
+          58,
+          3335
+        ],
+        "to": [
+          58,
+          3331
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1,
+        "tuple": [
+          3,
+          0.9520625346166195,
+          83
+        ]
+      }
+    ],
+    "U": [
+      {
+        "tier": "A",
+        "surface": "ועשית",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          38,
+          3332
+        ],
+        "to": [
+          38,
+          3336
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "לעשות",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          57,
+          3332
+        ],
+        "to": [
+          57,
+          3336
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "A",
+        "surface": "ברכתי",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          39,
+          3331
+        ],
+        "to": [
+          39,
+          3335
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "ברכתי",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          59,
+          3335
+        ],
+        "to": [
+          59,
+          3339
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "A",
+        "surface": "בנימנ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          41,
+          3340
+        ],
+        "to": [
+          41,
+          3344
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "מצרימ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          60,
+          3332
+        ],
+        "to": [
+          60,
+          3336
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "A",
+        "surface": "ישראל",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          44,
+          3330
+        ],
+        "to": [
+          44,
+          3334
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "יכולה",
+        "line": "down_right",
+        "reverse": true,
+        "from": [
+          60,
+          3335
+        ],
+        "to": [
+          56,
+          3331
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "A",
+        "surface": "ישראל",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          44,
+          3348
+        ],
+        "to": [
+          44,
+          3352
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "שמקוה",
+        "line": "down_left",
+        "reverse": false,
+        "from": [
+          54,
+          3338
+        ],
+        "to": [
+          58,
+          3334
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "A",
+        "surface": "מצרימ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          45,
+          3325
+        ],
+        "to": [
+          45,
+          3329
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "לחקתמ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          54,
+          3333
+        ],
+        "to": [
+          54,
+          3337
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "A",
+        "surface": "ויאמר",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          45,
+          3330
+        ],
+        "to": [
+          45,
+          3334
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "הלהמו",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          55,
+          3331
+        ],
+        "to": [
+          55,
+          3335
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "A",
+        "surface": "במדבר",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          46,
+          3343
+        ],
+        "to": [
+          46,
+          3347
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "לקנאכ",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          56,
+          3335
+        ],
+        "to": [
+          56,
+          3339
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "A",
+        "surface": "ישראל",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          50,
+          3317
+        ],
+        "to": [
+          50,
+          3321
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "ושלגמ",
+        "line": "down_left",
+        "reverse": true,
+        "from": [
+          58,
+          3333
+        ],
+        "to": [
+          54,
+          3337
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "A",
+        "surface": "ישראל",
+        "line": "across",
+        "reverse": false,
+        "from": [
+          50,
+          3351
+        ],
+        "to": [
+          50,
+          3355
+        ],
+        "len": 5,
+        "cross": false,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      },
+      {
+        "tier": "B",
+        "surface": "מהוהי",
+        "line": "across",
+        "reverse": true,
+        "from": [
+          58,
+          3335
+        ],
+        "to": [
+          58,
+          3331
+        ],
+        "len": 5,
+        "cross": true,
+        "adjacent": false,
+        "parallel": false,
+        "readScore": 1
+      }
+    ]
+  },
+  "blindContext": {
+    "windows": 30,
+    "tail": {
+      "4": {
+        "total": 378130,
+        "atLeast": {
+          "1": 121457,
+          "0.75": 121457,
+          "0.8": 121457,
+          "0.85": 121457,
+          "0.9": 121457,
+          "0.95": 121457
+        }
+      },
+      "5": {
+        "total": 363856,
+        "atLeast": {
+          "1": 40631,
+          "0.75": 40631,
+          "0.8": 40631,
+          "0.85": 40631,
+          "0.9": 40631,
+          "0.95": 40631
+        }
+      },
+      "6": {
+        "total": 349822,
+        "atLeast": {
+          "1": 117844,
+          "0.75": 156088,
+          "0.8": 156088,
+          "0.85": 117844,
+          "0.9": 117844,
+          "0.95": 117844
+        }
+      },
+      "7": {
+        "total": 336028,
+        "atLeast": {
+          "1": 99787,
+          "0.75": 202820,
+          "0.8": 202820,
+          "0.85": 202820,
+          "0.9": 99787,
+          "0.95": 99787
+        }
+      },
+      "8": {
+        "total": 322474,
+        "atLeast": {
+          "1": 59302,
+          "0.75": 249162,
+          "0.8": 173203,
+          "0.85": 173203,
+          "0.9": 59302,
+          "0.95": 59302
+        }
+      },
+      "9": {
+        "total": 309160,
+        "atLeast": {
+          "1": 75561,
+          "0.75": 220259,
+          "0.8": 136351,
+          "0.85": 136351,
+          "0.9": 75561,
+          "0.95": 75561
+        }
+      },
+      "10": {
+        "total": 296086,
+        "atLeast": {
+          "1": 71934,
+          "0.75": 189140,
+          "0.8": 189140,
+          "0.85": 144882,
+          "0.9": 144882,
+          "0.95": 71934
+        }
+      }
+    },
+    "medianA7": 176,
+    "medianB6": 74.5
+  },
+  "provenance": {
+    "page": {
+      "sha256": "d5caea81613c6339600fecf8b366c6845454c0c0995195040b449a622fbc6bc9",
+      "bytes": 2498284
+    },
+    "lexiconAsset": {
+      "sha256": "787f039e2977952356764b07d94ce2ed257902ac535a6833a06cb6a258fc0925",
+      "bytes": 347380
+    },
+    "functions": {
+      "scopeN": "32ff67c514c5501ee93b42fefd7e13e54786d593d0e931f02cf466bd807fcf89",
+      "guidedDynamicLexiconSkeleton": "c23b6c36bf2b1f826a1d4e5c079bd8620125579d820ef5bab1f895c918fcb9de",
+      "guidedMatrixDisplayTerm": "55ad81f1d7329c9c1d25410163a572c6682c4c5edf909f4d2d86d6413d1c66b3",
+      "guidedMatrixBox": "65dd3b1c150f635c239d0efba3269fbdccb0f1f483db68852458cb80062fdadf",
+      "guidedLanguageReadings": "d6e0f0d2c776db59531426b59756be9bf58f8e08b35fdf6394ec0f4446818151",
+      "guidedLanguageBoundaryScore": "4ca091e43bf585634d8f0290a4b202f420411b32db3e0c52fc780fd391d14c8b",
+      "guidedLanguageRelations": "ad22b823e1160c23118347f669e41fb55f0909b3174791c9fb092184b404e393",
+      "guidedLanguageBoundaryHypotheses": "aa8aef2eb57356c93f97374be0cd71651e82cc59bf78aa177f3394ade847e569",
+      "guidedMatrixLanguageInspection": "a767699c79d9c951726326fad8078cdc24ef8707ab21c5169f0c5a5d2d93b637",
+      "guidedDynamicLexiconAsset": "e50001392fdd9dee4762067fa4b86e1e656eaf45b8d2ad0778c5523fec973b6d",
+      "guidedLoadDynamicLexicon": "c12c7903c028d8a00b7d9fc62806c15c66bb4966e8535a29ff025867b5cb7a42"
+    }
+  }
+}

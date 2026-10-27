@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { loadProductReader } from "./lib/product-reader.mjs";
 import { axisOf } from "./lib/calibrate.mjs";
-import { RANKERS, TOP_K, annotate, axisGeometry, describe, enumerateCandidates, parseCoverage, positionOf, rankFindings, tailTable, unionRank, windowLetters } from "./lib/ranking.mjs";
+import { RANKERS, TOP_K, annotate, noiseAbove, axisGeometry, describe, enumerateCandidates, parseCoverage, positionOf, rankFindings, tailTable, unionRank, windowLetters } from "./lib/ranking.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((item, i, all) => (item.startsWith("--") ? [item.slice(2), all[i + 1]?.startsWith("--") || all[i + 1] === undefined ? "true" : all[i + 1]] : null)).filter(Boolean));
 const config = JSON.parse(readFileSync(new URL("./cases-exp11.json", import.meta.url), "utf8"));
@@ -104,6 +104,7 @@ if (args.blind) {
     const better = values.filter((v) => v && (name === "A" ? v[0] >= tuple[0] : cmp(v, tuple) >= 0)).length;
     return Number((better / values.length).toFixed(3));
   };
+  const sameCells = (candidate, placements) => placements.some((p) => p.line === candidate.line && p.cells.length === candidate.cells.length && p.cells.every(([r, c]) => candidate.cells.some(([r2, c2]) => r === r2 && c === c2)));
   const targets = chosen.targets.map((raw) => {
     const target = fold(raw);
     const placements = win.candidates.filter((c) => c.surface === target);
@@ -120,12 +121,13 @@ if (args.blind) {
       const eligible = placements.filter((c) => RANKERS[name].eligible(c, ctx));
       const position = positionOf(lists[name], placements);
       const best = eligible.length ? eligible.map((c) => ({ c, tuple: RANKERS[name].tuple(c, ctx) })).sort((x, y) => cmp(y.tuple, x.tuple))[0] : null;
-      per[name] = { eligible: eligible.length > 0, rank: position, noiseBefore: position ? position - 1 : null, of: lists[name].length, tuple: best?.tuple ?? null, blindShare: best && name !== "C" ? share(name, best.tuple) : null };
+      const matched = position ? lists[name][position - 1].candidate : null;
+      per[name] = { eligible: eligible.length > 0, regionRank: position, regionNoiseBefore: position ? position - 1 : null, exactNoiseBefore: best ? noiseAbove(lists[name], placements, best.tuple, cmp) : null, of: lists[name].length, tuple: best?.tuple ?? null, blindShare: best && name !== "C" ? share(name, best.tuple) : null, matched: matched ? { surface: matched.surface, exact: sameCells(matched, placements), len: matched.len } : null };
     }
     out.rankers = per;
     const u = positionOf(union, placements);
-    out.union = { rank: u, noiseBefore: u ? u - 1 : null, size: union.length, surfaced: u !== null && u <= TOP_K, tiers: u ? union[u - 1].tier : null };
-    out.credible = out.union.surfaced && ["A", "B"].some((name) => per[name].rank && per[name].rank <= TOP_K && per[name].blindShare !== null && per[name].blindShare <= 0.2);
+    out.union = { regionRank: u, regionNoiseBefore: u ? u - 1 : null, size: union.length, surfaced: u !== null && u <= TOP_K, tiers: u ? union[u - 1].tier : null, matched: u ? { surface: union[u - 1].candidate.surface, exact: sameCells(union[u - 1].candidate, placements) } : null };
+    out.credible = out.union.surfaced && ["A", "B"].some((name) => per[name].regionRank && per[name].regionRank <= TOP_K && per[name].blindShare !== null && per[name].blindShare <= 0.2);
     return out;
   });
   const top = (list) => list.slice(0, TOP_K).map((f) => ({ ...describe(f.candidate), tuple: f.tuple }));

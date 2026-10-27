@@ -148,7 +148,7 @@ export const RANKERS = Object.freeze({
   },
 });
 
-const overlapKey = (candidate) => candidate.cells.map(([r, c]) => `${candidate.line}:${cellKey(r, c)}`);
+export const overlapKey = (candidate) => candidate.cells.map(([r, c]) => `${candidate.line}:${cellKey(r, c)}`);
 
 /** Findings in order: a candidate that shares a cell on the same line with a kept one is the same finding and is dropped. */
 export function rankFindings(candidates, rankerName, ctx) {
@@ -182,6 +182,12 @@ export function unionRank(lists, k = TOP_K) {
     }
   }
   return out;
+}
+
+/** Findings that outrank a given tuple and do not overlap the target: the noise that would precede the target itself. */
+export function noiseAbove(findings, placements, tuple, compare) {
+  const wanted = new Set(placements.flatMap(overlapKey));
+  return findings.filter((f) => !overlapKey(f.candidate).some((key) => wanted.has(key)) && compare(f.tuple, tuple) > 0).length;
 }
 
 /** Position (1-based) of the first finding that overlaps any placement of the target; null if none. */
