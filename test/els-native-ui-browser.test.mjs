@@ -93,7 +93,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
   React.createElement('div',{className:'sod29-main-stage'},
    React.createElement('main',{className:'sod29-content wide'},
     React.createElement('section',{className:'sod29-focus-stage','data-els-2029-surface':'v1'},
-     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:true,guidedProfile:!!window.__fixtureGuided,onResearchProbeResult:result=>{(window.__probeHistory||=[]).push(result);if(result.requestId!==pendingProbe.current)return;pendingProbe.current=null;window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
+     React.createElement('section',{className:'sod29-section','data-els-classic-2029':'native-v1'},React.createElement(Native,{matrix,researchLoad,researchProbe,researchProfile:true,guidedProfile:!!window.__fixtureGuided,onRazielMatrix:window.__fixtureMatrixAnalysis?async context=>{(window.__matrixSubmits||=[]).push(context);return {ok:true};}:undefined,onResearchProbeResult:result=>{(window.__probeHistory||=[]).push(result);if(result.requestId!==pendingProbe.current)return;pendingProbe.current=null;window.__probeResult=result;if(result.ok)setResearchLoad({term:result.term,scope:result.scope,skip:result.skip,dir:result.dir,start:result.start,hitId:result.hitId,corpusId:result.corpusId,words:[],researchNonce:result.requestId});}})))))),dock);
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
@@ -214,7 +214,7 @@ const frameStubs = {
 };
 
 async function withNative(viewport, run, options = {}) {
-  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false } = options;
+  const { realHost = false, loadGolden = true, onboarded = true, tier = 'admin', mobile = false, fullFrame = false, leavesMatrix = false, reentrantRender = false, guided = false, matrixAnalysis = false } = options;
   const fixture = {
     name: 'els-native-browser-fixture', enforce: 'pre',
     resolveId(id, importer) {
@@ -270,9 +270,10 @@ async function withNative(viewport, run, options = {}) {
     });
     if(process.env.ELS_SAVE_DIAGNOSTICS)page.on('response',async response=>{if(response.status()>=400)console.error('HTTP',response.status(),response.url(),(await response.text()).slice(0,700));});
     page.on('pageerror', (error) => {errors.push(error.message);if(process.env.ELS_SAVE_DIAGNOSTICS)console.error('BROWSER',error.message);});
-    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided }) => {
+    await page.addInitScript(({ realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis }) => {
       window.__fixtureFullFrame=fullFrame;
       window.__fixtureGuided=guided;
+      window.__fixtureMatrixAnalysis=matrixAnalysis;
       if (onboarded) localStorage.setItem('tzofen_onboarded_v1', '1');
       window.__fixtureLoadGolden = loadGolden;
       window.__fixtureTier = tier;
@@ -302,7 +303,7 @@ async function withNative(viewport, run, options = {}) {
       if (window !== window.parent) addEventListener('message', (event) => {
         if (event.source === window.parent && event.data?.source === 'sod-host') (window.parent.__hostLog ||= []).push(event.data);
       });
-    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided });
+    }, { realHost, loadGolden, onboarded, tier, fullFrame, reentrantRender, guided, matrixAnalysis });
     if (realHost && loadGolden) await page.addInitScript((item) => { window.__fixtureGolden = item; }, golden);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture`);
     if (loadGolden) {
@@ -1862,6 +1863,25 @@ test('native form: crossing terms stay adjacent before the shared submit on mobi
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   if(process.env.ELS_SCREENSHOT_DIR)await form.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`cross-form-${width}.png`)});
  });
+});
+
+test('matrix analysis submits only on explicit action and keeps successive axis identities separate',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ for(const width of [320,1440])await withNative({width,height:900},async page=>{
+  assert.equal(await page.evaluate(()=>(window.__matrixSubmits||[]).length),0);
+  await page.getByRole('button',{name:'בקש מרזיאל לבדוק את המטריצה'}).click();
+  const first=await page.evaluate(()=>window.__matrixSubmits[0]);
+  assert.equal(first.trust.matrix,'unverified_presentation');
+  const form=page.locator('#els29-query');await form.getByRole('textbox',{name:'מונח',exact:true}).fill('משיח טבת עשירי');
+  await form.getByRole('button',{name:'חפש',exact:true}).click();
+  await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
+  assert.equal(await page.evaluate(()=>window.__matrixSubmits.length),1,'search does not submit AI');
+  await page.getByRole('button',{name:'בקש מרזיאל לבדוק את המטריצה'}).click();
+  const items=await page.evaluate(()=>window.__matrixSubmits);
+  assert.equal(items.length,2);assert.notEqual(items[0].axis.hitId,items[1].axis.hitId);
+  assert.equal(items[1].axis.term,'משיחטבתעשירי');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ },{realHost:true,loadGolden:true,matrixAnalysis:true});
 });
 
 test('research form offers a unified axis through the existing regular engine',

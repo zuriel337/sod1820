@@ -1395,6 +1395,7 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
   // adds only two internal request fields: the closed action envelope and a non-enumerable AbortSignal.
   const companionAction = arguments[0]?.companionAction ?? null;
   const elsPlanningAction = arguments[0]?.elsPlanningAction ?? null;
+  const elsMatrixContext = arguments[0]?.elsMatrixContext ?? null;
   const signal = arguments[0]?.__razielAbortSignal ?? null;
   if (!supabase) return null;
   if (signal?.aborted) return null;
@@ -1407,7 +1408,7 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
     const interactionId = researchContract === 'public-number-research-run-v1' ? aiInteractionId() : null;
     const { data, error } = await supabase.functions.invoke('ai-analyze', {
       // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
-      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}), ...(conversationResolution && typeof conversationResolution === 'object' ? { conversation_resolution: conversationResolution } : {}), ...(researchContract === 'public-number-research-run-v1' ? { research_contract: researchContract, ...(interactionId ? { interaction_id: interactionId } : {}) } : {}), ...(researchContract === 'public-number-research-run-v1' && companionAction && typeof companionAction === 'object' ? { companion_action: companionAction } : {}), ...(researchContract === 'public-number-research-run-v1' && elsPlanningAction && typeof elsPlanningAction === 'object' ? { els_planning_action: elsPlanningAction } : {}), ...(researchContract === 'public-number-research-run-v1' && (viewMode === 'landscape' || viewMode === 'exploratory') ? { view_mode: viewMode } : {}) },
+      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}), ...(conversationResolution && typeof conversationResolution === 'object' ? { conversation_resolution: conversationResolution } : {}), ...(researchContract === 'public-number-research-run-v1' ? { research_contract: researchContract, ...(interactionId ? { interaction_id: interactionId } : {}) } : {}), ...(researchContract === 'public-number-research-run-v1' && companionAction && typeof companionAction === 'object' ? { companion_action: companionAction } : {}), ...(researchContract === 'public-number-research-run-v1' && elsPlanningAction && typeof elsPlanningAction === 'object' ? { els_planning_action: elsPlanningAction } : {}), ...(researchContract === 'public-number-research-run-v1' && elsMatrixContext && typeof elsMatrixContext === 'object' ? { els_matrix_context: elsMatrixContext } : {}), ...(researchContract === 'public-number-research-run-v1' && (viewMode === 'landscape' || viewMode === 'exploratory') ? { view_mode: viewMode } : {}) },
       ...(signal instanceof AbortSignal ? { signal } : {}),
     });
     // A principal change may race a completed response. Do not emit the old
@@ -1417,6 +1418,9 @@ export async function askRaziel({ subject, facts, context = null, path = null, a
       try { window.dispatchEvent(new CustomEvent('sod:ai-quota', { detail: { tier: data.tier, used: data.used, limit: data.limit, message: data.message } })); } catch { /* noop */ }
       return null;
     }
+    // Older ai-analyze deployments ignore unknown request fields. Never present
+    // their ordinary answer as an analysis of a matrix they did not process.
+    if (elsMatrixContext && data?.els_matrix_status !== 'verified_axis_unverified_presentation_v1') return null;
     const c = data?.raziel || data?.contract;   // המוח מחזיר את החוזה כשמוכן
     // intelligence_level = תווית-מצב כנה מאותו transport (deterministic|fast|deep) — additive, לא API שני.
     if (c && typeof c === 'object') return { v: 1, ...razielContractWithoutTransportMetadata(c), ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data), ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };

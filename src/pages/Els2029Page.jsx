@@ -85,6 +85,22 @@ function ElsResearchBarConnected({ researchContext, projection, layers, planSumm
   />;
 }
 
+function ElsNativeWithRaziel({ razielSession, researchContext, projection, layers, planSummary, replayReady, ...props }) {
+  const shell = use2029Shell();
+  const analyze = async context => {
+    if (!razielSession?.submit || shell.razielLocked) return { ok: false };
+    const selected = projection?.selectedOccurrence;
+    const matching = replayReady && selected?.start === context.axis.start && selected?.skip === context.axis.skip && selected?.dir === context.axis.dir
+      && (selected?.corpusId || projection?.corpusId) === context.axis.corpusId;
+    const surfaceContext = matching ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary }) : null;
+    if (!surfaceContext?.occurrence?.occurrenceRef) return { ok: false, error: "replay_pending_or_changed" };
+    shell.openRaziel({ razielMicroIntent: "explain_els_occurrence", elsSurfaceContext: surfaceContext });
+    return razielSession.submit({ question: "בדוק את המטריצה שבחרתי והצע כיוון מחקרי", intelligenceLevel: "deep",
+      view: { surface: "els", elsFocus: { ...context.axis, occurrenceRef: context.axis.hitId }, elsMatrixContext: context } });
+  };
+  return <ElsNativeClassic2029 {...props} onRazielMatrix={analyze} />;
+}
+
 export default function Els2029Page({ previewAdvanced = false }) {
   const research = useResearch();
   const razielSession = useOptionalRazielSession2029();
@@ -357,7 +373,8 @@ export default function Els2029Page({ previewAdvanced = false }) {
         {/* Native Classic consumes only governed state emitted by the one canonical Tzofen engine.
             The same iframe instance remains mounted as an engine-only bridge and can be revealed
             as the parity fallback for capabilities that have not yet been ported to 2029. */}
-        <ElsNativeClassic2029 initialSeed={savedRecord.row || legacyMatrix ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
+        <ElsNativeWithRaziel razielSession={razielSession} researchContext={context} projection={replayProjection} layers={replayLayers} planSummary={automaticSummary} replayReady={replayMatched && layeredReady}
+          initialSeed={savedRecord.row || legacyMatrix ? "" : classicSeed} matrix={savedRecord.row || legacyMatrix}
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           formsPreviewRequest={formsPreviewRequest} onFormsPreviewResult={receiveFormsPreview}

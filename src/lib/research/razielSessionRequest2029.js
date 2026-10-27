@@ -7,6 +7,7 @@ import {
   normalizeRazielViewMode,
 } from "./razielViewMode2029.js";
 import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
+import { normalizeElsRazielMatrixContext } from "./elsRazielMatrixContext.js";
 import { isRegularMethodIdentity } from "./methodIdentity.js";
 import {
   isValidRazielNavigationNumber,
@@ -323,6 +324,7 @@ export function createRazielRequestContextSnapshot(context = null, view = {}, ca
     journey: journey && Object.keys(journey).length ? journey : null,
     sourceNames,
     capturedAt: cleanInline(capturedAt, 40),
+    ...(normalizeElsRazielMatrixContext(view.elsMatrixContext) ? { elsMatrixContext: normalizeElsRazielMatrixContext(view.elsMatrixContext) } : {}),
     ...(surfaceContext ? { surfaceContext } : {}),
   };
   return { ...snapshot, description: describeSnapshot({ subject, number, reading, els, sourceNames }) };
@@ -361,6 +363,7 @@ function normalizeContinuationContextSnapshot(value) {
     journey: journey && Object.keys(journey).length ? journey : null,
     sourceNames,
     capturedAt: cleanInline(value.capturedAt, 40),
+    ...(normalizeElsRazielMatrixContext(value.elsMatrixContext) ? { elsMatrixContext: normalizeElsRazielMatrixContext(value.elsMatrixContext) } : {}),
     ...(surfaceContext ? { surfaceContext } : {}),
   };
   const description = cleanInline(value.description, LIMITS.context)
@@ -467,6 +470,7 @@ export function buildRazielSessionRequest({
     };
   }
   const surfaceSemantic = snapshotSurfaceSemantic(contextSnapshot);
+  const matrixContext = normalizeElsRazielMatrixContext(contextSnapshot?.elsMatrixContext);
   const resolvedTurn = resolveRazielConversationTurn({
     question: subject,
     thread: state?.thread,
@@ -482,13 +486,14 @@ export function buildRazielSessionRequest({
     .slice(0, LIMITS.context) || null;
   return {
     subject,
-    facts: cleanInline(facts, LIMITS.factPack) || "",
+    facts: matrixContext ? "" : cleanInline(facts, LIMITS.factPack) || "",
     context: boundedContext,
     again: Boolean(again),
     intelligenceLevel: intelligenceLevel === "deep" ? "deep" : "fast",
     surfaceSemantic,
     conversationResolution: projectRazielConversationResolution(resolvedTurn),
     researchContract: RAZIEL_CANONICAL_RESEARCH_CONTRACT,
+    ...(matrixContext ? { elsMatrixContext: matrixContext } : {}),
     ...(normalizeRazielViewMode(viewMode) !== RAZIEL_DEFAULT_VIEW_MODE
       ? { viewMode: normalizeRazielViewMode(viewMode) }
       : {}),
@@ -635,9 +640,16 @@ export function prepareRazielSessionSubmission({
     LIMITS.question,
   );
   if (!subject) return null;
+  if (view?.elsMatrixContext != null && !normalizeElsRazielMatrixContext(view.elsMatrixContext)) return null;
   if (companionAction != null && !normalizedCompanionAction) return null;
   if (elsPlanningAction != null && !normalizedElsPlanningAction) return null;
   if (companionAction != null && elsPlanningAction != null) return null;
+  const oldMatrix = normalizeElsRazielMatrixContext(state?.contextSnapshot?.elsMatrixContext);
+  const currentEls = normalizeElsFocus(view?.elsFocus);
+  const sameMatrix = oldMatrix && currentEls && currentEls.start === oldMatrix.axis.start
+    && currentEls.skip === oldMatrix.axis.skip && currentEls.dir === oldMatrix.axis.dir
+    && currentEls.corpus === oldMatrix.axis.corpusId;
+  const requestView = view?.elsMatrixContext || !sameMatrix ? view : { ...view, elsMatrixContext: oldMatrix };
   // Navigation is checked ONLY for an ordinary explicit request. The personal-area companion action, continuations
   // (deepen / one-shot / again) and per-request view-mode overrides are decided above and never routed as navigation.
   const ordinaryExplicitRequest = !normalizedCompanionAction
@@ -648,7 +660,7 @@ export function prepareRazielSessionSubmission({
     && continuationTurnId == null
     && viewModeOverride == null;
   if (ordinaryExplicitRequest) {
-    const navContextSnapshot = createRazielRequestContextSnapshot(researchContext, view, startedAt);
+    const navContextSnapshot = createRazielRequestContextSnapshot(researchContext, requestView, startedAt);
     const navigation = resolveRazielNavigationTurn({ question: subject, state, contextSnapshot: navContextSnapshot });
     if (navigation) {
       return {
@@ -673,7 +685,7 @@ export function prepareRazielSessionSubmission({
     question: subject,
   }) : null;
   const contextSnapshot = continuation?.contextSnapshot
-    || createRazielRequestContextSnapshot(researchContext, view, startedAt);
+    || createRazielRequestContextSnapshot(researchContext, requestView, startedAt);
   const selectedFacts = continuation ? continuation.facts : facts;
   const selectedContextSnapshot = normalizedCompanionAction
     ? createPersonalAreaCompanionSnapshot(normalizedCompanionAction, startedAt)

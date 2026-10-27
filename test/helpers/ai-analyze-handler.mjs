@@ -63,6 +63,7 @@ export async function runAiAnalyze({
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
   modelResult = null, modelResults = null, numberContextByNumber = {}, researchBundleByNumber = {},
   researchBundleByExpression = {},
+  elsVerifyStatus = null,
   researchRunFailure = null, legacyContext = null, genericProviderText = null,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
@@ -81,6 +82,10 @@ export async function runAiAnalyze({
       });
     }
     if (url.origin === "https://fixture.invalid") {
+      if (url.pathname === "/functions/v1/els-search-bridge" && elsVerifyStatus) {
+        return response({ result: { status: "OK", corpus_id: payload.corpus_id,
+          verified: elsVerifyStatus === "match" ? payload.candidates : [] } });
+      }
       if (url.pathname === "/functions/v1/research-run") {
         if (researchRunFailure) return response({ status: "error", error: researchRunFailure }, 200);
         const expressionContract = payload?.contract === "public-expression-crossing-run-v1";

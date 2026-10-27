@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { use2029Palette } from "../../lib/palette.js";
 import { parseElsHitKey } from "../../lib/elsJourney.js";
+import { buildElsRazielMatrixContext } from "../../lib/research/elsRazielMatrixContext.js";
 import { findingColorChoices, nextFindingColor, projectFindingColor } from "./elsFindingColors2029.js";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
@@ -767,7 +768,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   </div>;
 }
 
-export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, formsPreviewRequest = null, onFormsPreviewResult }) {
+export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, active = true, researchProfile = false, guidedProfile = false, researchLoad = null, researchProbe = null, onResearchProbeResult, onResearchLoadError, onSearchStart, onSaved, onRazielMatrix, formsPreviewRequest = null, onFormsPreviewResult }) {
   const palette = use2029Palette("research_lab");
   const { user } = useAuth();
   const [query, setQuery] = useState(clean(initialSeed));
@@ -1425,6 +1426,20 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
     {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
+
+    {researchProfile && typeof onRazielMatrix === "function" ? <section className="els29-native-workrail" aria-label="רזיאל ומפת המטריצה">
+      <strong>רזיאל · מבט על המטריצה</strong>
+      {engineState?.verification?.state === "MATCH" && engineState?.axis ? <p>המופע הנבחר: {engineState.termRaw || engineState.term} · דילוג {engineState.axis.skip} · {engineState.axis.direction === "back" ? "לאחור" : "קדימה"} · מיקום {engineState.axis.start}</p> : <p>בחרו מופע מאומת כדי להתחיל.</p>}
+      <p>הציר ייבדק שוב במנוע. קריאות מהסביבה הן הצעות לבדיקה, לא ממצאים מאומתים.</p>
+      <button type="button" disabled={searchPending || !buildElsRazielMatrixContext(engineState)} onClick={async () => {
+        const context = buildElsRazielMatrixContext(engineStateRef.current);
+        if (!context) return;
+        const result = await onRazielMatrix(context);
+        if (!result?.ok) setNotice(result?.error === "replay_pending_or_changed"
+          ? "המופע עדיין לא אומת מחדש או שהבחירה השתנתה. המתינו לאימות ונסו שוב."
+          : "רזיאל לא הצליח לבדוק את המטריצה כעת. לא הוצג פענוח מאומת.");
+      }}>בקש מרזיאל לבדוק את המטריצה</button>
+    </section> : null}
 
     {guidedProfile ? <section className="els29-guided-result-overview" aria-label="מצב חבילת הגילוי">
       <div className="els29-guided-result-title">
