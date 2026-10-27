@@ -1,4 +1,4 @@
-// Unwired source-content packet. No reader, publication or canonical state changes.
+// Source-content packet; presentation does not change publication or canonical state.
 export const AHAVAT_CONTENT_SOURCE = Object.freeze({
   identity: "book:hebrewbooks:5635",
   pdfSha256: "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",

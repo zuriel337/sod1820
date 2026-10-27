@@ -4,6 +4,7 @@ import { ahavatLetterNumber } from "../../data/ahavatTorahLetters2029.js";
 import { AHAVAT_TORAH_SOURCE } from "../../data/ahavatTorahSystem2029.js";
 import { AHAVAT_ROOT_SECTIONS, ahavatRootFragments } from "../../data/ahavatTorahRoots2029.js";
 import { AHAVAT_MEGILLOT, AHAVAT_MEGILLAH_LETTER_ROWS, ahavatMegillahRows, ahavatMegillahBars, ahavatMegillahCsv, ahavatMegillahBalance } from "../../data/ahavatTorahMegillot2029.js";
+import { AHAVAT_ATTRIBUTION_WINDOWS, AHAVAT_ATTRIBUTION_METHOD, AHAVAT_ERRATA_LINKS } from "../../data/ahavatTorahContentDepth2029.js";
 
 const SpatialScene = lazy(() => import("./AhavatTorahSpatialScene2029.jsx"));
 function setReaderUrl(key, value) {
@@ -30,6 +31,7 @@ export function AhavatTorahPeopleReader2029({ onPage }) {
   const [query, setQuery] = useState("");
   const [metric, setMetric] = useState("words");
   const [showScene, setShowScene] = useState(false);
+  const [showDivisions, setShowDivisions] = useState(false);
   const [selectedBar, setSelectedBar] = useState("");
   const book = AHAVAT_PEOPLE_BOOKS.find(item => item.id === bookId);
   const rows = useMemo(() => ahavatPeopleRows(bookId, query), [bookId, query]);
@@ -50,12 +52,33 @@ export function AhavatTorahPeopleReader2029({ onPage }) {
     <header><div><span>אוריין תליתאי · דברי הספר</span><h3 id="ahavat29-people-title">אנשים, קבוצות וייחוסים</h3></div><strong>5<small>סיכומי חומשים</small></strong></header>
     <p className="ahavat29-ds01-guide"><b>הסבר נלווה:</b> המחבר מבחין בין כמה פעמים מיוחס דבר לאדם או לקבוצה, לבין כמה תיבות הוא כולל. אלה שני מדדים שונים: בחרו חומש, חפשו דמות והשוו כל מדד בנפרד. השמות המשותפים נשמרים יחד כפי שנדפסו.</p>
     <nav className="ahavat29-letter-books" aria-label="בחירת חומש בייחוסים">{AHAVAT_PEOPLE_BOOKS.map(item => <button type="button" key={item.id} aria-pressed={item.id === bookId} onClick={() => selectBook(item.id)}>{item.title}</button>)}</nav>
+    <details className="ahavat29-source-details" onToggle={event => setShowDivisions(event.currentTarget.open)}><summary>קראו את הייחוסים לפי פרשה</summary>
+      {showDivisions ? <>
+      <p><b>הסבר נלווה:</b> {AHAVAT_ATTRIBUTION_METHOD.explanation}</p>
+      <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><caption>חלוקות {book.title} כפי שנדפסו בספר</caption><thead><tr><th>יחידה</th><th>הסבר נלווה</th><th>דברי הספר</th></tr></thead><tbody>{AHAVAT_ATTRIBUTION_WINDOWS.filter(item => item.book === book.title).map(item => <tr key={item.id}><td>{item.title}</td><td>{item.explanation}</td><td>{item.pdfPages.map(page => <button type="button" key={page} onClick={() => openSource(page)}>PDF {page}</button>)}</td></tr>)}</tbody></table></div>
+      </> : null}
+    </details>
     <div className="ahavat29-table-tools"><label><span>חיפוש באנשים ובייחוסים</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="דמות, קבוצה או מניין בדפוס" /></label><strong aria-live="polite">{rows.length} ייחוסים</strong></div>
     <nav className="ahavat29-letter-books" aria-label="מדד הייחוסים בתלת־ממד">{[["words", "תיבות מיוחסות"], ["times", "פעמים"]].map(([id, label]) => <button type="button" key={id} aria-pressed={id === metric} onClick={() => setMetric(id)}>{label}</button>)}</nav>
     <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} disabled={!bars.length} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מבנה ייחוסים בתלת־ממד" : "פתח מבנה ייחוסים בתלת־ממד"}</button>{book.pages.map(page => <button key={page} type="button" onClick={() => openSource(page)}>סיכום {book.title} · PDF {page}</button>)}<button type="button" disabled={!rows.length} onClick={() => downloadCsv(ahavatPeopleCsv(bookId, query, AHAVAT_TORAH_SOURCE.pdfUrl), `ahavat-torah-people-${bookId}.csv`)}>הורד ייחוסים למחקר · {rows.length} שורות</button></div>
     {showScene ? <><div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה הייחוסים…</p>}><SpatialScene mode="source-count" letterLabel={`${unit} · ${book.title}`} bars={bars} activeId={selectedBar} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = {unit} בכל ייחוס · לחיצה פותחת את המקור</p></div><div className="ahavat29-letter-books" aria-label="נתוני מבנה הייחוסים">{bars.map(bar => <button type="button" key={bar.id} aria-pressed={selectedBar === bar.id} onClick={() => selectBar(bar.id)}>{bar.label} · {ahavatLetterNumber(bar.count)}</button>)}</div></> : null}
     {rows.length ? <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><caption>סיכום {book.title} · ייחוסים בדברי הספר</caption><thead><tr><th>ייחוס בדפוס</th><th>פעמים בדפוס</th><th>פעמים</th><th>תיבות בדפוס</th><th>תיבות</th><th>מקור</th></tr></thead><tbody>{rows.map(row => <tr key={row.id}><td>{row.entity}</td><td>{row.times.printed === "?" ? "לא הוכרע" : row.times.printed}</td><td>{ahavatLetterNumber(row.times.value)}</td><td>{row.words.printed === "?" ? "לא הוכרע" : row.words.printed}</td><td>{ahavatLetterNumber(row.words.value)}</td><td><button type="button" onClick={() => openSource(row.page)}>PDF {row.page}</button></td></tr>)}</tbody></table></div> : <p role="status">לא נמצא ייחוס מתאים בחומש זה.</p>}
     <details className="ahavat29-source-details"><summary>פרטי המקור והכיסוי</summary><p>הקריאה המספרית כאן היא של סיכומי חמשת החומשים ב־PDF 26–30. טבלת כל פרשה וסיכום כלל התורה נשארים לקריאה במקור PDF 25–31 ואינם מוצגים כאילו תועתקו כולם. {unresolved} תאי מניין עמומים נשארו פתוחים, אינם אפס ואינם כלולים בגרף או כסכום מספרי ביצוא. מניין „פעמים” הוא יחידת הייחוס של המחבר, לא ספירת הופעות של שם ולא המניין הנפרד של „משה” ב־PDF 70. „תורה”, „דבר ה׳”, אנשים וקבוצות נשמרים כקטגוריות המקור; שורות משותפות אינן מפוצלות או מסוכמות יחד לסכום מומצא. הקריאה אינה אימות מנוע. הפרשנויות והתעתיק כאן אינם תחליף לצילום.</p><div className="ahavat29-ds01-controls">{[25, 26, 27, 28, 29, 30, 31].map(page => <button type="button" key={page} onClick={() => openSource(page)}>הסעיף המלא · PDF {page}</button>)}</div></details>
+  </section>;
+}
+
+export function AhavatTorahPrintedNotes2029({ onPage }) {
+  return <section className="ahavat29-letters" aria-labelledby="ahavat29-printed-notes-title">
+    <header><div><span>הגהות מודפסות</span><h3 id="ahavat29-printed-notes-title">הערות לצד דברי הספר</h3></div><strong>9<small>הערות</small></strong></header>
+    <p className="ahavat29-ds01-guide">ההערות נדפסו בסוף הספר. אפשר לקרוא כל הערה במקור ולפתוח את הקטע שהיא עוסקת בו כאשר הוא אותר.</p>
+    <details className="ahavat29-source-details"><summary>פתחו את ההערות והקטעים</summary>
+      {AHAVAT_ERRATA_LINKS.map(note => <article className="ahavat29-letter-reading" key={note.id}>
+        <h4>{note.printedWork} · {note.printedOpening}</h4>
+        <p><b>הגהות מודפסות:</b> {note.readableExcerpt}</p>
+        <p><b>הסבר נלווה:</b> {note.explanation}</p>
+        <div className="ahavat29-ds01-controls"><button type="button" onClick={() => onPage(note.sourcePdfPage, "DS-12")}>פתחו את ההערה · PDF {note.sourcePdfPage}</button>{note.targetPdfPage ? <button type="button" onClick={() => onPage(note.targetPdfPage, "DS-12")}>פתחו את הקטע · PDF {note.targetPdfPage}</button> : <span>עמוד הקטע טרם אותר</span>}{note.relatedPdfPages.filter(page => page !== note.targetPdfPage).map(page => <button type="button" key={page} onClick={() => onPage(page, "DS-12")}>תחילת הקטע · PDF {page}</button>)}</div>
+      </article>)}
+    </details>
   </section>;
 }
 

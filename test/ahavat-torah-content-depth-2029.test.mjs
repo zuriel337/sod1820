@@ -56,7 +56,7 @@ test("all fifteen glyph readings apply exactly once while preserving all ten ori
   const changed = structuredClone(bundle); changed.fragments[0].text = "changed";
   assert.throws(() => ahavatPartiallyReviewedRoots(changed), /no longer applies/);
 });
-test("new content remains an unwired data-only packet, not a publication or reader change", () => {
+test("source packet preserves source identity, page bounds and transcription status", () => {
   assert.equal(source.pdfPages, 99);
   assert.equal(source.pdfSha256, "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b");
   assert.ok(notes.every(note => note.targetPdfPage === null || note.targetPdfPage <= source.pdfPages));
