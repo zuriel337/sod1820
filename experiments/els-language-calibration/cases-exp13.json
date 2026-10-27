@@ -1,0 +1,235 @@
+{
+ "note": "Axes are engine occurrences (ledger GD-01..03, the earlier ten-tevet cluster, and the 23 engine occurrences of one cipher in the Torah). Targets are data and never enter code.",
+ "cases": [
+  {
+   "id": "gd01",
+   "origin": "ledger GD-01",
+   "scope": "tanakh",
+   "start": 244509,
+   "skip": 41865,
+   "dir": -1,
+   "length": 6,
+   "targets": [
+    "באשאטמינ",
+    "שבררומי"
+   ]
+  },
+  {
+   "id": "gd02",
+   "origin": "ledger GD-02 and the user's Columbia message",
+   "scope": "torah",
+   "start": 248765,
+   "skip": 4545,
+   "dir": 1,
+   "length": 8,
+   "targets": [
+    "ספינת",
+    "יכלאש",
+    "אשאכלה"
+   ]
+  },
+  {
+   "id": "gd03",
+   "origin": "ledger GD-03",
+   "scope": "torah",
+   "start": 81020,
+   "skip": 10101,
+   "dir": 1,
+   "length": 7,
+   "targets": [
+    "איראן",
+    "ארהב"
+   ]
+  },
+  {
+   "id": "cluster",
+   "origin": "the user's earlier message (not chosen by Claude)",
+   "scope": "torah",
+   "start": 136468,
+   "skip": 193,
+   "dir": -1,
+   "length": 5,
+   "targets": [
+    "משיח"
+   ]
+  }
+ ],
+ "siblings": {
+  "origin": "the other engine occurrences of the same cipher in the Torah (no targets; windows are compared with blind windows)",
+  "scope": "torah",
+  "length": 6,
+  "cipher": "דטראמפ",
+  "occurrences": [
+   {
+    "id": "sib00",
+    "skip": 460,
+    "dir": -1,
+    "start": 144062
+   },
+   {
+    "id": "sib01",
+    "skip": 2608,
+    "dir": -1,
+    "start": 202401
+   },
+   {
+    "id": "sib02",
+    "skip": 2830,
+    "dir": -1,
+    "start": 88875
+   },
+   {
+    "id": "sib03",
+    "skip": 3847,
+    "dir": 1,
+    "start": 212606
+   },
+   {
+    "id": "sib04",
+    "skip": 7344,
+    "dir": -1,
+    "start": 294765
+   },
+   {
+    "id": "sib05",
+    "skip": 7509,
+    "dir": -1,
+    "start": 130891
+   },
+   {
+    "id": "sib06",
+    "skip": 9798,
+    "dir": 1,
+    "start": 44078
+   },
+   {
+    "id": "sib07",
+    "skip": 10815,
+    "dir": 1,
+    "start": 77153
+   },
+   {
+    "id": "sib08",
+    "skip": 12011,
+    "dir": -1,
+    "start": 226535
+   },
+   {
+    "id": "sib09",
+    "skip": 13846,
+    "dir": -1,
+    "start": 159164
+   },
+   {
+    "id": "sib10",
+    "skip": 14504,
+    "dir": -1,
+    "start": 189377
+   },
+   {
+    "id": "sib11",
+    "skip": 15098,
+    "dir": -1,
+    "start": 165501
+   },
+   {
+    "id": "sib12",
+    "skip": 17282,
+    "dir": 1,
+    "start": 31596
+   },
+   {
+    "id": "sib13",
+    "skip": 18587,
+    "dir": 1,
+    "start": 5171
+   },
+   {
+    "id": "sib14",
+    "skip": 22838,
+    "dir": -1,
+    "start": 187388
+   },
+   {
+    "id": "sib15",
+    "skip": 28634,
+    "dir": 1,
+    "start": 136820
+   },
+   {
+    "id": "sib16",
+    "skip": 29642,
+    "dir": -1,
+    "start": 303817
+   },
+   {
+    "id": "sib17",
+    "skip": 29790,
+    "dir": -1,
+    "start": 216051
+   },
+   {
+    "id": "sib18",
+    "skip": 31433,
+    "dir": -1,
+    "start": 212739
+   },
+   {
+    "id": "sib19",
+    "skip": 34763,
+    "dir": 1,
+    "start": 65294
+   },
+   {
+    "id": "sib21",
+    "skip": 45763,
+    "dir": -1,
+    "start": 248717
+   },
+   {
+    "id": "sib22",
+    "skip": 46194,
+    "dir": -1,
+    "start": 302479
+   }
+  ]
+ },
+ "knownCrossings": {
+  "sibling": "sib00",
+  "origin": "engine crossing findings of the earlier dictionary scan of the skip-460 matrix (known crossings, not importance-labelled)",
+  "targets": [
+   "חשמל",
+   "יאיר"
+  ]
+ },
+ "blind": {
+  "setSize": 200,
+  "minCells": 1100,
+  "skipBase": 50,
+  "skipSpan": 4950,
+  "skipMultiplier": "7919*104729",
+  "startMultiplier": "104729*13",
+  "sets": [
+   {
+    "scope": "torah",
+    "axisLength": 5
+   },
+   {
+    "scope": "torah",
+    "axisLength": 6
+   },
+   {
+    "scope": "torah",
+    "axisLength": 7
+   },
+   {
+    "scope": "torah",
+    "axisLength": 8
+   },
+   {
+    "scope": "tanakh",
+    "axisLength": 6
+   }
+  ]
+ }
+}
