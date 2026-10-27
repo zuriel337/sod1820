@@ -6,6 +6,8 @@ import { cutFunction, loadProductReader } from "../experiments/els-language-cali
 import { PRIMARY_METRIC, axisOf, compare, metricsOf, shiftedAxes } from "../experiments/els-language-calibration/lib/calibrate.mjs";
 import { CROSS_MAX, CROSS_MIN, bestByLength, crossingScore, crossingTable, enumerateCrossing } from "../experiments/els-language-calibration/lib/crossing.mjs";
 import { READ_MODES, makeReadInfo } from "../experiments/els-language-calibration/lib/reading.mjs";
+import { SIGNAL_RANKERS, addCalibrated, addContext, addGeometry, addMirror, buildLists, fnv1a, locate, nullComparison, strengthOf, tableFromBuckets, trainTrigram, unionWithContext } from "../experiments/els-language-calibration/lib/signals.mjs";
+import { PLANT_CLASSES, overridesOf, planWindow, plantingWords, withOverrides } from "../experiments/els-language-calibration/lib/planting.mjs";
 import { annotate, axisGeometry, bucketOf, enumerateCandidates, noiseAbove, parseCoverage, positionOf, rankFindings, rarityOf, tailTable, unionRank, windowLetters } from "../experiments/els-language-calibration/lib/ranking.mjs";
 
 const HERE = fileURLToPath(new URL("../experiments/els-language-calibration/", import.meta.url));
@@ -55,6 +57,7 @@ test("EXP-09 harness: no Golden string in the library code (cases and look-ups a
   libs.push(readFileSync(`${HERE}run.mjs`, "utf8").replace(/\/\/.*$/gm, ""));
   libs.push(readFileSync(`${HERE}run-ranking.mjs`, "utf8").replace(/\/\/.*$/gm, ""));
   libs.push(readFileSync(`${HERE}run-crossing.mjs`, "utf8").replace(/\/\/.*$/gm, ""));
+  libs.push(readFileSync(`${HERE}run-signals.mjs`, "utf8").replace(/\/\/.*$/gm, ""));
   for (const source of libs) for (const word of ["ספינת", "יכלאש", "אשאכלה", "באשאטמינ", "שבררומי", "דטראמפ", "קולומביה", "אורניום"]) assert.equal(source.includes(word), false, word);
 });
 
@@ -257,4 +260,112 @@ test("EXP-13 recorded results: the pre-registered measure and the two-token read
   assert.equal(target(runs.whole, 8).crossingEligible, false, "an 8-letter string made of two words has no whole reading, so the strict measure cannot see it");
   assert.equal(target(runs.tile2, 8).crossingEligible, true);
   assert.equal(target(runs.tile3, 8).D.exactNoiseBefore, 17, "its rank among 18 findings is the tie-break order: X is 0 for all of them");
+});
+
+// ---------------------------------------------------------------- EXP-14: separate signals
+const signalCandidate = (surface, line, cells, extra = {}) => ({ surface, line, cells, len: cells.length, reverse: false, ...extra });
+
+test("EXP-14 geometry and tie-break: distance to the axis cells, a fixed pseudo-random hash in [0, 1)", () => {
+  const axisCells = [[2, 5], [3, 5], [4, 5]];
+  const crossing = signalCandidate("abcd", "across", [[3, 3], [3, 4], [3, 5], [3, 6]]);
+  const adjacent = signalCandidate("abcd", "down", [[1, 6], [2, 6], [3, 6], [4, 6]]);
+  const far = signalCandidate("abcd", "down", [[10, 12], [11, 12], [12, 12], [13, 12]]);
+  addGeometry([crossing, adjacent, far], axisCells);
+  assert.deepEqual([crossing.dist, adjacent.dist, far.dist], [0, 1, 7], "Chebyshev: 6 rows and 7 columns from the nearest axis cell");
+  assert.equal(fnv1a("down|1|6|4|0"), fnv1a("down|1|6|4|0"));
+  for (const c of [crossing, adjacent, far]) assert.ok(c.hash >= 0 && c.hash < 1);
+  assert.notEqual(crossing.hash, adjacent.hash);
+});
+
+test("EXP-14 Hebrew-likeness: a trigram model learned from the text itself, calibrated per length against the null; unknown letters score nothing", () => {
+  const text = "abcabcabcabdabcabc".repeat(40);
+  const model = trainTrigram(text);
+  assert.ok(model.score("abcabc") > model.score("cbacba"), "a string the text contains outscores its scramble");
+  assert.equal(model.score("abz"), -Infinity);
+  const table = tableFromBuckets(new Map([[4, [-5, -4, -3, -2, -1]]]));
+  const cands = [{ len: 4, hRaw: -1 }, { len: 4, hRaw: -3 }, { len: 4, hRaw: -9 }, { len: 7, hRaw: -1 }];
+  addCalibrated(cands, table);
+  assert.ok(cands[0].H > cands[1].H && cands[1].H > cands[2].H, "calibration is monotone");
+  assert.ok(Math.abs(cands[0].H - Math.log10(6 / 2)) < 1e-12, "-log10((n_ge + 1) / (n + 1)) with n_ge = 1 and n = 5");
+  assert.ok(Math.abs(cands[2].H - 0) < 1e-12, "everything is at least as Hebrew-like: no signal");
+  assert.equal(cands[3].H, 0, "a length without a null table gets no score");
+});
+
+test("EXP-14 mirror pairs and context components: the partner is the reflection about the axis column; terms match as substrings", () => {
+  const left = signalCandidate("xyzw", "down_right", [[1, 1], [2, 2], [3, 3], [4, 4]], { H: 2 });
+  const right = signalCandidate("wzyx", "down_left", [[1, 9], [2, 8], [3, 7], [4, 6]], { H: 3 });
+  const lonely = signalCandidate("pqrs", "down", [[1, 2], [2, 2], [3, 2], [4, 2]], { H: 1 });
+  const onAxis = signalCandidate("abcd", "down", [[1, 5], [2, 5], [3, 5], [4, 5]], { H: 1 });
+  addMirror([left, right, lonely, onAxis], 5);
+  assert.equal(left.M, 5);
+  assert.equal(right.M, 5);
+  assert.equal(lonely.M, undefined, "its reflection is not in the pool");
+  assert.equal(onAxis.M, undefined, "a run on the axis column is its own mirror");
+  const c1 = signalCandidate("אשכלה", "down", [[1, 1]], {});
+  const c2 = signalCandidate("בדגה", "down", [[1, 2]], {});
+  addContext([c1, c2], new Set(["אש", "כלה", "ז"]));
+  assert.equal(c1.ctx, 3, "the longest contained term; one-letter terms are ignored");
+  assert.equal(c2.ctx, 0);
+});
+
+test("EXP-14 lists and union: every candidate with a score is ranked, nothing is cut by a threshold; the context block comes first, is capped and survives whatever the other signals say", () => {
+  const make = (surface, line, row, cols, extra) => signalCandidate(surface, line, cols.map((c) => [row, c]), { dist: 3, H: 0, whole: false, lexConf: 0, ctx: 0, hash: 0.5, ...extra });
+  const pool = [
+    make("aaaa", "down", 0, [0, 1, 2, 3], { dist: 0, H: 1, whole: true, lexConf: 50 }),
+    make("bbbb", "down", 5, [0, 1, 2, 3], { dist: 1, H: 4, M: 9 }),
+    make("cccc", "down", 9, [0, 1, 2, 3], { dist: 6, H: 2, ctx: 2 }),
+    make("dddd", "down", 12, [0, 1, 2, 3], { dist: 2, H: 3, ctx: 3 }),
+  ];
+  const lists = buildLists(pool, { withContext: true });
+  assert.equal(lists.G.length, 4, "G ranks all candidates");
+  assert.equal(lists.G[0].candidate.surface, "aaaa", "nearest first");
+  assert.equal(lists.H[0].candidate.surface, "bbbb");
+  assert.deepEqual(lists.W.map((f) => f.candidate.surface), ["aaaa"], "only whole readings are scored by W");
+  assert.deepEqual(lists.M.map((f) => f.candidate.surface), ["bbbb"]);
+  assert.deepEqual(lists.K.map((f) => f.candidate.surface), ["dddd", "cccc"], "longest contained term first");
+  const union = unionWithContext(lists, { per: 2, cap: 1 });
+  assert.equal(union[0].tier, "K");
+  assert.equal(union[0].candidate.surface, "dddd", "the context block comes first");
+  assert.equal(union.filter((f) => f.tier === "K").length, 1, "the block is capped");
+  assert.equal(new Set(union.map((f) => f.candidate.surface)).size, union.length, "no finding twice");
+  const withoutContext = unionWithContext({ G: lists.G, H: lists.H, W: lists.W, M: lists.M }, { per: 1, cap: 50 });
+  assert.equal(withoutContext.some((f) => f.tier === "K"), false);
+  assert.deepEqual(Object.keys(SIGNAL_RANKERS), ["G", "H", "W", "M", "K"]);
+});
+
+test("EXP-14 positions and null comparison: overlap, containment and exactness are different; blind share and null noise come from the null windows", () => {
+  const run = (cols, row = 0) => signalCandidate("x".repeat(cols.length), "down", cols.map((c) => [row, c]));
+  const findings = [{ candidate: run([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), tuple: [3, 0.5] }, { candidate: run([2, 3, 4, 5], 5), tuple: [2, 0.5] }];
+  const inner = run([3, 4, 5, 6]);
+  assert.deepEqual(locate(findings, [inner]), { overlap: 1, contained: 1, exact: null }, "a longer run swallows the target: contained, not exact");
+  const sameRun = run([2, 3, 4, 5], 5);
+  assert.deepEqual(locate(findings, [sameRun]), { overlap: 2, contained: 2, exact: 2 });
+  assert.deepEqual(locate(findings, [run([20, 21, 22, 23])]), { overlap: null, contained: null, exact: null });
+  const nullStrengths = [[[5], [4], [1]], [[2], [1]], [[3]]];
+  const share = nullComparison(nullStrengths, [3]);
+  assert.deepEqual([share.blindShare, share.nullNoiseMedian, share.windows], [0.667, 0, 3], "two of three windows hold a finding at least as strong; the median window holds none that is stronger");
+  assert.deepEqual(strengthOf({ tuple: [4, 2, 0.9] }), [4, 2]);
+});
+
+test("EXP-14 planted hidden words: one word per class, no shared cell, the crossing word agrees with the axis letter, distances are as pre-registered; a window that does not fit is refused", () => {
+  const axisCells = [[30, 25], [31, 25], [32, 25], [33, 25], [34, 25], [35, 25]];
+  const axisLetters = ["ד", "ט", "ר", "א", "מ", "פ"];
+  const words = plantingWords(new Set(["אבגדהו", "טוסיפאה", "ממלכתי", "ראשית", "בראשית", "שלוםכ", "פרעהה", "קדושים", "ךםןףץ6"]), { min: 6, max: 8, exclude: ["קדושים"] });
+  assert.deepEqual(words, ["אבגדהו", "בראשית", "טוסיפאה", "ממלכתי"], "folded Hebrew only, within the length range, minus excluded words");
+  const inside = (r, c) => r >= 10 && r <= 60 && c >= 5 && c <= 45;
+  const placements = planWindow({ axisCells, axisLetters, words, index: (k) => k, inside });
+  assert.deepEqual(placements.map((p) => p.class), PLANT_CLASSES.slice());
+  const all = placements.flatMap((p) => p.cells.map(([r, c]) => `${r},${c}`));
+  assert.equal(new Set(all).size, all.length, "no shared cell");
+  const cross = placements[0];
+  const touched = cross.cells.map((cell, j) => ({ cell, j })).filter(({ cell: [r, c] }) => c === 25 && r >= 30 && r <= 35);
+  assert.equal(touched.length, 1, "exactly one axis cell");
+  assert.equal(cross.word[touched[0].j], axisLetters[touched[0].cell[0] - 30], "the word has the axis letter there");
+  const cands = placements.map((p) => signalCandidate(p.word, p.line, p.cells));
+  addGeometry(cands, axisCells);
+  assert.deepEqual(cands.map((c) => c.dist), [0, 1, 5, 14]);
+  assert.equal(planWindow({ axisCells, axisLetters, words, index: (k) => k, inside: (r, c) => inside(r, c) && c >= 15 }), null, "the distant word (14 columns left of the axis) does not fit");
+  const letterAt = withOverrides((r, c) => `${r}:${c}`, overridesOf(placements));
+  assert.equal(letterAt(cross.cells[0][0], cross.cells[0][1]), cross.word[0]);
+  assert.equal(letterAt(0, 0), "0:0");
 });

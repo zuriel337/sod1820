@@ -61,3 +61,11 @@ null findings that are stronger (null noise); the same for U (rank, size, which 
    Chance level = (findings returned) / (findings in the list), reported.
 4. Context: the K block is part of U whatever the other signals say; reported: K findings per null window (chance matches with the same terms), size of the K block, `keptOnlyByContext`.
 5. No target string in library or runner code (test); read-only; no AI; the page, src/ and the lexicon asset untouched. Any change to this file after the first run goes under "Amendments" with its reason.
+
+## Amendments
+
+### Amendment 0 — reporting only, made after a 4-window smoke test and before the first real run (no signal, tuple, budget or rule changed)
+A smoke run of the runner with 4 Torah and 3 Tanakh control windows and 3 planted windows (`--null-torah 4 --null-tanakh 3 --planted 3`) was inspected for sanity, including the development rows. It is not a result and its numbers are not used.
+It showed that a finding is a run of up to 10 letters (the longest run of its line through the region), so under G a diagonal that passes the axis "contains" any word that sits on it. Rule 1 and rule 3 keep the definition "contained", as written.
+To keep that reading honest the runner now also reports, next to every contained rank: the **exact** rank (the finding is the target's own cells), the **overlap** rank, and the **coverage** of each list (share of the window's cells inside the first 50 findings, and inside the union):
+a word placed at random is contained in a list at most as often as that coverage, and the `distant` planted class is the language-only control. No K tuple, budget or rule was changed after the development rows were seen.
