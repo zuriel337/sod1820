@@ -1,0 +1,369 @@
+{
+  "planned": 26,
+  "confirmed": 26,
+  "details": [
+    {
+      "seed": "יאיר",
+      "seedId": "X002",
+      "extended": "ויאירעול",
+      "parts": [
+        "ויאיר",
+        "עול"
+      ],
+      "skip": 461,
+      "dir": 1,
+      "expectedStart": 141760,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "אלה",
+      "seedId": "X003",
+      "extended": "אלהנלבש",
+      "parts": [
+        "אלהנ",
+        "לבש"
+      ],
+      "skip": 459,
+      "dir": 1,
+      "expectedStart": 142682,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "דוה",
+      "seedId": "X004",
+      "extended": "דוהאב",
+      "parts": [
+        "דוה",
+        "אב"
+      ],
+      "skip": 461,
+      "dir": 1,
+      "expectedStart": 144062,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "המן",
+      "seedId": "X006",
+      "extended": "והמנכי",
+      "parts": [
+        "והמנ",
+        "כי"
+      ],
+      "skip": 459,
+      "dir": -1,
+      "expectedStart": 143140,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "משח",
+      "seedId": "X009",
+      "extended": "משחו",
+      "parts": [
+        "משחו"
+      ],
+      "skip": 461,
+      "dir": 1,
+      "expectedStart": 142222,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "פחם",
+      "seedId": "X011",
+      "extended": "האפחמ",
+      "parts": [
+        "האפ",
+        "חמ"
+      ],
+      "skip": 461,
+      "dir": -1,
+      "expectedStart": 142684,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "פיח",
+      "seedId": "X012",
+      "extended": "פיחלה",
+      "parts": [
+        "פי",
+        "חלה"
+      ],
+      "skip": 459,
+      "dir": 1,
+      "expectedStart": 141762,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "צהר",
+      "seedId": "X013",
+      "extended": "אחנצהר",
+      "parts": [
+        "אחנ",
+        "צהר"
+      ],
+      "skip": 461,
+      "dir": 1,
+      "expectedStart": 140837,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "שרק",
+      "seedId": "X015",
+      "extended": "ששרק",
+      "parts": [
+        "שש",
+        "רק"
+      ],
+      "skip": 459,
+      "dir": 1,
+      "expectedStart": 142224,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "אי",
+      "seedId": "X016",
+      "extended": "ועריאי",
+      "parts": [
+        "וערי",
+        "אי"
+      ],
+      "skip": 461,
+      "dir": -1,
+      "expectedStart": 144526,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "אי",
+      "seedId": "X017",
+      "extended": "ויאירעול",
+      "parts": [
+        "ויאיר",
+        "עול"
+      ],
+      "skip": 461,
+      "dir": 1,
+      "expectedStart": 141760,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "אל",
+      "seedId": "X018",
+      "extended": "אלהנלבש",
+      "parts": [
+        "אלהנ",
+        "לבש"
+      ],
+      "skip": 459,
+      "dir": 1,
+      "expectedStart": 142682,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "אף",
+      "seedId": "X019",
+      "extended": "אנהאפ",
+      "parts": [
+        "אנ",
+        "האפ"
+      ],
+      "skip": 461,
+      "dir": -1,
+      "expectedStart": 143606,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "די",
+      "seedId": "X020",
+      "extended": "עלדי",
+      "parts": [
+        "על",
+        "די"
+      ],
+      "skip": 459,
+      "dir": -1,
+      "expectedStart": 144980,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "דק",
+      "seedId": "X022",
+      "extended": "דקובהר",
+      "parts": [
+        "דק",
+        "ובהר"
+      ],
+      "skip": 461,
+      "dir": -1,
+      "expectedStart": 144062,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "הם",
+      "seedId": "X023",
+      "extended": "והמנכי",
+      "parts": [
+        "והמנ",
+        "כי"
+      ],
+      "skip": 459,
+      "dir": -1,
+      "expectedStart": 143140,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "הר",
+      "seedId": "X024",
+      "extended": "אחנצהר",
+      "parts": [
+        "אחנ",
+        "צהר"
+      ],
+      "skip": 461,
+      "dir": 1,
+      "expectedStart": 140837,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "טל",
+      "seedId": "X026",
+      "extended": "עמטל",
+      "parts": [
+        "עמ",
+        "טל"
+      ],
+      "skip": 461,
+      "dir": -1,
+      "expectedStart": 144524,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "לא",
+      "seedId": "X028",
+      "extended": "הלאאי",
+      "parts": [
+        "הלא",
+        "אי"
+      ],
+      "skip": 459,
+      "dir": -1,
+      "expectedStart": 143600,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "מה",
+      "seedId": "X029",
+      "extended": "כנמה",
+      "parts": [
+        "כנ",
+        "מה"
+      ],
+      "skip": 459,
+      "dir": 1,
+      "expectedStart": 141304,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "מן",
+      "seedId": "X030",
+      "extended": "והמנכי",
+      "parts": [
+        "והמנ",
+        "כי"
+      ],
+      "skip": 459,
+      "dir": -1,
+      "expectedStart": 143140,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "פח",
+      "seedId": "X032",
+      "extended": "האפחמ",
+      "parts": [
+        "האפ",
+        "חמ"
+      ],
+      "skip": 461,
+      "dir": -1,
+      "expectedStart": 142684,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "פי",
+      "seedId": "X033",
+      "extended": "פיחלה",
+      "parts": [
+        "פי",
+        "חלה"
+      ],
+      "skip": 459,
+      "dir": 1,
+      "expectedStart": 141762,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "רק",
+      "seedId": "X035",
+      "extended": "רקאאר",
+      "parts": [
+        "רק",
+        "אאר"
+      ],
+      "skip": 459,
+      "dir": 1,
+      "expectedStart": 143142,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "שם",
+      "seedId": "X036",
+      "extended": "לוחשמ",
+      "parts": [
+        "לו",
+        "חשמ"
+      ],
+      "skip": 461,
+      "dir": -1,
+      "expectedStart": 144066,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "שר",
+      "seedId": "X037",
+      "extended": "יששר",
+      "parts": [
+        "יש",
+        "שר"
+      ],
+      "skip": 459,
+      "dir": 1,
+      "expectedStart": 141765,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    }
+  ]
+}

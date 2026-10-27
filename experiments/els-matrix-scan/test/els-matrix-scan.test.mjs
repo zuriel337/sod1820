@@ -6,13 +6,16 @@ import { join } from "node:path";
 
 import { DIRECTIONS, cellOf, directionOf, fullTiles, inRegion, isMatrixContiguous, occurrenceCells, regionAroundAnchor, regionAroundPositions, renderRegion, skipGroups, skipValue, tileGrid, tileOf } from "../lib/geometry.mjs";
 import { deriveElsLineGeometry } from "../../../src/lib/research/els2029VectorGeometry.js";
-import { CROSSING_DIRECTION_COUNT, anchorSql, dictionaryCountSql, dictionaryMembershipSql, expectedCrossingSql, occurrencesSql, regionLettersSql, scanBatchSql, sharedLetterClass } from "../lib/queries.mjs";
+import { CROSSING_DIRECTION_COUNT, anchorSql, dictionaryCountSql, dictionaryMembershipSql, expectedCrossingSql, occurrencesSql, regionLettersSql, scanBatchSql, sharedLetterClass, windowedOccurrencesSql } from "../lib/queries.mjs";
 import { classifyCrossings, joinAdjacentFindings, lineAngle, markupFor, normalizeFindings } from "../lib/findings.mjs";
 import { CHANCE_LOCAL_MODEL_ID, CHANCE_MODEL_ID, compareToChance, describeChanceModel, expectedCrossings, poissonUpperTail, regionLetterCounts } from "../lib/chance.mjs";
 import { compareStatistic, compareToTiles, describeMethod, mergeTileVectors, targetIndexOf } from "../lib/controls.mjs";
 import { buildCrossingPacket, buildGroupingPacket, validateGrouping } from "../lib/grouping.mjs";
 import { baseLetters, buildMarkup, letterGridFromRows, renderMarkupHtml, verifyFindingsAgainstLetters } from "../lib/markup.mjs";
 import { buildCrossingReport, buildRunReport, evaluateWords, lengthRangeOfOffsets, verifyBatch } from "../lib/report.mjs";
+import { createHash } from "node:crypto";
+import { summarizeWindowedSearch } from "../lib/exhaustive.mjs";
+import { CRAWL_BARS, checkedLines, continuationsOf, crawlSql, describeCrawlMethod, groupSeedsByLine, parseCrawlLines, parseVerifyLines, poissonBinomialUpperTail, summarizeCrawl, verifyExtensionsSql } from "../lib/crawl.mjs";
 
 const LIB = fileURLToPath(new URL("../lib/", import.meta.url));
 const W = 100;
@@ -558,4 +561,214 @@ test("chance sensitivity: the same formula with the region's own letter frequenc
     const fromJs = expectedCrossings(word, "דטראמפ", real.letter_freq, 4);
     assert.ok(Math.abs(fromJs - fromSql) / fromSql < 1e-4, `${word}: js ${fromJs} vs sql ${fromSql}`);
   }
+});
+
+// ---------------------------------------------------------------- continuation crawler
+test("crawler logic (JS twin of the SQL): word extensions and two-form phrases qualify, minimum total length, nearest-first letters, longest first", () => {
+  const lexicon = new Set(["יכל", "אש", "באש", "ארץ", "אשר", "ויכל"]);
+  // seed "אש" read in line order; letters beyond its start (nearest first): ל, כ, י ; beyond its end: ר, ץ
+  const found = continuationsOf({ word: "אש", left: ["ל", "כ", "י"], right: ["ר", "ץ"], lexicon });
+  assert.deepEqual(found.map((f) => [f.e, f.kind, f.parts.join("+")]), [
+    ["יכלאשר", "phrase", "יכל+אשר"],
+    ["יכלאש", "phrase", "יכל+אש"],
+  ], "longest first (יכל+אשר beats יכל+אש); the 3-letter word extension אשר is below the default minimum total length of 4");
+  assert.deepEqual([found[0].kl, found[0].kr, found[0].len], [3, 1, 6]);
+  assert.deepEqual([found[1].kl, found[1].kr, found[1].len, found[1].kind], [3, 0, 5, "phrase"]);
+  assert.ok(continuationsOf({ word: "אש", left: ["ל"], right: ["ר"], lexicon, minTotal: 3 }).some((f) => f.e === "אשר" && f.kind === "word"), "a one-letter extension that is a Torah form qualifies");
+  assert.ok(!found.some((f) => f.e === "אש"), "the seed alone is not a continuation");
+  assert.ok(!found.some((f) => f.len < 4), "below the minimum total length nothing qualifies");
+  assert.deepEqual(continuationsOf({ word: "אש", left: ["ב"], right: [], lexicon, minTotal: 3 }).map((f) => [f.e, f.kind]), [["באש", "word"]]);
+  assert.deepEqual(continuationsOf({ word: "אש", left: ["ל"], right: [], lexicon, minTotal: 3 }), []);
+});
+
+test("crawler criterion `collocations`: a two-part extension must be a pair of ADJACENT words the Torah itself contains", () => {
+  const lexicon = new Set(["יכל", "אש", "הרה", "ונפל", "ימות"]);
+  const bigrams = new Set(["הרה|ונפל", "ימות|ונפל"]);
+  const left = ["ו", "ה", "ר", "ה"]; // nearest first: the string before נפל reads הרהו
+  const byForms = continuationsOf({ word: "נפל", left, right: [], lexicon });
+  assert.deepEqual(byForms.map((f) => [f.e, f.kind, f.parts.join("+")]), [["הרהונפל", "phrase", "הרה+ונפל"], ["ונפל", "word", "ונפל"]]);
+  const strict = continuationsOf({ word: "נפל", left, right: [], lexicon, bigrams });
+  assert.deepEqual(strict.map((f) => [f.e, f.kind, f.parts.join("+")]), [["הרהונפל", "phrase", "הרה+ונפל"], ["ונפל", "word", "ונפל"]], "הרה followed by ונפל is attested");
+  assert.equal(continuationsOf({ word: "אש", left: ["ל", "כ", "י"], right: [], lexicon }).some((f) => f.e === "יכלאש"), true, "under `forms` two forms are enough");
+  assert.equal(continuationsOf({ word: "אש", left: ["ל", "כ", "י"], right: [], lexicon, bigrams }).some((f) => f.e === "יכלאש"), false, "יכל and אש are both forms but are not adjacent anywhere in the attested pairs");
+  const sql = crawlSql({ seeds: [{ word: "אש", start: 257853, skip: 4546, dir: 1 }], criterion: "collocations" });
+  assert.match(sql, /bi as materialized \(\n  select distinct translate\(v\.words\[i\]/);
+  assert.match(sql, /from pairs p join bi on bi\.a = p\.a and bi\.b = p\.b/);
+  assert.doesNotMatch(sql, /join lex la/);
+  assert.match(sql, /'criterion', 'collocations'/);
+  assert.match(sql, /'attested_pairs', \(select count\(\*\) from bi\)/);
+  assert.equal(/els_search|gematria_words/.test(sql), false);
+  const plain = crawlSql({ seeds: [{ word: "אש", start: 257853, skip: 4546, dir: 1 }] });
+  assert.match(plain, /'criterion', 'forms'/);
+  assert.doesNotMatch(plain, /\bbi\b/);
+  assert.throws(() => crawlSql({ seeds: [{ word: "אש", start: 1, skip: 2, dir: 1 }], criterion: "meaning" }), RangeError);
+});
+
+test("crawler SQL: read-only, reads only the Torah's own words and stream letters, no engine call, validated seeds, calibrated by shifted lines", () => {
+  const seeds = [{ id: "S1", word: "אש", start: 257853, skip: 4546, dir: 1 }, { id: "S2", word: "נפל", start: 235138, skip: 4545, dir: -1 }];
+  const sql = crawlSql({ seeds, reach: 4, shifts: 50 });
+  assert.match(sql, /^set local statement_timeout = '50000ms';\nset local enable_nestloop = off;\nwith seed_rows\(id, w, s, skip, dir, len\) as \(values\n  \(1, 'אש', 257853, 4546, 1, 2\),\n  \(2, 'נפל', 235138, 4545, -1, 3\)\n\)/);
+  assert.match(sql, /avail_l[\s\S]*avail_r/, "letters beyond the beginning or end of the text are unknown, never wrapped around");
+  assert.match(sql, /case when j <= sd\.avail_l then/);
+  assert.match(sql, /case when j <= sd\.avail_r then/);
+  assert.match(sql, /from pairs p join lex la on la\.w = p\.a join lex lb on lb\.w = p\.b/, "phrase membership is an equality join, not a correlated IN");
+  assert.match(sql, /from public\.tanach_verses v, lateral unnest\(v\.words\) x\(w\)\n  where v\.book_idx between 0 and 4/);
+  assert.equal(/els_search|gematria_words/.test(sql), false, "no engine call and no registry: seeds come from the engine, the language from the text");
+  assert.equal((sql.match(/public\.torah_stream/g) || []).length, 3, "stream: its length and the letters beyond the two ends");
+  assert.doesNotMatch(sql, /\b(insert|update|delete|drop|alter|create|truncate|grant|revoke|copy)\b/i);
+  assert.match(sql, /generate_series\(0, 50\) m/);
+  assert.match(sql, /'lines', \(select jsonb_agg\(jsonb_build_object\('s', line, 'md5', md5\(line\)\) order by id\) from lines\)/);
+  assert.match(sql, /concat_ws\('\|', ps\.id, ps\.w/, "one plain line per seed, no nested JSON to retype");
+  assert.match(sql, /\(0, ''\), \(1, coalesce\(l1, '\?'\)\), \(2, coalesce\(l2, '\?'\) \|\| coalesce\(l1, '\?'\)\)/, "left letters are prepended farthest-first");
+  assert.match(sql, /\(2, coalesce\(r1, '\?'\) \|\| coalesce\(r2, '\?'\)\)/, "right letters are appended nearest-first");
+  assert.ok(sql.includes(`unnest(array[${CRAWL_BARS.join(", ")}])`));
+  assert.throws(() => crawlSql({ seeds: [{ word: "x'; drop table t; --", start: 1, skip: 2, dir: 1 }] }), TypeError);
+  assert.throws(() => crawlSql({ seeds: [{ word: "אש", start: 1, skip: 2, dir: 2 }] }), RangeError);
+  assert.throws(() => crawlSql({ seeds: [{ word: "אש", start: -1, skip: 2, dir: 1 }] }), RangeError);
+  assert.throws(() => crawlSql({ seeds: [] }), RangeError);
+  assert.throws(() => crawlSql({ seeds, shifts: 5 }), RangeError);
+  assert.throws(() => crawlSql({ seeds, reach: 9 }), RangeError);
+  assert.equal(crawlSql({ seeds: [{ word: "מלאך", start: 5, skip: 7, dir: -1 }] }).includes("'מלאכ'"), true, "final letters are folded onto base letters like the stream");
+});
+
+const md5 = (text) => createHash("md5").update(text, "utf8").digest("hex");
+const crawlLine = (id, word, t, p, left, right, nullGe, top) => { const line = [id, word, t, p, left, right, nullGe, top].join("|"); return { s: line, md5: md5(line) }; };
+
+test("results travel as checksummed lines: a copy error is caught, lines parse back into the calibrated structure", () => {
+  const ok = crawlLine(1, "אש", 5, "0.020000", "לכיבו", "רץאבג", "40,10,2,0,0,0", "יכלאש/3/0/5/p/יכל+אש;אשר/0/1/3/w/אשר");
+  const parsed = parseCrawlLines([ok]);
+  assert.deepEqual(parsed[0], { id: 1, word: "אש", t_obs: 5, p: 0.02, left: "לכיבו", right: "רץאבג", null_ge: { 4: 40, 5: 10, 6: 2, 7: 0, 8: 0, 9: 0 }, top: [{ e: "יכלאש", kl: 3, kr: 0, len: 5, kind: "phrase", parts: ["יכל", "אש"] }, { e: "אשר", kl: 0, kr: 1, len: 3, kind: "word", parts: ["אשר"] }] });
+  assert.deepEqual(parseCrawlLines([crawlLine(2, "דל", "-", "1.000000", "אבגדה", "ויזחט", "30,8,1,0,0,0", "")])[0].top, []);
+  assert.throws(() => checkedLines([{ s: ok.s.replace("לכיבו", "לכיבז"), md5: ok.md5 }]), /does not match its checksum/);
+  assert.throws(() => checkedLines([{ s: ok.s, md5: ok.md5.replace(/^./, "0") }]), /does not match its checksum/);
+  assert.throws(() => checkedLines("not lines"), TypeError);
+  const verify = parseVerifyLines([{ s: "1|יכלאש|4546|1|244215", md5: md5("1|יכלאש|4546|1|244215") }, { s: "2|אש|truncated", md5: md5("2|אש|truncated") }]);
+  assert.deepEqual(verify, { hits: [{ id: 1, term: "יכלאש", skip: 4546, dir: 1, start: 244215 }], truncated: [2] });
+});
+
+test("crawler verification goes through the one canonical engine call site and reports only the hit at the predicted position", () => {
+  const verify = verifyExtensionsSql({ width: 4545, totalRows: 67, extensions: [{ term: "יכלאש", skip: 4546, dir: 1, start: 244215 }, { term: "הרהונפל", skip: 4545, dir: -1, start: 253318 }] });
+  assert.equal((verify.match(/els_search_geometry_core_v1/g) || []).length, 1);
+  assert.match(verify, /with ext\(id, term, skip, dir, start\) as \(values \(1, 'יכלאש', 4546, 1, 244215\), \(2, 'הרהונפל', 4545, -1, 253318\)\)/);
+  assert.match(verify, /array\[e\.skip\]/);
+  assert.match(verify, /where \(h->>'skip'\)::bigint = c\.skip and \(h->>'dir'\)::int = c\.dir and \(h->>'start'\)::bigint = c\.start/, "only the predicted occurrence is confirmed; others are not reported");
+  assert.match(verify, /md5\(line\)/);
+  assert.throws(() => verifyExtensionsSql({ width: 4545, totalRows: 67, extensions: [{ term: "x", skip: 1, dir: 1, start: 0 }] }), TypeError);
+  assert.throws(() => verifyExtensionsSql({ width: 4545, totalRows: 67, extensions: [{ term: "יכלאש", skip: 4546, dir: 0, start: 1 }] }), RangeError);
+  assert.throws(() => verifyExtensionsSql({ width: 4545, totalRows: 67, extensions: [{ term: "יכלאש", skip: 4546, dir: 1 }] }), RangeError);
+  assert.throws(() => verifyExtensionsSql({ width: 4545, totalRows: 67, extensions: [] }), RangeError);
+});
+
+test("seeds that read the same letters are one line; the exact tail over lines is the Poisson-binomial distribution", () => {
+  const word = (w, start, skip, dir) => ({ word: w, start, skip, dir });
+  // C03 (יכלאש), C04 (יכל, same first letter) and C07 (אש at its end) are one progression and overlap; C05 is another residue; C06 another skip
+  const seeds = [word("יכלאש", 244215, 4546, 1), word("יכל", 244215, 4546, 1), word("יכל", 253313, 4546, 1), word("אש", 257853, 4546, 1), word("נפל", 235138, 4545, -1)];
+  const groups = groupSeedsByLine({ seeds, reach: 5 });
+  assert.equal(groups[0], groups[1]);
+  assert.equal(groups[0], groups[3], "the tail אש is on the same progression 3 steps later; its window (±5) overlaps");
+  assert.notEqual(groups[0], groups[2], "a different residue modulo the skip is a different line");
+  assert.notEqual(groups[0], groups[4]);
+  assert.equal(new Set(groups).size, 3);
+  // same progression, windows far apart in the stream (more than reach + length apart): two independent lines
+  const far = groupSeedsByLine({ seeds: [word("אש", 100, 10, 1), word("אש", 100 + 10 * 30, 10, 1), word("אש", 100 + 10 * 3, 10, -1)], reach: 5 });
+  assert.notEqual(far[0], far[1]);
+  assert.equal(far[0], far[2], "the same letters read in the opposite direction are the same line");
+  // seeds without geometry are never merged
+  assert.equal(new Set(groupSeedsByLine({ seeds: [{ word: "אש" }, { word: "אש" }], reach: 5 })).size, 2);
+  // Poisson-binomial: two fair coins
+  assert.ok(Math.abs(poissonBinomialUpperTail([0.5, 0.5], 1) - 0.75) < 1e-12);
+  assert.ok(Math.abs(poissonBinomialUpperTail([0.5, 0.5], 2) - 0.25) < 1e-12);
+  assert.equal(poissonBinomialUpperTail([0.5, 0.5], 0), 1);
+  assert.equal(poissonBinomialUpperTail([0.5, 0.5], 3), 0);
+  assert.ok(Math.abs(poissonBinomialUpperTail([0.1, 0.2, 0.3], 2) - (0.1 * 0.2 * 0.7 + 0.1 * 0.8 * 0.3 + 0.9 * 0.2 * 0.3 + 0.1 * 0.2 * 0.3)) < 1e-12);
+  assert.throws(() => poissonBinomialUpperTail([1.5], 1), RangeError);
+});
+
+test("the calibrated summary counts a line once, however many seeds sit on it", () => {
+  const seeds = [
+    { id: "A", word: "יכלאש", start: 244215, skip: 4546, dir: 1 },
+    { id: "B", word: "יכל", start: 244215, skip: 4546, dir: 1 },
+    { id: "C", word: "נפל", start: 235138, skip: 4545, dir: -1 },
+  ];
+  const crawl = {
+    meta: { shifts: 100, reach: 5, min_total: 4, lexicon_forms: 17171 },
+    lines: [
+      crawlLine(1, "יכלאש", 7, "0.250000", "שפשלר", "מרויר", "70,70,70,25,9,1", "יכלאשמר/0/2/7/p/יכל+אשמר"),
+      crawlLine(2, "יכל", 7, "0.310000", "שפשלר", "אשמרו", "90,85,64,31,8,0", "יכלאשמר/0/4/7/p/יכל+אשמר"),
+      crawlLine(3, "נפל", 4, "0.850000", "אבגדה", "ויזחט", "85,80,57,26,7,0", "ונפל/1/0/4/w/ונפל"),
+    ],
+  };
+  const summary = summarizeCrawl({ crawl, seeds });
+  assert.equal(summary.seeds, 3);
+  assert.equal(summary.distinctLines, 2);
+  assert.deepEqual(summary.rows.map((row) => row.line === summary.rows[0].line), [true, true, false]);
+  const seven = summary.byBar.find((entry) => entry.bar === 7);
+  assert.deepEqual([seven.observedSeeds, seven.expectedSeeds], [2, 0.82], "per seed, A and B both reached 7 although they read the same letters");
+  assert.deepEqual([seven.observedLines, seven.expectedLines], [1, 0.51], "A (the longer seed word) represents its line; C is the other line; only A reached 7");
+  assert.ok(Math.abs(seven.tailLines - (1 - (1 - 26 / 101) * (1 - 27 / 101))) < 1e-4, "P(at least 1 of the 2 lines) with add-one smoothed shares (25+1)/101 and (26+1)/101");
+  assert.equal(summary.unusualLines, 0);
+  assert.equal(summary.unusualExpectedByChance, 0.1);
+});
+
+test("crawler verification summary is calibrated by the shifted lines", () => {
+  const seeds = [{ id: "A", word: "אש" }, { id: "B", word: "נפל" }, { id: "C", word: "דל" }];
+  const crawl = {
+    meta: { shifts: 100, reach: 5, min_total: 4, lexicon_forms: 17171 },
+    lines: [
+      crawlLine(1, "אש", 5, "0.029703", "לכיבו", "רץאבג", "40,10,2,0,0,0", "יכלאש/3/0/5/p/יכל+אש"),
+      crawlLine(2, "נפל", 4, "0.514851", "אבגדה", "ויזחט", "60,20,5,1,0,0", "ונפל/1/0/4/w/ונפל"),
+      crawlLine(3, "דל", "-", "1.000000", "אבגדה", "ויזחט", "30,8,1,0,0,0", ""),
+    ],
+  };
+  const summary = summarizeCrawl({ crawl, seeds });
+  assert.deepEqual(summary.byBar.map((b) => [b.bar, b.observedSeeds, b.expectedSeeds]), [[4, 2, 1.3], [5, 1, 0.38], [6, 0, 0.08], [7, 0, 0.01], [8, 0, 0], [9, 0, 0]]);
+  assert.deepEqual(summary.unusual.map((row) => row.id), ["A"], "only the seed whose continuation beats 97 of 100 shifted lines is flagged at alpha 0.05");
+  assert.equal(summary.rows[2].t, null);
+  assert.equal(summary.lexiconForms, 17171);
+  assert.throws(() => summarizeCrawl({ crawl, seeds: [{ id: "A", word: "אש" }, { id: "B", word: "אחר" }, { id: "C", word: "דל" }] }), /different seed list/);
+  for (const part of ["learned from the Torah itself", "moved by fixed pseudo-random offsets", "re-confirmed by the canonical engine", "vocabulary coverage is not meaning"]) assert.ok(describeCrawlMethod().includes(part) || describeCrawlMethod().toLowerCase().includes(part.toLowerCase()), part);
+});
+
+// ---------------------------------------------------------------- exhaustive windows + committed results
+test("windowed exhaustive search: one canonical page call per window, validated integers, bounded statement, coverage is checked not assumed", () => {
+  const sql = windowedOccurrencesSql({ term: "באשאטמין", skipMin: 2, skipMax: 3001 });
+  assert.equal((sql.match(/els_search_page_core_v1/g) || []).length, 1, "one call site; one call per window");
+  assert.match(sql, /generate_series\(2, 3001, 300\) g/);
+  assert.match(sql, /least\(g \+ 299, 3001\) as hi/);
+  assert.match(sql, /'באשאטמין', 'torah', w\.lo, w\.hi, 100\)/);
+  assert.doesNotMatch(sql, /\b(insert|update|delete|drop|alter|create|truncate|grant|revoke|copy)\b/i);
+  assert.equal(sql.includes("torah_stream"), false);
+  assert.throws(() => windowedOccurrencesSql({ term: "באשאטמין", skipMin: 2, skipMax: 43543 }), /split the skip range/);
+  assert.throws(() => windowedOccurrencesSql({ term: "x'; drop table t; --", skipMin: 2, skipMax: 100 }), TypeError);
+  assert.throws(() => windowedOccurrencesSql({ term: "שלום", skipMin: 1, skipMax: 100 }), RangeError);
+  const part = (range, windows, statuses, hits = [], incomplete = []) => ({ range, windows, statuses, hits, incomplete, db_ms: 1000 });
+  const ok = summarizeWindowedSearch({ term: "t", skipMin: 2, skipMax: 20, parts: [part("11-20", 1, { EXECUTED_EMPTY: 1 }), part("2-10", 2, { OK: 1, EXECUTED_EMPTY: 1 }, [{ skip: "5", dir: "-1", start: "50", end: "10" }])] });
+  assert.deepEqual([ok.complete, ok.windows, ok.parts, ok.gaps.length, ok.hits], [true, 3, 2, 0, [{ skip: 5, dir: -1, start: 50, end: 10 }]]);
+  assert.equal(summarizeWindowedSearch({ term: "t", skipMin: 2, skipMax: 20, parts: [part("2-10", 1, { EXECUTED_EMPTY: 1 })] }).complete, false, "range 11-20 was never searched");
+  assert.deepEqual(summarizeWindowedSearch({ term: "t", skipMin: 2, skipMax: 20, parts: [part("2-8", 1, { EXECUTED_EMPTY: 1 }), part("11-20", 1, { EXECUTED_EMPTY: 1 })] }).gaps, [[9, 10]]);
+  assert.equal(summarizeWindowedSearch({ term: "t", skipMin: 2, skipMax: 10, parts: [part("2-10", 1, { EXECUTED_EMPTY: 1 }, [], [{ lo: 2, hi: 10 }])] }).complete, false, "an incomplete window makes the whole search incomplete");
+  assert.equal(summarizeWindowedSearch({ term: "t", skipMin: 2, skipMax: 10, parts: [part("2-10", 2, { EXECUTED_EMPTY: 1 })] }).complete, false, "a window without a status is not complete");
+});
+
+test("committed crawl results: every line passes its checksum, every extended string was re-confirmed by the engine, the exhaustive search is complete", () => {
+  const read = (path) => JSON.parse(readFileSync(fileURLToPath(new URL(`../results/${path}`, import.meta.url)), "utf8"));
+  const unwrapped = (value) => { const first = Array.isArray(value) ? value[0] : value; return first.crawl ?? first.verify ?? first.out ?? first; };
+  for (const [dir, expectedSeeds, expectedLines] of [["trump", 37, 11], ["columbia", 10, 8]]) {
+    for (const file of ["crawl.json", "crawl-collocations.json"]) {
+      const crawl = unwrapped(read(`${dir}/${file}`));
+      assert.equal(parseCrawlLines(crawl.lines).length, expectedSeeds, `${dir}/${file}`);
+      assert.equal(Number(crawl.meta.shifts), 300);
+    }
+    const verify = read(`${dir}/verify-report.json`);
+    assert.equal(verify.confirmed, verify.planned, `${dir}: every extended string is a real occurrence at the predicted skip, direction and start`);
+    assert.ok(verify.planned > 0 && verify.details.every((d) => d.confirmedByEngine && !d.engineTruncated));
+    assert.equal(read(`${dir}/crawl-report.json`).distinctLines, expectedLines);
+    assert.equal(read(`${dir}/crawl-collocations-report.json`).criterion, "collocations");
+  }
+  const bash = read("bash-atmin/exhaustive-windows.json");
+  assert.deepEqual([bash.complete, bash.gaps.length, bash.incomplete.length, bash.hits.length], [true, 0, 0, 1]);
+  assert.deepEqual(bash.hits[0], { skip: 23423, dir: -1, start: 177767, end: 13806 });
+  assert.equal(bash.hits[0].start + bash.hits[0].dir * bash.hits[0].skip * 7, bash.hits[0].end, "start + dir * skip * (length - 1) = end");
+  const seeds = read("bash-atmin/crawl-seeds.json");
+  assert.deepEqual([seeds[0].start, seeds[0].skip, seeds[0].dir], [bash.hits[0].start, bash.hits[0].skip, bash.hits[0].dir], "the crawl seed is the engine occurrence");
 });

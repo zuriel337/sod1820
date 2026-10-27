@@ -20,13 +20,22 @@
 //   sql --kind chance --state s.json [--batches DIR]    (crossing, SEPARATE option) expected number of chance crossings, read-only, no engine call
 //   sql --kind chance ... --letters letters.json        the same with the display region's own letter frequencies (sensitivity)
 //   report/packet/markup ... --chance chance.json [--chance-local chance-local.json]   adds the chance baseline to a crossing report / packet
-//   method [--mode crossing]                            the exact calculation method of the comparison (region: tiles; crossing: iid-letter chance)
+//   sql --kind windows --term T --skip-min N --skip-max N [--window 300]    exhaustive search of one rare term in skip windows (canonical page function), <= 40 windows per statement
+//   windows-report --term T --skip-min N --skip-max N --parts a.json,b.json   merges the window outputs; coverage and completeness are checked
+//   sql --kind crawl (--state s.json --batches DIR | --seeds seeds.json) [--reach 5 --shifts 300 --min-total 4 --criterion forms|collocations]
+//        continuation crawler: seeds = engine occurrences (the crossing findings, or an explicit list [{id, word, start, skip, dir}])
+//   crawl-report --crawl crawl.json (--state s.json --batches DIR | --seeds seeds.json) [--out f.json]     calibrated summary (language learned from the Torah's own words)
+//   sql --kind verify-extensions --crawl crawl.json --state s.json (--batches DIR | --seeds seeds.json) [--top 1] [--only-unusual]    engine re-confirmation of extended strings
+//   verify-report --verify v.json --crawl crawl.json --state s.json (--batches DIR | --seeds seeds.json) [--top 1] [--only-unusual]
+//   method [--mode crossing|crawl]                      the exact calculation method of the comparison (region: tiles; crossing: iid-letter chance; crawl: calibrated continuation)
 //   sql --kind membership --words a,b,c | sql --kind probe --state s.json --words a,b,c     evaluation helpers (never shown to a model)
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fullRows, regionAroundAnchor, regionAroundPositions, tileGrid } from "./lib/geometry.mjs";
-import { CROSSING_DIRECTION_COUNT, anchorSql, dictionaryCountSql, dictionaryMembershipSql, expectedCrossingSql, occurrencesSql, regionLettersSql, scanBatchSql, streamLengthSql } from "./lib/queries.mjs";
+import { CROSSING_DIRECTION_COUNT, anchorSql, windowedOccurrencesSql, dictionaryCountSql, dictionaryMembershipSql, expectedCrossingSql, occurrencesSql, regionLettersSql, scanBatchSql, streamLengthSql } from "./lib/queries.mjs";
 import { describeChanceModel, regionLetterCounts } from "./lib/chance.mjs";
+import { summarizeWindowedSearch } from "./lib/exhaustive.mjs";
+import { crawlSql, describeCrawlMethod, parseVerifyLines, summarizeCrawl, verifyExtensionsSql } from "./lib/crawl.mjs";
 import { buildCrossingReport, buildRunReport } from "./lib/report.mjs";
 import { describeMethod } from "./lib/controls.mjs";
 import { buildCrossingPacket, buildGroupingPacket, validateGrouping } from "./lib/grouping.mjs";
@@ -37,7 +46,7 @@ const args = Object.fromEntries(process.argv.slice(3).map((item, i, all) => (ite
 const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
 const config = readJson(new URL("./examples.json", import.meta.url));
 const exampleById = (id) => config.examples.find((entry) => entry.id === id) || (() => { throw new Error(`unknown --example ${id}`); })();
-const unwrap = (value) => { const first = Array.isArray(value) ? value[0] : value; return first?.result ?? first?.batch ?? first?.expectation ?? first; };
+const unwrap = (value) => { const first = Array.isArray(value) ? value[0] : value; return first?.result ?? first?.batch ?? first?.expectation ?? first?.crawl ?? first?.verify ?? first?.out ?? first; };
 const loadBatches = (dir) => readdirSync(dir).filter((name) => name.endsWith(".json")).sort().map((name) => readJson(join(dir, name))).map((entry) => ({ ...entry, result: unwrap(entry.result) }));
 const isCrossing = (state) => state.mode === "crossing";
 const termOf = () => (args.example ? exampleById(args.example).term : args.term || (() => { throw new Error("give --term or --example"); })());
@@ -51,6 +60,17 @@ const loadRarity = () => {
 const loadChance = () => (args.chance ? unwrap(readJson(args.chance)) : null);
 const loadChanceLocal = () => (args["chance-local"] ? unwrap(readJson(args["chance-local"])) : null);
 const stateOf = () => readJson(args.state);
+/** Seeds of a crawl: an explicit list, or the crossing findings of a crossing run (engine occurrences, nothing else). */
+const loadSeeds = () => {
+  if (args.seeds) return readJson(args.seeds);
+  const state = stateOf();
+  return buildCrossingReport({ state, batches: loadBatches(args.batches) }).findingsList.map((finding) => ({ id: finding.id, word: finding.word, start: finding.start, skip: finding.skip, dir: finding.dir }));
+};
+const topExtensions = (summary, seeds, { top = 1, onlyUnusual = false } = {}) => summary.rows
+  .filter((row) => row.best && (!onlyUnusual || row.p <= 0.05))
+  .flatMap((row) => row.top.slice(0, top).map((candidate) => ({ row, seed: seeds[summary.rows.indexOf(row)], candidate })));
+/** The extended string starts kl steps before the seed's first letter, on the same line and in the same direction. */
+const predictedStart = ({ seed, candidate }) => seed.start - seed.dir * seed.skip * candidate.kl;
 const writeOut = (text) => { if (args.out) writeFileSync(args.out, text); else console.log(text); };
 
 const command = process.argv[2];
@@ -60,13 +80,22 @@ if (command === "sql") {
   else if (kind === "count") console.log(dictionaryCountSql({ minLen: Number(args["min-len"] || 2), maxLen: Number(args["max-len"] || 9), sharesLettersWith: args["shares-with"] || null }));
   else if (kind === "membership") console.log(dictionaryMembershipSql((args.words || "").split(",")));
   else if (kind === "occurrences") console.log(occurrencesSql({ term: termOf() }));
+  else if (kind === "windows") console.log(windowedOccurrencesSql({ term: termOf(), skipMin: Number(args["skip-min"]), skipMax: Number(args["skip-max"]), windowSize: Number(args.window || 300) }));
+  else if (kind === "crawl" && args.seeds) console.log(crawlSql({ seeds: loadSeeds(), reach: Number(args.reach || 5), shifts: Number(args.shifts || 300), minTotal: Number(args["min-total"] || 4), criterion: args.criterion || "forms" }));
   else if (kind === "anchor") console.log(anchorSql({ term: exampleById(args.example).term, skip: exampleById(args.example).skip }));
   else {
     const state = stateOf();
     const base = { width: state.width, totalRows: state.totalRows, totalLetters: state.totalLetters, region: state.region };
     if (kind === "letters") console.log(regionLettersSql(state.region));
     else if (kind === "probe") console.log(scanBatchSql({ ...base, dictionary: { words: (args.words || "").split(",") }, directions: args.directions || "both" }));
-    else if (kind === "chance") {
+    else if (kind === "crawl") {
+      console.log(crawlSql({ seeds: loadSeeds(), reach: Number(args.reach || 5), shifts: Number(args.shifts || 300), minTotal: Number(args["min-total"] || 4), criterion: args.criterion || "forms" }));
+    } else if (kind === "verify-extensions") {
+      const seeds = loadSeeds();
+      const summary = summarizeCrawl({ crawl: unwrap(readJson(args.crawl)), seeds });
+      const extensions = topExtensions(summary, seeds, { top: Number(args.top || 1), onlyUnusual: args["only-unusual"] === "true" }).map((entry) => ({ term: entry.candidate.e, skip: entry.seed.skip, dir: entry.seed.dir, start: predictedStart(entry) }));
+      console.log(verifyExtensionsSql({ width: state.width, totalRows: state.totalRows, extensions }));
+    } else if (kind === "chance") {
       const words = args.batches ? [...new Set(buildCrossingReport({ state, batches: loadBatches(args.batches) }).findingsList.map((finding) => finding.word))] : [];
       let letterCounts = null;
       if (args.letters) { // sensitivity variant: letter frequencies of the display region itself
@@ -144,8 +173,27 @@ if (command === "sql") {
       else console.log(JSON.stringify(validateGrouping(readJson(args.answer), { findings: report.findingsList, phrases: report.phrasesList }), null, 2));
     }
   }
+} else if (command === "windows-report") {
+  const parts = args.parts.split(",").map((path) => unwrap(readJson(path)));
+  writeOut(JSON.stringify(summarizeWindowedSearch({ term: termOf(), skipMin: Number(args["skip-min"]), skipMax: Number(args["skip-max"]), parts }), null, 2));
+} else if (command === "crawl-report") {
+  const seeds = loadSeeds();
+  const { rows, method, ...summary } = summarizeCrawl({ crawl: unwrap(readJson(args.crawl)), seeds });
+  writeOut(JSON.stringify({ ...summary, rows: rows.map(({ top, nullShare, ...row }) => ({ ...row, nullShare })) }, null, 2));
+} else if (command === "verify-report") {
+  const seeds = loadSeeds();
+  const summary = summarizeCrawl({ crawl: unwrap(readJson(args.crawl)), seeds });
+  const verify = parseVerifyLines(unwrap(readJson(args.verify)).lines);
+  const planned = topExtensions(summary, seeds, { top: Number(args.top || 1), onlyUnusual: args["only-unusual"] === "true" });
+  const confirmed = planned.map((entry, index) => {
+    const { seed, candidate } = entry;
+    const expectedStart = predictedStart(entry);
+    const hit = verify.hits.find((item) => item.id === index + 1 && item.term === candidate.e && item.skip === seed.skip && item.dir === seed.dir && item.start === expectedStart);
+    return { seed: seed.word, seedId: seed.id, extended: candidate.e, parts: candidate.parts, skip: seed.skip, dir: seed.dir, expectedStart, confirmedByEngine: Boolean(hit), engineTruncated: verify.truncated.includes(index + 1) };
+  });
+  writeOut(JSON.stringify({ planned: planned.length, confirmed: confirmed.filter((entry) => entry.confirmedByEngine).length, details: confirmed }, null, 2));
 } else if (command === "method") {
-  console.log(args.mode === "crossing" ? describeChanceModel() : describeMethod());
+  console.log(args.mode === "crossing" ? describeChanceModel() : args.mode === "crawl" ? describeCrawlMethod() : describeMethod());
 } else if (command === "markup") {
   const state = stateOf();
   const letters = readJson(args.letters);

@@ -1,0 +1,92 @@
+{
+  "criterion": "forms",
+  "attestedPairs": null,
+  "seeds": 1,
+  "distinctLines": 1,
+  "shifts": 300,
+  "reach": 5,
+  "minTotal": 4,
+  "lexiconForms": 17160,
+  "byBar": [
+    {
+      "bar": 4,
+      "observedSeeds": 0,
+      "expectedSeeds": 0,
+      "observedLines": 0,
+      "expectedLines": 0,
+      "tailLines": 1
+    },
+    {
+      "bar": 5,
+      "observedSeeds": 0,
+      "expectedSeeds": 0,
+      "observedLines": 0,
+      "expectedLines": 0,
+      "tailLines": 1
+    },
+    {
+      "bar": 6,
+      "observedSeeds": 0,
+      "expectedSeeds": 0,
+      "observedLines": 0,
+      "expectedLines": 0,
+      "tailLines": 1
+    },
+    {
+      "bar": 7,
+      "observedSeeds": 0,
+      "expectedSeeds": 0,
+      "observedLines": 0,
+      "expectedLines": 0,
+      "tailLines": 1
+    },
+    {
+      "bar": 8,
+      "observedSeeds": 0,
+      "expectedSeeds": 0,
+      "observedLines": 0,
+      "expectedLines": 0,
+      "tailLines": 1
+    },
+    {
+      "bar": 9,
+      "observedSeeds": 0,
+      "expectedSeeds": 0,
+      "observedLines": 0,
+      "expectedLines": 0,
+      "tailLines": 1
+    }
+  ],
+  "alpha": 0.05,
+  "unusual": [],
+  "unusualLines": 0,
+  "unusualExpectedByChance": 0.05,
+  "rows": [
+    {
+      "id": "B01",
+      "seed": "באשאטמין",
+      "t": null,
+      "p": 1,
+      "line": "23423:13806#0",
+      "left": "מפרכל",
+      "right": "?????",
+      "best": null,
+      "nullCount": {
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "nullShare": {
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      }
+    }
+  ]
+}

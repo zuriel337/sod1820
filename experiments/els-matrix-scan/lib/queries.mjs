@@ -58,6 +58,29 @@ export function occurrencesSql({ term, skipMin = 2, pageSize = 100 }) {
   return `select ${CANONICAL_PAGE_FUNCTION}('${term}','torah',${skipMin},NULL,${pageSize}) as result;`;
 }
 
+/**
+ * Exhaustive search of ONE term over a skip range, split into windows so one statement stays under the tool timeout (a single call over a long
+ * term and a wide range does not finish). Every window is one call of the canonical page function; a window that is not complete (has_more or
+ * truncated) is listed under `incomplete`, never silently dropped. Meant for rare terms: a window holds at most `pageSize` hits.
+ */
+export function windowedOccurrencesSql({ term, skipMin, skipMax, windowSize = 300, pageSize = 100, timeoutMs = 55000, maxWindows = 40 }) {
+  hebrew(term, "term"); int(skipMin, 2, 1_000_000, "skipMin"); int(skipMax, skipMin, 1_000_000, "skipMax"); int(windowSize, 1, 100_000, "windowSize");
+  int(pageSize, 1, 200, "pageSize"); int(timeoutMs, 1000, 600000, "timeoutMs");
+  const windows = Math.ceil((skipMax - skipMin + 1) / windowSize);
+  if (windows > maxWindows) throw new RangeError(`${windows} windows: split the skip range (at most ${maxWindows} windows per statement)`);
+  return `set local statement_timeout = '${timeoutMs}ms';
+with w as (select g as lo, least(g + ${windowSize - 1}, ${skipMax}) as hi from generate_series(${skipMin}, ${skipMax}, ${windowSize}) g),
+res as materialized (select w.lo, w.hi, ${CANONICAL_PAGE_FUNCTION}('${term}', 'torah', w.lo, w.hi, ${pageSize}) as r from w)
+select jsonb_build_object(
+  'range', '${skipMin}-${skipMax}', 'window', ${windowSize},
+  'windows', (select count(*) from res),
+  'statuses', (select jsonb_object_agg(s, c) from (select r->>'status' as s, count(*) as c from res group by 1) z),
+  'incomplete', (select coalesce(jsonb_agg(jsonb_build_object('lo', lo, 'hi', hi, 'completion', r->'completion')), '[]'::jsonb) from res where coalesce((r->'completion'->>'has_more')::boolean, false) or coalesce((r->'completion'->>'truncated')::boolean, false)),
+  'hits', (select coalesce(jsonb_agg(jsonb_build_object('skip', h->>'skip', 'dir', h->>'dir', 'start', h->>'start', 'end', h->>'end')), '[]'::jsonb) from res cross join lateral jsonb_array_elements(coalesce(r->'hits', '[]'::jsonb)) h),
+  'db_ms', round(extract(epoch from clock_timestamp() - statement_timestamp()) * 1000)
+) as out;`;
+}
+
 /** Display letters of a region, one text row per matrix row. Stream idx is 1-based; engine positions are 0-based. */
 export function regionLettersSql(region) {
   const { width, r0, r1, c0, cw } = region;

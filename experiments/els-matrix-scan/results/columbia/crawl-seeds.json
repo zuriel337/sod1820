@@ -1,0 +1,12 @@
+[
+  { "id": "C01", "word": "קולומביה", "start": 248765, "skip": 4545, "dir": 1, "origin": "the searched cipher (engine occurrence, probe.json)" },
+  { "id": "C02", "word": "ספינת", "start": 244225, "skip": 4544, "dir": 1, "origin": "word the user saw (engine occurrence in probe.json) - chosen after looking, not blind" },
+  { "id": "C03", "word": "יכלאש", "start": 244215, "skip": 4546, "dir": 1, "origin": "word the user saw (engine occurrence in probe.json) - chosen after looking, not blind" },
+  { "id": "C04", "word": "יכל", "start": 244215, "skip": 4546, "dir": 1, "origin": "first 3 letters of C03 (engine occurrence in probe.json) - chosen after looking" },
+  { "id": "C05", "word": "יכל", "start": 253313, "skip": 4546, "dir": 1, "origin": "second engine occurrence of the word in the matrix cd group (probe.json) - chosen after looking" },
+  { "id": "C06", "word": "נפל", "start": 235138, "skip": 4545, "dir": -1, "origin": "word the user saw (engine occurrence in probe.json) - chosen after looking, not blind" },
+  { "id": "C07", "word": "אש", "start": 257853, "skip": 4546, "dir": 1, "origin": "last 2 letters of C03 (the probe call for this word was truncated; the position is a sub-sequence of the C03 engine occurrence)" },
+  { "id": "C08", "word": "בעיות", "start": 230582, "skip": 4546, "dir": 1, "origin": "dictionary-scan finding in the region (blind, batches/)" },
+  { "id": "C09", "word": "התחלה", "start": 271495, "skip": 4544, "dir": -1, "origin": "dictionary-scan finding in the region (blind, batches/)" },
+  { "id": "C10", "word": "יכולה", "start": 276035, "skip": 4546, "dir": -1, "origin": "dictionary-scan finding in the region (blind, batches/)" }
+]

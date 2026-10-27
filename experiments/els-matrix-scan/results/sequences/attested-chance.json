@@ -1,0 +1,8 @@
+{
+  "measured": "2026-10-27, canonical stream, read-only, 20000 deterministic samples of skip-461 runs per length",
+  "stream_letters": 304805,
+  "distinct_plain_text_kgrams": { "5": 117304, "6": 174568, "7": 211357, "8": 234575 },
+  "random_run_is_attested_in_plain_text": { "5": { "hits": 2470, "rate": 0.1235 }, "6": { "hits": 284, "rate": 0.0142 }, "7": { "hits": 30, "rate": 0.0015 }, "8": { "hits": 1, "rate": 0.00005, "note": "one hit: the rate is an upper-order estimate, not a precise value" } },
+  "windows_in_a_40x61_matrix_excluding_plain_rows": { "7": 11628, "8": 11154 },
+  "expected_chance_attested_windows": { "7": 17.4, "8": 0.6 }
+}

@@ -1,0 +1,23 @@
+{
+  "term": "באשאטמין",
+  "skipMin": 2,
+  "skipMax": 43543,
+  "parts": 11,
+  "windows": 146,
+  "statuses": {
+    "EXECUTED_EMPTY": 145,
+    "OK": 1
+  },
+  "hits": [
+    {
+      "skip": 23423,
+      "dir": -1,
+      "start": 177767,
+      "end": 13806
+    }
+  ],
+  "incomplete": [],
+  "gaps": [],
+  "complete": true,
+  "dbMs": 295874
+}

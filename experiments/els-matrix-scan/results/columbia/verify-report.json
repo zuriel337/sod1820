@@ -1,0 +1,90 @@
+{
+  "planned": 6,
+  "confirmed": 6,
+  "details": [
+    {
+      "seed": "יכלאש",
+      "seedId": "C03",
+      "extended": "יכלאשמר",
+      "parts": [
+        "יכל",
+        "אשמר"
+      ],
+      "skip": 4546,
+      "dir": 1,
+      "expectedStart": 244215,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "יכל",
+      "seedId": "C04",
+      "extended": "יכלאשמר",
+      "parts": [
+        "יכל",
+        "אשמר"
+      ],
+      "skip": 4546,
+      "dir": 1,
+      "expectedStart": 244215,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "יכל",
+      "seedId": "C05",
+      "extended": "האמיכלת",
+      "parts": [
+        "האמ",
+        "יכלת"
+      ],
+      "skip": 4546,
+      "dir": 1,
+      "expectedStart": 239675,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "נפל",
+      "seedId": "C06",
+      "extended": "הרהונפל",
+      "parts": [
+        "הרה",
+        "ונפל"
+      ],
+      "skip": 4545,
+      "dir": -1,
+      "expectedStart": 253318,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "אש",
+      "seedId": "C07",
+      "extended": "יכלאשמר",
+      "parts": [
+        "יכל",
+        "אשמר"
+      ],
+      "skip": 4546,
+      "dir": 1,
+      "expectedStart": 244215,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    },
+    {
+      "seed": "יכולה",
+      "seedId": "C10",
+      "extended": "ויכולה",
+      "parts": [
+        "ויכ",
+        "ולה"
+      ],
+      "skip": 4546,
+      "dir": -1,
+      "expectedStart": 280581,
+      "confirmedByEngine": true,
+      "engineTruncated": false
+    }
+  ]
+}
