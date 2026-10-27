@@ -20,7 +20,7 @@ export function prepareElsGuidedPlanFromRaziel({ story, scope = "torah", respons
   if (!searchPlan) return { error: "רזיאל לא החזיר תוכנית חיפוש בטוחה. שום חיפוש לא הופעל." };
   const axes = searchPlan.axes.map((axis) => axis.term);
   const requiredTerms = [
-    ...(searchPlan.mode === "crossed_pair" ? [] : axes.slice(1)),
+    ...(["crossed_pair", "crossed_three"].includes(searchPlan.mode) ? [] : axes.slice(1)),
     ...searchPlan.context_terms,
   ];
   const base = prepareElsCipherDiscoveryPlan({

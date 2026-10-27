@@ -5,9 +5,10 @@ export const ELS_RAZIEL_PLANNING_SUBJECT = "תכנן את חיפוש ה־ELS ש�
 const MAX_STORY_LENGTH = 6000;
 const MAX_AXIS_LETTERS = 12;
 const MAX_CONTEXT_LETTERS = 24;
-const MODES = new Set(["crossed_pair", "exact_axis", "anchor_context"]);
+const MODES = new Set(["crossed_pair", "crossed_three", "exact_axis", "anchor_context"]);
 const HEBREW_MARKS = /[\u0591-\u05C7]/g;
 const PAIR_CUE = /(?:ש(?:ני|תי)\s+מילים|שני\s+מונחים|זוג\s+מילים|מוצלב(?:ת|ים)?|הצלב(?:ה|ת|ו)?)/u;
+const THREE_CUE = /(?:שלוש(?:ה)?\s+ה?(?:מילים|מונחים|צירים)|3\s+ה?(?:מילים|מונחים|צירים))/u;
 const INSTRUCTION_KEYS = new Set(["חפש", "חיפוש", "מצא", "תמצא", "תורה", "בתורה", "תנכ", "בתנכ", "מילה", "מילים", "מונח", "מונחים", "שני", "שתי"]);
 
 const isObject = (value) => Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -114,6 +115,20 @@ function lockedPair(action) {
   return null;
 }
 
+function lockedThree(action) {
+  if (!THREE_CUE.test(action?.story || "")) return null;
+  const separatelyQuoted = action.locked_phrases || [];
+  if (separatelyQuoted.length === 3 && separatelyQuoted.every(phrase => phraseWords(phrase).length === 1)) {
+    const words = separatelyQuoted.map(phrase => phraseWords(phrase)[0]);
+    if (new Set(words.map(canonicalHebrew)).size === 3) return words;
+  }
+  for (const phrase of action.locked_phrases || []) {
+    const words = phraseWords(phrase);
+    if (words.length === 3 && new Set(words.map(canonicalHebrew)).size === 3) return words;
+  }
+  return null;
+}
+
 function lockedPhraseAccepted(term, action, { allowWord = false } = {}) {
   const key = canonicalHebrew(term);
   if (!key) return false;
@@ -130,32 +145,41 @@ export function normalizeElsRazielSearchPlan(value, rawAction) {
   const mode = cleanInline(source.mode, 40);
   if (source.contract !== ELS_RAZIEL_SEARCH_PLAN_CONTRACT || source.status !== "READY" || !MODES.has(mode)) return null;
   if (source.scope !== action.scope) return null;
+  if (THREE_CUE.test(action.story) && mode !== "crossed_three") return null;
+  if (mode === "crossed_three" && (!Array.isArray(source.axes) || source.axes.length !== 3)) return null;
 
-  let axes = uniqueTerms(source.axes, MAX_AXIS_LETTERS, 2);
+  let axes = uniqueTerms(source.axes, MAX_AXIS_LETTERS, 3);
   const pair = lockedPair(action);
-  if (pair) {
+  const three = lockedThree(action);
+  if (THREE_CUE.test(action.story) && action.locked_phrases.length && !three) return null;
+  if (three) {
+    if (mode !== "crossed_three") return null;
+    axes = three;
+  } else if (pair) {
     if (mode !== "crossed_pair") return null;
     axes = pair;
   } else if (mode === "crossed_pair" && axes.length !== 2) return null;
   axes = axes.filter((term) => !INSTRUCTION_KEYS.has(canonicalHebrew(term)) || lockedPhraseAccepted(term, action, { allowWord: true }));
   if (mode === "crossed_pair" && axes.length !== 2) return null;
-  if (mode !== "crossed_pair" && axes.length !== 1) return null;
+  if (mode === "crossed_three" && axes.length !== 3) return null;
+  if (!["crossed_pair", "crossed_three"].includes(mode) && axes.length !== 1) return null;
   if (!axes.length) return null;
 
   // Quoted text is a user lock, not a hint. A plan may use the exact phrase, or its exact
   // component words only when the user explicitly asked for a two-word crossing.
   if (action.locked_phrases.length) {
-    const allowsWords = mode === "crossed_pair" && action.pair_requested;
+    const allowsWords = mode === "crossed_pair" && action.pair_requested || mode === "crossed_three" && THREE_CUE.test(action.story);
     const hasLockedAxis = axes.some((term) => lockedPhraseAccepted(term, action, { allowWord: allowsWords }));
     if (!hasLockedAxis) return null;
   }
 
   const axisKeys = new Set(axes.map(canonicalHebrew));
-  const contextTerms = (pair ? [] : uniqueTerms(source.context_terms ?? source.contextTerms, MAX_CONTEXT_LETTERS, 6))
+  const contextTerms = (pair || three ? [] : uniqueTerms(source.context_terms ?? source.contextTerms, MAX_CONTEXT_LETTERS, 6))
     .filter((term) => !axisKeys.has(canonicalHebrew(term)))
     .filter((term) => !INSTRUCTION_KEYS.has(canonicalHebrew(term)) || lockedPhraseAccepted(term, action));
   const confidence = ["high", "medium", "low"].includes(source.confidence) ? source.confidence : "medium";
-  const rationale = pair
+  const rationale = three ? "המשתמש ביקש במפורש שלוש מילים וציטט אותן כיחידת חיפוש נעולה."
+    : pair
     ? "המשתמש ביקש במפורש שתי מילים וציטט אותן כיחידת חיפוש נעולה."
     : cleanInline(source.rationale, 240) || "רזיאל זיהה את יחידות החיפוש, והמנוע הקנוני יאמת אותן.";
   return Object.freeze({
@@ -180,6 +204,9 @@ export function normalizeElsRazielSearchPlan(value, rawAction) {
 export function deriveLockedElsSearchPlan(rawAction) {
   const action = normalizeElsRazielPlanningAction(rawAction);
   if (!action) return null;
+  const three = lockedThree(action);
+  if (three) return normalizeElsRazielSearchPlan({ contract: ELS_RAZIEL_SEARCH_PLAN_CONTRACT, status: "READY", scope: action.scope,
+    mode: "crossed_three", axes: three, context_terms: [], confidence: "high", rationale: "שלוש מילים שנבחרו במפורש." }, action);
   const pair = lockedPair(action);
   if (pair) {
     return normalizeElsRazielSearchPlan({
@@ -213,8 +240,8 @@ export function elsPlanningPrompt(action) {
   return [
     "אתה שכבת התכנון המצומצמת של רזיאל לחיפוש ELS. אינך מחפש בתורה ואינך מחשב דילוגים, מיקומים, התאמות או ממצאים.",
     "החזר JSON בלבד, ללא Markdown וללא טקסט מחוץ לאובייקט.",
-    `החוזה: {\"els_search_plan\":{\"contract\":\"${ELS_RAZIEL_SEARCH_PLAN_CONTRACT}\",\"status\":\"READY\",\"scope\":\"torah|tanakh\",\"mode\":\"crossed_pair|exact_axis|anchor_context\",\"axes\":[{\"term\":\"...\"}],\"context_terms\":[\"...\"],\"confidence\":\"high|medium|low\",\"rationale\":\"...\"}}`,
-    "כללים: crossed_pair כולל בדיוק שני צירים; exact_axis ו-anchor_context כוללים ציר אחד. עד שש מילות הקשר. עברית בלבד.",
+    `החוזה: {\"els_search_plan\":{\"contract\":\"${ELS_RAZIEL_SEARCH_PLAN_CONTRACT}\",\"status\":\"READY\",\"scope\":\"torah|tanakh\",\"mode\":\"crossed_pair|crossed_three|exact_axis|anchor_context\",\"axes\":[{\"term\":\"...\"}],\"context_terms\":[\"...\"],\"confidence\":\"high|medium|low\",\"rationale\":\"...\"}}`,
+    "כללים: crossed_pair כולל בדיוק שני צירים; crossed_three כולל בדיוק שלושה צירים מחייבים; exact_axis ו-anchor_context כוללים ציר אחד. עד שש מילות הקשר. עברית בלבד.",
     "מילות הוראה כגון חפש, תורה, בתורה, תנך, מילים, מונחים אינן צירי חיפוש אלא אם המשתמש ציטט אותן במפורש.",
     "טקסט מצוטט הוא נעילת משתמש: אסור לתקן, להחליף או להרחיב אותו. אם התבקשה במפורש הצלבה של שתי מילים ובציטוט יש בדיוק שתי מילים — החזר crossed_pair עם שתי המילים בדיוק ובאותו סדר.",
     "אם זה סיפור ולא פקודת שתי מילים, בחר את הציר הקצר והמובחן ביותר והקשר קטן ורלוונטי. אל תטען שנמצא דבר; זו הצעה בלבד למנוע הקנוני.",

@@ -215,7 +215,7 @@ export function summarizeElsGuidedDiscoveryPlan(plan, selectedAnchorId = null) {
     scope: plan.scope,
     anchorTerm: anchor.term,
     searchMode: plan.searchMode || "anchor_context",
-    axes: Object.freeze(Array.isArray(plan.axes) && plan.axes.length ? plan.axes.slice(0, 2) : [anchor.term]),
+    axes: Object.freeze(Array.isArray(plan.axes) && plan.axes.length ? plan.axes.slice(0, 3) : [anchor.term]),
     targetTerms: Object.freeze(plan.contextCandidates.filter(candidate => candidate.selected).map(candidate => candidate.term).filter(Boolean).slice(0, 8)),
     occurrenceBatchSize: plan.limits.fullAxisOccurrences,
     maximumOccurrenceBatches: plan.limits.maximumOccurrenceBatches,

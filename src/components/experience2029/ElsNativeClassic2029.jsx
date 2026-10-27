@@ -22,7 +22,7 @@ const clean = (value) => String(value ?? "").trim();
 const canonicalHebrew = (value) => clean(value).replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, letter => ({ ך: "כ", ם: "מ", ן: "נ", ף: "פ", ץ: "צ" })[letter]);
 const safeGuidedAxis = (value) => {
   const term = clean(value), length = canonicalHebrew(term).length;
-  return length >= 3 && length <= 12 ? term : "";
+  return length >= 2 && length <= 12 ? term : "";
 };
 const safeGuidedContextTerms = (rows) => {
   const terms = [], seen = new Set();
@@ -940,10 +940,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     if (guidedContextRef.current?.nonce === researchLoad.researchNonce) return;
     const term = safeGuidedAxis(researchLoad.term);
     if (!term) return;
-    const searchMode = researchLoad.searchMode === "crossed_pair" ? "crossed_pair" : "anchor_context";
-    const requestedAxes = Array.isArray(researchLoad.axes) ? researchLoad.axes.map(safeGuidedAxis).filter(Boolean).slice(0, 2) : [term];
+    const searchMode = ["crossed_pair", "crossed_three"].includes(researchLoad.searchMode) ? researchLoad.searchMode : "anchor_context";
+    const requestedAxes = Array.isArray(researchLoad.axes) ? researchLoad.axes.map(safeGuidedAxis).filter(Boolean).slice(0, 3) : [term];
     const secondaryAxis = searchMode === "crossed_pair" ? requestedAxes[1] : "";
     if (searchMode === "crossed_pair" && !secondaryAxis) return;
+    if (searchMode === "crossed_three" && (requestedAxes.length !== 3 || requestedAxes[0] !== term)) return;
     guidedContextRef.current = {
       nonce: researchLoad.researchNonce,
       anchorTerm: term,
@@ -957,7 +958,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     setQuery(term);
     setCrossTerm(secondaryAxis);
     setCrossOpen(searchMode === "crossed_pair");
-    if (searchMode === "crossed_pair") {
+    if (searchMode === "crossed_three") {
+      requestSearch("cross-three", { terms: requestedAxes, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", radius: 18 });
+    } else if (searchMode === "crossed_pair") {
       requestSearch("cross", { axis: term, term: secondaryAxis, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah", radius: 18 });
     } else {
       requestSearch("regular", { term, scope: researchLoad.scope === "tanakh" ? "tanakh" : "torah" });
@@ -1122,7 +1125,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const searchPending = ["searching", "verifying"].includes(operations.search?.status);
-  const guidedResults = guidedProfile && guidedContextRef.current?.searchMode !== "crossed_pair"
+  const guidedResults = guidedProfile && !["crossed_pair", "crossed_three"].includes(guidedContextRef.current?.searchMode)
     && engineState?.status === "ok" && engineState?.verification?.state === "MATCH"
     && canonicalHebrew(engineState?.termRaw || engineState?.term) === guidedContextRef.current?.anchorKey
     ? engineState.search?.occurrences : null;
@@ -1233,15 +1236,15 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   };
 
   const matrixActive = !loadError && engineState?.status === "ok" && engineState?.verification?.state === "MATCH";
-  const guidedCrossActive = guidedProfile && guidedContextRef.current?.searchMode === "crossed_pair";
-  const guidedCrossReady = guidedCrossActive && Array.isArray(engineState?.search?.results?.items)
+  const guidedCrossActive = guidedProfile && ["crossed_pair", "crossed_three"].includes(guidedContextRef.current?.searchMode);
+  const guidedCrossReady = guidedCrossActive && operations.search?.status === "done" && Array.isArray(engineState?.search?.results?.items)
     && engineState.search.results.items.some((item) => item.available);
   // Reading layout is only available for a complete, contiguous short-skip window.
   // CSS wraps the existing indexed cells; canonical geometry and crossing scans stay unchanged.
   const shortSkip = matrixActive && engineState.search?.mode === "regular" && engineState.matrix?.S >= 2
     && engineState.matrix.S <= 8 && engineState.matrix.c0 === 0 && engineState.matrix.cw === engineState.matrix.S;
   const readingView = shortSkip && shortSkipView === "reading";
-  const resultsAreCross = operations.search ? ["cross", "cross-continue"].includes(operations.search.searchKind) : Boolean(engineState?.search?.zones);
+  const resultsAreCross = operations.search ? ["cross", "cross-three", "cross-continue"].includes(operations.search.searchKind) : Boolean(engineState?.search?.zones);
   const previousResult = matrixActive && operations.search?.previousAxis === engineState?.axis?.hitId
     && ["searching", "verifying", "empty", "error", "cancelled"].includes(operations.search?.status);
   const matrixStatus = engineState?.status === "ready" ? "בראשית · מוכן לחיפוש" : previousResult
@@ -1361,7 +1364,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       <button type="button" className="els29-guided-matrix-toggle" data-els-guided-matrix-toggle="v1"
         aria-expanded={guidedMatrixOpen} disabled={!matrixActive}
         onClick={() => setGuidedMatrixOpen(value => !value)}>{guidedMatrixOpen ? "סגור מטריצה" : "פתח מטריצה מדויקת"}</button>
-      <small className="els29-guided-result-note">המטריצה היא כלי אימות. היא נפתחת רק כשמבקשים לראות את המיקום המדויק.</small>
+      <small className="els29-guided-result-note">{guidedContextRef.current?.searchMode === "crossed_three" ? "נבדק גל מוגבל של עד 150 מופעים לכל ציר ועד 24 מועמדים לאימות; חיפוש שלא הושלם אינו שולל ממצאים אחרים. " : ""}המטריצה היא כלי אימות. היא נפתחת רק כשמבקשים לראות את המיקום המדויק.</small>
     </section> : null}
 
     <div className={`els29-native-layout${classicOpen ? " is-classic-open" : ""}${panelPinned ? " is-panel-pinned" : ""}${hasSystemDock ? " has-system-dock" : ""}`}>

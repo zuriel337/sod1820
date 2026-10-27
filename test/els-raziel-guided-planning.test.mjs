@@ -121,6 +121,34 @@ test("a user-locked two-letter axis reaches the canonical cross path without rel
   assert.equal(projected.searchMode, "crossed_pair");
 });
 
+test("a three-word request keeps all three distinct locked terms and rejects a partial pair", () => {
+  const story = 'חפש את שלוש המילים "משיח טבת עשירי" בתורה';
+  const a = normalizeElsRazielPlanningAction({ id: ELS_RAZIEL_PLANNING_ACTION, surface: "els", story, scope: "torah" });
+  const plan = deriveLockedElsSearchPlan(a);
+  assert.equal(plan.mode, "crossed_three");
+  assert.deepEqual(plan.axes.map(item => item.term), ["משיח", "טבת", "עשירי"]);
+  assert.deepEqual(prepareElsGuidedPlanFromRaziel({ story, response: { elsSearchPlan: plan } }).axes, ["משיח", "טבת", "עשירי"]);
+  assert.equal(normalizeElsRazielSearchPlan({ contract: "els_search_plan_v1", status: "READY", scope: "torah", mode: "crossed_pair", axes: ["משיח", "טבת"] }, a), null);
+  assert.equal(normalizeElsRazielSearchPlan({ contract: "els_search_plan_v1", status: "READY", scope: "torah", mode: "crossed_three", axes: ["משיח", "טבת", "עשירי", "מלאך"] }, a), null);
+  const separate = normalizeElsRazielPlanningAction({ id: ELS_RAZIEL_PLANNING_ACTION, surface: "els",
+    story: 'חפש שלוש מילים "משיח" "טבת" "עשירי"', scope: "torah" });
+  assert.deepEqual(deriveLockedElsSearchPlan(separate).axes.map(item => item.term), ["משיח", "טבת", "עשירי"]);
+});
+
+test("the existing server accepts one explicit three-term planning call and retains all locked words", async () => {
+  const story = 'חפש שלוש מילים "משיח טבת עשירי" בתורה';
+  const submission = prepareRazielSessionSubmission({ question: story, state: createInitialRazielSessionState(),
+    elsPlanningAction: { id: ELS_RAZIEL_PLANNING_ACTION, surface: "els", story, scope: "torah" },
+    startedAt: "2026-10-27T10:00:00.000Z", createTurnId: () => "three-turn" });
+  const run = await runAiAnalyze({ allowed: true, body: bodyOf(submission), modelResult: {
+    text: JSON.stringify({ els_search_plan: { contract: "els_search_plan_v1", status: "READY", scope: "torah", mode: "crossed_three", axes: ["משיח", "טבת", "עשירי"] } }),
+    usage: { input_tokens: 25, output_tokens: 17 }, attempts: 1, degraded: false,
+  } });
+  assert.equal(run.models.length, 1);
+  assert.deepEqual(run.result.raziel.els_search_plan.axes.map(item => item.term), ["משיח", "טבת", "עשירי"]);
+  assert.match(run.result.raziel.answer, /תוכנית בלבד/);
+});
+
 test("the session adapter carries the full sealed story but no facts, context or second transport", () => {
   const submission = prepared();
   assert.equal(submission.request.subject, ELS_RAZIEL_PLANNING_SUBJECT);
@@ -237,6 +265,6 @@ test("accepted server plan projects into the existing canonical cross command wi
   assert.equal(projected.truthPromotion, false);
   assert.equal(projected.raziel.maySearchOrVerify, false);
   const native = read("../src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /researchLoad\.searchMode === "crossed_pair"/);
+  assert.match(native, /\["crossed_pair", "crossed_three"\]\.includes\(researchLoad\.searchMode\)/);
   assert.match(native, /requestSearch\("cross", \{ axis: term, term: secondaryAxis/);
 });

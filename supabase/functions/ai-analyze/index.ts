@@ -715,6 +715,9 @@ function razielElsPlanningEnvelopeSafe(body: any, action: any): boolean {
 function razielElsPlanningAnswer(plan: any): string {
   if (!plan) return "לא הצלחתי לבנות תוכנית חיפוש בטוחה, ולכן לא הפעלתי את מנוע ה־ELS.";
   const terms = Array.isArray(plan.axes) ? plan.axes.map((axis: any) => axis?.term).filter(Boolean) : [];
+  if (plan.mode === "crossed_three") {
+    return `הבנתי: אחפש אזור משותף ל־${terms.map((term: string) => `״${term}״`).join(" · ")}. זו תוכנית בלבד; רק מנוע ה־ELS יאמת את המילים והקשר ביניהן.`;
+  }
   if (plan.mode === "crossed_pair") {
     return `הבנתי: אחפש הצלבה בין ״${terms[0]}״ ל״${terms[1]}״. זו תוכנית בלבד; רק מנוע ה־ELS יקבע אם נמצא מפגש.`;
   }

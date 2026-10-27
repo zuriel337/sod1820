@@ -1730,6 +1730,36 @@ test('guided golden: מקדש ירד keeps two exact axes and recognizes the gen
   },{realHost:true,loadGolden:false,mobile:true,guided:true});
  });
 
+test('guided three-term cross stays bounded and never promotes a partial result',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
+ for(const width of [320,1440])await withNative({width,height:900},async page=>{
+   await page.evaluate(()=>window.__loadResearch({contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,
+     term:'קולומביה',axes:['קולומביה','ספינת','זזזזזז'],searchMode:'crossed_three',scope:'torah',researchNonce:901}));
+   await page.waitForFunction(()=>window.__operation?.requestId&&['done','empty','error'].includes(window.__operation.status),null,{timeout:90000});
+   const operation=await page.evaluate(()=>window.__operation);
+   assert.equal(operation.status,'empty','a nonexistent third term cannot become a full triple');
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   await page.evaluate(()=>{window.__fixtureVerificationDenied=true;window.__loadResearch({contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,
+     term:'תורהקדשה',axes:['תורהקדשה','בחשרתע','כויזלת'],searchMode:'crossed_three',scope:'torah',researchNonce:903});});
+   await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),operation.requestId,{timeout:90000});
+   assert.equal(await page.evaluate(()=>window.__operation.status),'error','an unavailable verifier must not produce a result or negative claim');
+ },{realHost:true,loadGolden:false,mobile:width===320,guided:true});
+});
+
+test('guided three-term cross displays only canonically replayed complete meetings',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+ await withNative({width:390,height:844},async page=>{
+   await page.evaluate(()=>window.__loadResearch({contract:'els_anchor_context_request_v1',researchCommand:true,guidedDiscovery:true,
+     term:'תורהקדשה',axes:['תורהקדשה','בחשרתע','כויזלת'],searchMode:'crossed_three',scope:'torah',researchNonce:902}));
+   await page.waitForFunction(()=>window.__operation?.requestId&&['done','empty','error'].includes(window.__operation.status),null,{timeout:120000});
+   const state=await page.evaluate(()=>({operation:window.__operation,state:window.__state,requests:window.__log.filter(x=>x.type==='engine-request')}));
+   assert.equal(state.operation.status,'done',JSON.stringify(state.operation));
+   assert.equal(state.state.verification.state,'MATCH');
+   assert.ok(state.state.search.results.items.every(item=>!item.available||item.terms.length===2));
+   assert.ok(state.requests.filter(request=>request.op==='verify_batch'&&request.payload?.strategy?.policy==='GUIDED_THREE_TERM_REPLAY_V1').length>=2);
+ },{realHost:true,loadGolden:false,mobile:true,guided:true});
+});
+
 test('native results: regular and crossed searches expose selectable results in Torah and Tanakh, with terminal recovery',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:240000},async()=>{
  await withNative({width:390,height:844},async page=>{

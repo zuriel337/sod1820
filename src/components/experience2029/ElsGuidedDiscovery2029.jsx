@@ -40,15 +40,15 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
       guidedDiscovery: true,
       term: nextAxis.term,
       searchMode: nextPlan.searchMode || "anchor_context",
-      axes: Array.isArray(nextPlan.axes) ? nextPlan.axes.slice(0, 2) : [nextAxis.term],
+      axes: Array.isArray(nextPlan.axes) ? nextPlan.axes.slice(0, 3) : [nextAxis.term],
       scope: nextPlan.scope,
       contextTerms,
       discoveryGoal: nextPlan.goal,
       researchNonce: ++requestId.current,
       returnLabel: "גילוי מודרך",
     });
-    setNotice(nextPlan.searchMode === "crossed_pair"
-      ? `רזיאל זיהה הצלבה בין ״${nextPlan.axes[0]}״ ל״${nextPlan.axes[1]}״. המנוע הקנוני בודק כעת אם קיים מפגש.`
+    setNotice(["crossed_pair", "crossed_three"].includes(nextPlan.searchMode)
+      ? `רזיאל הציע לחפש אזור משותף ל־${nextPlan.axes.map(term => `״${term}״`).join(" · ")}. המנוע הקנוני בודק כעת את המפגש.`
       : `רזיאל הציע את ״${nextAxis.term}״ כציר הראשון. המנוע הקנוני בודק כעת מופעים וקשרים.`);
   };
 
@@ -150,18 +150,18 @@ export default function ElsGuidedDiscovery2029({ disabled = false, onLoad, onPla
 
       {plan && axis ? <section className="els29-guided-plan" aria-label="תוכנית הגילוי שנשלחה">
         <header>
-          <div><small>{plan.searchMode === "crossed_pair" ? "ההצלבה שרזיאל הבין" : "הציר הראשון שרזיאל הציע"}</small><strong><bdi>{plan.searchMode === "crossed_pair" ? plan.axes.join(" × ") : axis.term}</bdi></strong></div>
+          <div><small>{["crossed_pair", "crossed_three"].includes(plan.searchMode) ? "ההצלבה שרזיאל הבין" : "הציר הראשון שרזיאל הציע"}</small><strong><bdi>{["crossed_pair", "crossed_three"].includes(plan.searchMode) ? plan.axes.join(" × ") : axis.term}</bdi></strong></div>
           <span className="sod29-chip">תוכנית · טרם ממצא</span>
         </header>
         <p className="els29-guided-axis-reason">למה כך: {axis.reason}.</p>
         {strategy ? <div className="els29-guided-strategy" data-els-guided-search-strategy={strategy.contract} aria-label="סדר החיפוש המודרך">
           {strategy.lanes.map(lane => <article key={lane.id} data-lane={lane.id}>
             <span>{lane.order}</span>
-            <div><strong>{plan.searchMode === "crossed_pair" && lane.id === "exact-axis" ? "שני צירים מדויקים" : lane.label}</strong><small>{lane.id === "exact-axis" ? (plan.searchMode === "crossed_pair"
-              ? `בודק מפגשים בין ״${plan.axes[0]}״ ל״${plan.axes[1]}״.`
+            <div><strong>{["crossed_pair", "crossed_three"].includes(plan.searchMode) && lane.id === "exact-axis" ? "צירים מדויקים" : lane.label}</strong><small>{lane.id === "exact-axis" ? (["crossed_pair", "crossed_three"].includes(plan.searchMode)
+              ? `בודק אזור משותף לכל המילים: ${plan.axes.join(" · ")}.`
               : `בודק את ״${axis.term}״ ומאמת כל מופע.`)
-              : lane.id === "story-context" ? (lane.terms.length ? lane.terms.join(" · ") : plan.searchMode === "crossed_pair" ? "בלי מילים נוספות: מתחילים רק בשני הצירים שנבחרו." : "אין כרגע מילת סיפור נוספת; ממשיכים רק אחרי אימות הציר.")
-              : plan.searchMode === "crossed_pair"
+              : lane.id === "story-context" ? (lane.terms.length ? lane.terms.join(" · ") : ["crossed_pair", "crossed_three"].includes(plan.searchMode) ? "בלי מילים נוספות: מתחילים רק בצירים שנבחרו." : "אין כרגע מילת סיפור נוספת; ממשיכים רק אחרי אימות הציר.")
+              : ["crossed_pair", "crossed_three"].includes(plan.searchMode)
                 ? "הרחבת מילים נשארת כבויה; קודם רואים אם שני הצירים עצמם נפגשים."
                 : "מחפש מילים שלא נכתבו בסיפור רק בתוך המטריצה המאומתת, דרך אינדקס עצל ומוגבל."}</small></div>
           </article>)}

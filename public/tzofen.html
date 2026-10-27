@@ -2583,6 +2583,13 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const scope=req.scope==="tanakh"?"tanakh":"torah";
       if(kind==="continue"){continueNativeSearch(req,operation);return;}
       if(kind==="cross-continue"){continueNativeCross(req,operation);return;}
+      if(kind==="cross-three"){
+        const terms=Array.isArray(req.terms)?req.terms.map(t=>typeof t==="string"?t.trim():""):[];
+        const keys=terms.map(norm),radius=req.radius===undefined?18:req.radius;
+        if(terms.length!==3||keys.some(t=>t.length<2||t.length>12)||new Set(keys).size!==3||!Number.isInteger(radius)||radius<2||radius>20){operationStatus(operation,"error","נדרשות שלוש מילים שונות ומרחק תקין.");return;}
+        if(!canCross()||!selectSearchScope(scope,false)){operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
+        runCrossThree(terms,radius,operation);return;
+      }
       if(kind==="regular"){
         if(norm(term).length<2){toast("רשום לפחות 2 אותיות");operationStatus(operation,"error","כתבו לפחות שתי אותיות.");return;}
         if(!selectSearchScope(scope,false)){operationStatus(operation,"error","החיפוש לא זמין בחשבון הנוכחי.");return;}
@@ -2856,6 +2863,42 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
      }),coverage:{scanned:r1.scanned+r2.scanned,available:r1.available+r2.available,
       canContinue:r1.scanned<r1.available||r2.scanned<r2.available,
       truncated:r1.capped||r2.capped||r1.scanned<r1.available||r2.scanned<r2.available}};
+  }
+  // Explicit Guided-only three-term request. Every displayed meeting is replayed through
+  // the canonical verifier; bounded omissions are never a corpus-wide negative.
+  async function runCrossThree(terms,pure,operation){
+    const epoch=_matrixRequestSeq;
+    try{
+      await prefetchVerified(terms,operation);if(epoch!==_matrixRequestSeq)return;
+      if(terms.some(term=>faMemo(term).verr)){operationStatus(operation,"error","אימות הצירים לא הושלם.");return;}
+      const window={...nativeWindow(operation?.windowSize||"small",pure,terms),scopeLength:scopeN()};
+      const progress={completed:0,total:terms.reduce((n,t)=>n+Math.min(150,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length),0),startedAt:Date.now()};
+      const runs=[];for(const axis of terms){const others=terms.filter(t=>norm(t)!==norm(axis));runs.push(await crossFindBounded(axis,others,pure,window,operation,progress,epoch));}
+      if(epoch!==_matrixRequestSeq)return;
+      const candidates=runs.flatMap((run,index)=>run.meetings.filter(z=>z.detail.length===2).map(z=>({...z,axis:terms[index]})));
+      candidates.sort((a,b)=>b.score-a.score||a.skip-b.skip||a.occ-b.occ);
+      const cache=Object.fromEntries(terms.map((term,index)=>[term,runs[index].resA])),admitted=[];
+      for(const z of candidates.slice(0,24)){
+        const h=cache[z.axis]?.hits[z.occ];if(!isGov(h))continue;
+        let valid=true;for(const d of z.detail){
+          const skip=Math.abs(d.skip),dir=d.dir,start=d.p0;
+          if(skip<2){valid=false;break;}
+          const hit={skip,dir,start,positions:Array.from({length:d.t.length},(_,i)=>start+dir*skip*i)};
+          const replay=await verifyBatch(d.t,[hit],{policy:"GUIDED_THREE_TERM_REPLAY_V1"},operation,st.scope);
+          if(epoch!==_matrixRequestSeq)return;
+          if(!replay?.ok){operationStatus(operation,"error","אימות מונחי ההצלבה לא הושלם.");return;}
+          if(!replay.verified?.has(hitKey(hit))){valid=false;break;}
+        }
+        if(valid)admitted.push(z);
+      }
+      if(epoch!==_matrixRequestSeq)return;
+      if(!admitted.length){operationStatus(operation,"empty","לא נמצא מפגש מאומת בגל המקומי שנבדק; ייתכן שקיימים מופעים נוספים.");return;}
+      operation.committed=true;Object.assign(st,{ctxR:window.ctxR,windowColumns:window.windowColumns,windowSize:window.windowSize,windowRequested:window.windowRequested});
+      st.crossResCache=cache;st.crossMeetings=admitted;st.crossIdx=0;st.crossTerms=terms.slice(1);st.crossTotal=2;
+      st.crossSimple=false;st.crossFree=true;st.crossBridge=false;st.crossCoverage={scanned:runs.reduce((n,r)=>n+r.scanned,0),available:runs.reduce((n,r)=>n+r.available,0),canContinue:false,truncated:runs.some(r=>r.capped||r.scanned<r.available)||candidates.length>24};
+      st.crossScan=null;openZone(0,operation);await healGoverned();if(epoch!==_matrixRequestSeq)return;
+      operationStatus(operation,hasGov(st.res)?"done":"error",hasGov(st.res)?null:"אימות המפגש לא הושלם.");
+    }catch(e){if(epoch===_matrixRequestSeq&&e?.name!=="AbortError")operationStatus(operation,"error","הצלבת שלוש המילים לא הושלמה.");}
   }
   async function continueNativeCross(req,operation){
     const prior=st.crossScan,view=nativeCrossResults(),epoch=_matrixRequestSeq;

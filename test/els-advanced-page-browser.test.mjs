@@ -72,6 +72,14 @@ test("Guided starts explicitly in one window; advanced page still verifies befor
     assert.equal(await page.evaluate(() => window.__advancedLoad?.term), "צוריאל");
     await page.getByRole("button", { name: "גילוי מודרך", exact: true }).click();
     assert.equal(await page.getByLabel("הסיפור לגילוי מודרך").inputValue(), story);
+    await page.getByLabel("הסיפור לגילוי מודרך").fill('חפש שלוש מילים "משיח טבת עשירי" בתורה');
+    assert.equal(await page.evaluate(() => window.__razielPlannerCalls.length), 1, "editing does not call AI");
+    await page.getByRole("button", { name: "התחל גילוי מודרך" }).click();
+    await page.waitForFunction(() => window.__advancedLoad?.searchMode === "crossed_three");
+    assert.deepEqual(await page.evaluate(() => window.__advancedLoad.axes), ["משיח", "טבת", "עשירי"]);
+    assert.equal(await page.evaluate(() => window.__razielPlannerCalls.length), 2, "one more explicit submit makes one more call");
+    assert.match(await page.getByLabel("תוכנית הגילוי שנשלחה").innerText(), /משיח × טבת × עשירי/);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/fixture?testAdvanced`);
     await page.getByLabel("מונח לחיפוש מתקדם").fill("תורתאמת");
     assert.equal(await page.getByRole("button", { name: /קרוב|בינוני|רחוק/ }).count(), 0);
