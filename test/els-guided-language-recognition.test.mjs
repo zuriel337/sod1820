@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import { createHash } from "node:crypto";
 import vm from "node:vm";
+import { loadRouter } from "../tools/els/router-harness.mjs";
 
 const ENGINE = new URL("../tools/els/els-code.template.html", import.meta.url);
 const BUILT_ENGINE = new URL("../public/tzofen.html", import.meta.url);
@@ -131,6 +132,24 @@ test("Colombia holdout letters are inside the same bounded map without supplying
   assert.ok(DYNAMIC_LEXICON_PROFILE.entryCount > 40000);
   assert.ok(DYNAMIC_LEXICON_PROFILE.coreEntryCount > 4000);
   assert.equal(DYNAMIC_LEXICON_PROFILE.entries.some(entry => entry[0] === "ספינת"), false, "the exact Golden surface was not inserted as a special-case word");
+});
+
+test("Colombia: actual bounded router and local language inspection report the held-out discovery coverage", async (t) => {
+  const [engine, corpus] = await Promise.all([readFile(ENGINE, "utf8"), readFile(CORPUS, "utf8")]);
+  const router = loadRouter(undefined, { scopeLen: 304805, scope: "torah" });
+  const search = await router.routedDiscover("קולומביה", 4000);
+  const eligible = search.hits.filter(hit => hit.skip >= 2);
+  const goldenIndex = eligible.findIndex(hit => hit.skip === 4545 && hit.dir === 1 && hit.start === 248765);
+  assert.ok(goldenIndex >= 0, "the local router returns the exact test occurrence");
+  const result = inspectAxis(languageContext(engine, corpus, "קולומביה"), { ...eligible[goldenIndex], length: 8 });
+  const readings = result.readings.filter(row => row.baseTerm === "ספינה");
+  const segmentations = result.segmentations.filter(row => row.canonicalLetters.includes("יכלאש"));
+  const relations = result.relations.filter(row => row.tokens.map(token => token.canonicalLetters).join("").includes("יכלאש"));
+  assert.ok(readings.some(row => row.relation === "construct-form"));
+  assert.ok(result.boundaries.some(row => row.leftContext.endsWith("יכל") && row.rightContext.startsWith("אש")));
+  t.diagnostic(JSON.stringify({ eligible: eligible.length, capped: search.capped, goldenIndex,
+    candidateReadings: readings.length, matchingSegmentations: segmentations.length, matchingRelations: relations.length,
+    limitations: "local router and unverified linguistic candidates; no server replay or live model" }));
 });
 
 test("Uranium geometry candidates survive independently of the memorable skip", async () => {
