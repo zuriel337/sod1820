@@ -3172,7 +3172,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=93&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.palaces.throne",
@@ -3186,7 +3187,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=94&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.creatures.throne",
@@ -3200,7 +3202,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         }
       ],
       "presentation": {
@@ -3311,7 +3314,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.angel-gabriel",
@@ -3325,7 +3329,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.angel-uriel",
@@ -3339,7 +3344,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.angel-raphael",
@@ -3353,7 +3359,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         }
       ],
       "presentation": {
@@ -3476,7 +3483,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.ban.reuben",
@@ -3490,7 +3498,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.ban.dan",
@@ -3504,7 +3513,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.ban.ephraim",
@@ -3518,7 +3528,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.ban.tribes",
@@ -3532,7 +3543,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=101&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         }
       ],
       "presentation": {
@@ -3632,7 +3644,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=96&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.gates-rakia",
@@ -3646,7 +3659,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.hayyot-rakia",
@@ -3660,7 +3674,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         }
       ],
       "presentation": {
@@ -3747,7 +3762,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=113&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         },
         {
           "id": "hp.letters.rule",
@@ -3761,7 +3777,8 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=113&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           },
-          "confidence": "locatable_not_visually_adjudicated"
+          "confidence": "locatable_not_visually_adjudicated",
+          "verification": "machine_located_pending_visual"
         }
       ],
       "presentation": {
