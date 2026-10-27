@@ -1,0 +1,1478 @@
+{
+  "schema_version": "sefer-hapliah-internal-map.v1",
+  "book_slug": "sefer-hapliah",
+  "source_identity": "book:hebrewbooks:6355",
+  "source_pdf_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf",
+  "source_pdf_sha256": "92cb911c36cb1b9c2b3e80607c36455178ae89e3831611bf31da042f5d54bf08",
+  "source_pdf_pages": 327,
+  "created_date": "2026-10-27",
+  "evidence_policy": {
+    "baseline": "existing 11 reading gates and 327 page companions preserved separately; this is a partial internal depth overlay",
+    "direct_visual_pdf_pages_verified": [],
+    "machine_extracted_text_sampled_pages": [
+      1,
+      4,
+      6,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      25,
+      28,
+      40,
+      53,
+      65,
+      67,
+      72,
+      80,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107
+    ],
+    "machine_text_role": "SEARCH_AND_NAVIGATION_ONLY_NOT_SOURCE_QUOTATION",
+    "reading_status": "PARTIAL_SOURCE_LOCATORS_PENDING_PDF_VISUAL_ADJUDICATION",
+    "printed_commentary": "UNADJUDICATED_SEPARATE_FROM_COMPANION",
+    "companion_explanation": "הסבר נלווה; neither quotation nor printed commentary",
+    "direct_quotes_in_this_map": 0,
+    "engine_verification": "not_tested",
+    "preview_policy": "Written approved source material may render without engine; no engine-verified claim",
+    "spatial_policy": "CONTENT_SPEC_ONLY_NO_3D_RENDERER_BINDING"
+  },
+  "gates": [
+    {
+      "id": "witness",
+      "from_pdf_page": 1,
+      "to_pdf_page": 9,
+      "title": "מעטפת העד והקדמות"
+    },
+    {
+      "id": "bereshit",
+      "from_pdf_page": 10,
+      "to_pdf_page": 83,
+      "title": "״ברא אלהים״ — אותיות, שמות וספירות"
+    },
+    {
+      "id": "light",
+      "from_pdf_page": 84,
+      "to_pdf_page": 92,
+      "title": "אור, יום ולילה"
+    },
+    {
+      "id": "palaces",
+      "from_pdf_page": 93,
+      "to_pdf_page": 101,
+      "title": "היכלות, כיסא, גלגלים ומחנות"
+    },
+    {
+      "id": "creation-days",
+      "from_pdf_page": 102,
+      "to_pdf_page": 107,
+      "title": "ימי הבריאה — מים, ארץ ומאורות"
+    },
+    {
+      "id": "human-image",
+      "from_pdf_page": 108,
+      "to_pdf_page": 179,
+      "title": "בריאת האדם, צלם וגוף"
+    },
+    {
+      "id": "generations-heaven-earth",
+      "from_pdf_page": 180,
+      "to_pdf_page": 219,
+      "title": "״אלה תולדות השמים והארץ״"
+    },
+    {
+      "id": "torah-law",
+      "from_pdf_page": 220,
+      "to_pdf_page": 276,
+      "title": "פסוק, הלכה ומידות הדין"
+    },
+    {
+      "id": "serpent",
+      "from_pdf_page": 277,
+      "to_pdf_page": 292,
+      "title": "האדם, האשה, העץ והנחש"
+    },
+    {
+      "id": "cain-abel",
+      "from_pdf_page": 293,
+      "to_pdf_page": 309,
+      "title": "קין, הבל ודין המעשה"
+    },
+    {
+      "id": "adam-noah",
+      "from_pdf_page": 310,
+      "to_pdf_page": 327,
+      "title": "תולדות אדם, חנוך ונח — חתימה"
+    }
+  ],
+  "units": [
+    {
+      "id": "hapliah.witness.cover-01",
+      "gate_id": "witness",
+      "title": "שער העותק וזהות המהדורה",
+      "unit_type": "printed_paratext",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 1,
+        "to_pdf_page": 1,
+        "entry_pdf_page": 1,
+        "entry_anchor": "#page=1&view=FitH",
+        "range_end_anchor": "#page=1&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=1&view=FitH"
+      },
+      "content": {
+        "subject": "זיהוי השער הוא שלב ביבליוגרפי, ולא קטע מחיבור הפליאה.",
+        "question": null,
+        "steps": [
+          "מפרידים את כתובת ההוצאה ואת נתוני הדפוס מן הדרשה שבגוף הספר.",
+          "המקום המיועד לפתיחת גוף הספר נמצא רק בעמוד PDF 10."
+        ],
+        "source_references": [
+          "השער המודפס"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "זיהוי השער הוא שלב ביבליוגרפי, ולא קטע מחיבור הפליאה. מפרידים את כתובת ההוצאה ואת נתוני הדפוס מן הדרשה שבגוף הספר. המקום המיועד לפתיחת גוף הספר נמצא רק בעמוד PDF 10.",
+      "layer": "הסבר נלווה על מעטפת העד המודפס",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.witness.approbation-04",
+      "gate_id": "witness",
+      "title": "הסכמה מודפסת וייחוס הספר",
+      "unit_type": "printed_paratext",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 4,
+        "to_pdf_page": 4,
+        "entry_pdf_page": 4,
+        "entry_anchor": "#page=4&view=FitH",
+        "range_end_anchor": "#page=4&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=4&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד מציג דברי הסכמה ושבח בדברי מקובל ולא טיעון של גוף החיבור.",
+        "question": "מה מעמד הדובר שלפנינו?",
+        "steps": [
+          "מזהים את קיומה של הסכמה מודפסת.",
+          "משאירים את לשון ההסכמה נבדלת מן המחבר והדובר של גוף הספר."
+        ],
+        "source_references": [
+          "הסכמה מודפסת"
+        ],
+        "conclusion": "אין להסיק מדברי המסכים שכל טענה בחיבור אומתה."
+      },
+      "companion_explanation": "העמוד מציג דברי הסכמה ושבח בדברי מקובל ולא טיעון של גוף החיבור. מזהים את קיומה של הסכמה מודפסת. משאירים את לשון ההסכמה נבדלת מן המחבר והדובר של גוף הספר. סיום המהלך בנקודת הקריאה: אין להסיק מדברי המסכים שכל טענה בחיבור אומתה.",
+      "layer": "הסבר נלווה על מעטפת העד המודפס",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.witness.publisher-preface-06",
+      "gate_id": "witness",
+      "title": "הקדמת המביא לבית הדפוס",
+      "unit_type": "printed_paratext",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 6,
+        "to_pdf_page": 6,
+        "entry_pdf_page": 6,
+        "entry_anchor": "#page=6&view=FitH",
+        "range_end_anchor": "#page=6&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=6&view=FitH"
+      },
+      "content": {
+        "subject": "הקדמת המביא מתמקדת בנסיבות ההבאה לדפוס, ובהקשר משפחתי של ההדפסה.",
+        "question": null,
+        "steps": [
+          "מזהים דובר של מהדורה.",
+          "קוראים את טעם ההדפסה ואת עדותו ההיסטורית לפני פירוש הסודות."
+        ],
+        "source_references": [
+          "הקדמת המביא"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הקדמת המביא מתמקדת בנסיבות ההבאה לדפוס, ובהקשר משפחתי של ההדפסה. מזהים דובר של מהדורה. קוראים את טעם ההדפסה ואת עדותו ההיסטורית לפני פירוש הסודות.",
+      "layer": "הסבר נלווה על מעטפת העד המודפס",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.witness.printers-preface-08",
+      "gate_id": "witness",
+      "title": "דברי המדפיסים ומעבר להקדמת החיבור",
+      "unit_type": "printed_paratext",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 8,
+        "to_pdf_page": 8,
+        "entry_pdf_page": 8,
+        "entry_anchor": "#page=8&view=FitH",
+        "range_end_anchor": "#page=8&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=8&view=FitH"
+      },
+      "content": {
+        "subject": "בפתח העמוד נראית כותרת הקדמת המדפיסים, ובהמשכו משתנה אופי הסיפור אל דובר המתאר מסורת לימוד.",
+        "question": null,
+        "steps": [
+          "מפרידים בין הצגת המדפיסים ובין החומר המסופר בהמשך אותו דף.",
+          "בודקים את נקודת חילוף הדובר ב־PDF לפני ייחוסו."
+        ],
+        "source_references": [
+          "הקדמת המדפיסים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בפתח העמוד נראית כותרת הקדמת המדפיסים, ובהמשכו משתנה אופי הסיפור אל דובר המתאר מסורת לימוד. מפרידים בין הצגת המדפיסים ובין החומר המסופר בהמשך אותו דף. בודקים את נקודת חילוף הדובר ב־PDF לפני ייחוסו. גבול חילוף הדובר המדויק בעמוד טרם הוכרע חזותית.",
+      "layer": "הסבר נלווה על מעטפת העד המודפס",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.witness.book-preface-09",
+      "gate_id": "witness",
+      "title": "הקדמת החיבור, חוויית הלימוד והמעבר לגוף",
+      "unit_type": "printed_paratext",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 9,
+        "to_pdf_page": 9,
+        "entry_pdf_page": 9,
+        "entry_anchor": "#page=9&view=FitH",
+        "range_end_anchor": "#page=9&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=9&view=FitH"
+      },
+      "content": {
+        "subject": "ההקדמה ממשיכה סיפור לימוד ומסורת ייחוס לאליהו, ומגיעה להודעה על התחלת ביאור התורה.",
+        "question": null,
+        "steps": [
+          "מזהים בדף המסגרת הסיפורית של מסירת ידע.",
+          "נבדל ייחוס המסירה בתוך החיבור מאימות חיצוני של מאורע.",
+          "המהלך הבא נפתח בדף PDF 10."
+        ],
+        "source_references": [
+          "אליהו",
+          "הקדמת החיבור"
+        ],
+        "conclusion": "זהו שער כניסה לעדות הספר ולא הוכחה היסטורית למסופר."
+      },
+      "companion_explanation": "ההקדמה ממשיכה סיפור לימוד ומסורת ייחוס לאליהו, ומגיעה להודעה על התחלת ביאור התורה. מזהים בדף המסגרת הסיפורית של מסירת ידע. נבדל ייחוס המסירה בתוך החיבור מאימות חיצוני של מאורע. המהלך הבא נפתח בדף PDF 10. סיום המהלך בנקודת הקריאה: זהו שער כניסה לעדות הספר ולא הוכחה היסטורית למסופר.",
+      "layer": "הסבר נלווה על מעטפת העד המודפס",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.opening-10",
+      "gate_id": "bereshit",
+      "title": "ברא אלהים: לשון הפסוק ושמות האותיות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 10,
+        "to_pdf_page": 10,
+        "entry_pdf_page": 10,
+        "entry_anchor": "#page=10&view=FitH",
+        "range_end_anchor": "#page=10&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=10&view=FitH"
+      },
+      "content": {
+        "subject": "גוף החיבור פותח בדרשה על לשון בראשית, אותיות, שמות, תחילת האצילות ויחס דין ורחמים.",
+        "question": "מה נרמז בלשון הפתיחה של בריאת העולם?",
+        "steps": [
+          "הדיון נע ממילות בראשית לאותיות ולהקבלות בין מידות.",
+          "הדובר משלב שאלות ותשובות על משמעות ראשית ועל נקודות וצורות האות.",
+          "נדרש להבחין בין פירוש הביטוי ובין צירופי אותיות המשמשים אותו."
+        ],
+        "source_references": [
+          "בראשית א",
+          "כתר",
+          "חכמה",
+          "בינה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "גוף החיבור פותח בדרשה על לשון בראשית, אותיות, שמות, תחילת האצילות ויחס דין ורחמים. הדיון נע ממילות בראשית לאותיות ולהקבלות בין מידות. הדובר משלב שאלות ותשובות על משמעות ראשית ועל נקודות וצורות האות. נדרש להבחין בין פירוש הביטוי ובין צירופי אותיות המשמשים אותו.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.letters-11",
+      "gate_id": "bereshit",
+      "title": "סדר אותיות ומידות: סדר ישר והיפוך",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 11,
+        "to_pdf_page": 11,
+        "entry_pdf_page": 11,
+        "entry_anchor": "#page=11&view=FitH",
+        "range_end_anchor": "#page=11&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=11&view=FitH"
+      },
+      "content": {
+        "subject": "מהלך האותיות קושר סדרי צירוף והיפוך לדיבור על מעמד המידות.",
+        "question": "מדוע סדר האותיות משמעותי למהלך?",
+        "steps": [
+          "מופיעה השוואה בין סדרי אותיות.",
+          "הקישורים למידות ולכנסת ישראל מסבירים למה סדר אינו קישוט גרפי בלבד."
+        ],
+        "source_references": [
+          "אלפא־ביתא",
+          "מידות"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "מהלך האותיות קושר סדרי צירוף והיפוך לדיבור על מעמד המידות. מופיעה השוואה בין סדרי אותיות. הקישורים למידות ולכנסת ישראל מסבירים למה סדר אינו קישוט גרפי בלבד.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.forty-two-12",
+      "gate_id": "bereshit",
+      "title": "אותיות של שם מ״ב וימי הבריאה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 12,
+        "to_pdf_page": 12,
+        "entry_pdf_page": 12,
+        "entry_anchor": "#page=12&view=FitH",
+        "range_end_anchor": "#page=12&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=12&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון מזכיר שם בן מ״ב אותיות וחלוקה לשבעה שמות, ונוגע במניין הימים ובשבת.",
+        "question": "כיצד נקשרים מניין אותיות והיקף הבריאה?",
+        "steps": [
+          "מבדילים בין מניין המיוחס לשם ובין חלוקתו לקבוצות.",
+          "קושרים את המשך הדברים למידות הדין והרחמים ולשבת."
+        ],
+        "source_references": [
+          "שם מ״ב",
+          "שבת"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדיון מזכיר שם בן מ״ב אותיות וחלוקה לשבעה שמות, ונוגע במניין הימים ובשבת. מבדילים בין מניין המיוחס לשם ובין חלוקתו לקבוצות. קושרים את המשך הדברים למידות הדין והרחמים ולשבת.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.union-13",
+      "gate_id": "bereshit",
+      "title": "חסד, פחד ותפארת: חיבור במקום פירוד",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 13,
+        "to_pdf_page": 13,
+        "entry_pdf_page": 13,
+        "entry_anchor": "#page=13&view=FitH",
+        "range_end_anchor": "#page=13&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=13&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון משתמש במים ובאש לדין ורחמים, ומציג את התפארת כגורם מתווך.",
+        "question": "כיצד מתקיים היחס בין כוחות מנוגדים?",
+        "steps": [
+          "מתואר מתח בין מדות שונות.",
+          "הטיעון נע אל כוח מחבר ומקבל שפע משני צדדים."
+        ],
+        "source_references": [
+          "חסד",
+          "פחד",
+          "תפארת"
+        ],
+        "conclusion": "המהלך מדגיש את אחדות המערכת כנגד פירוד הכוחות."
+      },
+      "companion_explanation": "הדיון משתמש במים ובאש לדין ורחמים, ומציג את התפארת כגורם מתווך. מתואר מתח בין מדות שונות. הטיעון נע אל כוח מחבר ומקבל שפע משני צדדים. סיום המהלך בנקודת הקריאה: המהלך מדגיש את אחדות המערכת כנגד פירוד הכוחות.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.emanation-14",
+      "gate_id": "bereshit",
+      "title": "חכמה ובינה ברצף ההאצלה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 14,
+        "to_pdf_page": 14,
+        "entry_pdf_page": 14,
+        "entry_anchor": "#page=14&view=FitH",
+        "range_end_anchor": "#page=14&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=14&view=FitH"
+      },
+      "content": {
+        "subject": "בדיון על בראשית ואלהים מוסברות דרגות בתחילת ההאצלה, דרך חכמה ובינה.",
+        "question": null,
+        "steps": [
+          "קוראים את האותיות כמפת התייחסויות למידות.",
+          "נזהרים שלא להפוך דימוי דקדוקי לצורת מרחב קשיחה."
+        ],
+        "source_references": [
+          "חכמה",
+          "בינה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בדיון על בראשית ואלהים מוסברות דרגות בתחילת ההאצלה, דרך חכמה ובינה. קוראים את האותיות כמפת התייחסויות למידות. נזהרים שלא להפוך דימוי דקדוקי לצורת מרחב קשיחה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.torah-letters-25",
+      "gate_id": "bereshit",
+      "title": "התורה ואותיותיה בתוך שיח השמות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 25,
+        "to_pdf_page": 25,
+        "entry_pdf_page": 25,
+        "entry_anchor": "#page=25&view=FitH",
+        "range_end_anchor": "#page=25&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=25&view=FitH"
+      },
+      "content": {
+        "subject": "במוקד העמוד שיחה על מספר אותיות, תורה שבכתב ותורה שבעל פה, וצירוף אותיות.",
+        "question": "מה נספר ובאיזו יחידת מניין?",
+        "steps": [
+          "מפרידים ספירת אותיות מחילוף שלהן.",
+          "מסמנים כל ערך מספרי כטענת המקור עד אימות עצמאי."
+        ],
+        "source_references": [
+          "תורה שבכתב",
+          "תורה שבעל פה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "במוקד העמוד שיחה על מספר אותיות, תורה שבכתב ותורה שבעל פה, וצירוף אותיות. מפרידים ספירת אותיות מחילוף שלהן. מסמנים כל ערך מספרי כטענת המקור עד אימות עצמאי.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.light-28",
+      "gate_id": "bereshit",
+      "title": "ויהי אור: הבחנת אור שנאמר ואור שמופיע",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 28,
+        "to_pdf_page": 28,
+        "entry_pdf_page": 28,
+        "entry_anchor": "#page=28&view=FitH",
+        "range_end_anchor": "#page=28&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=28&view=FitH"
+      },
+      "content": {
+        "subject": "המקור מתעכב על לשון הוויית האור וקושר אותה לתיאור קבלת השפע.",
+        "question": "למה מופיעה לשון ההתהוות לאחר האמירה?",
+        "steps": [
+          "מופיעה התייחסות להבדל הלשוני בין אמירה ובין קיום.",
+          "ההסבר עובר ממילת הפסוק לתיאור השפעה והופעה."
+        ],
+        "source_references": [
+          "בראשית א",
+          "אור"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "המקור מתעכב על לשון הוויית האור וקושר אותה לתיאור קבלת השפע. מופיעה התייחסות להבדל הלשוני בין אמירה ובין קיום. ההסבר עובר ממילת הפסוק לתיאור השפעה והופעה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.ten-measures-40",
+      "gate_id": "bereshit",
+      "title": "עשר מידות ושאלת ההתחלקות למניינים",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 40,
+        "to_pdf_page": 40,
+        "entry_pdf_page": 40,
+        "entry_anchor": "#page=40&view=FitH",
+        "range_end_anchor": "#page=40&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=40&view=FitH"
+      },
+      "content": {
+        "subject": "הדובר משווה מנייני עשר ומאה ומרובה יותר כדי לשאול על דרך ההכללה של המידות.",
+        "question": "האם הכללת כל מידה בתוך האחרות יוצרת מניין סופי?",
+        "steps": [
+          "מוצעת ספירה פשוטה.",
+          "מכפילים את יכולת ההכללה ומעמידים קושי של התרחבות בלתי מוגבלת."
+        ],
+        "source_references": [
+          "עשר ספירות"
+        ],
+        "conclusion": "הבחנה בין תיאור יחסים לבין מספר יחידות עצמאי מחויבת כאן."
+      },
+      "companion_explanation": "הדובר משווה מנייני עשר ומאה ומרובה יותר כדי לשאול על דרך ההכללה של המידות. מוצעת ספירה פשוטה. מכפילים את יכולת ההכללה ומעמידים קושי של התרחבות בלתי מוגבלת. סיום המהלך בנקודת הקריאה: הבחנה בין תיאור יחסים לבין מספר יחידות עצמאי מחויבת כאן.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.witness-law-53",
+      "gate_id": "bereshit",
+      "title": "עדות, לשון התורה ודרכי לימוד",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 53,
+        "to_pdf_page": 53,
+        "entry_pdf_page": 53,
+        "entry_anchor": "#page=53&view=FitH",
+        "range_end_anchor": "#page=53&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=53&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד מציב הבחנה בין עד בהקשרים משפטיים ובין דרך הקריאה בתורה.",
+        "question": "האם מעבירים דין ממקרה למקרה באמצעות לשון משותפת?",
+        "steps": [
+          "נבחן ההבדל בין מופעי אותה מילה בהקשרים שונים.",
+          "התשובות מבררות את תחום ההיקש."
+        ],
+        "source_references": [
+          "דיני עדות",
+          "לשון התורה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד מציב הבחנה בין עד בהקשרים משפטיים ובין דרך הקריאה בתורה. נבחן ההבדל בין מופעי אותה מילה בהקשרים שונים. התשובות מבררות את תחום ההיקש.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.pillars-65",
+      "gate_id": "bereshit",
+      "title": "יכין ובועז — דימוי עמודים ומידות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 65,
+        "to_pdf_page": 65,
+        "entry_pdf_page": 65,
+        "entry_anchor": "#page=65&view=FitH",
+        "range_end_anchor": "#page=65&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=65&view=FitH"
+      },
+      "content": {
+        "subject": "עמודי יכין ובועז משמשים בדף כמוטיב פרשני הקשור למידות, לכיסא ולנבואה.",
+        "question": null,
+        "steps": [
+          "מקשרים את העמודים לשמות המידות כפי שהם מובאים במקור.",
+          "אין לייחס לדימוי הזה מידות אדריכליות או מיקום תלת־ממדי שלא נקבעו."
+        ],
+        "source_references": [
+          "יכין ובועז",
+          "נצח",
+          "הוד"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמודי יכין ובועז משמשים בדף כמוטיב פרשני הקשור למידות, לכיסא ולנבואה. מקשרים את העמודים לשמות המידות כפי שהם מובאים במקור. אין לייחס לדימוי הזה מידות אדריכליות או מיקום תלת־ממדי שלא נקבעו.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.names-67",
+      "gate_id": "bereshit",
+      "title": "שמות, ברית ומשפחת יוסף ויהודה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 67,
+        "to_pdf_page": 67,
+        "entry_pdf_page": 67,
+        "entry_anchor": "#page=67&view=FitH",
+        "range_end_anchor": "#page=67&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=67&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון נע בין פירושי שמות לבין יחס של ברית וחיבור.",
+        "question": "איזו משמעות מדרשית מוענקת לשם?",
+        "steps": [
+          "נבחן פירוש לשם יוסף ובקשה להוסיף.",
+          "נזכרים קשרים בין שמות ומידות בלי הכרעת היסטוריה חיצונית."
+        ],
+        "source_references": [
+          "יוסף",
+          "יהודה",
+          "לוי"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדיון נע בין פירושי שמות לבין יחס של ברית וחיבור. נבחן פירוש לשם יוסף ובקשה להוסיף. נזכרים קשרים בין שמות ומידות בלי הכרעת היסטוריה חיצונית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.prayer-ten-72",
+      "gate_id": "bereshit",
+      "title": "עשרה, ציבור וכוונה — חילוף לנושא מעשי",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 72,
+        "to_pdf_page": 72,
+        "entry_pdf_page": 72,
+        "entry_anchor": "#page=72&view=FitH",
+        "range_end_anchor": "#page=72&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=72&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד כולל שאלות על מניין עשרה, תפילה וכוונה לצד שיח שמות.",
+        "question": "מתי נדרש ציבור ומתי הכוונה היא מקומית?",
+        "steps": [
+          "מפרידים את הדיון ההלכתי מן המניין הקבלי שבאותו דף.",
+          "אין להקיש ממספר המופיע כאן על מנוע חישובי."
+        ],
+        "source_references": [
+          "קריאת שמע",
+          "מניין"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד כולל שאלות על מניין עשרה, תפילה וכוונה לצד שיח שמות. מפרידים את הדיון ההלכתי מן המניין הקבלי שבאותו דף. אין להקיש ממספר המופיע כאן על מנוע חישובי.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.sabbath-80",
+      "gate_id": "bereshit",
+      "title": "הכנות שבת וקידוש היום",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 80,
+        "to_pdf_page": 80,
+        "entry_pdf_page": 80,
+        "entry_anchor": "#page=80&view=FitH",
+        "range_end_anchor": "#page=80&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=80&view=FitH"
+      },
+      "content": {
+        "subject": "המקור עוסק בהתנהגות בערב שבת ובקידוש היום, לצד שמירה מהרהורים והרגלים.",
+        "question": null,
+        "steps": [
+          "מזהים מעבר זמני מן המפה הקוסמולוגית להדרכה מעשית.",
+          "משייכים את הטענות לדובר הספר בלי להציגן כפסיקת הלכה בת־זמננו."
+        ],
+        "source_references": [
+          "שבת",
+          "קידוש"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "המקור עוסק בהתנהגות בערב שבת ובקידוש היום, לצד שמירה מהרהורים והרגלים. מזהים מעבר זמני מן המפה הקוסמולוגית להדרכה מעשית. משייכים את הטענות לדובר הספר בלי להציגן כפסיקת הלכה בת־זמננו.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.bereshit.legal-din-83",
+      "gate_id": "bereshit",
+      "title": "דין, רחמים והקשות הלכתיות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 83,
+        "to_pdf_page": 83,
+        "entry_pdf_page": 83,
+        "entry_anchor": "#page=83&view=FitH",
+        "range_end_anchor": "#page=83&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=83&view=FitH"
+      },
+      "content": {
+        "subject": "סיום החטיבה משלב פרטי דיני נגעים, כללי ויכוח והבחנה בין דין לרחמים.",
+        "question": "באיזה אופן כלל הלכתי מוגבל על ידי פרט?",
+        "steps": [
+          "מאתרים את ההקשה ההלכתית ולא מערבבים אותה עם סיפור הנחש.",
+          "עוקבים אחר ניסיון לצמצם הכללה רחבה באמצעות מקרה פרטי."
+        ],
+        "source_references": [
+          "דיני נגעים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "סיום החטיבה משלב פרטי דיני נגעים, כללי ויכוח והבחנה בין דין לרחמים. מאתרים את ההקשה ההלכתית ולא מערבבים אותה עם סיפור הנחש. עוקבים אחר ניסיון לצמצם הכללה רחבה באמצעות מקרה פרטי.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.light.emanation-84",
+      "gate_id": "light",
+      "title": "ויעש אלהים: מדת השפע והבאר",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 84,
+        "to_pdf_page": 84,
+        "entry_pdf_page": 84,
+        "entry_anchor": "#page=84&view=FitH",
+        "range_end_anchor": "#page=84&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=84&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד פותח עיון בלשון העשייה ומתאר את השפע בעזרת משל באר ושדה.",
+        "question": "כיצד מידת הקבלה נעשית גם מקור השפעה?",
+        "steps": [
+          "המשל מציג מדה המקבלת ומשפיעה לאחרים.",
+          "יש להבחין בין תיאור סמלי ובין מקום פיזי."
+        ],
+        "source_references": [
+          "ויעש אלהים",
+          "באר",
+          "שדה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד פותח עיון בלשון העשייה ומתאר את השפע בעזרת משל באר ושדה. המשל מציג מדה המקבלת ומשפיעה לאחרים. יש להבחין בין תיאור סמלי ובין מקום פיזי.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.light.divide-85",
+      "gate_id": "light",
+      "title": "האור והחושך: הבחנה בין יום ללילה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 85,
+        "to_pdf_page": 86,
+        "entry_pdf_page": 85,
+        "entry_anchor": "#page=85&view=FitH",
+        "range_end_anchor": "#page=86&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=85&view=FitH"
+      },
+      "content": {
+        "subject": "הדפים דנים בהבדלת האור מן החושך, בכינויים יום ולילה ובקשר בין מדות.",
+        "question": "מה נשתנה בקריאה לאור בשם יום?",
+        "steps": [
+          "הלשון המקראית נבחנת כשרשרת אמירה, הבדלה וקריאה בשם.",
+          "המחבר מציע פירוש במונחים של שפע, יסוד ודין."
+        ],
+        "source_references": [
+          "בראשית א",
+          "יום",
+          "לילה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדפים דנים בהבדלת האור מן החושך, בכינויים יום ולילה ובקשר בין מדות. הלשון המקראית נבחנת כשרשרת אמירה, הבדלה וקריאה בשם. המחבר מציע פירוש במונחים של שפע, יסוד ודין.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "multi_page_sequence_machine_located"
+    },
+    {
+      "id": "hapliah.light.day-night-87",
+      "gate_id": "light",
+      "title": "יום ולילה: דין, חסד והמשכה",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 87,
+        "to_pdf_page": 87,
+        "entry_pdf_page": 87,
+        "entry_anchor": "#page=87&view=FitH",
+        "range_end_anchor": "#page=87&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=87&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון קושר אור ולילה למידות המתוארות כממשיכות ופועלות זו עם זו.",
+        "question": "האם האור והלילה מתוארים כנפרדים לגמרי?",
+        "steps": [
+          "הדובר מקשר יום ללילה במנגנון של השפעה הדדית.",
+          "המטרה היא להסביר אחדות ולא להציג מדידה אסטרונומית."
+        ],
+        "source_references": [
+          "חסד",
+          "אמת",
+          "יום",
+          "לילה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדיון קושר אור ולילה למידות המתוארות כממשיכות ופועלות זו עם זו. הדובר מקשר יום ללילה במנגנון של השפעה הדדית. המטרה היא להסביר אחדות ולא להציג מדידה אסטרונומית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.light.evening-morning-89",
+      "gate_id": "light",
+      "title": "קריאה בשם וסדר ערב ובוקר",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 88,
+        "to_pdf_page": 89,
+        "entry_pdf_page": 88,
+        "entry_anchor": "#page=88&view=FitH",
+        "range_end_anchor": "#page=89&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=88&view=FitH"
+      },
+      "content": {
+        "subject": "עמודים אלה מתעכבים על קריאת השמות ועל סיום היום הראשון בלשון אחד.",
+        "question": "מדוע נאמר יום אחד ולא ראשון?",
+        "steps": [
+          "מבחינים בין כינוי האור לכינוי החושך.",
+          "הסיום מציג את ערב ובוקר יחד תחת מניין יום אחד."
+        ],
+        "source_references": [
+          "ויהי ערב",
+          "ויהי בקר"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמודים אלה מתעכבים על קריאת השמות ועל סיום היום הראשון בלשון אחד. מבחינים בין כינוי האור לכינוי החושך. הסיום מציג את ערב ובוקר יחד תחת מניין יום אחד.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "multi_page_sequence_machine_located"
+    },
+    {
+      "id": "hapliah.light.time-order-90",
+      "gate_id": "light",
+      "title": "למה ערב קודם לבוקר — קושיה לשונית",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 90,
+        "to_pdf_page": 91,
+        "entry_pdf_page": 90,
+        "entry_anchor": "#page=90&view=FitH",
+        "range_end_anchor": "#page=91&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=90&view=FitH"
+      },
+      "content": {
+        "subject": "הדובר מעלה שאלות על סדר ערב ובוקר וחזרת המילה ויהי.",
+        "question": "למה התורה מציגה ערב לפני בוקר ולא להפך?",
+        "steps": [
+          "מוצגת חלופה לשונית לסדר הפסוק.",
+          "הדובר מקשה על החלופה ומפתח הסבר על התהוותם של המושגים."
+        ],
+        "source_references": [
+          "בראשית א",
+          "ערב",
+          "בוקר"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדובר מעלה שאלות על סדר ערב ובוקר וחזרת המילה ויהי. מוצגת חלופה לשונית לסדר הפסוק. הדובר מקשה על החלופה ומפתח הסבר על התהוותם של המושגים.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "multi_page_sequence_machine_located"
+    },
+    {
+      "id": "hapliah.light.transition-92",
+      "gate_id": "light",
+      "title": "מעבר מן לשון היום למערכות הרקיע",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 92,
+        "to_pdf_page": 92,
+        "entry_pdf_page": 92,
+        "entry_anchor": "#page=92&view=FitH",
+        "range_end_anchor": "#page=92&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=92&view=FitH"
+      },
+      "content": {
+        "subject": "עמוד זה ממשיך התייחסויות לחושך, אור ורקיעים סמוך לתחילת חטיבת הכיסא.",
+        "question": null,
+        "steps": [
+          "השאלות על אור ולילה מתחברות למערכת העליונה המתוארת בהמשך.",
+          "נקודת מעבר שימושית לפתיחת עמוד 93."
+        ],
+        "source_references": [
+          "רקיעים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "עמוד זה ממשיך התייחסויות לחושך, אור ורקיעים סמוך לתחילת חטיבת הכיסא. השאלות על אור ולילה מתחברות למערכת העליונה המתוארת בהמשך. נקודת מעבר שימושית לפתיחת עמוד 93.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.palaces.throne-93",
+      "gate_id": "palaces",
+      "title": "שאלת ריבוי הכיסאות ותארי הכבוד",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 93,
+        "to_pdf_page": 93,
+        "entry_pdf_page": 93,
+        "entry_anchor": "#page=93&view=FitH",
+        "range_end_anchor": "#page=93&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=93&view=FitH"
+      },
+      "content": {
+        "subject": "הדובר שואל על כיסאות ותארים שונים שלהם, ובצד אחר בדף מציג דימוי של כלי מלכות והדום.",
+        "question": "כמה כיסאות ותארים נמנים ומהו מעמדם?",
+        "steps": [
+          "מקבצים שמות ותארים שנאמרו על הכיסא.",
+          "מפרידים את התארים מן השאלה על מה שמתחת לכיסא.",
+          "דימויי כתר, שרביט והדום אינם ממציאים רכיבי מודל נוספים."
+        ],
+        "source_references": [
+          "כיסא הכבוד",
+          "כתר",
+          "שרביט"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדובר שואל על כיסאות ותארים שונים שלהם, ובצד אחר בדף מציג דימוי של כלי מלכות והדום. מקבצים שמות ותארים שנאמרו על הכיסא. מפרידים את התארים מן השאלה על מה שמתחת לכיסא. דימויי כתר, שרביט והדום אינם ממציאים רכיבי מודל נוספים.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.palaces.palaces-94",
+      "gate_id": "palaces",
+      "title": "רצף ההיכלות ותפקידיהם",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 94,
+        "to_pdf_page": 94,
+        "entry_pdf_page": 94,
+        "entry_anchor": "#page=94&view=FitH",
+        "range_end_anchor": "#page=94&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=94&view=FitH"
+      },
+      "content": {
+        "subject": "הדף מונה היכלות ומייחס תפקידים ושמות של ממונים לפי רצף תיאורי.",
+        "question": "מה מתואר בכל היכל וכיצד מתקדמים ביניהם?",
+        "steps": [
+          "מאתרים תפקידי היכלות ולא מסתפקים במספר כולל.",
+          "מבחינים בין הרכיב המתואר לבין פירושו.",
+          "שומרים על הסדר שהמקור קובע ולא מסיקים צורה גאומטרית."
+        ],
+        "source_references": [
+          "היכלות",
+          "מלאכים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף מונה היכלות ומייחס תפקידים ושמות של ממונים לפי רצף תיאורי. מאתרים תפקידי היכלות ולא מסתפקים במספר כולל. מבחינים בין הרכיב המתואר לבין פירושו. שומרים על הסדר שהמקור קובע ולא מסיקים צורה גאומטרית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.palaces.printed-schematic-95",
+      "gate_id": "palaces",
+      "title": "תרשים מודפס של היכלות, מלאכים וספירות",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 95,
+        "to_pdf_page": 95,
+        "entry_pdf_page": 95,
+        "entry_anchor": "#page=95&view=FitH",
+        "range_end_anchor": "#page=95&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=95&view=FitH"
+      },
+      "content": {
+        "subject": "העמוד כולל טקסט ופריסה תרשימית צפופה, שבה נזכרים היכלות ושמות מלאכים.",
+        "question": "כיצד התרשים עצמו מחבר בין שמות לרכיבים?",
+        "steps": [
+          "רושמים שרכיבי התרשים דורשים עיון חזותי ולא שיחזור מטקסט מכונה.",
+          "אין למלא תא בלתי קריא או להסיק חץ מתוך הקרבה בתרשים."
+        ],
+        "source_references": [
+          "היכל",
+          "מיכאל",
+          "גבריאל",
+          "אוריאל"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "העמוד כולל טקסט ופריסה תרשימית צפופה, שבה נזכרים היכלות ושמות מלאכים. רושמים שרכיבי התרשים דורשים עיון חזותי ולא שיחזור מטקסט מכונה. אין למלא תא בלתי קריא או להסיק חץ מתוך הקרבה בתרשים. מיפוי פרטני של רכיבי התמונה נשאר פתוח.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.palaces.orbits-96",
+      "gate_id": "palaces",
+      "title": "גלגלים והנחיות פירושם",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 96,
+        "to_pdf_page": 96,
+        "entry_pdf_page": 96,
+        "entry_anchor": "#page=96&view=FitH",
+        "range_end_anchor": "#page=96&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=96&view=FitH"
+      },
+      "content": {
+        "subject": "הדף מציג רצף גלגלים ומייחס לחלקם תחומי השפעה בתוך שפה קוסמולוגית.",
+        "question": "האם תכונה של גלגל היא רכיב במבנה או פירוש לפעולה?",
+        "steps": [
+          "נבדלים שמות הגלגלים מתיאורי תכונות המיוחסים להם.",
+          "תיאור כוכבי לכת אינו ראיה לעמדתם הגאומטרית בציור."
+        ],
+        "source_references": [
+          "גלגל שבתאי",
+          "גלגל צדק",
+          "גלגל מאדים",
+          "גלגל חמה",
+          "גלגל נוגה",
+          "גלגל כוכב",
+          "גלגל לבנה"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדף מציג רצף גלגלים ומייחס לחלקם תחומי השפעה בתוך שפה קוסמולוגית. נבדלים שמות הגלגלים מתיאורי תכונות המיוחסים להם. תיאור כוכבי לכת אינו ראיה לעמדתם הגאומטרית בציור.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.palaces.ranks-97",
+      "gate_id": "palaces",
+      "title": "שערי רקיעים, סדרי מלאכים והכיסא",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 97,
+        "to_pdf_page": 97,
+        "entry_pdf_page": 97,
+        "entry_anchor": "#page=97&view=FitH",
+        "range_end_anchor": "#page=97&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון ממשיך בתיאור שערים, מלאכים, חיות הקדש וכיסא הכבוד.",
+        "question": "מהו סדר המעלות שמוזכר?",
+        "steps": [
+          "המקור מציג דרגות ותפקידי שמירה.",
+          "העלייה בתיאור אינה מרשה לצייר ממדים או מרחקים בלתי נתונים."
+        ],
+        "source_references": [
+          "רקיעים",
+          "חיות הקדש",
+          "כיסא הכבוד"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדיון ממשיך בתיאור שערים, מלאכים, חיות הקדש וכיסא הכבוד. המקור מציג דרגות ותפקידי שמירה. העלייה בתיאור אינה מרשה לצייר ממדים או מרחקים בלתי נתונים.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.palaces.four-camps-98",
+      "gate_id": "palaces",
+      "title": "ארבעה מחנות ומיקומם היחסי",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 98,
+        "to_pdf_page": 99,
+        "entry_pdf_page": 98,
+        "entry_anchor": "#page=98&view=FitH",
+        "range_end_anchor": "#page=99&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=98&view=FitH"
+      },
+      "content": {
+        "subject": "הדפים מציגים ארבעה מחנות סביב השכינה, עם שמות מלאכים ויחסי צדדים.",
+        "question": "באיזה צד מופיע כל מחנה?",
+        "steps": [
+          "ממיינים את המחנות והשמות המיוחסים להם.",
+          "בודקים את לשון ימין, שמאל, לפניו ומאחוריו במקומה; אין להמירה אוטומטית למפת רוחות."
+        ],
+        "source_references": [
+          "מיכאל",
+          "גבריאל",
+          "אוריאל",
+          "רפאל"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדפים מציגים ארבעה מחנות סביב השכינה, עם שמות מלאכים ויחסי צדדים. ממיינים את המחנות והשמות המיוחסים להם. בודקים את לשון ימין, שמאל, לפניו ומאחוריו במקומה; אין להמירה אוטומטית למפת רוחות.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "multi_page_sequence_machine_located"
+    },
+    {
+      "id": "hapliah.palaces.banners-100",
+      "gate_id": "palaces",
+      "title": "דגלי השבטים וארבע רוחות העולם",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 100,
+        "to_pdf_page": 101,
+        "entry_pdf_page": 100,
+        "entry_anchor": "#page=100&view=FitH",
+        "range_end_anchor": "#page=101&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=100&view=FitH"
+      },
+      "content": {
+        "subject": "הדפים מציגים דגלי מחנות ישראל לפי רוחות השמים, ומקשרים אותם לארבע קבוצות של שבטים.",
+        "question": "כיצד ארבעת הדגלים מתייחסים לשנים־עשר שבטים?",
+        "steps": [
+          "מופיעים דגל יהודה למזרח, ראובן לדרום, דן לצפון ואפרים למערב.",
+          "בהמשך מסופר על חלוקת השבטים לשלושה לכל דגל ועל הקבלות למזלות."
+        ],
+        "source_references": [
+          "יהודה",
+          "ראובן",
+          "דן",
+          "אפרים",
+          "שנים־עשר שבטים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדפים מציגים דגלי מחנות ישראל לפי רוחות השמים, ומקשרים אותם לארבע קבוצות של שבטים. מופיעים דגל יהודה למזרח, ראובן לדרום, דן לצפון ואפרים למערב. בהמשך מסופר על חלוקת השבטים לשלושה לכל דגל ועל הקבלות למזלות.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "multi_page_sequence_machine_located"
+    },
+    {
+      "id": "hapliah.creation-days.day-two-102",
+      "gate_id": "creation-days",
+      "title": "למה ביום השני לא נאמר כי טוב",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 102,
+        "to_pdf_page": 102,
+        "entry_pdf_page": 102,
+        "entry_anchor": "#page=102&view=FitH",
+        "range_end_anchor": "#page=102&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=102&view=FitH"
+      },
+      "content": {
+        "subject": "הספר שואל על השמטת כי טוב ביום השני, ומשיב באמצעות מתח בין מים לאש והמשך הדברים ביום השלישי.",
+        "question": "מה חסר ביום השני כדי שייאמר עליו כי טוב?",
+        "steps": [
+          "השאלה מעוגנת בלשון ימי הבריאה.",
+          "נבחנת אי־ההשלמה של ההבדלה והשלמתה בהופעת היבשה."
+        ],
+        "source_references": [
+          "בראשית א",
+          "יקוו המים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הספר שואל על השמטת כי טוב ביום השני, ומשיב באמצעות מתח בין מים לאש והמשך הדברים ביום השלישי. השאלה מעוגנת בלשון ימי הבריאה. נבחנת אי־ההשלמה של ההבדלה והשלמתה בהופעת היבשה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.creation-days.gathering-103",
+      "gate_id": "creation-days",
+      "title": "יקוו המים: מקור, מאגר וים",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 103,
+        "to_pdf_page": 103,
+        "entry_pdf_page": 103,
+        "entry_anchor": "#page=103&view=FitH",
+        "range_end_anchor": "#page=103&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=103&view=FitH"
+      },
+      "content": {
+        "subject": "המקור דורש את קיבוץ המים דרך יחסי מקוה, ים ויסוד.",
+        "question": "מה משמעות כינוס המים למקום אחד?",
+        "steps": [
+          "מבודדים את לשון הפסוק ממושגי הדרשה.",
+          "הדיון משתמש במשל זרימת מים והשפעה."
+        ],
+        "source_references": [
+          "יקוו המים",
+          "ים",
+          "יסוד"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "המקור דורש את קיבוץ המים דרך יחסי מקוה, ים ויסוד. מבודדים את לשון הפסוק ממושגי הדרשה. הדיון משתמש במשל זרימת מים והשפעה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.creation-days.vegetation-104",
+      "gate_id": "creation-days",
+      "title": "הארץ מוציאה דשא — משל הזרע והשפע",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 104,
+        "to_pdf_page": 104,
+        "entry_pdf_page": 104,
+        "entry_anchor": "#page=104&view=FitH",
+        "range_end_anchor": "#page=104&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=104&view=FitH"
+      },
+      "content": {
+        "subject": "בתוך דרשות היום השלישי מופיעים דשא, זרע ופירות, יחד עם סיפור מסירה המיוחס לאליהו.",
+        "question": "כיצד משמש הצמח כדוגמה ליציאה מן הכוח אל הפועל?",
+        "steps": [
+          "מזהים את שלבי הזנה, הזרעה וצמיחה בדברי הדרשה.",
+          "מפרידים סיפור המסירה מטענה בוטנית מדעית."
+        ],
+        "source_references": [
+          "דשא",
+          "זרע",
+          "אליהו"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "בתוך דרשות היום השלישי מופיעים דשא, זרע ופירות, יחד עם סיפור מסירה המיוחס לאליהו. מזהים את שלבי הזנה, הזרעה וצמיחה בדברי הדרשה. מפרידים סיפור המסירה מטענה בוטנית מדעית.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    },
+    {
+      "id": "hapliah.creation-days.luminaries-105",
+      "gate_id": "creation-days",
+      "title": "ויהי מאורות: שני מאורות והכוכבים",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 105,
+        "to_pdf_page": 106,
+        "entry_pdf_page": 105,
+        "entry_anchor": "#page=105&view=FitH",
+        "range_end_anchor": "#page=106&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=105&view=FitH"
+      },
+      "content": {
+        "subject": "הדפים עוברים אל המאורות: תפקידי היום והלילה, המאור הגדול והקטן והכוכבים.",
+        "question": "איך נבדלות פעולות המאורות?",
+        "steps": [
+          "מופיע מעבר מן הציווי על המאורות אל חלוקת ממשלת היום והלילה.",
+          "המחבר מפרש את המאורות גם ביחס למידות ולשפע."
+        ],
+        "source_references": [
+          "מאור גדול",
+          "מאור קטן",
+          "כוכבים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדפים עוברים אל המאורות: תפקידי היום והלילה, המאור הגדול והקטן והכוכבים. מופיע מעבר מן הציווי על המאורות אל חלוקת ממשלת היום והלילה. המחבר מפרש את המאורות גם ביחס למידות ולשפע.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "multi_page_sequence_machine_located"
+    },
+    {
+      "id": "hapliah.creation-days.sea-life-107",
+      "gate_id": "creation-days",
+      "title": "התנינים הגדולים ועוף השמים",
+      "unit_type": "book_discussion",
+      "source": {
+        "source_identity": "book:hebrewbooks:6355",
+        "from_pdf_page": 107,
+        "to_pdf_page": 107,
+        "entry_pdf_page": 107,
+        "entry_anchor": "#page=107&view=FitH",
+        "range_end_anchor": "#page=107&view=FitH",
+        "entry_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=107&view=FitH"
+      },
+      "content": {
+        "subject": "הדיון פונה לבריאת בעלי החיים, התנינים והעופות ומשלב שמות מלאכים.",
+        "question": "כיצד נדרשים יצורי המים והעוף בתוך מערכת המידות?",
+        "steps": [
+          "מבחינים בשמות הברואים המופיעים בפסוק.",
+          "ההסבר משלב זיקות למלאכים ולכוחות, שאין להציגם כזואולוגיה."
+        ],
+        "source_references": [
+          "התנינים הגדולים",
+          "עוף השמים"
+        ],
+        "conclusion": null
+      },
+      "companion_explanation": "הדיון פונה לבריאת בעלי החיים, התנינים והעופות ומשלב שמות מלאכים. מבחינים בשמות הברואים המופיעים בפסוק. ההסבר משלב זיקות למלאכים ולכוחות, שאין להציגם כזואולוגיה.",
+      "layer": "הסבר נלווה",
+      "witness_quote": null,
+      "printed_commentary_quote": null,
+      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "engine_verification": "not_tested",
+      "range_review_status": "single_page_locator"
+    }
+  ],
+  "structure_specs": [],
+  "unresolved": [
+    {
+      "id": "hp-gap-visual-source",
+      "severity": "blocking_exact_witness_claim",
+      "description": "No direct PDF visual review established; machine-extracted Hebrew is noisy and interleaved across printed columns."
+    },
+    {
+      "id": "hp-gap-chart-95",
+      "severity": "targeted_visual_review",
+      "description": "Dense diagram at PDF 95 needs visual component-by-component adjudication before a model."
+    },
+    {
+      "id": "hp-gap-remaining-gates",
+      "severity": "in_progress",
+      "description": "Gates human-image through adam-noah require next bounded content batch."
+    },
+    {
+      "id": "hp-gap-reader-wiring",
+      "severity": "out_of_scope",
+      "description": "Existing shared BookSourceReader and book manifest not edited; independent internal-map UI remains unwired while page-level companion can render in Preview."
+    }
+  ]
+}
