@@ -21,6 +21,10 @@ test("cross matcher admits adjacent cells and rejects gaps without changing the 
   ctx.axis={skip:10,positions:[0,10,20]};ctx.rare=new Map([["שבת",1]]);
   const connected=vm.runInContext('crossFindMultiHit(axis,0,["שבת"],5,rare,1,{scopeLength:80,connectedOnly:true})',ctx);
   assert.equal(connected.detail[0].p0,21);assert.equal(connected.detail[0].step,1);
+  const zeroGap=vm.runInContext('crossFindMultiHit(axis,0,["שבת"],5,rare,1,{scopeLength:80,maxLetterGap:0})',ctx);
+  assert.equal(zeroGap.detail[0].p0,21);assert.equal(zeroGap.detail[0].step,1);
+  const oneGap=vm.runInContext('crossFindMultiHit(axis,0,["שבת"],5,rare,1,{scopeLength:80,maxLetterGap:1})',ctx);
+  assert.equal(oneGap.detail[0].p0,1);assert.equal(oneGap.detail[0].step,2);
   const legacy=vm.runInContext('crossFindMultiHit(axis,0,["שבת"],5,rare,1,{scopeLength:80})',ctx);
   assert.equal(legacy.detail[0].p0,1);assert.equal(legacy.detail[0].step,2);
 });

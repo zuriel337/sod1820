@@ -2580,6 +2580,11 @@
       const req=d.request,kind=req.kind,term=typeof req.term==="string"?req.term.trim():"";
       if(operation&&EXPR2029)operation.windowSize=NATIVE_WINDOWS[req.windowSize]?req.windowSize:"small";
       const scope=req.scope==="tanakh"?"tanakh":"torah";
+      if(kind==="cross"||kind==="cross-three"){
+        const gap=req.maxLetterGap===undefined?0:req.maxLetterGap;
+        if(!Number.isInteger(gap)||gap<0||gap>20){operationStatus(operation,"error","בחרו מרווח בין אותיות מ־0 עד 20 תאים.");return;}
+        if(operation)operation.maxLetterGap=gap;
+      }
       if(kind==="continue"){continueNativeSearch(req,operation);return;}
       if(kind==="cross-continue"){continueNativeCross(req,operation);return;}
       if(kind==="cross-three"){
@@ -2788,7 +2793,8 @@
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=SN)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
         if(!ok)continue;
-        if(window.connectedOnly===true&&pos.some((p,k)=>k>0&&(Math.abs(Math.floor(p/S)-Math.floor(pos[k-1]/S))>1||Math.abs((p%S)-(pos[k-1]%S))>1)))continue;
+        const maxStep=Number.isInteger(window.maxLetterGap)?window.maxLetterGap+1:window.connectedOnly===true?1:null;
+        if(maxStep!==null&&pos.some((p,k)=>k>0&&(Math.abs(Math.floor(p/S)-Math.floor(pos[k-1]/S))>maxStep||Math.abs((p%S)-(pos[k-1]%S))>maxStep)))continue;
         const cc=distanceToAnchors(pos,anchorCells,S);
         if(cc<bc){bc=cc;bsk=sk;bdir=d;bs0=s0;}}
       if(bc<=pure){const step=gridStep(bsk,S),gf=gapF(step),pf=proxF(bc),rf=rarF(rar.get(t));
@@ -2925,7 +2931,7 @@
     try{
       await prefetchVerified(terms,operation);if(epoch!==_matrixRequestSeq)return;
       if(terms.some(term=>faMemo(term).verr)){operationStatus(operation,"error","אימות הצירים לא הושלם.");return;}
-      const window={...nativeWindow(operation?.windowSize||"small",pure,terms),scopeLength:scopeN(),connectedOnly:true};
+      const window={...nativeWindow(operation?.windowSize||"small",pure,terms),scopeLength:scopeN(),maxLetterGap:operation?.maxLetterGap??0};
       const progress={completed:0,total:terms.reduce((n,t)=>n+Math.min(150,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length),0),startedAt:Date.now()};
       const runs=[];for(const axis of terms){const others=terms.filter(t=>norm(t)!==norm(axis));runs.push(await crossFindBounded(axis,others,pure,window,operation,progress,epoch));}
       if(epoch!==_matrixRequestSeq)return;
@@ -3005,7 +3011,7 @@
       try{
       await prefetchVerified([A,B],operation);   // 🧬 G3: שני הצירים מאומתים בשרת לפני הדירוג/גאומטריה (faMemo קורא מהמטמון המאומת)
       if(requestSeq!==_matrixRequestSeq)return;
-      const window={...(operation?.windowSize?nativeWindow(operation.windowSize,pure,[A,B]):searchWindowSnapshot()),scopeLength:scopeN(),connectedOnly:!!(operation&&EXPR2029)};
+      const window={...(operation?.windowSize?nativeWindow(operation.windowSize,pure,[A,B]):searchWindowSnapshot()),scopeLength:scopeN(),...(operation&&EXPR2029?{maxLetterGap:operation.maxLetterGap??0}:{})};
       const progress={completed:0,total:[A,B].reduce((n,t)=>n+Math.min(150,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length),0),startedAt:Date.now()};
       const r1=await crossFindBounded(A,[B],pure,window,operation,progress,requestSeq);
       const r2=await crossFindBounded(B,[A],pure,window,operation,progress,requestSeq);

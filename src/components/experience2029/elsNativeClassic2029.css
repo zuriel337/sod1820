@@ -103,11 +103,6 @@
   grid-template-columns:1fr;
   gap:8px;
 }
-.els29-native-third-axis{display:grid;gap:10px;padding:12px;border:1px solid var(--s29-line);border-radius:14px;background:var(--s29-panel-soft)}
-.els29-native-third-axis header,.els29-native-third-axis form,.els29-native-third-axis article,.els29-native-third-axis article>div,.els29-native-third-axis [data-els-third-axis-contract]{display:grid;gap:8px;min-width:0}
-.els29-native-third-axis small{display:block;color:var(--s29-muted);line-height:1.5}
-.els29-native-third-axis fieldset{display:flex;flex-wrap:wrap;gap:8px;border:1px solid var(--s29-line);border-radius:10px;min-width:0}
-.els29-native-third-axis fieldset label{display:flex;align-items:center;gap:6px}
 .els29-native-notice{
   padding:9px 12px;
   border:1px solid var(--s29-line);

@@ -1010,6 +1010,8 @@ async function reliabilityCross(page, axis, term) {
   await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill(axis);
   if(!(await page.locator('.els29-native-cross-row').count()))await activate(page,'הצלבה בין צירים');
   await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill(term);
+  // Historical exact-result goldens exercise the formerly broad search explicitly; default zero-gap is tested separately.
+  await page.getByRole('slider',{name:'מרווח מרבי בין אותיות הממצא בהצלבה'}).fill('20');
   await activate(page,'חפש הצלבה');
   await page.waitForFunction(n=>window.__operation?.kind==='search'&&window.__operation.requestId>n&&window.__operation.status==='done',seq,{timeout:90000});
   return page.evaluate(()=>window.__state);
@@ -1048,6 +1050,7 @@ test('native transition: minus-two reading layout preserves exact cells and open
     assert.equal(await page.evaluate(()=>window.__lens.letter),'ב');
     await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('צוריאל');await activate(page,'הצלבה בין צירים');
     await page.getByRole('textbox',{name:'מונח שני',exact:true}).fill('פולייס');
+    await page.getByRole('slider',{name:'מרווח מרבי בין אותיות הממצא בהצלבה'}).fill('20');
     assert.equal(await button(page,'חפש הצלבה').count(),1,'one submission control for the active search mode');
     assert.equal(await button(page,'חפש').count(),0);
     // Enter in the PRIMARY input must honor the open cross mode as well.
@@ -1867,22 +1870,26 @@ test('research form: optional third axis uses the existing verified triple or th
   const form=page.locator('#els29-query');
   await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
   const first=form.getByRole('textbox',{name:'מונח ראשון'}), second=form.getByRole('textbox',{name:'מונח שני'}), third=form.getByRole('textbox',{name:'מונח שלישי · לא חובה'});
+  const gap=form.getByRole('slider',{name:'מרווח מרבי בין אותיות הממצא בהצלבה'});
+  assert.equal(await gap.inputValue(),'0');
   await first.fill('תורהקדשה');await second.fill('בחשרתע');await third.fill('כויזלת');
   const before=await page.evaluate(()=>window.__operation?.requestId||0);
   await form.getByRole('button',{name:'חפש הצלבה'}).click();
   await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),before,{timeout:120000});
   const triple=await page.evaluate(()=>({operation:window.__operation,state:window.__state,requests:window.__log.filter(x=>x.type==='engine-request')}));
   assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').at(-1)?.request?.kind),'cross-three');
+  assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').at(-1)?.request?.maxLetterGap),0);
   assert.equal(triple.operation.status,'done',JSON.stringify(triple.operation));
   assert.equal(triple.state.verification.state,'MATCH');
   assert.ok(triple.state.search.results.items.every(item=>!item.available||item.terms.length===2));
   assert.ok(triple.requests.filter(request=>request.op==='verify_batch'&&request.payload?.strategy?.policy==='GUIDED_THREE_TERM_REPLAY_V1').length>=2);
   assert.equal(await first.inputValue(),'תורהקדשה');assert.equal(await second.inputValue(),'בחשרתע');assert.equal(await third.inputValue(),'כויזלת');
   assert.ok((await page.locator('[aria-label="רשימת מפגשי ההצלבה"]').innerText()).includes('תורהקדשה × בחשרתע × כויזלת'));
-  await third.clear();await form.getByRole('button',{name:'חפש הצלבה'}).click();
+  await third.clear();await gap.fill('1');await form.getByRole('button',{name:'חפש הצלבה'}).click();
   await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),triple.operation.requestId,{timeout:120000});
   assert.equal((await page.evaluate(()=>window.__operation)).status,'done');
   assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').at(-1)?.request?.kind),'cross');
+  assert.equal(await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').at(-1)?.request?.maxLetterGap),1);
   const count=await page.evaluate(()=>window.__hostLog.filter(x=>x.type==='native-search').length);
   await third.fill('בחשרתע');await form.getByRole('button',{name:'חפש הצלבה'}).click();
   assert.ok(await page.getByText('להצלבה משולשת נדרשים שלושה מונחים שונים, בני 2–12 אותיות כל אחד.').isVisible());
@@ -1891,7 +1898,7 @@ test('research form: optional third axis uses the existing verified triple or th
  },{realHost:true,loadGolden:false});
 });
 
-test('research can inspect a third term within existing verified pair meetings',
+test('research keeps the additional third-axis tool hidden while its engine contract stays verified',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
  await withNative({width:320,height:900},async page=>{
   const form=page.locator('#els29-query');await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
@@ -1899,9 +1906,9 @@ test('research can inspect a third term within existing verified pair meetings',
   await form.getByRole('button',{name:'חפש הצלבה'}).click();
   await page.waitForFunction(()=>window.__operation?.status==='done',null,{timeout:90000});
   const original=await page.evaluate(()=>({id:window.__state.search.results.id,axis:window.__state.axis.hitId,count:window.__hostLog.filter(x=>x.type==='native-search').length}));
-  const tool=page.getByRole('region',{name:'חיפוש ציר שלישי בתוך מפגשי ההצלבה'});
-  await tool.getByRole('textbox',{name:'המילה או השם השלישי'}).fill('כויזלת');
-  await tool.getByRole('button',{name:'מצא ציר שלישי'}).click();
+  assert.equal(await page.getByRole('region',{name:'חיפוש ציר שלישי בתוך מפגשי ההצלבה'}).count(),0);
+  const request={setId:original.id,term:'כויזלת',meetingScope:'selected',meetingIndex:0,maxDistance:18,nativeSeq:999};
+  await page.locator('iframe').evaluate((frame,target)=>frame.contentWindow.postMessage({source:'sod-host',type:'request-lens',lens:'cross-third-axis',target},location.origin),request);
   await page.waitForFunction(()=>window.__lens?.lens==='cross-third-axis',null,{timeout:90000});
   const result=await page.evaluate(()=>({lens:window.__lens,state:window.__state,count:window.__hostLog.filter(x=>x.type==='native-search').length}));
   assert.equal(result.lens.ok,true,JSON.stringify(result.lens));
@@ -1909,7 +1916,7 @@ test('research can inspect a third term within existing verified pair meetings',
   assert.ok(result.lens.items.length>0,'a known third axis is returned, not merely an empty successful response');
   assert.ok(result.lens.items.every(item=>['VERIFIED','SOURCE_EXACT'].includes(item.status)));
   await page.evaluate(()=>{window.__fixtureVerificationDenied=true;window.__lens=null;});
-  await tool.getByRole('button',{name:'מצא ציר שלישי'}).click();
+  await page.locator('iframe').evaluate((frame,target)=>frame.contentWindow.postMessage({source:'sod-host',type:'request-lens',lens:'cross-third-axis',target},location.origin),request);
   await page.waitForFunction(()=>window.__lens?.lens==='cross-third-axis',null,{timeout:90000});
   assert.equal((await page.evaluate(()=>window.__lens)).ok,false,'verification outage cannot be reported as no-hit or a verified third axis');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -1949,6 +1956,11 @@ test('connected cross results expose only adjacent letters',
     assert.ok(positions.slice(1).every((p,i)=>Math.abs(Math.floor(p/S)-Math.floor(positions[i]/S))<=1&&Math.abs(p%S-positions[i]%S)<=1));
    }
   }
+  await form.getByRole('slider',{name:'מרווח מרבי בין אותיות הממצא בהצלבה'}).fill('20');
+  await form.getByRole('button',{name:'חפש הצלבה'}).click();
+  await page.waitForFunction(id=>window.__operation?.requestId>id&&['done','empty','error'].includes(window.__operation.status),observed.operation.requestId,{timeout:90000});
+  const wide=await page.evaluate(()=>({status:window.__operation.status,items:window.__state?.search?.results?.items?.length||0}));
+  assert.notEqual(wide.status,'error');t.diagnostic(JSON.stringify({width,scope,gap:20,...wide}));
  },{realHost:true,loadGolden:false});
 });
 
