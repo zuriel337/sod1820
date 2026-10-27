@@ -12,10 +12,30 @@
       10,
       18,
       60,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
       93,
       94,
       95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
       102,
+      103,
+      104,
+      105,
+      106,
+      107,
       113,
       120,
       130,
@@ -141,7 +161,7 @@
     "engine_verification": "not_tested",
     "preview_policy": "Written approved source material may render without engine; no engine-verified claim",
     "spatial_policy": "CONTENT_SPEC_ONLY_NO_3D_RENDERER_BINDING",
-    "visual_page_review_scope": "הדף המקורי נפתח ונבדק חזותית לפריסה, כותרת, נושא או הופעת תרשים בלבד. אין מכאן אימות מלא של נוסח, מניין, ייחוס פירוש או גבולות יחידה.",
+    "visual_page_review_scope": "32 עמודי PDF נפתחו כתמונת מקור: חלקם דפים מלאים, ורצף 84–107 נסקר בגיליונות ארבעה־דפים. עמודי contact sheet קיבלו בדיקת פריסה בלבד. אין אישור תעתוק, מניינים או גבולות רב־עמודיים.",
     "visual_pdf_sha256_checked": "92cb911c36cb1b9c2b3e80607c36455178ae89e3831611bf31da042f5d54bf08"
   },
   "gates": [
@@ -422,7 +442,7 @@
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.bereshit.letters-11",
@@ -597,7 +617,7 @@
       "witness_quote": null,
       "printed_commentary_quote": null,
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator"
     },
@@ -880,7 +900,7 @@
       "witness_quote": null,
       "printed_commentary_quote": null,
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator"
     },
@@ -1162,9 +1182,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.light.divide-85",
@@ -1198,9 +1219,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "multi_page_sequence_machine_located"
+      "range_review_status": "multi_page_sequence_machine_located",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.light.day-night-87",
@@ -1235,9 +1257,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.light.evening-morning-89",
@@ -1270,9 +1293,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "multi_page_sequence_machine_located"
+      "range_review_status": "multi_page_sequence_machine_located",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.light.time-order-90",
@@ -1306,9 +1330,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "multi_page_sequence_machine_located"
+      "range_review_status": "multi_page_sequence_machine_located",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.light.transition-92",
@@ -1340,9 +1365,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.palaces.throne-93",
@@ -1380,7 +1406,7 @@
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.palaces.palaces-94",
@@ -1417,7 +1443,7 @@
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.palaces.printed-schematic-95",
@@ -1455,7 +1481,7 @@
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.palaces.orbits-96",
@@ -1493,9 +1519,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "full_page_diagram_layout_no_exact_legend"
     },
     {
       "id": "hapliah.palaces.ranks-97",
@@ -1529,9 +1556,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "full_page_diagram_layout_no_exact_legend"
     },
     {
       "id": "hapliah.palaces.four-camps-98",
@@ -1566,9 +1594,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "multi_page_sequence_machine_located"
+      "range_review_status": "multi_page_sequence_machine_located",
+      "witness_visual_scope": "full_page_diagram_layout_no_exact_legend"
     },
     {
       "id": "hapliah.palaces.banners-100",
@@ -1604,9 +1633,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "multi_page_sequence_machine_located"
+      "range_review_status": "multi_page_sequence_machine_located",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.creation-days.day-two-102",
@@ -1642,7 +1672,7 @@
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.creation-days.gathering-103",
@@ -1676,9 +1706,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.creation-days.vegetation-104",
@@ -1712,9 +1743,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.creation-days.luminaries-105",
@@ -1748,9 +1780,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "multi_page_sequence_machine_located"
+      "range_review_status": "multi_page_sequence_machine_located",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.creation-days.sea-life-107",
@@ -1783,9 +1816,10 @@
       "layer": "הסבר נלווה",
       "witness_quote": null,
       "printed_commentary_quote": null,
-      "source_review_status": "machine_text_located_pending_visual_witness_check",
+      "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
-      "range_review_status": "single_page_locator"
+      "range_review_status": "single_page_locator",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.human-image.creation-108",
@@ -1891,7 +1925,7 @@
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.human-image.names-115",
@@ -1963,7 +1997,7 @@
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.human-image.tzelem-130",
@@ -1997,7 +2031,7 @@
       "witness_quote": null,
       "printed_commentary_quote": null,
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range",
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator"
     },
@@ -2070,7 +2104,7 @@
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.human-image.silver-gold-160",
@@ -2106,7 +2140,7 @@
       "source_review_status": "visual_page_layout_checked_text_unadjudicated",
       "engine_verification": "not_tested",
       "range_review_status": "single_page_locator",
-      "witness_visual_scope": "layout_subject_only_not_full_text_or_exact_range"
+      "witness_visual_scope": "page_layout_not_full_text_or_exact_range"
     },
     {
       "id": "hapliah.human-image.chariot-166",
@@ -3866,6 +3900,18 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=99&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           }
+        },
+        {
+          "id": "hp.print-table-98",
+          "label": "טבלה מודפסת בעמוד 98",
+          "description": "טבלת שורות וכותרות המופיעה בסמיכות לדיון; לא הוכרע שיוך כל שורה/תיבה",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 98,
+            "anchor": "#page=98&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=98&view=FitH",
+            "review_status": "printed_visual_layout_checked_text_labels_pending"
+          }
         }
       ],
       "relations": [
@@ -4187,6 +4233,30 @@
             "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
             "review_status": "machine_locator_pending_visual_verification"
           }
+        },
+        {
+          "id": "hp.print-nested-96",
+          "label": "מסגרות מקוננות בעמוד 96",
+          "description": "עיצוב תרשימי מודפס של שורות ממוסגרות זו בתוך זו; אין פירוש מרחבי מוכח",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 96,
+            "anchor": "#page=96&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=96&view=FitH",
+            "review_status": "printed_visual_layout_checked_text_labels_pending"
+          }
+        },
+        {
+          "id": "hp.print-circle-97",
+          "label": "תרשים עגול בעמוד 97",
+          "description": "ציור מעגלי ושטחים מחולקים עם טקסט; אין ייצוג תלת־ממדי משוחזר",
+          "source": {
+            "book_slug": "sefer-hapliah",
+            "pdf_page": 97,
+            "anchor": "#page=97&view=FitH",
+            "url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Hebrewbooks_org_6355.pdf#page=97&view=FitH",
+            "review_status": "printed_visual_layout_checked_text_labels_pending"
+          }
         }
       ],
       "relations": [
@@ -4251,6 +4321,18 @@
       "open_questions": [
         "אין להסיק מסלולים פיזיים או גדלי גלגלים",
         "הסדר המדויק של הגלגלים ראוי לאימות בעמוד הצפוף"
+      ],
+      "visual_printed_layout_observations": [
+        {
+          "pdf_page": 96,
+          "type": "nested_rectangular_printed_panels",
+          "geometry_semantics": "PRINTED_LAYOUT_ONLY_NOT_COSMOLOGICAL_COORDINATES"
+        },
+        {
+          "pdf_page": 97,
+          "type": "circular_partitioned_printed_diagram",
+          "geometry_semantics": "PRINTED_LAYOUT_ONLY_NOT_3D"
+        }
       ]
     },
     {
@@ -4359,7 +4441,7 @@
     {
       "id": "hp-gap-visual-source",
       "severity": "blocking_exact_witness_claim",
-      "description": "Nine PDF pages visually inspected for layout and subject only; full exact witness reading of the remaining pages, boundaries, equations and diagram semantics is still unresolved."
+      "description": "32 pages had image-level layout inspections, including 84–107 contact sheets and full-page diagrams 95–98; all exact lettering, calculations, labels and 295 other page images remain unadjudicated."
     },
     {
       "id": "hp-gap-chart-95",
@@ -4403,6 +4485,78 @@
       "engine_status": "not_tested"
     },
     {
+      "pdf_page": 84,
+      "source_anchor": "#page=84&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 84 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 85,
+      "source_anchor": "#page=85&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 85 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 86,
+      "source_anchor": "#page=86&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 86 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 87,
+      "source_anchor": "#page=87&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 87 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 88,
+      "source_anchor": "#page=88&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 88 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 89,
+      "source_anchor": "#page=89&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 89 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 90,
+      "source_anchor": "#page=90&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 90 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 91,
+      "source_anchor": "#page=91&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 91 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 92,
+      "source_anchor": "#page=92&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 92 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
       "pdf_page": 93,
       "source_anchor": "#page=93&view=FitH",
       "scope": "page_layout_and_subject_not_line_by_line_transcription",
@@ -4427,10 +4581,98 @@
       "engine_status": "not_tested"
     },
     {
+      "pdf_page": 96,
+      "source_anchor": "#page=96&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "דף PDF 96: בראש העמוד דפוס מלבני בעל רצועות/מסגרות מקוננות עם כיתוב; האופן שבו היחסים מודפסים אינו מידת מרחק או מודל עולם מאושר.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 97,
+      "source_anchor": "#page=97&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "דף PDF 97: ציור מעגלי המחולק לשטחים משולשים/רצועות כתובות; אין להסיק ממנו עומק, זווית יחסית בעולם או מערכת קואורדינטות.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 98,
+      "source_anchor": "#page=98&view=FitH",
+      "scope": "page_layout_and_subject_not_line_by_line_transcription",
+      "observation": "דף PDF 98: טבלה מלבנית בתחתית הטור השמאלי עם כותרות ושורות. אין לקבוע התאמה בין השורות לבין מחנות מבלי לפענח את הכתוב במקור.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 99,
+      "source_anchor": "#page=99&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 99 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 100,
+      "source_anchor": "#page=100&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 100 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 101,
+      "source_anchor": "#page=101&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 101 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
       "pdf_page": 102,
       "source_anchor": "#page=102&view=FitH",
       "scope": "page_layout_and_subject_not_line_by_line_transcription",
       "observation": "המעבר בין הפסוקים ובירור סדר הימים נראים בתוך שני טורי העמוד; קריאה מספרית/אותיות עדיין לא הוכרעה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 103,
+      "source_anchor": "#page=103&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 103 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 104,
+      "source_anchor": "#page=104&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 104 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 105,
+      "source_anchor": "#page=105&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 105 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 106,
+      "source_anchor": "#page=106&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 106 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
+      "exact_quote_verified": false,
+      "engine_status": "not_tested"
+    },
+    {
+      "pdf_page": 107,
+      "source_anchor": "#page=107&view=FitH",
+      "scope": "page_layout_only_contact_sheet_no_text_adjudication",
+      "observation": "עמוד PDF 107 נפתח בתמונת סקירת מקור כחלק מרצף 84–107. נראית פריסת הדפוס בלבד; לא נבדק כל נוסח וגבולות הדרשה.",
       "exact_quote_verified": false,
       "engine_status": "not_tested"
     },
