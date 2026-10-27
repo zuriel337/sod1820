@@ -4,6 +4,7 @@ import { runElsAdaptiveScan } from "./els2029AdaptiveScanner.js";
 export const ELS_AUTOMATIC_PLAN_CONTRACT = "els_automatic_research_plan_v1";
 export const ELS_RESEARCH_BRIEF_CONTRACT = "els_research_brief_v1";
 export const ELS_CIPHER_DISCOVERY_PLAN_CONTRACT = "els_cipher_discovery_plan_v1";
+export const ELS_RELATIONSHIP_PLAN_CONTRACT = "els_relationship_research_plan_v1";
 export const ELS_GUIDED_PLAN_SUMMARY_CONTRACT = "els_guided_discovery_plan_summary_v1";
 export const ELS_GUIDED_SEARCH_STRATEGY_CONTRACT = "els_guided_search_strategy_v1";
 export const ELS_GUIDED_OCCURRENCE_COVERAGE_CONTRACT = "els_guided_occurrence_coverage_v1";
@@ -35,6 +36,36 @@ const canonicalKey = value => String(value || "").replace(/[^א-ת]/g, "").repla
 const briefPhrase = value => String(value || "").normalize("NFKD").replace(HEBREW_MARKS, "").replace(/[^א-ת\s]/g, " ").trim().replace(/\s+/g, " ");
 const briefWords = value => briefPhrase(value).split(" ").filter(Boolean);
 const meaningfulBriefWord = word => canonicalKey(word).length >= 3 && !BRIEF_STOP_WORDS.has(word);
+
+// Restore the existing explicit primary-to-target planning contract; it does not execute a search.
+export function prepareElsRelationshipResearchPlan({ primaryTerm = "", secondTerm = "", additionalTerms = "", scope = "torah", radius = 18 } = {}) {
+  const primary = briefPhrase(primaryTerm), second = briefPhrase(secondTerm);
+  const additional = (Array.isArray(additionalTerms) ? additionalTerms : String(additionalTerms || "").split(/[,;\n]+/)).map(briefPhrase).filter(Boolean);
+  const validate = (term, label) => {
+    const length = canonicalKey(term).length;
+    if (!term || length < 2) return `${label} צריך לכלול לפחות שתי אותיות עבריות.`;
+    if (length > 16) return `${label} ארוך מדי. מחקר קשרים מיועד למילה או ביטוי קצר של עד 16 אותיות.`;
+    return null;
+  };
+  const primaryError = validate(primary, "הציר הראשי");
+  if (primaryError) return { error: primaryError };
+  if (!second && !additional.length) return { error: "הוסיפו שם משפחה, ציר שני או שם נוסף אחד לפחות." };
+  if (second) { const error = validate(second, "הציר השני"); if (error) return { error }; }
+  if (additional.length > 6) return { error: "אפשר להוסיף עד שישה שמות או צירים נוספים בכל תוכנית." };
+  for (const term of additional) { const error = validate(term, `״${term}״`); if (error) return { error }; }
+  const primaryKey = canonicalKey(primary), targets = [], seen = new Set([primaryKey]);
+  const add = (term, role, reason) => { const key = canonicalKey(term);if (!key || seen.has(key)) return;seen.add(key);targets.push({ term, canonicalTerm: key, role, reason }); };
+  if (second) add(second, "second-axis", "הציר השני שנכתב במפורש");
+  for (const term of additional) add(term, "additional-axis", "שם או ציר נוסף שנכתב במפורש");
+  if (!targets.length) return { error: "הצירים שנוספו זהים לציר הראשי. הוסיפו ציר אחר לבדיקה." };
+  const boundedRadius = Number.isSafeInteger(Number(radius)) ? Math.max(2, Math.min(20, Number(radius))) : 18;
+  const pairs = targets.map((target, index) => Object.freeze({ id: `pair:${primaryKey}:${target.canonicalTerm}`, rank: index + 1,
+    axis: primary, axisCanonical: primaryKey, term: target.term, termCanonical: target.canonicalTerm, targetRole: target.role,
+    reason: target.reason, searchKind: "cross", selected: index === 0 }));
+  return Object.freeze({ contract: ELS_RELATIONSHIP_PLAN_CONTRACT, status: "READY", mode: "primary-to-explicit-targets",
+    scope: scope === "tanakh" ? "tanakh" : "torah", radius: boundedRadius, primaryTerm: primary, pairs: Object.freeze(pairs),
+    pairLimit: 7, allPairsGenerated: false, explicitExecutionRequired: true, identityMerged: false, persisted: false, aiUsed: false, truthPromotion: false });
+}
 
 /**
  * A deterministic, local-only compiler from free context to bounded proposed terms.
