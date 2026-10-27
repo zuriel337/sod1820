@@ -1916,6 +1916,42 @@ test('research can inspect a third term within existing verified pair meetings',
  },{realHost:true,loadGolden:false});
 });
 
+test('matrix pinch zoom changes only presentation on mobile',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:90000},async()=>{
+ for(const width of [320,390])await withNative({width,height:844},async page=>{
+  const matrix=page.locator('.els29-native-matrix-scroll');await matrix.scrollIntoViewIfNeeded();
+  const before=await identity(page), zoom=await page.evaluate(()=>window.__state.ui.zoom), rect=await matrix.boundingBox();
+  const cdp=await page.context().newCDPSession(page);await cdp.send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:2});
+  const x=rect.x+rect.width/2,y=rect.y+Math.min(rect.height/2,120);
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:x-24,y},{x:x+24,y}]});
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x-48,y},{x:x+48,y}]});
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  await page.waitForFunction(z=>window.__state?.ui?.zoom>z,zoom,{timeout:15000});
+  assert.deepEqual(await identity(page),before,'pinch must not alter the selected occurrence, geometry or findings');
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await cdp.detach();
+ },{realHost:true,mobile:true});
+});
+
+test('connected cross results expose only adjacent letters',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async(t)=>{
+ for(const width of [320,1440])for(const scope of ['torah','tanakh'])await withNative({width,height:900},async page=>{
+  const form=page.locator('#els29-query');await form.getByRole('button',{name:'הצלבה בין צירים',exact:true}).click();
+  await form.getByRole('textbox',{name:'מונח ראשון'}).fill('צוריאל');await form.getByRole('textbox',{name:'מונח שני'}).fill('פולייס');
+  await form.getByRole('button',{name:scope==='torah'?'חפש הצלבה':'כל התנ״ך'}).click();
+  await page.waitForFunction(()=>['done','empty','error'].includes(window.__operation?.status),null,{timeout:90000});
+  const observed=await page.evaluate(()=>({operation:window.__operation,state:window.__state}));
+  t.diagnostic(JSON.stringify({width,scope,status:observed.operation.status,items:observed.state?.search?.results?.items?.length||0}));
+  assert.notEqual(observed.operation.status,'error');
+  if(observed.operation.status==='done'){
+   for(const finding of observed.state.findings)for(const hit of finding.hits.filter(hit=>hit.shown&&hit.verified)){
+    const S=observed.state.geometry.S,positions=Array.from(finding.t,(_,i)=>hit.start+hit.dir*hit.skip*i);
+    assert.ok(positions.slice(1).every((p,i)=>Math.abs(Math.floor(p/S)-Math.floor(positions[i]/S))<=1&&Math.abs(p%S-positions[i]%S)<=1));
+   }
+  }
+ },{realHost:true,loadGolden:false});
+});
+
 test('native form: a phrase and its split-and-cross action stay in one centered search bundle',
  {skip:!canRun,timeout:90000},async()=>{
  for(const width of [390,1440]) await withNative({width,height:1000},async page=>{

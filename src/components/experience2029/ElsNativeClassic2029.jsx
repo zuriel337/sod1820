@@ -38,12 +38,14 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView, onZoomChange }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const geometry = state?.geometry;
   const scrollRef = useRef(null);
   const dragRef = useRef({ active: false, pointerId: null, x: 0, y: 0, left: 0, top: 0, moved: false });
+  const pinchRef = useRef(null), zoomChangeRef = useRef(onZoomChange);
+  zoomChangeRef.current = onZoomChange;
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -74,6 +76,36 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
         : a.top - viewport.top - 24;
     // Presentation only: marking, inspection and panel changes preserve manual panning.
   }, [visible, readingView, state?.status, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!visible || !el) return undefined;
+    const distance = touches => Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+    const start = event => {
+      if (event.touches.length !== 2 || state?.verification?.state !== "MATCH") return;
+      const startDistance = distance(event.touches);if (!Number.isFinite(startDistance) || startDistance <= 0) return;
+      event.preventDefault();const baseZoom = clamp(Number(state?.ui?.zoom) || 1, 0.5, 2.8);
+      pinchRef.current = { startDistance, baseZoom, liveZoom: baseZoom };dragRef.current.moved = true;el.classList.add("is-pinching");
+    };
+    const move = event => {
+      const pinch = pinchRef.current;if (!pinch || event.touches.length !== 2) return;
+      event.preventDefault();pinch.liveZoom = clamp(pinch.baseZoom * distance(event.touches) / pinch.startDistance, 0.5, 2.8);
+      const grid = el.querySelector(".els29-native-matrix");if (!grid) return;
+      const rect = grid.getBoundingClientRect();grid.style.transformOrigin = `${(event.touches[0].clientX + event.touches[1].clientX) / 2 - rect.left}px ${(event.touches[0].clientY + event.touches[1].clientY) / 2 - rect.top}px`;
+      grid.style.transform = `scale(${pinch.liveZoom / pinch.baseZoom})`;
+    };
+    const finish = event => {
+      const pinch = pinchRef.current;if (!pinch || event.touches?.length >= 2) return;
+      const grid = el.querySelector(".els29-native-matrix");if (grid) { grid.style.transform = "";grid.style.transformOrigin = ""; }
+      pinchRef.current = null;el.classList.remove("is-pinching");dragRef.current.suppressClickUntil = Date.now() + 400;
+      if (Math.abs(pinch.liveZoom - pinch.baseZoom) > 0.03) zoomChangeRef.current?.(pinch.liveZoom);
+      window.setTimeout(() => { dragRef.current.moved = false; }, 400);
+    };
+    el.addEventListener("touchstart", start, { passive: false });el.addEventListener("touchmove", move, { passive: false });
+    el.addEventListener("touchend", finish, { passive: false });el.addEventListener("touchcancel", finish, { passive: false });
+    return () => { el.removeEventListener("touchstart", start);el.removeEventListener("touchmove", move);el.removeEventListener("touchend", finish);el.removeEventListener("touchcancel", finish);
+      const grid = el.querySelector(".els29-native-matrix");if (grid) { grid.style.transform = "";grid.style.transformOrigin = ""; }el.classList.remove("is-pinching");pinchRef.current = null; };
+  }, [visible, state?.axis?.hitId, state?.ui?.zoom, state?.verification?.state]);
 
   const markMap = useMemo(() => {
     const map = new Map();
@@ -241,7 +273,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
               data-present-concealed={concealed ? "true" : undefined}
               title={sourceMark ? `רצף מקור: ${sourceMark.term} · הצג פסוק` : "הצג מקור ופסוק"}
               onClick={() => {
-                if (dragRef.current.moved) return;
+                if (dragRef.current.moved || Date.now() < (dragRef.current.suppressClickUntil || 0)) return;
                 onLetterClick?.({ index, letter, mark });
               }}
               style={{
@@ -1449,7 +1481,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          <MatrixSnapshot state={engineState} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView} />
+          <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView} />
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" aria-pressed={heightExpanded} onClick={() => setHeightExpanded((value) => !value)}>

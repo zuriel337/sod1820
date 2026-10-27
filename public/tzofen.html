@@ -2564,6 +2564,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else if(d.action==="occurrence-select"||d.action==="occurrence-page")controlNativeOccurrence(d.action,d.value);
       else if(d.action==="zoom-out")adjustZoom(-0.2);
       else if(d.action==="zoom-in")adjustZoom(0.2);
+      else if(d.action==="zoom-set"&&Number.isFinite(d.value)){st.fit=false;setZoom(d.value);}
       else if(d.action==="fit-toggle")toggleFit();
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
       else if(d.action==="heat-toggle"){st.heat=!st.heat;recolorOnly();emitState();}
@@ -2791,7 +2792,9 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     for(const t of T2){const L=t.length,starts=byChar.get(t[0]);if(!starts)continue;let bc=1e9,bsk=0,bdir=1,bs0=-1;const skips=searchSpace(_geo,L);
       for(const s0 of starts)for(const sk of skips)for(const d of[1,-1]){const end=s0+d*sk*(L-1);if(end<0||end>=SN)continue;let ok=1;const pos=[s0];
         for(let k=1;k<L;k++){const p=s0+d*sk*k;if(T[p]!==t[k]||!inWin(p)){ok=0;break;}pos.push(p);}
-        if(!ok)continue;const cc=distanceToAnchors(pos,anchorCells,S);
+        if(!ok)continue;
+        if(window.connectedOnly===true&&pos.some((p,k)=>k>0&&(Math.abs(Math.floor(p/S)-Math.floor(pos[k-1]/S))>1||Math.abs((p%S)-(pos[k-1]%S))>1)))continue;
+        const cc=distanceToAnchors(pos,anchorCells,S);
         if(cc<bc){bc=cc;bsk=sk;bdir=d;bs0=s0;}}
       if(bc<=pure){const step=gridStep(bsk,S),gf=gapF(step),pf=proxF(bc),rf=rarF(rar.get(t));
         detail.push({t,skip:bsk,dir:bdir,cost:bc,gem:gem(t),rar:rar.get(t),step,p0:bs0,p1:bs0+bdir*bsk*(L-1)});   // p0/p1 = תאי-קצה (לשרשרת-צופן)
@@ -2892,6 +2895,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     for(const start of starts)for(const end of ends){
       const delta=end-start;if(!delta||delta%span)continue;const step=delta/span,skip=Math.abs(step),direction=Math.sign(step);if(skip<1||![1,-1].includes(direction))continue;
       const positions=Array.from(term,(_,index)=>start+step*index);if(!positions.every((position,index)=>position>=0&&position<scopeN()&&inWindow(position)&&T[position]===term[index]))continue;
+      if(positions.some((p,k)=>k>0&&(Math.abs(Math.floor(p/S)-Math.floor(positions[k-1]/S))>1||Math.abs((p%S)-(positions[k-1]%S))>1)))continue;
       const axisDistance=distanceToAnchors(positions,axisAnchors,S),companionDistances=companionAnchors.map(companion=>({term:companion.term,distance:distanceToAnchors(positions,companion.anchors,S)}));
       if(axisDistance>bound||companionDistances.some(companion=>companion.distance>bound))continue;
       const meetingDistance=Math.max(...companionDistances.map(companion=>companion.distance)),candidate={term:requested,skip,dir:direction,start,positions,distance:axisDistance,axisDistance,meetingDistance,companionDistances};
@@ -2926,7 +2930,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
     try{
       await prefetchVerified(terms,operation);if(epoch!==_matrixRequestSeq)return;
       if(terms.some(term=>faMemo(term).verr)){operationStatus(operation,"error","אימות הצירים לא הושלם.");return;}
-      const window={...nativeWindow(operation?.windowSize||"small",pure,terms),scopeLength:scopeN()};
+      const window={...nativeWindow(operation?.windowSize||"small",pure,terms),scopeLength:scopeN(),connectedOnly:true};
       const progress={completed:0,total:terms.reduce((n,t)=>n+Math.min(150,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length),0),startedAt:Date.now()};
       const runs=[];for(const axis of terms){const others=terms.filter(t=>norm(t)!==norm(axis));runs.push(await crossFindBounded(axis,others,pure,window,operation,progress,epoch));}
       if(epoch!==_matrixRequestSeq)return;
@@ -3006,7 +3010,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       try{
       await prefetchVerified([A,B],operation);   // 🧬 G3: שני הצירים מאומתים בשרת לפני הדירוג/גאומטריה (faMemo קורא מהמטמון המאומת)
       if(requestSeq!==_matrixRequestSeq)return;
-      const window={...(operation?.windowSize?nativeWindow(operation.windowSize,pure,[A,B]):searchWindowSnapshot()),scopeLength:scopeN()};
+      const window={...(operation?.windowSize?nativeWindow(operation.windowSize,pure,[A,B]):searchWindowSnapshot()),scopeLength:scopeN(),connectedOnly:!!(operation&&EXPR2029)};
       const progress={completed:0,total:[A,B].reduce((n,t)=>n+Math.min(150,faMemo(t).hits.filter(h=>Math.abs(h.skip)>=2).length),0),startedAt:Date.now()};
       const r1=await crossFindBounded(A,[B],pure,window,operation,progress,requestSeq);
       const r2=await crossFindBounded(B,[A],pure,window,operation,progress,requestSeq);
