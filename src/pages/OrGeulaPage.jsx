@@ -18,7 +18,7 @@ import { OR_GEULA_LOGO } from "../components/BrandTicker.jsx";
 // ⚠️ זה לא גימטריה — אוסף מדיה אהוב. עדשה על channel_updates where channel='or-geula'.
 // דף עצמאי מתויג + SEO (נכנס לסייטמאפ ול-og). עץ אחד: אותו מקור של הטיקר/מרכז-השידורים.
 const isVideo = (u) => !!u && /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i.test(u);
-const isAudio = (u) => !!u && /\.(ogg|oga|opus|mp3|wav|m4a|aac|webm)(\?|#|$)/i.test(u);
+const isAudio = (u) => !!u && (/\.(ogg|oga|opus|mp3|wav|m4a|aac)(\?|#|$)/i.test(u) || (/\/audio\//.test(u) && /\.webm(\?|#|$)/i.test(u)));
 const mediaKind = (u) => isAudio(u) ? "audio" : isVideo(u) ? "video" : u ? "image" : "text";
 
 export default function OrGeulaPage() {
