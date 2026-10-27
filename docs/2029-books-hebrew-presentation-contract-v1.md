@@ -1,9 +1,11 @@
-# חוזה הצגה עברי לספרים 2029 — v1
+# חוזה הצגה עברי לספרים 2029 — v1.1
 
 **מצב:** חוזה ענפי בלבד · לא מימוש חי · לא בעלים חדש
 **תאריך:** 22.10.2026
 **בסיס:** `origin/main` ב־`414c5d132c8df0a9d2e81797c36f49d4a534d0b0`
 **מפת מצב קודמת:** `docs/2029-books-status-map-he-v1.md`
+
+**הרחבה27.10.2026:** דרישות חוויית לימוד ומבנים מרחביים אושרו במפורש בהוראת צוריאל `BOOKS_2029_SPATIAL_EXPERIENCE_BINDING_CONTRACT`. גוף הדרישות המחייב היחיד נמצא ב־[Experience Governance §20 — תוספת1.1](../audits/experience_governance_foundation_v1/EXPERIENCE_GOVERNANCE_V1_FOUNDATION_CONTRACT.md#20-books-2029--source-bound-spatial-learning-experience--addendum-11--27102026), אצל הבעלים הפעילv10. הוא חל גם על ספרים ומודלים קיימים; אין בכך הכרזת תאימות שלהם. העדכון בקוד הוא ענפי וממתין לשילוב קנוני; לא עודכן חוקDB או חוזה חי ב־project_codex. כללי המקור/התרגום להלן נשמרים. מפת הבדיקה והפערים: [קבלת חוויות הספרים](reviews/books-spatial-experience-binding-contract-20261027.md).
 
 ## 1. בעלות ועיקרון
 
