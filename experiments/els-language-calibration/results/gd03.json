@@ -1,0 +1,223 @@
+{
+  "case": "gd03",
+  "scope": "torah",
+  "axis": {
+    "start": 81020,
+    "skip": 10101,
+    "dir": 1,
+    "length": 7
+  },
+  "box": {
+    "S": 10101,
+    "c0": 192,
+    "c1": 232,
+    "r0": 0,
+    "r1": 30,
+    "rowPad": 20,
+    "colRadius": 20,
+    "cells": 1271,
+    "maxGapScale": 3,
+    "maxVocabularyTerms": 100,
+    "defaultLexiconLoaded": false
+  },
+  "windowsMoved": 100,
+  "movedFirstLetters": [
+    104729,
+    209458,
+    69988,
+    174717,
+    139976
+  ],
+  "elapsedMs": 11924,
+  "primaryMetric": "relationBestScore",
+  "secondaryMetrics": [
+    "reading5plus",
+    "segmentationsLong"
+  ],
+  "comparison": {
+    "lexiconLookups": {
+      "real": 42546,
+      "nullMean": 43511.1,
+      "nullMax": 47090,
+      "nullMin": 41006,
+      "saturated": false,
+      "p": 0.7723
+    },
+    "candidatesExamined": {
+      "real": 8208,
+      "nullMean": 8205.84,
+      "nullMax": 8208,
+      "nullMin": 8172,
+      "saturated": false,
+      "p": 0.9406
+    },
+    "readings": {
+      "real": 24,
+      "nullMean": 24,
+      "nullMax": 24,
+      "nullMin": 24,
+      "saturated": true,
+      "p": 1
+    },
+    "readingMaxLen": {
+      "real": 6,
+      "nullMean": 6.36,
+      "nullMax": 9,
+      "nullMin": 5,
+      "saturated": false,
+      "p": 0.8614
+    },
+    "reading5plus": {
+      "real": 6,
+      "nullMean": 6.51,
+      "nullMax": 14,
+      "nullMin": 3,
+      "saturated": false,
+      "p": 0.6535
+    },
+    "segmentations": {
+      "real": 24,
+      "nullMean": 24,
+      "nullMax": 24,
+      "nullMin": 24,
+      "saturated": true,
+      "p": 1
+    },
+    "segmentationMaxLen": {
+      "real": 12,
+      "nullMean": 10.97,
+      "nullMax": 15,
+      "nullMin": 8,
+      "saturated": false,
+      "p": 0.3267
+    },
+    "segmentationsLong": {
+      "real": 12,
+      "nullMean": 14.67,
+      "nullMax": 20,
+      "nullMin": 7,
+      "saturated": false,
+      "p": 0.8713
+    },
+    "relations": {
+      "real": 3,
+      "nullMean": 3,
+      "nullMax": 3,
+      "nullMin": 3,
+      "saturated": true,
+      "p": 1
+    },
+    "relationBestScore": {
+      "real": 236,
+      "nullMean": 249.5,
+      "nullMax": 277,
+      "nullMin": 229,
+      "saturated": false,
+      "p": 0.9802
+    },
+    "relationBestExact": {
+      "real": 2,
+      "nullMean": 2,
+      "nullMax": 2,
+      "nullMin": 2,
+      "saturated": true,
+      "p": 1
+    },
+    "boundaries": {
+      "real": 422,
+      "nullMean": 422.92,
+      "nullMax": 446,
+      "nullMin": 381,
+      "saturated": false,
+      "p": 0.6238
+    },
+    "boundaryBestScore": {
+      "real": 672,
+      "nullMean": 668.09,
+      "nullMax": 672,
+      "nullMin": 468,
+      "saturated": false,
+      "p": 0.7327
+    }
+  },
+  "primary": {
+    "real": 236,
+    "nullMean": 249.5,
+    "nullMax": 277,
+    "nullMin": 229,
+    "saturated": false,
+    "p": 0.9802
+  },
+  "unusual": false,
+  "topReadings": [
+    {
+      "letters": "לדה",
+      "relation": "exact-lexicon-match",
+      "source": "tanakh-core-lexicon",
+      "length": 3
+    },
+    {
+      "letters": "נטש",
+      "relation": "exact-lexicon-match",
+      "source": "tanakh-core-lexicon",
+      "length": 3
+    },
+    {
+      "letters": "אשרי",
+      "relation": "exact-lexicon-match",
+      "source": "tanakh-core-lexicon",
+      "length": 4
+    },
+    {
+      "letters": "תהו",
+      "relation": "exact-lexicon-match",
+      "source": "tanakh-core-lexicon",
+      "length": 3
+    },
+    {
+      "letters": "מאן",
+      "relation": "exact-lexicon-match",
+      "source": "tanakh-core-lexicon",
+      "length": 3
+    },
+    {
+      "letters": "מרה",
+      "relation": "exact-lexicon-match",
+      "source": "tanakh-core-lexicon",
+      "length": 3
+    }
+  ],
+  "topRelation": {
+    "score": 236,
+    "geometry": "AXIS_INTERSECTING_RAY",
+    "tokens": [
+      "מרה",
+      "מאן"
+    ]
+  },
+  "lookups": [],
+  "provenance": {
+    "page": {
+      "sha256": "d5caea81613c6339600fecf8b366c6845454c0c0995195040b449a622fbc6bc9",
+      "bytes": 2498284
+    },
+    "lexiconAsset": {
+      "sha256": "787f039e2977952356764b07d94ce2ed257902ac535a6833a06cb6a258fc0925",
+      "bytes": 347380
+    },
+    "functions": {
+      "scopeN": "32ff67c514c5501ee93b42fefd7e13e54786d593d0e931f02cf466bd807fcf89",
+      "guidedDynamicLexiconSkeleton": "c23b6c36bf2b1f826a1d4e5c079bd8620125579d820ef5bab1f895c918fcb9de",
+      "guidedMatrixDisplayTerm": "55ad81f1d7329c9c1d25410163a572c6682c4c5edf909f4d2d86d6413d1c66b3",
+      "guidedMatrixBox": "65dd3b1c150f635c239d0efba3269fbdccb0f1f483db68852458cb80062fdadf",
+      "guidedLanguageReadings": "d6e0f0d2c776db59531426b59756be9bf58f8e08b35fdf6394ec0f4446818151",
+      "guidedLanguageBoundaryScore": "4ca091e43bf585634d8f0290a4b202f420411b32db3e0c52fc780fd391d14c8b",
+      "guidedLanguageRelations": "ad22b823e1160c23118347f669e41fb55f0909b3174791c9fb092184b404e393",
+      "guidedLanguageBoundaryHypotheses": "aa8aef2eb57356c93f97374be0cd71651e82cc59bf78aa177f3394ade847e569",
+      "guidedMatrixLanguageInspection": "a767699c79d9c951726326fad8078cdc24ef8707ab21c5169f0c5a5d2d93b637",
+      "guidedDynamicLexiconAsset": "e50001392fdd9dee4762067fa4b86e1e656eaf45b8d2ad0778c5523fec973b6d",
+      "guidedLoadDynamicLexicon": "c12c7903c028d8a00b7d9fc62806c15c66bb4966e8535a29ff025867b5cb7a42"
+    }
+  },
+  "lexiconEntries": 41835
+}
