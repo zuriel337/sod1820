@@ -23,7 +23,7 @@ test("HaPeli'ah internal depth has stable IDs, legal and exact one-based PDF ran
   assert.equal(map.source_pdf_pages, PDF_PAGE_COUNT);
   assert.equal(map.gates.length, 11);
   assert.ok(map.units.length >= 75, "internal map requires more than generic 11 gates");
-  const visuallyInspected = new Set([10, 18, 60, 93, 94, 95, 102, 113, 120, 130, 150, 160]);
+  const visuallyInspected = new Set([10, 18, 60, ...Array.from({ length: 24 }, (_, i) => 84 + i), 113, 120, 130, 150, 160]);
   const gateIds = new Set(map.gates.map(gate => gate.id));
   const ids = new Set();
   for (const unit of map.units) {
@@ -64,7 +64,7 @@ test("HaPeli'ah internal depth has stable IDs, legal and exact one-based PDF ran
     assert.equal(check.source_anchor, `#page=${check.pdf_page}&view=FitH`);
     assert.equal(check.exact_quote_verified, false);
     assert.equal(check.engine_status, "not_tested");
-    assert.equal(check.scope, "page_layout_and_subject_not_line_by_line_transcription");
+    assert.ok(["page_layout_and_subject_not_line_by_line_transcription", "page_layout_only_contact_sheet_no_text_adjudication"].includes(check.scope), `unsupported visual check scope ${check.pdf_page}`);
   }
   assert.ok(map.evidence_policy.machine_extracted_text_sampled_pages.length >= 109);
   assert.ok(map.evidence_policy.machine_extracted_text_sampled_pages.length < PDF_PAGE_COUNT);
@@ -92,6 +92,7 @@ test("deep companion can render in existing Preview without erasing the 327-page
   assert.equal(commentary.pages.length, PDF_PAGE_COUNT);
   assert.deepEqual(commentary.pages.map(p => p.pdf_page), Array.from({ length: PDF_PAGE_COUNT }, (_, i) => i + 1));
   assert.deepEqual(textIndex.pages.filter(p => p.extraction_status !== "machine_candidate").map(p => p.pdf_page), [3]);
+  const visuallyInspected = new Set(map.evidence_policy.direct_visual_pdf_pages_verified);
   const changed = commentary.pages.filter(page => page.first_pass_snapshot);
   const entryPages = new Set(map.units.map(unit => unit.source.entry_pdf_page));
   assert.equal(changed.length, entryPages.size, "every changed page must represent a real internal map entry");
@@ -99,8 +100,13 @@ test("deep companion can render in existing Preview without erasing the 327-page
     assert.equal(page.source_anchor, `#page=${page.pdf_page}&view=FitH`);
     assert.ok(page.companion_explanation.length >= 120, page.pdf_page);
     assert.ok(page.reading_points.length >= 2, page.pdf_page);
-    if ([10, 18, 60, 93, 94, 95, 102, 113, 120, 130, 150, 160].includes(page.pdf_page)) {
-      assert.equal(page.visual_witness_review, "page_layout_and_subject_only_no_exact_quote");
+    if (visuallyInspected.has(page.pdf_page) && page.first_pass_snapshot) {
+      const expectedScope = [96, 97, 98].includes(page.pdf_page)
+        ? "full_page_printed_diagram_layout_only_no_legend_transcription"
+        : page.pdf_page >= 84 && page.pdf_page <= 107
+          ? "contact_sheet_layout_only_no_text_adjudication"
+          : "page_layout_and_subject_only_no_exact_quote";
+      assert.equal(page.visual_witness_review, expectedScope, `visual report page ${page.pdf_page}`);
     }
     if (!entryPages.has(page.pdf_page)) {
       assert.equal(page.first_pass_snapshot, undefined, `untouched page mutated: ${page.pdf_page}`);
@@ -146,7 +152,7 @@ test("HaPeli'ah depiction specs have per-element and per-relation provenance wit
       ids.add(item.id);
       assert.ok(item.source.pdf_page >= 1 && item.source.pdf_page <= PDF_PAGE_COUNT);
       assert.equal(item.source.url, `${map.source_pdf_url}#page=${item.source.pdf_page}&view=FitH`);
-      assert.equal(item.source.review_status, "machine_locator_pending_visual_verification");
+      assert.ok(["machine_locator_pending_visual_verification", "printed_visual_layout_checked_text_labels_pending"].includes(item.source.review_status), item.id);
     }
     for (const relation of spec.relations) {
       assert.ok(ids.has(relation.from), relation.id);
@@ -159,4 +165,19 @@ test("HaPeli'ah depiction specs have per-element and per-relation provenance wit
     }
   }
   assert.equal(map.structure_specs.find(s => s.id === "hapliah.struct.camp-banners").components.length, 6);
+  const allComponents = map.structure_specs.flatMap(spec => spec.components);
+  const allRelations = map.structure_specs.flatMap(spec => spec.relations);
+  assert.equal(allComponents.length, 26);
+  assert.equal(allRelations.length, 17);
+  for (const [id, page] of [
+    ["hp.print-nested-96", 96],
+    ["hp.print-circle-97", 97],
+    ["hp.print-table-98", 98],
+  ]) {
+    const component = allComponents.find(item => item.id === id);
+    assert.ok(component, `missing printed artifact ${id}`);
+    assert.equal(component.source.pdf_page, page);
+    assert.equal(component.source.review_status, "printed_visual_layout_checked_text_labels_pending");
+    assert.equal(component.source.url, `${map.source_pdf_url}#page=${page}&view=FitH`);
+  }
 });
