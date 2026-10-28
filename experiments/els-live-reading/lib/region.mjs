@@ -117,4 +117,4 @@ export function engineParams(region, cells) {
 }
 
 /** Plain-text hint for the axis cells: their region coordinates. */
-export const axisSummary = (region) => ({ column: region.axisCells[0][1], rowFrom: region.axisCells[0][0], rowTo: region.axisCells[region.axisCells.length - 1][0], cells: region.axisCells.length });
+export const axisSummary = (region) => { const rows = region.axisCells.map(([i]) => i); return { column: region.axisCells[0][1], rowFrom: Math.min(...rows), rowTo: Math.max(...rows), cells: region.axisCells.length, text: region.axis?.text ?? null }; };

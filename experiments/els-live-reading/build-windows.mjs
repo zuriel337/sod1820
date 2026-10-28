@@ -18,19 +18,19 @@ export function pageLetters(htmlPath) {
   return gunzipSync(Buffer.from(data[1].trim(), "base64")).toString("utf8");
 }
 
-export function buildWindow(letters, w) {
+export function buildWindow(letters, w, width = MATRIX_WIDTH) {
   const grid = [];
   for (let k = 0; k < WINDOW_ROWS; k += 1) {
     const r = w.r0 + k;
-    const s = letters.slice(r * MATRIX_WIDTH + w.c0, r * MATRIX_WIDTH + w.c0 + WINDOW_COLS);
+    const s = letters.slice(r * width + w.c0, r * width + w.c0 + WINDOW_COLS);
     if ([...s].length !== WINDOW_COLS) throw new Error(`${w.id} row ${r}: ${[...s].length} letters`);
     grid.push({ r, s, md5: md5(s) });
   }
-  return { source: "text embedded in public/tzofen.html (a second copy of public.torah_stream); each whole window is compared with the table by an md5 computed in SQL (see md5_window). idx = row * width + col + 1.", scope: "torah", width: MATRIX_WIDTH, rows: [w.r0, w.r1], cols: [w.c0, w.c1], axis: null, id: w.id, md5_window: md5(grid.map((row) => row.s).join("")), grid };
+  return { source: "text embedded in public/tzofen.html (a second copy of public.torah_stream); each whole window is compared with the table by an md5 computed in SQL (see md5_window). idx = row * width + col + 1.", scope: "torah", width, rows: [w.r0, w.r1], cols: [w.c0, w.c1], axis: w.axis ?? null, id: w.id, md5_window: md5(grid.map((row) => row.s).join("")), grid };
 }
 
 /** The SQL that returns the same whole-window md5 from the canonical table. */
-export function windowMd5Sql(windows) {
+export function windowMd5Sql(windows, width = MATRIX_WIDTH) {
   const values = windows.map((w) => `('${w.id}', ${w.r0}, ${w.c0})`).join(", ");
   return `set local statement_timeout = '55000ms';
 select jsonb_agg(jsonb_build_object('id', id, 'md5_window', md5(s)) order by id) as windows
@@ -38,7 +38,7 @@ from (select id, string_agg(row_s, '' order by r) as s from (
   select w.id, w.r0 + k as r, string_agg(t.ch, '' order by t.idx) as row_s
   from (values ${values}) w(id, r0, c0)
   cross join generate_series(0, ${WINDOW_ROWS - 1}) k
-  join public.torah_stream t on t.idx between (w.r0 + k) * ${MATRIX_WIDTH} + w.c0 + 1 and (w.r0 + k) * ${MATRIX_WIDTH} + w.c0 + ${WINDOW_COLS}
+  join public.torah_stream t on t.idx between (w.r0 + k) * ${width} + w.c0 + 1 and (w.r0 + k) * ${width} + w.c0 + ${WINDOW_COLS}
   group by w.id, w.r0, k) rows group by id) q;`;
 }
 

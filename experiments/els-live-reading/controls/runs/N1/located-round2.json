@@ -1,0 +1,738 @@
+[
+  {
+    "id": "r2.f01",
+    "line": "D03-",
+    "text": "לשלווה",
+    "rawText": "לשלווה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "D03-",
+        "from": 24,
+        "to": 29,
+        "cells": [
+          [
+            9,
+            11
+          ],
+          [
+            8,
+            10
+          ],
+          [
+            7,
+            9
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            4,
+            6
+          ]
+        ],
+        "params": {
+          "start": 194215,
+          "skip": 4546,
+          "dir": -1,
+          "length": 6,
+          "step": -4546
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f02",
+    "line": "C08+",
+    "text": "ונשר",
+    "rawText": "ונשר",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C08+",
+        "from": 5,
+        "to": 8,
+        "cells": [
+          [
+            6,
+            8
+          ],
+          [
+            7,
+            8
+          ],
+          [
+            8,
+            8
+          ],
+          [
+            9,
+            8
+          ]
+        ],
+        "params": {
+          "start": 180577,
+          "skip": 4545,
+          "dir": 1,
+          "length": 4,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f03",
+    "line": "A57+",
+    "text": "שנתי",
+    "rawText": "שנתי",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A57+",
+        "from": 13,
+        "to": 16,
+        "cells": [
+          [
+            30,
+            28
+          ],
+          [
+            31,
+            27
+          ],
+          [
+            32,
+            26
+          ],
+          [
+            33,
+            25
+          ]
+        ],
+        "params": {
+          "start": 289677,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f04",
+    "line": "A23+",
+    "text": "אמא",
+    "rawText": "אמא",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A23+",
+        "from": 0,
+        "to": 2,
+        "cells": [
+          [
+            1,
+            19
+          ],
+          [
+            2,
+            18
+          ],
+          [
+            3,
+            17
+          ]
+        ],
+        "params": {
+          "start": 157863,
+          "skip": 4544,
+          "dir": 1,
+          "length": 3,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f05",
+    "line": "C20+",
+    "text": "הבוז",
+    "rawText": "הבוז",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C20+",
+        "from": 0,
+        "to": 3,
+        "cells": [
+          [
+            1,
+            20
+          ],
+          [
+            2,
+            20
+          ],
+          [
+            3,
+            20
+          ],
+          [
+            4,
+            20
+          ]
+        ],
+        "params": {
+          "start": 157864,
+          "skip": 4545,
+          "dir": 1,
+          "length": 4,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f06",
+    "line": "A19+",
+    "text": "זער",
+    "rawText": "זער",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A19+",
+        "from": 3,
+        "to": 5,
+        "cells": [
+          [
+            4,
+            20
+          ],
+          [
+            5,
+            19
+          ],
+          [
+            6,
+            18
+          ]
+        ],
+        "params": {
+          "start": 171499,
+          "skip": 4544,
+          "dir": 1,
+          "length": 3,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f07",
+    "line": "C18+",
+    "text": "חמת",
+    "rawText": "חמת",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C18+",
+        "from": 0,
+        "to": 2,
+        "cells": [
+          [
+            1,
+            18
+          ],
+          [
+            2,
+            18
+          ],
+          [
+            3,
+            18
+          ]
+        ],
+        "params": {
+          "start": 157862,
+          "skip": 4545,
+          "dir": 1,
+          "length": 3,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f08",
+    "line": "A20+",
+    "text": "מחוה",
+    "rawText": "מחוה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A20+",
+        "from": 0,
+        "to": 3,
+        "cells": [
+          [
+            1,
+            22
+          ],
+          [
+            2,
+            21
+          ],
+          [
+            3,
+            20
+          ],
+          [
+            4,
+            19
+          ]
+        ],
+        "params": {
+          "start": 157866,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f09",
+    "line": "A18+",
+    "text": "עופ",
+    "rawText": "עופ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A18+",
+        "from": 0,
+        "to": 2,
+        "cells": [
+          [
+            1,
+            24
+          ],
+          [
+            2,
+            23
+          ],
+          [
+            3,
+            22
+          ]
+        ],
+        "params": {
+          "start": 157868,
+          "skip": 4544,
+          "dir": 1,
+          "length": 3,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f10",
+    "line": "A18+",
+    "text": "שכרמ",
+    "rawText": "שכרמ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A18+",
+        "from": 4,
+        "to": 7,
+        "cells": [
+          [
+            5,
+            20
+          ],
+          [
+            6,
+            19
+          ],
+          [
+            7,
+            18
+          ],
+          [
+            8,
+            17
+          ]
+        ],
+        "params": {
+          "start": 176044,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f11",
+    "line": "A01+",
+    "text": "שקימ",
+    "rawText": "שקימ",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A01+",
+        "from": 5,
+        "to": 8,
+        "cells": [
+          [
+            6,
+            36
+          ],
+          [
+            7,
+            35
+          ],
+          [
+            8,
+            34
+          ],
+          [
+            9,
+            33
+          ]
+        ],
+        "params": {
+          "start": 180605,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f12",
+    "line": "C36+",
+    "text": "לשורי",
+    "rawText": "לשורי",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C36+",
+        "from": 7,
+        "to": 11,
+        "cells": [
+          [
+            8,
+            36
+          ],
+          [
+            9,
+            36
+          ],
+          [
+            10,
+            36
+          ],
+          [
+            11,
+            36
+          ],
+          [
+            12,
+            36
+          ]
+        ],
+        "params": {
+          "start": 189695,
+          "skip": 4545,
+          "dir": 1,
+          "length": 5,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f13",
+    "line": "C40+",
+    "text": "משא",
+    "rawText": "משא",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C40+",
+        "from": 8,
+        "to": 10,
+        "cells": [
+          [
+            9,
+            40
+          ],
+          [
+            10,
+            40
+          ],
+          [
+            11,
+            40
+          ]
+        ],
+        "params": {
+          "start": 194244,
+          "skip": 4545,
+          "dir": 1,
+          "length": 3,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f14",
+    "line": "D29+",
+    "text": "דהה",
+    "rawText": "דהה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "D29+",
+        "from": 2,
+        "to": 4,
+        "cells": [
+          [
+            3,
+            31
+          ],
+          [
+            4,
+            32
+          ],
+          [
+            5,
+            33
+          ]
+        ],
+        "params": {
+          "start": 166965,
+          "skip": 4546,
+          "dir": 1,
+          "length": 3,
+          "step": 4546
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f15",
+    "line": "A15+",
+    "text": "לרעה",
+    "rawText": "לרעה",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A15+",
+        "from": 0,
+        "to": 3,
+        "cells": [
+          [
+            1,
+            27
+          ],
+          [
+            2,
+            26
+          ],
+          [
+            3,
+            25
+          ],
+          [
+            4,
+            24
+          ]
+        ],
+        "params": {
+          "start": 157871,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f16",
+    "line": "A13+",
+    "text": "כלול",
+    "rawText": "כלול",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "A13+",
+        "from": 0,
+        "to": 3,
+        "cells": [
+          [
+            1,
+            29
+          ],
+          [
+            2,
+            28
+          ],
+          [
+            3,
+            27
+          ],
+          [
+            4,
+            26
+          ]
+        ],
+        "params": {
+          "start": 157873,
+          "skip": 4544,
+          "dir": 1,
+          "length": 4,
+          "step": 4544
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f17",
+    "line": "C30+",
+    "text": "עני",
+    "rawText": "עני",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C30+",
+        "from": 2,
+        "to": 4,
+        "cells": [
+          [
+            3,
+            30
+          ],
+          [
+            4,
+            30
+          ],
+          [
+            5,
+            30
+          ]
+        ],
+        "params": {
+          "start": 166964,
+          "skip": 4545,
+          "dir": 1,
+          "length": 3,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  },
+  {
+    "id": "r2.f18",
+    "line": "C35+",
+    "text": "אני",
+    "rawText": "אני",
+    "reasons": [],
+    "status": "located_in_cited_line",
+    "occurrences": [
+      {
+        "reading": "C35+",
+        "from": 7,
+        "to": 9,
+        "cells": [
+          [
+            8,
+            35
+          ],
+          [
+            9,
+            35
+          ],
+          [
+            10,
+            35
+          ]
+        ],
+        "params": {
+          "start": 189694,
+          "skip": 4545,
+          "dir": 1,
+          "length": 3,
+          "step": 4545
+        }
+      }
+    ],
+    "totalOccurrences": 1,
+    "segmentationOk": true
+  }
+]

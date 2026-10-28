@@ -117,7 +117,7 @@ async function pool(items) {
   let next = 0;
   await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, async () => { while (next < items.length) { const item = items[next]; next += 1; await task(item); } }));
 }
-for (const priority of [1, 2, 3, 4]) {
+for (const priority of [...new Set(RUNS.map((run) => run.priority))].sort((a, b) => a - b)) {
   const group = [...prepared.values()].filter((item) => item.run.priority === priority);
   if (!args["only"] || args.only.split(",").some((id) => group.some((item) => item.run.id === id))) {
     const chosen = args.only ? group.filter((item) => args.only.split(",").includes(item.run.id)) : group;

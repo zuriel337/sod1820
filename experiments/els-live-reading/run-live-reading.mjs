@@ -257,7 +257,13 @@ if (stage === "dry-run") {
     const classified = readJson(new URL("classified-round1.json", dir));
     const targets = args.targets ? readJson(new URL(args.targets, `file://${process.cwd()}/`)).targets : null;
     const evaluation = targets && item.region === "columbia" ? evaluateTargetsFor({ targets, classified, byReading: ctx.byReading }) : null;
-    return { run: item, response, raw, classified, evaluation, planted: ctx.region.planted ?? null };
+    let round2 = null;
+    if (existsSync(new URL("round2-response.json", dir)) && existsSync(new URL("classified-round2.json", dir))) {
+      const response2 = readJson(new URL("round2-response.json", dir));
+      const parsed2 = parseModelOutput(response2.summary.text);
+      if (parsed2.ok) round2 = { response: response2, raw: parsed2.value.findings.map((f, k) => ({ ...f, modelId: f.id, id: `r2.f${String(k + 1).padStart(2, "0")}` })), classified: readJson(new URL("classified-round2.json", dir)) };
+    }
+    return { run: item, response, raw, classified, evaluation, planted: ctx.region.planted ?? null, round2 };
   };
   const runs = RUNS.map(loadRun).filter(Boolean);
   // the EXP-15 run, reclassified with the current classifier so that its engine counts are available

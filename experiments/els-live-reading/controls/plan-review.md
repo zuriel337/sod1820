@@ -14,9 +14,10 @@
 | N2b | blind | w02 | v2 | none | לא | — | 20668 | $0.928 | $1.729 | 65425a13dbae | 8750e7daaae0 |
 | N2c | blind | w03 | v2 | none | לא | — | 20668 | $0.928 | $1.729 | 0dec1ac72e1b | 1c861f80c607 |
 | N2d | blind | w04 | v2 | none | לא | — | 20668 | $0.928 | $1.729 | 3ed736f31d41 | 1b75c7299621 |
+| V1 | blind | v1 | v2 | axis | כן | — | 21034 | $0.93 | $1.731 | 23dbb0b67f75 | e616383d64d3 |
 | P1 | planted | p1 | v2 | none | לא | — | 20668 | $0.928 | $1.729 | 18d26f613111 | 0e46cd9e2af2 |
 | P2 | planted | p2 | v2 | none | לא | — | 20668 | $0.928 | $1.729 | 7bdc5aa25f35 | 6cc8aa86c0f2 |
 | D1 | diagnostic | columbia | v2 | none | כן | lines | 2885 | $0.389 | $1.618 | 8eda436ca0da | 731cf840b056 |
 | D2 | diagnostic | columbia | v2 | columbia | כן | names | 21151 | $0.931 | $1.732 | 13f4c7abd983 | c270604408e2 |
 
-Round-1 expected total: $16.18 (estimate); each worst case assumes the whole 64000 output tokens are used.
+Round-1 expected total: $17.11 (estimate); each worst case assumes the whole 64000 output tokens are used.

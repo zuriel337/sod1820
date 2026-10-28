@@ -112,7 +112,7 @@ test("EXP-16 prompt v2: the same instruction text in every arm; the story, the m
   assert.ok(/D45\+/.test(lineOnly.user) && /A45-/.test(lineOnly.user) && !/D44\+/.test(lineOnly.user));
   assert.ok(FINDINGS_SCHEMA_V2.properties.findings.items.required.includes("tier"));
   assert.deepEqual(FINDINGS_SCHEMA_V2.properties.findings.items.properties.tier.enum, ["A", "B", "C"]);
-  assert.deepEqual(Object.keys(STORIES), ["columbia", "wrong", "none"]);
+  assert.deepEqual(Object.keys(STORIES), ["columbia", "wrong", "none", "axis"]);
 });
 
 test("EXP-16 plan: S1 is the EXP-15 request byte for byte; every request hash is unique; blind runs carry no hint; diagnostics are marked and last; targets are in no request", () => {
@@ -132,7 +132,7 @@ test("EXP-16 plan: S1 is the EXP-15 request byte for byte; every request hash is
     for (const target of TARGETS) assert.equal(prose.includes(target), false, `${run.id}: the harness's own text contains a target`);
     hashes.set(run.id, requestSha256(request));
     assert.match(lockSha256(request), /^[0-9a-f]{64}$/);
-    if (run.series === "diagnostic") { assert.ok(run.hint, `${run.id} is a diagnostic: it has a hint`); assert.ok(run.priority >= 4, "diagnostics run last"); } else { assert.equal(run.hint, undefined, `${run.id}: a blind run has no hint`); assert.ok(run.priority <= 3); }
+    if (run.series === "diagnostic") { assert.ok(run.hint, `${run.id} is a diagnostic: it has a hint`); assert.ok(run.priority >= 4, "diagnostics run last"); } else { assert.equal(run.hint, undefined, `${run.id}: a blind run has no hint`); assert.ok(run.priority <= 3.5); }
     if (run.series === "planted") assert.equal(ctx.region.synthetic, true);
   }
   assert.equal(new Set(hashes.values()).size, hashes.size, "no two runs send the same request");
@@ -145,7 +145,7 @@ test("EXP-16 plan: S1 is the EXP-15 request byte for byte; every request hash is
 });
 
 test("EXP-16 ledger and guard: the three EXP-15 calls are in it, the guard refuses a worst case past the hard guard and new arms past the stop level, and every call appends its cost", () => {
-  const ledger = loadLedger(`${DIR}controls/budget-ledger.json`);
+  const ledger = loadLedger(`${DIR}controls/budget-ledger.seed.json`);
   assert.equal(spentOf(ledger), 2.481606);
   assert.deepEqual([ledger.cap_usd, ledger.hard_guard_usd, ledger.stop_new_usd], [BUDGET.cap_usd, BUDGET.hard_guard_usd, BUDGET.stop_new_usd]);
   assert.equal(guardSpend(ledger, 3.5).ok, true);
@@ -165,7 +165,7 @@ test("EXP-16 ledger and guard: the three EXP-15 calls are in it, the guard refus
 });
 
 import { writeFileSync as writeFile, rmSync } from "node:fs";
-function writeLedgerCopy(path) { writeFile(path, readFileSync(`${DIR}controls/budget-ledger.json`, "utf8")); }
+function writeLedgerCopy(path) { writeFile(path, readFileSync(`${DIR}controls/budget-ledger.seed.json`, "utf8")); }
 function rmIfExists(path) { if (existsSync(path)) rmSync(path); }
 
 test("EXP-16 synthetic windows verify against their own letters only, and the verdict says so; real windows still need the engine", () => {
@@ -219,7 +219,7 @@ test("EXP-16 summary: blind, planted and diagnostic runs are in separate section
   const raw = [{ id: "r1.f01", tier: "A", story_related: true, kind: "word", parts: [], from_finding: "" }];
   const response = { ms: 1000, cost: { usd: 0.9 }, summary: { stop_reason: "end_turn", usage: { input_tokens: 10, output_tokens: 5 } } };
   const item = (id, series, group) => ({ run: { id, series, group, note: "n" }, classified, raw, response });
-  const text = renderSummary({ runs: [item("S2", "blind", "story"), item("N1", "blind", "nostory"), item("D2", "diagnostic", "diagnostic")], reference: null, ledger: { spent_usd: 4, cap_usd: 40, remaining_usd: 36, entries: [] }, targets: [] });
+  const text = renderSummary({ runs: [item("S2", "blind", "story"), item("N1", "blind", "nostory"), item("D2", "diagnostic", "diagnostic")], reference: null, ledger: { spent_usd: 4, cap_usd: 40, remaining_usd: 36, entries: [{ id: "x", usd: 4 }] }, targets: [] });
   assert.ok(text.indexOf("## 1.") < text.indexOf("## 2.") && text.indexOf("## 2.") < text.indexOf("## 4."));
   assert.match(text, /בדיקות אבחון \(לא עיוורות/);
   assert.match(text, /אינה סוגרת את כיוון הגילוי/);
@@ -232,16 +232,19 @@ test("EXP-16 runner fails closed: without the experiment's own credential a call
   const env = { ...process.env };
   delete env[KEY_ENV];
   delete env.ANTHROPIC_API_KEY;
+  for (const name of ["ELS_PROXY_URL", "ELS_PROXY_TOKEN", "ELS_PROXY_JWT"]) delete env[name];
+  const responseBefore = existsSync(`${DIR}controls/runs/S2/round1-response.json`);
   for (const stage of ["preflight", "call1"]) {
     const run = spawnSync(process.execPath, [`${DIR}run-live-reading.mjs`, stage, "--run", "S2"], { env, cwd: fileURLToPath(new URL("../", import.meta.url)), encoding: "utf8" });
     assert.equal(run.status, 2, `${stage}: exit code`);
     assert.match(run.stderr, /no credential/);
     assert.equal(run.stdout.trim(), "");
   }
-  assert.equal(existsSync(`${DIR}controls/runs/S2/round1-response.json`), false);
+  assert.equal(existsSync(`${DIR}controls/runs/S2/round1-response.json`), responseBefore, "the call stage wrote nothing");
   const budget = spawnSync(process.execPath, [`${DIR}run-live-reading.mjs`, "budget"], { env, cwd: fileURLToPath(new URL("../", import.meta.url)), encoding: "utf8" });
   assert.equal(budget.status, 0);
-  assert.equal(JSON.parse(budget.stdout).remaining_usd, 37.518394);
+  assert.equal(JSON.parse(budget.stdout).cap_usd, 40);
+  assert.ok(JSON.parse(budget.stdout).spent_usd >= 2.481606, "the live ledger only grows from the seeded EXP-15 spend");
 });
 
 test("EXP-16 chance model: built from the Torah stream only (its md5 equals the canonical table), expected chance occurrences follow letter frequencies, and the model refuses a text that is not the stream", () => {
@@ -327,7 +330,7 @@ const localEngine = ({ log = [] } = {}) => async ({ term, skip, pageSize, afterS
 function fakeWorld({ answers, creates = [], ledgerSpent = 0 }) {
   const dir = mkdtempSync(`${tmpdir()}/exp16-`);
   const ledgerPath = `${dir}/ledger.json`;
-  copyFileSync(`${DIR}controls/budget-ledger.json`, ledgerPath);
+  copyFileSync(`${DIR}controls/budget-ledger.seed.json`, ledgerPath);
   if (ledgerSpent) { const l = JSON.parse(readFileSync(ledgerPath, "utf8")); l.entries.push({ id: "filler", usd: ledgerSpent }); writeFileSync2(ledgerPath, JSON.stringify(l)); }
   const events = [];
   let call = 0;
@@ -462,4 +465,37 @@ test("EXP-16 verifier (fakes): letters from the certified Torah text, plain rows
   await assert.rejects(() => verifyItems([item("אבגד", 10, 4545)], { torah: TORAH, rpc: down }), EngineUnavailableError);
   assert.throws(() => makeRpc({ anonKey: "" }), EngineUnavailableError);
   assert.ok(typeof reserve === "function" && typeof settle === "function" && typeof buildContinuation === "function" && typeof callOnce === "function");
+});
+
+test("EXP-16 case V1 (a saved cipher): the window is built around the engine's occurrence, equals the canonical table by md5, the prompt gives only the region and the axis phrase from the data, and no phrase or description is in the library", () => {
+  const engine = JSON.parse(readFileSync(`${DIR}review/case-v1-engine.json`, "utf8"));
+  const canonical = JSON.parse(readFileSync(`${DIR}review/case-v1-md5-canonical.json`, "utf8")).windows[0];
+  const file = JSON.parse(readFileSync(`${DIR}data/windows/v1.json`, "utf8"));
+  assert.equal(file.md5_window, canonical.md5_window, "the page copy equals public.torah_stream for the whole window");
+  assert.equal(file.width, 5541);
+  assert.equal(file.axis.skip, 5541);
+  assert.equal(file.axis.dir, -1);
+  assert.equal(file.axis.start, engine.occurrences[0].start, "the occurrence is the engine's, not the saved record's (which has no start_index)");
+  const ctx = loadContext(PAGE, { regionPath: regionPathOf("v1") });
+  assert.equal(ctx.pageCheck.mismatches.length, 0);
+  assert.deepEqual([ctx.region.nRows, ctx.region.nCols, ctx.region.W], [33, 41, 5541]);
+  assert.deepEqual(ctx.region.axisCells[0], [21, 21]);
+  assert.deepEqual(ctx.region.axisCells.at(-1), [13, 21]);
+  const spelled = ctx.region.axisCells.map(([i, j]) => ctx.region.letterAt(i, j)).join("");
+  assert.equal(spelled, file.axis.text.replace(/\s+/g, "").replace(/ם/g, "מ"), "the marked cells spell the phrase in the engine's reading direction");
+  assert.deepEqual(engine.occurrences[0].positions.map((p) => p - 5541 * 0).slice(0, 2), [236297, 230756]);
+  const run = RUNS.find((r) => r.id === "V1");
+  const { round1, request } = round1RequestV2(ctx, run);
+  const user = request.messages[0].content;
+  assert.equal(user.split(file.axis.text).length - 1, 1, "the phrase appears once, in the background paragraph");
+  assert.match(round1.prose.intro, /אין תיאור נוסף ואין נושא/);
+  assert.ok(user.includes("המופע הנבחר הוא 9 האותיות של טור C21 בשורות R13–R21"));
+  assert.equal(run.hint, undefined);
+  assert.equal(run.series, "blind");
+  for (const name of readdirSync(`${DIR}lib`)) assert.equal(readFileSync(`${DIR}lib/${name}`, "utf8").includes("וישבת"), false, `lib/${name} contains the saved phrase`);
+  assert.equal(readFileSync(`${DIR}run-live-reading.mjs`, "utf8").includes("וישבת"), false);
+  assert.equal(readFileSync(`${DIR}run-controls.mjs`, "utf8").includes("וישבת"), false);
+  assert.throws(() => buildRound1V2({ region: ctxOf({ region: "w01" }).region, lines: ctxOf({ region: "w01" }).lines, story: "axis", marked: false }), /axis background needs a marked axis/);
+  // nothing that was not meant to be given: the request holds no 'record', 'cipher' or description wording
+  assert.equal(/רשומה|צופן|תיאור הרשומה/.test(`${request.system}${round1.prose.intro}${round1.prose.task}`), false);
 });

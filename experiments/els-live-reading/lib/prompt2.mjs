@@ -8,7 +8,8 @@ import { KIND_VALUES, MAX_FINDINGS, STORY, SYSTEM, renderGrid, renderLines } fro
 import { axisSummary } from "./region.mjs";
 
 export const STORY_WRONG = "קונצרט ענק באצטדיון, שבו אלפי אנשים שרו יחד עד חצות";
-export const STORIES = Object.freeze({ columbia: STORY, wrong: STORY_WRONG, none: null });
+// "axis" = no description and no topic, but the phrase of the marked axis is given (taken from the region data, never from this file).
+export const STORIES = Object.freeze({ columbia: STORY, wrong: STORY_WRONG, none: null, axis: null });
 export const TIERS = Object.freeze(["A", "B", "C"]);
 export const FIRST_GROUP_SIZE = 12;
 
@@ -54,10 +55,13 @@ export function buildRound1V2({ region, lines, story = "columbia", marked = fals
   if (marked && !region.axisCells.length) throw new Error("this region has no selected occurrence to mark");
   const shown = onlyLines ? lines.filter((line) => onlyLines.includes(line.id)) : lines;
   if (onlyLines && shown.length !== onlyLines.length) throw new Error("unknown line id in onlyLines");
-  const intro = STORIES[story]
-    ? ["## הרקע", `„${STORIES[story]}”`, "זה תיאור כללי בלבד. אינך מחויב לנושא הזה ואין דרישה שההצעות יהיו קשורות אליו."].join("\n")
-    : ["## הרקע", "אין תיאור ואין נושא. חפש עברית מעניינת באופן כללי, לפי שיקול דעתך. סמן story_related=false בכל ההצעות."].join("\n");
+  if (story === "axis" && (!marked || !region.axis?.text)) throw new Error("the axis background needs a marked axis with its phrase in the region data");
   const axis = marked ? axisSummary(region) : null;
+  const intro = story === "axis"
+    ? ["## הרקע", `הציר המסומן בקטע הוא הביטוי „${axis.text}”. אין תיאור נוסף ואין נושא. חפש עברית מעניינת באופן כללי, לפי שיקול דעתך, ואינך מחויב לביטוי הציר. סמן story_related=true רק אם לדעתך ההצעה קשורה בתוכנה לביטוי הציר.`].join("\n")
+    : STORIES[story]
+      ? ["## הרקע", `„${STORIES[story]}”`, "זה תיאור כללי בלבד. אינך מחויב לנושא הזה ואין דרישה שההצעות יהיו קשורות אליו."].join("\n")
+      : ["## הרקע", "אין תיאור ואין נושא. חפש עברית מעניינת באופן כללי, לפי שיקול דעתך. סמן story_related=false בכל ההצעות."].join("\n");
   const spec = [
     "## מה לפניך",
     `קטע מוגבל ממטריצת אותיות: ${region.nRows} שורות (R01–R${pad(region.nRows)}, מלמעלה למטה) ו-${region.nCols} עמודות (C01–C${pad(region.nCols)}). האותיות הן אותיות עבריות בלי ניקוד, והאותיות הסופיות (ך ם ן ף ץ) כתובות בצורתן הרגילה (כ מ נ פ צ).`,

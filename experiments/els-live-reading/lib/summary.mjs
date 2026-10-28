@@ -9,7 +9,7 @@ const kinds = (mix) => `R${mix.R} C${mix.C} D${mix.D} A${mix.A}`;
 
 /** `runs`: [{ run (plan entry or {id, series, group, note}), classified, raw, response, evaluation? , planted? }] ; `reference`: the EXP-15 run in the same shape or null. */
 export function renderSummary({ runs, reference, ledger, targets, priorUsd = 2.481606, chance = null }) {
-  const withMetrics = (item) => { const rows = enrich(item.classified, item.raw, chance); return { ...item, rows, m: runMetrics(rows) }; };
+  const withMetrics = (item) => { const rows = enrich(item.classified, item.raw, chance); if (item.round2) item.round2.rows = enrich(item.round2.classified, item.round2.raw, chance); return { ...item, rows, m: runMetrics(rows) }; };
   const all = [...(reference ? [{ ...reference, run: { id: "EXP-15", series: "blind", group: "story", note: "the original Columbia run (v1 prompt, occurrence marked)" } }] : []), ...runs].map(withMetrics);
   const blind = all.filter((r) => r.run.series === "blind");
   const planted = all.filter((r) => r.run.series === "planted");
@@ -19,7 +19,7 @@ export function renderSummary({ runs, reference, ledger, targets, priorUsd = 2.4
   out.push("## 0. עלות בפועל (לפי usage ומחירון חי, לא חשבונית)");
   let cumulative = priorUsd;
   out.push(table(["ריצה", "סדרה", "stop_reason", "קלט", "פלט", "מהם חשיבה", "שניות", "USD", "מצטבר (כולל EXP-15)"], all.filter((r) => r.run.id !== "EXP-15").map((r) => { const usd = r.response?.cost?.usd ?? 0; cumulative += usd; return [r.run.id, r.run.series, r.response?.summary?.stop_reason, r.response?.summary?.usage?.input_tokens, r.response?.summary?.usage?.output_tokens, r.response?.summary?.usage?.output_tokens_details?.thinking_tokens, r.response?.ms ? (r.response.ms / 1000).toFixed(0) : "—", fmt(usd, 3), fmt(cumulative, 2)]; })));
-  if (ledger) out.push("", `לפי ספר ההוצאות: הוצא ${ledger.spent_usd} USD מתוך תקרה כוללת של ${ledger.cap_usd}; נותר ${ledger.remaining_usd}.`);
+  if (ledger) { const settled = Number(ledger.entries.filter((e) => !e.reserved).reduce((sum, e) => sum + (e.usd ?? 0), 0).toFixed(6)); const reserved = Number(ledger.entries.filter((e) => e.reserved).reduce((sum, e) => sum + (e.usd ?? 0), 0).toFixed(6)); out.push("", `לפי ספר ההוצאות: הוצא בפועל (כולל EXP-15) ${settled} USD מתוך תקרה כוללת של ${ledger.cap_usd}; נותר ${Number((ledger.cap_usd - settled).toFixed(6))}${reserved ? ` (מתוכו ${reserved} שמור כמקרה גרוע לקריאות שעדיין בדרך)` : ""}.`); }
   out.push("");
 
   const story = blind.filter((r) => r.run.group === "story");
@@ -38,6 +38,26 @@ export function renderSummary({ runs, reference, ledger, targets, priorUsd = 2.4
   out.push(table(["ריצה", "הצעות", "אומתו", "ELS", "קצר 3–4", "5–6", "7+", "בלתי סביר במקרה (E<1)", "צפוי במקרה (E≥1) = רעש", "טקסט רגיל", "אחרי ‘המשך’ (from_finding)", "קבוצת ראשונה A", "A: ELS/רגיל", "A: 5+/E<1", "A: סוגי קו", "מחוץ ל-A: ‘מעניין’ (5+ ו-E<1)", "סוגי קו (ELS)"], nostory.map((r) => [r.run.id, r.m.proposals, r.m.verified, r.m.els.n, r.m.els.len3to4, r.m.els.len5to6, r.m.els.len7plus, r.m.els.unlikely, r.m.noise.likelyByChance, r.m.byVerdict.plainText, r.m.continuation.fromFinding, r.m.firstGroup.n, `${r.m.firstGroup.els}/${r.m.firstGroup.plain}`, `${r.m.firstGroup.long}/${r.m.firstGroup.unlikely}`, kinds(r.m.firstGroup.kinds), r.m.outsideFirstGroup.interesting, kinds(r.m.els.kinds)])));
   out.push("", "קבוצה ראשונה (tier A) היא סדר הצגה בלבד: כל ההצעות נשמרו ונבדקו. העמודה ‘מחוץ ל-A: מעניין’ מראה כמה הצעות ארוכות ונדירות נשארו מחוץ לקבוצה הראשונה, כלומר מה היה אובד אילו הוצגה רק היא.");
   out.push("");
+
+  const listing = (r, rows) => table(["id", "טקסט", "קו", "סוג", "אומת ע\"י", "E", "מופעים במנוע", "קשור לסיפור", "tier"], rows.map((x) => [x.id, x.text, x.reading ?? "—", x.kind ?? "—", x.verdict === "verified_by_engine" ? "מנוע" : x.verdict === "verified_plain_text_only" ? "טקסט רגיל" : x.verdict === "verified_synthetic" ? "אזור נטוע" : "לא אומת", x.expected === null ? "—" : x.expected.toExponential(1), x.hits === null ? "—" : `${x.hits}${x.truncated ? "+" : ""}`, x.storyRelated ? "כן" : "לא", x.tier ?? "—"]));
+  out.push("## 2א. מה המודל מצא ואימת — הקבוצה הראשונה (tier A) בכל ריצה עיוורת");
+  out.push("סדר ההצגה הוא של המודל עצמו (אותה קריאה). כל ההצעות נשמרות בקבצי `controls/runs/<id>/classified-round1.json`; כאן רק A, ומתחתיה מה שלא נכנס אליה אך הוא ארוך ובלתי סביר במקרה.");
+  for (const r of [...story, ...nostory]) {
+    const a = r.rows.filter((x) => x.tier === "A");
+    const lost = r.rows.filter((x) => x.tier !== "A" && x.isEls && x.long && x.unlikely);
+    out.push("", `#### ${r.run.id} — ${r.run.note}`);
+    out.push(a.length ? listing(r, a) : "(אין tier; ריצה בפרומפט v1)");
+    if (lost.length) out.push("", `מחוץ לקבוצה הראשונה, ELS ארוכים ובלתי סבירים במקרה (${lost.length}):`, listing(r, lost));
+  }
+  out.push("");
+
+  const cont = blind.filter((r) => r.round2);
+  if (cont.length) {
+    out.push("## 2ב. המשך לפני ואחרי מילים שנמצאו (סבב 2, עיוור: כרטיסים שהכלי בנה מההצעות המאומתות של המודל עצמו)");
+    out.push(table(["ריצה", "הצעות סבב 2", "אומתו", "ELS", "ELS 5+", "בלתי סבירים במקרה", "תוספות (extension)", "חיתוכים (crossing)", "עלות סבב 2 (USD)"], cont.map((r) => { const m2 = runMetrics(r.round2.rows); return [r.run.id, m2.proposals, m2.verified, m2.els.n, m2.els.long, m2.els.unlikely, m2.continuation.extension, m2.continuation.crossing, fmt(r.round2.response?.cost?.usd, 3)]; })));
+    for (const r of cont) { const good = r.round2.rows.filter((x) => x.verified && ((x.isEls && x.long && x.unlikely) || x.phrase)); if (good.length) out.push("", `#### ${r.run.id}: המשכים ארוכים/בלתי סבירים או חלוקות לביטוי`, listing(r, good.slice(0, 15))); }
+    out.push("");
+  }
 
   if (planted.length) {
     out.push("## 3. שחזור מילים נטועות (עיוור עם אמת ידועה)");

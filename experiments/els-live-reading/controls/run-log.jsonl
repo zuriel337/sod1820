@@ -1,0 +1,86 @@
+{"at":"2026-10-28T11:51:33.739Z","event":"plan_verified","runs":18}
+{"at":"2026-10-28T11:51:35.260Z","event":"selftest","results":[{"name":"known model with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-28T11:51:49.363Z","event":"plan_verified","runs":18}
+{"at":"2026-10-28T11:51:50.784Z","event":"selftest","results":[{"name":"known model with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-28T11:51:51.636Z","event":"ready","concurrency":3,"spent":2.481606}
+{"at":"2026-10-28T11:51:51.636Z","event":"group_start","priority":1,"runs":["S2","S3","S4a","S4b","S4c","S4d","S4e","S4f","S1"]}
+{"at":"2026-10-28T11:51:53.050Z","event":"batch_created","run":"S2","round":1,"batch":"msgbatch_012P7wo9ybfgTcGsLwQbMagk"}
+{"at":"2026-10-28T11:51:53.191Z","event":"batch_created","run":"S4a","round":1,"batch":"msgbatch_01X1nn7Q8qtpnVweVSFQcsGa"}
+{"at":"2026-10-28T11:51:53.294Z","event":"batch_created","run":"S3","round":1,"batch":"msgbatch_01CDbhxnCgNrkYJ9d4KwMqHK"}
+{"at":"2026-10-28T12:01:53.357Z","event":"call_done","run":"S2","round":1,"batch":"msgbatch_012P7wo9ybfgTcGsLwQbMagk","usd":1.560425,"stop_reason":"end_turn","output_tokens":58146,"ms":592847}
+{"at":"2026-10-28T12:02:05.857Z","event":"verified","run":"S2","round":1,"proposals":60,"verified":60,"items":60}
+{"at":"2026-10-28T12:02:05.857Z","event":"run_finished","run":"S2","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.560425,"usable":true}]}
+{"at":"2026-10-28T12:02:07.515Z","event":"batch_created","run":"S4b","round":1,"batch":"msgbatch_016ZmbAbWRv4UfV5Fz7YeekY"}
+{"at":"2026-10-28T12:07:22.003Z","event":"call_done","run":"S4a","round":1,"batch":"msgbatch_01X1nn7Q8qtpnVweVSFQcsGa","usd":1.25432,"stop_reason":"end_turn","output_tokens":45906,"ms":922506}
+{"at":"2026-10-28T12:07:35.269Z","event":"verified","run":"S4a","round":1,"proposals":60,"verified":60,"items":60}
+{"at":"2026-10-28T12:07:35.269Z","event":"run_finished","run":"S4a","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.25432,"usable":true}]}
+{"at":"2026-10-28T12:07:36.651Z","event":"batch_created","run":"S4c","round":1,"batch":"msgbatch_018AvtZCVPUAyj1GfrHQmRef"}
+{"at":"2026-10-28T12:08:21.308Z","event":"call_done","run":"S4b","round":1,"batch":"msgbatch_016ZmbAbWRv4UfV5Fz7YeekY","usd":1.00383,"stop_reason":"end_turn","output_tokens":35896,"ms":360423}
+{"at":"2026-10-28T12:08:32.180Z","event":"verified","run":"S4b","round":1,"proposals":60,"verified":59,"items":59}
+{"at":"2026-10-28T12:08:32.181Z","event":"run_finished","run":"S4b","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.00383,"usable":true}]}
+{"at":"2026-10-28T12:08:33.798Z","event":"batch_created","run":"S4d","round":1,"batch":"msgbatch_01WF9cg1ZiZrE455SuY4URpM"}
+{"at":"2026-10-28T12:10:24.692Z","event":"call_done","run":"S3","round":1,"batch":"msgbatch_01CDbhxnCgNrkYJ9d4KwMqHK","usd":1.512115,"stop_reason":"end_turn","output_tokens":56217,"ms":1108887}
+{"at":"2026-10-28T12:10:38.328Z","event":"verified","run":"S3","round":1,"proposals":60,"verified":60,"items":60}
+{"at":"2026-10-28T12:10:38.328Z","event":"run_finished","run":"S3","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.512115,"usable":true}]}
+{"at":"2026-10-28T12:10:39.672Z","event":"batch_created","run":"S4e","round":1,"batch":"msgbatch_019gGQMRxASkvjDegzRfndgB"}
+{"at":"2026-10-28T12:19:57.909Z","event":"call_done","run":"S4e","round":1,"batch":"msgbatch_019gGQMRxASkvjDegzRfndgB","usd":1.706725,"stop_reason":"max_tokens","output_tokens":64000,"ms":548226}
+{"at":"2026-10-28T12:19:57.911Z","event":"unusable_answer","run":"S4e","stop_reason":"max_tokens"}
+{"at":"2026-10-28T12:19:57.911Z","event":"run_finished","run":"S4e","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.706725,"usable":false}]}
+{"at":"2026-10-28T12:19:59.605Z","event":"batch_created","run":"S4f","round":1,"batch":"msgbatch_01MLS27QM9sTzcVMAuiegg5y"}
+{"at":"2026-10-28T12:26:29.718Z","event":"call_done","run":"S4d","round":1,"batch":"msgbatch_01WF9cg1ZiZrE455SuY4URpM","usd":1.705665,"stop_reason":"max_tokens","output_tokens":64000,"ms":1057253}
+{"at":"2026-10-28T12:26:29.719Z","event":"unusable_answer","run":"S4d","stop_reason":"max_tokens"}
+{"at":"2026-10-28T12:26:29.719Z","event":"run_finished","run":"S4d","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.705665,"usable":false}]}
+{"at":"2026-10-28T12:26:31.211Z","event":"batch_created","run":"S1","round":1,"batch":"msgbatch_019fpEcYejdU77QyFNHDn8jZ"}
+{"at":"2026-10-28T12:30:58.930Z","event":"call_done","run":"S4c","round":1,"batch":"msgbatch_018AvtZCVPUAyj1GfrHQmRef","usd":1.7058,"stop_reason":"max_tokens","output_tokens":64000,"ms":1383660}
+{"at":"2026-10-28T12:30:58.930Z","event":"unusable_answer","run":"S4c","stop_reason":"max_tokens"}
+{"at":"2026-10-28T12:30:58.930Z","event":"run_finished","run":"S4c","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.7058,"usable":false}]}
+{"at":"2026-10-28T12:32:09.927Z","event":"plan_verified","runs":18}
+{"at":"2026-10-28T12:32:11.282Z","event":"selftest","results":[{"name":"known model with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-28T12:32:12.130Z","event":"ready","concurrency":3,"spent":16.389586}
+{"at":"2026-10-28T12:32:12.131Z","event":"group_start","priority":1,"runs":["S2","S3","S4a","S4b","S4c","S4d","S4e","S4f","S1"]}
+{"at":"2026-10-28T12:32:12.144Z","event":"run_finished","run":"S2","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.560425,"usable":true}]}
+{"at":"2026-10-28T12:32:12.144Z","event":"run_finished","run":"S3","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.512115,"usable":true}]}
+{"at":"2026-10-28T12:32:12.144Z","event":"run_finished","run":"S4a","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.25432,"usable":true}]}
+{"at":"2026-10-28T12:32:12.153Z","event":"unusable_answer","run":"S4c","stop_reason":"max_tokens"}
+{"at":"2026-10-28T12:32:12.154Z","event":"unusable_answer","run":"S4d","stop_reason":"max_tokens"}
+{"at":"2026-10-28T12:32:12.154Z","event":"run_finished","run":"S4b","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.00383,"usable":true}]}
+{"at":"2026-10-28T12:32:12.154Z","event":"run_finished","run":"S4c","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.7058,"usable":false}]}
+{"at":"2026-10-28T12:32:12.154Z","event":"run_finished","run":"S4d","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.705665,"usable":false}]}
+{"at":"2026-10-28T12:32:12.163Z","event":"unusable_answer","run":"S4e","stop_reason":"max_tokens"}
+{"at":"2026-10-28T12:32:12.163Z","event":"run_finished","run":"S4e","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.706725,"usable":false}]}
+{"at":"2026-10-28T12:42:31.908Z","event":"call_done","run":"S4f","round":1,"batch":"msgbatch_01MLS27QM9sTzcVMAuiegg5y","usd":1.706525,"stop_reason":"max_tokens","output_tokens":64000,"ms":1334639}
+{"at":"2026-10-28T12:42:31.909Z","event":"unusable_answer","run":"S4f","stop_reason":"max_tokens"}
+{"at":"2026-10-28T12:42:31.909Z","event":"run_finished","run":"S4f","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.706525,"usable":false}]}
+{"at":"2026-10-28T12:45:37.927Z","event":"call_done","run":"S1","round":1,"batch":"msgbatch_019fpEcYejdU77QyFNHDn8jZ","usd":1.60599,"stop_reason":"end_turn","output_tokens":59970,"ms":1128101}
+{"at":"2026-10-28T12:45:51.241Z","event":"verified","run":"S1","round":1,"proposals":60,"verified":59,"items":59}
+{"at":"2026-10-28T12:45:51.241Z","event":"run_finished","run":"S1","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.60599,"usable":true}]}
+{"at":"2026-10-28T12:45:51.242Z","event":"group_done","priority":1,"spent":16.243001,"settled":16.243001}
+{"at":"2026-10-28T12:45:51.243Z","event":"group_start","priority":2,"runs":["N1","N2a","N2b"]}
+{"at":"2026-10-28T12:45:52.870Z","event":"batch_created","run":"N2b","round":1,"batch":"msgbatch_01HvpNC5MstrvziHUGDff1Zt"}
+{"at":"2026-10-28T12:45:52.975Z","event":"batch_created","run":"N2a","round":1,"batch":"msgbatch_011aqsZ59fV2ijRNTH6d7vxn"}
+{"at":"2026-10-28T12:45:53.168Z","event":"batch_created","run":"N1","round":1,"batch":"msgbatch_01VmPFQMYppWftFs3UXUiygu"}
+{"at":"2026-10-28T12:50:42.436Z","event":"call_done","run":"N2a","round":1,"batch":"msgbatch_011aqsZ59fV2ijRNTH6d7vxn","usd":0.688425,"stop_reason":"end_turn","output_tokens":23280,"ms":288492}
+{"at":"2026-10-28T12:50:54.865Z","event":"verified","run":"N2a","round":1,"proposals":60,"verified":60,"items":60}
+{"at":"2026-10-28T12:50:56.279Z","event":"batch_created","run":"N2a","round":2,"batch":"msgbatch_01VLyWWdyoauepWcx2gwM2hK"}
+{"at":"2026-10-28T12:52:39.878Z","event":"call_done","run":"N2a","round":2,"batch":"msgbatch_01VLyWWdyoauepWcx2gwM2hK","usd":0.398589,"stop_reason":"end_turn","output_tokens":3772,"ms":101250}
+{"at":"2026-10-28T12:52:43.310Z","event":"verified","run":"N2a","round":2,"proposals":13,"verified":13,"items":13}
+{"at":"2026-10-28T12:52:43.310Z","event":"run_finished","run":"N2a","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":0.688425,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.398589,"usable":true}]}
+{"at":"2026-10-28T12:56:53.353Z","event":"call_done","run":"N2b","round":1,"batch":"msgbatch_01HvpNC5MstrvziHUGDff1Zt","usd":0.757285,"stop_reason":"end_turn","output_tokens":26044,"ms":659331}
+{"at":"2026-10-28T12:57:04.808Z","event":"verified","run":"N2b","round":1,"proposals":60,"verified":60,"items":60}
+{"at":"2026-10-28T12:57:06.443Z","event":"batch_created","run":"N2b","round":2,"batch":"msgbatch_017YSz6X3SYSQkoemsPTQyto"}
+{"at":"2026-10-28T12:59:17.732Z","event":"call_done","run":"N1","round":1,"batch":"msgbatch_01VmPFQMYppWftFs3UXUiygu","usd":1.106455,"stop_reason":"end_turn","output_tokens":39997,"ms":784467}
+{"at":"2026-10-28T12:59:28.690Z","event":"verified","run":"N1","round":1,"proposals":60,"verified":60,"items":60}
+{"at":"2026-10-28T12:59:30.281Z","event":"batch_created","run":"N1","round":2,"batch":"msgbatch_012NMFporjWsBZFkVCPsaHr9"}
+{"at":"2026-10-28T12:59:51.772Z","event":"call_done","run":"N2b","round":2,"batch":"msgbatch_017YSz6X3SYSQkoemsPTQyto","usd":0.509395,"stop_reason":"end_turn","output_tokens":6192,"ms":157222}
+{"at":"2026-10-28T12:59:56.809Z","event":"verified","run":"N2b","round":2,"proposals":19,"verified":19,"items":19}
+{"at":"2026-10-28T12:59:56.809Z","event":"run_finished","run":"N2b","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":0.757285,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.509395,"usable":true}]}
+{"at":"2026-10-28T13:02:15.842Z","event":"call_done","run":"N1","round":2,"batch":"msgbatch_012NMFporjWsBZFkVCPsaHr9","usd":0.531989,"stop_reason":"end_turn","output_tokens":4606,"ms":153064}
+{"at":"2026-10-28T13:02:20.593Z","event":"verified","run":"N1","round":2,"proposals":18,"verified":18,"items":18}
+{"at":"2026-10-28T13:02:20.593Z","event":"run_finished","run":"N1","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.106455,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.531989,"usable":true}]}
+{"at":"2026-10-28T13:02:20.593Z","event":"group_done","priority":2,"spent":20.235139,"settled":20.235139}
+{"at":"2026-10-28T13:02:20.593Z","event":"group_start","priority":3,"runs":["P1","P2"]}
+{"at":"2026-10-28T13:02:21.982Z","event":"batch_created","run":"P1","round":1,"batch":"msgbatch_016zYV757mutSPgaaZjqi483"}
+{"at":"2026-10-28T13:02:22.030Z","event":"batch_created","run":"P2","round":1,"batch":"msgbatch_015YF6QJQZceSv8ckngoxiX1"}
+{"at":"2026-10-28T13:13:44.677Z","event":"call_done","run":"P1","round":1,"batch":"msgbatch_016zYV757mutSPgaaZjqi483","usd":0.97911,"stop_reason":"end_turn","output_tokens":34925,"ms":665104}
+{"at":"2026-10-28T13:13:44.682Z","event":"verified","run":"P1","round":1,"proposals":60,"verified":60,"items":60}
+{"at":"2026-10-28T13:13:44.682Z","event":"run_finished","run":"P1","series":"planted","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":0.97911,"usable":true}]}

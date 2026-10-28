@@ -1,0 +1,439 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r2.f01.0",
+        "term": "והמורכב",
+        "start": 159136,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "והמורכב",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r2.f02.0",
+        "term": "מורכב",
+        "start": 168224,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "מורכב",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r2.f03.0",
+        "term": "ברכ",
+        "start": 172766,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "ברכ",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 85,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 85
+          }
+        }
+      },
+      {
+        "key": "r2.f04.0",
+        "term": "המהרה",
+        "start": 195471,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "המהרה",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 3,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 3
+          }
+        }
+      },
+      {
+        "key": "r2.f05.0",
+        "term": "אשר",
+        "start": 231839,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "אשר",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 100,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": true,
+            "truncated": true,
+            "continuation": {
+              "kind": "els_keyset_v1",
+              "after": {
+                "dir": 1,
+                "skip": 4544,
+                "start": 184711
+              }
+            },
+            "returned_hits": 100
+          },
+          "first_page_found": false,
+          "followup": "first page of 100 hits was truncated before start 231839; the same engine contract was asked for the keyset continuation after (skip 4544, start 231838, dir -1) and returned this occurrence"
+        }
+      },
+      {
+        "key": "r2.f06.0",
+        "term": "תבאי",
+        "start": 245494,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "תבאי",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 17,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 17
+          }
+        }
+      },
+      {
+        "key": "r2.f07.0",
+        "term": "ועלו",
+        "start": 245495,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "ועלו",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 19,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 19
+          }
+        }
+      },
+      {
+        "key": "r2.f08.0",
+        "term": "ובשר",
+        "start": 209135,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "ובשר",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 12,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 12
+          }
+        }
+      },
+      {
+        "key": "r2.f09.0",
+        "term": "ומרמהמשוא",
+        "start": 213665,
+        "skip": 4545,
+        "dir": -1,
+        "db_text": "ומרמהמשוא",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r2.f10.0",
+        "term": "תמוה",
+        "start": 195484,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "תמוה",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 32,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 32
+          }
+        }
+      },
+      {
+        "key": "r2.f11.0",
+        "term": "הלל",
+        "start": 195485,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "הלל",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 100,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": true,
+            "truncated": true,
+            "continuation": {
+              "kind": "els_keyset_v1",
+              "after": {
+                "dir": -1,
+                "skip": 4544,
+                "start": 145326
+              }
+            },
+            "returned_hits": 100
+          },
+          "first_page_found": false,
+          "followup": "first page of 100 hits was truncated before start 195485; the same engine contract was asked for the keyset continuation after (skip 4544, start 195484, dir -1) and returned this occurrence"
+        }
+      },
+      {
+        "key": "r2.f12.0",
+        "term": "משמ",
+        "start": 222752,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "משמ",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 100,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": true,
+            "truncated": true,
+            "continuation": {
+              "kind": "els_keyset_v1",
+              "after": {
+                "dir": 1,
+                "skip": 4546,
+                "start": 184851
+              }
+            },
+            "returned_hits": 100
+          },
+          "first_page_found": false,
+          "followup": "first page of 100 hits was truncated before start 222752; the same engine contract was asked for the keyset continuation after (skip 4546, start 222751, dir -1) and returned this occurrence"
+        }
+      },
+      {
+        "key": "r2.f13.0",
+        "term": "רמח",
+        "start": 222755,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "רמח",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 67,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 67
+          }
+        }
+      },
+      {
+        "key": "r2.f14.0",
+        "term": "לרש",
+        "start": 200029,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "לרש",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 100,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": true,
+            "truncated": true,
+            "continuation": {
+              "kind": "els_keyset_v1",
+              "after": {
+                "dir": -1,
+                "skip": 4546,
+                "start": 260944
+              }
+            },
+            "returned_hits": 100
+          }
+        }
+      },
+      {
+        "key": "r2.f15.0",
+        "term": "מהאליאהבהתשבע",
+        "start": 136419,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "מהאליאהבהתשבע",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r2.f16.0",
+        "term": "הנבא",
+        "start": 159142,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "הנבא",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 10,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 10
+          }
+        }
+      },
+      {
+        "key": "r2.f17.0",
+        "term": "באלה",
+        "start": 181870,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "באלה",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 22,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 22
+          }
+        }
+      },
+      {
+        "key": "r2.f18.0",
+        "term": "קדמ",
+        "start": 163656,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "קדמ",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 24,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 24
+          }
+        }
+      },
+      {
+        "key": "r2.f19.0",
+        "term": "נושא",
+        "start": 159113,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "נושא",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 15,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 15
+          }
+        }
+      }
+    ]
+  }
+]

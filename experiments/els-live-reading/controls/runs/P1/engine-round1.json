@@ -1,0 +1,486 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "כעתשמהיו",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "גרשהמנ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "שלאמכ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "כנעלמ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "תשחית",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "תנמעט",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "הכינה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "במלאתרשעמר",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "מעשרת",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f10.0",
+        "term": "למחשב",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f11.0",
+        "term": "השתלב",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f12.0",
+        "term": "שמחהגדול",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f13.0",
+        "term": "ימניתהשכר",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f14.0",
+        "term": "פדותבתאוה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f15.0",
+        "term": "מלאכי",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f16.0",
+        "term": "והכתו",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f17.0",
+        "term": "נועמ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f18.0",
+        "term": "מכירה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f19.0",
+        "term": "תחתיה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f20.0",
+        "term": "דרומי",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f21.0",
+        "term": "עשהוכלביו",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f22.0",
+        "term": "מנהג",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f23.0",
+        "term": "ויחנו",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f24.0",
+        "term": "שועלי",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f25.0",
+        "term": "ואכלוהרג",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f26.0",
+        "term": "הדוהר",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f27.0",
+        "term": "החשד",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f28.0",
+        "term": "משתגה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f29.0",
+        "term": "גאול",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f30.0",
+        "term": "נמלה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f31.0",
+        "term": "שוריו",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f32.0",
+        "term": "מקבת",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f33.0",
+        "term": "כלחפש",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f34.0",
+        "term": "ירכיו",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f35.0",
+        "term": "מיהאב",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f36.0",
+        "term": "עלאשה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f37.0",
+        "term": "והשאל",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f38.0",
+        "term": "למחר",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f39.0",
+        "term": "בקשנה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f40.0",
+        "term": "במהרה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f41.0",
+        "term": "ללחמלכמ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f42.0",
+        "term": "אהוב",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f43.0",
+        "term": "וירשת",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f44.0",
+        "term": "יפרעו",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f45.0",
+        "term": "מוליכ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f46.0",
+        "term": "ישאאפבשרימ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f47.0",
+        "term": "דלכוח",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f48.0",
+        "term": "חמאה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f49.0",
+        "term": "וירחמ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f50.0",
+        "term": "תוריש",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f51.0",
+        "term": "ולהבת",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f52.0",
+        "term": "השרפ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f53.0",
+        "term": "שלט",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f54.0",
+        "term": "אבאלא",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f55.0",
+        "term": "בינאמת",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f56.0",
+        "term": "השמש",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f57.0",
+        "term": "שכנעכ",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f58.0",
+        "term": "אליה",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f59.0",
+        "term": "חיית",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      },
+      {
+        "key": "r1.f60.0",
+        "term": "משמע",
+        "letters_match": true,
+        "engine": {
+          "status": "synthetic_region"
+        }
+      }
+    ]
+  }
+]

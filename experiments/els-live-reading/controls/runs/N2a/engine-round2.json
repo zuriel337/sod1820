@@ -1,0 +1,286 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r2.f01.0",
+        "term": "להורהדאגהכי",
+        "start": 77748,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "להורהדאגהכי",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r2.f02.0",
+        "term": "מלאו",
+        "start": 95934,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "מלאו",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 22,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 22
+          }
+        }
+      },
+      {
+        "key": "r2.f03.0",
+        "term": "יצא",
+        "start": 118660,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "יצא",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 66,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 66
+          }
+        }
+      },
+      {
+        "key": "r2.f04.0",
+        "term": "ויעדה",
+        "start": 86840,
+        "skip": 4545,
+        "dir": 1,
+        "db_text": "ויעדה",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r2.f05.0",
+        "term": "מורדעיניכ",
+        "start": 114113,
+        "skip": 4545,
+        "dir": -1,
+        "db_text": "מורדעיניכ",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r2.f06.0",
+        "term": "נובע",
+        "start": 59577,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "נובע",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 3,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 3
+          }
+        }
+      },
+      {
+        "key": "r2.f07.0",
+        "term": "נפל",
+        "start": 86843,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "נפל",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 36,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 36
+          }
+        }
+      },
+      {
+        "key": "r2.f08.0",
+        "term": "אבחר",
+        "start": 100490,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "אבחר",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r2.f09.0",
+        "term": "שדה",
+        "start": 95940,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "שדה",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 64,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 64
+          }
+        }
+      },
+      {
+        "key": "r2.f10.0",
+        "term": "רמז",
+        "start": 127758,
+        "skip": 4546,
+        "dir": 1,
+        "db_text": "רמז",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 15,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 15
+          }
+        }
+      },
+      {
+        "key": "r2.f11.0",
+        "term": "משמרה",
+        "start": 118668,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "משמרה",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 2,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 2
+          }
+        }
+      },
+      {
+        "key": "r2.f12.0",
+        "term": "יחד",
+        "start": 91398,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "יחד",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 28,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 28
+          }
+        }
+      },
+      {
+        "key": "r2.f13.0",
+        "term": "ממש",
+        "start": 95943,
+        "skip": 4544,
+        "dir": 1,
+        "db_text": "ממש",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 100,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": true,
+            "truncated": true,
+            "continuation": {
+              "kind": "els_keyset_v1",
+              "after": {
+                "dir": -1,
+                "skip": 4544,
+                "start": 147005
+              }
+            },
+            "returned_hits": 100
+          }
+        }
+      }
+    ]
+  }
+]

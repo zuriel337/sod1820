@@ -1,0 +1,59 @@
+{
+  "source": "public.els_search_page_v1 (the public contract of els_search_page_core_v1), term folded to וישבתביומ, scope torah, skip range exactly the saved skip, page size 100; run 2026-10-28. The saved records (public.els_records ids 48e30e6d-c6bf-45a0-85bf-9814f4891796 and 097d556f-19c5-40ca-a075-834b5c904aed) have no start_index; their description, title and stored positions were NOT read before the blind answer was saved.",
+  "occurrences": [
+    {
+      "skip": 5541,
+      "status": "OK",
+      "hits": 1,
+      "truncated": false,
+      "start": 236297,
+      "end": 191969,
+      "dir": -1,
+      "direction": "back",
+      "positions": [
+        236297,
+        230756,
+        225215,
+        219674,
+        214133,
+        208592,
+        203051,
+        197510,
+        191969
+      ],
+      "matrix_width": 5541,
+      "column": 3575,
+      "rows": [
+        34,
+        42
+      ]
+    },
+    {
+      "skip": 13513,
+      "status": "OK",
+      "hits": 1,
+      "truncated": false,
+      "start": 194183,
+      "end": 302287,
+      "dir": 1,
+      "direction": "fwd",
+      "positions": [
+        194183,
+        207696,
+        221209,
+        234722,
+        248235,
+        261748,
+        275261,
+        288774,
+        302287
+      ]
+    }
+  ],
+  "chosen": {
+    "skip": 5541,
+    "reason": "the saved skip is the matrix width, so the phrase is one column and a 33-row window fits in the Torah (55 rows of 5541); at width 13513 the Torah has only 22 rows"
+  },
+  "phrase": "וישבת ביום",
+  "phrase_note": "the axis phrase as ZURIEL gave it (two words; the final mem is written in its regular form in the matrix)"
+}

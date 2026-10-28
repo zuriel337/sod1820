@@ -1,0 +1,4 @@
+{
+  "source": "result of review/case-v1-md5.sql executed read-only against public.torah_stream (project linswmnnkjxvweumprav) on 2026-10-28; equal to the md5 of the same window computed from the text embedded in the page",
+  "windows": [ { "id": "v1", "md5_window": "af6728bd52c731d5ca29b4950d4bc738" } ]
+}
