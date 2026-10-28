@@ -85,9 +85,42 @@ function materialSeriesCategories(rows) {
   });
 }
 
+function findingSourceRef(value) {
+  return clean(value).split("#", 1)[0] || null;
+}
+
+function publicFindingsForMaterial(findings) {
+  if (clean(findings?.availability?.research).toLowerCase() !== "ok") return [];
+  const seen = new Set();
+  const out = [];
+  for (const group of Array.isArray(findings?.sourceGroups) ? findings.sourceGroups : []) {
+    const groupSourceRef = findingSourceRef(group?.sourceRef);
+    for (const finding of Array.isArray(group?.universalFindings) ? group.universalFindings : []) {
+      const findingRef = clean(finding?.id);
+      if (!findingRef || seen.has(findingRef)) continue;
+      seen.add(findingRef);
+      const sourceRefs = [...new Set([
+        ...(Array.isArray(finding?.evidence?.refs) ? finding.evidence.refs : []),
+        groupSourceRef,
+      ].map(findingSourceRef).filter(Boolean))];
+      if (!sourceRefs.length) continue;
+      const researchObjectId = clean(finding?.identity?.sourceIdentity?.researchObjectId);
+      out.push({
+        findingRef,
+        sourceRefs,
+        href: researchObjectId ? `/world?finding=${encodeURIComponent(researchObjectId)}` : null,
+        stage: finding?.stage ?? null,
+        verificationState: finding?.verification?.verification_state ?? null,
+        publicationState: finding?.status ?? null,
+      });
+    }
+  }
+  return out;
+}
+
 // This is an additive bridge: the existing public readers above remain the
 // source/access authority. Topic cards deliberately enter compatibility only.
-function publicContentProjectionForMaterial(identity, rows, { findingsAvailable = false } = {}) {
+function publicContentProjectionForMaterial(identity, rows, { findings = null } = {}) {
   const material = Array.isArray(rows) ? rows : [];
   const legacyTopics = adaptLegacyTopicsV1(material
     .filter((row) => row.type === "topics")
@@ -108,14 +141,17 @@ function publicContentProjectionForMaterial(identity, rows, { findingsAvailable 
   return buildPublicWorldContentProjectionV1({
     ...adapted,
     seriesCategories: materialSeriesCategories(material),
+    findings: publicFindingsForMaterial(findings),
     compatibility: { legacyTopics },
     coverage: {
       sources: { available: true },
       occurrences: { available: true },
       clusters: { available: true },
       seriesCategories: { available: true },
-      findings: { available: findingsAvailable },
-      treeRelations: { available: findingsAvailable },
+      findings: { available: clean(findings?.availability?.research).toLowerCase() === "ok" },
+      // A promoted pointer is not by itself a documented graph edge or
+      // governed attachment, so this contributor reader emits no relation.
+      treeRelations: { available: false },
       legacyTopics: { available: true },
     },
   });
@@ -187,8 +223,6 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
     availability: value?.availability || "unavailable",
   }]));
   const orderedRows = [...items.values()].sort((left, right) => clean(right.date).localeCompare(clean(left.date)) || left.id.localeCompare(right.id));
-  const findingsState = clean(findings?.availability?.research).toLowerCase();
-  const findingsAvailable = findingsState === "ok" || findingsState === "available";
   return Object.freeze({
     identity,
     findings,
@@ -201,7 +235,7 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
     truthBoundary: "A research finding remains attached to its existing source_ref and is never counted as another source.",
     // Additive during migration. Existing consumers keep items/total while
     // World and News can move to this one public DTO independently.
-    contentProjection: publicContentProjectionForMaterial(identity, orderedRows, { findingsAvailable }),
+    contentProjection: publicContentProjectionForMaterial(identity, orderedRows, { findings }),
   });
 }
 
