@@ -636,7 +636,7 @@ async function fetchContributor(client, slug) {
 // remain separate provenance axes in the view; source ownership never rewrites research authorship.
 // Which rows come back is decided by RLS for the client in use (anon in PUBLIC mode, the viewer's
 // session in ADMIN mode), so person-only/private material is never broadened by this projection.
-async function fetchResearchObjects(client, contributorId, aliases, sourceRef = null) {
+async function fetchResearchObjects(client, contributorId, aliases, sourceRef = null, { promotedOnly = false } = {}) {
   const fields = "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,promoted_node_id,parent_id,meta,privacy_scope";
   const contributorFilter = [
     `source_contributor_id.eq.${clean(contributorId)}`,
@@ -650,6 +650,10 @@ async function fetchResearchObjects(client, contributorId, aliases, sourceRef = 
       .select(fields, first ? { count: "exact" } : undefined)
       .or(contributorFilter);
     if (exactSourceRef) query = query.like("source_ref", `${exactSourceRef}%`);
+    // The source library must stay fast, but it also needs the visitor's
+    // documented location in the tree. Read only already-canonical, already-
+    // promoted findings here — never the contributor's full research corpus.
+    if (promotedOnly) query = query.eq("status", "canonical").not("promoted_node_id", "is", null);
     return query.order("created_at", { ascending: false }).range(start, end);
   }, {
     pageSize: exactSourceRef ? 100 : RESEARCH_PAGE,
@@ -779,17 +783,17 @@ export async function fetchContributorFindingsProjection(slug, {
   const aliases = uniq([contributor.display_name, ...(Array.isArray(contributor.wa_names) ? contributor.wa_names : [])]);
   const focusedOccurrenceId = channelUpdateOccurrenceId(sourceRef);
   const focusedSourceRef = focusedOccurrenceId ? `channel_updates:${focusedOccurrenceId}` : null;
-  // The source library is a reading surface, not the all-research review table. Loading thousands
-  // of research rows before showing source texts made large contributors appear stuck. The library
-  // therefore opens from the complete RLS-filtered source corpus first. An exact occurrence link
-  // still loads the small research slice belonging to that occurrence.
-  const deferResearch = loadProfile === CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY && !focusedSourceRef;
+  // The source library is a reading surface, not the all-research review table. It reads the
+  // complete RLS-filtered source corpus plus only already-promoted canonical findings, so a
+  // visitor can see documented tree placement without loading the contributor's full corpus.
+  // An exact occurrence link still loads the small research slice belonging to that occurrence.
+  const sourceLibraryTreeOnly = loadProfile === CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY && !focusedSourceRef;
 
   const settled = {};
   const [research, sources, contributions, topics] = await Promise.allSettled([
-    deferResearch
-      ? Promise.resolve({ rows: [], total: null, truncated: false, deferred: true })
-      : fetchResearchObjects(client, contributor.id, aliases, focusedSourceRef),
+    fetchResearchObjects(client, contributor.id, aliases, focusedSourceRef, {
+      promotedOnly: sourceLibraryTreeOnly,
+    }),
     fetchSourceMessages(client, contributor, aliases, focusedSourceRef),
     focusedSourceRef ? Promise.resolve({ rows: [], total: 0, truncated: false }) : fetchContributorContributions(client, contributor.id),
     focusedSourceRef ? Promise.resolve([]) : topicsReader(aliases),
@@ -801,7 +805,9 @@ export async function fetchContributorFindingsProjection(slug, {
   const contributionValue = value(contributions, { rows: [], total: 0, truncated: false });
   const topicRows = value(topics, []);
 
-  const terms = uniq(researchValue.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
+  // Tree placement does not require lexical enrichment. Skipping it for the library's bounded
+  // promoted slice prevents a large writer from turning one selection into a second broad read.
+  const terms = sourceLibraryTreeOnly ? [] : uniq(researchValue.rows.flatMap((row) => Array.isArray(row.terms) ? row.terms : []));
   let lexicalRows = [];
   try {
     lexicalRows = await fetchLexicalRows(client, terms);
@@ -826,12 +832,13 @@ export async function fetchContributorFindingsProjection(slug, {
     focus: focusedSourceRef ? { sourceRef: focusedSourceRef, exactOccurrence: true } : null,
     availability: {
       ...availability,
-      research: deferResearch ? "deferred" : availability.research,
+      research: availability.research,
     },
     loadState: {
-      researchObjectsTotal: deferResearch ? null : researchValue.total,
+      researchObjectsTotal: researchValue.total,
       researchObjectsTruncated: researchValue.truncated,
-      researchObjectsDeferred: deferResearch,
+      researchObjectsDeferred: false,
+      researchObjectsTreeOnly: sourceLibraryTreeOnly,
       contributionsTotal: contributionValue.total,
       contributionsTruncated: contributionValue.truncated,
       sourceMessagesLoaded: sourceValue.rows.length,
