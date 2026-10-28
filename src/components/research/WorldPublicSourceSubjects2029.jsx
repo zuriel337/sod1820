@@ -80,7 +80,7 @@ export default function WorldPublicSourceSubjects2029({ peopleIndex = null }) {
     <small>{item.type === "approved_topic" ? CANONICAL_PUBLIC_UI_COPY.action.topic : CANONICAL_PUBLIC_UI_COPY.action.source} ←</small>
   </Link>;
 
-  return <div ref={anchor} className="sod29-world-source-subject-index"
+  return <div ref={anchor} id="world-public-content-map" className="sod29-world-source-subject-index"
     aria-label="נושאים ומקורות מתוך עץ המציאות" data-world-public-source-subjects>
     <div className="sod29-world-source-subject-head">
       <div>
