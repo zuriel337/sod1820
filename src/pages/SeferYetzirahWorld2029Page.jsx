@@ -1,7 +1,7 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import BookReadingLayout2029 from "../components/books2029/BookReadingLayout2029.jsx";
-import StructureCatalog from "../components/books2029/SeferYetzirahStructureCatalog2029.jsx";
+import StructureCatalog, { isSupportedStructure } from "../components/books2029/SeferYetzirahStructureCatalog2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
   SEFER_YETZIRAH_COMMENTATORS,
@@ -68,13 +68,14 @@ function SourcePanel({ page, onPage, onReturn, hasStructure }) {
 
   const submit = event => {
     event.preventDefault();
-    onPage(Math.min(SEFER_YETZIRAH_SOURCE.pdfPages, Math.max(1, Number(draft) || 1)));
+    const number = Number(draft);
+    onPage(Math.min(SEFER_YETZIRAH_SOURCE.pdfPages, Math.max(1, Number.isFinite(number) ? Math.trunc(number) || 1 : 1)));
   };
 
-  return <aside ref={fullscreenRef} id="yetzirah29-source" className="yetzirah29-source book-fullscreen29-target" aria-labelledby="yetzirah29-source-title">
+  return <aside ref={fullscreenRef} tabIndex={-1} id="yetzirah29-source" className="yetzirah29-source book-fullscreen29-target" aria-labelledby="yetzirah29-source-title">
     <header>
       <div><span>הספר פתוח תמיד</span><h2 id="yetzirah29-source-title">עמוד PDF {page}</h2></div>
-      {hasStructure && <button type="button" onClick={onReturn}>חזרה למבנה הנבחר</button>}<BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="yetzirah29-source" />
+      {hasStructure && <button className="yetzirah29-return" type="button" onClick={onReturn}>חזרה למבנה הנבחר</button>}<BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="yetzirah29-source" />
     </header>
     <div className="yetzirah29-pdf" data-book-pdf-frame><iframe key={page} src={pdfUrl} title={`${SEFER_YETZIRAH_SOURCE.title}, עמוד ${page}`} loading="eager" /></div>
     <form className="yetzirah29-page-nav" onSubmit={submit} aria-label="מעבר בין 220 עמודי הספר">
@@ -209,8 +210,26 @@ function VolumeMap({ onPage }) {
 
 export default function SeferYetzirahWorld2029Page() {
   const [page, setPage] = useState(requestedPage);
-  const [structureId, setStructureId] = useState(() => new URLSearchParams(window.location.search).get("structure") || "");
-  const [componentId, setComponentId] = useState(() => new URLSearchParams(window.location.search).get("component") || "");
+  const scrollTimer = useRef(null);
+  const scrollEpoch = useRef(0);
+  const scrollTarget = useRef("");
+  useEffect(() => {
+    const cancel = () => { scrollEpoch.current += 1; clearTimeout(scrollTimer.current); };
+    const onFocus = event => { if (event.target?.id !== scrollTarget.current) cancel(); };
+    document.addEventListener("pointerdown", cancel, true);
+    document.addEventListener("keydown", cancel, true);
+    document.addEventListener("wheel", cancel, { capture: true, passive: true });
+    document.addEventListener("focusin", onFocus, true);
+    return () => { cancel(); document.removeEventListener("pointerdown", cancel, true); document.removeEventListener("keydown", cancel, true); document.removeEventListener("wheel", cancel, true); document.removeEventListener("focusin", onFocus, true); };
+  }, []);
+  const moveTo = id => {
+    clearTimeout(scrollTimer.current); scrollTarget.current = id; const epoch = ++scrollEpoch.current; let attempts = 0;
+    const settle = () => { if (epoch !== scrollEpoch.current) return; const target = document.getElementById(id); if (!target) return; const rect = target.getBoundingClientRect(); if (attempts === 0 || rect.top < 0 || rect.top > window.innerHeight / 3) target.scrollIntoView({ behavior: "auto", block: "start" }); if (attempts++ === 0) target.focus({ preventScroll: true }); if (attempts < 8) scrollTimer.current = setTimeout(settle, 100); };
+    requestAnimationFrame(settle);
+  };
+  const [structureId, setStructureId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("structure") || "");
+  const [componentId, setComponentId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("component") || "");
+  const [relationId, setRelationId] = useState(() => typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("relation") || "");
   const [readingLayout, setReadingLayout] = useState("balanced");
   const [activeGateId, setActiveGateId] = useState(requestedGate);
   const activeGate = SEFER_YETZIRAH_READING_GATES.find(gate => gate.id === activeGateId) || SEFER_YETZIRAH_READING_GATES[0];
@@ -228,13 +247,15 @@ export default function SeferYetzirahWorld2029Page() {
     if (component) next.searchParams.set("component", component); else next.searchParams.delete("component");
     window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`);
   };
-  const chooseStructure = (id, first) => { const component = first?.stable_id || ""; setStructureId(id); setComponentId(component); updateStructureUrl(id, component); if (first?.source?.pdf_page) openPage(first.source.pdf_page); };
+  const chooseRelation = id => { setRelationId(id || ""); const next = new URL(window.location.href); if (id) next.searchParams.set("relation", id); else next.searchParams.delete("relation"); window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`); };
+  const chooseStructure = (id, first) => { const component = first?.stable_id || ""; setStructureId(id); setComponentId(component); chooseRelation(null); updateStructureUrl(id, component); if (first?.source?.pdf_page) openPage(first.source.pdf_page); moveTo("yetzirah29-structure-learning"); };
   const chooseComponent = id => { setComponentId(id); updateStructureUrl(structureId, id); };
   const openStructureSource = payload => {
     openPage(payload.source.pdf_page);
-    document.getElementById("yetzirah29-source")?.scrollIntoView({ behavior: "auto", block: "start" });
+    moveTo("yetzirah29-source");
   };
   const openPage = nextPage => {
+    if (!Number.isInteger(nextPage) || nextPage < 1 || nextPage > SEFER_YETZIRAH_SOURCE.pdfPages) return;
     setPage(nextPage);
     replaceReadingUrl(nextPage, activeGateId);
   };
@@ -279,7 +300,7 @@ export default function SeferYetzirahWorld2029Page() {
       </section>
 
       <SpatialStage mode={mode} onMode={nextMode => { setMode(nextMode); setActiveNode(defaultNodeForMode(nextMode, activeCommentatorId)); }} activeNode={activeNode} onNode={chooseSceneNode} />
-      <StructureCatalog onPage={openPage} structureId={structureId} componentId={componentId} onStructure={chooseStructure} onComponent={chooseComponent} onOpenSource={openStructureSource} />
+      <StructureCatalog onPage={openPage} structureId={structureId} componentId={componentId} relationId={relationId} onStructure={chooseStructure} onComponent={chooseComponent} onRelation={chooseRelation} onOpenSource={openStructureSource} />
 
       <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
       <div className="yetzirah29-layout books29-reading-layout" data-reading-layout={readingLayout}>
@@ -290,7 +311,7 @@ export default function SeferYetzirahWorld2029Page() {
           <LetterLaboratory onPage={openPage} onSpatial={letter => { setMode("gates"); setActiveNode(letter); }} />
           <VolumeMap onPage={openPage} />
         </div>
-        <SourcePanel page={page} onPage={openPage} hasStructure={Boolean(structureId)} onReturn={async () => { if (document.fullscreenElement) await document.exitFullscreen(); const target = document.getElementById("yetzirah29-structure-learning"); target?.scrollIntoView({ behavior: "auto", block: "start" }); target?.focus(); }} />
+        <SourcePanel page={page} onPage={openPage} hasStructure={isSupportedStructure(structureId)} onReturn={async () => { if (document.fullscreenElement) await document.exitFullscreen(); moveTo("yetzirah29-structure-learning"); }} />
       </div>
     </main>
   </Sod2029Shell>;

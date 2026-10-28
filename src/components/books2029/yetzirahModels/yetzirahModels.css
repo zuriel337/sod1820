@@ -19,3 +19,5 @@
 
 .ym-comparison-grid:has(.ym-catalog-table){grid-template-columns:minmax(0,1fr)}
 @container(max-width:900px){.ym-catalog-table caption{display:block;width:100%;max-width:100%}}
+
+.ym-model button,.ym-model a{scroll-margin-block:110px 100px}.ym-relations [aria-current=true]{border-color:var(--ym-focus);box-shadow:inset 0 0 0 2px var(--ym-focus)}
