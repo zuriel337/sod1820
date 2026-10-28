@@ -41,6 +41,17 @@ test("suffix-source batch preserves the precise occurrence while admitting only 
   assert.doesNotMatch(sql, /DELETE\s+FROM\s+public\./iu);
 });
 
+test("1563 gets one number identity and two documented findings, without inferred edges", () => {
+  const sql = migration("20261028223000_number_1563_verified_zvi_tree_target.sql");
+  assert.match(sql, /INSERT INTO public\.nodes \(type, label, is_active, metadata\)/u);
+  assert.match(sql, /'number', '1563', true/u);
+  assert.match(sql, /inferred_edges_created', false/u);
+  assert.match(sql, /v_count <> 2/u);
+  assert.match(sql, /admin_research_attach_existing_graph_node_v1/u);
+  assert.doesNotMatch(sql, /INSERT\s+INTO\s+public\.edges/iu);
+  assert.doesNotMatch(sql, /DELETE\s+FROM\s+public\./iu);
+});
+
 test("later batches exclude source-value groups that already have a canonical representative", () => {
   for (const name of [
     "20261028213004_zvi_calculation_tree_batch_v2.sql",
