@@ -1,3 +1,4 @@
 import React from 'react';
 import YetzirahModelCard from './YetzirahModelCard.jsx';
-export default function MothersCorrespondencesModel2029(props){return <YetzirahModelCard {...props} modelKey="mothers-world-year-soul"/>;}
+import MothersLearning2029 from './MothersLearning2029.jsx';
+export default function MothersCorrespondencesModel2029(props){return <><MothersLearning2029 {...props} /><YetzirahModelCard {...props} modelKey="mothers-world-year-soul" /></>;}
