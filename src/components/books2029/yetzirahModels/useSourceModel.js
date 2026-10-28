@@ -2,7 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {bindSourceModel} from './sourceModels.js';
 let pending;
 function load(){
-  if(!pending)pending=Promise.all(['structures','units'].map(async name=>{const r=await fetch(`/book-data/sefer-yetzirah.${name}.json`);if(!r.ok)throw new Error('SOURCE_UNAVAILABLE');return r.json();})).then(([structures,units])=>({structures,units})).catch(error=>{pending=null;throw error;});
+  if(!pending)pending=Promise.all(['structures','units','source-readings'].map(async name=>{const r=await fetch(`/book-data/sefer-yetzirah.${name}.json`);if(!r.ok)throw new Error('SOURCE_UNAVAILABLE');return r.json();})).then(([structures,units,readings])=>({structures,units,readings})).catch(error=>{pending=null;throw error;});
   return pending;
 }
 export function useSourceModel(key,supplied){

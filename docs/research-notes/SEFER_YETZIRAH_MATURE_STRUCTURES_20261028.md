@@ -21,3 +21,7 @@ Implemented `PhoneticGroupsModel2029`, all five original group identities and le
 ## Checkpoint 3 · mothers/world/year/soul
 
 Implemented `MothersCorrespondencesModel2029`, three original components with twelve original correspondence fields at PDF97/98/99. The general source units at 94/95 remain separately accessible; both typed mediation relations point to 94. Optional geometry draws only these two existing relations, with the alef centrally arranged as an editorial aid; world/year/soul do not become physical axes or anatomy. Source tests 3/3 and actual Chromium smoke 2/2 at 1440/Night passed, including every field, both relation anchors, both context-unit callbacks and retained selection across different source pages. Nine-context final acceptance remains pending.
+
+## Checkpoint 4 · synoptic doubles
+
+Implemented `SynopticDoublesModel2029`, seven primary identities and 21 printed correspondence fields, PDF106–110; contextual unit105 stays separate. Resh/Tav field callbacks use the existing direct-reading records' narrower PDF110 source regions. Binding verifies source-reading identity, unit/page/ref/anchor and content; missing/mismatched reading evidence fails before rendering. No planet orbit, anatomy, copied Gra assignment or invented graph. Source tests 4/4 (plus prior 7/7) and Chromium smoke 2/2 at 1440/Night passed, including every component/field/context action and GPU/fallback/lifecycle checks. Source assets remain unchanged.

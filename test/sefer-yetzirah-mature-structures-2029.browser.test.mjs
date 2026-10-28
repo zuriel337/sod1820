@@ -11,7 +11,7 @@ const req=createRequire(import.meta.url);let pw,vite,react;
 try{pw=req('playwright');vite=await import(pathToFileURL(req.resolve('vite')).href);react=(await import(pathToFileURL(req.resolve('@vitejs/plugin-react')).href)).default;}catch{}
 const root=fileURLToPath(new URL('..',import.meta.url));const available=Boolean(pw&&vite&&react&&existsSync('/usr/bin/chromium'));
 const data=name=>JSON.parse(readFileSync(resolve(root,`public/book-data/sefer-yetzirah.${name}.json`)));
-const bundle={structures:data('structures'),units:data('units')};
+const bundle={structures:data('structures'),units:data('units'),readings:data('source-readings')};
 const keys=Object.values(CATALOG_KEYS).filter(k=>!process.env.YETZIRAH_MODEL_FILTER||process.env.YETZIRAH_MODEL_FILTER===k);
 const widths=process.env.YETZIRAH_MODELS_MATRIX?[320,390,1440]:[1440];const themes=process.env.YETZIRAH_MODELS_MATRIX?['light','parchment','dark']:['dark'];
 const out=process.env.YETZIRAH_MODELS_OUT||'/tmp/yetzirah-models';
