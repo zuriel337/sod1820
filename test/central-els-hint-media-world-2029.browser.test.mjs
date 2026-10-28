@@ -216,6 +216,15 @@ async function openFixturePage(browser, origin, path) {
     }
     if (table === "topic_cards") return fulfillJson(route, []);
     if (table === "contributors") return fulfillJson(route, peopleRows);
+    if (table === "gallery_images") {
+      // Reviewed World discovery doors read only a bounded, explicitly public source set.
+      assert.match(url.searchParams.get("id") || "", /^in\.\([a-f0-9,-]+\)$/i);
+      assert.equal(url.searchParams.get("published"), "eq.1");
+      assert.equal(url.searchParams.get("min_tier"), "eq.0");
+      assert.equal(url.searchParams.get("or"), "(curator_hidden.is.null,curator_hidden.eq.false)");
+      assert.ok(Number(url.searchParams.get("limit")) > 0 && Number(url.searchParams.get("limit")) <= 12);
+      return fulfillJson(route, []);
+    }
     // The source lens keeps its public Topic inventory and featured source corpus visible
     // beside the people index. They are expected anonymous reads, but this focused fixture
     // deliberately returns no rows because their content is outside the acceptance scope.
