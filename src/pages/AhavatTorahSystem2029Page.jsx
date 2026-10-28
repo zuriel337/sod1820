@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
+import BookReadingLayout2029 from "../components/books2029/BookReadingLayout2029.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
@@ -676,6 +677,7 @@ function ExtractionLayers({ onPage }) {
 
 export default function AhavatTorahSystem2029Page() {
   const [page, setPage] = useState(requestedPage);
+  const [readingLayout, setReadingLayout] = useState("balanced");
   const initialFinding = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("finding") || "";
   const initialDataset = typeof window === "undefined" ? "" : new URLSearchParams(window.location.search).get("dataset") || "";
   const [findingId, setFindingId] = useState(initialFinding);
@@ -858,6 +860,7 @@ export default function AhavatTorahSystem2029Page() {
           <span>ר׳ פנחס זלמן הורוויץ · תרס״ה</span>
           <h1 id="ahavat29-title">ספר עתיק הופך<br /><em>למרחב מחקר חי</em></h1>
           <p>המקור הוא המרכז: PDF מלא, מפה של הספר, הסבר עברי וממצאים שנפתחים בדיוק בעמוד שבו נכתבו.</p>
+          <nav className="books29-entry-actions" aria-label="דרכי קריאה באהבת תורה"><a href="#ahavat29-source">קרא את הספר</a><a href="#ahavat29-spatial-title">גלה את המבנים</a></nav>
         </div>
         <aside><strong>קורא מלא · Preview</strong><p>כל הספר זמין לדפדוף, חיפוש ומסך מלא. נוסח הספר נשאר גלוי בכל רגע.</p></aside>
       </section>
@@ -870,7 +873,8 @@ export default function AhavatTorahSystem2029Page() {
         <article className="is-locked"><strong>0</strong><span>ממצאים ציבוריים</span><small>Preview בלבד</small></article>
       </section>
 
-      <div className="ahavat29-layout">
+      <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
+      <div className="ahavat29-layout books29-reading-layout" data-reading-layout={readingLayout}>
         <div className="ahavat29-story">
           <OrbitMap selectedId={selectedSection.id} onSelect={selectSection} />
           <div id="ahavat29-reader"><SectionReader section={selectedSection} onPage={openPage} /></div>

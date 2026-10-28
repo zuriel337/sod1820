@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
+import BookReadingLayout2029 from "../components/books2029/BookReadingLayout2029.jsx";
 import StructureCatalog from "../components/books2029/SeferYetzirahStructureCatalog2029.jsx";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import {
@@ -205,6 +206,7 @@ function VolumeMap({ onPage }) {
 
 export default function SeferYetzirahWorld2029Page() {
   const [page, setPage] = useState(requestedPage);
+  const [readingLayout, setReadingLayout] = useState("balanced");
   const [activeGateId, setActiveGateId] = useState(requestedGate);
   const activeGate = SEFER_YETZIRAH_READING_GATES.find(gate => gate.id === activeGateId) || SEFER_YETZIRAH_READING_GATES[0];
   const [mode, setMode] = useState(activeGate.mode);
@@ -251,7 +253,7 @@ export default function SeferYetzirahWorld2029Page() {
   return <Sod2029Shell wide surface="books" symbol="✦" eyebrow="ספר יצירה · עולם קריאה" title="ספר יצירה" description="המקור, הפירושים והמבנים המרחביים בתוך קורא אחד.">
     <main className="yetzirah29" dir="rtl">
       <section className="yetzirah29-hero" aria-labelledby="yetzirah29-title">
-        <div><span>{SEFER_YETZIRAH_SOURCE.attribution}</span><h1 id="yetzirah29-title">האותיות נעשות<br /><em>מרחב חי</em></h1><p>קוראים את דברי הספר, פותחים את הפירוש ומסובבים ביד את מבנה הספירות, האותיות והשערים.</p></div>
+        <div><span>{SEFER_YETZIRAH_SOURCE.attribution}</span><h1 id="yetzirah29-title">האותיות נעשות<br /><em>מרחב חי</em></h1><p>קוראים את דברי הספר, פותחים את הפירוש ומסובבים ביד את מבנה הספירות, האותיות והשערים.</p><nav className="books29-entry-actions" aria-label="דרכי קריאה בספר יצירה"><a href="#yetzirah29-source">קרא את הספר</a><a href="#yetzirah29-spatial-title">גלה את המבנים</a></nav></div>
         <aside><strong>עולם הספר</strong><p>הספר אינו צריך להמתין למחשבון. המבנים מוצגים מתוך הכרך עצמו, וכל פירוש חוזר לעמוד המקור.</p></aside>
       </section>
 
@@ -262,7 +264,8 @@ export default function SeferYetzirahWorld2029Page() {
       <SpatialStage mode={mode} onMode={nextMode => { setMode(nextMode); setActiveNode(defaultNodeForMode(nextMode, activeCommentatorId)); }} activeNode={activeNode} onNode={chooseSceneNode} />
       <StructureCatalog onPage={openPage} />
 
-      <div className="yetzirah29-layout">
+      <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
+      <div className="yetzirah29-layout books29-reading-layout" data-reading-layout={readingLayout}>
         <div className="yetzirah29-story">
           <ReadingMap activeId={activeGateId} onSelect={chooseGate} />
           <GateReader gate={activeGate} onSource={openPage} />
