@@ -8,6 +8,10 @@ import {
   projectElectionsDomainForConsumer,
 } from "./electionsDomainContract2029.js";
 import { SEMANTIC_CLASS } from "./researchResultBundle.js";
+import {
+  ONE_TREE_NEWS_MARKER_STATE,
+  ONE_TREE_SYSTEM_METHOD_RULE_ID,
+} from "./oneTreeBranchContract2029.js";
 
 // Branch-only research seed for the two Israeli election systems currently in scope.
 // Values here are inputs to the governed contract, not canonical graph rows or publication state.
@@ -93,7 +97,7 @@ const relation = (id, role, fromRef, toRef, evidenceIds) => ({
 export const ELECTIONS_ISRAEL_21_26_INPUT = {
   bundleId: "elections-israel-21-26",
   reviewState: ELECTIONS_REVIEW_STATE.BRANCH_ONLY,
-  compiledAt: "2026-10-26T00:00:00.000Z",
+  compiledAt: "2026-10-28T12:00:00.000Z",
   rootEntityRef: "node:2bb53dbf-816a-4033-aff2-874c4981cd39",
 
   entities: [
@@ -168,8 +172,8 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     }),
 
     ...[
-      14, 21, 26, 45, 52, 54, 66, 77, 140, 271, 450, 454, 631, 789, 1000, 1111,
-      1237, 1400, 1454, 1789, 1820, 2701, 2710, 4500, 138598, 140052, 4309270,
+      14, 21, 26, 45, 52, 54, 66, 77, 140, 271, 450, 454, 456, 631, 789, 1000, 1111,
+      1237, 1400, 1454, 1456, 1789, 1820, 2701, 2710, 4500, 138598, 140052, 4309270,
     ].map(numberEntity),
   ],
 
@@ -208,6 +212,20 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
       "תמר (תמי) שוילי כמספר 2 ברשימת שרשר",
       "https://www.ynet.co.il/news/elections2026/article/rj4yfhnoze",
       "2026-10-25",
+    ),
+    publicSource(
+      "ynet-sharshar-1456-snapshot",
+      ELECTIONS_SOURCE_KIND.REPORTED,
+      "ynet · שרשר זכה ב־1,456 קולות לאחר ספירת 70%",
+      "https://www.ynet.co.il/news/elections2026/article/rybr24j6fe",
+      "2026-10-28T11:31:00+02:00",
+      {
+        attributes: {
+          source_snapshot_kind: "live_news_feed_item",
+          source_display_time: "11:31",
+          article_metadata_published_at: "2026-10-28T09:28:32.350929Z",
+        },
+      },
     ),
     publicSource(
       "amcha-israel-party",
@@ -398,6 +416,23 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     ),
   ],
 
+  newsMarkers: [
+    {
+      id: "news-sharshar-1456-at-70pct",
+      subjectRef: "party:sharshar",
+      value: 1456,
+      sourceIds: ["ynet-sharshar-1456-snapshot"],
+      assertionScope: ELECTIONS_ASSERTION_SCOPE.PUBLISHED_SNAPSHOT,
+      entityRefs: ["election:il:knesset-26", "number:1456"],
+      publishedAt: "2026-10-28T11:31:00+02:00",
+      snapshotState: ONE_TREE_NEWS_MARKER_STATE.REPORTED_SNAPSHOT,
+      scope: {
+        counted_percent: 70,
+        snapshot_note: "הערך נשמר כפי שפורסם באותו רגע; הוא אינו תוצאה סופית.",
+      },
+    },
+  ],
+
   engineCalculations: [
     derivation(
       "derived-threshold-140052",
@@ -419,6 +454,7 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     calculation("engine-redemption-45", "גאולה", "hebrew_standard", 45, ["number:45"]),
     calculation("engine-eliyahu-52", "אליהו", "hebrew_standard", 52, ["number:52"]),
     calculation("engine-seal-454", "חותם", "hebrew_standard", 454, ["number:454"]),
+    calculation("engine-face-456", "פרצוף", "hebrew_standard", 456, ["number:456"]),
     calculation("engine-tami-450", "תמי", "hebrew_standard", 450, ["person:tamar-shvili", "number:450"]),
     calculation("engine-bennett-631", "נפתלי בנט", "hebrew_standard", 631, ["person:naftali-bennett", "number:631"]),
     calculation("engine-winter-631", "עופר וינטר", "hebrew_standard", 631, ["person:ofer-winter", "number:631"]),
@@ -427,6 +463,36 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     calculation("engine-king-israel-631", "מלך ישראל", "hebrew_standard", 631, ["number:631"]),
     calculation("engine-nes-netanyahu-631", "נס נתניהו", "hebrew_standard", 631, ["person:benjamin-netanyahu", "number:631"]),
     calculation("engine-sharshar-1000", "שרשר", "hebrew_standard", 1000, ["party:sharshar", "number:1000"]),
+  ],
+
+  systemMethodApplications: [
+    {
+      id: "system-one-1456-456",
+      expression: "1456 → 456",
+      ruleId: ONE_TREE_SYSTEM_METHOD_RULE_ID.SHITAT_HAECHAD_ALEF,
+      ruleVersion: 1,
+      ruleVersionSource: "nodes.rule_version",
+      operation: "leading_one_split",
+      inputValue: 1456,
+      outputValue: 456,
+      output: { leading_unit: 1000, remainder: 456 },
+      subjectRefs: ["number:1456", "number:456"],
+      dependsOn: ["news-sharshar-1456-at-70pct"],
+    },
+    {
+      id: "system-zero-scale-1400-14",
+      expression: "1400 → 14",
+      ruleId: ONE_TREE_SYSTEM_METHOD_RULE_ID.ZERO_SCALE,
+      ruleVersion: 1,
+      ruleVersionSource: "fn_zero_scale.version",
+      operation: "zero_scale_chain",
+      inputValue: 1400,
+      outputValue: 14,
+      output: { core_root: 14, scale_chain: [14, 140, 1400] },
+      engineRef: "fn_zero_scale",
+      subjectRefs: ["number:1400", "number:14"],
+      dependsOn: ["historical-byat-number-set"],
+    },
   ],
 
   interpretations: [
@@ -474,8 +540,8 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     ),
     interpretation(
       "scale-14-140-1400",
-      "14 → 140 → 1,400 הוא ציר שינוי קנה־מידה סביב דוד=14; פעולת קנה־המידה היא פרשנות.",
-      ["engine-david-14", "historical-byat-number-set"],
+      "14 → 140 → 1,400 נשמר כשרשרת קנה־מידה של zero_scale_law; החיבור לדוד=14 נשאר פרשנות נפרדת.",
+      ["engine-david-14", "historical-byat-number-set", "system-zero-scale-1400-14"],
       ["number:14", "number:140", "number:1400"],
       [14, 140, 1400],
     ),
@@ -501,6 +567,9 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     relation("winter-1820", "engine_value", "person:ofer-winter", "number:1820", ["engine-winter-milui-1820"]),
     relation("tami-450", "engine_value", "person:tamar-shvili", "number:450", ["engine-tami-450"]),
     relation("sharshar-1000", "engine_value", "party:sharshar", "number:1000", ["engine-sharshar-1000"]),
+    relation("sharshar-1456-snapshot", "published_vote_snapshot", "party:sharshar", "number:1456", ["news-sharshar-1456-at-70pct"]),
+    relation("system-1456-456", "converges_by_system_method", "number:1456", "number:456", ["system-one-1456-456"]),
+    relation("system-1400-14", "converges_by_system_method", "number:1400", "number:14", ["system-zero-scale-1400-14"]),
     relation("elections-631", "engine_value", "node:2bb53dbf-816a-4033-aff2-874c4981cd39", "number:631", ["engine-elections-631"]),
     relation("threshold-140052", "derived_result_value", "election:il:knesset-21", "number:140052", ["derived-threshold-140052"]),
     relation("gap-1454", "derived_result_value", "election:il:knesset-21", "number:1454", ["derived-gap-1454"]),

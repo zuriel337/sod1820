@@ -9,6 +9,7 @@ import {
   inspectElectionsDomainInput,
   projectElectionsDomainForConsumer,
 } from "../src/lib/research/electionsDomainContract2029.js";
+import { ONE_TREE_BRANCH_CONTRACT_VERSION } from "../src/lib/research/oneTreeBranchContract2029.js";
 import {
   ELECTIONS_ISRAEL_21_26_BUNDLE,
   ELECTIONS_ISRAEL_21_26_INPUT,
@@ -21,6 +22,9 @@ test("two Israeli election systems compile into one non-canonical domain bundle"
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
 
   assert.equal(bundle.contractVersion, ELECTIONS_DOMAIN_CONTRACT_VERSION);
+  assert.equal(bundle.branchContractVersion, ONE_TREE_BRANCH_CONTRACT_VERSION);
+  assert.equal(bundle.branchContract.profileId, "elections");
+  assert.equal(bundle.invariants.elections_is_a_domain_profile, true);
   assert.equal(bundle.rootEntityRef, "node:2bb53dbf-816a-4033-aff2-874c4981cd39");
   assert.equal(bundle.invariants.one_reality_graph, true);
   assert.equal(bundle.invariants.one_research_context, true);
@@ -34,12 +38,13 @@ test("two Israeli election systems compile into one non-canonical domain bundle"
   assert.deepEqual(cycleRefs, new Set(["election:il:knesset-21", "election:il:knesset-26"]));
 });
 
-test("source, fact, engine and interpretation lanes remain separate", () => {
+test("source, fact, engine, system derivation and interpretation lanes remain separate", () => {
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
   assert.equal(bundle.sources.length > 0, true);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_PROVENANCE], bundle.sources);
-  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].length, 16);
-  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.ENGINE_CALCULATION].length, 14);
+  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].length, 17);
+  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.ENGINE_CALCULATION].length, 15);
+  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.DERIVATION].length, 2);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.INTERPRETATION].length, 8);
 
   const findingById = Object.fromEntries(bundle.resultBundle.findings.map(row => [row.id, row]));
@@ -79,7 +84,36 @@ test("the seed maps requested people, parties, sources and numeric anchors", () 
   ]);
   assert.equal(bundle.indexes.byNumber["450"].includes("engine-tami-450"), true);
   assert.equal(bundle.indexes.byNumber["454"].includes("engine-seal-454"), true);
+  assert.equal(bundle.indexes.byNumber["456"].includes("engine-face-456"), true);
+  assert.equal(bundle.indexes.byNumber["1456"].includes("news-sharshar-1456-at-70pct"), true);
   assert.equal(bundle.indexes.byNumber["140052"].includes("derived-threshold-140052"), true);
+});
+
+test("the 1456 news milestone stays raw while governed rules derive 456 and 1400 to 14", () => {
+  const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
+  const records = Object.fromEntries(bundle.branchContract.evidenceRecords.map(row => [row.id, row]));
+  const sources = Object.fromEntries(bundle.sources.map(row => [row.id, row]));
+
+  assert.equal(records["news-sharshar-1456-at-70pct"].value, 1456);
+  assert.equal(
+    sources["ynet-sharshar-1456-snapshot"].attributes.article_metadata_published_at,
+    "2026-10-28T09:28:32.350929Z",
+  );
+  assert.equal(
+    records["news-sharshar-1456-at-70pct"].attributes.news_publication_marker.scope.counted_percent,
+    70,
+  );
+  assert.equal(
+    records["news-sharshar-1456-at-70pct"].attributes.news_publication_marker.source_claim_only,
+    true,
+  );
+  assert.equal(records["system-one-1456-456"].methodId, "shitat_haechad_alef_law");
+  assert.equal(records["system-one-1456-456"].value, 456);
+  assert.deepEqual(records["system-one-1456-456"].subjectRefs, ["number:1456", "number:456"]);
+  assert.equal(records["system-zero-scale-1400-14"].methodId, "zero_scale_law");
+  assert.equal(records["system-zero-scale-1400-14"].value, 14);
+  assert.equal(bundle.layers.systemMethods.convergenceIsNotEquality, true);
+  assert.equal(bundle.invariants.published_snapshot_is_not_final_truth, true);
 });
 
 test("threshold and gap stay deterministic derivations over official inputs", () => {
@@ -87,7 +121,8 @@ test("threshold and gap stay deterministic derivations over official inputs", ()
   const factIds = new Set(bundle.evidence.source_fact.map(row => row.id));
   const calculations = Object.fromEntries(bundle.evidence.engine_calculation.map(row => [row.id, row]));
   const capability = bundle.resultBundle.capability_trace.find(
-    row => row.key === "elections_deterministic_derivations",
+    row => row.semantic_class === "derivation"
+      && row.finding_ids.includes("elections:derived-threshold-140052"),
   );
 
   assert.equal(factIds.has("official-threshold-140052"), false);
@@ -125,12 +160,13 @@ test("Raziel receives an attributed context pack but no promotion or publishing 
   assert.equal(projection.razielContext.requiredAttribution, true);
   assert.equal(projection.razielContext.mayPromoteToCanonical, false);
   assert.equal(projection.razielContext.mayPublish, false);
-  assert.deepEqual(Object.keys(projection.evidenceIdsByLane).sort(), [
-    "engine_calculation",
-    "interpretation",
-    "source_fact",
-    "source_provenance",
-  ]);
+  assert.equal(projection.evidenceIdsByLane.engine_calculation.length, 15);
+  assert.equal(projection.evidenceIdsByLane.derivation.length, 2);
+  assert.equal(projection.evidenceIdsByLane.interpretation.length, 8);
+  assert.equal(projection.evidenceIdsByLane.source_fact.length, 17);
+  assert.equal(projection.evidenceIdsByLane.source_provenance.length, 16);
+  assert.deepEqual(projection.evidenceIdsByLane.observation, []);
+  assert.deepEqual(projection.evidenceIdsByLane.authored_claim, []);
 });
 
 test("a source fact cannot exist without a resolvable source", () => {
@@ -160,7 +196,7 @@ test("an engine calculation requires explicit engine and method versions", () =>
   const inspection = inspectElectionsDomainInput(input);
   assert.equal(inspection.valid, false);
   assert.match(inspection.errors.join("\n"), /methodVersion is required/);
-  assert.match(inspection.errors.join("\n"), /engineRef is required/);
+  assert.match(inspection.errors.join("\n"), /engineRef must be a stable engine ref/);
 });
 
 test("interpretation cannot masquerade as approved fact or depend on unknown evidence", () => {
