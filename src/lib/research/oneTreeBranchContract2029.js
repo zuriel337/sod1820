@@ -14,7 +14,7 @@ import { SYSTEM_RAIL_OWNER } from "../systemSelfModel2029.js";
 // describe a Topic, Person, Book, Place, Event, Number, Election, Tool, Journey or a future domain.
 // It owns no canonical row, graph edge, engine truth, publication decision, access grant or UI.
 
-export const ONE_TREE_BRANCH_CONTRACT_VERSION = "sod1820.one-tree-branch.v1";
+export const ONE_TREE_BRANCH_CONTRACT_VERSION = "sod1820.one-tree-branch.v2";
 
 export const ONE_TREE_BRANCH_REVIEW_STATE = Object.freeze({
   BRANCH_ONLY: "branch_only_research_candidate",
@@ -56,6 +56,25 @@ export const ONE_TREE_RELATION_STATUS = Object.freeze({
   PROPOSED: "proposed_relation_candidate",
 });
 
+// Cross-domain finding kinds that have stricter semantics than a free-form domain finding.
+// They still live in the existing evidence lanes and Result Bundle; these are layers, not stores.
+export const ONE_TREE_FINDING_KIND = Object.freeze({
+  NEWS_PUBLICATION_MARKER: "news_publication_marker",
+  SYSTEM_METHOD_APPLICATION: "system_method_application",
+});
+
+export const ONE_TREE_NEWS_MARKER_STATE = Object.freeze({
+  REPORTED_SNAPSHOT: "reported_snapshot",
+  OFFICIAL_SNAPSHOT: "official_snapshot",
+  FINAL_RESULT: "final_result",
+});
+
+export const ONE_TREE_SYSTEM_METHOD_RULE_ID = Object.freeze({
+  SHITAT_HAECHAD_ALEF: "shitat_haechad_alef_law",
+  ZERO_SCALE: "zero_scale_law",
+  ZERO_NAVIGATION: "zero_navigation",
+});
+
 export const ONE_TREE_CONSUMER = Object.freeze({
   WORLD: "world",
   TOPIC: "topic",
@@ -85,6 +104,7 @@ export const ONE_TREE_BRANCH_OWNER_POINTERS = Object.freeze({
   personalReality: SYSTEM_RAIL_OWNER.PERSONAL_REALITY,
   publishing: SYSTEM_RAIL_OWNER.PUBLISHING,
   presentation: SYSTEM_RAIL_OWNER.PRESENTATION,
+  numericSystemMethods: "project_codex.numeric_rule_family_index",
 });
 
 const REVIEW_STATES = new Set(Object.values(ONE_TREE_BRANCH_REVIEW_STATE));
@@ -92,6 +112,8 @@ const CONSUMERS = new Set(Object.values(ONE_TREE_CONSUMER));
 const ACCESS_TIERS = new Set(["public", "public_candidate", "private", "personal"]);
 const VERIFICATION_STATES = new Set(["match", "mismatch", "method_unknown", "not_tested"]);
 const SEMANTIC_CLASSES = new Set(Object.values(SEMANTIC_CLASS));
+const NEWS_MARKER_STATES = new Set(Object.values(ONE_TREE_NEWS_MARKER_STATE));
+const SYSTEM_METHOD_RULE_IDS = new Set(Object.values(ONE_TREE_SYSTEM_METHOD_RULE_ID));
 const STABLE_ID = /^[a-z0-9][a-z0-9._:-]*$/;
 
 const FINDING_LANES = new Set([
@@ -349,6 +371,124 @@ function validateEvidenceRecord(errors, record, path, ids, entityRefs, sourceIds
   }
 }
 
+function validateNewsPublicationMarker(errors, record, path) {
+  if (record?.findingKind !== ONE_TREE_FINDING_KIND.NEWS_PUBLICATION_MARKER) return;
+  if (record.lane !== ONE_TREE_EVIDENCE_LANE.SOURCE_FACT) {
+    errors.push(`${path}.lane must be source_fact for a news publication marker`);
+  }
+  if (record.semanticClass !== SEMANTIC_CLASS.EVIDENCE) {
+    errors.push(`${path}.semanticClass must be evidence for a news publication marker`);
+  }
+  if (record.predicate !== "published_value_snapshot") {
+    errors.push(`${path}.predicate must be published_value_snapshot`);
+  }
+
+  const marker = record.attributes?.news_publication_marker;
+  if (!isPlainObject(marker)) {
+    errors.push(`${path}.attributes.news_publication_marker is required`);
+    return;
+  }
+  if (!isDateLike(marker.published_at)) {
+    errors.push(`${path}.attributes.news_publication_marker.published_at must be a valid timestamp`);
+  }
+  if (!NEWS_MARKER_STATES.has(marker.snapshot_state)) {
+    errors.push(`${path}.attributes.news_publication_marker.snapshot_state is invalid`);
+  }
+  if (marker.immutable_snapshot !== true) {
+    errors.push(`${path}.attributes.news_publication_marker.immutable_snapshot must be true`);
+  }
+  if (marker.source_claim_only !== true) {
+    errors.push(`${path}.attributes.news_publication_marker.source_claim_only must be true`);
+  }
+  if (!isPlainObject(marker.scope)) {
+    errors.push(`${path}.attributes.news_publication_marker.scope must be an object`);
+  }
+  if (marker.updates_marker_id != null && !isStableId(marker.updates_marker_id)) {
+    errors.push(`${path}.attributes.news_publication_marker.updates_marker_id must be a stable evidence id`);
+  }
+}
+
+function validateSystemMethodApplication(errors, record, path, entityByRef) {
+  if (record?.findingKind !== ONE_TREE_FINDING_KIND.SYSTEM_METHOD_APPLICATION) return;
+  if (record.lane !== ONE_TREE_EVIDENCE_LANE.DERIVATION) {
+    errors.push(`${path}.lane must be derivation for a system method application`);
+  }
+  if (record.semanticClass !== SEMANTIC_CLASS.DERIVATION) {
+    errors.push(`${path}.semanticClass must be derivation for a system method application`);
+  }
+  if (!SYSTEM_METHOD_RULE_IDS.has(record.methodId)) {
+    errors.push(`${path}.methodId must be a governed numeric system-method rule`);
+  }
+
+  const application = record.attributes?.system_method_application;
+  if (!isPlainObject(application)) {
+    errors.push(`${path}.attributes.system_method_application is required`);
+    return;
+  }
+  if (application.rule_id !== record.methodId) {
+    errors.push(`${path}.attributes.system_method_application.rule_id must match methodId`);
+  }
+  if (clean(application.rule_version) !== clean(record.methodVersion)) {
+    errors.push(`${path}.attributes.system_method_application.rule_version must match methodVersion`);
+  }
+  if (!clean(application.rule_version_source)) {
+    errors.push(`${path}.attributes.system_method_application.rule_version_source is required`);
+  }
+  if (!clean(application.operation)) {
+    errors.push(`${path}.attributes.system_method_application.operation is required`);
+  }
+  if (!Number.isFinite(application.input_value)) {
+    errors.push(`${path}.attributes.system_method_application.input_value must be finite`);
+  }
+  if (!Number.isFinite(application.output_value)) {
+    errors.push(`${path}.attributes.system_method_application.output_value must be finite`);
+  }
+  if (!isPlainObject(application.output)) {
+    errors.push(`${path}.attributes.system_method_application.output must preserve the governed rule output`);
+  }
+  if (application.output_value !== record.value) {
+    errors.push(`${path}.value must match system_method_application.output_value`);
+  }
+  if (application.raw_identity_preserved !== true) {
+    errors.push(`${path}.attributes.system_method_application.raw_identity_preserved must be true`);
+  }
+  if (application.evidence_relation !== "derivation") {
+    errors.push(`${path}.attributes.system_method_application.evidence_relation must be derivation`);
+  }
+
+  const subjectRefs = Array.isArray(record.subjectRefs) ? record.subjectRefs : [];
+  const inputRefs = subjectRefs.filter(ref => entityByRef.get(ref)?.value === application.input_value);
+  const outputRefs = subjectRefs.filter(ref => entityByRef.get(ref)?.value === application.output_value);
+  if (!inputRefs.length) errors.push(`${path}.subjectRefs must preserve the raw numeric input entity`);
+  if (!outputRefs.length) errors.push(`${path}.subjectRefs must include the derived numeric output entity`);
+}
+
+function validateSpecialEvidenceLayers(errors, records, entityByRef) {
+  const recordById = new Map(records.map(record => [record?.id, record]));
+  for (const [index, record] of records.entries()) {
+    const path = `evidenceRecords[${index}]`;
+    validateNewsPublicationMarker(errors, record, path);
+    validateSystemMethodApplication(errors, record, path, entityByRef);
+
+    const marker = record?.attributes?.news_publication_marker;
+    if (record?.findingKind !== ONE_TREE_FINDING_KIND.NEWS_PUBLICATION_MARKER
+      || !isPlainObject(marker) || !marker.updates_marker_id) continue;
+    const earlier = recordById.get(marker.updates_marker_id);
+    if (earlier?.findingKind !== ONE_TREE_FINDING_KIND.NEWS_PUBLICATION_MARKER) {
+      errors.push(`${path}.attributes.news_publication_marker.updates_marker_id must reference an earlier news marker`);
+      continue;
+    }
+    if (!(record.dependsOn || []).includes(marker.updates_marker_id)) {
+      errors.push(`${path}.dependsOn must include the earlier news marker; updates append and never overwrite`);
+    }
+    const earlierAt = earlier.attributes?.news_publication_marker?.published_at;
+    if (isDateLike(marker.published_at) && isDateLike(earlierAt)
+      && Date.parse(marker.published_at) < Date.parse(earlierAt)) {
+      errors.push(`${path}.published_at cannot precede the marker it updates`);
+    }
+  }
+}
+
 function validateRelation(errors, relation, path, ids, entityRefs, evidenceIds) {
   if (!isPlainObject(relation)) {
     errors.push(`${path} must be an object`);
@@ -450,11 +590,13 @@ export function inspectOneTreeBranchInput(input) {
 
   if (!entities.length) errors.push("entities must be non-empty");
   entities.forEach((row, index) => validateEntity(errors, row, `entities[${index}]`, ids, entityRefs));
+  const entityByRef = new Map(entities.map(entity => [entity?.ref, entity]));
   if (!entityRefs.has(input.rootEntityRef)) errors.push("rootEntityRef must reference an entity in this branch");
   sources.forEach((row, index) => validateSource(errors, row, `sources[${index}]`, ids, sourceIds));
   evidenceRecords.forEach((row, index) => validateEvidenceRecord(
     errors, row, `evidenceRecords[${index}]`, ids, entityRefs, sourceIds, evidenceIds,
   ));
+  validateSpecialEvidenceLayers(errors, evidenceRecords, entityByRef);
 
   for (const [index, record] of evidenceRecords.entries()) {
     if (record?.dependsOn != null) {
@@ -541,6 +683,19 @@ function findingStageForLane(lane) {
 }
 
 function evidenceFact(record) {
+  if (record.findingKind === ONE_TREE_FINDING_KIND.NEWS_PUBLICATION_MARKER) {
+    return {
+      predicate: record.predicate,
+      value: deepClone(record.value),
+      news_publication_marker: deepClone(record.attributes.news_publication_marker),
+    };
+  }
+  if (record.findingKind === ONE_TREE_FINDING_KIND.SYSTEM_METHOD_APPLICATION) {
+    return {
+      type: "system_method_application",
+      ...deepClone(record.attributes.system_method_application),
+    };
+  }
   if (record.lane === ONE_TREE_EVIDENCE_LANE.SOURCE_FACT) {
     return { predicate: record.predicate, value: deepClone(record.value) };
   }
@@ -694,8 +849,11 @@ function buildIndexes(input) {
   const byEntity = {};
   const bySource = {};
   const byKind = {};
+  const byEvidenceKind = {};
   const byTag = {};
   const byNumber = {};
+  const byNewsMarkerState = {};
+  const bySystemMethodRule = {};
 
   for (const entity of input.entities) {
     pushIndex(byKind, entity.kind, entity.id);
@@ -704,11 +862,21 @@ function buildIndexes(input) {
   }
   for (const record of input.evidenceRecords) {
     pushIndex(byLane, record.lane, record.id);
+    pushIndex(byEvidenceKind, record.findingKind, record.id);
     for (const ref of record.subjectRefs) pushIndex(byEntity, ref, record.id);
     for (const sourceId of record.sourceIds || []) pushIndex(bySource, sourceId, record.id);
     for (const tag of record.tags || []) pushIndex(byTag, tag, record.id);
     if (Number.isFinite(record.value)) pushIndex(byNumber, String(record.value), record.id);
     for (const value of record.numberRefs || []) pushIndex(byNumber, String(value), record.id);
+    if (record.findingKind === ONE_TREE_FINDING_KIND.NEWS_PUBLICATION_MARKER) {
+      pushIndex(byNewsMarkerState, record.attributes.news_publication_marker.snapshot_state, record.id);
+    }
+    if (record.findingKind === ONE_TREE_FINDING_KIND.SYSTEM_METHOD_APPLICATION) {
+      const application = record.attributes.system_method_application;
+      pushIndex(bySystemMethodRule, application.rule_id, record.id);
+      pushIndex(byNumber, String(application.input_value), record.id);
+      pushIndex(byNumber, String(application.output_value), record.id);
+    }
   }
 
   return deepFreeze({
@@ -716,9 +884,36 @@ function buildIndexes(input) {
     byEntity: sortedIndex(byEntity),
     bySource: sortedIndex(bySource),
     byKind: sortedIndex(byKind),
+    byEvidenceKind: sortedIndex(byEvidenceKind),
     byTag: sortedIndex(byTag),
     byNumber: sortedIndex(byNumber),
+    byNewsMarkerState: sortedIndex(byNewsMarkerState),
+    bySystemMethodRule: sortedIndex(bySystemMethodRule),
   });
+}
+
+function buildContractLayers(records) {
+  const newsMilestoneIds = records
+    .filter(record => record.findingKind === ONE_TREE_FINDING_KIND.NEWS_PUBLICATION_MARKER)
+    .map(record => record.id);
+  const systemMethodIds = records
+    .filter(record => record.findingKind === ONE_TREE_FINDING_KIND.SYSTEM_METHOD_APPLICATION)
+    .map(record => record.id);
+  return {
+    newsMilestones: {
+      evidenceIds: newsMilestoneIds,
+      appendOnlySnapshots: true,
+      laterMarkersDoNotOverwriteEarlierMarkers: true,
+      sourcePublicationIsNotFinalTruth: true,
+    },
+    systemMethods: {
+      evidenceIds: systemMethodIds,
+      owner: ONE_TREE_BRANCH_OWNER_POINTERS.numericSystemMethods,
+      rawNumericIdentityPreserved: true,
+      convergenceIsNotEquality: true,
+      derivationIsNotIndependentEvidence: true,
+    },
+  };
 }
 
 function evidenceByLane(sources, records) {
@@ -764,6 +959,7 @@ export function compileOneTreeBranch(input) {
     sources: safeInput.sources,
     evidenceRecords: safeInput.evidenceRecords,
     evidence: evidenceByLane(safeInput.sources, safeInput.evidenceRecords),
+    layers: buildContractLayers(safeInput.evidenceRecords),
     relationCandidates: safeInput.relationCandidates,
     indexes: buildIndexes(safeInput),
     findingByRecordId,
@@ -782,6 +978,11 @@ export function compileOneTreeBranch(input) {
       source_is_not_fact: true,
       engine_output_is_not_interpretation: true,
       derivation_is_not_source_fact: true,
+      published_snapshot_is_not_final_truth: true,
+      later_news_marker_does_not_overwrite_prior_marker: true,
+      raw_numeric_identity_survives_system_method: true,
+      system_method_derivation_is_not_numeric_equality: true,
+      system_method_derivation_is_not_independent_evidence: true,
       interpretation_is_not_fact: true,
       relation_candidates_are_not_graph_edges: true,
       access_never_widens_inside_branch: true,
@@ -860,6 +1061,12 @@ export function projectOneTreeBranchForConsumer(bundle, consumer, { accessDescri
     entityRefs: [...visibleEntityRefs],
     sourceIds: [...visibleSourceIds],
     evidenceIdsByLane: idsByVisibleLane(bundle, visibleRecordIds, visibleSourceIds),
+    layerEvidenceIds: {
+      newsMilestones: bundle.layers.newsMilestones.evidenceIds
+        .filter(id => visibleRecordIds.has(id)),
+      systemMethods: bundle.layers.systemMethods.evidenceIds
+        .filter(id => visibleRecordIds.has(id)),
+    },
     relationCandidateIds: visibleRelationIds,
     resultBundle,
     guardrails: {
@@ -869,6 +1076,9 @@ export function projectOneTreeBranchForConsumer(bundle, consumer, { accessDescri
       noCanonicalOrPublicationDecision: true,
       noPresentationInstructions: true,
       accessFilteredAtProjectionBoundary: true,
+      newsMilestonesRemainAppendOnly: true,
+      rawNumericIdentityPreserved: true,
+      systemMethodConvergenceIsNotEquality: true,
     },
   };
 

@@ -6,13 +6,165 @@ import {
   ONE_TREE_BRANCH_REVIEW_STATE,
   ONE_TREE_CONSUMER,
   ONE_TREE_EVIDENCE_LANE,
+  ONE_TREE_FINDING_KIND,
+  ONE_TREE_NEWS_MARKER_STATE,
   ONE_TREE_RELATION_STATUS,
+  ONE_TREE_SYSTEM_METHOD_RULE_ID,
   compileOneTreeBranch,
   inspectOneTreeBranchInput,
   projectOneTreeBranchForConsumer,
 } from "../src/lib/research/oneTreeBranchContract2029.js";
 
 const clone = value => structuredClone(value);
+
+function layeredFixture() {
+  const number = value => ({
+    id: `number-${value}`,
+    ref: `number:${value}`,
+    kind: "number",
+    label: String(value),
+    value,
+    accessTier: "public",
+    tags: [],
+    attributes: {},
+  });
+  const systemMethod = ({ id, input, output, ruleId, operation, methodOutput, dependsOn = [] }) => ({
+    id,
+    lane: ONE_TREE_EVIDENCE_LANE.DERIVATION,
+    findingKind: ONE_TREE_FINDING_KIND.SYSTEM_METHOD_APPLICATION,
+    subjectRefs: [`number:${input}`, `number:${output}`],
+    expression: `${input} → ${output}`,
+    engineRef: ruleId === ONE_TREE_SYSTEM_METHOD_RULE_ID.ZERO_SCALE
+      ? "fn_zero_scale"
+      : "project_codex.numeric_rule_family_index",
+    methodId: ruleId,
+    methodVersion: "1",
+    value: output,
+    verificationState: "match",
+    semanticClass: "derivation",
+    governanceState: ONE_TREE_BRANCH_REVIEW_STATE.HUMAN_GATE_PENDING,
+    dependsOn,
+    accessTier: "public",
+    tags: ["system_method"],
+    attributes: {
+      system_method_application: {
+        rule_id: ruleId,
+        rule_version: 1,
+        rule_version_source: ruleId === ONE_TREE_SYSTEM_METHOD_RULE_ID.ZERO_SCALE
+          ? "fn_zero_scale.version"
+          : "nodes.rule_version",
+        operation,
+        input_value: input,
+        output_value: output,
+        output: methodOutput,
+        raw_identity_preserved: true,
+        evidence_relation: "derivation",
+      },
+    },
+  });
+
+  return {
+    branchId: "numeric-news-layers",
+    branchKind: "topic",
+    profileId: "numeric-news-example",
+    profileVersion: "1",
+    findingIdNamespace: "layers",
+    reviewState: ONE_TREE_BRANCH_REVIEW_STATE.BRANCH_ONLY,
+    accessTier: "public",
+    compiledAt: "2026-10-28T12:00:00.000Z",
+    rootEntityRef: "topic:numeric-news",
+    parentBranchRefs: [],
+    childBranchRefs: [],
+    relatedBranchRefs: [],
+    tags: [],
+    attributes: {},
+    entities: [
+      { id: "topic-numeric-news", ref: "topic:numeric-news", kind: "topic", label: "מספרים וחדשות", accessTier: "public", tags: [], attributes: {} },
+      ...[14, 358, 456, 1400, 1358, 1456, 1500].map(number),
+    ],
+    sources: [
+      { id: "news-first", kind: "reported", label: "דיווח ראשון", locator: "https://example.test/first", capturedAt: "2026-10-28T11:31:00+02:00", accessTier: "public", tags: [], attributes: {} },
+      { id: "news-later", kind: "official", label: "עדכון מאוחר", locator: "https://example.test/later", capturedAt: "2026-10-28T15:00:00+02:00", accessTier: "public", tags: [], attributes: {} },
+    ],
+    evidenceRecords: [
+      {
+        id: "news-marker-1456",
+        lane: ONE_TREE_EVIDENCE_LANE.SOURCE_FACT,
+        findingKind: ONE_TREE_FINDING_KIND.NEWS_PUBLICATION_MARKER,
+        subjectRefs: ["topic:numeric-news", "number:1456"],
+        sourceIds: ["news-first"],
+        predicate: "published_value_snapshot",
+        value: 1456,
+        verificationState: "match",
+        semanticClass: "evidence",
+        governanceState: ONE_TREE_BRANCH_REVIEW_STATE.HUMAN_GATE_PENDING,
+        accessTier: "public",
+        tags: ["news_milestone"],
+        attributes: {
+          news_publication_marker: {
+            published_at: "2026-10-28T11:31:00+02:00",
+            snapshot_state: ONE_TREE_NEWS_MARKER_STATE.REPORTED_SNAPSHOT,
+            scope: { counted_percent: 70 },
+            immutable_snapshot: true,
+            source_claim_only: true,
+            updates_marker_id: null,
+          },
+        },
+      },
+      {
+        id: "news-marker-1500-final",
+        lane: ONE_TREE_EVIDENCE_LANE.SOURCE_FACT,
+        findingKind: ONE_TREE_FINDING_KIND.NEWS_PUBLICATION_MARKER,
+        subjectRefs: ["topic:numeric-news", "number:1500"],
+        sourceIds: ["news-later"],
+        predicate: "published_value_snapshot",
+        value: 1500,
+        verificationState: "match",
+        semanticClass: "evidence",
+        governanceState: ONE_TREE_BRANCH_REVIEW_STATE.HUMAN_GATE_PENDING,
+        dependsOn: ["news-marker-1456"],
+        accessTier: "public",
+        tags: ["news_milestone"],
+        attributes: {
+          news_publication_marker: {
+            published_at: "2026-10-28T15:00:00+02:00",
+            snapshot_state: ONE_TREE_NEWS_MARKER_STATE.FINAL_RESULT,
+            scope: { counted_percent: 100 },
+            immutable_snapshot: true,
+            source_claim_only: true,
+            updates_marker_id: "news-marker-1456",
+          },
+        },
+      },
+      systemMethod({
+        id: "method-1456-456",
+        input: 1456,
+        output: 456,
+        ruleId: ONE_TREE_SYSTEM_METHOD_RULE_ID.SHITAT_HAECHAD_ALEF,
+        operation: "leading_one_split",
+        methodOutput: { leading_unit: 1000, remainder: 456 },
+        dependsOn: ["news-marker-1456"],
+      }),
+      systemMethod({
+        id: "method-1400-14",
+        input: 1400,
+        output: 14,
+        ruleId: ONE_TREE_SYSTEM_METHOD_RULE_ID.ZERO_SCALE,
+        operation: "zero_scale_chain",
+        methodOutput: { core_root: 14, scale_chain: [14, 140, 1400] },
+      }),
+      systemMethod({
+        id: "method-1358-358",
+        input: 1358,
+        output: 358,
+        ruleId: ONE_TREE_SYSTEM_METHOD_RULE_ID.SHITAT_HAECHAD_ALEF,
+        operation: "leading_one_split",
+        methodOutput: { leading_unit: 1000, remainder: 358 },
+      }),
+    ],
+    relationCandidates: [],
+  };
+}
 
 function broadFixture() {
   return {
@@ -335,4 +487,59 @@ test("compiled branch and all nested evidence are immutable", () => {
   assert.equal(Object.isFrozen(bundle.evidence), true);
   assert.equal(Object.isFrozen(bundle.evidence.source_fact[0]), true);
   assert.throws(() => bundle.entities.push({}), TypeError);
+});
+
+test("news milestones and governed system methods compile as site-wide layers", () => {
+  const bundle = compileOneTreeBranch(layeredFixture());
+  const projection = projectOneTreeBranchForConsumer(bundle, ONE_TREE_CONSUMER.TOPIC);
+
+  assert.deepEqual(bundle.layers.newsMilestones.evidenceIds, [
+    "news-marker-1456",
+    "news-marker-1500-final",
+  ]);
+  assert.deepEqual(bundle.layers.systemMethods.evidenceIds, [
+    "method-1456-456",
+    "method-1400-14",
+    "method-1358-358",
+  ]);
+  assert.equal(bundle.layers.newsMilestones.laterMarkersDoNotOverwriteEarlierMarkers, true);
+  assert.equal(bundle.layers.systemMethods.owner, "project_codex.numeric_rule_family_index");
+  assert.deepEqual(bundle.indexes.bySystemMethodRule.shitat_haechad_alef_law, [
+    "method-1358-358",
+    "method-1456-456",
+  ]);
+  assert.deepEqual(bundle.indexes.byNewsMarkerState.reported_snapshot, ["news-marker-1456"]);
+  assert.equal(bundle.indexes.byNumber["1456"].includes("method-1456-456"), true);
+  assert.equal(bundle.indexes.byNumber["456"].includes("method-1456-456"), true);
+  assert.equal(bundle.entities.some(entity => entity.ref === "number:1456"), true);
+  assert.equal(bundle.entities.some(entity => entity.ref === "number:456"), true);
+  assert.equal(bundle.invariants.system_method_derivation_is_not_numeric_equality, true);
+  assert.equal(bundle.invariants.system_method_derivation_is_not_independent_evidence, true);
+  assert.deepEqual(projection.layerEvidenceIds.systemMethods, bundle.layers.systemMethods.evidenceIds);
+  assert.equal(projection.guardrails.newsMilestonesRemainAppendOnly, true);
+  assert.equal(projection.guardrails.rawNumericIdentityPreserved, true);
+
+  const methodFinding = bundle.findingByRecordId["method-1358-358"];
+  assert.equal(methodFinding.evidence.facts[0].input_value, 1358);
+  assert.equal(methodFinding.evidence.facts[0].output_value, 358);
+  assert.equal(methodFinding.evidence.facts[0].evidence_relation, "derivation");
+});
+
+test("special layers fail closed on overwrite semantics, unknown rules or lost raw identity", () => {
+  const overwrite = layeredFixture();
+  overwrite.evidenceRecords[1].dependsOn = [];
+  assert.match(inspectOneTreeBranchInput(overwrite).errors.join("\n"), /updates append and never overwrite/);
+
+  const unknownRule = layeredFixture();
+  unknownRule.evidenceRecords[2].methodId = "local_one_rule";
+  unknownRule.evidenceRecords[2].attributes.system_method_application.rule_id = "local_one_rule";
+  assert.match(inspectOneTreeBranchInput(unknownRule).errors.join("\n"), /governed numeric system-method rule/);
+
+  const lostRawIdentity = layeredFixture();
+  lostRawIdentity.evidenceRecords[2].subjectRefs = ["number:456"];
+  assert.match(inspectOneTreeBranchInput(lostRawIdentity).errors.join("\n"), /preserve the raw numeric input entity/);
+
+  const mutableNews = layeredFixture();
+  mutableNews.evidenceRecords[0].attributes.news_publication_marker.immutable_snapshot = false;
+  assert.match(inspectOneTreeBranchInput(mutableNews).errors.join("\n"), /immutable_snapshot must be true/);
 });

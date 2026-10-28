@@ -48,7 +48,8 @@ Each branch declares:
 - proposed, evidence-backed relation candidates;
 - deterministic compilation timestamp;
 - canonical owner pointers for Graph, Truth, Research, Access, Availability, Raziel, Personal
-  Reality, Publishing and Presentation.
+  Reality, Publishing, Presentation and the existing Numeric System Methods owner
+  (`project_codex.numeric_rule_family_index`).
 
 It never owns a route, Graph row, Research Object, access grant, engine, publication decision or UI.
 
@@ -69,6 +70,38 @@ Every record carries its epistemic lane, verification state when known, semantic
 state, access tier, subject refs and dependencies. A source is not a fact; a derivation is not a
 source fact; an engine result is not an interpretation; an interpretation is not promoted by the
 compiler.
+
+## Site-wide news milestones and System Methods
+
+Version 2 adds two governed layers inside the same evidence model. They are not new stores and do
+not bypass the existing lanes.
+
+`news_publication_marker` is a specialized `source_fact`. It records exactly what a named source
+published at a named time, together with its scope (for example, 70% counted), whether it was a
+reported/official/final snapshot and the original value. The marker is immutable. A later report or
+final result creates another marker that points back to the earlier one; it never overwrites the
+earlier point in time. “The source published X” is therefore inspectable without turning X into the
+system's final truth or into the site's publication state.
+
+`system_method_application` is a specialized `derivation`. It must cite an active governed rule id,
+version and version source, preserve both the raw number entity and the derived number entity, and
+carry the canonical rule output. The owner remains
+`project_codex.numeric_rule_family_index`. A system-method connection is a derivation/convergence,
+not numeric equality and not independent evidence.
+
+For number-to-number applications, the contract currently recognizes this governed subset of the
+existing active family:
+
+- `shitat_haechad_alef_law`: a four-digit value beginning with 1 keeps its raw identity and exposes
+  the remainder after the leading thousand, for example 1,456→456 and 1,358→358;
+- `zero_scale_law`: trailing-zero scale forms can converge on their core root, for example
+  1,400→14 through the preserved scale chain 14→140→1,400;
+- `zero_navigation`: one explicit trailing-zero navigation step when that exact governed operation
+  is the recorded derivation.
+
+The compiler does not silently delete every `1` or `0`, does not recalculate an unowned local rule
+and does not replace 1,456 with 456. It indexes both values and exposes the rule application as a
+separate evidence record to Topic, Number, World, Search, Raziel and later renderers.
 
 ## Relations and One Tree
 
@@ -231,6 +264,9 @@ note and personal moment in one branch. Tests prove:
 - complete withholding of a private branch from public Search;
 - identical branch identity across every declared consumer family;
 - generic Raziel limits;
+- immutable news milestones whose later updates remain additive;
+- governed numeric method applications that preserve raw and derived identities;
+- the general examples 1,456→456, 1,400→14 and 1,358→358 without asserting equality;
 - fail-closed dangling refs, dependency cycles, canonical states and visual payloads;
 - deep immutability;
 - unchanged elections results and evidence separation after profile migration.

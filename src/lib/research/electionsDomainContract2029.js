@@ -5,6 +5,7 @@ import {
   ONE_TREE_BRANCH_REVIEW_STATE,
   ONE_TREE_CONSUMER,
   ONE_TREE_EVIDENCE_LANE,
+  ONE_TREE_FINDING_KIND,
   ONE_TREE_RELATION_STATUS,
   compileOneTreeBranch,
   inspectOneTreeBranchInput,
@@ -15,7 +16,7 @@ import {
 // bounded elections vocabulary and compatibility shape; generic graph, research, access, Raziel
 // and consumer behavior belongs to oneTreeBranchContract2029.js.
 
-export const ELECTIONS_DOMAIN_CONTRACT_VERSION = "sod1820.elections-domain.v2";
+export const ELECTIONS_DOMAIN_CONTRACT_VERSION = "sod1820.elections-domain.v3";
 
 export const ELECTIONS_REVIEW_STATE = Object.freeze({
   BRANCH_ONLY: ONE_TREE_BRANCH_REVIEW_STATE.BRANCH_ONLY,
@@ -26,6 +27,7 @@ export const ELECTIONS_EVIDENCE_LANE = Object.freeze({
   SOURCE_PROVENANCE: ONE_TREE_EVIDENCE_LANE.SOURCE_PROVENANCE,
   SOURCE_FACT: ONE_TREE_EVIDENCE_LANE.SOURCE_FACT,
   ENGINE_CALCULATION: ONE_TREE_EVIDENCE_LANE.ENGINE_CALCULATION,
+  DERIVATION: ONE_TREE_EVIDENCE_LANE.DERIVATION,
   INTERPRETATION: ONE_TREE_EVIDENCE_LANE.INTERPRETATION,
 });
 
@@ -43,6 +45,7 @@ export const ELECTIONS_ASSERTION_SCOPE = Object.freeze({
   PARTY_AUTHORED: "party_authored",
   SITE_AUTHORED: "site_authored",
   HISTORICAL_SOURCE: "historical_source",
+  PUBLISHED_SNAPSHOT: "published_snapshot",
 });
 
 export const ELECTIONS_RELATION_STATUS = ONE_TREE_RELATION_STATUS;
@@ -59,7 +62,9 @@ const ALLOWED_TOP_LEVEL_FIELDS = new Set([
   "entities",
   "sources",
   "sourceFacts",
+  "newsMarkers",
   "engineCalculations",
+  "systemMethodApplications",
   "interpretations",
   "relationCandidates",
 ]);
@@ -127,6 +132,68 @@ function mapCalculation(calculation) {
   };
 }
 
+function mapNewsMarker(marker) {
+  return {
+    ...marker,
+    lane: ONE_TREE_EVIDENCE_LANE.SOURCE_FACT,
+    findingKind: ONE_TREE_FINDING_KIND.NEWS_PUBLICATION_MARKER,
+    subjectRefs: [marker?.subjectRef, ...asArray(marker?.entityRefs)].filter(Boolean),
+    predicate: "published_value_snapshot",
+    semanticClass: SEMANTIC_CLASS.EVIDENCE,
+    governanceState: ONE_TREE_BRANCH_REVIEW_STATE.HUMAN_GATE_PENDING,
+    verificationState: marker?.verificationState || "match",
+    accessTier: marker?.accessTier || "public",
+    tags: marker?.tags || ["news_milestone"],
+    dependsOn: marker?.updatesMarkerId ? [marker.updatesMarkerId] : asArray(marker?.dependsOn),
+    attributes: {
+      ...(marker?.attributes || {}),
+      assertion_scope: marker?.assertionScope ?? null,
+      news_publication_marker: {
+        published_at: marker?.publishedAt,
+        snapshot_state: marker?.snapshotState,
+        scope: marker?.scope || {},
+        immutable_snapshot: true,
+        source_claim_only: true,
+        updates_marker_id: marker?.updatesMarkerId ?? null,
+      },
+    },
+  };
+}
+
+function mapSystemMethodApplication(application) {
+  return {
+    ...application,
+    lane: ONE_TREE_EVIDENCE_LANE.DERIVATION,
+    findingKind: ONE_TREE_FINDING_KIND.SYSTEM_METHOD_APPLICATION,
+    methodId: application?.ruleId,
+    methodVersion: application?.ruleVersion == null ? null : String(application.ruleVersion),
+    engineRef: application?.engineRef || "project_codex.numeric_rule_family_index",
+    value: application?.outputValue,
+    // A governed transform is deterministic, but it is not an engine claim being compared.
+    verificationState: application?.verificationState || "not_tested",
+    semanticClass: SEMANTIC_CLASS.DERIVATION,
+    governanceState: ONE_TREE_BRANCH_REVIEW_STATE.HUMAN_GATE_PENDING,
+    subjectRefs: asArray(application?.subjectRefs),
+    dependsOn: asArray(application?.dependsOn),
+    accessTier: application?.accessTier || "public",
+    tags: application?.tags || ["system_method"],
+    attributes: {
+      ...(application?.attributes || {}),
+      system_method_application: {
+        rule_id: application?.ruleId,
+        rule_version: application?.ruleVersion,
+        rule_version_source: application?.ruleVersionSource,
+        operation: application?.operation,
+        input_value: application?.inputValue,
+        output_value: application?.outputValue,
+        output: application?.output,
+        raw_identity_preserved: true,
+        evidence_relation: "derivation",
+      },
+    },
+  };
+}
+
 function mapInterpretation(interpretation) {
   return {
     ...interpretation,
@@ -169,7 +236,9 @@ function toOneTreeBranchInput(input = {}) {
     sources: asArray(input.sources).map(mapSource),
     evidenceRecords: [
       ...asArray(input.sourceFacts).map(mapSourceFact),
+      ...asArray(input.newsMarkers).map(mapNewsMarker),
       ...asArray(input.engineCalculations).map(mapCalculation),
+      ...asArray(input.systemMethodApplications).map(mapSystemMethodApplication),
       ...asArray(input.interpretations).map(mapInterpretation),
     ],
     relationCandidates: asArray(input.relationCandidates).map(mapRelation),
@@ -186,7 +255,9 @@ function electionProfileErrors(input) {
     "entities",
     "sources",
     "sourceFacts",
+    "newsMarkers",
     "engineCalculations",
+    "systemMethodApplications",
     "interpretations",
     "relationCandidates",
   ]) {
@@ -206,6 +277,11 @@ function electionProfileErrors(input) {
   for (const [index, fact] of asArray(input.sourceFacts).entries()) {
     if (!ASSERTION_SCOPES.has(fact?.assertionScope)) {
       errors.push(`sourceFacts[${index}].assertionScope is invalid`);
+    }
+  }
+  for (const [index, marker] of asArray(input.newsMarkers).entries()) {
+    if (marker?.assertionScope !== ELECTIONS_ASSERTION_SCOPE.PUBLISHED_SNAPSHOT) {
+      errors.push(`newsMarkers[${index}].assertionScope must be published_snapshot`);
     }
   }
   for (const [index, calculation] of asArray(input.engineCalculations).entries()) {
@@ -274,8 +350,10 @@ export function compileElectionsDomainBundle(input) {
       [ELECTIONS_EVIDENCE_LANE.SOURCE_PROVENANCE]: branchContract.evidence[ONE_TREE_EVIDENCE_LANE.SOURCE_PROVENANCE],
       [ELECTIONS_EVIDENCE_LANE.SOURCE_FACT]: branchContract.evidence[ONE_TREE_EVIDENCE_LANE.SOURCE_FACT],
       [ELECTIONS_EVIDENCE_LANE.ENGINE_CALCULATION]: branchContract.evidence[ONE_TREE_EVIDENCE_LANE.ENGINE_CALCULATION],
+      [ELECTIONS_EVIDENCE_LANE.DERIVATION]: branchContract.evidence[ONE_TREE_EVIDENCE_LANE.DERIVATION],
       [ELECTIONS_EVIDENCE_LANE.INTERPRETATION]: branchContract.evidence[ONE_TREE_EVIDENCE_LANE.INTERPRETATION],
     },
+    layers: branchContract.layers,
     relationCandidates: branchContract.relationCandidates,
     indexes: deepFreeze({
       ...branchContract.indexes,
