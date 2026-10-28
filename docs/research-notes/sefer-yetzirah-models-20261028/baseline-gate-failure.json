@@ -1,0 +1,21 @@
+{
+  "required_books_gate": "FAILED_UNCHANGED_BASELINE",
+  "full_suite": {
+    "tests": 346,
+    "passed": 345,
+    "failed": 1,
+    "skipped": 0,
+    "seconds": 573.941339174
+  },
+  "failing_test": "test/ahavat-torah-spatial-tables-2029.browser.test.mjs",
+  "line": 168,
+  "message": "PDF overlaps the letter reader on desktop",
+  "assertion": "sourceBounds.x + sourceBounds.width <= readerBounds.x + 1",
+  "current_focused_retry": "same failure, 112.1s",
+  "approved_base": "fa66867dfa1c3239f5bf454f8a110eb2777ec42b",
+  "baseline_test_worktree": "detached from exact approved base; no tracked edits",
+  "baseline_result": "same test, same line and message, 121.0s",
+  "test_sha256_base_and_current": "965e189488b6a2745209bd18a80d384ddcef65514344ad3628dbc50a4af53816",
+  "scope_decision": "No changes to the existing test, Ahavat Torah, shared reader/layout or gates. Source-specific component acceptance passes; full Books gate remains failing.",
+  "relevant_base_behavior": "The newer books-wide-dual-experience browser test at this base asserts that source is to the right in RTL; this older assertion requires source to the left. Adjudication belongs to the existing reader/test owner."
+}

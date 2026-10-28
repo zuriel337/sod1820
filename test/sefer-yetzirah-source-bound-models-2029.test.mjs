@@ -43,3 +43,10 @@ test('ten depths preserve five source pairs while only three pairs have spatial 
  assert.equal(g.points.some(p=>['beginning','end','good','evil'].includes(p.localId)),false);
  assert.deepEqual(m.relations.slice(0,2).map(r=>[r.from_id,r.to_id]),[['beginning','end'],['good','evil']]);
 });
+test('all source relationships retain qualified identities and exact unit anchors',()=>{
+ for(const key of ['six-seals-synoptic','six-seals-gra-edition','twelve-boundaries-gra','five-against-five','ten-depths']){
+  const m=bindSourceModel(bundle,key);
+  for(const r of m.relations){const p=sourcePayload(m,m.components[0],r);assert.equal(p.relationId,r.stable_id);assert.deepEqual(p.source,r.source);assert.equal(p.source.source_anchor,`#page=${m.page}&view=FitH`);assert.equal(p.verification,'not_tested');}
+ }
+ const b=structuredClone(bundle);b.structures.structures.find(s=>s.id==='sy-structure:ten-depths').source_relations[0].stable_id='foreign';assert.throws(()=>bindSourceModel(b,'ten-depths'),/SOURCE_RELATION_ID_MISMATCH/);
+});

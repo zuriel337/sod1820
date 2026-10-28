@@ -12,7 +12,7 @@ function cylinder(from,to,radius,material){
 function labelSprite(point){
   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=256;
   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
-  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false,transparent:true}));
+  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false,transparent:true,toneMapped:false}));
   sprite.position.set(...(point.labelPosition||[point.position[0],point.position[1]+.65,point.position[2]]));sprite.scale.set(...(point.labelScale||[2.05,1.025,1]));sprite.userData.componentId=point.id;
   return {sprite,canvas,texture,point};
 }
@@ -28,12 +28,13 @@ export default function YetzirahModelCanvas(props){
   const host=useRef(null),controller=useRef(null),latest=useRef(props);latest.current=props;
   useEffect(()=>{
     const container=host.current,canvas=document.createElement('canvas');canvas.setAttribute('aria-label','המחשה מרחבית; אפשר לבחור גם ברשימת הרכיבים');canvas.setAttribute('role','img');container.appendChild(canvas);
-    let renderer,controls,resize,frame=0,disposed=false;
+    let renderer,controls,resize,frame=0,disposed=false,narrow=false;
     const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(CAMERA.fov,1,.1,100);camera.position.set(...CAMERA.position);camera.lookAt(...CAMERA.target);
     const nodes=[],edges=[],labels=[],hits=[],decorations=[],faces=[],directionLabels=[];
+    function disposeScene(){const resources=new Set();scene.traverse(object=>{if(object.geometry)resources.add(object.geometry);for(const m of(Array.isArray(object.material)?object.material:[object.material]))if(m){if(m.map)resources.add(m.map);resources.add(m);}});resources.forEach(resource=>resource.dispose());}
     try{
       renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;
-      const p=latest.current.palette;scene.add(new THREE.HemisphereLight(p.ink,p.cardSoft,2.2));const light=new THREE.DirectionalLight(p.ink,3);light.position.set(4,7,6);scene.add(light);const rim=new THREE.DirectionalLight(p.accentSecondary,1.8);rim.position.set(-5,1,-4);scene.add(rim);
+      const p=latest.current.palette,lightInk=p.mode==='light'?p.card:p.ink;scene.add(new THREE.HemisphereLight(lightInk,p.cardSoft,2.2));const light=new THREE.DirectionalLight(lightInk,3);light.userData.role='key';light.position.set(4,7,6);scene.add(light);const rim=new THREE.DirectionalLight(p.accentSecondary,1.8);rim.userData.role='rim';rim.position.set(-5,1,-4);scene.add(rim);
       const geometry=modelGeometry(props.model);
       for(const point of geometry.points){
         const mesh=new THREE.Mesh(point.shape==='ring'?new THREE.TorusGeometry(.48,.065,16,64):new THREE.SphereGeometry(.29,28,20),new THREE.MeshStandardMaterial({color:p.warmAccent,metalness:.48,roughness:.28,emissive:p.accentDiscovery,emissiveIntensity:0}));
@@ -49,14 +50,15 @@ export default function YetzirahModelCanvas(props){
       function draw(){frame=0;if(disposed)return;const now=latest.current;controls.autoRotate=now.rotate&&!now.reducedMotion;controls.enableDamping=!now.reducedMotion;const changed=controls.update();renderer.render(scene,camera);canvas.dataset.frameCount=String(Number(canvas.dataset.frameCount||0)+1);canvas.dataset.rotation=controls.autoRotate?'running':'off';if(controls.autoRotate||changed)request();}
       const update=()=>{
         const {palette,selectedId,isolated}=latest.current;
+        for(const light of scene.children){if(light.isHemisphereLight){light.color.set(palette.mode==='light'?palette.card:palette.ink);light.groundColor.set(palette.cardSoft);}if(light.isDirectionalLight)light.color.set(light.userData.role==='rim'?palette.accentSecondary:palette.mode==='light'?palette.card:palette.ink);}decorations.forEach(d=>d.material.color.set(palette.inkSoft));
         nodes.forEach(({mesh,point})=>{const chosen=selectedId===point.id;mesh.material.color.set(chosen?palette.accentDiscovery:palette.warmAccent);if(mesh.material.emissive){mesh.material.emissive.set(palette.accentDiscovery);mesh.material.emissiveIntensity=chosen?.35:0;}mesh.scale.setScalar(point.from?1:(chosen?1.18:1));mesh.visible=!isolated||!selectedId||chosen;});
-        labels.forEach(label=>{label.sprite.visible=(geometry.kind!=='boundaries'||label.point.id===selectedId)&&(!isolated||!selectedId||label.point.id===selectedId);paintLabel(label,palette,label.point.id===selectedId);});
-        const selected=geometry.segments?.find(s=>s.id===selectedId);faces.forEach(f=>{f.mesh.visible=Boolean(selected?.directions.includes(f.direction));f.mesh.material.color.set(palette.accentDiscovery);});directionLabels.forEach(l=>paintLabel(l,palette,Boolean(selected?.directions.includes(l.direction))));
+        labels.forEach(label=>{label.sprite.visible=!narrow&&(geometry.kind!=='boundaries'||label.point.id===selectedId)&&(!isolated||!selectedId||label.point.id===selectedId);paintLabel(label,palette,label.point.id===selectedId);});
+        const selected=geometry.segments?.find(s=>s.id===selectedId);faces.forEach(f=>{f.mesh.visible=Boolean(selected?.directions.includes(f.direction));f.mesh.material.color.set(palette.accentDiscovery);});directionLabels.forEach(l=>{l.sprite.visible=!narrow;paintLabel(l,palette,Boolean(selected?.directions.includes(l.direction)));});
         edges.forEach(({mesh,edge})=>{mesh.material.color.set(palette.inkSoft);mesh.visible=!isolated||!selectedId||nodes.some(n=>n.point.id===selectedId&&(n.point.position===edge.from||n.point.position===edge.to));});
         canvas.dataset.visibleComponents=JSON.stringify([...new Set(nodes.filter(n=>n.mesh.visible).map(n=>n.point.id))]);
         request();
       };
-      const fit=()=>{const {width,height}=container.getBoundingClientRect();if(width&&height){camera.aspect=width/height;camera.fov=viewportFov(width,height);camera.updateProjectionMatrix();renderer.setSize(width,height,false);request();}};
+      const fit=()=>{const {width,height}=container.getBoundingClientRect();if(width&&height){narrow=width<480;camera.aspect=width/height;camera.fov=viewportFov(width,height);camera.updateProjectionMatrix();renderer.setSize(width,height,false);update();}};
       resize=new ResizeObserver(fit);resize.observe(container);controls.addEventListener('change',request);
       let down=null;
       const onDown=e=>{down=[e.clientX,e.clientY];};
@@ -64,9 +66,9 @@ export default function YetzirahModelCanvas(props){
       const lost=e=>{e.preventDefault();latest.current.onUnavailable('context_lost');};
       canvas.addEventListener('pointerdown',onDown);canvas.addEventListener('pointerup',onUp);canvas.addEventListener('webglcontextlost',lost);
       controller.current={update};fit();update();canvas.dataset.renderState='ready';
-      return()=>{disposed=true;controller.current=null;cancelAnimationFrame(frame);resize.disconnect();controls.removeEventListener('change',request);controls.dispose();canvas.removeEventListener('pointerdown',onDown);canvas.removeEventListener('pointerup',onUp);canvas.removeEventListener('webglcontextlost',lost);const resources=new Set();scene.traverse(object=>{if(object.geometry)resources.add(object.geometry);for(const m of(Array.isArray(object.material)?object.material:[object.material]))if(m){if(m.map)resources.add(m.map);resources.add(m);}});resources.forEach(resource=>resource.dispose());renderer.renderLists.dispose();renderer.dispose();if(!renderer.getContext().isContextLost())renderer.forceContextLoss();canvas.remove();};
+      return()=>{disposed=true;controller.current=null;cancelAnimationFrame(frame);resize.disconnect();controls.removeEventListener('change',request);controls.dispose();canvas.removeEventListener('pointerdown',onDown);canvas.removeEventListener('pointerup',onUp);canvas.removeEventListener('webglcontextlost',lost);disposeScene();renderer.renderLists.dispose();renderer.dispose();if(!renderer.getContext().isContextLost())renderer.forceContextLoss();canvas.remove();};
     }catch{
-      disposed=true;cancelAnimationFrame(frame);resize?.disconnect();controls?.dispose();renderer?.dispose();renderer?.forceContextLoss();canvas.remove();latest.current.onUnavailable('webgl_unavailable');
+      disposed=true;cancelAnimationFrame(frame);resize?.disconnect();controls?.dispose();disposeScene();renderer?.dispose();if(renderer&&!renderer.getContext().isContextLost())renderer.forceContextLoss();canvas.remove();latest.current.onUnavailable('webgl_unavailable');
     }
   },[props.model]);
   useEffect(()=>controller.current?.update(),[props.selectedId,props.isolated,props.palette,props.rotate,props.reducedMotion]);
