@@ -37,3 +37,11 @@ The verification SQL was self-tested against the live engine with a positive con
 
 ## Not decided here
 No pass/fail threshold: this is a first look. Proposals are interpretations; Human Gate stays with ZURIEL. Whatever the result, it is one case and one model.
+
+## Amendment 1 (recorded after ZURIEL's approval to run and before the first call; the run record is in `results/`)
+* **Model.** ZURIEL chose `claude-fable-5-1` ("the strongest"); the run stops if the preflight does not list it with structured outputs and adaptive thinking. It was listed (context window 1,000,000, maximum output 128,000; exact input count 20,774 tokens).
+* **Credential.** No dedicated key existed. With ZURIEL's approval the site's existing Anthropic key was used through a temporary, request-locked pass-through edge function (`edge/`): one-time token, only the SHA-256 of the canonical JSON of the approved request parameters is accepted for a batch, model allow-list, no database, no logging. Every call is a one-request Message Batch (the platform's wall-clock limit is shorter than a long thinking call). The function was replaced by a 410 stub at the end.
+* **Parameters.** Attempt 1 used the pre-registered parameters (effort `high`, `max_tokens` 32,000) and returned no answer (all output tokens were thinking, `stop_reason: max_tokens`). With ZURIEL's standing approval for further attempts (up to ten, other models allowed, up to USD 40), attempt 2 used effort `medium`, `max_tokens` 64,000, same model, same input text. It succeeded, so no other model was tried. Nothing else changed: same system text, message, schema and region.
+* **Round 2** was run once on the six verified proposals that asked to continue (cap 12), as its own request with its own SHA-256 and lock.
+* **Verification.** Where the engine's first page (100 hits) was truncated before the claimed start, the same engine function was asked for the keyset continuation just before that start; five proposals needed it and all were confirmed (recorded as such in the report).
+* The pass/fail stance is unchanged: none. The evaluation targets were read only by the report stage.

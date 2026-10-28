@@ -1,6 +1,7 @@
 {
-  "request_sha256": "a2ad092524844e878fdd3c6be816b532087a4f0915dcaabb27980ce0bd34c5f6",
-  "model_candidate": "claude-opus-5-5",
+  "request_sha256": "a8eb021bb779f551449302184d4e6844dfedfb60428d87466fa72a43505caa15",
+  "lock_sha256": "2031ceef46263a915662207169c0ef04a7c4e018f631d5fb1d5140e4b45ed8aa",
+  "model_candidate": "claude-fable-5-1",
   "availability_verified": false,
   "region": {
     "rows": 33,

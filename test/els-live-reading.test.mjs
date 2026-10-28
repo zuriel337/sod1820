@@ -10,7 +10,8 @@ import { KINDS, buildLines, engineParams, foldFinals, loadRegion, readings } fro
 import { FINDINGS_SCHEMA, MAX_FINDINGS, STORY, SYSTEM, buildCard, buildRound1, buildRound2Message } from "../experiments/els-live-reading/lib/prompt.mjs";
 import { classify, locateFinding, parseModelOutput, verificationItems, MAX_OCCURRENCES_VERIFIED } from "../experiments/els-live-reading/lib/validate.mjs";
 import { BATCH, verificationSql, verificationStatements } from "../experiments/els-live-reading/lib/verify-sql.mjs";
-import { KEY_ENV, NoCredentialError, PRICES, buildRequest, costOf, requestSha256, summarizeMessage } from "../experiments/els-live-reading/lib/request.mjs";
+import { KEY_ENV, NoCredentialError, PRICES, PROXY_JWT_ENV, PROXY_TOKEN_ENV, PROXY_URL_ENV, buildRequest, canonicalJson, costOf, lockSha256, requestSha256, summarizeMessage } from "../experiments/els-live-reading/lib/request.mjs";
+import * as edge from "../experiments/els-live-reading/edge/handler.mjs";
 import { DEFAULTS, REGION_PATH, countsByKind, loadContext, round1Request } from "../experiments/els-live-reading/lib/context.mjs";
 import { evaluateTargets } from "../experiments/els-live-reading/lib/evaluate.mjs";
 import { renderReport } from "../experiments/els-live-reading/lib/report.mjs";
@@ -81,9 +82,10 @@ test("EXP-15 prompt: the story verbatim, the continue-from option, no invented l
   assert.deepEqual([...FINDINGS_SCHEMA.properties.findings.items.required].sort(), Object.keys(FINDINGS_SCHEMA.properties.findings.items.properties).sort());
 });
 
-test("EXP-15 request: Claude Opus 5.5 by default, adaptive thinking, effort, structured output, no tools or fallbacks, sampling parameters absent; cost arithmetic", () => {
+test("EXP-15 request: Claude Fable 5.1 by default (the stronger model ZURIEL chose), adaptive thinking, effort, structured output, no tools or fallbacks, sampling parameters absent; cost arithmetic", () => {
   const { request } = round1Request(ctx);
   assert.equal(request.model, DEFAULTS.model);
+  assert.equal(DEFAULTS.model, "claude-fable-5-1");
   assert.deepEqual(Object.keys(request).sort(), ["max_tokens", "messages", "model", "output_config", "system", "thinking"].sort());
   assert.deepEqual(request.thinking, { type: "adaptive", display: "summarized" });
   assert.equal(request.output_config.format.type, "json_schema");
@@ -93,6 +95,8 @@ test("EXP-15 request: Claude Opus 5.5 by default, adaptive thinking, effort, str
   assert.equal(costOf("claude-sonnet-5-5", { input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 1_000_000, cache_read_input_tokens: 1_000_000 }).usd, 2.5 + 0.2);
   assert.equal(costOf("some-other-model", { input_tokens: 1 }).usd, null);
   assert.ok(PRICES["claude-opus-5-5"].input === 4);
+  assert.equal(costOf("claude-fable-5-1", { input_tokens: 1_000_000, output_tokens: 1_000_000 }).usd, 60);
+  assert.equal(costOf("claude-fable-5-1", { input_tokens: 1_000_000, output_tokens: 1_000_000 }, { batch: true }).usd, 30, "batches are half of list");
   const message = { content: [{ type: "thinking", thinking: "t" }, { type: "text", text: "{}" }], stop_reason: "end_turn", model: "m", usage: { input_tokens: 1 }, id: "x" };
   assert.deepEqual(summarizeMessage(message).thinking, ["t"]);
   assert.equal(summarizeMessage(message).text, "{}");
@@ -192,10 +196,13 @@ test("EXP-15 evaluation of the targets is separate from the run and distinguishe
 });
 
 test("EXP-15 report: model, exact input, proposals before verification, verified and not verified apart, time and cost, limits (synthetic round)", () => {
-  const classified = [{ id: "r1.f01", modelId: "F1", text: "אבגד", rawText: "אבגד", occurrences: [{ reading: "C05+" }], totalOccurrences: 1, verifiedOccurrences: 1, verdict: "verified_by_engine", segmentationOk: true, reasons: [] }, { id: "r1.f02", modelId: "F2", text: "תתתת", rawText: "תתתת", line: "C05+", occurrences: [], totalOccurrences: 0, verifiedOccurrences: 0, verdict: "not_verified", segmentationOk: true, reasons: ["letters do not appear"] }];
+  const classified = [{ id: "r1.f01", modelId: "F1", text: "אבגד", rawText: "אבגד", occurrences: [{ reading: "C05+" }], totalOccurrences: 1, verifiedOccurrences: 1, verdict: "verified_by_engine", segmentationOk: true, reasons: [], checks: [{ engine_followup: true }] }, { id: "r1.f02", modelId: "F2", text: "תתתת", rawText: "תתתת", line: "C05+", occurrences: [], totalOccurrences: 0, verifiedOccurrences: 0, verdict: "not_verified", segmentationOk: true, reasons: ["letters do not appear"] }];
   const round = { findings: [{ id: "r1.f01", modelId: "F1", line: "C05+", text: "אבגד", parts: ["אב", "גד"], kind: "word", story_related: false, continue_from: true, from_finding: "", note: "n" }], observations: "o", servedModel: "model-x", stopReason: "end_turn", stopDetails: null, usage: { input_tokens: 10, output_tokens: 5 }, ms: 1500, cost: { usd: 0.001, basis: "b" } };
   const input = { round1Sha: "x".repeat(64), systemChars: 1, userChars: 2, nRows: 33, nCols: 41, cells: 1353, lines: 212, byKind: { R: 33, C: 41, D: 69, A: 69 }, pageMismatches: 0, omittedShortLines: 8 };
-  const { text, sha256 } = renderReport({ meta: { requestedModel: "model-x", effort: "high", maxTokens: 1, preflight: null }, input, rounds: [round], classified, evaluation: [{ target: "t", placementsInRegion: [], best: "none", hits: {} }] });
+  const failedAttempts = [{ label: "first try", stopReason: "max_tokens", usage: { output_tokens: 9, output_tokens_details: { thinking_tokens: 9 } }, ms: 2000, cost: { usd: 0.002 }, batch: { id: "msgbatch_x", created_at: "a", ended_at: "b" } }];
+  const { text, sha256 } = renderReport({ meta: { requestedModel: "model-x", effort: "high", maxTokens: 1, preflight: null }, input, rounds: [round], classified, evaluation: [{ target: "t", placementsInRegion: [], best: "none", hits: {} }], failedAttempts });
+  assert.ok(text.includes("ניסיון קודם שנכשל") && text.includes("max_tokens") && text.includes("כולל הניסיון שנכשל: $0.0030"), "a failed attempt is reported and added to the total");
+  assert.ok(text.includes("בקשת המשך (continuation)"), "a proposal confirmed by an engine continuation says so");
   for (const heading of ["## 1. מה הופעל", "## 2. מה בדיוק התקבל", "## 3. מה המודל הציע לפני האימות", "## 4. מה המנוע הקנוני אימת", "## 5. מה לא אומת", "## 6. זמן ועלות", "## 7. האם נמצאו יעדי ההערכה", "## 8. מגבלות"]) assert.ok(text.includes(heading), heading);
   assert.match(sha256, /^[0-9a-f]{64}$/);
   assert.ok(text.indexOf("## 4.") < text.indexOf("## 5."));
@@ -238,14 +245,14 @@ test("EXP-15 stubbed client (test-only objects, never part of the harness): an u
   const { preflight, callRound } = sdk;
   const { request } = round1Request(ctx);
   const client = (ids, info, count) => ({ models: { list: () => (async function* () { for (const id of ids) yield { id }; })(), retrieve: async () => info }, messages: { countTokens: async () => ({ input_tokens: count }) } });
-  const good = { display_name: "x", max_input_tokens: 1_000_000, max_tokens: 128_000, capabilities: { structured_outputs: { supported: true }, thinking: { types: { adaptive: { supported: true } } }, effort: { high: { supported: true } } } };
+  const good = { display_name: "x", max_input_tokens: 1_000_000, max_tokens: 128_000, capabilities: { structured_outputs: { supported: true }, thinking: { types: { adaptive: { supported: true } } }, effort: { medium: { supported: true }, high: { supported: true } } } };
   const unlisted = await preflight(client(["other-model"], good, 1000), request);
   assert.equal(unlisted.ok, false);
   assert.match(unlisted.reason, /not available/);
   const ok = await preflight(client([request.model], good, 40_000), request);
   assert.equal(ok.ok, true);
   assert.equal(ok.request_sha256, requestSha256(request));
-  assert.ok(ok.upper_bound_usd > 0.6 && ok.upper_bound_usd < 1);
+  assert.ok(ok.upper_bound_usd > 3.5 && ok.upper_bound_usd < 3.9, "40,000 input tokens at the cache-write rate plus 64,000 output tokens at Fable prices");
   const noStructured = await preflight(client([request.model], { ...good, capabilities: { ...good.capabilities, structured_outputs: { supported: false } } }, 40_000), request);
   assert.equal(noStructured.ok, false);
   const tooBig = await preflight(client([request.model], good, 160_000), request);
@@ -255,4 +262,117 @@ test("EXP-15 stubbed client (test-only objects, never part of the harness): an u
   assert.equal(done.message, message);
   assert.ok(done.ms >= 0);
   assert.throws(() => sdk.makeClient({}), NoCredentialError);
+});
+
+// ---------------------------------------------------------------- the site's pass-through (edge/handler.mjs) and the batch transport
+const TOKEN = "unit-test-token-not-a-secret";
+const lockOf = (request) => lockSha256(request);
+const passThrough = async () => {
+  const { request } = round1Request(ctx);
+  const cfg = { apiKey: "unit-test-upstream-key", tokenSha256: await edge.sha256Hex(TOKEN), approved: new Set([lockOf(request)]), models: [request.model], maxBody: 400_000 };
+  const calls = [];
+  const upstream = async (url, init) => { calls.push({ url, init }); return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { "content-type": "application/json" } }); };
+  const call = (method, path, { body, headers = {}, token = TOKEN } = {}) => edge.handle(new Request(`https://x.supabase.co/functions/v1/els-live-reading${path}`, { method, body, headers: { ...(token ? { "x-els-token": token } : {}), ...headers } }), cfg, upstream);
+  return { request, cfg, calls, call };
+};
+
+test("EXP-15 pass-through: same canonical hash on both sides, token-gated, only the approved routes, the credential stays inside", async () => {
+  const { request, calls, call } = await passThrough();
+  assert.equal(canonicalJson(request), edge.canonicalJson(request));
+  assert.equal(await edge.sha256Hex(edge.canonicalJson(request)), lockOf(request));
+  assert.equal(lockSha256({ b: 1, a: [2, { d: 1, c: 2 }] }), createHash("sha256").update('{"a":[2,{"c":2,"d":1}],"b":1}').digest("hex"), "keys are sorted at every level");
+  assert.equal((await call("GET", "/v1/models", { token: "" })).status, 403);
+  assert.equal((await call("GET", "/v1/models", { token: "wrong" })).status, 403);
+  assert.equal(calls.length, 0, "nothing reaches the API without the token");
+  const unconfigured = await edge.handle(new Request("https://x/v1/models", { headers: { "x-els-token": TOKEN } }), { apiKey: "", tokenSha256: "", approved: new Set(), models: [], maxBody: 1 }, async () => { throw new Error("must not be called"); });
+  assert.equal(unconfigured.status, 503);
+  const listing = await call("GET", "/v1/models?limit=5&evil=1", { headers: { authorization: "Bearer jwt", "anthropic-beta": "x", "anthropic-version": "2026-10-21" } });
+  assert.equal(listing.status, 200);
+  assert.equal(calls[0].url, "https://api.anthropic.com/v1/models?limit=5", "only the pagination parameters are forwarded");
+  assert.deepEqual(Object.keys(calls[0].init.headers).sort(), ["anthropic-version", "x-api-key"]);
+  assert.equal(calls[0].init.headers["x-api-key"], "unit-test-upstream-key");
+  assert.equal(JSON.stringify(await listing.json()).includes("unit-test-upstream-key"), false);
+  assert.equal((await call("GET", `/v1/models/${request.model}`)).status, 200);
+  for (const [method, path] of [["POST", "/v1/messages"], ["DELETE", "/v1/models"], ["GET", "/v1/files"], ["GET", "/v1/messages/batches/not-an-id"], ["GET", "/v1/models/../organizations"], ["POST", "/v1/complete"]]) assert.equal((await call(method, path, { body: method === "POST" ? "{}" : undefined })).status, 404, `${method} ${path}`);
+  assert.equal((await call("POST", "/v1/messages/count_tokens", { body: JSON.stringify({ model: "other-model", messages: [] }) })).status, 403);
+  assert.equal((await call("POST", "/v1/messages/count_tokens", { body: JSON.stringify({ model: request.model, messages: [] }) })).status, 200);
+  assert.equal((await call("GET", "/v1/messages/batches/msgbatch_0123456789abcdef/results")).status, 200);
+  assert.equal((await call("POST", "/v1/messages/batches/msgbatch_0123456789abcdef/cancel")).status, 200);
+  const source = readFileSync(`${DIR}edge/handler.mjs`, "utf8");
+  assert.equal(/console\.|Deno\.env|\.from\(|supabase/i.test(source), false, "no logging, no environment access, no database in the handler");
+});
+
+test("EXP-15 pass-through: a batch is accepted only for exactly the approved request", async () => {
+  const { request, calls, call } = await passThrough();
+  const batch = (params, extra = {}, id = "els-live-1") => JSON.stringify({ requests: [{ custom_id: id, params }], ...extra });
+  const ok = await call("POST", "/v1/messages/batches", { body: batch(request) });
+  assert.equal(ok.status, 200);
+  assert.equal(calls.at(-1).init.body, batch(request), "the body is forwarded byte for byte");
+  const before = calls.length;
+  const changed = { ...request, max_tokens: request.max_tokens + 1 };
+  const changedSystem = { ...request, system: `${request.system} ` };
+  const otherModel = { ...request, model: "claude-opus-5-5" };
+  for (const body of [batch(changed), batch(changedSystem), batch(otherModel), batch(request, { extra: 1 }), JSON.stringify({ requests: [{ custom_id: "els-live-1", params: request }, { custom_id: "els-live-2", params: request }] }), batch(request, {}, "other-id"), JSON.stringify({ requests: [{ custom_id: "els-live-1", params: request, extra: 1 }] }), "not json", JSON.stringify({ requests: "x" })]) {
+    const response = await call("POST", "/v1/messages/batches", { body });
+    assert.ok([400, 403].includes(response.status), `refused: ${response.status}`);
+  }
+  assert.equal(calls.length, before, "no refused request reached the API");
+  assert.equal((await call("POST", "/v1/messages/batches", { body: "x".repeat(400_001) })).status, 413);
+  const reordered = JSON.stringify({ requests: [{ params: Object.fromEntries(Object.entries(request).reverse()), custom_id: "els-live-1" }] });
+  assert.equal((await call("POST", "/v1/messages/batches", { body: reordered })).status, 200, "key order does not matter, content does");
+});
+
+test("EXP-15 edge function rendering: the live source carries only the hash of the token and the approved lock hashes; the disabled source refuses everything", async () => {
+  const tokenSha = await edge.sha256Hex(TOKEN);
+  const { request } = round1Request(ctx);
+  const live = spawnSync(process.execPath, [`${DIR}edge/render.mjs`, "live", "--token-sha256", tokenSha, "--approve", lockOf(request), "--model", request.model], { encoding: "utf8" });
+  assert.equal(live.status, 0, live.stderr);
+  assert.ok(live.stdout.includes(tokenSha) && live.stdout.includes(lockOf(request)) && live.stdout.includes("Deno.serve") && live.stdout.includes('Deno.env.get("ANTHROPIC_API_KEY")'));
+  assert.equal(live.stdout.includes(TOKEN), false);
+  assert.equal(/^export /m.test(live.stdout), false);
+  const bad = spawnSync(process.execPath, [`${DIR}edge/render.mjs`, "live", "--token-sha256", "zz", "--approve", lockOf(request), "--model", request.model], { encoding: "utf8" });
+  assert.notEqual(bad.status, 0);
+  const off = spawnSync(process.execPath, [`${DIR}edge/render.mjs`, "disabled"], { encoding: "utf8" });
+  assert.ok(off.stdout.includes("410") && !off.stdout.includes("ANTHROPIC") && !off.stdout.includes("fetch("));
+});
+
+test("EXP-15 transport: proxy mode needs all three variables, the SDK sends a one-request batch whose params hash to the approved lock, and the polling loop returns the result untouched", { skip: sdk ? false : "experiment dependencies not installed" }, async () => {
+  const { transportOf, makeClient, callBatch } = sdk;
+  assert.equal(transportOf({}), null);
+  assert.equal(transportOf({ [PROXY_URL_ENV]: "u", [PROXY_TOKEN_ENV]: "t" }), null);
+  assert.equal(transportOf({ [PROXY_URL_ENV]: "u", [PROXY_TOKEN_ENV]: "t", [PROXY_JWT_ENV]: "j" }), "proxy");
+  assert.equal(transportOf({ [KEY_ENV]: "k", [PROXY_URL_ENV]: "u", [PROXY_TOKEN_ENV]: "t", [PROXY_JWT_ENV]: "j" }), "direct");
+  assert.throws(() => makeClient({ [PROXY_URL_ENV]: "https://x/functions/v1/els-live-reading" }), NoCredentialError);
+  const { request } = round1Request(ctx);
+  const http = await import("node:http");
+  const seen = [];
+  const server = http.createServer((incoming, outgoing) => {
+    let body = "";
+    incoming.on("data", (chunk) => { body += chunk; });
+    incoming.on("end", () => { seen.push({ method: incoming.method, url: incoming.url, headers: incoming.headers, body }); outgoing.writeHead(400, { "content-type": "application/json" }); outgoing.end(JSON.stringify({ type: "error", error: { type: "invalid_request_error", message: "transport test" } })); });
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const client = makeClient({ [PROXY_URL_ENV]: `http://127.0.0.1:${server.address().port}/functions/v1/els-live-reading`, [PROXY_TOKEN_ENV]: TOKEN, [PROXY_JWT_ENV]: "header.payload.signature" });
+    await assert.rejects(client.messages.batches.create({ requests: [{ custom_id: "els-live-1", params: request }] }));
+    assert.equal(seen[0].method, "POST");
+    assert.equal(seen[0].url, "/functions/v1/els-live-reading/v1/messages/batches");
+    assert.equal(seen[0].headers["x-els-token"], TOKEN);
+    assert.equal(seen[0].headers.authorization, "Bearer header.payload.signature");
+    const sent = JSON.parse(seen[0].body);
+    assert.deepEqual(Object.keys(sent), ["requests"]);
+    assert.equal(sent.requests.length, 1);
+    assert.equal(lockSha256(sent.requests[0].params), lockSha256(request), "what the SDK serialises is what was approved");
+    assert.equal(await edge.sha256Hex(edge.canonicalJson(sent.requests[0].params)), lockSha256(request));
+  } finally { server.close(); }
+  // the polling loop, against a test double of the SDK surface (no experiment result comes from it)
+  const states = [{ id: "msgbatch_x", processing_status: "in_progress", created_at: "t0" }, { id: "msgbatch_x", processing_status: "ended", created_at: "t0", ended_at: "t1", request_counts: { succeeded: 1 } }];
+  const double = { messages: { batches: { create: async () => states[0], retrieve: async () => states[1], results: async () => (async function* () { yield { custom_id: "other", result: { type: "errored" } }; yield { custom_id: "els-live-1", result: { type: "succeeded", message: { id: "m" } } }; })() } } };
+  let polls = 0;
+  const out = await callBatch(double, request, { pollMs: 0, sleep: async () => {}, onPoll: () => { polls += 1; } });
+  assert.equal(out.result.type, "succeeded");
+  assert.deepEqual([out.batch.id, out.batch.ended_at, polls], ["msgbatch_x", "t1", 1]);
+  const failing = { messages: { batches: { ...double.messages.batches, results: async () => (async function* () { yield { custom_id: "els-live-1", result: { type: "expired" } }; })() } } };
+  assert.equal((await callBatch(failing, request, { pollMs: 0, sleep: async () => {} })).result.type, "expired", "a result that is not succeeded is returned as it is");
+  await assert.rejects(callBatch({ messages: { batches: { create: async () => states[0], retrieve: async () => states[0] } } }, request, { pollMs: 0, maxWaitMs: -1, sleep: async () => {} }), /did not end/);
 });

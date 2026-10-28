@@ -61,7 +61,7 @@ export function classify(located, rows) {
       const row = byKey.get(`${finding.id}.${k}`);
       if (!row) return { occurrence: occ.reading, status: "not_checked" };
       const plain = row.engine?.status === "plain_text_row_not_els";
-      return { occurrence: occ.reading, from: occ.from, letters_match: row.letters_match === true, plain_text: plain, engine_found: plain ? null : row.engine?.found === true, engine_status: row.engine?.status ?? null, params: occ.params };
+      return { occurrence: occ.reading, from: occ.from, letters_match: row.letters_match === true, plain_text: plain, engine_found: plain ? null : row.engine?.found === true, engine_status: row.engine?.status ?? null, engine_followup: Boolean(row.engine?.followup), params: occ.params };
     });
     const ok = (c) => c.letters_match === true && (c.plain_text || c.engine_found === true);
     const verifiedChecks = checks.filter(ok);

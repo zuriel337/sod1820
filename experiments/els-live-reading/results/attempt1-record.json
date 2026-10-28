@@ -1,0 +1,73 @@
+{
+  "lock_sha256": "a8a6933559862199b6f429a70af7148e1f9d74f69bf4013b55ad579bd1d56cf6",
+  "transport": "proxy",
+  "batch": {
+    "id": "msgbatch_01Uv6HjDxqoT6qwmUA46MeGK",
+    "created_at": "2026-10-28T00:27:28.352840+00:00",
+    "ended_at": "2026-10-28T00:41:05.285815+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "preflight": {
+    "ok": true,
+    "model": "claude-fable-5-1",
+    "display_name": "Claude Fable 5.1",
+    "listed": true,
+    "max_input_tokens": 1000000,
+    "max_tokens_limit": 128000,
+    "checks": {
+      "structured_outputs": true,
+      "adaptive_thinking": true,
+      "effort_level": true,
+      "max_tokens_within_model_limit": true
+    },
+    "input_tokens_counted": 20774,
+    "note": "count excludes the structured-output schema, which the API adds; the real input is slightly larger",
+    "upper_bound_usd": 1.8597,
+    "request_sha256": "5bb5b866460d3486400773dc9b91935fea25a8103b2844387d7f4633e61d1702",
+    "lock_sha256": "05e566387caebef96a0bb135db7bd8d128c3594eca94a3a07037f9e5ca750731"
+  },
+  "ms": 816933,
+  "cost": {
+    "usd": 0.90674,
+    "parts": {
+      "input": 0.21348,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 1.6
+    },
+    "basis": "list prices, claude-api model table cached 2026-10-06; cache writes at 1.25x input; Message Batches at 50% of list"
+  },
+  "summary": {
+    "text": "",
+    "thinking": "[omitted: 11263 chars of summarized thinking; no answer text was produced]",
+    "stop_reason": "max_tokens",
+    "stop_details": null,
+    "model": "claude-fable-5-1",
+    "usage": {
+      "input_tokens": 21348,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 32000,
+      "output_tokens_details": {
+        "thinking_tokens": 32000
+      },
+      "service_tier": "batch",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "id": "msg_011CgThbYwfiYtVPiC4GfKAT"
+  },
+  "collected_after_the_fact": true,
+  "note": "Attempt 1 (Fable 5.1, effort high, max_tokens 32000): the whole output budget went to thinking and ended with stop_reason max_tokens, no answer. The request_sha256 recorded here was recomputed when the result was collected after the fact with different defaults; the sha of the request that was sent is in preflight_sha_sent.",
+  "preflight_sha_sent": "5bb5b866460d3486400773dc9b91935fea25a8103b2844387d7f4633e61d1702"
+}

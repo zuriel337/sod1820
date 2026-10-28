@@ -1,6 +1,6 @@
-MODEL: claude-opus-5-5   (availability NOT yet verified: needs the credential)
-PARAMETERS: max_tokens=32000; thinking={"type":"adaptive","display":"summarized"}; output_config.effort=high; structured output=json_schema (schema below); cache_control=null; tools=none; fallbacks=none
-REQUEST SHA-256: a2ad092524844e878fdd3c6be816b532087a4f0915dcaabb27980ce0bd34c5f6
+MODEL: claude-fable-5-1   (availability NOT yet verified: needs the credential)
+PARAMETERS: max_tokens=64000; thinking={"type":"adaptive","display":"summarized"}; output_config.effort=medium; structured output=json_schema (schema below); cache_control=null; tools=none; fallbacks=none
+REQUEST SHA-256: a8eb021bb779f551449302184d4e6844dfedfb60428d87466fa72a43505caa15
 
 === SYSTEM ===
 אתה קורא עברית קפדן. לפניך קטע מוגבל ממטריצת אותיות שהוכנה מראש על ידי מנוע חיפוש: האותיות, הקווים והמזהים שלהם נקבעו שם ואינך מחשב אותם.

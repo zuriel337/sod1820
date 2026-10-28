@@ -4,7 +4,7 @@ import { buildRound1 } from "./prompt.mjs";
 import { buildRequest } from "./request.mjs";
 
 export const REGION_PATH = new URL("../data/region-columbia.json", import.meta.url).pathname;
-export const DEFAULTS = Object.freeze({ model: "claude-opus-5-5", effort: "high", maxTokens: 32_000, rounds: 1 });
+export const DEFAULTS = Object.freeze({ model: "claude-fable-5-1", effort: "medium", maxTokens: 64_000, rounds: 1, thinkingMode: "adaptive" });
 
 export function loadContext(pagePath = "public/tzofen.html") {
   const region = loadRegion(REGION_PATH);
@@ -14,9 +14,9 @@ export function loadContext(pagePath = "public/tzofen.html") {
   return { region, lines, byReading: readings(lines), pageCheck };
 }
 
-export function round1Request(ctx, { model, effort, maxTokens, rounds } = DEFAULTS) {
+export function round1Request(ctx, { model, effort, maxTokens, rounds, thinkingMode } = DEFAULTS) {
   const round1 = buildRound1({ region: ctx.region, lines: ctx.lines });
-  const request = buildRequest({ model, system: round1.system, messages: [{ role: "user", content: round1.user }], effort, maxTokens, cache: rounds === 2 });
+  const request = buildRequest({ model, system: round1.system, messages: [{ role: "user", content: round1.user }], effort, maxTokens, cache: rounds === 2, thinkingMode });
   return { round1, request };
 }
 

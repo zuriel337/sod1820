@@ -19,16 +19,41 @@ export const PRICES = Object.freeze({
   "claude-fable-5-1": { input: 10, output: 50, cacheRead: 0.25 },
 });
 
-export function buildRequest({ model, system, messages, effort = "high", maxTokens = 32_000, cache = false }) {
-  const request = { model, max_tokens: maxTokens, system, messages, thinking: { type: "adaptive", display: "summarized" }, output_config: { effort, format: { type: "json_schema", schema: FINDINGS_SCHEMA } } };
+/** How thinking is requested. "adaptive" is the default (summaries on); some models take other settings: "between_tools" turns reasoning off on Sonnet 5.5, "disabled" on models that allow it, "none" omits the field. */
+export const THINKING_MODES = Object.freeze({
+  adaptive: { type: "adaptive", display: "summarized" },
+  "adaptive-plain": { type: "adaptive" },
+  between_tools: { type: "between_tools" },
+  disabled: { type: "disabled" },
+  none: undefined,
+});
+
+export function buildRequest({ model, system, messages, effort = "high", maxTokens = 32_000, cache = false, thinkingMode = "adaptive" }) {
+  if (!(thinkingMode in THINKING_MODES)) throw new Error(`unknown thinking mode: ${thinkingMode}`);
+  const request = { model, max_tokens: maxTokens, system, messages };
+  if (THINKING_MODES[thinkingMode]) request.thinking = THINKING_MODES[thinkingMode];
+  request.output_config = { effort, format: { type: "json_schema", schema: FINDINGS_SCHEMA } };
   if (cache) request.cache_control = { type: "ephemeral" };
   return request;
 }
 
 export const requestSha256 = (request) => createHash("sha256").update(JSON.stringify(request), "utf8").digest("hex");
 
+/** Key-sorted JSON: the same text in every runtime, so the same hash on both sides of the pass-through (see edge/handler.mjs). */
+export function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
+  return JSON.stringify(value);
+}
+/** The hash the pass-through checks: SHA-256 of the canonical JSON of the request parameters (a streaming flag, if any, is not part of the parameters). */
+export const lockSha256 = (request) => createHash("sha256").update(canonicalJson(request), "utf8").digest("hex");
+
+export const PROXY_URL_ENV = "ELS_PROXY_URL";
+export const PROXY_TOKEN_ENV = "ELS_PROXY_TOKEN";
+export const PROXY_JWT_ENV = "ELS_PROXY_JWT";
+
 /** Cost computed from the usage object and the list prices above (not an invoice). Thinking tokens are part of output_tokens. */
-export function costOf(model, usage) {
+export function costOf(model, usage, { batch = false } = {}) {
   const price = PRICES[model];
   if (!price || !usage) return { usd: null, basis: price ? "no usage" : `no list price recorded for ${model}` };
   const read = price.cacheRead ?? price.input * 0.1;
@@ -38,7 +63,8 @@ export function costOf(model, usage) {
     cacheRead: ((usage.cache_read_input_tokens ?? 0) * read) / 1e6,
     output: ((usage.output_tokens ?? 0) * price.output) / 1e6,
   };
-  return { usd: Number(Object.values(parts).reduce((a, b) => a + b, 0).toFixed(6)), parts, basis: "list prices, claude-api model table cached 2026-10-06; cache writes at 1.25x input" };
+  const factor = batch ? 0.5 : 1;
+  return { usd: Number((Object.values(parts).reduce((a, b) => a + b, 0) * factor).toFixed(6)), parts, basis: `list prices, claude-api model table cached 2026-10-06; cache writes at 1.25x input${batch ? "; Message Batches at 50% of list" : ""}` };
 }
 
 export function summarizeMessage(message) {

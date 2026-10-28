@@ -3,17 +3,18 @@
 //   dry-run     build and write the exact request for review; no network, no credential
 //   preflight   needs the credential: model listed? limits and capabilities? exact token count?  (no tokens billed)
 //   call1       needs the credential: repeats the preflight, then sends the round-1 request, only with --approve <sha256 of the reviewed request> and --max-usd
+//   collect     needs the credential: fetches the result of a batch that already ended (--batch-id), sends nothing
 //   sql         offline: locate the proposals and write the canonical verification SQL (to be executed read-only by the operator)
 //   ingest      offline: merge the SQL results into verified / not verified
 //   round2      offline: neighbourhood cards for verified proposals marked to continue; writes the round-2 request for review
 //   call2       needs the credential: the round-2 request, same approval rule
 //   report      offline: the report (and the evaluation targets, last)
 // There is no mock path. Without the credential the call stages stop with exit code 2.
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { buildCard, buildRound2Message } from "./lib/prompt.mjs";
 import { countsByKind, loadContext, round1Request as makeRound1 } from "./lib/context.mjs";
-import { KEY_ENV, NoCredentialError, costOf, requestSha256, summarizeMessage } from "./lib/request.mjs";
-import { callRound, makeClient, preflight } from "./lib/client.mjs";
+import { KEY_ENV, NoCredentialError, costOf, lockSha256, requestSha256, summarizeMessage } from "./lib/request.mjs";
+import { callBatch, callRound, fetchBatchResults, makeClient, preflight, transportOf } from "./lib/client.mjs";
 import { classify, locateFinding, parseModelOutput, verificationItems } from "./lib/validate.mjs";
 import { verificationStatements } from "./lib/verify-sql.mjs";
 import { evaluateTargets } from "./lib/evaluate.mjs";
@@ -23,9 +24,10 @@ const here = (path) => new URL(path, import.meta.url);
 const [stage, ...rest] = process.argv.slice(2);
 const args = Object.fromEntries(rest.map((item, i, all) => (item.startsWith("--") ? [item.slice(2), all[i + 1]?.startsWith("--") || all[i + 1] === undefined ? "true" : all[i + 1]] : null)).filter(Boolean));
 const model = args.model || "claude-opus-5-5";
-const effort = args.effort || "high";
-const maxTokens = Number(args["max-tokens"] || 32_000);
+const effort = args.effort || "medium";
+const maxTokens = Number(args["max-tokens"] || 64_000);
 const rounds = Number(args.rounds || 1);
+const thinkingMode = args.thinking || "adaptive";
 const outDir = args["out-dir"] ? new URL(`file://${args["out-dir"].replace(/\/?$/, "/")}`) : here("./out/");
 const reviewDir = here("./review/");
 const readJson = (url) => JSON.parse(readFileSync(url, "utf8"));
@@ -37,7 +39,7 @@ function context() {
 }
 
 function round1Request(ctx) {
-  return makeRound1({ ...ctx }, { model, effort, maxTokens, rounds });
+  return makeRound1({ ...ctx }, { model, effort, maxTokens, rounds, thinkingMode });
 }
 
 function guardCall(request, record) {
@@ -48,16 +50,30 @@ function guardCall(request, record) {
   if (!Number.isFinite(cap) || (record.upper_bound_usd !== null && cap < record.upper_bound_usd)) fail(`--max-usd must cover the upper bound ${record.upper_bound_usd} computed from the exact token count. Nothing was sent.`, 3);
 }
 
-/** A call stage repeats the free preflight on exactly this request (the model must be listed, the token count exact), checks the approval, then sends. */
+/** A call stage repeats the free preflight on exactly this request (the model must be listed, the token count exact), checks the approval, then sends.
+ *  Through the site's pass-through the call is a one-request Message Batch (the platform's wall clock is shorter than a long thinking call; batches cost half). */
 async function callStage(request, file) {
   let client;
   try { client = makeClient(); } catch (error) { if (error instanceof NoCredentialError) fail(error.message, 2); throw error; }
+  const transport = transportOf();
   const record = await preflight(client, request);
   guardCall(request, record);
-  const { message, ms } = await callRound(client, request);
+  let message;
+  let ms;
+  let batch = null;
+  if (transport === "proxy" || args.batch) {
+    const out = await callBatch(client, request, { results: transport === "proxy" ? (id) => fetchBatchResults(process.env, id) : null, onPoll: (b) => process.stderr.write(`${new Date().toISOString()} batch ${b.id}: ${b.processing_status} ${JSON.stringify(b.request_counts)}\n`) });
+    batch = out.batch;
+    ms = out.ms;
+    if (out.result?.type !== "succeeded") { writeJson(new URL(file, outDir), { request_sha256: requestSha256(request), lock_sha256: lockSha256(request), transport, preflight: record, ms, batch, result: out.result }); fail(`the batch result is "${out.result?.type}", not "succeeded"; saved as ${file}`, 6); }
+    message = out.result.message;
+  } else {
+    ({ message, ms } = await callRound(client, request));
+  }
   const summary = summarizeMessage(message);
-  writeJson(new URL(file, outDir), { request_sha256: requestSha256(request), preflight: record, ms, cost: costOf(summary.model, summary.usage), summary, content: message.content });
-  process.stdout.write(`${JSON.stringify({ file, model: summary.model, stop_reason: summary.stop_reason, usage: summary.usage, ms, cost: costOf(summary.model, summary.usage) }, null, 2)}\n`);
+  const cost = costOf(summary.model, summary.usage, { batch: batch !== null });
+  writeJson(new URL(file, outDir), { request_sha256: requestSha256(request), lock_sha256: lockSha256(request), transport, batch, preflight: record, ms, cost, summary, content: message.content });
+  process.stdout.write(`${JSON.stringify({ file, transport, model: summary.model, stop_reason: summary.stop_reason, usage: summary.usage, ms, batch, cost }, null, 2)}\n`);
 }
 
 mkdirSync(outDir, { recursive: true });
@@ -72,7 +88,7 @@ if (stage === "dry-run") {
     `REQUEST SHA-256: ${sha}`, "", "=== SYSTEM ===", request.system, "", "=== USER (single message) ===", request.messages[0].content, "", "=== JSON SCHEMA OF THE ANSWER ===", JSON.stringify(request.output_config.format.schema, null, 2)].join("\n");
   writeFileSync(new URL("request-round1.txt", reviewDir), human);
   const summary = {
-    request_sha256: sha, model_candidate: model, availability_verified: false, region: { rows: ctx.region.nRows, cols: ctx.region.nCols, cells: ctx.region.nRows * ctx.region.nCols, scope: ctx.region.scope, width: ctx.region.W, firstRow: ctx.region.r0, firstCol: ctx.region.c0, axisCells: ctx.region.axisCells.length },
+    request_sha256: sha, lock_sha256: lockSha256(request), model_candidate: model, availability_verified: false, region: { rows: ctx.region.nRows, cols: ctx.region.nCols, cells: ctx.region.nRows * ctx.region.nCols, scope: ctx.region.scope, width: ctx.region.W, firstRow: ctx.region.r0, firstCol: ctx.region.c0, axisCells: ctx.region.axisCells.length },
     page_cross_check: { cells: ctx.pageCheck.checked, mismatches: ctx.pageCheck.mismatches.length },
     lines: { total: ctx.lines.length, byKind: countsByKind(ctx.lines), omittedShorterThan3: ctx.lines.omitted.length, readingsSent: ctx.lines.length * 2 },
     chars: { system: request.system.length, user: request.messages[0].content.length, prose: Object.values(round1.prose).join("").length, data: Object.values(round1.data).join("").length },
@@ -90,6 +106,26 @@ if (stage === "dry-run") {
   if (!record.ok) process.exit(4);
 } else if (stage === "call1") {
   await callStage(round1Request(context()).request, "round1-response.json");
+} else if (stage === "collect") {
+  // recovers the answer of a batch that was already created and paid for; the request is rebuilt only to check that it is the approved one
+  let client;
+  try { client = makeClient(); } catch (error) { if (error instanceof NoCredentialError) fail(error.message, 2); throw error; }
+  const { request } = round1Request(context());
+  const transport = transportOf();
+  const batchId = String(args["batch-id"] || "");
+  if (!/^msgbatch_[A-Za-z0-9]{8,64}$/.test(batchId)) fail("--batch-id msgbatch_... is required", 64);
+  const batch = await client.messages.batches.retrieve(batchId);
+  if (batch.processing_status !== "ended") fail(`batch ${batchId} is ${batch.processing_status}, not ended`, 6);
+  const entries = transport === "proxy" ? await fetchBatchResults(process.env, batchId) : await client.messages.batches.results(batchId);
+  let result = null;
+  for await (const entry of entries) if (entry.custom_id === "els-live-1") result = entry.result;
+  const ms = Date.parse(batch.ended_at) - Date.parse(batch.created_at);
+  const preflightRecord = existsSync(new URL("preflight.json", outDir)) ? readJson(new URL("preflight.json", outDir)) : null;
+  if (result?.type !== "succeeded") { writeJson(new URL("round1-response.json", outDir), { request_sha256: requestSha256(request), transport, batch: { id: batch.id, created_at: batch.created_at, ended_at: batch.ended_at, request_counts: batch.request_counts }, result }); fail(`the batch result is "${result?.type}"`, 6); }
+  const summary = summarizeMessage(result.message);
+  const cost = costOf(summary.model, summary.usage, { batch: true });
+  writeJson(new URL("round1-response.json", outDir), { request_sha256: requestSha256(request), lock_sha256: lockSha256(request), transport, batch: { id: batch.id, created_at: batch.created_at, ended_at: batch.ended_at, request_counts: batch.request_counts }, preflight: preflightRecord, ms, cost, summary, content: result.message.content, collected_after_the_fact: true });
+  process.stdout.write(`${JSON.stringify({ transport, model: summary.model, stop_reason: summary.stop_reason, usage: summary.usage, ms, cost }, null, 2)}\n`);
 } else if (stage === "sql" || stage === "ingest" || stage === "round2" || stage === "call2" || stage === "report") {
   const ctx = context();
   const roundNumber = Number(args.round || 1);
@@ -136,14 +172,18 @@ if (stage === "dry-run") {
     const preflightRecord = existsSync(new URL("preflight.json", outDir)) ? readJson(new URL("preflight.json", outDir)) : null;
     const roundInfo = roundsDone.map((n) => {
       const { response, findings, observations } = proposals(n);
-      return { findings, observations, servedModel: response.summary.model, stopReason: response.summary.stop_reason, stopDetails: response.summary.stop_details, usage: response.summary.usage, ms: response.ms, cost: response.cost };
+      return { findings, observations, servedModel: response.summary.model, stopReason: response.summary.stop_reason, stopDetails: response.summary.stop_details, usage: response.summary.usage, ms: response.ms, cost: response.cost, batch: response.batch ?? null, transport: response.transport ?? "direct" };
     });
     const classified = roundsDone.flatMap((n) => readJson(new URL(`classified-round${n}.json`, outDir)));
     const targets = args.targets ? readJson(new URL(args.targets, `file://${process.cwd()}/`)).targets : null;
     const evaluation = targets ? evaluateTargets({ targets, classified, byReading: ctx.byReading }) : null;
     const { request } = round1Request(ctx);
     const input = { round1Sha: requestSha256(request), systemChars: request.system.length, userChars: request.messages[0].content.length, nRows: ctx.region.nRows, nCols: ctx.region.nCols, cells: ctx.region.nRows * ctx.region.nCols, lines: ctx.lines.length, byKind: countsByKind(ctx.lines), pageMismatches: ctx.pageCheck.mismatches.length, omittedShortLines: ctx.lines.omitted.length };
-    const report = renderReport({ meta: { requestedModel: model, effort, maxTokens, preflight: preflightRecord }, input, rounds: roundInfo, classified, evaluation });
+    const failedAttempts = readdirSync(outDir).filter((name) => /^attempt\d+-round1-response\.json$/.test(name)).sort().map((name) => {
+      const attempt = readJson(new URL(name, outDir));
+      return { label: args[`label-${name.slice(0, 8)}`] || name, stopReason: attempt.summary?.stop_reason, usage: attempt.summary?.usage, ms: attempt.ms, cost: attempt.cost, batch: attempt.batch };
+    });
+    const report = renderReport({ meta: { requestedModel: model, effort, maxTokens, preflight: preflightRecord }, input, rounds: roundInfo, classified, evaluation, failedAttempts });
     writeFileSync(new URL("report.md", outDir), report.text);
     process.stdout.write(`report written (${report.sha256.slice(0, 12)})\n`);
   }

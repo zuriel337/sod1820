@@ -6,7 +6,7 @@ const sha = (text) => createHash("sha256").update(text, "utf8").digest("hex");
 const cell = (text) => String(text ?? "").replace(/\|/g, "\\|").replace(/\n/g, " ");
 const parts = (finding) => (Array.isArray(finding.parts) && finding.parts.length > 1 ? finding.parts.join(" + ") : "");
 
-export function renderReport({ meta, input, rounds, classified, evaluation }) {
+export function renderReport({ meta, input, rounds, classified, evaluation, failedAttempts = [] }) {
   const out = [];
   out.push("# קריאת עברית חיה באזור מוגבל של מטריצה — דוח", "");
   out.push("## 1. מה הופעל");
@@ -33,7 +33,7 @@ export function renderReport({ meta, input, rounds, classified, evaluation }) {
   out.push("## 4. מה המנוע הקנוני אימת");
   out.push(`${verified.length} מתוך ${classified.length} הצעות. אימות = האותיות בזרם בעמדה שנטענה זהות להצעה, ובדילוג 2 ומעלה גם המנוע הקנוני עצמו (\`els_search_page_core_v1\`) מחזיר מופע באותה התחלה ובאותו כיוון. שורות רגילות (דילוג 1) מאומתות רק כטקסט רגיל, לא כ-ELS. אימות אינו שיפוט על המשמעות.`);
   out.push("| הצעה | טקסט | קו | אומת ע\"י | מופעים מאומתים מתוך | הערה |", "|---|---|---|---|---|---|");
-  for (const f of verified) out.push(`| ${cell(f.id)} | ${cell(f.text)} | ${cell(f.occurrences[0]?.reading)} | ${f.verdict === "verified_by_engine" ? "המנוע" : "טקסט רגיל בלבד"} | ${f.verifiedOccurrences}/${f.occurrences.length} (${f.totalOccurrences} בקטע) | ${cell(f.segmentationOk ? "" : "החלוקה נדחתה: החלקים אינם מרכיבים את הטקסט")} |`);
+  for (const f of verified) out.push(`| ${cell(f.id)} | ${cell(f.text)} | ${cell(f.occurrences[0]?.reading)} | ${f.verdict === "verified_by_engine" ? "המנוע" : "טקסט רגיל בלבד"} | ${f.verifiedOccurrences}/${f.occurrences.length} (${f.totalOccurrences} בקטע) | ${cell([f.segmentationOk ? "" : "החלוקה נדחתה: החלקים אינם מרכיבים את הטקסט", f.checks?.some((c) => c.engine_followup) ? "העמוד הראשון של המנוע (100 תוצאות) נקטע לפני המופע; אושר בבקשת המשך (continuation) של המנוע עצמו מאותה נקודה" : ""].filter(Boolean).join("; "))} |`);
   out.push("");
   out.push("## 5. מה לא אומת");
   out.push(`${notVerified.length} הצעות.`);
@@ -41,9 +41,11 @@ export function renderReport({ meta, input, rounds, classified, evaluation }) {
   for (const f of notVerified) out.push(`| ${cell(f.id)} | ${cell(f.rawText)} | ${cell(f.line)} | ${cell(f.reasons.join("; "))} |`);
   out.push("");
   out.push("## 6. זמן ועלות");
-  rounds.forEach((round, k) => out.push(`- סבב ${k + 1}: ${(round.ms / 1000).toFixed(1)} ש'; טוקנים: קלט ${round.usage?.input_tokens ?? "?"}, כתיבה למטמון ${round.usage?.cache_creation_input_tokens ?? 0}, קריאה ממטמון ${round.usage?.cache_read_input_tokens ?? 0}, פלט (כולל חשיבה) ${round.usage?.output_tokens ?? "?"}; עלות לפי מחירון: ${round.cost.usd === null ? round.cost.basis : `$${round.cost.usd}`}`));
+  rounds.forEach((round, k) => out.push(`- סבב ${k + 1}${round.batch ? ` (אצווה ${round.batch.id}: נוצרה ${round.batch.created_at}, הסתיימה ${round.batch.ended_at}; הזמן כולל תור ועיבוד)` : ""}: ${(round.ms / 1000).toFixed(1)} ש'; טוקנים: קלט ${round.usage?.input_tokens ?? "?"}, כתיבה למטמון ${round.usage?.cache_creation_input_tokens ?? 0}, קריאה ממטמון ${round.usage?.cache_read_input_tokens ?? 0}, פלט (כולל חשיבה) ${round.usage?.output_tokens ?? "?"}; עלות לפי מחירון: ${round.cost.usd === null ? round.cost.basis : `$${round.cost.usd}`}`));
+  for (const a of failedAttempts) out.push(`- ניסיון קודם שנכשל (לא נספר כסבב; אצווה ${a.batch?.id}: נוצרה ${a.batch?.created_at}, הסתיימה ${a.batch?.ended_at}): ${(a.ms / 1000).toFixed(1)} ש'; ${a.label}; stop_reason ${a.stopReason}; פלט ${a.usage?.output_tokens} טוקנים, מהם חשיבה ${a.usage?.output_tokens_details?.thinking_tokens ?? "?"}; תשובה שמישה: אין; עלות לפי מחירון: $${a.cost.usd}`);
   const total = rounds.reduce((s, r) => s + (r.cost.usd ?? 0), 0);
-  out.push(`- סה"כ: ${(rounds.reduce((s, r) => s + r.ms, 0) / 1000).toFixed(1)} ש', $${total.toFixed(4)} (חישוב לפי מחירון ולא לפי חשבונית; ${rounds[0]?.cost.basis ?? ""})`);
+  const failedTotal = failedAttempts.reduce((s, a) => s + (a.cost.usd ?? 0), 0);
+  out.push(`- סה"כ הסבבים שהניבו תשובה: ${(rounds.reduce((s, r) => s + r.ms, 0) / 1000).toFixed(1)} ש', $${total.toFixed(4)}${failedAttempts.length ? `; כולל הניסיון שנכשל: $${(total + failedTotal).toFixed(4)}` : ""} (חישוב לפי מחירון ולא לפי חשבונית; ${rounds[0]?.cost.basis ?? ""})`);
   out.push("");
   if (evaluation) {
     out.push("## 7. האם נמצאו יעדי ההערכה (נבדק רק אחרי התשובה; לא היו בקלט או בקוד הריצה)");
