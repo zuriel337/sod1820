@@ -1,4 +1,7 @@
 // Vercel Serverless Function — הזרקת תגיות Open Graph לכל עמוד עבור רובוטי הרשתות.
+import { resolveResearchObjectPresentation } from '../src/lib/research/researchObjectPresentation.js';
+import { worldFindingShareCard } from '../src/lib/research/worldFindingShare.js';
+import { worldPreviewMaterialExclusion } from '../src/lib/research/worldPreviewMaterialScope.js';
 // רובוטים של פייסבוק/וואטסאפ/טלגרם לא מריצים JS, ולכן הם מנותבים לכאן (לפי User-Agent
 // ב-vercel.json) ומקבלים HTML עם הכותרת/התיאור/התמונה הנכונים של אותו פוסט. משתמשים
 // רגילים (וגוגל, שמריץ JS) ממשיכים לקבל את ה-SPA כרגיל.
@@ -214,6 +217,13 @@ export default async function handler(req, res) {
   let canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
+  // Vercel rewrites preserve unmatched request query params. Also accept the
+  // path query in direct /api/og calls; fragments never arrive over HTTP.
+  const queryInPath = String(req.query?.path || '').split('?').slice(1).join('?');
+  const requestedFindingId = key === '/world'
+    ? String(req.query?.finding || new URLSearchParams(queryInPath).get('finding') || '').trim()
+    : '';
+  const exactWorldFindingRequest = key === '/world' && Boolean(requestedFindingId);
   // This public collection shares the /codes prefix with cipher slugs. Resolve
   // its encoded Hebrew address before the individual-record metadata branch.
   let researchFolderPath = false;
@@ -423,6 +433,50 @@ export default async function handler(req, res) {
       }
     } else {
       robots = 'noindex, follow';
+    }
+  } else if (exactWorldFindingRequest) {
+    // Exact public World reader boundary: never use an admin id or look up a
+    // private/unpublished finding. Invalid, missing, excluded and failed reads
+    // produce the SAME neutral noindex card, without reflecting an identifier.
+    robots = 'noindex, nofollow';
+    title = 'הממצא המבוקש אינו זמין לציבור · ' + SITE_NAME;
+    desc = 'הממצא אינו קיים, אינו פומבי או אינו זמין כרגע. לא יוצג ממצא חלופי.';
+    image = cardUrl({ w: 'הממצא אינו זמין', sub: 'העולם · SOD1820', cap: 'אפשר לחזור לעולם ולגלות תוכן ציבורי' });
+    canonical = SITE + '/world';
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestedFindingId)) {
+      try {
+        const apiUrl = `${SUPABASE_URL}/rest/v1/research_objects?id=eq.${encodeURIComponent(requestedFindingId)}&privacy_scope=eq.public&status=in.(approved,canonical)&select=id,created_at,statement,kind,source,source_ref,contributor,meta,status,privacy_scope&limit=1`;
+        const response = await fetch(apiUrl, { headers: ogHeaders, signal: AbortSignal.timeout(5000) });
+        if (!response.ok) throw new Error('public_finding_lookup_failed');
+        const rows = await response.json();
+        const row = Array.isArray(rows) ? rows[0] : null;
+        const excluded = row && (worldPreviewMaterialExclusion(row, 'research_object')
+          || row.meta?.ext?.personal_scope?.scope === 'person_only');
+        let exactSourceAllowed = true;
+        const channelRef = /^channel_updates:([^#]+)(?:#.*)?$/i.exec(String(row?.source_ref || ''));
+        if (row && !excluded && channelRef) {
+          const sourceUrl = `${SUPABASE_URL}/rest/v1/channel_updates?id=eq.${encodeURIComponent(channelRef[1])}&status=eq.live&select=id,channel,status&limit=1`;
+          const sourceResponse = await fetch(sourceUrl, { headers: ogHeaders, signal: AbortSignal.timeout(5000) });
+          if (!sourceResponse.ok) throw new Error('public_finding_source_lookup_failed');
+          const sourceRows = await sourceResponse.json();
+          exactSourceAllowed = Array.isArray(sourceRows) && sourceRows[0]?.id === channelRef[1]
+            && String(sourceRows[0]?.channel || '').toLowerCase() !== 'or-geula';
+        }
+        if (row?.id === requestedFindingId && row.privacy_scope === 'public'
+            && ['approved', 'canonical'].includes(row.status) && !excluded && exactSourceAllowed) {
+          const presented = resolveResearchObjectPresentation(row, { locale: 'he' });
+          const preview = worldFindingShareCard({ title: presented.title,
+            typeLabel: presented.typeLabel, sourceLabel: presented.sourceLabel,
+            attributionLabel: presented.attributionLabel, summary: presented.summary });
+          if (preview) {
+            title = preview.title + ' · ' + SITE_NAME;
+            desc = preview.description;
+            image = preview.image; // existing 1200x630 branded /api/card; no unreviewed source image
+            canonical = `${SITE}/world?finding=${encodeURIComponent(row.id)}#finding-${encodeURIComponent(row.id)}`;
+            robots = 'index, follow';
+          }
+        }
+      } catch { /* Fail closed; never substitute admin data or expose the requested id. */ }
     }
   } else if (STATIC[staticKey]) {
     title = STATIC[staticKey].title;
@@ -734,7 +788,7 @@ ${searchCrawlerDocument ? '' : `<meta http-equiv="refresh" content="0; url=${esc
 </body></html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', flagState?.failed ? 'no-store' : launchGate ? 'public, max-age=300, s-maxage=300' : 'public, max-age=300, s-maxage=600');
+  res.setHeader('Cache-Control', exactWorldFindingRequest || flagState?.failed ? 'no-store' : launchGate ? 'public, max-age=300, s-maxage=300' : 'public, max-age=300, s-maxage=600');
   if (searchCrawlerDocument) {
     res.setHeader('X-Robots-Tag', robots);
     res.setHeader('Vary', 'User-Agent');
