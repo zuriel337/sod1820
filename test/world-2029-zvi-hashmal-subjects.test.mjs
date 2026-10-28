@@ -49,6 +49,10 @@ test("the 78 approved Zvi Topics stay a ranked subset of 205 Topics; 132 source 
   assert.deepEqual(out.available, { allTopics: true, zvi: true, hashmal: true });
   assert.equal(out.cards[0].meterScore, 100);
   assert.equal(out.incomplete, false);
+  assert.equal(out.contentProjection.metrics.corpusSources, 132, "only Hashmal source identities count as sources in this legacy bridge");
+  assert.equal(out.contentProjection.metrics.legacyTopics, 78);
+  assert.equal(out.contentProjection.metrics.findings, null);
+  assert.equal(out.contentProjection.sources[0].sourceRef, "posts:p-0-0");
   assert.equal(calls.filter(([type]) => type === "topic").length, 3);
   assert.equal(calls.filter(([type]) => type === "source").length, 6);
 });
@@ -61,6 +65,8 @@ test("one unavailable source reader never turns unknown inventory into zero", as
   assert.deepEqual(out.totals, { allTopics: null, zvi: null, hashmal: 1 });
   assert.deepEqual(out.available, { allTopics: false, zvi: false, hashmal: true });
   assert.equal(out.cards.length, 1);
+  assert.equal(out.contentProjection.metrics.corpusSources, 1);
+  assert.equal(out.contentProjection.metrics.legacyTopics, null);
 });
 
 test("media-only source does not show empty technical title", () => {
