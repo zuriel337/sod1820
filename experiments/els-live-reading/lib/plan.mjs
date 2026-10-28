@@ -23,6 +23,8 @@ export const RUNS = Object.freeze([
   ...RANDOM.slice(0, 4).map((region, k) => ({ id: `N2${letter(k)}`, series: "blind", group: "nostory", region, prompt: "v2", story: "none", marked: false, priority: k < 2 ? 2 : 3.5, round2: true, note: `random window ${region}, no story, nothing marked (paired with S4${letter(k)})` })),
   // --- a saved cipher added by ZURIEL (28.10): only the region and the axis phrase are given; the saved record's description is read after the answer is saved
   { id: "V1", series: "blind", group: "saved", region: "v1", prompt: "v2", story: "axis", marked: true, priority: 2.5, round2: true, note: "saved cipher: region of the width-5541 matrix with the axis phrase given, no description, no topic" },
+  // --- a second saved cipher added by ZURIEL (28.10): same method as V1 with the v3 prompt (geometric relations, a short reason for each proposal or group). The Torah has 31 rows at its width, so the region is all 31 rows by 41 columns
+  { id: "U1", series: "blind", group: "saved", region: "u1", prompt: "v3", story: "axis", marked: true, priority: 2.6, round2: true, note: "saved cipher: region of the width-10101 matrix (all 31 rows, 41 columns) with the axis phrase given, no description, no topic; asks for geometric relations and a reason per proposal or group" },
   // --- blind planted recall
   { id: "P1", series: "planted", group: "planted", region: "p1", prompt: "v2", story: "none", marked: false, priority: 3, note: "planted window 1 (6 words), no story" },
   { id: "P2", series: "planted", group: "planted", region: "p2", prompt: "v2", story: "none", marked: false, priority: 3, note: "planted window 2 (6 words), no story" },

@@ -1,6 +1,7 @@
 // The cross-run summary of EXP-16. Blind, planted and diagnostic runs are in separate sections and are never pooled; every table is descriptive (counts, not tests), and
 // the closing section states what the pre-registration says each outcome does and does not mean.
 import { enrich, plantedRecall, recallBy, runMetrics } from "./metrics.mjs";
+import { NEAR_MAX, pairCounts, scoreRelations } from "./geometry.mjs";
 
 const fmt = (value, digits = 2) => (value === null || value === undefined ? "—" : typeof value === "number" ? (Number.isInteger(value) ? String(value) : value.toFixed(digits)) : String(value));
 const cell = (text) => String(text ?? "").replace(/\|/g, "\\|").replace(/\n/g, " ");
@@ -56,6 +57,32 @@ export function renderSummary({ runs, reference, ledger, targets, priorUsd = 2.4
     out.push("## 2ב. המשך לפני ואחרי מילים שנמצאו (סבב 2, עיוור: כרטיסים שהכלי בנה מההצעות המאומתות של המודל עצמו)");
     out.push(table(["ריצה", "הצעות סבב 2", "אומתו", "ELS", "ELS 5+", "בלתי סבירים במקרה", "תוספות (extension)", "חיתוכים (crossing)", "עלות סבב 2 (USD)"], cont.map((r) => { const m2 = runMetrics(r.round2.rows); return [r.run.id, m2.proposals, m2.verified, m2.els.n, m2.els.long, m2.els.unlikely, m2.continuation.extension, m2.continuation.crossing, fmt(r.round2.response?.cost?.usd, 3)]; })));
     for (const r of cont) { const good = r.round2.rows.filter((x) => x.verified && ((x.isEls && x.long && x.unlikely) || x.phrase)); if (good.length) out.push("", `#### ${r.run.id}: המשכים ארוכים/בלתי סבירים או חלוקות לביטוי`, listing(r, good.slice(0, 15))); }
+    out.push("");
+  }
+
+  const withRelations = blind.filter((r) => Array.isArray(r.answer?.relations));
+  if (withRelations.length) {
+    out.push("## 2ג. קשרים גיאומטריים וסיבות לבחירה (פרומפט v3; עיוורת)");
+    out.push(`הגדרות שנקבעו מראש (תוספת C): חיתוך = תא משותף; מקבילות = אותו סוג קו בקווים שונים (כיוון הקריאה לא נחשב); קרבה = בלי תא משותף ומרחק צ'בישב קטן או שווה ל-${NEAR_MAX}. ספירות תיאוריות; ‘לא ניתן לאימות’ = מזהה לא מוכר, הצעה שלא אומתה, או הסוג other (אין לו הגדרה).`);
+    for (const r of withRelations) {
+      const rounds = [{ label: "סבב 1", answer: r.answer, raw: r.raw, classified: r.classified, elsewhere: null }];
+      if (r.round2?.answer) rounds.push({ label: "סבב 2", answer: r.round2.answer, raw: r.round2.raw, classified: r.round2.classified, elsewhere: { raw: r.raw, classified: r.classified } });
+      out.push("", `#### ${r.run.id} — ${r.run.note}`);
+      const summary = rounds.map((round) => {
+        const scored = scoreRelations(round.answer.relations, round, round.elsewhere);
+        const by = (type, result) => scored.filter((x) => x.type === type && x.result === result).length;
+        round.scored = scored;
+        const pairs = pairCounts(round.classified, (row) => String(row.text ?? "").length >= 4 && row.checks?.some((c) => c.letters_match && c.engine_found === true));
+        return [round.label, round.answer.relations.length, ...["parallel", "crossing", "near"].map((type) => `${by(type, "holds")}/${by(type, "does_not_hold")}/${by(type, "unverifiable")}`), scored.filter((x) => x.type === "other").length, round.answer.groups?.length ?? 0, pairs.proposals, pairs.crossing, pairs.near];
+      });
+      out.push(table(["סבב", "קשרים שהוצעו", "מקבילות (מתקיים/לא/לא ניתן)", "חיתוך (מתקיים/לא/לא ניתן)", "קרבה (מתקיים/לא/לא ניתן)", "other", "קבוצות", "הצעות ELS 4+ שאומתו", "זוגות שחותכים", "זוגות קרובים"], summary));
+      for (const round of rounds) {
+        if (round.scored.length) out.push("", `${round.label}: הקשרים שהמודל הציע ומה שנמדד`, table(["a", "b", "סוג", "תוצאה", "מרחק מזערי", "הערת המודל"], round.scored.map((x) => [x.a, x.b, x.type, x.result === "holds" ? "מתקיים" : x.result === "does_not_hold" ? "לא מתקיים" : `לא ניתן לאימות (${x.why})`, x.facts ? x.facts.minDist : "—", x.note])));
+        if (round.answer.groups?.length) out.push("", `${round.label}: קבוצות והסיבה שהמודל נתן`, table(["הצעות", "למה הקבוצה מוצגת (פרשנות המודל)"], round.answer.groups.map((g) => [(g.ids ?? []).join(", "), g.why])));
+      }
+      const tierA = r.raw.filter((x) => x.tier === "A");
+      if (tierA.length) out.push("", "הקבוצה הראשונה (tier A) והסיבה שהמודל נתן להצגה (פרשנות, לא עובדה):", table(["id", "טקסט", "קו", "אימות", "הסיבה"], tierA.map((x) => [x.modelId, x.text, x.line, r.classified.find((c) => c.id === x.id)?.verdict ?? "—", x.note])));
+    }
     out.push("");
   }
 

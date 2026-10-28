@@ -3,12 +3,13 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { loadContext, regionPathOf, round1Request, round1RequestV2 } from "../experiments/els-live-reading/lib/context.mjs";
+import { loadContext, regionPathOf, round1Request, round1RequestV2, usesExp16Prompt } from "../experiments/els-live-reading/lib/context.mjs";
 import { COLUMBIA, MATRIX_WIDTH, WINDOW_COLS, WINDOW_ROWS, mulberry32, sampleWindows, seedOf } from "../experiments/els-live-reading/lib/windows.mjs";
 import { WINDOW_COUNT, WINDOW_SEED_LABEL, buildWindow, pageLetters } from "../experiments/els-live-reading/build-windows.mjs";
 import { PLANTED_WORDS, distanceClass, plantedFile } from "../experiments/els-live-reading/lib/plant.mjs";
 import { FINDINGS_SCHEMA_V2, FIRST_GROUP_SIZE, HINTS, STORIES, STORY_WRONG, buildRound1V2 } from "../experiments/els-live-reading/lib/prompt2.mjs";
 import { ROUND2_PREFIX, STORY, buildRound2Message } from "../experiments/els-live-reading/lib/prompt.mjs";
+import { FINDINGS_SCHEMA_V3, RELATION_TYPES, buildRound1V3 } from "../experiments/els-live-reading/lib/prompt3.mjs";
 import * as edge from "../experiments/els-live-reading/edge/handler.mjs";
 import { RUNS, SERIES, runById } from "../experiments/els-live-reading/lib/plan.mjs";
 import { BUDGET, appendEntry, guardSpend, loadLedger, spentOf } from "../experiments/els-live-reading/lib/ledger.mjs";
@@ -122,7 +123,7 @@ test("EXP-16 plan: S1 is the EXP-15 request byte for byte; every request hash is
   const hashes = new Map();
   for (const run of RUNS) {
     const ctx = ctxOf(run);
-    const { round1, request } = run.prompt === "v2" ? round1RequestV2(ctx, run) : round1Request(ctx);
+    const { round1, request } = usesExp16Prompt(run) ? round1RequestV2(ctx, run) : round1Request(ctx);
     assert.equal(request.model, "claude-fable-5-1");
     assert.equal(request.max_tokens, 64_000);
     assert.equal(request.output_config.effort, "medium");
@@ -269,7 +270,7 @@ test("EXP-16 pass-through: only the approved round-1 requests, and a continuatio
   const TOKEN = "unit-test-token-not-a-secret";
   const n1 = RUNS.find((r) => r.id === "N1");
   const s2 = RUNS.find((r) => r.id === "S2");
-  const requestOf = (run) => (run.prompt === "v2" ? round1RequestV2(ctxOf(run), run) : round1Request(ctxOf(run))).request;
+  const requestOf = (run) => (usesExp16Prompt(run) ? round1RequestV2(ctxOf(run), run) : round1Request(ctxOf(run))).request;
   const n1Request = requestOf(n1);
   const s2Request = requestOf(s2);
   const cfgBase = { apiKey: "unit-test-upstream-key", tokenSha256: await edge.sha256Hex(TOKEN), approved: new Set([lockSha256(n1Request), lockSha256(s2Request)]), models: ["claude-fable-5-1"], maxBody: 400_000, expiresAt: 2_000_000, now: () => 1_000_000, round2Bases: new Set([lockSha256(n1Request)]), round2Prefix: ROUND2_PREFIX, round2MaxCards: 6, round2MaxAssistant: 150_000, round2MaxUser: 20_000 };
@@ -498,4 +499,96 @@ test("EXP-16 case V1 (a saved cipher): the window is built around the engine's o
   assert.throws(() => buildRound1V2({ region: ctxOf({ region: "w01" }).region, lines: ctxOf({ region: "w01" }).lines, story: "axis", marked: false }), /axis background needs a marked axis/);
   // nothing that was not meant to be given: the request holds no 'record', 'cipher' or description wording
   assert.equal(/רשומה|צופן|תיאור הרשומה/.test(`${request.system}${round1.prose.intro}${round1.prose.task}`), false);
+});
+
+test("EXP-16 case U1 (a second saved cipher): the occurrence is the engine's single hit, the window is the whole 31-row Torah matrix at this width and equals the canonical table by md5, the v3 prompt adds relations and reasons without naming anything, and nothing about the phrase is in the library", () => {
+  const engine = JSON.parse(readFileSync(`${DIR}review/case-u1-engine.json`, "utf8"));
+  const canonical = JSON.parse(readFileSync(`${DIR}review/case-u1-md5-canonical.json`, "utf8")).windows[0];
+  const file = JSON.parse(readFileSync(`${DIR}data/windows/u1.json`, "utf8"));
+  assert.equal(engine.occurrences.length, 1, "identification rule: exactly one engine hit at the saved skip");
+  assert.equal(engine.identification.hits, 1);
+  assert.equal(file.md5_window, canonical.md5_window, "the page copy equals public.torah_stream for the whole window");
+  assert.deepEqual([file.width, file.axis.skip, file.axis.dir, file.axis.length], [10101, 10101, 1, 7]);
+  assert.equal(file.axis.start, engine.occurrences[0].start);
+  assert.deepEqual(engine.occurrences[0].positions, [0, 1, 2, 3, 4, 5, 6].map((k) => 81020 + k * 10101));
+  const ctx = loadContext(PAGE, { regionPath: regionPathOf("u1") });
+  assert.equal(ctx.pageCheck.mismatches.length, 0);
+  assert.deepEqual([ctx.region.nRows, ctx.region.nCols, ctx.region.W, ctx.region.r0, ctx.region.r1], [31, 41, 10101, 0, 30], "all 31 rows the Torah has at this width, 41 columns around the phrase's column");
+  assert.equal(Math.floor((TORAH_LENGTH - 1) / 10101), 30, "the last row of the stream is row 30");
+  assert.deepEqual(ctx.region.axisCells[0], [9, 21]);
+  assert.deepEqual(ctx.region.axisCells.at(-1), [15, 21]);
+  assert.equal(ctx.region.axisCells.map(([i, j]) => ctx.region.letterAt(i, j)).join(""), file.axis.text.replace(/ם/g, "מ"));
+  const run = RUNS.find((r) => r.id === "U1");
+  assert.deepEqual([run.series, run.prompt, run.story, run.marked, run.round2, run.priority], ["blind", "v3", "axis", true, true, 2.6]);
+  assert.equal(run.hint, undefined);
+  const { round1, request } = round1RequestV2(ctx, run);
+  const user = request.messages[0].content;
+  assert.equal(user.split(file.axis.text).length - 1, 1, "the phrase appears once, in the background paragraph");
+  assert.ok(user.includes("31 שורות (R01–R31") && user.includes("המופע הנבחר הוא 7 האותיות של טור C21 בשורות R09–R15"));
+  // the v3 background, region description, grid and lines are the v2 ones for the same arguments; only the task differs
+  const v2 = buildRound1V2({ region: ctx.region, lines: ctx.lines, story: "axis", marked: true });
+  assert.equal(round1.prose.intro, v2.prose.intro);
+  assert.equal(round1.prose.spec, v2.prose.spec);
+  assert.deepEqual(round1.data, v2.data);
+  assert.notEqual(round1.prose.task, v2.prose.task);
+  assert.match(round1.prose.task, /מקבילות/);
+  assert.match(round1.prose.task, /חיתוך/);
+  assert.match(round1.prose.task, /קרבה/);
+  assert.match(round1.prose.task, /groups/);
+  assert.match(round1.prose.task, /אל תניח שרק קשרים כאלה מעניינים/);
+  // the schema: v2's findings plus relations and groups, all required, nothing open
+  assert.deepEqual(FINDINGS_SCHEMA_V3.required, ["findings", "relations", "groups", "observations"]);
+  assert.deepEqual(FINDINGS_SCHEMA_V3.properties.findings, FINDINGS_SCHEMA_V2.properties.findings);
+  assert.deepEqual(FINDINGS_SCHEMA_V3.properties.relations.items.properties.type.enum, [...RELATION_TYPES]);
+  assert.equal(FINDINGS_SCHEMA_V3.properties.groups.items.additionalProperties, false);
+  assert.equal(request.output_config.format.schema.properties.relations.type, "array");
+  // not given: any country, any expectation, the saved record, a description, a findings list
+  const sent = `${request.system}\n${round1.prose.intro}\n${round1.prose.spec}\n${round1.prose.task}`;
+  for (const word of ["אורניום", "אירן", "איראן", "קוריאה", "ארצות", "ישראל", "מדינ", "גרעינ", "טראמפ"]) assert.equal(word === "אורניום" ? sent.split(word).length - 1 : sent.includes(word), word === "אורניום" ? 1 : false, `the harness text mentions ${word}`);
+  assert.equal(/רשומה|צופן|תיאור הרשומה|רשימת ממצאים/.test(sent), false);
+  for (const name of readdirSync(`${DIR}lib`)) for (const word of ["אורניום", "אורניומ"]) assert.equal(readFileSync(`${DIR}lib/${name}`, "utf8").includes(word), false, `lib/${name} contains the saved phrase`);
+  for (const file2 of ["run-live-reading.mjs", "run-controls.mjs"]) assert.equal(/אורני/.test(readFileSync(`${DIR}${file2}`, "utf8")), false);
+  // the other arms are untouched: every earlier request still has the hash that was reviewed and approved
+  const reviewed = JSON.parse(readFileSync(`${DIR}controls/plan-review.json`, "utf8"));
+  assert.equal(reviewed.runs.length, RUNS.length);
+  for (const entry of reviewed.runs) { const r = RUNS.find((x) => x.id === entry.id); const req = (usesExp16Prompt(r) ? round1RequestV2(ctxOf(r), r) : round1Request(ctxOf(r))).request; assert.equal(requestSha256(req), entry.request_sha256, `${entry.id} changed`); assert.equal(lockSha256(req), entry.lock_sha256); }
+  // an arm cannot ask for v3 text by accident
+  assert.equal(RUNS.filter((r) => r.prompt === "v3").map((r) => r.id).join(), "U1");
+  assert.equal(buildRound1V3({ region: ctx.region, lines: ctx.lines, story: "axis", marked: true }).user, user);
+});
+
+test("EXP-16 geometry (Amendment C): crossing, parallel and near are the registered definitions; the model's relations are scored against them; the summary prints the v3 section only for runs that have relations and keeps them blind", async () => {
+  const { relationFacts, scoreRelations, pairCounts, NEAR_MAX } = await import("../experiments/els-live-reading/lib/geometry.mjs");
+  const mk = (id, reading, cells, verdict = "verified_by_engine", text = "אבגד") => ({ id, text, verdict, occurrences: [{ reading, cells }], checks: [{ letters_match: true, engine_found: true }] });
+  const col = mk("r1.f01", "C21+", [[1, 5], [2, 5], [3, 5]]);
+  const row = mk("r1.f02", "R02-", [[2, 3], [2, 4], [2, 5]]);
+  const farCol = mk("r1.f03", "C07-", [[1, 7], [2, 7]]);
+  const sameLine = mk("r1.f04", "C21-", [[3, 5], [4, 5]]);
+  const unverified = mk("r1.f05", "C09+", [[1, 9]], "not_verified");
+  assert.equal(NEAR_MAX, 2);
+  assert.deepEqual(relationFacts(col, row), { crossing: true, parallel: false, near: false, minDist: 0 });
+  assert.deepEqual(relationFacts(col, farCol), { crossing: false, parallel: true, near: true, minDist: 2 });
+  assert.equal(relationFacts(col, sameLine).parallel, false, "the same line is not a parallel");
+  assert.equal(relationFacts({ occurrences: [] }, col), null);
+  const raw = ["F1", "F2", "F3", "F4", "F5"].map((modelId, k) => ({ modelId, id: `r1.f0${k + 1}` }));
+  const classified = [col, row, farCol, sameLine, unverified];
+  const scored = scoreRelations([
+    { a: "F1", b: "F2", type: "crossing", note: "" }, { a: "F1", b: "F3", type: "parallel", note: "" }, { a: "F1", b: "F3", type: "near", note: "" },
+    { a: "F2", b: "F3", type: "parallel", note: "" }, { a: "F1", b: "F5", type: "near", note: "" }, { a: "F1", b: "F9", type: "crossing", note: "" }, { a: "F1", b: "F2", type: "other", note: "" },
+  ], { raw, classified });
+  assert.deepEqual(scored.map((x) => x.result), ["holds", "holds", "holds", "does_not_hold", "unverifiable", "unverifiable", "unverifiable"]);
+  assert.deepEqual(pairCounts(classified), { proposals: 4, crossing: 2, near: 4 }); // 6 pairs: col-row and col-sameLine cross; the other four are within 2 cells
+  // the summary: the section appears for a run whose answer has relations, with the registered definitions, and not otherwise
+  const response = { ms: 1000, cost: { usd: 0.9 }, summary: { stop_reason: "end_turn", usage: { input_tokens: 10, output_tokens: 5 } } };
+  const rawFull = raw.map((r, k) => ({ ...r, tier: k < 2 ? "A" : "B", text: "אבגד", line: "C21+", note: "reason", story_related: false, kind: "word", parts: [], from_finding: "" }));
+  const answer = { findings: rawFull, relations: [{ a: "F1", b: "F2", type: "crossing", note: "x" }], groups: [{ ids: ["F1", "F2"], why: "because" }], observations: "" };
+  const withV3 = { run: { id: "U1", series: "blind", group: "saved", note: "n" }, classified, raw: rawFull, response, answer };
+  const plain = { run: { id: "N1", series: "blind", group: "nostory", note: "n" }, classified, raw: rawFull, response };
+  const text = renderSummary({ runs: [withV3, plain], reference: null, ledger: null, targets: [] });
+  const section = text.slice(text.indexOf("## 2ג."), text.indexOf("## 5."));
+  assert.match(section, /חיתוך = תא משותף/);
+  assert.ok(section.includes("U1") && !section.includes("N1"));
+  assert.match(section, /because/);
+  assert.match(section, /מתקיים/);
+  assert.equal(renderSummary({ runs: [plain], reference: null, ledger: null, targets: [] }).includes("## 2ג."), false);
 });

@@ -311,6 +311,26 @@
       "note": "saved cipher: region of the width-5541 matrix with the axis phrase given, no description, no topic"
     },
     {
+      "id": "U1",
+      "series": "blind",
+      "group": "saved",
+      "priority": 2.6,
+      "region": "u1",
+      "prompt": "v3",
+      "story": "axis",
+      "marked": true,
+      "hint": null,
+      "onlyLines": null,
+      "round2": true,
+      "request_sha256": "a322acb50952cf83ea7ff4b75f262c1bb206adb08fc20ba66c332b3a7ea5ca91",
+      "lock_sha256": "a80e81354217dfa65f0081cea004858bc7273af67d225328d894374fe087199c",
+      "chars": 26668,
+      "estimated_input_tokens": 20700,
+      "expected_usd": 0.928,
+      "upper_bound_usd": 1.729,
+      "note": "saved cipher: region of the width-10101 matrix (all 31 rows, 41 columns) with the axis phrase given, no description, no topic; asks for geometric relations and a reason per proposal or group"
+    },
+    {
       "id": "P1",
       "series": "planted",
       "group": "planted",

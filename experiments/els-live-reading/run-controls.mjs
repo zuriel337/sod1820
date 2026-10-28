@@ -10,7 +10,7 @@
 // Environment: ELS_PROXY_URL, ELS_PROXY_TOKEN, ELS_PROXY_JWT (the site's public key, for the platform gateway; also used for the public engine contract) and NODE_USE_ENV_PROXY=1.
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { DEFAULTS, loadContext, regionPathOf, round1Request, round1RequestV2 } from "./lib/context.mjs";
+import { DEFAULTS, loadContext, regionPathOf, round1Request, round1RequestV2, usesExp16Prompt } from "./lib/context.mjs";
 import { RUNS, ROUND2_CARD_CAP } from "./lib/plan.mjs";
 import { NoCredentialError, PROXY_JWT_ENV, PROXY_TOKEN_ENV, PROXY_URL_ENV, lockSha256, requestSha256 } from "./lib/request.mjs";
 import { fetchBatchResults, makeClient, preflight, transportOf } from "./lib/client.mjs";
@@ -50,7 +50,7 @@ if (plan.model !== DEFAULTS.model || plan.effort !== DEFAULTS.effort || plan.max
 const prepared = new Map();
 for (const run of RUNS) {
   const ctx = loadContext(page, { regionPath: regionPathOf(run.region) });
-  const { request } = run.prompt === "v2" ? round1RequestV2(ctx, run) : round1Request(ctx);
+  const { request } = usesExp16Prompt(run) ? round1RequestV2(ctx, run) : round1Request(ctx);
   const entry = planById.get(run.id);
   if (!entry || requestSha256(request) !== entry.request_sha256 || lockSha256(request) !== entry.lock_sha256) die(3, `${run.id}: the request differs from the reviewed plan; nothing was sent`);
   prepared.set(run.id, { run, ctx, request, entry });

@@ -1,0 +1,31 @@
+{
+  "source": "public.els_search_page_v1 (the public contract of els_search_page_core_v1), term folded to אורניומ, scope torah, skip range exactly the saved skip (10101..10101), page size 100, no continuation (completion.has_more=false, truncated=false); run 2026-10-28. The saved record (public.els_records id 16711767-f136-4a49-9354-6e0b3860e606: search_term אורניום, scope torah, skip_distance 10101, direction 'down', start_index NULL) was identified by those fields only. Its description, title, image and stored findings were NOT read before the blind answer was saved; a read-only structural check of its positions object (keys findings/postTitle/postUrl/quality/shapeUrl, 521 characters) found none of the seven engine positions in it, so the stored object holds no start index to compare.",
+  "identification": {
+    "rule": "one engine hit in the whole Torah for this term at exactly this skip (both directions, every start) -> the occurrence is determined by (term, scope, skip) alone; had there been two or more, the run would have stopped and been reported",
+    "hits": 1,
+    "stored_direction_note": "'down' is the record's display direction (77 of the 88 stored torah records have it, 9 of them with a start_index); it is not the engine's dir and was not used to choose"
+  },
+  "occurrences": [
+    {
+      "skip": 10101,
+      "status": "OK",
+      "hits": 1,
+      "truncated": false,
+      "start": 81020,
+      "end": 141626,
+      "dir": 1,
+      "direction": "fwd",
+      "occurrence_id": "els:0b022e8eef6f9c16:אורניומ:10101:1:81020",
+      "positions": [81020, 91121, 101222, 111323, 121424, 131525, 141626],
+      "matrix_width": 10101,
+      "column": 212,
+      "rows": [8, 14]
+    }
+  ],
+  "chosen": {
+    "skip": 10101,
+    "reason": "the only occurrence; the saved skip is the matrix width, so the phrase is one column. The Torah has 31 rows at width 10101 (30 full rows and a partial row of 1775 letters), so the window cannot have 33 rows: it takes every row (R0-R30, the whole Torah at this width) and 41 columns around the phrase's column"
+  },
+  "phrase": "אורניום",
+  "phrase_note": "the axis phrase as ZURIEL gave it; the final mem is written in its regular form in the matrix"
+}

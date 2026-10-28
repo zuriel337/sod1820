@@ -1,0 +1,4 @@
+{
+  "source": "result of review/case-u1-md5.sql executed read-only against public.torah_stream (project linswmnnkjxvweumprav) on 2026-10-28; equal to the md5 of the same window computed from the text embedded in the page. A second query read the seven letters at idx = position + 1 (81021, 91122, 101223, 111324, 121425, 131526, 141627) and they spell אורניומ; public.torah_stream has 304805 rows.",
+  "windows": [ { "id": "u1", "md5_window": "a4c26209efb46c7d753a580c8e03b3da" } ]
+}

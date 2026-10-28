@@ -84,3 +84,55 @@
 {"at":"2026-10-28T13:13:44.677Z","event":"call_done","run":"P1","round":1,"batch":"msgbatch_016zYV757mutSPgaaZjqi483","usd":0.97911,"stop_reason":"end_turn","output_tokens":34925,"ms":665104}
 {"at":"2026-10-28T13:13:44.682Z","event":"verified","run":"P1","round":1,"proposals":60,"verified":60,"items":60}
 {"at":"2026-10-28T13:13:44.682Z","event":"run_finished","run":"P1","series":"planted","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":0.97911,"usable":true}]}
+{"at":"2026-10-28T13:31:24.755Z","event":"plan_verified","runs":19}
+{"at":"2026-10-28T13:31:26.861Z","event":"selftest","results":[{"name":"known model with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-28T13:31:27.777Z","event":"ready","concurrency":3,"spent":22.943199}
+{"at":"2026-10-28T13:31:27.777Z","event":"group_start","priority":1,"runs":["S2","S3","S4a","S4b","S4c","S4d","S4e","S4f","S1"]}
+{"at":"2026-10-28T13:31:27.914Z","event":"run_finished","run":"S2","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.560425,"usable":true}]}
+{"at":"2026-10-28T13:31:27.914Z","event":"run_finished","run":"S3","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.512115,"usable":true}]}
+{"at":"2026-10-28T13:31:27.914Z","event":"run_finished","run":"S4a","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.25432,"usable":true}]}
+{"at":"2026-10-28T13:31:27.925Z","event":"unusable_answer","run":"S4c","stop_reason":"max_tokens"}
+{"at":"2026-10-28T13:31:27.925Z","event":"unusable_answer","run":"S4d","stop_reason":"max_tokens"}
+{"at":"2026-10-28T13:31:27.925Z","event":"run_finished","run":"S4b","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.00383,"usable":true}]}
+{"at":"2026-10-28T13:31:27.925Z","event":"run_finished","run":"S4c","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.7058,"usable":false}]}
+{"at":"2026-10-28T13:31:27.925Z","event":"run_finished","run":"S4d","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.705665,"usable":false}]}
+{"at":"2026-10-28T13:31:27.937Z","event":"unusable_answer","run":"S4e","stop_reason":"max_tokens"}
+{"at":"2026-10-28T13:31:27.937Z","event":"unusable_answer","run":"S4f","stop_reason":"max_tokens"}
+{"at":"2026-10-28T13:31:27.937Z","event":"run_finished","run":"S4e","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.706725,"usable":false}]}
+{"at":"2026-10-28T13:31:27.937Z","event":"run_finished","run":"S4f","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.706525,"usable":false}]}
+{"at":"2026-10-28T13:31:27.937Z","event":"run_finished","run":"S1","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.60599,"usable":true}]}
+{"at":"2026-10-28T13:31:27.937Z","event":"group_done","priority":1,"spent":22.943199,"settled":21.214249}
+{"at":"2026-10-28T13:31:27.937Z","event":"group_start","priority":2,"runs":["N1","N2a","N2b"]}
+{"at":"2026-10-28T13:31:28.025Z","event":"run_finished","run":"N1","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.106455,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.531989,"usable":true}]}
+{"at":"2026-10-28T13:31:28.025Z","event":"run_finished","run":"N2a","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":0.688425,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.398589,"usable":true}]}
+{"at":"2026-10-28T13:31:28.025Z","event":"run_finished","run":"N2b","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":0.757285,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.509395,"usable":true}]}
+{"at":"2026-10-28T13:31:28.025Z","event":"group_done","priority":2,"spent":22.943199,"settled":21.214249}
+{"at":"2026-10-28T13:31:28.025Z","event":"group_start","priority":2.5,"runs":["V1"]}
+{"at":"2026-10-28T13:31:29.615Z","event":"batch_created","run":"V1","round":1,"batch":"msgbatch_01EJ1MixFJKkwnpqDXEB7z4Z"}
+{"at":"2026-10-28T13:45:17.127Z","event":"plan_verified","runs":20}
+{"at":"2026-10-28T13:45:18.674Z","event":"selftest","results":[{"name":"known model with the token","status":200,"ok":true},{"name":"no token","status":403,"ok":true},{"name":"wrong token","status":403,"ok":true},{"name":"an unapproved batch","status":403,"ok":true},{"name":"another model","status":403,"ok":true},{"name":"the messages route","status":404,"ok":true},{"name":"another API area","status":404,"ok":true},{"name":"a batch list","status":404,"ok":true}]}
+{"at":"2026-10-28T13:45:19.097Z","event":"ready","concurrency":3,"spent":24.673649}
+{"at":"2026-10-28T13:45:19.098Z","event":"group_start","priority":1,"runs":["S2","S3","S4a","S4b","S4c","S4d","S4e","S4f","S1"]}
+{"at":"2026-10-28T13:45:19.110Z","event":"run_finished","run":"S2","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.560425,"usable":true}]}
+{"at":"2026-10-28T13:45:19.110Z","event":"run_finished","run":"S3","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.512115,"usable":true}]}
+{"at":"2026-10-28T13:45:19.110Z","event":"run_finished","run":"S4a","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.25432,"usable":true}]}
+{"at":"2026-10-28T13:45:19.122Z","event":"unusable_answer","run":"S4c","stop_reason":"max_tokens"}
+{"at":"2026-10-28T13:45:19.122Z","event":"unusable_answer","run":"S4d","stop_reason":"max_tokens"}
+{"at":"2026-10-28T13:45:19.122Z","event":"run_finished","run":"S4b","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.00383,"usable":true}]}
+{"at":"2026-10-28T13:45:19.123Z","event":"run_finished","run":"S4c","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.7058,"usable":false}]}
+{"at":"2026-10-28T13:45:19.123Z","event":"run_finished","run":"S4d","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.705665,"usable":false}]}
+{"at":"2026-10-28T13:45:19.132Z","event":"unusable_answer","run":"S4e","stop_reason":"max_tokens"}
+{"at":"2026-10-28T13:45:19.132Z","event":"unusable_answer","run":"S4f","stop_reason":"max_tokens"}
+{"at":"2026-10-28T13:45:19.132Z","event":"run_finished","run":"S4e","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.706725,"usable":false}]}
+{"at":"2026-10-28T13:45:19.132Z","event":"run_finished","run":"S4f","series":"blind","failed":"no usable answer (stop_reason max_tokens); cost counted, not retried","rounds":[{"round":1,"stop_reason":"max_tokens","usd":1.706525,"usable":false}]}
+{"at":"2026-10-28T13:45:19.132Z","event":"run_finished","run":"S1","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.60599,"usable":true}]}
+{"at":"2026-10-28T13:45:19.133Z","event":"group_done","priority":1,"spent":24.673649,"settled":21.214249}
+{"at":"2026-10-28T13:45:19.133Z","event":"group_start","priority":2,"runs":["N1","N2a","N2b"]}
+{"at":"2026-10-28T13:45:19.152Z","event":"run_finished","run":"N1","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":1.106455,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.531989,"usable":true}]}
+{"at":"2026-10-28T13:45:19.152Z","event":"run_finished","run":"N2a","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":0.688425,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.398589,"usable":true}]}
+{"at":"2026-10-28T13:45:19.152Z","event":"run_finished","run":"N2b","series":"blind","failed":null,"rounds":[{"round":1,"stop_reason":"end_turn","usd":0.757285,"usable":true},{"round":2,"stop_reason":"end_turn","usd":0.509395,"usable":true}]}
+{"at":"2026-10-28T13:45:19.153Z","event":"group_done","priority":2,"spent":24.673649,"settled":21.214249}
+{"at":"2026-10-28T13:45:19.153Z","event":"group_start","priority":2.5,"runs":["V1"]}
+{"at":"2026-10-28T13:46:42.540Z","event":"call_done","run":"V1","round":1,"batch":"msgbatch_01EJ1MixFJKkwnpqDXEB7z4Z","usd":0.88241,"stop_reason":"end_turn","output_tokens":30998,"ms":903402}
+{"at":"2026-10-28T13:46:55.303Z","event":"verified","run":"V1","round":1,"proposals":60,"verified":59,"items":59}
+{"at":"2026-10-28T13:46:56.789Z","event":"batch_created","run":"V1","round":2,"batch":"msgbatch_01EiNY3eys6dAunudK3dFjCJ"}

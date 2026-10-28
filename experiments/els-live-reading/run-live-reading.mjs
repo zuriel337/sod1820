@@ -16,7 +16,7 @@
 // There is no mock path. Without the credential the call stages stop with exit code 2.
 import { mkdirSync, readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { buildCard, buildRound2Message } from "./lib/prompt.mjs";
-import { DEFAULTS, countsByKind, loadContext, regionPathOf, round1Request as makeRound1, round1RequestV2 } from "./lib/context.mjs";
+import { DEFAULTS, countsByKind, loadContext, regionPathOf, round1Request as makeRound1, round1RequestV2, usesExp16Prompt } from "./lib/context.mjs";
 import { ROUND2_CARD_CAP, RUNS, runById } from "./lib/plan.mjs";
 import { appendEntry, guardSpend, loadLedger, spentOf } from "./lib/ledger.mjs";
 import { KEY_ENV, NoCredentialError, costOf, lockSha256, requestSha256, summarizeMessage } from "./lib/request.mjs";
@@ -52,7 +52,7 @@ function context() {
 }
 
 function round1Request(ctx) {
-  if (run?.prompt === "v2") return round1RequestV2({ ...ctx }, run, { model, effort, maxTokens, thinkingMode });
+  if (usesExp16Prompt(run)) return round1RequestV2({ ...ctx }, run, { model, effort, maxTokens, thinkingMode });
   return makeRound1({ ...ctx }, { model, effort, maxTokens, rounds, thinkingMode });
 }
 
@@ -227,7 +227,7 @@ if (stage === "dry-run") {
   let expectedTotal = 0;
   for (const item of RUNS) {
     const ctx = (() => { try { return loadContext(args.page || "public/tzofen.html", { regionPath: regionPathOf(item.region) }); } catch (error) { return fail(`${item.id}: ${error.message}; refusing`); } })();
-    const { request } = item.prompt === "v2" ? round1RequestV2(ctx, item, { model, effort, maxTokens, thinkingMode }) : makeRound1({ ...ctx }, { model, effort, maxTokens, rounds, thinkingMode });
+    const { request } = usesExp16Prompt(item) ? round1RequestV2(ctx, item, { model, effort, maxTokens, thinkingMode }) : makeRound1({ ...ctx }, { model, effort, maxTokens, rounds, thinkingMode });
     const chars = request.system.length + request.messages[0].content.length;
     const inputTokens = Math.round(chars * TOKENS_PER_CHAR);
     const expectedOutput = item.onlyLines ? 15_000 : 33_000; // a two-line probe is much shorter than a full region
@@ -261,9 +261,9 @@ if (stage === "dry-run") {
     if (existsSync(new URL("round2-response.json", dir)) && existsSync(new URL("classified-round2.json", dir))) {
       const response2 = readJson(new URL("round2-response.json", dir));
       const parsed2 = parseModelOutput(response2.summary.text);
-      if (parsed2.ok) round2 = { response: response2, raw: parsed2.value.findings.map((f, k) => ({ ...f, modelId: f.id, id: `r2.f${String(k + 1).padStart(2, "0")}` })), classified: readJson(new URL("classified-round2.json", dir)) };
+      if (parsed2.ok) round2 = { response: response2, answer: parsed2.value, raw: parsed2.value.findings.map((f, k) => ({ ...f, modelId: f.id, id: `r2.f${String(k + 1).padStart(2, "0")}` })), classified: readJson(new URL("classified-round2.json", dir)) };
     }
-    return { run: item, response, raw, classified, evaluation, planted: ctx.region.planted ?? null, round2 };
+    return { run: item, response, answer: parsed.value, raw, classified, evaluation, planted: ctx.region.planted ?? null, round2 };
   };
   const runs = RUNS.map(loadRun).filter(Boolean);
   // the EXP-15 run, reclassified with the current classifier so that its engine counts are available

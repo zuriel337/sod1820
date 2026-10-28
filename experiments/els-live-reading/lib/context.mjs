@@ -2,6 +2,7 @@
 import { buildLines, crossCheckAgainstPage, loadRegion, readings } from "./region.mjs";
 import { buildRound1 } from "./prompt.mjs";
 import { FINDINGS_SCHEMA_V2, buildRound1V2 } from "./prompt2.mjs";
+import { FINDINGS_SCHEMA_V3, buildRound1V3 } from "./prompt3.mjs";
 import { buildRequest } from "./request.mjs";
 
 export const REGION_PATH = new URL("../data/region-columbia.json", import.meta.url).pathname;
@@ -27,9 +28,13 @@ export function round1Request(ctx, { model, effort, maxTokens, rounds, thinkingM
 
 export const countsByKind = (lines) => Object.fromEntries(["R", "C", "D", "A"].map((k) => [k, lines.filter((l) => l.kind === k).length]));
 
-/** EXP-16 version-2 request: same builder, the v2 prompt and the v2 schema (tier). `run` is a plan entry (see plan.mjs). */
+/** True for the plan entries that use the EXP-16 builders (prompt v2, or v3 for case U1); the EXP-15 request (v1) is built by round1Request. */
+export const usesExp16Prompt = (run) => run?.prompt === "v2" || run?.prompt === "v3";
+
+/** EXP-16 request: the v2 prompt and schema (tier), or for `prompt: "v3"` the v3 prompt and schema (relations, groups). `run` is a plan entry (see plan.mjs). */
 export function round1RequestV2(ctx, run, { model, effort, maxTokens, thinkingMode } = DEFAULTS) {
-  const round1 = buildRound1V2({ region: ctx.region, lines: ctx.lines, story: run.story ?? "columbia", marked: Boolean(run.marked), hint: run.hint ?? null, onlyLines: run.onlyLines ?? null });
-  const request = buildRequest({ model, system: round1.system, messages: [{ role: "user", content: round1.user }], effort, maxTokens, cache: false, thinkingMode, schema: FINDINGS_SCHEMA_V2 });
+  const version3 = run.prompt === "v3";
+  const round1 = (version3 ? buildRound1V3 : buildRound1V2)({ region: ctx.region, lines: ctx.lines, story: run.story ?? "columbia", marked: Boolean(run.marked), hint: run.hint ?? null, onlyLines: run.onlyLines ?? null });
+  const request = buildRequest({ model, system: round1.system, messages: [{ role: "user", content: round1.user }], effort, maxTokens, cache: false, thinkingMode, schema: version3 ? FINDINGS_SCHEMA_V3 : FINDINGS_SCHEMA_V2 });
   return { round1, request };
 }

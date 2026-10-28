@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "model": "claude-fable-5-1",
+  "display_name": "Claude Fable 5.1",
+  "listed": true,
+  "max_input_tokens": 1000000,
+  "max_tokens_limit": 128000,
+  "checks": {
+    "structured_outputs": true,
+    "thinking_setting": true,
+    "effort_level": true,
+    "max_tokens_within_model_limit": true
+  },
+  "input_tokens_counted": 20868,
+  "note": "count excludes the structured-output schema, which the API adds; the real input is slightly larger",
+  "upper_bound_usd": 3.4609,
+  "request_sha256": "23dbb0b67f75a57d789a6dfaa801533435e59f0dcf883df063943bf1271a00a0",
+  "lock_sha256": "e616383d64d3fa9eb03253d433a697652ae7c1d60108e0356c9857380eafed3e"
+}
