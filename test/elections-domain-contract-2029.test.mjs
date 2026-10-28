@@ -61,6 +61,22 @@ test("source, fact, engine, system derivation and interpretation lanes remain se
   );
 });
 
+test("later gallery sources do not become 2019 election occurrences", () => {
+  const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
+  const entities = Object.fromEntries(bundle.entities.map(entity => [entity.id, entity]));
+  for (const id of ["gallery-car", "gallery-14000", "gallery-bnt14-jpg", "gallery-bnt14-png"]) {
+    assert.deepEqual(entities[id].cycleRefs || [], [], `${id} must not be assigned to the 2019 cycle`);
+    assert.equal(bundle.indexes.byCycle["election:il:knesset-21"].includes(id), false);
+  }
+  assert.equal(entities["gallery-14000"].attributes.source_display_date, "2021-03-24");
+  assert.equal(entities["gallery-bnt14-jpg"].attributes.source_context_year, 2021);
+  assert.equal(entities["gallery-bnt14-png"].attributes.source_context_year, undefined);
+  assert.equal(entities["gallery-byat"].cycleRefs.includes("election:il:knesset-21"), true);
+  assert.equal(entities["gallery-mandates"].cycleRefs.includes("election:il:knesset-21"), true);
+  assert.ok(bundle.sources.some(source => source.id === "gallery-car-source"));
+  assert.ok(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].some(fact => fact.id === "historical-car-number-set"));
+});
+
 test("the seed maps requested people, parties, sources and numeric anchors", () => {
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
   const entityByRef = Object.fromEntries(bundle.entities.map(entity => [entity.ref, entity]));

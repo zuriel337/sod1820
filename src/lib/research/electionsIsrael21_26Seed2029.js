@@ -155,18 +155,20 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     publicEntity("gallery-byat", "gallery-image:5e84ac5a-736c-4b7c-9b8c-963aa4d5da11", "media", "byat-mshych-1237.jpg", {
       cycleRefs: ["election:il:knesset-21"],
     }),
+    // These later sources may discuss 2019, but their own 2021 news/poll
+    // context is not an occurrence in the 2019 election cycle. Keep their
+    // source facts and identities, without assigning them a false cycle.
     publicEntity("gallery-car", "gallery-image:2ab69212-a407-4d33-9afd-65b6a9e66f1e", "media", "mkvnyt-4.5.jpg", {
-      cycleRefs: ["election:il:knesset-21"],
+      attributes: { source_context_year: 2021 },
     }),
     publicEntity("gallery-14000", "gallery-image:466ae014-9677-4c8c-b69f-3600042ddc16", "media", "14000-bnt.jpg", {
-      cycleRefs: ["election:il:knesset-21"],
+      attributes: { source_context_year: 2021, source_display_date: "2021-03-24" },
     }),
     publicEntity("gallery-bnt14-jpg", "gallery-image:e207986b-3159-4f46-bf5a-c0a32fe313e6", "media", "bnt-14.jpg", {
-      cycleRefs: ["election:il:knesset-21"],
+      attributes: { source_context_year: 2021 },
     }),
-    publicEntity("gallery-bnt14-png", "gallery-image:01d17f7e-6ee8-41ce-9d6a-7c6f8352ce11", "media", "bnt-14.png", {
-      cycleRefs: ["election:il:knesset-21"],
-    }),
+    // This screenshot mentions 2021, but its publication date is not established.
+    publicEntity("gallery-bnt14-png", "gallery-image:01d17f7e-6ee8-41ce-9d6a-7c6f8352ce11", "media", "bnt-14.png"),
     publicEntity("gallery-mandates", "gallery-image:5c913e47-a840-41fb-8acf-60e6252ce9e0", "media", "mndtym.jpg", {
       cycleRefs: ["election:il:knesset-21"],
     }),
