@@ -77,6 +77,20 @@ test("later gallery sources do not become 2019 election occurrences", () => {
   assert.ok(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].some(fact => fact.id === "historical-car-number-set"));
 });
 
+test("gallery screenshot facts preserve visible numbers without folding in commentary", () => {
+  const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
+  const facts = Object.fromEntries(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].map(fact => [fact.id, fact]));
+  assert.deepEqual(facts["historical-car-number-set"].value, [450000, 4500000]);
+  assert.equal(facts["historical-car-number-set"].attributes.source_locus, "image_headlines");
+  assert.deepEqual(facts["historical-car-number-set"].attributes.approximate_values, [450000]);
+  assert.deepEqual(facts["historical-14000-number-set"].value, [14000]);
+  assert.equal(facts["historical-14000-number-set"].attributes.snapshot_not_final_result, true);
+  assert.deepEqual(facts["historical-bnt14-png-number-set"].value, [14, 1234, 2021]);
+  assert.equal(facts["historical-bnt14-png-number-set"].attributes.one_author_not_assumed, true);
+  assert.ok(bundle.sources.some(source => source.id === "gallery-car-source"));
+  assert.equal(bundle.relationCandidates.every(row => row.status === "proposed_relation_candidate"), true);
+});
+
 test("the seed maps requested people, parties, sources and numeric anchors", () => {
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
   const entityByRef = Object.fromEntries(bundle.entities.map(entity => [entity.ref, entity]));
