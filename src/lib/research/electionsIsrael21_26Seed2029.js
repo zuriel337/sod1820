@@ -293,7 +293,7 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     sourceFact(
       "sourced-submitted-lists-38",
       "election:il:knesset-26",
-      "submitted_lists",
+      "approved_lists",
       38,
       ["knesset-26-lists"],
       ELECTIONS_ASSERTION_SCOPE.REPORTED,
@@ -405,16 +405,28 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     sourceFact(
       "site-post-5107-number-set",
       "post:5107",
-      "source_contains_numbers",
-      [26, 45, 66, 77, 271, 450, 631, 789, 1000, 1111, 1789, 1820, 2701, 2710],
+      "source_text_contains_numbers",
+      [26, 66, 77, 271, 631, 1000, 1820, 2701, 2710],
       ["post-5107"],
       ELECTIONS_ASSERTION_SCOPE.SITE_AUTHORED,
       {
         entityRefs: [
-          "election:il:knesset-26", "number:26", "number:45", "number:66", "number:77",
-          "number:271", "number:450", "number:631", "number:789", "number:1000",
-          "number:1111", "number:1789", "number:1820", "number:2701", "number:2710",
+          "election:il:knesset-26", "number:26", "number:66", "number:77",
+          "number:271", "number:631", "number:1000", "number:1820", "number:2701", "number:2710",
         ],
+        attributes: { source_locus: "post_body_text", checked_at: "2026-10-28", not_exhaustive: true },
+      },
+    ),
+    sourceFact(
+      "site-post-5107-number-tags",
+      "post:5107",
+      "source_has_number_tags",
+      [26, 45, 66, 271, 450, 631, 789, 1000, 1111, 1789, 1820, 2701],
+      ["post-5107"],
+      ELECTIONS_ASSERTION_SCOPE.SITE_AUTHORED,
+      {
+        entityRefs: ["election:il:knesset-26"],
+        attributes: { source_locus: "post_tags", tags_do_not_prove_body_text: true, tags_do_not_verify_calculations: true },
       },
     ),
   ],
