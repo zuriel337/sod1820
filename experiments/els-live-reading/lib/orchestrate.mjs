@@ -38,8 +38,10 @@ export async function callOnce({ run, round, request, record, dir, deps }) {
       writeJson(statePath, { batch_id: batchId, created_at: created.created_at ?? deps.now(), request_sha256: requestSha256(request), lock_sha256: lockSha256(request) });
       deps.log("batch_created", { run: run.id, round, batch: batchId });
     } catch (error) {
-      // the outcome of the create is unknown: the reservation (worst case) is kept as the spend, nothing is retried
-      settle(deps.ledgerPath, reservationId, { usd: Number((0.5 * record.upper_bound_usd).toFixed(6)), kind: "batch-create-outcome-unknown", error: String(error.message ?? error).slice(0, 200), at: deps.now() });
+      // A 4xx answer (the lock's own refusal, or the API rejecting the request) means no batch was created and nothing is billed: the reservation is released. Any other failure (a network error,
+      // a timeout, a 5xx) leaves the outcome unknown: the reservation (worst case) is kept as the spend. Nothing is retried either way.
+      const refused = [400, 401, 403, 404, 413, 422].includes(error?.status);
+      settle(deps.ledgerPath, reservationId, { usd: refused ? 0 : Number((0.5 * record.upper_bound_usd).toFixed(6)), kind: refused ? "batch-refused-nothing-billed" : "batch-create-outcome-unknown", error: String(error.message ?? error).slice(0, 200), at: deps.now() });
       const failed = `batch create failed: ${String(error.message ?? error).slice(0, 200)}`;
       writeJson(statePath, { failed });
       deps.log("batch_create_failed", { run: run.id, round, error: failed });

@@ -221,11 +221,17 @@
       "id": "N1 round2"
     },
     {
-      "id": "P2 round1",
-      "usd": 1.72895,
-      "at": "2026-10-28T13:02:21.309Z",
-      "note": "worst case reserved before the call",
-      "reserved": true
+      "usd": 1.7063,
+      "kind": "batch",
+      "batch": "msgbatch_015YF6QJQZceSv8ckngoxiX1",
+      "model": "claude-fable-5-1",
+      "stop_reason": "max_tokens",
+      "input_tokens": 21260,
+      "cache_write_tokens": 0,
+      "output_tokens": 64000,
+      "thinking_tokens": 63999,
+      "at": "2026-10-28T14:11:38.703Z",
+      "id": "P2 round1"
     },
     {
       "usd": 0.97911,
@@ -267,13 +273,59 @@
       "id": "V1 round2"
     },
     {
-      "id": "U1 round1",
-      "usd": 1.72745,
-      "at": "2026-10-28T13:51:12.936Z",
-      "note": "worst case reserved before the call",
-      "reserved": true
+      "usd": 1.70674,
+      "kind": "batch",
+      "batch": "msgbatch_014pop6eRK84rGUzpdxaxiHx",
+      "model": "claude-fable-5-1",
+      "stop_reason": "max_tokens",
+      "input_tokens": 21348,
+      "cache_write_tokens": 0,
+      "output_tokens": 64000,
+      "thinking_tokens": 64000,
+      "at": "2026-10-28T14:11:37.488Z",
+      "id": "U1 round1"
+    },
+    {
+      "usd": 1.52138,
+      "kind": "batch",
+      "batch": "msgbatch_01KW5nPdaxxQRBLMHXhbBf9y",
+      "model": "claude-fable-5-1",
+      "stop_reason": "end_turn",
+      "input_tokens": 21111,
+      "cache_write_tokens": 0,
+      "output_tokens": 56633,
+      "thinking_tokens": 50715,
+      "at": "2026-10-28T14:22:21.893Z",
+      "id": "N2c round1"
+    },
+    {
+      "usd": 1.50312,
+      "kind": "batch",
+      "batch": "msgbatch_0129ksbas5kKquSYriviiG6C",
+      "model": "claude-fable-5-1",
+      "stop_reason": "end_turn",
+      "input_tokens": 21084,
+      "cache_write_tokens": 0,
+      "output_tokens": 55908,
+      "thinking_tokens": 50425,
+      "at": "2026-10-28T14:22:22.567Z",
+      "id": "N2d round1"
+    },
+    {
+      "usd": 2.11675,
+      "kind": "batch-create-outcome-unknown",
+      "error": "403 {\"error\":\"round2_rule:assistant_size\"}",
+      "at": "2026-10-28T14:22:39.948Z",
+      "id": "N2c round2"
+    },
+    {
+      "id": "N2c round2 release",
+      "usd": -2.11675,
+      "kind": "release",
+      "note": "the 403 {\"error\":\"round2_rule:assistant_size\"} is the pass-through's own refusal (its refuse() runs before any upstream request), so no batch was created and nothing was billed; the worst-case entry 'N2c round2' (batch-create-outcome-unknown) is reversed, not deleted",
+      "at": "2026-10-28T14:35:22.285Z"
     }
   ],
-  "spent_usd": 25.74179,
-  "remaining_usd": 14.25821
+  "spent_usd": 28.72293,
+  "remaining_usd": 11.27707
 }

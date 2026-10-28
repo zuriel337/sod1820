@@ -248,10 +248,12 @@ if (stage === "dry-run") {
   const loadRun = (item) => {
     const dir = here(`./controls/runs/${item.id}/`);
     const responseUrl = new URL("round1-response.json", dir);
-    if (!existsSync(responseUrl) || !existsSync(new URL("classified-round1.json", dir))) return null;
+    if (!existsSync(responseUrl)) return null;
+    if (!existsSync(new URL("classified-round1.json", dir)) && !parseModelOutput(readJson(responseUrl).summary.text).ok) return { run: item, response: readJson(responseUrl), failed: "no usable answer (stop_reason " + readJson(responseUrl).summary.stop_reason + "); cost counted, not retried" };
+    if (!existsSync(new URL("classified-round1.json", dir))) return null;
     const response = readJson(responseUrl);
     const parsed = parseModelOutput(response.summary.text);
-    if (!parsed.ok) return null;
+    if (!parsed.ok) return { run: item, response, failed: `no usable answer (stop_reason ${response.summary.stop_reason}); cost counted, not retried` }; // a failed call still costs money and belongs in the cost table
     const raw = parsed.value.findings.map((f, k) => ({ ...f, modelId: f.id, id: `r1.f${String(k + 1).padStart(2, "0")}` }));
     const ctx = (() => { try { return loadContext(args.page || "public/tzofen.html", { regionPath: regionPathOf(item.region) }); } catch (error) { return fail(`${item.id}: ${error.message}; refusing`); } })();
     const classified = readJson(new URL("classified-round1.json", dir));

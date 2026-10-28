@@ -341,7 +341,7 @@ function fakeWorld({ answers, creates = [], ledgerSpent = 0 }) {
     runDir: (id) => `${dir}/runs/${id}`,
     preflight: async (_c, request) => ({ ok: true, upper_bound_usd: 3.5, request_sha256: requestSha256(request), lock_sha256: lockSha256(request) }),
     client: { messages: { batches: {
-      create: async (body, options) => { assert.equal(options.maxRetries, 0, "a batch creation is never retried by the SDK"); assert.equal(body.requests.length, 1); creates.push(body); call += 1; if (answers[call - 1]?.createError) throw new Error(answers[call - 1].createError); return { id: `msgbatch_fake${call}`, created_at: "2026-10-28T12:00:00.000Z" }; },
+      create: async (body, options) => { assert.equal(options.maxRetries, 0, "a batch creation is never retried by the SDK"); assert.equal(body.requests.length, 1); creates.push(body); call += 1; if (answers[call - 1]?.createError) throw Object.assign(new Error(answers[call - 1].createError), answers[call - 1].createStatus ? { status: answers[call - 1].createStatus } : {}); return { id: `msgbatch_fake${call}`, created_at: "2026-10-28T12:00:00.000Z" }; },
       retrieve: async (id) => ({ id, processing_status: "ended", created_at: "2026-10-28T12:00:00.000Z", ended_at: "2026-10-28T12:03:00.000Z", request_counts: { succeeded: 1 } }),
     } } },
     fetchResults: async (id) => { const answer = answers[Number(id.replace("msgbatch_fake", "")) - 1]; if (answer.resultType) return [{ custom_id: "els-live-1", result: { type: answer.resultType } }]; return [{ custom_id: "els-live-1", result: { type: "succeeded", message: messageFor(answer) } }]; },
@@ -421,6 +421,13 @@ test("EXP-16 pipeline (fakes): a failed batch, an answer cut at max_tokens, a cr
   out = await pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: w.deps });
   assert.match(out.failed, /batch create failed/);
   assert.ok(settledOf(JSON.parse(readFileSync(w.ledgerPath, "utf8"))) > 2.481606 + 1, "the unknown outcome is counted at its worst case");
+  // a definite 4xx refusal (the lock's own 403, as for a round-2 message past its size rule): no batch exists, nothing is billed, the reservation is released; still no retry
+  w = fakeWorld({ answers: [{ createError: '403 {"error":"round2_rule:assistant_size"}', createStatus: 403 }] });
+  out = await pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: w.deps });
+  assert.match(out.failed, /batch create failed/);
+  assert.equal(settledOf(JSON.parse(readFileSync(w.ledgerPath, "utf8"))), 2.481606, "a refused create costs nothing");
+  assert.equal(JSON.parse(readFileSync(w.ledgerPath, "utf8")).entries.at(-1).kind, "batch-refused-nothing-billed");
+  assert.equal(w.creates.length, 1);
   // budget: a worst case that would pass the hard guard is refused before anything is reserved or sent
   w = fakeWorld({ answers: [], ledgerSpent: 34.5 });
   await assert.rejects(() => pipeline({ run, ctx, request, planEntry: planEntryOf(request), deps: w.deps }), BudgetStop);

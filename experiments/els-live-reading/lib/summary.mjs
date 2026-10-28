@@ -9,7 +9,9 @@ const table = (head, rows) => [`| ${head.join(" | ")} |`, `|${head.map(() => "--
 const kinds = (mix) => `R${mix.R} C${mix.C} D${mix.D} A${mix.A}`;
 
 /** `runs`: [{ run (plan entry or {id, series, group, note}), classified, raw, response, evaluation? , planted? }] ; `reference`: the EXP-15 run in the same shape or null. */
-export function renderSummary({ runs, reference, ledger, targets, priorUsd = 2.481606, chance = null }) {
+export function renderSummary({ runs: allRuns, reference, ledger, targets, priorUsd = 2.481606, chance = null }) {
+  const failedRuns = allRuns.filter((r) => r.failed); // calls that ended without a usable answer: in the cost table and the list of failures, nowhere else
+  const runs = allRuns.filter((r) => !r.failed);
   const withMetrics = (item) => { const rows = enrich(item.classified, item.raw, chance); if (item.round2) item.round2.rows = enrich(item.round2.classified, item.round2.raw, chance); return { ...item, rows, m: runMetrics(rows) }; };
   const all = [...(reference ? [{ ...reference, run: { id: "EXP-15", series: "blind", group: "story", note: "the original Columbia run (v1 prompt, occurrence marked)" } }] : []), ...runs].map(withMetrics);
   const blind = all.filter((r) => r.run.series === "blind");
@@ -19,7 +21,8 @@ export function renderSummary({ runs, reference, ledger, targets, priorUsd = 2.4
 
   out.push("## 0. עלות בפועל (לפי usage ומחירון חי, לא חשבונית)");
   let cumulative = priorUsd;
-  out.push(table(["ריצה", "סדרה", "stop_reason", "קלט", "פלט", "מהם חשיבה", "שניות", "USD", "מצטבר (כולל EXP-15)"], all.filter((r) => r.run.id !== "EXP-15").map((r) => { const usd = r.response?.cost?.usd ?? 0; cumulative += usd; return [r.run.id, r.run.series, r.response?.summary?.stop_reason, r.response?.summary?.usage?.input_tokens, r.response?.summary?.usage?.output_tokens, r.response?.summary?.usage?.output_tokens_details?.thinking_tokens, r.response?.ms ? (r.response.ms / 1000).toFixed(0) : "—", fmt(usd, 3), fmt(cumulative, 2)]; })));
+  out.push(table(["ריצה", "סדרה", "stop_reason", "קלט", "פלט", "מהם חשיבה", "שניות", "USD", "מצטבר (כולל EXP-15)"], [...all.filter((r) => r.run.id !== "EXP-15"), ...failedRuns].map((r) => { const usd = r.response?.cost?.usd ?? 0; cumulative += usd; return [r.run.id, r.run.series, r.response?.summary?.stop_reason, r.response?.summary?.usage?.input_tokens, r.response?.summary?.usage?.output_tokens, r.response?.summary?.usage?.output_tokens_details?.thinking_tokens, r.response?.ms ? (r.response.ms / 1000).toFixed(0) : "—", fmt(usd, 3), fmt(cumulative, 2)]; })));
+  if (failedRuns.length) out.push("", `ריצות שנגמרו בלי תשובה שמישה (העלות נספרת, לא נעשה ניסיון חוזר, אין להן שורה בשאר הטבלאות): ${failedRuns.map((r) => `${r.run.id} (${r.response?.summary?.stop_reason}, ${r.run.note})`).join("; ")}.`);
   if (ledger) { const settled = Number(ledger.entries.filter((e) => !e.reserved).reduce((sum, e) => sum + (e.usd ?? 0), 0).toFixed(6)); const reserved = Number(ledger.entries.filter((e) => e.reserved).reduce((sum, e) => sum + (e.usd ?? 0), 0).toFixed(6)); out.push("", `לפי ספר ההוצאות: הוצא בפועל (כולל EXP-15) ${settled} USD מתוך תקרה כוללת של ${ledger.cap_usd}; נותר ${Number((ledger.cap_usd - settled).toFixed(6))}${reserved ? ` (מתוכו ${reserved} שמור כמקרה גרוע לקריאות שעדיין בדרך)` : ""}.`); }
   out.push("");
 

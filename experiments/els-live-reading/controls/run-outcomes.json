@@ -1,0 +1,257 @@
+{
+  "finished_at": "2026-10-28T14:22:40.012Z",
+  "halted": "budget: spent 30.83968 is above the stop level 30: no new calls",
+  "spent_usd": 30.83968,
+  "remaining_usd": 9.16032,
+  "outcomes": [
+    {
+      "id": "S2",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 1.560425,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 1.512115,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S4a",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 1.25432,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S4b",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 1.00383,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "S4c",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 1.7058,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "S4d",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 1.705665,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "S4e",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 1.706725,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "S4f",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 1.706525,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "S1",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 1.60599,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "N1",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 1.106455,
+          "usable": true
+        },
+        {
+          "round": 2,
+          "stop_reason": "end_turn",
+          "usd": 0.531989,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "N2a",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.688425,
+          "usable": true
+        },
+        {
+          "round": 2,
+          "stop_reason": "end_turn",
+          "usd": 0.398589,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "N2b",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.757285,
+          "usable": true
+        },
+        {
+          "round": 2,
+          "stop_reason": "end_turn",
+          "usd": 0.509395,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "V1",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.88241,
+          "usable": true
+        },
+        {
+          "round": 2,
+          "stop_reason": "end_turn",
+          "usd": 0.188731,
+          "usable": true
+        }
+      ],
+      "cards": 6
+    },
+    {
+      "id": "U1",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 1.70674,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "P1",
+      "series": "planted",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 0.97911,
+          "usable": true
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "series": "planted",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "max_tokens",
+          "usd": 1.7063,
+          "usable": false
+        }
+      ],
+      "failed": "no usable answer (stop_reason max_tokens); cost counted, not retried"
+    },
+    {
+      "id": "N2c",
+      "series": "blind",
+      "rounds": [
+        {
+          "round": 1,
+          "stop_reason": "end_turn",
+          "usd": 1.52138,
+          "usable": true
+        }
+      ],
+      "cards": 6,
+      "round2": "batch create failed: 403 {\"error\":\"round2_rule:assistant_size\"}"
+    },
+    {
+      "id": "N2d",
+      "skipped": "budget: spent 30.83968 is above the stop level 30: no new calls"
+    },
+    {
+      "id": "D1",
+      "skipped": "budget: spent 30.83968 is above the stop level 30: no new calls"
+    },
+    {
+      "id": "D2",
+      "skipped": "budget: spent 30.83968 is above the stop level 30: no new calls"
+    }
+  ]
+}
