@@ -29,3 +29,7 @@ IMPLEMENTED: `TwelveBoundariesModel2029`, all twelve ordered source direction pa
 ## Checkpoint 4 · five against five
 
 IMPLEMENTED: `FiveAgainstFiveModel2029`, three original source identities at PDF 45: two five-member groups and covenant. Ten illustrative markers share their respective group identity; no individual finger/sefirah names are invented. The selectable central torus has the covenant's existing identity and is explicitly excluded from the sefirah count. All three source relations remain independently readable/source-linked; visual group placement introduces no extra graph links. Source tests 5/5 and actual Chromium smoke 2/2 at 1440/Night passed after spacing the group captions away from the central focal point. Full matrix remains pending.
+
+## Checkpoint 5 · ten depths
+
+IMPLEMENTED: `TenDepthsModel2029`, ten original components/five source pairs at PDF 53. Only the six named spatial directions have GPU positions and three spatial pair connectors. Beginning/end and good/evil have separate source-linked reading pairs and no physical coordinates/axes. Their selection explicitly explains that boundary. Source tests 6/6 and actual Chromium smoke 2/2 at 1440/Night passed; screenshot reviewed. No engine verification or product availability is claimed. Full matrix and regression gates follow.

@@ -36,3 +36,10 @@ test('five against five has ten illustration markers, two source groups and an u
  assert.equal(g.points.filter(p=>p.illustrationMarker!==undefined).length,10);const ring=g.points.find(p=>p.localId==='covenant');assert.equal(ring.shape,'ring');assert.equal(ring.counted,false);assert.equal(new Set(g.points.map(p=>p.id)).size,3);assert.equal(g.edges.length,0);
  for(const c of m.components)assert.equal(sourcePayload(m,c).source.pdf_page,45);
 });
+test('ten depths preserve five source pairs while only three pairs have spatial geometry',()=>{
+ const m=bindSourceModel(bundle,'ten-depths'),g=modelGeometry(m);assert.equal(m.components.length,10);assert.equal(m.relations.length,5);assert.equal(g.points.length,6);assert.equal(g.edges.length,3);
+ assert.deepEqual(g.points.map(p=>p.localId),['up','down','east','west','north','south']);
+ for(const c of m.components)assert.equal(sourcePayload(m,c).source.pdf_page,53);
+ assert.equal(g.points.some(p=>['beginning','end','good','evil'].includes(p.localId)),false);
+ assert.deepEqual(m.relations.slice(0,2).map(r=>[r.from_id,r.to_id]),[['beginning','end'],['good','evil']]);
+});
