@@ -106,7 +106,10 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
         if (alive) setMaterial({ slug: selected.slug, loading: false, data, error: null });
       })
       .catch((readError) => {
-        if (alive) setMaterial({ slug: selected.slug, loading: false, data: null, error: readError });
+        if (alive) setMaterial((previous) => ({ slug: selected.slug, loading: false,
+          data: previous.slug === selected.slug && previous.data
+            ? { ...previous.data, researchLoading: false, publicationsLoading: false, partial: true }
+            : null, error: readError }));
       });
     return () => { alive = false; };
   }, [selected]);
@@ -220,9 +223,9 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
         <h2>{selected.displayName}</h2><p>הקטלוג נטען רק לאחר הבחירה. ממצא מחקר נשאר מחובר ל־source_ref שלו ואינו נספר כמקור נוסף.</p></div>
         <Link className="sod29-action" to={writerHref}>{CANONICAL_PUBLIC_UI_COPY.action.writer}</Link></header>
       {selectedMaterial.loading ? <p role="status">פותח כתבים, מקורות, צפנים ונושאים…</p> : null}
-      {selectedMaterial.data?.researchLoading ? <p role="status">המקורות מוכנים; פותח את הקשרים המתועדים לעץ…</p> : null}
+      {selectedMaterial.data?.researchLoading ? <p role="status">המקורות מוכנים; שאר החומר והקשרים לעץ עדיין נטענים…</p> : null}
       {selectedMaterial.error ? <div role="status"><strong>חלק מהחומר אינו זמין כרגע.</strong><p>לא מוצג 0 במקום נתון שלא התקבל.</p></div> : null}
-      {selectedMaterial.data?.partial ? <p role="status">חלק מן הקוראים לא השלימו טעינה; נתון חסר מוצג כ״אין נתון״.</p> : null}
+      {selectedMaterial.data?.partial && !selectedMaterial.data?.researchLoading ? <p role="status">חלק מן הקוראים לא השלימו טעינה; נתון חסר מוצג כ״אין נתון״.</p> : null}
       {selectedMaterial.data ? <>
         {materialWindow.focusState === "filtered_out" ? <p role="status">המקור שבקישור מוסתר במסנן הנוכחי.</p> : null}
         {materialWindow.focusState === "unavailable" ? <p role="status">{selectedMaterial.data.partial

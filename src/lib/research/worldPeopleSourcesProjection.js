@@ -338,13 +338,13 @@ export async function fetchWorldContributorPublicMaterial(identity, {
     topicsReader: async () => [],
     onSourcesReady: (partialFindings) => {
       if (typeof onSourcesReady !== "function") return;
-      partialTask = Promise.resolve().then(() => publicationPromise).then(async (publications) => {
+      partialTask = Promise.resolve().then(async () => {
         const sourceCatalog = await sourceCatalogReader(identity.slug, {
           mode: PROJECTOR_MODE.PUBLIC_VIEW, publicClient: () => client,
           findingsReader: async () => partialFindings, recentLimit: 20,
         });
-        onSourcesReady({ ...buildWorldContributorPublicMaterial({ identity, findings: partialFindings, sourceCatalog, publications }),
-          researchLoading: true });
+        onSourcesReady({ ...buildWorldContributorPublicMaterial({ identity, findings: partialFindings, sourceCatalog, publications: {} }),
+          researchLoading: true, publicationsLoading: true, partial: true });
       }).catch(() => {});
     },
   });

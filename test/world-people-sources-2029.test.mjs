@@ -151,6 +151,31 @@ test("public material emits source-first state and later preserves promoted resu
   assert.equal(result.researchLoading, undefined);
 });
 
+test("sources become readable before delayed publications and research", async () => {
+  const identity = { id: "writer", slug: "writer", displayName: "כותב", code: "101", active: true };
+  const partial = { mode: "public_view", availability: { sources: "ok", research: "loading" }, sourceGroups: [] };
+  const final = { mode: "public_view", availability: { sources: "ok", research: "ok" }, sourceGroups: [] };
+  let finishResearch, finishPublications, notify;
+  const research = new Promise((resolve) => { finishResearch = resolve; });
+  const publications = new Promise((resolve) => { finishPublications = resolve; });
+  const early = new Promise((resolve) => { notify = resolve; });
+  const resultPromise = fetchWorldContributorPublicMaterial(identity, {
+    client: {}, findingsReader: async (_slug, options) => { options.onSourcesReady(partial); return research; },
+    sourceCatalogReader: async (_slug, options) => { await options.findingsReader(); return { items: [] }; },
+    publicationReader: async () => publications, onSourcesReady: notify,
+  });
+  const first = await early;
+  assert.equal(first.partial, true);
+  assert.equal(first.publicationsLoading, true);
+  assert.equal(first.contentProjection.coverage.findings.available, false);
+  assert.equal(first.contentProjection.metrics.findings, null);
+  finishResearch(final);
+  finishPublications({});
+  const result = await resultPromise;
+  assert.equal(result.findings.availability.research, "ok");
+  assert.equal(result.publicationsLoading, undefined);
+});
+
 test("an already-public Universal Finding keeps its exact source provenance without creating a tree relation", () => {
   const identity = { id: "writer", slug: "writer", displayName: "כותב" };
   const finding = {
