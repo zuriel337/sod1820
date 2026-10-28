@@ -145,6 +145,21 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
       cycleRefs: ["election:il:knesset-26"],
     }),
 
+    // Existing public Topic cards remain separate identities. An approved card is
+    // not an assertion that its Graph node is active or that a new edge exists.
+    publicEntity("topic-meron", "topic:meron", "topic", "אסון מירון", {
+      attributes: { topic_card_ref: "topic_cards:8af9cd1e-ef75-4bf7-9636-af237048126e", observed_at: "2026-10-28" },
+    }),
+    publicEntity("topic-45-frequency", "topic:45-frequency", "topic", "45 — התדר", {
+      attributes: { topic_card_ref: "topic_cards:7efe84bd-9a4d-47bf-b0cd-ee3347e934ab", observed_at: "2026-10-28" },
+    }),
+    publicEntity("topic-1237", "topic:1237", "topic", "1237 — קורונה, תשובה, דוד", {
+      attributes: { topic_card_ref: "topic_cards:96885dc7-b6a4-43b1-8d64-b4ceac4e899b", graph_node_active_at_observation: false, observed_at: "2026-10-28" },
+    }),
+    publicEntity("topic-1234", "topic:gapfill-1234", "topic", "1234 — התכנסות", {
+      attributes: { topic_card_ref: "topic_cards:c9cbd39a-9d26-42b9-92f8-f15b66f73942", observed_at: "2026-10-28" },
+    }),
+
     publicEntity(
       "elections-26-post",
       "post:5107",
@@ -175,6 +190,8 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     publicEntity("gallery-mandates", "gallery-image:5c913e47-a840-41fb-8acf-60e6252ce9e0", "media", "mndtym.jpg", {
       cycleRefs: ["election:il:knesset-21"],
     }),
+    publicEntity("gallery-meron-news", "gallery-image:04ef63f1-a5ff-4867-8ae2-6bfc61921317", "media", "אסון מירון · דיווחים מצולמים"),
+    publicEntity("gallery-meron-medical", "gallery-image:67a5c6d6-7830-4185-a77e-e947eb1fa1de", "media", "אסון מירון · כתבה על הזיהוי"),
 
     ...[
       14, 21, 26, 45, 52, 54, 66, 77, 140, 271, 450, 454, 456, 631, 650, 789, 1000, 1111,
@@ -256,12 +273,14 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
       ["gallery-bnt14-jpg-source", "gallery-image:e207986b-3159-4f46-bf5a-c0a32fe313e6", "bnt-14.jpg"],
       ["gallery-bnt14-png-source", "gallery-image:01d17f7e-6ee8-41ce-9d6a-7c6f8352ce11", "bnt-14.png"],
       ["gallery-mandates-source", "gallery-image:5c913e47-a840-41fb-8acf-60e6252ce9e0", "mndtym.jpg"],
+      ["gallery-meron-news-source", "gallery-image:04ef63f1-a5ff-4867-8ae2-6bfc61921317", "asvn-myrvn-45-14.jpg"],
+      ["gallery-meron-medical-source", "gallery-image:67a5c6d6-7830-4185-a77e-e947eb1fa1de", "14-rvpaym.jpg"],
     ].map(([id, canonicalRef, label]) => publicSource(
       id,
       ELECTIONS_SOURCE_KIND.GALLERY_MEDIA,
       `גלריה היסטורית · ${label}`,
       null,
-      "2026-10-25",
+      id.startsWith("gallery-meron-") ? "2026-10-28" : "2026-10-25",
       { canonicalRef },
     )),
   ],
@@ -432,6 +451,31 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
         attributes: { source_locus: "post_tags", tags_do_not_prove_body_text: true, tags_do_not_verify_calculations: true },
       },
     ),
+    sourceFact(
+      "meron-news-45-14",
+      "gallery-image:04ef63f1-a5ff-4867-8ae2-6bfc61921317",
+      "source_contains_separate_reports",
+      [45, 14],
+      ["gallery-meron-news-source"],
+      ELECTIONS_ASSERTION_SCOPE.HISTORICAL_SOURCE,
+      { entityRefs: ["topic:meron", "topic:45-frequency", "number:45", "number:14"], attributes: {
+        source_locus: "two_separate_image_headlines", first_report: "45 הרוגים", second_report: "14 בדיווח ראשוני מהזירה",
+        preliminary_count_not_final: true, attribution_is_not_verification: true,
+        topic_membership_refs: ["topic_cards:8af9cd1e-ef75-4bf7-9636-af237048126e#image_ids/0", "topic_cards:7efe84bd-9a4d-47bf-b0cd-ee3347e934ab#image_ids/0"],
+      } },
+    ),
+    sourceFact(
+      "meron-medical-14-45",
+      "gallery-image:67a5c6d6-7830-4185-a77e-e947eb1fa1de",
+      "source_contains_reported_numbers",
+      [14, 45],
+      ["gallery-meron-medical-source"],
+      ELECTIONS_ASSERTION_SCOPE.HISTORICAL_SOURCE,
+      { entityRefs: ["topic:meron", "topic:45-frequency", "number:14", "number:45"], attributes: {
+        source_locus: "image_headline", reported_context: "14 רופאים זיהו 45 גופות", attribution_is_not_verification: true,
+        topic_membership_refs: ["topic_cards:8af9cd1e-ef75-4bf7-9636-af237048126e#image_ids/1", "topic_cards:7efe84bd-9a4d-47bf-b0cd-ee3347e934ab#image_ids/1"],
+      } },
+    ),
   ],
 
   newsMarkers: [
@@ -487,6 +531,7 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     calculation("engine-eliyahu-52", "אליהו", "hebrew_standard", 52, ["number:52"]),
     calculation("engine-seal-454", "חותם", "hebrew_standard", 454, ["number:454"]),
     calculation("engine-face-456", "פרצוף", "hebrew_standard", 456, ["number:456"]),
+    calculation("engine-bennett-key-1234", "נפתלי בנט מפתח לגאולה", "hebrew_standard", 1234, ["person:naftali-bennett", "number:1234"]),
     calculation("engine-tami-450", "תמי", "hebrew_standard", 450, ["person:tamar-shvili", "number:450"]),
     calculation("engine-bennett-631", "נפתלי בנט", "hebrew_standard", 631, ["person:naftali-bennett", "number:631"]),
     calculation("engine-winter-631", "עופר וינטר", "hebrew_standard", 631, ["person:ofer-winter", "number:631"]),
@@ -609,6 +654,10 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
     relation("sharshar-1000", "engine_value", "party:sharshar", "number:1000", ["engine-sharshar-1000"]),
     relation("sharshar-1456-snapshot", "published_vote_snapshot", "party:sharshar", "number:1456", ["news-sharshar-1456-at-70pct"]),
     relation("pirates-650-snapshot", "published_vote_snapshot", "party:pirates", "number:650", ["news-pirates-650-at-70pct"]),
+    relation("bennett-gallery-1234-topic", "proposed_source_context", "gallery-image:01d17f7e-6ee8-41ce-9d6a-7c6f8352ce11", "topic:gapfill-1234", ["historical-bnt14-png-number-set", "engine-bennett-key-1234"]),
+    relation("bennett-gallery-1237-topic", "proposed_source_context", "gallery-image:5e84ac5a-736c-4b7c-9b8c-963aa4d5da11", "topic:1237", ["historical-byat-number-set"]),
+    relation("meron-source-45-topic", "proposed_source_context", "gallery-image:04ef63f1-a5ff-4867-8ae2-6bfc61921317", "topic:45-frequency", ["meron-news-45-14"]),
+    relation("meron-medical-source-topic", "proposed_source_context", "gallery-image:67a5c6d6-7830-4185-a77e-e947eb1fa1de", "topic:meron", ["meron-medical-14-45"]),
     relation("system-1456-456", "converges_by_system_method", "number:1456", "number:456", ["system-one-1456-456"]),
     relation("system-1400-14", "converges_by_system_method", "number:1400", "number:14", ["system-zero-scale-1400-14"]),
     relation("elections-631", "engine_value", "node:2bb53dbf-816a-4033-aff2-874c4981cd39", "number:631", ["engine-elections-631"]),
