@@ -175,7 +175,8 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
 
     ...[
       14, 21, 26, 45, 52, 54, 66, 77, 140, 271, 450, 454, 456, 631, 789, 1000, 1111,
-      1237, 1400, 1454, 1456, 1789, 1820, 2701, 2710, 4500, 138598, 140052, 4309270,
+      1234, 1237, 1400, 1454, 1456, 1789, 1820, 2021, 2701, 2710, 4500, 14000,
+      138598, 140052, 450000, 4500000, 4309270,
     ].map(numberEntity),
   ],
 
@@ -360,19 +361,19 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
       "historical-car-number-set",
       "gallery-image:2ab69212-a407-4d33-9afd-65b6a9e66f1e",
       "source_contains_numbers",
-      [14, 21, 45, 450, 1237, 1400, 4500],
+      [450000, 4500000],
       ["gallery-car-source"],
       ELECTIONS_ASSERTION_SCOPE.HISTORICAL_SOURCE,
-      { entityRefs: ["number:14", "number:21", "number:45", "number:450", "number:1237", "number:1400", "number:4500"] },
+      { entityRefs: ["number:450000", "number:4500000"], attributes: { source_locus: "image_headlines", approximate_values: [450000], interpretation_not_included: true } },
     ),
     sourceFact(
       "historical-14000-number-set",
       "gallery-image:466ae014-9677-4c8c-b69f-3600042ddc16",
       "source_contains_numbers",
-      [14, 1400, 14000],
+      [14000],
       ["gallery-14000-source"],
       ELECTIONS_ASSERTION_SCOPE.HISTORICAL_SOURCE,
-      { entityRefs: ["number:14", "number:1400"] },
+      { entityRefs: ["number:14000"], attributes: { source_locus: "quoted_headline", snapshot_not_final_result: true } },
     ),
     sourceFact(
       "historical-bnt14-jpg-number-set",
@@ -387,10 +388,10 @@ export const ELECTIONS_ISRAEL_21_26_INPUT = {
       "historical-bnt14-png-number-set",
       "gallery-image:01d17f7e-6ee8-41ce-9d6a-7c6f8352ce11",
       "source_contains_numbers",
-      [14, 1234, 1237],
+      [14, 1234, 2021],
       ["gallery-bnt14-png-source"],
       ELECTIONS_ASSERTION_SCOPE.HISTORICAL_SOURCE,
-      { entityRefs: ["person:naftali-bennett", "number:14", "number:1237"] },
+      { entityRefs: ["person:naftali-bennett", "number:14", "number:1234", "number:2021"], attributes: { source_locus: "separate_screenshot_messages", one_author_not_assumed: true } },
     ),
     sourceFact(
       "historical-mandates-knesset-21",
