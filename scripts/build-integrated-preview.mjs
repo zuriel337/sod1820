@@ -19,15 +19,18 @@ const allow = ["gematria_api", "fn_method_value", "fn_method_profile", "gematria
 // already-linked account can recover its canonical Person ref; every Person/Family upsert
 // remains blocked below. The approved owner's Person exists before this disposable build.
 const existingPersonAccess = "fn_get_or_create_my_person";
+// The unified working preview must not create Person records or record ELS traces.
+const unifiedReadOnly = typeof process !== "undefined" && process.env.VERCEL_GIT_COMMIT_REF === "gpt/2029-central-unified-workspace-20261029";
 const worker = `const reads = new Set(${JSON.stringify(allow)});
 const existingPersonAccess=${JSON.stringify(existingPersonAccess)};
+const unifiedReadOnly=${JSON.stringify(unifiedReadOnly)};
 const authOrigin='https://linswmnnkjxvweumprav.supabase.co';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',event=>{
  const req=event.request,u=new URL(req.url),rpc=u.pathname.match(/^\\/rest\\/v1\\/rpc\\/(.+)$/)?.[1];
  const safe=(!u.pathname.startsWith('/auth/v1/')&&['GET','HEAD','OPTIONS'].includes(req.method))
-  ||(u.origin===authOrigin&&req.method==='POST'&&(reads.has(rpc)||rpc===existingPersonAccess));
+  ||(u.origin===authOrigin&&req.method==='POST'&&(reads.has(rpc)||(!unifiedReadOnly&&rpc===existingPersonAccess)));
  if(safe)return;
  event.respondWith((async()=>{
   // Existing-account access only. No signup, account mutation or product writes.
@@ -45,7 +48,7 @@ self.addEventListener('fetch',event=>{
    }
   }
   // Only the existing governed ELS reader is callable. Save/upload/model endpoints stay blocked.
-  if(req.method==='POST'&&u.hostname==='linswmnnkjxvweumprav.supabase.co'&&u.pathname==='/functions/v1/els-search-bridge'){
+  if(!unifiedReadOnly&&req.method==='POST'&&u.hostname==='linswmnnkjxvweumprav.supabase.co'&&u.pathname==='/functions/v1/els-search-bridge'){
    try{const body=await req.clone().json();if(['page','verify','verify_batch'].includes(body.op))return fetch(req);}catch{}
   }
   return new Response(JSON.stringify({error:'preview_read_only'}),{status:403,headers:{'Content-Type':'application/json','X-Preview-Write-Blocked':'true'}});

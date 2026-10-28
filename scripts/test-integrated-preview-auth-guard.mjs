@@ -8,9 +8,9 @@ const builder = await readFile(new URL('./build-integrated-preview.mjs', import.
 const vercelConfig = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
 const source = builder.slice(builder.indexOf('const allow ='), builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'));
 const worker = vm.runInNewContext(`${source}\nworker;`);
-async function request(path, { method = 'POST', body, origin = 'https://linswmnnkjxvweumprav.supabase.co' } = {}) {
+async function request(path, { method = 'POST', body, origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
   let handler, response, forwarded = 0;
-  vm.runInNewContext(worker, {
+  vm.runInNewContext(workerSource, {
     self: { addEventListener: (name, fn) => { if (name === 'fetch') handler = fn; } },
     URL, Response,
     fetch: async () => { forwarded++; return new Response('{}', { status: 200 }); },
@@ -60,6 +60,17 @@ test('profile/product/storage/model writes remain blocked; governed readers stil
     assert.deepEqual(await request(`/rest/v1/rpc/${rpc}`, { body: {} }), { status: 403, forwarded: 0, blocked: 'true' }, rpc);
   }
   assert.equal((await request('/functions/v1/els-search-bridge', { body: { op: 'page' } })).forwarded, 1);
+});
+
+test('unified working preview blocks Person creation and trace-producing ELS bridge', async () => {
+  const workerSource = vm.runInNewContext(`${source}\nworker;`, {
+    process: { env: { VERCEL_GIT_COMMIT_REF: 'gpt/2029-central-unified-workspace-20261029' } },
+  });
+  for (const [path, body] of [
+    ['/rest/v1/rpc/fn_get_or_create_my_person', {}],
+    ['/functions/v1/els-search-bridge', { op: 'page' }],
+  ]) assert.deepEqual(await request(path, { body, workerSource }), { status: 403, forwarded: 0, blocked: 'true' }, path);
+  assert.equal((await request('/rest/v1/rpc/fn_number_lookup', { workerSource })).status, 200);
 });
 
 test('Books publication review is preview-only and has no write RPC in the guard', () => {
