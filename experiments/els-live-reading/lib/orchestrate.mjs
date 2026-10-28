@@ -8,7 +8,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { buildCard, buildRound2Message } from "./prompt.mjs";
 import { classify, locateFinding, parseModelOutput, syntheticRows, verificationItems } from "./validate.mjs";
 import { costOf, lockSha256, requestSha256, summarizeMessage } from "./request.mjs";
-import { guardSpend, loadLedger, reserve, settle, settledOf } from "./ledger.mjs";
+import { BUDGET, guardSpend, loadLedger, reserve, settle, settledOf } from "./ledger.mjs";
 import { verifyItems } from "./verify-rest.mjs";
 
 export class BudgetStop extends Error { constructor(message) { super(message); this.name = "BudgetStop"; } }
@@ -28,7 +28,7 @@ export async function callOnce({ run, round, request, record, dir, deps }) {
   let batchId = previous?.batch_id ?? null;
   if (!batchId) {
     const ledger = loadLedger(deps.ledgerPath);
-    const guard = guardSpend(ledger, record.upper_bound_usd, { batch: true });
+    const guard = guardSpend(ledger, record.upper_bound_usd, { batch: true, budget: deps.budget ?? BUDGET }); // deps.budget: a pilot with its own levels inside the total cap (EXP-12)
     if (!guard.ok) throw new BudgetStop(guard.reason);
     if (run.priority >= 4 && settledOf(ledger) > deps.diagnosticsMaxSpent) throw new BudgetStop(`diagnostics only while spent <= ${deps.diagnosticsMaxSpent} (spent ${settledOf(ledger)})`);
     reserve(deps.ledgerPath, { id: reservationId, usd: Number((0.5 * record.upper_bound_usd).toFixed(6)), at: deps.now(), note: "worst case reserved before the call" });

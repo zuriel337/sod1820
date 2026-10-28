@@ -29,7 +29,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const chance = torahChanceModel(letters, md5);
   const g = await gematriaWords({ url: SUPABASE_URL, anonKey: SUPABASE_ANON });
   const lex = unionLexicon({ gematria: g.words, tanakh: tanakhForms("public/tanakh-verses.json", { min: 2 }) });
-  const engine = JSON.parse(readFileSync(here("../els-live-reading/review/case-u1-engine.json"), "utf8")).occurrences[0];
+  const engineFile = JSON.parse(readFileSync(here("../els-live-reading/review/case-u1-engine.json"), "utf8")); // the engine's record of the saved cipher's occurrence (EXP-16 case U1)
+  const engine = engineFile.occurrences[0];
+  const axisPhrase = engineFile.phrase; // the axis phrase as it was given, shown to the model only in the arms that name the axis
   const rpc = makeVerifyRpc({ anonKey: SUPABASE_ANON });
   mkdirSync(here("./data/pools/"), { recursive: true });
   const all = windows();
@@ -42,7 +44,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const win = makeWindow({ width: W, r0: spec.r0, r1: spec.r1, c0: spec.c0, c1: spec.c1 });
     const grid = Array.from({ length: win.nRows }, (_, i) => Array.from({ length: win.nCols }, (_, j) => letters[positionAt(win, i + 1, j + 1)]).join(""));
     const positions = spec.id === "real" ? engine.positions : Array.from({ length: spec.axisRows[1] - spec.axisRows[0] + 1 }, (_, k) => (spec.axisRows[0] + k) * W + spec.axisCol);
-    const axis = makeAxis({ win, positions, term: spec.id === "real" ? engine.phrase : null });
+    const axis = makeAxis({ win, positions, term: spec.id === "real" ? axisPhrase : null });
     const candidates = scanWindow({ win, grid, lexicon: lex, chance });
     const { items: short, counts } = shortlist({ candidates, axis });
     // engine confirmation of every shortlisted item

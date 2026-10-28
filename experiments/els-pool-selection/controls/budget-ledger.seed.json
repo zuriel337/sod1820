@@ -1,0 +1,16 @@
+{
+  "cap_usd": 40,
+  "hard_guard_usd": 36.72293,
+  "stop_new_usd": 35.72293,
+  "pilot_cap_usd": 8,
+  "diagnostics_max_spent_usd": 34.72293,
+  "basis": "usage x list prices of the claude-api model table (Message Batches at 50%); not an invoice. First entry: the actual spend of EXP-15 and EXP-16 (ledger corrected after EXP-16).",
+  "entries": [
+    {
+      "id": "prior EXP-15 + EXP-16",
+      "kind": "prior",
+      "usd": 28.72293,
+      "note": "actual spend before the EXP-12 pilot"
+    }
+  ]
+}

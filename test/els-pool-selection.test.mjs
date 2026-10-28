@@ -198,6 +198,8 @@ test("committed pools: window md5 equals the canonical table, every item reads i
     for (const r of pool.relations) assert.ok(ids.has(r.a) && ids.has(r.b));
   }
   const real = poolOf("real");
+  assert.match(real.axis.term, /^[א-ת]{4,}$/u, "the real pool names its axis phrase (used only by the arms that name the axis)");
+  for (const id of windows().slice(1).map((w) => w.id)) assert.equal(poolOf(id).axis.term, null, `${id} has a pseudo-axis with no name`);
   const again = finalizePool(real.items.map((i) => ({ ...i, geo: undefined })));
   assert.equal(again.relations.length, real.relations.length);
   assert.deepEqual(again.relations.map((r) => [r.id, r.a, r.b, r.type]), real.relations.map((r) => [r.id, r.a, r.b, r.type]));
@@ -347,4 +349,15 @@ test("saved-cipher evaluation: every located occurrence spells its word in the c
   assert.equal(line.whole_ascending.length, 10);
   const firstStart = located.words.find((w) => w.text === line.first.split("#")[0]).occurrences[Number(line.first.split("#")[1]) - 1].start;
   assert.equal([...line.whole_ascending].every((ch, k) => letters[firstStart + k * line.step] === ch), true, "ten letters in one arithmetic progression of the canonical stream");
+});
+
+test("plain-text family R: only the forward reading is a candidate (the mirror image is neither text nor engine-confirmable), in the scan and in every committed pool", () => {
+  const win = makeWindow({ width: W, r0: 0, r1: 3, c0: 0, c1: 7 });
+  const grid = ["אאתומלשאא".slice(0, 8), "אאאאאאאא", "אאאאאאאא", "אאאאאאאא"];
+  const lexicon = new Map([["שלומ", { g: true }]]); // "שלומ" read backwards along the row is "מולש" = "תומלש"... : the row holds the letters in the order ת-ו-מ-ל-ש
+  const found = scanWindow({ win, grid: ["אאשלומאא", ...grid.slice(1)], lexicon, chance: null }).filter((f) => f.family === "R");
+  assert.deepEqual(found.map((f) => [f.text, f.dir]), [["שלומ", 1]]);
+  const mirrored = scanWindow({ win, grid: ["אאמולשאא", ...grid.slice(1)], lexicon, chance: null }).filter((f) => f.family === "R");
+  assert.deepEqual(mirrored, [], "a word that is only there read backwards is not offered");
+  for (const id of ["real", "real-d1", ...windows().slice(1).map((w) => w.id)]) for (const it of poolOf(id).items) if (it.family === "R") assert.equal(it.dir, 1, `${id}/${it.id}`);
 });

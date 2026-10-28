@@ -26,21 +26,21 @@ The saved record stores five words and no positions (Amendment 2). Every occurre
 Relations were computed with the registered definitions (`lib/relations.mjs`) on the located occurrences, and re-checked by arithmetic on raw stream positions.
 
 * **אירנ (rows 9-12, col 64) and ארהב (rows 15-18, col 64) are NOT parallel. They lie on the same column, same direction, two empty cells apart: relation `same_line`, gap 2.** The two letters between them (rows 13-14) are `ו`, `י`; together they form one 10-letter ELS `אירנויארהב` at skip 10101 (checked: ten letters in one arithmetic progression of the canonical stream). Relative to the axis (col 51) both words are on columns parallel to it, 13 columns away: farther than the registered parallel/near limits (6 / 1), so the pool would give them **no relation to the axis**.
-* In the diagnostic pool D1 the relation exists in the relation table (R0110, `same_line`, gap 2, F068–F174) and equals the independent computation.
+* In the diagnostic pool D1 the relation exists in the relation table (R0103, `same_line`, gap 2, F069–F173) and equals the independent computation.
 * Real parallel structure around them (all computed): `ארהב` (C+, rows 15-18, col 64) ∥ `סיכנ` (C−, rows 16-19, col 65): `parallel`, offset 1, overlap 3, **opposite directions**; `ארהב` K1 and the 9-letter word share their first four letters (`continuation`, nested); `ארהב` C crosses the 9-letter K1 word at one cell (18,64).
 * Connected structure of all located occurrences: 9 members, 15 relations. Three of the members are plain-text `ישראל` rows (each crosses or touches one of the other words); a common word on the plain-text row is weak evidence — the Torah contains it many times.
-* **Rank:** the registered pair score ranks continuation/crossing/parallel pairs. `same_line` is not a scored type, so the pair has **no rank** by the registered rule; the parallel pair `ארהב`–`סיכנ` is rank 515 of 558 ELS pairs (1566 of 1609 with plain-text rows). The top ELS pair is a long continuation (11 letters, E 0.013).
+* **Rank:** the registered pair score ranks continuation/crossing/parallel pairs. `same_line` is not a scored type, so the pair has **no rank** by the registered rule; the parallel pair `ארהב`–`סיכנ` is rank 517 of 560 ELS pairs (1501 of 1544 with plain-text rows). The top ELS pair is a long continuation (11 letters, E 0.013).
 
 ## Controls — how many similar groups do the control windows produce?
 
-Same pipeline on 12 tiles of the same text (31 rows × 101 columns, pseudo-axis in the middle column), engine-confirmed pools of 269-300 items.
+Same pipeline on 12 tiles of the same text (31 rows × 101 columns, pseudo-axis in the middle column), engine-confirmed pools of 268-300 items (mirrored plain-text readings are not candidates, Amendment 3).
 
 | measure | real window | real + known words (D1) | control tiles (12): min / median / max |
 |---|---|---|---|
-| PP (registered): ELS words ≥ 4 letters, parallel, offset ≤ 3, overlap ≥ 3 | 75 | 78 | 41 / 88 / 107 |
+| PP (registered): ELS words ≥ 4 letters, parallel, offset ≤ 3, overlap ≥ 3 | 75 | 78 | 41 / 92 / 107 |
 | PPA = PXA (registered): both attached to the axis | 34 | 34 | 15 / 41 / 67 |
 | collinear pairs (post-hoc): same line, gap ≤ 2, both ELS ≥ 4 letters | 4 | 5 | 2 / 5 / 8 |
-| tight groups of ≥ 3 words (post-hoc) | 10 | 11 | 2 / 7 / 11 |
+| tight groups of ≥ 3 words (post-hoc) | 10 | 11 | 2 / 8 / 11 |
 | largest tight group (post-hoc) | 5 | 5 | 5 / 7 / 11 |
 
 The known cluster {אירנ, ארהב, סיכנ} is one tight group of size 3 (rows 9-19, columns 64-65). **Every one of the 12 control tiles holds a tight group at least as large (largest 5-11), and every tile holds at least two collinear ELS pairs.** In word-list terms the geometry alone does not separate this structure from what the method produces anywhere in the text; what makes it stand out is the meaning of the words, which is not something the pool or the relations measure. (Post-hoc measures: defined after the pair was seen; descriptive only; the controls are neighbouring windows of the same text.)

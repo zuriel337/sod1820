@@ -21,6 +21,7 @@ export function scanWindow({ win, grid, lexicon, minLen = POOL_RULE.minLen, maxL
   for (const family of FAMILIES) {
     for (const line of linesOf(win, family)) {
       for (const reversed of [false, true]) {
+        if (reversed && family.id === "R") continue; // family R is the plain text of the Torah (skip 1); its mirror image is not text and the engine does not answer skip 1, so it is not a candidate
         const cells = reversed ? line.cells.slice().reverse() : line.cells;
         const letters = cells.map(([i, j]) => grid[i - 1][j - 1]).join("");
         const local = [];

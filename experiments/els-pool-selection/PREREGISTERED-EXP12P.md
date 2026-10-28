@@ -133,3 +133,17 @@ What reading the saved record changed, stated before any model result exists:
   registered PP/PPA/PXA counts do not describe it. Two **post-hoc** measures are added and are labelled post-hoc wherever they appear: *collinear pairs* (same line, gap <= 2, both ELS, >= 4 letters) and *tight groups*
   (connected groups of ELS items >= 4 letters under same-line gap <= 2 or parallel offset <= 1 with overlap >= 3; crossings and nesting are left out because they chain a whole pool into one component). They are
   descriptive and were chosen after the pair was seen; they carry no test statistic.
+
+## Amendment 3 (28.10.2026, after the offline results of Amendment 2, before any call)
+* **Mirrored plain-text readings are not candidates.** Family R is the plain text of the Torah (skip 1) and is confirmed against the stream only; the engine does not answer skip 1 (`CONTEXT_REQUIRED` / `NOT_TESTED`
+  for both directions). The first pools contained 3-10 items per window read backwards along a row ("R−"), which are neither text nor engine-confirmable, while the packet described every R item as plain text.
+  `scanWindow` now skips the reversed reading of family R; **all 13 pools were rebuilt** (same word list, same recipe, 0 engine drops, window md5 unchanged), D1 and every offline figure were recomputed, and the results
+  note was updated. No model had been called.
+* **Counts and order (cost).** Fable on control tiles is dropped (two calls of up to about USD 1.5 each); Fable remains on B1, B2 and D1. The final plan is `lib/plan.mjs` (22 runs; the review lists every request hash).
+  A **free-proposal arm F** is added for the "no story, no topic, propose words, phrases and continuations" part of the request: the EXP-16 case-U1 request (window letters of 31 rows × 41 columns, axis phrase given, v3 prompt)
+  unchanged except for the model, Sonnet × 1 and Haiku × 1; every proposal is verified by the engine; compared with the saved words only afterwards. It is the only arm in which a name or an abbreviation can be proposed at all.
+* **Pilot ledger and guard.** `controls/budget-ledger.json`: first entry the prior spend (USD 28.72293); hard guard = prior + 8 (a call is refused if spent + its worst case would pass it), no new call above prior + 7,
+  diagnostic arms (priority >= 4) only while the settled spend is at most prior + 6. Worst case = batch price × (input × 1.25 + max_tokens × output price); reserved before the call, replaced by the actual cost.
+* **Axis phrase in the real pool.** The first committed pools stored `axis.term: null` for the real region (the phrase was read from the wrong field of the engine record), which would have printed „null” in the arms that
+  name the axis. Found while building the requests, before any call; the pools were rebuilt once more (items, relations and window md5 identical; only `axis.term` = the phrase as given, in the real pool and D1), and
+  the tests now check the phrase in every request that names it and the absence of placeholders in all of them.
