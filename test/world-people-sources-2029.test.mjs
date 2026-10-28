@@ -126,6 +126,33 @@ test("selected contributor reuses all three public readers without N+1", async (
   assert.equal(result.total, 0);
 });
 
+test("an already-public Universal Finding keeps its exact source provenance without creating a tree relation", () => {
+  const identity = { id: "writer", slug: "writer", displayName: "כותב" };
+  const finding = {
+    id: "uf1:research-object:public", stage: null, status: "approved",
+    identity: { sourceIdentity: { researchObjectId: "research-1" } },
+    evidence: { refs: ["channel_updates:one#message"] },
+    verification: { verification_state: "match" },
+  };
+  const result = buildWorldContributorPublicMaterial({
+    identity,
+    findings: {
+      mode: "public_view", availability: { research: "ok" },
+      sourceGroups: [{ sourceRef: "channel_updates:one", universalFindings: [finding] }],
+    },
+    sourceCatalog: { items: [{ id: "one", sourceRef: "channel_updates:one", title: "מקור", createdAt: "2026-10-20", href: "/world?source=writer&sourceRef=channel_updates%3Aone" }] },
+    publications: {},
+  });
+  assert.deepEqual(result.contentProjection.findings, [{
+    findingRef: "uf1:research-object:public", sourceRefs: ["channel_updates:one"],
+    href: "/world?finding=research-1", stage: null, verificationState: "match", publicationState: "approved",
+  }]);
+  assert.equal(result.contentProjection.metrics.findings, 1);
+  assert.equal(result.contentProjection.treeRelations.length, 0,
+    "a public finding does not imply a tree relation without graph/governance provenance");
+  assert.equal(result.contentProjection.metrics.treeRelations, null);
+});
+
 test("search and filters cover people, titles and numbers with stable pagination inputs", () => {
   const data = {
     people: [{ displayName: "צבי", slug: "tzvi-opoc", code: "227" }, { displayName: "יניב", slug: "yaniv", code: "18" }],
