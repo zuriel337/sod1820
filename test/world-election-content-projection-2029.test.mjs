@@ -36,3 +36,13 @@ test("unadmitted gallery and post sources fail closed rather than receiving gues
   assert.equal(projection.sources.some((row) => row.sourceRef.startsWith("posts:")), false);
   assert.equal(projection.sources.some((row) => row.sourceRef.includes("rybr24j6fe")), true, "external exact locator remains its own source");
 });
+
+test("capture time and branch ids do not become publication times or exact locators", () => {
+  const bundle = {
+    sources: [{ id: "feed-snapshot", accessTier: "public", label: "דיווח", locator: "https://example.com/feed", capturedAt: "2026-10-28T11:31:00+02:00" }],
+    branchContract: { evidenceRecords: [] }, resultBundle: { findings: [] },
+  };
+  const projection = buildElectionWorldContentProjection({ bundle });
+  assert.equal(projection.occurrences[0].locator, null);
+  assert.equal(projection.occurrences[0].times.publishedAt, null);
+});
