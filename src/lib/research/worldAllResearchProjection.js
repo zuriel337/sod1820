@@ -136,23 +136,47 @@ function countByMany(rows, key, fallbackKey) {
 }
 
 function normalizeTreeMatches(row) {
-  const matches = row?.meta?.ext?.wa_channel_intake?.tree_matches;
-  if (!Array.isArray(matches)) return [];
+  const matches = Array.isArray(row?.meta?.ext?.wa_channel_intake?.tree_matches)
+    ? row.meta.ext.wa_channel_intake.tree_matches
+    : [];
   const seen = new Set();
   const out = [];
-  for (const match of matches) {
-    if (!match || typeof match !== "object" || Array.isArray(match)) continue;
+  const add = (match) => {
+    if (!match || typeof match !== "object" || Array.isArray(match)) return;
     const type = clean(match.type).toLowerCase();
     const key = clean(match.key);
-    if (!type || !key) continue;
+    if (!type || !key) return;
     const identity = `${type}:${key}`;
-    if (seen.has(identity)) continue;
+    if (seen.has(identity)) return;
     seen.add(identity);
     out.push({
       type,
       key,
       label: clean(match.label) || null,
       match: clean(match.match) || null,
+    });
+  };
+  for (const match of matches) {
+    add(match);
+  }
+
+  const attachment = row?.meta?.governance?.tree_attachment;
+  const promotedNodeId = clean(row?.promoted_node_id);
+  const targetNodeId = clean(attachment?.target_node_id);
+  const targetType = clean(attachment?.target_node_type).toLowerCase();
+  const value = finite(row?.value);
+  if (
+    attachment?.mode === "existing_graph_identity_pointer"
+    && targetType === "number"
+    && promotedNodeId
+    && targetNodeId === promotedNodeId
+    && value != null
+  ) {
+    add({
+      type: "number",
+      key: promotedNodeId,
+      label: String(value),
+      match: "governed_attachment",
     });
   }
   return out;
