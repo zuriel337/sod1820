@@ -138,3 +138,47 @@ test("World only mounts the shared controls inside public focus, without follow 
   assert.match(publicFocus, /noPush compact ghost/);
   assert.doesNotMatch(publicFocus, /onShare=.*[Ff]ollow|onShare=.*[Ww]atch/);
 });
+
+test("public reader ignores numeric/namespaced entity targets in UUID Topic filter but keeps documented slug", async () => {
+  const { fetchWorldPublicFindingById } = await import("../src/lib/research/worldPublicFindingReader.js");
+  const uuidTarget = "aeb9b6ba-9c2b-4792-8ae7-a5c577f62717";
+  const targetFilters = [];
+  const research = {
+    ...row,
+    meta: { ext: { wa_channel_intake: { tree_matches: [
+      { type: "number", key: "476" },
+      { type: "entity", key: "gw:missing-uuid" },
+      { type: "number", key: uuidTarget },
+      { type: "topic", key: "india-axis" },
+    ] } } },
+  };
+  const byTable = {
+    research_objects: { data: research, error: null },
+    topic_cards: { data: [{ id: "a238cb3e-ff78-4f68-ad00-4bd2f3640083", slug: "india-axis",
+      title: "הודו", status: "approved", node_id: uuidTarget }], error: null },
+  };
+  const fakeClient = {
+    from(table) {
+      const builder = {
+        select() { return builder; },
+        eq() { return builder; },
+        in() { return builder; },
+        or(filter) { targetFilters.push(filter); return builder; },
+        limit() { return builder; },
+        maybeSingle() { return Promise.resolve(byTable[table] || { data: null, error: null }); },
+        then(resolve, reject) { return Promise.resolve(byTable[table] || { data: [], error: null }).then(resolve, reject); },
+      };
+      return builder;
+    },
+  };
+  const finding = await fetchWorldPublicFindingById(ID, { publicClient: () => fakeClient, cache: false });
+  assert.ok(finding);
+  assert.equal(finding.linkedTopicRating?.slug, "india-axis");
+  assert.deepEqual(worldFindingFollowTarget(finding), {
+    topic: "topic:india-axis", title: "הודו", href: "/topic/india-axis",
+  });
+  assert.equal(targetFilters.length, 1);
+  assert.match(targetFilters[0], /slug\.in\.\("india-axis"\)/);
+  assert.match(targetFilters[0], /node_id\.in\.\("aeb9b6ba-/);
+  assert.doesNotMatch(targetFilters[0], /476|gw:/);
+});
