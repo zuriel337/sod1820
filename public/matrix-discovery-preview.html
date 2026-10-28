@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="he" dir="rtl" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>גילוי במטריצה · SOD1820</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Noto+Sans+Hebrew:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Semantic roles mirror src/lib/palette.js (DESIGN_V2_PALETTES: dark = Night, light = Modern Day, parchment) and its MATRIX_HIGHLIGHTS;
+   a standalone page cannot import them, and test/matrix-discovery-preview.test.mjs fails if a value here drifts from that file. */
+:root,[data-theme="dark"]{
+  --page:#0B0907;--card:#17120E;--card-soft:#211A13;--border:rgba(212,175,55,.18);--border-strong:rgba(212,175,55,.38);
+  --ink:#F5F5F0;--ink-soft:#C6C6C1;--accent:#D4AF37;--accent-text:#F1D99C;--accent-secondary:#D3B88E;--accent-discovery:#E3B77D;
+  --on-accent:#1A0E00;--focus:#F1D99C;--success:#81DDB0;--danger:#FF9AA6;--mx-surface:#17120E;--mx-ink:#F5EBDD;--mx-frame:#D4AF37;
+}
+[data-theme="light"]{
+  --page:#F4F7FC;--card:#FFFFFF;--card-soft:#EAF0F9;--border:rgba(42,62,87,.18);--border-strong:rgba(42,62,87,.34);
+  --ink:#172B46;--ink-soft:#526580;--accent:#315DD5;--accent-text:#2454B8;--accent-secondary:#7249A5;--accent-discovery:#086C70;
+  --on-accent:#FFFFFF;--focus:#086C70;--success:#236D49;--danger:#B52B3C;--mx-surface:#FFFEF9;--mx-ink:#263252;--mx-frame:#996813;
+}
+[data-theme="parchment"]{
+  --page:#F4EDDE;--card:#FFF9EE;--card-soft:#EEE3CF;--border:rgba(89,70,39,.20);--border-strong:rgba(89,70,39,.38);
+  --ink:#312B23;--ink-soft:#706252;--accent:#315DD5;--accent-text:#284E9F;--accent-secondary:#764B87;--accent-discovery:#176965;
+  --on-accent:#FFFFFF;--focus:#176965;--success:#316740;--danger:#A52D36;--mx-surface:#FFF4D4;--mx-ink:#49331D;--mx-frame:#9F7025;
+}
+:root{--axis:#FFE04F;--on-mark:#201521;--cell:32px;
+  --font-ui:"Rubik","Noto Sans Hebrew",system-ui,sans-serif;--font-body:"Noto Sans Hebrew","Rubik",system-ui,sans-serif;--font-num:"IBM Plex Mono",ui-monospace,monospace;
+  --type-micro:14px;--type-ui:16px;--type-small:15px;--type-body:18px;--type-title:28px}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--font-body);font-size:var(--type-body);line-height:1.55}
+button,input,select,summary{font:inherit;color:inherit}
+.num{font-family:var(--font-num);direction:ltr;unicode-bidi:isolate}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1500px;margin:0 auto;padding:20px 16px 72px}
+header.top{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px}
+.eyebrow{font:500 var(--type-micro)/1.3 var(--font-ui);letter-spacing:.04em;color:var(--accent-text)}
+h1{font:700 var(--type-title)/1.2 var(--font-ui);margin:4px 0 6px}
+.lead{margin:0;max-width:62ch;color:var(--ink-soft);font-size:var(--type-ui)}
+.themes{display:flex;gap:6px}
+.themes button{min-height:44px;min-width:44px;padding:0 14px;border:1px solid var(--border-strong);background:var(--card);border-radius:12px;cursor:pointer;font:500 var(--type-ui) var(--font-ui)}
+.themes button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px}
+.controls{display:grid;grid-template-columns:minmax(180px,220px) minmax(220px,1fr) auto;gap:12px;align-items:end}
+label.f{display:grid;gap:4px;font:500 var(--type-small) var(--font-ui);color:var(--ink-soft)}
+input[type=text],input[type=number],input[type=search],select{min-height:44px;padding:8px 12px;border:1px solid var(--border-strong);border-radius:12px;background:var(--card-soft);color:var(--ink);font:400 var(--type-ui) var(--font-ui);width:100%}
+input[type=number]{font-family:var(--font-num);direction:ltr;text-align:right}
+.btn{min-height:44px;min-width:44px;padding:8px 18px;border-radius:12px;border:1px solid var(--border-strong);background:var(--card-soft);cursor:pointer;font:500 var(--type-ui) var(--font-ui)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn:disabled{opacity:.55;cursor:progress}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.chips .lab{font:500 var(--type-small) var(--font-ui);color:var(--ink-soft)}
+.chip{min-height:44px;padding:6px 14px;border-radius:999px;border:1px solid var(--border-strong);background:var(--card-soft);cursor:pointer;font:500 var(--type-ui) var(--font-ui)}
+.chip[aria-pressed="true"]{border-color:var(--accent-discovery);box-shadow:inset 0 0 0 2px var(--accent-discovery)}
+details.adv{margin-top:12px}
+details.adv summary,.explain summary{list-style:none}
+details.adv summary::after,.explain summary::after{content:"▾";margin-inline-start:8px}
+details[open]>summary::after{content:"▴"}
+details.adv summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font:500 var(--type-ui) var(--font-ui);color:var(--accent-text)}
+.adv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:6px}
+.check{display:flex;gap:8px;align-items:center;min-height:44px;font:400 var(--type-ui) var(--font-ui)}
+.check input{width:22px;height:22px}
+#status{margin:14px 2px 0;min-height:26px;font:400 var(--type-ui) var(--font-ui);color:var(--ink-soft)}
+#status.err{color:var(--danger)}
+.choose{margin-top:12px;display:grid;gap:8px}
+.choose button{text-align:right}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,430px);gap:16px;margin-top:16px;align-items:start}
+.layout>*,.controls>*{min-width:0}
+.panel-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.panel-h h2{font:700 21px/1.3 var(--font-ui);margin:0}
+.mx-meta{font:400 var(--type-small) var(--font-ui);color:var(--ink-soft);margin:0 0 10px}
+.zoom{display:flex;align-items:center;gap:8px;font:400 var(--type-small) var(--font-ui);color:var(--ink-soft)}
+.zoom input{width:110px;min-height:44px}
+.mx-scroll{overflow:auto;max-height:76vh;border:1px solid var(--mx-frame);border-radius:12px;background:var(--mx-surface);padding:6px}
+.matrix{display:grid;direction:rtl;width:max-content;font-family:var(--font-ui)}
+.cell,.hd{display:flex;align-items:center;justify-content:center;width:var(--cell);height:var(--cell);font-size:calc(var(--cell) * .56);line-height:1;color:var(--mx-ink);position:relative;user-select:none}
+.cell{border-radius:6px;font-weight:500}
+.hd{font:400 var(--type-micro)/1 var(--font-num);color:var(--ink-soft);height:22px;white-space:nowrap;overflow:visible}
+.hd.row{width:44px;height:var(--cell)}
+.cell.axis{background:var(--axis);color:var(--on-mark);font-weight:700}
+.cell.mark{color:var(--on-mark);font-weight:700}
+.cell.faint{outline:2px dotted var(--accent-discovery);outline-offset:-3px}
+.cell.hover{outline:3px solid var(--focus);outline-offset:-3px}
+.cell.pinned{box-shadow:inset 0 0 0 3px var(--mx-ink)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font:400 var(--type-small) var(--font-ui);color:var(--ink-soft)}
+.legend i{display:inline-block;width:18px;height:18px;border-radius:5px;vertical-align:-4px;margin-inline-end:6px}
+.stats{display:grid;gap:6px;margin:0 0 12px;font:400 var(--type-small) var(--font-ui);color:var(--ink-soft)}
+.stats b{color:var(--ink);font-weight:500}
+.filters{display:grid;gap:8px;margin-bottom:12px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{min-height:44px;padding:4px 12px;border-radius:10px;border:1px solid var(--border-strong);background:var(--card-soft);cursor:pointer;font:500 var(--type-small) var(--font-ui)}
+.seg button[aria-pressed="true"]{background:var(--accent-discovery);color:var(--page);border-color:var(--accent-discovery)}
+.list{display:grid;gap:8px;max-height:70vh;overflow:auto;padding-inline-end:4px}
+.item{display:grid;gap:4px;text-align:right;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:var(--card-soft);cursor:pointer;min-height:44px;width:100%}
+.item[aria-pressed="true"]{border-color:var(--accent-discovery);box-shadow:inset 0 0 0 2px var(--accent-discovery)}
+.item .w{font:700 22px/1.2 var(--font-ui);display:flex;gap:8px;align-items:center;justify-content:space-between}
+.item .sw{width:16px;height:16px;border-radius:5px;flex:none;border:1px solid var(--border-strong)}
+.item .m{font:400 var(--type-small) var(--font-ui);color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:4px 12px}
+.tag{font:500 var(--type-micro) var(--font-ui);padding:2px 8px;border-radius:999px;border:1px solid var(--border-strong)}
+.tag.cross{border-color:var(--accent-discovery);color:var(--accent-discovery)}
+.tag.ok{border-color:var(--success);color:var(--success)}
+.tag.bad{border-color:var(--danger);color:var(--danger)}
+.tag.muted{color:var(--ink-soft)}
+.more{margin-top:8px}
+.explain{margin-top:16px}
+.explain summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font:500 var(--type-ui) var(--font-ui)}
+.explain ul{margin:6px 0 0;padding-inline-start:22px;color:var(--ink-soft);font-size:var(--type-ui)}
+.explain li{margin:6px 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(max-width:1000px){.layout{grid-template-columns:minmax(0,1fr)}.controls{grid-template-columns:minmax(0,1fr)}.list{max-height:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">ניסיוני · תצוגה לבדיקה · לא נשמר דבר</div>
+      <h1>גילוי במטריצה</h1>
+      <p class="lead">בחרו מספר (הדילוג, שהוא גם רוחב המטריצה), סמנו עליו צופן, וראו אילו מילים נוספות חוצות אותו או יושבות לידו. הכול נקרא ממנוע הדילוגים הקיים ומאותיות התורה הקנוניות.</p>
+    </div>
+    <div class="themes" role="group" aria-label="מראה">
+      <button type="button" data-theme-set="light" aria-pressed="false">יום</button>
+      <button type="button" data-theme-set="parchment" aria-pressed="false">קלף</button>
+      <button type="button" data-theme-set="dark" aria-pressed="true">לילה</button>
+    </div>
+  </header>
+
+  <section class="card" aria-label="בחירת צופן">
+    <form id="form" class="controls" autocomplete="off" novalidate>
+      <label class="f">מספר (דילוג = רוחב המטריצה)<input id="num" type="number" inputmode="numeric" min="2" max="150000" step="1" placeholder="למשל 10101"></label>
+      <label class="f">צופן (מילה או ביטוי)<input id="term" type="text" placeholder="הקלידו מילה, או בחרו צופן שמור במספר"></label>
+      <div style="display:flex;gap:8px"><button class="btn primary" id="go" type="submit">סמן במטריצה</button><button class="btn" id="clear" type="button">נקה</button></div>
+    </form>
+    <div class="chips" id="numChips" aria-label="מספרים לדוגמה"><span class="lab">מספרים:</span></div>
+    <div class="chips" id="saved" aria-label="צפנים שמורים במספר"></div>
+    <details class="adv">
+      <summary>אפשרויות נוספות</summary>
+      <div class="adv-grid">
+        <label class="f">גודל האזור<select id="size"><option value="21x31">קטן · 21 שורות × 31 עמודות</option><option value="31x41" selected>בינוני · 31 × 41</option><option value="41x61">גדול · 41 × 61</option></select></label>
+        <label class="f">רוחב מטריצה שונה מהדילוג (אופציונלי)<input id="width" type="number" inputmode="numeric" min="2" max="150000" step="1" placeholder="ריק = כמו המספר"></label>
+        <label class="f">אורך מילה מינימלי<select id="minLen"><option value="3">3 אותיות</option><option value="4" selected>4 אותיות</option><option value="5">5 אותיות</option><option value="6">6 אותיות</option></select></label>
+        <label class="f">מילים שהופיעו במקרא לפחות<select id="minCount"><option value="1">פעם אחת (כל הצורות)</option><option value="2" selected>פעמיים</option><option value="5">5 פעמים</option></select></label>
+        <label class="check"><input id="hideInside" type="checkbox" checked>הסתר מילים שנמצאות כולן בתוך הצופן עצמו</label>
+        <label class="check"><input id="maximal" type="checkbox" checked>הסתר מילה שמוכלת במילה ארוכה יותר על אותו קו</label>
+      </div>
+    </details>
+    <div id="status" role="status" aria-live="polite">הקלידו מספר כדי לראות צפנים שמורים בו, או הקלידו מילה וסמנו אותה.</div>
+    <div id="choose" class="choose" hidden></div>
+  </section>
+
+  <div class="layout" id="layout" hidden>
+    <section class="card" aria-label="המטריצה">
+      <div class="panel-h"><h2>המטריצה</h2><label class="zoom">גודל תא<input id="zoom" type="range" min="26" max="46" value="32" aria-label="גודל תא"></label></div>
+      <p class="mx-meta" id="mxMeta"></p>
+      <div class="mx-scroll" id="mxScroll" tabindex="0" aria-label="טבלת האותיות"><div class="matrix" id="matrix"></div></div>
+      <div class="legend" id="legend"></div>
+    </section>
+    <aside class="card" aria-label="ממצאים">
+      <div class="panel-h"><h2>מילים שנמצאו באזור</h2></div>
+      <div class="stats" id="stats"></div>
+      <div class="filters">
+        <div class="seg" id="groupSeg" role="group" aria-label="מה להציג"></div>
+        <label class="f">מיון<select id="sort"><option value="relevance">קרבה לצופן, אחר כך הארוכות</option><option value="rarity">הכי לא צפויות במקרה</option><option value="length">הכי ארוכות</option></select></label>
+        <label class="check"><input id="autoColor" type="checkbox" checked>צבע על המטריצה את החוצים והממשיכים (עד 12)</label>
+      </div>
+      <div class="list" id="list"></div>
+      <button class="btn more" id="more" type="button" hidden>הצג עוד</button>
+    </aside>
+  </div>
+
+  <details class="card explain">
+    <summary>איך זה עובד ומה חשוב לדעת</summary>
+    <ul>
+      <li>דילוג של N אותיות הוא קו ישר במטריצה שרוחבה N: הצופן יושב בעמודה אחת. לכן המספר הוא גם הדילוג וגם הרוחב.</li>
+      <li>המופע של הצופן נלקח ממנוע הדילוגים הקיים (<span class="num">els_search_page_v1</span>). אם המנוע מחזיר מופע אחד בדילוג הזה, הוא נבחר; אם כמה, אתם בוחרים. אם לצופן שמור יש מיקום התחלה שמור, נבחר המופע שמתאים לו.</li>
+      <li>האותיות נקראות מהטבלה הקנונית של התורה (<span class="num">torah_stream</span>, 304,805 אותיות). לפני הסימון נבדק שהאותיות שבתאי הצופן הן בדיוק המילה.</li>
+      <li>המילים שמסביב נמצאות לפי רשימת צורות מילים מהתנ״ך (לא מילון עברית מלא ולא פירוש): כל רצף אותיות בשורה, בעמודה או באלכסון שהוא צורה ברשימה. זה גילוי טכני, לא קביעה שיש בו משמעות.</li>
+      <li>״צפוי במקרה״: כמה מופעים של המילה היו צפויים בכל התורה באותו דילוג אילו האותיות היו אקראיות. מעל 1 זה רעש סטטיסטי רגיל; מילים קצרות כמעט תמיד כאלה. הערך מבוסס על שכיחות האותיות בתורה ואינו מסנן דבר.</li>
+      <li>כל קריאה בדילוג מאומתת מול המנוע (<span class="num">els_verify_occurrence_v1</span>). שורות הן טקסט רגיל של התורה, לא דילוג, ולכן אינן נבדקות במנוע.</li>
+      <li>העמוד קורא בלבד: לא שומר, לא מפרסם ולא קורא את התיאור או הממצאים השמורים של שום צופן.</li>
+    </ul>
+  </details>
+</div>
+
+<script id="md-core">
+/* Pure logic: no DOM, no network. The test loads this block alone. */
+var MD = (function () {
+  "use strict";
+  var FINALS = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
+  function fold(s) { return Array.from(String(s == null ? "" : s)).map(function (c) { return FINALS[c] || c; }).join(""); }
+  function cleanTerm(s) { return fold(s).replace(/[^א-ת]/g, ""); }
+
+  // Letter counts of public.torah_stream (304,805 letters, finals folded), read from the table on 2026-10-28; the test recounts them from the page copy of the same text.
+  var TORAH_LENGTH = 304805;
+  var LETTER_COUNTS = { "א": 27059, "ב": 16345, "ג": 2109, "ד": 7032, "ה": 28056, "ו": 30513, "ז": 2198, "ח": 7189, "ט": 1804, "י": 31531, "כ": 11968, "ל": 21570, "מ": 25090, "נ": 14126, "ס": 1833, "ע": 11250, "פ": 4805, "צ": 3962, "ק": 4695, "ר": 18125, "ש": 15595, "ת": 17950 };
+  function prob(ch) { return (LETTER_COUNTS[ch] || 0) / TORAH_LENGTH; }
+
+  /** Expected number of occurrences of `term` at exactly `skip` (both directions) in the whole Torah if its letters were independent draws with the Torah's own letter frequencies. */
+  function expectedChance(term, skip) {
+    var letters = Array.from(term);
+    if (letters.length < 2 || skip < 2) return null;
+    var starts = TORAH_LENGTH - (letters.length - 1) * skip;
+    if (starts <= 0) return 0;
+    return 2 * starts * letters.reduce(function (p, ch) { return p * prob(ch); }, 1);
+  }
+  function chanceClass(e) { return e === null ? "plain" : e < 0.1 ? "rare" : e < 1 ? "unlikely" : "expected"; }
+
+  /** The window of the matrix of width `width` around (centerRow, centerCol), clipped to rows and columns that exist in the stream (the last row counts only if it holds the window's columns). */
+  function planWindow(o) {
+    var width = o.width, total = o.total || TORAH_LENGTH;
+    var nCols = Math.min(o.cols, width);
+    var c0 = Math.max(0, Math.min(width - nCols, o.centerCol - Math.floor(nCols / 2)));
+    var c1 = c0 + nCols - 1;
+    var lastRow = Math.floor((total - 1) / width);
+    var maxRow = (total - lastRow * width) > c1 ? lastRow : lastRow - 1;
+    var nRows = Math.min(o.rows, maxRow + 1);
+    var r0 = Math.max(0, Math.min(maxRow - nRows + 1, o.centerRow - Math.floor(nRows / 2)));
+    return { width: width, total: total, r0: r0, r1: r0 + nRows - 1, c0: c0, c1: c1, nRows: nRows, nCols: nCols, maxRow: maxRow };
+  }
+  function indexAt(plan, i, j) { return (plan.r0 + i - 1) * plan.width + (plan.c0 + j - 1); }
+  function cellOfIndex(plan, p) {
+    var r = Math.floor(p / plan.width), c = p % plan.width;
+    if (r < plan.r0 || r > plan.r1 || c < plan.c0 || c > plan.c1) return null;
+    return [r - plan.r0 + 1, c - plan.c0 + 1];
+  }
+
+  /** Rows (skip 1), columns (skip W) and both diagonals (skip W+1 and W-1) of an nRows x nCols window, as lists of 1-based [row, column] in increasing stream order. */
+  function buildLines(nRows, nCols) {
+    var lines = [];
+    function walk(i, j, di, dj) { var cells = []; for (var a = i, b = j; a >= 1 && a <= nRows && b >= 1 && b <= nCols; a += di, b += dj) cells.push([a, b]); return cells; }
+    var n = 0, i, j;
+    for (i = 1; i <= nRows; i++) lines.push({ id: "R" + i, kind: "R", cells: walk(i, 1, 0, 1) });
+    for (j = 1; j <= nCols; j++) lines.push({ id: "C" + j, kind: "C", cells: walk(1, j, 1, 0) });
+    for (j = 1; j <= nCols; j++) lines.push({ id: "D" + (++n), kind: "D", cells: walk(1, j, 1, 1) });
+    for (i = 2; i <= nRows; i++) lines.push({ id: "D" + (++n), kind: "D", cells: walk(i, 1, 1, 1) });
+    n = 0;
+    for (j = nCols; j >= 1; j--) lines.push({ id: "A" + (++n), kind: "A", cells: walk(1, j, 1, -1) });
+    for (i = 2; i <= nRows; i++) lines.push({ id: "A" + (++n), kind: "A", cells: walk(i, nCols, 1, -1) });
+    return lines.filter(function (l) { return l.cells.length >= 2; });
+  }
+
+  /** Engine parameters of a reading given the stream positions of its letters in reading order. */
+  function engineParams(positions) {
+    var step = positions.length > 1 ? positions[1] - positions[0] : 0;
+    for (var k = 0; k < positions.length; k++) if (positions[k] !== positions[0] + k * step) throw new Error("cells are not evenly spaced in the stream");
+    return { start: positions[0], skip: Math.abs(step), dir: step > 0 ? 1 : -1, step: step };
+  }
+
+  /**
+   * Every lexicon word (length >= minLen, at least minCount occurrences in the word list) that reads along a row, column or diagonal of the window in either direction.
+   * `grid` is an array of nRows strings of nCols letters; `lexicon` a Map form -> count. With `maximal`, a word wholly inside a longer found word of the same reading is dropped.
+   */
+  function scanWindow(o) {
+    var plan = o.plan, grid = o.grid, lexicon = o.lexicon;
+    var minLen = o.minLen || 3, maxLen = o.maxLen || 16, minCount = o.minCount || 1;
+    var found = [];
+    buildLines(plan.nRows, plan.nCols).forEach(function (line) {
+      [false, true].forEach(function (reversed) {
+        var cells = reversed ? line.cells.slice().reverse() : line.cells;
+        var s = cells.map(function (c) { return (grid[c[0] - 1] || "")[c[1] - 1] || "#"; }).join("");
+        var local = [];
+        for (var a = 0; a + minLen <= s.length; a++) {
+          for (var L = minLen; L <= maxLen && a + L <= s.length; L++) {
+            var w = s.slice(a, a + L), count = lexicon.get(w);
+            if (count !== undefined && count >= minCount) local.push({ a: a, b: a + L, text: w, count: count });
+          }
+        }
+        var kept = o.maximal === false ? local : local.filter(function (x) { return !local.some(function (y) { return y !== x && y.a <= x.a && y.b >= x.b && (y.b - y.a) > (x.b - x.a); }); });
+        kept.forEach(function (x) {
+          var cs = cells.slice(x.a, x.b);
+          var positions = cs.map(function (c) { return indexAt(plan, c[0], c[1]); });
+          var p = engineParams(positions);
+          found.push({ text: x.text, count: x.count, kind: line.kind, lineId: line.id, reversed: reversed, cells: cs, positions: positions, start: p.start, skip: p.skip, dir: p.dir });
+        });
+      });
+    });
+    return found;
+  }
+
+  var key = function (c) { return c[0] + "," + c[1]; };
+  /**
+   * How a finding relates to the cipher (cells + positions + skip):
+   *  inside        every letter belongs to the cipher                                        (hidden by default)
+   *  continuation  on the cipher's own line (same skip and residue) and overlapping or touching it
+   *  crossing      shares at least one cell with the cipher
+   *  near          no shared cell, at most 2 cells away
+   *  other
+   */
+  function relate(f, cipher) {
+    var set = cipher.cellSet || (cipher.cellSet = new Set(cipher.cells.map(key)));
+    var shared = f.cells.filter(function (c) { return set.has(key(c)); }).length;
+    if (shared === f.cells.length) return "inside";
+    if (f.skip > 1 && f.skip === cipher.skip && ((f.positions[0] - cipher.positions[0]) % f.skip + f.skip) % f.skip === 0) {
+      var ks = f.positions.map(function (p) { return (p - cipher.positions[0]) / cipher.step; });
+      var kc = cipher.positions.map(function (p) { return (p - cipher.positions[0]) / cipher.step; });
+      var fmin = Math.min.apply(null, ks), fmax = Math.max.apply(null, ks), cmin = Math.min.apply(null, kc), cmax = Math.max.apply(null, kc);
+      if (fmin <= cmax + 1 && fmax >= cmin - 1) return "continuation";
+    }
+    if (shared > 0) return "crossing";
+    var best = Infinity;
+    f.cells.forEach(function (a) { cipher.cells.forEach(function (b) { best = Math.min(best, Math.max(Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1]))); }); });
+    return best <= 2 ? "near" : "other";
+  }
+
+  var GROUP_RANK = { crossing: 0, continuation: 1, near: 2, other: 3, inside: 4 };
+  function compareBy(mode) {
+    return function (a, b) {
+      if (mode === "rarity") {
+        var ea = a.chance === null ? Infinity : a.chance, eb = b.chance === null ? Infinity : b.chance;
+        return (ea - eb) || (b.text.length - a.text.length);
+      }
+      if (mode === "length") return (b.text.length - a.text.length) || ((a.chance === null ? Infinity : a.chance) - (b.chance === null ? Infinity : b.chance));
+      return (GROUP_RANK[a.relation] - GROUP_RANK[b.relation]) || (b.text.length - a.text.length) || ((a.chance === null ? Infinity : a.chance) - (b.chance === null ? Infinity : b.chance));
+    };
+  }
+
+  /** Word list (Map form -> occurrences) from the verses file { verses: [[book, chapter, verse, text, value], ...] }; finals folded, letters only. */
+  function buildLexicon(data) {
+    var map = new Map();
+    (data.verses || []).forEach(function (v) {
+      String(v[3] || "").split(/[ ־]+/).forEach(function (w) {
+        var f = cleanTerm(w);
+        if (f.length >= 2) map.set(f, (map.get(f) || 0) + 1);
+      });
+    });
+    return map;
+  }
+
+  /** Tells which of the engine hits is the saved one: the hit with the stored start index, else the only hit, else nothing (the user chooses). */
+  function pickHit(hits, storedStart) {
+    if (storedStart !== null && storedStart !== undefined) { var m = hits.filter(function (h) { return h.start === storedStart; }); if (m.length === 1) return { hit: m[0], basis: "stored" }; }
+    if (hits.length === 1) return { hit: hits[0], basis: "only" };
+    return { hit: null, basis: "choose" };
+  }
+
+  return { fold: fold, cleanTerm: cleanTerm, TORAH_LENGTH: TORAH_LENGTH, LETTER_COUNTS: LETTER_COUNTS, expectedChance: expectedChance, chanceClass: chanceClass, planWindow: planWindow, indexAt: indexAt, cellOfIndex: cellOfIndex, buildLines: buildLines, engineParams: engineParams, scanWindow: scanWindow, relate: relate, compareBy: compareBy, buildLexicon: buildLexicon, pickHit: pickHit };
+})();
+if (typeof module !== "undefined") module.exports = MD;
+</script>
+
+<script id="md-app">
+(function () {
+  "use strict";
+  var SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
+  var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
+  var NUMBER_CHIPS = [1820, 10101];
+  var HIGHLIGHTS = ["#FF5D6C", "#4CDEF5", "#68E69D", "#BB9AFF", "#FFAC57", "#FF86CD", "#7DACFF", "#63E6D0", "#C5EC64", "#F9B5A0", "#E5A0F7", "#F2CA75"];
+  var KIND_LABEL = { R: "שורה", C: "עמודה", D: "אלכסון ↙", A: "אלכסון ↘" };
+  var GROUPS = [["continuation", "המשך הצופן"], ["crossing", "חוצים"], ["near", "סמוכים"], ["other", "אחרים"]];
+  var PAGE = 60;
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { skip: 0, width: 0, term: "", hit: null, plan: null, grid: null, cipher: null, lexicon: null, lexiconState: "idle", found: [], shown: PAGE, selected: new Set(), groups: new Set(["continuation", "crossing", "near"]), runId: 0 };
+
+  // ---------- helpers
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) { if (k === "text") n.textContent = attrs[k]; else if (k === "class") n.className = attrs[k]; else n.setAttribute(k, attrs[k]); });
+    (kids || []).forEach(function (c) { n.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function num(x) { return el("span", { class: "num", text: String(x) }); }
+  function fmtE(e) { return e === null ? "—" : e === 0 ? "0" : e >= 100 ? e.toFixed(0) : e >= 1 ? e.toFixed(1) : e.toExponential(1); }
+  function setStatus(text, isErr) { var s = $("status"); s.textContent = text; s.className = isErr ? "err" : ""; }
+  function rpc(name, body) {
+    var url = SUPABASE_URL + "/rest/v1/rpc/" + name;
+    var go = function () { return fetch(url, { method: "POST", headers: { apikey: SUPABASE_ANON, authorization: "Bearer " + SUPABASE_ANON, "content-type": "application/json" }, body: JSON.stringify(body) }); };
+    return go().catch(function () { return new Promise(function (r) { setTimeout(r, 700); }).then(go); }).then(function (r) { return r.text().then(function (t) { if (!r.ok) throw new Error("HTTP " + r.status + " " + t.slice(0, 140)); return JSON.parse(t); }); });
+  }
+  function rest(path) {
+    return fetch(SUPABASE_URL + "/rest/v1/" + path, { headers: { apikey: SUPABASE_ANON, authorization: "Bearer " + SUPABASE_ANON } }).then(function (r) { return r.text().then(function (t) { if (!r.ok) throw new Error("HTTP " + r.status + " " + t.slice(0, 140)); return JSON.parse(t); }); });
+  }
+
+  // ---------- engine: where is the cipher
+  function searchCipher(term, skip) {
+    var hits = [];
+    function page(after) {
+      var body = { p_term: term, p_scope: "torah", p_skip_min: skip, p_skip_max: skip, p_page_size: 100 };
+      if (after) { body.p_after_skip = after.skip; body.p_after_start = after.start; body.p_after_dir = after.dir; }
+      return rpc("els_search_page_v1", body).then(function (res) {
+        if (res.status && res.status !== "OK") throw new Error("המנוע ענה: " + res.status);
+        (res.hits || []).forEach(function (h) { hits.push(h); });
+        var c = res.completion || {};
+        if (c.has_more && c.continuation && hits.length < 200) return page(c.continuation);
+        return { hits: hits, complete: !c.has_more, normalized: res.input && res.input.normalized };
+      });
+    }
+    return page(null);
+  }
+
+  // ---------- letters of the window from the canonical table
+  function fetchWindow(plan) {
+    var rows = [];
+    for (var r = plan.r0; r <= plan.r1; r++) rows.push(r);
+    var chunks = [];
+    for (var k = 0; k < rows.length; k += 14) chunks.push(rows.slice(k, k + 14));
+    return Promise.all(chunks.map(function (chunk) {
+      var or = chunk.map(function (r) { return "and(idx.gte." + (r * plan.width + plan.c0 + 1) + ",idx.lte." + (r * plan.width + plan.c1 + 1) + ")"; }).join(",");
+      return rest("torah_stream?select=idx,ch&or=(" + encodeURIComponent(or) + ")&order=idx.asc&limit=1000");
+    })).then(function (parts) {
+      var byIdx = new Map();
+      parts.forEach(function (rowsPart) { rowsPart.forEach(function (x) { byIdx.set(x.idx, x.ch); }); });
+      var grid = [];
+      for (var i = 1; i <= plan.nRows; i++) {
+        var s = "";
+        for (var j = 1; j <= plan.nCols; j++) { var idx = MD.indexAt(plan, i, j) + 1; s += byIdx.get(idx) || "#"; }
+        grid.push(s);
+      }
+      return grid;
+    });
+  }
+
+  // ---------- rendering: matrix
+  function colorOf(f) { return HIGHLIGHTS[f.colorIndex % HIGHLIGHTS.length]; }
+  function renderMatrix() {
+    var plan = state.plan, m = $("matrix");
+    m.style.gridTemplateColumns = "44px repeat(" + plan.nCols + ", var(--cell))";
+    m.textContent = "";
+    m.appendChild(el("div", { class: "hd", text: "" }));
+    for (var j = 1; j <= plan.nCols; j++) { var c = plan.c0 + j; m.appendChild(el("div", { class: "hd", text: (c % 10 === 0 || j === 1 || j === plan.nCols) ? String(c) : "" })); }
+    for (var i = 1; i <= plan.nRows; i++) {
+      m.appendChild(el("div", { class: "hd row", text: String(plan.r0 + i) }));
+      for (j = 1; j <= plan.nCols; j++) {
+        var ch = state.grid[i - 1][j - 1];
+        var cell = el("div", { class: "cell", "data-i": String(i), "data-j": String(j), title: "שורה " + (plan.r0 + i) + " · עמודה " + (plan.c0 + j) + " · מקום בזרם " + (MD.indexAt(plan, i, j) + 1), text: ch === "#" ? "·" : ch });
+        m.appendChild(cell);
+      }
+    }
+    paintMatrix();
+  }
+  function cellEl(i, j) { return $("matrix").querySelector('.cell[data-i="' + i + '"][data-j="' + j + '"]'); }
+  var painted = [];
+  var coloredIds = new Set();
+  function coloredList() {
+    var visible = visibleFindings(), colored = [];
+    visible.forEach(function (f) { if (state.selected.has(f.id)) colored.push(f); });
+    if ($("autoColor").checked) visible.filter(function (f) { return f.relation === "continuation" || f.relation === "crossing"; }).slice(0, 12).forEach(function (f) { if (colored.indexOf(f) < 0) colored.push(f); });
+    return colored;
+  }
+  function paintMatrix(hoverId) {
+    painted.forEach(function (n) { n.className = "cell"; n.style.background = ""; });
+    painted = [];
+    var mark = function (cells, fn) { cells.forEach(function (c) { var n = cellEl(c[0], c[1]); if (!n) return; fn(n); if (painted.indexOf(n) < 0) painted.push(n); }); };
+    var colored = coloredList();
+    coloredIds = new Set(colored.map(function (f) { return f.id; }));
+    colored.forEach(function (f) { mark(f.cells, function (n) { n.classList.add("mark"); n.style.background = colorOf(f); if (state.selected.has(f.id)) n.classList.add("pinned"); }); });
+    if (state.cipher) mark(state.cipher.cells, function (n) { n.classList.remove("mark"); n.style.background = ""; n.classList.add("axis"); });
+    if (hoverId) { var h = state.found.filter(function (f) { return f.id === hoverId; })[0]; if (h) mark(h.cells, function (n) { n.classList.add("hover"); }); }
+  }
+
+  // ---------- findings
+  function allWithRelation() { return state.found; }
+  function visibleFindings() {
+    var hideInside = $("hideInside").checked;
+    var list = state.found.filter(function (f) { return state.groups.has(f.relation) && !(hideInside && f.relation === "inside"); });
+    return list.sort(MD.compareBy($("sort").value));
+  }
+  function verifyTag(f) {
+    if (f.skip < 2) return el("span", { class: "tag muted", text: "טקסט רגיל של התורה" });
+    if (f.verify === "match") return el("span", { class: "tag ok", text: "✓ אומת במנוע" });
+    if (f.verify === "mismatch") return el("span", { class: "tag bad", text: "המנוע לא אישר" });
+    if (f.verify === "error") return el("span", { class: "tag bad", text: "האימות נכשל" });
+    if (f.verify === "pending") return el("span", { class: "tag muted", text: "מאמת…" });
+    return el("span", { class: "tag muted", text: "טרם אומת" });
+  }
+  var CHANCE_TEXT = { expected: "צפוי במקרה", unlikely: "לא צפוי במקרה", rare: "נדיר מאוד", plain: "" };
+  function renderList() {
+    var list = visibleFindings(), box = $("list");
+    box.textContent = "";
+    list.slice(0, state.shown).forEach(function (f) {
+      var sel = state.selected.has(f.id);
+      var title = el("span", { class: "w" }, [el("span", { text: f.text })]);
+      if (coloredIds.has(f.id)) { var sw = el("span", { class: "sw" }); sw.style.background = colorOf(f); title.appendChild(sw); }
+      var meta = el("span", { class: "m" }, [
+        el("span", {}, [KIND_LABEL[f.kind] + (f.reversed ? " · הפוך" : "") + " · ", num(f.skip < 2 ? "1" : f.skip)]),
+        el("span", {}, [num(f.text.length), " אותיות"]),
+      ]);
+      var tags = el("span", { class: "m" });
+      var relText = { continuation: "המשך הצופן", crossing: "חוצה את הצופן", near: "סמוך לצופן", other: "", inside: "בתוך הצופן" }[f.relation];
+      if (relText) tags.appendChild(el("span", { class: "tag " + (f.relation === "continuation" || f.relation === "crossing" ? "cross" : "muted"), text: relText }));
+      tags.appendChild(verifyTag(f));
+      if (f.chance !== null) { tags.appendChild(el("span", { class: "tag muted" }, [CHANCE_TEXT[MD.chanceClass(f.chance)] + " · ", num("E=" + fmtE(f.chance))])); }
+      var b = el("button", { type: "button", class: "item", "aria-pressed": sel ? "true" : "false", "data-id": f.id }, [title, meta, tags]);
+      b.addEventListener("click", function () { toggle(f); });
+      b.addEventListener("mouseenter", function () { paintMatrix(f.id); });
+      b.addEventListener("mouseleave", function () { paintMatrix(); });
+      b.addEventListener("focus", function () { paintMatrix(f.id); });
+      b.addEventListener("blur", function () { paintMatrix(); });
+      box.appendChild(b);
+    });
+    if (!list.length) box.appendChild(el("p", { class: "mx-meta", text: state.lexiconState === "loading" ? "טוען את רשימת המילים…" : state.lexiconState === "failed" ? "רשימת המילים לא נטענה, ולכן אין גילוי. הצופן עצמו מסומן." : "אין ממצאים בקבוצות שנבחרו. אפשר לשנות את הסינון." }));
+    $("more").hidden = list.length <= state.shown;
+    $("more").textContent = "הצג עוד (נותרו " + (list.length - state.shown) + ")";
+    renderStats();
+    renderGroups();
+  }
+  function renderGroups() {
+    var seg = $("groupSeg"); seg.textContent = "";
+    GROUPS.forEach(function (g) {
+      var n = state.found.filter(function (f) { return f.relation === g[0]; }).length;
+      var b = el("button", { type: "button", "aria-pressed": state.groups.has(g[0]) ? "true" : "false", text: g[1] + " (" + n + ")" });
+      b.addEventListener("click", function () { if (state.groups.has(g[0])) state.groups.delete(g[0]); else state.groups.add(g[0]); state.shown = PAGE; refresh(); });
+      seg.appendChild(b);
+    });
+  }
+  function renderStats() {
+    var box = $("stats"); box.textContent = "";
+    if (!state.cipher) return;
+    var els = state.found.filter(function (f) { return f.skip > 1 && f.relation !== "inside"; });
+    var noise = els.filter(function (f) { return f.chance >= 1; }).length;
+    var cross = state.found.filter(function (f) { return f.relation === "continuation" || f.relation === "crossing"; }).length;
+    var rows = [
+      [["נמצאו ", num(state.found.filter(function (f) { return f.relation !== "inside"; }).length), " מילים באזור (", num($("minLen").value), "+ אותיות); ", num(cross), " מהן חוצות את הצופן או ממשיכות אותו."]],
+      [["מתוך ", num(els.length), " קריאות בדילוג: ", num(noise), " (", num(els.length ? Math.round(100 * noise / els.length) : 0), "%) צפויות במקרה, כלומר רעש סטטיסטי רגיל."]],
+    ];
+    if (state.lexicon) rows.push([["רשימת המילים: ", num(state.lexicon.size.toLocaleString("en-US")), " צורות מהתנ״ך."]]);
+    rows.forEach(function (parts) { var p = el("div"); parts[0].forEach(function (x) { p.appendChild(typeof x === "string" ? document.createTextNode(x) : x); }); box.appendChild(p); });
+  }
+  function refresh() { paintMatrix(); renderList(); }
+  function toggle(f) {
+    if (state.selected.has(f.id)) state.selected.delete(f.id); else { state.selected.add(f.id); verify([f]); }
+    refresh();
+  }
+
+  // ---------- verification through the engine
+  var verifying = 0;
+  function verify(list) {
+    var todo = list.filter(function (f) { return f.skip > 1 && !f.verify; });
+    todo.forEach(function (f) { f.verify = "pending"; });
+    var queue = todo.slice();
+    function worker() {
+      var f = queue.shift();
+      if (!f) return Promise.resolve();
+      return rpc("els_verify_occurrence_v1", { p_term: f.text, p_scope: "torah", p_skip: f.skip, p_dir: f.dir, p_start: f.start })
+        .then(function (res) { f.verify = res.verification_state === "MATCH" ? "match" : "mismatch"; })
+        .catch(function () { f.verify = "error"; })
+        .then(function () { renderListSoon(); return worker(); });
+    }
+    return Promise.all([worker(), worker(), worker(), worker()]);
+  }
+  var soon = 0;
+  function renderListSoon() { if (soon) return; soon = setTimeout(function () { soon = 0; renderList(); }, 150); }
+
+  // ---------- discovery
+  function ensureLexicon() {
+    if (state.lexicon) return Promise.resolve(state.lexicon);
+    if (state.lexiconState === "loading") return state.lexiconPromise;
+    state.lexiconState = "loading";
+    state.lexiconPromise = fetch("/tanakh-verses.json").then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (data) { state.lexicon = MD.buildLexicon(data); state.lexiconState = "ready"; return state.lexicon; })
+      .catch(function () { state.lexiconState = "failed"; return null; });
+    return state.lexiconPromise;
+  }
+  function discover() {
+    if (!state.cipher || !state.grid) return;
+    if (!state.lexicon) { renderList(); return; }
+    var found = MD.scanWindow({ plan: state.plan, grid: state.grid, lexicon: state.lexicon, minLen: Number($("minLen").value), minCount: Number($("minCount").value), maximal: $("maximal").checked });
+    found.forEach(function (f, k) {
+      f.id = "f" + k;
+      f.relation = MD.relate(f, state.cipher);
+      f.chance = f.skip > 1 ? MD.expectedChance(f.text, f.skip) : null;
+    });
+    // stable colours: by order of relevance
+    found.slice().sort(MD.compareBy("relevance")).forEach(function (f, k) { f.colorIndex = k; });
+    state.found = found;
+    state.selected = new Set();
+    state.shown = PAGE;
+    refresh();
+    verify(found.filter(function (f) { return (f.relation === "continuation" || f.relation === "crossing") && f.skip > 1; }).sort(MD.compareBy("relevance")).slice(0, 60));
+  }
+
+  // ---------- main flow
+  function readInputs() {
+    var skip = parseInt($("num").value, 10);
+    var width = $("width").value ? parseInt($("width").value, 10) : skip;
+    var term = MD.cleanTerm($("term").value);
+    return { skip: skip, width: width, term: term };
+  }
+  function validate(inp) {
+    if (!Number.isInteger(inp.skip) || inp.skip < 2 || inp.skip > 150000) return "הקלידו מספר שלם בין 2 ל־150,000.";
+    if (!Number.isInteger(inp.width) || inp.width < 2 || inp.width > 150000) return "רוחב המטריצה חייב להיות מספר שלם בין 2 ל־150,000.";
+    if (inp.term.length < 2) return "הקלידו מילה או ביטוי של שתי אותיות לפחות.";
+    return null;
+  }
+  function run(storedStart) {
+    var inp = readInputs(), bad = validate(inp);
+    if (bad) { setStatus(bad, true); return; }
+    var id = ++state.runId;
+    $("go").disabled = true; $("choose").hidden = true; $("layout").hidden = true;
+    setStatus("מחפש את „" + inp.term + "” בדילוג " + inp.skip + " במנוע…");
+    searchCipher(inp.term, inp.skip).then(function (res) {
+      if (id !== state.runId) return;
+      if (!res.hits.length) { $("layout").hidden = true; setStatus("„" + inp.term + "” לא מופיעה בדילוג " + inp.skip + " בתורה, בשום כיוון.", true); return; }
+      var pick = MD.pickHit(res.hits, storedStart);
+      if (pick.hit) { return open(inp, pick.hit, pick.basis, res, id); }
+      var box = $("choose"); box.textContent = ""; box.hidden = false;
+      setStatus("יש " + res.hits.length + (res.complete ? "" : "+") + " מופעים של „" + inp.term + "” בדילוג " + inp.skip + ". בחרו אחד:");
+      res.hits.slice(0, 40).forEach(function (h) {
+        var row = Math.floor(h.positions[Math.floor((h.positions.length - 1) / 2)] / inp.width), col = h.positions[Math.floor((h.positions.length - 1) / 2)] % inp.width;
+        var b = el("button", { type: "button", class: "btn" }, ["מופע " + (h.dir > 0 ? "קדימה" : "אחורה") + " · התחלה במקום ", num(h.start), " · עמודה ", num(col), " · שורה ", num(row)]);
+        b.addEventListener("click", function () { box.hidden = true; open(inp, h, "chosen", res, state.runId); });
+        box.appendChild(b);
+      });
+    }).catch(function (e) { setStatus("הקריאה למנוע נכשלה: " + e.message, true); }).then(function () { $("go").disabled = false; });
+  }
+  function open(inp, hit, basis, res, id) {
+    var mid = hit.positions[Math.floor((hit.positions.length - 1) / 2)];
+    var dims = $("size").value.split("x").map(Number);
+    var plan = MD.planWindow({ width: inp.width, centerRow: Math.floor(mid / inp.width), centerCol: mid % inp.width, rows: dims[0], cols: dims[1] });
+    setStatus("טוען את אותיות האזור מהטבלה הקנונית…");
+    return fetchWindow(plan).then(function (grid) {
+      if (id !== state.runId) return;
+      // fail closed: the cells of the cipher must spell the term exactly
+      var cells = [], spelled = "";
+      hit.positions.forEach(function (p) { var c = MD.cellOfIndex(plan, p); if (c) { cells.push(c); spelled += grid[c[0] - 1][c[1] - 1]; } });
+      var expectedLetters = hit.positions.map(function (p, k) { return MD.cellOfIndex(plan, p) ? inp.term[k] : ""; }).join("");
+      if (!cells.length) { setStatus("הצופן לא נופל בתוך האזור שנטען (הרוחב שבחרתם מפזר אותו). נסו רוחב שווה לדילוג.", true); return; }
+      if (spelled !== expectedLetters) { $("layout").hidden = true; setStatus("האותיות במטריצה אינן המילה שהמנוע החזיר. לא מסמן. (נמצא „" + spelled + "”, צפוי „" + expectedLetters + "”)", true); return; }
+      var step = hit.positions.length > 1 ? hit.positions[1] - hit.positions[0] : 0;
+      state.skip = inp.skip; state.width = inp.width; state.term = inp.term; state.hit = hit; state.plan = plan; state.grid = grid;
+      state.cipher = { cells: cells, positions: hit.positions, skip: hit.skip, step: step, term: inp.term, basis: basis };
+      state.found = []; state.selected = new Set();
+      $("layout").hidden = false;
+      var total = Math.floor((plan.total - 1) / plan.width) + 1;
+      $("mxMeta").textContent = "";
+      [["האזור: ", num(plan.nRows), " שורות × ", num(plan.nCols), " עמודות, מתוך ", num(total), " שורות ו־", num(plan.width), " עמודות של המטריצה ברוחב ", num(plan.width), ". שורות ", num(plan.r0 + 1), "–", num(plan.r1 + 1), ", עמודות ", num(plan.c0 + 1), "–", num(plan.c1 + 1), "."]][0].forEach(function (x) { $("mxMeta").appendChild(typeof x === "string" ? document.createTextNode(x) : x); });
+      renderLegend();
+      fitCell();
+      renderMatrix();
+      centerOnCipher();
+      var partial = cells.length < hit.positions.length ? " בחלון נראות רק " + cells.length + " מתוך " + hit.positions.length + " אותיות הצופן (הוא לא קו ישר ברוחב הזה)." : "";
+      var basisText = { stored: "המופע נבחר לפי מקום ההתחלה השמור ברשומה.", only: "המנוע מחזיר מופע אחד בלבד בדילוג הזה, והוא המסומן.", chosen: "המופע שבחרתם." }[basis];
+      setStatus("„" + inp.term + "” מסומן בצהוב (" + (hit.dir > 0 ? "קדימה" : "אחורה") + ", מקום התחלה " + hit.start + "). " + basisText + partial + " מחפש מילים נוספות באזור…");
+      try { history.replaceState(null, "", "?n=" + inp.skip + "&t=" + encodeURIComponent(inp.term) + (inp.width !== inp.skip ? "&w=" + inp.width : "")); } catch (e) { /* a file:// page cannot rewrite its address */ }
+      return ensureLexicon().then(function () {
+        if (id !== state.runId) return;
+        discover();
+        setStatus("„" + inp.term + "” מסומן בצהוב (" + (hit.dir > 0 ? "קדימה" : "אחורה") + ", מקום התחלה " + hit.start + "). " + basisText + partial + (state.lexicon ? "" : " רשימת המילים לא נטענה, ולכן אין גילוי."));
+      });
+    }).catch(function (e) { setStatus("טעינת האזור נכשלה: " + e.message, true); });
+  }
+  var zoomTouched = false;
+  function fitCell() {
+    if (zoomTouched) return;
+    var avail = $("mxScroll").clientWidth - 44 - 16;
+    var cell = Math.max(28, Math.min(38, Math.floor(avail / state.plan.nCols)));
+    $("zoom").value = cell;
+    document.documentElement.style.setProperty("--cell", cell + "px");
+  }
+  function centerOnCipher() {
+    var mid = state.cipher.cells[Math.floor((state.cipher.cells.length - 1) / 2)];
+    var n = cellEl(mid[0], mid[1]);
+    if (n && n.scrollIntoView) n.scrollIntoView({ block: "center", inline: "center" });
+    window.scrollTo(0, 0);
+  }
+  function renderLegend() {
+    var lg = $("legend"); lg.textContent = "";
+    var add = function (color, text) { var i = el("i"); i.style.background = color; lg.appendChild(el("span", {}, [i, text])); };
+    add("var(--axis)", "הצופן");
+    add(HIGHLIGHTS[0] + "," + HIGHLIGHTS[1], "מילים שנבחרו או חוצות (צבע לכל מילה)");
+    lg.lastChild.firstChild.style.background = "linear-gradient(90deg," + HIGHLIGHTS[0] + "," + HIGHLIGHTS[1] + "," + HIGHLIGHTS[2] + ")";
+  }
+
+  // ---------- saved ciphers at the number (identity fields only)
+  var savedTimer = 0;
+  function loadSaved() {
+    var n = parseInt($("num").value, 10), box = $("saved");
+    box.textContent = "";
+    if (!Number.isInteger(n) || n < 2) return;
+    var path = "els_records?select=id,slug,title,search_term,scope,skip_distance,start_index&skip_distance=eq." + n + "&scope=eq.torah&status=eq.published&visibility=eq.public&or=(source.is.null,source.neq.research)&order=created_at.desc&limit=20";
+    rest(path).then(function (rows) {
+      if (parseInt($("num").value, 10) !== n) return;
+      box.textContent = "";
+      if (!rows.length) { box.appendChild(el("span", { class: "lab", text: "אין צופן שמור במספר " + n + ". הקלידו מילה כדי לחפש אותה בדילוג המדויק." })); return; }
+      box.appendChild(el("span", { class: "lab", text: "צפנים שמורים במספר " }));
+      box.lastChild.appendChild(num(n)); box.lastChild.appendChild(document.createTextNode(":"));
+      rows.forEach(function (r) {
+        var term = MD.cleanTerm(r.search_term);
+        var b = el("button", { type: "button", class: "chip", text: r.search_term });
+        b.addEventListener("click", function () { $("term").value = r.search_term; run(r.start_index); });
+        box.appendChild(b);
+      });
+    }).catch(function () { box.textContent = ""; box.appendChild(el("span", { class: "lab", text: "לא הצלחתי לטעון את הצפנים השמורים כרגע." })); });
+  }
+
+  // ---------- wiring
+  function setTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    document.querySelectorAll("[data-theme-set]").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-theme-set") === t ? "true" : "false"); });
+    try { localStorage.setItem("md-theme", t); } catch (e) { /* preference only */ }
+  }
+  document.querySelectorAll("[data-theme-set]").forEach(function (b) { b.addEventListener("click", function () { setTheme(b.getAttribute("data-theme-set")); }); });
+  try { var saved = localStorage.getItem("md-theme"); if (saved === "light" || saved === "parchment" || saved === "dark") setTheme(saved); } catch (e) { /* ignore */ }
+
+  NUMBER_CHIPS.forEach(function (n) {
+    var b = el("button", { type: "button", class: "chip", "aria-pressed": "false" }, [num(n)]);
+    b.addEventListener("click", function () { $("num").value = n; $("term").value = ""; markChips(); loadSaved(); });
+    $("numChips").appendChild(b);
+  });
+  function markChips() { var v = $("num").value; $("numChips").querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", c.textContent === v ? "true" : "false"); }); }
+  $("num").addEventListener("input", function () { markChips(); clearTimeout(savedTimer); savedTimer = setTimeout(loadSaved, 350); });
+  $("form").addEventListener("submit", function (e) { e.preventDefault(); run(null); });
+  $("clear").addEventListener("click", function () {
+    state.runId++; $("term").value = ""; $("layout").hidden = true; $("choose").hidden = true; state.cipher = null; state.found = [];
+    setStatus("הקלידו מספר כדי לראות צפנים שמורים בו, או הקלידו מילה וסמנו אותה."); try { history.replaceState(null, "", location.pathname); } catch (e) { /* ignore */ }
+  });
+  $("zoom").addEventListener("input", function () { zoomTouched = true; document.documentElement.style.setProperty("--cell", $("zoom").value + "px"); });
+  $("more").addEventListener("click", function () { state.shown += PAGE; renderList(); });
+  ["sort", "autoColor", "hideInside"].forEach(function (id) { $(id).addEventListener("change", function () { state.shown = PAGE; refresh(); }); });
+  ["minLen", "minCount", "maximal"].forEach(function (id) { $(id).addEventListener("change", discover); });
+  $("size").addEventListener("change", function () { if (state.cipher) run(null); });
+
+  var q = new URLSearchParams(location.search);
+  if (q.get("n")) $("num").value = q.get("n");
+  if (q.get("w")) { $("width").value = q.get("w"); document.querySelector("details.adv").open = true; }
+  if (q.get("t")) $("term").value = q.get("t");
+  markChips();
+  if ($("num").value) loadSaved();
+  if ($("num").value && $("term").value) run(null);
+})();
+</script>
+</body>
+</html>
