@@ -17,3 +17,7 @@ Embedded source text read and all five hash-matched page renders inspected. Adde
 ## Checkpoint 2 · PDF 51–55
 
 Read the embedded source and visually inspected all five source pages. Added 15 units covering Isaac's family/letter omissions/five senses; the well/sticks/Issachar; family witness/tithe/dual messengers; Bet El/paragraph breaks/language; and Joseph's dreams/future cosmology/ethics of the dotted את. Astronomical and linguistic proposals remain attributed companion explanations of the author's reasoning, not present-day scientific findings or newly certified quotations. Total: 10 expanded pages / 30 selected units. The same content and preservation tests pass; no new numeric reading or engine result.
+
+## Checkpoint 3 · PDF 56–60
+
+Five more embedded texts read and page images inspected. Added 15 units on agency versus omens, Judah, Joseph's trust, hunger/peace, Benjamin, care for Jacob, Asenath/mnemonics, Judah/Joseph, blessings, prayer, Benjamin/Judah, oaths, אני/אנכי and the stages of the Egyptian deliverance. Source-proposed historical and numerical associations remain the author's arguments; no totals or literal quotations were newly certified. Total 15 expanded pages / 45 selected units, covering the Genesis run and the opening of Exodus. Focused content and preservation checks pass.
