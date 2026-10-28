@@ -31,4 +31,7 @@ A live run needs the temporary request-locked pass-through (deployed only after 
 
 ## Status
 
-Offline stage done and committed; no model has been called. Spend so far: USD 28.72293 of the USD 40 total cap (pilot cap USD 8 on top of that).
+**Done (28.10.2026).** Offline stage, then the live stage with ZURIEL's approval: 22 requests, all answered, no retry; pilot cost USD 2.826 (cap 8), total spent 31.549 of 40. The temporary function is disabled (410 stub) and the token deleted.
+Read first: [`results/pilot-results-note.md`](results/pilot-results-note.md) (conclusions and limits) and [`results/offline-q1-q2.md`](results/offline-q1-q2.md) (pool and geometry questions); tables: [`controls/summary.md`](controls/summary.md); every original proposal with its verdict: [`results/proposals.md`](results/proposals.md).
+Short version: the known pair is not in the word-list pool (pool-creation failure); when forced into the pool (diagnostic arm D1) none of 3 runs grouped it; free proposals without a list found no new ELS word; the geometry alone (collinear words, a word beside the axis) is produced by every control window.
+Any further run (more tiles, more repeats, a pool that also takes names) needs a new decision and a new approval of the temporary function.

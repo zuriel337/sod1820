@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "model": "claude-sonnet-5-5",
+  "display_name": "Claude Sonnet 5.5",
+  "listed": true,
+  "max_input_tokens": 1000000,
+  "max_tokens_limit": 128000,
+  "checks": {
+    "structured_outputs": true,
+    "thinking_setting": true,
+    "effort_level": true,
+    "max_tokens_within_model_limit": true
+  },
+  "input_tokens_counted": 20392,
+  "note": "count excludes the structured-output schema, which the API adds; the real input is slightly larger",
+  "upper_bound_usd": 0.371,
+  "request_sha256": "0daf1190e5a5ac99fceec3fa0b708c9c075193af1b747dbf41c5a78ae5135a8e",
+  "lock_sha256": "78daa76a759efaaa8647ffd8ad3d9703bdda1b7c73c01b03acea094e34062bad"
+}

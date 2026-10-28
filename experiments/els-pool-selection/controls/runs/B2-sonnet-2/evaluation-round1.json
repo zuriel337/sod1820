@@ -1,0 +1,770 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F036",
+          "F044",
+          "F127",
+          "F146",
+          "F176",
+          "F201",
+          "F108"
+        ],
+        "relation_ids": [
+          "R0009",
+          "R0035",
+          "R0036",
+          "R0037",
+          "R0053",
+          "R0065",
+          "R0822",
+          "R0823"
+        ],
+        "kind": "cluster",
+        "why": "צביר של ממצאי K4 ברוחב חופף (המשך והקבלה בין F044, F127, F146, F176, F201, F108). הם נחתכים באזור סביב ציר 'אורניום', אך הרצפים הללו הם רעש רגיל, שכן ערכי ה-E שלהם גבוהים (10 עד 28)."
+      },
+      {
+        "ids": [
+          "F066",
+          "F082",
+          "F107",
+          "F200"
+        ],
+        "relation_ids": [
+          "R0017",
+          "R0018",
+          "R0022",
+          "R0129",
+          "R0136"
+        ],
+        "kind": "chain",
+        "why": "שלושה ממצאי A1 בהמשך זה אחר זה (F066, F082, F107) ועוד F200 באותו קו. מבנה צפוף אך בעל E גבוה."
+      },
+      {
+        "ids": [
+          "F043",
+          "F162",
+          "F163",
+          "F051"
+        ],
+        "relation_ids": [
+          "R0007",
+          "R0008",
+          "R0062",
+          "R0816",
+          "R0817"
+        ],
+        "kind": "cluster",
+        "why": "F043 ממשיך את F162 ו-F163, ו-F051 מקביל להם. קבוצת K2 חופפת סביב אותו אזור."
+      },
+      {
+        "ids": [
+          "F129",
+          "F191",
+          "F212",
+          "F214"
+        ],
+        "relation_ids": [
+          "R0045",
+          "R0046",
+          "R0067",
+          "R0842",
+          "R0843"
+        ],
+        "kind": "chain",
+        "why": "שרשרת K1 של המשכים והקבלות עם חפיפה גבוהה. E גבוה (6 עד 22), ולכן כנראה מקרי."
+      },
+      {
+        "ids": [
+          "F086",
+          "F087",
+          "F088",
+          "F123",
+          "F124"
+        ],
+        "relation_ids": [
+          "R0025",
+          "R0026",
+          "R0027",
+          "R0042"
+        ],
+        "kind": "cluster",
+        "why": "שלוש הופעות של שם ה' בטקסט הרגיל עם חפיפה בין ואליהו לאליהוה, בשורות 10 ו-13. זהו ממצא טקסטואלי."
+      },
+      {
+        "ids": [
+          "F143",
+          "F145",
+          "F147",
+          "F148",
+          "F149"
+        ],
+        "relation_ids": [
+          "R0050",
+          "R0051",
+          "R0052",
+          "R0055",
+          "R0056",
+          "R0057"
+        ],
+        "kind": "chain",
+        "why": "המאור, אורו, ואתכליה ואתנרתיה בשורה 14 מתחברים כשרשרת המשכים בטקסט הרגיל. זה קרוב לציר אורניום באות 'אור'."
+      },
+      {
+        "ids": [
+          "F272",
+          "F273",
+          "F274",
+          "F275"
+        ],
+        "relation_ids": [
+          "R0086",
+          "R0087",
+          "R0088",
+          "R0089"
+        ],
+        "kind": "chain",
+        "why": "שרשרת טקסט בשורה 28: עליהוה, יהוהאלהיכם, אלהיכם, המוציא."
+      },
+      {
+        "ids": [
+          "F227",
+          "F228",
+          "F229"
+        ],
+        "relation_ids": [
+          "R0075",
+          "R0076"
+        ],
+        "kind": "chain",
+        "why": "שלוש מילים רצופות בשורה 21 בטקסט הרגיל."
+      },
+      {
+        "ids": [
+          "F090",
+          "F092",
+          "F093",
+          "F095",
+          "F096",
+          "F097"
+        ],
+        "relation_ids": [
+          "R0028",
+          "R0029",
+          "R0030",
+          "R0031",
+          "R0032"
+        ],
+        "kind": "chain",
+        "why": "שרשרת טקסט רצוף בשורה 11, ארץ מצרים עד ועל אהרן."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F049",
+        "why": "אונו בעמודה בדילוג על הציר, עם E גבוה."
+      },
+      {
+        "id": "F079",
+        "why": "ואיה בהמשך ל-F049, E=41 ולכן כנראה מקרי."
+      },
+      {
+        "id": "F057",
+        "why": "נציבים, E נמוך מאוד אך בלי קשר ברור."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F139",
+          "F140",
+          "F141"
+        ],
+        "why": "שלוש מילים ברצף בשורה 14: את השלחן, ואת כליו, ואת כלי."
+      },
+      {
+        "ids": [
+          "F056",
+          "F058",
+          "F059"
+        ],
+        "why": "בני ישראל ממצרים ויאמר ברצף בשורה 9."
+      },
+      {
+        "ids": [
+          "F119",
+          "F120",
+          "F121",
+          "F122"
+        ],
+        "why": "ועל ראשו והקטרת את כל האיל המזבחה ברצף בשורה 13."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F090",
+        "before_letters": "לצאתממ",
+        "after_letters": "וילינו",
+        "why": "ארץ מצרים נמשך בטקסט למילים וילינו."
+      }
+    ],
+    "chance_note": "רוב החיתוכים והסמיכויות הם תוצר של צפיפות הממצאים, והקבלות בין שורות טקסט הן תוצאה של אותו טקסט. ממצאים עם E גבוה מאוד הם רעש צפוי."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "צביר של ממצאי K4 ברוחב חופף (המשך והקבלה בין F044, F127, F146, F176, F201, F108)"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "שלושה ממצאי A1 בהמשך זה אחר זה (F066, F082, F107) ועוד F200 באותו קו. מבנה צפוף "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "F043 ממשיך את F162 ו-F163, ו-F051 מקביל להם. קבוצת K2 חופפת סביב אותו אזור."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "שרשרת K1 של המשכים והקבלות עם חפיפה גבוהה. E גבוה (6 עד 22), ולכן כנראה מקרי."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "שלוש הופעות של שם ה' בטקסט הרגיל עם חפיפה בין ואליהו לאליהוה, בשורות 10 ו-13. זה"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[5].why",
+      "detail": "המאור, אורו, ואתכליה ואתנרתיה בשורה 14 מתחברים כשרשרת המשכים בטקסט הרגיל. זה קרו"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[6].why",
+      "detail": "שרשרת טקסט בשורה 28: עליהוה, יהוהאלהיכם, אלהיכם, המוציא."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[7].why",
+      "detail": "שלוש מילים רצופות בשורה 21 בטקסט הרגיל."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[8].why",
+      "detail": "שרשרת טקסט רצוף בשורה 11, ארץ מצרים עד ועל אהרן."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "ואיה בהמשך ל-F049, E=41 ולכן כנראה מקרי."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[0].why",
+      "detail": "שלוש מילים ברצף בשורה 14: את השלחן, ואת כליו, ואת כלי."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[1].why",
+      "detail": "בני ישראל ממצרים ויאמר ברצף בשורה 9."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[2].why",
+      "detail": "ועל ראשו והקטרת את כל האיל המזבחה ברצף בשורה 13."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F036",
+        "F044",
+        "F127",
+        "F146",
+        "F176",
+        "F201",
+        "F108"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0009",
+        "R0035",
+        "R0036",
+        "R0037",
+        "R0053",
+        "R0065",
+        "R0822",
+        "R0823"
+      ],
+      "claimed_ok": [
+        "R0009",
+        "R0035",
+        "R0036",
+        "R0037",
+        "R0053",
+        "R0065",
+        "R0822",
+        "R0823"
+      ],
+      "why": "צביר של ממצאי K4 ברוחב חופף (המשך והקבלה בין F044, F127, F146, F176, F201, F108). הם נחתכים באזור סביב ציר 'אורניום', אך הרצפים הללו הם רעש רגיל, שכן ערכי ה-E שלהם גבוהים (10 עד 28).",
+      "order": 1,
+      "stats": {
+        "size": 7,
+        "relations_any": 19,
+        "relations_listed": 15,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 7,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F066",
+        "F082",
+        "F107",
+        "F200"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0017",
+        "R0018",
+        "R0022",
+        "R0129",
+        "R0136"
+      ],
+      "claimed_ok": [
+        "R0017",
+        "R0018",
+        "R0022",
+        "R0129",
+        "R0136"
+      ],
+      "why": "שלושה ממצאי A1 בהמשך זה אחר זה (F066, F082, F107) ועוד F200 באותו קו. מבנה צפוף אך בעל E גבוה.",
+      "order": 2,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F043",
+        "F162",
+        "F163",
+        "F051"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0816",
+        "R0817"
+      ],
+      "claimed_ok": [
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0816",
+        "R0817"
+      ],
+      "why": "F043 ממשיך את F162 ו-F163, ו-F051 מקביל להם. קבוצת K2 חופפת סביב אותו אזור.",
+      "order": 3,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F129",
+        "F191",
+        "F212",
+        "F214"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0842",
+        "R0843"
+      ],
+      "claimed_ok": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0842",
+        "R0843"
+      ],
+      "why": "שרשרת K1 של המשכים והקבלות עם חפיפה גבוהה. E גבוה (6 עד 22), ולכן כנראה מקרי.",
+      "order": 4,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F086",
+        "F087",
+        "F088",
+        "F123",
+        "F124"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0025",
+        "R0026",
+        "R0027",
+        "R0042"
+      ],
+      "claimed_ok": [
+        "R0025",
+        "R0026",
+        "R0027",
+        "R0042"
+      ],
+      "why": "שלוש הופעות של שם ה' בטקסט הרגיל עם חפיפה בין ואליהו לאליהוה, בשורות 10 ו-13. זהו ממצא טקסטואלי.",
+      "order": 5,
+      "stats": {
+        "size": 5,
+        "relations_any": 4,
+        "relations_listed": 4,
+        "connected_share_any": 0.6,
+        "connected_share_listed": 0.6,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F143",
+        "F145",
+        "F147",
+        "F148",
+        "F149"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0050",
+        "R0051",
+        "R0052",
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "claimed_ok": [
+        "R0050",
+        "R0051",
+        "R0052",
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "why": "המאור, אורו, ואתכליה ואתנרתיה בשורה 14 מתחברים כשרשרת המשכים בטקסט הרגיל. זה קרוב לציר אורניום באות 'אור'.",
+      "order": 6,
+      "stats": {
+        "size": 5,
+        "relations_any": 9,
+        "relations_listed": 9,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F272",
+        "F273",
+        "F274",
+        "F275"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0086",
+        "R0087",
+        "R0088",
+        "R0089"
+      ],
+      "claimed_ok": [
+        "R0086",
+        "R0087",
+        "R0088",
+        "R0089"
+      ],
+      "why": "שרשרת טקסט בשורה 28: עליהוה, יהוהאלהיכם, אלהיכם, המוציא.",
+      "order": 7,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F227",
+        "F228",
+        "F229"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0075",
+        "R0076"
+      ],
+      "claimed_ok": [
+        "R0075",
+        "R0076"
+      ],
+      "why": "שלוש מילים רצופות בשורה 21 בטקסט הרגיל.",
+      "order": 8,
+      "stats": {
+        "size": 3,
+        "relations_any": 2,
+        "relations_listed": 2,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F090",
+        "F092",
+        "F093",
+        "F095",
+        "F096",
+        "F097"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0028",
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0032"
+      ],
+      "claimed_ok": [
+        "R0028",
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0032"
+      ],
+      "why": "שרשרת טקסט רצוף בשורה 11, ארץ מצרים עד ועל אהרן.",
+      "order": 9,
+      "stats": {
+        "size": 6,
+        "relations_any": 8,
+        "relations_listed": 8,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 6
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F049",
+      "why": "אונו בעמודה בדילוג על הציר, עם E גבוה.",
+      "order": 1
+    },
+    {
+      "id": "F079",
+      "why": "ואיה בהמשך ל-F049, E=41 ולכן כנראה מקרי.",
+      "order": 2
+    },
+    {
+      "id": "F057",
+      "why": "נציבים, E נמוך מאוד אך בלי קשר ברור.",
+      "order": 3
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F139",
+        "F140",
+        "F141"
+      ],
+      "why": "שלוש מילים ברצף בשורה 14: את השלחן, ואת כליו, ואת כלי.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 131479,
+        "skip": 1,
+        "dir": 1,
+        "length": 23
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F056",
+        "F058",
+        "F059"
+      ],
+      "why": "בני ישראל ממצרים ויאמר ברצף בשורה 9.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 80999,
+        "skip": 1,
+        "dir": 1,
+        "length": 19
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F119",
+        "F120",
+        "F121",
+        "F122"
+      ],
+      "why": "ועל ראשו והקטרת את כל האיל המזבחה ברצף בשורה 13.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 121386,
+        "skip": 1,
+        "dir": 1,
+        "length": 26
+      },
+      "engine": {
+        "key": "phrase:2",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F090",
+      "before_letters": "לצאתממ",
+      "after_letters": "וילינו",
+      "why": "ארץ מצרים נמשך בטקסט למילים וילינו.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 101192,
+        "skip": 1,
+        "dir": 1,
+        "length": 20,
+        "before": "לצאתממ",
+        "after": "וילינו"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:2",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    }
+  ]
+}

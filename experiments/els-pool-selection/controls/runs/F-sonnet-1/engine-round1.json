@@ -1,0 +1,234 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "בריהוה",
+        "start": 141606,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בריהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "אלבניישראל",
+        "start": 141631,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אלבניישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "ניישראל",
+        "start": 81000,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ניישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "בנייש",
+        "start": 101217,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "בנייש",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "במדבר",
+        "start": 101237,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "במדבר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "ליהוה",
+        "start": 121418,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ליהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.1",
+        "term": "ליהוה",
+        "start": 121434,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ליהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "המאור",
+        "start": 131520,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "המאור",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "נרתיהואתשמ",
+        "start": 131535,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "נרתיהואתשמ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "תבואת",
+        "start": 111303,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "תבואת",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f11.0",
+        "term": "ואכלו",
+        "start": 111328,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ואכלו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f12.0",
+        "term": "העלה",
+        "start": 121411,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "העלה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f14.0",
+        "term": "רשעימ",
+        "start": 91126,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "רשעימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f15.0",
+        "term": "העתיר",
+        "start": 91131,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "העתיר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f16.0",
+        "term": "ויסמכ",
+        "start": 151732,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויסמכ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f17.0",
+        "term": "אהרנובניו",
+        "start": 151738,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אהרנובניו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f18.0",
+        "term": "יעקבב",
+        "start": 70929,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "יעקבב",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f19.0",
+        "term": "שמעתי",
+        "start": 60803,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "שמעתי",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f20.0",
+        "term": "מספר",
+        "start": 50718,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "מספר",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      }
+    ]
+  }
+]

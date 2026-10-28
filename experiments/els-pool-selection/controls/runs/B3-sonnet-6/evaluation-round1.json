@@ -1,0 +1,847 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F056",
+          "F057",
+          "F092",
+          "F139",
+          "F141",
+          "F177",
+          "F190",
+          "F202"
+        ],
+        "relation_ids": [
+          "R0013",
+          "R0014",
+          "R0015",
+          "R0016",
+          "R0033",
+          "R0034",
+          "R0051",
+          "R0949",
+          "R0950"
+        ],
+        "kind": "cluster",
+        "why": "צביר של ממצאי K2 מקבילים עם המשכים חופפים ביניהם (F056-F139, F057-F092-F141-F177). הם יושבים זה על גבי זה באותו אזור, אבל אין קשר סמנטי ביניהם, ו-E של F056 גבוה."
+      },
+      {
+        "ids": [
+          "F028",
+          "F103",
+          "F125",
+          "F158",
+          "F159",
+          "F188"
+        ],
+        "relation_ids": [
+          "R0004",
+          "R0005",
+          "R0006",
+          "R0040",
+          "R0041",
+          "R0042",
+          "R0046",
+          "R0059",
+          "R0061"
+        ],
+        "kind": "cluster",
+        "why": "צביר של ממצאי K4 על אותו קו או בקווים צמודים עם שרשרת המשכים חופפים. גם כאן ה-E גבוה ברוב המילים, ולכן נראה שהמבנה נובע מצפיפות הקו ולא ממשמעות."
+      },
+      {
+        "ids": [
+          "F088",
+          "F129",
+          "F145"
+        ],
+        "relation_ids": [
+          "R0030",
+          "R0031",
+          "R0048"
+        ],
+        "kind": "chain",
+        "why": "הורה, הרוה ומהרו הם אותן אותיות בצורות שונות, בהמשכים חופפים על קו D1. זה נובע מהאותיות עצמן, וה-E גבוה."
+      },
+      {
+        "ids": [
+          "F050",
+          "F051",
+          "F052"
+        ],
+        "relation_ids": [
+          "R0010",
+          "R0011",
+          "R0012"
+        ],
+        "kind": "chain",
+        "why": "ישמעון, שמעוני ומעונים הם הזזות של אותו רצף אותיות בטקסט הרגיל, ולכן החפיפה ביניהם צפויה."
+      },
+      {
+        "ids": [
+          "F259",
+          "F260",
+          "F261"
+        ],
+        "relation_ids": [
+          "R0089",
+          "R0090",
+          "R0091"
+        ],
+        "kind": "chain",
+        "why": "אשר דבר, דבר יהוה ויהוה אלי הם צירוף רציף בשורה אחת של הטקסט."
+      },
+      {
+        "ids": [
+          "F172",
+          "F173",
+          "F174"
+        ],
+        "relation_ids": [
+          "R0067",
+          "R0068",
+          "R0069"
+        ],
+        "kind": "chain",
+        "why": "את המזבח, מזבחו ואת הדמ נמשכים בטקסט רציף בשורה אחת."
+      },
+      {
+        "ids": [
+          "F276",
+          "F277",
+          "F278",
+          "F279"
+        ],
+        "relation_ids": [
+          "R0095",
+          "R0096",
+          "R0097",
+          "R0098"
+        ],
+        "kind": "chain",
+        "why": "את יהוה, יהוה אלהיכם, אלהיכם ובכל לבבכם הם צירוף מחובר בטקסט הרגיל."
+      },
+      {
+        "ids": [
+          "F224",
+          "F225",
+          "F223",
+          "F221"
+        ],
+        "relation_ids": [
+          "R0080",
+          "R0081",
+          "R0082"
+        ],
+        "kind": "chain",
+        "why": "משמרת, המקדש, למשמרת ובני ישראל הם רצף בשורה אחת של הטקסט."
+      },
+      {
+        "ids": [
+          "F066",
+          "F067",
+          "F068",
+          "F069",
+          "F070",
+          "F072"
+        ],
+        "relation_ids": [
+          "R0021",
+          "R0022",
+          "R0023",
+          "R0024"
+        ],
+        "kind": "chain",
+        "why": "רשימת העמים בשורה 9 מחוברת כרצף טקסט: הכנעני, האמרי, הפרזי, החוי והיבוסי."
+      },
+      {
+        "ids": [
+          "F037",
+          "F076",
+          "F078",
+          "F054"
+        ],
+        "relation_ids": [
+          "R0242",
+          "R0243",
+          "R0244"
+        ],
+        "kind": "cluster",
+        "why": "F037 (C) חוצה כמה ממצאי טקסט באזור הציר (עמודה 51). המילים אונו, סיוע ועתה אינן קשורות זו לזו."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F037",
+        "why": "אונו על קו העמודה של הציר עם המשך אליו, אך E=22.6 גבוה ולכן צפוי במקרה."
+      },
+      {
+        "id": "F250",
+        "why": "להקדיש עם E נמוך מאוד (5.0e-3), כלומר נדיר בדילוג הזה. ללא קשר ברור לשאר."
+      },
+      {
+        "id": "F010",
+        "why": "אחריות עם E נמוך (3.9e-2), דילוג נדיר יחסית."
+      },
+      {
+        "id": "F186",
+        "why": "ונחשון עם E נמוך מאוד (1.1e-2)."
+      },
+      {
+        "id": "F118",
+        "why": "ובקשתי עם E נמוך מאוד (1.1e-2)."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F259",
+          "F260",
+          "F261"
+        ],
+        "why": "אשר דבר יהוה אלי: צירוף רציף בטקסט."
+      },
+      {
+        "ids": [
+          "F276",
+          "F277",
+          "F279"
+        ],
+        "why": "את יהוה אלהיכם בכל לבבכם: רצף בטקסט."
+      },
+      {
+        "ids": [
+          "F058",
+          "F060",
+          "F061"
+        ],
+        "why": "ושאול, ולבנה, בנה כנענית: רצף חופף בשורה 8."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F037",
+        "before_letters": "פהוקק",
+        "after_letters": "לוקאבכ",
+        "why": "אונו בקו העמודה ללא הרחבה מילולית ברורה."
+      },
+      {
+        "id": "F250",
+        "before_letters": "וגח",
+        "after_letters": "תפנמקי",
+        "why": "האותיות סביב להקדיש אינן יוצרות מילים."
+      }
+    ],
+    "chance_note": "רוב היחסים, ובעיקר צביר K2/K4 ואלפי יחסי הסמוך והחיתוך, נראים מקריים. הם נובעים מצפיפות הממצאים באזור, ו-E גבוה ברוב המילים הללו."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "chance_note",
+      "detail": "רוב היחסים, ובעיקר צביר K2/K4 ואלפי יחסי הסמוך והחיתוך, נראים מקריים. הם נובעים "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "צביר של ממצאי K2 מקבילים עם המשכים חופפים ביניהם (F056-F139, F057-F092-F141-F177"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "צביר של ממצאי K4 על אותו קו או בקווים צמודים עם שרשרת המשכים חופפים. גם כאן ה-E "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "הורה, הרוה ומהרו הם אותן אותיות בצורות שונות, בהמשכים חופפים על קו D1. זה נובע מ"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[8].why",
+      "detail": "רשימת העמים בשורה 9 מחוברת כרצף טקסט: הכנעני, האמרי, הפרזי, החוי והיבוסי."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[9].why",
+      "detail": "F037 (C) חוצה כמה ממצאי טקסט באזור הציר (עמודה 51). המילים אונו, סיוע ועתה אינן "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[0].why",
+      "detail": "אונו על קו העמודה של הציר עם המשך אליו, אך E=22.6 גבוה ולכן צפוי במקרה."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "להקדיש עם E נמוך מאוד (5.0e-3), כלומר נדיר בדילוג הזה. ללא קשר ברור לשאר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[2].why",
+      "detail": "אחריות עם E נמוך (3.9e-2), דילוג נדיר יחסית."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "ונחשון עם E נמוך מאוד (1.1e-2)."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[4].why",
+      "detail": "ובקשתי עם E נמוך מאוד (1.1e-2)."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[2].why",
+      "detail": "ושאול, ולבנה, בנה כנענית: רצף חופף בשורה 8."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F056",
+        "F057",
+        "F092",
+        "F139",
+        "F141",
+        "F177",
+        "F190",
+        "F202"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0013",
+        "R0014",
+        "R0015",
+        "R0016",
+        "R0033",
+        "R0034",
+        "R0051",
+        "R0949",
+        "R0950"
+      ],
+      "claimed_ok": [
+        "R0013",
+        "R0014",
+        "R0015",
+        "R0016",
+        "R0033",
+        "R0034",
+        "R0051",
+        "R0949",
+        "R0950"
+      ],
+      "why": "צביר של ממצאי K2 מקבילים עם המשכים חופפים ביניהם (F056-F139, F057-F092-F141-F177). הם יושבים זה על גבי זה באותו אזור, אבל אין קשר סמנטי ביניהם, ו-E של F056 גבוה.",
+      "order": 1,
+      "stats": {
+        "size": 8,
+        "relations_any": 28,
+        "relations_listed": 26,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 6,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F028",
+        "F103",
+        "F125",
+        "F158",
+        "F159",
+        "F188"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0004",
+        "R0005",
+        "R0006",
+        "R0040",
+        "R0041",
+        "R0042",
+        "R0046",
+        "R0059",
+        "R0061"
+      ],
+      "claimed_ok": [
+        "R0004",
+        "R0005",
+        "R0006",
+        "R0040",
+        "R0041",
+        "R0042",
+        "R0046",
+        "R0059",
+        "R0061"
+      ],
+      "why": "צביר של ממצאי K4 על אותו קו או בקווים צמודים עם שרשרת המשכים חופפים. גם כאן ה-E גבוה ברוב המילים, ולכן נראה שהמבנה נובע מצפיפות הקו ולא ממשמעות.",
+      "order": 2,
+      "stats": {
+        "size": 6,
+        "relations_any": 15,
+        "relations_listed": 15,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 6,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F088",
+        "F129",
+        "F145"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0030",
+        "R0031",
+        "R0048"
+      ],
+      "claimed_ok": [
+        "R0030",
+        "R0031",
+        "R0048"
+      ],
+      "why": "הורה, הרוה ומהרו הם אותן אותיות בצורות שונות, בהמשכים חופפים על קו D1. זה נובע מהאותיות עצמן, וה-E גבוה.",
+      "order": 3,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F050",
+        "F051",
+        "F052"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0010",
+        "R0011",
+        "R0012"
+      ],
+      "claimed_ok": [
+        "R0010",
+        "R0011",
+        "R0012"
+      ],
+      "why": "ישמעון, שמעוני ומעונים הם הזזות של אותו רצף אותיות בטקסט הרגיל, ולכן החפיפה ביניהם צפויה.",
+      "order": 4,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F259",
+        "F260",
+        "F261"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0089",
+        "R0090",
+        "R0091"
+      ],
+      "claimed_ok": [
+        "R0089",
+        "R0090",
+        "R0091"
+      ],
+      "why": "אשר דבר, דבר יהוה ויהוה אלי הם צירוף רציף בשורה אחת של הטקסט.",
+      "order": 5,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F172",
+        "F173",
+        "F174"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0067",
+        "R0068",
+        "R0069"
+      ],
+      "claimed_ok": [
+        "R0067",
+        "R0068",
+        "R0069"
+      ],
+      "why": "את המזבח, מזבחו ואת הדמ נמשכים בטקסט רציף בשורה אחת.",
+      "order": 6,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F276",
+        "F277",
+        "F278",
+        "F279"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0095",
+        "R0096",
+        "R0097",
+        "R0098"
+      ],
+      "claimed_ok": [
+        "R0095",
+        "R0096",
+        "R0097",
+        "R0098"
+      ],
+      "why": "את יהוה, יהוה אלהיכם, אלהיכם ובכל לבבכם הם צירוף מחובר בטקסט הרגיל.",
+      "order": 7,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F224",
+        "F225",
+        "F223",
+        "F221"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0080",
+        "R0081",
+        "R0082"
+      ],
+      "claimed_ok": [
+        "R0080",
+        "R0081",
+        "R0082"
+      ],
+      "why": "משמרת, המקדש, למשמרת ובני ישראל הם רצף בשורה אחת של הטקסט.",
+      "order": 8,
+      "stats": {
+        "size": 4,
+        "relations_any": 5,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F066",
+        "F067",
+        "F068",
+        "F069",
+        "F070",
+        "F072"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0021",
+        "R0022",
+        "R0023",
+        "R0024"
+      ],
+      "claimed_ok": [
+        "R0021",
+        "R0022",
+        "R0023",
+        "R0024"
+      ],
+      "why": "רשימת העמים בשורה 9 מחוברת כרצף טקסט: הכנעני, האמרי, הפרזי, החוי והיבוסי.",
+      "order": 9,
+      "stats": {
+        "size": 6,
+        "relations_any": 7,
+        "relations_listed": 7,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 6
+      }
+    },
+    {
+      "ids": [
+        "F037",
+        "F076",
+        "F078",
+        "F054"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0242",
+        "R0243",
+        "R0244"
+      ],
+      "claimed_ok": [
+        "R0242",
+        "R0243",
+        "R0244"
+      ],
+      "why": "F037 (C) חוצה כמה ממצאי טקסט באזור הציר (עמודה 51). המילים אונו, סיוע ועתה אינן קשורות זו לזו.",
+      "order": 10,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F037",
+      "why": "אונו על קו העמודה של הציר עם המשך אליו, אך E=22.6 גבוה ולכן צפוי במקרה.",
+      "order": 1
+    },
+    {
+      "id": "F250",
+      "why": "להקדיש עם E נמוך מאוד (5.0e-3), כלומר נדיר בדילוג הזה. ללא קשר ברור לשאר.",
+      "order": 2
+    },
+    {
+      "id": "F010",
+      "why": "אחריות עם E נמוך (3.9e-2), דילוג נדיר יחסית.",
+      "order": 3
+    },
+    {
+      "id": "F186",
+      "why": "ונחשון עם E נמוך מאוד (1.1e-2).",
+      "order": 4
+    },
+    {
+      "id": "F118",
+      "why": "ובקשתי עם E נמוך מאוד (1.1e-2).",
+      "order": 5
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F259",
+        "F260",
+        "F261"
+      ],
+      "why": "אשר דבר יהוה אלי: צירוף רציף בטקסט.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 252545,
+        "skip": 1,
+        "dir": 1,
+        "length": 13
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F276",
+        "F277",
+        "F279"
+      ],
+      "why": "את יהוה אלהיכם בכל לבבכם: רצף בטקסט.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 272804,
+        "skip": 1,
+        "dir": 1,
+        "length": 20
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F058",
+        "F060",
+        "F061"
+      ],
+      "why": "ושאול, ולבנה, בנה כנענית: רצף חופף בשורה 8.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 70762,
+        "skip": 1,
+        "dir": 1,
+        "length": 14
+      },
+      "engine": {
+        "key": "phrase:2",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F037",
+      "before_letters": "פהוקק",
+      "after_letters": "לוקאבכ",
+      "why": "אונו בקו העמודה ללא הרחבה מילולית ברורה.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 50,
+        "skip": 10101,
+        "dir": 1,
+        "length": 15,
+        "before": "פהוקק",
+        "after": "לוקאבכ"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F250",
+      "before_letters": "וגח",
+      "after_letters": "תפנמקי",
+      "why": "האותיות סביב להקדיש אינן יוצרות מילים.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 303063,
+        "skip": 20200,
+        "dir": -1,
+        "length": 15,
+        "before": "וגח",
+        "after": "תפנמקי"
+      },
+      "engine": {
+        "key": "continuation:1",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:2",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:1",
+      "letters_match": true,
+      "state": "MATCH"
+    }
+  ]
+}

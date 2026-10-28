@@ -1,0 +1,648 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F060",
+          "F149",
+          "F176",
+          "F198"
+        ],
+        "relation_ids": [
+          "R0045",
+          "R0046",
+          "R0053",
+          "R0319",
+          "R0321",
+          "R0325"
+        ],
+        "kind": "cluster",
+        "why": "F149, F176 ו-F198 הם שרשרת המשכים על אותו קו (R0045, R0046, R0053), ו-F060 חותך את שלושתם. זה צביר צפוף בעמודה 51, אבל ה-E של חלקם גבוה, ולכן המבנה עשוי להיות מקרי."
+      },
+      {
+        "ids": [
+          "F036",
+          "F038",
+          "F039",
+          "F041"
+        ],
+        "relation_ids": [
+          "R0012",
+          "R0014",
+          "R0015",
+          "R0099"
+        ],
+        "kind": "chain",
+        "why": "אשרדברתי, אלפרעה, האשרה והאלהימ הם שרשרת טקסט רציפה בשורה 7 עם המשכים וחפיפות. זה רצף של טקסט רגיל, לא דילוג."
+      },
+      {
+        "ids": [
+          "F185",
+          "F186",
+          "F189",
+          "F183"
+        ],
+        "relation_ids": [
+          "R0054",
+          "R0055",
+          "R0056",
+          "R0089"
+        ],
+        "kind": "chain",
+        "why": "ושניהמ, מותיומת, יומתו ודמיהמ הם שרשרת של טקסט רציף בשורה 18 עם חפיפות. הם שייכים לאותו משפט ברור (עונש מוות)."
+      },
+      {
+        "ids": [
+          "F032",
+          "F033",
+          "F034",
+          "F030",
+          "F029"
+        ],
+        "relation_ids": [
+          "R0008",
+          "R0009",
+          "R0010",
+          "R0011"
+        ],
+        "kind": "chain",
+        "why": "ויקרא, אתשמו, וישראל, ויאמרלו ואלהימ הם שרשרת המשכים בשורה 6 בלי רווחים. זה רצף טקסט רגיל."
+      },
+      {
+        "ids": [
+          "F204",
+          "F205",
+          "F206",
+          "F208",
+          "F210"
+        ],
+        "relation_ids": [
+          "R0062",
+          "R0063",
+          "R0064",
+          "R0107"
+        ],
+        "kind": "cluster",
+        "why": "אלעשו, לעשותמ, ותמלא ואהלמועד הם צביר חופף בשורה 20, עם המשכים בין שלושת הראשונים."
+      },
+      {
+        "ids": [
+          "F265",
+          "F266",
+          "F273",
+          "F274"
+        ],
+        "relation_ids": [
+          "R0078",
+          "R0079"
+        ],
+        "kind": "pair",
+        "why": "דבריהוה–יהוהאלי ואשריהוה–יהוהאלהיכ הם שני זוגות המשך חופפים בשורות קרובות, עם שם ה' בשניהם."
+      },
+      {
+        "ids": [
+          "F200",
+          "F201",
+          "F202",
+          "F203"
+        ],
+        "relation_ids": [
+          "R0061",
+          "R0126",
+          "R0127"
+        ],
+        "kind": "chain",
+        "why": "והפריתי, והרביתי, והקימתי ואתבריתי הם רצף בשורה 19 בסגנון הבטחות ברית, עם המשך בין F202 ל-F203."
+      },
+      {
+        "ids": [
+          "F235",
+          "F292",
+          "F107"
+        ],
+        "relation_ids": [
+          "R0070",
+          "R0121",
+          "R0122"
+        ],
+        "kind": "cluster",
+        "why": "F235 ו-F292 הם המשך חופף בעמידה של 5 תאים, ו-F107 על אותו קו עם רווח קטן. החפיפה הגדולה בולטת, אך המילים לא קשורות."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F102",
+        "why": "E=27.3 גבוה מאוד, כלומר נפוץ ברעש, ולכן ללא משקל."
+      },
+      {
+        "id": "F138",
+        "why": "E=46.6, הגבוה ביותר במאגר, ולכן ממצא רגיל בדילוג."
+      },
+      {
+        "id": "F020",
+        "why": "ושארית בדילוג עמודה ארוך עם E נמוך, אבל סתם מילה בודדת."
+      },
+      {
+        "id": "F223",
+        "why": "E נמוך מאוד (2.1e-3), החריג הנדיר ביותר, אך בלי הקשר."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F205",
+          "F206",
+          "F208"
+        ],
+        "why": "שלושה ממצאים מאותה שורה שחופפים זה לזה בהמשך."
+      },
+      {
+        "ids": [
+          "F017",
+          "F018",
+          "F019"
+        ],
+        "why": "ויגדלו, ויתנלו וצאנובקר הם רצף בשורה 4."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F105",
+        "before_letters": "ושיחרא",
+        "after_letters": "זימולמ",
+        "why": "האותיות סביב הממצא מוצגות, אך לא יוצרות מילה ברורה."
+      }
+    ],
+    "chance_note": "רוב יחסי החיתוך, הסמיכות וההקבלה בין ממצאים קצרים עם E גבוה הם רעש צפוי, במיוחד סביב עמודה 51 שבה הצפיפות גבוהה. גם המקבילות בהיסט 1 ו-2 בין שורות טקסט הן תוצאה של אותו טקסט רגיל, ולא מבנה משותף."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "chance_note",
+      "detail": "רוב יחסי החיתוך, הסמיכות וההקבלה בין ממצאים קצרים עם E גבוה הם רעש צפוי, במיוחד "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "F149, F176 ו-F198 הם שרשרת המשכים על אותו קו (R0045, R0046, R0053), ו-F060 חותך "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "אשרדברתי, אלפרעה, האשרה והאלהימ הם שרשרת טקסט רציפה בשורה 7 עם המשכים וחפיפות. ז"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "ושניהמ, מותיומת, יומתו ודמיהמ הם שרשרת של טקסט רציף בשורה 18 עם חפיפות. הם שייכי"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "ויקרא, אתשמו, וישראל, ויאמרלו ואלהימ הם שרשרת המשכים בשורה 6 בלי רווחים. זה רצף "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "אלעשו, לעשותמ, ותמלא ואהלמועד הם צביר חופף בשורה 20, עם המשכים בין שלושת הראשוני"
+    },
+    {
+      "code": "kind_size_mismatch",
+      "where": "groups[5]",
+      "detail": "pair with 4 ids"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[6].why",
+      "detail": "והפריתי, והרביתי, והקימתי ואתבריתי הם רצף בשורה 19 בסגנון הבטחות ברית, עם המשך ב"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[7].why",
+      "detail": "F235 ו-F292 הם המשך חופף בעמידה של 5 תאים, ו-F107 על אותו קו עם רווח קטן. החפיפה"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[0].why",
+      "detail": "E=27.3 גבוה מאוד, כלומר נפוץ ברעש, ולכן ללא משקל."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "E=46.6, הגבוה ביותר במאגר, ולכן ממצא רגיל בדילוג."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "E נמוך מאוד (2.1e-3), החריג הנדיר ביותר, אך בלי הקשר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[1].why",
+      "detail": "ויגדלו, ויתנלו וצאנובקר הם רצף בשורה 4."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F060",
+        "F149",
+        "F176",
+        "F198"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0045",
+        "R0046",
+        "R0053",
+        "R0319",
+        "R0321",
+        "R0325"
+      ],
+      "claimed_ok": [
+        "R0045",
+        "R0046",
+        "R0053",
+        "R0319",
+        "R0321",
+        "R0325"
+      ],
+      "why": "F149, F176 ו-F198 הם שרשרת המשכים על אותו קו (R0045, R0046, R0053), ו-F060 חותך את שלושתם. זה צביר צפוף בעמודה 51, אבל ה-E של חלקם גבוה, ולכן המבנה עשוי להיות מקרי.",
+      "order": 1,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F036",
+        "F038",
+        "F039",
+        "F041"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0012",
+        "R0014",
+        "R0015",
+        "R0099"
+      ],
+      "claimed_ok": [
+        "R0012",
+        "R0014",
+        "R0015",
+        "R0099"
+      ],
+      "why": "אשרדברתי, אלפרעה, האשרה והאלהימ הם שרשרת טקסט רציפה בשורה 7 עם המשכים וחפיפות. זה רצף של טקסט רגיל, לא דילוג.",
+      "order": 2,
+      "stats": {
+        "size": 4,
+        "relations_any": 5,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F185",
+        "F186",
+        "F189",
+        "F183"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0054",
+        "R0055",
+        "R0056",
+        "R0089"
+      ],
+      "claimed_ok": [
+        "R0054",
+        "R0055",
+        "R0056",
+        "R0089"
+      ],
+      "why": "ושניהמ, מותיומת, יומתו ודמיהמ הם שרשרת של טקסט רציף בשורה 18 עם חפיפות. הם שייכים לאותו משפט ברור (עונש מוות).",
+      "order": 3,
+      "stats": {
+        "size": 4,
+        "relations_any": 5,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F032",
+        "F033",
+        "F034",
+        "F030",
+        "F029"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0008",
+        "R0009",
+        "R0010",
+        "R0011"
+      ],
+      "claimed_ok": [
+        "R0008",
+        "R0009",
+        "R0010",
+        "R0011"
+      ],
+      "why": "ויקרא, אתשמו, וישראל, ויאמרלו ואלהימ הם שרשרת המשכים בשורה 6 בלי רווחים. זה רצף טקסט רגיל.",
+      "order": 4,
+      "stats": {
+        "size": 5,
+        "relations_any": 7,
+        "relations_listed": 7,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F204",
+        "F205",
+        "F206",
+        "F208",
+        "F210"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0062",
+        "R0063",
+        "R0064",
+        "R0107"
+      ],
+      "claimed_ok": [
+        "R0062",
+        "R0063",
+        "R0064",
+        "R0107"
+      ],
+      "why": "אלעשו, לעשותמ, ותמלא ואהלמועד הם צביר חופף בשורה 20, עם המשכים בין שלושת הראשונים.",
+      "order": 5,
+      "stats": {
+        "size": 5,
+        "relations_any": 5,
+        "relations_listed": 5,
+        "connected_share_any": 0.8,
+        "connected_share_listed": 0.8,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F265",
+        "F266",
+        "F273",
+        "F274"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0078",
+        "R0079"
+      ],
+      "claimed_ok": [
+        "R0078",
+        "R0079"
+      ],
+      "why": "דבריהוה–יהוהאלי ואשריהוה–יהוהאלהיכ הם שני זוגות המשך חופפים בשורות קרובות, עם שם ה' בשניהם.",
+      "order": 6,
+      "stats": {
+        "size": 4,
+        "relations_any": 2,
+        "relations_listed": 2,
+        "connected_share_any": 0.5,
+        "connected_share_listed": 0.5,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F200",
+        "F201",
+        "F202",
+        "F203"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0061",
+        "R0126",
+        "R0127"
+      ],
+      "claimed_ok": [
+        "R0061",
+        "R0126",
+        "R0127"
+      ],
+      "why": "והפריתי, והרביתי, והקימתי ואתבריתי הם רצף בשורה 19 בסגנון הבטחות ברית, עם המשך בין F202 ל-F203.",
+      "order": 7,
+      "stats": {
+        "size": 4,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F235",
+        "F292",
+        "F107"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0070",
+        "R0121",
+        "R0122"
+      ],
+      "claimed_ok": [
+        "R0070",
+        "R0121",
+        "R0122"
+      ],
+      "why": "F235 ו-F292 הם המשך חופף בעמידה של 5 תאים, ו-F107 על אותו קו עם רווח קטן. החפיפה הגדולה בולטת, אך המילים לא קשורות.",
+      "order": 8,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 0
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F102",
+      "why": "E=27.3 גבוה מאוד, כלומר נפוץ ברעש, ולכן ללא משקל.",
+      "order": 1
+    },
+    {
+      "id": "F138",
+      "why": "E=46.6, הגבוה ביותר במאגר, ולכן ממצא רגיל בדילוג.",
+      "order": 2
+    },
+    {
+      "id": "F020",
+      "why": "ושארית בדילוג עמודה ארוך עם E נמוך, אבל סתם מילה בודדת.",
+      "order": 3
+    },
+    {
+      "id": "F223",
+      "why": "E נמוך מאוד (2.1e-3), החריג הנדיר ביותר, אך בלי הקשר.",
+      "order": 4
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F205",
+        "F206",
+        "F208"
+      ],
+      "why": "שלושה ממצאים מאותה שורה שחופפים זה לזה בהמשך.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 192771,
+        "skip": 1,
+        "dir": 1,
+        "length": 9
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F017",
+        "F018",
+        "F019"
+      ],
+      "why": "ויגדלו, ויתנלו וצאנובקר הם רצף בשורה 4.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 31135,
+        "skip": 1,
+        "dir": 1,
+        "length": 18
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F105",
+      "before_letters": "ושיחרא",
+      "after_letters": "זימולמ",
+      "why": "האותיות סביב הממצא מוצגות, אך לא יוצרות מילה ברורה.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 51372,
+        "skip": 10100,
+        "dir": 1,
+        "length": 16,
+        "before": "ושיחרא",
+        "after": "זימולמ"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "MATCH"
+    }
+  ]
+}

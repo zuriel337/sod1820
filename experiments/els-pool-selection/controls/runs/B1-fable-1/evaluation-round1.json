@@ -1,0 +1,1485 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F018",
+          "F055",
+          "F019"
+        ],
+        "relation_ids": [
+          "R1636",
+          "R1634",
+          "R0179",
+          "R0180"
+        ],
+        "kind": "pair",
+        "why": "שני ממצאי דילוג נדירים (E נמוך לשניהם) נוגעים זה בזה: ובניתי ובתיכמ, שדה משמעות אחד של בנייה ובתים. ובניתי גם ממשיך באותיות אהל שאחריו. F019 הוא הטקסט שעליו הם נשענים."
+      },
+      {
+        "ids": [
+          "F216",
+          "F233",
+          "F234",
+          "F259"
+        ],
+        "relation_ids": [
+          "R0767",
+          "R0795",
+          "R0796",
+          "R0768"
+        ],
+        "kind": "cluster",
+        "why": "שני קווים נדירים (בבריתי על K3, הביאני על K1) חותכים זה את זה, והביאני חוצה בטקסט את השלמימ; בבריתי חוצה את ארבעימ. ברית, הבאה וקרבן שלמים מתכנסים לצביר אחד."
+      },
+      {
+        "ids": [
+          "F217",
+          "F295",
+          "F296",
+          "F269",
+          "F246"
+        ],
+        "relation_ids": [
+          "R0844",
+          "R0813",
+          "R0812",
+          "R0770",
+          "R0769",
+          "R0805"
+        ],
+        "kind": "cluster",
+        "why": "עלהעלה (K1+) ועדהיומ (K1-) שניהם נדירים מאוד, מקבילים בכיוון הפוך עם חפיפה גדולה, ושניהם חותכים את אותן שורות טקסט: יהוהאלהיכ ואמריהו; עדהיומ אף חותך את עלמזבח, קרוב בעניין לעולה."
+      },
+      {
+        "ids": [
+          "F057",
+          "F091",
+          "F056",
+          "F090",
+          "F153",
+          "F184"
+        ],
+        "relation_ids": [
+          "R0318",
+          "R0315",
+          "R0317",
+          "R0320",
+          "R0321",
+          "R0440",
+          "R0442"
+        ],
+        "kind": "cluster",
+        "why": "נציבימ (עמודה, E נמוך מאוד) ואתהתבה (אלכסון, E נמוך) חותכים זה את זה, ושניהם עוברים דרך אותן מילות טקסט: בניישראל, ארצמצרימ, דבריהוה. שני ממצאים נדירים שנפגשים באותה חלקה של טקסט."
+      },
+      {
+        "ids": [
+          "F171",
+          "F237",
+          "F247",
+          "F218"
+        ],
+        "relation_ids": [
+          "R0703",
+          "R0704",
+          "R0702",
+          "R0798"
+        ],
+        "kind": "cluster",
+        "why": "צלילימ (K1, E נמוך מאוד) ועמינדב (עמודה, E נמוך מאוד) נחתכים, ושניהם חותכים את ופקדיהמ בטקסט; צלילימ חוצה גם את לבניישראל. מפגש של שני ממצאים נדירים מאוד."
+      },
+      {
+        "ids": [
+          "F042",
+          "F094",
+          "F020",
+          "F078",
+          "F084",
+          "F076"
+        ],
+        "relation_ids": [
+          "R0233",
+          "R1640",
+          "R0184",
+          "R0322",
+          "R0020",
+          "R0021"
+        ],
+        "kind": "cluster",
+        "why": "ירשיעני הוא הממצא הנדיר ביותר במאגר, נחתך עם עמיהוה בדילוג, הסמוך לופליט (אף הוא נדיר). כולם סביב שורת הטקסט הצדיק/ועמי/הרשעימ ועמיהוה, כך שהשדה צדיק־רשע מופיע גם בטקסט וגם בדילוגים."
+      },
+      {
+        "ids": [
+          "F111",
+          "F215",
+          "F261",
+          "F240",
+          "F238",
+          "F204"
+        ],
+        "relation_ids": [
+          "R2493",
+          "R0498",
+          "R0496",
+          "R0756",
+          "R0757",
+          "R0113"
+        ],
+        "kind": "cluster",
+        "why": "תלונה (K1) סמוך למרירות (A2) וחותך את מפיהמ (K3), ושלושתם סביב שורות הטקסט אתתלנות ומלינימ ואת ומנהגר. שדה משמעות של תלונה ומרירות מתרכז באזור אחד."
+      },
+      {
+        "ids": [
+          "F044",
+          "F157",
+          "F281",
+          "F127"
+        ],
+        "relation_ids": [
+          "R0010",
+          "R0060",
+          "R0105",
+          "R0009",
+          "R0043"
+        ],
+        "kind": "chain",
+        "why": "שרשרת על קו K4 אחד: וירה ואחריו מיד עבדיו, ואחריו תהילה (בכיוון הפוך). הצירוף וירה עבדיו נקרא ברצף, והקו חוצה את הציר. וירה עצמו E גבוה, אך עבדיו נדיר יחסית."
+      },
+      {
+        "ids": [
+          "F043",
+          "F163",
+          "F162",
+          "F044"
+        ],
+        "relation_ids": [
+          "R0008",
+          "R0007",
+          "R0062",
+          "R0234"
+        ],
+        "kind": "chain",
+        "why": "על קו K2 שמסתיים בתחתית הציר: והלחמ ממשיך במלבי בחפיפת אות אחת, והאותיות אחרי והלחמ הן לבילהו, כלומר נקרא והלחמלבי. מחלה הוא אותו קטע הפוך. הקו נחתך עם וירה."
+      },
+      {
+        "ids": [
+          "F168",
+          "F193",
+          "F216",
+          "F012"
+        ],
+        "relation_ids": [
+          "R0064",
+          "R0068",
+          "R0096",
+          "R1082",
+          "R1083"
+        ],
+        "kind": "chain",
+        "why": "על אותו קו K3: נחלימ ומנחלי חופפים, ומיד אחריהם בבריתי (בכיוון ההפוך). ושלמה מקביל להם בכיוון הפוך. הרצף מנחלי/בבריתי על קו אחד הוא הנקודה המעניינת."
+      },
+      {
+        "ids": [
+          "F179",
+          "F187",
+          "F189",
+          "F243",
+          "F249",
+          "F250"
+        ],
+        "relation_ids": [
+          "R0066",
+          "R0819",
+          "R0820",
+          "R0079",
+          "R0845",
+          "R0846"
+        ],
+        "kind": "cluster",
+        "why": "שתי משפחות A2 של ממצאים חופפים ומקבילים: הביאו/להביא/גערה, ותמימה/בתמימ/מסלע. כל קבוצה היא בעיקר אותו קטע אותיות, אבל להביא מתארך לקריאה להביאו ובתמימ לבתמימה."
+      },
+      {
+        "ids": [
+          "F063",
+          "F095",
+          "F159",
+          "F211",
+          "F048",
+          "F158",
+          "F223"
+        ],
+        "relation_ids": [
+          "R0343",
+          "R0345",
+          "R0350",
+          "R0860",
+          "R0100",
+          "R1058",
+          "R0923"
+        ],
+        "kind": "cluster",
+        "why": "ממצאי עמודה בעמודות הצמודות לציר: ישראל (C2) חוצה את בניישראל ולאמר בטקסט, ליליא באותה עמודה, יכניה/לאויב/להראה בצד. רובם E סביב 1, אבל זו הסביבה האנכית הישירה של הציר."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F042",
+        "why": "ירשיעני, ה-E הנמוך ביותר במאגר, שבע אותיות באלכסון."
+      },
+      {
+        "id": "F237",
+        "why": "עמינדב בעמודה, E נמוך מאוד, שם פרטי שלם."
+      },
+      {
+        "id": "F057",
+        "why": "נציבימ בעמודה בדילוג שורה, E נמוך מאוד, חוצה שורות טקסט רבות."
+      },
+      {
+        "id": "F171",
+        "why": "צלילימ, שש אותיות על קו K1 עם E נמוך מאוד."
+      },
+      {
+        "id": "F217",
+        "why": "עלהעלה, שש אותיות על K1 עם E נמוך מאוד."
+      },
+      {
+        "id": "F295",
+        "why": "עדהיומ, שש אותיות על K1 עם E נמוך מאוד, מקביל לעלהעלה."
+      },
+      {
+        "id": "F216",
+        "why": "בבריתי על K3, E נמוך, נחתך עם הביאני."
+      },
+      {
+        "id": "F020",
+        "why": "ופליט על K3, E נמוך, מסתיים ליד הציר וחוצה את הצדיק בטקסט."
+      },
+      {
+        "id": "F031",
+        "why": "קסמימ באלכסון תלול, E נמוך, חוצה את הקטנה וויאמר בטקסט."
+      },
+      {
+        "id": "F291",
+        "why": "בנעריה באלכסון תלול, E נמוך, חוצה את ופסיליהמ."
+      },
+      {
+        "id": "F016",
+        "why": "יקראהו, שש אותיות באלכסון עם E נמוך, חוצה את יפתתאר וויאמרו."
+      },
+      {
+        "id": "F190",
+        "why": "אליספ על K4, E נמוך, חוצה את ויחראפ ואפיהוה בטקסט."
+      },
+      {
+        "id": "F277",
+        "why": "ברכיימ על K1 בכיוון נגדי, E נמוך, חוצה את ולמלכמ ובניישראל."
+      },
+      {
+        "id": "F209",
+        "why": "ישאלונ על K2, E נמוך, חוצה שש מילות טקסט שונות."
+      },
+      {
+        "id": "F018",
+        "why": "ובניתי על K4, E נמוך, וממשיך באותיות אהל שאחריו."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F044",
+          "F157"
+        ],
+        "why": "על קו K4 אחד ברצף: וירה עבדיו, חפיפה אפס."
+      },
+      {
+        "ids": [
+          "F043",
+          "F163"
+        ],
+        "why": "על קו K2 אחד: והלחמ ומלבי חופפים באות אחת ונקראים והלחמלבי."
+      },
+      {
+        "ids": [
+          "F193",
+          "F216"
+        ],
+        "why": "על קו K3 אחד צמודים: מנחלי ואחריו בבריתי, אם כי בכיוונים הפוכים."
+      },
+      {
+        "ids": [
+          "F168",
+          "F193"
+        ],
+        "why": "נחלימ ומנחלי חופפים בארבע אותיות על אותו קו, גרסאות של אותו שורש."
+      },
+      {
+        "ids": [
+          "F047",
+          "F106"
+        ],
+        "why": "על אלכסון תלול אחד: למינה ממשיך בהיתרי בחפיפת אות אחת."
+      },
+      {
+        "ids": [
+          "F221",
+          "F222",
+          "F224"
+        ],
+        "why": "טקסט רציף: מתמול ולקחת אתהלוימ."
+      },
+      {
+        "ids": [
+          "F001",
+          "F002"
+        ],
+        "why": "טקסט רציף: ויהיערב ויהיבקר."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F018",
+        "before_letters": "מ",
+        "after_letters": "אהללהו",
+        "why": "ובניתי ממשיך באותיות אהל, נקרא ובניתי אהל."
+      },
+      {
+        "id": "F043",
+        "before_letters": "מוט",
+        "after_letters": "לבילהו",
+        "why": "והלחמ ממשיך בלבי, נקרא והלחמ לבי."
+      },
+      {
+        "id": "F044",
+        "before_letters": "ואנ",
+        "after_letters": "עבדיוו",
+        "why": "וירה ממשיך בעבדיו, כפי שגם הממצא F157 מאשר."
+      },
+      {
+        "id": "F187",
+        "before_letters": "דהעסתנ",
+        "after_letters": "ואיתנס",
+        "why": "להביא עם האות ו שאחריו נקרא להביאו."
+      },
+      {
+        "id": "F249",
+        "before_letters": "ניהרשי",
+        "after_letters": "הלמסיר",
+        "why": "בתמימ עם האות ה שאחריו נקרא בתמימה."
+      },
+      {
+        "id": "F012",
+        "before_letters": "י",
+        "after_letters": "השהפשמ",
+        "why": "ושלמה ממשיך באותיות השה."
+      },
+      {
+        "id": "F042",
+        "before_letters": "הננקיא",
+        "after_letters": "",
+        "why": "לפני ירשיעני מופיעות האותיות נקי, ניגוד מעניין לפועל."
+      },
+      {
+        "id": "F016",
+        "before_letters": "של",
+        "after_letters": "מונמיו",
+        "why": "לפני יקראהו מופיע של, קריאה אפשרית של יקראהו."
+      }
+    ],
+    "chance_note": "זוגות ההיפוך כמו השוא/אושה, נואש/שאונ, ונמר/אונמ, רמאי/אמרי/יאמר, יערו/ורעי, יואש/ישאו ומנהעמ/מטוב הם אותן אותיות נקראות בשני הכיוונים במילים קצרות עם E גבוה, ולכן מקריים לחלוטין; גם ענן הממצאים החוצים את הציר הוא ברובו מילים בנות ארבע אותיות עם E של עשרות. המקבילות בין שורות טקסט (היסט 1–3) ורוב יחסי הסמיכות מבטאים רק צפיפות של ממצאים באזור הציר ולא מבנה."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "chance_note",
+      "detail": "זוגות ההיפוך כמו השוא/אושה, נואש/שאונ, ונמר/אונמ, רמאי/אמרי/יאמר, יערו/ורעי, יוא"
+    },
+    {
+      "code": "kind_size_mismatch",
+      "where": "groups[0]",
+      "detail": "pair with 3 ids"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[0]",
+      "detail": "R0179 joins F018-F100"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[0]",
+      "detail": "R0180 joins F018-F140"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "שני קווים נדירים (בבריתי על K3, הביאני על K1) חותכים זה את זה, והביאני חוצה בטקס"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "עלהעלה (K1+) ועדהיומ (K1-) שניהם נדירים מאוד, מקבילים בכיוון הפוך עם חפיפה גדולה"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "צלילימ (K1, E נמוך מאוד) ועמינדב (עמודה, E נמוך מאוד) נחתכים, ושניהם חותכים את ו"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[5]",
+      "detail": "R0322 joins F058-F094"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[5]",
+      "detail": "R0021 joins F081-F084"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[6].why",
+      "detail": "תלונה (K1) סמוך למרירות (A2) וחותך את מפיהמ (K3), ושלושתם סביב שורות הטקסט אתתלנ"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[7].why",
+      "detail": "שרשרת על קו K4 אחד: וירה ואחריו מיד עבדיו, ואחריו תהילה (בכיוון הפוך). הצירוף וי"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[8]",
+      "detail": "F044 also in groups[7]"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[8].why",
+      "detail": "על קו K2 שמסתיים בתחתית הציר: והלחמ ממשיך במלבי בחפיפת אות אחת, והאותיות אחרי וה"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[9]",
+      "detail": "F216 also in groups[1]"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[9].why",
+      "detail": "על אותו קו K3: נחלימ ומנחלי חופפים, ומיד אחריהם בבריתי (בכיוון ההפוך). ושלמה מקב"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[10].why",
+      "detail": "שתי משפחות A2 של ממצאים חופפים ומקבילים: הביאו/להביא/גערה, ותמימה/בתמימ/מסלע. כל"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[11]",
+      "detail": "R0860 joins F049-F063"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[11].why",
+      "detail": "ממצאי עמודה בעמודות הצמודות לציר: ישראל (C2) חוצה את בניישראל ולאמר בטקסט, ליליא"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "צלילימ, שש אותיות על קו K1 עם E נמוך מאוד."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[4].why",
+      "detail": "עלהעלה, שש אותיות על K1 עם E נמוך מאוד."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[5].why",
+      "detail": "עדהיומ, שש אותיות על K1 עם E נמוך מאוד, מקביל לעלהעלה."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[6].why",
+      "detail": "בבריתי על K3, E נמוך, נחתך עם הביאני."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[7].why",
+      "detail": "ופליט על K3, E נמוך, מסתיים ליד הציר וחוצה את הצדיק בטקסט."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[11].why",
+      "detail": "אליספ על K4, E נמוך, חוצה את ויחראפ ואפיהוה בטקסט."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[12].why",
+      "detail": "ברכיימ על K1 בכיוון נגדי, E נמוך, חוצה את ולמלכמ ובניישראל."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[13].why",
+      "detail": "ישאלונ על K2, E נמוך, חוצה שש מילות טקסט שונות."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[14].why",
+      "detail": "ובניתי על K4, E נמוך, וממשיך באותיות אהל שאחריו."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[0].why",
+      "detail": "על קו K4 אחד ברצף: וירה עבדיו, חפיפה אפס."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[1].why",
+      "detail": "על קו K2 אחד: והלחמ ומלבי חופפים באות אחת ונקראים והלחמלבי."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[2].why",
+      "detail": "על קו K3 אחד צמודים: מנחלי ואחריו בבריתי, אם כי בכיוונים הפוכים."
+    },
+    {
+      "code": "phrase_not_contiguous",
+      "where": "phrases[2]",
+      "detail": "F193,F216: not on one family and direction"
+    },
+    {
+      "code": "phrase_not_contiguous",
+      "where": "phrases[3]",
+      "detail": "F168,F193: not in reading order"
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F018",
+        "F055",
+        "F019"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R1636",
+        "R1634",
+        "R0179",
+        "R0180"
+      ],
+      "claimed_ok": [
+        "R1636",
+        "R1634"
+      ],
+      "why": "שני ממצאי דילוג נדירים (E נמוך לשניהם) נוגעים זה בזה: ובניתי ובתיכמ, שדה משמעות אחד של בנייה ובתים. ובניתי גם ממשיך באותיות אהל שאחריו. F019 הוא הטקסט שעליו הם נשענים.",
+      "order": 1,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing",
+          "near"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 1
+      }
+    },
+    {
+      "ids": [
+        "F216",
+        "F233",
+        "F234",
+        "F259"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0767",
+        "R0795",
+        "R0796",
+        "R0768"
+      ],
+      "claimed_ok": [
+        "R0767",
+        "R0795",
+        "R0796",
+        "R0768"
+      ],
+      "why": "שני קווים נדירים (בבריתי על K3, הביאני על K1) חותכים זה את זה, והביאני חוצה בטקסט את השלמימ; בבריתי חוצה את ארבעימ. ברית, הבאה וקרבן שלמים מתכנסים לצביר אחד.",
+      "order": 2,
+      "stats": {
+        "size": 4,
+        "relations_any": 5,
+        "relations_listed": 4,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 2
+      }
+    },
+    {
+      "ids": [
+        "F217",
+        "F295",
+        "F296",
+        "F269",
+        "F246"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0844",
+        "R0813",
+        "R0812",
+        "R0770",
+        "R0769",
+        "R0805"
+      ],
+      "claimed_ok": [
+        "R0844",
+        "R0813",
+        "R0812",
+        "R0770",
+        "R0769",
+        "R0805"
+      ],
+      "why": "עלהעלה (K1+) ועדהיומ (K1-) שניהם נדירים מאוד, מקבילים בכיוון הפוך עם חפיפה גדולה, ושניהם חותכים את אותן שורות טקסט: יהוהאלהיכ ואמריהו; עדהיומ אף חותך את עלמזבח, קרוב בעניין לעולה.",
+      "order": 3,
+      "stats": {
+        "size": 5,
+        "relations_any": 7,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F057",
+        "F091",
+        "F056",
+        "F090",
+        "F153",
+        "F184"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0318",
+        "R0315",
+        "R0317",
+        "R0320",
+        "R0321",
+        "R0440",
+        "R0442"
+      ],
+      "claimed_ok": [
+        "R0318",
+        "R0315",
+        "R0317",
+        "R0320",
+        "R0321",
+        "R0440",
+        "R0442"
+      ],
+      "why": "נציבימ (עמודה, E נמוך מאוד) ואתהתבה (אלכסון, E נמוך) חותכים זה את זה, ושניהם עוברים דרך אותן מילות טקסט: בניישראל, ארצמצרימ, דבריהוה. שני ממצאים נדירים שנפגשים באותה חלקה של טקסט.",
+      "order": 4,
+      "stats": {
+        "size": 6,
+        "relations_any": 13,
+        "relations_listed": 10,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F171",
+        "F237",
+        "F247",
+        "F218"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0703",
+        "R0704",
+        "R0702",
+        "R0798"
+      ],
+      "claimed_ok": [
+        "R0703",
+        "R0704",
+        "R0702",
+        "R0798"
+      ],
+      "why": "צלילימ (K1, E נמוך מאוד) ועמינדב (עמודה, E נמוך מאוד) נחתכים, ושניהם חותכים את ופקדיהמ בטקסט; צלילימ חוצה גם את לבניישראל. מפגש של שני ממצאים נדירים מאוד.",
+      "order": 5,
+      "stats": {
+        "size": 4,
+        "relations_any": 5,
+        "relations_listed": 4,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 2
+      }
+    },
+    {
+      "ids": [
+        "F042",
+        "F094",
+        "F020",
+        "F078",
+        "F084",
+        "F076"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0233",
+        "R1640",
+        "R0184",
+        "R0322",
+        "R0020",
+        "R0021"
+      ],
+      "claimed_ok": [
+        "R0233",
+        "R1640",
+        "R0184",
+        "R0020"
+      ],
+      "why": "ירשיעני הוא הממצא הנדיר ביותר במאגר, נחתך עם עמיהוה בדילוג, הסמוך לופליט (אף הוא נדיר). כולם סביב שורת הטקסט הצדיק/ועמי/הרשעימ ועמיהוה, כך שהשדה צדיק־רשע מופיע גם בטקסט וגם בדילוגים.",
+      "order": 6,
+      "stats": {
+        "size": 6,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 0.833,
+        "connected_share_listed": 0.833,
+        "types": [
+          "continuation",
+          "crossing",
+          "near"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 3,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F111",
+        "F215",
+        "F261",
+        "F240",
+        "F238",
+        "F204"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R2493",
+        "R0498",
+        "R0496",
+        "R0756",
+        "R0757",
+        "R0113"
+      ],
+      "claimed_ok": [
+        "R2493",
+        "R0498",
+        "R0496",
+        "R0756",
+        "R0757",
+        "R0113"
+      ],
+      "why": "תלונה (K1) סמוך למרירות (A2) וחותך את מפיהמ (K3), ושלושתם סביב שורות הטקסט אתתלנות ומלינימ ואת ומנהגר. שדה משמעות של תלונה ומרירות מתרכז באזור אחד.",
+      "order": 7,
+      "stats": {
+        "size": 6,
+        "relations_any": 8,
+        "relations_listed": 7,
+        "connected_share_any": 1,
+        "connected_share_listed": 0.667,
+        "types": [
+          "crossing",
+          "near",
+          "parallel",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 3,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F044",
+        "F157",
+        "F281",
+        "F127"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0010",
+        "R0060",
+        "R0105",
+        "R0009",
+        "R0043"
+      ],
+      "claimed_ok": [
+        "R0010",
+        "R0060",
+        "R0105",
+        "R0009",
+        "R0043"
+      ],
+      "why": "שרשרת על קו K4 אחד: וירה ואחריו מיד עבדיו, ואחריו תהילה (בכיוון הפוך). הצירוף וירה עבדיו נקרא ברצף, והקו חוצה את הציר. וירה עצמו E גבוה, אך עבדיו נדיר יחסית.",
+      "order": 8,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F043",
+        "F163",
+        "F162",
+        "F044"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0008",
+        "R0007",
+        "R0062",
+        "R0234"
+      ],
+      "claimed_ok": [
+        "R0008",
+        "R0007",
+        "R0062",
+        "R0234"
+      ],
+      "why": "על קו K2 שמסתיים בתחתית הציר: והלחמ ממשיך במלבי בחפיפת אות אחת, והאותיות אחרי והלחמ הן לבילהו, כלומר נקרא והלחמלבי. מחלה הוא אותו קטע הפוך. הקו נחתך עם וירה.",
+      "order": 9,
+      "stats": {
+        "size": 4,
+        "relations_any": 5,
+        "relations_listed": 4,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing",
+          "near"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F168",
+        "F193",
+        "F216",
+        "F012"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0064",
+        "R0068",
+        "R0096",
+        "R1082",
+        "R1083"
+      ],
+      "claimed_ok": [
+        "R0064",
+        "R0068",
+        "R0096",
+        "R1082",
+        "R1083"
+      ],
+      "why": "על אותו קו K3: נחלימ ומנחלי חופפים, ומיד אחריהם בבריתי (בכיוון ההפוך). ושלמה מקביל להם בכיוון הפוך. הרצף מנחלי/בבריתי על קו אחד הוא הנקודה המעניינת.",
+      "order": 10,
+      "stats": {
+        "size": 4,
+        "relations_any": 5,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 3,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F179",
+        "F187",
+        "F189",
+        "F243",
+        "F249",
+        "F250"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0066",
+        "R0819",
+        "R0820",
+        "R0079",
+        "R0845",
+        "R0846"
+      ],
+      "claimed_ok": [
+        "R0066",
+        "R0819",
+        "R0820",
+        "R0079",
+        "R0845",
+        "R0846"
+      ],
+      "why": "שתי משפחות A2 של ממצאים חופפים ומקבילים: הביאו/להביא/גערה, ותמימה/בתמימ/מסלע. כל קבוצה היא בעיקר אותו קטע אותיות, אבל להביא מתארך לקריאה להביאו ובתמימ לבתמימה.",
+      "order": 11,
+      "stats": {
+        "size": 6,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 0.5,
+        "connected_share_listed": 0.5,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F063",
+        "F095",
+        "F159",
+        "F211",
+        "F048",
+        "F158",
+        "F223"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0343",
+        "R0345",
+        "R0350",
+        "R0860",
+        "R0100",
+        "R1058",
+        "R0923"
+      ],
+      "claimed_ok": [
+        "R0343",
+        "R0345",
+        "R0350",
+        "R0100",
+        "R1058",
+        "R0923"
+      ],
+      "why": "ממצאי עמודה בעמודות הצמודות לציר: ישראל (C2) חוצה את בניישראל ולאמר בטקסט, ליליא באותה עמודה, יכניה/לאויב/להראה בצד. רובם E סביב 1, אבל זו הסביבה האנכית הישירה של הציר.",
+      "order": 12,
+      "stats": {
+        "size": 7,
+        "relations_any": 14,
+        "relations_listed": 12,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing",
+          "near",
+          "parallel",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 2
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F042",
+      "why": "ירשיעני, ה-E הנמוך ביותר במאגר, שבע אותיות באלכסון.",
+      "order": 1
+    },
+    {
+      "id": "F237",
+      "why": "עמינדב בעמודה, E נמוך מאוד, שם פרטי שלם.",
+      "order": 2
+    },
+    {
+      "id": "F057",
+      "why": "נציבימ בעמודה בדילוג שורה, E נמוך מאוד, חוצה שורות טקסט רבות.",
+      "order": 3
+    },
+    {
+      "id": "F171",
+      "why": "צלילימ, שש אותיות על קו K1 עם E נמוך מאוד.",
+      "order": 4
+    },
+    {
+      "id": "F217",
+      "why": "עלהעלה, שש אותיות על K1 עם E נמוך מאוד.",
+      "order": 5
+    },
+    {
+      "id": "F295",
+      "why": "עדהיומ, שש אותיות על K1 עם E נמוך מאוד, מקביל לעלהעלה.",
+      "order": 6
+    },
+    {
+      "id": "F216",
+      "why": "בבריתי על K3, E נמוך, נחתך עם הביאני.",
+      "order": 7
+    },
+    {
+      "id": "F020",
+      "why": "ופליט על K3, E נמוך, מסתיים ליד הציר וחוצה את הצדיק בטקסט.",
+      "order": 8
+    },
+    {
+      "id": "F031",
+      "why": "קסמימ באלכסון תלול, E נמוך, חוצה את הקטנה וויאמר בטקסט.",
+      "order": 9
+    },
+    {
+      "id": "F291",
+      "why": "בנעריה באלכסון תלול, E נמוך, חוצה את ופסיליהמ.",
+      "order": 10
+    },
+    {
+      "id": "F016",
+      "why": "יקראהו, שש אותיות באלכסון עם E נמוך, חוצה את יפתתאר וויאמרו.",
+      "order": 11
+    },
+    {
+      "id": "F190",
+      "why": "אליספ על K4, E נמוך, חוצה את ויחראפ ואפיהוה בטקסט.",
+      "order": 12
+    },
+    {
+      "id": "F277",
+      "why": "ברכיימ על K1 בכיוון נגדי, E נמוך, חוצה את ולמלכמ ובניישראל.",
+      "order": 13
+    },
+    {
+      "id": "F209",
+      "why": "ישאלונ על K2, E נמוך, חוצה שש מילות טקסט שונות.",
+      "order": 14
+    },
+    {
+      "id": "F018",
+      "why": "ובניתי על K4, E נמוך, וממשיך באותיות אהל שאחריו.",
+      "order": 15
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F044",
+        "F157"
+      ],
+      "why": "על קו K4 אחד ברצף: וירה עבדיו, חפיפה אפס.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 60822,
+        "skip": 20200,
+        "dir": 1,
+        "length": 9
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "ids": [
+        "F043",
+        "F163"
+      ],
+      "why": "על קו K2 אחד: והלחמ ומלבי חופפים באות אחת ונקראים והלחמלבי.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 60822,
+        "skip": 20201,
+        "dir": 1,
+        "length": 8
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "ids": [
+        "F193",
+        "F216"
+      ],
+      "why": "על קו K3 אחד צמודים: מנחלי ואחריו בבריתי, אם כי בכיוונים הפוכים.",
+      "order": 3,
+      "status": "invalid"
+    },
+    {
+      "ids": [
+        "F168",
+        "F193"
+      ],
+      "why": "נחלימ ומנחלי חופפים בארבע אותיות על אותו קו, גרסאות של אותו שורש.",
+      "order": 4,
+      "status": "invalid"
+    },
+    {
+      "ids": [
+        "F047",
+        "F106"
+      ],
+      "why": "על אלכסון תלול אחד: למינה ממשיך בהיתרי בחפיפת אות אחת.",
+      "order": 5,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 70909,
+        "skip": 10103,
+        "dir": 1,
+        "length": 9
+      },
+      "engine": {
+        "key": "phrase:4",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "ids": [
+        "F221",
+        "F222",
+        "F224"
+      ],
+      "why": "טקסט רציף: מתמול ולקחת אתהלוימ.",
+      "order": 6,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 192128,
+        "skip": 1,
+        "dir": 1,
+        "length": 15
+      },
+      "engine": {
+        "key": "phrase:5",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F001",
+        "F002"
+      ],
+      "why": "טקסט רציף: ויהיערב ויהיבקר.",
+      "order": 7,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 177,
+        "skip": 1,
+        "dir": 1,
+        "length": 14
+      },
+      "engine": {
+        "key": "phrase:6",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F018",
+      "before_letters": "מ",
+      "after_letters": "אהללהו",
+      "why": "ובניתי ממשיך באותיות אהל, נקרא ובניתי אהל.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 10291,
+        "skip": 20200,
+        "dir": 1,
+        "length": 13,
+        "before": "מ",
+        "after": "אהללהו"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F043",
+      "before_letters": "מוט",
+      "after_letters": "לבילהו",
+      "why": "והלחמ ממשיך בלבי, נקרא והלחמ לבי.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 219,
+        "skip": 20201,
+        "dir": 1,
+        "length": 14,
+        "before": "מוט",
+        "after": "לבילהו"
+      },
+      "engine": {
+        "key": "continuation:1",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F044",
+      "before_letters": "ואנ",
+      "after_letters": "עבדיוו",
+      "why": "וירה ממשיך בעבדיו, כפי שגם הממצא F157 מאשר.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 222,
+        "skip": 20200,
+        "dir": 1,
+        "length": 13,
+        "before": "ואנ",
+        "after": "עבדיוו"
+      },
+      "engine": {
+        "key": "continuation:2",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F187",
+      "before_letters": "דהעסתנ",
+      "after_letters": "ואיתנס",
+      "why": "להביא עם האות ו שאחריו נקרא להביאו.",
+      "order": 4,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 222421,
+        "skip": 10099,
+        "dir": -1,
+        "length": 17,
+        "before": "דהעסתנ",
+        "after": "ואיתנס"
+      },
+      "engine": {
+        "key": "continuation:3",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F249",
+      "before_letters": "ניהרשי",
+      "after_letters": "הלמסיר",
+      "why": "בתמימ עם האות ה שאחריו נקרא בתמימה.",
+      "order": 5,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 293120,
+        "skip": 10099,
+        "dir": -1,
+        "length": 17,
+        "before": "ניהרשי",
+        "after": "הלמסיר"
+      },
+      "engine": {
+        "key": "continuation:4",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F012",
+      "before_letters": "י",
+      "after_letters": "השהפשמ",
+      "why": "ושלמה ממשיך באותיות השה.",
+      "order": 6,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 209,
+        "skip": 20204,
+        "dir": 1,
+        "length": 12,
+        "before": "י",
+        "after": "השהפשמ"
+      },
+      "engine": {
+        "key": "continuation:5",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F042",
+      "before_letters": "הננקיא",
+      "after_letters": "",
+      "why": "לפני ירשיעני מופיעות האותיות נקי, ניגוד מעניין לפועל.",
+      "order": 7,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 121422,
+        "skip": 10102,
+        "dir": -1,
+        "length": 13,
+        "before": "הננקיא",
+        "after": ""
+      },
+      "engine": {
+        "key": "continuation:6",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F016",
+      "before_letters": "של",
+      "after_letters": "מונמיו",
+      "why": "לפני יקראהו מופיע של, קריאה אפשרית של יקראהו.",
+      "order": 8,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 244,
+        "skip": 10102,
+        "dir": 1,
+        "length": 14,
+        "before": "של",
+        "after": "מונמיו"
+      },
+      "engine": {
+        "key": "continuation:7",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "phrase:4",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "phrase:5",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:6",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:1",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:2",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:3",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:4",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:5",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:6",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:7",
+      "letters_match": true,
+      "state": "MATCH"
+    }
+  ]
+}

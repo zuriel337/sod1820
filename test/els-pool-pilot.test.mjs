@@ -339,3 +339,75 @@ test("free-proposal arm F (fakes): runs through the EXP-16 pipeline with the pil
   assert.ok(ledger.entries.some((e) => e.id === "F-sonnet-1 round1" && !e.reserved));
   assert.ok(spentOf(ledger) > PRIOR_SPEND_USD);
 });
+
+// ---- result metrics (synthetic data, no run needed) ----
+import { knownPairMetrics, ppPairsIn, runMetrics, stability, tightPairsIn } from "../experiments/els-pool-selection/lib/results.mjs";
+
+test("results: PP and tight pairs, group metrics, known-word metrics and stability on a hand-built pool", () => {
+  const item = (id, text, family, cells, extra = {}) => ({ id, text, family, dir: 1, skip: 10101, cells, E: 2, tier: "C", ...extra });
+  const col = (j, i0, n) => Array.from({ length: n }, (_, k) => [i0 + k, j]);
+  const items = [item("F001", "אבגד", "C", col(5, 1, 4)), item("F002", "הוזח", "C", col(5, 7, 4)), item("F003", "טיכל", "C", col(6, 7, 4)), item("F004", "מנסע", "R", col(1, 1, 4), { skip: 1, E: null })];
+  const relations = [{ id: "R0001", a: "F001", b: "F002", type: "same_line", gap: 2 }, { id: "R0002", a: "F002", b: "F003", type: "parallel", offset: 1, overlap: 4, same_direction: true }, { id: "R0003", a: "F003", b: "F004", type: "near", distance: 1 }];
+  const pool = { id: "mini", items, relations };
+  assert.deepEqual(tightPairsIn(pool, ["F001", "F002", "F003"]).map((r) => r.id), ["R0001", "R0002"]);
+  assert.deepEqual(ppPairsIn(pool, ["F001", "F002", "F003"]).map((r) => r.id), ["R0002"]);
+  assert.deepEqual(tightPairsIn(pool, ["F003", "F004"]), [], "a plain-text row is not an ELS pair");
+  const group = (order, ids, why) => ({ order, ids, kind: ids.length === 2 ? "pair" : "cluster", relation_ids: [], claimed_ok: [], why, stats: { size: ids.length, connected_share_any: 1, connected_share_listed: 1, types: [], members_with_E_ge_1: ids.length, members_with_E_lt_1: 0, members_plain_text: 0 } });
+  const evaluation = { ok: true, errors: [{ code: "digits_in_text" }], groups: [group(1, ["F001", "F002", "F003"], "אותו קו ומקבילה"), group(2, ["F003", "F004"], "q")], singles: [{ order: 1, id: "F001", why: "q" }], phrases: [{ order: 1, ids: ["F001", "F002"], status: "engine_confirmed", why: "q" }], continuations: [{ order: 1, id: "F004", status: "engine_not_confirmed" }], answer: { chance_note: "n" } };
+  const response = { summary: { stop_reason: "end_turn", usage: { input_tokens: 10, output_tokens: 20, output_tokens_details: { thinking_tokens: 5 } } }, cost: { usd: 0.01 }, ms: 4000 };
+  const row = runMetrics({ run: { id: "X", arm: "B1", series: "blind", model: "sonnet" }, pool, response, evaluation });
+  assert.deepEqual([row.groups, row.group_sizes, row.groups_with_pp_pair, row.groups_with_tight_pair, row.groups_names_relation, row.errors, row.phrases_confirmed, row.continuations_confirmed, row.seconds], [2, [3, 2], 1, 1, 1, { digits_in_text: 1 }, 1, 0, 4]);
+  const forced = [{ id: "F001", text: "אבגד" }, { id: "F002", text: "הוזח" }, { id: "F003", text: "טיכל" }];
+  const known = knownPairMetrics({ pool, evaluation, forced, pair: ["אבגד", "הוזח", "טיכל"] });
+  assert.equal(known.groups_with_both_words.length, 1);
+  assert.equal(known.groups_with_all_three.length, 1);
+  assert.equal(known.groups_with_both_words[0].names_relation, true);
+  assert.deepEqual(known.phrases_with_both.map((p) => p.status), ["engine_confirmed"]);
+  assert.equal(knownPairMetrics({ pool, evaluation: { ok: false }, forced, pair: ["a", "b", "c"] }), null);
+  assert.deepEqual(stability([{ usable: true, ordered_groups: [{ ids: ["F001", "F002"] }] }, { usable: true, ordered_groups: [{ ids: ["F002", "F003"] }] }]), [0.333]);
+  assert.equal(runMetrics({ run: { id: "Y", arm: "B1", series: "blind", model: "sonnet" }, pool, response, evaluation: { ok: false, error: "x" } }).usable, false);
+});
+
+// ---- the committed live results (integrity of what was sent and spent) ----
+test("live results: every run sent exactly the reviewed request, ended end_turn, the ledger is fully settled and inside the pilot cap", () => {
+  const plan = JSON.parse(readFileSync(`${DIR}controls/plan-review.json`, "utf8"));
+  const ledger = JSON.parse(readFileSync(`${DIR}controls/budget-ledger.json`, "utf8"));
+  assert.equal(plan.runs.length, 22);
+  for (const entry of plan.runs) {
+    const dir = `${DIR}controls/runs/${entry.id}/`;
+    const request = JSON.parse(readFileSync(`${dir}request-round1.json`, "utf8"));
+    const response = JSON.parse(readFileSync(`${dir}round1-response.json`, "utf8"));
+    assert.equal(requestSha256(request), entry.request_sha256, `${entry.id} request`);
+    assert.equal(lockSha256(request), entry.lock_sha256, `${entry.id} lock`);
+    assert.equal(response.request_sha256, entry.request_sha256, `${entry.id} the saved response belongs to that request`);
+    assert.equal(response.summary.stop_reason, "end_turn", entry.id);
+    assert.equal(response.summary.model, entry.model, `${entry.id} was answered by the model that was approved`);
+    assert.equal(response.batch.request_counts.succeeded, 1);
+  }
+  assert.ok(ledger.entries.every((e) => !e.reserved), "no reservation left open");
+  const spent = spentOf(ledger);
+  assert.ok(spent - PRIOR_SPEND_USD <= PILOT_CAP_USD && spent - PRIOR_SPEND_USD > 0, "inside the pilot cap");
+  assert.ok(spent <= 40);
+  assert.equal(ledger.entries.filter((e) => e.kind === "batch").length, 22, "one settled batch per run, no retry");
+  const log = readFileSync(`${DIR}controls/run-log.jsonl`, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  assert.equal(log.filter((e) => e.event === "batch_created").length, 22, "22 batches were created");
+  assert.equal(log.some((e) => e.event === "stop" || e.event === "budget_stop" || e.event === "error"), false);
+});
+
+test("live results: the diagnostic pool's known words were never grouped together by a model, and no blind pool contained them", () => {
+  const forced = JSON.parse(readFileSync(`${DIR}evaluation/d1-forced-ids.json`, "utf8")).forced;
+  const ofText = (t) => forced.filter((f) => f.text === t).map((f) => f.id);
+  const [a, b] = [ofText("אירנ"), ofText("ארהב")];
+  assert.ok(a.length === 2 && b.length === 2);
+  for (const run of RUNS.filter((r) => r.arm === "D1")) {
+    const ev = JSON.parse(readFileSync(`${DIR}controls/runs/${run.id}/evaluation-round1.json`, "utf8"));
+    for (const g of ev.groups) assert.equal(g.ids.some((id) => a.includes(id)) && g.ids.some((id) => b.includes(id)), false, `${run.id} group ${g.order}`);
+    const used = new Set([...ev.groups.flatMap((g) => g.ids), ...ev.singles.map((s) => s.id), ...ev.phrases.flatMap((p) => p.ids), ...ev.continuations.map((c) => c.id)]);
+    assert.equal(a.some((id) => used.has(id)), false, `${run.id} never used the first word`);
+  }
+  for (const run of RUNS.filter((r) => r.series === "blind" && r.arm !== "F")) {
+    const request = JSON.parse(readFileSync(`${DIR}controls/runs/${run.id}/request-round1.json`, "utf8"));
+    const rows = request.messages[0].content.split("\n").filter((l) => /^F\d{3}\|/.test(l)).map((l) => l.split("|")[1]);
+    assert.equal(rows.includes("אירנ") || rows.includes("ארהב"), false, `${run.id}: a blind arm never contained the known words`);
+  }
+});

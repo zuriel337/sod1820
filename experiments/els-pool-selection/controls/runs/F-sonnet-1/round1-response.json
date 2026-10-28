@@ -1,0 +1,78 @@
+{
+  "request_sha256": "0daf1190e5a5ac99fceec3fa0b708c9c075193af1b747dbf41c5a78ae5135a8e",
+  "lock_sha256": "78daa76a759efaaa8647ffd8ad3d9703bdda1b7c73c01b03acea094e34062bad",
+  "transport": "proxy",
+  "batch": {
+    "id": "msgbatch_019cXmnefEZNgPD4V5aVWBoi",
+    "created_at": "2026-10-28T22:20:31.730494+00:00",
+    "ended_at": "2026-10-28T22:22:13.634105+00:00",
+    "request_counts": {
+      "processing": 0,
+      "succeeded": 1,
+      "errored": 0,
+      "canceled": 0,
+      "expired": 0
+    }
+  },
+  "preflight": {
+    "ok": true,
+    "model": "claude-sonnet-5-5",
+    "display_name": "Claude Sonnet 5.5",
+    "listed": true,
+    "max_input_tokens": 1000000,
+    "max_tokens_limit": 128000,
+    "checks": {
+      "structured_outputs": true,
+      "thinking_setting": true,
+      "effort_level": true,
+      "max_tokens_within_model_limit": true
+    },
+    "input_tokens_counted": 20392,
+    "note": "count excludes the structured-output schema, which the API adds; the real input is slightly larger",
+    "upper_bound_usd": 0.371,
+    "request_sha256": "0daf1190e5a5ac99fceec3fa0b708c9c075193af1b747dbf41c5a78ae5135a8e",
+    "lock_sha256": "78daa76a759efaaa8647ffd8ad3d9703bdda1b7c73c01b03acea094e34062bad"
+  },
+  "ms": 101904,
+  "cost": {
+    "usd": 0.031473,
+    "parts": {
+      "input": 0.042696,
+      "cacheWrite": 0,
+      "cacheRead": 0,
+      "output": 0.02025
+    },
+    "basis": "list prices, claude-api model table cached 2026-10-06; cache writes at 1.25x input; Message Batches at 50% of list"
+  },
+  "summary": {
+    "text": "{\"findings\":[{\"id\":\"F1\",\"line\":\"R15+\",\"text\":\"בריהוה\",\"parts\":[\"בריהוה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"תחילת שורה R15: ברית/ביהוה, צירוף מקראי.\"},{\"id\":\"F2\",\"line\":\"R15+\",\"text\":\"אלבניישראל\",\"parts\":[\"אל\",\"בני\",\"ישראל\"],\"kind\":\"segmentation_of_longer_run\",\"story_related\":false,\"continue_from\":true,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"ביטוי מקראי מוכר העובר דרך תא בשורה שנחתכת על ידי המופע הנבחר.\"},{\"id\":\"F3\",\"line\":\"R09+\",\"text\":\"ניישראל\",\"parts\":[\"ני\",\"ישראל\"],\"kind\":\"segmentation_of_longer_run\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"השם ישראל בשורה R09.\"},{\"id\":\"F4\",\"line\":\"R11+\",\"text\":\"בנייש\",\"parts\":[\"בני\",\"יש\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"בני ישראל מתחיל כאן.\"},{\"id\":\"F5\",\"line\":\"R11+\",\"text\":\"במדבר\",\"parts\":[\"במדבר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"מילה שלמה בסוף שורה R11.\"},{\"id\":\"F6\",\"line\":\"R13+\",\"text\":\"ליהוה\",\"parts\":[\"ליהוה\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"שם ה' בשורה R13.\"},{\"id\":\"F7\",\"line\":\"R14+\",\"text\":\"המאור\",\"parts\":[\"המאור\"],\"kind\":\"word\",\"story_related\":true,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"מאור/אור קרוב לשורש אורניום (אור).\"},{\"id\":\"F8\",\"line\":\"R14+\",\"text\":\"נרתיהואתשמ\",\"parts\":[\"נרתיה\",\"ואת\",\"שמ\"],\"kind\":\"segmentation_of_longer_run\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"נרותיה ואת שמן במשכן.\"},{\"id\":\"F9\",\"line\":\"R12+\",\"text\":\"תבואת\",\"parts\":[\"תבואת\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"מילה בתחילת R12.\"},{\"id\":\"F10\",\"line\":\"R12+\",\"text\":\"שבעת\",\"parts\":[\"שבעת\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"מספר שבע.\"},{\"id\":\"F11\",\"line\":\"R12+\",\"text\":\"ואכלו\",\"parts\":[\"ואכלו\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"פועל בעתיד.\"},{\"id\":\"F12\",\"line\":\"R13+\",\"text\":\"העלה\",\"parts\":[\"העלה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"העלה/עולה.\"},{\"id\":\"F13\",\"line\":\"R10+\",\"text\":\"וענייה\",\"parts\":[\"ועמיה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"ועמיה לפי הרצף R10.\"},{\"id\":\"F14\",\"line\":\"R10+\",\"text\":\"רשעימ\",\"parts\":[\"רשעימ\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"רשעים.\"},{\"id\":\"F15\",\"line\":\"R10+\",\"text\":\"העתיר\",\"parts\":[\"העתיר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"פועל התפילה.\"},{\"id\":\"F16\",\"line\":\"R16+\",\"text\":\"ויסמכ\",\"parts\":[\"ויסמכ\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"סמיכת ידיים.\"},{\"id\":\"F17\",\"line\":\"R16+\",\"text\":\"אהרנובניו\",\"parts\":[\"אהרנ\",\"ובניו\"],\"kind\":\"segmentation_of_longer_run\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"אהרן ובניו.\"},{\"id\":\"F18\",\"line\":\"R08+\",\"text\":\"יעקבב\",\"parts\":[\"יעקב\",\"ב\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"השם יעקב.\"},{\"id\":\"F19\",\"line\":\"R07+\",\"text\":\"שמעתי\",\"parts\":[\"שמעתי\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"פועל שמעתי.\"},{\"id\":\"F20\",\"line\":\"R06+\",\"text\":\"מספר\",\"parts\":[\"מספר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"מילה בשורה R06.\"}],\"relations\":[{\"a\":\"F2\",\"b\":\"F4\",\"type\":\"near\",\"note\":\"שני ביטויי בני ישראל בשורות סמוכות.\"},{\"a\":\"F5\",\"b\":\"F2\",\"type\":\"near\",\"note\":\"שורות R11 ו-R15 באותו אזור.\"}],\"groups\":[{\"ids\":[\"F2\",\"F3\",\"F4\"],\"why\":\"בני ישראל חוזר בשורות מרכז הקטע.\"}],\"observations\":\"עברתי בעיקר על שורות באזור המופע; לא בדקתי לעומק את האלכסונים והטורים.\"}",
+    "thinking": [],
+    "stop_reason": "end_turn",
+    "stop_details": null,
+    "model": "claude-sonnet-5-5",
+    "usage": {
+      "input_tokens": 21348,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 2025,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "batch",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "id": "msg_011CgVQyZEfTRFbN5r4ymKuh"
+  },
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"findings\":[{\"id\":\"F1\",\"line\":\"R15+\",\"text\":\"בריהוה\",\"parts\":[\"בריהוה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"תחילת שורה R15: ברית/ביהוה, צירוף מקראי.\"},{\"id\":\"F2\",\"line\":\"R15+\",\"text\":\"אלבניישראל\",\"parts\":[\"אל\",\"בני\",\"ישראל\"],\"kind\":\"segmentation_of_longer_run\",\"story_related\":false,\"continue_from\":true,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"ביטוי מקראי מוכר העובר דרך תא בשורה שנחתכת על ידי המופע הנבחר.\"},{\"id\":\"F3\",\"line\":\"R09+\",\"text\":\"ניישראל\",\"parts\":[\"ני\",\"ישראל\"],\"kind\":\"segmentation_of_longer_run\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"השם ישראל בשורה R09.\"},{\"id\":\"F4\",\"line\":\"R11+\",\"text\":\"בנייש\",\"parts\":[\"בני\",\"יש\"],\"kind\":\"construct_or_phrase\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"בני ישראל מתחיל כאן.\"},{\"id\":\"F5\",\"line\":\"R11+\",\"text\":\"במדבר\",\"parts\":[\"במדבר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"מילה שלמה בסוף שורה R11.\"},{\"id\":\"F6\",\"line\":\"R13+\",\"text\":\"ליהוה\",\"parts\":[\"ליהוה\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"שם ה' בשורה R13.\"},{\"id\":\"F7\",\"line\":\"R14+\",\"text\":\"המאור\",\"parts\":[\"המאור\"],\"kind\":\"word\",\"story_related\":true,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"A\",\"note\":\"מאור/אור קרוב לשורש אורניום (אור).\"},{\"id\":\"F8\",\"line\":\"R14+\",\"text\":\"נרתיהואתשמ\",\"parts\":[\"נרתיה\",\"ואת\",\"שמ\"],\"kind\":\"segmentation_of_longer_run\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"נרותיה ואת שמן במשכן.\"},{\"id\":\"F9\",\"line\":\"R12+\",\"text\":\"תבואת\",\"parts\":[\"תבואת\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"מילה בתחילת R12.\"},{\"id\":\"F10\",\"line\":\"R12+\",\"text\":\"שבעת\",\"parts\":[\"שבעת\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"מספר שבע.\"},{\"id\":\"F11\",\"line\":\"R12+\",\"text\":\"ואכלו\",\"parts\":[\"ואכלו\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"פועל בעתיד.\"},{\"id\":\"F12\",\"line\":\"R13+\",\"text\":\"העלה\",\"parts\":[\"העלה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"העלה/עולה.\"},{\"id\":\"F13\",\"line\":\"R10+\",\"text\":\"וענייה\",\"parts\":[\"ועמיה\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"ועמיה לפי הרצף R10.\"},{\"id\":\"F14\",\"line\":\"R10+\",\"text\":\"רשעימ\",\"parts\":[\"רשעימ\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"רשעים.\"},{\"id\":\"F15\",\"line\":\"R10+\",\"text\":\"העתיר\",\"parts\":[\"העתיר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"פועל התפילה.\"},{\"id\":\"F16\",\"line\":\"R16+\",\"text\":\"ויסמכ\",\"parts\":[\"ויסמכ\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"סמיכת ידיים.\"},{\"id\":\"F17\",\"line\":\"R16+\",\"text\":\"אהרנובניו\",\"parts\":[\"אהרנ\",\"ובניו\"],\"kind\":\"segmentation_of_longer_run\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"B\",\"note\":\"אהרן ובניו.\"},{\"id\":\"F18\",\"line\":\"R08+\",\"text\":\"יעקבב\",\"parts\":[\"יעקב\",\"ב\"],\"kind\":\"name\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"השם יעקב.\"},{\"id\":\"F19\",\"line\":\"R07+\",\"text\":\"שמעתי\",\"parts\":[\"שמעתי\"],\"kind\":\"inflected_form\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"פועל שמעתי.\"},{\"id\":\"F20\",\"line\":\"R06+\",\"text\":\"מספר\",\"parts\":[\"מספר\"],\"kind\":\"word\",\"story_related\":false,\"continue_from\":false,\"from_finding\":\"\",\"tier\":\"C\",\"note\":\"מילה בשורה R06.\"}],\"relations\":[{\"a\":\"F2\",\"b\":\"F4\",\"type\":\"near\",\"note\":\"שני ביטויי בני ישראל בשורות סמוכות.\"},{\"a\":\"F5\",\"b\":\"F2\",\"type\":\"near\",\"note\":\"שורות R11 ו-R15 באותו אזור.\"}],\"groups\":[{\"ids\":[\"F2\",\"F3\",\"F4\"],\"why\":\"בני ישראל חוזר בשורות מרכז הקטע.\"}],\"observations\":\"עברתי בעיקר על שורות באזור המופע; לא בדקתי לעומק את האלכסונים והטורים.\"}"
+    }
+  ],
+  "run": "F-sonnet-1"
+}

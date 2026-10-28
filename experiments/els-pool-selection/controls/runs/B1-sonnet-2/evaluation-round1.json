@@ -1,0 +1,807 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F036",
+          "F044",
+          "F127",
+          "F146",
+          "F176",
+          "F201",
+          "F085",
+          "F178",
+          "F108"
+        ],
+        "relation_ids": [
+          "R0009",
+          "R0035",
+          "R0036",
+          "R0037",
+          "R0053",
+          "R0065",
+          "R0822",
+          "R0823",
+          "R0824",
+          "R0966"
+        ],
+        "kind": "cluster",
+        "why": "צביר של ממצאי K4 על אותו קו או בקווים מקבילים וסמוכים, עם המשכים ויחסי מקבילה הדדיים. כמה מהם בעלי E גבוה מאוד והם חוצים את הציר, אבל הצפיפות הזו יכולה לנבוע גם מחזרת אותיות באזור."
+      },
+      {
+        "ids": [
+          "F043",
+          "F162",
+          "F163",
+          "F051"
+        ],
+        "relation_ids": [
+          "R0007",
+          "R0008",
+          "R0062",
+          "R0816",
+          "R0817"
+        ],
+        "kind": "cluster",
+        "why": "ממצאי K2 שמהווים המשך זה של זה וגם קווים מקבילים, והם חוצים את אזור הציר."
+      },
+      {
+        "ids": [
+          "F066",
+          "F082",
+          "F107"
+        ],
+        "relation_ids": [
+          "R0017",
+          "R0018",
+          "R0022"
+        ],
+        "kind": "chain",
+        "why": "שלושה ממצאי A1 על אותו קו עם חפיפות משמעותיות, E גבוה והם חוצים את הציר."
+      },
+      {
+        "ids": [
+          "F129",
+          "F191",
+          "F212",
+          "F214"
+        ],
+        "relation_ids": [
+          "R0045",
+          "R0046",
+          "R0067",
+          "R0842",
+          "R0843"
+        ],
+        "kind": "cluster",
+        "why": "ממצאי K1 שמהווים המשך זה של זה ומקבילים זה לזה, וכולם חוצים את הציר."
+      },
+      {
+        "ids": [
+          "F062",
+          "F133"
+        ],
+        "relation_ids": [
+          "R0016"
+        ],
+        "kind": "pair",
+        "why": "זוג על אותו קו אלכסוני בכיוונים הפוכים עם חפיפה של שלושה תאים, ושניהם חוצים את הציר."
+      },
+      {
+        "ids": [
+          "F118",
+          "F119",
+          "F120",
+          "F121",
+          "F122"
+        ],
+        "relation_ids": [
+          "R0039",
+          "R0040",
+          "R0041"
+        ],
+        "kind": "chain",
+        "why": "רצף בשורת טקסט רגילה, והוא מחבר ממצאים צמודים בשורה אחת."
+      },
+      {
+        "ids": [
+          "F272",
+          "F273",
+          "F274",
+          "F275"
+        ],
+        "relation_ids": [
+          "R0086",
+          "R0087",
+          "R0088",
+          "R0089"
+        ],
+        "kind": "chain",
+        "why": "רצף המשכים בשורת טקסט עם חפיפות גדולות בין שמות האל לבין המילים הסמוכות להם."
+      },
+      {
+        "ids": [
+          "F147",
+          "F148",
+          "F149"
+        ],
+        "relation_ids": [
+          "R0055",
+          "R0056",
+          "R0057"
+        ],
+        "kind": "chain",
+        "why": "המשכים על אותה שורה של כלי המשכן."
+      },
+      {
+        "ids": [
+          "F086",
+          "F087",
+          "F088"
+        ],
+        "relation_ids": [
+          "R0025",
+          "R0026",
+          "R0027"
+        ],
+        "kind": "chain",
+        "why": "המשכים חופפים של העתירו, ואליהו, ואליהוה."
+      },
+      {
+        "ids": [
+          "F092",
+          "F093",
+          "F095",
+          "F096",
+          "F097"
+        ],
+        "relation_ids": [
+          "R0029",
+          "R0030",
+          "R0031",
+          "R0032"
+        ],
+        "kind": "chain",
+        "why": "שרשרת המשכים ארוכה בשורה אחת. המילים רצופות כי זהו טקסט רגיל."
+      },
+      {
+        "ids": [
+          "F060",
+          "F144"
+        ],
+        "relation_ids": [
+          "R0015"
+        ],
+        "kind": "pair",
+        "why": "זוג המשך בעמודה בדילוג שורה בכיוונים הפוכים עם חפיפה של ארבעה תאים."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F079",
+        "why": "E הגבוה ביותר במאגר, והוא חוצה את הציר ומתחבר בהמשך ל-F049."
+      },
+      {
+        "id": "F062",
+        "why": "E גבוה וחוצה את הציר, ויש לו המשך חופף עם F133."
+      },
+      {
+        "id": "F065",
+        "why": "E גבוה וחוצה את הציר."
+      },
+      {
+        "id": "F049",
+        "why": "E גבוה וחוצה את הציר, ויש לו המשך חופף עם F079."
+      },
+      {
+        "id": "F044",
+        "why": "E גבוה והוא מרכז צביר K4 וחוצה את הציר."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F139",
+          "F140",
+          "F141"
+        ],
+        "why": "שלוש מילים רצופות על אותה שורה של כלי המשכן."
+      },
+      {
+        "ids": [
+          "F227",
+          "F228",
+          "F229"
+        ],
+        "why": "שלוש מילים רצופות על אותה שורה."
+      },
+      {
+        "ids": [
+          "F090",
+          "F092",
+          "F093"
+        ],
+        "why": "מילים בשורה אחת שמתחברות לרצף."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F062",
+        "before_letters": "בילנרי",
+        "after_letters": "ילאיוג",
+        "why": "האותיות הסמוכות לא יוצרות מילה ברורה, ולכן ההמשך חלש."
+      }
+    ],
+    "chance_note": "רוב יחסי המקבילה, הסמיכות והחיתוך מקריים: שורות הטקסט הרגיל מקבילות זו לזו מטבע הדברים, ואלכסונים חוצים שורות רבות. גם צפיפות סביב הציר צפויה כשהאזור קטן וכמה ממצאים עם E גבוה חופפים זה לזה."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "צביר של ממצאי K4 על אותו קו או בקווים מקבילים וסמוכים, עם המשכים ויחסי מקבילה הד"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "ממצאי K2 שמהווים המשך זה של זה וגם קווים מקבילים, והם חוצים את אזור הציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "שלושה ממצאי A1 על אותו קו עם חפיפות משמעותיות, E גבוה והם חוצים את הציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "ממצאי K1 שמהווים המשך זה של זה ומקבילים זה לזה, וכולם חוצים את הציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[4].why",
+      "detail": "E גבוה והוא מרכז צביר K4 וחוצה את הציר."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F036",
+        "F044",
+        "F127",
+        "F146",
+        "F176",
+        "F201",
+        "F085",
+        "F178",
+        "F108"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0009",
+        "R0035",
+        "R0036",
+        "R0037",
+        "R0053",
+        "R0065",
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0966"
+      ],
+      "claimed_ok": [
+        "R0009",
+        "R0035",
+        "R0036",
+        "R0037",
+        "R0053",
+        "R0065",
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0966"
+      ],
+      "why": "צביר של ממצאי K4 על אותו קו או בקווים מקבילים וסמוכים, עם המשכים ויחסי מקבילה הדדיים. כמה מהם בעלי E גבוה מאוד והם חוצים את הציר, אבל הצפיפות הזו יכולה לנבוע גם מחזרת אותיות באזור.",
+      "order": 1,
+      "stats": {
+        "size": 9,
+        "relations_any": 34,
+        "relations_listed": 30,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 9,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F043",
+        "F162",
+        "F163",
+        "F051"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0816",
+        "R0817"
+      ],
+      "claimed_ok": [
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0816",
+        "R0817"
+      ],
+      "why": "ממצאי K2 שמהווים המשך זה של זה וגם קווים מקבילים, והם חוצים את אזור הציר.",
+      "order": 2,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F066",
+        "F082",
+        "F107"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0017",
+        "R0018",
+        "R0022"
+      ],
+      "claimed_ok": [
+        "R0017",
+        "R0018",
+        "R0022"
+      ],
+      "why": "שלושה ממצאי A1 על אותו קו עם חפיפות משמעותיות, E גבוה והם חוצים את הציר.",
+      "order": 3,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F129",
+        "F191",
+        "F212",
+        "F214"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0842",
+        "R0843"
+      ],
+      "claimed_ok": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0842",
+        "R0843"
+      ],
+      "why": "ממצאי K1 שמהווים המשך זה של זה ומקבילים זה לזה, וכולם חוצים את הציר.",
+      "order": 4,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F062",
+        "F133"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0016"
+      ],
+      "claimed_ok": [
+        "R0016"
+      ],
+      "why": "זוג על אותו קו אלכסוני בכיוונים הפוכים עם חפיפה של שלושה תאים, ושניהם חוצים את הציר.",
+      "order": 5,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F118",
+        "F119",
+        "F120",
+        "F121",
+        "F122"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0039",
+        "R0040",
+        "R0041"
+      ],
+      "claimed_ok": [
+        "R0039",
+        "R0040",
+        "R0041"
+      ],
+      "why": "רצף בשורת טקסט רגילה, והוא מחבר ממצאים צמודים בשורה אחת.",
+      "order": 6,
+      "stats": {
+        "size": 5,
+        "relations_any": 5,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F272",
+        "F273",
+        "F274",
+        "F275"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0086",
+        "R0087",
+        "R0088",
+        "R0089"
+      ],
+      "claimed_ok": [
+        "R0086",
+        "R0087",
+        "R0088",
+        "R0089"
+      ],
+      "why": "רצף המשכים בשורת טקסט עם חפיפות גדולות בין שמות האל לבין המילים הסמוכות להם.",
+      "order": 7,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F147",
+        "F148",
+        "F149"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "claimed_ok": [
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "why": "המשכים על אותה שורה של כלי המשכן.",
+      "order": 8,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F086",
+        "F087",
+        "F088"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0025",
+        "R0026",
+        "R0027"
+      ],
+      "claimed_ok": [
+        "R0025",
+        "R0026",
+        "R0027"
+      ],
+      "why": "המשכים חופפים של העתירו, ואליהו, ואליהוה.",
+      "order": 9,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F092",
+        "F093",
+        "F095",
+        "F096",
+        "F097"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0032"
+      ],
+      "claimed_ok": [
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0032"
+      ],
+      "why": "שרשרת המשכים ארוכה בשורה אחת. המילים רצופות כי זהו טקסט רגיל.",
+      "order": 10,
+      "stats": {
+        "size": 5,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F060",
+        "F144"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0015"
+      ],
+      "claimed_ok": [
+        "R0015"
+      ],
+      "why": "זוג המשך בעמודה בדילוג שורה בכיוונים הפוכים עם חפיפה של ארבעה תאים.",
+      "order": 11,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F079",
+      "why": "E הגבוה ביותר במאגר, והוא חוצה את הציר ומתחבר בהמשך ל-F049.",
+      "order": 1
+    },
+    {
+      "id": "F062",
+      "why": "E גבוה וחוצה את הציר, ויש לו המשך חופף עם F133.",
+      "order": 2
+    },
+    {
+      "id": "F065",
+      "why": "E גבוה וחוצה את הציר.",
+      "order": 3
+    },
+    {
+      "id": "F049",
+      "why": "E גבוה וחוצה את הציר, ויש לו המשך חופף עם F079.",
+      "order": 4
+    },
+    {
+      "id": "F044",
+      "why": "E גבוה והוא מרכז צביר K4 וחוצה את הציר.",
+      "order": 5
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F139",
+        "F140",
+        "F141"
+      ],
+      "why": "שלוש מילים רצופות על אותה שורה של כלי המשכן.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 131479,
+        "skip": 1,
+        "dir": 1,
+        "length": 23
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F227",
+        "F228",
+        "F229"
+      ],
+      "why": "שלוש מילים רצופות על אותה שורה.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 202198,
+        "skip": 1,
+        "dir": 1,
+        "length": 19
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F090",
+        "F092",
+        "F093"
+      ],
+      "why": "מילים בשורה אחת שמתחברות לרצף.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 101198,
+        "skip": 1,
+        "dir": 1,
+        "length": 19
+      },
+      "engine": {
+        "key": "phrase:2",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F062",
+      "before_letters": "בילנרי",
+      "after_letters": "ילאיוג",
+      "why": "האותיות הסמוכות לא יוצרות מילה ברורה, ולכן ההמשך חלש.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 20407,
+        "skip": 10102,
+        "dir": 1,
+        "length": 16,
+        "before": "בילנרי",
+        "after": "ילאיוג"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:2",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "MATCH"
+    }
+  ]
+}

@@ -147,3 +147,13 @@ What reading the saved record changed, stated before any model result exists:
 * **Axis phrase in the real pool.** The first committed pools stored `axis.term: null` for the real region (the phrase was read from the wrong field of the engine record), which would have printed „null” in the arms that
   name the axis. Found while building the requests, before any call; the pools were rebuilt once more (items, relations and window md5 identical; only `axis.term` = the phrase as given, in the real pool and D1), and
   the tests now check the phrase in every request that names it and the absence of placeholders in all of them.
+
+## Amendment 4 (28.10.2026, during and after the live run; the plan itself did not change)
+* **Execution.** The reviewed plan (22 requests, plan-review sha256 `fe41b8d8…c280e`) ran as written, in the registered priority order; the first run (B1-sonnet-1) was sent alone as a smoke test and the other 21 followed.
+  22 of 22 calls ended `end_turn` with a parseable answer; no retry, no budget stop; actual pilot cost USD 2.826 (spent 31.549 of 40). The temporary function (`els-live-reading` v9) was replaced by the 410 stub (v10)
+  right after the last run and verified (410 with and without the token); token and env file deleted. The work_log BEFORE row of the live phase was written after the function was deployed (same minute), not before.
+* **Post-hoc, labelled as such wherever they appear.** (a) `evaluation/axis-parallels.mjs`: words beside the axis in its own family at any column offset, in the real window and in the 12 tiles (asked by ZURIEL after the pair's relation to the
+  axis, hidden by the registered 6-column parallel limit, was seen). (b) `errors_other_than_digits` and `texts_with_digits_beyond_labels` in the metrics: the registered validator counts every digit in free text as an error, which mostly
+  catches counts copied from the relation lines and family labels (K4, D2…); the other error codes are reported separately. (c) The Jaccard stability of the B3 arm compares different tiles and is not interpreted.
+* **Result files.** `results/pilot-results-note.md` (conclusions and limits), `results/pilot-results.json`, `controls/summary.md` (tables), `results/proposals.md` (every original proposal with its verdict), `controls/runs/<id>/` (requests, preflight,
+  raw answers, validation and engine checks).

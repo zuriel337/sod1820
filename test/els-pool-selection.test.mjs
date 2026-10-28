@@ -267,7 +267,7 @@ test("packet: only the registered relations are listed, each relation line names
 
 test("independence: the experiment code never imports or reads the saved comparison, and never contains a word of it", () => {
   const files = [];
-  const walk = (dir) => { for (const e of readdirSync(dir, { withFileTypes: true })) { const p = `${dir}${e.name}`; if (e.isDirectory()) { if (!["data", "review", "evaluation", "controls", "runs"].includes(e.name)) walk(`${p}/`); } else if (e.name.endsWith(".mjs")) files.push(p); } };
+  const walk = (dir) => { for (const e of readdirSync(dir, { withFileTypes: true })) { const p = `${dir}${e.name}`; if (e.isDirectory()) { if (!["data", "review", "evaluation", "controls", "runs"].includes(e.name)) walk(`${p}/`); } else if (e.name.endsWith(".mjs") && e.name !== "evaluate-pilot.mjs") files.push(p); } }; // evaluate-pilot.mjs is the comparison stage itself (run after the answers were saved), like evaluation/
   walk(DIR);
   assert.ok(files.length >= 8);
   const sources = files.map((f) => [f, readFileSync(f, "utf8")]);

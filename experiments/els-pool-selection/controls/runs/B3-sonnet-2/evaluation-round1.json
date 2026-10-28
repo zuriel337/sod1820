@@ -1,0 +1,772 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F076",
+          "F093",
+          "F118",
+          "F148",
+          "F165"
+        ],
+        "relation_ids": [
+          "R0018",
+          "R0019",
+          "R0020",
+          "R0021",
+          "R0029",
+          "R0030",
+          "R0031",
+          "R0042",
+          "R0043",
+          "R0052"
+        ],
+        "kind": "cluster",
+        "why": "חמישה ממצאים בקו D2 או בכיוון הנגדי שנמשכים זה לזה בחפיפות גבוהות, ולכולם E גבוה. זה צביר צפוף סביב עמודות 47–55, אך החפיפה בין קווים סמוכים משקפת רצף אותיות משותף ולכן כנראה מקרית."
+      },
+      {
+        "ids": [
+          "F083",
+          "F095",
+          "F143",
+          "F122"
+        ],
+        "relation_ids": [
+          "R0026",
+          "R0027",
+          "R0032",
+          "R0881",
+          "R0882",
+          "R0883"
+        ],
+        "kind": "cluster",
+        "why": "קבוצת A1 שמתחברת בהמשכים ובהקבלות צמודות, ובה אהבי, הביש, שיבה ותבהל. החפיפות גבוהות אך E גבוה, ולכן אין סימן להפתעה."
+      },
+      {
+        "ids": [
+          "F079",
+          "F119",
+          "F146"
+        ],
+        "relation_ids": [
+          "R0022",
+          "R0023",
+          "R0044"
+        ],
+        "kind": "chain",
+        "why": "שרשרת K1 של השבת, שבתת ובתתכ שנמשכת על אותו קו בחפיפות של 2–3 אותיות. השבת ושבתת קרובות נושאית, אך E גבוה."
+      },
+      {
+        "ids": [
+          "F107",
+          "F108",
+          "F109",
+          "F110",
+          "F117"
+        ],
+        "relation_ids": [
+          "R0035",
+          "R0036",
+          "R0038",
+          "R0040"
+        ],
+        "kind": "chain",
+        "why": "קטע טקסט רגיל רציף: אשר דבר, דבר יהוה, והשבת, שבתון, ונשבת. הם חופפים בשורה אחת בלי דילוג, ולכן זה מבנה של הטקסט עצמו ולא של דילוגים."
+      },
+      {
+        "ids": [
+          "F127",
+          "F128"
+        ],
+        "relation_ids": [
+          "R0047"
+        ],
+        "kind": "pair",
+        "why": "ואליהו ואליהוה חופפות כמעט לגמרי, והשנייה היא הרחבה של הראשונה בטקסט הרגיל."
+      },
+      {
+        "ids": [
+          "F174",
+          "F176",
+          "F177",
+          "F172"
+        ],
+        "relation_ids": [
+          "R0058",
+          "R0059",
+          "R0060",
+          "R0061"
+        ],
+        "kind": "cluster",
+        "why": "בשורה 15 מנחתם, מרחשת, תקרב וקרבנכ חופפים זה לזה בטקסט רגיל, ויחד הם יוצרים מקטע הקרבה ברור."
+      },
+      {
+        "ids": [
+          "F223",
+          "F224",
+          "F225",
+          "F228"
+        ],
+        "relation_ids": [
+          "R0072",
+          "R0073",
+          "R0074"
+        ],
+        "kind": "chain",
+        "why": "רשימת כלי המשכן בשורה 20 היא שרשרת רציפה של אתהמחתת, אתהמזלגת, ואתהיעים ואתהמזרקת, כולה טקסט רגיל."
+      },
+      {
+        "ids": [
+          "F049",
+          "F054",
+          "F050",
+          "F131"
+        ],
+        "relation_ids": [
+          "R0010",
+          "R0877",
+          "R0878",
+          "R0879"
+        ],
+        "kind": "cluster",
+        "why": "קבוצת K4 עם ואהי, היתה, ביתא ויהאו, שיש ביניהן המשך והקבלה צמודה. לכל אחת E גבוה מאוד, ולכן זה צפוי."
+      },
+      {
+        "ids": [
+          "F232",
+          "F233",
+          "F234",
+          "F236"
+        ],
+        "relation_ids": [
+          "R0075",
+          "R0076",
+          "R0077",
+          "R0078"
+        ],
+        "kind": "chain",
+        "why": "והלוים, ויכבסו, ובגדי ובגדיהם הם רצף טקסט רגיל ברצף עניין אחד של כיבוס בגדים."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F217",
+        "why": "מצרעתו הוא ממצא עם E נמוך מאוד (כ-5.6e-3) והוא מילה ארוכה יחסית בדילוג."
+      },
+      {
+        "id": "F196",
+        "why": "הארגמן ב-D2 עם E נמוך מאוד, אך אין לו קשר נושאי ברור."
+      },
+      {
+        "id": "F243",
+        "why": "בצדיכם ב-D2 עם E נמוך מאוד."
+      },
+      {
+        "id": "F006",
+        "why": "הכירות ב-C2 עם E נמוך, והוא חוצה שורות רבות."
+      },
+      {
+        "id": "F280",
+        "why": "כשדיים בעמודה בדילוג עם E נמוך."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F190",
+          "F191",
+          "F192"
+        ],
+        "why": "לפני יהוה, ואל בני, לבני ישראל הם רצף על אותו קו בשורה 16."
+      },
+      {
+        "ids": [
+          "F167",
+          "F168",
+          "F169"
+        ],
+        "why": "אשר נתן, נתניהו, והחכמה הם רצף בטקסט רגיל באותה שורה."
+      },
+      {
+        "ids": [
+          "F209",
+          "F210",
+          "F211"
+        ],
+        "why": "את מתי, תירשו ואת אדמתם הם שרשרת רציפה בשורה 18."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F029",
+        "before_letters": "תבתואל",
+        "after_letters": "אשר",
+        "why": "בננחור ממשיך את בתבתואל ופותח את אשר בטקסט הרגיל."
+      },
+      {
+        "id": "F181",
+        "before_letters": "הליהוה",
+        "after_letters": "-",
+        "why": "והקריב נמצא בסוף האזור ומשלים את הליהוה שלפניו."
+      }
+    ],
+    "chance_note": "רוב היחסים, ובעיקר החיתוכים והסמיכויות, נובעים מהצפיפות של המטריצה, ולכן הם מקריים. ממצאי הדילוג עם E גבוה מאוד מצטברים באזור העמודות 47–55, והחפיפות בין הקבלות בשורות הטקסט הרגיל נובעות מטקסט משותף ואינן מעידות על משמעות."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "chance_note",
+      "detail": "רוב היחסים, ובעיקר החיתוכים והסמיכויות, נובעים מהצפיפות של המטריצה, ולכן הם מקרי"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "חמישה ממצאים בקו D2 או בכיוון הנגדי שנמשכים זה לזה בחפיפות גבוהות, ולכולם E גבוה"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "קבוצת A1 שמתחברת בהמשכים ובהקבלות צמודות, ובה אהבי, הביש, שיבה ותבהל. החפיפות גב"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "שרשרת K1 של השבת, שבתת ובתתכ שנמשכת על אותו קו בחפיפות של 2–3 אותיות. השבת ושבתת"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[5].why",
+      "detail": "בשורה 15 מנחתם, מרחשת, תקרב וקרבנכ חופפים זה לזה בטקסט רגיל, ויחד הם יוצרים מקטע"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[6].why",
+      "detail": "רשימת כלי המשכן בשורה 20 היא שרשרת רציפה של אתהמחתת, אתהמזלגת, ואתהיעים ואתהמזרק"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[7].why",
+      "detail": "קבוצת K4 עם ואהי, היתה, ביתא ויהאו, שיש ביניהן המשך והקבלה צמודה. לכל אחת E גבוה"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[0].why",
+      "detail": "מצרעתו הוא ממצא עם E נמוך מאוד (כ-5.6e-3) והוא מילה ארוכה יחסית בדילוג."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "הארגמן ב-D2 עם E נמוך מאוד, אך אין לו קשר נושאי ברור."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[2].why",
+      "detail": "בצדיכם ב-D2 עם E נמוך מאוד."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "הכירות ב-C2 עם E נמוך, והוא חוצה שורות רבות."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[0].why",
+      "detail": "לפני יהוה, ואל בני, לבני ישראל הם רצף על אותו קו בשורה 16."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[2].why",
+      "detail": "את מתי, תירשו ואת אדמתם הם שרשרת רציפה בשורה 18."
+    },
+    {
+      "code": "continuation_letters_not_shown",
+      "where": "continuations[1]",
+      "detail": "F181: before \"הליהוה\" / after \"-\" are not the letters shown (\"הליהוה\" | \"\")"
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F076",
+        "F093",
+        "F118",
+        "F148",
+        "F165"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0018",
+        "R0019",
+        "R0020",
+        "R0021",
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0042",
+        "R0043",
+        "R0052"
+      ],
+      "claimed_ok": [
+        "R0018",
+        "R0019",
+        "R0020",
+        "R0021",
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0042",
+        "R0043",
+        "R0052"
+      ],
+      "why": "חמישה ממצאים בקו D2 או בכיוון הנגדי שנמשכים זה לזה בחפיפות גבוהות, ולכולם E גבוה. זה צביר צפוף סביב עמודות 47–55, אך החפיפה בין קווים סמוכים משקפת רצף אותיות משותף ולכן כנראה מקרית.",
+      "order": 1,
+      "stats": {
+        "size": 5,
+        "relations_any": 10,
+        "relations_listed": 10,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 5,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F083",
+        "F095",
+        "F143",
+        "F122"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0026",
+        "R0027",
+        "R0032",
+        "R0881",
+        "R0882",
+        "R0883"
+      ],
+      "claimed_ok": [
+        "R0026",
+        "R0027",
+        "R0032",
+        "R0881",
+        "R0882",
+        "R0883"
+      ],
+      "why": "קבוצת A1 שמתחברת בהמשכים ובהקבלות צמודות, ובה אהבי, הביש, שיבה ותבהל. החפיפות גבוהות אך E גבוה, ולכן אין סימן להפתעה.",
+      "order": 2,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F079",
+        "F119",
+        "F146"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0022",
+        "R0023",
+        "R0044"
+      ],
+      "claimed_ok": [
+        "R0022",
+        "R0023",
+        "R0044"
+      ],
+      "why": "שרשרת K1 של השבת, שבתת ובתתכ שנמשכת על אותו קו בחפיפות של 2–3 אותיות. השבת ושבתת קרובות נושאית, אך E גבוה.",
+      "order": 3,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F107",
+        "F108",
+        "F109",
+        "F110",
+        "F117"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0035",
+        "R0036",
+        "R0038",
+        "R0040"
+      ],
+      "claimed_ok": [
+        "R0035",
+        "R0036",
+        "R0038",
+        "R0040"
+      ],
+      "why": "קטע טקסט רגיל רציף: אשר דבר, דבר יהוה, והשבת, שבתון, ונשבת. הם חופפים בשורה אחת בלי דילוג, ולכן זה מבנה של הטקסט עצמו ולא של דילוגים.",
+      "order": 4,
+      "stats": {
+        "size": 5,
+        "relations_any": 9,
+        "relations_listed": 9,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F127",
+        "F128"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0047"
+      ],
+      "claimed_ok": [
+        "R0047"
+      ],
+      "why": "ואליהו ואליהוה חופפות כמעט לגמרי, והשנייה היא הרחבה של הראשונה בטקסט הרגיל.",
+      "order": 5,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 2
+      }
+    },
+    {
+      "ids": [
+        "F174",
+        "F176",
+        "F177",
+        "F172"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0058",
+        "R0059",
+        "R0060",
+        "R0061"
+      ],
+      "claimed_ok": [
+        "R0058",
+        "R0059",
+        "R0060",
+        "R0061"
+      ],
+      "why": "בשורה 15 מנחתם, מרחשת, תקרב וקרבנכ חופפים זה לזה בטקסט רגיל, ויחד הם יוצרים מקטע הקרבה ברור.",
+      "order": 6,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F223",
+        "F224",
+        "F225",
+        "F228"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0072",
+        "R0073",
+        "R0074"
+      ],
+      "claimed_ok": [
+        "R0072",
+        "R0073",
+        "R0074"
+      ],
+      "why": "רשימת כלי המשכן בשורה 20 היא שרשרת רציפה של אתהמחתת, אתהמזלגת, ואתהיעים ואתהמזרקת, כולה טקסט רגיל.",
+      "order": 7,
+      "stats": {
+        "size": 4,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F049",
+        "F054",
+        "F050",
+        "F131"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0010",
+        "R0877",
+        "R0878",
+        "R0879"
+      ],
+      "claimed_ok": [
+        "R0010",
+        "R0877",
+        "R0878",
+        "R0879"
+      ],
+      "why": "קבוצת K4 עם ואהי, היתה, ביתא ויהאו, שיש ביניהן המשך והקבלה צמודה. לכל אחת E גבוה מאוד, ולכן זה צפוי.",
+      "order": 8,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F232",
+        "F233",
+        "F234",
+        "F236"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0075",
+        "R0076",
+        "R0077",
+        "R0078"
+      ],
+      "claimed_ok": [
+        "R0075",
+        "R0076",
+        "R0077",
+        "R0078"
+      ],
+      "why": "והלוים, ויכבסו, ובגדי ובגדיהם הם רצף טקסט רגיל ברצף עניין אחד של כיבוס בגדים.",
+      "order": 9,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F217",
+      "why": "מצרעתו הוא ממצא עם E נמוך מאוד (כ-5.6e-3) והוא מילה ארוכה יחסית בדילוג.",
+      "order": 1
+    },
+    {
+      "id": "F196",
+      "why": "הארגמן ב-D2 עם E נמוך מאוד, אך אין לו קשר נושאי ברור.",
+      "order": 2
+    },
+    {
+      "id": "F243",
+      "why": "בצדיכם ב-D2 עם E נמוך מאוד.",
+      "order": 3
+    },
+    {
+      "id": "F006",
+      "why": "הכירות ב-C2 עם E נמוך, והוא חוצה שורות רבות.",
+      "order": 4
+    },
+    {
+      "id": "F280",
+      "why": "כשדיים בעמודה בדילוג עם E נמוך.",
+      "order": 5
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F190",
+        "F191",
+        "F192"
+      ],
+      "why": "לפני יהוה, ואל בני, לבני ישראל הם רצף על אותו קו בשורה 16.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 152999,
+        "skip": 1,
+        "dir": 1,
+        "length": 19
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F167",
+        "F168",
+        "F169"
+      ],
+      "why": "אשר נתן, נתניהו, והחכמה הם רצף בטקסט רגיל באותה שורה.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 132799,
+        "skip": 1,
+        "dir": 1,
+        "length": 14
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F209",
+        "F210",
+        "F211"
+      ],
+      "why": "את מתי, תירשו ואת אדמתם הם שרשרת רציפה בשורה 18.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 173184,
+        "skip": 1,
+        "dir": 1,
+        "length": 15
+      },
+      "engine": {
+        "key": "phrase:2",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F029",
+      "before_letters": "תבתואל",
+      "after_letters": "אשר",
+      "why": "בננחור ממשיך את בתבתואל ופותח את אשר בטקסט הרגיל.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 31803,
+        "skip": 1,
+        "dir": 1,
+        "length": 15,
+        "before": "תבתואל",
+        "after": "אשר"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "id": "F181",
+      "before_letters": "הליהוה",
+      "after_letters": "-",
+      "why": "והקריב נמצא בסוף האזור ומשלים את הליהוה שלפניו.",
+      "order": 2,
+      "status": "invalid"
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:2",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    }
+  ]
+}

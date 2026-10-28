@@ -1,0 +1,707 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F036",
+          "F044",
+          "F131",
+          "F150",
+          "F181",
+          "F206",
+          "F110"
+        ],
+        "relation_ids": [
+          "R0009",
+          "R0035",
+          "R0036",
+          "R0037",
+          "R0839",
+          "R0840",
+          "R0841",
+          "R0844"
+        ],
+        "kind": "cluster",
+        "why": "צביר של קווי K4 מקבילים וחופפים (ראוה, וירה, הריונ, ונמר, אונמ, שאונ, נואש) שמתחברים בשרשראות המשך. הם חולקים את האזור שבו נחתך הציר, אך כל המילים קצרות ושכיחות, ולכן הקשר כנראה מבני ולא מקרי בלבד."
+      },
+      {
+        "ids": [
+          "F087",
+          "F183",
+          "F110"
+        ],
+        "relation_ids": [
+          "R0024",
+          "R0985",
+          "R0989"
+        ],
+        "kind": "chain",
+        "why": "השוא, אושה ונואש על קווי K4 מקבילים וחופפים, והראשון והשני אף ממשיכים זה את זה. הצירוף מוסיף לצביר K4 שמסביב לציר."
+      },
+      {
+        "ids": [
+          "F066",
+          "F084",
+          "F109"
+        ],
+        "relation_ids": [
+          "R0017",
+          "R0018",
+          "R0022"
+        ],
+        "kind": "chain",
+        "why": "יערו, ערוה וורעי על אותו קו A1, כל אחד ממשיך את האחר בחפיפה של 3–4 אותיות. מדובר באותיות משותפות, ולכן הרצף הוא ככל הנראה הד של אותו חומר אותיות."
+      },
+      {
+        "ids": [
+          "F133",
+          "F196",
+          "F217",
+          "F219"
+        ],
+        "relation_ids": [
+          "R0046",
+          "R0047",
+          "R0068",
+          "R0859",
+          "R0860"
+        ],
+        "kind": "chain",
+        "why": "רמאי, אמרי, יאמר והחרי על קווי K1 מקבילים וחופפים, בהמשכים שנשענים על אותן אותיות. המילה 'יאמר' היא מילה מוכרת שמתקבלת מהחפיפה."
+      },
+      {
+        "ids": [
+          "F043",
+          "F166",
+          "F167",
+          "F051"
+        ],
+        "relation_ids": [
+          "R0007",
+          "R0008",
+          "R0063",
+          "R0833",
+          "R0834"
+        ],
+        "kind": "cluster",
+        "why": "והלחמ, מחלה, מלבי ושמטו על קווי K2 מקבילים וחופפים שמרוכזים סביב אותו אזור. הם חולקים חפיפות גבוהות."
+      },
+      {
+        "ids": [
+          "F118",
+          "F119"
+        ],
+        "relation_ids": [
+          "R0038"
+        ],
+        "kind": "pair",
+        "why": "ארהב מוכל בתוך ארהבאששבת על אותו קו, וזה המשך מלא. E של הארוך נמוך מאוד, ולכן זה ממצא נדיר יחסית."
+      },
+      {
+        "ids": [
+          "F089",
+          "F090",
+          "F088"
+        ],
+        "relation_ids": [
+          "R0025",
+          "R0026",
+          "R0027"
+        ],
+        "kind": "chain",
+        "why": "העתירו, ואליהו ואליהוה ברצף טקסט, בחפיפה גבוהה. זה טקסט רגיל ולא דילוג."
+      },
+      {
+        "ids": [
+          "F047",
+          "F048",
+          "F108"
+        ],
+        "relation_ids": [
+          "R0011",
+          "R0263",
+          "R0275"
+        ],
+        "kind": "cluster",
+        "why": "קווים D2 ועמודה שחוצים סביב אותו אזור, כשהאחרון ממשיך את הראשון. הקשר קרוב לציר."
+      },
+      {
+        "ids": [
+          "F062",
+          "F137"
+        ],
+        "relation_ids": [
+          "R0016"
+        ],
+        "kind": "pair",
+        "why": "יואש וישאו על אותו קו D1 בכיוונים הפוכים, בחפיפה של 3 תאים. שניהם עם E גבוה."
+      },
+      {
+        "ids": [
+          "F182",
+          "F130"
+        ],
+        "relation_ids": [
+          "R0554"
+        ],
+        "kind": "pair",
+        "why": "אלונ והודה נחתכים בקווים תלולים באזור הציר."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F119",
+        "why": "ארהבאששבת היא מילה ארוכה עם E נמוך מאוד, ולכן היא הממצא הנדיר ביותר."
+      },
+      {
+        "id": "F042",
+        "why": "ירשיעני עם E נמוך במיוחד ואורך משמעותי."
+      },
+      {
+        "id": "F057",
+        "why": "נציבימ עם E נמוך ואורך של שבע אותיות."
+      },
+      {
+        "id": "F243",
+        "why": "עמינדב עם E נמוך מאוד."
+      },
+      {
+        "id": "F081",
+        "why": "ואיה עם E גבוה מאוד, ולכן סביר שהוא רעש."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F123",
+          "F124",
+          "F125",
+          "F126"
+        ],
+        "why": "רצף טקסט רגיל בשורה אחת: עלראשו והקטרת את כל האיל המזבחה."
+      },
+      {
+        "ids": [
+          "F056",
+          "F058",
+          "F059"
+        ],
+        "why": "בני ישראל ממצרים ויאמר ברצף טקסט."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F119",
+        "before_letters": "ושאהמ",
+        "after_letters": "ר",
+        "why": "ההמשך של ארהב בדילוג מראה את האות ר שלאחר המילה."
+      }
+    ],
+    "chance_note": "רוב המקבילות והחיתוכים נובעים מהטקסט הרגיל, כי מילים בשורות סמוכות חופפות בקלות. גם חיתוכים עם E גבוה של מילים קצרות צפויים כרעש."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "צביר של קווי K4 מקבילים וחופפים (ראוה, וירה, הריונ, ונמר, אונמ, שאונ, נואש) שמתח"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[1]",
+      "detail": "F110 also in groups[0]"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "השוא, אושה ונואש על קווי K4 מקבילים וחופפים, והראשון והשני אף ממשיכים זה את זה. "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "יערו, ערוה וורעי על אותו קו A1, כל אחד ממשיך את האחר בחפיפה של 3–4 אותיות. מדובר"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "רמאי, אמרי, יאמר והחרי על קווי K1 מקבילים וחופפים, בהמשכים שנשענים על אותן אותיו"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "והלחמ, מחלה, מלבי ושמטו על קווי K2 מקבילים וחופפים שמרוכזים סביב אותו אזור. הם ח"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[7].why",
+      "detail": "קווים D2 ועמודה שחוצים סביב אותו אזור, כשהאחרון ממשיך את הראשון. הקשר קרוב לציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[8].why",
+      "detail": "יואש וישאו על אותו קו D1 בכיוונים הפוכים, בחפיפה של 3 תאים. שניהם עם E גבוה."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F036",
+        "F044",
+        "F131",
+        "F150",
+        "F181",
+        "F206",
+        "F110"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0009",
+        "R0035",
+        "R0036",
+        "R0037",
+        "R0839",
+        "R0840",
+        "R0841",
+        "R0844"
+      ],
+      "claimed_ok": [
+        "R0009",
+        "R0035",
+        "R0036",
+        "R0037",
+        "R0839",
+        "R0840",
+        "R0841",
+        "R0844"
+      ],
+      "why": "צביר של קווי K4 מקבילים וחופפים (ראוה, וירה, הריונ, ונמר, אונמ, שאונ, נואש) שמתחברים בשרשראות המשך. הם חולקים את האזור שבו נחתך הציר, אך כל המילים קצרות ושכיחות, ולכן הקשר כנראה מבני ולא מקרי בלבד.",
+      "order": 1,
+      "stats": {
+        "size": 7,
+        "relations_any": 19,
+        "relations_listed": 15,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 7,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F087",
+        "F183",
+        "F110"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0024",
+        "R0985",
+        "R0989"
+      ],
+      "claimed_ok": [
+        "R0024",
+        "R0985",
+        "R0989"
+      ],
+      "why": "השוא, אושה ונואש על קווי K4 מקבילים וחופפים, והראשון והשני אף ממשיכים זה את זה. הצירוף מוסיף לצביר K4 שמסביב לציר.",
+      "order": 2,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F066",
+        "F084",
+        "F109"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0017",
+        "R0018",
+        "R0022"
+      ],
+      "claimed_ok": [
+        "R0017",
+        "R0018",
+        "R0022"
+      ],
+      "why": "יערו, ערוה וורעי על אותו קו A1, כל אחד ממשיך את האחר בחפיפה של 3–4 אותיות. מדובר באותיות משותפות, ולכן הרצף הוא ככל הנראה הד של אותו חומר אותיות.",
+      "order": 3,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F133",
+        "F196",
+        "F217",
+        "F219"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0046",
+        "R0047",
+        "R0068",
+        "R0859",
+        "R0860"
+      ],
+      "claimed_ok": [
+        "R0046",
+        "R0047",
+        "R0068",
+        "R0859",
+        "R0860"
+      ],
+      "why": "רמאי, אמרי, יאמר והחרי על קווי K1 מקבילים וחופפים, בהמשכים שנשענים על אותן אותיות. המילה 'יאמר' היא מילה מוכרת שמתקבלת מהחפיפה.",
+      "order": 4,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F043",
+        "F166",
+        "F167",
+        "F051"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0007",
+        "R0008",
+        "R0063",
+        "R0833",
+        "R0834"
+      ],
+      "claimed_ok": [
+        "R0007",
+        "R0008",
+        "R0063",
+        "R0833",
+        "R0834"
+      ],
+      "why": "והלחמ, מחלה, מלבי ושמטו על קווי K2 מקבילים וחופפים שמרוכזים סביב אותו אזור. הם חולקים חפיפות גבוהות.",
+      "order": 5,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F118",
+        "F119"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0038"
+      ],
+      "claimed_ok": [
+        "R0038"
+      ],
+      "why": "ארהב מוכל בתוך ארהבאששבת על אותו קו, וזה המשך מלא. E של הארוך נמוך מאוד, ולכן זה ממצא נדיר יחסית.",
+      "order": 6,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F089",
+        "F090",
+        "F088"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0025",
+        "R0026",
+        "R0027"
+      ],
+      "claimed_ok": [
+        "R0025",
+        "R0026",
+        "R0027"
+      ],
+      "why": "העתירו, ואליהו ואליהוה ברצף טקסט, בחפיפה גבוהה. זה טקסט רגיל ולא דילוג.",
+      "order": 7,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F047",
+        "F048",
+        "F108"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0011",
+        "R0263",
+        "R0275"
+      ],
+      "claimed_ok": [
+        "R0011",
+        "R0263",
+        "R0275"
+      ],
+      "why": "קווים D2 ועמודה שחוצים סביב אותו אזור, כשהאחרון ממשיך את הראשון. הקשר קרוב לציר.",
+      "order": 8,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F062",
+        "F137"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0016"
+      ],
+      "claimed_ok": [
+        "R0016"
+      ],
+      "why": "יואש וישאו על אותו קו D1 בכיוונים הפוכים, בחפיפה של 3 תאים. שניהם עם E גבוה.",
+      "order": 9,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F182",
+        "F130"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0554"
+      ],
+      "claimed_ok": [
+        "R0554"
+      ],
+      "why": "אלונ והודה נחתכים בקווים תלולים באזור הציר.",
+      "order": 10,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F119",
+      "why": "ארהבאששבת היא מילה ארוכה עם E נמוך מאוד, ולכן היא הממצא הנדיר ביותר.",
+      "order": 1
+    },
+    {
+      "id": "F042",
+      "why": "ירשיעני עם E נמוך במיוחד ואורך משמעותי.",
+      "order": 2
+    },
+    {
+      "id": "F057",
+      "why": "נציבימ עם E נמוך ואורך של שבע אותיות.",
+      "order": 3
+    },
+    {
+      "id": "F243",
+      "why": "עמינדב עם E נמוך מאוד.",
+      "order": 4
+    },
+    {
+      "id": "F081",
+      "why": "ואיה עם E גבוה מאוד, ולכן סביר שהוא רעש.",
+      "order": 5
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F123",
+        "F124",
+        "F125",
+        "F126"
+      ],
+      "why": "רצף טקסט רגיל בשורה אחת: עלראשו והקטרת את כל האיל המזבחה.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 121386,
+        "skip": 1,
+        "dir": 1,
+        "length": 26
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F056",
+        "F058",
+        "F059"
+      ],
+      "why": "בני ישראל ממצרים ויאמר ברצף טקסט.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 80999,
+        "skip": 1,
+        "dir": 1,
+        "length": 19
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F119",
+      "before_letters": "ושאהמ",
+      "after_letters": "ר",
+      "why": "ההמשך של ארהב בדילוג מראה את האות ר שלאחר המילה.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 10318,
+        "skip": 20203,
+        "dir": 1,
+        "length": 15,
+        "before": "ושאהמ",
+        "after": "ר"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "MATCH"
+    }
+  ]
+}

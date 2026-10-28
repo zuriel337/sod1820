@@ -1,0 +1,848 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F077",
+          "F113"
+        ],
+        "relation_ids": [
+          "R0029"
+        ],
+        "kind": "pair",
+        "why": "שני ממצאים מאותה משפחה (K1, כיוון שלילי) שחופפים ב-4 תאים בקו המשך, ושניהם מכילים את הרצף אמר. זהו מבנה משותף ברור על הנתונים, אך E נמוך-בינוני (2.0 ו-1.2) ולכן אין בכך משמעות מובטחת."
+      },
+      {
+        "ids": [
+          "F024",
+          "F077",
+          "F113"
+        ],
+        "relation_ids": [
+          "R0912",
+          "R0913",
+          "R0029"
+        ],
+        "kind": "cluster",
+        "why": "F024 מקביל הפוך ל-F077 (חפיפה 4) ול-F113 (חפיפה 5) בהיסט 0.4, ו-F077 וF113 מקושרים זה לזה בהמשך. F024 בעל E נמוך מאוד (0.01), כך שהשכיחות שלו נדירה מאוד בדילוג הזה."
+      },
+      {
+        "ids": [
+          "F001",
+          "F011",
+          "F112"
+        ],
+        "relation_ids": [
+          "R0006",
+          "R0148",
+          "R0152"
+        ],
+        "kind": "cluster",
+        "why": "F011 ו-F112 בהמשך חפיפה 5, ושני הממצאים נחתכים עם F001 (חיתוך C2×K4 בשני המקרים). צביר קטן של קווים שנפגשים זה בזה; E של F001 הוא 2.3 ושל השניים 3.0."
+      },
+      {
+        "ids": [
+          "F003",
+          "F004",
+          "F122"
+        ],
+        "relation_ids": [
+          "R0001",
+          "R0153"
+        ],
+        "kind": "cluster",
+        "why": "F003 ו-F122 בהמשך (חפיפה 4) על אותו קו K2, ו-F003 נחתך עם F004 בדילוג C2×K2. שלושת הממצאים נמצאים באזור העמודות 45-49 בשורות 2-12, והם בעלי E נמוך (0.09, 0.14, 0.09)."
+      },
+      {
+        "ids": [
+          "F278",
+          "F279",
+          "F280"
+        ],
+        "relation_ids": [
+          "R0084",
+          "R0910",
+          "R0911"
+        ],
+        "kind": "cluster",
+        "why": "F278 ו-F279 חופפים ב-5 תאים על קו R, ושניהם נחתכים עם F280 על קו K1 (R0910 ו-R0911). F280 בעל E נמוך (0.17)."
+      },
+      {
+        "ids": [
+          "F188",
+          "F280"
+        ],
+        "relation_ids": [
+          "R0843"
+        ],
+        "kind": "pair",
+        "why": "F188 (הללויה, K2+) נחתך עם F280 (תהיולי, K1-) בחיתוך K1×K2. שני הממצאים בעלי E נמוך (0.18 ו-0.17)."
+      },
+      {
+        "ids": [
+          "F194",
+          "F249"
+        ],
+        "relation_ids": [
+          "R0849"
+        ],
+        "kind": "pair",
+        "why": "F194 (לכרבימ, D2+) נחתך עם F249 (ומיקבכ, C-) בחיתוך C×D2. לשני הממצאים E נמוך מאוד (0.04 ו-0.01)."
+      },
+      {
+        "ids": [
+          "F216",
+          "F285"
+        ],
+        "relation_ids": [
+          "R0881"
+        ],
+        "kind": "pair",
+        "why": "F216 (והלוימ, טקסט) נחתך עם F285 (ותחולל, K1-) בתא משותף. F285 בעל E נמוך מאוד (0.03), כלומר הרצף נדיר בדילוג הזה."
+      },
+      {
+        "ids": [
+          "F044",
+          "F045",
+          "F055",
+          "F056",
+          "F057"
+        ],
+        "relation_ids": [
+          "R0923",
+          "R0924",
+          "R0925",
+          "R0932"
+        ],
+        "kind": "cluster",
+        "why": "חמישה ממצאים חוצים (D1 ו-A1) באותו אזור, במקבילות עם היסט 0.7 ובאותו כיוון, עם חפיפה 3-4. המבנה ברור גיאומטרית, אבל E מעל 13 בכולם, כלומר זה רעש צפוי ולא תוצאה בעלת משמעות."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F024",
+        "why": "אביגיל על קו K1 עם E של 0.01, הנמוך במאגר, ולכן הופעתו נדירה בדילוג הזה. הוא מעורב גם במקבילות לקבוצת אמר."
+      },
+      {
+        "id": "F287",
+        "why": "אחשורש (K2-) עם E של 0.013, מהנמוכים במאגר. הוא מופיע עם יחס סמוך לF222 וF260 בלבד, ללא חיתוך ישיר."
+      },
+      {
+        "id": "F285",
+        "why": "ותחולל (K1-) עם E של 0.028 ותא משותף עם F216, שהוא טקסט רגיל."
+      },
+      {
+        "id": "F187",
+        "why": "וישמעו (K1+) עם E של 0.066 ומרחק צמוד מכמה ממצאים במרכז הטבלה, אך רק כשנכנס לתמונה ההמשך שלו."
+      },
+      {
+        "id": "F249",
+        "why": "ומיקבכ (C-) עם E של 0.014, וחיתוך עם F194 ו-F258. מופיע גם בצביר קטן סביב אזור השורות 20-25."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F115",
+          "F116",
+          "F117",
+          "F118",
+          "F119"
+        ],
+        "why": "כולם על שורה 12 בטקסט רגיל, חופפים זה לזה ומופיעים בסדר הקריאה: ויאמרו כלהדבר כלהדברים אשרדבר דבריהוה. זהו צירוף טקסטואלי רגיל ולא ממצא דילוגי."
+      },
+      {
+        "ids": [
+          "F156",
+          "F157",
+          "F158",
+          "F162"
+        ],
+        "why": "שורה 15, רצף רציף של ארבע מילים (מנהמנחה, אתאזכרתה, והקטיר, המזבחה) בתורה, חופף או צמוד בלי רווח."
+      },
+      {
+        "ids": [
+          "F120",
+          "F121"
+        ],
+        "why": "שני ממצאים בשורה 12 עם רווח של 2 בין הסיומת להתחלה: ויכתבמ ואתכלדברי, בסדר הקריאה."
+      },
+      {
+        "ids": [
+          "F271",
+          "F272",
+          "F273"
+        ],
+        "why": "שורה 28, כלאשרלו וקשקשת וכלאשר, בסדר הקריאה עם רווחים קצרים; צירוף טקסטואלי רגיל."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F001",
+        "before_letters": "-",
+        "after_letters": "ובקצמנ",
+        "why": "והיתה מורחב ימינה באותיות ובקצמנ, שמוצגות כרצף על אותו קו K4."
+      },
+      {
+        "id": "F013",
+        "before_letters": "תילדבר",
+        "after_letters": "ואנכיע",
+        "why": "אלאדני בשורה 3 מורחב בשני צדדים ביחס לחופפים שלו, ובאותיות המוצגות."
+      },
+      {
+        "id": "F187",
+        "before_letters": "בבהאהש",
+        "after_letters": "שע",
+        "why": "וישמעו על קו K1+ מורחב באותיות שע מהצד האחד, לכן ההמשך הוא שע."
+      },
+      {
+        "id": "F285",
+        "before_letters": "-",
+        "after_letters": "כצהנוש",
+        "why": "ותחולל מורחב באותיות כצהנוש מהצד האחר, על אותו קו K1-."
+      }
+    ],
+    "chance_note": "רוב הקשרים בחלק מהחיתוכים והמקביליות עם E מעל 10, כמו הקבוצה הצפופה סביב עמודות 45-57, נראים מקריים לחלוטין, כי מילים נפוצות באזור הזה מופיעות שוב ושוב. ה-E הנמוך של הממצאים F024, F249 ו-F285 ביחסים הבודדים שלהם לא מובטח שיהיה משמעותי, ולכן כדאי לראות בהם רק מועמדים ולא הוכחה."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "chance_note",
+      "detail": "רוב הקשרים בחלק מהחיתוכים והמקביליות עם E מעל 10, כמו הקבוצה הצפופה סביב עמודות "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "שני ממצאים מאותה משפחה (K1, כיוון שלילי) שחופפים ב-4 תאים בקו המשך, ושניהם מכילי"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[1]",
+      "detail": "F077 also in groups[0]"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[1]",
+      "detail": "F113 also in groups[0]"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "F024 מקביל הפוך ל-F077 (חפיפה 4) ול-F113 (חפיפה 5) בהיסט 0.4, ו-F077 וF113 מקושר"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "F011 ו-F112 בהמשך חפיפה 5, ושני הממצאים נחתכים עם F001 (חיתוך C2×K4 בשני המקרים)"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "F003 ו-F122 בהמשך (חפיפה 4) על אותו קו K2, ו-F003 נחתך עם F004 בדילוג C2×K2. שלו"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "F278 ו-F279 חופפים ב-5 תאים על קו R, ושניהם נחתכים עם F280 על קו K1 (R0910 ו-R09"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[5]",
+      "detail": "F280 also in groups[4]"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[5].why",
+      "detail": "F188 (הללויה, K2+) נחתך עם F280 (תהיולי, K1-) בחיתוך K1×K2. שני הממצאים בעלי E נ"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[6].why",
+      "detail": "F194 (לכרבימ, D2+) נחתך עם F249 (ומיקבכ, C-) בחיתוך C×D2. לשני הממצאים E נמוך מא"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[7].why",
+      "detail": "F216 (והלוימ, טקסט) נחתך עם F285 (ותחולל, K1-) בתא משותף. F285 בעל E נמוך מאוד ("
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[8].why",
+      "detail": "חמישה ממצאים חוצים (D1 ו-A1) באותו אזור, במקבילות עם היסט 0.7 ובאותו כיוון, עם ח"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[0].why",
+      "detail": "אביגיל על קו K1 עם E של 0.01, הנמוך במאגר, ולכן הופעתו נדירה בדילוג הזה. הוא מעו"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "אחשורש (K2-) עם E של 0.013, מהנמוכים במאגר. הוא מופיע עם יחס סמוך לF222 וF260 בל"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[2].why",
+      "detail": "ותחולל (K1-) עם E של 0.028 ותא משותף עם F216, שהוא טקסט רגיל."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "וישמעו (K1+) עם E של 0.066 ומרחק צמוד מכמה ממצאים במרכז הטבלה, אך רק כשנכנס לתמו"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[4].why",
+      "detail": "ומיקבכ (C-) עם E של 0.014, וחיתוך עם F194 ו-F258. מופיע גם בצביר קטן סביב אזור ה"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[0].why",
+      "detail": "כולם על שורה 12 בטקסט רגיל, חופפים זה לזה ומופיעים בסדר הקריאה: ויאמרו כלהדבר כל"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[1].why",
+      "detail": "שורה 15, רצף רציף של ארבע מילים (מנהמנחה, אתאזכרתה, והקטיר, המזבחה) בתורה, חופף "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[2].why",
+      "detail": "שני ממצאים בשורה 12 עם רווח של 2 בין הסיומת להתחלה: ויכתבמ ואתכלדברי, בסדר הקריא"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[3].why",
+      "detail": "שורה 28, כלאשרלו וקשקשת וכלאשר, בסדר הקריאה עם רווחים קצרים; צירוף טקסטואלי רגיל"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "continuations[0].why",
+      "detail": "והיתה מורחב ימינה באותיות ובקצמנ, שמוצגות כרצף על אותו קו K4."
+    },
+    {
+      "code": "continuation_letters_not_shown",
+      "where": "continuations[0]",
+      "detail": "F001: before \"-\" / after \"ובקצמנ\" are not the letters shown (\"\" | \"ובקצמנ\")"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "continuations[1].why",
+      "detail": "אלאדני בשורה 3 מורחב בשני צדדים ביחס לחופפים שלו, ובאותיות המוצגות."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "continuations[2].why",
+      "detail": "וישמעו על קו K1+ מורחב באותיות שע מהצד האחד, לכן ההמשך הוא שע."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "continuations[3].why",
+      "detail": "ותחולל מורחב באותיות כצהנוש מהצד האחר, על אותו קו K1-."
+    },
+    {
+      "code": "continuation_letters_not_shown",
+      "where": "continuations[3]",
+      "detail": "F285: before \"-\" / after \"כצהנוש\" are not the letters shown (\"\" | \"כצהנוש\")"
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F077",
+        "F113"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0029"
+      ],
+      "claimed_ok": [
+        "R0029"
+      ],
+      "why": "שני ממצאים מאותה משפחה (K1, כיוון שלילי) שחופפים ב-4 תאים בקו המשך, ושניהם מכילים את הרצף אמר. זהו מבנה משותף ברור על הנתונים, אך E נמוך-בינוני (2.0 ו-1.2) ולכן אין בכך משמעות מובטחת.",
+      "order": 1,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F024",
+        "F077",
+        "F113"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0912",
+        "R0913",
+        "R0029"
+      ],
+      "claimed_ok": [
+        "R0912",
+        "R0913",
+        "R0029"
+      ],
+      "why": "F024 מקביל הפוך ל-F077 (חפיפה 4) ול-F113 (חפיפה 5) בהיסט 0.4, ו-F077 וF113 מקושרים זה לזה בהמשך. F024 בעל E נמוך מאוד (0.01), כך שהשכיחות שלו נדירה מאוד בדילוג הזה.",
+      "order": 2,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F001",
+        "F011",
+        "F112"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0006",
+        "R0148",
+        "R0152"
+      ],
+      "claimed_ok": [
+        "R0006",
+        "R0148",
+        "R0152"
+      ],
+      "why": "F011 ו-F112 בהמשך חפיפה 5, ושני הממצאים נחתכים עם F001 (חיתוך C2×K4 בשני המקרים). צביר קטן של קווים שנפגשים זה בזה; E של F001 הוא 2.3 ושל השניים 3.0.",
+      "order": 3,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F003",
+        "F004",
+        "F122"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0001",
+        "R0153"
+      ],
+      "claimed_ok": [
+        "R0001",
+        "R0153"
+      ],
+      "why": "F003 ו-F122 בהמשך (חפיפה 4) על אותו קו K2, ו-F003 נחתך עם F004 בדילוג C2×K2. שלושת הממצאים נמצאים באזור העמודות 45-49 בשורות 2-12, והם בעלי E נמוך (0.09, 0.14, 0.09).",
+      "order": 4,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing",
+          "near"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 3,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F278",
+        "F279",
+        "F280"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0084",
+        "R0910",
+        "R0911"
+      ],
+      "claimed_ok": [
+        "R0084",
+        "R0910",
+        "R0911"
+      ],
+      "why": "F278 ו-F279 חופפים ב-5 תאים על קו R, ושניהם נחתכים עם F280 על קו K1 (R0910 ו-R0911). F280 בעל E נמוך (0.17).",
+      "order": 5,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 2
+      }
+    },
+    {
+      "ids": [
+        "F188",
+        "F280"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0843"
+      ],
+      "claimed_ok": [
+        "R0843"
+      ],
+      "why": "F188 (הללויה, K2+) נחתך עם F280 (תהיולי, K1-) בחיתוך K1×K2. שני הממצאים בעלי E נמוך (0.18 ו-0.17).",
+      "order": 6,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F194",
+        "F249"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0849"
+      ],
+      "claimed_ok": [
+        "R0849"
+      ],
+      "why": "F194 (לכרבימ, D2+) נחתך עם F249 (ומיקבכ, C-) בחיתוך C×D2. לשני הממצאים E נמוך מאוד (0.04 ו-0.01).",
+      "order": 7,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F216",
+        "F285"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0881"
+      ],
+      "claimed_ok": [
+        "R0881"
+      ],
+      "why": "F216 (והלוימ, טקסט) נחתך עם F285 (ותחולל, K1-) בתא משותף. F285 בעל E נמוך מאוד (0.03), כלומר הרצף נדיר בדילוג הזה.",
+      "order": 8,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 1
+      }
+    },
+    {
+      "ids": [
+        "F044",
+        "F045",
+        "F055",
+        "F056",
+        "F057"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0923",
+        "R0924",
+        "R0925",
+        "R0932"
+      ],
+      "claimed_ok": [
+        "R0923",
+        "R0924",
+        "R0925",
+        "R0932"
+      ],
+      "why": "חמישה ממצאים חוצים (D1 ו-A1) באותו אזור, במקבילות עם היסט 0.7 ובאותו כיוון, עם חפיפה 3-4. המבנה ברור גיאומטרית, אבל E מעל 13 בכולם, כלומר זה רעש צפוי ולא תוצאה בעלת משמעות.",
+      "order": 9,
+      "stats": {
+        "size": 5,
+        "relations_any": 10,
+        "relations_listed": 10,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 5,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F024",
+      "why": "אביגיל על קו K1 עם E של 0.01, הנמוך במאגר, ולכן הופעתו נדירה בדילוג הזה. הוא מעורב גם במקבילות לקבוצת אמר.",
+      "order": 1
+    },
+    {
+      "id": "F287",
+      "why": "אחשורש (K2-) עם E של 0.013, מהנמוכים במאגר. הוא מופיע עם יחס סמוך לF222 וF260 בלבד, ללא חיתוך ישיר.",
+      "order": 2
+    },
+    {
+      "id": "F285",
+      "why": "ותחולל (K1-) עם E של 0.028 ותא משותף עם F216, שהוא טקסט רגיל.",
+      "order": 3
+    },
+    {
+      "id": "F187",
+      "why": "וישמעו (K1+) עם E של 0.066 ומרחק צמוד מכמה ממצאים במרכז הטבלה, אך רק כשנכנס לתמונה ההמשך שלו.",
+      "order": 4
+    },
+    {
+      "id": "F249",
+      "why": "ומיקבכ (C-) עם E של 0.014, וחיתוך עם F194 ו-F258. מופיע גם בצביר קטן סביב אזור השורות 20-25.",
+      "order": 5
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F115",
+        "F116",
+        "F117",
+        "F118",
+        "F119"
+      ],
+      "why": "כולם על שורה 12 בטקסט רגיל, חופפים זה לזה ומופיעים בסדר הקריאה: ויאמרו כלהדבר כלהדברים אשרדבר דבריהוה. זהו צירוף טקסטואלי רגיל ולא ממצא דילוגי.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 112626,
+        "skip": 1,
+        "dir": 1,
+        "length": 24
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F156",
+        "F157",
+        "F158",
+        "F162"
+      ],
+      "why": "שורה 15, רצף רציף של ארבע מילים (מנהמנחה, אתאזכרתה, והקטיר, המזבחה) בתורה, חופף או צמוד בלי רווח.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 142958,
+        "skip": 1,
+        "dir": 1,
+        "length": 27
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F120",
+        "F121"
+      ],
+      "why": "שני ממצאים בשורה 12 עם רווח של 2 בין הסיומת להתחלה: ויכתבמ ואתכלדברי, בסדר הקריאה.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 112654,
+        "skip": 1,
+        "dir": 1,
+        "length": 16
+      },
+      "engine": {
+        "key": "phrase:2",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F271",
+        "F272",
+        "F273"
+      ],
+      "why": "שורה 28, כלאשרלו וקשקשת וכלאשר, בסדר הקריאה עם רווחים קצרים; צירוף טקסטואלי רגיל.",
+      "order": 4,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 274266,
+        "skip": 1,
+        "dir": 1,
+        "length": 29
+      },
+      "engine": {
+        "key": "phrase:3",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F001",
+      "before_letters": "-",
+      "after_letters": "ובקצמנ",
+      "why": "והיתה מורחב ימינה באותיות ובקצמנ, שמוצגות כרצף על אותו קו K4.",
+      "order": 1,
+      "status": "invalid"
+    },
+    {
+      "id": "F013",
+      "before_letters": "תילדבר",
+      "after_letters": "ואנכיע",
+      "why": "אלאדני בשורה 3 מורחב בשני צדדים ביחס לחופפים שלו, ובאותיות המוצגות.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 21784,
+        "skip": 1,
+        "dir": 1,
+        "length": 18,
+        "before": "תילדבר",
+        "after": "ואנכיע"
+      },
+      "engine": {
+        "key": "continuation:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "id": "F187",
+      "before_letters": "בבהאהש",
+      "after_letters": "שע",
+      "why": "וישמעו על קו K1+ מורחב באותיות שע מהצד האחד, לכן ההמשך הוא שע.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 41971,
+        "skip": 20203,
+        "dir": 1,
+        "length": 14,
+        "before": "בבהאהש",
+        "after": "שע"
+      },
+      "engine": {
+        "key": "continuation:2",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F285",
+      "before_letters": "-",
+      "after_letters": "כצהנוש",
+      "why": "ותחולל מורחב באותיות כצהנוש מהצד האחר, על אותו קו K1-.",
+      "order": 4,
+      "status": "invalid"
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:2",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:3",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:2",
+      "letters_match": true,
+      "state": "MATCH"
+    }
+  ]
+}

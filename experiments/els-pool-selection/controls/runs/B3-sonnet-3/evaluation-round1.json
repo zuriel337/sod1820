@@ -1,0 +1,539 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F152",
+          "F183"
+        ],
+        "relation_ids": [
+          "R0048"
+        ],
+        "kind": "pair",
+        "why": "שני ממצאים בעמודה אחת (C) שממשיכים זה את זה עם חפיפה של 3 אותיות: F152 (ולמנ) ו-F183 (מלוה, בכיוון הפוך). הם גם נחתכים בקו הטקסט באזור הציר המסומן. ערכי E גבוהים (14.8 ו-29.5), ולכן זה כנראה מקרי."
+      },
+      {
+        "ids": [
+          "F124",
+          "F121",
+          "F118",
+          "F117",
+          "F116"
+        ],
+        "relation_ids": [
+          "R0031",
+          "R0032",
+          "R0033",
+          "R0034"
+        ],
+        "kind": "chain",
+        "why": "רצף בשורת הטקסט הרגיל: ויזבחו, וזבחימ, שלמימ, ליהוה, הפרימ. שרשרת המשכים רצופה, אבל זהו טקסט רגיל ולא דילוג."
+      },
+      {
+        "ids": [
+          "F173",
+          "F174",
+          "F175",
+          "F176",
+          "F177",
+          "F180"
+        ],
+        "relation_ids": [
+          "R0053",
+          "R0054",
+          "R0055",
+          "R0056",
+          "R0057"
+        ],
+        "kind": "chain",
+        "why": "שרשרת המשכים ארוכה בשורה אחת: אהלמועד, ויקרבו, וכלהעדה, ויעמדו, לפנייהוה, ויאמר. זה פשט הטקסט."
+      },
+      {
+        "ids": [
+          "F054",
+          "F104",
+          "F219"
+        ],
+        "relation_ids": [
+          "R0010",
+          "R0011",
+          "R0029"
+        ],
+        "kind": "cluster",
+        "why": "שלושה ממצאים על קו K4 שממשיכים זה את זה (אשית, ישאו, משימה), עם יחסי המשך הדדיים. E של F054 ושל F104 גבוה, ולכן סביר שזה מקרי."
+      },
+      {
+        "ids": [
+          "F065",
+          "F076",
+          "F078"
+        ],
+        "relation_ids": [
+          "R0013",
+          "R0014",
+          "R0019"
+        ],
+        "kind": "chain",
+        "why": "שרשרת המשכים בקו A1 (משלי, שליה, שמאי) עם חפיפות. הם נחתכים במרכז הציר, ו-E גבוה."
+      },
+      {
+        "ids": [
+          "F123",
+          "F136",
+          "F168"
+        ],
+        "relation_ids": [
+          "R0035",
+          "R0036",
+          "R0040"
+        ],
+        "kind": "cluster",
+        "why": "שלושה ממצאים על קו D2 שממשיכים זה את זה (ושוב, שובה, בושו) עם חפיפות גדולות. E גבוה (כ-15), ולכן סביר שזה מקרי."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F025",
+        "why": "ולאיראו: E נמוך מאוד (1.7e-2) והמילה ארוכה יחסית, ולכן הממצא נדיר בדילוג שלו."
+      },
+      {
+        "id": "F046",
+        "why": "עפעפימ: E נמוך מאוד (1.5e-3) ואין לו יחס לציר."
+      },
+      {
+        "id": "F171",
+        "why": "בגבורת: E הנמוך ביותר בין הדילוגים (2.8e-3)."
+      },
+      {
+        "id": "F265",
+        "why": "נשבענו: E נמוך מאוד (8.9e-3), אבל אין לו יחס לציר."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F143",
+          "F144"
+        ],
+        "why": "ואתהמזבח ואחריו ואתאהרנ באותו קו בשורה 13, צירוף רצוף בטקסט הרגיל."
+      },
+      {
+        "ids": [
+          "F291",
+          "F292",
+          "F293"
+        ],
+        "why": "אתכלדברי, התורההזאת, הכתבימ: שלושה ממצאים רצופים בשורה 30."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F152",
+        "before_letters": "ישפמיה",
+        "after_letters": "אקהבבה",
+        "why": "ולמנ בעמודה, ממשיך בקו עם F183 ועם האותיות הסמוכות."
+      },
+      {
+        "id": "F183",
+        "before_letters": "בבהקאנ",
+        "after_letters": "ימפשיכ",
+        "why": "מלוה בעמודה, ממשיך את F152 באותו קו."
+      }
+    ],
+    "chance_note": "רוב היחסים כאן מקריים: חיתוכים וסמיכויות מרובים באזור הציר, ומקביליות בין ממצאי שורות רגילות. ערכי E גבוהים באזור הציר (עשרות) מעידים על רעש צפוי."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "שני ממצאים בעמודה אחת (C) שממשיכים זה את זה עם חפיפה של 3 אותיות: F152 (ולמנ) ו-"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "שלושה ממצאים על קו K4 שממשיכים זה את זה (אשית, ישאו, משימה), עם יחסי המשך הדדיים"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "שרשרת המשכים בקו A1 (משלי, שליה, שמאי) עם חפיפות. הם נחתכים במרכז הציר, ו-E גבוה"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[5].why",
+      "detail": "שלושה ממצאים על קו D2 שממשיכים זה את זה (ושוב, שובה, בושו) עם חפיפות גדולות. E ג"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[0].why",
+      "detail": "ולאיראו: E נמוך מאוד (1.7e-2) והמילה ארוכה יחסית, ולכן הממצא נדיר בדילוג שלו."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "עפעפימ: E נמוך מאוד (1.5e-3) ואין לו יחס לציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[2].why",
+      "detail": "בגבורת: E הנמוך ביותר בין הדילוגים (2.8e-3)."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "נשבענו: E נמוך מאוד (8.9e-3), אבל אין לו יחס לציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[0].why",
+      "detail": "ואתהמזבח ואחריו ואתאהרנ באותו קו בשורה 13, צירוף רצוף בטקסט הרגיל."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[1].why",
+      "detail": "אתכלדברי, התורההזאת, הכתבימ: שלושה ממצאים רצופים בשורה 30."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F152",
+        "F183"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0048"
+      ],
+      "claimed_ok": [
+        "R0048"
+      ],
+      "why": "שני ממצאים בעמודה אחת (C) שממשיכים זה את זה עם חפיפה של 3 אותיות: F152 (ולמנ) ו-F183 (מלוה, בכיוון הפוך). הם גם נחתכים בקו הטקסט באזור הציר המסומן. ערכי E גבוהים (14.8 ו-29.5), ולכן זה כנראה מקרי.",
+      "order": 1,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F124",
+        "F121",
+        "F118",
+        "F117",
+        "F116"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0031",
+        "R0032",
+        "R0033",
+        "R0034"
+      ],
+      "claimed_ok": [
+        "R0031",
+        "R0032",
+        "R0033",
+        "R0034"
+      ],
+      "why": "רצף בשורת הטקסט הרגיל: ויזבחו, וזבחימ, שלמימ, ליהוה, הפרימ. שרשרת המשכים רצופה, אבל זהו טקסט רגיל ולא דילוג.",
+      "order": 2,
+      "stats": {
+        "size": 5,
+        "relations_any": 7,
+        "relations_listed": 7,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F173",
+        "F174",
+        "F175",
+        "F176",
+        "F177",
+        "F180"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0053",
+        "R0054",
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "claimed_ok": [
+        "R0053",
+        "R0054",
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "why": "שרשרת המשכים ארוכה בשורה אחת: אהלמועד, ויקרבו, וכלהעדה, ויעמדו, לפנייהוה, ויאמר. זה פשט הטקסט.",
+      "order": 3,
+      "stats": {
+        "size": 6,
+        "relations_any": 8,
+        "relations_listed": 8,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 6
+      }
+    },
+    {
+      "ids": [
+        "F054",
+        "F104",
+        "F219"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0010",
+        "R0011",
+        "R0029"
+      ],
+      "claimed_ok": [
+        "R0010",
+        "R0011",
+        "R0029"
+      ],
+      "why": "שלושה ממצאים על קו K4 שממשיכים זה את זה (אשית, ישאו, משימה), עם יחסי המשך הדדיים. E של F054 ושל F104 גבוה, ולכן סביר שזה מקרי.",
+      "order": 4,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F065",
+        "F076",
+        "F078"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0013",
+        "R0014",
+        "R0019"
+      ],
+      "claimed_ok": [
+        "R0013",
+        "R0014",
+        "R0019"
+      ],
+      "why": "שרשרת המשכים בקו A1 (משלי, שליה, שמאי) עם חפיפות. הם נחתכים במרכז הציר, ו-E גבוה.",
+      "order": 5,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F123",
+        "F136",
+        "F168"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0035",
+        "R0036",
+        "R0040"
+      ],
+      "claimed_ok": [
+        "R0035",
+        "R0036",
+        "R0040"
+      ],
+      "why": "שלושה ממצאים על קו D2 שממשיכים זה את זה (ושוב, שובה, בושו) עם חפיפות גדולות. E גבוה (כ-15), ולכן סביר שזה מקרי.",
+      "order": 6,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F025",
+      "why": "ולאיראו: E נמוך מאוד (1.7e-2) והמילה ארוכה יחסית, ולכן הממצא נדיר בדילוג שלו.",
+      "order": 1
+    },
+    {
+      "id": "F046",
+      "why": "עפעפימ: E נמוך מאוד (1.5e-3) ואין לו יחס לציר.",
+      "order": 2
+    },
+    {
+      "id": "F171",
+      "why": "בגבורת: E הנמוך ביותר בין הדילוגים (2.8e-3).",
+      "order": 3
+    },
+    {
+      "id": "F265",
+      "why": "נשבענו: E נמוך מאוד (8.9e-3), אבל אין לו יחס לציר.",
+      "order": 4
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F143",
+        "F144"
+      ],
+      "why": "ואתהמזבח ואחריו ואתאהרנ באותו קו בשורה 13, צירוף רצוף בטקסט הרגיל.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 122913,
+        "skip": 1,
+        "dir": 1,
+        "length": 15
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F291",
+        "F292",
+        "F293"
+      ],
+      "why": "אתכלדברי, התורההזאת, הכתבימ: שלושה ממצאים רצופים בשורה 30.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 294555,
+        "skip": 1,
+        "dir": 1,
+        "length": 23
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F152",
+      "before_letters": "ישפמיה",
+      "after_letters": "אקהבבה",
+      "why": "ולמנ בעמודה, ממשיך בקו עם F183 ועם האותיות הסמוכות.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 72373,
+        "skip": 10101,
+        "dir": 1,
+        "length": 16,
+        "before": "ישפמיה",
+        "after": "אקהבבה"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F183",
+      "before_letters": "בבהקאנ",
+      "after_letters": "ימפשיכ",
+      "why": "מלוה בעמודה, ממשיך את F152 באותו קו.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 213787,
+        "skip": 10101,
+        "dir": -1,
+        "length": 16,
+        "before": "בבהקאנ",
+        "after": "ימפשיכ"
+      },
+      "engine": {
+        "key": "continuation:1",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:1",
+      "letters_match": true,
+      "state": "MATCH"
+    }
+  ]
+}

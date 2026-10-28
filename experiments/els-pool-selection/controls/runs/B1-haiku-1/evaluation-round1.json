@@ -1,0 +1,1123 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F036",
+          "F044",
+          "F127",
+          "F146",
+          "F176"
+        ],
+        "relation_ids": [
+          "R0822",
+          "R0823",
+          "R0824",
+          "R0825",
+          "R0827",
+          "R0828"
+        ],
+        "kind": "cluster",
+        "why": "F036 (ראוה, E=23.8), F044 (וירה, E=27.7) ו-F127 (הריונ) מתחברים לאשכול של מקבילות ודילוגים סביב אותו אזור, עם היסטים קטנים ודומים (0.7 ו-1.4). F146 ו-F176 נשענים על אותו מרקם של חפיפות. זה אשכול מעניין מבחינת מיקום, אך ה-E הגבוה של מילים כמו ראוה נובע בחלקו מכך שהקטע כולו בא מחוץ לטקסט רגיל."
+      },
+      {
+        "ids": [
+          "F049",
+          "F062",
+          "F065",
+          "F066",
+          "F067"
+        ],
+        "relation_ids": [
+          "R0277",
+          "R0278",
+          "R0334",
+          "R0352",
+          "R0372"
+        ],
+        "kind": "cluster",
+        "why": "F049 (אונו, E=20.1), F062 (יואש, E=25.8), F065 (אמלא, E=25.2), F066 (יערו, E=12.5) ו-F067 (עמרה, E=9.1) כולם חוצים את אותו אזור קרוב לשורות 8–14 בעמודות 49–57, והיחסים ביניהם הם חיתוכים ומקבילות עם E גבוה. זוהי קבוצה חזקה במונחי E."
+      },
+      {
+        "ids": [
+          "F085",
+          "F108",
+          "F176",
+          "F177",
+          "F178",
+          "F201"
+        ],
+        "relation_ids": [
+          "R0426",
+          "R0966",
+          "R0967",
+          "R0968",
+          "R0969",
+          "R0970"
+        ],
+        "kind": "cluster",
+        "why": "אשכול של דילוגי K4 ו-A2 עם E גבוה (F085 20.4, F178 20.4, F176 16.6) וחפיפות לאורך אותו מישור. הוא משלים את הקבוצה הקודמת מבחינת מיקום."
+      },
+      {
+        "ids": [
+          "F162",
+          "F163",
+          "F186",
+          "F191",
+          "F212"
+        ],
+        "relation_ids": [
+          "R0660",
+          "R0661",
+          "R0675",
+          "R0676",
+          "R0677"
+        ],
+        "kind": "cluster",
+        "why": "מחרוזת של מילים (מחלה, מלבי, וימאנ, אמרי, יאמר) שחוצה את אותו אזור של עמודות 49–54 ושורות 13–19 עם חיתוכים ו-E בינוני עד גבוה (F191 ו-F212 מעל 20). נושא משותף לפי מיקום."
+      },
+      {
+        "ids": [
+          "F079",
+          "F081",
+          "F082",
+          "F080"
+        ],
+        "relation_ids": [
+          "R0402",
+          "R0403",
+          "R0406",
+          "R0414"
+        ],
+        "kind": "cluster",
+        "why": "ואיה (E=41.3) ועמי, ערוה, ויטל חופפים בעמודות 51–54 ובשורות 10–13 עם חיתוכים ומקבילות. ה-E של ואיה הוא הגבוה במאגר, אך הוא משדה של שני קווים קצרים שחופפים באותה עמודה, לכן הערך עלול להיות מנופח."
+      },
+      {
+        "ids": [
+          "F060",
+          "F059",
+          "F061"
+        ],
+        "relation_ids": [
+          "R0323",
+          "R0324",
+          "R0199"
+        ],
+        "kind": "chain",
+        "why": "מנהעמ, ויאמר וראינו נפגשים באזור עמודה 47–48 בשורות 9–17. שרשרת של חיתוכים מקרוב, בלי E חריג."
+      },
+      {
+        "ids": [
+          "F022",
+          "F011",
+          "F012"
+        ],
+        "relation_ids": [
+          "R0171",
+          "R0172",
+          "R0173"
+        ],
+        "kind": "chain",
+        "why": "זורק, מהיומ ושלמה נפגשים בעמודה 50 ובשורה 3, עם חיתוכים בין קווים שונים. הקשר מקומי והחריגות נמוכות."
+      },
+      {
+        "ids": [
+          "F105",
+          "F111",
+          "F109",
+          "F110"
+        ],
+        "relation_ids": [
+          "R0482",
+          "R0483",
+          "R2476",
+          "R2480"
+        ],
+        "kind": "chain",
+        "why": "ממתימ, תלונה, נטשת וטינא נכנסים לאותו אזור סביב שורה 12 ועמודה 46–54; יש בהם מגע צמוד ורצף של חיתוכים. ה-E של מילים אלו נמוך עד בינוני."
+      },
+      {
+        "ids": [
+          "F054",
+          "F074",
+          "F041",
+          "F040"
+        ],
+        "relation_ids": [
+          "R0865",
+          "R0986",
+          "R0117",
+          "R0954"
+        ],
+        "kind": "chain",
+        "why": "אלפרעה, ולאהרנ, חלמתיו ואליוספ נמצאים בשורות 7–10 בקו דומה של מקבילות עם היסט 1–2 וכיוון זהה. מדובר במרקם של טקסט רגיל שחוזר."
+      },
+      {
+        "ids": [
+          "F024",
+          "F012",
+          "F020"
+        ],
+        "relation_ids": [
+          "R0607",
+          "R0192",
+          "R0182"
+        ],
+        "kind": "pair",
+        "why": "שוליכ, ושלמה ופליט מתחברים לאזור שורות 4–12 עם חיתוכים ושכנות. זוג בעל E נמוך בעיקר."
+      },
+      {
+        "ids": [
+          "F021",
+          "F006",
+          "F010"
+        ],
+        "relation_ids": [
+          "R0814",
+          "R0815",
+          "R0158"
+        ],
+        "kind": "pair",
+        "why": "אלישה נמצא במקבילה עם וויהמ ו-ויהממ באותו כיוון ועם חפיפה של 3–4 תאים, והם שניהם בדילוגי D2 קרובים. זהו מבנה מקביל מוכר."
+      },
+      {
+        "ids": [
+          "F043",
+          "F044",
+          "F051"
+        ],
+        "relation_ids": [
+          "R0234",
+          "R0816",
+          "R0817"
+        ],
+        "kind": "pair",
+        "why": "והלחמ וירה חופפים בעמודה 55 עם חיתוך K2×K4, ושמטו מופיע במקבילה לוהלחמ. זה אזור עם צפיפות גבוהה של מילים מקבילות."
+      },
+      {
+        "ids": [
+          "F003",
+          "F027",
+          "F006"
+        ],
+        "relation_ids": [
+          "R0159",
+          "R0163"
+        ],
+        "kind": "pair",
+        "why": "המעשה חופף עם הגדלה וגם עם וויהמ באזור שורות 1–7 ועמודות 41–50, עם חיתוכים D1×R ו-D2×R."
+      },
+      {
+        "ids": [
+          "F163",
+          "F164",
+          "F132"
+        ],
+        "relation_ids": [
+          "R0841",
+          "R0097",
+          "R1097"
+        ],
+        "kind": "chain",
+        "why": "מלבי, רגלמ ונרגל נמצאים באזור עמודות 48–53 ושורות 13–21, עם מקבילות והיסטים 0.9 ו-2.7 וחיתוכים עם K2. שרשרת מקומית שאינה חזקה במיוחד."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F079",
+        "why": "ואיה עם E=41.3 הוא הערך הגבוה ביותר במאגר, אך הוא נשען על קו קצר בעמודה חוצה, ולכן יש לקרוא אותו בזהירות."
+      },
+      {
+        "id": "F036",
+        "why": "ראוה עם E=23.8 ו-K4 חוצה; מופיע בקבוצות של אזור משותף."
+      },
+      {
+        "id": "F044",
+        "why": "וירה E=27.7 הוא בין הגבוהים במאגר, באזור עם צפיפות יחסית גבוהה."
+      },
+      {
+        "id": "F062",
+        "why": "יואש E=25.8 חוצה, עם חיתוכים רבים סביב שורות 9–13."
+      },
+      {
+        "id": "F191",
+        "why": "אמרי E=22.0 ו-K1 חוצה, מופיע בכמה חיתוכים בין קווים שונים."
+      },
+      {
+        "id": "F012",
+        "why": "ושלמה בעל K3 ארוך שמחבר שורות 3 עד 11, ונוגע בקבוצות אחדות."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F060",
+          "F144"
+        ],
+        "why": "מנהעמ בעמודה 47 ומטוב בעמודה 47 על אותו קו, מתחברים בעמודה נגדית; ההמשך בתוך המאגר מוצג במתח ולא בהמשך ישיר."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F022",
+        "before_letters": "יילשתה",
+        "after_letters": "-",
+        "why": "זורק מופיע בעמודה 50 ומתחיל בשורה 1, והאותיות שלפניו מוצגות כרצף של המאגר."
+      },
+      {
+        "id": "F079",
+        "before_letters": "תושלונ",
+        "after_letters": "ו",
+        "why": "ואיה נבחן כהמשך של אותו קו עמודה 51 לפי האותיות הנלוות."
+      }
+    ],
+    "chance_note": "רוב היחסים המקבילים עם היסט 1 וחפיפה גבוהה, וכן רוב הסמוכים עם מרחק 1, נראים מקריים בהתחשב בצפיפות הטקסט של התורה; גם חיתוכים רבים בין קווים קצרים בעמודות 47–54 צפויים מקרית. יחסים עם E נמוך מאוד או עם חפיפה של 3 ומטה אינם מצביעים על מבנה."
+  },
+  "errors": [
+    {
+      "code": "over_limit",
+      "where": "groups",
+      "detail": "14 > 12"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "chance_note",
+      "detail": "רוב היחסים המקבילים עם היסט 1 וחפיפה גבוהה, וכן רוב הסמוכים עם מרחק 1, נראים מקר"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "F036 (ראוה, E=23.8), F044 (וירה, E=27.7) ו-F127 (הריונ) מתחברים לאשכול של מקבילו"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[1]",
+      "detail": "R0277 joins F049-F051"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[1]",
+      "detail": "R0334 joins F062-F063"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[1]",
+      "detail": "R0352 joins F064-F065"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "F049 (אונו, E=20.1), F062 (יואש, E=25.8), F065 (אמלא, E=25.2), F066 (יערו, E=12."
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[2]",
+      "detail": "F176 also in groups[0]"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[2]",
+      "detail": "R0426 joins F084-F085"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[2]",
+      "detail": "R0967 joins F085-F146"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "אשכול של דילוגי K4 ו-A2 עם E גבוה (F085 20.4, F178 20.4, F176 16.6) וחפיפות לאור"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[3]",
+      "detail": "R0660 joins F160-F162"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[3]",
+      "detail": "R0661 joins F160-F163"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "מחרוזת של מילים (מחלה, מלבי, וימאנ, אמרי, יאמר) שחוצה את אותו אזור של עמודות 49–"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "ואיה (E=41.3) ועמי, ערוה, ויטל חופפים בעמודות 51–54 ובשורות 10–13 עם חיתוכים ומק"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[5]",
+      "detail": "R0199 joins F029-F060"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[5].why",
+      "detail": "מנהעמ, ויאמר וראינו נפגשים באזור עמודה 47–48 בשורות 9–17. שרשרת של חיתוכים מקרוב"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[6].why",
+      "detail": "זורק, מהיומ ושלמה נפגשים בעמודה 50 ובשורה 3, עם חיתוכים בין קווים שונים. הקשר מק"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[7]",
+      "detail": "R2476 joins F111-F131"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[7]",
+      "detail": "R2480 joins F111-F135"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[7].why",
+      "detail": "ממתימ, תלונה, נטשת וטינא נכנסים לאותו אזור סביב שורה 12 ועמודה 46–54; יש בהם מגע"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[8]",
+      "detail": "R0954 joins F267-F274"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[8].why",
+      "detail": "אלפרעה, ולאהרנ, חלמתיו ואליוספ נמצאים בשורות 7–10 בקו דומה של מקבילות עם היסט 1–"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[9]",
+      "detail": "F012 also in groups[6]"
+    },
+    {
+      "code": "kind_size_mismatch",
+      "where": "groups[9]",
+      "detail": "pair with 3 ids"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[9]",
+      "detail": "R0607 joins F137-F162"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[9]",
+      "detail": "R0192 joins F024-F084"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[9]",
+      "detail": "R0182 joins F020-F034"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[9].why",
+      "detail": "שוליכ, ושלמה ופליט מתחברים לאזור שורות 4–12 עם חיתוכים ושכנות. זוג בעל E נמוך בע"
+    },
+    {
+      "code": "kind_size_mismatch",
+      "where": "groups[10]",
+      "detail": "pair with 3 ids"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[10]",
+      "detail": "R0158 joins F003-F010"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[10].why",
+      "detail": "אלישה נמצא במקבילה עם וויהמ ו-ויהממ באותו כיוון ועם חפיפה של 3–4 תאים, והם שניהם"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[11]",
+      "detail": "F044 also in groups[0]"
+    },
+    {
+      "code": "kind_size_mismatch",
+      "where": "groups[11]",
+      "detail": "pair with 3 ids"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[11]",
+      "detail": "R0817 joins F051-F162"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[11].why",
+      "detail": "והלחמ וירה חופפים בעמודה 55 עם חיתוך K2×K4, ושמטו מופיע במקבילה לוהלחמ. זה אזור "
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[12]",
+      "detail": "F006 also in groups[10]"
+    },
+    {
+      "code": "kind_size_mismatch",
+      "where": "groups[12]",
+      "detail": "pair with 3 ids"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[12].why",
+      "detail": "המעשה חופף עם הגדלה וגם עם וויהמ באזור שורות 1–7 ועמודות 41–50, עם חיתוכים D1×R "
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[13]",
+      "detail": "F163 also in groups[3]"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[13]",
+      "detail": "R0097 joins F205-F232"
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[13]",
+      "detail": "R1097 joins F164-F244"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[13].why",
+      "detail": "מלבי, רגלמ ונרגל נמצאים באזור עמודות 48–53 ושורות 13–21, עם מקבילות והיסטים 0.9 "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[0].why",
+      "detail": "ואיה עם E=41.3 הוא הערך הגבוה ביותר במאגר, אך הוא נשען על קו קצר בעמודה חוצה, ול"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "ראוה עם E=23.8 ו-K4 חוצה; מופיע בקבוצות של אזור משותף."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[2].why",
+      "detail": "וירה E=27.7 הוא בין הגבוהים במאגר, באזור עם צפיפות יחסית גבוהה."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "יואש E=25.8 חוצה, עם חיתוכים רבים סביב שורות 9–13."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[4].why",
+      "detail": "אמרי E=22.0 ו-K1 חוצה, מופיע בכמה חיתוכים בין קווים שונים."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[5].why",
+      "detail": "ושלמה בעל K3 ארוך שמחבר שורות 3 עד 11, ונוגע בקבוצות אחדות."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[0].why",
+      "detail": "מנהעמ בעמודה 47 ומטוב בעמודה 47 על אותו קו, מתחברים בעמודה נגדית; ההמשך בתוך המא"
+    },
+    {
+      "code": "phrase_not_contiguous",
+      "where": "phrases[0]",
+      "detail": "F060,F144: not on one family and direction"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "continuations[0].why",
+      "detail": "זורק מופיע בעמודה 50 ומתחיל בשורה 1, והאותיות שלפניו מוצגות כרצף של המאגר."
+    },
+    {
+      "code": "continuation_letters_not_shown",
+      "where": "continuations[0]",
+      "detail": "F022: before \"יילשתה\" / after \"-\" are not the letters shown (\"יילשתה\" | \"\")"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "continuations[1].why",
+      "detail": "ואיה נבחן כהמשך של אותו קו עמודה 51 לפי האותיות הנלוות."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F036",
+        "F044",
+        "F127",
+        "F146",
+        "F176"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0825",
+        "R0827",
+        "R0828"
+      ],
+      "claimed_ok": [
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0825",
+        "R0827",
+        "R0828"
+      ],
+      "why": "F036 (ראוה, E=23.8), F044 (וירה, E=27.7) ו-F127 (הריונ) מתחברים לאשכול של מקבילות ודילוגים סביב אותו אזור, עם היסטים קטנים ודומים (0.7 ו-1.4). F146 ו-F176 נשענים על אותו מרקם של חפיפות. זה אשכול מעניין מבחינת מיקום, אך ה-E הגבוה של מילים כמו ראוה נובע בחלקו מכך שהקטע כולו בא מחוץ לטקסט רגיל.",
+      "order": 1,
+      "stats": {
+        "size": 5,
+        "relations_any": 10,
+        "relations_listed": 10,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 5,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F049",
+        "F062",
+        "F065",
+        "F066",
+        "F067"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0277",
+        "R0278",
+        "R0334",
+        "R0352",
+        "R0372"
+      ],
+      "claimed_ok": [
+        "R0278",
+        "R0372"
+      ],
+      "why": "F049 (אונו, E=20.1), F062 (יואש, E=25.8), F065 (אמלא, E=25.2), F066 (יערו, E=12.5) ו-F067 (עמרה, E=9.1) כולם חוצים את אותו אזור קרוב לשורות 8–14 בעמודות 49–57, והיחסים ביניהם הם חיתוכים ומקבילות עם E גבוה. זוהי קבוצה חזקה במונחי E.",
+      "order": 2,
+      "stats": {
+        "size": 5,
+        "relations_any": 10,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 0.6,
+        "types": [
+          "crossing",
+          "near"
+        ],
+        "members_with_E_ge_1": 5,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F085",
+        "F108",
+        "F176",
+        "F177",
+        "F178",
+        "F201"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0426",
+        "R0966",
+        "R0967",
+        "R0968",
+        "R0969",
+        "R0970"
+      ],
+      "claimed_ok": [
+        "R0966",
+        "R0968",
+        "R0969",
+        "R0970"
+      ],
+      "why": "אשכול של דילוגי K4 ו-A2 עם E גבוה (F085 20.4, F178 20.4, F176 16.6) וחפיפות לאורך אותו מישור. הוא משלים את הקבוצה הקודמת מבחינת מיקום.",
+      "order": 3,
+      "stats": {
+        "size": 6,
+        "relations_any": 15,
+        "relations_listed": 15,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 6,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F162",
+        "F163",
+        "F186",
+        "F191",
+        "F212"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0660",
+        "R0661",
+        "R0675",
+        "R0676",
+        "R0677"
+      ],
+      "claimed_ok": [
+        "R0675",
+        "R0676",
+        "R0677"
+      ],
+      "why": "מחרוזת של מילים (מחלה, מלבי, וימאנ, אמרי, יאמר) שחוצה את אותו אזור של עמודות 49–54 ושורות 13–19 עם חיתוכים ו-E בינוני עד גבוה (F191 ו-F212 מעל 20). נושא משותף לפי מיקום.",
+      "order": 4,
+      "stats": {
+        "size": 5,
+        "relations_any": 10,
+        "relations_listed": 10,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing"
+        ],
+        "members_with_E_ge_1": 5,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F079",
+        "F081",
+        "F082",
+        "F080"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0402",
+        "R0403",
+        "R0406",
+        "R0414"
+      ],
+      "claimed_ok": [
+        "R0402",
+        "R0403",
+        "R0406",
+        "R0414"
+      ],
+      "why": "ואיה (E=41.3) ועמי, ערוה, ויטל חופפים בעמודות 51–54 ובשורות 10–13 עם חיתוכים ומקבילות. ה-E של ואיה הוא הגבוה במאגר, אך הוא משדה של שני קווים קצרים שחופפים באותה עמודה, לכן הערך עלול להיות מנופח.",
+      "order": 5,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 4,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing",
+          "near"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 1
+      }
+    },
+    {
+      "ids": [
+        "F060",
+        "F059",
+        "F061"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0323",
+        "R0324",
+        "R0199"
+      ],
+      "claimed_ok": [
+        "R0323",
+        "R0324"
+      ],
+      "why": "מנהעמ, ויאמר וראינו נפגשים באזור עמודה 47–48 בשורות 9–17. שרשרת של חיתוכים מקרוב, בלי E חריג.",
+      "order": 6,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing",
+          "near"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 1
+      }
+    },
+    {
+      "ids": [
+        "F022",
+        "F011",
+        "F012"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0171",
+        "R0172",
+        "R0173"
+      ],
+      "claimed_ok": [
+        "R0171",
+        "R0172",
+        "R0173"
+      ],
+      "why": "זורק, מהיומ ושלמה נפגשים בעמודה 50 ובשורה 3, עם חיתוכים בין קווים שונים. הקשר מקומי והחריגות נמוכות.",
+      "order": 7,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 1
+      }
+    },
+    {
+      "ids": [
+        "F105",
+        "F111",
+        "F109",
+        "F110"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0482",
+        "R0483",
+        "R2476",
+        "R2480"
+      ],
+      "claimed_ok": [
+        "R0482",
+        "R0483"
+      ],
+      "why": "ממתימ, תלונה, נטשת וטינא נכנסים לאותו אזור סביב שורה 12 ועמודה 46–54; יש בהם מגע צמוד ורצף של חיתוכים. ה-E של מילים אלו נמוך עד בינוני.",
+      "order": 8,
+      "stats": {
+        "size": 4,
+        "relations_any": 2,
+        "relations_listed": 2,
+        "connected_share_any": 0.75,
+        "connected_share_listed": 0.75,
+        "types": [
+          "crossing"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 1
+      }
+    },
+    {
+      "ids": [
+        "F054",
+        "F074",
+        "F041",
+        "F040"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0865",
+        "R0986",
+        "R0117",
+        "R0954"
+      ],
+      "claimed_ok": [
+        "R0865",
+        "R0986",
+        "R0117"
+      ],
+      "why": "אלפרעה, ולאהרנ, חלמתיו ואליוספ נמצאים בשורות 7–10 בקו דומה של מקבילות עם היסט 1–2 וכיוון זהה. מדובר במרקם של טקסט רגיל שחוזר.",
+      "order": 9,
+      "stats": {
+        "size": 4,
+        "relations_any": 4,
+        "relations_listed": 4,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "parallel",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F024",
+        "F012",
+        "F020"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0607",
+        "R0192",
+        "R0182"
+      ],
+      "claimed_ok": [],
+      "why": "שוליכ, ושלמה ופליט מתחברים לאזור שורות 4–12 עם חיתוכים ושכנות. זוג בעל E נמוך בעיקר.",
+      "order": 10,
+      "stats": {
+        "size": 3,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 0.667,
+        "connected_share_listed": 0.667,
+        "types": [
+          "near"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F021",
+        "F006",
+        "F010"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0814",
+        "R0815",
+        "R0158"
+      ],
+      "claimed_ok": [
+        "R0814",
+        "R0815"
+      ],
+      "why": "אלישה נמצא במקבילה עם וויהמ ו-ויהממ באותו כיוון ועם חפיפה של 3–4 תאים, והם שניהם בדילוגי D2 קרובים. זהו מבנה מקביל מוכר.",
+      "order": 11,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F043",
+        "F044",
+        "F051"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0234",
+        "R0816",
+        "R0817"
+      ],
+      "claimed_ok": [
+        "R0234",
+        "R0816"
+      ],
+      "why": "והלחמ וירה חופפים בעמודה 55 עם חיתוך K2×K4, ושמטו מופיע במקבילה לוהלחמ. זה אזור עם צפיפות גבוהה של מילים מקבילות.",
+      "order": 12,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 2,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F003",
+        "F027",
+        "F006"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0159",
+        "R0163"
+      ],
+      "claimed_ok": [
+        "R0159",
+        "R0163"
+      ],
+      "why": "המעשה חופף עם הגדלה וגם עם וויהמ באזור שורות 1–7 ועמודות 41–50, עם חיתוכים D1×R ו-D2×R.",
+      "order": 13,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "crossing"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 1
+      }
+    },
+    {
+      "ids": [
+        "F163",
+        "F164",
+        "F132"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0841",
+        "R0097",
+        "R1097"
+      ],
+      "claimed_ok": [
+        "R0841"
+      ],
+      "why": "מלבי, רגלמ ונרגל נמצאים באזור עמודות 48–53 ושורות 13–21, עם מקבילות והיסטים 0.9 ו-2.7 וחיתוכים עם K2. שרשרת מקומית שאינה חזקה במיוחד.",
+      "order": 14,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F079",
+      "why": "ואיה עם E=41.3 הוא הערך הגבוה ביותר במאגר, אך הוא נשען על קו קצר בעמודה חוצה, ולכן יש לקרוא אותו בזהירות.",
+      "order": 1
+    },
+    {
+      "id": "F036",
+      "why": "ראוה עם E=23.8 ו-K4 חוצה; מופיע בקבוצות של אזור משותף.",
+      "order": 2
+    },
+    {
+      "id": "F044",
+      "why": "וירה E=27.7 הוא בין הגבוהים במאגר, באזור עם צפיפות יחסית גבוהה.",
+      "order": 3
+    },
+    {
+      "id": "F062",
+      "why": "יואש E=25.8 חוצה, עם חיתוכים רבים סביב שורות 9–13.",
+      "order": 4
+    },
+    {
+      "id": "F191",
+      "why": "אמרי E=22.0 ו-K1 חוצה, מופיע בכמה חיתוכים בין קווים שונים.",
+      "order": 5
+    },
+    {
+      "id": "F012",
+      "why": "ושלמה בעל K3 ארוך שמחבר שורות 3 עד 11, ונוגע בקבוצות אחדות.",
+      "order": 6
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F060",
+        "F144"
+      ],
+      "why": "מנהעמ בעמודה 47 ומטוב בעמודה 47 על אותו קו, מתחברים בעמודה נגדית; ההמשך בתוך המאגר מוצג במתח ולא בהמשך ישיר.",
+      "order": 1,
+      "status": "invalid"
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F022",
+      "before_letters": "יילשתה",
+      "after_letters": "-",
+      "why": "זורק מופיע בעמודה 50 ומתחיל בשורה 1, והאותיות שלפניו מוצגות כרצף של המאגר.",
+      "order": 1,
+      "status": "invalid"
+    },
+    {
+      "id": "F079",
+      "before_letters": "תושלונ",
+      "after_letters": "ו",
+      "why": "ואיה נבחן כהמשך של אותו קו עמודה 51 לפי האותיות הנלוות.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 212333,
+        "skip": 20202,
+        "dir": -1,
+        "length": 11,
+        "before": "תושלונ",
+        "after": "ו"
+      },
+      "engine": {
+        "key": "continuation:1",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "continuation:1",
+      "letters_match": true,
+      "state": "MATCH"
+    }
+  ]
+}

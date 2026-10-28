@@ -1,0 +1,6678 @@
+{
+ "evaluated_at": "2026-10-28T22:39:34.756Z",
+ "runs": [
+  {
+   "id": "B1-sonnet-1",
+   "arm": "B1",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "real",
+   "stop_reason": "end_turn",
+   "usd": 0.068084,
+   "input_tokens": 59604,
+   "output_tokens": 1696,
+   "thinking_tokens": 0,
+   "seconds": 109,
+   "usable": true,
+   "groups": 10,
+   "group_sizes": [
+    6,
+    4,
+    4,
+    4,
+    2,
+    2,
+    3,
+    5,
+    4,
+    3
+   ],
+   "members_in_groups": 37,
+   "singles": 5,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 10,
+   "groups_names_relation": 8,
+   "groups_with_pp_pair": 4,
+   "groups_with_tight_pair": 4,
+   "members_E_ge_1_share": 0.622,
+   "phrases": 3,
+   "phrases_confirmed": 3,
+   "continuations": 1,
+   "continuations_confirmed": 1,
+   "errors": {
+    "relation_outside_group": 1,
+    "digits_in_text": 12
+   },
+   "errors_total": 13,
+   "errors_other_than_digits": 1,
+   "texts_with_digits_beyond_labels": 10,
+   "chance_note": "רוב היחסים כאן מקריים: מקביליות ברשימות של ממצאי R בשורות סמוכות היא טבעית כשיש הרבה מילים מהטקסט, והחיתוכים והסמיכות רבים בגלל הצפיפות. גם הצביר סביב הציר נשען על E גבוה, כלומר על מילים קצרות ושכיחות.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F036",
+      "F044",
+      "F127",
+      "F146",
+      "F176",
+      "F201"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 7,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 6,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "צביר של ממצאי K4 על קווים מקבילים וסמוכים בסביבת עמודות 49–55, עם חפיפות והמשכים ביניהם (F044–F127, F146–F176–F201). הרבה ממצאים עם E גבוה חוצים את אותו ציר, ולכן הצביר בולט מבחינה מבנית."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F129",
+      "F191",
+      "F212",
+      "F214"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "ממצאי K1 על קווים מקבילים וצמודים, עם המשכים (F129–F191, F129–F212, F191–F212) ומקביליות עם F214. כולם חוצים את הציר ו-E של F129, F191 ו-F212 גבוה."
+    },
+    {
+     "order": 3,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F043",
+      "F162",
+      "F163",
+      "F051"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "ממצאי K2 שממשיכים זה את זה ומקבילים זה לזה סביב הציר, עם חפיפות של 4 ו-1 תאים."
+    },
+    {
+     "order": 4,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F066",
+      "F082",
+      "F107",
+      "F200"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שרשרת A1 על אותו קו עם חפיפות של 3 עד 4 תאים בין F066, F082 ו-F107, וממצא רביעי (F200) על אותו קו ברווח."
+    },
+    {
+     "order": 5,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F062",
+      "F133"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ממשיכים זה את זה על אותו קו אלכסוני בכיוונים הפוכים, עם חפיפה של 3 תאים, ושניהם חוצים את הציר עם E גבוה."
+    },
+    {
+     "order": 6,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F085",
+      "F178"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "המשך K4 עם חפיפה של 4 תאים ו-E גבוה בשניהם, שניהם חוצים את הציר."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F047",
+      "F106",
+      "F126"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 1,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "אלכסון D2 שבו F047 ממשיך ל-F106, ו-F106 מקביל ל-F126 באותו כיוון."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F095",
+      "F096",
+      "F097",
+      "F093",
+      "F092"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת המשכים ברצף בשורה אחת של טקסט רגיל: F092, F093, F095, F096, F097."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F272",
+      "F273",
+      "F274",
+      "F275"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת המשכים צפופה בשורה אחת של טקסט."
+    },
+    {
+     "order": 10,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F227",
+      "F228",
+      "F229"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שלושה ממצאים בשורה אחת שממשיכים זה את זה."
+    }
+   ],
+   "pair_ranks": [
+    {
+     "ids": [
+      "F062",
+      "F133"
+     ],
+     "rank_all": 91,
+     "rank_els": 32
+    },
+    {
+     "ids": [
+      "F085",
+      "F178"
+     ],
+     "rank_all": 87,
+     "rank_els": 28
+    }
+   ]
+  },
+  {
+   "id": "B1-sonnet-2",
+   "arm": "B1",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "real",
+   "stop_reason": "end_turn",
+   "usd": 0.068294,
+   "input_tokens": 59604,
+   "output_tokens": 1738,
+   "thinking_tokens": 0,
+   "seconds": 127,
+   "usable": true,
+   "groups": 11,
+   "group_sizes": [
+    9,
+    4,
+    3,
+    4,
+    2,
+    5,
+    4,
+    3,
+    3,
+    5,
+    2
+   ],
+   "members_in_groups": 44,
+   "singles": 5,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 11,
+   "groups_names_relation": 8,
+   "groups_with_pp_pair": 3,
+   "groups_with_tight_pair": 3,
+   "members_E_ge_1_share": 0.5,
+   "phrases": 3,
+   "phrases_confirmed": 3,
+   "continuations": 1,
+   "continuations_confirmed": 1,
+   "errors": {
+    "digits_in_text": 5
+   },
+   "errors_total": 5,
+   "errors_other_than_digits": 0,
+   "texts_with_digits_beyond_labels": 0,
+   "chance_note": "רוב יחסי המקבילה, הסמיכות והחיתוך מקריים: שורות הטקסט הרגיל מקבילות זו לזו מטבע הדברים, ואלכסונים חוצים שורות רבות. גם צפיפות סביב הציר צפויה כשהאזור קטן וכמה ממצאים עם E גבוה חופפים זה לזה.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 9,
+     "ids": [
+      "F036",
+      "F044",
+      "F127",
+      "F146",
+      "F176",
+      "F201",
+      "F085",
+      "F178",
+      "F108"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 10,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 9,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 22,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "צביר של ממצאי K4 על אותו קו או בקווים מקבילים וסמוכים, עם המשכים ויחסי מקבילה הדדיים. כמה מהם בעלי E גבוה מאוד והם חוצים את הציר, אבל הצפיפות הזו יכולה לנבוע גם מחזרת אותיות באזור."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F043",
+      "F162",
+      "F163",
+      "F051"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "ממצאי K2 שמהווים המשך זה של זה וגם קווים מקבילים, והם חוצים את אזור הציר."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F066",
+      "F082",
+      "F107"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שלושה ממצאי A1 על אותו קו עם חפיפות משמעותיות, E גבוה והם חוצים את הציר."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F129",
+      "F191",
+      "F212",
+      "F214"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "ממצאי K1 שמהווים המשך זה של זה ומקבילים זה לזה, וכולם חוצים את הציר."
+    },
+    {
+     "order": 5,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F062",
+      "F133"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "זוג על אותו קו אלכסוני בכיוונים הפוכים עם חפיפה של שלושה תאים, ושניהם חוצים את הציר."
+    },
+    {
+     "order": 6,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F118",
+      "F119",
+      "F120",
+      "F121",
+      "F122"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "רצף בשורת טקסט רגילה, והוא מחבר ממצאים צמודים בשורה אחת."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F272",
+      "F273",
+      "F274",
+      "F275"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "רצף המשכים בשורת טקסט עם חפיפות גדולות בין שמות האל לבין המילים הסמוכות להם."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F147",
+      "F148",
+      "F149"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "המשכים על אותה שורה של כלי המשכן."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F086",
+      "F087",
+      "F088"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "המשכים חופפים של העתירו, ואליהו, ואליהוה."
+    },
+    {
+     "order": 10,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F092",
+      "F093",
+      "F095",
+      "F096",
+      "F097"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת המשכים ארוכה בשורה אחת. המילים רצופות כי זהו טקסט רגיל."
+    },
+    {
+     "order": 11,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F060",
+      "F144"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "זוג המשך בעמודה בדילוג שורה בכיוונים הפוכים עם חפיפה של ארבעה תאים."
+    }
+   ],
+   "pair_ranks": [
+    {
+     "ids": [
+      "F062",
+      "F133"
+     ],
+     "rank_all": 91,
+     "rank_els": 32
+    },
+    {
+     "ids": [
+      "F060",
+      "F144"
+     ],
+     "rank_all": 68,
+     "rank_els": 10
+    }
+   ]
+  },
+  {
+   "id": "B1-sonnet-3",
+   "arm": "B1",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "real",
+   "stop_reason": "end_turn",
+   "usd": 0.071029,
+   "input_tokens": 59604,
+   "output_tokens": 2285,
+   "thinking_tokens": 0,
+   "seconds": 127,
+   "usable": true,
+   "groups": 11,
+   "group_sizes": [
+    7,
+    4,
+    4,
+    4,
+    6,
+    4,
+    4,
+    5,
+    5,
+    5,
+    3
+   ],
+   "members_in_groups": 51,
+   "singles": 7,
+   "connected_any_mean": 0.964,
+   "connected_listed_mean": 0.964,
+   "groups_with_claimed_relation": 11,
+   "groups_names_relation": 6,
+   "groups_with_pp_pair": 5,
+   "groups_with_tight_pair": 4,
+   "members_E_ge_1_share": 0.471,
+   "phrases": 5,
+   "phrases_confirmed": 5,
+   "continuations": 2,
+   "continuations_confirmed": 2,
+   "errors": {
+    "digits_in_text": 9
+   },
+   "errors_total": 9,
+   "errors_other_than_digits": 0,
+   "texts_with_digits_beyond_labels": 2,
+   "chance_note": "רוב החיתוכים, הסמיכויות והמקבילות נראים מקריים: ממצאי השורות הרגילות נפגשים עם כל הדילוגים בצפיפות גבוהה. גם צביר E גבוה ליד הציר צפוי לדעתי, כי רבים מהם חוצים את אותו אזור צר.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 7,
+     "ids": [
+      "F036",
+      "F044",
+      "F127",
+      "F146",
+      "F176",
+      "F201",
+      "F157"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 8,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 6,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "צביר של ממצאי K4 מקבילים וצמודים (ראוה, וירה, הריונ, ונמר, אונמ, שאונ, עבדיו) בחפיפות גבוהות. חלקם המשך זה של זה, אך E גבוה לחלקם ולכן הקשר מבני ולא מוכח כבעל משמעות."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F043",
+      "F162",
+      "F163",
+      "F051"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "ממצאי K2 על קווים סמוכים עם חפיפות והמשכים (והלחמ, מחלה, מלבי, שמטו), ושניים מהם בכיוון הפוך."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F066",
+      "F082",
+      "F107",
+      "F200"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שרשרת המשכים על קו A1 אחד (יערו, ערוה, ורעי) עם ידתיה על אותו קו ברווח, וחפיפות גבוהות בין שלושת הראשונים."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F129",
+      "F191",
+      "F212",
+      "F214"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "ממצאי K1 שמתחברים בהמשכים ובמקבילות (רמאי, אמרי, יאמר, החרי), ושלושה מהם עם E גבוה."
+    },
+    {
+     "order": 5,
+     "kind": "chain",
+     "size": 6,
+     "ids": [
+      "F093",
+      "F095",
+      "F096",
+      "F097",
+      "F092",
+      "F090"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 6,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "רצף טקסט רגיל בשורה אחת: ארצמצרימ, וילינו, כלעדת, בניישראל, עלמשה, ועלאהרנ, שמחוברים בהמשכים רצופים."
+    },
+    {
+     "order": 6,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F119",
+      "F120",
+      "F121",
+      "F122"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת המשכים רצופה בטקסט הרגיל: עלראשו, והקטרת, אתכלהאיל, המזבחה."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F272",
+      "F273",
+      "F274",
+      "F275"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת המשכים צפופה בטקסט: עליהוה, יהוהאלהיכ, אלהיכמ, המוציא."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F143",
+      "F145",
+      "F147",
+      "F148",
+      "F149"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "המשכים חופפים בשורה אחת (המאור, אורו, ואתכליה, ליהוא, ואתנרתיה), בעיקר חפיפת טקסט."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F227",
+      "F228",
+      "F229",
+      "F230",
+      "F231"
+     ],
+     "connected_any": 0.6,
+     "connected_listed": 0.6,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת בשורה אחת סביב שנימעשר וסביבתה: בנישנה, שנימעשר, ומנחתמ."
+    },
+    {
+     "order": 10,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F065",
+      "F067",
+      "F062",
+      "F133",
+      "F113"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation",
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 5,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 1,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "ממצאי E גבוה שחוצים את הציר ונפגשים באזור צר (אמלא, עמרה, יואש, ישאו, הלוכ). כנראה השפעת צפיפות החיתוכים ליד הציר."
+    },
+    {
+     "order": 11,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F085",
+      "F178",
+      "F108"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ממצאי K4 עם E גבוה שמתחברים בהמשך ובמקבילות (השוא, אושה, נואש)."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "B1-haiku-1",
+   "arm": "B1",
+   "series": "blind",
+   "model": "haiku",
+   "pool": "real",
+   "stop_reason": "end_turn",
+   "usd": 0.00374,
+   "input_tokens": 59604,
+   "output_tokens": 3040,
+   "thinking_tokens": 0,
+   "seconds": 138,
+   "usable": true,
+   "groups": 14,
+   "group_sizes": [
+    5,
+    5,
+    6,
+    5,
+    4,
+    3,
+    3,
+    4,
+    4,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "members_in_groups": 49,
+   "singles": 6,
+   "connected_any_mean": 0.958,
+   "connected_listed_mean": 0.93,
+   "groups_with_claimed_relation": 13,
+   "groups_names_relation": 9,
+   "groups_with_pp_pair": 5,
+   "groups_with_tight_pair": 4,
+   "members_E_ge_1_share": 0.685,
+   "phrases": 1,
+   "phrases_confirmed": 0,
+   "continuations": 2,
+   "continuations_confirmed": 1,
+   "errors": {
+    "over_limit": 1,
+    "digits_in_text": 24,
+    "relation_outside_group": 18,
+    "id_in_two_groups": 5,
+    "kind_size_mismatch": 4,
+    "phrase_not_contiguous": 1,
+    "continuation_letters_not_shown": 1
+   },
+   "errors_total": 54,
+   "errors_other_than_digits": 30,
+   "texts_with_digits_beyond_labels": 24,
+   "chance_note": "רוב היחסים המקבילים עם היסט 1 וחפיפה גבוהה, וכן רוב הסמוכים עם מרחק 1, נראים מקריים בהתחשב בצפיפות הטקסט של התורה; גם חיתוכים רבים בין קווים קצרים בעמודות 47–54 צפויים מקרית. יחסים עם E נמוך מאוד או עם חפיפה של 3 ומטה אינם מצביעים על מבנה.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F036",
+      "F044",
+      "F127",
+      "F146",
+      "F176"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 5,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "F036 (ראוה, E=23.8), F044 (וירה, E=27.7) ו-F127 (הריונ) מתחברים לאשכול של מקבילות ודילוגים סביב אותו אזור, עם היסטים קטנים ודומים (0.7 ו-1.4). F146 ו-F176 נשענים על אותו מרקם של חפיפות. זה אשכול מעניין מבחינת מיקום, אך ה-E הגבוה של מילים כמו ראוה נובע בחלקו מכך שהקטע כולו בא מחוץ לטקסט רגיל."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F049",
+      "F062",
+      "F065",
+      "F066",
+      "F067"
+     ],
+     "connected_any": 1,
+     "connected_listed": 0.6,
+     "claimed_ok": 2,
+     "types": [
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 5,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F049 (אונו, E=20.1), F062 (יואש, E=25.8), F065 (אמלא, E=25.2), F066 (יערו, E=12.5) ו-F067 (עמרה, E=9.1) כולם חוצים את אותו אזור קרוב לשורות 8–14 בעמודות 49–57, והיחסים ביניהם הם חיתוכים ומקבילות עם E גבוה. זוהי קבוצה חזקה במונחי E."
+    },
+    {
+     "order": 3,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F085",
+      "F108",
+      "F176",
+      "F177",
+      "F178",
+      "F201"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 6,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 6,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "אשכול של דילוגי K4 ו-A2 עם E גבוה (F085 20.4, F178 20.4, F176 16.6) וחפיפות לאורך אותו מישור. הוא משלים את הקבוצה הקודמת מבחינת מיקום."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F162",
+      "F163",
+      "F186",
+      "F191",
+      "F212"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 5,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "מחרוזת של מילים (מחלה, מלבי, וימאנ, אמרי, יאמר) שחוצה את אותו אזור של עמודות 49–54 ושורות 13–19 עם חיתוכים ו-E בינוני עד גבוה (F191 ו-F212 מעל 20). נושא משותף לפי מיקום."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F079",
+      "F081",
+      "F082",
+      "F080"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ואיה (E=41.3) ועמי, ערוה, ויטל חופפים בעמודות 51–54 ובשורות 10–13 עם חיתוכים ומקבילות. ה-E של ואיה הוא הגבוה במאגר, אך הוא משדה של שני קווים קצרים שחופפים באותה עמודה, לכן הערך עלול להיות מנופח."
+    },
+    {
+     "order": 6,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F060",
+      "F059",
+      "F061"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 1,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "מנהעמ, ויאמר וראינו נפגשים באזור עמודה 47–48 בשורות 9–17. שרשרת של חיתוכים מקרוב, בלי E חריג."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F022",
+      "F011",
+      "F012"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "crossing"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 1,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "זורק, מהיומ ושלמה נפגשים בעמודה 50 ובשורה 3, עם חיתוכים בין קווים שונים. הקשר מקומי והחריגות נמוכות."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F105",
+      "F111",
+      "F109",
+      "F110"
+     ],
+     "connected_any": 0.75,
+     "connected_listed": 0.75,
+     "claimed_ok": 2,
+     "types": [
+      "crossing"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 1,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ממתימ, תלונה, נטשת וטינא נכנסים לאותו אזור סביב שורה 12 ועמודה 46–54; יש בהם מגע צמוד ורצף של חיתוכים. ה-E של מילים אלו נמוך עד בינוני."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F054",
+      "F074",
+      "F041",
+      "F040"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "parallel",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "אלפרעה, ולאהרנ, חלמתיו ואליוספ נמצאים בשורות 7–10 בקו דומה של מקבילות עם היסט 1–2 וכיוון זהה. מדובר במרקם של טקסט רגיל שחוזר."
+    },
+    {
+     "order": 10,
+     "kind": "pair",
+     "size": 3,
+     "ids": [
+      "F024",
+      "F012",
+      "F020"
+     ],
+     "connected_any": 0.667,
+     "connected_listed": 0.667,
+     "claimed_ok": 0,
+     "types": [
+      "near"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שוליכ, ושלמה ופליט מתחברים לאזור שורות 4–12 עם חיתוכים ושכנות. זוג בעל E נמוך בעיקר."
+    },
+    {
+     "order": 11,
+     "kind": "pair",
+     "size": 3,
+     "ids": [
+      "F021",
+      "F006",
+      "F010"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "אלישה נמצא במקבילה עם וויהמ ו-ויהממ באותו כיוון ועם חפיפה של 3–4 תאים, והם שניהם בדילוגי D2 קרובים. זהו מבנה מקביל מוכר."
+    },
+    {
+     "order": 12,
+     "kind": "pair",
+     "size": 3,
+     "ids": [
+      "F043",
+      "F044",
+      "F051"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 1,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "והלחמ וירה חופפים בעמודה 55 עם חיתוך K2×K4, ושמטו מופיע במקבילה לוהלחמ. זה אזור עם צפיפות גבוהה של מילים מקבילות."
+    },
+    {
+     "order": 13,
+     "kind": "pair",
+     "size": 3,
+     "ids": [
+      "F003",
+      "F027",
+      "F006"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "crossing"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 1,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "המעשה חופף עם הגדלה וגם עם וויהמ באזור שורות 1–7 ועמודות 41–50, עם חיתוכים D1×R ו-D2×R."
+    },
+    {
+     "order": 14,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F163",
+      "F164",
+      "F132"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "מלבי, רגלמ ונרגל נמצאים באזור עמודות 48–53 ושורות 13–21, עם מקבילות והיסטים 0.9 ו-2.7 וחיתוכים עם K2. שרשרת מקומית שאינה חזקה במיוחד."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "B2-sonnet-1",
+   "arm": "B2",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "real",
+   "stop_reason": "end_turn",
+   "usd": 0.072006,
+   "input_tokens": 59591,
+   "output_tokens": 2483,
+   "thinking_tokens": 0,
+   "seconds": 103,
+   "usable": true,
+   "groups": 12,
+   "group_sizes": [
+    8,
+    4,
+    4,
+    4,
+    4,
+    5,
+    4,
+    5,
+    4,
+    3,
+    3,
+    4
+   ],
+   "members_in_groups": 52,
+   "singles": 8,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 12,
+   "groups_names_relation": 6,
+   "groups_with_pp_pair": 4,
+   "groups_with_tight_pair": 3,
+   "members_E_ge_1_share": 0.385,
+   "phrases": 4,
+   "phrases_confirmed": 4,
+   "continuations": 3,
+   "continuations_confirmed": 3,
+   "errors": {
+    "digits_in_text": 12
+   },
+   "errors_total": 12,
+   "errors_other_than_digits": 0,
+   "texts_with_digits_beyond_labels": 9,
+   "chance_note": "רוב החיתוכים, הסמוכים והמקבילות מקריים: ממצאי הטקסט הרגיל חוצים זה את זה בהכרח, ולממצאים בעלי E גבוה (מעל 10) יש הסבר טבעי של חפיפה ומילים קצרות שנקראות כמה פעמים באותו אזור.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 8,
+     "ids": [
+      "F036",
+      "F044",
+      "F127",
+      "F146",
+      "F176",
+      "F201",
+      "F157",
+      "F108"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 10,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 7,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "צביר של ממצאים באלכסון K4 שחוזרים זה על זה: F044, F127 ו-F157 ממשיכים זה את זה על אותו קו, וגם F108, F146, F176 ו-F201 ממשיכים זה את זה. בין הקבוצות יש מקבילות צמודות. כולם עם E גבוה, ולכן סביר שהמבנה נוצר ממבנה האותיות באזור ולא ממשמעות."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F129",
+      "F191",
+      "F212",
+      "F214"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "ממצאי K1 מקבילים וממשיכים זה את זה, בכיוון הפוך ובאותו כיוון. ל-F129, F191 ו-F212 יש E גבוה וחפיפה גדולה, כלומר זה כנראה אותו קטע אותיות שנקרא כמה פעמים."
+    },
+    {
+     "order": 3,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F043",
+      "F162",
+      "F163",
+      "F051"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "ממצאי K2 שממשיכים זה את זה ומקבילים זה לזה, עם חפיפה של 4 אותיות בין חלקם. קבוצה קומפקטית, אבל ככל הנראה חופפת."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F066",
+      "F082",
+      "F107",
+      "F200"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ממצאי A1 שממשיכים זה את זה בחפיפה גדולה, ועוד אחד על אותו קו עם רווח. הם חוצים את אזור הציר."
+    },
+    {
+     "order": 5,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F086",
+      "F087",
+      "F088",
+      "F084"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שרשרת בשורה 10 בטקסט הרגיל: ההרשעים, העתירו, ואליהו ואליהוה, ממשיכים זה את זה ברצף."
+    },
+    {
+     "order": 6,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F092",
+      "F093",
+      "F095",
+      "F096",
+      "F097"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת בטקסט הרגיל בשורה 11 שרצה ברצף מילים: וילינו, כלעדת, בני ישראל, על משה, ועל אהרן."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F119",
+      "F120",
+      "F121",
+      "F122"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת בטקסט הרגיל בשורה 13 של מילים ברצף, מעל ראשו עד המזבח."
+    },
+    {
+     "order": 8,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F143",
+      "F145",
+      "F147",
+      "F148",
+      "F149"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "אזור המנורה בשורה 14, עם המאור ו-אורו, שנחתכים על אותן אותיות ומתחברים לשרשרת ואת כליה ואת נרתיה. 'אורו' קרוב לציר 'אורניום'."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F272",
+      "F273",
+      "F274",
+      "F275"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת בטקסט הרגיל: על ה', ה' אלהיכם, אלהיכם, המוציא. מבנה של פסוק רגיל."
+    },
+    {
+     "order": 10,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F139",
+      "F140",
+      "F141"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת של 'את השלחן', 'ואת בדיו', 'ואת כליו' בשורה 14."
+    },
+    {
+     "order": 11,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F227",
+      "F228",
+      "F229"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת בשורה 21 של 'בני שנה', 'שנים עשר', 'ומנחתם'."
+    },
+    {
+     "order": 12,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F047",
+      "F048",
+      "F106",
+      "F113"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 1,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ממצאים שנחתכים באזור הציר ובסביבתו, עם המשך אחד בין F047 ל-F106. הקשר בין החיתוכים נראה מקרי."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "B2-sonnet-2",
+   "arm": "B2",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "real",
+   "stop_reason": "end_turn",
+   "usd": 0.067526,
+   "input_tokens": 59591,
+   "output_tokens": 1587,
+   "thinking_tokens": 0,
+   "seconds": 99,
+   "usable": true,
+   "groups": 9,
+   "group_sizes": [
+    7,
+    4,
+    4,
+    4,
+    5,
+    5,
+    4,
+    3,
+    6
+   ],
+   "members_in_groups": 42,
+   "singles": 3,
+   "connected_any_mean": 0.956,
+   "connected_listed_mean": 0.956,
+   "groups_with_claimed_relation": 9,
+   "groups_names_relation": 3,
+   "groups_with_pp_pair": 3,
+   "groups_with_tight_pair": 3,
+   "members_E_ge_1_share": 0.405,
+   "phrases": 3,
+   "phrases_confirmed": 3,
+   "continuations": 1,
+   "continuations_confirmed": 1,
+   "errors": {
+    "digits_in_text": 13
+   },
+   "errors_total": 13,
+   "errors_other_than_digits": 0,
+   "texts_with_digits_beyond_labels": 11,
+   "chance_note": "רוב החיתוכים והסמיכויות הם תוצר של צפיפות הממצאים, והקבלות בין שורות טקסט הן תוצאה של אותו טקסט. ממצאים עם E גבוה מאוד הם רעש צפוי.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 7,
+     "ids": [
+      "F036",
+      "F044",
+      "F127",
+      "F146",
+      "F176",
+      "F201",
+      "F108"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 8,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 7,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "צביר של ממצאי K4 ברוחב חופף (המשך והקבלה בין F044, F127, F146, F176, F201, F108). הם נחתכים באזור סביב ציר 'אורניום', אך הרצפים הללו הם רעש רגיל, שכן ערכי ה-E שלהם גבוהים (10 עד 28)."
+    },
+    {
+     "order": 2,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F066",
+      "F082",
+      "F107",
+      "F200"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שלושה ממצאי A1 בהמשך זה אחר זה (F066, F082, F107) ועוד F200 באותו קו. מבנה צפוף אך בעל E גבוה."
+    },
+    {
+     "order": 3,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F043",
+      "F162",
+      "F163",
+      "F051"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "F043 ממשיך את F162 ו-F163, ו-F051 מקביל להם. קבוצת K2 חופפת סביב אותו אזור."
+    },
+    {
+     "order": 4,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F129",
+      "F191",
+      "F212",
+      "F214"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": false,
+     "why": "שרשרת K1 של המשכים והקבלות עם חפיפה גבוהה. E גבוה (6 עד 22), ולכן כנראה מקרי."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F086",
+      "F087",
+      "F088",
+      "F123",
+      "F124"
+     ],
+     "connected_any": 0.6,
+     "connected_listed": 0.6,
+     "claimed_ok": 4,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שלוש הופעות של שם ה' בטקסט הרגיל עם חפיפה בין ואליהו לאליהוה, בשורות 10 ו-13. זהו ממצא טקסטואלי."
+    },
+    {
+     "order": 6,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F143",
+      "F145",
+      "F147",
+      "F148",
+      "F149"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "המאור, אורו, ואתכליה ואתנרתיה בשורה 14 מתחברים כשרשרת המשכים בטקסט הרגיל. זה קרוב לציר אורניום באות 'אור'."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F272",
+      "F273",
+      "F274",
+      "F275"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת טקסט בשורה 28: עליהוה, יהוהאלהיכם, אלהיכם, המוציא."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F227",
+      "F228",
+      "F229"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שלוש מילים רצופות בשורה 21 בטקסט הרגיל."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 6,
+     "ids": [
+      "F090",
+      "F092",
+      "F093",
+      "F095",
+      "F096",
+      "F097"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 6,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת טקסט רצוף בשורה 11, ארץ מצרים עד ועל אהרן."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "B3-sonnet-1",
+   "arm": "B3",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "t01",
+   "stop_reason": "end_turn",
+   "usd": 0.077625,
+   "input_tokens": 66955,
+   "output_tokens": 2134,
+   "thinking_tokens": 0,
+   "seconds": 121,
+   "usable": true,
+   "groups": 12,
+   "group_sizes": [
+    8,
+    4,
+    3,
+    3,
+    5,
+    5,
+    4,
+    4,
+    4,
+    6,
+    4,
+    3
+   ],
+   "members_in_groups": 50,
+   "singles": 9,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 0.979,
+   "groups_with_claimed_relation": 12,
+   "groups_names_relation": 4,
+   "groups_with_pp_pair": 0,
+   "groups_with_tight_pair": 1,
+   "members_E_ge_1_share": 0.302,
+   "phrases": 3,
+   "phrases_confirmed": 3,
+   "continuations": 2,
+   "continuations_confirmed": 2,
+   "errors": {
+    "relation_outside_group": 2,
+    "digits_in_text": 21,
+    "id_in_two_groups": 3
+   },
+   "errors_total": 26,
+   "errors_other_than_digits": 5,
+   "texts_with_digits_beyond_labels": 18,
+   "chance_note": "רוב הצלבות, הסמיכויות והמקבילות נובעות מצפיפות הממצאים ומשפת הטקסט החוזרת, ולכן מקריות. גם ממצאי E גבוה בצמוד לציר אינם מעידים על משמעות.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 8,
+     "ids": [
+      "F031",
+      "F056",
+      "F060",
+      "F063",
+      "F089",
+      "F135",
+      "F183",
+      "F206"
+     ],
+     "connected_any": 1,
+     "connected_listed": 0.75,
+     "claimed_ok": 8,
+     "types": [
+      "continuation",
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 8,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "צביר דילוגים בעלי E גבוה שנחתכים באזור עמודות 50–54 ליד הציר המסומן (ברמה, באהל, כלוב, ומרב, אוהל, להוא, אלהא, האלה). נראה שייכות מקומית, אך מרבית ה-E גבוהים ולכן סביר שהצפיפות מקרית."
+    },
+    {
+     "order": 2,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F056",
+      "F088",
+      "F183",
+      "F206"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ארבעה ממצאים על אותו קו K3 בהמשך זה לזה (באהל, אביהנ, אלהא, האלה) עם חפיפות. קו משותף אחד, אך כל מילה קצרה."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F074",
+      "F090",
+      "F176"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ואתמ, אתמי ו-היעימ ממשיכים זה את זה על אותו קו A1 בחפיפות."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F094",
+      "F095",
+      "F096"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "אתיהוה, יהוהאלהיכ ואלהיכמ חופפים בשורה אחת ויוצרים רצף טקסטואלי טבעי: את יהוה אלהיכם."
+    },
+    {
+     "order": 5,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F047",
+      "F048",
+      "F049",
+      "F050",
+      "F051"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת המשכים בשורה 8 (ועבדיכם ... גם אנחנו) שהיא טקסט רגיל."
+    },
+    {
+     "order": 6,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F145",
+      "F147",
+      "F150",
+      "F159",
+      "F160"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "רצף טקסט בשורה 14 (ובדעת, בדעתו, ובכלמלאכה, ולחשב, מחשבת) בהמשכים."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F193",
+      "F196",
+      "F197",
+      "F198"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "רצף באצבעו, והימנ, הימנית, מנהשמנ בשורה 17 עם חפיפות."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F181",
+      "F182",
+      "F184",
+      "F178"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "ובניו, ויאכל, יאכלהו, והנותר ברצף טקסט רציף בשורה 16."
+    },
+    {
+     "order": 9,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F277",
+      "F278",
+      "F269",
+      "F270"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "יהוה אלהיכם חוזר בשורות 27–28 עם מקבילות והמשכים."
+    },
+    {
+     "order": 10,
+     "kind": "chain",
+     "size": 6,
+     "ids": [
+      "F100",
+      "F105",
+      "F108",
+      "F111",
+      "F115",
+      "F116"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 6,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "רצף בשורה 11 (באהלו, ותקח, תקחו, ויעשוכן, בניישראל, וילקטו) בהמשכים."
+    },
+    {
+     "order": 11,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F153",
+      "F179",
+      "F244",
+      "F286"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "ארבעה ממצאים על אותו קו A1 (בהונ, והבל, ויקרא, יהיהבו) בהמשך וברווחים קטנים."
+    },
+    {
+     "order": 12,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F283",
+      "F284",
+      "F285"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "ולאידע, לאידעת, ואספתו חופפים בשורה 29."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "B3-sonnet-2",
+   "arm": "B3",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "t02",
+   "stop_reason": "end_turn",
+   "usd": 0.069924,
+   "input_tokens": 60074,
+   "output_tokens": 1970,
+   "thinking_tokens": 0,
+   "seconds": 120,
+   "usable": true,
+   "groups": 9,
+   "group_sizes": [
+    5,
+    4,
+    3,
+    5,
+    2,
+    4,
+    4,
+    4,
+    4
+   ],
+   "members_in_groups": 35,
+   "singles": 5,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 9,
+   "groups_names_relation": 4,
+   "groups_with_pp_pair": 2,
+   "groups_with_tight_pair": 2,
+   "members_E_ge_1_share": 0.457,
+   "phrases": 3,
+   "phrases_confirmed": 3,
+   "continuations": 2,
+   "continuations_confirmed": 1,
+   "errors": {
+    "digits_in_text": 13,
+    "continuation_letters_not_shown": 1
+   },
+   "errors_total": 14,
+   "errors_other_than_digits": 1,
+   "texts_with_digits_beyond_labels": 8,
+   "chance_note": "רוב היחסים, ובעיקר החיתוכים והסמיכויות, נובעים מהצפיפות של המטריצה, ולכן הם מקריים. ממצאי הדילוג עם E גבוה מאוד מצטברים באזור העמודות 47–55, והחפיפות בין הקבלות בשורות הטקסט הרגיל נובעות מטקסט משותף ואינן מעידות על משמעות.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F076",
+      "F093",
+      "F118",
+      "F148",
+      "F165"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 10,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 5,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "חמישה ממצאים בקו D2 או בכיוון הנגדי שנמשכים זה לזה בחפיפות גבוהות, ולכולם E גבוה. זה צביר צפוף סביב עמודות 47–55, אך החפיפה בין קווים סמוכים משקפת רצף אותיות משותף ולכן כנראה מקרית."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F083",
+      "F095",
+      "F143",
+      "F122"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "קבוצת A1 שמתחברת בהמשכים ובהקבלות צמודות, ובה אהבי, הביש, שיבה ותבהל. החפיפות גבוהות אך E גבוה, ולכן אין סימן להפתעה."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F079",
+      "F119",
+      "F146"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שרשרת K1 של השבת, שבתת ובתתכ שנמשכת על אותו קו בחפיפות של 2–3 אותיות. השבת ושבתת קרובות נושאית, אך E גבוה."
+    },
+    {
+     "order": 4,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F107",
+      "F108",
+      "F109",
+      "F110",
+      "F117"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "קטע טקסט רגיל רציף: אשר דבר, דבר יהוה, והשבת, שבתון, ונשבת. הם חופפים בשורה אחת בלי דילוג, ולכן זה מבנה של הטקסט עצמו ולא של דילוגים."
+    },
+    {
+     "order": 5,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F127",
+      "F128"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "ואליהו ואליהוה חופפות כמעט לגמרי, והשנייה היא הרחבה של הראשונה בטקסט הרגיל."
+    },
+    {
+     "order": 6,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F174",
+      "F176",
+      "F177",
+      "F172"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "בשורה 15 מנחתם, מרחשת, תקרב וקרבנכ חופפים זה לזה בטקסט רגיל, ויחד הם יוצרים מקטע הקרבה ברור."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F223",
+      "F224",
+      "F225",
+      "F228"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "רשימת כלי המשכן בשורה 20 היא שרשרת רציפה של אתהמחתת, אתהמזלגת, ואתהיעים ואתהמזרקת, כולה טקסט רגיל."
+    },
+    {
+     "order": 8,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F049",
+      "F054",
+      "F050",
+      "F131"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 5,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "קבוצת K4 עם ואהי, היתה, ביתא ויהאו, שיש ביניהן המשך והקבלה צמודה. לכל אחת E גבוה מאוד, ולכן זה צפוי."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F232",
+      "F233",
+      "F234",
+      "F236"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "והלוים, ויכבסו, ובגדי ובגדיהם הם רצף טקסט רגיל ברצף עניין אחד של כיבוס בגדים."
+    }
+   ],
+   "pair_ranks": [
+    {
+     "ids": [
+      "F127",
+      "F128"
+     ],
+     "rank_all": 30,
+     "rank_els": null
+    }
+   ]
+  },
+  {
+   "id": "B3-sonnet-3",
+   "arm": "B3",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "t03",
+   "stop_reason": "end_turn",
+   "usd": 0.073518,
+   "input_tokens": 66218,
+   "output_tokens": 1460,
+   "thinking_tokens": 0,
+   "seconds": 122,
+   "usable": true,
+   "groups": 6,
+   "group_sizes": [
+    2,
+    5,
+    6,
+    3,
+    3,
+    3
+   ],
+   "members_in_groups": 22,
+   "singles": 4,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 6,
+   "groups_names_relation": 3,
+   "groups_with_pp_pair": 0,
+   "groups_with_tight_pair": 0,
+   "members_E_ge_1_share": 0.5,
+   "phrases": 2,
+   "phrases_confirmed": 2,
+   "continuations": 2,
+   "continuations_confirmed": 2,
+   "errors": {
+    "digits_in_text": 10
+   },
+   "errors_total": 10,
+   "errors_other_than_digits": 0,
+   "texts_with_digits_beyond_labels": 8,
+   "chance_note": "רוב היחסים כאן מקריים: חיתוכים וסמיכויות מרובים באזור הציר, ומקביליות בין ממצאי שורות רגילות. ערכי E גבוהים באזור הציר (עשרות) מעידים על רעש צפוי.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F152",
+      "F183"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שני ממצאים בעמודה אחת (C) שממשיכים זה את זה עם חפיפה של 3 אותיות: F152 (ולמנ) ו-F183 (מלוה, בכיוון הפוך). הם גם נחתכים בקו הטקסט באזור הציר המסומן. ערכי E גבוהים (14.8 ו-29.5), ולכן זה כנראה מקרי."
+    },
+    {
+     "order": 2,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F124",
+      "F121",
+      "F118",
+      "F117",
+      "F116"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "רצף בשורת הטקסט הרגיל: ויזבחו, וזבחימ, שלמימ, ליהוה, הפרימ. שרשרת המשכים רצופה, אבל זהו טקסט רגיל ולא דילוג."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 6,
+     "ids": [
+      "F173",
+      "F174",
+      "F175",
+      "F176",
+      "F177",
+      "F180"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 6,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת המשכים ארוכה בשורה אחת: אהלמועד, ויקרבו, וכלהעדה, ויעמדו, לפנייהוה, ויאמר. זה פשט הטקסט."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F054",
+      "F104",
+      "F219"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שלושה ממצאים על קו K4 שממשיכים זה את זה (אשית, ישאו, משימה), עם יחסי המשך הדדיים. E של F054 ושל F104 גבוה, ולכן סביר שזה מקרי."
+    },
+    {
+     "order": 5,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F065",
+      "F076",
+      "F078"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שרשרת המשכים בקו A1 (משלי, שליה, שמאי) עם חפיפות. הם נחתכים במרכז הציר, ו-E גבוה."
+    },
+    {
+     "order": 6,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F123",
+      "F136",
+      "F168"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שלושה ממצאים על קו D2 שממשיכים זה את זה (ושוב, שובה, בושו) עם חפיפות גדולות. E גבוה (כ-15), ולכן סביר שזה מקרי."
+    }
+   ],
+   "pair_ranks": [
+    {
+     "ids": [
+      "F152",
+      "F183"
+     ],
+     "rank_all": 75,
+     "rank_els": 22
+    }
+   ]
+  },
+  {
+   "id": "B3-sonnet-4",
+   "arm": "B3",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "t04",
+   "stop_reason": "end_turn",
+   "usd": 0.074157,
+   "input_tokens": 66047,
+   "output_tokens": 1622,
+   "thinking_tokens": 0,
+   "seconds": 131,
+   "usable": true,
+   "groups": 8,
+   "group_sizes": [
+    4,
+    4,
+    4,
+    5,
+    5,
+    4,
+    4,
+    3
+   ],
+   "members_in_groups": 33,
+   "singles": 4,
+   "connected_any_mean": 0.912,
+   "connected_listed_mean": 0.912,
+   "groups_with_claimed_relation": 8,
+   "groups_names_relation": 4,
+   "groups_with_pp_pair": 0,
+   "groups_with_tight_pair": 0,
+   "members_E_ge_1_share": 0.152,
+   "phrases": 2,
+   "phrases_confirmed": 2,
+   "continuations": 1,
+   "continuations_confirmed": 1,
+   "errors": {
+    "digits_in_text": 12,
+    "kind_size_mismatch": 1
+   },
+   "errors_total": 13,
+   "errors_other_than_digits": 1,
+   "texts_with_digits_beyond_labels": 12,
+   "chance_note": "רוב יחסי החיתוך, הסמיכות וההקבלה בין ממצאים קצרים עם E גבוה הם רעש צפוי, במיוחד סביב עמודה 51 שבה הצפיפות גבוהה. גם המקבילות בהיסט 1 ו-2 בין שורות טקסט הן תוצאה של אותו טקסט רגיל, ולא מבנה משותף.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F060",
+      "F149",
+      "F176",
+      "F198"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F149, F176 ו-F198 הם שרשרת המשכים על אותו קו (R0045, R0046, R0053), ו-F060 חותך את שלושתם. זה צביר צפוף בעמודה 51, אבל ה-E של חלקם גבוה, ולכן המבנה עשוי להיות מקרי."
+    },
+    {
+     "order": 2,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F036",
+      "F038",
+      "F039",
+      "F041"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "אשרדברתי, אלפרעה, האשרה והאלהימ הם שרשרת טקסט רציפה בשורה 7 עם המשכים וחפיפות. זה רצף של טקסט רגיל, לא דילוג."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F185",
+      "F186",
+      "F189",
+      "F183"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "ושניהמ, מותיומת, יומתו ודמיהמ הם שרשרת של טקסט רציף בשורה 18 עם חפיפות. הם שייכים לאותו משפט ברור (עונש מוות)."
+    },
+    {
+     "order": 4,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F032",
+      "F033",
+      "F034",
+      "F030",
+      "F029"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "ויקרא, אתשמו, וישראל, ויאמרלו ואלהימ הם שרשרת המשכים בשורה 6 בלי רווחים. זה רצף טקסט רגיל."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F204",
+      "F205",
+      "F206",
+      "F208",
+      "F210"
+     ],
+     "connected_any": 0.8,
+     "connected_listed": 0.8,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "אלעשו, לעשותמ, ותמלא ואהלמועד הם צביר חופף בשורה 20, עם המשכים בין שלושת הראשונים."
+    },
+    {
+     "order": 6,
+     "kind": "pair",
+     "size": 4,
+     "ids": [
+      "F265",
+      "F266",
+      "F273",
+      "F274"
+     ],
+     "connected_any": 0.5,
+     "connected_listed": 0.5,
+     "claimed_ok": 2,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "דבריהוה–יהוהאלי ואשריהוה–יהוהאלהיכ הם שני זוגות המשך חופפים בשורות קרובות, עם שם ה' בשניהם."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F200",
+      "F201",
+      "F202",
+      "F203"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "והפריתי, והרביתי, והקימתי ואתבריתי הם רצף בשורה 19 בסגנון הבטחות ברית, עם המשך בין F202 ל-F203."
+    },
+    {
+     "order": 8,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F235",
+      "F292",
+      "F107"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F235 ו-F292 הם המשך חופף בעמידה של 5 תאים, ו-F107 על אותו קו עם רווח קטן. החפיפה הגדולה בולטת, אך המילים לא קשורות."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "B3-sonnet-5",
+   "arm": "B3",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "t05",
+   "stop_reason": "end_turn",
+   "usd": 0.076762,
+   "input_tokens": 67337,
+   "output_tokens": 1885,
+   "thinking_tokens": 0,
+   "seconds": 119,
+   "usable": true,
+   "groups": 9,
+   "group_sizes": [
+    5,
+    3,
+    3,
+    4,
+    3,
+    2,
+    4,
+    3,
+    3
+   ],
+   "members_in_groups": 30,
+   "singles": 3,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 9,
+   "groups_names_relation": 6,
+   "groups_with_pp_pair": 0,
+   "groups_with_tight_pair": 1,
+   "members_E_ge_1_share": 0.433,
+   "phrases": 3,
+   "phrases_confirmed": 3,
+   "continuations": 2,
+   "continuations_confirmed": 2,
+   "errors": {
+    "digits_in_text": 12,
+    "relation_outside_group": 2
+   },
+   "errors_total": 14,
+   "errors_other_than_digits": 2,
+   "texts_with_digits_beyond_labels": 9,
+   "chance_note": "רוב החיתוכים והסמיכויות סביב הציר נובעים מצפיפות הממצאים. ממצאים עם E גבוה כמו F074, F076 ו-F104 הם רעש רגיל, והמקבילות בהיסט 1–3 בשורות הן בעיקר חזרות של הטקסט.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F045",
+      "F107",
+      "F123",
+      "F212",
+      "F254"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 10,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "חמישה ממצאים בעמודה (C2) על ציר 51 שממשיכים זה את זה בשרשרת צפופה של המשכים וקווים משותפים. הם נמצאים על הציר המסומן, אבל המילים (יראי, ורוח, יארימ, אחור, מעליה) לא יוצרות משמעות ברורה, והסמיכות לציר עשויה להיות מקרית."
+    },
+    {
+     "order": 2,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F059",
+      "F090",
+      "F103"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שלושה ממצאים באלכסון A1 שממשיכים זה את זה באותו קו וחופפים; עמשא, אשמע והאשמ הן אותן אותיות כמעט בלבד, ולכן כנראה שיבוצים של אותו חומר."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F029",
+      "F086",
+      "F100"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שלושה ממצאים על קו A2 אחד בהמשכים חופפים (ויושב, ילבשו, וילבש), בסמוך לציר. המבנה אחיד אך המילים לא קשורות."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F101",
+      "F102",
+      "F099",
+      "F110"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "בשורה 11 רצף טקסט רגיל: ויאמר, אמריהו, יהוה, אלמשה שמתחברים ברצף ('ויאמר יהוה אל משה'). זה טקסט התורה עצמו ולא דילוג, והוא חוצה את הציר."
+    },
+    {
+     "order": 5,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F088",
+      "F089",
+      "F085"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ליהוה, הארצ וארצו בשורה 10 מתמשכים זה בזה בטקסט רגיל, וחוצים את הציר."
+    },
+    {
+     "order": 6,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F081",
+      "F108"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "והניח והניחה על אותו קו K4 בהמשך חופף, שתי צורות של אותו שורש, בסמוך לציר."
+    },
+    {
+     "order": 7,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F131",
+      "F134",
+      "F136",
+      "F137"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "בשורה 13 הצירוף 'הימנית ועלבהן רגל' חוזר בטקסט הרגיל, עם ממצאים חופפים סביב עמודה 51."
+    },
+    {
+     "order": 8,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F057",
+      "F075",
+      "F135"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "crossing"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "אויר, לינו וראוה נחתכים בקרבת הציר; ראוה בעמודה ממשיך את הציר. חיתוכים כאלה שכיחים באזור צפוף."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F113",
+      "F114",
+      "F115"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "ודבריו, דבריומ ויומביומ חופפים בטקסט רגיל בשורה 11, מהביטוי 'דבר יום ביומו'."
+    }
+   ],
+   "pair_ranks": [
+    {
+     "ids": [
+      "F081",
+      "F108"
+     ],
+     "rank_all": 60,
+     "rank_els": 1
+    }
+   ]
+  },
+  {
+   "id": "B3-sonnet-6",
+   "arm": "B3",
+   "series": "blind",
+   "model": "sonnet",
+   "pool": "t06",
+   "stop_reason": "end_turn",
+   "usd": 0.07101,
+   "input_tokens": 61635,
+   "output_tokens": 1875,
+   "thinking_tokens": 0,
+   "seconds": 115,
+   "usable": true,
+   "groups": 10,
+   "group_sizes": [
+    8,
+    6,
+    3,
+    3,
+    3,
+    3,
+    4,
+    4,
+    6,
+    4
+   ],
+   "members_in_groups": 44,
+   "singles": 5,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 10,
+   "groups_names_relation": 4,
+   "groups_with_pp_pair": 1,
+   "groups_with_tight_pair": 2,
+   "members_E_ge_1_share": 0.364,
+   "phrases": 3,
+   "phrases_confirmed": 3,
+   "continuations": 2,
+   "continuations_confirmed": 2,
+   "errors": {
+    "digits_in_text": 12
+   },
+   "errors_total": 12,
+   "errors_other_than_digits": 0,
+   "texts_with_digits_beyond_labels": 8,
+   "chance_note": "רוב היחסים, ובעיקר צביר K2/K4 ואלפי יחסי הסמוך והחיתוך, נראים מקריים. הם נובעים מצפיפות הממצאים באזור, ו-E גבוה ברוב המילים הללו.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 8,
+     "ids": [
+      "F056",
+      "F057",
+      "F092",
+      "F139",
+      "F141",
+      "F177",
+      "F190",
+      "F202"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 9,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 6,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 19,
+     "tight_pairs": 4,
+     "names_relation": true,
+     "why": "צביר של ממצאי K2 מקבילים עם המשכים חופפים ביניהם (F056-F139, F057-F092-F141-F177). הם יושבים זה על גבי זה באותו אזור, אבל אין קשר סמנטי ביניהם, ו-E של F056 גבוה."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F028",
+      "F103",
+      "F125",
+      "F158",
+      "F159",
+      "F188"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 9,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 6,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "צביר של ממצאי K4 על אותו קו או בקווים צמודים עם שרשרת המשכים חופפים. גם כאן ה-E גבוה ברוב המילים, ולכן נראה שהמבנה נובע מצפיפות הקו ולא ממשמעות."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F088",
+      "F129",
+      "F145"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "הורה, הרוה ומהרו הם אותן אותיות בצורות שונות, בהמשכים חופפים על קו D1. זה נובע מהאותיות עצמן, וה-E גבוה."
+    },
+    {
+     "order": 4,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F050",
+      "F051",
+      "F052"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "ישמעון, שמעוני ומעונים הם הזזות של אותו רצף אותיות בטקסט הרגיל, ולכן החפיפה ביניהם צפויה."
+    },
+    {
+     "order": 5,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F259",
+      "F260",
+      "F261"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "אשר דבר, דבר יהוה ויהוה אלי הם צירוף רציף בשורה אחת של הטקסט."
+    },
+    {
+     "order": 6,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F172",
+      "F173",
+      "F174"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "את המזבח, מזבחו ואת הדמ נמשכים בטקסט רציף בשורה אחת."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F276",
+      "F277",
+      "F278",
+      "F279"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "את יהוה, יהוה אלהיכם, אלהיכם ובכל לבבכם הם צירוף מחובר בטקסט הרגיל."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F224",
+      "F225",
+      "F223",
+      "F221"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "משמרת, המקדש, למשמרת ובני ישראל הם רצף בשורה אחת של הטקסט."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 6,
+     "ids": [
+      "F066",
+      "F067",
+      "F068",
+      "F069",
+      "F070",
+      "F072"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 6,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "רשימת העמים בשורה 9 מחוברת כרצף טקסט: הכנעני, האמרי, הפרזי, החוי והיבוסי."
+    },
+    {
+     "order": 10,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F037",
+      "F076",
+      "F078",
+      "F054"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F037 (C) חוצה כמה ממצאי טקסט באזור הציר (עמודה 51). המילים אונו, סיוע ועתה אינן קשורות זו לזו."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "B1-fable-1",
+   "arm": "B1",
+   "series": "blind",
+   "model": "fable",
+   "pool": "real",
+   "stop_reason": "end_turn",
+   "usd": 0.59267,
+   "input_tokens": 59604,
+   "output_tokens": 11786,
+   "thinking_tokens": 7712,
+   "seconds": 179,
+   "usable": true,
+   "groups": 12,
+   "group_sizes": [
+    3,
+    4,
+    5,
+    6,
+    4,
+    6,
+    6,
+    4,
+    4,
+    4,
+    6,
+    7
+   ],
+   "members_in_groups": 57,
+   "singles": 15,
+   "connected_any_mean": 0.944,
+   "connected_listed_mean": 0.917,
+   "groups_with_claimed_relation": 12,
+   "groups_names_relation": 8,
+   "groups_with_pp_pair": 4,
+   "groups_with_tight_pair": 4,
+   "members_E_ge_1_share": 0.237,
+   "phrases": 7,
+   "phrases_confirmed": 5,
+   "continuations": 8,
+   "continuations_confirmed": 8,
+   "errors": {
+    "digits_in_text": 22,
+    "kind_size_mismatch": 1,
+    "relation_outside_group": 5,
+    "id_in_two_groups": 2,
+    "phrase_not_contiguous": 2
+   },
+   "errors_total": 32,
+   "errors_other_than_digits": 10,
+   "texts_with_digits_beyond_labels": 2,
+   "chance_note": "זוגות ההיפוך כמו השוא/אושה, נואש/שאונ, ונמר/אונמ, רמאי/אמרי/יאמר, יערו/ורעי, יואש/ישאו ומנהעמ/מטוב הם אותן אותיות נקראות בשני הכיוונים במילים קצרות עם E גבוה, ולכן מקריים לחלוטין; גם ענן הממצאים החוצים את הציר הוא ברובו מילים בנות ארבע אותיות עם E של עשרות. המקבילות בין שורות טקסט (היסט 1–3) ורוב יחסי הסמיכות מבטאים רק צפיפות של ממצאים באזור הציר ולא מבנה.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "pair",
+     "size": 3,
+     "ids": [
+      "F018",
+      "F055",
+      "F019"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "שני ממצאי דילוג נדירים (E נמוך לשניהם) נוגעים זה בזה: ובניתי ובתיכמ, שדה משמעות אחד של בנייה ובתים. ובניתי גם ממשיך באותיות אהל שאחריו. F019 הוא הטקסט שעליו הם נשענים."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F216",
+      "F233",
+      "F234",
+      "F259"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שני קווים נדירים (בבריתי על K3, הביאני על K1) חותכים זה את זה, והביאני חוצה בטקסט את השלמימ; בבריתי חוצה את ארבעימ. ברית, הבאה וקרבן שלמים מתכנסים לצביר אחד."
+    },
+    {
+     "order": 3,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F217",
+      "F295",
+      "F296",
+      "F269",
+      "F246"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 3,
+     "pp_pairs": 1,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "עלהעלה (K1+) ועדהיומ (K1-) שניהם נדירים מאוד, מקבילים בכיוון הפוך עם חפיפה גדולה, ושניהם חותכים את אותן שורות טקסט: יהוהאלהיכ ואמריהו; עדהיומ אף חותך את עלמזבח, קרוב בעניין לעולה."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F057",
+      "F091",
+      "F056",
+      "F090",
+      "F153",
+      "F184"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 7,
+     "types": [
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "נציבימ (עמודה, E נמוך מאוד) ואתהתבה (אלכסון, E נמוך) חותכים זה את זה, ושניהם עוברים דרך אותן מילות טקסט: בניישראל, ארצמצרימ, דבריהוה. שני ממצאים נדירים שנפגשים באותה חלקה של טקסט."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F171",
+      "F237",
+      "F247",
+      "F218"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "צלילימ (K1, E נמוך מאוד) ועמינדב (עמודה, E נמוך מאוד) נחתכים, ושניהם חותכים את ופקדיהמ בטקסט; צלילימ חוצה גם את לבניישראל. מפגש של שני ממצאים נדירים מאוד."
+    },
+    {
+     "order": 6,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F042",
+      "F094",
+      "F020",
+      "F078",
+      "F084",
+      "F076"
+     ],
+     "connected_any": 0.833,
+     "connected_listed": 0.833,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 3,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "ירשיעני הוא הממצא הנדיר ביותר במאגר, נחתך עם עמיהוה בדילוג, הסמוך לופליט (אף הוא נדיר). כולם סביב שורת הטקסט הצדיק/ועמי/הרשעימ ועמיהוה, כך שהשדה צדיק־רשע מופיע גם בטקסט וגם בדילוגים."
+    },
+    {
+     "order": 7,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F111",
+      "F215",
+      "F261",
+      "F240",
+      "F238",
+      "F204"
+     ],
+     "connected_any": 1,
+     "connected_listed": 0.667,
+     "claimed_ok": 6,
+     "types": [
+      "crossing",
+      "near",
+      "parallel",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 3,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "תלונה (K1) סמוך למרירות (A2) וחותך את מפיהמ (K3), ושלושתם סביב שורות הטקסט אתתלנות ומלינימ ואת ומנהגר. שדה משמעות של תלונה ומרירות מתרכז באזור אחד."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F044",
+      "F157",
+      "F281",
+      "F127"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שרשרת על קו K4 אחד: וירה ואחריו מיד עבדיו, ואחריו תהילה (בכיוון הפוך). הצירוף וירה עבדיו נקרא ברצף, והקו חוצה את הציר. וירה עצמו E גבוה, אך עבדיו נדיר יחסית."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F043",
+      "F163",
+      "F162",
+      "F044"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "על קו K2 שמסתיים בתחתית הציר: והלחמ ממשיך במלבי בחפיפת אות אחת, והאותיות אחרי והלחמ הן לבילהו, כלומר נקרא והלחמלבי. מחלה הוא אותו קטע הפוך. הקו נחתך עם וירה."
+    },
+    {
+     "order": 10,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F168",
+      "F193",
+      "F216",
+      "F012"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "parallel",
+      "same_line"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 3,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "על אותו קו K3: נחלימ ומנחלי חופפים, ומיד אחריהם בבריתי (בכיוון ההפוך). ושלמה מקביל להם בכיוון הפוך. הרצף מנחלי/בבריתי על קו אחד הוא הנקודה המעניינת."
+    },
+    {
+     "order": 11,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F179",
+      "F187",
+      "F189",
+      "F243",
+      "F249",
+      "F250"
+     ],
+     "connected_any": 0.5,
+     "connected_listed": 0.5,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 4,
+     "tight_pairs": 4,
+     "names_relation": true,
+     "why": "שתי משפחות A2 של ממצאים חופפים ומקבילים: הביאו/להביא/גערה, ותמימה/בתמימ/מסלע. כל קבוצה היא בעיקר אותו קטע אותיות, אבל להביא מתארך לקריאה להביאו ובתמימ לבתמימה."
+    },
+    {
+     "order": 12,
+     "kind": "cluster",
+     "size": 7,
+     "ids": [
+      "F063",
+      "F095",
+      "F159",
+      "F211",
+      "F048",
+      "F158",
+      "F223"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "crossing",
+      "near",
+      "parallel",
+      "same_line"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 2,
+     "plain": 2,
+     "pp_pairs": 3,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "ממצאי עמודה בעמודות הצמודות לציר: ישראל (C2) חוצה את בניישראל ולאמר בטקסט, ליליא באותה עמודה, יכניה/לאויב/להראה בצד. רובם E סביב 1, אבל זו הסביבה האנכית הישירה של הציר."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "B2-fable-1",
+   "arm": "B2",
+   "series": "blind",
+   "model": "fable",
+   "pool": "real",
+   "stop_reason": "end_turn",
+   "usd": 0.727505,
+   "input_tokens": 59591,
+   "output_tokens": 17182,
+   "thinking_tokens": 12848,
+   "seconds": 244,
+   "usable": true,
+   "groups": 12,
+   "group_sizes": [
+    5,
+    4,
+    7,
+    9,
+    5,
+    6,
+    6,
+    4,
+    6,
+    4,
+    4,
+    5
+   ],
+   "members_in_groups": 61,
+   "singles": 15,
+   "connected_any_mean": 0.972,
+   "connected_listed_mean": 0.972,
+   "groups_with_claimed_relation": 12,
+   "groups_names_relation": 8,
+   "groups_with_pp_pair": 1,
+   "groups_with_tight_pair": 1,
+   "members_E_ge_1_share": 0.138,
+   "phrases": 5,
+   "phrases_confirmed": 5,
+   "continuations": 6,
+   "continuations_confirmed": 6,
+   "errors": {
+    "digits_in_text": 7,
+    "text_too_long": 1,
+    "relation_outside_group": 6,
+    "id_in_two_groups": 4
+   },
+   "errors_total": 18,
+   "errors_other_than_digits": 11,
+   "texts_with_digits_beyond_labels": 3,
+   "chance_note": "רוב היחסים סביב הציר הם מילים בנות שלוש-ארבע אותיות עם E גבוה מאוד (למשל F036, F062, F065, F066, F067, F079, F082, F085, F113, F126, F128, F129, F133, F146, F176, F177, F178, F191, F201, F205, F212) וצפויות באזור צפוף; גם מאות יחסי 'מקבילה' בין שורות טקסט (R0847–R1218) ורוב יחסי 'סמוך' באזור העמודות 45–60 הם תוצר של צפיפות גיאומטרית ולא של מבנה. המבנים שהדגשתי נשענים בעיקר על חיתוכים בין ממצאים בעלי E נמוך או על הקשר סמנטי עם הטקסט.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F233",
+      "F216",
+      "F259",
+      "F294",
+      "F234"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "F233 הביאני ו-F216 בבריתי, שניהם ממצאי דילוג נדירים (E נמוך מאוד), חותכים זה את זה; שניהם גם חותכים את מילת הטקסט F259 ארבעימ, ו-F233 חותך את F234 השלמימ ו-F294 כלישראל. 'הביאני' × 'בבריתי' הוא צירוף משמעותי של ברית והבאה."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F171",
+      "F237",
+      "F247",
+      "F218"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שני ממצאי הדילוג הנדירים ביותר באזור הזה, F171 צלילימ ו-F237 עמינדב, חותכים זה את זה, ושניהם חותכים את אותה מילת טקסט F247 ופקדיהמ; F171 חותך גם את F218 לבניישראל. חיתוך בין שני ממצאים בעלי E נמוך הוא מבנה בולט."
+    },
+    {
+     "order": 3,
+     "kind": "cluster",
+     "size": 7,
+     "ids": [
+      "F057",
+      "F091",
+      "F056",
+      "F090",
+      "F153",
+      "F172",
+      "F121"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 8,
+     "types": [
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "F057 נציבימ (E נמוך מאוד) ו-F091 אתהתבה (E נמוך) חותכים זה את זה, ושניהם חותכים שורות טקסט: F056 בניישראל, F090 ארצמצרימ, F153 דבריהוה, F172 אשרצוה. 'את התבה' על 'אשר צוה' ו'דבר יהוה' מזכיר את סיפור נח; 'נציבים' על 'בני ישראל'/'ארץ מצרים'."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 9,
+     "ids": [
+      "F063",
+      "F095",
+      "F211",
+      "F159",
+      "F064",
+      "F081",
+      "F109",
+      "F145",
+      "F143"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 1,
+     "plain": 7,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "סביב הציר: F063 ישראל בעמודה צמודה לציר (קרוב, מרחק 1) חותך את מילת הטקסט F095 בניישראל ואת F159 לאמר; שורות הטקסט החוצות את הציר נותנות F064 אהיה, F081 ועמי, F109 נטשת, F145 אורו (מתוך F143 המאור) ו-F159 לאמר. 'אור' של המאור/אורו מהדהד את תחילת הציר, ו'ישראל' האנכי ליד 'בני ישראל' האופקי."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F217",
+      "F295",
+      "F246",
+      "F269",
+      "F296"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 3,
+     "pp_pairs": 1,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "F217 עלהעלה ו-F295 עדהיומ, שניהם נדירים ומאותה משפחה בכיוונים הפוכים ומקבילים, חותכים שניהם את אותן שתי מילות טקסט F246 אמריהו ו-F269 יהוהאלהיכ; F295 חותך גם את F296 עלמזבח. עלה/מזבח/יהוה אלהיך — שדה סמנטי אחד של קרבן."
+    },
+    {
+     "order": 6,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F042",
+      "F020",
+      "F078",
+      "F081",
+      "F084",
+      "F094"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "crossing",
+      "near",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 3,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F042 ירשיעני (הממצא הנדיר ביותר במאגר) סמוך ל-F020 ופליט (נדיר אף הוא), ו-F020 חותך את מילת הטקסט F078 הצדיק שבאותה שורה עם F081 ועמי ו-F084 הרשעימ. F094 עמיהוה, דילוג נדיר, חותך את F042. צדיק/רשעים/ירשיעני/פליט — ניגוד של דין ומשפט."
+    },
+    {
+     "order": 7,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F111",
+      "F215",
+      "F261",
+      "F109",
+      "F240",
+      "F238"
+     ],
+     "connected_any": 0.667,
+     "connected_listed": 0.667,
+     "claimed_ok": 4,
+     "types": [
+      "crossing",
+      "near",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 3,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "F111 תלונה סמוך ל-F215 מרירות (נדיר) וחותך את F261 מפיהמ, ש-F215 סמוך לו; F111 חותך גם את מילת הטקסט F109 נטשת שעל הציר. בטקסט הסמוך מופיעים F240 אתתלנות ו-F238 מלינימ מאותו שורש — תלונה, מרירות, מפיהם."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F044",
+      "F157",
+      "F127",
+      "F281"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "על קו K4 אחד: F044 וירה נמשך ישירות ב-F157 עבדיו (חפיפה 0) ויוצר 'וירה עבדיו'; F127 הריונ חופף ל-F044 בכיוון ההפוך, ו-F281 תהילה ממשיך את F157 הלאה על אותו קו. שרשרת של ארבעה ממצאים על קו יחיד החוצה את הציר."
+    },
+    {
+     "order": 9,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F043",
+      "F163",
+      "F162",
+      "F160",
+      "F161",
+      "F159"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 10,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 1,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "מניפה של ממצאים היוצאים מאות ה-מ של הציר: F043 והלחמ מסתיים בה ו-F163 מלבי, F162 מחלה, F160 מאנת, F161 מהחל ומילת הטקסט F159 לאמר כולם עוברים דרך אותו תא. 'והלחם לבי' על קו אחד. רוב המילים קצרות ובעלות E גבוה, ולכן המבנה גיאומטרי יותר מאשר ראייתי."
+    },
+    {
+     "order": 10,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F018",
+      "F055",
+      "F019",
+      "F100"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F018 ובניתי ו-F055 ובתיכמ, שניהם דילוגים נדירים, סמוכים זה לזה; שניהם נוגעים במילת הטקסט F019 הגמלימ, ו-F018 חותך את F100 אתארצכ. 'ובניתי... ובתיכם... את ארצך' — שדה של בניין ונחלה."
+    },
+    {
+     "order": 11,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F104",
+      "F056",
+      "F076",
+      "F077"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 1,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "F104 בנילוי (E נמוך) חותך את מילת הטקסט F056 בניישראל ואת F076 עמיהוה; F077 מניות חותך את F104 ואת F076. 'בני לוי' על 'בני ישראל' הוא זיווג טבעי."
+    },
+    {
+     "order": 12,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F071",
+      "F072",
+      "F099",
+      "F070",
+      "F169"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F071 אליהוה ו-F072 תהיהלו, שני דילוגים בעלי E נמוך, סמוכים זה לזה ושניהם חותכים את F099 בניישראל; F071 חותך את F070 בהוציאכ ושניהם סמוכים ל-F169 כייקריב. 'אל יהוה', 'תהיה לו', 'כי יקריב' — לשון קרבן."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "D1-sonnet-1",
+   "arm": "D1",
+   "series": "diagnostic",
+   "model": "sonnet",
+   "pool": "real-d1",
+   "stop_reason": "end_turn",
+   "usd": 0.069423,
+   "input_tokens": 60628,
+   "output_tokens": 1759,
+   "thinking_tokens": 0,
+   "seconds": 106,
+   "usable": true,
+   "groups": 10,
+   "group_sizes": [
+    7,
+    3,
+    3,
+    4,
+    4,
+    2,
+    3,
+    3,
+    2,
+    2
+   ],
+   "members_in_groups": 32,
+   "singles": 5,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 10,
+   "groups_names_relation": 8,
+   "groups_with_pp_pair": 4,
+   "groups_with_tight_pair": 3,
+   "members_E_ge_1_share": 0.818,
+   "phrases": 2,
+   "phrases_confirmed": 2,
+   "continuations": 1,
+   "continuations_confirmed": 1,
+   "errors": {
+    "digits_in_text": 7,
+    "id_in_two_groups": 1
+   },
+   "errors_total": 8,
+   "errors_other_than_digits": 1,
+   "texts_with_digits_beyond_labels": 2,
+   "chance_note": "רוב המקבילות והחיתוכים נובעים מהטקסט הרגיל, כי מילים בשורות סמוכות חופפות בקלות. גם חיתוכים עם E גבוה של מילים קצרות צפויים כרעש.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 7,
+     "ids": [
+      "F036",
+      "F044",
+      "F131",
+      "F150",
+      "F181",
+      "F206",
+      "F110"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 8,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 7,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "צביר של קווי K4 מקבילים וחופפים (ראוה, וירה, הריונ, ונמר, אונמ, שאונ, נואש) שמתחברים בשרשראות המשך. הם חולקים את האזור שבו נחתך הציר, אך כל המילים קצרות ושכיחות, ולכן הקשר כנראה מבני ולא מקרי בלבד."
+    },
+    {
+     "order": 2,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F087",
+      "F183",
+      "F110"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "השוא, אושה ונואש על קווי K4 מקבילים וחופפים, והראשון והשני אף ממשיכים זה את זה. הצירוף מוסיף לצביר K4 שמסביב לציר."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F066",
+      "F084",
+      "F109"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "יערו, ערוה וורעי על אותו קו A1, כל אחד ממשיך את האחר בחפיפה של 3–4 אותיות. מדובר באותיות משותפות, ולכן הרצף הוא ככל הנראה הד של אותו חומר אותיות."
+    },
+    {
+     "order": 4,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F133",
+      "F196",
+      "F217",
+      "F219"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "רמאי, אמרי, יאמר והחרי על קווי K1 מקבילים וחופפים, בהמשכים שנשענים על אותן אותיות. המילה 'יאמר' היא מילה מוכרת שמתקבלת מהחפיפה."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F043",
+      "F166",
+      "F167",
+      "F051"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "והלחמ, מחלה, מלבי ושמטו על קווי K2 מקבילים וחופפים שמרוכזים סביב אותו אזור. הם חולקים חפיפות גבוהות."
+    },
+    {
+     "order": 6,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F118",
+      "F119"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ארהב מוכל בתוך ארהבאששבת על אותו קו, וזה המשך מלא. E של הארוך נמוך מאוד, ולכן זה ממצא נדיר יחסית."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F089",
+      "F090",
+      "F088"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "העתירו, ואליהו ואליהוה ברצף טקסט, בחפיפה גבוהה. זה טקסט רגיל ולא דילוג."
+    },
+    {
+     "order": 8,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F047",
+      "F048",
+      "F108"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "קווים D2 ועמודה שחוצים סביב אותו אזור, כשהאחרון ממשיך את הראשון. הקשר קרוב לציר."
+    },
+    {
+     "order": 9,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F062",
+      "F137"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "יואש וישאו על אותו קו D1 בכיוונים הפוכים, בחפיפה של 3 תאים. שניהם עם E גבוה."
+    },
+    {
+     "order": 10,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F182",
+      "F130"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "crossing"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "אלונ והודה נחתכים בקווים תלולים באזור הציר."
+    }
+   ],
+   "pair_ranks": [
+    {
+     "ids": [
+      "F118",
+      "F119"
+     ],
+     "rank_all": 22,
+     "rank_els": 1
+    },
+    {
+     "ids": [
+      "F062",
+      "F137"
+     ],
+     "rank_all": 92,
+     "rank_els": 33
+    },
+    {
+     "ids": [
+      "F182",
+      "F130"
+     ],
+     "rank_all": 703,
+     "rank_els": 311
+    }
+   ]
+  },
+  {
+   "id": "D1-sonnet-2",
+   "arm": "D1",
+   "series": "diagnostic",
+   "model": "sonnet",
+   "pool": "real-d1",
+   "stop_reason": "end_turn",
+   "usd": 0.069753,
+   "input_tokens": 60628,
+   "output_tokens": 1825,
+   "thinking_tokens": 0,
+   "seconds": 117,
+   "usable": true,
+   "groups": 9,
+   "group_sizes": [
+    7,
+    4,
+    4,
+    4,
+    3,
+    5,
+    5,
+    4,
+    4
+   ],
+   "members_in_groups": 40,
+   "singles": 6,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 9,
+   "groups_names_relation": 5,
+   "groups_with_pp_pair": 3,
+   "groups_with_tight_pair": 3,
+   "members_E_ge_1_share": 0.525,
+   "phrases": 2,
+   "phrases_confirmed": 2,
+   "continuations": 2,
+   "continuations_confirmed": 2,
+   "errors": {
+    "digits_in_text": 5,
+    "relation_outside_group": 1,
+    "kind_size_mismatch": 1
+   },
+   "errors_total": 7,
+   "errors_other_than_digits": 2,
+   "texts_with_digits_beyond_labels": 0,
+   "chance_note": "רוב היחסים כמו חיתוך, סמוך ומקבילה בין ממצאים בטקסט הרגיל הם צפויים בצפיפות כזו. צבירי K4 ו-K1 עם E גבוה הם רעש שנוצר מאותיות חופפות.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 7,
+     "ids": [
+      "F036",
+      "F044",
+      "F131",
+      "F150",
+      "F181",
+      "F206",
+      "F110"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 8,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 7,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "צביר של קווי K4 מקבילים וחופפים (ראוה, וירה, הריונ, ונמר, אונמ, שאונ, נואש), עם יחסי המשך ברצף. ליבת הצביר היא האותיות המשותפות סביב 'אונ', ו-E גבוה בכמה מהם, ולכן הוא חשוד כמקרי."
+    },
+    {
+     "order": 2,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F066",
+      "F084",
+      "F109",
+      "F205"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "יערו, ערוה, ורעי הם שרשרת המשכים באותו קו A1 עם חפיפה גבוהה. מסתמכת על אותן אותיות, ו-E גבוה."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F133",
+      "F196",
+      "F217",
+      "F219"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": false,
+     "why": "רמאי, אמרי, יאמר והחרי הם קווי K1 חופפים עם המשכים. אבל החפיפה באותיות מסבירה את הקשר, ו-E גבוה."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F043",
+      "F166",
+      "F167",
+      "F051"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "והלחמ, מחלה, מלבי ושמטו הם קווי K2 הנחתכים סביב אותו אזור, עם המשכים ויחסי מקבילה."
+    },
+    {
+     "order": 5,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F103",
+      "F104",
+      "F105"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "אתתבואתה, והשביע והשביעת הם שרשרת בטקסט הרגיל על אותו קו, וקשורים בתוכן (תבואה ושביעית)."
+    },
+    {
+     "order": 6,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F097",
+      "F098",
+      "F099",
+      "F095",
+      "F094"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "וילינו, כלעדת, בניישראל, עלמשה, ועלאהרנ הם רצף של טקסט רציף בשורה אחת. זה טקסט רגיל ולא דילוג."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F149",
+      "F147",
+      "F151",
+      "F152",
+      "F153"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "המאור, אורו, ואתכליה, ליהוא ואתנרתיה הם רצף חופף בשורה אחת על מנורת המשכן. הם קרובים לציר 'אור', אך זה טקסט רגיל."
+    },
+    {
+     "order": 8,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F278",
+      "F279",
+      "F280",
+      "F281"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 4,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "עליהוה, יהוהאלהיכ, אלהיכמ והמוציא הם שרשרת חופפת בטקסט הרגיל."
+    },
+    {
+     "order": 9,
+     "kind": "pair",
+     "size": 4,
+     "ids": [
+      "F062",
+      "F137",
+      "F087",
+      "F183"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "יואש וישאו הם זוג המשכים חופפים באותו קו; ו-E גבוה בשניהם."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "D1-fable-1",
+   "arm": "D1",
+   "series": "diagnostic",
+   "model": "fable",
+   "pool": "real-d1",
+   "stop_reason": "end_turn",
+   "usd": 0.45724,
+   "input_tokens": 60628,
+   "output_tokens": 6164,
+   "thinking_tokens": 2436,
+   "seconds": 106,
+   "usable": true,
+   "groups": 12,
+   "group_sizes": [
+    3,
+    4,
+    3,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4
+   ],
+   "members_in_groups": 44,
+   "singles": 15,
+   "connected_any_mean": 0.958,
+   "connected_listed_mean": 0.958,
+   "groups_with_claimed_relation": 12,
+   "groups_names_relation": 12,
+   "groups_with_pp_pair": 5,
+   "groups_with_tight_pair": 6,
+   "members_E_ge_1_share": 0.478,
+   "phrases": 10,
+   "phrases_confirmed": 2,
+   "continuations": 7,
+   "continuations_confirmed": 7,
+   "errors": {
+    "relation_outside_group": 6,
+    "digits_in_text": 23,
+    "id_in_two_groups": 2,
+    "phrase_not_contiguous": 8
+   },
+   "errors_total": 39,
+   "errors_other_than_digits": 16,
+   "texts_with_digits_beyond_labels": 0,
+   "chance_note": "רוב יחסי ה'חוצה' סביב הציר הם מילים בנות ארבע אותיות עם E גבוה מאוד (למשל F036, F062, F065, F066, F067, F081, F084, F132, F133, F137), ובאזור צפוף כזה חיתוכים וסמיכויות ביניהן כמעט בלתי נמנעים. גם מרבית יחסי המקבילה הם בין קטעי טקסט רגיל (R) ומשקפים רק את פריסת השורות ולא מבנה דילוגים.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F118",
+      "F119",
+      "F173"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F119 ארהבאששבת הוא ממצא נדיר מאוד (E נמוך בסדרי גודל) והוא מכיל את F118 ארהב על אותו קו K1. את אותו קו חוצה F173 ארהב בעמודה, כלומר אותה מילה מופיעה פעמיים בשני דילוגים שונים ונפגשת בתא משותף. מבנה בולט במאגר."
+    },
+    {
+     "order": 2,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F044",
+      "F131",
+      "F161",
+      "F287"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ארבעה ממצאים על אותו קו K4 ברצף: וירה, הריונ, עבדיו, תהילה; F044 ו-F131 חוצים את הציר ו-F161 (E נמוך) ממשיך אותם ישירות. שרשרת ארוכה אחת היוצאת מן הציר."
+    },
+    {
+     "order": 3,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F172",
+      "F198",
+      "F221"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 3,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "נחלימ ומנחלי חופפים על אותו קו K3 (שורש משותף נחל) ובצמוד אליהם ממשיך בבריתי בעל E נמוך. F012 ושלמה מקביל להם בכיוון הפוך."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F043",
+      "F166",
+      "F167",
+      "F044"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "והלחמ, מחלה ומלבי על קו K2 אחד החוצה את הציר, והקו נחתך עם קו K4 של וירה/הריונ באותו אזור. צומת של שני קווים תלולים שכל אחד נושא כמה מילים."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F096",
+      "F078",
+      "F058",
+      "F095"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 1,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F096 עמיהוה בדילוג C2 (E נמוך) חוצה את הטקסט ממצרימ וכלעדת, ובאותו אזור הטקסט עצמו מכיל עמיהוה (F078). אותה מילה פעם בטקסט ופעם בדילוג."
+    },
+    {
+     "order": 6,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F057",
+      "F093",
+      "F056",
+      "F092"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "נציבימ בעמודת C2 (E נמוך מאוד) נחתך עם אתהתבה באלכסון (גם הוא נדיר), ושניהם חוצים את הטקסט בניישראל וארצמצרימ. שני ממצאים נדירים נפגשים בתא אחד."
+    },
+    {
+     "order": 7,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F029",
+      "F031",
+      "F035",
+      "F010"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 1,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "קסמימ (E נמוך) נחתך עם ותתנמ ועם ישירו, ושלושתם צמודים לשרשרת וויהמ/ויהממ. צביר של כמה אלכסונים המתכנסים לאותה פינה."
+    },
+    {
+     "order": 8,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F184",
+      "F192",
+      "F194",
+      "F140"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "crossing",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "הביאו ולהביא חופפים על אותו קו A2 (אותו שורש), גערה מקביל להם, ואתשרה חוצה את שניהם. קבוצה הדוקה של אלכסונים תלולים."
+    },
+    {
+     "order": 9,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F249",
+      "F255",
+      "F256",
+      "F237"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 1,
+     "plain": 1,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "תמימה ובתמימ חופפים על אותו קו A2, מסלע מקביל להם בהיסט קטן, ושלושתם חוצים את אותה מילת טקסט שנימעשר."
+    },
+    {
+     "order": 10,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F133",
+      "F196",
+      "F217",
+      "F219"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "רמאי, אמרי ויאמר על אותו קו K1 בחפיפה, אותיות משותפות, וכולם חוצים את הציר; החרי מקביל להם. ערכי E גבוהים, ולכן כנראה רעש, אך המבנה הגיאומטרי אחיד."
+    },
+    {
+     "order": 11,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F110",
+      "F150",
+      "F181",
+      "F206"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "ארבע מילים קצרות חופפות על אותו קו K4 החוצה את הציר. E גבוה לכולן; שרשרת נוחה לתיאור אך ככל הנראה מקרית."
+    },
+    {
+     "order": 12,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F223",
+      "F301",
+      "F239",
+      "F221"
+     ],
+     "connected_any": 0.5,
+     "connected_listed": 0.5,
+     "claimed_ok": 2,
+     "types": [
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 4,
+     "plain": 0,
+     "pp_pairs": 1,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "באזור הימני-תחתון כמה ממצאי K1/K3 בעלי E נמוך: עלהעלה ועדהיומ מקבילים בכיוון הפוך, הביאני נחתך עם בבריתי ומקביל ל-F119. ריכוז של ממצאים נדירים מאותה משפחת קווים."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "D2-sonnet-1",
+   "arm": "D2",
+   "series": "diagnostic",
+   "model": "sonnet",
+   "pool": "real",
+   "stop_reason": "end_turn",
+   "usd": 0.070976,
+   "input_tokens": 59746,
+   "output_tokens": 2246,
+   "thinking_tokens": 0,
+   "seconds": 122,
+   "usable": true,
+   "groups": 12,
+   "group_sizes": [
+    5,
+    6,
+    5,
+    5,
+    4,
+    4,
+    4,
+    3,
+    4,
+    5,
+    5,
+    2
+   ],
+   "members_in_groups": 49,
+   "singles": 6,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 12,
+   "groups_names_relation": 11,
+   "groups_with_pp_pair": 10,
+   "groups_with_tight_pair": 7,
+   "members_E_ge_1_share": 0.673,
+   "phrases": 4,
+   "phrases_confirmed": 4,
+   "continuations": 2,
+   "continuations_confirmed": 2,
+   "errors": {
+    "digits_in_text": 15,
+    "id_in_two_groups": 3
+   },
+   "errors_total": 18,
+   "errors_other_than_digits": 3,
+   "texts_with_digits_beyond_labels": 6,
+   "chance_note": "רוב היחסים הם טקסט רגיל של שורות R סמוכות, וקווים מקבילים בהיסט קטן, ו-E הגבוה בחלק מהממצאים על הציר אומר שהמילים קצרות ושכיחות. לכן קשה להסיק מהם משמעות.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F036",
+      "F044",
+      "F127",
+      "F146",
+      "F176"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 7,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 5,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "חמש מילים בקווי K4 שרצות במקביל זו לזו (בהיסט קטן), חלקן באותו כיוון וחלקן בכיוון הפוך, וכולן חוצות את הציר. F044 ו-F127 גם הן המשך זו של זו."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 6,
+     "ids": [
+      "F085",
+      "F178",
+      "F108",
+      "F201",
+      "F146",
+      "F176"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 8,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 6,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "המשך של קווי K4 מקבילים: F085 עם F178, ו-F108 עם F201, F146 ו-F176. אלה מילים שרצות במקביל, חלקן באותו כיוון וחלקן בכיוון הפוך, ו-E של F085 ו-F178 נמוך יחסית."
+    },
+    {
+     "order": 3,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F066",
+      "F082",
+      "F107",
+      "F160",
+      "F186"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 7,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 5,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 4,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "קווי A1 מקבילים שרצים באותו כיוון ובכיוון הפוך, ושלושה מהם הם המשך זה של זה. F160 ו-F186 המשיכו אותם בקו מקביל."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F043",
+      "F051",
+      "F162",
+      "F163",
+      "F164"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "קווי K2 מקבילים וצמודים, חלקם המשך זה של זה, בכיוון זהה ובכיוון הפוך, וחוצים את אזור הציר."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F129",
+      "F191",
+      "F212",
+      "F214"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 3,
+     "tight_pairs": 3,
+     "names_relation": true,
+     "why": "קווי K1 מקבילים בהיסט קטן, שרצים באותו כיוון ובכיוון הפוך ובחלקם המשך זה של זה, בקרבת הציר."
+    },
+    {
+     "order": 6,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F179",
+      "F187",
+      "F189",
+      "F115"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 5,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "קווי A2 מקבילים, בחלקם באותו כיוון ובחלקם בכיוון הפוך, ו-F179 ו-F187 המשך זה של זה."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 4,
+     "ids": [
+      "F034",
+      "F047",
+      "F106",
+      "F126"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "near",
+      "parallel"
+     ],
+     "E_ge_1": 4,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "קווי D2 מקבילים באותו כיוון, ו-F047 ו-F106 המשך זה של זה."
+    },
+    {
+     "order": 8,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F006",
+      "F010",
+      "F021"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "קווי D2 מקבילים באותו כיוון, ו-F006 ו-F010 המשך זה של זה. F021 קרוב לציר."
+    },
+    {
+     "order": 9,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F134",
+      "F168",
+      "F193",
+      "F110"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 3,
+     "plain": 0,
+     "pp_pairs": 4,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "קווי K3 מקבילים באותו כיוון, ו-F168 ו-F193 המשך זה של זה."
+    },
+    {
+     "order": 10,
+     "kind": "chain",
+     "size": 5,
+     "ids": [
+      "F143",
+      "F145",
+      "F147",
+      "F148",
+      "F149"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 6,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "המשך רציף של מילים בשורה 14 סביב אזור הציר. זה טקסט רגיל של התורה."
+    },
+    {
+     "order": 11,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F123",
+      "F124",
+      "F131",
+      "F143",
+      "F155"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 5,
+     "types": [
+      "continuation",
+      "parallel",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 5,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שורות טקסט מקבילות, רובן הן המשך זו של זו או חופפות, וחלקן קרובות לציר. זה צפוי בטקסט רגיל."
+    },
+    {
+     "order": 12,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F217",
+      "F295"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 1,
+     "tight_pairs": 1,
+     "names_relation": false,
+     "why": "זוג K1 בכיוון הפוך עם חפיפה של 5, ושני ממצאים עם E נמוך."
+    }
+   ],
+   "pair_ranks": [
+    {
+     "ids": [
+      "F217",
+      "F295"
+     ],
+     "rank_all": 1070,
+     "rank_els": 370
+    }
+   ]
+  },
+  {
+   "id": "B3-haiku-1",
+   "arm": "B3",
+   "series": "blind",
+   "model": "haiku",
+   "pool": "t07",
+   "stop_reason": "end_turn",
+   "usd": 0.003889,
+   "input_tokens": 65225,
+   "output_tokens": 2512,
+   "thinking_tokens": 0,
+   "seconds": 119,
+   "usable": true,
+   "groups": 11,
+   "group_sizes": [
+    3,
+    3,
+    4,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "members_in_groups": 34,
+   "singles": 7,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 11,
+   "groups_names_relation": 10,
+   "groups_with_pp_pair": 2,
+   "groups_with_tight_pair": 2,
+   "members_E_ge_1_share": 0.441,
+   "phrases": 2,
+   "phrases_confirmed": 2,
+   "continuations": 2,
+   "continuations_confirmed": 2,
+   "errors": {
+    "digits_in_text": 23,
+    "relation_outside_group": 5,
+    "kind_size_mismatch": 2
+   },
+   "errors_total": 30,
+   "errors_other_than_digits": 7,
+   "texts_with_digits_beyond_labels": 20,
+   "chance_note": "רוב היחסים מסוג חיתוך והמשך בין קווי A1 ו-K3 באזור שורות 9–16 נראים מקריים, בעיקר כשה-E נמוך ותכיפות החיתוכים גבוהה. ממצאי R שחופפים או צמודים באותה שורה נובעים מטבע הטקסט ואינם מעידים על משמעות.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F009",
+      "F070",
+      "F125"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F009 ו-F070 ו-F125 נמצאים על קו K4 אחד בהמשכיות, והם חוזרים על ציר ה-K4 בכמה נקודות. זהו מבנה משותף של שרשרת לאורך אותו קו, אבל הוא נשען על חפיפות קצרות ורובן מקריות."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F044",
+      "F065",
+      "F066"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שלושה ממצאי D2/K3 בצביר סביב אותה נקודה באזור השורות 9–13 עם E גבוה במיוחד ל-F044, והם חופפים זה לזה ומשותפים במשבצות. הקשר בין הקטעים מוצג ביחסי המשך וחיתוך."
+    },
+    {
+     "order": 3,
+     "kind": "cluster",
+     "size": 4,
+     "ids": [
+      "F024",
+      "F025",
+      "F026",
+      "F023"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "crossing"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 2,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "קבוצה של ממצאים (F023 ו-F024 ו-F025 ו-F026) מצטלבים בתאים סמוכים באזור שורות 5–6 ו-13, עם יחסי חיתוך רבים ביניהם. זהו צביר של חיתוכים בעיקר בין קווי K1, K3 ו-R."
+    },
+    {
+     "order": 4,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F014",
+      "F034",
+      "F106"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "F014 ו-F034 ו-F106 מקבילים ביחס היסט של 0.7 או 0.5 בתוך אותה משפחה, והם חיתוכים בין קווי A1. ההקבלה היא בין ממצאים מדורגים באלכסון, ולכן הם מבנה אפשרי."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F137",
+      "F132",
+      "F133"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "crossing",
+      "same_line"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 0,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "ממצאים F132 ו-F133 ו-F137 נמצאים בשורה 13 ובעמודות 51-63, מחוברים דרך חיתוכים ורווחים קטנים לקו שורה אחד, עם שכבה של קווי A1. זהו צביר מקומי של שורה."
+    },
+    {
+     "order": 6,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F147",
+      "F148",
+      "F165"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שלושה ממצאים (F147 ו-F148 ו-F165) נמצאים באזור שורות 11–15 עם חיתוכי A1 וK4 ביניהם, ו-F147 ו-F165 בעלי יחס המשך. הם צביר אלכסוני עם E סביר."
+    },
+    {
+     "order": 7,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F183",
+      "F184",
+      "F181"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation",
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 0,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F181 ו-F183 ו-F184 נמצאים באזור שורות 16 ובעמודות 45-56 בשרשרת של המשך ושל חיתוך K1/R. הקשר בין הקטעים נשען על ארבעה יחסים מובנים."
+    },
+    {
+     "order": 8,
+     "kind": "pair",
+     "size": 3,
+     "ids": [
+      "F028",
+      "F115",
+      "F116"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F115 ו-F116 מחוברים ביחס סמוך ומשותפים בחיתוך K2/A1 עם F028. זהו זוג קצר באזור שורות 12–15 ו-5, עם שיתוף במרחק אחד."
+    },
+    {
+     "order": 9,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F226",
+      "F227",
+      "F224"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "same_line"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 0,
+     "plain": 3,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F224 ו-F226 ו-F227 על קו R באותה שורה 19, עם המשך ואותו קו בין הצמדים. זו שרשרת שורה ברורה בטקסט רגיל, לא דילוג."
+    },
+    {
+     "order": 10,
+     "kind": "pair",
+     "size": 3,
+     "ids": [
+      "F089",
+      "F102",
+      "F100"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "crossing",
+      "parallel"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 1,
+     "pp_pairs": 1,
+     "tight_pairs": 1,
+     "names_relation": true,
+     "why": "F089 ו-F102 מקבילים ביחס היסט 0.4 באותו כיוון, ו-F100 חותך את שניהם בקו A2 או R. זוג מקבילה עם חפיפה 5, ונראה כסמיכות מקרית בשורה 11 ו-15."
+    },
+    {
+     "order": 11,
+     "kind": "chain",
+     "size": 3,
+     "ids": [
+      "F171",
+      "F169",
+      "F172"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "crossing",
+      "same_line"
+     ],
+     "E_ge_1": 1,
+     "E_lt_1": 0,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F169 ו-F172 נמצאים על קו R באותה שורה 15 עם יחס אותו קו, ו-F171 חותך אותם על A1. זו שרשרת של טקסט רגיל עם תוספת דילוג אחת."
+    }
+   ],
+   "pair_ranks": []
+  },
+  {
+   "id": "B3-haiku-2",
+   "arm": "B3",
+   "series": "blind",
+   "model": "haiku",
+   "pool": "t08",
+   "stop_reason": "end_turn",
+   "usd": 0.004883,
+   "input_tokens": 65044,
+   "output_tokens": 6523,
+   "thinking_tokens": 3880,
+   "seconds": 120,
+   "usable": true,
+   "groups": 9,
+   "group_sizes": [
+    2,
+    3,
+    3,
+    3,
+    3,
+    2,
+    2,
+    2,
+    5
+   ],
+   "members_in_groups": 22,
+   "singles": 5,
+   "connected_any_mean": 1,
+   "connected_listed_mean": 1,
+   "groups_with_claimed_relation": 9,
+   "groups_names_relation": 8,
+   "groups_with_pp_pair": 2,
+   "groups_with_tight_pair": 2,
+   "members_E_ge_1_share": 0.48,
+   "phrases": 4,
+   "phrases_confirmed": 4,
+   "continuations": 4,
+   "continuations_confirmed": 2,
+   "errors": {
+    "digits_in_text": 23,
+    "id_in_two_groups": 3,
+    "continuation_letters_not_shown": 2
+   },
+   "errors_total": 28,
+   "errors_other_than_digits": 5,
+   "texts_with_digits_beyond_labels": 20,
+   "chance_note": "רוב הקשרים בחלק מהחיתוכים והמקביליות עם E מעל 10, כמו הקבוצה הצפופה סביב עמודות 45-57, נראים מקריים לחלוטין, כי מילים נפוצות באזור הזה מופיעות שוב ושוב. ה-E הנמוך של הממצאים F024, F249 ו-F285 ביחסים הבודדים שלהם לא מובטח שיהיה משמעותי, ולכן כדאי לראות בהם רק מועמדים ולא הוכחה.",
+   "ordered_groups": [
+    {
+     "order": 1,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F077",
+      "F113"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "continuation"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "שני ממצאים מאותה משפחה (K1, כיוון שלילי) שחופפים ב-4 תאים בקו המשך, ושניהם מכילים את הרצף אמר. זהו מבנה משותף ברור על הנתונים, אך E נמוך-בינוני (2.0 ו-1.2) ולכן אין בכך משמעות מובטחת."
+    },
+    {
+     "order": 2,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F024",
+      "F077",
+      "F113"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 2,
+     "E_lt_1": 1,
+     "plain": 0,
+     "pp_pairs": 2,
+     "tight_pairs": 2,
+     "names_relation": true,
+     "why": "F024 מקביל הפוך ל-F077 (חפיפה 4) ול-F113 (חפיפה 5) בהיסט 0.4, ו-F077 וF113 מקושרים זה לזה בהמשך. F024 בעל E נמוך מאוד (0.01), כך שהשכיחות שלו נדירה מאוד בדילוג הזה."
+    },
+    {
+     "order": 3,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F001",
+      "F011",
+      "F112"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 3,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F011 ו-F112 בהמשך חפיפה 5, ושני הממצאים נחתכים עם F001 (חיתוך C2×K4 בשני המקרים). צביר קטן של קווים שנפגשים זה בזה; E של F001 הוא 2.3 ושל השניים 3.0."
+    },
+    {
+     "order": 4,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F003",
+      "F004",
+      "F122"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 2,
+     "types": [
+      "continuation",
+      "crossing",
+      "near"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 3,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F003 ו-F122 בהמשך (חפיפה 4) על אותו קו K2, ו-F003 נחתך עם F004 בדילוג C2×K2. שלושת הממצאים נמצאים באזור העמודות 45-49 בשורות 2-12, והם בעלי E נמוך (0.09, 0.14, 0.09)."
+    },
+    {
+     "order": 5,
+     "kind": "cluster",
+     "size": 3,
+     "ids": [
+      "F278",
+      "F279",
+      "F280"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 3,
+     "types": [
+      "continuation",
+      "crossing"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 1,
+     "plain": 2,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F278 ו-F279 חופפים ב-5 תאים על קו R, ושניהם נחתכים עם F280 על קו K1 (R0910 ו-R0911). F280 בעל E נמוך (0.17)."
+    },
+    {
+     "order": 6,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F188",
+      "F280"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "crossing"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F188 (הללויה, K2+) נחתך עם F280 (תהיולי, K1-) בחיתוך K1×K2. שני הממצאים בעלי E נמוך (0.18 ו-0.17)."
+    },
+    {
+     "order": 7,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F194",
+      "F249"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "crossing"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 2,
+     "plain": 0,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": true,
+     "why": "F194 (לכרבימ, D2+) נחתך עם F249 (ומיקבכ, C-) בחיתוך C×D2. לשני הממצאים E נמוך מאוד (0.04 ו-0.01)."
+    },
+    {
+     "order": 8,
+     "kind": "pair",
+     "size": 2,
+     "ids": [
+      "F216",
+      "F285"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 1,
+     "types": [
+      "crossing"
+     ],
+     "E_ge_1": 0,
+     "E_lt_1": 1,
+     "plain": 1,
+     "pp_pairs": 0,
+     "tight_pairs": 0,
+     "names_relation": false,
+     "why": "F216 (והלוימ, טקסט) נחתך עם F285 (ותחולל, K1-) בתא משותף. F285 בעל E נמוך מאוד (0.03), כלומר הרצף נדיר בדילוג הזה."
+    },
+    {
+     "order": 9,
+     "kind": "cluster",
+     "size": 5,
+     "ids": [
+      "F044",
+      "F045",
+      "F055",
+      "F056",
+      "F057"
+     ],
+     "connected_any": 1,
+     "connected_listed": 1,
+     "claimed_ok": 4,
+     "types": [
+      "continuation",
+      "parallel"
+     ],
+     "E_ge_1": 5,
+     "E_lt_1": 0,
+     "plain": 0,
+     "pp_pairs": 8,
+     "tight_pairs": 6,
+     "names_relation": true,
+     "why": "חמישה ממצאים חוצים (D1 ו-A1) באותו אזור, במקבילות עם היסט 0.7 ובאותו כיוון, עם חפיפה 3-4. המבנה ברור גיאומטרית, אבל E מעל 13 בכולם, כלומר זה רעש צפוי ולא תוצאה בעלת משמעות."
+    }
+   ],
+   "pair_ranks": [
+    {
+     "ids": [
+      "F077",
+      "F113"
+     ],
+     "rank_all": 48,
+     "rank_els": 8
+    },
+    {
+     "ids": [
+      "F188",
+      "F280"
+     ],
+     "rank_all": 133,
+     "rank_els": 45
+    },
+    {
+     "ids": [
+      "F194",
+      "F249"
+     ],
+     "rank_all": 127,
+     "rank_els": 44
+    },
+    {
+     "ids": [
+      "F216",
+      "F285"
+     ],
+     "rank_all": 132,
+     "rank_els": null
+    }
+   ]
+  }
+ ],
+ "free_proposals": [
+  {
+   "id": "F-sonnet-1",
+   "arm": "F",
+   "series": "blind",
+   "model": "sonnet",
+   "stop_reason": "end_turn",
+   "usd": 0.031473,
+   "input_tokens": 21348,
+   "output_tokens": 2025,
+   "thinking_tokens": 0,
+   "seconds": 102,
+   "usable": true,
+   "proposals": 20,
+   "verified": 18,
+   "verified_by_engine": 0,
+   "verified_plain_text_only": 18,
+   "not_verified": 2,
+   "saved_words_proposed": [],
+   "texts_verified_by_engine": []
+  },
+  {
+   "id": "F-haiku-1",
+   "arm": "F",
+   "series": "blind",
+   "model": "haiku",
+   "stop_reason": "end_turn",
+   "usd": 0.004134,
+   "input_tokens": 21348,
+   "output_tokens": 12265,
+   "thinking_tokens": 10518,
+   "seconds": 164,
+   "usable": true,
+   "proposals": 12,
+   "verified": 12,
+   "verified_by_engine": 1,
+   "verified_plain_text_only": 11,
+   "not_verified": 0,
+   "saved_words_proposed": [],
+   "texts_verified_by_engine": [
+    "אורניומ"
+   ]
+  }
+ ],
+ "known_pair_in_diagnostic_arm": {
+  "D1-sonnet-1": {
+   "forced_items_in_pool": 6,
+   "groups_with_both_words": [],
+   "groups_with_all_three": [],
+   "groups_with_any_added_item": [
+    {
+     "order": 6,
+     "kind": "pair",
+     "ids": [
+      "F118",
+      "F119"
+     ],
+     "relation_ids": [
+      "R0038"
+     ],
+     "why": "ארהב מוכל בתוך ארהבאששבת על אותו קו, וזה המשך מלא. E של הארוך נמוך מאוד, ולכן זה ממצא נדיר יחסית.",
+     "names_relation": true
+    }
+   ],
+   "singles_with_added_item": [
+    {
+     "order": 1,
+     "id": "F119",
+     "why": "ארהבאששבת היא מילה ארוכה עם E נמוך מאוד, ולכן היא הממצא הנדיר ביותר."
+    }
+   ],
+   "phrases_with_both": [],
+   "continuations_of_added_item": [
+    {
+     "order": 1,
+     "id": "F119",
+     "before": "ושאהמ",
+     "after": "ר",
+     "status": "engine_confirmed"
+    }
+   ]
+  },
+  "D1-sonnet-2": {
+   "forced_items_in_pool": 6,
+   "groups_with_both_words": [],
+   "groups_with_all_three": [],
+   "groups_with_any_added_item": [],
+   "singles_with_added_item": [
+    {
+     "order": 2,
+     "id": "F119",
+     "why": "ארהבאששבת היא מילה ארוכה מאוד עם E נמוך מאוד, לכן נדירה בדילוג הזה."
+    }
+   ],
+   "phrases_with_both": [],
+   "continuations_of_added_item": [
+    {
+     "order": 1,
+     "id": "F119",
+     "before": "ושאהמ",
+     "after": "ר",
+     "status": "engine_confirmed"
+    }
+   ]
+  },
+  "D1-fable-1": {
+   "forced_items_in_pool": 6,
+   "groups_with_both_words": [],
+   "groups_with_all_three": [],
+   "groups_with_any_added_item": [
+    {
+     "order": 1,
+     "kind": "cluster",
+     "ids": [
+      "F118",
+      "F119",
+      "F173"
+     ],
+     "relation_ids": [
+      "R0038",
+      "R0529",
+      "R0532",
+      "R0103"
+     ],
+     "why": "F119 ארהבאששבת הוא ממצא נדיר מאוד (E נמוך בסדרי גודל) והוא מכיל את F118 ארהב על אותו קו K1. את אותו קו חוצה F173 ארהב בעמודה, כלומר אותה מילה מופיעה פעמיים בשני דילוגים שונים ונפגשת בתא משותף. מבנה בולט במאגר.",
+     "names_relation": true
+    }
+   ],
+   "singles_with_added_item": [
+    {
+     "order": 1,
+     "id": "F119",
+     "why": "ארהבאששבת: E הנמוך ביותר במאגר בפער עצום, רצף ארוך בדילוג K1."
+    }
+   ],
+   "phrases_with_both": [],
+   "continuations_of_added_item": [
+    {
+     "order": 1,
+     "id": "F118",
+     "before": "ושאהמ",
+     "after": "אששבתר",
+     "status": "engine_confirmed"
+    }
+   ]
+  }
+ },
+ "arms": {
+  "B1/sonnet": {
+   "runs": 3,
+   "usable": 3,
+   "usd": 0.2074,
+   "groups_mean": 10.667,
+   "connected_any_mean": 0.988,
+   "groups_with_pp_pair_mean": 4,
+   "groups_with_tight_pair_mean": 3.667,
+   "errors_total_mean": 9,
+   "stability_jaccard": [
+    0.588,
+    0.63,
+    0.667
+   ]
+  },
+  "B1/haiku": {
+   "runs": 1,
+   "usable": 1,
+   "usd": 0.0037,
+   "groups_mean": 14,
+   "connected_any_mean": 0.958,
+   "groups_with_pp_pair_mean": 5,
+   "groups_with_tight_pair_mean": 4,
+   "errors_total_mean": 54,
+   "stability_jaccard": []
+  },
+  "B2/sonnet": {
+   "runs": 2,
+   "usable": 2,
+   "usd": 0.1395,
+   "groups_mean": 10.5,
+   "connected_any_mean": 0.978,
+   "groups_with_pp_pair_mean": 3.5,
+   "groups_with_tight_pair_mean": 3,
+   "errors_total_mean": 12.5,
+   "stability_jaccard": [
+    0.709
+   ]
+  },
+  "B3/sonnet": {
+   "runs": 6,
+   "usable": 6,
+   "usd": 0.443,
+   "groups_mean": 9,
+   "connected_any_mean": 0.985,
+   "groups_with_pp_pair_mean": 0.5,
+   "groups_with_tight_pair_mean": 1,
+   "errors_total_mean": 14.833,
+   "stability_jaccard": [
+    0.063,
+    0.043,
+    0.064,
+    0.096,
+    0.093,
+    0.14,
+    0.03,
+    0.066,
+    0.129,
+    0.038,
+    0.04,
+    0.1,
+    0.033,
+    0.013,
+    0.042
+   ]
+  },
+  "B1/fable": {
+   "runs": 1,
+   "usable": 1,
+   "usd": 0.5927,
+   "groups_mean": 12,
+   "connected_any_mean": 0.944,
+   "groups_with_pp_pair_mean": 4,
+   "groups_with_tight_pair_mean": 4,
+   "errors_total_mean": 32,
+   "stability_jaccard": []
+  },
+  "B2/fable": {
+   "runs": 1,
+   "usable": 1,
+   "usd": 0.7275,
+   "groups_mean": 12,
+   "connected_any_mean": 0.972,
+   "groups_with_pp_pair_mean": 1,
+   "groups_with_tight_pair_mean": 1,
+   "errors_total_mean": 18,
+   "stability_jaccard": []
+  },
+  "D1/sonnet": {
+   "runs": 2,
+   "usable": 2,
+   "usd": 0.1392,
+   "groups_mean": 9.5,
+   "connected_any_mean": 1,
+   "groups_with_pp_pair_mean": 3.5,
+   "groups_with_tight_pair_mean": 3,
+   "errors_total_mean": 7.5,
+   "stability_jaccard": [
+    0.44
+   ]
+  },
+  "D1/fable": {
+   "runs": 1,
+   "usable": 1,
+   "usd": 0.4572,
+   "groups_mean": 12,
+   "connected_any_mean": 0.958,
+   "groups_with_pp_pair_mean": 5,
+   "groups_with_tight_pair_mean": 6,
+   "errors_total_mean": 39,
+   "stability_jaccard": []
+  },
+  "D2/sonnet": {
+   "runs": 1,
+   "usable": 1,
+   "usd": 0.071,
+   "groups_mean": 12,
+   "connected_any_mean": 1,
+   "groups_with_pp_pair_mean": 10,
+   "groups_with_tight_pair_mean": 7,
+   "errors_total_mean": 18,
+   "stability_jaccard": []
+  },
+  "B3/haiku": {
+   "runs": 2,
+   "usable": 2,
+   "usd": 0.0088,
+   "groups_mean": 10,
+   "connected_any_mean": 1,
+   "groups_with_pp_pair_mean": 2,
+   "groups_with_tight_pair_mean": 2,
+   "errors_total_mean": 29,
+   "stability_jaccard": [
+    0.037
+   ]
+  }
+ },
+ "spend": {
+  "total_usd": 31.54855,
+  "pilot_usd": 2.82562,
+  "remaining_of_cap_usd": 8.45145
+ }
+}

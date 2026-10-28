@@ -1,0 +1,1065 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F036",
+          "F044",
+          "F127",
+          "F146",
+          "F176"
+        ],
+        "relation_ids": [
+          "R0822",
+          "R0823",
+          "R0824",
+          "R0825",
+          "R0827",
+          "R0828",
+          "R0009"
+        ],
+        "kind": "cluster",
+        "why": "חמש מילים בקווי K4 שרצות במקביל זו לזו (בהיסט קטן), חלקן באותו כיוון וחלקן בכיוון הפוך, וכולן חוצות את הציר. F044 ו-F127 גם הן המשך זו של זו."
+      },
+      {
+        "ids": [
+          "F085",
+          "F178",
+          "F108",
+          "F201",
+          "F146",
+          "F176"
+        ],
+        "relation_ids": [
+          "R0024",
+          "R0966",
+          "R0970",
+          "R0974",
+          "R0975",
+          "R0976",
+          "R0036",
+          "R0037"
+        ],
+        "kind": "cluster",
+        "why": "המשך של קווי K4 מקבילים: F085 עם F178, ו-F108 עם F201, F146 ו-F176. אלה מילים שרצות במקביל, חלקן באותו כיוון וחלקן בכיוון הפוך, ו-E של F085 ו-F178 נמוך יחסית."
+      },
+      {
+        "ids": [
+          "F066",
+          "F082",
+          "F107",
+          "F160",
+          "F186"
+        ],
+        "relation_ids": [
+          "R0017",
+          "R0018",
+          "R0022",
+          "R1103",
+          "R1105",
+          "R1107",
+          "R0061"
+        ],
+        "kind": "cluster",
+        "why": "קווי A1 מקבילים שרצים באותו כיוון ובכיוון הפוך, ושלושה מהם הם המשך זה של זה. F160 ו-F186 המשיכו אותם בקו מקביל."
+      },
+      {
+        "ids": [
+          "F043",
+          "F051",
+          "F162",
+          "F163",
+          "F164"
+        ],
+        "relation_ids": [
+          "R0816",
+          "R0817",
+          "R0007",
+          "R0008",
+          "R0062",
+          "R0841"
+        ],
+        "kind": "cluster",
+        "why": "קווי K2 מקבילים וצמודים, חלקם המשך זה של זה, בכיוון זהה ובכיוון הפוך, וחוצים את אזור הציר."
+      },
+      {
+        "ids": [
+          "F129",
+          "F191",
+          "F212",
+          "F214"
+        ],
+        "relation_ids": [
+          "R0045",
+          "R0046",
+          "R0067",
+          "R0838",
+          "R0842",
+          "R0843"
+        ],
+        "kind": "cluster",
+        "why": "קווי K1 מקבילים בהיסט קטן, שרצים באותו כיוון ובכיוון הפוך ובחלקם המשך זה של זה, בקרבת הציר."
+      },
+      {
+        "ids": [
+          "F179",
+          "F187",
+          "F189",
+          "F115"
+        ],
+        "relation_ids": [
+          "R0066",
+          "R0819",
+          "R0820",
+          "R0962",
+          "R0963"
+        ],
+        "kind": "cluster",
+        "why": "קווי A2 מקבילים, בחלקם באותו כיוון ובחלקם בכיוון הפוך, ו-F179 ו-F187 המשך זה של זה."
+      },
+      {
+        "ids": [
+          "F034",
+          "F047",
+          "F106",
+          "F126"
+        ],
+        "relation_ids": [
+          "R0832",
+          "R0836",
+          "R0011"
+        ],
+        "kind": "chain",
+        "why": "קווי D2 מקבילים באותו כיוון, ו-F047 ו-F106 המשך זה של זה."
+      },
+      {
+        "ids": [
+          "F006",
+          "F010",
+          "F021"
+        ],
+        "relation_ids": [
+          "R0002",
+          "R0814",
+          "R0815"
+        ],
+        "kind": "cluster",
+        "why": "קווי D2 מקבילים באותו כיוון, ו-F006 ו-F010 המשך זה של זה. F021 קרוב לציר."
+      },
+      {
+        "ids": [
+          "F134",
+          "F168",
+          "F193",
+          "F110"
+        ],
+        "relation_ids": [
+          "R0064",
+          "R0971",
+          "R0972",
+          "R0973"
+        ],
+        "kind": "cluster",
+        "why": "קווי K3 מקבילים באותו כיוון, ו-F168 ו-F193 המשך זה של זה."
+      },
+      {
+        "ids": [
+          "F143",
+          "F145",
+          "F147",
+          "F148",
+          "F149"
+        ],
+        "relation_ids": [
+          "R0050",
+          "R0051",
+          "R0052",
+          "R0055",
+          "R0056",
+          "R0057"
+        ],
+        "kind": "chain",
+        "why": "המשך רציף של מילים בשורה 14 סביב אזור הציר. זה טקסט רגיל של התורה."
+      },
+      {
+        "ids": [
+          "F123",
+          "F124",
+          "F131",
+          "F143",
+          "F155"
+        ],
+        "relation_ids": [
+          "R0042",
+          "R0904",
+          "R0905",
+          "R1028",
+          "R1029"
+        ],
+        "kind": "cluster",
+        "why": "שורות טקסט מקבילות, רובן הן המשך זו של זו או חופפות, וחלקן קרובות לציר. זה צפוי בטקסט רגיל."
+      },
+      {
+        "ids": [
+          "F217",
+          "F295"
+        ],
+        "relation_ids": [
+          "R0844"
+        ],
+        "kind": "pair",
+        "why": "זוג K1 בכיוון הפוך עם חפיפה של 5, ושני ממצאים עם E נמוך."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F079",
+        "why": "E גבוה, והוא חוצה את הציר ומקביל ל-F049 ול-F083."
+      },
+      {
+        "id": "F062",
+        "why": "חוצה את הציר ומאריך את F133 בכיוון הפוך."
+      },
+      {
+        "id": "F128",
+        "why": "אלכסון שחוצה את הציר ו-E גבוה."
+      },
+      {
+        "id": "F057",
+        "why": "E נמוך, אבל אינו קרוב לציר."
+      },
+      {
+        "id": "F237",
+        "why": "E נמוך מאוד, אבל רחוק מהציר."
+      },
+      {
+        "id": "F042",
+        "why": "E נמוך מאוד, אבל רחוק מהציר."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F056",
+          "F058",
+          "F059"
+        ],
+        "why": "שורה 9: בני ישראל, ממצרים, ויאמר, ברצף על אותו קו."
+      },
+      {
+        "ids": [
+          "F092",
+          "F093",
+          "F095",
+          "F096",
+          "F097"
+        ],
+        "why": "שורה 11: וילינו כל עדת בני ישראל על משה ועל אהרן. זה רצף של טקסט רגיל."
+      },
+      {
+        "ids": [
+          "F119",
+          "F120",
+          "F121",
+          "F122"
+        ],
+        "why": "שורה 13: על ראשו והקטרת את כל האיל המזבחה. רצף של טקסט רגיל."
+      },
+      {
+        "ids": [
+          "F139",
+          "F140",
+          "F141"
+        ],
+        "why": "שורה 14: את השלחן ואת בדיו ואת כליו. רצף של טקסט רגיל."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F064",
+        "before_letters": "יאמרכי",
+        "after_letters": "עמכוזה",
+        "why": "כאן אהיה על הציר, והאותיות ממשיכות בטקסט הרגיל."
+      },
+      {
+        "id": "F143",
+        "before_letters": "אתמנרת",
+        "after_letters": "ואתכלי",
+        "why": "כאן המאור עם הרחבה קצרה, בקרבת הציר."
+      }
+    ],
+    "chance_note": "רוב היחסים הם טקסט רגיל של שורות R סמוכות, וקווים מקבילים בהיסט קטן, ו-E הגבוה בחלק מהממצאים על הציר אומר שהמילים קצרות ושכיחות. לכן קשה להסיק מהם משמעות."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "חמש מילים בקווי K4 שרצות במקביל זו לזו (בהיסט קטן), חלקן באותו כיוון וחלקן בכיוו"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[1]",
+      "detail": "F146 also in groups[0]"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[1]",
+      "detail": "F176 also in groups[0]"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "המשך של קווי K4 מקבילים: F085 עם F178, ו-F108 עם F201, F146 ו-F176. אלה מילים שר"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "קווי A1 מקבילים שרצים באותו כיוון ובכיוון הפוך, ושלושה מהם הם המשך זה של זה. F16"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "קווי K2 מקבילים וצמודים, חלקם המשך זה של זה, בכיוון זהה ובכיוון הפוך, וחוצים את "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "קווי K1 מקבילים בהיסט קטן, שרצים באותו כיוון ובכיוון הפוך ובחלקם המשך זה של זה, "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[5].why",
+      "detail": "קווי A2 מקבילים, בחלקם באותו כיוון ובחלקם בכיוון הפוך, ו-F179 ו-F187 המשך זה של "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[6].why",
+      "detail": "קווי D2 מקבילים באותו כיוון, ו-F047 ו-F106 המשך זה של זה."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[7].why",
+      "detail": "קווי D2 מקבילים באותו כיוון, ו-F006 ו-F010 המשך זה של זה. F021 קרוב לציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[8].why",
+      "detail": "קווי K3 מקבילים באותו כיוון, ו-F168 ו-F193 המשך זה של זה."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[9].why",
+      "detail": "המשך רציף של מילים בשורה 14 סביב אזור הציר. זה טקסט רגיל של התורה."
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[10]",
+      "detail": "F143 also in groups[9]"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[11].why",
+      "detail": "זוג K1 בכיוון הפוך עם חפיפה של 5, ושני ממצאים עם E נמוך."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[0].why",
+      "detail": "שורה 9: בני ישראל, ממצרים, ויאמר, ברצף על אותו קו."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[1].why",
+      "detail": "שורה 11: וילינו כל עדת בני ישראל על משה ועל אהרן. זה רצף של טקסט רגיל."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[2].why",
+      "detail": "שורה 13: על ראשו והקטרת את כל האיל המזבחה. רצף של טקסט רגיל."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[3].why",
+      "detail": "שורה 14: את השלחן ואת בדיו ואת כליו. רצף של טקסט רגיל."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F036",
+        "F044",
+        "F127",
+        "F146",
+        "F176"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0825",
+        "R0827",
+        "R0828",
+        "R0009"
+      ],
+      "claimed_ok": [
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0825",
+        "R0827",
+        "R0828",
+        "R0009"
+      ],
+      "why": "חמש מילים בקווי K4 שרצות במקביל זו לזו (בהיסט קטן), חלקן באותו כיוון וחלקן בכיוון הפוך, וכולן חוצות את הציר. F044 ו-F127 גם הן המשך זו של זו.",
+      "order": 1,
+      "stats": {
+        "size": 5,
+        "relations_any": 10,
+        "relations_listed": 10,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 5,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F085",
+        "F178",
+        "F108",
+        "F201",
+        "F146",
+        "F176"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0024",
+        "R0966",
+        "R0970",
+        "R0974",
+        "R0975",
+        "R0976",
+        "R0036",
+        "R0037"
+      ],
+      "claimed_ok": [
+        "R0024",
+        "R0966",
+        "R0970",
+        "R0974",
+        "R0975",
+        "R0976",
+        "R0036",
+        "R0037"
+      ],
+      "why": "המשך של קווי K4 מקבילים: F085 עם F178, ו-F108 עם F201, F146 ו-F176. אלה מילים שרצות במקביל, חלקן באותו כיוון וחלקן בכיוון הפוך, ו-E של F085 ו-F178 נמוך יחסית.",
+      "order": 2,
+      "stats": {
+        "size": 6,
+        "relations_any": 15,
+        "relations_listed": 15,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 6,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F066",
+        "F082",
+        "F107",
+        "F160",
+        "F186"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0017",
+        "R0018",
+        "R0022",
+        "R1103",
+        "R1105",
+        "R1107",
+        "R0061"
+      ],
+      "claimed_ok": [
+        "R0017",
+        "R0018",
+        "R0022",
+        "R1103",
+        "R1105",
+        "R1107",
+        "R0061"
+      ],
+      "why": "קווי A1 מקבילים שרצים באותו כיוון ובכיוון הפוך, ושלושה מהם הם המשך זה של זה. F160 ו-F186 המשיכו אותם בקו מקביל.",
+      "order": 3,
+      "stats": {
+        "size": 5,
+        "relations_any": 10,
+        "relations_listed": 8,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 5,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F043",
+        "F051",
+        "F162",
+        "F163",
+        "F164"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0816",
+        "R0817",
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0841"
+      ],
+      "claimed_ok": [
+        "R0816",
+        "R0817",
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0841"
+      ],
+      "why": "קווי K2 מקבילים וצמודים, חלקם המשך זה של זה, בכיוון זהה ובכיוון הפוך, וחוצים את אזור הציר.",
+      "order": 4,
+      "stats": {
+        "size": 5,
+        "relations_any": 10,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F129",
+        "F191",
+        "F212",
+        "F214"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0838",
+        "R0842",
+        "R0843"
+      ],
+      "claimed_ok": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0838",
+        "R0842",
+        "R0843"
+      ],
+      "why": "קווי K1 מקבילים בהיסט קטן, שרצים באותו כיוון ובכיוון הפוך ובחלקם המשך זה של זה, בקרבת הציר.",
+      "order": 5,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F179",
+        "F187",
+        "F189",
+        "F115"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0066",
+        "R0819",
+        "R0820",
+        "R0962",
+        "R0963"
+      ],
+      "claimed_ok": [
+        "R0066",
+        "R0819",
+        "R0820",
+        "R0962",
+        "R0963"
+      ],
+      "why": "קווי A2 מקבילים, בחלקם באותו כיוון ובחלקם בכיוון הפוך, ו-F179 ו-F187 המשך זה של זה.",
+      "order": 6,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F034",
+        "F047",
+        "F106",
+        "F126"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0832",
+        "R0836",
+        "R0011"
+      ],
+      "claimed_ok": [
+        "R0832",
+        "R0836",
+        "R0011"
+      ],
+      "why": "קווי D2 מקבילים באותו כיוון, ו-F047 ו-F106 המשך זה של זה.",
+      "order": 7,
+      "stats": {
+        "size": 4,
+        "relations_any": 4,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F006",
+        "F010",
+        "F021"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0002",
+        "R0814",
+        "R0815"
+      ],
+      "claimed_ok": [
+        "R0002",
+        "R0814",
+        "R0815"
+      ],
+      "why": "קווי D2 מקבילים באותו כיוון, ו-F006 ו-F010 המשך זה של זה. F021 קרוב לציר.",
+      "order": 8,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F134",
+        "F168",
+        "F193",
+        "F110"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0064",
+        "R0971",
+        "R0972",
+        "R0973"
+      ],
+      "claimed_ok": [
+        "R0064",
+        "R0971",
+        "R0972",
+        "R0973"
+      ],
+      "why": "קווי K3 מקבילים באותו כיוון, ו-F168 ו-F193 המשך זה של זה.",
+      "order": 9,
+      "stats": {
+        "size": 4,
+        "relations_any": 5,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 1,
+        "members_with_E_lt_1": 3,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F143",
+        "F145",
+        "F147",
+        "F148",
+        "F149"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0050",
+        "R0051",
+        "R0052",
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "claimed_ok": [
+        "R0050",
+        "R0051",
+        "R0052",
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "why": "המשך רציף של מילים בשורה 14 סביב אזור הציר. זה טקסט רגיל של התורה.",
+      "order": 10,
+      "stats": {
+        "size": 5,
+        "relations_any": 9,
+        "relations_listed": 9,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F123",
+        "F124",
+        "F131",
+        "F143",
+        "F155"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0042",
+        "R0904",
+        "R0905",
+        "R1028",
+        "R1029"
+      ],
+      "claimed_ok": [
+        "R0042",
+        "R0904",
+        "R0905",
+        "R1028",
+        "R1029"
+      ],
+      "why": "שורות טקסט מקבילות, רובן הן המשך זו של זו או חופפות, וחלקן קרובות לציר. זה צפוי בטקסט רגיל.",
+      "order": 11,
+      "stats": {
+        "size": 5,
+        "relations_any": 8,
+        "relations_listed": 8,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F217",
+        "F295"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0844"
+      ],
+      "claimed_ok": [
+        "R0844"
+      ],
+      "why": "זוג K1 בכיוון הפוך עם חפיפה של 5, ושני ממצאים עם E נמוך.",
+      "order": 12,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "parallel"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 0
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F079",
+      "why": "E גבוה, והוא חוצה את הציר ומקביל ל-F049 ול-F083.",
+      "order": 1
+    },
+    {
+      "id": "F062",
+      "why": "חוצה את הציר ומאריך את F133 בכיוון הפוך.",
+      "order": 2
+    },
+    {
+      "id": "F128",
+      "why": "אלכסון שחוצה את הציר ו-E גבוה.",
+      "order": 3
+    },
+    {
+      "id": "F057",
+      "why": "E נמוך, אבל אינו קרוב לציר.",
+      "order": 4
+    },
+    {
+      "id": "F237",
+      "why": "E נמוך מאוד, אבל רחוק מהציר.",
+      "order": 5
+    },
+    {
+      "id": "F042",
+      "why": "E נמוך מאוד, אבל רחוק מהציר.",
+      "order": 6
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F056",
+        "F058",
+        "F059"
+      ],
+      "why": "שורה 9: בני ישראל, ממצרים, ויאמר, ברצף על אותו קו.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 80999,
+        "skip": 1,
+        "dir": 1,
+        "length": 19
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F092",
+        "F093",
+        "F095",
+        "F096",
+        "F097"
+      ],
+      "why": "שורה 11: וילינו כל עדת בני ישראל על משה ועל אהרן. זה רצף של טקסט רגיל.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 101206,
+        "skip": 1,
+        "dir": 1,
+        "length": 31
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F119",
+        "F120",
+        "F121",
+        "F122"
+      ],
+      "why": "שורה 13: על ראשו והקטרת את כל האיל המזבחה. רצף של טקסט רגיל.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 121386,
+        "skip": 1,
+        "dir": 1,
+        "length": 26
+      },
+      "engine": {
+        "key": "phrase:2",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F139",
+        "F140",
+        "F141"
+      ],
+      "why": "שורה 14: את השלחן ואת בדיו ואת כליו. רצף של טקסט רגיל.",
+      "order": 4,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 131479,
+        "skip": 1,
+        "dir": 1,
+        "length": 23
+      },
+      "engine": {
+        "key": "phrase:3",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F064",
+      "before_letters": "יאמרכי",
+      "after_letters": "עמכוזה",
+      "why": "כאן אהיה על הציר, והאותיות ממשיכות בטקסט הרגיל.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 81014,
+        "skip": 1,
+        "dir": 1,
+        "length": 16,
+        "before": "יאמרכי",
+        "after": "עמכוזה"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "id": "F143",
+      "before_letters": "אתמנרת",
+      "after_letters": "ואתכלי",
+      "why": "כאן המאור עם הרחבה קצרה, בקרבת הציר.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 131514,
+        "skip": 1,
+        "dir": 1,
+        "length": 17,
+        "before": "אתמנרת",
+        "after": "ואתכלי"
+      },
+      "engine": {
+        "key": "continuation:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:2",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:3",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    }
+  ]
+}

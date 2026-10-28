@@ -1,0 +1,171 @@
+[
+  {
+    "verification": [
+      {
+        "key": "r1.f01.0",
+        "term": "ישראלממצרימ",
+        "start": 81002,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ישראלממצרימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f02.0",
+        "term": "אמרכיאהיה",
+        "start": 81015,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "אמרכיאהיה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f03.0",
+        "term": "אורניומ",
+        "start": 81020,
+        "skip": 10101,
+        "dir": 1,
+        "db_text": "אורניומ",
+        "letters_match": true,
+        "engine": {
+          "status": "OK",
+          "hits": 1,
+          "found": true,
+          "completion": {
+            "executed": true,
+            "has_more": false,
+            "truncated": false,
+            "continuation": null,
+            "returned_hits": 1
+          }
+        }
+      },
+      {
+        "key": "r1.f04.0",
+        "term": "ההצדיק",
+        "start": 91111,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ההצדיק",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f05.0",
+        "term": "ואליהו",
+        "start": 91136,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ואליהו",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f06.0",
+        "term": "מזבחהעלה",
+        "start": 121407,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "מזבחהעלה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f07.0",
+        "term": "ריחניחוחאשה",
+        "start": 121423,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ריחניחוחאשה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f08.0",
+        "term": "ויאמראלהימ",
+        "start": 197,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ויאמראלהימ",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f09.0",
+        "term": "דבראלבניישראל",
+        "start": 141628,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "דבראלבניישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f10.0",
+        "term": "תאמראישאישמבניישראל",
+        "start": 171914,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "תאמראישאישמבניישראל",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f11.0",
+        "term": "מאהלמועד",
+        "start": 141616,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "מאהלמועד",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f12.0",
+        "term": "ליהוה",
+        "start": 121418,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ליהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      },
+      {
+        "key": "r1.f12.1",
+        "term": "ליהוה",
+        "start": 121434,
+        "skip": 1,
+        "dir": 1,
+        "db_text": "ליהוה",
+        "letters_match": true,
+        "engine": {
+          "status": "plain_text_row_not_els"
+        }
+      }
+    ]
+  }
+]

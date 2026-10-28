@@ -1,0 +1,792 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F036",
+          "F044",
+          "F127",
+          "F146",
+          "F176",
+          "F201"
+        ],
+        "relation_ids": [
+          "R0009",
+          "R0035",
+          "R0053",
+          "R0065",
+          "R0822",
+          "R0823",
+          "R0824",
+          "R0827"
+        ],
+        "kind": "cluster",
+        "why": "צביר של ממצאי K4 על קווים מקבילים וסמוכים בסביבת עמודות 49–55, עם חפיפות והמשכים ביניהם (F044–F127, F146–F176–F201). הרבה ממצאים עם E גבוה חוצים את אותו ציר, ולכן הצביר בולט מבחינה מבנית."
+      },
+      {
+        "ids": [
+          "F129",
+          "F191",
+          "F212",
+          "F214"
+        ],
+        "relation_ids": [
+          "R0045",
+          "R0046",
+          "R0067",
+          "R0838",
+          "R0842",
+          "R0843"
+        ],
+        "kind": "cluster",
+        "why": "ממצאי K1 על קווים מקבילים וצמודים, עם המשכים (F129–F191, F129–F212, F191–F212) ומקביליות עם F214. כולם חוצים את הציר ו-E של F129, F191 ו-F212 גבוה."
+      },
+      {
+        "ids": [
+          "F043",
+          "F162",
+          "F163",
+          "F051"
+        ],
+        "relation_ids": [
+          "R0007",
+          "R0008",
+          "R0062",
+          "R0816",
+          "R0817"
+        ],
+        "kind": "cluster",
+        "why": "ממצאי K2 שממשיכים זה את זה ומקבילים זה לזה סביב הציר, עם חפיפות של 4 ו-1 תאים."
+      },
+      {
+        "ids": [
+          "F066",
+          "F082",
+          "F107",
+          "F200"
+        ],
+        "relation_ids": [
+          "R0017",
+          "R0018",
+          "R0022",
+          "R0129",
+          "R0136"
+        ],
+        "kind": "chain",
+        "why": "שרשרת A1 על אותו קו עם חפיפות של 3 עד 4 תאים בין F066, F082 ו-F107, וממצא רביעי (F200) על אותו קו ברווח."
+      },
+      {
+        "ids": [
+          "F062",
+          "F133"
+        ],
+        "relation_ids": [
+          "R0016"
+        ],
+        "kind": "pair",
+        "why": "ממשיכים זה את זה על אותו קו אלכסוני בכיוונים הפוכים, עם חפיפה של 3 תאים, ושניהם חוצים את הציר עם E גבוה."
+      },
+      {
+        "ids": [
+          "F085",
+          "F178"
+        ],
+        "relation_ids": [
+          "R0024"
+        ],
+        "kind": "pair",
+        "why": "המשך K4 עם חפיפה של 4 תאים ו-E גבוה בשניהם, שניהם חוצים את הציר."
+      },
+      {
+        "ids": [
+          "F047",
+          "F106",
+          "F126"
+        ],
+        "relation_ids": [
+          "R0011",
+          "R0836"
+        ],
+        "kind": "chain",
+        "why": "אלכסון D2 שבו F047 ממשיך ל-F106, ו-F106 מקביל ל-F126 באותו כיוון."
+      },
+      {
+        "ids": [
+          "F095",
+          "F096",
+          "F097",
+          "F093",
+          "F092"
+        ],
+        "relation_ids": [
+          "R0029",
+          "R0030",
+          "R0031",
+          "R0032"
+        ],
+        "kind": "chain",
+        "why": "שרשרת המשכים ברצף בשורה אחת של טקסט רגיל: F092, F093, F095, F096, F097."
+      },
+      {
+        "ids": [
+          "F272",
+          "F273",
+          "F274",
+          "F275"
+        ],
+        "relation_ids": [
+          "R0086",
+          "R0087",
+          "R0088",
+          "R0089"
+        ],
+        "kind": "chain",
+        "why": "שרשרת המשכים צפופה בשורה אחת של טקסט."
+      },
+      {
+        "ids": [
+          "F227",
+          "F228",
+          "F229"
+        ],
+        "relation_ids": [
+          "R0075",
+          "R0076"
+        ],
+        "kind": "chain",
+        "why": "שלושה ממצאים בשורה אחת שממשיכים זה את זה."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F079",
+        "why": "E=41.3 ופועל על העמודה של הציר, וממשיך את F049."
+      },
+      {
+        "id": "F044",
+        "why": "E=27.7 ונמצא במרכז הצביר של K4."
+      },
+      {
+        "id": "F062",
+        "why": "E=25.8 וחוצה את הציר."
+      },
+      {
+        "id": "F065",
+        "why": "E=25.2 וחוצה את הציר."
+      },
+      {
+        "id": "F129",
+        "why": "E=22.0 ומרכז צביר ה-K1."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F056",
+          "F058",
+          "F059"
+        ],
+        "why": "שלושה ממצאים עוקבים בשורה אחת בטקסט הרגיל."
+      },
+      {
+        "ids": [
+          "F139",
+          "F140",
+          "F141"
+        ],
+        "why": "שלושה ממצאים עוקבים באותה שורה."
+      },
+      {
+        "ids": [
+          "F119",
+          "F120",
+          "F121",
+          "F122"
+        ],
+        "why": "ארבעה ממצאים עוקבים באותה שורה."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F143",
+        "before_letters": "אתמנרת",
+        "after_letters": "ואתכלי",
+        "why": "הממצא ממשיך לשני הצדדים באותה שורה של טקסט."
+      }
+    ],
+    "chance_note": "רוב היחסים כאן מקריים: מקביליות ברשימות של ממצאי R בשורות סמוכות היא טבעית כשיש הרבה מילים מהטקסט, והחיתוכים והסמיכות רבים בגלל הצפיפות. גם הצביר סביב הציר נשען על E גבוה, כלומר על מילים קצרות ושכיחות."
+  },
+  "errors": [
+    {
+      "code": "relation_outside_group",
+      "where": "groups[0]",
+      "detail": "R0035 joins F108-F146"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "צביר של ממצאי K4 על קווים מקבילים וסמוכים בסביבת עמודות 49–55, עם חפיפות והמשכים"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "ממצאי K1 על קווים מקבילים וצמודים, עם המשכים (F129–F191, F129–F212, F191–F212) ו"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "ממצאי K2 שממשיכים זה את זה ומקבילים זה לזה סביב הציר, עם חפיפות של 4 ו-1 תאים."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "שרשרת A1 על אותו קו עם חפיפות של 3 עד 4 תאים בין F066, F082 ו-F107, וממצא רביעי "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "ממשיכים זה את זה על אותו קו אלכסוני בכיוונים הפוכים, עם חפיפה של 3 תאים, ושניהם "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[5].why",
+      "detail": "המשך K4 עם חפיפה של 4 תאים ו-E גבוה בשניהם, שניהם חוצים את הציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[6].why",
+      "detail": "אלכסון D2 שבו F047 ממשיך ל-F106, ו-F106 מקביל ל-F126 באותו כיוון."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[0].why",
+      "detail": "E=41.3 ופועל על העמודה של הציר, וממשיך את F049."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "E=27.7 ונמצא במרכז הצביר של K4."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[2].why",
+      "detail": "E=25.8 וחוצה את הציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "E=25.2 וחוצה את הציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[4].why",
+      "detail": "E=22.0 ומרכז צביר ה-K1."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F036",
+        "F044",
+        "F127",
+        "F146",
+        "F176",
+        "F201"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0009",
+        "R0035",
+        "R0053",
+        "R0065",
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0827"
+      ],
+      "claimed_ok": [
+        "R0009",
+        "R0053",
+        "R0065",
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0827"
+      ],
+      "why": "צביר של ממצאי K4 על קווים מקבילים וסמוכים בסביבת עמודות 49–55, עם חפיפות והמשכים ביניהם (F044–F127, F146–F176–F201). הרבה ממצאים עם E גבוה חוצים את אותו ציר, ולכן הצביר בולט מבחינה מבנית.",
+      "order": 1,
+      "stats": {
+        "size": 6,
+        "relations_any": 14,
+        "relations_listed": 12,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 6,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F129",
+        "F191",
+        "F212",
+        "F214"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0838",
+        "R0842",
+        "R0843"
+      ],
+      "claimed_ok": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0838",
+        "R0842",
+        "R0843"
+      ],
+      "why": "ממצאי K1 על קווים מקבילים וצמודים, עם המשכים (F129–F191, F129–F212, F191–F212) ומקביליות עם F214. כולם חוצים את הציר ו-E של F129, F191 ו-F212 גבוה.",
+      "order": 2,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F043",
+        "F162",
+        "F163",
+        "F051"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0816",
+        "R0817"
+      ],
+      "claimed_ok": [
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0816",
+        "R0817"
+      ],
+      "why": "ממצאי K2 שממשיכים זה את זה ומקבילים זה לזה סביב הציר, עם חפיפות של 4 ו-1 תאים.",
+      "order": 3,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F066",
+        "F082",
+        "F107",
+        "F200"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0017",
+        "R0018",
+        "R0022",
+        "R0129",
+        "R0136"
+      ],
+      "claimed_ok": [
+        "R0017",
+        "R0018",
+        "R0022",
+        "R0129",
+        "R0136"
+      ],
+      "why": "שרשרת A1 על אותו קו עם חפיפות של 3 עד 4 תאים בין F066, F082 ו-F107, וממצא רביעי (F200) על אותו קו ברווח.",
+      "order": 4,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F062",
+        "F133"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0016"
+      ],
+      "claimed_ok": [
+        "R0016"
+      ],
+      "why": "ממשיכים זה את זה על אותו קו אלכסוני בכיוונים הפוכים, עם חפיפה של 3 תאים, ושניהם חוצים את הציר עם E גבוה.",
+      "order": 5,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F085",
+        "F178"
+      ],
+      "kind": "pair",
+      "relation_ids": [
+        "R0024"
+      ],
+      "claimed_ok": [
+        "R0024"
+      ],
+      "why": "המשך K4 עם חפיפה של 4 תאים ו-E גבוה בשניהם, שניהם חוצים את הציר.",
+      "order": 6,
+      "stats": {
+        "size": 2,
+        "relations_any": 1,
+        "relations_listed": 1,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F047",
+        "F106",
+        "F126"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0011",
+        "R0836"
+      ],
+      "claimed_ok": [
+        "R0011",
+        "R0836"
+      ],
+      "why": "אלכסון D2 שבו F047 ממשיך ל-F106, ו-F106 מקביל ל-F126 באותו כיוון.",
+      "order": 7,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 2,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F095",
+        "F096",
+        "F097",
+        "F093",
+        "F092"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0032"
+      ],
+      "claimed_ok": [
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0032"
+      ],
+      "why": "שרשרת המשכים ברצף בשורה אחת של טקסט רגיל: F092, F093, F095, F096, F097.",
+      "order": 8,
+      "stats": {
+        "size": 5,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F272",
+        "F273",
+        "F274",
+        "F275"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0086",
+        "R0087",
+        "R0088",
+        "R0089"
+      ],
+      "claimed_ok": [
+        "R0086",
+        "R0087",
+        "R0088",
+        "R0089"
+      ],
+      "why": "שרשרת המשכים צפופה בשורה אחת של טקסט.",
+      "order": 9,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F227",
+        "F228",
+        "F229"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0075",
+        "R0076"
+      ],
+      "claimed_ok": [
+        "R0075",
+        "R0076"
+      ],
+      "why": "שלושה ממצאים בשורה אחת שממשיכים זה את זה.",
+      "order": 10,
+      "stats": {
+        "size": 3,
+        "relations_any": 2,
+        "relations_listed": 2,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F079",
+      "why": "E=41.3 ופועל על העמודה של הציר, וממשיך את F049.",
+      "order": 1
+    },
+    {
+      "id": "F044",
+      "why": "E=27.7 ונמצא במרכז הצביר של K4.",
+      "order": 2
+    },
+    {
+      "id": "F062",
+      "why": "E=25.8 וחוצה את הציר.",
+      "order": 3
+    },
+    {
+      "id": "F065",
+      "why": "E=25.2 וחוצה את הציר.",
+      "order": 4
+    },
+    {
+      "id": "F129",
+      "why": "E=22.0 ומרכז צביר ה-K1.",
+      "order": 5
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F056",
+        "F058",
+        "F059"
+      ],
+      "why": "שלושה ממצאים עוקבים בשורה אחת בטקסט הרגיל.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 80999,
+        "skip": 1,
+        "dir": 1,
+        "length": 19
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F139",
+        "F140",
+        "F141"
+      ],
+      "why": "שלושה ממצאים עוקבים באותה שורה.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 131479,
+        "skip": 1,
+        "dir": 1,
+        "length": 23
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F119",
+        "F120",
+        "F121",
+        "F122"
+      ],
+      "why": "ארבעה ממצאים עוקבים באותה שורה.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 121386,
+        "skip": 1,
+        "dir": 1,
+        "length": 26
+      },
+      "engine": {
+        "key": "phrase:2",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F143",
+      "before_letters": "אתמנרת",
+      "after_letters": "ואתכלי",
+      "why": "הממצא ממשיך לשני הצדדים באותה שורה של טקסט.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 131514,
+        "skip": 1,
+        "dir": 1,
+        "length": 17,
+        "before": "אתמנרת",
+        "after": "ואתכלי"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:2",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    }
+  ]
+}

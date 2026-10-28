@@ -1,0 +1,984 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F036",
+          "F044",
+          "F127",
+          "F146",
+          "F176",
+          "F201",
+          "F157"
+        ],
+        "relation_ids": [
+          "R0009",
+          "R0010",
+          "R0043",
+          "R0822",
+          "R0823",
+          "R0824",
+          "R0827",
+          "R0828"
+        ],
+        "kind": "cluster",
+        "why": "צביר של ממצאי K4 מקבילים וצמודים (ראוה, וירה, הריונ, ונמר, אונמ, שאונ, עבדיו) בחפיפות גבוהות. חלקם המשך זה של זה, אך E גבוה לחלקם ולכן הקשר מבני ולא מוכח כבעל משמעות."
+      },
+      {
+        "ids": [
+          "F043",
+          "F162",
+          "F163",
+          "F051"
+        ],
+        "relation_ids": [
+          "R0007",
+          "R0008",
+          "R0062",
+          "R0816",
+          "R0817"
+        ],
+        "kind": "cluster",
+        "why": "ממצאי K2 על קווים סמוכים עם חפיפות והמשכים (והלחמ, מחלה, מלבי, שמטו), ושניים מהם בכיוון הפוך."
+      },
+      {
+        "ids": [
+          "F066",
+          "F082",
+          "F107",
+          "F200"
+        ],
+        "relation_ids": [
+          "R0017",
+          "R0018",
+          "R0022",
+          "R0129",
+          "R0136"
+        ],
+        "kind": "chain",
+        "why": "שרשרת המשכים על קו A1 אחד (יערו, ערוה, ורעי) עם ידתיה על אותו קו ברווח, וחפיפות גבוהות בין שלושת הראשונים."
+      },
+      {
+        "ids": [
+          "F129",
+          "F191",
+          "F212",
+          "F214"
+        ],
+        "relation_ids": [
+          "R0045",
+          "R0046",
+          "R0067",
+          "R0842",
+          "R0843"
+        ],
+        "kind": "cluster",
+        "why": "ממצאי K1 שמתחברים בהמשכים ובמקבילות (רמאי, אמרי, יאמר, החרי), ושלושה מהם עם E גבוה."
+      },
+      {
+        "ids": [
+          "F093",
+          "F095",
+          "F096",
+          "F097",
+          "F092",
+          "F090"
+        ],
+        "relation_ids": [
+          "R0028",
+          "R0029",
+          "R0030",
+          "R0031",
+          "R0032"
+        ],
+        "kind": "chain",
+        "why": "רצף טקסט רגיל בשורה אחת: ארצמצרימ, וילינו, כלעדת, בניישראל, עלמשה, ועלאהרנ, שמחוברים בהמשכים רצופים."
+      },
+      {
+        "ids": [
+          "F119",
+          "F120",
+          "F121",
+          "F122"
+        ],
+        "relation_ids": [
+          "R0039",
+          "R0040",
+          "R0041"
+        ],
+        "kind": "chain",
+        "why": "שרשרת המשכים רצופה בטקסט הרגיל: עלראשו, והקטרת, אתכלהאיל, המזבחה."
+      },
+      {
+        "ids": [
+          "F272",
+          "F273",
+          "F274",
+          "F275"
+        ],
+        "relation_ids": [
+          "R0086",
+          "R0087",
+          "R0088",
+          "R0089"
+        ],
+        "kind": "chain",
+        "why": "שרשרת המשכים צפופה בטקסט: עליהוה, יהוהאלהיכ, אלהיכמ, המוציא."
+      },
+      {
+        "ids": [
+          "F143",
+          "F145",
+          "F147",
+          "F148",
+          "F149"
+        ],
+        "relation_ids": [
+          "R0050",
+          "R0051",
+          "R0052",
+          "R0055",
+          "R0056",
+          "R0057"
+        ],
+        "kind": "chain",
+        "why": "המשכים חופפים בשורה אחת (המאור, אורו, ואתכליה, ליהוא, ואתנרתיה), בעיקר חפיפת טקסט."
+      },
+      {
+        "ids": [
+          "F227",
+          "F228",
+          "F229",
+          "F230",
+          "F231"
+        ],
+        "relation_ids": [
+          "R0075",
+          "R0076",
+          "R0077"
+        ],
+        "kind": "chain",
+        "why": "שרשרת בשורה אחת סביב שנימעשר וסביבתה: בנישנה, שנימעשר, ומנחתמ."
+      },
+      {
+        "ids": [
+          "F065",
+          "F067",
+          "F062",
+          "F133",
+          "F113"
+        ],
+        "relation_ids": [
+          "R0016",
+          "R0834"
+        ],
+        "kind": "cluster",
+        "why": "ממצאי E גבוה שחוצים את הציר ונפגשים באזור צר (אמלא, עמרה, יואש, ישאו, הלוכ). כנראה השפעת צפיפות החיתוכים ליד הציר."
+      },
+      {
+        "ids": [
+          "F085",
+          "F178",
+          "F108"
+        ],
+        "relation_ids": [
+          "R0024",
+          "R0966",
+          "R0970"
+        ],
+        "kind": "chain",
+        "why": "ממצאי K4 עם E גבוה שמתחברים בהמשך ובמקבילות (השוא, אושה, נואש)."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F079",
+        "why": "ואיה: E גבוה מאוד (41.3) והוא חוצה את הציר; כנראה מקרי."
+      },
+      {
+        "id": "F044",
+        "why": "וירה: E גבוה וחוצה את הציר, מרכז של צביר K4."
+      },
+      {
+        "id": "F062",
+        "why": "יואש: E גבוה וחוצה את הציר, ממשיך אל ישאו."
+      },
+      {
+        "id": "F129",
+        "why": "רמאי: E גבוה, נקודת חיבור של כמה ממצאי K1."
+      },
+      {
+        "id": "F063",
+        "why": "ישראל בדילוג C2 קרוב לציר, בעל E נמוך יחסית (0.89) וחיבור למילים הדומות בטקסט."
+      },
+      {
+        "id": "F042",
+        "why": "ירשיעני: E נמוך מאוד, מילה ארוכה שנדירה בדילוג זה."
+      },
+      {
+        "id": "F237",
+        "why": "עמינדב: E נמוך מאוד בעמודה."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F001",
+          "F002"
+        ],
+        "why": "ויהי ערב ויהי בקר ברצף טקסט רגיל."
+      },
+      {
+        "ids": [
+          "F056",
+          "F058",
+          "F059"
+        ],
+        "why": "בני ישראל ממצרים ויאמר ברצף המשכים בטקסט."
+      },
+      {
+        "ids": [
+          "F139",
+          "F140",
+          "F141"
+        ],
+        "why": "את השלחן ואת בדיו ואת כליו, ברצף המשכים בטקסט."
+      },
+      {
+        "ids": [
+          "F255",
+          "F256",
+          "F257"
+        ],
+        "why": "ויחר אף יהוה בישראל, רצף המשכים בטקסט."
+      },
+      {
+        "ids": [
+          "F197",
+          "F198"
+        ],
+        "why": "ואל בני ישראל, לבני ישראל, המשך חופף בטקסט."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F044",
+        "before_letters": "ואנ",
+        "after_letters": "עבדיוו",
+        "why": "האותיות שאחריו מתחילות במילה עבדיו, שהיא ממצא נפרד (F157) על אותו קו."
+      },
+      {
+        "id": "F147",
+        "before_letters": "תהמאור",
+        "after_letters": "ואתנרת",
+        "why": "הקשר בטקסט עם המאור לפניו ואתנרת אחריו."
+      }
+    ],
+    "chance_note": "רוב החיתוכים, הסמיכויות והמקבילות נראים מקריים: ממצאי השורות הרגילות נפגשים עם כל הדילוגים בצפיפות גבוהה. גם צביר E גבוה ליד הציר צפוי לדעתי, כי רבים מהם חוצים את אותו אזור צר."
+  },
+  "errors": [
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "צביר של ממצאי K4 מקבילים וצמודים (ראוה, וירה, הריונ, ונמר, אונמ, שאונ, עבדיו) בח"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "ממצאי K2 על קווים סמוכים עם חפיפות והמשכים (והלחמ, מחלה, מלבי, שמטו), ושניים מהם"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "שרשרת המשכים על קו A1 אחד (יערו, ערוה, ורעי) עם ידתיה על אותו קו ברווח, וחפיפות "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[3].why",
+      "detail": "ממצאי K1 שמתחברים בהמשכים ובמקבילות (רמאי, אמרי, יאמר, החרי), ושלושה מהם עם E גב"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[10].why",
+      "detail": "ממצאי K4 עם E גבוה שמתחברים בהמשך ובמקבילות (השוא, אושה, נואש)."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[0].why",
+      "detail": "ואיה: E גבוה מאוד (41.3) והוא חוצה את הציר; כנראה מקרי."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "וירה: E גבוה וחוצה את הציר, מרכז של צביר K4."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "רמאי: E גבוה, נקודת חיבור של כמה ממצאי K1."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[4].why",
+      "detail": "ישראל בדילוג C2 קרוב לציר, בעל E נמוך יחסית (0.89) וחיבור למילים הדומות בטקסט."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F036",
+        "F044",
+        "F127",
+        "F146",
+        "F176",
+        "F201",
+        "F157"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0009",
+        "R0010",
+        "R0043",
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0827",
+        "R0828"
+      ],
+      "claimed_ok": [
+        "R0009",
+        "R0010",
+        "R0043",
+        "R0822",
+        "R0823",
+        "R0824",
+        "R0827",
+        "R0828"
+      ],
+      "why": "צביר של ממצאי K4 מקבילים וצמודים (ראוה, וירה, הריונ, ונמר, אונמ, שאונ, עבדיו) בחפיפות גבוהות. חלקם המשך זה של זה, אך E גבוה לחלקם ולכן הקשר מבני ולא מוכח כבעל משמעות.",
+      "order": 1,
+      "stats": {
+        "size": 7,
+        "relations_any": 18,
+        "relations_listed": 14,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 6,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F043",
+        "F162",
+        "F163",
+        "F051"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0816",
+        "R0817"
+      ],
+      "claimed_ok": [
+        "R0007",
+        "R0008",
+        "R0062",
+        "R0816",
+        "R0817"
+      ],
+      "why": "ממצאי K2 על קווים סמוכים עם חפיפות והמשכים (והלחמ, מחלה, מלבי, שמטו), ושניים מהם בכיוון הפוך.",
+      "order": 2,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F066",
+        "F082",
+        "F107",
+        "F200"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0017",
+        "R0018",
+        "R0022",
+        "R0129",
+        "R0136"
+      ],
+      "claimed_ok": [
+        "R0017",
+        "R0018",
+        "R0022",
+        "R0129",
+        "R0136"
+      ],
+      "why": "שרשרת המשכים על קו A1 אחד (יערו, ערוה, ורעי) עם ידתיה על אותו קו ברווח, וחפיפות גבוהות בין שלושת הראשונים.",
+      "order": 3,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F129",
+        "F191",
+        "F212",
+        "F214"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0842",
+        "R0843"
+      ],
+      "claimed_ok": [
+        "R0045",
+        "R0046",
+        "R0067",
+        "R0842",
+        "R0843"
+      ],
+      "why": "ממצאי K1 שמתחברים בהמשכים ובמקבילות (רמאי, אמרי, יאמר, החרי), ושלושה מהם עם E גבוה.",
+      "order": 4,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 4,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F093",
+        "F095",
+        "F096",
+        "F097",
+        "F092",
+        "F090"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0028",
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0032"
+      ],
+      "claimed_ok": [
+        "R0028",
+        "R0029",
+        "R0030",
+        "R0031",
+        "R0032"
+      ],
+      "why": "רצף טקסט רגיל בשורה אחת: ארצמצרימ, וילינו, כלעדת, בניישראל, עלמשה, ועלאהרנ, שמחוברים בהמשכים רצופים.",
+      "order": 5,
+      "stats": {
+        "size": 6,
+        "relations_any": 8,
+        "relations_listed": 8,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 6
+      }
+    },
+    {
+      "ids": [
+        "F119",
+        "F120",
+        "F121",
+        "F122"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0039",
+        "R0040",
+        "R0041"
+      ],
+      "claimed_ok": [
+        "R0039",
+        "R0040",
+        "R0041"
+      ],
+      "why": "שרשרת המשכים רצופה בטקסט הרגיל: עלראשו, והקטרת, אתכלהאיל, המזבחה.",
+      "order": 6,
+      "stats": {
+        "size": 4,
+        "relations_any": 4,
+        "relations_listed": 4,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F272",
+        "F273",
+        "F274",
+        "F275"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0086",
+        "R0087",
+        "R0088",
+        "R0089"
+      ],
+      "claimed_ok": [
+        "R0086",
+        "R0087",
+        "R0088",
+        "R0089"
+      ],
+      "why": "שרשרת המשכים צפופה בטקסט: עליהוה, יהוהאלהיכ, אלהיכמ, המוציא.",
+      "order": 7,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F143",
+        "F145",
+        "F147",
+        "F148",
+        "F149"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0050",
+        "R0051",
+        "R0052",
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "claimed_ok": [
+        "R0050",
+        "R0051",
+        "R0052",
+        "R0055",
+        "R0056",
+        "R0057"
+      ],
+      "why": "המשכים חופפים בשורה אחת (המאור, אורו, ואתכליה, ליהוא, ואתנרתיה), בעיקר חפיפת טקסט.",
+      "order": 8,
+      "stats": {
+        "size": 5,
+        "relations_any": 9,
+        "relations_listed": 9,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F227",
+        "F228",
+        "F229",
+        "F230",
+        "F231"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0075",
+        "R0076",
+        "R0077"
+      ],
+      "claimed_ok": [
+        "R0075",
+        "R0076",
+        "R0077"
+      ],
+      "why": "שרשרת בשורה אחת סביב שנימעשר וסביבתה: בנישנה, שנימעשר, ומנחתמ.",
+      "order": 9,
+      "stats": {
+        "size": 5,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 0.6,
+        "connected_share_listed": 0.6,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F065",
+        "F067",
+        "F062",
+        "F133",
+        "F113"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0016",
+        "R0834"
+      ],
+      "claimed_ok": [
+        "R0016",
+        "R0834"
+      ],
+      "why": "ממצאי E גבוה שחוצים את הציר ונפגשים באזור צר (אמלא, עמרה, יואש, ישאו, הלוכ). כנראה השפעת צפיפות החיתוכים ליד הציר.",
+      "order": 10,
+      "stats": {
+        "size": 5,
+        "relations_any": 10,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "crossing",
+          "near",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 5,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F085",
+        "F178",
+        "F108"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0024",
+        "R0966",
+        "R0970"
+      ],
+      "claimed_ok": [
+        "R0024",
+        "R0966",
+        "R0970"
+      ],
+      "why": "ממצאי K4 עם E גבוה שמתחברים בהמשך ובמקבילות (השוא, אושה, נואש).",
+      "order": 11,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F079",
+      "why": "ואיה: E גבוה מאוד (41.3) והוא חוצה את הציר; כנראה מקרי.",
+      "order": 1
+    },
+    {
+      "id": "F044",
+      "why": "וירה: E גבוה וחוצה את הציר, מרכז של צביר K4.",
+      "order": 2
+    },
+    {
+      "id": "F062",
+      "why": "יואש: E גבוה וחוצה את הציר, ממשיך אל ישאו.",
+      "order": 3
+    },
+    {
+      "id": "F129",
+      "why": "רמאי: E גבוה, נקודת חיבור של כמה ממצאי K1.",
+      "order": 4
+    },
+    {
+      "id": "F063",
+      "why": "ישראל בדילוג C2 קרוב לציר, בעל E נמוך יחסית (0.89) וחיבור למילים הדומות בטקסט.",
+      "order": 5
+    },
+    {
+      "id": "F042",
+      "why": "ירשיעני: E נמוך מאוד, מילה ארוכה שנדירה בדילוג זה.",
+      "order": 6
+    },
+    {
+      "id": "F237",
+      "why": "עמינדב: E נמוך מאוד בעמודה.",
+      "order": 7
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F001",
+        "F002"
+      ],
+      "why": "ויהי ערב ויהי בקר ברצף טקסט רגיל.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 177,
+        "skip": 1,
+        "dir": 1,
+        "length": 14
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F056",
+        "F058",
+        "F059"
+      ],
+      "why": "בני ישראל ממצרים ויאמר ברצף המשכים בטקסט.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 80999,
+        "skip": 1,
+        "dir": 1,
+        "length": 19
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F139",
+        "F140",
+        "F141"
+      ],
+      "why": "את השלחן ואת בדיו ואת כליו, ברצף המשכים בטקסט.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 131479,
+        "skip": 1,
+        "dir": 1,
+        "length": 23
+      },
+      "engine": {
+        "key": "phrase:2",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F255",
+        "F256",
+        "F257"
+      ],
+      "why": "ויחר אף יהוה בישראל, רצף המשכים בטקסט.",
+      "order": 4,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 242624,
+        "skip": 1,
+        "dir": 1,
+        "length": 16
+      },
+      "engine": {
+        "key": "phrase:3",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F197",
+        "F198"
+      ],
+      "why": "ואל בני ישראל, לבני ישראל, המשך חופף בטקסט.",
+      "order": 5,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 171903,
+        "skip": 1,
+        "dir": 1,
+        "length": 11
+      },
+      "engine": {
+        "key": "phrase:4",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F044",
+      "before_letters": "ואנ",
+      "after_letters": "עבדיוו",
+      "why": "האותיות שאחריו מתחילות במילה עבדיו, שהיא ממצא נפרד (F157) על אותו קו.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 222,
+        "skip": 20200,
+        "dir": 1,
+        "length": 13,
+        "before": "ואנ",
+        "after": "עבדיוו"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "MATCH"
+      }
+    },
+    {
+      "id": "F147",
+      "before_letters": "תהמאור",
+      "after_letters": "ואתנרת",
+      "why": "הקשר בטקסט עם המאור לפניו ואתנרת אחריו.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 131519,
+        "skip": 1,
+        "dir": 1,
+        "length": 19,
+        "before": "תהמאור",
+        "after": "ואתנרת"
+      },
+      "engine": {
+        "key": "continuation:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:2",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:3",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:4",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "MATCH"
+    },
+    {
+      "key": "continuation:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    }
+  ]
+}

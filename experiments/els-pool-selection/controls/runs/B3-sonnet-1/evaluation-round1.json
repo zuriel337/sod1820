@@ -1,0 +1,1067 @@
+{
+  "ok": true,
+  "answer": {
+    "groups": [
+      {
+        "ids": [
+          "F031",
+          "F056",
+          "F060",
+          "F063",
+          "F089",
+          "F135",
+          "F183",
+          "F206"
+        ],
+        "relation_ids": [
+          "R0196",
+          "R0199",
+          "R0206",
+          "R0208",
+          "R0272",
+          "R0289",
+          "R0021",
+          "R0022",
+          "R0023"
+        ],
+        "kind": "cluster",
+        "why": "צביר דילוגים בעלי E גבוה שנחתכים באזור עמודות 50–54 ליד הציר המסומן (ברמה, באהל, כלוב, ומרב, אוהל, להוא, אלהא, האלה). נראה שייכות מקומית, אך מרבית ה-E גבוהים ולכן סביר שהצפיפות מקרית."
+      },
+      {
+        "ids": [
+          "F056",
+          "F088",
+          "F183",
+          "F206"
+        ],
+        "relation_ids": [
+          "R0021",
+          "R0022",
+          "R0023",
+          "R0036",
+          "R0037",
+          "R0074"
+        ],
+        "kind": "chain",
+        "why": "ארבעה ממצאים על אותו קו K3 בהמשך זה לזה (באהל, אביהנ, אלהא, האלה) עם חפיפות. קו משותף אחד, אך כל מילה קצרה."
+      },
+      {
+        "ids": [
+          "F074",
+          "F090",
+          "F176"
+        ],
+        "relation_ids": [
+          "R0031",
+          "R0032",
+          "R0039"
+        ],
+        "kind": "chain",
+        "why": "ואתמ, אתמי ו-היעימ ממשיכים זה את זה על אותו קו A1 בחפיפות."
+      },
+      {
+        "ids": [
+          "F094",
+          "F095",
+          "F096"
+        ],
+        "relation_ids": [
+          "R0042",
+          "R0043",
+          "R0044"
+        ],
+        "kind": "cluster",
+        "why": "אתיהוה, יהוהאלהיכ ואלהיכמ חופפים בשורה אחת ויוצרים רצף טקסטואלי טבעי: את יהוה אלהיכם."
+      },
+      {
+        "ids": [
+          "F047",
+          "F048",
+          "F049",
+          "F050",
+          "F051"
+        ],
+        "relation_ids": [
+          "R0015",
+          "R0016",
+          "R0017",
+          "R0018",
+          "R0019"
+        ],
+        "kind": "chain",
+        "why": "שרשרת המשכים בשורה 8 (ועבדיכם ... גם אנחנו) שהיא טקסט רגיל."
+      },
+      {
+        "ids": [
+          "F145",
+          "F147",
+          "F150",
+          "F159",
+          "F160"
+        ],
+        "relation_ids": [
+          "R0057",
+          "R0058",
+          "R0059",
+          "R0061",
+          "R0065"
+        ],
+        "kind": "chain",
+        "why": "רצף טקסט בשורה 14 (ובדעת, בדעתו, ובכלמלאכה, ולחשב, מחשבת) בהמשכים."
+      },
+      {
+        "ids": [
+          "F193",
+          "F196",
+          "F197",
+          "F198"
+        ],
+        "relation_ids": [
+          "R0076",
+          "R0077",
+          "R0078",
+          "R0079"
+        ],
+        "kind": "chain",
+        "why": "רצף באצבעו, והימנ, הימנית, מנהשמנ בשורה 17 עם חפיפות."
+      },
+      {
+        "ids": [
+          "F181",
+          "F182",
+          "F184",
+          "F178"
+        ],
+        "relation_ids": [
+          "R0069",
+          "R0070",
+          "R0072",
+          "R0073"
+        ],
+        "kind": "chain",
+        "why": "ובניו, ויאכל, יאכלהו, והנותר ברצף טקסט רציף בשורה 16."
+      },
+      {
+        "ids": [
+          "F277",
+          "F278",
+          "F269",
+          "F270"
+        ],
+        "relation_ids": [
+          "R0091",
+          "R0090",
+          "R0089"
+        ],
+        "kind": "cluster",
+        "why": "יהוה אלהיכם חוזר בשורות 27–28 עם מקבילות והמשכים."
+      },
+      {
+        "ids": [
+          "F100",
+          "F105",
+          "F108",
+          "F111",
+          "F115",
+          "F116"
+        ],
+        "relation_ids": [
+          "R0045",
+          "R0046",
+          "R0050",
+          "R0051",
+          "R0052",
+          "R0053"
+        ],
+        "kind": "chain",
+        "why": "רצף בשורה 11 (באהלו, ותקח, תקחו, ויעשוכן, בניישראל, וילקטו) בהמשכים."
+      },
+      {
+        "ids": [
+          "F153",
+          "F179",
+          "F244",
+          "F286"
+        ],
+        "relation_ids": [
+          "R0062",
+          "R0099",
+          "R0102",
+          "R0110"
+        ],
+        "kind": "chain",
+        "why": "ארבעה ממצאים על אותו קו A1 (בהונ, והבל, ויקרא, יהיהבו) בהמשך וברווחים קטנים."
+      },
+      {
+        "ids": [
+          "F283",
+          "F284",
+          "F285"
+        ],
+        "relation_ids": [
+          "R0092",
+          "R0103",
+          "R0114"
+        ],
+        "kind": "cluster",
+        "why": "ולאידע, לאידעת, ואספתו חופפים בשורה 29."
+      }
+    ],
+    "singles": [
+      {
+        "id": "F166",
+        "why": "יומו עם E גבוה במיוחד (46.8) וחוצה את הציר, אך זה כנראה רעש."
+      },
+      {
+        "id": "F089",
+        "why": "אוהל עם E גבוה (31.8) החוצה את הציר."
+      },
+      {
+        "id": "F074",
+        "why": "ואתמ עם E גבוה, חוצה, ומשתתף בשרשרת."
+      },
+      {
+        "id": "F016",
+        "why": "ותתקע עם E נמוך (0.1) בדילוג D2, נדיר יחסית."
+      },
+      {
+        "id": "F030",
+        "why": "דרכיהמ עם E נמוך (0.02) מאוד."
+      },
+      {
+        "id": "F140",
+        "why": "ויבקשו עם E נמוך מאוד (0.022)."
+      },
+      {
+        "id": "F235",
+        "why": "משערות עם E נמוך מאוד בפינת האזור."
+      },
+      {
+        "id": "F257",
+        "why": "ברכיהו עם E נמוך (0.05)."
+      },
+      {
+        "id": "F289",
+        "why": "מכלבשר עם E נמוך מאוד (0.019)."
+      }
+    ],
+    "phrases": [
+      {
+        "ids": [
+          "F094",
+          "F096"
+        ],
+        "why": "את יהוה אלהיכם על אותו קו בשורה 10."
+      },
+      {
+        "ids": [
+          "F258",
+          "F259",
+          "F260"
+        ],
+        "why": "אשר דבר יהוה אל עבדיך ברצף בשורה 25."
+      },
+      {
+        "ids": [
+          "F290",
+          "F291",
+          "F292"
+        ],
+        "why": "ויראהו יהוה את כל הארץ את הגלעד ברצף בשורה 31."
+      }
+    ],
+    "continuations": [
+      {
+        "id": "F008",
+        "before_letters": "צלמינה",
+        "after_letters": "למי",
+        "why": "ואתהבהמה ממשיך בטקסט."
+      },
+      {
+        "id": "F095",
+        "before_letters": "עבדואת",
+        "after_letters": "ממיומי",
+        "why": "יהוהאלהיכ בהקשר הטקסט."
+      }
+    ],
+    "chance_note": "רוב הצלבות, הסמיכויות והמקבילות נובעות מצפיפות הממצאים ומשפת הטקסט החוזרת, ולכן מקריות. גם ממצאי E גבוה בצמוד לציר אינם מעידים על משמעות."
+  },
+  "errors": [
+    {
+      "code": "relation_outside_group",
+      "where": "groups[0]",
+      "detail": "R0021 joins F056-F088"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[0].why",
+      "detail": "צביר דילוגים בעלי E גבוה שנחתכים באזור עמודות 50–54 ליד הציר המסומן (ברמה, באהל,"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[1]",
+      "detail": "F056 also in groups[0]"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[1]",
+      "detail": "F183 also in groups[0]"
+    },
+    {
+      "code": "id_in_two_groups",
+      "where": "groups[1]",
+      "detail": "F206 also in groups[0]"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[1].why",
+      "detail": "ארבעה ממצאים על אותו קו K3 בהמשך זה לזה (באהל, אביהנ, אלהא, האלה) עם חפיפות. קו "
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[2].why",
+      "detail": "ואתמ, אתמי ו-היעימ ממשיכים זה את זה על אותו קו A1 בחפיפות."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[4].why",
+      "detail": "שרשרת המשכים בשורה 8 (ועבדיכם ... גם אנחנו) שהיא טקסט רגיל."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[5].why",
+      "detail": "רצף טקסט בשורה 14 (ובדעת, בדעתו, ובכלמלאכה, ולחשב, מחשבת) בהמשכים."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[6].why",
+      "detail": "רצף באצבעו, והימנ, הימנית, מנהשמנ בשורה 17 עם חפיפות."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[7].why",
+      "detail": "ובניו, ויאכל, יאכלהו, והנותר ברצף טקסט רציף בשורה 16."
+    },
+    {
+      "code": "relation_outside_group",
+      "where": "groups[8]",
+      "detail": "R0089 joins F268-F269"
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[8].why",
+      "detail": "יהוה אלהיכם חוזר בשורות 27–28 עם מקבילות והמשכים."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[9].why",
+      "detail": "רצף בשורה 11 (באהלו, ותקח, תקחו, ויעשוכן, בניישראל, וילקטו) בהמשכים."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[10].why",
+      "detail": "ארבעה ממצאים על אותו קו A1 (בהונ, והבל, ויקרא, יהיהבו) בהמשך וברווחים קטנים."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "groups[11].why",
+      "detail": "ולאידע, לאידעת, ואספתו חופפים בשורה 29."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[0].why",
+      "detail": "יומו עם E גבוה במיוחד (46.8) וחוצה את הציר, אך זה כנראה רעש."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[1].why",
+      "detail": "אוהל עם E גבוה (31.8) החוצה את הציר."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[3].why",
+      "detail": "ותתקע עם E נמוך (0.1) בדילוג D2, נדיר יחסית."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[4].why",
+      "detail": "דרכיהמ עם E נמוך (0.02) מאוד."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[5].why",
+      "detail": "ויבקשו עם E נמוך מאוד (0.022)."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[7].why",
+      "detail": "ברכיהו עם E נמוך (0.05)."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "singles[8].why",
+      "detail": "מכלבשר עם E נמוך מאוד (0.019)."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[0].why",
+      "detail": "את יהוה אלהיכם על אותו קו בשורה 10."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[1].why",
+      "detail": "אשר דבר יהוה אל עבדיך ברצף בשורה 25."
+    },
+    {
+      "code": "digits_in_text",
+      "where": "phrases[2].why",
+      "detail": "ויראהו יהוה את כל הארץ את הגלעד ברצף בשורה 31."
+    }
+  ],
+  "groups": [
+    {
+      "ids": [
+        "F031",
+        "F056",
+        "F060",
+        "F063",
+        "F089",
+        "F135",
+        "F183",
+        "F206"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0196",
+        "R0199",
+        "R0206",
+        "R0208",
+        "R0272",
+        "R0289",
+        "R0021",
+        "R0022",
+        "R0023"
+      ],
+      "claimed_ok": [
+        "R0196",
+        "R0199",
+        "R0206",
+        "R0208",
+        "R0272",
+        "R0289",
+        "R0022",
+        "R0023"
+      ],
+      "why": "צביר דילוגים בעלי E גבוה שנחתכים באזור עמודות 50–54 ליד הציר המסומן (ברמה, באהל, כלוב, ומרב, אוהל, להוא, אלהא, האלה). נראה שייכות מקומית, אך מרבית ה-E גבוהים ולכן סביר שהצפיפות מקרית.",
+      "order": 1,
+      "stats": {
+        "size": 8,
+        "relations_any": 24,
+        "relations_listed": 16,
+        "connected_share_any": 1,
+        "connected_share_listed": 0.75,
+        "types": [
+          "continuation",
+          "crossing",
+          "near"
+        ],
+        "members_with_E_ge_1": 8,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F056",
+        "F088",
+        "F183",
+        "F206"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0021",
+        "R0022",
+        "R0023",
+        "R0036",
+        "R0037",
+        "R0074"
+      ],
+      "claimed_ok": [
+        "R0021",
+        "R0022",
+        "R0023",
+        "R0036",
+        "R0037",
+        "R0074"
+      ],
+      "why": "ארבעה ממצאים על אותו קו K3 בהמשך זה לזה (באהל, אביהנ, אלהא, האלה) עם חפיפות. קו משותף אחד, אך כל מילה קצרה.",
+      "order": 2,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 1,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F074",
+        "F090",
+        "F176"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0031",
+        "R0032",
+        "R0039"
+      ],
+      "claimed_ok": [
+        "R0031",
+        "R0032",
+        "R0039"
+      ],
+      "why": "ואתמ, אתמי ו-היעימ ממשיכים זה את זה על אותו קו A1 בחפיפות.",
+      "order": 3,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 3,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F094",
+        "F095",
+        "F096"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0042",
+        "R0043",
+        "R0044"
+      ],
+      "claimed_ok": [
+        "R0042",
+        "R0043",
+        "R0044"
+      ],
+      "why": "אתיהוה, יהוהאלהיכ ואלהיכמ חופפים בשורה אחת ויוצרים רצף טקסטואלי טבעי: את יהוה אלהיכם.",
+      "order": 4,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    },
+    {
+      "ids": [
+        "F047",
+        "F048",
+        "F049",
+        "F050",
+        "F051"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0015",
+        "R0016",
+        "R0017",
+        "R0018",
+        "R0019"
+      ],
+      "claimed_ok": [
+        "R0015",
+        "R0016",
+        "R0017",
+        "R0018",
+        "R0019"
+      ],
+      "why": "שרשרת המשכים בשורה 8 (ועבדיכם ... גם אנחנו) שהיא טקסט רגיל.",
+      "order": 5,
+      "stats": {
+        "size": 5,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F145",
+        "F147",
+        "F150",
+        "F159",
+        "F160"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0057",
+        "R0058",
+        "R0059",
+        "R0061",
+        "R0065"
+      ],
+      "claimed_ok": [
+        "R0057",
+        "R0058",
+        "R0059",
+        "R0061",
+        "R0065"
+      ],
+      "why": "רצף טקסט בשורה 14 (ובדעת, בדעתו, ובכלמלאכה, ולחשב, מחשבת) בהמשכים.",
+      "order": 6,
+      "stats": {
+        "size": 5,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 5
+      }
+    },
+    {
+      "ids": [
+        "F193",
+        "F196",
+        "F197",
+        "F198"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0076",
+        "R0077",
+        "R0078",
+        "R0079"
+      ],
+      "claimed_ok": [
+        "R0076",
+        "R0077",
+        "R0078",
+        "R0079"
+      ],
+      "why": "רצף באצבעו, והימנ, הימנית, מנהשמנ בשורה 17 עם חפיפות.",
+      "order": 7,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F181",
+        "F182",
+        "F184",
+        "F178"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0069",
+        "R0070",
+        "R0072",
+        "R0073"
+      ],
+      "claimed_ok": [
+        "R0069",
+        "R0070",
+        "R0072",
+        "R0073"
+      ],
+      "why": "ובניו, ויאכל, יאכלהו, והנותר ברצף טקסט רציף בשורה 16.",
+      "order": 8,
+      "stats": {
+        "size": 4,
+        "relations_any": 6,
+        "relations_listed": 6,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F277",
+        "F278",
+        "F269",
+        "F270"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0091",
+        "R0090",
+        "R0089"
+      ],
+      "claimed_ok": [
+        "R0091",
+        "R0090"
+      ],
+      "why": "יהוה אלהיכם חוזר בשורות 27–28 עם מקבילות והמשכים.",
+      "order": 9,
+      "stats": {
+        "size": 4,
+        "relations_any": 5,
+        "relations_listed": 5,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "parallel"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 4
+      }
+    },
+    {
+      "ids": [
+        "F100",
+        "F105",
+        "F108",
+        "F111",
+        "F115",
+        "F116"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0045",
+        "R0046",
+        "R0050",
+        "R0051",
+        "R0052",
+        "R0053"
+      ],
+      "claimed_ok": [
+        "R0045",
+        "R0046",
+        "R0050",
+        "R0051",
+        "R0052",
+        "R0053"
+      ],
+      "why": "רצף בשורה 11 (באהלו, ותקח, תקחו, ויעשוכן, בניישראל, וילקטו) בהמשכים.",
+      "order": 10,
+      "stats": {
+        "size": 6,
+        "relations_any": 8,
+        "relations_listed": 8,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 6
+      }
+    },
+    {
+      "ids": [
+        "F153",
+        "F179",
+        "F244",
+        "F286"
+      ],
+      "kind": "chain",
+      "relation_ids": [
+        "R0062",
+        "R0099",
+        "R0102",
+        "R0110"
+      ],
+      "claimed_ok": [
+        "R0062",
+        "R0099",
+        "R0102",
+        "R0110"
+      ],
+      "why": "ארבעה ממצאים על אותו קו A1 (בהונ, והבל, ויקרא, יהיהבו) בהמשך וברווחים קטנים.",
+      "order": 11,
+      "stats": {
+        "size": 4,
+        "relations_any": 4,
+        "relations_listed": 4,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 2,
+        "members_with_E_lt_1": 2,
+        "members_plain_text": 0
+      }
+    },
+    {
+      "ids": [
+        "F283",
+        "F284",
+        "F285"
+      ],
+      "kind": "cluster",
+      "relation_ids": [
+        "R0092",
+        "R0103",
+        "R0114"
+      ],
+      "claimed_ok": [
+        "R0092",
+        "R0103",
+        "R0114"
+      ],
+      "why": "ולאידע, לאידעת, ואספתו חופפים בשורה 29.",
+      "order": 12,
+      "stats": {
+        "size": 3,
+        "relations_any": 3,
+        "relations_listed": 3,
+        "connected_share_any": 1,
+        "connected_share_listed": 1,
+        "types": [
+          "continuation",
+          "same_line"
+        ],
+        "members_with_E_ge_1": 0,
+        "members_with_E_lt_1": 0,
+        "members_plain_text": 3
+      }
+    }
+  ],
+  "singles": [
+    {
+      "id": "F166",
+      "why": "יומו עם E גבוה במיוחד (46.8) וחוצה את הציר, אך זה כנראה רעש.",
+      "order": 1
+    },
+    {
+      "id": "F089",
+      "why": "אוהל עם E גבוה (31.8) החוצה את הציר.",
+      "order": 2
+    },
+    {
+      "id": "F074",
+      "why": "ואתמ עם E גבוה, חוצה, ומשתתף בשרשרת.",
+      "order": 3
+    },
+    {
+      "id": "F016",
+      "why": "ותתקע עם E נמוך (0.1) בדילוג D2, נדיר יחסית.",
+      "order": 4
+    },
+    {
+      "id": "F030",
+      "why": "דרכיהמ עם E נמוך (0.02) מאוד.",
+      "order": 5
+    },
+    {
+      "id": "F140",
+      "why": "ויבקשו עם E נמוך מאוד (0.022).",
+      "order": 6
+    },
+    {
+      "id": "F235",
+      "why": "משערות עם E נמוך מאוד בפינת האזור.",
+      "order": 7
+    },
+    {
+      "id": "F257",
+      "why": "ברכיהו עם E נמוך (0.05).",
+      "order": 8
+    },
+    {
+      "id": "F289",
+      "why": "מכלבשר עם E נמוך מאוד (0.019).",
+      "order": 9
+    }
+  ],
+  "phrases": [
+    {
+      "ids": [
+        "F094",
+        "F096"
+      ],
+      "why": "את יהוה אלהיכם על אותו קו בשורה 10.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 92082,
+        "skip": 1,
+        "dir": 1,
+        "length": 12
+      },
+      "engine": {
+        "key": "phrase:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F258",
+        "F259",
+        "F260"
+      ],
+      "why": "אשר דבר יהוה אל עבדיך ברצף בשורה 25.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 243618,
+        "skip": 1,
+        "dir": 1,
+        "length": 17
+      },
+      "engine": {
+        "key": "phrase:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "ids": [
+        "F290",
+        "F291",
+        "F292"
+      ],
+      "why": "ויראהו יהוה את כל הארץ את הגלעד ברצף בשורה 31.",
+      "order": 3,
+      "status": "engine_confirmed",
+      "span": {
+        "ok": true,
+        "start": 304199,
+        "skip": 1,
+        "dir": 1,
+        "length": 25
+      },
+      "engine": {
+        "key": "phrase:2",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "continuations": [
+    {
+      "id": "F008",
+      "before_letters": "צלמינה",
+      "after_letters": "למי",
+      "why": "ואתהבהמה ממשיך בטקסט.",
+      "order": 1,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 1195,
+        "skip": 1,
+        "dir": 1,
+        "length": 17,
+        "before": "צלמינה",
+        "after": "למי"
+      },
+      "engine": {
+        "key": "continuation:0",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    },
+    {
+      "id": "F095",
+      "before_letters": "עבדואת",
+      "after_letters": "ממיומי",
+      "why": "יהוהאלהיכ בהקשר הטקסט.",
+      "order": 2,
+      "status": "engine_confirmed",
+      "extended": {
+        "start": 92078,
+        "skip": 1,
+        "dir": 1,
+        "length": 21,
+        "before": "עבדואת",
+        "after": "ממיומי"
+      },
+      "engine": {
+        "key": "continuation:1",
+        "letters_match": true,
+        "state": "PLAIN_TEXT_ROW"
+      }
+    }
+  ],
+  "engine_rows": [
+    {
+      "key": "phrase:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "phrase:2",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:0",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    },
+    {
+      "key": "continuation:1",
+      "letters_match": true,
+      "state": "PLAIN_TEXT_ROW"
+    }
+  ]
+}
