@@ -21,3 +21,7 @@ Read the embedded source and visually inspected all five source pages. Added 15 
 ## Checkpoint 3 · PDF 56–60
 
 Five more embedded texts read and page images inspected. Added 15 units on agency versus omens, Judah, Joseph's trust, hunger/peace, Benjamin, care for Jacob, Asenath/mnemonics, Judah/Joseph, blessings, prayer, Benjamin/Judah, oaths, אני/אנכי and the stages of the Egyptian deliverance. Source-proposed historical and numerical associations remain the author's arguments; no totals or literal quotations were newly certified. Total 15 expanded pages / 45 selected units, covering the Genesis run and the opening of Exodus. Focused content and preservation checks pass.
+
+## Checkpoint 4 · PDF 61–65
+
+Read and visually inspected the five Exodus pages. Added 15 selected units on the patriarchal covenant, stages of redemption, Moses' speech, mercy/judgment, individual prayer, leaving with the livestock, Moses' compassion, faithful mission, preparation for Passover, manna descriptions/naming, the Ruth provision comparison, supported leadership, incomplete redemption and Jethro's recognition. Total 20 pages / 60 units. Comparisons of measures remain explanations of the printed argument, not new canonical calculations. Focused content and preservation checks pass.
