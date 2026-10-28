@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { AHAVAT_DS01_BOOKS } from "../../data/ahavatTorahDs01Source2029.js";
@@ -10,8 +10,24 @@ const STATUS_COLORS = Object.freeze({
   unknown: "#a69d91",
 });
 
-const REDUCED_MOTION = typeof window !== "undefined"
-  && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+class SpatialErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onFailure(); }
+  render() { return this.state.failed ? <p role="status">לא ניתן לפתוח את המבנה במכשיר הזה. הטבלה ועמוד המקור זמינים בהמשך.</p> : this.props.children; }
+}
+
+function ContextLossGuard({ onLost }) {
+  const { gl } = useThree();
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const lost = event => { event.preventDefault(); onLost(); };
+    canvas.addEventListener("webglcontextlost", lost);
+    canvas.dataset.ahavatContextGuard = "ready";
+    return () => { canvas.removeEventListener("webglcontextlost", lost); delete canvas.dataset.ahavatContextGuard; };
+  }, [gl, onLost]);
+  return null;
+}
 
 function towerPosition(index) {
   const column = index % 5;
@@ -23,11 +39,11 @@ function pageHeight(dataset) {
   return .72 + Math.min(dataset.pages.length, 9) * .34;
 }
 
-function DatasetTowers({ datasets, activeId, onSelect }) {
+function DatasetTowers({ datasets, activeId, onSelect, reducedMotion }) {
   const group = useRef(null);
 
   useFrame((state) => {
-    if (!group.current || REDUCED_MOTION) return;
+    if (!group.current || reducedMotion) return;
     group.current.position.y = Math.sin(state.clock.elapsedTime * .34) * .035;
   });
 
@@ -85,7 +101,7 @@ function SourceBookTowers({ activeId, onSelect }) {
   </group>;
 }
 
-function SceneControls() {
+function SceneControls({ reducedMotion }) {
   const { camera, gl } = useThree();
   const controlsRef = useRef(null);
 
@@ -93,7 +109,7 @@ function SceneControls() {
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
     controlsRef.current = controls;
-    controls.enableDamping = !REDUCED_MOTION;
+    controls.enableDamping = !reducedMotion;
     controls.dampingFactor = .07;
     controls.enablePan = false;
     controls.minDistance = 6.5;
@@ -105,7 +121,7 @@ function SceneControls() {
       controlsRef.current = null;
       controls.dispose();
     };
-  }, [camera, gl]);
+  }, [camera, gl, reducedMotion]);
   return null;
 }
 
@@ -123,15 +139,29 @@ function LetterCountBars({ bars, activeId, onSelect }) {
 
 export default function AhavatTorahSpatialScene2029({ datasets = [], bars = [], letterLabel = "", activeId = "", onSelect, mode = "datasets" }) {
   const stableDatasets = useMemo(() => datasets.slice(0, 13), [datasets]);
-  return <div className="ahavat29-spatial-canvas" role="img" aria-label={mode === "source-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${letterLabel} בשורת המקור; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "letter" || mode === "parasha-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${mode === "letter" ? "האות " : ""}${letterLabel} בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו"}>
-    <Canvas camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
+  const root = useRef(null);
+  const [lost, setLost] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(true);
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(media.matches || Boolean(root.current?.closest('[data-frame-reduced-motion="true"]')));
+    const observer = new MutationObserver(update);
+    observer.observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ["data-frame-reduced-motion"] });
+    media.addEventListener("change", update); update();
+    return () => { media.removeEventListener("change", update); observer.disconnect(); };
+  }, []);
+  const unavailable = <p role="status">לא ניתן לפתוח את המבנה במכשיר הזה. הטבלה ועמוד המקור זמינים בהמשך.</p>;
+  const label = mode === "source-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${letterLabel} בשורת המקור; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "letter" || mode === "parasha-count" ? `ייצוג של מבנה הספר: גובה כל עמודה הוא מניין ${mode === "letter" ? "האות " : ""}${letterLabel} בחומש או בפרשה; הנתונים מופיעים גם בטבלה ובכפתורים` : mode === "ds01" ? "חמשת חומשי התורה לפי מניין המופעים המודפס בעמוד 6" : "מצפה תלת־ממדי של שלושה עשר מאגרי אהבת תורה; גובה כל מגדל מייצג את מספר עמודי המקור שלו";
+  return <div ref={root} data-reduced-motion={reducedMotion} className="ahavat29-spatial-canvas">
+    <SpatialErrorBoundary onFailure={() => setLost(true)}>{lost ? unavailable : <Canvas role="img" aria-label={label} fallback={unavailable} camera={{ position: [7.4, 6.2, 9.6], fov: 44 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#0d0b09"]} />
       <fog attach="fog" args={["#0d0b09", 10, 19]} />
       <ambientLight intensity={1.2} />
       <directionalLight position={[4, 8, 5]} intensity={2.25} color="#f3d68f" />
       <pointLight position={[-5, 3, -3]} intensity={19} distance={14} color="#668ec4" />
-      {mode === "letter" || mode === "parasha-count" || mode === "source-count" ? <LetterCountBars bars={bars} activeId={activeId} onSelect={onSelect} /> : mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} />}
-      <SceneControls />
-    </Canvas>
+      {mode === "letter" || mode === "parasha-count" || mode === "source-count" ? <LetterCountBars bars={bars} activeId={activeId} onSelect={onSelect} /> : mode === "ds01" ? <SourceBookTowers activeId={activeId} onSelect={onSelect} /> : <DatasetTowers datasets={stableDatasets} activeId={activeId} onSelect={onSelect} reducedMotion={reducedMotion} />}
+      <SceneControls reducedMotion={reducedMotion} />
+      <ContextLossGuard onLost={() => setLost(true)} />
+    </Canvas>}</SpatialErrorBoundary>
   </div>;
 }

@@ -85,8 +85,8 @@ test("DS-03/04 source counts, PDF boundaries, CSV, 3D and reload work at 320/390
       if (width === 1440) {
         await click(reader.getByRole("button", { name: "פתח מבנה המניינים בתלת־ממד", exact: true }));
         await reader.locator("canvas").waitFor();
-        assert.match(await reader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /מניין אותיות התורה/);
-        assert.doesNotMatch(await reader.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /מניין האות אותיות/);
+        assert.match(await reader.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /מניין אותיות התורה/);
+        assert.doesNotMatch(await reader.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /מניין האות אותיות/);
         await click(reader.locator(".ahavat29-letter-bars").getByRole("button", { name: "בראשית 7,235", exact: true }));
         assert.match(await pdf.getAttribute("src"), /#page=41&view=FitH$/);
         await page.reload({ waitUntil: "domcontentloaded" });

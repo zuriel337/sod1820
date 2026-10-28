@@ -85,9 +85,9 @@ test("people, roots and megillot retain their source through search/export/3D/re
       assert.match(peopleCsv.text, /"משה","ו׳","6","שי״ט","319","29"/);
       await click(people.getByRole("button", { name: "פתח מבנה ייחוסים בתלת־ממד", exact: true }));
       await people.locator("canvas").waitFor();
-      assert.match(await people.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /תיבות מיוחסות/);
+      assert.match(await people.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /תיבות מיוחסות/);
       await click(people.getByRole("button", { name: "פעמים", exact: true }));
-      assert.match(await people.locator(".ahavat29-spatial-canvas").getAttribute("aria-label"), /פעמים בדברי המחבר/);
+      assert.match(await people.locator(".ahavat29-spatial-canvas").getByRole("img").getAttribute("aria-label"), /פעמים בדברי המחבר/);
       await click(people.getByRole("button", { name: "סגור מבנה ייחוסים בתלת־ממד", exact: true }));
 
       await click(roots.getByRole("button", { name: "פתח תעתיק וחיפוש בשרשים", exact: true }));

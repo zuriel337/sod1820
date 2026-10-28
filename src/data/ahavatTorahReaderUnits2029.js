@@ -3,6 +3,7 @@
 import { AHAVAT_PEOPLE_BOOKS, ahavatPeopleRows } from "./ahavatTorahPeople2029.js";
 import { AHAVAT_ROOT_COLUMNS } from "./ahavatTorahRoots2029.js";
 import { AHAVAT_MEGILLOT, ahavatMegillahRows } from "./ahavatTorahMegillot2029.js";
+import { AHAVAT_LETTER_FORMS, AHAVAT_LETTER_READINGS, ahavatSourceCountRows } from "./ahavatTorahLetters2029.js";
 
 export const AHAVAT_READER_UNITS = Object.freeze([
   ...AHAVAT_PEOPLE_BOOKS.flatMap(book => book.rows.map(row => ({ id: `people:${row.id}`, rowId: row.id, page: row.page, title: `${row.book} · ${row.entity}`, datasetId: "DS-05", sectionId: "ahavat29-people", bookId: book.id }))),
@@ -22,8 +23,38 @@ const companionUnits = Object.freeze(Array.from({ length: 141 }, (_, index) => {
   });
 }));
 
+export function ahavatLetterUnitId(form, bookId = "all", rowId = "") {
+  const source = AHAVAT_LETTER_FORMS.find(item => item.form === form);
+  if (!source) return "";
+  const books = AHAVAT_LETTER_READINGS[form] || [];
+  if (bookId === "all") return rowId ? "" : `letter-form:${form}`;
+  const book = books.find(item => item.id === bookId);
+  if (!book || (rowId && !book.rows.some(row => row.parasha === rowId))) return "";
+  return rowId ? `letter-row:${form}:${bookId}:${rowId}` : `letter-book:${form}:${bookId}`;
+}
+
+function letterUnit(id) {
+  if (typeof id !== "string") return null;
+  const [kind, form, bookId = "all", rowId = "", ...extra] = id.split(":");
+  if (kind === "letter-page") {
+    const source = AHAVAT_LETTER_FORMS.find(item => item.form === form);
+    const page = Number(bookId);
+    if (extra.length || rowId || !source?.pages.includes(page) || String(page) !== bookId) return null;
+    return { id, page, title: `${source.name} · PDF ${page}`, layer: "letter-page", datasetId: "", sectionId: "ahavat29-letters", form };
+  }
+  if (extra.length || !["letter-form", "letter-book", "letter-row"].includes(kind)) return null;
+  if ((kind === "letter-form" && (bookId !== "all" || rowId)) || (kind === "letter-book" && (bookId === "all" || rowId)) || (kind === "letter-row" && (!rowId || bookId === "all"))) return null;
+  if (ahavatLetterUnitId(form, bookId, rowId) !== id) return null;
+  const source = AHAVAT_LETTER_FORMS.find(item => item.form === form);
+  const book = (AHAVAT_LETTER_READINGS[form] || []).find(item => item.id === bookId);
+  const row = rowId && book?.rows.find(item => item.parasha === rowId);
+  const page = row ? row.page : book ? book.page : source.pages[0];
+  if (!Number.isInteger(page) || !source.pages.includes(page)) return null;
+  return { id, page, title: `${source.name}${book ? ` · ${book.title}` : ""}${row ? ` · ${row.parasha}` : ""}`, layer: "letter", datasetId: "", sectionId: "ahavat29-letters", form, letterBook: bookId, letterRow: rowId };
+}
+
 export function ahavatReaderUnit(id) {
-  return AHAVAT_READER_UNITS.find(unit => unit.id === id) || companionUnits.find(unit => unit.id === id) || null;
+  return AHAVAT_READER_UNITS.find(unit => unit.id === id) || companionUnits.find(unit => unit.id === id) || letterUnit(id) || null;
 }
 
 export function ahavatReaderUnitDomId(id) {
@@ -45,7 +76,16 @@ export function ahavatReaderUnitHref(id, currentUrl = "/2029/control") {
   else url.searchParams.delete("dataset");
   url.searchParams.set("page", String(unit.page));
   url.searchParams.delete("finding");
-  if (unit.layer === "companion") {
+  if (unit.layer === "letter-page") {
+    url.searchParams.set("letter", unit.form);
+  } else if (unit.layer === "letter") {
+    url.searchParams.set("letter", unit.form);
+    url.searchParams.set("letterBook", unit.letterBook);
+    if (unit.letterRow) url.searchParams.set("letterRow", unit.letterRow);
+    else url.searchParams.delete("letterRow");
+    const query = ahavatReaderQuery(url.searchParams, "letterQuery");
+    if (unit.letterRow && query && !ahavatSourceCountRows(AHAVAT_LETTER_READINGS[unit.form], unit.letterBook, query).some(row => row.parasha === unit.letterRow)) url.searchParams.delete("letterQuery");
+  } else if (unit.layer === "companion") {
     // A companion is not a scroll/table row, and gets no fabricated dataset.
   } else if (unit.bookId) {
     url.searchParams.set("peopleBook", unit.bookId);

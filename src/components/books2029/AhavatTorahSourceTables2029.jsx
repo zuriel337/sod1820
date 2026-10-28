@@ -33,7 +33,7 @@ function downloadCsv(csv, filename) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function AhavatTorahPeopleReader2029({ onPage }) {
+export function AhavatTorahPeopleReader2029({ onPage, activeScene, onScene }) {
   const [bookId, setBookId] = useState(() => {
     if (initialUnit()?.bookId) return initialUnit().bookId;
     const id = new URLSearchParams(window.location.search).get("peopleBook");
@@ -41,7 +41,7 @@ export function AhavatTorahPeopleReader2029({ onPage }) {
   });
   const [query, setQuery] = useReaderQuery("peopleQuery");
   const [metric, setMetric] = useState(() => readerParams().get("peopleMetric") === "times" ? "times" : "words");
-  const [showScene, setShowScene] = useState(false);
+  const showScene = activeScene === "people";
   const [showDivisions, setShowDivisions] = useState(false);
   const [selectedBar, setSelectedBar] = useState("");
   const book = AHAVAT_PEOPLE_BOOKS.find(item => item.id === bookId);
@@ -71,7 +71,7 @@ export function AhavatTorahPeopleReader2029({ onPage }) {
     </details>
     <div className="ahavat29-table-tools"><label><span>חיפוש באנשים ובייחוסים</span><input type="search" maxLength={200} value={query} onChange={event => setQuery(event.target.value)} placeholder="דמות, קבוצה או מניין בדפוס" /></label><strong aria-live="polite">{rows.length} ייחוסים</strong></div>
     <nav className="ahavat29-letter-books" aria-label="מדד הייחוסים בתלת־ממד">{[["words", "תיבות מיוחסות"], ["times", "פעמים"]].map(([id, label]) => <button type="button" key={id} aria-pressed={id === metric} onClick={() => { setMetric(id); setReaderUrl("peopleMetric", id); }}>{label}</button>)}</nav>
-    <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} disabled={!bars.length} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מבנה ייחוסים בתלת־ממד" : "פתח מבנה ייחוסים בתלת־ממד"}</button>{book.pages.map(page => <button key={page} type="button" onClick={() => openSource(page)}>סיכום {book.title} · PDF {page}</button>)}<button type="button" disabled={!rows.length} onClick={() => downloadCsv(ahavatPeopleCsv(bookId, query, AHAVAT_TORAH_SOURCE.pdfUrl), `ahavat-torah-people-${bookId}.csv`)}>הורד ייחוסים למחקר · {rows.length} שורות</button></div>
+    <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} disabled={!bars.length} onClick={() => onScene(showScene ? "" : "people")}>{showScene ? "סגור מבנה ייחוסים בתלת־ממד" : "פתח מבנה ייחוסים בתלת־ממד"}</button>{book.pages.map(page => <button key={page} type="button" onClick={() => openSource(page)}>סיכום {book.title} · PDF {page}</button>)}<button type="button" disabled={!rows.length} onClick={() => downloadCsv(ahavatPeopleCsv(bookId, query, AHAVAT_TORAH_SOURCE.pdfUrl), `ahavat-torah-people-${bookId}.csv`)}>הורד ייחוסים למחקר · {rows.length} שורות</button></div>
     {showScene ? <><div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה הייחוסים…</p>}><SpatialScene mode="source-count" letterLabel={`${unit} · ${book.title}`} bars={bars} activeId={selectedBar} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = {unit} בכל ייחוס · לחיצה פותחת את המקור</p></div><div className="ahavat29-letter-books" aria-label="נתוני מבנה הייחוסים">{bars.map(bar => <button type="button" key={bar.id} aria-pressed={selectedBar === bar.id} onClick={() => selectBar(bar.id)}>{bar.label} · {ahavatLetterNumber(bar.count)}</button>)}</div></> : null}
     {rows.length ? <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><caption>סיכום {book.title} · ייחוסים בדברי הספר</caption><thead><tr><th>ייחוס בדפוס</th><th>פעמים בדפוס</th><th>פעמים</th><th>תיבות בדפוס</th><th>תיבות</th><th>מקור</th></tr></thead><tbody>{rows.map(row => <tr key={row.id} id={ahavatReaderUnitDomId(`people:${row.id}`)} data-reader-unit={`people:${row.id}`}><td>{row.entity}</td><td>{row.times.printed === "?" ? "לא הוכרע" : row.times.printed}</td><td>{ahavatLetterNumber(row.times.value)}</td><td>{row.words.printed === "?" ? "לא הוכרע" : row.words.printed}</td><td>{ahavatLetterNumber(row.words.value)}</td><td><button type="button" onClick={() => openSource(row.page, `people:${row.id}`)}>PDF {row.page}</button></td></tr>)}</tbody></table></div> : <p role="status">לא נמצא ייחוס מתאים בחומש זה.</p>}
     <details className="ahavat29-source-details"><summary>פרטי המקור והכיסוי</summary><p>הקריאה המספרית כאן היא של סיכומי חמשת החומשים ב־PDF 26–30. טבלת כל פרשה וסיכום כלל התורה נשארים לקריאה במקור PDF 25–31 ואינם מוצגים כאילו תועתקו כולם. {unresolved} תאי מניין עמומים נשארו פתוחים, אינם אפס ואינם כלולים בגרף או כסכום מספרי ביצוא. מניין „פעמים” הוא יחידת הייחוס של המחבר, לא ספירת הופעות של שם ולא המניין הנפרד של „משה” ב־PDF 70. „תורה”, „דבר ה׳”, אנשים וקבוצות נשמרים כקטגוריות המקור; שורות משותפות אינן מפוצלות או מסוכמות יחד לסכום מומצא. הקריאה אינה אימות מנוע. הפרשנויות והתעתיק כאן אינם תחליף לצילום.</p><div className="ahavat29-ds01-controls">{[25, 26, 27, 28, 29, 30, 31].map(page => <button type="button" key={page} onClick={() => openSource(page)}>הסעיף המלא · PDF {page}</button>)}</div></details>
@@ -173,7 +173,7 @@ export function AhavatTorahRootsReader2029({ onPage }) {
   </section>;
 }
 
-export function AhavatTorahMegillotReader2029({ onPage, selectedDatasetId }) {
+export function AhavatTorahMegillotReader2029({ onPage, selectedDatasetId, activeScene, onScene }) {
   const [kind, setKind] = useState(() => {
     if (initialUnit()?.kind) return initialUnit().kind;
     const requested = new URLSearchParams(window.location.search).get("scrollKind");
@@ -185,7 +185,7 @@ export function AhavatTorahMegillotReader2029({ onPage, selectedDatasetId }) {
     return AHAVAT_MEGILLOT.some(item => item.id === id) ? id : "all";
   });
   const [query, setQuery] = useReaderQuery("scrollQuery");
-  const [showScene, setShowScene] = useState(false);
+  const showScene = activeScene === "scrolls";
   const [selectedBar, setSelectedBar] = useState("");
   const datasetId = kind === "words" ? "DS-10" : "DS-09";
   const unit = kind === "words" ? "תיבות" : "אותיות";
@@ -223,7 +223,7 @@ export function AhavatTorahMegillotReader2029({ onPage, selectedDatasetId }) {
     <div className="ahavat29-letter-checkpoints" aria-label="סיכומי חמש המגילות בדפוס">{AHAVAT_MEGILLOT.map(item => <button type="button" key={item.id} id={ahavatReaderUnitDomId(`scrolls-total:${item.id}:${kind}`)} data-reader-unit={`scrolls-total:${item.id}:${kind}`} aria-pressed={item.id === megillahId} onClick={() => selectMegillah(item.id)}><span>{item.title}</span><strong>{ahavatLetterNumber(item[kind][1])}</strong><small>{unit} · סיכום המחבר</small></button>)}</div>
     <nav className="ahavat29-letter-books" aria-label="בחירת מגילה"><button type="button" aria-pressed={megillahId === "all"} onClick={() => selectMegillah("all")}>כל חמש המגילות</button>{AHAVAT_MEGILLOT.map(item => <button type="button" key={item.id} aria-pressed={megillahId === item.id} onClick={() => selectMegillah(item.id)}>{item.title}</button>)}</nav>
     <div className="ahavat29-table-tools"><label><span>חיפוש בטבלת המגילות</span><input type="search" maxLength={200} value={query} onChange={event => setQuery(event.target.value)} placeholder="מגילה, צורת אות או מספר בדפוס" /></label><strong aria-live="polite">{rows.length} שורות</strong></div>
-    <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} disabled={!bars.length} onClick={() => setShowScene(value => !value)}>{showScene ? "סגור מבנה מגילות בתלת־ממד" : "פתח מבנה מגילות בתלת־ממד"}</button>{(kind === "letters" ? [42, 43] : [43]).map(page => <button key={page} type="button" onClick={() => openSource(page)}>מקור המגילות · PDF {page}</button>)}<button type="button" disabled={!rows.length} onClick={() => downloadCsv(ahavatMegillahCsv(kind, megillahId, query, AHAVAT_TORAH_SOURCE.pdfUrl), `ahavat-torah-megillot-${kind}-${megillahId}.csv`)}>הורד מגילות למחקר · {rows.length} שורות</button></div>
+    <div className="ahavat29-ds01-controls"><button type="button" aria-expanded={showScene} disabled={!bars.length} onClick={() => onScene(showScene ? "" : "scrolls")}>{showScene ? "סגור מבנה מגילות בתלת־ממד" : "פתח מבנה מגילות בתלת־ממד"}</button>{(kind === "letters" ? [42, 43] : [43]).map(page => <button key={page} type="button" onClick={() => openSource(page)}>מקור המגילות · PDF {page}</button>)}<button type="button" disabled={!rows.length} onClick={() => downloadCsv(ahavatMegillahCsv(kind, megillahId, query, AHAVAT_TORAH_SOURCE.pdfUrl), `ahavat-torah-megillot-${kind}-${megillahId}.csv`)}>הורד מגילות למחקר · {rows.length} שורות</button></div>
     {showScene ? <><div className="ahavat29-letter-scene"><Suspense fallback={<p role="status">טוען את מבנה המגילות…</p>}><SpatialScene mode="source-count" letterLabel={`${unit} · ${selected?.title || "חמש המגילות"}`} bars={bars} activeId={selectedBar || megillahId} onSelect={selectBar} /></Suspense><p>ייצוג של מבנה הספר · גובה = {unit} {megillahId === "all" && !query ? "בסיכום כל מגילה" : "בשורת המקור"} · לחיצה פותחת את המקור</p></div><div className="ahavat29-letter-books" aria-label="נתוני מבנה המגילות">{bars.map(bar => <button type="button" key={bar.id} aria-pressed={selectedBar === bar.id} onClick={() => selectBar(bar.id)}>{bar.label} · {ahavatLetterNumber(bar.count)}</button>)}</div></> : null}
     {rows.length ? <div className="ahavat29-data-table-wrap"><table className="ahavat29-data-table"><caption>{unit} · {selected?.title || "חמש המגילות"} · קריאת דברי הספר</caption><thead><tr><th>מגילה</th><th>צורה</th><th>המניין בדפוס</th><th>מספר</th><th>מקור</th></tr></thead><tbody>{rows.map(row => <tr key={row.id} id={ahavatReaderUnitDomId(`scrolls:${row.id}`)} data-reader-unit={`scrolls:${row.id}`}><td>{row.megillah}</td><td>{row.form}</td><td>{row.printed === "?" ? "לא הוכרע" : row.printed}</td><td><b>{ahavatLetterNumber(row.count)}</b></td><td><button type="button" onClick={() => openSource(row.page, `scrolls:${row.id}`)}>PDF {row.page}</button></td></tr>)}</tbody></table></div> : <p role="status">לא נמצאה שורה מתאימה בחיפוש.</p>}
     <details className="ahavat29-source-details"><summary>פרטי המקור והקריאה</summary><p>מטריצת 28 צורות × חמש מגילות מתחילה ב־PDF 42 וממשיכה מ־ף׳ ב־PDF 43. שׁין ושׂין וחמש הצורות הסופיות נשמרות בנפרד. {unresolved.length} מתוך 140 תאים נשארו ללא הכרעה מספרית: הם אינם אפס, אינם נגזרים מסיכומי המגילות, אינם מוצגים כעמודות ומיוצאים כתא מספר ריק. הסיכומים הכוללים ומנייני התיבות מודפסים בנפרד ב־PDF 43; לחיצה על סיכום פותחת אותו ולא את העמוד שבו מתחילה המטריצה. הסדר הוא סדר הדפוס. זו קריאת דברי המחבר, לא ספירת קורפוס או אימות מנוע.</p><ul>{AHAVAT_MEGILLOT.map(item => {
