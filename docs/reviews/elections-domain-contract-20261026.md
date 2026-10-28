@@ -19,16 +19,17 @@ The first compiled pilot covers the two Israeli election systems currently in sc
 2. Knesset 26 / 2026 — election date, current name/party/list mapping, existing site posts and the
    current numeric research set. No election result is invented before a sourced result exists.
 
-The pilot contains 49 stable entity projections, 15 source-provenance records, 16 sourced facts,
-14 versioned calculations/derivations, 8 attributed interpretations, 20 proposed relation candidates and 38
-Universal Findings in the existing Research Result Bundle path.
+The pilot contains 51 stable entity projections, 16 source-provenance records, 17 sourced facts and
+news snapshots, 15 versioned calculations, 2 governed System Method derivations, 8 attributed
+interpretations, 23 proposed relation candidates and 42 Universal Findings in the existing Research
+Result Bundle path.
 
 ## Existing contracts reused
 
 | Concern | Existing owner | What this implementation does |
 |---|---|---|
 | Entity identity and relations | `reality_graph_law` | Keeps stable refs and relation candidates; never writes `nodes` or `edges` |
-| Epistemic, verification, governance and publication axes | `truth_axes_foundation_law` | Keeps the four evidence lanes separate and leaves interpretations Human-Gate pending |
+| Epistemic, verification, governance and publication axes | `truth_axes_foundation_law` | Keeps every evidence lane separate and leaves interpretations Human-Gate pending |
 | Research context and Result Bundle | `research_workspace_law` | Reuses Universal Finding and the existing Research Result Bundle; no fourth research store |
 | Research planning | `research_strategy_layer_law` | Gives Raziel the same context pack and evidence ids used by other consumers |
 | Raziel behavior | `raziel_companion_layer_law` | Allows explanation and suggestions; denies canonical promotion and publication |
@@ -41,17 +42,24 @@ This is the domain companion to `src/lib/systemSelfModel2029.js`. The System Sel
 what a surface is and which canonical rails it participates in; this elections contract carries the
 truth-safe research payload. Neither one takes ownership from the systems above.
 
-## Four lanes — never collapsed
+## Evidence lanes and governed layers — never collapsed
 
 | Lane | Meaning | Examples in the pilot |
 |---|---|---|
 | `source_provenance` | Where a statement or artifact came from | CEC result page, election timeline, reported list index, site posts, six gallery files |
 | `source_fact` | What that source states or contains | 4,309,270 valid votes; 138,598 New Right votes; date; list membership; numbers seen in an image/post |
-| `engine_calculation` | A versioned engine result or deterministic derivation | 140,052 threshold and 1,454 gap derived from official inputs; דוד=14, גאולה=45, אליהו=52, חותם=454, תמי=450, the 631 cluster, שרשר=1000, עופר וינטר במילוי=1820 |
+| `engine_calculation` | A versioned engine result or deterministic derivation | 140,052 threshold and 1,454 gap derived from official inputs; דוד=14, גאולה=45, אליהו=52, חותם=454, פרצוף=456, תמי=450, the 631 cluster, שרשר=1000, עופר וינטר במילוי=1820 |
+| `derivation` | An application of an attested System Method | 1,456→456 under `shitat_haechad_alef_law`; 1,400→14 under `zero_scale_law` |
 | `interpretation` | An attributed reading over earlier evidence | 45↔54, 140,052→140\|052, 1,454→14\|54 or 1\|454, scale links to 1,400/4,500 |
 
 An official source is not automatically an engine calculation. An engine result is not an
 interpretation. An interpretation never becomes an official fact because several numbers converge.
+
+The `news_publication_marker` for 1,456 is deliberately a source fact about what ynet published at
+11:31 after 70% of the votes had reportedly been counted. It is not modeled as a final election
+result. A later report or final result will be appended as a new marker, preserving this earlier
+point in time. The System Method then consumes the preserved 1,456 identity and derives 456 in a
+separate lane; both number entities remain available to the tree.
 
 ## Names and election mapping
 
@@ -66,7 +74,7 @@ interpretation. An interpretation never becomes an official fact because several
 The political/list statements retain their source ids. The gematria values retain their engine,
 method and version. They meet only through proposed relations whose evidence remains inspectable.
 
-## Web source spot-check — 2026-10-26
+## Web source spot-check — 2026-10-28
 
 The five external pages used for the primary pilot returned HTTP 200 during the final check. The
 rendered source material exposed the following bounded evidence:
@@ -78,9 +86,18 @@ rendered source material exposed the following bounded evidence:
   Winter, Netanyahu, Beyahad, Amcha Israel and Sharshar mappings used by the seed;
 - the Sharshar page names Tami, and the reported profile identifies Tami as number 2 on the list;
 - the Amcha Israel party site was reachable.
+- the ynet live-election item captured with display time 11:31 reported 1,456 votes for Sharshar at
+  the 70% count snapshot; the article metadata separately reports publication at
+  `2026-10-28T09:28:32.350929Z`. The contract preserves both provenance times and stores the wording
+  as a time-bound news milestone rather than a final result.
 
 The values 140,052 and 1,454 are therefore modeled as deterministic derivations over the official
 Knesset 21 inputs, not misrepresented as literal text scraped from the official page.
+
+The numeric transformations 1,456→456 and 1,400→14 cite the active rule ids and versions under the
+existing Numeric System Methods owner. They are convergence/derivation evidence, never equality and
+never a replacement for the raw number observed in the source. The general contract test also proves
+1,358→358 so the behavior cannot accidentally become a one-off election rule.
 
 ## One Tree and Raziel handoff
 
