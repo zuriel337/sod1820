@@ -247,6 +247,16 @@ function MediaShelf({ items, hasMore, access }) {
   </section>;
 }
 
+function TimeShelf({ sections }) {
+  const count = (sections || []).reduce((sum, section) => sum + (section?.cards?.length || 0), 0);
+  return <section className="sod29-world-kind-section" aria-label="אירועים וזמן בעץ המציאות">
+    <header><div><h3>אירועים וזמן בעץ</h3><p>האירועים והשנים כאן הם זהויות קיימות בעץ המציאות — לא מקורות חדשים ולא ממצאים חדשים.</p></div><span>{count} מוצגים</span></header>
+    <p className="sod29-muted">כאשר לאירוע יש מקור ציבורי מתועד, הוא מוצג דרך הספרייה או דף הכותב במבנה: מקור → הופעה → תאריך. ללא מקור כזה, הוא נשאר צומת זמן בלבד ולא מקבל מספר מקורות מומצא.</p>
+    {(sections || []).map((section) => <EntitySection key={section.key} section={section} />)}
+    <div className="sod29-actions"><Link className="sod29-action" to="/timeline">לציר הזמן המלא</Link><Link className="sod29-action" to="/world?view=sources#world-source-selection">למקורות ולעדכונים</Link></div>
+  </section>;
+}
+
 export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NUMBERS, onKindChange }) {
   const [state, setState] = useState({ kind: null, loading: true, data: null, error: null });
   useEffect(() => {
@@ -279,12 +289,11 @@ export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NU
     {state.error ? <p role="status">הפריטים אינם זמינים כרגע. שום חומר חלופי לא הומצא.</p> : null}
     {openingSections.map((section) => <EntitySection key={section.key} section={section} />)}
     {kind === WORLD_KNOWLEDGE_KIND.NUMBERS && data?.multiValue ? <ZviMultiValueShelf projection={data.multiValue} /> : null}
-    {remainingSections.map((section) => <EntitySection key={section.key} section={section} />)}
+    {kind === WORLD_KNOWLEDGE_KIND.TIME ? <TimeShelf sections={remainingSections} /> : remainingSections.map((section) => <EntitySection key={section.key} section={section} />)}
     {kind === WORLD_KNOWLEDGE_KIND.CIPHERS && data ? <CipherShelf rows={data.ciphers} hasMore={data.hasMore} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.LANGUAGES && data ? <LanguageShelf projection={data.language} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.MEDIA && data ? <MediaShelf items={data.media} hasMore={data.hasMore} access={data.access} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.SPATIAL && data?.spatial ? <SpatialShelf projection={data.spatial} /> : null}
-    {kind === WORLD_KNOWLEDGE_KIND.TIME && data ? <div className="sod29-actions"><Link className="sod29-action" to="/timeline">לציר הזמן המלא</Link></div> : null}
     {kind === WORLD_KNOWLEDGE_KIND.BOOKS && data ? <div className="sod29-actions"><Link className="sod29-action" to="/books">למרחב הספרים והמקורות</Link></div> : null}
   </section>;
 }
