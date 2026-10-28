@@ -20,7 +20,7 @@ test("selected novellae passages extend the existing companion without replacing
 });
 
 test("expanded pages have three distinct companion units with stable IDs and exact source pages", () => {
-  assert.ok(expanded.length >= 5 && expanded.length <= 25);
+  assert.deepEqual(expanded.map(page => page.pdf_page), Array.from({ length: 25 }, (_, i) => i + 46));
   const ids = [];
   for (const page of expanded) {
     assert.ok(page.pdf_page >= 46 && page.pdf_page <= 70);
@@ -39,6 +39,7 @@ test("expanded pages have three distinct companion units with stable IDs and exa
     }
   }
   assert.equal(new Set(ids).size, ids.length);
+  assert.equal(ids.length, 75);
   assert.doesNotMatch(JSON.stringify(expanded), /מאומת במנוע/);
 });
 

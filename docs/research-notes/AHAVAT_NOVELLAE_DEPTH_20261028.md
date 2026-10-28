@@ -25,3 +25,7 @@ Five more embedded texts read and page images inspected. Added 15 units on agenc
 ## Checkpoint 4 · PDF 61–65
 
 Read and visually inspected the five Exodus pages. Added 15 selected units on the patriarchal covenant, stages of redemption, Moses' speech, mercy/judgment, individual prayer, leaving with the livestock, Moses' compassion, faithful mission, preparation for Passover, manna descriptions/naming, the Ruth provision comparison, supported leadership, incomplete redemption and Jethro's recognition. Total 20 pages / 60 units. Comparisons of measures remain explanations of the printed argument, not new canonical calculations. Focused content and preservation checks pass.
+
+## Checkpoint 5 · PDF 66–70
+
+Read and visually inspected the final five pages of this cut. Added 15 units on leadership virtues, table/crowns, the servant/door metaphor, judicial truth, the ark's dimensions and staves, the coin of fire, galbanum/repentance, tablets, Joshua, Issachar, local Sabbath time, and counting conventions for עשיות / משה plus sacrificial intention. The ark plank proposal is attributed to the author and is not promoted to proven geometry or a new accepted 3D model. Counts remain in their existing datasets with prior gaps intact. The test now requires the exact completed 25-page / 75-unit cut, while all 74 other page objects remain hash-preserved. Focused tests pass. Expanded unit UI integration and full acceptance follow.
