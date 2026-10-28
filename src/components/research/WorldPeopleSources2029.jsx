@@ -12,6 +12,9 @@ import { WORLD_SOURCE_CORPORA } from "../../lib/research/worldSourceCorpus.js";
 import WorldSourceCorpus from "./WorldSourceCorpus.jsx";
 import { worldFocusedMaterialWindow } from "../../lib/research/worldFocusedMaterial2029.js";
 import { CANONICAL_PUBLIC_UI_COPY } from "../../lib/presentation/canonicalPresentation.js";
+import { fetchCanonicalGraphEntityFindings } from "../../lib/research/entityGraphFinding.js";
+
+const TREE_RELATION_CACHE = new Map();
 
 function MaterialLink({ href, children }) {
   if (!href) return <span>{children}</span>;
@@ -26,6 +29,40 @@ function materialDatePrefix(row) {
   if (row?.dateKind === "updated") return "עודכן · ";
   if (row?.dateKind === "published") return "פורסם · ";
   return "";
+}
+
+function DocumentedTreeRelations({ target }) {
+  const [state, setState] = useState({ loading: false, rows: null, error: false });
+  const load = () => {
+    if (state.loading || state.rows) return;
+    setState({ loading: true, rows: null, error: false });
+    const request = TREE_RELATION_CACHE.get(target.nodeId) || fetchCanonicalGraphEntityFindings(target.nodeId);
+    TREE_RELATION_CACHE.set(target.nodeId, request);
+    request.then((findings) => {
+      const rows = (Array.isArray(findings) ? findings : []).flatMap((finding) => (
+        finding?.kind === "graph-relation" && finding?.identity?.relationRef?.startsWith("edge:")
+          ? (finding?.projection?.relations || []).map((relation) => ({
+            edgeRef: finding.identity.relationRef,
+            relationType: relation.relationType || "קשר",
+            from: relation.from?.label || relation.fromNodeId,
+            to: relation.to?.label || relation.toNodeId,
+          }))
+          : []
+      ));
+      setState({ loading: false, rows, error: false });
+    }).catch(() => {
+      TREE_RELATION_CACHE.delete(target.nodeId);
+      setState({ loading: false, rows: null, error: true });
+    });
+  };
+  return <div className="sod29-world-tree-links">
+    <button type="button" onClick={load}>חיבורים מתועדים לעץ</button>
+    {state.loading ? <small role="status">פותח קשרים מתועדים…</small> : null}
+    {state.error ? <small role="status">קשרי העץ אינם זמינים כרגע.</small> : null}
+    {state.rows ? (state.rows.length ? <ul>{state.rows.map((relation) => <li key={relation.edgeRef}>
+      {relation.from} · {relation.relationType} · {relation.to} <code dir="ltr">{relation.edgeRef}</code>
+    </li>)}</ul> : <small>אין חיבור עץ מתועד לצומת הזה.</small>) : null}
+  </div>;
 }
 
 export default function WorldPeopleSources2029({ index, loading = false, error = null, recentCounts = {}, focusedSourceRef = null }) {
@@ -88,6 +125,17 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
     }
     return rows;
   }, [publicContent]);
+  const treeTargetsBySourceRef = useMemo(() => {
+    const rows = new Map();
+    for (const target of selectedMaterial.data?.treeFindingTargets || []) {
+      for (const sourceRef of target.sourceRefs || []) {
+        const targets = rows.get(sourceRef) || [];
+        targets.push(target);
+        rows.set(sourceRef, targets);
+      }
+    }
+    return rows;
+  }, [selectedMaterial.data]);
   const filtered = filterWorldPeopleAndSources({
     people: index?.people || [],
     items: selectedMaterial.data?.items || [],
@@ -194,6 +242,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
             {occurrenceBySourceRef.get(row.sourceRef)?.length > 1 ? <small>{occurrenceBySourceRef.get(row.sourceRef).length} הופעות מדויקות של אותה זהות מקור.</small> : null}
             {row.meta?.sourceRecordCount > 1 ? <small>{row.meta.sourceRecordCount} רשומות מקור נשמרו ללא כפילות מקור.</small> : null}
             <MaterialLink href={sourceByRef.get(row.sourceRef)?.sourceHref || row.href}>{(sourceByRef.get(row.sourceRef)?.sourceHref || row.href) ? `${CANONICAL_PUBLIC_UI_COPY.action.source} ←` : "אין קישור ציבורי מאומת"}</MaterialLink>
+            {(treeTargetsBySourceRef.get(row.sourceRef) || []).map((target) => <DocumentedTreeRelations key={target.findingRef} target={target} />)}
           </article>)}
         </div>
         {materialWindow.hasMore ? <button className="sod29-action" type="button"

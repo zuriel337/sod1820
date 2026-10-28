@@ -119,6 +119,37 @@ function publicFindingsForMaterial(findings) {
   return out;
 }
 
+// A promoted node is only an existing graph pointer. It becomes useful to the
+// World surface solely when the visitor explicitly asks to inspect its already
+// documented edges. No title/value/topic inference is permitted here.
+function publicFindingTreeTargets(findings) {
+  if (clean(findings?.availability?.research).toLowerCase() !== "ok") return [];
+  const seen = new Set();
+  const targets = [];
+  for (const group of Array.isArray(findings?.sourceGroups) ? findings.sourceGroups : []) {
+    const groupSourceRef = findingSourceRef(group?.sourceRef);
+    for (const finding of Array.isArray(group?.universalFindings) ? group.universalFindings : []) {
+      const findingRef = clean(finding?.id);
+      const nodeRef = clean(finding?.identity?.entityRef);
+      const nodeId = nodeRef.match(/^node:(.+)$/)?.[1] || null;
+      if (!findingRef || !nodeId || seen.has(findingRef)) continue;
+      seen.add(findingRef);
+      const sourceRefs = [...new Set([
+        ...(Array.isArray(finding?.evidence?.refs) ? finding.evidence.refs : []),
+        groupSourceRef,
+      ].map(findingSourceRef).filter(Boolean))];
+      if (!sourceRefs.length) continue;
+      targets.push(Object.freeze({
+        findingRef,
+        nodeId,
+        sourceRefs: Object.freeze(sourceRefs),
+        label: clean(finding?.subject?.label) || "ממצא ציבורי",
+      }));
+    }
+  }
+  return targets;
+}
+
 function materialSourceRefs(row) {
   const declared = Array.isArray(row?.meta?.sourceOccurrenceRefs) ? row.meta.sourceOccurrenceRefs : [];
   return [...new Set([...declared, row?.sourceRef].map(clean).filter(Boolean))];
@@ -268,6 +299,9 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
     partial: Object.values(availability).some((value) => !value.complete)
       || Object.values(findings.availability || {}).some((value) => value === "unavailable"),
     truthBoundary: "A research finding remains attached to its existing source_ref and is never counted as another source.",
+    // UI-only exact graph entry points. They are not treeRelations in the
+    // shared DTO: an edge is fetched later, on explicit visitor action.
+    treeFindingTargets: Object.freeze(publicFindingTreeTargets(findings)),
     // Additive during migration. Existing consumers keep items/total while
     // World and News can move to this one public DTO independently.
     contentProjection: publicContentProjectionForMaterial(identity, orderedRows, { findings }),

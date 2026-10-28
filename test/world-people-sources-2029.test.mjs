@@ -200,3 +200,18 @@ test("World presents canonical source identities, exact occurrences and only ver
   assert.match(worldPeopleSurface, /loading="lazy"/);
   assert.doesNotMatch(worldPeopleSurface, /localStorage/);
 });
+
+test("a source can offer exact documented tree edges only through its promoted node", () => {
+  const finding = {
+    id: "uf:1", identity: { entityRef: "node:node-1" }, subject: { label: "ממצא" },
+    evidence: { refs: ["channel_updates:one"] },
+  };
+  const result = buildWorldContributorPublicMaterial({
+    identity: { id: "writer", slug: "writer", displayName: "כותב" },
+    findings: { mode: "public_view", availability: { research: "ok" }, sourceGroups: [{ sourceRef: "channel_updates:one", universalFindings: [finding] }] },
+    sourceCatalog: { items: [{ id: "one", sourceRef: "channel_updates:one", title: "מקור", createdAt: "2026-10-20" }] }, publications: {},
+  });
+  assert.deepEqual(result.treeFindingTargets, [{ findingRef: "uf:1", nodeId: "node-1", sourceRefs: ["channel_updates:one"], label: "ממצא" }]);
+  assert.match(worldPeopleSurface, /fetchCanonicalGraphEntityFindings/);
+  assert.match(worldPeopleSurface, /identity\?\.relationRef\?\.startsWith\("edge:"\)/);
+});
