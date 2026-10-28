@@ -796,5 +796,14 @@
       "complete_contract_acceptance": "pending_full_books_gate",
       "screenshot": "three-kings-spatial.png"
     }
-  ]
+  ],
+  "full_books_gate": {
+    "result": "FAIL_UNCHANGED_BASELINE",
+    "passed": 178,
+    "failed": 1,
+    "skipped": 0,
+    "failing_test": "test/ahavat-torah-spatial-tables-2029.browser.test.mjs:168",
+    "message": "PDF overlaps the letter reader on desktop",
+    "additional_books_tests_passed": 184
+  }
 }
