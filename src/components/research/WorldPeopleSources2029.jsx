@@ -13,8 +13,11 @@ import WorldSourceCorpus from "./WorldSourceCorpus.jsx";
 import { worldFocusedMaterialWindow } from "../../lib/research/worldFocusedMaterial2029.js";
 import { CANONICAL_PUBLIC_UI_COPY } from "../../lib/presentation/canonicalPresentation.js";
 import { fetchCanonicalGraphEntityFindings } from "../../lib/research/entityGraphFinding.js";
+import WorldMapShell2029 from "./WorldMapShell2029.jsx";
+import { createCanonicalRelationOpener } from "../../lib/research/worldGraphRelationOpener2029.js";
 
 const TREE_RELATION_CACHE = new Map();
+const WORLD_MAP_RELATION_OPENER = createCanonicalRelationOpener();
 
 function MaterialLink({ href, children }) {
   if (!href) return <span>{children}</span>;
@@ -247,6 +250,11 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
         </div>
         {materialWindow.hasMore ? <button className="sod29-action" type="button"
           onClick={() => setItemLimit((value) => value + WORLD_SOURCE_ITEMS_PAGE_SIZE)}>עוד</button> : null}
+        {publicContent ? <WorldMapShell2029
+          projection={publicContent}
+          relationTargets={selectedMaterial.data.treeFindingTargets || []}
+          openRelations={WORLD_MAP_RELATION_OPENER}
+        /> : null}
       </> : null}
     </section> : null}
   </div>;
