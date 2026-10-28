@@ -1,0 +1,75 @@
+{
+  "cases": [
+    {
+      "name": "no horizontal overflow, RTL, correct regions: light @ 320/390/desktop",
+      "detail": ""
+    },
+    {
+      "name": "no horizontal overflow, RTL, correct regions: parchment @ 320/390/desktop",
+      "detail": ""
+    },
+    {
+      "name": "no horizontal overflow, RTL, correct regions: dark @ 320/390/desktop",
+      "detail": ""
+    },
+    {
+      "name": "contrast light",
+      "detail": "nodeLabel 14.3 · nodeKind 5.9 · headMuted 5.5 · treeEdge 5.4 · provenanceEdge 5.2"
+    },
+    {
+      "name": "contrast parchment",
+      "detail": "nodeLabel 13.4 · nodeKind 5.6 · headMuted 5.1 · treeEdge 5.1 · provenanceEdge 4.6"
+    },
+    {
+      "name": "contrast dark",
+      "detail": "nodeLabel 17.0 · nodeKind 10.8 · headMuted 11.6 · treeEdge 10.7 · provenanceEdge 10.0"
+    },
+    {
+      "name": "tree edges need evidence; provenance dashed; candidate stays a proposal",
+      "detail": ""
+    },
+    {
+      "name": "calculation / one-zero / interpretation separate; source ≠ finding ≠ occurrence",
+      "detail": ""
+    },
+    {
+      "name": "relation window: ok",
+      "detail": ""
+    },
+    {
+      "name": "relation window: partial",
+      "detail": ""
+    },
+    {
+      "name": "relation window: failed",
+      "detail": ""
+    },
+    {
+      "name": "relation window: empty-ok",
+      "detail": ""
+    },
+    {
+      "name": "unavailable opener / unavailable tree layer is never rendered as 'no relation'",
+      "detail": ""
+    },
+    {
+      "name": "mobile 320: mini-map collapses, inspector is a bottom sheet, focus restored",
+      "detail": ""
+    },
+    {
+      "name": "mobile 390: mini-map collapses, inspector is a bottom sheet, focus restored",
+      "detail": ""
+    },
+    {
+      "name": "keyboard: roving arrows follow RTL layers; touch targets ≥ 44px",
+      "detail": ""
+    },
+    {
+      "name": "mini-map navigates the canvas",
+      "detail": ""
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "passed": 17
+}
