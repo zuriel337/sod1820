@@ -21,3 +21,18 @@ export function catalogGeometry(model){
   if(model.key==='mothers-world-year-soul')points.forEach(p=>{p.position=({alef:[0,0,0],mem:[-2.25,0,0],shin:[2.25,0,0]})[p.localId];});
   return {kind:'catalog',points,edges:model.relations.map(r=>({id:r.stable_id,from:points.find(p=>p.localId===r.from_id).position,to:points.find(p=>p.localId===r.to_id).position})),orientationCenter:false};
 }
+// Exact existing unit/page identities supported by these projections; never borrow another same-edition row.
+export function assertCatalogLocus(key,c){
+  const syn='sy:synoptic:text:',gra='sy:gra-edition:text:';
+  let unit,page;
+  switch(key){
+    case 'letter-families':unit=syn+'ch1:letter-partition';page=65;break;
+    case 'five-mouth-groups':unit=syn+'ch2:articulation';page=80;break;
+    case 'mothers-world-year-soul':unit=syn+'ch3:'+c.id;page=({alef:97,mem:98,shin:99})[c.id];break;
+    case 'doubles-synoptic':unit=syn+'ch4:'+c.id;page=({bet:106,gimel:107,dalet:108,khaf:109,pe:109,resh:110,tav:110})[c.id];break;
+    case 'doubles-gra-distinction':{const first=['bet','gimel'].includes(c.id);unit=gra+'ch4:'+(first?'bet-gimel':'dalet-khaf-pe-resh-tav');page=first?184:185;break;}
+    case 'stones-houses':unit=syn+'ch4:stones-houses';page=111;break;
+    case 'three-kings':unit=syn+'ch6:kings-good-evil';page=122;break;
+  }
+  if(!page||c.source.unit_id!==unit||c.source.pdf_page!==page)throw new Error('SOURCE_COMPONENT_LOCUS_MISMATCH');
+}

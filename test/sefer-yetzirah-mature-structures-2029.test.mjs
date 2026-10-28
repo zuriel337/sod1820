@@ -31,3 +31,9 @@ test('stones/houses display the six printed counts without generating or verifyi
 test('three kings use only the synoptic component claims while other witnesses remain unit-level context',()=>{
  const m=bindSourceModel(bundle,'three-kings');assert.deepEqual(m.components.map(c=>c.simile),['מלך על כסאו','מלך במדינה','מלך במלחמה']);assert.deepEqual(m.components.map(c=>c.source.pdf_page),[122,122,122]);assert.deepEqual(m.contextUnits.map(c=>c.source.pdf_page),[151,192]);assert.equal(m.relations.length,0);assert.equal(modelGeometry(m).edges.length,0);assert.ok(m.contextUnits[0].unit.source_content.summary);assert.notEqual(m.contextUnits[0].unit.id,m.components[0].source.unit_id);
 });
+test('multi-page components reject borrowed same-edition locators even when the borrowed page is allowed',()=>{
+ for(const key of ['mothers-world-year-soul','doubles-synoptic','doubles-gra-distinction']){const b=structuredClone(bundle),spec=b.structures.structures.find(s=>s.id==='sy-structure:'+key);spec.components[0].source=structuredClone(spec.components.at(-1).source);assert.throws(()=>bindSourceModel(b,key),/SOURCE_COMPONENT_LOCUS_MISMATCH/);}
+});
+test('catalogue summaries and companion layers are preserved from the owning original units',()=>{
+ for(const key of ['letter-families','five-mouth-groups','mothers-world-year-soul','doubles-synoptic','doubles-gra-distinction','stones-houses','three-kings']){const m=bindSourceModel(bundle,key);for(const c of m.components){const u=bundle.units.units.find(u=>u.id===c.source.unit_id);assert.equal(m.sourceSummaries[c.id],u.source_content.summary);assert.equal(m.sourceCompanions[c.id],u.companion_explanation);assert.equal(u.source_content.kind,'bounded_source_summary');assert.equal(u.source_content.quotation_status,'not_transcribed');}}
+});
