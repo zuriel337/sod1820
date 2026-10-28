@@ -8,6 +8,8 @@ import {
 import { fetchContributorSourceCatalogProjection } from "./contributorSourceCatalogProjection.js";
 import { getPublicResearchClient, PROJECTOR_MODE } from "./researchViewMode.js";
 import { isWorldPublicContributor } from "./worldPublicPeopleIndex.js";
+import { buildPublicWorldContentProjectionV1 } from "./publicWorldContentProjectionV1.js";
+import { adaptLegacyTopicsV1, adaptPublicSourceRowsV1 } from "./publicWorldContentAdaptersV1.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const WORLD_SOURCE_ITEMS_PAGE_SIZE = 12;
@@ -49,6 +51,49 @@ function item({ id, sourceRef, type, label, title, summary = null, date = null, 
     number: numericValue,
     mediaUrl: safePublicUrl(mediaUrl),
     meta,
+  });
+}
+
+function itemTimes(row) {
+  const time = row?.date || null;
+  if (!time) return { occurredAt: null, publishedAt: null, updatedAt: null };
+  if (row.dateKind === "updated") return { occurredAt: null, publishedAt: null, updatedAt: time };
+  if (row.dateKind === "published") return { occurredAt: null, publishedAt: time, updatedAt: null };
+  return { occurredAt: time, publishedAt: null, updatedAt: null };
+}
+
+// This is an additive bridge: the existing public readers above remain the
+// source/access authority. Topic cards deliberately enter compatibility only.
+function publicContentProjectionForMaterial(identity, rows, { findingsAvailable = false } = {}) {
+  const material = Array.isArray(rows) ? rows : [];
+  const legacyTopics = adaptLegacyTopicsV1(material
+    .filter((row) => row.type === "topics")
+    .map((row) => ({ topicRef: row.sourceRef, title: row.title, href: row.href })));
+  const publicRows = material
+    .filter((row) => row.type !== "topics")
+    .map((row) => ({
+      sourceRef: row.sourceRef,
+      occurrenceRef: `world-material:${row.id}`,
+      title: row.title,
+      sourceHref: row.href,
+      occurrenceHref: row.href,
+      contributor: { slug: identity.slug, label: identity.displayName, href: identity.href || null },
+      media: row.mediaUrl ? [{ mediaRef: `media:${row.sourceRef}`, kind: "image", href: row.mediaUrl }] : [],
+      times: itemTimes(row),
+    }));
+  const adapted = adaptPublicSourceRowsV1(publicRows);
+  return buildPublicWorldContentProjectionV1({
+    ...adapted,
+    compatibility: { legacyTopics },
+    coverage: {
+      sources: { available: true },
+      occurrences: { available: true },
+      clusters: { available: true },
+      seriesCategories: { available: true },
+      findings: { available: findingsAvailable },
+      treeRelations: { available: findingsAvailable },
+      legacyTopics: { available: true },
+    },
   });
 }
 
@@ -112,22 +157,27 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
     }));
   }
 
-  const rows = [...items.values()].sort((left, right) => clean(right.date).localeCompare(clean(left.date)) || left.id.localeCompare(right.id));
   const availability = Object.fromEntries(Object.entries(publications || {}).map(([key, value]) => [key, {
     count: value?.complete ? value.rows.length : null,
     complete: value?.complete === true,
     availability: value?.availability || "unavailable",
   }]));
+  const orderedRows = [...items.values()].sort((left, right) => clean(right.date).localeCompare(clean(left.date)) || left.id.localeCompare(right.id));
+  const findingsState = clean(findings?.availability?.research).toLowerCase();
+  const findingsAvailable = findingsState === "ok" || findingsState === "available";
   return Object.freeze({
     identity,
     findings,
     sourceCatalog,
-    items: Object.freeze(rows),
-    total: rows.length,
+    items: Object.freeze(orderedRows),
+    total: orderedRows.length,
     availability: Object.freeze(availability),
     partial: Object.values(availability).some((value) => !value.complete)
       || Object.values(findings.availability || {}).some((value) => value === "unavailable"),
     truthBoundary: "A research finding remains attached to its existing source_ref and is never counted as another source.",
+    // Additive during migration. Existing consumers keep items/total while
+    // World and News can move to this one public DTO independently.
+    contentProjection: publicContentProjectionForMaterial(identity, orderedRows, { findingsAvailable }),
   });
 }
 
