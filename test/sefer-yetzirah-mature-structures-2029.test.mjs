@@ -7,7 +7,7 @@ const read=name=>JSON.parse(readFileSync(new URL(`../public/book-data/sefer-yetz
 const bundle={structures:read('structures'),units:read('units'),readings:read('source-readings')};
 test('families preserve three source groups, 3/7/12 counts, all 22 letters, and no inferred adjacency',()=>{
  const m=bindSourceModel(bundle,'letter-families');assert.deepEqual(m.components.map(c=>c.source_count),[3,7,12]);assert.equal(new Set(m.components.flatMap(c=>c.letters)).size,22);assert.equal(m.relations.length,0);assert.equal(modelGeometry(m).edges.length,0);assert.equal(modelGeometry(m).points.length,3);
- for(const c of m.components){assert.equal(c.source.pdf_page,65);for(const f of catalogFields(m,c)){assert.equal(f.source,c.source);assert.equal(f.value,c[f.key]);}}
+ for(const [i,c] of m.components.entries()){assert.equal(c.source.pdf_page,65);for(const f of catalogFields(m,c)){assert.equal(f.source.pdf_page,f.key==='letters'?[91,100,113][i]:65);assert.equal(f.value,c[f.key]);assert.equal(f.source.source_anchor,`#page=${f.source.pdf_page}&view=FitH`);}}
 });
 test('articulation keeps five source groups and never introduces anatomical coordinates or variant letters',()=>{
  const m=bindSourceModel(bundle,'five-mouth-groups');assert.deepEqual(m.components.map(c=>c.id),['throat','lips','palate','tongue','teeth']);assert.deepEqual(m.components.map(c=>c.letters.join('')),['אחהע','בומפ','גיכק','דטלנת','זסשרצ']);assert.equal(new Set(m.components.flatMap(c=>c.letters)).size,22);assert.equal(modelGeometry(m).edges.length,0);assert.equal(m.spec.open_readings.length,1);for(const c of m.components)assert.equal(c.source.pdf_page,80);

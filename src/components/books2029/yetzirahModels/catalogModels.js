@@ -2,7 +2,7 @@
 export const CATALOG_KEYS = Object.freeze({kings:'three-kings',stones:'stones-houses',graDoubles:'doubles-gra-distinction',synopticDoubles:'doubles-synoptic',mothers:'mothers-world-year-soul',mouth:'five-mouth-groups',families:'letter-families'});
 export const CATALOG_DEFINITIONS = {
   'letter-families':{
-    pages:[65],count:3,kind:'catalog',title:'כ״ב האותיות · שלוש משפחות',
+    pages:[65,91,100,113],count:3,kind:'catalog',title:'כ״ב האותיות · שלוש משפחות',
     visualLabels:{mothers:'אמות',doubles:'כפולות',simples:'פשוטות'},
     fields:[['letters','אותיות המשפחה'],['source_count','המניין שבמקור']],
     editorial:'שלוש משפחות האותיות נזכרות במקור. סדר הכרטיסים והעמדתם במרחב הם אמצעי בחירה; אין טבעת או קשר בין אותיות רק מפני שהן באותה משפחה.',
@@ -15,7 +15,7 @@ export const CATALOG_DEFINITIONS = {
   "stones-houses": {"pages": [111], "count": 6, "kind": "catalog", "title": "אבנים ובתים · מנייני הסידורים שבמקור", "fields": [["source_stones", "אבנים במקור"], ["source_houses", "בתים במקור"]], "editorial": "המספרים הם המניינים המודפסים במקור, לא תוצאת מנוע. כל כרטיס מייצג שורת מקור אחת; מספר הכרטיסים, גודלם או המרחק ביניהם אינם מספר הבתים. אין כאן יצירה של כל בתי המניין בצורות גיאומטריות.", "companion": "בוחרים מניין אבנים וקוראים מולו את מניין הבתים שנמסר במשנה. אין כאן הפקת תמורות, שחזור אותיות שלא ניתנו או ערבוב עם מניין זוגות רל״א; תוצאת מנוע לא נבדקה."},
   "three-kings": {"pages": [122, 151, 192], "count": 3, "kind": "catalog", "title": "תלי, גלגל ולב · שלושה משלי הנהגה", "fields": [["simile", "משל המלכות במקור"]], "editorial": "שלושת הכרטיסים מציגים את תלי בעולם, גלגל בשנה ולב בנפש בגוף המשולב. אין מקור למרחקים ביניהם או לקשר סיבתי גיאומטרי. אין כאן גוף אנטומי, מסלול אסטרונומי או מדרג חדש.", "companion": "משל המלך על כסאו, במדינה ובמלחמה נקרא בהקשרו. חכמוני בעמוד 151 ונוסח הגר״א בעמוד 192 מוצגים כיחידות מקור נפרדות; אין מהם מילוי אוטומטי של רכיבי הגוף המשולב בעמוד 122."},
 };
-export function catalogFields(model,component){return model.fields.map(([key,label])=>({key,label,value:component[key]??null,id:`${component.stable_id}:field:${key}`,source:model.readings?.find(r=>r.id===component.source_reading_id)?.source||component.source}));}
+export function catalogFields(model,component){return model.fields.map(([key,label])=>({key,label,value:component[key]??null,id:`${component.stable_id}:field:${key}`,source:model.fieldSources?.[component.id]?.[key]||model.readings?.find(r=>r.id===component.source_reading_id)?.source||component.source}));}
 export function catalogGeometry(model){
   const points=model.components.map((c,i)=>({id:c.stable_id,localId:c.id,label:model.visualLabels?.[c.id]||c.label_he,position:[(i%3-1)*2.25,(Math.ceil(model.components.length/3)-1)*.9-Math.floor(i/3)*1.8,0],shape:'tile'}));
   if(model.key==='mothers-world-year-soul')points.forEach(p=>{p.position=({alef:[0,0,0],mem:[-2.25,0,0],shin:[2.25,0,0]})[p.localId];});

@@ -60,13 +60,14 @@ function letterGroup(index) {
   return SEFER_YETZIRAH_LETTER_GROUPS[2];
 }
 
-function LettersModel({ gates = false, activeId, onSelect }) {
+function LettersModel({ gates = false, activeId, activePair=[], onSelect }) {
   const points = useMemo(() => LETTERS.map((_, index) => letterPosition(index)), []);
   return <group>
     <Edges points={points} complete={gates} opacity={gates ? .12 : .28} color={gates ? "#e0b55c" : "#8f8ee8"} />
+    {gates&&activePair.length===2&&activePair.every(letter=>LETTERS.includes(letter))&&activePair[0]!==activePair[1]&&<Edges points={activePair.map(letter=>points[LETTERS.indexOf(letter)])} color={letterGroup(LETTERS.indexOf(activePair[0])).color} opacity={.95}/>}
     {LETTERS.map((letter, index) => {
       const group = letterGroup(index);
-      const selected = activeId === letter;
+      const selected = gates&&activePair.length===2?activePair.includes(letter):activeId === letter;
       return <mesh key={letter} position={points[index]} scale={selected ? 1.42 : 1} onClick={event => { event.stopPropagation(); onSelect?.(letter); }}>
         <sphereGeometry args={[gates ? .17 : .25, 20, 20]} />
         <meshStandardMaterial color={group.color} emissive={group.color} emissiveIntensity={selected ? .8 : .16} roughness={.3} />
@@ -110,7 +111,7 @@ function CommentariesModel({ activeId, onSelect }) {
   </group>;
 }
 
-function SpatialObject({ mode, activeId, onSelect }) {
+function SpatialObject({ mode, activeId, activePair, onSelect }) {
   const group = useRef(null);
   useFrame((_, delta) => {
     if (group.current && !REDUCED_MOTION) group.current.rotation.y += Math.min(delta, .04) * .08;
@@ -118,7 +119,7 @@ function SpatialObject({ mode, activeId, onSelect }) {
   return <group ref={group} rotation={[.14, -.32, 0]}>
     {mode === "sefirot" ? <SefirotModel activeId={activeId} onSelect={onSelect} /> : null}
     {mode === "letters" ? <LettersModel activeId={activeId} onSelect={onSelect} /> : null}
-    {mode === "gates" ? <LettersModel gates activeId={activeId} onSelect={onSelect} /> : null}
+    {mode === "gates" ? <LettersModel gates activeId={activeId} activePair={activePair} onSelect={onSelect} /> : null}
     {mode === "osn" ? <OsnModel activeId={activeId} onSelect={onSelect} /> : null}
     {mode === "commentaries" ? <CommentariesModel activeId={activeId} onSelect={onSelect} /> : null}
   </group>;
@@ -142,15 +143,15 @@ function SceneControls() {
   return null;
 }
 
-export default function SeferYetzirahScene2029({ mode = "sefirot", activeId = "", onSelect }) {
-  return <div className="yetzirah29-canvas" role="img" aria-label="מודל תלת־ממדי אינטראקטיבי של מבני ספר יצירה">
+export default function SeferYetzirahScene2029({ mode = "sefirot", activeId = "", activePair=[], onSelect }) {
+  return <div className="yetzirah29-canvas" data-active-pair={mode==='gates'?activePair.join(''):''} role="img" aria-label="מודל תלת־ממדי אינטראקטיבי של מבני ספר יצירה">
     <Canvas camera={{ position: [0, 1.1, 8.8], fov: 46 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: "high-performance" }}>
       <color attach="background" args={["#090b14"]} />
       <fog attach="fog" args={["#090b14", 9, 17]} />
       <ambientLight intensity={1.25} />
       <directionalLight position={[4, 6, 5]} intensity={2.1} color="#f3ca73" />
       <pointLight position={[-4, -2, 3]} intensity={22} distance={12} color="#5a73d8" />
-      <SpatialObject mode={mode} activeId={activeId} onSelect={onSelect} />
+      <SpatialObject mode={mode} activeId={activeId} activePair={activePair} onSelect={onSelect} />
       <SceneControls />
     </Canvas>
   </div>;

@@ -1,4 +1,5 @@
 import {CATALOG_DEFINITIONS,catalogGeometry,assertCatalogLocus} from './catalogModels.js';
+import {bindFamilyFieldSources,graSealsCorrectedReading} from './sourceCorrections2029.js';
 // Book-specific projection of existing source specifications. No new source identities or engine.
 export const SOURCE_IDENTITY = 'book:sefer-yetzirah-9perushim';
 export const MODEL_KEYS = Object.freeze({
@@ -11,7 +12,7 @@ export const DIRECTION_VECTORS = Object.freeze({up:[0,1,0],down:[0,-1,0],east:[1
 const EXPECTED = {'ten-depths':{page:53,count:10,kind:'depths',title:'עשרת העומקים · חמישה זוגות'},'five-against-five':{page:45,count:3,kind:'five',title:'חמש כנגד חמש · וברית באמצע'},'six-seals-synoptic':{page:73,count:6,kind:'seals',title:'שש החותמות · הגוף המשולב'},'six-seals-gra-edition':{page:175,count:6,kind:'seals',title:'שש החותמות · נוסח הגר״א'},'twelve-boundaries-gra':{page:187,count:12,kind:'boundaries',title:'שנים־עשר גבולי האלכסון · נוסח הגר״א'}};
 
 export function bindSourceModel(bundle,key) {
-  const expected=EXPECTED[key]||CATALOG_DEFINITIONS[key];
+  let expected=EXPECTED[key]||CATALOG_DEFINITIONS[key];
   if(!expected||bundle?.structures?.source_identity!==SOURCE_IDENTITY||bundle?.units?.source_identity!==SOURCE_IDENTITY)throw new Error('SOURCE_IDENTITY_MISMATCH');
   const spec=bundle.structures.structures.find(s=>s.id===`sy-structure:${key}`);
   if(!spec||spec.components.length!==expected.count)throw new Error('SOURCE_COMPONENTS_MISSING');
@@ -29,6 +30,8 @@ export function bindSourceModel(bundle,key) {
     for(const [field] of expected.fields)if(Object.hasOwn(reading.content,field)&&JSON.stringify(reading.content[field])!==JSON.stringify(c[field]))throw new Error('SOURCE_READING_CONTENT_MISMATCH');
   }
   spec.sources.forEach(check);
+  if(key==='letter-families')expected={...expected,fieldSources:bindFamilyFieldSources(bundle.units,components)};
+  if(key==='six-seals-gra-edition')expected={...expected,correctedReading:graSealsCorrectedReading(bundle.units)};
   spec.source_relations.forEach(r=>{check(r.source);if(r.stable_id!==`${spec.id}:relation:${r.from_id}:${r.type}:${r.to_id}`||r.id!==r.stable_id)throw new Error('SOURCE_RELATION_ID_MISMATCH');if(!components.some(c=>c.id===r.from_id)||!components.some(c=>c.id===r.to_id))throw new Error('SOURCE_RELATION_MISMATCH');});
   return {id:spec.id,key,...expected,page:expected.page||expected.pages[0],readings:bundle.readings?.readings,contextUnits:spec.sources.filter(s=>!components.some(c=>c.source.unit_id===s.unit_id)).map(s=>({source:s,unit:units.get(s.unit_id),workTitle:bundle.units.works?.find(w=>w.id===units.get(s.unit_id).work_id)?.title||'יחידת מקור בכרך'})),components,passageSummary:units.get(components[0].source.unit_id).source_content.summary,sourceSummaries:Object.fromEntries(components.map(c=>[c.id,units.get(c.source.unit_id).source_content.summary])),sourceCompanions:Object.fromEntries(components.map(c=>[c.id,units.get(c.source.unit_id).companion_explanation||''])),relations:spec.source_relations,legend:spec.source_acceptance.legend_he,pdfUrl:bundle.units.source_pdf_url,editorial:expected.editorial|| (expected.kind==='depths'?'שלושת זוגות הכיוונים בלבד מוצגים בחלל. ראשית ואחרית, טוב ורע מוצגים כזוגות קריאה נפרדים, בלי ציר פיזי. המרחקים, צורת הצמתים והמרכז הם אמצעי המחשה; אינם מדידה או ספירה נוספת.':expected.kind==='five'?'עשרת הסימנים מציגים שתי חמישיות במשל האצבעות. הטבעת האמצעית מסמנת את הברית ואינה ספירה אחת־עשרה. הצורה, המרחק והצבע הם בחירות המחשה; אין כאן שם פרטי לכל אצבע.':expected.kind==='boundaries'?'הקובייה היא בחירת המחשה של צמדי הכיוונים. צלעותיה, קודקודיה ומידותיה אינם נתונים שנמסרו בספר; אין שיוך אות לצלע.':'המרחקים, הצבעים, זווית המבט והמרכז הם אמצעי המחשה. המרכז מסייע להתמצאות ואינו ספירה נוספת.'),spec};
 }

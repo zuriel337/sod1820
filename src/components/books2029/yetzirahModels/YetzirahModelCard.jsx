@@ -36,7 +36,7 @@ export default function YetzirahModelCard({modelKey,sourceBundle,selectedId,onSe
   function sourceAction(c,relation=null,owner=model,field=null,row=false){
     const source=relation?.source||c.source;
     const label=row?`${c.label_he} · PDF ${source.pdf_page}`:field?`מקור השדה ${field.label} · PDF ${source.pdf_page}`:relation?`בחר קשר ופתח את עמוד המקור ${source.pdf_page}`:`פתח את עמוד המקור ${source.pdf_page}`;
-    const act=()=>{if(row)select(c);if(relation)chooseRelation(relation);if(onOpenSource)openSource(c,relation,owner,field,row?c.stable_id:null);};
+    const act=()=>{if(row||field)select(c);if(relation)chooseRelation(relation);if(onOpenSource)openSource(c,relation,owner,field,(row||field)?c.stable_id:null);};
     return onOpenSource?<button type="button" aria-current={relation&&activeRelation?.stable_id===relation.stable_id?"true":undefined} onClick={act}>{label}</button>:<a href={`${owner.pdfUrl}${source.source_anchor}`} onClick={act} target="_blank" rel="noreferrer">{label}</a>;
   }
   const componentButton=c=><button key={c.stable_id} type="button" data-component-id={c.stable_id} aria-pressed={active?.stable_id===c.stable_id} onClick={()=>select(c)}><strong>{c.label_he}</strong>{c.seal_letters&&<bdi className="ym-seal" dir="rtl" data-seal-letters={c.seal_letters.join('')}>{c.seal_letters.join('')}</bdi>}</button>;
