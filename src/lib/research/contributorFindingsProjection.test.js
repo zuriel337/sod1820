@@ -26,6 +26,7 @@ function fakeClient(label, tables, calls) {
         or: (value) => { call.filters.push(["or", value]); return b; },
         eq: (column, value) => { call.filters.push(["eq", column, value]); return b; },
         like: (column, value) => { call.filters.push(["like", column, value]); return b; },
+        not: (column, operator, value) => { call.filters.push(["not", column, operator, value]); return b; },
         is: (column, value) => { call.filters.push(["is", column, value]); return b; },
         order: () => b, contains: () => b,
         range: () => Promise.resolve(result),
@@ -251,11 +252,11 @@ test("an exact public source link reads only that Zvi occurrence and its researc
   assert.equal(calls.some((call) => call.table === "research_contributions"), false);
 });
 
-test("the public source library opens every readable source without loading the full research corpus", async () => {
+test("the public source library opens every readable source and only its promoted tree findings", async () => {
   const calls = [];
   const anon = fakeClient("anon", {
     contributors: { data: CONTRIBUTOR },
-    research_objects: { data: [RESEARCH_ROW], count: 1 },
+    research_objects: { data: [{ ...RESEARCH_ROW, status: "canonical", promoted_node_id: "node-1" }], count: 1 },
     channel_updates: { data: [SOURCE, { ...SOURCE, id: 12, text: "כתב ציבורי נוסף" }], count: 2 },
     research_contributions: { data: [], count: 0 },
   }, calls);
@@ -268,12 +269,14 @@ test("the public source library opens every readable source without loading the 
 
   assert.equal(projection.sourceGroups.length, 2);
   assert.equal(projection.counts.sourceRecords, 2);
-  assert.equal(projection.counts.researchObjects, 0);
-  assert.equal(projection.availability.research, "deferred");
-  assert.equal(projection.loadState.researchObjectsTotal, null);
-  assert.equal(projection.loadState.researchObjectsDeferred, true);
-  assert.equal(calls.some((call) => call.table === "world_contributor_research_v1"), false);
-  assert.equal(calls.some((call) => call.table === "rpc:world_gematria_lexical_lookup_v1"), false);
+  assert.equal(projection.counts.researchObjects, 1);
+  assert.equal(projection.availability.research, "ok");
+  assert.equal(projection.loadState.researchObjectsTotal, 1);
+  assert.equal(projection.loadState.researchObjectsDeferred, false);
+  assert.equal(projection.loadState.researchObjectsTreeOnly, true);
+  const researchCall = calls.find((call) => call.table === "world_contributor_research_v1");
+  assert.ok(researchCall?.filters.some((item) => item[0] === "eq" && item[1] === "status" && item[2] === "canonical"));
+  assert.ok(researchCall?.filters.some((item) => item[0] === "not" && item[1] === "promoted_node_id" && item[2] === "is" && item[3] === null));
 });
 
 test("an exact occurrence overrides source-first deferral and loads only its research slice", async () => {
