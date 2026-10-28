@@ -153,6 +153,35 @@ test("an already-public Universal Finding keeps its exact source provenance with
   assert.equal(result.contentProjection.metrics.treeRelations, null);
 });
 
+test("an explicitly linked image/text pair stays two source identities inside one display cluster", () => {
+  const result = buildWorldContributorPublicMaterial({
+    identity: { id: "writer", slug: "writer", displayName: "כותב" },
+    findings: { mode: "public_view", availability: { research: "deferred" } },
+    sourceCatalog: { items: [{
+      id: "text", sourceRef: "channel_updates:text", title: "הסבר לתמונה", createdAt: "2026-10-20",
+      href: "/world?source=writer&sourceRef=channel_updates%3Atext", media: { url: "https://example.com/image.jpg" },
+      sourceRecordCount: 2,
+      evidence: { sourceOccurrenceRefs: ["channel_updates:image", "channel_updates:text"] },
+      mediaPair: { basis: "explicit_image_reference", imageSourceRef: "channel_updates:image" },
+    }] },
+    publications: {},
+  });
+  assert.deepEqual(result.contentProjection.sources.map((source) => source.sourceRef), [
+    "channel_updates:image", "channel_updates:text",
+  ]);
+  assert.equal(result.contentProjection.metrics.corpusSources, 2);
+  assert.deepEqual(result.contentProjection.clusters, [{
+    clusterRef: "world-material-cluster:source:text",
+    basis: "linked_source_sequence:explicit_image_reference",
+    occurrenceRefs: [
+      "world-material:source:text:channel_updates:image",
+      "world-material:source:text:channel_updates:text",
+    ],
+    representativeOccurrenceRef: "world-material:source:text:channel_updates:text",
+  }]);
+  assert.equal(result.contentProjection.sources.find((source) => source.sourceRef === "channel_updates:image").media.length, 1);
+});
+
 test("search and filters cover people, titles and numbers with stable pagination inputs", () => {
   const data = {
     people: [{ displayName: "צבי", slug: "tzvi-opoc", code: "227" }, { displayName: "יניב", slug: "yaniv", code: "18" }],

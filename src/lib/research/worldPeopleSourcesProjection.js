@@ -8,6 +8,7 @@ import {
 import { fetchContributorSourceCatalogProjection } from "./contributorSourceCatalogProjection.js";
 import { getPublicResearchClient, PROJECTOR_MODE } from "./researchViewMode.js";
 import { isWorldPublicContributor } from "./worldPublicPeopleIndex.js";
+import { contributorSourceLocator } from "./worldContributorSourceLocator.js";
 import { buildPublicWorldContentProjectionV1 } from "./publicWorldContentProjectionV1.js";
 import { adaptLegacyTopicsV1, adaptPublicSourceRowsV1 } from "./publicWorldContentAdaptersV1.js";
 
@@ -118,6 +119,11 @@ function publicFindingsForMaterial(findings) {
   return out;
 }
 
+function materialSourceRefs(row) {
+  const declared = Array.isArray(row?.meta?.sourceOccurrenceRefs) ? row.meta.sourceOccurrenceRefs : [];
+  return [...new Set([...declared, row?.sourceRef].map(clean).filter(Boolean))];
+}
+
 // This is an additive bridge: the existing public readers above remain the
 // source/access authority. Topic cards deliberately enter compatibility only.
 function publicContentProjectionForMaterial(identity, rows, { findings = null } = {}) {
@@ -125,21 +131,45 @@ function publicContentProjectionForMaterial(identity, rows, { findings = null } 
   const legacyTopics = adaptLegacyTopicsV1(material
     .filter((row) => row.type === "topics")
     .map((row) => ({ topicRef: row.sourceRef, title: row.title, href: row.href })));
-  const publicRows = material
-    .filter((row) => row.type !== "topics")
-    .map((row) => ({
-      sourceRef: row.sourceRef,
-      occurrenceRef: `world-material:${row.id}`,
-      title: row.title,
-      sourceHref: row.href,
-      occurrenceHref: row.href,
-      contributor: { slug: identity.slug, label: identity.displayName, href: identity.href || null },
-      media: row.mediaUrl ? [{ mediaRef: `media:${row.sourceRef}`, kind: "image", href: row.mediaUrl }] : [],
-      times: itemTimes(row),
-    }));
+  const publicRows = [];
+  const clusters = [];
+  for (const row of material.filter((item) => item.type !== "topics")) {
+    const sourceRefs = materialSourceRefs(row);
+    const mediaSourceRef = clean(row?.meta?.mediaPair?.imageSourceRef) || row.sourceRef;
+    const occurrenceRefs = [];
+    for (const sourceRef of sourceRefs) {
+      const occurrenceRef = `world-material:${row.id}:${sourceRef}`;
+      occurrenceRefs.push(occurrenceRef);
+      const exactLocator = sourceRef.startsWith("channel_updates:")
+        ? contributorSourceLocator(sourceRef, { slug: identity.slug })
+        : null;
+      publicRows.push({
+        sourceRef,
+        occurrenceRef,
+        title: row.title,
+        sourceHref: exactLocator?.exact ? exactLocator.href : row.href,
+        occurrenceHref: exactLocator?.exact ? exactLocator.href : row.href,
+        contributor: { slug: identity.slug, label: identity.displayName, href: identity.href || null },
+        media: row.mediaUrl && sourceRef === mediaSourceRef
+          ? [{ mediaRef: `media:${sourceRef}`, kind: "image", href: row.mediaUrl }]
+          : [],
+        times: itemTimes(row),
+      });
+    }
+    const basis = clean(row?.meta?.mediaPair?.basis);
+    if (basis && occurrenceRefs.length > 1) {
+      clusters.push({
+        clusterRef: `world-material-cluster:${row.id}`,
+        basis: `linked_source_sequence:${basis}`,
+        occurrenceRefs,
+        representativeOccurrenceRef: occurrenceRefs.at(-1),
+      });
+    }
+  }
   const adapted = adaptPublicSourceRowsV1(publicRows);
   return buildPublicWorldContentProjectionV1({
     ...adapted,
+    clusters,
     seriesCategories: materialSeriesCategories(material),
     findings: publicFindingsForMaterial(findings),
     compatibility: { legacyTopics },
@@ -168,7 +198,12 @@ export function buildWorldContributorPublicMaterial({ identity, findings, source
   for (const row of sourceCatalog?.items || []) put(item({
     id: `source:${row.id}`, sourceRef: row.sourceRef, type: "sources", label: "מקור ועדכון",
     title: row.title, summary: row.text, date: row.createdAt, href: row.href,
-    mediaUrl: row.media?.url, meta: { sourceRecordCount: row.sourceRecordCount, researchFacets: row.researchFacets },
+    mediaUrl: row.media?.url, meta: {
+      sourceRecordCount: row.sourceRecordCount,
+      researchFacets: row.researchFacets,
+      sourceOccurrenceRefs: row?.evidence?.sourceOccurrenceRefs,
+      mediaPair: row.mediaPair || null,
+    },
   }));
 
   const projectedInsights = new Set();
