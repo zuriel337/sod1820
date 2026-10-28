@@ -1,0 +1,9 @@
+# ספר יצירה — 12 מבנים בקורא הקיים
+
+## BEFORE
+
+Actor GPT · task SEFER_YETZIRAH_12_STRUCTURES_COMPLETE_READER_EXPERIENCE · passive handoff to ZURIEL. Verified exact remote and clean local base fc50f68c31646cb5fae166fe34b99ae8d66ca430; isolated continuation branch codex/sefer-yetzirah-12-structures-reader-product-20261028, no cherry-pick, rebase, merge or pull. Origin main 2195c9784c5c9f0b1ec3cd3c1137fbd76045845b. Dedicated canonical read-only user verified; bounded live owner scan found no overlapping active assignment. Local BEFORE only; connector cannot write a live work-log row.
+
+Read AGENTS, CLAUDE, owner index and pinned experience contract §20 b352aa399fb15cde22788ef5ec6a81b6bc940d6a. User explicitly assigns book-specific product reader integration; no shared reader/contract changes without central coordination, no other books/Legacy/World/SystemFrame/DB/RLS/main/deployment. Reuse the existing Sefer Yetzirah page, existing catalog and existing source panel, preserving all source assets. Twelve previously delivered wrappers have component-level source callbacks but are not yet integrated. Existing separate spatial stage is not evidence of a binding to these 12 models.
+
+Planned: integrate via existing catalog, URL state, source panel and book-scoped styles, source-bound dynamic imports and persistent selection; verify source, refresh, return, fallback, 320/390/1440 × three themes, real PDF, complete Books and required gates. Existing Ahavat Torah failure is a baseline dependency; d081c14b is informational and is not imported.

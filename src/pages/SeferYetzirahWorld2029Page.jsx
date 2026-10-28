@@ -59,7 +59,7 @@ function defaultNodeForMode(mode, commentatorId = "chachmoni") {
   return "";
 }
 
-function SourcePanel({ page, onPage }) {
+function SourcePanel({ page, onPage, onReturn, hasStructure }) {
   const fullscreenRef = useRef(null);
   const [draft, setDraft] = useState(String(page));
   const pdfUrl = `${SEFER_YETZIRAH_SOURCE.pdfUrl}#page=${page}&view=FitH`;
@@ -74,7 +74,7 @@ function SourcePanel({ page, onPage }) {
   return <aside ref={fullscreenRef} id="yetzirah29-source" className="yetzirah29-source book-fullscreen29-target" aria-labelledby="yetzirah29-source-title">
     <header>
       <div><span>הספר פתוח תמיד</span><h2 id="yetzirah29-source-title">עמוד PDF {page}</h2></div>
-      <BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="yetzirah29-source" />
+      {hasStructure && <button type="button" onClick={onReturn}>חזרה למבנה הנבחר</button>}<BookFullscreenButton2029 targetRef={fullscreenRef} fallbackHref={pdfUrl} controls="yetzirah29-source" />
     </header>
     <div className="yetzirah29-pdf" data-book-pdf-frame><iframe key={page} src={pdfUrl} title={`${SEFER_YETZIRAH_SOURCE.title}, עמוד ${page}`} loading="eager" /></div>
     <form className="yetzirah29-page-nav" onSubmit={submit} aria-label="מעבר בין 220 עמודי הספר">
@@ -206,6 +206,8 @@ function VolumeMap({ onPage }) {
 
 export default function SeferYetzirahWorld2029Page() {
   const [page, setPage] = useState(requestedPage);
+  const [structureId, setStructureId] = useState(() => new URLSearchParams(window.location.search).get("structure") || "");
+  const [componentId, setComponentId] = useState(() => new URLSearchParams(window.location.search).get("component") || "");
   const [readingLayout, setReadingLayout] = useState("balanced");
   const [activeGateId, setActiveGateId] = useState(requestedGate);
   const activeGate = SEFER_YETZIRAH_READING_GATES.find(gate => gate.id === activeGateId) || SEFER_YETZIRAH_READING_GATES[0];
@@ -217,6 +219,18 @@ export default function SeferYetzirahWorld2029Page() {
     applySeo({ title: `ספר יצירה · ${activeGate.title}`, description: "ספר יצירה כמרחב תלת־ממדי: עשר ספירות, כ״ב אותיות, רל״א שערים, מקור מלא ופירוש עברי.", path: "/2029/control", noindex: true });
   }, [activeGate.title]);
 
+  const updateStructureUrl = (structure, component) => {
+    const next = new URL(window.location.href);
+    if (structure) next.searchParams.set("structure", structure); else next.searchParams.delete("structure");
+    if (component) next.searchParams.set("component", component); else next.searchParams.delete("component");
+    window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`);
+  };
+  const chooseStructure = (id, sourcePage) => { setStructureId(id); setComponentId(""); updateStructureUrl(id, ""); if (sourcePage) openPage(sourcePage); };
+  const chooseComponent = id => { setComponentId(id); updateStructureUrl(structureId, id); };
+  const openStructureSource = payload => {
+    openPage(payload.source.pdf_page);
+    document.getElementById("yetzirah29-source")?.scrollIntoView({ behavior: "auto", block: "start" });
+  };
   const openPage = nextPage => {
     setPage(nextPage);
     replaceReadingUrl(nextPage, activeGateId);
@@ -262,7 +276,7 @@ export default function SeferYetzirahWorld2029Page() {
       </section>
 
       <SpatialStage mode={mode} onMode={nextMode => { setMode(nextMode); setActiveNode(defaultNodeForMode(nextMode, activeCommentatorId)); }} activeNode={activeNode} onNode={chooseSceneNode} />
-      <StructureCatalog onPage={openPage} />
+      <StructureCatalog onPage={openPage} structureId={structureId} componentId={componentId} onStructure={chooseStructure} onComponent={chooseComponent} onOpenSource={openStructureSource} />
 
       <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
       <div className="yetzirah29-layout books29-reading-layout" data-reading-layout={readingLayout}>
@@ -273,7 +287,7 @@ export default function SeferYetzirahWorld2029Page() {
           <LetterLaboratory onPage={openPage} onSpatial={letter => { setMode("gates"); setActiveNode(letter); }} />
           <VolumeMap onPage={openPage} />
         </div>
-        <SourcePanel page={page} onPage={openPage} />
+        <SourcePanel page={page} onPage={openPage} hasStructure={Boolean(structureId)} onReturn={() => { const target = document.getElementById("yetzirah29-structure-learning"); target?.scrollIntoView({ behavior: "auto", block: "start" }); target?.focus(); }} />
       </div>
     </main>
   </Sod2029Shell>;
