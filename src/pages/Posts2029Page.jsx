@@ -138,7 +138,7 @@ export default function Posts2029Page() {
         <p>{error}</p>
         {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : null}
       </FrameState> : null}
-      {!loading && !error && !posts.length
+      {!loading && !error && !posts.length && !(page === 1 && approved2029Post)
         ? <FrameState kind="empty" title="אין פוסטים בעמוד הזה">
           {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : "אין כרגע מקורות זמינים להצגה."}
         </FrameState>
