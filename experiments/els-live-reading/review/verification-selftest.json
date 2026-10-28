@@ -1,0 +1,9 @@
+{
+  "what": "Self-test of the canonical verification SQL (lib/verify-sql.mjs) against the live canonical engine. No model involved. ctl.axis = the selected occurrence itself (positive control); ctl.shift = the same term with the start moved by one letter (negative control); ctl.row = a fragment of a plain text row of the region (skip 1 branch).",
+  "executed_with": "mcp execute_sql on project linswmnnkjxvweumprav, read-only SELECT",
+  "result": [
+    { "key": "ctl.axis", "skip": 4545, "dir": 1, "start": 248765, "term": "קולומביה", "db_text": "קולומביה", "letters_match": true, "engine": { "status": "OK", "hits": 1, "found": true } },
+    { "key": "ctl.row", "skip": 1, "dir": 1, "start": 198752, "term": "כתפישא", "db_text": "כתפישא", "letters_match": true, "engine": { "status": "plain_text_row_not_els" } },
+    { "key": "ctl.shift", "skip": 4545, "dir": 1, "start": 248766, "term": "קולומביה", "db_text": "תגקתירמו", "letters_match": false, "engine": { "status": "OK", "hits": 1, "found": false } }
+  ]
+}

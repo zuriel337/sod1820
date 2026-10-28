@@ -1,0 +1,37 @@
+{
+  "request_sha256": "a2ad092524844e878fdd3c6be816b532087a4f0915dcaabb27980ce0bd34c5f6",
+  "model_candidate": "claude-opus-5-5",
+  "availability_verified": false,
+  "region": {
+    "rows": 33,
+    "cols": 41,
+    "cells": 1353,
+    "scope": "torah",
+    "width": 4545,
+    "firstRow": 34,
+    "firstCol": 3315,
+    "axisCells": 8
+  },
+  "page_cross_check": {
+    "cells": 1353,
+    "mismatches": 0
+  },
+  "lines": {
+    "total": 212,
+    "byKind": {
+      "R": 33,
+      "C": 41,
+      "D": 69,
+      "A": 69
+    },
+    "omittedShorterThan3": 8,
+    "readingsSent": 424
+  },
+  "chars": {
+    "system": 576,
+    "user": 26187,
+    "prose": 2605,
+    "data": 23574
+  },
+  "note": "Token count is unknown until the preflight (count_tokens needs the credential)."
+}

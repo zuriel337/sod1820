@@ -1,0 +1,7 @@
+{
+  "name": "els-live-reading",
+  "private": true,
+  "type": "module",
+  "description": "EXP-15 live reading harness. The SDK lives here, not in the product package.json.",
+  "dependencies": { "@anthropic-ai/sdk": "^1.3.0" }
+}

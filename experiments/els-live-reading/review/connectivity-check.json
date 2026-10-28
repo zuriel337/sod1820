@@ -1,0 +1,10 @@
+{
+  "what": "Can the harness's SDK path reach the Anthropic API from this sandbox, and does it handle a rejected credential? Checked with NO real credential: only an obviously invalid, well-formed placeholder key was presented. No model was called and nothing of the experiment was sent.",
+  "date": "2026-10-28",
+  "results": {
+    "curl_without_any_credential": "HTTP 401 authentication_error: x-api-key header is required",
+    "curl_with_invalid_key": "HTTP 401 authentication_error: invalid x-api-key",
+    "sdk_1_3_0_models_list_with_invalid_key_through_the_egress_proxy": "AuthenticationError, status 401, invalid x-api-key (NODE_USE_ENV_PROXY=1 is needed so Node's fetch uses the proxy)"
+  },
+  "conclusion": "The network route and the SDK error path work. Whether a real key works is unknown until one is provided: that is what the preflight stage checks first (model listed, limits, exact token count)."
+}

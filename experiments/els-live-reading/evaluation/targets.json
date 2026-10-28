@@ -1,0 +1,4 @@
+{
+  "note": "Evaluation targets named by ZURIEL. Read ONLY by the report stage, after the model has answered. Never part of the input, the prompt or the call path.",
+  "targets": ["ספינת", "יכלאש"]
+}
