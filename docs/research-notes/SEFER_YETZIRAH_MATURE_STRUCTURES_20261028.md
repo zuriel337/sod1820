@@ -17,3 +17,7 @@ Implemented `LetterFamiliesModel2029` and book-specific source-table/field proje
 ## Checkpoint 2 · articulation groups
 
 Implemented `PhoneticGroupsModel2029`, all five original group identities and letter memberships at PDF80. No anatomical locations, phonetic corrections or Mantua variant letters are invented. Native source field and primary callbacks, all keyboard groups, actual GPU selection/fallback/lifecycle smoke passed 2/2 at 1440/Night; new source tests 2/2 passed. The catalogue also exposes the original acceptance caveat/open readings under a focused “גבולות הקריאה” disclosure, keeping unresolved variants visible without completing them from another witness. Final full matrix remains pending.
+
+## Checkpoint 3 · mothers/world/year/soul
+
+Implemented `MothersCorrespondencesModel2029`, three original components with twelve original correspondence fields at PDF97/98/99. The general source units at 94/95 remain separately accessible; both typed mediation relations point to 94. Optional geometry draws only these two existing relations, with the alef centrally arranged as an editorial aid; world/year/soul do not become physical axes or anatomy. Source tests 3/3 and actual Chromium smoke 2/2 at 1440/Night passed, including every field, both relation anchors, both context-unit callbacks and retained selection across different source pages. Nine-context final acceptance remains pending.
