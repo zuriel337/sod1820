@@ -7,6 +7,7 @@ import { fetchCurationCatalog2029 } from "../../lib/research/curationProjection2
 import { fetchPublicWorldMediaPage } from "../../lib/research/entityHubProjection.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { WORLD_KNOWLEDGE_KIND } from "../../lib/research/worldLandingNavigation.js";
+import { buildPublicCipherContentProjection, buildPublicMediaContentProjection } from "../../lib/research/worldKnowledgeContentProjection.js";
 
 export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
   { key: WORLD_KNOWLEDGE_KIND.NUMBERS, label: "מספרים ומילים", description: "מספרים, מילים וביטויים" },
@@ -66,15 +67,17 @@ async function fetchKind(kind) {
   if (kind === WORLD_KNOWLEDGE_KIND.SPATIAL) {
     const { fetchZviSpatialWorldProjection } = await import("../../lib/research/zviSpatialWorldProjection.js");
     const spatial = await fetchZviSpatialWorldProjection();
-    return { sections: [], ciphers: [], media: [], spatial, hasMore: false };
+    return { sections: [], ciphers: [], media: [], spatial, contentProjection: spatial.contentProjection, hasMore: false };
   }
   if (kind === WORLD_KNOWLEDGE_KIND.CIPHERS) {
     const page = await getMatrixLibraryPage({ view: "public", pageSize: 12 });
-    return { sections: [], ciphers: page.rows || [], media: [], hasMore: Boolean(page.more) };
+    const ciphers = page.rows || [];
+    return { sections: [], ciphers, media: [], contentProjection: buildPublicCipherContentProjection(ciphers), hasMore: Boolean(page.more) };
   }
   if (kind === WORLD_KNOWLEDGE_KIND.MEDIA) {
     const page = await fetchPublicWorldMediaPage({ limit: 12 });
-    return { sections: [], ciphers: [], media: page.items || [], hasMore: Boolean(page.hasMore), access: page.access };
+    const media = page.items || [];
+    return { sections: [], ciphers: [], media, contentProjection: buildPublicMediaContentProjection(media), hasMore: Boolean(page.hasMore), access: page.access };
   }
   const specs = FACETS[kind] || FACETS[WORLD_KNOWLEDGE_KIND.NUMBERS];
   const [pages, curationCatalog, multiValue] = await Promise.all([
@@ -248,6 +251,7 @@ export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NU
       type="button" key={item.key} className={item.key === kind ? "is-active" : ""} aria-pressed={item.key === kind}
       onClick={() => onKindChange?.(item.key)}><strong>{item.label}</strong><small>{item.description}</small></button>)}</nav>
     <div className="sod29-world-kind-heading"><h3>{option.label}</h3><p>{option.description}</p></div>
+    {data?.contentProjection?.metrics?.corpusSources != null ? <p className="sod29-muted">בעדשה זו נטענו {data.contentProjection.metrics.corpusSources} זהויות מקור. הופעות וממצאים, אם קיימים, אינם נספרים כמקורות נוספים.</p> : null}
     {state.loading || state.kind !== kind ? <p role="status">פותח את {option.label}…</p> : null}
     {state.error ? <p role="status">הפריטים אינם זמינים כרגע. שום חומר חלופי לא הומצא.</p> : null}
     {openingSections.map((section) => <EntitySection key={section.key} section={section} />)}
