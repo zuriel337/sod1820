@@ -17,3 +17,10 @@ test('wrong edition, unit or page fails closed before model geometry exists',()=
  const b=structuredClone(bundle);mutate(b);assert.throws(()=>bindSourceModel(b,'six-seals-synoptic'));
  }
 });
+test('Gra seals bind PDF 175 independently and preserve each comparison witness sequence',()=>{
+ const syn=bindSourceModel(bundle,'six-seals-synoptic'),gra=bindSourceModel(bundle,'six-seals-gra-edition');
+ assert.equal(gra.components.length,6);for(const c of gra.components){assert.equal(sourcePayload(gra,c).source.pdf_page,175);assert.ok(c.stable_id.startsWith(gra.id));}
+ const different=structuredClone(bundle);different.structures.structures.find(s=>s.id===gra.id).components[0].seal_letters.reverse();
+ assert.notDeepEqual(bindSourceModel(different,'six-seals-gra-edition').components[0].seal_letters,syn.components[0].seal_letters,'synthetic witness differences must never be copied from the other witness');
+ assert.deepEqual(bindSourceModel(different,'six-seals-synoptic').components.map(c=>c.seal_letters),syn.components.map(c=>c.seal_letters));
+});
