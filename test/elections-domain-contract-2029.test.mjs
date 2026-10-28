@@ -42,7 +42,7 @@ test("source, fact, engine, system derivation and interpretation lanes remain se
   const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
   assert.equal(bundle.sources.length > 0, true);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_PROVENANCE], bundle.sources);
-  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].length, 17);
+  assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].length, 18);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.ENGINE_CALCULATION].length, 15);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.DERIVATION].length, 2);
   assert.equal(bundle.evidence[ELECTIONS_EVIDENCE_LANE.INTERPRETATION].length, 8);
@@ -89,6 +89,18 @@ test("gallery screenshot facts preserve visible numbers without folding in comme
   assert.equal(facts["historical-bnt14-png-number-set"].attributes.one_author_not_assumed, true);
   assert.ok(bundle.sources.some(source => source.id === "gallery-car-source"));
   assert.equal(bundle.relationCandidates.every(row => row.status === "proposed_relation_candidate"), true);
+});
+
+test("election post body, tags and approved list count stay separately sourced", () => {
+  const bundle = ELECTIONS_ISRAEL_21_26_BUNDLE;
+  const facts = Object.fromEntries(bundle.evidence[ELECTIONS_EVIDENCE_LANE.SOURCE_FACT].map(fact => [fact.id, fact]));
+  assert.deepEqual(facts["site-post-5107-number-set"].value, [26, 66, 77, 271, 631, 1000, 1820, 2701, 2710]);
+  assert.equal(facts["site-post-5107-number-set"].attributes.source_locus, "post_body_text");
+  assert.ok(facts["site-post-5107-number-tags"].value.includes(450));
+  assert.equal(facts["site-post-5107-number-set"].value.includes(450), false);
+  assert.equal(facts["site-post-5107-number-tags"].attributes.tags_do_not_verify_calculations, true);
+  assert.equal(facts["sourced-submitted-lists-38"].predicate, "approved_lists");
+  assert.equal(facts["sourced-submitted-lists-38"].value, 38);
 });
 
 test("the seed maps requested people, parties, sources and numeric anchors", () => {
@@ -193,7 +205,7 @@ test("Raziel receives an attributed context pack but no promotion or publishing 
   assert.equal(projection.evidenceIdsByLane.engine_calculation.length, 15);
   assert.equal(projection.evidenceIdsByLane.derivation.length, 2);
   assert.equal(projection.evidenceIdsByLane.interpretation.length, 8);
-  assert.equal(projection.evidenceIdsByLane.source_fact.length, 17);
+  assert.equal(projection.evidenceIdsByLane.source_fact.length, 18);
   assert.equal(projection.evidenceIdsByLane.source_provenance.length, 16);
   assert.deepEqual(projection.evidenceIdsByLane.observation, []);
   assert.deepEqual(projection.evidenceIdsByLane.authored_claim, []);
