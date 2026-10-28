@@ -14,16 +14,17 @@ const MAX_TOPIC_ROWS = 1000;
 const MAX_CORPUS_PAGES = 40;
 const clean = (value) => String(value ?? "").trim();
 
-export function canonicalSourceSubjectCards({ zviTopics = [], hashmalPosts = [] } = {}) {
+export function canonicalSourceSubjectCards({ topics = [], hashmalPosts = [] } = {}) {
   const seenTopics = new Set();
   const seenSources = new Set();
   const approvedTopics = [];
-  for (const row of zviTopics) {
+  for (const row of topics) {
     const id = clean(row?.id), slug = clean(row?.slug);
     if (!id || !slug || seenTopics.has(id)) continue;
     seenTopics.add(id);
     approvedTopics.push({
-      id: `topic:${id}`, type: "approved_topic", origin: "zvi",
+      id: `topic:${id}`, type: "approved_topic",
+      origin: clean(row?.created_by) === ZVI_CREATOR ? "zvi" : "topic",
       title: clean(row.title) || slug, description: clean(row.subtitle),
       at: row.approved_at || row.created_at || null,
       values: Array.isArray(row.numbers) ? row.numbers : [],
@@ -56,25 +57,17 @@ export function filterPublicSourceSubjects(cards = [], { origin = "all", query =
       .join(" ").toLocaleLowerCase("he").includes(q)));
 }
 
-async function readZviTopics(reader) {
+async function readAllTopics(reader) {
   const rows = [];
   let total = null, hasMore = true;
   for (let offset = 0; offset < MAX_TOPIC_ROWS && hasMore; offset += TOPIC_BATCH) {
-    const page = await reader({ creator: ZVI_CREATOR, limit: TOPIC_BATCH, offset, includeTotal: true, rankByMeterScore: true });
+    const page = await reader({ limit: TOPIC_BATCH, offset, includeTotal: true, rankByMeterScore: true });
     if (!page || !Array.isArray(page.rows)) throw new Error("topic_index_unavailable");
     rows.push(...page.rows);
     if (Number.isFinite(page.total)) total = page.total;
     hasMore = Boolean(page.hasMore);
   }
   return { rows, total: total ?? rows.length, incomplete: hasMore };
-}
-
-async function readAllTopicTotal(reader) {
-  const page = await reader({ limit: 1, offset: 0, includeTotal: true, rankByMeterScore: true });
-  if (!page || !Array.isArray(page.rows) || !Number.isFinite(Number(page.total))) {
-    throw new Error("topic_total_unavailable");
-  }
-  return Number(page.total);
 }
 
 async function readHashmalSources(reader) {
@@ -90,11 +83,10 @@ async function readHashmalSources(reader) {
   return { rows, total: total ?? rows.length, incomplete: hasMore };
 }
 
-function legacySourceSubjectContentProjection({ zviTopics = [], hashmalPosts = [], zviAvailable = false, hashmalAvailable = false } = {}) {
-  // The old lens has two different historical inputs. Keep that fact visible:
-  // Zvi Topic cards are compatibility-only; Hashmal posts are source rows.
-  // This bridge does not claim it is the eventual full all-writer corpus reader.
-  const legacyTopics = adaptLegacyTopicsV1(zviTopics.map((row) => ({
+function legacySourceSubjectContentProjection({ topics = [], hashmalPosts = [], topicsAvailable = false, hashmalAvailable = false } = {}) {
+  // Topics are compatibility identities regardless of creator; Hashmal posts
+  // are source rows. Neither count can inflate the other.
+  const legacyTopics = adaptLegacyTopicsV1(topics.map((row) => ({
     topicRef: row?.id ? `topic_cards:${row.id}` : null,
     slug: row?.slug,
     href: row?.slug ? `/topic/${encodeURIComponent(row.slug)}` : null,
@@ -125,7 +117,7 @@ function legacySourceSubjectContentProjection({ zviTopics = [], hashmalPosts = [
       seriesCategories: { available: hashmalAvailable },
       findings: { available: false },
       treeRelations: { available: false },
-      legacyTopics: { available: zviAvailable },
+      legacyTopics: { available: topicsAvailable },
     },
   });
 }
@@ -135,36 +127,36 @@ export async function fetchPublicSourceSubjectIndex({
   corpusReader = fetchCorpusPage,
 } = {}) {
   if (!HASHMAL) throw new Error("source_corpus_missing");
-  const [topicResult, totalResult, corpusResult] = await Promise.allSettled([
-    readZviTopics(topicReader), readAllTopicTotal(topicReader), readHashmalSources(corpusReader),
+  const [topicResult, corpusResult] = await Promise.allSettled([
+    readAllTopics(topicReader), readHashmalSources(corpusReader),
   ]);
   if (topicResult.status === "rejected" && corpusResult.status === "rejected") {
     throw new Error("public_subject_readers_unavailable");
   }
-  const zvi = topicResult.status === "fulfilled" ? topicResult.value : null;
+  const topics = topicResult.status === "fulfilled" ? topicResult.value : null;
   const hashmal = corpusResult.status === "fulfilled" ? corpusResult.value : null;
   const contentProjection = legacySourceSubjectContentProjection({
-    zviTopics: zvi?.rows || [],
+    topics: topics?.rows || [],
     hashmalPosts: hashmal?.rows || [],
-    zviAvailable: Boolean(zvi),
+    topicsAvailable: Boolean(topics),
     hashmalAvailable: Boolean(hashmal),
   });
   return {
     cards: canonicalSourceSubjectCards({
-      zviTopics: zvi?.rows || [],
+      topics: topics?.rows || [],
       hashmalPosts: hashmal?.rows || [],
     }),
     totals: {
-      allTopics: totalResult.status === "fulfilled" ? totalResult.value : null,
-      zvi: zvi?.total ?? null,
+      allTopics: topics?.total ?? null,
+      zvi: topics ? topics.rows.filter((row) => clean(row?.created_by) === ZVI_CREATOR).length : null,
       hashmal: hashmal?.total ?? null,
     },
     available: {
-      allTopics: totalResult.status === "fulfilled",
-      zvi: Boolean(zvi),
+      allTopics: Boolean(topics),
+      zvi: Boolean(topics),
       hashmal: Boolean(hashmal),
     },
-    incomplete: Boolean(zvi?.incomplete || hashmal?.incomplete),
+    incomplete: Boolean(topics?.incomplete || hashmal?.incomplete),
     // Additive migration field. Existing cards/totals keep their historical
     // behavior while consumers can adopt the shared public content contract.
     contentProjection,

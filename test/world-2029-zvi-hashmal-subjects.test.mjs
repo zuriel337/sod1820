@@ -8,7 +8,7 @@ import { readableSourceTitle } from "../src/lib/research/contributorFindingsProj
 
 test("only approved Topic identities are subjects; Hashmal post is a source work", () => {
   const cards = canonicalSourceSubjectCards({
-    zviTopics: [{ id: "t1", slug: "zvi-topic", title: "שער נון", approved_at: "2026-10-01", numbers: [1234] }],
+    topics: [{ id: "t1", slug: "zvi-topic", title: "שער נון", approved_at: "2026-10-01", numbers: [1234], created_by: "צבי (OPOC)" }],
     hashmalPosts: [{ id: 8, slug: "source-8", title: "שער נון", categories: ["סוד החשמל", "גימטריות"] }],
   });
   assert.equal(cards.length, 2);
@@ -21,20 +21,20 @@ test("only approved Topic identities are subjects; Hashmal post is a source work
   assert.equal(filterPublicSourceSubjects(cards, { query: "1234" }).length, 1);
 });
 
-test("the 78 approved Zvi Topics stay a ranked subset of 205 Topics; 132 source rows stay separate", async () => {
+test("all 205 approved Topics stay compatibility identities; Zvi remains a ranked 78-topic subset", async () => {
   const calls = [];
   const out = await fetchPublicSourceSubjectIndex({
     topicReader: async ({ offset, limit, creator, rankByMeterScore }) => {
       calls.push(["topic", offset, creator, rankByMeterScore]);
       assert.equal(rankByMeterScore, true);
-      if (!creator) return { rows: [{ id: "all-1" }], total: 205, hasMore: true };
-      assert.equal(creator, "צבי (OPOC)");
+      assert.equal(creator, undefined);
       assert.equal(limit, 60);
-      const n = offset === 0 ? 60 : 18;
+      const n = offset < 180 ? 60 : 25;
       return { rows: Array.from({ length: n }, (_, i) => ({
-        id: String(offset + i + 1), slug: `z-${offset + i + 1}`, title: `צבי ${offset + i + 1}`,
+        id: String(offset + i + 1), slug: `t-${offset + i + 1}`, title: `נושא ${offset + i + 1}`,
+        created_by: offset + i < 78 ? "צבי (OPOC)" : "יוצר אחר",
         meter_score: 100 - offset - i,
-      })), total: 78, hasMore: offset === 0 };
+      })), total: 205, hasMore: offset < 180 };
     },
     corpusReader: async (spec, page) => {
       calls.push(["source", page, spec.key]);
@@ -44,13 +44,13 @@ test("the 78 approved Zvi Topics stay a ranked subset of 205 Topics; 132 source 
       })), total: 132, hasMore: page < 5 };
     },
   });
-  assert.equal(out.cards.length, 210);
+  assert.equal(out.cards.length, 337);
   assert.deepEqual(out.totals, { allTopics: 205, zvi: 78, hashmal: 132 });
   assert.deepEqual(out.available, { allTopics: true, zvi: true, hashmal: true });
   assert.equal(out.cards[0].meterScore, 100);
   assert.equal(out.incomplete, false);
   assert.equal(out.contentProjection.metrics.corpusSources, 132, "only Hashmal source identities count as sources in this legacy bridge");
-  assert.equal(out.contentProjection.metrics.legacyTopics, 78);
+  assert.equal(out.contentProjection.metrics.legacyTopics, 205);
   assert.equal(out.contentProjection.metrics.findings, null);
   assert.equal(out.contentProjection.sources[0].sourceRef, "posts:p-0-0");
   assert.deepEqual(out.contentProjection.seriesCategories, [{
@@ -58,7 +58,7 @@ test("the 78 approved Zvi Topics stay a ranked subset of 205 Topics; 132 source 
     sourceRefs: out.contentProjection.sources.map((item) => item.sourceRef),
   }]);
   assert.equal(out.contentProjection.metrics.seriesCategories, 1);
-  assert.equal(calls.filter(([type]) => type === "topic").length, 3);
+  assert.equal(calls.filter(([type]) => type === "topic").length, 4);
   assert.equal(calls.filter(([type]) => type === "source").length, 6);
 });
 
@@ -92,7 +92,7 @@ test("the single public World layout uses one category-free subject reader and k
   assert.match(ui, /אנשים ציבוריים/);
   assert.match(ui, /מקורות שנטענו בעדשה זו/);
   assert.match(ui, /נושאים קיימים בעץ/);
-  assert.match(ui, /נושאי צבי נשארים תת־קבוצה/);
+  assert.match(ui, /צבי הוא מסנן משנה/);
   assert.match(ui, /סדרת מקורות · סוד החשמל/);
   assert.match(ui, /חוזק תצוגה:.*טרם דורג/);
   const reader = readFileSync(new URL("../src/lib/research/worldPublicSourceSubjects2029.js", import.meta.url), "utf8");
