@@ -83,15 +83,16 @@ test("media-only source does not show empty technical title", () => {
 
 test("the single public World layout uses one category-free subject reader and keeps sources separate", () => {
   const world = readFileSync(new URL("../src/pages/World2029Page.jsx", import.meta.url), "utf8");
-  assert.equal((world.match(/<WorldPublicSourceSubjects2029 \/>/g) || []).length, 1);
+  assert.equal((world.match(/<WorldPublicSourceSubjects2029\s+peopleIndex=\{landing\.contributors\}\s*\/>/g) || []).length, 1);
   assert.doesNotMatch(world, /<WorldSourceDepth|sourceDepthOpen/);
   const ui = readFileSync(new URL("../src/components/research/WorldPublicSourceSubjects2029.jsx", import.meta.url), "utf8");
   assert.doesNotMatch(ui, /קטגוריות סוד החשמל|publicSourceSubjectCategories|category ===/);
-  assert.match(ui, /מקורות סוד החשמל/);
-  assert.match(ui, /נושאים ציבוריים בעץ/);
-  assert.match(ui, /מתוכם.*נושאי צבי/);
-  assert.match(ui, /פרסומי סוד החשמל · מקורות/);
-  assert.match(ui, /נושאי צבי הם עדשה בתוך אותו עץ/);
+  assert.match(ui, /מפת החומר הציבורי/);
+  assert.match(ui, /אנשים ציבוריים/);
+  assert.match(ui, /מקורות שנטענו בעדשה זו/);
+  assert.match(ui, /נושאים קיימים בעץ/);
+  assert.match(ui, /נושאי צבי נשארים תת־קבוצה/);
+  assert.match(ui, /סדרת מקורות · סוד החשמל/);
   assert.match(ui, /חוזק תצוגה:.*טרם דורג/);
   const reader = readFileSync(new URL("../src/lib/research/worldPublicSourceSubjects2029.js", import.meta.url), "utf8");
   assert.doesNotMatch(reader, /posts\.categories|\.map\(.*categories|category\s*=/);

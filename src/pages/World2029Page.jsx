@@ -1155,7 +1155,7 @@ function LiveWorldLanding({ research, shell, context }) {
           error={landing.contributorError} recentCounts={landing.discovery?.recentCounts || {}}
           focusedSourceRef={focusedContributorSourceRef} />
       </React.Suspense>
-      <WorldPublicSourceSubjects2029 />
+      <WorldPublicSourceSubjects2029 peopleIndex={landing.contributors} />
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.CONNECTIONS ? <>
