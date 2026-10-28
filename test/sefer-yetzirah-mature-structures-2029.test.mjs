@@ -9,3 +9,6 @@ test('families preserve three source groups, 3/7/12 counts, all 22 letters, and 
  const m=bindSourceModel(bundle,'letter-families');assert.deepEqual(m.components.map(c=>c.source_count),[3,7,12]);assert.equal(new Set(m.components.flatMap(c=>c.letters)).size,22);assert.equal(m.relations.length,0);assert.equal(modelGeometry(m).edges.length,0);assert.equal(modelGeometry(m).points.length,3);
  for(const c of m.components){assert.equal(c.source.pdf_page,65);for(const f of catalogFields(m,c)){assert.equal(f.source,c.source);assert.equal(f.value,c[f.key]);}}
 });
+test('articulation keeps five source groups and never introduces anatomical coordinates or variant letters',()=>{
+ const m=bindSourceModel(bundle,'five-mouth-groups');assert.deepEqual(m.components.map(c=>c.id),['throat','lips','palate','tongue','teeth']);assert.deepEqual(m.components.map(c=>c.letters.join('')),['אחהע','בומפ','גיכק','דטלנת','זסשרצ']);assert.equal(new Set(m.components.flatMap(c=>c.letters)).size,22);assert.equal(modelGeometry(m).edges.length,0);assert.equal(m.spec.open_readings.length,1);for(const c of m.components)assert.equal(c.source.pdf_page,80);
+});
