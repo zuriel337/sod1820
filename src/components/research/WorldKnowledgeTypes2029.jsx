@@ -7,7 +7,8 @@ import { fetchCurationCatalog2029 } from "../../lib/research/curationProjection2
 import { fetchPublicWorldMediaPage } from "../../lib/research/entityHubProjection.js";
 import { fetchExplorerFacetPage } from "../../lib/research/explorerFacets.js";
 import { WORLD_KNOWLEDGE_KIND } from "../../lib/research/worldLandingNavigation.js";
-import { buildPublicCipherContentProjection, buildPublicMediaContentProjection } from "../../lib/research/worldKnowledgeContentProjection.js";
+import { buildPublicCipherContentProjection, buildPublicLanguageContentProjection, buildPublicMediaContentProjection } from "../../lib/research/worldKnowledgeContentProjection.js";
+import { fetchWorldLanguageTriageProjection } from "../../lib/research/worldLanguageTriageProjection.js";
 
 export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
   { key: WORLD_KNOWLEDGE_KIND.NUMBERS, label: "מספרים ומילים", description: "מספרים, מילים וביטויים" },
@@ -63,6 +64,12 @@ function selectedNumberCard(item) {
   };
 }
 
+function languageStateLabel(row) {
+  if (row.state === "verified_with_source") return "מאומת עם מקור";
+  if (row.state === "verified_missing_source") return "אומת · מקור חסר";
+  return "ממתין לבדיקה";
+}
+
 async function fetchKind(kind) {
   if (kind === WORLD_KNOWLEDGE_KIND.SPATIAL) {
     const { fetchZviSpatialWorldProjection } = await import("../../lib/research/zviSpatialWorldProjection.js");
@@ -80,7 +87,7 @@ async function fetchKind(kind) {
     return { sections: [], ciphers: [], media, contentProjection: buildPublicMediaContentProjection(media), hasMore: Boolean(page.hasMore), access: page.access };
   }
   const specs = FACETS[kind] || FACETS[WORLD_KNOWLEDGE_KIND.NUMBERS];
-  const [pages, curationCatalog, multiValue] = await Promise.all([
+  const [pages, curationCatalog, multiValue, language] = await Promise.all([
     Promise.all(specs.map(async (spec) => ({
       ...spec,
       page: await fetchExplorerFacetPage(spec.key, { limit: 8 }),
@@ -89,6 +96,7 @@ async function fetchKind(kind) {
     kind === WORLD_KNOWLEDGE_KIND.NUMBERS
       ? import("../../lib/research/zviMultiValueWorldProjection.js").then(({ fetchZviMultiValueWorldProjection }) => fetchZviMultiValueWorldProjection())
       : Promise.resolve(null),
+    kind === WORLD_KNOWLEDGE_KIND.LANGUAGES ? fetchWorldLanguageTriageProjection() : Promise.resolve(null),
   ]);
   const sections = pages.map(({ key, label, description, page }) => ({
     key,
@@ -110,6 +118,8 @@ async function fetchKind(kind) {
     sections,
     ciphers: [],
     media: [],
+    language,
+    contentProjection: language ? buildPublicLanguageContentProjection(language.rows) : null,
     multiValue,
     hasMore: pages.some(({ page }) => page?.hasMore),
   };
@@ -212,6 +222,19 @@ function CipherShelf({ rows, hasMore }) {
   </section>;
 }
 
+function LanguageShelf({ projection }) {
+  if (!projection) return null;
+  return <section className="sod29-world-kind-section" aria-label="גשרי שפה">
+    <header><div><h3>גשרי שפה</h3><p>מילה, תרגום או תעתיק, מקור וחישוב הם שכבות נפרדות.</p></div><span>{projection.counts.total} קישורים</span></header>
+    <p className="sod29-muted">{projection.counts.verifiedWithSource} עם מקור תרגום · {projection.counts.verifiedMissingSource} אומתו אך חסר מקור · {projection.counts.needsHumanReview} ממתינים לבדיקה.</p>
+    <div className="sod29-world-kind-card-grid">{projection.rows.map((row) => <article key={row.id} className="sod29-world-kind-card">
+      <small>{languageStateLabel(row)} · {row.language}</small><strong>{row.hebrew} · {row.foreignWord}</strong>
+      <p>{row.relationshipType}{row.translationSource ? " · מקור תרגום מתועד" : " · מקור תרגום חסר"}</p>
+      {row.gematriaHebrew != null ? <span>ערך שמור: {row.gematriaHebrew}{row.method ? ` · ${row.method}` : ""}</span> : <span>ערך: אין נתון</span>}
+    </article>)}</div>
+  </section>;
+}
+
 function MediaShelf({ items, hasMore, access }) {
   if (access?.available === false) return <p role="status">המדיה הציבורית אינה זמינה כרגע.</p>;
   return <section className="sod29-world-kind-section" aria-label="תמונות ומדיה ציבורית">
@@ -258,6 +281,7 @@ export default function WorldKnowledgeTypes2029({ kind = WORLD_KNOWLEDGE_KIND.NU
     {kind === WORLD_KNOWLEDGE_KIND.NUMBERS && data?.multiValue ? <ZviMultiValueShelf projection={data.multiValue} /> : null}
     {remainingSections.map((section) => <EntitySection key={section.key} section={section} />)}
     {kind === WORLD_KNOWLEDGE_KIND.CIPHERS && data ? <CipherShelf rows={data.ciphers} hasMore={data.hasMore} /> : null}
+    {kind === WORLD_KNOWLEDGE_KIND.LANGUAGES && data ? <LanguageShelf projection={data.language} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.MEDIA && data ? <MediaShelf items={data.media} hasMore={data.hasMore} access={data.access} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.SPATIAL && data?.spatial ? <SpatialShelf projection={data.spatial} /> : null}
     {kind === WORLD_KNOWLEDGE_KIND.TIME && data ? <div className="sod29-actions"><Link className="sod29-action" to="/timeline">לציר הזמן המלא</Link></div> : null}

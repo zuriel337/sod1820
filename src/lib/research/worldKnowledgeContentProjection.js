@@ -62,3 +62,33 @@ export function buildPublicMediaContentProjection(items = []) {
     },
   });
 }
+
+// language_links is already admitted by the canonical language RPC. A source
+// citation and human verification remain explicit states; neither is inferred
+// from a shared spelling or gematria value.
+export function buildPublicLanguageContentProjection(rows = []) {
+  const sources = list(rows).flatMap((row) => {
+    const id = clean(row?.id);
+    if (!id || clean(row?.status) !== "approved") return [];
+    return [{
+      sourceRef: `language_links:${id}`,
+      title: [clean(row?.hebrew), clean(row?.foreignWord)].filter(Boolean).join(" · ") || "קישור שפה",
+      sourceHref: null,
+      publisher: { key: "language-links", label: "גשרי שפה" },
+    }];
+  });
+  return buildPublicWorldContentProjectionV1({
+    sources,
+    occurrences: sources.map((source) => ({
+      occurrenceRef: `language-bridge:${source.sourceRef}`,
+      sourceRef: source.sourceRef,
+      href: null,
+      times: { occurredAt: null, publishedAt: null, updatedAt: null },
+    })),
+    seriesCategories: [{ key: "language-bridges", kind: "category", label: "גשרי שפה", sourceRefs: sources.map((row) => row.sourceRef) }],
+    coverage: {
+      sources: { available: true }, occurrences: { available: true }, clusters: { available: false },
+      seriesCategories: { available: true }, findings: { available: false }, treeRelations: { available: false }, legacyTopics: { available: false },
+    },
+  });
+}
