@@ -23,6 +23,19 @@ export const AHAVAT_ROOT_COLUMNS = Object.freeze([
   [35, "left", "סוף האזינו וברכת משה", "כאן נשלמות לשונות האזינו, ואחריהן לשונות ברכת משה. הרשימה מסתיימת לפני הקו המפריד. אחריו מתחיל סעיף אחר, סופר ומונה אותיות התורה; אין לצרף את מספריו או מילותיו אל טורי הרשימה."],
 ].map(([page, column, title, explanation]) => Object.freeze({ id: `roots:${page}:${column}`, page, column, title, explanation })));
 
+// Navigation over the printed columns, not a new lexical or counting layer.
+export function ahavatRootColumnJourney(id) {
+  const index = AHAVAT_ROOT_COLUMNS.findIndex(column => column.id === id);
+  if (index < 0) return null;
+  return {
+    current: AHAVAT_ROOT_COLUMNS[index],
+    position: index + 1,
+    total: AHAVAT_ROOT_COLUMNS.length,
+    previous: AHAVAT_ROOT_COLUMNS[index - 1] || null,
+    next: AHAVAT_ROOT_COLUMNS[index + 1] || null,
+  };
+}
+
 export function ahavatRootFragments(bundle, query = "") {
   if (bundle?.schema_version !== "ahavat-torah-roots-transcript.v1" || bundle.source_identity !== "book:hebrewbooks:5635" || !Array.isArray(bundle.fragments)) return [];
   const valid = bundle.fragments.filter(fragment => AHAVAT_ROOT_COLUMNS.some(column => column.id === fragment.id && column.page === fragment.pdf_page && column.column === fragment.column) && typeof fragment.text === "string");
