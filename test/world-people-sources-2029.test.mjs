@@ -127,6 +127,30 @@ test("selected contributor reuses all three public readers without N+1", async (
   assert.equal(result.total, 0);
 });
 
+test("public material emits source-first state and later preserves promoted results", async () => {
+  const identity = { id: "writer", slug: "writer", displayName: "כותב", code: "101", active: true };
+  const partial = { mode: "public_view", availability: { sources: "ok", research: "loading" }, sourceGroups: [] };
+  const final = { mode: "public_view", availability: { sources: "ok", research: "ok" }, sourceGroups: [] };
+  let finish;
+  const delayed = new Promise((resolve) => { finish = resolve; });
+  let notify;
+  const early = new Promise((resolve) => { notify = resolve; });
+  const resultPromise = fetchWorldContributorPublicMaterial(identity, {
+    client: {},
+    findingsReader: async (_slug, options) => { options.onSourcesReady(partial); return delayed; },
+    sourceCatalogReader: async (_slug, options) => { await options.findingsReader(); return { items: [] }; },
+    publicationReader: async () => ({}),
+    onSourcesReady: notify,
+  });
+  const first = await early;
+  assert.equal(first.researchLoading, true);
+  assert.equal(first.findings.availability.research, "loading");
+  finish(final);
+  const result = await resultPromise;
+  assert.equal(result.findings.availability.research, "ok");
+  assert.equal(result.researchLoading, undefined);
+});
+
 test("an already-public Universal Finding keeps its exact source provenance without creating a tree relation", () => {
   const identity = { id: "writer", slug: "writer", displayName: "כותב" };
   const finding = {

@@ -78,7 +78,14 @@ def setup(context, fail_posts=False):
             violations.append('unexpected mutation: ' + table)
         claims = json.loads(base64.urlsafe_b64decode(request.headers['authorization'].split()[-1].split('.')[1] + '=='))
         if claims['role'] != 'anon': violations.append('non-anonymous public reader')
-        if table in ['research_objects', 'world_contributor_research_v1']: violations.append('full research on entry')
+        if table == 'research_objects': violations.append('direct research table on entry')
+        if table == 'world_contributor_research_v1':
+            if query.get('status') != ['eq.canonical'] or query.get('promoted_node_id') != ['not.is.null']:
+                violations.append('unbounded or unpromoted research on entry')
+            if int(query.get('limit', ['1001'])[0]) > 1000:
+                violations.append('promoted research page exceeds limit')
+            calls.append(table)
+            return route.fulfill(content_type='application/json', headers={'access-control-allow-origin': '*'}, body='[]')
         calls.append(table)
         data = []
         if table == 'contributors':

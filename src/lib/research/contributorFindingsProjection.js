@@ -776,6 +776,7 @@ export async function fetchContributorFindingsProjection(slug, {
   topicsReader = fetchContributorTopics,
   sourceRef = null,
   loadProfile = CONTRIBUTOR_LOAD_PROFILE.FULL,
+  onSourcesReady = null,
 } = {}) {
   const client = mode === PROJECTOR_MODE.ADMIN_ALL ? sessionClient : publicClient();
   const contributor = await fetchContributor(client, slug);
@@ -790,14 +791,27 @@ export async function fetchContributorFindingsProjection(slug, {
   const sourceLibraryTreeOnly = loadProfile === CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY && !focusedSourceRef;
 
   const settled = {};
-  const [research, sources, contributions, topics] = await Promise.allSettled([
-    fetchResearchObjects(client, contributor.id, aliases, focusedSourceRef, {
-      promotedOnly: sourceLibraryTreeOnly,
-    }),
+  const researchPromise = Promise.allSettled([fetchResearchObjects(client, contributor.id, aliases, focusedSourceRef, {
+    promotedOnly: sourceLibraryTreeOnly,
+  })]);
+  const [sources, contributions, topics] = await Promise.allSettled([
     fetchSourceMessages(client, contributor, aliases, focusedSourceRef),
     focusedSourceRef ? Promise.resolve({ rows: [], total: 0, truncated: false }) : fetchContributorContributions(client, contributor.id),
     focusedSourceRef ? Promise.resolve([]) : topicsReader(aliases),
   ]);
+  if (sourceLibraryTreeOnly && typeof onSourcesReady === "function") {
+    const sourceValue = sources.status === "fulfilled" ? sources.value : { rows: [], total: 0, truncated: false };
+    const contributionValue = contributions.status === "fulfilled" ? contributions.value : { rows: [], total: 0, truncated: false };
+    const partial = buildContributorFindingsProjection({ contributor, researchObjects: [], sourceMessages: sourceValue.rows,
+      contributions: contributionValue.rows, topics: topics.status === "fulfilled" ? topics.value : [], lexicalRows: [] });
+    onSourcesReady({ ...partial, mode, loadProfile, focus: null,
+      availability: { ...deriveAvailability({ sources, contributions, topics }), research: "loading" },
+      loadState: { researchObjectsTotal: null, researchObjectsTruncated: false, researchObjectsDeferred: true,
+        researchObjectsTreeOnly: true, contributionsTotal: contributionValue.total,
+        contributionsTruncated: contributionValue.truncated, sourceMessagesLoaded: sourceValue.rows.length,
+        sourceMessagesTruncated: sourceValue.truncated } });
+  }
+  const [research] = await researchPromise;
   Object.assign(settled, { research, sources, contributions, topics });
   const value = (result, fallback) => (result.status === "fulfilled" ? result.value : fallback);
   const researchValue = value(research, { rows: [], total: 0, truncated: false });

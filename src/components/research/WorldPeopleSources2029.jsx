@@ -99,7 +99,9 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
       return () => { alive = false; };
     }
     setMaterial({ slug: selected.slug, loading: true, data: null, error: null });
-    fetchWorldContributorPublicMaterial(selected)
+    fetchWorldContributorPublicMaterial(selected, { onSourcesReady: (data) => {
+      if (alive) setMaterial({ slug: selected.slug, loading: false, data, error: null });
+    } })
       .then((data) => {
         if (alive) setMaterial({ slug: selected.slug, loading: false, data, error: null });
       })
@@ -218,6 +220,7 @@ export default function WorldPeopleSources2029({ index, loading = false, error =
         <h2>{selected.displayName}</h2><p>הקטלוג נטען רק לאחר הבחירה. ממצא מחקר נשאר מחובר ל־source_ref שלו ואינו נספר כמקור נוסף.</p></div>
         <Link className="sod29-action" to={writerHref}>{CANONICAL_PUBLIC_UI_COPY.action.writer}</Link></header>
       {selectedMaterial.loading ? <p role="status">פותח כתבים, מקורות, צפנים ונושאים…</p> : null}
+      {selectedMaterial.data?.researchLoading ? <p role="status">המקורות מוכנים; פותח את הקשרים המתועדים לעץ…</p> : null}
       {selectedMaterial.error ? <div role="status"><strong>חלק מהחומר אינו זמין כרגע.</strong><p>לא מוצג 0 במקום נתון שלא התקבל.</p></div> : null}
       {selectedMaterial.data?.partial ? <p role="status">חלק מן הקוראים לא השלימו טעינה; נתון חסר מוצג כ״אין נתון״.</p> : null}
       {selectedMaterial.data ? <>

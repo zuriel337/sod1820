@@ -313,6 +313,7 @@ export async function fetchWorldContributorPublicMaterial(identity, {
   findingsReader = fetchContributorFindingsProjection,
   sourceCatalogReader = fetchContributorSourceCatalogProjection,
   publicationReader = fetchContributorPublicationCatalog,
+  onSourcesReady = null,
 } = {}) {
   if (!isWorldPublicContributor({
     ...identity,
@@ -328,16 +329,31 @@ export async function fetchWorldContributorPublicMaterial(identity, {
     code: identity.code,
     display_name: identity.displayName,
   };
+  let publicationPromise;
+  let partialTask = Promise.resolve();
   const findingsPromise = findingsReader(identity.slug, {
     mode: PROJECTOR_MODE.PUBLIC_VIEW,
     publicClient: () => client,
     loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY,
     topicsReader: async () => [],
+    onSourcesReady: (partialFindings) => {
+      if (typeof onSourcesReady !== "function") return;
+      partialTask = Promise.resolve().then(() => publicationPromise).then(async (publications) => {
+        const sourceCatalog = await sourceCatalogReader(identity.slug, {
+          mode: PROJECTOR_MODE.PUBLIC_VIEW, publicClient: () => client,
+          findingsReader: async () => partialFindings, recentLimit: 20,
+        });
+        onSourcesReady({ ...buildWorldContributorPublicMaterial({ identity, findings: partialFindings, sourceCatalog, publications }),
+          researchLoading: true });
+      }).catch(() => {});
+    },
   });
+  publicationPromise = publicationReader(canonicalIdentity, { client });
   const [findings, publications] = await Promise.all([
     findingsPromise,
-    publicationReader(canonicalIdentity, { client }),
+    publicationPromise,
   ]);
+  await partialTask;
   const sourceCatalog = await sourceCatalogReader(identity.slug, {
     mode: PROJECTOR_MODE.PUBLIC_VIEW,
     publicClient: () => client,

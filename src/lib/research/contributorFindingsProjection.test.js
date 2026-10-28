@@ -279,6 +279,40 @@ test("the public source library opens every readable source and only its promote
   assert.ok(researchCall?.filters.some((item) => item[0] === "not" && item[1] === "promoted_node_id" && item[2] === "is" && item[3] === null));
 });
 
+test("source library exposes readable sources while promoted findings are delayed", async () => {
+  let releaseResearch;
+  const pendingResearch = new Promise((resolve) => { releaseResearch = resolve; });
+  const calls = [];
+  const anon = fakeClient("anon", { contributors: { data: CONTRIBUTOR }, research_objects: pendingResearch,
+    channel_updates: { data: [SOURCE], count: 1 }, research_contributions: { data: [], count: 0 } }, calls);
+  let deliverPartial;
+  const partialReady = new Promise((resolve) => { deliverPartial = resolve; });
+  const resultPromise = fetchContributorFindingsProjection("yaniv", { publicClient: () => anon, topicsReader: noTopics,
+    loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY, onSourcesReady: deliverPartial });
+  const partial = await partialReady;
+  assert.equal(partial.sourceGroups.length, 1);
+  assert.equal(partial.availability.research, "loading");
+  assert.equal(partial.loadState.researchObjectsTotal, null);
+  releaseResearch({ data: [{ ...RESEARCH_ROW, status: "canonical", promoted_node_id: "node-1" }], count: 1 });
+  const final = await resultPromise;
+  assert.equal(final.availability.research, "ok");
+  assert.equal(final.counts.researchObjects, 1);
+  assert.equal(final.sourceGroups[0].rows[0].id, "r1");
+});
+
+test("failed promoted research leaves source readable and reports unavailable", async () => {
+  const calls = [];
+  const anon = fakeClient("anon", { contributors: { data: CONTRIBUTOR }, research_objects: { error: new Error("unavailable") },
+    channel_updates: { data: [SOURCE], count: 1 }, research_contributions: { data: [], count: 0 } }, calls);
+  let partial;
+  const final = await fetchContributorFindingsProjection("yaniv", { publicClient: () => anon, topicsReader: noTopics,
+    loadProfile: CONTRIBUTOR_LOAD_PROFILE.SOURCE_LIBRARY, onSourcesReady: (value) => { partial = value; } });
+  assert.equal(partial.sourceGroups.length, 1);
+  assert.equal(partial.availability.research, "loading");
+  assert.equal(final.sourceGroups.length, 1);
+  assert.equal(final.availability.research, "unavailable");
+});
+
 test("an exact occurrence overrides source-first deferral and loads only its research slice", async () => {
   const calls = [];
   const occurrenceId = "a6805e30-21e0-4315-8f35-70b1bfdb0d14";
