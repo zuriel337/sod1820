@@ -91,7 +91,7 @@ test("WatchButton target is only a linked approved canonical Topic; sharing neve
 test("OG exact finding preview uses anonymous approved/public row, real title, credit and canonical hash", async () => {
   const { html, headers, called } = await ogResponse({ path: "/world", finding: ID }, row);
   assert.match(html, /ממצא ציבורי אמיתי/);
-  assert.match(html, /פוסט מקור/);
+  assert.match(html, /פוסטים/);
   assert.match(html, /תווית ייחוס במקור/);
   assert.match(html, /og:image:width" content="1200"/);
   assert.match(html, /og:image:height" content="630"/);
@@ -114,7 +114,7 @@ test("non-public, missing or excluded finding fails closed, without identifier o
   ]) {
     const response = await ogResponse({ path: "/world", finding: ID }, badRow);
     assert.match(response.html, /noindex, nofollow/);
-    assert.match(response.html, /הממצא אינו זמין/);
+    assert.match(response.html, /הממצא המבוקש אינו זמין/);
     assert.doesNotMatch(response.html, new RegExp(ID));
     assert.doesNotMatch(response.html, /TOP_SECRET_CONTENT/);
   }
