@@ -6,6 +6,10 @@ import {
 
 const PUBLIC_RESEARCH_STATUSES = Object.freeze(["approved", "canonical"]);
 const MAX_TOPIC_TARGETS = 24;
+// topic_cards.id/node_id are UUID columns, while documented number/entity tree
+// keys can also be numeric or namespaced (e.g. 476, gw:...). Never put those
+// values into a UUID PostgREST filter: that fails the entire public finding.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const findingPromiseCache = new Map();
 const clean = (value) => value == null ? "" : String(value).trim();
 
@@ -40,11 +44,11 @@ function documentedTopicTargets(row) {
     const key = clean(match?.key);
     if (!key) continue;
     if (type === "topic") {
-      if (/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(key)) add(ids, key);
+      if (UUID.test(key)) add(ids, key);
       else add(slugs, key);
-    } else if (type === "entity" || type === "number") add(nodeIds, key);
+    } else if ((type === "entity" || type === "number") && UUID.test(key)) add(nodeIds, key);
   }
-  add(nodeIds, row?.promoted_node_id);
+  if (UUID.test(clean(row?.promoted_node_id))) add(nodeIds, row?.promoted_node_id);
   return { ids, slugs, nodeIds };
 }
 
