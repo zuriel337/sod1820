@@ -52,6 +52,17 @@ test("1563 gets one number identity and two documented findings, without inferre
   assert.doesNotMatch(sql, /DELETE\s+FROM\s+public\./iu);
 });
 
+test("multi-value sources are atomized without deleting their source occurrence", () => {
+  const sql = migration("20261028230000_zvi_atomic_verified_multi_value_findings.sql");
+  assert.match(sql, /jsonb_array_elements\(p\.engine_detail->'claims'\)/u);
+  assert.match(sql, /v_count <> 10/u);
+  assert.match(sql, /parent_source_occurrence_retained/u);
+  assert.match(sql, /admin_research_review\(v_row\.id, 'approve'/u);
+  assert.match(sql, /admin_research_attach_existing_graph_node_v1/u);
+  assert.doesNotMatch(sql, /DELETE\s+FROM\s+public\./iu);
+  assert.doesNotMatch(sql, /INSERT\s+INTO\s+public\.edges/iu);
+});
+
 test("later batches exclude source-value groups that already have a canonical representative", () => {
   for (const name of [
     "20261028213004_zvi_calculation_tree_batch_v2.sql",
