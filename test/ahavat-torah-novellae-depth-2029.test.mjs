@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { ahavatCompanionReadingUnits } from "../src/data/ahavatTorahSystem2029.js";
+import { AHAVAT_READER_UNITS, ahavatReaderUnit, ahavatReaderUnitHref, ahavatReaderUnitDomId } from "../src/data/ahavatTorahReaderUnits2029.js";
 
 const bundle = JSON.parse(readFileSync(new URL("../public/book-data/ahavat-torah.commentary.json", import.meta.url), "utf8"));
 const expanded = bundle.pages.filter(page => page.companion_units);
@@ -51,4 +53,42 @@ test("expanded content replaces generic orientation with page-specific lines of 
   assert.match(bundle.pages[45].companion_units[1].explanation, /האותיות|המחבר קורא/);
   assert.match(bundle.pages[47].companion_units[0].explanation, /מחסור|רעיונות/);
   assert.match(bundle.pages[49].companion_units[1].explanation, /בועז/);
+});
+
+test("all 75 companion links reuse exact return without inventing table ownership or changing the 287 source units", () => {
+  assert.equal(AHAVAT_READER_UNITS.length, 287);
+  for (const page of expanded) for (const unit of ahavatCompanionReadingUnits(bundle, page.pdf_page)) {
+    const identity = ahavatReaderUnit(unit.id);
+    assert.equal(identity.page, unit.pdf_page);
+    assert.equal(identity.layer, "companion");
+    assert.equal(identity.datasetId, "");
+    assert.equal(identity.sectionId, "ahavat29-full-reader");
+    const url = new URL(ahavatReaderUnitHref(unit.id, "/2029/control?dataset=DS-09&finding=old"), "https://books.invalid");
+    assert.equal(url.searchParams.get("page"), String(unit.pdf_page));
+    assert.equal(url.searchParams.get("readerUnit"), unit.id);
+    assert.equal(url.searchParams.get("dataset"), null);
+    assert.equal(url.searchParams.get("finding"), null);
+    assert.equal(url.hash, `#${ahavatReaderUnitDomId(unit.id)}`);
+    assert.ok(!("engine_verified" in unit) && !("display_label" in unit), "only the fixed companion rendering fields leave validation");
+  }
+  for (const id of ["ahavat-novellae-p045-01", "ahavat-novellae-p071-01", "ahavat-novellae-p046-04", "ahavat-novellae-p46-01"]) assert.equal(ahavatReaderUnit(id), null);
+});
+
+test("foreign, incomplete, mislabeled or wrong-page companion material cannot render as a valid expanded unit", () => {
+  assert.deepEqual(ahavatCompanionReadingUnits(null, 55), []);
+  assert.deepEqual(ahavatCompanionReadingUnits(bundle, 45), []);
+  assert.deepEqual(ahavatCompanionReadingUnits(bundle, "55"), []);
+  for (const mutate of [
+    d => { d.source_identity = "foreign"; },
+    d => { d.source_pdf_sha256 = "other"; },
+    d => { d.pages[54].companion_units.pop(); },
+    d => { d.pages[54].companion_units[0].pdf_page = 56; },
+    d => { d.pages[54].companion_units[0].source_anchor = "#page=56&view=FitH"; },
+    d => { d.pages[54].companion_units[0].display_label = "דברי הספר"; },
+    d => { d.pages[54].companion_units[0].explanation = ""; },
+    d => { d.pages[54].companion_units[1].id = d.pages[54].companion_units[0].id; },
+  ]) {
+    const damaged = structuredClone(bundle); mutate(damaged);
+    assert.deepEqual(ahavatCompanionReadingUnits(damaged, 55), []);
+  }
 });

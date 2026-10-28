@@ -11,8 +11,19 @@ export const AHAVAT_READER_UNITS = Object.freeze([
   ...AHAVAT_MEGILLOT.flatMap(item => ["letters", "words"].map(kind => ({ id: `scrolls-total:${item.id}:${kind}`, page: item.totalPage, title: `${item.title} · סיכום ${kind === "words" ? "תיבות" : "אותיות"}`, datasetId: kind === "words" ? "DS-10" : "DS-09", sectionId: "ahavat29-scrolls", megillahId: item.id, kind }))),
 ].map(unit => Object.freeze(unit)));
 
+// Lightweight URL projection of the delivered companion's 25 × 3 units.
+// Keep it separate from the 287 source-native rows; no prose or OCR is eager.
+const companionUnits = Object.freeze(Array.from({ length: 75 }, (_, index) => {
+  const page = 46 + Math.floor(index / 3), position = index % 3 + 1;
+  return Object.freeze({
+    id: `ahavat-novellae-p${String(page).padStart(3, "0")}-${String(position).padStart(2, "0")}`,
+    page, title: `הסבר נלווה · עמוד ${page} · יחידה ${position}`,
+    layer: "companion", datasetId: "", sectionId: "ahavat29-full-reader",
+  });
+}));
+
 export function ahavatReaderUnit(id) {
-  return AHAVAT_READER_UNITS.find(unit => unit.id === id) || null;
+  return AHAVAT_READER_UNITS.find(unit => unit.id === id) || companionUnits.find(unit => unit.id === id) || null;
 }
 
 export function ahavatReaderUnitDomId(id) {
@@ -30,10 +41,13 @@ export function ahavatReaderUnitHref(id, currentUrl = "/2029/control") {
   url.pathname = "/2029/control";
   url.searchParams.set("surface", "ahavat-torah-system");
   url.searchParams.set("readerUnit", unit.id);
-  url.searchParams.set("dataset", unit.datasetId);
+  if (unit.datasetId) url.searchParams.set("dataset", unit.datasetId);
+  else url.searchParams.delete("dataset");
   url.searchParams.set("page", String(unit.page));
   url.searchParams.delete("finding");
-  if (unit.bookId) {
+  if (unit.layer === "companion") {
+    // A companion is not a scroll/table row, and gets no fabricated dataset.
+  } else if (unit.bookId) {
     url.searchParams.set("peopleBook", unit.bookId);
     const query = ahavatReaderQuery(url.searchParams, "peopleQuery");
     if (!ahavatPeopleRows(unit.bookId, query).some(row => row.id === unit.rowId)) url.searchParams.delete("peopleQuery");
