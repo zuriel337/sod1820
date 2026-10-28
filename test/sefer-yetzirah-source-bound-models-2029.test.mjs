@@ -24,3 +24,9 @@ test('Gra seals bind PDF 175 independently and preserve each comparison witness 
  assert.notDeepEqual(bindSourceModel(different,'six-seals-gra-edition').components[0].seal_letters,syn.components[0].seal_letters,'synthetic witness differences must never be copied from the other witness');
  assert.deepEqual(bindSourceModel(different,'six-seals-synoptic').components.map(c=>c.seal_letters),syn.components.map(c=>c.seal_letters));
 });
+test('twelve boundaries preserve the printed direction pairs and use cube edges only as an embedding',()=>{
+ const m=bindSourceModel(bundle,'twelve-boundaries-gra'),g=modelGeometry(m);assert.equal(m.components.length,12);assert.equal(m.relations.length,0);assert.equal(g.points.length,0);assert.equal(g.segments.length,12);
+ assert.equal(new Set(g.segments.map(s=>JSON.stringify([s.from,s.to].sort()))).size,12);
+ for(const c of m.components){assert.equal(c.source.pdf_page,187);assert.equal(c.letters,undefined);const line=g.segments.find(s=>s.id===c.stable_id);assert.deepEqual(line.directions,c.directions);assert.equal(line.from.filter((v,i)=>v!==line.to[i]).length,1);assert.equal(line.letter,undefined);}
+ assert.deepEqual(m.components.slice(0,3).map(c=>c.directions),[['east','up'],['east','north'],['east','down']]);
+});

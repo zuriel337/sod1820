@@ -2,7 +2,7 @@ import React,{useEffect,useRef} from 'react';
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {TYPEFACE} from '../../../lib/designTokens.js';
-import {CAMERA,modelGeometry,viewportFov} from './sourceModels.js';
+import {CAMERA,modelGeometry,viewportFov,DIRECTION_VECTORS,DIRECTION_LABELS} from './sourceModels.js';
 
 function cylinder(from,to,radius,material){
   const a=new THREE.Vector3(...from),b=new THREE.Vector3(...to),delta=b.clone().sub(a);
@@ -30,7 +30,7 @@ export default function YetzirahModelCanvas(props){
     const container=host.current,canvas=document.createElement('canvas');canvas.setAttribute('aria-label','המחשה מרחבית; אפשר לבחור גם ברשימת הרכיבים');canvas.setAttribute('role','img');container.appendChild(canvas);
     let renderer,controls,resize,frame=0,disposed=false;
     const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(CAMERA.fov,1,.1,100);camera.position.set(...CAMERA.position);camera.lookAt(...CAMERA.target);
-    const nodes=[],edges=[],labels=[],hits=[],decorations=[];
+    const nodes=[],edges=[],labels=[],hits=[],decorations=[],faces=[],directionLabels=[];
     try{
       renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;
       const p=latest.current.palette;scene.add(new THREE.HemisphereLight(p.ink,p.cardSoft,2.2));const light=new THREE.DirectionalLight(p.ink,3);light.position.set(4,7,6);scene.add(light);const rim=new THREE.DirectionalLight(p.accentSecondary,1.8);rim.position.set(-5,1,-4);scene.add(rim);
@@ -40,6 +40,8 @@ export default function YetzirahModelCanvas(props){
         mesh.position.set(...point.position);mesh.userData.componentId=point.id;scene.add(mesh);nodes.push({mesh,point});hits.push(mesh);
         const label=labelSprite(point);scene.add(label.sprite);labels.push(label);hits.push(label.sprite);
       }
+      for(const segment of geometry.segments||[]){const mesh=cylinder(segment.from,segment.to,.045,new THREE.MeshStandardMaterial({color:p.warmAccent,metalness:.48,roughness:.3}));mesh.userData.componentId=segment.id;scene.add(mesh);nodes.push({mesh,point:segment,segment:true});hits.push(mesh);const label=labelSprite(segment);scene.add(label.sprite);labels.push(label);hits.push(label.sprite);}
+      if(geometry.cubeRadius){const r=geometry.cubeRadius;for(const [direction,v]of Object.entries(DIRECTION_VECTORS)){const face=new THREE.Mesh(new THREE.PlaneGeometry(2*r,2*r),new THREE.MeshBasicMaterial({color:p.accentDiscovery,transparent:true,opacity:.09,side:THREE.DoubleSide,depthWrite:false}));face.position.set(...v.map(n=>n*r));if(v[0])face.rotation.y=Math.PI/2;if(v[1])face.rotation.x=Math.PI/2;scene.add(face);faces.push({mesh:face,direction});const annotation=labelSprite({label:DIRECTION_LABELS[direction],position:v.map(n=>n*(r+.75)),id:null});annotation.sprite.scale.set(1.25,.625,1);scene.add(annotation.sprite);directionLabels.push({...annotation,direction});}}
       for(const edge of geometry.edges){const mesh=cylinder(edge.from,edge.to,.016,new THREE.MeshStandardMaterial({color:p.inkSoft,transparent:true,opacity:.4,metalness:.3,roughness:.45}));scene.add(mesh);edges.push({mesh,edge});}
       if(geometry.orientationCenter){const ring=new THREE.Mesh(new THREE.TorusGeometry(.24,.018,8,64),new THREE.MeshBasicMaterial({color:p.inkSoft,transparent:true,opacity:.45}));ring.rotation.x=Math.PI/2;scene.add(ring);decorations.push(ring);}
       controls=new OrbitControls(camera,canvas);controls.target.set(...CAMERA.target);controls.minDistance=6;controls.maxDistance=17;controls.enablePan=false;controls.autoRotateSpeed=.35;
@@ -47,8 +49,9 @@ export default function YetzirahModelCanvas(props){
       function draw(){frame=0;if(disposed)return;const now=latest.current;controls.autoRotate=now.rotate&&!now.reducedMotion;controls.enableDamping=!now.reducedMotion;const changed=controls.update();renderer.render(scene,camera);canvas.dataset.frameCount=String(Number(canvas.dataset.frameCount||0)+1);canvas.dataset.rotation=controls.autoRotate?'running':'off';if(controls.autoRotate||changed)request();}
       const update=()=>{
         const {palette,selectedId,isolated}=latest.current;
-        nodes.forEach(({mesh,point})=>{const chosen=selectedId===point.id;mesh.material.color.set(chosen?palette.accentDiscovery:palette.warmAccent);mesh.material.emissive.set(palette.accentDiscovery);mesh.material.emissiveIntensity=chosen?.35:0;mesh.scale.setScalar(chosen?1.18:1);mesh.visible=!isolated||!selectedId||chosen;});
-        labels.forEach(label=>{label.sprite.visible=!isolated||!selectedId||label.point.id===selectedId;paintLabel(label,palette,label.point.id===selectedId);});
+        nodes.forEach(({mesh,point})=>{const chosen=selectedId===point.id;mesh.material.color.set(chosen?palette.accentDiscovery:palette.warmAccent);if(mesh.material.emissive){mesh.material.emissive.set(palette.accentDiscovery);mesh.material.emissiveIntensity=chosen?.35:0;}mesh.scale.setScalar(point.from?1:(chosen?1.18:1));mesh.visible=!isolated||!selectedId||chosen;});
+        labels.forEach(label=>{label.sprite.visible=(geometry.kind!=='boundaries'||label.point.id===selectedId)&&(!isolated||!selectedId||label.point.id===selectedId);paintLabel(label,palette,label.point.id===selectedId);});
+        const selected=geometry.segments?.find(s=>s.id===selectedId);faces.forEach(f=>{f.mesh.visible=Boolean(selected?.directions.includes(f.direction));f.mesh.material.color.set(palette.accentDiscovery);});directionLabels.forEach(l=>paintLabel(l,palette,Boolean(selected?.directions.includes(l.direction))));
         edges.forEach(({mesh,edge})=>{mesh.material.color.set(palette.inkSoft);mesh.visible=!isolated||!selectedId||nodes.some(n=>n.point.id===selectedId&&(n.point.position===edge.from||n.point.position===edge.to));});
         request();
       };

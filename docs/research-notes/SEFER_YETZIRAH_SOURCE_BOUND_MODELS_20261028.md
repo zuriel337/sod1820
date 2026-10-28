@@ -21,3 +21,7 @@ Dedicated source tests 2/2 and actual Chromium smoke 2/2 at 1440/Night passed: e
 ## Checkpoint 2 · Gra seals and independent comparison
 
 IMPLEMENTED: `GraSealsModel2029`, six Gra source components/three relations at PDF 175 plus two independently bound ordered witness lists. Comparison source actions carry the chosen witness/page and a separate `returnTo` selection for the active model; they never overwrite that model's selection or borrow a seal array/order from the other witness. Passage summaries are consumed from their own existing unit. Source tests 3/3 and Gra Chromium smoke 2/2 at 1440/Night passed, including all six primary and all six comparison source actions, actual mesh selection, motion/context/resource/focus checks. Synthetic differing-witness data tests prove the adapter does not silently copy one witness into the other. Nine-context final acceptance remains pending.
+
+## Checkpoint 3 · twelve boundaries
+
+IMPLEMENTED: `TwelveBoundariesModel2029`, all twelve ordered source direction pairs at PDF 187. Cube edges are an explicitly editorial realization; no letter/vertex/measure attribution or extra source relation is generated. Selecting an edge highlights exactly its two named face directions; isolation retains that boundary. Dedicated source tests 4/4 and actual Chromium smoke 2/2 at 1440/Night passed, including every boundary/source action and an actual edge ray selection. Desktop screenshot reviewed. Full nine-context acceptance remains pending.
