@@ -81,3 +81,12 @@ const found = (list) => list.length;
 
 export function poolRelations(items) { return relationsAmong(items); }
 export { positionAt };
+
+/** Ids by position in the window (neutral), the relations among the items, and a plain-object copy for storage. */
+export function finalizePool(items, { keepTier = true } = {}) {
+  const ordered = items.slice().sort((x, y) => x.cells[0][0] - y.cells[0][0] || x.cells[0][1] - y.cells[0][1] || x.text.localeCompare(y.text) || x.skip - y.skip || x.dir - y.dir);
+  ordered.forEach((c, k) => { c.id = `F${String(k + 1).padStart(3, "0")}`; });
+  const relations = relationsAmong(ordered).map((r, k) => ({ id: `R${String(k + 1).padStart(4, "0")}`, ...r }));
+  return { items: ordered, relations };
+}
+export const storable = (item) => ({ id: item.id, text: item.text, family: item.family, dir: item.dir, start: item.start, skip: item.skip, cells: item.cells, E: item.E, before: item.before, after: item.after, tier: item.tier, axis: item.axisRelation ?? item.axis, lex: item.lex, verify: item.verify });

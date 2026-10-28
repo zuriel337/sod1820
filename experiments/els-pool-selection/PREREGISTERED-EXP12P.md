@@ -110,3 +110,13 @@ Controls: the same model metrics on tiles; "similar groups" = groups holding a P
 
 Word-list coverage; line families beyond the registered ones; region bounds (a structure outside the 101 columns is invisible); the shortlist cut (K = 300, tier rules); words of 4-9 letters only; E treats letters as independent;
 the control tiles are neighbours in the same text and not independent; n is small; the saved findings are post-hoc picks of a human; the model's reasons are interpretation; thinking can exhaust max_tokens (as in EXP-16).
+
+## Amendment 1 (28.10.2026, before any pool is engine-confirmed for the report, before the saved findings are read, before any call)
+Sizes of the exploratory run settle three details that section 2-6 left open:
+* **Control tiles** are the slots of 101 columns that fit inside columns 0-1,774 (17 slots: columns 0-100, 101-201, ...), minus the slots that overlap the real region (columns 101-201 and 202-302), i.e. 15 slots;
+  **12 of them are drawn by a seeded shuffle** (`mulberry32`, seed label `EXP12P-control-tiles-v1`). (Random placement without overlap could not fit 12 tiles.)
+* **Packet relation filter** (the pool data keeps every relation; the packet lists): all `continuation`, `same_line` and `crossing`; `parallel` with offset <= 3 and overlap >= 3; `near` only when both items have >= 5 letters.
+  Every item also states its own relation to the axis (including `near`), so nothing about nearness to the axis is dropped. Real pool: 1,689 of 3,283 relations are listed (about 25K tokens). What the filter omits
+  (parallels farther than 3 cells, near pairs with a 4-letter member) is a stated limit.
+* **Generator check** (`review/generator-vs-engine.json`, 600 engine calls, 60 seeded words, 10 ELS families): the generator and the engine returned exactly the same occurrences inside the real window (28 = 28) and inside a
+  second window (33 = 33); no occurrence only on one side. Read-only; no saved record or target was used.

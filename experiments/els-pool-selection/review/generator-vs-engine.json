@@ -1,0 +1,31 @@
+{
+ "sample_size": 60,
+ "engine_calls": 600,
+ "lexicon_size": 20616,
+ "windows": [
+  {
+   "window": "real",
+   "cols": [
+    162,
+    262
+   ],
+   "local": 28,
+   "engine_inside": 28,
+   "only_local": [],
+   "only_engine": [],
+   "equal": true
+  },
+  {
+   "window": "tile",
+   "cols": [
+    900,
+    1000
+   ],
+   "local": 33,
+   "engine_inside": 33,
+   "only_local": [],
+   "only_engine": [],
+   "equal": true
+  }
+ ]
+}
