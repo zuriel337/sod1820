@@ -81,4 +81,3 @@ export async function fetchWorldPublicBookContent({ reader = fetchBookEntities, 
   const rows = await reader({ limit });
   return buildPublicBookContentProjection(rows);
 }
-

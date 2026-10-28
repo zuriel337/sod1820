@@ -58,4 +58,3 @@ export function buildWorldUnifiedPublicContentLanding({ peopleIndex = null, cont
     sections,
   });
 }
-
