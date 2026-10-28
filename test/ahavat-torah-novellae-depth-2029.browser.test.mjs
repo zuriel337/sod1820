@@ -43,12 +43,12 @@ async function fixture() {
   return { origin, browser, server };
 }
 
-test("all 105 companion units retain their exact source, expanded reading, reload and return in nine display combinations", { skip: !available, timeout: 300_000 }, async () => {
+test("all 141 companion units retain their exact source, expanded reading, reload and return in nine display combinations", { skip: !available, timeout: 300_000 }, async () => {
   const { origin, browser, server } = await fixture();
   const out = "/tmp/ahavat-novellae-depth-browser-20261028";
   mkdirSync(out, { recursive: true });
   try {
-    for (const width of [320, 390, 1440]) for (const theme of ["light", "parchment", "dark"]) {
+    for (const width of [320, 390, 1440]) await Promise.all(["light", "parchment", "dark"].map(async theme => {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
       await context.addInitScript(value => { if (location.hostname === "127.0.0.1") localStorage.setItem("sod-theme", value); }, theme);
       await routeContext(context, origin);
@@ -79,7 +79,7 @@ test("all 105 companion units retain their exact source, expanded reading, reloa
       await assertExactEntry();
       const nav = page.getByRole("navigation", { name: "עמודים עם הסבר מורחב", exact: true });
       const selection = nav.getByRole("combobox", { name: "בחר עמוד ללימוד מורחב", exact: true });
-      assert.equal(await selection.locator("option:not([disabled])").count(), 35);
+      assert.equal(await selection.locator("option:not([disabled])").count(), 47);
       for (const record of companion.pages.filter(item => item.companion_units)) {
         await selection.selectOption(String(record.pdf_page));
         const units = page.getByRole("region", { name: `הסבר מורחב לעמוד ${record.pdf_page}`, exact: true });
@@ -89,13 +89,21 @@ test("all 105 companion units retain their exact source, expanded reading, reloa
           const detail = page.locator(`[data-reader-unit="${unit.id}"]`);
           if (!await detail.evaluate(element => element.open)) await click(detail.locator("summary"));
           await page.waitForFunction(id => new URLSearchParams(location.search).get("readerUnit") === id, unit.id);
-          assert.match(await detail.textContent(), new RegExp(unit.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+          const rendered = await detail.evaluate(element => {
+            const summary = element.querySelector("summary");
+            const body = element.querySelector("p");
+            const link = element.querySelector("a");
+            return { text: element.textContent, bodySize: parseFloat(getComputedStyle(body).fontSize), summarySize: parseFloat(getComputedStyle(summary).fontSize), summaryHeight: summary.getBoundingClientRect().height, linkText: link.textContent.trim(), href: link.getAttribute("href") };
+          });
+          assert.match(rendered.text, new RegExp(unit.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
           assert.match(await source.locator("iframe").getAttribute("src"), new RegExp(`#page=${unit.pdf_page}&view=FitH$`));
           assert.equal(new URL(page.url()).searchParams.get("dataset"), null);
-          assert.ok(await detail.locator("p").first().evaluate(element => parseFloat(getComputedStyle(element).fontSize)) >= 18);
-          assert.ok(await detail.locator("summary").evaluate(element => parseFloat(getComputedStyle(element).fontSize)) >= 16);
-          const summary = await detail.locator("summary").boundingBox(); assert.ok(summary.height >= 44);
-          assert.match(await detail.getByRole("link", { name: `דברי הספר · עמוד ${unit.pdf_page} ↗`, exact: true }).getAttribute("href"), new RegExp(`#page=${unit.pdf_page}&view=FitH$`));
+          assert.ok(rendered.bodySize >= 18);
+          assert.ok(rendered.summarySize >= 16);
+          assert.ok(rendered.summaryHeight >= 44);
+          assert.equal(rendered.linkText, `דברי הספר · עמוד ${unit.pdf_page} ↗`);
+          assert.equal(await detail.getByRole("link", { name: `דברי הספר · עמוד ${unit.pdf_page} ↗`, exact: true }).count(), 1);
+          assert.match(rendered.href, new RegExp(`#page=${unit.pdf_page}&view=FitH$`));
         }
       }
       assert.equal(await page.locator("canvas").count(), 0);
@@ -103,8 +111,8 @@ test("all 105 companion units retain their exact source, expanded reading, reloa
       assert.deepEqual(errors, []);
       await page.screenshot({ path: `${out}/companion-${width}-${theme}.png` });
       await context.close();
-      console.log(`105 companion units ${width}/${theme}: passed`);
-    }
+      console.log(`141 companion units ${width}/${theme}: passed`);
+    }));
   } finally { await browser.close(); await server.close(); }
 });
 
@@ -125,6 +133,33 @@ test("unavailable or mismatched companion data never hides the exact PDF or inve
       assert.equal(await page.locator(".ahavat29-companion-unit").count(), 0);
       assert.match(await source.locator("iframe").getAttribute("src"), /#page=55&view=FitH$/);
       assert.equal(await source.getByRole("link", { name: /קרא את ה־PDF/ }).isVisible(), true);
+      await context.close();
+    }
+  } finally { await browser.close(); await server.close(); }
+});
+
+test("new final-page companion deep links survive PDF return and refresh", { skip: !available, timeout: 90_000 }, async () => {
+  const { origin, browser, server } = await fixture();
+  const id = "ahavat-novellae-p092-03";
+  try {
+    for (const width of [320, 390, 1440]) {
+      const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
+      await routeContext(context, origin);
+      const page = await context.newPage();
+      await page.goto(`${origin}${ahavatReaderUnitHref(id)}`, { waitUntil: "domcontentloaded" });
+      const unit = page.locator(`[data-reader-unit="${id}"]`);
+      await unit.waitFor();
+      assert.equal(await unit.evaluate(element => element.open), true);
+      const source = page.locator("#ahavat29-source");
+      assert.match(await source.locator("iframe").getAttribute("src"), /#page=92&view=FitH$/);
+      await unit.getByRole("button", { name: "פתח מקור היחידה · PDF 92", exact: true }).click();
+      await source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }).click();
+      assert.equal(new URL(page.url()).searchParams.get("readerUnit"), id);
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await unit.waitFor();
+      assert.equal(await unit.evaluate(element => element.open), true);
+      assert.match(await source.locator("iframe").getAttribute("src"), /#page=92&view=FitH$/);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
       await context.close();
     }
   } finally { await browser.close(); await server.close(); }

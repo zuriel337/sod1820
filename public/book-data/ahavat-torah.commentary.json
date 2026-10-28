@@ -2364,145 +2364,613 @@
       "pdf_page": 81,
       "work_id": "ahavat-torah-pdf-81",
       "title": "בלק, פנחס, מטות ומסעי",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב בלק, פנחס, מטות ומסעי ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי פינחס ומטות: מנהיגות, ציבור ונדרים. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "איש על העדה",
+        "רועה היוצא לפני הצאן",
+        "נדר ומחשבה"
       ],
       "source_anchor": "#page=81&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p081-01",
+          "pdf_page": 81,
+          "title": "איש על העדה",
+          "question": "כיצד מבין המחבר את בקשת משה למנהיג?",
+          "explanation": "המחבר קורא את בקשת משה למנות איש על העדה לצד דבריו בפרשת קרח על אחריות היחיד והעדה. הוא מבאר שמנהיג ראוי אינו מבקש להציל רק את עצמו, אלא חושב על הציבור כולו ועל הצורך שלו בהנהגה.",
+          "takeaway": "הנהגה נבחנת בדאגה לעדה ולא רק במעמדו של המנהיג.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=81&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p081-02",
+          "pdf_page": 81,
+          "title": "רועה היוצא לפני הצאן",
+          "question": "מה מלמד סדר היציאה והכניסה על תפקיד המנהיג?",
+          "explanation": "המחבר מסביר שרועה צריך לצאת לפני הצאן ולבחון אם יש מכשול בדרך. לאחר שראה שהדרך אפשרית הוא יכול להוציא את העדה ולהביאה; הוא משווה זאת לרועה שמקדים את צורכי צאנו לדאגה לעצמו.",
+          "takeaway": "המנהיג בודק את הדרך ונושא באחריות למי שהולכים אחריו.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=81&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p081-03",
+          "pdf_page": 81,
+          "title": "נדר ומחשבה",
+          "question": "למה המחבר עוסק בכוונה גם כשנדר אינו מתקיים?",
+          "explanation": "בפרשת מטות המחבר מביא פירוש רש״י על מי שלא ידעה שנדרה הופר ופעלה לפי מחשבתה. הוא מסיק מן הדיון שיש מקום לבחון את כוונת האדם גם כאשר התוצאה המעשית שונה ממה שחשב.",
+          "takeaway": "הדיון בנדר מאפשר להבחין בין המעשה בפועל לבין כוונתו.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=81&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 82,
       "work_id": "ahavat-torah-pdf-82",
       "title": "פרשת מסעי",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב מסעי ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי מסעי: מסעות, מקלט ומות הכהן. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "כתיבת המסעות",
+        "מות אהרן וזמן המקלט",
+        "הים הגדול וגבול הארץ"
       ],
       "source_anchor": "#page=82&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p082-01",
+          "pdf_page": 82,
+          "title": "כתיבת המסעות",
+          "question": "מה מבדיל בין כלל המסעות לבין המקומות שמשה מציין?",
+          "explanation": "המחבר מעיין בלשון מוצאיהם למסעיהם ומסעיהם למוצאיהם ומתייחס לסדר המקומות שנכתבו בתורה. הוא מציע שהרשימה המודפסת נושאת דגש על המסעות שנצטווה משה לכתוב, וקושר מקומות מסוימים למאורעות שאירעו בהם.",
+          "takeaway": "רשימת התחנות נקראת גם כסדר של מאורעות ולא רק כרצף שמות.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=82&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p082-02",
+          "pdf_page": 82,
+          "title": "מות אהרן וזמן המקלט",
+          "question": "למה נזכר תאריך מות אהרן בהקשר המסעות?",
+          "explanation": "המחבר קושר את ציון יום מות אהרן לדין רוצח בשגגה ולעיר המקלט. בדיונו הוא מבחין בין מקרה שבו הסתיים הדין לפני מות הכהן הגדול לבין מקרה שהסתיים לאחריו, ומציג את התאריך כחלק מהבנת הרצף.",
+          "takeaway": "ציון הזמן מקבל משמעות כאשר קוראים אותו לצד דין עיר המקלט.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=82&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p082-03",
+          "pdf_page": 82,
+          "title": "הים הגדול וגבול הארץ",
+          "question": "למה נקרא הים שבגבול הארץ הים הגדול?",
+          "explanation": "המחבר משווה בין הים הגדול שבגבול הארץ לבין פירוש רש״י לכינוי נהר פרת הנהר הגדול. בהצעתו הכינוי נקשר למעמדו כגבול ארץ ישראל, גם כאשר אפשר להשוות אותו לימים אחרים.",
+          "takeaway": "כינוי המקום מוסבר מתוך הקשרו לגבולות הארץ.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=82&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 83,
       "work_id": "ahavat-torah-pdf-83",
       "title": "מסעי, דברים ואתחנן",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב מסעי, דברים ואתחנן ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי מסעי ודברים: כוונה, מעשה ומנהיגות. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "כוונה ומעשה בשגגה",
+        "מסע ארוך ותוכחת משה",
+        "גדולים ואחריות הציבור"
       ],
       "source_anchor": "#page=83&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p083-01",
+          "pdf_page": 83,
+          "title": "כוונה ומעשה בשגגה",
+          "question": "איך המחבר דן במצוות ובעבירות שנעשות בלי כוונה?",
+          "explanation": "המחבר שואל על מעשה שלא נעשה בכוונה ומשווה בין מצוות שאדם עושה בלי תשומת לב לבין חטא בשגגה. בדיונו הוא קושר את השאלה לאחריות ולרחמים ובוחן אותה גם ביחס למותו של הכהן הגדול ולעיר המקלט.",
+          "takeaway": "הדיון מבחין בין עצם המעשה לבין הכוונה שליוותה אותו.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=83&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p083-02",
+          "pdf_page": 83,
+          "title": "מסע ארוך ותוכחת משה",
+          "question": "למה המחבר מפרט את המקומות שבפתיחת ספר דברים?",
+          "explanation": "המחבר קורא את שמות המקומות שבפתיחת דברים לצד המסלול מחורב לקדש ברנע. הוא מציע לראות בסדר השמות ובמרחקם חלק מתוכחת משה לישראל, ומעמיד את הדרך הקצרה מול תקופת הנדודים הארוכה.",
+          "takeaway": "המקומות והמסע נעשים מסגרת להבנת דברי משה.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=83&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p083-03",
+          "pdf_page": 83,
+          "title": "גדולים ואחריות הציבור",
+          "question": "כיצד המחבר מתייחס למתח בין גדולי העדה לעם?",
+          "explanation": "המחבר בוחן את ההתקרבות למשה ואת תפקידם של גדולי העדה בסיפור המרגלים. הוא קושר את מעשי הציבור לאופן שבו הובנה הנהגתם, ומביא דוגמאות שבהן האחריות הציבורית אינה פשוטה ואינה מוטלת רק על דמות אחת.",
+          "takeaway": "סיפור המנהיגות נקרא דרך היחסים בין העם לבין ראשיו.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=83&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 84,
       "work_id": "ahavat-torah-pdf-84",
       "title": "ואתחנן ועקב",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב ואתחנן ועקב ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי ואתחנן ועקב: קרבה, חכמה ועשייה. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "קרבת ה׳ ותפילה",
+        "חכמת התורה וחכמות נוספות",
+        "מצוות קלות ועקב"
       ],
       "source_anchor": "#page=84&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p084-01",
+          "pdf_page": 84,
+          "title": "קרבת ה׳ ותפילה",
+          "question": "מה מלמד הפסוק על גוי אשר לו אלקים קרובים אליו?",
+          "explanation": "המחבר מעיין בלשון הפסוק על קרבת ה׳ ובתפילה, ומשווה את תיאור ישראל לתפיסות שהוא מייחס לעמים אחרים. בדרשתו הקרבה איננה מתמצה בפרישות גופנית, אלא נבחנת גם במערכת המצוות ובפנייה אל ה׳.",
+          "takeaway": "קרבה ותפילה נידונות יחד עם החיים והמצוות.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=84&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p084-02",
+          "pdf_page": 84,
+          "title": "חכמת התורה וחכמות נוספות",
+          "question": "איך המחבר מבין את חכמתכם ובינתכם לעיני העמים?",
+          "explanation": "המחבר מביא את דברי חז״ל על חישוב תקופות ומזלות ומקשר אותם לדיונו במעלות החכמה. הוא מבחין בין חכמת התורה לבין חכמות אחרות, ומשתמש בדימויים מן המקרא כדי לבחון את מקומן בתוך לימוד רחב.",
+          "takeaway": "הדרשה מציבה חכמות שונות זו לצד זו ובוחנת את היחס ביניהן.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=84&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p084-03",
+          "pdf_page": 84,
+          "title": "מצוות קלות ועקב",
+          "question": "מה מלמדת לשון והיה עקב תשמעון לפי המחבר?",
+          "explanation": "בסוף העמוד המחבר מביא את פירוש רש״י על מצוות קלות שאדם דש בעקביו. הוא פותח השוואה בין יחס האדם לדברים שנראים גדולים לבין תשומת הלב הנדרשת גם לפרטים קטנים; המשך המהלך נמצא בעמוד הבא.",
+          "takeaway": "הדיון בפרטים הקטנים מתחיל כאן וממשיך בעמוד הבא.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=84&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 85,
       "work_id": "ahavat-torah-pdf-85",
       "title": "פרשת עקב",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב עקב ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי עקב: מצוות קלות ושני לוחות הברית. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "דברים גדולים וקטנים",
+        "שני הלוחות ושתי הידיים",
+        "הלוחות הראשונים והשניים"
       ],
       "source_anchor": "#page=85&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p085-01",
+          "pdf_page": 85,
+          "title": "דברים גדולים וקטנים",
+          "question": "למה המחבר משווה מצוות קלות לדברים קטנים שפוגעים באדם?",
+          "explanation": "המחבר ממשיך מן העמוד הקודם ומשווה בין היכולת להיזהר מסכנות שנראות גדולות לבין קושי להישמר מדברים קטנים. הוא משתמש בהשוואה כדי להסביר את דרשת עקב על מצוות שאדם עשוי לזלזל בהן.",
+          "takeaway": "המחבר מבקש תשומת לב גם למה שנראה קטן ושגרתי.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=85&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p085-02",
+          "pdf_page": 85,
+          "title": "שני הלוחות ושתי הידיים",
+          "question": "למה משתנה התיאור של הלוחות הראשונים והשניים?",
+          "explanation": "המחבר משווה את הלשונות על שני לוחות הברית ועל ידי משה לפני שבירת הלוחות ואחריה. הוא מציע לקרוא את ההבדלים כחלק מן הסיפור על קבלת הלוחות ושבירתם, ומפנה גם ללשונות המקבילות בפרשות אחרות.",
+          "takeaway": "הבדלי הניסוח מאפשרים לעקוב אחרי סדר קבלת הלוחות.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=85&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p085-03",
+          "pdf_page": 85,
+          "title": "הלוחות הראשונים והשניים",
+          "question": "כיצד המחבר מסביר את ההבדל בין מעשה הלוחות לכתיבה?",
+          "explanation": "המחבר מבחין בין הלוחות הראשונים המתוארים כמעשה אלקים לבין הלוחות השניים שפסל משה, ובין הלוחות עצמם לבין הכתיבה עליהם. הוא קושר את השינוי לחטא העגל ולתהליך שלאחריו, ומציע את קריאתו על בסיס הפסוקים.",
+          "takeaway": "ההשוואה מפרידה בין חומר הלוחות, מעשיהם והכתיבה שעליהם.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=85&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 86,
       "work_id": "ahavat-torah-pdf-86",
       "title": "עקב וראה",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב עקב וראה ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי ראה: בחירה, הרים ונתינה. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "ברכה וקללה",
+        "הר גריזים והר עיבל",
+        "הענקה ומידת הנדיבות"
       ],
       "source_anchor": "#page=86&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p086-01",
+          "pdf_page": 86,
+          "title": "ברכה וקללה",
+          "question": "כיצד המחבר מבין את הצבת הברכה והקללה לפני האדם?",
+          "explanation": "המחבר מעיין במילה היום ובקשר בין המצוות והעבירות לבין תוצאותיהן. הוא מציע לקרוא את הצבת האפשרויות כהדגשת האחריות למעשי האדם, ומבחין בדרשתו בין שכר המצוות לבין התגובה לעבירות.",
+          "takeaway": "הבחירה מוצגת דרך הקשר בין מעשה לבין תוצאתו.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=86&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p086-02",
+          "pdf_page": 86,
+          "title": "הר גריזים והר עיבל",
+          "question": "מה מוסיפים ההרים והאבנים לתיאור הברכה והקללה?",
+          "explanation": "המחבר שואל על חלוקת הברכה והקללה ועל הדברים שנכתבו על האבנים. הוא משווה את הפסוקים בפרשות ראה וכי תבוא ומציג הצעה לסדר האבנים והלשונות, תוך הסתמכות על מפרשים שהכיר.",
+          "takeaway": "ההשוואה מבקשת להבין כיצד מצטרפים ההרים, האבנים והלשון.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=86&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p086-03",
+          "pdf_page": 86,
+          "title": "הענקה ומידת הנדיבות",
+          "question": "מה לומד המחבר מן החזרה העניק תעניק לו?",
+          "explanation": "המחבר מביא את פירוש רש״י על הענקה לעבד וקושר אותו לשאלה כיצד אדם מבטא נדיבות. הוא מבחין בין נתינה שרואים אותה לבין צדקה שיש בה היבט של צנעה, ומדגיש את האפשרות לעזור גם לאנשים הזקוקים לכך.",
+          "takeaway": "הדרשה עוסקת באופן שבו נתינה יוצרת פתח לאחרים.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=86&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 87,
       "work_id": "ahavat-torah-pdf-87",
       "title": "ראה ושופטים",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב ראה ושופטים ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי ראה ושופטים: מועדים, מלך ומלחמה. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "השמחה בחג ואורחים",
+        "בקשת מלך בישראל",
+        "החוזרים מן המלחמה"
       ],
       "source_anchor": "#page=87&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p087-01",
+          "pdf_page": 87,
+          "title": "השמחה בחג ואורחים",
+          "question": "למה משתנים תיאורי המשתתפים בשמחת החג?",
+          "explanation": "המחבר משווה את הלשון על הלוי, הגר, היתום והאלמנה בתיאורי החגים. הוא מציע לקרוא את ההבדלים לפי תנאי הזמן והשמחה, ומתאר כיצד אנשים הזקוקים לעזרה מצטרפים לסעודה ולבית.",
+          "takeaway": "תיאור החג כולל גם דאגה למי שאינם יכולים לשמוח לבדם.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=87&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p087-02",
+          "pdf_page": 87,
+          "title": "בקשת מלך בישראל",
+          "question": "מה מבקש המחבר להבין בלשון אשימה עלי מלך?",
+          "explanation": "המחבר בוחן את הבקשה למלך כמו הגויים שסביב ישראל. הוא מבחין בין צרכים פנימיים של הנהגת המדינה לבין יחסיה עם עמים אחרים, וקורא את בקשת המלך בתוך המתח שבין שני הצרכים.",
+          "takeaway": "השאלה על המלך מתפרשת דרך תפקידיו השונים.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=87&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p087-03",
+          "pdf_page": 87,
+          "title": "החוזרים מן המלחמה",
+          "question": "למה מי שבנה בית או נטע כרם עשוי לשוב לביתו?",
+          "explanation": "המחבר מתייחס לאנשים שנצטוו לחזור מן המערכה ובוחן את השפעת הפחד וההתלבטות על היוצאים למלחמה. הוא קושר את דאגתם לבית, לכרם ולמשפחה למצב הרוח של הצבא ולמסגרת ההוראות שנאמרות לו.",
+          "takeaway": "ההוראות מתחשבות גם באדם היוצא למלחמה ובמשפחתו.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=87&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 88,
       "work_id": "ahavat-torah-pdf-88",
       "title": "שופטים וכי תצא",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב שופטים וכי תצא ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי שופטים וכי תצא: דיבור, מלחמה ובכורה. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "הכהן והשוטר מדברים",
+        "זכות הבכורה",
+        "קללה שהופכת לברכה"
       ],
       "source_anchor": "#page=88&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p088-01",
+          "pdf_page": 88,
+          "title": "הכהן והשוטר מדברים",
+          "question": "למה המחבר בוחן מי אומר את דברי ההכנה למלחמה?",
+          "explanation": "המחבר מבחין בין דברי הכהן לבין דברי השוטר ושואל כיצד נאמרות ההוראות לעם. הוא מתייחס לאופן שבו מציגים את הפחד ואת סיבת החזרה הביתה ומציע הסבר להבדל בין דיבור לבין השמעה.",
+          "takeaway": "חלוקת הדיבור בין הכהן לשוטר הופכת לחלק מן ההכנה.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=88&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p088-02",
+          "pdf_page": 88,
+          "title": "זכות הבכורה",
+          "question": "כיצד המחבר קורא את המקרה של בן האהובה ובן השנואה?",
+          "explanation": "המחבר מעיין בלשון הפסוק על שתי הנשים ובסדר הולדת הבנים. הוא מדגיש את ההבחנה בין העדפת האב לבין מעמדו של מי שנולד בכור, ומשתמש בסדר הזמנים כדי להבין למי שייכת הבכורה.",
+          "takeaway": "העדפה אישית אינה מחליפה את סדר הלידה שבפסוק.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=88&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p088-03",
+          "pdf_page": 88,
+          "title": "קללה שהופכת לברכה",
+          "question": "מה המחבר בוחן בהפיכת קללת בלעם לברכה?",
+          "explanation": "המחבר קורא את תיאור בלעם לצד פסוקים על ברכה וקללה ומביא את דברי המדרש שהכיר. הוא בוחן את ההבדל בין כוונת המקלל לבין התוצאה המתוארת בפסוק וממקם אותה בתוך דרשתו על היחסים בין העמים.",
+          "takeaway": "הדרשה מבחינה בין הכוונה הראשונית לבין התוצאה.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=88&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 89,
       "work_id": "ahavat-torah-pdf-89",
       "title": "כי תצא וכי תבוא",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב כי תצא וכי תבוא ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי כי תצא וכי תבוא: זיכרון, חסד וסמלים. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "זיכרון העבדות",
+        "סימן התפילין",
+        "ראייה והבחנה"
       ],
       "source_anchor": "#page=89&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p089-01",
+          "pdf_page": 89,
+          "title": "זיכרון העבדות",
+          "question": "כיצד המחבר קורא את הציווי לזכור את העבדות?",
+          "explanation": "המחבר משווה את הזכרת הפדיון בדין הגר והיתום ללשון על השארת היבול לנזקקים, שבה נזכרת העבדות בלי אותה תוספת. הוא מציע שבעל שדה, זית וכרם כבר מחזיק ברכוש המעיד שאינו עבד, שכן מה שקנה עבד קנה רבו. כך הוא מסביר את ההבדל בין ניסוחי הפסוקים.",
+          "takeaway": "ההבדל בין שני הפסוקים מוסבר דרך מעמד בעל הרכוש.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=89&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p089-02",
+          "pdf_page": 89,
+          "title": "סימן התפילין",
+          "question": "מה משמעות האות שעל התפילין לפי דרשת המחבר?",
+          "explanation": "המחבר מביא את מאמר חז״ל על שם ה׳ הנראה בתפילין ומתעכב על צורת האות שין. הוא מצרף מקורות ורמזי אותיות כדי להסביר את הקשר שהוא רואה בין התפילין, השם וההכרה הנובעת מהם.",
+          "takeaway": "אות התפילין משמשת בדרשה סמל לזהות ולהכרה.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=89&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p089-03",
+          "pdf_page": 89,
+          "title": "ראייה והבחנה",
+          "question": "למה המחבר עובר מדיון באותיות לדיון בראייה?",
+          "explanation": "בהמשך דבריו המחבר מוסיף קשר בין אותיות, עיניים ויכולת להבחין. הוא מציג את ההצעה כרמז משלו ומביא מקורות נוספים, כך שאפשר לקרוא את הקשר כדרשה ולא כתיאור פיזי של מנגנון הראייה.",
+          "takeaway": "האותיות והראייה מתחברות במהלך פרשני סמלי.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=89&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 90,
       "work_id": "ahavat-torah-pdf-90",
       "title": "כי תבוא, נצבים וילך",
-      "companion_explanation": "עמוד זה נמצא ברצף חידושי כי תבוא, ניצבים וילך. הדיון סביב התוכחה נקרא כמהלך פרשני על פסוקים, שכר ומדרש; עצם העיסוק בברכה וקללה אינו טבלה של מספרי תיבות. אפשר לעקוב אחר הקושיה והתשובה בתוך הדף ולחזור למקורות שהמחבר מצרף, כשה־PDF נשאר המקור המלא של הקריאה.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי כי תבוא, ניצבים וילך: ברית ותוכחה. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן. עצם העיסוק בברכה וקללה אינו טבלה של מספרי תיבות.",
       "reading_points": [
-        "תוכחה · דיון פרשני ולא איתור של טבלת מניינים",
-        "פנחס עד וזאת הברכה"
+        "תוכחה ורחמים",
+        "ברית לדורות",
+        "שורש פורה ראש ולענה"
       ],
       "source_anchor": "#page=90&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p090-01",
+          "pdf_page": 90,
+          "title": "תוכחה ורחמים",
+          "question": "כיצד המחבר קורא את הקללות שבתוכחה?",
+          "explanation": "המחבר מציע לראות בקללות שבתוכחה ברכות, ומביא ראיות מלשונות בתחילת התוכחה ובסופה. בהמשך הוא מוסר פירוש ששמע על אמירת התוכחה בקול נמוך ועל המשמעות הנסתרת של לשונותיה. זו דרכו לקרוא את הפסוקים בצד לשונם המודפסת.",
+          "takeaway": "המחבר מציע קריאה של ברכה בתוך לשונות התוכחה.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=90&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p090-02",
+          "pdf_page": 90,
+          "title": "ברית לדורות",
+          "question": "למה הברית כוללת גם את מי שאינם עומדים כעת?",
+          "explanation": "בפרשת ניצבים המחבר קורא את כריתת הברית כמחויבות שאינה נעצרת בדור אחד. הוא מעיין בלשון הפסוק על מי שנמצא ומי שאיננו, ומציע להבין ממנה אחריות הנמשכת גם אל הדורות הבאים.",
+          "takeaway": "הברית מתוארת כקשר בין הנוכחים לדורות העתידים.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=90&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p090-03",
+          "pdf_page": 90,
+          "title": "שורש פורה ראש ולענה",
+          "question": "מה מסביר המחבר באמצעות הדימוי של שורש פורה?",
+          "explanation": "המחבר קורא את הדימוי של שורש פורה ראש ולענה כחלק מן האזהרה מפני פנייה מן הברית. הוא מצרף פסוקים נוספים ומבאר כיצד דפוס מחשבה יכול להביא את האדם לפרש באופן שגוי את הצלחתו ואת מעשיו.",
+          "takeaway": "הדימוי מפנה להתבוננות בשורש המעשה ולא רק בתוצאתו.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=90&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 91,
       "work_id": "ahavat-torah-pdf-91",
       "title": "פרשת וילך",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב וילך ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי וילך: השירה ומפת פרשיות התורה. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "השירה כעדות",
+        "רמזים לבראשית",
+        "רמזים לשמות ולבמדבר"
       ],
       "source_anchor": "#page=91&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p091-01",
+          "pdf_page": 91,
+          "title": "השירה כעדות",
+          "question": "למה המחבר מקשר בין כתיבת השירה לתורה כולה?",
+          "explanation": "המחבר מעיין בציווי לכתוב את השירה ומביא מסורת על משה ועל מה שנגלה לו. הוא מציע שהשירה כוללת רמזים לאירועים ולפרשיות התורה, ולכן אפשר לקרוא אותה גם כעדות וגם כמפתח לעיון ברצף הספר.",
+          "takeaway": "השירה משמשת בדרשה עדות ומפתח לסיפורי התורה.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=91&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p091-02",
+          "pdf_page": 91,
+          "title": "רמזים לבראשית",
+          "question": "איך המחבר מוצא בשירה רמז לפרשיות הראשונות?",
+          "explanation": "המחבר משווה ביטויים מן השירה לסיפורים בבראשית ומצביע על קשרים שהוא רואה בין בריאה, אבות ואירועים נוספים. הוא מציג את ההתאמות כרמזי קריאה, שיש לבחון כל אחד מהם מול לשון השירה ולשון הפרשה.",
+          "takeaway": "ההשוואה בנויה על צירוף פסוקים מפרשות שונות.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=91&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p091-03",
+          "pdf_page": 91,
+          "title": "רמזים לשמות ולבמדבר",
+          "question": "איך המחבר ממשיך את מפת הרמזים לאורך התורה?",
+          "explanation": "בהמשך הרצף המחבר קושר פסוקים מן השירה לאירועים ולפרשיות שבשמות, ויקרא ובמדבר. הוא עובר מפרשה לפרשה ומציע זיקות לתוכן השירה, כך שהקורא יכול לעקוב אחר דרך הקישור שלו במקור.",
+          "takeaway": "השירה נקראת כמסגרת המקשרת בין פרשיות רבות.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=91&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 92,
       "work_id": "ahavat-torah-pdf-92",
       "title": "וילך, האזינו וזאת הברכה",
-      "companion_explanation": "עמוד זה נמצא בשער „פנחס עד וזאת הברכה”. החידושים בעמוד זה נעים סביב וילך, האזינו וזאת הברכה ומצרפים לשון פסוקים, מדרש וקשרים מספריים לפי סדר הספר. נקודות הקריאה של השער עוזרות להתמצא במהלך בלי להחליף את לשון המקור. דברי הספר המלאים נשארים פתוחים ב־PDF לצד ההסבר, ואפשר לחזור מיד לאותו עמוד.",
+      "companion_explanation": "בעמוד זה המחבר עוסק בנושאי האזינו וברכה: אב, עמים ושבטים. הוא פותח בפסוקים ובדברי חז״ל ומציע קשרים בין מקומות, שאלות ורעיונות. שלוש יחידות הקריאה מאפשרות לעקוב אחר דרכו ולפתוח את עמוד המקור המדויק לצדן.",
       "reading_points": [
-        "פנחס עד וזאת הברכה",
-        "חזרה לעמוד המקור המדויק"
+        "אב ובנים בהאזינו",
+        "גבולות עמים ומקום ישראל",
+        "ברכות השבטים"
       ],
       "source_anchor": "#page=92&view=FitH",
-      "source_basis": "embedded_text_and_structural_map"
+      "source_basis": "embedded_text_and_structural_map",
+      "companion_units": [
+        {
+          "id": "ahavat-novellae-p092-01",
+          "pdf_page": 92,
+          "title": "אב ובנים בהאזינו",
+          "question": "איך המחבר מפרש את יחס האב והבנים שבשירה?",
+          "explanation": "המחבר מעיין בלשונות השירה על בנים ועל אביהם ומברר את האחריות המשתקפת בהן. הוא משווה בין יחסים בתוך משפחה לבין הקשר המתואר בין ישראל לאלקים, ומשתמש בהשוואה כדי לפרש את דברי השירה.",
+          "takeaway": "דימוי המשפחה מאפשר לעקוב אחר שאלות של קשר ואחריות.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=92&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p092-02",
+          "pdf_page": 92,
+          "title": "גבולות עמים ומקום ישראל",
+          "question": "מה הקשר שמציע המחבר בין גבולות העמים לישראל?",
+          "explanation": "המחבר קורא את הפסוקים על גבולות העמים לצד סיפורי האבות וירידתם לארצות אחרות. הוא מציע לראות בסיפורים אלה רקע להבנת מקומו של ישראל בין העמים, ומייחס את הקשר לקריאתו בפסוקי השירה.",
+          "takeaway": "סיפורי האבות והעמים נקראים יחד עם פסוקי האזינו.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=92&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        },
+        {
+          "id": "ahavat-novellae-p092-03",
+          "pdf_page": 92,
+          "title": "ברכות השבטים",
+          "question": "איך קורא המחבר את ברכות משה לשבטים?",
+          "explanation": "בפרשת וזאת הברכה המחבר בוחן את ברכת יהודה ואת מקומו של שמעון, ומצרף לתמונה מקורות נוספים על השבטים. הוא עוקב אחר לשונות הברכה והקשרים ביניהן כדי להסביר כיצד כל שבט מופיע ברצף הדברים.",
+          "takeaway": "קריאת הברכות בוחנת גם כל שבט וגם את היחסים בין השבטים.",
+          "display_label": "הסבר נלווה",
+          "source_anchor": "#page=92&view=FitH",
+          "source_basis": "embedded_text_and_visual_page_review",
+          "scope": "selected_passage_not_exhaustive"
+        }
+      ]
     },
     {
       "pdf_page": 93,
