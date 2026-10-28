@@ -25,3 +25,7 @@ Implemented `MothersCorrespondencesModel2029`, three original components with tw
 ## Checkpoint 4 · synoptic doubles
 
 Implemented `SynopticDoublesModel2029`, seven primary identities and 21 printed correspondence fields, PDF106–110; contextual unit105 stays separate. Resh/Tav field callbacks use the existing direct-reading records' narrower PDF110 source regions. Binding verifies source-reading identity, unit/page/ref/anchor and content; missing/mismatched reading evidence fails before rendering. No planet orbit, anatomy, copied Gra assignment or invented graph. Source tests 4/4 (plus prior 7/7) and Chromium smoke 2/2 at 1440/Night passed, including every component/field/context action and GPU/fallback/lifecycle checks. Source assets remain unchanged.
+
+## Checkpoint 5 · Gra doubles and comparison
+
+Implemented `GraDoublesModel2029`, seven identities/28 correspondence fields at PDF184/185, including the existing five direct crown-box readings. Two complete independently bound witness tables preserve source order, differing planets/body gates and Gra-only quality fields; no filling from the other witness. All fourteen comparison-row source callbacks preserve the active Gra return selection and carry their own witness/page. Source tests 5/5 and actual Chromium smoke 2/2 at 1440/Night passed. Reading IDs must also match the component-specific suffix, preventing substitution of another same-page crown box. Wide comparison tables use full available width; final matrix remains pending.

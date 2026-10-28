@@ -25,7 +25,7 @@ export function bindSourceModel(bundle,key) {
   components.forEach(c=>{check(c.source);if(c.stable_id!==`${spec.id}:component:${c.id}`)throw new Error('SOURCE_COMPONENT_ID_MISMATCH');if(expected.kind==='boundaries'&&(c.directions?.length!==2||c.directions.some(d=>!DIRECTION_VECTORS[d])||DIRECTION_VECTORS[c.directions[0]].some((v,i)=>v&&DIRECTION_VECTORS[c.directions[1]][i])))throw new Error('SOURCE_DIRECTION_PAIR_MISSING');if(expected.kind==='seals'&&(!DIRECTION_VECTORS[c.id]||c.seal_letters?.length!==3))throw new Error('SOURCE_SEAL_MISSING');});
   if(expected.kind==='catalog')for(const c of components){if(!c.source_reading_id)continue;
     const reading=bundle.readings?.readings?.find(r=>r.id===c.source_reading_id);
-    if(bundle.readings?.source_identity!==SOURCE_IDENTITY||!reading||reading.structure_id!==spec.id||reading.source.unit_id!==c.source.unit_id||reading.source.pdf_page!==c.source.pdf_page||reading.source.source_ref!==c.source.source_ref||reading.source.source_anchor!==c.source.source_anchor||!reading.source.page_region)throw new Error('SOURCE_READING_MISMATCH');
+    if(bundle.readings?.source_identity!==SOURCE_IDENTITY||!reading||reading.id!==`${spec.id}:reading:${c.id}`||reading.structure_id!==spec.id||reading.source.unit_id!==c.source.unit_id||reading.source.pdf_page!==c.source.pdf_page||reading.source.source_ref!==c.source.source_ref||reading.source.source_anchor!==c.source.source_anchor||!reading.source.page_region)throw new Error('SOURCE_READING_MISMATCH');
     for(const [field] of expected.fields)if(Object.hasOwn(reading.content,field)&&JSON.stringify(reading.content[field])!==JSON.stringify(c[field]))throw new Error('SOURCE_READING_CONTENT_MISMATCH');
   }
   spec.sources.forEach(check);
