@@ -269,7 +269,7 @@ export default function SeferYetzirahWorld2029Page() {
   const [mode, setMode] = useState(()=>typeof window!=='undefined'&&new URLSearchParams(window.location.search).get('pairs')==='open'?'gates':activeGate.mode);
   const [activeLetterPair,setActiveLetterPair]=useState(()=>{const pair=gateSelection(typeof window==='undefined'?'':window.location.search);return [pair.first,pair.second];});
   const [activeCommentatorId, setActiveCommentatorId] = useState("chachmoni");
-  const [activeNode, setActiveNode] = useState(() => defaultNodeForMode(activeGate.mode));
+  const [activeNode, setActiveNode] = useState(() => mode==='gates'?activeLetterPair[0]:defaultNodeForMode(activeGate.mode));
 
   useEffect(() => {
     applySeo({ title: `ספר יצירה · ${activeGate.title}`, description: "ספר יצירה כמרחב תלת־ממדי: עשר ספירות, כ״ב אותיות, רל״א שערים, מקור מלא ופירוש עברי.", path: "/2029/control", noindex: true });
@@ -282,17 +282,18 @@ export default function SeferYetzirahWorld2029Page() {
     window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`);
   };
   const chooseRelation = id => { setRelationId(id || ""); const next = new URL(window.location.href); if (id) next.searchParams.set("relation", id); else next.searchParams.delete("relation"); window.history.replaceState({}, "", `${next.pathname}${next.search}${next.hash}`); };
-  const chooseStructure = (id, first) => { const component = first?.stable_id || ""; setStructureId(id); setComponentId(component); chooseRelation(null); updateStructureUrl(id, component); if (first?.source?.pdf_page) openPage(first.source.pdf_page); moveTo("yetzirah29-structure-learning"); };
+  const resetStructureReturn=()=>{setSourceReturnTarget('yetzirah29-structure-learning');const next=new URL(window.location.href);next.searchParams.delete('sourceReturn');window.history.replaceState({},'',`${next.pathname}${next.search}${next.hash}`);};
+  const chooseStructure = (id, first) => { resetStructureReturn(); const component = first?.stable_id || ""; setStructureId(id); setComponentId(component); chooseRelation(null); updateStructureUrl(id, component); if (first?.source?.pdf_page) openPage(first.source.pdf_page); moveTo("yetzirah29-structure-learning"); };
   const chooseComponent = id => { setComponentId(id); updateStructureUrl(structureId, id); };
   const openStructureSource = payload => {
-    setSourceReturnTarget('yetzirah29-structure-learning');
+    resetStructureReturn();
     setSourceRevision(value=>value+1);
-    const next=new URL(window.location.href);next.searchParams.delete('sourceReturn');window.history.replaceState({},'',`${next.pathname}${next.search}${next.hash}`);
     openPage(payload.source.pdf_page);
     moveTo("yetzirah29-source");
   };
   const openPage = nextPage => {
     if (!Number.isInteger(nextPage) || nextPage < 1 || nextPage > SEFER_YETZIRAH_SOURCE.pdfPages) return;
+    setSourceRevision(value=>value+1);
     setPage(nextPage);
     replaceReadingUrl(nextPage, activeGateId);
   };
@@ -315,7 +316,7 @@ export default function SeferYetzirahWorld2029Page() {
   };
 
   const chooseSceneNode = id => {
-    if(mode==='gates'||mode==='letters'){setActiveLetterPair([id,'']);const expanded=new URLSearchParams(window.location.search).get('pairs')==='open';window.history.replaceState({},'',gateSelectionUrl(window.location.href,id,'',expanded));}
+    if(mode==='gates'||mode==='letters'){setActiveLetterPair([id,'']);setSourceReturnTarget('yetzirah29-letter-lab');setSourceRevision(value=>value+1);const expanded=new URLSearchParams(window.location.search).get('pairs')==='open';const next=new URL(gateSelectionUrl(window.location.href,id,'',expanded),window.location.origin);next.searchParams.set('sourceReturn','letters');window.history.replaceState({},'',`${next.pathname}${next.search}${next.hash}`);}
     setActiveNode(id);
     if (mode === "commentaries") {
       const commentator = SEFER_YETZIRAH_COMMENTATORS.find(item => item.id === id);
@@ -339,7 +340,7 @@ export default function SeferYetzirahWorld2029Page() {
         {[['10','ספירות בלימה','עשרה עומקים'],['22','אותיות יסוד','3 · 7 · 12'],['231','שערים','זוגות אותיות'],['32','נתיבות','10 + 22'],['220','עמודי מקור','כרך מלא']].map(item => <article key={item[0]}><strong>{item[0]}</strong><span>{item[1]}</span><small>{item[2]}</small></article>)}
       </section>
 
-      <SpatialStage mode={mode} onMode={nextMode => { setMode(nextMode); setActiveNode(defaultNodeForMode(nextMode, activeCommentatorId)); }} activeNode={activeNode} activePair={activeLetterPair.filter(Boolean)} onNode={chooseSceneNode} />
+      <SpatialStage mode={mode} onMode={nextMode => { setMode(nextMode); setActiveNode(nextMode==='gates'||nextMode==='letters'?activeLetterPair[0]:defaultNodeForMode(nextMode, activeCommentatorId)); }} activeNode={activeNode} activePair={activeLetterPair.filter(Boolean)} onNode={chooseSceneNode} />
       <StructureCatalog onPage={openPage} structureId={structureId} componentId={componentId} relationId={relationId} onStructure={chooseStructure} onComponent={chooseComponent} onRelation={chooseRelation} onOpenSource={openStructureSource} />
 
       <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
