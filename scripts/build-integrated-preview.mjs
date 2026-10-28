@@ -3,6 +3,7 @@ import { build } from "vite";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
+import { selectMatrixRazielPreview, buildMatrixRazielPreviewWorker } from "./lib/matrix-raziel-preview.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = resolve(root, "preview-deploy/dist");
@@ -84,6 +85,17 @@ if (razielSafeActionsMock) {
   const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({ sha, branch: expectedBranch, transport: "mock-only", product_writes: false, edge_deploy: false }));
 }
+// Matrix discovery Preview: the same read-only worker plus one explicit, matrix-bearing Raziel request.
+// The page still uses the existing global Raziel session and the existing ai-analyze route; nothing is deployed here.
+const selectedMatrixBranch = selectMatrixRazielPreview(process.env);
+if (selectedMatrixBranch) {
+  const matrixWorker = buildMatrixRazielPreviewWorker(worker);
+  await writeFile(resolve(output, "preview-readonly-sw.js"), matrixWorker);
+  await writeFile(resolve(output, "sw.js"), matrixWorker);
+  const { execFileSync } = await import("node:child_process");
+  const sha = process.env.VERCEL_GIT_COMMIT_SHA || execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  await writeFile(resolve(output, "preview-identity.json"), JSON.stringify({ sha, branch: selectedMatrixBranch, transport: "live-ai-analyze-matrix-request-only", product_writes: false, edge_deploy: false }));
+}
 const bootstrap = `<script type="module">if(!('serviceWorker' in navigator)){document.body.textContent='פריוויו זה דורש דפדפן התומך בתצוגה לקריאה בלבד.';}else{await navigator.serviceWorker.register('/preview-readonly-sw.js',{scope:'/'});await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise(r=>navigator.serviceWorker.addEventListener('controllerchange',r,{once:true}));await import('__ENTRY__');}</script>`;
 let html = await readFile(resolve(output, "2029.html"), "utf8");
 const entry = html.match(/<script\b[^>]*type="module"[^>]*src="([^"]+)"[^>]*><\/script>/);
@@ -91,6 +103,10 @@ if (!entry) throw new Error("missing2029Entry");
 html = html.replace(entry[0], bootstrap.replace("__ENTRY__", entry[1]));
 if (razielSafeActionsMock) {
   const notice = '<aside data-raziel-preview-transport="mock-only" role="note" dir="rtl" style="position:fixed;z-index:2147483000;inset-inline:8px;bottom:82px;padding:6px 10px;border:1px solid #98783e;border-radius:8px;background:#fff5de;color:#231b12;font:14px/1.4 Arial;text-align:center;pointer-events:none">פריוויו בדיקה · תשובות דמה בלבד · אין קריאות מודל או כתיבה חיה. אפשר לשאול על משיח, או לכתוב „שמור שיחה”.</aside>';
+  html = html.replace("</body>", notice + "</body>");
+}
+if (selectedMatrixBranch) {
+  const notice = '<aside data-matrix-raziel-preview="live-explicit-request-only" role="note" dir="rtl" style="position:fixed;z-index:2147483000;inset-inline:8px;bottom:82px;padding:6px 10px;border:1px solid #98783e;border-radius:8px;background:#fff5de;color:#231b12;font:14px/1.4 Arial;text-align:center;pointer-events:none">פריוויו בדיקה · רזיאל נקרא רק בלחיצה מפורשת על „בקש מרזיאל לבדוק את המטריצה” · אין כתיבה למוצר.</aside>';
   html = html.replace("</body>", notice + "</body>");
 }
 await writeFile(resolve(output, "2029.html"), html);
